@@ -1,0 +1,58 @@
+body{
+	color:white;
+	border:none;
+	PADDING-TOP: 0px;
+
+}
+
+a:link{
+	text-decoration:none;
+	color: #FDFF9F;
+}
+
+a:visited{
+	text-decoration:none;
+	color: #FDFF9F;
+}
+
+a:active{
+	text-decoration:none;
+	color: #FDFF9F;
+}
+
+a:hover{
+	text-decoration: underline;
+	color : #FAFF1C;
+}
+div{
+        text-indent: 12px;
+        text-align: justify;
+}
+ 
+ H1 {font: 24pt}
+ H2 {font: 20pt}
+ H3 {font: 16pt}
+ 
+TD.special, TR.special {
+	color : #C0EDFE;
+}
+
+TD.boosted, TR.boosted {
+	color : #FFE1E1;
+}
+
+TD.info {
+	color : #97BBFF;
+	text-align : justify;
+}
+
+TD.attention {
+	color : #FF9595;
+	text-align : justify;
+}
+
+
+TD.tip {
+	color : #FEFECB;
+	text-align : justify;
+}

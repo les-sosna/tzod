@@ -1,0 +1,59 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank", "make\tank.vcproj", "{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
+	ProjectSection(ProjectDependencies) = postProject
+		{69802413-3739-43E0-96C9-709713A35B34} = {69802413-3739-43E0-96C9-709713A35B34}
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024} = {E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "auxiliary", "make\auxiliary.vcproj", "{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "make\lua.vcproj", "{69802413-3739-43E0-96C9-709713A35B34}"
+EndProject
+Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 4
+		SccLocalPath0 = .
+		CanCheckoutShared = false
+		SccProjectUniqueName1 = make\\auxiliary.vcproj
+		SccLocalPath1 = .
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection1 = make\\
+		SccProjectUniqueName2 = make\\lua.vcproj
+		SccLocalPath2 = .
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection2 = make\\
+		SccProjectUniqueName3 = make\\tank.vcproj
+		SccLocalPath3 = .
+		CanCheckoutShared = false
+		SccProjectFilePathRelativizedFromConnection3 = make\\
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Profiler|Win32 = Profiler|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Debug|Win32.Build.0 = Debug|Win32
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Profiler|Win32.ActiveCfg = Profiler|Win32
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Profiler|Win32.Build.0 = Profiler|Win32
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Release|Win32.ActiveCfg = Release|Win32
+		{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}.Release|Win32.Build.0 = Release|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Debug|Win32.Build.0 = Debug|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Profiler|Win32.ActiveCfg = Profiler|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Profiler|Win32.Build.0 = Profiler|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Release|Win32.ActiveCfg = Release|Win32
+		{E948F9E9-4577-44FD-BFD7-DEF2DF4F6024}.Release|Win32.Build.0 = Release|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Debug|Win32.Build.0 = Debug|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Profiler|Win32.ActiveCfg = Profiler|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Profiler|Win32.Build.0 = Profiler|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Release|Win32.ActiveCfg = Release|Win32
+		{69802413-3739-43E0-96C9-709713A35B34}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

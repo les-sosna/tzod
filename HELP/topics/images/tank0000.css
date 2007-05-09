@@ -1,0 +1,34 @@
+table.menu
+{
+	font-family: verdana; 
+	font-size:   14px;
+	font-weight: bold;
+	text-align:  center;
+}
+
+td.menu-item
+{
+	border-bottom:    #d0d0d0 2px solid; 
+	width:  86px;
+}
+
+td.menu-separator
+{
+	background-color: #888888;
+	border-bottom:    #d0d0d0 2px solid; 
+	width:  2px;
+}
+
+td.menu-selected
+{
+	border-top:   #d0d0d0 2px solid;
+	border-right: #d0d0d0 2px solid;
+	border-left:  #d0d0d0 2px solid;
+	color:  white;
+	width:  86px;
+}
+
+a:link    {text-decoration: none; color:#bbbbff; }
+a:visited {text-decoration: none; color:#bbbbff; }
+a:hover   {text-decoration: none; color:#ffbbbb; }
+a:active  {text-decoration: none; color:#ffbbbb; }

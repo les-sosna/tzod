@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//RU">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+	<title>Виды вооружения</title>
+	<link rel="STYLESHEET" href="styles.css" type="text/css">
+</head>
+<body background="images\bg.jpg">
+<center><h1>Вооружение</h1></center>
+
+
+
+<table cellspacing="2" cellpadding="0" border="1" style="border-bottom: none; border-left: none; border-top: none; border-right: none">
+<tr>
+    <td rowspan="4" style="border-bottom: none; border-left: none; border-top: none; border-right: none"><div>На данный момент в игре насчитывается восемь полностью уникальных оружий: начиная от простой танковой пушки и оканчивая сверхскоростным таранящим устройством. 
+Каждый вид вооружения имеет не только свои параметры стрельбы - как скорострельность и точность - но и изменяют свойства платформы, на которой они установлены. 
+К примеру, есть оружия утяжелённые - такие обладают большой бронёй, но малой скоростью, а есть наоборот - облегчённые - скоростные и слабобронированные. Кроме
+того, каждое оружие обладает рядом уникальных свойств, и двух похожих пушек Вы в игре не найдёте. Эту уникальность ещё более подчёркивает Бустер оружия, который 
+придаёт разные свойства для разных типов вооружения.</div></td>
+    <td align="middle" width=50 height=40><a href="weaponz.html#heavy"><img src="images/heavy.gif" width="40" height="26" border="0" alt="Тяжёлая пушка"></a></td>
+    <td align="middle" width=50 height=40><a href="weaponz.html#ripper"><img src="images/ripper00.gif" width="34" height="28" border="0" alt="Ripper"></a></td>
+</tr>
+<tr>
+    <td align="middle" width=50 height=40><a href="weaponz.html#rocket"><img src="images/rl000000.gif" width="29" height="25" border="0" alt="Ракетный комплекс АК-47"></a></td>
+    <td align="middle" width=50 height=40><a href="weaponz.html#gauss"><img src="images/gauss000.gif" width="44" height="25" border="0" alt="Пушка Гаусса"></a></td>
+</tr>
+<tr>
+    <td align="middle" width=50 height=40><a href="weaponz.html#minigun"><img src="images/mg000000.gif" width="29" height="16" border="0" alt="Пулемёт"></a></td>
+    <td align="middle" width=50 height=40><a href="weaponz.html#bfg"><img src="images/bfg.gif" width="43" height="29" border="0" alt="BFG"></a></td>
+</tr>
+<tr>
+    <td align="middle" width=50 height=40><a href="weaponz.html#machinegun"><img src="images/ac000000.gif" width="38" height="34" border="0" alt="Автоматическая пушка"></a></td>
+    <td align="middle" width=50 height=40><a href="weaponz.html#taran"><img src="images/ram.gif" width="48" height="37" border="0" alt="Таран"></a></td>
+</tr>
+</table>
+<div>Поднятое с игрового пространства оружие мгновенно устанавливается на платформу и готово к работе. Если до этого на танке уже стояло какая-либо пушка, то она "катапультируется" 
+и доставляется на исходную точку - там, где её подобрали, - через 6 секунд. В случае взрыва танка-носителя его оружие остаётся лежать на асфальте 15 секунд и ждать своего нового хозяина.
+В критический момент - за 3 секунды до кончины - оружие замигает и исчезнет, и через 6 секунд также возникнет на исходной точке.</div>
+<div>Для удобства ознакомления со свойствами оружий они были занесены в таблицы. Описание всех стандартных параметров занесены в похожую таблицу ниже.</div><br>
+<table cellspacing="0" cellpadding="0" border="1" width=100%>
+<tr height=3% align=center>
+    <td>Категория</td>
+    <td>Свойство</td>
+	<td>Описание</td>
+    <td>Еденицы</td>
+</tr>
+<tr valign=top align=center>
+    <td rowspan=4>Платформа</td>
+    <td>броня</td>
+	<td style="text-align: justify">максимальное количество хит-поинтов. Если оно становится равно нулю, танк взрывается.</td>
+    <td>hp</td>
+</tr>
+<tr valign=top align=center>
+    <td>скорость</td>
+    <td style="text-align: justify">максимальная скорость платформы при данном вооружении. Почти во всех случаях скорость при движении вперёд и назад отличаются, поэтому их значения вынесены в 
+разные группы.</td>
+    <td>px/сек</td>
+</tr>
+<tr valign=top align=center>
+    <td>ускорение</td>
+    <td style="text-align: justify">чем больше ускорение, тем быстрее платформа наберёт свою максимальную скорость. Аналогично скорости, ускорение при движении вперёд и назад обычно различны.</td>
+    <td>px/сек<sup>2</sup></td>
+</tr>
+<tr valign=top align=center>
+    <td>торможение</td>
+    <td style="text-align: justify">когда игрок отпускает кнопку движения, платформа останавливается не сразу. Чем больше значение торможения, тем быстрее она остановится.</td>
+    <td>px/сек<sup>2</sup></td>
+</tr>
+<tr valign=top align=center>
+	<td rowspan=4>Орудие</td>
+    <td>урон</td>
+    <td style="text-align: justify">Это значение вычитается из брони вражеского танка при попадении. Если урон наносится неоднородно, например, взрывом, то его значение пишется с предлогом "до". 
+То есть, это максимальное значение в эпицентре.</td>
+    <td>hp, hp/сек</td>
+</tr>
+<tr valign=top align=center>
+	<td>скорострельность</td>
+	<td style="text-align: justify">количество выстрелов, которое способно произвести оружие за одну секунду.</td>
+	<td>выстрел/сек</td>
+</tr>
+<tr valign=top align=center>
+	<td>скорось снаряда</td>
+	<td style="text-align: justify">скорость снаряда для данного вида вооружения</td>
+	<td>px/сек</td>
+</tr>
+<tr valign=top align=center>
+	<td>разброс</td>
+	<td style="text-align: justify">неизбежное случайное отклоение выпускаемого снаряда от цели</td>
+	<td>градусы</td>
+</tr>
+</table>
+<br><div>Для удобства к ознакомлению все параметры были разделены на четыре категории. Две из них Вы видели в таблице выше - это "Платформа" и "Орудие". У всех оружий эти категории очень схожи, однако 
+встречаются и исключения. Такие особенности выделены <font color="#C0EDFE">светло-голубым</font> шрифтом. Также таким шрифтом выделена категория "Специальное", так как в неё занесены все 
+особые параметры и свойства оружий. Категория "Бустер" выделена <font color="#FFE1E1">светло-красным</font> цветом и содержит все стандартные и особые параметры и свойства, которые придаёт данному оружию 
+бустер. Если какое-либо из свойств здесь не указано, то оно остаётся неизменным.</div>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=tank.chm
+Contents file=tank.hhc
+Default Window=main
+Default topic=topics\begin.html
+Display compile progress=No
+Language=0x419 Русский
+
+[WINDOWS]
+main="Танк - Зона Смерти: руководство","tank.hhc",,"topics\begin.html",,"http://www.ins-games.narod.ru","Официальный сайт",,,0x2120,200,0x4100e,[208,31,1008,631],0x1030000,0x10,,,,,0
+
+
+[FILES]
+topics\begin.html
+
+[INFOTYPES]
+

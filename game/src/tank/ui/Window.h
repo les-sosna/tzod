@@ -1,0 +1,189 @@
+// Window.h
+
+#pragma once
+
+
+// forward declaration
+class GuiManager;
+
+
+namespace UI
+{
+#define INVOKE(d) ((d).inst()->*(d).func())
+
+template<class F>
+class Delegate
+{
+    struct blank {};         // base for all targets
+    typedef F (blank::*mp);  // type pointer to member
+
+    blank  *_inst;
+    mp      _func;
+
+public:
+	Delegate()
+	{
+		_inst = NULL;
+		_func = NULL;		
+	}
+
+	blank* inst() const { return _inst; }
+	mp     func() const { return _func; }
+
+    template<class signature, class inst_type>
+    void bind (signature pmf, inst_type *p_this)
+    {
+		_ASSERT(pmf);
+		_ASSERT(p_this);
+        typedef F (inst_type::*mem_fn);
+        mem_fn tmp = static_cast<mem_fn>(pmf); // safe(!) cast
+        _func = reinterpret_cast<mp>(tmp);     // unsafe, but it has been checked above
+		_inst = reinterpret_cast<blank*>(p_this);
+    }
+	operator bool () const
+	{
+		return NULL != _inst;
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Window : public RefCounted
+{
+	GuiManager *_manager;
+
+	Window* _parent;
+	Window* _firstChild;
+	Window* _lastChild;
+	Window* _prevSibling;
+	Window* _nextSibling;
+
+
+	//
+	// size and position
+	//
+
+	float _x;
+	float _y;
+	float _width;
+	float _height;
+
+
+	//
+	// attributes
+	//
+
+	SpriteColor  _color;
+	size_t       _texture;
+	int          _frame;
+	float        _texWidth;
+	float        _texHeight;
+
+	bool         _isDestroyed;
+	bool         _isVisible;
+	bool         _isEnabled;
+	bool         _isTopMost;
+	bool         _hasBorder;
+	bool         _clipChildren;
+
+	void Reg(Window* parent, GuiManager* manager);
+
+protected:
+	void SetFrame(int n) { _frame = n; }
+	void ClipChildren(bool clip) { _clipChildren = clip; }
+
+	float GetFrameWidth() const { return _texWidth; }
+	float GetFrameHeight() const { return _texHeight; }
+
+	void SetCapture();
+	void ReleaseCapture();
+
+protected:
+	virtual ~Window(); // delete via Destroy()
+
+public:
+	Window(GuiManager* manager); // constructor for top level window
+	Window(Window* parent);
+	Window(Window* parent, float x, float y, const char *texture);
+
+	void Destroy();
+
+	bool IsDestroyed() const { return _isDestroyed; }
+	bool IsEnabled()   const { return _isEnabled;   }
+	bool IsVisible()   const { return _isVisible;   }
+	bool IsTopMost()   const { return _isTopMost;   }
+	bool IsCaptured()  const;
+
+	float GetTextureWidth()  const { return _texWidth;  }
+	float GetTextureHeight() const { return _texHeight; }
+	float GetWidth()  const { return _width;  }
+	float GetHeight() const { return _height; }
+	float GetX()      const { return _x;     }
+	float GetY()      const { return _y;     }
+
+	void  SetColor(SpriteColor color) { _color     = color;  }
+	void  SetBorder(bool border)      { _hasBorder = border; }
+
+	Window* GetParent() const { return _parent; }
+	Window* GetPrevSibling() const { return _prevSibling; }
+	Window* GetNextSibling() const { return _nextSibling; }
+	Window* GetFirstChild()  const { return _firstChild;  }
+	Window* GetLastChild()   const { return _lastChild;   }
+	GuiManager* GetManager() const { return _manager;     }
+
+
+	virtual void Draw(float sx = 0, float sy = 0);
+	virtual void DrawChildren(float sx, float sy);
+	void SetTexture(const char *tex);
+
+	void Move(float x, float y);
+	void Resize(float width, float height);
+
+	void Enable(bool enable) { OnEnable(_isEnabled = enable); }
+	void Show  (bool show)   { _isVisible = show;   }
+
+	void SetTopMost(bool topmost);
+
+
+
+	//
+	// mouse handlers
+	//
+
+	virtual bool OnMouseDown (float x, float y, int button);
+	virtual bool OnMouseUp   (float x, float y, int button);
+	virtual bool OnMouseMove (float x, float y);
+	virtual bool OnMouseEnter(float x, float y);
+	virtual bool OnMouseLeave();
+	virtual bool OnMouseWheel(float x, float y, float z);
+
+
+	//
+	// keyboard handlers
+	//
+
+	virtual void OnChar(int c);
+	virtual void OnRawChar(int c);
+
+
+	//
+	// size & position handlers
+	//
+
+	virtual void OnMove(float x, float y);
+	virtual void OnSize(float width, float height);
+	virtual void OnParentSize(float width, float height);
+
+
+	//
+	// other
+	//
+
+	virtual void OnEnable(bool enable);
+	virtual bool OnFocus(bool focus); // return true if the window took focus
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+} // end of namespace UI
+// end of file
