@@ -30,7 +30,7 @@ sub process_dir
 		#	my $out = "$path_out/$in";
 			my $out = $in;
 			$out =~ s/wav$/ogg/;
-			my $cmd = "../bin_tools/venc -q9 $in";
+			my $cmd = "../tools_bin/venc -q9 $in";
 			print "$cmd\n";
 			print `$cmd`;
 
