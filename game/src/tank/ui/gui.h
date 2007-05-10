@@ -47,21 +47,24 @@ protected:
 
 protected:
 	void OnAddPlayer();
-	void OnRemovePlayer();
-	void OnEditPlayer();
+	void OnAddPlayerClose(int result);
 
-	void OnClosePlayerDlg(int result);
+	void OnEditPlayer();
+	void OnEditPlayerClose(int result);
+
+	void OnRemovePlayer();
 
 	void OnOK();
 	void OnCancel();
 
-	void OnSelectPlayer();
+	void OnSelectPlayer(int index);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class EditPlayerDlg : public Dialog
 {
+	Edit     *_name;
 	ComboBox *_types;
 	ComboBox *_skins;
 	ComboBox *_classesCombo;
@@ -79,7 +82,7 @@ protected:
 	void OnOk();
 	void OnCancel();
 
-	void OnChangeSkin();
+	void OnChangeSkin(int index);
     
 };
 

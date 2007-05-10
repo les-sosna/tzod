@@ -9,6 +9,8 @@
 
 namespace UI
 {
+class Window;
+
 class Button;
 class ButtonBase;
 class CheckBox;

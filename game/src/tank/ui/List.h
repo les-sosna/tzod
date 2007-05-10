@@ -2,14 +2,11 @@
 
 #pragma once
 
+#include "Base.h"
 #include "Window.h"
 
 namespace UI
 {
-// forward declarations
-class ScrollBar;
-class Text;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // multi-column ListBox control
@@ -57,8 +54,8 @@ public:
 	int  HitTest(float y); // returns index of item
 
 
-	Delegate<void(void)> eventChangeCurSel;
-	Delegate<void(int)>  eventClickItem;
+	Delegate<void(int)> eventChangeCurSel;
+	Delegate<void(int)> eventClickItem;
 
 
 protected:

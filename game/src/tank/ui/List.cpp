@@ -119,7 +119,7 @@ void List::SetCurSel(int sel, bool scroll)
 	}
 	if( eventChangeCurSel )
 	{
-		INVOKE(eventChangeCurSel) ();
+		INVOKE(eventChangeCurSel) (sel);
 	}
 }
 

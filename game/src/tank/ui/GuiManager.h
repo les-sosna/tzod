@@ -2,13 +2,10 @@
 
 #pragma once
 
+#include "Base.h"
+
 
 // forward declarations
-namespace UI
-{
-	class Window;
-	class MouseCursor;
-}
 class GuiManager;
 
 typedef UI::Window* (*CreateWindowProc) (GuiManager *);

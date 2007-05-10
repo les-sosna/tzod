@@ -412,15 +412,18 @@ void TextureManager::bind(size_t index)
 	g_render->TexBind(_LogicalTextures[index].dev_texture);
 }
 
-void TextureManager::GetTextureNames(std::vector<string_t> &names, const char *prefix) const
+void TextureManager::GetTextureNames(std::vector<string_t> &names,
+									 const char *prefix, bool noPrefixReturn) const
 {
+	size_t trimLength = (prefix && noPrefixReturn) ? strlen(prefix) : 0;
+
 	names.clear();
 	std::map<string_t, size_t>::const_iterator it = _mapName_to_Index.begin();
 	for(; it != _mapName_to_Index.end(); ++it )
 	{
 		if( prefix && 0 != it->first.find(prefix) )
 			continue;
-		names.push_back(it->first);
+		names.push_back(it->first.substr(trimLength));
 	}
 }
 

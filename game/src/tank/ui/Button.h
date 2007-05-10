@@ -2,15 +2,13 @@
 
 #pragma once
 
+#include "Base.h"
 #include "Window.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace UI
 {
-// forward declarations
-class Text;
-
 
 // base class for all button stuff
 class ButtonBase : public Window

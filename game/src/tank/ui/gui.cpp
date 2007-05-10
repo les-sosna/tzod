@@ -217,6 +217,8 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 void NewGameDlg::RefreshPlayersList()
 {
+	int selected = _players->GetCurSel();
+
 	_players->DeleteAllItems();
 
 	for( int i = 0; i < OPT(dm_nPlayers); ++i )
@@ -232,6 +234,8 @@ void NewGameDlg::RefreshPlayersList()
 
 		_players->SetItemText(index, 3, s);
 	}
+
+	_players->SetCurSel(__min(selected, _players->GetSize()-1));
 }
 
 void NewGameDlg::OnAddPlayer()
@@ -242,7 +246,7 @@ void NewGameDlg::OnAddPlayer()
 	ZeroMemory(&pd, sizeof(PlayerDesc));
 
 	std::vector<string_t> skinNames;
-	g_texman->GetTextureNames(skinNames, "skin/");
+	g_texman->GetTextureNames(skinNames, "skin/", true);
 	strcpy(pd.skin, skinNames[rand() % skinNames.size()].c_str());
 
 	strcpy(pd.name, "new player");
@@ -256,7 +260,17 @@ void NewGameDlg::OnAddPlayer()
 
 	pd.type = -1;
 
-	new EditPlayerDlg(this, pd, disablePlayers);
+	(new EditPlayerDlg(this, pd, disablePlayers))
+		->eventClose.bind( &NewGameDlg::OnAddPlayerClose, this );
+}
+
+void NewGameDlg::OnAddPlayerClose(int result)
+{
+	if( _resultOK == result )
+	{
+		++g_options.dm_nPlayers;
+		RefreshPlayersList();
+	}
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -275,11 +289,24 @@ void NewGameDlg::OnRemovePlayer()
 
 void NewGameDlg::OnEditPlayer()
 {
-//	PlayerDescEx pd;
-//	new EditPlayerDlg(this, pde);
+	int index = _players->GetCurSel();
+	_ASSERT(-1 != index);
+
+	DWORD disablePlayers = 0;
+	for( int i = 0; i < g_options.dm_nPlayers; ++i )
+	{
+		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
+		if( index != i )
+		{
+			disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
+		}
+	}
+
+	(new EditPlayerDlg(this, g_options.dm_pdPlayers[index], disablePlayers))
+		->eventClose.bind( &NewGameDlg::OnEditPlayerClose, this );
 }
 
-void NewGameDlg::OnClosePlayerDlg(int result)
+void NewGameDlg::OnEditPlayerClose(int result)
 {
 	if( _resultOK == result )
 	{
@@ -343,11 +370,10 @@ void NewGameDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-void NewGameDlg::OnSelectPlayer()
+void NewGameDlg::OnSelectPlayer(int index)
 {
-	bool enable = -1 != _players->GetCurSel();
-	_removePlayer->Enable( enable );
-	_changePlayer->Enable( enable );
+	_removePlayer->Enable( -1 != index );
+	_changePlayer->Enable( -1 != index );
 }
 
 void NewGameDlg::OnRawChar(int c)
@@ -380,8 +406,15 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 
 
 
+	//
+	// player name field
+	//
+
 	new Text(this, 8, y, "Имя", alignTextLT);
-	new Edit(this, x, y-=1, 200);
+	_name = new Edit(this, x, y-=1, 200);
+	_name->SetText(_playerDesc.name);
+
+
 
 
 
@@ -405,15 +438,15 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 			wsprintf(s, "человек %d", type+1);
 			lst->AddItem(s, type);
 			if( _playerDesc.type == type )
-				lst->SetCurSel(index);
+				_types->SetCurSel(index);
 			++index;
 		}
 	}
 	lst->AddItem("компьютер", MAX_HUMANS);
 	if( -1 == _playerDesc.type )
-		lst->SetCurSel(0);
+		_types->SetCurSel(0);
 	else if (MAX_HUMANS == _playerDesc.type)
-		lst->SetCurSel(index);
+		_types->SetCurSel(index);
 
 
 
@@ -427,11 +460,15 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
 	lst = _skins->GetList();
 	std::vector<string_t> names;
-	g_texman->GetTextureNames(names, TEXT("skin/"));
+	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
-		lst->AddItem( names[i].c_str() );
+		int index = lst->AddItem( names[i].c_str() );
+		if( names[i] == _playerDesc.skin )
+			_skins->SetCurSel(index);
 	}
+	if( -1 == _skins->GetCurSel() )
+		_skins->SetCurSel(0);
 
 
 	//
@@ -451,14 +488,14 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
 		_classesNames.push_back(val);
 		
-		_classesCombo->GetList()->AddItem(val.first.c_str());
+		int index = _classesCombo->GetList()->AddItem(val.first.c_str());
 		if( val.first == _playerDesc.cls )
 		{
-		//	SendDlgItemMessage(hDlg, IDC_CLASS, CB_SETCURSEL, index, 0);
-		//	index = i;
+			_classesCombo->SetCurSel(index);
 		}
 	}
-
+	if( -1 == _classesCombo->GetCurSel() )
+		_classesCombo->SetCurSel(0);
 
 
 
@@ -472,10 +509,13 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 
 void EditPlayerDlg::OnOk()
 {
-//	Close(_resultOK);
+	_playerDesc.type = (short) _types->GetList()->GetItemData( _types->GetCurSel() );
 
-	new SkinSelectorDlg(this);
+	strcpy( _playerDesc.name, _name->GetText().c_str() );
+	strcpy( _playerDesc.skin, _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
+	strcpy( _playerDesc.cls, _classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
 
+	Close(_resultOK);
 }
 
 void EditPlayerDlg::OnCancel()
@@ -483,10 +523,13 @@ void EditPlayerDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-void EditPlayerDlg::OnChangeSkin()
+void EditPlayerDlg::OnChangeSkin(int index)
 {
-	_skinPreview->SetTexture( _skins->GetList()->GetItemText(_skins->GetList()->GetCurSel(), 0).c_str() );
-	_skinPreview->Resize( _skinPreview->GetTextureWidth(), _skinPreview->GetTextureHeight() );
+	if( -1 != index )
+	{
+		_skinPreview->SetTexture( ("skin/" + _skins->GetList()->GetItemText(index, 0)).c_str() );
+		_skinPreview->Resize( _skinPreview->GetTextureWidth(), _skinPreview->GetTextureHeight() );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -495,7 +538,7 @@ SkinSelectorDlg::SkinSelectorDlg(Window *parent)
   : Dialog(parent, 0, 0, 512, 256)
 {
 	std::vector<string_t> names;
-	g_texman->GetTextureNames(names, TEXT("skin/"));
+	g_texman->GetTextureNames(names, "skin/", false);
 
 	float x = 2;
 	float y = 2;

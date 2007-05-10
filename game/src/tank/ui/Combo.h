@@ -2,18 +2,12 @@
 
 #pragma once
 
+#include "Base.h"
 #include "Window.h"
 
 
 namespace UI
 {
-;
-
-// forward declarations
-class Text;
-class List;
-class ButtonBase;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // ComboBox control
@@ -24,19 +18,23 @@ class ComboBox : public Window
 	List        *_list;
 	ButtonBase  *_btn;
 
+	int _curSel;
+
 public:
 	ComboBox(Window *parent, float x, float y, float width);
+
+	void SetCurSel(int index);
+	int GetCurSel() const;
 
 	List* GetList() const;
 	void DropList();
 
-	Delegate<void(void)> eventChangeCurSel;
-
+	Delegate<void(int)> eventChangeCurSel;
 
 protected:
-	void OnSelectItem(int index);
+	void OnClickItem(int index);
+	void OnChangeSelection(int index);
 };
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
