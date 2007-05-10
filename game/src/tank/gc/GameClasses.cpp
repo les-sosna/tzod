@@ -1356,7 +1356,7 @@ void GC_TextScore::Refresh()
 	ENUM_BEGIN(players, GC_Player, pPlayer)
 	{
 		if (pPlayer->IsKilled()) continue;
-		_players.push_back( PLAYERDESC() );
+		_players.push_back( PlayerDesc() );
 		_players.back().score = pPlayer->_score;
 		strcpy(_players.back().name, pPlayer->_name);
 	} ENUM_END();
@@ -1371,9 +1371,9 @@ void GC_TextScore::Refresh()
 	{
 		if( _players[j].score < _players[j+1].score )
 		{
-			PLAYERDESC tmp = _players[j+1];
-			_players[j+1] = _players[j];
-			_players[j]   = tmp;
+			PlayerDesc tmp = _players[j+1];
+			_players[j+1]  = _players[j];
+			_players[j]    = tmp;
 		}
 	}
 }

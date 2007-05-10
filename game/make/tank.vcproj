@@ -391,11 +391,23 @@
 				Name="GUI"
 				>
 				<File
-					RelativePath="..\src\tank\ui\gui.cpp"
+					RelativePath="..\src\tank\ui\Button.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\tank\ui\gui_base.cpp"
+					RelativePath="..\src\tank\ui\Combo.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Dialog.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Edit.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\gui.cpp"
 					>
 				</File>
 				<File
@@ -411,7 +423,23 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\ui\List.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\MousePointer.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\ui\SaveLoad.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Scroll.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Text.cpp"
 					>
 				</File>
 				<File
@@ -668,11 +696,27 @@
 				Name="GUI"
 				>
 				<File
-					RelativePath="..\src\tank\ui\gui.h"
+					RelativePath="..\src\tank\ui\Base.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\tank\ui\gui_base.h"
+					RelativePath="..\src\tank\ui\Button.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Combo.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Dialog.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Edit.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\gui.h"
 					>
 				</File>
 				<File
@@ -688,7 +732,23 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\ui\List.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\MousePointer.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\ui\SaveLoad.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Scroll.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\Text.h"
 					>
 				</File>
 				<File

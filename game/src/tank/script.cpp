@@ -254,7 +254,7 @@ int luaT_ConvertVehicleClass(lua_State *L)
 //
 static int luaT_addplayer(lua_State *L)
 {
-	PLAYERDESC pd = {0};
+	PlayerDesc pd = {0};
 
 	if( !g_level )
 		return luaL_error(L, "no map loaded");
@@ -326,11 +326,11 @@ static int luaT_addplayer(lua_State *L)
 	//
 	// add player
 	//
-	GC_Player *pPlayer = new GC_Player(pd.team);
-	pPlayer->SetController(pd.type);
-	strcpy(pPlayer->_name,  pd.name);
-	strcpy(pPlayer->_skin,  pd.skin);
-	strcpy(pPlayer->_class, pd.cls);
+	GC_Player *player = new GC_Player(pd.team);
+	player->SetController(pd.type);
+	strcpy(player->_name,  pd.name);
+	strcpy(player->_skin,  pd.skin);
+	strcpy(player->_class, pd.cls);
 
 	return 0;
 }

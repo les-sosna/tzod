@@ -83,6 +83,7 @@ void MyRegisterClass(HINSTANCE hInstance)
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 void GetVehClassesList(std::vector<std::pair<string_t, string_t> > &ls)
 {
 	std::pair<string_t, string_t> val;
@@ -100,6 +101,7 @@ void GetVehClassesList(std::vector<std::pair<string_t, string_t> > &ls)
 		ls.push_back(val);
 	}
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -938,6 +940,7 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
+/*
 LRESULT CALLBACK dlgAddPlayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -1070,6 +1073,7 @@ LRESULT CALLBACK dlgAddPlayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 	}
     return FALSE;
 }
+*/
 
 /*
 void dmUpdateUI (HWND hDlg)
@@ -1610,7 +1614,7 @@ DWORD plCheckPlayers(GC_Player *pExcept)
 	return dwHasPlayers;
 }
 
-
+/*
 LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PLAYERDESCEX pdex;
@@ -1840,6 +1844,7 @@ LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	}
     return FALSE;
 }
+*/
 
 void SetVolume(LONG lVolume)
 {
@@ -2075,6 +2080,8 @@ void mainUpdateUI(HWND hDlg)
 	EnableWindow(GetDlgItem(hDlg, IDC_PLAYERS), NULL != g_level && OPT(bAllowPlayerChange));
 }
 
+
+/*
 LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static HMENU _hMenu;
@@ -2234,22 +2241,22 @@ LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 				}
 			} break;
-/*			case IDM_IMPORT:
-			{
-				char FileName[MAX_PATH] = {0};
-				if( Import(hDlg, FileName) )
-				{
-					if ( LEVEL_INIT_PARAM(init_import_and_edit, FileName) )
-					{
-						EndDialog(hDlg, 0);
-					}
-					else
-					{
-						MessageBoxT(hDlg, "Не удалось импортировать карту", MB_ICONERROR|MB_OK);
-						mainUpdateUI(hDlg);
-					}
-				}
-			} break;*/
+//			case IDM_IMPORT:
+//			{
+//				char FileName[MAX_PATH] = {0};
+//				if( Import(hDlg, FileName) )
+//				{
+//					if ( LEVEL_INIT_PARAM(init_import_and_edit, FileName) )
+//					{
+//						EndDialog(hDlg, 0);
+//					}
+//					else
+//					{
+//						MessageBoxT(hDlg, "Не удалось импортировать карту", MB_ICONERROR|MB_OK);
+//						mainUpdateUI(hDlg);
+//					}
+//				}
+//			} break;
 			//-----------------------------------------------------------------
 			case IDC_OPTIONS:
 				LOGOUT_1("DialogBox(IDD_OPTIONS)\n");
@@ -2281,6 +2288,7 @@ LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
     return FALSE;
 }
+*/
 
 LRESULT CALLBACK dlgSelectObject(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -2679,7 +2687,7 @@ LRESULT CALLBACK dlgWinampControl(HWND hDlg, UINT message, WPARAM wParam, LPARAM
     return FALSE;
 }
 
-
+/*
 LRESULT CALLBACK dlgCreateServer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -2955,7 +2963,7 @@ LRESULT CALLBACK dlgConnect(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	}
     return FALSE;
 }
-
+*/
 
 void OutputTextBox(HWND hWndTB, LPCTSTR fmt, ...)
 {
@@ -2990,7 +2998,7 @@ void OutputTextBox(HWND hWndTB, LPCTSTR fmt, ...)
 }
 
 
-
+/*
 
 LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -3240,31 +3248,31 @@ LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 					g_level->_client->SendDataToServer(db);
 				}
 			} break;
-/*			case IDC_KICK:
-			{
-				HWND hwndLV = GetDlgItem(hDlg, IDC_PLRLIST);
-				int index = ListView_GetSelectionMark(hwndLV);
-				if (-1 != index && IDYES == MessageBoxT(hDlg, "Удалить игрока?", MB_YESNO|MB_ICONQUESTION))
-				{
-					LVITEM lvi = {0};
-					lvi.iItem = index;
-					lvi.iSubItem = 0;
-					lvi.mask = LVIF_PARAM;
-
-					ListView_GetItem(hwndLV, &lvi);
-					_ASSERT(lvi.lParam);
-
-					((GC_Player *) lvi.lParam)->Kill();
-					ListView_DeleteItem(hwndLV, index);
-
-					if (0 == ListView_GetItemCount(hwndLV))
-					{
-						EnableWindow(hwndLV, FALSE);
-						SetFocus(GetDlgItem(hDlg, IDC_ADD));
-					}
-				}
-			} break;
-*/			case IDOK:
+//			case IDC_KICK:
+//			{
+//				HWND hwndLV = GetDlgItem(hDlg, IDC_PLRLIST);
+//				int index = ListView_GetSelectionMark(hwndLV);
+//				if (-1 != index && IDYES == MessageBoxT(hDlg, "Удалить игрока?", MB_YESNO|MB_ICONQUESTION))
+//				{
+//					LVITEM lvi = {0};
+//					lvi.iItem = index;
+//					lvi.iSubItem = 0;
+//					lvi.mask = LVIF_PARAM;
+//
+//					ListView_GetItem(hwndLV, &lvi);
+//					_ASSERT(lvi.lParam);
+//
+//					((GC_Player *) lvi.lParam)->Kill();
+//					ListView_DeleteItem(hwndLV, index);
+//
+//					if (0 == ListView_GetItemCount(hwndLV))
+//					{
+//						EnableWindow(hwndLV, FALSE);
+//						SetFocus(GetDlgItem(hDlg, IDC_ADD));
+//					}
+//				}
+//			} break;
+			case IDOK:
 			{
 				DataBlock db(sizeof(dbPlayerReady));
 				db.type() = DBTYPE_PLAYERREADY;
@@ -3362,6 +3370,8 @@ LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	}
     return FALSE;
 }
+
+*/
 
 
 ///////////////////////////////////////////////////////////////////////////////

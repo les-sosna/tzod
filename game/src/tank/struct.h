@@ -76,7 +76,7 @@ typedef struct PLAYER
 #define MAX_PLRNAME	30
 #define MAX_VEHCLSNAME	30
 
-typedef struct PLAYERDESC
+struct PlayerDesc
 {
 	char name[MAX_PLRNAME];
 	char skin[MAX_PATH];
@@ -86,16 +86,16 @@ typedef struct PLAYERDESC
 		short score;
 		short type;
 	};
-} PLAYERDESC, *LPPLAYERDESC;
+};
 
-typedef struct PLAYERDESCEX : public PLAYERDESC
+struct PlayerDescEx : public PlayerDesc
 {
 	union
 	{
 		DWORD dwHasPlayers; // флаги, означающие присутствие игроков в списке
 		DWORD dwNetworkId;
 	};
-} PLAYERDESCEX, *LPPLAYERDESCEX;
+};
 
 //----------------------------------------------------------
 

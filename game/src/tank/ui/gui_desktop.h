@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "gui_base.h"
+#include "Window.h"
 
 namespace UI
 {

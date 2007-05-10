@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "gui_base.h"
+#include "Base.h"
+#include "Dialog.h"
 
 namespace UI
 {
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class MainMenuDlg : public Dialog
@@ -64,12 +64,16 @@ class EditPlayerDlg : public Dialog
 {
 	ComboBox *_types;
 	ComboBox *_skins;
-	ComboBox *_classes;
+	ComboBox *_classesCombo;
 
 	Window   *_skinPreview;
 
+	std::vector<std::pair<string_t, string_t> > _classesNames;
+
+	PlayerDesc &_playerDesc;
+
 public:
-	EditPlayerDlg(Window *parent);
+	EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disablePlayers);
 
 protected:
 	void OnOk();

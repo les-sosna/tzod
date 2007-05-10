@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "GuiManager.h"
 
-#include "gui_base.h"
+#include "MousePointer.h"
 
 #include "video/RenderBase.h"
 

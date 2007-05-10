@@ -165,10 +165,10 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 		// получение данных игрока
 		//
 
-		DataBlock new_player = DataBlock(sizeof(PLAYERDESCEX));
+		DataBlock new_player = DataBlock(sizeof(PlayerDescEx));
 		result = pData->it->s.Recv(pData->it->stop, new_player.raw_data(), new_player.raw_size());
 		if( result ) throw result;
-		memcpy(&pData->it->desc, new_player.data(), sizeof(PLAYERDESC));
+		memcpy(&pData->it->desc, new_player.data(), sizeof(PlayerDesc));
 
 
 
@@ -200,8 +200,8 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 			{
 				if( it->connected )
 				{
-					PLAYERDESCEX pde;
-					memcpy(&pde, &it->desc, sizeof(PLAYERDESC));
+					PlayerDescEx pde;
+					memcpy(&pde, &it->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
 					pde.dwNetworkId = it->id;
 
 					db = DataWrap(pde, DBTYPE_NEWPLAYER);
@@ -219,7 +219,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 			//
 			// извещение остальных игроков о пополнении
 			//
-			((LPPLAYERDESCEX) new_player.data())->dwNetworkId = pData->it->id;
+			((PlayerDescEx *) new_player.data())->dwNetworkId = pData->it->id;
 			pData->pServer->SendMainThreadData(pData->it->id, new_player);
 		}
         LeaveCriticalSection(&pData->pServer->_csClients);
@@ -254,16 +254,16 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 				{
 				case DBTYPE_NEWPLAYER:
 				{
-					_ASSERT(sizeof(PLAYERDESC) == db.size());
-					if( sizeof(PLAYERDESC) != db.size() ) break;
-					PLAYERDESCEX pde;
-					memcpy(&pde, db.data(), sizeof(PLAYERDESC));
+					_ASSERT(sizeof(PlayerDesc) == db.size());
+					if( sizeof(PlayerDesc) != db.size() ) break;
+					PlayerDescEx pde;
+					memcpy(&pde, db.data(), sizeof(PlayerDesc)); // copy PlayerDesc part only
 					EnterCriticalSection(&pData->pServer->_csClients);
 					pde.dwNetworkId = ++pData->pServer->_nextFreeId;
 					LeaveCriticalSection(&pData->pServer->_csClients);
-					db = DataBlock(sizeof(PLAYERDESCEX));
+					db = DataBlock(sizeof(PlayerDescEx));
 					db.type() = DBTYPE_NEWPLAYER;
-					db.cast<PLAYERDESCEX>() = pde;
+					db.cast<PlayerDescEx>() = pde;
 					pData->pServer->SendMainThreadData(pData->it->id, db);
 				} break;
 				case DBTYPE_CONTROLPACKET:

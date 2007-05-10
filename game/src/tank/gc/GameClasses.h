@@ -383,8 +383,8 @@ private:
 	bool _bOldLimit;
 
 protected:
-	// PLAYERDESC::index будет использоваться для хранения фрагов
-	std::vector<PLAYERDESC>	_players;
+	// PlayerDesc::index будет использоваться для хранения фрагов
+	std::vector<PlayerDesc>	_players;
 
 	void Refresh();
 

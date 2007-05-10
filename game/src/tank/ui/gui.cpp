@@ -2,6 +2,12 @@
 
 #include "stdafx.h"
 #include "gui.h"
+#include "Button.h"
+#include "List.h"
+#include "Text.h"
+#include "Edit.h"
+#include "Combo.h"
+
 #include "GuiManager.h"
 
 #include "functions.h"
@@ -230,7 +236,27 @@ void NewGameDlg::RefreshPlayersList()
 
 void NewGameDlg::OnAddPlayer()
 {
-	new EditPlayerDlg(this);
+	_ASSERT(g_options.dm_nPlayers < MAX_PLAYERS);
+
+	PlayerDesc &pd = g_options.dm_pdPlayers[g_options.dm_nPlayers];
+	ZeroMemory(&pd, sizeof(PlayerDesc));
+
+	std::vector<string_t> skinNames;
+	g_texman->GetTextureNames(skinNames, "skin/");
+	strcpy(pd.skin, skinNames[rand() % skinNames.size()].c_str());
+
+	strcpy(pd.name, "new player");
+
+	DWORD disablePlayers = 0;
+	for( int i = 0; i < g_options.dm_nPlayers; ++i )
+	{
+		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
+		disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
+	}
+
+	pd.type = -1;
+
+	new EditPlayerDlg(this, pd, disablePlayers);
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -241,7 +267,7 @@ void NewGameDlg::OnRemovePlayer()
 
 	memmove(&g_options.dm_pdPlayers[index    ],
 			&g_options.dm_pdPlayers[index + 1],
-			sizeof(PLAYERDESC) * (MAX_PLAYERS - g_options.dm_nPlayers) );
+			sizeof(PlayerDesc) * (MAX_PLAYERS - g_options.dm_nPlayers) );
 	g_options.dm_nPlayers--;
 
 	RefreshPlayersList();
@@ -249,7 +275,8 @@ void NewGameDlg::OnRemovePlayer()
 
 void NewGameDlg::OnEditPlayer()
 {
-	new EditPlayerDlg(this);
+//	PlayerDescEx pd;
+//	new EditPlayerDlg(this, pde);
 }
 
 void NewGameDlg::OnClosePlayerDlg(int result)
@@ -308,7 +335,6 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-//	g_gui->Show(false);
 	Close(_resultOK);
 }
 
@@ -338,8 +364,8 @@ void NewGameDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(Window *parent)
-  : Dialog(parent, 0, 0, 512, 256)
+EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disablePlayers)
+  : Dialog(parent, 0, 0, 384, 256), _playerDesc(inout_desc)
 {
 	Move((parent->GetWidth() - GetWidth()) * 0.5f,
 	     (parent->GetHeight() - GetHeight()) * 0.5f);
@@ -350,28 +376,54 @@ EditPlayerDlg::EditPlayerDlg(Window *parent)
 	float y =  8;
 
 
-	_skinPreview = new Window(this, 384, y, NULL);
+	_skinPreview = new Window(this, 270, y, NULL);
 
 
 
 	new Text(this, 8, y, "Имя", alignTextLT);
-	new Edit(this, x, y-=1, 120);
+	new Edit(this, x, y-=1, 200);
 
 
 
 	List *lst; // helps in combo box filling
 
 
+	//
+	// player type combo
+	//
 
-	new Text(this, 8, y+=20, "Тип", alignTextLT);
-	_types = new ComboBox(this, x, y-=1, 120);
+	new Text(this, 8, y+=24, "Тип", alignTextLT);
+	_types = new ComboBox(this, x, y-=1, 200);
+	lst = _types->GetList();
+
+	int index = 0;
+	for( int type = 0; type < MAX_HUMANS; ++type )
+	{
+		if( !(disablePlayers & (1 << type)) )
+		{
+			char s[16];
+			wsprintf(s, "человек %d", type+1);
+			lst->AddItem(s, type);
+			if( _playerDesc.type == type )
+				lst->SetCurSel(index);
+			++index;
+		}
+	}
+	lst->AddItem("компьютер", MAX_HUMANS);
+	if( -1 == _playerDesc.type )
+		lst->SetCurSel(0);
+	else if (MAX_HUMANS == _playerDesc.type)
+		lst->SetCurSel(index);
+
+
+
 
 
 	//
 	// skins combo
 	//
-	new Text(this, 8, y+=20, "Скин", alignTextLT);
-	_skins = new ComboBox(this, x, y-=1, 120);
+	new Text(this, 8, y+=24, "Скин", alignTextLT);
+	_skins = new ComboBox(this, x, y-=1, 200);
 	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
 	lst = _skins->GetList();
 	std::vector<string_t> names;
@@ -382,13 +434,40 @@ EditPlayerDlg::EditPlayerDlg(Window *parent)
 	}
 
 
+	//
+	// create and fill the classes list
+	//
 
-	new Text(this, 8, y+=20, "Класс", alignTextLT);
-	_classes = new ComboBox(this, x, y-=1, 120);
+	new Text(this, 8, y+=24, "Класс", alignTextLT);
+	_classesCombo = new ComboBox(this, x, y-=1, 200);
+
+	std::pair<string_t, string_t> val;
+	lua_State *L = g_env.hScript;
+	lua_getglobal(L, "classes");
+	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+	{
+		// now 'key' is at index -2 and 'value' at index -1
+        val.first = lua_tostring(L, -2);
+		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
+		_classesNames.push_back(val);
+		
+		_classesCombo->GetList()->AddItem(val.first.c_str());
+		if( val.first == _playerDesc.cls )
+		{
+		//	SendDlgItemMessage(hDlg, IDC_CLASS, CB_SETCURSEL, index, 0);
+		//	index = i;
+		}
+	}
 
 
-	(new Button(this, 408, 192, "OK"))->eventClick.bind(&EditPlayerDlg::OnOk, this);
-	(new Button(this, 408, 224, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+
+
+	//
+	// create buttons
+	//
+
+	(new Button(this, 176, 224, "OK"))->eventClick.bind(&EditPlayerDlg::OnOk, this);
+	(new Button(this, 280, 224, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOk()
