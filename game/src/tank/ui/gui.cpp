@@ -29,11 +29,11 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	(new Button(this,   0, 256, "Новая игра"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+	(new Button(this,   0, 256, "Игра (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
 //	(new Button(this,  96, 256, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
 //	(new Button(this, 192, 256, "Сохранить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
 //	(new Button(this, 288, 256, "Настройки"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-	(new Button(this, 416, 256, "Выход"))->eventClick.bind(&MainMenuDlg::OnExit, this);
+	(new Button(this, 416, 256, "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
 }
 
 void MainMenuDlg::OnNewGame()
@@ -56,21 +56,20 @@ void MainMenuDlg::OnCloseChild(int result)
 {
 	if( Dialog::_resultOK == result )
 	{
-		Destroy();
+		Close(result);
 	}
 }
 
 void MainMenuDlg::OnRawChar(int c)
 {
-	if( VK_ESCAPE == c )
+	switch(c)
 	{
-		Destroy();
+	case VK_F2:
+		OnNewGame();
+		break;
+	default:
+		Dialog::OnRawChar(c);
 	}
-}
-
-bool MainMenuDlg::OnFocus(bool focus)
-{
-	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,7 +168,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 
 	//
-	// players
+	// player list
 	//
 
 	_players = new List(this, 16, 256, 448, 128);
@@ -180,10 +179,14 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_players->eventChangeCurSel.bind(&NewGameDlg::OnSelectPlayer, this);
 
 
+	//
+	// buttons
+	//
+
 	{
 		Button *btn;
 
-		btn = new Button(this, 480, 256, "Добавить");
+		btn = new Button(this, 480, 256, "Новый (Ins)");
 		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
 
 		_removePlayer = new Button(this, 480, 286, "Удалить");
@@ -202,7 +205,8 @@ NewGameDlg::NewGameDlg(Window *parent)
 	}
 
 
-	RefreshPlayersList(); // call this after creation of buttons
+	// call this after creation of buttons
+	RefreshPlayersList();
 }
 
 void NewGameDlg::RefreshPlayersList()
@@ -313,16 +317,23 @@ void NewGameDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-bool NewGameDlg::OnFocus(bool focus)
-{
-	return Dialog::OnFocus(focus);
-}
-
 void NewGameDlg::OnSelectPlayer()
 {
 	bool enable = -1 != _players->GetCurSel();
 	_removePlayer->Enable( enable );
 	_changePlayer->Enable( enable );
+}
+
+void NewGameDlg::OnRawChar(int c)
+{
+	switch(c)
+	{
+	case VK_INSERT:
+		OnAddPlayer();
+		break;
+	default:
+		Dialog::OnRawChar(c);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -334,20 +345,47 @@ EditPlayerDlg::EditPlayerDlg(Window *parent)
 	     (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
+
 	float x = 64;
 	float y =  8;
+
+
+	_skinPreview = new Window(this, 384, y, NULL);
+
+
 
 	new Text(this, 8, y, "Имя", alignTextLT);
 	new Edit(this, x, y-=1, 120);
 
-	new Text(this, 8, y+=20, "Тип", alignTextLT);
-	new ComboBox(this, x, y-=1, 120);
 
+
+	List *lst; // helps in combo box filling
+
+
+
+	new Text(this, 8, y+=20, "Тип", alignTextLT);
+	_types = new ComboBox(this, x, y-=1, 120);
+
+
+	//
+	// skins combo
+	//
 	new Text(this, 8, y+=20, "Скин", alignTextLT);
-	new ComboBox(this, x, y-=1, 120);
+	_skins = new ComboBox(this, x, y-=1, 120);
+	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
+	lst = _skins->GetList();
+	std::vector<string_t> names;
+	g_texman->GetTextureNames(names, TEXT("skin/"));
+	for( size_t i = 0; i < names.size(); ++i )
+	{
+		lst->AddItem( names[i].c_str() );
+	}
+
+
 
 	new Text(this, 8, y+=20, "Класс", alignTextLT);
-	new ComboBox(this, x, y-=1, 120);
+	_classes = new ComboBox(this, x, y-=1, 120);
+
 
 	(new Button(this, 408, 192, "OK"))->eventClick.bind(&EditPlayerDlg::OnOk, this);
 	(new Button(this, 408, 224, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
@@ -364,6 +402,12 @@ void EditPlayerDlg::OnOk()
 void EditPlayerDlg::OnCancel()
 {
 	Close(_resultCancel);
+}
+
+void EditPlayerDlg::OnChangeSkin()
+{
+	_skinPreview->SetTexture( _skins->GetList()->GetItemText(_skins->GetList()->GetCurSel(), 0).c_str() );
+	_skinPreview->Resize( _skinPreview->GetTextureWidth(), _skinPreview->GetTextureHeight() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

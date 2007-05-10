@@ -57,12 +57,11 @@ Window::Window(GuiManager* manager)
 	_frame    = 0;
 
 	SetTexture("window");
-//	SetTexture("");
 
 	_x      = 0;
 	_y      = 0;
-	_width  = _texWidth;
-	_height = _texHeight;
+	_width  = GetTextureWidth();
+	_height = GetTextureHeight();
 }
 
 Window::Window(Window* parent)
@@ -169,21 +168,27 @@ bool Window::IsCaptured() const
 	return this == _manager->GetCapture();
 }
 
+float Window::GetTextureWidth()  const
+{
+	return _texture ? g_texman->get(_texture).frame_width : 1;
+}
+
+float Window::GetTextureHeight() const
+{
+	return _texture ? g_texman->get(_texture).frame_height : 1;
+}
+
 void Window::SetTexture(const char *tex)
 {
-	_texture = g_texman->FindTexture(tex);
-	if( _texture )
+	if( tex )
 	{
-		const LogicalTexture &lt = g_texman->get(_texture);
-		_color     = lt.color;
-		_texWidth  = lt.frame_width;
-		_texHeight = lt.frame_height;
+		_texture = g_texman->FindTexture(tex);
+		_color   = g_texman->get(_texture).color;
 	}
 	else
 	{
-		_color     = 0xffffffff;
-		_texWidth  = 1;
-		_texHeight = 1;
+		_texture = 0;
+		_color   = 0xffffffff;
 	}
 }
 

@@ -18,7 +18,6 @@ public:
 	MainMenuDlg(Window *parent);
 	virtual void OnParentSize(float width, float height);
 	virtual void OnRawChar(int c);
-	virtual bool OnFocus(bool focus);
 
 protected:
 	void OnCloseChild(int result);
@@ -41,7 +40,7 @@ class NewGameDlg : public Dialog
 public:
 	NewGameDlg(Window *parent);
 
-	virtual bool OnFocus(bool focus);
+	virtual void OnRawChar(int c);
 
 protected:
 	void RefreshPlayersList();
@@ -63,12 +62,20 @@ protected:
 
 class EditPlayerDlg : public Dialog
 {
+	ComboBox *_types;
+	ComboBox *_skins;
+	ComboBox *_classes;
+
+	Window   *_skinPreview;
+
 public:
 	EditPlayerDlg(Window *parent);
 
 protected:
 	void OnOk();
 	void OnCancel();
+
+	void OnChangeSkin();
     
 };
 

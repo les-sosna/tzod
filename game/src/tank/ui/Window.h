@@ -76,8 +76,6 @@ class Window : public RefCounted
 	SpriteColor  _color;
 	size_t       _texture;
 	int          _frame;
-	float        _texWidth;
-	float        _texHeight;
 
 	bool         _isDestroyed;
 	bool         _isVisible;
@@ -92,14 +90,11 @@ protected:
 	void SetFrame(int n) { _frame = n; }
 	void ClipChildren(bool clip) { _clipChildren = clip; }
 
-	float GetFrameWidth() const { return _texWidth; }
-	float GetFrameHeight() const { return _texHeight; }
-
 	void SetCapture();
 	void ReleaseCapture();
 
 protected:
-	virtual ~Window(); // delete via Destroy()
+	virtual ~Window(); // delete via Destroy() only
 
 public:
 	Window(GuiManager* manager); // constructor for top level window
@@ -114,8 +109,9 @@ public:
 	bool IsTopMost()   const { return _isTopMost;   }
 	bool IsCaptured()  const;
 
-	float GetTextureWidth()  const { return _texWidth;  }
-	float GetTextureHeight() const { return _texHeight; }
+	float GetTextureWidth()  const;
+	float GetTextureHeight() const;
+
 	float GetWidth()  const { return _width;  }
 	float GetHeight() const { return _height; }
 	float GetX()      const { return _x;     }
@@ -124,7 +120,7 @@ public:
 	void  SetColor(SpriteColor color) { _color     = color;  }
 	void  SetBorder(bool border)      { _hasBorder = border; }
 
-	Window* GetParent() const { return _parent; }
+	Window* GetParent()      const { return _parent; }
 	Window* GetPrevSibling() const { return _prevSibling; }
 	Window* GetNextSibling() const { return _nextSibling; }
 	Window* GetFirstChild()  const { return _firstChild;  }

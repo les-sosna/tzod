@@ -539,9 +539,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	BOOL bGeneralFault = FALSE;
 #endif
 
-	//
-	// создание главного окна
-	//
 	MyRegisterClass(hInstance);
 	g_env.hMainWnd = CreateMainWnd(hInstance, g_render->getXsize(), g_render->getYsize());
 
@@ -566,17 +563,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		g_render->OnResizeWnd();
 		g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
 
-		// create main menu
-		new UI::MainMenuDlg(g_gui->GetDesktop());
-
 
 		if( !script_exec_file(g_env.hScript, FILE_STARTUP) )
 		{
 			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
-
-			// Вызов главного меню
-//			LOGOUT_1("DialogBox(IDD_MAIN)\n");
-//			DialogBox(g_hInstance, (LPCTSTR)IDD_MAIN, g_env.hMainWnd, (DLGPROC) dlgMain);
 		}
 
 

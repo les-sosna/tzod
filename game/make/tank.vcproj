@@ -557,6 +557,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\Dsutil.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\frontend.h"
 				>
 			</File>
