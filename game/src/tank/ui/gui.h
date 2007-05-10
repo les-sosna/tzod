@@ -9,13 +9,13 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class MainMenu : public Window
+class MainMenuDlg : public Dialog
 {
 	void OnNewGame();
 	void OnExit();
 
 public:
-	MainMenu(Window *parent);
+	MainMenuDlg(Window *parent);
 	virtual void OnParentSize(float width, float height);
 	virtual void OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
@@ -35,6 +35,9 @@ class NewGameDlg : public Dialog
 	Edit      *_fragLimit;
 	Edit      *_timeLimit;
 
+	Button    *_removePlayer;
+	Button    *_changePlayer;
+
 public:
 	NewGameDlg(Window *parent);
 
@@ -52,6 +55,8 @@ protected:
 
 	void OnOK();
 	void OnCancel();
+
+	void OnSelectPlayer();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

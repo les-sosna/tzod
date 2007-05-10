@@ -21,35 +21,38 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenu::MainMenu(Window *parent) : Window(parent, 0, 0, "gui_splash")
+MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 {
-//	ClipChildren(true);
+	SetBorder(false);
+	SetTexture("gui_splash");
+	Resize(GetTextureWidth(), GetTextureHeight());
+
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	(new Button(this,   0, 256, "Новая игра"))->eventClick.bind(&MainMenu::OnNewGame, this);
-//	(new Button(this,  96, 256, "Загрузить"))->eventClick.bind(&MainMenu::OnNewGame, this);
-//	(new Button(this, 192, 256, "Сохранить"))->eventClick.bind(&MainMenu::OnNewGame, this);
-//	(new Button(this, 288, 256, "Настройки"))->eventClick.bind(&MainMenu::OnNewGame, this);
-	(new Button(this, 416, 256, "Выход"))->eventClick.bind(&MainMenu::OnExit, this);
+	(new Button(this,   0, 256, "Новая игра"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+//	(new Button(this,  96, 256, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+//	(new Button(this, 192, 256, "Сохранить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+//	(new Button(this, 288, 256, "Настройки"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+	(new Button(this, 416, 256, "Выход"))->eventClick.bind(&MainMenuDlg::OnExit, this);
 }
 
-void MainMenu::OnNewGame()
+void MainMenuDlg::OnNewGame()
 {
 	NewGameDlg *dlg = new NewGameDlg(this);
-	dlg->eventClose.bind(&MainMenu::OnCloseChild, this);
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
-void MainMenu::OnExit()
+void MainMenuDlg::OnExit()
 {
 	DestroyWindow(g_env.hMainWnd);
 }
 
-void MainMenu::OnParentSize(float width, float height)
+void MainMenuDlg::OnParentSize(float width, float height)
 {
 	Move( (width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f );
 }
 
-void MainMenu::OnCloseChild(int result)
+void MainMenuDlg::OnCloseChild(int result)
 {
 	if( Dialog::_resultOK == result )
 	{
@@ -57,7 +60,7 @@ void MainMenu::OnCloseChild(int result)
 	}
 }
 
-void MainMenu::OnRawChar(int c)
+void MainMenuDlg::OnRawChar(int c)
 {
 	if( VK_ESCAPE == c )
 	{
@@ -65,11 +68,10 @@ void MainMenu::OnRawChar(int c)
 	}
 }
 
-bool MainMenu::OnFocus(bool focus)
+bool MainMenuDlg::OnFocus(bool focus)
 {
 	return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -175,27 +177,32 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_players->SetTabPos(1, 192); // skin
 	_players->SetTabPos(2, 256); // class
 	_players->SetTabPos(3, 320); // team
-
-	RefreshPlayersList();
-
-
-	Button *btn;
-
-	btn = new Button(this, 480, 256, "Добавить");
-	btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
-//	btn->Enable(false);
-
-	btn = new Button(this, 480, 286, "Удалить");
-	btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
-	btn->Enable(false);
-
-	btn = new Button(this, 480, 316, "Изменить");
-	btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
-	btn->Enable(false);
+	_players->eventChangeCurSel.bind(&NewGameDlg::OnSelectPlayer, this);
 
 
-	(new Button(this, 544, 472, "Поехали!"))->eventClick.bind(&NewGameDlg::OnOK, this);
-	(new Button(this, 656, 472, "Отмена"))->eventClick.bind(&NewGameDlg::OnCancel, this);
+	{
+		Button *btn;
+
+		btn = new Button(this, 480, 256, "Добавить");
+		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
+
+		_removePlayer = new Button(this, 480, 286, "Удалить");
+		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
+		_removePlayer->Enable(false);
+
+		_changePlayer = new Button(this, 480, 316, "Изменить");
+		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
+		_changePlayer->Enable(false);
+
+		btn = new Button(this, 544, 472, "Поехали!");
+		btn->eventClick.bind(&NewGameDlg::OnOK, this);
+
+		btn = new Button(this, 656, 472, "Отмена");
+		btn->eventClick.bind(&NewGameDlg::OnCancel, this);
+	}
+
+
+	RefreshPlayersList(); // call this after creation of buttons
 }
 
 void NewGameDlg::RefreshPlayersList()
@@ -224,7 +231,16 @@ void NewGameDlg::OnAddPlayer()
 
 void NewGameDlg::OnRemovePlayer()
 {
-	new EditPlayerDlg(this);
+	_ASSERT( -1 != _players->GetCurSel() );
+
+	int index = _players->GetCurSel();
+
+	memmove(&g_options.dm_pdPlayers[index    ],
+			&g_options.dm_pdPlayers[index + 1],
+			sizeof(PLAYERDESC) * (MAX_PLAYERS - g_options.dm_nPlayers) );
+	g_options.dm_nPlayers--;
+
+	RefreshPlayersList();
 }
 
 void NewGameDlg::OnEditPlayer()
@@ -300,6 +316,13 @@ void NewGameDlg::OnCancel()
 bool NewGameDlg::OnFocus(bool focus)
 {
 	return Dialog::OnFocus(focus);
+}
+
+void NewGameDlg::OnSelectPlayer()
+{
+	bool enable = -1 != _players->GetCurSel();
+	_removePlayer->Enable( enable );
+	_changePlayer->Enable( enable );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

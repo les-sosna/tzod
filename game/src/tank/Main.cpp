@@ -567,7 +567,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
 
 		// create main menu
-//		new UI::MainMenu(g_gui->GetDesktop());
+		new UI::MainMenuDlg(g_gui->GetDesktop());
 
 
 		if( !script_exec_file(g_env.hScript, FILE_STARTUP) )

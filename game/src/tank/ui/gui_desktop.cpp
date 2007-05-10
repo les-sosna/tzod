@@ -20,7 +20,7 @@ void Desktop::OnRawChar(int c)
 	switch( c )
 	{
 	case VK_ESCAPE:
-		GetManager()->SetFocusWnd( new MainMenu(this) );
+		new MainMenuDlg(this);
 		break;
 
 	case VK_F2:
