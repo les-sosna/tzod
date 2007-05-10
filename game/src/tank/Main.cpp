@@ -2,7 +2,6 @@
 
 #include "stdafx.h"
 
-//#include "Mainloop.h"
 #include "macros.h"
 #include "Level.h"
 #include "options.h"
@@ -83,7 +82,6 @@ static void OnPrintScreen()
 
 	g_level->_timer.Start();
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,6 +284,8 @@ static void RenderFrame(bool thumbnail)
 					}
 				} ENUM_END();
 			}
+
+		//	printf("cx=%d; cy=%d\n", g_env.camera_x, g_env.camera_y);
 
 
 			//

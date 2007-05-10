@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "script.h"
 #include "level.h"
-//#include "MainLoop.h"
 #include "macros.h"
 
 #include "gc/GameClasses.h"

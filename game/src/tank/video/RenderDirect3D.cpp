@@ -349,11 +349,13 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 {
 	if( _iaSize ) _flush();
 
+	D3DXMATRIX m;
+	D3DVIEWPORT9 vp;
+	vp.MinZ = 0;
+	vp.MaxZ = 1;
+
 	if( rect )
 	{
-		D3DXMATRIX m;
-		D3DVIEWPORT9 vp;
-
 		if( RM_INTERFACE == _mode )
 		{
 			D3DXMatrixOrthoOffCenterRH(&m, (float) rect->left, (float) rect->right, 
@@ -363,8 +365,6 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 			vp.Y = rect->top;
 			vp.Width  = rect->right - rect->left;
 			vp.Height = rect->bottom - rect->top;
-			vp.MinZ = 0;
-			vp.MaxZ = 1;
 		}
 		else
 		{
@@ -375,10 +375,7 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 			vp.Y = _sizeWindow.cy - rect->bottom;
 			vp.Width  = rect->right - rect->left;
 			vp.Height = rect->bottom - rect->top;
-			vp.MinZ = 0;
-			vp.MaxZ = 1;
 		}
-
 
 
 		V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
@@ -388,18 +385,13 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 	}
 	else
 	{
-		D3DXMATRIX m;
 		D3DXMatrixOrthoOffCenterRH(&m, 0, (float) _sizeWindow.cx, (float) _sizeWindow.cy, 0, 1, -1);
-
 		V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
 
-		D3DVIEWPORT9 vp;
 		vp.X = 0;
 		vp.Y = 0;
 		vp.Width  = _sizeWindow.cx;
 		vp.Height = _sizeWindow.cy;
-		vp.MinZ = 0;
-		vp.MaxZ = 1;
 		V(_pd3dDevice->SetViewport(&vp));
 
 		_rtViewport.left   = _rtViewport.top = 0;
@@ -415,7 +407,7 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 	D3DXMATRIX m;
 
 //                                 l  r                   b                   t
-//	D3DXMatrixOrthoOffCenterRH(&m, 0, getViewportXsize(), getViewportYsize(), 0, 1, -1);
+	D3DXMatrixOrthoOffCenterRH(&m, 0, getViewportXsize(), getViewportYsize(), 0, 1, -1);
 //	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) _sizeWindow.cx, (float) _sizeWindow.cy, 0, 1, -1);
 
 /*	float l  =  0;
@@ -431,8 +423,10 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 	m._41 = (l+r)/(l-r);  m._42 = (t+b)/(b-t);  m._43 = zn/(zn-zf);  m._44 = l;
 */
 
-//	V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
+	V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
 
+	D3DXMatrixScaling(&m, scale, scale, 1.0f);
+	V(_pd3dDevice->SetTransform(D3DTS_VIEW, &m));
 
 	D3DXMatrixTranslation(&m, -x - 0.5f, -y - 0.5f, 0);
 	V(_pd3dDevice->SetTransform(D3DTS_WORLD, &m));

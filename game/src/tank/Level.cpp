@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "Level.h"
-//#include "MainLoop.h"
 #include "options.h"
 #include "macros.h"
 #include "functions.h"

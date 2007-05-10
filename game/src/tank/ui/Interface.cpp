@@ -6,7 +6,6 @@
 #include "interface.h"
 #include "SaveLoad.h"
 #include "macros.h"
-//#include "MainLoop.h"
 #include "options.h"
 #include "functions.h"
 
@@ -939,59 +938,6 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
-// preview в окне AddPlayer
-void apPaint(HWND hDlg, int frame)
-{
-	PAINTSTRUCT ps;
-	HDC hpreview = BeginPaint(GetDlgItem(hDlg, IDC_PREVIEW), &ps);
-/*
-	int skin_index = SendDlgItemMessage(hDlg, IDC_SKIN, CB_GETCURSEL, 0, 0);
-
-	if (-1 != skin_index)
-	{
-		CSurface *pSurface = g_pSkinManager->GetSkin(skin_index);
-
-		HDC hskin;
-		pSurface->_pdds->GetDC(&hskin);
-
-		int w = pSurface->_ddsd.dwWidth  / pSurface->_nFrames_x;
-		int h = pSurface->_ddsd.dwHeight / pSurface->_nFrames_y;
-		int dx = (frame % pSurface->_nFrames_x) * w;
-		int dy = (frame / pSurface->_nFrames_x) * h;
-
-		HDC hbuffer = CreateCompatibleDC(hpreview);
-		HBITMAP hbmp = CreateCompatibleBitmap(hpreview, w, h);
-		HBITMAP hOld = (HBITMAP) SelectObject(hbuffer, hbmp);
-
-		COLORREF transp = GetPixel(hskin, 0, 0);
-
-		RECT rect = {0, 0, w, h};
-		FillRect(hbuffer, &rect, g_Interface.hbrBackground);
-
-		for (int x = 0; x < w; ++x)
-		for (int y = 0; y < h; ++y)
-		{
-			COLORREF pixel = GetPixel(hskin, x + dx, y + dy);
-			if ( transp != pixel ) SetPixel(hbuffer, x, y, pixel);
-		}
-
-		RECT rt;
-		GetWindowRect(GetDlgItem(hDlg, IDC_PREVIEW), &rt);
-		OffsetRect(&rt, -rt.left, -rt.top);
-
-		BitBlt(hpreview, (rt.right - w) / 2, (rt.bottom - h) / 2,
-			w, h, hbuffer, 0, 0, SRCCOPY);
-
-		SelectObject(hbuffer, hOld);
-		DeleteObject(hbmp);
-		DeleteObject(hbuffer);
-
-		pSurface->_pdds->ReleaseDC(hskin);
-	}
-*/
-	EndPaint(GetDlgItem(hDlg, IDC_PREVIEW), &ps);
-}
-
 LRESULT CALLBACK dlgAddPlayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -1003,12 +949,6 @@ LRESULT CALLBACK dlgAddPlayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 
 	switch (message)
 	{
-//	IMPLEMENT_EASYMOVE(hDlg, wParam, lParam);
-//	IMPLEMENT_APPEARENCE_NP(hDlg);
-//	case WM_PAINT:
-//		OnPaintBorder(hDlg);
-//		apPaint(hDlg, frame);
-//		break;
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);

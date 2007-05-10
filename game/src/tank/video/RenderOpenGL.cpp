@@ -327,8 +327,12 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 			glOrtho(0, (GLdouble) (rect->right - rect->left),
 				(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
 		}
-		glViewport(rect->left, _sizeWindow.cy - rect->bottom,
-			rect->right - rect->left, rect->bottom - rect->top);
+		glViewport(
+			rect->left,                       // X
+			_sizeWindow.cy - rect->bottom,    // Y
+			rect->right - rect->left,         // width
+			rect->bottom - rect->top          // height
+		);
 		_rtViewport = *rect;
 	}
 	else
@@ -344,12 +348,12 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 {
 	if( _iaSize ) _flush();
-
+	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef( (GLfloat) _sizeWindow.cx/2, (GLfloat) _sizeWindow.cy/2, 0 );
+	glTranslatef( (GLfloat) getViewportXsize()/2, (GLfloat) getViewportYsize()/2, 0 );
 	glRotatef(angle * 180.0f / PI, 0,0,1);
-	glTranslatef( -(GLfloat) _sizeWindow.cx/2, -(GLfloat) _sizeWindow.cy/2, 0 );
+	glTranslatef( -(GLfloat) getViewportXsize()/2, -(GLfloat) getViewportYsize()/2, 0 );
 	glScalef(scale, scale, 1);
 	glTranslatef( -x, -y, 0 );
 }
