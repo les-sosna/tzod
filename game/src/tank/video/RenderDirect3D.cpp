@@ -406,9 +406,8 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 
 	D3DXMATRIX m;
 
-//                                 l  r                   b                   t
-	D3DXMatrixOrthoOffCenterRH(&m, 0, getViewportXsize(), getViewportYsize(), 0, 1, -1);
-//	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) _sizeWindow.cx, (float) _sizeWindow.cy, 0, 1, -1);
+//                                 l                  r                   b                   t
+	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) getViewportXsize(), (float) getViewportYsize(), 0, 1, -1);
 
 /*	float l  =  0;
 	float r  =  (float) getViewportXsize();

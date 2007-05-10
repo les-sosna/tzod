@@ -348,6 +348,10 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 {
 	if( _iaSize ) _flush();
+
+//	glMatrixMode(GL_PROJECTION);
+//			glOrtho(0, (GLdouble) (_rtViewport.right - _rtViewport.left),
+//				(GLdouble) (_rtViewport.bottom - _rtViewport.top), 0, -1, 1);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

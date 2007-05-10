@@ -440,7 +440,7 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 }
 
 
-static HWND CreateMainWnd(HINSTANCE hInstance)
+static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 {
 	LOGOUT_1("create main window\n");
     HWND hWnd = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
@@ -543,7 +543,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// создание главного окна
 	//
 	MyRegisterClass(hInstance);
-	g_env.hMainWnd = CreateMainWnd(hInstance);
+	g_env.hMainWnd = CreateMainWnd(hInstance, g_render->getXsize(), g_render->getYsize());
 
 
 	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )
