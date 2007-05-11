@@ -27,7 +27,7 @@ List::List(Window *parent, float x, float y, float width, float height)
 	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
 	_selection->SetBorder(true);
 
-	Resize(width, height); // it will resize _selection also, so create it first!
+	Resize(width, height); // it will resize the selection also, so create it first!
 	Move(x, y);
 
 	_curSel = -1;
