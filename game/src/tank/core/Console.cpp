@@ -63,7 +63,7 @@ void ConsoleBuffer::print(const char *fmt, ...)
 				break;
 			}
 			++pos;
-			if( pos > _lineLength )
+			if( pos == _lineLength )
 			{
 				_line[pos] = '\0';
 				break;

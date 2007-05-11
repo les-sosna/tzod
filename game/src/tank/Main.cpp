@@ -469,17 +469,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	// create console buffer
 	//
-	g_console = new ConsoleBuffer(80, 1000);
-
-	g_console->print("bla\n\n");
-	g_console->print(
-"here is long long line: -- *** 321 *** ooo yeaa __ purum-purum abcdefghijklm some troubles posible %d\n", 13);
+	g_console = new ConsoleBuffer(8, 1000);
 
 
 	//
 	// init file system
 	//
-
 	g_fs = OSFileSystem::Create(".");
 
 
