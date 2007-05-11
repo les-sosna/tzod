@@ -104,7 +104,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 		std::set<string_t> files;
 		if( dir->EnumAllFiles(files, TEXT("*.map")) )
 		{
-			int lastMapIndex = -1;
+			int lastMapIndex = 0;
 
 			for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 			{
@@ -135,7 +135,8 @@ NewGameDlg::NewGameDlg(Window *parent)
 				}
 			}
 
-			_maps->SetCurSel(lastMapIndex, true);
+			_maps->SetCurSel(lastMapIndex, false);
+			_maps->ScrollTo(lastMapIndex - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 		}
 		else
 		{
@@ -380,6 +381,12 @@ void NewGameDlg::OnRawChar(int c)
 {
 	switch(c)
 	{
+	case VK_RETURN:
+		if( GetManager()->GetFocusWnd() == _players && -1 != _players->GetCurSel() )
+			OnEditPlayer();
+		else
+			OnOK();
+		break;
 	case VK_INSERT:
 		OnAddPlayer();
 		break;

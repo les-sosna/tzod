@@ -44,6 +44,7 @@ public:
 	void PopClippingRect();
 
 	bool SetFocusWnd(UI::Window* wnd);
+	UI::Window* GetFocusWnd() const;
 
 
 public:

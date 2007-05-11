@@ -10,8 +10,8 @@
 #include "level.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
-#include "gc/Object.h"
 #include "gc/2dSprite.h"
 
 #include "fs/FileSystem.h"
@@ -395,7 +395,8 @@ size_t TextureManager::FindTexture(const char *name) const
 	if( _mapName_to_Index.end() != it )
 		return it->second;
 
-	// TODO: flood the console
+	// flood the console
+	g_console->print("texture '%s' not found!\n", name);
 	
 	return 0; // index of checker texture
 }

@@ -64,6 +64,7 @@ void Edit::OnChar(int c)
 	case VK_BACK:  // skip non-printable keys
 	case VK_TAB:
 	case VK_ESCAPE:
+	case VK_RETURN:
 		break;
 	default:
 		_string = _string.substr(0, _selStart) + (char) c

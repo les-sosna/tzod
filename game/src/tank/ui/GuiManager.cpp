@@ -190,6 +190,11 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 	return false;
 }
 
+UI::Window* GuiManager::GetFocusWnd() const
+{
+	return _focusWnd;
+}
+
 bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT msg)
 {
 	if( !wnd->IsCaptured() )

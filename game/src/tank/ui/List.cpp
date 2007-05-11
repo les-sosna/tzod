@@ -17,14 +17,15 @@ List::List(Window *parent, float x, float y, float width, float height)
 	SetBorder(true);
 	SetTabPos(0, 1); // first column
 
-	_selection = new Window(this, 0, 0, "ctrl_listsel");
-
 	_scrollBar = new ScrollBar(this, 0, 0, height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll.bind(&List::OnScroll, this);
 
 	_blankText = new Text(this, 0, 0, " ", alignTextLT);
 	_blankText->Show(false);
+
+	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
+	_selection->SetBorder(true);
 
 	Resize(width, height); // it will resize _selection also, so create it first!
 	Move(x, y);
@@ -115,7 +116,11 @@ void List::SetCurSel(int sel, bool scroll)
 	_curSel = sel;
 	if( scroll )
 	{
-		_scrollBar->SetPos((float) sel - 1);
+		float fs = (float) sel;
+		if( fs < _scrollBar->GetPos() )
+			_scrollBar->SetPos(fs);
+		else if( fs > _scrollBar->GetPos() + GetNumLinesVisible() - 1 )
+			_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
 	}
 	if( eventChangeCurSel )
 	{
@@ -133,9 +138,19 @@ int  List::HitTest(float y)
 	return index;
 }
 
+float List::GetNumLinesVisible() const
+{
+	return GetHeight() / _blankText->GetHeight();
+}
+
+void List::ScrollTo(float pos)
+{
+	_scrollBar->SetPos(pos);
+}
+
 void List::OnSize(float width, float height)
 {
-	_selection->Resize(width, _blankText->GetHeight()+2);
+	_selection->Resize(width, _blankText->GetHeight());
 }
 
 bool List::OnMouseDown(float x, float y, int button)
@@ -162,16 +177,22 @@ void List::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_UP:
-		SetCurSel(__max(0, GetCurSel() - 1), false);
+		SetCurSel(__max(0, GetCurSel() - 1), true);
 		break;
 	case VK_DOWN:
-		SetCurSel(__min(GetSize() - 1, GetCurSel() + 1), false);
+		SetCurSel(__min(GetSize() - 1, GetCurSel() + 1), true);
 		break;
 	case VK_HOME:
-		SetCurSel(0, false);
+		SetCurSel(0, true);
 		break;
 	case VK_END:
-		SetCurSel(GetSize() - 1, false);
+		SetCurSel(GetSize() - 1, true);
+		break;
+	case VK_PRIOR: // page up
+		SetCurSel(__max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
+		break;
+	case VK_NEXT:  // page down
+		SetCurSel(__min(GetSize() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -180,6 +201,7 @@ void List::OnRawChar(int c)
 
 bool List::OnFocus(bool focus)
 {
+	_selection->SetTexture(focus ? "ctrl_listsel" : "ctrl_listsel_u");
 	return true;
 }
 
@@ -190,7 +212,7 @@ void List::DrawChildren(float sx, float sy)
 	Window::DrawChildren(sx, sy);
 
 	size_t i_min = (size_t) _scrollBar->GetPos();
-	size_t i_max = i_min + (size_t) (GetHeight() / _blankText->GetHeight()) + 2;
+	size_t i_max = i_min + (size_t) GetNumLinesVisible() + 2;
 
 	_blankText->Show(true);
     for( size_t i = i_min; i < __min(_items.size(), i_max); ++i )

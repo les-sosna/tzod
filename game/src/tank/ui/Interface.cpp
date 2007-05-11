@@ -907,12 +907,12 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 		switch (wmEvent)
 		{
-		case BN_KILLFOCUS:
-			SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
-			break;
-		case BN_SETFOCUS:
-			SendMessage(hDlg, DM_SETDEFID, wmId, 0);
-			break;
+//		case BN_KILLFOCUS:
+//			SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
+//			break;
+//		case BN_SETFOCUS:
+//			SendMessage(hDlg, DM_SETDEFID, wmId, 0);
+//			break;
 		case BN_CLICKED:
 			switch (wmId)
 			{
