@@ -6,6 +6,7 @@
 #include "level.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
@@ -236,15 +237,15 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 
 	ReadFile(file._file, &type, sizeof(type), &bytesRead, NULL);
 	if( bytesRead != sizeof(type) )
+	{
+		TRACE("ERROR: unexpected end of file");
 		throw "Load error: unexpected end of file\n";
-
-	LOGOUT_3("restoring object %d at 0x%X\n", type,
-		SetFilePointer(file._file, 0, 0, FILE_CURRENT));
+	}
 
 	_from_file_map::const_iterator it = _get_from_file_map().find(type);
 	if( _get_from_file_map().end() == it )
 	{
-		LOGOUT_2("Load error: unknown object type %u\n", type);
+		TRACE("ERROR: unknown object type %u", type);
 		throw "Load error: unknown object type\n";
 	}
 

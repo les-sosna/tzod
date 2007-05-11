@@ -9,6 +9,24 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+class Console : public Dialog
+{
+	Text  *_blankText;
+	Edit  *_input;
+	size_t _scrollBack;
+
+public:
+	Console(Window *parent, float x, float y, float width, float height);
+
+protected:
+	virtual void OnChar(int c);
+	virtual void OnRawChar(int c);
+
+	virtual void DrawChildren(float sx, float sy);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class MainMenuDlg : public Dialog
 {
 	void OnNewGame();

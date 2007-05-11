@@ -7,6 +7,8 @@
 #include "directx.h"
 
 #include "core/Debug.h"
+#include "core/Console.h"
+
 #include "video/TextureManager.h"
 
 #include "Options.h"
@@ -25,25 +27,19 @@ LPDIRECTINPUT8        g_pDI       = NULL;
 
 VOID LoadSurfaces()
 {
-	LOGOUT_1("> loading textures... \n");
-
 	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
 	{
-		LOGOUT_1("failed \n");
+		TRACE("WARNING: no textures loaded");
 		MessageBox(g_env.hMainWnd, "ой! а что с текстурами?", TXT_VERSION, MB_ICONERROR);
 	}
 
-	LOGOUT_1("OK.\n");
 
-
-	LOGOUT_1("> loading skins... \n");
+//	LOGOUT_1("> loading skins... \n");
 	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
 	{
-		LOGOUT_1("failed \n");
+//		LOGOUT_1("failed \n");
 		MessageBox(g_env.hMainWnd, "ой! а где скины?", TXT_VERSION, MB_ICONERROR);
 	}
-
-	LOGOUT_1("OK.\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -62,23 +58,19 @@ void LoadSound(bool init, enumSoundTemplate sound, const char *filename)
 	if( init )
 	{
 		HRESULT hr;
-		LOGOUT_2(">loading sound from '%s'... ", filename);
+		TRACE("loading sound from '%s'... ", filename);
 		if( FAILED(hr = g_pSoundManager->Create(
 			&g_pSounds[sound],
 			filename,
 			DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY,
 			GUID_NULL)) )
 		{
-			LOGOUT_1("FAILED!\n");
+			TRACE("ERROR: unknown");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
 			e.hr       = hr;
 			throw e;
-		}
-		else
-		{
-			LOGOUT_1("OK.\n");
 		}
 	}
 	else
@@ -91,7 +83,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 {
 	if( init )
 	{
-		LOGOUT_2(">loading sound from '%s'... ", filename);
+		TRACE("loading sound from '%s'... ", filename);
 
 		WAVEFORMATEX wfe = {0};
 		void *pData = NULL;
@@ -99,7 +91,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
 		{
-			LOGOUT_1("FAILED!\n");
+			TRACE("ERROR: couldn't load file");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
@@ -113,16 +105,12 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( FAILED(hr) )
 		{
-			LOGOUT_1("FAILED!\n");
+			TRACE("ERROR: couldn't create the sound buffer");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
 			e.hr       = hr;
 			throw e;
-		}
-		else
-		{
-			LOGOUT_1("OK.\n");
 		}
 	}
 	else
@@ -141,7 +129,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	if( init )
 	{
 		_ASSERT(!g_pSoundManager);
-		LOGOUT_1("init direct sound... \n");
+		TRACE("Init direct sound...");
 		g_pSoundManager = new CSoundManager();
 		if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_EXCLUSIVE, 2, 44100, 16)) )
 		{
@@ -149,7 +137,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 			{
 				if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_NORMAL , 2, 44100, 16)) )
 				{
-					LOGOUT_1("direct sound init failed\n");
+					TRACE("ERROR: direct sound init failed\n");
 					SAFE_DELETE(g_pSoundManager);
 				}
 			}
@@ -157,7 +145,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	}
 	else
 	{
-		LOGOUT_1("free direct sound... ");
+		TRACE("free direct sound... ");
 	}
 
 	if( !g_pSoundManager ) return hr;
@@ -226,8 +214,6 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 		throw;
 	}
 
-	//ok
-	LOGOUT_1("> OK.\n");
 	return S_OK;
 }
 
@@ -245,7 +231,7 @@ void FreeDirectSound()
 
 HRESULT InitDirectInput( HWND hWnd )
 {
-	LOGOUT_1("init direct input\n");
+	TRACE("init direct input");
 
 	ZeroMemory(g_env.envInputs.keys, 256);
     FreeDirectInput();
@@ -302,7 +288,7 @@ void FreeDirectInput()
     SAFE_RELEASE( g_pKeyboard );
     SAFE_RELEASE( g_pDI );
 
-	LOGOUT_1("free direct input\n");
+	TRACE("free direct input");
 }
 
 

@@ -17,6 +17,8 @@
 
 #include "video/TextureManager.h"
 
+#include "core/Console.h"
+
 #include "fs/FileSystem.h"
 #include "fs/MapFile.h"
 #include "gc/Player.h"
@@ -25,6 +27,71 @@
 
 namespace UI
 {
+///////////////////////////////////////////////////////////////////////////////
+
+Console::Console(Window *parent, float x, float y, float width, float height)
+  : Dialog(parent, x, y, width, height)
+{
+	Text *arrow = new Text(this, 0, 0, ">", alignTextLT);
+	arrow->Move(0, height - arrow->GetHeight() - 1);
+
+
+	_blankText = new Text(this, 0, arrow->GetY() - 2, "", alignTextLT);
+	_blankText->Show(false);
+
+	_input = new Edit(this, arrow->GetWidth(), arrow->GetY()-1, width - arrow->GetWidth());
+	_input->SetTexture(NULL);
+
+	_scrollBack = 0;
+}
+
+void Console::OnChar(int c)
+{
+	GetManager()->SetFocusWnd(_input);
+}
+
+void Console::OnRawChar(int c)
+{
+	switch(c)
+	{
+	case VK_PRIOR:
+		_scrollBack = __min(_scrollBack + 1, g_console->GetLineCount() - 1);
+		break;
+	case VK_NEXT:
+		if( _scrollBack > 0 ) --_scrollBack;
+		break;
+	case VK_HOME:
+		_scrollBack = g_console->GetLineCount() - 1;
+		break;
+	case VK_END:
+		_scrollBack = 0;
+		break;
+	case VK_OEM_3:
+		Close(_resultCancel);
+		break;
+	default:
+		Dialog::OnRawChar(c);
+	}
+}
+
+void Console::DrawChildren(float sx, float sy)
+{
+	Dialog::DrawChildren(sx, sy);
+
+
+	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetHeight());
+	size_t scroll = __min(_scrollBack, g_console->GetLineCount());
+	size_t count  = __min( g_console->GetLineCount() - scroll, visibleLineCount );
+
+	_blankText->Show(true);
+	for( size_t i = 0; i < count; ++i )
+	{
+		_blankText->SetText( g_console->GetLine(g_console->GetLineCount() - scroll - i - 1) );
+		_blankText->Draw(sx + 4, sy -= _blankText->GetHeight());
+	}
+	_blankText->Show(false);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)

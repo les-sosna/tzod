@@ -6,6 +6,7 @@
 #include "ui/interface.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -123,14 +124,14 @@ int Socket::Send(HANDLE hAbortEvent, const void *buf, int len)
 			int result = Wait(hAbortEvent);
 			if( result )
 			{
-				LOGOUT_1("wait error\n");
+				TRACE("wait error\n");
 				return result;
 			}
 
 			// проверка события
 			if( !CheckEvent(FD_WRITE_BIT) )
 			{
-				LOGOUT_1("check error\n");
+				TRACE("check error\n");
 				return Error;
 			}
 
@@ -138,7 +139,7 @@ int Socket::Send(HANDLE hAbortEvent, const void *buf, int len)
 			n = send(_hSocket, (const char *) buf + sent, len - sent, 0);
 			if( SOCKET_ERROR == n || 0 == n )
 			{
-				LOGOUT_1("send error\n");
+				TRACE("couldn't send the data");
 				return Error;
 			}
 		}
@@ -220,9 +221,8 @@ bool Socket::CheckEvent(int bit)
 {
 	if( 0 == (_ne.lNetworkEvents & (1 << bit)) || 0 != _ne.iErrorCode[bit] )
 	{
-		LOGOUT_1("CheckEvent failed: ");
-		LOGOUT_2("lNetworkEvents = %d; ", _ne.lNetworkEvents);
-		LOGOUT_3("iErrorCode[bit=%d] = %d\n", bit, _ne.iErrorCode[bit]);
+		TRACE("CheckEvent failed: lNetworkEvents = %d; iErrorCode[bit=%d] = %d", 
+			_ne.lNetworkEvents, bit, _ne.iErrorCode[bit]);
 		return false;
 	}
 	return true;
@@ -235,7 +235,7 @@ SOCKET Socket::operator = (SOCKET s)
 	BOOL on = TRUE;
 	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
 	{
-		MessageBoxT(NULL, "setting TCP_NODELAY failed!", MB_OK);
+		TRACE("WARNING: setting TCP_NODELAY failed!");
 	}
 	return _hSocket;
 }

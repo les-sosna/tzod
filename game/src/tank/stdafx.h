@@ -52,6 +52,7 @@
 #include <io.h>
 
 #include <math.h>
+#include <time.h>
 
 // c++ libraries
 

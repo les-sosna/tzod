@@ -5,6 +5,7 @@
 #include "TankClient.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 #include "gc/Vehicle.h" // FIXME!
 
@@ -111,14 +112,14 @@ TankClient::~TankClient(void)
 
 bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 {
-	LOGOUT_1("Client connect...\n");
+	TRACE("Connecting...");
 
 	if( !_bInit )
 	{
 		WSAData wsad;
 		if( WSAStartup(0x0002, &wsad) )
 		{
-			LOGOUT_1("Windows sockets init failed\n");
+			TRACE("ERROR: Windows sockets init failed");
 			return false;
 		}
 		_bInit = true;
@@ -127,7 +128,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socket )
 	{
-		LOGOUT_1("Unable to create socket\n");
+		TRACE("ERROR: Unable to create socket");
 		return false;
 	}
 
@@ -147,7 +148,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			hostent* he = gethostbyname(hostaddr);
 			if( NULL == he )
 			{
-				LOGOUT_1("Unable to resolve IP-address\n");
+				TRACE("ERROR: Unable to resolve IP-address");
 				throw false;
 			}
 			addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
@@ -156,21 +157,20 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		if( WSAAsyncSelect( _socket, _hMainWnd=hMainWnd,
 			WM_CUSTOMCLIENTMSG, FD_CONNECT | FD_READ | FD_WRITE ) )
 		{
-			LOGOUT_1("Unable to select event\n");
+			TRACE("ERROR: Unable to select event");
 			throw false;
 		}
 
 		if( !connect(_socket, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 		{
-			LOGOUT_1("connect call failed!\n");
+			TRACE("ERROR: connect call failed!\n");
 			throw false;
 		}
 
 		int error;
 		if( WSAEWOULDBLOCK != (error = WSAGetLastError()) )
 		{
-			LOGOUT_2("error %d\n", error);
-			LOGOUT_1("WSAEWOULDBLOCK expected!\n");
+			TRACE("error %d; WSAEWOULDBLOCK expected!", error);
 			throw false;
 		}
 	}
@@ -233,7 +233,7 @@ LRESULT TankClient::Mirror(WPARAM wParam, LPARAM lParam)
 {
 	if( WSAGETSELECTERROR(lParam) )
 	{
-		LOGOUT_2("network error: %d\n", WSAGETSELECTERROR(lParam));
+		TRACE("network error: %d\n", WSAGETSELECTERROR(lParam));
 		Message("Сбой соединения", true);
 		return 0;
 	}

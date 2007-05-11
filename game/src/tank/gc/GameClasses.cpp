@@ -4,6 +4,7 @@
 
 #include "core/Debug.h"
 #include "core/JobManager.h"
+#include "core/Console.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
@@ -316,8 +317,6 @@ void GC_Camera::SwitchEditor()
 
 void GC_Camera::UpdateLayout()
 {
-	LOGOUT_1("GC_Camera::UpdateLayout()\n");
-
 	GC_Camera *tmp = NULL;
 	size_t active_count = 0;
 
@@ -1671,6 +1670,8 @@ void GC_Text_MessageArea::message(const char *text)
 	line.str = text;
 	line.str.append("\n");
 	_lines.push_back(line);
+
+	g_console->print("%s", text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

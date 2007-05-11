@@ -4,6 +4,7 @@
 #include "TankServer.h"
 
 #include "core/debug.h"
+#include "core/console.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -90,19 +91,19 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 	_ASSERT(VERSION == _GameInfo.dwVersion);
 
 
-	LOGOUT_1("Server startup...\n");
+	TRACE("Server startup...");
 	WSAData wsad;
 	if( !_bInit )
 	{
 		if( WSAStartup(0x0002, &wsad) )
-			LOGOUT_1("Windows sockets init failed\n");
+			TRACE("ERROR: Windows sockets init failed");
 	}
 	_bInit = true;
 
 	_socketListen = socket(PF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socketListen )
 	{
-		LOGOUT_1("Unable to create socket\n");
+		TRACE("ERROR: Unable to create socket");
         return false;
 	}
 
@@ -114,13 +115,13 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 	{
-		LOGOUT_2("Unable to bind socket: %d\n", WSAGetLastError());
+		TRACE("ERROR: Unable to bind socket: %d", WSAGetLastError());
 		return false;
 	}
 
 	if( listen(_socketListen, SOMAXCONN) )
 	{
-		LOGOUT_1("Listen call failed\n");
+		TRACE("ERROR: Listen call failed");
 		return false;
 	}
 
@@ -128,7 +129,7 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	if( _socketListen.SetEvents(FD_ACCEPT) )
 	{
-		LOGOUT_1("Unable to select event\n");
+		TRACE("ERROR: Unable to select event");
 		return false;
 	}
 
@@ -138,7 +139,7 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 	_hMainSemaphore = CreateSemaphore(NULL, 0, 0xFFFF, NULL); _ASSERT(NULL != _hMainSemaphore);
 	_hMainStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	LOGOUT_1("Server is online\n");
+	TRACE("Server is online");
 
 	DWORD tmp;
 	_hAcceptThread  = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) AcceptProc, this, 0, &tmp);

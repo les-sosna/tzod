@@ -8,6 +8,7 @@
 #include "functions.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 #include "network/TankClient.h"
 #include "network/TankServer.h"
@@ -212,7 +213,7 @@ void Field::Dump()
 // в конструкторе уровня нельзя создавать игровые объекты
 Level::Level()
 {
-	LOGOUT_1("enter to the level constructor\n");
+	TRACE("Constructing the level");
 	srand( GetTickCount() );
 
 	_timer.SetMaxDt(MAX_DT / (float) OPT(gameSpeed) * 100.0f);
@@ -357,7 +358,7 @@ BOOL Level::init_load(const char *fileName)
 
 Level::~Level()
 {
-	LOGOUT_1("Level::~Level()\n");
+	TRACE("Destroying the level");
 
 	SAFE_KILL(_temporaryText);
 
@@ -393,7 +394,7 @@ Level::~Level()
 // уровень должен быть пустым
 bool Level::Unserialize(const char *fileName)
 {
-	LOGOUT_2("Loading level from file '%s'...\n", fileName);
+	TRACE("Loading saved game from file '%s'", fileName);
 
 	SaveFile f;
 	f._load = true;
@@ -407,7 +408,7 @@ bool Level::Unserialize(const char *fileName)
 
 	if( INVALID_HANDLE_VALUE == f._file )
 	{
-		REPORT("Load error: file open failed\n");
+		TRACE("ERROR: couldn't open file");
 		return false;
 	}
 
@@ -419,10 +420,10 @@ bool Level::Unserialize(const char *fileName)
 		SAVEHEADER sh = {0};
 		ReadFile(f._file, &sh, sizeof(SAVEHEADER), &bytesRead, NULL);
 		if( sizeof(SAVEHEADER) != bytesRead )
-			throw "Load error: invalid file size\n";
+			throw "ERROR: unexpected end of file";
 
 		if( VERSION != sh.dwVersion )
-			throw "Load error: invalid version\n";
+			throw "ERROR: invalid version";
 
 		g_options.gameType   = sh.dwGameType;
 		g_options.timelimit  = sh.timelimit;
@@ -440,9 +441,8 @@ bool Level::Unserialize(const char *fileName)
 
 
 		//восстанавливаем связи
-		LOGOUT_1("restoring links...\n");
 		if( !f.RestoreAllLinks() )
-			throw "Load error: invalid links\n";
+			throw "ERROR: invalid links";
 
 		// применение темы
 		_infoTheme = sh.theme;
@@ -455,12 +455,10 @@ bool Level::Unserialize(const char *fileName)
 
 		GC_Camera::SwitchEditor();
 		Pause(false);
-
-		REPORT("Load OK\n");
 	}
 	catch (const char *msg)
 	{
-		REPORT(msg);
+		TRACE(msg);
 		result = false;
 	}
 
@@ -470,7 +468,7 @@ bool Level::Unserialize(const char *fileName)
 
 bool Level::Serialize(const char *fileName)
 {
-	REPORT("Saving level...\n");
+	TRACE("Saving game to file '%s'", fileName);
 
 	DWORD bytesWritten = 0;
 
@@ -485,7 +483,7 @@ bool Level::Serialize(const char *fileName)
 	                     NULL);
 	if( INVALID_HANDLE_VALUE == f._file )
 	{
-		REPORT("Save error: file open failed\n");
+		TRACE("ERROR: couldn't open file for writing");
 		return false;
 	}
 
@@ -523,7 +521,7 @@ bool Level::Serialize(const char *fileName)
 
 		WriteFile(f._file, &sh, sizeof(SAVEHEADER), &bytesWritten, NULL);
 		if( bytesWritten != sizeof(SAVEHEADER) )
-			throw "Save error\n";
+			throw "ERROR: couldn't write file. check disk space";
 
 		//перебираем все объекты. если нужно - сохраняем
 		OBJECT_LIST::reverse_iterator it = g_level->objects.rbegin();
@@ -534,8 +532,6 @@ bool Level::Serialize(const char *fileName)
 			{
 				ObjectType type = object->GetType();
 				WriteFile(f._file, &type, sizeof(type), &bytesWritten, NULL);
-				LOGOUT_3("saving object %d at 0x%X\n", type, 
-					SetFilePointer(f._file, 0, 0, FILE_CURRENT));
 				try
 				{
 					SafePtr<void> tmp;
@@ -547,7 +543,7 @@ bool Level::Serialize(const char *fileName)
 				}
 				catch (...)
 				{
-					throw "Save error: serialize object\n";
+					throw "ERROR: serialize object failed\n";
 				}
 				sh.nObjects++;
 			}
@@ -557,16 +553,15 @@ bool Level::Serialize(const char *fileName)
 		SetFilePointer(f._file, 0, NULL, FILE_BEGIN);
 		WriteFile(f._file, &sh, sizeof(SAVEHEADER), &bytesWritten, NULL);
 		if( bytesWritten != sizeof(SAVEHEADER) )
-			throw "Save error\n";
+			throw "ERROR: couldn't write file. check disk space";
 	}
 	catch(const char *msg)
 	{
-		REPORT(msg);
+		TRACE(msg);
 		result = false;
 	}
 	CloseHandle(f._file);
 
-	REPORT("Save OK\n");
 	return result;
 }
 

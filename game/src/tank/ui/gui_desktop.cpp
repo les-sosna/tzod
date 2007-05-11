@@ -32,22 +32,20 @@ void Desktop::OnRawChar(int c)
 	switch( c )
 	{
 	case VK_OEM_3: // '~'
-//		dlg = new Console(this);
+		dlg = new Console(this, 10, 0, GetWidth() - 20, GetHeight() * 0.5f);
 		break;
 
 	case VK_ESCAPE:
 		dlg = new MainMenuDlg(this);
+		ShowDesktopBackground(true);
+		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		break;
 
 	case VK_F2:
 		dlg = new NewGameDlg(this);
-		break;
-	}
-
-	if( dlg )
-	{
 		ShowDesktopBackground(true);
 		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
+		break;
 	}
 }
 

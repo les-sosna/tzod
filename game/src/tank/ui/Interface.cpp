@@ -18,6 +18,7 @@
 #include "video/TextureManager.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 #include "ui/GuiManager.h"
 #include "network/TankClient.h"
@@ -135,15 +136,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if( (wMinimized || (wActive == WA_INACTIVE)) && !g_env.bMinimized )
 		{
-			LOGOUT_1("main window deactivated\n");
+			TRACE("main window deactivated");
 
 			g_env.bMinimized = true;
 			if( g_level && !g_level->_client )
 				g_level->_timer.Stop();
 		}
-		else if (g_env.bMinimized)
+		else if( g_env.bMinimized )
 		{
-			LOGOUT_1("main window activated\n");
+			TRACE("main window activated\n");
 
 			g_env.bMinimized = false;
 			if( g_level && !g_level->_client )
@@ -1929,7 +1930,6 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			{
 				int index = wmId - IDC_SETTINGS_PLAYER1;
 
-				LOGOUT_1("DialogBox(IDD_DIALOG_CONTROLLS)\n");
 				DialogBoxParam(g_hInstance, (LPCTSTR)IDD_DIALOG_CONTROLS, hDlg,
 					(DLGPROC) dlgControls, (LPARAM) &g_options.players[index]);
 
@@ -1944,7 +1944,6 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				}
 			} break;
 			case IDC_SETTINGS_WINAMP:
-				LOGOUT_1("DialogBox(IDD_WINAMP_CONTROL)\n");
 				DialogBox(g_hInstance, (LPCTSTR)IDD_WINAMP_CONTROL, hDlg, (DLGPROC) dlgWinampControl);
 				FreeDirectInput();
 				InitDirectInput(g_env.hMainWnd);
@@ -2487,7 +2486,6 @@ void EditKey(HWND hwndLV, LPPLAYER pl)
 	lvi.mask   = LVIF_PARAM;
 	lvi.iItem  = ListView_GetSelectionMark(hwndLV);
 	ListView_GetItem(hwndLV, &lvi);
-	LOGOUT_1("DialogBox(IDD_DIALOG_GETKEY)\n");
 	DialogBoxParam(g_hInstance, (LPCTSTR)IDD_DIALOG_GETKEY,
 		GetParent(hwndLV), (DLGPROC) dlgGetKey, lvi.lParam);
 	Controls_ListViewUpdate(hwndLV, pl, FALSE);
@@ -2615,7 +2613,6 @@ void EditKey(HWND hwndLV)
 	lvi.mask =   LVIF_PARAM;
 	lvi.iItem    = ListView_GetSelectionMark(hwndLV);
 	ListView_GetItem(hwndLV, &lvi);
-	LOGOUT_1("DialogBox(IDD_DIALOG_GETKEY)\n");
 	DialogBoxParam(g_hInstance, (LPCTSTR) IDD_DIALOG_GETKEY,
 		GetParent(hwndLV), (DLGPROC) dlgGetKey, lvi.lParam);
 	Winamp_ListViewUpdate(hwndLV, FALSE);

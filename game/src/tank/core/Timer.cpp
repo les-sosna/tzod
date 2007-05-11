@@ -6,6 +6,7 @@
 
 #include "Timer.h"
 #include "Debug.h"
+#include "Console.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -13,7 +14,7 @@
 
 Timer::Timer()
 {
-	LOGOUT_1("timer: init\n");
+	TRACE("timer: init\n");
 
 	_qpf_time_max_dt.QuadPart = MAXLONGLONG;
 	_time_max_dt              = MAXLONG;
@@ -26,8 +27,8 @@ Timer::Timer()
 
 	if( _useQPF )
 	{
-		LOGOUT_1("timer: using QPF\n");
-		LOGOUT_2("timer: frequency is %I64u Hz\n", f.QuadPart);
+		TRACE("timer: using QPF\n");
+		TRACE("timer: frequency is %I64u Hz\n", f.QuadPart);
 
 		_qpf_frequency = (double) f.QuadPart;
 
@@ -42,13 +43,13 @@ Timer::Timer()
 	{
 		// QPF не поддерживается. будем использовать timeGetTime
 		timeBeginPeriod(1);
-		LOGOUT_1("timer: using timeGetTime\n");
+		TRACE("timer: using timeGetTime\n");
 	}
 }
 
 Timer::~Timer()
 {
-	LOGOUT_1("timer: shotdown\n");
+	TRACE("timer: shotdown\n");
 	if( !_useQPF )
 	{
 		timeEndPeriod(1);
@@ -132,13 +133,13 @@ void Timer::Stop()
 	}
 
 	_stopCount++;
-	LOGOUT_2("timer: stop;  now stop count is %d\n", _stopCount);
+	TRACE("timer: stop;  now stop count is %d\n", _stopCount);
 }
 
 void Timer::Start()
 {
 	_stopCount--;
-	LOGOUT_2("timer: start;  now stop count is %d\n", _stopCount);
+	TRACE("timer: start;  now stop count is %d\n", _stopCount);
 	_ASSERT(_stopCount >= 0);
 
 	if( !_stopCount )

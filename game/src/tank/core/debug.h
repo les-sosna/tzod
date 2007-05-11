@@ -3,15 +3,18 @@
 #pragma once
 
 
-#ifndef _DEBUG
-#define _CrtDbgReport
-#endif
+//#ifdef _DEBUG
+//#define REPORT(str) {_CrtDbgReport(_CRT_WARN, NULL, NULL, NULL, (str)); LOGOUT_1(str);}
+//#else
+//#define REPORT
+//#endif
 
-#if defined _DEBUG
-#define REPORT(str) {_CrtDbgReport(_CRT_WARN, NULL, NULL, NULL, (str)); LOGOUT_1(str);}
-#else
-#define REPORT
-#endif
+//#ifdef _DEBUG
+#define TRACE(fmt, ...) g_console->print(fmt, __VA_ARGS__);
+//#else
+//#define TRACE
+//#endif
+
 
 
 // generates an error if an invalid class name passed
@@ -26,21 +29,21 @@
 
 //-----------------------------------
 
-#ifdef LOGFILE
- extern FILE *__g_plogfile;
-
- BOOL InitLogFile(char *fileName);
-
- #define LOGOUT_1(p1) {fprintf(__g_plogfile, (p1)); fflush(__g_plogfile);}
- #define LOGOUT_2(p1, p2) {fprintf(__g_plogfile, (p1), (p2)); fflush(__g_plogfile);}
- #define LOGOUT_3(p1, p2, p3) {fprintf(__g_plogfile, (p1), (p2), (p3)); fflush(__g_plogfile);}
-#else
- #define InitLogFile
- #define LOGOUT_1
- #define LOGOUT_2
- #define LOGOUT_3
-#endif
-
+//#ifdef LOGFILE
+// extern FILE *__g_plogfile;
+//
+// BOOL InitLogFile(char *fileName);
+//
+// #define LOGOUT_1(p1) {fprintf(__g_plogfile, (p1)); fflush(__g_plogfile);}
+// #define LOGOUT_2(p1, p2) {fprintf(__g_plogfile, (p1), (p2)); fflush(__g_plogfile);}
+// #define LOGOUT_3(p1, p2, p3) {fprintf(__g_plogfile, (p1), (p2), (p3)); fflush(__g_plogfile);}
+//#else
+// #define InitLogFile
+// #define LOGOUT_1
+// #define LOGOUT_2
+// #define LOGOUT_3
+//#endif
+//
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

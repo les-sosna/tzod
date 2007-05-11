@@ -67,17 +67,16 @@ static void OnPrintScreen()
 
 	OPT(nScreenshotNumber) = n;
 
-	LOGOUT_1("Screenshot ");
 	if ( !g_render->TakeScreenshot(name) )
 	{
-		LOGOUT_1("FAILED!\n");
+		TRACE("ERROR: take screenshot failed");
 		_MessageArea::Inst()->message("> ошибка!");
 	}
 	else
 	{
-		LOGOUT_2("'%s'\n", name);
-	//	_MessageArea::Inst()->message(name);
+		TRACE("Screenshot '%s'", name);
 	}
+
 
 	SetCurrentDirectory("..");
 
@@ -442,7 +441,7 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 
 static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 {
-	LOGOUT_1("create main window\n");
+	TRACE("create main window");
     HWND hWnd = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
                            WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
 						   CW_USEDEFAULT, CW_USEDEFAULT, // position
@@ -462,19 +461,31 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	// init log file
 	//
-	InitLogFile(FILE_LOG);
-	LOGOUT_1("--- Initialize ---\n");
+//	InitLogFile(FILE_LOG);
+//	LOGOUT_1("--- Initialize ---\n");
 
 
 	//
-	// create console buffer
+	// create the console buffer
 	//
-	g_console = new ConsoleBuffer(8, 1000);
+	g_console = new ConsoleBuffer(80, 1000);
+
+
+	//
+    // print UNIX-style date and time
+	//
+	time_t ltime;
+	char timebuf[26];
+    time( &ltime );
+    ctime_s(timebuf, 26, &ltime);
+	TRACE(" Engine started at %s", timebuf);
+	TRACE("--------------------------------------------");
 
 
 	//
 	// init file system
 	//
+	TRACE("Mounting the file system");
 	g_fs = OSFileSystem::Create(".");
 
 
@@ -483,7 +494,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// init options
 	//
 	
-	if( !LoadOptions() ) 
+	if( !LoadOptions() )
 		SetDefaultOptions();
 
 	g_env.nNeedCursor  = 0;
@@ -514,20 +525,19 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// init scripting system
 	//
 
-	LOGOUT_1("script engine initialization... ");
+	TRACE("scripting subsystem initialization");
 	if( NULL == (g_env.hScript = script_open()) )
 	{
-		LOGOUT_1("FAILED\n");
+		TRACE("FAILED\n");
 		return -1;
 	}
-	LOGOUT_1("ok\n");
 
 
 	//
 	// init common controls
 	//
 
-	LOGOUT_1("init common controls\n");
+	TRACE("windows common controls initialization");
 	INITCOMMONCONTROLSEX iccex = {
 	sizeof(INITCOMMONCONTROLSEX),
 		0
@@ -550,10 +560,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
 		// init texture manager
 		g_texman = new TextureManager;
-
 		LoadSurfaces();
 
-		LOGOUT_1("--- Begin main loop ---\n");
 		timeBeginPeriod(1);
 
 #ifndef _DEBUG
@@ -562,13 +570,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		;
 #endif
 		// init GUI
+		TRACE("GUI subsystem initialization");
 		g_gui = new GuiManager(CreateDesktopWindow);
 		g_render->OnResizeWnd();
 		g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
 
 
+		TRACE("Execing startup script '%s'", FILE_STARTUP);
 		if( !script_exec_file(g_env.hScript, FILE_STARTUP) )
 		{
+			TRACE("ERROR: in startup script");
 			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
 		}
 
@@ -587,17 +598,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			{
 				ReadImmediateData();  // чтение состояния устройств ввода
 				//------------------------------
-			/*	if (g_env.envInputs.keys[DIK_ESCAPE])
+				if( g_env.envInputs.keys[DIK_SPACE] && g_options.bModeEditor )
 				{
-					LOGOUT_1("DialogBox(IDD_MAIN)\n");
-					g_level->Pause(true);
-					DialogBoxParam(g_hInstance, (LPCTSTR)IDD_MAIN, g_env.hMainWnd, (DLGPROC) dlgMain, (LPARAM) g_env.hMainWnd);
-					if (g_level) g_level->Pause(false);
-					continue;
-				}
-				else*/ if( g_env.envInputs.keys[DIK_SPACE] && g_options.bModeEditor )
-				{
-					LOGOUT_1("DialogBox(IDD_SELECT_OBJECT)\n");
 					DialogBox(g_hInstance, (LPCTSTR)IDD_SELECT_OBJECT, g_env.hMainWnd, (DLGPROC) dlgSelectObject);
 					continue;
 				}
@@ -606,7 +608,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					IPropertySet *p = _Editor::Inst()->GetSelection()->GetProperties();
 					if( NULL != p )
 					{
-						LOGOUT_1("DialogBox(IDD_OBJPROP)\n");
 						DialogBoxParam(g_hInstance, (LPCTSTR)IDD_OBJPROP, g_env.hMainWnd, (DLGPROC) dlgObjectProperties, (LPARAM) p);
 						p->Release();
 					}
@@ -614,7 +615,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 				else if( g_env.envInputs.keys[DIK_F8] && g_options.bModeEditor )
 				{
-					LOGOUT_1("DialogBox(IDD_MAP_INFO)\n");
 					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
 					continue;
 				}
@@ -625,17 +625,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					g_level->Pause(false);
 					continue;
 				}
-//				else if( g_env.envInputs.keys[DIK_F2] )
-//				{
-//					LOGOUT_1("DialogBox(IDD_NEWDM)\n");
-//					g_level->Pause(true);
-//					DialogBox(g_hInstance, (LPCTSTR)IDD_NEWDM, g_env.hMainWnd, (DLGPROC) dlgNewDM);
-//					g_level->Pause(false);
-//					continue;
-//				}
 				else if( g_env.envInputs.keys[DIK_F12] )
 				{
-					LOGOUT_1("DialogBox(IDD_OPTIONS)\n");
 					g_level->Pause(true);
 					DialogBox(g_hInstance, (LPCTSTR)IDD_OPTIONS, g_env.hMainWnd, (DLGPROC) dlgOptions);
 					g_level->Pause(false);
@@ -643,7 +634,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
 				{
-					LOGOUT_1("Alt + F4 has been pressed. DestroyWindow\n");
+					TRACE("Alt + F4 has been pressed. Destroying the main app window");
 					DestroyWindow(g_env.hMainWnd);
 					continue;
 				}
@@ -666,10 +657,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		} // end of try block
 		catch(...)	// general error handling
 		{
-			LOGOUT_1("GENERAL FAULT\n");
+			TRACE("GENERAL FAULT");
 			bGeneralFault = TRUE;
 		}
 #endif
+
+		TRACE("Shutting down GUI subsystem");
 		SAFE_DELETE(g_gui);
 		timeEndPeriod(1);
 	} // end if ( SUCCEEDED(InitAll(hWnd)) )
@@ -678,14 +671,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);
 	}
 
-	LOGOUT_1("--- Shotdown ---\n");
-
+	TRACE("Saving options");
 	SaveOptions();
+
 	FreeDirectInput();
 
 	g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);
 
+	TRACE("Shutting down the renderer");
 	SAFE_RELEASE(g_render);
 
 
@@ -701,20 +695,21 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 #endif
 
 	// script engine cleanup
-	LOGOUT_1("script engine shutdown... ");
+	TRACE("Shutting down the scripting subsystem");
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
-	LOGOUT_1("ok\n");
+
+	// clean up the file system
+	TRACE("Unmounting the file system");
+	g_fs = NULL;
+
+	TRACE("Exit.");
 
 	// free console buffer
 	SAFE_DELETE(g_console);
 
-	// clean up the file system
-	g_fs = NULL;
-
 
 	Sleep(500);
-	LOGOUT_1("\n--- exit ---\n");
 	return 0;
 }
 

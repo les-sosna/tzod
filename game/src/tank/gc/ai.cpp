@@ -946,8 +946,6 @@ bool AIController::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStati
 
 void AIController::Reset()
 {
-	REPORT("AI controller reset\n");
-
 	_pickupCurrent = NULL;
 
 	ClearPath();
@@ -1078,8 +1076,6 @@ void AIController::LockTarget(GC_RigidBodyStatic *target)
 
 		_target = target;
 		_target->AddRef();
-
-		REPORT("AI locks a new target\n");
 	}
 }
 
@@ -1089,8 +1085,6 @@ void AIController::FreeTarget()
 	{
 		_target->Release();
 		_target = NULL;
-
-		REPORT("AI free target\n");
 	}
 }
 
