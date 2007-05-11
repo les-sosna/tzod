@@ -11,6 +11,7 @@ class CSound;
 class GuiManager;
 class Level;
 class IFileSystem;
+class ConsoleBuffer;
 
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
@@ -30,7 +31,7 @@ extern TextureManager *g_texman;
 extern CSoundManager  *g_pSoundManager;
 extern GuiManager     *g_gui;
 extern Level          *g_level;
-
+extern ConsoleBuffer  *g_console;
 extern SafePtr<IFileSystem> g_fs;
 
 

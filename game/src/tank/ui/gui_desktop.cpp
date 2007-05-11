@@ -31,6 +31,10 @@ void Desktop::OnRawChar(int c)
 
 	switch( c )
 	{
+	case VK_OEM_3: // '~'
+//		dlg = new Console(this);
+		break;
+
 	case VK_ESCAPE:
 		dlg = new MainMenuDlg(this);
 		break;

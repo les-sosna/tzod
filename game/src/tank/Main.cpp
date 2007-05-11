@@ -8,6 +8,7 @@
 #include "directx.h"
 
 #include "core/debug.h"
+#include "core/Console.h"
 
 #include "network/datablock.h"
 #include "network/TankClient.h"
@@ -439,7 +440,6 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 	return new UI::Desktop(mgr);
 }
 
-
 static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 {
 	LOGOUT_1("create main window\n");
@@ -453,8 +453,6 @@ static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 	return hWnd;
 }
 
-
-
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	_ASSERT(RedirectIOToConsole());
@@ -466,6 +464,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	InitLogFile(FILE_LOG);
 	LOGOUT_1("--- Initialize ---\n");
+
+
+	//
+	// create console buffer
+	//
+	g_console = new ConsoleBuffer(80, 1000);
+
+	g_console->print("bla\n\n");
+	g_console->print(
+"here is long long line: -- *** 321 *** ooo yeaa __ purum-purum abcdefghijklm some troubles posible %d\n", 13);
 
 
 	//
@@ -702,6 +710,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
 	LOGOUT_1("ok\n");
+
+	// free console buffer
+	SAFE_DELETE(g_console);
 
 	// clean up the file system
 	g_fs = NULL;
