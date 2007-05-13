@@ -181,29 +181,30 @@ FieldCell& Field::operator() (int x, int y)
 
 void Field::Dump()
 {
-	REPORT("==== Field dump ====\n");
+	TRACE("==== Field dump ====\n");
 
 	for( int y = 0; y < _cy; y++ )
 	{
+		char buf[1024] = {0};
 		for( int x = 0; x < _cx; x++ )
 		{
 			switch( (*this)(x, y).Properties() )
 			{
 			case 0:
-				REPORT(" ");
+				strcat(buf, " ");
 				break;
 			case 1:
-				REPORT("-");
+				strcat(buf, "-");
 				break;
 			case 0xFF:
-				REPORT("#");
+				strcat(buf, "#");
 				break;
 			}
 		}
-		REPORT("\n");
+		TRACE(buf);
 	}
 
-	REPORT("=== end of dump ====\n");
+	TRACE("=== end of dump ====\n");
 }
 
 #endif
@@ -248,7 +249,6 @@ void Level::Init(int X, int Y)
 	//
 
 	_Background::CreateInstance();
-//	_Cursor::CreateInstance();
 	_FpsCounter::CreateInstance();
 	_MessageArea::CreateInstance();
 

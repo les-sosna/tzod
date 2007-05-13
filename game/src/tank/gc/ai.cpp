@@ -684,17 +684,17 @@ void AIController::SetL1(AIController::aiState_l1 new_state)
 	switch (new_state)
 	{
 	case L1_PATH_END:
-		REPORT("AI switch to L1_PATH_END\n");
+//		REPORT("AI switch to L1_PATH_END\n");
 		break;
 	case L1_STICK:
-		REPORT("AI switch to L1_STICK\n");
+//		REPORT("AI switch to L1_STICK\n");
 		break;
 	case L1_NONE:
-		REPORT("AI switch to L1_NONE\n");
+//		REPORT("AI switch to L1_NONE\n");
 		break;
 	default:
-		REPORT("AI switch to L1<unknown>\n");
-		_ASSERT(0);
+//		REPORT("AI switch to L1<unknown>\n");
+		_ASSERT(FALSE);
 	}
 #endif
 
@@ -710,17 +710,17 @@ void AIController::SetL2(AIController::aiState_l2 new_state)
 	switch (new_state)
 	{
 	case L2_PATH_SELECT:
-		REPORT("AI switch to L2_PATH_SELECT\n");
+//		REPORT("AI switch to L2_PATH_SELECT\n");
 		break;
 	case L2_PICKUP:
-		REPORT("AI switch to L2_PICKUP\n");
+//		REPORT("AI switch to L2_PICKUP\n");
 		break;
 	case L2_ATTACK:
 		_ASSERT(_target);
-		REPORT("AI switch to L2_ATTACK\n");
+//		REPORT("AI switch to L2_ATTACK\n");
 		break;
 	default:
-		REPORT("AI switch to L2<unknown>\n");
+//		REPORT("AI switch to L2<unknown>\n");
 		_ASSERT(0);
 	}
 #endif

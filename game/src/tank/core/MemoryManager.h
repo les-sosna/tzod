@@ -62,8 +62,8 @@ public:
 
 #ifdef _DEBUG
 		_ASSERT(0 == _allocated_count);
-		LOGOUT_3("MemoryManager<%s>: peak allocation is %u\n",
-			typeid(T).name(), _allocated_peak);
+//		TRACE("MemoryManager<%s>: peak allocation is %u\n",
+//			typeid(T).name(), _allocated_peak);
 #endif
 	}
 

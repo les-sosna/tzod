@@ -10,11 +10,13 @@
 #include "gc/player.h"
 #include "gc/editor.h"
 
+#include "core/Console.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // c closures
 
 // exit to the system
-static int luaT_exit(lua_State *L)
+static int luaT_quit(lua_State *L)
 {
 	DestroyWindow(g_env.hMainWnd);
 	return 0;
@@ -353,7 +355,7 @@ script_h script_open(void)
 	lua_register(L, "loadmap",   luaT_loadmap);
 	lua_register(L, "pause",     luaT_pause);
 	lua_register(L, "message",   luaT_message);
-	lua_register(L, "exit",      luaT_exit);
+	lua_register(L, "quit",      luaT_quit);
 
 
 	//
@@ -403,13 +405,13 @@ bool script_exec_file(script_h s, const char *filename)
 
 	if( luaL_loadfile(LS(s), filename) )
 	{
-		printf("%s\n", lua_tostring(LS(s), -1));
+		TRACE("%s\n", lua_tostring(LS(s), -1));
 		return false;
 	}
 
 	if( lua_pcall(LS(s), 0, 0, 0) )
 	{
-		printf("runtime error: %s\n", lua_tostring(LS(s), -1));
+		TRACE("runtime error: %s\n", lua_tostring(LS(s), -1));
 		return false;
 	}
 

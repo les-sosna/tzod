@@ -65,8 +65,6 @@ public:
 	void TimeStepFloat(float dt);
 };
 
-typedef DynamicSingleton<GC_Cursor> _Cursor;
-
 ///////////////////////////////////////////////////////////////////////////////
 */
 
