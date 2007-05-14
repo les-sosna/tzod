@@ -577,11 +577,11 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 	// create buttons
 	//
 
-	(new Button(this, 176, 224, "OK"))->eventClick.bind(&EditPlayerDlg::OnOk, this);
+	(new Button(this, 176, 224, "OK"))->eventClick.bind(&EditPlayerDlg::OnOK, this);
 	(new Button(this, 280, 224, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
-void EditPlayerDlg::OnOk()
+void EditPlayerDlg::OnOK()
 {
 	_playerDesc.type = (short) _types->GetList()->GetItemData( _types->GetCurSel() );
 
@@ -629,7 +629,7 @@ SkinSelectorDlg::SkinSelectorDlg(Window *parent)
 	}
 }
 
-void SkinSelectorDlg::OnOk()
+void SkinSelectorDlg::OnOK()
 {
 	Close(_resultOK);
 }

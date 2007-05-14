@@ -97,7 +97,7 @@ public:
 	EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disablePlayers);
 
 protected:
-	void OnOk();
+	void OnOK();
 	void OnCancel();
 
 	void OnChangeSkin(int index);
@@ -112,7 +112,7 @@ public:
 	SkinSelectorDlg(Window *parent);
 
 protected:
-	void OnOk();
+	void OnOK();
 	void OnCancel();
 };
 
