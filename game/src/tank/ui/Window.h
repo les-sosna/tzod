@@ -136,7 +136,7 @@ public:
 	void Resize(float width, float height);
 
 	void Enable(bool enable) { OnEnable(_isEnabled = enable); }
-	void Show  (bool show)   { _isVisible = show;   }
+	void Show  (bool show);
 
 	void SetTopMost(bool topmost);
 
@@ -177,6 +177,7 @@ public:
 
 	virtual void OnEnable(bool enable);
 	virtual bool OnFocus(bool focus); // return true if the window took focus
+	virtual void OnShow(bool show);
 };
 
 

@@ -100,6 +100,27 @@ static int luaT_message(lua_State *L)
 	return 0;
 }
 
+static int luaT_print(lua_State *L)
+{
+	int n = lua_gettop(L);     // get number of arguments
+/*	lua_getglobal(L, "tostring");
+	for( int i = 1; i <= n; ++i )
+	{
+		lua_pushvalue(L, -1);  // function to be called
+		lua_pushvalue(L, i);   // value to print (1-st arg)
+		lua_call(L, 1, 1);
+		const char *s = lua_tostring(L, -1);  // get result string
+		if( NULL == s )
+		{
+			return luaL_error(L, LUA_QL("tostring") " must return a string to "
+			LUA_QL("print"));
+		}
+		g_console->print("%s", s);
+		lua_pop(L, 1);         // pop result
+	}*/
+	return 0;
+}
+
 static int get_array(lua_State *L, float *array, int count)
 {
 	for( int i = 0; i < count; i++ )
@@ -355,6 +376,7 @@ script_h script_open(void)
 	lua_register(L, "loadmap",   luaT_loadmap);
 	lua_register(L, "pause",     luaT_pause);
 	lua_register(L, "message",   luaT_message);
+//	lua_register(L, "print",     luaT_print);
 	lua_register(L, "quit",      luaT_quit);
 
 
@@ -396,6 +418,19 @@ void script_close(script_h s)
 bool script_exec(script_h s, const char *string)
 {
 	_ASSERT(s);
+
+	if( luaL_loadstring(LS(s), string) )
+	{
+		TRACE("syntax error %s\n", lua_tostring(LS(s), -1));
+		return false;
+	}
+
+	if( lua_pcall(LS(s), 0, 0, 0) )
+	{
+		TRACE("%s\n", lua_tostring(LS(s), -1));
+		return false;
+	}
+
     return 0 == luaL_dostring(LS(s), string);
 }
 

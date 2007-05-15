@@ -40,7 +40,7 @@ void GuiManager::Add(UI::Window* wnd)
 
 void GuiManager::Remove(UI::Window* wnd)
 {
-	_ASSERT(!wnd->IsTopMost());
+	_ASSERT(!wnd->IsTopMost()); // can't remove top most window
 
 	if( wnd == _hotTrackWnd )
 	{
@@ -56,6 +56,7 @@ void GuiManager::Remove(UI::Window* wnd)
 			// try to pass focus to next siblings
 			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
 			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
 				if( SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
@@ -63,14 +64,18 @@ void GuiManager::Remove(UI::Window* wnd)
 			// try to pass focus to previous siblings
 			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
 			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
 				if( SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
 
 			// and finaly try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			if( !tmp || SetFocusWnd(tmp) )
+			if( !tmp || (tmp->IsVisible() && tmp->IsEnabled() 
+				&& !tmp->IsDestroyed() && SetFocusWnd(tmp)) )
+			{
 				break;
+			}
 		}// while(1)
 	}
 
@@ -129,6 +134,7 @@ void GuiManager::AddTopMost(UI::Window* wnd, bool add)
 {
 	if( add )
 	{
+		_ASSERT(!wnd->IsDestroyed());
 		_topmost.push_back(wnd);
 	}
 	else

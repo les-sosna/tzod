@@ -101,6 +101,16 @@ void Window::Destroy()
 {
 	if( !_isDestroyed )
 	{
+		_isDestroyed = true;
+
+		//
+		// remove this window from the manager
+		//
+		if( _isTopMost )
+			SetTopMost(false);
+		_manager->Remove(this);
+
+
 		// destroy all children
 		if( Window *w = _firstChild )
 		{
@@ -122,12 +132,9 @@ void Window::Destroy()
 		}
 
 
+		//
 		// destroy it self
-
-		if( _isTopMost )
-			SetTopMost(false);
-
-		_manager->Remove(this); // we may not remove top most window
+		//
 
 		if( _prevSibling )
 		{
@@ -158,7 +165,6 @@ void Window::Destroy()
 			_parent->Release();
 		}
 
-		_isDestroyed = true;
 		Release();
 	}
 }
@@ -509,7 +515,6 @@ void Window::Resize(float width, float height)
 
 void Window::SetTopMost(bool topmost)
 {
-	_ASSERT(!IsDestroyed());
 	_ASSERT(_isTopMost != topmost);
 	_manager->AddTopMost(this, topmost);
 	_isTopMost = topmost;
@@ -524,6 +529,13 @@ void Window::ReleaseCapture()
 {
 	_manager->ReleaseCapture(this);
 }
+
+void Window::Show(bool show)
+{
+	_isVisible = show;
+	OnShow(show);
+}
+
 
 
 //
@@ -604,6 +616,9 @@ bool Window::OnFocus(bool focus)
 	return false;
 }
 
+void Window::OnShow(bool show)
+{
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////

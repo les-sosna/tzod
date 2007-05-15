@@ -6,11 +6,14 @@
 
 namespace UI
 {
+	class Console;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class Desktop : public Window
 {
+	Console *_con;
+
 public:
 	Desktop(GuiManager* manager);
 
@@ -21,6 +24,7 @@ public:
 protected:
 	virtual void OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
+	virtual void OnSize(float width, float height);
 };
 
 

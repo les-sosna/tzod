@@ -1,7 +1,9 @@
 // gui_desktop.cpp
 
 #include "stdafx.h"
+
 #include "gui_desktop.h"
+#include "gui_console.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -12,6 +14,9 @@ namespace UI
 
 Desktop::Desktop(GuiManager* manager) : Window(manager)
 {
+	_con = new Console(this, 10, 0);
+	_con->Show(false);
+
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
 }
 
@@ -32,7 +37,7 @@ void Desktop::OnRawChar(int c)
 	switch( c )
 	{
 	case VK_OEM_3: // '~'
-		dlg = new Console(this, 10, 0, GetWidth() - 20, GetHeight() * 0.5f);
+		_con->Show(true);
 		break;
 
 	case VK_ESCAPE:
@@ -52,6 +57,11 @@ void Desktop::OnRawChar(int c)
 bool Desktop::OnFocus(bool focus)
 {
 	return true;
+}
+
+void Desktop::OnSize(float width, float height)
+{
+	_con->Resize(GetWidth() - 20, GetHeight() * 0.5f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

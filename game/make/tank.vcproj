@@ -415,6 +415,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\ui\gui_console.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\ui\gui_desktop.cpp"
 					>
 				</File>
@@ -721,6 +725,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\ui\gui.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\ui\gui_console.h"
 					>
 				</File>
 				<File
