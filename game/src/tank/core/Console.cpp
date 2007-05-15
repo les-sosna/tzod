@@ -80,7 +80,6 @@ void ConsoleBuffer::print(const char *fmt, ...)
 		{
 			fputs(_line, _logFile);
 			fputs("\n", _logFile);
-			fflush(_logFile);
 		}
 
 		// retrieve new line buffer
@@ -90,10 +89,13 @@ void ConsoleBuffer::print(const char *fmt, ...)
 		}
 		else
 		{
-			_line = _lines.front(); // get line back from buffer
+			_line = _lines.front(); // get line back from the buffer
 			_lines.pop_front();
 		}
 	}
+
+	if( _logFile )
+		fflush(_logFile);
 
 	delete[] buf;
 }
