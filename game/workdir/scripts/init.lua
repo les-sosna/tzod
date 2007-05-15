@@ -9,6 +9,7 @@ dofile("scripts/names.lua")      -- fill the random_names array
 
 --=============================================================================
 
+print("loading startup level");
 
 loadmap("maps/intro.map")
 
