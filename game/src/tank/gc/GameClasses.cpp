@@ -236,12 +236,12 @@ void GC_Camera::EndFrame()
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
 	static int   level    = 4;
 
-	if( !LastIn && g_env.envInputs.keys[DIK_PGUP] )
-		level = __min(level+1, sizeof(levels) / sizeof(float)-1);
+//	if( !LastIn && g_env.envInputs.keys[DIK_PGUP] )
+//		level = __min(level+1, sizeof(levels) / sizeof(float)-1);
 	LastIn = g_env.envInputs.keys[DIK_PGUP];
 
-	if( !LastOut && g_env.envInputs.keys[DIK_PGDN] )
-		level = __max(level-1, 0);
+//	if( !LastOut && g_env.envInputs.keys[DIK_PGDN] )
+//		level = __max(level-1, 0);
 	LastOut = g_env.envInputs.keys[DIK_PGDN];
 
 	_zoom = levels[level];

@@ -455,7 +455,7 @@ static const luaL_Reg base_funcs[] = {
 //  {"loadstring", luaB_loadstring},
 //  {"next", luaB_next},
   {"pcall", luaB_pcall},
-  {"print", luaB_print},
+//  {"print", luaB_print},
 //  {"rawequal", luaB_rawequal},
 //  {"rawget", luaB_rawget},
 //  {"rawset", luaB_rawset},

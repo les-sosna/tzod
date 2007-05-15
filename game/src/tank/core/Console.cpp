@@ -9,16 +9,20 @@ ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
 {
 	_lineLength = lineLength;
 	_maxLines   = maxLines;
-	_line       = (char *) malloc(_lineLength+1);
+	_line       = new char[_lineLength+1];
+	_logFile    = fopen(FILE_LOG, "w");
 }
 
 ConsoleBuffer::~ConsoleBuffer()
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
 	{
-		free( _lines[i] );
+		delete[] _lines[i];
 	}
-	free(_line);
+	delete[] _line;
+
+	if( _logFile )
+		fclose(_logFile);
 }
 
 void ConsoleBuffer::Fill(const ConsoleBuffer *src)
@@ -41,7 +45,7 @@ void ConsoleBuffer::print(const char *fmt, ...)
     va_start(args, fmt);
     int size = _vscprintf(fmt, args) + 1; // check how much space is needed
 
-	char *buf = (char *) malloc(size);
+	char *buf = new char[size];
 	vsprintf(buf, fmt, args);
     va_end(args);
 
@@ -70,13 +74,19 @@ void ConsoleBuffer::print(const char *fmt, ...)
 			}
 		}
 
-		// send current line to console buffer
+		// send current line to the console buffer and to the log file
 		_lines.push_back(_line);
+		if( _logFile )
+		{
+			fputs(_line, _logFile);
+			fputs("\n", _logFile);
+			fflush(_logFile);
+		}
 
 		// retrieve new line buffer
 		if( _lines.size() < _maxLines )
 		{
-			_line = (char *) malloc(_lineLength+1); // alloc new line
+			_line = new char[_lineLength+1]; // alloc new line
 		}
 		else
 		{
@@ -85,7 +95,7 @@ void ConsoleBuffer::print(const char *fmt, ...)
 		}
 	}
 
-	free(buf);
+	delete[] buf;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

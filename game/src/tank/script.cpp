@@ -103,7 +103,7 @@ static int luaT_message(lua_State *L)
 static int luaT_print(lua_State *L)
 {
 	int n = lua_gettop(L);     // get number of arguments
-/*	lua_getglobal(L, "tostring");
+	lua_getglobal(L, "tostring");
 	for( int i = 1; i <= n; ++i )
 	{
 		lua_pushvalue(L, -1);  // function to be called
@@ -117,7 +117,7 @@ static int luaT_print(lua_State *L)
 		}
 		g_console->print("%s", s);
 		lua_pop(L, 1);         // pop result
-	}*/
+	}
 	return 0;
 }
 
@@ -376,7 +376,7 @@ script_h script_open(void)
 	lua_register(L, "loadmap",   luaT_loadmap);
 	lua_register(L, "pause",     luaT_pause);
 	lua_register(L, "message",   luaT_message);
-//	lua_register(L, "print",     luaT_print);
+	lua_register(L, "print",     luaT_print);
 	lua_register(L, "quit",      luaT_quit);
 
 
@@ -431,7 +431,7 @@ bool script_exec(script_h s, const char *string)
 		return false;
 	}
 
-    return 0 == luaL_dostring(LS(s), string);
+    return true;
 }
 
 bool script_exec_file(script_h s, const char *filename)

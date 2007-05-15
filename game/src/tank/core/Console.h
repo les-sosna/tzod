@@ -11,6 +11,8 @@ class ConsoleBuffer
 	size_t _lineLength; // including terminating '\0'
 	size_t _maxLines;
 
+	FILE *_logFile;
+
 public:
 	ConsoleBuffer(size_t lineLength, size_t _maxLines);
 	~ConsoleBuffer();

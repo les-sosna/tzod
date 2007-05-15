@@ -20,8 +20,9 @@ namespace UI
 Console::Console(Window *parent, float x, float y)
   : Window(parent, x, y, "window")
 {
+	SetBorder(true);
+
 	_arrow = new Text(this, 0, 0, ">", alignTextLT);
-//	_arrow->Move(0, height - arrow->GetHeight() - 1);
 
 	_blankText = new Text(this, 0, 0, "", alignTextLT);
 	_blankText->Show(false);
