@@ -3,17 +3,11 @@
 #pragma once
 
 
-//#ifdef _DEBUG
-//#define REPORT(str) {_CrtDbgReport(_CRT_WARN, NULL, NULL, NULL, (str)); LOGOUT_1(str);}
-//#else
-//#define REPORT
-//#endif
-
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define TRACE(fmt, ...) g_console->print(fmt, __VA_ARGS__);
-//#else
-//#define TRACE
-//#endif
+#else
+#define TRACE
+#endif
 
 
 
