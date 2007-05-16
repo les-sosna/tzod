@@ -136,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if( (wMinimized || (wActive == WA_INACTIVE)) && !g_env.bMinimized )
 		{
-			TRACE("main window deactivated");
+			TRACE("main window deactivated\n");
 
 			g_env.bMinimized = true;
 			if( g_level && !g_level->_client )

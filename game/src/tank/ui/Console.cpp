@@ -65,11 +65,12 @@ void Console::OnRawChar(int c)
 		const string_t &cmd = _input->GetText();
 		if( !cmd.empty() )
 		{
+			_scrollBack = 0;
 			_cmdIndex = 0;
 			_cmdBuf.push_front(cmd);
-			g_console->print("> %s", cmd.c_str());   // echo to console
-			script_exec(g_env.hScript, cmd.c_str()); // send to scripting system
-			_input->SetText("");                     // erase input field
+			g_console->printf("> %s\n", cmd.c_str());   // echo to console
+			script_exec(g_env.hScript, cmd.c_str());    // send to scripting system
+			_input->SetText("");                        // erase input field
 		}
 		break;
 	}

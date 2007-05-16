@@ -92,7 +92,6 @@ static int luaT_message(lua_State *L)
 		s = lua_tostring(L, -1);  // get result
 		if( NULL == s )
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
-		if( i > 1 ) buf << "\t";
 		buf << s;
 		lua_pop(L, 1);            // pop result
 	}
@@ -112,10 +111,9 @@ static int luaT_print(lua_State *L)
 		const char *s = lua_tostring(L, -1);  // get result string
 		if( NULL == s )
 		{
-			return luaL_error(L, LUA_QL("tostring") " must return a string to "
-			LUA_QL("print"));
+			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		}
-		g_console->print("%s", s);
+		g_console->puts(s);
 		lua_pop(L, 1);         // pop result
 	}
 	return 0;

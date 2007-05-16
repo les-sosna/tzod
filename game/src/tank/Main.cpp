@@ -69,12 +69,12 @@ static void OnPrintScreen()
 
 	if ( !g_render->TakeScreenshot(name) )
 	{
-		TRACE("ERROR: take screenshot failed");
+		TRACE("ERROR: take screenshot failed\n");
 		_MessageArea::Inst()->message("> ошибка!");
 	}
 	else
 	{
-		TRACE("Screenshot '%s'", name);
+		TRACE("Screenshot '%s'\n", name);
 	}
 
 
@@ -391,7 +391,7 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 
 static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 {
-	TRACE("create main window");
+	TRACE("Create main app window\n");
     HWND hWnd = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
                            WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
 						   CW_USEDEFAULT, CW_USEDEFAULT, // position
@@ -408,7 +408,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	// create the console buffer
-	g_console = new ConsoleBuffer(80, 1000);
+	g_console = new ConsoleBuffer(96, 512);
 
 
 	//
@@ -419,13 +419,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     time( &ltime );
     ctime_s(timebuf, 26, &ltime);
 	TRACE(" Engine started at %s", timebuf);
-	TRACE("--------------------------------------------");
+	TRACE("--------------------------------------------\n");
 
 
 	//
 	// init file system
 	//
-	TRACE("Mounting file system");
+	TRACE("Mounting file system\n");
 	g_fs = OSFileSystem::Create(".");
 
 
@@ -465,7 +465,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// init scripting system
 	//
 
-	TRACE("scripting subsystem initialization");
+	TRACE("scripting subsystem initialization\n");
 	if( NULL == (g_env.hScript = script_open()) )
 	{
 		TRACE("FAILED\n");
@@ -477,7 +477,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// init common controls
 	//
 
-	TRACE("windows common controls initialization");
+	TRACE("windows common controls initialization\n");
 	INITCOMMONCONTROLSEX iccex = {
 	sizeof(INITCOMMONCONTROLSEX),
 		0
@@ -510,16 +510,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		;
 #endif
 		// init GUI
-		TRACE("GUI subsystem initialization");
+		TRACE("GUI subsystem initialization\n");
 		g_gui = new GuiManager(CreateDesktopWindow);
 		g_render->OnResizeWnd();
 		g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
 
 
-		TRACE("Execing startup script '%s'", FILE_STARTUP);
+		TRACE("Execing startup script '%s'\n", FILE_STARTUP);
 		if( !script_exec_file(g_env.hScript, FILE_STARTUP) )
 		{
-			TRACE("ERROR: in startup script");
+			TRACE("ERROR: in startup script\n");
 			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
 		}
 
@@ -574,7 +574,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
 				{
-					TRACE("Alt + F4 has been pressed. Destroying the main app window");
+					TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
 					DestroyWindow(g_env.hMainWnd);
 					continue;
 				}
@@ -597,12 +597,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		} // end of try block
 		catch(...)	// general error handling
 		{
-			TRACE("GENERAL FAULT");
+			TRACE("GENERAL FAULT\n");
 			bGeneralFault = TRUE;
 		}
 #endif
 
-		TRACE("Shutting down GUI subsystem");
+		TRACE("Shutting down GUI subsystem\n");
 		SAFE_DELETE(g_gui);
 		timeEndPeriod(1);
 	} // end if ( SUCCEEDED(InitAll(hWnd)) )
@@ -611,7 +611,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);
 	}
 
-	TRACE("Saving options");
+	TRACE("Saving options\n");
 	SaveOptions();
 
 	FreeDirectInput();
@@ -619,7 +619,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);
 
-	TRACE("Shutting down the renderer");
+	TRACE("Shutting down the renderer\n");
 	SAFE_RELEASE(g_render);
 
 
@@ -635,15 +635,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 #endif
 
 	// script engine cleanup
-	TRACE("Shutting down the scripting subsystem");
+	TRACE("Shutting down the scripting subsystem\n");
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
 
 	// clean up the file system
-	TRACE("Unmounting the file system");
+	TRACE("Unmounting the file system\n");
 	g_fs = NULL;
 
-	TRACE("Exit.");
+	TRACE("Exit.\n");
 
 	// free console buffer
 	SAFE_DELETE(g_console);

@@ -201,7 +201,7 @@ void Field::Dump()
 				break;
 			}
 		}
-		TRACE(buf);
+		TRACE("%s\n", buf);
 	}
 
 	TRACE("=== end of dump ====\n");
@@ -214,7 +214,7 @@ void Field::Dump()
 // в конструкторе уровня нельзя создавать игровые объекты
 Level::Level()
 {
-	TRACE("Constructing the level");
+	TRACE("Constructing the level\n");
 	srand( GetTickCount() );
 
 	_timer.SetMaxDt(MAX_DT / (float) OPT(gameSpeed) * 100.0f);
@@ -358,7 +358,7 @@ BOOL Level::init_load(const char *fileName)
 
 Level::~Level()
 {
-	TRACE("Destroying the level");
+	TRACE("Destroying the level\n");
 
 	SAFE_KILL(_temporaryText);
 
@@ -394,7 +394,7 @@ Level::~Level()
 // уровень должен быть пустым
 bool Level::Unserialize(const char *fileName)
 {
-	TRACE("Loading saved game from file '%s'", fileName);
+	TRACE("Loading saved game from file '%s'\n", fileName);
 
 	SaveFile f;
 	f._load = true;
@@ -408,7 +408,7 @@ bool Level::Unserialize(const char *fileName)
 
 	if( INVALID_HANDLE_VALUE == f._file )
 	{
-		TRACE("ERROR: couldn't open file");
+		TRACE("ERROR: couldn't open file\n");
 		return false;
 	}
 
@@ -458,7 +458,7 @@ bool Level::Unserialize(const char *fileName)
 	}
 	catch (const char *msg)
 	{
-		TRACE(msg);
+		TRACE("%s\n", msg);
 		result = false;
 	}
 
@@ -468,7 +468,7 @@ bool Level::Unserialize(const char *fileName)
 
 bool Level::Serialize(const char *fileName)
 {
-	TRACE("Saving game to file '%s'", fileName);
+	TRACE("Saving game to file '%s'\n", fileName);
 
 	DWORD bytesWritten = 0;
 
@@ -483,7 +483,7 @@ bool Level::Serialize(const char *fileName)
 	                     NULL);
 	if( INVALID_HANDLE_VALUE == f._file )
 	{
-		TRACE("ERROR: couldn't open file for writing");
+		TRACE("ERROR: couldn't open file for writing\n");
 		return false;
 	}
 
@@ -557,7 +557,7 @@ bool Level::Serialize(const char *fileName)
 	}
 	catch(const char *msg)
 	{
-		TRACE(msg);
+		TRACE("%s\n", msg);
 		result = false;
 	}
 	CloseHandle(f._file);

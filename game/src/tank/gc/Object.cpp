@@ -191,17 +191,17 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 	f.Serialize(hasGuard);
 	f.Serialize(subscriber);
 
-	// we are not allowed to serialize pointers so we use small hack :)
-	f.Serialize(reinterpret_cast<size_t&>(handler));
+	// we are not allowed to serialize raw pointers so we use small hack :)
+	f.Serialize(reinterpret_cast<DWORD_PTR&>(handler));
 }
 
 void GC_Object::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	f.Serialize(_flags);
 	f.Serialize(_location);
 	f.Serialize(_pos);
 	f.Serialize(_refCount);
-	/////////////////////////////////////
+
 	// events
 	if( f.loading() )
 	{
@@ -209,7 +209,7 @@ void GC_Object::Serialize(SaveFile &f)
 		ClearFlags(GC_FLAG_OBJECT_EVENTS_ALL);
 		SetEvents(tmp);
 	}
-	/////////////////////////////////////
+
 	// notify list
 	unsigned short count = _notifyList.size();
 	f.Serialize(count);
@@ -238,14 +238,14 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 	ReadFile(file._file, &type, sizeof(type), &bytesRead, NULL);
 	if( bytesRead != sizeof(type) )
 	{
-		TRACE("ERROR: unexpected end of file");
+		TRACE("ERROR: unexpected end of file\n");
 		throw "Load error: unexpected end of file\n";
 	}
 
 	_from_file_map::const_iterator it = _get_from_file_map().find(type);
 	if( _get_from_file_map().end() == it )
 	{
-		TRACE("ERROR: unknown object type %u", type);
+		TRACE("ERROR: unknown object type %u\n", type);
 		throw "Load error: unknown object type\n";
 	}
 
@@ -287,7 +287,6 @@ void GC_Object::LocationFromPoint(const vec2d &pt, Location &l)
 	l.y = __min(g_level->_locations_y-1, y / 2);
 }
 
-//переместить объект
 void GC_Object::MoveTo(const vec2d &pos)
 {
 	Location l;
@@ -318,7 +317,7 @@ void GC_Object::LeaveContext(ObjectContext &context)
 	context.inContext = FALSE;
 }
 
-void GC_Object::EnterAllContexts(Location const &l)
+void GC_Object::EnterAllContexts(const Location &l)
 {
 	_ASSERT(!IsKilled());
 	_location = l;
@@ -326,7 +325,7 @@ void GC_Object::EnterAllContexts(Location const &l)
 		EnterContext(*it, _location);
 }
 
-void GC_Object::EnterContext(ObjectContext &context, Location const &l)
+void GC_Object::EnterContext(ObjectContext &context, const Location &l)
 {
 	_ASSERT(!IsKilled());
 	_ASSERT(!context.inContext);
@@ -431,8 +430,8 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	notify.hasGuard     = guard;
 	_notifyList.push_back(notify);
 	//--------------------------------------------------
-	if( guard )	// защита на случай если pSubscriber
-	{				// умрет раньше, чем this
+	if( guard )	// защита на случай если subscriber умрет раньше, чем this
+	{
 		notify.type        = NOTIFY_OBJECT_KILL;
 		notify.subscriber  = this;
 		notify.handler     = &GC_Object::OnKillSubscriber;

@@ -4,7 +4,7 @@
 
 
 #ifdef _DEBUG
-#define TRACE(fmt, ...) g_console->print(fmt, __VA_ARGS__);
+#define TRACE(fmt, ...) g_console->printf(fmt, __VA_ARGS__);
 #else
 #define TRACE
 #endif

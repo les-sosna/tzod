@@ -139,7 +139,7 @@ int Socket::Send(HANDLE hAbortEvent, const void *buf, int len)
 			n = send(_hSocket, (const char *) buf + sent, len - sent, 0);
 			if( SOCKET_ERROR == n || 0 == n )
 			{
-				TRACE("couldn't send the data");
+				TRACE("couldn't send the data\n");
 				return Error;
 			}
 		}
@@ -221,7 +221,7 @@ bool Socket::CheckEvent(int bit)
 {
 	if( 0 == (_ne.lNetworkEvents & (1 << bit)) || 0 != _ne.iErrorCode[bit] )
 	{
-		TRACE("CheckEvent failed: lNetworkEvents = %d; iErrorCode[bit=%d] = %d", 
+		TRACE("CheckEvent failed: lNetworkEvents = %d; iErrorCode[bit=%d] = %d\n", 
 			_ne.lNetworkEvents, bit, _ne.iErrorCode[bit]);
 		return false;
 	}
@@ -235,7 +235,7 @@ SOCKET Socket::operator = (SOCKET s)
 	BOOL on = TRUE;
 	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
 	{
-		TRACE("WARNING: setting TCP_NODELAY failed!");
+		TRACE("WARNING: setting TCP_NODELAY failed!\n");
 	}
 	return _hSocket;
 }

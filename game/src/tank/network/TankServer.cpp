@@ -91,19 +91,19 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 	_ASSERT(VERSION == _GameInfo.dwVersion);
 
 
-	TRACE("Server startup...");
+	TRACE("Server startup...\n");
 	WSAData wsad;
 	if( !_bInit )
 	{
 		if( WSAStartup(0x0002, &wsad) )
-			TRACE("ERROR: Windows sockets init failed");
+			TRACE("ERROR: Windows sockets init failed\n");
 	}
 	_bInit = true;
 
 	_socketListen = socket(PF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socketListen )
 	{
-		TRACE("ERROR: Unable to create socket");
+		TRACE("ERROR: Unable to create socket\n");
         return false;
 	}
 
@@ -115,13 +115,13 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 	{
-		TRACE("ERROR: Unable to bind socket: %d", WSAGetLastError());
+		TRACE("ERROR: Unable to bind socket: %d\n", WSAGetLastError());
 		return false;
 	}
 
 	if( listen(_socketListen, SOMAXCONN) )
 	{
-		TRACE("ERROR: Listen call failed");
+		TRACE("ERROR: Listen call failed\n");
 		return false;
 	}
 
@@ -129,7 +129,7 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	if( _socketListen.SetEvents(FD_ACCEPT) )
 	{
-		TRACE("ERROR: Unable to select event");
+		TRACE("ERROR: Unable to select event\n");
 		return false;
 	}
 
@@ -139,7 +139,7 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 	_hMainSemaphore = CreateSemaphore(NULL, 0, 0xFFFF, NULL); _ASSERT(NULL != _hMainSemaphore);
 	_hMainStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	TRACE("Server is online");
+	TRACE("Server is online\n");
 
 	DWORD tmp;
 	_hAcceptThread  = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) AcceptProc, this, 0, &tmp);

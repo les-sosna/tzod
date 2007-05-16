@@ -112,14 +112,14 @@ TankClient::~TankClient(void)
 
 bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 {
-	TRACE("Connecting...");
+	TRACE("Connecting...\n");
 
 	if( !_bInit )
 	{
 		WSAData wsad;
 		if( WSAStartup(0x0002, &wsad) )
 		{
-			TRACE("ERROR: Windows sockets init failed");
+			TRACE("ERROR: Windows sockets init failed\n");
 			return false;
 		}
 		_bInit = true;
@@ -128,7 +128,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socket )
 	{
-		TRACE("ERROR: Unable to create socket");
+		TRACE("ERROR: Unable to create socket\n");
 		return false;
 	}
 
@@ -148,7 +148,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			hostent* he = gethostbyname(hostaddr);
 			if( NULL == he )
 			{
-				TRACE("ERROR: Unable to resolve IP-address");
+				TRACE("ERROR: Unable to resolve IP-address\n");
 				throw false;
 			}
 			addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
@@ -157,7 +157,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		if( WSAAsyncSelect( _socket, _hMainWnd=hMainWnd,
 			WM_CUSTOMCLIENTMSG, FD_CONNECT | FD_READ | FD_WRITE ) )
 		{
-			TRACE("ERROR: Unable to select event");
+			TRACE("ERROR: Unable to select event\n");
 			throw false;
 		}
 
@@ -170,7 +170,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		int error;
 		if( WSAEWOULDBLOCK != (error = WSAGetLastError()) )
 		{
-			TRACE("error %d; WSAEWOULDBLOCK expected!", error);
+			TRACE("error %d; WSAEWOULDBLOCK expected!\n", error);
 			throw false;
 		}
 	}

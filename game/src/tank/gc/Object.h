@@ -292,8 +292,8 @@ public:
 
 private:
 	void LeaveAllContexts();
-	void EnterAllContexts(Location const &l);
-	void EnterContext(ObjectContext &context, Location const &l);
+	void EnterAllContexts(const Location &l);
+	void EnterContext(ObjectContext &context, const Location &l);
 	void LeaveContext(ObjectContext &context);
 
 	void OnKillSubscriber(GC_Object *sender, void *param);

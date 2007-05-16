@@ -46,24 +46,24 @@ bool TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
 	{
-		TRACE("loading texture file '%s' - in cache", fileName.c_str());
+		TRACE("loading texture file '%s' - in cache\n", fileName.c_str());
 		itTexDesc = it->second;
 		return true;
 	}
 
-	TRACE("loading texture file '%s'", fileName.c_str());
+	TRACE("loading texture file '%s'\n", fileName.c_str());
 
 	SafePtr<IFile> file = g_fs->Open(fileName);
 	if( !file )
 	{
-		TRACE("ERROR: file not found");
+		TRACE("ERROR: file not found\n");
 		return false;
 	}
 
 	TgaImageLoader loader;
 	if( !loader.Load(file) )
 	{
-		TRACE("ERROR: invalid file format");
+		TRACE("ERROR: invalid file format\n");
 		return false;
 	}
 
@@ -95,7 +95,7 @@ void TextureManager::Unload(TexDescIterator what)
 	{
 		if( it->second->id == what->id )
 		{
-			TRACE("Unloading texture file '%s'", it->first.c_str());
+			TRACE("Unloading texture file '%s'\n", it->first.c_str());
 			_mapFile_to_TexDescIter.erase(it);
 			break;
 		}
@@ -127,7 +127,7 @@ void TextureManager::CreateChecker()
 	_ASSERT(_LogicalTextures.empty()); // to be sure that checker will get index 0
 	_ASSERT(_mapName_to_Index.empty());
 
-	TRACE("Creating checker texture");
+	TRACE("Creating checker texture\n");
 
 
 
@@ -143,7 +143,7 @@ void TextureManager::CreateChecker()
 
 	if( !g_render->TexCreate(td.id, &data) )
 	{
-		TRACE("ERROR: error in render device");
+		TRACE("ERROR: error in render device\n");
 		_ASSERT(FALSE);
 		return;
 	}
@@ -196,7 +196,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 
 int TextureManager::LoadPackage(const char* filename)
 {
-	TRACE("Loading textures from '%s'", filename);
+	TRACE("Loading textures from '%s'\n", filename);
 
 	lua_State *L = lua_open();
 
@@ -220,7 +220,7 @@ int TextureManager::LoadPackage(const char* filename)
 		// check that value is a table
 		if( !lua_istable(L, -1) )
 		{
-			TRACE("WARNING: value is not a table; skipping.");
+			TRACE("WARNING: value is not a table; skipping.\n");
 		}
 
 		while( lua_istable(L, -1) )
@@ -247,7 +247,7 @@ int TextureManager::LoadPackage(const char* filename)
 				{
 					if( !lua_istable(L, -1) )
 					{
-						TRACE("WARNING: element of 'content' is not a table; skipping");
+						TRACE("WARNING: element of 'content' is not a table; skipping\n");
 						continue;
 					}
 
@@ -318,7 +318,7 @@ int TextureManager::LoadPackage(const char* filename)
 			} // end if 'content' is table
 			else
 			{
-				TRACE("WARNING: 'content' field is not a table.");
+				TRACE("WARNING: 'content' field is not a table.\n");
 			}
 			lua_pop(L, 1); // pop the result of getfield("content")
 			break;
@@ -339,7 +339,7 @@ int TextureManager::LoadPackage(const char* filename)
 			Unload(tmp);
 	}
 
-	TRACE("Total number of loaded textures: %d", _LogicalTextures.size());
+	TRACE("Total number of loaded textures: %d\n", _LogicalTextures.size());
 	return _LogicalTextures.size();
 }
 
@@ -395,7 +395,7 @@ size_t TextureManager::FindTexture(const char *name) const
 		return it->second;
 
 	// flood the console
-	g_console->print("texture '%s' not found!\n", name);
+	g_console->printf("texture '%s' not found!\n", name);
 	
 	return 0; // index of checker texture
 }

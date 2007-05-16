@@ -7,19 +7,25 @@
 
 ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
 {
-	_lineLength = lineLength;
-	_maxLines   = maxLines;
-	_line       = new char[_lineLength+1];
-	_logFile    = fopen(FILE_LOG, "w");
+	_buffer = new char [maxLines * (lineLength+1)];
+	_lines  = new char*[maxLines];
+	for( size_t i = 0; i < maxLines; ++i )
+		_lines[i] = _buffer + (lineLength + 1) * i;
+	*_buffer = 0;
+
+	_currentPos   = 0;
+	_currentLine  = 0;
+	_currentCount = 1;
+	_lineLength   = lineLength;
+	_lineCount    = maxLines;
+
+	_logFile = fopen(FILE_LOG, "w");
 }
 
 ConsoleBuffer::~ConsoleBuffer()
 {
-	for( size_t i = 0; i < _lines.size(); ++i )
-	{
-		delete[] _lines[i];
-	}
-	delete[] _line;
+	delete[] _lines;
+	delete[] _buffer;
 
 	if( _logFile )
 		fclose(_logFile);
@@ -31,15 +37,16 @@ void ConsoleBuffer::Fill(const ConsoleBuffer *src)
 
 size_t ConsoleBuffer::GetLineCount() const
 {
-	return _lines.size();
+	return _currentCount;
 }
 
 const char* ConsoleBuffer::GetLine(size_t index) const
 {
-	return _lines[index];
+	_ASSERT(index < _currentCount);
+	return _lines[(_lineCount + index + _currentLine + 1 - _currentCount) % _lineCount];
 }
 
-void ConsoleBuffer::print(const char *fmt, ...)
+void ConsoleBuffer::printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -49,56 +56,55 @@ void ConsoleBuffer::print(const char *fmt, ...)
 	vsprintf(buf, fmt, args);
     va_end(args);
 
-	char *src = buf;
-	while( *src )
-	{
-		// fill current line until src buffer ends or '\n'
-		size_t pos = 0;
-		for(;;)
-		{
-			if( '\0' == (_line[pos] = *src) )
-			{
-				break;
-			}
-			++src;
-			if( '\n' == _line[pos] )
-			{
-				_line[pos] = '\0';
-				break;
-			}
-			++pos;
-			if( pos == _lineLength )
-			{
-				_line[pos] = '\0';
-				break;
-			}
-		}
-
-		// send current line to the console buffer and to the log file
-		_lines.push_back(_line);
-		if( _logFile )
-		{
-			fputs(_line, _logFile);
-			fputs("\n", _logFile);
-		}
-
-		// retrieve new line buffer
-		if( _lines.size() < _maxLines )
-		{
-			_line = new char[_lineLength+1]; // alloc new line
-		}
-		else
-		{
-			_line = _lines.front(); // get line back from the buffer
-			_lines.pop_front();
-		}
-	}
-
-	if( _logFile )
-		fflush(_logFile);
+	puts(buf);
 
 	delete[] buf;
 }
+
+void ConsoleBuffer::puts(const char *s)
+{
+	const char *src = s;
+	char *dst = _lines[_currentLine];
+
+	while( *src )
+	{
+		switch( *src )
+		{
+		case '\0':
+			break;
+		default:
+			if( _currentPos < _lineLength )
+			{
+				dst[_currentPos++] = *(src++);
+			}
+			else
+			{
+				dst[_currentPos] = '\0';
+				_currentPos = 0;
+				_currentLine = (_currentLine + 1) % _lineCount;
+				_currentCount = __min(_lineCount, _currentCount + 1);
+				dst = _lines[_currentLine];
+			}
+			break;
+		case '\n':
+			++src;
+			dst[_currentPos] = '\0';
+			_currentPos = 0;
+			_currentLine = (_currentLine + 1) % _lineCount;
+			_currentCount = __min(_lineCount, _currentCount + 1);
+			dst = _lines[_currentLine];
+		}
+	}
+	dst[_currentPos] = '\0';
+
+
+	if( _logFile )
+	{
+		fputs(s, _logFile);
+		fflush(_logFile);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

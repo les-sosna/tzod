@@ -29,7 +29,7 @@ VOID LoadSurfaces()
 {
 	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
 	{
-		TRACE("WARNING: no textures loaded");
+		TRACE("WARNING: no textures loaded\n");
 		MessageBox(g_env.hMainWnd, "ой! а что с текстурами?", TXT_VERSION, MB_ICONERROR);
 	}
 
@@ -58,14 +58,14 @@ void LoadSound(bool init, enumSoundTemplate sound, const char *filename)
 	if( init )
 	{
 		HRESULT hr;
-		TRACE("loading sound from '%s'... ", filename);
+		TRACE("loading sound from '%s'...\n", filename);
 		if( FAILED(hr = g_pSoundManager->Create(
 			&g_pSounds[sound],
 			filename,
 			DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY,
 			GUID_NULL)) )
 		{
-			TRACE("ERROR: unknown");
+			TRACE("ERROR: unknown\n");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
@@ -83,7 +83,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 {
 	if( init )
 	{
-		TRACE("loading sound from '%s'... ", filename);
+		TRACE("loading sound from '%s'...\n", filename);
 
 		WAVEFORMATEX wfe = {0};
 		void *pData = NULL;
@@ -91,7 +91,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
 		{
-			TRACE("ERROR: couldn't load file");
+			TRACE("ERROR: couldn't load file\n");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
@@ -105,7 +105,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( FAILED(hr) )
 		{
-			TRACE("ERROR: couldn't create the sound buffer");
+			TRACE("ERROR: couldn't create the sound buffer\n");
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;
@@ -129,7 +129,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	if( init )
 	{
 		_ASSERT(!g_pSoundManager);
-		TRACE("Init direct sound...");
+		TRACE("Init direct sound...\n");
 		g_pSoundManager = new CSoundManager();
 		if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_EXCLUSIVE, 2, 44100, 16)) )
 		{
@@ -145,7 +145,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	}
 	else
 	{
-		TRACE("free direct sound... ");
+		TRACE("free direct sound...\n");
 	}
 
 	if( !g_pSoundManager ) return hr;
@@ -231,7 +231,7 @@ void FreeDirectSound()
 
 HRESULT InitDirectInput( HWND hWnd )
 {
-	TRACE("init direct input");
+	TRACE("init direct input\n");
 
 	ZeroMemory(g_env.envInputs.keys, 256);
     FreeDirectInput();
@@ -288,7 +288,7 @@ void FreeDirectInput()
     SAFE_RELEASE( g_pKeyboard );
     SAFE_RELEASE( g_pDI );
 
-	TRACE("free direct input");
+	TRACE("free direct input\n");
 }
 
 

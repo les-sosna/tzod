@@ -1184,10 +1184,9 @@ void GC_HealthDaemon::Kill()
 void GC_HealthDaemon::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	////////////////////////////////////////
+
 	f.Serialize(_time);
 	f.Serialize(_damage);
-	////////////////////////////////////////
 	f.Serialize(_victim);
 	f.Serialize(_owner);
 }
@@ -1478,11 +1477,6 @@ void GC_TextScore::Draw()
 
 /////////////////////////////////////////////////////////////
 //class GC_Text_FPS
-/*
-IMPLEMENT_SELF_REGISTRATION(GC_Text_FPS)
-{
-	return true;
-}*/
 
 GC_Text_FPS::GC_Text_FPS() : GC_Text(0, g_render->getYsize()-1, "", alignTextLB)
 {
@@ -1612,11 +1606,6 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 }
 
 /////////////////////////////////////////////////////////////
-/*
-IMPLEMENT_SELF_REGISTRATION(GC_Text_Time)
-{
-	return true;
-}*/
 
 GC_TextTime::GC_TextTime(int xPos, int yPos, enumAlignText align) : GC_Text(xPos, yPos, "", align)
 {
@@ -1670,8 +1659,7 @@ void GC_Text_MessageArea::message(const char *text)
 	line.str = text;
 	line.str.append("\n");
 	_lines.push_back(line);
-
-	g_console->print("%s", text);
+	g_console->puts(line.str.c_str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
