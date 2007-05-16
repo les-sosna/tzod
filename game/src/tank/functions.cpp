@@ -56,13 +56,6 @@ int intPower(int base, unsigned int power)
 	return res;
 }
 
-const char *myftoa(float x)
-{
-	static char buf[128];
-	sprintf(buf, "%.5g", x);
-	return buf;
-}
-
 // проверка на пересечение правильных прямоугольников
 BOOL IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
 {
@@ -131,12 +124,14 @@ vec2d vrand(float len)
 	return vec2d(frand(PI2)) * len;
 }
 
-int net_rand() {
+int net_rand()
+{
 	g_level->_seed = (69069 * g_level->_seed + 1);
 	return g_level->_seed & RAND_MAX;
 }
 
-float net_frand(float max) {
+float net_frand(float max)
+{
 	return (float) net_rand() / RAND_MAX * max;
 }
 

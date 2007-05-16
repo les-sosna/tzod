@@ -656,6 +656,11 @@ void Level::Pause(bool pause)
 {
 	if( _limitHit || OPT(bModeEditor) ) return;
 
+	if( pause )
+		_timer.Stop();
+	else
+		_timer.Start();
+
 	ENUM_BEGIN(sounds, GC_Sound, pSound) {
 		pSound->Freeze(pause);
 	} ENUM_END();

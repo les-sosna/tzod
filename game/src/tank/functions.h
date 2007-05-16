@@ -34,8 +34,6 @@ void OffsetFRect(LPFRECT lpfrt, float x, float y);
 void OffsetFRect(LPFRECT lpfrt, const vec2d &x);
 
 
-const char *myftoa(float x);
-
 int net_rand();
 
 // генерация случайного числа от 0 до max

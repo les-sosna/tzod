@@ -25,54 +25,110 @@ static int luaT_quit(lua_State *L)
 // start/stop the timer
 static int luaT_pause(lua_State *L)
 {
-	if( !g_level )
-	{
-		lua_pushstring(L, "level is not created");
-		return lua_error(L);
-	}
-
 	int n = lua_gettop(L);
 	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	luaL_checktype(L, 1, LUA_TBOOLEAN);
+
+	if( !g_level )
 	{
-		lua_pushstring(L, "one argument expected");
-		return lua_error(L);
+		return luaL_error(L, "no game started");
 	}
 
-	if( lua_toboolean(L, 1) )
-	{
-		g_level->_timer.Stop();
-	}
-	else
-	{
-		g_level->_timer.Start();
-	}
+	g_level->Pause( 0 != lua_toboolean(L, 1) );
 
 	return 0;
 }
 
-// load map file
+// loadmap( string filename )
 static int luaT_loadmap(lua_State *L)
 {
-	if( 1 != lua_gettop(L) )
-	{
-		lua_pushstring(L, "wrong number of arguments (one string argument expected)");
-		lua_error(L);
-	}
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
-	luaL_checktype(L, 1, LUA_TSTRING);
-	const char *filename = lua_tostring(L, 1);
+	const char *filename = luaL_checkstring(L, 1);
 
 	SAFE_DELETE(g_level);
 	g_level = new Level();
 
 	if( !g_level->init_newdm(filename) )
 	{
-		lua_pushstring(L, "error loading level");
-		lua_error(L);
+		SAFE_DELETE(g_level);
+		return luaL_error(L, "couldn't load map from '%s'", filename);
 	}
 
-	lua_pushboolean(L, 1);	// return true
-	return 1;
+	return 0;
+}
+
+// newmap(int x_size, int y_size)
+static int luaT_newmap(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+		return luaL_error(L, "wrong number of arguments: 2 expected, got %d", n);
+
+	int x = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
+	int y = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
+
+	SAFE_DELETE(g_level);
+	g_level = new Level();
+	g_level->Init(x, y);
+    if( !g_level->init_emptymap() )
+	{
+		SAFE_DELETE(g_level);
+		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
+	}
+	
+	return 0;
+}
+
+// load( string filename )  -- load a saved game
+static int luaT_load(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	const char *filename = luaL_checkstring(L, 1);
+
+	SAFE_DELETE(g_level);
+	g_level = new Level();
+
+	if( !g_level->init_load(filename) )
+	{
+		SAFE_DELETE(g_level);
+		return luaL_error(L, "couldn't load game from '%s'", filename);
+	}
+
+	return 0;
+}
+
+// save( string filename )  -- save game
+static int luaT_save(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	const char *filename = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	g_level->Pause(true);
+	bool result = g_level->Serialize(filename);
+	g_level->Pause(false);
+
+	if( !result )
+	{
+		return luaL_error(L, "couldn't save game to '%s'", filename);
+	}
+
+	return 0;
 }
 
 // print a message to the MessageArea
@@ -369,13 +425,18 @@ script_h script_open(void)
 
 	luaopen_base(L);
 
+	lua_register(L, "loadmap",   luaT_loadmap);
+	lua_register(L, "newmap",    luaT_newmap);
+	lua_register(L, "load",      luaT_load);
+	lua_register(L, "save",      luaT_save);
 
 	lua_register(L, "addplayer", luaT_addplayer);
-	lua_register(L, "loadmap",   luaT_loadmap);
-	lua_register(L, "pause",     luaT_pause);
+
 	lua_register(L, "message",   luaT_message);
 	lua_register(L, "print",     luaT_print);
+
 	lua_register(L, "quit",      luaT_quit);
+	lua_register(L, "pause",     luaT_pause);
 
 
 	//

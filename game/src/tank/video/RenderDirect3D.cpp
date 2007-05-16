@@ -570,7 +570,7 @@ void RenderDirect3D::TexBind(DEV_TEXTURE tex)
 
 void RenderDirect3D::_flush()
 {
-	_FpsCounter::Inst()->OneMoreBatch();
+//	_FpsCounter::Inst()->OneMoreBatch();
 
 	_ASSERT(_VertexArray);
 	_ASSERT(_IndexArray);

@@ -87,7 +87,7 @@ static void OnPrintScreen()
 
 static void TimeStep()
 {
-	if( g_level->_limitHit ) return;
+	if( !g_level || g_level->_limitHit ) return;
 
 	float dt = g_level->_timer.GetDt() * (float) OPT(gameSpeed) / 100.0f;
 	_ASSERT(dt >= 0);
@@ -373,12 +373,15 @@ static void RenderFrame(bool thumbnail)
 
 static void EndFrame()
 {
-	OBJECT_LIST::safe_iterator it = g_level->endframe.safe_begin();
-	while( it != g_level->endframe.end() )
+	if( g_level )
 	{
-		GC_Object* pEF_Obj = *it;
-		pEF_Obj->EndFrame();
-		++it;
+		OBJECT_LIST::safe_iterator it = g_level->endframe.safe_begin();
+		while( it != g_level->endframe.end() )
+		{
+			GC_Object* pEF_Obj = *it;
+			pEF_Obj->EndFrame();
+			++it;
+		}
 	}
 }
 
@@ -534,7 +537,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
-			else if( g_level && (!g_env.bMinimized || g_level->_client) )
+			else
 			{
 				ReadImmediateData();  // чтение состо€ни€ устройств ввода
 				//------------------------------
@@ -543,7 +546,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					DialogBox(g_hInstance, (LPCTSTR)IDD_SELECT_OBJECT, g_env.hMainWnd, (DLGPROC) dlgSelectObject);
 					continue;
 				}
-				else if( g_env.envInputs.keys[DIK_RETURN] && OPT(bModeEditor) && _Editor::Inst()->GetSelection() )
+				else if( g_level && g_env.envInputs.keys[DIK_RETURN] && OPT(bModeEditor) && _Editor::Inst()->GetSelection() )
 				{
 					IPropertySet *p = _Editor::Inst()->GetSelection()->GetProperties();
 					if( NULL != p )
@@ -553,23 +556,23 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					}
 					continue;
 				}
-				else if( g_env.envInputs.keys[DIK_F8] && g_options.bModeEditor )
+				else if( g_level && g_env.envInputs.keys[DIK_F8] && g_options.bModeEditor )
 				{
 					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
 					continue;
 				}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
 				{
-					g_level->Pause(true);
+					if( g_level ) g_level->Pause(true);
 					ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
-					g_level->Pause(false);
+					if( g_level ) g_level->Pause(false);
 					continue;
 				}
 				else if( g_env.envInputs.keys[DIK_F12] )
 				{
-					g_level->Pause(true);
+					if(g_level) g_level->Pause(true);
 					DialogBox(g_hInstance, (LPCTSTR)IDD_OPTIONS, g_env.hMainWnd, (DLGPROC) dlgOptions);
-					g_level->Pause(false);
+					if(g_level) g_level->Pause(false);
 					continue;
 				}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
@@ -583,14 +586,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				RenderFrame(false);
 				EndFrame();
 			}
-			else // дл€ сн€ти€ нагрузки с процессора, когда игра не активна
-			{
-				GetMessage(&msg, NULL, 0, 0);
-				if( msg.message == WM_QUIT ) break;
+			//else // дл€ сн€ти€ нагрузки с процессора, когда игра не активна
+			//{
+			//	GetMessage(&msg, NULL, 0, 0);
+			//	if( msg.message == WM_QUIT ) break;
 
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+			//	TranslateMessage(&msg);
+			//	DispatchMessage(&msg);
+			//}
 		}
 
 #ifndef _DEBUG
