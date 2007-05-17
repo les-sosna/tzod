@@ -223,6 +223,7 @@ enum enumZOrder
 
 #define FILE_LOG         "log.txt"
 #define FILE_OPTIONS     "options.dat"
+#define FILE_CONFIG      "config.cfg"
 #define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
 #define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
 

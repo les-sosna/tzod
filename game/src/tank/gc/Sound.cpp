@@ -9,6 +9,8 @@
 
 #include "video/RenderBase.h"
 
+#include "config/Config.h"
+
 #include "fs/SaveFile.h"
 
 /////////////////////////////////////////////////////////////
@@ -204,7 +206,7 @@ void GC_Sound::UpdateVolume()
 	if( _soundBuffer )
 	{
 		_soundBuffer->SetVolume(DSBVOLUME_MIN
-			+ int((float) (OPT(dwVolume) - DSBVOLUME_MIN) * _volume));
+			+ int((float) (g_conf.s_volume->GetInt() - DSBVOLUME_MIN) * _volume));
 	}
 #endif
 }

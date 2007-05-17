@@ -13,6 +13,8 @@
 
 #include "directx.h"
 
+#include "config/Config.h"
+
 #include "video/RenderOpenGL.h"
 #include "video/RenderDirect3D.h"
 #include "video/TextureManager.h"
@@ -748,24 +750,24 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 
 	if( bSaveAndValidate )
 	{
-		OPT(bFullScreen) = GETCHECK(IDC_FULLSCREEN);
-		UINT render      = GETCHECK(IDC_RENDER_OPENGL) ? 0 : 1;
-		if( render != OPT(render) )
+		g_conf.r_fullscreen->SetInt( GETCHECK(IDC_FULLSCREEN) );
+		int render = GETCHECK(IDC_RENDER_OPENGL) ? 0 : 1;
+		if( render != g_conf.r_render->GetInt() )
 		{
 			SAFE_DELETE(g_render);
-			OPT(render) = render;
+			g_conf.r_render->SetInt(render);
 		}
 	}
 	else
 	{
-		SETCHECK(IDC_FULLSCREEN, OPT(bFullScreen));
-		SETCHECK(OPT(render) ? IDC_RENDER_DIRECT3D : IDC_RENDER_OPENGL, TRUE);
+		SETCHECK(IDC_FULLSCREEN, g_conf.r_fullscreen->GetInt());
+		SETCHECK(g_conf.r_render->GetInt() ? IDC_RENDER_DIRECT3D : IDC_RENDER_OPENGL, TRUE);
 	}
 
 
     if( !g_render )
 	{
-		g_render = OPT(render) ? renderCreateDirect3D() : renderCreateOpenGL();
+		g_render = g_conf.r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
 	}
 
 	typedef std::map<DisplayMode, DWORD> ModeMap;
@@ -814,8 +816,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RESOLUTION, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.Width == OPT(dispWidth) &&
-					it->first.Height == OPT(dispHeight) )
+				if( it->first.Width == g_conf.r_width->GetInt() &&
+					it->first.Height == g_conf.r_height->GetInt() )
 				{
 					SendDlgItemMessage(hDlg, IDC_RESOLUTION, CB_SETCURSEL, index, 0);
 				}
@@ -827,8 +829,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					OPT(dispWidth)  = it->first.Width;
-					OPT(dispHeight) = it->first.Height;
+					g_conf.r_width->SetInt( it->first.Width );
+					g_conf.r_height->SetInt( it->first.Height );
 				}
 			}
 		}
@@ -845,7 +847,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_BPP, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.BitsPerPixel == OPT(dispBitsPerPixel) )
+				if( it->first.BitsPerPixel == g_conf.r_bpp->GetInt() )
 					SendDlgItemMessage(hDlg, IDC_BPP, CB_SETCURSEL, index, 0);
 			}
 			else
@@ -855,7 +857,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_BPP,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					OPT(dispBitsPerPixel) = it->first.BitsPerPixel;
+					g_conf.r_bpp->SetInt(it->first.BitsPerPixel);
 				}
 			}
 		}
@@ -871,7 +873,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RATE, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.RefreshRate == OPT(dispRefreshRate) )
+				if( it->first.RefreshRate == g_conf.r_freq->GetInt() )
 					SendDlgItemMessage(hDlg, IDC_RATE, CB_SETCURSEL, index, 0);
 			}
 			else
@@ -881,7 +883,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_RATE,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					OPT(dispRefreshRate) = it->first.RefreshRate;
+					g_conf.r_freq->SetInt(it->first.RefreshRate);
 				}
 			}
 		}
@@ -889,8 +891,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			SendDlgItemMessage(hDlg, IDC_RATE, CB_SETCURSEL, 0, 0);
 	}
 
-	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), OPT(bFullScreen));
-	EnableWindow(GetDlgItem(hDlg, IDC_RATE), OPT(bFullScreen));
+	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), g_conf.r_fullscreen->GetInt() );
+	EnableWindow(GetDlgItem(hDlg, IDC_RATE), g_conf.r_fullscreen->GetInt() );
 
 	s_bUpdating = FALSE;
 }
@@ -1849,7 +1851,7 @@ LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 void SetVolume(LONG lVolume)
 {
-	g_options.dwVolume = lVolume;
+	g_conf.s_volume->SetInt(lVolume);
 	if( !g_level ) return;
 
 	// после изменения g_options.dwVolume необходимо
@@ -1912,10 +1914,11 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				g_options.bDamageLabel    = GETCHECK(IDC_CHK_DAMLABEL);
 				g_options.bShowFPS        = GETCHECK(IDC_CHK_FPS);
 				g_options.bShowTime       = GETCHECK(IDC_CHK_TIMER);
-				g_options.bShowSelectMode = GETCHECK(IDC_CHK_SHOWSELECTMODE);
+				g_conf.r_askformode->SetInt(GETCHECK(IDC_CHK_SHOWSELECTMODE));
 				//-------------------------------
-				g_options.nSoundChannels = GetDlgItemInt(hDlg, IDC_MAXSOUNDS, NULL, FALSE);
-				if (0 == g_options.nSoundChannels) g_options.nSoundChannels = 0xFFFF;
+				g_conf.s_maxchanels->SetInt(GetDlgItemInt(hDlg, IDC_MAXSOUNDS, NULL, FALSE));
+				if( 0 == g_conf.s_maxchanels->GetInt() )
+					g_conf.s_maxchanels->SetInt(0);
 				//-------------------------------
 				EndDialog(hDlg, wmId);
 				break;
@@ -2015,11 +2018,11 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		SETCHECK(IDC_CHK_DAMLABEL,  g_options.bDamageLabel);
 		SETCHECK(IDC_CHK_FPS,       g_options.bShowFPS);
 		SETCHECK(IDC_CHK_TIMER,     g_options.bShowTime);
-		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_options.bShowSelectMode);
+		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->GetInt());
 
 		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
 
-		lInitVolume = g_options.dwVolume;
+		lInitVolume = g_conf.s_volume->GetInt();
 		SendDlgItemMessage(hDlg, IDC_VOLUME, TBM_SETRANGE, (WPARAM) FALSE, (LPARAM) MAKELONG(1, 100));
 		SendDlgItemMessage(hDlg, IDC_VOLUME, TBM_SETPOS,   (WPARAM) TRUE,  (LPARAM) (101 - int(100.0f * expf((float)lInitVolume / 2171.0f))));
 		SendMessage(hDlg, WM_VSCROLL, 0, 0);
@@ -2033,7 +2036,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		for( int i = 0; i < 4; ++i )
 		{
 			static int schan[4] = {8, 16, 32, 0xFFFF};
-			if (schan[i] == g_options.nSoundChannels)
+			if( schan[i] == g_conf.s_maxchanels->GetInt() )
 			{
 				SendDlgItemMessage(hDlg, IDC_MAXSOUNDS, CB_SETCURSEL, i, 0);
 				break;

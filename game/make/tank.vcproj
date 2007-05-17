@@ -575,6 +575,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="config"
+				>
+				<File
+					RelativePath="..\src\tank\config\Config.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\config\ConfigBase.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -885,6 +897,18 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\core\types.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="config"
+				>
+				<File
+					RelativePath="..\src\tank\config\Config.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\config\ConfigBase.h"
 					>
 				</File>
 			</Filter>

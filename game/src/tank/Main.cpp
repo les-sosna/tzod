@@ -7,6 +7,8 @@
 #include "options.h"
 #include "directx.h"
 
+#include "config/Config.h"
+
 #include "core/debug.h"
 #include "core/Console.h"
 
@@ -100,7 +102,7 @@ static void TimeStep()
 		// network mode
 		//
 
-		float fixed_dt = 1.0f / (float) OPT(serverFps) / NET_MULTIPLER;
+		float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
 		g_level->_timeBuffer += dt;
 		if( g_level->_timeBuffer > 0 )
 		do
@@ -436,6 +438,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	// init options
 	//
+
+	g_config = new Config();
+	if( !g_config->Load(FILE_CONFIG) )
+	{
+		TRACE("couldn't load " FILE_CONFIG "\n");
+	}
+
+	g_conf.Initialize(g_config);
+
+
 	
 	if( !LoadOptions() )
 		SetDefaultOptions();
@@ -448,14 +460,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	OPT(gameType)      = GT_EDITOR;
 	OPT(players)[MAX_HUMANS].bAI = TRUE;
 
-	GC_Sound::_countMax = OPT(nSoundChannels);
+	GC_Sound::_countMax = g_conf.s_maxchanels->GetInt();
 
 
 
 	//
 	// show graphics mode selection dialog
 	//
-	if( OPT(bShowSelectMode) && IDOK != DialogBox(g_hInstance,
+	if( g_conf.r_askformode->GetInt() && IDOK != DialogBox(g_hInstance,
 		(LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
@@ -641,6 +653,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	TRACE("Shutting down the scripting subsystem\n");
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
+
+	g_config->Save(FILE_CONFIG);
+	SAFE_DELETE(g_config);
+
 
 	// clean up the file system
 	TRACE("Unmounting the file system\n");

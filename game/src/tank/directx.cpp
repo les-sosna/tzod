@@ -11,7 +11,8 @@
 
 #include "video/TextureManager.h"
 
-#include "Options.h"
+//#include "Options.h"
+#include "config/Config.h"
 
 //--------------------------------------------------------------------------
 
@@ -652,12 +653,12 @@ HRESULT InitAll( HWND hWnd )
 	_ASSERT(g_render);
 
 	DisplayMode dm;
-    dm.Width         = OPT(dispWidth);
-    dm.Height        = OPT(dispHeight);
-    dm.RefreshRate   = OPT(dispRefreshRate);
-    dm.BitsPerPixel  = OPT(dispBitsPerPixel);
+	dm.Width         = g_conf.r_width->GetInt();
+    dm.Height        = g_conf.r_height->GetInt();
+    dm.RefreshRate   = g_conf.r_freq->GetInt();
+    dm.BitsPerPixel  = g_conf.r_bpp->GetInt();
 	
-	if( !g_render->Init(hWnd, &dm, OPT(bFullScreen)) )
+	if( !g_render->Init(hWnd, &dm, g_conf.r_fullscreen->GetInt()) )
 	{
 		return E_FAIL;
 	}

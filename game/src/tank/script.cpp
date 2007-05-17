@@ -480,13 +480,13 @@ bool script_exec(script_h s, const char *string)
 
 	if( luaL_loadstring(LS(s), string) )
 	{
-		TRACE("syntax error %s\n", lua_tostring(LS(s), -1));
+		g_console->printf("syntax error %s\n", lua_tostring(LS(s), -1));
 		return false;
 	}
 
 	if( lua_pcall(LS(s), 0, 0, 0) )
 	{
-		TRACE("%s\n", lua_tostring(LS(s), -1));
+		g_console->printf("%s\n", lua_tostring(LS(s), -1));
 		return false;
 	}
 

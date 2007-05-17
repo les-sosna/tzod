@@ -26,5 +26,4 @@ SafePtr<IFileSystem> g_fs;
 
 ConsoleBuffer *g_console = NULL;
 
-
 // end of file
