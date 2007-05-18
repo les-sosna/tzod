@@ -392,7 +392,7 @@ bool Config::_Load(lua_State *L)
 				SetStr(key, lua_tostring(L, -1));
 				break;
 			case LUA_TBOOLEAN:
-				SetBool(key, lua_toboolean(L, -1));
+				SetBool(key, 0 != lua_toboolean(L, -1));
 				break;
 			case LUA_TNUMBER:
 				SetNum(key, (float) lua_tonumber(L, -1));

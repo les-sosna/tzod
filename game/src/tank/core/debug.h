@@ -3,11 +3,11 @@
 #pragma once
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #define TRACE(fmt, ...) g_console->printf(fmt, __VA_ARGS__);
-#else
-#define TRACE
-#endif
+//#else
+//#define TRACE
+//#endif
 
 
 
