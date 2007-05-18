@@ -10,6 +10,8 @@
 #include "core/debug.h"
 #include "core/Console.h"
 
+#include "config/Config.h"
+
 #include "network/TankClient.h"
 #include "network/TankServer.h"
 
@@ -217,7 +219,7 @@ Level::Level()
 	TRACE("Constructing the level\n");
 	srand( GetTickCount() );
 
-	_timer.SetMaxDt(MAX_DT / (float) OPT(gameSpeed) * 100.0f);
+	_timer.SetMaxDt(MAX_DT / g_conf.sv_speed->GetFloat() * 100.0f);
 	_time        = 0;
 	_timeBuffer  = 0;
 	_limitHit    = false;
@@ -288,7 +290,7 @@ BOOL Level::init_emptymap()
 	OPT(gameType)    = GT_EDITOR;
 	OPT(bModeEditor) = true;
 
-	OPT(bNightMode)  = false;
+//	OPT(bNightMode)  = false;
 
 	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
@@ -307,7 +309,7 @@ BOOL Level::init_import_and_edit(char *mapName)
 	OPT(gameType)    = GT_EDITOR;
 	OPT(bModeEditor) = true;
 
-	OPT(bNightMode)  = false;
+//	OPT(bNightMode)  = false;
 
 	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
@@ -331,7 +333,7 @@ BOOL Level::init_newdm(const char *mapName)
 
 	//editor object
 	_Editor::CreateInstance();
-	g_render->SetAmbient(OPT(bNightMode) ? 0.0f : 1.0f );
+	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
 	bool res = Import(mapName, false);
 
@@ -426,11 +428,12 @@ bool Level::Unserialize(const char *fileName)
 			throw "ERROR: invalid version";
 
 		g_options.gameType   = sh.dwGameType;
-		g_options.timelimit  = sh.timelimit;
-		g_options.fraglimit  = sh.fraglimit;
-		g_options.bNightMode = sh.nightmode;
 
-		_time = sh.fTime;
+		g_conf.sv_timelimit->SetFloat(sh.timelimit);
+		g_conf.sv_fraglimit->SetInt(sh.fraglimit);
+		g_conf.sv_nightmode->Set(sh.nightmode);
+
+		_time = sh.time;
 		Init(sh.X, sh.Y);
 
 		while( sh.nObjects > 0 )
@@ -511,10 +514,10 @@ bool Level::Serialize(const char *fileName)
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
 		sh.dwGameType   = g_options.gameType;
-		sh.fraglimit    = g_options.fraglimit;
-		sh.timelimit    = g_options.timelimit;
-		sh.nightmode    = g_options.bNightMode;
-		sh.fTime        = _time;
+		sh.fraglimit    = g_conf.sv_fraglimit->GetInt();
+		sh.timelimit    = g_conf.sv_timelimit->GetFloat();
+		sh.nightmode    = g_conf.sv_nightmode->Get();
+		sh.time        = _time;
 		sh.X            = (int) _sx / CELL_SIZE;
 		sh.Y            = (int) _sy / CELL_SIZE;
 		sh.nObjects		= 0;	// будем увеличивать по мере записи

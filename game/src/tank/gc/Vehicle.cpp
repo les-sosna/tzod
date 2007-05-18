@@ -18,6 +18,9 @@
 #include "player.h"
 #include "turrets.h"
 
+#include "config/Config.h"
+
+
 /////////////////////////////////////////////////////////////
 
 GC_Vehicle::GC_Vehicle(GC_Player *pPlayer)
@@ -238,9 +241,9 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						((GC_Vehicle *) dd.from)->_player->_name, _player->_name);
 				}
 
-				if( OPT(fraglimit) )
+				if( g_conf.sv_fraglimit->GetInt() )
 				{
-					if( pVehicle->_player->_score >= OPT(fraglimit) )
+					if( pVehicle->_player->_score >= g_conf.sv_fraglimit->GetInt() )
 					{
 						g_level->Pause(true);
 						g_level->_limitHit = true;

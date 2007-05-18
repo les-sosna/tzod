@@ -1028,8 +1028,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 		{
 			if( _crosshair )
 			{
-				_crosshair->Show(OPT(bAICrosshair) ||
-					!OPT(players)[_proprietor->_player->_nIndex].bAI );
+				_crosshair->Show(!OPT(players)[_proprietor->_player->_nIndex].bAI);
 			}
 
 			_rotator.process_dt(dt);
@@ -2234,8 +2233,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 	if( _crosshair_left && _proprietor )
 	{
-		_crosshair_left->Show(g_options.bAICrosshair ||
-			!g_options.players[_proprietor->_player->_nIndex].bAI);
+		_crosshair_left->Show(!g_options.players[_proprietor->_player->_nIndex].bAI);
 	}
 
 	if( _bAttached )

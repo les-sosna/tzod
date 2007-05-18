@@ -31,6 +31,9 @@ void ConfVar::SetType(Type type)
 	case typeNumber:
 		_val.asNumber = 0;
 		break;
+	case typeBoolean:
+		_val.asBool = false;
+		break;
 	case typeString:
 		_val.asString = new string_t();
 		break;
@@ -56,6 +59,8 @@ void ConfVar::Free()
 		break;
 	case typeNumber:
 		break;
+	case typeBoolean:
+		break;
 	case typeString:
 		delete _val.asString;
 		break;
@@ -77,6 +82,12 @@ ConfVarNumber* ConfVar::AsNum()
 {
 	_ASSERT(typeNumber == _type);
 	return static_cast<ConfVarNumber*>(this);
+}
+
+ConfVarBool* ConfVar::AsBool()
+{
+	_ASSERT(typeBoolean == _type);
+	return static_cast<ConfVarBool*>(this);
 }
 
 ConfVarString* ConfVar::AsStr()
@@ -124,6 +135,17 @@ void ConfVarNumber::SetInt(int value)
 {
 	_ASSERT(typeNumber == _type);
 	_val.asNumber = value;
+}
+
+bool ConfVarBool::Get() const
+{
+	_ASSERT(typeBoolean == _type);
+	return (int) _val.asBool;
+}
+void ConfVarBool::Set(bool value)
+{
+	_ASSERT(typeBoolean == _type);
+	_val.asBool = value;
 }
 
 const char* ConfVarString::Get() const
@@ -206,7 +228,7 @@ std::pair<ConfVar*, bool> Config::GetVar(const char *name, ConfVar::Type type)
 		if( result.first->GetType() != ConfVar::typeNil )
 		{
 			static const char* typeNames[] = {
-				"nil", "float", "long", "string", "config", "array"
+				"nil", "number", "boolean", "string", "config", "array"
 			};
 			g_console->printf("WARNING: changing type of variable '%s' from %s to %s\n", 
 				name, typeNames[result.first->GetType()], typeNames[type] );
@@ -246,6 +268,21 @@ ConfVarNumber* Config::SetNum(const char *name, int value)
 {
 	ConfVarNumber *v = GetVar(name, ConfVar::typeNumber).first->AsNum();
 	v->SetInt(value);
+	return v;
+}
+
+ConfVarBool* Config::GetBool(const char *name, bool def)
+{
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeBoolean);
+	if( !p.second )
+		p.first->AsBool()->Set(def);
+	return p.first->AsBool();
+}
+
+ConfVarBool* Config::SetBool(const char *name, bool value)
+{
+	ConfVarBool *v = GetVar(name, ConfVar::typeBoolean).first->AsBool();
+	v->Set(value);
 	return v;
 }
 
@@ -295,6 +332,9 @@ bool Config::_Save(FILE *file, int level) const
 			break;
 		case ConfVar::typeNumber:
 			fprintf(file, "%g", v->AsNum()->GetFloat());
+			break;
+		case ConfVar::typeBoolean:
+			fprintf(file, v->AsBool()->Get() ? "true" : "false");
 			break;
 		case ConfVar::typeString:
 			fprintf(file, "\"%s\"", v->AsStr()->Get());
@@ -351,6 +391,9 @@ bool Config::_Load(lua_State *L)
 			case LUA_TSTRING:
 				SetStr(key, lua_tostring(L, -1));
 				break;
+			case LUA_TBOOLEAN:
+				SetBool(key, lua_toboolean(L, -1));
+				break;
 			case LUA_TNUMBER:
 				SetNum(key, (float) lua_tonumber(L, -1));
 				break;
@@ -368,7 +411,7 @@ bool Config::_Load(lua_State *L)
 				}
 				break;
 			default:
-				g_console->printf("WARNING: unknown value type - %s\n", lua_typename(L, -1));
+				g_console->printf("WARNING: unknown value type - %s\n", lua_typename(L, valueType));
 				break;
 			}
 		}

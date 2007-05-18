@@ -658,7 +658,7 @@ HRESULT InitAll( HWND hWnd )
     dm.RefreshRate   = g_conf.r_freq->GetInt();
     dm.BitsPerPixel  = g_conf.r_bpp->GetInt();
 	
-	if( !g_render->Init(hWnd, &dm, g_conf.r_fullscreen->GetInt()) )
+	if( !g_render->Init(hWnd, &dm, g_conf.r_fullscreen->Get()) )
 	{
 		return E_FAIL;
 	}

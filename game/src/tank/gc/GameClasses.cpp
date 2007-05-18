@@ -15,6 +15,8 @@
 
 #include "video/RenderBase.h"
 
+#include "config/Config.h"
+
 #include "functions.h"
 #include "Macros.h"
 #include "Options.h"
@@ -1378,9 +1380,9 @@ void GC_TextScore::Refresh()
 
 void GC_TextScore::EndFrame()
 {
-	if (g_options.timelimit)
+	if( g_conf.sv_timelimit->GetFloat() )
 	{
-		if (g_level->_time >= (float) g_options.timelimit * 60)
+		if( g_level->_time >= g_conf.sv_timelimit->GetFloat() * 60 )
 		{
 			g_level->Pause(true);
 			g_level->_limitHit = true;
@@ -1403,13 +1405,12 @@ void GC_TextScore::EndFrame()
 void GC_TextScore::Draw()
 {
 	char text[256];
-
-	if (g_options.timelimit)
+	if( g_conf.sv_timelimit->GetFloat() )
 	{
-		int timeleft = int((float)(g_options.timelimit * 60) - g_level->_time);
-		if (timeleft > 0)
+		int timeleft = int(g_conf.sv_timelimit->GetFloat() * 60.0f - g_level->_time);
+		if( timeleft > 0 )
 		{
-			if (timeleft % 60 < 10)
+			if( timeleft % 60 < 10 )
 				wsprintf(text, "Осталось времени %d:0%d", timeleft / 60, timeleft % 60);
 			else
 				wsprintf(text, "Осталось времени %d:%d", timeleft / 60, timeleft % 60);
@@ -1423,15 +1424,15 @@ void GC_TextScore::Draw()
 		GC_Text::Draw();
 	}
 
-	if( g_options.fraglimit )
+	if( g_conf.sv_fraglimit->GetInt() )
 	{
 		int max_score = _players.empty() ? 0 : _players[0].score;
 		for( size_t i = 0; i < _players.size(); ++i )
 		{
-			if (_players[i].score > max_score)
+			if( _players[i].score > max_score )
 				max_score = _players[i].score;
 		}
-		int scoreleft = g_options.fraglimit - max_score;
+		int scoreleft = g_conf.sv_fraglimit->GetInt() - max_score;
 		if (scoreleft > 0)
 			wsprintf(text, "Осталось фрагов  %d", scoreleft);
 		else

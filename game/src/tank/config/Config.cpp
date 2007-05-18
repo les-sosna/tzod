@@ -16,6 +16,7 @@ Config*    g_config = NULL;
 #undef CONFIG_BEGIN
 #undef CONFIG_VAR_FLOAT
 #undef CONFIG_VAR_INT
+#undef CONFIG_VAR_BOOL
 #undef CONFIG_VAR_STRING
 #undef CONFIG_END
 
@@ -30,6 +31,9 @@ Config*    g_config = NULL;
 
 #define CONFIG_VAR_INT( var, def )           \
 	this->var = cfg->GetNum( #var, (int) (def) );
+
+#define CONFIG_VAR_BOOL( var, def )          \
+	this->var = cfg->GetBool( #var, (def) );
 
 #define CONFIG_VAR_STRING( var, def )        \
 	this->var = cfg->GetStr( #var, (def) );

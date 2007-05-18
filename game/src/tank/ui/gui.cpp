@@ -17,6 +17,8 @@
 
 #include "video/TextureManager.h"
 
+#include "config/Config.h"
+
 #include "fs/FileSystem.h"
 #include "fs/MapFile.h"
 #include "gc/Player.h"
@@ -118,7 +120,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 					it->erase(it->length() - 4); // cut out the file extension
 					int index = _maps->AddItem(it->c_str());
 
-					if( *it == OPT(cMapName) )
+					if( *it == g_conf.cl_lastmap->Get() )
 						lastMapIndex = index;
 
 					char size[64];
@@ -154,20 +156,20 @@ NewGameDlg::NewGameDlg(Window *parent)
 		float y =  16;
 
 		_nightMode = new CheckBox(this, x, y, "Ночной режим");
-		_nightMode->SetCheck( OPT(bNightMode) );
+		_nightMode->SetCheck( g_conf.sv_nightmode->Get() );
 
 
 		new Text(this, x, y+=30, "Скорость игры, %", alignTextLT);
 		_gameSpeed = new Edit(this, x+20, y+=15, 80);
-		_gameSpeed->SetInt(OPT(gameSpeed));
+		_gameSpeed->SetInt(g_conf.sv_speed->GetInt());
 
 		new Text(this, x, y+=30, "Лимит фрагов", alignTextLT);
 		_fragLimit = new Edit(this, x+20, y+=15, 80);
-		_fragLimit->SetInt(OPT(fraglimit));
+		_fragLimit->SetInt(g_conf.sv_fraglimit->GetInt());
 
 		new Text(this, x, y+=30, "Лимит времени", alignTextLT);
 		_timeLimit = new Edit(this, x+20, y+=15, 80);
-		_timeLimit->SetInt(OPT(timelimit));
+		_timeLimit->SetInt(g_conf.sv_timelimit->GetInt());
 
 		new Text(this, x+30, y+=40, "(0 - нет лимита)", alignTextLT);
 	}
@@ -333,10 +335,10 @@ void NewGameDlg::OnOK()
 	path += "\\";
 	path += fn + ".map";
 
-	OPT(gameSpeed)  = __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt()));
-	OPT(fraglimit)  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
-	OPT(timelimit)  = __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt()));
-	OPT(bNightMode) = _nightMode->GetCheck();
+	g_conf.sv_speed->SetInt(__max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
+	g_conf.sv_fraglimit->SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
+	g_conf.sv_timelimit->SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
+	g_conf.sv_nightmode->Set( _nightMode->GetCheck() );
 
 	SAFE_DELETE(g_level);
 	g_level = new Level();
@@ -344,7 +346,7 @@ void NewGameDlg::OnOK()
 	if( g_level->init_newdm(path.c_str()) )
 	{
 		g_level->_seed = rand();
-		strcpy(OPT(cMapName), fn.c_str());
+		g_conf.cl_lastmap->Set(fn.c_str());
 
 		// добавляем игроков в обратном порядке
 		for( int i = OPT(dm_nPlayers) - 1; i >= 0; --i )

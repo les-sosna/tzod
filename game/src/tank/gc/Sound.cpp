@@ -47,7 +47,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	_soundTemplate = sound;
 	_freezed       = false;
 	SetVolume(1.0f);
-	if( 100 != OPT(gameSpeed) )
+	if( 100 != g_conf.sv_speed->GetInt() )
 	{
 		SetSpeed(1.0f);
 	}
@@ -225,7 +225,8 @@ void GC_Sound::SetSpeed(float speed)
 {
 #if !defined NOSOUND
 	if( !g_pSoundManager ) return;
-	_dwCurrentFrequency = int((float)_dwNormalFrequency * speed * (float) OPT(gameSpeed) / 100.0f);
+	_dwCurrentFrequency = int((float)_dwNormalFrequency * speed
+		* g_conf.sv_speed->GetFloat() * 0.01f);
 	_soundBuffer->SetFrequency(_dwCurrentFrequency);
 #endif
 }

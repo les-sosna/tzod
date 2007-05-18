@@ -6,6 +6,7 @@
 class Config;
 
 class ConfVarNumber;
+class ConfVarBool;
 class ConfVarString;
 class ConfVarArray;
 class ConfVarConfig;
@@ -18,6 +19,7 @@ public:
 	{
 		typeNil,
 		typeNumber,
+		typeBoolean,
 		typeString,
 		typeConfig,
 		typeArray,
@@ -31,6 +33,7 @@ public:
 
 	// type casting
 	ConfVarNumber* AsNum();
+	ConfVarBool*   AsBool();
 	ConfVarString* AsStr();
 	ConfVarArray*  AsArray();
 	ConfVarConfig* AsConf();
@@ -40,6 +43,7 @@ protected:
 	union Value
 	{
 		lua_Number              asNumber;
+		bool                    asBool;
 		string_t               *asString;
 		std::vector<ConfVar*>  *asArray;
 		Config                 *asConfig;
@@ -61,6 +65,13 @@ public:
 
 	int GetInt() const;
 	void SetInt(int value);
+};
+
+class ConfVarBool : public ConfVar
+{
+public:
+	bool Get() const;
+	void Set(bool value);
 };
 
 class ConfVarString : public ConfVar
@@ -105,10 +116,13 @@ public:
 
 	ConfVarNumber* GetNum(const char *name, float def);
 	ConfVarNumber* GetNum(const char *name, int  def);
+	ConfVarBool*  GetBool(const char *name, bool def);
 	ConfVarString* GetStr(const char *name, const char* def);
+
 
 	ConfVarNumber* SetNum(const char *name, float value);
 	ConfVarNumber* SetNum(const char *name, int  value);
+	ConfVarBool*  SetBool(const char *name, bool value);
 	ConfVarString* SetStr(const char *name, const char* value);
 
 	ConfVarConfig* GetConf(const char *name);

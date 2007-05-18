@@ -46,7 +46,7 @@ static void OnPrintScreen()
 	CreateDirectory(DIR_SCREENSHOTS, NULL);
 	SetCurrentDirectory(DIR_SCREENSHOTS);
 
-	int n = OPT(nScreenshotNumber);
+	int n = g_conf.r_screenshot->GetInt();
 	char name[MAX_PATH];
 	while (1)
 	{
@@ -67,7 +67,7 @@ static void OnPrintScreen()
 		n++;
 	}
 
-	OPT(nScreenshotNumber) = n;
+	g_conf.r_screenshot->SetInt(n);
 
 	if ( !g_render->TakeScreenshot(name) )
 	{
@@ -91,7 +91,7 @@ static void TimeStep()
 {
 	if( !g_level || g_level->_limitHit ) return;
 
-	float dt = g_level->_timer.GetDt() * (float) OPT(gameSpeed) / 100.0f;
+	float dt = g_level->_timer.GetDt() * g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
 	if( OPT(bModeEditor) ) return;
@@ -263,7 +263,7 @@ static void RenderFrame(bool thumbnail)
 			// рендеринг освещения
 			//
 
-			if( OPT(bNightMode) )
+			if( g_conf.sv_nightmode->Get() )
 			{
 				g_render->setMode(RM_LIGHT);
 
@@ -394,7 +394,7 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 	return new UI::Desktop(mgr);
 }
 
-static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
+static HWND CreateMainWnd(HINSTANCE hInstance)
 {
 	TRACE("Create main app window\n");
     HWND hWnd = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
@@ -402,8 +402,6 @@ static HWND CreateMainWnd(HINSTANCE hInstance, int width, int height)
 						   CW_USEDEFAULT, CW_USEDEFAULT, // position
   	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
 						   NULL, NULL, hInstance, NULL );
-	ShowWindow(hWnd, SW_SHOW);
-	UpdateWindow(hWnd);
 	return hWnd;
 }
 
@@ -465,14 +463,43 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	//
+	// init common controls
+	//
+
+	TRACE("windows common controls initialization\n");
+	INITCOMMONCONTROLSEX iccex = {
+	sizeof(INITCOMMONCONTROLSEX),
+		0
+//		ICC_LISTVIEW_CLASSES|ICC_UPDOWN_CLASS|ICC_BAR_CLASSES 
+	};
+	InitCommonControlsEx(&iccex);
+
+
+	//
+	// create main app window
+	//
+	MyRegisterClass(hInstance);
+	g_env.hMainWnd = CreateMainWnd(hInstance);
+
+
+
+
+	//
 	// show graphics mode selection dialog
 	//
-	if( g_conf.r_askformode->GetInt() && IDOK != DialogBox(g_hInstance,
+	if( g_conf.r_askformode->Get() && IDOK != DialogBox(g_hInstance,
 		(LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
 		return 0;
 	}
+
+
+	//
+	// show main app window
+	//
+	ShowWindow(g_env.hMainWnd, SW_SHOW);
+	UpdateWindow(g_env.hMainWnd);
 
 
 
@@ -488,27 +515,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 
-	//
-	// init common controls
-	//
-
-	TRACE("windows common controls initialization\n");
-	INITCOMMONCONTROLSEX iccex = {
-	sizeof(INITCOMMONCONTROLSEX),
-		0
-//		ICC_LISTVIEW_CLASSES|ICC_UPDOWN_CLASS|ICC_BAR_CLASSES 
-	};
-	InitCommonControlsEx(&iccex);
-
-
-
 
 #ifndef _DEBUG
 	BOOL bGeneralFault = FALSE;
 #endif
-
-	MyRegisterClass(hInstance);
-	g_env.hMainWnd = CreateMainWnd(hInstance, g_render->getXsize(), g_render->getYsize());
 
 
 	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )

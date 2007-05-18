@@ -4,10 +4,7 @@
 #pragma once
 
 #include <stdlib.h>
-#include <malloc.h>
 #include <vector>
-
-#include "core/debug.h"
 
 ///////////////////////////////////////////////////////////////////
 
@@ -35,7 +32,7 @@ class MemoryManager
 
 	void grow()
 	{
-		mem_block *begin = (mem_block *) malloc(block_size * sizeof(mem_block));
+		mem_block *begin = new mem_block[block_size];
 		mem_block *end = begin + block_size;
 		_memory_blocks.push_back(begin);
 		do{ begin->pNext = begin+1; } while( ++begin != end );
@@ -58,7 +55,7 @@ public:
 	~MemoryManager(void)
 	{
 		for( size_t i = 0; i < _memory_blocks.size(); i++ )
-			::free(_memory_blocks[i]);
+			delete[] _memory_blocks[i];
 
 #ifdef _DEBUG
 		_ASSERT(0 == _allocated_count);

@@ -12,10 +12,10 @@ typedef struct SAVEHEADER
 	DWORD dwVersion;
 	DWORD dwGameType;
 	bool  nightmode;
-	int   timelimit;
+	float timelimit;
 	int   fraglimit;
 	int   nObjects;
-	float fTime;
+	float time;
 	int   X, Y;	// размер уровня
 	char  theme[MAX_PATH];
 } SAVEHEADER, *LPSAVEHEADER;

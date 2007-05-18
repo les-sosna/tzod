@@ -750,7 +750,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 
 	if( bSaveAndValidate )
 	{
-		g_conf.r_fullscreen->SetInt( GETCHECK(IDC_FULLSCREEN) );
+		g_conf.r_fullscreen->Set( GETCHECK(IDC_FULLSCREEN) );
 		int render = GETCHECK(IDC_RENDER_OPENGL) ? 0 : 1;
 		if( render != g_conf.r_render->GetInt() )
 		{
@@ -760,7 +760,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 	}
 	else
 	{
-		SETCHECK(IDC_FULLSCREEN, g_conf.r_fullscreen->GetInt());
+		SETCHECK(IDC_FULLSCREEN, g_conf.r_fullscreen->Get());
 		SETCHECK(g_conf.r_render->GetInt() ? IDC_RENDER_DIRECT3D : IDC_RENDER_OPENGL, TRUE);
 	}
 
@@ -891,8 +891,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			SendDlgItemMessage(hDlg, IDC_RATE, CB_SETCURSEL, 0, 0);
 	}
 
-	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), g_conf.r_fullscreen->GetInt() );
-	EnableWindow(GetDlgItem(hDlg, IDC_RATE), g_conf.r_fullscreen->GetInt() );
+	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), g_conf.r_fullscreen->Get() );
+	EnableWindow(GetDlgItem(hDlg, IDC_RATE), g_conf.r_fullscreen->Get() );
 
 	s_bUpdating = FALSE;
 }
@@ -1910,11 +1910,10 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				break;
 			case IDOK:
 				g_options.bParticles      = GETCHECK(IDC_CHK_PARTICLES);
-				g_options.bAICrosshair    = GETCHECK(IDC_CHK_AICH);
 				g_options.bDamageLabel    = GETCHECK(IDC_CHK_DAMLABEL);
 				g_options.bShowFPS        = GETCHECK(IDC_CHK_FPS);
 				g_options.bShowTime       = GETCHECK(IDC_CHK_TIMER);
-				g_conf.r_askformode->SetInt(GETCHECK(IDC_CHK_SHOWSELECTMODE));
+				g_conf.r_askformode->Set( GETCHECK(IDC_CHK_SHOWSELECTMODE) );
 				//-------------------------------
 				g_conf.s_maxchanels->SetInt(GetDlgItemInt(hDlg, IDC_MAXSOUNDS, NULL, FALSE));
 				if( 0 == g_conf.s_maxchanels->GetInt() )
@@ -2014,11 +2013,10 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		// основные
 
 		SETCHECK(IDC_CHK_PARTICLES, g_options.bParticles);
-		SETCHECK(IDC_CHK_AICH,      g_options.bAICrosshair);
 		SETCHECK(IDC_CHK_DAMLABEL,  g_options.bDamageLabel);
 		SETCHECK(IDC_CHK_FPS,       g_options.bShowFPS);
 		SETCHECK(IDC_CHK_TIMER,     g_options.bShowTime);
-		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->GetInt());
+		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->Get());
 
 		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
 

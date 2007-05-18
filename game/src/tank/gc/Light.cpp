@@ -6,6 +6,8 @@
 #include "level.h"
 #include "macros.h"
 
+#include "config/Config.h"
+
 #include "video/RenderBase.h"
 
 #include "fs/SaveFile.h"
@@ -45,7 +47,7 @@ GC_Light::GC_Light(enumLightType type)
 
 	_lamp = new GC_UserSprite();
 
-	if( OPT(bNightMode) )	// FIXME!
+	if( g_conf.sv_nightmode->Get() ) // FIXME!
 	if( LIGHT_SPOT == type )
 	{
 		_lamp->SetTexture("shine");
