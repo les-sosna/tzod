@@ -3,7 +3,7 @@
 
 #define _WIN32_WINDOWS  0x0410 // windows 98
 
-#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS
 
 #define VC_EXTRALEAN
 //#define WIN32_LEAN_AND_MEAN

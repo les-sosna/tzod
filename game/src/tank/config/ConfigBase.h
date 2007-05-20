@@ -9,7 +9,7 @@ class ConfVarNumber;
 class ConfVarBool;
 class ConfVarString;
 class ConfVarArray;
-class ConfVarConfig;
+class ConfVarTable;
 
 //
 class ConfVar
@@ -21,12 +21,12 @@ public:
 		typeNumber,
 		typeBoolean,
 		typeString,
-		typeConfig,
 		typeArray,
+		typeTable,
 	};
 
 	ConfVar();
-	~ConfVar();
+	virtual ~ConfVar();
 
 	void SetType(Type type); 
 	Type GetType() const { return _type; }
@@ -36,18 +36,18 @@ public:
 	ConfVarBool*   AsBool();
 	ConfVarString* AsStr();
 	ConfVarArray*  AsArray();
-	ConfVarConfig* AsConf();
+	ConfVarTable* AsTable();
 
 
 protected:
 	union Value
 	{
-		lua_Number              asNumber;
-		bool                    asBool;
-		string_t               *asString;
-		std::vector<ConfVar*>  *asArray;
-		Config                 *asConfig;
-		void                   *ptr;
+		lua_Number                     asNumber;
+		bool                           asBool;
+		string_t                      *asString;
+		std::vector<ConfVar*>         *asArray;
+		std::map<string_t, ConfVar*>  *asTable;
+		void                          *ptr;
 	};
 
 	Type  _type;
@@ -89,27 +89,18 @@ public:
 	ConfVar*  GetAt(size_t index);
 };
 
-class ConfVarConfig : public ConfVar
+class ConfVarTable : public ConfVar
 {
-public:
-	Config* Get() const;
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-class Config
-{
-	typedef std::map<string_t, ConfVar*> ValuesMap;
-	typedef std::pair<string_t, ConfVar*> ValuePair;
-	ValuesMap _values;
+//	typedef std::map<string_t, ConfVar*> ValuesMap;
+//	typedef std::pair<string_t, ConfVar*> ValuePair;
+//	ValuesMap _values;
 
 	bool _Save(FILE *file, int level) const;
 	bool _Load(lua_State *L);
 	
 public:
-	Config();
-	~Config();
+	ConfVarTable();
+	~ConfVarTable();
 
 	// bool part contains true if value with sprecified type was found
 	std::pair<ConfVar*, bool> GetVar(const char *name, ConfVar::Type type);
@@ -125,12 +116,15 @@ public:
 	ConfVarBool*  SetBool(const char *name, bool value);
 	ConfVarString* SetStr(const char *name, const char* value);
 
-	ConfVarConfig* GetConf(const char *name);
+	ConfVarArray* GetArray(const char *name);
+	ConfVarTable* GetTable(const char *name);
 
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);
 };
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

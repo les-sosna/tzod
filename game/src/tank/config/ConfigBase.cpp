@@ -37,11 +37,11 @@ void ConfVar::SetType(Type type)
 	case typeString:
 		_val.asString = new string_t();
 		break;
-	case typeConfig:
-		_val.asConfig = new Config();
-		break;
 	case typeArray:
 		_val.asArray  = new std::vector<ConfVar*>();
+		break;
+	case typeTable:
+		_val.asTable = new std::map<string_t, ConfVar*>();
 		break;
 	default:
 		_ASSERT(FALSE);
@@ -64,11 +64,11 @@ void ConfVar::Free()
 	case typeString:
 		delete _val.asString;
 		break;
-	case typeConfig:
-		delete _val.asConfig;
-		break;
 	case typeArray:
 		delete _val.asArray;
+		break;
+	case typeTable:
+		delete _val.asTable;
 		break;
 	default:
 		_ASSERT(FALSE);
@@ -102,10 +102,10 @@ ConfVarArray* ConfVar::AsArray()
 	return static_cast<ConfVarArray*>(this);
 }
 
-ConfVarConfig* ConfVar::AsConf()
+ConfVarTable* ConfVar::AsTable()
 {
-	_ASSERT(typeConfig == _type);
-	return static_cast<ConfVarConfig*>(this);
+	_ASSERT(typeTable == _type);
+	return static_cast<ConfVarTable*>(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,25 +181,15 @@ ConfVar* ConfVarArray::GetAt(size_t index)
 }
 
 
-//
-// config access functions
-//
-
-Config* ConfVarConfig::Get() const
-{
-	_ASSERT(typeConfig == _type);
-	return _val.asConfig;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
-Config::Config()
+ConfVarTable::ConfVarTable()
 {
 }
 
-Config::~Config()
+ConfVarTable::~ConfVarTable()
 {
+	std::map<string_t, ConfVar*>::iterator it = 
 	for( ValuesMap::iterator it = _values.begin(); _values.end() != it; ++it )
 	{
 		delete it->second;
@@ -228,7 +218,7 @@ std::pair<ConfVar*, bool> Config::GetVar(const char *name, ConfVar::Type type)
 		if( result.first->GetType() != ConfVar::typeNil )
 		{
 			static const char* typeNames[] = {
-				"nil", "number", "boolean", "string", "config", "array"
+				"nil", "number", "boolean", "string", "array", "config"
 			};
 			g_console->printf("WARNING: changing type of variable '%s' from %s to %s\n", 
 				name, typeNames[result.first->GetType()], typeNames[type] );
@@ -299,6 +289,11 @@ ConfVarString* Config::SetStr(const char *name, const char* value)
 	ConfVarString *v = GetVar(name, ConfVar::typeString).first->AsStr();
 	v->Set(value);
 	return v;
+}
+
+ConfVarConfig* Config::GetArray(const char *name)
+{
+	return GetVar(name, ConfVar::typeArray).first->AsArray();
 }
 
 ConfVarConfig* Config::GetConf(const char *name)

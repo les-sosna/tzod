@@ -27,6 +27,11 @@
 #define CONFIG_VAR_STRING( var, def )   \
 	ConfVarString *var;
 
+#define CONFIG_VAR_ARRAY( var )         \
+	ConfVarArray *var;
+
+#define CONFIG_VAR_CONFIG( var )        \
+	ConfVarConfig *var;
 
 #define CONFIG_END()                    \
 	;};
@@ -66,6 +71,8 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
 	CONFIG_VAR_INT( s_maxchanels,            16 );
 
+	// other
+	CONFIG_VAR_ARRAY( players );
 
 }
 CONFIG_END()

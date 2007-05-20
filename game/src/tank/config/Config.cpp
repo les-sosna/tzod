@@ -18,6 +18,8 @@ Config*    g_config = NULL;
 #undef CONFIG_VAR_INT
 #undef CONFIG_VAR_BOOL
 #undef CONFIG_VAR_STRING
+#undef CONFIG_VAR_ARRAY
+#undef CONFIG_VAR_CONFIG
 #undef CONFIG_END
 
 #define CONFIG_CPP
@@ -37,6 +39,12 @@ Config*    g_config = NULL;
 
 #define CONFIG_VAR_STRING( var, def )        \
 	this->var = cfg->GetStr( #var, (def) );
+
+#define CONFIG_VAR_ARRAY( var )              \
+	this->var = cfg->GetArray( #var );
+
+#define CONFIG_VAR_CONFIG( var )             \
+	this->var = cfg->GetConf( #var );
 
 #define CONFIG_END()
 
