@@ -56,7 +56,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	SetMode(mode);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
 	//////////////////////
-	if( OPT(bModeEditor) )
+	if( g_level->_modeEditor )
 		Freeze(true);
 #endif
 }

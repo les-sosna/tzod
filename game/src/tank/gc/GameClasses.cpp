@@ -125,13 +125,13 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 		_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 		_player->Subscribe(NOTIFY_PLAYER_SETCONTROLLER, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 
-		_bActive = !OPT(bModeEditor);
+		_active = !g_level->_modeEditor;
 	}
 	else
 	{
 		MoveTo( vec2d(0, 0) );
 		SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
-		_bActive = OPT(bModeEditor);
+		_active = g_level->_modeEditor;
 	}
 	//---------------------------------------
 	_target     = _pos;
@@ -227,7 +227,7 @@ void GC_Camera::Select()
 void GC_Camera::Activate(bool bActivate)
 {
 	_ASSERT(!IsKilled());
-	_bActive = bActivate;
+	_active = bActivate;
 }
 
 void GC_Camera::EndFrame()
@@ -324,13 +324,18 @@ void GC_Camera::UpdateLayout()
 
 	ENUM_BEGIN(cameras, GC_Camera, pCamera)
 	{
-		if( pCamera->IsKilled() ) continue;
-		tmp = pCamera;
-		if( tmp->_player )
-			tmp->Activate(!OPT(bModeEditor));
-		else
-			tmp->Activate(OPT(bModeEditor));
-		if( tmp->IsActive() ) ++active_count;
+		if( !pCamera->IsKilled() )
+		{
+			tmp = pCamera;
+
+			if( tmp->_player )
+				tmp->Activate(!g_level->_modeEditor);
+			else
+				tmp->Activate(g_level->_modeEditor);
+
+			if( tmp->IsActive() ) 
+				++active_count;
+		}
 	} ENUM_END();
 
 	if( tmp && 0 == active_count )
@@ -427,7 +432,7 @@ void GC_Camera::Serialize(SaveFile &f)
 	GC_Object::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_angle_current);
-	f.Serialize(_bActive);
+	f.Serialize(_active);
 	f.Serialize(_dt);
 	f.Serialize(_dwTimeX);
 	f.Serialize(_dwTimeY);
@@ -466,7 +471,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Background)
 GC_Background::GC_Background() : GC_2dSprite()
 {
 	MoveTo(vec2d(0, 0));
-	_drawGrid = OPT(bModeEditor) && OPT(bShowGrid);
+	_drawGrid = g_level->_modeEditor && g_conf.ed_drawgrid->Get();
 }
 
 void GC_Background::Draw()
@@ -482,7 +487,7 @@ void GC_Background::Draw()
 		GC_2dSprite::Draw();
 	}
 
-	if( _drawGrid && OPT(bModeEditor) )
+	if( _drawGrid && g_level->_modeEditor )
 	{
 		SetTexture("grid");
 		FRECT rt  = {0};
@@ -587,7 +592,7 @@ void GC_Wood::Draw()
 	static float dy[8]   = {  0,-32,-32,-32,  0, 32, 32, 32 };
 	static int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
 
-	if (!g_options.bModeEditor)
+	if( !g_level->_modeEditor )
 	{
 		SetOpacity1i(255);
 
@@ -1389,10 +1394,9 @@ void GC_TextScore::EndFrame()
 		}
 	}
 
-	Show((0 != g_env.envInputs.keys[DIK_TAB] &&
-		!g_options.bModeEditor) || g_level->_limitHit);
+	Show((0 != g_env.envInputs.keys[DIK_TAB] && !g_level->_modeEditor) || g_level->_limitHit);
 
-	if (g_level->_limitHit && !_bOldLimit)
+	if( g_level->_limitHit && !_bOldLimit )
 	{
 		PLAY(SND_Limit, _pos);
 		_bOldLimit = true;
@@ -1616,13 +1620,13 @@ GC_TextTime::GC_TextTime(int xPos, int yPos, enumAlignText align) : GC_Text(xPos
 
 void GC_TextTime::EndFrame()
 {
-	Show(g_options.bShowTime && !OPT(bModeEditor));
-	if (IsVisible())
+	Show( g_options.bShowTime && !g_level->_modeEditor );
+	if( IsVisible() )
 	{
 		char text[16];
 		int time = int(g_level->_time);
 
-		if (time % 60 < 10)
+		if( time % 60 < 10 )
 			wsprintf(text, "%d:0%d", time / 60, time % 60);
 		else
 			wsprintf(text, "%d:%d", time / 60, time % 60);

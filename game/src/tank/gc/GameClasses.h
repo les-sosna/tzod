@@ -61,7 +61,7 @@ private:
 	DWORD   _dwTimeX;
 	DWORD   _dwTimeY;
 	float   _dt;
-	bool    _bActive;
+	bool    _active;
 
 	Rotator _rotator;
 
@@ -79,7 +79,7 @@ public:
 
 	void Select();	         // применение трансформации, выбор камеры как текущей
 	void Activate(bool bActivate);	// неактивная камера не отображается на экране
-	bool IsActive() const { return _bActive && !IsKilled(); }
+	bool IsActive() const { return _active && !IsKilled(); }
 
 	static void SwitchEditor();
 	static void UpdateLayout();	// пересчет координат viewports

@@ -37,6 +37,9 @@ public:
 	ConfVarArray*  AsArray();
 	ConfVarTable* AsTable();
 
+	// lua binding
+	virtual void Push(lua_State *L);
+
 
 protected:
 	union Value
@@ -74,6 +77,8 @@ public:
 	int GetInt() const;
 	void SetInt(int value);
 
+	void Push(lua_State *L);
+
 protected:
 	virtual bool _Save(FILE *file, int level) const;
 	virtual bool _Load(lua_State *L);
@@ -88,6 +93,8 @@ public:
 
 	bool Get() const;
 	void Set(bool value);
+
+	void Push(lua_State *L);
 
 protected:
 	virtual bool _Save(FILE *file, int level) const;
@@ -104,6 +111,8 @@ public:
 
 	const char* Get() const;
 	void Set(const char* value);
+
+	void Push(lua_State *L);
 
 protected:
 	virtual bool _Save(FILE *file, int level) const;
@@ -139,6 +148,8 @@ public:
 	size_t    GetSize() const;
 	ConfVar*  GetAt(size_t index) const;
 
+	void Push(lua_State *L);
+
 protected:
 	bool _Save(FILE *file, int level) const;
 	bool _Load(lua_State *L);
@@ -151,6 +162,8 @@ public:
 	~ConfVarTable();
 
 	const char* GetTypeName() const;
+
+	ConfVar* Find(const char *name); // returns NULL if variable not found
 
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(const char *name, ConfVar::Type type);
@@ -170,6 +183,8 @@ public:
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);
+
+	void Push(lua_State *L);
 
 protected:
 	bool _Save(FILE *file, int level) const;

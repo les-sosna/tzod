@@ -381,7 +381,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 
     UpdateLight();
 
-	if( _moveSound && !(g_options.bModeEditor || g_level->_limitHit) )
+	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
 	{
 		_moveSound->MoveTo(_pos);
 		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.Length() / _MaxForvSpeed));

@@ -70,7 +70,7 @@ public:
 	float	_time_respawn;
 	bool	_bRespawn;			// респаун после того, как предмет подберут
 	bool	_bAttached;		// предмет прикреплен к танку
-	bool	_bFlash;			// мигает. наверное, сейчас исчезнет
+	bool	_blink;         // item is blinking
 
 	SafePtr<GC_Object> _ancObject;	// не респаунимся, пока этот объект жив
 
@@ -81,8 +81,8 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	void SetFlashing(bool bFlash);
-	bool GetFlashing() const { return _bFlash; }
+	void SetBlinking(bool blink);
+	bool GetBlinking() const { return _blink; }
 
 
 	// оценка полезности предмета для данного танка.

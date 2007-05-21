@@ -112,6 +112,10 @@ bool ConfVar::_Load(lua_State *L)
 	return true;
 }
 
+void ConfVar::Push(lua_State *L)
+{
+	lua_pushnil(L);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // number
@@ -161,6 +165,10 @@ bool ConfVarNumber::_Load(lua_State *L)
 	return true;
 }
 
+void ConfVarNumber::Push(lua_State *L)
+{
+	lua_pushnumber(L, GetFloat());
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // boolean
@@ -198,6 +206,12 @@ bool ConfVarBool::_Load(lua_State *L)
 	Set( 0 != lua_toboolean(L, -1) );
 	return true;
 }
+
+void ConfVarBool::Push(lua_State *L)
+{
+	lua_pushboolean(L, Get());
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // string
@@ -241,6 +255,11 @@ bool ConfVarString::_Load(lua_State *L)
 {
 	Set(lua_tostring(L, -1));
 	return true;
+}
+
+void ConfVarString::Push(lua_State *L)
+{
+	lua_pushstring(L, Get());
 }
 
 
@@ -423,7 +442,7 @@ bool ConfVarArray::_Load(lua_State *L)
 
 	for( size_t i = 0; i < GetSize(); ++i )
 	{
-		lua_pushinteger(L, i); // push the key
+		lua_pushinteger(L, i+1); // push the key
 		lua_gettable(L, -2);   // pop the key, push the value
 
 		if( ConfVar *v = FromLuaType(L, this, i) )
@@ -436,6 +455,15 @@ bool ConfVarArray::_Load(lua_State *L)
 	}
 
 	return true;
+}
+
+void ConfVarArray::Push(lua_State *L)
+{
+//	lua_pushstring(L, "array!!!");
+
+	lua_pushlightuserdata(L, this);
+	luaL_getmetatable(L, "conf_array");  // metatable for config
+	lua_setmetatable(L, -2);
 }
 
 
@@ -462,6 +490,12 @@ ConfVarTable::~ConfVarTable()
 const char* ConfVarTable::GetTypeName() const
 {
 	return "table";
+}
+
+ConfVar* ConfVarTable::Find(const char *name)  // returns NULL if variable not found
+{
+	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
+	return _val.asTable->end() != it ? it->second : NULL;
 }
 
 std::pair<ConfVar*, bool> ConfVarTable::GetVar(const char *name, ConfVar::Type type)
@@ -651,6 +685,14 @@ bool ConfVarTable::Load(const char *filename)
 
 	return result;
 }
+
+void ConfVarTable::Push(lua_State *L)
+{
+	lua_pushlightuserdata(L, this);
+	luaL_getmetatable(L, "conf_table");  // metatable for config
+	lua_setmetatable(L, -2);
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

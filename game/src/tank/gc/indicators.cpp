@@ -47,7 +47,7 @@ void GC_SpawnPoint::Serialize(SaveFile &f)
 
 void GC_SpawnPoint::Draw()
 {
-	if( g_options.bModeEditor )
+	if( g_level->_modeEditor )
 	{
 		GC_2dSprite::Draw();
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
@@ -172,7 +172,7 @@ GC_HideLabel::GC_HideLabel(FromFile) : GC_2dSprite(FromFile())
 
 void GC_HideLabel::Draw()
 {
-	if( g_options.bModeEditor )
+	if( g_level->_modeEditor )
 		GC_2dSprite::Draw();
 }
 

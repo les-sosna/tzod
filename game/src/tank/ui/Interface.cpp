@@ -2059,19 +2059,19 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 void mainUpdateUI(HWND hDlg)
 {
-	if (g_level)
-	{
-		switch (g_options.gameType)
-		{
-		case GT_EDITOR:
-			SetDlgItemText(hDlg, IDC_INTRO, "Редактор карт");
-			break;
-		case GT_DEATHMATCH:
-			SetDlgItemText(hDlg, IDC_INTRO, "Deathmatch (каждый сам за себя)");
-			break;
-		}
-	}
-	else
+//	if (g_level)
+//	{
+//		switch (g_options.gameType)
+//		{
+//		case GT_EDITOR:
+//			SetDlgItemText(hDlg, IDC_INTRO, "Редактор карт");
+//			break;
+//		case GT_DEATHMATCH:
+//			SetDlgItemText(hDlg, IDC_INTRO, "Deathmatch (каждый сам за себя)");
+//			break;
+//		}
+//	}
+//	else
 		SetDlgItemText(hDlg, IDC_INTRO, TXT_VERSION);
 
 

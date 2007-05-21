@@ -94,7 +94,8 @@ static void TimeStep()
 	float dt = g_level->_timer.GetDt() * g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
-	if( OPT(bModeEditor) ) return;
+	if( g_level->_modeEditor )
+		return;
 
 	if( g_level->_client )
 	{
@@ -453,8 +454,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	g_env.minimized    = false;
 	g_env.camera_x     = 0;
 	g_env.camera_y     = 0;
-	OPT(bModeEditor)   = false;
-	OPT(gameType)      = GT_EDITOR;
 	OPT(players)[MAX_HUMANS].bAI = TRUE;
 
 	GC_Sound::_countMax = g_conf.s_maxchanels->GetInt();
@@ -562,12 +561,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			{
 				ReadImmediateData();  // чтение состояния устройств ввода
 				//------------------------------
-				if( g_env.envInputs.keys[DIK_SPACE] && g_options.bModeEditor )
+				if( g_level && g_env.envInputs.keys[DIK_SPACE] && g_level->_modeEditor )
 				{
 					DialogBox(g_hInstance, (LPCTSTR)IDD_SELECT_OBJECT, g_env.hMainWnd, (DLGPROC) dlgSelectObject);
 					continue;
 				}
-				else if( g_level && g_env.envInputs.keys[DIK_RETURN] && OPT(bModeEditor) && _Editor::Inst()->GetSelection() )
+				else if( g_level && g_env.envInputs.keys[DIK_RETURN] && g_level->_modeEditor && _Editor::Inst()->GetSelection() )
 				{
 					IPropertySet *p = _Editor::Inst()->GetSelection()->GetProperties();
 					if( NULL != p )
@@ -577,7 +576,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					}
 					continue;
 				}
-				else if( g_level && g_env.envInputs.keys[DIK_F8] && g_options.bModeEditor )
+				else if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
 				{
 					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
 					continue;

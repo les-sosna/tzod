@@ -71,6 +71,11 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
 	CONFIG_VAR_INT( s_maxchanels,            16 );
 
+	// editor
+	CONFIG_VAR_BOOL( ed_drawgrid,          true );
+	CONFIG_VAR_BOOL( ed_uselayers,        false );
+
+
 	// other
 	CONFIG_VAR_ARRAY( players );
 

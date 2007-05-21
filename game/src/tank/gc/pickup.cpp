@@ -85,7 +85,7 @@ GC_PickUp::GC_PickUp(float x, float y)
 	_time           = 0;
 	_bRespawn       = true;
 	_bAttached      = false;
-	_bFlash         = false;
+	_blink          = false;
 
 	SetShadow(true);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
@@ -105,7 +105,7 @@ void GC_PickUp::Serialize(SaveFile &f)
 	GC_Item::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_bAttached);
-	f.Serialize(_bFlash);
+	f.Serialize(_blink);
 	f.Serialize(_bMostBeAllowed);
 	f.Serialize(_bRespawn);
 	f.Serialize(_time);
@@ -160,10 +160,10 @@ void GC_PickUp::SetAnchor(GC_Object *object)
 	_ancObject = object;
 }
 
-void GC_PickUp::SetFlashing(bool bFlash)
+void GC_PickUp::SetBlinking(bool blink)
 {
 	_ASSERT(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FLOATING));
-	_bFlash = bFlash;
+	_blink = blink;
 }
 
 void GC_PickUp::TimeStepFloat(float dt)
@@ -207,7 +207,7 @@ void GC_PickUp::TimeStepFixed(float dt)
 
 void GC_PickUp::Draw()
 {
-	if( fmodf(_time_animation, 0.16f) > 0.08f || !_bFlash || OPT(bModeEditor) )
+	if( !_blink || fmodf(_time_animation, 0.16f) > 0.08f || g_level->_modeEditor )
 		GC_Item::Draw();
 }
 
@@ -415,16 +415,16 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 	{
 		if( _time + 2.0f > PROTECT_TIME )
 		{
-			if( !GetFlashing() )
+			if( !GetBlinking() )
 			{
 				PLAY(SND_InvEnd, _pos);
-				SetFlashing(true);
+				SetBlinking(true);
 			}
 			SetOpacity( (PROTECT_TIME - _time) / 2.0f );
 		}
 		else
 		{
-			SetFlashing(false);
+			SetBlinking(false);
 		}
 
 		if( _time > PROTECT_TIME )
@@ -847,7 +847,7 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 	_bAttached = true;
 
 	Show(true);
-	SetFlashing(false);
+	SetBlinking(false);
 
 	SetCrosshair();
 
@@ -1019,7 +1019,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	if( !_bAttached && !_bRespawn )
 	{
-		SetFlashing(_time > 12.0f);
+		SetBlinking(_time > 12.0f);
 		if( _time > 15.0f ) Kill();
 	}
 	else

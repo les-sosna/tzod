@@ -287,15 +287,15 @@ BOOL Level::init_emptymap()
 	_ASSERT(_bInitialized = TRUE);
 
 
-	OPT(gameType)    = GT_EDITOR;
-	OPT(bModeEditor) = true;
+	_gameType   = GT_EDITOR;
+	_modeEditor = true;
 
 //	OPT(bNightMode)  = false;
 
 	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
 
-	_Background::Inst()->EnableGrid(OPT(bShowGrid));
+	_Background::Inst()->EnableGrid( g_conf.ed_drawgrid->Get() );
 	_ThemeManager::Inst().ApplyTheme(0);
 
 	return TRUE;
@@ -306,8 +306,8 @@ BOOL Level::init_import_and_edit(char *mapName)
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
 
-	OPT(gameType)    = GT_EDITOR;
-	OPT(bModeEditor) = true;
+	_gameType   = GT_EDITOR;
+	_modeEditor = true;
 
 //	OPT(bNightMode)  = false;
 
@@ -322,8 +322,8 @@ BOOL Level::init_newdm(const char *mapName)
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
 
-	g_options.gameType    = GT_DEATHMATCH;
-	g_options.bModeEditor = false;
+	_gameType   = GT_DEATHMATCH;
+	_modeEditor = false;
 
 	// time indicator
 	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
@@ -347,8 +347,8 @@ BOOL Level::init_load(const char *fileName)
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);		// _ASSERT здесь чтобы не писать #ifdef _DEBUG
 
-	g_options.gameType    = GT_DEATHMATCH;
-	g_options.bModeEditor = false;
+	_gameType   = GT_DEATHMATCH;
+	_modeEditor = false;
 
 	new GC_TextScore();
 	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
@@ -427,7 +427,7 @@ bool Level::Unserialize(const char *fileName)
 		if( VERSION != sh.dwVersion )
 			throw "ERROR: invalid version";
 
-		g_options.gameType   = sh.dwGameType;
+		_gameType = sh.dwGameType;
 
 		g_conf.sv_timelimit->SetFloat(sh.timelimit);
 		g_conf.sv_fraglimit->SetInt(sh.fraglimit);
@@ -513,7 +513,7 @@ bool Level::Serialize(const char *fileName)
 		SAVEHEADER sh = {0};
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
-		sh.dwGameType   = g_options.gameType;
+		sh.dwGameType   = _gameType;
 		sh.fraglimit    = g_conf.sv_fraglimit->GetInt();
 		sh.timelimit    = g_conf.sv_timelimit->GetFloat();
 		sh.nightmode    = g_conf.sv_nightmode->Get();
@@ -657,7 +657,7 @@ bool Level::Export(const char *fileName)
 
 void Level::Pause(bool pause)
 {
-	if( _limitHit || OPT(bModeEditor) ) return;
+	if( _limitHit || _modeEditor ) return;
 
 	if( pause )
 		_timer.Stop();
@@ -692,7 +692,7 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 				{
 					for( int i = 0; i < _Editor::Inst()->GetObjectCount(); ++i )
 					{
-						if( !OPT(bUseLayers) || _Editor::Inst()->GetLayer(
+						if( !g_conf.ed_uselayers->Get() || _Editor::Inst()->GetLayer(
 							g_options.nCurrentObject) == _Editor::Inst()->GetLayer(i) )
 						if( object->GetType() == _Editor::Inst()->GetOwnedType(i) )
 						{

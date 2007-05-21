@@ -172,12 +172,14 @@ public:
 
 /////////////////////////////////////
 //settings
+	bool    _modeEditor;
 	bool	_limitHit;	// достигнут fraglimit или timelimit
 	float	_sx, _sy;	// размер уровня
 
 	int _locations_x;
 	int _locations_y;
 
+	DWORD  _gameType;
 
 	string_t _infoAuthor;
 	string_t _infoEmail;

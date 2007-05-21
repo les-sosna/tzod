@@ -257,7 +257,7 @@ void GC_Turret::Draw()
 {
 	GC_RigidBodyStatic::Draw();
 
-	if( OPT(bModeEditor) )
+	if( g_level->_modeEditor )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
