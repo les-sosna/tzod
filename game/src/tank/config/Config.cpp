@@ -7,8 +7,8 @@
 // first time include it to define the structure
 #include "Config.h"
 
-ConfCache  g_conf;
-Config*    g_config = NULL;
+ConfCache      g_conf;
+ConfVarTable*  g_config = NULL;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,13 +19,13 @@ Config*    g_config = NULL;
 #undef CONFIG_VAR_BOOL
 #undef CONFIG_VAR_STRING
 #undef CONFIG_VAR_ARRAY
-#undef CONFIG_VAR_CONFIG
+#undef CONFIG_VAR_TABLE
 #undef CONFIG_END
 
 #define CONFIG_CPP
 
 #define CONFIG_BEGIN()                       \
-	void ConfCache::Initialize(Config *cfg)  \
+	void ConfCache::Initialize(ConfVarTable *cfg)  \
 
 
 #define CONFIG_VAR_FLOAT( var, def )         \
@@ -43,8 +43,8 @@ Config*    g_config = NULL;
 #define CONFIG_VAR_ARRAY( var )              \
 	this->var = cfg->GetArray( #var );
 
-#define CONFIG_VAR_CONFIG( var )             \
-	this->var = cfg->GetConf( #var );
+#define CONFIG_VAR_TABLE( var )             \
+	this->var = cfg->GetTable( #var );
 
 #define CONFIG_END()
 

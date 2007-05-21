@@ -434,10 +434,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	//
-	// init options
+	// init config system
 	//
 
-	g_config = new Config();
+	g_config = new ConfVarTable();
 	if( !g_config->Load(FILE_CONFIG) )
 	{
 		TRACE("couldn't load " FILE_CONFIG "\n");
@@ -445,13 +445,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	g_conf.Initialize(g_config);
 
-
 	
 	if( !LoadOptions() )
 		SetDefaultOptions();
 
 	g_env.nNeedCursor  = 0;
-	g_env.bMinimized   = false;
+	g_env.minimized    = false;
 	g_env.camera_x     = 0;
 	g_env.camera_y     = 0;
 	OPT(bModeEditor)   = false;

@@ -43,8 +43,8 @@ struct ENVIRONMENT
 
 	script_h hScript;       // handle to the script engine
 
-	int		 nNeedCursor;	// счетчик контроллеров, которым нужен курсор
-	bool	 bMinimized;	// признак свернутости главного окна.
+	int		 nNeedCursor;   // счетчик контроллеров, которым нужен курсор
+	bool	 minimized;	    // признак свернутости главного окна.
 
 	int		 camera_x;
 	int		 camera_y;

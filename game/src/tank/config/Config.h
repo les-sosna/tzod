@@ -11,7 +11,7 @@
 #define CONFIG_BEGIN()                  \
 	struct ConfCache                    \
 	{                                   \
-		void Initialize(Config *cfg);   \
+		void Initialize(ConfVarTable *cfg);   \
 		struct
 
 
@@ -79,8 +79,8 @@ CONFIG_END()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-extern ConfCache g_conf;
-extern Config*   g_config;
+extern ConfCache       g_conf;
+extern ConfVarTable*   g_config;
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

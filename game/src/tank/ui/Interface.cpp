@@ -136,19 +136,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		WORD wActive = LOWORD(wParam);
 		WORD wMinimized = HIWORD(wParam);
 
-		if( (wMinimized || (wActive == WA_INACTIVE)) && !g_env.bMinimized )
+		if( (wMinimized || (wActive == WA_INACTIVE)) && !g_env.minimized )
 		{
 			TRACE("main window deactivated\n");
 
-			g_env.bMinimized = true;
+			g_env.minimized = true;
 			if( g_level && !g_level->_client )
 				g_level->_timer.Stop();
 		}
-		else if( g_env.bMinimized )
+		else if( g_env.minimized )
 		{
 			TRACE("main window activated\n");
 
-			g_env.bMinimized = false;
+			g_env.minimized = false;
 			if( g_level && !g_level->_client )
 				g_level->_timer.Start();
 		}
