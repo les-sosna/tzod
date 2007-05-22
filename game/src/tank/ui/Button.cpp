@@ -14,30 +14,25 @@ namespace UI
 ButtonBase::ButtonBase(Window *parent, float x, float y, const char *texture)
 : Window(parent, x,y, texture)
 {
-	_isPressed = false;
+	_state = stateNormal;
 }
 
-void ButtonBase::_state(bool pressed)
+void ButtonBase::SetState(State s)
 {
-	if( _isPressed = pressed )
-	{
-		OnChangeState(statePushed); // pressed
-	}
-	else
-	{
-		OnChangeState(stateNormal); // normal
-	}
+	_state = s;
+	OnChangeState(s);
 }
 
 bool ButtonBase::OnMouseMove(float x, float y)
 {
 	if( IsCaptured() )
 	{
-		_state(x < GetWidth() && y < GetHeight() && x > 0 && y > 0);
+		bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
+		SetState(push ? statePushed : stateNormal);
 	}
 	else
 	{
-		OnChangeState(stateHottrack);
+		SetState(stateHottrack);
 	}
 	if( eventMouseMove )
    		INVOKE(eventMouseMove) (x, y);
@@ -49,7 +44,7 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 	if( 1 == button ) // left button only
 	{
 		SetCapture();
-		_state(true);
+		SetState(statePushed);
 		if( eventMouseDown )
 			INVOKE(eventMouseDown) (x, y);
 	}
@@ -61,8 +56,9 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 	if( IsCaptured() )
 	{
 		ReleaseCapture();
-		bool click = _isPressed;
-		_state(false);
+		bool click = (GetState() == statePushed);
+		SetState(stateNormal);
+
 		if( eventMouseUp )
 			INVOKE(eventMouseUp) (x, y);
 		if( click )
@@ -73,7 +69,7 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 
 bool ButtonBase::OnMouseLeave()
 {
-	OnChangeState(stateNormal);
+	SetState(stateNormal);
 	return true;
 }
 
@@ -87,7 +83,7 @@ void ButtonBase::OnEnable(bool enable)
 {
 	if( enable )
 	{
-		OnChangeState(_isPressed ? statePushed : stateNormal);
+		OnChangeState(stateNormal);
 	}
 	else
 	{
@@ -103,7 +99,7 @@ Button::Button(Window *parent, float x, float y, const char *text)
   : ButtonBase(parent, x, y, "ctrl_button")
 {
 	_label = new Text(this, 0, 0, text, alignTextCC );
-	OnChangeState(stateNormal); // to update label position
+	SetState(stateNormal);
 }
 
 void Button::OnChangeState(State state)
@@ -138,6 +134,12 @@ CheckBox::CheckBox(Window *parent, float x, float y, const char *text)
 {
 	_label = new Text(this, GetTextureWidth(), GetTextureHeight()/2, text, alignTextLC );
 	_isChecked = false;
+}
+
+void CheckBox::SetCheck(bool checked)
+{
+	_isChecked = checked;
+	SetFrame(_isChecked ? GetState()+4 : GetState());
 }
 
 void CheckBox::OnChangeState(State state)

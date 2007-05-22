@@ -13,10 +13,7 @@ namespace UI
 // base class for all button stuff
 class ButtonBase : public Window
 {
-	bool _isPressed;
-	void _state(bool pressed);
-
-protected:
+public:
 	enum State
 	{
 		stateNormal    = 0,
@@ -33,6 +30,9 @@ public:
 	Delegate<void(float, float)> eventMouseUp;
 	Delegate<void(float, float)> eventMouseMove;
 
+	State GetState() const { return _state; }
+	void SetState(State s);
+
 protected:
 	virtual bool OnMouseMove(float x, float y);
 	virtual bool OnMouseDown(float x, float y, int nButton);
@@ -43,6 +43,9 @@ protected:
 	virtual void OnEnable(bool enable);
 	virtual void OnClick();
 	virtual void OnChangeState(State state) = 0;
+
+private:
+	State _state;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,7 +82,7 @@ class CheckBox : public ButtonBase
 public:
 	CheckBox(Window *parent, float x, float y, const char *text);
 
-	void SetCheck(bool checked) { _isChecked = checked; }
+	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
 protected:
