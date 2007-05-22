@@ -692,6 +692,190 @@ void ConfVarTable::Push(lua_State *L)
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+// lua interface implementation
+
+// returns type string for arrays and tables
+static int luaT_conftostring(lua_State *L)
+{
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	ConfVar *v = *reinterpret_cast<ConfVar **>( lua_touserdata(L, 1) );
+	switch( v->GetType() )
+	{
+	case ConfVar::typeArray:
+		lua_pushfstring(L, "conf_array: %p", v);
+		break;
+	case ConfVar::typeTable:
+		lua_pushfstring(L, "conf_table: %p", v);
+		break;
+	default:
+		_ASSERT(FALSE);
+	}
+	return 1;
+}
+
+// retrieving an array element
+static int luaT_getconfarray(lua_State *L)
+{
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
+	_ASSERT( ConfVar::typeArray == v->GetType() );
+
+	if( lua_isnumber(L, 2) )
+	{
+		size_t index = lua_tointeger(L, 2);
+		if( index >= v->AsArray()->GetSize() )
+		{
+			return luaL_error(L, "array index is out of range");
+		}
+		v->GetAt(index)->Push(L);
+	}
+	else
+	{
+		return luaL_error(L, "number expected");
+	}
+
+	return 1;
+}
+
+// retrieving a table element
+static int luaT_getconftable(lua_State *L)
+{
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
+	_ASSERT( ConfVar::typeTable == v->GetType() );
+
+	if( lua_isstring(L, 2) )
+	{
+		const char *key = lua_tostring(L, 2);
+		if( ConfVar *result = v->Find(key) )
+		{
+			result->Push(L);
+		}
+		else
+		{
+			return luaL_error(L, "variable '%s' doesn't exists", key);
+		}
+	}
+	else
+	{
+		return luaL_error(L, "string expected");
+	}
+
+	return 1;
+}
+
+// assinging a value to an array element
+static int luaT_setconfarray(lua_State *L)
+{
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
+	_ASSERT( ConfVar::typeArray == v->GetType() );
+
+	if( lua_isnumber(L, 2) )
+	{
+		size_t index = lua_tointeger(L, 2);
+		if( index >= v->AsArray()->GetSize() )
+		{
+			return luaL_error(L, "array index is out of range");
+		}
+
+		ConfVar *val = v->GetAt(index);
+		switch( val->GetType() )
+		{
+		case ConfVar::typeBoolean:
+			val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
+			break;
+		case ConfVar::typeNumber:
+			val->AsNum()->SetFloat( (float) lua_tonumber(L, 3) );
+			break;
+		case ConfVar::typeString:
+			val->AsStr()->Set( lua_tostring(L, 3) );
+			break;
+		case ConfVar::typeArray:
+			return luaL_error(L, "attempt to modify conf_array");
+		case ConfVar::typeTable:
+			return luaL_error(L, "attempt to modify conf_table");
+		}
+	}
+	else
+	{
+		return luaL_error(L, "number expected");
+	}
+
+	return 0;
+}
+
+// assinging a value to a table element
+static int luaT_setconftable(lua_State *L)
+{
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
+	_ASSERT( ConfVar::typeTable == v->GetType() );
+
+	if( lua_isstring(L, 2) )
+	{
+		const char *key = lua_tostring(L, 2);
+		if( ConfVar *val = v->Find(key) )
+		{
+			switch( val->GetType() )
+			{
+			case ConfVar::typeBoolean:
+				val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
+				break;
+			case ConfVar::typeNumber:
+				val->AsNum()->SetFloat( (float) lua_tonumber(L, 3) );
+				break;
+			case ConfVar::typeString:
+				val->AsStr()->Set( lua_tostring(L, 3) );
+				break;
+			case ConfVar::typeArray:
+				return luaL_error(L, "attempt to modify conf_array");
+			case ConfVar::typeTable:
+				return luaL_error(L, "attempt to modify conf_table");
+			}
+		}
+		else
+		{
+			return luaL_error(L, "variable not found");
+		}
+	}
+	else
+	{
+		return luaL_error(L, "string expected");
+	}
+
+	return 0;
+}
+
+// map config to the conf lua variable
+void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName)
+{
+	luaL_newmetatable(L, "conf_table");  // metatable for tables
+	lua_pushcfunction(L, luaT_setconftable);  // push handler function
+	lua_setfield(L, -2, "__newindex");        // this also pops function from the stack
+	lua_pushcfunction(L, luaT_getconftable);  // push handler function
+	lua_setfield(L, -2, "__index");           // this also pops function from the stack
+	lua_pushcfunction(L, luaT_conftostring);  // push handler function
+	lua_setfield(L, -2, "__tostring");        // this also pops function from the stack
+	lua_pop(L, 1); // pop the metatable
+
+	luaL_newmetatable(L, "conf_array");  // metatable for arrays
+	lua_pushcfunction(L, luaT_setconfarray);  // push handler function
+	lua_setfield(L, -2, "__newindex");        // this also pops function from the stack
+	lua_pushcfunction(L, luaT_getconfarray);  // push handler function
+	lua_setfield(L, -2, "__index");           // this also pops function from the stack
+	lua_pushcfunction(L, luaT_conftostring);  // push handler function
+	lua_setfield(L, -2, "__tostring");        // this also pops function from the stack
+	lua_pop(L, 1); // pop the metatable
+
+	conf->Push(L);
+	lua_setglobal(L, globName);    // set global and pop one element from stack
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

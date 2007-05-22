@@ -511,6 +511,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		TRACE("FAILED\n");
 		return -1;
 	}
+	InitConfigLuaBinding(LS(g_env.hScript), g_config, "conf");
 
 
 
