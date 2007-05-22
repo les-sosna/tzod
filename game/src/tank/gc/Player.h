@@ -27,9 +27,14 @@ public:
 	int				_nIndex; // номер в g_options.players[]
 	DWORD			_networkId;
 
-	char _name[MAX_PLRNAME];
-	char _skin[MAX_PATH];
-	char _class[MAX_VEHCLSNAME];
+//	char _name[MAX_PLRNAME];
+//	char _skin[MAX_PATH];
+//	char _class[MAX_VEHCLSNAME];
+
+	string_t _name;
+	string_t _skin;
+	string_t _class;
+
 
 public:
 	SafePtr<GC_Vehicle>	_vehicle;

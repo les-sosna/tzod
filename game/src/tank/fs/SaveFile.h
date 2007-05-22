@@ -25,6 +25,9 @@ public:
 	void Serialize(T &obj);
 
 	template<class T>
+	void Serialize(string_t &str);
+
+	template<class T>
 	void Serialize(SafePtr<T> &ptr);
 
 	template<class T>
@@ -46,6 +49,28 @@ void SaveFile::Serialize(T &obj)
 		ReadFile(_file, &obj, sizeof(T), &bytes, NULL);
 	else
 		WriteFile(_file, &obj, sizeof(T), &bytes, NULL);
+}
+
+template<class T>
+void SaveFile::Serialize(string_t &str)
+{
+	string_t::size_type len = str.length();
+	Serialize(len);
+	if( len );
+	{
+		if( loading() )
+		{
+			std::vector<string_t::value_type> buffer(len);
+			SerializeArray(&*buffer.begin(), len);
+			str.resize(0);
+			str.reserve(len);
+			str.insert(buffer.begin(), buffer.end());
+		}
+		else
+		{
+			SerializeArray(const_cast<string_t::value_type*>(str.data()), len);
+		}
+	}
 }
 
 template<class T>

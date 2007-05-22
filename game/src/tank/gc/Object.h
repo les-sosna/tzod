@@ -144,18 +144,19 @@ public:
 
 // general
 #define GC_FLAG_OBJECT_KILLED                 0x00000001
+#define GC_FLAG_OBJECT_NAMED                  0x00000002
 
 // engine events
-#define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000002
-#define GC_FLAG_OBJECT_EVENTS_TS_FLOATING     0x00000004
-#define GC_FLAG_OBJECT_EVENTS_ENDFRAME        0x00000008
+#define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000004
+#define GC_FLAG_OBJECT_EVENTS_TS_FLOATING     0x00000008
+#define GC_FLAG_OBJECT_EVENTS_ENDFRAME        0x00000010
 
 #define GC_FLAG_OBJECT_EVENTS_ALL           \
 	(GC_FLAG_OBJECT_EVENTS_TS_FIXED|        \
 	GC_FLAG_OBJECT_EVENTS_TS_FLOATING|      \
 	GC_FLAG_OBJECT_EVENTS_ENDFRAME)
 
-#define GC_FLAG_OBJECT_                       0x00000010
+#define GC_FLAG_OBJECT_                       0x00000020
 
 
 class GC_Object
@@ -263,7 +264,7 @@ protected:
 	}
 
 
-public:		// временно!
+public:		// FIXME!
 	vec2d			_pos;				// положение центра объекта в мире
 
 
@@ -310,6 +311,8 @@ public:
 	void RemoveContext(OBJECT_GRIDSET *pGridSet);
 	void SetEvents(DWORD dwEvents);
 
+	const char* GetName() const;
+	void SetName(const char *name);
 
 	// использовать флаг guard=false можно только в том случае,
 	// если подписчик гарантировано живет дольше, чем источник события

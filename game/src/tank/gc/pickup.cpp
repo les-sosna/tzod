@@ -867,8 +867,8 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 	lua_State *L = LS(g_env.hScript);
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _proprietor->_player->_class);   // cls arg
-	lua_pushstring(L, _Editor::Inst()->GetName(GetType())); // weap arg
+	lua_pushstring(L, _proprietor->_player->_class.c_str());   // cls arg
+	lua_pushstring(L, _Editor::Inst()->GetName(GetType()));    // weap arg
 	if( lua_pcall(L, 2, 1, 0) )
 	{
 		// print error message

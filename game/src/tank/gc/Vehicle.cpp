@@ -219,7 +219,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 				// убил себя апстену =)
 				pVehicle->_player->_score--;
 				font = "font_digits_red";
-				sprintf(msg, "%s совершил самоубийство", pVehicle->_player->_name);
+				wsprintf(msg, "%s совершил самоубийство", pVehicle->_player->_name.c_str());
 			}
 			else
 			{
@@ -230,7 +230,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					pVehicle->_player->_score--;
 					font = "font_digits_red";
 					wsprintf(msg, "нехороший %s замочил своего друга %s",
-						((GC_Vehicle *) dd.from)->_player->_name, _player->_name);
+						((GC_Vehicle *) dd.from)->_player->_name.c_str(), _player->_name.c_str());
 				}
 				else
 				{
@@ -238,7 +238,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					++pVehicle->_player->_score;
 					font = "font_digits_green";
 					wsprintf(msg, "%s замочил своего врага %s",
-						((GC_Vehicle *) dd.from)->_player->_name, _player->_name);
+						((GC_Vehicle *) dd.from)->_player->_name.c_str(), _player->_name.c_str());
 				}
 
 				if( g_conf.sv_fraglimit->GetInt() )
@@ -265,11 +265,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			_player->_score--;
 			wsprintf(score, "%d", _player->_score);
 			new GC_Text_ToolTip(_pos, score, "font_digits_red");
-			wsprintf(msg, "%s нарвался на неприятности", _player->_name);
+			wsprintf(msg, "%s нарвался на неприятности", _player->_name.c_str());
 		}
 		else
 		{
-			wsprintf(msg, "c %s случился несчастный случай", _player->_name);
+			wsprintf(msg, "c %s случился несчастный случай", _player->_name.c_str());
 		}
 
 		OnDestroy();

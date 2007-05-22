@@ -434,7 +434,7 @@ private:
 	float  _y0;
 
 public:
-	GC_Text_ToolTip(vec2d pos, char *text, const char *font);
+	GC_Text_ToolTip(vec2d pos, const char *text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
 	virtual void TimeStepFloat(float dt);

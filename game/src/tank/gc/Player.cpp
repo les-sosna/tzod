@@ -37,7 +37,7 @@ GC_Player::GC_Player(int nTeam)
 
 	_team  = nTeam;
 	_score = 0;
-	strcpy(_name, "player");
+	_name  = "player";
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
@@ -56,8 +56,9 @@ void GC_Player::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Object::Serialize(f);
 	/////////////////////////////////////
-	f.SerializeArray(_name, MAX_PLRNAME);
-	f.SerializeArray(_skin, MAX_PATH);
+	f.Serialize(_name);
+	f.Serialize(_skin);
+	f.Serialize(_class);
 	/////////////////////////////////////
 	f.Serialize(_networkId);
 	f.Serialize(_nIndex);
@@ -84,7 +85,7 @@ void GC_Player::Kill()
 void GC_Player::UpdateSkin()
 {
 	if( _vehicle )
-		_vehicle->SetSkin(_skin);
+		_vehicle->SetSkin(_skin.c_str());
 }
 
 void GC_Player::ResetClass()
@@ -94,7 +95,7 @@ void GC_Player::ResetClass()
 	lua_State *L = LS(g_env.hScript);
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _class); // cls arg
+	lua_pushstring(L, _class.c_str()); // cls arg
 	if( lua_pcall(L, 1, 1, 0) )
 	{
 		// print error message
@@ -170,7 +171,7 @@ void GC_Player::Respawn()
 		pBestPoint = points[net_rand() % points.size()];
 	}
 
-	new GC_Text_ToolTip(pBestPoint->_pos, _name, "font_default");
+	new GC_Text_ToolTip(pBestPoint->_pos, _name.c_str(), "font_default");
 
 
 	if( OPT(bParticles) )

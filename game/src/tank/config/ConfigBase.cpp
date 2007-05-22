@@ -302,7 +302,7 @@ std::pair<ConfVar*, bool> ConfVarArray::GetVar(size_t index, ConfVar::Type type)
 
 		if( warn )
 		{
-			g_console->printf("WARNING: changing type of variable at index %u from %s to %s\n", 
+			g_console->printf("WARNING: changing type of element with index %u from %s to %s\n", 
 				index, typeName, result.first->GetTypeName() );
 		}
 	}
@@ -459,9 +459,7 @@ bool ConfVarArray::_Load(lua_State *L)
 
 void ConfVarArray::Push(lua_State *L)
 {
-//	lua_pushstring(L, "array!!!");
-
-	lua_pushlightuserdata(L, this);
+	*reinterpret_cast<ConfVarArray**>( lua_newuserdata(L, sizeof(this)) ) = this;
 	luaL_getmetatable(L, "conf_array");  // metatable for config
 	lua_setmetatable(L, -2);
 }
@@ -688,7 +686,7 @@ bool ConfVarTable::Load(const char *filename)
 
 void ConfVarTable::Push(lua_State *L)
 {
-	lua_pushlightuserdata(L, this);
+	*reinterpret_cast<ConfVarTable**>( lua_newuserdata(L, sizeof(this)) ) = this;
 	luaL_getmetatable(L, "conf_table");  // metatable for config
 	lua_setmetatable(L, -2);
 }

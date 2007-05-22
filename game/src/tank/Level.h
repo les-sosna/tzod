@@ -134,6 +134,11 @@ class Level
 	BOOL _bInitialized;
 #endif
 
+	friend class GC_Object;
+
+	std::map<const GC_Object*, string_t>  _objectToNameMap;
+	std::map<string_t, const GC_Object*>  _nameToObjectMap;
+
 public:
 
 #ifdef NETWORK_DEBUG

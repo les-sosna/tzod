@@ -353,9 +353,9 @@ void NewGameDlg::OnOK()
 		{
 			GC_Player *player = new GC_Player(g_options.dm_pdPlayers[i].team);
 			player->SetController( g_options.dm_pdPlayers[i].type);
-			strcpy(player->_name,  g_options.dm_pdPlayers[i].name);
-			strcpy(player->_skin,  g_options.dm_pdPlayers[i].skin);
-			strcpy(player->_class, g_options.dm_pdPlayers[i].cls);
+			player->_name  = g_options.dm_pdPlayers[i].name;
+			player->_skin  = g_options.dm_pdPlayers[i].skin;
+			player->_class = g_options.dm_pdPlayers[i].cls;
 		}
 	}
 	else

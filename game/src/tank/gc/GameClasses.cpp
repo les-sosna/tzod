@@ -1363,7 +1363,7 @@ void GC_TextScore::Refresh()
 		if (pPlayer->IsKilled()) continue;
 		_players.push_back( PlayerDesc() );
 		_players.back().score = pPlayer->_score;
-		strcpy(_players.back().name, pPlayer->_name);
+		strcpy(_players.back().name, pPlayer->_name.c_str());
 	} ENUM_END();
 
 	if( _players.empty() ) return;
@@ -1583,7 +1583,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, char *text, const char *font)
+GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const char *text, const char *font)
 : GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;

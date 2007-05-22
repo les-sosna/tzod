@@ -132,6 +132,8 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "couldn't save game to '%s'", filename);
 	}
 
+	g_console->printf("game saved: '%s'\n", filename);
+
 	return 0;
 }
 
@@ -409,17 +411,17 @@ static int luaT_addplayer(lua_State *L)
 	//
 	GC_Player *player = new GC_Player(pd.team);
 	player->SetController(pd.type);
-	strcpy(player->_name,  pd.name);
-	strcpy(player->_skin,  pd.skin);
-	strcpy(player->_class, pd.cls);
+	player->_name  = pd.name;
+	player->_skin  = pd.skin;
+	player->_class = pd.cls;
 
 	return 0;
 }
 
 static int luaT_conftostring(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TLIGHTUSERDATA);
-	ConfVar *v = reinterpret_cast<ConfVar *>( lua_touserdata(L, 1) );
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	ConfVar *v = *reinterpret_cast<ConfVar **>( lua_touserdata(L, 1) );
 	switch( v->GetType() )
 	{
 	case ConfVar::typeArray:
@@ -436,9 +438,9 @@ static int luaT_conftostring(lua_State *L)
 
 static int luaT_getconfarray(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TLIGHTUSERDATA);
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
 
-	ConfVarArray *v = reinterpret_cast<ConfVarArray *>( lua_touserdata(L, 1) );
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
 	_ASSERT( ConfVar::typeArray == v->GetType() );
 
 	if( lua_isnumber(L, 2) )
@@ -460,9 +462,9 @@ static int luaT_getconfarray(lua_State *L)
 
 static int luaT_getconftable(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TLIGHTUSERDATA);
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
 
-	ConfVarTable *v = reinterpret_cast<ConfVarTable *>( lua_touserdata(L, 1) );
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
 	_ASSERT( ConfVar::typeTable == v->GetType() );
 
 	if( lua_isstring(L, 2) )
@@ -487,9 +489,9 @@ static int luaT_getconftable(lua_State *L)
 
 static int luaT_setconfarray(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TLIGHTUSERDATA);
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
 
-	ConfVarArray *v = reinterpret_cast<ConfVarArray *>( lua_touserdata(L, 1) );
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
 	_ASSERT( ConfVar::typeArray == v->GetType() );
 
 	if( lua_isnumber(L, 2) )
@@ -500,7 +502,23 @@ static int luaT_setconfarray(lua_State *L)
 			return luaL_error(L, "array index is out of range");
 		}
 
-		TRACE("setting array at index %d\n", index);
+		ConfVar *val = v->GetAt(index);
+		switch( val->GetType() )
+		{
+		case ConfVar::typeBoolean:
+			val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
+			break;
+		case ConfVar::typeNumber:
+			val->AsNum()->SetFloat( (float) lua_tonumber(L, 3) );
+			break;
+		case ConfVar::typeString:
+			val->AsStr()->Set( lua_tostring(L, 3) );
+			break;
+		case ConfVar::typeArray:
+			return luaL_error(L, "attempt to modify conf_array");
+		case ConfVar::typeTable:
+			return luaL_error(L, "attempt to modify conf_table");
+		}
 	}
 	else
 	{
@@ -512,15 +530,15 @@ static int luaT_setconfarray(lua_State *L)
 
 static int luaT_setconftable(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TLIGHTUSERDATA);
+	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
 
-	ConfVarTable *v = reinterpret_cast<ConfVarTable *>( lua_touserdata(L, 1) );
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
 	_ASSERT( ConfVar::typeTable == v->GetType() );
 
 	if( lua_isstring(L, 2) )
 	{
 		const char *key = lua_tostring(L, 2);
-		if( ConfVar *val = v->AsTable()->Find(key) )
+		if( ConfVar *val = v->Find(key) )
 		{
 			switch( val->GetType() )
 			{
@@ -534,9 +552,9 @@ static int luaT_setconftable(lua_State *L)
 				val->AsStr()->Set( lua_tostring(L, 3) );
 				break;
 			case ConfVar::typeArray:
-				return luaL_error(L, "attempt to modify array");
+				return luaL_error(L, "attempt to modify conf_array");
 			case ConfVar::typeTable:
-				return luaL_error(L, "attempt to modify table");
+				return luaL_error(L, "attempt to modify conf_table");
 			}
 		}
 		else

@@ -169,6 +169,7 @@ GC_Object::~GC_Object()
 	_ASSERT(0 == _refCount);
 	_ASSERT(0 == _notifyProtectCount);
 	_ASSERT(IsKilled());
+	SetName(NULL);
 }
 
 void GC_Object::Kill()
@@ -202,9 +203,24 @@ void GC_Object::Serialize(SaveFile &f)
 	f.Serialize(_pos);
 	f.Serialize(_refCount);
 
-	// events
+	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
+	{
+		if( f.loading() )
+		{
+			string_t name;
+			f.Serialize(name);
+			SetName(name.c_str());
+		}
+		else
+		{
+			string_t name = GetName();
+			f.Serialize(name);
+		}
+	}
+
 	if( f.loading() )
 	{
+		// events
 		DWORD tmp = _flags & GC_FLAG_OBJECT_EVENTS_ALL;
 		ClearFlags(GC_FLAG_OBJECT_EVENTS_ALL);
 		SetEvents(tmp);
@@ -414,6 +430,49 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	//-------------------------
 	ClearFlags(GC_FLAG_OBJECT_EVENTS_ALL);
 	SetFlags(dwEvents);
+}
+
+const char* GC_Object::GetName() const
+{
+	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
+	{
+		_ASSERT( g_level->_objectToNameMap.count(this) );
+		return g_level->_objectToNameMap[this].c_str();
+	}
+	return NULL;
+}
+
+void GC_Object::SetName(const char *name)
+{
+	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
+	{
+		//
+		// remove old name
+		//
+
+		_ASSERT( g_level->_objectToNameMap.count(this) );
+		const char *oldName = g_level->_objectToNameMap[this].c_str();
+		_ASSERT( g_level->_nameToObjectMap.count(oldName) );
+		g_level->_nameToObjectMap.erase(oldName);
+		g_level->_objectToNameMap.erase(this); // this invalidates *oldName pointer
+
+		ClearFlags(GC_FLAG_OBJECT_NAMED);
+	}
+
+	if( name )
+	{
+		//
+		// set new name
+		//
+
+		_ASSERT( 0 == g_level->_objectToNameMap.count(this) );
+		_ASSERT( 0 == g_level->_nameToObjectMap.count(name) );
+
+		g_level->_objectToNameMap[this] = name;
+		g_level->_nameToObjectMap[name] = this;
+
+		SetFlags(GC_FLAG_OBJECT_NAMED);
+	}
 }
 
 void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
