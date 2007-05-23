@@ -9,6 +9,9 @@ dofile("scripts/names.lua")      -- fill the random_names array
 
 --=============================================================================
 
+conf.sv_timelimit = 0;
+conf.sv_fraglimit = 0;
+
 loadmap("maps/intro.map")
 
 for _,i in pairs{"red","yellow","blue","FBI Tank","neutral"} do

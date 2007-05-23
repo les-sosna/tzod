@@ -64,8 +64,12 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_BOOL(   sv_nightmode,     false );
 
 	// client settings
-	CONFIG_VAR_STRING( cl_lastmap,       "dm1" );
+	CONFIG_VAR_STRING( cl_map,           "dm1" );
 	CONFIG_VAR_INT(    cl_latency,           1 );
+	CONFIG_VAR_FLOAT(  cl_speed,           100 ); // percent
+	CONFIG_VAR_FLOAT(  cl_timelimit,         7 ); // minutes
+	CONFIG_VAR_INT(    cl_fraglimit,        21 );
+	CONFIG_VAR_BOOL(   cl_nightmode,     false );
 
 	// sound
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
