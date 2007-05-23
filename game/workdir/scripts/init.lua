@@ -11,6 +11,7 @@ dofile("scripts/names.lua")      -- fill the random_names array
 
 conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
+conf.sv_nightmode = false;
 
 loadmap("maps/intro.map")
 
