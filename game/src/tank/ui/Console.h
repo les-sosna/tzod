@@ -17,7 +17,7 @@ class Console : public Window
 	Edit  *_input;
 	size_t _scrollBack;
 
-	std::deque<string_t> _cmdBuf;
+//	std::deque<string_t> _cmdBuf;
 	size_t _cmdIndex;
 
 public:

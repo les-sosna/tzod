@@ -240,6 +240,11 @@ Level::Level()
 	#ifdef NETWORK_DEBUG
 	_dwChecksum = 0;
 	#endif
+
+
+	// register config handlers
+	g_conf.s_volume->eventChange.bind(&Level::OnChangeVolume, this);
+
 }
 
 void Level::Init(int X, int Y)
@@ -387,6 +392,10 @@ Level::~Level()
 		delete _server;
 		_server = NULL;
 	}
+
+	// unregister config handlers
+	g_conf.s_volume->eventChange.clear();
+
 
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
@@ -900,6 +909,16 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->SetAlign(align);
 	_temporaryText->Draw();
 }
+
+void Level::OnChangeVolume()
+{
+	ENUM_BEGIN(sounds, GC_Sound, pSound)
+	{
+		pSound->UpdateVolume();
+	}
+	ENUM_END();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

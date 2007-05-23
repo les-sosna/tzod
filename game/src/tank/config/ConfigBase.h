@@ -35,11 +35,12 @@ public:
 	ConfVarBool*   AsBool();
 	ConfVarString* AsStr();
 	ConfVarArray*  AsArray();
-	ConfVarTable* AsTable();
+	ConfVarTable*  AsTable();
 
 	// lua binding
 	virtual void Push(lua_State *L);
 
+	Delegate<void(void)> eventChange;
 
 protected:
 	union Value
@@ -47,7 +48,7 @@ protected:
 		lua_Number                     asNumber;
 		bool                           asBool;
 		string_t                      *asString;
-		std::vector<ConfVar*>         *asArray;
+		std::deque<ConfVar*>          *asArray;
 		std::map<string_t, ConfVar*>  *asTable;
 		void                          *ptr;
 	};
@@ -147,6 +148,11 @@ public:
 	void      Resize(size_t newSize);
 	size_t    GetSize() const;
 	ConfVar*  GetAt(size_t index) const;
+
+	void      PopFront();
+	void      PopBack();
+	ConfVar*  PushFront(Type type);
+	ConfVar*  PushBack(Type type);
 
 	void Push(lua_State *L);
 

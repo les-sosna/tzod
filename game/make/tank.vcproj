@@ -860,6 +860,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\core\Delegate.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\core\Grid.h"
 					>
 				</File>

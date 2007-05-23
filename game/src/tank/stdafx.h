@@ -108,6 +108,9 @@ extern "C" {
 #include "core/Timer.h"
 #include "core/Grid.h"
 
+#include "core/Delegate.h"
+
+
 #include "globals.h"
 
 

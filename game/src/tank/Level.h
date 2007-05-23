@@ -236,9 +236,8 @@ public:
 
 	void Pause(bool pause);
 
-/////////////////////////////////////////////////////
-//tracing
 public:
+	//tracing
 	GC_2dSprite* PickEdObject(const vec2d &pt);
 
 	GC_RigidBodyStatic* agTrace( GridSet<OBJECT_LIST> &list,
@@ -247,6 +246,10 @@ public:
 	                             const vec2d &a,       // направление
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
+
+	// config change handlers
+	void OnChangeVolume();
+	
 };
 
 ///////////////////////////////////////////////////////////////////////////////

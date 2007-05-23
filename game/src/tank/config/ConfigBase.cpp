@@ -140,6 +140,8 @@ void ConfVarNumber::SetFloat(float value)
 {
 	_ASSERT(typeNumber == _type);
 	_val.asNumber = value;
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 int ConfVarNumber::GetInt() const
@@ -151,6 +153,8 @@ void ConfVarNumber::SetInt(int value)
 {
 	_ASSERT(typeNumber == _type);
 	_val.asNumber = value;
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 bool ConfVarNumber::_Save(FILE *file, int level) const
@@ -193,6 +197,8 @@ void ConfVarBool::Set(bool value)
 {
 	_ASSERT(typeBoolean == _type);
 	_val.asBool = value;
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 bool ConfVarBool::_Save(FILE *file, int level) const
@@ -243,11 +249,35 @@ void ConfVarString::Set(const char* value)
 {
 	_ASSERT(typeString == _type);
 	*_val.asString = value;
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 bool ConfVarString::_Save(FILE *file, int level) const
 {
-	fprintf(file, "\"%s\"", Get());
+	fputc('"', file);
+	for( size_t i = 0; i < _val.asString->size(); ++i )
+	{
+		const int c = (*_val.asString)[i];
+		switch(c)
+		{
+		case '\\':
+			fputs("\\\\", file);
+			break;
+		case '\n':
+			fputs("\\n", file);
+			break;
+		case '"':
+			fputs("\\\"", file);
+			break;
+		case '\t':
+			fputs("\\t", file);
+			break;
+		default:
+			fputc(c, file);
+		}
+	}
+	fputc('"', file);
 	return true;
 }
 
@@ -268,7 +298,7 @@ void ConfVarString::Push(lua_State *L)
 
 ConfVarArray::ConfVarArray()
 {
-	_val.asArray  = new std::vector<ConfVar*>();
+	_val.asArray = new std::deque<ConfVar*>();
 	_type = typeArray;
 }
 
@@ -393,6 +423,9 @@ void ConfVarArray::Resize(size_t newSize)
 		{
 			(*_val.asArray)[i] = new ConfVar();
 		}
+
+//		if( eventChange )
+//			INVOKE(eventChange) ();
 	}
 	else
 	if( newSize < oldSize )
@@ -402,6 +435,9 @@ void ConfVarArray::Resize(size_t newSize)
 			delete (*_val.asArray)[i];
 		}
 		_val.asArray->resize(newSize);
+
+//		if( eventChangeValue )
+//			INVOKE(eventChangeValue) ();
 	}
 }
 
@@ -415,6 +451,36 @@ ConfVar* ConfVarArray::GetAt(size_t index) const
 {
 	_ASSERT(typeArray == _type);
 	return (*_val.asArray)[index];
+}
+
+void ConfVarArray::PopFront()
+{
+	_ASSERT(typeArray == _type);
+	_val.asArray->pop_front();
+}
+
+ConfVar* ConfVarArray::PushBack(Type type)
+{
+	_ASSERT(typeArray == _type);
+	ConfVar *result = new ConfVar();
+	result->SetType(type);
+	_val.asArray->push_back(result);
+	return result;
+}
+
+void ConfVarArray::PopBack()
+{
+	_ASSERT(typeArray == _type);
+	_val.asArray->pop_back();
+}
+
+ConfVar* ConfVarArray::PushFront(Type type)
+{
+	_ASSERT(typeArray == _type);
+	ConfVar *result = new ConfVar();
+	result->SetType(type);
+	_val.asArray->push_front(result);
+	return result;
 }
 
 bool ConfVarArray::_Save(FILE *file, int level) const

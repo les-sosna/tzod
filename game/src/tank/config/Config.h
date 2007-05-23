@@ -79,6 +79,8 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_BOOL( ed_drawgrid,          true );
 	CONFIG_VAR_BOOL( ed_uselayers,        false );
 
+	// console
+	CONFIG_VAR_ARRAY( con_history );
 
 	// other
 	CONFIG_VAR_ARRAY( players );

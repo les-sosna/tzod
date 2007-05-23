@@ -11,6 +11,8 @@
 
 #include "core/Console.h"
 
+#include "config/Config.h"
+
 
 namespace UI
 {
@@ -31,7 +33,7 @@ Console::Console(Window *parent, float x, float y)
 	_input->SetTexture(NULL);
 
 	_scrollBack = 0;
-	_cmdIndex   = 0;
+	_cmdIndex   = g_conf.con_history->GetSize();
 }
 
 void Console::OnChar(int c)
@@ -44,20 +46,25 @@ void Console::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_UP:
-		if( _cmdIndex < _cmdBuf.size() )
+		if( _cmdIndex > g_conf.con_history->GetSize() )
 		{
-			_input->SetText(_cmdBuf[_cmdIndex].c_str());
-			++_cmdIndex;
+			_cmdIndex = g_conf.con_history->GetSize();
+		}
+		if( _cmdIndex > 0 )
+		{
+			_input->SetText(g_conf.con_history->GetStr(--_cmdIndex, "")->Get());
+		}
+		break;
+	case VK_DOWN:
+		++_cmdIndex;
+		if( _cmdIndex < g_conf.con_history->GetSize() )
+		{
+			_input->SetText(g_conf.con_history->GetStr(_cmdIndex, "")->Get());
 		}
 		else
 		{
 			_input->SetText("");
-		}
-		break;
-	case VK_DOWN:
-		if( _cmdIndex > 0 )
-		{
-			_input->SetText(_cmdBuf[--_cmdIndex].c_str());
+			_cmdIndex = g_conf.con_history->GetSize();
 		}
 		break;
 	case VK_RETURN:
@@ -66,8 +73,14 @@ void Console::OnRawChar(int c)
 		if( !cmd.empty() )
 		{
 			_scrollBack = 0;
-			_cmdIndex = 0;
-			_cmdBuf.push_front(cmd);
+
+			if( g_conf.con_history->GetSize() > 0 &&
+				cmd != g_conf.con_history->GetStr(g_conf.con_history->GetSize()-1, "")->Get() )
+			{
+				g_conf.con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd.c_str());
+			}
+			_cmdIndex = g_conf.con_history->GetSize();
+
 			g_console->printf("> %s\n", cmd.c_str());   // echo to console
 			script_exec(g_env.hScript, cmd.c_str());    // send to scripting system
 			_input->SetText("");                        // erase input field

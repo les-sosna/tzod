@@ -1849,6 +1849,7 @@ LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 }
 */
 
+/*
 void SetVolume(LONG lVolume)
 {
 	g_conf.s_volume->SetInt(lVolume);
@@ -1861,6 +1862,8 @@ void SetVolume(LONG lVolume)
 		pSound->UpdateVolume();
 	} ENUM_END();
 }
+*/
+
 
 LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1922,7 +1925,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				EndDialog(hDlg, wmId);
 				break;
 			case IDCANCEL:
-				::SetVolume(lInitVolume);
+				g_conf.s_volume->SetInt(lInitVolume);
 				EndDialog(hDlg, wmId);
 				break;
 			case IDC_SETTINGS_PLAYER1:
@@ -1990,7 +1993,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		char str[8];
 		wsprintf(str, "%d%%", lVolume);
 		SetDlgItemText(hDlg, IDC_INDICATOR, str);
-		::SetVolume(int(2171.0f * logf((float) lVolume * 0.01f)));
+		g_conf.s_volume->SetInt(int(2171.0f * logf((float) lVolume * 0.01f)));
 	} break;
 
 	case WM_INITDIALOG:
