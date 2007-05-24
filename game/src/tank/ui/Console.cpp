@@ -74,10 +74,12 @@ void Console::OnRawChar(int c)
 		{
 			_scrollBack = 0;
 
-			if( g_conf.con_history->GetSize() > 0 &&
+			if( g_conf.con_history->GetSize() == 0 ||
 				cmd != g_conf.con_history->GetStr(g_conf.con_history->GetSize()-1, "")->Get() )
 			{
 				g_conf.con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd.c_str());
+				while( g_conf.con_history->GetSize() > (unsigned) g_conf.con_maxhistory->GetInt() )
+					g_conf.con_history->PopFront();
 			}
 			_cmdIndex = g_conf.con_history->GetSize();
 

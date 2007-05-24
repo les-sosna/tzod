@@ -80,6 +80,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_BOOL( ed_uselayers,        false );
 
 	// console
+	CONFIG_VAR_INT(   con_maxhistory,        30 );
 	CONFIG_VAR_ARRAY( con_history );
 
 	// other
