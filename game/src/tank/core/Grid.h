@@ -89,7 +89,7 @@ public:
 
 	// не очищает список receive
 //	void OverlapRect(std::vector<element_type*> &receive, const FRECT &rect)
-	void OverlapRect(ptr_list<element_type> &receive, const FRECT &rect)
+	void OverlapRect(PtrList<element_type> &receive, const FRECT &rect)
 	{
 		static const float dx[4] = {0,-0.5f, 0,-0.5f};
 		static const float dy[4] = {0, 0,-0.5f,-0.5f};

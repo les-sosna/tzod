@@ -23,6 +23,9 @@ class Window : public RefCounted
 	Window* _nextSibling;
 
 
+	PtrList<UI::Window>::iterator _timeStepReg;
+
+
 	//
 	// size and position
 	//
@@ -45,12 +48,14 @@ class Window : public RefCounted
 	bool         _isVisible;
 	bool         _isEnabled;
 	bool         _isTopMost;
+	bool         _isTimeStep;
 	bool         _hasBorder;
 	bool         _clipChildren;
 
 	void Reg(Window* parent, GuiManager* manager);
 
 protected:
+	int  GetFrameCount() const;
 	void SetFrame(int n) { _frame = n; }
 	void ClipChildren(bool clip) { _clipChildren = clip; }
 
@@ -71,6 +76,7 @@ public:
 	bool IsEnabled()   const { return _isEnabled;   }
 	bool IsVisible()   const { return _isVisible;   }
 	bool IsTopMost()   const { return _isTopMost;   }
+	bool IsTimeStep()  const { return _isTimeStep;  }
 	bool IsCaptured()  const;
 
 	float GetTextureWidth()  const;
@@ -103,7 +109,7 @@ public:
 	void Show  (bool show);
 
 	void SetTopMost(bool topmost);
-
+	void SetTimeStep(bool enable);
 
 
 	//
@@ -142,6 +148,7 @@ public:
 	virtual void OnEnable(bool enable);
 	virtual bool OnFocus(bool focus); // return true if the window took focus
 	virtual void OnShow(bool show);
+	virtual void OnTimeStep(float dt);
 };
 
 

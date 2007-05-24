@@ -86,6 +86,11 @@ CONFIG_BEGIN()    //  var_name      def_value
 	// other
 	CONFIG_VAR_ARRAY( players );
 
+	// user interface
+	CONFIG_VAR_BOOL( ui_showfps,          false );
+	CONFIG_VAR_BOOL( ui_showtime,          true );
+
+
 }
 CONFIG_END()
 

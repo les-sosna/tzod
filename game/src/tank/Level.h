@@ -177,6 +177,7 @@ public:
 
 /////////////////////////////////////
 //settings
+	bool    _paused;
 	bool    _modeEditor;
 	bool	_limitHit;	// достигнут fraglimit или timelimit
 	float	_sx, _sy;	// размер уровня
@@ -203,7 +204,6 @@ public:
 
 /////////////////////////////////////
 public:
-	Timer _timer;
 	float _time;
 	float _timeBuffer;
 
@@ -236,7 +236,7 @@ public:
 
 	void Pause(bool pause);
 
-	void TimeStep();
+	void TimeStep(float dt);
 
 public:
 	//tracing

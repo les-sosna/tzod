@@ -419,6 +419,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\ui\gui_widgets.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\ui\GuiManager.cpp"
 					>
 				</File>
@@ -744,6 +748,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\ui\gui_widgets.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\ui\GuiManager.h"
 					>
 				</File>
@@ -880,7 +888,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\tank\core\ptr_list.h"
+					RelativePath="..\src\tank\core\PtrList.h"
 					>
 				</File>
 				<File

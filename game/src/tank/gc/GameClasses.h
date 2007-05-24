@@ -351,7 +351,7 @@ private:
 	enumAlignText       _align;
 	float               _margin_x;
 	float               _margin_y;
-	string_t         _text;
+	string_t            _text;
 
 private:
 	void UpdateLines();
@@ -398,32 +398,6 @@ public:
 };
 
 /////////////////////////////////////////////////////////////
-// fps counter
-class GC_Text_FPS : public GC_Text
-{
-private:
-	std::list<float> _dts;
-	std::list<float> _dts_net;
-	int _nSprites;
-	int _nLights;
-	int _nBatches;
-	Timer _timer;
-	Timer _timer_net;
-
-public:
-	GC_Text_FPS();
-	void EndFrame();
-	virtual void TimeStepFixed(float dt);
-
-public:
-	void OneMoreSprite() { _nSprites++; }
-	void OneMoreLight()  { _nLights++;  }
-	void OneMoreBatch()  { _nBatches++; }
-};
-
-typedef DynamicSingleton<GC_Text_FPS> _FpsCounter;
-
-/////////////////////////////////////////////////////////////
 
 class GC_Text_ToolTip : public GC_Text
 {
@@ -438,15 +412,6 @@ public:
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
 	virtual void TimeStepFloat(float dt);
-};
-
-/////////////////////////////////////////////////////////////
-
-class GC_TextTime : public GC_Text
-{
-public:
-	GC_TextTime(int xPos, int yPos, enumAlignText align);
-	virtual void EndFrame();
 };
 
 /////////////////////////////////////////////////////////////

@@ -171,10 +171,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SETCURSOR:
-		if( g_level && g_level->_timer.IsRuning() && (HTCLIENT & lParam) )
-			SetCursor(NULL);
-		else
-			DefWindowProc(hWnd, message, wParam, lParam);
+		SetCursor(NULL);
 		break;
 
 	case WM_LBUTTONDOWN:
@@ -456,7 +453,7 @@ LRESULT CALLBACK PropGridIntProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 BOOL Analisis_btn(LPDRAWITEMSTRUCT pdi_old, LPDRAWITEMSTRUCT pdi_new)
 {
 	if (GetParent(pdi_old->hwndItem) !=
@@ -567,7 +564,7 @@ void AddPlayerToListView(HWND hwndLV, char *pName, char *pSkinName, int team, LP
 
 	ListView_SetSelectionMark(hwndLV, item);
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 LRESULT CALLBACK dlgMsgBox(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -902,20 +899,12 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
 	int wmId, wmEvent;
 	switch (message)
 	{
-//	IMPLEMENT_EASYMOVE(hDlg, wParam, lParam);
-//	IMPLEMENT_APPEARENCE_NP(hDlg);
 	case WM_COMMAND:
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
 
 		switch (wmEvent)
 		{
-//		case BN_KILLFOCUS:
-//			SendMessage(hDlg, DM_SETDEFID, IDOK, 0);
-//			break;
-//		case BN_SETFOCUS:
-//			SendMessage(hDlg, DM_SETDEFID, wmId, 0);
-//			break;
 		case BN_CLICKED:
 			switch (wmId)
 			{
@@ -1076,9 +1065,7 @@ LRESULT CALLBACK dlgAddPlayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 	}
     return FALSE;
 }
-*/
 
-/*
 void dmUpdateUI (HWND hDlg)
 {
 	HWND hwndLV;
@@ -1601,7 +1588,6 @@ LRESULT CALLBACK dlgNewDM(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
     return FALSE;
 }
-*/
 
 DWORD plCheckPlayers(GC_Player *pExcept)
 {
@@ -1617,7 +1603,6 @@ DWORD plCheckPlayers(GC_Player *pExcept)
 	return dwHasPlayers;
 }
 
-/*
 LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PLAYERDESCEX pdex;
@@ -1847,9 +1832,8 @@ LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	}
     return FALSE;
 }
-*/
 
-/*
+
 void SetVolume(LONG lVolume)
 {
 	g_conf.s_volume->SetInt(lVolume);
@@ -1914,8 +1898,8 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			case IDOK:
 				g_options.bParticles      = GETCHECK(IDC_CHK_PARTICLES);
 				g_options.bDamageLabel    = GETCHECK(IDC_CHK_DAMLABEL);
-				g_options.bShowFPS        = GETCHECK(IDC_CHK_FPS);
-				g_options.bShowTime       = GETCHECK(IDC_CHK_TIMER);
+				g_conf.ui_showfps->Set( GETCHECK(IDC_CHK_FPS) );
+				g_conf.ui_showtime->Set( GETCHECK(IDC_CHK_TIMER) );
 				g_conf.r_askformode->Set( GETCHECK(IDC_CHK_SHOWSELECTMODE) );
 				//-------------------------------
 				g_conf.s_maxchanels->SetInt(GetDlgItemInt(hDlg, IDC_MAXSOUNDS, NULL, FALSE));
@@ -2017,8 +2001,8 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 		SETCHECK(IDC_CHK_PARTICLES, g_options.bParticles);
 		SETCHECK(IDC_CHK_DAMLABEL,  g_options.bDamageLabel);
-		SETCHECK(IDC_CHK_FPS,       g_options.bShowFPS);
-		SETCHECK(IDC_CHK_TIMER,     g_options.bShowTime);
+		SETCHECK(IDC_CHK_FPS,       g_conf.ui_showfps->Get());
+		SETCHECK(IDC_CHK_TIMER,     g_conf.ui_showtime->Get());
 		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->Get());
 
 		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
@@ -2060,6 +2044,8 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
     return FALSE;
 }
 
+/*
+
 void mainUpdateUI(HWND hDlg)
 {
 //	if (g_level)
@@ -2084,7 +2070,6 @@ void mainUpdateUI(HWND hDlg)
 }
 
 
-/*
 LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static HMENU _hMenu;

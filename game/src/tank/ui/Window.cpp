@@ -43,6 +43,7 @@ void Window::Reg(Window* parent, GuiManager* manager)
 	_isVisible    = true;
 	_isEnabled    = true;
 	_isTopMost    = false;
+	_isTimeStep   = false;
 	_hasBorder    = false;
 	_clipChildren = false;
 
@@ -106,8 +107,8 @@ void Window::Destroy()
 		//
 		// remove this window from the manager
 		//
-		if( _isTopMost )
-			SetTopMost(false);
+		if( IsTopMost()  ) SetTopMost(false);
+		if( IsTimeStep() ) SetTimeStep(false);
 		_manager->Remove(this);
 
 
@@ -196,6 +197,11 @@ void Window::SetTexture(const char *tex)
 		_texture = 0;
 		_color   = 0xffffffff;
 	}
+}
+
+int Window::GetFrameCount() const
+{
+	return _texture ? (g_texman->get(_texture).xframes * g_texman->get(_texture).yframes) : 0;
 }
 
 void Window::Draw(float sx, float sy)
@@ -520,6 +526,22 @@ void Window::SetTopMost(bool topmost)
 	_isTopMost = topmost;
 }
 
+void Window::SetTimeStep(bool enable)
+{
+	if( enable )
+	{
+		_ASSERT(!IsDestroyed());
+		if( !_isTimeStep )
+			_timeStepReg = GetManager()->TimeStepRegister(this);
+	}
+	else
+	{
+		if( _isTimeStep )
+			GetManager()->TimeStepUnregister(_timeStepReg);
+	}
+	_isTimeStep = enable;
+}
+
 void Window::SetCapture()
 {
 	_manager->SetCapture(this);
@@ -620,6 +642,9 @@ void Window::OnShow(bool show)
 {
 }
 
+void Window::OnTimeStep(float dt)
+{
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

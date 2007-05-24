@@ -38,7 +38,6 @@
 
 static void OnPrintScreen()
 {
-	g_level->_timer.Stop();
 	PLAY(SND_Screenshot, vec2d(0, 0));
 
 	// определяем № файла
@@ -79,13 +78,16 @@ static void OnPrintScreen()
 		TRACE("Screenshot '%s'\n", name);
 	}
 
-
 	SetCurrentDirectory("..");
-
-	g_level->_timer.Start();
 }
 
 /////////////////////////////////////////////////////////////
+
+static void TimeStep(float dt)
+{
+	if( g_level ) g_level->TimeStep(dt);
+	if( g_gui ) g_gui->TimeStep(dt);
+}
 
 static void RenderFrame(bool thumbnail)
 {
@@ -374,6 +376,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	InitConfigLuaBinding(LS(g_env.hScript), g_config, "conf");
 
 
+	// create global timer
+	Timer *timer = new Timer();
+	timer->SetMaxDt(MAX_DT);
+
 
 #ifndef _DEBUG
 	BOOL bGeneralFault = FALSE;
@@ -407,6 +413,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
 		}
 
+		timer->Start();
 
 		MSG msg;
 		while(true) // цикл обработки сообщений
@@ -463,7 +470,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					continue;
 				}
 				//--------------------------------
-				if( g_level ) g_level->TimeStep();
+				TimeStep(timer->GetDt());
 				RenderFrame(false);
 				EndFrame();
 			}
@@ -486,6 +493,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
 		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);
 	}
+
+
+	SAFE_DELETE(timer);
+
 
 	TRACE("Saving options\n");
 	SaveOptions();

@@ -219,16 +219,16 @@ Level::Level()
 	TRACE("Constructing the level\n");
 	srand( GetTickCount() );
 
-	_timer.SetMaxDt(MAX_DT / g_conf.sv_speed->GetFloat() * 100.0f);
 	_time        = 0;
 	_timeBuffer  = 0;
 	_limitHit    = false;
+	_paused      = false;
 
 	_locations_x  = 0;
 	_locations_y  = 0;
 	_sx = _sy    = 0;
 
-	_seed = 1;
+	_seed   = 1;
 
 	_server = NULL;
 	_client = NULL;
@@ -256,7 +256,7 @@ void Level::Init(int X, int Y)
 	//
 
 	_Background::CreateInstance();
-	_FpsCounter::CreateInstance();
+//	_FpsCounter::CreateInstance();
 	_MessageArea::CreateInstance();
 
 
@@ -331,7 +331,7 @@ BOOL Level::init_newdm(const char *mapName)
 	_modeEditor = false;
 
 	// time indicator
-	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
+//	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
 
 	// score table
 	new GC_TextScore();
@@ -341,8 +341,6 @@ BOOL Level::init_newdm(const char *mapName)
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
 	bool res = Import(mapName, false);
-
-	_timer.Start();
 
 	return res;
 }
@@ -356,7 +354,7 @@ BOOL Level::init_load(const char *fileName)
 	_modeEditor = false;
 
 	new GC_TextScore();
-	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
+//	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
 
 	_Editor::CreateInstance();
 
@@ -668,10 +666,7 @@ void Level::Pause(bool pause)
 {
 	if( _limitHit || _modeEditor ) return;
 
-	if( pause )
-		_timer.Stop();
-	else
-		_timer.Start();
+	_paused = pause;
 
 	ENUM_BEGIN(sounds, GC_Sound, pSound) {
 		pSound->Freeze(pause);
@@ -911,11 +906,11 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 }
 
 
-void Level::TimeStep()
+void Level::TimeStep(float dt)
 {
 	if( _limitHit ) return;
 
-	float dt = _timer.GetDt() * g_conf.sv_speed->GetFloat() / 100.0f;
+	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
 	if( _modeEditor )
@@ -1017,7 +1012,7 @@ void Level::TimeStep()
 #endif
 		} while(0);
 	}
-	else
+	else // if( _client )
 	{
 		int count = int(dt / MAX_DT_FIXED) + 1;
 		float fixed_dt = dt / (float) count;

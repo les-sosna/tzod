@@ -22,6 +22,8 @@ Edit::Edit(Window *parent, float x, float y, float width)
 	Resize(width, _blankText->GetHeight() + 2);
 
 	SetSel(0, 0);
+
+	_time = 0;
 }
 
 const string_t& Edit::GetText() const
@@ -50,6 +52,8 @@ int  Edit::GetInt() const
 
 void Edit::SetSel(int begin, int end)
 {
+	_time = 0;
+
 	_selStart = begin;
 	_selEnd   = end;
 
@@ -144,11 +148,17 @@ void Edit::Draw(float sx, float sy)
 
 bool Edit::OnFocus(bool focus)
 {
+	SetTimeStep(focus);
 	_cursor->Show(focus);
+	_time = 0;
 	return true;
 }
 
-
+void Edit::OnTimeStep(float dt)
+{
+	_time += dt;
+	_cursor->Show(fmodf(_time, 1.0f) < 0.5f);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

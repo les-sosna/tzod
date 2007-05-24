@@ -102,7 +102,7 @@ extern "C" {
 
 #include "core/MemoryManager.h"
 #include "core/singleton.h"
-#include "core/ptr_list.h"
+#include "core/PtrList.h"
 #include "core/SafePtr.h"
 
 #include "core/Timer.h"

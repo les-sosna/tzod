@@ -22,6 +22,8 @@ class Edit : public Window
 
 	string_t _string;
 
+	float _time;
+
 public:
 	Edit(Window *parent, float x, float y, float width);
 
@@ -37,8 +39,10 @@ protected:
 	virtual void OnChar(int c);
 	virtual void OnRawChar(int c);
 	virtual bool OnMouseDown(float x, float y, int button);
-	virtual void Draw(float sx, float sy);
 	virtual bool OnFocus(bool focus);
+	virtual void OnTimeStep(float dt);
+
+	virtual void Draw(float sx, float sy);
 };
 
 

@@ -13,7 +13,7 @@ class GC_Object;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef ptr_list<GC_Object> OBJECT_LIST;
+typedef PtrList<GC_Object> OBJECT_LIST;
 typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
 
 template <class T>
@@ -72,17 +72,16 @@ public:
 
 private:
 	string_t               _name;
-	PropertyType              _type;
-	int                       _int_value;
-	int                       _int_min;
-	int                       _int_max;
+	PropertyType           _type;
+	int                    _int_value;
+	int                    _int_min;
+	int                    _int_max;
 	string_t               _str_value;
 	std::vector<string_t>  _value_set;
-	size_t                    _value_index;
+	size_t                 _value_index;
 
 public:
 	ObjectProperty(PropertyType type, const string_t &name);
-
 
 	string_t  GetName(void) const;
 	PropertyType GetType(void) const;

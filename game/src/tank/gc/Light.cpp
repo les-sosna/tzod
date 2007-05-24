@@ -82,7 +82,7 @@ void GC_Light::Serialize(SaveFile &f)
 void GC_Light::Shine()
 {
 	if( !CheckFlags(GC_FLAG_LIGHT_ENABLED) ) return;
-	_FpsCounter::Inst()->OneMoreLight();
+//	_FpsCounter::Inst()->OneMoreLight();
 
 	MyVertex *v;
 	float s,c, x,y;

@@ -419,10 +419,10 @@ void GC_Water::UpdateTile(bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-	ptr_list<OBJECT_LIST> receive;
+	PtrList<OBJECT_LIST> receive;
 	g_level->grid_water.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
-	ptr_list<OBJECT_LIST>::iterator rit = receive.begin();
+	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
 	for( ; rit != receive.end(); ++rit )
 	{
 		OBJECT_LIST::iterator it = (*rit)->begin();

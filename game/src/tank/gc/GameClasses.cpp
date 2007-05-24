@@ -544,11 +544,11 @@ void GC_Wood::UpdateTile(bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-	ptr_list<OBJECT_LIST> receive;
+	PtrList<OBJECT_LIST> receive;
 
 	g_level->grid_wood.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
-	ptr_list<OBJECT_LIST>::iterator rit = receive.begin();
+	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
 	for( ; rit != receive.end(); ++rit )
 	{
 		OBJECT_LIST::iterator it = (*rit)->begin();
@@ -1481,102 +1481,6 @@ void GC_TextScore::Draw()
 }
 
 /////////////////////////////////////////////////////////////
-//class GC_Text_FPS
-
-GC_Text_FPS::GC_Text_FPS() : GC_Text(0, g_render->getYsize()-1, "", alignTextLB)
-{
-	SetFont("font_small");
-	_timer.Start();
-	_nSprites = 0;
-	_nLights  = 0;
-	_nBatches = 0;
-
-	if( g_level->_client )
-	{
-		SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-		_timer_net.Start();
-	}
-	else
-	{
-		SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
-	}
-}
-
-void GC_Text_FPS::TimeStepFixed(float dt)
-{
-	_dts_net.push_back(_timer_net.GetDt());
-	if( _dts_net.size() > 100 ) _dts_net.pop_front();
-}
-
-void GC_Text_FPS::EndFrame()
-{
-	Show(g_options.bShowFPS);
-
-	_dts.push_back(_timer.GetDt());
-	if( _dts.size() > 200 ) _dts.pop_front();
-
-	if( IsVisible() )
-	{
-		float avr = 0;
-		float min = _dts.front();
-		float max = _dts.front();
-
-		for( std::list<float>::iterator it = _dts.begin(); it != _dts.end(); ++it )
-		{
-			avr += *it;
-			if (*it > max) max = *it;
-			if (*it < min) min = *it;
-		}
-		avr /= (float) _dts.size();
-
-		char s[512];
-		wsprintf(s, "%5dobj; %3dlight; %5dsprite; %2dbatch; %3d-%3d-%3dfps; %6dsprites/sec",
-			g_level->objects.size(), _nLights,
-			_nSprites, _nBatches,
-			int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f),
-			_nSprites * int(1.0f / avr + 0.5f));
-
-		char s1[256];
-		wsprintf(s1, "\nEvents: %4dfixed; %4dfloat; %4dendframe  Wnd: %3d total",
-			g_level->ts_fixed.size(),
-			g_level->ts_floating.size(),
-			g_level->endframe.size(),
-			g_gui->GetWndCount()
-		);
-		strcat(s, s1);
-
-		// network statistics
-		if( g_level->_client )
-		{
-			min = max = _dts_net.front();
-			for( std::list<float>::iterator it = _dts_net.begin();
-				 it != _dts_net.end(); ++it )
-			{
-				avr += *it;
-				if (*it > max) max = *it;
-				if (*it < min) min = *it;
-			}
-			avr /= (float) _dts_net.size();
-
-
-			NETWORKSTATS ns;
-			g_level->_client->GetStatistics(&ns);
-			wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; fps: %3dmin %3davr %3dmax;",
-				ns.nFramesInBuffer, ns.dwBytesSent/1024, ns.dwBytesRecv/1024,
-				int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f)
-			);
-			strcat(s, s1);
-		}
-
-		SetText(s);
-	}
-
-	_nSprites = 0;
-	_nLights  = 0;
-	_nBatches = 0;
-}
-
-/////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 {
@@ -1611,7 +1515,7 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 }
 
 /////////////////////////////////////////////////////////////
-
+/*
 GC_TextTime::GC_TextTime(int xPos, int yPos, enumAlignText align) : GC_Text(xPos, yPos, "", align)
 {
 	SetFont("font_default");
@@ -1634,7 +1538,7 @@ void GC_TextTime::EndFrame()
 		SetText(text);
 	}
 }
-
+*/
 /////////////////////////////////////////////////////////////
 
 GC_Text_MessageArea::GC_Text_MessageArea()

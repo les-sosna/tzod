@@ -21,7 +21,7 @@ class GuiManager
 	UI::Window* _hotTrackWnd;
 	UI::Window* _captureWnd;
 
-
+	PtrList<UI::Window>    _timestep;
 	std::list<UI::Window*> _topmost;
 	std::stack<RECT>       _clipStack;
 
@@ -46,6 +46,10 @@ public:
 	bool SetFocusWnd(UI::Window* wnd);
 	UI::Window* GetFocusWnd() const;
 
+public:
+	PtrList<UI::Window>::iterator TimeStepRegister(UI::Window* wnd);
+	void TimeStepUnregister(PtrList<UI::Window>::iterator it);
+	void TimeStep(float dt);
 
 public:
 	GuiManager(CreateWindowProc createDesctop);

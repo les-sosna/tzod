@@ -88,7 +88,6 @@ void GuiManager::Remove(UI::Window* wnd)
 	--_windowCount;
 }
 
-
 UI::Window* GuiManager::GetCapture() const
 {
 	return _captureWnd;
@@ -199,6 +198,27 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 UI::Window* GuiManager::GetFocusWnd() const
 {
 	return _focusWnd;
+}
+
+PtrList<UI::Window>::iterator GuiManager::TimeStepRegister(UI::Window* wnd)
+{
+	_timestep.push_front(wnd);
+	return _timestep.begin();
+}
+
+void GuiManager::TimeStepUnregister(PtrList<UI::Window>::iterator it)
+{
+	_timestep.safe_erase(it);
+}
+
+void GuiManager::TimeStep(float dt)
+{
+	PtrList<UI::Window>::safe_iterator it = _timestep.safe_begin();
+	while( it != _timestep.end() )
+	{
+		(*it)->OnTimeStep(dt);
+		++it;
+	}
 }
 
 bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT msg)
