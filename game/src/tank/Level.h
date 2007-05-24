@@ -236,6 +236,8 @@ public:
 
 	void Pause(bool pause);
 
+	void TimeStep();
+
 public:
 	//tracing
 	GC_2dSprite* PickEdObject(const vec2d &pt);

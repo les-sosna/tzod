@@ -536,8 +536,8 @@ bool Level::Serialize(const char *fileName)
 			throw "ERROR: couldn't write file. check disk space";
 
 		//перебираем все объекты. если нужно - сохраняем
-		OBJECT_LIST::reverse_iterator it = g_level->objects.rbegin();
-		for( ; it != g_level->objects.rend(); ++it )
+		OBJECT_LIST::reverse_iterator it = objects.rbegin();
+		for( ; it != objects.rend(); ++it )
 		{
 			GC_Object *object = *it;
 			if( object->IsSaved() )
@@ -683,7 +683,7 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 	for( int i = Z_COUNT - 1; i--; )
 	{
 		std::vector<OBJECT_LIST*> receive;
-		g_level->z_grids[i].OverlapCircle(receive,
+		z_grids[i].OverlapCircle(receive,
 			pt.x / LOCATION_SIZE, pt.y / LOCATION_SIZE, 0);
 
 		std::vector<OBJECT_LIST*>::iterator rit = receive.begin();
@@ -767,8 +767,8 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 
 		while(1)
 		{
-			if( curx >= 0 && curx < g_level->_locations_x &&
-				cury >= 0 && cury < g_level->_locations_y )
+			if( curx >= 0 && curx < _locations_x &&
+				cury >= 0 && cury < _locations_y )
 			{
 				OBJECT_LIST &tmp_list = list(i, curx, cury);
 				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
@@ -908,6 +908,143 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->SetText(string);
 	_temporaryText->SetAlign(align);
 	_temporaryText->Draw();
+}
+
+
+void Level::TimeStep()
+{
+	if( _limitHit ) return;
+
+	float dt = _timer.GetDt() * g_conf.sv_speed->GetFloat() / 100.0f;
+	_ASSERT(dt >= 0);
+
+	if( _modeEditor )
+		return;
+
+	if( _client )
+	{
+		//
+		// network mode
+		//
+
+		float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
+		_timeBuffer += dt;
+		if( _timeBuffer > 0 )
+		do
+		{
+			//
+			// обработка команд кадра
+			//
+			DataBlock db;
+			while( _client->GetData(db) )
+			{
+				switch( db.type() )
+				{
+					case DBTYPE_TEXTMESSAGE:
+						_MessageArea::Inst()->message( (LPCTSTR) db.data() );
+						break;
+					case DBTYPE_SERVERQUIT:
+						_MessageArea::Inst()->message( "Сервер вышел" );
+						break;
+					case DBTYPE_PLAYERQUIT:
+					{
+						const DWORD &id = db.cast<DWORD>();
+						OBJECT_LIST::iterator it = players.begin();
+						while( it != players.end() )
+						{
+							if( id == ((GC_Player *)(*it))->_networkId )
+							{
+								(*it)->Kill();
+								_MessageArea::Inst()->message( "игрок вышел" );
+								break;
+							}
+							++it;
+						}
+					} break;
+					case DBTYPE_CONTROLPACKET:
+					{
+						_ASSERT(0 == db.size() % sizeof(ControlPacket));
+						size_t count = db.size() / sizeof(ControlPacket);
+						for( size_t i = 0; i < count; i++ )
+							_client->_ctrlBuf.push( ((ControlPacket *) db.data())[i] );
+					} break;
+				} // end of switch( db.type )
+
+				if( DBTYPE_CONTROLPACKET == db.type() ) break;
+			}
+
+			if( _client->_ctrlBuf.empty() )
+			{
+				_timeBuffer = 0;
+				break;	// нет кадра. пропускаем
+			}
+
+
+			//
+			// ок, кадр получен. расчет игровой ситуации
+			//
+
+			#ifdef NETWORK_DEBUG
+			DWORD dwCheckSum = 0, tmp_cs;
+			#endif
+
+
+			_time       += fixed_dt;
+			_timeBuffer -= fixed_dt;
+			OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+			while( it != ts_fixed.end() )
+			{
+				GC_Object* pTS_Obj = *it;
+				_ASSERT(!pTS_Obj->IsKilled());
+
+				// расчет контрольной суммы для обнаружения потери синхронизации
+				#ifdef NETWORK_DEBUG
+				if( tmp_cs = pTS_Obj->checksum() )
+				{
+					dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
+                    dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+				}
+				#endif
+
+				pTS_Obj->TimeStepFixed(fixed_dt);
+				++it;
+			}
+
+			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+
+#ifdef NETWORK_DEBUG
+			_dwChecksum = dwCheckSum;
+#endif
+		} while(0);
+	}
+	else
+	{
+		int count = int(dt / MAX_DT_FIXED) + 1;
+		float fixed_dt = dt / (float) count;
+
+		do
+		{
+			_time += fixed_dt;
+			OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+			while( it != ts_fixed.end() )
+			{
+				GC_Object* pTS_Obj = *it;
+				_ASSERT(!pTS_Obj->IsKilled());
+				pTS_Obj->TimeStepFixed(fixed_dt);
+				++it;
+			}
+			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+		} while( --count );
+	}
+
+	OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
+	while( it != ts_floating.end() )
+	{
+		GC_Object* pTS_Obj = *it;
+		_ASSERT(!pTS_Obj->IsKilled());
+		pTS_Obj->TimeStepFloat(dt);
+		++it;
+	}
 }
 
 void Level::OnChangeVolume()

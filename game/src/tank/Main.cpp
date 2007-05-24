@@ -85,144 +85,6 @@ static void OnPrintScreen()
 	g_level->_timer.Start();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-
-static void TimeStep()
-{
-	if( !g_level || g_level->_limitHit ) return;
-
-	float dt = g_level->_timer.GetDt() * g_conf.sv_speed->GetFloat() / 100.0f;
-	_ASSERT(dt >= 0);
-
-	if( g_level->_modeEditor )
-		return;
-
-	if( g_level->_client )
-	{
-		//
-		// network mode
-		//
-
-		float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
-		g_level->_timeBuffer += dt;
-		if( g_level->_timeBuffer > 0 )
-		do
-		{
-			//
-			// обработка команд кадра
-			//
-			DataBlock db;
-			while( g_level->_client->GetData(db) )
-			{
-				switch( db.type() )
-				{
-					case DBTYPE_TEXTMESSAGE:
-						_MessageArea::Inst()->message( (LPCTSTR) db.data() );
-						break;
-					case DBTYPE_SERVERQUIT:
-						_MessageArea::Inst()->message( "—ервер вышел" );
-						break;
-					case DBTYPE_PLAYERQUIT:
-					{
-						const DWORD &id = db.cast<DWORD>();
-						OBJECT_LIST::iterator it = g_level->players.begin();
-						while( it != g_level->players.end() )
-						{
-							if( id == ((GC_Player *)(*it))->_networkId )
-							{
-								(*it)->Kill();
-								_MessageArea::Inst()->message( "игрок вышел" );
-								break;
-							}
-							++it;
-						}
-					} break;
-					case DBTYPE_CONTROLPACKET:
-					{
-						_ASSERT(0 == db.size() % sizeof(ControlPacket));
-						size_t count = db.size() / sizeof(ControlPacket);
-						for( size_t i = 0; i < count; i++ )
-							g_level->_client->_ctrlBuf.push( ((ControlPacket *) db.data())[i] );
-					} break;
-				} // end of switch( db.type )
-
-				if( DBTYPE_CONTROLPACKET == db.type() ) break;
-			}
-
-			if( g_level->_client->_ctrlBuf.empty() )
-			{
-				g_level->_timeBuffer = 0;
-				break;	// нет кадра. пропускаем
-			}
-
-
-			//
-			// ок, кадр получен. расчет игровой ситуации
-			//
-
-			#ifdef NETWORK_DEBUG
-			DWORD dwCheckSum = 0, tmp_cs;
-			#endif
-
-
-			g_level->_time        += fixed_dt;
-			g_level->_timeBuffer -= fixed_dt;
-			OBJECT_LIST::safe_iterator it = g_level->ts_fixed.safe_begin();
-			while( it != g_level->ts_fixed.end() )
-			{
-				GC_Object* pTS_Obj = *it;
-				_ASSERT(!pTS_Obj->IsKilled());
-
-				// расчет контрольной суммы дл€ обнаружени€ потери синхронизации
-				#ifdef NETWORK_DEBUG
-				if( tmp_cs = pTS_Obj->checksum() )
-				{
-					dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
-                    dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
-				}
-				#endif
-
-				pTS_Obj->TimeStepFixed(fixed_dt);
-				++it;
-			}
-
-			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-
-#ifdef NETWORK_DEBUG
-			g_level->_dwChecksum = dwCheckSum;
-#endif
-		} while(0);
-	}
-	else
-	{
-		int count = int(dt / MAX_DT_FIXED) + 1;
-		float fixed_dt = dt / (float) count;
-
-		do
-		{
-			g_level->_time += fixed_dt;
-			OBJECT_LIST::safe_iterator it = g_level->ts_fixed.safe_begin();
-			while( it != g_level->ts_fixed.end() )
-			{
-				GC_Object* pTS_Obj = *it;
-				_ASSERT(!pTS_Obj->IsKilled());
-				pTS_Obj->TimeStepFixed(fixed_dt);
-				++it;
-			}
-			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-		} while( --count );
-	}
-
-	OBJECT_LIST::safe_iterator it = g_level->ts_floating.safe_begin();
-	while( it != g_level->ts_floating.end() )
-	{
-		GC_Object* pTS_Obj = *it;
-		_ASSERT(!pTS_Obj->IsKilled());
-		pTS_Obj->TimeStepFloat(dt);
-		++it;
-	}
-}
-
 /////////////////////////////////////////////////////////////
 
 static void RenderFrame(bool thumbnail)
@@ -287,8 +149,6 @@ static void RenderFrame(bool thumbnail)
 					}
 				} ENUM_END();
 			}
-
-		//	printf("cx=%d; cy=%d\n", g_env.camera_x, g_env.camera_y);
 
 
 			//
@@ -367,7 +227,7 @@ static void RenderFrame(bool thumbnail)
 	g_render->End();
 
 
-	// check for print screen key is pressed
+	// check if print screen key is pressed
 	static char _oldRQ = 0;
 	if( g_env.envInputs.keys[DIK_SYSRQ] && !_oldRQ )
 		OnPrintScreen();
@@ -603,18 +463,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					continue;
 				}
 				//--------------------------------
-				TimeStep();
+				if( g_level ) g_level->TimeStep();
 				RenderFrame(false);
 				EndFrame();
 			}
-			//else // дл€ сн€ти€ нагрузки с процессора, когда игра не активна
-			//{
-			//	GetMessage(&msg, NULL, 0, 0);
-			//	if( msg.message == WM_QUIT ) break;
-
-			//	TranslateMessage(&msg);
-			//	DispatchMessage(&msg);
-			//}
 		}
 
 #ifndef _DEBUG
@@ -673,9 +525,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	TRACE("Exit.\n");
 
-	// free console buffer
+	// free the console buffer
 	SAFE_DELETE(g_console);
-
 
 	Sleep(500);
 	return 0;

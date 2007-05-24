@@ -141,16 +141,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			TRACE("main window deactivated\n");
 
 			g_env.minimized = true;
-			if( g_level && !g_level->_client )
-				g_level->_timer.Stop();
+		//	if( g_level && !g_level->_client )
+		//		g_level->_timer.Stop();
 		}
 		else if( g_env.minimized )
 		{
 			TRACE("main window activated\n");
 
 			g_env.minimized = false;
-			if( g_level && !g_level->_client )
-				g_level->_timer.Start();
+		//	if( g_level && !g_level->_client )
+		//		g_level->_timer.Start();
 		}
 
 		g_env.envInputs.bLButtonState = false;
@@ -2964,7 +2964,6 @@ LRESULT CALLBACK dlgConnect(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	}
     return FALSE;
 }
-*/
 
 void OutputTextBox(HWND hWndTB, LPCTSTR fmt, ...)
 {
@@ -2997,9 +2996,6 @@ void OutputTextBox(HWND hWndTB, LPCTSTR fmt, ...)
 	SendMessage(hWndTB, EM_SETSEL, 0x7fffffff, 0x7fffffff);
 	SendMessage(hWndTB, EM_REPLACESEL, (WPARAM) FALSE, (LPARAM) str.c_str());
 }
-
-
-/*
 
 LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
