@@ -68,7 +68,7 @@ void MyRegisterClass(HINSTANCE hInstance)
     wc.hInstance     = hInstance;
     wc.hIcon         = NULL;
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-    wc.hbrBackground = NULL;//g_Interface.hbrBackground;
+    wc.hbrBackground = NULL;
 	RegisterClass(&wc);
 
 	//
@@ -80,31 +80,9 @@ void MyRegisterClass(HINSTANCE hInstance)
     wc.hInstance     = hInstance;
     wc.hIcon         = NULL;
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-    wc.hbrBackground = NULL;//g_Interface.hbrBackground;
+    wc.hbrBackground = NULL;
 	RegisterClass(&wc);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-void GetVehClassesList(std::vector<std::pair<string_t, string_t> > &ls)
-{
-	std::pair<string_t, string_t> val;
-	lua_State *L = g_env.hScript;
-
-	lua_getglobal(L, "classes");
-
-	// loop over files
-	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
-	{
-		// now 'key' is at index -2 and 'value' at index -1
-        val.first = lua_tostring(L, -2);
-		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
-
-		ls.push_back(val);
-	}
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +92,7 @@ void OnMouse(UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		g_gui->ProcessMouse(
 			(float) (short) LOWORD(lParam),
-			(float) (short) HIWORD(lParam), 
+			(float) (short) HIWORD(lParam),
 			(float) (short) HIWORD(wParam) / 120.0f,
 			message);
 	}
@@ -369,7 +347,7 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 						"ComboBox",                                       // class
 						prop->GetName().c_str(),				          // name
 						WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_VSCROLL|
-						    CBS_DROPDOWNLIST|CBS_OWNERDRAWFIXED|CBS_HASSTRINGS, // style
+						    CBS_DROPDOWNLIST|CBS_HASSTRINGS, // style
 						PROPERTY_GRID_LABEL_WIDTH,						  // x
 						y,                                                // y
 						WIDTH(rt)-PROPERTY_GRID_LABEL_WIDTH,			  // width
@@ -2192,7 +2170,7 @@ LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			} break;
 			case IDM_EMPTYMAP:
 				if( IDOK == DialogBox(g_hInstance, (LPCTSTR)IDD_NEWMAP, hDlg, (DLGPROC) dlgNewMap) )
-				{	
+				{
 					SAFE_DELETE(g_level);
 					g_level = new Level();
 					g_level->Init(OPT(xsize), OPT(ysize));

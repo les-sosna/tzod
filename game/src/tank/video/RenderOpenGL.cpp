@@ -48,7 +48,7 @@ class RenderOpenGL : public IRender
 
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
-	
+
 	size_t    _vaSize;      // number of filled elements in _VertexArray
 	size_t    _iaSize;      // number of filled elements in _IndexArray
 
@@ -283,7 +283,7 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
 		glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
 		glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
-		
+
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -352,7 +352,7 @@ void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 //	glMatrixMode(GL_PROJECTION);
 //			glOrtho(0, (GLdouble) (_rtViewport.right - _rtViewport.left),
 //				(GLdouble) (_rtViewport.bottom - _rtViewport.top), 0, -1, 1);
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef( (GLfloat) getViewportXsize()/2, (GLfloat) getViewportYsize()/2, 0 );
@@ -519,7 +519,7 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 
 	_iaSize += nEdges*3;
 	_vaSize += nEdges+1;
-    
+
 	return result;
 }
 

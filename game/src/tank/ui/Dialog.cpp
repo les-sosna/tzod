@@ -79,7 +79,7 @@ bool Dialog::OnMouseUp(float x, float y, int button)
 bool Dialog::OnMouseMove(float x, float y)
 {
 	if( IsCaptured() )
-	{		
+	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}
 	return true;

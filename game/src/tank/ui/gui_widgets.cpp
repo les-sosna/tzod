@@ -100,7 +100,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 	_nSprites = 0;
 	_nLights  = 0;
-	_nBatches = 0;	
+	_nBatches = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -555,7 +555,7 @@ bool GC_PlazmaClod::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 	if( IsAdvanced() )
 	{
-		new GC_HealthDaemon(((GC_RigidBodyStatic*) object), 
+		new GC_HealthDaemon(((GC_RigidBodyStatic*) object),
 			GetRawPtr(_proprietor), 15.0f, 2.0f);
 	}
 
@@ -728,7 +728,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			if( damage > 0 && !(IsAdvanced() && pVehicle == _proprietor) )
 			{
 				vec2d d = (_pos - pVehicle->_pos).Normalize() + net_vrand(1.0f);
-				pVehicle->TakeDamage(damage * _Damage * dt, 
+				pVehicle->TakeDamage(damage * _Damage * dt,
 					pVehicle->_pos + d, GetRawPtr(_proprietor));
 			}
 		}
@@ -944,9 +944,9 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 
 	_bAttached = true;
 	_ripper = pRipper;
-	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this, 
+	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperKill, true, false);
-	_ripper->Subscribe(NOTIFY_OBJECT_MOVE, this, 
+	_ripper->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperMove, false, false);
 
 	_light->Enable(false);

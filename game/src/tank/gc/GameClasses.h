@@ -320,14 +320,11 @@ public:
 
 class GC_Rectangle : public GC_Line
 {
-//	DECLARE_SELF_REGISTRATION(GC_Rectangle);
-
 	vec2d _center_pos;
 	vec2d _size;
 
 public:
 	GC_Rectangle(const vec2d &pos, const vec2d &size, const char *texture);
-//	GC_Rectangle(FromFile);
 
 	void Adjust(GC_2dSprite *object);
 

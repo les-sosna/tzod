@@ -47,26 +47,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/*
-class GC_Cursor : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_Cursor);
-protected:
-	int _time_show;
-	float _time_animation;
-	SafePtr<GC_Text> _text;
-
-public:
-	GC_Cursor();
-	GC_Cursor(FromFile) : GC_2dSprite(FromFile()) {};
-	virtual void EndFrame();
-
-	void Kill();
-	void TimeStepFloat(float dt);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-*/
 
 class GC_Crosshair : public GC_2dSprite
 {

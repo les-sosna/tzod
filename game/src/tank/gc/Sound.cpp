@@ -130,7 +130,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		/////////////////////////////
 		++_countActive;
 		_mode = SMODE_PLAY;
-		if( !_freezed ) 
+		if( !_freezed )
 			_soundBuffer->Play(0, 0, 0);
 		break;
 	case SMODE_LOOP:

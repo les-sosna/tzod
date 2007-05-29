@@ -5,6 +5,7 @@
 #include "gui_widgets.h"
 #include "gui_desktop.h"
 #include "gui_console.h"
+#include "gui_editor.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -17,8 +18,11 @@ namespace UI
 
 Desktop::Desktop(GuiManager* manager) : Window(manager)
 {
+	_editor = new EditorLayout(this);
+
 	_con = new Console(this, 10, 0);
 	_con->Show(false);
+
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
 	g_conf.ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
@@ -78,6 +82,7 @@ bool Desktop::OnFocus(bool focus)
 
 void Desktop::OnSize(float width, float height)
 {
+	_editor->Resize(GetWidth(), GetHeight());
 	_con->Resize(GetWidth() - 20, GetHeight() * 0.5f);
 	_fps->Move(1, GetHeight() - 1);
 	_time->Move( GetWidth() - 1, GetHeight() - 1 );

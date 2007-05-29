@@ -6,7 +6,7 @@
 
 class IFile : public RefCounted
 {
-//    IFileSystem::Ptr _hostFileSystem; // this prevents the file system to be 
+//    IFileSystem::Ptr _hostFileSystem; // this prevents the file system to be
                                       // destroyed while the file remains open
 protected:
     IFile(/*IFileSystem::Ptr host*/); // create via IFileSystem::Open only
@@ -88,7 +88,7 @@ public:
     virtual bool IsValid() const;
 	virtual bool EnumAllFiles(std::set<string_t> &files, const string_t &mask);
 
-    static SafePtr<OSFileSystem> Create(const string_t &rootDirectory, 
+    static SafePtr<OSFileSystem> Create(const string_t &rootDirectory,
                                         const string_t &nodeName = TEXT(""));
 };
 

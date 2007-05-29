@@ -492,7 +492,7 @@ bool TankServer::TrySendFrame()
 	// очистка буферов клиентов
 	//
 	for( it = _clients.begin(); it != _clients.end(); ++it )
-		if( it->connected ) 
+		if( it->connected )
 			it->ctrl.pop();
 
 

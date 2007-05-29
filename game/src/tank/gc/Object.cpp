@@ -266,7 +266,7 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 	}
 
 	GC_Object *object = it->second();
-	
+
 	size_t id;
 	file.Serialize(id);
 	file.RegPointer(object, id);

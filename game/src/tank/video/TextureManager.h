@@ -62,7 +62,7 @@ public:
 	const LogicalTexture& get(size_t index) const;
 	void bind(size_t index);
 
-	void GetTextureNames(std::vector<string_t> &names, 
+	void GetTextureNames(std::vector<string_t> &names,
 		const char *prefix, bool noPrefixReturn) const;
 };
 

@@ -82,7 +82,7 @@ static int luaT_newmap(lua_State *L)
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
 	}
-	
+
 	return 0;
 }
 
@@ -363,7 +363,7 @@ static int luaT_addplayer(lua_State *L)
 		lua_pushinteger(L, rand() % lua_objlen(L, -1) + 1);  // push key
 		lua_gettable(L, -2);                                 // pop key, push value
 		safe_tostr(L, pd.name, MAX_PLRNAME);                 // get value
-		lua_pop(L, 2);                                       // pop value and table                
+		lua_pop(L, 2);                                       // pop value and table
 	}
 	lua_pop(L, 1); // pop result of lua_getfield
 

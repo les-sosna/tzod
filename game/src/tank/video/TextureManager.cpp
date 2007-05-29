@@ -111,7 +111,7 @@ void TextureManager::CreateChecker()
 	TexDesc td;
 	LogicalTexture tex;
 
-	static BYTE bytes[] = { 
+	static BYTE bytes[] = {
 	    0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
 	    0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
 	  255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
@@ -299,7 +299,7 @@ int TextureManager::LoadPackage(const char* filename)
 							{
 								// replace existing logical texture
 								LogicalTexture &existing = _LogicalTextures[it->second];
-								TexDescIterator tmp = 
+								TexDescIterator tmp =
 									_mapDevTex_to_TexDescIter[existing.dev_texture];
 								existing = tex;
 								tmp->refCount--;
@@ -335,7 +335,7 @@ int TextureManager::LoadPackage(const char* filename)
 	{
         TexDescIterator tmp = it++;
 		_ASSERT(tmp->refCount >= 0);
-		if( 0 == tmp->refCount ) 
+		if( 0 == tmp->refCount )
 			Unload(tmp);
 	}
 
@@ -356,7 +356,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 		return -1; // something is wrong
 
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
-	{	
+	{
 		TexDescIterator td;
 		if( LoadTexture(td, dirName + TEXT("/") + *it) )
 		{
@@ -396,7 +396,7 @@ size_t TextureManager::FindTexture(const char *name) const
 
 	// flood the console
 	g_console->printf("texture '%s' not found!\n", name);
-	
+
 	return 0; // index of checker texture
 }
 

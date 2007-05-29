@@ -14,7 +14,7 @@ struct DisplayMode
 
 struct DEV_TEXTURE
 {
-	union 
+	union
 	{
 		unsigned int index;
 		void          *ptr;

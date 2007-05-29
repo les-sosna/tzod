@@ -107,7 +107,7 @@ SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path)
 {
     _ASSERT(!path.empty());
 
-//    if( path[0] == DELIMITER ) // 
+//    if( path[0] == DELIMITER ) //
 
     string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
 
@@ -178,7 +178,7 @@ bool OSFileSystem::OSFile::IsOpen() const
 
 ///////////////////////////////////////
 
-SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, 
+SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory,
                                            const string_t &nodeName)
 {
     return new OSFileSystem(rootDirectory, nodeName);
@@ -251,7 +251,7 @@ bool OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 				{
 					files.insert( fd.cFileName );
 				}
-			} 
+			}
 			while( FindNextFile(hSearch, &fd) );
 			FindClose(hSearch);
 		}

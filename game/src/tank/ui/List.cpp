@@ -159,7 +159,7 @@ bool List::OnMouseDown(float x, float y, int button)
 	{
 		int index = HitTest(y);
 		SetCurSel(index, false);
-		if( -1 != index && eventClickItem ) 
+		if( -1 != index && eventClickItem )
 			INVOKE(eventClickItem) (index);
 	}
 	return true;

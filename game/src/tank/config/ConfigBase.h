@@ -26,7 +26,7 @@ public:
 	ConfVar();
 	virtual ~ConfVar();
 
-	void SetType(Type type); 
+	void SetType(Type type);
 	Type GetType() const { return _type; }
 	virtual const char* GetTypeName() const;
 

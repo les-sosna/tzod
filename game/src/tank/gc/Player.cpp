@@ -68,7 +68,7 @@ void GC_Player::Serialize(SaveFile &f)
 	/////////////////////////////////////
 	f.Serialize(_vehicle);
 	/////////////////////////////////////
-	if( f.loading() ) 
+	if( f.loading() )
 		_controller = CreateController(_nIndex);
 }
 
@@ -189,7 +189,7 @@ void GC_Player::Respawn()
 
 
 	_vehicle = new GC_Tank_Light(pBestPoint->_pos, pBestPoint->GetRotation(), this);
-	_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, 
+	_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
 	ResetClass();
 

@@ -173,10 +173,10 @@ static void RenderFrame(bool thumbnail)
 					int xmin = __max(0, (g_env.camera_x - dx[lev]) / LOCATION_SIZE);
 					int ymin = __max(0, (g_env.camera_y - dy[lev]) / LOCATION_SIZE);
 					int xmax = __min(g_level->_locations_x - 1,
-						((g_env.camera_x + int((float) g_render->getViewportXsize() / 
+						((g_env.camera_x + int((float) g_render->getViewportXsize() /
 						pCamera->_zoom)) - dx[lev]) / LOCATION_SIZE);
-					int ymax = __min(g_level->_locations_y - 1, 
-						((g_env.camera_y + int((float) g_render->getViewportYsize() / 
+					int ymax = __min(g_level->_locations_y - 1,
+						((g_env.camera_y + int((float) g_render->getViewportYsize() /
 						pCamera->_zoom)) - dy[lev]) / LOCATION_SIZE);
 
 					for( int x = xmin; x <= xmax; ++x )
@@ -308,7 +308,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	g_conf.Initialize(g_config);
 
-	
+
 	if( !LoadOptions() )
 		SetDefaultOptions();
 
@@ -330,7 +330,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	INITCOMMONCONTROLSEX iccex = {
 	sizeof(INITCOMMONCONTROLSEX),
 		0
-//		ICC_LISTVIEW_CLASSES|ICC_UPDOWN_CLASS|ICC_BAR_CLASSES 
+//		ICC_LISTVIEW_CLASSES|ICC_UPDOWN_CLASS|ICC_BAR_CLASSES
 	};
 	InitCommonControlsEx(&iccex);
 

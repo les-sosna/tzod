@@ -391,9 +391,9 @@ void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* pVehicle)
 	GC_pu_Invulnerablity *pOther = (GC_pu_Invulnerablity *) pVehicle->GetSubscriber(GetType());
 	if( pOther ) pOther->Kill();
 
-	pVehicle->Subscribe(NOTIFY_DAMAGE_FILTER, this, 
+	pVehicle->Subscribe(NOTIFY_DAMAGE_FILTER, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnProprietorDamage, false);
-	pVehicle->Subscribe(NOTIFY_OBJECT_MOVE, this, 
+	pVehicle->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnProprietorMove, false);
 
 	_bAttached = true;
@@ -840,7 +840,7 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 
 	_proprietor = pVehicle;
 	_proprietor->_weapon = this;
-	_proprietor->Subscribe(NOTIFY_OBJECT_MOVE, this, 
+	_proprietor->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_Weapon::OnProprietorMove, false, false);
 
 
@@ -1487,7 +1487,7 @@ void GC_Weap_Cannon::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_TankBullet(_pos + a * 17.0f, a * SPEED_TANKBULLET + net_vrand(50), 
+		new GC_TankBullet(_pos + a * 17.0f, a * SPEED_TANKBULLET + net_vrand(50),
 			GetRawPtr(_proprietor), _advanced );
 
 		if( !_advanced )
@@ -1884,7 +1884,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 				vec2d emitter = _pos - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 				vec2d hit;
-				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s, 
+				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s,
 					GetRawPtr(_proprietor), emitter + a * 2.0f, -a * lenght, &hit);
 				if( object )
 				{
@@ -2007,7 +2007,7 @@ void GC_Weap_BFG::Fire()
 			float s = sinf(_proprietor->_angle + _angle);
 			float c = cosf(_proprietor->_angle + _angle);
 
-			new GC_BfgCore(_pos + a * 16.0f, vec2d(c, s) * SPEED_BFGCORE, 
+			new GC_BfgCore(_pos + a * 16.0f, vec2d(c, s) * SPEED_BFGCORE,
 				GetRawPtr(_proprietor), _advanced );
 
 			_time_ready = 0;
@@ -2090,7 +2090,7 @@ void GC_Weap_Ripper::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_Disk(_pos - a * 9.0f, a * SPEED_DISK + net_vrand(10), 
+		new GC_Disk(_pos - a * 9.0f, a * SPEED_DISK + net_vrand(10),
 			GetRawPtr(_proprietor), _advanced );
 		PLAY(SND_DiskFire, _pos);
 

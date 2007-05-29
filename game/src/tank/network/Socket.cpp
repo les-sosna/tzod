@@ -221,7 +221,7 @@ bool Socket::CheckEvent(int bit)
 {
 	if( 0 == (_ne.lNetworkEvents & (1 << bit)) || 0 != _ne.iErrorCode[bit] )
 	{
-		TRACE("CheckEvent failed: lNetworkEvents = %d; iErrorCode[bit=%d] = %d\n", 
+		TRACE("CheckEvent failed: lNetworkEvents = %d; iErrorCode[bit=%d] = %d\n",
 			_ne.lNetworkEvents, bit, _ne.iErrorCode[bit]);
 		return false;
 	}

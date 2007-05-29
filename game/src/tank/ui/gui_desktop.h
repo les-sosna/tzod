@@ -6,6 +6,7 @@
 
 namespace UI
 {
+	class EditorLayout;
 	class Console;
 
 	// widgets
@@ -16,7 +17,9 @@ namespace UI
 
 class Desktop : public Window
 {
+	EditorLayout *_editor;
 	Console      *_con;
+
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
 
@@ -25,7 +28,7 @@ public:
 	~Desktop();
 
 	void ShowDesktopBackground(bool show);
-	
+
 	void OnCloseChild(int result);
 
 protected:

@@ -207,7 +207,7 @@ BOOL RenderDirect3D::getDisplayMode(DWORD index, DisplayMode *pMode) const
 	_ASSERT(_d3D);
 
 	D3DDISPLAYMODE mode;
-    
+
 	if( FAILED(_d3D->EnumAdapterModes(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8, index, &mode)) )
 		return FALSE;
 
@@ -270,14 +270,14 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	params.FullScreen_RefreshRateInHz   = bFullScreen?pMode->RefreshRate:0;
     params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, 
+	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
 	{
-		if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, 
+		if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
 		{
 			return FALSE;
-		}    
+		}
 	}
 
 	//
@@ -311,7 +311,7 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	// create vertex and index biffers
 	//
 
-	if( FAILED(_pd3dDevice->CreateVertexBuffer(sizeof(MyVertex)*VERTEX_BUFFER_SIZE, 
+	if( FAILED(_pd3dDevice->CreateVertexBuffer(sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, NULL)) )
 	{
 		return FALSE;
@@ -358,7 +358,7 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 	{
 		if( RM_INTERFACE == _mode )
 		{
-			D3DXMatrixOrthoOffCenterRH(&m, (float) rect->left, (float) rect->right, 
+			D3DXMatrixOrthoOffCenterRH(&m, (float) rect->left, (float) rect->right,
 				(float) rect->bottom, (float) rect->top, 1, -1);
 
 			vp.X = rect->left;
@@ -368,7 +368,7 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 		}
 		else
 		{
-			D3DXMatrixOrthoOffCenterRH(&m, 0, (float) (rect->right - rect->left), 
+			D3DXMatrixOrthoOffCenterRH(&m, 0, (float) (rect->right - rect->left),
 				(float) (rect->bottom - rect->top), 0, 1, -1);
 
 			vp.X = rect->left;
@@ -514,7 +514,7 @@ bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
 		D3DFMT_A8R8G8B8, // Format
 		D3DPOOL_MANAGED, // Pool    ?D3DPOOL_DEFAULT?
 		&pTex,           // ppTexture
-		NULL             // pSharedHandle. 
+		NULL             // pSharedHandle.
 	);
 
     if( FAILED(hr) )
@@ -574,13 +574,13 @@ void RenderDirect3D::_flush()
 
 	_ASSERT(_VertexArray);
 	_ASSERT(_IndexArray);
-    
+
 	V(_pVB->Unlock());
 	V(_pIB->Unlock());
 
 	V(_pd3dDevice->DrawIndexedPrimitive( D3DPT_TRIANGLELIST, 0, 0, _vaSize, 0, _iaSize/3));
 
-	V(_pVB->Lock(0, sizeof(MyVertex)*VERTEX_BUFFER_SIZE, 
+	V(_pVB->Lock(0, sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		(void**) &_VertexArray, D3DLOCK_DISCARD));
 	V(_pIB->Lock(0, sizeof(WORD)*INDEX_BUFFER_SIZE, (void**) &_IndexArray, NULL));
 
@@ -634,7 +634,7 @@ MyVertex* RenderDirect3D::DrawFan(size_t nEdges)
 
 	_iaSize += nEdges*3;
 	_vaSize += nEdges+1;
-    
+
 	return result;
 }
 

@@ -287,7 +287,7 @@ void Window::Draw(float sx, float sy)
 			v[3].u = tex_right;
 			v[3].v = tex_bottom;
 			v[3].x = r;
-			v[3].y = b;	
+			v[3].y = b;
 
 
 			// top edge

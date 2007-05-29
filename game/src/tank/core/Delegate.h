@@ -21,7 +21,7 @@ public:
 	Delegate()
 	{
 		_inst = NULL;
-		_func = NULL;		
+		_func = NULL;
 	}
 
 	blank* inst() const { return _inst; }
@@ -41,7 +41,7 @@ public:
 	void clear()
 	{
 		_inst = NULL;
-		_func = NULL;		
+		_func = NULL;
 	}
 
 	operator bool () const

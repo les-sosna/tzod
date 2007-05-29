@@ -213,7 +213,7 @@ void Field::Dump()
 
 ////////////////////////////////////////////////////////////
 
-// в конструкторе уровня нельзя создавать игровые объекты
+// в конструкторе нельзя создавать игровые объекты
 Level::Level()
 {
 	TRACE("Constructing the level\n");
@@ -256,7 +256,6 @@ void Level::Init(int X, int Y)
 	//
 
 	_Background::CreateInstance();
-//	_FpsCounter::CreateInstance();
 	_MessageArea::CreateInstance();
 
 
@@ -291,11 +290,8 @@ BOOL Level::init_emptymap()
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
 
-
 	_gameType   = GT_EDITOR;
 	_modeEditor = true;
-
-//	OPT(bNightMode)  = false;
 
 	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
@@ -314,8 +310,6 @@ BOOL Level::init_import_and_edit(char *mapName)
 	_gameType   = GT_EDITOR;
 	_modeEditor = true;
 
-//	OPT(bNightMode)  = false;
-
 	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
 
@@ -330,9 +324,6 @@ BOOL Level::init_newdm(const char *mapName)
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
 
-	// time indicator
-//	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
-
 	// score table
 	new GC_TextScore();
 
@@ -340,9 +331,7 @@ BOOL Level::init_newdm(const char *mapName)
 	_Editor::CreateInstance();
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
-	bool res = Import(mapName, false);
-
-	return res;
+	return Import(mapName, false);
 }
 
 BOOL Level::init_load(const char *fileName)
@@ -354,7 +343,6 @@ BOOL Level::init_load(const char *fileName)
 	_modeEditor = false;
 
 	new GC_TextScore();
-//	new GC_TextTime(g_render->getXsize() - 1, g_render->getYsize() - 1, alignTextRB);
 
 	_Editor::CreateInstance();
 

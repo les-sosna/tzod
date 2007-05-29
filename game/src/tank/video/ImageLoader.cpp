@@ -116,7 +116,7 @@ void TgaImageLoader::LoadUncompressedTGA(const SafePtr<IFile> &file)
 
 	// Compute the number of BYTES per pixel
 	tga.bytesPerPixel	= (tga.bpp / 8);
-	
+
 	// Compute the total amout ofmemory needed to store data
 	tga.imageSize		= (tga.bytesPerPixel * tga.width * tga.height);
 

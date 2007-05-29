@@ -15,7 +15,7 @@ public:
 	HANDLE _file;
 	bool   _load;
 
-	bool loading() const 
+	bool loading() const
 	{
 		return _load;
 	}

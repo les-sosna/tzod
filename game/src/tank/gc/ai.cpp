@@ -208,9 +208,9 @@ float AIController::CreatePath(float dst_x, float dst_y, float max_depth, bool b
 	Field &field = g_level->_field;
 
 	std::priority_queue<
-		RefFieldCell, 
-		std::vector<RefFieldCell>, 
-		std::greater<RefFieldCell> 
+		RefFieldCell,
+		std::vector<RefFieldCell>,
+		std::greater<RefFieldCell>
 	> open;
 
 	std::priority_queue<int> qqq;
@@ -484,7 +484,7 @@ void AIController::TowerTo(VehicleState *pState, const vec2d &x, bool bFire)
 	float d1 = fabsf(ang2-ang1);
 	float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
 
-	if( (d1 < _weapSettings.fMaxAttackAngle || 
+	if( (d1 < _weapSettings.fMaxAttackAngle ||
 		 d2 < _weapSettings.fMaxAttackAngle) && bFire)
 	{
 		pState->_bState_Fire = true;

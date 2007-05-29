@@ -23,7 +23,7 @@ static ConfVar* FromLuaType(lua_State *L, parent_t *parent, key_t key)
 	case LUA_TNUMBER:
 		result = parent->GetVar(key, ConfVar::typeNumber).first;
 		break;
-	case LUA_TTABLE:     
+	case LUA_TTABLE:
 		result = parent->GetVar(key, lua_objlen(L,-1) ? ConfVar::typeArray : ConfVar::typeTable).first;
 		break;
 	default:
@@ -332,7 +332,7 @@ std::pair<ConfVar*, bool> ConfVarArray::GetVar(size_t index, ConfVar::Type type)
 
 		if( warn )
 		{
-			g_console->printf("WARNING: changing type of element with index %u from %s to %s\n", 
+			g_console->printf("WARNING: changing type of element with index %u from %s to %s\n",
 				index, typeName, result.first->GetTypeName() );
 		}
 	}
@@ -543,7 +543,7 @@ ConfVarTable::ConfVarTable()
 ConfVarTable::~ConfVarTable()
 {
 	_ASSERT( typeTable == _type );
-	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin(); 
+	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 	     _val.asTable->end() != it; ++it )
 	{
 		delete it->second;
@@ -589,7 +589,7 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const char *name, ConfVar::Type t
 
 		if( warn )
 		{
-			g_console->printf("WARNING: changing type of variable '%s' from %s to %s\n", 
+			g_console->printf("WARNING: changing type of variable '%s' from %s to %s\n",
 				name, typeName, result.first->GetTypeName() );
 		}
 	}
@@ -672,7 +672,7 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 	if( level ) fprintf(file, "{\n");
 
 	bool delim = false;
-	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin(); 
+	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin();
 	     _val.asTable->end() != it; ++it )
 	{
 		if( level )

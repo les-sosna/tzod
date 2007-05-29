@@ -231,7 +231,7 @@ void NewGameDlg::RefreshPlayersList()
 		_players->SetItemText(index, 2, OPT(dm_pdPlayers)[i].cls);
 
 		char s[16];
-		if( 0 != OPT(dm_pdPlayers)[i].team ) 
+		if( 0 != OPT(dm_pdPlayers)[i].team )
 			wsprintf(s, "%d", OPT(dm_pdPlayers)[i].team);
 		else wsprintf(s, "[нет]");
 
@@ -501,7 +501,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
         val.first = lua_tostring(L, -2);
 		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
 		_classesNames.push_back(val);
-		
+
 		int index = _classesCombo->GetList()->AddItem(val.first.c_str());
 		if( val.first == _playerDesc.cls )
 		{

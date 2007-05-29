@@ -52,7 +52,7 @@ public:
 	void SetCurSel(int sel, bool scroll = false);
 
 	int  HitTest(float y); // returns index of item
-	
+
 	float GetNumLinesVisible() const;
 	void ScrollTo(float pos);
 

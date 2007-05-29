@@ -315,7 +315,7 @@ public:
 
 	// использовать флаг guard=false можно только в том случае,
 	// если подписчик гарантировано живет дольше, чем источник события
-	void Subscribe(NotyfyType type, GC_Object *subscriber, 
+	void Subscribe(NotyfyType type, GC_Object *subscriber,
 		NOTIFYPROC handler, bool once = true, bool guard = true);
 	void Unsubscribe(GC_Object *subscriber);
 	bool IsSubscriber(const GC_Object *object) const;

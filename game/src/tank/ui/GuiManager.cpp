@@ -71,7 +71,7 @@ void GuiManager::Remove(UI::Window* wnd)
 
 			// and finaly try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			if( !tmp || (tmp->IsVisible() && tmp->IsEnabled() 
+			if( !tmp || (tmp->IsVisible() && tmp->IsEnabled()
 				&& !tmp->IsDestroyed() && SetFocusWnd(tmp)) )
 			{
 				break;
@@ -290,7 +290,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 		wnd->Release();
 		return msgProcessed;
 	}
-	
+
 	return false;
 }
 

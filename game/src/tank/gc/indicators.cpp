@@ -267,11 +267,11 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 
 	_object = object;
 	///////////////////////
-	_object->Subscribe(NOTIFY_OBJECT_KILL, this, 
+	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);
-	_object->Subscribe(NOTIFY_OBJECT_MOVE, this, 
+	_object->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
-	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this, 
+	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 	//
 //	OnUpdate(this, object, NULL);

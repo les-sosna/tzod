@@ -143,7 +143,7 @@ void Edit::Draw(float sx, float sy)
 
 //	_blankText->SetText(_string);
 //	_blankText->Show
-    
+
 }
 
 bool Edit::OnFocus(bool focus)

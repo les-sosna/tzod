@@ -219,8 +219,8 @@ void GC_Camera::Select()
 	}
 
 	g_render->Camera((float) g_env.camera_x,
-	                 (float) g_env.camera_y, 
-					 _zoom, 
+	                 (float) g_env.camera_y,
+					 _zoom,
 					 _angle_current);
 }
 
@@ -333,7 +333,7 @@ void GC_Camera::UpdateLayout()
 			else
 				tmp->Activate(g_level->_modeEditor);
 
-			if( tmp->IsActive() ) 
+			if( tmp->IsActive() )
 				++active_count;
 		}
 	} ENUM_END();
@@ -1171,9 +1171,9 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic
 	_victim = pVictim;
 	_owner  = pOwner;
 
-	_victim->Subscribe(NOTIFY_OBJECT_MOVE, this, 
+	_victim->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);
-	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, 
+	_victim->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimKill, true);
 
 	MoveTo(_victim->_pos);
