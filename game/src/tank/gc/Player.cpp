@@ -174,19 +174,15 @@ void GC_Player::Respawn()
 	new GC_Text_ToolTip(pBestPoint->_pos, _name.c_str(), "font_default");
 
 
-	if( OPT(bParticles) )
+	if( !dynamic_cast<AIController*>(_controller) )
 	{
-		if( !dynamic_cast<AIController*>(_controller) )
+		static const TextureCache tex1("particle_1");
+		for( int n = 0; n < 64; ++n )
 		{
-			static const TextureCache tex1("particle_1");
-			for( int n = 0; n < 64; ++n )
-			{
-				vec2d a(PI2 * (float) n / 64);
-				new GC_Particle(pBestPoint->_pos + a * 28, a * 28, tex1, frand(0.5f) + 0.1f);
-			}
+			vec2d a(PI2 * (float) n / 64);
+			new GC_Particle(pBestPoint->_pos + a * 28, a * 28, tex1, frand(0.5f) + 0.1f);
 		}
 	}
-
 
 	_vehicle = new GC_Tank_Light(pBestPoint->_pos, pBestPoint->GetRotation(), this);
 	_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,

@@ -186,7 +186,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 
 	SetHealthCur(GetHealth() - dd.damage);
 
-	if( OPT(bDamageLabel) )
+	if( g_conf.g_showdamage->Get() )
 	{
 		if( _damLabel )
 			_damLabel->Reset();

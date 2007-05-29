@@ -1,6 +1,4 @@
 // Rotator.cpp: implementation of the Rotator class.
-//
-//////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "rotator.h"

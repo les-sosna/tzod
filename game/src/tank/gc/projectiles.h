@@ -39,7 +39,7 @@ protected:
 	vec2d _velocity;
 
 public:
-	float _Damage;
+	float _damage;
 
 	GC_Projectile(GC_RigidBodyStatic *pProprietor, bool advanced,
 		bool bTrail, const vec2d &pos, const vec2d &v, const char *texture);

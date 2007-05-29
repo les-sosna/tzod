@@ -185,7 +185,7 @@ public:
 	virtual ~GC_Explosion();
 
 
-	float _Damage;
+	float _damage;
 	float _DamRadius;
 
 	void Boom(float radius, float damage);

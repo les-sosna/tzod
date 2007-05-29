@@ -6,6 +6,8 @@
 #include "fs/FileSystem.h"
 #include "core/Console.h"
 
+#include "Editor.h"
+
 ENVIRONMENT g_env;
 
 LPDIRECTINPUTDEVICE8  g_pKeyboard = NULL;
@@ -25,5 +27,7 @@ TextureManager *g_texman = NULL;
 SafePtr<IFileSystem> g_fs;
 
 ConsoleBuffer *g_console = NULL;
+
+Editor *g_editor = NULL;
 
 // end of file

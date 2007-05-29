@@ -128,7 +128,7 @@ void GC_Projectile::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_2dSprite::Serialize(f);
 	/////////////////////////////////////
-	f.Serialize(_Damage);
+	f.Serialize(_damage);
 	f.Serialize(_trailDensity);
 	f.Serialize(_trailPath);
 	f.Serialize(_velocity);
@@ -219,7 +219,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 					 GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_rocket")
 {
-	_Damage = DAMAGE_ROCKET_AK47;
+	_damage = DAMAGE_ROCKET_AK47;
 	_trailDensity = 1.5f;
 
 	_time = 0.0f;
@@ -297,7 +297,7 @@ void GC_Rocket::Serialize(SaveFile &f)
 
 bool GC_Rocket::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 {
-	(new GC_Boom_Standard(hit + norm, GetRawPtr(_proprietor)))->_Damage = _Damage;
+	(new GC_Boom_Standard(hit + norm, GetRawPtr(_proprietor)))->_damage = _damage;
 	return true;
 }
 
@@ -371,7 +371,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Bullet)
 GC_Bullet::GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, /*"projectile_bullet"*/ NULL)
 {
-	_Damage = DAMAGE_BULLET;
+	_damage = DAMAGE_BULLET;
 	_trailDensity = 5.0f;
 
 	_path = 0;
@@ -399,19 +399,18 @@ bool GC_Bullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 {
 	static TextureCache tex("particle_trace");
 
-	if (g_options.bParticles)
+	//
+	// spawn particles
+	//
+	float n = norm.Angle();
+	float a1 = n - 1.4f;
+	float a2 = n + 1.4f;
+	for( int i = 0; i < 7; ++i )
 	{
-		float n = norm.Angle();
-
-		float a1 = n - 1.4f;
-		float a2 = n + 1.4f;
-
-		for(int n = 0; n < 7; n++)
-		{
-			float a = a1 + frand(a2 - a1);
-			new GC_Particle(hit, vec2d(a) * (frand(50.0f) + 50.0f), tex, frand(0.1f) + 0.03f, a);
-		}
+		float a = a1 + frand(a2 - a1);
+		new GC_Particle(hit, vec2d(a) * (frand(50.0f) + 50.0f), tex, frand(0.1f) + 0.03f, a);
 	}
+
 
 	GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
 	pLight->MoveTo(hit);
@@ -423,7 +422,7 @@ bool GC_Bullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	// кваженый патрон не повреждает хозяина
 //	if( !(IsAdvanced() && (object == _proprietor)) )
 	{
-		((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+		((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 	}
 
 	return true;
@@ -459,7 +458,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TankBullet)
 GC_TankBullet::GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_cannon")
 {
-	_Damage        = DAMAGE_TANKBULLET;
+	_damage        = DAMAGE_TANKBULLET;
 	_trailDensity = 5.0f;
 	_light->Enable(advanced);
 	PLAY(SND_Shoot, _pos);
@@ -472,10 +471,10 @@ bool GC_TankBullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
-		dyn->ApplyImpulse(-norm * (_Damage / DAMAGE_GAUSS) * 100, hit);
+		dyn->ApplyImpulse(-norm * (_damage / DAMAGE_GAUSS) * 100, hit);
 	}
 
-	((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 
 	if( IsAdvanced() )
 	{
@@ -485,19 +484,13 @@ bool GC_TankBullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	}
 	else
 	{
-		if( g_options.bParticles )
+		float a = norm.Angle();
+		float a1 = a - 1.4f;
+		float a2 = a + 1.4f;
+		for( int n = 0; n < 9; n++ )
 		{
-			float a = norm.Angle();
-
-			float a1 = a - 1.4f;
-			float a2 = a + 1.4f;
-
-			for( int n = 0; n < 9; n++ )
-			{
-				float a = a1 + frand(a2 - a1);
-				new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f),
-					tex1, frand(0.2f) + 0.05f, a);
-			}
+			float a = a1 + frand(a2 - a1);
+			new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
 		}
 
 		GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -542,7 +535,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlazmaClod)
 GC_PlazmaClod::GC_PlazmaClod(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_plazma")
 {
-	_Damage        = DAMAGE_PLAZMA;
+	_damage        = DAMAGE_PLAZMA;
 	_trailDensity = 4.0f;
 
 	PLAY(SND_PlazmaFire, _pos);
@@ -560,21 +553,15 @@ bool GC_PlazmaClod::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	}
 
 
-	((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 
-	if( g_options.bParticles )
+	float a = norm.Angle();
+	float a1 = a - 1.5f;
+	float a2 = a + 1.5f;
+	for( int n = 0; n < 15; n++ )
 	{
-		float a = norm.Angle();
-
-		float a1 = a - 1.5f;
-		float a2 = a + 1.5f;
-
-		for( int n = 0; n < 15; n++ )
-		{
-			float a = a1 + frand(a2 - a1);
-			new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f),
-				tex1, frand(0.2f) + 0.05f, a);
-		}
+		float a = a1 + frand(a2 - a1);
+		new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
 	}
 
 	GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -607,7 +594,7 @@ GC_BfgCore::GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* Spawn
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_bfg")
 {
 	_time = 0;
-	_Damage = DAMAGE_BFGCORE;
+	_damage = DAMAGE_BFGCORE;
 	PLAY(SND_BfgFire, _pos);
 	_trailDensity = 2.5f;
 
@@ -669,21 +656,16 @@ bool GC_BfgCore::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	static TextureCache tex1("particle_green");
 	static TextureCache tex2("explosion_g");
 
-	((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 
-	if (g_options.bParticles)
+	float a = norm.Angle();
+	float a1 = a - 1.4f;
+	float a2 = a + 1.4f;
+	for(int n = 0; n < 64; n++)
 	{
-		float a = norm.Angle();
-
-		float a1 = a - 1.4f;
-		float a2 = a + 1.4f;
-
-		for(int n = 0; n < 64; n++)
-		{
-			//ring
-			new GC_Particle(hit, vec2d(a1 + frand(a2 - a1)) * (frand(100.0f) + 50.0f),
-							tex1, frand(0.3f) + 0.15f);
-		}
+		//ring
+		new GC_Particle(hit, vec2d(a1 + frand(a2 - a1)) * (frand(100.0f) + 50.0f),
+						tex1, frand(0.3f) + 0.15f);
 	}
 
 
@@ -728,7 +710,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			if( damage > 0 && !(IsAdvanced() && pVehicle == _proprietor) )
 			{
 				vec2d d = (_pos - pVehicle->_pos).Normalize() + net_vrand(1.0f);
-				pVehicle->TakeDamage(damage * _Damage * dt,
+				pVehicle->TakeDamage(damage * _damage * dt,
 					pVehicle->_pos + d, GetRawPtr(_proprietor));
 			}
 		}
@@ -782,7 +764,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ACBullet)
 GC_ACBullet::GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_ac")
 {
-	_Damage = DAMAGE_ACBULLET;
+	_damage = DAMAGE_ACBULLET;
 	_trailDensity = 5;
 	_light->SetRadius(30);
 	_light->SetIntensity(0.6f);
@@ -814,21 +796,17 @@ bool GC_ACBullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 		PLAY(SND_AC_Hit1, hit);
 	}
 
-	((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 
-	if (g_options.bParticles)
+
+	float a = norm.Angle();
+	float a1 = a - 1.0f;
+	float a2 = a + 1.0f;
+	for(int i = 0; i < 12; i++)
 	{
-		float a = norm.Angle();
-
-		float a1 = a - 1.0f;
-		float a2 = a + 1.0f;
-
-		for(int i = 0; i < 12; i++)
-		{
-			float ang = a1 + frand(a2 - a1);
-			new GC_Particle(hit, vec2d(ang) * frand(300.0f),
-				tex, frand(0.05f) + 0.05f, ang);
-		}
+		float ang = a1 + frand(a2 - a1);
+		new GC_Particle(hit, vec2d(ang) * frand(300.0f),
+			tex, frand(0.05f) + 0.05f, ang);
 	}
 
 
@@ -858,7 +836,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_GaussRay)
 GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, NULL)
 {
-	_Damage = DAMAGE_GAUSS;
+	_damage = DAMAGE_GAUSS;
 	_trailDensity = 16.0f;
 
 	PLAY(SND_Bolt, _pos);
@@ -908,17 +886,16 @@ bool GC_GaussRay::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
-		dyn->ApplyImpulse(-norm * (_Damage / DAMAGE_GAUSS) * 100, hit);
+		dyn->ApplyImpulse(-norm * (_damage / DAMAGE_GAUSS) * 100, hit);
 	}
 
-	((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 
-	if (g_options.bParticles)
-		(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, norm.Angle() + PI*0.5f))->SetFade(true);;
+	(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, norm.Angle() + PI*0.5f))->SetFade(true);;
 
-	_Damage -= IsAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE;
+	_damage -= IsAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE;
 
-	return (0 >= _Damage);
+	return (0 >= _damage);
 }
 
 void GC_GaussRay::Kill()
@@ -938,7 +915,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Disk)
 GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 : GC_Projectile((GC_RigidBodyStatic *) NULL, false, FALSE, pRipper->_pos, vec2d(0, 0), "projectile_disk")
 {
-	_Damage = 0;
+	_damage = 0;
 
 	_time = net_frand(1.0f);
 
@@ -955,7 +932,7 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_disk")
 {
-	_Damage = net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f);
+	_damage = net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f);
 	_trailDensity = 5.0f;
 
 	_time = net_frand(1.0f);
@@ -996,24 +973,21 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	//	if( !IsAdvanced() )
 		{
 			((GC_RigidBodyStatic*) object)->TakeDamage(
-				_Damage * 0.5f, hit, GetRawPtr(_proprietor));
+				_damage * 0.5f, hit, GetRawPtr(_proprietor));
 		}
 	}
 	else
-		((GC_RigidBodyStatic*) object)->TakeDamage(_Damage, hit, GetRawPtr(_proprietor));
+		((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_proprietor));
 	_velocity -= norm * 2 * (_velocity * norm);
 	MoveTo(hit + norm, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
-	if( g_options.bParticles )
+	for( int i = 0; i < 11; ++i )
 	{
-		for( int i = 0; i < 15; ++i )
-		{
-			vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
-			new GC_Particle(hit, v,	tex1, frand(0.2f) + 0.02f, v.Angle());
-		}
+		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
+		new GC_Particle(hit, v,	tex1, frand(0.2f) + 0.02f, v.Angle());
 	}
 
-	_Damage -= DAMAGE_DISK_FADE;
-	if( _Damage <= 0 )
+	_damage -= DAMAGE_DISK_FADE;
+	if( _damage <= 0 )
 	{
 		float a = norm.Angle();
 
@@ -1026,8 +1000,7 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 				GetRawPtr(_proprietor), IsAdvanced()))->SetIgnoreProprietor(false);
 		}
 
-		if( OPT(bParticles) )
-			(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetRotation(frand(PI2));
+		(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetRotation(frand(PI2));
 
 		GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
 		pLight->MoveTo(hit);

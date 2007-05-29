@@ -779,7 +779,7 @@ GC_Explosion::GC_Explosion(GC_RigidBodyStatic *pProprietor) : GC_2dSprite()
 	_time_life = 0.5f;
 	_time_boom = 0;
 
-	_Damage = 1;
+	_damage = 1;
 	_DamRadius = 32;
 
 	SetRotation(frand(PI2));
@@ -813,7 +813,7 @@ void GC_Explosion::Serialize(SaveFile &f)
 	GC_2dSprite::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_boomOK);
-	f.Serialize(_Damage);
+	f.Serialize(_damage);
 	f.Serialize(_DamRadius);
 	f.Serialize(_time);
 	f.Serialize(_time_boom);
@@ -1014,7 +1014,7 @@ void GC_Explosion::TimeStepFixed(float dt)
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )
-		Boom(_DamRadius, _Damage);
+		Boom(_DamRadius, _damage);
 
 	if( _time >= _time_life )
 	{
@@ -1047,7 +1047,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *pPropri
 	static const TextureCache tex3("smallblast");
 
 	_DamRadius = 70;
-	_Damage    = 150;
+	_damage    = 150;
 
 	_time_life = 0.32f;
 	_time_boom = 0.03f;
@@ -1105,7 +1105,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC
 	static const TextureCache tex6("bigblast");
 
 	_DamRadius = 128;
-	_Damage    = 90;
+	_damage    = 90;
 
 	_time_life = 0.72f;
 	_time_boom = 0.10f;

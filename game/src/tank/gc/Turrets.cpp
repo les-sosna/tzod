@@ -387,7 +387,7 @@ void GC_Turret_Rocket::Fire()
 	{
 		vec2d a(_dir);
 		(new GC_Rocket(	_pos + a * 25.0f, a * SPEED_ROCKET,
-				this, true ) )->_Damage = net_frand(10.0f) + 35.0f;
+				this, true ) )->_damage = net_frand(10.0f) + 35.0f;
 		_time_reload = TURET_ROCKET_RELOAD;
 	}
 }
@@ -453,7 +453,7 @@ void GC_Turret_Cannon::Fire()
 	{
 		vec2d a(_dir);
 		(new GC_TankBullet(	_pos + a * 31.9f, a * SPEED_TANKBULLET + net_vrand(40),
-					this, false ) )->_Damage = net_frand(10.0f) + 5.0f;
+					this, false ) )->_damage = net_frand(10.0f) + 5.0f;
 		_time_reload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}

@@ -144,14 +144,11 @@ void GC_PickUp::Respawn()
 	Show(true);
 	PLAY(SND_puRespawn, _pos);
 
-	if( OPT(bParticles) )
+	static const TextureCache tex1("particle_1");
+	for( int n = 0; n < 50; ++n )
 	{
-		static const TextureCache tex1("particle_1");
-		for( int n = 0; n < 50; ++n )
-		{
-			vec2d a(PI2 * (float) n / 50);
-			new GC_Particle(_pos + a * 25, a * 25, tex1, frand(0.5f) + 0.1f);
-		}
+		vec2d a(PI2 * (float) n / 50);
+		new GC_Particle(_pos + a * 25, a * 25, tex1, frand(0.5f) + 0.1f);
 	}
 }
 
@@ -1519,22 +1516,17 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if (!_bAttached) return;
+	if( !_bAttached ) return;
 
-	if (_time_smoke > 0)
+	if( _time_smoke > 0 )
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
 
-		for ( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f)
+		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			if (g_options.bParticles)
-			{
-				vec2d a(_proprietor->_angle + _angle);
-
-				new GC_Particle(_pos + a * 26.0f, SPEED_SMOKE + a * 50.0f,
-					tex, frand(0.3f) + 0.2f);
-			}
+			vec2d a(_proprietor->_angle + _angle);
+			new GC_Particle(_pos + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
 		}
 	}
 }
@@ -2262,13 +2254,6 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 				new GC_Bullet(_proprietor->_pos + a * 18.0f, a * SPEED_BULLET,
 					GetRawPtr(_proprietor), _advanced );
-
-				if( OPT(bParticles) )
-				{
-					float v = 400 + frand(400);
-					new GC_Particle(_proprietor->_pos + a * 18.0f,
-						a * v + _proprietor->_lv, tex, frand(0.06f) + 0.03f);
-				}
 
 				if( !_advanced )
 				{

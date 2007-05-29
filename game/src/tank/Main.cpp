@@ -7,28 +7,24 @@
 #include "options.h"
 #include "directx.h"
 
+#include "Editor.h"
+
 #include "config/Config.h"
 
 #include "core/debug.h"
 #include "core/Console.h"
-
-#include "network/datablock.h"
-#include "network/TankClient.h"
 
 #include "video/TextureManager.h"
 #include "video/RenderBase.h"
 
 #include "ui/Interface.h"
 #include "ui/GuiManager.h"
-#include "ui/gui.h"
 #include "ui/gui_desktop.h"
 
 #include "gc/GameClasses.h"
 #include "gc/Sound.h"
 #include "gc/Editor.h"
-#include "gc/Player.h"
 #include "gc/RigidBody.h"
-#include "gc/Indicators.h"
 
 #include "fs/FileSystem.h"
 
@@ -71,7 +67,7 @@ static void OnPrintScreen()
 	if ( !g_render->TakeScreenshot(name) )
 	{
 		TRACE("ERROR: take screenshot failed\n");
-		_MessageArea::Inst()->message("> ошибка!");
+//		_MessageArea::Inst()->message("> ошибка!");
 	}
 	else
 	{
@@ -276,10 +272,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// create the console buffer
 	g_console = new ConsoleBuffer(96, 512);
 
-
-	//
     // print UNIX-style date and time
-	//
 	time_t ltime;
 	char timebuf[26];
     time( &ltime );
@@ -319,6 +312,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	OPT(players)[MAX_HUMANS].bAI = TRUE;
 
 	GC_Sound::_countMax = g_conf.s_maxchanels->GetInt();
+
+
+	//
+	// init editor
+	//
+
+	g_editor = new Editor();
+
 
 
 
@@ -526,6 +527,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
 
+	// editor
+	SAFE_DELETE(g_editor);
+
+	// config
 	g_config->Save(FILE_CONFIG);
 	SAFE_DELETE(g_config);
 

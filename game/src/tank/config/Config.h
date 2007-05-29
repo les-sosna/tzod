@@ -75,6 +75,10 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
 	CONFIG_VAR_INT( s_maxchanels,            16 );
 
+	// game
+	CONFIG_VAR_BOOL( g_showdamage,        false );
+
+
 	// editor
 	CONFIG_VAR_BOOL( ed_drawgrid,          true );
 	CONFIG_VAR_BOOL( ed_uselayers,        false );

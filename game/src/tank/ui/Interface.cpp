@@ -1875,9 +1875,9 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				break;
 			case IDOK:
 				g_options.bParticles      = GETCHECK(IDC_CHK_PARTICLES);
-				g_options.bDamageLabel    = GETCHECK(IDC_CHK_DAMLABEL);
-				g_conf.ui_showfps->Set( GETCHECK(IDC_CHK_FPS) );
-				g_conf.ui_showtime->Set( GETCHECK(IDC_CHK_TIMER) );
+				g_conf.g_showdamage->Set( GETCHECK(IDC_CHK_DAMLABEL) );
+				g_conf.ui_showfps->Set(   GETCHECK(IDC_CHK_FPS)      );
+				g_conf.ui_showtime->Set(  GETCHECK(IDC_CHK_TIMER)    );
 				g_conf.r_askformode->Set( GETCHECK(IDC_CHK_SHOWSELECTMODE) );
 				//-------------------------------
 				g_conf.s_maxchanels->SetInt(GetDlgItemInt(hDlg, IDC_MAXSOUNDS, NULL, FALSE));
@@ -1978,7 +1978,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		// основные
 
 		SETCHECK(IDC_CHK_PARTICLES, g_options.bParticles);
-		SETCHECK(IDC_CHK_DAMLABEL,  g_options.bDamageLabel);
+		SETCHECK(IDC_CHK_DAMLABEL,  g_conf.g_showdamage->Get());
 		SETCHECK(IDC_CHK_FPS,       g_conf.ui_showfps->Get());
 		SETCHECK(IDC_CHK_TIMER,     g_conf.ui_showtime->Get());
 		SETCHECK(IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->Get());
