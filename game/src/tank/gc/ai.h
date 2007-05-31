@@ -47,19 +47,19 @@ class CAttackList
 
 protected:
 	tagAttackNode* FindObject(GC_RigidBodyStatic *object);
-	void RemoveFromList(tagAttackNode *pNode);			// удалить цель из списка
+	void RemoveFromList(tagAttackNode *pNode);  // удалить цель из списка
 
 public:
 	CAttackList();
 	CAttackList(CAttackList &al);
 	virtual ~CAttackList();
 
-	GC_RigidBodyStatic* Pop(BOOL bRemoveFromList = TRUE);	// извлечь цель из начала списка
-	void PushToBegin(GC_RigidBodyStatic *target);			// поместить цель в начало списка
-	void PushToEnd  (GC_RigidBodyStatic *target);			// поместить цель в конец  списка
+	GC_RigidBodyStatic* Pop(BOOL bRemoveFromList = TRUE);  // извлечь цель из начала списка
+	void PushToBegin(GC_RigidBodyStatic *target);          // поместить цель в начало списка
+	void PushToEnd  (GC_RigidBodyStatic *target);          // поместить цель в конец  списка
 
-	void Clean();									// освободить все убитые объекты
-	void ClearList() { while (!IsEmpty()) Pop(); }	// очистить список
+	void Clean();                                   // освободить все убитые объекты
+	void ClearList() { while (!IsEmpty()) Pop(); }  // очистить список
 
 	inline BOOL IsEmpty() {return (NULL == _firstTarget);}
 
@@ -97,8 +97,8 @@ class AIController : public CController
 	// текущий путь
 	//
 
-	std::list<PathNode> _path;	// список узлов
-	CAttackList  _AttackList;	// список атаки
+	std::list<PathNode> _path;  // список узлов
+	CAttackList  _AttackList;   // список атаки
 
 
 
@@ -141,23 +141,23 @@ class AIController : public CController
 	// состояния ИИ
 	enum aiState_l2
 	{
-		L2_PATH_SELECT,		// бесцельно слоняемся по уровню
-		L2_PICKUP,			// едем за предметом
-		L2_ATTACK,			// преследуем и, если возможно, атакуем цель
+		L2_PATH_SELECT,   // бесцельно слоняемся по уровню
+		L2_PICKUP,        // едем за предметом
+		L2_ATTACK,        // преследуем и, если возможно, атакуем цель
 	} _aiState_l2;
 
 	// сообщение верхнему уровню
 	enum aiState_l1
 	{
-		L1_NONE,				// все идет по плану
-		L1_PATH_END,			// достигнут конец пути
-		L1_STICK,				// застряли
+		L1_NONE,           // все идет по плану
+		L1_PATH_END,       // достигнут конец пути
+		L1_STICK,          // застряли
 	} _aiState_l1;
 
 protected:
 	SafePtr<GC_PickUp> _pickupCurrent;
-	GC_RigidBodyStatic* _target;	// текущая цель
-	AIWEAPSETTINGS _weapSettings;  // настроики оружия
+	GC_RigidBodyStatic* _target;  // текущая цель
+	AIWEAPSETTINGS _weapSettings; // настроики оружия
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
 	void LockTarget(GC_RigidBodyStatic *target);
@@ -185,8 +185,8 @@ protected:
 
 	void ProcessAction();
 
-	void SetL1(AIController::aiState_l1 new_state);	// переключене состояния l1
-	void SetL2(AIController::aiState_l2 new_state);	// переключене состояния l2
+	void SetL1(AIController::aiState_l1 new_state); // переключене состояния l1
+	void SetL2(AIController::aiState_l2 new_state); // переключене состояния l2
 
 	void SelectState();
 	void DoState(VehicleState *pVehState);
@@ -195,7 +195,7 @@ public:
 	AIController(GC_Player *pPlayer);
 	virtual ~AIController();
 
-	virtual void Reset();	// сброс состояния, освобождение всех ссылок
+	virtual void Reset(); // сброс состояния, освобождение всех ссылок
 	virtual void OnPlayerRespawn();
 	virtual void OnPlayerDie();
 

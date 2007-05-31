@@ -56,18 +56,18 @@ GC_Vehicle* GC_PickUp::CheckPickUp()
 {
 	float r_sq = getRadius() * getRadius();
 
-	ENUM_BEGIN(vehicles, GC_Vehicle, pVehicle)
+	FOREACH( vehicles, GC_Vehicle, pVehicle )
 	{
-		if (!pVehicle->IsKilled())
+		if( !pVehicle->IsKilled() )
 		{
-			if (r_sq >  (_pos.x - pVehicle->_pos.x) * (_pos.x - pVehicle->_pos.x) +
+			if( r_sq >  (_pos.x - pVehicle->_pos.x) * (_pos.x - pVehicle->_pos.x) +
 					(_pos.y - pVehicle->_pos.y) * (_pos.y - pVehicle->_pos.y) )
 			{
-				if (!_bMostBeAllowed || pVehicle->_state._bState_AllowDrop)
+				if( !_bMostBeAllowed || pVehicle->_state._bState_AllowDrop )
 					return pVehicle;
 			}
 		}
-	} ENUM_END();
+	}
 
 	return NULL;
 }
@@ -563,19 +563,19 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(GC_Vehicle *pIgnore)
 	float dist;
 
 	GC_Vehicle *pNearTarget = NULL;
-	ENUM_BEGIN(vehicles, GC_Vehicle, pTargetObj)
+	FOREACH( vehicles, GC_Vehicle, pTargetObj )
 	{
-		if ( !pTargetObj->IsKilled() && pTargetObj != pIgnore)
+		if( !pTargetObj->IsKilled() && pTargetObj != pIgnore )
 		{
 			// расстояние до объекта
 			dist = (_pos - pTargetObj->_pos).Length();
 
-			if (dist < min_dist)
+			if( dist < min_dist )
 			{
 				GC_RigidBodyStatic *pObstacle = g_level->agTrace(
 					g_level->grid_rigid_s, GetRawPtr(_vehicle), _pos, pTargetObj->_pos - _pos);
 
-				if ( pObstacle == pTargetObj )
+				if( pObstacle == pTargetObj )
 				{
 					// трассировка уперлась в целевой объект. запомним его.
 					pNearTarget = pTargetObj;
@@ -583,7 +583,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(GC_Vehicle *pIgnore)
 				}
 			}
 		}
-	} ENUM_END();
+	}
 
 	return pNearTarget;
 }
@@ -689,7 +689,7 @@ void GC_pu_Booster::Serialize(SaveFile &f)
 
 AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *pVehicle)
 {
-	if (!pVehicle->_weapon)
+	if( !pVehicle->_weapon )
 	{
 		return AIP_NOTREQUIRED;
 	}
@@ -713,16 +713,16 @@ void GC_pu_Booster::GiveIt(GC_Vehicle* pVehicle)		//return true  -  respawn
 
 	if( _weapon->GetAdvanced() )
 	{
-		ENUM_BEGIN(pickups, GC_PickUp, ppu)
+		FOREACH( pickups, GC_PickUp, ppu )
 		{
 			if( ppu == this || ppu->GetType() != this_type ) continue;
 
-			if ( ((GC_pu_Booster *) ppu)->_weapon == _weapon )
+			if( ((GC_pu_Booster *) ppu)->_weapon == _weapon )
 			{
 				ppu->Kill();
 				break;
 			}
-		} ENUM_END();
+		}
 	}
 
 	_weapon->SetAdvanced(true);
@@ -744,8 +744,8 @@ GC_Vehicle* GC_pu_Booster::CheckPickUp()
 {
 	GC_Vehicle *pVehicle = GC_PickUp::CheckPickUp();
 
-	if (pVehicle)
-		if (!pVehicle->_state._bState_AllowDrop && !pVehicle->_weapon)
+	if( pVehicle )
+		if( !pVehicle->_state._bState_AllowDrop && !pVehicle->_weapon )
 			return NULL;
 
 	return pVehicle;
@@ -829,7 +829,7 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	GC_Weapon *pOldWeap = GetRawPtr(pVehicle->_weapon);
-	if (pOldWeap)
+	if( pOldWeap )
 	{
 		pVehicle->_weapon->Detach();
 		pOldWeap->Kill();
@@ -919,13 +919,13 @@ void GC_Weapon::ProcessRotate(float dt)
 		}
 		else
 		{
-			if (_proprietor->_state._bState_TowerCenter)
+			if( _proprietor->_state._bState_TowerCenter )
 				_rotator.rotate_to( 0.0f );
-			else if (_proprietor->_state._bState_TowerLeft)
+			else if( _proprietor->_state._bState_TowerLeft )
 				_rotator.rotate_left();
-			else if (_proprietor->_state._bState_TowerRight)
+			else if( _proprietor->_state._bState_TowerRight )
 				_rotator.rotate_right();
-			else if (RS_GETTING_ANGLE != _rotator.GetState())
+			else if( RS_GETTING_ANGLE != _rotator.GetState() )
 				_rotator.stop();
 		}
 		_rotator.setup_sound(GetRawPtr(_rotateSound));
@@ -1157,9 +1157,9 @@ void GC_Weap_RocketLauncher::Fire()
 	}
 	else
 	{
-		if (_firing)
+		if( _firing )
 		{
-			if (_time >= _time_shot)
+			if( _time >= _time_shot )
 			{
 				_nshots++;
 
@@ -1167,7 +1167,7 @@ void GC_Weap_RocketLauncher::Fire()
 				float dy = (((float)_nshots - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
 				_fePos.Set(13, dy);
 
-				if (_nshots == _nshots_total)
+				if( _nshots == _nshots_total )
 				{
 					_firing = false;
 					_nshots = 0;
@@ -1209,14 +1209,14 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 {
-	if (_bAttached)
+	if( _bAttached )
 	{
-		if (_firing)
+		if( _firing )
 			Fire();
-		else if (_time >= _time_reload && !_reloaded)
+		else if( _time >= _time_reload && !_reloaded )
 		{
 			_reloaded = true;
-			if (!_advanced) PLAY(SND_WeapReload, _pos);
+			if( !_advanced) PLAY(SND_WeapReload, _pos);
 		}
 	}
 
@@ -1282,7 +1282,7 @@ void GC_Weap_AutoCannon::Detach()
 	if (pIndicator) pIndicator->Kill();
 
 	// убиваем звук перезарядки
-	ENUM_BEGIN(sounds, GC_Sound, object)
+	FOREACH( sounds, GC_Sound, object )
 	{
 		if( GC_Sound_link::this_type == object->GetType() )
 		{
@@ -1292,7 +1292,7 @@ void GC_Weap_AutoCannon::Detach()
 				break;
 			}
 		}
-	} ENUM_END();
+	}
 
 	GC_Weapon::Detach();
 }
@@ -1356,7 +1356,7 @@ void GC_Weap_AutoCannon::Fire()
 				float dang = net_frand(0.02f) - 0.01f;
 				float dy = _nshots%2 == 0 ? -9.0f : 9.0f;
 
-				if (_nshots == _nshots_total)
+				if( _nshots == _nshots_total )
 				{
 					_firing = false;
 					new GC_Sound_link(SND_AC_Reload, SMODE_PLAY, this);
@@ -1395,7 +1395,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 {
-	if (_bAttached)
+	if( _bAttached )
 	{
 		if( _advanced )
 			_nshots  = 0;
@@ -1480,7 +1480,7 @@ void GC_Weap_Cannon::Serialize(SaveFile &f)
 
 void GC_Weap_Cannon::Fire()
 {
-	if (_bAttached && _time >= _time_reload)
+	if( _bAttached && _time >= _time_reload )
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
@@ -1646,7 +1646,7 @@ GC_PickUp* GC_Weap_Gauss::SetRespawn()
 
 void GC_Weap_Gauss::Fire()
 {
-	if (_bAttached && _time >= _time_reload)
+	if( _bAttached && _time >= _time_reload )
 	{
 		float s = sinf(_proprietor->_angle + _angle);
 		float c = cosf(_proprietor->_angle + _angle);
@@ -1695,7 +1695,7 @@ GC_Weap_Ram::GC_Weap_Ram(float x, float y) : GC_Weapon(x, y)
 void GC_Weap_Ram::SetAdvanced(bool advanced)
 {
 	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(this, LOCATION_BOTTOM);
-	if (pIndicator) pIndicator->Show(!advanced);
+	if( pIndicator ) pIndicator->Show(!advanced);
 
 	if( _proprietor )
 	{
@@ -1746,7 +1746,7 @@ return;
 void GC_Weap_Ram::Detach()
 {
 	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(this, LOCATION_BOTTOM);
-	if (pIndicator) pIndicator->Kill();
+	if( pIndicator ) pIndicator->Kill();
 
 	SAFE_KILL(_engineSound);
 	SAFE_KILL(_engineLight);
@@ -1837,7 +1837,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_engineSound->MoveTo(_pos);
 
 			_fuel = __max(0, _fuel - _fuel_rate * dt);
-			if (0 == _fuel) _bReady = false;
+			if( 0 == _fuel ) _bReady = false;
 
 
 			vec2d v = _proprietor->_lv;
@@ -1857,7 +1857,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 						hit, GetRawPtr(_proprietor));
 				}
 
-				for (int i = 0; i < 29; i++)
+				for( int i = 0; i < 29; ++i )
 				{
 					float time = frand(0.05f) + 0.02f;
 					float t = (frand(1.0f) - 0.5f) * 6.0f;
@@ -1869,7 +1869,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			}
 
 			// боковые струи
-			for (float l = -1; l < 2; l += 2)
+			for( float l = -1; l < 2; l += 2 )
 			{
 				const float lenght = 50.0f;
 				vec2d a(_proprietor->_angle + _angle + l * 0.15f);
@@ -2078,7 +2078,7 @@ GC_PickUp* GC_Weap_Ripper::SetRespawn()
 
 void GC_Weap_Ripper::Fire()
 {
-	if (_bAttached && _time >= _time_reload)
+	if( _bAttached && _time >= _time_reload )
 	{
 		vec2d a(_proprietor->_angle + _angle);
 

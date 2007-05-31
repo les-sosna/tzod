@@ -447,9 +447,10 @@ bool Level::Unserialize(const char *fileName)
 		_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(sh.theme));
 
 
-		ENUM_BEGIN(players, GC_Player, pPlayer) {
+		FOREACH( players, GC_Player, pPlayer )
+		{
 			pPlayer->UpdateSkin();
-		} ENUM_END();
+		}
 
 		GC_Camera::SwitchEditor();
 		Pause(false);
@@ -492,12 +493,12 @@ bool Level::Serialize(const char *fileName)
 		// он не сохраняется. Чтобы устранить утечку памяти после загрузки
 		// уровня, необходимо принудительно освободить объекты
 
-		ENUM_BEGIN(players, GC_Player, pPlayer)
+		FOREACH( players, GC_Player, pPlayer )
 		{
-			if (pPlayer->IsKilled()) continue;
-			if (pPlayer->_controller)
+			if( pPlayer->IsKilled() ) continue;
+			if( pPlayer->_controller )
 				pPlayer->_controller->Reset();
-		} ENUM_END();
+		}
 
 
 		// сброс состояния редактора для освобождения занятых объектов
@@ -625,7 +626,7 @@ bool Level::Export(const char *fileName)
 	if( !file.Open(fileName, true) )
 		return false;
 
-	ENUM_BEGIN(objects, GC_Object, object)
+	FOREACH( objects, GC_Object, object )
 	{
 		if( object->IsKilled() ) continue;
 		if( GC_Editor::isRegistered(object->GetType()) )
@@ -634,7 +635,7 @@ bool Level::Export(const char *fileName)
 			object->mapExchange(file);
 			if( !file.WriteCurrentObject() ) return false;
 		}
-	} ENUM_END();
+	}
 
 
 	//
@@ -656,9 +657,9 @@ void Level::Pause(bool pause)
 
 	_paused = pause;
 
-	ENUM_BEGIN(sounds, GC_Sound, pSound) {
+	FOREACH( sounds, GC_Sound, pSound)  {
 		pSound->Freeze(pause);
-	} ENUM_END();
+	}
 }
 
 GC_2dSprite* Level::PickEdObject(const vec2d &pt)
@@ -774,13 +775,13 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 
 					//грубо
 					int sgn = 0, oldsgn = 0;
-					for (int n = 0; n < 4; n++)
+					for( int n = 0; n < 4; ++n )
 					{
 						float d = a.x * (m[n].y - x0.y) - a.y * (m[n].x - x0.x);
 
-						if (d < 0)
+						if( d < 0 )
 							sgn = -1;
-						else if (d > 0)
+						else if( d > 0 )
 							sgn = 1;
 						else
 						{
@@ -824,7 +825,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 							{
 								float len = (bx*(yb - x0.y) - by*(xb - x0.x)) / delta;
 
-								if (len >= 0 && len < minLen)
+								if( len >= 0 && len < minLen )
 								{
 									minLen = len;
 									pBestObject = object;
@@ -838,7 +839,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				}
 			}
 
-			if (curx == targx && cury == targy) break;
+			if( curx == targx && cury == targy ) break;
 
 			float d_min;
 			int   j_min = 0;
@@ -1032,11 +1033,10 @@ void Level::TimeStep(float dt)
 
 void Level::OnChangeVolume()
 {
-	ENUM_BEGIN(sounds, GC_Sound, pSound)
+	FOREACH( sounds, GC_Sound, pSound )
 	{
 		pSound->UpdateVolume();
 	}
-	ENUM_END();
 }
 
 

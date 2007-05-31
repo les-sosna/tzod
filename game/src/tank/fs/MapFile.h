@@ -29,11 +29,11 @@
 ////////////////////////////////////////////////////////////
 
 
-#define SIGNATURE(s) ( (unsigned long) (				\
-	((((unsigned long) (s)) & 0x000000ff) << 24)|		\
-	((((unsigned long) (s)) & 0x0000ff00) <<  8)|		\
-	((((unsigned long) (s)) & 0xff000000) >> 24)|		\
-	((((unsigned long) (s)) & 0x00ff0000) >>  8)   )	)
+#define SIGNATURE(s) ( (unsigned long) (                \
+	((((unsigned long) (s)) & 0x000000ff) << 24)|       \
+	((((unsigned long) (s)) & 0x0000ff00) <<  8)|       \
+	((((unsigned long) (s)) & 0xff000000) >> 24)|       \
+	((((unsigned long) (s)) & 0x00ff0000) >>  8)  ) )
 
 
 class MapFile
@@ -54,8 +54,8 @@ class MapFile
 	{
 		DATATYPE_INT    = 1,
 		DATATYPE_FLOAT  = 2,
-		DATATYPE_STRING = 3,	// max length is 0xffff
-		DATATYPE_RAW    = 4,	// max length is 0xffffffff
+		DATATYPE_STRING = 3,  // max length is 0xffff
+		DATATYPE_RAW    = 4,  // max length is 0xffffffff
 		//------------------
 		DATATYPE_FORCE32BIT = 0x7fffffff
 	};
@@ -129,7 +129,7 @@ private:
 	AttributeSet _mapAttrs;
 
 	std::vector<ObjectDefinition> _managed_classes;
-	std::map<string_t, size_t> _name_to_index;	// map classname to index in _managed_classes
+	std::map<string_t, size_t> _name_to_index; // map classname to index in _managed_classes
 
 	AttributeSet _obj_attrs;
 	size_t  _obj_type; // index in _managed_classes

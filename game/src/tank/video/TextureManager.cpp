@@ -312,7 +312,7 @@ int TextureManager::LoadPackage(const char* filename)
 								_LogicalTextures.push_back(tex);
 							}
 						} // end if( xframes > 0 && yframes > 0 )
-					} // end if (texname)
+					} // end if( texname )
 					lua_pop(L, 1); // remove copy of the key
 				} // end loop over 'content'
 			} // end if 'content' is table
@@ -491,14 +491,14 @@ bool ThemeManager::ApplyTheme(size_t index)
 		res = res && (g_texman->LoadPackage(filename.c_str()) > 0);
 	}
 
-	ENUM_BEGIN(objects, GC_Object, object)
+	FOREACH(objects, GC_Object, object)
 	{
 		GC_2dSprite *pSprite = dynamic_cast<GC_2dSprite*>(object);
 		if( pSprite && !pSprite->IsKilled() )
 		{
 			pSprite->UpdateTexture();
 		}
-	} ENUM_END();
+	}
 
 	return res;
 }

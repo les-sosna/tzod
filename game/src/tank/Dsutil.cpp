@@ -642,7 +642,7 @@ LPDIRECTSOUNDBUFFER CSound::GetFreeBuffer()
         {
             DWORD dwStatus = 0;
             _apDSBuffer[i]->GetStatus( &dwStatus );
-            if ( ( dwStatus & DSBSTATUS_PLAYING ) == 0 )
+            if( ( dwStatus & DSBSTATUS_PLAYING ) == 0 )
                 break;
         }
     }

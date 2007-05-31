@@ -13,11 +13,11 @@
 
 enum RotatorState
 {
-	RS_STOPPED,			// остановлен
-	RS_RIGHT,			// включен и поворачивается с ускорением +_accel_current
-	RS_LEFT,			// включен и поворачивается с ускорением -_accel_current
-	RS_DEACTIVATED,		// включен и останавливается с ускорением _accel_stop
-	RS_GETTING_ANGLE	// поворачивается на заданный угол
+	RS_STOPPED,         // остановлен
+	RS_RIGHT,           // включен и поворачивается с ускорением +_accel_current
+	RS_LEFT,            // включен и поворачивается с ускорением -_accel_current
+	RS_DEACTIVATED,     // включен и останавливается с ускорением _accel_stop
+	RS_GETTING_ANGLE    // поворачивается на заданный угол
 };
 
 // Rotator самостоятельно переключается в режим RS_STOPPED
@@ -60,7 +60,7 @@ public:
 	float getv() const { return _velocity_current; }
 
 
-	bool process_dt(float dt);	// return true if angle changes
+	bool process_dt(float dt);  // return true if angle changes
 
 
 	// управляющие команды

@@ -48,7 +48,7 @@ void GC_Brick_Fragment_01::TimeStepFloat(float dt)
 {
 	_time += dt;
 
-	if (_time >= _time_life * 0.5f)
+	if( _time >= _time_life * 0.5f )
 	{
 		Kill();
 		return;
@@ -124,7 +124,7 @@ void GC_Particle::TimeStepFloat(float dt)
 	_ASSERT(_time_life > 0);
 	_time += dt;
 
-	if (_time >= _time_life)
+	if( _time >= _time_life )
 	{
 		Kill();
 		return;

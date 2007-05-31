@@ -27,7 +27,7 @@ class TgaImageLoader : public ImageLoader
 {
 	struct TGAHeader
 	{
-		BYTE header[12];			// TGA file header
+		BYTE header[12];  // TGA file header
 	};
 	struct TGA
 	{

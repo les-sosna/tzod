@@ -200,8 +200,8 @@ void GC_Projectile::TimeStepFixed(float dt)
 	}
 	else MoveTo(_pos + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 
-	if ( _pos.x < 0 || _pos.x > g_level->_sx ||
-		 _pos.y < 0 || _pos.y > g_level->_sy )
+	if( _pos.x < 0 || _pos.x > g_level->_sx ||
+		_pos.y < 0 || _pos.y > g_level->_sy )
 	{
 		Kill();
 		return;
@@ -234,7 +234,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 		GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 		float nearest_cosinus = 0;
 
-		ENUM_BEGIN(vehicles, GC_Vehicle, pVehicle)
+		FOREACH( vehicles, GC_Vehicle, pVehicle )
 		{
 			if( pVehicle->IsKilled() || _proprietor == pVehicle )
 				continue;
@@ -255,15 +255,15 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 			// косинус угла направления на цель
 			float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
 
-			if (cosinus > nearest_cosinus)
+			if( cosinus > nearest_cosinus )
 			{
 				nearest_cosinus = cosinus;
 				pNearestVehicle = pVehicle;
 			}
-		} ENUM_END();
+		}
 
 		// выбираем только если ближе 20 градусов
-		if (nearest_cosinus > 0.94f)
+		if( nearest_cosinus > 0.94f )
 		{
 			_target = pNearestVehicle;
 		}
@@ -306,7 +306,7 @@ void GC_Rocket::SpawnTrailParticle(const vec2d &pos)
 	static TextureCache fire1("particle_fire");
 	static TextureCache fire2("particle_fire2");
 
-	if (_target)
+	if( _target )
 	{
 		new GC_Particle(pos - _velocity * 8.0f / _velocity.Length(),
 			_velocity * 0.3f, fire2, frand(0.1f) + 0.02f);
@@ -342,7 +342,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 			vec2d dv = p - vi * (vi * p);
 
 			float ldv = dv.Length();
-			if (ldv > 0)
+			if( ldv > 0 )
 			{
 				dv /= ldv;
 				dv *= WEAP_RL_HOMMING_FACTOR;
@@ -608,12 +608,12 @@ void GC_BfgCore::FindTarget()
 	GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 	float nearest_cosinus = 0;
 
-	ENUM_BEGIN(vehicles, GC_Vehicle, pVehicle)
+	FOREACH( vehicles, GC_Vehicle, pVehicle )
 	{
-		if (pVehicle->IsKilled() || _proprietor == pVehicle) continue;
+		if( pVehicle->IsKilled() || _proprietor == pVehicle ) continue;
 
 		// проверка видимости цели
-		if ( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
+		if( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
 			GetRawPtr(_proprietor), _pos, pVehicle->_pos - _pos) ) continue;
 
 		vec2d target;
@@ -624,15 +624,15 @@ void GC_BfgCore::FindTarget()
 		// косинус угла направления на цель
 		float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
 
-		if (cosinus > nearest_cosinus)
+		if( cosinus > nearest_cosinus )
 		{
 			nearest_cosinus = cosinus;
 			pNearestVehicle = pVehicle;
 		}
-	} ENUM_END();
+	}
 
 	// выбираем только если ближе 30 градусов
-	if (nearest_cosinus > 0.87f)
+	if( nearest_cosinus > 0.87f )
 		_target = pNearestVehicle;
 }
 
@@ -699,9 +699,9 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		FindTarget();
 	}
 
-	ENUM_BEGIN(vehicles, GC_Vehicle, pVehicle)
+	FOREACH( vehicles, GC_Vehicle, pVehicle )
 	{
-		if (!pVehicle->IsKilled())
+		if( !pVehicle->IsKilled() )
 		{
 			const float R = WEAP_BFG_RADIUS;
 			float damage = (1 - (_pos - pVehicle->_pos).Length() / R) *
@@ -714,7 +714,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 					pVehicle->_pos + d, GetRawPtr(_proprietor));
 			}
 		}
-	} ENUM_END();
+	}
 
 	//------------------------------------------
 
@@ -739,7 +739,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			vec2d dv = p - vi * (vi * p);
 
 			float ldv = dv.Length();
-			if (ldv > 0)
+			if( ldv > 0 )
 			{
 				dv /= ldv;
 				dv *= (3.0f * fabsf(_target->_lv.Length()) /
@@ -1050,7 +1050,7 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 
 void GC_Disk::Kill()
 {
-	if (_bAttached)
+	if( _bAttached )
 	{
 		_ripper   = NULL;
 		_bAttached = false;
@@ -1064,9 +1064,9 @@ void GC_Disk::TimeStepFixed(float dt)
 	_time += dt;
 	SetRotation( _time * 10.0f );
 
-	if (_bAttached)
+	if( _bAttached )
 	{
-		if (_ripper->_bAttached)
+		if( _ripper->_bAttached )
 		{
 			Show(_ripper->_time >= _ripper->_time_reload);
 		}

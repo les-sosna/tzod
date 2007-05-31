@@ -64,15 +64,15 @@ protected:
 	};
 
 public:
-	bool	_bMostBeAllowed;	// небходимо разрешение, чтобы подобрать предмет
+	bool	_bMostBeAllowed; // небходимо разрешение, чтобы подобрать предмет
 	float	_time;
 	float	_time_animation;
 	float	_time_respawn;
-	bool	_bRespawn;			// респаун после того, как предмет подберут
-	bool	_bAttached;		// предмет прикреплен к танку
+	bool	_bRespawn;      // респаун после того, как предмет подберут
+	bool	_bAttached;     // предмет прикреплен к танку
 	bool	_blink;         // item is blinking
 
-	SafePtr<GC_Object> _ancObject;	// не респаунимс€, пока этот объект жив
+	SafePtr<GC_Object> _ancObject; // не респаунимс€, пока этот объект жив
 
 public:
 	GC_PickUp(float x, float y);
@@ -94,7 +94,7 @@ public:
 	virtual void Respawn();
 
 	virtual float GetDefaultRespawnTime() const = 0;
-	virtual GC_PickUp* SetRespawn() = 0;	//создать скрытую копию себ€
+	virtual GC_PickUp* SetRespawn() = 0; //создать скрытую копию себ€
 	void SetAnchor(GC_Object *object);
 
 	virtual void TimeStepFixed(float dt);
@@ -191,7 +191,7 @@ private:
 	SafePtr<GC_Line>  _effect;
 	SafePtr<GC_Light> _light;
 
-	float _time_wait;		// врем€ ожидани€
+	float _time_wait; // врем€ ожидани€
 
 	GC_Vehicle *FindNearVehicle(GC_Vehicle *pIgnore);
 
@@ -233,7 +233,7 @@ public:
 
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle);		//return true  -  respawn
+	virtual void GiveIt(GC_Vehicle* pVehicle); //return true  -  respawn
 	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 
@@ -248,7 +248,7 @@ struct AIWEAPSETTINGS; // defined in ai.h
 class GC_Weapon : public GC_PickUp
 {
 protected:
-	bool _advanced;	// кваженое оружие
+	bool _advanced; // кваженое оружие
 	SafePtr<GC_UserSprite> _fireEffect;
 	SafePtr<GC_Light> _fireLight;
 	vec2d _fePos;
@@ -438,8 +438,8 @@ protected:
 public:
 	float _fuel;
 	float _fuel_max;
-	float _fuel_rate;		// расход топлива в сек.
-	float _fuel_rep;		// восстановление топлива в сек.
+	float _fuel_rate;  // расход топлива в сек.
+	float _fuel_rep;   // восстановление топлива в сек.
 	bool _bFire;
 	bool _bReady;
 
@@ -514,8 +514,8 @@ class GC_Weap_Minigun : public GC_Weapon
 
 private:
 	SafePtr<GC_Sound> _sound;
-	float _time_rotate;	// дл€ эмул€ции вращени€ стволов
-	float _time_fire;		// врем€ непрерывнго огн€
+	float _time_rotate; // дл€ эмул€ции вращени€ стволов
+	float _time_fire;   // врем€ непрерывнго огн€
 	float _time_shot;
 	bool _bFire;
 

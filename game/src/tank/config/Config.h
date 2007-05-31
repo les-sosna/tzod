@@ -70,6 +70,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_FLOAT(  cl_timelimit,         7 ); // minutes
 	CONFIG_VAR_INT(    cl_fraglimit,        21 );
 	CONFIG_VAR_BOOL(   cl_nightmode,     false );
+	CONFIG_VAR_STRING( cl_server,  "localhost" );
 
 	// sound
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
@@ -82,6 +83,8 @@ CONFIG_BEGIN()    //  var_name      def_value
 	// editor
 	CONFIG_VAR_BOOL( ed_drawgrid,          true );
 	CONFIG_VAR_BOOL( ed_uselayers,        false );
+	CONFIG_VAR_INT(  ed_width,               32 );
+	CONFIG_VAR_INT(  ed_height,              24 );
 
 	// console
 	CONFIG_VAR_INT(   con_maxhistory,        30 );

@@ -52,12 +52,12 @@ protected:
 public:
 	enumTuretState	_state;
 
-	int       _team;	// 0 - no team
-	float     _initialDir;
-	float     _sight;
+	int      _team;  // 0 - no team
+	float    _initialDir;
+	float    _sight;
 
-	float     _dir;
-	Rotator   _rotator;
+	float    _dir;
+	Rotator  _rotator;
 
 protected:
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake) = 0;
@@ -158,13 +158,13 @@ protected:
 	void WakeDown();
 
 public:
-	float	_delta_angle;	// точность стрельбы
+	float	_delta_angle;  // точность стрельбы
 
 public:
 	float	_time_wait;
 	float	_time_wait_max;
 
-	float	_time_wake;		// 0 - hidden
+	float	_time_wake;    // 0 - hidden
 	float	_time_wake_max;
 
 public:

@@ -303,11 +303,11 @@ void GC_IndicatorBar::Kill()
 
 GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION location)
 {
-	ENUM_BEGIN(indicators, GC_IndicatorBar, object)
+	FOREACH( indicators, GC_IndicatorBar, object )
 	{
-		if ( pFind == object->_object && location == object->_location )
+		if( pFind == object->_object && location == object->_location )
 			return object;
-	} ENUM_END();
+	}
 
 	return NULL;
 }

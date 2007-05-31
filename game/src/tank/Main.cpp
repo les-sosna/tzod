@@ -46,9 +46,9 @@ static void OnPrintScreen()
 	while (1)
 	{
 		char zero[4] = {0};
-		if (n < 1000) zero[0] = '0';
-		if (n <  100) zero[1] = '0';
-		if (n <   10) zero[2] = '0';
+		if( n < 1000 ) zero[0] = '0';
+		if( n <  100 ) zero[1] = '0';
+		if( n <   10 ) zero[2] = '0';
 
 		wsprintf(name, "screenshot%s%d.tga", zero, n);
 
@@ -64,7 +64,7 @@ static void OnPrintScreen()
 
 	g_conf.r_screenshot->SetInt(n);
 
-	if ( !g_render->TakeScreenshot(name) )
+	if( !g_render->TakeScreenshot(name) )
 	{
 		TRACE("ERROR: take screenshot failed\n");
 //		_MessageArea::Inst()->message("> ошибка!");
@@ -101,7 +101,7 @@ static void RenderFrame(bool thumbnail)
 			g_render->getYsize() >= (int)g_level->_sy )
 		{
 			float max_shake = 0;
-			ENUM_BEGIN(cameras, GC_Camera, pCamera)
+			FOREACH( cameras, GC_Camera, pCamera )
 			{
 				if( !pCamera->IsActive() ) continue;
 				if( pCamera->GetShake() >= max_shake )
@@ -109,11 +109,11 @@ static void RenderFrame(bool thumbnail)
 					pMaxShake = pCamera;
 					max_shake = pCamera->GetShake();
 				}
-			} ENUM_END();
+			}
 		}
 
 		int count = 0;
-		ENUM_BEGIN(cameras, GC_Camera, pCamera)
+		FOREACH( cameras, GC_Camera, pCamera )
 		{
 			if( pMaxShake ) pCamera = pMaxShake;
 			if( !pCamera->IsActive() ) continue;
@@ -135,7 +135,7 @@ static void RenderFrame(bool thumbnail)
 				float ymax = __min(g_level->_sy, (float) g_env.camera_y +
 					(float) g_render->getViewportYsize() / pCamera->_zoom );
 
-				ENUM_BEGIN(lights, GC_Light, pLight)
+				FOREACH( lights, GC_Light, pLight )
 				{
 					_ASSERT(!pLight->IsKilled());
 					if( pLight->_pos.x + pLight->GetRenderRadius() > xmin &&
@@ -145,7 +145,7 @@ static void RenderFrame(bool thumbnail)
 					{
 						pLight->Shine();
 					}
-				} ENUM_END();
+				}
 			}
 
 
@@ -178,27 +178,27 @@ static void RenderFrame(bool thumbnail)
 					for( int x = xmin; x <= xmax; ++x )
 					for( int y = ymin; y <= ymax; ++y )
 					{
-						ENUM_BEGIN(z_grids[z](lev).element(x,y), GC_2dSprite, object)
+						FOREACH( z_grids[z](lev).element(x,y), GC_2dSprite, object )
 						{
 							_ASSERT(!object->IsKilled());
 							object->Draw();
 							_ASSERT(!object->IsKilled());
-						} ENUM_END();
+						}
 					}
 				} // loop over gridsets
 
 
 				// loop over globals
-				ENUM_BEGIN(z_globals[z], GC_2dSprite, object)
+				FOREACH( z_globals[z], GC_2dSprite, object )
 				{
 					_ASSERT(!object->IsKilled());
 					object->Draw();
 					_ASSERT(!object->IsKilled());
-				} ENUM_END();
+				}
 			}
 
 			if( pMaxShake ) break;
-		} ENUM_END();	// cameras
+		}	// cameras
 
 
 		//
@@ -209,12 +209,12 @@ static void RenderFrame(bool thumbnail)
 		{
 			g_render->setMode(RM_INTERFACE);
 
-			ENUM_BEGIN(z_globals[Z_COUNT-1], GC_2dSprite, object)
+			FOREACH( z_globals[Z_COUNT-1], GC_2dSprite, object )
 			{
 				_ASSERT(!object->IsKilled());
 				object->Draw();
 				_ASSERT(!object->IsKilled());
-			} ENUM_END();
+			}
 		}
 	}
 
@@ -489,7 +489,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		TRACE("Shutting down GUI subsystem\n");
 		SAFE_DELETE(g_gui);
 		timeEndPeriod(1);
-	} // end if ( SUCCEEDED(InitAll(hWnd)) )
+	} // end if( SUCCEEDED(InitAll(hWnd)) )
 	else
 	{
 		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);

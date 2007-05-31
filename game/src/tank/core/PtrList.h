@@ -11,7 +11,7 @@ class PtrList
 	struct _node
 	{
 		object_type *ptr;
-		int ref_count;			// счетчик safe-итераторов
+		int ref_count;          // счетчик safe-итераторов
 		_node *prev, *next;
 	};
 
@@ -185,11 +185,11 @@ public:
 		mysize  = 0;
 		mybegin = nodeAllocator.allocate();
 		myend   = nodeAllocator.allocate();
-		mybegin->ptr       = (object_type*) -1;		// not NULL but invalid pointer
+		mybegin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
 		mybegin->ref_count = 0;
 		mybegin->next      = myend;
 		mybegin->prev      = NULL;
-		myend->ptr         = (object_type*) -1;		// not NULL but invalid pointer
+		myend->ptr         = (object_type*) -1;     // not NULL but invalid pointer
 		myend->ref_count   = 0;
 		myend->prev        = mybegin;
 		myend->next        = NULL;
@@ -200,11 +200,11 @@ public:
 		mysize  = src.mysize;
 		mybegin = nodeAllocator.allocate();
 		myend   = nodeAllocator.allocate();
-		mybegin->ptr       = (object_type*) -1;		// not NULL but invalid pointer
+		mybegin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
 		mybegin->ref_count = 0;
 		mybegin->next      = myend;
 		mybegin->prev      = NULL;
-		myend->ptr         = (object_type*) -1;		// not NULL but invalid pointer
+		myend->ptr         = (object_type*) -1;     // not NULL but invalid pointer
 		myend->ref_count   = 0;
 		myend->prev        = mybegin;
 		myend->next        = NULL;

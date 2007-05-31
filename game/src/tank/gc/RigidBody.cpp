@@ -227,17 +227,17 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 
 			float vx, vy;
 
-			if ( (up < left) && (up < right) && (up < down) )
+			if( (up < left) && (up < right) && (up < down) )
 			{
 				vx = frand(100.0f) - 50.0f;
 				vy = -frand(50.0f) - 50.0f;
 			}
-			else if ( (left < right) && (left < up) && (left < down) )
+			else if( (left < right) && (left < up) && (left < down) )
 			{
 				vx = -frand(50.0f) - 50.0f;
 				vy = frand(100.0f) - 50.0f;
 			}
-			else if ( (down < left) && (down < right) && (down < up) )
+			else if( (down < left) && (down < right) && (down < up) )
 			{
 				vx = frand(100.0f) - 50.0f;
 				vy = frand(50.0f) + 50.0f;
@@ -349,11 +349,11 @@ bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySt
 {
 	if( damage >= DAMAGE_BULLET )
 	{
-		if (rand() < 256)
+		if( rand() < 256 )
 			PLAY(SND_Hit1, hit);
-		else if (rand() < 256)
+		else if( rand() < 256 )
 			PLAY(SND_Hit3, hit);
-		else if (rand() < 256)
+		else if( rand() < 256 )
 			PLAY(SND_Hit5, hit);
 	}
 	return false;
@@ -429,10 +429,10 @@ void GC_Water::UpdateTile(bool flag)
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_Water *object = (GC_Water *) (*it);
-			if (this == object) continue;
+			if( this == object ) continue;
 
 			vec2d dx = (_pos - object->_pos) / CELL_SIZE;
-			if (dx.Square() < 2.5f)
+			if( dx.Square() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
 				int y = int(dx.y + 1.5f);
@@ -466,9 +466,9 @@ void GC_Water::Draw()
 	static float dy[8]   = {  0,-32,-32,-32,  0, 32, 32, 32 };
 	static int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
 
-	for (char i = 0; i < 8; ++i)
+	for( char i = 0; i < 8; ++i )
 	{
-		if ( 0 == (_tile & (1 << i)) )
+		if( 0 == (_tile & (1 << i)) )
 		{
 			SetPivot(dx[i] + GetSpriteWidth() * 0.5f, dy[i] + GetSpriteHeight() * 0.5f);
 			SetFrame(frames[i]);
@@ -486,7 +486,7 @@ void GC_Water::SetTile(char nTile, bool value)
 {
 	_ASSERT(0 <= nTile && nTile < 8);
 
-	if (value)
+	if( value )
 		_tile |= (1 << nTile);
 	else
 		_tile &= ~(1 << nTile);

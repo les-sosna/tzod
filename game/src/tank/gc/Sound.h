@@ -9,10 +9,10 @@
 enum enumSoundMode
 {
 	SMODE_UNKNOWN = 0,
-	SMODE_PLAY,		// при достижении конца буфера объект автоматически удаляется
+	SMODE_PLAY,  // при достижении конца буфера объект автоматически удаляется
 	SMODE_LOOP,
-	SMODE_STOP,		// остановка с освобождением ресурса
-	SMODE_WAIT,		// принудительная пауза.
+	SMODE_STOP,  // остановка с освобождением ресурса
+	SMODE_WAIT,  // принудительная пауза.
 };
 
 class GC_Sound : public GC_Object
@@ -33,7 +33,7 @@ protected:
 	virtual void SetMode(enumSoundMode mode);
 
 public:
-	float _volume;		// 0 - min;  1 - max
+	float _volume;  // 0 - min;  1 - max
 
 public:
 	GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
@@ -50,7 +50,7 @@ public:
 	virtual void MoveTo(const vec2d &pos);
 	virtual void SetSpeed(float speed);
 	virtual void SetVolume(float vol);
-	virtual void UpdateVolume();	// нужно вызвать после изменения g_options.dwVolume
+	virtual void UpdateVolume();  // нужно вызвать после изменения g_options.dwVolume
 	////////////////////////////
 	virtual void EndFrame();
 	////////////////////////////

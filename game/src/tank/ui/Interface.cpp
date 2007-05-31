@@ -580,9 +580,9 @@ int MessageBoxT(
 {
 	LPCTSTR templ;
 
-	if (MB_OKCANCEL & uType)
+	if( MB_OKCANCEL & uType )
 		templ = (LPCTSTR) IDD_MSGBOX_OKCANCEL;
-	else if (MB_YESNO & uType)
+	else if( MB_YESNO & uType )
 		templ = (LPCTSTR) IDD_MSGBOX_YESNO;
 	else
 		templ = (LPCTSTR) IDD_MSGBOX_OK;
@@ -693,8 +693,8 @@ LRESULT CALLBACK dlgNewMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 			switch (wmId)
 			{
 			case IDOK:
-				OPT(xsize) = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, GetDlgItemInt(hDlg, IDC_X, NULL, FALSE)));
-				OPT(ysize) = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, GetDlgItemInt(hDlg, IDC_Y, NULL, FALSE)));
+				g_conf.ed_width->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, GetDlgItemInt(hDlg, IDC_X, NULL, FALSE))) );
+				g_conf.ed_height->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, GetDlgItemInt(hDlg, IDC_Y, NULL, FALSE))) );
 			case IDCANCEL:
 				EndDialog(hDlg, wmId);
 				break;
@@ -705,8 +705,8 @@ LRESULT CALLBACK dlgNewMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 	case WM_INITDIALOG:
 		SendDlgItemMessage(hDlg, IDC_X_SPIN, UDM_SETRANGE, 0, MAKELONG(LEVEL_MAXSIZE, LEVEL_MINSIZE));
 		SendDlgItemMessage(hDlg, IDC_Y_SPIN, UDM_SETRANGE, 0, MAKELONG(LEVEL_MAXSIZE, LEVEL_MINSIZE));
-		SetDlgItemInt(hDlg, IDC_X, __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, g_options.xsize)), FALSE);
-		SetDlgItemInt(hDlg, IDC_Y, __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, g_options.ysize)), FALSE);
+		SetDlgItemInt(hDlg, IDC_X, __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, g_conf.ed_width->GetInt() )), FALSE);
+		SetDlgItemInt(hDlg, IDC_Y, __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, g_conf.ed_height->GetInt() )), FALSE);
 		return TRUE;
 	}
     return FALSE;
@@ -1055,7 +1055,7 @@ void dmUpdateUI (HWND hDlg)
 	{
 		EnableWindow(hwndLV, TRUE);
 
-		for (int i = 0; i < g_options.dm_nPlayers; ++i)
+		for( int i = 0; i < g_options.dm_nPlayers; ++i )
 		{
 			AddPlayerToListView(hwndLV,
 				g_options.dm_pdPlayers[i].name,
@@ -1240,7 +1240,7 @@ LRESULT CALLBACK dlgNewDM(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				strcpy(pdex.name, "new player");
 
 
-				for (x = 0; x < g_options.dm_nPlayers; ++x)
+				for( x = 0; x < g_options.dm_nPlayers; ++x )
 				{
 					_ASSERT(-1 < g_options.dm_pdPlayers[x].type);
 					pdex.dwHasPlayers |= (1 << g_options.dm_pdPlayers[x].type);
@@ -1269,7 +1269,7 @@ LRESULT CALLBACK dlgNewDM(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					memcpy(&pdex, &g_options.dm_pdPlayers[index], sizeof(PLAYERDESC));
 
-					for (x = 0; x < g_options.dm_nPlayers; ++x)
+					for( x = 0; x < g_options.dm_nPlayers; ++x )
 					{
 						_ASSERT(-1 < g_options.dm_pdPlayers[x].type);
 						if (x == index) continue;
@@ -1571,12 +1571,12 @@ DWORD plCheckPlayers(GC_Player *pExcept)
 {
 	DWORD dwHasPlayers = 0;
 
-	ENUM_BEGIN(players, GC_Player, pPlayer)
+	FOREACH( players, GC_Player, pPlayer )
 	{
 		if (pExcept == pPlayer || pPlayer->IsKilled()) continue;
 		if (pPlayer->_nIndex < MAX_HUMANS)
 			dwHasPlayers |= (1 << pPlayer->_nIndex);
-	} ENUM_END();
+	}
 
 	return dwHasPlayers;
 }
@@ -1793,12 +1793,12 @@ LRESULT CALLBACK dlgPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		// заполняем список игроков
 		if( g_level )
 		{
-			ENUM_BEGIN(players, GC_Player, pPlayer)
+			FOREACH( players, GC_Player, pPlayer )
 			{
 				if (pPlayer->IsKilled()) continue;
 				AddPlayerToListView( hwndLV, pPlayer->_name, pPlayer->_skin, pPlayer->_class,
 					pPlayer->_nIndex, pPlayer->_team,	pPlayer );
-			} ENUM_END();
+			}
 		}
 
 		EnableWindow(hwndLV, 0 != ListView_GetItemCount(hwndLV));
@@ -1820,9 +1820,10 @@ void SetVolume(LONG lVolume)
 	// после изменения g_options.dwVolume необходимо
 	// вызвать UpdateVolume() для всех объектов GC_Sound
 
-	ENUM_BEGIN(sounds, GC_Sound, pSound) {
+	FOREACH( sounds, GC_Sound, pSound )
+	{
 		pSound->UpdateVolume();
-	} ENUM_END();
+	}
 }
 */
 
@@ -1903,11 +1904,12 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				FreeDirectInput();
 				InitDirectInput(g_env.hMainWnd);
 
-				if (g_level)
+				if( g_level )
 				{
-					ENUM_BEGIN(players, GC_Player, pPlayer) {
-						if ( pPlayer->_nIndex == index ) pPlayer->SetController(index);
-					} ENUM_END();
+					FOREACH( players, GC_Player, pPlayer )
+					{
+						if( pPlayer->_nIndex == index ) pPlayer->SetController(index);
+					}
 				}
 			} break;
 			case IDC_SETTINGS_WINAMP:
@@ -2414,7 +2416,7 @@ LRESULT CALLBACK dlgGetKey(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 
 void Controls_ListViewUpdate(HWND hwndLV, LPPLAYER pl, BOOL bErase)
 {
-	if (bErase) ListView_DeleteAllItems(hwndLV);
+	if( bErase ) ListView_DeleteAllItems(hwndLV);
 
 	LVITEM lvi = {0};
 	lvi.mask = LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
@@ -2427,7 +2429,7 @@ void Controls_ListViewUpdate(HWND hwndLV, LPPLAYER pl, BOOL bErase)
 	GetKeyName(pl->KeyMap.key, s);					\
 	lvi.pszText = name;								\
 	lvi.lParam = (LPARAM) &pl->KeyMap.key;			\
-	if (bErase) ListView_InsertItem(hwndLV, &lvi);	\
+	if( bErase ) ListView_InsertItem(hwndLV, &lvi);	\
 	else lvi.iItem--;								\
 	ListView_SetItemText(hwndLV, lvi.iItem, 1, s);}
 
@@ -2447,7 +2449,7 @@ void Controls_ListViewUpdate(HWND hwndLV, LPPLAYER pl, BOOL bErase)
 
 void EditKey(HWND hwndLV, LPPLAYER pl)
 {
-	if (GetFocus() != hwndLV) return;
+	if( GetFocus() != hwndLV ) return;
 
 	LVITEM lvi = {0};
 	lvi.mask   = LVIF_PARAM;
@@ -2475,11 +2477,11 @@ LRESULT CALLBACK dlgControls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		switch (wmId)
 		{
 		case IDCANCEL:
-			if ( GETCHECK(IDC_RADIO_MOUSE    ) ) pl->ControlType = CT_USER_MOUSE;
-			if ( GETCHECK(IDC_RADIO_MOUSE2   ) ) pl->ControlType = CT_USER_MOUSE2;
-			if ( GETCHECK(IDC_RADIO_KEYBOARD ) ) pl->ControlType = CT_USER_KB;
-			if ( GETCHECK(IDC_RADIO_KEYBOARD2) ) pl->ControlType = CT_USER_KB2;
-			if ( GETCHECK(IDC_RADIO_HYBRID   ) ) pl->ControlType = CT_USER_HYBRID;
+			if( GETCHECK(IDC_RADIO_MOUSE    ) ) pl->ControlType = CT_USER_MOUSE;
+			if( GETCHECK(IDC_RADIO_MOUSE2   ) ) pl->ControlType = CT_USER_MOUSE2;
+			if( GETCHECK(IDC_RADIO_KEYBOARD ) ) pl->ControlType = CT_USER_KB;
+			if( GETCHECK(IDC_RADIO_KEYBOARD2) ) pl->ControlType = CT_USER_KB2;
+			if( GETCHECK(IDC_RADIO_HYBRID   ) ) pl->ControlType = CT_USER_HYBRID;
 			EndDialog(hDlg, LOWORD(wParam));
 			return TRUE;
 			break;
@@ -2543,7 +2545,7 @@ LRESULT CALLBACK dlgControls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 void Winamp_ListViewUpdate(HWND hwndLV, BOOL bErase)
 {
-	if (bErase) ListView_DeleteAllItems(hwndLV);
+	if( bErase ) ListView_DeleteAllItems(hwndLV);
 
 	LVITEM lvi = {0};
 	lvi.mask = LVIF_TEXT | LVIF_STATE | LVIF_PARAM;
@@ -2555,7 +2557,7 @@ void Winamp_ListViewUpdate(HWND hwndLV, BOOL bErase)
 	GetKeyName(g_options.wkWinampKeys.key, s);			\
 	lvi.pszText = name;										\
 	lvi.lParam = (LPARAM) &g_options.wkWinampKeys.key;	\
-	if (bErase) ListView_InsertItem(hwndLV, &lvi);			\
+	if( bErase ) ListView_InsertItem(hwndLV, &lvi);			\
 	else lvi.iItem--;										\
 	ListView_SetItemText(hwndLV, lvi.iItem, 1, s);}
 
@@ -2574,7 +2576,7 @@ void Winamp_ListViewUpdate(HWND hwndLV, BOOL bErase)
 
 void EditKey(HWND hwndLV)
 {
-	if (GetFocus() != hwndLV) return;
+	if( GetFocus() != hwndLV ) return;
 
 	LVITEM lvi = {0};
 	lvi.mask =   LVIF_PARAM;

@@ -48,7 +48,7 @@ int intPower(int base, unsigned int power)
 	_ASSERT(power < 32);
 
 	int res = 1;
-	for (unsigned int i = 0; i < power; i++)
+	for( unsigned int i = 0; i < power; ++i )
 	{
 		res *= base;
 	}
@@ -64,12 +64,12 @@ BOOL IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
 	l = __max(lprtRect1->left,   lprtRect2->left   );
 	r = __min(lprtRect1->right,  lprtRect2->right  );
 
-	if ( !(l < r) ) return FALSE;
+	if( !(l < r) ) return FALSE;
 
 	t = __max(lprtRect1->top,    lprtRect2->top    );
 	b = __min(lprtRect1->bottom, lprtRect2->bottom );
 
-	if (t < b) return TRUE;
+	if( t < b ) return TRUE;
 
 	return FALSE;
 }
@@ -153,7 +153,7 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
 
 		if( IDYES == MessageBoxT(hDlg, s, MB_YESNO|MB_ICONSTOP) )
 		{
-			if (!CreateDirectory(lpstrName, NULL))
+			if( !CreateDirectory(lpstrName, NULL) )
 			{
 				wsprintf(s, "Ќе удаетс€ создать каталог %s. ¬озможно диск переполнен или защищен от записи", lpstrName);
 				MessageBoxT(hDlg, s, MB_OK|MB_ICONSTOP);

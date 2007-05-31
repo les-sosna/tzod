@@ -668,7 +668,7 @@ bool RenderDirect3D::TakeScreenshot(TCHAR *fileName)
 						CREATE_ALWAYS,
 						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
 						NULL);
-	if (ai->file == INVALID_HANDLE_VALUE)
+	if( ai->file == INVALID_HANDLE_VALUE )
 	{
 		delete ai;
 		return false;

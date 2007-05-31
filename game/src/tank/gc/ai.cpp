@@ -55,9 +55,9 @@ CAttackList::~CAttackList()
 CAttackList::tagAttackNode* CAttackList::FindObject(GC_RigidBodyStatic *object)
 {
 	tagAttackNode *pNode = _firstTarget;
-	while (pNode)
+	while( pNode )
 	{
-		if (object == pNode->_target) return pNode;
+		if( object == pNode->_target ) return pNode;
 		pNode = pNode->_nextNode;
 	}
 
@@ -68,15 +68,15 @@ void CAttackList::RemoveFromList(tagAttackNode *pNode)
 {
 	_ASSERT(pNode);
 
-	if (pNode == _firstTarget)
+	if( pNode == _firstTarget )
 		_firstTarget = pNode->_nextNode;
 
-	if (pNode == _lastTarget)
+	if( pNode == _lastTarget )
 		_lastTarget = pNode->_prevNode;
 
-	if (pNode->_prevNode)
+	if( pNode->_prevNode )
 		pNode->_prevNode->_nextNode = pNode->_nextNode;
-	if (pNode->_nextNode)
+	if( pNode->_nextNode )
 		pNode->_nextNode->_prevNode = pNode->_prevNode;
 
 	pNode->_target->Release();
@@ -88,7 +88,7 @@ GC_RigidBodyStatic* CAttackList::Pop(BOOL bRemoveFromList)
 	_ASSERT(!IsEmpty());
 
 	GC_RigidBodyStatic *target = _firstTarget->_target;
-	if (bRemoveFromList) RemoveFromList(_firstTarget);
+	if( bRemoveFromList ) RemoveFromList(_firstTarget);
 
 	return target;
 }
@@ -96,31 +96,31 @@ GC_RigidBodyStatic* CAttackList::Pop(BOOL bRemoveFromList)
 void CAttackList::PushToBegin(GC_RigidBodyStatic *target)
 {
 	tagAttackNode *pNode = FindObject(target);
-	if (pNode) RemoveFromList(pNode);
+	if( pNode ) RemoveFromList(pNode);
 
 	tagAttackNode *pNewNode = s_anAllocator.allocate();
 	pNewNode->_target = target;
 	pNewNode->_target->AddRef();
 	pNewNode->_prevNode = NULL;
 	pNewNode->_nextNode = _firstTarget;
-	if (_firstTarget) _firstTarget->_prevNode = pNewNode;
+	if( _firstTarget ) _firstTarget->_prevNode = pNewNode;
 	_firstTarget = pNewNode;
-	if (!_lastTarget) _lastTarget = pNewNode;
+	if( !_lastTarget ) _lastTarget = pNewNode;
 }
 
 void CAttackList::PushToEnd(GC_RigidBodyStatic *target)
 {
 	tagAttackNode *pNode = FindObject(target);
-	if (pNode) RemoveFromList(pNode);
+	if( pNode ) RemoveFromList(pNode);
 
 	tagAttackNode *pNewNode = s_anAllocator.allocate();
 	target->AddRef();
 	pNewNode->_target = target;
 	pNewNode->_nextNode = NULL;
 	pNewNode->_prevNode = _lastTarget;
-	if (_lastTarget) _lastTarget->_nextNode = pNewNode;
+	if( _lastTarget ) _lastTarget->_nextNode = pNewNode;
 	_lastTarget = pNewNode;
-	if (!_firstTarget) _firstTarget = pNewNode;
+	if( !_firstTarget ) _firstTarget = pNewNode;
 }
 
 void CAttackList::Clean()
@@ -128,7 +128,7 @@ void CAttackList::Clean()
 	tagAttackNode *pNode = _firstTarget;
 	while (pNode)
 	{
-		if (pNode->_target->IsKilled())
+		if( pNode->_target->IsKilled() )
 		{
 			tagAttackNode *pRem = pNode;
 			pNode = pNode->_nextNode;
@@ -266,9 +266,9 @@ float AIController::CreatePath(float dst_x, float dst_y, float max_depth, bool b
 		//                           4     5     6     7
 		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
 
-		for (int i = 0; i < 8; ++i)
+		for( int i = 0; i < 8; ++i )
 		{
-			if (i > 3) // проверка проходимости по диагонали
+			if( i > 3 ) // проверка проходимости по диагонали
 			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]], cn.GetY() + per_y[check_diag[(i-4)*2  ]])) ||
 				!CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]], cn.GetY() + per_y[check_diag[(i-4)*2+1]]))   )
 			{
@@ -478,7 +478,7 @@ void AIController::TowerTo(VehicleState *pState, const vec2d &x, bool bFire)
 
 	float ang2 = (x - _player->_vehicle->_pos).Angle() + _current_offset;
 	float ang1 = _player->_vehicle->_angle + _player->_vehicle->_weapon->_angle;
-	if (ang1 > PI2) ang1 -= PI2;
+	if( ang1 > PI2 ) ang1 -= PI2;
 
 
 	float d1 = fabsf(ang2-ang1);
@@ -503,8 +503,8 @@ AIPRIORITY AIController::GetTargetRate(GC_Vehicle *target)
 	_ASSERT(_player->_vehicle);
 	_ASSERT(_player->_vehicle->_weapon);
 
-	if (0 != target->_player->_team &&
-		target->_player->_team == _player->_team)
+	if( 0 != target->_player->_team &&
+		target->_player->_team == _player->_team )
 	{
 		return AIP_NOTREQUIRED;	// своих не атакуем
 	}
@@ -520,7 +520,7 @@ AIPRIORITY AIController::GetTargetRate(GC_Vehicle *target)
 // return TRUE еслт цель найдена
 bool AIController::FindTarget(/*out*/ AIITEMINFO &info)
 {
-	if (!_player->_vehicle->_weapon) return FALSE;
+	if( !_player->_vehicle->_weapon ) return FALSE;
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
 	GC_Vehicle *pOptTarget = NULL;
@@ -531,9 +531,9 @@ bool AIController::FindTarget(/*out*/ AIITEMINFO &info)
 	// проверяем цели
 	//
 
-	ENUM_BEGIN(vehicles, GC_Vehicle, object)
+	FOREACH( vehicles, GC_Vehicle, object )
 	{
-		if (!object->IsKilled() && object != _player->_vehicle)
+		if( !object->IsKilled() && object != _player->_vehicle )
 		{
 			if( (_player->_vehicle->_pos - object->_pos).Square() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
@@ -550,7 +550,7 @@ bool AIController::FindTarget(/*out*/ AIITEMINFO &info)
 				targets.push_back(td);
 			}
 		}
-	} ENUM_END();
+	}
 
 	for( size_t i = 0; i < targets.size(); ++i )
 	{
@@ -564,7 +564,7 @@ bool AIController::FindTarget(/*out*/ AIITEMINFO &info)
 		{
 			AIPRIORITY p = GetTargetRate(targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
 
-			if (p > optimal)
+			if( p > optimal )
 			{
 				optimal = p;
 				pOptTarget = targets[i].target;
@@ -593,7 +593,7 @@ bool AIController::FindItem(/*out*/ AIITEMINFO &info)
 		for(; it != receive[i]->end(); ++it )
 		{
 			GC_PickUp *pItem = (GC_PickUp *) *it;
-			if (pItem->_bAttached || !pItem->IsVisible() || pItem->IsKilled()) continue;
+			if( pItem->_bAttached || !pItem->IsVisible() || pItem->IsKilled() ) continue;
 
 			if( (_player->_vehicle->_pos - pItem->_pos).Square() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
@@ -629,7 +629,7 @@ bool AIController::FindItem(/*out*/ AIITEMINFO &info)
 						p += AIP_WEAPON_FAVORITE;
 					}
 				}
-				if (p > optimal)
+				if( p > optimal )
 				{
 					pOptItem = items[i];
 					optimal = p;
@@ -840,7 +840,7 @@ void AIController::DoState(VehicleState *pVehState)
 		float desired = _path.size()>1 ? (_pickupCurrent ?
 			_pickupCurrent->getRadius() : 50.0f) : (float) CELL_SIZE / 2;
 		float current = (_player->_vehicle->_pos - _path.front().coord).Length();
-		if ( current > desired )
+		if( current > desired )
 		{
 			break;
 		}
@@ -908,8 +908,8 @@ void AIController::DoState(VehicleState *pVehState)
 
 
 	if( 0 && bNeedStickCheck )  // проверка на застревание
-	if (_player->_vehicle->_lv.Length() < _player->_vehicle->_MaxForvSpeed * 0.1
-		/* && engine_working_time > 1 sec */)
+	if( _player->_vehicle->_lv.Length() < _player->_vehicle->_MaxForvSpeed * 0.1
+		/* && engine_working_time > 1 sec */ )
 	{
 		// застряли :(
 		SetL1(L1_STICK);
@@ -934,12 +934,12 @@ bool AIController::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStati
 	if( object && object != target )
 	{
 		// может возникнуть ошибка, если цель убита
-		if (ppObstacle) *ppObstacle = object;
+		if( ppObstacle ) *ppObstacle = object;
 		return false;
 	}
 	else
 	{
-		if (ppObstacle) *ppObstacle = NULL;
+		if( ppObstacle ) *ppObstacle = NULL;
 		return true;
 	}
 }
@@ -1111,7 +1111,7 @@ void AIController::debug_draw(HDC hdc)
 		}
 	}
 
-	if (_target)
+	if( _target )
 	{
 		SelectObject(hdc, oldpen);
 		DeleteObject(pen);
@@ -1119,7 +1119,7 @@ void AIController::debug_draw(HDC hdc)
 		pen = CreatePen(PS_SOLID, 2, 0x00ff00ff);
 		oldpen = (HPEN) SelectObject(hdc, pen);
 
-		if (_player->_vehicle)
+		if( _player->_vehicle )
 		{
 			MoveToEx(hdc, int(_target->_pos.x), int(_target->_pos.y), NULL);
 			LineTo(hdc, int(_player->_vehicle->_pos.x), int(_player->_vehicle->_pos.y));

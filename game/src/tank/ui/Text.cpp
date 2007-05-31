@@ -30,9 +30,9 @@ void Text::UpdateLines()
 	{
 		++count;
 		++tmp;
-		if ('\n' == *tmp || '\0' == *tmp)
+		if( '\n' == *tmp || '\0' == *tmp )
 		{
-			if (count > _maxline) _maxline = count;
+			if( count > _maxline ) _maxline = count;
 			_lines.push_back(count);
 			count = 0;
 			continue;

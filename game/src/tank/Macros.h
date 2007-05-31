@@ -13,19 +13,19 @@
 
 //----------------------------------------------------------
 
-#define ENUM_BEGIN(ls, type, var)   {                                          \
-	type *var;                                                                 \
+#define FOREACH(ls, type, var)                                                 \
+	if( type *var = (type *) (0xffffffff) )                                    \
 	for( OBJECT_LIST::iterator var##iterator = g_level->ls.begin();            \
-		 var##iterator != g_level->ls.end();                                   \
-		 var##iterator++) { var = (type*) *var##iterator;
+	         (var = static_cast<type *>(*var##iterator)),                      \
+	         (var##iterator != g_level->ls.end());                             \
+	    var##iterator++)
 
-#define ENUM_RBEGIN(ls, type, var)  {                                          \
-	type    *var;                                                              \
-	for (OBJECT_LIST::reverse_iterator var##iterator = g_level->ls.rbegin();   \
-		 var##iterator != g_level->ls.rend();                                  \
-		 var##iterator++) { var = (type*) *var##iterator;
-
-#define ENUM_END() }}
+#define FOREACH_R(ls, type, var)                                               \
+	if( type *var = (type *) (0xffffffff) )                                    \
+	for( OBJECT_LIST::reverse_iterator var##iterator = g_level->ls.rbegin();   \
+	      (var = static_cast<type *>(*var##iterator)),                         \
+	      (var##iterator != g_level->ls.rend());                               \
+	    var##iterator++ )
 
 //--------------------------------------------
 
@@ -34,14 +34,14 @@
 #define DW(hi, lo) ( (0x0000ffff & (DWORD)(lo)) | ((DWORD) (hi) << 16) )
 #define PUSH(dlg, id) PostMessage(dlg, WM_COMMAND, DW(BN_CLICKED, id), (LPARAM) GetDlgItem(dlg, id))
 
-#define GET_DLG_ITEM_TEXT(hdlg, id, str)		\
-{												\
-	HWND item = GetDlgItem(hdlg, id);			\
-	_ASSERT(item);								\
-	int len = 1+GetWindowTextLength(item);		\
-	str.resize(len);							\
-	GetWindowText(item, &str[0], len);			\
-	str.resize(len-1);							\
+#define GET_DLG_ITEM_TEXT(hdlg, id, str)      \
+{                                             \
+	HWND item = GetDlgItem(hdlg, id);         \
+	_ASSERT(item);                            \
+	int len = 1+GetWindowTextLength(item);    \
+	str.resize(len);                          \
+	GetWindowText(item, &str[0], len);        \
+	str.resize(len-1);                        \
 }
 
 ///////////////////////////////////////////////////////////////////////////////

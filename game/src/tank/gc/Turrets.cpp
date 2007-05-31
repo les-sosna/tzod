@@ -99,7 +99,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	GC_Vehicle	*target = NULL;
 	GC_RigidBodyStatic *pObstacle = NULL;
 
-	ENUM_BEGIN(vehicles, GC_Vehicle, pDamObj)
+	FOREACH( vehicles, GC_Vehicle, pDamObj )
 	{
 		if( pDamObj->_player->_team &&
 			_team == pDamObj->_player->_team )
@@ -113,13 +113,13 @@ GC_Vehicle* GC_Turret::EnumTargets()
 					(_pos.y - pDamObj->_pos.y)*(_pos.y - pDamObj->_pos.y) ;
 
 			if( dist < min_dist )
-				if ( IsTargetVisible(pDamObj, &pObstacle))
+				if( IsTargetVisible(pDamObj, &pObstacle) )
 				{
 					target = pDamObj;
 					min_dist = dist;
 				}
 		}
-	} ENUM_END();
+	}
 
 	return target;
 }
@@ -383,7 +383,7 @@ void GC_Turret_Rocket::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 
 void GC_Turret_Rocket::Fire()
 {
-	if (_time_reload <= 0)
+	if( _time_reload <= 0 )
 	{
 		vec2d a(_dir);
 		(new GC_Rocket(	_pos + a * 25.0f, a * SPEED_ROCKET,
@@ -466,14 +466,14 @@ void GC_Turret_Cannon::TimeStepFixed(float dt)
 	GC_Turret::TimeStepFixed(dt);
 	_time_reload -= dt;
 
-	if (_time_smoke > 0)
+	if( _time_smoke > 0 )
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
 
-		for ( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f)
+		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			if (g_options.bParticles)
+			if( g_options.bParticles )
 			{
 				new GC_Particle(_pos + vec2d(_dir) * 33.0f, SPEED_SMOKE + vec2d(_dir) * 50,
 					tex, frand(0.3f) + 0.2f);
@@ -560,11 +560,11 @@ bool GC_Turret_Bunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySt
 		return GC_Turret::TakeDamage(damage, hit, from);
 	}
 
-	if (rand() < 128)
+	if( rand() < 128 )
 		PLAY(SND_Hit1, hit);
-	else if (rand() < 128)
+	else if( rand() < 128 )
 		PLAY(SND_Hit3, hit);
-	else if (rand() < 128)
+	else if( rand() < 128 )
 		PLAY(SND_Hit5, hit);
 
 	return false;
@@ -595,7 +595,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 				float d1 = fabsf(ang2-_dir);
 				float d2 = _dir < ang2 ? _dir-ang2+PI2 : ang2-_dir+PI2;
 
-				if (__min(d1, d2) <= _delta_angle) Fire();
+				if( __min(d1, d2) <= _delta_angle ) Fire();
 			}
 			else
 			{
@@ -622,7 +622,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 		//	if( _jobManager.TakeJob(this) )
 			{
 				GC_Vehicle *target;
-				if ( target = EnumTargets() )
+				if( target = EnumTargets() )
 					SelectTarget(target);
 			}
 		}
@@ -631,7 +631,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 	case TS_HIDDEN:
 		if( _jobManager.TakeJob(this) )
 		{
-			if ( EnumTargets() ) WakeUp();
+			if( EnumTargets() ) WakeUp();
 		}
 		break;
 
@@ -773,7 +773,7 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 
 		_time += dt;
 
-		for (; _time > 0; _time -= 0.04f)
+		for( ; _time > 0; _time -= 0.04f )
 		{
 			float ang = _dir + net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);

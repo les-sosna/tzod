@@ -40,7 +40,7 @@ public:
 
 
 #define WM_NEWDATA			(WM_USER + 1002)
-#define WM_CUSTOMCLIENTMSG	(WM_USER + 1003)	// this message must be mirrored back
+#define WM_CUSTOMCLIENTMSG	(WM_USER + 1003) // this message must be mirrored back
 
 
 typedef struct NETWORKSTATS
@@ -71,11 +71,11 @@ class TankClient
 	bool _bReadyToSend;
 	bool _bInit;
 
-	bool recv_all();	// return false if an error accrues
-	bool send_all();	// return false if an error accrues
+	bool recv_all(); // return false if an error accrues
+	bool send_all(); // return false if an error accrues
 
 	Socket   _socket;
-	HWND   _hWnd;	// этому окну приходят сообщения о новых данных
+	HWND   _hWnd; // этому окну приходят сообщения о новых данных
 	void NewData(const DataBlock &data);
 	void Message(const char *msg, bool err = false);
 

@@ -18,7 +18,7 @@ class GC_Winamp : public GC_Object
 private:
 	HWND _hwnd_winamp;
 
-	DWORD _time_last;	// время, независимое от скорости игры
+	DWORD _time_last; // время, независимое от скорости игры
 	int   _time;
 
 	char _last_b1;
@@ -35,7 +35,7 @@ private:
 
 	void SendCommand(HWND hWnd, WPARAM command, char *last, char *current)
 	{
-		if (*last && !*current)	PostMessage(hWnd, WM_COMMAND, command, 0);
+		if( *last && !*current ) PostMessage(hWnd, WM_COMMAND, command, 0);
 		*last = *current;
 	}
 
@@ -77,12 +77,12 @@ public:
 	GC_Camera(GC_Player *pPlayer);
 	GC_Camera(FromFile);
 
-	void Select();	         // применение трансформации, выбор камеры как текущей
-	void Activate(bool bActivate);	// неактивная камера не отображается на экране
+	void Select();         // применение трансформации, выбор камеры как текущей
+	void Activate(bool bActivate);  // неактивная камера не отображается на экране
 	bool IsActive() const { return _active && !IsKilled(); }
 
 	static void SwitchEditor();
-	static void UpdateLayout();	// пересчет координат viewports
+	static void UpdateLayout(); // пересчет координат viewports
 	static bool GetWorldMousePos(vec2d &pos);
 
 	virtual void Shake(float level);
@@ -228,7 +228,7 @@ class GC_HealthDaemon : public GC_2dSprite
 
 private:
 	float _time;
-	float _damage;	//  hp per sec
+	float _damage; //  hp per sec
 
 	SafePtr<GC_RigidBodyStatic> _victim;
 	SafePtr<GC_RigidBodyStatic> _owner;
@@ -343,8 +343,8 @@ class GC_Text : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Text);
 
 private:
-	std::vector<size_t> _lines;	// длины строк
-	size_t              _maxline;	// макс. длина строки
+	std::vector<size_t> _lines;   // длины строк
+	size_t              _maxline; // макс. длина строки
 	enumAlignText       _align;
 	float               _margin_x;
 	float               _margin_y;
@@ -381,7 +381,7 @@ private:
 
 protected:
 	// PlayerDesc::index будет использоваться для хранения фрагов
-	std::vector<PlayerDesc>	_players;
+	std::vector<PlayerDesc> _players;
 
 	void Refresh();
 

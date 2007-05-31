@@ -27,11 +27,11 @@ protected:
 	DWORD _time_max_dt;
 
 public:
-	Timer();	// при создании таймер остановлен
+	Timer();  // при создании таймер остановлен
 	virtual ~Timer();
 
 public:
-	float GetDt();	// возвращает время между вызовами GetDt()
+	float GetDt(); // возвращает время между вызовами GetDt()
 	void  SetMaxDt(float dt); // установка максимального значения dt
 
 	void Start();

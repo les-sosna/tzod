@@ -6,59 +6,57 @@
 // z-уровни
 enum enumZOrder
 {
-	Z_EDITOR,			// метки в редакторе
-	Z_WATER,			// вода
-	Z_GAUSS_RAY,		// луч от Гаусса (проходит под стенами)
-	Z_WALLS,			// стены
-	Z_FREE_ITEM,		// лежащий на земле предмет (не виден под танком)
-	Z_VEHICLES,			// танки нах
-	Z_ATTACHED_ITEM,	// предмет, установленый на танке (оружие и т.д.)
-	Z_PROJECTILE,		// летящие снаряды
-	Z_EXPLODE,			// взрывы
-	Z_VEHICLE_LABEL,	// метки на танке (прицел, здоровье, ...)
-	Z_PARTICLE,			// частицы, дым
-	Z_WOOD,				// лес, под которым ни черта не видно :)
+	Z_EDITOR,           // метки в редакторе
+	Z_WATER,            // вода
+	Z_GAUSS_RAY,        // луч от Гаусса (проходит под стенами)
+	Z_WALLS,            // стены
+	Z_FREE_ITEM,        // лежащий на земле предмет (не виден под танком)
+	Z_VEHICLES,         // танки нах
+	Z_ATTACHED_ITEM,    // предмет, установленый на танке (оружие и т.д.)
+	Z_PROJECTILE,       // летящие снаряды
+	Z_EXPLODE,          // взрывы
+	Z_VEHICLE_LABEL,    // метки на танке (прицел, здоровье, ...)
+	Z_PARTICLE,         // частицы, дым
+	Z_WOOD,             // лес, под которым ни черта не видно :)
 	//------------------//
-	Z_SCREEN,			// самый верхний слой всегда рисуется в экранных координатах
+	Z_SCREEN,           // самый верхний слой всегда рисуется в экранных координатах
 	//------------------//
-	Z_COUNT,			// не используется (счетчик числа уровней)
+	Z_COUNT,            // не используется (счетчик числа уровней)
 	//------------------//
-	Z_NONE = 0x7FFFFFFF	// не рисуется
+	Z_NONE = 0x7FFFFFFF // не рисуется
 };
 
 
 //---------------------------------------------------------------
 // Параметы таблицы фрагов
-#define SCORE_POS_NUMBER	16
-#define SCORE_POS_NAME		48
-#define SCORE_POS_SCORE		16	// от правого края таблицы
-#define SCORE_LIMITS_LEFT	64
-#define SCORE_TIMELIMIT_TOP	16
-#define SCORE_FRAGLIMIT_TOP	36
-#define SCORE_NAMES_TOP		64
-#define SCORE_ROW_HEIGHT	24
+#define SCORE_POS_NUMBER     16
+#define SCORE_POS_NAME       48
+#define SCORE_POS_SCORE      16 // от правого края таблицы
+#define SCORE_LIMITS_LEFT    64
+#define SCORE_TIMELIMIT_TOP  16
+#define SCORE_FRAGLIMIT_TOP  36
+#define SCORE_NAMES_TOP      64
+#define SCORE_ROW_HEIGHT     24
 
 //---------------------------------------------------------------
 // Параметры уровня
-#define LEVEL_MINSIZE	16
-#define LEVEL_MAXSIZE	512
-#define LEVEL_DEFAULTX	32
-#define LEVEL_DEFAULTY	24
-#define CELL_SIZE		32				// размер клетки
-#define LOCATION_SIZE	(CELL_SIZE*8)	/* размер локации (должен быть как минимум
-									       в 2 раза больша любого объекта)	*/
+#define LEVEL_MINSIZE   16
+#define LEVEL_MAXSIZE   512
+#define CELL_SIZE       32             // размер клетки
+#define LOCATION_SIZE   (CELL_SIZE*8)  // размер локации (должен быть как минимум
+                                       // в 2 раза больша любого объекта)
 
-#define MAX_GAMESPEED	200
-#define MIN_GAMESPEED	20
+#define MAX_GAMESPEED   200
+#define MIN_GAMESPEED   20
 
-#define MAX_TIMELIMIT	180
-#define MAX_FRAGLIMIT	10000
+#define MAX_TIMELIMIT   180
+#define MAX_FRAGLIMIT   10000
 
-#define MAX_NETWORKSPEED	50
-#define MIN_NETWORKSPEED	10
+#define MAX_NETWORKSPEED    50
+#define MIN_NETWORKSPEED    10
 
-#define MAX_LATENCY			10
-#define MIN_LATENCY			1
+#define MAX_LATENCY         10
+#define MIN_LATENCY         1
 
 
 //---------------------------------------------------------------
@@ -121,26 +119,26 @@ enum enumZOrder
 // полезность предметов
 
 // если полезность <= AIP_NOTREQUIRED то бот игнорирует предмет
-#define AIP_NOTREQUIRED		0.0f
+#define AIP_NOTREQUIRED     0.0f
 
 // эталоный уровень полезности
-#define AIP_NORMAL			1.0f
+#define AIP_NORMAL          1.0f
 
 // с расстоянием полезность уменьшается: p = (base - AIP_NORMAL * l / AI_MAX_DEPTH)
 // где base - базовый уровень полезности, l - расстояние в клетках
 
 
-#define AIP_WEAPON_NORMAL	(AIP_NORMAL )		// полезность оружия, когда танк безоружен
-#define AIP_WEAPON_FAVORITE	(AIP_NORMAL / 2)	// бонус для любимого оружия
-#define AIP_WEAPON_ADVANCED	(AIP_NORMAL / 2)	// полезность оружия с прицепленным бестером
-#define AIP_HEALTH			(AIP_NORMAL)		// полезность аптеки, когда здоровье танка на нуле
-#define AIP_BOOSTER			(AIP_NORMAL )		// бустер оружия
-#define AIP_BOOSTER_HAVE	(AIP_BOOSTER / 10)	// если бустер уже есть
-#define AIP_SHOCK			(AIP_NORMAL )		// электрошок
-#define AIP_INVULN			(AIP_NORMAL )		// неуязвимость
+#define AIP_WEAPON_NORMAL   (AIP_NORMAL)        // полезность оружия, когда танк безоружен
+#define AIP_WEAPON_FAVORITE (AIP_NORMAL / 2)    // бонус для любимого оружия
+#define AIP_WEAPON_ADVANCED (AIP_NORMAL / 2)    // полезность оружия с прицепленным бестером
+#define AIP_HEALTH          (AIP_NORMAL)        // полезность аптеки, когда здоровье танка на нуле
+#define AIP_BOOSTER         (AIP_NORMAL)        // бустер оружия
+#define AIP_BOOSTER_HAVE    (AIP_BOOSTER / 10)  // если бустер уже есть
+#define AIP_SHOCK           (AIP_NORMAL)        // электрошок
+#define AIP_INVULN          (AIP_NORMAL)        // неуязвимость
 
-#define AI_MAX_DEPTH	50.0f
-#define AI_MAX_SIGHT	20.0f
+#define AI_MAX_DEPTH   50.0f
+#define AI_MAX_SIGHT   20.0f
 
 //---------------------------------------------------------------
 // Параметры стационарных установок

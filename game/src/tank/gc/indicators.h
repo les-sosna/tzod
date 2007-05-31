@@ -18,7 +18,7 @@ class GC_SpawnPoint : public GC_2dSprite
 	MemberOfGlobalList _memberOf;
 
 public:
-	int   _team;		// 0 - no team
+	int   _team;    // 0 - no team
 
 public:
 	GC_SpawnPoint(float x, float y);

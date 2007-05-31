@@ -79,12 +79,12 @@ void GC_Winamp::EndFrame()
 
 	if( g_env.envInputs.keys[g_options.wkWinampKeys.keyVolumeUp] )
 	{
-		for (; _time > 0; _time -= 20)
+		for( ; _time > 0; _time -= 20 )
 			PostMessage(_hwnd_winamp, WM_COMMAND, WINAMP_VOLUMEUP, 0);
 	}
 	else if( g_env.envInputs.keys[g_options.wkWinampKeys.keyVolumeDown] )
 	{
-		for (; _time > 0; _time -= 20)
+		for( ; _time > 0; _time -= 20 )
 			PostMessage(_hwnd_winamp, WM_COMMAND, WINAMP_VOLUMEDOWN, 0);
 	}
 	else
@@ -185,10 +185,10 @@ void GC_Camera::TimeStepFloat(float dt)
 		_target.y = __min(_target.y, g_level->_sy - (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
 	}
 
-	if (_time_shake > 0)
+	if( _time_shake > 0 )
 	{
 		_time_shake -= dt;
-		if (_time_shake < 0) _time_shake = 0;
+		if( _time_shake < 0 ) _time_shake = 0;
 	}
 
 	MoveTo(_target + (_pos - _target) * expf(-dt * mu));
@@ -299,7 +299,7 @@ void GC_Camera::EndFrame()
 	else
 		_dwTimeY = GetTickCount();
 	//---------------------------------------
-	if (bMove)
+	if( bMove )
 		_dt = __max(10.0f, 1.0f / (1.0f / _dt + 0.001f));
 	else
 		_dt = 50.0f;
@@ -322,7 +322,7 @@ void GC_Camera::UpdateLayout()
 	GC_Camera *tmp = NULL;
 	size_t active_count = 0;
 
-	ENUM_BEGIN(cameras, GC_Camera, pCamera)
+	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->IsKilled() )
 		{
@@ -336,7 +336,7 @@ void GC_Camera::UpdateLayout()
 			if( tmp->IsActive() )
 				++active_count;
 		}
-	} ENUM_END();
+	}
 
 	if( tmp && 0 == active_count )
 	{
@@ -355,9 +355,10 @@ void GC_Camera::UpdateLayout()
 			(g_render->getXsize() + (int) g_level->_sx) / 2,
 			(g_render->getYsize() + (int) g_level->_sy) / 2
 		);
-		ENUM_BEGIN(cameras, GC_Camera, pCamera)	{
+		FOREACH( cameras, GC_Camera, pCamera)
+		{
 			pCamera->_viewport = viewports[0];
-		} ENUM_END();
+		}
 	}
 	else
 	{
@@ -392,12 +393,12 @@ void GC_Camera::UpdateLayout()
 
 		size_t count = 0;
 		float  zoom  = active_count > 2 ? 0.5f : 1.0f;
-		ENUM_BEGIN(cameras, GC_Camera, pCamera)
+		FOREACH( cameras, GC_Camera, pCamera )
 		{
 			if( !pCamera->IsActive() ) continue;
 			pCamera->_viewport = viewports[count++];
 			pCamera->_zoom     = zoom;
-		} ENUM_END();
+		}
 	}
 }
 
@@ -405,7 +406,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 {
 	POINT ptinscr = { g_env.envInputs.mouse_x, g_env.envInputs.mouse_y };
 
-	ENUM_BEGIN(cameras, GC_Camera, pCamera)
+	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->IsActive() ) continue;
 		if( PtInRect(&pCamera->_viewport, ptinscr) )
@@ -415,7 +416,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
             pos.y = (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom + (float) g_env.camera_y;
 			return true;
 		}
-	} ENUM_END();
+	}
 	return false;
 }
 
@@ -555,10 +556,10 @@ void GC_Wood::UpdateTile(bool flag)
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_Wood *object = (GC_Wood *) (*it);
-			if (this == object) continue;
+			if( this == object ) continue;
 
 			vec2d dx = (_pos - object->_pos) / CELL_SIZE;
-			if (dx.Square() < 2.5f)
+			if( dx.Square() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
 				int y = int(dx.y + 1.5f);
@@ -596,9 +597,9 @@ void GC_Wood::Draw()
 	{
 		SetOpacity1i(255);
 
-		for (char i = 0; i < 8; ++i)
+		for( char i = 0; i < 8; ++i )
 		{
-			if ( 0 == (_tile & (1 << i)) )
+			if( 0 == (_tile & (1 << i)) )
 			{
 				SetPivot(dx[i] + GetSpriteWidth() * 0.5f, dy[i] + GetSpriteHeight() * 0.5f);
 				SetFrame(frames[i]);
@@ -868,7 +869,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 		for( int i = 0; i < 8; ++i )
 		{
-			if (i > 3)
+			if( i > 3 )
 			if( !field[coord(node->x + per_x[check_diag[(i-4)*2  ]], node->y + per_y[check_diag[(i-4)*2  ]])].open &&
 				!field[coord(node->x + per_x[check_diag[(i-4)*2+1]], node->y + per_y[check_diag[(i-4)*2+1]])].open )
 			{
@@ -906,7 +907,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 void GC_Explosion::Boom(float radius, float damage)
 {
-	ENUM_BEGIN(cameras, GC_Camera, pCamera)
+	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
 		if( pCamera->_player->_vehicle )
@@ -917,7 +918,7 @@ void GC_Explosion::Boom(float radius, float damage)
 			if( level > 0 )
 				pCamera->Shake(level);
 		}
-	} ENUM_END();
+	}
 
 	///////////////////////////////////////////////////////////
 
@@ -937,7 +938,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	// подготовка поля для трассировки
 	//
 	std::vector<OBJECT_LIST*>::iterator it = receive.begin();
-	for (; it != receive.end(); ++it)
+	for( ; it != receive.end(); ++it )
 	{
 		OBJECT_LIST::iterator cdit = (*it)->begin();
 		while(cdit != (*it)->end())
@@ -945,7 +946,7 @@ void GC_Explosion::Boom(float radius, float damage)
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
 			++cdit;
 
-			if (pDamObject->IsKilled())	continue;
+			if( pDamObject->IsKilled() ) continue;
 			if( GC_Wall_Concrete::this_type == pDamObject->GetType() )
 			{
 				node.x = int(pDamObject->_pos.x / CELL_SIZE);
@@ -960,7 +961,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	//
 
 	bool bNeedClean = false;
-	for (it = receive.begin(); it != receive.end(); ++it)
+	for( it = receive.begin(); it != receive.end(); ++it )
 	{
 		OBJECT_LIST::iterator cdit = (*it)->begin();
 		while(cdit != (*it)->end())
@@ -968,7 +969,7 @@ void GC_Explosion::Boom(float radius, float damage)
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
 			++cdit;
 
-			if (pDamObject->IsKilled())	continue;
+			if( pDamObject->IsKilled() ) continue;
 
 
 			FRECT frtObjColRect;
@@ -1282,9 +1283,9 @@ void GC_Text::UpdateLines()
 	{
 		++count;
 		++tmp;
-		if ('\n' == *tmp || '\0' == *tmp)
+		if( '\n' == *tmp || '\0' == *tmp )
 		{
-			if (count > _maxline) _maxline = count;
+			if( count > _maxline ) _maxline = count;
 			_lines.push_back(count);
 			count = 0;
 			continue;
@@ -1358,13 +1359,13 @@ void GC_TextScore::Refresh()
 	// перебираем всех игроков и заносим в таблицу _players[]
 	//
 	_players.clear();
-	ENUM_BEGIN(players, GC_Player, pPlayer)
+	FOREACH( players, GC_Player, pPlayer )
 	{
-		if (pPlayer->IsKilled()) continue;
+		if( pPlayer->IsKilled() ) continue;
 		_players.push_back( PlayerDesc() );
 		_players.back().score = pPlayer->_score;
 		strcpy(_players.back().name, pPlayer->_name.c_str());
-	} ENUM_END();
+	}
 
 	if( _players.empty() ) return;
 
@@ -1437,7 +1438,7 @@ void GC_TextScore::Draw()
 				max_score = _players[i].score;
 		}
 		int scoreleft = g_conf.sv_fraglimit->GetInt() - max_score;
-		if (scoreleft > 0)
+		if( scoreleft > 0 )
 			wsprintf(text, "Осталось фрагов  %d", scoreleft);
 		else
 			wsprintf(text, "Достигнут лимит фрагов");
@@ -1511,7 +1512,7 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 	GC_Text::TimeStepFloat(dt);
 	_time += dt;
 	MoveTo(vec2d(_pos.x, _y0 - _time * 20.0f));
-	if (_time > 1.0f) Kill();
+	if( _time > 1.0f ) Kill();
 }
 
 /////////////////////////////////////////////////////////////

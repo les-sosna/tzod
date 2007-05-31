@@ -109,7 +109,7 @@ public:
 
 
 private:
-	OBJECT_LIST::iterator _globalZPos;	// позиция в списке onscreen или z_globals
+	OBJECT_LIST::iterator _globalZPos; // позиция в списке onscreen или z_globals
 
 private:
 	void UpdateCurrentZ();

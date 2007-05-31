@@ -40,8 +40,8 @@ void Rotator::setl(float limit, float current, float stop)
 	_accel_current    = current;
 	_accel_stop       = stop;
 
-	if (_velocity_current >  limit) _velocity_current =  limit;
-	if (_velocity_current < -limit) _velocity_current = -limit;
+	if( _velocity_current >  limit ) _velocity_current =  limit;
+	if( _velocity_current < -limit ) _velocity_current = -limit;
 }
 
 //-------------------------------------------------------------------
@@ -53,9 +53,9 @@ void Rotator::rotate_to(float new_target)
 	_ASSERT(_accel_stop > 0);
 
 	new_target = fmodf(new_target, PI2);
-	if (new_target < 0)	new_target += PI2;
+	if( new_target < 0 ) new_target += PI2;
 
-	if (new_target == _rCurrent && RS_STOPPED == _state) return;
+	if( new_target == _rCurrent && RS_STOPPED == _state ) return;
 
 	_angle_target = new_target;
 	_state = RS_GETTING_ANGLE;
@@ -79,7 +79,7 @@ void Rotator::stop()
 {
 	_ASSERT(_accel_stop > 0);
 
-	if (RS_STOPPED != _state)
+	if( RS_STOPPED != _state )
 	{
 		_state = RS_DEACTIVATED;
 	}
@@ -89,10 +89,10 @@ void Rotator::impulse(float dv)
 {
 	_velocity_current += dv;
 
-	if (_velocity_current >  _velocity_limit) _velocity_current =  _velocity_limit;
-	if (_velocity_current < -_velocity_limit) _velocity_current = -_velocity_limit;
+	if( _velocity_current >  _velocity_limit ) _velocity_current =  _velocity_limit;
+	if( _velocity_current < -_velocity_limit ) _velocity_current = -_velocity_limit;
 
-	if (RS_STOPPED == _state) _state = RS_DEACTIVATED;
+	if( RS_STOPPED == _state ) _state = RS_DEACTIVATED;
 }
 
 //-------------------------------------------------------------------
@@ -105,12 +105,12 @@ bool Rotator::process_dt(float dt)
 	switch (_state)
 	{
 	case RS_RIGHT:
-		if (_velocity_current < 0)
+		if( _velocity_current < 0 )
 		{
-			if (-_velocity_current < dt * _accel_stop)
+			if( -_velocity_current < dt * _accel_stop )
 			{
 				float new_v = _accel_current * (dt + _velocity_current / _accel_stop);
-				if (new_v > _velocity_limit)
+				if( new_v > _velocity_limit )
 				{
 					_rCurrent += -(_velocity_current * (_velocity_current - 2.0f * _velocity_limit)) /
 						(2.0f * _accel_stop) + dt * _velocity_limit -
@@ -134,7 +134,7 @@ bool Rotator::process_dt(float dt)
 		else
 		{
 			float new_v = _velocity_current + dt * _accel_current;
-			if (new_v > _velocity_limit)
+			if( new_v > _velocity_limit )
 			{
 				_rCurrent += (_accel_current * dt * _velocity_limit -
 					0.5f * powf(_velocity_current - _velocity_limit,2)) / _accel_current;
@@ -149,12 +149,12 @@ bool Rotator::process_dt(float dt)
 		}
 		break;
 	case RS_LEFT:
-		if (_velocity_current > 0)
+		if( _velocity_current > 0 )
 		{
-			if (_velocity_current < dt * _accel_stop)
+			if( _velocity_current < dt * _accel_stop )
 			{
 				float new_v = _accel_current * (_velocity_current / _accel_stop - dt);
-				if (new_v < -_velocity_limit)
+				if( new_v < -_velocity_limit )
 				{
 					_rCurrent += -(_velocity_current * (_velocity_current + 2.0f * _velocity_limit)) /
 						(-2.0f * _accel_stop) - dt * _velocity_limit +
@@ -178,7 +178,7 @@ bool Rotator::process_dt(float dt)
 		else
 		{
 			float new_v = _velocity_current - dt * _accel_current;
-			if (new_v < -_velocity_limit)
+			if( new_v < -_velocity_limit )
 			{
 				_rCurrent += (0.5f * powf(_velocity_current + _velocity_limit,2) -
 					_accel_current * dt * _velocity_limit) / _accel_current;
@@ -193,10 +193,10 @@ bool Rotator::process_dt(float dt)
 		}
 		break;
 	case RS_DEACTIVATED:
-		if (_velocity_current > 0)
+		if( _velocity_current > 0 )
 		{
 			float new_v = _velocity_current - dt * _accel_stop;
-			if (new_v < 0)
+			if( new_v < 0 )
 			{
 				_rCurrent += _velocity_current * _velocity_current / (2.0f * _accel_stop);
 				_velocity_current = 0;
@@ -211,7 +211,7 @@ bool Rotator::process_dt(float dt)
 		else
 		{
 			float new_v = _velocity_current + dt * _accel_stop;
-			if (new_v > 0)
+			if( new_v > 0 )
 			{
 				_rCurrent -= _velocity_current * _velocity_current / (2.0f * _accel_stop);
 				_velocity_current = 0;
@@ -231,7 +231,7 @@ bool Rotator::process_dt(float dt)
 
 
 	_rCurrent = fmodf(_rCurrent, PI2);
-	if (_rCurrent < 0)	_rCurrent += PI2;
+	if( _rCurrent < 0 ) _rCurrent += PI2;
 
 	return _rCurrent != old;
 }
@@ -251,8 +251,8 @@ void Rotator::OnGettingAngle(float dt)
 	float xt1 = _angle_target - PI2;
 	float xt2 = _angle_target + PI2;
 
-	if (fabsf(xc - xt1) < fabsf(xc - xt2) &&
-		fabsf(xc - xt1) < fabsf(xc - _angle_target))
+	if( fabsf(xc - xt1) < fabsf(xc - xt2) &&
+		fabsf(xc - xt1) < fabsf(xc - _angle_target) )
 	{
 		// отрицательное
 
@@ -262,8 +262,8 @@ void Rotator::OnGettingAngle(float dt)
 		as = _accel_stop;
 
 	}
-	else if (fabsf(xc - xt2) < fabsf(xc - xt1) &&
-		fabsf(xc - xt2) < fabsf(xc - _angle_target))
+	else if( fabsf(xc - xt2) < fabsf(xc - xt1) &&
+		fabsf(xc - xt2) < fabsf(xc - _angle_target) )
 	{
 		// положительное
 
@@ -276,7 +276,7 @@ void Rotator::OnGettingAngle(float dt)
 	{
 		xt = _angle_target;
 
-		if (xt > xc)
+		if( xt > xc )
 		{
 			// положительное
 
@@ -295,7 +295,7 @@ void Rotator::OnGettingAngle(float dt)
 	}
 
 
-	if (xc == xt && 0 == vc)
+	if( xc == xt && 0 == vc )
 	{
 		_state = RS_STOPPED;
 		return;
@@ -308,7 +308,7 @@ void Rotator::OnGettingAngle(float dt)
 	// as - коэффициент торможения с учетом направления
 	// aс - коэффициент ускорения с учетом направления
 
-	if (xt > xc && vc >= 0 || xt < xc && vc <= 0)
+	if( xt > xc && vc >= 0 || xt < xc && vc <= 0 )
 	{
 		// начальная скорость уже направлена в нужную сторону,
 		// или равняется нулю. предварительная остановка не требуется
@@ -318,7 +318,7 @@ void Rotator::OnGettingAngle(float dt)
 		// координата цели такова, что наблюдается самый общий случай
 		// т.е. ускорение, движение с постоянной скоростью и замедление
 		x0 = (vl*vl - vc*vc)/(2.0f * ac) - (vl*vl)/(2.0f * as) + xc;
-		if ((xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt))
+		if( (xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt) )
 		{
 			ga_t1(dt, ac, as, vl, xt);
 			return;
@@ -327,7 +327,7 @@ void Rotator::OnGettingAngle(float dt)
 		// вырождается участок с прямолинейным движением.
 		// в этом случае не достигается максимальная скорость
 		x0 = xc - (vc*vc)/(2.0f * as);
-		if ((xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt))
+		if( (xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt) )
 		{
 			ga_t2(dt, ac, as, xt);
 			return;
@@ -356,7 +356,7 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 
 	// фаза ускорения
 	float t1 = (vl - vc) / ac;
-	if (t <= t1)
+	if( t <= t1 )
 	{
 		xc = (ac * t*t) * 0.5f + t*vc + xc;
 		vc = ac*t + vc;
@@ -365,7 +365,7 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 
 	// фаза движения с постоянной скоростью
 	float t2 = (ac * vl*vl + as*((vc - vl)*(vc - vl) + 2*ac*(xt - xc)))/(2.0f*ac*as*vl);
-	if (t <= t2)
+	if( t <= t2 )
 	{
 		xc = t*vl - (vc - vl)*(vc - vl)/(2.0f*ac) + xc;
 		vc = vl;
@@ -374,7 +374,7 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 
 	// фаза замедления
 	float t3 = (as*((vc - vl)*(vc - vl) + 2*ac*(-xc + xt)) - ac*vl*vl)/(2.0f*ac*as*vl);
-	if (t <= t3)
+	if( t <= t3 )
 	{
 		float new_xc = (vl*vl/as + (as*powf((vc - vl)*(vc - vl) - 2*ac*(t*vl + xc - xt),2))/
 			(ac*ac*vl*vl) + (-2*(vc - vl)*(vc - vl) + 4*ac*(t*vl + xc + xt))/ac)/8.0f;
@@ -397,11 +397,11 @@ void Rotator::ga_t2(float t, float ac, float as, float xt)
 
 	// фаза ускорения
 	float t1;
-	if (ac - as > 0 && as < 0)
+	if( ac - as > 0 && as < 0 )
 		t1 = ((-vc + sqrtf((as*(2*ac*(xc - xt) - (vc*vc)))/(ac - as)))/ac);
 	else
 		t1 = ((-vc - sqrtf((as*(2*ac*(xc - xt) - (vc*vc)))/(ac - as)))/ac);
-	if (t <= t1)
+	if( t <= t1 )
 	{
 		xc = (ac * t*t) * 0.5f + t*vc + xc;
 		vc = ac*t + vc;
@@ -410,11 +410,11 @@ void Rotator::ga_t2(float t, float ac, float as, float xt)
 
 	// фаза замедления
 	float t2;
-	if (ac - as > 0 && as < 0)
+	if( ac - as > 0 && as < 0 )
 		t2 = ((-vc + sqrtf(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
 	else
 		t2 = ((-vc - sqrtf(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
-	if (t <= t2)
+	if( t <= t2 )
 	{
 		float new_xc = ((ac*ac)*as*(t*t) + 2*ac*as*t*vc - ac*(vc*vc) + 2*as*(vc*vc) +
 			2*(ac*ac)*xc - 2*ac*as*xc + 2*(ac*t + vc)*sqrtf((ac - as)*as*(2*ac*(xc - xt) -
@@ -442,7 +442,7 @@ void Rotator::ga_t3(float t, float as)
 
 	// критическое время - момент остановки
 	float t0 = -vc/as;
-	if (t <= t0)
+	if( t <= t0 )
 	{
 		// точка остановки не достигнута
 		xc = (as * t*t) * 0.5f + t*vc + xc;
@@ -461,7 +461,7 @@ void Rotator::ga_t3(float t, float as)
 
 void Rotator::setup_sound(GC_Sound *pSound)
 {
-	if (RS_STOPPED == _state)
+	if( RS_STOPPED == _state )
 	{
 		pSound->Pause(true);
 	}

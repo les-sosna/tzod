@@ -92,11 +92,11 @@ public:
 
 	float operator*(const vec2d &rVector) const
 	{
-		return x*rVector.x + y*rVector.y;	// скал€рное произведение
+		return x*rVector.x + y*rVector.y;  // dot product
 	}
 
 public:
-	float Square() const // скал€рный квадрат
+	float Square() const
 	{
 		return x*x + y*y;
 	}

@@ -158,7 +158,7 @@ public:
 	GC_Wall_Concrete(float xPos, float yPos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
-	virtual unsigned char GetProperties() const { return 0xFF; }	// непроходимое препятствие
+	virtual unsigned char GetProperties() const { return 0xFF; } // непроходимое препятствие
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 };
 

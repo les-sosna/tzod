@@ -194,7 +194,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			_damLabel = new GC_DamLabel(this);
 	}
 
-	ENUM_BEGIN(cameras, GC_Camera, pCamera)
+	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
 		if( this == pCamera->_player->_vehicle )
@@ -202,7 +202,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			pCamera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
 			break;
 		}
-	} ENUM_END();
+	}
 
 
 	if( GetHealth() <= 0 )
@@ -393,42 +393,38 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	// caterpillar tracks
 	//
 
-	vec2d tmp(_angle+PI/2);
-	vec2d trackL_new = _pos + tmp*15;
-	vec2d trackR_new = _pos - tmp*15;
-
-	vec2d e = trackL_new - trackL;
-	float len = e.Length();
-	e /= len;
-	while( _fTrackPathL < len )
+	if( g_options.bParticles )
 	{
-		if( g_options.bParticles )
+		vec2d tmp(_angle+PI/2);
+		vec2d trackL_new = _pos + tmp*15;
+		vec2d trackR_new = _pos - tmp*15;
+
+		vec2d e = trackL_new - trackL;
+		float len = e.Length();
+		e /= len;
+		while( _fTrackPathL < len )
 		{
 			GC_Particle *p = new GC_Particle(trackL + e * _fTrackPathL,
 				vec2d(0, 0), track, 12, e.Angle());
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
+			_fTrackPathL += _fTrackDensity;
 		}
-		_fTrackPathL += _fTrackDensity;
-	}
-	_fTrackPathL -= len;
+		_fTrackPathL -= len;
 
-	e   = trackR_new - trackR;
-	len = e.Length();
-	e  /= len;
-	while( _fTrackPathR < len )
-	{
-		if( g_options.bParticles )
+		e   = trackR_new - trackR;
+		len = e.Length();
+		e  /= len;
+		while( _fTrackPathR < len )
 		{
 			GC_Particle *p = new GC_Particle(trackR + e * _fTrackPathR,
 				vec2d(0, 0), track, 12, e.Angle());
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
+			_fTrackPathR += _fTrackDensity;
 		}
-		_fTrackPathR += _fTrackDensity;
+		_fTrackPathR -= len;
 	}
-	_fTrackPathR -= len;
-
 
 
 	//

@@ -28,8 +28,8 @@ protected:
 	SafePtr<GC_Light>           _light;
 
 	float _trailDensity;
-	float _trailPath;		// когда это значение превышает _trailDensity,
-							// рождается TrailParticle
+	float _trailPath;   // когда это значение превышает _trailDensity,
+	                    // рождается TrailParticle
 
 protected:
 	virtual void MoveTo(const vec2d &pos, BOOL bTrail);

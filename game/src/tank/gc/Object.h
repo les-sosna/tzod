@@ -28,33 +28,33 @@ struct ObjectContext
 /////////////////////////////////////////
 // rtti and serialization
 
-#define DECLARE_SELF_REGISTRATION(cls)	\
-private:								\
-typedef cls __this_class;				\
-static bool _registered;				\
-static bool _self_register();			\
-public:									\
-static ObjectType this_type;			\
-virtual ObjectType GetType()			\
-{										\
-	return this_type;					\
+#define DECLARE_SELF_REGISTRATION(cls)  \
+private:                                \
+typedef cls __this_class;               \
+static bool _registered;                \
+static bool _self_register();           \
+public:                                 \
+static ObjectType this_type;            \
+virtual ObjectType GetType()            \
+{                                       \
+	return this_type;                   \
 } private:
 
 
-#define IMPLEMENT_SELF_REGISTRATION(cls)								\
-ObjectType cls::this_type = _register_type<cls>(typeid(cls).name());	\
-bool cls::_registered = cls::_self_register();							\
+#define IMPLEMENT_SELF_REGISTRATION(cls)                              \
+ObjectType cls::this_type = _register_type<cls>(typeid(cls).name());  \
+bool cls::_registered = cls::_self_register();                        \
 bool cls::_self_register()
 
 
 // for template classes (experimental)
-#define IMPLEMENT_SELF_REGISTRATION_T(cls)				\
-template<class T>										\
-ObjectType cls<T>::this_type = (cls<T>::_registered,	\
-	_register_type<cls<T> >(typeid(cls<T>).name()));	\
-template<class T>										\
-bool cls<T>::_registered = cls<T>::_self_register();	\
-template<class T>										\
+#define IMPLEMENT_SELF_REGISTRATION_T(cls)             \
+template<class T>                                      \
+ObjectType cls<T>::this_type = (cls<T>::_registered,   \
+	_register_type<cls<T> >(typeid(cls<T>).name()));   \
+template<class T>                                      \
+bool cls<T>::_registered = cls<T>::_self_register();   \
+template<class T>                                      \
 bool cls<T>::_self_register()
 
 
@@ -195,9 +195,9 @@ private:
 	struct Notify
 	{
 		NotyfyType           type;
-		bool                 once;		// событие должно быть удалено после исполнения
-		bool                 removed;	// событие помечено для удаления
-		bool                 hasGuard;	// у события есть пара OnKillSubscriber
+		bool                 once;      // событие должно быть удалено после исполнения
+		bool                 removed;   // событие помечено для удаления
+		bool                 hasGuard;  // у события есть пара OnKillSubscriber
 		SafePtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
 		//---------------------------------------
@@ -263,8 +263,8 @@ protected:
 	}
 
 
-public:		// FIXME!
-	vec2d			_pos;				// положение центра объекта в мире
+public:    // FIXME!
+	vec2d  _pos;    // положение центра объекта в мире
 
 
 	//

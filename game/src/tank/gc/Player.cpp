@@ -129,19 +129,19 @@ void GC_Player::Respawn()
 	GC_SpawnPoint *pBestPoint = NULL; // оптимальная точка
 	float max_dist = -1;
 
-	ENUM_BEGIN(respawns, GC_SpawnPoint, object)
+	FOREACH( respawns, GC_SpawnPoint, object )
 	{
 		pSpawnPoint = (GC_SpawnPoint*) object;
 		if( pSpawnPoint->_team && (pSpawnPoint->_team != _team) )
 			continue;
 
 		float dist = -1;
-		ENUM_BEGIN(vehicles, GC_Vehicle, pVeh)
+		FOREACH( vehicles, GC_Vehicle, pVeh )
 		{
 			if( pVeh->IsKilled() ) continue;
 			float d = (pVeh->_pos - pSpawnPoint->_pos).Square();
 			if( d < dist || dist < 0 ) dist = d;
-		} ENUM_END();
+		}
 
 		if( dist > 0 && dist < 4*CELL_SIZE*CELL_SIZE )
 		{
@@ -156,7 +156,7 @@ void GC_Player::Respawn()
 			max_dist = dist;
 			pBestPoint = pSpawnPoint;
 		}
-	} ENUM_END();
+	}
 
 	if( !pBestPoint && points.empty() )
 	{

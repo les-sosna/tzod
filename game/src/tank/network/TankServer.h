@@ -28,7 +28,7 @@ class TankServer
 		HANDLE semaphore;            // семафор контролирует наличие данных в очереди
 		CRITICAL_SECTION cs;         // критическая секция защищает поля data и ctrl
 		std::queue<DataBlock> data;  // данные, которые должны быть обработаны потоком
-		std::queue<ControlPacket> ctrl;	// поступившие от игрока данные управления
+		std::queue<ControlPacket> ctrl;// поступившие от игрока данные управления
 	};
 
 

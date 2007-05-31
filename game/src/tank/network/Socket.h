@@ -26,7 +26,7 @@ public:
 	int Wait(HANDLE hAbortEvent);
 	int Wait(const HANDLE *lphAbortEvents, size_t count);
 
-	int SetEvents(long lNetworkEvents);		// The return value is zero if the operation was successful
+	int SetEvents(long lNetworkEvents);  // The return value is zero if the operation was successful
 	int Close();
 	bool CheckEvent(int bit);
 

@@ -51,8 +51,8 @@ void FpsCounter::OnTimeStep(float dt)
 		for( std::list<float>::iterator it = _dts.begin(); it != _dts.end(); ++it )
 		{
 			avr += *it;
-			if (*it > max) max = *it;
-			if (*it < min) min = *it;
+			if( *it > max ) max = *it;
+			if( *it < min ) min = *it;
 		}
 		avr /= (float) _dts.size();
 
@@ -80,8 +80,8 @@ void FpsCounter::OnTimeStep(float dt)
 				 it != _dts_net.end(); ++it )
 			{
 				avr += *it;
-				if (*it > max) max = *it;
-				if (*it < min) min = *it;
+				if( *it > max ) max = *it;
+				if( *it < min ) min = *it;
 			}
 			avr /= (float) _dts_net.size();
 

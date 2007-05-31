@@ -37,7 +37,7 @@ public:
 
 
 public:
-	SafePtr<GC_Vehicle>	_vehicle;
+	SafePtr<GC_Vehicle> _vehicle;
 	bool dead() const
 	{
 		return _vehicle == NULL;

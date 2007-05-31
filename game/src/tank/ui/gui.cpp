@@ -459,7 +459,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 	lst->AddItem("компьютер", MAX_HUMANS);
 	if( -1 == _playerDesc.type )
 		_types->SetCurSel(0);
-	else if (MAX_HUMANS == _playerDesc.type)
+	else if( MAX_HUMANS == _playerDesc.type )
 		_types->SetCurSel(index);
 
 

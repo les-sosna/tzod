@@ -28,15 +28,15 @@ class FieldCell
 	{
         _ppObjects   = NULL;
 		_objCount    = 0;
-		_prop        = 0;		// свободно
+		_prop        = 0;     // свободно
 		//------------------
 		_mySession   = -1;
 	}
 public:
 
-	const FieldCell *_prevCell;	// предыдущая клетка пути
-	float _pathBefore;			// стоимость пути до данной клетки
-	float _pathAfter;			// оценка стоимости пути от данной клетки до пункта назначения
+	const FieldCell *_prevCell; // предыдущая клетка пути
+	float _pathBefore;          // стоимость пути до данной клетки
+	float _pathAfter;           // оценка стоимости пути от данной клетки до пункта назначения
 
 	inline int GetObjectsCount() const { return _objCount; }
 	inline GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
@@ -146,31 +146,31 @@ public:
 #endif
 
 	// logics
-	OBJECT_LIST		objects;		// global list
-	OBJECT_LIST		respawns;
-	OBJECT_LIST		projectiles;
-	OBJECT_LIST		players;
-	OBJECT_LIST		sounds;
-	OBJECT_LIST		indicators;
-	OBJECT_LIST		vehicles;
-	OBJECT_LIST		pickups;
-	OBJECT_LIST		cameras;
+	OBJECT_LIST     objects;     // global list
+	OBJECT_LIST     respawns;
+	OBJECT_LIST     projectiles;
+	OBJECT_LIST     players;
+	OBJECT_LIST     sounds;
+	OBJECT_LIST     indicators;
+	OBJECT_LIST     vehicles;
+	OBJECT_LIST     pickups;
+	OBJECT_LIST     cameras;
 
-	OBJECT_GRIDSET	grid_rigid_s;
-	OBJECT_GRIDSET	grid_walls;
-	OBJECT_GRIDSET	grid_wood;
-	OBJECT_GRIDSET	grid_water;
-	OBJECT_GRIDSET	grid_pickup;
+	OBJECT_GRIDSET  grid_rigid_s;
+	OBJECT_GRIDSET  grid_walls;
+	OBJECT_GRIDSET  grid_wood;
+	OBJECT_GRIDSET  grid_water;
+	OBJECT_GRIDSET  grid_pickup;
 
-	OBJECT_LIST		ts_floating;
-	OBJECT_LIST		ts_fixed;
-	OBJECT_LIST		endframe;
+	OBJECT_LIST     ts_floating;
+	OBJECT_LIST     ts_fixed;
+	OBJECT_LIST     endframe;
 
-	OBJECT_LIST		lights;
+	OBJECT_LIST     lights;
 
 	// graphics
-	OBJECT_LIST	    z_globals[Z_COUNT];
-	OBJECT_GRIDSET	z_grids[Z_COUNT-1];	// здесь нет слоя Z_SCREEN
+	OBJECT_LIST     z_globals[Z_COUNT];
+	OBJECT_GRIDSET  z_grids[Z_COUNT-1]; // здесь нет слоя Z_SCREEN
 
 	SafePtr<GC_Text>   _temporaryText;
 	void DrawText(const char *string, const vec2d &position, enumAlignText align = alignTextLT);
@@ -179,8 +179,8 @@ public:
 //settings
 	bool    _paused;
 	bool    _modeEditor;
-	bool	_limitHit;	// достигнут fraglimit или timelimit
-	float	_sx, _sy;	// размер уровня
+	bool    _limitHit;  // достигнут fraglimit или timelimit
+	float   _sx, _sy;   // размер уровня
 
 	int _locations_x;
 	int _locations_y;

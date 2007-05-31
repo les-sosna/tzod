@@ -41,7 +41,7 @@ class TextureManager
 	FileToTexDescMap _mapFile_to_TexDescIter;
 	DevToTexDescMap  _mapDevTex_to_TexDescIter;
 	TexDescList      _textures;
-	std::map<string_t, size_t>   _mapName_to_Index;	// index in _LogicalTextures
+	std::map<string_t, size_t>   _mapName_to_Index;// index in _LogicalTextures
 	std::vector<LogicalTexture>  _LogicalTextures;
 
 private:

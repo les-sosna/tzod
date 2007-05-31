@@ -311,7 +311,7 @@ HRESULT ReadImmediateData()
         return S_OK;
     }
 
-    for ( int i = 0; i < 256; i++ )
+    for( int i = 0; i < 256; ++i )
     {
         if( g_env.envInputs.keys[i] & 0x80 )
 			g_env.envInputs.keys[i] = 1;

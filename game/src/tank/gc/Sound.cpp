@@ -78,7 +78,7 @@ GC_Sound::~GC_Sound()
 void GC_Sound::Kill()
 {
 #if !defined NOSOUND
-	if (_soundBuffer)
+	if( _soundBuffer )
 	{
 		SetMode(SMODE_STOP);
 		_soundBuffer->Release();
@@ -102,27 +102,27 @@ void GC_Sound::SetMode(enumSoundMode mode)
 	{
 	case SMODE_PLAY:
 		_ASSERT(SMODE_UNKNOWN == _mode);
-		if (_countActive == _countMax)
+		if( _countActive == _countMax )
 		{
-			ENUM_RBEGIN(sounds, GC_Sound, pSound)
+			FOREACH_R( sounds, GC_Sound, pSound )
 			{
-				if (SMODE_PLAY == pSound->_mode)
+				if( SMODE_PLAY == pSound->_mode )
 				{
 					pSound->Kill();
 					break;
 				}
-			} ENUM_END();
+			}
 
 			if( _countActive == _countMax )
 			{
-				ENUM_RBEGIN(sounds, GC_Sound, pSound)
+				FOREACH_R( sounds, GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{
 						pSound->SetMode(SMODE_WAIT);
 						break;
 					}
-				} ENUM_END();
+				}
 			}
 		}
 		////////////////////////////
@@ -155,23 +155,23 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		}
 		break;
 	case SMODE_STOP:
-		if (SMODE_UNKNOWN != _mode)
+		if( SMODE_UNKNOWN != _mode )
 		{
-			if (SMODE_WAIT == _mode)
+			if( SMODE_WAIT == _mode )
 				--_countWaiting;
 			else
 				--_countActive;
 
 			if( _countActive < _countMax && 0 < _countWaiting )
 			{
-				ENUM_BEGIN(sounds, GC_Sound, pSound)
+				FOREACH( sounds, GC_Sound, pSound )
 				{
 					if( SMODE_WAIT == pSound->_mode )
 					{
 						pSound->SetMode(SMODE_LOOP);
 						break;
 					}
-				} ENUM_END();
+				}
 			}
 			_soundBuffer->Stop();
 		}
@@ -195,7 +195,7 @@ void GC_Sound::Pause(bool pause)
 {
 #if !defined NOSOUND
 	_ASSERT(SMODE_PLAY != _mode);
-	if (!IsKilled())
+	if( !IsKilled() )
 		SetMode(pause ? SMODE_STOP : SMODE_LOOP);
 #endif
 }
@@ -363,7 +363,7 @@ void GC_Sound_link::TimeStepFixed(float dt)
 {
 	_ASSERT(_object);
 
-	if (_object->IsKilled())
+	if( _object->IsKilled() )
 		Kill();
 	else
 		MoveTo(_object->_pos);

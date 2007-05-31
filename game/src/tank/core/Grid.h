@@ -25,8 +25,8 @@ public:
 
 	size_t GetElementCount() {
 		size_t count = 0;
-		for (size_t x = 0; x < _cx; x++)
-		for (size_t y = 0; y < _cy; y++)
+		for( size_t x = 0; x < _cx; x++ )
+		for( size_t y = 0; y < _cy; y++ )
 		{
 			count += _data[y*_cx + x].size();
 		}
@@ -51,9 +51,9 @@ class GridSet
 
 public:
 	void resize(size_t rows, size_t cols) {
-		for (size_t i = 0; i < 4; i++)
+		for( size_t i = 0; i < 4; i++ )
 		{
-			if (_ppGrids[i])
+			if( _ppGrids[i] )
 			{
 				_ASSERT(0 == _ppGrids[i]->GetElementCount());
 				delete _ppGrids[i];
@@ -63,7 +63,7 @@ public:
 	}
 
 	GridSet() {
-		for (size_t i = 0; i < 4; i++)
+		for( size_t i = 0; i < 4; ++i )
 			_ppGrids[i] = NULL;
 	}
 	GridSet(size_t rows, size_t cols) { init(rows, cols); }
@@ -80,7 +80,7 @@ public:
 	size_t GetElementCount()
 	{
 		size_t count = 0;
-		for (int i = 0; i < 4; i++)
+		for( int i = 0; i < 4; ++i )
 			count += _ppGrids[i]->GetElementCount();
 		return count;
 	}
@@ -93,15 +93,15 @@ public:
 	{
 		static const float dx[4] = {0,-0.5f, 0,-0.5f};
 		static const float dy[4] = {0, 0,-0.5f,-0.5f};
-		for (int i = 0; i < 4; i++)
+		for( int i = 0; i < 4; ++i )
 		{
 			int xmin = __max(0, (int) (rect.left + dx[i]));
 			int ymin = __max(0, (int) (rect.top  + dx[i]));
 			int xmax = __min(g_level->_locations_x-1, (int) (rect.right  + dx[i]));
 			int ymax = __min(g_level->_locations_y-1, (int) (rect.bottom + dx[i]));
 
-			for (int x = xmin; x <= xmax; x++)
-			for (int y = ymin; y <= ymax; y++)
+			for( int x = xmin; x <= xmax; ++x )
+			for( int y = ymin; y <= ymax; ++y )
 			{
 				receive.push_back(&(*this)(i, x, y));
 			}
@@ -113,7 +113,7 @@ public:
 	{
 		static const float dx[4] = {0,-0.5f, 0,-0.5f};
 		static const float dy[4] = {0, 0,-0.5f,-0.5f};
-		for (int i = 0; i < 4; i++)
+		for( int i = 0; i < 4; ++i )
 		{
 			float cx_ = cx + dx[i];
 			float cy_ = cy + dy[i];
@@ -123,8 +123,8 @@ public:
 			int xmax = __min(g_level->_locations_x-1, (int) (cx_ + cr));
 			int ymax = __min(g_level->_locations_y-1, (int) (cy_ + cr));
 
-			for (int x = xmin; x <= xmax; x++)
-			for (int y = ymin; y <= ymax; y++)
+			for( int x = xmin; x <= xmax; ++x )
+			for( int y = ymin; y <= ymax; ++y )
 			{
 				if( (float) y      <= cy_ && (float) (y+1)      >= cy_ &&
 					(float) x - cr <= cx_ && (float) (x+1) + cr >= cx_ )
@@ -167,7 +167,7 @@ public:
 
 		float la = a.Lenght();
 
-		for (int i = 0; i < 4; i++)
+		for( int i = 0; i < 4; ++i )
 		{
 			float cx = x0.x + dx[i];
 			float cy = x0.y + dy[i];
@@ -190,11 +190,11 @@ public:
 					receive.push_back( &(*this)(i, curx, cury) );
 				}
 
-				if (curx == targx && cury == targy) break;
+				if( curx == targx && cury == targy ) break;
 
 				float d_min;
 				int   j_min = 0;
-				for (int j = 0; j < 2; j++)
+				for( int j = 0; j < 2; ++j )
 				{
 					int newx = curx + stepx[j];
 					int newy = cury + stepy[j];
@@ -225,7 +225,7 @@ public:
 
 	~GridSet()
 	{
-		for (size_t i = 0; i < 4; i++)
+		for( size_t i = 0; i < 4; ++i )
 			delete _ppGrids[i];
 	}
 };
