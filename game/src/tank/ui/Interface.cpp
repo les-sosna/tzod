@@ -38,7 +38,7 @@
 
 ////////////////////////////////////////////////////////////////////
 
-#define GETCHECK(id)  (BST_CHECKED == SendDlgItemMessage(hDlg, (id), BM_GETCHECK, 0, 0))
+#define GETCHECK(id) (BST_CHECKED == SendDlgItemMessage(hDlg, (id), BM_GETCHECK, 0, 0))
 #define SETCHECK(id, value) SendDlgItemMessage(hDlg, (id), BM_SETCHECK, (value) ? BST_CHECKED:BST_UNCHECKED, 0)
 
 /////////////////////////////////////////////////////////////////////
@@ -283,14 +283,14 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				int y = PROPERTY_GRID_ROW_HEIGHT*i + PROPERTY_GRID_ROW_VSPACE*(i+1);
 
 				HWND hWndLabel = CreateWindowEx(
-					WS_EX_TRANSPARENT,                      // ex style
-					"STATIC",                               // class
-					prop->GetName().c_str(),                // name
-					WS_CHILD|WS_VISIBLE | SS_RIGHT|SS_CENTERIMAGE,     // style
-					0,                                      // x
-					y,                                      // y
-					PROPERTY_GRID_LABEL_WIDTH-5,            // width
-					PROPERTY_GRID_ROW_HEIGHT,               // height
+					WS_EX_TRANSPARENT,                              // ex style
+					"STATIC",                                       // class
+					prop->GetName().c_str(),                        // name
+					WS_CHILD|WS_VISIBLE | SS_RIGHT|SS_CENTERIMAGE,  // style
+					0,                                              // x
+					y,                                              // y
+					PROPERTY_GRID_LABEL_WIDTH-5,                    // width
+					PROPERTY_GRID_ROW_HEIGHT,                       // height
 					hWndScroll, NULL, g_hInstance, NULL
 				);
 				SendMessage(hWndLabel, WM_SETFONT, (WPARAM) hFont, 1);
@@ -328,15 +328,15 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					break;
 				case ObjectProperty::TYPE_STRING:
 					hWndControl = CreateWindowEx(
-						WS_EX_TRANSPARENT|WS_EX_CLIENTEDGE,               // ex style
-						"EDIT",                                           // class
-						prop->GetValue().c_str(),				          // name
+						WS_EX_TRANSPARENT|WS_EX_CLIENTEDGE,    // ex style
+						"EDIT",                                // class
+						prop->GetValue().c_str(),              // name
 						WS_CHILD|WS_VISIBLE|WS_TABSTOP
-							| ES_AUTOHSCROLL|ES_LEFT,	            // style
-						PROPERTY_GRID_LABEL_WIDTH,						  // x
-						y,                                                // y
-						WIDTH(rt)-PROPERTY_GRID_LABEL_WIDTH,			  // width
-						PROPERTY_GRID_ROW_HEIGHT,						  // height
+							| ES_AUTOHSCROLL|ES_LEFT,          // style
+						PROPERTY_GRID_LABEL_WIDTH,             // x
+						y,                                     // y
+						WIDTH(rt)-PROPERTY_GRID_LABEL_WIDTH,   // width
+						PROPERTY_GRID_ROW_HEIGHT,              // height
 						hWndScroll, NULL, g_hInstance, NULL
 					);
 					SendMessage(hWndControl, WM_SETFONT, (WPARAM) hFont, 0);
@@ -372,7 +372,10 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				SetWindowLong(hWndControl, GWL_ID, i+1024);
 			}
 		}
-	} break;
+
+		break;
+	}
+
 	case WM_MOUSEWHEEL:
 	{
 		int d = (short) HIWORD(wParam);
@@ -380,7 +383,9 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		d = abs(d) / 120;  // WHEEL_DELTA
 		for( int i = 0; i < d; ++i )
 			SendMessage(hWnd, WM_VSCROLL, cmd, 0);
-	} break;
+		break;
+	}
+
 	case WM_VSCROLL:
 	{
 		_ASSERT(NULL != p);
@@ -416,7 +421,8 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		if( pos < si.nMin ) pos = si.nMin;
 		SetScrollPos(hWnd, SB_VERT, pos, TRUE);
 		SetWindowPos(GetTopWindow(hWnd), NULL, 0, -pos, 0, 0, SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
-	} break;
+		break;
+	}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	} // end of switch( message )

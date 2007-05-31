@@ -89,7 +89,7 @@ public:
 	// editor functions
 	virtual void EditorAction();
 	virtual void mapExchange(MapFile &f);
-	virtual IPropertySet* GetProperties();
+	virtual SafePtr<IPropertySet> GetProperties();
 };
 
 /////////////////////////////////////////////////////////////

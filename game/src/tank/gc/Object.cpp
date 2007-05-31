@@ -110,14 +110,14 @@ size_t ObjectProperty::GetSetSize(void) const
 IPropertySet::IPropertySet(GC_Object *object)
 {
 	_object   = object;
-	_refcount = 1;
+//	_refcount = 1;
 }
 
 IPropertySet::~IPropertySet()
 {
 	_object = NULL;
 }
-
+/*
 int IPropertySet::AddRef()
 {
 	return ++_refcount;
@@ -130,7 +130,7 @@ int IPropertySet::Release()
 		delete this;
 	return result;
 }
-
+*/
 int IPropertySet::GetCount() const
 {
 	return 0;
@@ -594,7 +594,7 @@ void GC_Object::EditorAction()
 {
 }
 
-IPropertySet* GC_Object::GetProperties()
+SafePtr<IPropertySet> GC_Object::GetProperties()
 {
 	return NULL;
 }

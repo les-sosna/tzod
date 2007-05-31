@@ -103,7 +103,7 @@ public:
 	virtual void Draw();
 
 	virtual void mapExchange(MapFile &f);
-	virtual IPropertySet* GetProperties();
+	virtual SafePtr<IPropertySet> GetProperties();
 
 #ifdef NETWORK_DEBUG
 public:

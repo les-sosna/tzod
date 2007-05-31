@@ -114,10 +114,10 @@ public:
 	string_t GetSetValue(size_t index) const;
 };
 
-class IPropertySet
+class IPropertySet : public RefCounted
 {
 	SafePtr<GC_Object> _object;
-	int _refcount;
+//	int _refcount;
 
 protected:
 	IPropertySet(GC_Object *object);
@@ -130,8 +130,8 @@ protected:
 	}
 
 public:
-	int AddRef();
-	int Release();
+//	int AddRef();
+//	int Release();
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
@@ -157,6 +157,7 @@ public:
 
 #define GC_FLAG_OBJECT_                       0x00000020
 
+typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
 class GC_Object
 {
@@ -167,7 +168,6 @@ class GC_Object
 protected:
 
 	typedef ObjectContext<OBJECT_LIST> ObjectContext;
-	typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
 	class MemberOfGlobalList
 	{
@@ -395,7 +395,7 @@ public:
 	virtual void EndFrame();
 	virtual void EditorAction();
 
-	virtual IPropertySet* GetProperties();
+	virtual SafePtr<IPropertySet> GetProperties();
 	virtual void mapExchange(MapFile &f);
 
 

@@ -3,32 +3,34 @@
 #pragma once
 
 #include "ui/Base.h"
-#include "ui/Window.h"
+#include "ui/Dialog.h"
 
+// forward declarations
+class GC_Object;
+class IPropertySet;
 
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-class MyPropertySheet : public Window
+class PropertyList : public Dialog
 {
-public:
-	MyPropertySheet(Window *parent);
-};
+	Window     *_psheet;
+	ScrollBar  *_scrollBar;
 
-///////////////////////////////////////////////////////////////////////////////
+	SafePtr<IPropertySet> _ps;
+	std::vector<Window*>  _ctrls;
 
-class PropertyList : public Window
-{
-	MyPropertySheet *_psheet;
-	ScrollBar *_scrollBar;
 
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h);
 
+	void ConnectTo(const SafePtr<IPropertySet> &ps);
 
 protected:
 	void OnScroll(float pos);
+	void OnSize(float width, float height);
+	void OnRawChar(int c);
 
 };
 
@@ -38,9 +40,18 @@ class EditorLayout : public Window
 {
 	PropertyList *_proplist;
 
+	GC_Object *_selectedObject;
+	void OnKillSelected(GC_Object *sender, void *param);
+	void OnMoveSelected(GC_Object *sender, void *param);
+	void Select(GC_Object *object, bool bSelect);
+
 public:
 	EditorLayout(Window *parent);
 
+protected:
+	bool OnMouseDown(float x, float y, int button);
+	bool OnFocus(bool focus);
+	void OnRawChar(int c);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

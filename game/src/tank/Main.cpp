@@ -437,11 +437,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				}
 				else if( g_level && g_env.envInputs.keys[DIK_RETURN] && g_level->_modeEditor && _Editor::Inst()->GetSelection() )
 				{
-					IPropertySet *p = _Editor::Inst()->GetSelection()->GetProperties();
-					if( NULL != p )
+					if( SafePtr<IPropertySet> p = _Editor::Inst()->GetSelection()->GetProperties() )
 					{
-						DialogBoxParam(g_hInstance, (LPCTSTR)IDD_OBJPROP, g_env.hMainWnd, (DLGPROC) dlgObjectProperties, (LPARAM) p);
-						p->Release();
+						DialogBoxParam(g_hInstance, (LPCTSTR)IDD_OBJPROP, g_env.hMainWnd, (DLGPROC) dlgObjectProperties, (LPARAM) GetRawPtr(p));
 					}
 					continue;
 				}

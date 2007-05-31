@@ -265,7 +265,7 @@ void GC_Turret::Draw()
 	}
 }
 
-IPropertySet* GC_Turret::GetProperties()
+SafePtr<IPropertySet> GC_Turret::GetProperties()
 {
 	return new MyPropertySet(this);
 }

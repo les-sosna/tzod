@@ -214,7 +214,7 @@ void GC_PickUp::mapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(respawn_time,  _time_respawn, GetDefaultRespawnTime());
 }
 
-IPropertySet* GC_PickUp::GetProperties()
+SafePtr<IPropertySet> GC_PickUp::GetProperties()
 {
 	return new MyPropertySet(this);
 }
