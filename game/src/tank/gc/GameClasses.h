@@ -46,61 +46,6 @@ public:
 	virtual void EndFrame();
 };
 
-////////////////////////////////////////////////////////////
-
-class GC_Camera : public GC_Object
-{
-	DECLARE_SELF_REGISTRATION(GC_Camera);
-	MemberOfGlobalList _memberOf;
-
-private:
-	vec2d	_target;
-	float   _time_shake;
-	float   _time_seed;
-	float   _angle_current;
-	DWORD   _dwTimeX;
-	DWORD   _dwTimeY;
-	float   _dt;
-	bool    _active;
-
-	Rotator _rotator;
-
-
-	//--------------------------------
-public:
-	RECT                 _viewport;
-	float                _zoom;
-	SafePtr<GC_Player>  _player;
-
-	//--------------------------------
-public:
-	GC_Camera(GC_Player *pPlayer);
-	GC_Camera(FromFile);
-
-	void Select();         // применение трансформации, выбор камеры как текущей
-	void Activate(bool bActivate);  // неактивная камера не отображается на экране
-	bool IsActive() const { return _active && !IsKilled(); }
-
-	static void SwitchEditor();
-	static void UpdateLayout(); // пересчет координат viewports
-	static bool GetWorldMousePos(vec2d &pos);
-
-	virtual void Shake(float level);
-	float GetShake() const { return _time_shake; }
-
-	//////////////////////////////////////
-	// GC_Object overrides
-	virtual void Kill();
-	virtual bool IsSaved() { return _player != NULL; }
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFloat(float dt);
-	virtual void EndFrame();
-
-	//////////////////////////////////////
-	// message handlers
-	void OnDetach(GC_Object *sender, void *param);
-};
-
 /////////////////////////////////////////////////////////////
 
 class GC_Background : public GC_2dSprite

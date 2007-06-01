@@ -16,6 +16,7 @@
 #include "Turrets.h"
 #include "Pickup.h"
 #include "Player.h"
+#include "Weapons.h"
 
 
 #include <d3dx9math.h>  // FIXME!

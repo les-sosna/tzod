@@ -502,6 +502,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\gc\Camera.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\gc\Controller.cpp"
 					>
 				</File>
@@ -555,6 +559,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\gc\Vehicle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\gc\Weapons.cpp"
 					>
 				</File>
 			</Filter>
@@ -839,6 +847,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\gc\Camera.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\gc\Controller.h"
 					>
 				</File>
@@ -896,6 +908,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\gc\Vehicle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\gc\Weapons.h"
 					>
 				</File>
 			</Filter>

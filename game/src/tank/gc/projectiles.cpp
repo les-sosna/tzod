@@ -19,6 +19,8 @@
 #include "particles.h"
 #include "pickup.h"
 
+#include "Weapons.h" // FIXME!
+
 ////////////////////////////////////////////////////////
 
 GC_Projectile::GC_Projectile(GC_RigidBodyStatic *pProprietor, bool advanced, bool bTrail,

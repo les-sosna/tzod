@@ -21,10 +21,13 @@
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 
-#include "gc/GameClasses.h"
+#include "gc/Camera.h"
+#include "gc/Light.h"
 #include "gc/Sound.h"
 #include "gc/Editor.h"
 #include "gc/RigidBody.h"
+#include "gc/GameClasses.h"
+
 
 #include "fs/FileSystem.h"
 

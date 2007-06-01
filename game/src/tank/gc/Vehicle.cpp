@@ -11,12 +11,14 @@
 #include "fs/SaveFile.h"
 
 #include "GameClasses.h"
+#include "Camera.h"
 #include "particles.h"
 #include "pickup.h"
 #include "indicators.h"
 #include "sound.h"
 #include "player.h"
 #include "turrets.h"
+#include "Weapons.h"
 
 #include "config/Config.h"
 

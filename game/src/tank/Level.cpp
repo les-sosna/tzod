@@ -28,6 +28,9 @@
 #include "gc/Player.h"
 #include "gc/Sound.h"
 #include "gc/pickup.h"
+#include "gc/Camera.h"
+#include "gc/Weapons.h"
+
 
 
 ////////////////////////////////////////////////////////////

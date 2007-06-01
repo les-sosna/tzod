@@ -12,6 +12,7 @@
 
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
+#include "gc/Camera.h"
 
 #include "Level.h"
 
@@ -173,9 +174,14 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 
 bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
-	if( GC_Object *object = g_level->PickEdObject(vec2d(x,y)) )
+	vec2d mouse;
+
+	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
-		Select(object, true);
+		if( GC_Object *object = g_level->PickEdObject(mouse) )
+		{
+			Select(object, true);
+		}
 	}
 
 	return true;

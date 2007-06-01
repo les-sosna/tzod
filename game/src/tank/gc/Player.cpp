@@ -15,6 +15,7 @@
 
 #include "ai.h"
 #include "GameClasses.h"
+#include "Camera.h"
 #include "vehicle.h"
 #include "controller.h"
 #include "indicators.h"
