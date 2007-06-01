@@ -28,14 +28,14 @@ public:
 	mp     func() const { return _func; }
 
     template<class signature, class inst_type>
-    void bind (signature pmf, inst_type *p_this)
+    void bind (signature pmf, inst_type *inst)
     {
 		_ASSERT(pmf);
-		_ASSERT(p_this);
+		_ASSERT(inst);
         typedef F (inst_type::*mem_fn);
         mem_fn tmp = static_cast<mem_fn>(pmf); // safe(!) cast
         _func = reinterpret_cast<mp>(tmp);     // unsafe, but it has been checked above
-		_inst = reinterpret_cast<blank*>(p_this);
+		_inst = reinterpret_cast<blank*>(inst);
     }
 
 	void clear()
@@ -49,6 +49,16 @@ public:
 		return NULL != _inst;
 	}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// multitarget delegate
+
+class MultitargetDelegate
+{
+
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

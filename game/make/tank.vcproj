@@ -522,7 +522,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\tank\gc\light.cpp"
+					RelativePath="..\src\tank\gc\Light.cpp"
 					>
 				</File>
 				<File
@@ -867,7 +867,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\tank\gc\light.h"
+					RelativePath="..\src\tank\gc\Light.h"
 					>
 				</File>
 				<File

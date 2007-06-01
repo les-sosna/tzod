@@ -141,7 +141,7 @@ public:
 
 	virtual void EditorAction();
 	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<IPropertySet> GetProperties();
+	virtual SafePtr<PropertySet> GetProperties();
 };
 
 

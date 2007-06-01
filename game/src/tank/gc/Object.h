@@ -5,7 +5,7 @@
 #include "notify.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-
+// forward declarations
 class MapFile;
 class SaveFile;
 
@@ -101,37 +101,32 @@ public:
 	// TYPE_STRING
 	//
 	void SetValue(const string_t &str);
-	string_t GetValue(void) const;
+	const string_t& GetValue(void) const;
 
 
 	//
 	// TYPE_MULTISTRING
 	//
-	void    AddItem(const string_t &str);
-	size_t  GetCurrentIndex(void) const;
-	void    SetCurrentIndex(size_t index);
-	size_t  GetSetSize(void) const;
-	string_t GetSetValue(size_t index) const;
+	void   AddItem(const string_t &str);
+	size_t GetCurrentIndex(void) const;
+	void   SetCurrentIndex(size_t index);
+	size_t GetSetSize(void) const;
+	const string_t& GetSetValue(size_t index) const;
 };
 
-class IPropertySet : public RefCounted
+class PropertySet : public RefCounted
 {
-	SafePtr<GC_Object> _object;
-//	int _refcount;
+	GC_Object       *_object;
+	ObjectProperty   _propName;
 
 protected:
-	IPropertySet(GC_Object *object);
-	virtual ~IPropertySet();
-
-	template<class T> T* obj(void)
+	GC_Object* GetObject() const
 	{
-		_ASSERT(dynamic_cast<T*>(GetRawPtr(_object)));
-		return static_cast<T*>(GetRawPtr(_object));
+		return _object;
 	}
 
 public:
-//	int AddRef();
-//	int Release();
+	PropertySet(GC_Object *object);
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
@@ -201,15 +196,6 @@ private:
 		SafePtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
 		//---------------------------------------
-		inline Notify(const Notify &src)
-		{
-			type       = src.type;
-			once       = src.once;
-			removed    = src.removed;
-			hasGuard   = src.hasGuard;
-			subscriber = src.subscriber;
-			handler    = src.handler;
-		}
 		inline Notify()  { removed = false; }
 		inline ~Notify() { subscriber = NULL; }
 		bool operator == (const Notify &src) const
@@ -395,7 +381,7 @@ public:
 	virtual void EndFrame();
 	virtual void EditorAction();
 
-	virtual SafePtr<IPropertySet> GetProperties();
+	virtual SafePtr<PropertySet> GetProperties();
 	virtual void mapExchange(MapFile &f);
 
 

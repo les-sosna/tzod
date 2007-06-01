@@ -22,16 +22,6 @@ public:
 		_ASSERT(x < _cx && y < _cy);
 		return _data[y*_cx + x];
 	}
-
-	size_t GetElementCount() {
-		size_t count = 0;
-		for( size_t x = 0; x < _cx; x++ )
-		for( size_t y = 0; y < _cy; y++ )
-		{
-			count += _data[y*_cx + x].size();
-		}
-		return count;
-	}
 };
 
 ////////////////////////////////////////////////////
@@ -55,7 +45,6 @@ public:
 		{
 			if( _ppGrids[i] )
 			{
-				_ASSERT(0 == _ppGrids[i]->GetElementCount());
 				delete _ppGrids[i];
 			}
 			_ppGrids[i] = new Grid<element_type>(rows, cols);
@@ -75,14 +64,6 @@ public:
 	inline element_type& operator() (size_t n, size_t x, size_t y) {
 		_ASSERT(n < 4);
 		return _ppGrids[n]->element(x, y);
-	}
-
-	size_t GetElementCount()
-	{
-		size_t count = 0;
-		for( int i = 0; i < 4; ++i )
-			count += _ppGrids[i]->GetElementCount();
-		return count;
 	}
 
 	////////////////////////

@@ -265,28 +265,28 @@ void GC_Turret::Draw()
 	}
 }
 
-SafePtr<IPropertySet> GC_Turret::GetProperties()
+SafePtr<PropertySet> GC_Turret::GetProperties()
 {
 	return new MyPropertySet(this);
 }
 
 GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-, _prop_team(ObjectProperty::TYPE_MULTISTRING, "Команда")
-, _prop_health(ObjectProperty::TYPE_INTEGER, "Здоровье")
-, _prop_health_max(ObjectProperty::TYPE_INTEGER, "Макс. здоровье")
-, _prop_sight(ObjectProperty::TYPE_INTEGER, "Поле зрения")
+, _propTeam(      ObjectProperty::TYPE_MULTISTRING, "Team" )
+, _propHealth(    ObjectProperty::TYPE_INTEGER,     "Health"   )
+, _propMaxHealth( ObjectProperty::TYPE_INTEGER,     "Max Health")
+, _propSight(     ObjectProperty::TYPE_INTEGER,     "Sight Radius")
 {
-	_prop_team.AddItem("[нет]");
+	_propTeam.AddItem("[нет]");
 	for( int i = 1; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
 		wsprintf(buf, "%d", i);
-		_prop_team.AddItem(buf);
+		_propTeam.AddItem(buf);
 	}
-	_prop_health_max.SetRange(0, 10000);
-	_prop_health.SetRange(0, 10000);
-	_prop_sight.SetRange(0, 100);
+	_propMaxHealth.SetRange(0, 10000);
+	_propHealth.SetRange(0, 10000);
+	_propSight.SetRange(0, 100);
 	//-----------------------------------------
 	Exchange(false);
 }
@@ -301,17 +301,13 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	if( index < BASE::GetCount() )
 		return BASE::GetProperty(index);
 
-	if( BASE::GetCount() + 0 == index )
-		return &_prop_team;
-
-	if( BASE::GetCount() + 1 == index )
-		return &_prop_health;
-
-	if( BASE::GetCount() + 2 == index )
-		return &_prop_health_max;
-
-	if( BASE::GetCount() + 3 == index )
-		return &_prop_sight;
+	switch( index - BASE::GetCount() )
+	{
+		case 0: return &_propTeam;
+		case 1: return &_propHealth;
+		case 2: return &_propMaxHealth;
+		case 3: return &_propSight;
+	}
 
 	_ASSERT(FALSE);
 	return NULL;
@@ -321,21 +317,20 @@ void GC_Turret::MyPropertySet::Exchange(bool bApply)
 {
 	BASE::Exchange(bApply);
 
+	GC_Turret *tmp = static_cast<GC_Turret *>(GetObject());
+
 	if( bApply )
 	{
-		obj<GC_Turret>()->SetHealth(
-			(float) _prop_health.GetValueInt(),
-			(float) _prop_health_max.GetValueInt()
-		);
-		obj<GC_Turret>()->_team  = _prop_team.GetCurrentIndex();
-		obj<GC_Turret>()->_sight = (float) (_prop_sight.GetValueInt() * CELL_SIZE);
+		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
+		tmp->_team  = _propTeam.GetCurrentIndex();
+		tmp->_sight = (float) (_propSight.GetValueInt() * CELL_SIZE);
 	}
 	else
 	{
-		_prop_health.SetValueInt(int(obj<GC_Turret>()->GetHealth() + 0.5f));
-		_prop_health_max.SetValueInt(int(obj<GC_Turret>()->GetHealthMax() + 0.5f));
-		_prop_team.SetCurrentIndex(obj<GC_Turret>()->_team);
-		_prop_sight.SetValueInt(int(obj<GC_Turret>()->_sight / CELL_SIZE + 0.5f));
+		_propHealth.SetValueInt(int(tmp->GetHealth() + 0.5f));
+		_propMaxHealth.SetValueInt(int(tmp->GetHealthMax() + 0.5f));
+		_propTeam.SetCurrentIndex(tmp->_team);
+		_propSight.SetValueInt(int(tmp->_sight / CELL_SIZE + 0.5f));
 	}
 }
 
@@ -470,14 +465,10 @@ void GC_Turret_Cannon::TimeStepFixed(float dt)
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
-
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			if( g_options.bParticles )
-			{
-				new GC_Particle(_pos + vec2d(_dir) * 33.0f, SPEED_SMOKE + vec2d(_dir) * 50,
-					tex, frand(0.3f) + 0.2f);
-			}
+			new GC_Particle(_pos + vec2d(_dir) * 33.0f,
+				SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f);
 		}
 	}
 }
@@ -837,22 +828,12 @@ void GC_Turret_Gauss::SetNormal()
 {
 	_hsize.Set(30, 20);
 	GC_Turret_Bunker::SetNormal();
-
-//	_frBBox.left	= -30;
-//	_frBBox.right	=  30;
-//	_frBBox.top	= -20;
-//	_frBBox.bottom	=  20;
 }
 
 void GC_Turret_Gauss::SetWaking()
 {
 	_hsize.Set(30, 20);
 	GC_Turret_Bunker::SetWaking();
-
-//	_frBBox.left	= -30;
-//	_frBBox.right	=  30;
-//	_frBBox.top	= -20;
-//	_frBBox.bottom	=  20;
 }
 
 void GC_Turret_Gauss::Serialize(SaveFile &f)
@@ -862,7 +843,6 @@ void GC_Turret_Gauss::Serialize(SaveFile &f)
 	f.Serialize(_shot_count);
 	f.Serialize(_time);
 }
-
 
 GC_Turret_Gauss::~GC_Turret_Gauss()
 {

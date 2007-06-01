@@ -246,7 +246,7 @@ Level::Level()
 
 
 	// register config handlers
-	g_conf.s_volume->eventChange.bind(&Level::OnChangeVolume, this);
+	g_conf.s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
 
 }
 
@@ -388,7 +388,7 @@ Level::~Level()
 
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
-	_ASSERT(!objects.size());
+	_ASSERT(objects.empty());
 }
 
 // уровень должен быть пустым
@@ -1034,7 +1034,13 @@ void Level::TimeStep(float dt)
 	}
 }
 
-void Level::OnChangeVolume()
+GC_Object* Level::FindObject(const char *name) const
+{
+	std::map<string_t, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
+	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;
+}
+
+void Level::OnChangeSoundVolume()
 {
 	FOREACH( sounds, GC_Sound, pSound )
 	{

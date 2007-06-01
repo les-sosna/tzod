@@ -7,7 +7,7 @@
 
 // forward declarations
 class GC_Object;
-class IPropertySet;
+class PropertySet;
 
 namespace UI
 {
@@ -18,14 +18,14 @@ class PropertyList : public Dialog
 	Window     *_psheet;
 	ScrollBar  *_scrollBar;
 
-	SafePtr<IPropertySet> _ps;
+	SafePtr<PropertySet> _ps;
 	std::vector<Window*>  _ctrls;
 
 
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h);
 
-	void ConnectTo(const SafePtr<IPropertySet> &ps);
+	void ConnectTo(const SafePtr<PropertySet> &ps);
 
 protected:
 	void OnScroll(float pos);

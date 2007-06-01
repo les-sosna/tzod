@@ -11,7 +11,7 @@ class PtrList
 	struct _node
 	{
 		object_type *ptr;
-		int ref_count;          // счетчик safe-итераторов
+		int ref_count;       // cout of safe iterators using this node
 		_node *prev, *next;
 	};
 
@@ -273,8 +273,7 @@ public:
 	reverse_iterator rbegin() const { return reverse_iterator(myend->prev); }
 	base_iterator    rend()   const { return base_iterator(mybegin); }
 
-
-	size_t size() const { return mysize; }
+	bool empty() const { return 0 != mysize; }
 	object_type *front() const { return mybegin->ptr; }
 	object_type *back()  const { return myend->ptr; }
 };

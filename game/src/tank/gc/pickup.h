@@ -51,11 +51,10 @@ class GC_PickUp : public GC_Item
 	MemberOfGlobalList _memberOf;
 
 protected:
-	class MyPropertySet : public IPropertySet
+	class MyPropertySet : public PropertySet
 	{
-		typedef IPropertySet BASE;
-
-		ObjectProperty _prop_time_respawn;
+		typedef PropertySet BASE;
+		ObjectProperty _propTimeRespawn;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -104,7 +103,7 @@ public:
 	virtual void Draw();
 
 	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<IPropertySet> GetProperties();
+	virtual SafePtr<PropertySet> GetProperties();
 
 #ifdef NETWORK_DEBUG
 public:

@@ -272,7 +272,7 @@ void GC_Spotlight::mapExchange(MapFile &f)
 	}
 }
 
-SafePtr<IPropertySet> GC_Spotlight::GetProperties()
+SafePtr<PropertySet> GC_Spotlight::GetProperties()
 {
 	return NULL;
 }

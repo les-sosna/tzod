@@ -216,7 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static IPropertySet* p = NULL;
+	static PropertySet* p = NULL;
 	SCROLLINFO si = { sizeof(SCROLLINFO) };
 
 	switch( message )
@@ -260,7 +260,7 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		if( cs->lpCreateParams )
 		{
 			HFONT hFont = (HFONT) SendMessage(GetParent(hWnd), WM_GETFONT, 0, 0);
-			p = (IPropertySet *) cs->lpCreateParams;
+			p = (PropertySet *) cs->lpCreateParams;
 
 			RECT rt;
 			GetClientRect(hWnd, &rt);

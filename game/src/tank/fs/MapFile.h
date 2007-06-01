@@ -26,6 +26,18 @@
 	    f.setObjectAttribute(#name, (int) value);           \
 	}
 
+#define MAP_EXCHANGE_STRING(name, value, def_val)           \
+	if( f.loading() )                                       \
+	{                                                       \
+	    if( !f.getObjectAttribute(#name, value) )           \
+	        value = def_val;                                \
+	}                                                       \
+	else                                                    \
+	{                                                       \
+	    f.setObjectAttribute(#name, value);                 \
+	}
+
+
 ////////////////////////////////////////////////////////////
 
 

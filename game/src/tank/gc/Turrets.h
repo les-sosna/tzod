@@ -18,14 +18,14 @@ class GC_Turret : public GC_RigidBodyStatic
 protected:
 	static JobManager<GC_Turret> _jobManager;
 
-	class MyPropertySet : public IPropertySet
+	class MyPropertySet : public PropertySet
 	{
-		typedef IPropertySet BASE;
+		typedef PropertySet BASE;
 
-		ObjectProperty _prop_team;
-		ObjectProperty _prop_health;
-		ObjectProperty _prop_health_max;
-		ObjectProperty _prop_sight;
+		ObjectProperty _propTeam;
+		ObjectProperty _propHealth;
+		ObjectProperty _propMaxHealth;
+		ObjectProperty _propSight;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -89,7 +89,7 @@ public:
 	// editor functions
 	virtual void EditorAction();
 	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<IPropertySet> GetProperties();
+	virtual SafePtr<PropertySet> GetProperties();
 };
 
 /////////////////////////////////////////////////////////////

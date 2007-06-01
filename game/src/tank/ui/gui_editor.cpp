@@ -37,7 +37,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	ClipChildren(true);
 }
 
-void PropertyList::ConnectTo(const SafePtr<IPropertySet> &ps)
+void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 {
 	if( _ps == ps ) return;
 

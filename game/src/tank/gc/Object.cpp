@@ -67,7 +67,7 @@ void ObjectProperty::SetValue(const string_t &str)
 	_str_value = str;
 }
 
-string_t ObjectProperty::GetValue(void) const
+const string_t& ObjectProperty::GetValue(void) const
 {
 	_ASSERT( TYPE_STRING == _type );
 	return _str_value;
@@ -79,7 +79,7 @@ void ObjectProperty::AddItem(const string_t &str)
 	_value_set.push_back(str);
 }
 
-string_t ObjectProperty::GetSetValue(size_t index) const
+const string_t& ObjectProperty::GetSetValue(size_t index) const
 {
 	_ASSERT(TYPE_MULTISTRING == _type);
 	_ASSERT(index < _value_set.size());
@@ -105,45 +105,45 @@ size_t ObjectProperty::GetSetSize(void) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// IPropertySet class implementation
+// PropertySet class implementation
 
-IPropertySet::IPropertySet(GC_Object *object)
+PropertySet::PropertySet(GC_Object *object)
+  : _object(object),
+  _propName(ObjectProperty::TYPE_STRING, "Name")
 {
-	_object   = object;
-//	_refcount = 1;
-}
-
-IPropertySet::~IPropertySet()
-{
-	_object = NULL;
-}
-/*
-int IPropertySet::AddRef()
-{
-	return ++_refcount;
 }
 
-int IPropertySet::Release()
+int PropertySet::GetCount() const
 {
-	int result = --_refcount;
-	if( 0 == result )
-		delete this;
-	return result;
-}
-*/
-int IPropertySet::GetCount() const
-{
-	return 0;
+	return 1;
 }
 
-ObjectProperty* IPropertySet::GetProperty(int index)
+ObjectProperty* PropertySet::GetProperty(int index)
 {
-	_ASSERT(FALSE);
-	return NULL;
+	_ASSERT(index < GetCount());
+	return &_propName;
 }
 
-void IPropertySet::Exchange(bool bApply)
+void PropertySet::Exchange(bool bApply)
 {
+	if( bApply )
+	{
+		const char *name = _propName.GetValue().c_str();
+		GC_Object* found = g_level->FindObject(name);
+		if( found && GetObject() != found )
+		{
+			g_console->printf("ERROR: object with name \"%s\" already exists\n", name);
+		}
+		else
+		{
+			GetObject()->SetName( name );
+		}
+	}
+	else
+	{
+		const char *name = GetObject()->GetName();
+		_propName.SetValue( name ? name : "" );
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -274,7 +274,6 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 	object->Serialize(file);
 	return object;
 }
-
 
 int GC_Object::AddRef()
 {
@@ -459,7 +458,7 @@ void GC_Object::SetName(const char *name)
 		ClearFlags(GC_FLAG_OBJECT_NAMED);
 	}
 
-	if( name )
+	if( name && *name )
 	{
 		//
 		// set new name
@@ -594,19 +593,32 @@ void GC_Object::EditorAction()
 {
 }
 
-SafePtr<IPropertySet> GC_Object::GetProperties()
+SafePtr<PropertySet> GC_Object::GetProperties()
 {
-	return NULL;
+	return new PropertySet(this);
 }
 
 void GC_Object::mapExchange(MapFile &f)
 {
-	// координаты только сохраняются.
-	// загруженные значения передаются через конструктор.
-	if( !f.loading() )
+	string_t tmp_name;
+
+	if( f.loading() )
 	{
+		MAP_EXCHANGE_STRING("name", tmp_name, "");
+		SetName(tmp_name.c_str());
+	}
+	else
+	{
+		// координаты только сохраняются.
+		// загруженные значения передаются через конструктор.
 		MAP_EXCHANGE_FLOAT(x, _pos.x, 0);
 		MAP_EXCHANGE_FLOAT(y, _pos.y, 0);
+
+		if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
+		{
+			tmp_name = GetName();
+			MAP_EXCHANGE_STRING("name", tmp_name, "");
+		}
 	}
 }
 

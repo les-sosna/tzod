@@ -216,16 +216,16 @@ void GC_PickUp::mapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(respawn_time,  _time_respawn, GetDefaultRespawnTime());
 }
 
-SafePtr<IPropertySet> GC_PickUp::GetProperties()
+SafePtr<PropertySet> GC_PickUp::GetProperties()
 {
 	return new MyPropertySet(this);
 }
 
 GC_PickUp::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _prop_time_respawn(ObjectProperty::TYPE_INTEGER, "Время появления")
+, _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "Respawn Time")
 {
-	_prop_time_respawn.SetRange(0, 1000000);
+	_propTimeRespawn.SetRange(0, 1000000);
 	//-----------------------------------------
 	Exchange(false);
 }
@@ -241,7 +241,7 @@ ObjectProperty* GC_PickUp::MyPropertySet::GetProperty(int index)
 		return BASE::GetProperty(index);
 
 	if( BASE::GetCount() + 0 == index )
-		return &_prop_time_respawn;
+		return &_propTimeRespawn;
 
 	_ASSERT(FALSE);
 	return NULL;
@@ -251,13 +251,14 @@ void GC_PickUp::MyPropertySet::Exchange(bool bApply)
 {
 	BASE::Exchange(bApply);
 
+	GC_PickUp *obj = static_cast<GC_PickUp*>(GetObject());
 	if( bApply )
 	{
-		obj<GC_PickUp>()->_time_respawn = (float) _prop_time_respawn.GetValueInt() / 1000.0f;
+		obj->_time_respawn = (float) _propTimeRespawn.GetValueInt() / 1000.0f;
 	}
 	else
 	{
-		_prop_time_respawn.SetValueInt(int(obj<GC_PickUp>()->_time_respawn * 1000.0f + 0.5f));
+		_propTimeRespawn.SetValueInt(int(obj->_time_respawn * 1000.0f + 0.5f));
 	}
 }
 

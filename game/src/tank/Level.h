@@ -238,6 +238,8 @@ public:
 
 	void TimeStep(float dt);
 
+	GC_Object* FindObject(const char *name) const;
+
 public:
 	//tracing
 	GC_2dSprite* PickEdObject(const vec2d &pt);
@@ -250,7 +252,7 @@ public:
 	                             vec2d *norm = NULL) const;
 
 	// config change handlers
-	void OnChangeVolume();
+	void OnChangeSoundVolume();
 
 };
 
