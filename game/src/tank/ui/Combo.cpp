@@ -32,6 +32,7 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_list->SetTopMost(true);
 	_list->eventClickItem.bind(&ComboBox::OnClickItem, this);
 	_list->eventChangeCurSel.bind(&ComboBox::OnChangeSelection, this);
+	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
 	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
 	_btn->Move(GetWidth() - _btn->GetWidth(), (GetHeight() - _btn->GetHeight()) * 0.5f);
@@ -56,7 +57,7 @@ List* ComboBox::GetList() const
 	return _list;
 }
 
-void  ComboBox::DropList()
+void ComboBox::DropList()
 {
 	if( _list->IsVisible() )
 	{
@@ -71,11 +72,12 @@ void  ComboBox::DropList()
 	}
 }
 
-void  ComboBox::OnClickItem(int index)
+void ComboBox::OnClickItem(int index)
 {
 	_curSel = index;
 	_text->SetText( _list->GetItemText(index, 0).c_str() );
 	_list->Show(false);
+	GetManager()->SetFocusWnd(this);
 
 	if( eventChangeCurSel )
 		INVOKE(eventChangeCurSel) (index);
@@ -86,6 +88,39 @@ void ComboBox::OnChangeSelection(int index)
 	_text->SetText( _list->GetItemText(index, 0).c_str() );
 }
 
+void ComboBox::OnListLostFocus()
+{
+	_list->SetCurSel(_curSel); // cancel changes
+	_list->Show(false);
+}
+
+void ComboBox::OnRawChar(int c)
+{
+	switch(c)
+	{
+	case VK_ESCAPE:
+		if( _list->IsVisible() )
+			GetManager()->SetFocusWnd(this);
+		else
+			GetParent()->OnRawChar(c);
+		break;
+	case VK_RETURN:
+		if( _list->IsVisible() && -1 != _list->GetCurSel() )
+			OnClickItem(_list->GetCurSel());
+		break;
+	case VK_DOWN:
+		if( !_list->IsVisible() )
+			DropList();
+		break;
+	default:
+		GetParent()->OnRawChar(c);
+	}
+}
+
+bool ComboBox::OnFocus(bool focus)
+{
+	return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

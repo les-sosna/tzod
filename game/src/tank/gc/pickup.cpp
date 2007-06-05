@@ -21,7 +21,6 @@
 #include "sound.h"
 #include "particles.h"
 #include "projectiles.h"
-#include "editor.h"
 
 #include "Weapons.h"
 
@@ -266,7 +265,7 @@ void GC_PickUp::MyPropertySet::Exchange(bool bApply)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 {
-	ED_ITEM( "pu_health", "Предмет: аптека                " );
+	ED_ITEM( "pu_health", "Предмет:\tАптека" );
 	return true;
 }
 
@@ -318,7 +317,7 @@ GC_Vehicle* GC_pu_Health::CheckPickUp()
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 {
-	ED_ITEM( "pu_mine", "Предмет: противотанковая мина  " );
+	ED_ITEM( "pu_mine", "Предмет:\tПротивотанковая мина" );
 	return true;
 }
 
@@ -360,7 +359,7 @@ GC_Vehicle* GC_pu_Mine::CheckPickUp()
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Invulnerablity)
 {
-	ED_ITEM( "pu_shield", "Предмет: неуязвимость          " );
+	ED_ITEM( "pu_shield", "Предмет:\tНеуязвимость" );
 	return true;
 }
 
@@ -484,7 +483,7 @@ void GC_pu_Invulnerablity::OnProprietorMove(GC_Object *sender, void *param)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 {
-	ED_ITEM( "pu_shock", "Предмет: электрошок            " );
+	ED_ITEM( "pu_shock", "Предмет:\tЭлектрошок" );
 	return true;
 }
 
@@ -654,7 +653,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 {
-	ED_ITEM( "pu_booster", "Предмет: бустер оружия         " );
+	ED_ITEM( "pu_booster", "Предмет:\tБустер оружия" );
 	return true;
 }
 

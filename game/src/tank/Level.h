@@ -110,6 +110,17 @@ public:
 
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+#define ED(name, desc, layer, width, height, align, offset)   \
+	Level::RegisterType<__this_class>(                        \
+	(name), (desc), (layer), (width), (height), (align), (offset))
+
+#define ED_ITEM(name, desc) ED(name, desc, 1, 2, 2, CELL_SIZE/2, 0)
+#define ED_LAND(name, desc, layer) ED(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2)
+#define ED_TURRET(name, desc) ED(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE)
+
+
 ////////////////////////////////////////////////////
 
 class GC_Object;
@@ -170,7 +181,7 @@ public:
 
 	// graphics
 	OBJECT_LIST     z_globals[Z_COUNT];
-	OBJECT_GRIDSET  z_grids[Z_COUNT-1]; // здесь нет слоя Z_SCREEN
+	OBJECT_GRIDSET  z_grids[Z_COUNT];
 
 	SafePtr<GC_Text>   _temporaryText;
 	void DrawText(const char *string, const vec2d &position, enumAlignText align = alignTextLT);
@@ -185,7 +196,7 @@ public:
 	int _locations_x;
 	int _locations_y;
 
-	DWORD  _gameType;
+	DWORD    _gameType;
 
 	string_t _infoAuthor;
 	string_t _infoEmail;
@@ -240,10 +251,13 @@ public:
 
 	GC_Object* FindObject(const char *name) const;
 
-public:
-	//tracing
-	GC_2dSprite* PickEdObject(const vec2d &pt);
 
+
+	//
+	// tracing
+	//
+
+public:
 	GC_RigidBodyStatic* agTrace( GridSet<OBJECT_LIST> &list,
 	                             GC_RigidBodyStatic* pIgnore,
 	                             const vec2d &x0,      // координаты начала
@@ -251,7 +265,98 @@ public:
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
 
-	// config change handlers
+
+
+	//
+	// editing interface
+	//
+
+private:
+	typedef GC_Object* (*CreateProc) (float, float);
+	template<class T> static GC_Object* CreateObject(float x, float y)
+	{
+		return new T(x, y);
+	}
+
+	struct EdItem
+	{
+		CreateProc    Create;
+		int           layer;
+		float         align;
+		float         offset;
+		vec2d         size;
+		const char*   name;
+		const char*   desc;
+	};
+
+	typedef std::map<ObjectType, EdItem> type2item;
+	typedef std::map<string_t, ObjectType> name2type;
+	typedef std::vector<ObjectType> index2type;
+
+	static type2item& get_t2i()
+	{
+		static type2item t2i;
+		return t2i;
+	}
+	static name2type& get_n2t()
+	{
+		static name2type n2t;
+		return n2t;
+	}
+	static index2type& get_i2t()
+	{
+		static index2type i2t; // sort by desc
+		return i2t;
+	}
+	
+public:
+	GC_2dSprite* PickEdObject(const vec2d &pt);
+
+	static int GetTypeCount()
+	{
+		return get_i2t().size();
+	}
+	static int GetLayerByTypeIndex(int typeIndex)
+	{
+		return get_t2i()[get_i2t()[typeIndex]].layer;
+	}
+	static ObjectType GetType(int typeIndex)
+	{
+		return get_i2t()[typeIndex];
+	}
+	static const char* GetTypeDesc(int typeIndex)
+	{
+		return get_t2i()[get_i2t()[typeIndex]].desc;
+	}
+	static const char* GetTypeName(ObjectType type)
+	{
+		return get_t2i()[type].name;
+	}
+	template<class T> static void RegisterType(const char *name, const char *desc, int layer, float width, float height, float align, float offset)
+	{
+		EdItem ei;
+		ei.Create = (CreateProc) CreateObject<T>;
+		ei.desc   = desc;
+		ei.name   = name;
+		ei.layer  = layer;
+		ei.size.Set(width, height);
+		ei.align  = align;
+		ei.offset = offset;
+		get_t2i()[T::this_type] = ei;
+		get_n2t()[name] = T::this_type;
+		get_i2t().push_back(T::this_type);
+	}
+	static bool IsRegistered(ObjectType type)
+	{
+		return (get_t2i().find(type) != get_t2i().end());
+	}
+
+
+	//
+	// config callback handlers
+	//
+
+protected:
 	void OnChangeSoundVolume();
 
 };

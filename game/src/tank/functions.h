@@ -10,13 +10,7 @@ void CalcOutstrip(const vec2d &fp, // fire point
 				  const vec2d &tv, // target velocity
 				  vec2d &fake);    // out: coordinates of fake target
 
-
 //-------------------------------------------------------
-
-// целочисленное возведение в степень
-// power не должно быть отрицательным
-int intPower(int base, unsigned int power);
-
 
 // ѕроверка пр€моугольников на пересечение.
 //  асание не считаетс€ за пересечение.
@@ -46,8 +40,8 @@ vec2d net_vrand(float len);
 
 
 // проверка файла на корректность
-BOOL CheckFile_ie(LPCTSTR fileName);
-BOOL CheckFile_ls(LPCTSTR fileName);
+//BOOL CheckFile_ie(LPCTSTR fileName);
+//BOOL CheckFile_ls(LPCTSTR fileName);
 
 
 DWORD CalcCRC32(LPCTSTR fileName);

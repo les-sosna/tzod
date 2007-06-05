@@ -18,7 +18,6 @@ namespace UI
 FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align)
   : Text(parent, x, y, "", align)
 {
-	_timer.Start();
 	_nSprites = 0;
 	_nLights  = 0;
 	_nBatches = 0;
@@ -39,7 +38,7 @@ void FpsCounter::OnShow(bool show)
 
 void FpsCounter::OnTimeStep(float dt)
 {
-	_dts.push_back(_timer.GetDt());
+	_dts.push_back(dt);
 	if( _dts.size() > 200 ) _dts.pop_front();
 
 	if( IsVisible() )

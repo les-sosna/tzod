@@ -245,7 +245,7 @@ void GC_Sound::Serialize(SaveFile &f)
 	GC_Object::Serialize(f);
 
 #if !defined NOSOUND
-	_ASSERT(f.loading() || _freezed);	// перед сохранением обязательно заморозить!
+	_ASSERT(f.loading() || _freezed);  // freeze it before saving!
 	/////////////////////////////////////
 	f.Serialize(_freezed);
 	f.Serialize(_dwNormalFrequency);

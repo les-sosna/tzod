@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "indicators.h"
 
-#include "editor.h"
 #include "level.h"
 #include "options.h"
 #include "macros.h"
@@ -30,7 +29,7 @@ GC_SpawnPoint::GC_SpawnPoint(float x, float y)
 	SetTexture("editor_respawn");
 
 	MoveTo(vec2d(x, y));
-	_team = _Editor::Inst()->GetTeam();
+	_team = 0;
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
@@ -79,79 +78,6 @@ void GC_SpawnPoint::mapExchange(MapFile &f)
 		_team = MAX_TEAMS-1;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-/*
-IMPLEMENT_SELF_REGISTRATION(GC_Cursor)
-{
-	return true;
-}
-
-GC_Cursor::GC_Cursor() : GC_2dSprite()
-{
-	SetZ(Z_SCREEN);
-	SetTexture("cursor");
-	_time_show = 0;
-	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME | GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
-	//-----
-	_text = new GC_Text(0, 0, "");
-    _text->SetFont("font_small");
-	_time_animation = 0;
-	//-----
-	EndFrame();
-}
-
-void GC_Cursor::EndFrame()
-{
-	int newx = g_env.envInputs.mouse_x;
-	int newy = g_env.envInputs.mouse_y;
-
-	if( int(_pos.x) != newx || int(_pos.y) != newy )
-	{
-		_time_show = GetTickCount();
-		MoveTo(vec2d((float) (newx), (float) (newy)));
-	}
-
-	if( g_env.nNeedCursor || OPT(bModeEditor) || GetTickCount()-_time_show < 1000 )
-		SetOpacity1i(255);
-	else
-		SetOpacity1i(255 - __min(255, (GetTickCount()-_time_show - 1000) * 255 / 1000));
-
-	bool show = (g_env.nNeedCursor > 0) ||
-		(GetTickCount() - _time_show) < 2000 || OPT(bModeEditor);
-
-	Show(show);
-
-
-	vec2d ptCurPos;
-	if( IsVisible() && OPT(bModeEditor) && GC_Camera::GetWorldMousePos(ptCurPos) )
-	{
-		char str[32];
-		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);
-		_text->SetText(str);
-		_text->Show(true);
-		_text->MoveTo(_pos + vec2d(8, 24));
-		_text->SetAlign(alignTextLT);
-	}
-	else
-		_text->Show(false);
-}
-
-void GC_Cursor::Kill()
-{
-	SAFE_KILL(_text);
-	GC_2dSprite::Kill();
-}
-
-void GC_Cursor::TimeStepFloat(float dt)
-{
-	_time_animation += dt;
-
-	if( IsVisible() )
-		SetFrame( abs(GetFrameCount()-1 - int((_time_animation * ANIMATION_FPS / 3)) % (GetFrameCount() * 2-2)) );
-
-	GC_2dSprite::TimeStepFloat(dt);
-}
-*/
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)

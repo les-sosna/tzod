@@ -357,8 +357,7 @@ float AIController::CreatePath(float dst_x, float dst_y, float max_depth, bool b
 							continue;
 						}
 					}
-
-					_AttackList.PushToBegin((GC_RigidBodyStatic *) object);
+					_AttackList.PushToBegin(static_cast<GC_RigidBodyStatic*>(object));
 				}
 
 				cell = cell->_prevCell;
@@ -539,10 +538,9 @@ bool AIController::FindTarget(/*out*/ AIITEMINFO &info)
 			if( (_player->_vehicle->_pos - object->_pos).Square() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
-				GC_RigidBodyStatic *pObstacle = (GC_RigidBodyStatic *)
-					g_level->agTrace(
-						g_level->grid_rigid_s, GetRawPtr(_player->_vehicle),
-						_player->_vehicle->_pos, object->_pos - _player->_vehicle->_pos);
+				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
+					g_level->agTrace(g_level->grid_rigid_s, GetRawPtr(_player->_vehicle),
+					_player->_vehicle->_pos, object->_pos - _player->_vehicle->_pos) );
 
 				TargetDesc td;
 				td.target = object;

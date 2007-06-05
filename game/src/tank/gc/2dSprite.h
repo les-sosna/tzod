@@ -128,7 +128,6 @@ public:
 
 
 	inline bool IsVisible()  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
-	inline bool IsOnScreen() { return Z_SCREEN == _zOrderPrefered; }
 
 public:
 	GC_2dSprite();

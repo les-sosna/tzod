@@ -85,6 +85,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_BOOL( ed_uselayers,        false );
 	CONFIG_VAR_INT(  ed_width,               32 );
 	CONFIG_VAR_INT(  ed_height,              24 );
+	CONFIG_VAR_INT(  ed_object,               0 );
 
 	// console
 	CONFIG_VAR_INT(   con_maxhistory,        30 );

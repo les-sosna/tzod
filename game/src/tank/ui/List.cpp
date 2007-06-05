@@ -151,6 +151,9 @@ void List::ScrollTo(float pos)
 void List::OnSize(float width, float height)
 {
 	_selection->Resize(width, _blankText->GetHeight());
+	_scrollBar->Resize(_scrollBar->GetWidth(), height);
+	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
+	_scrollBar->SetLimit( (float) _items.size() - height / _blankText->GetHeight() );
 }
 
 bool List::OnMouseDown(float x, float y, int button)

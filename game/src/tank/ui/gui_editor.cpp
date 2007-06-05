@@ -14,7 +14,10 @@
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"
 
+#include "config/Config.h"
+
 #include "Level.h"
+
 
 namespace UI
 {
@@ -118,13 +121,23 @@ void PropertyList::OnRawChar(int c)
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 EditorLayout::EditorLayout(Window *parent) : Window(parent)
 {
 	SetTexture(NULL);
-	_proplist = new PropertyList(this, 10, 10, 256, 256);
+	_propList = new PropertyList(this, 10, 10, 256, 256);
+
+	_typeList = new ComboBox(this, 0, 0, 256);
+	List *ls = _typeList->GetList();
+	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	{
+		ls->AddItem(Level::GetTypeDesc(i), Level::GetType(i));
+	}
+	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
+	ls->SetTabPos(1, 128);
+	ls->Resize(ls->GetWidth(), _typeList->GetHeight() * (float) ls->GetSize());
+	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -135,7 +148,6 @@ void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
 void EditorLayout::OnMoveSelected(GC_Object *sender, void *param)
 {
 	_ASSERT(_selectedObject == sender);
-//	_selectionRect->Adjust(static_cast<GC_2dSprite *>(sender));
 }
 
 void EditorLayout::Select(GC_Object *object, bool bSelect)
@@ -160,7 +172,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 
 			_selectedObject = object;
 			if( _selectedObject )
-				_proplist->ConnectTo(_selectedObject->GetProperties());
+				_propList->ConnectTo(_selectedObject->GetProperties());
 		}
 	}
 	else
@@ -197,11 +209,21 @@ void EditorLayout::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_RETURN:
-		_proplist->Show(true);
+		_propList->Show(true);
 		break;
 	default:
 		GetParent()->OnRawChar(c);
 	}
+}
+
+void EditorLayout::OnSize(float width, float height)
+{
+	_typeList->Move(width - _typeList->GetWidth(), 0);
+}
+
+void EditorLayout::OnChangeObject(int index)
+{
+	g_conf.ed_object->SetInt(index);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

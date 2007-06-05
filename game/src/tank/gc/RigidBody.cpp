@@ -11,7 +11,6 @@
 #include "fs/SaveFile.h"
 
 #include "GameClasses.h"
-#include "editor.h"
 #include "sound.h"
 #include "particles.h"
 #include "projectiles.h"
@@ -143,7 +142,7 @@ void GC_RigidBodyStatic::Kill()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
-	ED_LAND("wall_brick", "Стена: кирпич                  ",  0 );
+	ED_LAND("wall_brick", "Стена:\tКирпич",  0 );
 	return true;
 }
 
@@ -326,7 +325,7 @@ void GC_Wall::EditorAction()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 {
-	ED_LAND("wall_concrete", "Стена: бетон                   ", 0 );
+	ED_LAND("wall_concrete", "Стена:\tБетон", 0 );
 	return true;
 }
 
@@ -376,7 +375,7 @@ const char* GC_Wall_Concrete::getCornerTexture(int i)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Water)
 {
-	ED_LAND( "water", "Ландшафт: вода                 ", 0 );
+	ED_LAND( "water", "Ландшафт:\tВода", 0 );
 	return true;
 }
 

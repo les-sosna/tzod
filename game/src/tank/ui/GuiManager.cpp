@@ -181,7 +181,11 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 		if( wnd->OnFocus(true) )
 		{
 			if( _focusWnd )
+			{
 				_focusWnd->OnFocus(false);
+				if( _focusWnd->eventLostFocus )
+					INVOKE(_focusWnd->eventLostFocus) ();
+			}
 			_focusWnd = wnd;
 			return true;
 		}
@@ -189,6 +193,8 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 	else if( _focusWnd )
 	{
 		_focusWnd->OnFocus(false);
+		if( _focusWnd->eventLostFocus )
+			INVOKE(_focusWnd->eventLostFocus) ();
 		_focusWnd = NULL;
 	}
 
@@ -262,7 +268,6 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 			case WM_MOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
 
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
-
 		}
 
 		if( !wnd->IsDestroyed() && msgProcessed )

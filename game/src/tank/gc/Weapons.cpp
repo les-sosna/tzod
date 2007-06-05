@@ -7,7 +7,6 @@
 #include "Sound.h"
 #include "Light.h"
 #include "Player.h"
-#include "Editor.h" // FIXME
 #include "GameClasses.h"
 #include "Indicators.h"
 #include "Projectiles.h"
@@ -101,8 +100,8 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 	lua_State *L = LS(g_env.hScript);
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _proprietor->_player->_class.c_str());   // cls arg
-	lua_pushstring(L, _Editor::Inst()->GetName(GetType()));    // weap arg
+	lua_pushstring(L, _proprietor->_player->_class.c_str());  // cls arg
+	lua_pushstring(L, g_level->GetTypeName(GetType()));       // weap arg
 	if( lua_pcall(L, 2, 1, 0) )
 	{
 		// print error message
@@ -303,7 +302,7 @@ void GC_Weapon::OnProprietorMove(GC_Vehicle *sender, void *param)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 {
-	ED_ITEM("weap_rockets", "Оружие:  ракетница             " );
+	ED_ITEM("weap_rockets", "Оружие:\tРакетница" );
 	return true;
 }
 
@@ -466,7 +465,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 {
-	ED_ITEM( "weap_autocannon", "Оружие:  автоматическая пушка  " );
+	ED_ITEM( "weap_autocannon", "Оружие:\tАвтоматическая пушка" );
 	return true;
 }
 
@@ -662,7 +661,7 @@ void GC_Weap_AutoCannon::Kill()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 {
-	ED_ITEM( "weap_cannon", "Оружие:  тяжелая пушка         " );
+	ED_ITEM( "weap_cannon", "Оружие:\tТяжелая пушка" );
 	return true;
 }
 
@@ -774,7 +773,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 {
-	ED_ITEM( "weap_plazma", "Оружие:  плазменная пушка      " );
+	ED_ITEM( "weap_plazma", "Оружие:\tПлазменная пушка" );
 	return true;
 }
 
@@ -840,7 +839,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 {
-	ED_ITEM( "weap_gauss", "Оружие:  пушка Гаусса          " );
+	ED_ITEM( "weap_gauss", "Оружие:\tПушка Гаусса" );
 	return true;
 }
 
@@ -920,7 +919,7 @@ void GC_Weap_Gauss::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 {
-	ED_ITEM( "weap_ram", "Оружие:  таран                 " );
+	ED_ITEM( "weap_ram", "Оружие:\tТаран" );
 	return true;
 }
 
@@ -1170,7 +1169,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 {
-	ED_ITEM( "weap_bfg", "Оружие:  Big Fucking Gun       " );
+	ED_ITEM( "weap_bfg", "Оружие:\tBig Fucking Gun" );
 	return true;
 }
 
@@ -1272,7 +1271,7 @@ void GC_Weap_BFG::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
-	ED_ITEM( "weap_ripper", "Оружие:  Рипер                 " );
+	ED_ITEM( "weap_ripper", "Оружие:\tРипер" );
 	return true;
 }
 
@@ -1350,7 +1349,7 @@ void GC_Weap_Ripper::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 {
-	ED_ITEM( "weap_minigun", "Оружие:  пулемет               " );
+	ED_ITEM( "weap_minigun", "Оружие:\tПулемет" );
 	return true;
 }
 

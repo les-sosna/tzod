@@ -13,9 +13,9 @@
 
 // generates an error if an invalid class name passed
 #ifdef _DEBUG
-#define _CLS(name) (sizeof(name), name::this_type)
+#define CLS(name) (sizeof(name), name::this_type)
 #else
-#define _CLS(name) (name::this_type)
+#define CLS(name) (name::this_type)
 #endif
 
 

@@ -30,7 +30,6 @@
 
 #include "gc/Player.h"
 #include "gc/Sound.h"
-#include "gc/Editor.h"
 #include "gc/GameClasses.h"
 #include "gc/RigidBody.h"
 
@@ -191,7 +190,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		OnMouse(message, wParam, lParam);
 		break;
 	case WM_MOUSEWHEEL:
-		OnMouse(message, wParam, lParam);
+		POINT pt;
+		pt.x = (short) LOWORD(lParam),
+		pt.y = (short) HIWORD(lParam),
+		ScreenToClient(hWnd, &pt);
+		OnMouse(message, wParam, (LPARAM) DW(pt.x, pt.y) );
 		break;
 
 	case WM_CHAR:
@@ -239,8 +242,8 @@ LRESULT CALLBACK PropGridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			case ObjectProperty::TYPE_STRING:
 				char *buf;
 				int len;
-				len = GetWindowTextLength(hWndControl);
-				buf = new char[len+1];
+				len = GetWindowTextLength(hWndControl) + 1; // include '\0'
+				buf = new char[len];
 				GetWindowText(hWndControl, buf, len);
 				prop->SetValue(buf);
 				delete[] buf;
@@ -664,7 +667,7 @@ LRESULT CALLBACK dlgNewMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
 
-		switch (wmEvent)
+		switch( wmEvent )
 		{
 		case EN_CHANGE:
 			switch (wmId)
@@ -2278,7 +2281,7 @@ LRESULT CALLBACK dlgSelectObject(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		switch (wmId)
 		{
 		case IDOK:
-			g_options.nCurrentObject = SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_GETCURSEL,0,0);
+			g_conf.ed_object->SetInt( SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_GETCURSEL,0,0) );
 			EndDialog(hDlg, LOWORD(wParam));
 			return TRUE;
 			break;
@@ -2290,10 +2293,10 @@ LRESULT CALLBACK dlgSelectObject(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		break;
 
 	case WM_INITDIALOG:
-		for( int i = 0; i < _Editor::Inst()->GetObjectCount(); ++i )
+		for( int i = 0; i < Level::GetTypeCount(); ++i )
 			SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_ADDSTRING, 0,
-			(LPARAM) _Editor::Inst()->GetDesc(i));
-		SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_SETCURSEL, g_options.nCurrentObject, 0);
+			(LPARAM) Level::GetTypeDesc(i));
+		SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_SETCURSEL, g_conf.ed_object->GetInt(), 0);
 		return TRUE;
 	}
     return FALSE;

@@ -14,7 +14,6 @@
 #include "fs/MapFile.h"
 
 #include "gc/GameClasses.h"
-#include "gc/Editor.h"
 #include "gc/RigidBody.h"
 
 
@@ -202,7 +201,7 @@ void GC_Light::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 {
-	ED_ITEM( "spotlight", "Объект:  Прожектор             " );
+	ED_ITEM( "spotlight", "Объект:\tПрожектор" );
 	return true;
 }
 

@@ -81,7 +81,7 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 	{
 		Serialize(id);
 		SetRawPtr(ptr, reinterpret_cast<T*>(id));
-		_refs.push_back((SafePtr<void> *) &ptr);
+		_refs.push_back(reinterpret_cast<SafePtr<void>*>(&ptr));
 	}
 	else
 	{

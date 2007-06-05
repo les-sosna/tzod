@@ -31,14 +31,14 @@ protected:
 	void OnScroll(float pos);
 	void OnSize(float width, float height);
 	void OnRawChar(int c);
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class EditorLayout : public Window
 {
-	PropertyList *_proplist;
+	PropertyList *_propList;
+	ComboBox     *_typeList;
 
 	GC_Object *_selectedObject;
 	void OnKillSelected(GC_Object *sender, void *param);
@@ -52,6 +52,9 @@ protected:
 	bool OnMouseDown(float x, float y, int button);
 	bool OnFocus(bool focus);
 	void OnRawChar(int c);
+	void OnSize(float width, float height);
+
+	void OnChangeObject(int index);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

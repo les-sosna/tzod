@@ -24,7 +24,6 @@
 #include "gc/GameClasses.h"
 #include "gc/RigidBody.h"
 #include "gc/indicators.h"
-#include "gc/editor.h"
 #include "gc/Player.h"
 #include "gc/Sound.h"
 #include "gc/pickup.h"
@@ -276,7 +275,7 @@ void Level::Resize(int X, int Y)
 	_sx           = (float) X * CELL_SIZE;
 	_sy	          = (float) Y * CELL_SIZE;
 
-	for( int i = 0; i < Z_COUNT-1; i++ )
+	for( int i = 0; i < Z_COUNT; i++ )
 		z_grids[i].resize(_locations_x, _locations_y);
 
 	grid_rigid_s.resize(_locations_x, _locations_y);
@@ -296,7 +295,6 @@ BOOL Level::init_emptymap()
 	_gameType   = GT_EDITOR;
 	_modeEditor = true;
 
-	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
 
 	_Background::Inst()->EnableGrid( g_conf.ed_drawgrid->Get() );
@@ -313,7 +311,6 @@ BOOL Level::init_import_and_edit(char *mapName)
 	_gameType   = GT_EDITOR;
 	_modeEditor = true;
 
-	_Editor::CreateInstance();
 	g_render->SetAmbient( 1.0f );
 
 	return Import(mapName, true);
@@ -330,8 +327,6 @@ BOOL Level::init_newdm(const char *mapName)
 	// score table
 	new GC_TextScore();
 
-	//editor object
-	_Editor::CreateInstance();
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
 	return Import(mapName, false);
@@ -346,8 +341,6 @@ BOOL Level::init_load(const char *fileName)
 	_modeEditor = false;
 
 	new GC_TextScore();
-
-	_Editor::CreateInstance();
 
 	return Unserialize(fileName);
 }
@@ -504,11 +497,6 @@ bool Level::Serialize(const char *fileName)
 		}
 
 
-		// сброс состояния редактора для освобождения занятых объектов
-		if( _Editor::Inst() )
-			_Editor::Inst()->Reset();
-
-
 		SAVEHEADER sh = {0};
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
@@ -591,7 +579,15 @@ bool Level::Import(const char *fileName, bool bForEditor)
     Init(width, height);
 
 	while( file.NextObject() )
-		GC_Editor::CreateObject(file);
+	{
+		float x, y;
+		if( !file.getObjectAttribute("x", x) ) continue;
+		if( !file.getObjectAttribute("y", y) ) continue;
+		name2type::iterator it = get_n2t().find(file.getCurrentClassName());
+		if( get_n2t().end() == it ) continue;
+		GC_Object *object = get_t2i()[it->second].Create(x, y);
+		object->mapExchange(file);
+	}
 
 	GC_Camera::SwitchEditor();
 	return true;
@@ -632,9 +628,9 @@ bool Level::Export(const char *fileName)
 	FOREACH( objects, GC_Object, object )
 	{
 		if( object->IsKilled() ) continue;
-		if( GC_Editor::isRegistered(object->GetType()) )
+		if( IsRegistered(object->GetType()) )
 		{
-			file.BeginObject(GC_Editor::GetName(object->GetType()));
+			file.BeginObject(GetTypeName(object->GetType()));
 			object->mapExchange(file);
 			if( !file.WriteCurrentObject() ) return false;
 		}
@@ -679,18 +675,18 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 			OBJECT_LIST::iterator it = (*rit)->begin();
 			for( ; it != (*rit)->end(); ++it )
 			{
-				GC_2dSprite *object = (GC_2dSprite *) (*it);
+				GC_2dSprite *object = static_cast<GC_2dSprite*>(*it);
 
 				FRECT frect;
 				object->GetGlobalRect(frect);
 
 				if( PtInFRect(frect, pt) )
 				{
-					for( int i = 0; i < _Editor::Inst()->GetObjectCount(); ++i )
+					for( int i = 0; i < GetTypeCount(); ++i )
 					{
-						if( !g_conf.ed_uselayers->Get() || _Editor::Inst()->GetLayer(
-							g_options.nCurrentObject) == _Editor::Inst()->GetLayer(i) )
-						if( object->GetType() == _Editor::Inst()->GetOwnedType(i) )
+						if( !g_conf.ed_uselayers->Get() || GetLayerByTypeIndex(
+							g_conf.ed_object->GetInt() ) == GetLayerByTypeIndex(i) )
+						if( object->GetType() == GetType(i) )
 						{
 							if( dynamic_cast<GC_Weapon *>(object) )
 								if( ((GC_Weapon *)object)->_bAttached )
@@ -896,7 +892,6 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->SetAlign(align);
 	_temporaryText->Draw();
 }
-
 
 void Level::TimeStep(float dt)
 {

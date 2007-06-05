@@ -32,8 +32,13 @@ public:
 	Delegate<void(int)> eventChangeCurSel;
 
 protected:
+	void OnRawChar(int c);
+	bool OnFocus(bool focus);
+
 	void OnClickItem(int index);
 	void OnChangeSelection(int index);
+
+	void OnListLostFocus();
 };
 
 

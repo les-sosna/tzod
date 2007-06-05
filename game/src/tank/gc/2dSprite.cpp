@@ -134,7 +134,7 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 // изменение текущего значения z-order
 void GC_2dSprite::SetZ_current(enumZOrder z)
 {
-	_ASSERT(0 <= z && Z_COUNT > z || Z_NONE == z || Z_SCREEN == z);
+	_ASSERT(0 <= z && Z_COUNT > z || Z_NONE == z);
 	if( _zOrderCurrent == z ) return;
 
 
@@ -154,8 +154,8 @@ void GC_2dSprite::SetZ_current(enumZOrder z)
 	// set new z
 	//
 
-	if( Z_SCREEN == z )
-		ClearFlags(GC_FLAG_2DSPRITE_INGRIDSET);
+//	if( Z_SCREEN == z )
+//		ClearFlags(GC_FLAG_2DSPRITE_INGRIDSET);
 
 	_zOrderCurrent = z;
 	UpdateCurrentZ();
@@ -176,7 +176,6 @@ void GC_2dSprite::UpdateCurrentZ()
 
 	if( CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET) )
 	{
-		_ASSERT(Z_SCREEN != _zOrderCurrent);
 		AddContext( &g_level->z_grids[_zOrderCurrent] );
 	}
 	else

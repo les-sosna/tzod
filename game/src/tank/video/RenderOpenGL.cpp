@@ -400,12 +400,13 @@ void RenderOpenGL::setMode(const RENDER_MODE mode)
 {
 	if( _iaSize ) _flush();
 
-    switch(mode)
+    switch( mode )
 	{
 	case RM_LIGHT:
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		break;
+
 
 	case RM_WORLD:
 		glEnable(GL_TEXTURE_2D);
@@ -423,6 +424,7 @@ void RenderOpenGL::setMode(const RENDER_MODE mode)
         _ASSERT(FALSE);
 	}
 
+//	if( RM_INTERFACE != mode )
 	_mode = mode;
 }
 

@@ -15,7 +15,6 @@
 #include "fs/SaveFile.h"
 
 #include "GameClasses.h"
-#include "editor.h"
 #include "sound.h"
 #include "indicators.h"
 #include "vehicle.h"
@@ -31,7 +30,7 @@ GC_Turret::GC_Turret(float x, float y) : GC_RigidBodyStatic(), _rotator(_dir)
 {
 	SetZ(Z_WALLS);
 
-	_team   = _Editor::Inst()->GetTeam();
+	_team   = 0;
 	_sight  = TURET_SIGHT_RADIUS;
 
 	_initialDir = 0;
@@ -397,7 +396,7 @@ void GC_Turret_Rocket::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Turret_Cannon)
 {
-	ED_TURRET( "turret_cannon", "Стационарная тяжелая пушка     " );
+	ED_TURRET( "turret_cannon", "Стационарная тяжелая пушка" );
 	return true;
 }
 
@@ -686,7 +685,7 @@ void GC_Turret_Bunker::EditorAction()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Turret_Minigun)
 {
-	ED_TURRET( "turret_minigun", "Стационарный пулемет           " );
+	ED_TURRET( "turret_minigun", "Стационарный пулемет" );
 	return true;
 }
 
@@ -786,7 +785,7 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Turret_Gauss)
 {
-	ED_TURRET( "turret_gauss", "Стационарная пушка Гаусса      " );
+	ED_TURRET( "turret_gauss", "Стационарная пушка Гаусса" );
 	return true;
 }
 

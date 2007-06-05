@@ -8,7 +8,6 @@
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/player.h"
-#include "gc/editor.h"
 
 #include "core/Console.h"
 #include "core/debug.h"
@@ -451,9 +450,9 @@ script_h script_open(void)
 	lua_pushvalue(L, -1);   // make a copy of the table to leave it in the stack
 	lua_setglobal(L, "gc"); // set global and pop one element from stack
 
-	for( int i = 0; i < _Editor::Inst()->GetObjectCount(); ++i )
+	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
-		const char *cls = _Editor::Inst()->GetName(_Editor::Inst()->GetOwnedType(i));
+		const char *cls = Level::GetTypeName(Level::GetType(i));
         lua_newtable(L);
 		lua_setfield(L, -2, cls);
 	}

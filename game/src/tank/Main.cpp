@@ -7,8 +7,6 @@
 #include "options.h"
 #include "directx.h"
 
-#include "Editor.h"
-
 #include "config/Config.h"
 
 #include "core/debug.h"
@@ -24,7 +22,6 @@
 #include "gc/Camera.h"
 #include "gc/Light.h"
 #include "gc/Sound.h"
-#include "gc/Editor.h"
 #include "gc/RigidBody.h"
 #include "gc/GameClasses.h"
 
@@ -120,17 +117,16 @@ static void RenderFrame(bool thumbnail)
 		{
 			if( pMaxShake ) pCamera = pMaxShake;
 			if( !pCamera->IsActive() ) continue;
-			pCamera->Select();
 
 
 			//
 			// рендеринг освещения
 			//
 
+			g_render->setMode(RM_LIGHT);
+			pCamera->Select();
 			if( g_conf.sv_nightmode->Get() )
 			{
-				g_render->setMode(RM_LIGHT);
-
 				float xmin = (float) __max(0, g_env.camera_x );
 				float ymin = (float) __max(0, g_env.camera_y );
 				float xmax = __min(g_level->_sx, (float) g_env.camera_x +
@@ -161,7 +157,7 @@ static void RenderFrame(bool thumbnail)
 			// paint background texture
 			_Background::Inst()->Draw();
 
-			for( int z = 0; z < Z_COUNT-1; ++z )
+			for( int z = 0; z < Z_COUNT; ++z )
 			{
 				// loop over gridsets
 				for( int lev = 0; lev < 4; ++lev )
@@ -203,7 +199,7 @@ static void RenderFrame(bool thumbnail)
 			if( pMaxShake ) break;
 		}	// cameras
 
-
+/*
 		//
 		// paint Z_SCREEN layer
 		//
@@ -219,9 +215,14 @@ static void RenderFrame(bool thumbnail)
 				_ASSERT(!object->IsKilled());
 			}
 		}
+*/
 	}
 
-	if( g_gui ) g_gui->Draw();
+	if( g_gui )
+	{
+		g_render->setMode(RM_INTERFACE);
+		g_gui->Draw();
+	}
 
 
 	// display new frame
@@ -267,13 +268,13 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 	return hWnd;
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
-	g_hInstance = hInstance;
+	g_hInstance = hinst;
 
 
 	// create the console buffer
-	g_console = new ConsoleBuffer(96, 512);
+	g_console = new ConsoleBuffer(128, 512);
 
     // print UNIX-style date and time
 	time_t ltime;
@@ -321,7 +322,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// init editor
 	//
 
-	g_editor = new Editor();
+//	g_editor = new Editor();
 
 
 
@@ -342,8 +343,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	// create main app window
 	//
-	MyRegisterClass(hInstance);
-	g_env.hMainWnd = CreateMainWnd(hInstance);
+	MyRegisterClass(hinst);
+	g_env.hMainWnd = CreateMainWnd(hinst);
 
 
 
@@ -351,8 +352,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	//
 	// show graphics mode selection dialog
 	//
-	if( g_conf.r_askformode->Get() && IDOK != DialogBox(g_hInstance,
-		(LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
+	if( g_conf.r_askformode->Get() 
+		&& IDOK != DialogBox(hinst, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
 		return 0;
@@ -438,14 +439,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 					DialogBox(g_hInstance, (LPCTSTR)IDD_SELECT_OBJECT, g_env.hMainWnd, (DLGPROC) dlgSelectObject);
 					continue;
 				}
-				else if( g_level && g_env.envInputs.keys[DIK_RETURN] && g_level->_modeEditor && _Editor::Inst()->GetSelection() )
-				{
-					if( SafePtr<PropertySet> p = _Editor::Inst()->GetSelection()->GetProperties() )
-					{
-						DialogBoxParam(g_hInstance, (LPCTSTR)IDD_OBJPROP, g_env.hMainWnd, (DLGPROC) dlgObjectProperties, (LPARAM) GetRawPtr(p));
-					}
-					continue;
-				}
 				else if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
 				{
 					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
@@ -529,7 +522,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	g_env.hScript = NULL;
 
 	// editor
-	SAFE_DELETE(g_editor);
+//	SAFE_DELETE(g_editor);
 
 	// config
 	g_config->Save(FILE_CONFIG);

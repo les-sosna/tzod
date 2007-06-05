@@ -113,6 +113,12 @@ public:
 
 
 	//
+	// Events
+	//
+	Delegate<void(void)> eventLostFocus;
+
+
+	//
 	// mouse handlers
 	//
 

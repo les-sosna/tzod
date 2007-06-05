@@ -23,7 +23,6 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 	_con = new Console(this, 10, 0);
 	_con->Show(false);
 
-
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
 	g_conf.ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
 	OnChangeShowFps();

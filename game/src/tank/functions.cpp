@@ -13,10 +13,10 @@
 //--------------------------------------------------
 
 void CalcOutstrip(const vec2d &fp, // fire point
-				  float vp,        // speed of projectile
+				  float vp,        // speed of the projectile
 				  const vec2d &tx, // target position
 				  const vec2d &tv, // target velocity
-				  vec2d &fake)     // out: coordinates of fake target
+				  vec2d &fake)     // out: fake target position
 {
 	float vt = tv.Length();
 
@@ -41,20 +41,6 @@ void CalcOutstrip(const vec2d &fp, // fire point
 }
 
 //--------------------------------------------------
-
-// целочисленное возведение в степень
-int intPower(int base, unsigned int power)
-{
-	_ASSERT(power < 32);
-
-	int res = 1;
-	for( unsigned int i = 0; i < power; ++i )
-	{
-		res *= base;
-	}
-
-	return res;
-}
 
 // проверка на пересечение правильных прямоугольников
 BOOL IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
@@ -171,7 +157,7 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
 	return TRUE;
 }
 
-
+/*
 // проверка файла на корректность
 BOOL CheckFile_ie(LPCTSTR fileName)
 {
@@ -208,7 +194,7 @@ BOOL CheckFile_ls(LPCTSTR fileName)
 
 	return (VERSION == dwVersion);
 }
-
+*/
 
 DWORD CalcCRC32(LPCTSTR fileName)
 {
@@ -240,7 +226,6 @@ DWORD CalcCRC32(LPCTSTR fileName)
 		unsigned char data;
 		if( 1 != fread(&data, 1, 1, file) )
 			break;
-
 		crc = table[(crc & 0xFF) ^ data] ^ crc >> 8;
 		crc ^= CRC_MASK;
 	}

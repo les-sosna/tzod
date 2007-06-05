@@ -31,8 +31,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define DW(hi, lo) ( (0x0000ffff & (DWORD)(lo)) | ((DWORD) (hi) << 16) )
-#define PUSH(dlg, id) PostMessage(dlg, WM_COMMAND, DW(BN_CLICKED, id), (LPARAM) GetDlgItem(dlg, id))
+#define DW(lo, hi) ( (0x0000ffff & (DWORD)(lo)) | ((DWORD) (hi) << 16) )
+#define PUSH(dlg, id) PostMessage(dlg, WM_COMMAND, DW(id, BN_CLICKED), (LPARAM) GetDlgItem(dlg, id))
 
 #define GET_DLG_ITEM_TEXT(hdlg, id, str)      \
 {                                             \

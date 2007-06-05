@@ -26,7 +26,6 @@
 
 #include "GameClasses.h"
 #include "Camera.h"
-#include "Editor.h"
 #include "Vehicle.h"
 #include "Pickup.h"
 #include "Sound.h"
@@ -150,7 +149,7 @@ void GC_Background::EnableGrid(bool bEnable)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 {
-	ED_LAND( "wood", "Ëàíäøàôò: ëåñ                  ",  2 );
+	ED_LAND( "wood", "Ëàíäøàôò:\tËåñ",  2 );
 	return true;
 }
 
@@ -195,7 +194,7 @@ void GC_Wood::UpdateTile(bool flag)
 		OBJECT_LIST::iterator it = (*rit)->begin();
 		for( ; it != (*rit)->end(); ++it )
 		{
-			GC_Wood *object = (GC_Wood *) (*it);
+			GC_Wood *object = static_cast<GC_Wood *>(*it);
 			if( this == object ) continue;
 
 			vec2d dx = (_pos - object->_pos) / CELL_SIZE;
@@ -346,11 +345,6 @@ void GC_Line::MoveTo(const vec2d &begin, const vec2d &end)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
-IMPLEMENT_SELF_REGISTRATION(GC_Rectangle)
-{
-	return true;
-}
-*/
 
 GC_Rectangle::GC_Rectangle(const vec2d &pos, const vec2d &size, const char *texture)
 	:GC_Line(pos-size*0.5f, pos+size*0.5f, texture)
@@ -358,12 +352,6 @@ GC_Rectangle::GC_Rectangle(const vec2d &pos, const vec2d &size, const char *text
 	_center_pos = pos;
 	_size       = size;
 }
-
-/*
-GC_Rectangle::GC_Rectangle(FromFile) : GC_Line(FromFile())
-{
-}
-*/
 
 void GC_Rectangle::SetSize(const vec2d &size)
 {
@@ -404,6 +392,7 @@ void GC_Rectangle::Adjust(GC_2dSprite *object)
 	SetSize(vec2d(WIDTH(frect), HEIGHT(frect)));
 	MoveTo(vec2d(frect.right+frect.left, frect.top+frect.bottom) * 0.5f);
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -877,7 +866,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 GC_Text::GC_Text(int xPos, int yPos, const char *lpszText, enumAlignText align)
 : GC_2dSprite()
 {
-	SetZ(Z_SCREEN);
+//	SetZ(Z_SCREEN);
 
 	SetFont("font_default");
 	SetAlign(align);
@@ -976,7 +965,7 @@ GC_TextScore::GC_TextScore() : GC_Text(0, 0, "score")
 
 	_background = new GC_2dSprite();
 	_background->Show(false);
-	_background->SetZ(Z_SCREEN);
+//	_background->SetZ(Z_SCREEN);
 	_background->SetTexture("scoretbl");
 
 	MoveTo(vec2d(
@@ -1155,31 +1144,6 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 	if( _time > 1.0f ) Kill();
 }
 
-/////////////////////////////////////////////////////////////
-/*
-GC_TextTime::GC_TextTime(int xPos, int yPos, enumAlignText align) : GC_Text(xPos, yPos, "", align)
-{
-	SetFont("font_default");
-	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
-}
-
-void GC_TextTime::EndFrame()
-{
-	Show( g_options.bShowTime && !g_level->_modeEditor );
-	if( IsVisible() )
-	{
-		char text[16];
-		int time = int(g_level->_time);
-
-		if( time % 60 < 10 )
-			wsprintf(text, "%d:0%d", time / 60, time % 60);
-		else
-			wsprintf(text, "%d:%d", time / 60, time % 60);
-
-		SetText(text);
-	}
-}
-*/
 /////////////////////////////////////////////////////////////
 
 GC_Text_MessageArea::GC_Text_MessageArea()

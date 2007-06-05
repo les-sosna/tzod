@@ -32,11 +32,9 @@ VOID LoadSurfaces()
 		MessageBox(g_env.hMainWnd, "ой! а что с текстурами?", TXT_VERSION, MB_ICONERROR);
 	}
 
-
-//	LOGOUT_1("> loading skins... \n");
 	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
 	{
-//		LOGOUT_1("failed \n");
+		TRACE("WARNING: no skins found\n");
 		MessageBox(g_env.hMainWnd, "ой! а где скины?", TXT_VERSION, MB_ICONERROR);
 	}
 }
@@ -49,7 +47,7 @@ VOID LoadSurfaces()
 struct LoadSoundException
 {
 	string_t  filename;
-	HRESULT      hr;
+	HRESULT   hr;
 };
 
 void LoadSound(bool init, enumSoundTemplate sound, const char *filename)
