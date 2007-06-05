@@ -62,6 +62,7 @@ protected:
 	bool OnFocus(bool focus);
 	void OnRawChar(int c);
 	void OnSize(float width, float height);
+	void OnShow(bool show);
 
 	void OnChangeObject(int index);
 };

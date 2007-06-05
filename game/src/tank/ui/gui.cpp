@@ -37,11 +37,22 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	(new Button(this,   0, 256, "Игра (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-//	(new Button(this,  96, 256, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-//	(new Button(this, 192, 256, "Сохранить"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-//	(new Button(this, 288, 256, "Настройки"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-	(new Button(this, 416, 256, "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
+	(new Button(this, 0, GetHeight(), "Игра (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+
+	new Button(this, 0, GetHeight() + 30, "Загрузить");
+	new Button(this, 0, GetHeight() + 60, "Сохранить");
+
+	new Button(this, 100, GetHeight(), "Host");
+	new Button(this, 100, GetHeight() + 30, "Join");
+	new Button(this, 100, GetHeight() + 60, "Профиль");
+
+	new Button(this, 200, GetHeight(), "New map");
+	new Button(this, 200, GetHeight() + 30, "Import");
+	new Button(this, 200, GetHeight() + 60, "Export");
+
+	new Button(this, 300, GetHeight(), "Настройки");
+
+	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
 }
 
 void MainMenuDlg::OnNewGame()

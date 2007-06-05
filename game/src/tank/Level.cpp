@@ -652,13 +652,31 @@ bool Level::Export(const char *fileName)
 
 void Level::Pause(bool pause)
 {
-	if( _limitHit || _modeEditor ) return;
+//	if( _limitHit || _modeEditor ) return;
 
 	_paused = pause;
 
-	FOREACH( sounds, GC_Sound, pSound)  {
+	FOREACH( sounds, GC_Sound, pSound )
+	{
 		pSound->Freeze(pause);
 	}
+}
+
+void Level::ToggleEditorMode()
+{
+	if( _modeEditor )
+	{
+		_modeEditor = false;
+		_Background::Inst()->EnableGrid(false);
+		Pause(false);
+	}
+	else
+	{
+		_modeEditor = true;
+		_Background::Inst()->EnableGrid(g_conf.ed_drawgrid->Get());
+		Pause(true);
+	}
+	GC_Camera::SwitchEditor();
 }
 
 GC_Object* Level::CreateObject(ObjectType type, float x, float y)
@@ -905,8 +923,10 @@ void Level::TimeStep(float dt)
 	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
-	if( _modeEditor )
+	if( _paused )
 		return;
+
+	_ASSERT(!_modeEditor);
 
 	if( _client )
 	{

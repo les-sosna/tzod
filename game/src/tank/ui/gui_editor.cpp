@@ -76,6 +76,10 @@ void PropertyList::Commit()
 		}
 	}
 	_ps->Exchange(true);
+
+	SafePtr<PropertySet> tmp = _ps;
+	_ps = NULL;
+	ConnectTo(tmp);
 }
 
 void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
@@ -291,6 +295,14 @@ void EditorLayout::OnRawChar(int c)
 void EditorLayout::OnSize(float width, float height)
 {
 	_typeList->Move(width - _typeList->GetWidth() - 5, 5);
+}
+
+void EditorLayout::OnShow(bool show)
+{
+	if( !show )
+	{
+		_propList->ConnectTo(NULL);
+	}
 }
 
 void EditorLayout::OnChangeObject(int index)

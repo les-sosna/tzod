@@ -12,6 +12,8 @@
 
 #include "config/Config.h"
 
+#include "Level.h"
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,6 +21,7 @@ namespace UI
 Desktop::Desktop(GuiManager* manager) : Window(manager)
 {
 	_editor = new EditorLayout(this);
+	_editor->Show(false);
 
 	_con = new Console(this, 10, 0);
 	_con->Show(false);
@@ -70,6 +73,14 @@ void Desktop::OnRawChar(int c)
 		dlg = new NewGameDlg(this);
 		ShowDesktopBackground(true);
 		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
+		break;
+
+	case VK_F5:
+		if( g_level )
+		{
+			g_level->ToggleEditorMode();
+			_editor->Show(g_level->_modeEditor);
+		}
 		break;
 	}
 }

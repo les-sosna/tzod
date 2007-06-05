@@ -136,8 +136,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\src\tank,..\src\auxiliary,..\src\lua\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE_0;NOSOUND_0"
 				KeepComments="false"

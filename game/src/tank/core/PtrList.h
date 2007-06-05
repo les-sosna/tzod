@@ -265,8 +265,8 @@ public:
 		--_size;
 	}
 
-	iterator      begin() const { return iterator(_begin->next); }
-	base_iterator end()   const { return base_iterator(_end); }
+	__inline iterator      begin() const { return iterator(_begin->next); }
+	__inline base_iterator end()   const { return base_iterator(_end); }
 
 	safe_iterator safe_begin() const { return safe_iterator(_begin->next); }
 

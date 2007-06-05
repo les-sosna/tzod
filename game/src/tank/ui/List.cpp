@@ -42,7 +42,7 @@ void List::OnScroll(float pos)
 void List::UpdateSelection()
 {
 	float y = (float) _curSel - _scrollBar->GetPos();
-	_selection->Move(0, y * GetItemHeight() - 1);
+	_selection->Move(0, floorf(y * GetItemHeight()));
 	_selection->Show( -1 != _curSel && y > -1 && y < GetNumLinesVisible() );
 }
 
@@ -154,10 +154,11 @@ void List::ScrollTo(float pos)
 
 void List::OnSize(float width, float height)
 {
-	_selection->Resize(width, GetItemHeight());
+	_selection->Resize(width, _selection->GetHeight());
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
+	UpdateSelection();
 }
 
 bool List::OnMouseDown(float x, float y, int button)
