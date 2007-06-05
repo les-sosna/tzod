@@ -7,6 +7,7 @@
 
 namespace UI
 {
+	// TODO: to make dialog modal create a full screen window under it
 
 class Dialog : public Window
 {

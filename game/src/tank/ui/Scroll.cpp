@@ -33,7 +33,7 @@ ScrollBar::ScrollBar(Window *parent, float x, float y, float height)
 	Move(x, y);
 }
 
-void  ScrollBar::SetPos(float pos)
+void ScrollBar::SetPos(float pos)
 {
 	_pos = __max(0, __min(_limit, pos));
 	_btnBox->Move(0, _btnUp->GetHeight() + ( _btnDown->GetY()
@@ -45,9 +45,14 @@ float ScrollBar::GetPos() const
 	return _pos;
 }
 
-void  ScrollBar::SetLimit(float limit)
+void ScrollBar::SetLimit(float limit)
 {
+	_btnBox->Show(limit > 0);
+	_btnUp->Enable(limit > 0);
+	_btnDown->Enable(limit > 0);
+
 	_limit = limit;
+	SetPos(GetPos()); // update scroll box position
 }
 
 float ScrollBar::GetLimit() const
@@ -55,28 +60,28 @@ float ScrollBar::GetLimit() const
 	return _limit;
 }
 
-void  ScrollBar::SetLineSize(float ls)
+void ScrollBar::SetLineSize(float ls)
 {
 	_lineSize = ls;
 }
 
-void  ScrollBar::OnSize(float width, float height)
+void ScrollBar::OnSize(float width, float height)
 {
 	_btnDown->Move(0, height - _btnDown->GetHeight());
-    SetPos(_pos);  // update box position
+    SetPos(GetPos());  // update scroll box position
 }
 
-void  ScrollBar::OnBoxMouseDown(float x, float y)
+void ScrollBar::OnBoxMouseDown(float x, float y)
 {
 	_tmpBoxY = y;
 }
 
-void  ScrollBar::OnBoxMouseUp(float x, float y)
+void ScrollBar::OnBoxMouseUp(float x, float y)
 {
 	_tmpBoxY = -1;
 }
 
-void  ScrollBar::OnBoxMouseMove(float x, float y)
+void ScrollBar::OnBoxMouseMove(float x, float y)
 {
 	if( _tmpBoxY < 0 )
 		return;
@@ -88,12 +93,12 @@ void  ScrollBar::OnBoxMouseMove(float x, float y)
 		INVOKE(eventScroll) (GetPos());
 }
 
-void  ScrollBar::OnUp()
+void ScrollBar::OnUp()
 {
 	SetPos(GetPos() - _lineSize);
 }
 
-void  ScrollBar::OnDown()
+void ScrollBar::OnDown()
 {
 	SetPos(GetPos() + _lineSize);
 }

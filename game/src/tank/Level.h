@@ -310,6 +310,7 @@ private:
 	}
 	
 public:
+	GC_Object* CreateObject(ObjectType type, float x, float y);
 	GC_2dSprite* PickEdObject(const vec2d &pt);
 
 	static int GetTypeCount()

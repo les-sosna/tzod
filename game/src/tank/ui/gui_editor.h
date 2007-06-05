@@ -15,16 +15,24 @@ namespace UI
 
 class PropertyList : public Dialog
 {
-	Window     *_psheet;
+	class Container : public Window
+	{
+		void OnRawChar(int c); // need to pass messages through
+	public:
+		Container(Window *parent);
+	};
+
+
+	Container  *_psheet;
 	ScrollBar  *_scrollBar;
 
-	SafePtr<PropertySet> _ps;
+	SafePtr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
 
+	void Commit();
 
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h);
-
 	void ConnectTo(const SafePtr<PropertySet> &ps);
 
 protected:
@@ -49,6 +57,7 @@ public:
 	EditorLayout(Window *parent);
 
 protected:
+	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);
 	bool OnFocus(bool focus);
 	void OnRawChar(int c);

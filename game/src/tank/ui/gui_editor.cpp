@@ -25,10 +25,19 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // PropertyList class implementation
 
+PropertyList::Container::Container(Window *parent) : Window(parent)
+{
+}
+
+void PropertyList::Container::OnRawChar(int c)
+{
+	GetParent()->OnRawChar(c); // pass messages through
+}
+
 PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, x, y, w, h)
 {
-	_psheet = new Window(this);
+	_psheet = new Container(this);
 
 	_scrollBar = new ScrollBar(this, 0, 0, h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
@@ -38,6 +47,35 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	Resize(w, h);
 	SetEasyMove(true);
 	ClipChildren(true);
+}
+
+void PropertyList::Commit()
+{
+	_ASSERT(_ps);
+	for( int i = 0; i < _ps->GetCount(); ++i )
+	{
+		ObjectProperty *prop = _ps->GetProperty(i);
+		Window *ctrl = _ctrls[i];
+
+		switch( prop->GetType() )
+		{
+		case ObjectProperty::TYPE_INTEGER:
+			_ASSERT( dynamic_cast<Edit*>(ctrl) );
+			prop->SetValueInt(static_cast<Edit*>(ctrl)->GetInt());
+			break;
+		case ObjectProperty::TYPE_STRING:
+			_ASSERT( dynamic_cast<Edit*>(ctrl) );
+			prop->SetValue(static_cast<Edit*>(ctrl)->GetText());
+			break;
+		case ObjectProperty::TYPE_MULTISTRING:
+			_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
+			prop->SetCurrentIndex( static_cast<ComboBox*>(ctrl)->GetCurSel() );
+			break;
+		default:
+			_ASSERT(FALSE);
+		}
+	}
+	_ps->Exchange(true);
 }
 
 void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
@@ -113,6 +151,9 @@ void PropertyList::OnRawChar(int c)
 {
 	switch(c)
 	{
+	case VK_RETURN:
+		Commit();
+		break;
 	case VK_ESCAPE:
 		Show(false);
 		break;
@@ -126,7 +167,7 @@ void PropertyList::OnRawChar(int c)
 EditorLayout::EditorLayout(Window *parent) : Window(parent)
 {
 	SetTexture(NULL);
-	_propList = new PropertyList(this, 10, 10, 256, 256);
+	_propList = new PropertyList(this, 5, 5, 256, 256);
 
 	_typeList = new ComboBox(this, 0, 0, 256);
 	List *ls = _typeList->GetList();
@@ -136,7 +177,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	}
 	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
 	ls->SetTabPos(1, 128);
-	ls->Resize(ls->GetWidth(), _typeList->GetHeight() * (float) ls->GetSize());
+	ls->Resize(ls->GetWidth(), ls->GetItemHeight() * (float) ls->GetSize());
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
 }
 
@@ -184,6 +225,21 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 	}
 }
 
+bool EditorLayout::OnMouseWheel(float x, float y, float z)
+{
+	if( z > 0 )
+	{
+		_typeList->SetCurSel( __max(0, _typeList->GetCurSel() - 1) );
+	}
+
+	if( z < 0 )
+	{
+		_typeList->SetCurSel( __min(_typeList->GetList()->GetSize()-1, _typeList->GetCurSel() + 1) );
+	}
+
+	return true;
+}
+
 bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
 	vec2d mouse;
@@ -192,7 +248,23 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	{
 		if( GC_Object *object = g_level->PickEdObject(mouse) )
 		{
-			Select(object, true);
+			if( 1 == button )
+			{
+				Select(object, true);
+			}
+
+			if( 2 == button )
+			{
+				object->Kill();
+			}
+		}
+		else
+		{
+			if( 1 == button )
+			{
+				Select(  g_level->CreateObject(
+					Level::GetType(g_conf.ed_object->GetInt()), mouse.x, mouse.y), true  );
+			}
 		}
 	}
 
@@ -218,7 +290,7 @@ void EditorLayout::OnRawChar(int c)
 
 void EditorLayout::OnSize(float width, float height)
 {
-	_typeList->Move(width - _typeList->GetWidth(), 0);
+	_typeList->Move(width - _typeList->GetWidth() - 5, 5);
 }
 
 void EditorLayout::OnChangeObject(int index)

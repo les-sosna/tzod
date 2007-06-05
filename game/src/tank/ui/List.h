@@ -38,8 +38,9 @@ public:
 
 	void DeleteAllItems();
 
-	int  AddItem(const char *str, UINT_PTR data = 0);
-	void SetItemText(int index, int sub, const char *str);
+	int      AddItem(const char *str, UINT_PTR data = 0);
+	void     SetItemText(int index, int sub, const char *str);
+	float    GetItemHeight() const;
 	string_t GetItemText(int index, int sub) const;
 
 	void SetTabPos(int index, float pos);

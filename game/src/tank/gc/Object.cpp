@@ -111,6 +111,7 @@ PropertySet::PropertySet(GC_Object *object)
   : _object(object),
   _propName(ObjectProperty::TYPE_STRING, "Name")
 {
+	Exchange(false);
 }
 
 int PropertySet::GetCount() const
@@ -192,7 +193,7 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 	f.Serialize(hasGuard);
 	f.Serialize(subscriber);
 
-	// we are not allowed to serialize raw pointers so we use small hack :)
+	// we are not allowed to serialize raw pointers so we use a small hack :)
 	f.Serialize(reinterpret_cast<DWORD_PTR&>(handler));
 }
 

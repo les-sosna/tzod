@@ -661,6 +661,11 @@ void Level::Pause(bool pause)
 	}
 }
 
+GC_Object* Level::CreateObject(ObjectType type, float x, float y)
+{
+	return get_t2i()[type].Create(x, y);
+}
+
 GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 {
 	for( int i = Z_COUNT - 1; i--; )

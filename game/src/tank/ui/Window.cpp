@@ -558,6 +558,47 @@ void Window::Show(bool show)
 	OnShow(show);
 }
 
+void Window::BringToFront()
+{
+	_ASSERT(_parent);
+	if( _nextSibling )
+	{
+		_ASSERT( _parent->_firstChild );
+		_ASSERT( this != _parent->_lastChild );
+
+
+		//
+		// unregister
+		//
+
+		if( _prevSibling )
+		{
+			_ASSERT( this == _prevSibling->_nextSibling );
+			_prevSibling->_nextSibling = _nextSibling;
+		}
+		else
+		{
+			_ASSERT( this == _parent->_firstChild );
+			_parent->_firstChild = _nextSibling;
+		}
+
+		_ASSERT( this == _nextSibling->_prevSibling );
+		_nextSibling->_prevSibling = _prevSibling;
+		_nextSibling = NULL;
+
+
+		//
+		// register
+		//
+
+		_prevSibling = _parent->_lastChild;
+		_ASSERT(_prevSibling);
+		_ASSERT(NULL == _prevSibling->_nextSibling);
+		_prevSibling->_nextSibling = this;
+		_parent->_lastChild = this;
+	}
+}
+
 
 
 //

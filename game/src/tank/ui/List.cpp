@@ -42,25 +42,24 @@ void List::OnScroll(float pos)
 void List::UpdateSelection()
 {
 	float y = (float) _curSel - _scrollBar->GetPos();
-	_selection->Move(0, y * _blankText->GetHeight() - 1);
-	_selection->Show( -1 != _curSel && y > -1
-		&& y < GetHeight() / _blankText->GetHeight() );
+	_selection->Move(0, y * GetItemHeight() - 1);
+	_selection->Show( -1 != _curSel && y > -1 && y < GetNumLinesVisible() );
 }
 
 void List::DeleteAllItems()
 {
 	_items.clear();
-	_scrollBar->SetLimit( (float) _items.size() - GetHeight() / _blankText->GetHeight() );
+	_scrollBar->SetLimit(-1);
 	SetCurSel(-1, false);
 }
 
-int  List::AddItem(const char *str, UINT_PTR data)
+int List::AddItem(const char *str, UINT_PTR data)
 {
 	Item i;
 	i.text.push_back(str);
 	i.data = data;
 	_items.push_back(i);
-	_scrollBar->SetLimit( (float) _items.size() - GetHeight() / _blankText->GetHeight() );
+	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
 
 	return _items.size() - 1;
 }
@@ -101,12 +100,17 @@ ULONG_PTR List::GetItemData(int index)
 	return _items[index].data;
 }
 
-int  List::GetSize() const
+float List::GetItemHeight() const
+{
+	return _blankText->GetHeight() + 1;
+}
+
+int List::GetSize() const
 {
 	return (int) _items.size();
 }
 
-int  List::GetCurSel() const
+int List::GetCurSel() const
 {
 	return _curSel;
 }
@@ -128,9 +132,9 @@ void List::SetCurSel(int sel, bool scroll)
 	}
 }
 
-int  List::HitTest(float y)
+int List::HitTest(float y)
 {
-    int index = int( y / _blankText->GetHeight() + _scrollBar->GetPos() );
+    int index = int( y / GetItemHeight() + _scrollBar->GetPos() );
 	if( index < 0 || index >= (int) _items.size() )
 	{
 		index = -1;
@@ -140,7 +144,7 @@ int  List::HitTest(float y)
 
 float List::GetNumLinesVisible() const
 {
-	return GetHeight() / _blankText->GetHeight();
+	return GetHeight() / GetItemHeight();
 }
 
 void List::ScrollTo(float pos)
@@ -150,15 +154,15 @@ void List::ScrollTo(float pos)
 
 void List::OnSize(float width, float height)
 {
-	_selection->Resize(width, _blankText->GetHeight());
+	_selection->Resize(width, GetItemHeight());
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetLimit( (float) _items.size() - height / _blankText->GetHeight() );
+	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
 }
 
 bool List::OnMouseDown(float x, float y, int button)
 {
-	if( 1 == button )
+	if( 1 == button && x < _scrollBar->GetX() )
 	{
 		int index = HitTest(y);
 		SetCurSel(index, false);
@@ -232,8 +236,7 @@ void List::DrawChildren(float sx, float sy)
 
 		_blankText->SetColor(c);
 
-		y *= _blankText->GetHeight();
-		y  = floorf(y + 0.5f);
+		y = floorf(y * GetItemHeight() + 0.5f);
 		for( size_t k = 0; k < _items[i].text.size(); ++k )
 		{
 			_blankText->SetText(_items[i].text[k].c_str());

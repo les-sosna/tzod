@@ -35,8 +35,11 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
 	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
+//	_btn->Resize(GetWidth(), GetHeight());
 	_btn->Move(GetWidth() - _btn->GetWidth(), (GetHeight() - _btn->GetHeight()) * 0.5f);
 	_btn->eventClick.bind(&ComboBox::DropList, this);
+
+	_text->BringToFront();
 }
 
 void ComboBox::SetCurSel(int index)
