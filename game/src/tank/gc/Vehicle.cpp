@@ -306,7 +306,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	//
 	// spawn damage smoke
 	//
-	if( OPT(bParticles) && GetHealth() < (GetHealthMax() * 0.4f) )
+	if( GetHealth() < (GetHealthMax() * 0.4f) )
 	{
 		_ASSERT(GetHealth() > 0);
 							//    +-{ максимальное число частичек дыма в секунду }
@@ -395,7 +395,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	// caterpillar tracks
 	//
 
-	if( g_options.bParticles )
+	if( g_conf.g_particles->Get() )
 	{
 		vec2d tmp(_angle+PI/2);
 		vec2d trackL_new = _pos + tmp*15;

@@ -78,6 +78,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 
 	// game
 	CONFIG_VAR_BOOL( g_showdamage,        false );
+	CONFIG_VAR_BOOL( g_particles,          true );
 
 
 	// editor

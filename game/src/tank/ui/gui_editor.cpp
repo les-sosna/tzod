@@ -129,7 +129,7 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 			_ctrls.push_back(ctrl);
 			y += ctrl->GetHeight();
 			y += 10;
-		}		
+		}
 
 		_psheet->Resize(_psheet->GetWidth(), y);
 		_scrollBar->SetLimit(y - GetHeight());

@@ -768,8 +768,7 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 			float ang = _dir + net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
 			new GC_Bullet(_pos + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, false );
-			if( g_options.bParticles )
-				new GC_Particle(_pos + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
+			new GC_Particle(_pos + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
 		}
 
 		_firing = false;

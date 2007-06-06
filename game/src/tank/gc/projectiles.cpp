@@ -6,10 +6,11 @@
 
 #include "level.h"
 #include "macros.h"
-#include "options.h"
 #include "functions.h"
 
 #include "fs/SaveFile.h"
+
+#include "config/Config.h"
 
 #include "GameClasses.h"
 #include "light.h"
@@ -151,7 +152,7 @@ void GC_Projectile::MoveTo(const vec2d &pos, BOOL bTrail)
 
 		while( _trailPath < len )
 		{
-			if( OPT(bParticles) )
+			if( g_conf.g_particles->Get() )
 				SpawnTrailParticle(_pos + e * _trailPath);
 
 			_trailPath += _trailDensity;

@@ -685,7 +685,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *pPropri
 	SetTexture("explosion_o");
 	MoveTo( pos );
 
-	if( g_options.bParticles )
+	if( g_conf.g_particles->Get() )
 	{
 		for(int n = 0; n < 28; ++n)
 		{
@@ -743,9 +743,9 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC
 	SetTexture("explosion_big");
 	MoveTo( pos );
 
-	if( g_options.bParticles )
+	if( g_conf.g_particles->Get() )
 	{
-		for(int n = 0; n < 80; ++n)
+		for( int n = 0; n < 80; ++n )
 		{
 			//ring
 			for( int i = 0; i < 2; ++i )

@@ -4,11 +4,12 @@
 #include "RigidBody.h"
 
 #include "level.h"
-#include "options.h"
 #include "functions.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
+
+#include "config/Config.h"
 
 #include "GameClasses.h"
 #include "sound.h"
@@ -191,7 +192,7 @@ void GC_Wall::OnDestroy()
 
 	PLAY(SND_WallDestroy, _pos);
 
-	if( OPT(bParticles) )
+	if( g_conf.g_particles->Get() )
 	{
 		FRECT frt;
 		GetAABB( &frt );
@@ -214,7 +215,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) )
 	{
 		SetFrame( (GetFrameCount() - 1) - int((float) (GetFrameCount() - 1) * GetHealth() / GetHealthMax()) );
-		if( OPT(bParticles) && damage >= DAMAGE_BULLET )
+		if( g_conf.g_particles->Get() && damage >= DAMAGE_BULLET )
 		{
 			FRECT frt;
 			GetAABB( &frt );
