@@ -83,12 +83,9 @@ void GC_Vehicle::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_RigidBodyDynamic::Serialize(f);
 	/////////////////////////////////////
-//	_rotator.Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_engine_power);
 	f.Serialize(_rotate_power);
 	f.Serialize(_BackAccel);
-//	f.Serialize(_dir1);
 	f.Serialize(_ForvAccel);
 	f.Serialize(_MaxBackSpeed);
 	f.Serialize(_MaxForvSpeed);
@@ -120,13 +117,60 @@ void GC_Vehicle::Kill()
 
 	if( _weapon )
 	{
-		_weapon->_bRespawn = false;
-		_weapon->Detach();
-		_weapon = NULL;
+		DetachWeapon();
 	}
 
 	GC_RigidBodyDynamic::Kill();
 }
+
+void GC_Vehicle::DetachWeapon()
+{
+	_ASSERT(_weapon);
+	Unsubscribe( GetRawPtr(_weapon) );
+	_weapon->_bRespawn = false;
+	_weapon->Detach();
+	_weapon = NULL;
+	GetPlayer()->ResetClass();
+}
+
+void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
+{
+	_ASSERT(!_weapon);
+	weapon->Attach(this);
+	_weapon = weapon;
+
+
+	//
+	// update class
+	//
+
+	VehicleClass vc;
+
+	lua_State *L = LS(g_env.hScript);
+	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
+	lua_getglobal(L, "getvclass");
+	lua_pushstring(L, GetPlayer()->GetClass().c_str());  // cls arg
+	lua_pushstring(L, g_level->GetTypeName(weapon->GetType()));  // weap arg
+	if( lua_pcall(L, 2, 1, 0) )
+	{
+		// print error message
+		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return;
+	}
+
+	lua_pushlightuserdata(L, &vc);
+	if( lua_pcall(L, 2, 0, 0) )
+	{
+		// print error message
+		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return;
+	}
+
+	SetClass(vc);
+}
+
 
 void GC_Vehicle::SetState(VehicleState *pState)
 {
@@ -199,7 +243,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
-		if( this == pCamera->_player->_vehicle )
+		if( this == pCamera->_player->GetVehicle() )
 		{
 			pCamera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
 			break;
@@ -216,46 +260,40 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		GC_Vehicle *pVehicle = dynamic_cast<GC_Vehicle *>(dd.from);
 		if( NULL != pVehicle )
 		{
-			if( pVehicle->_player == _player )
+			if( pVehicle->GetPlayer() == GetPlayer() )
 			{
 				// убил себя апстену =)
-				pVehicle->_player->_score--;
+				pVehicle->GetPlayer()->ChangeScore(-1);
 				font = "font_digits_red";
-				wsprintf(msg, "%s совершил самоубийство", pVehicle->_player->_name.c_str());
+				wsprintf( msg, "%s совершил самоубийство", 
+					pVehicle->GetPlayer()->GetNick().c_str() );
 			}
 			else
 			{
-				if( 0 != _player->_team &&
-					((GC_Vehicle *) dd.from)->_player->_team == _player->_team)
+				if( 0 != GetPlayer()->GetTeam() &&
+					((GC_Vehicle *) dd.from)->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
 				{
 					// убил товарища
-					pVehicle->_player->_score--;
+					pVehicle->GetPlayer()->ChangeScore(-1);
 					font = "font_digits_red";
-					wsprintf(msg, "нехороший %s замочил своего друга %s",
-						((GC_Vehicle *) dd.from)->_player->_name.c_str(), _player->_name.c_str());
+					wsprintf( msg, "нехороший %s замочил своего друга %s",
+						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(), 
+						GetPlayer()->GetNick().c_str() );
 				}
 				else
 				{
 					// убил врага - молодец!
-					++pVehicle->_player->_score;
+					pVehicle->GetPlayer()->ChangeScore(+1);
 					font = "font_digits_green";
-					wsprintf(msg, "%s замочил своего врага %s",
-						((GC_Vehicle *) dd.from)->_player->_name.c_str(), _player->_name.c_str());
-				}
-
-				if( g_conf.sv_fraglimit->GetInt() )
-				{
-					if( pVehicle->_player->_score >= g_conf.sv_fraglimit->GetInt() )
-					{
-						g_level->Pause(true);
-						g_level->_limitHit = true;
-					}
+					wsprintf( msg, "%s замочил своего врага %s",
+						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
+						GetPlayer()->GetNick().c_str() );
 				}
 			}
 
-			if( !pVehicle->_player->dead() )
+			if( !pVehicle->GetPlayer()->IsDead() )
 			{
-				wsprintf(score, "%d", pVehicle->_player->_score);
+				wsprintf( score, "%d", pVehicle->GetPlayer()->GetScore() );
 				new GC_Text_ToolTip(pVehicle->_pos, score, font);
 			}
 		}
@@ -263,15 +301,14 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		if( dynamic_cast<GC_Turret *>(dd.from) )
 		{
 			// убийца - стационарная установка
-
-			_player->_score--;
-			wsprintf(score, "%d", _player->_score);
+			GetPlayer()->ChangeScore(-1);
+			wsprintf(score, "%d", GetPlayer()->GetScore());
 			new GC_Text_ToolTip(_pos, score, "font_digits_red");
-			wsprintf(msg, "%s нарвался на неприятности", _player->_name.c_str());
+			wsprintf(msg, "%s нарвался на неприятности", GetPlayer()->GetNick().c_str());
 		}
 		else
 		{
-			wsprintf(msg, "c %s случился несчастный случай", _player->_name.c_str());
+			wsprintf(msg, "c %s случился несчастный случай", GetPlayer()->GetNick().c_str());
 		}
 
 		OnDestroy();

@@ -85,7 +85,7 @@ GC_PickUp::GC_PickUp(float x, float y)
 	_time_animation = 0;
 	_time           = 0;
 	_bRespawn       = true;
-	_bAttached      = false;
+	_attached      = false;
 	_blink          = false;
 
 	SetShadow(true);
@@ -105,7 +105,7 @@ void GC_PickUp::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Item::Serialize(f);
 	/////////////////////////////////////
-	f.Serialize(_bAttached);
+	f.Serialize(_attached);
 	f.Serialize(_blink);
 	f.Serialize(_bMostBeAllowed);
 	f.Serialize(_bRespawn);
@@ -168,7 +168,7 @@ void GC_PickUp::TimeStepFloat(float dt)
 {
 	_time_animation += dt;
 
-	if( !_bAttached && IsVisible() )
+	if( !_attached && IsVisible() )
 		SetFrame( int((_time_animation * ANIMATION_FPS)) % (GetFrameCount()) );
 
 	GC_Item::TimeStepFloat(dt);
@@ -178,7 +178,7 @@ void GC_PickUp::TimeStepFixed(float dt)
 {
 	_time += dt;
 
-	if( !_bAttached )
+	if( !_attached )
 	{
 		if( IsVisible() )
 		{
@@ -395,7 +395,7 @@ void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* pVehicle)
 	pVehicle->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnProprietorMove, false);
 
-	_bAttached = true;
+	_attached = true;
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
@@ -410,7 +410,7 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 {
 	GC_PickUp::TimeStepFixed(dt);
 
-	if( _bAttached )
+	if( _attached )
 	{
 		if( _time + 2.0f > PROTECT_TIME )
 		{
@@ -437,7 +437,7 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 void GC_pu_Invulnerablity::TimeStepFloat(float dt)
 {
 	GC_PickUp::TimeStepFloat(dt);
-	if( _bAttached )
+	if( _attached )
 	{
 		_time_hit = __max(0, _time_hit - dt);
 		SetFrame( int((_time_animation * ANIMATION_FPS)) % (GetFrameCount()) );
@@ -529,8 +529,8 @@ AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *pVehicle)
 	GC_Vehicle *tmp = FindNearVehicle(pVehicle);
 	if( !tmp ) return AIP_NOTREQUIRED;
 
-	if( tmp->_player->_team == pVehicle->_player->_team &&
-		0 != tmp->_player->_team )
+	if( tmp->GetPlayer()->GetTeam() == pVehicle->GetPlayer()->GetTeam() &&
+		0 != tmp->GetPlayer()->GetTeam() )
 	{
 		return AIP_NOTREQUIRED;
 	}
@@ -544,7 +544,7 @@ void GC_pu_Shock::GiveIt(GC_Vehicle* pVehicle)
 
 	_vehicle = pVehicle;
 
-	_bAttached = true;
+	_attached = true;
 	Show(false);
 
 	PLAY(SND_ShockActivate, _pos);
@@ -594,7 +594,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 {
 	GC_PickUp::TimeStepFixed(dt);
 
-	if( _bAttached )
+	if( _attached )
 	{
 		if( !_effect )
 		{
@@ -691,27 +691,27 @@ void GC_pu_Booster::Serialize(SaveFile &f)
 
 AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *pVehicle)
 {
-	if( !pVehicle->_weapon )
+	if( !pVehicle->GetWeapon() )
 	{
 		return AIP_NOTREQUIRED;
 	}
 
-	return pVehicle->_weapon->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
+	return pVehicle->GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
 void GC_pu_Booster::GiveIt(GC_Vehicle* pVehicle)		//return true  -  respawn
 {
 	GC_PickUp::GiveIt(pVehicle);
 
-	if( !pVehicle->_weapon )
+	if( !pVehicle->GetWeapon() )
 	{
 		PLAY(SND_B_End, _pos);
 		Kill();
 		return;
 	}
 
-	_weapon   = pVehicle->_weapon;
-	_bAttached = true;
+	_weapon = pVehicle->GetWeapon();
+	_attached = true;
 
 	if( _weapon->GetAdvanced() )
 	{
@@ -747,7 +747,7 @@ GC_Vehicle* GC_pu_Booster::CheckPickUp()
 	GC_Vehicle *pVehicle = GC_PickUp::CheckPickUp();
 
 	if( pVehicle )
-		if( !pVehicle->_state._bState_AllowDrop && !pVehicle->_weapon )
+		if( !pVehicle->_state._bState_AllowDrop && !pVehicle->GetWeapon() )
 			return NULL;
 
 	return pVehicle;
@@ -757,7 +757,7 @@ void GC_pu_Booster::TimeStepFloat(float dt)
 {
 	GC_PickUp::TimeStepFloat(dt);
 
-	if( _bAttached )
+	if( _attached )
 	{
 		SetRotation(_time_animation * 50);
 	}
@@ -780,7 +780,7 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 		}
 	}
 
-	if( _bAttached && _time > BOOSTER_TIME && !IsKilled() )
+	if( _attached && _time > BOOSTER_TIME && !IsKilled() )
 	{
 		Kill();
 		PLAY(SND_B_End, _pos);

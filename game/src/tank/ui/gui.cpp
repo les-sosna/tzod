@@ -237,7 +237,7 @@ void NewGameDlg::RefreshPlayersList()
 
 	for( int i = 0; i < OPT(dm_nPlayers); ++i )
 	{
-		int index = _players->AddItem(  OPT(dm_pdPlayers)[i].name);
+		int index = _players->AddItem(  OPT(dm_pdPlayers)[i].nick);
 		_players->SetItemText(index, 1, OPT(dm_pdPlayers)[i].skin);
 		_players->SetItemText(index, 2, OPT(dm_pdPlayers)[i].cls);
 
@@ -263,7 +263,7 @@ void NewGameDlg::OnAddPlayer()
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 	strcpy(pd.skin, skinNames[rand() % skinNames.size()].c_str());
 
-	strcpy(pd.name, "new player");
+	strcpy(pd.nick, "new player");
 
 	DWORD disablePlayers = 0;
 	for( int i = 0; i < g_options.dm_nPlayers; ++i )
@@ -367,11 +367,11 @@ void NewGameDlg::OnOK()
 		// добавляем игроков в обратном порядке
 		for( int i = OPT(dm_nPlayers) - 1; i >= 0; --i )
 		{
-			GC_Player *player = new GC_Player(g_options.dm_pdPlayers[i].team);
-			player->SetController( g_options.dm_pdPlayers[i].type);
-			player->_name  = g_options.dm_pdPlayers[i].name;
-			player->_skin  = g_options.dm_pdPlayers[i].skin;
-			player->_class = g_options.dm_pdPlayers[i].cls;
+		//	GC_Player *player = new GC_Player(g_options.dm_pdPlayers[i].team);
+		//	player->SetController( g_options.dm_pdPlayers[i].type);
+		//	player->_name  = g_options.dm_pdPlayers[i].name;
+		//	player->_skin  = g_options.dm_pdPlayers[i].skin;
+		//	player->_class = g_options.dm_pdPlayers[i].cls;
 		}
 	}
 	else
@@ -437,7 +437,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 
 	new Text(this, 8, y, "Имя", alignTextLT);
 	_name = new Edit(this, x, y-=1, 200);
-	_name->SetText(_playerDesc.name);
+	_name->SetText(_playerDesc.nick);
 
 
 
@@ -536,7 +536,7 @@ void EditPlayerDlg::OnOK()
 {
 	_playerDesc.type = (short) _types->GetList()->GetItemData( _types->GetCurSel() );
 
-	strcpy( _playerDesc.name, _name->GetText().c_str() );
+	strcpy( _playerDesc.nick, _name->GetText().c_str() );
 	strcpy( _playerDesc.skin, _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
 	strcpy( _playerDesc.cls, _classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
 

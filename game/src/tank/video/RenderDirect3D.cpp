@@ -259,16 +259,16 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	params.BackBufferHeight = pMode->Height;
 	params.BackBufferFormat = D3DFMT_A8R8G8B8;
 
-    params.MultiSampleType              = D3DMULTISAMPLE_NONE;
-    params.MultiSampleQuality           = 0;
-    params.SwapEffect                   = D3DSWAPEFFECT_DISCARD;
-    params.hDeviceWindow                = hWnd;
-    params.Windowed                     = !bFullScreen;
-    params.EnableAutoDepthStencil       = FALSE;
-    params.AutoDepthStencilFormat       = D3DFMT_UNKNOWN;
-    params.Flags                        = 0;
+	params.MultiSampleType              = D3DMULTISAMPLE_NONE;
+	params.MultiSampleQuality           = 0;
+	params.SwapEffect                   = D3DSWAPEFFECT_DISCARD;
+	params.hDeviceWindow                = hWnd;
+	params.Windowed                     = !bFullScreen;
+	params.EnableAutoDepthStencil       = FALSE;
+	params.AutoDepthStencilFormat       = D3DFMT_UNKNOWN;
+	params.Flags                        = 0;
 	params.FullScreen_RefreshRateInHz   = bFullScreen?pMode->RefreshRate:0;
-    params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
+//    params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
@@ -284,22 +284,22 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	// setup device state
 	//
 
-    // Turn off culling, so we see the front and back of the triangle
-    V(_pd3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE ));
+	// Turn off culling, so we see the front and back of the triangle
+	V(_pd3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE ));
 
-    // Turn off D3D lighting, since we are providing our own vertex colors
-    V(_pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE ));
+	// Turn off D3D lighting, since we are providing our own vertex colors
+	V(_pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE ));
 
-    // Turn off the zbuffer
-    V(_pd3dDevice->SetRenderState( D3DRS_ZENABLE, FALSE ));
+	// Turn off the zbuffer
+	V(_pd3dDevice->SetRenderState( D3DRS_ZENABLE, FALSE ));
 
 
-    V(_pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE ));
+	V(_pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE ));
 
-    V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE ));
-    V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE ));
-    V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE ));
-    V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ));
+	V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE ));
+	V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE ));
+	V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE ));
+	V(_pd3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ));
 
 	V(_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
 	V(_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));

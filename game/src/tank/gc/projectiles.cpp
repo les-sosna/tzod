@@ -922,7 +922,7 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 
 	_time = net_frand(1.0f);
 
-	_bAttached = true;
+	_attached = true;
 	_ripper = pRipper;
 	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperKill, true, false);
@@ -940,7 +940,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bo
 
 	_time = net_frand(1.0f);
 
-	_bAttached = false;
+	_attached = false;
 	_light->Enable(false);
 }
 
@@ -956,7 +956,7 @@ void GC_Disk::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Projectile::Serialize(f);
 	/////////////////////////////////////
-	f.Serialize(_bAttached);
+	f.Serialize(_attached);
 	f.Serialize(_time);
 	/////////////////////////////////////
 	f.Serialize(_ripper);
@@ -967,7 +967,7 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	static const TextureCache tex1("particle_trace");
 	static const TextureCache tex2("explosion_e");
 
-	if( _bAttached ) return false;
+	if( _attached ) return false;
 
 	ClearFlags(GC_FLAG_PROJECTILE_IGNOREPROPRIETOR);
 
@@ -1053,10 +1053,10 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 
 void GC_Disk::Kill()
 {
-	if( _bAttached )
+	if( _attached )
 	{
 		_ripper   = NULL;
-		_bAttached = false;
+		_attached = false;
 	}
 
 	GC_Projectile::Kill();
@@ -1067,9 +1067,9 @@ void GC_Disk::TimeStepFixed(float dt)
 	_time += dt;
 	SetRotation( _time * 10.0f );
 
-	if( _bAttached )
+	if( _attached )
 	{
-		if( _ripper->_bAttached )
+		if( _ripper->_attached )
 		{
 			Show(_ripper->_time >= _ripper->_time_reload);
 		}

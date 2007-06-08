@@ -69,7 +69,7 @@ public:
 	float	_time_animation;
 	float	_time_respawn;
 	bool	_bRespawn;      // респаун после того, как предмет подберут
-	bool	_bAttached;     // предмет прикреплен к танку
+	bool	_attached;     // предмет прикреплен к танку
 	bool	_blink;         // item is blinking
 
 	SafePtr<GC_Object> _ancObject; // не респаунимся, пока этот объект жив
@@ -83,6 +83,9 @@ public:
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return _blink; }
+
+	bool IsAttached() const { return _attached; }
+
 
 
 	// оценка полезности предмета для данного танка.

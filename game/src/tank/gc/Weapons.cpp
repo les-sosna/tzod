@@ -37,9 +37,9 @@ GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
 
 AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *pVehicle)
 {
-	if( pVehicle->_weapon )
+	if( pVehicle->GetWeapon() )
 	{
-		if( pVehicle->_weapon->_advanced )
+		if( pVehicle->GetWeapon()->_advanced )
 			return AIP_NOTREQUIRED;
 
 		if( _advanced )
@@ -53,31 +53,32 @@ AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *pVehicle)
 
 void GC_Weapon::GiveIt(GC_Vehicle* pVehicle)
 {
-	Attach(pVehicle);
+	if( pVehicle->GetWeapon() )
+		pVehicle->DetachWeapon();
+	pVehicle->AttachWeapon(this);
 	GC_PickUp::GiveIt(pVehicle);
 }
 
 void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 {
+	_ASSERT( NULL == pVehicle->GetWeapon() );
 	SetZ(Z_ATTACHED_ITEM);
 
 	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, _pos);
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
-	GC_Weapon *pOldWeap = GetRawPtr(pVehicle->_weapon);
-	if( pOldWeap )
-	{
-		pVehicle->_weapon->Detach();
-		pOldWeap->Kill();
-	}
+//	GC_Weapon *pOldWeap = pVehicle->GetWeapon();
+//	if( pOldWeap )
+//	{
+//		pVehicle->_weapon->Detach();
+//		pOldWeap->Kill();
+//	}
 
 	_proprietor = pVehicle;
-	_proprietor->_weapon = this;
 	_proprietor->Subscribe(NOTIFY_OBJECT_MOVE, this,
 		(NOTIFYPROC) &GC_Weapon::OnProprietorMove, false, false);
 
-
-	_bAttached = true;
+	_attached = true;
 
 	Show(true);
 	SetBlinking(false);
@@ -92,60 +93,28 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 
 	_fireLight = new GC_Light(GC_Light::LIGHT_POINT);
 	_fireLight->Enable(false);
-
-	//
-
-	VehicleClass vc;
-
-	lua_State *L = LS(g_env.hScript);
-	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
-	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _proprietor->_player->_class.c_str());  // cls arg
-	lua_pushstring(L, g_level->GetTypeName(GetType()));       // weap arg
-	if( lua_pcall(L, 2, 1, 0) )
-	{
-		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
-	lua_pushlightuserdata(L, &vc);
-	if( lua_pcall(L, 2, 0, 0) )
-	{
-		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
-	_proprietor->SetClass(vc);
 }
 
 void GC_Weapon::Detach()
 {
+	_ASSERT(_proprietor);
 	SetZ(Z_FREE_ITEM);
 
-	if( _proprietor )
-	{
-		_proprietor->Unsubscribe(this);
-		_proprietor->_weapon = NULL;
-		_proprietor->_player->ResetClass();
-		_proprietor = NULL;
-	}
+	_proprietor->Unsubscribe(this);
+	_proprietor = NULL;
 
 	SAFE_KILL(_rotateSound);
 	SAFE_KILL(_crosshair);
 	SAFE_KILL(_fireEffect);
 	SAFE_KILL(_fireLight);
 
-	_bAttached = false;
+	_attached = false;
 	_time = 0;
 }
 
 void GC_Weapon::ProcessRotate(float dt)
 {
-	if( _bAttached )
+	if( _attached )
 	{
 		_ASSERT(_proprietor);
 
@@ -204,7 +173,8 @@ void GC_Weapon::Serialize(SaveFile &f)
 
 void GC_Weapon::Kill()
 {
-	if( _bAttached ) Detach();
+	if( IsAttached() )
+		_proprietor->DetachWeapon();
 
 	_ASSERT(!_crosshair);
 	_ASSERT(!_rotateSound);
@@ -250,18 +220,18 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	_time += dt;
 
-	if( !_bAttached && !_bRespawn )
+	if( !_attached && !_bRespawn )
 	{
 		SetBlinking(_time > 12.0f);
 		if( _time > 15.0f ) Kill();
 	}
 	else
 	{
-		if( _bAttached )
+		if( _attached )
 		{
 			if( _crosshair )
 			{
-				_crosshair->Show(!OPT(players)[_proprietor->_player->_nIndex].bAI);
+				_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(_proprietor->GetPlayer()));
 			}
 
 			_rotator.process_dt(dt);
@@ -281,13 +251,13 @@ void GC_Weapon::TimeStepFloat(float dt)
 {
 	GC_PickUp::TimeStepFloat(dt);
 
-    if( !_bAttached && _bRespawn )
+    if( !_attached && _bRespawn )
 		SetRotation(_time_animation);
 }
 
 void GC_Weapon::OnProprietorMove(GC_Vehicle *sender, void *param)
 {
-	_ASSERT(_bAttached);
+	_ASSERT(_attached);
 
 	MoveTo(_proprietor->_pos);
 	UpdateView();
@@ -368,7 +338,7 @@ void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 
 void GC_Weap_RocketLauncher::Fire()
 {
-	_ASSERT(_bAttached);
+	_ASSERT(_attached);
 
 	if( _advanced )
 	{
@@ -447,7 +417,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 {
-	if( _bAttached )
+	if( _attached )
 	{
 		if( _firing )
 			Fire();
@@ -560,7 +530,7 @@ void GC_Weap_AutoCannon::Serialize(SaveFile &f)
 
 void GC_Weap_AutoCannon::Fire()
 {
-	if( _firing && _bAttached )
+	if( _firing && _attached )
 	{
 		if( _advanced )
 		{
@@ -633,7 +603,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 {
-	if( _bAttached )
+	if( _attached )
 	{
 		if( _advanced )
 			_nshots  = 0;
@@ -718,7 +688,7 @@ void GC_Weap_Cannon::Serialize(SaveFile &f)
 
 void GC_Weap_Cannon::Fire()
 {
-	if( _bAttached && _time >= _time_reload )
+	if( _attached && _time >= _time_reload )
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
@@ -754,7 +724,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( !_bAttached ) return;
+	if( !_attached ) return;
 
 	if( _time_smoke > 0 )
 	{
@@ -811,7 +781,7 @@ GC_PickUp* GC_Weap_Plazma::SetRespawn()
 
 void GC_Weap_Plazma::Fire()
 {
-	if( _bAttached && _time >= _time_reload )
+	if( _attached && _time >= _time_reload )
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
@@ -884,7 +854,7 @@ GC_PickUp* GC_Weap_Gauss::SetRespawn()
 
 void GC_Weap_Gauss::Fire()
 {
-	if( _bAttached && _time >= _time_reload )
+	if( _attached && _time >= _time_reload )
 	{
 		float s = sinf(_proprietor->_angle + _angle);
 		float c = cosf(_proprietor->_angle + _angle);
@@ -1034,7 +1004,7 @@ void GC_Weap_Ram::Kill()
 
 void GC_Weap_Ram::Fire()
 {
-	_ASSERT(_bAttached);
+	_ASSERT(_attached);
 
 	if( _bReady )
 	{
@@ -1062,7 +1032,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( _bAttached )
+	if( _attached )
 	{
 		_ASSERT(_engineSound);
 
@@ -1220,7 +1190,7 @@ void GC_Weap_BFG::Serialize(SaveFile &f)
 
 void GC_Weap_BFG::Fire()
 {
-	_ASSERT(_bAttached);
+	_ASSERT(_attached);
 
 	if( _time >= _time_reload )
 	{
@@ -1260,7 +1230,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 void GC_Weap_BFG::TimeStepFixed(float dt)
 {
 	GC_Weapon::TimeStepFixed(dt);
-	if( _bAttached && _time_ready != 0 )
+	if( _attached && _time_ready != 0 )
 	{
 		_time_ready += dt;
 		Fire();
@@ -1316,7 +1286,7 @@ GC_PickUp* GC_Weap_Ripper::SetRespawn()
 
 void GC_Weap_Ripper::Fire()
 {
-	if( _bAttached && _time >= _time_reload )
+	if( _attached && _time >= _time_reload )
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
@@ -1442,8 +1412,8 @@ void GC_Weap_Minigun::Kill()
 
 void GC_Weap_Minigun::Fire()
 {
-	_ASSERT(_bAttached);
-	if( _bAttached )
+	_ASSERT(_attached);
+	if( _attached )
 		_bFire = true;
 }
 
@@ -1464,10 +1434,10 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 	if( _crosshair_left && _proprietor )
 	{
-		_crosshair_left->Show(!g_options.players[_proprietor->_player->_nIndex].bAI);
+		_crosshair_left->Show(NULL == dynamic_cast<GC_PlayerAI*>(_proprietor->GetPlayer()));
 	}
 
-	if( _bAttached )
+	if( _attached )
 	{
 		if( _bFire )
 		{

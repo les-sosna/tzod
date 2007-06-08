@@ -64,12 +64,11 @@ enum enumControlType
 
 //----------------------------------------------------------
 
-typedef struct PLAYER
+struct PLAYER
 {
 	VEHICLEKEYS     KeyMap;
 	enumControlType ControlType;
-	BOOL            bAI;
-} PLAYER, *LPPLAYER;
+};
 
 //----------------------------------------------------------
 
@@ -78,7 +77,7 @@ typedef struct PLAYER
 
 struct PlayerDesc
 {
-	char name[MAX_PLRNAME];
+	char nick[MAX_PLRNAME];
 	char skin[MAX_PATH];
 	char cls[MAX_VEHCLSNAME];
 	int  team;

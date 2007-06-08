@@ -100,8 +100,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 	FOREACH( vehicles, GC_Vehicle, pDamObj )
 	{
-		if( pDamObj->_player->_team &&
-			_team == pDamObj->_player->_team )
+		if( pDamObj->GetPlayer()->GetTeam() && pDamObj->GetPlayer()->GetTeam() == _team )
 		{
 			continue;
 		}
@@ -111,12 +110,11 @@ GC_Vehicle* GC_Turret::EnumTargets()
 			dist =	(_pos.x - pDamObj->_pos.x)*(_pos.x - pDamObj->_pos.x) +
 					(_pos.y - pDamObj->_pos.y)*(_pos.y - pDamObj->_pos.y) ;
 
-			if( dist < min_dist )
-				if( IsTargetVisible(pDamObj, &pObstacle) )
-				{
-					target = pDamObj;
-					min_dist = dist;
-				}
+			if( dist < min_dist && IsTargetVisible(pDamObj, &pObstacle) )
+			{
+				target = pDamObj;
+				min_dist = dist;
+			}
 		}
 	}
 

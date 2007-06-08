@@ -1,22 +1,21 @@
-// ai.h: interface for the AIController class.
+// ai.h: interface for the GC_PlayerAI class.
 //
 //////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "Controller.h"
-
 #include "Level.h" // FIXME!
-#include "GameClasses.h" // FIXME!
+#include "Player.h"
 
 class GC_Object;
 class GC_RigidBodyStatic;
+struct VehicleState;
 
 //----------------------------------------------------------
 
 struct AIITEMINFO
 {
-	GC_Object  *object;
+	GC_Object *object;
 	AIPRIORITY priority;
 };
 
@@ -70,10 +69,11 @@ public:
 
 template<class T> class JobManager;
 
-class AIController : public CController
+class GC_PlayerAI : public GC_Player
 {
-	static JobManager<AIController> _jobManager;
+	DECLARE_SELF_REGISTRATION(GC_PlayerAI);
 
+	static JobManager<GC_PlayerAI> _jobManager;
 
 	/*
      путь состоит из списка узлов и списка атаки, который может быть пустым.
@@ -155,8 +155,8 @@ class AIController : public CController
 	} _aiState_l1;
 
 protected:
-	SafePtr<GC_PickUp> _pickupCurrent;
-	GC_RigidBodyStatic* _target;  // текущая цель
+	SafePtr<GC_PickUp>          _pickupCurrent;
+	SafePtr<GC_RigidBodyStatic> _target;  // текущая цель
 	AIWEAPSETTINGS _weapSettings; // настроики оружия
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
@@ -174,6 +174,9 @@ protected:
 	// любимое оружие
 	ObjectType _otFavoriteWeapon;
 
+	// точность
+	int _accuracy;
+
 protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);
 	void TowerTo (VehicleState *pState, const vec2d &x, bool bFire);
@@ -185,22 +188,26 @@ protected:
 
 	void ProcessAction();
 
-	void SetL1(AIController::aiState_l1 new_state); // переключене состояния l1
-	void SetL2(AIController::aiState_l2 new_state); // переключене состояния l2
+	void SetL1(GC_PlayerAI::aiState_l1 new_state); // переключене состояния l1
+	void SetL2(GC_PlayerAI::aiState_l2 new_state); // переключене состояния l2
 
 	void SelectState();
 	void DoState(VehicleState *pVehState);
 
-public:
-	AIController(GC_Player *pPlayer);
-	virtual ~AIController();
+	virtual void Serialize(SaveFile &f);
 
-	virtual void Reset(); // сброс состояния, освобождение всех ссылок
-	virtual void OnPlayerRespawn();
-	virtual void OnPlayerDie();
+public:
+	GC_PlayerAI();
+	GC_PlayerAI(FromFile);
+	virtual ~GC_PlayerAI();
+
+	virtual void OnRespawn();
+	virtual void OnDie();
 
 protected:
 	virtual void GetControl(VehicleState *pState, float dt);
+
+	virtual void TimeStepFixed(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

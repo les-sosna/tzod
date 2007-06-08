@@ -313,7 +313,6 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 	g_env.minimized    = false;
 	g_env.camera_x     = 0;
 	g_env.camera_y     = 0;
-	OPT(players)[MAX_HUMANS].bAI = TRUE;
 
 	GC_Sound::_countMax = g_conf.s_maxchanels->GetInt();
 

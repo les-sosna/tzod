@@ -332,6 +332,7 @@ public:
 	}
 	static const char* GetTypeName(ObjectType type)
 	{
+		_ASSERT( get_t2i().count(type) );
 		return get_t2i()[type].name;
 	}
 	template<class T> static void RegisterType(const char *name, const char *desc, int layer, float width, float height, float align, float offset)

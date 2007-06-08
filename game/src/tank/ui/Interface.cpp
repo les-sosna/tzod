@@ -1876,13 +1876,13 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		case BN_CLICKED:
 			switch (wmId)
 			{
-			case IDC_ACC_0:
-			case IDC_ACC_1:
-			case IDC_ACC_2:
-			case IDC_ACC_3:
-			case IDC_ACC_4:
-				g_options.nAIAccuracy = wmId - IDC_ACC_0;
-				break;
+			//case IDC_ACC_0:
+			//case IDC_ACC_1:
+			//case IDC_ACC_2:
+			//case IDC_ACC_3:
+			//case IDC_ACC_4:
+			//	g_options.nAIAccuracy = wmId - IDC_ACC_0;
+			//	break;
 			case IDOK:
 				g_conf.g_particles->Set(  GETCHECK(IDC_CHK_PARTICLES) );
 				g_conf.g_showdamage->Set( GETCHECK(IDC_CHK_DAMLABEL)  );
@@ -1900,27 +1900,27 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				g_conf.s_volume->SetInt(lInitVolume);
 				EndDialog(hDlg, wmId);
 				break;
-			case IDC_SETTINGS_PLAYER1:
-			case IDC_SETTINGS_PLAYER2:
-			case IDC_SETTINGS_PLAYER3:
-			case IDC_SETTINGS_PLAYER4:
-			{
-				int index = wmId - IDC_SETTINGS_PLAYER1;
+			//case IDC_SETTINGS_PLAYER1:
+			//case IDC_SETTINGS_PLAYER2:
+			//case IDC_SETTINGS_PLAYER3:
+			//case IDC_SETTINGS_PLAYER4:
+			//{
+			//	int index = wmId - IDC_SETTINGS_PLAYER1;
 
-				DialogBoxParam(g_hInstance, (LPCTSTR)IDD_DIALOG_CONTROLS, hDlg,
-					(DLGPROC) dlgControls, (LPARAM) &g_options.players[index]);
+			//	DialogBoxParam(g_hInstance, (LPCTSTR)IDD_DIALOG_CONTROLS, hDlg,
+			//		(DLGPROC) dlgControls, (LPARAM) &g_options.players[index]);
 
-				FreeDirectInput();
-				InitDirectInput(g_env.hMainWnd);
+			//	FreeDirectInput();
+			//	InitDirectInput(g_env.hMainWnd);
 
-				if( g_level )
-				{
-					FOREACH( players, GC_Player, pPlayer )
-					{
-						if( pPlayer->_nIndex == index ) pPlayer->SetController(index);
-					}
-				}
-			} break;
+			//	if( g_level )
+			//	{
+			//		FOREACH( players, GC_Player, pPlayer )
+			//		{
+			//			if( pPlayer->_nIndex == index ) pPlayer->SetController(index);
+			//		}
+			//	}
+			//} break;
 			case IDC_SETTINGS_WINAMP:
 				DialogBox(g_hInstance, (LPCTSTR)IDD_WINAMP_CONTROL, hDlg, (DLGPROC) dlgWinampControl);
 				FreeDirectInput();
@@ -1994,7 +1994,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		SETCHECK( IDC_CHK_TIMER,     g_conf.ui_showtime->Get()  );
 		SETCHECK( IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->Get() );
 
-		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
+//		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
 
 		lInitVolume = g_conf.s_volume->GetInt();
 		SendDlgItemMessage(hDlg, IDC_VOLUME, TBM_SETRANGE, (WPARAM) FALSE, (LPARAM) MAKELONG(1, 100));
@@ -2423,7 +2423,7 @@ LRESULT CALLBACK dlgGetKey(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 }
 
 
-void Controls_ListViewUpdate(HWND hwndLV, LPPLAYER pl, BOOL bErase)
+void Controls_ListViewUpdate(HWND hwndLV, PLAYER *pl, BOOL bErase)
 {
 	if( bErase ) ListView_DeleteAllItems(hwndLV);
 
@@ -2456,7 +2456,7 @@ void Controls_ListViewUpdate(HWND hwndLV, LPPLAYER pl, BOOL bErase)
 #undef INSERT_ITEM
 }
 
-void EditKey(HWND hwndLV, LPPLAYER pl)
+void EditKey(HWND hwndLV, PLAYER *pl)
 {
 	if( GetFocus() != hwndLV ) return;
 
@@ -2471,7 +2471,7 @@ void EditKey(HWND hwndLV, LPPLAYER pl)
 
 LRESULT CALLBACK dlgControls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static LPPLAYER pl;
+	static PLAYER *pl;
 	static HWND hwndLV;
 
 	int wmId, wmEvent;
@@ -2512,7 +2512,7 @@ LRESULT CALLBACK dlgControls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 
 	case WM_INITDIALOG:
-		pl = (LPPLAYER)lParam;
+		pl = (PLAYER*)lParam;
 
 		SETCHECK(IDC_RADIO_KEYBOARD,  pl->ControlType == CT_USER_KB);
 		SETCHECK(IDC_RADIO_KEYBOARD2, pl->ControlType == CT_USER_KB2);

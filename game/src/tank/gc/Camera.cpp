@@ -30,10 +30,10 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 	if( _player )
 	{
 		MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );
-		if( _player->_vehicle )
+		if( _player->GetVehicle() )
 		{
 //			_angle_current =  -_player->_vehicle->_dir + PI/2;
-			MoveTo( _player->_vehicle->_pos );
+			MoveTo( _player->GetVehicle()->_pos );
 		}
 		SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 		_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
@@ -69,25 +69,25 @@ void GC_Camera::TimeStepFloat(float dt)
 	float mu = 3;
 
 //	_rotator.process_dt(dt);
-	if( _player->_vehicle )
+	if( _player->GetVehicle() )
 	{
 //		_rotator.rotate_to(-_player->_vehicle->_dir - PI/2);
 
-		mu += _player->_vehicle->_lv.Length() / 100;
+		mu += _player->GetVehicle()->_lv.Length() / 100;
 
 		int dx = (int) __max(0, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
 		int dy = (int) __max(0, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
 
-		vec2d r = _player->_vehicle->_pos + _player->_vehicle->_lv / mu;
+		vec2d r = _player->GetVehicle()->_pos + _player->GetVehicle()->_lv / mu;
 
-		if( _player->_vehicle->_weapon )
+		if( _player->GetVehicle()->GetWeapon() )
 		{
-			r += vec2d(_player->_vehicle->_player->_vehicle->_angle +
-				_player->_vehicle->_weapon->_angle)*130.0f;
+			r += vec2d(_player->GetVehicle()->_angle +
+				_player->GetVehicle()->GetWeapon()->_angle)*130.0f;
 		}
 		else
 		{
-			r += _player->_vehicle->_direction * 130.0f;
+			r += _player->GetVehicle()->_direction * 130.0f;
 		}
 
 		_target.x = r.x + (float) dx;

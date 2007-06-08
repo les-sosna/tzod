@@ -82,9 +82,10 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 
 	float _time_smoke;
 
-public:
-	SafePtr<GC_Player>   _player;
 	SafePtr<GC_Weapon>   _weapon;
+	SafePtr<GC_Player>   _player;
+
+public:
 	SafePtr<GC_Sound>    _moveSound;
 	SafePtr<GC_DamLabel> _damLabel;
 
@@ -117,6 +118,13 @@ public:
 	float _BackAccel;
 
 	VehicleState _state;
+
+
+	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
+	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
+
+	void DetachWeapon();
+	void AttachWeapon(GC_Weapon *weapon);
 
 public:
 	GC_Vehicle(GC_Player *pPlayer);

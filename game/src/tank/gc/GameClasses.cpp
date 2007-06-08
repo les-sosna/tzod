@@ -539,10 +539,10 @@ void GC_Explosion::Boom(float radius, float damage)
 	FOREACH( cameras, GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
-		if( pCamera->_player->_vehicle )
+		if( pCamera->_player->GetVehicle() )
 		{
 			float level = 0.5f * (radius - (_pos -
-				pCamera->_player->_vehicle->_pos).Length() * 0.3f) / radius;
+				pCamera->_player->GetVehicle()->_pos).Length() * 0.3f) / radius;
 			//--------------------------
 			if( level > 0 )
 				pCamera->Shake(level);
@@ -992,8 +992,8 @@ void GC_TextScore::Refresh()
 	{
 		if( pPlayer->IsKilled() ) continue;
 		_players.push_back( PlayerDesc() );
-		_players.back().score = pPlayer->_score;
-		strcpy(_players.back().name, pPlayer->_name.c_str());
+		_players.back().score = pPlayer->GetScore();
+		strcpy(_players.back().nick, pPlayer->GetNick().c_str());
 	}
 
 	if( _players.empty() ) return;
@@ -1088,7 +1088,7 @@ void GC_TextScore::Draw()
 			SetMargins(SCORE_POS_NUMBER, (float) (SCORE_NAMES_TOP + (GetSpriteHeight() - 1) * i));
 			GC_Text::Draw();
 
-			SetText(_players[i].name);
+			SetText(_players[i].nick);
 			SetMargins(SCORE_POS_NAME, (float) (SCORE_NAMES_TOP + (GetSpriteHeight() - 1) * i));
 			GC_Text::Draw();
 

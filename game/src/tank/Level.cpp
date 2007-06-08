@@ -485,18 +485,6 @@ bool Level::Serialize(const char *fileName)
 	bool result = true;
     try
 	{
-		// AI_Controller захватывает множество объектов. При этом, сам
-		// он не сохраняется. Чтобы устранить утечку памяти после загрузки
-		// уровня, необходимо принудительно освободить объекты
-
-		FOREACH( players, GC_Player, pPlayer )
-		{
-			if( pPlayer->IsKilled() ) continue;
-			if( pPlayer->_controller )
-				pPlayer->_controller->Reset();
-		}
-
-
 		SAVEHEADER sh = {0};
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
@@ -711,9 +699,9 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 							g_conf.ed_object->GetInt() ) == GetLayerByTypeIndex(i) )
 						if( object->GetType() == GetType(i) )
 						{
-							if( dynamic_cast<GC_Weapon *>(object) )
-								if( ((GC_Weapon *)object)->_bAttached )
-									continue;
+					//		if( dynamic_cast<GC_Weapon *>(object) )
+					//			if( ((GC_Weapon *)object)->_attached )
+					//				continue;
 							return object;
 						}
 					}
@@ -959,11 +947,14 @@ void Level::TimeStep(float dt)
 						OBJECT_LIST::iterator it = players.begin();
 						while( it != players.end() )
 						{
-							if( id == ((GC_Player *)(*it))->_networkId )
+							if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
 							{
-								(*it)->Kill();
-								_MessageArea::Inst()->message( "игрок вышел" );
-								break;
+								if( p->GetNetworkId() == id )
+								{
+									_MessageArea::Inst()->message( "игрок вышел" );
+									p->Kill();
+									break;
+								}
 							}
 							++it;
 						}

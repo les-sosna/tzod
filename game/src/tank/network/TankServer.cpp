@@ -525,7 +525,7 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 			{
 				if( it->id == id_from )
 				{
-					msg += it->desc.name;
+					msg += it->desc.nick;
 					break;
 				}
 			}

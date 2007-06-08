@@ -213,8 +213,9 @@ class GC_Weap_Ripper;
 class GC_Disk : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_Disk);
+
 protected:
-	bool _bAttached;
+	bool _attached;
 	SafePtr<GC_Weap_Ripper> _ripper;
 
 	float _time;

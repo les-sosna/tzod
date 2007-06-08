@@ -7,7 +7,7 @@
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
-#include "gc/player.h"
+#include "gc/ai.h"
 
 #include "core/Console.h"
 #include "core/debug.h"
@@ -327,12 +327,11 @@ int luaT_ConvertVehicleClass(lua_State *L)
 // SYNOPSIS:
 //  addplayer{
 //      name = <string>,
-//      type = <number>,
 //      team = <number>,
 //      skin = <string>,
 //      cls  = <string> }
 //
-static int luaT_addplayer(lua_State *L)
+static int luaT_addbot(lua_State *L)
 {
 	PlayerDesc pd = {0};
 
@@ -354,14 +353,14 @@ static int luaT_addplayer(lua_State *L)
 	lua_getfield(L, 1, "name");
 	if( lua_isstring(L, -1) )
 	{
-		safe_tostr(L, pd.name, MAX_PLRNAME);
+		safe_tostr(L, pd.nick, MAX_PLRNAME);
 	}
 	else
 	{
         lua_getglobal(L, "random_names");
 		lua_pushinteger(L, rand() % lua_objlen(L, -1) + 1);  // push key
 		lua_gettable(L, -2);                                 // pop key, push value
-		safe_tostr(L, pd.name, MAX_PLRNAME);                 // get value
+		safe_tostr(L, pd.nick, MAX_PLRNAME);                 // get value
 		lua_pop(L, 2);                                       // pop value and table
 	}
 	lua_pop(L, 1); // pop result of lua_getfield
@@ -394,23 +393,17 @@ static int luaT_addplayer(lua_State *L)
 
 	//-------------
 
-	lua_getfield(L, 1, "type");
-	if( lua_isnumber(L, -1) )
-		pd.type = lua_tointeger(L, -1);
-	else
-		pd.type = MAX_HUMANS;
-	lua_pop(L, 1); // pop result of lua_getfield
-
-	//-------------
-
-	//
-	// add player
-	//
-	GC_Player *player = new GC_Player(pd.team);
-	player->SetController(pd.type);
-	player->_name  = pd.name;
-	player->_skin  = pd.skin;
-	player->_class = pd.cls;
+	// add bot
+	GC_PlayerAI *player = new GC_PlayerAI();
+	player->SetSkin(pd.skin);
+	player->SetNick(pd.nick);
+	player->SetClass(pd.cls);
+	
+//	player->SetController(pd.type);
+//	player->_nick  = pd.nick;
+//	player->_skin  = pd.skin;
+//	player->_class = pd.cls;
+//	player->_team  = pd.team;
 
 	return 0;
 }
@@ -428,18 +421,18 @@ script_h script_open(void)
 
 	luaopen_base(L);
 
-	lua_register(L, "loadmap",   luaT_loadmap);
-	lua_register(L, "newmap",    luaT_newmap);
-	lua_register(L, "load",      luaT_load);
-	lua_register(L, "save",      luaT_save);
+	lua_register(L, "loadmap",  luaT_loadmap);
+	lua_register(L, "newmap",   luaT_newmap);
+	lua_register(L, "load",     luaT_load);
+	lua_register(L, "save",     luaT_save);
 
-	lua_register(L, "addplayer", luaT_addplayer);
+	lua_register(L, "addbot",   luaT_addbot);
 
-	lua_register(L, "message",   luaT_message);
-	lua_register(L, "print",     luaT_print);
+	lua_register(L, "message",  luaT_message);
+	lua_register(L, "print",    luaT_print);
 
-	lua_register(L, "quit",      luaT_quit);
-	lua_register(L, "pause",     luaT_pause);
+	lua_register(L, "quit",     luaT_quit);
+	lua_register(L, "pause",    luaT_pause);
 
 
 	//
