@@ -17,6 +17,6 @@ conf.sv_speed = 100;
 loadmap("maps/intro.map")
 
 for _,i in pairs{"red","yellow","blue","FBI Tank","neutral"} do
-	addplayer{cls="default", skin=i}
+	addbot{cls="default", skin=i}
 end
 
