@@ -1,12 +1,13 @@
 // pickup.cpp
 
 #include "stdafx.h"
+
 #include "pickup.h"
+
 #include "constants.h"
 #include "macros.h"
 #include "script.h"
 #include "Level.h"
-#include "options.h"
 #include "functions.h"
 
 #include "fs/SaveFile.h"

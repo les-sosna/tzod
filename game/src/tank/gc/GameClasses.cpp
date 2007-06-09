@@ -969,8 +969,8 @@ GC_TextScore::GC_TextScore() : GC_Text(0, 0, "score")
 	_background->SetTexture("scoretbl");
 
 	MoveTo(vec2d(
-		(float) (g_render->getXsize() - _background->GetSpriteWidth()) / 2,
-		(float) (g_render->getYsize() - _background->GetSpriteHeight()) / 2));
+		(float) (g_render->GetWidth() - _background->GetSpriteWidth()) / 2,
+		(float) (g_render->GetHeight() - _background->GetSpriteHeight()) / 2));
 
 	_background->MoveTo(_pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
@@ -1147,7 +1147,7 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 /////////////////////////////////////////////////////////////
 
 GC_Text_MessageArea::GC_Text_MessageArea()
-: GC_Text(48, g_render->getYsize() - 128, "", alignTextLB)
+: GC_Text(48, g_render->GetHeight() - 128, "", alignTextLB)
 {
 	SetFont("font_small");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);

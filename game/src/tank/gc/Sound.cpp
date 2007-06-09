@@ -236,7 +236,7 @@ void GC_Sound::MoveTo(const vec2d &pos)
 	GC_Object::MoveTo(pos);
 #if !defined NOSOUND
 	if( !g_pSoundManager ) return;
-	_soundBuffer->SetPan(int(pos.x) - g_env.camera_x - g_render->getXsize() / 2);
+	_soundBuffer->SetPan(int(pos.x) - g_env.camera_x - g_render->GetWidth() / 2);
 #endif
 }
 

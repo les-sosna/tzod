@@ -62,6 +62,7 @@ public:
 	void SetSkin(const string_t &skin);
 	void SetNick(const string_t &nick);
 	void SetClass(const string_t &c);
+	void SetTeam(int team);
 
 	void ChangeScore(int delta);
 

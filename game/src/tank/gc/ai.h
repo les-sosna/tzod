@@ -7,11 +7,13 @@
 #include "Level.h" // FIXME!
 #include "Player.h"
 
+// forward declarations
+template<class T> class JobManager;
+struct VehicleState;
 class GC_Object;
 class GC_RigidBodyStatic;
-struct VehicleState;
 
-//----------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 
 struct AIITEMINFO
 {
@@ -30,50 +32,15 @@ struct AIWEAPSETTINGS
 	float fDistanceMultipler;  // сложность пробивания стен
 };
 
-//----------------------------------------------------------
-
-class CAttackList
-{
-	// Промежуточная цель (стена, турель...)
-	struct tagAttackNode
-	{
-		tagAttackNode      *_nextNode;
-		tagAttackNode      *_prevNode;
-		GC_RigidBodyStatic *_target;
-	} *_firstTarget, *_lastTarget;
-
-	static MemoryManager<tagAttackNode> s_anAllocator;
-
-protected:
-	tagAttackNode* FindObject(GC_RigidBodyStatic *object);
-	void RemoveFromList(tagAttackNode *pNode);  // удалить цель из списка
-
-public:
-	CAttackList();
-	CAttackList(CAttackList &al);
-	virtual ~CAttackList();
-
-	GC_RigidBodyStatic* Pop(BOOL bRemoveFromList = TRUE);  // извлечь цель из начала списка
-	void PushToBegin(GC_RigidBodyStatic *target);          // поместить цель в начало списка
-	void PushToEnd  (GC_RigidBodyStatic *target);          // поместить цель в конец  списка
-
-	void Clean();                                   // освободить все убитые объекты
-	void ClearList() { while (!IsEmpty()) Pop(); }  // очистить список
-
-	inline BOOL IsEmpty() {return (NULL == _firstTarget);}
-
-public:
-	CAttackList& operator= (CAttackList &al);
-};
-
-
-template<class T> class JobManager;
-
 class GC_PlayerAI : public GC_Player
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerAI);
 
 	static JobManager<GC_PlayerAI> _jobManager;
+
+	typedef std::list<SafePtr<GC_RigidBodyStatic> > AttackListType;
+
+
 
 	/*
      путь состоит из списка узлов и списка атаки, который может быть пустым.
@@ -92,14 +59,12 @@ class GC_PlayerAI : public GC_Player
 		vec2d coord;
 	};
 
-
 	//
 	// текущий путь
 	//
 
 	std::list<PathNode> _path;  // список узлов
-	CAttackList  _AttackList;   // список атаки
-
+	AttackListType _attackList;
 
 
 	//-------------------------------------------------------------------------
@@ -136,7 +101,6 @@ class GC_PlayerAI : public GC_Player
 		GC_Vehicle *target;
         bool bIsVisible;
 	};
-
 
 	// состояния ИИ
 	enum aiState_l2
@@ -200,6 +164,7 @@ public:
 	GC_PlayerAI();
 	GC_PlayerAI(FromFile);
 	virtual ~GC_PlayerAI();
+	virtual void Kill();
 
 	virtual void OnRespawn();
 	virtual void OnDie();

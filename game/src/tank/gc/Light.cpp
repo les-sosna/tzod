@@ -1,8 +1,9 @@
 // light.cpp
 
 #include "stdafx.h"
+
 #include "light.h"
-#include "options.h"
+
 #include "level.h"
 #include "macros.h"
 

@@ -112,13 +112,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ED(name, desc, layer, width, height, align, offset)   \
-	Level::RegisterType<__this_class>(                        \
-	(name), (desc), (layer), (width), (height), (align), (offset))
+#define ED(name, desc, layer, width, height, align, offset, isservice)   \
+	Level::RegisterType<__this_class>(                                   \
+	(name), (desc), (layer), (width), (height), (align), (offset), (isservice))
 
-#define ED_ITEM(name, desc) ED(name, desc, 1, 2, 2, CELL_SIZE/2, 0)
-#define ED_LAND(name, desc, layer) ED(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2)
-#define ED_TURRET(name, desc) ED(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE)
+#define ED_ITEM(name, desc) ED(name, desc, 1, 2, 2, CELL_SIZE/2, 0, false)
+#define ED_LAND(name, desc, layer) ED(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, false)
+#define ED_TURRET(name, desc) ED(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE, false)
+
 
 
 ////////////////////////////////////////////////////
@@ -251,6 +252,15 @@ public:
 
 	GC_Object* FindObject(const char *name) const;
 
+	int   net_rand();
+	float net_frand(float max);
+	vec2d net_vrand(float len);
+
+	void CalcOutstrip( const vec2d &fp,    // fire point
+                       float vp,           // speed of the projectile
+                       const vec2d &tx,    // target position
+                       const vec2d &tv,    // target velocity
+                       vec2d &out_fake );  // out: fake target position
 
 
 	//
@@ -285,6 +295,7 @@ private:
 		float         align;
 		float         offset;
 		vec2d         size;
+		bool          service;
 		const char*   name;
 		const char*   desc;
 	};
@@ -332,19 +343,22 @@ public:
 	}
 	static const char* GetTypeName(ObjectType type)
 	{
-		_ASSERT( get_t2i().count(type) );
+		_ASSERT(IsRegistered(type));
 		return get_t2i()[type].name;
 	}
-	template<class T> static void RegisterType(const char *name, const char *desc, int layer, float width, float height, float align, float offset)
+	template<class T> 
+	static void RegisterType( const char *name, const char *desc, int layer, float width,
+	                          float height, float align, float offset, bool isService )
 	{
 		EdItem ei;
-		ei.Create = (CreateProc) CreateObject<T>;
-		ei.desc   = desc;
-		ei.name   = name;
-		ei.layer  = layer;
-		ei.size.Set(width, height);
-		ei.align  = align;
-		ei.offset = offset;
+		ei.Create  = (CreateProc) CreateObject<T>;
+		ei.desc    = desc;
+		ei.name    = name;
+		ei.layer   = layer;
+		ei.size    = vec2d(width, height);
+		ei.align   = align;
+		ei.offset  = offset;
+		ei.service = isService;
 		get_t2i()[T::this_type] = ei;
 		get_n2t()[name] = T::this_type;
 		get_i2t().push_back(T::this_type);

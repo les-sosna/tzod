@@ -29,7 +29,7 @@ struct DEV_TEXTURE
 	}
 };
 
-enum RENDER_MODE
+enum RenderMode
 {
 	RM_LIGHT         = 0,
 	RM_WORLD         = 1,
@@ -62,13 +62,13 @@ struct IRender
 	virtual void SetViewport(const RECT *rect) = 0;
 	virtual void Camera(float x, float y, float scale, float angle) = 0;
 
-    virtual int  getXsize() const = 0;
-    virtual int  getYsize() const = 0;
+    virtual int  GetWidth() const = 0;
+    virtual int  GetHeight() const = 0;
 
-    virtual int  getViewportXsize() const = 0;
-    virtual int  getViewportYsize() const = 0;
+    virtual int  GetViewportWidth() const = 0;
+    virtual int  GetViewportHeight() const = 0;
 
-	virtual void setMode (const RENDER_MODE mode) = 0;
+	virtual void SetMode (const RenderMode mode) = 0;
 	virtual void Begin   (void) = 0;
 	virtual void End     (void) = 0;
 

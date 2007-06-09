@@ -370,7 +370,7 @@ void GC_Turret_Rocket::Serialize(SaveFile &f)
 
 void GC_Turret_Rocket::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	::CalcOutstrip(_pos, SPEED_ROCKET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(_pos, SPEED_ROCKET, target->_pos, target->_lv, fake);
 }
 
 void GC_Turret_Rocket::Fire()
@@ -378,8 +378,8 @@ void GC_Turret_Rocket::Fire()
 	if( _time_reload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_Rocket(	_pos + a * 25.0f, a * SPEED_ROCKET,
-				this, true ) )->_damage = net_frand(10.0f) + 35.0f;
+		(new GC_Rocket(	_pos + a * 25.0f, a * SPEED_ROCKET, this, true ) )
+			->_damage = g_level->net_frand(10.0f) + 35.0f;
 		_time_reload = TURET_ROCKET_RELOAD;
 	}
 }
@@ -436,7 +436,7 @@ void GC_Turret_Cannon::Serialize(SaveFile &f)
 
 void GC_Turret_Cannon::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	::CalcOutstrip(_pos, SPEED_TANKBULLET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(_pos, SPEED_TANKBULLET, target->_pos, target->_lv, fake);
 }
 
 void GC_Turret_Cannon::Fire()
@@ -444,8 +444,12 @@ void GC_Turret_Cannon::Fire()
 	if( _time_reload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_TankBullet(	_pos + a * 31.9f, a * SPEED_TANKBULLET + net_vrand(40),
-					this, false ) )->_damage = net_frand(10.0f) + 5.0f;
+		(new GC_TankBullet(
+			_pos + a * 31.9f,
+			a * SPEED_TANKBULLET + g_level->net_vrand(40),
+			this,
+			false ) 
+		)->_damage = g_level->net_frand(10.0f) + 5.0f;
 		_time_reload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}
@@ -594,7 +598,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 		{
 			TargetLost();
 		}
-		_time_wait = net_frand(_time_wait_max);
+		_time_wait = g_level->net_frand(_time_wait_max);
 		break;
 	} // end case TS_ATACKING
 
@@ -602,7 +606,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 		_time_wait -= dt;
 		if( _time_wait <= 0 )
 		{
-			_time_wait = net_frand(_time_wait_max);
+			_time_wait = g_level->net_frand(_time_wait_max);
 			WakeDown();
 		}
 		else
@@ -740,7 +744,7 @@ GC_Turret_Minigun::~GC_Turret_Minigun()
 
 void GC_Turret_Minigun::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	::CalcOutstrip(_pos, SPEED_BULLET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(_pos, SPEED_BULLET, target->_pos, target->_lv, fake);
 }
 
 void GC_Turret_Minigun::Fire()
@@ -763,7 +767,7 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 
 		for( ; _time > 0; _time -= 0.04f )
 		{
-			float ang = _dir + net_frand(0.1f) - 0.05f;
+			float ang = _dir + g_level->net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
 			new GC_Bullet(_pos + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, false );
 			new GC_Particle(_pos + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
@@ -846,7 +850,7 @@ GC_Turret_Gauss::~GC_Turret_Gauss()
 
 void GC_Turret_Gauss::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	::CalcOutstrip(_pos, SPEED_GAUSS, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(_pos, SPEED_GAUSS, target->_pos, target->_lv, fake);
 }
 
 void GC_Turret_Gauss::Fire()

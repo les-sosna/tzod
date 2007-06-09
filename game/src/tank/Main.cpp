@@ -97,8 +97,8 @@ static void RenderFrame(bool thumbnail)
 
 		GC_Camera *pMaxShake = NULL;
 
-		if( g_render->getXsize() >= (int)g_level->_sx &&
-			g_render->getYsize() >= (int)g_level->_sy )
+		if( g_render->GetWidth() >= (int)g_level->_sx &&
+			g_render->GetHeight() >= (int)g_level->_sy )
 		{
 			float max_shake = 0;
 			FOREACH( cameras, GC_Camera, pCamera )
@@ -123,16 +123,16 @@ static void RenderFrame(bool thumbnail)
 			// рендеринг освещения
 			//
 
-			g_render->setMode(RM_LIGHT);
+			g_render->SetMode(RM_LIGHT);
 			pCamera->Select();
 			if( g_conf.sv_nightmode->Get() )
 			{
 				float xmin = (float) __max(0, g_env.camera_x );
 				float ymin = (float) __max(0, g_env.camera_y );
 				float xmax = __min(g_level->_sx, (float) g_env.camera_x +
-					(float) g_render->getViewportXsize() / pCamera->_zoom );
+					(float) g_render->GetViewportWidth() / pCamera->_zoom );
 				float ymax = __min(g_level->_sy, (float) g_env.camera_y +
-					(float) g_render->getViewportYsize() / pCamera->_zoom );
+					(float) g_render->GetViewportHeight() / pCamera->_zoom );
 
 				FOREACH( lights, GC_Light, pLight )
 				{
@@ -152,7 +152,7 @@ static void RenderFrame(bool thumbnail)
 			// paint all objects
 			//
 
-			g_render->setMode(RM_WORLD);
+			g_render->SetMode(RM_WORLD);
 
 			// paint background texture
 			_Background::Inst()->Draw();
@@ -168,10 +168,10 @@ static void RenderFrame(bool thumbnail)
 					int xmin = __max(0, (g_env.camera_x - dx[lev]) / LOCATION_SIZE);
 					int ymin = __max(0, (g_env.camera_y - dy[lev]) / LOCATION_SIZE);
 					int xmax = __min(g_level->_locations_x - 1,
-						((g_env.camera_x + int((float) g_render->getViewportXsize() /
+						((g_env.camera_x + int((float) g_render->GetViewportWidth() /
 						pCamera->_zoom)) - dx[lev]) / LOCATION_SIZE);
 					int ymax = __min(g_level->_locations_y - 1,
-						((g_env.camera_y + int((float) g_render->getViewportYsize() /
+						((g_env.camera_y + int((float) g_render->GetViewportHeight() /
 						pCamera->_zoom)) - dy[lev]) / LOCATION_SIZE);
 
 					for( int x = xmin; x <= xmax; ++x )
@@ -206,7 +206,7 @@ static void RenderFrame(bool thumbnail)
 
 		if( !thumbnail )
 		{
-			g_render->setMode(RM_INTERFACE);
+			g_render->SetMode(RM_INTERFACE);
 
 			FOREACH( z_globals[Z_COUNT-1], GC_2dSprite, object )
 			{
@@ -220,7 +220,7 @@ static void RenderFrame(bool thumbnail)
 
 	if( g_gui )
 	{
-		g_render->setMode(RM_INTERFACE);
+		g_render->SetMode(RM_INTERFACE);
 		g_gui->Draw();
 	}
 
@@ -407,7 +407,7 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 		TRACE("GUI subsystem initialization\n");
 		g_gui = new GuiManager(CreateDesktopWindow);
 		g_render->OnResizeWnd();
-		g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
+		g_gui->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
 		TRACE("Execing startup script '%s'\n", FILE_STARTUP);

@@ -7,7 +7,7 @@
 #include "ImageLoader.h"
 
 #include "macros.h"
-#include "level.h"
+#include "level.h"  // FIXME
 
 #include "core/debug.h"
 #include "core/Console.h"

@@ -4,7 +4,6 @@
 #include "indicators.h"
 
 #include "level.h"
-#include "options.h"
 #include "macros.h"
 
 #include "fs/MapFile.h"
@@ -17,7 +16,8 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 {
-	ED("respawn_point", "Точка рождения танка           ",  0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2 );
+	ED("respawn_point", "Точка рождения танка", 
+	    0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2, false);
 	return true;
 }
 

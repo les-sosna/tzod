@@ -72,7 +72,7 @@ void FpsCounter::OnTimeStep(float dt)
 		strcat(s, s1);
 
 		// network statistics
-		if( g_level->_client )
+		if( g_level && g_level->_client )
 		{
 			min = max = _dts_net.front();
 			for( std::list<float>::iterator it = _dts_net.begin();
@@ -117,15 +117,22 @@ void TimeElapsed::OnShow(bool show)
 
 void TimeElapsed::OnTimeStep(float dt)
 {
-	char text[16];
-	int time = int(g_level->_time);
+	if( g_level )
+	{
+		char text[16];
+		int time = int(g_level->_time);
 
-	if( time % 60 < 10 )
-		wsprintf(text, "%d:0%d", time / 60, time % 60);
+		if( time % 60 < 10 )
+			wsprintf(text, "%d:0%d", time / 60, time % 60);
+		else
+			wsprintf(text, "%d:%d", time / 60, time % 60);
+
+		SetText(text);
+	}
 	else
-		wsprintf(text, "%d:%d", time / 60, time % 60);
-
-	SetText(text);
+	{
+		SetText("--:--");
+	}
 }
 
 

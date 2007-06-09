@@ -251,7 +251,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 
 
 			vec2d target;
-			CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
+			g_level->CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
 
 			vec2d a = target - _pos;
 
@@ -334,7 +334,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 		else
 		{
 			vec2d target;
-			CalcOutstrip(_pos, _velocity.Length(), _target->_pos, _target->_lv, target);
+			g_level->CalcOutstrip(_pos, _velocity.Length(), _target->_pos, _target->_lv, target);
 
 			vec2d a = target - _pos;
 
@@ -620,7 +620,7 @@ void GC_BfgCore::FindTarget()
 			GetRawPtr(_proprietor), _pos, pVehicle->_pos - _pos) ) continue;
 
 		vec2d target;
-		CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
+		g_level->CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
 
 		vec2d a = target - _pos;
 
@@ -712,7 +712,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 
 			if( damage > 0 && !(IsAdvanced() && pVehicle == _proprietor) )
 			{
-				vec2d d = (_pos - pVehicle->_pos).Normalize() + net_vrand(1.0f);
+				vec2d d = (_pos - pVehicle->_pos).Normalize() + g_level->net_vrand(1.0f);
 				pVehicle->TakeDamage(damage * _damage * dt,
 					pVehicle->_pos + d, GetRawPtr(_proprietor));
 			}
@@ -732,7 +732,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			float v = _velocity.Length();
 
 			vec2d target;
-			CalcOutstrip(_pos, v, _target->_pos, _target->_lv, target);
+			g_level->CalcOutstrip(_pos, v, _target->_pos, _target->_lv, target);
 
 			vec2d a = target - _pos;
 
@@ -920,7 +920,7 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 {
 	_damage = 0;
 
-	_time = net_frand(1.0f);
+	_time = g_level->net_frand(1.0f);
 
 	_attached = true;
 	_ripper = pRipper;
@@ -935,11 +935,9 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* SpawnBy, bool advanced)
 : GC_Projectile(SpawnBy, advanced, TRUE, x, v, "projectile_disk")
 {
-	_damage = net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f);
+	_damage = g_level->net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f);
 	_trailDensity = 5.0f;
-
-	_time = net_frand(1.0f);
-
+	_time = g_level->net_frand(1.0f);
 	_attached = false;
 	_light->Enable(false);
 }
@@ -999,8 +997,12 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 		for( int n = 0; n < 14; ++n )
 		{
-			(new GC_Bullet(_pos, vec2d(a1 + net_frand(a2 - a1)) * (net_frand(2000.0f) + 3000.0f),
-				GetRawPtr(_proprietor), IsAdvanced()))->SetIgnoreProprietor(false);
+			(new GC_Bullet(
+				_pos, 
+				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
+				GetRawPtr(_proprietor), 
+				IsAdvanced())
+			)->SetIgnoreProprietor(false);
 		}
 
 		(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetRotation(frand(PI2));
@@ -1025,8 +1027,12 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 		for( int n = 0; n < 11; ++n )
 		{
-			(new GC_Bullet(_pos, vec2d(a1 + net_frand(a2 - a1)) * (net_frand(2000.0f) + 3000.0f),
-				GetRawPtr(_proprietor), true))->SetIgnoreProprietor(false);
+			(new GC_Bullet(
+				_pos, 
+				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
+				GetRawPtr(_proprietor), 
+				true)
+			)->SetIgnoreProprietor(false);
 		}
 	}
 

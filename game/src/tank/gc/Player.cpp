@@ -1,11 +1,11 @@
 // Player.cpp
 
 #include "stdafx.h"
+
 #include "Player.h"
 
 #include "macros.h"
 #include "level.h"
-#include "functions.h"
 #include "options.h"
 
 #include "fs/SaveFile.h"
@@ -14,8 +14,6 @@
 
 #include "config/Config.h"
 
-
-#include "ai.h"
 #include "GameClasses.h"
 #include "Camera.h"
 #include "vehicle.h"
@@ -87,6 +85,11 @@ void GC_Player::SetNick(const string_t &nick)
 void GC_Player::SetClass(const string_t &c)
 {
 	_class = c;
+}
+
+void GC_Player::SetTeam(int team)
+{
+	_team = team;
 }
 
 void GC_Player::UpdateSkin()
@@ -205,7 +208,7 @@ void GC_Player::TimeStepFixed(float dt)
 
 			if( !points.empty() )
 			{
-				pBestPoint = points[net_rand() % points.size()];
+				pBestPoint = points[g_level->net_rand() % points.size()];
 			}
 
 			new GC_Text_ToolTip(pBestPoint->_pos, _nick.c_str(), "font_default");

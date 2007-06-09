@@ -263,8 +263,8 @@ HRESULT InitDirectInput( HWND hWnd )
 //        return hr;
 //    g_pMouse->Acquire();
 
-	g_env.envInputs.mouse_x = g_render->getXsize() / 2;
-	g_env.envInputs.mouse_y = g_render->getYsize() / 2;
+	g_env.envInputs.mouse_x = g_render->GetWidth() / 2;
+	g_env.envInputs.mouse_y = g_render->GetHeight() / 2;
 	g_env.envInputs.mouse_wheel = 0;
 	g_env.envInputs.bLButtonState = false;
 	g_env.envInputs.bRButtonState = false;
@@ -338,9 +338,9 @@ HRESULT ReadImmediateData()
 	g_env.envInputs.mouse_x += dims2.lX;
 	g_env.envInputs.mouse_y += dims2.lY;
 	g_env.envInputs.mouse_x = __max(0,
-		__min(g_render->getXsize() - 1, g_env.envInputs.mouse_x));
+		__min(g_render->GetWidth() - 1, g_env.envInputs.mouse_x));
 	g_env.envInputs.mouse_y = __max(0,
-		__min(g_render->getYsize() - 1, g_env.envInputs.mouse_y));
+		__min(g_render->GetHeight() - 1, g_env.envInputs.mouse_y));
 
 
 	g_env.envInputs.bLButtonState = (dims2.rgbButtons[0] & 0x80) != 0;

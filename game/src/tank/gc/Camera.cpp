@@ -179,7 +179,7 @@ void GC_Camera::EndFrame()
 		}
 	}
 	else
-	if( g_render->getXsize() - 1 == x || g_env.envInputs.keys[DIK_RIGHTARROW] )
+	if( g_render->GetWidth() - 1 == x || g_env.envInputs.keys[DIK_RIGHTARROW] )
 	{
 		bMove = true;
 		while (dwCurTime - _dwTimeX > dt)
@@ -201,7 +201,7 @@ void GC_Camera::EndFrame()
 		}
 	}
 	else
-	if( g_render->getYsize()-1 == y || g_env.envInputs.keys[DIK_DOWNARROW] )
+	if( g_render->GetHeight()-1 == y || g_env.envInputs.keys[DIK_DOWNARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -260,14 +260,14 @@ void GC_Camera::UpdateLayout()
 
 	RECT viewports[MAX_HUMANS];
 
-	if( g_render->getXsize() >= (int)g_level->_sx &&
-		g_render->getYsize() >= (int)g_level->_sy )
+	if( g_render->GetWidth() >= (int)g_level->_sx &&
+		g_render->GetHeight() >= (int)g_level->_sy )
 	{
 		SetRect(&viewports[0],
-			(g_render->getXsize() - (int) g_level->_sx) / 2,
-			(g_render->getYsize() - (int) g_level->_sy) / 2,
-			(g_render->getXsize() + (int) g_level->_sx) / 2,
-			(g_render->getYsize() + (int) g_level->_sy) / 2
+			(g_render->GetWidth() - (int) g_level->_sx) / 2,
+			(g_render->GetHeight() - (int) g_level->_sy) / 2,
+			(g_render->GetWidth() + (int) g_level->_sx) / 2,
+			(g_render->GetHeight() + (int) g_level->_sy) / 2
 		);
 		FOREACH( cameras, GC_Camera, pCamera)
 		{
@@ -278,8 +278,8 @@ void GC_Camera::UpdateLayout()
 	{
 		if( 0 == active_count ) return;
 
-		int w = g_render->getXsize();
-		int h = g_render->getYsize();
+		int w = g_render->GetWidth();
+		int h = g_render->GetHeight();
 
 		switch( active_count )
 		{

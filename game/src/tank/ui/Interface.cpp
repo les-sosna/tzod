@@ -143,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			g_render->OnResizeWnd();
 			if( g_gui )
-				g_gui->Resize((float) g_render->getXsize(), (float) g_render->getYsize());
+				g_gui->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 		}
 		break;
 

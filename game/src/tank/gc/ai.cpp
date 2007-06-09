@@ -4,13 +4,13 @@
 
 #include "stdafx.h"
 
+#include "ai.h"
+
 #include "core/JobManager.h"
 #include "core/Debug.h"
 
 #include "fs/SaveFile.h"
 
-#include "Options.h"
-#include "ai.h"
 #include "Macros.h"
 #include "Functions.h"
 
@@ -23,155 +23,21 @@
 
 #include <d3dx9math.h>  // FIXME!
 
-
-
-//////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #define NODE_RADIUS		32.0f
 #define MIN_PATH_ANGLE	 0.4f
 
-//////////////////////////////////////////////////////////////////////
-// CAttackList class implementation
+#define GRID_ALIGN(x, sz)	((x)-(x)/(sz)*(sz)<(sz)/2)?((x)/(sz)):((x)/(sz)+1)
 
-MemoryManager<CAttackList::tagAttackNode> CAttackList::s_anAllocator;
+///////////////////////////////////////////////////////////////////////////////
 
-CAttackList::CAttackList()
-{
-	_firstTarget = NULL;
-	_lastTarget  = NULL;
-}
-
-CAttackList::CAttackList(CAttackList &al)
-{
-	_firstTarget = NULL;
-	_lastTarget  = NULL;
-	*this = al;
-}
-
-CAttackList::~CAttackList()
-{
-	ClearList();
-	_ASSERT(_firstTarget == NULL);
-	_ASSERT(_lastTarget  == NULL);
-}
-
-CAttackList::tagAttackNode* CAttackList::FindObject(GC_RigidBodyStatic *object)
-{
-	tagAttackNode *pNode = _firstTarget;
-	while( pNode )
-	{
-		if( object == pNode->_target ) return pNode;
-		pNode = pNode->_nextNode;
-	}
-
-	return NULL;
-}
-
-void CAttackList::RemoveFromList(tagAttackNode *pNode)
-{
-	_ASSERT(pNode);
-
-	if( pNode == _firstTarget )
-		_firstTarget = pNode->_nextNode;
-
-	if( pNode == _lastTarget )
-		_lastTarget = pNode->_prevNode;
-
-	if( pNode->_prevNode )
-		pNode->_prevNode->_nextNode = pNode->_nextNode;
-	if( pNode->_nextNode )
-		pNode->_nextNode->_prevNode = pNode->_prevNode;
-
-	pNode->_target->Release();
-	s_anAllocator.free(pNode);
-}
-
-GC_RigidBodyStatic* CAttackList::Pop(BOOL bRemoveFromList)
-{
-	_ASSERT(!IsEmpty());
-
-	GC_RigidBodyStatic *target = _firstTarget->_target;
-	if( bRemoveFromList ) RemoveFromList(_firstTarget);
-
-	return target;
-}
-
-void CAttackList::PushToBegin(GC_RigidBodyStatic *target)
-{
-	tagAttackNode *pNode = FindObject(target);
-	if( pNode ) RemoveFromList(pNode);
-
-	tagAttackNode *pNewNode = s_anAllocator.allocate();
-	pNewNode->_target = target;
-	pNewNode->_target->AddRef();
-	pNewNode->_prevNode = NULL;
-	pNewNode->_nextNode = _firstTarget;
-	if( _firstTarget ) _firstTarget->_prevNode = pNewNode;
-	_firstTarget = pNewNode;
-	if( !_lastTarget ) _lastTarget = pNewNode;
-}
-
-void CAttackList::PushToEnd(GC_RigidBodyStatic *target)
-{
-	tagAttackNode *pNode = FindObject(target);
-	if( pNode ) RemoveFromList(pNode);
-
-	tagAttackNode *pNewNode = s_anAllocator.allocate();
-	target->AddRef();
-	pNewNode->_target = target;
-	pNewNode->_nextNode = NULL;
-	pNewNode->_prevNode = _lastTarget;
-	if( _lastTarget ) _lastTarget->_nextNode = pNewNode;
-	_lastTarget = pNewNode;
-	if( !_firstTarget ) _firstTarget = pNewNode;
-}
-
-void CAttackList::Clean()
-{
-	tagAttackNode *pNode = _firstTarget;
-	while (pNode)
-	{
-		if( pNode->_target->IsKilled() )
-		{
-			tagAttackNode *pRem = pNode;
-			pNode = pNode->_nextNode;
-			RemoveFromList(pRem);
-			continue;
-		}
-
-		pNode = pNode->_nextNode;
-	}
-}
-
-CAttackList& CAttackList::operator= (CAttackList &al)
-{
-	ClearList();
-
-	tagAttackNode *pNode = al._firstTarget;
-	while (pNode)
-	{
-		PushToEnd(pNode->_target);
-		pNode = pNode->_nextNode;
-	}
-
-	return al;
-}
-
-
-//////////////////////////////////////////////////////////////////////
+JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
 {
 	return true;
 }
-
-
-#define GRID_ALIGN(x, sz)	((x)-(x)/(sz)*(sz)<(sz)/2)?((x)/(sz)):((x)/(sz)+1)
-
-//std::list<GC_PlayerAI*> GC_PlayerAI::_controllers;
-//std::list<GC_PlayerAI*>::iterator GC_PlayerAI::_itCurrent;
-
-JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
 
 GC_PlayerAI::GC_PlayerAI()
 {
@@ -190,10 +56,15 @@ GC_PlayerAI::GC_PlayerAI(FromFile)
 
 GC_PlayerAI::~GC_PlayerAI()
 {
+}
+
+void GC_PlayerAI::Kill()
+{
 	if( !IsDead() )
 	{
 		_jobManager.UnregisterMember(this);
 	}
+	GC_Player::Kill();
 }
 
 void GC_PlayerAI::Serialize(SaveFile &f)
@@ -201,12 +72,53 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	GC_Player::Serialize(f);
 
 	f.Serialize(_accuracy);
+	f.Serialize(_aiState_l1);
+	f.Serialize(_aiState_l2);
 	f.Serialize(_current_offset);
 	f.Serialize(_desired_offset);
 	f.Serialize(_otFavoriteWeapon);
 	f.Serialize(_pickupCurrent);
 	f.Serialize(_target);
 	f.Serialize(_weapSettings);
+
+	if( f.loading() )
+	{
+		size_t size;
+		f.Serialize(size);
+		while( size-- )
+		{
+			AttackListType::value_type tmp;
+			f.Serialize(tmp);
+			_attackList.push_back(tmp);
+		}
+
+		if( !IsDead() )
+		{
+			_jobManager.RegisterMember(this);
+		}
+	}
+	else
+	{
+		size_t size = _attackList.size();
+		f.Serialize(size);
+		for( AttackListType::const_iterator it = _attackList.begin(); _attackList.end() != it; ++it )
+		{
+			AttackListType::value_type tmp = *it;
+			f.Serialize(tmp);
+		}
+	}
+}
+
+void GC_PlayerAI::TimeStepFixed(float dt)
+{
+	GC_Player::TimeStepFixed(dt);
+
+	if( !IsDead() )
+	{
+		VehicleState vs;
+		GetControl(&vs, dt);
+		GetVehicle()->SetState(&vs);
+	}
 }
 
 bool GC_PlayerAI::CheckCell(const FieldCell &cell)
@@ -221,8 +133,7 @@ bool GC_PlayerAI::CheckCell(const FieldCell &cell)
 
 float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bTest)
 {
-	if( dst_x < 0 || dst_x >= g_level->_sx ||
-		dst_y < 0 || dst_y >= g_level->_sy )
+	if( dst_x < 0 || dst_x >= g_level->_sx || dst_y < 0 || dst_y >= g_level->_sy )
 	{
 		return -1;
 	}
@@ -231,20 +142,8 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 	Field &field = g_level->_field;
 
 	std::priority_queue<
-		RefFieldCell,
-		std::vector<RefFieldCell>,
-		std::greater<RefFieldCell>
+		RefFieldCell, std::vector<RefFieldCell>, std::greater<RefFieldCell>
 	> open;
-
-	std::priority_queue<int> qqq;
-	qqq.push(10);
-	qqq.push(10);
-	qqq.push(10);
-	qqq.push(12);
-	qqq.push(10);
-	qqq.push(10);
-
-
 
 	int start_x = GRID_ALIGN(int(GetVehicle()->_pos.x), CELL_SIZE);
 	int start_y = GRID_ALIGN(int(GetVehicle()->_pos.y), CELL_SIZE);
@@ -379,7 +278,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 							continue;
 						}
 					}
-					_AttackList.PushToBegin(static_cast<GC_RigidBodyStatic*>(object));
+					_attackList.push_front(static_cast<GC_RigidBodyStatic*>(object));
 				}
 
 				cell = cell->_prevCell;
@@ -468,7 +367,7 @@ void GC_PlayerAI::SmoothPath()
 void GC_PlayerAI::ClearPath()
 {
 	_path.clear();
-	_AttackList.ClearList();
+	_attackList.clear();
 }
 
 void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
@@ -630,7 +529,10 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 
 	if( !applicants.empty() )
 	{
-		GC_PickUp *items[2] = { GetRawPtr(_pickupCurrent), applicants[net_rand() % applicants.size()] };
+		GC_PickUp *items[2] = {
+			GetRawPtr(_pickupCurrent), 
+			applicants[g_level->net_rand() % applicants.size()]
+		};
 		for( int i = 0; i < 2; ++i )
 		{
 			if( NULL == items[i] ) continue;
@@ -828,7 +730,7 @@ void GC_PlayerAI::SelectState()
 		_ASSERT(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = GetVehicle()->_pos + net_vrand(sqrtf(net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
+			vec2d t = GetVehicle()->_pos + g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
 			float x = __min(__max(0, t.x), g_level->_sx);
 			float y = __min(__max(0, t.y), g_level->_sy);
 
@@ -902,10 +804,10 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	//
 	// пробуем атаковать побочную цель
 	//
-	else if( !_AttackList.IsEmpty() && IsTargetVisible(_AttackList.Pop(FALSE)) )
+	else if( !_attackList.empty() && IsTargetVisible(GetRawPtr(_attackList.front())) )
 	{
 		_ASSERT(GetVehicle()->GetWeapon());
-		GC_RigidBodyStatic *target = _AttackList.Pop(FALSE);
+		GC_RigidBodyStatic *target = GetRawPtr(_attackList.front());
 
 		float len = (target->_pos - GetVehicle()->_pos).Length();
 		TowerTo(pVehState, target->_pos,
@@ -1003,7 +905,17 @@ void GC_PlayerAI::GetControl(VehicleState *pState, float dt)
 {
 	_ASSERT(!IsDead());
 	ZeroMemory(pState, sizeof(VehicleState));
-	_AttackList.Clean();
+
+	//
+	// clean the attack list
+	//
+	struct helper{ static bool whether(const SafePtr<GC_RigidBodyStatic> &arg)
+	{
+		return arg->IsKilled();
+	}};
+	_attackList.remove_if(&helper::whether);
+
+
 
 	if( _pickupCurrent )
 	{
@@ -1049,7 +961,7 @@ void GC_PlayerAI::GetControl(VehicleState *pState, float dt)
 			}
 
 			if( d > 0 )
-				_desired_offset = net_frand(d);
+				_desired_offset = g_level->net_frand(d);
 			else
 				_desired_offset = 0;
 		}
@@ -1102,18 +1014,6 @@ void GC_PlayerAI::LockTarget(GC_RigidBodyStatic *target)
 void GC_PlayerAI::FreeTarget()
 {
 	_target = NULL;
-}
-
-void GC_PlayerAI::TimeStepFixed(float dt)
-{
-	GC_Player::TimeStepFixed(dt);
-
-	if( !IsDead() )
-	{
-		VehicleState vs;
-		GetControl(&vs, dt);
-		GetVehicle()->SetState(&vs);
-	}
 }
 
 ////////////////////////////////////////////

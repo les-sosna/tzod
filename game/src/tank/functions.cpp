@@ -5,40 +5,8 @@
 #include "core/MyMath.h"
 #include "fs/MapFile.h"
 
-#include "Level.h"
-
 #include "ui/Interface.h"
 
-
-//--------------------------------------------------
-
-void CalcOutstrip(const vec2d &fp, // fire point
-				  float vp,        // speed of the projectile
-				  const vec2d &tx, // target position
-				  const vec2d &tv, // target velocity
-				  vec2d &fake)     // out: fake target position
-{
-	float vt = tv.Length();
-
-	if( vt >= vp || vt < 1e-7 )
-	{
-		fake = tx;
-	}
-	else
-	{
-		float cg = tv.x / vt;
-		float sg = tv.y / vt;
-
-		float x   = (tx.x - fp.x) * cg + (tx.y - fp.y) * sg;
-		float y   = (tx.y - fp.y) * cg - (tx.x - fp.x) * sg;
-		float tmp = vp*vp - vt*vt;
-
-		float fx = x + vt * (x*vt + sqrtf(x*x * vp*vp + y*y * tmp)) / tmp;
-
-		fake.x = __max(0, __min(g_level->_sx, fp.x + fx*cg - y*sg));
-		fake.y = __max(0, __min(g_level->_sy, fp.y + fx*sg + y*cg));
-	}
-}
 
 //--------------------------------------------------
 
@@ -110,23 +78,6 @@ vec2d vrand(float len)
 	return vec2d(frand(PI2)) * len;
 }
 
-int net_rand()
-{
-	g_level->_seed = (69069 * g_level->_seed + 1);
-	return g_level->_seed & RAND_MAX;
-}
-
-float net_frand(float max)
-{
-	return (float) net_rand() / RAND_MAX * max;
-}
-
-vec2d net_vrand(float len)
-{
-	return vec2d(net_frand(PI2)) * len;
-}
-
-
 // если каталог не существует, то пользователь
 // получит запрос на создание этого каталога
 //      return TRUE - удачно
@@ -156,45 +107,6 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
 
 	return TRUE;
 }
-
-/*
-// проверка файла на корректность
-BOOL CheckFile_ie(LPCTSTR fileName)
-{
-	MapFile file;
-	if( file.Open(fileName, false) )
-		return TRUE;
-
-	return FALSE;
-}
-
-BOOL CheckFile_ls(LPCTSTR fileName)
-{
-	DWORD dwBytesReaded = 0;
-
-	HANDLE file = CreateFile(
-						fileName,
-						GENERIC_READ,
-						0,
-						NULL,
-						OPEN_EXISTING,
-						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-						NULL);
-
-	if( file == INVALID_HANDLE_VALUE )
-	{
-		return FALSE;
-	}
-
-	//проверяем версию файла
-	DWORD dwVersion;
-
-	ReadFile(file, &dwVersion, sizeof(DWORD), &dwBytesReaded, NULL);
-	CloseHandle(file);
-
-	return (VERSION == dwVersion);
-}
-*/
 
 DWORD CalcCRC32(LPCTSTR fileName)
 {

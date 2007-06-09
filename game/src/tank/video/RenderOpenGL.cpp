@@ -52,7 +52,7 @@ class RenderOpenGL : public IRender
 	size_t    _vaSize;      // number of filled elements in _VertexArray
 	size_t    _iaSize;      // number of filled elements in _IndexArray
 
-	RENDER_MODE  _mode;
+	RenderMode  _mode;
 
 
 public:
@@ -77,15 +77,15 @@ private:
 	virtual void SetViewport(const RECT *rect);
 	virtual void Camera(float x, float y, float scale, float angle);
 
-	virtual int  getXsize() const;
-    virtual int  getYsize() const;
+	virtual int  GetWidth() const;
+    virtual int  GetHeight() const;
 
-    virtual int  getViewportXsize() const;
-    virtual int  getViewportYsize() const;
+    virtual int  GetViewportWidth() const;
+    virtual int  GetViewportHeight() const;
 
 	virtual void Begin(void);
 	virtual void End(void);
-	virtual void setMode (const RENDER_MODE mode);
+	virtual void SetMode (const RenderMode mode);
 
 	virtual bool TakeScreenshot(TCHAR *fileName);
 	virtual void SetAmbient(float ambient);
@@ -223,7 +223,6 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 					SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE );
 
 
-
 	_hWnd = hWnd;
 	_hDC  = GetDC(hWnd);
 
@@ -262,7 +261,6 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		}
 
 
-
 		pfd.iLayerType = PFD_MAIN_PLANE;
 
 		int nPixelFormat = ChoosePixelFormat(_hDC, &pfd);
@@ -295,6 +293,16 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		result = FALSE;
 		_cleanup();
 	}
+
+
+	//
+	// disable vsync
+	//
+	typedef BOOL (APIENTRY * wglSwapIntervalEXT_Func)(int);
+	wglSwapIntervalEXT_Func wglSwapIntervalEXT =
+		wglSwapIntervalEXT_Func(wglGetProcAddress("wglSwapIntervalEXT"));
+	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0); // 1 - чтобы включить
+
 
 	return result;
 }
@@ -349,35 +357,31 @@ void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 {
 	if( _iaSize ) _flush();
 
-//	glMatrixMode(GL_PROJECTION);
-//			glOrtho(0, (GLdouble) (_rtViewport.right - _rtViewport.left),
-//				(GLdouble) (_rtViewport.bottom - _rtViewport.top), 0, -1, 1);
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef( (GLfloat) getViewportXsize()/2, (GLfloat) getViewportYsize()/2, 0 );
+	glTranslatef( (GLfloat) GetViewportWidth()/2, (GLfloat) GetViewportHeight()/2, 0 );
 	glRotatef(angle * 180.0f / PI, 0,0,1);
-	glTranslatef( -(GLfloat) getViewportXsize()/2, -(GLfloat) getViewportYsize()/2, 0 );
+	glTranslatef( -(GLfloat) GetViewportWidth()/2, -(GLfloat) GetViewportHeight()/2, 0 );
 	glScalef(scale, scale, 1);
 	glTranslatef( -x, -y, 0 );
 }
 
-int RenderOpenGL::getXsize() const
+int RenderOpenGL::GetWidth() const
 {
 	return _sizeWindow.cx;
 }
 
-int RenderOpenGL::getYsize() const
+int RenderOpenGL::GetHeight() const
 {
 	return _sizeWindow.cy;
 }
 
-int RenderOpenGL::getViewportXsize() const
+int RenderOpenGL::GetViewportWidth() const
 {
 	return _rtViewport.right - _rtViewport.left;
 }
 
-int RenderOpenGL::getViewportYsize() const
+int RenderOpenGL::GetViewportHeight() const
 {
 	return _rtViewport.bottom - _rtViewport.top;
 }
@@ -396,7 +400,7 @@ void RenderOpenGL::End()
 	SwapBuffers(_hDC);
 }
 
-void RenderOpenGL::setMode(const RENDER_MODE mode)
+void RenderOpenGL::SetMode(const RenderMode mode)
 {
 	if( _iaSize ) _flush();
 

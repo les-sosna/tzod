@@ -70,7 +70,11 @@ void Console::OnRawChar(int c)
 	case VK_RETURN:
 	{
 		const string_t &cmd = _input->GetText();
-		if( !cmd.empty() )
+		if( cmd.empty() )
+		{
+			g_console->printf(">\n");
+		}
+		else
 		{
 			_scrollBack = 0;
 

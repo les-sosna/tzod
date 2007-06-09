@@ -19,8 +19,6 @@
 
 #include "fs/SaveFile.h"
 
-#include "Options.h"
-
 ///////////////////////////////////////////////////////////////////////////////
 
 GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
@@ -344,8 +342,8 @@ void GC_Weap_RocketLauncher::Fire()
 	{
 		if( _time >= _time_shot )
 		{
-			float dang = net_frand(0.1f) - 0.05f;
-			float dy = (((float)(net_rand()%(_nshots_total+1)) - 0.5f) /
+			float dang = g_level->net_frand(0.1f) - 0.05f;
+			float dy = (((float)(g_level->net_rand()%(_nshots_total+1)) - 0.5f) /
 				(float)_nshots_total - 0.5f) * 18.0f;
 			_fePos.Set(13, dy);
 
@@ -371,7 +369,7 @@ void GC_Weap_RocketLauncher::Fire()
 			{
 				_nshots++;
 
-				float dang = net_frand(0.1f) - 0.05f;
+				float dang = g_level->net_frand(0.1f) - 0.05f;
 				float dy = (((float)_nshots - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
 				_fePos.Set(13, dy);
 
@@ -561,7 +559,7 @@ void GC_Weap_AutoCannon::Fire()
 			{
 				_nshots++;
 
-				float dang = net_frand(0.02f) - 0.01f;
+				float dang = g_level->net_frand(0.02f) - 0.01f;
 				float dy = _nshots%2 == 0 ? -9.0f : 9.0f;
 
 				if( _nshots == _nshots_total )
@@ -692,7 +690,7 @@ void GC_Weap_Cannon::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_TankBullet(_pos + a * 17.0f, a * SPEED_TANKBULLET + net_vrand(50),
+		new GC_TankBullet(_pos + a * 17.0f, a * SPEED_TANKBULLET + g_level->net_vrand(50),
 			GetRawPtr(_proprietor), _advanced );
 
 		if( !_advanced )
@@ -786,7 +784,7 @@ void GC_Weap_Plazma::Fire()
 		vec2d a(_proprietor->_angle + _angle);
 
 		new GC_PlazmaClod(_pos + a * 15.0f,
-			a * SPEED_PLAZMA + net_vrand(20), GetRawPtr(_proprietor), _advanced );
+			a * SPEED_PLAZMA + g_level->net_vrand(20), GetRawPtr(_proprietor), _advanced );
 
 		_time = 0;
 
@@ -1290,7 +1288,7 @@ void GC_Weap_Ripper::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_Disk(_pos - a * 9.0f, a * SPEED_DISK + net_vrand(10),
+		new GC_Disk(_pos - a * 9.0f, a * SPEED_DISK + g_level->net_vrand(10),
 			GetRawPtr(_proprietor), _advanced );
 		PLAY(SND_DiskFire, _pos);
 
@@ -1458,19 +1456,19 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 				float da = _time_fire * 0.07f / WEAP_MG_TIME_RELAX;
 
-				vec2d a(_proprietor->_angle + _angle + net_frand(da * 2.0f) - da);
-				a *= (1 - net_frand(0.2f));
+				vec2d a(_proprietor->_angle + _angle + g_level->net_frand(da * 2.0f) - da);
+				a *= (1 - g_level->net_frand(0.2f));
 
 				new GC_Bullet(_proprietor->_pos + a * 18.0f, a * SPEED_BULLET,
 					GetRawPtr(_proprietor), _advanced );
 
 				if( !_advanced )
 				{
-					if( net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _time_fire - WEAP_MG_TIME_RELAX * 0.2f )
+					if( g_level->net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _time_fire - WEAP_MG_TIME_RELAX * 0.2f )
 					{
 					//	_proprietor->_rotator.impulse(net_frand(4.0f) - 2.0f);
 						float m = _proprietor->_inv_i;
-						_proprietor->ApplyTorque(m * (net_frand(1.0f) - 0.5f));
+						_proprietor->ApplyTorque(m * (g_level->net_frand(1.0f) - 0.5f));
 					}
 				}
 			}

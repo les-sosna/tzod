@@ -81,7 +81,7 @@ class RenderDirect3D : public IRender
 	size_t    _vaSize;      // number of filled elements in _VertexArray
 	size_t    _iaSize;      // number of filled elements in _IndexArray
 
-	RENDER_MODE  _mode;
+	RenderMode  _mode;
 
 
 public:
@@ -105,15 +105,15 @@ private:
 	virtual void SetViewport(const RECT *rect);
 	virtual void Camera(float x, float y, float scale, float angle);
 
-	virtual int  getXsize() const;
-    virtual int  getYsize() const;
+	virtual int  GetWidth() const;
+    virtual int  GetHeight() const;
 
-    virtual int  getViewportXsize() const;
-    virtual int  getViewportYsize() const;
+    virtual int  GetViewportWidth() const;
+    virtual int  GetViewportHeight() const;
 
 	virtual void Begin(void);
 	virtual void End(void);
-	virtual void setMode (const RENDER_MODE mode);
+	virtual void SetMode (const RenderMode mode);
 
 	virtual bool TakeScreenshot(TCHAR *fileName);
 	virtual void SetAmbient(float ambient);
@@ -407,11 +407,11 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 	D3DXMATRIX m;
 
 //                                 l                  r                   b                   t
-	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) getViewportXsize(), (float) getViewportYsize(), 0, 1, -1);
+	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) GetViewportWidth(), (float) GetViewportHeight(), 0, 1, -1);
 
 /*	float l  =  0;
-	float r  =  (float) getViewportXsize();
-	float b  =  (float) getViewportYsize();
+	float r  =  (float) GetViewportWidth();
+	float b  =  (float) GetViewportHeight();
 	float t  =  0;
 	float zn =  1;
 	float zf = -1;
@@ -432,22 +432,22 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 
 }
 
-int RenderDirect3D::getXsize() const
+int RenderDirect3D::GetWidth() const
 {
 	return _sizeWindow.cx;
 }
 
-int RenderDirect3D::getYsize() const
+int RenderDirect3D::GetHeight() const
 {
 	return _sizeWindow.cy;
 }
 
-int RenderDirect3D::getViewportXsize() const
+int RenderDirect3D::GetViewportWidth() const
 {
 	return _rtViewport.right - _rtViewport.left;
 }
 
-int RenderDirect3D::getViewportYsize() const
+int RenderDirect3D::GetViewportHeight() const
 {
 	return _rtViewport.bottom - _rtViewport.top;
 }
@@ -470,7 +470,7 @@ void RenderDirect3D::End()
 	V(_pd3dDevice->Present(NULL, NULL, NULL, NULL));
 }
 
-void RenderDirect3D::setMode(const RENDER_MODE mode)
+void RenderDirect3D::SetMode(const RenderMode mode)
 {
 	if( _iaSize ) _flush();
 

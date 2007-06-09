@@ -12,6 +12,8 @@
 #include "core/Console.h"
 #include "core/debug.h"
 
+#include "video/TextureManager.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // c closures
@@ -184,7 +186,7 @@ static int get_array(lua_State *L, float *array, int count)
 	{
 		lua_pushinteger(L, i+1); // push key
 		lua_gettable(L, -2);     // pop key, push value
-        if( !lua_isnumber(L, -1) )
+		if( !lua_isnumber(L, -1) )
 		{
 			return luaL_error(L, "number expected in array");
 		}
@@ -325,16 +327,14 @@ int luaT_ConvertVehicleClass(lua_State *L)
 
 //
 // SYNOPSIS:
-//  addplayer{
-//      name = <string>,
+//  addbot{
+//      nick = <string>,
 //      team = <number>,
 //      skin = <string>,
 //      cls  = <string> }
 //
 static int luaT_addbot(lua_State *L)
 {
-	PlayerDesc pd = {0};
-
 	if( !g_level )
 		return luaL_error(L, "no map loaded");
 
@@ -348,62 +348,79 @@ static int luaT_addbot(lua_State *L)
 	}
 	luaL_checktype(L, 1, LUA_TTABLE);
 
-	//-------------
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
 
-	lua_getfield(L, 1, "name");
+
+	//
+	// add bot
+	//
+
+	GC_PlayerAI *player = new GC_PlayerAI();
+
+	//--------------------
+
+	lua_getfield(L, 1, "nick");
 	if( lua_isstring(L, -1) )
 	{
-		safe_tostr(L, pd.nick, MAX_PLRNAME);
+		player->SetNick(lua_tostring(L, -1));
 	}
 	else
 	{
-        lua_getglobal(L, "random_names");
+		// select name from the random_names table
+        lua_getglobal(L, "random_names");                    // push table
 		lua_pushinteger(L, rand() % lua_objlen(L, -1) + 1);  // push key
 		lua_gettable(L, -2);                                 // pop key, push value
-		safe_tostr(L, pd.nick, MAX_PLRNAME);                 // get value
+		player->SetNick(lua_tostring(L, -1));                // get value
 		lua_pop(L, 2);                                       // pop value and table
 	}
 	lua_pop(L, 1); // pop result of lua_getfield
 
 	//-------------
 
-	lua_getfield(L, 1, "cls");
-	safe_tostr(L, pd.cls, MAX_VEHCLSNAME);   // get vehicle class
-	lua_pop(L, 1);                           // pop result of lua_getfield
-
-    lua_getglobal(L, "classes");
-	lua_getfield(L, -1, pd.cls);
-	if( lua_isnil(L, -1) )
+	lua_getfield(L, 1, "class");
+	if( lua_isstring(L, -1) )
 	{
-		luaL_error(L, "vehicle class '%s' doesn't exist", pd.cls);
+		player->SetClass(lua_tostring(L, -1));  // get vehicle class
 	}
-	lua_pop(L, 2); // pop result of lua_getglobal and lua_getfield
+	else
+	{
+		// select random class
+		int count = 0;
+		lua_getglobal(L, "classes");
+		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+		{
+			if( 0 == rand() % ++count )
+			{
+				player->SetClass(lua_tostring(L, -2));  // get vehicle class
+			}
+		}
+	}
+	lua_pop(L, 1);                           // pop result of lua_getfield
 
 	//-------------
 
 	lua_getfield(L, 1, "skin");
-	safe_tostr(L, pd.skin, MAX_PATH);   // get skin name
+	if( lua_isstring(L, -1) )
+	{
+		player->SetSkin(lua_tostring(L, -1));  // get skin name
+	}
+	else
+	{
+		// select random skin
+		std::vector<string_t> skins;
+		g_texman->GetTextureNames(skins, "skin/", true);
+		player->SetSkin(skins[rand() % skins.size()]);
+	}
 	lua_pop(L, 1);                      // pop result of lua_getfield
 
     //-------------
 
 	lua_getfield(L, 1, "team");
-	pd.team = lua_tointeger(L, -1);
+	player->SetTeam(lua_tointeger(L, -1));
 	lua_pop(L, 1); // pop result of lua_getfield
-
-	//-------------
-
-	// add bot
-	GC_PlayerAI *player = new GC_PlayerAI();
-	player->SetSkin(pd.skin);
-	player->SetNick(pd.nick);
-	player->SetClass(pd.cls);
-	
-//	player->SetController(pd.type);
-//	player->_nick  = pd.nick;
-//	player->_skin  = pd.skin;
-//	player->_class = pd.cls;
-//	player->_team  = pd.team;
 
 	return 0;
 }
