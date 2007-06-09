@@ -137,10 +137,10 @@ static void RenderFrame(bool thumbnail)
 				FOREACH( lights, GC_Light, pLight )
 				{
 					_ASSERT(!pLight->IsKilled());
-					if( pLight->_pos.x + pLight->GetRenderRadius() > xmin &&
-						pLight->_pos.x - pLight->GetRenderRadius() < xmax &&
-						pLight->_pos.y + pLight->GetRenderRadius() > ymin &&
-						pLight->_pos.y - pLight->GetRenderRadius() < ymax )
+					if( pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
+						pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
+						pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
+						pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 					{
 						pLight->Shine();
 					}

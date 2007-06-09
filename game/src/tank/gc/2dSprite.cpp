@@ -32,7 +32,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 	return true;
 }
 
-GC_2dSprite::GC_2dSprite() : GC_Object()
+GC_2dSprite::GC_2dSprite() : GC_Actor()
 {
 	_zOrderPrefered = Z_NONE;
 	_zOrderCurrent  = Z_NONE;
@@ -49,7 +49,7 @@ GC_2dSprite::GC_2dSprite() : GC_Object()
 	SetPivot(0,0);
 }
 
-GC_2dSprite::GC_2dSprite(FromFile) : GC_Object(FromFile())
+GC_2dSprite::GC_2dSprite(FromFile) : GC_Actor(FromFile())
 {
 }
 
@@ -60,7 +60,7 @@ GC_2dSprite::~GC_2dSprite()
 
 void GC_2dSprite::Serialize(SaveFile &f)
 {	/////////////////////////////////////
-	GC_Object::Serialize(f);
+	GC_Actor::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_color);
 	f.Serialize(_frameRect);
@@ -84,7 +84,7 @@ int GC_2dSprite::GetFrameCount() const
 
 void GC_2dSprite::MoveTo(const vec2d &pos)
 {
-	GC_Object::MoveTo(pos);
+	GC_Actor::MoveTo(pos);
 }
 
 void GC_2dSprite::SetTexture(const char *name)
@@ -282,7 +282,7 @@ void GC_2dSprite::CenterPivot()
 void GC_2dSprite::Kill()
 {
 	Show(false);
-	GC_Object::Kill();
+	GC_Actor::Kill();
 }
 
 void GC_2dSprite::Draw()
@@ -298,8 +298,8 @@ void GC_2dSprite::Draw()
 	{
 		tmp_color.dwColor = 0x00000000;
 		tmp_color.a = _color.a >> 3;
-		px = _pos.x + 4;
-		py = _pos.y + 4;
+		px = GetPos().x + 4;
+		py = GetPos().y + 4;
 		i  = 0;
 	}
 
@@ -309,8 +309,8 @@ void GC_2dSprite::Draw()
 
 		if( i )
 		{
-			px = _pos.x;
-			py = _pos.y;
+			px = GetPos().x;
+			py = GetPos().y;
 			tmp_color = _color;
 		}
 

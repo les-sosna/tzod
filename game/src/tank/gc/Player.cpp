@@ -29,7 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 }
 
 GC_Player::GC_Player()
-  : GC_Object(), _memberOf(g_level->players, this)
+  : GC_Service(), _memberOf(g_level->players, this)
 {
 	_time_respawn = PLAYER_RESPAWNTIME;
 
@@ -41,7 +41,7 @@ GC_Player::GC_Player()
 }
 
 GC_Player::GC_Player(FromFile)
-  : GC_Object(FromFile()), _memberOf(g_level->players, this)
+  : GC_Service(FromFile()), _memberOf(g_level->players, this)
 {
 }
 
@@ -51,7 +51,7 @@ GC_Player::~GC_Player()
 
 void GC_Player::Serialize(SaveFile &f)
 {	/////////////////////////////////////
-	GC_Object::Serialize(f);
+	GC_Service::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_nick);
 	f.Serialize(_skin);
@@ -68,7 +68,7 @@ void GC_Player::Kill()
 {
 	if( _vehicle )
 		_vehicle->Kill();	// объект будет освобожден в OnVehicleKill()
-	GC_Object::Kill();
+	GC_Service::Kill();
 }
 
 void GC_Player::SetSkin(const string_t &skin)
@@ -149,7 +149,7 @@ void GC_Player::OnDie()
 
 void GC_Player::TimeStepFixed(float dt)
 {
-	GC_Object::TimeStepFixed( dt );
+	GC_Service::TimeStepFixed( dt );
 
 	if( IsDead() )
 	{
@@ -179,7 +179,7 @@ void GC_Player::TimeStepFixed(float dt)
 				FOREACH( vehicles, GC_Vehicle, pVeh )
 				{
 					if( pVeh->IsKilled() ) continue;
-					float d = (pVeh->_pos - pSpawnPoint->_pos).Square();
+					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).Square();
 					if( d < dist || dist < 0 ) dist = d;
 				}
 
@@ -211,7 +211,7 @@ void GC_Player::TimeStepFixed(float dt)
 				pBestPoint = points[g_level->net_rand() % points.size()];
 			}
 
-			new GC_Text_ToolTip(pBestPoint->_pos, _nick.c_str(), "font_default");
+			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick.c_str(), "font_default");
 
 
 			//if( !dynamic_cast<AIController*>(_controller) )
@@ -220,11 +220,11 @@ void GC_Player::TimeStepFixed(float dt)
 			//	for( int n = 0; n < 64; ++n )
 			//	{
 			//		vec2d a(PI2 * (float) n / 64);
-			//		new GC_Particle(pBestPoint->_pos + a * 28, a * 28, tex1, frand(0.5f) + 0.1f);
+			//		new GC_Particle(pBestPoint->GetPos() + a * 28, a * 28, tex1, frand(0.5f) + 0.1f);
 			//	}
 			//}
 
-			_vehicle = new GC_Tank_Light(pBestPoint->_pos, pBestPoint->GetRotation(), this);
+			_vehicle = new GC_Tank_Light(pBestPoint->GetPos(), pBestPoint->GetRotation(), this);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
 				(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
 			ResetClass();
@@ -292,11 +292,7 @@ void GC_PlayerLocal::SetController(int nIndex)
 
 	PulseNotify(NOTIFY_PLAYER_SETCONTROLLER);
 
-//	if( !g_options.players[_nIndex].bAI && (!g_level->_client ||
-//		_networkId == g_level->_client->GetId()) )
-//	{
-		new GC_Camera(this);
-//	}
+	new GC_Camera(this);
 }
 
 void GC_PlayerLocal::Kill()
@@ -380,7 +376,7 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
-	GC_Object::TimeStepFixed( dt );
+	GC_Player::TimeStepFixed( dt );
 	
 	_ASSERT(g_level->_client);
 

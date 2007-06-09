@@ -5,13 +5,14 @@
 #include "Controller.h"
 #include "core/Rotator.h"
 
+#include "Service.h"
 #include "2dSprite.h"
 #include "Light.h"
 
 ////////////////////////////////////////////////////////////
 // winamp controller
 
-class GC_Winamp : public GC_Object
+class GC_Winamp : public GC_Service
 {
 	DECLARE_SELF_REGISTRATION(GC_Winamp);
 
@@ -41,7 +42,7 @@ private:
 
 public:
 	GC_Winamp();
-	GC_Winamp(FromFile) : GC_Object(FromFile()) {};
+	GC_Winamp(FromFile) : GC_Service(FromFile()) {};
 	void FindWinamp();
 	virtual void EndFrame();
 };
@@ -135,9 +136,7 @@ public:
 
 	void Boom(float radius, float damage);
 
-	//////////////////////////////////////
-	// GC_Object overrides
-
+	// overrides
 	virtual void Kill();
 	virtual bool IsSaved() { return true; };
 	virtual void Serialize(SaveFile &f);

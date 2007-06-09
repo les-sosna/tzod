@@ -757,6 +757,16 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	}
 }
 
+void Level::LocationFromPoint(const vec2d &pt, Location &l)
+{
+	int x = __max(0, int((pt.x + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
+	int y = __max(0, int((pt.y + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
+
+	l.level = (x & 1) + ((y & 1) << 1);
+	l.x = __min(_locations_x - 1, x >> 1);
+	l.y = __min(_locations_y - 1, y >> 1);
+}
+
 GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	                                 GC_RigidBodyStatic* pIgnore,
 	                                 const vec2d &x0,      // координаты начала

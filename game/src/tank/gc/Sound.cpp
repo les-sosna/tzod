@@ -25,7 +25,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 }
 
 GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
-  : GC_Object(), _memberOf(g_level->sounds, this)
+  : GC_Actor(), _memberOf(g_level->sounds, this)
 {
 #ifndef NOSOUND
 	if( !g_pSoundManager )
@@ -62,7 +62,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 }
 
 GC_Sound::GC_Sound(FromFile)
-  : GC_Object(FromFile()), _memberOf(g_level->sounds, this)
+  : GC_Actor(FromFile()), _memberOf(g_level->sounds, this)
 {
 	_soundBuffer = NULL;
 }
@@ -86,7 +86,7 @@ void GC_Sound::Kill()
 	}
 #endif
 
-	GC_Object::Kill();
+	GC_Actor::Kill();
 }
 
 void GC_Sound::SetMode(enumSoundMode mode)
@@ -233,7 +233,7 @@ void GC_Sound::SetSpeed(float speed)
 
 void GC_Sound::MoveTo(const vec2d &pos)
 {
-	GC_Object::MoveTo(pos);
+	GC_Actor::MoveTo(pos);
 #if !defined NOSOUND
 	if( !g_pSoundManager ) return;
 	_soundBuffer->SetPan(int(pos.x) - g_env.camera_x - g_render->GetWidth() / 2);
@@ -242,7 +242,7 @@ void GC_Sound::MoveTo(const vec2d &pos)
 
 void GC_Sound::Serialize(SaveFile &f)
 {
-	GC_Object::Serialize(f);
+	GC_Actor::Serialize(f);
 
 #if !defined NOSOUND
 	_ASSERT(f.loading() || _freezed);  // freeze it before saving!
@@ -263,7 +263,7 @@ void GC_Sound::Serialize(SaveFile &f)
 		_soundBuffer->SetCurrentPosition( _dwPosition );
 		_soundBuffer->SetFrequency(_dwCurrentFrequency);
 
-		MoveTo(_pos);	// update pan
+		MoveTo(GetPos());	// update pan
 		UpdateVolume();
 
 		switch (_mode)
@@ -332,8 +332,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
-GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Object *object)
-: GC_Sound(sound, mode, object->_pos)
+GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
+   : GC_Sound(sound, mode, object->GetPos())
 {
 	_object = object;
 	///////////////////////
@@ -366,7 +366,7 @@ void GC_Sound_link::TimeStepFixed(float dt)
 	if( _object->IsKilled() )
 		Kill();
 	else
-		MoveTo(_object->_pos);
+		MoveTo(_object->GetPos());
 
 	GC_Sound::TimeStepFixed(dt);
 }

@@ -19,7 +19,7 @@ class GC_UserSprite;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Light : public GC_Object
+class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
 	MemberOfGlobalList _memberOf;
@@ -128,6 +128,8 @@ class GC_Spotlight : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
 	SafePtr<GC_Light> _light;
 
+	virtual SafePtr<PropertySet> GetProperties();
+
 public:
 	GC_Spotlight(float x, float y);
 	GC_Spotlight(FromFile);
@@ -141,7 +143,6 @@ public:
 
 	virtual void EditorAction();
 	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<PropertySet> GetProperties();
 };
 
 

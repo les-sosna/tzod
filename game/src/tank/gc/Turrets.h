@@ -15,26 +15,24 @@ class GC_Vehicle;
 
 class GC_Turret : public GC_RigidBodyStatic
 {
-protected:
-	static JobManager<GC_Turret> _jobManager;
-
 	class MyPropertySet : public PropertySet
 	{
 		typedef PropertySet BASE;
-
 		ObjectProperty _propTeam;
 		ObjectProperty _propHealth;
 		ObjectProperty _propMaxHealth;
 		ObjectProperty _propSight;
-
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool bApply);
 	};
+	virtual SafePtr<PropertySet> GetProperties();
 
 protected:
+	static JobManager<GC_Turret> _jobManager;
+
 	SafePtr<GC_Sound>       _rotateSound;
 	SafePtr<GC_Vehicle>     _target;
 	SafePtr<GC_UserSprite>  _weaponSprite;
@@ -61,6 +59,11 @@ public:
 
 protected:
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake) = 0;
+	virtual void Fire() = 0;
+
+	// editor functions
+	virtual void EditorAction();
+	virtual void mapExchange(MapFile &f);
 
 public:
 	GC_Turret(float x, float y);
@@ -76,34 +79,26 @@ public:
 
 	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 
-	virtual void Fire() = 0;
-
 	virtual void MoveTo(const vec2d &pos);
 	virtual void OnDestroy();
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Draw();
-
-	////////////////////////////////////////////
-	// editor functions
-	virtual void EditorAction();
-	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<PropertySet> GetProperties();
 };
 
 /////////////////////////////////////////////////////////////
 
-class GC_Turret_Rocket : public GC_Turret
+class GC_TurretRocket : public GC_Turret
 {
-	DECLARE_SELF_REGISTRATION(GC_Turret_Rocket);
+	DECLARE_SELF_REGISTRATION(GC_TurretRocket);
 
 private:
 	float _time_reload;
 
 public:
-	GC_Turret_Rocket(float x, float y);
-	GC_Turret_Rocket(FromFile);
+	GC_TurretRocket(float x, float y);
+	GC_TurretRocket(FromFile);
 
 	virtual float GetDefaultHealth() const { return 500; }
 	virtual void Serialize(SaveFile &f);
@@ -118,9 +113,9 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Turret_Cannon : public GC_Turret
+class GC_TurretCannon : public GC_Turret
 {
-	DECLARE_SELF_REGISTRATION(GC_Turret_Cannon);
+	DECLARE_SELF_REGISTRATION(GC_TurretCannon);
 
 private:
 	float _time_reload;
@@ -128,9 +123,9 @@ private:
 	float _time_smoke_dt;
 
 public:
-	GC_Turret_Cannon(float x, float y);
-	GC_Turret_Cannon(FromFile);
-	~GC_Turret_Cannon();
+	GC_TurretCannon(float x, float y);
+	GC_TurretCannon(FromFile);
+	~GC_TurretCannon();
 
 	virtual float GetDefaultHealth() const { return 600; }
 	virtual void Serialize(SaveFile &f);
@@ -145,7 +140,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Turret_Bunker : public GC_Turret
+class GC_TurretBunker : public GC_Turret
 {
 private:
 	float	_time;
@@ -168,9 +163,9 @@ public:
 	float	_time_wake_max;
 
 public:
-	GC_Turret_Bunker(float x, float y);
-	GC_Turret_Bunker(FromFile);
-	virtual ~GC_Turret_Bunker();
+	GC_TurretBunker(float x, float y);
+	GC_TurretBunker(FromFile);
+	virtual ~GC_TurretBunker();
 
 	virtual void Serialize(SaveFile &f);
 
@@ -183,9 +178,9 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Turret_Minigun : public GC_Turret_Bunker
+class GC_TurretMinigun : public GC_TurretBunker
 {
-	DECLARE_SELF_REGISTRATION(GC_Turret_Minigun);
+	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);
 
 private:
 	SafePtr<GC_Sound> _fireSound;
@@ -193,9 +188,9 @@ private:
 	bool	_firing;
 
 public:
-	GC_Turret_Minigun(float x, float y);
-	GC_Turret_Minigun(FromFile);
-	virtual ~GC_Turret_Minigun();
+	GC_TurretMinigun(float x, float y);
+	GC_TurretMinigun(FromFile);
+	virtual ~GC_TurretMinigun();
 	virtual void Kill();
 
 	virtual float GetDefaultHealth() const { return 250; }
@@ -211,9 +206,9 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Turret_Gauss : public GC_Turret_Bunker
+class GC_TurretGauss : public GC_TurretBunker
 {
-	DECLARE_SELF_REGISTRATION(GC_Turret_Gauss);
+	DECLARE_SELF_REGISTRATION(GC_TurretGauss);
 
 private:
 	float	_time;
@@ -224,9 +219,9 @@ protected:
 	virtual void SetWaking(); // выбор "спрятаной" текстуры
 
 public:
-	GC_Turret_Gauss(float x, float y);
-	GC_Turret_Gauss(FromFile);
-	virtual ~GC_Turret_Gauss();
+	GC_TurretGauss(float x, float y);
+	GC_TurretGauss(FromFile);
+	virtual ~GC_TurretGauss();
 
 	virtual void TargetLost();
 
@@ -241,5 +236,5 @@ public:
 	virtual void TimeStepFixed(float dt);
 };
 
-
+///////////////////////////////////////////////////////////////////////////////
 // end of file

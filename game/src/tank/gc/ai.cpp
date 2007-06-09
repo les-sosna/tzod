@@ -145,8 +145,8 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		RefFieldCell, std::vector<RefFieldCell>, std::greater<RefFieldCell>
 	> open;
 
-	int start_x = GRID_ALIGN(int(GetVehicle()->_pos.x), CELL_SIZE);
-	int start_y = GRID_ALIGN(int(GetVehicle()->_pos.y), CELL_SIZE);
+	int start_x = GRID_ALIGN(int(GetVehicle()->GetPos().x), CELL_SIZE);
+	int start_y = GRID_ALIGN(int(GetVehicle()->GetPos().y), CELL_SIZE);
 	int end_x = GRID_ALIGN(int(dst_x), CELL_SIZE);
 	int end_y = GRID_ALIGN(int(dst_y), CELL_SIZE);
 
@@ -264,7 +264,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 					_ASSERT(GetVehicle()->GetWeapon());
 					_ASSERT(cell->Properties() > 0);
 
-					GC_Object *object = cell->GetObject(i);
+					GC_Actor *object = cell->GetObject(i);
 
 					//
 					// этот блок запрещает мочить свои стационарки.
@@ -376,7 +376,7 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 	_ASSERT(_finite(x.x) && _finite(x.y));
 	_ASSERT(x.x > 0 && x.y > 0);
 
-	float ang2 = (x - GetVehicle()->_pos).Angle();
+	float ang2 = (x - GetVehicle()->GetPos()).Angle();
 	float ang1 = GetVehicle()->_angle;
 
 	float d1 = fabsf(ang2-ang1);
@@ -397,7 +397,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire)
 	_ASSERT(GetVehicle());
 	_ASSERT(GetVehicle()->GetWeapon());
 
-	float ang2 = (x - GetVehicle()->_pos).Angle() + _current_offset;
+	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _current_offset;
 	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angle;
 	if( ang1 > PI2 ) ang1 -= PI2;
 
@@ -456,12 +456,12 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info)
 	{
 		if( !object->IsKilled() && object != GetVehicle() )
 		{
-			if( (GetVehicle()->_pos - object->_pos).Square() <
+			if( (GetVehicle()->GetPos() - object->GetPos()).Square() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
 					g_level->agTrace(g_level->grid_rigid_s, GetVehicle(),
-					GetVehicle()->_pos, object->_pos - GetVehicle()->_pos) );
+					GetVehicle()->GetPos(), object->GetPos() - GetVehicle()->GetPos()) );
 
 				TargetDesc td;
 				td.target = object;
@@ -476,9 +476,9 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info)
 	{
 		float l;
 		if( targets[i].bIsVisible )
-			l = (targets[i].target->_pos - GetVehicle()->_pos).Length() / CELL_SIZE;
+			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).Length() / CELL_SIZE;
 		else
-			l = CreatePath(targets[i].target->_pos.x, targets[i].target->_pos.y, AI_MAX_DEPTH, true);
+			l = CreatePath(targets[i].target->GetPos().x, targets[i].target->GetPos().y, AI_MAX_DEPTH, true);
 
         if( l >= 0 )
 		{
@@ -504,8 +504,8 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 
 	std::vector<OBJECT_LIST*> receive;
 	g_level->grid_pickup.OverlapCircle(receive,
-		GetVehicle()->_pos.x / LOCATION_SIZE,
-		GetVehicle()->_pos.y / LOCATION_SIZE,
+		GetVehicle()->GetPos().x / LOCATION_SIZE,
+		GetVehicle()->GetPos().y / LOCATION_SIZE,
 		AI_MAX_SIGHT * CELL_SIZE / LOCATION_SIZE );
 	for( size_t i = 0; i < receive.size(); ++i )
 	{
@@ -515,7 +515,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 			GC_PickUp *pItem = (GC_PickUp *) *it;
 			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) continue;
 
-			if( (GetVehicle()->_pos - pItem->_pos).Square() <
+			if( (GetVehicle()->GetPos() - pItem->GetPos()).Square() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				applicants.push_back(pItem);
@@ -539,7 +539,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 			_ASSERT(!items[i]->IsKilled());
 			_ASSERT(items[i]->IsVisible());
 			if( items[i]->_attached ) continue;
-			float l = CreatePath(items[i]->_pos.x, items[i]->_pos.y, AI_MAX_DEPTH, true);
+			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true);
 			if( l >= 0 )
 			{
 				AIPRIORITY p = items[i]->CheckUseful(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
@@ -577,21 +577,21 @@ void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 
 	float cg = cosf(gamma), sg = sinf(gamma);
 
-	float x = (target->_pos.x - GetVehicle()->_pos.x) * cg +
-			  (target->_pos.y - GetVehicle()->_pos.y) * sg;
-	float y = (target->_pos.y - GetVehicle()->_pos.y) * cg -
-			  (target->_pos.x - GetVehicle()->_pos.x) * sg;
+	float x = (target->GetPos().x - GetVehicle()->GetPos().x) * cg +
+			  (target->GetPos().y - GetVehicle()->GetPos().y) * sg;
+	float y = (target->GetPos().y - GetVehicle()->GetPos().y) * cg -
+			  (target->GetPos().x - GetVehicle()->GetPos().x) * sg;
 
 	float fx = x + Vt * (x * Vt + sqrtf(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
 
 	if( _isnan(fx) || !_finite(fx) )
 	{
-		fake = GetVehicle()->_pos;
+		fake = GetVehicle()->GetPos();
 	}
 	else
 	{
-		fake.x = GetVehicle()->_pos.x + fx*cg - y*sg;
-		fake.y = GetVehicle()->_pos.y + fx*sg + y*cg;
+		fake.x = GetVehicle()->GetPos().x + fx*cg - y*sg;
+		fake.y = GetVehicle()->GetPos().y + fx*sg + y*cg;
 		fake.x = __max(0, __min(g_level->_sx, fake.x));
 		fake.y = __max(0, __min(g_level->_sy, fake.y));
 	}
@@ -663,7 +663,7 @@ void GC_PlayerAI::ProcessAction()
 
 		if( ii_target.priority > ii_item.priority )
 		{
-			if( CreatePath(_target->_pos.x, _target->_pos.y, AI_MAX_DEPTH, false) > 0 )
+			if( CreatePath(_target->GetPos().x, _target->GetPos().y, AI_MAX_DEPTH, false) > 0 )
 				SmoothPath();
 			_pickupCurrent = NULL;
 			SetL2(L2_ATTACK);
@@ -674,7 +674,7 @@ void GC_PlayerAI::ProcessAction()
 			_ASSERT(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->_pos.x, ii_item.object->_pos.y, AI_MAX_DEPTH, false) > 0 )
+				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, AI_MAX_DEPTH, false) > 0 )
 					SmoothPath();
 				_pickupCurrent = (GC_PickUp *) ii_item.object;
 			}
@@ -691,7 +691,7 @@ void GC_PlayerAI::ProcessAction()
 			_ASSERT(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->_pos.x, ii_item.object->_pos.y, AI_MAX_DEPTH, false) > 0 )
+				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, AI_MAX_DEPTH, false) > 0 )
 					SmoothPath();
 				_pickupCurrent = (GC_PickUp *) ii_item.object;
 			}
@@ -730,7 +730,7 @@ void GC_PlayerAI::SelectState()
 		_ASSERT(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = GetVehicle()->_pos + g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
+			vec2d t = GetVehicle()->GetPos() + g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
 			float x = __min(__max(0, t.x), g_level->_sx);
 			float y = __min(__max(0, t.y), g_level->_sy);
 
@@ -761,7 +761,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
 			_pickupCurrent->getRadius() : 50.0f) : (float) CELL_SIZE / 2;
-		float current = (GetVehicle()->_pos - _path.front().coord).Length();
+		float current = (GetVehicle()->GetPos() - _path.front().coord).Length();
 		if( current > desired )
 		{
 			break;
@@ -784,18 +784,18 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	{
 		_ASSERT(GetVehicle()->GetWeapon());
 
-		vec2d fake = _target->_pos;
+		vec2d fake = _target->GetPos();
 		GC_Vehicle *enemy = dynamic_cast<GC_Vehicle *>(GetRawPtr(_target));
 		if( _weapSettings.bNeedOutstrip && _accuracy > 1 && enemy )
 		{
 			CalcOutstrip(enemy, _weapSettings.fProjectileSpeed, fake);
 		}
 
-		float len = (_target->_pos - GetVehicle()->_pos).Length();
+		float len = (_target->GetPos() - GetVehicle()->GetPos()).Length();
 		if( len < _weapSettings.fAttackRadius_min )
-			RotateTo(pVehState, _target->_pos, false, true);
+			RotateTo(pVehState, _target->GetPos(), false, true);
 		else
-			RotateTo(pVehState, _path.empty() ? _target->_pos : _path.front().coord,
+			RotateTo(pVehState, _path.empty() ? _target->GetPos() : _path.front().coord,
 				len > _weapSettings.fAttackRadius_max, false);
 
 		TowerTo(pVehState, fake, len > _weapSettings.fAttackRadius_crit);
@@ -809,10 +809,10 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 		_ASSERT(GetVehicle()->GetWeapon());
 		GC_RigidBodyStatic *target = GetRawPtr(_attackList.front());
 
-		float len = (target->_pos - GetVehicle()->_pos).Length();
-		TowerTo(pVehState, target->_pos,
+		float len = (target->GetPos() - GetVehicle()->GetPos()).Length();
+		TowerTo(pVehState, target->GetPos(),
 			len > _weapSettings.fAttackRadius_crit);
-		RotateTo(pVehState, _path.empty() ? target->_pos : _path.front().coord,
+		RotateTo(pVehState, _path.empty() ? target->GetPos() : _path.front().coord,
 			len > _weapSettings.fAttackRadius_max,
 			len < _weapSettings.fAttackRadius_min);
 	}
@@ -848,8 +848,8 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
-		g_level->grid_rigid_s, GetVehicle(), GetVehicle()->_pos,
-		target->_pos - GetVehicle()->_pos);
+		g_level->grid_rigid_s, GetVehicle(), GetVehicle()->GetPos(),
+		target->GetPos() - GetVehicle()->GetPos());
 
 	if( object && object != target )
 	{
@@ -923,7 +923,7 @@ void GC_PlayerAI::GetControl(VehicleState *pState, float dt)
 		{
 			_pickupCurrent = NULL;
 		}
-		else if( (_pickupCurrent->_pos - GetVehicle()->_pos).Square() <
+		else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).Square() <
 					_pickupCurrent->getRadius() * _pickupCurrent->getRadius() )
 		{
 			pState->_bState_AllowDrop = true;
@@ -1049,8 +1049,8 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 
 		if( _player->_vehicle )
 		{
-			MoveToEx(hdc, int(_target->_pos.x), int(_target->_pos.y), NULL);
-			LineTo(hdc, int(_player->_vehicle->_pos.x), int(_player->_vehicle->_pos.y));
+			MoveToEx(hdc, int(_target->GetPos().x), int(_target->GetPos().y), NULL);
+			LineTo(hdc, int(_player->_vehicle->GetPos().x), int(_player->_vehicle->GetPos().y));
 		}
 	}
 

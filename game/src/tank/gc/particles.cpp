@@ -57,7 +57,7 @@ void GC_Brick_Fragment_01::TimeStepFloat(float dt)
 	SetFrame(int((float)_StartFrame + (float)(GetFrameCount() - 1) *
 		_time / _time_life)%(GetFrameCount() - 1) );
 
-	MoveTo(	_pos + _velocity * dt );
+	MoveTo(	GetPos() + _velocity * dt );
 	_velocity += vec2d(0, 300.0f) * dt;
 }
 
@@ -133,7 +133,7 @@ void GC_Particle::TimeStepFloat(float dt)
 	if( _fade )
 		SetOpacity(1.0f - _time / _time_life);
 
-	MoveTo(	_pos + _velocity * dt );
+	MoveTo(	GetPos() + _velocity * dt );
 }
 
 void GC_Particle::SetFade(bool fade)

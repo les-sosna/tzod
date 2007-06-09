@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Service.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -12,7 +12,7 @@ class GC_Vehicle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Player : public GC_Object
+class GC_Player : public GC_Service
 {
 	DECLARE_SELF_REGISTRATION(GC_Player);
 	MemberOfGlobalList _memberOf;

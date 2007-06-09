@@ -37,7 +37,7 @@ void ScrollBar::SetPos(float pos)
 {
 	_pos = __max(0, __min(_limit, pos));
 	_btnBox->Move(0, _btnUp->GetHeight() + ( _btnDown->GetY()
-		- _btnBox->GetHeight() - _btnUp->GetHeight() ) * _pos / _limit);
+		- _btnBox->GetHeight() - _btnUp->GetHeight() ) * GetPos() / _limit);
 }
 
 float ScrollBar::GetPos() const

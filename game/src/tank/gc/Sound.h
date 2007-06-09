@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Actor.h"
 
 /////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ enum enumSoundMode
 	SMODE_WAIT,  // принудительная пауза.
 };
 
-class GC_Sound : public GC_Object
+class GC_Sound : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound);
 	MemberOfGlobalList _memberOf;
@@ -67,10 +67,10 @@ class GC_Sound_link : public GC_Sound
 	DECLARE_SELF_REGISTRATION(GC_Sound_link);
 
 protected:
-	SafePtr<GC_Object> _object;
+	SafePtr<GC_Actor> _object;
 
 public:
-	GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Object *object);
+	GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object);
 	GC_Sound_link(FromFile);
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);

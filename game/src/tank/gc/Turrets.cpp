@@ -39,7 +39,7 @@ GC_Turret::GC_Turret(float x, float y) : GC_RigidBodyStatic(), _rotator(_dir)
 	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = new GC_Sound(SND_TuretRotate, SMODE_STOP, _pos);
+	_rotateSound = new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos());
 	_weaponSprite = new GC_UserSprite();
 	_weaponSprite->SetShadow(true);
 
@@ -107,8 +107,8 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 		if( !pDamObj->IsKilled() )
 		{
-			dist =	(_pos.x - pDamObj->_pos.x)*(_pos.x - pDamObj->_pos.x) +
-					(_pos.y - pDamObj->_pos.y)*(_pos.y - pDamObj->_pos.y) ;
+			dist =	(GetPos().x - pDamObj->GetPos().x)*(GetPos().x - pDamObj->GetPos().x) +
+					(GetPos().y - pDamObj->GetPos().y)*(GetPos().y - pDamObj->GetPos().y) ;
 
 			if( dist < min_dist && IsTargetVisible(pDamObj, &pObstacle) )
 			{
@@ -126,7 +126,7 @@ void GC_Turret::SelectTarget(GC_Vehicle* target)
 	_jobManager.UnregisterMember(this);
 	_target = target;
 	_state   = TS_ATACKING;
-	PLAY(SND_TargetLock, _pos);
+	PLAY(SND_TargetLock, GetPos());
 }
 
 void GC_Turret::TargetLost()
@@ -139,7 +139,7 @@ void GC_Turret::TargetLost()
 bool GC_Turret::IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle)
 {
 	GC_RigidBodyStatic *object = g_level->agTrace(
-		g_level->grid_rigid_s, this, _pos, target->_pos - _pos);
+		g_level->grid_rigid_s, this, GetPos(), target->GetPos() - GetPos());
 
 	if( object != target )
 	{
@@ -161,7 +161,7 @@ void GC_Turret::MoveTo(const vec2d &pos)
 
 void GC_Turret::OnDestroy()
 {
-	new GC_Boom_Big( _pos, NULL);
+	new GC_Boom_Big( GetPos(), NULL);
 }
 
 bool GC_Turret::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
@@ -196,7 +196,7 @@ void GC_Turret::TimeStepFixed(float dt)
 				vec2d fake; // координаты мнимой цели
 				CalcOutstrip(GetRawPtr(_target), fake);
 
-				float ang2 = ( fake - _pos ).Angle();
+				float ang2 = ( fake - GetPos() ).Angle();
 
 				_rotator.rotate_to(ang2);
 
@@ -258,7 +258,7 @@ void GC_Turret::Draw()
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
-		g_level->DrawText(teams[_team], _pos - vec2d(CELL_SIZE, CELL_SIZE));
+		g_level->DrawText(teams[_team], GetPos() - vec2d(CELL_SIZE, CELL_SIZE));
 	}
 }
 
@@ -333,13 +333,13 @@ void GC_Turret::MyPropertySet::Exchange(bool bApply)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Turret_Rocket)
+IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 {
 	ED_TURRET( "turret_rocket", "Стационарная ракетная установка" );
 	return true;
 }
 
-GC_Turret_Rocket::GC_Turret_Rocket(float x, float y) : GC_Turret(x, y)
+GC_TurretRocket::GC_TurretRocket(float x, float y) : GC_Turret(x, y)
 {
 	_time_reload = 0;
 
@@ -349,18 +349,18 @@ GC_Turret_Rocket::GC_Turret_Rocket(float x, float y) : GC_Turret(x, y)
 
 	_weaponSprite->SetTexture("turret_rocket");
 	_weaponSprite->SetZ(Z_FREE_ITEM);
-	_weaponSprite->MoveTo(_pos);
+	_weaponSprite->MoveTo(GetPos());
 
 	g_level->_field.ProcessObject(this, true);
 
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
-GC_Turret_Rocket::GC_Turret_Rocket(FromFile) : GC_Turret(FromFile())
+GC_TurretRocket::GC_TurretRocket(FromFile) : GC_Turret(FromFile())
 {
 }
 
-void GC_Turret_Rocket::Serialize(SaveFile &f)
+void GC_TurretRocket::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Turret::Serialize(f);
 	/////////////////////////////////////
@@ -368,23 +368,23 @@ void GC_Turret_Rocket::Serialize(SaveFile &f)
 }
 
 
-void GC_Turret_Rocket::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
+void GC_TurretRocket::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	g_level->CalcOutstrip(_pos, SPEED_ROCKET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(GetPos(), SPEED_ROCKET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_Turret_Rocket::Fire()
+void GC_TurretRocket::Fire()
 {
 	if( _time_reload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_Rocket(	_pos + a * 25.0f, a * SPEED_ROCKET, this, true ) )
+		(new GC_Rocket(	GetPos() + a * 25.0f, a * SPEED_ROCKET, this, true ) )
 			->_damage = g_level->net_frand(10.0f) + 35.0f;
 		_time_reload = TURET_ROCKET_RELOAD;
 	}
 }
 
-void GC_Turret_Rocket::TimeStepFixed(float dt)
+void GC_TurretRocket::TimeStepFixed(float dt)
 {
 	GC_Turret::TimeStepFixed(dt);
 	_time_reload -= dt;
@@ -392,13 +392,13 @@ void GC_Turret_Rocket::TimeStepFixed(float dt)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Turret_Cannon)
+IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 {
 	ED_TURRET( "turret_cannon", "Стационарная тяжелая пушка" );
 	return true;
 }
 
-GC_Turret_Cannon::GC_Turret_Cannon(float x, float y) : GC_Turret(x, y)
+GC_TurretCannon::GC_TurretCannon(float x, float y) : GC_Turret(x, y)
 {
 	_time_reload   = 0;
 	_time_smoke    = 0;
@@ -410,22 +410,22 @@ GC_Turret_Cannon::GC_Turret_Cannon(float x, float y) : GC_Turret(x, y)
 
 	_weaponSprite->SetTexture("turret_cannon");
 	_weaponSprite->SetZ(Z_FREE_ITEM);
-	_weaponSprite->MoveTo(_pos);
+	_weaponSprite->MoveTo(GetPos());
 
 	g_level->_field.ProcessObject(this, true);
 
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
-GC_Turret_Cannon::GC_Turret_Cannon(FromFile) : GC_Turret(FromFile())
+GC_TurretCannon::GC_TurretCannon(FromFile) : GC_Turret(FromFile())
 {
 }
 
-GC_Turret_Cannon::~GC_Turret_Cannon()
+GC_TurretCannon::~GC_TurretCannon()
 {
 }
 
-void GC_Turret_Cannon::Serialize(SaveFile &f)
+void GC_TurretCannon::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Turret::Serialize(f);
 	/////////////////////////////////////
@@ -434,18 +434,18 @@ void GC_Turret_Cannon::Serialize(SaveFile &f)
 	f.Serialize(_time_smoke_dt);
 }
 
-void GC_Turret_Cannon::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
+void GC_TurretCannon::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	g_level->CalcOutstrip(_pos, SPEED_TANKBULLET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(GetPos(), SPEED_TANKBULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_Turret_Cannon::Fire()
+void GC_TurretCannon::Fire()
 {
 	if( _time_reload <= 0 )
 	{
 		vec2d a(_dir);
 		(new GC_TankBullet(
-			_pos + a * 31.9f,
+			GetPos() + a * 31.9f,
 			a * SPEED_TANKBULLET + g_level->net_vrand(40),
 			this,
 			false ) 
@@ -455,7 +455,7 @@ void GC_Turret_Cannon::Fire()
 	}
 }
 
-void GC_Turret_Cannon::TimeStepFixed(float dt)
+void GC_TurretCannon::TimeStepFixed(float dt)
 {
 	static const TextureCache tex("particle_smoke");
 
@@ -468,7 +468,7 @@ void GC_Turret_Cannon::TimeStepFixed(float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			new GC_Particle(_pos + vec2d(_dir) * 33.0f,
+			new GC_Particle(GetPos() + vec2d(_dir) * 33.0f,
 				SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f);
 		}
 	}
@@ -476,7 +476,7 @@ void GC_Turret_Cannon::TimeStepFixed(float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-GC_Turret_Bunker::GC_Turret_Bunker(float x, float y) : GC_Turret(x, y)
+GC_TurretBunker::GC_TurretBunker(float x, float y) : GC_Turret(x, y)
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
 
@@ -490,24 +490,24 @@ GC_Turret_Bunker::GC_Turret_Bunker(float x, float y) : GC_Turret(x, y)
 	_state = TS_HIDDEN;
 }
 
-GC_Turret_Bunker::GC_Turret_Bunker(FromFile) : GC_Turret(FromFile())
+GC_TurretBunker::GC_TurretBunker(FromFile) : GC_Turret(FromFile())
 {
 }
 
-void GC_Turret_Bunker::SetNormal()
+void GC_TurretBunker::SetNormal()
 {
 	SetFrame(GetFrameCount() - 1);
 	_weaponSprite->Show(true);
 	AlignVerticesToBB();
 }
 
-void GC_Turret_Bunker::SetWaking()
+void GC_TurretBunker::SetWaking()
 {
 	_weaponSprite->Show(false);
 	AlignVerticesToBB();
 }
 
-void GC_Turret_Bunker::Serialize(SaveFile &f)
+void GC_TurretBunker::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_Turret::Serialize(f);
 	/////////////////////////////////////
@@ -519,7 +519,7 @@ void GC_Turret_Bunker::Serialize(SaveFile &f)
 	f.Serialize(_time_wake_max);
 }
 
-void GC_Turret_Bunker::mapExchange(MapFile &f)
+void GC_TurretBunker::mapExchange(MapFile &f)
 {
 	GC_Turret::mapExchange(f);
 	if( f.loading() )
@@ -528,24 +528,24 @@ void GC_Turret_Bunker::mapExchange(MapFile &f)
 	}
 }
 
-GC_Turret_Bunker::~GC_Turret_Bunker()
+GC_TurretBunker::~GC_TurretBunker()
 {
 }
 
-void GC_Turret_Bunker::WakeUp()
+void GC_TurretBunker::WakeUp()
 {
 	_jobManager.UnregisterMember(this);
 	_state = TS_WAKING_UP;
-	PLAY(SND_TuretWakeUp, _pos);
+	PLAY(SND_TuretWakeUp, GetPos());
 }
 
-void GC_Turret_Bunker::WakeDown()
+void GC_TurretBunker::WakeDown()
 {
 	_state = TS_PREPARE_TO_WAKEDOWN;
 	_jobManager.UnregisterMember(this);
 }
 
-bool GC_Turret_Bunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_TurretBunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
 	if( _state != TS_HIDDEN )
 	{
@@ -562,7 +562,7 @@ bool GC_Turret_Bunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySt
 	return false;
 }
 
-void GC_Turret_Bunker::TimeStepFixed(float dt)
+void GC_TurretBunker::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);
 	_weaponSprite->SetRotation(_dir);
@@ -580,7 +580,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 				vec2d fake;
 				CalcOutstrip(GetRawPtr(_target), fake);
 
-				float ang2 = ( fake - _pos ).Angle();
+				float ang2 = ( fake - GetPos() ).Angle();
 
 				_rotator.rotate_to(ang2);
 
@@ -662,7 +662,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 		}
 		else
 		{
-			PLAY(SND_TuretWakeDown, _pos);
+			PLAY(SND_TuretWakeDown, GetPos());
 			SetWaking();
 			_state = TS_WAKING_DOWN;
 		}
@@ -674,7 +674,7 @@ void GC_Turret_Bunker::TimeStepFixed(float dt)
 	_rotator.setup_sound(GetRawPtr(_rotateSound));
 }
 
-void GC_Turret_Bunker::EditorAction()
+void GC_TurretBunker::EditorAction()
 {
 	_initialDir += PI / 2;
 	_initialDir = fmodf(_initialDir, PI2);
@@ -685,13 +685,13 @@ void GC_Turret_Bunker::EditorAction()
 
 ////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Turret_Minigun)
+IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 {
 	ED_TURRET( "turret_minigun", "Стационарный пулемет" );
 	return true;
 }
 
-GC_Turret_Minigun::GC_Turret_Minigun(float x, float y) : GC_Turret_Bunker(x, y)
+GC_TurretMinigun::GC_TurretMinigun(float x, float y) : GC_TurretBunker(x, y)
 {
 	_delta_angle = 0.5f;	// точность стрельбы
 	_rotator.reset(0, 0, 6.0f, 21.0f, 36.0f);
@@ -705,26 +705,26 @@ GC_Turret_Minigun::GC_Turret_Minigun(float x, float y) : GC_Turret_Bunker(x, y)
 
 	_weaponSprite->SetTexture("turret_mg");
 	_weaponSprite->SetZ(Z_FREE_ITEM);
-	_weaponSprite->MoveTo(_pos);
+	_weaponSprite->MoveTo(GetPos());
 
 	SetTexture("turret_mg_wake");
 	AlignBBToSprite();
 	SetWaking();
 
-	_fireSound = new GC_Sound(SND_MinigunFire, SMODE_STOP, _pos);
+	_fireSound = new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos());
 
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 
 	g_level->_field.ProcessObject(this, true);
 }
 
-GC_Turret_Minigun::GC_Turret_Minigun(FromFile) : GC_Turret_Bunker(FromFile())
+GC_TurretMinigun::GC_TurretMinigun(FromFile) : GC_TurretBunker(FromFile())
 {
 }
 
-void GC_Turret_Minigun::Serialize(SaveFile &f)
+void GC_TurretMinigun::Serialize(SaveFile &f)
 {	/////////////////////////////////////
-	GC_Turret_Bunker::Serialize(f);
+	GC_TurretBunker::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_firing);
 	f.Serialize(_time);
@@ -732,31 +732,31 @@ void GC_Turret_Minigun::Serialize(SaveFile &f)
 	f.Serialize(_fireSound);
 }
 
-void GC_Turret_Minigun::Kill()
+void GC_TurretMinigun::Kill()
 {
 	SAFE_KILL(_fireSound);
-	GC_Turret_Bunker::Kill();
+	GC_TurretBunker::Kill();
 }
 
-GC_Turret_Minigun::~GC_Turret_Minigun()
+GC_TurretMinigun::~GC_TurretMinigun()
 {
 }
 
-void GC_Turret_Minigun::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
+void GC_TurretMinigun::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	g_level->CalcOutstrip(_pos, SPEED_BULLET, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(GetPos(), SPEED_BULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_Turret_Minigun::Fire()
+void GC_TurretMinigun::Fire()
 {
 	_firing = true;
 }
 
-void GC_Turret_Minigun::TimeStepFixed(float dt)
+void GC_TurretMinigun::TimeStepFixed(float dt)
 {
 	static const TextureCache tex("particle_1");
 
-	GC_Turret_Bunker::TimeStepFixed(dt);
+	GC_TurretBunker::TimeStepFixed(dt);
 
 	if( _firing )
 	{
@@ -769,8 +769,8 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 		{
 			float ang = _dir + g_level->net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
-			new GC_Bullet(_pos + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, false );
-			new GC_Particle(_pos + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
+			new GC_Bullet(GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, false );
+			new GC_Particle(GetPos() + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
 		}
 
 		_firing = false;
@@ -784,13 +784,13 @@ void GC_Turret_Minigun::TimeStepFixed(float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Turret_Gauss)
+IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 {
 	ED_TURRET( "turret_gauss", "Стационарная пушка Гаусса" );
 	return true;
 }
 
-GC_Turret_Gauss::GC_Turret_Gauss(float x, float y) : GC_Turret_Bunker(x, y)
+GC_TurretGauss::GC_TurretGauss(float x, float y) : GC_TurretBunker(x, y)
 {
 	_delta_angle = 0.03f;	// точность стрельбы
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
@@ -803,7 +803,7 @@ GC_Turret_Gauss::GC_Turret_Gauss(float x, float y) : GC_Turret_Bunker(x, y)
 
 	_weaponSprite->SetTexture("turret_gauss");
 	_weaponSprite->SetZ(Z_FREE_ITEM);
-	_weaponSprite->MoveTo(_pos);
+	_weaponSprite->MoveTo(GetPos());
 
 	SetTexture("turret_gauss_wake");
 	SetWaking();
@@ -813,47 +813,47 @@ GC_Turret_Gauss::GC_Turret_Gauss(float x, float y) : GC_Turret_Bunker(x, y)
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
-GC_Turret_Gauss::GC_Turret_Gauss(FromFile) : GC_Turret_Bunker(FromFile())
+GC_TurretGauss::GC_TurretGauss(FromFile) : GC_TurretBunker(FromFile())
 {
 }
 
-void GC_Turret_Gauss::TargetLost()
+void GC_TurretGauss::TargetLost()
 {
 	_shot_count = 0;
 	_time       = 0;
-	GC_Turret_Bunker::TargetLost();
+	GC_TurretBunker::TargetLost();
 }
 
-void GC_Turret_Gauss::SetNormal()
+void GC_TurretGauss::SetNormal()
 {
 	_hsize.Set(30, 20);
-	GC_Turret_Bunker::SetNormal();
+	GC_TurretBunker::SetNormal();
 }
 
-void GC_Turret_Gauss::SetWaking()
+void GC_TurretGauss::SetWaking()
 {
 	_hsize.Set(30, 20);
-	GC_Turret_Bunker::SetWaking();
+	GC_TurretBunker::SetWaking();
 }
 
-void GC_Turret_Gauss::Serialize(SaveFile &f)
+void GC_TurretGauss::Serialize(SaveFile &f)
 {	/////////////////////////////////////
-	GC_Turret_Bunker::Serialize(f);
+	GC_TurretBunker::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_shot_count);
 	f.Serialize(_time);
 }
 
-GC_Turret_Gauss::~GC_Turret_Gauss()
+GC_TurretGauss::~GC_TurretGauss()
 {
 }
 
-void GC_Turret_Gauss::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
+void GC_TurretGauss::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {
-	g_level->CalcOutstrip(_pos, SPEED_GAUSS, target->_pos, target->_lv, fake);
+	g_level->CalcOutstrip(GetPos(), SPEED_GAUSS, target->GetPos(), target->_lv, fake);
 }
 
-void GC_Turret_Gauss::Fire()
+void GC_TurretGauss::Fire()
 {
 	if( 0 == _shot_count )
 	{
@@ -865,8 +865,8 @@ void GC_Turret_Gauss::Fire()
 		float dy = _shot_count == 0 ? -7.0f : 7.0f;
 		float c = cosf(_dir), s = sinf(_dir);
 
-		new GC_GaussRay(vec2d(_pos.x + c * 20.0f - dy * s,
-		                      _pos.y + s * 20.0f + dy * c),
+		new GC_GaussRay(vec2d(GetPos().x + c * 20.0f - dy * s,
+		                      GetPos().y + s * 20.0f + dy * c),
 		                vec2d(c, s) * SPEED_GAUSS, this, false );
 
 		if( ++_shot_count == 2 )
@@ -877,9 +877,9 @@ void GC_Turret_Gauss::Fire()
 	}
 }
 
-void GC_Turret_Gauss::TimeStepFixed(float dt)
+void GC_TurretGauss::TimeStepFixed(float dt)
 {
-	GC_Turret_Bunker::TimeStepFixed(dt);
+	GC_TurretBunker::TimeStepFixed(dt);
 	_time += dt;
 }
 

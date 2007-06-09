@@ -36,18 +36,18 @@ public:
 
 	inline void GetAABB(FRECT *pAABB)
 	{
-		pAABB->left   = _pos.x - _hsize.x;
-		pAABB->top    = _pos.y - _hsize.y;
-		pAABB->right  = _pos.x + _hsize.x;
-		pAABB->bottom = _pos.y + _hsize.y;
+		pAABB->left   = GetPos().x - _hsize.x;
+		pAABB->top    = GetPos().y - _hsize.y;
+		pAABB->right  = GetPos().x + _hsize.x;
+		pAABB->bottom = GetPos().y + _hsize.y;
 	}
 
 	inline vec2d GetVertex(int index)
 	{
 		_ASSERT(index >= 0 && index < 4);
 		return vec2d(
-			_pos.x + _vertices[index].x*_direction.x - _vertices[index].y*_direction.y,
-			_pos.y + _vertices[index].x*_direction.y + _vertices[index].y*_direction.x
+			GetPos().x + _vertices[index].x*_direction.x - _vertices[index].y*_direction.y,
+			GetPos().y + _vertices[index].x*_direction.y + _vertices[index].y*_direction.x
 		);
 	}
 
@@ -94,7 +94,7 @@ public:
 public:
 	virtual DWORD checksum(void) const
 	{
-		DWORD cs = reinterpret_cast<const DWORD&>(_pos.x) ^ reinterpret_cast<const DWORD&>(_pos.y);
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_direction.x) ^ reinterpret_cast<const DWORD&>(_direction.y);
 		return GC_2dSprite::checksum() ^ cs;
 	}

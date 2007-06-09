@@ -190,7 +190,7 @@ void GC_Wall::OnDestroy()
 {
 	static const TextureCache tex("particle_smoke");
 
-	PLAY(SND_WallDestroy, _pos);
+	PLAY(SND_WallDestroy, GetPos());
 
 	if( g_conf.g_particles->Get() )
 	{
@@ -206,7 +206,7 @@ void GC_Wall::OnDestroy()
 			))->SetShadow(true);
 		}
 
-		new GC_Particle(_pos, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+		new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 	}
 }
 
@@ -431,7 +431,7 @@ void GC_Water::UpdateTile(bool flag)
 			GC_Water *object = (GC_Water *) (*it);
 			if( this == object ) continue;
 
-			vec2d dx = (_pos - object->_pos) / CELL_SIZE;
+			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
 			if( dx.Square() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
@@ -638,8 +638,8 @@ BOOL GC_RigidBodyDynamic::intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 				normal.x = pt[1].y - pt[0].y;
 				normal.y = pt[0].x - pt[1].x;
 
-				if( normal.x * (origin.x - _pos.x) +
-					normal.y * (origin.y - _pos.y) > 0 )
+				if( normal.x * (origin.x - GetPos().x) +
+					normal.y * (origin.y - GetPos().y) > 0 )
 				{
 					normal.x = -normal.x;
 					normal.y = -normal.y;
@@ -696,7 +696,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		{
 			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
 
-			vec2d delta, tmp = pProj->_pos - _pos;
+			vec2d delta, tmp = pProj->GetPos() - GetPos();
 			delta.x = tmp.x * c - tmp.y * s - dx.x;
 			delta.y = tmp.x * s - tmp.y * c - dx.y;
 
@@ -714,7 +714,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 
 
-	MoveTo(_pos + dx);
+	MoveTo(GetPos() + dx);
 	_angle = fmodf(_angle + da, PI2);
 	if( _angle < 0 ) _angle += PI2;
 
@@ -761,10 +761,10 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 	std::vector<OBJECT_LIST*> receive;
 	g_level->grid_rigid_s.OverlapCircle(receive,
-		_pos.x / LOCATION_SIZE, _pos.y / LOCATION_SIZE, 0);
+		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, 0);
 
 	g_level->grid_water.OverlapCircle(receive,
-		_pos.x / LOCATION_SIZE, _pos.y / LOCATION_SIZE, 0);
+		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, 0);
 
 	std::vector<OBJECT_LIST*>::iterator rit = receive.begin();
 
@@ -803,7 +803,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 float GC_RigidBodyDynamic::geta_s(const vec2d &n, const vec2d &c,
 								  const GC_RigidBodyStatic *obj) const
 {
-	float k1 = n.x*(c.y-_pos.y) - n.y*(c.x-_pos.x);
+	float k1 = n.x*(c.y-GetPos().y) - n.y*(c.x-GetPos().x);
 	return (float)
 	(
 		2 * ( _av * k1 - n.y*_lv.y - n.x*_lv.x ) /
@@ -814,8 +814,8 @@ float GC_RigidBodyDynamic::geta_s(const vec2d &n, const vec2d &c,
 float GC_RigidBodyDynamic::geta_d(const vec2d &n, const vec2d &c,
 								  const GC_RigidBodyDynamic *obj) const
 {
-	float k1 = n.x*(c.y-_pos.y) - n.y*(c.x-_pos.x);
-	float k2 = n.y*(c.x-obj->_pos.x) - n.x*(c.y-obj->_pos.y);
+	float k1 = n.x*(c.y-GetPos().y) - n.y*(c.x-GetPos().x);
+	float k2 = n.y*(c.x-obj->GetPos().x) - n.x*(c.y-obj->GetPos().y);
 	return (float)
 	(
 		2 * ( n.y*(obj->_lv.y-_lv.y) + n.x*(obj->_lv.x-_lv.x) + _av*k1 + obj->_av*k2 ) /
@@ -922,7 +922,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 {
 	_lv += impulse * _inv_m;
-	_av += ((origin.x-_pos.x)*impulse.y-(origin.y-_pos.y)*impulse.x) * _inv_i;
+	_av += ((origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x) * _inv_i;
 }
 
 void GC_RigidBodyDynamic::apply_external_forces(float dt)
@@ -946,13 +946,13 @@ void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force, const vec2d &origin)
 {
 	_external_force += force;
-	_external_momentum += (origin.x-_pos.x)*force.y-(origin.y-_pos.y)*force.x;
+	_external_momentum += (origin.x-GetPos().x)*force.y-(origin.y-GetPos().y)*force.x;
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse, const vec2d &origin)
 {
 	_external_impulse += impulse;
-	_external_torque  += (origin.x-_pos.x)*impulse.y-(origin.y-_pos.y)*impulse.x;
+	_external_torque  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)

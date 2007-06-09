@@ -43,7 +43,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Winamp)
 	return true;
 }
 
-GC_Winamp::GC_Winamp() : GC_Object()
+GC_Winamp::GC_Winamp() : GC_Service()
 {
 	FindWinamp();
 
@@ -197,7 +197,7 @@ void GC_Wood::UpdateTile(bool flag)
 			GC_Wood *object = static_cast<GC_Wood *>(*it);
 			if( this == object ) continue;
 
-			vec2d dx = (_pos - object->_pos) / CELL_SIZE;
+			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
 			if( dx.Square() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
@@ -361,19 +361,19 @@ void GC_Rectangle::SetSize(const vec2d &size)
 void GC_Rectangle::Draw()
 {
 	GC_Line::MoveTo(vec2d(_center_pos.x, _center_pos.y - _size.y * 0.5f));
-	GC_Line::MoveTo(_pos-_size*0.5f, vec2d(_pos.x+_size.x*0.5f, _pos.y-_size.y*0.5f));
+	GC_Line::MoveTo(GetPos()-_size*0.5f, vec2d(GetPos().x+_size.x*0.5f, GetPos().y-_size.y*0.5f));
 	GC_Line::Draw();
 
 	GC_Line::MoveTo(vec2d(_center_pos.x, _center_pos.y + _size.y * 0.5f));
-	GC_Line::MoveTo(vec2d(_pos.x-_size.x*0.5f, _pos.y+_size.y*0.5f), _pos+_size*0.5f);
+	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()+_size*0.5f);
 	GC_Line::Draw();
 
 	GC_Line::MoveTo(vec2d(_center_pos.x + _size.x * 0.5f, _center_pos.y));
-	GC_Line::MoveTo(vec2d(_pos.x-_size.x*0.5f, _pos.y+_size.y*0.5f), _pos-_size*0.5f);
+	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()-_size*0.5f);
 	GC_Line::Draw();
 
 	GC_Line::MoveTo(vec2d(_center_pos.x - _size.x * 0.5f, _center_pos.y));
-	GC_Line::MoveTo(vec2d(_pos.x-_size.x*0.5f, _pos.y+_size.y*0.5f), _pos-_size*0.5f);
+	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()-_size*0.5f);
 	GC_Line::Draw();
 
 	GC_Line::MoveTo(_center_pos);
@@ -455,8 +455,8 @@ void GC_Explosion::Serialize(SaveFile &f)
 
 float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance)
 {
-	int x0 = int(_pos.x / CELL_SIZE);
-	int y0 = int(_pos.y / CELL_SIZE);
+	int x0 = int(GetPos().x / CELL_SIZE);
+	int y0 = int(GetPos().y / CELL_SIZE);
 	int x1 = int(dst_x   / CELL_SIZE);
 	int y1 = int(dst_y   / CELL_SIZE);
 
@@ -541,8 +541,8 @@ void GC_Explosion::Boom(float radius, float damage)
 		if( !pCamera->_player ) continue;
 		if( pCamera->_player->GetVehicle() )
 		{
-			float level = 0.5f * (radius - (_pos -
-				pCamera->_player->GetVehicle()->_pos).Length() * 0.3f) / radius;
+			float level = 0.5f * (radius - (GetPos() -
+				pCamera->_player->GetVehicle()->GetPos()).Length() * 0.3f) / radius;
 			//--------------------------
 			if( level > 0 )
 				pCamera->Shake(level);
@@ -561,7 +561,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	//
 	std::vector<OBJECT_LIST*> receive;
 	g_level->grid_rigid_s.OverlapCircle(receive,
-		_pos.x / LOCATION_SIZE, _pos.y / LOCATION_SIZE, radius / LOCATION_SIZE);
+		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, radius / LOCATION_SIZE);
 
 	//
 	// подготовка поля для трассировки
@@ -578,8 +578,8 @@ void GC_Explosion::Boom(float radius, float damage)
 			if( pDamObject->IsKilled() ) continue;
 			if( GC_Wall_Concrete::this_type == pDamObject->GetType() )
 			{
-				node.x = int(pDamObject->_pos.x / CELL_SIZE);
-				node.y = int(pDamObject->_pos.y / CELL_SIZE);
+				node.x = int(pDamObject->GetPos().x / CELL_SIZE);
+				node.y = int(pDamObject->GetPos().y / CELL_SIZE);
 				field[coord(node.x, node.y)] = node;
 			}
 		}
@@ -604,14 +604,14 @@ void GC_Explosion::Boom(float radius, float damage)
 			FRECT frtObjColRect;
 			pDamObject->GetAABB(&frtObjColRect);
 
-			vec2d dam = pDamObject->_pos;
+			vec2d dam = pDamObject->GetPos();
 
-			float d = (_pos - dam).Length();
+			float d = (GetPos() - dam).Length();
 
 			if( d <= radius)
 			{
 				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
-					g_level->grid_rigid_s, NULL, _pos, dam - _pos);
+					g_level->grid_rigid_s, NULL, GetPos(), dam - GetPos());
 
 				if( object && object != pDamObject )
 				{
@@ -628,7 +628,7 @@ void GC_Explosion::Boom(float radius, float damage)
 				if( d >= 0 )
 				{
 					float dam = __max(0, damage * (1 - d / radius));
-					if( dam > 0 ) pDamObject->TakeDamage( dam, _pos, GetRawPtr(_proprietor) );
+					if( dam > 0 ) pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_proprietor) );
 				}
 			}
 		}
@@ -697,18 +697,18 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *pPropri
 			ang = frand(PI2);
 			float d = frand(64.0f) - 32.0f;
 
-			(new GC_Particle(_pos + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
+			(new GC_Particle(GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
 				->_time = frand(1.0f);
 		}
-		GC_Particle *p = new GC_Particle(_pos, vec2d(0,0), tex3, 8.0f, frand(PI2));
+		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, frand(PI2));
 		p->SetZ(Z_WATER);
 		p->SetFade(true);
 	}
 
 	_light->SetRadius(_DamRadius * 5);
-	_light->MoveTo(_pos);
+	_light->MoveTo(GetPos());
 
-	PLAY(SND_BoomStandard, _pos);
+	PLAY(SND_BoomStandard, GetPos());
 }
 
 GC_Boom_Standard::GC_Boom_Standard(FromFile) : GC_Explosion(FromFile())
@@ -750,7 +750,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC
 			//ring
 			for( int i = 0; i < 2; ++i )
 			{
-				new GC_Particle(_pos + vrand(frand(20.0f)),
+				new GC_Particle(GetPos() + vrand(frand(20.0f)),
 					vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
 			}
 
@@ -758,27 +758,27 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC
 
 			//dust
 			a = vrand(frand(40.0f));
-			new GC_Particle(_pos + a, a * 2, tex2, frand(0.5f) + 0.25f);
+			new GC_Particle(GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
 
 			// sparkles
 			a = vrand(frand(40.0f));
-			new GC_Particle(_pos + a, a * 2, tex4, frand(0.3f) + 0.2f, a.Angle());
+			new GC_Particle(GetPos() + a, a * 2, tex4, frand(0.3f) + 0.2f, a.Angle());
 
 			//smoke
 			a = vrand(frand(48.0f));
-			(new GC_Particle(_pos + a, SPEED_SMOKE + a / 2.0f,
+			(new GC_Particle(GetPos() + a, SPEED_SMOKE + a / 2.0f,
 							 tex5, 1.5f))->_time = frand(1.0f);
 		}
 
-		GC_Particle *p = new GC_Particle(_pos, vec2d(0,0), tex6, 20.0f, frand(PI2));
+		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, frand(PI2));
 		p->SetZ(Z_WATER);
 		p->SetFade(true);
 	}
 
 	_light->SetRadius(_DamRadius * 5);
-	_light->MoveTo(_pos);
+	_light->MoveTo(GetPos());
 
-	PLAY(SND_BoomBig, _pos);
+	PLAY(SND_BoomBig, GetPos());
 }
 
 GC_Boom_Big::GC_Boom_Big(FromFile) : GC_Explosion(FromFile())
@@ -801,12 +801,12 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic
 	_victim = pVictim;
 	_owner  = pOwner;
 
-	_victim->Subscribe(NOTIFY_OBJECT_MOVE, this,
+	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);
 	_victim->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimKill, true);
 
-	MoveTo(_victim->_pos);
+	MoveTo(_victim->GetPos());
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED /*| GC_FLAG_OBJECT_EVENTS_TS_FLOATING*/ );
 }
@@ -841,13 +841,13 @@ void GC_HealthDaemon::TimeStepFixed(float dt)
 		dt += _time;
 		bKill = true;
 	}
-	if( !_victim->TakeDamage(dt * _damage, _victim->_pos, GetRawPtr(_owner)) && bKill )
+	if( !_victim->TakeDamage(dt * _damage, _victim->GetPos(), GetRawPtr(_owner)) && bKill )
 		Kill();
 }
 
 void GC_HealthDaemon::OnVictimMove(GC_Object *sender, void *param)
 {
-	MoveTo(sender->_pos);
+	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
 
 void GC_HealthDaemon::OnVictimKill(GC_Object *sender, void *param)
@@ -972,7 +972,7 @@ GC_TextScore::GC_TextScore() : GC_Text(0, 0, "score")
 		(float) (g_render->GetWidth() - _background->GetSpriteWidth()) / 2,
 		(float) (g_render->GetHeight() - _background->GetSpriteHeight()) / 2));
 
-	_background->MoveTo(_pos);
+	_background->MoveTo(GetPos());
 	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
 }
 
@@ -1028,7 +1028,7 @@ void GC_TextScore::EndFrame()
 
 	if( g_level->_limitHit && !_bOldLimit )
 	{
-		PLAY(SND_Limit, _pos);
+		PLAY(SND_Limit, GetPos());
 		_bOldLimit = true;
 	}
 
@@ -1131,7 +1131,7 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const char *text, const char *font)
 	float x_max = g_level->_sx - x_min;
 
 	_y0 = pos.y;
-	_pos.x = __min(x_max, __max(x_min, _pos.x)) - (GetSpriteWidth() / 2);
+	MoveTo( vec2d(__min(x_max, __max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
 	////////////////////////////////
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 }
@@ -1140,7 +1140,7 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 {
 	GC_Text::TimeStepFloat(dt);
 	_time += dt;
-	MoveTo(vec2d(_pos.x, _y0 - _time * 20.0f));
+	MoveTo(vec2d(GetPos().x, _y0 - _time * 20.0f));
 	if( _time > 1.0f ) Kill();
 }
 

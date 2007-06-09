@@ -85,11 +85,11 @@ void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
 		float delta = path.y*bx - path.x*by;
 		if( delta <= 0 ) continue;
 
-		float tb = (path.x*(yb - _pos.y) - path.y*(xb - _pos.x)) / delta;
+		float tb = (path.x*(yb - GetPos().y) - path.y*(xb - GetPos().x)) / delta;
 
 		if( tb <= 1 && tb >= 0 )
 		{
-			float len = (bx*(yb - _pos.y) - by*(xb - _pos.x)) / delta;
+			float len = (bx*(yb - GetPos().y) - by*(xb - GetPos().x)) / delta;
 			if( len >= 0 && len <= min_len )
 			{
 				min_len = len;
@@ -104,7 +104,7 @@ void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
 	{
 		_lastHit = pObj;
 		norm.Normalize();
-		if( Hit(pObj, _pos, norm) )
+		if( Hit(pObj, GetPos(), norm) )
 		{
 			Kill();
 			return;
@@ -145,7 +145,7 @@ void GC_Projectile::MoveTo(const vec2d &pos, BOOL bTrail)
 {
 	if( bTrail )
 	{
-		vec2d e = pos - _pos;
+		vec2d e = pos - GetPos();
 		float len = e.Length();
 
 		e /= len;
@@ -153,7 +153,7 @@ void GC_Projectile::MoveTo(const vec2d &pos, BOOL bTrail)
 		while( _trailPath < len )
 		{
 			if( g_conf.g_particles->Get() )
-				SpawnTrailParticle(_pos + e * _trailPath);
+				SpawnTrailParticle(GetPos() + e * _trailPath);
 
 			_trailPath += _trailDensity;
 		}
@@ -180,7 +180,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 		g_level->grid_rigid_s,
 		_lastHit ? GetRawPtr(_lastHit) : (
 			CheckFlags(GC_FLAG_PROJECTILE_IGNOREPROPRIETOR) ? GetRawPtr(_proprietor) : NULL
-		),	_pos, dx, &hit, &norm
+		),	GetPos(), dx, &hit, &norm
 	);
 
 	if( object )
@@ -195,16 +195,16 @@ void GC_Projectile::TimeStepFixed(float dt)
 		}
 		else
 		{
-			float new_dt = dt * (1.0f - sqrtf((hit - _pos).Square() / dx.Square()));
+			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).Square() / dx.Square()));
 			MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 			TimeStepFixed(new_dt);
 			return;
 		}
 	}
-	else MoveTo(_pos + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+	else MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 
-	if( _pos.x < 0 || _pos.x > g_level->_sx ||
-		_pos.y < 0 || _pos.y > g_level->_sy )
+	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
+		GetPos().y < 0 || GetPos().y > g_level->_sy )
 	{
 		Kill();
 		return;
@@ -244,16 +244,16 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 
 			// проверка видимости цели
 			if( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
-				GetRawPtr(_proprietor), _pos, pVehicle->_pos - _pos) )
+				GetRawPtr(_proprietor), GetPos(), pVehicle->GetPos() - GetPos()) )
 			{
 				continue;
 			}
 
 
 			vec2d target;
-			g_level->CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity.Length(), pVehicle->GetPos(), pVehicle->_lv, target);
 
-			vec2d a = target - _pos;
+			vec2d a = target - GetPos();
 
 			// косинус угла направления на цель
 			float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
@@ -272,7 +272,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 		}
 	}
 
-	PLAY(SND_RocketShoot, _pos);
+	PLAY(SND_RocketShoot, GetPos());
 }
 
 GC_Rocket::GC_Rocket(FromFile) : GC_Projectile(FromFile())
@@ -334,9 +334,9 @@ void GC_Rocket::TimeStepFixed(float dt)
 		else
 		{
 			vec2d target;
-			g_level->CalcOutstrip(_pos, _velocity.Length(), _target->_pos, _target->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity.Length(), _target->GetPos(), _target->_lv, target);
 
-			vec2d a = target - _pos;
+			vec2d a = target - GetPos();
 
 			vec2d vi(_velocity);
 			vi.Normalize();
@@ -464,7 +464,7 @@ GC_TankBullet::GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic*
 	_damage        = DAMAGE_TANKBULLET;
 	_trailDensity = 5.0f;
 	_light->Enable(advanced);
-	PLAY(SND_Shoot, _pos);
+	PLAY(SND_Shoot, GetPos());
 }
 
 bool GC_TankBullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
@@ -541,7 +541,7 @@ GC_PlazmaClod::GC_PlazmaClod(const vec2d &x, const vec2d &v, GC_RigidBodyStatic*
 	_damage        = DAMAGE_PLAZMA;
 	_trailDensity = 4.0f;
 
-	PLAY(SND_PlazmaFire, _pos);
+	PLAY(SND_PlazmaFire, GetPos());
 }
 
 bool GC_PlazmaClod::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
@@ -598,7 +598,7 @@ GC_BfgCore::GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* Spawn
 {
 	_time = 0;
 	_damage = DAMAGE_BFGCORE;
-	PLAY(SND_BfgFire, _pos);
+	PLAY(SND_BfgFire, GetPos());
 	_trailDensity = 2.5f;
 
 	FindTarget();
@@ -617,12 +617,12 @@ void GC_BfgCore::FindTarget()
 
 		// проверка видимости цели
 		if( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
-			GetRawPtr(_proprietor), _pos, pVehicle->_pos - _pos) ) continue;
+			GetRawPtr(_proprietor), GetPos(), pVehicle->GetPos() - GetPos()) ) continue;
 
 		vec2d target;
-		g_level->CalcOutstrip(_pos, _velocity.Length(), pVehicle->_pos, pVehicle->_lv, target);
+		g_level->CalcOutstrip(GetPos(), _velocity.Length(), pVehicle->GetPos(), pVehicle->_lv, target);
 
-		vec2d a = target - _pos;
+		vec2d a = target - GetPos();
 
 		// косинус угла направления на цель
 		float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
@@ -707,14 +707,14 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		if( !pVehicle->IsKilled() )
 		{
 			const float R = WEAP_BFG_RADIUS;
-			float damage = (1 - (_pos - pVehicle->_pos).Length() / R) *
+			float damage = (1 - (GetPos() - pVehicle->GetPos()).Length() / R) *
 				(fabsf(pVehicle->_lv.Length()) / SPEED_BFGCORE * 10 + 0.5f);
 
 			if( damage > 0 && !(IsAdvanced() && pVehicle == _proprietor) )
 			{
-				vec2d d = (_pos - pVehicle->_pos).Normalize() + g_level->net_vrand(1.0f);
+				vec2d d = (GetPos() - pVehicle->GetPos()).Normalize() + g_level->net_vrand(1.0f);
 				pVehicle->TakeDamage(damage * _damage * dt,
-					pVehicle->_pos + d, GetRawPtr(_proprietor));
+					pVehicle->GetPos() + d, GetRawPtr(_proprietor));
 			}
 		}
 	}
@@ -732,9 +732,9 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			float v = _velocity.Length();
 
 			vec2d target;
-			g_level->CalcOutstrip(_pos, v, _target->_pos, _target->_lv, target);
+			g_level->CalcOutstrip(GetPos(), v, _target->GetPos(), _target->_lv, target);
 
-			vec2d a = target - _pos;
+			vec2d a = target - GetPos();
 
 			vec2d vi = _velocity / v;
 
@@ -842,7 +842,7 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* Spa
 	_damage = DAMAGE_GAUSS;
 	_trailDensity = 16.0f;
 
-	PLAY(SND_Bolt, _pos);
+	PLAY(SND_Bolt, GetPos());
 
 	SAFE_KILL(_light);
 
@@ -852,7 +852,7 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* Spa
 	_light->SetIntensity(1.5f);
 	_light->SetAngle(v.Angle() + PI);
 
-	_light->MoveTo(_pos);
+	_light->MoveTo(GetPos());
 
 	SetShadow(false);
 }
@@ -916,7 +916,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Disk)
 }
 
 GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
-: GC_Projectile((GC_RigidBodyStatic *) NULL, false, FALSE, pRipper->_pos, vec2d(0, 0), "projectile_disk")
+: GC_Projectile((GC_RigidBodyStatic *) NULL, false, FALSE, pRipper->GetPos(), vec2d(0, 0), "projectile_disk")
 {
 	_damage = 0;
 
@@ -926,7 +926,7 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 	_ripper = pRipper;
 	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperKill, true, false);
-	_ripper->Subscribe(NOTIFY_OBJECT_MOVE, this,
+	_ripper->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperMove, false, false);
 
 	_light->Enable(false);
@@ -998,7 +998,7 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 		for( int n = 0; n < 14; ++n )
 		{
 			(new GC_Bullet(
-				_pos, 
+				GetPos(), 
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetRawPtr(_proprietor), 
 				IsAdvanced())
@@ -1028,7 +1028,7 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 		for( int n = 0; n < 11; ++n )
 		{
 			(new GC_Bullet(
-				_pos, 
+				GetPos(), 
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetRawPtr(_proprietor), 
 				true)
@@ -1090,7 +1090,7 @@ void GC_Disk::OnRipperMove(GC_Object *sender, void *param)
 {
 	GC_Weap_Ripper *r = (GC_Weap_Ripper *) sender;
 	if( r->_proprietor )
-		MoveTo(r->_pos - (vec2d(r->_proprietor->_angle + r->_angle) * 7), FALSE);
+		MoveTo(r->GetPos() - (vec2d(r->_proprietor->_angle + r->_angle) * 7), FALSE);
 }
 
 void GC_Disk::OnRipperKill(GC_Object *sender, void *param)

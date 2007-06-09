@@ -23,7 +23,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 }
 
 GC_Camera::GC_Camera(GC_Player *pPlayer)
-  : GC_Object(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
+  : GC_Actor(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
 {
 	_player = pPlayer;
 	_rotator.reset(0.0f, 0.0f, 2.0f, 0.5f, 0.5f);
@@ -33,7 +33,7 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 		if( _player->GetVehicle() )
 		{
 //			_angle_current =  -_player->_vehicle->_dir + PI/2;
-			MoveTo( _player->GetVehicle()->_pos );
+			MoveTo( _player->GetVehicle()->GetPos() );
 		}
 		SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 		_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
@@ -48,7 +48,7 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 		_active = g_level->_modeEditor;
 	}
 	//---------------------------------------
-	_target     = _pos;
+	_target     = GetPos();
 	_time_shake = 0;
 	_time_seed  = frand(1000);
 	_zoom       = 1.0f;
@@ -60,7 +60,7 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 }
 
 GC_Camera::GC_Camera(FromFile)
-  : GC_Object(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
+  : GC_Actor(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
 {
 }
 
@@ -78,7 +78,7 @@ void GC_Camera::TimeStepFloat(float dt)
 		int dx = (int) __max(0, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
 		int dy = (int) __max(0, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
 
-		vec2d r = _player->GetVehicle()->_pos + _player->GetVehicle()->_lv / mu;
+		vec2d r = _player->GetVehicle()->GetPos() + _player->GetVehicle()->_lv / mu;
 
 		if( _player->GetVehicle()->GetWeapon() )
 		{
@@ -105,7 +105,7 @@ void GC_Camera::TimeStepFloat(float dt)
 		if( _time_shake < 0 ) _time_shake = 0;
 	}
 
-	MoveTo(_target + (_pos - _target) * expf(-dt * mu));
+	MoveTo(_target + (GetPos() - _target) * expf(-dt * mu));
 }
 
 void GC_Camera::Select()
@@ -123,13 +123,13 @@ void GC_Camera::Select()
 			shake *= CELL_SIZE * _time_shake * 0.1f;
 		}
 
-		g_env.camera_x = int(floorf((_pos.x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
-		g_env.camera_y = int(floorf((_pos.y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
+		g_env.camera_x = int(floorf((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
+		g_env.camera_y = int(floorf((GetPos().y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
 	}
 	else
 	{
-		g_env.camera_x = int(_pos.x);
-		g_env.camera_y = int(_pos.y);
+		g_env.camera_x = int(GetPos().x);
+		g_env.camera_y = int(GetPos().y);
 	}
 
 	g_render->Camera((float) g_env.camera_x,
@@ -162,6 +162,7 @@ void GC_Camera::EndFrame()
 
 	_zoom = levels[level];
 
+	vec2d pos = GetPos();
 
 	int   x         = g_env.envInputs.mouse_x;
 	int   y         = g_env.envInputs.mouse_y;
@@ -174,7 +175,7 @@ void GC_Camera::EndFrame()
 		bMove = true;
 		while (dwCurTime - _dwTimeX > dt)
 		{
-			_pos.x -= CELL_SIZE;
+			pos.x -= CELL_SIZE;
 			_dwTimeX += dt;
 		}
 	}
@@ -184,7 +185,7 @@ void GC_Camera::EndFrame()
 		bMove = true;
 		while (dwCurTime - _dwTimeX > dt)
 		{
-			_pos.x += CELL_SIZE;
+			pos.x += CELL_SIZE;
 			_dwTimeX += dt;
 		}
 	}
@@ -196,7 +197,7 @@ void GC_Camera::EndFrame()
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
 		{
-			_pos.y -= CELL_SIZE;
+			pos.y -= CELL_SIZE;
 			_dwTimeY += dt;
 		}
 	}
@@ -206,7 +207,7 @@ void GC_Camera::EndFrame()
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
 		{
-			_pos.y += CELL_SIZE;
+			pos.y += CELL_SIZE;
 			_dwTimeY += dt;
 		}
 	}
@@ -220,10 +221,12 @@ void GC_Camera::EndFrame()
 	//------------------------------------------------------
 	int dx = __max(0, (int) ((float)  WIDTH(_viewport) / _zoom - g_level->_sx) / 2);
 	int dy = __max(0, (int) ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
-	_pos.x = (float) __max(int(_pos.x), dx);
-	_pos.x = (float) __min(int(_pos.x), int(g_level->_sx - (float) WIDTH(_viewport) / _zoom) + dx);
-	_pos.y = (float) __max(int(_pos.y), dy);
-	_pos.y = (float) __min(int(_pos.y), int(g_level->_sy - (float) HEIGHT(_viewport) / _zoom) + dy);
+	pos.x = (float) __max(int(pos.x), dx);
+	pos.x = (float) __min(int(pos.x), int(g_level->_sx - (float) WIDTH(_viewport) / _zoom) + dx);
+	pos.y = (float) __max(int(pos.y), dy);
+	pos.y = (float) __min(int(pos.y), int(g_level->_sy - (float) HEIGHT(_viewport) / _zoom) + dy);
+
+	MoveTo(pos);
 }
 
 void GC_Camera::SwitchEditor()
@@ -344,7 +347,7 @@ void GC_Camera::Shake(float level)
 
 void GC_Camera::Serialize(SaveFile &f)
 {	/////////////////////////////////////
-	GC_Object::Serialize(f);
+	GC_Actor::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_angle_current);
 	f.Serialize(_active);
@@ -366,7 +369,7 @@ void GC_Camera::Kill()
 	_player = NULL;
 	Activate(false);
 	//-------------------
-	GC_Object::Kill();
+	GC_Actor::Kill();
 	//-------------------
 	UpdateLayout();
 }

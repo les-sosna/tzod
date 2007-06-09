@@ -16,8 +16,8 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 {
-	ED("respawn_point", "Точка рождения танка", 
-	    0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2, false);
+	ED_ACTOR("respawn_point", "Точка рождения танка", 
+	    0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2);
 	return true;
 }
 
@@ -51,7 +51,7 @@ void GC_SpawnPoint::Draw()
 		GC_2dSprite::Draw();
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
-		g_level->DrawText(teams[_team], _pos, alignTextCC);
+		g_level->DrawText(teams[_team], GetPos(), alignTextCC);
 	}
 }
 
@@ -195,7 +195,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 	///////////////////////
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);
-	_object->Subscribe(NOTIFY_OBJECT_MOVE, this,
+	_object->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
@@ -271,17 +271,19 @@ void GC_IndicatorBar::OnUpdate(GC_Object *sender, void *param)
 		// update position
 		//
 
+		const GC_2dSprite *sprite = static_cast<GC_2dSprite*>(sender);
+
 		FRECT frame;
-		((GC_2dSprite *) sender)->GetGlobalRect(frame);
+		sprite->GetGlobalRect(frame);
 
 		switch( _location )
 		{
 		case LOCATION_TOP:
-			MoveTo( vec2d(sender->_pos.x - _initial_width / 2.0f,
+			MoveTo( vec2d(sprite->GetPos().x - _initial_width / 2.0f,
 				__max(frame.top - GetSpriteHeight(), 0)) );
 			break;
 		case LOCATION_BOTTOM:
-			MoveTo( vec2d(sender->_pos.x - _initial_width / 2.0f,
+			MoveTo( vec2d(sprite->GetPos().x - _initial_width / 2.0f,
 				__min(frame.bottom + GetSpriteHeight(),
 				g_level->_sy - GetSpriteHeight()*2)) );
 			break;
@@ -314,7 +316,7 @@ GC_DamLabel::GC_DamLabel(GC_Vehicle *pVehicle) : GC_2dSprite()
 	SetZ(Z_VEHICLE_LABEL);
 
 	_vehicle = pVehicle;
-	_vehicle->Subscribe(NOTIFY_OBJECT_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
+	_vehicle->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
 
 	_time = 0;
 	_time_life = 0.4f;
@@ -380,7 +382,7 @@ void GC_DamLabel::Reset()
 
 void GC_DamLabel::OnVehicleMove(GC_Object *sender, void *param)
 {
-	MoveTo(sender->_pos);
+	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
 
 

@@ -294,7 +294,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			if( !pVehicle->GetPlayer()->IsDead() )
 			{
 				wsprintf( score, "%d", pVehicle->GetPlayer()->GetScore() );
-				new GC_Text_ToolTip(pVehicle->_pos, score, font);
+				new GC_Text_ToolTip(pVehicle->GetPos(), score, font);
 			}
 		}
 		else
@@ -303,7 +303,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			// убийца - стационарная установка
 			GetPlayer()->ChangeScore(-1);
 			wsprintf(score, "%d", GetPlayer()->GetScore());
-			new GC_Text_ToolTip(_pos, score, "font_digits_red");
+			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
 			wsprintf(msg, "%s нарвался на неприятности", GetPlayer()->GetNick().c_str());
 		}
 		else
@@ -335,8 +335,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	//
 
 	vec2d trackTmp(_angle+PI/2);
-	vec2d trackL = _pos + trackTmp*15;
-	vec2d trackR = _pos - trackTmp*15;
+	vec2d trackL = GetPos() + trackTmp*15;
+	vec2d trackR = GetPos() - trackTmp*15;
 
 
 
@@ -351,7 +351,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			(new GC_Particle(_pos + vrand(frand(24.0f)), SPEED_SMOKE,
+			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE,
 				smoke, 1.5f))->_time = frand(1.0f);
 		}
 	}
@@ -422,7 +422,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 
 	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
 	{
-		_moveSound->MoveTo(_pos);
+		_moveSound->MoveTo(GetPos());
 		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.Length() / _MaxForvSpeed));
 		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.Length() / _MaxForvSpeed));
 	}
@@ -435,8 +435,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( g_conf.g_particles->Get() )
 	{
 		vec2d tmp(_angle+PI/2);
-		vec2d trackL_new = _pos + tmp*15;
-		vec2d trackR_new = _pos - tmp*15;
+		vec2d trackL_new = GetPos() + tmp*15;
+		vec2d trackR_new = GetPos() - tmp*15;
 
 		vec2d e = trackL_new - trackL;
 		float len = e.Length();
@@ -469,22 +469,22 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	//
 	// die if out of level bounds
 	//
-	if( _pos.x < 0 || _pos.x > g_level->_sx ||
-		_pos.y < 0 || _pos.y > g_level->_sy )
+	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
+		GetPos().y < 0 || GetPos().y > g_level->_sy )
 	{
-		if( !TakeDamage(GetHealth(), _pos, this) ) Kill();
+		if( !TakeDamage(GetHealth(), GetPos(), this) ) Kill();
 	}
 }
 
 void GC_Vehicle::UpdateLight()
 {
-	_light1->MoveTo(_pos + vec2d(_angle + 0.6f) * 20 );
+	_light1->MoveTo(GetPos() + vec2d(_angle + 0.6f) * 20 );
 	_light1->SetAngle(_angle + 0.2f);
 	_light1->Enable(_state._bLight);
-	_light2->MoveTo(_pos + vec2d(_angle - 0.6f) * 20 );
+	_light2->MoveTo(GetPos() + vec2d(_angle - 0.6f) * 20 );
 	_light2->SetAngle(_angle - 0.2f);
 	_light2->Enable(_state._bLight);
-	_light_ambient->MoveTo(_pos);
+	_light_ambient->MoveTo(GetPos());
 	_light_ambient->Enable(_state._bLight);
 }
 
@@ -496,7 +496,7 @@ void GC_Vehicle::Draw()
 
 void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(s, SMODE_LOOP, _pos);
+	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -566,7 +566,7 @@ void GC_Tank_Light::SetDefaults()
 
 void GC_Tank_Light::OnDestroy()
 {
-	new GC_Boom_Big( _pos, NULL);
+	new GC_Boom_Big( GetPos(), NULL);
 }
 
 // end of file

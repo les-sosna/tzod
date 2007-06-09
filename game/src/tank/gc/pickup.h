@@ -38,7 +38,7 @@ public:
 public:
 	virtual DWORD checksum(void) const
 	{
-		DWORD cs = reinterpret_cast<const DWORD&>(_pos.x) ^ reinterpret_cast<const DWORD&>(_pos.y);
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
 		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif
@@ -50,7 +50,6 @@ class GC_PickUp : public GC_Item
 {
 	MemberOfGlobalList _memberOf;
 
-protected:
 	class MyPropertySet : public PropertySet
 	{
 		typedef PropertySet BASE;
@@ -62,6 +61,20 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool bApply);
 	};
+
+	virtual SafePtr<PropertySet> GetProperties();
+
+protected:
+	virtual void Kill();
+	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void Respawn();
+
+	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFloat(float dt);
+	virtual void Draw();
+
+	virtual void mapExchange(MapFile &f);
+	virtual void Serialize(SaveFile &f);
 
 public:
 	bool	_bMostBeAllowed; // небходимо разрешение, чтобы подобрать предмет
@@ -77,36 +90,21 @@ public:
 public:
 	GC_PickUp(float x, float y);
 	GC_PickUp(FromFile);
-	virtual void Kill();
-
-	virtual void Serialize(SaveFile &f);
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return _blink; }
 
 	bool IsAttached() const { return _attached; }
 
-
-
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle) {return AIP_NORMAL;};
 
 	virtual GC_Vehicle* CheckPickUp();
-	virtual void GiveIt(GC_Vehicle* pVehicle);
-	virtual void Respawn();
 
 	virtual float GetDefaultRespawnTime() const = 0;
 	virtual GC_PickUp* SetRespawn() = 0; //создать скрытую копию себя
 	void SetAnchor(GC_Object *object);
-
-	virtual void TimeStepFixed(float dt);
-	virtual void TimeStepFloat(float dt);
-
-	virtual void Draw();
-
-	virtual void mapExchange(MapFile &f);
-	virtual SafePtr<PropertySet> GetProperties();
 
 #ifdef NETWORK_DEBUG
 public:

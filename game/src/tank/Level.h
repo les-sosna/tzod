@@ -1,10 +1,11 @@
 // Level.h
-#pragma once
 
-////////////////////////////////////////////////////
+#pragma once
 
 #include "gc/Object.h" // FIXME!
 
+
+#pragma region path finding stuff
 
 class GC_RigidBodyStatic;
 
@@ -110,19 +111,19 @@ public:
 
 };
 
+#pragma endregion
+
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ED(name, desc, layer, width, height, align, offset, isservice)   \
-	Level::RegisterType<__this_class>(                                   \
-	(name), (desc), (layer), (width), (height), (align), (offset), (isservice))
+#define ED_ACTOR(name, desc, layer, width, height, align, offset)    \
+	Level::RegisterActor<__this_class>(                              \
+	(name), (desc), (layer), (width), (height), (align), (offset) )
 
-#define ED_ITEM(name, desc) ED(name, desc, 1, 2, 2, CELL_SIZE/2, 0, false)
-#define ED_LAND(name, desc, layer) ED(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, false)
-#define ED_TURRET(name, desc) ED(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE, false)
+#define ED_ITEM(name, desc) ED_ACTOR(name, desc, 1, 2, 2, CELL_SIZE/2, 0)
+#define ED_LAND(name, desc, layer) ED_ACTOR(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2)
+#define ED_TURRET(name, desc) ED_ACTOR(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE)
 
-
-
-////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 class GC_Object;
 class GC_Sound;
@@ -159,6 +160,7 @@ public:
 
 	// logics
 	OBJECT_LIST     objects;     // global list
+	OBJECT_LIST     services;
 	OBJECT_LIST     respawns;
 	OBJECT_LIST     projectiles;
 	OBJECT_LIST     players;
@@ -262,6 +264,7 @@ public:
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
 
+	void LocationFromPoint(const vec2d &pt, Location &l);
 
 	//
 	// tracing
@@ -283,10 +286,19 @@ public:
 
 private:
 	typedef GC_Object* (*CreateProc) (float, float);
-	template<class T> static GC_Object* CreateObject(float x, float y)
+	
+	template<class T>
+	static GC_Object* CreateActor(float x, float y)
 	{
 		return new T(x, y);
 	}
+
+	template<class T>
+	static GC_Object* CreateService(float x, float y)
+	{
+		return new T();
+	}
+
 
 	struct EdItem
 	{
@@ -346,19 +358,33 @@ public:
 		_ASSERT(IsRegistered(type));
 		return get_t2i()[type].name;
 	}
-	template<class T> 
-	static void RegisterType( const char *name, const char *desc, int layer, float width,
-	                          float height, float align, float offset, bool isService )
+	template<class T>
+	static void RegisterActor( const char *name, const char *desc, int layer, float width,
+	                           float height, float align, float offset )
 	{
+		_ASSERT( !IsRegistered(T::this_type) );
 		EdItem ei;
-		ei.Create  = (CreateProc) CreateObject<T>;
 		ei.desc    = desc;
 		ei.name    = name;
 		ei.layer   = layer;
 		ei.size    = vec2d(width, height);
 		ei.align   = align;
 		ei.offset  = offset;
-		ei.service = isService;
+		ei.service = false;
+		ei.Create  = CreateActor<T>;
+		get_t2i()[T::this_type] = ei;
+		get_n2t()[name] = T::this_type;
+		get_i2t().push_back(T::this_type);
+	}
+	template<class T>
+	static void RegisterService( const char *name, const char *desc )
+	{
+		_ASSERT( !IsRegistered(T::this_type) );
+		EdItem ei = {0};
+		ei.desc    = desc;
+		ei.name    = name;
+		ei.service = true;
+		ei.Create  = CreateService<T>;
 		get_t2i()[T::this_type] = ei;
 		get_n2t()[name] = T::this_type;
 		get_i2t().push_back(T::this_type);

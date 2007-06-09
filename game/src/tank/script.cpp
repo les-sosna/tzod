@@ -342,10 +342,16 @@ static int luaT_addbot(lua_State *L)
 	// check args
 	//
 	int n = lua_gettop(L);
-	if( 1 != n )
+	if( n > 1 )
 	{
 		return luaL_error(L, "one argument expected; got %d", n);
 	}
+
+	if( 0 == n )
+	{
+		lua_createtable(L, 0, 0);
+	}
+
 	luaL_checktype(L, 1, LUA_TTABLE);
 
 	if( !g_level )

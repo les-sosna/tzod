@@ -55,8 +55,8 @@ GC_Light::GC_Light(enumLightType type)
 	}
 }
 
-GC_Light::GC_Light(FromFile)
-    : GC_Object(FromFile()), _memberOf(g_level->lights, this)
+GC_Light::GC_Light(FromFile) : GC_Actor(FromFile())
+  , _memberOf(g_level->lights, this)
 {
 }
 
@@ -66,7 +66,7 @@ GC_Light::~GC_Light()
 
 void GC_Light::Serialize(SaveFile &f)
 {
-	GC_Object::Serialize(f);
+	GC_Actor::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_angle);
 	f.Serialize(_aspect);
@@ -96,12 +96,12 @@ void GC_Light::Shine()
 	case LIGHT_POINT:
 		v = g_render->DrawFan(SINTABLE_SIZE>>1);
 		v[0].color = color;
-		v[0].x = _pos.x;
-		v[0].y = _pos.y;
+		v[0].x = GetPos().x;
+		v[0].y = GetPos().y;
 		for( int i = 0; i < SINTABLE_SIZE>>1; i++ )
 		{
-			v[i+1].x = _pos.x + _radius * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
-			v[i+1].y = _pos.y + _radius * _sintable[i<<1];
+			v[i+1].x = GetPos().x + _radius * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
+			v[i+1].y = GetPos().y + _radius * _sintable[i<<1];
 			v[i+1].color.dwColor = 0x00000000;
 		}
 		break;
@@ -109,14 +109,14 @@ void GC_Light::Shine()
 		s = sinf(_angle); c = cosf(_angle);
 		v = g_render->DrawFan(SINTABLE_SIZE);
 		v[0].color = color;
-		v[0].x = _pos.x;
-		v[0].y = _pos.y;
+		v[0].x = GetPos().x;
+		v[0].y = GetPos().y;
 		for( int i = 0; i < SINTABLE_SIZE; i++ )
 		{
 			x = _offset + _radius * _sintable[i+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			y = _radius * _sintable[i] * _aspect;
-			v[i+1].x = _pos.x + x*c - y*s;
-			v[i+1].y = _pos.y + y*c + x*s;
+			v[i+1].x = GetPos().x + x*c - y*s;
+			v[i+1].y = GetPos().y + y*c + x*s;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 		break;
@@ -124,39 +124,39 @@ void GC_Light::Shine()
 		s = sinf(_angle); c = cosf(_angle);
 		v = g_render->DrawFan((SINTABLE_SIZE>>2)+4);
 		v[0].color = color;
-		v[0].x = _pos.x;
-		v[0].y = _pos.y;
+		v[0].x = GetPos().x;
+		v[0].y = GetPos().y;
 		for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
 		{
 			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			x = _offset * _sintable[i<<1];
-			v[i+1].x = _pos.x - x*c - y*s;
-			v[i+1].y = _pos.y - x*s + y*c;
+			v[i+1].x = GetPos().x - x*c - y*s;
+			v[i+1].y = GetPos().y - x*s + y*c;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 
 		v[(SINTABLE_SIZE>>2)+2].color.dwColor = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+2].x = _pos.x + _radius * c + _offset*s;
-		v[(SINTABLE_SIZE>>2)+2].y = _pos.y + _radius * s - _offset*c;
+		v[(SINTABLE_SIZE>>2)+2].x = GetPos().x + _radius * c + _offset*s;
+		v[(SINTABLE_SIZE>>2)+2].y = GetPos().y + _radius * s - _offset*c;
 
 		v[(SINTABLE_SIZE>>2)+3].color = color;
-		v[(SINTABLE_SIZE>>2)+3].x = _pos.x + _radius * c;
-		v[(SINTABLE_SIZE>>2)+3].y = _pos.y + _radius * s;
+		v[(SINTABLE_SIZE>>2)+3].x = GetPos().x + _radius * c;
+		v[(SINTABLE_SIZE>>2)+3].y = GetPos().y + _radius * s;
 
 		v[(SINTABLE_SIZE>>2)+4].color.dwColor = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+4].x = _pos.x + _radius * c - _offset*s;
-		v[(SINTABLE_SIZE>>2)+4].y = _pos.y + _radius * s + _offset*c;
+		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * c - _offset*s;
+		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * s + _offset*c;
 
 		v = g_render->DrawFan((SINTABLE_SIZE>>2)+1);
 		v[0].color = color;
-		v[0].x = _pos.x + _radius * c;
-		v[0].y = _pos.y + _radius * s;
+		v[0].x = GetPos().x + _radius * c;
+		v[0].y = GetPos().y + _radius * s;
 		for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
 		{
 			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			x = _offset * _sintable[i<<1] + _radius;
-			v[i+1].x = _pos.x + x*c - y*s;
-			v[i+1].y = _pos.y + x*s + y*c;
+			v[i+1].x = GetPos().x + x*c - y*s;
+			v[i+1].y = GetPos().y + x*s + y*c;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 		break;
@@ -174,13 +174,13 @@ void GC_Light::Enable(bool bEnable)
 void GC_Light::Kill()
 {
 	SAFE_KILL(_lamp);
-	GC_Object::Kill();
+	GC_Actor::Kill();
 }
 
 void GC_Light::MoveTo(const vec2d &pos)
 {
 	_lamp->MoveTo(pos);
-	GC_Object::MoveTo(pos);
+	GC_Actor::MoveTo(pos);
 }
 
 void GC_Light::SetTimeout(float t)
@@ -254,7 +254,7 @@ void GC_Spotlight::EditorAction()
 
 	SetRotation(a);
 	_light->SetAngle(a);
-	_light->MoveTo(_pos+vec2d(a)*7);
+	_light->MoveTo(GetPos()+vec2d(a)*7);
 }
 
 void GC_Spotlight::mapExchange(MapFile &f)
@@ -268,7 +268,7 @@ void GC_Spotlight::mapExchange(MapFile &f)
 	{
 		SetRotation(a);
 		_light->SetAngle(a);
-		_light->MoveTo(_pos+vec2d(a)*7);
+		_light->MoveTo(GetPos()+vec2d(a)*7);
 	}
 }
 

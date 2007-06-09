@@ -16,15 +16,6 @@ class GC_Object;
 typedef PtrList<GC_Object> OBJECT_LIST;
 typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
 
-template <class T>
-struct ObjectContext
-{
-	GridSet<T> *pGridSet;
-	//-------
-	typename T::iterator iterator;
-	BOOL inContext;
-};
-
 /////////////////////////////////////////
 // rtti and serialization
 
@@ -162,8 +153,6 @@ class GC_Object
 
 protected:
 
-	typedef ObjectContext<OBJECT_LIST> ObjectContext;
-
 	class MemberOfGlobalList
 	{
 		OBJECT_LIST           *_list;
@@ -183,8 +172,6 @@ protected:
 
 
 private:
-	typedef std::list<ObjectContext>::iterator CONTEXTS_ITERATOR;
-
 	MemberOfGlobalList _memberOf;
 
 	struct Notify
@@ -218,9 +205,6 @@ private:
 	DWORD           _flags;             // некоторые свойства определ€ютс€ флагами
 	int             _refCount;          // число ссылок на объект. при создании = 1
 
-	std::list<ObjectContext> _contexts;    // список контекстов данного объекта
-	Location                 _location;    // координаты в контексте.
-
 	OBJECT_LIST::iterator _itPosFixed;      // позици€ в Level::ts_fixed
 	OBJECT_LIST::iterator _itPosFloating;   // позици€ в Level::ts_floating
 	OBJECT_LIST::iterator _itPosEndFrame;   // позици€ в Level::endframe
@@ -249,19 +233,12 @@ protected:
 	}
 
 
-public:    // FIXME!
-	vec2d  _pos;    // положение центра объекта в мире
-
-
 	//
 	// access functions
 	//
 
 public:
-	int   GetLocationX()      const { return _location.x;     }
-	int   GetLocationY()      const { return _location.y;     }
-	int   GetLocationLevel()  const { return _location.level; }
-	bool  IsKilled()          const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
+	bool  IsKilled() const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
 
 
 	//
@@ -277,23 +254,15 @@ public:
 	//
 
 private:
-	void LeaveAllContexts();
-	void EnterAllContexts(const Location &l);
-	void EnterContext(ObjectContext &context, const Location &l);
-	void LeaveContext(ObjectContext &context);
-
 	void OnKillSubscriber(GC_Object *sender, void *param);
 
 protected:
 	void PulseNotify(NotyfyType type, void *param = NULL);
 
 public:
-	static void LocationFromPoint(const vec2d &pt, Location &l);
 	int  AddRef();
 	int  Release();
 
-	void AddContext(OBJECT_GRIDSET *pGridSet);
-	void RemoveContext(OBJECT_GRIDSET *pGridSet);
 	void SetEvents(DWORD dwEvents);
 
 	const char* GetName() const;
@@ -374,7 +343,6 @@ public:
 
 public:
 	virtual void Kill();
-	virtual void MoveTo(const vec2d &pos);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);

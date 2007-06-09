@@ -10,14 +10,14 @@
 // forward declarations
 template<class T> class JobManager;
 struct VehicleState;
-class GC_Object;
+class GC_Actor;
 class GC_RigidBodyStatic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct AIITEMINFO
 {
-	GC_Object *object;
+	GC_Actor  *object;
 	AIPRIORITY priority;
 };
 

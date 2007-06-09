@@ -62,18 +62,11 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 	_ASSERT( NULL == pVehicle->GetWeapon() );
 	SetZ(Z_ATTACHED_ITEM);
 
-	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, _pos);
+	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
-//	GC_Weapon *pOldWeap = pVehicle->GetWeapon();
-//	if( pOldWeap )
-//	{
-//		pVehicle->_weapon->Detach();
-//		pOldWeap->Kill();
-//	}
-
 	_proprietor = pVehicle;
-	_proprietor->Subscribe(NOTIFY_OBJECT_MOVE, this,
+	_proprietor->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_Weapon::OnProprietorMove, false, false);
 
 	_attached = true;
@@ -83,7 +76,7 @@ void GC_Weapon::Attach(GC_Vehicle *pVehicle)
 
 	SetCrosshair();
 
-	PLAY(SND_w_PickUp, _pos);
+	PLAY(SND_w_PickUp, GetPos());
 
 	_fireEffect = new GC_UserSprite();
 	_fireEffect->SetZ(Z_EXPLODE);
@@ -196,10 +189,10 @@ void GC_Weapon::UpdateView()
 			_fireEffect->SetOpacity(op);
 			float s = sinf(_proprietor->_angle + _angle);
 			float c = cosf(_proprietor->_angle + _angle);
-			_fireEffect->MoveTo(_pos +
+			_fireEffect->MoveTo(GetPos() +
 				vec2d(_fePos.x*c + _fePos.y*s, _fePos.x*s - _fePos.y*c));
 
-			_fireLight->MoveTo(_fireEffect->_pos);
+			_fireLight->MoveTo(_fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
 			_fireLight->Enable(true);
 		}
@@ -257,12 +250,12 @@ void GC_Weapon::OnProprietorMove(GC_Vehicle *sender, void *param)
 {
 	_ASSERT(_attached);
 
-	MoveTo(_proprietor->_pos);
+	MoveTo(_proprietor->GetPos());
 	UpdateView();
 
 	if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
 	{
-		_crosshair->MoveTo(_pos + vec2d(_proprietor->_angle + _angle) * CH_DISTANCE_NORMAL );
+		_crosshair->MoveTo(GetPos() + vec2d(_proprietor->_angle + _angle) * CH_DISTANCE_NORMAL );
 	}
 }
 
@@ -320,7 +313,7 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile) : GC_Weapon(FromFile())
 
 GC_PickUp* GC_Weap_RocketLauncher::SetRespawn()
 {
-	return new GC_Weap_RocketLauncher(_pos.x, _pos.y);
+	return new GC_Weap_RocketLauncher(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
@@ -350,7 +343,7 @@ void GC_Weap_RocketLauncher::Fire()
 			float ax = cosf(_proprietor->_angle + _angle) * 15.0f + dy * sinf(_proprietor->_angle + _angle);
 			float ay = sinf(_proprietor->_angle + _angle) * 15.0f - dy * cosf(_proprietor->_angle + _angle);
 
-			new GC_Rocket(_proprietor->_pos + vec2d(ax, ay),
+			new GC_Rocket(_proprietor->GetPos() + vec2d(ax, ay),
 						  vec2d(_proprietor->_angle + dang + _angle) * SPEED_ROCKET,
 						  GetRawPtr(_proprietor), _advanced );
 
@@ -382,7 +375,7 @@ void GC_Weap_RocketLauncher::Fire()
 				float ax = cosf(_proprietor->_angle + _angle) * 15.0f + dy * sinf(_proprietor->_angle + _angle);
 				float ay = sinf(_proprietor->_angle + _angle) * 15.0f - dy * cosf(_proprietor->_angle + _angle);
 
-				new GC_Rocket(_proprietor->_pos + vec2d(ax, ay),
+				new GC_Rocket(_proprietor->GetPos() + vec2d(ax, ay),
 							  vec2d(_proprietor->_angle + dang + _angle) * SPEED_ROCKET,
 							  GetRawPtr(_proprietor), _advanced );
 
@@ -422,7 +415,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 		else if( _time >= _time_reload && !_reloaded )
 		{
 			_reloaded = true;
-			if( !_advanced) PLAY(SND_WeapReload, _pos);
+			if( !_advanced) PLAY(SND_WeapReload, GetPos());
 		}
 	}
 
@@ -513,7 +506,7 @@ GC_Weap_AutoCannon::~GC_Weap_AutoCannon()
 
 GC_PickUp* GC_Weap_AutoCannon::SetRespawn()
 {
-	return new GC_Weap_AutoCannon(_pos.x, _pos.y);
+	return new GC_Weap_AutoCannon(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_AutoCannon::Serialize(SaveFile &f)
@@ -541,13 +534,13 @@ void GC_Weap_AutoCannon::Fire()
 					float ax = cosf(_proprietor->_angle + _angle) * 17.0f - dy * sinf(_proprietor->_angle + _angle);
 					float ay = sinf(_proprietor->_angle + _angle) * 17.0f + dy * cosf(_proprietor->_angle + _angle);
 
-					new GC_ACBullet(_proprietor->_pos + vec2d(ax, ay),
+					new GC_ACBullet(_proprietor->GetPos() + vec2d(ax, ay),
 									vec2d(_proprietor->_angle + _angle) * SPEED_ACBULLET,
 									GetRawPtr(_proprietor), _advanced );
 				}
 
 				_time   = 0;
-				PLAY(SND_ACShoot, _pos);
+				PLAY(SND_ACShoot, GetPos());
 
 				_fePos.Set(17.0f, 0);
 				_fireEffect->Show(true);
@@ -572,12 +565,12 @@ void GC_Weap_AutoCannon::Fire()
 				float ax = cosf(_proprietor->_angle + _angle) * 17.0f - dy * sinf(_proprietor->_angle + _angle);
 				float ay = sinf(_proprietor->_angle + _angle) * 17.0f + dy * cosf(_proprietor->_angle + _angle);
 
-				new GC_ACBullet(_proprietor->_pos + vec2d(ax, ay),
+				new GC_ACBullet(_proprietor->GetPos() + vec2d(ax, ay),
 								vec2d(_proprietor->_angle + dang + _angle) * SPEED_ACBULLET,
 								GetRawPtr(_proprietor), _advanced );
 
 				_time = 0;
-				PLAY(SND_ACShoot, _pos);
+				PLAY(SND_ACShoot, GetPos());
 
 				_fePos.Set(17.0f, -dy);
 				_fireEffect->Show(true);
@@ -673,7 +666,7 @@ GC_Weap_Cannon::~GC_Weap_Cannon()
 
 GC_PickUp* GC_Weap_Cannon::SetRespawn()
 {
-	return new GC_Weap_Cannon(_pos.x, _pos.y);
+	return new GC_Weap_Cannon(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Cannon::Serialize(SaveFile &f)
@@ -690,7 +683,7 @@ void GC_Weap_Cannon::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_TankBullet(_pos + a * 17.0f, a * SPEED_TANKBULLET + g_level->net_vrand(50),
+		new GC_TankBullet(GetPos() + a * 17.0f, a * SPEED_TANKBULLET + g_level->net_vrand(50),
 			GetRawPtr(_proprietor), _advanced );
 
 		if( !_advanced )
@@ -732,7 +725,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
 			vec2d a(_proprietor->_angle + _angle);
-			new GC_Particle(_pos + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
+			new GC_Particle(GetPos() + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
 		}
 	}
 }
@@ -774,7 +767,7 @@ return;
 
 GC_PickUp* GC_Weap_Plazma::SetRespawn()
 {
-	return new GC_Weap_Plazma(_pos.x, _pos.y);
+	return new GC_Weap_Plazma(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Plazma::Fire()
@@ -783,7 +776,7 @@ void GC_Weap_Plazma::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_PlazmaClod(_pos + a * 15.0f,
+		new GC_PlazmaClod(GetPos() + a * 15.0f,
 			a * SPEED_PLAZMA + g_level->net_vrand(20), GetRawPtr(_proprietor), _advanced );
 
 		_time = 0;
@@ -847,7 +840,7 @@ GC_Weap_Gauss::~GC_Weap_Gauss()
 
 GC_PickUp* GC_Weap_Gauss::SetRespawn()
 {
-	return new GC_Weap_Gauss(_pos.x, _pos.y);
+	return new GC_Weap_Gauss(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Gauss::Fire()
@@ -857,7 +850,7 @@ void GC_Weap_Gauss::Fire()
 		float s = sinf(_proprietor->_angle + _angle);
 		float c = cosf(_proprietor->_angle + _angle);
 
-		new GC_GaussRay(vec2d(_pos.x + c + 5 * s, _pos.y + s - 5 * c),
+		new GC_GaussRay(vec2d(GetPos().x + c + 5 * s, GetPos().y + s - 5 * c),
 			vec2d(c, s) * SPEED_GAUSS, GetRawPtr(_proprietor), _advanced );
 
 		_time = 0;
@@ -916,7 +909,7 @@ void GC_Weap_Ram::Attach(GC_Vehicle *pVehicle)
 {
 	GC_Weapon::Attach(pVehicle);
 
-	_engineSound = new GC_Sound(SND_RamEngine, SMODE_STOP, _pos);
+	_engineSound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
 
 	_engineLight = new GC_Light(GC_Light::LIGHT_POINT);
 	_engineLight->SetIntensity(1.0f);
@@ -971,12 +964,12 @@ GC_Weap_Ram::~GC_Weap_Ram()
 void GC_Weap_Ram::UpdateView()
 {
 	GC_Weapon::UpdateView();
-	_engineLight->MoveTo(_pos-vec2d(GetRotation())*20);
+	_engineLight->MoveTo(GetPos()-vec2d(GetRotation())*20);
 }
 
 GC_PickUp* GC_Weap_Ram::SetRespawn()
 {
-	return new GC_Weap_Ram(_pos.x, _pos.y);
+	return new GC_Weap_Ram(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Ram::Serialize(SaveFile &f)
@@ -1040,7 +1033,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 		if( _bFire )
 		{
 			_engineSound->Pause(false);
-			_engineSound->MoveTo(_pos);
+			_engineSound->MoveTo(GetPos());
 
 			_fuel = __max(0, _fuel - _fuel_rate * dt);
 			if( 0 == _fuel ) _bReady = false;
@@ -1053,7 +1046,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				const float lenght = 50.0f;
 				vec2d a(_proprietor->_angle + _angle);
 
-				vec2d emitter = _pos - a * 20.0f;
+				vec2d emitter = GetPos() - a * 20.0f;
 				vec2d hit;
 				GC_RigidBodyStatic *object = g_level->agTrace (
 					g_level->grid_rigid_s, GetRawPtr(_proprietor), emitter, -a * lenght, &hit);
@@ -1080,7 +1073,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				const float lenght = 50.0f;
 				vec2d a(_proprietor->_angle + _angle + l * 0.15f);
 
-				vec2d emitter = _pos - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
+				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 				vec2d hit;
 				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s,
 					GetRawPtr(_proprietor), emitter + a * 2.0f, -a * lenght, &hit);
@@ -1176,7 +1169,7 @@ GC_Weap_BFG::~GC_Weap_BFG()
 
 GC_PickUp* GC_Weap_BFG::SetRespawn()
 {
-	return new GC_Weap_BFG(_pos.x, _pos.y);
+	return new GC_Weap_BFG(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_BFG::Serialize(SaveFile &f)
@@ -1194,7 +1187,7 @@ void GC_Weap_BFG::Fire()
 	{
 		if( !_advanced && 0 == _time_ready )
 		{
-			PLAY(SND_BfgInit, _proprietor->_pos);
+			PLAY(SND_BfgInit, _proprietor->GetPos());
 			_time_ready = FLT_EPSILON;
 		}
 
@@ -1205,7 +1198,7 @@ void GC_Weap_BFG::Fire()
 			float s = sinf(_proprietor->_angle + _angle);
 			float c = cosf(_proprietor->_angle + _angle);
 
-			new GC_BfgCore(_pos + a * 16.0f, vec2d(c, s) * SPEED_BFGCORE,
+			new GC_BfgCore(GetPos() + a * 16.0f, vec2d(c, s) * SPEED_BFGCORE,
 				GetRawPtr(_proprietor), _advanced );
 
 			_time_ready = 0;
@@ -1279,7 +1272,7 @@ GC_Weap_Ripper::~GC_Weap_Ripper()
 
 GC_PickUp* GC_Weap_Ripper::SetRespawn()
 {
-	return new GC_Weap_Ripper(_pos.x, _pos.y);
+	return new GC_Weap_Ripper(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Ripper::Fire()
@@ -1288,9 +1281,9 @@ void GC_Weap_Ripper::Fire()
 	{
 		vec2d a(_proprietor->_angle + _angle);
 
-		new GC_Disk(_pos - a * 9.0f, a * SPEED_DISK + g_level->net_vrand(10),
+		new GC_Disk(GetPos() - a * 9.0f, a * SPEED_DISK + g_level->net_vrand(10),
 			GetRawPtr(_proprietor), _advanced );
-		PLAY(SND_DiskFire, _pos);
+		PLAY(SND_DiskFire, GetPos());
 
 		_time = 0;
 	}
@@ -1330,7 +1323,7 @@ void GC_Weap_Minigun::Attach(GC_Vehicle *pVehicle)
 	_time_fire   = 0;
 	_time_shot   = 0;
 
-	_sound = new GC_Sound(SND_MinigunFire, SMODE_STOP, _pos);
+	_sound = new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos());
 	_bFire  = false;
 
 	_fireEffect->SetTexture("minigun_fire");
@@ -1384,7 +1377,7 @@ void GC_Weap_Minigun::SetCrosshair()
 
 GC_PickUp* GC_Weap_Minigun::SetRespawn()
 {
-	return new GC_Weap_Minigun(_pos.x, _pos.y);
+	return new GC_Weap_Minigun(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Minigun::Serialize(SaveFile &f)
@@ -1444,7 +1437,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 			SetTexture((fmodf(_time_rotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
 
-			_sound->MoveTo(_proprietor->_pos);
+			_sound->MoveTo(_proprietor->GetPos());
 			_sound->Pause(false);
 			_bFire = false;
 
@@ -1459,7 +1452,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 				vec2d a(_proprietor->_angle + _angle + g_level->net_frand(da * 2.0f) - da);
 				a *= (1 - g_level->net_frand(0.2f));
 
-				new GC_Bullet(_proprietor->_pos + a * 18.0f, a * SPEED_BULLET,
+				new GC_Bullet(_proprietor->GetPos() + a * 18.0f, a * SPEED_BULLET,
 					GetRawPtr(_proprietor), _advanced );
 
 				if( !_advanced )
@@ -1488,13 +1481,13 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 	if( _crosshair )
 	{
 		_crosshair->_angle = _proprietor->_angle + da + _angle;
-		_crosshair->MoveTo(_pos + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
+		_crosshair->MoveTo(GetPos() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
 	}
 
 	if( _crosshair_left )
 	{
 		_crosshair_left->_angle = _proprietor->_angle - da + _angle;
-		_crosshair_left->MoveTo(_pos + vec2d(_crosshair_left->_angle) * CH_DISTANCE_THIN);
+		_crosshair_left->MoveTo(GetPos() + vec2d(_crosshair_left->_angle) * CH_DISTANCE_THIN);
 	}
 
 

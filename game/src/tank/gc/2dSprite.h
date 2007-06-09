@@ -3,13 +3,7 @@
 
 #pragma once
 
-#include "Object.h"
-
-// forward declarations
-//class TextureManager;
-
-//#include "video/TextureManager.h"
-
+#include "Actor.h"
 
 /////////////////////////////////////////////////
 
@@ -34,7 +28,7 @@ public:
 #define GC_FLAG_2DSPRITE_CENTERPIVOT           (GC_FLAG_OBJECT_ << 3)
 #define GC_FLAG_2DSPRITE_                      (GC_FLAG_OBJECT_ << 4)
 
-class GC_2dSprite : public GC_Object
+class GC_2dSprite : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_2dSprite);
 
@@ -58,8 +52,8 @@ public:
 	inline const vec2d& GetPivot() const { return _pivot; }
 	inline void  GetGlobalRect(FRECT &rect) const
 	{
-		rect.left   = _pos.x - _pivot.x;
-		rect.top    = _pos.y - _pivot.y;
+		rect.left   = GetPos().x - _pivot.x;
+		rect.top    = GetPos().y - _pivot.y;
 		rect.right  = rect.left + GetSpriteWidth();
 		rect.bottom = rect.top  + GetSpriteHeight();
 	}

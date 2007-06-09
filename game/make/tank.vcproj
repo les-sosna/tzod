@@ -499,6 +499,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\gc\Actor.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\gc\ai.cpp"
 					>
 				</File>
@@ -548,6 +552,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\gc\RigidBody.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\gc\Service.cpp"
 					>
 				</File>
 				<File
@@ -844,6 +852,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\gc\Actor.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\gc\ai.h"
 					>
 				</File>
@@ -897,6 +909,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\gc\RigidBody.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\gc\Service.h"
 					>
 				</File>
 				<File

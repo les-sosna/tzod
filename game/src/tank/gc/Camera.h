@@ -2,16 +2,14 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Actor.h"
 #include "core/Rotator.h"
-
-
 
 // forward declarations
 class GC_Player;
 
 
-class GC_Camera : public GC_Object
+class GC_Camera : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Camera);
 	MemberOfGlobalList _memberOf;
@@ -51,19 +49,15 @@ public:
 	virtual void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
-	//////////////////////////////////////
-	// GC_Object overrides
+	// overrides
 	virtual void Kill();
 	virtual bool IsSaved() { return _player != NULL; }
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFloat(float dt);
 	virtual void EndFrame();
 
-	//////////////////////////////////////
 	// message handlers
 	void OnDetach(GC_Object *sender, void *param);
 };
-
-
 
 // end of file

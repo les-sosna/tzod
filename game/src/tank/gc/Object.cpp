@@ -155,9 +155,6 @@ GC_Object::GC_Object() : _memberOf(g_level->objects, this)
 	_refCount             = 1;
 	_notifyProtectCount   = 0;
 	_flags                = 0;
-
-	ZeroMemory(&_location, sizeof(Location));
-	MoveTo(vec2d(0, 0));
 }
 
 GC_Object::GC_Object(FromFile) : _memberOf(g_level->objects, this)
@@ -177,7 +174,6 @@ void GC_Object::Kill()
 {
 	if( IsKilled() ) return;
 	SetFlags(GC_FLAG_OBJECT_KILLED);
-	LeaveAllContexts();
 
 	// отписка от событий движка
 	SetEvents(0);
@@ -200,8 +196,6 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 void GC_Object::Serialize(SaveFile &f)
 {
 	f.Serialize(_flags);
-	f.Serialize(_location);
-	f.Serialize(_pos);
 	f.Serialize(_refCount);
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
@@ -291,93 +285,6 @@ int GC_Object::Release()
 		return 0;
 	}
 	return _refCount;
-}
-
-void GC_Object::LocationFromPoint(const vec2d &pt, Location &l)
-{
-	int x = __max(0, int((pt.x + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
-	int y = __max(0, int((pt.y + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
-
-	l.level = (x % 2) + (y % 2) * 2;
-	l.x = __min(g_level->_locations_x-1, x / 2);
-	l.y = __min(g_level->_locations_y-1, y / 2);
-}
-
-void GC_Object::MoveTo(const vec2d &pos)
-{
-	Location l;
-	LocationFromPoint(pos, l);
-
-	_pos = pos;
-
-	if( 0 != memcmp(&l, &_location, sizeof(Location)) )
-	{
-		LeaveAllContexts();
-		EnterAllContexts(l);
-	}
-
-	PulseNotify(NOTIFY_OBJECT_MOVE);
-}
-
-void GC_Object::LeaveAllContexts()
-{
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-		LeaveContext(*it);
-}
-
-void GC_Object::LeaveContext(ObjectContext &context)
-{
-	_ASSERT(context.inContext);
-	(*context.pGridSet)(_location.level).
-		element(_location.x, _location.y).safe_erase(context.iterator);
-	context.inContext = FALSE;
-}
-
-void GC_Object::EnterAllContexts(const Location &l)
-{
-	_ASSERT(!IsKilled());
-	_location = l;
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-		EnterContext(*it, _location);
-}
-
-void GC_Object::EnterContext(ObjectContext &context, const Location &l)
-{
-	_ASSERT(!IsKilled());
-	_ASSERT(!context.inContext);
-
-	(*context.pGridSet)(l.level).element(l.x, l.y).push_front(this);
-	context.iterator  = (*context.pGridSet)(l.level).element(l.x, l.y).begin();
-	context.inContext = TRUE;
-}
-
-void GC_Object::AddContext(OBJECT_GRIDSET *pGridSet)
-{
-	_ASSERT(!IsKilled());
-
-	ObjectContext context;
-	context.inContext  = FALSE;
-	context.pGridSet   = pGridSet;
-
-	_contexts.push_front(context);
-	EnterContext(_contexts.front(), _location);
-}
-
-void GC_Object::RemoveContext(OBJECT_GRIDSET *pGridSet)
-{
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-	{
-		if( (*it).pGridSet == pGridSet )
-		{
-			if( it->inContext)
-				LeaveContext(*it);
-			_contexts.erase(it);
-			return;
-		}
-	}
-
-	// не найден удаляемый контекст
-	_ASSERT(FALSE);
 }
 
 void GC_Object::SetEvents(DWORD dwEvents)
@@ -608,18 +515,10 @@ void GC_Object::mapExchange(MapFile &f)
 		MAP_EXCHANGE_STRING("name", tmp_name, "");
 		SetName(tmp_name.c_str());
 	}
-	else
+	else if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		// координаты только сохраняются.
-		// загруженные значения передаются через конструктор.
-		MAP_EXCHANGE_FLOAT(x, _pos.x, 0);
-		MAP_EXCHANGE_FLOAT(y, _pos.y, 0);
-
-		if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
-		{
-			tmp_name = GetName();
-			MAP_EXCHANGE_STRING("name", tmp_name, "");
-		}
+		tmp_name = GetName();
+		MAP_EXCHANGE_STRING("name", tmp_name, "");
 	}
 }
 
