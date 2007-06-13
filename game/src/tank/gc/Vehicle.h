@@ -111,14 +111,15 @@ public:
 	float _rotate_power;
 
 
-	float _MaxForvSpeed;
-	float _MaxBackSpeed;
-	float _StopAccel;
-	float _ForvAccel;
-	float _BackAccel;
+//	float _MaxForvSpeed;
+//	float _MaxBackSpeed;
+//	float _StopAccel;
+//	float _ForvAccel;
+//	float _BackAccel;
 
 	VehicleState _state;
 
+	float GetMaxSpeed() const { return 100; }
 
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
@@ -126,8 +127,10 @@ public:
 	void DetachWeapon();
 	void AttachWeapon(GC_Weapon *weapon);
 
+	void SetPlayer(GC_Player *player);
+
 public:
-	GC_Vehicle(GC_Player *pPlayer);
+	GC_Vehicle(float x, float y);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();
 	virtual void Kill();
@@ -157,7 +160,7 @@ class GC_Tank_Light : public GC_Vehicle
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
 public:
-	GC_Tank_Light(vec2d pos, float dir, GC_Player *pPlayer);
+	GC_Tank_Light(float x, float y);
 	GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }

@@ -746,7 +746,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			{
 				dv /= ldv;
 				dv *= (3.0f * fabsf(_target->_lv.Length()) /
-					_target->_MaxForvSpeed +
+					_target->GetMaxSpeed() +
 					IsAdvanced() ? 1 : 0) * WEAP_BFG_HOMMING_FACTOR;
 
 				_velocity += dv * dt;

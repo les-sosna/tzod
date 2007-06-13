@@ -224,7 +224,10 @@ void GC_Player::TimeStepFixed(float dt)
 			//	}
 			//}
 
-			_vehicle = new GC_Tank_Light(pBestPoint->GetPos(), pBestPoint->GetRotation(), this);
+			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+			_vehicle->SetBodyAngle(pBestPoint->GetRotation());
+			_vehicle->SetPlayer(this);
+
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
 				(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
 			ResetClass();

@@ -25,7 +25,7 @@
 
 /////////////////////////////////////////////////////////////
 
-GC_Vehicle::GC_Vehicle(GC_Player *pPlayer)
+GC_Vehicle::GC_Vehicle(float x, float y)
   : GC_RigidBodyDynamic(), _memberOf(g_level->vehicles, this) //, _rotator(_dir1)
 {
 	SetZ(Z_VEHICLES);
@@ -36,9 +36,6 @@ GC_Vehicle::GC_Vehicle(GC_Player *pPlayer)
 	_time_smoke   = 0;
 
 	ZeroMemory(&_state, sizeof(_state));
-
-	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
-	_player = pPlayer;
 
 	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
@@ -67,6 +64,8 @@ GC_Vehicle::GC_Vehicle(GC_Player *pPlayer)
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetShadow(true);
+
+	MoveTo(vec2d(x, y));
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
@@ -79,18 +78,25 @@ GC_Vehicle::~GC_Vehicle()
 	_player = NULL;
 }
 
+void GC_Vehicle::SetPlayer(GC_Player *player)
+{
+	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
+	_player = player;
+}
+
+
 void GC_Vehicle::Serialize(SaveFile &f)
 {	/////////////////////////////////////
 	GC_RigidBodyDynamic::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_engine_power);
 	f.Serialize(_rotate_power);
-	f.Serialize(_BackAccel);
-	f.Serialize(_ForvAccel);
-	f.Serialize(_MaxBackSpeed);
-	f.Serialize(_MaxForvSpeed);
+//	f.Serialize(_BackAccel);
+//	f.Serialize(_ForvAccel);
+//	f.Serialize(_MaxBackSpeed);
+//	f.Serialize(_MaxForvSpeed);
+//	f.Serialize(_StopAccel);
 	f.Serialize(_state);
-	f.Serialize(_StopAccel);
 	f.Serialize(_time_smoke);
 	f.Serialize(_fTrackDensity);
 	f.Serialize(_fTrackPathL);
@@ -423,8 +429,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
 	{
 		_moveSound->MoveTo(GetPos());
-		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.Length() / _MaxForvSpeed));
-		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.Length() / _MaxForvSpeed));
+		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.Length() / GetMaxSpeed()));
+		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.Length() / GetMaxSpeed()));
 	}
 
 
@@ -503,17 +509,16 @@ void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
+//	ED_ACTOR("tank", "Танк", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 
-GC_Tank_Light::GC_Tank_Light(vec2d pos, float dir, GC_Player *pPlayer) : GC_Vehicle(pPlayer)
+GC_Tank_Light::GC_Tank_Light(float x, float y)
+  : GC_Vehicle(x, y)
 {
-	_direction = vec2d(_angle = dir);
+//	_MaxBackSpeed = 150;
+//	_MaxForvSpeed = 200;
 
-	_MaxBackSpeed = 150;
-	_MaxForvSpeed = 200;
-
-	MoveTo(pos);
 	SetMoveSound(SND_TankMove);
 }
 

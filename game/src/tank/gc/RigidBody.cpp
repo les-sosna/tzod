@@ -700,6 +700,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 			delta.x = tmp.x * c - tmp.y * s - dx.x;
 			delta.y = tmp.x * s - tmp.y * c - dx.y;
 
+//			float dl_sq = delta.Square();
+//			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
+
 			pProj->SpecialTrace(this, delta);
 			++it;
 
@@ -963,6 +966,13 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
 void GC_RigidBodyDynamic::ApplyTorque(float torque)
 {
 	_external_torque  += torque;
+}
+
+void GC_RigidBodyDynamic::SetBodyAngle(float a)
+{
+	_angle = a;
+	_direction = vec2d(_angle);
+	SetRotation(_angle);
 }
 
 float GC_RigidBodyDynamic::Energy() const

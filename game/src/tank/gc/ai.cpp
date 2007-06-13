@@ -830,7 +830,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 
 
 	if( 0 && bNeedStickCheck )  // проверка на застревание
-	if( GetVehicle()->_lv.Length() < GetVehicle()->_MaxForvSpeed * 0.1
+	if( GetVehicle()->_lv.Length() < GetVehicle()->GetMaxSpeed() * 0.1f
 		/* && engine_working_time > 1 sec */ )
 	{
 		// застряли :(
@@ -957,7 +957,7 @@ void GC_PlayerAI::GetControl(VehicleState *pState, float dt)
 			{
 				d = d_array[_accuracy] *
 					fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
-					static_cast<GC_Vehicle*>(GetRawPtr(_target))->_MaxForvSpeed;
+					static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 			}
 
 			if( d > 0 )
