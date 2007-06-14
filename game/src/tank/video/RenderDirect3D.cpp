@@ -68,6 +68,8 @@ class RenderDirect3D : public IRender
 	IDirect3DIndexBuffer9   *_pIB;
 	IDirect3DTexture9       *_curtex;
 
+	IDirect3DQuery9         *_query;
+
 
     HWND   _hWnd;
     SIZE   _sizeWindow;
@@ -154,6 +156,8 @@ RenderDirect3D::RenderDirect3D()
 
 	_curtex      = NULL;
 
+	_query       = NULL;
+
 	//--------------------------------------
 
 	HMODULE hmod = LoadLibrary("d3d9.dll");
@@ -190,6 +194,7 @@ void RenderDirect3D::_cleanup()
 		_VertexArray = NULL;
 	}
 
+	SAFE_RELEASE(_query);
 	SAFE_RELEASE(_pIB);
 	SAFE_RELEASE(_pVB);
 	SAFE_RELEASE(_pd3dDevice);
@@ -325,6 +330,8 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 
 	V(_pd3dDevice->SetStreamSource( 0, _pVB, 0, sizeof(MyVertex)));
 	V(_pd3dDevice->SetIndices(_pIB));
+
+	_pd3dDevice->CreateQuery( D3DQUERYTYPE_EVENT, &_query );
 
 
 	V(_pVB->Lock(0,sizeof(MyVertex)*VERTEX_BUFFER_SIZE,(void**)&_VertexArray,D3DLOCK_DISCARD));
@@ -468,6 +475,12 @@ void RenderDirect3D::End()
 
 	V(_pd3dDevice->EndScene());
 	V(_pd3dDevice->Present(NULL, NULL, NULL, NULL));
+
+//	if( _query )
+//	{
+//		_query->Issue(D3DISSUE_END);
+//		while( S_FALSE == _query->GetData(NULL, 0, D3DGETDATA_FLUSH) );
+//	}
 }
 
 void RenderDirect3D::SetMode(const RenderMode mode)
