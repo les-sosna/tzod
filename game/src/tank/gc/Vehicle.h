@@ -98,24 +98,13 @@ protected:
 	float _fTrackPathL;
 	float _fTrackPathR;
 
-
 	void UpdateLight();
 
 public:
 	void SetClass(const VehicleClass &vc); // apply vehicle class
 
-	//speed:  pixel/sec
-	//rotate: rad/sec
-
 	float _engine_power;
 	float _rotate_power;
-
-
-//	float _MaxForvSpeed;
-//	float _MaxBackSpeed;
-//	float _StopAccel;
-//	float _ForvAccel;
-//	float _BackAccel;
 
 	VehicleState _state;
 

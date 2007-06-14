@@ -796,7 +796,7 @@ GC_TurretGauss::GC_TurretGauss(float x, float y) : GC_TurretBunker(x, y)
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
 
 	_time = 0;
-	_shot_count = 0;
+	_shotCount = 0;
 
 	_time_wait_max = 0.10f;
 	_time_wake_max = 0.45f;
@@ -819,28 +819,16 @@ GC_TurretGauss::GC_TurretGauss(FromFile) : GC_TurretBunker(FromFile())
 
 void GC_TurretGauss::TargetLost()
 {
-	_shot_count = 0;
-	_time       = 0;
+	_shotCount = 0;
+	_time      = 0;
 	GC_TurretBunker::TargetLost();
 }
 
-void GC_TurretGauss::SetNormal()
-{
-	_hsize.Set(30, 20);
-	GC_TurretBunker::SetNormal();
-}
-
-void GC_TurretGauss::SetWaking()
-{
-	_hsize.Set(30, 20);
-	GC_TurretBunker::SetWaking();
-}
-
 void GC_TurretGauss::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_TurretBunker::Serialize(f);
 	/////////////////////////////////////
-	f.Serialize(_shot_count);
+	f.Serialize(_shotCount);
 	f.Serialize(_time);
 }
 
@@ -855,21 +843,21 @@ void GC_TurretGauss::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 
 void GC_TurretGauss::Fire()
 {
-	if( 0 == _shot_count )
+	if( 0 == _shotCount )
 	{
 		_time = 0;
 	}
 
-	if( _time >= (float) _shot_count * 0.2f )
+	if( _time >= (float) _shotCount * 0.2f )
 	{
-		float dy = _shot_count == 0 ? -7.0f : 7.0f;
+		float dy = _shotCount == 0 ? -7.0f : 7.0f;
 		float c = cosf(_dir), s = sinf(_dir);
 
 		new GC_GaussRay(vec2d(GetPos().x + c * 20.0f - dy * s,
 		                      GetPos().y + s * 20.0f + dy * c),
 		                vec2d(c, s) * SPEED_GAUSS, this, false );
 
-		if( ++_shot_count == 2 )
+		if( ++_shotCount == 2 )
 		{
 			TargetLost();
 			WakeDown();

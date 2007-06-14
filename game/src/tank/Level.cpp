@@ -151,13 +151,14 @@ void Field::Resize(int cx, int cy)
 
 void Field::ProcessObject(GC_RigidBodyStatic *object, bool oper)
 {
-	FRECT rect;
-	object->GetAABB(&rect);
+	float r = object->GetRadius() / CELL_SIZE;
+	vec2d p = object->GetPos() / CELL_SIZE;
+
 	//--------------------------------
-	int xmin = (int) __max(0, rect.left / CELL_SIZE + 0.5f);
-	int xmax = (int) __min((float) (_cx - 1), rect.right / CELL_SIZE + 0.5f);
-	int ymin = (int) __max(0, rect.top / CELL_SIZE + 0.5f);
-	int ymax = (int) __min((float) (_cy - 1), rect.bottom / CELL_SIZE + 0.5f);
+	int xmin = (int) __max(0, p.x - r + 0.5f);
+	int xmax = (int) __min((float) (_cx - 1), p.x + r + 0.5f);
+	int ymin = (int) __max(0, p.y - r + 0.5f);
+	int ymax = (int) __min((float) (_cy - 1), p.y + r + 0.5f);
 	//-------------------------------------------------------------
 	for( int x = xmin; x <= xmax; x++ )
 	for( int y = ymin; y <= ymax; y++ )
@@ -768,11 +769,11 @@ void Level::LocationFromPoint(const vec2d &pt, Location &l)
 }
 
 GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
-	                                 GC_RigidBodyStatic* pIgnore,
-	                                 const vec2d &x0,      // координаты начала
-	                                 const vec2d &a,       // направление
-	                                 vec2d *ht,
-	                                 vec2d *norm) const
+	                                GC_RigidBodyStatic* pIgnore,
+	                                const vec2d &x0,      // координаты начала
+	                                const vec2d &a,       // направление
+	                                vec2d *ht,
+	                                vec2d *norm ) const
 {
 	vec2d hit;
 	float nx, ny;
@@ -796,7 +797,8 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	const int stepy[2] = {0, a_tmp.y >= 0 ? 1 : -1};
 	const int check[2] = {a_tmp.y == 0,   a_tmp.x == 0};
 
-	float la = a_tmp.Length();
+	float la = a.Length();
+	float la_tmp = la / LOCATION_SIZE;
 
 	for( int i = 0; i < 4; i++ )
 	{
@@ -825,48 +827,16 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 					if( object->trace0() ) continue;
 					if( object == pIgnore || object->IsKilled() ) continue;
 
-					FRECT ColRect;
-					object->GetAABB(&ColRect);
-
-					vec2d m[4];
-					m[0].Set( ColRect.left,  ColRect.top );
-					m[1].Set( ColRect.right, ColRect.top );
-					m[2].Set( ColRect.right, ColRect.bottom );
-					m[3].Set( ColRect.left,  ColRect.bottom );
-
-
-					bool bHasHit = false;
-
 					//грубо
-					int sgn = 0, oldsgn = 0;
-					for( int n = 0; n < 4; ++n )
-					{
-						float d = a.x * (m[n].y - x0.y) - a.y * (m[n].x - x0.x);
+					bool bHasHit = true;
+					// FIXME! TODO: estimate
 
-						if( d < 0 )
-							sgn = -1;
-						else if( d > 0 )
-							sgn = 1;
-						else
-						{
-							bHasHit = true;
-							break;
-						}
-
-						if( 0 == n ) oldsgn = sgn;
-
-						if( sgn != oldsgn )
-						{
-							bHasHit = true;
-							break;
-						}
-
-						oldsgn = sgn;
-					}
 
 					// точно
 					if( bHasHit )
 					{
+						vec2d m[4];
+
 						for( int i = 0; i < 4; ++i )
 						{
 							m[i] = object->GetVertex(i);
@@ -877,8 +847,8 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 							float xb = m[n].x;
 							float yb = m[n].y;
 
-							float bx = m[(n+1)%4].x - xb;
-							float by = m[(n+1)%4].y - yb;
+							float bx = m[(n+1)&3].x - xb;
+							float by = m[(n+1)&3].y - yb;
 
 							float delta = a.y*bx - a.x*by;
 							if( delta <= 0 ) continue;
@@ -919,7 +889,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				}
 
 				float d = fabsf(a_tmp.x*((float) newy + 0.5f - cy) -
-					a_tmp.y*((float) newx + 0.5f - cx)) / la;
+					a_tmp.y*((float) newx + 0.5f - cx)) / la_tmp;
 
 				if( 0 == j )
 					d_min = d;

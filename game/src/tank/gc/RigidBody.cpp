@@ -72,20 +72,22 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 
 void GC_RigidBodyStatic::AlignBBToSprite()
 {
-	_hsize.x = GetSpriteWidth() / 2.0f;
-	_hsize.y = GetSpriteHeight() / 2.0f;
+	_radius = sqrtf(GetSpriteWidth()*GetSpriteWidth() + GetSpriteHeight()*GetSpriteHeight()) * 0.5f;
+
+//	_hsize.x = GetSpriteWidth() / 2.0f;
+//	_hsize.y = GetSpriteHeight() / 2.0f;
 }
 
 void GC_RigidBodyStatic::AlignVerticesToBB()
 {
-	_vertices[0].x =  _hsize.x;
-	_vertices[0].y = -_hsize.y;
-	_vertices[1].x =  _hsize.x;
-	_vertices[1].y =  _hsize.y;
-	_vertices[2].x = -_hsize.x;
-	_vertices[2].y =  _hsize.y;
-	_vertices[3].x = -_hsize.x;
-	_vertices[3].y = -_hsize.y;
+	_vertices[0].x =  _radius;
+	_vertices[0].y = -_radius;
+	_vertices[1].x =  _radius;
+	_vertices[1].y =  _radius;
+	_vertices[2].x = -_radius;
+	_vertices[2].y =  _radius;
+	_vertices[3].x = -_radius;
+	_vertices[3].y = -_radius;
 }
 
 void GC_RigidBodyStatic::mapExchange(MapFile &f)
@@ -107,7 +109,7 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 	/////////////////////////////////////
 	f.Serialize(_health);
 	f.Serialize(_health_max);
-	f.Serialize(_hsize);
+	f.Serialize(_radius);
 	f.Serialize(_direction);
 	f.SerializeArray(_vertices, 4);
 	/////////////////////////////////////
@@ -194,15 +196,10 @@ void GC_Wall::OnDestroy()
 
 	if( g_conf.g_particles->Get() )
 	{
-		FRECT frt;
-		GetAABB( &frt );
-
 		for( int n = 0; n < 5; ++n )
 		{
-			(new GC_Brick_Fragment_01(
-				vec2d(frt.left + frand(frt.right - frt.left),
-						frt.top  + frand(frt.bottom - frt.top)),
-				vec2d(frand(100.0f) - 50, - frand(100.0f))
+			(new GC_Brick_Fragment_01( GetPos() + vrand(GetRadius()),
+				vec2d(frand(100.0f) - 50, -frand(100.0f))
 			))->SetShadow(true);
 		}
 
@@ -217,38 +214,20 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 		SetFrame( (GetFrameCount() - 1) - int((float) (GetFrameCount() - 1) * GetHealth() / GetHealthMax()) );
 		if( g_conf.g_particles->Get() && damage >= DAMAGE_BULLET )
 		{
-			FRECT frt;
-			GetAABB( &frt );
-
-			float left	= fabsf( frt.left	- hit.x );
-			float right	= fabsf( frt.right  - hit.x );
-			float up	= fabsf( frt.top	- hit.y );
-			float down	= fabsf( frt.bottom - hit.y );
-
-			float vx, vy;
-
-			if( (up < left) && (up < right) && (up < down) )
+			vec2d v = hit - GetPos();
+			if( fabsf(v.x) > fabsf(v.y) )
 			{
-				vx = frand(100.0f) - 50.0f;
-				vy = -frand(50.0f) - 50.0f;
-			}
-			else if( (left < right) && (left < up) && (left < down) )
-			{
-				vx = -frand(50.0f) - 50.0f;
-				vy = frand(100.0f) - 50.0f;
-			}
-			else if( (down < left) && (down < right) && (down < up) )
-			{
-				vx = frand(100.0f) - 50.0f;
-				vy = frand(50.0f) + 50.0f;
+				v.x = v.x > 0 ? 50.0f : -50.0f;
+				v.y = 0;
 			}
 			else
 			{
-				vx = frand(50.0f) + 50.0f;
-				vy = frand(100.0f) - 50.0f;
+				v.x = 0;
+				v.y = v.y > 0 ? 50.0f : -50.0f;
 			}
+			v += vrand(25);
 
-			(new GC_Brick_Fragment_01( hit, vec2d(vx, vy) ))->SetShadow(true);
+			(new GC_Brick_Fragment_01(hit, v))->SetShadow(true);
 		}
 		return false;
 	}

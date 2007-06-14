@@ -201,7 +201,7 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 			max_r = _vertices[i].Length();
 	}
 
-	_hsize.Set(max_r, max_r);
+	_radius = max_r;
 
 
 	_inv_m  = 1.0f / vc.m;
@@ -228,7 +228,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 {
 	_ASSERT(!IsKilled());
 
-	DAMAGEDESC dd;
+	DamageDesc dd;
 	dd.damage = damage;
 	dd.hit    = hit;
 	dd.from   = from;

@@ -450,7 +450,7 @@ void GC_pu_Invulnerablity::OnProprietorDamage(GC_Object *sender, void *param)
 {
 	static TextureCache tex("particle_3");
 
-	LPDAMAGEDESC pdd = (LPDAMAGEDESC) param;
+	DamageDesc *pdd = reinterpret_cast<DamageDesc*>(param);
 	_ASSERT(NULL != pdd);
 	if( pdd->damage > 5 || 0 == rand() % 4 || 0 == _time_hit )
 	{

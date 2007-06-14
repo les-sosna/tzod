@@ -7,16 +7,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_RBSTATIC_TRACE0  (GC_FLAG_2DSPRITE_ << 0) // penetration of projectiles
-#define GC_FLAG_RBSTATIC_         (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_RBSTATIC_        (GC_FLAG_2DSPRITE_ << 1)
 
 class GC_RigidBodyStatic;
 
-typedef struct DAMAGEDESC
+struct DamageDesc
 {
 	float  damage;
 	vec2d  hit;
 	GC_RigidBodyStatic *from;
-} DAMAGEDESC, *LPDAMAGEDESC;
+};
 
 class GC_RigidBodyStatic : public GC_2dSprite
 {
@@ -34,13 +34,15 @@ public:
 	void AlignBBToSprite();
 	void AlignVerticesToBB();
 
-	inline void GetAABB(FRECT *pAABB)
-	{
-		pAABB->left   = GetPos().x - _hsize.x;
-		pAABB->top    = GetPos().y - _hsize.y;
-		pAABB->right  = GetPos().x + _hsize.x;
-		pAABB->bottom = GetPos().y + _hsize.y;
-	}
+	//inline void GetAABB(FRECT *pAABB)
+	//{
+	//	pAABB->left   = GetPos().x - _hsize.x;
+	//	pAABB->top    = GetPos().y - _hsize.y;
+	//	pAABB->right  = GetPos().x + _hsize.x;
+	//	pAABB->bottom = GetPos().y + _hsize.y;
+	//}
+
+	float GetRadius() const { return _radius; }
 
 	inline vec2d GetVertex(int index)
 	{
@@ -83,7 +85,7 @@ public:
 	// phisics
 	//
 
-	vec2d _hsize; // half of size
+	float _radius;   // radius of bounding sphere
 	vec2d _direction;
 	vec2d _vertices[4];
 

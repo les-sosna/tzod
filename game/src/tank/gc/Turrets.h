@@ -211,12 +211,8 @@ class GC_TurretGauss : public GC_TurretBunker
 	DECLARE_SELF_REGISTRATION(GC_TurretGauss);
 
 private:
-	float	_time;
-	int		_shot_count;
-
-protected:
-	virtual void SetNormal(); // выбор обычной текстуры
-	virtual void SetWaking(); // выбор "спрятаной" текстуры
+	float   _time;
+	int     _shotCount;
 
 public:
 	GC_TurretGauss(float x, float y);

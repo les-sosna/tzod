@@ -597,12 +597,7 @@ void GC_Explosion::Boom(float radius, float damage)
 		{
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
 			++cdit;
-
 			if( pDamObject->IsKilled() ) continue;
-
-
-			FRECT frtObjColRect;
-			pDamObject->GetAABB(&frtObjColRect);
 
 			vec2d dam = pDamObject->GetPos();
 
