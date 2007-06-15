@@ -170,8 +170,6 @@ public:
 	virtual void OnDie();
 
 protected:
-	virtual void GetControl(VehicleState *pState, float dt);
-
 	virtual void TimeStepFixed(float dt);
 };
 

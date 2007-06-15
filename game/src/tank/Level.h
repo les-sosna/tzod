@@ -130,7 +130,6 @@ class GC_Sound;
 class GC_Wood;
 class GC_RigidBodyStatic;
 class GC_Wall;
-class GC_Vehicle;
 class GC_PickUp;
 class GC_2dSprite;
 
@@ -251,6 +250,7 @@ public:
 	void Pause(bool pause);
 
 	void TimeStep(float dt);
+	void Render() const;
 
 	GC_Object* FindObject(const char *name) const;
 
@@ -283,7 +283,7 @@ public:
 	//
 	// editing interface
 	//
-
+#pragma region Editor
 private:
 	typedef GC_Object* (*CreateProc) (float, float);
 	
@@ -393,7 +393,7 @@ public:
 	{
 		return (get_t2i().find(type) != get_t2i().end());
 	}
-
+#pragma endregion
 
 	//
 	// config callback handlers

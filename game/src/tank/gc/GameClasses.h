@@ -1,5 +1,5 @@
-//GameClasses.h
-/////////////////////////////////////////////////////////////
+// GameClasses.h
+
 #pragma once
 
 #include "Controller.h"
@@ -58,7 +58,7 @@ private:
 
 public:
 	GC_Background();
-	GC_Background(FromFile) : GC_2dSprite(FromFile()) {};
+	GC_Background(FromFile);
 	virtual void Draw();
 
 public:
@@ -115,7 +115,7 @@ protected:
 
 	bool _boomOK;
 
-	SafePtr<GC_RigidBodyStatic>  _proprietor;
+	SafePtr<GC_RigidBodyStatic>  _owner;
 	SafePtr<GC_Light>            _light;
 
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
@@ -126,7 +126,7 @@ public:
 	float _time_boom;
 
 public:
-	GC_Explosion(GC_RigidBodyStatic *pProprietor);
+	GC_Explosion(GC_RigidBodyStatic *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 
@@ -149,7 +149,7 @@ class GC_Boom_Standard : public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Standard);
 public:
-	GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *pProprietor);
+	GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner);
 	GC_Boom_Standard(FromFile);
 	virtual ~GC_Boom_Standard();
 };
@@ -160,7 +160,7 @@ class GC_Boom_Big :  public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
 public:
-	GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor);
+	GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner);
 	GC_Boom_Big(FromFile);
 };
 
@@ -180,7 +180,8 @@ private:
 public:
 	GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic *pOwner,
 		            float damage, float time);
-	GC_HealthDaemon(FromFile) : GC_2dSprite(FromFile()) {}
+	GC_HealthDaemon(FromFile);
+	virtual ~GC_HealthDaemon();
 
 	virtual void Kill();
 

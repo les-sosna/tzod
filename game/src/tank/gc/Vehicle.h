@@ -128,10 +128,10 @@ public:
 
 	virtual unsigned char GetProperties() const { return 0; } // не является препятствием
 
-	virtual void SetSkin(const char *pSkinName);
-	virtual void SetState(VehicleState *pState);
+	void SetSkin(const char *pSkinName);
+	void SetState(VehicleState *state);
 
-	virtual void SetMoveSound(enumSoundTemplate s);
+	void SetMoveSound(enumSoundTemplate s);
 
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 

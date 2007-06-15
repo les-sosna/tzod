@@ -94,7 +94,7 @@ class GC_TurretRocket : public GC_Turret
 	DECLARE_SELF_REGISTRATION(GC_TurretRocket);
 
 private:
-	float _time_reload;
+	float _timeReload;
 
 public:
 	GC_TurretRocket(float x, float y);
@@ -118,7 +118,7 @@ class GC_TurretCannon : public GC_Turret
 	DECLARE_SELF_REGISTRATION(GC_TurretCannon);
 
 private:
-	float _time_reload;
+	float _timeReload;
 	float _time_smoke;
 	float _time_smoke_dt;
 
@@ -146,9 +146,6 @@ private:
 	float	_time;
 
 protected:
-	virtual void SetNormal(); // выбор обычной текстуры
-	virtual void SetWaking(); // выбор "спрятаной" текстуры
-
 	void WakeUp();
 	void WakeDown();
 

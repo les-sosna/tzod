@@ -4,16 +4,12 @@
 
 #include "pickup.h"
 
-#include "constants.h"
 #include "macros.h"
-#include "script.h"
 #include "Level.h"
 #include "functions.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
-
-#include "ai.h"
 
 #include "gameclasses.h"
 #include "indicators.h"
@@ -21,7 +17,6 @@
 #include "player.h"
 #include "sound.h"
 #include "particles.h"
-#include "projectiles.h"
 
 #include "Weapons.h"
 
@@ -83,10 +78,10 @@ GC_PickUp::GC_PickUp(float x, float y)
 
 	_bMostBeAllowed = false;
 	_time_respawn   = 0;
-	_time_animation = 0;
+	_timeAnimation = 0;
 	_time           = 0;
-	_bRespawn       = true;
-	_attached      = false;
+	_respawn        = true;
+	_attached       = false;
 	_blink          = false;
 
 	SetShadow(true);
@@ -108,9 +103,9 @@ void GC_PickUp::Serialize(SaveFile &f)
 	f.Serialize(_attached);
 	f.Serialize(_blink);
 	f.Serialize(_bMostBeAllowed);
-	f.Serialize(_bRespawn);
+	f.Serialize(_respawn);
 	f.Serialize(_time);
-	f.Serialize(_time_animation);
+	f.Serialize(_timeAnimation);
 	f.Serialize(_time_respawn);
 	/////////////////////////////////////
 	f.Serialize(_ancObject);
@@ -129,7 +124,7 @@ void GC_PickUp::GiveIt(GC_Vehicle* pVehicle)
 {
 	_time = 0;
 
-	if( _bRespawn )
+	if( _respawn )
 	{
 		GC_PickUp *object = SetRespawn();
 		object->Show(false);
@@ -166,10 +161,10 @@ void GC_PickUp::SetBlinking(bool blink)
 
 void GC_PickUp::TimeStepFloat(float dt)
 {
-	_time_animation += dt;
+	_timeAnimation += dt;
 
 	if( !_attached && IsVisible() )
-		SetFrame( int((_time_animation * ANIMATION_FPS)) % (GetFrameCount()) );
+		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
 
 	GC_Item::TimeStepFloat(dt);
 }
@@ -205,7 +200,7 @@ void GC_PickUp::TimeStepFixed(float dt)
 
 void GC_PickUp::Draw()
 {
-	if( !_blink || fmodf(_time_animation, 0.16f) > 0.08f || g_level->_modeEditor )
+	if( !_blink || fmodf(_timeAnimation, 0.16f) > 0.08f || g_level->_modeEditor )
 		GC_Item::Draw();
 }
 
@@ -393,9 +388,9 @@ void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* pVehicle)
 	}
 
 	pVehicle->Subscribe(NOTIFY_DAMAGE_FILTER, this,
-		(NOTIFYPROC) &GC_pu_Invulnerablity::OnProprietorDamage, false);
+		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
 	pVehicle->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_pu_Invulnerablity::OnProprietorMove, false);
+		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerMove, false);
 
 	_attached = true;
 	SetZ(Z_PARTICLE);
@@ -442,11 +437,11 @@ void GC_pu_Invulnerablity::TimeStepFloat(float dt)
 	if( _attached )
 	{
 		_time_hit = __max(0, _time_hit - dt);
-		SetFrame( int((_time_animation * ANIMATION_FPS)) % (GetFrameCount()) );
+		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
 	}
 }
 
-void GC_pu_Invulnerablity::OnProprietorDamage(GC_Object *sender, void *param)
+void GC_pu_Invulnerablity::OnOwnerDamage(GC_Object *sender, void *param)
 {
 	static TextureCache tex("particle_3");
 
@@ -477,7 +472,7 @@ void GC_pu_Invulnerablity::Serialize(SaveFile &f)
 	f.Serialize(_time_hit);
 }
 
-void GC_pu_Invulnerablity::OnProprietorMove(GC_Object *sender, void *param)
+void GC_pu_Invulnerablity::OnOwnerMove(GC_Object *sender, void *param)
 {
 	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
@@ -758,7 +753,7 @@ void GC_pu_Booster::TimeStepFloat(float dt)
 	GC_PickUp::TimeStepFloat(dt);
 	if( _attached )
 	{
-		SetRotation(_time_animation * 50);
+		SetRotation(_timeAnimation * 50);
 	}
 }
 

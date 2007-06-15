@@ -79,9 +79,9 @@ protected:
 public:
 	bool	_bMostBeAllowed; // небходимо разрешение, чтобы подобрать предмет
 	float	_time;
-	float	_time_animation;
+	float	_timeAnimation;
 	float	_time_respawn;
-	bool	_bRespawn;      // респаун после того, как предмет подберут
+	bool	_respawn;      // респаун после того, как предмет подберут
 	bool	_attached;     // предмет прикреплен к танку
 	bool	_blink;         // item is blinking
 
@@ -177,8 +177,8 @@ public:
 	virtual void TimeStepFloat(float dt);
 
 public:
-	void OnProprietorDamage(GC_Object *sender, void *param);
-	void OnProprietorMove(GC_Object *sender, void *param);
+	void OnOwnerDamage(GC_Object *sender, void *param);
+	void OnOwnerMove(GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -19,11 +19,7 @@
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 
-#include "gc/Camera.h"
-#include "gc/Light.h"
 #include "gc/Sound.h"
-#include "gc/RigidBody.h"
-#include "gc/GameClasses.h"
 
 
 #include "fs/FileSystem.h"
@@ -89,144 +85,10 @@ static void RenderFrame(bool thumbnail)
 {
 	g_render->Begin();
 
-	if( g_level )
-	{
-		//
-		// определение активных камер и выбор конфигурации дисплея
-		//
+	if( g_level ) g_level->Render();
+	if( g_gui ) g_gui->Render();
 
-		GC_Camera *pMaxShake = NULL;
-
-		if( g_render->GetWidth() >= (int)g_level->_sx &&
-			g_render->GetHeight() >= (int)g_level->_sy )
-		{
-			float max_shake = 0;
-			FOREACH( cameras, GC_Camera, pCamera )
-			{
-				if( !pCamera->IsActive() ) continue;
-				if( pCamera->GetShake() >= max_shake )
-				{
-					pMaxShake = pCamera;
-					max_shake = pCamera->GetShake();
-				}
-			}
-		}
-
-		int count = 0;
-		FOREACH( cameras, GC_Camera, pCamera )
-		{
-			if( pMaxShake ) pCamera = pMaxShake;
-			if( !pCamera->IsActive() ) continue;
-
-
-			//
-			// рендеринг освещения
-			//
-
-			g_render->SetMode(RM_LIGHT);
-			pCamera->Select();
-			if( g_conf.sv_nightmode->Get() )
-			{
-				float xmin = (float) __max(0, g_env.camera_x );
-				float ymin = (float) __max(0, g_env.camera_y );
-				float xmax = __min(g_level->_sx, (float) g_env.camera_x +
-					(float) g_render->GetViewportWidth() / pCamera->_zoom );
-				float ymax = __min(g_level->_sy, (float) g_env.camera_y +
-					(float) g_render->GetViewportHeight() / pCamera->_zoom );
-
-				FOREACH( lights, GC_Light, pLight )
-				{
-					_ASSERT(!pLight->IsKilled());
-					if( pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
-						pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
-						pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
-						pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
-					{
-						pLight->Shine();
-					}
-				}
-			}
-
-
-			//
-			// paint all objects
-			//
-
-			g_render->SetMode(RM_WORLD);
-
-			// paint background texture
-			_Background::Inst()->Draw();
-
-			for( int z = 0; z < Z_COUNT; ++z )
-			{
-				// loop over gridsets
-				for( int lev = 0; lev < 4; ++lev )
-				{
-					static const int dx[] = {0, LOCATION_SIZE/2, 0, LOCATION_SIZE/2};
-					static const int dy[] = {0, 0, LOCATION_SIZE/2, LOCATION_SIZE/2};
-
-					int xmin = __max(0, (g_env.camera_x - dx[lev]) / LOCATION_SIZE);
-					int ymin = __max(0, (g_env.camera_y - dy[lev]) / LOCATION_SIZE);
-					int xmax = __min(g_level->_locations_x - 1,
-						((g_env.camera_x + int((float) g_render->GetViewportWidth() /
-						pCamera->_zoom)) - dx[lev]) / LOCATION_SIZE);
-					int ymax = __min(g_level->_locations_y - 1,
-						((g_env.camera_y + int((float) g_render->GetViewportHeight() /
-						pCamera->_zoom)) - dy[lev]) / LOCATION_SIZE);
-
-					for( int x = xmin; x <= xmax; ++x )
-					for( int y = ymin; y <= ymax; ++y )
-					{
-						FOREACH( z_grids[z](lev).element(x,y), GC_2dSprite, object )
-						{
-							_ASSERT(!object->IsKilled());
-							object->Draw();
-							_ASSERT(!object->IsKilled());
-						}
-					}
-				} // loop over gridsets
-
-
-				// loop over globals
-				FOREACH( z_globals[z], GC_2dSprite, object )
-				{
-					_ASSERT(!object->IsKilled());
-					object->Draw();
-					_ASSERT(!object->IsKilled());
-				}
-			}
-
-			if( pMaxShake ) break;
-		}	// cameras
-
-/*
-		//
-		// paint Z_SCREEN layer
-		//
-
-		if( !thumbnail )
-		{
-			g_render->SetMode(RM_INTERFACE);
-
-			FOREACH( z_globals[Z_COUNT-1], GC_2dSprite, object )
-			{
-				_ASSERT(!object->IsKilled());
-				object->Draw();
-				_ASSERT(!object->IsKilled());
-			}
-		}
-*/
-	}
-
-	if( g_gui )
-	{
-		g_render->SetMode(RM_INTERFACE);
-		g_gui->Draw();
-	}
-
-
-	// display new frame
-	g_render->End();
+	g_render->End(); // display new frame
 
 
 	// check if print screen key is pressed

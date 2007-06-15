@@ -46,7 +46,7 @@ public:
 	static void UpdateLayout(); // пересчет координат viewports
 	static bool GetWorldMousePos(vec2d &pos);
 
-	virtual void Shake(float level);
+	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
 	// overrides

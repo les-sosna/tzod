@@ -5,10 +5,6 @@
 
 #include "macros.h"
 
-#include "gc/GameClasses.h"
-#include "gc/RigidBody.h"
-
-
 #include <d3d9.h>
 #include <d3dx9math.h>
 

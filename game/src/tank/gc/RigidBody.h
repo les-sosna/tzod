@@ -31,7 +31,6 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual unsigned char GetProperties() const = 0;
 
-	void AlignBBToSprite();
 	void AlignVerticesToBB();
 
 	//inline void GetAABB(FRECT *pAABB)
@@ -43,6 +42,7 @@ public:
 	//}
 
 	float GetRadius() const { return _radius; }
+	void AlignRadiusToTexture();
 
 	inline vec2d GetVertex(int index)
 	{
@@ -231,7 +231,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 	static ContactList _contacts;
 	static bool _glob_parity;
 
-	BOOL intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal);
+	bool Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal);
 
 	float geta_s(const vec2d &n, const vec2d &c, const GC_RigidBodyStatic *obj) const;
 	float geta_d(const vec2d &n, const vec2d &c, const GC_RigidBodyDynamic *obj) const;

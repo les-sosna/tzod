@@ -30,7 +30,7 @@ private:
 protected:
 	bool          _freezed;
 	enumSoundMode _mode;
-	virtual void SetMode(enumSoundMode mode);
+	void SetMode(enumSoundMode mode);
 
 public:
 	float _volume;  // 0 - min;  1 - max
@@ -40,20 +40,19 @@ public:
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
 	virtual void Kill();
-	////////////////////////////
 	virtual bool IsSaved() { return true; };
 	virtual void Serialize(SaveFile &f);
-	////////////////////////////
-	virtual void Pause(bool pause);
-	virtual void Freeze(bool freeze);
-	////////////////////////////
-	virtual void MoveTo(const vec2d &pos);
-	virtual void SetSpeed(float speed);
-	virtual void SetVolume(float vol);
-	virtual void UpdateVolume();  // нужно вызвать после изменения g_options.dwVolume
-	////////////////////////////
+
 	virtual void EndFrame();
-	////////////////////////////
+	virtual void MoveTo(const vec2d &pos);
+
+	void Pause(bool pause);
+	void Freeze(bool freeze);
+
+	void SetSpeed(float speed);
+	void SetVolume(float vol);
+	void UpdateVolume();  // нужно вызвать после изменения s_volume
+
 public:
 	static int _countMax;
 	static int _countActive;

@@ -3,15 +3,12 @@
 #include "stdafx.h"
 
 #include "core/Debug.h"
-#include "core/JobManager.h"
 #include "core/Console.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
 
 #include "ui/GuiManager.h"
-
-#include "network/TankClient.h"
 
 #include "video/RenderBase.h"
 
@@ -22,14 +19,11 @@
 #include "Options.h"
 #include "Level.h"
 
-#include "ai.h"
-
+#include "Player.h"
 #include "GameClasses.h"
 #include "Camera.h"
 #include "Vehicle.h"
-#include "Pickup.h"
 #include "Sound.h"
-#include "Player.h"
 #include "particles.h"
 
 /////////////////////////////////////////////////////////////
@@ -112,6 +106,10 @@ GC_Background::GC_Background() : GC_2dSprite()
 {
 	MoveTo(vec2d(0, 0));
 	_drawGrid = g_level->_modeEditor && g_conf.ed_drawgrid->Get();
+}
+
+GC_Background::GC_Background(FromFile) : GC_2dSprite(FromFile())
+{
 }
 
 void GC_Background::Draw()
@@ -401,7 +399,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(GC_RigidBodyStatic *pProprietor) : GC_2dSprite()
+GC_Explosion::GC_Explosion(GC_RigidBodyStatic *owner) : GC_2dSprite()
 {
 	SetZ(Z_EXPLODE);
 
@@ -416,7 +414,7 @@ GC_Explosion::GC_Explosion(GC_RigidBodyStatic *pProprietor) : GC_2dSprite()
 
 	_boomOK = false;
 
-	_proprietor = pProprietor;
+	_owner = owner;
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 
 	_light = new GC_Light(GC_Light::LIGHT_POINT);
@@ -428,12 +426,12 @@ GC_Explosion::GC_Explosion(FromFile) : GC_2dSprite(FromFile())
 
 GC_Explosion::~GC_Explosion()
 {
-	_ASSERT(!_proprietor);
+	_ASSERT(!_owner);
 }
 
 void GC_Explosion::Kill()
 {
-	_proprietor = NULL;
+	_owner = NULL;
 	SAFE_KILL(_light);
 	GC_2dSprite::Kill();
 }
@@ -450,7 +448,7 @@ void GC_Explosion::Serialize(SaveFile &f)
 	f.Serialize(_time_life);
 	/////////////////////////////////////
 	f.Serialize(_light);
-	f.Serialize(_proprietor);
+	f.Serialize(_owner);
 }
 
 float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance)
@@ -623,13 +621,13 @@ void GC_Explosion::Boom(float radius, float damage)
 				if( d >= 0 )
 				{
 					float dam = __max(0, damage * (1 - d / radius));
-					if( dam > 0 ) pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_proprietor) );
+					if( dam > 0 ) pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
 				}
 			}
 		}
 	}
 
-	_proprietor = NULL;
+	_owner = NULL;
 	_boomOK = true;
 }
 
@@ -665,7 +663,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC_Explosion(pProprietor)
+GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
@@ -721,7 +719,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *pProprietor) : GC_Explosion(pProprietor)
+GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_2");
@@ -804,6 +802,14 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic
 	MoveTo(_victim->GetPos());
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED /*| GC_FLAG_OBJECT_EVENTS_TS_FLOATING*/ );
+}
+
+GC_HealthDaemon::GC_HealthDaemon(FromFile) : GC_2dSprite(FromFile())
+{
+}
+
+GC_HealthDaemon::~GC_HealthDaemon()
+{
 }
 
 void GC_HealthDaemon::Kill()

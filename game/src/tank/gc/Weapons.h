@@ -27,12 +27,12 @@ public:
 
 public:
 	float    _time;
-	float    _time_reload;
+	float    _timeReload;
 
 	float    _angle;          // угол поворота относительно платформы
 	Rotator  _rotator;
 
-	SafePtr<GC_Vehicle>   _proprietor;
+	SafePtr<GC_Vehicle>   _owner;
 	SafePtr<GC_Crosshair> _crosshair;
 
 	SafePtr<GC_Sound> _rotateSound;
@@ -54,7 +54,7 @@ public:
 	virtual void GiveIt(GC_Vehicle *pVehicle);
 	virtual void Attach(GC_Vehicle *pVehicle);
 	virtual void Detach();
-	virtual void ProcessRotate(float dt);
+	void ProcessRotate(float dt);
 
 	virtual void SetCrosshair();
 
@@ -64,7 +64,7 @@ public:
 	virtual void TimeStepFloat(float dt);
 
 private:
-	void OnProprietorMove(GC_Vehicle *sender, void *param);
+	void OnOwnerMove(GC_Vehicle *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,8 @@ public:
 	virtual void Attach(GC_Vehicle *pVehicle);
 
 	GC_Weap_Plazma(float x, float y);
-	GC_Weap_Plazma(FromFile) : GC_Weapon(FromFile()) {}
+	GC_Weap_Plazma(FromFile);
+	virtual ~GC_Weap_Plazma();
 
 	virtual GC_PickUp* SetRespawn();
 	virtual void Fire();

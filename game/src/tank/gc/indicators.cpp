@@ -9,8 +9,7 @@
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
 
-#include "GameClasses.h" // FIXME
-#include "vehicle.h"
+#include "Vehicle.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

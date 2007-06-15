@@ -50,17 +50,15 @@ GC_Player::~GC_Player()
 }
 
 void GC_Player::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Service::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_nick);
 	f.Serialize(_skin);
 	f.Serialize(_class);
-	/////////////////////////////////////
 	f.Serialize(_score);
 	f.Serialize(_team);
 	f.Serialize(_time_respawn);
-	/////////////////////////////////////
 	f.Serialize(_vehicle);
 }
 

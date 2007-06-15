@@ -20,7 +20,6 @@
 #include "Player.h"
 #include "Weapons.h"
 
-
 #include <d3dx9math.h>  // FIXME!
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,7 +115,97 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	if( !IsDead() )
 	{
 		VehicleState vs;
-		GetControl(&vs, dt);
+		ZeroMemory(&vs, sizeof(VehicleState));
+
+		// clean the attack list
+		struct helper{ static bool whether(const SafePtr<GC_RigidBodyStatic> &arg)
+		{
+			return arg->IsKilled();
+		}};
+		_attackList.remove_if(&helper::whether);
+
+
+		if( _pickupCurrent )
+		{
+			if( _pickupCurrent->IsKilled() || !_pickupCurrent->IsVisible() )
+			{
+				_pickupCurrent = NULL;
+			}
+			else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).Square() <
+						_pickupCurrent->getRadius() * _pickupCurrent->getRadius() )
+			{
+				vs._bState_AllowDrop = true;
+			}
+		}
+
+		// настройка оружия
+		if( GetVehicle()->GetWeapon() )
+			GetVehicle()->GetWeapon()->SetupAI(&_weapSettings);
+
+
+		// принятие решения
+		if( _jobManager.TakeJob(this) )
+			SelectState();
+
+
+		// установка _current_offset для понижения меткости стрельбы
+		const float acc_speed = 0.5f;	// скорость движения мнимой цели
+		if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
+		{
+			float len = fabsf(_desired_offset - _current_offset);
+			if( acc_speed*dt >= len )
+			{
+				_current_offset = _desired_offset;
+
+				static float d_array[5] = {0.176f, 0.122f, 0.09f, 0.05f, 0.00f};
+
+				float d = d_array[_accuracy];
+
+				if( _accuracy > 2 )
+				{
+					d = d_array[_accuracy] *
+						fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
+						static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
+				}
+
+				if( d > 0 )
+					_desired_offset = g_level->net_frand(d);
+				else
+					_desired_offset = 0;
+			}
+			else
+			{
+				_current_offset += (_desired_offset - _current_offset) * dt * acc_speed / len;
+			}
+		}
+		else
+		{
+			_desired_offset = 0;
+			_current_offset = 0;
+		}
+
+		// исполнение принятого решения
+		DoState(&vs);
+
+
+		//
+		// управление фарами
+		//
+		switch( _accuracy )
+		{
+		case 0:
+		case 1:
+			vs._bLight = true;
+			break;
+		case 2:
+		case 3:
+			vs._bLight = (NULL != _target);
+			break;
+		default:
+			vs._bLight = false;
+		}
+
+		// send state to the vehicle
 		GetVehicle()->SetState(&vs);
 	}
 }
@@ -128,7 +217,7 @@ bool GC_PlayerAI::CheckCell(const FieldCell &cell)
 	{
 		return true;
 	}
-    return false;
+	return false;
 }
 
 float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bTest)
@@ -231,7 +320,6 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 			}
 		}
 	}
-
 
 	if( field(end_x, end_y).IsChecked() )
 	{
@@ -383,7 +471,9 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 	float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv )
+	{
 		pState->_bState_MoveForvard	= true;
+	}
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack )
 		pState->_bState_MoveBack	= true;
@@ -777,6 +867,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 		ClearPath();
 	}
 
+
 	//
 	// пробуем атаковать основную цель
 	//
@@ -899,103 +990,6 @@ void GC_PlayerAI::OnDie()
 	FreeTarget();
 
 	_jobManager.UnregisterMember(this);
-}
-
-void GC_PlayerAI::GetControl(VehicleState *pState, float dt)
-{
-	_ASSERT(!IsDead());
-	ZeroMemory(pState, sizeof(VehicleState));
-
-	//
-	// clean the attack list
-	//
-	struct helper{ static bool whether(const SafePtr<GC_RigidBodyStatic> &arg)
-	{
-		return arg->IsKilled();
-	}};
-	_attackList.remove_if(&helper::whether);
-
-
-
-	if( _pickupCurrent )
-	{
-		if( _pickupCurrent->IsKilled() || !_pickupCurrent->IsVisible() )
-		{
-			_pickupCurrent = NULL;
-		}
-		else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).Square() <
-					_pickupCurrent->getRadius() * _pickupCurrent->getRadius() )
-		{
-			pState->_bState_AllowDrop = true;
-		}
-	}
-
-	// настройка оружия
-	if( GetVehicle()->GetWeapon() )
-		GetVehicle()->GetWeapon()->SetupAI(&_weapSettings);
-
-
-	// принятие решения
-	if( _jobManager.TakeJob(this) )
-		SelectState();
-
-
-	// установка _current_offset для понижения меткости стрельбы
-	const float acc_speed = 0.5f;	// скорость движения мнимой цели
-	if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
-	{
-		float len = fabsf(_desired_offset - _current_offset);
-		if( acc_speed*dt >= len )
-		{
-			_current_offset = _desired_offset;
-
-			static float d_array[5] = {0.176f, 0.122f, 0.09f, 0.05f, 0.00f};
-
-			float d = d_array[_accuracy];
-
-			if( _accuracy > 2 )
-			{
-				d = d_array[_accuracy] *
-					fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
-					static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
-			}
-
-			if( d > 0 )
-				_desired_offset = g_level->net_frand(d);
-			else
-				_desired_offset = 0;
-		}
-		else
-		{
-			_current_offset += (_desired_offset - _current_offset) * dt * acc_speed / len;
-		}
-	}
-	else
-	{
-		_desired_offset = 0;
-		_current_offset = 0;
-	}
-
-	// исполнение принятого решения
-	DoState(pState);
-
-
-	//
-	// управление фарами
-	//
-	switch( _accuracy )
-	{
-	case 0:
-	case 1:
-		pState->_bLight = true;
-		break;
-	case 2:
-	case 3:
-		pState->_bLight = (NULL != _target);
-		break;
-	default:
-		pState->_bLight = false;
-	}
 }
 
 void GC_PlayerAI::LockTarget(GC_RigidBodyStatic *target)

@@ -364,13 +364,15 @@ void GuiManager::Show(bool show)
 	_desktop->Show(show);
 }
 
-void GuiManager::Draw()
+void GuiManager::Render() const
 {
 	_ASSERT(_clipStack.empty());
 
+	g_render->SetMode(RM_INTERFACE);
+
 	_desktop->Draw();
 
-	std::list<UI::Window*>::iterator it = _topmost.begin();
+	std::list<UI::Window*>::const_iterator it = _topmost.begin();
 	for( ; _topmost.end() != it; ++it )
 	{
 		float x = _desktop->GetX();

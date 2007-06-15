@@ -14,11 +14,6 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
-#include "gc/GameClasses.h"
-#include "gc/RigidBody.h"
-
-
-
 /////////////////////////////////////////////////////////
 
 float GC_Light::_sintable[SINTABLE_SIZE];

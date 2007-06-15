@@ -84,18 +84,12 @@ void GC_Vehicle::SetPlayer(GC_Player *player)
 	_player = player;
 }
 
-
 void GC_Vehicle::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_RigidBodyDynamic::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_engine_power);
 	f.Serialize(_rotate_power);
-//	f.Serialize(_BackAccel);
-//	f.Serialize(_ForvAccel);
-//	f.Serialize(_MaxBackSpeed);
-//	f.Serialize(_MaxForvSpeed);
-//	f.Serialize(_StopAccel);
 	f.Serialize(_state);
 	f.Serialize(_time_smoke);
 	f.Serialize(_fTrackDensity);
@@ -133,7 +127,7 @@ void GC_Vehicle::DetachWeapon()
 {
 	_ASSERT(_weapon);
 	Unsubscribe( GetRawPtr(_weapon) );
-	_weapon->_bRespawn = false;
+	_weapon->_respawn = false;
 	_weapon->Detach();
 	_weapon = NULL;
 	GetPlayer()->ResetClass();
@@ -178,9 +172,9 @@ void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
 }
 
 
-void GC_Vehicle::SetState(VehicleState *pState)
+void GC_Vehicle::SetState(VehicleState *state)
 {
-	memcpy( &_state, pState, sizeof(VehicleState) );
+	memcpy( &_state, state, sizeof(VehicleState) );
 }
 
 void GC_Vehicle::SetSkin(const char *pSkinName)
@@ -372,10 +366,14 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	//
 
 	if( _state._bState_MoveForvard )
+	{
 		ApplyForce(_direction * _engine_power);
+	}
 	else
 	if( _state._bState_MoveBack )
+	{
 		ApplyForce(-_direction * _engine_power);
+	}
 
 
 

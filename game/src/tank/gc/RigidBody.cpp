@@ -1,6 +1,7 @@
 // RigidBody.cpp
 
 #include "stdafx.h"
+
 #include "RigidBody.h"
 
 #include "level.h"
@@ -8,17 +9,14 @@
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
-
 #include "config/Config.h"
+#include "core/Console.h"
 
-#include "GameClasses.h"
-#include "sound.h"
-#include "particles.h"
-#include "projectiles.h"
-#include "vehicle.h"
+#include "Sound.h"
+#include "Particles.h"
+#include "Projectiles.h"
 
-
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GC_RigidBodyStatic::GC_RigidBodyStatic() : GC_2dSprite()
 {
@@ -70,12 +68,10 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 	return false;
 }
 
-void GC_RigidBodyStatic::AlignBBToSprite()
+void GC_RigidBodyStatic::AlignRadiusToTexture()
 {
-	_radius = sqrtf(GetSpriteWidth()*GetSpriteWidth() + GetSpriteHeight()*GetSpriteHeight()) * 0.5f;
-
-//	_hsize.x = GetSpriteWidth() / 2.0f;
-//	_hsize.y = GetSpriteHeight() / 2.0f;
+	_radius = sqrtf( GetSpriteWidth() * GetSpriteWidth()
+		+ GetSpriteHeight() * GetSpriteHeight() ) * 0.5f;
 }
 
 void GC_RigidBodyStatic::AlignVerticesToBB()
@@ -104,7 +100,7 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 }
 
 void GC_RigidBodyStatic::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
 	/////////////////////////////////////
 	f.Serialize(_health);
@@ -141,7 +137,7 @@ void GC_RigidBodyStatic::Kill()
 	GC_2dSprite::Kill();
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
@@ -159,7 +155,7 @@ GC_Wall::GC_Wall(float xPos, float yPos) : GC_RigidBodyStatic()
 
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignBBToSprite();
+	AlignRadiusToTexture();
 	AlignVerticesToBB();
 	MoveTo( vec2d(xPos, yPos) );
 
@@ -181,7 +177,7 @@ void GC_Wall::mapExchange(MapFile &f)
 }
 
 void GC_Wall::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_RigidBodyStatic::Serialize(f);
 	/////////////////////////////////////
 	if( !IsKilled() && f.loading() )
@@ -251,9 +247,8 @@ void GC_Wall::setCornerView(int index) // 0 means normal view
 	SetTexture(getCornerTexture(index));
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignBBToSprite();
 	AlignVerticesToBB();
-	if( 0 != index ) _vertices[index%4].Set(0,0);
+	if( 0 != index ) _vertices[index&3].Set(0,0);
 }
 
 int GC_Wall::getCornerView(void)
@@ -301,7 +296,7 @@ void GC_Wall::EditorAction()
 	setCornerView((getCornerView() + 1) % 5);
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 {
@@ -316,7 +311,6 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos) : GC_Wall(xPos, yPos)
 	SetTexture("concrete_wall");
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignBBToSprite();
 	AlignVerticesToBB();
 
 	SetFrame(rand() % GetFrameCount());
@@ -351,7 +345,7 @@ const char* GC_Wall_Concrete::getCornerTexture(int i)
 	return tex[i];
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Water)
 {
@@ -368,7 +362,7 @@ GC_Water::GC_Water(float xPos, float yPos) : GC_RigidBodyStatic()
 	SetTexture("water");
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignBBToSprite();
+	AlignRadiusToTexture();
 	AlignVerticesToBB();
 
 	MoveTo( vec2d(xPos, yPos) );
@@ -477,7 +471,7 @@ bool GC_Water::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fr
 }
 
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 std::vector<GC_RigidBodyDynamic::Contact> GC_RigidBodyDynamic::_contacts;
 bool GC_RigidBodyDynamic::_glob_parity = false;
@@ -539,25 +533,17 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 	f.Serialize(_external_torque);
 }
 
-BOOL GC_RigidBodyDynamic::intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
+bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
 {
-	/*
-	float R1  = 2 * sqrtf(
-		(pObj1->bbox.x()-pObj2->bbox.x())*(pObj1->bbox.x()-pObj2->bbox.x()) +
-		(pObj1->bbox.y()-pObj2->bbox.y())*(pObj1->bbox.y()-pObj2->bbox.y()) );
-
-	float R2 = sqrtf( pObj1->bbox.lenght*pObj1->bbox.lenght + pObj1->bbox.width*pObj1->bbox.width ) +
-		sqrtf( pObj2->bbox.lenght*pObj2->bbox.lenght + pObj2->bbox.width*pObj2->bbox.width );
-
-	if( R1 > R2 )
-		return FALSE;
-	*/
+	if( (pObj->GetPos() - GetPos()).Length() > GetRadius() + pObj->GetRadius() )
+	{
+		return false;
+	}
 
 
-
-
-	///////////////////////////////////////////////////////////////////
+	//
 	// exact intersection testing
+	//
 
 	vec2d verts1[4];
 	vec2d verts2[4];
@@ -583,12 +569,12 @@ BOOL GC_RigidBodyDynamic::intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 	{
 		ax1 = verts1[i].x;
 		ay1 = verts1[i].y;
-		ax2 = verts1[(i+1)%4].x;
-		ay2 = verts1[(i+1)%4].y;
+		ax2 = verts1[(i+1)&3].x;
+		ay2 = verts1[(i+1)&3].y;
 		bx1 = verts2[j].x;
 		by1 = verts2[j].y;
-		bx2 = verts2[(j+1)%4].x;
-		by2 = verts2[(j+1)%4].y;
+		bx2 = verts2[(j+1)&3].x;
+		by2 = verts2[(j+1)&3].y;
 
 		ax = ax2 - ax1;
 		ay = ay2 - ay1;
@@ -632,7 +618,6 @@ BOOL GC_RigidBodyDynamic::intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 				}
 
 				normal /= len;
-
 				return true;
 			}
 
@@ -765,7 +750,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 //			if( object->parity() != _glob_parity )
 			{
-				if( intersect(object, c.o, c.n) )
+				if( Intersect(object, c.o, c.n) )
 				{
 					c.t.x =  c.n.y;
 					c.t.y = -c.n.x;
@@ -846,7 +831,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 					a *= 0.1f;
 
 				vec2d delta_p = it->n * a;
-				it->obj1_d->impulse(it->o,  delta_p);
+				it->obj1_d->impulse(it->o, delta_p);
 				if( it->obj2_d ) it->obj2_d->impulse(it->o, -delta_p);
 
 
@@ -911,8 +896,10 @@ void GC_RigidBodyDynamic::apply_external_forces(float dt)
 {
 	_lv += (_external_force * dt + _external_impulse) * _inv_m;
 	_av += (_external_momentum * dt + _external_torque) * _inv_i;
-	_external_force.Zero(); _external_impulse.Zero();
-	_external_momentum = _external_torque = 0;
+	_external_force.Zero();
+	_external_impulse.Zero();
+	_external_momentum = 0;
+	_external_torque = 0;
 }
 
 void GC_RigidBodyDynamic::ApplyMomentum(float momentum)

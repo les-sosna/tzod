@@ -62,7 +62,7 @@ public:
 
 	int GetWndCount() const;
 
-	void Draw();
+	void Render() const;
 	void Show(bool show);
 
 	void Resize(float width, float height);
