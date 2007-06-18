@@ -77,18 +77,24 @@ void ComboBox::DropList()
 
 void ComboBox::OnClickItem(int index)
 {
-	_curSel = index;
-	_text->SetText( _list->GetItemText(index, 0).c_str() );
-	_list->Show(false);
-	GetManager()->SetFocusWnd(this);
+	if( -1 != index )
+	{
+		_curSel = index;
+		_text->SetText( _list->GetItemText(index, 0).c_str() );
+		_list->Show(false);
+		GetManager()->SetFocusWnd(this);
 
-	if( eventChangeCurSel )
-		INVOKE(eventChangeCurSel) (index);
+		if( eventChangeCurSel )
+			INVOKE(eventChangeCurSel) (index);
+	}
 }
 
 void ComboBox::OnChangeSelection(int index)
 {
-	_text->SetText( _list->GetItemText(index, 0).c_str() );
+	if( -1 != index )
+	{
+		_text->SetText( _list->GetItemText(index, 0).c_str() );
+	}
 }
 
 void ComboBox::OnListLostFocus()
