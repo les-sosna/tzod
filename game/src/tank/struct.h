@@ -22,26 +22,11 @@ typedef struct SAVEHEADER
 
 //----------------------------------------------------------
 
-struct WINAMPKEYS
-{
-	int keyButton1;
-	int keyButton2;
-	int keyButton3;
-	int keyButton4;
-	int keyButton5;
-	int keyVolumeUp;
-	int keyVolumeDown;
-	int keyFfwd5s;
-	int keyRew5s;
-};
-
-//----------------------------------------------------------
-
 typedef struct VEHICLEKEYS
 {
 	int keyLeft;
 	int keyRight;
-	int keyForvard;
+	int keyForward;
 	int keyBack;
 	int keyFire;
 	int keyLight;
@@ -81,10 +66,7 @@ struct PlayerDesc
 	char skin[MAX_PATH];
 	char cls[MAX_VEHCLSNAME];
 	int  team;
-	union {
-		short score;
-		short type;
-	};
+	int  score;
 };
 
 struct PlayerDescEx : public PlayerDesc

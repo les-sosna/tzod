@@ -12,7 +12,7 @@ class GuiManager;
 class Level;
 class IFileSystem;
 class ConsoleBuffer;
-class Editor;
+class KeyMapper;
 
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
@@ -33,7 +33,7 @@ extern CSoundManager  *g_pSoundManager;
 extern GuiManager     *g_gui;
 extern Level          *g_level;
 extern ConsoleBuffer  *g_console;
-extern Editor         *g_editor;
+extern KeyMapper      *g_keys;
 extern SafePtr<IFileSystem> g_fs;
 
 ///////////////////////////////////////////////////////////////////////////////

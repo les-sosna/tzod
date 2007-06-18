@@ -206,7 +206,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		}
 
 		// send state to the vehicle
-		GetVehicle()->SetState(&vs);
+		GetVehicle()->SetState(vs);
 	}
 }
 
@@ -472,7 +472,7 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv )
 	{
-		pState->_bState_MoveForvard	= true;
+		pState->_bState_MoveForward	= true;
 	}
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack )

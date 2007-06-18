@@ -23,10 +23,10 @@
 
 GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
 {
-	_advanced      = false;
-	_feTime        = 1.0f;
-	_time_respawn  = GetDefaultRespawnTime();
-	_feOrient      = 0;
+	_advanced     = false;
+	_feTime       = 1.0f;
+	_timeRespawn  = GetDefaultRespawnTime();
+	_feOrient     = 0;
 	_fePos.Set(0,0);
 
 	_time = 0;

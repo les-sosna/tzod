@@ -6,7 +6,8 @@
 
 #include "macros.h"
 #include "level.h"
-#include "options.h"
+
+#include "KeyMapper.h"
 
 #include "fs/SaveFile.h"
 
@@ -14,12 +15,15 @@
 
 #include "config/Config.h"
 
+#include "core/Console.h"
+#include "core/debug.h"
+
 #include "GameClasses.h"
 #include "Camera.h"
 #include "vehicle.h"
-#include "controller.h"
 #include "indicators.h"
 #include "particles.h"
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +35,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 GC_Player::GC_Player()
   : GC_Service(), _memberOf(g_level->players, this)
 {
-	_time_respawn = PLAYER_RESPAWNTIME;
+	_timeRespawn = PLAYER_RESPAWNTIME;
 
 	_team  = 0;
 	_score = 0;
@@ -58,7 +62,7 @@ void GC_Player::Serialize(SaveFile &f)
 	f.Serialize(_class);
 	f.Serialize(_score);
 	f.Serialize(_team);
-	f.Serialize(_time_respawn);
+	f.Serialize(_timeRespawn);
 	f.Serialize(_vehicle);
 }
 
@@ -151,15 +155,15 @@ void GC_Player::TimeStepFixed(float dt)
 
 	if( IsDead() )
 	{
-		_time_respawn -= dt;
-		if( _time_respawn <= 0 )
+		_timeRespawn -= dt;
+		if( _timeRespawn <= 0 )
 		{
 			//
 			// Respawn
 			//
 
 			_ASSERT(IsDead());
-			_time_respawn = PLAYER_RESPAWNTIME;
+			_timeRespawn = PLAYER_RESPAWNTIME;
 
 			std::vector<GC_SpawnPoint*> points;
 			GC_SpawnPoint *pSpawnPoint;
@@ -251,65 +255,25 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 
 GC_PlayerLocal::GC_PlayerLocal()
 {
-	_controller = NULL;
+	new GC_Camera(this);
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)
 {
-	_controller = NULL;
 }
 
 GC_PlayerLocal::~GC_PlayerLocal()
 {
-	_ASSERT(!_controller);
-}
-
-CController* GC_PlayerLocal::CreateController(int index)
-{
-	switch( g_options.players[index].ControlType )
-	{
-	case CT_USER_KB:
-		return new CKeyboardController(this, g_options.players[index].KeyMap);
-	case CT_USER_KB2:
-		return new CKeyboardController_v2(this, g_options.players[index].KeyMap);
-	case CT_USER_MOUSE:
-		return new CMouseController(this);
-	case CT_USER_MOUSE2:
-		return new CMouseController2(this);
-	case CT_USER_HYBRID:
-		return new CControllerHybrid(this, g_options.players[index].KeyMap);
-	}
-
-	_ASSERT(FALSE);
-    return NULL;
-}
-
-void GC_PlayerLocal::SetController(int nIndex)
-{
-	SAFE_DELETE(_controller);
-
-	_controller = CreateController(nIndex);
-	_nIndex     = nIndex;
-
-	PulseNotify(NOTIFY_PLAYER_SETCONTROLLER);
-
-	new GC_Camera(this);
-}
-
-void GC_PlayerLocal::Kill()
-{
-	SAFE_DELETE(_controller);
-	GC_Player::Kill();
 }
 
 void GC_PlayerLocal::Serialize(SaveFile &f)
 {
 	GC_Player::Serialize(f);
-
-	f.Serialize(_nIndex);
-
+	f.Serialize(_profile);
 	if( f.loading() )
-		_controller = CreateController(_nIndex);
+	{
+		SetProfile(_profile.c_str());
+	}
 }
 
 void GC_PlayerLocal::TimeStepFixed(float dt)
@@ -334,7 +298,7 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 	else
 	{
 		VehicleState vs;
-		_controller->SetupVehicleState(&vs, dt);
+		GetControl(vs);
 
 		if( g_level->_client  )
 		{
@@ -345,7 +309,81 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 			cp.tovs(vs);
 		}
 
-		GetVehicle()->SetState(&vs);
+		GetVehicle()->SetState(vs);
+	}
+}
+
+void GC_PlayerLocal::SetProfile(const char *name)
+{
+	_profile = name;
+	ConfVar *p = g_conf.dm_profiles->Find(name);
+
+	if( p && ConfVar::typeTable == p->GetType() )
+	{
+		ConfVarTable *t = static_cast<ConfVarTable *>(p);
+
+		_keyForward     = g_keys->GetCode(t->GetStr( "key_forward"      )->Get());
+		_keyBack        = g_keys->GetCode(t->GetStr( "key_back"         )->Get());
+		_keyLeft        = g_keys->GetCode(t->GetStr( "key_left"         )->Get());
+		_keyRight       = g_keys->GetCode(t->GetStr( "key_right"        )->Get());
+		_keyFire        = g_keys->GetCode(t->GetStr( "key_fire"         )->Get());
+		_keyLight       = g_keys->GetCode(t->GetStr( "key_light"        )->Get());
+		_keyTowerLeft   = g_keys->GetCode(t->GetStr( "key_tower_left"   )->Get());
+		_keyTowerRight  = g_keys->GetCode(t->GetStr( "key_tower_right"  )->Get());
+		_keyTowerCenter = g_keys->GetCode(t->GetStr( "key_tower_center" )->Get());
+		_keyPickup      = g_keys->GetCode(t->GetStr( "key_pickup"       )->Get());
+	}
+	else
+	{
+		_keyForward     = 0;
+		_keyBack        = 0;
+		_keyLeft        = 0;
+		_keyRight       = 0;
+		_keyFire        = 0;
+		_keyLight       = 0;
+		_keyTowerLeft   = 0;
+		_keyTowerRight  = 0;
+		_keyTowerCenter = 0;
+		_keyPickup      = 0;
+
+		TRACE("WARNING: profile '%s' not found\n", name);
+	}
+}
+
+void GC_PlayerLocal::GetControl(VehicleState &vs)
+{
+	ZeroMemory(&vs, sizeof(VehicleState));
+
+	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward] != 0;
+	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ] != 0;
+	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ] != 0;
+	vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ] != 0;
+	vs._bState_Fire        = g_env.envInputs.keys[_keyFire   ] != 0;
+
+//	bool tmp = g_env.envInputs.keys[_keyLight] != 0;
+//	if( tmp && !_last_light_key_state )
+//	{
+//		PLAY(SND_LightSwitch, _player->GetVehicle()->GetPos());
+//		_bLight = !_bLight;
+//	}
+//	_last_light_key_state = tmp;
+//	vs._bLight = _bLight;
+
+	vs._bState_AllowDrop = 
+		(g_env.envInputs.keys[_keyForward] != 0 && g_env.envInputs.keys[_keyBack] != 0) ||
+		(g_env.envInputs.keys[_keyLeft] != 0 && g_env.envInputs.keys[_keyRight] != 0) ||
+		g_env.envInputs.keys[_keyPickup] != 0;
+
+	vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft  ] != 0;
+	vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight ] != 0;
+
+	vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] != 0 ||
+		g_env.envInputs.keys[_keyTowerLeft] != 0 && g_env.envInputs.keys[_keyTowerRight] != 0;
+
+	if( vs._bState_TowerCenter )
+	{
+		vs._bState_TowerLeft  = 0;
+		vs._bState_TowerRight = 0;
 	}
 }
 
@@ -377,10 +415,10 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
-	GC_Player::TimeStepFixed( dt );
-	
 	_ASSERT(g_level->_client);
 
+	GC_Player::TimeStepFixed( dt );
+	
 	if( IsDead() )
 	{
 		bool ok = g_level->_client->RecvControl(ControlPacket());
@@ -389,11 +427,12 @@ void GC_PlayerRemote::TimeStepFixed(float dt)
 	else
 	{
 		ControlPacket cp;
-		VehicleState vs;
 		bool ok = g_level->_client->RecvControl(cp);
 		_ASSERT(ok);
+
+		VehicleState vs;
 		cp.tovs(vs);
-		GetVehicle()->SetState(&vs);
+		GetVehicle()->SetState(vs);
 	}
 }
 

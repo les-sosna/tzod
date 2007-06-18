@@ -265,17 +265,15 @@ void NewGameDlg::OnAddPlayer()
 
 	strcpy(pd.nick, "new player");
 
-	DWORD disablePlayers = 0;
-	for( int i = 0; i < g_options.dm_nPlayers; ++i )
-	{
-		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
-		disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
-	}
+//	DWORD disablePlayers = 0;
+//	for( int i = 0; i < g_options.dm_nPlayers; ++i )
+//	{
+//		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
+//		disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
+//	}
+//	pd.type = -1;
 
-	pd.type = -1;
-
-	(new EditPlayerDlg(this, pd, disablePlayers))
-		->eventClose.bind( &NewGameDlg::OnAddPlayerClose, this );
+	(new EditPlayerDlg(this, pd))->eventClose.bind( &NewGameDlg::OnAddPlayerClose, this );
 }
 
 void NewGameDlg::OnAddPlayerClose(int result)
@@ -306,17 +304,17 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetCurSel();
 	_ASSERT(-1 != index);
 
-	DWORD disablePlayers = 0;
-	for( int i = 0; i < g_options.dm_nPlayers; ++i )
-	{
-		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
-		if( index != i )
-		{
-			disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
-		}
-	}
+//	DWORD disablePlayers = 0;
+//	for( int i = 0; i < g_options.dm_nPlayers; ++i )
+//	{
+//		_ASSERT(-1 < g_options.dm_pdPlayers[i].type);
+//		if( index != i )
+//		{
+//			disablePlayers |= (1 << g_options.dm_pdPlayers[i].type);
+//		}
+//	}
 
-	(new EditPlayerDlg(this, g_options.dm_pdPlayers[index], disablePlayers))
+	(new EditPlayerDlg(this, g_options.dm_pdPlayers[index]))
 		->eventClose.bind( &NewGameDlg::OnEditPlayerClose, this );
 }
 
@@ -367,11 +365,12 @@ void NewGameDlg::OnOK()
 		// добавляем игроков в обратном порядке
 		for( int i = OPT(dm_nPlayers) - 1; i >= 0; --i )
 		{
-		//	GC_Player *player = new GC_Player(g_options.dm_pdPlayers[i].team);
-		//	player->SetController( g_options.dm_pdPlayers[i].type);
-		//	player->_name  = g_options.dm_pdPlayers[i].name;
-		//	player->_skin  = g_options.dm_pdPlayers[i].skin;
-		//	player->_class = g_options.dm_pdPlayers[i].cls;
+			GC_PlayerLocal *player = new GC_PlayerLocal();
+			player->SetTeam(g_options.dm_pdPlayers[i].team);
+			player->SetSkin(g_options.dm_pdPlayers[i].skin);
+			player->SetClass(g_options.dm_pdPlayers[i].cls);
+			player->SetNick(g_options.dm_pdPlayers[i].nick);
+			player->SetProfile("Player 1");
 		}
 	}
 	else
@@ -415,7 +414,7 @@ void NewGameDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disablePlayers)
+EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc)
   : Dialog(parent, 0, 0, 384, 256), _playerDesc(inout_desc)
 {
 	Move((parent->GetWidth() - GetWidth()) * 0.5f,
@@ -450,31 +449,37 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 	// player type combo
 	//
 
-	new Text(this, 8, y+=24, "Тип", alignTextLT);
+	new Text(this, 8, y+=24, "Профиль", alignTextLT);
 	_types = new ComboBox(this, x, y-=1, 200);
 	lst = _types->GetList();
 
-	int index = 0;
-	for( int type = 0; type < MAX_HUMANS; ++type )
+	std::vector<string_t> profiles;
+	g_conf.dm_profiles->GetKeyList(profiles);
+
+	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		if( !(disablePlayers & (1 << type)) )
-		{
-			char s[16];
-			wsprintf(s, "человек %d", type+1);
-			lst->AddItem(s, type);
-			if( _playerDesc.type == type )
-				_types->SetCurSel(index);
-			++index;
-		}
+		lst->AddItem(profiles[i].c_str());
 	}
-	lst->AddItem("компьютер", MAX_HUMANS);
-	if( -1 == _playerDesc.type )
-		_types->SetCurSel(0);
-	else if( MAX_HUMANS == _playerDesc.type )
-		_types->SetCurSel(index);
 
-
-
+//	int index = 0;
+//	for( int type = 0; type < MAX_HUMANS; ++type )
+//	{
+//		if( !(disablePlayers & (1 << type)) )
+//		{
+//			char s[16];
+//			wsprintf(s, "человек %d", type+1);
+//			lst->AddItem(s, type);
+//			if( _playerDesc.type == type )
+//				_types->SetCurSel(index);
+//			++index;
+//		}
+//	}
+//	lst->AddItem("компьютер", MAX_HUMANS);
+//	if( -1 == _playerDesc.type )
+//		_types->SetCurSel(0);
+//	else if( MAX_HUMANS == _playerDesc.type )
+//		_types->SetCurSel(index);
+//
 
 
 	//
@@ -534,7 +539,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disab
 
 void EditPlayerDlg::OnOK()
 {
-	_playerDesc.type = (short) _types->GetList()->GetItemData( _types->GetCurSel() );
+//	_playerDesc.type = (short) _types->GetList()->GetItemData( _types->GetCurSel() );
 
 	strcpy( _playerDesc.nick, _name->GetText().c_str() );
 	strcpy( _playerDesc.skin, _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );

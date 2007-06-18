@@ -218,7 +218,6 @@ void ConfVarBool::Push(lua_State *L)
 	lua_pushboolean(L, Get());
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // string
 
@@ -562,6 +561,21 @@ ConfVar* ConfVarTable::Find(const char *name)  // returns NULL if variable not f
 	return _val.asTable->end() != it ? it->second : NULL;
 }
 
+size_t ConfVarTable::GetSize() const
+{
+	return _val.asTable->size();
+}
+
+void ConfVarTable::GetKeyList(std::vector<string_t> &out) const
+{
+	out.clear();
+	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin();
+		_val.asTable->end() != it; ++it )
+	{
+		out.push_back(it->first);
+	}
+}
+
 std::pair<ConfVar*, bool> ConfVarTable::GetVar(const char *name, ConfVar::Type type)
 {
 	std::pair<ConfVar*, bool> result(NULL, true);
@@ -677,21 +691,76 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 	{
 		if( level )
 		{
-			if( delim ) fprintf(file, ",\n");
+			if( delim ) fputs(",\n", file);
 			for(int i = 0; i < level; ++i )
 			{
-				fprintf(file, "  ");
+				fputs("  ", file);
 			}
 		}
 		delim = true;
-		fprintf(file, "%s = ", it->first.c_str());
+
+		bool safe = true;
+		for( size_t i = 0; i < it->first.size(); ++i )
+		{
+			const int c = it->first[i];
+
+			if( !isalpha(c) && '_' != c )
+			{
+				if( 0 == i || !isdigit(c) )
+				{
+					safe = false;
+					break;
+				}
+			}
+		}
+
+		if( safe )
+		{
+			fputs(it->first.c_str(), file);
+		}
+		else
+		{
+			fputs("[\"", file);
+			for( size_t i = 0; i < it->first.size(); ++i )
+			{
+				const int c = it->first[i];
+				switch(c)
+				{
+				case '\\':
+					fputs("\\\\", file);
+					break;
+				case '\n':
+					fputs("\\n", file);
+					break;
+				case '"':
+					fputs("\\\"", file);
+					break;
+				case '\t':
+					fputs("\\t", file);
+					break;
+				default:
+					fputc(c, file);
+				}
+			}
+			fputs("\"]", file);
+		}
+
+		fputs(" = ", file);
 
 		if( !it->second->_Save(file, level+1) )
 			return false;
 
-		if( !level ) fprintf(file, ";\n");
+		if( !level ) fputs(";\n", file);
 	}
-	if( level ) fprintf(file, "\n}");
+	if( level )
+	{
+		fputs("\n", file);
+		for(int i = 0; i < level-1; ++i )
+		{
+			fputs("  ", file);
+		}
+		fputs("}", file);
+	}
 
 	return true;
 }

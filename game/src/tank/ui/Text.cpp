@@ -40,12 +40,12 @@ void Text::UpdateLines()
 	}
 }
 
-void Text::SetText(const char *lpszText)
+void Text::SetText(const char *text)
 {
-	_ASSERT(NULL != lpszText);
-	if( _text != lpszText )
+	_ASSERT(NULL != text);
+	if( _text != text )
 	{
-		_text = lpszText;
+		_text = text;
 		UpdateLines();
 	}
 }

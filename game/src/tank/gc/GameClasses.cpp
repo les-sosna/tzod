@@ -26,76 +26,7 @@
 #include "Sound.h"
 #include "particles.h"
 
-/////////////////////////////////////////////////////////////
-// класс GC_Winamp - модуль управления проигрывателем Winamp.
-
-#include "Frontend.h"
-
-
-IMPLEMENT_SELF_REGISTRATION(GC_Winamp)
-{
-	return true;
-}
-
-GC_Winamp::GC_Winamp() : GC_Service()
-{
-	FindWinamp();
-
-	_time_last = timeGetTime();
-	_time = 0;
-
-	_last_b1	= 0;
-	_last_b2	= 0;
-	_last_b3	= 0;
-	_last_b4	= 0;
-	_last_b5	= 0;
-	_last_up	= 0;
-	_last_down	= 0;
-	_last_ffw	= 0;
-	_last_rew	= 0;
-	////////////////////////////
-	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
-}
-
-void GC_Winamp::FindWinamp()
-{
-	_hwnd_winamp = FindWindow("Winamp v1.x",NULL);
-}
-
-void GC_Winamp::EndFrame()
-{
-	if( !_hwnd_winamp ) return;
-
-	int time_current = timeGetTime();
-	int local_dt = time_current - _time_last;
-	_time_last = time_current;
-	_time += local_dt;
-
-	if( g_env.envInputs.keys[g_options.wkWinampKeys.keyVolumeUp] )
-	{
-		for( ; _time > 0; _time -= 20 )
-			PostMessage(_hwnd_winamp, WM_COMMAND, WINAMP_VOLUMEUP, 0);
-	}
-	else if( g_env.envInputs.keys[g_options.wkWinampKeys.keyVolumeDown] )
-	{
-		for( ; _time > 0; _time -= 20 )
-			PostMessage(_hwnd_winamp, WM_COMMAND, WINAMP_VOLUMEDOWN, 0);
-	}
-	else
-	{
-		_time = 0;
-	}
-
-	SendCommand(_hwnd_winamp, WINAMP_BUTTON1, &_last_b1,  &g_env.envInputs.keys[g_options.wkWinampKeys.keyButton1]);
-	SendCommand(_hwnd_winamp, WINAMP_BUTTON2, &_last_b2,  &g_env.envInputs.keys[g_options.wkWinampKeys.keyButton2]);
-	SendCommand(_hwnd_winamp, WINAMP_BUTTON3, &_last_b3,  &g_env.envInputs.keys[g_options.wkWinampKeys.keyButton3]);
-	SendCommand(_hwnd_winamp, WINAMP_BUTTON4, &_last_b4,  &g_env.envInputs.keys[g_options.wkWinampKeys.keyButton4]);
-	SendCommand(_hwnd_winamp, WINAMP_BUTTON5, &_last_b5,  &g_env.envInputs.keys[g_options.wkWinampKeys.keyButton5]);
-	SendCommand(_hwnd_winamp, WINAMP_FFWD5S,  &_last_ffw, &g_env.envInputs.keys[g_options.wkWinampKeys.keyFfwd5s] );
-	SendCommand(_hwnd_winamp, WINAMP_REW5S,   &_last_rew, &g_env.envInputs.keys[g_options.wkWinampKeys.keyRew5s]  );
-}
-
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Background)
 {
@@ -497,8 +428,10 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		for( int i = 0; i < 8; ++i )
 		{
 			if( i > 3 )
-			if( !field[coord(node->x + per_x[check_diag[(i-4)*2  ]], node->y + per_y[check_diag[(i-4)*2  ]])].open &&
-				!field[coord(node->x + per_x[check_diag[(i-4)*2+1]], node->y + per_y[check_diag[(i-4)*2+1]])].open )
+			if( !field[coord(node->x + per_x[check_diag[(i-4)*2  ]],
+				             node->y + per_y[check_diag[(i-4)*2  ]])].open &&
+				!field[coord(node->x + per_x[check_diag[(i-4)*2+1]],
+				             node->y + per_y[check_diag[(i-4)*2+1]])].open )
 			{
 				continue;
 			}
@@ -864,14 +797,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(int xPos, int yPos, const char *lpszText, enumAlignText align)
-: GC_2dSprite()
+GC_Text::GC_Text(int xPos, int yPos, const char *text, enumAlignText align) : GC_2dSprite()
 {
-//	SetZ(Z_SCREEN);
-
 	SetFont("font_default");
 	SetAlign(align);
-	if( lpszText ) SetText(lpszText);
+	if( text ) SetText(text);
 	SetMargins(0, 0);
 
 	MoveTo( vec2d((float)xPos, (float)yPos) );
@@ -1119,7 +1049,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 }
 
 GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const char *text, const char *font)
-: GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
+  : GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;
 
@@ -1133,22 +1063,21 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const char *text, const char *font)
 
 	_y0 = pos.y;
 	MoveTo( vec2d(__min(x_max, __max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
-	////////////////////////////////
+
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 }
 
 void GC_Text_ToolTip::TimeStepFloat(float dt)
 {
-	GC_Text::TimeStepFloat(dt);
 	_time += dt;
 	MoveTo(vec2d(GetPos().x, _y0 - _time * 20.0f));
 	if( _time > 1.0f ) Kill();
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GC_Text_MessageArea::GC_Text_MessageArea()
-: GC_Text(48, g_render->GetHeight() - 128, "", alignTextLB)
+  : GC_Text(48, g_render->GetHeight() - 128, "", alignTextLB)
 {
 	SetFont("font_small");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
@@ -1156,7 +1085,6 @@ GC_Text_MessageArea::GC_Text_MessageArea()
 
 void GC_Text_MessageArea::TimeStepFloat(float dt)
 {
-	GC_Text::TimeStepFloat(dt);
     for( size_t i = 0; i < _lines.size(); ++i )
 		_lines[i].time += dt;
 	while( !_lines.empty() && _lines.front().time > 5 )

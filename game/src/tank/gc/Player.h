@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
 
-class CController;
+struct VehicleState;
 class GC_Vehicle;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ class GC_Player : public GC_Service
 	DECLARE_SELF_REGISTRATION(GC_Player);
 	MemberOfGlobalList _memberOf;
 
-	float     _time_respawn;
+	float     _timeRespawn;
 
 	int       _team;
 	int       _score;
@@ -28,7 +28,6 @@ class GC_Player : public GC_Service
 	SafePtr<GC_Vehicle> _vehicle;
 
 protected:
-
 	class MyPropertySet : public PropertySet
 	{
 		typedef PropertySet BASE;
@@ -90,23 +89,35 @@ class GC_PlayerLocal : public GC_Player
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
-	int           _nIndex;     // index in g_options.players[]
-	CController  *_controller;
+	string_t _profile;
 
-protected:
-	CController* CreateController(int index);
+
+	//
+	// cached values from the profile
+	//
+
+	int _keyForward;
+	int _keyBack;
+	int _keyLeft;
+	int _keyRight;
+	int _keyFire;
+	int _keyLight;
+	int _keyTowerLeft;
+	int _keyTowerRight;
+	int _keyTowerCenter;
+	int _keyPickup;
+
+	void GetControl(VehicleState &vs);
 
 public:
 	GC_PlayerLocal();
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
 
-	void SetController(int nIndex);
-
-	virtual void Kill();
-
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);
+
+	void SetProfile(const char *name);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

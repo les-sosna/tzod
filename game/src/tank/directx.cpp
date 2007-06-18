@@ -5,6 +5,8 @@
 
 #include "directx.h"
 
+#include "Macros.h"
+
 #include "core/Debug.h"
 #include "core/Console.h"
 
@@ -16,11 +18,6 @@
 
 LPDIRECTINPUT8        g_pDI       = NULL;
 //LPDIRECTINPUTDEVICE8  g_pMouse	  = NULL;
-
-//--------------------------------------------------------------------------
-
-#define SAFE_DELETE(p)  { if(p) { delete (p);     (p)=NULL; } }
-#define SAFE_RELEASE(p) { if(p) { (p)->Release(); (p)=NULL; } }
 
 //--------------------------------------------------------------------------
 
@@ -205,15 +202,14 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	LoadOggVorbis(init, SND_Limit,          "sounds\\misc\\limit.ogg"           );
 	LoadOggVorbis(init, SND_LightSwitch,    "sounds\\misc\\light1.ogg"          ); //
 	}
-	catch(LoadSoundException)
+	catch( LoadSoundException )
 	{
-		if(init) FreeDirectSound();
+		if( init ) FreeDirectSound();
 		throw;
 	}
 
 	return S_OK;
 }
-
 
 void FreeDirectSound()
 {
@@ -233,11 +229,7 @@ HRESULT InitDirectInput( HWND hWnd )
 	ZeroMemory(g_env.envInputs.keys, 256);
     FreeDirectInput();
 
-//#ifdef _DEBUG
 	DWORD dwPriority = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
-//#else
-//	DWORD dwPriority = DISCL_EXCLUSIVE | DISCL_FOREGROUND;
-//#endif
 
 
     HRESULT hr;
@@ -352,11 +344,13 @@ HRESULT ReadImmediateData()
     return S_OK;
 }
 
-
 void GetKeyName(int nKey, char *pBuf)
 {
-	static const char names[][256] = {
-		{"<error>"},		// 0
+
+
+/*
+	static const char names[][16] = {
+		{"#000"},           // 0
 		{"Escape"},			// 1
 		{"1"},				// 2
 		{"2"},				// 3
@@ -441,46 +435,46 @@ void GetKeyName(int nKey, char *pBuf)
 		{"Numpad 0"},		// 82
 		{"Numpad ."},		// 83
 
-		{"???-84"},	// 84
-		{"???-85"},	// 85
-		{"???-86"},	// 86
+		{"#084"},	// 84
+		{"#085"},	// 85
+		{"#086"},	// 86
 
 		{"F11"},	// 87
 		{"F12"},	// 88
 
-		{"???-89"},	// 89
-		{"???-90"},	// 90
-		{"???-91"},	// 91
-		{"???-92"},	// 92
-		{"???-93"},	// 93
-		{"???-94"},	// 94
-		{"???-95"},	// 95
-		{"???-96"},	// 96
-		{"???-97"},	// 97
-		{"???-98"},	// 98
-		{"???-99"},	// 99
-		{"???-100"},	// 100
-		{"???-101"},	// 101
-		{"???-102"},	// 102
-		{"???-103"},	// 103
-		{"???-104"},	// 104
-		{"???-105"},	// 105
-		{"???-106"},	// 106
-		{"???-107"},	// 107
-		{"???-108"},	// 108
-		{"???-109"},	// 109
-		{"???-110"},	// 110
-		{"???-111"},	// 111
-		{"???-112"},	// 112
-		{"???-113"},	// 113
-		{"???-114"},	// 114
-		{"???-115"},	// 115
-		{"???-116"},	// 116
-		{"???-117"},	// 117
-		{"???-118"},	// 118
-		{"???-119"},	// 119
-		{"???-120"},	// 120
-		{"???-121"},	// 121
+		{"#089"},	// 89
+		{"#090"},	// 90
+		{"#091"},	// 91
+		{"#092"},	// 92
+		{"#093"},	// 93
+		{"#094"},	// 94
+		{"#095"},	// 95
+		{"#096"},	// 96
+		{"#097"},	// 97
+		{"#098"},	// 98
+		{"#099"},	// 99
+		{"#100"},	// 100
+		{"#101"},	// 101
+		{"#102"},	// 102
+		{"#103"},	// 103
+		{"#104"},	// 104
+		{"#105"},	// 105
+		{"#106"},	// 106
+		{"#107"},	// 107
+		{"#108"},	// 108
+		{"#109"},	// 109
+		{"#110"},	// 110
+		{"#111"},	// 111
+		{"#112"},	// 112
+		{"#113"},	// 113
+		{"#114"},	// 114
+		{"#115"},	// 115
+		{"#116"},	// 116
+		{"#117"},	// 117
+		{"#118"},	// 118
+		{"#119"},	// 119
+		{"#120"},	// 120
+		{"#121"},	// 121
 		{"???-122"},	// 122
 		{"???"},	// 123
 		{"???"},	// 124
@@ -636,6 +630,9 @@ void GetKeyName(int nKey, char *pBuf)
 	};
 
 	strcpy(pBuf, names[nKey]);
+
+	*/
+
 }
 
 

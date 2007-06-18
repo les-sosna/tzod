@@ -356,6 +356,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\KeyMapper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\Level.cpp"
 				>
 			</File>
@@ -674,6 +678,10 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\globals.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\KeyMapper.h"
 				>
 			</File>
 			<File

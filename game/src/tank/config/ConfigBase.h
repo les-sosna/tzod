@@ -134,7 +134,7 @@ public:
 	ConfVarNumber* GetNum(size_t index, float def);
 	ConfVarNumber* GetNum(size_t index, int  def);
 	ConfVarBool*  GetBool(size_t index, bool def);
-	ConfVarString* GetStr(size_t index, const char* def);
+	ConfVarString* GetStr(size_t index, const char* def = "");
 
 	ConfVarNumber* SetNum(size_t index, float value);
 	ConfVarNumber* SetNum(size_t index, int  value);
@@ -170,6 +170,8 @@ public:
 	const char* GetTypeName() const;
 
 	ConfVar* Find(const char *name); // returns NULL if variable not found
+	size_t GetSize() const;
+	void GetKeyList(std::vector<string_t> &out) const;
 
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(const char *name, ConfVar::Type type);
@@ -177,7 +179,7 @@ public:
 	ConfVarNumber* GetNum(const char *name, float def);
 	ConfVarNumber* GetNum(const char *name, int  def);
 	ConfVarBool*  GetBool(const char *name, bool def);
-	ConfVarString* GetStr(const char *name, const char* def);
+	ConfVarString* GetStr(const char *name, const char* def = "");
 
 	ConfVarNumber* SetNum(const char *name, float value);
 	ConfVarNumber* SetNum(const char *name, int  value);

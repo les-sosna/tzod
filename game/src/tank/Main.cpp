@@ -6,6 +6,7 @@
 #include "Level.h"
 #include "options.h"
 #include "directx.h"
+#include "KeyMapper.h"
 
 #include "config/Config.h"
 
@@ -41,12 +42,7 @@ static void OnPrintScreen()
 	char name[MAX_PATH];
 	while (1)
 	{
-		char zero[4] = {0};
-		if( n < 1000 ) zero[0] = '0';
-		if( n <  100 ) zero[1] = '0';
-		if( n <   10 ) zero[2] = '0';
-
-		wsprintf(name, "screenshot%s%d.tga", zero, n);
+		wsprintf(name, "screenshot%04d.tga", n);
 
 		WIN32_FIND_DATA fd = {0};
 		HANDLE h = FindFirstFile(name, &fd);
@@ -62,7 +58,7 @@ static void OnPrintScreen()
 
 	if( !g_render->TakeScreenshot(name) )
 	{
-		TRACE("ERROR: take screenshot failed\n");
+		TRACE("ERROR: screen shot failed\n");
 //		_MessageArea::Inst()->message("> ошибка!");
 	}
 	else
@@ -122,18 +118,20 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 static HWND CreateMainWnd(HINSTANCE hInstance)
 {
 	TRACE("Create main app window\n");
-    HWND hWnd = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
+    HWND h = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
                            WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
 						   CW_USEDEFAULT, CW_USEDEFAULT, // position
   	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
 						   NULL, NULL, hInstance, NULL );
-	return hWnd;
+	return h;
 }
 
-int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
+int APIENTRY WinMain( HINSTANCE hinst,
+					  HINSTANCE /*hPrevInstance*/,
+					  LPSTR /*lpCmdLine*/,
+					  int /*nCmdShow*/ )
 {
 	g_hInstance = hinst;
-
 
 	// create the console buffer
 	g_console = new ConsoleBuffer(128, 512);
@@ -148,11 +146,17 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 
 
 	//
+	// create main app window
+	//
+	MyRegisterClass(hinst);
+	g_env.hMainWnd = CreateMainWnd(hinst);
+
+
+	//
 	// init file system
 	//
 	TRACE("Mounting file system\n");
 	g_fs = OSFileSystem::Create(".");
-
 
 
 	//
@@ -163,10 +167,20 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 	if( !g_config->Load(FILE_CONFIG) )
 	{
 		TRACE("couldn't load " FILE_CONFIG "\n");
+
+		int result = MessageBox(g_env.hMainWnd, 
+			"Syntax error in the config file. Default settings will be used.",
+			TXT_VERSION,
+			MB_ICONERROR | MB_OKCANCEL);
+
+		if( IDOK != result )
+		{
+			return 0;
+		}
 	}
-
 	g_conf.Initialize(g_config);
-
+	if( 0 == g_conf.dm_profiles->GetSize() )
+		CreateDefaultProfiles();
 
 	if( !LoadOptions() )
 		SetDefaultOptions();
@@ -180,34 +194,12 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 
 
 	//
-	// init editor
-	//
-
-//	g_editor = new Editor();
-
-
-
-
-	//
 	// init common controls
 	//
 
 	TRACE("windows common controls initialization\n");
-	INITCOMMONCONTROLSEX iccex = {
-	sizeof(INITCOMMONCONTROLSEX),
-		0
-//		ICC_LISTVIEW_CLASSES|ICC_UPDOWN_CLASS|ICC_BAR_CLASSES
-	};
+	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), 0 };
 	InitCommonControlsEx(&iccex);
-
-
-	//
-	// create main app window
-	//
-	MyRegisterClass(hinst);
-	g_env.hMainWnd = CreateMainWnd(hinst);
-
-
 
 
 	//
@@ -219,6 +211,12 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 		g_fs = NULL; // free the file system
 		return 0;
 	}
+
+
+	//
+	// init key mapper
+	//
+	g_keys = new KeyMapper();
 
 
 	//
@@ -382,8 +380,8 @@ int APIENTRY WinMain(HINSTANCE hinst, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmd
 	script_close(g_env.hScript);
 	g_env.hScript = NULL;
 
-	// editor
-//	SAFE_DELETE(g_editor);
+	// key mapper
+	SAFE_DELETE(g_keys);
 
 	// config
 	g_config->Save(FILE_CONFIG);

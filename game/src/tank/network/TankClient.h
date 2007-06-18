@@ -27,7 +27,7 @@ public:
 	void tovs(VehicleState &vs) const;
 };
 
-#define STATE_MOVEFORVARD	0x0001
+#define STATE_MOVEFORWARD	0x0001
 #define STATE_MOVEBACK		0x0002
 #define STATE_ROTATELEFT	0x0004
 #define STATE_ROTATERIGHT	0x0008

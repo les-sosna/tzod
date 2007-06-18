@@ -76,7 +76,7 @@ class EditPlayerDlg : public Dialog
 	PlayerDesc &_playerDesc;
 
 public:
-	EditPlayerDlg(Window *parent, PlayerDesc &inout_desc, DWORD disablePlayers);
+	EditPlayerDlg(Window *parent, PlayerDesc &inout_desc);
 
 protected:
 	void OnOK();

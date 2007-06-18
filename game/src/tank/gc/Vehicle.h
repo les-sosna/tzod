@@ -42,7 +42,7 @@ struct VehicleState
 {
 	union {
 		struct {
-			bool _bState_MoveForvard : 1;
+			bool _bState_MoveForward : 1;
 			bool _bState_MoveBack    : 1;
 			bool _bExplicitBody      : 1;
 			bool _bState_Fire        : 1;
@@ -129,7 +129,7 @@ public:
 	virtual unsigned char GetProperties() const { return 0; } // не является препятствием
 
 	void SetSkin(const char *pSkinName);
-	void SetState(VehicleState *state);
+	void SetState(VehicleState &vs);
 
 	void SetMoveSound(enumSoundTemplate s);
 

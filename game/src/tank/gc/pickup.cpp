@@ -77,7 +77,7 @@ GC_PickUp::GC_PickUp(float x, float y)
 	AddContext(&g_level->grid_pickup);
 
 	_bMostBeAllowed = false;
-	_time_respawn   = 0;
+	_timeRespawn   = 0;
 	_timeAnimation = 0;
 	_time           = 0;
 	_respawn        = true;
@@ -106,7 +106,7 @@ void GC_PickUp::Serialize(SaveFile &f)
 	f.Serialize(_respawn);
 	f.Serialize(_time);
 	f.Serialize(_timeAnimation);
-	f.Serialize(_time_respawn);
+	f.Serialize(_timeRespawn);
 	/////////////////////////////////////
 	f.Serialize(_ancObject);
 	/////////////////////////////////////
@@ -128,7 +128,7 @@ void GC_PickUp::GiveIt(GC_Vehicle* pVehicle)
 	{
 		GC_PickUp *object = SetRespawn();
 		object->Show(false);
-		object->_time_respawn = _time_respawn;
+		object->_timeRespawn = _timeRespawn;
 		object->SetAnchor(this);
 	}
 
@@ -190,7 +190,7 @@ void GC_PickUp::TimeStepFixed(float dt)
 					_time -= dt;
 			}
 
-			if( _time > _time_respawn )
+			if( _time > _timeRespawn )
 				Respawn();
 		}
 	}
@@ -207,7 +207,7 @@ void GC_PickUp::Draw()
 void GC_PickUp::mapExchange(MapFile &f)
 {
 	GC_Item::mapExchange(f);
-	MAP_EXCHANGE_FLOAT(respawn_time,  _time_respawn, GetDefaultRespawnTime());
+	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 }
 
 SafePtr<PropertySet> GC_PickUp::GetProperties()
@@ -248,11 +248,11 @@ void GC_PickUp::MyPropertySet::Exchange(bool bApply)
 	GC_PickUp *obj = static_cast<GC_PickUp*>(GetObject());
 	if( bApply )
 	{
-		obj->_time_respawn = (float) _propTimeRespawn.GetValueInt() / 1000.0f;
+		obj->_timeRespawn = (float) _propTimeRespawn.GetValueInt() / 1000.0f;
 	}
 	else
 	{
-		_propTimeRespawn.SetValueInt(int(obj->_time_respawn * 1000.0f + 0.5f));
+		_propTimeRespawn.SetValueInt(int(obj->_timeRespawn * 1000.0f + 0.5f));
 	}
 }
 
@@ -266,7 +266,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 
 GC_pu_Health::GC_pu_Health(float x, float y) : GC_PickUp(x, y)
 {
-	_time_respawn = GetDefaultRespawnTime();
+	_timeRespawn = GetDefaultRespawnTime();
 	SetTexture("pu_health");
 }
 
@@ -318,7 +318,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 
 GC_pu_Mine::GC_pu_Mine(float x, float y) : GC_PickUp(x, y)
 {
-	_time_respawn = GetDefaultRespawnTime();
+	_timeRespawn = GetDefaultRespawnTime();
 	SetTexture("item_mine");
 	SetShadow(false);
 }
@@ -361,7 +361,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Invulnerablity)
 GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y) : GC_PickUp(x, y)
 {
 	_time_hit       = 0;
-	_time_respawn   = GetDefaultRespawnTime();
+	_timeRespawn   = GetDefaultRespawnTime();
 	_bMostBeAllowed = false;
 
 	SetTexture("pu_inv");
@@ -487,7 +487,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 
 GC_pu_Shock::GC_pu_Shock(float x, float y) : GC_PickUp(x, y)
 {
-	_time_respawn = GetDefaultRespawnTime();
+	_timeRespawn = GetDefaultRespawnTime();
 	_time_wait = 1.5f;
 
 	_bMostBeAllowed = true;
@@ -657,7 +657,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 
 GC_pu_Booster::GC_pu_Booster(float x, float y) : GC_PickUp(x, y)
 {
-	_time_respawn = GetDefaultRespawnTime();
+	_timeRespawn = GetDefaultRespawnTime();
 	SetTexture("pu_booster");
 }
 

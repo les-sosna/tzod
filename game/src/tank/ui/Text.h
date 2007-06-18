@@ -24,7 +24,7 @@ private:
 public:
 	Text(Window *parent, float x, float y, const char *text, enumAlignText align);
 
-	void SetText(const char *lpszText);
+	void SetText(const char *text);
 	void SetAlign(enumAlignText align);
 
 	virtual void Draw(float sx = 0, float sy = 0);

@@ -9,44 +9,6 @@
 #include "2dSprite.h"
 #include "Light.h"
 
-////////////////////////////////////////////////////////////
-// winamp controller
-
-class GC_Winamp : public GC_Service
-{
-	DECLARE_SELF_REGISTRATION(GC_Winamp);
-
-private:
-	HWND _hwnd_winamp;
-
-	DWORD _time_last; // время, независимое от скорости игры
-	int   _time;
-
-	char _last_b1;
-	char _last_b2;
-	char _last_b3;
-	char _last_b4;
-	char _last_b5;
-	char _last_up;
-	char _last_down;
-	char _last_ffw;
-	char _last_rew;
-
-	UINT frame_counter;
-
-	void SendCommand(HWND hWnd, WPARAM command, char *last, char *current)
-	{
-		if( *last && !*current ) PostMessage(hWnd, WM_COMMAND, command, 0);
-		*last = *current;
-	}
-
-public:
-	GC_Winamp();
-	GC_Winamp(FromFile) : GC_Service(FromFile()) {};
-	void FindWinamp();
-	virtual void EndFrame();
-};
-
 /////////////////////////////////////////////////////////////
 
 class GC_Background : public GC_2dSprite
@@ -299,12 +261,12 @@ private:
 	void UpdateLines();
 
 public:
-	GC_Text(int x, int y, const char *lpszText, enumAlignText align = alignTextLT);
+	GC_Text(int x, int y, const char *text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
 
 public:
 	void SetFont(const char *fontname);
-	void SetText(const char *lpszText);
+	void SetText(const char *text);
 	void SetAlign(enumAlignText align);
 	void SetMargins(float mx, float my);
 	size_t GetTextLenght() { return _text.size(); }

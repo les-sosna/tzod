@@ -6,7 +6,7 @@
 #include "fs/FileSystem.h"
 #include "core/Console.h"
 
-#include "Editor.h"
+#include "KeyMapper.h"
 
 ENVIRONMENT g_env;
 
@@ -28,6 +28,6 @@ SafePtr<IFileSystem> g_fs;
 
 ConsoleBuffer *g_console = NULL;
 
-Editor *g_editor = NULL;
+KeyMapper *g_keys = NULL;
 
 // end of file

@@ -1,5 +1,5 @@
 // TankClient.cpp
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "TankClient.h"
@@ -10,7 +10,7 @@
 #include "gc/Vehicle.h" // FIXME!
 
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 ControlPacket::ControlPacket()
 {
@@ -23,7 +23,7 @@ void ControlPacket::fromvs(const VehicleState &vs)
 	fTowerAngle   = 0;
 	fBodyAngle    = 0;
 
-	wControlState |= STATE_MOVEFORVARD * (false != vs._bState_MoveForvard);
+	wControlState |= STATE_MOVEFORWARD * (false != vs._bState_MoveForward);
 	wControlState |= STATE_MOVEBACK    * (false != vs._bState_MoveBack);
 	wControlState |= STATE_FIRE        * (false != vs._bState_Fire);
 	wControlState |= STATE_ALLOWDROP   * (false != vs._bState_AllowDrop);
@@ -57,7 +57,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
 
-	vs._bState_MoveForvard = (0 != (wControlState & STATE_MOVEFORVARD));
+	vs._bState_MoveForward = (0 != (wControlState & STATE_MOVEFORWARD));
 	vs._bState_MoveBack    = (0 != (wControlState & STATE_MOVEBACK));
 	vs._bState_Fire        = (0 != (wControlState & STATE_FIRE));
 	vs._bState_AllowDrop   = (0 != (wControlState & STATE_ALLOWDROP));
@@ -87,7 +87,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 	}
 }
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 TankClient::TankClient(void)
 {

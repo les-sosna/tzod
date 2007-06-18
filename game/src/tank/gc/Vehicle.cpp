@@ -172,9 +172,9 @@ void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
 }
 
 
-void GC_Vehicle::SetState(VehicleState *state)
+void GC_Vehicle::SetState(VehicleState &vs)
 {
-	memcpy( &_state, state, sizeof(VehicleState) );
+	memcpy( &_state, &vs, sizeof(VehicleState) );
 }
 
 void GC_Vehicle::SetSkin(const char *pSkinName)
@@ -362,10 +362,10 @@ void GC_Vehicle::TimeStepFixed(float dt)
 
 
 	//
-	// adjast speed
+	// adjust speed
 	//
 
-	if( _state._bState_MoveForvard )
+	if( _state._bState_MoveForward )
 	{
 		ApplyForce(_direction * _engine_power);
 	}

@@ -80,7 +80,7 @@ public:
 	bool	_bMostBeAllowed; // небходимо разрешение, чтобы подобрать предмет
 	float	_time;
 	float	_timeAnimation;
-	float	_time_respawn;
+	float	_timeRespawn;
 	bool	_respawn;      // респаун после того, как предмет подберут
 	bool	_attached;     // предмет прикреплен к танку
 	bool	_blink;         // item is blinking

@@ -27,7 +27,6 @@
 #include "gc/Camera.h"
 
 
-
 ////////////////////////////////////////////////////////////
 unsigned long FieldCell::_sessionId;
 
@@ -258,8 +257,6 @@ void Level::Init(int X, int Y)
 	_Background::CreateInstance();
 	_MessageArea::CreateInstance();
 
-
-	new GC_Winamp();
 	new GC_Camera((GC_Player *) NULL);
 
 	_temporaryText = new GC_Text(0, 0, "");
@@ -621,17 +618,6 @@ bool Level::Export(const char *fileName)
 			if( !file.WriteCurrentObject() ) return false;
 		}
 	}
-
-
-	//
-	// thumbnail
-	//
-
-//	bool ed = OPT(bModeEditor);
-//	OPT(bModeEditor) = false;
-//	RenderFrame(true);
-//	OnPrintScreen();
-//	OPT(bModeEditor) = ed;
 
 	return true;
 }
@@ -1137,7 +1123,7 @@ void Level::Render() const
 
 		for( int z = 0; z < Z_COUNT; ++z )
 		{
-			// loop over gridsets
+			// loop over grid sets
 			for( int lev = 0; lev < 4; ++lev )
 			{
 				static const int dx[] = {0, LOCATION_SIZE/2, 0, LOCATION_SIZE/2};
@@ -1162,7 +1148,7 @@ void Level::Render() const
 						_ASSERT(!object->IsKilled());
 					}
 				}
-			} // loop over gridsets
+			} // loop over grid sets
 
 
 			// loop over globals
