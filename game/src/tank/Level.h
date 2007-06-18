@@ -115,8 +115,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ED_ACTOR(name, desc, layer, width, height, align, offset)    \
-	Level::RegisterActor<__this_class>(                              \
+#define ED_ACTOR(name, desc, layer, width, height, align, offset)   \
+	Level::RegisterActor<__ThisClass>(                              \
 	(name), (desc), (layer), (width), (height), (align), (offset) )
 
 #define ED_ITEM(name, desc) ED_ACTOR(name, desc, 1, 2, 2, CELL_SIZE/2, 0)
@@ -362,7 +362,7 @@ public:
 	static void RegisterActor( const char *name, const char *desc, int layer, float width,
 	                           float height, float align, float offset )
 	{
-		_ASSERT( !IsRegistered(T::this_type) );
+		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
 		EdItem ei;
 		ei.desc    = desc;
 		ei.name    = name;
@@ -372,22 +372,22 @@ public:
 		ei.offset  = offset;
 		ei.service = false;
 		ei.Create  = CreateActor<T>;
-		get_t2i()[T::this_type] = ei;
-		get_n2t()[name] = T::this_type;
-		get_i2t().push_back(T::this_type);
+		get_t2i()[T::GetTypeStatic()] = ei;
+		get_n2t()[name] = T::GetTypeStatic();
+		get_i2t().push_back(T::GetTypeStatic());
 	}
 	template<class T>
 	static void RegisterService( const char *name, const char *desc )
 	{
-		_ASSERT( !IsRegistered(T::this_type) );
+		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
 		EdItem ei = {0};
 		ei.desc    = desc;
 		ei.name    = name;
 		ei.service = true;
 		ei.Create  = CreateService<T>;
-		get_t2i()[T::this_type] = ei;
-		get_n2t()[name] = T::this_type;
-		get_i2t().push_back(T::this_type);
+		get_t2i()[T::GetTypeStatic()] = ei;
+		get_n2t()[name] = T::GetTypeStatic();
+		get_i2t().push_back(T::GetTypeStatic());
 	}
 	static bool IsRegistered(ObjectType type)
 	{

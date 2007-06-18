@@ -482,7 +482,7 @@ void GC_Weap_AutoCannon::Detach()
 	// убиваем звук перезарядки
 	FOREACH( sounds, GC_Sound, object )
 	{
-		if( GC_Sound_link::this_type == object->GetType() )
+		if( GC_Sound_link::GetTypeStatic() == object->GetType() )
 		{
 			if( ((GC_Sound_link *) object)->CheckObject(this) )
 			{

@@ -318,6 +318,7 @@ BOOL Level::init_newdm(const char *mapName)
 
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
+	_seed       = rand();
 
 	// score table
 	new GC_TextScore();

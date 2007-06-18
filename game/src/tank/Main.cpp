@@ -332,7 +332,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 #ifndef _DEBUG
 		} // end of try block
-		catch(...)	// general error handling
+		catch(...) // general error handling
 		{
 			TRACE("GENERAL FAULT\n");
 			bGeneralFault = TRUE;

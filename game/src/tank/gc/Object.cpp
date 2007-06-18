@@ -254,8 +254,8 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 		throw "Load error: unexpected end of file\n";
 	}
 
-	_from_file_map::const_iterator it = _get_from_file_map().find(type);
-	if( _get_from_file_map().end() == it )
+	__FromFileMap::const_iterator it = __GetFromFileMap().find(type);
+	if( __GetFromFileMap().end() == it )
 	{
 		TRACE("ERROR: unknown object type %u\n", type);
 		throw "Load error: unknown object type\n";

@@ -24,10 +24,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define NODE_RADIUS		32.0f
-#define MIN_PATH_ANGLE	 0.4f
+#define NODE_RADIUS         32.0f
+#define MIN_PATH_ANGLE       0.4f
 
-#define GRID_ALIGN(x, sz)	((x)-(x)/(sz)*(sz)<(sz)/2)?((x)/(sz)):((x)/(sz)+1)
+#define GRID_ALIGN(x, sz)    ((x)-(x)/(sz)*(sz)<(sz)/2)?((x)/(sz)):((x)/(sz)+1)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -165,7 +165,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 				{
 					d = d_array[_accuracy] *
 						fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
-						static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
+							static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 				}
 
 				if( d > 0 )
@@ -280,8 +280,10 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		for( int i = 0; i < 8; ++i )
 		{
 			if( i > 3 ) // проверка проходимости по диагонали
-			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]], cn.GetY() + per_y[check_diag[(i-4)*2  ]])) ||
-				!CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]], cn.GetY() + per_y[check_diag[(i-4)*2+1]]))   )
+			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]],
+			                     cn.GetY() + per_y[check_diag[(i-4)*2  ]])) ||
+			    !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]],
+			                     cn.GetY() + per_y[check_diag[(i-4)*2+1]])) )
 			{
 				continue;
 			}
@@ -568,7 +570,8 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info)
 		if( targets[i].bIsVisible )
 			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).Length() / CELL_SIZE;
 		else
-			l = CreatePath(targets[i].target->GetPos().x, targets[i].target->GetPos().y, AI_MAX_DEPTH, true);
+			l = CreatePath( targets[i].target->GetPos().x, 
+			                targets[i].target->GetPos().y, AI_MAX_DEPTH, true );
 
         if( l >= 0 )
 		{
@@ -635,9 +638,9 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 				AIPRIORITY p = items[i]->CheckUseful(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
 				if( items[i]->GetType() == _otFavoriteWeapon )
 				{
-					if( GetVehicle()->GetWeapon() )
-					if( _otFavoriteWeapon != GetVehicle()->GetWeapon()->GetType() &&
-						!GetVehicle()->GetWeapon()->IsAdvanced() )
+					if( GetVehicle()->GetWeapon()
+						&& _otFavoriteWeapon != GetVehicle()->GetWeapon()->GetType()
+						&& !GetVehicle()->GetWeapon()->GetAdvanced() )
 					{
 						p += AIP_WEAPON_FAVORITE;
 					}
@@ -662,28 +665,28 @@ void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 {
 	ASSERT_TYPE(target, GC_Vehicle);
 
-	float gamma = target->_angle;
+	float c = cosf(target->_angle);
+	float s = sinf(target->_angle);
+
+	float x = (target->GetPos().x - GetVehicle()->GetPos().x) * c +
+	          (target->GetPos().y - GetVehicle()->GetPos().y) * s;
+	float y = (target->GetPos().y - GetVehicle()->GetPos().y) * c -
+	          (target->GetPos().x - GetVehicle()->GetPos().x) * s;
+
 	float Vt = target->_lv.Length();
 
-	float cg = cosf(gamma), sg = sinf(gamma);
-
-	float x = (target->GetPos().x - GetVehicle()->GetPos().x) * cg +
-			  (target->GetPos().y - GetVehicle()->GetPos().y) * sg;
-	float y = (target->GetPos().y - GetVehicle()->GetPos().y) * cg -
-			  (target->GetPos().x - GetVehicle()->GetPos().x) * sg;
-
-	float fx = x + Vt * (x * Vt + sqrtf(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
-
-	if( _isnan(fx) || !_finite(fx) )
+	if( Vt < Vp )
 	{
-		fake = GetVehicle()->GetPos();
+		float fx = x + Vt * (x * Vt + sqrtf(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
+
+		fake.x = GetVehicle()->GetPos().x + fx * c - y * s;
+		fake.y = GetVehicle()->GetPos().y + fx * s + y * c;
+		fake.x = __max(0, __min(g_level->_sx, fake.x));
+		fake.y = __max(0, __min(g_level->_sy, fake.y));
 	}
 	else
 	{
-		fake.x = GetVehicle()->GetPos().x + fx*cg - y*sg;
-		fake.y = GetVehicle()->GetPos().y + fx*sg + y*cg;
-		fake.x = __max(0, __min(g_level->_sx, fake.x));
-		fake.y = __max(0, __min(g_level->_sy, fake.y));
+		fake = GetVehicle()->GetPos();
 	}
 }
 
@@ -754,7 +757,9 @@ void GC_PlayerAI::ProcessAction()
 		if( ii_target.priority > ii_item.priority )
 		{
 			if( CreatePath(_target->GetPos().x, _target->GetPos().y, AI_MAX_DEPTH, false) > 0 )
+			{
 				SmoothPath();
+			}
 			_pickupCurrent = NULL;
 			SetL2(L2_ATTACK);
 			SetL1(L1_NONE);
@@ -764,8 +769,11 @@ void GC_PlayerAI::ProcessAction()
 			_ASSERT(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, AI_MAX_DEPTH, false) > 0 )
+				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
+				               AI_MAX_DEPTH, false) > 0 )
+				{
 					SmoothPath();
+				}
 				_pickupCurrent = (GC_PickUp *) ii_item.object;
 			}
 			SetL2(L2_PICKUP);
@@ -781,8 +789,11 @@ void GC_PlayerAI::ProcessAction()
 			_ASSERT(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, AI_MAX_DEPTH, false) > 0 )
+				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, 
+				               AI_MAX_DEPTH, false) > 0 )
+				{
 					SmoothPath();
+				}
 				_pickupCurrent = (GC_PickUp *) ii_item.object;
 			}
 			SetL2(L2_PICKUP);
@@ -820,7 +831,8 @@ void GC_PlayerAI::SelectState()
 		_ASSERT(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = GetVehicle()->GetPos() + g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
+			vec2d t = GetVehicle()->GetPos() 
+				+ g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
 			float x = __min(__max(0, t.x), g_level->_sx);
 			float y = __min(__max(0, t.y), g_level->_sy);
 
@@ -935,12 +947,14 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 {
 	_ASSERT(GetVehicle()->GetWeapon());
 
-	if( GC_Weap_Gauss::this_type == GetVehicle()->GetWeapon()->GetType() )  // FIXME!
+	if( GC_Weap_Gauss::GetTypeStatic() == GetVehicle()->GetWeapon()->GetType() )  // FIXME!
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
-		g_level->grid_rigid_s, GetVehicle(), GetVehicle()->GetPos(),
-		target->GetPos() - GetVehicle()->GetPos());
+		g_level->grid_rigid_s, 
+		GetVehicle(), 
+		GetVehicle()->GetPos(),
+		target->GetPos() - GetVehicle()->GetPos() );
 
 	if( object && object != target )
 	{
@@ -963,12 +977,12 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 //	FreeTarget();
 //
 ///*
-//	static const ObjectType weaponzzz[] = {
+//	static const ObjectType weapons[] = {
 //		OT_WEAP_AUTOCANNON, OT_WEAP_ROCKETLAUNCHER,
 //		OT_WEAP_CANON, OT_WEAP_GAUSS, OT_WEAP_RAM,
 //		OT_WEAP_BFG, OT_WEAP_RIPPER, OT_WEAP_MINIGUN };
 //
-//	_otFavoriteWeapon = weaponzzz[net_rand() % (sizeof(weaponzzz) / sizeof(enumObjectType))];
+//	_otFavoriteWeapon = weapons[net_rand() % (sizeof(weapons) / sizeof(enumObjectType))];
 //*/
 //
 //	_desired_offset = 0;

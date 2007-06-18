@@ -21,32 +21,37 @@ typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
 
 #define DECLARE_SELF_REGISTRATION(cls)  \
 private:                                \
-typedef cls __this_class;               \
-static bool _registered;                \
-static bool _self_register();           \
+typedef cls __ThisClass;                \
+static ObjectType __thisType;           \
+static bool __registered;               \
+static bool __SelfRegister();           \
 public:                                 \
-static ObjectType this_type;            \
+static ObjectType GetTypeStatic()       \
+{                                       \
+	return __thisType;                  \
+}                                       \
 virtual ObjectType GetType()            \
 {                                       \
-	return this_type;                   \
-} private:
+	return __thisType;                  \
+}                                       \
+private:
 
 
-#define IMPLEMENT_SELF_REGISTRATION(cls)                              \
-ObjectType cls::this_type = _register_type<cls>(typeid(cls).name());  \
-bool cls::_registered = cls::_self_register();                        \
-bool cls::_self_register()
+#define IMPLEMENT_SELF_REGISTRATION(cls)                               \
+ObjectType cls::__thisType = __RegisterType<cls>(typeid(cls).name());  \
+bool cls::__registered = cls::__SelfRegister();                        \
+bool cls::__SelfRegister()
 
 
 // for template classes (experimental)
 #define IMPLEMENT_SELF_REGISTRATION_T(cls)             \
 template<class T>                                      \
-ObjectType cls<T>::this_type = (cls<T>::_registered,   \
-	_register_type<cls<T> >(typeid(cls<T>).name()));   \
+ObjectType cls<T>::__thisType = (cls<T>::__registered, \
+	__RegisterType<cls<T> >(typeid(cls<T>).name()));   \
 template<class T>                                      \
-bool cls<T>::_registered = cls<T>::_self_register();   \
+bool cls<T>::__registered = cls<T>::__SelfRegister();  \
 template<class T>                                      \
-bool cls<T>::_self_register()
+bool cls<T>::__SelfRegister()
 
 
 ///////////////////////////////////////////////////////////
@@ -147,12 +152,7 @@ typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
 class GC_Object
 {
-	//
-	// types
-	//
-
 protected:
-
 	class MemberOfGlobalList
 	{
 		OBJECT_LIST           *_list;
@@ -169,7 +169,6 @@ protected:
 			_list->safe_erase(_pos);
 		}
 	};
-
 
 private:
 	MemberOfGlobalList _memberOf;
@@ -292,43 +291,43 @@ protected:
 
 private:
 	typedef GC_Object* (*LPFROMFILEPROC) (void);
-	typedef std::map<ObjectType, LPFROMFILEPROC> _from_file_map;
-	static _from_file_map& _get_from_file_map()
+	typedef std::map<ObjectType, LPFROMFILEPROC> __FromFileMap;
+	static __FromFileMap& __GetFromFileMap()
 	{
-		static _from_file_map ffm;
+		static __FromFileMap ffm;
 		return ffm;
 	}
-	template<class T> static GC_Object* _from_file_proc(void)
+	template<class T> static GC_Object* __FromFileProc(void)
 	{
 		return new T(FromFile());
 	}
-    template<class T> static void _register_for_serialization(ObjectType type)
+    template<class T> static void __RegisterForSerialization(ObjectType type)
 	{
-		_ASSERT(_get_from_file_map().end() == _get_from_file_map().find(type));
-		LPFROMFILEPROC pf = _from_file_proc<T>;
-        _get_from_file_map()[type] = pf;
+		_ASSERT(__GetFromFileMap().end() == __GetFromFileMap().find(type));
+		LPFROMFILEPROC pf = __FromFileProc<T>;
+        __GetFromFileMap()[type] = pf;
 	}
 
 
 	//
-	// rtti support
+	// RTTI support
 	//
 
 private:
-	typedef std::map<string_t, size_t> _type_map;
-	static _type_map& _get_type_map()
+	typedef std::map<string_t, size_t> __TypeMap;
+	static __TypeMap& __GetTypeMap()
 	{
-		static _type_map tm;
+		static __TypeMap tm;
 		return tm;
 	}
 
 protected:
 	template<class T>
-	static ObjectType _register_type(const char *name)
+	static ObjectType __RegisterType(const char *name)
 	{
-		size_t index = _get_type_map().size();
-		_get_type_map()[name] = index;
-		_register_for_serialization<T>((ObjectType) index);
+		size_t index = __GetTypeMap().size();
+		__GetTypeMap()[name] = index;
+		__RegisterForSerialization<T>((ObjectType) index);
 		return (ObjectType) index;
 	}
 

@@ -34,10 +34,7 @@ public:
 
 	SafePtr<GC_Vehicle>   _owner;
 	SafePtr<GC_Crosshair> _crosshair;
-
-	SafePtr<GC_Sound> _rotateSound;
-
-	bool IsAdvanced() const { return _advanced; }
+	SafePtr<GC_Sound>     _rotateSound;
 
 public:
 	GC_Weapon(float x, float y);

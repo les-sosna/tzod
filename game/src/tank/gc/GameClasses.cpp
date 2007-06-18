@@ -507,7 +507,7 @@ void GC_Explosion::Boom(float radius, float damage)
 			++cdit;
 
 			if( pDamObject->IsKilled() ) continue;
-			if( GC_Wall_Concrete::this_type == pDamObject->GetType() )
+			if( GC_Wall_Concrete::GetTypeStatic() == pDamObject->GetType() )
 			{
 				node.x = int(pDamObject->GetPos().x / CELL_SIZE);
 				node.y = int(pDamObject->GetPos().y / CELL_SIZE);
