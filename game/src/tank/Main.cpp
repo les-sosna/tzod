@@ -4,7 +4,6 @@
 
 #include "macros.h"
 #include "Level.h"
-#include "options.h"
 #include "directx.h"
 #include "KeyMapper.h"
 
@@ -182,9 +181,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	if( 0 == g_conf.dm_profiles->GetSize() )
 		CreateDefaultProfiles();
 
-	if( !LoadOptions() )
-		SetDefaultOptions();
-
 	g_env.nNeedCursor  = 0;
 	g_env.minimized    = false;
 	g_env.camera_x     = 0;
@@ -352,9 +348,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	SAFE_DELETE(timer);
 
 
-	TRACE("Saving options\n");
-	SaveOptions();
-
 	FreeDirectInput();
 
 	g_texman->UnloadAllTextures();
@@ -384,9 +377,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	SAFE_DELETE(g_keys);
 
 	// config
+	TRACE("Saving config to '" FILE_CONFIG "'\n");
 	g_config->Save(FILE_CONFIG);
 	SAFE_DELETE(g_config);
-
 
 	// clean up the file system
 	TRACE("Unmounting the file system\n");

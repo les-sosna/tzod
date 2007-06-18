@@ -16,7 +16,6 @@
 
 #include "functions.h"
 #include "Macros.h"
-#include "Options.h"
 #include "Level.h"
 
 #include "Player.h"

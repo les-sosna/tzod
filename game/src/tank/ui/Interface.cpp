@@ -6,7 +6,6 @@
 #include "interface.h"
 #include "SaveLoad.h"
 #include "macros.h"
-#include "options.h"
 #include "functions.h"
 
 #include "level.h"

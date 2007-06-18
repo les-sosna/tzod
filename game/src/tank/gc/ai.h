@@ -139,7 +139,7 @@ protected:
 	ObjectType _otFavoriteWeapon;
 
 	// точность
-	int _accuracy;
+	int _level;
 
 protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);
@@ -168,6 +168,9 @@ public:
 
 	virtual void OnRespawn();
 	virtual void OnDie();
+
+
+	void SetLevel(int level) { _level = level; }
 
 protected:
 	virtual void TimeStepFixed(float dt);

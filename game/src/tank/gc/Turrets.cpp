@@ -5,7 +5,6 @@
 
 #include "macros.h"
 #include "level.h"
-#include "options.h"
 #include "functions.h"
 
 #include "core/JobManager.h"

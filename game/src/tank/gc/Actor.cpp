@@ -27,14 +27,14 @@ GC_Actor::~GC_Actor()
 
 void GC_Actor::Kill()
 {
-	LeaveAllContexts();
+	if( !IsKilled() )
+		LeaveAllContexts();
 	GC_Object::Kill();
 }
 
 void GC_Actor::Serialize(SaveFile &f)
 {
 	GC_Object::Serialize(f);
-
 	f.Serialize(_location);
 	f.Serialize(_pos);
 }
@@ -58,14 +58,15 @@ void GC_Actor::MoveTo(const vec2d &pos)
 void GC_Actor::LeaveAllContexts()
 {
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
+	{
 		LeaveContext(*it);
+	}
 }
 
 void GC_Actor::LeaveContext(Context &context)
 {
 	_ASSERT(context.inContext);
-	(*context.grids)(_location.level).
-		element(_location.x, _location.y).safe_erase(context.iterator);
+	(*context.grids)(_location.level).element(_location.x,_location.y).safe_erase(context.iterator);
 	context.inContext = FALSE;
 }
 
@@ -74,7 +75,9 @@ void GC_Actor::EnterAllContexts(const Location &l)
 	_ASSERT(!IsKilled());
 	_location = l;
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
+	{
 		EnterContext(*it, _location);
+	}
 }
 
 void GC_Actor::EnterContext(Context &context, const Location &l)

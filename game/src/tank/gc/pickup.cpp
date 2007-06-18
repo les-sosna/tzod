@@ -11,11 +11,11 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
-#include "gameclasses.h"
+#include "GameClasses.h"
 #include "indicators.h"
 #include "vehicle.h"
-#include "player.h"
-#include "sound.h"
+#include "Player.h"
+#include "Sound.h"
 #include "particles.h"
 
 #include "Weapons.h"
@@ -43,7 +43,6 @@ void GC_Item::Kill()
 void GC_Item::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	////////////////////////////////////////
 	f.Serialize(_radius);
 	f.Serialize(_label);
 }

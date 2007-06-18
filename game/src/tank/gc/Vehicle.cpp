@@ -5,7 +5,6 @@
 
 #include "level.h"
 #include "macros.h"
-#include "options.h"
 #include "functions.h"
 
 #include "fs/SaveFile.h"

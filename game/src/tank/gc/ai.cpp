@@ -43,7 +43,7 @@ GC_PlayerAI::GC_PlayerAI()
 	_desired_offset = 0;
 	_current_offset = 0;
 
-	_accuracy = 0;
+	_level = 2;
 
 	SetL2(L2_PATH_SELECT);
 	SetL1(L1_NONE);
@@ -70,7 +70,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 {
 	GC_Player::Serialize(f);
 
-	f.Serialize(_accuracy);
+	f.Serialize(_level);
 	f.Serialize(_aiState_l1);
 	f.Serialize(_aiState_l2);
 	f.Serialize(_current_offset);
@@ -159,11 +159,11 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 				static float d_array[5] = {0.176f, 0.122f, 0.09f, 0.05f, 0.00f};
 
-				float d = d_array[_accuracy];
+				float d = d_array[_level];
 
-				if( _accuracy > 2 )
+				if( _level > 2 )
 				{
-					d = d_array[_accuracy] *
+					d = d_array[_level] *
 						fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
 							static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 				}
@@ -191,7 +191,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		//
 		// управление фарами
 		//
-		switch( _accuracy )
+		switch( _level )
 		{
 		case 0:
 		case 1:
@@ -360,7 +360,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 					// этот блок запрещает мочить свои стационарки.
 					//  (не сама€ лучша€ реализаци€)
 					//
-					if( GetTeam() && _accuracy > 0 )
+					if( GetTeam() && _level > 0 )
 					{
 						GC_Turret *pIsTurret = dynamic_cast<GC_Turret*>(object);
 						if( pIsTurret && (pIsTurret->_team == GetTeam()) )
@@ -889,7 +889,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 
 		vec2d fake = _target->GetPos();
 		GC_Vehicle *enemy = dynamic_cast<GC_Vehicle *>(GetRawPtr(_target));
-		if( _weapSettings.bNeedOutstrip && _accuracy > 1 && enemy )
+		if( _weapSettings.bNeedOutstrip && _level > 1 && enemy )
 		{
 			CalcOutstrip(enemy, _weapSettings.fProjectileSpeed, fake);
 		}

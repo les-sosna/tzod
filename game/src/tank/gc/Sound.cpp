@@ -4,7 +4,6 @@
 #include "Sound.h"
 
 #include "level.h"
-#include "options.h"
 #include "macros.h"
 
 #include "video/RenderBase.h"

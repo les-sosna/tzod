@@ -328,10 +328,11 @@ int luaT_ConvertVehicleClass(lua_State *L)
 //
 // SYNOPSIS:
 //  addbot{
-//      nick = <string>,
-//      team = <number>,
-//      skin = <string>,
-//      cls  = <string> }
+//      nick   = <string>,
+//      team   = <number>,
+//      skin   = <string>,
+//      class  = <string> }
+//      level  = 0..4
 //
 static int luaT_addbot(lua_State *L)
 {
@@ -422,11 +423,18 @@ static int luaT_addbot(lua_State *L)
 	}
 	lua_pop(L, 1);                      // pop result of lua_getfield
 
-    //-------------
+	//-------------
 
 	lua_getfield(L, 1, "team");
 	player->SetTeam(lua_tointeger(L, -1));
 	lua_pop(L, 1); // pop result of lua_getfield
+
+	//-------------
+
+	lua_getfield(L, 1, "level");
+	player->SetLevel(__min(4, __max(0, lua_tointeger(L, -1))));
+	lua_pop(L, 1); // pop result of lua_getfield
+
 
 	return 0;
 }

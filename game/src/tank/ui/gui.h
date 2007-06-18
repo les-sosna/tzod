@@ -62,17 +62,17 @@ protected:
 	void OnEditPlayer();
 	void OnEditPlayerClose(int result);
 	void OnRemovePlayer();
+	void OnSelectPlayer(int index);
 
 	void OnAddBot();
 	void OnAddBotClose(int result);
 	void OnEditBot();
 	void OnEditBotClose(int result);
 	void OnRemoveBot();
+	void OnSelectBot(int index);
 
 	void OnOK();
 	void OnCancel();
-
-	void OnSelectPlayer(int index);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,7 @@ class EditBotDlg : public Dialog
 	Edit     *_name;
 	ComboBox *_skins;
 	ComboBox *_classesCombo;
+	ComboBox *_levels;
 
 	Window   *_skinPreview;
 

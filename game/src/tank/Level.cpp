@@ -352,10 +352,9 @@ Level::~Level()
 		GC_Object *pDelObj = *i;
 		pDelObj->AddRef();
 		pDelObj->Kill();
-		i++;	// должно вызываться СТРОГО перед Release()
+		i++; // must be called before Release()
 		pDelObj->Release();
 	}
-
 
 	if( _client )
 	{

@@ -11,7 +11,6 @@
 #include "GuiManager.h"
 
 #include "functions.h"
-#include "options.h"
 #include "level.h"
 #include "macros.h"
 
@@ -41,18 +40,18 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 
 	(new Button(this, 0, GetHeight(), "Игра (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
 
-	new Button(this, 0, GetHeight() + 30, "Загрузить");
-	new Button(this, 0, GetHeight() + 60, "Сохранить");
+//	new Button(this, 0, GetHeight() + 30, "Загрузить");
+//	new Button(this, 0, GetHeight() + 60, "Сохранить");
 
-	new Button(this, 100, GetHeight(), "Host");
-	new Button(this, 100, GetHeight() + 30, "Join");
-	new Button(this, 100, GetHeight() + 60, "Профиль");
+//	new Button(this, 100, GetHeight(), "Host");
+//	new Button(this, 100, GetHeight() + 30, "Join");
+//	new Button(this, 100, GetHeight() + 60, "Профиль");
 
-	new Button(this, 200, GetHeight(), "New map");
-	new Button(this, 200, GetHeight() + 30, "Import");
-	new Button(this, 200, GetHeight() + 60, "Export");
+//	new Button(this, 200, GetHeight(), "New map");
+//	new Button(this, 200, GetHeight() + 30, "Import");
+//	new Button(this, 200, GetHeight() + 60, "Export");
 
-	new Button(this, 300, GetHeight(), "Настройки");
+//	new Button(this, 300, GetHeight(), "Настройки");
 
 	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
 }
@@ -217,7 +216,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_bots->SetTabPos(1, 192); // skin
 	_bots->SetTabPos(2, 256); // class
 	_bots->SetTabPos(3, 320); // team
-//	_bots->eventChangeCurSel.bind(&NewGameDlg::OnSelectBot, this);
+	_bots->eventChangeCurSel.bind(&NewGameDlg::OnSelectBot, this);
 
 
 	//
@@ -410,7 +409,7 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetCurSel();
 	_ASSERT(-1 != index);
 
-	(new EditPlayerDlg(this, g_conf.dm_bots->GetAt(index)->AsTable()))
+	(new EditBotDlg(this, g_conf.dm_bots->GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditBotClose, this );
 }
 
@@ -476,6 +475,7 @@ void NewGameDlg::OnOK()
 			bot->SetSkin(    p->GetStr("skin")->Get()    );
 			bot->SetClass(   p->GetStr("class")->Get()   );
 			bot->SetNick(    p->GetStr("nick")->Get()    );
+			bot->SetLevel( p->GetNum("level", 2)->GetInt() );
 		}
 	}
 	else
@@ -497,6 +497,12 @@ void NewGameDlg::OnSelectPlayer(int index)
 {
 	_removePlayer->Enable( -1 != index );
 	_changePlayer->Enable( -1 != index );
+}
+
+void NewGameDlg::OnSelectBot(int index)
+{
+	_removeBot->Enable( -1 != index );
+	_changeBot->Enable( -1 != index );
 }
 
 void NewGameDlg::OnRawChar(int c)
@@ -743,6 +749,35 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 
 	//
+	// create and fill the levels list
+	//
+
+	new Text(this, 8, y+=24, "Уровень", alignTextLT);
+	_levels = new ComboBox(this, x, y-=1, 200);
+	lst = _levels->GetList();
+
+	const char levels[][16] = {
+		"Новичок",
+		"Средний",
+		"Бывалый",
+		"Опытный",
+		"Ветеран",
+	};
+	for( int i = 0; i < 5; ++i )
+	{
+		int index = lst->AddItem(levels[i]);
+		if( i == _info->GetNum("level", 2)->GetInt() )
+		{
+			_levels->SetCurSel(index);
+		}
+	}
+	if( -1 == _levels->GetCurSel() )
+	{
+		_levels->SetCurSel(2);
+	}
+
+
+	//
 	// create buttons
 	//
 
@@ -752,10 +787,10 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 void EditBotDlg::OnOK()
 {
-	_info->GetStr("nick")->Set( _name->GetText().c_str() );
-	_info->GetStr("skin")->Set( _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
-	_info->GetStr("class")->Set( 
-		_classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
+	_info->SetStr("nick", _name->GetText().c_str() );
+	_info->SetStr("skin", _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
+	_info->SetStr("class", _classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
+	_info->SetNum("level", _levels->GetCurSel());
 
 	Close(_resultOK);
 }
