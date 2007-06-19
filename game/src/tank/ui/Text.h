@@ -7,14 +7,13 @@
 namespace UI
 {
 
-///////////////////////////////////////////////////////////////////////////////
-
+// static text
 class Text : public Window
 {
 	std::vector<size_t>  _lines;    // длины строк
 	size_t               _maxline;  // макс. длина строки
 	enumAlignText        _align;
-	string_t          _text;
+	string_t             _text;
 
 	int _w, _h;
 

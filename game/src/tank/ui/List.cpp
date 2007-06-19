@@ -152,6 +152,11 @@ void List::ScrollTo(float pos)
 	_scrollBar->SetPos(pos);
 }
 
+void List::AlignHeightToContent()
+{
+	Resize(GetWidth(), GetItemHeight() * (float) GetSize());
+}
+
 void List::OnSize(float width, float height)
 {
 	_selection->Resize(width, _selection->GetHeight());

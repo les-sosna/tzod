@@ -21,12 +21,11 @@
 
 #include "gc/Sound.h"
 
-
 #include "fs/FileSystem.h"
 
 #include "res/resource.h"
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 static void OnPrintScreen()
 {
@@ -68,7 +67,7 @@ static void OnPrintScreen()
 	SetCurrentDirectory("..");
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 static void TimeStep(float dt)
 {
@@ -116,12 +115,28 @@ static UI::Window* CreateDesktopWindow(GuiManager *mgr)
 
 static HWND CreateMainWnd(HINSTANCE hInstance)
 {
+	WNDCLASS wc = {0};
+
+	//
+	// register class
+	//
+	wc.lpszClassName = TXT_WNDCLASS;
+	wc.lpfnWndProc   = (WNDPROC) WndProc;
+	wc.style         = CS_VREDRAW | CS_HREDRAW;
+	wc.hInstance     = hInstance;
+	wc.hIcon         = LoadIcon(hInstance, (LPCTSTR) IDI_BIG);
+	wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+	wc.hbrBackground = NULL;
+	RegisterClass(&wc);
+
+
 	TRACE("Create main app window\n");
-    HWND h = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
-                           WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
-						   CW_USEDEFAULT, CW_USEDEFAULT, // position
-  	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
-						   NULL, NULL, hInstance, NULL );
+	HWND h = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
+	                       WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
+	                       CW_USEDEFAULT, CW_USEDEFAULT, // position
+	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
+	                       NULL, NULL, hInstance, NULL );
+
 	return h;
 }
 
@@ -144,10 +159,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	TRACE("--------------------------------------------\n");
 
 
-	//
 	// create main app window
-	//
-	MyRegisterClass(hinst);
 	g_env.hMainWnd = CreateMainWnd(hinst);
 
 
@@ -289,12 +301,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 			{
 				ReadImmediateData();  // чтение состояния устройств ввода
 				//------------------------------
-				if( g_level && g_env.envInputs.keys[DIK_SPACE] && g_level->_modeEditor )
-				{
-					DialogBox(g_hInstance, (LPCTSTR)IDD_SELECT_OBJECT, g_env.hMainWnd, (DLGPROC) dlgSelectObject);
-					continue;
-				}
-				else if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
+				if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
 				{
 					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
 					continue;

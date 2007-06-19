@@ -68,22 +68,19 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 	return false;
 }
 
-void GC_RigidBodyStatic::AlignRadiusToTexture()
+void GC_RigidBodyStatic::AlignToTexture()
 {
+	_vertices[0].x =  GetSpriteWidth()  * 0.5f;
+	_vertices[0].y = -GetSpriteHeight() * 0.5f;
+	_vertices[1].x =  GetSpriteWidth()  * 0.5f;
+	_vertices[1].y =  GetSpriteHeight() * 0.5f;
+	_vertices[2].x = -GetSpriteWidth()  * 0.5f;
+	_vertices[2].y =  GetSpriteHeight() * 0.5f;
+	_vertices[3].x = -GetSpriteWidth()  * 0.5f;
+	_vertices[3].y = -GetSpriteHeight() * 0.5f;
+
 	_radius = sqrtf( GetSpriteWidth() * GetSpriteWidth()
 		+ GetSpriteHeight() * GetSpriteHeight() ) * 0.5f;
-}
-
-void GC_RigidBodyStatic::AlignVerticesToBB()
-{
-	_vertices[0].x =  _radius;
-	_vertices[0].y = -_radius;
-	_vertices[1].x =  _radius;
-	_vertices[1].y =  _radius;
-	_vertices[2].x = -_radius;
-	_vertices[2].y =  _radius;
-	_vertices[3].x = -_radius;
-	_vertices[3].y = -_radius;
 }
 
 void GC_RigidBodyStatic::mapExchange(MapFile &f)
@@ -155,8 +152,7 @@ GC_Wall::GC_Wall(float xPos, float yPos) : GC_RigidBodyStatic()
 
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 	MoveTo( vec2d(xPos, yPos) );
 
 	g_level->_field.ProcessObject(this, true);
@@ -247,7 +243,7 @@ void GC_Wall::setCornerView(int index) // 0 means normal view
 	SetTexture(getCornerTexture(index));
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignVerticesToBB();
+	AlignToTexture();
 	if( 0 != index ) _vertices[index&3].Set(0,0);
 }
 
@@ -311,7 +307,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos) : GC_Wall(xPos, yPos)
 	SetTexture("concrete_wall");
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	SetFrame(rand() % GetFrameCount());
 
@@ -362,8 +358,7 @@ GC_Water::GC_Water(float xPos, float yPos) : GC_RigidBodyStatic()
 	SetTexture("water");
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	MoveTo( vec2d(xPos, yPos) );
 	SetFrame(4);

@@ -181,7 +181,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	}
 	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
 	ls->SetTabPos(1, 128);
-	ls->Resize(ls->GetWidth(), ls->GetItemHeight() * (float) ls->GetSize());
+	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
 }
 

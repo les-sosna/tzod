@@ -57,6 +57,8 @@ public:
 	float GetNumLinesVisible() const;
 	void ScrollTo(float pos);
 
+	void AlignHeightToContent();
+
 	Delegate<void(int)> eventChangeCurSel;
 	Delegate<void(int)> eventClickItem;
 

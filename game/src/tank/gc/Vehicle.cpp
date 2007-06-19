@@ -86,7 +86,7 @@ void GC_Vehicle::SetPlayer(GC_Player *player)
 void GC_Vehicle::Serialize(SaveFile &f)
 {
 	GC_RigidBodyDynamic::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_engine_power);
 	f.Serialize(_rotate_power);
 	f.Serialize(_state);
@@ -94,7 +94,6 @@ void GC_Vehicle::Serialize(SaveFile &f)
 	f.Serialize(_fTrackDensity);
 	f.Serialize(_fTrackPathL);
 	f.Serialize(_fTrackPathR);
-	/////////////////////////////////////
 	f.Serialize(_damLabel);
 	f.Serialize(_light_ambient);
 	f.Serialize(_light1);

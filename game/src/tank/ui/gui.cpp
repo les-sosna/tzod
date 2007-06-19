@@ -526,12 +526,11 @@ void NewGameDlg::OnRawChar(int c)
 ///////////////////////////////////////////////////////////////////////////////
 
 EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
-  : Dialog(parent, 0, 0, 384, 256)
+  : Dialog(parent, 0, 0, 384, 192)
 {
 	_ASSERT(info);
 
-	Move((parent->GetWidth() - GetWidth()) * 0.5f,
-	     (parent->GetHeight() - GetHeight()) * 0.5f);
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
 	_info = info;
@@ -553,31 +552,6 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 
 	List *lst; // helps in combo box filling
-
-
-	//
-	// player profile combo
-	//
-
-	new Text(this, 8, y+=24, "Профиль", alignTextLT);
-	_profiles = new ComboBox(this, x, y-=1, 200);
-	lst = _profiles->GetList();
-
-	std::vector<string_t> profiles;
-	g_conf.dm_profiles->GetKeyList(profiles);
-
-	for( size_t i = 0; i < profiles.size(); ++i )
-	{
-		int index = lst->AddItem(profiles[i].c_str());
-		if( profiles[i] == _info->GetStr("profile")->Get() )
-		{
-			_profiles->SetCurSel(index);
-		}
-	}
-	if( -1 == _profiles->GetCurSel() )
-	{
-		_profiles->SetCurSel(0);
-	}
 
 
 	//
@@ -608,7 +582,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	//
 
 	new Text(this, 8, y+=24, "Класс", alignTextLT);
-	_classesCombo = new ComboBox(this, x, y-=1, 200);
+	_classes = new ComboBox(this, x, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
 	lua_State *L = g_env.hScript;
@@ -616,37 +590,82 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
 	{
 		// now 'key' is at index -2 and 'value' at index -1
-        val.first = lua_tostring(L, -2);
+		val.first = lua_tostring(L, -2);
 		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
-		_classesNames.push_back(val);
+		_classNames.push_back(val);
 
-		int index = _classesCombo->GetList()->AddItem(val.first.c_str());
+		int index = _classes->GetList()->AddItem(val.first.c_str());
 		if( val.first == _info->GetStr("class")->Get() )
 		{
-			_classesCombo->SetCurSel(index);
+			_classes->SetCurSel(index);
 		}
 	}
-	if( -1 == _classesCombo->GetCurSel() )
-		_classesCombo->SetCurSel(0);
+	if( -1 == _classes->GetCurSel() )
+		_classes->SetCurSel(0);
 
+
+	new Text(this, 8, y+=24, "Команда", alignTextLT);
+	_teams = new ComboBox(this, x, y-=1, 200);
+	lst = _teams->GetList();
+
+	for( int i = 0; i < MAX_TEAMS; ++i )
+	{
+		char buf[8];
+		wsprintf(buf, i ? "%u" : "[нет]", i);
+		int index = lst->AddItem(buf);
+		if( i == _info->GetNum("team")->GetInt() )
+		{
+			_teams->SetCurSel(index);
+		}
+	}
+	if( -1 == _teams->GetCurSel() )
+	{
+		_teams->SetCurSel(0);
+	}
+	lst->AlignHeightToContent();
+
+
+
+	//
+	// player profile combo
+	//
+
+	new Text(this, 8, y+=24, "Профиль", alignTextLT);
+	_profiles = new ComboBox(this, x, y-=1, 200);
+	lst = _profiles->GetList();
+
+	std::vector<string_t> profiles;
+	g_conf.dm_profiles->GetKeyList(profiles);
+
+	for( size_t i = 0; i < profiles.size(); ++i )
+	{
+		int index = lst->AddItem(profiles[i].c_str());
+		if( profiles[i] == _info->GetStr("profile")->Get() )
+		{
+			_profiles->SetCurSel(index);
+		}
+	}
+	if( -1 == _profiles->GetCurSel() )
+	{
+		_profiles->SetCurSel(0);
+	}
 
 
 	//
 	// create buttons
 	//
 
-	(new Button(this, 176, 224, "OK"))->eventClick.bind(&EditPlayerDlg::OnOK, this);
-	(new Button(this, 280, 224, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+	(new Button(this, 176, 160, "OK"))->eventClick.bind(&EditPlayerDlg::OnOK, this);
+	(new Button(this, 280, 160, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOK()
 {
-	_info->GetStr("nick")->Set( _name->GetText().c_str() );
-	_info->GetStr("skin")->Set( _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
-	_info->GetStr("class")->Set( 
-		_classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
-	_info->GetStr("profile")->Set( 
-		_profiles->GetList()->GetItemText(_profiles->GetCurSel(), 0).c_str() );
+	_info->SetStr("nick",    _name->GetText().c_str() );
+	_info->SetStr("skin",    _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
+	_info->SetStr("class",   _classes->GetList()->GetItemText(_classes->GetCurSel(), 0).c_str() );
+	_info->SetNum("team",    _teams->GetCurSel());
+	_info->SetStr("profile", _profiles->GetList()->GetItemText(_profiles->GetCurSel(), 0).c_str() );
 
 	Close(_resultOK);
 }
@@ -665,16 +684,14 @@ void EditPlayerDlg::OnChangeSkin(int index)
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
-: Dialog(parent, 0, 0, 384, 256)
+: Dialog(parent, 0, 0, 384, 192)
 {
 	_ASSERT(info);
 
-	Move((parent->GetWidth() - GetWidth()) * 0.5f,
-		(parent->GetHeight() - GetHeight()) * 0.5f);
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
 	_info = info;
@@ -726,7 +743,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	//
 
 	new Text(this, 8, y+=24, "Класс", alignTextLT);
-	_classesCombo = new ComboBox(this, x, y-=1, 200);
+	_classes= new ComboBox(this, x, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
 	lua_State *L = g_env.hScript;
@@ -736,16 +753,37 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 		// now 'key' is at index -2 and 'value' at index -1
 		val.first = lua_tostring(L, -2);
 		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
-		_classesNames.push_back(val);
+		_classNames.push_back(val);
 
-		int index = _classesCombo->GetList()->AddItem(val.first.c_str());
+		int index = _classes->GetList()->AddItem(val.first.c_str());
 		if( val.first == _info->GetStr("class")->Get() )
 		{
-			_classesCombo->SetCurSel(index);
+			_classes->SetCurSel(index);
 		}
 	}
-	if( -1 == _classesCombo->GetCurSel() )
-		_classesCombo->SetCurSel(0);
+	if( -1 == _classes->GetCurSel() )
+		_classes->SetCurSel(0);
+
+
+	new Text(this, 8, y+=24, "Команда", alignTextLT);
+	_teams = new ComboBox(this, x, y-=1, 200);
+	lst = _teams->GetList();
+
+	for( int i = 0; i < MAX_TEAMS; ++i )
+	{
+		char buf[8];
+		wsprintf(buf, i ? "%u" : "[нет]", i);
+		int index = lst->AddItem(buf);
+		if( i == _info->GetNum("team")->GetInt() )
+		{
+			_teams->SetCurSel(index);
+		}
+	}
+	if( -1 == _teams->GetCurSel() )
+	{
+		_teams->SetCurSel(0);
+	}
+	lst->AlignHeightToContent();
 
 
 	//
@@ -775,21 +813,23 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	{
 		_levels->SetCurSel(2);
 	}
+	lst->AlignHeightToContent();
 
 
 	//
 	// create buttons
 	//
 
-	(new Button(this, 176, 224, "OK"))->eventClick.bind(&EditBotDlg::OnOK, this);
-	(new Button(this, 280, 224, "Отмена"))->eventClick.bind(&EditBotDlg::OnCancel, this);
+	(new Button(this, 176, 160, "OK"))->eventClick.bind(&EditBotDlg::OnOK, this);
+	(new Button(this, 280, 160, "Отмена"))->eventClick.bind(&EditBotDlg::OnCancel, this);
 }
 
 void EditBotDlg::OnOK()
 {
-	_info->SetStr("nick", _name->GetText().c_str() );
-	_info->SetStr("skin", _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
-	_info->SetStr("class", _classesCombo->GetList()->GetItemText(_classesCombo->GetCurSel(), 0).c_str() );
+	_info->SetStr("nick",  _name->GetText().c_str() );
+	_info->SetStr("skin",  _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
+	_info->SetStr("class", _classes->GetList()->GetItemText(_classes->GetCurSel(), 0).c_str() );
+	_info->SetNum("team",  _teams->GetCurSel());
 	_info->SetNum("level", _levels->GetCurSel());
 
 	Close(_resultOK);

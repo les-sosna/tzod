@@ -31,18 +31,8 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual unsigned char GetProperties() const = 0;
 
-	void AlignVerticesToBB();
-
-	//inline void GetAABB(FRECT *pAABB)
-	//{
-	//	pAABB->left   = GetPos().x - _hsize.x;
-	//	pAABB->top    = GetPos().y - _hsize.y;
-	//	pAABB->right  = GetPos().x + _hsize.x;
-	//	pAABB->bottom = GetPos().y + _hsize.y;
-	//}
-
 	float GetRadius() const { return _radius; }
-	void AlignRadiusToTexture();
+	void AlignToTexture();
 
 	inline vec2d GetVertex(int index)
 	{

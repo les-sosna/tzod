@@ -82,11 +82,12 @@ class EditPlayerDlg : public Dialog
 	Edit     *_name;
 	ComboBox *_profiles;
 	ComboBox *_skins;
-	ComboBox *_classesCombo;
+	ComboBox *_classes;
+	ComboBox *_teams;
 
 	Window   *_skinPreview;
 
-	std::vector<std::pair<string_t, string_t> > _classesNames;
+	std::vector<std::pair<string_t, string_t> > _classNames;
 
 	ConfVarTable *_info;
 
@@ -106,12 +107,13 @@ class EditBotDlg : public Dialog
 {
 	Edit     *_name;
 	ComboBox *_skins;
-	ComboBox *_classesCombo;
+	ComboBox *_classes;
+	ComboBox *_teams;
 	ComboBox *_levels;
 
 	Window   *_skinPreview;
 
-	std::vector<std::pair<string_t, string_t> > _classesNames;
+	std::vector<std::pair<string_t, string_t> > _classNames;
 
 	ConfVarTable *_info;
 

@@ -340,8 +340,7 @@ GC_TurretRocket::GC_TurretRocket(float x, float y) : GC_Turret(x, y)
 
 	_weaponSprite->SetTexture("turret_rocket");
 	SetTexture("turret_platform");
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 
@@ -398,8 +397,7 @@ GC_TurretCannon::GC_TurretCannon(float x, float y) : GC_Turret(x, y)
 
 	_weaponSprite->SetTexture("turret_cannon");
 	SetTexture("turret_platform");
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
@@ -684,8 +682,7 @@ GC_TurretMinigun::GC_TurretMinigun(float x, float y) : GC_TurretBunker(x, y)
 
 	_weaponSprite->SetTexture("turret_mg");
 	SetTexture("turret_mg_wake");
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
@@ -774,8 +771,7 @@ GC_TurretGauss::GC_TurretGauss(float x, float y) : GC_TurretBunker(x, y)
 
 	_weaponSprite->SetTexture("turret_gauss");
 	SetTexture("turret_gauss_wake");
-	AlignRadiusToTexture();
-	AlignVerticesToBB();
+	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());

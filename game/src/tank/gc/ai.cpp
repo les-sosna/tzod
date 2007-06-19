@@ -149,7 +149,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 
 		// установка _current_offset для понижения меткости стрельбы
-		const float acc_speed = 0.5f;	// скорость движения мнимой цели
+		const float acc_speed = 0.4f;	// угловая скорость движения мнимой цели
 		if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
 		{
 			float len = fabsf(_desired_offset - _current_offset);
@@ -157,7 +157,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 			{
 				_current_offset = _desired_offset;
 
-				static float d_array[5] = {0.176f, 0.122f, 0.09f, 0.05f, 0.00f};
+				static float d_array[5] = {0.186f, 0.132f, 0.09f, 0.05f, 0.00f};
 
 				float d = d_array[_level];
 
@@ -168,10 +168,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 							static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 				}
 
-				if( d > 0 )
-					_desired_offset = g_level->net_frand(d);
-				else
-					_desired_offset = 0;
+				_desired_offset = (d > 0) ? (g_level->net_frand(d) - d * 0.5f) : 0;
 			}
 			else
 			{

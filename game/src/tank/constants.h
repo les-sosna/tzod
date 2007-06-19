@@ -152,14 +152,14 @@ enum enumZOrder
 //---------------------------------------------------------------
 // Совместимость
 
-#define TXT_VERSION      "Танк: Зона смерти. Версия 1.39 tech preview 4"
+#define TXT_VERSION      "Танк: Зона смерти. Версия 1.40 alpha"
 #define TXT_WNDCLASS     "TankMainWindow"
 #define TXT_PROPGRID     "TankPropertyGrid"
 #define TXT_PROPGRIDINT  "TankPropertyGridInt"
 
 // версия  файла  Save  для  первичной  проверки на корректность.
 // файлы  с  отличающейся  версией не будут отображаться в списке
-#define VERSION		0x139a
+#define VERSION		0x140a
 
 //---------------------------------------------------------------
 // Ограничения
@@ -200,13 +200,6 @@ enum enumZOrder
 #define PI	(3.14159f)
 #define PI2	(6.28319f)
 
-//---------------------------------------------------------------
-// Цвета
-#define ICOLOR_BACKGROUND	0x5c5c5c
-#define ICOLOR_TEXT			0xd0d0d0
-#define ICOLOR_TEXT_SEL		0xaaffaa
-#define ICOLOR_BUTTON		0xffffff
-
 
 //---------------------------------------------------------------
 // файлы
@@ -222,14 +215,6 @@ enum enumZOrder
 #define FILE_CONFIG      "config.cfg"
 #define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
 #define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
-
-
-//---------------------------------------------------------------
-// интерфейс
-
-#define PROPERTY_GRID_ROW_HEIGHT    22
-#define PROPERTY_GRID_ROW_VSPACE    5
-#define PROPERTY_GRID_LABEL_WIDTH   128
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file
