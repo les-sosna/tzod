@@ -120,15 +120,20 @@ int PropertySet::GetCount() const
 	return 1;
 }
 
+GC_Object* PropertySet::GetObject() const
+{
+	return _object;
+}
+
 ObjectProperty* PropertySet::GetProperty(int index)
 {
 	_ASSERT(index < GetCount());
 	return &_propName;
 }
 
-void PropertySet::Exchange(bool bApply)
+void PropertySet::Exchange(bool applyToObject)
 {
-	if( bApply )
+	if( applyToObject )
 	{
 		const char *name = _propName.GetValue().c_str();
 		GC_Object* found = g_level->FindObject(name);
@@ -504,7 +509,7 @@ void GC_Object::EditorAction()
 
 SafePtr<PropertySet> GC_Object::GetProperties()
 {
-	return new PropertySet(this);
+	return new MyPropertySet(this);
 }
 
 void GC_Object::mapExchange(MapFile &f)

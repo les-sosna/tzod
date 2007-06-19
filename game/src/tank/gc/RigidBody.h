@@ -20,6 +20,20 @@ struct DamageDesc
 
 class GC_RigidBodyStatic : public GC_2dSprite
 {
+	string_t _scriptOnDestroy;  // OnDestroy()
+
+protected:
+	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	{
+		typedef GC_2dSprite::MyPropertySet BASE;
+		ObjectProperty _propOnDestroyScript;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+
 public:
 	GC_RigidBodyStatic::GC_RigidBodyStatic();
 	GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile);
@@ -27,9 +41,10 @@ public:
 	virtual void MoveTo(const vec2d &pos);
 	virtual void Kill();
 
+	virtual SafePtr<PropertySet> GetProperties();
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
-	virtual unsigned char GetProperties() const = 0;
+	virtual unsigned char GetPassability() const = 0;
 
 	float GetRadius() const { return _radius; }
 	void AlignToTexture();
@@ -43,7 +58,7 @@ public:
 		);
 	}
 
-	inline bool trace0()
+	inline bool Trace0()
 	{
 		return CheckFlags(GC_FLAG_RBSTATIC_TRACE0);
 	}
@@ -129,7 +144,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual void mapExchange(MapFile &f);
 
-	virtual unsigned char GetProperties() const { return 1; }
+	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void OnDestroy();
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
@@ -150,7 +165,7 @@ public:
 	GC_Wall_Concrete(float xPos, float yPos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
-	virtual unsigned char GetProperties() const { return 0xFF; } // непроходимое препятствие
+	virtual unsigned char GetPassability() const { return 0xFF; } // непроходимое препятствие
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 };
 
@@ -187,7 +202,7 @@ public:
 
 	virtual void Draw();
 
-	virtual unsigned char GetProperties() const { return 0xFF; }  // непроходимое препятствие
+	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
 
 	virtual float GetDefaultHealth() const { return 0; }
 	virtual void  OnDestroy() {};

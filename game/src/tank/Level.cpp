@@ -35,9 +35,9 @@ void FieldCell::UpdateProperties()
 	_prop = 0;
 	for( int i = 0; i < _objCount; i++ )
 	{
-		_ASSERT(_ppObjects[i]->GetProperties() > 0);
-		if( _ppObjects[i]->GetProperties() > _prop )
-			_prop = _ppObjects[i]->GetProperties();
+		_ASSERT(_ppObjects[i]->GetPassability() > 0);
+		if( _ppObjects[i]->GetPassability() > _prop )
+			_prop = _ppObjects[i]->GetPassability();
 	}
 }
 
@@ -808,7 +808,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
-					if( object->trace0() ) continue;
+					if( object->Trace0() ) continue;
 					if( object == pIgnore || object->IsKilled() ) continue;
 
 					//грубо

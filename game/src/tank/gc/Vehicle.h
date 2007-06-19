@@ -126,7 +126,7 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual unsigned char GetProperties() const { return 0; } // не является препятствием
+	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 
 	void SetSkin(const char *pSkinName);
 	void SetState(VehicleState &vs);

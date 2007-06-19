@@ -50,16 +50,16 @@ class GC_PickUp : public GC_Item
 {
 	MemberOfGlobalList _memberOf;
 
-	class MyPropertySet : public PropertySet
+	class MyPropertySet : public GC_Item::MyPropertySet
 	{
-		typedef PropertySet BASE;
+		typedef GC_Item::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool bApply);
+		virtual void Exchange(bool applyToObject);
 	};
 
 	virtual SafePtr<PropertySet> GetProperties();

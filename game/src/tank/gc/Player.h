@@ -28,9 +28,9 @@ class GC_Player : public GC_Service
 	SafePtr<GC_Vehicle> _vehicle;
 
 protected:
-	class MyPropertySet : public PropertySet
+	class MyPropertySet : public GC_Service::MyPropertySet
 	{
-		typedef PropertySet BASE;
+		typedef GC_Service::MyPropertySet BASE;
 
 		ObjectProperty _propTeam;
 		ObjectProperty _propScore;
@@ -42,7 +42,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool bApply);
+		virtual void Exchange(bool applyToObject);
 	};
 
 protected:

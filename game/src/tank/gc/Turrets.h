@@ -15,9 +15,9 @@ class GC_Vehicle;
 
 class GC_Turret : public GC_RigidBodyStatic
 {
-	class MyPropertySet : public PropertySet
+	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
-		typedef PropertySet BASE;
+		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propTeam;
 		ObjectProperty _propHealth;
 		ObjectProperty _propMaxHealth;
@@ -26,7 +26,7 @@ class GC_Turret : public GC_RigidBodyStatic
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool bApply);
+		virtual void Exchange(bool applyToObject);
 	};
 	virtual SafePtr<PropertySet> GetProperties();
 
@@ -103,7 +103,7 @@ public:
 	virtual float GetDefaultHealth() const { return 500; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual unsigned char GetProperties() const { return 1; }
+	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire();
@@ -130,7 +130,7 @@ public:
 	virtual float GetDefaultHealth() const { return 600; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual unsigned char GetProperties() const { return 1; }
+	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire();
@@ -193,7 +193,7 @@ public:
 	virtual float GetDefaultHealth() const { return 250; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual unsigned char GetProperties() const { return 1; }
+	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire();
@@ -218,7 +218,7 @@ public:
 
 	virtual void TargetLost();
 
-	virtual unsigned char GetProperties() const { return 1; }
+	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual float GetDefaultHealth() const { return 250; }
 	virtual void Serialize(SaveFile &f);

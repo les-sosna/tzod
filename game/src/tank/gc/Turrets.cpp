@@ -305,13 +305,13 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Turret::MyPropertySet::Exchange(bool bApply)
+void GC_Turret::MyPropertySet::Exchange(bool applyToObject)
 {
-	BASE::Exchange(bApply);
+	BASE::Exchange(applyToObject);
 
 	GC_Turret *tmp = static_cast<GC_Turret *>(GetObject());
 
-	if( bApply )
+	if( applyToObject )
 	{
 		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
 		tmp->_team  = _propTeam.GetCurrentIndex();

@@ -60,6 +60,10 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 		SetHealthCur(GetHealth() - damage);
 		if( GetHealth() <= 0 )
 		{
+			if( !_scriptOnDestroy.empty() )
+			{
+				script_exec(g_env.hScript, _scriptOnDestroy.c_str());
+			}
 			OnDestroy();
 			Kill();
 			return true;
@@ -87,8 +91,9 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 
-	MAP_EXCHANGE_FLOAT(health,     _health,     GetDefaultHealth());
-	MAP_EXCHANGE_FLOAT(health_max, _health_max, GetDefaultHealth());
+	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
+	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
+	MAP_EXCHANGE_STRING( on_destroy, _scriptOnDestroy, "");
 
 	if( f.loading() )
 	{
@@ -99,23 +104,24 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 void GC_RigidBodyStatic::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
+
+	f.Serialize(_scriptOnDestroy);
 	f.Serialize(_health);
 	f.Serialize(_health_max);
 	f.Serialize(_radius);
 	f.Serialize(_direction);
 	f.SerializeArray(_vertices, 4);
-	/////////////////////////////////////
-	if( !IsKilled() && f.loading() && GetProperties() > 0 )
+
+	if( !IsKilled() && f.loading() && GetPassability() > 0 )
 		g_level->_field.ProcessObject(this, true);
-	/////////////////////////////////////
+
 	if( !IsKilled() && f.loading() )
 		AddContext(&g_level->grid_rigid_s);
 }
 
 void GC_RigidBodyStatic::MoveTo(const vec2d &pos)
 {
-/*	if( GetProperties() > 0 )
+/*	if( GetPassability() > 0 )
 	{
 		g_level->_field.ProcessObject(this, false);
 		GC_2dSprite::MoveTo(pos);
@@ -129,9 +135,57 @@ void GC_RigidBodyStatic::MoveTo(const vec2d &pos)
 
 void GC_RigidBodyStatic::Kill()
 {
-	if( GetProperties() > 0 )
+	if( GetPassability() > 0 )
 		g_level->_field.ProcessObject(this, false);
 	GC_2dSprite::Kill();
+}
+
+SafePtr<PropertySet> GC_RigidBodyStatic::GetProperties()
+{
+	return new MyPropertySet(this);
+}
+
+
+GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propOnDestroyScript(ObjectProperty::TYPE_STRING, "OnDestroy()" )
+{
+	Exchange(false);
+}
+
+int GC_RigidBodyStatic::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propOnDestroyScript;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_RigidBodyStatic *tmp = static_cast<GC_RigidBodyStatic *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_scriptOnDestroy = _propOnDestroyScript.GetValue();
+	}
+	else
+	{
+		_propOnDestroyScript.SetValue(tmp->_scriptOnDestroy);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

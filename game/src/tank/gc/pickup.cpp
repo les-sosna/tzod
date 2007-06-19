@@ -240,12 +240,12 @@ ObjectProperty* GC_PickUp::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_PickUp::MyPropertySet::Exchange(bool bApply)
+void GC_PickUp::MyPropertySet::Exchange(bool applyToObject)
 {
-	BASE::Exchange(bApply);
+	BASE::Exchange(applyToObject);
 
 	GC_PickUp *obj = static_cast<GC_PickUp*>(GetObject());
-	if( bApply )
+	if( applyToObject )
 	{
 		obj->_timeRespawn = (float) _propTimeRespawn.GetValueInt() / 1000.0f;
 	}

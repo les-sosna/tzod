@@ -588,7 +588,7 @@ void GC_Explosion::TimeStepFixed(float dt)
 	_light->SetIntensity(1.0f - powf(_time / (_time_life * 1.5f - _time_boom), 6));
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 {

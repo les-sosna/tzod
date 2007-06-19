@@ -117,6 +117,11 @@ int List::GetCurSel() const
 
 void List::SetCurSel(int sel, bool scroll)
 {
+	if( 0 == GetSize() )
+	{
+		sel = -1;
+	}
+
 	_curSel = sel;
 	if( scroll )
 	{
@@ -134,7 +139,7 @@ void List::SetCurSel(int sel, bool scroll)
 
 int List::HitTest(float y)
 {
-    int index = int( y / GetItemHeight() + _scrollBar->GetPos() );
+	int index = int( y / GetItemHeight() + _scrollBar->GetPos() );
 	if( index < 0 || index >= (int) _items.size() )
 	{
 		index = -1;
@@ -252,9 +257,7 @@ void List::DrawChildren(float sx, float sy)
 	_blankText->Show(false);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 
 // end of file
-

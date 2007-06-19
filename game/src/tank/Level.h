@@ -151,6 +151,7 @@ class Level
 	std::map<const GC_Object*, string_t>  _objectToNameMap;
 	std::map<string_t, const GC_Object*>  _nameToObjectMap;
 
+
 public:
 
 #ifdef NETWORK_DEBUG
@@ -277,7 +278,6 @@ public:
 	                             const vec2d &a,       // направление
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
-
 
 
 	//

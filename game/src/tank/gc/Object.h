@@ -116,17 +116,14 @@ class PropertySet : public RefCounted
 	ObjectProperty   _propName;
 
 protected:
-	GC_Object* GetObject() const
-	{
-		return _object;
-	}
+	GC_Object* GetObject() const;
 
 public:
 	PropertySet(GC_Object *object);
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
-	virtual void Exchange(bool bApply);
+	virtual void Exchange(bool applyToObject);
 };
 
 ////////////////////////////////////////////////////////////
@@ -335,6 +332,14 @@ public:
 	virtual ObjectType GetType() = 0;
 
 
+	//
+	// properties
+	//
+protected:
+	typedef PropertySet MyPropertySet;
+
+public:
+	virtual SafePtr<PropertySet> GetProperties();
 
 	//
 	// overrides
@@ -348,7 +353,6 @@ public:
 	virtual void EndFrame();
 	virtual void EditorAction();
 
-	virtual SafePtr<PropertySet> GetProperties();
 	virtual void mapExchange(MapFile &f);
 
 
