@@ -175,7 +175,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	//
 
 	g_config = new ConfVarTable();
-	if( !g_config->Load(FILE_CONFIG) )
+	if( g_fs->Open(FILE_CONFIG) && !g_config->Load(FILE_CONFIG) )
 	{
 		TRACE("couldn't load " FILE_CONFIG "\n");
 

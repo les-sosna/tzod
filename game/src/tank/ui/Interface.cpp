@@ -1293,11 +1293,6 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			{
 			case IDOK:
 			case IDCANCEL:
-			case IDC_SETTINGS_PLAYER1:
-			case IDC_SETTINGS_PLAYER2:
-			case IDC_SETTINGS_PLAYER3:
-			case IDC_SETTINGS_PLAYER4:
-			case IDC_SETTINGS_WINAMP:
 			case IDC_MORE:
 				SendMessage(hDlg, DM_SETDEFID, wmId, 0);
 				break;
@@ -1308,13 +1303,6 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		case BN_CLICKED:
 			switch (wmId)
 			{
-			//case IDC_ACC_0:
-			//case IDC_ACC_1:
-			//case IDC_ACC_2:
-			//case IDC_ACC_3:
-			//case IDC_ACC_4:
-			//	g_options.nAIAccuracy = wmId - IDC_ACC_0;
-			//	break;
 			case IDOK:
 				g_conf.g_particles->Set(  GETCHECK(IDC_CHK_PARTICLES) );
 				g_conf.g_showdamage->Set( GETCHECK(IDC_CHK_DAMLABEL)  );
@@ -1420,8 +1408,6 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		SETCHECK( IDC_CHK_FPS,       g_conf.ui_showfps->Get()   );
 		SETCHECK( IDC_CHK_TIMER,     g_conf.ui_showtime->Get()  );
 		SETCHECK( IDC_CHK_SHOWSELECTMODE, g_conf.r_askformode->Get() );
-
-//		SETCHECK(IDC_ACC_0 + g_options.nAIAccuracy, TRUE);
 
 		lInitVolume = g_conf.s_volume->GetInt();
 		SendDlgItemMessage(hDlg, IDC_VOLUME, TBM_SETRANGE, (WPARAM) FALSE, (LPARAM) MAKELONG(1, 100));
@@ -1694,48 +1680,11 @@ LRESULT CALLBACK dlgMain(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 */
 
-LRESULT CALLBACK dlgSelectObject(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	switch (message)
-	{
-//	IMPLEMENT_EASYMOVE(hDlg, wParam, lParam);
-//	IMPLEMENT_APPEARENCE(hDlg);
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-
-		switch (wmId)
-		{
-		case IDOK:
-			g_conf.ed_object->SetInt( SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_GETCURSEL,0,0) );
-			EndDialog(hDlg, LOWORD(wParam));
-			return TRUE;
-			break;
-		case IDCANCEL:
-			EndDialog(hDlg, LOWORD(wParam));
-			return FALSE;
-			break;
-		}
-		break;
-
-	case WM_INITDIALOG:
-		for( int i = 0; i < Level::GetTypeCount(); ++i )
-			SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_ADDSTRING, 0,
-			(LPARAM) Level::GetTypeDesc(i));
-		SendDlgItemMessage(hDlg, IDC_OBJECTLIST, LB_SETCURSEL, g_conf.ed_object->GetInt(), 0);
-		return TRUE;
-	}
-    return FALSE;
-}
-
 LRESULT CALLBACK dlgMapSettings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 	switch (message)
 	{
-//		IMPLEMENT_EASYMOVE(hDlg, wParam, lParam);
-//		IMPLEMENT_APPEARENCE(hDlg);
 		case WM_COMMAND:
 			wmId    = LOWORD(wParam);
 			wmEvent = HIWORD(wParam);
