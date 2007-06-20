@@ -6,6 +6,7 @@
 #include "gui_desktop.h"
 #include "gui_console.h"
 #include "gui_editor.h"
+#include "gui_settings.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -71,6 +72,12 @@ void Desktop::OnRawChar(int c)
 
 	case VK_F2:
 		dlg = new NewGameDlg(this);
+		ShowDesktopBackground(true);
+		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
+		break;
+
+	case VK_F12:
+		dlg = new SettingsDlg(this);
 		ShowDesktopBackground(true);
 		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		break;

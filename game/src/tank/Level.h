@@ -152,6 +152,20 @@ class Level
 	std::map<string_t, const GC_Object*>  _nameToObjectMap;
 
 
+	struct SaveHeader
+	{
+		DWORD dwVersion;
+		DWORD dwGameType;
+		bool  nightmode;
+		float timelimit;
+		int   fraglimit;
+		int   nObjects;
+		float time;
+		int   width;
+		int   height;
+		char  theme[MAX_PATH];
+	};
+
 public:
 
 #ifdef NETWORK_DEBUG
@@ -221,7 +235,9 @@ public:
 	float _time;
 	float _timeBuffer;
 
-    Field _field;
+	Field _field;
+
+	bool  _safeMode;
 
 /////////////////////////////////////////////////////
 	Level();
@@ -232,13 +248,12 @@ public:
 
 
 	BOOL init_emptymap();
-	BOOL init_import_and_edit(char *mapName);
+	BOOL init_import_and_edit(const char *mapName);
 
 	BOOL init_newdm(const char *mapName);
 	BOOL init_load(const char *fileName);
 
-/////////////////////////////////////////////////////
-// load / save
+
 public:
 	bool RestoreObject(ObjectType otType, HANDLE file);
 
@@ -252,6 +267,7 @@ public:
 
 	void TimeStep(float dt);
 	void Render() const;
+	bool IsSafeMode() const { return _safeMode; }
 
 	GC_Object* FindObject(const char *name) const;
 
@@ -340,6 +356,10 @@ public:
 	static int GetTypeCount()
 	{
 		return get_i2t().size();
+	}
+	static const EdItem& GetTypeInfo(int typeIndex)
+	{
+		return get_t2i()[get_i2t()[typeIndex]];
 	}
 	static int GetLayerByTypeIndex(int typeIndex)
 	{

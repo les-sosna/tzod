@@ -250,15 +250,36 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 
 	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
+		float align = Level::GetTypeInfo(g_conf.ed_object->GetInt()).align;
+		float offset = Level::GetTypeInfo(g_conf.ed_object->GetInt()).offset;
+
+		vec2d pt;
+
+		pt.x = __min(g_level->_sx - align, __max(align - offset, mouse.x));
+		pt.y = __min(g_level->_sy - align, __max(align - offset, mouse.y));
+		pt.x -= fmodf(pt.x + align * 0.5f - offset, align) - align * 0.5f;
+		pt.y -= fmodf(pt.y + align * 0.5f - offset, align) - align * 0.5f;
+
 		if( GC_Object *object = g_level->PickEdObject(mouse) )
 		{
 			if( 1 == button )
 			{
-				Select(object, true);
+				if( _selectedObject == object )
+				{
+					object->EditorAction();
+				}
+				else
+				{
+					Select(object, true);
+				}
 			}
 
 			if( 2 == button )
 			{
+				if( _selectedObject == object )
+				{
+					Select(object, false);
+				}
 				object->Kill();
 			}
 		}
@@ -267,7 +288,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			if( 1 == button )
 			{
 				Select(  g_level->CreateObject(
-					Level::GetType(g_conf.ed_object->GetInt()), mouse.x, mouse.y), true  );
+					Level::GetType(g_conf.ed_object->GetInt()), pt.x, pt.y), true  );
 			}
 		}
 	}

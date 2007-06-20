@@ -21,6 +21,8 @@
 // exit to the system
 static int luaT_quit(lua_State *L)
 {
+	if( g_level && !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
 	DestroyWindow(g_env.hMainWnd);
 	return 0;
 }
@@ -53,7 +55,12 @@ static int luaT_loadmap(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	SAFE_DELETE(g_level);
+	if( g_level )
+	{
+		if( !g_level->IsSafeMode() )
+			return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
+		delete g_level;
+	}
 	g_level = new Level();
 
 	if( !g_level->init_newdm(filename) )
@@ -75,10 +82,15 @@ static int luaT_newmap(lua_State *L)
 	int x = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
 	int y = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
 
-	SAFE_DELETE(g_level);
+	if( g_level )
+	{
+		if( !g_level->IsSafeMode() )
+			return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
+		delete g_level;
+	}
 	g_level = new Level();
 	g_level->Init(x, y);
-    if( !g_level->init_emptymap() )
+	if( !g_level->init_emptymap() )
 	{
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
@@ -96,7 +108,12 @@ static int luaT_load(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	SAFE_DELETE(g_level);
+	if( g_level )
+	{
+		if( !g_level->IsSafeMode() )
+			return luaL_error(L, "attempt to execute 'load' in unsafe mode");
+		delete g_level;
+	}
 	g_level = new Level();
 
 	if( !g_level->init_load(filename) )
@@ -122,6 +139,9 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "no game started");
 	}
 
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
+
 	g_level->Pause(true);
 	bool result = g_level->Serialize(filename);
 	g_level->Pause(false);
@@ -132,6 +152,61 @@ static int luaT_save(lua_State *L)
 	}
 
 	g_console->printf("game saved: '%s'\n", filename);
+
+	return 0;
+}
+
+// import( string filename )  -- import map
+static int luaT_import(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	const char *filename = luaL_checkstring(L, 1);
+
+	if( g_level )
+	{
+		if( !g_level->IsSafeMode() )
+			return luaL_error(L, "attempt to execute 'import' in unsafe mode");
+		delete g_level;
+	}
+	g_level = new Level();
+
+	if( !g_level->init_import_and_edit(filename) )
+	{
+		SAFE_DELETE(g_level);
+		return luaL_error(L, "couldn't import map '%s'", filename);
+	}
+
+	return 0;
+}
+
+// export( string filename )  -- export map
+static int luaT_export(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	const char *filename = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no map loaded");
+	}
+
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
+
+	bool result = g_level->Export(filename);
+
+	if( !result )
+	{
+		return luaL_error(L, "couldn't export map to '%s'", filename);
+	}
+
+	g_console->printf("map exported: '%s'\n", filename);
 
 	return 0;
 }

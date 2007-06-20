@@ -224,6 +224,8 @@ Level::Level()
 	_limitHit    = false;
 	_paused      = false;
 
+	_safeMode    = true;
+
 	_locations_x  = 0;
 	_locations_y  = 0;
 	_sx = _sy    = 0;
@@ -298,7 +300,7 @@ BOOL Level::init_emptymap()
 	return TRUE;
 }
 
-BOOL Level::init_import_and_edit(char *mapName)
+BOOL Level::init_import_and_edit(const char *mapName)
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
@@ -343,6 +345,8 @@ BOOL Level::init_load(const char *fileName)
 
 Level::~Level()
 {
+	_ASSERT(IsSafeMode());
+
 	TRACE("Destroying the level\n");
 
 	SAFE_KILL(_temporaryText);
@@ -382,6 +386,8 @@ Level::~Level()
 // уровень должен быть пустым
 bool Level::Unserialize(const char *fileName)
 {
+	_ASSERT(IsSafeMode());
+
 	TRACE("Loading saved game from file '%s'\n", fileName);
 
 	SaveFile f;
@@ -405,9 +411,9 @@ bool Level::Unserialize(const char *fileName)
 	{
 		DWORD bytesRead = 0;
 
-		SAVEHEADER sh = {0};
-		ReadFile(f._file, &sh, sizeof(SAVEHEADER), &bytesRead, NULL);
-		if( sizeof(SAVEHEADER) != bytesRead )
+		SaveHeader sh = {0};
+		ReadFile(f._file, &sh, sizeof(SaveHeader), &bytesRead, NULL);
+		if( sizeof(SaveHeader) != bytesRead )
 			throw "ERROR: unexpected end of file";
 
 		if( VERSION != sh.dwVersion )
@@ -420,7 +426,7 @@ bool Level::Unserialize(const char *fileName)
 		g_conf.sv_nightmode->Set(sh.nightmode);
 
 		_time = sh.time;
-		Init(sh.X, sh.Y);
+		Init(sh.width, sh.height);
 
 		while( sh.nObjects > 0 )
 		{
@@ -458,6 +464,8 @@ bool Level::Unserialize(const char *fileName)
 
 bool Level::Serialize(const char *fileName)
 {
+	_ASSERT(IsSafeMode());
+
 	TRACE("Saving game to file '%s'\n", fileName);
 
 	DWORD bytesWritten = 0;
@@ -480,20 +488,20 @@ bool Level::Serialize(const char *fileName)
 	bool result = true;
     try
 	{
-		SAVEHEADER sh = {0};
+		SaveHeader sh = {0};
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
 		sh.dwGameType   = _gameType;
 		sh.fraglimit    = g_conf.sv_fraglimit->GetInt();
 		sh.timelimit    = g_conf.sv_timelimit->GetFloat();
 		sh.nightmode    = g_conf.sv_nightmode->Get();
-		sh.time        = _time;
-		sh.X            = (int) _sx / CELL_SIZE;
-		sh.Y            = (int) _sy / CELL_SIZE;
+		sh.time         = _time;
+		sh.width        = (int) _sx / CELL_SIZE;
+		sh.height       = (int) _sy / CELL_SIZE;
 		sh.nObjects		= 0;	// будем увеличивать по мере записи
 
-		WriteFile(f._file, &sh, sizeof(SAVEHEADER), &bytesWritten, NULL);
-		if( bytesWritten != sizeof(SAVEHEADER) )
+		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
+		if( bytesWritten != sizeof(SaveHeader) )
 			throw "ERROR: couldn't write file. check disk space";
 
 		//перебираем все объекты. если нужно - сохраняем
@@ -524,8 +532,8 @@ bool Level::Serialize(const char *fileName)
 
 		// return to begin of file and write count of saved objects
 		SetFilePointer(f._file, 0, NULL, FILE_BEGIN);
-		WriteFile(f._file, &sh, sizeof(SAVEHEADER), &bytesWritten, NULL);
-		if( bytesWritten != sizeof(SAVEHEADER) )
+		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
+		if( bytesWritten != sizeof(SaveHeader) )
 			throw "ERROR: couldn't write file. check disk space";
 	}
 	catch(const char *msg)
@@ -540,6 +548,8 @@ bool Level::Serialize(const char *fileName)
 
 bool Level::Import(const char *fileName, bool bForEditor)
 {
+	_ASSERT(IsSafeMode());
+
 	MapFile file;
 	if( !file.Open(fileName, false) )
 		return false;
@@ -578,6 +588,8 @@ bool Level::Import(const char *fileName, bool bForEditor)
 
 bool Level::Export(const char *fileName)
 {
+	_ASSERT(IsSafeMode());
+
 	MapFile file;
 
 	//
@@ -662,8 +674,7 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 	for( int i = Z_COUNT - 1; i--; )
 	{
 		std::vector<OBJECT_LIST*> receive;
-		z_grids[i].OverlapCircle(receive,
-			pt.x / LOCATION_SIZE, pt.y / LOCATION_SIZE, 0);
+		z_grids[i].OverlapCircle(receive, pt.x / LOCATION_SIZE, pt.y / LOCATION_SIZE, 0);
 
 		std::vector<OBJECT_LIST*>::iterator rit = receive.begin();
 		for( ; rit != receive.end(); rit++ )
@@ -754,8 +765,8 @@ void Level::LocationFromPoint(const vec2d &pt, Location &l)
 
 GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	                                GC_RigidBodyStatic* pIgnore,
-	                                const vec2d &x0,      // координаты начала
-	                                const vec2d &a,       // направление
+	                                const vec2d &x0,  // origin
+	                                const vec2d &a,   // direction
 	                                vec2d *ht,
 	                                vec2d *norm ) const
 {
@@ -889,16 +900,20 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	}
 
 	if( pBestObject )
-	if( ( ((x0.x <= hit.x) && (hit.x <= x0.x + a.x))||((x0.x + a.x <= hit.x) && (hit.x <= x0.x)) ) &&
-		( ((x0.y <= hit.y) && (hit.y <= x0.y + a.y))||((x0.y + a.y <= hit.y) && (hit.y <= x0.y)) ) )
 	{
-		if( norm )
+		if( ( ((x0.x <= hit.x) && (hit.x <= x0.x + a.x))
+		      ||((x0.x + a.x <= hit.x) && (hit.x <= x0.x)) ) &&
+		    ( ((x0.y <= hit.y) && (hit.y <= x0.y + a.y))
+		      ||((x0.y + a.y <= hit.y) && (hit.y <= x0.y)) ) )
 		{
-			float l = sqrtf(nx*nx + ny*ny);
-			norm->Set(nx / l, ny / l);
+			if( norm )
+			{
+				float l = sqrtf(nx*nx + ny*ny);
+				norm->Set(nx / l, ny / l);
+			}
+			if( ht ) *ht = hit;
+			return pBestObject;
 		}
-		if( ht ) *ht = hit;
-		return pBestObject;
 	}
 
 	return NULL;
@@ -923,6 +938,8 @@ void Level::TimeStep(float dt)
 		return;
 
 	_ASSERT(!_modeEditor);
+
+	_safeMode = false;
 
 	if( _client )
 	{
@@ -1008,7 +1025,7 @@ void Level::TimeStep(float dt)
 				if( tmp_cs = pTS_Obj->checksum() )
 				{
 					dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
-                    dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+					dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
 				}
 				#endif
 
@@ -1051,6 +1068,8 @@ void Level::TimeStep(float dt)
 		pTS_Obj->TimeStepFloat(dt);
 		++it;
 	}
+
+	_safeMode = true;
 }
 
 void Level::Render() const

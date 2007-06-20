@@ -7,21 +7,6 @@
 
 //----------------------------------------------------------
 
-typedef struct SAVEHEADER
-{
-	DWORD dwVersion;
-	DWORD dwGameType;
-	bool  nightmode;
-	float timelimit;
-	int   fraglimit;
-	int   nObjects;
-	float time;
-	int   X, Y;	// размер уровня
-	char  theme[MAX_PATH];
-} SAVEHEADER, *LPSAVEHEADER;
-
-//----------------------------------------------------------
-
 typedef struct VEHICLEKEYS
 {
 	int keyLeft;
