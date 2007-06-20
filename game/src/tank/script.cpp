@@ -531,6 +531,8 @@ script_h script_open(void)
 	lua_register(L, "newmap",   luaT_newmap);
 	lua_register(L, "load",     luaT_load);
 	lua_register(L, "save",     luaT_save);
+	lua_register(L, "import",   luaT_import);
+	lua_register(L, "export",   luaT_export);
 
 	lua_register(L, "addbot",   luaT_addbot);
 
