@@ -22,9 +22,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 
 GC_UserObject::GC_UserObject(float x, float y)
 {
+	_textureName = "turret_platform";
 	SetZ(Z_WALLS);
 	MoveTo(vec2d(x, y));
-	SetTexture("turret_platform");
+	SetTexture(_textureName.c_str());
 	AlignToTexture();
 	g_level->_field.ProcessObject(this, true);
 }
