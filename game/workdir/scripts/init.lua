@@ -7,6 +7,8 @@ dofile("scripts/vehicles.lua")   -- register vehicle classes
 dofile("scripts/weapons.lua")    -- set up parameters of weapons
 dofile("scripts/names.lua")      -- fill the random_names array
 
+initcmdqueue()
+
 --=============================================================================
 
 conf.sv_timelimit = 0;

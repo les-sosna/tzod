@@ -35,4 +35,20 @@ function getvclass(cls, weap)
 end
 
 
+-- implementation of the command queue
+function initcmdqueue()
+ local queue = {}
+ 
+ function pushcmd(cmd)
+  queue[#queue + 1] = cmd;
+ end
+ 
+ function runqueue()
+  for _,v in pairs(queue) do v() end
+  queue = {}
+ end
+ 
+end
+
+
 -- end of file

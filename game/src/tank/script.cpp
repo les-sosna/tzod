@@ -508,12 +508,14 @@ bool script_exec(script_h s, const char *string)
 	if( luaL_loadstring(LS(s), string) )
 	{
 		g_console->printf("syntax error %s\n", lua_tostring(LS(s), -1));
+		lua_pop(LS(s), 1); // pop the error message from the stack
 		return false;
 	}
 
 	if( lua_pcall(LS(s), 0, 0, 0) )
 	{
 		g_console->printf("%s\n", lua_tostring(LS(s), -1));
+		lua_pop(LS(s), 1); // pop the error message from the stack
 		return false;
 	}
 
@@ -533,6 +535,7 @@ bool script_exec_file(script_h s, const char *filename)
 	if( lua_pcall(LS(s), 0, 0, 0) )
 	{
 		TRACE("runtime error: %s\n", lua_tostring(LS(s), -1));
+		lua_pop(LS(s), 1); // pop the error message from the stack
 		return false;
 	}
 

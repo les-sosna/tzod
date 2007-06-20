@@ -58,9 +58,9 @@ GC_Turret::GC_Turret(FromFile) : GC_RigidBodyStatic(FromFile()), _rotator(_dir)
 void GC_Turret::Serialize(SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(f);
-	/////////////////////////////////////
+
 	_rotator.Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_dir);
 	f.Serialize(_initialDir);
 	f.Serialize(_sight);
@@ -69,7 +69,7 @@ void GC_Turret::Serialize(SaveFile &f)
 	f.Serialize(_rotateSound);
 	f.Serialize(_target);
 	f.Serialize(_weaponSprite);
-	/////////////////////////////////////
+
 	if( f.loading() && (TS_WAITING == _state || TS_HIDDEN == _state) )
 	{
 		_jobManager.RegisterMember(this);
@@ -265,8 +265,6 @@ SafePtr<PropertySet> GC_Turret::GetProperties()
 GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
 , _propTeam(      ObjectProperty::TYPE_MULTISTRING, "Team" )
-, _propHealth(    ObjectProperty::TYPE_INTEGER,     "Health"   )
-, _propMaxHealth( ObjectProperty::TYPE_INTEGER,     "Max Health")
 , _propSight(     ObjectProperty::TYPE_INTEGER,     "Sight Radius")
 {
 	_propTeam.AddItem("[нет]");
@@ -276,8 +274,6 @@ GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
 		wsprintf(buf, "%d", i);
 		_propTeam.AddItem(buf);
 	}
-	_propMaxHealth.SetRange(0, 10000);
-	_propHealth.SetRange(0, 10000);
 	_propSight.SetRange(0, 100);
 	//-----------------------------------------
 	Exchange(false);
@@ -285,7 +281,7 @@ GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
 
 int GC_Turret::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 4;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
@@ -296,9 +292,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 		case 0: return &_propTeam;
-		case 1: return &_propHealth;
-		case 2: return &_propMaxHealth;
-		case 3: return &_propSight;
+		case 1: return &_propSight;
 	}
 
 	_ASSERT(FALSE);
@@ -313,14 +307,11 @@ void GC_Turret::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
 		tmp->_team  = _propTeam.GetCurrentIndex();
 		tmp->_sight = (float) (_propSight.GetValueInt() * CELL_SIZE);
 	}
 	else
 	{
-		_propHealth.SetValueInt(int(tmp->GetHealth() + 0.5f));
-		_propMaxHealth.SetValueInt(int(tmp->GetHealthMax() + 0.5f));
 		_propTeam.SetCurrentIndex(tmp->_team);
 		_propSight.SetValueInt(int(tmp->_sight / CELL_SIZE + 0.5f));
 	}
@@ -352,9 +343,8 @@ GC_TurretRocket::GC_TurretRocket(FromFile) : GC_Turret(FromFile())
 }
 
 void GC_TurretRocket::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Turret::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_timeReload);
 }
 

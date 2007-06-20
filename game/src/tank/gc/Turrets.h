@@ -19,8 +19,6 @@ class GC_Turret : public GC_RigidBodyStatic
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propTeam;
-		ObjectProperty _propHealth;
-		ObjectProperty _propMaxHealth;
 		ObjectProperty _propSight;
 	public:
 		MyPropertySet(GC_Object *object);

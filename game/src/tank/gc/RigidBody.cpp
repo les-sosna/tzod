@@ -148,14 +148,19 @@ SafePtr<PropertySet> GC_RigidBodyStatic::GetProperties()
 
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propOnDestroyScript(ObjectProperty::TYPE_STRING, "OnDestroy()" )
+, _propOnDestroyScript( ObjectProperty::TYPE_STRING,   "OnDestroy()"  )
+, _propHealth(          ObjectProperty::TYPE_INTEGER,  "Health"       )
+, _propMaxHealth(       ObjectProperty::TYPE_INTEGER,  "Max Health"   )
 {
+	_propMaxHealth.SetRange(0, 10000);
+	_propHealth.SetRange(0, 10000);
+
 	Exchange(false);
 }
 
 int GC_RigidBodyStatic::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 3;
 }
 
 ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
@@ -166,6 +171,8 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propOnDestroyScript;
+	case 1: return &_propHealth;
+	case 2: return &_propMaxHealth;
 	}
 
 	_ASSERT(FALSE);
@@ -181,9 +188,12 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_scriptOnDestroy = _propOnDestroyScript.GetValue();
+		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
 	}
 	else
 	{
+		_propHealth.SetValueInt(int(tmp->GetHealth() + 0.5f));
+		_propMaxHealth.SetValueInt(int(tmp->GetHealthMax() + 0.5f));
 		_propOnDestroyScript.SetValue(tmp->_scriptOnDestroy);
 	}
 }

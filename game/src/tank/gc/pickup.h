@@ -66,7 +66,7 @@ class GC_PickUp : public GC_Item
 
 protected:
 	virtual void Kill();
-	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void GiveIt(GC_Vehicle* veh);
 	virtual void Respawn();
 
 	virtual void TimeStepFixed(float dt);
@@ -98,7 +98,7 @@ public:
 
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle) {return AIP_NORMAL;};
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh) {return AIP_NORMAL;};
 
 	virtual GC_Vehicle* CheckPickUp();
 
@@ -127,9 +127,9 @@ public:
 	GC_pu_Health(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void GiveIt(GC_Vehicle* veh);
 	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 };
@@ -145,9 +145,9 @@ public:
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void GiveIt(GC_Vehicle* veh);
 	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 };
@@ -168,9 +168,9 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void GiveIt(GC_Vehicle* veh);
 	virtual GC_PickUp* SetRespawn();
 
 	virtual void TimeStepFixed(float dt);
@@ -205,9 +205,9 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle);
+	virtual void GiveIt(GC_Vehicle* veh);
 	virtual GC_PickUp* SetRespawn();
 
 	virtual void TimeStepFixed(float dt);
@@ -231,9 +231,9 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *pVehicle);
+	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* pVehicle); //return true  -  respawn
+	virtual void GiveIt(GC_Vehicle* veh); //return true  -  respawn
 	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 

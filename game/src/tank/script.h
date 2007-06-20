@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // script functions
 
+
 typedef lua_State* script_h; // handle to the script engine
 #define LS(s) (reinterpret_cast<lua_State*>(s))
 

@@ -810,7 +810,7 @@ void GC_PlayerAI::SelectState()
 	_ASSERT(GetVehicle());
 
 	GC_PickUp  *pItem    = NULL;
-	GC_Vehicle *pVehicle = NULL;
+	GC_Vehicle *veh = NULL;
 
 	ProcessAction();
 

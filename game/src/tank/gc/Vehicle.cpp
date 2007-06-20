@@ -255,16 +255,16 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		char score[8];
 		char *font = NULL;
 
-		GC_Vehicle *pVehicle = dynamic_cast<GC_Vehicle *>(dd.from);
-		if( NULL != pVehicle )
+		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(dd.from);
+		if( NULL != veh )
 		{
-			if( pVehicle->GetPlayer() == GetPlayer() )
+			if( veh->GetPlayer() == GetPlayer() )
 			{
 				// убил себя апстену =)
-				pVehicle->GetPlayer()->ChangeScore(-1);
+				veh->GetPlayer()->ChangeScore(-1);
 				font = "font_digits_red";
 				wsprintf( msg, "%s совершил самоубийство", 
-					pVehicle->GetPlayer()->GetNick().c_str() );
+					veh->GetPlayer()->GetNick().c_str() );
 			}
 			else
 			{
@@ -272,7 +272,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					((GC_Vehicle *) dd.from)->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
 				{
 					// убил товарища
-					pVehicle->GetPlayer()->ChangeScore(-1);
+					veh->GetPlayer()->ChangeScore(-1);
 					font = "font_digits_red";
 					wsprintf( msg, "нехороший %s замочил своего друга %s",
 						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(), 
@@ -281,7 +281,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 				else
 				{
 					// убил врага - молодец!
-					pVehicle->GetPlayer()->ChangeScore(+1);
+					veh->GetPlayer()->ChangeScore(+1);
 					font = "font_digits_green";
 					wsprintf( msg, "%s замочил своего врага %s",
 						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
@@ -289,10 +289,10 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 				}
 			}
 
-			if( !pVehicle->GetPlayer()->IsDead() )
+			if( !veh->GetPlayer()->IsDead() )
 			{
-				wsprintf( score, "%d", pVehicle->GetPlayer()->GetScore() );
-				new GC_Text_ToolTip(pVehicle->GetPos(), score, font);
+				wsprintf( score, "%d", veh->GetPlayer()->GetScore() );
+				new GC_Text_ToolTip(veh->GetPos(), score, font);
 			}
 		}
 		else

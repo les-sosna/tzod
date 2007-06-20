@@ -330,6 +330,13 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				TimeStep(timer->GetDt());
 				RenderFrame(false);
 				EndFrame();
+
+				lua_getglobal(LS(g_env.hScript), "runqueue");
+				if( lua_pcall(LS(g_env.hScript), 0, 0, 0) )
+				{
+					TRACE("%s", lua_tostring(LS(g_env.hScript), -1));
+					lua_pop(LS(g_env.hScript), 1); // pop the error message
+				}
 			}
 		}
 

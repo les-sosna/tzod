@@ -302,6 +302,7 @@ void EditorLayout::OnShow(bool show)
 	if( !show )
 	{
 		_propList->ConnectTo(NULL);
+		_selectedObject = NULL;
 	}
 }
 

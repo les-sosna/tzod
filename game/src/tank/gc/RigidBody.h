@@ -27,6 +27,8 @@ protected:
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propOnDestroyScript;
+		ObjectProperty _propHealth;
+		ObjectProperty _propMaxHealth;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;

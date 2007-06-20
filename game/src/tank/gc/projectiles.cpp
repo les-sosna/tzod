@@ -240,21 +240,21 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 		GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 		float nearest_cosinus = 0;
 
-		FOREACH( vehicles, GC_Vehicle, pVehicle )
+		FOREACH( vehicles, GC_Vehicle, veh )
 		{
-			if( pVehicle->IsKilled() || _owner == pVehicle )
+			if( veh->IsKilled() || _owner == veh )
 				continue;
 
 			// проверка видимости цели
-			if( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
-				GetRawPtr(_owner), GetPos(), pVehicle->GetPos() - GetPos()) )
+			if( veh != g_level->agTrace(g_level->grid_rigid_s,
+				GetRawPtr(_owner), GetPos(), veh->GetPos() - GetPos()) )
 			{
 				continue;
 			}
 
 
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity.Length(), pVehicle->GetPos(), pVehicle->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity.Length(), veh->GetPos(), veh->_lv, target);
 
 			vec2d a = target - GetPos();
 
@@ -264,7 +264,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 			if( cosinus > nearest_cosinus )
 			{
 				nearest_cosinus = cosinus;
-				pNearestVehicle = pVehicle;
+				pNearestVehicle = veh;
 			}
 		}
 
@@ -638,16 +638,16 @@ void GC_BfgCore::FindTarget()
 	GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 	float nearest_cosinus = 0;
 
-	FOREACH( vehicles, GC_Vehicle, pVehicle )
+	FOREACH( vehicles, GC_Vehicle, veh )
 	{
-		if( pVehicle->IsKilled() || _owner == pVehicle ) continue;
+		if( veh->IsKilled() || _owner == veh ) continue;
 
 		// проверка видимости цели
-		if( pVehicle != g_level->agTrace(g_level->grid_rigid_s,
-			GetRawPtr(_owner), GetPos(), pVehicle->GetPos() - GetPos()) ) continue;
+		if( veh != g_level->agTrace(g_level->grid_rigid_s,
+			GetRawPtr(_owner), GetPos(), veh->GetPos() - GetPos()) ) continue;
 
 		vec2d target;
-		g_level->CalcOutstrip(GetPos(), _velocity.Length(), pVehicle->GetPos(), pVehicle->_lv, target);
+		g_level->CalcOutstrip(GetPos(), _velocity.Length(), veh->GetPos(), veh->_lv, target);
 
 		vec2d a = target - GetPos();
 
@@ -657,7 +657,7 @@ void GC_BfgCore::FindTarget()
 		if( cosinus > nearest_cosinus )
 		{
 			nearest_cosinus = cosinus;
-			pNearestVehicle = pVehicle;
+			pNearestVehicle = veh;
 		}
 	}
 
@@ -727,19 +727,19 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		FindTarget();
 	}
 
-	FOREACH( vehicles, GC_Vehicle, pVehicle )
+	FOREACH( vehicles, GC_Vehicle, veh )
 	{
-		if( !pVehicle->IsKilled() )
+		if( !veh->IsKilled() )
 		{
 			const float R = WEAP_BFG_RADIUS;
-			float damage = (1 - (GetPos() - pVehicle->GetPos()).Length() / R) *
-				(fabsf(pVehicle->_lv.Length()) / SPEED_BFGCORE * 10 + 0.5f);
+			float damage = (1 - (GetPos() - veh->GetPos()).Length() / R) *
+				(fabsf(veh->_lv.Length()) / SPEED_BFGCORE * 10 + 0.5f);
 
-			if( damage > 0 && !(IsAdvanced() && pVehicle == _owner) )
+			if( damage > 0 && !(IsAdvanced() && veh == _owner) )
 			{
-				vec2d d = (GetPos() - pVehicle->GetPos()).Normalize() + g_level->net_vrand(1.0f);
-				pVehicle->TakeDamage(damage * _damage * dt,
-					pVehicle->GetPos() + d, GetRawPtr(_owner));
+				vec2d d = (GetPos() - veh->GetPos()).Normalize() + g_level->net_vrand(1.0f);
+				veh->TakeDamage(damage * _damage * dt,
+					veh->GetPos() + d, GetRawPtr(_owner));
 			}
 		}
 	}

@@ -52,15 +52,15 @@ GC_Vehicle* GC_PickUp::CheckPickUp()
 {
 	float r_sq = getRadius() * getRadius();
 
-	FOREACH( vehicles, GC_Vehicle, pVehicle )
+	FOREACH( vehicles, GC_Vehicle, veh )
 	{
-		if( !pVehicle->IsKilled() )
+		if( !veh->IsKilled() )
 		{
-			if( r_sq >  (GetPos().x - pVehicle->GetPos().x) * (GetPos().x - pVehicle->GetPos().x) +
-					(GetPos().y - pVehicle->GetPos().y) * (GetPos().y - pVehicle->GetPos().y) )
+			if( r_sq >  (GetPos().x - veh->GetPos().x) * (GetPos().x - veh->GetPos().x) +
+					(GetPos().y - veh->GetPos().y) * (GetPos().y - veh->GetPos().y) )
 			{
-				if( !_bMostBeAllowed || pVehicle->_state._bState_AllowDrop )
-					return pVehicle;
+				if( !_bMostBeAllowed || veh->_state._bState_AllowDrop )
+					return veh;
 			}
 		}
 	}
@@ -119,7 +119,7 @@ void GC_PickUp::Kill()
 	GC_Item::Kill();
 }
 
-void GC_PickUp::GiveIt(GC_Vehicle* pVehicle)
+void GC_PickUp::GiveIt(GC_Vehicle* veh)
 {
 	_time = 0;
 
@@ -131,7 +131,7 @@ void GC_PickUp::GiveIt(GC_Vehicle* pVehicle)
 		object->SetAnchor(this);
 	}
 
-	MoveTo(pVehicle->GetPos());
+	MoveTo(veh->GetPos());
 }
 
 void GC_PickUp::Respawn()
@@ -176,8 +176,8 @@ void GC_PickUp::TimeStepFixed(float dt)
 	{
 		if( IsVisible() )
 		{
-			GC_Vehicle *pVehicle = CheckPickUp();
-			if( pVehicle ) GiveIt(pVehicle);
+			GC_Vehicle *veh = CheckPickUp();
+			if( veh ) GiveIt(veh);
 		}
 		else
 		{
@@ -273,19 +273,19 @@ GC_pu_Health::GC_pu_Health(FromFile) : GC_PickUp(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Health::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_pu_Health::CheckUseful(GC_Vehicle *veh)
 {
-	if( pVehicle->GetHealth() < pVehicle->GetHealthMax() )
-		return AIP_HEALTH * (pVehicle->GetHealth() / pVehicle->GetHealthMax());
+	if( veh->GetHealth() < veh->GetHealthMax() )
+		return AIP_HEALTH * (veh->GetHealth() / veh->GetHealthMax());
 
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Health::GiveIt(GC_Vehicle* pVehicle)
+void GC_pu_Health::GiveIt(GC_Vehicle* veh)
 {
-	GC_PickUp::GiveIt(pVehicle);
+	GC_PickUp::GiveIt(veh);
 
-	pVehicle->SetHealthCur(pVehicle->GetHealthMax());
+	veh->SetHealthCur(veh->GetHealthMax());
 	PLAY(SND_PickUp, GetPos());
 
 	Kill();
@@ -326,15 +326,15 @@ GC_pu_Mine::GC_pu_Mine(FromFile) : GC_PickUp(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Mine::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_pu_Mine::CheckUseful(GC_Vehicle *veh)
 {
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Mine::GiveIt(GC_Vehicle* pVehicle)
+void GC_pu_Mine::GiveIt(GC_Vehicle* veh)
 {
-	GC_PickUp::GiveIt(pVehicle);
-	new GC_Boom_Standard(GetPos(), pVehicle);
+	GC_PickUp::GiveIt(veh);
+	new GC_Boom_Standard(GetPos(), veh);
 	Kill();
 }
 
@@ -345,8 +345,8 @@ GC_PickUp* GC_pu_Mine::SetRespawn()
 
 GC_Vehicle* GC_pu_Mine::CheckPickUp()
 {
-	GC_Vehicle *pVehicle = GC_PickUp::CheckPickUp();
-	return pVehicle;
+	GC_Vehicle *veh = GC_PickUp::CheckPickUp();
+	return veh;
 }
 
 /////////////////////////////////////////////////////////////
@@ -370,25 +370,25 @@ GC_pu_Invulnerablity::GC_pu_Invulnerablity(FromFile) : GC_PickUp(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Invulnerablity::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_pu_Invulnerablity::CheckUseful(GC_Vehicle *veh)
 {
 	return AIP_INVULN;
 }
 
-void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* pVehicle)
+void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* veh)
 {
-	GC_PickUp::GiveIt(pVehicle);
+	GC_PickUp::GiveIt(veh);
 
 	PLAY(SND_Inv, GetPos());
 
-	if( GC_Object *p = pVehicle->GetSubscriber(GetType()) )
+	if( GC_Object *p = veh->GetSubscriber(GetType()) )
 	{
 		p->Kill();
 	}
 
-	pVehicle->Subscribe(NOTIFY_DAMAGE_FILTER, this,
+	veh->Subscribe(NOTIFY_DAMAGE_FILTER, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
-	pVehicle->Subscribe(NOTIFY_ACTOR_MOVE, this,
+	veh->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerMove, false);
 
 	_attached = true;
@@ -521,12 +521,12 @@ void GC_pu_Shock::Serialize(SaveFile &f)
 	f.Serialize(_vehicle);
 }
 
-AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *veh)
 {
-	GC_Vehicle *tmp = FindNearVehicle(pVehicle);
+	GC_Vehicle *tmp = FindNearVehicle(veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
 
-	if( tmp->GetPlayer()->GetTeam() == pVehicle->GetPlayer()->GetTeam() &&
+	if( tmp->GetPlayer()->GetTeam() == veh->GetPlayer()->GetTeam() &&
 		0 != tmp->GetPlayer()->GetTeam() )
 	{
 		return AIP_NOTREQUIRED;
@@ -535,11 +535,11 @@ AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *pVehicle)
 	return AIP_SHOCK;
 }
 
-void GC_pu_Shock::GiveIt(GC_Vehicle* pVehicle)
+void GC_pu_Shock::GiveIt(GC_Vehicle* veh)
 {
-	GC_PickUp::GiveIt(pVehicle);
+	GC_PickUp::GiveIt(veh);
 
-	_vehicle = pVehicle;
+	_vehicle = veh;
 
 	_attached = true;
 	Show(false);
@@ -685,28 +685,28 @@ void GC_pu_Booster::Serialize(SaveFile &f)
 	f.Serialize(_weapon);
 }
 
-AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *veh)
 {
-	if( !pVehicle->GetWeapon() )
+	if( !veh->GetWeapon() )
 	{
 		return AIP_NOTREQUIRED;
 	}
 
-	return pVehicle->GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
+	return veh->GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
-void GC_pu_Booster::GiveIt(GC_Vehicle* pVehicle)		//return true  -  respawn
+void GC_pu_Booster::GiveIt(GC_Vehicle* veh)		//return true  -  respawn
 {
-	GC_PickUp::GiveIt(pVehicle);
+	GC_PickUp::GiveIt(veh);
 
-	if( !pVehicle->GetWeapon() )
+	if( !veh->GetWeapon() )
 	{
 		PLAY(SND_B_End, GetPos());
 		Kill();
 		return;
 	}
 
-	_weapon = pVehicle->GetWeapon();
+	_weapon = veh->GetWeapon();
 	_attached = true;
 
 	if( _weapon->GetAdvanced() )
@@ -741,10 +741,10 @@ GC_PickUp* GC_pu_Booster::SetRespawn()
 
 GC_Vehicle* GC_pu_Booster::CheckPickUp()
 {
-	GC_Vehicle *pVehicle = GC_PickUp::CheckPickUp();
-	if( pVehicle && !pVehicle->_state._bState_AllowDrop && !pVehicle->GetWeapon() )
+	GC_Vehicle *veh = GC_PickUp::CheckPickUp();
+	if( veh && !veh->_state._bState_AllowDrop && !veh->GetWeapon() )
 		return NULL;
-	return pVehicle;
+	return veh;
 }
 
 void GC_pu_Booster::TimeStepFloat(float dt)

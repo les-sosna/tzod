@@ -130,7 +130,7 @@ private:
 	SafePtr<GC_Vehicle> _vehicle;
 
 public:
-	GC_DamLabel(GC_Vehicle *pVehicle);
+	GC_DamLabel(GC_Vehicle *veh);
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
 	virtual void Kill();

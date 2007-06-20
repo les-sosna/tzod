@@ -567,6 +567,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\tank\gc\UserObject.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\tank\gc\Vehicle.cpp"
 					>
 				</File>
@@ -921,6 +925,10 @@
 				</File>
 				<File
 					RelativePath="..\src\tank\gc\Turrets.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\tank\gc\UserObject.h"
 					>
 				</File>
 				<File

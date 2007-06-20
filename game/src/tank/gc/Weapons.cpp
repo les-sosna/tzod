@@ -33,11 +33,11 @@ GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
 	_bMostBeAllowed = true;
 }
 
-AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *pVehicle)
+AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *veh)
 {
-	if( pVehicle->GetWeapon() )
+	if( veh->GetWeapon() )
 	{
-		if( pVehicle->GetWeapon()->_advanced )
+		if( veh->GetWeapon()->_advanced )
 			return AIP_NOTREQUIRED;
 
 		if( _advanced )
@@ -49,23 +49,23 @@ AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *pVehicle)
 	return AIP_WEAPON_NORMAL + _advanced ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED;
 }
 
-void GC_Weapon::GiveIt(GC_Vehicle* pVehicle)
+void GC_Weapon::GiveIt(GC_Vehicle* veh)
 {
-	if( pVehicle->GetWeapon() )
-		pVehicle->DetachWeapon();
-	pVehicle->AttachWeapon(this);
-	GC_PickUp::GiveIt(pVehicle);
+	if( veh->GetWeapon() )
+		veh->GetWeapon()->Kill();
+	veh->AttachWeapon(this);
+	GC_PickUp::GiveIt(veh);
 }
 
-void GC_Weapon::Attach(GC_Vehicle *pVehicle)
+void GC_Weapon::Attach(GC_Vehicle *veh)
 {
-	_ASSERT( NULL == pVehicle->GetWeapon() );
+	_ASSERT( NULL == veh->GetWeapon() );
 	SetZ(Z_ATTACHED_ITEM);
 
 	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
-	_owner = pVehicle;
+	_owner = veh;
 	_owner->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_Weapon::OnOwnerMove, false, false);
 
@@ -142,11 +142,11 @@ GC_Weapon::~GC_Weapon()
 }
 
 void GC_Weapon::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_PickUp::Serialize(f);
-	/////////////////////////////////////
+
 	_rotator.Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_angle);
 	f.Serialize(_advanced);
 	f.Serialize(_feOrient);
@@ -154,7 +154,6 @@ void GC_Weapon::Serialize(SaveFile &f)
 	f.Serialize(_feTime);
 	f.Serialize(_time);
 	f.Serialize(_timeReload);
-	/////////////////////////////////////
 	f.Serialize(_crosshair);
 	f.Serialize(_fireEffect);
 	f.Serialize(_fireLight);
@@ -266,9 +265,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 	return true;
 }
 
-void GC_Weap_RocketLauncher::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_RocketLauncher::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_time = _timeReload = 2.0f;
 
@@ -281,16 +280,16 @@ void GC_Weap_RocketLauncher::Attach(GC_Vehicle *pVehicle)
 	_fireEffect->SetTexture("particle_fire3");
 
 //return;
-//	pVehicle->SetMaxHP(85);
+//	veh->SetMaxHP(85);
 
-//	pVehicle->_ForvAccel = 300;
-//	pVehicle->_BackAccel = 200;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 300;
+//	veh->_BackAccel = 200;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxBackSpeed = 150;
-//	pVehicle->_MaxForvSpeed = 150;
+//	veh->_MaxBackSpeed = 150;
+//	veh->_MaxForvSpeed = 150;
 }
 
 void GC_Weap_RocketLauncher::Detach()
@@ -443,9 +442,9 @@ void GC_Weap_AutoCannon::SetAdvanced(bool advanced)
 	GC_Weapon::SetAdvanced(advanced);
 }
 
-void GC_Weap_AutoCannon::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_AutoCannon::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload = 3.7f;
 	_time = _timeReload;
@@ -462,16 +461,16 @@ void GC_Weap_AutoCannon::Attach(GC_Vehicle *pVehicle)
 	_fireEffect->SetTexture("particle_fire3");
 
 //return;
-//	pVehicle->SetMaxHP(80);
+//	veh->SetMaxHP(80);
 
-//	pVehicle->_ForvAccel = 300;
-//	pVehicle->_BackAccel = 200;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 300;
+//	veh->_BackAccel = 200;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxForvSpeed = 240;
-//	pVehicle->_MaxBackSpeed = 160;
+//	veh->_MaxForvSpeed = 240;
+//	veh->_MaxBackSpeed = 160;
 }
 
 void GC_Weap_AutoCannon::Detach()
@@ -631,9 +630,9 @@ GC_Weap_Cannon::GC_Weap_Cannon(float x, float y) : GC_Weapon(x, y)
 	SetTexture("weap_cannon");
 }
 
-void GC_Weap_Cannon::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Cannon::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload   = 0.9f;
 	_time_smoke_dt = 0;
@@ -642,16 +641,16 @@ void GC_Weap_Cannon::Attach(GC_Vehicle *pVehicle)
 	_fireEffect->SetTexture("particle_fire3");
 
 //return;
-//	pVehicle->SetMaxHP(125);
+//	veh->SetMaxHP(125);
 
-//	pVehicle->_ForvAccel = 250;
-//	pVehicle->_BackAccel = 150;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 250;
+//	veh->_BackAccel = 150;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxForvSpeed = 160;
-//	pVehicle->_MaxBackSpeed = 120;
+//	veh->_MaxForvSpeed = 160;
+//	veh->_MaxBackSpeed = 120;
 }
 
 GC_Weap_Cannon::GC_Weap_Cannon(FromFile) : GC_Weapon(FromFile())
@@ -751,24 +750,24 @@ GC_Weap_Plazma::~GC_Weap_Plazma()
 {
 }
 
-void GC_Weap_Plazma::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Plazma::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload = 0.3f;
 	_fireEffect->SetTexture("particle_plazma_fire");
 
 //return;
-//	pVehicle->SetMaxHP(100);
+//	veh->SetMaxHP(100);
 
-//	pVehicle->_ForvAccel = 300;
-//	pVehicle->_BackAccel = 200;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 300;
+//	veh->_BackAccel = 200;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxForvSpeed = 200;
-//	pVehicle->_MaxBackSpeed = 160;
+//	veh->_MaxForvSpeed = 200;
+//	veh->_MaxBackSpeed = 160;
 }
 
 GC_PickUp* GC_Weap_Plazma::SetRespawn()
@@ -816,24 +815,24 @@ GC_Weap_Gauss::GC_Weap_Gauss(float x, float y) : GC_Weapon(x, y)
 	_feTime = 0.15f;
 }
 
-void GC_Weap_Gauss::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Gauss::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload = 1.3f;
 	_fireEffect->SetTexture("particle_gaussfire");
 
 //return;
-//	pVehicle->SetMaxHP(70);
+//	veh->SetMaxHP(70);
 
-//	pVehicle->_ForvAccel = 350;
-//	pVehicle->_BackAccel = 250;
-//	pVehicle->_StopAccel = 700;
+//	veh->_ForvAccel = 350;
+//	veh->_BackAccel = 250;
+//	veh->_StopAccel = 700;
 
-//	pVehicle->_rotator.setl(3.5f, 15.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
 
-//	pVehicle->_MaxBackSpeed = 220;
-//	pVehicle->_MaxForvSpeed = 260;
+//	veh->_MaxBackSpeed = 220;
+//	veh->_MaxForvSpeed = 260;
 }
 
 GC_Weap_Gauss::GC_Weap_Gauss(FromFile) : GC_Weapon(FromFile())
@@ -911,9 +910,9 @@ void GC_Weap_Ram::SetAdvanced(bool advanced)
 	GC_Weapon::SetAdvanced(advanced);
 }
 
-void GC_Weap_Ram::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Ram::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_engineSound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
 
@@ -934,18 +933,18 @@ void GC_Weap_Ram::Attach(GC_Vehicle *pVehicle)
 		(float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM);
 
 //return;
-//	pVehicle->SetMaxHP(350);
+//	veh->SetMaxHP(350);
 
-//	pVehicle->_ForvAccel = 250;
-//	pVehicle->_BackAccel = 250;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 250;
+//	veh->_BackAccel = 250;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_percussion = _advanced ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
+//	veh->_percussion = _advanced ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxBackSpeed = 160;
-//	pVehicle->_MaxForvSpeed = 160;
+//	veh->_MaxBackSpeed = 160;
+//	veh->_MaxForvSpeed = 160;
 }
 
 void GC_Weap_Ram::Detach()
@@ -1129,24 +1128,24 @@ GC_Weap_BFG::GC_Weap_BFG(float x, float y) : GC_Weapon(x, y)
 	SetTexture("weap_bfg");
 }
 
-void GC_Weap_BFG::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_BFG::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_time_ready  = 0;
 	_timeReload = 1.1f;
 
 //return;
-//	pVehicle->SetMaxHP(110);
+//	veh->SetMaxHP(110);
 
-//	pVehicle->_ForvAccel = 250;
-//	pVehicle->_BackAccel = 200;
-//	pVehicle->_StopAccel = 1000;
+//	veh->_ForvAccel = 250;
+//	veh->_BackAccel = 200;
+//	veh->_StopAccel = 1000;
 
-//	pVehicle->_rotator.setl(3.5f, 15.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
 
-//	pVehicle->_MaxForvSpeed = 200;
-//	pVehicle->_MaxBackSpeed = 180;
+//	veh->_MaxForvSpeed = 200;
+//	veh->_MaxBackSpeed = 180;
 }
 
 GC_Weap_BFG::GC_Weap_BFG(FromFile) : GC_Weapon(FromFile())
@@ -1225,23 +1224,23 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 	return true;
 }
 
-void GC_Weap_Ripper::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Ripper::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload = 0.5f;
 
 //return;
-//	pVehicle->SetMaxHP(80);
+//	veh->SetMaxHP(80);
 
-//	pVehicle->_ForvAccel = 300;
-//	pVehicle->_BackAccel = 200;
-//	pVehicle->_StopAccel = 500;
+//	veh->_ForvAccel = 300;
+//	veh->_BackAccel = 200;
+//	veh->_StopAccel = 500;
 
-//	pVehicle->_rotator.setl(3.5f, 10.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
 
-//	pVehicle->_MaxBackSpeed = 260;
-//	pVehicle->_MaxForvSpeed = 240;
+//	veh->_MaxBackSpeed = 260;
+//	veh->_MaxForvSpeed = 240;
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(float x, float y)
@@ -1289,12 +1288,6 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.2f : 40.0f;
 }
 
-void GC_Weap_Ripper::TimeStepFixed(float dt)
-{
-	GC_Weapon::TimeStepFixed( dt );
-
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
@@ -1303,9 +1296,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 	return true;
 }
 
-void GC_Weap_Minigun::Attach(GC_Vehicle *pVehicle)
+void GC_Weap_Minigun::Attach(GC_Vehicle *veh)
 {
-	GC_Weapon::Attach(pVehicle);
+	GC_Weapon::Attach(veh);
 
 	_timeReload = 0.03f;
 	_time_rotate = 0;
@@ -1318,16 +1311,16 @@ void GC_Weap_Minigun::Attach(GC_Vehicle *pVehicle)
 	_fireEffect->SetTexture("minigun_fire");
 
 //return;
-//	pVehicle->SetMaxHP(65);
+//	veh->SetMaxHP(65);
 
-//	pVehicle->_ForvAccel = 700;
-//	pVehicle->_BackAccel = 600;
-//	pVehicle->_StopAccel = 2000;
+//	veh->_ForvAccel = 700;
+//	veh->_BackAccel = 600;
+//	veh->_StopAccel = 2000;
 
-//	pVehicle->_rotator.setl(3.5f, 15.0f, 30.0f);
+//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
 
-//	pVehicle->_MaxBackSpeed = 300;
-//	pVehicle->_MaxForvSpeed = 350;
+//	veh->_MaxBackSpeed = 300;
+//	veh->_MaxForvSpeed = 350;
 
 }
 
@@ -1372,7 +1365,7 @@ GC_PickUp* GC_Weap_Minigun::SetRespawn()
 void GC_Weap_Minigun::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_bFire);
 	f.Serialize(_time_fire);
 	f.Serialize(_time_rotate);

@@ -310,11 +310,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-GC_DamLabel::GC_DamLabel(GC_Vehicle *pVehicle) : GC_2dSprite()
+GC_DamLabel::GC_DamLabel(GC_Vehicle *veh) : GC_2dSprite()
 {
 	SetZ(Z_VEHICLE_LABEL);
 
-	_vehicle = pVehicle;
+	_vehicle = veh;
 	_vehicle->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
 
 	_time = 0;

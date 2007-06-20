@@ -114,8 +114,17 @@ void ComboBox::OnRawChar(int c)
 			GetParent()->OnRawChar(c);
 		break;
 	case VK_RETURN:
-		if( _list->IsVisible() && -1 != _list->GetCurSel() )
-			OnClickItem(_list->GetCurSel());
+		if( _list->IsVisible() )
+		{
+			if( -1 != _list->GetCurSel() )
+			{
+				OnClickItem(_list->GetCurSel());
+			}
+		}
+		else
+		{
+			GetParent()->OnRawChar(c);
+		}
 		break;
 	case VK_DOWN:
 		if( !_list->IsVisible() )
