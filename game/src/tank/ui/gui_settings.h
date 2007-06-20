@@ -17,6 +17,8 @@ class SettingsDlg : public Dialog
 
 	CheckBox  *_particles;
 	CheckBox  *_showFps;
+	CheckBox  *_showTime;
+	CheckBox  *_showDamage;
 
 	ScrollBar *_volume;
 

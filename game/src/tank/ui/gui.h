@@ -18,6 +18,7 @@ class MainMenuDlg : public Dialog
 {
 	void OnNewGame();
 	void OnExit();
+	void OnSettings();
 
 public:
 	MainMenuDlg(Window *parent);

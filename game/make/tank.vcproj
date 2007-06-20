@@ -75,10 +75,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib dxerr8.lib ws2_32.lib opengl32.lib d3dx9.lib"
+				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib dxerr8.lib ws2_32.lib opengl32.lib"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
+				DelayLoadDLLs="d3dx9_33.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				MapFileName=""
@@ -170,10 +171,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib d3dx9.lib ws2_32.lib opengl32.lib"
+				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib ws2_32.lib opengl32.lib"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
+				DelayLoadDLLs="d3dx9_33.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				SubSystem="2"
@@ -261,12 +263,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib d3dx9.lib ws2_32.lib opengl32.lib"
+				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib ws2_32.lib opengl32.lib"
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				GenerateManifest="false"
+				DelayLoadDLLs="d3dx9_33.dll"
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				OptimizeReferences="2"

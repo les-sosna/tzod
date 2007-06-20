@@ -20,7 +20,17 @@
 #include "Player.h"
 #include "Weapons.h"
 
-#include <d3dx9math.h>  // FIXME!
+
+///////////////////////////////////////////////////////////////////////////////
+// Catmull-Rom interpolation
+
+static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const vec2d &p4, 
+                        vec2d &out, float s )
+{
+	float s2 = s * s;
+	float s3 = s2 * s;
+	out = (p1*(2*s2-s3-s) + p2*(3*s3-5*s2+2) + p3*(4*s2-3*s3+s) + p4*(s3-s2)) * 0.5f;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +395,7 @@ void GC_PlayerAI::SmoothPath()
 
 	int init_size = _path.size();
 
-	D3DXVECTOR2 vn[4];
+	vec2d vn[4];
 	std::list<PathNode>::iterator it[4], tmp;
 
 	//
@@ -416,24 +426,19 @@ void GC_PlayerAI::SmoothPath()
 	for( int i = 0; i < 4; ++i )
 	{
 		it[i] = tmp++;
-		vn[i].x = it[i]->coord.x;
-		vn[i].y = it[i]->coord.y;
+		vn[i] = it[i]->coord;
 		_ASSERT(vn[i].x > 0 && vn[i].y > 0);
 	}
 
 	while( true )
 	{
-		D3DXVECTOR2 insert;
+		vec2d insert;
 		PathNode new_node;
 
 		for( int i = 1; i < 4; ++i )
 		{
-			D3DXVec2CatmullRom(&insert, &vn[0], &vn[1], &vn[2], &vn[3], (float) i / 4.0f);
+			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node.coord, (float) i / 4.0f);
 			_ASSERT(insert.x > 0 && insert.y > 0);
-
-			new_node.coord.x = insert.x;
-			new_node.coord.y = insert.y;
-
 			_path.insert(it[2], new_node);
 		}
 
@@ -446,8 +451,7 @@ void GC_PlayerAI::SmoothPath()
 		if( ++it[3] == _path.end() )
 			break;
 
-		vn[3].x = it[3]->coord.x;
-		vn[3].y = it[3]->coord.y;
+		vn[3] = it[3]->coord;
 	}
 }
 

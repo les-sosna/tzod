@@ -1,14 +1,18 @@
 // gui.cpp
 
 #include "stdafx.h"
+
 #include "gui.h"
+#include "gui_settings.h"
+
+#include "GuiManager.h"
+
 #include "Button.h"
 #include "List.h"
 #include "Text.h"
 #include "Edit.h"
 #include "Combo.h"
 
-#include "GuiManager.h"
 
 #include "functions.h"
 #include "level.h"
@@ -24,8 +28,6 @@
 #include "gc/ai.h"
 
 
-
-
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +40,8 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	(new Button(this, 0, GetHeight(), "Игра (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+	(new Button(this, 0, GetHeight(), "Игра (F2)"))
+		->eventClick.bind(&MainMenuDlg::OnNewGame, this);
 
 //	new Button(this, 0, GetHeight() + 30, "Загрузить");
 //	new Button(this, 0, GetHeight() + 60, "Сохранить");
@@ -51,9 +54,11 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 //	new Button(this, 200, GetHeight() + 30, "Import");
 //	new Button(this, 200, GetHeight() + 60, "Export");
 
-//	new Button(this, 300, GetHeight(), "Настройки");
+	(new Button(this, 300, GetHeight(), "Опции (F12)"))
+		->eventClick.bind(&MainMenuDlg::OnSettings, this);
 
-	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
+	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))
+		->eventClick.bind(&MainMenuDlg::OnExit, this);
 }
 
 void MainMenuDlg::OnNewGame()
@@ -65,6 +70,12 @@ void MainMenuDlg::OnNewGame()
 void MainMenuDlg::OnExit()
 {
 	DestroyWindow(g_env.hMainWnd);
+}
+
+void MainMenuDlg::OnSettings()
+{
+	SettingsDlg *dlg = new SettingsDlg(this);
+//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);	
 }
 
 void MainMenuDlg::OnParentSize(float width, float height)
@@ -87,6 +98,9 @@ void MainMenuDlg::OnRawChar(int c)
 	case VK_F2:
 		OnNewGame();
 		break;
+	case VK_F12:
+		OnSettings();
+		break;
 	default:
 		Dialog::OnRawChar(c);
 	}
@@ -94,12 +108,9 @@ void MainMenuDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent)
-  : Dialog(parent, 0, 0, 770, 550, true)
+NewGameDlg::NewGameDlg(Window *parent) : Dialog(parent, 0, 0, 770, 550, true)
 {
-	Move( (parent->GetWidth() - GetWidth()) / 2,
-		(parent->GetHeight() - GetHeight()) / 2 );
-
+	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
 	_newPlayer = false;
 
 

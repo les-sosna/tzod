@@ -9,6 +9,9 @@
 #include <d3dx9math.h>
 
 
+#pragma comment(lib, "d3dx9.lib")
+
+
 #define VERTEX_BUFFER_SIZE   1024
 #define  INDEX_BUFFER_SIZE   2048
 

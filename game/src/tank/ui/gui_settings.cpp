@@ -45,20 +45,28 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 	// other settings
 	//
 
-	float x = 256;
+	float x = 192;
 	float y = 8;
 
 	_showFps = new CheckBox(this, x, y, "Показать FPS");
 	_showFps->SetCheck(g_conf.ui_showfps->Get());
 	y += _showFps->GetHeight();
 
+	_showTime = new CheckBox(this, x, y, "Показать время");
+	_showTime->SetCheck(g_conf.ui_showtime->Get());
+	y += _showTime->GetHeight();
+
 	_particles = new CheckBox(this, x, y, "Частицы");
 	_particles->SetCheck(g_conf.g_particles->Get());
 	y += _particles->GetHeight();
 
+	_showDamage = new CheckBox(this, x, y, "Показывать повреждение");
+	_showDamage->SetCheck(g_conf.g_showdamage->Get());
+	y += _showDamage->GetHeight();
 
-	_volume = new ScrollBar(this, x + 192, 8, 128 );
-	_volume->SetLimit(100);
+
+//	_volume = new ScrollBar(this, x + 192, 8, 128 );
+//	_volume->SetLimit(100);
 
 
 	//
@@ -97,7 +105,9 @@ void SettingsDlg::OnSelectProfile(int index)
 void SettingsDlg::OnOK()
 {
 	g_conf.ui_showfps->Set(_showFps->GetCheck());
+	g_conf.ui_showtime->Set(_showTime->GetCheck());
 	g_conf.g_particles->Set(_particles->GetCheck());
+	g_conf.g_showdamage->Set(_showDamage->GetCheck());
 
 	Close(_resultOK);
 }

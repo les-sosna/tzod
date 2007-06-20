@@ -315,7 +315,6 @@ private:
 		return new T();
 	}
 
-
 	struct EdItem
 	{
 		CreateProc    Create;
