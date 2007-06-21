@@ -6,15 +6,11 @@
 // script functions
 
 
-typedef lua_State* script_h; // handle to the script engine
-#define LS(s) (reinterpret_cast<lua_State*>(s))
+lua_State* script_open(void);
+void       script_close(lua_State *L);
 
-
-script_h script_open(void);
-void     script_close(script_h s);
-
-bool script_exec(script_h s, const char *string);
-bool script_exec_file(script_h s, const char *filename);
+bool script_exec(lua_State *L, const char *string);
+bool script_exec_file(lua_State *L, const char *filename);
 
 // aux
 int luaT_ConvertVehicleClass(lua_State *L);

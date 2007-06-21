@@ -13,6 +13,7 @@ Edit::Edit(Window *parent, float x, float y, float width)
   : Window(parent)
 {
 	SetBorder(true);
+	ClipChildren(true);
 
 	_blankText = new Text(this, 1, 1, "", alignTextLT);
 	_cursor    = new Window(this, 0, 0, "ctrl_editcursor");
@@ -57,7 +58,13 @@ void Edit::SetSel(int begin, int end)
 	_selStart = begin;
 	_selEnd   = end;
 
-	_cursor->Move(_selEnd * (_blankText->GetWidth() - 1), 0);
+	float cpos = _selEnd * (_blankText->GetWidth() - 1) - 1;
+	if( cpos + _blankText->GetX() > GetWidth() - 10 || cpos + _blankText->GetX() < 10 )
+	{
+		_blankText->Move(__min(0, GetWidth() * 0.5f - cpos), _blankText->GetY());
+	}
+
+	_cursor->Move(cpos + _blankText->GetX(), 0);
 	_cursor->Resize(_cursor->GetWidth(), _blankText->GetHeight());
 }
 
@@ -73,7 +80,7 @@ void Edit::OnChar(int c)
 	default:
 		_string = _string.substr(0, _selStart) + (char) c
 			+ _string.substr(_selEnd, _string.length() - _selEnd);
-		SetSel(_selStart+1, _selStart+1);
+		SetSel(_selStart + 1, _selStart + 1);
 		_blankText->SetText(_string.c_str());
 	}
 }

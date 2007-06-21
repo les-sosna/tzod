@@ -147,7 +147,7 @@ bool MapFile::Open(const char *filename, bool write)
 
 
 					//
-					// check for type is supported
+					// check whether type is supported
 					//
 
 					bool supported_type = false;
@@ -172,9 +172,9 @@ bool MapFile::Open(const char *filename, bool write)
 						if( !ReadString(name) ) // read attribute name
 							throw false;
 
-						string_t value_str;
-						int         value_int;
-						float       value_float;
+						string_t  value_str;
+						int       value_int;
+						float     value_float;
 
 						switch(type)
 						{
@@ -231,9 +231,10 @@ bool MapFile::WriteString(const string_t &value)
 {
 	_ASSERT(is_open() && _modeWrite);
 	_ASSERT(value.length() <= 0xffff);
-    unsigned short len = (short) (value.length() & 0xffff);
+    unsigned short len = (unsigned short) (value.length() & 0xffff);
 	if( 1 != fwrite(&len, sizeof(unsigned short), 1, _file) )
 		return false;
+	if( 0 == len ) return true;
     return (len == fwrite(&(*value.begin()), sizeof(char), len, _file));
 }
 
@@ -397,7 +398,9 @@ void MapFile::setObjectAttribute(const char *name, const string_t &value)
 		p.name = name;
 		_managed_classes.back()._propertyset.push_back(p);
 	}
-	_buffer.write(value.data(), (std::streamsize) value.size());
+	unsigned short len = (unsigned short) (value.length() & 0xffff);
+	_buffer.write((const char*) &len, sizeof(unsigned short));
+	_buffer.write(value.data(), (std::streamsize) value.length());
 }
 
 void MapFile::setObjectDefault(const char *cls, const char *attr, int value)

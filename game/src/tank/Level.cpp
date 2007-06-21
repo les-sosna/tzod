@@ -310,7 +310,12 @@ BOOL Level::init_import_and_edit(const char *mapName)
 
 	g_render->SetAmbient( 1.0f );
 
-	return Import(mapName, true);
+	if( !Import(mapName) )
+		return FALSE;
+
+	Pause(true);
+
+	return true;
 }
 
 BOOL Level::init_newdm(const char *mapName)
@@ -327,7 +332,7 @@ BOOL Level::init_newdm(const char *mapName)
 
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
-	return Import(mapName, false);
+	return Import(mapName);
 }
 
 BOOL Level::init_load(const char *fileName)
@@ -546,7 +551,7 @@ bool Level::Serialize(const char *fileName)
 	return result;
 }
 
-bool Level::Import(const char *fileName, bool bForEditor)
+bool Level::Import(const char *fileName)
 {
 	_ASSERT(IsSafeMode());
 

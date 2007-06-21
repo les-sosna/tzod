@@ -452,7 +452,7 @@ static int luaT_addbot(lua_State *L)
 	else
 	{
 		// select name from the random_names table
-        lua_getglobal(L, "random_names");                    // push table
+		lua_getglobal(L, "random_names");                    // push table
 		lua_pushinteger(L, rand() % lua_objlen(L, -1) + 1);  // push key
 		lua_gettable(L, -2);                                 // pop key, push value
 		player->SetNick(lua_tostring(L, -1));                // get value
@@ -514,10 +514,75 @@ static int luaT_addbot(lua_State *L)
 	return 0;
 }
 
+// actor("type name", x, y, [params])
+int luaT_actor(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 3 != n )
+	{
+		return luaL_error(L, "3 arguments expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+	float x = (float) luaL_checknumber(L, 2);
+	float y = (float) luaL_checknumber(L, 3);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	{
+		if( 0 == strcmp(name, Level::GetTypeInfo(i).name) )
+		{
+			g_level->CreateObject(Level::GetType(i), x, y);
+			return 0;
+		}
+	}
+
+	return luaL_error(L, "unknown type '%s'", name);
+}
+
+// damage(hp, "victim")
+int luaT_damage(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+	{
+		return luaL_error(L, "2 arguments expected; got %d", n);
+	}
+
+	float hp = (float) luaL_checknumber(L, 1);
+	const char *name = luaL_checkstring(L, 2);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+
+	GC_RigidBodyStatic *rbs = dynamic_cast<GC_RigidBodyStatic *>(obj);
+	if( NULL == rbs )
+	{
+		return luaL_error(L, "object '%s' couldn't be damaged");
+	}
+
+	rbs->TakeDamage(hp, rbs->GetPos(), NULL);
+
+	return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // api
 
-script_h script_open(void)
+lua_State* script_open(void)
 {
 	lua_State *L = lua_open();
 
@@ -535,6 +600,9 @@ script_h script_open(void)
 	lua_register(L, "export",   luaT_export);
 
 	lua_register(L, "addbot",   luaT_addbot);
+	lua_register(L, "actor",    luaT_actor);
+
+	lua_register(L, "damage",   luaT_damage);
 
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
@@ -554,7 +622,7 @@ script_h script_open(void)
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
 		const char *cls = Level::GetTypeName(Level::GetType(i));
-        lua_newtable(L);
+		lua_newtable(L);
 		lua_setfield(L, -2, cls);
 	}
 
@@ -568,55 +636,54 @@ script_h script_open(void)
 	lua_newtable(L);
 	lua_setglobal(L, "classes"); // set global and pop one element from stack
 
-	//////////////////////////////////////
 	return L;
 }
 
-void script_close(script_h s)
+void script_close(lua_State *L)
 {
-	_ASSERT(s);
-    lua_close(LS(s));
+	_ASSERT(L);
+	lua_close(L);
 }
 
-bool script_exec(script_h s, const char *string)
+bool script_exec(lua_State *L, const char *string)
 {
-	_ASSERT(s);
+	_ASSERT(L);
 
-	if( luaL_loadstring(LS(s), string) )
+	if( luaL_loadstring(L, string) )
 	{
-		g_console->printf("syntax error %s\n", lua_tostring(LS(s), -1));
-		lua_pop(LS(s), 1); // pop the error message from the stack
+		g_console->printf("syntax error %s\n", lua_tostring(L, -1));
+		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
-	if( lua_pcall(LS(s), 0, 0, 0) )
+	if( lua_pcall(L, 0, 0, 0) )
 	{
-		g_console->printf("%s\n", lua_tostring(LS(s), -1));
-		lua_pop(LS(s), 1); // pop the error message from the stack
+		g_console->printf("%s\n", lua_tostring(L, -1));
+		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
-    return true;
+	return true;
 }
 
-bool script_exec_file(script_h s, const char *filename)
+bool script_exec_file(lua_State *L, const char *filename)
 {
-	_ASSERT(s);
+	_ASSERT(L);
 
-	if( luaL_loadfile(LS(s), filename) )
+	if( luaL_loadfile(L, filename) )
 	{
-		TRACE("%s\n", lua_tostring(LS(s), -1));
+		TRACE("%s\n", lua_tostring(L, -1));
 		return false;
 	}
 
-	if( lua_pcall(LS(s), 0, 0, 0) )
+	if( lua_pcall(L, 0, 0, 0) )
 	{
-		TRACE("runtime error: %s\n", lua_tostring(LS(s), -1));
-		lua_pop(LS(s), 1); // pop the error message from the stack
+		TRACE("runtime error: %s\n", lua_tostring(L, -1));
+		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
-    return true;
+	return true;
 }
 
 

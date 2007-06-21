@@ -261,7 +261,7 @@ public:
 	bool Serialize(const char *fileName);
 
 	bool Export(const char *fileName);
-	bool Import(const char *fileName, bool bForEditor);
+	bool Import(const char *fileName);
 
 	void Pause(bool pause);
 

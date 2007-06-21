@@ -68,8 +68,8 @@ void GC_SpawnPoint::mapExchange(MapFile &f)
 
 	float dir = GetRotation();
 
-	MAP_EXCHANGE_FLOAT(dir,  dir,    0);
-	MAP_EXCHANGE_INT( team,  _team, 0);
+	MAP_EXCHANGE_FLOAT(dir, dir, 0);
+	MAP_EXCHANGE_INT(team, _team, 0);
 
 	SetRotation(dir);
 

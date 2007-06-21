@@ -596,13 +596,12 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_classes = new ComboBox(this, x, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
-	lua_State *L = g_env.hScript;
-	lua_getglobal(L, "classes");
-	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+	lua_getglobal(g_env.L, "classes");
+	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
 		// now 'key' is at index -2 and 'value' at index -1
-		val.first = lua_tostring(L, -2);
-		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
+		val.first = lua_tostring(g_env.L, -2);
+		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
 		_classNames.push_back(val);
 
 		int index = _classes->GetList()->AddItem(val.first.c_str());
@@ -757,13 +756,12 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_classes= new ComboBox(this, x, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
-	lua_State *L = g_env.hScript;
-	lua_getglobal(L, "classes");
-	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+	lua_getglobal(g_env.L, "classes");
+	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
 		// now 'key' is at index -2 and 'value' at index -1
-		val.first = lua_tostring(L, -2);
-		val.second = lua_tostring(L, -2); //lua_tostring(L, -1);
+		val.first = lua_tostring(g_env.L, -2);
+		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
 		_classNames.push_back(val);
 
 		int index = _classes->GetList()->AddItem(val.first.c_str());

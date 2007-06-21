@@ -144,7 +144,7 @@ void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
 
 	VehicleClass vc;
 
-	lua_State *L = LS(g_env.hScript);
+	lua_State *L = g_env.L;
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 	lua_getglobal(L, "getvclass");
 	lua_pushstring(L, GetPlayer()->GetClass().c_str());  // cls arg

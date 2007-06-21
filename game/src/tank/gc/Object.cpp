@@ -518,13 +518,13 @@ void GC_Object::mapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
-		MAP_EXCHANGE_STRING("name", tmp_name, "");
+		MAP_EXCHANGE_STRING(name, tmp_name, "");
 		SetName(tmp_name.c_str());
 	}
 	else if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
 		tmp_name = GetName();
-		MAP_EXCHANGE_STRING("name", tmp_name, "");
+		MAP_EXCHANGE_STRING(name, tmp_name, "");
 	}
 }
 

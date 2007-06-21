@@ -88,7 +88,7 @@ void Console::OnRawChar(int c)
 			_cmdIndex = g_conf.con_history->GetSize();
 
 			g_console->printf("> %s\n", cmd.c_str());   // echo to console
-			script_exec(g_env.hScript, cmd.c_str());    // send to scripting system
+			script_exec(g_env.L, cmd.c_str());          // send to scripting system
 			_input->SetText("");                        // erase input field
 		}
 		break;
@@ -121,6 +121,20 @@ void Console::OnRawChar(int c)
 		}
 		break;
 	}
+}
+
+bool Console::OnMouseWheel(float x, float y, float z)
+{
+	if( z > 0 )
+	{
+		_scrollBack = __min(_scrollBack + int(z * 3), g_console->GetLineCount() - 1);
+	}
+	else
+	{
+		size_t dz = __min((signed) _scrollBack, int(-z * 3));
+		_scrollBack -= dz;
+	}
+	return true;
 }
 
 void Console::DrawChildren(float sx, float sy)

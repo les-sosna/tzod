@@ -73,6 +73,14 @@ static void TimeStep(float dt)
 {
 	if( g_level ) g_level->TimeStep(dt);
 	if( g_gui ) g_gui->TimeStep(dt);
+
+	lua_getglobal(g_env.L, "execqueue");
+	lua_pushnumber(g_env.L, dt);
+	if( lua_pcall(g_env.L, 1, 0, 0) )
+	{
+		TRACE("%s", lua_tostring(g_env.L, -1));
+		lua_pop(g_env.L, 1); // pop the error message
+	}
 }
 
 static void RenderFrame(bool thumbnail)
@@ -240,12 +248,12 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	//
 
 	TRACE("scripting subsystem initialization\n");
-	if( NULL == (g_env.hScript = script_open()) )
+	if( NULL == (g_env.L = script_open()) )
 	{
 		TRACE("FAILED\n");
 		return -1;
 	}
-	InitConfigLuaBinding(LS(g_env.hScript), g_config, "conf");
+	InitConfigLuaBinding(g_env.L, g_config, "conf");
 
 
 	// create global timer
@@ -279,7 +287,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 
 		TRACE("Execing startup script '%s'\n", FILE_STARTUP);
-		if( !script_exec_file(g_env.hScript, FILE_STARTUP) )
+		if( !script_exec_file(g_env.L, FILE_STARTUP) )
 		{
 			TRACE("ERROR: in startup script\n");
 			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
@@ -330,13 +338,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				TimeStep(timer->GetDt());
 				RenderFrame(false);
 				EndFrame();
-
-				lua_getglobal(LS(g_env.hScript), "runqueue");
-				if( lua_pcall(LS(g_env.hScript), 0, 0, 0) )
-				{
-					TRACE("%s", lua_tostring(LS(g_env.hScript), -1));
-					lua_pop(LS(g_env.hScript), 1); // pop the error message
-				}
 			}
 		}
 
@@ -384,8 +385,8 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 	// script engine cleanup
 	TRACE("Shutting down the scripting subsystem\n");
-	script_close(g_env.hScript);
-	g_env.hScript = NULL;
+	script_close(g_env.L);
+	g_env.L = NULL;
 
 	// key mapper
 	SAFE_DELETE(g_keys);

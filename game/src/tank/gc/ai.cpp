@@ -432,13 +432,12 @@ void GC_PlayerAI::SmoothPath()
 
 	while( true )
 	{
-		vec2d insert;
 		PathNode new_node;
 
 		for( int i = 1; i < 4; ++i )
 		{
 			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node.coord, (float) i / 4.0f);
-			_ASSERT(insert.x > 0 && insert.y > 0);
+			_ASSERT(new_node.coord.x > 0 && new_node.coord.y > 0);
 			_path.insert(it[2], new_node);
 		}
 

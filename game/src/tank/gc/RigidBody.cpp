@@ -62,7 +62,7 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 		{
 			if( !_scriptOnDestroy.empty() )
 			{
-				script_exec(g_env.hScript, _scriptOnDestroy.c_str());
+				script_exec(g_env.L, _scriptOnDestroy.c_str());
 			}
 			OnDestroy();
 			Kill();
@@ -230,7 +230,7 @@ void GC_Wall::mapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::mapExchange(f);
 	int corner = getCornerView();
-	MAP_EXCHANGE_INT("corner", corner, 0);
+	MAP_EXCHANGE_INT(corner, corner, 0);
 
 	if( f.loading() )
 		setCornerView(corner);
