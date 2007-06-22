@@ -64,7 +64,7 @@ SafePtr<PropertySet> GC_UserObject::GetProperties()
 
 GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propTexture( ObjectProperty::TYPE_MULTISTRING, "Texture" )
+, _propTexture( ObjectProperty::TYPE_MULTISTRING, "texture" )
 {
 	std::vector<string_t> names;
 	g_texman->GetTextureNames(names, NULL, false);

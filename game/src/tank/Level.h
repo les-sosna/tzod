@@ -356,21 +356,18 @@ public:
 	{
 		return get_i2t().size();
 	}
-	static const EdItem& GetTypeInfo(int typeIndex)
+	static const EdItem& GetTypeInfoByIndex(int typeIndex)
 	{
 		return get_t2i()[get_i2t()[typeIndex]];
 	}
-	static int GetLayerByTypeIndex(int typeIndex)
-	{
-		return get_t2i()[get_i2t()[typeIndex]].layer;
-	}
-	static ObjectType GetType(int typeIndex)
+	static ObjectType GetTypeByIndex(int typeIndex)
 	{
 		return get_i2t()[typeIndex];
 	}
-	static const char* GetTypeDesc(int typeIndex)
+	static ObjectType GetTypeByName(const char *name)
 	{
-		return get_t2i()[get_i2t()[typeIndex]].desc;
+		name2type::const_iterator it = get_n2t().find(name);
+		return get_n2t().end() != it ? it->second : INVALID_OBJECT_TYPE;
 	}
 	static const char* GetTypeName(ObjectType type)
 	{

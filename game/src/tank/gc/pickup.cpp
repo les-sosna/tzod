@@ -216,7 +216,7 @@ SafePtr<PropertySet> GC_PickUp::GetProperties()
 
 GC_PickUp::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "Respawn Time")
+, _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "respawn_time")
 {
 	_propTimeRespawn.SetRange(0, 1000000);
 	//-----------------------------------------

@@ -31,6 +31,7 @@ struct TextureData
 };
 
 typedef size_t ObjectType;
+#define INVALID_OBJECT_TYPE (-1)
 
 enum enumAlignText {
 	alignTextLT = 0, alignTextCT = 1, alignTextRT = 2,

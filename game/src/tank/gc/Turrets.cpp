@@ -264,8 +264,8 @@ SafePtr<PropertySet> GC_Turret::GetProperties()
 
 GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-, _propTeam(      ObjectProperty::TYPE_MULTISTRING, "Team" )
-, _propSight(     ObjectProperty::TYPE_INTEGER,     "Sight Radius")
+, _propTeam(  ObjectProperty::TYPE_MULTISTRING, "team"  )
+, _propSight( ObjectProperty::TYPE_INTEGER,     "sight" )
 {
 	_propTeam.AddItem("[нет]");
 	for( int i = 1; i < MAX_TEAMS; ++i )

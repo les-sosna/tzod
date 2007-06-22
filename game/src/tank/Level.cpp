@@ -696,13 +696,10 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 				{
 					for( int i = 0; i < GetTypeCount(); ++i )
 					{
-						if( !g_conf.ed_uselayers->Get() || GetLayerByTypeIndex(
-							g_conf.ed_object->GetInt() ) == GetLayerByTypeIndex(i) )
-						if( object->GetType() == GetType(i) )
+						if( object->GetType() == GetTypeByIndex(i)
+							&& ( !g_conf.ed_uselayers->Get() || GetTypeInfoByIndex(
+							g_conf.ed_object->GetInt()).layer == GetTypeInfoByIndex(i).layer ) )
 						{
-					//		if( dynamic_cast<GC_Weapon *>(object) )
-					//			if( ((GC_Weapon *)object)->_attached )
-					//				continue;
 							return object;
 						}
 					}

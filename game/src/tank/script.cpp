@@ -532,16 +532,14 @@ int luaT_actor(lua_State *L)
 		return luaL_error(L, "no game started");
 	}
 
-	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	ObjectType type = Level::GetTypeByName(name);
+	if( INVALID_OBJECT_TYPE == type )
 	{
-		if( 0 == strcmp(name, Level::GetTypeInfo(i).name) )
-		{
-			g_level->CreateObject(Level::GetType(i), x, y);
-			return 0;
-		}
+		return luaL_error(L, "unknown type '%s'", name);
 	}
 
-	return luaL_error(L, "unknown type '%s'", name);
+	g_level->CreateObject(type, x, y);
+	return 0;
 }
 
 // damage(hp, "victim")
@@ -579,6 +577,174 @@ int luaT_damage(lua_State *L)
 	return 0;
 }
 
+// kill("object name")
+int luaT_kill(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+
+	obj->Kill();
+
+	return 0;
+}
+
+// pget("object name", "property name")
+int luaT_pget(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+	{
+		return luaL_error(L, "2 arguments expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+	const char *prop = luaL_checkstring(L, 2);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+
+	SafePtr<PropertySet> properties = obj->GetProperties();
+	_ASSERT(properties);
+
+	for( int i = 0; i < properties->GetCount(); ++i )
+	{
+		ObjectProperty *p = properties->GetProperty(i);
+		if( p->GetName() == prop )
+		{
+			switch( p->GetType() )
+			{
+			case ObjectProperty::TYPE_INTEGER:
+				lua_pushinteger(L, p->GetValueInt());
+				break;
+			case ObjectProperty::TYPE_STRING:
+				lua_pushstring(L, p->GetValue().c_str());
+				break;
+			case ObjectProperty::TYPE_MULTISTRING:
+				lua_pushstring(L, p->GetSetValue(p->GetCurrentIndex()).c_str());
+				break;
+			default:
+				_ASSERT(FALSE);
+			}
+			return 1;
+		}
+	}
+
+	return luaL_error(L, "object '%s' has no property '%s'", name, prop);
+}
+
+
+// pset("object name", "property name", value)
+int luaT_pset(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 3 != n )
+	{
+		return luaL_error(L, "3 arguments expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+	const char *prop = luaL_checkstring(L, 2);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+
+	SafePtr<PropertySet> properties = obj->GetProperties();
+	_ASSERT(properties);
+
+	ObjectProperty *p = NULL;
+
+	for( int i = 0; i < properties->GetCount(); ++i )
+	{
+		p = properties->GetProperty(i);
+		if( p->GetName() == prop )
+		{
+			break;
+		}
+	}
+
+	if( NULL == p )
+	{
+		return luaL_error(L, "object '%s' has no property '%s'", name, prop);
+	}
+	
+	switch( p->GetType() )
+	{
+	case ObjectProperty::TYPE_INTEGER:
+	{
+		int v = luaL_checkint(L, 3);
+		if( v < p->GetMin() || v > p->GetMax() )
+		{
+			return luaL_error(L, "value %d is out of range [%d, %d]", p->GetMin(), p->GetMax(), v);
+		}
+		p->SetValueInt(v);
+		break;
+	}
+	case ObjectProperty::TYPE_STRING:
+		p->SetValue(luaL_checkstring(L, 3));
+		break;
+	case ObjectProperty::TYPE_MULTISTRING:
+	{
+		const char *v = luaL_checkstring(L, 3);
+		bool ok = false;
+		for( size_t i = 0; i < p->GetSetSize(); ++i )
+		{
+			if( p->GetSetValue(i) == v )
+			{
+				p->SetCurrentIndex(i);
+				ok = true;
+				break;
+			}
+		}
+		if( !ok )
+		{
+			return luaL_error(L, "attempt to set invalid value '%s'", v);
+		}
+		break;
+	}
+	default:
+		_ASSERT(FALSE);
+	}
+
+	properties->Exchange(true);
+	return 0;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // api
 
@@ -603,6 +769,10 @@ lua_State* script_open(void)
 	lua_register(L, "actor",    luaT_actor);
 
 	lua_register(L, "damage",   luaT_damage);
+	lua_register(L, "kill",     luaT_kill);
+	lua_register(L, "pget",     luaT_pget);
+	lua_register(L, "pset",     luaT_pset);
+
 
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
@@ -621,9 +791,8 @@ lua_State* script_open(void)
 
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
-		const char *cls = Level::GetTypeName(Level::GetType(i));
 		lua_newtable(L);
-		lua_setfield(L, -2, cls);
+		lua_setfield(L, -2, Level::GetTypeInfoByIndex(i).name);
 	}
 
 	lua_pop(L, 1); // remove 'gc' table from the stack

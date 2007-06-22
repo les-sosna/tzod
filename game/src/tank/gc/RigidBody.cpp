@@ -148,9 +148,9 @@ SafePtr<PropertySet> GC_RigidBodyStatic::GetProperties()
 
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propOnDestroyScript( ObjectProperty::TYPE_STRING,   "OnDestroy()"  )
-, _propHealth(          ObjectProperty::TYPE_INTEGER,  "Health"       )
-, _propMaxHealth(       ObjectProperty::TYPE_INTEGER,  "Max Health"   )
+, _propOnDestroyScript( ObjectProperty::TYPE_STRING,   "on_destroy"  )
+, _propHealth(          ObjectProperty::TYPE_INTEGER,  "health"      )
+, _propMaxHealth(       ObjectProperty::TYPE_INTEGER,  "max_health"  )
 {
 	_propMaxHealth.SetRange(0, 10000);
 	_propHealth.SetRange(0, 10000);

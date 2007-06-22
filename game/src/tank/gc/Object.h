@@ -79,7 +79,7 @@ private:
 public:
 	ObjectProperty(PropertyType type, const string_t &name);
 
-	string_t  GetName(void) const;
+	const string_t& GetName(void) const;
 	PropertyType GetType(void) const;
 
 

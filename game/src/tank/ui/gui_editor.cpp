@@ -177,7 +177,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	List *ls = _typeList->GetList();
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
-		ls->AddItem(Level::GetTypeDesc(i), Level::GetType(i));
+		ls->AddItem(Level::GetTypeInfoByIndex(i).desc, Level::GetTypeByIndex(i));
 	}
 	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
 	ls->SetTabPos(1, 128);
@@ -250,8 +250,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 
 	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
-		float align = Level::GetTypeInfo(g_conf.ed_object->GetInt()).align;
-		float offset = Level::GetTypeInfo(g_conf.ed_object->GetInt()).offset;
+		float align = Level::GetTypeInfoByIndex(g_conf.ed_object->GetInt()).align;
+		float offset = Level::GetTypeInfoByIndex(g_conf.ed_object->GetInt()).offset;
 
 		vec2d pt;
 
@@ -288,7 +288,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			if( 1 == button )
 			{
 				Select(  g_level->CreateObject(
-					Level::GetType(g_conf.ed_object->GetInt()), pt.x, pt.y), true  );
+					Level::GetTypeByIndex(g_conf.ed_object->GetInt()), pt.x, pt.y), true  );
 			}
 		}
 	}

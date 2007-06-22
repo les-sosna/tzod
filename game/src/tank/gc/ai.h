@@ -131,12 +131,14 @@ protected:
 	bool FindTarget(/*out*/ AIITEMINFO &info);   // return true если цель найдена
 	bool FindItem(/*out*/ AIITEMINFO &info);     // return true если что-то найдено
 
+	void SelectFavoriteWeapon();
+
 	// смещение прицела для понижения меткости стрельбы
 	float _desired_offset;
 	float _current_offset;
 
 	// любимое оружие
-	ObjectType _otFavoriteWeapon;
+	ObjectType _favoriteWeaponType;
 
 	// точность
 	int _level;

@@ -55,6 +55,8 @@ GC_PlayerAI::GC_PlayerAI()
 
 	_level = 2;
 
+	_favoriteWeaponType = INVALID_OBJECT_TYPE;
+
 	SetL2(L2_PATH_SELECT);
 	SetL1(L1_NONE);
 }
@@ -85,7 +87,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	f.Serialize(_aiState_l2);
 	f.Serialize(_current_offset);
 	f.Serialize(_desired_offset);
-	f.Serialize(_otFavoriteWeapon);
+	f.Serialize(_favoriteWeaponType);
 	f.Serialize(_pickupCurrent);
 	f.Serialize(_target);
 	f.Serialize(_weapSettings);
@@ -636,10 +638,10 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 			if( l >= 0 )
 			{
 				AIPRIORITY p = items[i]->CheckUseful(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
-				if( items[i]->GetType() == _otFavoriteWeapon )
+				if( items[i]->GetType() == _favoriteWeaponType )
 				{
 					if( GetVehicle()->GetWeapon()
-						&& _otFavoriteWeapon != GetVehicle()->GetWeapon()->GetType()
+						&& _favoriteWeaponType != GetVehicle()->GetWeapon()->GetType()
 						&& !GetVehicle()->GetWeapon()->GetAdvanced() )
 					{
 						p += AIP_WEAPON_FAVORITE;
@@ -658,6 +660,13 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
+}
+
+void GC_PlayerAI::SelectFavoriteWeapon()
+{
+	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	{
+	}
 }
 
 // вычисление координат мнимой цели для стрельбы на опережение
@@ -873,10 +882,17 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	}
 
 	// проверка убитости основной цели
-	if( NULL != _target && _target->IsKilled() )
+	if( _target && _target->IsKilled() )
 	{
-		FreeTarget();	// освобождаем убитую цель
+		FreeTarget(); // free killed target
 		ClearPath();
+	}
+
+	if( !GetVehicle()->GetWeapon() )
+	{
+		// no targets if no weapon
+		FreeTarget();
+		_attackList.clear();
 	}
 
 
@@ -896,10 +912,14 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 
 		float len = (_target->GetPos() - GetVehicle()->GetPos()).Length();
 		if( len < _weapSettings.fAttackRadius_min )
+		{
 			RotateTo(pVehState, _target->GetPos(), false, true);
+		}
 		else
+		{
 			RotateTo(pVehState, _path.empty() ? _target->GetPos() : _path.front().coord,
 				len > _weapSettings.fAttackRadius_max, false);
+		}
 
 		TowerTo(pVehState, fake, len > _weapSettings.fAttackRadius_crit);
 	}
@@ -940,7 +960,6 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 		SetL1(L1_STICK);
 		_pickupCurrent = NULL;
 	}
-
 }
 
 bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)

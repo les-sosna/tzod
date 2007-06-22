@@ -26,7 +26,7 @@ ObjectProperty::PropertyType ObjectProperty::GetType(void) const
 	return _type;
 }
 
-string_t ObjectProperty::GetName(void) const
+const string_t& ObjectProperty::GetName(void) const
 {
 	return _name;
 }
@@ -110,7 +110,7 @@ size_t ObjectProperty::GetSetSize(void) const
 
 PropertySet::PropertySet(GC_Object *object)
   : _object(object),
-  _propName(ObjectProperty::TYPE_STRING, "Name")
+  _propName(ObjectProperty::TYPE_STRING, "name")
 {
 	Exchange(false);
 }
