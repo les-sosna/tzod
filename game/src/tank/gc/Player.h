@@ -44,6 +44,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool applyToObject);
 	};
+	virtual SafePtr<PropertySet> GetProperties();
 
 protected:
 	virtual void OnRespawn();
@@ -54,16 +55,18 @@ public:
 	bool IsDead() const { return _vehicle == NULL; }
 	GC_Vehicle* GetVehicle() const { return GetRawPtr(_vehicle); }
 	int GetTeam() const { return _team; }
-	int GetScore() const { return _score; }
 	const string_t& GetNick() const { return _nick; }
 	const string_t& GetClass() const { return _class; }
 
 	void SetSkin(const string_t &skin);
+	const string_t& GetSkin() const { return _skin; }
+
 	void SetNick(const string_t &nick);
 	void SetClass(const string_t &c);
 	void SetTeam(int team);
 
-	void ChangeScore(int delta);
+	void SetScore(int score);
+	int  GetScore() const { return _score; }
 
 public:
 	GC_Player();

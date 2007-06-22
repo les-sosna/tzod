@@ -73,14 +73,6 @@ static void TimeStep(float dt)
 {
 	if( g_level ) g_level->TimeStep(dt);
 	if( g_gui ) g_gui->TimeStep(dt);
-
-	lua_getglobal(g_env.L, "execqueue");
-	lua_pushnumber(g_env.L, dt);
-	if( lua_pcall(g_env.L, 1, 0, 0) )
-	{
-		TRACE("%s", lua_tostring(g_env.L, -1));
-		lua_pop(g_env.L, 1); // pop the error message
-	}
 }
 
 static void RenderFrame(bool thumbnail)

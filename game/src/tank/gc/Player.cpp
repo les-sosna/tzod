@@ -15,6 +15,8 @@
 
 #include "config/Config.h"
 
+#include "video/TextureManager.h"
+
 #include "core/Console.h"
 #include "core/debug.h"
 
@@ -39,9 +41,32 @@ GC_Player::GC_Player()
 
 	_team  = 0;
 	_score = 0;
-	_nick  = "player";
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+
+
+	// select nick from the random_names table
+	lua_getglobal(g_env.L, "random_names");          // push table
+	lua_pushinteger(g_env.L, g_level->net_rand() % lua_objlen(g_env.L, -1) + 1);  // push key
+	lua_gettable(g_env.L, -2);                       // pop key, push value
+	SetNick(lua_tostring(g_env.L, -1));              // get value
+	lua_pop(g_env.L, 2);                             // pop value and table
+
+
+	// select random class
+	int count = 0;
+	lua_getglobal(g_env.L, "classes");
+	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
+	{
+		if( 0 == g_level->net_rand() % ++count )
+		{
+			SetClass(lua_tostring(g_env.L, -2));  // get vehicle class
+		}
+	}
+	lua_pop(g_env.L, 1); // remove classes table
+
+	// select the default red skin
+	SetSkin("red");
 }
 
 GC_Player::GC_Player(FromFile)
@@ -128,9 +153,9 @@ void GC_Player::ResetClass()
 	_vehicle->SetClass(vc);
 }
 
-void GC_Player::ChangeScore(int delta)
+void GC_Player::SetScore(int score)
 {
-	_score += delta;
+	_score = score;
 	if( g_conf.sv_fraglimit->GetInt() )
 	{
 		if( _score >= g_conf.sv_fraglimit->GetInt() )
@@ -246,16 +271,122 @@ void GC_Player::OnVehicleKill(GC_Object *sender, void *param)
 	_vehicle = NULL;
 }
 
+SafePtr<PropertySet> GC_Player::GetProperties()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"  )
+, _propScore( ObjectProperty::TYPE_INTEGER,     "score" )
+, _propNick(  ObjectProperty::TYPE_STRING,      "nick"  )
+, _propClass( ObjectProperty::TYPE_MULTISTRING, "class" )
+, _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"  )
+{
+	_propTeam.SetRange(0, MAX_TEAMS);
+
+
+	lua_getglobal(g_env.L, "classes");
+	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
+	{
+		// now 'key' is at index -2 and 'value' at index -1
+		_propClass.AddItem(lua_tostring(g_env.L, -2));
+	}
+	lua_pop(g_env.L, 1); // pop classes table
+
+
+	std::vector<string_t> skin_names;
+	g_texman->GetTextureNames(skin_names, "skin/", true);
+	for( size_t i = 0; i < skin_names.size(); ++i )
+	{
+		_propSkin.AddItem( skin_names[i]);
+	}
+
+
+	//-----------------------------------------
+	Exchange(false);
+}
+
+int GC_Player::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 5;
+}
+
+ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+		case 0: return &_propTeam;
+		case 1: return &_propScore;
+		case 2: return &_propNick;
+		case 3: return &_propClass;
+		case 4: return &_propSkin;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_Player::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_Player *tmp = static_cast<GC_Player *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->SetTeam( _propTeam.GetValueInt() );
+		tmp->SetScore( _propScore.GetValueInt() );
+		tmp->SetNick( _propNick.GetValue() );
+		tmp->SetClass( _propClass.GetSetValue(_propClass.GetCurrentIndex()) );
+		tmp->SetSkin( _propSkin.GetSetValue(_propSkin.GetCurrentIndex()) );
+	}
+	else
+	{
+		_propTeam.SetValueInt(tmp->GetTeam());
+		_propScore.SetValueInt(tmp->GetScore());
+		_propNick.SetValue(tmp->GetNick());
+
+		for( size_t i = 0; i < _propClass.GetSetSize(); ++i )
+		{
+			if( tmp->GetClass() == _propClass.GetSetValue(i) )
+			{
+				_propClass.SetCurrentIndex(i);
+				break;
+			}
+		}
+
+		for( size_t i = 0; i < _propSkin.GetSetSize(); ++i )
+		{
+			if( tmp->GetSkin() == _propSkin.GetSetValue(i) )
+			{
+				_propSkin.SetCurrentIndex(i);
+				break;
+			}
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 {
+	ED_SERVICE("player_local", "Игрок");
 	return true;
 }
 
 GC_PlayerLocal::GC_PlayerLocal()
 {
 	new GC_Camera(this);
+	
+	// select first available profile
+	std::vector<string_t> tmp;
+	g_conf.dm_profiles->GetKeyList(tmp);
+	SetProfile(tmp.empty() ? "" : tmp[0].c_str());
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)

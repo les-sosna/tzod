@@ -941,6 +941,10 @@ void Level::TimeStep(float dt)
 
 	_ASSERT(!_modeEditor);
 
+
+	int    passedFixedLoopsCount = 0;
+	float  passedFixedDT;
+
 	_safeMode = false;
 
 	if( _client )
@@ -949,7 +953,8 @@ void Level::TimeStep(float dt)
 		// network mode
 		//
 
-		float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
+		const float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
+
 		_timeBuffer += dt;
 		if( _timeBuffer > 0 )
 		do
@@ -1034,8 +1039,10 @@ void Level::TimeStep(float dt)
 				pTS_Obj->TimeStepFixed(fixed_dt);
 				++it;
 			}
-
 			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+
+			passedFixedLoopsCount++;
+			passedFixedDT = fixed_dt;
 
 #ifdef NETWORK_DEBUG
 			_dwChecksum = dwCheckSum;
@@ -1045,12 +1052,13 @@ void Level::TimeStep(float dt)
 	else // if( _client )
 	{
 		int count = int(dt / MAX_DT_FIXED) + 1;
-		float fixed_dt = dt / (float) count;
+		const float fixed_dt = dt / (float) count;
 
 		do
 		{
 			_time += fixed_dt;
 			OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+			_safeMode = false;
 			while( it != ts_fixed.end() )
 			{
 				GC_Object* pTS_Obj = *it;
@@ -1059,10 +1067,15 @@ void Level::TimeStep(float dt)
 				++it;
 			}
 			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-		} while( --count );
+
+			passedFixedLoopsCount++;
+			passedFixedDT = fixed_dt;
+		}
+		while( --count );
 	}
 
 	OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
+	_safeMode = false;
 	while( it != ts_floating.end() )
 	{
 		GC_Object* pTS_Obj = *it;
@@ -1072,6 +1085,26 @@ void Level::TimeStep(float dt)
 	}
 
 	_safeMode = true;
+
+
+	while( passedFixedLoopsCount-- )
+	{
+		lua_getglobal(g_env.L, "execqueue");
+		lua_pushnumber(g_env.L, passedFixedDT);
+		if( lua_pcall(g_env.L, 1, 0, 0) )
+		{
+			TRACE("%s\n", lua_tostring(g_env.L, -1));
+			lua_pop(g_env.L, 1); // pop the error message
+
+			// in case of error we should manually clear the queue
+			lua_getglobal(g_env.L, "clearqueue");
+			if( lua_pcall(g_env.L, 0, 0, 0) )
+			{
+				TRACE("clearqueue failed: %s\n", lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message
+			}
+		}
+	}
 }
 
 void Level::Render() const

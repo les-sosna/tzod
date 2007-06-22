@@ -115,6 +115,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define ED_SERVICE(name, desc) Level::RegisterService<__ThisClass>((name), (desc))
+
 #define ED_ACTOR(name, desc, layer, width, height, align, offset)   \
 	Level::RegisterActor<__ThisClass>(                              \
 	(name), (desc), (layer), (width), (height), (align), (offset) )
@@ -359,6 +361,10 @@ public:
 	static const EdItem& GetTypeInfoByIndex(int typeIndex)
 	{
 		return get_t2i()[get_i2t()[typeIndex]];
+	}
+	static const EdItem& GetTypeInfo(ObjectType type)
+	{
+		return get_t2i()[type];
 	}
 	static ObjectType GetTypeByIndex(int typeIndex)
 	{

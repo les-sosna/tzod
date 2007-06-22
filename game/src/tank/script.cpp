@@ -449,15 +449,6 @@ static int luaT_addbot(lua_State *L)
 	{
 		player->SetNick(lua_tostring(L, -1));
 	}
-	else
-	{
-		// select name from the random_names table
-		lua_getglobal(L, "random_names");                    // push table
-		lua_pushinteger(L, rand() % lua_objlen(L, -1) + 1);  // push key
-		lua_gettable(L, -2);                                 // pop key, push value
-		player->SetNick(lua_tostring(L, -1));                // get value
-		lua_pop(L, 2);                                       // pop value and table
-	}
 	lua_pop(L, 1); // pop result of lua_getfield
 
 	//-------------
@@ -467,19 +458,6 @@ static int luaT_addbot(lua_State *L)
 	{
 		player->SetClass(lua_tostring(L, -1));  // get vehicle class
 	}
-	else
-	{
-		// select random class
-		int count = 0;
-		lua_getglobal(L, "classes");
-		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
-		{
-			if( 0 == rand() % ++count )
-			{
-				player->SetClass(lua_tostring(L, -2));  // get vehicle class
-			}
-		}
-	}
 	lua_pop(L, 1);                           // pop result of lua_getfield
 
 	//-------------
@@ -488,13 +466,6 @@ static int luaT_addbot(lua_State *L)
 	if( lua_isstring(L, -1) )
 	{
 		player->SetSkin(lua_tostring(L, -1));  // get skin name
-	}
-	else
-	{
-		// select random skin
-		std::vector<string_t> skins;
-		g_texman->GetTextureNames(skins, "skin/", true);
-		player->SetSkin(skins[rand() % skins.size()]);
 	}
 	lua_pop(L, 1);                      // pop result of lua_getfield
 
@@ -510,22 +481,101 @@ static int luaT_addbot(lua_State *L)
 	player->SetLevel(__min(4, __max(0, lua_tointeger(L, -1))));
 	lua_pop(L, 1); // pop result of lua_getfield
 
-
 	return 0;
 }
 
-// actor("type name", x, y, [params])
+// prop name at -2; prop value at -1
+// return false if property not found
+int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
+{
+	const char *prop_name = lua_tostring(L, -2);
+
+	ObjectProperty *p = NULL;
+
+	for( int i = 0; i < properties->GetCount(); ++i )
+	{
+		p = properties->GetProperty(i);
+		if( p->GetName() == prop_name )
+		{
+			break;
+		}
+		p = NULL;
+	}
+
+	if( NULL == p )
+	{
+		return 0;  // property not found
+	}
+
+
+	switch( p->GetType() )
+	{
+	case ObjectProperty::TYPE_INTEGER:
+	{
+		if( LUA_TNUMBER != lua_type(L, -1) )
+		{
+			luaL_error(L, "expected integer value; got %s", lua_typename(L, lua_type(L, -1)));
+		}
+		int v = lua_tointeger(L, -1);
+		if( v < p->GetMin() || v > p->GetMax() )
+		{
+			return luaL_error(L, "value %d is out of range [%d, %d]", p->GetMin(), p->GetMax(), v);
+		}
+		p->SetValueInt(v);
+		break;
+	}
+	case ObjectProperty::TYPE_STRING:
+	{
+		if( LUA_TSTRING != lua_type(L, -1) )
+		{
+			luaL_error(L, "expected string value; got %s", lua_typename(L, lua_type(L, -1)));
+		}
+		p->SetValue(lua_tostring(L, -1));
+		break;
+	}
+	case ObjectProperty::TYPE_MULTISTRING:
+	{
+		if( LUA_TSTRING != lua_type(L, -1) )
+		{
+			luaL_error(L, "expected string value; got %s", lua_typename(L, lua_type(L, -1)));
+		}
+		const char *v = lua_tostring(L, -1);
+		bool ok = false;
+		for( size_t i = 0; i < p->GetSetSize(); ++i )
+		{
+			if( p->GetSetValue(i) == v )
+			{
+				p->SetCurrentIndex(i);
+				ok = true;
+				break;
+			}
+		}
+		if( !ok )
+		{
+			return luaL_error(L, "attempt to set invalid value '%s'", v);
+		}
+		break;
+	}
+	default:
+		_ASSERT(FALSE);
+	}
+
+	return 1;
+}
+
+// actor("type name", x, y [, params])
 int luaT_actor(lua_State *L)
 {
 	int n = lua_gettop(L);
-	if( 3 != n )
+	if( 3 != n && 4 != n )
 	{
-		return luaL_error(L, "3 arguments expected; got %d", n);
+		return luaL_error(L, "3 or 4 arguments expected; got %d", n);
 	}
 
 	const char *name = luaL_checkstring(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
+
 
 	if( !g_level )
 	{
@@ -538,9 +588,82 @@ int luaT_actor(lua_State *L)
 		return luaL_error(L, "unknown type '%s'", name);
 	}
 
-	g_level->CreateObject(type, x, y);
+	if( Level::GetTypeInfo(type).service )
+	{
+		return luaL_error(L, "type '%s' is a service", name);
+	}
+
+	GC_Object *obj = g_level->CreateObject(type, x, y);
+
+
+	if( 4 == n )
+	{
+		luaL_checktype(L, 4, LUA_TTABLE);
+
+		SafePtr<PropertySet> properties = obj->GetProperties();
+		_ASSERT(properties);
+
+		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+		{
+			// now 'key' is at index -2 and 'value' at index -1
+			pset_helper(properties, L);
+		}
+
+		properties->Exchange(true);
+	}
+
 	return 0;
 }
+
+// actor("type name" [, params])
+int luaT_service(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n && 2 != n )
+	{
+		return luaL_error(L, "1 or 2 arguments expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	ObjectType type = Level::GetTypeByName(name);
+	if( INVALID_OBJECT_TYPE == type )
+	{
+		return luaL_error(L, "unknown type '%s'", name);
+	}
+
+	if( !Level::GetTypeInfo(type).service )
+	{
+		return luaL_error(L, "type '%s' is not a service", name);
+	}
+
+	GC_Object *obj = g_level->CreateObject(type, 0, 0);
+
+
+	if( 2 == n )
+	{
+		luaL_checktype(L, 2, LUA_TTABLE);
+
+		SafePtr<PropertySet> properties = obj->GetProperties();
+		_ASSERT(properties);
+
+		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+		{
+			// now 'key' is at index -2 and 'value' at index -1
+			pset_helper(properties, L);
+		}
+
+		properties->Exchange(true);
+	}
+
+	return 0;
+}
+
 
 // damage(hp, "victim")
 int luaT_damage(lua_State *L)
@@ -670,6 +793,7 @@ int luaT_pset(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
+	luaL_checkany(L, 3);  // prop value should be here
 
 	if( !g_level )
 	{
@@ -686,58 +810,10 @@ int luaT_pset(lua_State *L)
 	SafePtr<PropertySet> properties = obj->GetProperties();
 	_ASSERT(properties);
 
-	ObjectProperty *p = NULL;
-
-	for( int i = 0; i < properties->GetCount(); ++i )
-	{
-		p = properties->GetProperty(i);
-		if( p->GetName() == prop )
-		{
-			break;
-		}
-	}
-
-	if( NULL == p )
+	// prop name at -2; prop value at -1
+	if( !pset_helper(properties, L) )
 	{
 		return luaL_error(L, "object '%s' has no property '%s'", name, prop);
-	}
-	
-	switch( p->GetType() )
-	{
-	case ObjectProperty::TYPE_INTEGER:
-	{
-		int v = luaL_checkint(L, 3);
-		if( v < p->GetMin() || v > p->GetMax() )
-		{
-			return luaL_error(L, "value %d is out of range [%d, %d]", p->GetMin(), p->GetMax(), v);
-		}
-		p->SetValueInt(v);
-		break;
-	}
-	case ObjectProperty::TYPE_STRING:
-		p->SetValue(luaL_checkstring(L, 3));
-		break;
-	case ObjectProperty::TYPE_MULTISTRING:
-	{
-		const char *v = luaL_checkstring(L, 3);
-		bool ok = false;
-		for( size_t i = 0; i < p->GetSetSize(); ++i )
-		{
-			if( p->GetSetValue(i) == v )
-			{
-				p->SetCurrentIndex(i);
-				ok = true;
-				break;
-			}
-		}
-		if( !ok )
-		{
-			return luaL_error(L, "attempt to set invalid value '%s'", v);
-		}
-		break;
-	}
-	default:
-		_ASSERT(FALSE);
 	}
 
 	properties->Exchange(true);
@@ -767,6 +843,7 @@ lua_State* script_open(void)
 
 	lua_register(L, "addbot",   luaT_addbot);
 	lua_register(L, "actor",    luaT_actor);
+	lua_register(L, "service",  luaT_service);
 
 	lua_register(L, "damage",   luaT_damage);
 	lua_register(L, "kill",     luaT_kill);

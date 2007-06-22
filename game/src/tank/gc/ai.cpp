@@ -45,6 +45,7 @@ JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
 {
+	ED_SERVICE("ai", "AI");
 	return true;
 }
 

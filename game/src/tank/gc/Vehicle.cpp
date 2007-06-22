@@ -261,7 +261,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			if( veh->GetPlayer() == GetPlayer() )
 			{
 				// убил себя апстену =)
-				veh->GetPlayer()->ChangeScore(-1);
+				veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 				font = "font_digits_red";
 				wsprintf( msg, "%s совершил самоубийство", 
 					veh->GetPlayer()->GetNick().c_str() );
@@ -272,7 +272,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					((GC_Vehicle *) dd.from)->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
 				{
 					// убил товарища
-					veh->GetPlayer()->ChangeScore(-1);
+					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 					font = "font_digits_red";
 					wsprintf( msg, "нехороший %s замочил своего друга %s",
 						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(), 
@@ -281,7 +281,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 				else
 				{
 					// убил врага - молодец!
-					veh->GetPlayer()->ChangeScore(+1);
+					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 					font = "font_digits_green";
 					wsprintf( msg, "%s замочил своего врага %s",
 						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
@@ -299,7 +299,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		if( dynamic_cast<GC_Turret *>(dd.from) )
 		{
 			// убийца - стационарная установка
-			GetPlayer()->ChangeScore(-1);
+			GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 			wsprintf(score, "%d", GetPlayer()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
 			wsprintf(msg, "%s нарвался на неприятности", GetPlayer()->GetNick().c_str());
