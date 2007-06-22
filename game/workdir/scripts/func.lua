@@ -55,7 +55,10 @@ function initcmdqueue()
    end
   end
  end
- 
+
+ function clearqueue()
+  queue = {}
+ end
 end
 
 
