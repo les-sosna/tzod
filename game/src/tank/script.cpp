@@ -46,6 +46,24 @@ static int luaT_pause(lua_State *L)
 	return 0;
 }
 
+static int luaT_freeze(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	luaL_checktype(L, 1, LUA_TBOOLEAN);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	g_level->Freeze( 0 != lua_toboolean(L, 1) );
+
+	return 0;
+}
+
 // loadmap( string filename )
 static int luaT_loadmap(lua_State *L)
 {
@@ -820,6 +838,23 @@ int luaT_pset(lua_State *L)
 	return 0;
 }
 
+int luaT_loadtheme(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	const char *filename = luaL_checkstring(L, 1);
+
+	if( 0 == g_texman->LoadPackage(filename) )
+	{
+		g_console->puts("WARNING: there are no textures loaded\n");
+	}
+
+	return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // api
@@ -840,6 +875,7 @@ lua_State* script_open(void)
 	lua_register(L, "save",     luaT_save);
 	lua_register(L, "import",   luaT_import);
 	lua_register(L, "export",   luaT_export);
+	lua_register(L, "loadtheme",luaT_loadtheme);
 
 	lua_register(L, "addbot",   luaT_addbot);
 	lua_register(L, "actor",    luaT_actor);
@@ -856,6 +892,7 @@ lua_State* script_open(void)
 
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
+	lua_register(L, "freeze",   luaT_freeze);
 
 
 	//
@@ -881,6 +918,14 @@ lua_State* script_open(void)
 
 	lua_newtable(L);
 	lua_setglobal(L, "classes"); // set global and pop one element from stack
+
+
+	//
+	// create global 'user' table
+	//
+
+	lua_newtable(L);
+	lua_setglobal(L, "user"); // set global and pop one element from stack
 
 	return L;
 }

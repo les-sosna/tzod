@@ -51,6 +51,15 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
 
+void GC_RigidBodyStatic::OnDestroy()
+{
+	PulseNotify(NOTIFY_RIGIDBODY_DESTROY);
+	if( !_scriptOnDestroy.empty() )
+	{
+		script_exec(g_env.L, _scriptOnDestroy.c_str());
+	}
+}
+
 bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
 	_ASSERT(!IsKilled());
@@ -60,12 +69,10 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 		SetHealthCur(GetHealth() - damage);
 		if( GetHealth() <= 0 )
 		{
-			if( !_scriptOnDestroy.empty() )
-			{
-				script_exec(g_env.L, _scriptOnDestroy.c_str());
-			}
+			AddRef();
 			OnDestroy();
 			Kill();
+			Release();
 			return true;
 		}
 	}
@@ -148,9 +155,9 @@ SafePtr<PropertySet> GC_RigidBodyStatic::GetProperties()
 
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propOnDestroyScript( ObjectProperty::TYPE_STRING,   "on_destroy"  )
-, _propHealth(          ObjectProperty::TYPE_INTEGER,  "health"      )
-, _propMaxHealth(       ObjectProperty::TYPE_INTEGER,  "max_health"  )
+, _propOnDestroy( ObjectProperty::TYPE_STRING,   "on_destroy"  )
+, _propHealth(    ObjectProperty::TYPE_INTEGER,  "health"      )
+, _propMaxHealth( ObjectProperty::TYPE_INTEGER,  "max_health"  )
 {
 	_propMaxHealth.SetRange(0, 10000);
 	_propHealth.SetRange(0, 10000);
@@ -170,7 +177,7 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 
 	switch( index - BASE::GetCount() )
 	{
-	case 0: return &_propOnDestroyScript;
+	case 0: return &_propOnDestroy;
 	case 1: return &_propHealth;
 	case 2: return &_propMaxHealth;
 	}
@@ -187,14 +194,14 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_scriptOnDestroy = _propOnDestroyScript.GetValue();
+		tmp->_scriptOnDestroy = _propOnDestroy.GetValue();
 		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
 	}
 	else
 	{
 		_propHealth.SetValueInt(int(tmp->GetHealth() + 0.5f));
 		_propMaxHealth.SetValueInt(int(tmp->GetHealthMax() + 0.5f));
-		_propOnDestroyScript.SetValue(tmp->_scriptOnDestroy);
+		_propOnDestroy.SetValue(tmp->_scriptOnDestroy);
 	}
 }
 
@@ -239,7 +246,7 @@ void GC_Wall::mapExchange(MapFile &f)
 void GC_Wall::Serialize(SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(f);
-	/////////////////////////////////////
+
 	if( !IsKilled() && f.loading() )
 		AddContext(&g_level->grid_walls);
 }
@@ -261,6 +268,8 @@ void GC_Wall::OnDestroy()
 
 		new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 	}
+
+	__super::OnDestroy();
 }
 
 bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)

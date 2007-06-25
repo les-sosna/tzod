@@ -24,6 +24,7 @@ class GC_Player : public GC_Service
 	string_t  _nick;
 	string_t  _class;
 	string_t  _skin;
+	string_t  _scriptOnDie;
 
 	SafePtr<GC_Vehicle> _vehicle;
 
@@ -37,6 +38,7 @@ protected:
 		ObjectProperty _propNick;
 		ObjectProperty _propClass;
 		ObjectProperty _propSkin;
+		ObjectProperty _propOnDie;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -78,11 +80,11 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	void UpdateSkin();
-	void ResetClass();
 
 	virtual void TimeStepFixed(float dt);
 
 private:
+	void OnVehicleDestroy(GC_Object *sender, void *param);
 	void OnVehicleKill(GC_Object *sender, void *param);
 };
 

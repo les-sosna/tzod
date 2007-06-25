@@ -161,6 +161,7 @@ void GC_Turret::MoveTo(const vec2d &pos)
 void GC_Turret::OnDestroy()
 {
 	new GC_Boom_Big( GetPos(), NULL);
+	__super::OnDestroy();
 }
 
 bool GC_Turret::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)

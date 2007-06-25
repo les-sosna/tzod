@@ -29,7 +29,6 @@ public:
 		_members.remove(member);
 		if( _members.end() == _active )
 			_active = _members.begin();
-		//	++_active;  -- what is it?
 	}
 
     bool TakeJob(const T *member)

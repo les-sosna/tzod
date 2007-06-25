@@ -26,7 +26,7 @@ protected:
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
-		ObjectProperty _propOnDestroyScript;
+		ObjectProperty _propOnDestroy;
 		ObjectProperty _propHealth;
 		ObjectProperty _propMaxHealth;
 	public:
@@ -82,7 +82,7 @@ public:
 	float GetHealthMax() const { return _health_max; }
 
 	virtual float GetDefaultHealth() const = 0;
-	virtual void  OnDestroy() = 0;
+	virtual void  OnDestroy();
 
 	// return true if object has been killed
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
@@ -207,7 +207,6 @@ public:
 	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
 
 	virtual float GetDefaultHealth() const { return 0; }
-	virtual void  OnDestroy() {};
 
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 

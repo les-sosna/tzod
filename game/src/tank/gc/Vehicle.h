@@ -85,6 +85,8 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 	SafePtr<GC_Weapon>   _weapon;
 	SafePtr<GC_Player>   _player;
 
+	string_t  _class;
+
 public:
 	SafePtr<GC_Sound>    _moveSound;
 	SafePtr<GC_DamLabel> _damLabel;
@@ -101,7 +103,9 @@ protected:
 	void UpdateLight();
 
 public:
+	void SetClass(const string_t& c);
 	void SetClass(const VehicleClass &vc); // apply vehicle class
+	void ResetClass();
 
 	float _engine_power;
 	float _rotate_power;

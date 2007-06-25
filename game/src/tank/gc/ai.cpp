@@ -872,7 +872,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	while( !_path.empty() )
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
-			_pickupCurrent->getRadius() : 50.0f) : (float) CELL_SIZE / 2;
+			_pickupCurrent->getRadius() : 30.0f) : (float) CELL_SIZE / 2;
 		float current = (GetVehicle()->GetPos() - _path.front().coord).Length();
 		if( current > desired )
 		{
@@ -1046,8 +1046,7 @@ void GC_PlayerAI::FreeTarget()
 
 ////////////////////////////////////////////
 // debug graphics
-/*
-#ifdef _DRAW_GDI
+
 void GC_PlayerAI::debug_draw(HDC hdc)
 {
 	HPEN pen = CreatePen(PS_SOLID, 1, 0x00ffffff);
@@ -1075,10 +1074,10 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 		pen = CreatePen(PS_SOLID, 2, 0x00ff00ff);
 		oldpen = (HPEN) SelectObject(hdc, pen);
 
-		if( _player->_vehicle )
+		if( GetVehicle() )
 		{
 			MoveToEx(hdc, int(_target->GetPos().x), int(_target->GetPos().y), NULL);
-			LineTo(hdc, int(_player->_vehicle->GetPos().x), int(_player->_vehicle->GetPos().y));
+			LineTo(hdc, int(GetVehicle()->GetPos().x), int(GetVehicle()->GetPos().y));
 		}
 	}
 
@@ -1093,6 +1092,7 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 
 	SetBkMode(hdc, TRANSPARENT);
 
+	/*
 	CAttackList al(_AttackList);
 	int count = 1;
 	while (!al.IsEmpty())
@@ -1114,14 +1114,61 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 		DrawText(hdc, s, -1, &rect, DT_SINGLELINE|DT_CENTER|DT_VCENTER|DT_NOCLIP);
 		++count;
 	}
-
+*/
 	SelectObject(hdc, oldbrush);
 	SelectObject(hdc, oldpen);
 	DeleteObject(brush);
 	DeleteObject(pen);
 }
-#endif
-*/
+
+SafePtr<PropertySet> GC_PlayerAI::GetProperties()
+{
+	return new MyPropertySet(this);
+}
+
+GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propLevel(  ObjectProperty::TYPE_INTEGER, "level" )
+{
+	_propLevel.SetRange(0, 4);
+	Exchange(false);
+}
+
+int GC_PlayerAI::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propLevel;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_PlayerAI::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_PlayerAI *tmp = static_cast<GC_PlayerAI *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->SetLevel( _propLevel.GetValueInt() );
+	}
+	else
+	{
+		_propLevel.SetValueInt(tmp->_level);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

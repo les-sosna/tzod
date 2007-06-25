@@ -40,6 +40,19 @@ class GC_PlayerAI : public GC_Player
 
 	typedef std::list<SafePtr<GC_RigidBodyStatic> > AttackListType;
 
+protected:
+	class MyPropertySet : public GC_Player::MyPropertySet
+	{
+		typedef GC_Player::MyPropertySet BASE;
+		ObjectProperty _propLevel;
+
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual SafePtr<PropertySet> GetProperties();
 
 
 	/*
@@ -171,6 +184,7 @@ public:
 	virtual void OnRespawn();
 	virtual void OnDie();
 
+	void debug_draw(HDC hdc);
 
 	void SetLevel(int level) { _level = level; }
 

@@ -22,11 +22,11 @@ public:
 
 ///////////////////////////////////////////
 // flags
-#define GC_FLAG_2DSPRITE_VISIBLE               (GC_FLAG_OBJECT_ << 0)
-#define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_OBJECT_ << 1)
-#define GC_FLAG_2DSPRITE_DROPSHADOW            (GC_FLAG_OBJECT_ << 2)
-#define GC_FLAG_2DSPRITE_CENTERPIVOT           (GC_FLAG_OBJECT_ << 3)
-#define GC_FLAG_2DSPRITE_                      (GC_FLAG_OBJECT_ << 4)
+#define GC_FLAG_2DSPRITE_VISIBLE               (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_2DSPRITE_DROPSHADOW            (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_2DSPRITE_CENTERPIVOT           (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_2DSPRITE_                      (GC_FLAG_ACTOR_ << 4)
 
 class GC_2dSprite : public GC_Actor
 {

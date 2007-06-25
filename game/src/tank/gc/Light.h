@@ -8,7 +8,7 @@
 ///////////////////////////////////////////////////////////
 // flags
 
-#define GC_FLAG_LIGHT_ENABLED        (GC_FLAG_OBJECT_ << 0)
+#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,9 +90,6 @@ public:
 		return _radius;
 	}
 
-	void Enable(bool bEnable);
-
-
 	float GetRadius() const
 	{
 		if( LIGHT_DIRECT == _type )
@@ -113,6 +110,9 @@ public:
 	void  SetTimeout(float t);
 	float GetTimeout() const { return _timeout; }
 
+	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
+	void Activate(bool activate);
+
 	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);
 
@@ -122,12 +122,23 @@ public:
 	virtual void Shine();
 };
 
-
 class GC_Spotlight : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
 	SafePtr<GC_Light> _light;
 
+
+protected:
+	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	{
+		typedef GC_2dSprite::MyPropertySet BASE;
+		ObjectProperty _propActive;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
 	virtual SafePtr<PropertySet> GetProperties();
 
 public:

@@ -83,7 +83,7 @@ void GC_Weapon::Attach(GC_Vehicle *veh)
 	_fireEffect->Show(false);
 
 	_fireLight = new GC_Light(GC_Light::LIGHT_POINT);
-	_fireLight->Enable(false);
+	_fireLight->Activate(false);
 }
 
 void GC_Weapon::Detach()
@@ -193,13 +193,13 @@ void GC_Weapon::UpdateView()
 
 			_fireLight->MoveTo(_fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
-			_fireLight->Enable(true);
+			_fireLight->Activate(true);
 		}
 		else
 		{
 			_fireEffect->SetFrame(0);
 			_fireEffect->Show(false);
-			_fireLight->Enable(false);
+			_fireLight->Activate(false);
 		}
 	}
 }
@@ -919,7 +919,7 @@ void GC_Weap_Ram::Attach(GC_Vehicle *veh)
 	_engineLight = new GC_Light(GC_Light::LIGHT_POINT);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
-	_engineLight->Enable(false);
+	_engineLight->Activate(false);
 
 
 	_fuel_max  = _fuel = 1.0f;
@@ -1104,7 +1104,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 
-        _engineLight->Enable(_bFire);
+        _engineLight->Activate(_bFire);
 		_bFire = false;
 	}
 	else

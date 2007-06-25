@@ -20,6 +20,20 @@ class GC_SpawnPoint : public GC_2dSprite
 public:
 	int   _team;    // 0 - no team
 
+protected:
+	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	{
+		typedef GC_2dSprite::MyPropertySet BASE;
+		ObjectProperty _propTeam;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual SafePtr<PropertySet> GetProperties();
+
+
 public:
 	GC_SpawnPoint(float x, float y);
 	GC_SpawnPoint(FromFile);

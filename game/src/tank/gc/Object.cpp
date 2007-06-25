@@ -480,15 +480,24 @@ void GC_Object::PulseNotify(NotyfyType type, void *param)
 	std::list<Notify>::iterator tmp, it = _notifyList.begin();
 	while( it != _notifyList.end() )
 	{
-		if( type != it->type ) { ++it; continue; }
+		if( type != it->type )
+		{
+			++it; 
+			continue;
+		}
 		_ASSERT(it->subscriber);
 		(GetRawPtr(it->subscriber)->*it->handler)(this, param);
 		tmp = it++;
-        if( tmp->once ) _notifyList.erase(tmp);
+        if( tmp->once ) 
+		{
+			_notifyList.erase(tmp);
+		}
 	}
 
 	if( 0 == --_notifyProtectCount )
+	{
 		_notifyList.remove_if(Notify::CleanUp());
+	}
 }
 
 void GC_Object::TimeStepFixed(float dt)

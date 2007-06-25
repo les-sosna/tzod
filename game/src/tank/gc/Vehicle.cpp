@@ -101,6 +101,7 @@ void GC_Vehicle::Serialize(SaveFile &f)
 	f.Serialize(_moveSound);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
+	f.Serialize(_class);
 }
 
 void GC_Vehicle::Kill()
@@ -128,7 +129,7 @@ void GC_Vehicle::DetachWeapon()
 	_weapon->_respawn = false;
 	_weapon->Detach();
 	_weapon = NULL;
-	GetPlayer()->ResetClass();
+	ResetClass();
 }
 
 void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
@@ -183,6 +184,12 @@ void GC_Vehicle::SetSkin(const char *pSkinName)
 	CenterPivot();
 }
 
+void GC_Vehicle::SetClass(const string_t& c)
+{
+	_class = c;
+	ResetClass();
+}
+
 void GC_Vehicle::SetClass(const VehicleClass &vc)
 {
 	float max_r = 0;
@@ -214,6 +221,34 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	_rotate_power = vc.rotate_power;
 
 	SetMaxHP(vc.health);
+}
+
+void GC_Vehicle::ResetClass()
+{
+	VehicleClass vc;
+
+	lua_State *L = g_env.L;
+	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
+	lua_getglobal(L, "getvclass");
+	lua_pushstring(L, _class.c_str()); // cls arg
+	if( lua_pcall(L, 1, 1, 0) )
+	{
+		// print error message
+		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return;
+	}
+
+	lua_pushlightuserdata(L, &vc);
+	if( lua_pcall(L, 2, 0, 0) )
+	{
+		// print error message
+		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return;
+	}
+
+	SetClass(vc);
 }
 
 bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
@@ -309,8 +344,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			wsprintf(msg, "c %s случился несчастный случай", GetPlayer()->GetNick().c_str());
 		}
 
+		AddRef();
 		OnDestroy();
 		Kill();
+		Release();
+
 		_MessageArea::Inst()->message(msg);
 		return true;
 	}
@@ -482,12 +520,12 @@ void GC_Vehicle::UpdateLight()
 {
 	_light1->MoveTo(GetPos() + vec2d(_angle + 0.6f) * 20 );
 	_light1->SetAngle(_angle + 0.2f);
-	_light1->Enable(_state._bLight);
+	_light1->Activate(_state._bLight);
 	_light2->MoveTo(GetPos() + vec2d(_angle - 0.6f) * 20 );
 	_light2->SetAngle(_angle - 0.2f);
-	_light2->Enable(_state._bLight);
+	_light2->Activate(_state._bLight);
 	_light_ambient->MoveTo(GetPos());
-	_light_ambient->Enable(_state._bLight);
+	_light_ambient->Activate(_state._bLight);
 }
 
 void GC_Vehicle::Draw()
@@ -568,6 +606,7 @@ void GC_Tank_Light::SetDefaults()
 void GC_Tank_Light::OnDestroy()
 {
 	new GC_Boom_Big( GetPos(), NULL);
+	__super::OnDestroy();
 }
 
 // end of file

@@ -383,7 +383,7 @@ GC_Bullet::GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 	_path_trail_off = _path_trail_on + frand(50.0f) + frand(50.0f) + frand(50.0f);
 
 	Show(false);
-	_light->Enable(false);
+	_light->Activate(false);
 }
 
 GC_Bullet::GC_Bullet(FromFile) : GC_Projectile(FromFile())
@@ -446,11 +446,11 @@ void GC_Bullet::SpawnTrailParticle(const vec2d &pos)
 		_path_trail_on = _path_trail_off + frand(100.2f) + frand(100.2f) + frand(100.2f) + frand(100.2f) + frand(100.2f);
 		_path_trail_off = _path_trail_on + frand(10.1f) + frand(10.1f) + frand(10.1f) + frand(10.1f);
 		ClearFlags(GC_FLAG_PROJECTILE_TRAIL);
-		_light->Enable(false);
+		_light->Activate(false);
 	}
 	else if( _path > _path_trail_on )
 	{
-		_light->Enable(true);
+		_light->Activate(true);
 		new GC_Particle(pos, vec2d(0,0), tex, frand(0.01f) + 0.09f, _velocity.Angle());
 	}
 }
@@ -467,7 +467,7 @@ GC_TankBullet::GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic*
 {
 	_damage        = DAMAGE_TANKBULLET;
 	_trailDensity = 5.0f;
-	_light->Enable(advanced);
+	_light->Activate(advanced);
 	PLAY(SND_Shoot, GetPos());
 }
 
@@ -796,7 +796,7 @@ GC_ACBullet::GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 	_trailDensity = 5;
 	_light->SetRadius(30);
 	_light->SetIntensity(0.6f);
-	_light->Enable(advanced);
+	_light->Activate(advanced);
 }
 
 GC_ACBullet::GC_ACBullet(FromFile) : GC_Projectile(FromFile())
@@ -962,7 +962,7 @@ GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
 	_ripper->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_Disk::OnRipperMove, false, false);
 
-	_light->Enable(false);
+	_light->Activate(false);
 }
 
 GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced)
@@ -972,7 +972,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	_trailDensity = 5.0f;
 	_time = g_level->net_frand(1.0f);
 	_attached = false;
-	_light->Enable(false);
+	_light->Activate(false);
 }
 
 GC_Disk::GC_Disk(FromFile) : GC_Projectile(FromFile())

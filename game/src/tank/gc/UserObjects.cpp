@@ -16,7 +16,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
-	ED_ACTOR("user_object", "Особый объект", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_object", "Особый объект", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 
@@ -47,6 +47,7 @@ void GC_UserObject::Serialize(SaveFile &f)
 void GC_UserObject::OnDestroy()
 {
 	new GC_Boom_Big( GetPos(), NULL);
+	__super::OnDestroy();
 }
 
 void GC_UserObject::mapExchange(MapFile &f)
@@ -54,7 +55,11 @@ void GC_UserObject::mapExchange(MapFile &f)
 	GC_RigidBodyStatic::mapExchange(f);
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
-
+	
+	if( f.loading() )
+	{
+		SetTexture(_textureName.c_str());
+	}
 }
 
 SafePtr<PropertySet> GC_UserObject::GetProperties()

@@ -223,6 +223,7 @@ Level::Level()
 	_timeBuffer  = 0;
 	_limitHit    = false;
 	_paused      = false;
+	_freezed     = false;
 
 	_safeMode    = true;
 
@@ -297,6 +298,8 @@ BOOL Level::init_emptymap()
 	_Background::Inst()->EnableGrid( g_conf.ed_drawgrid->Get() );
 	_ThemeManager::Inst().ApplyTheme(0);
 
+	Pause(true);
+
 	return TRUE;
 }
 
@@ -356,13 +359,12 @@ Level::~Level()
 
 	SAFE_KILL(_temporaryText);
 
-	for( OBJECT_LIST::iterator i = objects.begin(); i != objects.end(); )
+	for( OBJECT_LIST::safe_iterator it = objects.safe_begin(); it != objects.end(); )
 	{
-		GC_Object *pDelObj = *i;
-		pDelObj->AddRef();
-		pDelObj->Kill();
-		i++; // must be called before Release()
-		pDelObj->Release();
+		GC_Object* obj = *it;
+		_ASSERT(!obj->IsKilled());
+		obj->Kill();
+		++it;
 	}
 
 	if( _client )
@@ -1021,26 +1023,28 @@ void Level::TimeStep(float dt)
 
 			_time       += fixed_dt;
 			_timeBuffer -= fixed_dt;
-			OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
-			while( it != ts_fixed.end() )
+			if( !_freezed )
 			{
-				GC_Object* pTS_Obj = *it;
-				_ASSERT(!pTS_Obj->IsKilled());
-
-				// расчет контрольной суммы для обнаружения потери синхронизации
-				#ifdef NETWORK_DEBUG
-				if( tmp_cs = pTS_Obj->checksum() )
+				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+				while( it != ts_fixed.end() )
 				{
-					dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
-					dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+					GC_Object* pTS_Obj = *it;
+					_ASSERT(!pTS_Obj->IsKilled());
+
+					// расчет контрольной суммы для обнаружения потери синхронизации
+					#ifdef NETWORK_DEBUG
+					if( tmp_cs = pTS_Obj->checksum() )
+					{
+						dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
+						dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+					}
+					#endif
+
+					pTS_Obj->TimeStepFixed(fixed_dt);
+					++it;
 				}
-				#endif
-
-				pTS_Obj->TimeStepFixed(fixed_dt);
-				++it;
+				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
 			}
-			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-
 			passedFixedLoopsCount++;
 			passedFixedDT = fixed_dt;
 
@@ -1057,31 +1061,34 @@ void Level::TimeStep(float dt)
 		do
 		{
 			_time += fixed_dt;
-			OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
-			_safeMode = false;
-			while( it != ts_fixed.end() )
+			if( !_freezed )
 			{
-				GC_Object* pTS_Obj = *it;
-				_ASSERT(!pTS_Obj->IsKilled());
-				pTS_Obj->TimeStepFixed(fixed_dt);
-				++it;
+				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+				while( it != ts_fixed.end() )
+				{
+					GC_Object* pTS_Obj = *it;
+					_ASSERT(!pTS_Obj->IsKilled());
+					pTS_Obj->TimeStepFixed(fixed_dt);
+					++it;
+				}
+				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
 			}
-			GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-
 			passedFixedLoopsCount++;
 			passedFixedDT = fixed_dt;
 		}
 		while( --count );
 	}
 
-	OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
-	_safeMode = false;
-	while( it != ts_floating.end() )
+	if( !_freezed )
 	{
-		GC_Object* pTS_Obj = *it;
-		_ASSERT(!pTS_Obj->IsKilled());
-		pTS_Obj->TimeStepFloat(dt);
-		++it;
+		OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
+		while( it != ts_floating.end() )
+		{
+			GC_Object* pTS_Obj = *it;
+			_ASSERT(!pTS_Obj->IsKilled());
+			pTS_Obj->TimeStepFloat(dt);
+			++it;
+		}
 	}
 
 	_safeMode = true;
@@ -1106,6 +1113,9 @@ void Level::TimeStep(float dt)
 		}
 	}
 }
+
+
+//#include "gc/ai.h"
 
 void Level::Render() const
 {
@@ -1155,7 +1165,8 @@ void Level::Render() const
 			FOREACH( lights, GC_Light, pLight )
 			{
 				_ASSERT(!pLight->IsKilled());
-				if( pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
+				if( pLight->IsActive() &&
+					pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
 					pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
 					pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
 					pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
@@ -1216,6 +1227,19 @@ void Level::Render() const
 
 		if( pMaxShake ) break;
 	}	// cameras
+/*
+	HDC hdc = GetDC(g_env.hMainWnd);
+	FOREACH( players, GC_Player, p )
+	{
+		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
+		{
+			pp->debug_draw(hdc);
+		}		
+	}
+
+	ReleaseDC(g_env.hMainWnd, hdc);
+*/
+
 
 /*
 	//

@@ -37,9 +37,8 @@ GC_SpawnPoint::GC_SpawnPoint(FromFile)
 }
 
 void GC_SpawnPoint::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_team);
 }
 
@@ -75,6 +74,55 @@ void GC_SpawnPoint::mapExchange(MapFile &f)
 
 	if( _team > MAX_TEAMS-1 )
 		_team = MAX_TEAMS-1;
+}
+
+
+SafePtr<PropertySet> GC_SpawnPoint::GetProperties()
+{
+	return new MyPropertySet(this);
+}
+
+GC_SpawnPoint::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
+{
+	_propTeam.SetRange(0, MAX_TEAMS);
+	Exchange(false);
+}
+
+int GC_SpawnPoint::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propTeam;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_SpawnPoint::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_SpawnPoint *tmp = static_cast<GC_SpawnPoint *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_team = _propTeam.GetValueInt();
+	}
+	else
+	{
+		_propTeam.SetValueInt(tmp->_team);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

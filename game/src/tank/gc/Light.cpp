@@ -38,7 +38,6 @@ GC_Light::GC_Light(enumLightType type)
 	_type       = type;
 	_angle      = 0;
 	_intensity  = 1;
-	SetFlags(GC_FLAG_LIGHT_ENABLED);
 
 	_lamp = new GC_UserSprite();
 
@@ -48,6 +47,8 @@ GC_Light::GC_Light(enumLightType type)
 		_lamp->SetTexture("shine");
 		_lamp->SetZ(Z_PARTICLE);
 	}
+
+	Activate(true);
 }
 
 GC_Light::GC_Light(FromFile) : GC_Actor(FromFile())
@@ -62,7 +63,7 @@ GC_Light::~GC_Light()
 void GC_Light::Serialize(SaveFile &f)
 {
 	GC_Actor::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_angle);
 	f.Serialize(_aspect);
 	f.Serialize(_intensity);
@@ -70,13 +71,12 @@ void GC_Light::Serialize(SaveFile &f)
 	f.Serialize(_radius);
 	f.Serialize(_timeout);
 	f.Serialize(_type);
-	/////////////////////////////////////
 	f.Serialize(_lamp);
 }
 
 void GC_Light::Shine()
 {
-	if( !CheckFlags(GC_FLAG_LIGHT_ENABLED) ) return;
+	if( !IsActive() ) return;
 //	_FpsCounter::Inst()->OneMoreLight();
 
 	MyVertex *v;
@@ -160,12 +160,6 @@ void GC_Light::Shine()
 	}
 }
 
-void GC_Light::Enable(bool bEnable)
-{
-	bEnable?SetFlags(GC_FLAG_LIGHT_ENABLED):ClearFlags(GC_FLAG_LIGHT_ENABLED);
-	_lamp->Show(bEnable);
-}
-
 void GC_Light::Kill()
 {
 	SAFE_KILL(_lamp);
@@ -191,6 +185,12 @@ void GC_Light::TimeStepFixed(float dt)
 	_intensity = _intensity * (_timeout - dt) / _timeout;
 	_timeout -= dt;
 	if( _timeout <= 0 ) Kill();
+}
+
+void GC_Light::Activate(bool activate)
+{
+	activate ? SetFlags(GC_FLAG_LIGHT_ACTIVE) : ClearFlags(GC_FLAG_LIGHT_ACTIVE);
+	_lamp->Show(activate);
 }
 
 /////////////////////////////////////////////////////////////
@@ -225,7 +225,6 @@ GC_Spotlight::~GC_Spotlight()
 void GC_Spotlight::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	//------------------------------
 	f.Serialize(_light);
 }
 
@@ -255,7 +254,7 @@ void GC_Spotlight::EditorAction()
 void GC_Spotlight::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
-	//-----------------------------------------
+
 	float a = GetRotation();
 	MAP_EXCHANGE_FLOAT(dir, a, 0);
 
@@ -269,7 +268,50 @@ void GC_Spotlight::mapExchange(MapFile &f)
 
 SafePtr<PropertySet> GC_Spotlight::GetProperties()
 {
+	return new MyPropertySet(this);
+}
+
+GC_Spotlight::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
+{
+	_propActive.SetRange(0, 1);
+	Exchange(false);
+}
+
+int GC_Spotlight::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propActive;
+	}
+
+	_ASSERT(FALSE);
 	return NULL;
+}
+
+void GC_Spotlight::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_Spotlight *tmp = static_cast<GC_Spotlight *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_light->Activate(0 != _propActive.GetValueInt());
+	}
+	else
+	{
+		_propActive.SetValueInt(tmp->_light->IsActive() ? 1 : 0);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -82,6 +82,7 @@ void GC_Player::Serialize(SaveFile &f)
 {
 	GC_Service::Serialize(f);
 
+	f.Serialize(_scriptOnDie);
 	f.Serialize(_nick);
 	f.Serialize(_skin);
 	f.Serialize(_class);
@@ -123,34 +124,6 @@ void GC_Player::UpdateSkin()
 {
 	if( _vehicle )
 		_vehicle->SetSkin(_skin.c_str());
-}
-
-void GC_Player::ResetClass()
-{
-	VehicleClass vc;
-
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
-	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _class.c_str()); // cls arg
-	if( lua_pcall(L, 1, 1, 0) )
-	{
-		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
-	lua_pushlightuserdata(L, &vc);
-	if( lua_pcall(L, 2, 0, 0) )
-	{
-		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
-	_vehicle->SetClass(vc);
 }
 
 void GC_Player::SetScore(int score)
@@ -255,9 +228,12 @@ void GC_Player::TimeStepFixed(float dt)
 			_vehicle->SetBodyAngle(pBestPoint->GetRotation());
 			_vehicle->SetPlayer(this);
 
+			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this,
+				(NOTIFYPROC) &GC_Player::OnVehicleDestroy, true, false);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
 				(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
-			ResetClass();
+
+			_vehicle->SetClass(GetClass());
 
 			UpdateSkin();
 			OnRespawn();
@@ -265,10 +241,22 @@ void GC_Player::TimeStepFixed(float dt)
 	}
 }
 
+void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
+{
+	_vehicle->Unsubscribe(this);
+	_vehicle = NULL;
+	OnDie();
+	if( !_scriptOnDie.empty() )
+	{
+		script_exec(g_env.L, _scriptOnDie.c_str());
+	}
+}
+
 void GC_Player::OnVehicleKill(GC_Object *sender, void *param)
 {
-	OnDie();
+	_vehicle->Unsubscribe(this);
 	_vehicle = NULL;
+	OnDie();
 }
 
 SafePtr<PropertySet> GC_Player::GetProperties()
@@ -278,11 +266,12 @@ SafePtr<PropertySet> GC_Player::GetProperties()
 
 GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"  )
-, _propScore( ObjectProperty::TYPE_INTEGER,     "score" )
-, _propNick(  ObjectProperty::TYPE_STRING,      "nick"  )
-, _propClass( ObjectProperty::TYPE_MULTISTRING, "class" )
-, _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"  )
+, _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"   )
+, _propScore( ObjectProperty::TYPE_INTEGER,     "score"  )
+, _propNick(  ObjectProperty::TYPE_STRING,      "nick"   )
+, _propClass( ObjectProperty::TYPE_MULTISTRING, "class"  )
+, _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"   )
+, _propOnDie( ObjectProperty::TYPE_STRING,      "on_die" )
 {
 	_propTeam.SetRange(0, MAX_TEAMS);
 
@@ -310,7 +299,7 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 
 int GC_Player::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 5;
+	return BASE::GetCount() + 6;
 }
 
 ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
@@ -325,6 +314,7 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 		case 2: return &_propNick;
 		case 3: return &_propClass;
 		case 4: return &_propSkin;
+		case 5: return &_propOnDie;
 	}
 
 	_ASSERT(FALSE);
@@ -344,9 +334,11 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 		tmp->SetNick( _propNick.GetValue() );
 		tmp->SetClass( _propClass.GetSetValue(_propClass.GetCurrentIndex()) );
 		tmp->SetSkin( _propSkin.GetSetValue(_propSkin.GetCurrentIndex()) );
+		tmp->_scriptOnDie = _propOnDie.GetValue();
 	}
 	else
 	{
+		_propOnDie.SetValue(tmp->_scriptOnDie);
 		_propTeam.SetValueInt(tmp->GetTeam());
 		_propScore.SetValueInt(tmp->GetScore());
 		_propNick.SetValue(tmp->GetNick());

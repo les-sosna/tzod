@@ -208,6 +208,7 @@ public:
 /////////////////////////////////////
 //settings
 	bool    _paused;
+	bool    _freezed;
 	bool    _modeEditor;
 	bool    _limitHit;  // достигнут fraglimit или timelimit
 	float   _sx, _sy;   // размер уровня
@@ -266,6 +267,7 @@ public:
 	bool Import(const char *fileName);
 
 	void Pause(bool pause);
+	void Freeze(bool freeze) { _freezed = freeze; }
 
 	void TimeStep(float dt);
 	void Render() const;

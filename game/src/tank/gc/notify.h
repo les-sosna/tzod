@@ -12,6 +12,9 @@ enum NotyfyType
 	// GC_Actor
 	NOTIFY_ACTOR_MOVE,
 
+	// Rigid body
+	NOTIFY_RIGIDBODY_DESTROY,
+
 	// GC_Player
 	NOTIFY_PLAYER_SETCONTROLLER,
 
