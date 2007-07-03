@@ -86,7 +86,7 @@ GC_SpawnPoint::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
 {
-	_propTeam.SetRange(0, MAX_TEAMS);
+	_propTeam.SetRange(0, MAX_TEAMS - 1);
 	Exchange(false);
 }
 

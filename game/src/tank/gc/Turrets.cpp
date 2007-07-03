@@ -265,16 +265,10 @@ SafePtr<PropertySet> GC_Turret::GetProperties()
 
 GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-, _propTeam(  ObjectProperty::TYPE_MULTISTRING, "team"  )
-, _propSight( ObjectProperty::TYPE_INTEGER,     "sight" )
+, _propTeam(  ObjectProperty::TYPE_INTEGER, "team"  )
+, _propSight( ObjectProperty::TYPE_INTEGER, "sight" )
 {
-	_propTeam.AddItem("[нет]");
-	for( int i = 1; i < MAX_TEAMS; ++i )
-	{
-		char buf[8];
-		wsprintf(buf, "%d", i);
-		_propTeam.AddItem(buf);
-	}
+	_propTeam.SetRange(0, MAX_TEAMS - 1);
 	_propSight.SetRange(0, 100);
 	//-----------------------------------------
 	Exchange(false);
@@ -308,12 +302,12 @@ void GC_Turret::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_team  = _propTeam.GetCurrentIndex();
+		tmp->_team  = _propTeam.GetValueInt();
 		tmp->_sight = (float) (_propSight.GetValueInt() * CELL_SIZE);
 	}
 	else
 	{
-		_propTeam.SetCurrentIndex(tmp->_team);
+		_propTeam.SetValueInt(tmp->_team);
 		_propSight.SetValueInt(int(tmp->_sight / CELL_SIZE + 0.5f));
 	}
 }
@@ -348,7 +342,6 @@ void GC_TurretRocket::Serialize(SaveFile &f)
 	GC_Turret::Serialize(f);
 	f.Serialize(_timeReload);
 }
-
 
 void GC_TurretRocket::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
 {

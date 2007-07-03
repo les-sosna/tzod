@@ -52,6 +52,8 @@ int ObjectProperty::GetMax(void) const
 void ObjectProperty::SetValueInt(int value)
 {
 	_ASSERT(TYPE_INTEGER == _type);
+	_ASSERT(value >= GetMin());
+	_ASSERT(value <= GetMax());
 	_int_value = value;
 }
 

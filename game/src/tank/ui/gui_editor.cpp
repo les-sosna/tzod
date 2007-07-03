@@ -16,6 +16,8 @@
 
 #include "config/Config.h"
 
+#include "core/Console.h"
+
 #include "Level.h"
 
 
@@ -55,13 +57,21 @@ void PropertyList::Commit()
 	for( int i = 0; i < _ps->GetCount(); ++i )
 	{
 		ObjectProperty *prop = _ps->GetProperty(i);
-		Window *ctrl = _ctrls[i];
+		Window         *ctrl = _ctrls[i];
 
 		switch( prop->GetType() )
 		{
 		case ObjectProperty::TYPE_INTEGER:
 			_ASSERT( dynamic_cast<Edit*>(ctrl) );
-			prop->SetValueInt(static_cast<Edit*>(ctrl)->GetInt());
+			int n;
+			n = static_cast<Edit*>(ctrl)->GetInt();
+			if( n < prop->GetMin() || n > prop->GetMax() )
+			{
+				g_console->printf("WARNING: value is out of range [%d, %d]\n", 
+					prop->GetMin(), prop->GetMax());
+				n = __max(prop->GetMin(), __min(prop->GetMax(), n));
+			}
+			prop->SetValueInt(n);
 			break;
 		case ObjectProperty::TYPE_STRING:
 			_ASSERT( dynamic_cast<Edit*>(ctrl) );
@@ -86,19 +96,24 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 {
 	if( _ps == ps ) return;
 
-	// clear old controlls
+	// clear old controls
 	while( _psheet->GetFirstChild() )
 		_psheet->GetFirstChild()->Destroy();
 	_ctrls.clear();
 
-	// create new controlls
+	// create new controls
 	if( ps )
 	{
 		float y = 5;
 		for( int i = 0; i < ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = ps->GetProperty(i);
-			y += (new Text(_psheet, 5, y, prop->GetName().c_str(), alignTextLT))->GetHeight();
+			
+			std::stringstream labelTextBuffer;
+			labelTextBuffer << prop->GetName().c_str();
+
+			Text *label = new Text(_psheet, 5, y, "", alignTextLT);
+			y += label->GetHeight();
 			y += 5;
 
 			Window *ctrl = NULL;
@@ -108,10 +123,12 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 			case ObjectProperty::TYPE_INTEGER:
 				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64 );
 				static_cast<Edit*>(ctrl)->SetInt(prop->GetValueInt());
+				labelTextBuffer << " (" << prop->GetMin() << " - " << prop->GetMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64 );
 				static_cast<Edit*>(ctrl)->SetText(prop->GetValue().c_str());
+				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64 );
@@ -125,6 +142,8 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 				_ASSERT(FALSE);
 			} // end of switch( prop->GetType() )
 
+			label->SetText(labelTextBuffer.str().c_str());
+
 			_ASSERT(NULL != ctrl);
 			_ctrls.push_back(ctrl);
 			y += ctrl->GetHeight();
@@ -134,7 +153,11 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 		_psheet->Resize(_psheet->GetWidth(), y);
 		_scrollBar->SetLimit(y - GetHeight());
 	}
-
+	else
+	{
+		_psheet->Resize(_psheet->GetWidth(), 0);
+		_scrollBar->SetLimit(0);
+	}
 	_ps = ps;
 }
 
@@ -177,6 +200,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	List *ls = _typeList->GetList();
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
+		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		ls->AddItem(Level::GetTypeInfoByIndex(i).desc, Level::GetTypeByIndex(i));
 	}
 	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
@@ -226,6 +250,8 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 //		_selectedObject->Unsubscribe(this);
 		_selectedObject = NULL;
 	//	_selectionRect->Show(false);
+
+		_propList->ConnectTo(NULL);
 	}
 }
 
@@ -250,8 +276,11 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 
 	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
-		float align = Level::GetTypeInfoByIndex(g_conf.ed_object->GetInt()).align;
-		float offset = Level::GetTypeInfoByIndex(g_conf.ed_object->GetInt()).offset;
+		ObjectType type = static_cast<ObjectType>(
+			_typeList->GetList()->GetItemData(g_conf.ed_object->GetInt()) );
+
+		float align = Level::GetTypeInfo(type).align;
+		float offset = Level::GetTypeInfo(type).offset;
 
 		vec2d pt;
 
@@ -287,8 +316,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		{
 			if( 1 == button )
 			{
-				Select(  g_level->CreateObject(
-					Level::GetTypeByIndex(g_conf.ed_object->GetInt()), pt.x, pt.y), true  );
+				Select( g_level->CreateObject(type, pt.x, pt.y), true );
 			}
 		}
 	}
