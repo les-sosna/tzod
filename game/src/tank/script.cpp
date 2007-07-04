@@ -9,6 +9,10 @@
 #include "gc/vehicle.h"
 #include "gc/ai.h"
 
+#include "ui/GuiManager.h"
+#include "ui/gui_desktop.h"
+#include "ui/gui.h"
+
 #include "core/Console.h"
 #include "core/debug.h"
 
@@ -232,8 +236,6 @@ static int luaT_export(lua_State *L)
 // print a message to the MessageArea
 static int luaT_message(lua_State *L)
 {
-	_ASSERT(_MessageArea::Inst());
-
 	int n = lua_gettop(L);        // number of arguments
 	lua_getglobal(L, "tostring");
 	std::ostringstream buf;
@@ -249,7 +251,7 @@ static int luaT_message(lua_State *L)
 		buf << s;
 		lua_pop(L, 1);            // pop result
 	}
-	_MessageArea::Inst()->message(buf.str().c_str());
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf.str().c_str());
 	return 0;
 }
 

@@ -222,26 +222,7 @@ public:
 
 	void SetLineView(int index);
 };
-/*
-/////////////////////////////////////////////////////////////
 
-class GC_Rectangle : public GC_Line
-{
-	vec2d _center_pos;
-	vec2d _size;
-
-public:
-	GC_Rectangle(const vec2d &pos, const vec2d &size, const char *texture);
-
-	void Adjust(GC_2dSprite *object);
-
-    void SetSize(const vec2d &size);
-	virtual void MoveTo(const vec2d &center_pos);
-	virtual void Draw();
-
-	virtual bool IsSaved() { return false; }
-};
-*/
 /////////////////////////////////////////////////////////////
 //class text
 
@@ -317,25 +298,6 @@ public:
 
 	virtual void TimeStepFloat(float dt);
 };
-
-/////////////////////////////////////////////////////////////
-
-class GC_Text_MessageArea : public GC_Text
-{
-private:
-	struct Line
-	{
-		float time;
-		string_t str;
-	};
-	std::deque<Line> _lines;
-
-public:
-	GC_Text_MessageArea();
-	virtual void TimeStepFloat(float dt);
-	void message(const char *text);
-};
-typedef DynamicSingleton<GC_Text_MessageArea> _MessageArea;
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

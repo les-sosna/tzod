@@ -20,6 +20,11 @@
 #include "core/Console.h"
 #include "core/debug.h"
 
+#include "ui/GuiManager.h"
+#include "ui/gui_desktop.h"
+#include "ui/gui.h"
+
+
 #include "GameClasses.h"
 #include "Camera.h"
 #include "vehicle.h"
@@ -202,7 +207,7 @@ void GC_Player::TimeStepFixed(float dt)
 			{
 				char buf[64];
 				wsprintf(buf, "Для команды %d нет точек рождения!", _team);
-				_MessageArea::Inst()->message(buf);
+				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf);
 				return;
 			}
 

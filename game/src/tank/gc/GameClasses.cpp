@@ -1074,35 +1074,4 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GC_Text_MessageArea::GC_Text_MessageArea()
-  : GC_Text(48, g_render->GetHeight() - 128, "", alignTextLB)
-{
-	SetFont("font_small");
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
-}
-
-void GC_Text_MessageArea::TimeStepFloat(float dt)
-{
-    for( size_t i = 0; i < _lines.size(); ++i )
-		_lines[i].time += dt;
-	while( !_lines.empty() && _lines.front().time > 5 )
-		_lines.pop_front();
-	string_t str;
-    for( size_t i = 0; i < _lines.size(); ++i )
-		str.append(_lines[i].str);
-	SetText(str.c_str());
-}
-
-void GC_Text_MessageArea::message(const char *text)
-{
-	Line line;
-	line.time = 0;
-	line.str = text;
-	line.str.append("\n");
-	_lines.push_back(line);
-	g_console->puts(line.str.c_str());
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file

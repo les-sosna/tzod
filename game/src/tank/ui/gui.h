@@ -130,14 +130,22 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkinSelectorDlg : public Dialog
+class MessageArea : public Window
 {
-public:
-	SkinSelectorDlg(Window *parent);
+private:
+	struct Line
+	{
+		float time;
+		string_t str;
+	};
+	std::deque<Line> _lines;
+	Text *_text;
 
-protected:
-	void OnOK();
-	void OnCancel();
+public:
+	MessageArea(Window *parent, float x, float y);
+	void puts(const char *text);
+
+	void OnTimeStep(float dt);
 };
 
 

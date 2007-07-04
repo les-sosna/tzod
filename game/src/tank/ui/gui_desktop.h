@@ -8,6 +8,7 @@ namespace UI
 {
 	class EditorLayout;
 	class Console;
+	class MessageArea;
 
 	// widgets
 	class FpsCounter;
@@ -19,6 +20,7 @@ class Desktop : public Window
 {
 	EditorLayout *_editor;
 	Console      *_con;
+	MessageArea  *_msg;
 
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
@@ -30,6 +32,8 @@ public:
 	void ShowDesktopBackground(bool show);
 
 	void OnCloseChild(int result);
+
+	MessageArea* GetMsgArea() const;
 
 protected:
 	virtual void OnRawChar(int c);

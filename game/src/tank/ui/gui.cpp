@@ -22,6 +22,8 @@
 
 #include "config/Config.h"
 
+#include "core/Console.h"
+
 #include "fs/FileSystem.h"
 #include "fs/MapFile.h"
 #include "gc/Player.h"
@@ -860,35 +862,42 @@ void EditBotDlg::OnChangeSkin(int index)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkinSelectorDlg::SkinSelectorDlg(Window *parent)
-  : Dialog(parent, 0, 0, 512, 256)
+MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
 {
-	std::vector<string_t> names;
-	g_texman->GetTextureNames(names, "skin/", false);
+	_text = new Text(this, 0, 0, "", alignTextLT);
+}
 
-	float x = 2;
-	float y = 2;
+void MessageArea::OnTimeStep(float dt)
+{
+	for( size_t i = 0; i < _lines.size(); ++i )
+		_lines[i].time += dt;
+	while( !_lines.empty() && _lines.front().time > 5 )
+		_lines.pop_front();
 
-	for( size_t i = 0; i < names.size(); ++i )
+	if( _lines.empty() )
 	{
-		Window *wnd = new Window(this, x, y, names[i].c_str());
-		x += wnd->GetWidth() + 4;
-		if( x > GetWidth() )
-		{
-			y += wnd->GetHeight() + 4;
-			x = 2;
-		}
+		SetTimeStep(false);
+		_text->Show(false);
+		return;
 	}
+
+	string_t str;
+	for( size_t i = 0; i < _lines.size(); ++i )
+		str.append(_lines[i].str);
+	_text->SetText(str.c_str());
 }
 
-void SkinSelectorDlg::OnOK()
+void MessageArea::puts(const char *text)
 {
-	Close(_resultOK);
-}
+	Line line;
+	line.time = 0;
+	line.str = text;
+	line.str.append("\n");
+	_lines.push_back(line);
+	g_console->puts(line.str.c_str());
 
-void SkinSelectorDlg::OnCancel()
-{
-	Close(_resultCancel);
+	SetTimeStep(true);
+	_text->Show(true);
 }
 
 

@@ -21,11 +21,14 @@ namespace UI
 
 Desktop::Desktop(GuiManager* manager) : Window(manager)
 {
+	_msg = new MessageArea(this, 100, 100);
+
 	_editor = new EditorLayout(this);
 	_editor->Show(false);
 
 	_con = new Console(this, 10, 0);
 	_con->Show(false);
+
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
 	g_conf.ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
@@ -52,6 +55,11 @@ void Desktop::ShowDesktopBackground(bool show)
 void Desktop::OnCloseChild(int result)
 {
 	ShowDesktopBackground(false);
+}
+
+MessageArea* Desktop::GetMsgArea() const
+{
+	return _msg;
 }
 
 void Desktop::OnRawChar(int c)

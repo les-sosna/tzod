@@ -20,6 +20,10 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
+#include "ui/GuiManager.h"
+#include "ui/gui_desktop.h"
+#include "ui/gui.h"
+
 #include "gc/GameClasses.h"
 #include "gc/RigidBody.h"
 #include "gc/Player.h"
@@ -258,7 +262,6 @@ void Level::Init(int X, int Y)
 	//
 
 	_Background::CreateInstance();
-	_MessageArea::CreateInstance();
 
 	new GC_Camera((GC_Player *) NULL);
 
@@ -970,10 +973,10 @@ void Level::TimeStep(float dt)
 				switch( db.type() )
 				{
 					case DBTYPE_TEXTMESSAGE:
-						_MessageArea::Inst()->message( (LPCTSTR) db.data() );
+						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.data());
 						break;
 					case DBTYPE_SERVERQUIT:
-						_MessageArea::Inst()->message( "Сервер вышел" );
+						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts("Сервер вышел");
 						break;
 					case DBTYPE_PLAYERQUIT:
 					{
@@ -985,7 +988,7 @@ void Level::TimeStep(float dt)
 							{
 								if( p->GetNetworkId() == id )
 								{
-									_MessageArea::Inst()->message( "игрок вышел" );
+									static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts("игрок вышел");
 									p->Kill();
 									break;
 								}

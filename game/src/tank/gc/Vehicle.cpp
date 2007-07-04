@@ -21,6 +21,13 @@
 
 #include "config/Config.h"
 
+#include "core/Console.h"
+
+#include "ui/GuiManager.h"
+#include "ui/gui_desktop.h"
+#include "ui/gui.h"
+
+
 
 /////////////////////////////////////////////////////////////
 
@@ -153,7 +160,7 @@ void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
 	if( lua_pcall(L, 2, 1, 0) )
 	{
 		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		g_console->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -162,7 +169,7 @@ void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
 	if( lua_pcall(L, 2, 0, 0) )
 	{
 		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		g_console->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -234,7 +241,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 1, 1, 0) )
 	{
 		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		g_console->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -243,7 +250,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 2, 0, 0) )
 	{
 		// print error message
-		_MessageArea::Inst()->message(lua_tostring(L, -1));
+		g_console->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -349,7 +356,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		Kill();
 		Release();
 
-		_MessageArea::Inst()->message(msg);
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(msg);
 		return true;
 	}
 	return false;
