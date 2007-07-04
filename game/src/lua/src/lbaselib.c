@@ -1,5 +1,5 @@
 /*
-** $Id: lbaselib.c,v 1.191 2006/06/02 15:34:00 roberto Exp $
+** $Id: lbaselib.c,v 1.191a 2006/06/02 15:34:00 roberto Exp $
 ** Basic library
 ** See Copyright Notice in lua.h
 */
@@ -114,11 +114,11 @@ static int luaB_setmetatable (lua_State *L) {
 }
 
 
-static void getfunc (lua_State *L) {
+static void getfunc (lua_State *L, int opt) {
   if (lua_isfunction(L, 1)) lua_pushvalue(L, 1);
   else {
     lua_Debug ar;
-    int level = luaL_optint(L, 1, 1);
+    int level = opt ? luaL_optint(L, 1, 1) : luaL_checkint(L, 1);
     luaL_argcheck(L, level >= 0, 1, "level must be non-negative");
     if (lua_getstack(L, level, &ar) == 0)
       luaL_argerror(L, 1, "invalid level");
@@ -131,7 +131,7 @@ static void getfunc (lua_State *L) {
 
 
 static int luaB_getfenv (lua_State *L) {
-  getfunc(L);
+  getfunc(L, 1);
   if (lua_iscfunction(L, -1))  /* is a C function? */
     lua_pushvalue(L, LUA_GLOBALSINDEX);  /* return the thread's global env. */
   else
@@ -142,7 +142,7 @@ static int luaB_getfenv (lua_State *L) {
 
 static int luaB_setfenv (lua_State *L) {
   luaL_checktype(L, 2, LUA_TTABLE);
-  getfunc(L);
+  getfunc(L, 0);
   lua_pushvalue(L, 2);
   if (lua_isnumber(L, 1) && lua_tonumber(L, 1) == 0) {
     /* change environment of current thread */
@@ -444,28 +444,28 @@ static int luaB_newproxy (lua_State *L) {
 
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
-//  {"collectgarbage", luaB_collectgarbage},
+  {"collectgarbage", luaB_collectgarbage},
   {"dofile", luaB_dofile},
   {"error", luaB_error},
-//  {"gcinfo", luaB_gcinfo},
-//  {"getfenv", luaB_getfenv},
-//  {"getmetatable", luaB_getmetatable},
-//  {"loadfile", luaB_loadfile},
-//  {"load", luaB_load},
-//  {"loadstring", luaB_loadstring},
-//  {"next", luaB_next},
+  {"gcinfo", luaB_gcinfo},
+  {"getfenv", luaB_getfenv},
+  {"getmetatable", luaB_getmetatable},
+  {"loadfile", luaB_loadfile},
+  {"load", luaB_load},
+  {"loadstring", luaB_loadstring},
+  {"next", luaB_next},
   {"pcall", luaB_pcall},
-//  {"print", luaB_print},
-//  {"rawequal", luaB_rawequal},
-//  {"rawget", luaB_rawget},
-//  {"rawset", luaB_rawset},
-//  {"select", luaB_select},
-//  {"setfenv", luaB_setfenv},
-//  {"setmetatable", luaB_setmetatable},
+  {"print", luaB_print},
+  {"rawequal", luaB_rawequal},
+  {"rawget", luaB_rawget},
+  {"rawset", luaB_rawset},
+  {"select", luaB_select},
+  {"setfenv", luaB_setfenv},
+  {"setmetatable", luaB_setmetatable},
   {"tonumber", luaB_tonumber},
   {"tostring", luaB_tostring},
   {"type", luaB_type},
-//  {"unpack", luaB_unpack},
+  {"unpack", luaB_unpack},
   {"xpcall", luaB_xpcall},
   {NULL, NULL}
 };
@@ -592,15 +592,15 @@ static int luaB_corunning (lua_State *L) {
 }
 
 
-//static const luaL_Reg co_funcs[] = {
-//  {"create", luaB_cocreate},
-//  {"resume", luaB_coresume},
-//  {"running", luaB_corunning},
-//  {"status", luaB_costatus},
-//  {"wrap", luaB_cowrap},
-//  {"yield", luaB_yield},
-//  {NULL, NULL}
-//};
+static const luaL_Reg co_funcs[] = {
+  {"create", luaB_cocreate},
+  {"resume", luaB_coresume},
+  {"running", luaB_corunning},
+  {"status", luaB_costatus},
+  {"wrap", luaB_cowrap},
+  {"yield", luaB_yield},
+  {NULL, NULL}
+};
 
 /* }====================================================== */
 
@@ -619,8 +619,8 @@ static void base_open (lua_State *L) {
   lua_setglobal(L, "_G");
   /* open lib into global table */
   luaL_register(L, "_G", base_funcs);
-//  lua_pushliteral(L, LUA_VERSION);
-//  lua_setglobal(L, "_VERSION");  /* set global _VERSION */
+  lua_pushliteral(L, LUA_VERSION);
+  lua_setglobal(L, "_VERSION");  /* set global _VERSION */
   /* `ipairs' and `pairs' need auxliliary functions as upvalues */
   auxopen(L, "ipairs", luaB_ipairs, ipairsaux);
   auxopen(L, "pairs", luaB_pairs, luaB_next);
@@ -637,7 +637,7 @@ static void base_open (lua_State *L) {
 
 LUALIB_API int luaopen_base (lua_State *L) {
   base_open(L);
-//  luaL_register(L, LUA_COLIBNAME, co_funcs);
+  luaL_register(L, LUA_COLIBNAME, co_funcs);
   return 2;
 }
 
