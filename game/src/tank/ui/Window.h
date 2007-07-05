@@ -107,7 +107,9 @@ public:
 
 	void Enable(bool enable) { OnEnable(_isEnabled = enable); }
 	void Show  (bool show);
+
 	void BringToFront();
+	void BringToBack();
 
 	void SetTopMost(bool topmost);
 	void SetTimeStep(bool enable);

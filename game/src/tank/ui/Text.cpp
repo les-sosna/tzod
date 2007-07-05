@@ -54,6 +54,16 @@ void Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
+float Text::GetTextWidth()
+{
+	return (float) _w * (float) _maxline;
+}
+
+float Text::GetTextHeight()
+{
+	return (float) _h * (float) _lines.size();
+}
+
 void Text::Draw(float sx, float sy)
 {
 	static const int dx_[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};

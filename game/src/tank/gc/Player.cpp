@@ -482,6 +482,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
 
+
 	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward] != 0;
 	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ] != 0;
 	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ] != 0;
@@ -496,6 +497,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 //	}
 //	_last_light_key_state = tmp;
 //	vs._bLight = _bLight;
+	vs._bLight = true;
 
 	vs._bState_AllowDrop = 
 		(g_env.envInputs.keys[_keyForward] != 0 && g_env.envInputs.keys[_keyBack] != 0) ||

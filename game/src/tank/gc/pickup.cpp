@@ -70,16 +70,15 @@ GC_Vehicle* GC_PickUp::CheckPickUp()
 
 ////////////////////////////////////////////////////////
 
-GC_PickUp::GC_PickUp(float x, float y)
-    : GC_Item(x, y), _memberOf(g_level->pickups, this)
+GC_PickUp::GC_PickUp(float x, float y) : GC_Item(x, y), _memberOf(g_level->pickups, this)
 {
 	AddContext(&g_level->grid_pickup);
 
 	_bMostBeAllowed = false;
-	_timeRespawn   = 0;
-	_timeAnimation = 0;
+	_timeRespawn    = 0;
+	_timeAnimation  = 0;
 	_time           = 0;
-	_respawn        = true;
+	_respawn        = false;
 	_attached       = false;
 	_blink          = false;
 
@@ -96,9 +95,9 @@ GC_PickUp::GC_PickUp(FromFile)
 }
 
 void GC_PickUp::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Item::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_attached);
 	f.Serialize(_blink);
 	f.Serialize(_bMostBeAllowed);
@@ -106,36 +105,20 @@ void GC_PickUp::Serialize(SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
-	/////////////////////////////////////
-	f.Serialize(_ancObject);
-	/////////////////////////////////////
+
 	if( !IsKilled() && f.loading() )
 		AddContext(&g_level->grid_pickup);
-}
-
-void GC_PickUp::Kill()
-{
-	_ancObject = NULL;
-	GC_Item::Kill();
 }
 
 void GC_PickUp::GiveIt(GC_Vehicle* veh)
 {
 	_time = 0;
-
-	if( _respawn )
-	{
-		GC_PickUp *object = SetRespawn();
-		object->Show(false);
-		object->_timeRespawn = _timeRespawn;
-		object->SetAnchor(this);
-	}
-
 	MoveTo(veh->GetPos());
 }
 
 void GC_PickUp::Respawn()
 {
+	_respawn = false;
 	Show(true);
 	PLAY(SND_puRespawn, GetPos());
 
@@ -147,9 +130,18 @@ void GC_PickUp::Respawn()
 	}
 }
 
-void GC_PickUp::SetAnchor(GC_Object *object)
+void GC_PickUp::Disappear()
 {
-	_ancObject = object;
+	if( _label )
+	{
+		Show(false);
+		MoveTo(_label->GetPos());
+		_time = 0;
+	}
+	else
+	{
+		Kill();
+	}
 }
 
 void GC_PickUp::SetBlinking(bool blink)
@@ -176,19 +168,13 @@ void GC_PickUp::TimeStepFixed(float dt)
 	{
 		if( IsVisible() )
 		{
-			GC_Vehicle *veh = CheckPickUp();
-			if( veh ) GiveIt(veh);
+			if( GC_Vehicle *veh = CheckPickUp() )
+			{
+				GiveIt(veh);
+			}
 		}
 		else
 		{
-			if( _ancObject )
-			{
-				if( _ancObject->IsKilled() )
-					_ancObject = NULL;
-				else
-					_time -= dt;
-			}
-
 			if( _time > _timeRespawn )
 				Respawn();
 		}
@@ -288,12 +274,7 @@ void GC_pu_Health::GiveIt(GC_Vehicle* veh)
 	veh->SetHealthCur(veh->GetHealthMax());
 	PLAY(SND_PickUp, GetPos());
 
-	Kill();
-}
-
-GC_PickUp* GC_pu_Health::SetRespawn()
-{
-	return new GC_pu_Health(GetPos().x, GetPos().y);
+	Disappear();
 }
 
 GC_Vehicle* GC_pu_Health::CheckPickUp()
@@ -336,11 +317,6 @@ void GC_pu_Mine::GiveIt(GC_Vehicle* veh)
 	GC_PickUp::GiveIt(veh);
 	new GC_Boom_Standard(GetPos(), veh);
 	Kill();
-}
-
-GC_PickUp* GC_pu_Mine::SetRespawn()
-{
-	return new GC_pu_Mine(GetPos().x, GetPos().y);
 }
 
 GC_Vehicle* GC_pu_Mine::CheckPickUp()
@@ -395,11 +371,6 @@ void GC_pu_Invulnerablity::GiveIt(GC_Vehicle* veh)
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
-}
-
-GC_PickUp* GC_pu_Invulnerablity::SetRespawn()
-{
-	return new GC_pu_Invulnerablity(GetPos().x, GetPos().y);
 }
 
 void GC_pu_Invulnerablity::TimeStepFixed(float dt)
@@ -545,11 +516,6 @@ void GC_pu_Shock::GiveIt(GC_Vehicle* veh)
 	Show(false);
 
 	PLAY(SND_ShockActivate, GetPos());
-}
-
-GC_PickUp* GC_pu_Shock::SetRespawn()
-{
-	return new GC_pu_Shock(GetPos().x, GetPos().y);
 }
 
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(GC_Vehicle *pIgnore)
@@ -732,11 +698,6 @@ void GC_pu_Booster::GiveIt(GC_Vehicle* veh)		//return true  -  respawn
 
 	SetTexture("booster");
 	SetShadow(false);
-}
-
-GC_PickUp* GC_pu_Booster::SetRespawn()
-{
-	return new GC_pu_Booster(GetPos().x, GetPos().y);
 }
 
 GC_Vehicle* GC_pu_Booster::CheckPickUp()

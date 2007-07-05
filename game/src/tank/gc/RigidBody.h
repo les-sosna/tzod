@@ -6,8 +6,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_RBSTATIC_TRACE0  (GC_FLAG_2DSPRITE_ << 0) // penetration of projectiles
-#define GC_FLAG_RBSTATIC_        (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_2DSPRITE_ << 0) // penetration of projectiles
+#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_2DSPRITE_ << 1) // object has been destroyed
+#define GC_FLAG_RBSTATIC_           (GC_FLAG_2DSPRITE_ << 2)
 
 class GC_RigidBodyStatic;
 

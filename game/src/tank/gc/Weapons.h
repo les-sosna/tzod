@@ -83,7 +83,6 @@ public:
 	GC_Weap_RocketLauncher(float x, float y);
 	GC_Weap_RocketLauncher(FromFile);
 
-	virtual GC_PickUp* SetRespawn();
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -113,8 +112,6 @@ public:
 	virtual ~GC_Weap_AutoCannon();
 	virtual void Kill();
 
-	virtual GC_PickUp* SetRespawn();
-
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -138,8 +135,6 @@ public:
 	GC_Weap_Cannon(FromFile);
 	virtual ~GC_Weap_Cannon();
 
-	virtual GC_PickUp* SetRespawn();
-
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -159,7 +154,6 @@ public:
 	GC_Weap_Plazma(FromFile);
 	virtual ~GC_Weap_Plazma();
 
-	virtual GC_PickUp* SetRespawn();
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
@@ -176,8 +170,6 @@ public:
 	GC_Weap_Gauss(float x, float y);
 	GC_Weap_Gauss(FromFile);
 	virtual ~GC_Weap_Gauss();
-
-	virtual GC_PickUp* SetRespawn();
 
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -217,8 +209,6 @@ public:
 	virtual ~GC_Weap_Ram();
 	virtual void Kill();
 
-	virtual GC_PickUp* SetRespawn();
-
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -241,8 +231,6 @@ public:
 	GC_Weap_BFG(FromFile);
 	virtual ~GC_Weap_BFG();
 
-	virtual GC_PickUp* SetRespawn();
-
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -262,7 +250,6 @@ public:
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
 
-	virtual GC_PickUp* SetRespawn();
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
@@ -292,8 +279,6 @@ public:
 	virtual void Kill();
 
 	virtual void SetCrosshair();
-
-	virtual GC_PickUp* SetRespawn();
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();

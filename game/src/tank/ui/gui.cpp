@@ -900,6 +900,91 @@ void MessageArea::puts(const char *text)
 	_text->Show(true);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void ScriptMessageBox::RunScript(int btn)
+{
+	lua_rawgeti(g_env.L, LUA_REGISTRYINDEX, _handler);
+	luaL_unref(g_env.L, LUA_REGISTRYINDEX, _handler);
+
+	lua_pushinteger(g_env.L, btn);
+	if( lua_pcall(g_env.L, 1, 0, 0) )
+	{
+		g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+		lua_pop(g_env.L, 1); // pop the error message from the stack
+	}
+
+	Destroy();
+}
+
+void ScriptMessageBox::OnButton1()
+{
+	RunScript(1);
+}
+
+void ScriptMessageBox::OnButton2()
+{
+	RunScript(2);
+}
+
+void ScriptMessageBox::OnButton3()
+{
+	RunScript(3);
+}
+
+ScriptMessageBox::ScriptMessageBox( Window *parent, int handler, 
+                                    const char *text,
+                                    const char *btn1,
+                                    const char *btn2,
+                                    const char *btn3)
+  : Window(parent)
+{
+	_ASSERT(text);
+	_ASSERT(btn1);
+
+	SetBorder(true);
+	BringToBack();
+
+	_handler = handler;
+	_text = new Text(this, 10, 10, text, alignTextLT);
+
+	_button1 = new Button(this, 0, _text->GetTextHeight() + 20, btn1);
+	_button1->eventClick.bind(&ScriptMessageBox::OnButton1, this);
+
+	int nbtn = 1 + (btn2 != NULL) + (btn3 != NULL);
+
+	float by = _text->GetTextHeight() + 20;
+	float bw = _button1->GetWidth();
+	float w = __max(_text->GetTextWidth() + 10, (bw + 10) * (float) nbtn) + 10;
+	float h = by + _button1->GetHeight() + 10;
+
+
+	Resize(w, h);
+	Move(ceilf((GetParent()->GetWidth() - w) / 2), ceilf((GetParent()->GetHeight() - h) / 2));
+
+	_button1->Move(w - 10 - _button1->GetWidth(), _button1->GetY());
+
+
+	if( btn2 )
+	{
+		_button2 = new Button(this, _button1->GetX() - 10 - bw, by, btn2);
+		_button2->eventClick.bind(&ScriptMessageBox::OnButton2, this);
+	}
+	else
+	{
+		_button2 = NULL;
+	}
+
+	if( btn3 )
+	{
+		_button3 = new Button(this, _button2->GetX() - 10 - bw, by, btn3);
+		_button3->eventClick.bind(&ScriptMessageBox::OnButton3, this);
+	}
+	else
+	{
+		_button3 = NULL;
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

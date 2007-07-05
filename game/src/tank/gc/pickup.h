@@ -20,7 +20,9 @@ class GC_Weapon;
 class GC_Item : public GC_2dSprite
 {
 	float                 _radius;  // радиус предмета
-	SafePtr<GC_HideLabel> _label;   // указатель на метку
+
+protected:
+	SafePtr<GC_HideLabel> _label;   // указатель на метку начального расположения
 
 public:
 	void  setRadius(float r) { _radius = r;    }
@@ -65,9 +67,10 @@ class GC_PickUp : public GC_Item
 	virtual SafePtr<PropertySet> GetProperties();
 
 protected:
-	virtual void Kill();
 	virtual void GiveIt(GC_Vehicle* veh);
 	virtual void Respawn();
+
+	void Disappear(); // hide or kill
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -81,11 +84,9 @@ public:
 	float	_time;
 	float	_timeAnimation;
 	float	_timeRespawn;
-	bool	_respawn;      // респаун после того, как предмет подберут
+	bool	_respawn;      // flag indicates that item will be respawned in the original position
 	bool	_attached;     // предмет прикреплен к танку
-	bool	_blink;         // item is blinking
-
-	SafePtr<GC_Object> _ancObject; // не респаунимся, пока этот объект жив
+	bool	_blink;        // item is blinking
 
 public:
 	GC_PickUp(float x, float y);
@@ -103,8 +104,6 @@ public:
 	virtual GC_Vehicle* CheckPickUp();
 
 	virtual float GetDefaultRespawnTime() const = 0;
-	virtual GC_PickUp* SetRespawn() = 0; //создать скрытую копию себя
-	void SetAnchor(GC_Object *object);
 
 #ifdef NETWORK_DEBUG
 public:
@@ -130,7 +129,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
 	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 };
 
@@ -148,7 +146,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
 	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 };
 
@@ -171,7 +168,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
 	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_PickUp* SetRespawn();
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -208,7 +204,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
 	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_PickUp* SetRespawn();
 
 	virtual void TimeStepFixed(float dt);
 };
@@ -234,7 +229,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
 	virtual void GiveIt(GC_Vehicle* veh); //return true  -  respawn
-	virtual GC_PickUp* SetRespawn();
 	virtual GC_Vehicle* CheckPickUp();
 
 	virtual void TimeStepFixed(float dt);

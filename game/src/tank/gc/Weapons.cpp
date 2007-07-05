@@ -51,8 +51,12 @@ AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *veh)
 
 void GC_Weapon::GiveIt(GC_Vehicle* veh)
 {
-	if( veh->GetWeapon() )
-		veh->GetWeapon()->Kill();
+	if( GC_Weapon *tmp = veh->GetWeapon() )
+	{
+		veh->DetachWeapon();
+		tmp->Disappear();
+	}
+
 	veh->AttachWeapon(this);
 	GC_PickUp::GiveIt(veh);
 }
@@ -210,29 +214,33 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	_time += dt;
 
-	if( !_attached && !_respawn )
+	if( _attached )
 	{
-		SetBlinking(_time > 12.0f);
-		if( _time > 15.0f ) Kill();
+		if( _crosshair )
+		{
+			_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(_owner->GetPlayer()));
+		}
+
+		_rotator.process_dt(dt);
+		ProcessRotate(dt);
+
+		if( _owner->_state._bState_Fire && !g_level->_limitHit )
+		{
+			Fire();
+		}
+
+		UpdateView();
 	}
 	else
 	{
-		if( _attached )
+		if( _respawn && IsVisible() )
 		{
-			if( _crosshair )
+			SetBlinking(_time > 12.0f);
+			if( _time > 15.0f )
 			{
-				_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(_owner->GetPlayer()));
+				SetBlinking(false);
+				Disappear();
 			}
-
-			_rotator.process_dt(dt);
-			ProcessRotate(dt);
-
-			if( _owner->_state._bState_Fire && !g_level->_limitHit )
-			{
-				Fire();
-			}
-
-			UpdateView();
 		}
 	}
 }
@@ -240,7 +248,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 void GC_Weapon::TimeStepFloat(float dt)
 {
 	GC_PickUp::TimeStepFloat(dt);
-    if( !_attached && _respawn )
+	if( !_attached && !_respawn )
 		SetRotation(_timeAnimation);
 }
 
@@ -307,11 +315,6 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(float x, float y) : GC_Weapon(x, 
 
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile) : GC_Weapon(FromFile())
 {
-}
-
-GC_PickUp* GC_Weap_RocketLauncher::SetRespawn()
-{
-	return new GC_Weap_RocketLauncher(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
@@ -502,11 +505,6 @@ GC_Weap_AutoCannon::~GC_Weap_AutoCannon()
 {
 }
 
-GC_PickUp* GC_Weap_AutoCannon::SetRespawn()
-{
-	return new GC_Weap_AutoCannon(GetPos().x, GetPos().y);
-}
-
 void GC_Weap_AutoCannon::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
@@ -661,11 +659,6 @@ GC_Weap_Cannon::~GC_Weap_Cannon()
 {
 }
 
-GC_PickUp* GC_Weap_Cannon::SetRespawn()
-{
-	return new GC_Weap_Cannon(GetPos().x, GetPos().y);
-}
-
 void GC_Weap_Cannon::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
@@ -770,11 +763,6 @@ void GC_Weap_Plazma::Attach(GC_Vehicle *veh)
 //	veh->_MaxBackSpeed = 160;
 }
 
-GC_PickUp* GC_Weap_Plazma::SetRespawn()
-{
-	return new GC_Weap_Plazma(GetPos().x, GetPos().y);
-}
-
 void GC_Weap_Plazma::Fire()
 {
 	if( _attached && _time >= _timeReload )
@@ -841,11 +829,6 @@ GC_Weap_Gauss::GC_Weap_Gauss(FromFile) : GC_Weapon(FromFile())
 
 GC_Weap_Gauss::~GC_Weap_Gauss()
 {
-}
-
-GC_PickUp* GC_Weap_Gauss::SetRespawn()
-{
-	return new GC_Weap_Gauss(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Gauss::Fire()
@@ -970,11 +953,6 @@ void GC_Weap_Ram::UpdateView()
 {
 	GC_Weapon::UpdateView();
 	_engineLight->MoveTo(GetPos()-vec2d(GetRotation())*20);
-}
-
-GC_PickUp* GC_Weap_Ram::SetRespawn()
-{
-	return new GC_Weap_Ram(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Ram::Serialize(SaveFile &f)
@@ -1156,11 +1134,6 @@ GC_Weap_BFG::~GC_Weap_BFG()
 {
 }
 
-GC_PickUp* GC_Weap_BFG::SetRespawn()
-{
-	return new GC_Weap_BFG(GetPos().x, GetPos().y);
-}
-
 void GC_Weap_BFG::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
@@ -1258,11 +1231,6 @@ GC_Weap_Ripper::~GC_Weap_Ripper()
 {
 }
 
-GC_PickUp* GC_Weap_Ripper::SetRespawn()
-{
-	return new GC_Weap_Ripper(GetPos().x, GetPos().y);
-}
-
 void GC_Weap_Ripper::Fire()
 {
 	if( _attached && _time >= _timeReload )
@@ -1355,11 +1323,6 @@ void GC_Weap_Minigun::SetCrosshair()
 {
 	_crosshair      = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
 	_crosshair_left = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
-}
-
-GC_PickUp* GC_Weap_Minigun::SetRespawn()
-{
-	return new GC_Weap_Minigun(GetPos().x, GetPos().y);
 }
 
 void GC_Weap_Minigun::Serialize(SaveFile &f)

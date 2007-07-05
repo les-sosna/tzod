@@ -133,7 +133,7 @@ void GC_Vehicle::DetachWeapon()
 {
 	_ASSERT(_weapon);
 	Unsubscribe( GetRawPtr(_weapon) );
-	_weapon->_respawn = false;
+	_weapon->_respawn = true;
 	_weapon->Detach();
 	_weapon = NULL;
 	ResetClass();

@@ -600,6 +600,48 @@ void Window::BringToFront()
 }
 
 
+void Window::BringToBack()
+{
+	_ASSERT(_parent);
+	if( _prevSibling )
+	{
+		_ASSERT( _parent->_lastChild );
+		_ASSERT( this != _parent->_firstChild );
+
+
+		//
+		// unregister
+		//
+
+		if( _nextSibling )
+		{
+			_ASSERT( this == _nextSibling->_prevSibling );
+			_nextSibling->_prevSibling = _prevSibling;
+		}
+		else
+		{
+			_ASSERT( this == _parent->_lastChild );
+			_parent->_lastChild = _prevSibling;
+		}
+
+		_ASSERT( this == _prevSibling->_nextSibling );
+		_prevSibling->_nextSibling = _nextSibling;
+		_prevSibling = NULL;
+
+
+		//
+		// register
+		//
+
+		_nextSibling = _parent->_firstChild;
+		_ASSERT(_nextSibling);
+		_ASSERT(NULL == _nextSibling->_prevSibling);
+		_nextSibling->_prevSibling = this;
+		_parent->_firstChild = this;
+	}
+}
+
+
 
 //
 // mouse handlers

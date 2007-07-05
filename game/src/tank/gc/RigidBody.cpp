@@ -64,12 +64,18 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 {
 	_ASSERT(!IsKilled());
 
+	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
+	{
+		return true;
+	}
+
 	if( _health_max > 0 )
 	{
 		SetHealthCur(GetHealth() - damage);
 		if( GetHealth() <= 0 )
 		{
 			AddRef();
+			SetFlags(GC_FLAG_RBSTATIC_DESTROYED);
 			OnDestroy();
 			Kill();
 			Release();

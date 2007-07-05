@@ -148,6 +148,31 @@ public:
 	void OnTimeStep(float dt);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class ScriptMessageBox : public Window
+{
+	int _handler;
+
+	Text   *_text;
+	Button *_button1;
+	Button *_button2;
+	Button *_button3;
+
+	void RunScript(int btn);
+
+	void OnButton1();
+	void OnButton2();
+	void OnButton3();
+
+public:
+	ScriptMessageBox(Window *parent, int handler,
+		const char *text,
+		const char *btn1,
+		const char *btn2 = NULL,
+		const char *btn3 = NULL
+	);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

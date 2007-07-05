@@ -26,6 +26,9 @@ public:
 	void SetText(const char *text);
 	void SetAlign(enumAlignText align);
 
+	float GetTextWidth();
+	float GetTextHeight();
+
 	virtual void Draw(float sx = 0, float sy = 0);
 };
 
