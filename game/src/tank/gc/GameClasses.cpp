@@ -49,7 +49,7 @@ void GC_Background::Draw()
 		FRECT rt  = {0};
 		rt.right  = g_level->_sx / GetSpriteWidth();
 		rt.bottom = g_level->_sy / GetSpriteHeight();
-        ModifyFrameBounds(&rt);
+		ModifyFrameBounds(&rt);
 		Resize(g_level->_sx, g_level->_sy);
 		SetPivot(0,0);
 		GC_2dSprite::Draw();
@@ -61,7 +61,7 @@ void GC_Background::Draw()
 		FRECT rt  = {0};
 		rt.right  = g_level->_sx / GetSpriteWidth();
 		rt.bottom = g_level->_sy / GetSpriteHeight();
-        ModifyFrameBounds(&rt);
+		ModifyFrameBounds(&rt);
 		Resize(g_level->_sx, g_level->_sy);
 		SetPivot(0,0);
 		GC_2dSprite::Draw();
@@ -140,16 +140,16 @@ void GC_Wood::UpdateTile(bool flag)
 
 void GC_Wood::Kill()
 {
-    UpdateTile(false);
+	UpdateTile(false);
 	GC_2dSprite::Kill();
 }
 
 void GC_Wood::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_tile);
-	/////////////////////////////////////
+
 	if( !IsKilled() && f.loading() )
 		AddContext(&g_level->grid_wood);
 }
@@ -243,14 +243,12 @@ void GC_Line::SetLineView(int index)
 }
 
 void GC_Line::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_UserSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_begin);
 	f.Serialize(_end);
 	f.Serialize(_phase);
 	f.Serialize(_sprite_width);
-	/////////////////////////////////////
 }
 
 void GC_Line::Draw()
@@ -269,58 +267,6 @@ void GC_Line::MoveTo(const vec2d &begin, const vec2d &end)
 	SetRotation((end-begin).Angle());
 	SetPhase(_phase);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-
-GC_Rectangle::GC_Rectangle(const vec2d &pos, const vec2d &size, const char *texture)
-	:GC_Line(pos-size*0.5f, pos+size*0.5f, texture)
-{
-	_center_pos = pos;
-	_size       = size;
-}
-
-void GC_Rectangle::SetSize(const vec2d &size)
-{
-	_size = size;
-}
-
-void GC_Rectangle::Draw()
-{
-	GC_Line::MoveTo(vec2d(_center_pos.x, _center_pos.y - _size.y * 0.5f));
-	GC_Line::MoveTo(GetPos()-_size*0.5f, vec2d(GetPos().x+_size.x*0.5f, GetPos().y-_size.y*0.5f));
-	GC_Line::Draw();
-
-	GC_Line::MoveTo(vec2d(_center_pos.x, _center_pos.y + _size.y * 0.5f));
-	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()+_size*0.5f);
-	GC_Line::Draw();
-
-	GC_Line::MoveTo(vec2d(_center_pos.x + _size.x * 0.5f, _center_pos.y));
-	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()-_size*0.5f);
-	GC_Line::Draw();
-
-	GC_Line::MoveTo(vec2d(_center_pos.x - _size.x * 0.5f, _center_pos.y));
-	GC_Line::MoveTo(vec2d(GetPos().x-_size.x*0.5f, GetPos().y+_size.y*0.5f), GetPos()-_size*0.5f);
-	GC_Line::Draw();
-
-	GC_Line::MoveTo(_center_pos);
-}
-
-void GC_Rectangle::MoveTo(const vec2d &center_pos)
-{
-	_center_pos = center_pos;
-	GC_Line::MoveTo(center_pos);
-}
-
-void GC_Rectangle::Adjust(GC_2dSprite *object)
-{
-	FRECT frect;
-	object->GetGlobalRect(frect);
-	SetSize(vec2d(WIDTH(frect), HEIGHT(frect)));
-	MoveTo(vec2d(frect.right+frect.left, frect.top+frect.bottom) * 0.5f);
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -367,16 +313,14 @@ void GC_Explosion::Kill()
 }
 
 void GC_Explosion::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_boomOK);
 	f.Serialize(_damage);
 	f.Serialize(_DamRadius);
 	f.Serialize(_time);
 	f.Serialize(_time_boom);
 	f.Serialize(_time_life);
-	/////////////////////////////////////
 	f.Serialize(_light);
 	f.Serialize(_owner);
 }
