@@ -52,11 +52,24 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// multitarget delegate
+// parameter adapter
 
-class MultitargetDelegate
+template<class ParamType>
+class DelegateAdapter1
 {
+public:
+	ParamType  param;
+	Delegate<void(ParamType)>  eventOnEvent;
 
+	void OnEvent()
+	{
+		if( eventOnEvent )
+			INVOKE(eventOnEvent) (param);
+	}
+
+	explicit DelegateAdapter1(const ParamType &p) : param(p)
+	{
+	}
 };
 
 

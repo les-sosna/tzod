@@ -30,6 +30,7 @@ public:
 	~Desktop();
 
 	void ShowDesktopBackground(bool show);
+	void ShowConsole(bool show);
 
 	void OnCloseChild(int result);
 

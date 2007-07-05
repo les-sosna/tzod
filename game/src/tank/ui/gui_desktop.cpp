@@ -52,6 +52,11 @@ void Desktop::ShowDesktopBackground(bool show)
 	SetTexture(show ? "window" : NULL);
 }
 
+void Desktop::ShowConsole(bool show)
+{
+	_con->Show(show);
+}
+
 void Desktop::OnCloseChild(int result)
 {
 	ShowDesktopBackground(false);

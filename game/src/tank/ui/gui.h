@@ -20,6 +20,10 @@ class MainMenuDlg : public Dialog
 	void OnExit();
 	void OnSettings();
 
+	void OnCampaign(string_t name);
+
+	std::list<DelegateAdapter1<string_t> >  _campaigns;
+
 public:
 	MainMenuDlg(Window *parent);
 	virtual void OnParentSize(float width, float height);

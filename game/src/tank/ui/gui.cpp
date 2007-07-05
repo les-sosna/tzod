@@ -4,6 +4,7 @@
 
 #include "gui.h"
 #include "gui_settings.h"
+#include "gui_desktop.h"
 
 #include "GuiManager.h"
 
@@ -61,6 +62,34 @@ MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
 
 	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))
 		->eventClick.bind(&MainMenuDlg::OnExit, this);
+
+
+	std::set<string_t> c;
+	g_fs->GetFileSystem("campaign")->EnumAllFiles(c, "*.lua");
+
+	float y = GetHeight() + 30;
+	for( std::set<string_t>::iterator it = c.begin(); it != c.end(); ++it )
+	{
+		it->erase(it->length() - 4); // cut out the file extension
+
+		DelegateAdapter1<string_t> d(*it);
+		d.eventOnEvent.bind(&MainMenuDlg::OnCampaign, this);
+		_campaigns.push_back(d);
+
+		Button *btn = new Button(this, 0, y, it->c_str());
+		btn->eventClick.bind(&DelegateAdapter1<string_t>::OnEvent, &_campaigns.back());
+
+		y += btn->GetHeight() + 1;
+	}
+}
+
+void MainMenuDlg::OnCampaign(string_t name)
+{
+	Close(_resultOK);
+	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
+	{
+		static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+	}
 }
 
 void MainMenuDlg::OnNewGame()
