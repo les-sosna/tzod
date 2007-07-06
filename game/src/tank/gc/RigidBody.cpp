@@ -242,11 +242,13 @@ GC_Wall::GC_Wall(FromFile) : GC_RigidBodyStatic(FromFile())
 void GC_Wall::mapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::mapExchange(f);
-	int corner = getCornerView();
+	int corner = GetCornerView();
 	MAP_EXCHANGE_INT(corner, corner, 0);
 
 	if( f.loading() )
-		setCornerView(corner);
+	{
+		SetCornerView(corner % 5);
+	}
 }
 
 void GC_Wall::Serialize(SaveFile &f)
@@ -275,14 +277,14 @@ void GC_Wall::OnDestroy()
 		new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 	}
 
-	__super::OnDestroy();
+	GC_RigidBodyStatic::OnDestroy();
 }
 
 bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
 	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) )
 	{
-		SetFrame( (GetFrameCount() - 1) - int((float) (GetFrameCount() - 1) * GetHealth() / GetHealthMax()) );
+		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
 		if( g_conf.g_particles->Get() && damage >= DAMAGE_BULLET )
 		{
 			vec2d v = hit - GetPos();
@@ -305,7 +307,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 	return true;
 }
 
-void GC_Wall::setCornerView(int index) // 0 means normal view
+void GC_Wall::SetCornerView(int index) // 0 means normal view
 {
 	_ASSERT(index >= 0 && index < 5);
 	static const DWORD flags[] = {
@@ -326,7 +328,7 @@ void GC_Wall::setCornerView(int index) // 0 means normal view
 	if( 0 != index ) _vertices[index&3].Set(0,0);
 }
 
-int GC_Wall::getCornerView(void)
+int GC_Wall::GetCornerView(void)
 {
 	int index = 0;
 	switch( GetFlags() & GC_FLAG_WALL_CORNER_ALL )
@@ -368,7 +370,7 @@ const char* GC_Wall::getCornerTexture(int i)
 void GC_Wall::EditorAction()
 {
 	GC_2dSprite::EditorAction();
-	setCornerView((getCornerView() + 1) % 5);
+	SetCornerView((GetCornerView() + 1) % 5);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -498,11 +500,11 @@ void GC_Water::Kill()
 }
 
 void GC_Water::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_RigidBodyStatic::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_tile);
-	/////////////////////////////////////
+
 	if( !IsKilled() && f.loading() )
 		AddContext(&g_level->grid_water);
 }
@@ -586,9 +588,9 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile) : GC_RigidBodyStatic(FromFile
 }
 
 void GC_RigidBodyDynamic::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_RigidBodyStatic::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_av);
 	f.Serialize(_lv);
 	f.Serialize(_inv_m);

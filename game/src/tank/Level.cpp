@@ -2,6 +2,10 @@
 ////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
+#include "pluto.h"
+
+
 #include "Level.h"
 #include "macros.h"
 #include "functions.h"
@@ -429,6 +433,39 @@ bool Level::Unserialize(const char *fileName)
 		if( VERSION != sh.dwVersion )
 			throw "ERROR: invalid version";
 
+
+		//
+		// restoring lua user environment
+		//
+		struct ReadHelper
+		{
+			static const char* r(lua_State *L, void* data, size_t *sz)
+			{
+				static char buf[1];
+				DWORD bytesRead = 0;
+				ReadFile((HANDLE) data, buf, sizeof(buf), &bytesRead, NULL);
+				*sz = bytesRead;
+				return bytesRead ? buf : NULL;
+			}
+			static int read(lua_State *L)
+			{
+				void *ud = lua_touserdata(L, 1);
+				lua_settop(L, 0);
+				lua_newtable(g_env.L);       // permanent objects
+				pluto_unpersist(L, &r, ud);
+				lua_setglobal(L, "user");    // unpersisted object
+				return 0;
+			}
+		};
+		if( lua_cpcall(g_env.L, &ReadHelper::read, f._file) )
+		{
+			const char *err = lua_tostring(g_env.L, -1);
+			TRACE("%s\n", err);
+			lua_pop(g_env.L, 1);
+			throw "ERROR: pluto";
+		}
+
+
 		_gameType = sh.dwGameType;
 
 		g_conf.sv_timelimit->SetFloat(sh.timelimit);
@@ -513,6 +550,31 @@ bool Level::Serialize(const char *fileName)
 		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
 		if( bytesWritten != sizeof(SaveHeader) )
 			throw "ERROR: couldn't write file. check disk space";
+
+
+		//
+		// writing lua user environment
+		//
+		struct WriteHelper
+		{
+			static int w(lua_State *L, const void* p, size_t sz, void* ud)
+			{
+				DWORD written = 0;
+				WriteFile((HANDLE) ud, p, sz, &written, NULL);
+				return sz - written;
+			}
+			static int write(lua_State *L)
+			{
+				void *ud = lua_touserdata(L, 1);
+				lua_settop(L, 0);
+				lua_newtable(g_env.L);       // permanent objects
+				lua_getglobal(L, "user");    // object to persist
+				pluto_persist(L, &w, ud);
+				return 0;
+			}
+		};
+		lua_cpcall(g_env.L, &WriteHelper::write, f._file);
+
 
 		//перебираем все объекты. если нужно - сохраняем
 		OBJECT_LIST::reverse_iterator it = objects.rbegin();

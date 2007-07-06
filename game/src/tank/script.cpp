@@ -31,6 +31,22 @@ static int luaT_quit(lua_State *L)
 	return 0;
 }
 
+static int luaT_reset(lua_State *L)
+{
+	if( g_level && !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
+
+	SAFE_DELETE(g_level);
+
+	lua_getglobal(L, "clearqueue");
+	lua_call(L, 0, 0);
+
+	lua_newtable(L);
+	lua_setglobal(L, "user");
+
+	return 0;
+}
+
 // msgbox(handler, "text", "btn1 text")
 static int luaT_msgbox(lua_State *L)
 {
@@ -441,90 +457,6 @@ int luaT_ConvertVehicleClass(lua_State *L)
 }
 
 
-//
-// SYNOPSIS:
-//  addbot{
-//      nick   = <string>,
-//      team   = <number>,
-//      skin   = <string>,
-//      class  = <string> }
-//      level  = 0..4
-//
-static int luaT_addbot(lua_State *L)
-{
-	if( !g_level )
-		return luaL_error(L, "no map loaded");
-
-	//
-	// check args
-	//
-	int n = lua_gettop(L);
-	if( n > 1 )
-	{
-		return luaL_error(L, "one argument expected; got %d", n);
-	}
-
-	if( 0 == n )
-	{
-		lua_createtable(L, 0, 0);
-	}
-
-	luaL_checktype(L, 1, LUA_TTABLE);
-
-	if( !g_level )
-	{
-		return luaL_error(L, "no game started");
-	}
-
-
-	//
-	// add bot
-	//
-
-	GC_PlayerAI *player = new GC_PlayerAI();
-
-	//--------------------
-
-	lua_getfield(L, 1, "nick");
-	if( lua_isstring(L, -1) )
-	{
-		player->SetNick(lua_tostring(L, -1));
-	}
-	lua_pop(L, 1); // pop result of lua_getfield
-
-	//-------------
-
-	lua_getfield(L, 1, "class");
-	if( lua_isstring(L, -1) )
-	{
-		player->SetClass(lua_tostring(L, -1));  // get vehicle class
-	}
-	lua_pop(L, 1);                           // pop result of lua_getfield
-
-	//-------------
-
-	lua_getfield(L, 1, "skin");
-	if( lua_isstring(L, -1) )
-	{
-		player->SetSkin(lua_tostring(L, -1));  // get skin name
-	}
-	lua_pop(L, 1);                      // pop result of lua_getfield
-
-	//-------------
-
-	lua_getfield(L, 1, "team");
-	player->SetTeam(lua_tointeger(L, -1));
-	lua_pop(L, 1); // pop result of lua_getfield
-
-	//-------------
-
-	lua_getfield(L, 1, "level");
-	player->SetLevel(__min(4, __max(0, lua_tointeger(L, -1))));
-	lua_pop(L, 1); // pop result of lua_getfield
-
-	return 0;
-}
-
 // prop name at -2; prop value at -1
 // return false if property not found
 int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
@@ -555,12 +487,14 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TNUMBER != lua_type(L, -1) )
 		{
-			luaL_error(L, "expected integer value; got %s", lua_typename(L, lua_type(L, -1)));
+			luaL_error(L, "property '%s' - expected integer value; got %s", 
+				prop_name, lua_typename(L, lua_type(L, -1)));
 		}
 		int v = lua_tointeger(L, -1);
 		if( v < p->GetMin() || v > p->GetMax() )
 		{
-			return luaL_error(L, "value %d is out of range [%d, %d]", p->GetMin(), p->GetMax(), v);
+			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]", 
+				prop_name, v, p->GetMin(), p->GetMax());
 		}
 		p->SetValueInt(v);
 		break;
@@ -569,7 +503,8 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
-			luaL_error(L, "expected string value; got %s", lua_typename(L, lua_type(L, -1)));
+			luaL_error(L, "property '%s' - expected string value; got %s", 
+				prop_name, lua_typename(L, lua_type(L, -1)));
 		}
 		p->SetValue(lua_tostring(L, -1));
 		break;
@@ -578,7 +513,8 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
-			luaL_error(L, "expected string value; got %s", lua_typename(L, lua_type(L, -1)));
+			luaL_error(L, "property '%s' - expected string value; got %s", 
+				prop_name, lua_typename(L, lua_type(L, -1)));
 		}
 		const char *v = lua_tostring(L, -1);
 		bool ok = false;
@@ -593,7 +529,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		}
 		if( !ok )
 		{
-			return luaL_error(L, "attempt to set invalid value '%s'", v);
+			return luaL_error(L, "property '%s' - attempt to set invalid value '%s'", prop_name, v);
 		}
 		break;
 	}
@@ -900,7 +836,6 @@ lua_State* script_open(void)
 	lua_register(L, "export",   luaT_export);
 	lua_register(L, "loadtheme",luaT_loadtheme);
 
-	lua_register(L, "addbot",   luaT_addbot);
 	lua_register(L, "actor",    luaT_actor);
 	lua_register(L, "service",  luaT_service);
 

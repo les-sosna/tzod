@@ -130,8 +130,8 @@ class GC_Wall : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_Wall);
 
 private:
-	void setCornerView(int index); // 0 means normal view
-	int  getCornerView(void);
+	void SetCornerView(int index); // 0 means normal view
+	int  GetCornerView(void);
 
 protected:
 	virtual const char *getCornerTexture(int i);

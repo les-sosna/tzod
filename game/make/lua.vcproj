@@ -713,6 +713,42 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="pluto"
+			>
+			<File
+				RelativePath="..\src\pluto\pluto.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\src\lua\src"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\src\lua\src"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Profiler|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\src\lua\src"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\pluto\pluto.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
