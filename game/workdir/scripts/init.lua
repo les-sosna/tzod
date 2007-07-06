@@ -19,6 +19,6 @@ conf.sv_speed = 100;
 loadmap("maps/intro.map")
 
 for _,i in pairs{"red","yellow","blue","FBI Tank","neutral"} do
-	addbot{skin=i}
+  service("ai", {skin=i})
 end
 
