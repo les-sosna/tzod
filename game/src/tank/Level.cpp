@@ -573,7 +573,13 @@ bool Level::Serialize(const char *fileName)
 				return 0;
 			}
 		};
-		lua_cpcall(g_env.L, &WriteHelper::write, f._file);
+		if( lua_cpcall(g_env.L, &WriteHelper::write, f._file) )
+		{
+			const char *err = lua_tostring(g_env.L, -1);
+			TRACE("%s\n", err);
+			lua_pop(g_env.L, 1);
+			throw "ERROR: pluto";
+		}
 
 
 		//перебираем все объекты. если нужно - сохраняем
