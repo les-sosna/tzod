@@ -145,7 +145,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 				_pickupCurrent = NULL;
 			}
 			else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).Square() <
-						_pickupCurrent->getRadius() * _pickupCurrent->getRadius() )
+			          _pickupCurrent->GetRadius() * _pickupCurrent->GetRadius() )
 			{
 				vs._bState_AllowDrop = true;
 			}
@@ -596,7 +596,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info)
 
 bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 {
-	std::vector<GC_PickUp *> applicants;
+	std::vector<GC_Pickup *> applicants;
 
 	std::vector<OBJECT_LIST*> receive;
 	g_level->grid_pickup.OverlapCircle(receive,
@@ -608,7 +608,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 		OBJECT_LIST::iterator it = receive[i]->begin();
 		for(; it != receive[i]->end(); ++it )
 		{
-			GC_PickUp *pItem = (GC_PickUp *) *it;
+			GC_Pickup *pItem = (GC_Pickup *) *it;
 			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) continue;
 
 			if( (GetVehicle()->GetPos() - pItem->GetPos()).Square() <
@@ -621,11 +621,11 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 
 
 	AIPRIORITY optimal  = AIP_NOTREQUIRED;
-	GC_PickUp *pOptItem = NULL;
+	GC_Pickup *pOptItem = NULL;
 
 	if( !applicants.empty() )
 	{
-		GC_PickUp *items[2] = {
+		GC_Pickup *items[2] = {
 			GetRawPtr(_pickupCurrent), 
 			applicants[g_level->net_rand() % applicants.size()]
 		};
@@ -634,7 +634,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 			if( NULL == items[i] ) continue;
 			_ASSERT(!items[i]->IsKilled());
 			_ASSERT(items[i]->IsVisible());
-			if( items[i]->_attached ) continue;
+			if( items[i]->IsAttached() ) continue;
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true);
 			if( l >= 0 )
 			{
@@ -784,7 +784,7 @@ void GC_PlayerAI::ProcessAction()
 				{
 					SmoothPath();
 				}
-				_pickupCurrent = (GC_PickUp *) ii_item.object;
+				_pickupCurrent = (GC_Pickup *) ii_item.object;
 			}
 			SetL2(L2_PICKUP);
 			SetL1(L1_NONE);
@@ -804,7 +804,7 @@ void GC_PlayerAI::ProcessAction()
 				{
 					SmoothPath();
 				}
-				_pickupCurrent = (GC_PickUp *) ii_item.object;
+				_pickupCurrent = (GC_Pickup *) ii_item.object;
 			}
 			SetL2(L2_PICKUP);
 			SetL1(L1_NONE);
@@ -822,7 +822,7 @@ void GC_PlayerAI::SelectState()
 {
 	_ASSERT(GetVehicle());
 
-	GC_PickUp  *pItem    = NULL;
+	GC_Pickup  *pItem    = NULL;
 	GC_Vehicle *veh = NULL;
 
 	ProcessAction();
@@ -872,7 +872,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState)
 	while( !_path.empty() )
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
-			_pickupCurrent->getRadius() : 30.0f) : (float) CELL_SIZE / 2;
+			_pickupCurrent->GetRadius() : 30.0f) : (float) CELL_SIZE / 2;
 		float current = (GetVehicle()->GetPos() - _path.front().coord).Length();
 		if( current > desired )
 		{

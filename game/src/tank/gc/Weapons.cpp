@@ -21,7 +21,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
+GC_Weapon::GC_Weapon(float x, float y) : GC_Pickup(x, y), _rotator(_angle)
 {
 	_advanced     = false;
 	_feTime       = 1.0f;
@@ -29,8 +29,8 @@ GC_Weapon::GC_Weapon(float x, float y) : GC_PickUp(x, y), _rotator(_angle)
 	_feOrient     = 0;
 	_fePos.Set(0,0);
 
-	_time = 0;
-	_bMostBeAllowed = true;
+	_time       = 0;
+	_autoSwitch = false;
 }
 
 AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *veh)
@@ -58,7 +58,7 @@ void GC_Weapon::GiveIt(GC_Vehicle* veh)
 	}
 
 	veh->AttachWeapon(this);
-	GC_PickUp::GiveIt(veh);
+	GC_Pickup::GiveIt(veh);
 }
 
 void GC_Weapon::Attach(GC_Vehicle *veh)
@@ -80,7 +80,7 @@ void GC_Weapon::Attach(GC_Vehicle *veh)
 
 	SetCrosshair();
 
-	PLAY(SND_w_PickUp, GetPos());
+	PLAY(SND_w_Pickup, GetPos());
 
 	_fireEffect = new GC_UserSprite();
 	_fireEffect->SetZ(Z_EXPLODE);
@@ -137,7 +137,7 @@ void GC_Weapon::SetCrosshair()
 	_crosshair = new GC_Crosshair(GC_Crosshair::CHS_SINGLE);
 }
 
-GC_Weapon::GC_Weapon(FromFile) : GC_PickUp(FromFile()), _rotator(_angle)
+GC_Weapon::GC_Weapon(FromFile) : GC_Pickup(FromFile()), _rotator(_angle)
 {
 }
 
@@ -147,7 +147,7 @@ GC_Weapon::~GC_Weapon()
 
 void GC_Weapon::Serialize(SaveFile &f)
 {
-	GC_PickUp::Serialize(f);
+	GC_Pickup::Serialize(f);
 
 	_rotator.Serialize(f);
 
@@ -174,7 +174,7 @@ void GC_Weapon::Kill()
 	_ASSERT(!_rotateSound);
 	_ASSERT(!_fireEffect);
 
-	GC_PickUp::Kill();
+	GC_Pickup::Kill();
 }
 
 void GC_Weapon::UpdateView()
@@ -210,7 +210,7 @@ void GC_Weapon::UpdateView()
 
 void GC_Weapon::TimeStepFixed(float dt)
 {
-	GC_PickUp::TimeStepFixed(dt);
+	GC_Pickup::TimeStepFixed(dt);
 
 	_time += dt;
 
@@ -247,7 +247,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 void GC_Weapon::TimeStepFloat(float dt)
 {
-	GC_PickUp::TimeStepFloat(dt);
+	GC_Pickup::TimeStepFloat(dt);
 	if( !_attached && !_respawn )
 		SetRotation(_timeAnimation);
 }

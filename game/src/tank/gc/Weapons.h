@@ -9,12 +9,13 @@
 
 struct AIWEAPSETTINGS; // defined in ai.h
 
-class GC_Weapon : public GC_PickUp
+class GC_Weapon : public GC_Pickup
 {
 protected:
-	bool _advanced; // кваженое оружие
+	bool _advanced; // weapon has booster attached
+
 	SafePtr<GC_UserSprite> _fireEffect;
-	SafePtr<GC_Light> _fireLight;
+	SafePtr<GC_Light>      _fireLight;
 	vec2d _fePos;
 	float _feTime;
 	float _feOrient;
@@ -22,8 +23,8 @@ protected:
 	virtual void UpdateView();
 
 public:
-	virtual void SetAdvanced(bool advanced) { _advanced = advanced; };
-	inline  bool GetAdvanced() { return _advanced; };
+	virtual void SetAdvanced(bool advanced) { _advanced = advanced; }
+	inline  bool GetAdvanced()              { return _advanced;     }
 
 public:
 	float    _time;
@@ -32,7 +33,6 @@ public:
 	float    _angle;          // угол поворота относительно платформы
 	Rotator  _rotator;
 
-	SafePtr<GC_Vehicle>   _owner;
 	SafePtr<GC_Crosshair> _crosshair;
 	SafePtr<GC_Sound>     _rotateSound;
 
@@ -48,7 +48,6 @@ public:
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
-	virtual void GiveIt(GC_Vehicle *veh);
 	virtual void Attach(GC_Vehicle *veh);
 	virtual void Detach();
 	void ProcessRotate(float dt);

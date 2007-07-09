@@ -174,11 +174,11 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	LoadOggVorbis(init, SND_WeapReload,     "sounds\\pickup\\reload.ogg"          );
 	LoadOggVorbis(init, SND_ACShoot,        "sounds\\pickup\\ac_shoot.ogg"        );
 	LoadOggVorbis(init, SND_AC_Reload,      "sounds\\pickup\\ac_reload.ogg"       );
-	LoadOggVorbis(init, SND_PickUp,         "sounds\\pickup\\pickup.ogg"          );
+	LoadOggVorbis(init, SND_Pickup,         "sounds\\pickup\\pickup.ogg"          );
 	LoadOggVorbis(init, SND_B_Start,        "sounds\\pickup\\b_start.ogg"         );
 	LoadOggVorbis(init, SND_B_Loop,         "sounds\\pickup\\b_loop.ogg"          );
 	LoadOggVorbis(init, SND_B_End,          "sounds\\pickup\\b_end.ogg"           );
-	LoadOggVorbis(init, SND_w_PickUp,       "sounds\\pickup\\w_pickup.ogg"        ); //
+	LoadOggVorbis(init, SND_w_Pickup,       "sounds\\pickup\\w_pickup.ogg"        ); //
 	LoadOggVorbis(init, SND_Bolt,           "sounds\\pickup\\boltshoot.ogg"       );
 	LoadOggVorbis(init, SND_DiskFire,       "sounds\\pickup\\ripper.ogg"          ); //
 	LoadOggVorbis(init, SND_puRespawn,      "sounds\\pickup\\puRespawn.ogg"       );

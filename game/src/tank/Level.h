@@ -132,7 +132,7 @@ class GC_Sound;
 class GC_Wood;
 class GC_RigidBodyStatic;
 class GC_Wall;
-class GC_PickUp;
+class GC_Pickup;
 class GC_2dSprite;
 
 class GC_Text;

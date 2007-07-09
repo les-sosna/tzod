@@ -132,7 +132,7 @@ protected:
 	} _aiState_l1;
 
 protected:
-	SafePtr<GC_PickUp>          _pickupCurrent;
+	SafePtr<GC_Pickup>          _pickupCurrent;
 	SafePtr<GC_RigidBodyStatic> _target;  // текущая цель
 	AIWEAPSETTINGS _weapSettings; // настроики оружия
 

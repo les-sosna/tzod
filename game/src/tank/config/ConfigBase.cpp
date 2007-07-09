@@ -810,8 +810,9 @@ bool ConfVarTable::Load(const char *filename)
 	lua_State *L = lua_open();
 
 	// try to read and execute the file
-	if( 0 != (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0)) )
+	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
 	{
+		g_console->printf("%s\n", lua_tostring(L, -1));
 		lua_close(L);
 		return false;
 	}

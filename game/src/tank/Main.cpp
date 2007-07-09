@@ -180,7 +180,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		TRACE("couldn't load " FILE_CONFIG "\n");
 
 		int result = MessageBox(g_env.hMainWnd, 
-			"Syntax error in the config file. Default settings will be used.",
+			"Syntax error in the config file (see log). Default settings will be used.",
 			TXT_VERSION,
 			MB_ICONERROR | MB_OKCANCEL);
 
@@ -287,7 +287,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		timer->Start();
 
 		MSG msg;
-		while(true) // цикл обработки сообщений
+		while(true)
 		{
 			if( PeekMessage(&msg, NULL, 0, 0, TRUE) )
 			{
@@ -302,7 +302,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				//------------------------------
 				if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
 				{
-					DialogBox(g_hInstance, (LPCTSTR)IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
+					DialogBox(g_hInstance, (LPCTSTR) IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
 					continue;
 				}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )

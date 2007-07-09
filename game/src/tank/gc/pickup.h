@@ -17,44 +17,13 @@ class GC_Weapon;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Item : public GC_2dSprite
-{
-	float                 _radius;  // радиус предмета
-
-protected:
-	SafePtr<GC_HideLabel> _label;   // указатель на метку начального расположения
-
-public:
-	void  setRadius(float r) { _radius = r;    }
-	float getRadius() const  { return _radius; }
-
-public:
-	GC_Item(float x, float y);
-	GC_Item(FromFile);
-
-	virtual bool IsSaved() { return true; }
-	virtual void Serialize(SaveFile &f);
-	virtual void Kill();
-
-#ifdef NETWORK_DEBUG
-public:
-	virtual DWORD checksum(void) const
-	{
-		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
-		return GC_2dSprite::checksum() ^ cs;
-	}
-#endif
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_PickUp : public GC_Item
+class GC_Pickup : public GC_2dSprite
 {
 	MemberOfGlobalList _memberOf;
 
-	class MyPropertySet : public GC_Item::MyPropertySet
+	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
-		typedef GC_Item::MyPropertySet BASE;
+		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 
 	public:
@@ -66,42 +35,59 @@ class GC_PickUp : public GC_Item
 
 	virtual SafePtr<PropertySet> GetProperties();
 
-protected:
-	virtual void GiveIt(GC_Vehicle* veh);
-	virtual void Respawn();
+	SafePtr<GC_HideLabel> _label;
+	SafePtr<GC_Actor>     _owner;
 
-	void Disappear(); // hide or kill
+	float  _radius;
+	float  _time;
+	float  _timeAnimation;
+	float  _timeRespawn;
+	bool   _autoSwitch;
+	bool   _respawn;        // flag indicates that item will be respawned in the original position
+//	bool   _attached;       // предмет прикреплен к танку
+	bool   _blink;          // item is blinking
+
+protected:
+	virtual void Respawn();
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
+	virtual void Kill();
+
 	virtual void Draw();
 
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
+	virtual bool IsSaved() { return true; }
 
 public:
-	bool	_bMostBeAllowed; // небходимо разрешение, чтобы подобрать предмет
-	float	_time;
-	float	_timeAnimation;
-	float	_timeRespawn;
-	bool	_respawn;      // flag indicates that item will be respawned in the original position
-	bool	_attached;     // предмет прикреплен к танку
-	bool	_blink;        // item is blinking
+	void  SetRadius(float r)   { _radius = r;              }
+	float GetRadius()    const { return _radius;           }
+	GC_Actor* GetOwner() const { return GetRawPtr(_owner); }
+	bool IsAttached()    const { return NULL != _owner;    }
+
+	void  SetRespawnTime(float respawnTime);
+	float GetRespawnTime() const;
+
+	void  SetAutoSwitch(bool autoSwitch);
+
+	// hide or kill depending on _respawn; return true if object is killed
+	virtual bool Disappear();
 
 public:
-	GC_PickUp(float x, float y);
-	GC_PickUp(FromFile);
+	GC_Pickup(float x, float y);
+	GC_Pickup(FromFile);
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return _blink; }
 
-	bool IsAttached() const { return _attached; }
-
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh) {return AIP_NORMAL;};
+	virtual GC_Vehicle* CheckPickup();
 
-	virtual GC_Vehicle* CheckPickUp();
+	virtual void Attach(GC_Vehicle *vehicle);
+	virtual void Detach();
 
 	virtual float GetDefaultRespawnTime() const = 0;
 
@@ -109,15 +95,17 @@ public:
 public:
 	virtual DWORD checksum(void) const
 	{
-		DWORD cs = reinterpret_cast<const DWORD&>(_time);
-		return GC_Item::checksum() ^ cs;
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) 
+		         ^ reinterpret_cast<const DWORD&>(GetPos().y)
+		         ^ reinterpret_cast<const DWORD&>(_time);
+		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Health : public GC_PickUp
+class GC_pu_Health : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Health);
 
@@ -128,13 +116,13 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_Vehicle* CheckPickUp();
+	virtual void Attach(GC_Vehicle* veh);
+	virtual GC_Vehicle* CheckPickup();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Mine : public GC_PickUp
+class GC_pu_Mine : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Mine);
 
@@ -145,18 +133,18 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* veh);
-	virtual GC_Vehicle* CheckPickUp();
+	virtual void Attach(GC_Vehicle* veh);
+	virtual GC_Vehicle* CheckPickup();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Invulnerablity : public GC_PickUp
+class GC_pu_Invulnerablity : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Invulnerablity);
 
 private:
-	float _time_hit;
+	float _timeHit;
 
 public:
 	GC_pu_Invulnerablity(float x, float y);
@@ -167,7 +155,7 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* veh);
+	virtual void Attach(GC_Vehicle* veh);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -179,16 +167,16 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Shock : public GC_PickUp
+class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 
 private:
-	SafePtr<GC_Vehicle> _vehicle;
+//	SafePtr<GC_Vehicle> _vehicle;
 	SafePtr<GC_Line>  _effect;
 	SafePtr<GC_Light> _light;
 
-	float _time_wait; // время ожидания
+	float _timeout;
 
 	GC_Vehicle *FindNearVehicle(GC_Vehicle *pIgnore);
 
@@ -203,36 +191,40 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* veh);
+	virtual void Attach(GC_Vehicle* veh);
 
 	virtual void TimeStepFixed(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Booster : public GC_PickUp
+class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
 
 protected:
-	SafePtr<GC_Weapon> _weapon;
+//	SafePtr<GC_Weapon> _weapon;
 
 public:
 	GC_pu_Booster(float x, float y);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
-	virtual void Kill();
+	virtual bool Disappear();
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
 
-	virtual void GiveIt(GC_Vehicle* veh); //return true  -  respawn
-	virtual GC_Vehicle* CheckPickUp();
+	virtual void Attach(GC_Vehicle* veh);
+	virtual void Detach();
+
+	virtual GC_Vehicle* CheckPickup();
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
+
+	void OnWeaponDisappear(GC_Object *sender, void *param);
 };
 
 

@@ -984,12 +984,10 @@ GC_Disk::~GC_Disk()
 }
 
 void GC_Disk::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Projectile::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_attached);
 	f.Serialize(_time);
-	/////////////////////////////////////
 	f.Serialize(_ripper);
 }
 
