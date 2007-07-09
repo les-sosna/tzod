@@ -36,8 +36,8 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 {
 	SetZ(Z_VEHICLES);
 
-	_engine_power = 0;
-	_rotate_power = 0;
+	_enginePower = 0;
+	_rotatePower = 0;
 
 	_time_smoke   = 0;
 
@@ -64,9 +64,9 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 
 	UpdateLight();
 
-	_fTrackDensity = 8;
-	_fTrackPathL   = 0;
-	_fTrackPathR   = 0;
+	_trackDensity = 8;
+	_trackPathL   = 0;
+	_trackPathR   = 0;
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetShadow(true);
@@ -94,13 +94,13 @@ void GC_Vehicle::Serialize(SaveFile &f)
 {
 	GC_RigidBodyDynamic::Serialize(f);
 
-	f.Serialize(_engine_power);
-	f.Serialize(_rotate_power);
+	f.Serialize(_enginePower);
+	f.Serialize(_rotatePower);
 	f.Serialize(_state);
 	f.Serialize(_time_smoke);
-	f.Serialize(_fTrackDensity);
-	f.Serialize(_fTrackPathL);
-	f.Serialize(_fTrackPathR);
+	f.Serialize(_trackDensity);
+	f.Serialize(_trackPathL);
+	f.Serialize(_trackPathR);
 	f.Serialize(_damLabel);
 	f.Serialize(_light_ambient);
 	f.Serialize(_light1);
@@ -224,8 +224,8 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	_percussion = vc.percussion;
 	_fragility  = vc.fragility;
 
-	_engine_power = vc.engine_power;
-	_rotate_power = vc.rotate_power;
+	_enginePower = vc.enginePower;
+	_rotatePower = vc.rotatePower;
 
 	SetMaxHP(vc.health);
 }
@@ -410,12 +410,12 @@ void GC_Vehicle::TimeStepFixed(float dt)
 
 	if( _state._bState_MoveForward )
 	{
-		ApplyForce(_direction * _engine_power);
+		ApplyForce(_direction * _enginePower);
 	}
 	else
 	if( _state._bState_MoveBack )
 	{
-		ApplyForce(-_direction * _engine_power);
+		ApplyForce(-_direction * _enginePower);
 	}
 
 
@@ -434,33 +434,33 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		if( fabsf(_angle - xt1) < fabsf(_angle - xt2) &&
 			fabsf(_angle - xt1) < fabsf(_angle - target) )
 		{
-			ApplyMomentum( -_rotate_power );
+			ApplyMomentum( -_rotatePower );
 		}
 		else
 		if( fabsf(_angle - xt2) < fabsf(_angle - xt1) &&
 			fabsf(_angle - xt2) < fabsf(_angle - target) )
 		{
-			ApplyMomentum(  _rotate_power );
+			ApplyMomentum(  _rotatePower );
 		}
 		else
 		{
 			if( target > _angle )
 			{
-				ApplyMomentum(  _rotate_power );
+				ApplyMomentum(  _rotatePower );
 			}
 			else
 			{
-				ApplyMomentum( -_rotate_power );
+				ApplyMomentum( -_rotatePower );
 			}
 		}
 	}
 	else
 	{
 		if( _state._bState_RotateLeft )
-			ApplyMomentum( -_rotate_power );
+			ApplyMomentum( -_rotatePower );
 		else
 		if( _state._bState_RotateRight )
-			ApplyMomentum(  _rotate_power );
+			ApplyMomentum(  _rotatePower );
 	}
 
 
@@ -488,28 +488,28 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		vec2d e = trackL_new - trackL;
 		float len = e.Length();
 		e /= len;
-		while( _fTrackPathL < len )
+		while( _trackPathL < len )
 		{
-			GC_Particle *p = new GC_Particle(trackL + e * _fTrackPathL,
+			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL,
 				vec2d(0, 0), track, 12, e.Angle());
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
-			_fTrackPathL += _fTrackDensity;
+			_trackPathL += _trackDensity;
 		}
-		_fTrackPathL -= len;
+		_trackPathL -= len;
 
 		e   = trackR_new - trackR;
 		len = e.Length();
 		e  /= len;
-		while( _fTrackPathR < len )
+		while( _trackPathR < len )
 		{
-			GC_Particle *p = new GC_Particle(trackR + e * _fTrackPathR,
+			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR,
 				vec2d(0, 0), track, 12, e.Angle());
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
-			_fTrackPathR += _fTrackDensity;
+			_trackPathR += _trackDensity;
 		}
-		_fTrackPathR -= len;
+		_trackPathR -= len;
 	}
 
 
@@ -597,8 +597,8 @@ void GC_Tank_Light::SetDefaults()
 
 	_percussion = 1;
 
-	_engine_power = 100000;
-	_rotate_power = 50000;
+	_enginePower = 100000;
+	_rotatePower = 50000;
 
 	_ForvAccel = 500;
 	_BackAccel = 200;

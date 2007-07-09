@@ -35,31 +35,4 @@ function getvclass(cls, weap)
 end
 
 
--- implementation of the command queue
-function initcmdqueue()
- local queue = {}
- 
- function pushcmd(cmd, delay)
-  queue[#queue + 1] = {cmd, delay};
- end
- 
- function execqueue(dt)
-  for k,v in pairs(queue) do
-   if v[2] then
-    v[2] = v[2] - dt
-    if v[2] <= 0 then v[2] = nil end
-   end
-   if nil == v[2] then
-    v[1]()
-    queue[k] = nil
-   end
-  end
- end
-
- function clearqueue()
-  queue = {}
- end
-end
-
-
 -- end of file

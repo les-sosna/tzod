@@ -1,5 +1,7 @@
 -- Demo
 
+reset()
+
 conf.sv_timelimit = 0
 conf.sv_fraglimit = 0
 conf.sv_nightmode = true

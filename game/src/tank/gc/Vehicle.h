@@ -15,7 +15,7 @@ class GC_Light;
 
 struct VehicleClass
 {
-	string_t display_name;
+	string_t displayName;
 
 	float health;
 	float percussion;
@@ -33,8 +33,8 @@ struct VehicleClass
 	float _My;      // viscous friction factor Y
 	float _Mw;      // angilar viscous friction factor
 
-	float engine_power;
-	float rotate_power;
+	float enginePower;
+	float rotatePower;
 
 };
 
@@ -96,9 +96,9 @@ protected:
 	SafePtr<GC_Light>    _light1;
 	SafePtr<GC_Light>    _light2;
 
-	float _fTrackDensity;
-	float _fTrackPathL;
-	float _fTrackPathR;
+	float _trackDensity;
+	float _trackPathL;
+	float _trackPathR;
 
 	void UpdateLight();
 
@@ -107,8 +107,8 @@ public:
 	void SetClass(const VehicleClass &vc); // apply vehicle class
 	void ResetClass();
 
-	float _engine_power;
-	float _rotate_power;
+	float _enginePower;
+	float _rotatePower;
 
 	VehicleState _state;
 

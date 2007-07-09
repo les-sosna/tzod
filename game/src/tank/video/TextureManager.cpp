@@ -202,6 +202,7 @@ int TextureManager::LoadPackage(const char* filename)
 
 	if( 0 != (luaL_loadfile(L, filename) || lua_pcall(L, 0, 1, 0)) )
 	{
+		TRACE("%s\n", lua_tostring(L, -1));
 		lua_close(L);
 		return 0;
 	}

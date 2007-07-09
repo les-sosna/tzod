@@ -86,7 +86,12 @@
 
 #include <auxiliary.h>
 
-extern "C" {
+#ifdef _DEBUG
+#define LUA_USE_APICHECK
+#endif
+
+extern "C" 
+{
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"

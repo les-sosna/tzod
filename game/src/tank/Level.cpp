@@ -1165,24 +1165,55 @@ void Level::TimeStep(float dt)
 	_safeMode = true;
 
 
+	//
+	// run through the command queue
+	//
+
+	lua_State * const L = g_env.L;
+
+	int t1 = lua_type(L, 1);
+	int t2 = lua_type(L, 2);
+	int t3 = lua_type(L, 3);
+
+	lua_getglobal(L, "pushcmd");
+	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+	lua_getupvalue(L, -1, 1);
+	int queueidx = lua_gettop(L);
+
 	while( passedFixedLoopsCount-- )
 	{
-		lua_getglobal(g_env.L, "execqueue");
-		lua_pushnumber(g_env.L, passedFixedDT);
-		if( lua_pcall(g_env.L, 1, 0, 0) )
+		for( lua_pushnil(L); lua_next(L, queueidx); lua_pop(L, 1) )
 		{
-			TRACE("%s\n", lua_tostring(g_env.L, -1));
-			lua_pop(g_env.L, 1); // pop the error message
+			// -2 -> key; -1 -> value(table)
 
-			// in case of error we should manually clear the queue
-			lua_getglobal(g_env.L, "clearqueue");
-			if( lua_pcall(g_env.L, 0, 0, 0) )
+			lua_rawgeti(L, -1, 2);
+			lua_Number time = lua_tonumber(L, -1) - passedFixedDT;
+			lua_pop(L, 1);
+
+			if( time <= 0 )
 			{
-				TRACE("clearqueue failed: %s\n", lua_tostring(g_env.L, -1));
-				lua_pop(g_env.L, 1); // pop the error message
+				// call function and remove from queue
+				lua_rawgeti(L, -1, 1);
+				if( lua_pcall(L, 0, 0, 0) )
+				{
+					TRACE("%s\n", lua_tostring(g_env.L, -1));
+					lua_pop(g_env.L, 1); // pop the error message
+				}
+				lua_pushvalue(L, -2); // push copy of the key
+				lua_pushnil(L);
+				lua_settable(L, queueidx);
+			}
+			else
+			{
+				// update time value
+				lua_pushnumber(L, time);
+				lua_rawseti(L, -2, 2);
 			}
 		}
 	}
+
+	_ASSERT(lua_gettop(L) == queueidx);
+	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 }
 
 

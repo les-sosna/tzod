@@ -34,15 +34,20 @@ static int luaT_quit(lua_State *L)
 static int luaT_reset(lua_State *L)
 {
 	if( g_level && !g_level->IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
+		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
 	SAFE_DELETE(g_level);
 
-	lua_getglobal(L, "clearqueue");
-	lua_call(L, 0, 0);
 
+	//
+	// clear the queue
+	//
+
+	lua_getglobal(L, "pushcmd");
+	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
 	lua_newtable(L);
-	lua_setglobal(L, "user");
+	lua_setupvalue(L, -2, 1); // pops result of lua_newtable
+	lua_pop(L, 1);  // pop result of lua_getglobal
 
 	return 0;
 }
@@ -369,7 +374,7 @@ int luaT_ConvertVehicleClass(lua_State *L)
 	// get display name
 	//
 	lua_getfield(L, 1, "display");
-	vc.display_name = lua_isstring(L, -1) ? lua_tostring(L, -1) : "<unnamed>";
+	vc.displayName = lua_isstring(L, -1) ? lua_tostring(L, -1) : "<unnamed>";
 	lua_pop(L, 1); // pop result of lua_getfield
 
 
@@ -439,17 +444,17 @@ int luaT_ConvertVehicleClass(lua_State *L)
 	}
 	get_array(L, tmp, 2);
 	lua_pop(L, 1); // pop result of getfield;
-	vc.engine_power = tmp[0];
-	vc.rotate_power = tmp[1];
+	vc.enginePower = tmp[0];
+	vc.rotatePower = tmp[1];
 
 
 	//
 	// get mass, inertia, etc
 	//
 
-	get_numeric(L, "mass",    vc.m);
-	get_numeric(L, "inertia", vc.i);
-	get_numeric(L, "health",  vc.health);
+	get_numeric(L, "mass",       vc.m);
+	get_numeric(L, "inertia",    vc.i);
+	get_numeric(L, "health",     vc.health);
 	get_numeric(L, "percussion", vc.percussion);
 	get_numeric(L, "fragility",  vc.fragility);
 
@@ -461,14 +466,14 @@ int luaT_ConvertVehicleClass(lua_State *L)
 // return false if property not found
 int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 {
-	const char *prop_name = lua_tostring(L, -2);
+	const char *pname = lua_tostring(L, -2);
 
 	ObjectProperty *p = NULL;
 
 	for( int i = 0; i < properties->GetCount(); ++i )
 	{
 		p = properties->GetProperty(i);
-		if( p->GetName() == prop_name )
+		if( p->GetName() == pname )
 		{
 			break;
 		}
@@ -488,13 +493,13 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		if( LUA_TNUMBER != lua_type(L, -1) )
 		{
 			luaL_error(L, "property '%s' - expected integer value; got %s", 
-				prop_name, lua_typename(L, lua_type(L, -1)));
+				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		int v = lua_tointeger(L, -1);
 		if( v < p->GetMin() || v > p->GetMax() )
 		{
 			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]", 
-				prop_name, v, p->GetMin(), p->GetMax());
+				pname, v, p->GetMin(), p->GetMax());
 		}
 		p->SetValueInt(v);
 		break;
@@ -504,7 +509,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
 			luaL_error(L, "property '%s' - expected string value; got %s", 
-				prop_name, lua_typename(L, lua_type(L, -1)));
+				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		p->SetValue(lua_tostring(L, -1));
 		break;
@@ -514,7 +519,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
 			luaL_error(L, "property '%s' - expected string value; got %s", 
-				prop_name, lua_typename(L, lua_type(L, -1)));
+				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		const char *v = lua_tostring(L, -1);
 		bool ok = false;
@@ -529,7 +534,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		}
 		if( !ok )
 		{
-			return luaL_error(L, "property '%s' - attempt to set invalid value '%s'", prop_name, v);
+			return luaL_error(L, "property '%s' - attempt to set invalid value '%s'", pname, v);
 		}
 		break;
 	}
@@ -815,6 +820,80 @@ int luaT_loadtheme(lua_State *L)
 	return 0;
 }
 
+int luaT_pushcmd(lua_State *L)
+{
+	luaL_checktype(L, 1, LUA_TFUNCTION);
+	if( 1 == lua_gettop(L) )
+		lua_pushnumber(L, 0);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	lua_settop(L, 2);
+
+	lua_createtable(L, 2, 0); // create a new table at index 3
+	lua_pushvalue(L, 1);      // push copy of the function
+	lua_rawseti(L, 3, 1);
+	lua_pushvalue(L, 2);      // push copy of the delay
+	lua_rawseti(L, 3, 2);
+
+	lua_rawseti(L, lua_upvalueindex(1), lua_objlen(L, lua_upvalueindex(1)) + 1);
+	return 0;
+}
+/*
+int luaT_execqueue(lua_State *L)
+{
+	lua_Number dt = luaL_checknumber(L, 1);
+	lua_settop(L, 0);
+
+	for( lua_pushnil(L); lua_next(L, lua_upvalueindex(1)); lua_pop(L, 1) )
+	{
+		// 1 -> key; 2 -> value(table)
+
+		lua_rawgeti(L, 2, 2);
+		double time = lua_tonumber(L, 3) - dt;
+		lua_pop(L, 1);
+
+		if( time <= 0 )
+		{
+			// call function and remove from queue
+			lua_rawgeti(L, 2, 1);
+			lua_call(L, 0, 0);
+			lua_pushvalue(L, 1); // push copy of the key
+			lua_pushnil(L);
+			lua_settable(L, lua_upvalueindex(1));
+		}
+		else
+		{
+			// update time value
+			lua_pushnumber(L, time);
+			lua_rawseti(L, 2, 2);
+		}
+	}
+
+	return 0;
+}
+
+int luaT_clearqueue(lua_State *L)
+{
+	if( 0 != lua_gettop(L) )
+	{
+		return luaL_error(L, "you may not pass any arguments to this function");
+	}
+
+	lua_newtable(L);               // 1
+
+	lua_getglobal(L, "pushcmd");   // 2
+	lua_pushvalue(L, 1);           // 3
+	lua_setupvalue(L, 2, 1);       // remove 3
+	lua_pop(L, 1);                 // remove 2
+
+	lua_getglobal(L, "execqueue"); // 2
+	lua_pushvalue(L, 1);           // 3
+	lua_setupvalue(L, 2, 1);       // remove 3
+	lua_pop(L, 2);                 // remove 2 and 1
+
+	return 0;
+}
+*/
+
 ///////////////////////////////////////////////////////////////////////////////
 // api
 
@@ -849,9 +928,25 @@ lua_State* script_open(void)
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
 
+	lua_register(L, "reset",    luaT_reset);
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
 	lua_register(L, "freeze",   luaT_freeze);
+
+
+	//
+	// init the command queue
+	//
+	lua_newtable(L);
+	lua_pushvalue(L, -1);
+
+	lua_pushcclosure(L, luaT_pushcmd, 1);
+	lua_setglobal(L, "pushcmd");
+
+//	lua_pushcclosure(L, luaT_execqueue, 1);
+//	lua_setglobal(L, "execqueue");
+
+//	lua_register(L, "clearqueue", luaT_clearqueue);
 
 
 	//

@@ -1,5 +1,12 @@
 -- Battle City
 
+reset()
+
+conf.sv_timelimit = 0
+conf.sv_fraglimit = 0
+conf.sv_nightmode = false
+
+
 classes["user/enemy"] = tcopy(classes.default)
 classes["user/enemy"].health = 50;
 classes["user/enemy"].power[1] = 700;
