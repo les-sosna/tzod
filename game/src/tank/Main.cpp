@@ -312,13 +312,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 					if( g_level ) g_level->Pause(false);
 					continue;
 				}
-				//else if( g_env.envInputs.keys[DIK_F12] )
-				//{
-				//	if(g_level) g_level->Pause(true);
-				//	DialogBox(g_hInstance, (LPCTSTR)IDD_OPTIONS, g_env.hMainWnd, (DLGPROC) dlgOptions);
-				//	if(g_level) g_level->Pause(false);
-				//	continue;
-				//}
 				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
 				{
 					TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
