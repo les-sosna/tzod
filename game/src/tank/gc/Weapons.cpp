@@ -23,14 +23,15 @@
 
 GC_Weapon::GC_Weapon(float x, float y) : GC_Pickup(x, y), _rotator(_angle)
 {
+	SetRespawnTime( GetDefaultRespawnTime() );
+	SetAutoSwitch(false);
+
 	_advanced     = false;
 	_feTime       = 1.0f;
-	_timeRespawn  = GetDefaultRespawnTime();
 	_feOrient     = 0;
 	_fePos.Set(0,0);
 
 	_time       = 0;
-	_autoSwitch = false;
 }
 
 AIPRIORITY GC_Weapon::CheckUseful(GC_Vehicle *veh)
@@ -73,8 +74,6 @@ void GC_Weapon::Attach(GC_Vehicle *veh)
 	_owner->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_Weapon::OnOwnerMove, false, false);
 
-	_attached = true;
-
 	Show(true);
 	SetBlinking(false);
 
@@ -103,13 +102,12 @@ void GC_Weapon::Detach()
 	SAFE_KILL(_fireEffect);
 	SAFE_KILL(_fireLight);
 
-	_attached = false;
 	_time = 0;
 }
 
 void GC_Weapon::ProcessRotate(float dt)
 {
-	if( _attached )
+	if( IsAttached() )
 	{
 		_ASSERT(_owner);
 
@@ -214,7 +212,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	_time += dt;
 
-	if( _attached )
+	if( IsAttached() )
 	{
 		if( _crosshair )
 		{
@@ -248,13 +246,13 @@ void GC_Weapon::TimeStepFixed(float dt)
 void GC_Weapon::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( !_attached && !_respawn )
+	if( !IsAttached() && !_respawn )
 		SetRotation(_timeAnimation);
 }
 
 void GC_Weapon::OnOwnerMove(GC_Vehicle *sender, void *param)
 {
-	_ASSERT(_attached);
+	_ASSERT(IsAttached());
 
 	MoveTo(_owner->GetPos());
 	UpdateView();
@@ -330,7 +328,7 @@ void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 
 void GC_Weap_RocketLauncher::Fire()
 {
-	_ASSERT(_attached);
+	_ASSERT(IsAttached());
 
 	if( _advanced )
 	{
@@ -409,7 +407,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 {
-	if( _attached )
+	if( IsAttached() )
 	{
 		if( _firing )
 			Fire();
@@ -517,7 +515,7 @@ void GC_Weap_AutoCannon::Serialize(SaveFile &f)
 
 void GC_Weap_AutoCannon::Fire()
 {
-	if( _firing && _attached )
+	if( _firing && IsAttached() )
 	{
 		if( _advanced )
 		{
@@ -589,7 +587,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 {
-	if( _attached )
+	if( IsAttached() )
 	{
 		if( _advanced )
 			_nshots  = 0;
@@ -669,7 +667,7 @@ void GC_Weap_Cannon::Serialize(SaveFile &f)
 
 void GC_Weap_Cannon::Fire()
 {
-	if( _attached && _time >= _timeReload )
+	if( IsAttached() && _time >= _timeReload )
 	{
 		vec2d a(_owner->_angle + _angle);
 
@@ -705,7 +703,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( !_attached ) return;
+	if( !IsAttached() ) return;
 
 	if( _time_smoke > 0 )
 	{
@@ -765,7 +763,7 @@ void GC_Weap_Plazma::Attach(GC_Vehicle *veh)
 
 void GC_Weap_Plazma::Fire()
 {
-	if( _attached && _time >= _timeReload )
+	if( IsAttached() && _time >= _timeReload )
 	{
 		vec2d a(_owner->_angle + _angle);
 
@@ -833,7 +831,7 @@ GC_Weap_Gauss::~GC_Weap_Gauss()
 
 void GC_Weap_Gauss::Fire()
 {
-	if( _attached && _time >= _timeReload )
+	if( IsAttached() && _time >= _timeReload )
 	{
 		float s = sinf(_owner->_angle + _angle);
 		float c = cosf(_owner->_angle + _angle);
@@ -977,7 +975,7 @@ void GC_Weap_Ram::Kill()
 
 void GC_Weap_Ram::Fire()
 {
-	_ASSERT(_attached);
+	_ASSERT(IsAttached());
 
 	if( _bReady )
 	{
@@ -1005,7 +1003,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( _attached )
+	if( IsAttached() )
 	{
 		_ASSERT(_engineSound);
 
@@ -1142,7 +1140,7 @@ void GC_Weap_BFG::Serialize(SaveFile &f)
 
 void GC_Weap_BFG::Fire()
 {
-	_ASSERT(_attached);
+	_ASSERT(IsAttached());
 
 	if( _time >= _timeReload )
 	{
@@ -1182,7 +1180,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 void GC_Weap_BFG::TimeStepFixed(float dt)
 {
 	GC_Weapon::TimeStepFixed(dt);
-	if( _attached && _time_ready != 0 )
+	if( IsAttached() && _time_ready != 0 )
 	{
 		_time_ready += dt;
 		Fire();
@@ -1233,7 +1231,7 @@ GC_Weap_Ripper::~GC_Weap_Ripper()
 
 void GC_Weap_Ripper::Fire()
 {
-	if( _attached && _time >= _timeReload )
+	if( IsAttached() && _time >= _timeReload )
 	{
 		vec2d a(_owner->_angle + _angle);
 
@@ -1347,8 +1345,8 @@ void GC_Weap_Minigun::Kill()
 
 void GC_Weap_Minigun::Fire()
 {
-	_ASSERT(_attached);
-	if( _attached )
+	_ASSERT(IsAttached());
+	if( IsAttached() )
 		_bFire = true;
 }
 
@@ -1372,7 +1370,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 		_crosshair_left->Show(NULL == dynamic_cast<GC_PlayerAI*>(_owner->GetPlayer()));
 	}
 
-	if( _attached )
+	if( IsAttached() )
 	{
 		if( _bFire )
 		{

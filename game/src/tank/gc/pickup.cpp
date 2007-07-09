@@ -408,7 +408,7 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 void GC_pu_Invulnerablity::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( _attached )
+	if( IsAttached() )
 	{
 		_timeHit = __max(0, _timeHit - dt);
 		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
@@ -512,9 +512,6 @@ void GC_pu_Shock::Attach(GC_Vehicle* veh)
 {
 	GC_Pickup::Attach(veh);
 
-//	_vehicle = veh;
-
-	_attached = true;
 	Show(false);
 
 	PLAY(SND_ShockActivate, GetPos());
@@ -559,7 +556,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
 
-	if( _attached )
+	if( IsAttached() )
 	{
 		if( !_effect )
 		{
@@ -677,9 +674,6 @@ void GC_pu_Booster::Attach(GC_Vehicle* veh)
 
 	GC_Pickup::Attach(w);
 
-//	_weapon = veh->GetWeapon();
-//	_attached = true;
-
 	if( w->GetAdvanced() )
 	{
 		FOREACH( pickups, GC_Pickup, pickup )
@@ -715,7 +709,7 @@ GC_Vehicle* GC_pu_Booster::CheckPickup()
 void GC_pu_Booster::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( _attached )
+	if( IsAttached() )
 	{
 		SetRotation(_timeAnimation * 50);
 	}
@@ -736,7 +730,7 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 			MoveTo(_weapon->GetPos());
 		}
 	}
-	if( _attached && _time > BOOSTER_TIME && !IsKilled() )
+	if( IsAttached() && _time > BOOSTER_TIME && !IsKilled() )
 	{
 		Disappear();
 		PLAY(SND_B_End, GetPos());

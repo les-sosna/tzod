@@ -44,7 +44,6 @@ class GC_Pickup : public GC_2dSprite
 	float  _timeRespawn;
 	bool   _autoSwitch;
 	bool   _respawn;        // flag indicates that item will be respawned in the original position
-//	bool   _attached;       // предмет прикреплен к танку
 	bool   _blink;          // item is blinking
 
 protected:
