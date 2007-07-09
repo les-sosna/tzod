@@ -837,62 +837,6 @@ int luaT_pushcmd(lua_State *L)
 	lua_rawseti(L, lua_upvalueindex(1), lua_objlen(L, lua_upvalueindex(1)) + 1);
 	return 0;
 }
-/*
-int luaT_execqueue(lua_State *L)
-{
-	lua_Number dt = luaL_checknumber(L, 1);
-	lua_settop(L, 0);
-
-	for( lua_pushnil(L); lua_next(L, lua_upvalueindex(1)); lua_pop(L, 1) )
-	{
-		// 1 -> key; 2 -> value(table)
-
-		lua_rawgeti(L, 2, 2);
-		double time = lua_tonumber(L, 3) - dt;
-		lua_pop(L, 1);
-
-		if( time <= 0 )
-		{
-			// call function and remove from queue
-			lua_rawgeti(L, 2, 1);
-			lua_call(L, 0, 0);
-			lua_pushvalue(L, 1); // push copy of the key
-			lua_pushnil(L);
-			lua_settable(L, lua_upvalueindex(1));
-		}
-		else
-		{
-			// update time value
-			lua_pushnumber(L, time);
-			lua_rawseti(L, 2, 2);
-		}
-	}
-
-	return 0;
-}
-
-int luaT_clearqueue(lua_State *L)
-{
-	if( 0 != lua_gettop(L) )
-	{
-		return luaL_error(L, "you may not pass any arguments to this function");
-	}
-
-	lua_newtable(L);               // 1
-
-	lua_getglobal(L, "pushcmd");   // 2
-	lua_pushvalue(L, 1);           // 3
-	lua_setupvalue(L, 2, 1);       // remove 3
-	lua_pop(L, 1);                 // remove 2
-
-	lua_getglobal(L, "execqueue"); // 2
-	lua_pushvalue(L, 1);           // 3
-	lua_setupvalue(L, 2, 1);       // remove 3
-	lua_pop(L, 2);                 // remove 2 and 1
-
-	return 0;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // api
@@ -900,6 +844,7 @@ int luaT_clearqueue(lua_State *L)
 lua_State* script_open(void)
 {
 	lua_State *L = lua_open();
+
 
 	//
 	// register functions
@@ -938,15 +883,9 @@ lua_State* script_open(void)
 	// init the command queue
 	//
 	lua_newtable(L);
-	lua_pushvalue(L, -1);
-
 	lua_pushcclosure(L, luaT_pushcmd, 1);
 	lua_setglobal(L, "pushcmd");
 
-//	lua_pushcclosure(L, luaT_execqueue, 1);
-//	lua_setglobal(L, "execqueue");
-
-//	lua_register(L, "clearqueue", luaT_clearqueue);
 
 
 	//

@@ -257,7 +257,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	BOOL bGeneralFault = FALSE;
 #endif
 
-
 	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )
 	{
 		// init texture manager

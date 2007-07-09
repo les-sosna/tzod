@@ -1171,10 +1171,6 @@ void Level::TimeStep(float dt)
 
 	lua_State * const L = g_env.L;
 
-	int t1 = lua_type(L, 1);
-	int t2 = lua_type(L, 2);
-	int t3 = lua_type(L, 3);
-
 	lua_getglobal(L, "pushcmd");
 	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
 	lua_getupvalue(L, -1, 1);
