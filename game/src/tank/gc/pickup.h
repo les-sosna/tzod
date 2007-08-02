@@ -43,8 +43,8 @@ class GC_Pickup : public GC_2dSprite
 	float  _timeAnimation;
 	float  _timeRespawn;
 	bool   _autoSwitch;
-	bool   _respawn;        // flag indicates that item will be respawned in the original position
-	bool   _blink;          // item is blinking
+	bool   _respawn;    // flag indicates that item will be respawned in the original position
+	bool   _blink;      // item is blinking
 
 protected:
 	virtual void Respawn();
@@ -171,7 +171,6 @@ class GC_pu_Shock : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 
 private:
-//	SafePtr<GC_Vehicle> _vehicle;
 	SafePtr<GC_Line>  _effect;
 	SafePtr<GC_Light> _light;
 
@@ -200,9 +199,6 @@ public:
 class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
-
-protected:
-//	SafePtr<GC_Weapon> _weapon;
 
 public:
 	GC_pu_Booster(float x, float y);
