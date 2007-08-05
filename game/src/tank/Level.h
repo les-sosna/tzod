@@ -293,7 +293,7 @@ public:
 
 public:
 	GC_RigidBodyStatic* agTrace( GridSet<OBJECT_LIST> &list,
-	                             GC_RigidBodyStatic* pIgnore,
+	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // координаты начала
 	                             const vec2d &a,       // направление
 	                             vec2d *ht   = NULL,

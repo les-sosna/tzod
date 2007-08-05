@@ -89,7 +89,7 @@ public:
 	inline void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
 	inline void SetColor(BYTE r, BYTE g, BYTE b) { _color.r=r; _color.g=g; _color.b=b; }
 
-	inline float GetRotation() { return _rotation; }
+	inline float GetRotation() const { return _rotation; }
 
 
 	void SetShadow(bool bEnable)

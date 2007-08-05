@@ -32,7 +32,7 @@ GC_Pickup::GC_Pickup(float x, float y) : _memberOf(g_level->pickups, this)
 	_radius         = 25.0;
 	_timeRespawn    = 0;
 	_timeAnimation  = 0;
-	_time           = 0;
+	_timeAttached   = 0;
 	_autoSwitch     = true;
 	_respawn        = false;
 	_blink          = false;
@@ -65,7 +65,7 @@ void GC_Pickup::Serialize(SaveFile &f)
 	f.Serialize(_blink);
 	f.Serialize(_autoSwitch);
 	f.Serialize(_respawn);
-	f.Serialize(_time);
+	f.Serialize(_timeAttached);
 	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
 	f.Serialize(_radius);
@@ -75,7 +75,7 @@ void GC_Pickup::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_pickup);
 }
 
-GC_Vehicle* GC_Pickup::CheckPickup()
+GC_Actor* GC_Pickup::FindNewOwner() const
 {
 	float r_sq = GetRadius() * GetRadius();
 
@@ -83,8 +83,7 @@ GC_Vehicle* GC_Pickup::CheckPickup()
 	{
 		if( !veh->IsKilled() )
 		{
-			if( r_sq >  (GetPos().x - veh->GetPos().x) * (GetPos().x - veh->GetPos().x) +
-				(GetPos().y - veh->GetPos().y) * (GetPos().y - veh->GetPos().y) )
+			if( (GetPos() - veh->GetPos()).Square() < r_sq )
 			{
 				if( _autoSwitch || veh->_state._bState_AllowDrop )
 					return veh;
@@ -95,11 +94,17 @@ GC_Vehicle* GC_Pickup::CheckPickup()
 	return NULL;
 }
 
-void GC_Pickup::Attach(GC_Vehicle* veh)
+void GC_Pickup::Attach(GC_Actor *actor)
 {
-	MoveTo(veh->GetPos());
-	_owner =  veh;
-	_time = 0;
+	MoveTo(actor->GetPos());
+	_owner         = actor;
+	_timeAttached  = 0;
+}
+
+void GC_Pickup::Detach()
+{
+	SetZ(Z_FREE_ITEM);
+	_owner = NULL;
 }
 
 void GC_Pickup::Respawn()
@@ -127,7 +132,7 @@ bool GC_Pickup::Disappear()
 	if( _label )
 	{
 		MoveTo(_label->GetPos());
-		_time = 0;
+		_timeAttached = 0;
 		return false;
 	}
 	Kill();
@@ -167,20 +172,20 @@ void GC_Pickup::TimeStepFloat(float dt)
 
 void GC_Pickup::TimeStepFixed(float dt)
 {
-	_time += dt;
+	_timeAttached += dt;
 
 	if( !IsAttached() )
 	{
 		if( IsVisible() )
 		{
-			if( GC_Vehicle *veh = CheckPickup() )
+			if( GC_Actor *actor = FindNewOwner() )
 			{
-				Attach(veh);
+				Attach(actor);
 			}
 		}
 		else
 		{
-			if( _time > _timeRespawn )
+			if( _timeAttached > _timeRespawn )  // FIXME
 				Respawn();
 		}
 	}
@@ -264,7 +269,7 @@ GC_pu_Health::GC_pu_Health(FromFile) : GC_Pickup(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Health::CheckUseful(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Health::GetPriority(GC_Vehicle *veh)
 {
 	if( veh->GetHealth() < veh->GetHealthMax() )
 		return AIP_HEALTH * (veh->GetHealth() / veh->GetHealthMax());
@@ -272,19 +277,20 @@ AIPRIORITY GC_pu_Health::CheckUseful(GC_Vehicle *veh)
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Health::Attach(GC_Vehicle* veh)
+void GC_pu_Health::Attach(GC_Actor *actor)
 {
-	GC_Pickup::Attach(veh);
+	GC_Pickup::Attach(actor);
 
-	veh->SetHealthCur(veh->GetHealthMax());
+	static_cast<GC_RigidBodyStatic*>(actor)->SetHealthCur(
+		static_cast<GC_RigidBodyStatic*>(actor)->GetHealthMax() );
 	PLAY(SND_Pickup, GetPos());
 
 	Disappear();
 }
 
-GC_Vehicle* GC_pu_Health::CheckPickup()
+GC_Actor* GC_pu_Health::FindNewOwner() const
 {
-	GC_Vehicle *vehicle = GC_Pickup::CheckPickup();
+	GC_Vehicle *vehicle = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
 
 	if( vehicle && !vehicle->_state._bState_AllowDrop &&
 		vehicle->GetHealth() >= vehicle->GetHealthMax() )
@@ -312,22 +318,18 @@ GC_pu_Mine::GC_pu_Mine(FromFile) : GC_Pickup(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Mine::CheckUseful(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Mine::GetPriority(GC_Vehicle *veh)
 {
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Mine::Attach(GC_Vehicle* veh)
+void GC_pu_Mine::Attach(GC_Actor *actor)
 {
-	GC_Pickup::Attach(veh);
-	new GC_Boom_Standard(GetPos(), veh);
-	Kill();
-}
+//	GC_Pickup::Attach(actor);
 
-GC_Vehicle* GC_pu_Mine::CheckPickup()
-{
-	GC_Vehicle *veh = GC_Pickup::CheckPickup();
-	return veh;
+	_ASSERT(dynamic_cast<GC_RigidBodyStatic*>(actor));
+	new GC_Boom_Standard(GetPos(), static_cast<GC_RigidBodyStatic*>(actor));
+	Kill();
 }
 
 /////////////////////////////////////////////////////////////
@@ -344,33 +346,33 @@ GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y) : GC_Pickup(x, y)
 	SetTexture("pu_inv");
 	SetAutoSwitch(true);
 
-	_timeHit     = 0;
+	_timeHit = 0;
 }
 
 GC_pu_Invulnerablity::GC_pu_Invulnerablity(FromFile) : GC_Pickup(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Invulnerablity::CheckUseful(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Invulnerablity::GetPriority(GC_Vehicle *veh)
 {
 	return AIP_INVULN;
 }
 
-void GC_pu_Invulnerablity::Attach(GC_Vehicle* veh)
+void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 {
-	GC_Pickup::Attach(veh);
+	GC_Pickup::Attach(actor);
 
 	PLAY(SND_Inv, GetPos());
 
-	if( GC_Object *p = veh->GetSubscriber(GetType()) )
+	if( GC_Object *p = actor->GetSubscriber(GetType()) )
 	{
 		_ASSERT(dynamic_cast<GC_pu_Invulnerablity*>(p));
 		static_cast<GC_Pickup*>(p)->Disappear();
 	}
 
-	veh->Subscribe(NOTIFY_DAMAGE_FILTER, this,
+	actor->Subscribe(NOTIFY_DAMAGE_FILTER, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
-	veh->Subscribe(NOTIFY_ACTOR_MOVE, this,
+	actor->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerMove, false);
 
 	SetZ(Z_PARTICLE);
@@ -384,21 +386,21 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		if( _time + 2.0f > PROTECT_TIME )
+		if( GetTimeAttached() + 2.0f > PROTECT_TIME )
 		{
 			if( !GetBlinking() )
 			{
 				PLAY(SND_InvEnd, GetPos());
 				SetBlinking(true);
 			}
-			SetOpacity( (PROTECT_TIME - _time) / 2.0f );
+			SetOpacity( (PROTECT_TIME - GetTimeAttached()) / 2.0f );
 		}
 		else
 		{
 			SetBlinking(false);
 		}
 
-		if( _time > PROTECT_TIME )
+		if( GetTimeAttached() > PROTECT_TIME )
 		{
 			Disappear();
 		}
@@ -411,7 +413,7 @@ void GC_pu_Invulnerablity::TimeStepFloat(float dt)
 	if( IsAttached() )
 	{
 		_timeHit = __max(0, _timeHit - dt);
-		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
+		SetFrame( int((GetTimeAnimation() * ANIMATION_FPS)) % (GetFrameCount()) );
 	}
 }
 
@@ -448,6 +450,7 @@ void GC_pu_Invulnerablity::Serialize(SaveFile &f)
 
 void GC_pu_Invulnerablity::OnOwnerMove(GC_Object *sender, void *param)
 {
+	_ASSERT(GetOwner() == sender);
 	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
 
@@ -461,11 +464,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 
 GC_pu_Shock::GC_pu_Shock(float x, float y) : GC_Pickup(x, y)
 {
-	_timeRespawn = GetDefaultRespawnTime();
-	_timeout     = 1.5f;
-	_autoSwitch  = false;
-
+	SetRespawnTime(GetDefaultRespawnTime());
+	SetAutoSwitch(false);
 	SetTexture("pu_shock");
+
+	_timeout = 1.5f;
 }
 
 GC_pu_Shock::GC_pu_Shock(FromFile) : GC_Pickup(FromFile())
@@ -480,7 +483,7 @@ void GC_pu_Shock::Kill()
 {
 	SAFE_KILL(_light);
 	SAFE_KILL(_effect);
-	_vehicle = NULL;
+
 	GC_Pickup::Kill();
 }
 
@@ -491,10 +494,9 @@ void GC_pu_Shock::Serialize(SaveFile &f)
 	f.Serialize(_timeout);
 	f.Serialize(_effect);
 	f.Serialize(_light);
-	f.Serialize(_vehicle);
 }
 
-AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Shock::GetPriority(GC_Vehicle *veh)
 {
 	GC_Vehicle *tmp = FindNearVehicle(veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
@@ -508,16 +510,16 @@ AIPRIORITY GC_pu_Shock::CheckUseful(GC_Vehicle *veh)
 	return AIP_SHOCK;
 }
 
-void GC_pu_Shock::Attach(GC_Vehicle* veh)
+void GC_pu_Shock::Attach(GC_Actor* actor)
 {
-	GC_Pickup::Attach(veh);
+	_ASSERT(dynamic_cast<GC_RigidBodyStatic*>(actor));
 
-	Show(false);
-
+	GC_Pickup::Attach(actor);
 	PLAY(SND_ShockActivate, GetPos());
+	Show(false);
 }
 
-GC_Vehicle* GC_pu_Shock::FindNearVehicle(GC_Vehicle *pIgnore)
+GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 {
 	//
 	// находим ближайшего врага
@@ -529,15 +531,16 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(GC_Vehicle *pIgnore)
 	GC_Vehicle *pNearTarget = NULL;
 	FOREACH( vehicles, GC_Vehicle, pTargetObj )
 	{
-		if( !pTargetObj->IsKilled() && pTargetObj != pIgnore )
+		if( !pTargetObj->IsKilled() && pTargetObj != ignore )
 		{
 			// расстояние до объекта
 			dist = (GetPos() - pTargetObj->GetPos()).Length();
 
 			if( dist < min_dist )
 			{
-				GC_RigidBodyStatic *pObstacle = g_level->agTrace(
-					g_level->grid_rigid_s, GetRawPtr(_vehicle), GetPos(), pTargetObj->GetPos() - GetPos());
+				GC_RigidBodyStatic *pObstacle = g_level->agTrace(g_level->grid_rigid_s, 
+					static_cast<GC_RigidBodyStatic*>(GetOwner()), 
+					GetPos(), pTargetObj->GetPos() - GetPos());
 
 				if( pObstacle == pTargetObj )
 				{
@@ -560,16 +563,17 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 	{
 		if( !_effect )
 		{
-			if( _time > _timeout )
+			if( GetTimeAttached() > _timeout )
 			{
-				if( _vehicle->IsKilled() )
-				{
-					Disappear();
-					return;
-				}
+				//if( _vehicle->IsKilled() )
+				//{
+				//	Disappear();
+				//	return;
+				//}
 
-				MoveTo(_vehicle->GetPos());
-				GC_Vehicle *pNearTarget = FindNearVehicle(GetRawPtr(_vehicle));
+				MoveTo(GetOwner()->GetPos()); // FIXME
+				GC_Vehicle *pNearTarget = FindNearVehicle(
+					static_cast<GC_RigidBodyStatic*>(GetOwner()));
 
 				if( pNearTarget )
 				{
@@ -583,20 +587,23 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light->SetLength((pNearTarget->GetPos() - GetPos()).Length());
 					_light->SetAngle((pNearTarget->GetPos() - GetPos()).Angle());
 
-					_time = 0;
+				//	_time = 0;
 
-					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(), GetRawPtr(_vehicle));
+					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(), 
+						static_cast<GC_RigidBodyStatic*>(GetOwner()));
 				}
 				else
 				{
-					_vehicle->TakeDamage(1000.0, _vehicle->GetPos(), GetRawPtr(_vehicle));
+					static_cast<GC_RigidBodyStatic*>(GetOwner())
+						->TakeDamage(1000.0, GetOwner()->GetPos(), 
+							static_cast<GC_RigidBodyStatic*>(GetOwner()));
 					Disappear();
 				}
 			}
 		}
 		else
 		{
-			float a = _time / 0.2f;
+			float a = GetTimeAttached() / 0.2f;
 			if( a > 1 )
 			{
 				SAFE_KILL(_effect);
@@ -620,7 +627,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 
 GC_pu_Booster::GC_pu_Booster(float x, float y) : GC_Pickup(x, y)
 {
-	_timeRespawn = GetDefaultRespawnTime();
+	SetRespawnTime(GetDefaultRespawnTime());
 	SetTexture("pu_booster");
 }
 
@@ -634,10 +641,10 @@ GC_pu_Booster::~GC_pu_Booster()
 
 bool GC_pu_Booster::Disappear()
 {
-	if( _weapon )
+	if( IsAttached() )
 	{
-		_weapon->SetAdvanced(false);
-		_weapon = NULL;
+		_ASSERT(dynamic_cast<GC_Weapon*>(GetOwner()));
+		static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
 	}
 
 	SetTexture("pu_booster");
@@ -648,10 +655,9 @@ bool GC_pu_Booster::Disappear()
 void GC_pu_Booster::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
-	f.Serialize(_weapon);
 }
 
-AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Booster::GetPriority(GC_Vehicle *veh)
 {
 	if( !veh->GetWeapon() )
 	{
@@ -661,8 +667,10 @@ AIPRIORITY GC_pu_Booster::CheckUseful(GC_Vehicle *veh)
 	return veh->GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
-void GC_pu_Booster::Attach(GC_Vehicle* veh)
+void GC_pu_Booster::Attach(GC_Actor* actor)
 {
+	_ASSERT(dynamic_cast<GC_Weapon*>(actor));
+
 	GC_Weapon * const w = veh->GetWeapon();
 
 	if( NULL == w )
@@ -698,9 +706,9 @@ void GC_pu_Booster::Attach(GC_Vehicle* veh)
 	SetShadow(false);
 }
 
-GC_Vehicle* GC_pu_Booster::CheckPickup()
+GC_Actor* GC_pu_Booster::FindNewOwner() const
 {
-	GC_Vehicle *veh = GC_Pickup::CheckPickup();
+	GC_Vehicle *veh = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
 	if( veh && !veh->_state._bState_AllowDrop && !veh->GetWeapon() )
 		return NULL;
 	return veh;

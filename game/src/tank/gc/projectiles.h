@@ -224,18 +224,18 @@ class GC_Disk : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Disk);
 
 protected:
-	bool _attached;
-	SafePtr<GC_Weap_Ripper> _ripper;
+//	bool _attached;
+//	SafePtr<GC_Weap_Ripper> _ripper;
 
 	float _time;
 
 public:
-	GC_Disk(GC_Weap_Ripper *pRipper);
+//	GC_Disk(GC_Weap_Ripper *pRipper);
 	GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
 	GC_Disk(FromFile);
 	virtual ~GC_Disk();
-	virtual void Kill();
 
+//	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
@@ -243,8 +243,8 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 
-	void OnRipperMove(GC_Object *sender, void *param);
-	void OnRipperKill(GC_Object *sender, void *param);
+//	void OnRipperMove(GC_Object *sender, void *param);
+//	void OnRipperKill(GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

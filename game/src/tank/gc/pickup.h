@@ -14,6 +14,7 @@ class GC_Line;
 class GC_Light;
 class GC_Crosshair;
 class GC_Weapon;
+class GC_RigidBodyStatic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +40,7 @@ class GC_Pickup : public GC_2dSprite
 	SafePtr<GC_Actor>     _owner;
 
 	float  _radius;
-	float  _time;
+	float  _timeAttached;
 	float  _timeAnimation;
 	float  _timeRespawn;
 	bool   _autoSwitch;
@@ -68,7 +69,15 @@ public:
 	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;
 
-	void  SetAutoSwitch(bool autoSwitch);
+	void SetRespawn(bool respawn) { _respawn = respawn; }
+	bool GetRespawn() const       { return _respawn;    }
+
+	void SetAutoSwitch(bool autoSwitch);
+
+	float GetTimeAnimation() const { return _timeAnimation; }
+	float GetTimeAttached() const { return _timeAttached; }
+
+
 
 	// hide or kill depending on _respawn; return true if object is killed
 	virtual bool Disappear();
@@ -82,10 +91,12 @@ public:
 
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh) {return AIP_NORMAL;};
-	virtual GC_Vehicle* CheckPickup();
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh) { return AIP_NORMAL; }
+	
+	// default implementation searches for nearest vehicle
+	virtual GC_Actor* FindNewOwner() const;
 
-	virtual void Attach(GC_Vehicle *vehicle);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
 	virtual float GetDefaultRespawnTime() const = 0;
@@ -113,10 +124,10 @@ public:
 	GC_pu_Health(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
-	virtual void Attach(GC_Vehicle* veh);
-	virtual GC_Vehicle* CheckPickup();
+	virtual void Attach(GC_Actor *actor);
+	virtual GC_Actor* FindNewOwner() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,10 +141,9 @@ public:
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
-	virtual void Attach(GC_Vehicle* veh);
-	virtual GC_Vehicle* CheckPickup();
+	virtual void Attach(GC_Actor *actor);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,9 +162,9 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
-	virtual void Attach(GC_Vehicle* veh);
+	virtual void Attach(GC_Actor *actor);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -176,7 +186,7 @@ private:
 
 	float _timeout;
 
-	GC_Vehicle *FindNearVehicle(GC_Vehicle *pIgnore);
+	GC_Vehicle *FindNearVehicle(const GC_RigidBodyStatic *ignore);
 
 public:
 	GC_pu_Shock(float x, float y);
@@ -187,9 +197,9 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
-	virtual void Attach(GC_Vehicle* veh);
+	virtual void Attach(GC_Actor *actor);
 
 	virtual void TimeStepFixed(float dt);
 };
@@ -209,12 +219,12 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
-	virtual void Attach(GC_Vehicle* veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
-	virtual GC_Vehicle* CheckPickup();
+	virtual GC_Actor* FindNewOwner() const;
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);

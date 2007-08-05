@@ -647,7 +647,7 @@ bool Level::Import(const char *fileName)
 	file.getMapAttribute("link-url", _infoUrl);
 	file.getMapAttribute("e-mail",   _infoEmail);
 
-    Init(width, height);
+	Init(width, height);
 
 	while( file.NextObject() )
 	{
@@ -839,7 +839,7 @@ void Level::LocationFromPoint(const vec2d &pt, Location &l)
 }
 
 GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
-	                                GC_RigidBodyStatic* pIgnore,
+	                                const GC_RigidBodyStatic* ignore,
 	                                const vec2d &x0,  // origin
 	                                const vec2d &a,   // direction
 	                                vec2d *ht,
@@ -895,7 +895,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
 					if( object->Trace0() ) continue;
-					if( object == pIgnore || object->IsKilled() ) continue;
+					if( ignore == object || object->IsKilled() ) continue;
 
 					//грубо
 					bool bHasHit = true;

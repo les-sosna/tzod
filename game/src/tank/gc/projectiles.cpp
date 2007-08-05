@@ -20,7 +20,7 @@
 #include "particles.h"
 #include "pickup.h"
 
-#include "Weapons.h" // FIXME!
+//#include "Weapons.h" // FIXME!
 
 ////////////////////////////////////////////////////////
 
@@ -948,22 +948,22 @@ IMPLEMENT_SELF_REGISTRATION(GC_Disk)
 	return true;
 }
 
-GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
-: GC_Projectile((GC_RigidBodyStatic *) NULL, false, FALSE, pRipper->GetPos(), vec2d(0, 0), "projectile_disk")
-{
-	_damage = 0;
-
-	_time = g_level->net_frand(1.0f);
-
-	_attached = true;
-	_ripper = pRipper;
-	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this,
-		(NOTIFYPROC) &GC_Disk::OnRipperKill, true, false);
-	_ripper->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_Disk::OnRipperMove, false, false);
-
-	_light->Activate(false);
-}
+//GC_Disk::GC_Disk(GC_Weap_Ripper *pRipper)
+//: GC_Projectile((GC_RigidBodyStatic *) NULL, false, FALSE, pRipper->GetPos(), vec2d(0, 0), "projectile_disk")
+//{
+//	_damage = 0;
+//
+//	_time = g_level->net_frand(1.0f);
+//
+//	_attached = true;
+//	_ripper = pRipper;
+//	_ripper->Subscribe(NOTIFY_OBJECT_KILL, this,
+//		(NOTIFYPROC) &GC_Disk::OnRipperKill, true, false);
+//	_ripper->Subscribe(NOTIFY_ACTOR_MOVE, this,
+//		(NOTIFYPROC) &GC_Disk::OnRipperMove, false, false);
+//
+//	_light->Activate(false);
+//}
 
 GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced)
 : GC_Projectile(owner, advanced, TRUE, x, v, "projectile_disk")
@@ -971,7 +971,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	_damage = g_level->net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f);
 	_trailDensity = 5.0f;
 	_time = g_level->net_frand(1.0f);
-	_attached = false;
+//	_attached = false;
 	_light->Activate(false);
 }
 
@@ -986,9 +986,9 @@ GC_Disk::~GC_Disk()
 void GC_Disk::Serialize(SaveFile &f)
 {
 	GC_Projectile::Serialize(f);
-	f.Serialize(_attached);
+//	f.Serialize(_attached);
 	f.Serialize(_time);
-	f.Serialize(_ripper);
+//	f.Serialize(_ripper);
 }
 
 bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
@@ -996,7 +996,7 @@ bool GC_Disk::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 	static const TextureCache tex1("particle_trace");
 	static const TextureCache tex2("explosion_e");
 
-	if( _attached ) return false;
+//	if( _attached ) return false;
 
 	ClearFlags(GC_FLAG_PROJECTILE_IGNOREOWNER);
 
@@ -1088,46 +1088,46 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 	new GC_Particle(pos + dx - ve*4.0f, v, tex, time, (v - ve * (32.0f / time)).Angle());
 }
 
-void GC_Disk::Kill()
-{
-	if( _attached )
-	{
-		_ripper   = NULL;
-		_attached = false;
-	}
-
-	GC_Projectile::Kill();
-}
+//void GC_Disk::Kill()
+//{
+//	if( _attached )
+//	{
+//		_ripper   = NULL;
+//		_attached = false;
+//	}
+//
+//	GC_Projectile::Kill();
+//}
 
 void GC_Disk::TimeStepFixed(float dt)
 {
 	_time += dt;
 	SetRotation( _time * 10.0f );
 
-	if( _attached )
-	{
-		if( _ripper->_attached )
-		{
-			Show(_ripper->_time >= _ripper->_timeReload);
-		}
-		else
-			Show(false);
-	}
-	else
+	//if( _attached )
+	//{
+	//	if( _ripper->_attached )
+	//	{
+	//		Show(_ripper->_time >= _ripper->_timeReload);
+	//	}
+	//	else
+	//		Show(false);
+	//}
+	//else
 		GC_Projectile::TimeStepFixed(dt);
 }
 
-void GC_Disk::OnRipperMove(GC_Object *sender, void *param)
-{
-	GC_Weap_Ripper *r = (GC_Weap_Ripper *) sender;
-	if( r->_owner )
-		MoveTo(r->GetPos() - (vec2d(r->_owner->_angle + r->_angle) * 7), FALSE);
-}
-
-void GC_Disk::OnRipperKill(GC_Object *sender, void *param)
-{
-	Kill();
-}
+//void GC_Disk::OnRipperMove(GC_Object *sender, void *param)
+//{
+//	GC_Weap_Ripper *r = (GC_Weap_Ripper *) sender;
+//	if( r->_owner )
+//		MoveTo(r->GetPos() - (vec2d(r->_owner->_angle + r->_angle) * 7), FALSE);
+//}
+//
+//void GC_Disk::OnRipperKill(GC_Object *sender, void *param)
+//{
+//	Kill();
+//}
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

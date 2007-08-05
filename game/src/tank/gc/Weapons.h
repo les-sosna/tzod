@@ -27,8 +27,8 @@ public:
 	inline  bool GetAdvanced()              { return _advanced;     }
 
 public:
-	float    _time;
-	float    _timeReload;
+	float _time;
+	float _timeReload;
 
 	float    _angle;          // угол поворота относительно платформы
 	Rotator  _rotator;
@@ -45,10 +45,10 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 6.0f; }
-	virtual AIPRIORITY CheckUseful(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 	void ProcessRotate(float dt);
 
@@ -76,7 +76,7 @@ public:
 	bool _firing;
 	bool _reloaded;
 
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
 	GC_Weap_RocketLauncher(float x, float y);
@@ -103,7 +103,7 @@ public:
 	int _nshots;
 	bool _firing;
 
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
 	GC_Weap_AutoCannon(float x, float y);
@@ -128,7 +128,7 @@ private:
 	float _time_smoke_dt;
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 
 	GC_Weap_Cannon(float x, float y);
 	GC_Weap_Cannon(FromFile);
@@ -147,7 +147,7 @@ class GC_Weap_Plazma : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Plazma);
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 
 	GC_Weap_Plazma(float x, float y);
 	GC_Weap_Plazma(FromFile);
@@ -164,7 +164,7 @@ class GC_Weap_Gauss : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Gauss);
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 
 	GC_Weap_Gauss(float x, float y);
 	GC_Weap_Gauss(FromFile);
@@ -200,7 +200,7 @@ public:
 	virtual void SetAdvanced(bool advanced);
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
 	GC_Weap_Ram(float x, float y);
@@ -224,7 +224,7 @@ private:
 	float _time_ready;
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 
 	GC_Weap_BFG(float x, float y);
 	GC_Weap_BFG(FromFile);
@@ -243,7 +243,7 @@ class GC_Weap_Ripper : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 
 	GC_Weap_Ripper(float x, float y);
 	GC_Weap_Ripper(FromFile);
@@ -269,7 +269,7 @@ private:
 	SafePtr<GC_Crosshair> _crosshair_left;
 
 public:
-	virtual void Attach(GC_Vehicle *veh);
+	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
 
 	GC_Weap_Minigun(float x, float y);

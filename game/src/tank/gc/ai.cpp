@@ -638,7 +638,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info)
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true);
 			if( l >= 0 )
 			{
-				AIPRIORITY p = items[i]->CheckUseful(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
+				AIPRIORITY p = items[i]->GetPriority(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
 				if( items[i]->GetType() == _favoriteWeaponType )
 				{
 					if( GetVehicle()->GetWeapon()

@@ -740,8 +740,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 			delta.x = tmp.x * c - tmp.y * s - dx.x;
 			delta.y = tmp.x * s - tmp.y * c - dx.y;
 
-//			float dl_sq = delta.Square();
-//			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
+			float dl_sq = delta.Square();
+			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
 
 			pProj->SpecialTrace(this, delta);
 			++it;
