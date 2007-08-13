@@ -671,7 +671,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 {
 	_ASSERT(dynamic_cast<GC_Weapon*>(actor));
 
-	GC_Weapon * const w = veh->GetWeapon();
+	GC_Weapon *w = static_cast<GC_Weapon*>(actor);
 
 	if( NULL == w )
 	{
