@@ -12,7 +12,7 @@ class GC_Player;
 class GC_Camera : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Camera);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_cameras> _memberOf;
 
 private:
 	vec2d	_target;

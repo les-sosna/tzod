@@ -24,7 +24,7 @@ class PtrList
 	{
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
-        nodeAllocator.free(node);
+		nodeAllocator.free(node);
 	}
 
 public:
@@ -38,6 +38,10 @@ public:
 
 	protected:
 		Node *_node;
+		class helper
+		{
+			void operator delete (void*) {} // it's private so we can't call delete ptr
+		};
 
 	public:
 		base_iterator() : _node(NULL) {}
@@ -53,6 +57,10 @@ public:
 		{
 			return _node == it._node;
 		}
+		operator const helper* () const // to allow if(iter), if(!iter)
+		{
+			return reinterpret_cast<const helper*>(_node);
+		}
 	};
 
 	class iterator : public base_iterator
@@ -64,28 +72,33 @@ public:
 		iterator& operator++ ()  // prefix increment
 		{
 			_ASSERT(_node && _node->next);
-            _node = _node->next;
+			_node = _node->next;
 			return (*this);
 		}
 		iterator operator++ (int)  // postfix increment
 		{
 			_ASSERT(_node && _node->next);
 			iterator tmp(_node);
-            _node = _node->next;
+			_node = _node->next;
 			return tmp;
 		}
 		iterator& operator-- ()  // prefix decrement
 		{
 			_ASSERT(_node && _node->prev);
-            _node = _node->prev;
+			_node = _node->prev;
 			return (*this);
 		}
 		iterator operator-- (int)  // postfix decrement
 		{
 			_ASSERT(_node && _node->prev);
 			iterator tmp(_node);
-            _node = _node->prev;
+			_node = _node->prev;
 			return tmp;
+		}
+		void operator = (const helper *arg) // to allow iter=NULL
+		{
+			_ASSERT(NULL == arg);
+			_node = NULL;
 		}
 	};
 
@@ -100,16 +113,16 @@ public:
 		}
 		~safe_iterator()
 		{
-            if( _node && 0 == (--_node->ref_count) && NULL == _node->ptr )
+			if( _node && 0 == (--_node->ref_count) && NULL == _node->ptr )
 				FreeNode(_node);
 		}
 
 		safe_iterator& operator++ ()  // prefix increment
 		{
 			_ASSERT(_node && _node->next);
-            if( 0 == (--_node->ref_count) && NULL == _node->ptr )
+			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
 			{
-	            _node = _node->next;
+				_node = _node->next;
 				FreeNode(_node->prev);
 			}
 			else
@@ -122,9 +135,9 @@ public:
 		safe_iterator& operator-- ()  // prefix decrement
 		{
 			_ASSERT(_node && _node->prev);
-            if( 0 == (--_node->ref_count) && NULL == _node->ptr )
+			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
 			{
-	            _node = _node->prev;
+				_node = _node->prev;
 				FreeNode(_node->next);
 			}
 			else
@@ -136,7 +149,7 @@ public:
 		}
 		safe_iterator& operator= (const base_iterator& src)
 		{
-            if( _node && 0 == --_node->ref_count && !_node->ptr )
+			if( _node && 0 == --_node->ref_count && !_node->ptr )
 				FreeNode(_node);
 			_node = src._node;
 			if( _node ) _node->ref_count++;
@@ -153,27 +166,27 @@ public:
 		reverse_iterator& operator++ ()  // prefix increment
 		{
 			_ASSERT(_node && _node->prev);
-            _node = _node->prev;
+			_node = _node->prev;
 			return (*this);
 		}
 		reverse_iterator operator++ (int)  // postfix increment
 		{
 			_ASSERT(_node && _node->prev);
 			reverse_iterator tmp(_node);
-            _node = _node->prev;
+			_node = _node->prev;
 			return tmp;
 		}
 		reverse_iterator& operator-- ()  // prefix decrement
 		{
 			_ASSERT(_node && _node->next);
-            _node = _node->next;
+			_node = _node->next;
 			return (*this);
 		}
 		reverse_iterator operator-- (int)  // postfix decrement
 		{
 			_ASSERT(_node && _node->next);
 			reverse_iterator tmp(_node);
-            _node = _node->next;
+			_node = _node->next;
 			return tmp;
 		}
 	};
@@ -210,7 +223,7 @@ public:
 		_end->next        = NULL;
 
 		for( iterator it = src.begin(); it != src.end(); ++it )
-            if(*it) push_back(*it);
+			if(*it) push_back(*it);
 	}
 
 	~PtrList(void)

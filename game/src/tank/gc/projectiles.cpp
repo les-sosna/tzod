@@ -25,8 +25,8 @@
 ////////////////////////////////////////////////////////
 
 GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trail,
-							 const vec2d &pos, const vec2d &v, const char *texture)
-: GC_2dSprite(), _memberOf(g_level->projectiles, this)
+                             const vec2d &pos, const vec2d &v, const char *texture)
+: GC_2dSprite(), _memberOf(this)
 {
 	SetZ(Z_PROJECTILE);
 	SetShadow(true);
@@ -52,7 +52,7 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 }
 
 GC_Projectile::GC_Projectile(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(g_level->projectiles, this)
+  : GC_2dSprite(FromFile()), _memberOf(this)
 {
 }
 
@@ -240,7 +240,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 		GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 		float nearest_cosinus = 0;
 
-		FOREACH( vehicles, GC_Vehicle, veh )
+		FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
 			if( veh->IsKilled() || _owner == veh )
 				continue;
@@ -638,7 +638,7 @@ void GC_BfgCore::FindTarget()
 	GC_Vehicle *pNearestVehicle = NULL; // ближайшее по углу
 	float nearest_cosinus = 0;
 
-	FOREACH( vehicles, GC_Vehicle, veh )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 	{
 		if( veh->IsKilled() || _owner == veh ) continue;
 
@@ -727,7 +727,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		FindTarget();
 	}
 
-	FOREACH( vehicles, GC_Vehicle, veh )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 	{
 		if( !veh->IsKilled() )
 		{

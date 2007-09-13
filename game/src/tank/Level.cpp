@@ -265,9 +265,9 @@ void Level::Init(int X, int Y)
 	// other objects
 	//
 
-	_Background::CreateInstance();
-
 	new GC_Camera((GC_Player *) NULL);
+
+	_background = new GC_Background();
 
 	_temporaryText = new GC_Text(0, 0, "");
 	_temporaryText->Show(false);
@@ -302,7 +302,7 @@ BOOL Level::init_emptymap()
 
 	g_render->SetAmbient( 1.0f );
 
-	_Background::Inst()->EnableGrid( g_conf.ed_drawgrid->Get() );
+	_background->EnableGrid( g_conf.ed_drawgrid->Get() );
 	_ThemeManager::Inst().ApplyTheme(0);
 
 	Pause(true);
@@ -365,8 +365,10 @@ Level::~Level()
 	TRACE("Destroying the level\n");
 
 	SAFE_KILL(_temporaryText);
+	SAFE_KILL(_background);
 
-	for( OBJECT_LIST::safe_iterator it = objects.safe_begin(); it != objects.end(); )
+	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
+	while( GetList(LIST_objects).end() != it )
 	{
 		GC_Object* obj = *it;
 		_ASSERT(!obj->IsKilled());
@@ -391,10 +393,9 @@ Level::~Level()
 	// unregister config handlers
 	g_conf.s_volume->eventChange.clear();
 
-
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
-	_ASSERT(objects.empty());
+	_ASSERT(GetList(LIST_objects).empty());
 }
 
 // уровень должен быть пустым
@@ -491,7 +492,7 @@ bool Level::Unserialize(const char *fileName)
 		_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(sh.theme));
 
 
-		FOREACH( players, GC_Player, pPlayer )
+		FOREACH( GetList(LIST_players), GC_Player, pPlayer )
 		{
 			pPlayer->UpdateSkin();
 		}
@@ -583,8 +584,8 @@ bool Level::Serialize(const char *fileName)
 
 
 		//перебираем все объекты. если нужно - сохраняем
-		OBJECT_LIST::reverse_iterator it = objects.rbegin();
-		for( ; it != objects.rend(); ++it )
+		OBJECT_LIST::reverse_iterator it = GetList(LIST_objects).rbegin();
+		for( ; it != GetList(LIST_objects).rend(); ++it )
 		{
 			GC_Object *object = *it;
 			if( object->IsSaved() )
@@ -698,7 +699,7 @@ bool Level::Export(const char *fileName)
 	if( !file.Open(fileName, true) )
 		return false;
 
-	FOREACH( objects, GC_Object, object )
+	FOREACH( GetList(LIST_objects), GC_Object, object )
 	{
 		if( object->IsKilled() ) continue;
 		if( IsRegistered(object->GetType()) )
@@ -718,7 +719,7 @@ void Level::Pause(bool pause)
 
 	_paused = pause;
 
-	FOREACH( sounds, GC_Sound, pSound )
+	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->Freeze(pause);
 	}
@@ -729,13 +730,13 @@ void Level::ToggleEditorMode()
 	if( _modeEditor )
 	{
 		_modeEditor = false;
-		_Background::Inst()->EnableGrid(false);
+		_background->EnableGrid(false);
 		Pause(false);
 	}
 	else
 	{
 		_modeEditor = true;
-		_Background::Inst()->EnableGrid(g_conf.ed_drawgrid->Get());
+		_background->EnableGrid(g_conf.ed_drawgrid->Get());
 		Pause(true);
 	}
 	GC_Camera::SwitchEditor();
@@ -786,7 +787,7 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 
 int Level::net_rand()
 {
-	_seed = (69069 * g_level->_seed + 1);
+	_seed = (69069 * _seed + 1);
 	return _seed & RAND_MAX;
 }
 
@@ -1049,12 +1050,12 @@ void Level::TimeStep(float dt)
 					case DBTYPE_PLAYERQUIT:
 					{
 						const DWORD &id = db.cast<DWORD>();
-						OBJECT_LIST::iterator it = players.begin();
-						while( it != players.end() )
+						OBJECT_LIST::iterator it = GetList(LIST_players).begin();
+						while( it != GetList(LIST_players).end() )
 						{
 							if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
 							{
-								if( p->GetNetworkId() == id )
+								if( p->GetNetworkID() == id )
 								{
 									static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts("игрок вышел");
 									p->Kill();
@@ -1213,8 +1214,6 @@ void Level::TimeStep(float dt)
 }
 
 
-//#include "gc/ai.h"
-
 void Level::Render() const
 {
 	//
@@ -1223,11 +1222,11 @@ void Level::Render() const
 
 	GC_Camera *pMaxShake = NULL;
 
-	if( g_render->GetWidth() >= (int) g_level->_sx &&
-		g_render->GetHeight() >= (int) g_level->_sy )
+	if( g_render->GetWidth() >= (int) _sx &&
+		g_render->GetHeight() >= (int) _sy )
 	{
 		float max_shake = 0;
-		FOREACH( cameras, GC_Camera, pCamera )
+		FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 		{
 			if( !pCamera->IsActive() ) continue;
 			if( pCamera->GetShake() >= max_shake )
@@ -1239,7 +1238,7 @@ void Level::Render() const
 	}
 
 	int count = 0;
-	FOREACH( cameras, GC_Camera, pCamera )
+	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( pMaxShake ) pCamera = pMaxShake;
 		if( !pCamera->IsActive() ) continue;
@@ -1255,12 +1254,12 @@ void Level::Render() const
 		{
 			float xmin = (float) __max(0, g_env.camera_x );
 			float ymin = (float) __max(0, g_env.camera_y );
-			float xmax = __min(g_level->_sx, (float) g_env.camera_x +
+			float xmax = __min(_sx, (float) g_env.camera_x +
 				(float) g_render->GetViewportWidth() / pCamera->_zoom );
-			float ymax = __min(g_level->_sy, (float) g_env.camera_y +
+			float ymax = __min(_sy, (float) g_env.camera_y +
 				(float) g_render->GetViewportHeight() / pCamera->_zoom );
 
-			FOREACH( lights, GC_Light, pLight )
+			FOREACH( GetList(LIST_lights), GC_Light, pLight )
 			{
 				_ASSERT(!pLight->IsKilled());
 				if( pLight->IsActive() &&
@@ -1282,7 +1281,7 @@ void Level::Render() const
 		g_render->SetMode(RM_WORLD);
 
 		// paint background texture
-		_Background::Inst()->Draw();
+		_background->Draw();
 
 		for( int z = 0; z < Z_COUNT; ++z )
 		{
@@ -1294,17 +1293,18 @@ void Level::Render() const
 
 				int xmin = __max(0, (g_env.camera_x - dx[lev]) / LOCATION_SIZE);
 				int ymin = __max(0, (g_env.camera_y - dy[lev]) / LOCATION_SIZE);
-				int xmax = __min(g_level->_locations_x - 1,
+				int xmax = __min(_locations_x - 1,
 					((g_env.camera_x + int((float) g_render->GetViewportWidth() /
 					pCamera->_zoom)) - dx[lev]) / LOCATION_SIZE);
-				int ymax = __min(g_level->_locations_y - 1,
+				int ymax = __min(_locations_y - 1,
 					((g_env.camera_y + int((float) g_render->GetViewportHeight() /
 					pCamera->_zoom)) - dy[lev]) / LOCATION_SIZE);
 
 				for( int x = xmin; x <= xmax; ++x )
 				for( int y = ymin; y <= ymax; ++y )
 				{
-					FOREACH( z_grids[z](lev).element(x,y), GC_2dSprite, object )
+					// FIXME: using of global g_level
+					FOREACH( g_level->z_grids[z](lev).element(x,y), GC_2dSprite, object )
 					{
 						_ASSERT(!object->IsKilled());
 						object->Draw();
@@ -1315,7 +1315,8 @@ void Level::Render() const
 
 
 			// loop over globals
-			FOREACH( z_globals[z], GC_2dSprite, object )
+			// FIXME: using of global g_level
+			FOREACH( g_level->z_globals[z], GC_2dSprite, object )
 			{
 				_ASSERT(!object->IsKilled());
 				object->Draw();
@@ -1366,7 +1367,7 @@ GC_Object* Level::FindObject(const char *name) const
 
 void Level::OnChangeSoundVolume()
 {
-	FOREACH( sounds, GC_Sound, pSound )
+	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->UpdateVolume();
 	}

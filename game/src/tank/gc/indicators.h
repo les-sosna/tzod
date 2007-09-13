@@ -15,7 +15,7 @@ class GC_Vehicle;
 class GC_SpawnPoint : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_respawns> _memberOf;
 
 public:
 	int   _team;    // 0 - no team
@@ -100,7 +100,7 @@ enum LOCATION
 class GC_IndicatorBar : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_indicators> _memberOf;
 
 protected:
 	SafePtr<GC_2dSprite> _object;

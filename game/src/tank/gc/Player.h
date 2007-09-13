@@ -15,7 +15,7 @@ class GC_Vehicle;
 class GC_Player : public GC_Service
 {
 	DECLARE_SELF_REGISTRATION(GC_Player);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_players> _memberOf;
 
 	float     _timeRespawn;
 
@@ -51,7 +51,6 @@ protected:
 protected:
 	virtual void OnRespawn();
 	virtual void OnDie();
-
 
 public:
 	bool IsDead() const { return _vehicle == NULL; }
@@ -137,7 +136,7 @@ public:
 	GC_PlayerRemote(FromFile);
 	virtual ~GC_PlayerRemote();
 
-	DWORD GetNetworkId() const { return _networkId; }
+	DWORD GetNetworkID() const { return _networkId; }
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);

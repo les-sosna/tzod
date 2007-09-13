@@ -11,7 +11,7 @@
 #include "Indicators.h"
 #include "Projectiles.h"
 #include "Particles.h"
-#include "ai.h"
+//#include "ai.h"
 
 #include "Macros.h"
 #include "Level.h"
@@ -57,14 +57,14 @@ void GC_Weapon::Attach(GC_Actor *actor)
 	_ASSERT(dynamic_cast<GC_Vehicle*>(actor));
 	GC_Vehicle *veh = static_cast<GC_Vehicle*>(actor);
 
-	if( GC_Weapon *tmp = veh->GetWeapon() )
-	{
-		veh->DetachWeapon();
-		tmp->Disappear();
-	}
+	//if( GC_Weapon *tmp = veh->GetWeapon() )
+	//{
+	//	veh->DetachWeapon();
+	//	tmp->Disappear();
+	//}
 
-	_ASSERT( NULL == veh->GetWeapon() );
-	veh->AttachWeapon(this);
+//	_ASSERT( NULL == veh->GetWeapon() );
+//	veh->AttachWeapon(this);
 	SetZ(Z_ATTACHED_ITEM);
 
 	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
@@ -212,8 +212,8 @@ void GC_Weapon::TimeStepFixed(float dt)
 	{
 		if( _crosshair )
 		{
-			_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(
-				static_cast<GC_Vehicle*>(GetOwner())->GetPlayer()));
+//			_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(
+//				static_cast<GC_Vehicle*>(GetOwner())->GetPlayer())); // FIXME
 		}
 
 		_rotator.process_dt(dt);
@@ -482,7 +482,7 @@ void GC_Weap_AutoCannon::Detach()
 	if (pIndicator) pIndicator->Kill();
 
 	// убиваем звук перезарядки
-	FOREACH( sounds, GC_Sound, object )
+	FOREACH( g_level->GetList(LIST_sounds), GC_Sound, object )
 	{
 		if( GC_Sound_link::GetTypeStatic() == object->GetType() )
 		{

@@ -20,7 +20,7 @@ class GC_Vehicle;
 
 class GC_Projectile : public GC_2dSprite
 {
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_projectiles> _memberOf;
 
 protected:
 	SafePtr<GC_RigidBodyStatic> _owner;

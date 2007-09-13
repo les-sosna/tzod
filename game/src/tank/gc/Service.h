@@ -8,7 +8,7 @@
 class GC_Service : public GC_Object
 {
 	DECLARE_SELF_REGISTRATION(GC_Service);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_services> _memberOf;
 
 public:
 	GC_Service();

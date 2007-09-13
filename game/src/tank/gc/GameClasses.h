@@ -27,9 +27,6 @@ public:
 	void EnableGrid(bool bEnable);
 };
 
-typedef DynamicSingleton<GC_Background> _Background;
-
-
 /////////////////////////////////////////////////////////////
 
 class GC_RigidBodyStatic;

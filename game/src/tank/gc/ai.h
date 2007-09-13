@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "Level.h" // FIXME!
+#include "Level.h"    // FIXME!
 #include "Player.h"
 
 // forward declarations
 template<class T> class JobManager;
 struct VehicleState;
+struct AIWEAPSETTINGS;
 class GC_Actor;
 class GC_RigidBodyStatic;
 
@@ -19,17 +20,6 @@ struct AIITEMINFO
 {
 	GC_Actor  *object;
 	AIPRIORITY priority;
-};
-
-struct AIWEAPSETTINGS
-{
-	BOOL  bNeedOutstrip;       // FALSE, если мгновенное оружие (gauss, ...)
-	float fMaxAttackAngle;     // максимальный прицельный угол
-	float fProjectileSpeed;    // скорость снаряда
-	float fAttackRadius_min;   // минимальный радиус атаки
-	float fAttackRadius_max;   // максимальный радиус атаки
-	float fAttackRadius_crit;  // критический радиус атаки, когда можно убиться
-	float fDistanceMultipler;  // сложность пробивания стен
 };
 
 class GC_PlayerAI : public GC_Player
@@ -87,7 +77,7 @@ protected:
 	//  bTest        - если true, то вычисляется только стоимомть пути
 	// Return: стоимость пути или -1 если путь не найден
 	//-------------------------------------------------------------------------
-	float CreatePath(float dst_x, float dst_y, float max_depth, bool bTest);
+	float CreatePath(float dst_x, float dst_y, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
 
 
 	//-------------------------------------------------------------------------
@@ -134,15 +124,14 @@ protected:
 protected:
 	SafePtr<GC_Pickup>          _pickupCurrent;
 	SafePtr<GC_RigidBodyStatic> _target;  // текущая цель
-	AIWEAPSETTINGS _weapSettings; // настроики оружия
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
 	void LockTarget(GC_RigidBodyStatic *target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 
-	bool FindTarget(/*out*/ AIITEMINFO &info);   // return true если цель найдена
-	bool FindItem(/*out*/ AIITEMINFO &info);     // return true если что-то найдено
+	bool FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if target found
+	bool FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something found
 
 	void SelectFavoriteWeapon();
 
@@ -158,20 +147,20 @@ protected:
 
 protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);
-	void TowerTo (VehicleState *pState, const vec2d &x, bool bFire);
+	void TowerTo (VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws);
 
 	// вычисляет координаты мнимой цели для стрельбы на опережение
 	// target - цель
 	// Vp      - скорость снаряда
 	void CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake);
 
-	void ProcessAction();
+	void ProcessAction(const AIWEAPSETTINGS *ws);
 
 	void SetL1(GC_PlayerAI::aiState_l1 new_state); // переключене состояния l1
 	void SetL2(GC_PlayerAI::aiState_l2 new_state); // переключене состояния l2
 
-	void SelectState();
-	void DoState(VehicleState *pVehState);
+	void SelectState(const AIWEAPSETTINGS *ws);
+	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	virtual void Serialize(SaveFile &f);
 

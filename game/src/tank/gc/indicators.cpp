@@ -21,7 +21,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 }
 
 GC_SpawnPoint::GC_SpawnPoint(float x, float y)
-  : GC_2dSprite(), _memberOf(g_level->respawns, this)
+  : GC_2dSprite(), _memberOf(this)
 {
 	SetZ(Z_EDITOR);
 
@@ -32,7 +32,7 @@ GC_SpawnPoint::GC_SpawnPoint(float x, float y)
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(g_level->respawns, this)
+  : GC_2dSprite(FromFile()), _memberOf(this)
 {
 }
 
@@ -223,7 +223,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 
 GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 								 float *pValue, float *pValueMax, LOCATION location)
-  : GC_2dSprite(), _memberOf(g_level->indicators, this)
+  : GC_2dSprite(), _memberOf(this)
 {
 	_ASSERT(NULL == FindIndicator(object, location));
 
@@ -251,20 +251,19 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 }
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(g_level->indicators, this)
+  : GC_2dSprite(FromFile()), _memberOf(this)
 {
 }
 
 void GC_IndicatorBar::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_bInverse);
 	f.Serialize(_dwValueMax_offset);
 	f.Serialize(_dwValue_offset);
 	f.Serialize(_initial_width);
 	f.Serialize(_location);
-	/////////////////////////////////////
 	f.Serialize(_object);
 }
 
@@ -276,7 +275,7 @@ void GC_IndicatorBar::Kill()
 
 GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION location)
 {
-	FOREACH( indicators, GC_IndicatorBar, object )
+	FOREACH( g_level->GetList(LIST_indicators), GC_IndicatorBar, object )
 	{
 		if( pFind == object->_object && location == object->_location )
 			return object;

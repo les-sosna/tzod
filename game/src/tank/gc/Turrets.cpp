@@ -98,7 +98,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	GC_Vehicle	*target = NULL;
 	GC_RigidBodyStatic *pObstacle = NULL;
 
-	FOREACH( vehicles, GC_Vehicle, pDamObj )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
 		if( pDamObj->GetPlayer()->GetTeam() && pDamObj->GetPlayer()->GetTeam() == _team )
 		{

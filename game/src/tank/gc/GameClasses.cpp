@@ -410,7 +410,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 void GC_Explosion::Boom(float radius, float damage)
 {
-	FOREACH( cameras, GC_Camera, pCamera )
+	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
 		if( pCamera->_player->GetVehicle() )
@@ -862,7 +862,7 @@ void GC_TextScore::Refresh()
 	// перебираем всех игроков и заносим в таблицу _players[]
 	//
 	_players.clear();
-	FOREACH( players, GC_Player, pPlayer )
+	FOREACH( g_level->GetList(LIST_players), GC_Player, pPlayer )
 	{
 		if( pPlayer->IsKilled() ) continue;
 		_players.push_back( PlayerDesc() );

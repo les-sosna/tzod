@@ -492,7 +492,7 @@ bool ThemeManager::ApplyTheme(size_t index)
 		res = res && (g_texman->LoadPackage(filename.c_str()) > 0);
 	}
 
-	FOREACH(objects, GC_Object, object)
+	FOREACH( g_level->GetList(LIST_objects), GC_Object, object )
 	{
 		GC_2dSprite *pSprite = dynamic_cast<GC_2dSprite*>(object);
 		if( pSprite && !pSprite->IsKilled() )

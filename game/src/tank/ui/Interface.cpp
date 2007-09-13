@@ -34,6 +34,18 @@
 
 #include "res/resource.h"
 
+
+#define GET_DLG_ITEM_TEXT(hdlg, id, str)      \
+{                                             \
+	HWND item = GetDlgItem(hdlg, id);         \
+	_ASSERT(item);                            \
+	int len = 1+GetWindowTextLength(item);    \
+	str.resize(len);                          \
+	GetWindowText(item, &str[0], len);        \
+	str.resize(len-1);                        \
+}
+
+
 ////////////////////////////////////////////////////////////////////
 
 #define GETCHECK(id) (BST_CHECKED == SendDlgItemMessage(hDlg, (id), BM_GETCHECK, 0, 0))
@@ -150,7 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		pt.x = (short) LOWORD(lParam),
 		pt.y = (short) HIWORD(lParam),
 		ScreenToClient(hWnd, &pt);
-		OnMouse(message, wParam, (LPARAM) DW(pt.x, pt.y) );
+		OnMouse(message, wParam, MAKELPARAM(pt.x, pt.y) );
 		break;
 
 	case WM_CHAR:
@@ -773,6 +785,10 @@ void dmUpdateUI (HWND hDlg)
 		GETCHECK(IDC_ALLOW_EDITPLAYERS)) &&
 		LB_ERR != SendDlgItemMessage(hDlg, IDC_MAPLIST, LB_GETCURSEL, 0, 0));
 }
+
+#define LEVEL_INIT_PARAM(init, param) (SAFE_DELETE(g_level), g_level = new Level(), \
+	(g_level->init(param) ? TRUE:(SAFE_DELETE(g_level), FALSE)))
+
 
 LRESULT CALLBACK dlgNewDM(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {

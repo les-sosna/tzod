@@ -10,7 +10,7 @@
 // do not define operator bool
 // do not define operator& because it will break compatibility with STL
 
-template <class T>
+template<class T>
 class SafePtr
 {
     T *_ptr;
@@ -42,7 +42,7 @@ public:
             _ptr->AddRef();
         }
     }
-    template <class U>
+    template<class U>
     SafePtr(const SafePtr<U> &f) // initialize from another type of safe pointer
     {
         if( _ptr = GetRawPtr(f) )
@@ -82,7 +82,7 @@ public:
         }
         return *this;
     }
-    template <class U>
+    template<class U>
     const SafePtr& operator = (const SafePtr<U> &p)
     {
         if( _ptr ) _ptr->Release();
@@ -129,32 +129,32 @@ public:
     {
         return reinterpret_cast<const IfNotEmpty*>(_ptr);
     }
-    template <class U>
+    template<class U>
     inline friend bool operator==(const SafePtr &l, const U *r)
     {
         return l._ptr == r;
     }
-    template <class U>
+    template<class U>
     inline friend bool operator==(const U *l, const SafePtr &r)
     {
         return l == r._ptr;
     }
-    template <class U>
+    template<class U>
     inline friend bool operator!=(const SafePtr &l, const U *r)
     {
         return l._ptr != r;
     }
-    template <class U>
+    template<class U>
     inline friend bool operator!=(const U *l, const SafePtr &r)
     {
         return l != r._ptr;
     }
-    template <class U> // for comparing safe pointers of different types
+    template<class U> // for comparing safe pointers of different types
     bool operator==(const SafePtr<U> &r) const
     {
         return _ptr == GetRawPtr(r);
     }
-    template <class U> // for comparing safe pointers of different types
+    template<class U> // for comparing safe pointers of different types
     bool operator!=(const SafePtr<U> &r) const
     {
         return _ptr != GetRawPtr(r);

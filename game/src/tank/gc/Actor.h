@@ -8,8 +8,10 @@
 
 #define GC_FLAG_ACTOR_          GC_FLAG_OBJECT_
 
-
 ///////////////////////////////////////////////////////////////////////////////
+
+// forward declarations
+class GC_Pickup;
 
 
 class GC_Actor : public GC_Object
@@ -17,9 +19,7 @@ class GC_Actor : public GC_Object
 	struct Context
 	{
 		GridSet<OBJECT_LIST> *grids;
-		//-------
 		OBJECT_LIST::iterator iterator;
-		bool inContext;
 	};
 
 	typedef std::list<Context>::iterator CONTEXTS_ITERATOR;
@@ -50,6 +50,8 @@ public:
 
 	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);
+
+	virtual void OnPickup(GC_Pickup *pickup, bool attached); // called by the pickup
 };
 
 ///////////////////////////////////////////////////////////////////////////////

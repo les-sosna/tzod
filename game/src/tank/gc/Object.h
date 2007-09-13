@@ -145,30 +145,48 @@ public:
 
 #define GC_FLAG_OBJECT_                       0x00000020
 
+
+enum GlobalListID
+{
+	LIST_objects,
+	LIST_services,
+	LIST_respawns,
+	LIST_projectiles,
+	LIST_players,
+	LIST_sounds,
+	LIST_indicators,
+	LIST_vehicles,
+	LIST_pickups,
+	LIST_lights,
+	LIST_cameras,
+	//------------------
+	GLOBAL_LIST_COUNT
+};
+
+
 typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
 class GC_Object
 {
 protected:
+	template<GlobalListID listId>
 	class MemberOfGlobalList
 	{
-		OBJECT_LIST           *_list;
 		OBJECT_LIST::iterator  _pos;
 	public:
-		MemberOfGlobalList(OBJECT_LIST &list, GC_Object *obj)
+		MemberOfGlobalList(GC_Object *obj)
 		{
-			list.push_front(obj);
-			_list = &list;
-			_pos  = list.begin();
+			g_level->GetList(listId).push_front(obj);
+			_pos = g_level->GetList(listId).begin();
 		}
 		~MemberOfGlobalList()
 		{
-			_list->safe_erase(_pos);
+			g_level->GetList(listId).safe_erase(_pos);
 		}
 	};
 
 private:
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_objects> _memberOf;
 
 	struct Notify
 	{

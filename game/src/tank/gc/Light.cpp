@@ -29,7 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 }
 
 GC_Light::GC_Light(enumLightType type)
-  : _memberOf(g_level->lights, this)
+  : _memberOf(this)
 {
 	_timeout    = 0;
 	_aspect     = 1;
@@ -52,7 +52,7 @@ GC_Light::GC_Light(enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile) : GC_Actor(FromFile())
-  , _memberOf(g_level->lights, this)
+  , _memberOf(this)
 {
 }
 

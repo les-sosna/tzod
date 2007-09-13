@@ -731,8 +731,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	{
 		float s = sinf(da);
 		float c = cosf(da) - 1;
-		OBJECT_LIST::safe_iterator it = g_level->projectiles.safe_begin();
-		while( it != g_level->projectiles.end() )
+		const OBJECT_LIST &ls = g_level->GetList(LIST_projectiles);
+		OBJECT_LIST::safe_iterator it = ls.safe_begin();
+		while( it != ls.end() )
 		{
 			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
 

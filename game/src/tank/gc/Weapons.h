@@ -4,10 +4,19 @@
 
 #include "Pickup.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
-struct AIWEAPSETTINGS; // defined in ai.h
+struct AIWEAPSETTINGS
+{
+	BOOL  bNeedOutstrip;       // FALSE, если мгновенное оружие (gauss, ...)
+	float fMaxAttackAngle;     // максимальный прицельный угол
+	float fProjectileSpeed;    // скорость снаряда
+	float fAttackRadius_min;   // минимальный радиус атаки
+	float fAttackRadius_max;   // максимальный радиус атаки
+	float fAttackRadius_crit;  // критический радиус атаки, когда можно убиться
+	float fDistanceMultipler;  // сложность пробивания стен
+};
+
 
 class GC_Weapon : public GC_Pickup
 {

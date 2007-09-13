@@ -78,7 +78,7 @@ struct VehicleState
 
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_vehicles> _memberOf;
 
 	float _time_smoke;
 
@@ -117,8 +117,8 @@ public:
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
 
-	void DetachWeapon();
-	void AttachWeapon(GC_Weapon *weapon);
+//	void DetachWeapon();
+//	void AttachWeapon(GC_Weapon *weapon);
 
 	void SetPlayer(GC_Player *player);
 
@@ -143,6 +143,8 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Draw();
+
+	virtual void OnPickup(GC_Pickup *pickup, bool attached);
 };
 
 /////////////////////////////////////////////////////////////

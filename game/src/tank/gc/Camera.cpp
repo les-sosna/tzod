@@ -23,7 +23,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 }
 
 GC_Camera::GC_Camera(GC_Player *pPlayer)
-  : GC_Actor(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
+  : GC_Actor(), _memberOf(this), _rotator(_angle_current)
 {
 	_player = pPlayer;
 	_rotator.reset(0.0f, 0.0f, 2.0f, 0.5f, 0.5f);
@@ -60,7 +60,7 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 }
 
 GC_Camera::GC_Camera(FromFile)
-  : GC_Actor(), _memberOf(g_level->cameras, this), _rotator(_angle_current)
+  : GC_Actor(), _memberOf(this), _rotator(_angle_current)
 {
 }
 
@@ -239,7 +239,7 @@ void GC_Camera::UpdateLayout()
 	GC_Camera *tmp = NULL;
 	size_t active_count = 0;
 
-	FOREACH( cameras, GC_Camera, pCamera )
+	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->IsKilled() )
 		{
@@ -272,7 +272,7 @@ void GC_Camera::UpdateLayout()
 			(g_render->GetWidth() + (int) g_level->_sx) / 2,
 			(g_render->GetHeight() + (int) g_level->_sy) / 2
 		);
-		FOREACH( cameras, GC_Camera, pCamera)
+		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera)
 		{
 			pCamera->_viewport = viewports[0];
 		}
@@ -310,7 +310,7 @@ void GC_Camera::UpdateLayout()
 
 		size_t count = 0;
 		float  zoom  = active_count > 2 ? 0.5f : 1.0f;
-		FOREACH( cameras, GC_Camera, pCamera )
+		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 		{
 			if( !pCamera->IsActive() ) continue;
 			pCamera->_viewport = viewports[count++];
@@ -323,7 +323,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 {
 	POINT ptinscr = { g_env.envInputs.mouse_x, g_env.envInputs.mouse_y };
 
-	FOREACH( cameras, GC_Camera, pCamera )
+	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->IsActive() ) continue;
 		if( PtInRect(&pCamera->_viewport, ptinscr) )

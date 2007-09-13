@@ -22,7 +22,7 @@ class GC_UserSprite;
 class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_lights> _memberOf;
 
 public:
 	enum enumLightType

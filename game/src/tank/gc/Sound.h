@@ -18,7 +18,7 @@ enum enumSoundMode
 class GC_Sound : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound);
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_sounds> _memberOf;
 
 private:
 	LPDIRECTSOUNDBUFFER	_soundBuffer;

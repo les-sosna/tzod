@@ -20,7 +20,7 @@ class GC_RigidBodyStatic;
 
 class GC_Pickup : public GC_2dSprite
 {
-	MemberOfGlobalList _memberOf;
+	MemberOfGlobalList<LIST_pickups> _memberOf;
 
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
@@ -37,7 +37,7 @@ class GC_Pickup : public GC_2dSprite
 	virtual SafePtr<PropertySet> GetProperties();
 
 	SafePtr<GC_HideLabel> _label;
-	SafePtr<GC_Actor>     _owner;
+	SafePtr<GC_Actor>   _owner;
 
 	float  _radius;
 	float  _timeAttached;
@@ -77,8 +77,6 @@ public:
 	float GetTimeAnimation() const { return _timeAnimation; }
 	float GetTimeAttached() const { return _timeAttached; }
 
-
-
 	// hide or kill depending on _respawn; return true if object is killed
 	virtual bool Disappear();
 
@@ -92,8 +90,8 @@ public:
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh) { return AIP_NORMAL; }
-	
-	// default implementation searches for nearest vehicle
+
+	// default implementation searches for the nearest vehicle
 	virtual GC_Actor* FindNewOwner() const;
 
 	virtual void Attach(GC_Actor *actor);
@@ -222,7 +220,7 @@ public:
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
 	virtual void Attach(GC_Actor *actor);
-	virtual void Detach();
+//	virtual void Detach();
 
 	virtual GC_Actor* FindNewOwner() const;
 

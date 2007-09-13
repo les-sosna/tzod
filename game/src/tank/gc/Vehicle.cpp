@@ -32,7 +32,9 @@
 /////////////////////////////////////////////////////////////
 
 GC_Vehicle::GC_Vehicle(float x, float y)
-  : GC_RigidBodyDynamic(), _memberOf(g_level->vehicles, this) //, _rotator(_dir1)
+  : GC_RigidBodyDynamic()
+  , _memberOf(this)
+//  , _rotator(_dir1)
 {
 	SetZ(Z_VEHICLES);
 
@@ -75,7 +77,9 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
-  : GC_RigidBodyDynamic(FromFile()), _memberOf(g_level->vehicles, this)//, _rotator(_dir1)
+  : GC_RigidBodyDynamic(FromFile())
+  , _memberOf(this)
+//  , _rotator(_dir1)
 {
 }
 
@@ -123,58 +127,66 @@ void GC_Vehicle::Kill()
 
 	if( _weapon )
 	{
-		DetachWeapon();
+		_weapon->SetRespawn(true);
+		_weapon->Detach();
 	}
 
 	GC_RigidBodyDynamic::Kill();
 }
 
-void GC_Vehicle::DetachWeapon()
+void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 {
-	_ASSERT(_weapon);
-	Unsubscribe( GetRawPtr(_weapon) );
-//	_weapon->_respawn = true;
-	_weapon->Detach();
-	_weapon = NULL;
-	ResetClass();
-}
-
-void GC_Vehicle::AttachWeapon(GC_Weapon *weapon)
-{
-	_ASSERT(!_weapon);
-	weapon->Attach(this);
-	_weapon = weapon;
-
-
-	//
-	// update class
-	//
-
-	VehicleClass vc;
-
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
-	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, GetPlayer()->GetClass().c_str());  // cls arg
-	lua_pushstring(L, g_level->GetTypeName(weapon->GetType()));  // weap arg
-	if( lua_pcall(L, 2, 1, 0) )
+	GC_RigidBodyDynamic::OnPickup(pickup, attached);
+	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
 	{
-		// print error message
-		g_console->printf("%s\n", lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
+		if( attached )
+		{
+			if( _weapon )
+			{
+				_weapon->Disappear(); // this will detach weapon and call OnPickup(attached=false)
+			}
 
-	lua_pushlightuserdata(L, &vc);
-	if( lua_pcall(L, 2, 0, 0) )
-	{
-		// print error message
-		g_console->printf("%s\n", lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
+			_ASSERT(!_weapon);
+			_weapon = w;
 
-	SetClass(vc);
+			//
+			// update class
+			//
+
+			VehicleClass vc;
+
+			lua_State *L = g_env.L;
+			lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
+			lua_getglobal(L, "getvclass");
+			lua_pushstring(L, GetPlayer()->GetClass().c_str());  // cls arg
+			lua_pushstring(L, g_level->GetTypeName(_weapon->GetType()));  // weap arg
+			if( lua_pcall(L, 2, 1, 0) )
+			{
+				// print error message
+				g_console->printf("%s\n", lua_tostring(L, -1));
+				lua_pop(L, 1);
+				return;
+			}
+
+			lua_pushlightuserdata(L, &vc);
+			if( lua_pcall(L, 2, 0, 0) )
+			{
+				// print error message
+				g_console->printf("%s\n", lua_tostring(L, -1));
+				lua_pop(L, 1);
+				return;
+			}
+
+			SetClass(vc);
+		}
+		else
+		{
+			_ASSERT(_weapon);
+			Unsubscribe( GetRawPtr(_weapon) );
+			_weapon = NULL;
+			ResetClass();
+		}
+	}
 }
 
 
@@ -280,7 +292,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			_damLabel = new GC_DamLabel(this);
 	}
 
-	FOREACH( cameras, GC_Camera, pCamera )
+	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->_player ) continue;
 		if( this == pCamera->_player->GetVehicle() )
@@ -289,7 +301,6 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			break;
 		}
 	}
-
 
 	if( GetHealth() <= 0 )
 	{
@@ -352,8 +363,8 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		}
 
 		AddRef();
-		OnDestroy();
-		Kill();
+			OnDestroy();
+			Kill();
 		Release();
 
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(msg);
@@ -402,6 +413,13 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	// move...
 	GC_RigidBodyDynamic::TimeStepFixed( dt );
 	if( IsKilled() ) return;
+
+	// fire...
+	if( _weapon && _state._bState_Fire )
+	{
+		_weapon->Fire();
+		if( IsKilled() ) return;
+	}
 
 
 	//
@@ -465,7 +483,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 
 
 
-    UpdateLight();
+	UpdateLight();
 
 	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
 	{

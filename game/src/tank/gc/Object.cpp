@@ -158,14 +158,14 @@ void PropertySet::Exchange(bool applyToObject)
 ///////////////////////////////////////////////////////////////////////////////
 // GC_Object class implementation
 
-GC_Object::GC_Object() : _memberOf(g_level->objects, this)
+GC_Object::GC_Object() : _memberOf(this)
 {
 	_refCount             = 1;
 	_notifyProtectCount   = 0;
 	_flags                = 0;
 }
 
-GC_Object::GC_Object(FromFile) : _memberOf(g_level->objects, this)
+GC_Object::GC_Object(FromFile) : _memberOf(this)
 {
 	_notifyProtectCount = 0;
 }

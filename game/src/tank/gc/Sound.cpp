@@ -24,7 +24,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 }
 
 GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
-  : GC_Actor(), _memberOf(g_level->sounds, this)
+  : GC_Actor()
+  , _memberOf(this)
 {
 #ifndef NOSOUND
 	if( !g_pSoundManager )
@@ -61,7 +62,8 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 }
 
 GC_Sound::GC_Sound(FromFile)
-  : GC_Actor(FromFile()), _memberOf(g_level->sounds, this)
+  : GC_Actor(FromFile())
+  , _memberOf(this)
 {
 	_soundBuffer = NULL;
 }
@@ -103,7 +105,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		_ASSERT(SMODE_UNKNOWN == _mode);
 		if( _countActive == _countMax )
 		{
-			FOREACH_R( sounds, GC_Sound, pSound )
+			FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
 			{
 				if( SMODE_PLAY == pSound->_mode )
 				{
@@ -114,7 +116,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 			if( _countActive == _countMax )
 			{
-				FOREACH_R( sounds, GC_Sound, pSound )
+				FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{
@@ -163,7 +165,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 			if( _countActive < _countMax && 0 < _countWaiting )
 			{
-				FOREACH( sounds, GC_Sound, pSound )
+				FOREACH( g_level->GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_WAIT == pSound->_mode )
 					{

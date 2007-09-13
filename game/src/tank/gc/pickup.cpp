@@ -22,7 +22,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Pickup::GC_Pickup(float x, float y) : _memberOf(g_level->pickups, this)
+GC_Pickup::GC_Pickup(float x, float y) : _memberOf(this)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
@@ -43,7 +43,7 @@ GC_Pickup::GC_Pickup(float x, float y) : _memberOf(g_level->pickups, this)
 }
 
 GC_Pickup::GC_Pickup(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(g_level->pickups, this)
+  : GC_2dSprite(FromFile()), _memberOf(this)
 {
 }
 
@@ -79,7 +79,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 {
 	float r_sq = GetRadius() * GetRadius();
 
-	FOREACH( vehicles, GC_Vehicle, veh )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 	{
 		if( !veh->IsKilled() )
 		{
@@ -96,15 +96,19 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 
 void GC_Pickup::Attach(GC_Actor *actor)
 {
+	_ASSERT(!_owner);
 	MoveTo(actor->GetPos());
 	_owner         = actor;
 	_timeAttached  = 0;
+	actor->OnPickup(this, true);
 }
 
 void GC_Pickup::Detach()
 {
-	SetZ(Z_FREE_ITEM);
+	_ASSERT(_owner);
+	_owner->OnPickup(this, false);
 	_owner = NULL;
+	SetZ(Z_FREE_ITEM);
 }
 
 void GC_Pickup::Respawn()
@@ -123,6 +127,10 @@ void GC_Pickup::Respawn()
 
 bool GC_Pickup::Disappear()
 {
+	if( IsAttached() )
+	{
+		Detach();
+	}
 	if( !IsVisible() )
 	{
 		return IsKilled();
@@ -483,14 +491,12 @@ void GC_pu_Shock::Kill()
 {
 	SAFE_KILL(_light);
 	SAFE_KILL(_effect);
-
 	GC_Pickup::Kill();
 }
 
 void GC_pu_Shock::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
-
 	f.Serialize(_timeout);
 	f.Serialize(_effect);
 	f.Serialize(_light);
@@ -529,7 +535,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 	float dist;
 
 	GC_Vehicle *pNearTarget = NULL;
-	FOREACH( vehicles, GC_Vehicle, pTargetObj )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pTargetObj )
 	{
 		if( !pTargetObj->IsKilled() && pTargetObj != ignore )
 		{
@@ -565,11 +571,11 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 		{
 			if( GetTimeAttached() > _timeout )
 			{
-				//if( _vehicle->IsKilled() )
-				//{
-				//	Disappear();
-				//	return;
-				//}
+				if( GetOwner()->IsKilled() )
+				{
+					Disappear();
+					return;
+				}
 
 				MoveTo(GetOwner()->GetPos()); // FIXME
 				GC_Vehicle *pNearTarget = FindNearVehicle(
@@ -669,13 +675,11 @@ AIPRIORITY GC_pu_Booster::GetPriority(GC_Vehicle *veh)
 
 void GC_pu_Booster::Attach(GC_Actor* actor)
 {
-	_ASSERT(dynamic_cast<GC_Weapon*>(actor));
+	GC_Weapon *w = dynamic_cast<GC_Weapon*>(actor);
 
-	GC_Weapon *w = static_cast<GC_Weapon*>(actor);
-
-	if( NULL == w )
+	if( NULL == w ) // disappear if actor is not a weapon.
 	{
-		PLAY(SND_B_End, veh->GetPos());
+		PLAY(SND_B_End, actor->GetPos());
 		Disappear();
 		return;
 	}
@@ -684,11 +688,13 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 
 	if( w->GetAdvanced() )
 	{
-		FOREACH( pickups, GC_Pickup, pickup )
+		// find existing booster
+		FOREACH( g_level->GetList(LIST_pickups), GC_Pickup, pickup )
 		{
 			if( pickup->GetType() == GetType() && this != pickup )
 			{
-				if( w == static_cast<GC_pu_Booster*>(pickup)->_weapon )
+				_ASSERT(dynamic_cast<GC_pu_Booster*>(pickup));
+				if( static_cast<GC_pu_Booster*>(pickup)->GetOwner() == w )
 				{
 					pickup->Disappear(); // detach previous booster
 					break;
@@ -706,6 +712,11 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 	SetShadow(false);
 }
 
+//void GC_pu_Booster::Detach()
+//{
+//	
+//}
+
 GC_Actor* GC_pu_Booster::FindNewOwner() const
 {
 	GC_Vehicle *veh = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
@@ -719,29 +730,30 @@ void GC_pu_Booster::TimeStepFloat(float dt)
 	GC_Pickup::TimeStepFloat(dt);
 	if( IsAttached() )
 	{
-		SetRotation(_timeAnimation * 50);
+		SetRotation(GetTimeAnimation() * 50);
 	}
 }
 
 void GC_pu_Booster::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
-	if( _weapon )
+	if( IsAttached() )
 	{
-		if( _weapon->IsKilled() )
+		//if( GetOwner()->IsKilled() )
+		//{
+		//	PLAY(SND_B_End, GetPos());
+		//	Disappear();
+		//}
+		//else
+		//{
+		//	MoveTo(GetOwner()->GetPos());
+		//}
+
+		if( GetTimeAttached() > BOOSTER_TIME && !IsKilled() )
 		{
-			PLAY(SND_B_End, GetPos());
 			Disappear();
+			PLAY(SND_B_End, GetPos());
 		}
-		else
-		{
-			MoveTo(_weapon->GetPos());
-		}
-	}
-	if( IsAttached() && _time > BOOSTER_TIME && !IsKilled() )
-	{
-		Disappear();
-		PLAY(SND_B_End, GetPos());
 	}
 }
 

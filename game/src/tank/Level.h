@@ -134,8 +134,9 @@ class GC_RigidBodyStatic;
 class GC_Wall;
 class GC_Pickup;
 class GC_2dSprite;
-
+class GC_Background;
 class GC_Text;
+
 
 //////////////////////
 
@@ -168,23 +169,16 @@ class Level
 		char  theme[MAX_PATH];
 	};
 
+	OBJECT_LIST _objectLists[GLOBAL_LIST_COUNT];
+
 public:
 
 #ifdef NETWORK_DEBUG
 	DWORD _dwChecksum;
 #endif
 
-	// logics
-	OBJECT_LIST     objects;     // global list
-	OBJECT_LIST     services;
-	OBJECT_LIST     respawns;
-	OBJECT_LIST     projectiles;
-	OBJECT_LIST     players;
-	OBJECT_LIST     sounds;
-	OBJECT_LIST     indicators;
-	OBJECT_LIST     vehicles;
-	OBJECT_LIST     pickups;
-	OBJECT_LIST     cameras;
+	OBJECT_LIST& GetList(GlobalListID id) { return _objectLists[id]; }
+	const OBJECT_LIST& GetList(GlobalListID id) const { return _objectLists[id]; }
 
 	OBJECT_GRIDSET  grid_rigid_s;
 	OBJECT_GRIDSET  grid_walls;
@@ -196,12 +190,11 @@ public:
 	OBJECT_LIST     ts_fixed;
 	OBJECT_LIST     endframe;
 
-	OBJECT_LIST     lights;
-
 	// graphics
 	OBJECT_LIST     z_globals[Z_COUNT];
 	OBJECT_GRIDSET  z_grids[Z_COUNT];
 
+	SafePtr<GC_Background> _background;
 	SafePtr<GC_Text>   _temporaryText;
 	void DrawText(const char *string, const vec2d &position, enumAlignText align = alignTextLT);
 

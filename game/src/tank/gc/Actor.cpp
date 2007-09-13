@@ -55,6 +55,10 @@ void GC_Actor::MoveTo(const vec2d &pos)
 	PulseNotify(NOTIFY_ACTOR_MOVE);
 }
 
+void GC_Actor::OnPickup(GC_Pickup *pickup, bool attached)
+{
+}
+
 void GC_Actor::LeaveAllContexts()
 {
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
@@ -65,9 +69,9 @@ void GC_Actor::LeaveAllContexts()
 
 void GC_Actor::LeaveContext(Context &context)
 {
-	_ASSERT(context.inContext);
+	_ASSERT(context.iterator);
 	(*context.grids)(_location.level).element(_location.x,_location.y).safe_erase(context.iterator);
-	context.inContext = FALSE;
+	context.iterator = NULL;
 }
 
 void GC_Actor::EnterAllContexts(const Location &l)
@@ -83,11 +87,10 @@ void GC_Actor::EnterAllContexts(const Location &l)
 void GC_Actor::EnterContext(Context &context, const Location &l)
 {
 	_ASSERT(!IsKilled());
-	_ASSERT(!context.inContext);
+	_ASSERT(!context.iterator);
 
 	(*context.grids)(l.level).element(l.x, l.y).push_front(this);
 	context.iterator  = (*context.grids)(l.level).element(l.x, l.y).begin();
-	context.inContext = true;
 }
 
 void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)
@@ -95,8 +98,7 @@ void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)
 	_ASSERT(!IsKilled());
 
 	Context context;
-	context.inContext  = false;
-	context.grids      = pGridSet;
+	context.grids = pGridSet;
 
 	_contexts.push_front(context);
 	EnterContext(_contexts.front(), _location);
@@ -108,7 +110,7 @@ void GC_Actor::RemoveContext(OBJECT_GRIDSET *pGridSet)
 	{
 		if( it->grids == pGridSet )
 		{
-			if( it->inContext)
+			if( it->iterator )
 				LeaveContext(*it);
 			_contexts.erase(it);
 			return;
@@ -117,11 +119,6 @@ void GC_Actor::RemoveContext(OBJECT_GRIDSET *pGridSet)
 	// не найден удаляемый контекст
 	_ASSERT(FALSE);
 }
-
-//SafePtr<PropertySet> GC_Actor::GetProperties()
-//{
-//	return new MyPropertySet(this);
-//}
 
 void GC_Actor::mapExchange(MapFile &f)
 {

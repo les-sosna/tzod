@@ -40,7 +40,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 }
 
 GC_Player::GC_Player()
-  : GC_Service(), _memberOf(g_level->players, this)
+  : GC_Service(), _memberOf(this)
 {
 	_timeRespawn = PLAYER_RESPAWNTIME;
 
@@ -75,7 +75,7 @@ GC_Player::GC_Player()
 }
 
 GC_Player::GC_Player(FromFile)
-  : GC_Service(FromFile()), _memberOf(g_level->players, this)
+  : GC_Service(FromFile()), _memberOf(this)
 {
 }
 
@@ -174,14 +174,14 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_SpawnPoint *pBestPoint = NULL; // оптимальная точка
 			float max_dist = -1;
 
-			FOREACH( respawns, GC_SpawnPoint, object )
+			FOREACH( g_level->GetList(LIST_respawns), GC_SpawnPoint, object )
 			{
 				pSpawnPoint = (GC_SpawnPoint*) object;
 				if( pSpawnPoint->_team && (pSpawnPoint->_team != _team) )
 					continue;
 
 				float dist = -1;
-				FOREACH( vehicles, GC_Vehicle, pVeh )
+				FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pVeh )
 				{
 					if( pVeh->IsKilled() ) continue;
 					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).Square();
@@ -270,16 +270,15 @@ SafePtr<PropertySet> GC_Player::GetProperties()
 }
 
 GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"   )
-, _propScore( ObjectProperty::TYPE_INTEGER,     "score"  )
-, _propNick(  ObjectProperty::TYPE_STRING,      "nick"   )
-, _propClass( ObjectProperty::TYPE_MULTISTRING, "class"  )
-, _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"   )
-, _propOnDie( ObjectProperty::TYPE_STRING,      "on_die" )
+  : BASE(object)
+  , _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"   )
+  , _propScore( ObjectProperty::TYPE_INTEGER,     "score"  )
+  , _propNick(  ObjectProperty::TYPE_STRING,      "nick"   )
+  , _propClass( ObjectProperty::TYPE_MULTISTRING, "class"  )
+  , _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"   )
+  , _propOnDie( ObjectProperty::TYPE_STRING,      "on_die" )
 {
 	_propTeam.SetRange(0, MAX_TEAMS);
-
 
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
@@ -289,7 +288,6 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 	}
 	lua_pop(g_env.L, 1); // pop classes table
 
-
 	std::vector<string_t> skin_names;
 	g_texman->GetTextureNames(skin_names, "skin/", true);
 	for( size_t i = 0; i < skin_names.size(); ++i )
@@ -297,8 +295,6 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 		_propSkin.AddItem( skin_names[i]);
 	}
 
-
-	//-----------------------------------------
 	Exchange(false);
 }
 
