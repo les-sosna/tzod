@@ -1,0 +1,22 @@
+
+
+”брать ненужные указатели на листы
+
+как сейчас
+
+*.h
+MemberOfGlobalList _memberOf;
+
+*.cpp
+_memberOf(this, list)
+
+
+как надо
+*.h
+MemberOfGlobalList<list_id> _memberOf;
+
+*.cpp
+_memberOf(this)
+
+јналогично убрать указатель из контекста
+
