@@ -113,35 +113,6 @@ typedef struct INPUTSTATE
 
 
 //----------------------------------------------------------
-// ресурсы интерфейса
-/*
-typedef struct INTERFACE_RESOURCES
-{
-	HBITMAP hbmBackground;
-	HBITMAP hbmButton1;
-	HBITMAP hbmButton2;
-	HBITMAP hbmButton3;
-	HBITMAP hbmCorner_lt;
-	HBITMAP hbmCorner_rt;
-	HBITMAP hbmCorner_lb;
-	HBITMAP hbmCorner_rb;
-	HBITMAP hbmBorder_t;
-	HBITMAP hbmBorder_b;
-	HBITMAP hbmBorder_l;
-	HBITMAP hbmBorder_r;
-	HBITMAP hbmItem;
-	//-------------------
-	HBRUSH hbrBackground;
-	HBRUSH hbrBkColor;
-	HBRUSH hbrNull;
-	HBRUSH hbrItem;
-	//-------------------
-	HPEN hpSelection;
-} INTERFACE_RESOURCES;
-*/
-
-
-//----------------------------------------------------------
 
 typedef float AIPRIORITY;
 

@@ -30,12 +30,6 @@ void FpsCounter::OnShow(bool show)
 	SetTimeStep(show);
 }
 
-//void FpsCounter::TimeStepFixed(float dt)
-//{
-//	_dts_net.push_back(_timer_net.GetDt());
-//	if( _dts_net.size() > 100 ) _dts_net.pop_front();
-//}
-
 void FpsCounter::OnTimeStep(float dt)
 {
 	_dts.push_back(dt);
@@ -57,7 +51,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 		char s[512];
 		wsprintf(s, "%5dobj; %3dlight; %5dsprite; %2dbatch; %3d-%3d-%3dfps; %6dsprites/sec",
-			-1/*g_level->objects.size()*/, _nLights,
+			-1, _nLights,
 			_nSprites, _nBatches,
 			int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f),
 			_nSprites * int(1.0f / avr + 0.5f));
