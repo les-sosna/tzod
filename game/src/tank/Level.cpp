@@ -546,7 +546,7 @@ bool Level::Serialize(const char *fileName)
 		sh.time         = _time;
 		sh.width        = (int) _sx / CELL_SIZE;
 		sh.height       = (int) _sy / CELL_SIZE;
-		sh.nObjects		= 0;	// будем увеличивать по мере записи
+		sh.nObjects     = 0; // будем увеличивать по мере записи
 
 		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
 		if( bytesWritten != sizeof(SaveHeader) )

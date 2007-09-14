@@ -597,7 +597,7 @@ int luaT_actor(lua_State *L)
 	return 0;
 }
 
-// actor("type name" [, params])
+// service("type name" [, params])
 int luaT_service(lua_State *L)
 {
 	int n = lua_gettop(L);
