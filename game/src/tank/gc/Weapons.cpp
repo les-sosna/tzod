@@ -57,21 +57,10 @@ void GC_Weapon::Attach(GC_Actor *actor)
 	_ASSERT(dynamic_cast<GC_Vehicle*>(actor));
 	GC_Vehicle *veh = static_cast<GC_Vehicle*>(actor);
 
-	//if( GC_Weapon *tmp = veh->GetWeapon() )
-	//{
-	//	veh->DetachWeapon();
-	//	tmp->Disappear();
-	//}
-
-//	_ASSERT( NULL == veh->GetWeapon() );
-//	veh->AttachWeapon(this);
 	SetZ(Z_ATTACHED_ITEM);
 
 	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
-
-	GetOwner()->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_Weapon::OnOwnerMove, false, false);
 
 	Show(true);
 	SetBlinking(false);
@@ -90,8 +79,6 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 void GC_Weapon::Detach()
 {
-	GetOwner()->Unsubscribe(this);
-
 	SAFE_KILL(_rotateSound);
 	SAFE_KILL(_crosshair);
 	SAFE_KILL(_fireEffect);
@@ -158,9 +145,6 @@ void GC_Weapon::Serialize(SaveFile &f)
 
 void GC_Weapon::Kill()
 {
-//	if( IsAttached() )
-//		GetOwn->DetachWeapon();
-
 	_ASSERT(!_crosshair);
 	_ASSERT(!_rotateSound);
 	_ASSERT(!_fireEffect);
@@ -219,11 +203,6 @@ void GC_Weapon::TimeStepFixed(float dt)
 		_rotator.process_dt(dt);
 		ProcessRotate(dt);
 
-//		if( _owner->_state._bState_Fire && !g_level->_limitHit )
-//		{
-//			Fire();
-//		}
-
 		UpdateView();
 	}
 	else
@@ -248,7 +227,7 @@ void GC_Weapon::TimeStepFloat(float dt)
 		SetRotation(GetTimeAnimation());
 	}
 }
-
+/*
 void GC_Weapon::OnOwnerMove(GC_Vehicle *sender, void *param)
 {
 	_ASSERT(IsAttached());
@@ -262,6 +241,7 @@ void GC_Weapon::OnOwnerMove(GC_Vehicle *sender, void *param)
 		_crosshair->MoveTo(GetPos() + vec2d(sender->_angle + _angle) * CH_DISTANCE_NORMAL );
 	}
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -319,7 +299,6 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile) : GC_Weapon(FromFile())
 void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_firing);
 	f.Serialize(_reloaded);
 	f.Serialize(_nshots);

@@ -391,7 +391,7 @@ void GC_Object::SetName(const char *name)
 }
 
 void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
-						  NOTIFYPROC handler, bool once, bool guard)
+                          NOTIFYPROC handler, bool once, bool guard)
 {
 	_ASSERT(subscriber);
 	_ASSERT(handler);
@@ -415,34 +415,49 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	}
 }
 
+void GC_Object::Unguard(GC_Object *subscriber)
+{
+	std::list<Notify>::iterator it = _notifyList.begin();
+	while( it != _notifyList.end() )
+	{
+		if( &GC_Object::OnKillSubscriber != it->handler || subscriber != it->subscriber )
+		{
+			++it;
+			continue;
+		}
+		std::list<Notify>::iterator tmp = it++;
+		_ASSERT(!tmp->hasGuard);
+		_ASSERT(NOTIFY_OBJECT_KILL == tmp->type);
+		if( _notifyProtectCount )
+			tmp->removed = true;
+		else
+			_notifyList.erase(tmp);
+		return;
+	}
+	_ASSERT(FALSE); // guard has not been found
+}
+
 void GC_Object::Unsubscribe(GC_Object *subscriber)
 {
 	std::list<Notify>::iterator it = _notifyList.begin();
-	if( _notifyProtectCount )
+	while( it != _notifyList.end() )
 	{
-		while( it != _notifyList.end() )
+		if( subscriber != it->subscriber )
 		{
-			if( subscriber != it->subscriber )
-			{
-				++it;
-				continue;
-			}
-			std::list<Notify>::iterator tmp = it++;
+			++it;
+			continue;
+		}
+		std::list<Notify>::iterator tmp = it++;
+		if( tmp->hasGuard )
+		{
+			// find self in the subscriber's list and remove OnKillSubscriber
+			tmp->subscriber->Unguard(this);
+			tmp->hasGuard = false;
+		}
+		if( _notifyProtectCount )
 			tmp->removed = true;
-		}
-	}
-	else
-	{
-		while( it != _notifyList.end() )
-		{
-			if( subscriber != it->subscriber )
-			{
-				++it;
-				continue;
-			}
-			std::list<Notify>::iterator tmp = it++;
+		else
 			_notifyList.erase(tmp);
-		}
 	}
 }
 
@@ -490,7 +505,7 @@ void GC_Object::PulseNotify(NotyfyType type, void *param)
 		_ASSERT(it->subscriber);
 		(GetRawPtr(it->subscriber)->*it->handler)(this, param);
 		tmp = it++;
-        if( tmp->once ) 
+		if( tmp->once ) 
 		{
 			_notifyList.erase(tmp);
 		}

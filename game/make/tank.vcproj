@@ -1004,6 +1004,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="scripts"
+			>
+			<File
+				RelativePath="..\workdir\scripts\func.lua"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\scripts\init.lua"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\scripts\names.lua"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\scripts\textures.lua"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\scripts\vehicles.lua"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\scripts\weapons.lua"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\workdir\Readme.txt"
 			>

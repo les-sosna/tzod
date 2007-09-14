@@ -97,23 +97,25 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 void GC_Pickup::Attach(GC_Actor *actor)
 {
 	_ASSERT(!_owner);
-	MoveTo(actor->GetPos());
 	_owner         = actor;
 	_timeAttached  = 0;
+	MoveTo(actor->GetPos());
+	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove, false);
 	actor->OnPickup(this, true);
 }
 
 void GC_Pickup::Detach()
 {
 	_ASSERT(_owner);
+	SetZ(Z_FREE_ITEM);
+	_owner->Unsubscribe(this);
 	_owner->OnPickup(this, false);
 	_owner = NULL;
-	SetZ(Z_FREE_ITEM);
 }
 
 void GC_Pickup::Respawn()
 {
-	_respawn = false;
+	SetRespawn(false);
 	Show(true);
 	PLAY(SND_puRespawn, GetPos());
 
@@ -211,6 +213,13 @@ void GC_Pickup::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
+}
+
+void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
+{
+	_ASSERT(IsAttached());
+	_ASSERT(GetOwner() == sender);
+	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
 
 SafePtr<PropertySet> GC_Pickup::GetProperties()
@@ -380,8 +389,6 @@ void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 
 	actor->Subscribe(NOTIFY_DAMAGE_FILTER, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
-	actor->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerMove, false);
 
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
@@ -456,12 +463,6 @@ void GC_pu_Invulnerablity::Serialize(SaveFile &f)
 	f.Serialize(_timeHit);
 }
 
-void GC_pu_Invulnerablity::OnOwnerMove(GC_Object *sender, void *param)
-{
-	_ASSERT(GetOwner() == sender);
-	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
@@ -522,7 +523,13 @@ void GC_pu_Shock::Attach(GC_Actor* actor)
 
 	GC_Pickup::Attach(actor);
 	PLAY(SND_ShockActivate, GetPos());
-	Show(false);
+	SetTexture("explosion_g");
+}
+
+void GC_pu_Shock::Detach()
+{
+	GC_Pickup::Detach();
+	SetTexture("pu_shock");
 }
 
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
@@ -567,17 +574,16 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
+		if( GetOwner()->IsKilled() )
+		{
+			Disappear();
+			return;
+		}
+
 		if( !_effect )
 		{
-			if( GetTimeAttached() > _timeout )
+			if( GetTimeAttached() >= _timeout )
 			{
-				if( GetOwner()->IsKilled() )
-				{
-					Disappear();
-					return;
-				}
-
-				MoveTo(GetOwner()->GetPos()); // FIXME
 				GC_Vehicle *pNearTarget = FindNearVehicle(
 					static_cast<GC_RigidBodyStatic*>(GetOwner()));
 
@@ -593,8 +599,6 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light->SetLength((pNearTarget->GetPos() - GetPos()).Length());
 					_light->SetAngle((pNearTarget->GetPos() - GetPos()).Angle());
 
-				//	_time = 0;
-
 					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(), 
 						static_cast<GC_RigidBodyStatic*>(GetOwner()));
 				}
@@ -609,7 +613,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 		}
 		else
 		{
-			float a = GetTimeAttached() / 0.2f;
+			float a = (GetTimeAttached() - _timeout) * 5.0f;
 			if( a > 1 )
 			{
 				SAFE_KILL(_effect);
@@ -643,19 +647,6 @@ GC_pu_Booster::GC_pu_Booster(FromFile) : GC_Pickup(FromFile())
 
 GC_pu_Booster::~GC_pu_Booster()
 {
-}
-
-bool GC_pu_Booster::Disappear()
-{
-	if( IsAttached() )
-	{
-		_ASSERT(dynamic_cast<GC_Weapon*>(GetOwner()));
-		static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
-	}
-
-	SetTexture("pu_booster");
-
-	return GC_Pickup::Disappear();
 }
 
 void GC_pu_Booster::Serialize(SaveFile &f)
@@ -704,6 +695,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 	}
 
 	w->SetAdvanced(true);
+	w->Subscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 
 	PLAY(SND_B_Start, GetPos());
 	new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this);
@@ -712,17 +704,20 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 	SetShadow(false);
 }
 
-//void GC_pu_Booster::Detach()
-//{
-//	
-//}
+void GC_pu_Booster::Detach()
+{
+	_ASSERT(dynamic_cast<GC_Weapon*>(GetOwner()));
+	static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
+	SetTexture("pu_booster");
+	GC_Pickup::Detach();
+}
 
 GC_Actor* GC_pu_Booster::FindNewOwner() const
 {
 	GC_Vehicle *veh = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
 	if( veh && !veh->_state._bState_AllowDrop && !veh->GetWeapon() )
 		return NULL;
-	return veh;
+	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
 }
 
 void GC_pu_Booster::TimeStepFloat(float dt)
@@ -739,20 +734,11 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 	GC_Pickup::TimeStepFixed(dt);
 	if( IsAttached() )
 	{
-		//if( GetOwner()->IsKilled() )
-		//{
-		//	PLAY(SND_B_End, GetPos());
-		//	Disappear();
-		//}
-		//else
-		//{
-		//	MoveTo(GetOwner()->GetPos());
-		//}
-
-		if( GetTimeAttached() > BOOSTER_TIME && !IsKilled() )
+		_ASSERT(!GetOwner()->IsKilled());
+		if( GetTimeAttached() > BOOSTER_TIME )
 		{
-			Disappear();
 			PLAY(SND_B_End, GetPos());
+			Disappear();
 		}
 	}
 }

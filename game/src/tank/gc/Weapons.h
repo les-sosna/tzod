@@ -68,8 +68,8 @@ public:
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
 
-private:
-	void OnOwnerMove(GC_Vehicle *sender, void *param);
+//private:
+//	void OnOwnerMove(GC_Vehicle *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

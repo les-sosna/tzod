@@ -99,6 +99,9 @@ public:
 
 	virtual float GetDefaultRespawnTime() const = 0;
 
+protected:
+	void OnOwnerMove(GC_Object *sender, void *param);
+
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const
@@ -167,9 +170,8 @@ public:
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
 
-public:
+protected:
 	void OnOwnerDamage(GC_Object *sender, void *param);
-	void OnOwnerMove(GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,6 +200,7 @@ public:
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
 	virtual void Attach(GC_Actor *actor);
+	virtual void Detach();
 
 	virtual void TimeStepFixed(float dt);
 };
@@ -212,7 +215,7 @@ public:
 	GC_pu_Booster(float x, float y);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
-	virtual bool Disappear();
+//	virtual bool Disappear();
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);
@@ -220,7 +223,7 @@ public:
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
 	virtual void Attach(GC_Actor *actor);
-//	virtual void Detach();
+	virtual void Detach();
 
 	virtual GC_Actor* FindNewOwner() const;
 

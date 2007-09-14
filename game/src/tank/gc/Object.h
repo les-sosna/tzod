@@ -210,6 +210,8 @@ private:
 		void Serialize(SaveFile &f);
 	};
 
+	void Unguard(GC_Object *subscriber);
+
 
 	//
 	// attributes
