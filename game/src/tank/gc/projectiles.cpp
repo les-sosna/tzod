@@ -20,9 +20,7 @@
 #include "particles.h"
 #include "pickup.h"
 
-//#include "Weapons.h" // FIXME!
-
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trail,
                              const vec2d &pos, const vec2d &v, const char *texture)

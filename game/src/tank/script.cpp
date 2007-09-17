@@ -843,14 +843,17 @@ int luaT_pushcmd(lua_State *L)
 
 lua_State* script_open(void)
 {
-	lua_State *L = lua_open();
+	lua_State *L = luaL_newstate();
 
 
 	//
 	// register functions
 	//
 
-	luaopen_base(L);
+	lua_pushcfunction(L, &luaopen_base);
+	lua_pushstring(L, "");
+	lua_call(L, 1, 0);
+
 
 	lua_register(L, "loadmap",  luaT_loadmap);
 	lua_register(L, "newmap",   luaT_newmap);
@@ -887,22 +890,17 @@ lua_State* script_open(void)
 	lua_setglobal(L, "pushcmd");
 
 
-
 	//
 	// create global 'gc' table and fill it with editor classes
 	//
 
 	lua_newtable(L);
-	lua_pushvalue(L, -1);   // make a copy of the table to leave it in the stack
-	lua_setglobal(L, "gc"); // set global and pop one element from stack
-
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
 		lua_newtable(L);
 		lua_setfield(L, -2, Level::GetTypeInfoByIndex(i).name);
 	}
-
-	lua_pop(L, 1); // remove 'gc' table from the stack
+	lua_setglobal(L, "gc"); // set global and pop one element from stack
 
 
 	//
@@ -919,6 +917,7 @@ lua_State* script_open(void)
 
 	lua_newtable(L);
 	lua_setglobal(L, "user"); // set global and pop one element from stack
+
 
 	return L;
 }
