@@ -807,7 +807,7 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
                           const vec2d &tv, // target velocity
                           vec2d &out_fake) // out: fake target position
 {
-	float vt = tv.Length();
+	float vt = tv.len();
 
 	if( vt >= vp || vt < 1e-7 )
 	{
@@ -868,7 +868,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	const int stepy[2] = {0, a_tmp.y >= 0 ? 1 : -1};
 	const int check[2] = {a_tmp.y == 0,   a_tmp.x == 0};
 
-	float la = a.Length();
+	float la = a.len();
 	float la_tmp = la / LOCATION_SIZE;
 
 	for( int i = 0; i < 4; i++ )
@@ -1211,6 +1211,16 @@ void Level::TimeStep(float dt)
 
 	_ASSERT(lua_gettop(L) == queueidx);
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
+
+//#ifdef _DEBUG
+//	// check for dead objects
+//	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
+//	while( GetList(LIST_objects).end() != it )
+//	{
+//		_ASSERT(!(*it)->IsKilled());
+//		++it;
+//	}
+//#endif
 }
 
 

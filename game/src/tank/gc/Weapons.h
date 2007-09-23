@@ -181,7 +181,6 @@ public:
 
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

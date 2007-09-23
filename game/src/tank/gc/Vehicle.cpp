@@ -215,8 +215,8 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	for( int i = 0; i < 4; i++ )
 	{
 		_vertices[i] = vc.bounds[i];
-		if( _vertices[i].Length() > max_r )
-			max_r = _vertices[i].Length();
+		if( _vertices[i].len() > max_r )
+			max_r = _vertices[i].len();
 	}
 
 	_radius = max_r;
@@ -488,8 +488,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
 	{
 		_moveSound->MoveTo(GetPos());
-		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.Length() / GetMaxSpeed()));
-		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.Length() / GetMaxSpeed()));
+		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.len() / GetMaxSpeed()));
+		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.len() / GetMaxSpeed()));
 	}
 
 
@@ -504,7 +504,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		vec2d trackR_new = GetPos() - tmp*15;
 
 		vec2d e = trackL_new - trackL;
-		float len = e.Length();
+		float len = e.len();
 		e /= len;
 		while( _trackPathL < len )
 		{
@@ -517,7 +517,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		_trackPathL -= len;
 
 		e   = trackR_new - trackR;
-		len = e.Length();
+		len = e.len();
 		e  /= len;
 		while( _trackPathR < len )
 		{

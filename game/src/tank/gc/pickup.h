@@ -101,6 +101,7 @@ public:
 
 protected:
 	void OnOwnerMove(GC_Object *sender, void *param);
+	void OnOwnerKill(GC_Object *sender, void *param);
 
 #ifdef NETWORK_DEBUG
 public:
@@ -166,6 +167,7 @@ public:
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
 
 	virtual void Attach(GC_Actor *actor);
+	virtual void Detach();
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -215,7 +217,6 @@ public:
 	GC_pu_Booster(float x, float y);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
-//	virtual bool Disappear();
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);

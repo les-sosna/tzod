@@ -147,7 +147,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		{
 			_pickupCurrent = NULL;
 		}
-		else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).Square() <
+		else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).sqr() <
 		          _pickupCurrent->GetRadius() * _pickupCurrent->GetRadius() )
 		{
 			vs._bState_AllowDrop = true;
@@ -181,7 +181,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 			if( _level > 2 )
 			{
 				d = d_array[_level] *
-					fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.Length()) /
+					fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.len()) /
 						static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 			}
 
@@ -554,7 +554,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	{
 		if( !object->IsKilled() && object != GetVehicle() )
 		{
-			if( (GetVehicle()->GetPos() - object->GetPos()).Square() <
+			if( (GetVehicle()->GetPos() - object->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
@@ -574,7 +574,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	{
 		float l;
 		if( targets[i].bIsVisible )
-			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).Length() / CELL_SIZE;
+			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).len() / CELL_SIZE;
 		else
 			l = CreatePath( targets[i].target->GetPos().x, 
 			                targets[i].target->GetPos().y, AI_MAX_DEPTH, true, ws );
@@ -614,7 +614,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 			GC_Pickup *pItem = (GC_Pickup *) *it;
 			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) continue;
 
-			if( (GetVehicle()->GetPos() - pItem->GetPos()).Square() <
+			if( (GetVehicle()->GetPos() - pItem->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				applicants.push_back(pItem);
@@ -686,7 +686,7 @@ void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 	float y = (target->GetPos().y - GetVehicle()->GetPos().y) * c -
 	          (target->GetPos().x - GetVehicle()->GetPos().x) * s;
 
-	float Vt = target->_lv.Length();
+	float Vt = target->_lv.len();
 
 	if( Vt < Vp )
 	{
@@ -876,7 +876,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
 			_pickupCurrent->GetRadius() : 30.0f) : (float) CELL_SIZE / 2;
-		float current = (GetVehicle()->GetPos() - _path.front().coord).Length();
+		float current = (GetVehicle()->GetPos() - _path.front().coord).len();
 		if( current > desired )
 		{
 			break;
@@ -914,7 +914,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 			CalcOutstrip(enemy, ws->fProjectileSpeed, fake);
 		}
 
-		float len = (_target->GetPos() - GetVehicle()->GetPos()).Length();
+		float len = (_target->GetPos() - GetVehicle()->GetPos()).len();
 		if( len < ws->fAttackRadius_min )
 		{
 			RotateTo(pVehState, _target->GetPos(), false, true);
@@ -936,7 +936,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		_ASSERT(GetVehicle()->GetWeapon());
 		GC_RigidBodyStatic *target = GetRawPtr(_attackList.front());
 
-		float len = (target->GetPos() - GetVehicle()->GetPos()).Length();
+		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
 		TowerTo(pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
 		RotateTo(pVehState, _path.empty() ? target->GetPos() : _path.front().coord,
 			len > ws->fAttackRadius_max,
@@ -956,7 +956,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	if( 0 && bNeedStickCheck )  // проверка на застревание
-	if( GetVehicle()->_lv.Length() < GetVehicle()->GetMaxSpeed() * 0.1f
+	if( GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f
 		/* && engine_working_time > 1 sec */ )
 	{
 		// застряли :(

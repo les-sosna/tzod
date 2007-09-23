@@ -808,6 +808,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\gc\WeakPtr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\gc\Weapons.cpp"
 				>
 			</File>

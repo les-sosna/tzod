@@ -68,7 +68,7 @@ void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
 	vec2d norm;
 	vec2d m[4];
 
-	float min_len = path.Length();
+	float min_len = path.len();
 	bool  hit     = false;
 
 	for( int i = 0; i < 4; ++i )
@@ -147,7 +147,7 @@ void GC_Projectile::MoveTo(const vec2d &pos, BOOL trail)
 	if( trail )
 	{
 		vec2d e = pos - GetPos();
-		float len = e.Length();
+		float len = e.len();
 
 		e /= len;
 
@@ -155,7 +155,6 @@ void GC_Projectile::MoveTo(const vec2d &pos, BOOL trail)
 		{
 			if( g_conf.g_particles->Get() )
 				SpawnTrailParticle(GetPos() + e * _trailPath);
-
 			_trailPath += _trailDensity;
 		}
 
@@ -186,23 +185,30 @@ void GC_Projectile::TimeStepFixed(float dt)
 
 	if( object )
 	{
+		if( _lastHit )
+		{
+			_lastHit->Unsubscribe(this);
+		}
 		_lastHit = object;
+		_lastHit->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 
 		if( Hit(object, hit, norm) )
 		{
 			MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 			Kill();
-			return;
 		}
 		else
 		{
-			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).Square() / dx.Square()));
+			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).sqr() / dx.sqr()));
 			MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 			TimeStepFixed(new_dt);
-			return;
 		}
+		return;
 	}
-	else MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+	else
+	{
+		MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+	}
 
 	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
 		GetPos().y < 0 || GetPos().y > g_level->_sy )
@@ -212,6 +218,11 @@ void GC_Projectile::TimeStepFixed(float dt)
 	}
 }
 
+void GC_Projectile::OnKillLastHit(GC_Object *sender, void *param)
+{
+	_lastHit = NULL;
+}
+
 /////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Rocket)
@@ -219,15 +230,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Rocket)
 	return true;
 }
 
-GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
-					 GC_RigidBodyStatic* owner, bool advanced)
+GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced)
 : GC_Projectile(owner, advanced, TRUE, x, v, "projectile_rocket")
 {
 	_damage = DAMAGE_ROCKET_AK47;
 	_trailDensity = 1.5f;
 
-	_time = 0.0f;
-
+	_timeHomming = 0.0f;
 	_owner = owner;
 
 	new GC_Sound_link(SND_RocketFly, SMODE_LOOP, this);
@@ -252,12 +261,12 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v,
 
 
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity.Length(), veh->GetPos(), veh->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity.len(), veh->GetPos(), veh->_lv, target);
 
 			vec2d a = target - GetPos();
 
 			// косинус угла направления на цель
-			float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
+			float cosinus = (a * _velocity) / (a.len() * _velocity.len());
 
 			if( cosinus > nearest_cosinus )
 			{
@@ -293,7 +302,7 @@ void GC_Rocket::Kill()
 void GC_Rocket::Serialize(SaveFile &f)
 {
 	GC_Projectile::Serialize(f);
-	f.Serialize(_time);
+	f.Serialize(_timeHomming);
 	f.Serialize(_target);
 }
 
@@ -310,30 +319,30 @@ void GC_Rocket::SpawnTrailParticle(const vec2d &pos)
 
 	if( _target )
 	{
-		new GC_Particle(pos - _velocity * 8.0f / _velocity.Length(),
+		new GC_Particle(pos - _velocity * 8.0f / _velocity.len(),
 			_velocity * 0.3f, fire2, frand(0.1f) + 0.02f);
 	}
 	else
 	{
-		new GC_Particle(pos - _velocity * 8.0f / _velocity.Length(),
+		new GC_Particle(pos - _velocity * 8.0f / _velocity.len(),
 			_velocity * 0.3f, fire1, frand(0.1f) + 0.02f);
 	}
 }
 
 void GC_Rocket::TimeStepFixed(float dt)
 {
-	_time += dt;
+	_timeHomming += dt;
 
 	if( _target )
 	{
-		if( _target->IsKilled() || WEAP_RL_HOMMING_TIME < _time )
+		if( _target->IsKilled() || WEAP_RL_HOMMING_TIME < _timeHomming )
 		{
 			FreeTarget();
 		}
 		else
 		{
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity.Length(), _target->GetPos(), _target->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity.len(), _target->GetPos(), _target->_lv, target);
 
 			vec2d a = target - GetPos();
 
@@ -343,7 +352,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 			vec2d p = a - vi;
 			vec2d dv = p - vi * (vi * p);
 
-			float ldv = dv.Length();
+			float ldv = dv.len();
 			if( ldv > 0 )
 			{
 				dv /= ldv;
@@ -645,12 +654,12 @@ void GC_BfgCore::FindTarget()
 			GetRawPtr(_owner), GetPos(), veh->GetPos() - GetPos()) ) continue;
 
 		vec2d target;
-		g_level->CalcOutstrip(GetPos(), _velocity.Length(), veh->GetPos(), veh->_lv, target);
+		g_level->CalcOutstrip(GetPos(), _velocity.len(), veh->GetPos(), veh->_lv, target);
 
 		vec2d a = target - GetPos();
 
 		// косинус угла направления на цель
-		float cosinus = (a * _velocity) / (a.Length() * _velocity.Length());
+		float cosinus = (a * _velocity) / (a.len() * _velocity.len());
 
 		if( cosinus > nearest_cosinus )
 		{
@@ -730,8 +739,8 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		if( !veh->IsKilled() )
 		{
 			const float R = WEAP_BFG_RADIUS;
-			float damage = (1 - (GetPos() - veh->GetPos()).Length() / R) *
-				(fabsf(veh->_lv.Length()) / SPEED_BFGCORE * 10 + 0.5f);
+			float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
+				(fabsf(veh->_lv.len()) / SPEED_BFGCORE * 10 + 0.5f);
 
 			if( damage > 0 && !(IsAdvanced() && veh == _owner) )
 			{
@@ -752,7 +761,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		}
 		else
 		{
-			float v = _velocity.Length();
+			float v = _velocity.len();
 
 			vec2d target;
 			g_level->CalcOutstrip(GetPos(), v, _target->GetPos(), _target->_lv, target);
@@ -764,11 +773,11 @@ void GC_BfgCore::TimeStepFixed(float dt)
 			vec2d p = a - vi;
 			vec2d dv = p - vi * (vi * p);
 
-			float ldv = dv.Length();
+			float ldv = dv.len();
 			if( ldv > 0 )
 			{
 				dv /= ldv;
-				dv *= (3.0f * fabsf(_target->_lv.Length()) /
+				dv *= (3.0f * fabsf(_target->_lv.len()) /
 					_target->GetMaxSpeed() +
 					IsAdvanced() ? 1 : 0) * WEAP_BFG_HOMMING_FACTOR;
 
@@ -1079,7 +1088,7 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 	static const TextureCache tex("particle_trace2");
 
 	vec2d dx = vrand(3.0f);
-	vec2d ve = _velocity / _velocity.Length();
+	vec2d ve = _velocity / _velocity.len();
 	float time = frand(0.01f) + 0.03f;
 
 	vec2d v = (-dx - ve * (-dx * ve)) / time;

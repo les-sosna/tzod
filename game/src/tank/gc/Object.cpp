@@ -507,6 +507,12 @@ void GC_Object::PulseNotify(NotyfyType type, void *param)
 		tmp = it++;
 		if( tmp->once ) 
 		{
+			if( tmp->hasGuard )
+			{
+				// find self in the subscriber's list and remove OnKillSubscriber
+				tmp->subscriber->Unguard(this);
+				tmp->hasGuard = false;
+			}
 			_notifyList.erase(tmp);
 		}
 	}

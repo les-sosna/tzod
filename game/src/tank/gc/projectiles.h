@@ -23,9 +23,9 @@ class GC_Projectile : public GC_2dSprite
 	MemberOfGlobalList<LIST_projectiles> _memberOf;
 
 protected:
+	SafePtr<GC_Light>  _light;
 	SafePtr<GC_RigidBodyStatic> _owner;
 	SafePtr<GC_RigidBodyStatic> _lastHit;
-	SafePtr<GC_Light>           _light;
 
 	float _trailDensity;
 	float _trailPath;   // когда это значение превышает _trailDensity,
@@ -64,6 +64,8 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 
+	void OnKillLastHit(GC_Object *sender, void *param);
+
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const
@@ -85,7 +87,7 @@ class GC_Rocket : public GC_Projectile
 
 private:
 	SafePtr<GC_Vehicle> _target;
-	float _time;
+	float _timeHomming;
 
 protected:
 	void FreeTarget();
@@ -96,9 +98,7 @@ public:
 	virtual ~GC_Rocket();
 
 	virtual void Kill();
-
 	virtual void Serialize(SaveFile &f);
-
 
 	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
@@ -224,9 +224,6 @@ class GC_Disk : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Disk);
 
 protected:
-//	bool _attached;
-//	SafePtr<GC_Weap_Ripper> _ripper;
-
 	float _time;
 
 public:

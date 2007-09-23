@@ -481,7 +481,7 @@ void GC_Water::UpdateTile(bool flag)
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
-			if( dx.Square() < 2.5f )
+			if( dx.sqr() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
 				int y = int(dx.y + 1.5f);
@@ -611,7 +611,7 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 
 bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
 {
-	if( (pObj->GetPos() - GetPos()).Length() > GetRadius() + pObj->GetRadius() )
+	if( (pObj->GetPos() - GetPos()).len() > GetRadius() + pObj->GetRadius() )
 	{
 		return false;
 	}
@@ -687,7 +687,7 @@ bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 				}
 
 
-				float len = normal.Length();
+				float len = normal.len();
 				if( len < 1e-7 )
 				{
 					return false;
@@ -741,7 +741,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 			delta.x = tmp.x * c - tmp.y * s - dx.x;
 			delta.y = tmp.x * s - tmp.y * c - dx.y;
 
-			float dl_sq = delta.Square();
+			float dl_sq = delta.sqr();
 			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
 
 			pProj->SpecialTrace(this, delta);
@@ -851,7 +851,7 @@ float GC_RigidBodyDynamic::geta_s(const vec2d &n, const vec2d &c,
 	return (float)
 	(
 		2 * ( _av * k1 - n.y*_lv.y - n.x*_lv.x ) /
-		( k1*k1*_inv_i + n.Square() * _inv_m )
+		( k1*k1*_inv_i + n.sqr() * _inv_m )
 	);
 }
 
@@ -863,7 +863,7 @@ float GC_RigidBodyDynamic::geta_d(const vec2d &n, const vec2d &c,
 	return (float)
 	(
 		2 * ( n.y*(obj->_lv.y-_lv.y) + n.x*(obj->_lv.x-_lv.x) + _av*k1 + obj->_av*k2 ) /
-		    ( k1*k1*_inv_i + k2*k2*obj->_inv_i + n.Square() * (_inv_m+obj->_inv_m) )
+		    ( k1*k1*_inv_i + k2*k2*obj->_inv_i + n.sqr() * (_inv_m+obj->_inv_m) )
 	);
 }
 
@@ -1022,7 +1022,7 @@ float GC_RigidBodyDynamic::Energy() const
 {
 	float e = 0;
 	if( _inv_i != 0 ) e  = _av*_av / _inv_i;
-	if( _inv_m != 0 ) e += _lv.Square() / _inv_m;
+	if( _inv_m != 0 ) e += _lv.sqr() / _inv_m;
 	return e;
 }
 

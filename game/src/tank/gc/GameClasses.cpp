@@ -126,7 +126,7 @@ void GC_Wood::UpdateTile(bool flag)
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
-			if( dx.Square() < 2.5f )
+			if( dx.sqr() < 2.5f )
 			{
 				int x = int(dx.x + 1.5f);
 				int y = int(dx.y + 1.5f);
@@ -220,7 +220,7 @@ GC_Line::GC_Line(const vec2d &begin, const vec2d &end, const char *texture)
 
 void GC_Line::SetPhase(float f)
 {
-	float len = (_end-_begin).Length();
+	float len = (_end-_begin).len();
 
 	SetFrame(_frame);
 
@@ -416,7 +416,7 @@ void GC_Explosion::Boom(float radius, float damage)
 		if( pCamera->_player->GetVehicle() )
 		{
 			float level = 0.5f * (radius - (GetPos() -
-				pCamera->_player->GetVehicle()->GetPos()).Length() * 0.3f) / radius;
+				pCamera->_player->GetVehicle()->GetPos()).len() * 0.3f) / radius;
 			//--------------------------
 			if( level > 0 )
 				pCamera->Shake(level);
@@ -475,7 +475,7 @@ void GC_Explosion::Boom(float radius, float damage)
 
 			vec2d dam = pDamObject->GetPos();
 
-			float d = (GetPos() - dam).Length();
+			float d = (GetPos() - dam).len();
 
 			if( d <= radius)
 			{

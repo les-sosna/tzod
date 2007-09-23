@@ -51,27 +51,27 @@ public:
 		return *this;
 	}
 
-	vec2d  operator + (const vec2d &rVector) const
+	vec2d operator + (const vec2d &rVector) const
 	{
 		return vec2d(x + rVector.x, y + rVector.y);
 	}
 
-	vec2d  operator - (const vec2d &rVector) const
+	vec2d operator - (const vec2d &rVector) const
 	{
 		return vec2d(x - rVector.x, y - rVector.y);
 	}
 
-	vec2d  operator - () const
+	vec2d operator - () const
 	{
 		return vec2d(-x, -y);
 	}
 
-	vec2d  operator * (float a) const
+	vec2d operator * (float a) const
 	{
 		return vec2d(x * a, y * a);
 	}
 
-	vec2d  operator / (float a) const
+	vec2d operator / (float a) const
 	{
 		return vec2d(x / a, y / a);
 	}
@@ -90,18 +90,23 @@ public:
 		return *this;
 	}
 
-	float operator*(const vec2d &rVector) const
+	float operator * (const vec2d &v) const
 	{
-		return x*rVector.x + y*rVector.y;  // dot product
+		return x * v.x + y * v.y;  // dot product
+	}
+
+	friend vec2d operator * (float a, const vec2d &v)
+	{
+		return vec2d(v.x * a, v.y * a);
 	}
 
 public:
-	float Square() const
+	float sqr() const
 	{
 		return x*x + y*y;
 	}
 
-	float Length() const
+	float len() const
 	{
 		return sqrtf(x*x + y*y);
 	}

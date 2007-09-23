@@ -184,7 +184,7 @@ void GC_Player::TimeStepFixed(float dt)
 				FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pVeh )
 				{
 					if( pVeh->IsKilled() ) continue;
-					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).Square();
+					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
 					if( d < dist || dist < 0 ) dist = d;
 				}
 

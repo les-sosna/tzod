@@ -11,7 +11,6 @@
 #include "Indicators.h"
 #include "Projectiles.h"
 #include "Particles.h"
-//#include "ai.h"
 
 #include "Macros.h"
 #include "Level.h"
@@ -66,6 +65,18 @@ void GC_Weapon::Attach(GC_Actor *actor)
 	SetBlinking(false);
 
 	SetCrosshair();
+	if( _crosshair )
+	{
+		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetOwner()) )
+		{
+			_crosshair->Show(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetPlayer()));
+		}
+		else
+		{
+			_crosshair->Show(false);
+		}
+	}
+
 
 	PLAY(SND_w_Pickup, GetPos());
 
@@ -83,6 +94,8 @@ void GC_Weapon::Detach()
 	SAFE_KILL(_crosshair);
 	SAFE_KILL(_fireEffect);
 	SAFE_KILL(_fireLight);
+
+	_time = 0;
 
 	GC_Pickup::Detach();
 }
@@ -145,6 +158,10 @@ void GC_Weapon::Serialize(SaveFile &f)
 
 void GC_Weapon::Kill()
 {
+	if( IsAttached() )
+	{
+		Detach();
+	}
 	_ASSERT(!_crosshair);
 	_ASSERT(!_rotateSound);
 	_ASSERT(!_fireEffect);
@@ -194,16 +211,14 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		if( _crosshair )
-		{
-//			_crosshair->Show(NULL == dynamic_cast<GC_PlayerAI*>(
-//				static_cast<GC_Vehicle*>(GetOwner())->GetPlayer())); // FIXME
-		}
-
 		_rotator.process_dt(dt);
 		ProcessRotate(dt);
-
 		UpdateView();
+		if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
+		{
+			_crosshair->MoveTo(GetPos() + CH_DISTANCE_NORMAL * vec2d(
+				static_cast<GC_Vehicle*>(GetOwner())->_angle + _angle) );
+		}
 	}
 	else
 	{
@@ -227,21 +242,6 @@ void GC_Weapon::TimeStepFloat(float dt)
 		SetRotation(GetTimeAnimation());
 	}
 }
-/*
-void GC_Weapon::OnOwnerMove(GC_Vehicle *sender, void *param)
-{
-	_ASSERT(IsAttached());
-	_ASSERT(GetOwner() == sender);
-
-	MoveTo(sender->GetPos());
-	UpdateView();
-
-	if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
-	{
-		_crosshair->MoveTo(GetPos() + vec2d(sender->_angle + _angle) * CH_DISTANCE_NORMAL );
-	}
-}
-*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -838,13 +838,6 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 4.5f : 9.0f;
 }
 
-void GC_Weap_Gauss::TimeStepFixed(float dt)
-{
-	GC_Weapon::TimeStepFixed( dt );
-
-	return;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
@@ -1020,7 +1013,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				if( object )
 				{
 					object->TakeDamage(
-						dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).Length() / lenght),
+						dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).len() / lenght),
 						hit, veh);
 				}
 
@@ -1048,7 +1041,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				if( object )
 				{
 					object->TakeDamage(
-						dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).Length() / lenght),
+						dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).len() / lenght),
 						hit, veh);
 				}
 

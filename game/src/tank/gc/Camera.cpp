@@ -73,7 +73,7 @@ void GC_Camera::TimeStepFloat(float dt)
 	{
 //		_rotator.rotate_to(-_player->_vehicle->_dir - PI/2);
 
-		mu += _player->GetVehicle()->_lv.Length() / 100;
+		mu += _player->GetVehicle()->_lv.len() / 100;
 
 		int dx = (int) __max(0, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
 		int dy = (int) __max(0, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);

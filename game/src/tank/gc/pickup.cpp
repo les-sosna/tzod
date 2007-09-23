@@ -83,7 +83,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 	{
 		if( !veh->IsKilled() )
 		{
-			if( (GetPos() - veh->GetPos()).Square() < r_sq )
+			if( (GetPos() - veh->GetPos()).sqr() < r_sq )
 			{
 				if( _autoSwitch || veh->_state._bState_AllowDrop )
 					return veh;
@@ -101,6 +101,7 @@ void GC_Pickup::Attach(GC_Actor *actor)
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
 	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove, false);
+	actor->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
 	actor->OnPickup(this, true);
 }
 
@@ -220,6 +221,11 @@ void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
 	_ASSERT(IsAttached());
 	_ASSERT(GetOwner() == sender);
 	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
+}
+
+void GC_Pickup::OnOwnerKill(GC_Object *sender, void *param)
+{
+	Disappear();
 }
 
 SafePtr<PropertySet> GC_Pickup::GetProperties()
@@ -377,15 +383,15 @@ AIPRIORITY GC_pu_Invulnerablity::GetPriority(GC_Vehicle *veh)
 
 void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 {
-	GC_Pickup::Attach(actor);
-
-	PLAY(SND_Inv, GetPos());
-
 	if( GC_Object *p = actor->GetSubscriber(GetType()) )
 	{
 		_ASSERT(dynamic_cast<GC_pu_Invulnerablity*>(p));
 		static_cast<GC_Pickup*>(p)->Disappear();
 	}
+
+	GC_Pickup::Attach(actor);
+
+	PLAY(SND_Inv, GetPos());
 
 	actor->Subscribe(NOTIFY_DAMAGE_FILTER, this,
 		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
@@ -393,6 +399,16 @@ void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
+}
+
+void GC_pu_Invulnerablity::Detach()
+{
+	SetTexture("pu_inv");
+	SetShadow(true);
+	SetBlinking(false);
+	SetOpacity(1);
+
+	GC_Pickup::Detach();
 }
 
 void GC_pu_Invulnerablity::TimeStepFixed(float dt)
@@ -409,15 +425,11 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 				SetBlinking(true);
 			}
 			SetOpacity( (PROTECT_TIME - GetTimeAttached()) / 2.0f );
-		}
-		else
-		{
-			SetBlinking(false);
-		}
 
-		if( GetTimeAttached() > PROTECT_TIME )
-		{
-			Disappear();
+			if( GetTimeAttached() > PROTECT_TIME )
+			{
+				Disappear();
+			}
 		}
 	}
 }
@@ -547,7 +559,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 		if( !pTargetObj->IsKilled() && pTargetObj != ignore )
 		{
 			// расстояние до объекта
-			dist = (GetPos() - pTargetObj->GetPos()).Length();
+			dist = (GetPos() - pTargetObj->GetPos()).len();
 
 			if( dist < min_dist )
 			{
@@ -574,12 +586,6 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		if( GetOwner()->IsKilled() )
-		{
-			Disappear();
-			return;
-		}
-
 		if( !_effect )
 		{
 			if( GetTimeAttached() >= _timeout )
@@ -596,7 +602,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light = new GC_Light(GC_Light::LIGHT_DIRECT);
 					_light->MoveTo(GetPos());
 					_light->SetRadius(100);
-					_light->SetLength((pNearTarget->GetPos() - GetPos()).Length());
+					_light->SetLength((pNearTarget->GetPos() - GetPos()).len());
 					_light->SetAngle((pNearTarget->GetPos() - GetPos()).Angle());
 
 					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(), 
