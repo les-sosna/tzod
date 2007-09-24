@@ -449,6 +449,21 @@ int luaT_ConvertVehicleClass(lua_State *L)
 
 
 	//
+	// get max speed
+	//
+
+	lua_getfield(L, 1, "max_speed");
+	if( !lua_istable(L, -1) )
+	{
+		return luaL_error(L, "absent mandatory array field 'max_speed'");
+	}
+	get_array(L, tmp, 2);
+	lua_pop(L, 1); // pop result of getfield;
+	vc.maxLinSpeed = tmp[0];
+	vc.maxRotSpeed = tmp[1];
+
+
+	//
 	// get mass, inertia, etc
 	//
 
@@ -847,13 +862,35 @@ lua_State* script_open(void)
 
 
 	//
-	// register functions
+	// open std libs
 	//
 
-	lua_pushcfunction(L, &luaopen_base);
-	lua_pushstring(L, "");
-	lua_call(L, 1, 0);
+	static const luaL_Reg lualibs[] = {
+		{"", luaopen_base},
+		{LUA_LOADLIBNAME, luaopen_package},
+		{LUA_TABLIBNAME, luaopen_table},
+//		{LUA_IOLIBNAME, luaopen_io},
+//		{LUA_OSLIBNAME, luaopen_os},
+		{LUA_STRLIBNAME, luaopen_string},
+		{LUA_MATHLIBNAME, luaopen_math},
+#ifdef _DEBUG
+		{LUA_DBLIBNAME, luaopen_debug},
+#endif
+		{NULL, NULL}
+	};
 
+	for( const luaL_Reg *lib = lualibs; lib->func; ++lib )
+	{
+		lua_pushcfunction(L, lib->func);
+		lua_pushstring(L, lib->name);
+		lua_call(L, 1, 0);
+	}
+
+
+
+	//
+	// register functions
+	//
 
 	lua_register(L, "loadmap",  luaT_loadmap);
 	lua_register(L, "newmap",   luaT_newmap);

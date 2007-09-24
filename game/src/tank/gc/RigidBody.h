@@ -283,7 +283,7 @@ public:
 
 	float _Mx;      // viscous friction factor X
 	float _My;      // viscous friction factor Y
-	float _Mw;      // angilar viscous friction factor
+	float _Mw;      // angular viscous friction factor
 
 	float _percussion;  // percussion factor
 	float _fragility;   // fragility factor (0 - invulnerability)

@@ -40,6 +40,8 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 
 	_enginePower = 0;
 	_rotatePower = 0;
+	_maxRotSpeed = 0;
+	_maxLinSpeed = 0;
 
 	_time_smoke   = 0;
 
@@ -100,6 +102,8 @@ void GC_Vehicle::Serialize(SaveFile &f)
 
 	f.Serialize(_enginePower);
 	f.Serialize(_rotatePower);
+	f.Serialize(_maxRotSpeed);
+	f.Serialize(_maxLinSpeed);
 	f.Serialize(_state);
 	f.Serialize(_time_smoke);
 	f.Serialize(_trackDensity);
@@ -189,8 +193,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 	}
 }
 
-
-void GC_Vehicle::SetState(VehicleState &vs)
+void GC_Vehicle::SetState(const VehicleState &vs)
 {
 	memcpy( &_state, &vs, sizeof(VehicleState) );
 }
@@ -238,6 +241,10 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 
 	_enginePower = vc.enginePower;
 	_rotatePower = vc.rotatePower;
+
+	_maxLinSpeed = vc.maxLinSpeed;
+	_maxRotSpeed = vc.maxRotSpeed;
+
 
 	SetMaxHP(vc.health);
 }
@@ -474,11 +481,14 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	}
 	else
 	{
-		if( _state._bState_RotateLeft )
-			ApplyMomentum( -_rotatePower );
-		else
-		if( _state._bState_RotateRight )
-			ApplyMomentum(  _rotatePower );
+		if( fabsf(_av) < _maxRotSpeed )
+		{
+			if( _state._bState_RotateLeft )
+				ApplyMomentum( -_rotatePower );
+			else
+			if( _state._bState_RotateRight )
+				ApplyMomentum(  _rotatePower );
+		}
 	}
 
 

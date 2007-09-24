@@ -27,15 +27,17 @@ struct VehicleClass
 
 	float _Nx;      // dry friction factor X
 	float _Ny;      // dry friction factor Y
-	float _Nw;      // angilar dry friction factor
+	float _Nw;      // angular dry friction factor
 
 	float _Mx;      // viscous friction factor X
 	float _My;      // viscous friction factor Y
-	float _Mw;      // angilar viscous friction factor
+	float _Mw;      // angular viscous friction factor
 
 	float enginePower;
 	float rotatePower;
 
+	float maxRotSpeed;
+	float maxLinSpeed;
 };
 
 struct VehicleState
@@ -109,6 +111,8 @@ public:
 
 	float _enginePower;
 	float _rotatePower;
+	float _maxRotSpeed;
+	float _maxLinSpeed;
 
 	VehicleState _state;
 
@@ -133,7 +137,7 @@ public:
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 
 	void SetSkin(const char *pSkinName);
-	void SetState(VehicleState &vs);
+	void SetState(const VehicleState &vs);
 
 	void SetMoveSound(enumSoundTemplate s);
 
