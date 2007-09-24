@@ -1811,7 +1811,7 @@ LRESULT CALLBACK dlgGetKey(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 		g_pKeyboard->Unacquire();
 		break;
 	}
-    return FALSE;
+	return FALSE;
 }
 
 

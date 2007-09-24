@@ -839,7 +839,6 @@ GC_TextScore::GC_TextScore() : GC_Text(0, 0, "score")
 
 	_background = new GC_2dSprite();
 	_background->Show(false);
-//	_background->SetZ(Z_SCREEN);
 	_background->SetTexture("scoretbl");
 
 	MoveTo(vec2d(

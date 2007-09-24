@@ -5,6 +5,11 @@
 #include "ui/Base.h"
 #include "ui/Dialog.h"
 
+
+// forward declaration
+class ConfVarTable;
+
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,6 +38,23 @@ protected:
 	void OnDeleteProfile();
 	void OnSelectProfile(int index);
 
+	void OnOK();
+	void OnCancel();
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class ControlProfileDlg : public Dialog
+{
+	List         *_actions;
+	ConfVarTable *_profile;
+
+public:
+	ControlProfileDlg(Window *parent, ConfVarTable *profile);
+	~ControlProfileDlg();
+
+protected:
+	void AddAction(const char *rawname, const char *display);
 
 	void OnOK();
 	void OnCancel();

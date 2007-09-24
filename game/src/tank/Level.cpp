@@ -1348,25 +1348,6 @@ void Level::Render() const
 
 	ReleaseDC(g_env.hMainWnd, hdc);
 */
-
-
-/*
-	//
-	// paint Z_SCREEN layer
-	//
-
-	if( !thumbnail )
-	{
-		g_render->SetMode(RM_INTERFACE);
-
-		FOREACH( z_globals[Z_COUNT-1], GC_2dSprite, object )
-		{
-			_ASSERT(!object->IsKilled());
-			object->Draw();
-			_ASSERT(!object->IsKilled());
-		}
-	}
-*/
 }
 
 GC_Object* Level::FindObject(const char *name) const

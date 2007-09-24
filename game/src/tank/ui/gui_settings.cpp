@@ -10,6 +10,8 @@
 
 #include "config/Config.h"
 
+#include "KeyMapper.h"
+
 
 namespace UI
 {
@@ -33,13 +35,15 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 	{
 		int index = _profiles->AddItem(profiles[i].c_str());
 	}
+	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
 	(new Button(this, 16, 144, "Добавить"))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
 	_editProfile = new Button(this, 16, 176, "Изменить");
 	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
+	_editProfile->Enable( false );
 	_deleteProfile = new Button(this, 16, 208, "Удалить");
 	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
-
+	_deleteProfile->Enable( false );
 
 	//
 	// other settings
@@ -83,17 +87,17 @@ SettingsDlg::~SettingsDlg()
 
 void SettingsDlg::OnAddProfile()
 {
-
 }
 
 void SettingsDlg::OnEditProfile()
 {
-
+	int i = _profiles->GetCurSel();
+	_ASSERT(i >= 0);
+	new ControlProfileDlg(this, g_conf.dm_profiles->GetTable(_profiles->GetItemText(i).c_str()));
 }
 
 void SettingsDlg::OnDeleteProfile()
 {
-	
 }
 
 void SettingsDlg::OnSelectProfile(int index)
@@ -117,6 +121,60 @@ void SettingsDlg::OnCancel()
 	Close(_resultCancel);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// class ControlProfileDlg
+
+ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
+  : Dialog(parent, 10, 10, 512, 384)
+  , _profile(profile)
+{
+	_ASSERT(profile);
+
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
+	SetEasyMove(true);
+
+	new Text(this,  10, 5, "Действие", alignTextLT);
+	new Text(this, 210, 5, "Кнопка", alignTextLT);
+	_actions = new List(this, 10, 20, 400, 300);
+	_actions->SetTabPos(0, 2);
+	_actions->SetTabPos(1, 200);
+
+	AddAction( "key_forward"      , "Вперед"            );
+	AddAction( "key_back"         , "Назад"             );
+	AddAction( "key_left"         , "Поворот налево"    );
+	AddAction( "key_right"        , "Поворот направо"   );
+	AddAction( "key_fire"         , "Огонь!!!"          );
+	AddAction( "key_light"        , "Фары вкл/выкл"     );
+	AddAction( "key_tower_left"   , "Орудие налево"     );
+	AddAction( "key_tower_right"  , "Орудие направо"    );
+	AddAction( "key_tower_center" , "Орудие по ценру"   );
+	AddAction( "key_pickup"       , "Подобрать предмет" );
+
+
+	(new Button(this, 304, 360, "ОК"))->eventClick.bind(&ControlProfileDlg::OnOK, this);
+	(new Button(this, 408, 360, "Отмена"))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+}
+
+ControlProfileDlg::~ControlProfileDlg()
+{
+}
+
+void ControlProfileDlg::AddAction(const char *rawname, const char *display)
+{
+	int index = _actions->AddItem(display);
+	_actions->SetItemText(index, 1, 
+		g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())).c_str());
+}
+
+void ControlProfileDlg::OnOK()
+{
+	Dialog::Close(_resultOK);
+}
+
+void ControlProfileDlg::OnCancel()
+{
+	Dialog::Close(_resultCancel);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

@@ -15,6 +15,8 @@
 
 #include "fs/SaveFile.h"
 
+#include "config/Config.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Camera)
@@ -23,16 +25,21 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 }
 
 GC_Camera::GC_Camera(GC_Player *pPlayer)
-  : GC_Actor(), _memberOf(this), _rotator(_angle_current)
+  : GC_Actor()
+  , _memberOf(this)
+  , _rotator(_angle_current)
 {
 	_player = pPlayer;
-	_rotator.reset(0.0f, 0.0f, 2.0f, 0.5f, 0.5f);
+	_rotator.reset(0.0f, 0.0f, 
+		g_conf.g_rotcamera_m->GetFloat(), 
+		g_conf.g_rotcamera_a->GetFloat(), 
+		g_conf.g_rotcamera_s->GetFloat());
 	if( _player )
 	{
 		MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );
 		if( _player->GetVehicle() )
 		{
-//			_angle_current =  -_player->_vehicle->_dir + PI/2;
+			_angle_current =  -_player->GetVehicle()->_angle + PI/2;
 			MoveTo( _player->GetVehicle()->GetPos() );
 		}
 		SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
@@ -68,10 +75,10 @@ void GC_Camera::TimeStepFloat(float dt)
 {
 	float mu = 3;
 
-//	_rotator.process_dt(dt);
+	_rotator.process_dt(dt);
 	if( _player->GetVehicle() )
 	{
-//		_rotator.rotate_to(-_player->_vehicle->_dir - PI/2);
+		_rotator.rotate_to(-_player->GetVehicle()->_angle - PI/2);
 
 		mu += _player->GetVehicle()->_lv.len() / 100;
 
@@ -134,8 +141,8 @@ void GC_Camera::Select()
 
 	g_render->Camera((float) g_env.camera_x,
 	                 (float) g_env.camera_y,
-					 _zoom,
-					 _angle_current);
+	                 _zoom,
+	                 g_conf.g_rotcamera->Get() ? _angle_current : 0);
 }
 
 void GC_Camera::Activate(bool bActivate)

@@ -59,9 +59,12 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_INT( s_maxchanels,            16 );
 
 	// game
-	CONFIG_VAR_BOOL( g_showdamage,        false );
-	CONFIG_VAR_BOOL( g_particles,          true );
-
+	CONFIG_VAR_BOOL(  g_showdamage,       false );
+	CONFIG_VAR_BOOL(  g_particles,         true );
+	CONFIG_VAR_BOOL(  g_rotcamera,        false );
+	CONFIG_VAR_FLOAT( g_rotcamera_a,       2.0f );
+	CONFIG_VAR_FLOAT( g_rotcamera_s,       0.5f );
+	CONFIG_VAR_FLOAT( g_rotcamera_m,       2.0f );
 
 	// editor
 	CONFIG_VAR_BOOL( ed_drawgrid,          true );

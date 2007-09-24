@@ -41,7 +41,7 @@ public:
 	int      AddItem(const char *str, UINT_PTR data = 0);
 	void     SetItemText(int index, int sub, const char *str);
 	float    GetItemHeight() const;
-	string_t GetItemText(int index, int sub) const;
+	string_t GetItemText(int index, int sub = 0) const;
 
 	void SetTabPos(int index, float pos);
 

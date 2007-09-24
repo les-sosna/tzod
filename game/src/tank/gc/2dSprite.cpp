@@ -59,9 +59,9 @@ GC_2dSprite::~GC_2dSprite()
 }
 
 void GC_2dSprite::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Actor::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_color);
 	f.Serialize(_frameRect);
 	f.Serialize(_height);
@@ -72,7 +72,7 @@ void GC_2dSprite::Serialize(SaveFile &f)
 	f.Serialize(_width);
 	f.Serialize(_zOrderCurrent);
 	f.Serialize(_zOrderPrefered);
-	/////////////////////////////////////
+
 	if( f.loading() )
 		UpdateCurrentZ();
 }
@@ -153,9 +153,6 @@ void GC_2dSprite::SetZ_current(enumZOrder z)
 	//
 	// set new z
 	//
-
-//	if( Z_SCREEN == z )
-//		ClearFlags(GC_FLAG_2DSPRITE_INGRIDSET);
 
 	_zOrderCurrent = z;
 	UpdateCurrentZ();
