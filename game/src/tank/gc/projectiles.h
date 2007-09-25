@@ -33,13 +33,17 @@ protected:
 
 protected:
 	virtual void MoveTo(const vec2d &pos, BOOL trail);
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm) = 0;
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm) = 0;
 	virtual void SpawnTrailParticle(const vec2d &pos) = 0;
+
+	bool Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 
 	vec2d _velocity;
 
+
 public:
 	float _damage;
+	float _impulse;
 
 	GC_Projectile(GC_RigidBodyStatic *owner, bool advanced,
 		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
@@ -100,7 +104,7 @@ public:
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 
 	virtual void TimeStepFixed(float dt);
@@ -123,7 +127,7 @@ public:
 	virtual ~GC_Bullet();
 
 	virtual void Serialize(SaveFile &f);
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 };
 
@@ -138,7 +142,7 @@ public:
 	GC_TankBullet(FromFile);
 	virtual ~GC_TankBullet();
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 };
 
@@ -153,7 +157,7 @@ public:
 	GC_PlazmaClod(FromFile);
 	virtual ~GC_PlazmaClod();
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 };
 
@@ -176,7 +180,7 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 
 	virtual void TimeStepFixed(float dt);
@@ -193,7 +197,7 @@ public:
 	GC_ACBullet(FromFile);
 	virtual ~GC_ACBullet();
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 };
 
@@ -208,40 +212,26 @@ public:
 	GC_GaussRay(FromFile);
 	virtual ~GC_GaussRay();
 
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 	virtual void Kill();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Ripper; // FIXME!
-
-//-------------------------
-
 class GC_Disk : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_Disk);
 
-protected:
-	float _time;
-
 public:
-//	GC_Disk(GC_Weap_Ripper *pRipper);
 	GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
 	GC_Disk(FromFile);
 	virtual ~GC_Disk();
 
-//	virtual void Kill();
-	virtual void Serialize(SaveFile &f);
-
-	virtual bool Hit(GC_Object *object, const vec2d &hit, const vec2d &norm);
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 
 	virtual void TimeStepFixed(float dt);
-
-//	void OnRipperMove(GC_Object *sender, void *param);
-//	void OnRipperKill(GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

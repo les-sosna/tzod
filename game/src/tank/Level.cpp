@@ -750,7 +750,7 @@ GC_Object* Level::CreateObject(ObjectType type, float x, float y)
 
 GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 {
-	for( int i = Z_COUNT - 1; i--; )
+	for( int i = Z_COUNT; i--; )
 	{
 		std::vector<OBJECT_LIST*> receive;
 		z_grids[i].OverlapCircle(receive, pt.x / LOCATION_SIZE, pt.y / LOCATION_SIZE, 0);

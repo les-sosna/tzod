@@ -750,7 +750,12 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	new Text(this, 8, y, "Èìÿ", alignTextLT);
 	_name = new Edit(this, x, y-=1, 200);
-	_name->SetText( _info->GetStr("nick", "New bot")->Get() );
+	lua_getglobal(g_env.L, "random_names");          // push table
+	lua_pushinteger(g_env.L, g_level->net_rand() % lua_objlen(g_env.L, -1) + 1);  // push key
+	lua_gettable(g_env.L, -2);                       // pop key, push value
+	_name->SetText( _info->GetStr("nick", lua_tostring(g_env.L, -1))->Get() ); // default nick from random_names
+	lua_pop(g_env.L, 2);                             // pop value and table
+
 
 
 	List *lst; // helps in combo box filling

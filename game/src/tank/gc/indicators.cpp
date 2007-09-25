@@ -2,14 +2,15 @@
 
 #include "stdafx.h"
 #include "indicators.h"
+#include "Vehicle.h"
 
 #include "level.h"
 #include "macros.h"
+#include "functions.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
 
-#include "Vehicle.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -21,12 +22,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 }
 
 GC_SpawnPoint::GC_SpawnPoint(float x, float y)
-  : GC_2dSprite(), _memberOf(this)
+  : GC_2dSprite()
+  , _memberOf(this)
 {
-	SetZ(Z_EDITOR);
-
 	SetTexture("editor_respawn");
-
+	SetZ(Z_EDITOR);
 	MoveTo(vec2d(x, y));
 	_team = 0;
 }
@@ -149,10 +149,7 @@ void GC_HideLabel::Draw()
 		GC_2dSprite::Draw();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crosshair)
 {
@@ -187,9 +184,8 @@ GC_Crosshair::GC_Crosshair(FromFile) : GC_2dSprite(FromFile())
 }
 
 void GC_Crosshair::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_angle);
 	f.Serialize(_chStyle);
 	f.Serialize(_time);
@@ -222,8 +218,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 }
 
 GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
-								 float *pValue, float *pValueMax, LOCATION location)
-  : GC_2dSprite(), _memberOf(this)
+                                 float *pValue, float *pValueMax, LOCATION location)
+  : GC_2dSprite()
+  , _memberOf(this)
 {
 	_ASSERT(NULL == FindIndicator(object, location));
 
@@ -246,8 +243,6 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
-	//
-//	OnUpdate(this, object, NULL);
 }
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
@@ -350,7 +345,7 @@ void GC_IndicatorBar::OnParentKill(GC_Object *sender, void *param)
 	Kill();
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 {
@@ -359,6 +354,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 
 GC_DamLabel::GC_DamLabel(GC_Vehicle *veh) : GC_2dSprite()
 {
+	SetTexture("indicator_damage");
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 	SetZ(Z_VEHICLE_LABEL);
 
 	_vehicle = veh;
@@ -366,10 +363,7 @@ GC_DamLabel::GC_DamLabel(GC_Vehicle *veh) : GC_2dSprite()
 
 	_time = 0;
 	_time_life = 0.4f;
-
-	SetTexture("indicator_damage");
-	///////////////////////
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	_rot = frand(PI2);
 }
 
 GC_DamLabel::GC_DamLabel(FromFile) : GC_2dSprite(FromFile())
@@ -381,12 +375,12 @@ GC_DamLabel::~GC_DamLabel()
 }
 
 void GC_DamLabel::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
+
+	f.Serialize(_rot);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
-	/////////////////////////////////////
 	f.Serialize(_vehicle);
 }
 
@@ -403,7 +397,7 @@ void GC_DamLabel::TimeStepFloat(float dt)
 	_ASSERT(_vehicle && !_vehicle->IsKilled());
 
 	_time += dt;
-	SetRotation(_time*2.0f);
+	SetRotation(_rot + _time * 2.0f);
 
 	if( _time >= _time_life )
 	{
@@ -412,7 +406,7 @@ void GC_DamLabel::TimeStepFloat(float dt)
 	}
 	else
 	{
-		SetFrame( int(_time * 10.0f)%GetFrameCount() );
+		SetFrame(int(_time * 10.0f) % GetFrameCount());
 	}
 }
 
@@ -430,7 +424,5 @@ void GC_DamLabel::OnVehicleMove(GC_Object *sender, void *param)
 {
 	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
 }
-
-
 
 // end of file

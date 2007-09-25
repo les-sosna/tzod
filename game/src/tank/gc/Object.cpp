@@ -393,7 +393,8 @@ void GC_Object::SetName(const char *name)
 void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
                           NOTIFYPROC handler, bool once, bool guard)
 {
-	_ASSERT(subscriber);
+	_ASSERT(!IsKilled());
+	_ASSERT(subscriber && !subscriber->IsKilled());
 	_ASSERT(handler);
 	//--------------------------------------------------
 	Notify notify;

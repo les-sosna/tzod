@@ -4,3 +4,8 @@ Save/Load
 
 ”правление
 
+implement initializers concept:
+CONFIG_VAR_TABLE( dm_profiles, &InitializerFunc );
+
+remember last bot skill setting when adding a new bot
+
