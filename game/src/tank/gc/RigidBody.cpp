@@ -72,6 +72,19 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 	if( _health_max > 0 )
 	{
 		SetHealthCur(GetHealth() - damage);
+
+		if( !_scriptOnDamage.empty() )
+		{
+			AddRef();
+			script_exec(g_env.L, _scriptOnDamage.c_str());
+			if( IsKilled() )
+			{
+				Release();
+				return true;
+			}
+			Release();
+		}
+
 		if( GetHealth() <= 0 )
 		{
 			AddRef();
@@ -162,6 +175,7 @@ SafePtr<PropertySet> GC_RigidBodyStatic::GetProperties()
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propOnDestroy( ObjectProperty::TYPE_STRING,   "on_destroy"  )
+, _propOnDamage(  ObjectProperty::TYPE_STRING,   "on_damage"   )
 , _propHealth(    ObjectProperty::TYPE_INTEGER,  "health"      )
 , _propMaxHealth( ObjectProperty::TYPE_INTEGER,  "max_health"  )
 {
@@ -173,7 +187,7 @@ GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 
 int GC_RigidBodyStatic::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 3;
+	return BASE::GetCount() + 4;
 }
 
 ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
@@ -184,8 +198,9 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propOnDestroy;
-	case 1: return &_propHealth;
-	case 2: return &_propMaxHealth;
+	case 1: return &_propOnDamage;
+	case 2: return &_propHealth;
+	case 3: return &_propMaxHealth;
 	}
 
 	_ASSERT(FALSE);
@@ -201,6 +216,7 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_scriptOnDestroy = _propOnDestroy.GetValue();
+		tmp->_scriptOnDamage  = _propOnDamage.GetValue();
 		tmp->SetHealth((float) _propHealth.GetValueInt(), (float) _propMaxHealth.GetValueInt());
 	}
 	else
@@ -208,6 +224,7 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 		_propHealth.SetValueInt(int(tmp->GetHealth() + 0.5f));
 		_propMaxHealth.SetValueInt(int(tmp->GetHealthMax() + 0.5f));
 		_propOnDestroy.SetValue(tmp->_scriptOnDestroy);
+		_propOnDamage.SetValue(tmp->_scriptOnDamage);
 	}
 }
 

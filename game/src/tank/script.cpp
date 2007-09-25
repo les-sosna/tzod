@@ -7,6 +7,7 @@
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
+#include "gc/pickup.h"
 #include "gc/ai.h"
 
 #include "ui/GuiManager.h"
@@ -817,6 +818,55 @@ int luaT_pset(lua_State *L)
 	return 0;
 }
 
+// equip("object name", "pickup name")
+int luaT_equip(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+	{
+		return luaL_error(L, "2 arguments expected; got %d", n);
+	}
+	const char *targetname = luaL_checkstring(L, 1);
+	const char *pickupname = luaL_checkstring(L, 2);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *target_raw = g_level->FindObject(targetname);
+	if( NULL == target_raw )
+	{
+		return luaL_error(L, "object with name '%s' was not found", targetname);
+	}
+
+	GC_Object *pickup_raw = g_level->FindObject(pickupname);
+	if( NULL == target_raw )
+	{
+		return luaL_error(L, "object with name '%s' was not found", pickupname);
+	}
+
+	GC_Pickup *pickup = dynamic_cast<GC_Pickup *>(pickup_raw);
+	if( NULL == pickup )
+	{
+		return luaL_error(L, "object '%s' is not a pickup", pickupname);
+	}
+
+	GC_Vehicle *target = dynamic_cast<GC_Vehicle *>(target_raw);
+	if( NULL == target )
+	{
+		return luaL_error(L, "target object '%s' is not a vehicle", targetname);
+	}
+
+	if( pickup->IsAttached() )
+	{
+		pickup->Detach();
+	}
+	pickup->Attach(target);
+
+	return 0;
+}
+
 int luaT_loadtheme(lua_State *L)
 {
 	int n = lua_gettop(L);
@@ -907,6 +957,7 @@ lua_State* script_open(void)
 	lua_register(L, "kill",     luaT_kill);
 	lua_register(L, "pget",     luaT_pget);
 	lua_register(L, "pset",     luaT_pset);
+	lua_register(L, "equip",    luaT_equip);
 
 	lua_register(L, "msgbox",   luaT_msgbox);
 

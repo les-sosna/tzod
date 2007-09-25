@@ -24,7 +24,9 @@ class GC_Player : public GC_Service
 	string_t  _nick;
 	string_t  _class;
 	string_t  _skin;
+	string_t  _vehname;
 	string_t  _scriptOnDie;
+	string_t  _scriptOnRespawn;
 
 	SafePtr<GC_Vehicle> _vehicle;
 
@@ -39,6 +41,8 @@ protected:
 		ObjectProperty _propClass;
 		ObjectProperty _propSkin;
 		ObjectProperty _propOnDie;
+		ObjectProperty _propOnRespawn;
+		ObjectProperty _propVehName;
 
 	public:
 		MyPropertySet(GC_Object *object);

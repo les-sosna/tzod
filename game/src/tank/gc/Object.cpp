@@ -141,7 +141,7 @@ void PropertySet::Exchange(bool applyToObject)
 		GC_Object* found = g_level->FindObject(name);
 		if( found && GetObject() != found )
 		{
-			g_console->printf("ERROR: object with name \"%s\" already exists\n", name);
+			g_console->printf("WARNING: object with name \"%s\" already exists\n", name);
 		}
 		else
 		{

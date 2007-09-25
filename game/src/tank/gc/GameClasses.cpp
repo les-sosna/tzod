@@ -473,14 +473,15 @@ void GC_Explosion::Boom(float radius, float damage)
 			++cdit;
 			if( pDamObject->IsKilled() ) continue;
 
-			vec2d dam = pDamObject->GetPos();
-
-			float d = (GetPos() - dam).len();
+			vec2d dir = pDamObject->GetPos() - GetPos();
+			float d = dir.len();
 
 			if( d <= radius)
 			{
+				vec2d dir1 = dir / d;
+
 				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
-					g_level->grid_rigid_s, NULL, GetPos(), dam - GetPos());
+					g_level->grid_rigid_s, NULL, GetPos(), dir);
 
 				if( object && object != pDamObject )
 				{
@@ -490,14 +491,21 @@ void GC_Explosion::Boom(float radius, float damage)
 						while( it != field.end() )
 							(it++)->second.checked = false;
 					}
-					d = CheckDamage(field, dam.x, dam.y, radius);
+					d = CheckDamage(field, pDamObject->GetPos().x, pDamObject->GetPos().y, radius);
 					bNeedClean = true;
 				}
 
 				if( d >= 0 )
 				{
 					float dam = __max(0, damage * (1 - d / radius));
-					if( dam > 0 ) pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
+					if( dam > 0 )
+					{
+						if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
+						{
+							dyn->ApplyImpulse(dir1 * dam, dyn->GetPos());
+						}
+						pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
+					}
 				}
 			}
 		}

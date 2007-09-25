@@ -226,6 +226,13 @@ return {
      spotlight={},
    }
 },
+{
+   file="textures/objects/crate.tga",
+   content={
+     crate01={},
+   }
+},
+
 
 --- GUI ---
 {

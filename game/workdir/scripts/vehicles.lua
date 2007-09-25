@@ -27,7 +27,7 @@ classes.default =
 
   mass      = 1.0,
   inertia   = 700.0,
-                
+
   dry_fric  = {450, 1000, 25},   -- dry friction: x,y,angular
   vis_fric  = {2.0,  2.5, 0},    -- viscous friction: x,y,angular
 

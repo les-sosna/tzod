@@ -493,7 +493,9 @@ bool GC_TankBullet::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
-		dyn->ApplyImpulse(-norm * (_damage / DAMAGE_GAUSS) * 100, hit);
+		vec2d tmp = _velocity;
+		tmp.Normalize();
+		dyn->ApplyImpulse(tmp * (_damage / DAMAGE_GAUSS) * 100, hit);
 	}
 
 	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_owner));
@@ -929,7 +931,9 @@ bool GC_GaussRay::Hit(GC_Object *object, const vec2d &hit, const vec2d &norm)
 
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
-		dyn->ApplyImpulse(-norm * (_damage / DAMAGE_GAUSS) * 100, hit);
+		vec2d tmp = _velocity;
+		tmp.Normalize();
+		dyn->ApplyImpulse(tmp * (_damage / DAMAGE_GAUSS) * 100, hit);
 	}
 
 	((GC_RigidBodyStatic*) object)->TakeDamage(_damage, hit, GetRawPtr(_owner));

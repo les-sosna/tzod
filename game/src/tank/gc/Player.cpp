@@ -230,6 +230,16 @@ void GC_Player::TimeStepFixed(float dt)
 			//}
 
 			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+			GC_Object* found = g_level->FindObject(_vehname.c_str());
+			if( found && _vehicle != found )
+			{
+				g_console->printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
+			}
+			else
+			{
+				_vehicle->SetName(_vehname.c_str());
+			}
+
 			_vehicle->SetBodyAngle(pBestPoint->GetRotation());
 			_vehicle->SetPlayer(this);
 
@@ -242,6 +252,10 @@ void GC_Player::TimeStepFixed(float dt)
 
 			UpdateSkin();
 			OnRespawn();
+			if( !_scriptOnRespawn.empty() )
+			{
+				script_exec(g_env.L, _scriptOnRespawn.c_str());
+			}
 		}
 	}
 }
@@ -271,12 +285,14 @@ SafePtr<PropertySet> GC_Player::GetProperties()
 
 GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-  , _propTeam(  ObjectProperty::TYPE_INTEGER,     "team"   )
-  , _propScore( ObjectProperty::TYPE_INTEGER,     "score"  )
-  , _propNick(  ObjectProperty::TYPE_STRING,      "nick"   )
-  , _propClass( ObjectProperty::TYPE_MULTISTRING, "class"  )
-  , _propSkin(  ObjectProperty::TYPE_MULTISTRING, "skin"   )
-  , _propOnDie( ObjectProperty::TYPE_STRING,      "on_die" )
+  , _propTeam(      ObjectProperty::TYPE_INTEGER,     "team"    )
+  , _propScore(     ObjectProperty::TYPE_INTEGER,     "score"   )
+  , _propNick(      ObjectProperty::TYPE_STRING,      "nick"    )
+  , _propClass(     ObjectProperty::TYPE_MULTISTRING, "class"   )
+  , _propSkin(      ObjectProperty::TYPE_MULTISTRING, "skin"    )
+  , _propVehName(   ObjectProperty::TYPE_STRING,      "vehname" )
+  , _propOnDie(     ObjectProperty::TYPE_STRING,      "on_die"      )
+  , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn"  )
 {
 	_propTeam.SetRange(0, MAX_TEAMS);
 
@@ -300,7 +316,7 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 
 int GC_Player::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 6;
+	return BASE::GetCount() + 8;
 }
 
 ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
@@ -315,7 +331,9 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 		case 2: return &_propNick;
 		case 3: return &_propClass;
 		case 4: return &_propSkin;
-		case 5: return &_propOnDie;
+		case 5: return &_propVehName;
+		case 6: return &_propOnDie;
+		case 7: return &_propOnRespawn;
 	}
 
 	_ASSERT(FALSE);
@@ -336,13 +354,35 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 		tmp->SetClass( _propClass.GetSetValue(_propClass.GetCurrentIndex()) );
 		tmp->SetSkin( _propSkin.GetSetValue(_propSkin.GetCurrentIndex()) );
 		tmp->_scriptOnDie = _propOnDie.GetValue();
+		tmp->_scriptOnRespawn = _propOnRespawn.GetValue();
+
+		if( !tmp->IsDead() )
+		{
+			const char *name = _propVehName.GetValue().c_str();
+			GC_Object* found = g_level->FindObject(name);
+			if( found && tmp->GetVehicle() != found )
+			{
+				g_console->printf("WARNING: object with name \"%s\" already exists\n", name);
+			}
+			else
+			{
+				tmp->GetVehicle()->SetName(name);
+				tmp->_vehname = name;
+			}
+		}
+		else
+		{
+			tmp->_vehname = _propVehName.GetValue();
+		}
 	}
 	else
 	{
+		_propOnRespawn.SetValue(tmp->_scriptOnRespawn);
 		_propOnDie.SetValue(tmp->_scriptOnDie);
 		_propTeam.SetValueInt(tmp->GetTeam());
 		_propScore.SetValueInt(tmp->GetScore());
 		_propNick.SetValue(tmp->GetNick());
+		_propVehName.SetValue(tmp->_vehname);
 
 		for( size_t i = 0; i < _propClass.GetSetSize(); ++i )
 		{

@@ -684,6 +684,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\gc\crate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\gc\crate.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\gc\Editor.cpp"
 				>
 			</File>

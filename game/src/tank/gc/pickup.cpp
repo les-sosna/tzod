@@ -252,8 +252,10 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	if( index < BASE::GetCount() )
 		return BASE::GetProperty(index);
 
-	if( BASE::GetCount() + 0 == index )
-		return &_propTimeRespawn;
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propTimeRespawn; break;
+	}
 
 	_ASSERT(FALSE);
 	return NULL;
