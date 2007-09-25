@@ -544,6 +544,8 @@ void GC_pu_Shock::Detach()
 {
 	GC_Pickup::Detach();
 	SetTexture("pu_shock");
+	SAFE_KILL(_effect);
+	SAFE_KILL(_light);
 }
 
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
@@ -624,12 +626,12 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 			float a = (GetTimeAttached() - _timeout) * 5.0f;
 			if( a > 1 )
 			{
-				SAFE_KILL(_effect);
 				Disappear();
 			}
 			else
 			{
 				_effect->SetOpacity(1.0f - a);
+				_light->SetIntensity(1.0f - powf(a, 6));
 			}
 		}
 	}
