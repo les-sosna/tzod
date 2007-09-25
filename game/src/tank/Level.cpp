@@ -225,7 +225,6 @@ void Field::Dump()
 Level::Level()
 {
 	TRACE("Constructing the level\n");
-	srand( GetTickCount() );
 
 	_time        = 0;
 	_timeBuffer  = 0;
@@ -237,7 +236,8 @@ Level::Level()
 
 	_locations_x  = 0;
 	_locations_y  = 0;
-	_sx = _sy    = 0;
+	_sx = 0;
+	_sy = 0;
 
 	_seed   = 1;
 
@@ -787,13 +787,12 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 
 int Level::net_rand()
 {
-	_seed = (69069 * _seed + 1);
-	return _seed & RAND_MAX;
+	return ((_seed = _seed * 214013L + 2531011L) >> 16) & RAND_MAX;
 }
 
 float Level::net_frand(float max)
 {
-	return (float) net_rand() / RAND_MAX * max;
+	return (float) net_rand() / (float) RAND_MAX * max;
 }
 
 vec2d Level::net_vrand(float len)

@@ -269,7 +269,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				GenerateManifest="false"
-				DelayLoadDLLs="d3dx9_33.dll;d3dx9_32.dll"
+				DelayLoadDLLs=""
 				ProgramDatabaseFile=""
 				SubSystem="2"
 				OptimizeReferences="2"

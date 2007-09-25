@@ -146,16 +146,17 @@ int APIENTRY WinMain( HINSTANCE hinst,
 					  int /*nCmdShow*/ )
 {
 	g_hInstance = hinst;
+	srand( GetTickCount() );
 
 	// create the console buffer
 	g_console = new ConsoleBuffer(128, 512);
 
-    // print UNIX-style date and time
+	// print UNIX-style date and time
 	time_t ltime;
 	char timebuf[26];
-    time( &ltime );
-    ctime_s(timebuf, 26, &ltime);
-	TRACE(" Engine started at %s", timebuf);
+	time( &ltime );
+	ctime_s(timebuf, 26, &ltime);
+	TRACE(" ZOD Engine started at %s", timebuf);
 	TRACE("--------------------------------------------\n");
 
 

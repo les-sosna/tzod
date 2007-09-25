@@ -148,6 +148,7 @@ private:
 public:
 	MessageArea(Window *parent, float x, float y);
 	void puts(const char *text);
+	void Clear();
 
 	void OnTimeStep(float dt);
 };

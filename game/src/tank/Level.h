@@ -221,7 +221,7 @@ public:
 /////////////////////////////////////////////////////
 //network
 
-	int _seed;
+	unsigned long _seed;
 
 	TankServer *_server;
 	TankClient *_client;

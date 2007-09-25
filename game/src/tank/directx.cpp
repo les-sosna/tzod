@@ -668,7 +668,6 @@ HRESULT InitAll( HWND hWnd )
 		if( FAILED(hr = InitDirectSound(hWnd, true)) )
 		{
 			MessageBox( hWnd, "Ошибка инициализации звука", TXT_VERSION, MB_ICONERROR | MB_OK );
-		//	return hr;
 		}
 	}
 	catch(LoadSoundException e)

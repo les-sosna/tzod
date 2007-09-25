@@ -50,6 +50,13 @@ static int luaT_reset(lua_State *L)
 	lua_setupvalue(L, -2, 1); // pops result of lua_newtable
 	lua_pop(L, 1);  // pop result of lua_getglobal
 
+
+	//
+	// clear message area
+	//
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
+
 	return 0;
 }
 

@@ -929,6 +929,14 @@ void MessageArea::puts(const char *text)
 	_text->Show(true);
 }
 
+void MessageArea::Clear()
+{
+	_lines.clear();
+	SetTimeStep(false);
+	_text->SetText("");
+	_text->Show(false);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void ScriptMessageBox::RunScript(int btn)

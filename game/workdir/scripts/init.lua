@@ -13,6 +13,8 @@ conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
 conf.sv_speed = 100;
 
+print( math.random() )
+
 if math.random() > 0.5 then
   conf.sv_nightmode = false;
   loadmap("maps/intro.map")

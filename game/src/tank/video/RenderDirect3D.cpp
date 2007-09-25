@@ -4,6 +4,8 @@
 #include "RenderDirect3D.h"
 
 #include "macros.h"
+#include "core/debug.h"
+#include "core/Console.h"
 
 #include <d3d9.h>
 #include <d3dx9math.h>
@@ -42,16 +44,16 @@ class RenderDirect3D : public IRender
 {
 	struct _header
 	{
-		char   IdLeight;	//   Длина текстовой информации после первого
-		char   ColorMap;	//   Идентификатор наличия цветовой карты - устарел
-		char   DataType;	//   Тип данных - запакованный или нет
-		char   ColorMapInfo[5];	//   Информация о цветовой карте - нужно пропустить эти 5 байт
-		short  x_origin;	//   Начало изображения по оси X
-		short  y_origin;	//   Начало изображения по оси Y
-		short  width;		//   Ширина изображения
-		short  height;		//   Высота изображения
-		char   BitPerPel;	//   Кол-во бит на пиксель - здесь только 24 или 32
-		char   Description;	//   Описание - пропускайте
+		char   IdLeight;       //   Длина текстовой информации после первого
+		char   ColorMap;       //   Идентификатор наличия цветовой карты - устарел
+		char   DataType;       //   Тип данных - запакованный или нет
+		char   ColorMapInfo[5];//   Информация о цветовой карте - нужно пропустить эти 5 байт
+		short  x_origin;       //   Начало изображения по оси X
+		short  y_origin;       //   Начало изображения по оси Y
+		short  width;          //   Ширина изображения
+		short  height;         //   Высота изображения
+		char   BitPerPel;      //   Кол-во бит на пиксель - здесь только 24 или 32
+		char   Description;    //   Описание - пропускайте
 	};
 
 	struct _asyncinfo
@@ -67,11 +69,9 @@ class RenderDirect3D : public IRender
 	IDirect3DIndexBuffer9   *_pIB;
 	IDirect3DTexture9       *_curtex;
 
-	IDirect3DQuery9         *_query;
 
-
-    HWND   _hWnd;
-    SIZE   _sizeWindow;
+	HWND   _hWnd;
+	SIZE   _sizeWindow;
 	RECT   _rtViewport;
 
 	float  _ambient;
@@ -155,8 +155,6 @@ RenderDirect3D::RenderDirect3D()
 
 	_curtex      = NULL;
 
-	_query       = NULL;
-
 	//--------------------------------------
 
 	HMODULE hmod = LoadLibrary("d3d9.dll");
@@ -193,7 +191,6 @@ void RenderDirect3D::_cleanup()
 		_VertexArray = NULL;
 	}
 
-	SAFE_RELEASE(_query);
 	SAFE_RELEASE(_pIB);
 	SAFE_RELEASE(_pVB);
 	SAFE_RELEASE(_pd3dDevice);
@@ -277,9 +274,11 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
 	{
+		TRACE("Hardware vertex processing not supported; trying software\n");
 		if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
 		{
+			TRACE("ERROR: CreateDevice failed\n")
 			return FALSE;
 		}
 	}
@@ -318,20 +317,19 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	if( FAILED(_pd3dDevice->CreateVertexBuffer(sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, NULL)) )
 	{
+		TRACE("ERROR: CreateVertexBuffer failed\n")
 		return FALSE;
 	}
 
 	if( FAILED(_pd3dDevice->CreateIndexBuffer(sizeof(WORD)*INDEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &_pIB, NULL)) )
 	{
+		TRACE("ERROR: CreateIndexBuffer failed\n")
 		return FALSE;
 	}
 
 	V(_pd3dDevice->SetStreamSource( 0, _pVB, 0, sizeof(MyVertex)));
 	V(_pd3dDevice->SetIndices(_pIB));
-
-	_pd3dDevice->CreateQuery( D3DQUERYTYPE_EVENT, &_query );
-
 
 	V(_pVB->Lock(0,sizeof(MyVertex)*VERTEX_BUFFER_SIZE,(void**)&_VertexArray,D3DLOCK_DISCARD));
 	V(_pIB->Lock(0,sizeof(WORD)*INDEX_BUFFER_SIZE,(void**)&_IndexArray, NULL));
@@ -474,12 +472,6 @@ void RenderDirect3D::End()
 
 	V(_pd3dDevice->EndScene());
 	V(_pd3dDevice->Present(NULL, NULL, NULL, NULL));
-
-//	if( _query )
-//	{
-//		_query->Issue(D3DISSUE_END);
-//		while( S_FALSE == _query->GetData(NULL, 0, D3DGETDATA_FLUSH) );
-//	}
 }
 
 void RenderDirect3D::SetMode(const RenderMode mode)
