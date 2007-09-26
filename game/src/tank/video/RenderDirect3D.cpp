@@ -133,6 +133,18 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void MatrixOrthoOffCenterRH(D3DXMATRIX &m, float l, float r, float b, float t)
+{
+//	D3DXMatrixOrthoOffCenterRH(&m, r, b, l, t, 1, -1);
+	float zn =  1;
+	float zf = -1;
+	m._11 = 2/(r-l);      m._12 = 0;            m._13 = 0;           m._14 = 0;
+	m._21 = 0;            m._22 = 2/(t-b);      m._23 = 0;           m._24 = 0;
+	m._31 = 0;            m._32 = 0;            m._33 = 1/(zn-zf);   m._34 = 0;
+	m._41 = (l+r)/(l-r);  m._42 = (t+b)/(b-t);  m._43 = zn/(zn-zf);  m._44 = 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef IDirect3D9* (__stdcall *D3DCREATEPROC)(UINT);
@@ -362,8 +374,8 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 	{
 		if( RM_INTERFACE == _mode )
 		{
-			D3DXMatrixOrthoOffCenterRH(&m, (float) rect->left, (float) rect->right,
-				(float) rect->bottom, (float) rect->top, 1, -1);
+			MatrixOrthoOffCenterRH(m, (float) rect->left, (float) rect->right,
+				(float) rect->bottom, (float) rect->top);
 
 			vp.X = rect->left;
 			vp.Y = rect->top;
@@ -372,8 +384,8 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 		}
 		else
 		{
-			D3DXMatrixOrthoOffCenterRH(&m, 0, (float) (rect->right - rect->left),
-				(float) (rect->bottom - rect->top), 0, 1, -1);
+			MatrixOrthoOffCenterRH(m, 0, (float) (rect->right - rect->left),
+				(float) (rect->bottom - rect->top), 0);
 
 			vp.X = rect->left;
 			vp.Y = _sizeWindow.cy - rect->bottom;
@@ -389,7 +401,7 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 	}
 	else
 	{
-		D3DXMatrixOrthoOffCenterRH(&m, 0, (float) _sizeWindow.cx, (float) _sizeWindow.cy, 0, 1, -1);
+		MatrixOrthoOffCenterRH(m, 0, (float) _sizeWindow.cx, (float) _sizeWindow.cy, 0);
 		V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
 
 		vp.X = 0;
@@ -410,28 +422,22 @@ void RenderDirect3D::Camera(float x, float y, float scale, float angle)
 
 	D3DXMATRIX m;
 
-//                                 l                  r                   b                   t
-	D3DXMatrixOrthoOffCenterRH(&m, 0, (float) GetViewportWidth(), (float) GetViewportHeight(), 0, 1, -1);
-
-/*	float l  =  0;
-	float r  =  (float) GetViewportWidth();
-	float b  =  (float) GetViewportHeight();
-	float t  =  0;
-	float zn =  1;
-	float zf = -1;
-
-	m._11 = 2/(r-l);      m._12 = 0;            m._13 = 0;           m._14 = 0;
-	m._21 = 0;            m._22 = 2/(t-b);      m._23 = 0;           m._24 = 0;
-	m._31 = 0;            m._32 = 0;            m._33 = 1/(zn-zf);   m._34 = 0;
-	m._41 = (l+r)/(l-r);  m._42 = (t+b)/(b-t);  m._43 = zn/(zn-zf);  m._44 = l;
-*/
-
+	MatrixOrthoOffCenterRH(m, 0, (float) GetViewportWidth(), (float) GetViewportHeight(), 0);
 	V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
 
-	D3DXMatrixScaling(&m, scale, scale, 1.0f);
+//	D3DXMatrixScaling(&m, scale, scale, 1.0f);
+	m._11 = m._22 = scale;
+	m._33 = m._44 = 1;
+	m._12 = m._13 = m._14 = m._21 = 0;
+	m._23 = m._24 = m._31 = m._32 = 0;
+	m._34 = m._41 = m._42 = m._43 = 0;
 	V(_pd3dDevice->SetTransform(D3DTS_VIEW, &m));
 
-	D3DXMatrixTranslation(&m, -x - 0.5f, -y - 0.5f, 0);
+//	D3DXMatrixTranslation(&m, -x - 0.5f, -y - 0.5f, 0);
+	m._41 = -x - 0.5f;
+	m._42 = -y - 0.5f;
+	m._12 = m._13 = m._14 = m._21 = m._23 = m._24 = m._31 = m._32 = m._34 = m._43 = 0;
+	m._11 = m._22 = m._33 = m._44 = 1;
 	V(_pd3dDevice->SetTransform(D3DTS_WORLD, &m));
 
 }
