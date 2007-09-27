@@ -62,14 +62,14 @@ void GC_UserObject::mapExchange(MapFile &f)
 	}
 }
 
-SafePtr<PropertySet> GC_UserObject::GetProperties()
+PropertySet* GC_UserObject::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
 
 GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propTexture( ObjectProperty::TYPE_MULTISTRING, "texture" )
+  : BASE(object)
+  , _propTexture( ObjectProperty::TYPE_MULTISTRING, "texture" )
 {
 	std::vector<string_t> names;
 	g_texman->GetTextureNames(names, NULL, false);
@@ -77,8 +77,6 @@ GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
 	{
 		_propTexture.AddItem(names[i]);
 	}
-
-	Exchange(false);
 }
 
 int GC_UserObject::MyPropertySet::GetCount() const
@@ -109,16 +107,16 @@ void GC_UserObject::MyPropertySet::Exchange(bool applyToObject)
 	if( applyToObject )
 	{
 		g_level->_field.ProcessObject(tmp, false);
-		tmp->_textureName = _propTexture.GetSetValue(_propTexture.GetCurrentIndex());
+		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->AlignToTexture();
 		g_level->_field.ProcessObject(tmp, true);
 	}
 	else
 	{
-		for( size_t i = 0; i < _propTexture.GetSetSize(); ++i )
+		for( size_t i = 0; i < _propTexture.GetListSize(); ++i )
 		{
-			if( tmp->_textureName == _propTexture.GetSetValue(i) )
+			if( tmp->_textureName == _propTexture.GetListValue(i) )
 			{
 				_propTexture.SetCurrentIndex(i);
 				break;

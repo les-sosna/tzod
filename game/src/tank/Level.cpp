@@ -29,7 +29,7 @@
 #include "ui/gui.h"
 
 #include "gc/GameClasses.h"
-#include "gc/RigidBody.h"
+#include "gc/RigidBodyDinamic.h"
 #include "gc/Player.h"
 #include "gc/Sound.h"
 #include "gc/Camera.h"

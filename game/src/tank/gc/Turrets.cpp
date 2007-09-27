@@ -258,7 +258,7 @@ void GC_Turret::Draw()
 	}
 }
 
-SafePtr<PropertySet> GC_Turret::GetProperties()
+PropertySet* GC_Turret::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -268,10 +268,8 @@ GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
 , _propTeam(  ObjectProperty::TYPE_INTEGER, "team"  )
 , _propSight( ObjectProperty::TYPE_INTEGER, "sight" )
 {
-	_propTeam.SetRange(0, MAX_TEAMS - 1);
-	_propSight.SetRange(0, 100);
-	//-----------------------------------------
-	Exchange(false);
+	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
+	_propSight.SetIntRange(0, 100);
 }
 
 int GC_Turret::MyPropertySet::GetCount() const
@@ -302,13 +300,13 @@ void GC_Turret::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_team  = _propTeam.GetValueInt();
-		tmp->_sight = (float) (_propSight.GetValueInt() * CELL_SIZE);
+		tmp->_team  = _propTeam.GetIntValue();
+		tmp->_sight = (float) (_propSight.GetIntValue() * CELL_SIZE);
 	}
 	else
 	{
-		_propTeam.SetValueInt(tmp->_team);
-		_propSight.SetValueInt(int(tmp->_sight / CELL_SIZE + 0.5f));
+		_propTeam.SetIntValue(tmp->_team);
+		_propSight.SetIntValue(int(tmp->_sight / CELL_SIZE + 0.5f));
 	}
 }
 

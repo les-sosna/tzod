@@ -1123,7 +1123,7 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 	DeleteObject(pen);
 }
 
-SafePtr<PropertySet> GC_PlayerAI::GetProperties()
+PropertySet* GC_PlayerAI::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -1132,8 +1132,7 @@ GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propLevel(  ObjectProperty::TYPE_INTEGER, "level" )
 {
-	_propLevel.SetRange(0, 4);
-	Exchange(false);
+	_propLevel.SetIntRange(0, 4);
 }
 
 int GC_PlayerAI::MyPropertySet::GetCount() const
@@ -1163,11 +1162,11 @@ void GC_PlayerAI::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetLevel( _propLevel.GetValueInt() );
+		tmp->SetLevel( _propLevel.GetIntValue() );
 	}
 	else
 	{
-		_propLevel.SetValueInt(tmp->_level);
+		_propLevel.SetIntValue(tmp->_level);
 	}
 }
 

@@ -65,17 +65,29 @@ void PropertyList::Commit()
 			_ASSERT( dynamic_cast<Edit*>(ctrl) );
 			int n;
 			n = static_cast<Edit*>(ctrl)->GetInt();
-			if( n < prop->GetMin() || n > prop->GetMax() )
+			if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 			{
-				g_console->printf("WARNING: value is out of range [%d, %d]\n", 
-					prop->GetMin(), prop->GetMax());
-				n = __max(prop->GetMin(), __min(prop->GetMax(), n));
+				g_console->printf("WARNING: value %s out of range [%d, %d]\n", 
+					prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
+				n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
 			}
-			prop->SetValueInt(n);
+			prop->SetIntValue(n);
+			break;
+		case ObjectProperty::TYPE_FLOAT:
+			_ASSERT( dynamic_cast<Edit*>(ctrl) );
+			float f;
+			f = static_cast<Edit*>(ctrl)->GetFloat();
+			if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
+			{
+				g_console->printf("WARNING: value %s out of range [%g, %g]\n", 
+					prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
+				f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
+			}
+			prop->SetFloatValue(f);
 			break;
 		case ObjectProperty::TYPE_STRING:
 			_ASSERT( dynamic_cast<Edit*>(ctrl) );
-			prop->SetValue(static_cast<Edit*>(ctrl)->GetText());
+			prop->SetStringValue(static_cast<Edit*>(ctrl)->GetText());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
 			_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
@@ -121,20 +133,25 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64 );
-				static_cast<Edit*>(ctrl)->SetInt(prop->GetValueInt());
-				labelTextBuffer << " (" << prop->GetMin() << " - " << prop->GetMax() << ")";
+				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<Edit*>(ctrl)->SetInt(prop->GetIntValue());
+				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
+				break;
+			case ObjectProperty::TYPE_FLOAT:
+				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
+				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64 );
-				static_cast<Edit*>(ctrl)->SetText(prop->GetValue().c_str());
+				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue().c_str());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64 );
-				for( size_t index = 0; index < prop->GetSetSize(); ++index )
+				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64);
+				for( size_t index = 0; index < prop->GetListSize(); ++index )
 				{
-					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetSetValue(index).c_str());
+					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index).c_str());
 				}
 				static_cast<ComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
 				break;
@@ -261,12 +278,10 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	{
 		_typeList->SetCurSel( __max(0, _typeList->GetCurSel() - 1) );
 	}
-
 	if( z < 0 )
 	{
 		_typeList->SetCurSel( __min(_typeList->GetList()->GetSize()-1, _typeList->GetCurSel() + 1) );
 	}
-
 	return true;
 }
 

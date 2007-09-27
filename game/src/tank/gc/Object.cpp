@@ -31,46 +31,79 @@ const string_t& ObjectProperty::GetName(void) const
 	return _name;
 }
 
-int ObjectProperty::GetValueInt(void) const
+int ObjectProperty::GetIntValue(void) const
 {
 	_ASSERT(TYPE_INTEGER == _type);
 	return _int_value;
 }
 
-int ObjectProperty::GetMin(void) const
+int ObjectProperty::GetIntMin(void) const
 {
 	_ASSERT(TYPE_INTEGER == _type);
 	return _int_min;
 }
 
-int ObjectProperty::GetMax(void) const
+int ObjectProperty::GetIntMax(void) const
 {
 	_ASSERT(TYPE_INTEGER == _type);
 	return _int_max;
 }
 
-void ObjectProperty::SetValueInt(int value)
+void ObjectProperty::SetIntValue(int value)
 {
 	_ASSERT(TYPE_INTEGER == _type);
-	_ASSERT(value >= GetMin());
-	_ASSERT(value <= GetMax());
+	_ASSERT(value >= GetIntMin());
+	_ASSERT(value <= GetIntMax());
 	_int_value = value;
 }
 
-void ObjectProperty::SetRange(int min, int max)
+void ObjectProperty::SetIntRange(int min, int max)
 {
 	_ASSERT(TYPE_INTEGER == _type);
 	_int_min = min;
 	_int_max = max;
 }
 
-void ObjectProperty::SetValue(const string_t &str)
+float ObjectProperty::GetFloatValue(void) const
+{
+	_ASSERT(TYPE_FLOAT == _type);
+	return _float_value;
+}
+
+float ObjectProperty::GetFloatMin(void) const
+{
+	_ASSERT(TYPE_FLOAT == _type);
+	return _float_min;
+}
+
+float ObjectProperty::GetFloatMax(void) const
+{
+	_ASSERT(TYPE_FLOAT == _type);
+	return _float_max;
+}
+
+void ObjectProperty::SetFloatValue(float value)
+{
+	_ASSERT(TYPE_FLOAT == _type);
+	_ASSERT(value >= GetFloatMin());
+	_ASSERT(value <= GetFloatMax());
+	_float_value = value;
+}
+
+void ObjectProperty::SetFloatRange(float min, float max)
+{
+	_ASSERT(TYPE_FLOAT == _type);
+	_float_min = min;
+	_float_max = max;
+}
+
+void ObjectProperty::SetStringValue(const string_t &str)
 {
 	_ASSERT(TYPE_STRING == _type);
 	_str_value = str;
 }
 
-const string_t& ObjectProperty::GetValue(void) const
+const string_t& ObjectProperty::GetStringValue(void) const
 {
 	_ASSERT( TYPE_STRING == _type );
 	return _str_value;
@@ -82,7 +115,7 @@ void ObjectProperty::AddItem(const string_t &str)
 	_value_set.push_back(str);
 }
 
-const string_t& ObjectProperty::GetSetValue(size_t index) const
+const string_t& ObjectProperty::GetListValue(size_t index) const
 {
 	_ASSERT(TYPE_MULTISTRING == _type);
 	_ASSERT(index < _value_set.size());
@@ -102,7 +135,7 @@ void ObjectProperty::SetCurrentIndex(size_t index)
 	_value_index = index;
 }
 
-size_t ObjectProperty::GetSetSize(void) const
+size_t ObjectProperty::GetListSize(void) const
 {
 	return _value_set.size();
 }
@@ -114,7 +147,6 @@ PropertySet::PropertySet(GC_Object *object)
   : _object(object),
   _propName(ObjectProperty::TYPE_STRING, "name")
 {
-	Exchange(false);
 }
 
 int PropertySet::GetCount() const
@@ -137,7 +169,7 @@ void PropertySet::Exchange(bool applyToObject)
 {
 	if( applyToObject )
 	{
-		const char *name = _propName.GetValue().c_str();
+		const char *name = _propName.GetStringValue().c_str();
 		GC_Object* found = g_level->FindObject(name);
 		if( found && GetObject() != found )
 		{
@@ -151,7 +183,7 @@ void PropertySet::Exchange(bool applyToObject)
 	else
 	{
 		const char *name = GetObject()->GetName();
-		_propName.SetValue( name ? name : "" );
+		_propName.SetStringValue( name ? name : "" );
 	}
 }
 
@@ -541,6 +573,13 @@ void GC_Object::EditorAction()
 }
 
 SafePtr<PropertySet> GC_Object::GetProperties()
+{
+	PropertySet *ps = NewPropertySet();
+	ps->Exchange(false); // get data from object
+	return ps;
+}
+
+PropertySet* GC_Object::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }

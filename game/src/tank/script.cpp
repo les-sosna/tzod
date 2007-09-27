@@ -519,12 +519,28 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		int v = lua_tointeger(L, -1);
-		if( v < p->GetMin() || v > p->GetMax() )
+		if( v < p->GetIntMin() || v > p->GetIntMax() )
 		{
 			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]", 
-				pname, v, p->GetMin(), p->GetMax());
+				pname, v, p->GetIntMin(), p->GetIntMax());
 		}
-		p->SetValueInt(v);
+		p->SetIntValue(v);
+		break;
+	}
+	case ObjectProperty::TYPE_FLOAT:
+	{
+		if( LUA_TNUMBER != lua_type(L, -1) )
+		{
+			luaL_error(L, "property '%s' - expected number value; got %s", 
+				pname, lua_typename(L, lua_type(L, -1)));
+		}
+		float v = (float) lua_tonumber(L, -1);
+		if( v < p->GetFloatMin() || v > p->GetFloatMax() )
+		{
+			return luaL_error(L, "property '%s' - value %g is out of range [%g, %g]", 
+				pname, v, p->GetFloatMin(), p->GetFloatMax());
+		}
+		p->SetFloatValue(v);
 		break;
 	}
 	case ObjectProperty::TYPE_STRING:
@@ -534,7 +550,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 			luaL_error(L, "property '%s' - expected string value; got %s", 
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
-		p->SetValue(lua_tostring(L, -1));
+		p->SetStringValue(lua_tostring(L, -1));
 		break;
 	}
 	case ObjectProperty::TYPE_MULTISTRING:
@@ -546,9 +562,9 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		}
 		const char *v = lua_tostring(L, -1);
 		bool ok = false;
-		for( size_t i = 0; i < p->GetSetSize(); ++i )
+		for( size_t i = 0; i < p->GetListSize(); ++i )
 		{
-			if( p->GetSetValue(i) == v )
+			if( p->GetListValue(i) == v )
 			{
 				p->SetCurrentIndex(i);
 				ok = true;
@@ -768,13 +784,16 @@ int luaT_pget(lua_State *L)
 			switch( p->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				lua_pushinteger(L, p->GetValueInt());
+				lua_pushinteger(L, p->GetIntValue());
+				break;
+			case ObjectProperty::TYPE_FLOAT:
+				lua_pushnumber(L, p->GetFloatValue());
 				break;
 			case ObjectProperty::TYPE_STRING:
-				lua_pushstring(L, p->GetValue().c_str());
+				lua_pushstring(L, p->GetStringValue().c_str());
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				lua_pushstring(L, p->GetSetValue(p->GetCurrentIndex()).c_str());
+				lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
 				break;
 			default:
 				_ASSERT(FALSE);

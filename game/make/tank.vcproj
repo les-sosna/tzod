@@ -776,6 +776,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\gc\RigidBodyDinamic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\gc\RigidBodyDynamic.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\gc\Service.cpp"
 				>
 			</File>

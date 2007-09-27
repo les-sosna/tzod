@@ -28,10 +28,13 @@ public:
 	Edit(Window *parent, float x, float y, float width);
 
 	const string_t& GetText() const;
-    void SetText(const char *text);
+	void SetText(const char *text);
 
-    void SetInt(int value);
+	void SetInt(int value);
 	int  GetInt() const;
+
+	void  SetFloat(float value);
+	float GetFloat() const;
 
 	void SetSel(int begin, int end);
 

@@ -51,6 +51,18 @@ int  Edit::GetInt() const
 	return atoi(_string.c_str());
 }
 
+void Edit::SetFloat(float value)
+{
+	std::ostringstream tmp;
+	tmp << value;
+	SetText(tmp.str().c_str());
+}
+
+float Edit::GetFloat() const
+{
+	return (float) atof(_string.c_str());
+}
+
 void Edit::SetSel(int begin, int end)
 {
 	_time = 0;

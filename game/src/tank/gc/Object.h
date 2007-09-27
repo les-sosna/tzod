@@ -62,6 +62,7 @@ public:
 	enum PropertyType
 	{
 		TYPE_INTEGER,
+		TYPE_FLOAT,
 		TYPE_STRING,
 		TYPE_MULTISTRING,
 	};
@@ -69,9 +70,18 @@ public:
 private:
 	string_t               _name;
 	PropertyType           _type;
-	int                    _int_value;
-	int                    _int_min;
-	int                    _int_max;
+	union {
+		int                _int_value;
+		float              _float_value;
+	};
+	union {
+		int                _int_min;
+		float              _float_min;
+	};
+	union {
+		int                _int_max;
+		float              _float_max;
+	};
 	string_t               _str_value;
 	std::vector<string_t>  _value_set;
 	size_t                 _value_index;
@@ -86,18 +96,27 @@ public:
 	//
 	// TYPE_INTEGER
 	//
-	int  GetValueInt(void) const;
-	int  GetMin(void) const;
-	int  GetMax(void) const;
-	void SetValueInt(int value);
-	void SetRange(int min, int max);
+	int  GetIntValue(void) const;
+	int  GetIntMin(void) const;
+	int  GetIntMax(void) const;
+	void SetIntValue(int value);
+	void SetIntRange(int min, int max);
+
+	//
+	// TYPE_FLOAT
+	//
+	float GetFloatValue(void) const;
+	float GetFloatMin(void) const;
+	float GetFloatMax(void) const;
+	void  SetFloatValue(float value);
+	void  SetFloatRange(float min, float max);
 
 
 	//
 	// TYPE_STRING
 	//
-	void SetValue(const string_t &str);
-	const string_t& GetValue(void) const;
+	void SetStringValue(const string_t &str);
+	const string_t& GetStringValue(void) const;
 
 
 	//
@@ -106,8 +125,8 @@ public:
 	void   AddItem(const string_t &str);
 	size_t GetCurrentIndex(void) const;
 	void   SetCurrentIndex(size_t index);
-	size_t GetSetSize(void) const;
-	const string_t& GetSetValue(size_t index) const;
+	size_t GetListSize(void) const;
+	const string_t& GetListValue(size_t index) const;
 };
 
 class PropertySet : public RefCounted
@@ -357,9 +376,10 @@ public:
 	//
 protected:
 	typedef PropertySet MyPropertySet;
+	virtual PropertySet* NewPropertySet();
 
 public:
-	virtual SafePtr<PropertySet> GetProperties();
+	SafePtr<PropertySet> GetProperties();
 
 	//
 	// overrides

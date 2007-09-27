@@ -228,7 +228,7 @@ void GC_Pickup::OnOwnerKill(GC_Object *sender, void *param)
 	Disappear();
 }
 
-SafePtr<PropertySet> GC_Pickup::GetProperties()
+PropertySet* GC_Pickup::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -237,9 +237,7 @@ GC_Pickup::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "respawn_time")
 {
-	_propTimeRespawn.SetRange(0, 1000000);
-	//-----------------------------------------
-	Exchange(false);
+	_propTimeRespawn.SetIntRange(0, 1000000);
 }
 
 int GC_Pickup::MyPropertySet::GetCount() const
@@ -268,11 +266,11 @@ void GC_Pickup::MyPropertySet::Exchange(bool applyToObject)
 	GC_Pickup *obj = static_cast<GC_Pickup*>(GetObject());
 	if( applyToObject )
 	{
-		obj->_timeRespawn = (float) _propTimeRespawn.GetValueInt() / 1000.0f;
+		obj->_timeRespawn = (float) _propTimeRespawn.GetIntValue() / 1000.0f;
 	}
 	else
 	{
-		_propTimeRespawn.SetValueInt(int(obj->_timeRespawn * 1000.0f + 0.5f));
+		_propTimeRespawn.SetIntValue(int(obj->_timeRespawn * 1000.0f + 0.5f));
 	}
 }
 

@@ -139,7 +139,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool applyToObject);
 	};
-	virtual SafePtr<PropertySet> GetProperties();
+	virtual PropertySet* NewPropertySet();
 
 public:
 	GC_Spotlight(float x, float y);

@@ -278,7 +278,7 @@ void GC_Player::OnVehicleKill(GC_Object *sender, void *param)
 	OnDie();
 }
 
-SafePtr<PropertySet> GC_Player::GetProperties()
+PropertySet* GC_Player::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -294,7 +294,7 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propOnDie(     ObjectProperty::TYPE_STRING,      "on_die"      )
   , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn"  )
 {
-	_propTeam.SetRange(0, MAX_TEAMS);
+	_propTeam.SetIntRange(0, MAX_TEAMS);
 
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
@@ -310,8 +310,6 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 	{
 		_propSkin.AddItem( skin_names[i]);
 	}
-
-	Exchange(false);
 }
 
 int GC_Player::MyPropertySet::GetCount() const
@@ -348,17 +346,17 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetTeam( _propTeam.GetValueInt() );
-		tmp->SetScore( _propScore.GetValueInt() );
-		tmp->SetNick( _propNick.GetValue() );
-		tmp->SetClass( _propClass.GetSetValue(_propClass.GetCurrentIndex()) );
-		tmp->SetSkin( _propSkin.GetSetValue(_propSkin.GetCurrentIndex()) );
-		tmp->_scriptOnDie = _propOnDie.GetValue();
-		tmp->_scriptOnRespawn = _propOnRespawn.GetValue();
+		tmp->SetTeam( _propTeam.GetIntValue() );
+		tmp->SetScore( _propScore.GetIntValue() );
+		tmp->SetNick( _propNick.GetStringValue() );
+		tmp->SetClass( _propClass.GetListValue(_propClass.GetCurrentIndex()) );
+		tmp->SetSkin( _propSkin.GetListValue(_propSkin.GetCurrentIndex()) );
+		tmp->_scriptOnDie = _propOnDie.GetStringValue();
+		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
 		if( !tmp->IsDead() )
 		{
-			const char *name = _propVehName.GetValue().c_str();
+			const char *name = _propVehName.GetStringValue().c_str();
 			GC_Object* found = g_level->FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
@@ -372,30 +370,30 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 		}
 		else
 		{
-			tmp->_vehname = _propVehName.GetValue();
+			tmp->_vehname = _propVehName.GetStringValue();
 		}
 	}
 	else
 	{
-		_propOnRespawn.SetValue(tmp->_scriptOnRespawn);
-		_propOnDie.SetValue(tmp->_scriptOnDie);
-		_propTeam.SetValueInt(tmp->GetTeam());
-		_propScore.SetValueInt(tmp->GetScore());
-		_propNick.SetValue(tmp->GetNick());
-		_propVehName.SetValue(tmp->_vehname);
+		_propOnRespawn.SetStringValue(tmp->_scriptOnRespawn);
+		_propOnDie.SetStringValue(tmp->_scriptOnDie);
+		_propTeam.SetIntValue(tmp->GetTeam());
+		_propScore.SetIntValue(tmp->GetScore());
+		_propNick.SetStringValue(tmp->GetNick());
+		_propVehName.SetStringValue(tmp->_vehname);
 
-		for( size_t i = 0; i < _propClass.GetSetSize(); ++i )
+		for( size_t i = 0; i < _propClass.GetListSize(); ++i )
 		{
-			if( tmp->GetClass() == _propClass.GetSetValue(i) )
+			if( tmp->GetClass() == _propClass.GetListValue(i) )
 			{
 				_propClass.SetCurrentIndex(i);
 				break;
 			}
 		}
 
-		for( size_t i = 0; i < _propSkin.GetSetSize(); ++i )
+		for( size_t i = 0; i < _propSkin.GetListSize(); ++i )
 		{
-			if( tmp->GetSkin() == _propSkin.GetSetValue(i) )
+			if( tmp->GetSkin() == _propSkin.GetListValue(i) )
 			{
 				_propSkin.SetCurrentIndex(i);
 				break;

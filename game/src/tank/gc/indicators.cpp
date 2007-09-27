@@ -77,7 +77,7 @@ void GC_SpawnPoint::mapExchange(MapFile &f)
 }
 
 
-SafePtr<PropertySet> GC_SpawnPoint::GetProperties()
+PropertySet* GC_SpawnPoint::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -86,8 +86,7 @@ GC_SpawnPoint::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
 {
-	_propTeam.SetRange(0, MAX_TEAMS - 1);
-	Exchange(false);
+	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
 }
 
 int GC_SpawnPoint::MyPropertySet::GetCount() const
@@ -117,11 +116,11 @@ void GC_SpawnPoint::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_team = _propTeam.GetValueInt();
+		tmp->_team = _propTeam.GetIntValue();
 	}
 	else
 	{
-		_propTeam.SetValueInt(tmp->_team);
+		_propTeam.SetIntValue(tmp->_team);
 	}
 }
 

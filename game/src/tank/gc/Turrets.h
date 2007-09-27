@@ -26,7 +26,7 @@ class GC_Turret : public GC_RigidBodyStatic
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool applyToObject);
 	};
-	virtual SafePtr<PropertySet> GetProperties();
+	virtual PropertySet* NewPropertySet();
 
 protected:
 	static JobManager<GC_Turret> _jobManager;

@@ -1,6 +1,6 @@
 // crate.h
 
-#include "RigidBody.h"
+#include "RigidBodyDinamic.h"
 
 
 class GC_Crate : public GC_RigidBodyDynamic

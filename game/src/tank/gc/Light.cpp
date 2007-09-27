@@ -266,7 +266,7 @@ void GC_Spotlight::mapExchange(MapFile &f)
 	}
 }
 
-SafePtr<PropertySet> GC_Spotlight::GetProperties()
+PropertySet* GC_Spotlight::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
@@ -275,8 +275,7 @@ GC_Spotlight::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
 {
-	_propActive.SetRange(0, 1);
-	Exchange(false);
+	_propActive.SetIntRange(0, 1);
 }
 
 int GC_Spotlight::MyPropertySet::GetCount() const
@@ -306,11 +305,11 @@ void GC_Spotlight::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_light->Activate(0 != _propActive.GetValueInt());
+		tmp->_light->Activate(0 != _propActive.GetIntValue());
 	}
 	else
 	{
-		_propActive.SetValueInt(tmp->_light->IsActive() ? 1 : 0);
+		_propActive.SetIntValue(tmp->_light->IsActive() ? 1 : 0);
 	}
 }
 

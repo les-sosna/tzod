@@ -34,7 +34,7 @@ class GC_Pickup : public GC_2dSprite
 		virtual void Exchange(bool applyToObject);
 	};
 
-	virtual SafePtr<PropertySet> GetProperties();
+	virtual PropertySet* NewPropertySet();
 
 	SafePtr<GC_HideLabel> _label;
 	SafePtr<GC_Actor>   _owner;
