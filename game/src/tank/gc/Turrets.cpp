@@ -100,6 +100,10 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
+		if( !pDamObj->GetPlayer() )
+		{
+			continue;
+		}
 		if( pDamObj->GetPlayer()->GetTeam() && pDamObj->GetPlayer()->GetTeam() == _team )
 		{
 			continue;

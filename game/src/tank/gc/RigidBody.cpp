@@ -119,6 +119,7 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
 	MAP_EXCHANGE_STRING( on_destroy, _scriptOnDestroy, "");
+	MAP_EXCHANGE_STRING( on_damage,  _scriptOnDamage,  "");
 
 	if( f.loading() )
 	{

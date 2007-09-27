@@ -16,7 +16,6 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 	virtual unsigned char GetPassability() const { return 0; }
-
 };
 
 

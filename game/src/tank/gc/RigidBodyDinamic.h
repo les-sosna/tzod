@@ -49,6 +49,11 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propM;  // mass
 		ObjectProperty _propI;  // scalar moment of inertia
+		ObjectProperty _propPercussion;
+		ObjectProperty _propFragility;
+		ObjectProperty _propNx;
+		ObjectProperty _propNy;
+		ObjectProperty _propNw;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;

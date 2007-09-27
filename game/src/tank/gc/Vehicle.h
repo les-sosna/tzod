@@ -87,8 +87,6 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 	SafePtr<GC_Weapon>   _weapon;
 	SafePtr<GC_Player>   _player;
 
-	string_t  _class;
-
 public:
 	SafePtr<GC_Sound>    _moveSound;
 	SafePtr<GC_DamLabel> _damLabel;
@@ -105,7 +103,6 @@ protected:
 	void UpdateLight();
 
 public:
-	void SetClass(const string_t& c);
 	void SetClass(const VehicleClass &vc); // apply vehicle class
 	void ResetClass();
 
@@ -121,9 +118,6 @@ public:
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
 
-//	void DetachWeapon();
-//	void AttachWeapon(GC_Weapon *weapon);
-
 	void SetPlayer(GC_Player *player);
 
 public:
@@ -133,6 +127,7 @@ public:
 	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
+	virtual bool IsSaved() { return true; };
 
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 
@@ -153,7 +148,6 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-
 class GC_Tank_Light : public GC_Vehicle
 {
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
@@ -163,10 +157,7 @@ public:
 	GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }
-
-	virtual bool IsSaved() { return true; };
 	virtual void OnDestroy();
 };
-
 
 // end of file

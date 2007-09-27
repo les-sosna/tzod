@@ -28,8 +28,7 @@
 #include "ui/gui.h"
 
 
-
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GC_Vehicle::GC_Vehicle(float x, float y)
   : GC_RigidBodyDynamic()
@@ -116,7 +115,6 @@ void GC_Vehicle::Serialize(SaveFile &f)
 	f.Serialize(_moveSound);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
-	f.Serialize(_class);
 }
 
 void GC_Vehicle::Kill()
@@ -206,12 +204,6 @@ void GC_Vehicle::SetSkin(const char *pSkinName)
 	CenterPivot();
 }
 
-void GC_Vehicle::SetClass(const string_t& c)
-{
-	_class = c;
-	ResetClass();
-}
-
 void GC_Vehicle::SetClass(const VehicleClass &vc)
 {
 	float max_r = 0;
@@ -245,19 +237,17 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	_maxLinSpeed = vc.maxLinSpeed;
 	_maxRotSpeed = vc.maxRotSpeed;
 
-
 	SetMaxHP(vc.health);
 }
 
 void GC_Vehicle::ResetClass()
 {
-	VehicleClass vc;
-
 	lua_State *L = g_env.L;
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
+
 	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, _class.c_str()); // cls arg
-	if( lua_pcall(L, 1, 1, 0) )
+	lua_pushstring(L, GetPlayer()->GetClass().c_str()); // cls arg
+	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
 	{
 		// print error message
 		g_console->printf("%s\n", lua_tostring(L, -1));
@@ -265,6 +255,7 @@ void GC_Vehicle::ResetClass()
 		return;
 	}
 
+	VehicleClass vc;
 	lua_pushlightuserdata(L, &vc);
 	if( lua_pcall(L, 2, 0, 0) )
 	{
@@ -459,23 +450,23 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		if( fabsf(_angle - xt1) < fabsf(_angle - xt2) &&
 			fabsf(_angle - xt1) < fabsf(_angle - target) )
 		{
-			ApplyMomentum( -_rotatePower );
+			ApplyMomentum( -_rotatePower / _inv_i );
 		}
 		else
 		if( fabsf(_angle - xt2) < fabsf(_angle - xt1) &&
 			fabsf(_angle - xt2) < fabsf(_angle - target) )
 		{
-			ApplyMomentum(  _rotatePower );
+			ApplyMomentum(  _rotatePower / _inv_i );
 		}
 		else
 		{
 			if( target > _angle )
 			{
-				ApplyMomentum(  _rotatePower );
+				ApplyMomentum(  _rotatePower / _inv_i );
 			}
 			else
 			{
-				ApplyMomentum( -_rotatePower );
+				ApplyMomentum( -_rotatePower / _inv_i );
 			}
 		}
 	}
@@ -484,10 +475,10 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		if( fabsf(_av) < _maxRotSpeed )
 		{
 			if( _state._bState_RotateLeft )
-				ApplyMomentum( -_rotatePower );
+				ApplyMomentum( -_rotatePower / _inv_i );
 			else
 			if( _state._bState_RotateRight )
-				ApplyMomentum(  _rotatePower );
+				ApplyMomentum(  _rotatePower / _inv_i );
 		}
 	}
 
@@ -578,7 +569,7 @@ void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
-//	ED_ACTOR("tank", "Танк", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("tank", "Объект: Танк", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 
@@ -589,6 +580,7 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 //	_MaxForvSpeed = 200;
 
 	SetMoveSound(SND_TankMove);
+	SetSkin("red");
 }
 
 GC_Tank_Light::GC_Tank_Light(FromFile) : GC_Vehicle(FromFile())

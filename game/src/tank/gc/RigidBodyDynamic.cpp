@@ -17,14 +17,24 @@ GC_RigidBodyDynamic::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propM(ObjectProperty::TYPE_FLOAT, "M")
   , _propI(ObjectProperty::TYPE_FLOAT, "I")
+  , _propPercussion(ObjectProperty::TYPE_FLOAT, "percussion")
+  , _propFragility(ObjectProperty::TYPE_FLOAT, "fragility")
+  , _propNx(ObjectProperty::TYPE_FLOAT, "Nx")
+  , _propNy(ObjectProperty::TYPE_FLOAT, "Ny")
+  , _propNw(ObjectProperty::TYPE_FLOAT, "Nw")
 {
 	_propM.SetFloatRange(0, 10000);
 	_propI.SetFloatRange(0, 10000);
+	_propPercussion.SetFloatRange(0, 10000);
+	_propFragility.SetFloatRange(0, 10000);
+	_propNx.SetFloatRange(0, 10000);
+	_propNy.SetFloatRange(0, 10000);
+	_propNw.SetFloatRange(0, 10000);
 }
 
 int GC_RigidBodyDynamic::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 2;
+	return BASE::GetCount() + 7;
 }
 
 ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
@@ -36,6 +46,11 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	{
 	case 0: return &_propM;
 	case 1: return &_propI;
+	case 2: return &_propPercussion;
+	case 3: return &_propFragility;
+	case 4: return &_propNx;
+	case 5: return &_propNy;
+	case 6: return &_propNw;
 	}
 
 	_ASSERT(FALSE);
@@ -47,16 +62,25 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 	BASE::Exchange(applyToObject);
 
 	GC_RigidBodyDynamic *tmp = static_cast<GC_RigidBodyDynamic *>(GetObject());
-
 	if( applyToObject )
 	{
 		tmp->_inv_m = 1.0f / _propM.GetFloatValue();
 		tmp->_inv_i = 1.0f / _propI.GetFloatValue();
+		tmp->_percussion = _propPercussion.GetFloatValue();
+		tmp->_fragility = _propFragility.GetFloatValue();
+		tmp->_Nx = _propNx.GetFloatValue();
+		tmp->_Ny = _propNy.GetFloatValue();
+		tmp->_Nw = _propNw.GetFloatValue();
 	}
 	else
 	{
 		_propM.SetFloatValue(1.0f / tmp->_inv_m);
 		_propI.SetFloatValue(1.0f / tmp->_inv_i);
+		_propPercussion.SetFloatValue(tmp->_percussion);
+		_propFragility.SetFloatValue(tmp->_fragility);
+		_propNx.SetFloatValue(tmp->_Nx);
+		_propNy.SetFloatValue(tmp->_Ny);
+		_propNw.SetFloatValue(tmp->_Nw);
 	}
 }
 
@@ -110,6 +134,11 @@ void GC_RigidBodyDynamic::mapExchange(MapFile &f)
 
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);
 	MAP_EXCHANGE_FLOAT(inv_i, _inv_i, 1);
+	MAP_EXCHANGE_FLOAT(percussion, _percussion, 1);
+	MAP_EXCHANGE_FLOAT(fragility, _fragility, 1);
+	MAP_EXCHANGE_FLOAT(Nx, _Nx, 0);
+	MAP_EXCHANGE_FLOAT(Ny, _Ny, 0);
+	MAP_EXCHANGE_FLOAT(Nw, _Nw, 0);
 }
 
 void GC_RigidBodyDynamic::Serialize(SaveFile &f)

@@ -40,7 +40,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 }
 
 GC_Player::GC_Player()
-  : GC_Service(), _memberOf(this)
+  : GC_Service()
+  , _memberOf(this)
 {
 	_timeRespawn = PLAYER_RESPAWNTIME;
 
@@ -248,7 +249,7 @@ void GC_Player::TimeStepFixed(float dt)
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
 				(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
 
-			_vehicle->SetClass(GetClass());
+			_vehicle->ResetClass();
 
 			UpdateSkin();
 			OnRespawn();

@@ -27,9 +27,9 @@ end
 -- gets original class and modify it by weapon
 function getvclass(cls, weap)
  if weap then
-  tmp = tcopy(classes[cls])
-  gc[weap].attach(tmp)
-  return tmp
+  local tmp = tcopy(classes[cls])
+  gc[weap].attach(tmp) -- pass copy of vehicle class desc to the weapon
+  return tmp           -- and return modified class desc
  end
  return classes[cls]
 end
