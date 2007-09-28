@@ -25,7 +25,7 @@ GC_Crate::GC_Crate(float x, float y)
 
 	_Mx = _My = _Mw = 0;
 	_Nx = _Ny = 400;
-	_Nw = 30;
+	_Nw = 40;
 
 	_inv_m = 5.0f;
 	_inv_i = _inv_m*12.0f / (GetSpriteWidth()*GetSpriteWidth()+GetSpriteHeight()*GetSpriteHeight());

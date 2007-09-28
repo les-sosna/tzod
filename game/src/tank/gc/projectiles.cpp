@@ -262,9 +262,9 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 : GC_Projectile(owner, advanced, TRUE, x, v, "projectile_rocket")
 {
 	_trailDensity = 1.5f;
+	_impulse = 15;
 
 	_timeHomming = 0.0f;
-	_owner = owner;
 
 	new GC_Sound_link(SND_RocketFly, SMODE_LOOP, this);
 
@@ -808,6 +808,7 @@ GC_ACBullet::GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 : GC_Projectile(owner, advanced, TRUE, x, v, "projectile_ac")
 {
 	_damage = DAMAGE_ACBULLET;
+	_impulse = 20;
 	_trailDensity = 5;
 	_light->SetRadius(30);
 	_light->SetIntensity(0.6f);

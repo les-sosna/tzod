@@ -29,11 +29,10 @@ class PropertyList : public Dialog
 	SafePtr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
 
-	void Commit();
-
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h);
 	void ConnectTo(const SafePtr<PropertySet> &ps);
+	void Exchange(bool applyToObject);
 
 protected:
 	void OnScroll(float pos);
@@ -47,8 +46,11 @@ class EditorLayout : public Window
 {
 	PropertyList *_propList;
 	ComboBox     *_typeList;
+	Window       *_selectionRect;
 
 	GC_Object *_selectedObject;
+	bool _isObjectNew;
+
 	void OnKillSelected(GC_Object *sender, void *param);
 	void OnMoveSelected(GC_Object *sender, void *param);
 	void Select(GC_Object *object, bool bSelect);
@@ -57,6 +59,8 @@ public:
 	EditorLayout(Window *parent);
 
 protected:
+	void DrawChildren(float sx, float sy);
+
 	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);
 	bool OnFocus(bool focus);

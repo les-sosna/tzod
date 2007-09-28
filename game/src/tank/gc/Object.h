@@ -140,6 +140,10 @@ protected:
 public:
 	PropertySet(GC_Object *object);
 
+	const char* GetTypeName() const;
+	void LoadFromConfig();
+	void SaveToConfig();
+
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
 	virtual void Exchange(bool applyToObject);

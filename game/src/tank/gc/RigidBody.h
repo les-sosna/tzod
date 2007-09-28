@@ -38,6 +38,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void Exchange(bool applyToObject);
 	};
+	virtual PropertySet* NewPropertySet();
 
 public:
 	GC_RigidBodyStatic::GC_RigidBodyStatic();
@@ -46,7 +47,6 @@ public:
 	virtual void MoveTo(const vec2d &pos);
 	virtual void Kill();
 
-	virtual PropertySet* NewPropertySet();
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
 	virtual unsigned char GetPassability() const = 0;
@@ -137,6 +137,19 @@ private:
 
 protected:
 	virtual const char *getCornerTexture(int i);
+
+protected:
+	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
+	{
+		typedef GC_RigidBodyStatic::MyPropertySet BASE;
+		ObjectProperty _propCorner;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
 
 public:
 	GC_Wall(float xPos, float yPos);

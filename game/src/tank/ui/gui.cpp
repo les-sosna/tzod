@@ -491,7 +491,8 @@ void NewGameDlg::OnOK()
 	g_conf.sv_timelimit->SetInt( g_conf.cl_timelimit->GetInt() );
 	g_conf.sv_nightmode->Set( g_conf.cl_nightmode->Get() );
 
-	SAFE_DELETE(g_level);
+	script_exec(g_env.L, "reset()");
+	_ASSERT(!g_level);
 	g_level = new Level();
 
 	if( g_level->init_newdm(path.c_str()) )
@@ -513,10 +514,10 @@ void NewGameDlg::OnOK()
 		{
 			ConfVarTable *p = g_conf.dm_bots->GetAt(i)->AsTable();
 			GC_PlayerAI *bot = new GC_PlayerAI();
-			bot->SetTeam(    p->GetNum("team")->GetInt() );
-			bot->SetSkin(    p->GetStr("skin")->Get()    );
-			bot->SetClass(   p->GetStr("class")->Get()   );
-			bot->SetNick(    p->GetStr("nick")->Get()    );
+			bot->SetTeam(  p->GetNum("team")->GetInt() );
+			bot->SetSkin(  p->GetStr("skin")->Get()    );
+			bot->SetClass( p->GetStr("class")->Get()   );
+			bot->SetNick(  p->GetStr("nick")->Get()    );
 			bot->SetLevel( p->GetNum("level", 2)->GetInt() );
 		}
 	}

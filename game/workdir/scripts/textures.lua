@@ -30,12 +30,6 @@ return {
    }
 },
 {
-   file="textures/editor/box.tga",
-   content={
-     editor_box={yframes=2, xpivot=0, ypivot=0},
-   }
-},
-{
    file="textures/editor/grid.tga",
    content={
      grid={xpivot=0, ypivot=0},
@@ -248,6 +242,7 @@ return {
    file="textures/gui/controls.tga",
    content={
      window={left=50, top=146, right=94, bottom=190, xpivot=0, ypivot=0},
+     selection={left=2, top=226, right=6, bottom=230, xpivot=0, ypivot=0},
      ctrl_button={left=0, right=96, top=0, bottom=96, xframes=1, yframes=4, xpivot=0, ypivot=0},
      ctrl_checkbox={left=0, right=96, top=96, bottom=144, xframes=4, yframes=2, xpivot=0, ypivot=0},
      ctrl_scroll_up={left=0, right=48, top=144, bottom=156, xframes=4, yframes=1, xpivot=0, ypivot=0},

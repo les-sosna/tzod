@@ -166,11 +166,11 @@ void GC_RigidBodyStatic::Kill()
 	GC_2dSprite::Kill();
 }
 
+
 PropertySet* GC_RigidBodyStatic::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
-
 
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
@@ -386,6 +386,54 @@ void GC_Wall::EditorAction()
 {
 	GC_2dSprite::EditorAction();
 	SetCornerView((GetCornerView() + 1) % 5);
+}
+
+
+PropertySet* GC_Wall::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Wall::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propCorner( ObjectProperty::TYPE_INTEGER,   "corner"  )
+{
+	_propCorner.SetIntRange(0, 4);
+}
+
+int GC_Wall::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propCorner;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_Wall::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_Wall *tmp = static_cast<GC_Wall *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->SetCornerView(_propCorner.GetIntValue());
+	}
+	else
+	{
+		_propCorner.SetIntValue(tmp->GetCornerView());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -343,6 +343,15 @@ private:
 		static index2type i2t; // sort by desc
 		return i2t;
 	}
+
+	static bool CompareTypes(ObjectType left, ObjectType right)
+	{
+		return 0 <= strcmp(get_t2i()[left].desc, get_t2i()[right].desc);
+	}
+	static void SortTypesByDesc()
+	{
+		std::sort(get_i2t().begin(), get_i2t().end(), &CompareTypes);
+	}
 	
 public:
 	void ToggleEditorMode();
@@ -392,6 +401,7 @@ public:
 		get_t2i()[T::GetTypeStatic()] = ei;
 		get_n2t()[name] = T::GetTypeStatic();
 		get_i2t().push_back(T::GetTypeStatic());
+		SortTypesByDesc();
 	}
 	template<class T>
 	static void RegisterService( const char *name, const char *desc )
@@ -405,6 +415,7 @@ public:
 		get_t2i()[T::GetTypeStatic()] = ei;
 		get_n2t()[name] = T::GetTypeStatic();
 		get_i2t().push_back(T::GetTypeStatic());
+		SortTypesByDesc();
 	}
 	static bool IsRegistered(ObjectType type)
 	{

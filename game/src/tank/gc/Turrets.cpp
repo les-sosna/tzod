@@ -356,7 +356,7 @@ void GC_TurretRocket::Fire()
 	{
 		vec2d a(_dir);
 		(new GC_Rocket(	GetPos() + a * 25.0f, a * SPEED_ROCKET, this, true ) )
-			->_damage = g_level->net_frand(10.0f) + 35.0f;
+			->_damage = g_level->net_frand(10.0f);
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
 }

@@ -6,6 +6,8 @@
 #include "Object.h"
 #include "level.h"
 
+#include "config/Config.h"
+
 #include "core/debug.h"
 #include "core/Console.h"
 
@@ -148,6 +150,71 @@ PropertySet::PropertySet(GC_Object *object)
   _propName(ObjectProperty::TYPE_STRING, "name")
 {
 }
+
+const char* PropertySet::GetTypeName() const
+{
+	return Level::GetTypeName(_object->GetType());
+}
+
+void PropertySet::LoadFromConfig()
+{
+	ConfVarTable *op = g_conf.ed_objproperties->GetTable(GetTypeName());
+	for( int i = 0; i < GetCount(); ++i )
+	{
+		ObjectProperty *prop = GetProperty(i);
+		switch( prop->GetType() )
+		{
+		case ObjectProperty::TYPE_INTEGER:
+			prop->SetIntValue(
+				__min(prop->GetIntMax(), __max(prop->GetIntMin(), 
+					op->GetNum(prop->GetName().c_str(), prop->GetIntValue())->GetInt()
+			)));
+			break;
+		case ObjectProperty::TYPE_FLOAT:
+			prop->SetFloatValue(
+				__min(prop->GetFloatMax(), __max(prop->GetFloatMin(), 
+					op->GetNum(prop->GetName().c_str(), prop->GetFloatValue())->GetFloat()
+			)));
+			break;
+		case ObjectProperty::TYPE_STRING:
+			prop->SetStringValue(op->GetStr(prop->GetName().c_str(), prop->GetStringValue().c_str())->Get());
+			break;
+		case ObjectProperty::TYPE_MULTISTRING:
+			prop->SetCurrentIndex(
+				__min((int) prop->GetListSize() - 1, __max(0, 
+					op->GetNum(prop->GetName().c_str(), (int) prop->GetCurrentIndex())->GetInt()
+			)));
+			break;
+		default:
+			_ASSERT(FALSE);
+		} // end of switch( prop->GetType() )
+	}
+}
+
+void PropertySet::SaveToConfig()
+{
+	ConfVarTable *op = g_conf.ed_objproperties->GetTable(GetTypeName());
+	for( int i = 0; i < GetCount(); ++i )
+	{
+		ObjectProperty *prop = GetProperty(i);
+		switch( prop->GetType() )
+		{
+		case ObjectProperty::TYPE_INTEGER:
+			op->SetNum(prop->GetName().c_str(), prop->GetIntValue());
+			break;
+		case ObjectProperty::TYPE_FLOAT:
+			op->SetNum(prop->GetName().c_str(), prop->GetFloatValue());
+			break;
+		case ObjectProperty::TYPE_STRING:
+			op->SetStr(prop->GetName().c_str(), prop->GetStringValue().c_str());
+			break;
+		case ObjectProperty::TYPE_MULTISTRING:
+			op->SetNum(prop->GetName().c_str(), (int) prop->GetCurrentIndex());
+			break;
+		default:
+			_ASSERT(FALSE);
+		} // end of switch( prop->GetType() )
+	}}
 
 int PropertySet::GetCount() const
 {

@@ -3,6 +3,7 @@
 #include "stdafx.h"
 
 #include "gui_editor.h"
+#include "GuiManager.h"
 
 #include "ui/Text.h"
 #include "ui/Edit.h"
@@ -51,131 +52,139 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	ClipChildren(true);
 }
 
-void PropertyList::Commit()
+void PropertyList::Exchange(bool applyToObject)
 {
-	_ASSERT(_ps);
-	for( int i = 0; i < _ps->GetCount(); ++i )
+	if( applyToObject )
 	{
-		ObjectProperty *prop = _ps->GetProperty(i);
-		Window         *ctrl = _ctrls[i];
-
-		switch( prop->GetType() )
+		_ASSERT(_ps);
+		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
-		case ObjectProperty::TYPE_INTEGER:
-			_ASSERT( dynamic_cast<Edit*>(ctrl) );
-			int n;
-			n = static_cast<Edit*>(ctrl)->GetInt();
-			if( n < prop->GetIntMin() || n > prop->GetIntMax() )
+			ObjectProperty *prop = _ps->GetProperty(i);
+			Window         *ctrl = _ctrls[i];
+
+			switch( prop->GetType() )
 			{
-				g_console->printf("WARNING: value %s out of range [%d, %d]\n", 
-					prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
-				n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
+			case ObjectProperty::TYPE_INTEGER:
+				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				int n;
+				n = static_cast<Edit*>(ctrl)->GetInt();
+				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
+				{
+					g_console->printf("WARNING: value %s out of range [%d, %d]\n", 
+						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
+					n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
+				}
+				prop->SetIntValue(n);
+				break;
+			case ObjectProperty::TYPE_FLOAT:
+				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				float f;
+				f = static_cast<Edit*>(ctrl)->GetFloat();
+				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
+				{
+					g_console->printf("WARNING: value %s out of range [%g, %g]\n", 
+						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
+					f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
+				}
+				prop->SetFloatValue(f);
+				break;
+			case ObjectProperty::TYPE_STRING:
+				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				const char *s;
+				s = static_cast<Edit*>(ctrl)->GetText().c_str();
+				prop->SetStringValue(s);
+				break;
+			case ObjectProperty::TYPE_MULTISTRING:
+				_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
+				int index;
+				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
+				prop->SetCurrentIndex(index);
+				break;
+			default:
+				_ASSERT(FALSE);
 			}
-			prop->SetIntValue(n);
-			break;
-		case ObjectProperty::TYPE_FLOAT:
-			_ASSERT( dynamic_cast<Edit*>(ctrl) );
-			float f;
-			f = static_cast<Edit*>(ctrl)->GetFloat();
-			if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
+		}
+		_ps->Exchange(true);
+		Exchange(false);
+	}
+	else
+	{
+		// clear old controls
+		while( _psheet->GetFirstChild() )
+			_psheet->GetFirstChild()->Destroy();
+		_ctrls.clear();
+
+		// create new controls
+		if( _ps )
+		{
+			_ps->Exchange(false);
+			float y = 5;
+			for( int i = 0; i < _ps->GetCount(); ++i )
 			{
-				g_console->printf("WARNING: value %s out of range [%g, %g]\n", 
-					prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
-				f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
+				ObjectProperty *prop = _ps->GetProperty(i);
+				
+				std::stringstream labelTextBuffer;
+				labelTextBuffer << prop->GetName().c_str();
+
+				Text *label = new Text(_psheet, 5, y, "", alignTextLT);
+				y += label->GetHeight();
+				y += 5;
+
+				Window *ctrl = NULL;
+
+				switch( prop->GetType() )
+				{
+				case ObjectProperty::TYPE_INTEGER:
+					ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+					static_cast<Edit*>(ctrl)->SetInt(prop->GetIntValue());
+					labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
+					break;
+				case ObjectProperty::TYPE_FLOAT:
+					ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+					static_cast<Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
+					labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
+					break;
+				case ObjectProperty::TYPE_STRING:
+					ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+					static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue().c_str());
+					labelTextBuffer << " (string)";
+					break;
+				case ObjectProperty::TYPE_MULTISTRING:
+					ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64);
+					for( size_t index = 0; index < prop->GetListSize(); ++index )
+					{
+						static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index).c_str());
+					}
+					static_cast<ComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
+					break;
+				default:
+					_ASSERT(FALSE);
+				} // end of switch( prop->GetType() )
+
+				label->SetText(labelTextBuffer.str().c_str());
+
+				_ASSERT(NULL != ctrl);
+				_ctrls.push_back(ctrl);
+				y += ctrl->GetHeight();
+				y += 10;
 			}
-			prop->SetFloatValue(f);
-			break;
-		case ObjectProperty::TYPE_STRING:
-			_ASSERT( dynamic_cast<Edit*>(ctrl) );
-			prop->SetStringValue(static_cast<Edit*>(ctrl)->GetText());
-			break;
-		case ObjectProperty::TYPE_MULTISTRING:
-			_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
-			prop->SetCurrentIndex( static_cast<ComboBox*>(ctrl)->GetCurSel() );
-			break;
-		default:
-			_ASSERT(FALSE);
+
+			_psheet->Resize(_psheet->GetWidth(), y);
+			_scrollBar->SetLimit(y - GetHeight());
+		}
+		else
+		{
+			_psheet->Resize(_psheet->GetWidth(), 0);
+			_scrollBar->SetLimit(0);
 		}
 	}
-	_ps->Exchange(true);
-
-	SafePtr<PropertySet> tmp = _ps;
-	_ps = NULL;
-	ConnectTo(tmp);
 }
 
 void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 {
 	if( _ps == ps ) return;
-
-	// clear old controls
-	while( _psheet->GetFirstChild() )
-		_psheet->GetFirstChild()->Destroy();
-	_ctrls.clear();
-
-	// create new controls
-	if( ps )
-	{
-		float y = 5;
-		for( int i = 0; i < ps->GetCount(); ++i )
-		{
-			ObjectProperty *prop = ps->GetProperty(i);
-			
-			std::stringstream labelTextBuffer;
-			labelTextBuffer << prop->GetName().c_str();
-
-			Text *label = new Text(_psheet, 5, y, "", alignTextLT);
-			y += label->GetHeight();
-			y += 5;
-
-			Window *ctrl = NULL;
-
-			switch( prop->GetType() )
-			{
-			case ObjectProperty::TYPE_INTEGER:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetInt(prop->GetIntValue());
-				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
-				break;
-			case ObjectProperty::TYPE_FLOAT:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
-				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
-				break;
-			case ObjectProperty::TYPE_STRING:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue().c_str());
-				labelTextBuffer << " (string)";
-				break;
-			case ObjectProperty::TYPE_MULTISTRING:
-				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64);
-				for( size_t index = 0; index < prop->GetListSize(); ++index )
-				{
-					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index).c_str());
-				}
-				static_cast<ComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
-				break;
-			default:
-				_ASSERT(FALSE);
-			} // end of switch( prop->GetType() )
-
-			label->SetText(labelTextBuffer.str().c_str());
-
-			_ASSERT(NULL != ctrl);
-			_ctrls.push_back(ctrl);
-			y += ctrl->GetHeight();
-			y += 10;
-		}
-
-		_psheet->Resize(_psheet->GetWidth(), y);
-		_scrollBar->SetLimit(y - GetHeight());
-	}
-	else
-	{
-		_psheet->Resize(_psheet->GetWidth(), 0);
-		_scrollBar->SetLimit(0);
-	}
 	_ps = ps;
+	Exchange(false);
 }
 
 void PropertyList::OnScroll(float pos)
@@ -196,10 +205,35 @@ void PropertyList::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_RETURN:
-		Commit();
+		Exchange(true);
+		_ps->SaveToConfig();
 		break;
 	case VK_ESCAPE:
 		Show(false);
+		break;
+	case VK_UP:
+		if( GetManager()->GetFocusWnd() )
+		{
+			// try to pass focus to previous siblings
+			UI::Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
+			for( ; r; r = r->GetPrevSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+		}
+		break;
+	case VK_DOWN:
+		if( GetManager()->GetFocusWnd() )
+		{
+			// try to pass focus to previous siblings
+			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			for( ; r; r = r->GetNextSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+		}
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -212,6 +246,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 {
 	SetTexture(NULL);
 	_propList = new PropertyList(this, 5, 5, 256, 256);
+	_propList->Show(false);
 
 	_typeList = new ComboBox(this, 0, 0, 256);
 	List *ls = _typeList->GetList();
@@ -224,6 +259,14 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
+
+	_selectionRect = new Window(this, 0, 0, "selection");
+	_selectionRect->SetBorder(true);
+	_selectionRect->Show(false);
+	_selectionRect->BringToBack();
+
+	_selectedObject = NULL;
+	_isObjectNew = false;
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -249,26 +292,23 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 				Select(_selectedObject, false);
 			}
 
-			// мы здесь не используем protect, поскольку отписываемся вручную
-//			object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &EditorLayout::OnKillSelected, true, false);
-//			object->Subscribe(NOTIFY_OBJECT_MOVE, this, (NOTIFYPROC) &EditorLayout::OnMoveSelected, false, false);
-
-		//	_selectionRect->Adjust(object);
-		//	_selectionRect->Show(true);
-
 			_selectedObject = object;
 			if( _selectedObject )
+			{
 				_propList->ConnectTo(_selectedObject->GetProperties());
+				_propList->Show(true);
+			}
 		}
 	}
 	else
 	{
 		_ASSERT(object == _selectedObject);
-//		_selectedObject->Unsubscribe(this);
 		_selectedObject = NULL;
-	//	_selectionRect->Show(false);
+		_isObjectNew = false;
 
 		_propList->ConnectTo(NULL);
+		_selectionRect->Show(false);
+		_propList->Show(false);
 	}
 }
 
@@ -311,6 +351,12 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 				if( _selectedObject == object )
 				{
 					object->EditorAction();
+					_propList->Exchange(false);
+					if( _isObjectNew )
+					{
+						// save properties for new object
+						object->GetProperties()->SaveToConfig();
+					}
 				}
 				else
 				{
@@ -331,7 +377,13 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		{
 			if( 1 == button )
 			{
-				Select( g_level->CreateObject(type, pt.x, pt.y), true );
+				// create object and set default properties
+				GC_Object *object = g_level->CreateObject(type, pt.x, pt.y);
+				SafePtr<PropertySet> properties = object->GetProperties();
+				properties->LoadFromConfig();
+				properties->Exchange(true);
+				Select(object, true);
+				_isObjectNew = true;
 			}
 		}
 	}
@@ -373,6 +425,24 @@ void EditorLayout::OnShow(bool show)
 void EditorLayout::OnChangeObject(int index)
 {
 	g_conf.ed_object->SetInt(index);
+}
+
+void EditorLayout::DrawChildren(float sx, float sy)
+{
+	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
+	{
+		_selectionRect->Show(true);
+		_selectionRect->Move(
+			s->GetPos().x - s->GetSpriteWidth() / 2 - (float) g_env.camera_x, 
+			s->GetPos().y - s->GetSpriteHeight() / 2 - (float) g_env.camera_y);
+		_selectionRect->Resize(s->GetSpriteWidth(), s->GetSpriteHeight());
+	}
+	else
+	{
+		_selectionRect->Show(false);
+	}
+
+	Window::DrawChildren(sx, sy);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

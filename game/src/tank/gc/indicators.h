@@ -25,6 +25,7 @@ protected:
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propTeam;
+		ObjectProperty _propDir;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;

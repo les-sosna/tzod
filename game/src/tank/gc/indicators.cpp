@@ -85,13 +85,15 @@ PropertySet* GC_SpawnPoint::NewPropertySet()
 GC_SpawnPoint::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
 , _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
+, _propDir( ObjectProperty::TYPE_FLOAT, "dir" )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
+	_propDir.SetFloatRange(0, PI2);
 }
 
 int GC_SpawnPoint::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
@@ -102,6 +104,7 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propTeam;
+	case 1: return &_propDir;
 	}
 
 	_ASSERT(FALSE);
@@ -117,10 +120,12 @@ void GC_SpawnPoint::MyPropertySet::Exchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_team = _propTeam.GetIntValue();
+		tmp->SetRotation(_propDir.GetFloatValue());
 	}
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
+		_propDir.SetFloatValue(fmodf(tmp->GetRotation(), PI2));
 	}
 }
 

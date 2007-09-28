@@ -152,36 +152,36 @@ enum enumZOrder
 //---------------------------------------------------------------
 // —овместимость
 
-#define TXT_VERSION      "“анк: «она смерти. ¬ерси€ 1.40 alpha"
+#define TXT_VERSION      "“анк: «она смерти. ¬ерси€ 1.41 alpha 2"
 #define TXT_WNDCLASS     "TankMainWindow"
 #define TXT_PROPGRID     "TankPropertyGrid"
 #define TXT_PROPGRIDINT  "TankPropertyGridInt"
 
 // верси€  файла  Save  дл€  первичной  проверки на корректность.
 // файлы  с  отличающейс€  версией не будут отображатьс€ в списке
-#define VERSION		0x140a
+#define VERSION		0x141c
 
 //---------------------------------------------------------------
 // ќграничени€
 
 // максимальное число игроков
-#define MAX_PLAYERS	32
-#define MAX_HUMANS	4
+#define MAX_PLAYERS     32
+#define MAX_HUMANS       4
 
 // максимальное число команд в командных играх (включа€ 0)
-#define MAX_TEAMS	6
+#define MAX_TEAMS        6
 
-#define GAME_PORT	1945
+#define GAME_PORT     1945
 
 // максимальное врем€ dt. ≈сли при сильных тормозах dt вдруг
 // окажетс€ больше, то оно принудительно будет уменьшено до MAX_DT
-#define MAX_DT		0.05f
+#define MAX_DT           0.05f
 
-#define MAX_DT_FIXED	0.02f
+#define MAX_DT_FIXED     0.02f
 
 
 // дублирование сетевых пакетов
-#define NET_MULTIPLER	2
+#define NET_MULTIPLER    2
 
 //---------------------------------------------------------------
 // “ипы игры
@@ -189,16 +189,16 @@ enum enumZOrder
 // режим редактора.
 // в этом режиме не активны timelimit и fraglimit,
 // редактор доступен всегда
-#define GT_EDITOR		0
+#define GT_EDITOR        0
 
 // тип игры deathmatch. каждый сам за себ€.
-#define GT_DEATHMATCH	1
+#define GT_DEATHMATCH    1
 
 
 //---------------------------------------------------------------
 // математические константы
-#define PI	(3.14159f)
-#define PI2	(6.28319f)
+#define PI    3.141593f
+#define PI2   6.283185f
 
 
 //---------------------------------------------------------------

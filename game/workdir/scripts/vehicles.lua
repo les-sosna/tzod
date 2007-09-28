@@ -28,10 +28,10 @@ classes.default =
   mass      = 1.0,
   inertia   = 700.0,
 
-  dry_fric  = {450, 5000, 30},   -- dry friction: x,y,angular
+  dry_fric  = {450, 5000, 28},   -- dry friction: x,y,angular
   vis_fric  = {2.0,  2.5,  0},   -- viscous friction: x,y,angular
 
-  power     = {1000, 50},        -- engine power: linear,angular
+  power     = {1000, 45},        -- engine power: linear,angular
   max_speed = {200, 3.5},        -- max speed: linear, angular
 }
 
@@ -62,11 +62,11 @@ classes.heavy =
   mass      = 2.0,
   inertia   = 1000.0,
 
-  dry_fric  = {450, 5000, 30},   -- dry friction: x,y,angular
+  dry_fric  = {450, 5000, 28},   -- dry friction: x,y,angular
   vis_fric  = {2.0,  2.5, 10},   -- viscous friction: x,y,angular
 
-  power     = {1800, 50},     -- engine power: linear,angular
-  max_speed = {180, 3.5}         -- max speed: linear, angular
+  power     = {1800, 45},     -- engine power: linear,angular
+  max_speed = {180, 3.5}      -- max speed: linear, angular
 }
 
 
