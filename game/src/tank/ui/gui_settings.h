@@ -49,6 +49,11 @@ class ControlProfileDlg : public Dialog
 	List         *_actions;
 	ConfVarTable *_profile;
 
+	float _time;
+	int   _activeIndex;
+	bool  _skip;
+	void OnSelectAction(int index);
+
 public:
 	ControlProfileDlg(Window *parent, ConfVarTable *profile);
 	~ControlProfileDlg();
@@ -58,6 +63,9 @@ protected:
 
 	void OnOK();
 	void OnCancel();
+
+	void OnTimeStep(float dt);
+	void OnRawChar(int c);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

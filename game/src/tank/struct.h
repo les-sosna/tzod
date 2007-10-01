@@ -100,19 +100,6 @@ typedef struct GETFILENAME
 #define GFNF_FILEMUSTEXIST		2
 
 //----------------------------------------------------------
-// состояние устройств ввода
-typedef struct INPUTSTATE
-{
-	char	keys[256];
-	int		mouse_x, mouse_y;
-	int		mouse_wheel;
-	bool	bLButtonState;
-	bool	bRButtonState;
-	bool	bMButtonState;
-} INPUTSTATE, *LPINPUTSTATE;
-
-
-//----------------------------------------------------------
 
 typedef float AIPRIORITY;
 

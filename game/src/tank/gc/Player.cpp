@@ -517,14 +517,13 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
 
+	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
+	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
+	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
+	vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
+	vs._bState_Fire        = g_env.envInputs.keys[_keyFire   ];
 
-	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward] != 0;
-	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ] != 0;
-	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ] != 0;
-	vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ] != 0;
-	vs._bState_Fire        = g_env.envInputs.keys[_keyFire   ] != 0;
-
-//	bool tmp = g_env.envInputs.keys[_keyLight] != 0;
+//	bool tmp = g_env.envInputs.keys[_keyLight];
 //	if( tmp && !_last_light_key_state )
 //	{
 //		PLAY(SND_LightSwitch, _player->GetVehicle()->GetPos());
@@ -535,15 +534,15 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	vs._bLight = true;
 
 	vs._bState_AllowDrop = 
-		(g_env.envInputs.keys[_keyForward] != 0 && g_env.envInputs.keys[_keyBack] != 0) ||
-		(g_env.envInputs.keys[_keyLeft] != 0 && g_env.envInputs.keys[_keyRight] != 0) ||
-		g_env.envInputs.keys[_keyPickup] != 0;
+		(g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]) ||
+		(g_env.envInputs.keys[_keyLeft] && g_env.envInputs.keys[_keyRight]) ||
+		g_env.envInputs.keys[_keyPickup];
 
-	vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft  ] != 0;
-	vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight ] != 0;
+	vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
+	vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
 
-	vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] != 0 ||
-		g_env.envInputs.keys[_keyTowerLeft] != 0 && g_env.envInputs.keys[_keyTowerRight] != 0;
+	vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] ||
+		g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
 
 	if( vs._bState_TowerCenter )
 	{

@@ -123,6 +123,16 @@ KeyMapper::KeyMapper()
 	Pair( "My Computer",    235 );
 	Pair( "Mail",           236 );
 	Pair( "Media Select",   237 );
+
+	Pair( "Mouse 1",        256 );
+	Pair( "Mouse 2",        257 );
+	Pair( "Mouse 3",        258 );
+	Pair( "Mouse 4",        259 );
+	Pair( "Mouse 5",        260 );
+	Pair( "Mouse 6",        261 );
+	Pair( "Mouse 7",        262 );
+	Pair( "Mouse Wheel Up",   270 );
+	Pair( "Mouse Wheel Down", 271 );
 }
 
 KeyMapper::~KeyMapper()

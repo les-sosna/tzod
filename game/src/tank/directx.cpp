@@ -226,7 +226,7 @@ HRESULT InitDirectInput( HWND hWnd )
 {
 	TRACE("init direct input\n");
 
-	ZeroMemory(g_env.envInputs.keys, 256);
+	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
     FreeDirectInput();
 
 	DWORD dwPriority = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
@@ -283,31 +283,29 @@ void FreeDirectInput()
 
 HRESULT ReadImmediateData()
 {
-    HRESULT hr;
+	HRESULT hr;
 
-    if( NULL == g_pKeyboard )
-        return S_OK;
+	if( NULL == g_pKeyboard )
+		return S_OK;
 
-    ZeroMemory(g_env.envInputs.keys, 256);
-    hr = g_pKeyboard->GetDeviceState( sizeof(g_env.envInputs.keys[0]) * 256, g_env.envInputs.keys );
-    if( FAILED(hr) )
-    {
-        hr = g_pKeyboard->Acquire();
-        while( hr == DIERR_INPUTLOST )
+	char data[256];
+	hr = g_pKeyboard->GetDeviceState(sizeof(data), data);
+	if( FAILED(hr) )
+	{
+		hr = g_pKeyboard->Acquire();
+		while( hr == DIERR_INPUTLOST )
 		{
 			Sleep(50);
-            hr = g_pKeyboard->Acquire();
+			hr = g_pKeyboard->Acquire();
 		}
-        return S_OK;
-    }
+		return S_OK;
+	}
 
-    for( int i = 0; i < 256; ++i )
-    {
-        if( g_env.envInputs.keys[i] & 0x80 )
-			g_env.envInputs.keys[i] = 1;
-		else
-			g_env.envInputs.keys[i] = 0;
-    }
+	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
+	for( int i = 0; i < sizeof(data); ++i )
+	{
+		g_env.envInputs.keys[i] = (data[i] & 0x80) != 0;
+	}
 
 
 /*

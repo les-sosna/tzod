@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "gui_settings.h"
+#include "GuiManager.h"
 
 #include "Text.h"
 #include "List.h"
@@ -79,6 +80,10 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 
 	(new Button(this, 304, 216, "ОК"))->eventClick.bind(&SettingsDlg::OnOK, this);
 	(new Button(this, 408, 216, "Отмена"))->eventClick.bind(&SettingsDlg::OnCancel, this);
+
+
+	_profiles->SetCurSel(0, true);
+	GetManager()->SetFocusWnd(_profiles);
 }
 
 SettingsDlg::~SettingsDlg()
@@ -130,6 +135,11 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
 {
 	_ASSERT(profile);
 
+	_time = 0;
+	_activeIndex = -1;
+	_skip = false;
+
+
 	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
@@ -138,6 +148,7 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
 	_actions = new List(this, 10, 20, 400, 300);
 	_actions->SetTabPos(0, 2);
 	_actions->SetTabPos(1, 200);
+	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
 
 	AddAction( "key_forward"      , "Вперед"            );
 	AddAction( "key_back"         , "Назад"             );
@@ -149,19 +160,32 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
 	AddAction( "key_tower_right"  , "Орудие направо"    );
 	AddAction( "key_tower_center" , "Орудие по ценру"   );
 	AddAction( "key_pickup"       , "Подобрать предмет" );
-
+	_actions->SetCurSel(0, true);
 
 	(new Button(this, 304, 360, "ОК"))->eventClick.bind(&ControlProfileDlg::OnOK, this);
 	(new Button(this, 408, 360, "Отмена"))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+
+	GetManager()->SetFocusWnd(_actions);
 }
 
 ControlProfileDlg::~ControlProfileDlg()
 {
 }
 
+void ControlProfileDlg::OnSelectAction(int index)
+{
+	_actions->SetItemText(index, 1, "...");
+	_time = 0;
+	_activeIndex = index;
+	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+	_skip = true;
+	SetTimeStep(true);
+}
+
 void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 {
 	int index = _actions->AddItem(display);
+	_actions->SetItemData(index, (ULONG_PTR) rawname);
 	_actions->SetItemText(index, 1, 
 		g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())).c_str());
 }
@@ -174,6 +198,58 @@ void ControlProfileDlg::OnOK()
 void ControlProfileDlg::OnCancel()
 {
 	Dialog::Close(_resultCancel);
+}
+
+void ControlProfileDlg::OnTimeStep(float dt)
+{
+	_time += dt;
+	_actions->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
+
+	for( int k = 0; k < sizeof(g_env.envInputs.keys) / sizeof(g_env.envInputs.keys[0]); ++k )
+	{
+		if( g_env.envInputs.keys[k] )
+		{
+			if( _skip )
+			{
+				return;
+			}
+			if( DIK_ESCAPE != k )
+			{
+				_actions->SetItemText(_activeIndex, 1, g_keys->GetName(k).c_str());
+			}
+			else
+			{
+				_actions->SetItemText(_activeIndex, 1, 
+					g_keys->GetName(
+						g_keys->GetCode(
+							_profile->GetStr(
+								(const char *) _actions->GetItemData(_activeIndex)
+							)->Get()
+						)
+					).c_str()
+				);
+			}
+			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+			SetTimeStep(false);
+		}
+	}
+
+	_skip = false;
+}
+
+void ControlProfileDlg::OnRawChar(int c)
+{
+	switch(c)
+	{
+	case VK_RETURN:
+		if( -1 != _actions->GetCurSel() )
+		{
+			OnSelectAction(_actions->GetCurSel());
+		}
+		break;
+	default:
+		Dialog::OnRawChar(c);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

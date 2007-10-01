@@ -38,9 +38,21 @@ extern SafePtr<IFileSystem> g_fs;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct InputState
+{
+	bool  keys[300];
+	int   mouse_x;
+	int   mouse_y;
+	int   mouse_wheel;
+	bool  bLButtonState;
+	bool  bRButtonState;
+	bool  bMButtonState;
+};
+
+
 struct ENVIRONMENT
 {
-	INPUTSTATE envInputs;
+	InputState envInputs;
 
 	lua_State *L;            // handle to the script engine
 

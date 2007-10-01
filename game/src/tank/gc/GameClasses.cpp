@@ -905,7 +905,7 @@ void GC_TextScore::EndFrame()
 		}
 	}
 
-	Show((0 != g_env.envInputs.keys[DIK_TAB] && !g_level->_modeEditor) || g_level->_limitHit);
+	Show((g_env.envInputs.keys[DIK_TAB] && !g_level->_modeEditor) || g_level->_limitHit);
 
 	if( g_level->_limitHit && !_bOldLimit )
 	{
