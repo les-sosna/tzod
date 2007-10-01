@@ -302,25 +302,23 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 
 	if( GetHealth() <= 0 )
 	{
-		char msg[256];
+		char msg[256] = {0};
 		char score[8];
 		char *font = NULL;
 
-		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(dd.from);
-		if( NULL != veh )
+		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(dd.from) )
 		{
 			if( veh->GetPlayer() == GetPlayer() )
 			{
 				// убил себя апстену =)
 				veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 				font = "font_digits_red";
-				wsprintf( msg, "%s совершил самоубийство", 
-					veh->GetPlayer()->GetNick().c_str() );
+				wsprintf( msg, "%s совершил самоубийство", veh->GetPlayer()->GetNick().c_str() );
 			}
-			else
+			else if( GetPlayer() )
 			{
 				if( 0 != GetPlayer()->GetTeam() &&
-					((GC_Vehicle *) dd.from)->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
+					veh->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
 				{
 					// убил товарища
 					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
@@ -335,9 +333,14 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 					font = "font_digits_green";
 					wsprintf( msg, "%s замочил своего врага %s",
-						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
-						GetPlayer()->GetNick().c_str() );
+						veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str() );
 				}
+			}
+			else
+			{
+				// убил бездушный танк
+				veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
+				font = "font_digits_green";
 			}
 
 			if( !veh->GetPlayer()->IsDead() )

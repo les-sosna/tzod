@@ -522,10 +522,10 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	_ASSERT(GetVehicle());
 	_ASSERT(GetVehicle()->GetWeapon());
 
-	if( 0 != target->GetPlayer()->GetTeam() &&
-		target->GetPlayer()->GetTeam() == GetTeam() )
+	if( !target->GetPlayer() || 
+		(0 != target->GetPlayer()->GetTeam() && target->GetPlayer()->GetTeam() == GetTeam()) )
 	{
-		return AIP_NOTREQUIRED;	// своих не атакуем
+		return AIP_NOTREQUIRED;	// своих и буздушных не атакуем
 	}
 
 	AIPRIORITY p = AIP_NORMAL;
