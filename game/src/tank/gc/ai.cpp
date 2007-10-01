@@ -436,7 +436,7 @@ void GC_PlayerAI::SmoothPath()
 		_ASSERT(vn[i].x > 0 && vn[i].y > 0);
 	}
 
-	while( true )
+	for(;;)
 	{
 		PathNode new_node;
 
@@ -1060,7 +1060,7 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 					 int(_path.front().coord.x) + 2, int(_path.front().coord.y) + 2);
 
 		std::list<PathNode>::iterator it = _path.begin();
-		while(true)
+		for(;;)
 		{
 			MoveToEx(hdc, int(it->coord.x), int(it->coord.y), NULL);
 			if( ++it == _path.end() ) break;

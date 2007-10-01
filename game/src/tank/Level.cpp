@@ -361,8 +361,10 @@ BOOL Level::init_load(const char *fileName)
 Level::~Level()
 {
 	_ASSERT(IsSafeMode());
-
 	TRACE("Destroying the level\n");
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
+
 
 	SAFE_KILL(_temporaryText);
 	SAFE_KILL(_background);
@@ -885,7 +887,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 		int ymin = __min(cury, targy);
 		int ymax = __max(cury, targy);
 
-		while(1)
+		for(;;)
 		{
 			if( curx >= 0 && curx < _locations_x &&
 				cury >= 0 && cury < _locations_y )
@@ -971,7 +973,7 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 			}
 			curx += stepx[j_min];
 			cury += stepy[j_min];
-		}
+		}// for(;;)
 	}
 
 	if( pBestObject )

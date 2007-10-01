@@ -45,6 +45,7 @@ public:
 
 	bool SetFocusWnd(UI::Window* wnd);
 	UI::Window* GetFocusWnd() const;
+	bool Unfocus(UI::Window* wnd);
 
 public:
 	PtrList<UI::Window>::iterator TimeStepRegister(UI::Window* wnd);

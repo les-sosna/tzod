@@ -133,7 +133,7 @@ DWORD CalcCRC32(LPCTSTR fileName)
 		return -1;
 
 	DWORD crc = 0;
-	while( true )
+	for(;;)
 	{
 		unsigned char data;
 		if( 1 != fread(&data, 1, 1, file) )

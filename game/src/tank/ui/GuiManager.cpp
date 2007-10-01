@@ -48,35 +48,8 @@ void GuiManager::Remove(UI::Window* wnd)
 	}
 	if( wnd == _focusWnd )
 	{
-		UI::Window *tmp = wnd;
-		while(1)
-		{
-			UI::Window *r;
-
-			// try to pass focus to next siblings
-			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
-			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
-				if( SetFocusWnd(r) ) break;
-			}
-			if( r ) break;
-
-			// try to pass focus to previous siblings
-			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
-			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
-				if( SetFocusWnd(r) ) break;
-			}
-			if( r ) break;
-
-			// and finaly try to pass focus to the parent and its siblings
-			tmp = tmp->GetParent();
-			if( !tmp || (tmp->IsVisible() && tmp->IsEnabled()
-				&& !tmp->IsDestroyed() && SetFocusWnd(tmp)) )
-			{
-				break;
-			}
-		}// while(1)
+		Unfocus(wnd);
+		_ASSERT(wnd != _focusWnd);
 	}
 
 	if( wnd == _captureWnd )
@@ -205,6 +178,75 @@ UI::Window* GuiManager::GetFocusWnd() const
 {
 	return _focusWnd;
 }
+
+bool GuiManager::Unfocus(UI::Window* wnd)
+{
+	_ASSERT(wnd);
+	_ASSERT(_focusWnd);
+
+	if( wnd == _focusWnd )
+	{
+		//
+		// search for first appropriate parent
+		//
+
+		UI::Window *tmp = wnd;
+		for( UI::Window *w = wnd->GetParent(); w; w = w->GetParent() )
+		{
+			if( !w->IsVisible() || !w->IsEnabled() || w->IsDestroyed() ) 
+			{
+				tmp = w->GetParent();
+			}
+		}
+
+		while( tmp )
+		{
+			if( wnd != tmp && SetFocusWnd(tmp) )
+			{
+				break;
+			}
+
+			UI::Window *r;
+
+			// try to pass focus to next siblings
+			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( SetFocusWnd(r) ) break;
+			}
+			if( r ) break;
+
+			// try to pass focus to previous siblings
+			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( SetFocusWnd(r) ) break;
+			}
+			if( r ) break;
+
+			// and finally try to pass focus to the parent and its siblings
+			tmp = tmp->GetParent();
+			_ASSERT(!tmp || (tmp->IsVisible() && tmp->IsEnabled() && !tmp->IsDestroyed()));
+		}
+		if( !tmp )
+		{
+			SetFocusWnd(NULL);
+		}
+		_ASSERT(wnd != _focusWnd);
+		return true;
+	}
+
+	for( UI::Window *w = wnd->GetFirstChild(); w; w = w->GetNextSibling() )
+	{
+		if( Unfocus(w) )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 PtrList<UI::Window>::iterator GuiManager::TimeStepRegister(UI::Window* wnd)
 {

@@ -20,6 +20,7 @@
 #include "core/Console.h"
 
 #include "Level.h"
+#include "Macros.h"
 
 
 namespace UI
@@ -338,7 +339,6 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		float offset = Level::GetTypeInfo(type).offset;
 
 		vec2d pt;
-
 		pt.x = __min(g_level->_sx - align, __max(align - offset, mouse.x));
 		pt.y = __min(g_level->_sy - align, __max(align - offset, mouse.y));
 		pt.x -= fmodf(pt.x + align * 0.5f - offset, align) - align * 0.5f;
@@ -401,7 +401,10 @@ void EditorLayout::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_RETURN:
-		_propList->Show(true);
+		if( _selectedObject )
+		{
+			_propList->Show(true);
+		}
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -418,6 +421,7 @@ void EditorLayout::OnShow(bool show)
 	if( !show )
 	{
 		_propList->ConnectTo(NULL);
+		_propList->Show(false);
 		_selectedObject = NULL;
 	}
 }
@@ -431,17 +435,32 @@ void EditorLayout::DrawChildren(float sx, float sy)
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
+		_ASSERT(g_level);
+		GC_Camera *camera = NULL;
+
+		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, c )
+		{
+			if( c->IsActive() )
+			{
+				camera = c;
+				break;
+			}
+		}
+
+		_ASSERT(camera);
+		RECT viewport;
+		camera->GetViewport(viewport);
+
 		_selectionRect->Show(true);
 		_selectionRect->Move(
-			s->GetPos().x - s->GetSpriteWidth() / 2 - (float) g_env.camera_x, 
-			s->GetPos().y - s->GetSpriteHeight() / 2 - (float) g_env.camera_y);
+			(float) viewport.left + s->GetPos().x - s->GetSpriteWidth() / 2 - camera->GetPos().x,
+			(float) viewport.top + s->GetPos().y - s->GetSpriteHeight() / 2 - camera->GetPos().y );
 		_selectionRect->Resize(s->GetSpriteWidth(), s->GetSpriteHeight());
 	}
 	else
 	{
 		_selectionRect->Show(false);
 	}
-
 	Window::DrawChildren(sx, sy);
 }
 

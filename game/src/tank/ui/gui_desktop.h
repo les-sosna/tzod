@@ -31,6 +31,7 @@ public:
 
 	void ShowDesktopBackground(bool show);
 	void ShowConsole(bool show);
+	void ShowEditor(bool show);
 
 	void OnCloseChild(int result);
 

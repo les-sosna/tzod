@@ -554,8 +554,15 @@ void Window::ReleaseCapture()
 
 void Window::Show(bool show)
 {
-	_isVisible = show;
-	OnShow(show);
+	if( _isVisible != show )
+	{
+		_isVisible = show;
+		OnShow(show);
+		if( !IsVisible() && GetManager()->GetFocusWnd() )
+		{
+			GetManager()->Unfocus(this);
+		}
+	}
 }
 
 void Window::BringToFront()

@@ -38,7 +38,7 @@ static void OnPrintScreen()
 
 	int n = g_conf.r_screenshot->GetInt();
 	char name[MAX_PATH];
-	while (1)
+	for(;;)
 	{
 		wsprintf(name, "screenshot%04d.tga", n);
 
@@ -288,7 +288,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		timer->Start();
 
 		MSG msg;
-		while(true)
+		for(;;)
 		{
 			if( PeekMessage(&msg, NULL, 0, 0, TRUE) )
 			{

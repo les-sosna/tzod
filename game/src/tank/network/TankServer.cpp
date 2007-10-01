@@ -232,7 +232,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 		//
 		//                    Aborted + 0         Aborted + 1
 		HANDLE handles[2] = {pData->it->stop, pData->it->semaphore};
-        while( true )
+        for(;;)
 		{
 			DataBlock::size_type size;
             switch( pData->it->s.Recv(handles, 2, &size, sizeof(DataBlock::size_type)) )
@@ -360,7 +360,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 
 DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
 {
-	while( true )
+	for(;;)
 	{
 		int result = pServer->_socketListen.Wait(pServer->_evStopListen);
 		if( result ) break;
@@ -369,7 +369,7 @@ DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
 			break;
 
 		SOCKET s = accept(pServer->_socketListen, NULL, NULL);
-        if( INVALID_SOCKET != s )
+		if( INVALID_SOCKET != s )
 		{
 			//
 			// подготовка и запуск клиентского потока
@@ -403,7 +403,7 @@ DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
 
 			ResumeThread(hThread);
 		}
-	}
+	} // for(;;)
 
 	pServer->_socketListen.Close();
 

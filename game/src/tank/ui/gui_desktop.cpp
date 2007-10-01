@@ -57,6 +57,12 @@ void Desktop::ShowConsole(bool show)
 	_con->Show(show);
 }
 
+void Desktop::ShowEditor(bool show)
+{
+	_ASSERT(show || g_level);
+	_editor->Show(show);
+}
+
 void Desktop::OnCloseChild(int result)
 {
 	ShowDesktopBackground(false);
@@ -99,7 +105,7 @@ void Desktop::OnRawChar(int c)
 		if( g_level )
 		{
 			g_level->ToggleEditorMode();
-			_editor->Show(g_level->_modeEditor);
+			ShowEditor(g_level->_modeEditor);
 		}
 		break;
 	}

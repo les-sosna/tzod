@@ -151,6 +151,11 @@ void GC_Camera::Activate(bool bActivate)
 	_active = bActivate;
 }
 
+void GC_Camera::GetViewport(RECT &vp) const
+{
+	vp = _viewport;
+}
+
 void GC_Camera::EndFrame()
 {
 	if( !IsActive() ) return;

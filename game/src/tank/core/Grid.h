@@ -163,7 +163,7 @@ public:
 			int ymin = __min(cury, targy);
 			int ymax = __max(cury, targy);
 
-			while (1)
+			for(;;)
 			{
 				if( curx >= 0 && curx < g_level->_locations_x &&
 					cury >= 0 && cury < g_level->_locations_y )

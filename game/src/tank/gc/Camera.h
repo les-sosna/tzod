@@ -29,8 +29,8 @@ private:
 
 	//--------------------------------
 public:
-	RECT                 _viewport;
-	float                _zoom;
+	RECT    _viewport;
+	float   _zoom;
 	SafePtr<GC_Player>  _player;
 
 	//--------------------------------
@@ -41,6 +41,7 @@ public:
 	void Select();         // применение трансформации, выбор камеры как текущей
 	void Activate(bool bActivate);  // неактивная камера не отображается на экране
 	bool IsActive() const { return _active && !IsKilled(); }
+	void GetViewport(RECT &vp) const;
 
 	static void SwitchEditor();
 	static void UpdateLayout(); // пересчет координат viewports
