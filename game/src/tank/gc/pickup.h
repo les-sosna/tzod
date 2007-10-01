@@ -213,6 +213,8 @@ class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
 
+	SafePtr<GC_Sound> _sound;
+
 public:
 	GC_pu_Booster(float x, float y);
 	GC_pu_Booster(FromFile);

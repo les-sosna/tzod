@@ -660,6 +660,7 @@ GC_pu_Booster::~GC_pu_Booster()
 void GC_pu_Booster::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
+	f.Serialize(_sound);
 }
 
 AIPRIORITY GC_pu_Booster::GetPriority(GC_Vehicle *veh)
@@ -706,7 +707,8 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 	w->Subscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 
 	PLAY(SND_B_Start, GetPos());
-	new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this);
+	_ASSERT(NULL == _sound);
+	_sound = new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this);
 
 	SetTexture("booster");
 	SetShadow(false);
@@ -717,6 +719,8 @@ void GC_pu_Booster::Detach()
 	_ASSERT(dynamic_cast<GC_Weapon*>(GetOwner()));
 	static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
 	SetTexture("pu_booster");
+	SetShadow(true);
+	SAFE_KILL(_sound);
 	GC_Pickup::Detach();
 }
 
