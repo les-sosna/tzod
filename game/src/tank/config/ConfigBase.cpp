@@ -455,12 +455,14 @@ ConfVar* ConfVarArray::GetAt(size_t index) const
 void ConfVarArray::RemoveAt(size_t index)
 {
 	_ASSERT(typeArray == _type);
+	delete (*_val.asArray) [index];
 	_val.asArray->erase(_val.asArray->begin() + index);
 }
 
 void ConfVarArray::PopFront()
 {
 	_ASSERT(typeArray == _type);
+	delete _val.asArray->front();
 	_val.asArray->pop_front();
 }
 
@@ -476,6 +478,7 @@ ConfVar* ConfVarArray::PushBack(Type type)
 void ConfVarArray::PopBack()
 {
 	_ASSERT(typeArray == _type);
+	delete _val.asArray->back();
 	_val.asArray->pop_back();
 }
 
