@@ -76,7 +76,8 @@ GC_Player::GC_Player()
 }
 
 GC_Player::GC_Player(FromFile)
-  : GC_Service(FromFile()), _memberOf(this)
+  : GC_Service(FromFile())
+  , _memberOf(this)
 {
 }
 
@@ -219,16 +220,6 @@ void GC_Player::TimeStepFixed(float dt)
 
 			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick.c_str(), "font_default");
 
-
-			//if( !dynamic_cast<AIController*>(_controller) )
-			//{
-			//	static const TextureCache tex1("particle_1");
-			//	for( int n = 0; n < 64; ++n )
-			//	{
-			//		vec2d a(PI2 * (float) n / 64);
-			//		new GC_Particle(pBestPoint->GetPos() + a * 28, a * 28, tex1, frand(0.5f) + 0.1f);
-			//	}
-			//}
 
 			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
 			GC_Object* found = g_level->FindObject(_vehname.c_str());
