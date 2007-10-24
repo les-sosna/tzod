@@ -123,9 +123,9 @@ void Console::OnRawChar(int c)
 		if( eventOnRequestCompleteCommand )
 		{
 			string_t result;
-			HRESULT hr = INVOKE(eventOnRequestCompleteCommand) 
+			bool status = INVOKE(eventOnRequestCompleteCommand) 
 				(_input->GetText().substr(0, _input->GetSelEnd()).c_str(), result);
-			if( SUCCEEDED(hr) )
+			if( status )
 			{
 				int end = _input->GetSelEnd();
 				_input->SetText( 

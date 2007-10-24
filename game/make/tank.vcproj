@@ -1036,6 +1036,10 @@
 			Name="scripts"
 			>
 			<File
+				RelativePath="..\workdir\scripts\autocomplete.lua"
+				>
+			</File>
+			<File
 				RelativePath="..\workdir\scripts\func.lua"
 				>
 			</File>

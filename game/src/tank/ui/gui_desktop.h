@@ -45,6 +45,9 @@ protected:
 private:
 	void OnChangeShowFps();
 	void OnChangeShowTime();
+
+	void OnCommand(const char *cmd);
+	bool OnCompleteCommand(const char *cmd, string_t &result);
 };
 
 

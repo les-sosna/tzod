@@ -20,8 +20,8 @@ class Console : public Window
 
 public:
 	Console(Window *parent, float x, float y);
-	Delegate<void(const TCHAR *)> eventOnSendCommand;
-	Delegate<HRESULT(const TCHAR *, string_t &)> eventOnRequestCompleteCommand;
+	Delegate<void(const char *)> eventOnSendCommand;
+	Delegate<bool(const char *, string_t &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual void OnChar(int c);

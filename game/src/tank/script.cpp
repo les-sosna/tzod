@@ -322,6 +322,7 @@ static int luaT_print(lua_State *L)
 		g_console->puts(s);
 		lua_pop(L, 1);         // pop result
 	}
+	g_console->puts("\n");
 	return 0;
 }
 

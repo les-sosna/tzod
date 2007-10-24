@@ -1,11 +1,11 @@
 -- init.lua
 -- autorun script
 
-
-dofile("scripts/func.lua")       -- define some usefull functions
-dofile("scripts/vehicles.lua")   -- register vehicle classes
-dofile("scripts/weapons.lua")    -- set up parameters of weapons
-dofile("scripts/names.lua")      -- fill the random_names array
+dofile("scripts/autocomplete.lua")  -- init autocomplete engine for console
+dofile("scripts/func.lua")          -- define some usefull functions
+dofile("scripts/vehicles.lua")      -- register vehicle classes
+dofile("scripts/weapons.lua")       -- set up parameters of weapons
+dofile("scripts/names.lua")         -- fill the random_names array
 
 --=============================================================================
 

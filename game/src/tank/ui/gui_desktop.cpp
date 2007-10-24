@@ -7,11 +7,12 @@
 #include "gui_editor.h"
 #include "gui_settings.h"
 #include "gui.h"
-#include "console.h"
+#include "Console.h"
 
 #include "GuiManager.h"
 
 #include "config/Config.h"
+#include "core/Console.h"
 
 #include "Level.h"
 
@@ -27,6 +28,8 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 	_editor->Show(false);
 
 	_con = new Console(this, 10, 0);
+	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
+	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->Show(false);
 
 
@@ -132,6 +135,35 @@ void Desktop::OnChangeShowFps()
 void Desktop::OnChangeShowTime()
 {
 	_fps->Show(g_conf.ui_showfps->Get());
+}
+
+void Desktop::OnCommand(const char *cmd)
+{
+	script_exec(g_env.L, cmd);
+}
+
+bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
+{
+	lua_getglobal(g_env.L, "autocomplete");
+	if( lua_isnil(g_env.L, -1) )
+	{
+		lua_pop(g_env.L, 1);
+		g_console->printf("There is no autocomplete module is loaded\n");
+		return false;
+	}
+	lua_pushstring(g_env.L, cmd);
+	HRESULT hr = S_OK;
+	if( lua_pcall(g_env.L, 1, 1, 0) )
+	{
+		g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+	}
+	else
+	{
+		const char *str = lua_tostring(g_env.L, -1);
+		result = str ? str : "";
+	}
+	lua_pop(g_env.L, 1); // pop result
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
