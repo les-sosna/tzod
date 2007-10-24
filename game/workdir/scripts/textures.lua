@@ -250,7 +250,8 @@ return {
      ctrl_scroll_down={left=0, right=48, top=180, bottom=192, xframes=4, yframes=1, xpivot=0, ypivot=0},
      ctrl_listsel={left=2, right=30, top=194, bottom=206, xpivot=0, ypivot=0},
      ctrl_listsel_u={left=2, right=30, top=210, bottom=222, xpivot=0, ypivot=0},
-     ctrl_editcursor={left=32, right=40, top=193, bottom=207, xpivot=4, ypivot=0},     
+     ctrl_editcursor={left=32, right=40, top=193, bottom=207, xpivot=4, ypivot=0},
+     ctrl_editsel={left=42, right=46, top=202, bottom=206, xpivot=0, ypivot=0},
    }
 },
 {

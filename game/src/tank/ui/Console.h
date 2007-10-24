@@ -1,9 +1,9 @@
-// gui_console.h
+// Console.h
 
 #pragma once
 
-#include "ui/Base.h"
-#include "ui/Window.h"
+#include "Base.h"
+#include "Window.h"
 
 
 namespace UI
@@ -20,11 +20,14 @@ class Console : public Window
 
 public:
 	Console(Window *parent, float x, float y);
+	Delegate<void(const TCHAR *)> eventOnSendCommand;
+	Delegate<HRESULT(const TCHAR *, string_t &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual void OnChar(int c);
 	virtual void OnRawChar(int c);
 	virtual bool OnMouseWheel(float x, float y, float z);
+	virtual bool OnMouseDown(float x, float y, int button);
 
 	virtual void DrawChildren(float sx, float sy);
 	virtual void OnShow(bool show);

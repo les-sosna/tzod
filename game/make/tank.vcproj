@@ -860,6 +860,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\ui\console.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\gui_console.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\console.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\ui\Dialog.cpp"
 				>
 			</File>
@@ -881,14 +897,6 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\ui\gui.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\ui\gui_console.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\ui\gui_console.h"
 				>
 			</File>
 			<File

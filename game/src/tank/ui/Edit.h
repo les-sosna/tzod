@@ -16,6 +16,7 @@ class Edit : public Window
 {
 	Text   *_blankText;
 	Window *_cursor;
+	Window *_selection;
 
 	int   _selStart;
 	int   _selEnd;
@@ -37,15 +38,20 @@ public:
 	float GetFloat() const;
 
 	void SetSel(int begin, int end);
+	int GetSelStart() const;
+	int GetSelEnd() const;
+
+	void Paste();
+	void Copy() const;
 
 protected:
 	virtual void OnChar(int c);
 	virtual void OnRawChar(int c);
 	virtual bool OnMouseDown(float x, float y, int button);
+	virtual bool OnMouseUp(float x, float y, int button);
+	virtual bool OnMouseMove(float x, float y);
 	virtual bool OnFocus(bool focus);
 	virtual void OnTimeStep(float dt);
-
-	virtual void Draw(float sx, float sy);
 };
 
 

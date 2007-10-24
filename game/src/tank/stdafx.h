@@ -21,7 +21,7 @@
 #define NORASTEROPS       // Binary and Tertiary raster ops
 #define OEMRESOURCE       // OEM Resource values
 #define NOATOM            // Atom Manager routines
-#define NOCLIPBOARD       // Clipboard routines
+//#define NOCLIPBOARD       // Clipboard routines
 #define NOKERNEL          // All KERNEL defines and routines
 #define NONLS             // All NLS defines and routines
 #define NOMEMMGR          // GMEM_*, LMEM_*, GHND, LHND, associated routines

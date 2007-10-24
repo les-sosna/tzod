@@ -4,10 +4,10 @@
 
 #include "gui_widgets.h"
 #include "gui_desktop.h"
-#include "gui_console.h"
 #include "gui_editor.h"
 #include "gui_settings.h"
 #include "gui.h"
+#include "console.h"
 
 #include "GuiManager.h"
 
@@ -119,7 +119,7 @@ bool Desktop::OnFocus(bool focus)
 void Desktop::OnSize(float width, float height)
 {
 	_editor->Resize(GetWidth(), GetHeight());
-	_con->Resize(GetWidth() - 20, GetHeight() * 0.5f);
+	_con->Resize(GetWidth() - 20, floorf(GetHeight() * 0.5f + 0.5f));
 	_fps->Move(1, GetHeight() - 1);
 	_time->Move( GetWidth() - 1, GetHeight() - 1 );
 }

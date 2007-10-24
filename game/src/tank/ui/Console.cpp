@@ -1,17 +1,15 @@
-// gui_console.cpp
+// Console.cpp
 
 #include "stdafx.h"
 
-#include "GuiManager.h"
-
-#include "gui_console.h"
-
-#include "ui/Text.h"
-#include "ui/Edit.h"
+#include "console.h"
+#include "Text.h"
+#include "Edit.h"
 
 #include "core/Console.h"
-
 #include "config/Config.h"
+
+#include "GuiManager.h"
 
 
 namespace UI
@@ -87,9 +85,10 @@ void Console::OnRawChar(int c)
 			}
 			_cmdIndex = g_conf.con_history->GetSize();
 
-			g_console->printf("> %s\n", cmd.c_str());   // echo to console
-			script_exec(g_env.L, cmd.c_str());          // send to scripting system
-			_input->SetText("");                        // erase input field
+			g_console->printf("> %s\n", cmd.c_str());      // echo to console
+			if( eventOnSendCommand )
+				INVOKE(eventOnSendCommand) (cmd.c_str());  // send to the scripting system
+			_input->SetText("");                           // erase input field
 		}
 		break;
 	}
@@ -120,6 +119,25 @@ void Console::OnRawChar(int c)
 			GetManager()->SetFocusWnd(NULL);
 		}
 		break;
+	case VK_TAB:
+		if( eventOnRequestCompleteCommand )
+		{
+			string_t result;
+			HRESULT hr = INVOKE(eventOnRequestCompleteCommand) 
+				(_input->GetText().substr(0, _input->GetSelEnd()).c_str(), result);
+			if( SUCCEEDED(hr) )
+			{
+				int end = _input->GetSelEnd();
+				_input->SetText( 
+					( _input->GetText().substr(0, end)
+					+ result
+					+ _input->GetText().substr(end)
+					).c_str()
+					);
+				_input->SetSel(end + result.length(), end + result.length());
+			}
+		}
+		break;
 	}
 }
 
@@ -137,15 +155,18 @@ bool Console::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
+bool Console::OnMouseDown(float x, float y, int button)
+{
+	return true;
+}
+
 void Console::DrawChildren(float sx, float sy)
 {
 	Window::DrawChildren(sx, sy);
-
+	_blankText->Show(true);
 	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetHeight());
 	size_t scroll = __min(_scrollBack, g_console->GetLineCount());
 	size_t count  = __min( g_console->GetLineCount() - scroll, visibleLineCount );
-
-	_blankText->Show(true);
 	for( size_t i = 0; i < count; ++i )
 	{
 		_blankText->SetText( g_console->GetLine(g_console->GetLineCount() - scroll - i - 1) );
