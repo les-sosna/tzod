@@ -860,7 +860,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\tank\ui\console.cpp"
+				RelativePath="..\src\tank\ui\Console.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -872,7 +872,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\tank\ui\console.h"
+				RelativePath="..\src\tank\ui\Console.h"
 				>
 			</File>
 			<File
