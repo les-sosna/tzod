@@ -1,19 +1,21 @@
 -- init.lua
 -- autorun script
 
-dofile("scripts/autocomplete.lua")  -- init autocomplete engine for console
-dofile("scripts/func.lua")          -- define some usefull functions
-dofile("scripts/vehicles.lua")      -- register vehicle classes
-dofile("scripts/weapons.lua")       -- set up parameters of weapons
-dofile("scripts/names.lua")         -- fill the random_names array
+package.path = package.path .. ";./scripts/?.lua"
 
---=============================================================================
+
+require "autocomplete"  -- init autocomplete engine for the console
+require "func"          -- define some usefull functions
+require "vehicles"      -- register vehicle classes
+require "weapons"       -- set up parameters of weapons
+require "names"         -- fill the random_names array
+
+---------------------------------------------------------------------
+-- load one of two intro maps
 
 conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
 conf.sv_speed = 100;
-
-print( math.random() )
 
 if math.random() > 0.5 then
   conf.sv_nightmode = false;
@@ -23,7 +25,9 @@ else
   loadmap("maps/intro02.map")
 end
 
-for _,i in pairs{"red","yellow","blue","FBI Tank","neutral"} do
-  service("ai", {skin=i})
+for _,s in pairs{"red","yellow","blue","FBI Tank","neutral"} do
+  service("ai", {skin=s})
 end
 
+
+-- end of file

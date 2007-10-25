@@ -52,11 +52,10 @@ GC_Player::GC_Player()
 
 
 	// select nick from the random_names table
-	lua_getglobal(g_env.L, "random_names");          // push table
-	lua_pushinteger(g_env.L, g_level->net_rand() % lua_objlen(g_env.L, -1) + 1);  // push key
-	lua_gettable(g_env.L, -2);                       // pop key, push value
-	SetNick(lua_tostring(g_env.L, -1));              // get value
-	lua_pop(g_env.L, 2);                             // pop value and table
+	lua_getglobal(g_env.L, "random_name");          // push function
+	lua_call(g_env.L, 0, 1);                        // call it
+	SetNick(lua_tostring(g_env.L, -1));             // get value
+	lua_pop(g_env.L, 1);                            // pop result
 
 
 	// select random class

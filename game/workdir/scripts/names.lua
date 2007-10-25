@@ -4,7 +4,7 @@
 -- thanks to Chris Pound's language machines
 
 
-random_names = {
+local names = {
 
 	"Aaroy","Aarry","Aart","Aary","Adan","Adrewar","Adrian","Adricar","Adro",
 	"Alan","Ales","Alex","Aley","All","Allip","Andriam","Andy","Anter",
@@ -32,6 +32,11 @@ random_names = {
 	"Walteve","Waltewa","Way","Waymon","Will","Willip",
 
 }
+
+
+function random_name()
+  return names[math.random(1, #names)]
+end
 
 
 -- end of file
