@@ -863,6 +863,22 @@
 				RelativePath="..\src\tank\ui\Console.cpp"
 				>
 				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\gui_console.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Profiler|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\gui_console.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool

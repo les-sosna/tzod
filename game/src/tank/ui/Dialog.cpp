@@ -8,13 +8,21 @@
 
 namespace UI
 {
-
+/*
+class Substrate : public Window
+{
+public:
+	Substrate(Window *parent) : Window(parent)
+	{
+		Resize(GetManager()->GetDesktop()->GetWidth(), GetManager()->GetDesktop()->GetHeight());
+	}
+};*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dialog class implementation
 
 Dialog::Dialog(Window *parent, float x, float y, float width, float height, bool modal)
-  : Window(parent)
+  : Window(/*modal ? new Substrate(parent) :*/ parent)
 {
 	Move(x, y);
 	Resize(width, height);

@@ -39,7 +39,7 @@ void PropertyList::Container::OnRawChar(int c)
 }
 
 PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
-  : Dialog(parent, x, y, w, h)
+  : Dialog(parent, x, y, w, h, false)
 {
 	_psheet = new Container(this);
 
@@ -239,6 +239,13 @@ void PropertyList::OnRawChar(int c)
 	default:
 		GetParent()->OnRawChar(c);
 	}
+}
+
+bool PropertyList::OnMouseWheel(float x, float y, float z)
+{
+	_scrollBar->SetPos( _scrollBar->GetPos() - z * 10.0f );
+	OnScroll(_scrollBar->GetPos());
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 List::List(Window *parent, float x, float y, float width, float height)
-  : Window(parent)
+  : Window(parent, x, y, "ctrl_list")
 {
 	ClipChildren(true);
 	SetBorder(true);

@@ -38,6 +38,7 @@ protected:
 	void OnScroll(float pos);
 	void OnSize(float width, float height);
 	void OnRawChar(int c);
+	bool OnMouseWheel(float x, float y, float z);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

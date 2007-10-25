@@ -10,7 +10,7 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 Edit::Edit(Window *parent, float x, float y, float width)
-  : Window(parent)
+  : Window(parent, x, y, "ctrl_list")
 {
 	SetBorder(true);
 	ClipChildren(true);
@@ -82,7 +82,7 @@ void Edit::SetSel(int begin, int end)
 	_cursor->Move(cpos + _blankText->GetX(), 0);
 	_cursor->Resize(_cursor->GetWidth(), _blankText->GetHeight());
 
-	_selection->Show(_selStart != _selEnd);
+	_selection->Show(_selStart != _selEnd && _cursor->IsVisible());
 	_selection->Move(_blankText->GetX() + __min(_selStart, _selEnd) * (_blankText->GetWidth() - 1) + 2, 2);
 	_selection->Resize((_blankText->GetWidth() - 1) * abs(_selStart - _selEnd) - 2, _blankText->GetHeight()-2);
 }
@@ -233,7 +233,8 @@ bool Edit::OnMouseDown(float x, float y, int button)
 	if( 1 == button )
 	{
 		SetCapture();
-		int sel = __min(_string.length(), (size_t) __max(0, (x - _blankText->GetX()) / (_blankText->GetWidth() - 1)));
+		int sel = __min(_string.length(), (size_t) __max(0,
+			(x - _blankText->GetX() + _blankText->GetWidth() / 2) / (_blankText->GetWidth() - 1)));
 		SetSel(sel, sel);
 	}
 	return true;
@@ -243,7 +244,8 @@ bool Edit::OnMouseMove(float x, float y)
 {
 	if( IsCaptured() )
 	{
-		int sel = __min(_string.length(), (size_t) __max(0, (x - _blankText->GetX()) / (_blankText->GetWidth() - 1)));
+		int sel = __min(_string.length(), (size_t) __max(0,
+			(x - _blankText->GetX() + _blankText->GetWidth() / 2) / (_blankText->GetWidth() - 1)));
 		SetSel(GetSelStart(), sel);
 	}
 	return true;
@@ -262,6 +264,7 @@ bool Edit::OnFocus(bool focus)
 {
 	SetTimeStep(focus);
 	_cursor->Show(focus);
+	_selection->Show(_selStart != _selEnd && focus);
 	_time = 0;
 	return true;
 }

@@ -35,7 +35,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, true)
+MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, false)
 {
 	SetBorder(false);
 	SetTexture("gui_splash");
