@@ -35,9 +35,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// forward declarations
+class MapList;
+
 class NewGameDlg : public Dialog
 {
-	List      *_maps;
+	MapList   *_maps;
 	List      *_players;
 	List      *_bots;
 	CheckBox  *_nightMode;

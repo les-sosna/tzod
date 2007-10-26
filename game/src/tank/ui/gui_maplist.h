@@ -1,0 +1,23 @@
+// gui_maplist.h
+
+#pragma once
+
+#include "List.h"
+
+namespace UI
+{
+///////////////////////////////////////////////////////////////////////////////
+
+class MapList : public List
+{
+public:
+	MapList(Window *parent, float x, float y, float width, float height);
+	~MapList();
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+} // end of namespace UI
+
+// end of file

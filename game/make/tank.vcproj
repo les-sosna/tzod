@@ -367,10 +367,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\tank\frontend.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\tank\functions.cpp"
 				>
 			</File>
@@ -921,6 +917,22 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\ui\gui_editor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_maplist.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_maplist.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_network.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_network.h"
 				>
 			</File>
 			<File

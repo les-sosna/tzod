@@ -5,6 +5,8 @@
 #include "gui.h"
 #include "gui_settings.h"
 #include "gui_desktop.h"
+#include "gui_maplist.h"
+#include "gui_network.h"
 
 #include "GuiManager.h"
 
@@ -94,7 +96,8 @@ void MainMenuDlg::OnCampaign(string_t name)
 
 void MainMenuDlg::OnNewGame()
 {
-	NewGameDlg *dlg = new NewGameDlg(this);
+//	NewGameDlg *dlg = new NewGameDlg(this);
+	CreateServerDlg *dlg = new CreateServerDlg(this);
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
@@ -156,58 +159,8 @@ NewGameDlg::NewGameDlg(Window *parent) : Dialog(parent, 0, 0, 770, 550, true)
 
 	new Text(this, 16, 16, "Выберите карту", alignTextLT);
 
-	_maps = new List(this, x1, 32, x2 - x1, 192);
-	_maps->SetTabPos(0,   4); // name
-	_maps->SetTabPos(1, 384); // size
-	_maps->SetTabPos(2, 448); // theme
+	_maps = new MapList(this, x1, 32, x2 - x1, 192);
 	GetManager()->SetFocusWnd(_maps);
-
-
-	SafePtr<IFileSystem> dir = g_fs->GetFileSystem(DIR_MAPS);
-	if( dir )
-	{
-		std::set<string_t> files;
-		if( dir->EnumAllFiles(files, TEXT("*.map")) )
-		{
-			int lastMapIndex = 0;
-
-			for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
-			{
-				string_t tmp = DIR_MAPS;
-				tmp += "/";
-				tmp += *it;
-
-				MapFile file;
-				if( file.Open(tmp.c_str(), false) )
-				{
-					it->erase(it->length() - 4); // cut out the file extension
-					int index = _maps->AddItem(it->c_str());
-
-					if( *it == g_conf.cl_map->Get() )
-						lastMapIndex = index;
-
-					char size[64];
-					int h = 0, w = 0;
-					file.getMapAttribute("width", w);
-					file.getMapAttribute("height", h);
-					wsprintf(size, "%3d*%d", w, h);
-					_maps->SetItemText(index, 1, size);
-
-					if( file.getMapAttribute("theme", tmp) )
-					{
-						_maps->SetItemText(index, 2, tmp.c_str());
-					}
-				}
-			}
-
-			_maps->SetCurSel(lastMapIndex, false);
-			_maps->ScrollTo(lastMapIndex - (_maps->GetNumLinesVisible() - 1) * 0.5f);
-		}
-		else
-		{
-			_ASSERT(FALSE); // EnumAllFiles has returned error...
-		}
-	}
 
 
 	//
