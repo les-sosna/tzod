@@ -52,6 +52,7 @@ class ControlProfileDlg : public Dialog
 	Edit         *_nameEdit;
 	List         *_actions;
 	CheckBox     *_aimToMouse;
+	CheckBox     *_moveToMouse;
 	ConfVarTable *_profile;
 	string_t      _name;
 

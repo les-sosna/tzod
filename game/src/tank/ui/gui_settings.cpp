@@ -205,8 +205,11 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	AddAction( "key_pickup"       , "Подобрать предмет" );
 	_actions->SetCurSel(0, true);
 
-	_aimToMouse = new CheckBox(this, 16, 340, "Целиться мышкой");
+	_aimToMouse = new CheckBox(this, 16, 345, "Целиться мышкой");
 	_aimToMouse->SetCheck(_profile->GetBool("aim_to_mouse", false)->Get());
+
+	_moveToMouse = new CheckBox(this, 146, 345, "Ездить мышкой");
+	_moveToMouse->SetCheck(_profile->GetBool("move_to_mouse", false)->Get());
 
 	(new Button(this, 304, 350, "ОК"))->eventClick.bind(&ControlProfileDlg::OnOK, this);
 	(new Button(this, 408, 350, "Отмена"))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
@@ -239,6 +242,7 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 void ControlProfileDlg::OnOK()
 {
 	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
+	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
 	for( int i = 0; i < _actions->GetSize(); ++i )
 	{
 		_profile->SetStr((const char *) _actions->GetItemData(i),

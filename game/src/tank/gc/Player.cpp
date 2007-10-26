@@ -490,8 +490,9 @@ void GC_PlayerLocal::SetProfile(const char *name)
 		_keyTowerCenter = g_keys->GetCode(t->GetStr( "key_tower_center" )->Get());
 		_keyPickup      = g_keys->GetCode(t->GetStr( "key_pickup"       )->Get());
 
-		_lights         = t->GetBool("lights",        true)->Get();
-		_aimToMouse     = t->GetBool("aim_to_mouse", false)->Get();
+		_lights         = t->GetBool("lights",         true)->Get();
+		_aimToMouse     = t->GetBool("aim_to_mouse",  false)->Get();
+		_moveToMouse    = t->GetBool("move_to_mouse", false)->Get();
 	}
 	else
 	{
@@ -508,6 +509,7 @@ void GC_PlayerLocal::SetProfile(const char *name)
 
 		_lights         = true;
 		_aimToMouse     = false;
+		_moveToMouse    = false;
 
 		TRACE("WARNING: profile '%s' not found\n", name);
 	}
@@ -529,14 +531,6 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	_lastLightKeyState = tmp;
 	vs._bLight = _lights;
 
-	//
-	// movement
-	//
-	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
-	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
-	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
-	vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
-	vs._bState_Fire        = g_env.envInputs.keys[_keyFire   ];
 
 	//
 	// pickup
@@ -546,12 +540,67 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 		|| ( g_env.envInputs.keys[_keyLeft]    && g_env.envInputs.keys[_keyRight] );
 
 	//
+	// fire
+	//
+	vs._bState_Fire = g_env.envInputs.keys[_keyFire];
+
+
+	//
+	// movement
+	//
+	if( _moveToMouse )
+	{
+		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+		vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+
+		vec2d pt;
+		if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
+		{
+			float ang2 = (pt - GetVehicle()->GetPos()).Angle();
+			float ang1 = GetVehicle()->_angle;
+
+			float d1 = fabsf(ang2-ang1);
+			float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+
+			if( __min(d1, d2) * 2 > PI )
+			{
+				ang2 -= PI;
+
+				if( ang2 < 0 )
+					ang2 += PI2;
+
+				d1 = fabsf(ang2-ang1);
+				d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+
+				vs._bState_MoveBack    = true;
+			}
+			else
+			{
+				vs._bState_MoveForward = true;
+			}
+
+			vs._bExplicitBody = true;
+			vs._fBodyAngle = ang2;
+		}
+	}
+	else
+	{
+		vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
+		vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
+		vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
+		vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
+	}
+
+	//
 	// tower control
 	//
 	if( _aimToMouse )
 	{
 		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
-		vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
+		if( !_moveToMouse )
+		{
+			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+		}
 
 		vec2d pt;
 		if( GetVehicle() && GetVehicle()->GetWeapon() && GC_Camera::GetWorldMousePos(pt) )

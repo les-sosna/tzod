@@ -116,6 +116,7 @@ class GC_PlayerLocal : public GC_Player
 	int _keyPickup;
 	bool _lights;
 	bool _aimToMouse;
+	bool _moveToMouse;
 
 
 	//
