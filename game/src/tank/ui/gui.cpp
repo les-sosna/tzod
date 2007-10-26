@@ -106,7 +106,7 @@ void MainMenuDlg::OnExit()
 void MainMenuDlg::OnSettings()
 {
 	SettingsDlg *dlg = new SettingsDlg(this);
-//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);	
+//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnParentSize(float width, float height)

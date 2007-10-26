@@ -429,7 +429,7 @@ void MapFile::BeginObject(const char *classname)
 {
 	_ASSERT(is_open() && _modeWrite);
 
-	_buffer.str("");	// clear buffer
+	_buffer.str(""); // clear buffer
 
 
 	//

@@ -348,7 +348,7 @@ BOOL Level::init_newdm(const char *mapName)
 BOOL Level::init_load(const char *fileName)
 {
 	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);		// _ASSERT здесь чтобы не писать #ifdef _DEBUG
+	_ASSERT(_bInitialized = TRUE);  // _ASSERT здесь чтобы не писать #ifdef _DEBUG
 
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
@@ -1081,7 +1081,7 @@ void Level::TimeStep(float dt)
 			if( _client->_ctrlBuf.empty() )
 			{
 				_timeBuffer = 0;
-				break;	// нет кадра. пропускаем
+				break; // нет кадра. пропускаем
 			}
 
 
@@ -1336,7 +1336,7 @@ void Level::Render() const
 		}
 
 		if( pMaxShake ) break;
-	}	// cameras
+	} // cameras
 /*
 	HDC hdc = GetDC(g_env.hMainWnd);
 	FOREACH( players, GC_Player, p )
@@ -1344,7 +1344,7 @@ void Level::Render() const
 		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
 		{
 			pp->debug_draw(hdc);
-		}		
+		}
 	}
 
 	ReleaseDC(g_env.hMainWnd, hdc);

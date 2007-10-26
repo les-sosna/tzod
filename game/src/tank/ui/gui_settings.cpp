@@ -8,6 +8,7 @@
 #include "List.h"
 #include "Button.h"
 #include "Scroll.h"
+#include "Edit.h"
 
 #include "config/Config.h"
 
@@ -30,12 +31,7 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 
 	new Text(this, 8, 8, "Профили", alignTextLT);
 	_profiles = new List(this, 8, 24, 128, 104);
-	std::vector<string_t> profiles;
-	g_conf.dm_profiles->GetKeyList(profiles);
-	for( size_t i = 0; i < profiles.size(); ++i )
-	{
-		int index = _profiles->AddItem(profiles[i].c_str());
-	}
+	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
 	(new Button(this, 16, 144, "Добавить"))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
@@ -92,17 +88,23 @@ SettingsDlg::~SettingsDlg()
 
 void SettingsDlg::OnAddProfile()
 {
+	(new ControlProfileDlg(this, NULL))->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
 }
 
 void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetCurSel();
 	_ASSERT(i >= 0);
-	new ControlProfileDlg(this, g_conf.dm_profiles->GetTable(_profiles->GetItemText(i).c_str()));
+	(new ControlProfileDlg(this, _profiles->GetItemText(i).c_str()))
+		->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
 }
 
 void SettingsDlg::OnDeleteProfile()
 {
+	int i = _profiles->GetCurSel();
+	_ASSERT(i >= 0);
+	g_conf.dm_profiles->Remove(_profiles->GetItemText(i).c_str());
+	UpdateProfilesList();
 }
 
 void SettingsDlg::OnSelectProfile(int index)
@@ -126,26 +128,67 @@ void SettingsDlg::OnCancel()
 	Close(_resultCancel);
 }
 
+void SettingsDlg::UpdateProfilesList()
+{
+	int sel = _profiles->GetCurSel();
+	std::vector<string_t> profiles;
+	g_conf.dm_profiles->GetKeyList(profiles);
+	_profiles->DeleteAllItems();
+	for( size_t i = 0; i < profiles.size(); ++i )
+	{
+		int index = _profiles->AddItem(profiles[i].c_str());
+	}
+	_profiles->SetCurSel(__min(_profiles->GetSize()-1, sel));
+}
+
+void SettingsDlg::OnProfileEditorClosed(int code)
+{
+	if( _resultOK == code )
+	{
+		UpdateProfilesList();
+		GetManager()->SetFocusWnd(_profiles);
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // class ControlProfileDlg
 
-ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
+ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
   : Dialog(parent, 10, 10, 512, 384)
-  , _profile(profile)
 {
-	_ASSERT(profile);
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
+	SetEasyMove(true);
 
 	_time = 0;
 	_activeIndex = -1;
 	_skip = false;
 
 
-	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
-	SetEasyMove(true);
+	new Text(this, 20, 15, "Название профиля", alignTextLT);
+	_nameEdit = new Edit(this, 20, 30, 250);
 
-	new Text(this,  10, 5, "Действие", alignTextLT);
-	new Text(this, 210, 5, "Кнопка", alignTextLT);
-	_actions = new List(this, 10, 20, 400, 300);
+	if( profileName )
+	{
+		_name = profileName;
+		_nameEdit->SetText(_name.c_str());
+	}
+	else
+	{
+		int i = 0;
+		std::ostringstream buf;
+		do
+		{
+			buf.str("");
+			buf << "Профиль " << ++i;
+		}
+		while( g_conf.dm_profiles->Find(buf.str().c_str()) );
+		_nameEdit->SetText(buf.str().c_str());
+	}
+	_profile = g_conf.dm_profiles->GetTable(_nameEdit->GetText().c_str());
+
+	new Text(this,  20, 65, "Действие", alignTextLT);
+	new Text(this, 220, 65, "Кнопка", alignTextLT);
+	_actions = new List(this, 20, 80, 400, 250);
 	_actions->SetTabPos(0, 2);
 	_actions->SetTabPos(1, 200);
 	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
@@ -162,8 +205,11 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, ConfVarTable *profile)
 	AddAction( "key_pickup"       , "Подобрать предмет" );
 	_actions->SetCurSel(0, true);
 
-	(new Button(this, 304, 360, "ОК"))->eventClick.bind(&ControlProfileDlg::OnOK, this);
-	(new Button(this, 408, 360, "Отмена"))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+	_aimToMouse = new CheckBox(this, 16, 340, "Целиться мышкой");
+	_aimToMouse->SetCheck(_profile->GetBool("aim_to_mouse", false)->Get());
+
+	(new Button(this, 304, 350, "ОК"))->eventClick.bind(&ControlProfileDlg::OnOK, this);
+	(new Button(this, 408, 350, "Отмена"))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_actions);
 }
@@ -192,11 +238,21 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 
 void ControlProfileDlg::OnOK()
 {
+	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
+	for( int i = 0; i < _actions->GetSize(); ++i )
+	{
+		_profile->SetStr((const char *) _actions->GetItemData(i),
+			_actions->GetItemText(i, 1).c_str());
+	}
 	Dialog::Close(_resultOK);
 }
 
 void ControlProfileDlg::OnCancel()
 {
+	if( _name.empty() )
+	{
+		g_conf.dm_profiles->Remove(_profile);
+	}
 	Dialog::Close(_resultCancel);
 }
 

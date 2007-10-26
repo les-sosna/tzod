@@ -336,7 +336,7 @@ void Edit::Copy() const
 				if( !SetClipboardData(CF_OEMTEXT, hData) )
 				{
 				//	TRACE(_T("Failed to set clipboard data: %d\n"), GetLastError());
-				}	
+				}
 			}
 			else
 			{

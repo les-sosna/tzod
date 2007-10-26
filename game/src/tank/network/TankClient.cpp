@@ -200,7 +200,7 @@ bool TankClient::recv_all()
 	memmove(_buf_incoming, bufptr, _buf_incoming_size);
 	//--------------------------------------
 	_ASSERT(IsWindow(_hWnd));
-	PostMessage(_hWnd, WM_NEWDATA, 0, 0);	// Post вместо Send, чтобы избежать рекурсии
+	PostMessage(_hWnd, WM_NEWDATA, 0, 0); // Post вместо Send, чтобы избежать рекурсии
 	return true;
 }
 
@@ -265,9 +265,9 @@ void TankClient::ShutDown()
 {
 	if( INVALID_SOCKET != _socket )
 	{
-		WSAAsyncSelect( _socket, _hMainWnd, 0, 0 );	// turn off notifications
+		WSAAsyncSelect( _socket, _hMainWnd, 0, 0 ); // turn off notifications
 		u_long ulParam = 0;
-		ioctlsocket( _socket, FIONBIO, &ulParam );	// return back to blocking mode
+		ioctlsocket( _socket, FIONBIO, &ulParam );  // return back to blocking mode
 		_socket.Close();
 	}
 }

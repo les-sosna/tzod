@@ -40,14 +40,20 @@ protected:
 
 	void OnOK();
 	void OnCancel();
+
+	void UpdateProfilesList();
+	void OnProfileEditorClosed(int code);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class ControlProfileDlg : public Dialog
 {
+	Edit         *_nameEdit;
 	List         *_actions;
+	CheckBox     *_aimToMouse;
 	ConfVarTable *_profile;
+	string_t      _name;
 
 	float _time;
 	int   _activeIndex;
@@ -55,7 +61,7 @@ class ControlProfileDlg : public Dialog
 	void OnSelectAction(int index);
 
 public:
-	ControlProfileDlg(Window *parent, ConfVarTable *profile);
+	ControlProfileDlg(Window *parent, const char *profileName);
 	~ControlProfileDlg();
 
 protected:

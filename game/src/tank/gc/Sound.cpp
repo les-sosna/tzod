@@ -264,7 +264,7 @@ void GC_Sound::Serialize(SaveFile &f)
 		_soundBuffer->SetCurrentPosition( _dwPosition );
 		_soundBuffer->SetFrequency(_dwCurrentFrequency);
 
-		MoveTo(GetPos());	// update pan
+		MoveTo(GetPos()); // update pan
 		UpdateVolume();
 
 		switch (_mode)
@@ -354,9 +354,8 @@ void GC_Sound_link::Kill()
 }
 
 void GC_Sound_link::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Sound::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_object);
 }
 

@@ -114,6 +114,15 @@ class GC_PlayerLocal : public GC_Player
 	int _keyTowerRight;
 	int _keyTowerCenter;
 	int _keyPickup;
+	bool _lights;
+	bool _aimToMouse;
+
+
+	//
+	// controller state
+	//
+
+	bool _lastLightKeyState;
 
 	void GetControl(VehicleState &vs);
 
@@ -133,8 +142,8 @@ public:
 class GC_PlayerRemote : public GC_Player
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerRemote);
-
 	DWORD _networkId;
+
 public:
 	GC_PlayerRemote();
 	GC_PlayerRemote(FromFile);

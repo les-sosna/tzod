@@ -183,7 +183,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 		g_level->grid_rigid_s,
 		_lastHit ? GetRawPtr(_lastHit) : (
 			CheckFlags(GC_FLAG_PROJECTILE_IGNOREOWNER) ? GetRawPtr(_owner) : NULL
-		),	GetPos(), dx, &hit, &norm
+		), GetPos(), dx, &hit, &norm
 	);
 
 	if( object )
@@ -987,7 +987,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	for( int i = 0; i < 11; ++i )
 	{
 		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
-		new GC_Particle(hit, v,	tex1, frand(0.2f) + 0.02f, v.Angle());
+		new GC_Particle(hit, v, tex1, frand(0.2f) + 0.02f, v.Angle());
 	}
 
 	_damage -= DAMAGE_DISK_FADE;

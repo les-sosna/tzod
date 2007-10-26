@@ -152,14 +152,14 @@ enum enumZOrder
 //---------------------------------------------------------------
 // Совместимость
 
-#define TXT_VERSION      "Танк: Зона смерти. Версия 1.41 alpha 2"
+#define TXT_VERSION      "Танк: Зона смерти. Версия 1.41 alpha 4"
 #define TXT_WNDCLASS     "TankMainWindow"
 #define TXT_PROPGRID     "TankPropertyGrid"
 #define TXT_PROPGRIDINT  "TankPropertyGridInt"
 
 // версия  файла  Save  для  первичной  проверки на корректность.
 // файлы  с  отличающейся  версией не будут отображаться в списке
-#define VERSION		0x141c
+#define VERSION		0x141d
 
 //---------------------------------------------------------------
 // Ограничения

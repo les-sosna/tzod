@@ -30,7 +30,7 @@
 #include "vehicle.h"
 #include "indicators.h"
 #include "particles.h"
-
+#include "Sound.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,10 +52,10 @@ GC_Player::GC_Player()
 
 
 	// select nick from the random_names table
-	lua_getglobal(g_env.L, "random_name");          // push function
-	lua_call(g_env.L, 0, 1);                        // call it
-	SetNick(lua_tostring(g_env.L, -1));             // get value
-	lua_pop(g_env.L, 1);                            // pop result
+	lua_getglobal(g_env.L, "random_name");     // push function
+	lua_call(g_env.L, 0, 1);                   // call it
+	SetNick(lua_tostring(g_env.L, -1));        // get value
+	lua_pop(g_env.L, 1);                       // pop result
 
 
 	// select random class
@@ -101,7 +101,7 @@ void GC_Player::Serialize(SaveFile &f)
 void GC_Player::Kill()
 {
 	if( _vehicle )
-		_vehicle->Kill();	// объект будет освобожден в OnVehicleKill()
+		_vehicle->Kill(); // объект будет освобожден в OnVehicleKill()
 	GC_Service::Kill();
 }
 
@@ -404,7 +404,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 GC_PlayerLocal::GC_PlayerLocal()
 {
 	new GC_Camera(this);
-	
+	_lastLightKeyState = false;
+	_lights     = true;
+	_aimToMouse = false;
+
 	// select first available profile
 	std::vector<string_t> tmp;
 	g_conf.dm_profiles->GetKeyList(tmp);
@@ -426,6 +429,7 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 	if( f.loading() )
 	{
 		SetProfile(_profile.c_str());
+		_lastLightKeyState = false;
 	}
 }
 
@@ -485,6 +489,9 @@ void GC_PlayerLocal::SetProfile(const char *name)
 		_keyTowerRight  = g_keys->GetCode(t->GetStr( "key_tower_right"  )->Get());
 		_keyTowerCenter = g_keys->GetCode(t->GetStr( "key_tower_center" )->Get());
 		_keyPickup      = g_keys->GetCode(t->GetStr( "key_pickup"       )->Get());
+
+		_lights         = t->GetBool("lights",        true)->Get();
+		_aimToMouse     = t->GetBool("aim_to_mouse", false)->Get();
 	}
 	else
 	{
@@ -499,6 +506,9 @@ void GC_PlayerLocal::SetProfile(const char *name)
 		_keyTowerCenter = 0;
 		_keyPickup      = 0;
 
+		_lights         = true;
+		_aimToMouse     = false;
+
 		TRACE("WARNING: profile '%s' not found\n", name);
 	}
 }
@@ -507,37 +517,61 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
 
+	//
+	// lights
+	//
+	bool tmp = g_env.envInputs.keys[_keyLight];
+	if( tmp && !_lastLightKeyState )
+	{
+		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
+		_lights = !_lights;
+	}
+	_lastLightKeyState = tmp;
+	vs._bLight = _lights;
+
+	//
+	// movement
+	//
 	vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
 	vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
 	vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
 	vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
 	vs._bState_Fire        = g_env.envInputs.keys[_keyFire   ];
 
-//	bool tmp = g_env.envInputs.keys[_keyLight];
-//	if( tmp && !_last_light_key_state )
-//	{
-//		PLAY(SND_LightSwitch, _player->GetVehicle()->GetPos());
-//		_bLight = !_bLight;
-//	}
-//	_last_light_key_state = tmp;
-//	vs._bLight = _bLight;
-	vs._bLight = true;
+	//
+	// pickup
+	//
+	vs._bState_AllowDrop = g_env.envInputs.keys[_keyPickup]
+		|| ( g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]  )
+		|| ( g_env.envInputs.keys[_keyLeft]    && g_env.envInputs.keys[_keyRight] );
 
-	vs._bState_AllowDrop = 
-		(g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]) ||
-		(g_env.envInputs.keys[_keyLeft] && g_env.envInputs.keys[_keyRight]) ||
-		g_env.envInputs.keys[_keyPickup];
-
-	vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
-	vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
-
-	vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] ||
-		g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
-
-	if( vs._bState_TowerCenter )
+	//
+	// tower control
+	//
+	if( _aimToMouse )
 	{
-		vs._bState_TowerLeft  = 0;
-		vs._bState_TowerRight = 0;
+		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+		vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
+
+		vec2d pt;
+		if( GetVehicle() && GetVehicle()->GetWeapon() && GC_Camera::GetWorldMousePos(pt) )
+		{
+			float a = (pt - GetVehicle()->GetPos()).Angle();
+			vs._bExplicitTower = true;
+			vs._fTowerAngle = a - GetVehicle()->GetRotation();
+		}
+	}
+	else
+	{
+		vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
+		vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
+		vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] 
+			|| g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
+		if( vs._bState_TowerCenter )
+		{
+			vs._bState_TowerLeft  = false;
+			vs._bState_TowerRight = false;
+		}
 	}
 }
 

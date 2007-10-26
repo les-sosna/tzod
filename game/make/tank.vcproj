@@ -79,7 +79,7 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
-				DelayLoadDLLs="d3dx9_33.dll"
+				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				MapFileName=""
@@ -175,7 +175,7 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
-				DelayLoadDLLs="d3dx9_33.dll"
+				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				SubSystem="2"
@@ -689,14 +689,6 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\gc\crate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\gc\Editor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\gc\Editor.h"
 				>
 			</File>
 			<File

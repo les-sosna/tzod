@@ -690,6 +690,34 @@ ConfVarTable* ConfVarTable::GetTable(const char *name)
 	return GetVar(name, ConfVar::typeTable).first->AsTable();
 }
 
+bool ConfVarTable::Remove(ConfVar * const value)
+{
+	_ASSERT( typeTable == _type );
+	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
+		_val.asTable->end() != it; ++it )
+	{
+		if( value == it->second )
+		{
+			delete it->second;
+			_val.asTable->erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ConfVarTable::Remove(const char *name)
+{
+	_ASSERT( typeTable == _type );
+	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
+	if( _val.asTable->end() != it )
+	{
+		_val.asTable->erase(it);
+		return true;
+	}
+	return false;
+}
+
 bool ConfVarTable::_Save(FILE *file, int level) const
 {
 	if( level ) fprintf(file, "{\n");
@@ -711,7 +739,7 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 		bool safe = true;
 		for( size_t i = 0; i < it->first.size(); ++i )
 		{
-			const int c = it->first[i];
+			unsigned char c = it->first[i];
 
 			if( !isalpha(c) && '_' != c )
 			{
@@ -993,20 +1021,67 @@ static int luaT_setconftable(lua_State *L)
 	{
 		return luaL_error(L, "string expected");
 	}
-
 	return 0;
 }
+
+// generic __next support for tables
+static int luaT_conftablenext(lua_State *L)
+{
+	lua_settop(L, 2);
+	luaL_checktype(L, 1, LUA_TUSERDATA);
+
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
+	_ASSERT( ConfVar::typeTable == v->GetType() );
+
+	if( v->_val.asTable->empty() )
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	if( lua_isnil(L, 2) )
+	{
+		// begin iteration
+		lua_pushstring(L, v->_val.asTable->begin()->first.c_str()); // key
+		v->_val.asTable->begin()->second->Push(L);                  // value
+		return 2;
+	}
+
+	const char *key = luaL_checkstring(L, 2);
+	std::map<string_t, ConfVar*>::const_iterator it = v->_val.asTable->find(key);
+	if( v->_val.asTable->end() == it )
+	{
+		return luaL_error(L, "invalid key to 'next'");
+	}
+
+	++it;
+
+	if( v->_val.asTable->end() == it )
+	{
+		// end of list
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// return next pair
+	lua_pushstring(L, it->first.c_str());   // key
+	it->second->Push(L);                    // value
+	return 2;
+}
+
 
 // map config to the conf lua variable
 void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName)
 {
 	luaL_newmetatable(L, "conf_table");  // metatable for tables
-	lua_pushcfunction(L, luaT_setconftable);  // push handler function
-	lua_setfield(L, -2, "__newindex");        // this also pops function from the stack
-	lua_pushcfunction(L, luaT_getconftable);  // push handler function
-	lua_setfield(L, -2, "__index");           // this also pops function from the stack
-	lua_pushcfunction(L, luaT_conftostring);  // push handler function
-	lua_setfield(L, -2, "__tostring");        // this also pops function from the stack
+	lua_pushcfunction(L, luaT_setconftable);
+	lua_setfield(L, -2, "__newindex");
+	lua_pushcfunction(L, luaT_getconftable);
+	lua_setfield(L, -2, "__index");
+	lua_pushcfunction(L, luaT_conftostring);
+	lua_setfield(L, -2, "__tostring");
+	lua_pushcfunction(L, luaT_conftablenext);
+	lua_setfield(L, -2, "__next");
 	lua_pop(L, 1); // pop the metatable
 
 	luaL_newmetatable(L, "conf_array");  // metatable for arrays

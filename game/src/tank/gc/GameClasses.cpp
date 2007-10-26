@@ -360,10 +360,10 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		// ---+----+---
 		//  2 |node| 3
 		// ---+----+---
-		//  7 | 1  | 5		//   0  1  2  3  4  5  6  7
+		//  7 | 1  | 5      //   0  1  2  3  4  5  6  7
 		static int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };
 		static int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };
-		static int dist [8] = { 12,12,12,12,17,17,17,17 };	// стоимость пути
+		static int dist [8] = { 12,12,12,12,17,17,17,17 }; // стоимость пути
 
 		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
 

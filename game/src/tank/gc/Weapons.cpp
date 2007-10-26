@@ -765,7 +765,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = _advanced ? 2.0f : 8.0f;	// fixme
+	pSettings->fDistanceMultipler = _advanced ? 2.0f : 8.0f;  // fixme
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

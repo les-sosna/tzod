@@ -29,10 +29,17 @@ end
 local function expand(path, tail, from)
   local result
   local prompt = {}
-  local tailtype
+  local ending
   for k,v in _next, from do
     if 1 == string.find(k, tail, 1, false) then
-      tailtype = type(v)
+      local m = getmetatable(v)
+      if "table" == type(v) or (m and m.__next) then
+        ending = "."
+      elseif "function" == type(v) then
+        ending = "()"
+      else
+        ending = " "
+      end
       table.insert(prompt, k)
       if nil == result then
         result = k
@@ -49,13 +56,7 @@ local function expand(path, tail, from)
     end
   end
   if 1 == #prompt then
-    if "table" == tailtype then
-      result = result .. "."
-    elseif "function" == tailtype then
-      result = result .. "()"
-    else
-      result = result .. " "
-    end
+    result = result .. ending
   elseif #prompt > 1 then
     print "--"
     table.sort(prompt)
@@ -93,7 +94,7 @@ function autocomplete(src)
   end
 
   local result
-  if expand_tail and "table" == type(current) then
+  if expand_tail and ("table" == type(current) or getmetatable(current).__next ) then
     result = expand(path, tail, current)
   end
 

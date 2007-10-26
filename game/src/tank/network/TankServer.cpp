@@ -547,7 +547,7 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 			it = pServer->_clients.begin();
 			for( ; it != pServer->_clients.end(); ++it )
 			{
-				if( it->id == id_from )	it->ready = db.cast<dbPlayerReady>().ready;
+				if( it->id == id_from ) it->ready = db.cast<dbPlayerReady>().ready;
 				if( !it->ready ) bAllPlayersReady = FALSE;
 				pServer->SendClientThreadData(it, db);
 			}

@@ -19,39 +19,39 @@ typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
 /////////////////////////////////////////
 // rtti and serialization
 
-#define DECLARE_SELF_REGISTRATION(cls)  \
-private:                                \
-typedef cls __ThisClass;                \
-static ObjectType __thisType;           \
-static bool __registered;               \
-static bool __SelfRegister();           \
-public:                                 \
-static ObjectType GetTypeStatic()       \
-{                                       \
-	return __thisType;                  \
-}                                       \
-virtual ObjectType GetType()            \
-{                                       \
-	return __thisType;                  \
-}                                       \
-private:
+#define DECLARE_SELF_REGISTRATION(cls)          \
+    private:                                    \
+        typedef cls __ThisClass;                \
+        static ObjectType __thisType;           \
+        static bool __registered;               \
+        static bool __SelfRegister();           \
+    public:                                     \
+        static ObjectType GetTypeStatic()       \
+        {                                       \
+            return __thisType;                  \
+        }                                       \
+        virtual ObjectType GetType()            \
+        {                                       \
+            return __thisType;                  \
+        }                                       \
+    private:
 
 
-#define IMPLEMENT_SELF_REGISTRATION(cls)                               \
-ObjectType cls::__thisType = __RegisterType<cls>(typeid(cls).name());  \
-bool cls::__registered = cls::__SelfRegister();                        \
-bool cls::__SelfRegister()
+#define IMPLEMENT_SELF_REGISTRATION(cls)                      \
+    ObjectType cls::__thisType = __RegisterType<cls>(#cls);   \
+    bool cls::__registered = cls::__SelfRegister();           \
+    bool cls::__SelfRegister()
 
 
 // for template classes (experimental)
-#define IMPLEMENT_SELF_REGISTRATION_T(cls)             \
-template<class T>                                      \
-ObjectType cls<T>::__thisType = (cls<T>::__registered, \
-	__RegisterType<cls<T> >(typeid(cls<T>).name()));   \
-template<class T>                                      \
-bool cls<T>::__registered = cls<T>::__SelfRegister();  \
-template<class T>                                      \
-bool cls<T>::__SelfRegister()
+#define IMPLEMENT_SELF_REGISTRATION_T(cls)                 \
+    template<class T>                                      \
+    ObjectType cls<T>::__thisType = (cls<T>::__registered, \
+        __RegisterType<cls<T> >(typeid(cls<T>).name()));   \
+    template<class T>                                      \
+    bool cls<T>::__registered = cls<T>::__SelfRegister();  \
+    template<class T>                                      \
+    bool cls<T>::__SelfRegister()
 
 
 ///////////////////////////////////////////////////////////

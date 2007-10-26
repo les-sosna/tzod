@@ -166,7 +166,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 
 	// установка _current_offset для понижения меткости стрельбы
-	const float acc_speed = 0.4f;	// угловая скорость движения мнимой цели
+	const float acc_speed = 0.4f; // угловая скорость движения мнимой цели
 	if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
 	{
 		float len = fabsf(_desired_offset - _current_offset);
@@ -270,7 +270,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		open.pop();
 
 		if( cn.GetX() == end_x && cn.GetY() == end_y )
-			break;	// путь найден
+			break; // путь найден
 
 
 		/* порядок проверки соседних узлов
@@ -279,12 +279,12 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 			2 | n | 3
 		   ---+---+---
 		    7 | 1 | 5
-		*/					//   0  1  2  3  4  5  6  7
-		static int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };	// смещение клетки по x
-		static int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };	// смещение клетки по y
+		*/                    //   0  1  2  3  4  5  6  7
+		static int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // смещение клетки по x
+		static int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // смещение клетки по y
 		static float dist [8] = {
 			1.0f, 1.0f, 1.0f, 1.0f,
-			1.4142f, 1.4142f, 1.4142f, 1.4142f };				// стоимость пути
+			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // стоимость пути
 
 		// для проверки проходимости по диагонали
 		//                           4     5     6     7
@@ -525,7 +525,7 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	if( !target->GetPlayer() || 
 		(0 != target->GetPlayer()->GetTeam() && target->GetPlayer()->GetTeam() == GetTeam()) )
 	{
-		return AIP_NOTREQUIRED;	// своих и буздушных не атакуем
+		return AIP_NOTREQUIRED; // своих и буздушных не атакуем
 	}
 
 	AIPRIORITY p = AIP_NORMAL;
@@ -832,10 +832,10 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 
 	switch( _aiState_l2 )
 	{
-	case L2_PICKUP:	// едем прокачиваться
+	case L2_PICKUP: // едем прокачиваться
 	{
 	} break;
-	case L2_ATTACK:	// атакуем игрока
+	case L2_ATTACK: // атакуем игрока
 	{
 		_ASSERT(_target);
 	} break;
@@ -865,7 +865,7 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 {
 	if( L1_NONE != _aiState_l1 )
-		return;	// ожидание реакции на сообщение
+		return; // ожидание реакции на сообщение
 
 	//
 	// удаление ненужных узловых точек

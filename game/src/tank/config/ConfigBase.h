@@ -43,6 +43,14 @@ public:
 	Delegate<void(void)> eventChange;
 
 protected:
+	virtual bool _Save(FILE *file, int level) const;
+	virtual bool _Load(lua_State *L);
+
+	// to call _Load and _Save
+	friend class ConfVarArray;
+	friend class ConfVarTable;
+
+public:
 	union Value
 	{
 		lua_Number                     asNumber;
@@ -55,14 +63,6 @@ protected:
 
 	Type  _type;
 	Value _val;
-
-	virtual bool _Save(FILE *file, int level) const;
-	virtual bool _Load(lua_State *L);
-
-
-	// to call _Load and _Save
-	friend class ConfVarArray;
-	friend class ConfVarTable;
 };
 
 class ConfVarNumber : public ConfVar
@@ -190,6 +190,9 @@ public:
 
 	ConfVarArray* GetArray(const char *name);
 	ConfVarTable* GetTable(const char *name);
+
+	bool Remove(ConfVar * const value);
+	bool Remove(const char *name);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);

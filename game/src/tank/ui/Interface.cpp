@@ -497,7 +497,7 @@ LRESULT CALLBACK dlgOptions(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 {
 	int wmId, wmEvent;
 	static HFONT hFont;
-	static LONG  lInitVolume;	// в случае отмены восстанавливаем значение громкости
+	static LONG  lInitVolume; // в случае отмены восстанавливаем значение громкости
 
 	switch (message)
 	{
@@ -798,8 +798,8 @@ void Controls_ListViewUpdate(HWND hwndLV, PLAYER *pl, BOOL bErase)
 	lvi.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 	lvi.iItem = ListView_GetItemCount(hwndLV);
 
-#define INSERT_ITEM(key, name){						\
-	char s[40] = {0};								\
+#define INSERT_ITEM(key, name){                     \
+	char s[40] = {0};                               \
 	GetKeyName(pl->KeyMap.key, s);					\
 	lvi.pszText = name;								\
 	lvi.lParam = (LPARAM) &pl->KeyMap.key;			\
@@ -912,7 +912,7 @@ LRESULT CALLBACK dlgControls(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		return TRUE;
 	}
 
-    return FALSE;
+	return FALSE;
 }
 
 /*
@@ -1038,7 +1038,7 @@ LRESULT CALLBACK dlgCreateServer(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 		return TRUE;
 	}
-    return FALSE;
+	return FALSE;
 }
 
 

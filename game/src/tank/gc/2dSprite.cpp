@@ -199,7 +199,7 @@ void GC_2dSprite::SetZ(enumZOrder z)
 
 void GC_2dSprite::Show(bool bShow)
 {
-	_ASSERT(!bShow || !IsKilled());		// нельзя показывать убитые объекты
+	_ASSERT(!bShow || !IsKilled()); // нельзя показывать убитые объекты
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;

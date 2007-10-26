@@ -35,7 +35,7 @@ bool ButtonBase::OnMouseMove(float x, float y)
 		SetState(stateHottrack);
 	}
 	if( eventMouseMove )
-   		INVOKE(eventMouseMove) (x, y);
+		INVOKE(eventMouseMove) (x, y);
 	return true;
 }
 

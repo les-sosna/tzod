@@ -1,7 +1,7 @@
 -- init.lua
 -- autorun script
 
-package.path = package.path .. ";./scripts/?.lua"
+package.path = "scripts/?.lua"
 
 
 require "autocomplete"  -- init autocomplete engine for the console

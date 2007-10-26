@@ -64,7 +64,7 @@ protected:
 
 	struct coord
 	{
-        short x, y;
+		short x, y;
 		coord() {}
 		coord(short x_, short y_) { x = x_; y = y_; }
 		operator size_t () const { return x + LEVEL_MAXSIZE * y; }

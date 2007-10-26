@@ -358,9 +358,9 @@ void GC_Camera::Shake(float level)
 }
 
 void GC_Camera::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_Actor::Serialize(f);
-	/////////////////////////////////////
+
 	f.Serialize(_angle_current);
 	f.Serialize(_active);
 	f.Serialize(_dt);
@@ -371,7 +371,7 @@ void GC_Camera::Serialize(SaveFile &f)
 	f.Serialize(_time_shake);
 	f.Serialize(_zoom);
 	f.Serialize(_player);
-	/////////////////////////////////////
+
 	_rotator.Serialize(f);
 	if( f.loading() ) UpdateLayout();
 }

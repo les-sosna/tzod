@@ -401,8 +401,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( GetHealth() < (GetHealthMax() * 0.4f) )
 	{
 		_ASSERT(GetHealth() > 0);
-							//    +-{ максимальное число частичек дыма в секунду }
-		_time_smoke += dt;	//    |
+		                    //    +-{ максимальное число частичек дыма в секунду }
+		_time_smoke += dt;  //    |
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{

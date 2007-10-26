@@ -477,7 +477,7 @@ void Rotator::setup_sound(GC_Sound *pSound)
 //-------------------------------------------------------------------
 
 void Rotator::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	f.Serialize(_accel_current);
 	f.Serialize(_accel_stop);
 	f.Serialize(_angle_target);

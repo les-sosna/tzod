@@ -111,8 +111,8 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 		if( !pDamObj->IsKilled() )
 		{
-			dist =	(GetPos().x - pDamObj->GetPos().x)*(GetPos().x - pDamObj->GetPos().x) +
-					(GetPos().y - pDamObj->GetPos().y)*(GetPos().y - pDamObj->GetPos().y) ;
+			dist = (GetPos().x - pDamObj->GetPos().x)*(GetPos().x - pDamObj->GetPos().x)
+				 + (GetPos().y - pDamObj->GetPos().y)*(GetPos().y - pDamObj->GetPos().y);
 
 			if( dist < min_dist && IsTargetVisible(pDamObj, &pObstacle) )
 			{
@@ -355,7 +355,7 @@ void GC_TurretRocket::Fire()
 	if( _timeReload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_Rocket(	GetPos() + a * 25.0f, a * SPEED_ROCKET, this, true ) )
+		(new GC_Rocket(GetPos() + a * 25.0f, a * SPEED_ROCKET, this, true))
 			->_damage = g_level->net_frand(10.0f);
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
@@ -654,7 +654,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 
 GC_TurretMinigun::GC_TurretMinigun(float x, float y) : GC_TurretBunker(x, y)
 {
-	_delta_angle = 0.5f;	// точность стрельбы
+	_delta_angle = 0.5f; // точность стрельбы
 	_rotator.reset(0, 0, 6.0f, 21.0f, 36.0f);
 
 	_time = 0;
@@ -746,7 +746,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 
 GC_TurretGauss::GC_TurretGauss(float x, float y) : GC_TurretBunker(x, y)
 {
-	_delta_angle = 0.03f;	// точность стрельбы
+	_delta_angle = 0.03f; // точность стрельбы
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
 
 	_time = 0;

@@ -504,7 +504,7 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	notify.hasGuard     = guard;
 	_notifyList.push_back(notify);
 	//--------------------------------------------------
-	if( guard )	// защита на случай если subscriber умрет раньше, чем this
+	if( guard ) // защита на случай если subscriber умрет раньше, чем this
 	{
 		notify.type        = NOTIFY_OBJECT_KILL;
 		notify.subscriber  = this;

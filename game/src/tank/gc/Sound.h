@@ -85,7 +85,7 @@ public:
 /////////////////////////////////////////////////////////////
 
 #if !defined NOSOUND
-#define PLAY(s, pos) 	new GC_Sound((s), SMODE_PLAY, (pos))
+#define PLAY(s, pos)  (new GC_Sound((s), SMODE_PLAY, (pos)))
 #else
 #define PLAY	// no sound
 #endif

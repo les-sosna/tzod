@@ -14,29 +14,29 @@ class RenderOpenGL : public IRender
 {
 	struct _header
 	{
-		char   IdLeight;	//   Длина текстовой информации после первого
-		char   ColorMap;	//   Идентификатор наличия цветовой карты - устарел
-		char   DataType;	//   Тип данных - запакованный или нет
-		char   ColorMapInfo[5];	//   Информация о цветовой карте - нужно пропустить эти 5 байт
-		short  x_origin;	//   Начало изображения по оси X
-		short  y_origin;	//   Начало изображения по оси Y
-		short  width;		//   Ширина изображения
-		short  height;		//   Высота изображения
-		char   BitPerPel;	//   Кол-во бит на пиксель - здесь только 24 или 32
-		char   Description;	//   Описание - пропускайте
+		char   IdLeight;        //   Длина текстовой информации после первого
+		char   ColorMap;        //   Идентификатор наличия цветовой карты - устарел
+		char   DataType;        //   Тип данных - запакованный или нет
+		char   ColorMapInfo[5]; //   Информация о цветовой карте - нужно пропустить эти 5 байт
+		short  x_origin;        //   Начало изображения по оси X
+		short  y_origin;        //   Начало изображения по оси Y
+		short  width;           //   Ширина изображения
+		short  height;          //   Высота изображения
+		char   BitPerPel;       //   Кол-во бит на пиксель - здесь только 24 или 32
+		char   Description;     //   Описание - пропускайте
 	};
 
 	struct _asyncinfo
 	{
 		HANDLE file;
 		_header h;
-        void *data;
+		void *data;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 
-    HWND   _hWnd;
-    SIZE   _sizeWindow;
+	HWND   _hWnd;
+	SIZE   _sizeWindow;
 	RECT   _rtViewport;
 	BOOL   _bDisplayChanged;
 
@@ -78,10 +78,10 @@ private:
 	virtual void Camera(float x, float y, float scale, float angle);
 
 	virtual int  GetWidth() const;
-    virtual int  GetHeight() const;
+	virtual int  GetHeight() const;
 
-    virtual int  GetViewportWidth() const;
-    virtual int  GetViewportHeight() const;
+	virtual int  GetViewportWidth() const;
+	virtual int  GetViewportHeight() const;
 
 	virtual void Begin(void);
 	virtual void End(void);

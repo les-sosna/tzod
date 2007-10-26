@@ -90,7 +90,10 @@ int Socket::Recv(const HANDLE *lphAbortEvents, size_t count, void *buf, int bufl
 			// проверка события
 			if( !CheckEvent(FD_READ_BIT) )
 			{
-				if( CheckEvent(FD_CLOSE_BIT) )	Close();
+				if( CheckEvent(FD_CLOSE_BIT) )
+				{
+					Close();
+				}
 				return Error;
 			}
 

@@ -26,7 +26,7 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0) : G
 
 	MoveTo(x0);
 	_velocity = v0;
-	///////////////////////
+
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 }
 
@@ -35,9 +35,8 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile) : GC_2dSprite(FromFile())
 }
 
 void GC_Brick_Fragment_01::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_StartFrame);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
@@ -57,7 +56,7 @@ void GC_Brick_Fragment_01::TimeStepFloat(float dt)
 	SetFrame(int((float)_StartFrame + (float)(GetFrameCount() - 1) *
 		_time / _time_life)%(GetFrameCount() - 1) );
 
-	MoveTo(	GetPos() + _velocity * dt );
+	MoveTo( GetPos() + _velocity * dt );
 	_velocity += vec2d(0, 300.0f) * dt;
 }
 
@@ -110,9 +109,8 @@ GC_Particle::GC_Particle(FromFile) : GC_2dSprite(FromFile())
 }
 
 void GC_Particle::Serialize(SaveFile &f)
-{	/////////////////////////////////////
+{
 	GC_2dSprite::Serialize(f);
-	/////////////////////////////////////
 	f.Serialize(_fade);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
@@ -133,7 +131,7 @@ void GC_Particle::TimeStepFloat(float dt)
 	if( _fade )
 		SetOpacity(1.0f - _time / _time_life);
 
-	MoveTo(	GetPos() + _velocity * dt );
+	MoveTo( GetPos() + _velocity * dt );
 }
 
 void GC_Particle::SetFade(bool fade)
