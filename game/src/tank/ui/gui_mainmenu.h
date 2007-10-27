@@ -20,6 +20,8 @@ class MainMenuDlg : public Dialog
 	void OnJoin();
 
 	void OnEditor();
+	void OnNewMap();
+
 	void OnSettings();
 	void OnExit();
 

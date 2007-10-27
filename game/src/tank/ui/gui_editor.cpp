@@ -10,6 +10,8 @@
 #include "ui/Combo.h"
 #include "ui/List.h"
 #include "ui/Scroll.h"
+#include "ui/Button.h"
+#include "ui/Button.h"
 
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
@@ -25,6 +27,54 @@
 
 namespace UI
 {
+///////////////////////////////////////////////////////////////////////////////
+
+NewMapDlg::NewMapDlg(Window *parent)
+  : Dialog(parent, 0, 0, 256, 256)
+{
+	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
+
+	Text *header = new Text(this, 128, 20, "Новая карта:", alignTextCT);
+	header->SetTexture("font_default");
+	header->Resize(header->GetTextureWidth(), header->GetTextureHeight());
+
+	new Text(this, 40, 75, "Ширина", alignTextLT);
+	_width = new Edit(this, 60, 90, 80);
+	_width->SetInt(g_conf.ed_width->GetInt());
+
+	new Text(this, 40, 115, "Высота", alignTextLT);
+	_height = new Edit(this, 60, 130, 80);
+	_height->SetInt(g_conf.ed_height->GetInt());
+
+	(new Button(this, 20, 200, "ОК"))->eventClick.bind(&NewMapDlg::OnOK, this);
+	(new Button(this, 140, 200, "Отмена"))->eventClick.bind(&NewMapDlg::OnCancel, this);
+}
+
+NewMapDlg::~NewMapDlg()
+{
+}
+
+void NewMapDlg::OnOK()
+{
+
+	Close(_resultOK);
+}
+
+void NewMapDlg::OnCancel()
+{
+	Close(_resultCancel);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+MapSettingsDlg::MapSettingsDlg(Window *parent)
+  : Dialog(parent, 0, 0, 256, 256)
+{
+}
+
+MapSettingsDlg::~MapSettingsDlg()
+{
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // PropertyList class implementation

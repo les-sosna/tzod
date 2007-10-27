@@ -40,6 +40,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	// server settings
 	CONFIG_VAR_STR(    sv_name,   "ZOD server" );
 	CONFIG_VAR_FLOAT(  sv_fps,              30 );
+	CONFIG_VAR_FLOAT(  sv_latency,           5 );
 	CONFIG_VAR_FLOAT(  sv_speed,           100 ); // percent
 	CONFIG_VAR_FLOAT(  sv_timelimit,         7 ); // minutes
 	CONFIG_VAR_INT(    sv_fraglimit,        21 );

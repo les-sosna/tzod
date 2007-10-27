@@ -19,6 +19,7 @@ class Text : public Window
 
 private:
 	void UpdateLines();
+	void OnSize(float width, float height);
 
 public:
 	Text(Window *parent, float x, float y, const char *text, enumAlignText align);

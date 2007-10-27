@@ -110,7 +110,7 @@ void Button::OnChangeState(State state)
 	else
 		_label->Move(GetTextureWidth()/2-1, GetTextureHeight()/2-1);
 
-	_label->SetColor(stateDisabled == state ? 0xffbbbbbb : 0xffffffff);
+	_label->SetColor(stateDisabled == state ? 0xbbbbbbbb : 0xffffffff);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -13,6 +13,30 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+class NewMapDlg : public Dialog
+{
+	Edit *_width;
+	Edit *_height;
+
+public:
+	NewMapDlg(Window *parent);
+	~NewMapDlg();
+
+	void OnOK();
+	void OnCancel();
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class MapSettingsDlg : public Dialog
+{
+public:
+	MapSettingsDlg(Window *parent);
+	~MapSettingsDlg();
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class PropertyList : public Dialog
 {
 	class Container : public Window

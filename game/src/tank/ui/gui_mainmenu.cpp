@@ -6,6 +6,7 @@
 #include "gui_desktop.h"
 #include "gui_network.h"
 #include "gui_settings.h"
+#include "gui_editor.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -114,10 +115,17 @@ void MainMenuDlg::OnEditor()
 {
 	if( ClearPanel(PT_EDITOR) )
 	{
-		(new Button(_panel, 0, 0, "Создать"));//->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		(new Button(_panel, 0, 0, "Создать"))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
 		new Button(_panel, 100, 0, "Загрузить");
 		new Button(_panel, 200, 0, "Сохранить");
 	}
+}
+
+void MainMenuDlg::OnNewMap()
+{
+	Show(false);
+	NewMapDlg *dlg = new NewMapDlg(GetParent());
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnExit()

@@ -88,6 +88,12 @@ void Text::Draw(float sx, float sy)
 	}
 }
 
+void Text::OnSize(float width, float height)
+{
+	_w = int(width - 1);
+	_h = int(height - 1);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 

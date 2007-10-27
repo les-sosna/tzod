@@ -21,7 +21,6 @@
 #include "network/TankServer.h"
 
 
-
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,12 +71,13 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 
 		new Text(this, x3+30, y+=30, "(0 - нет лимита)", alignTextLT);
 
-
 		new Text(this, x3, y+=40, "Скорость сети, fps", alignTextLT);
 		_svFps = new Edit(this, x4, y+=15, 100);
+		_svFps->SetInt(g_conf.sv_fps->GetInt());
 
 		new Text(this, x3, y+=30, "Задержка", alignTextLT);
 		_svLatency = new Edit(this, x4, y+=15, 100);
+		_svLatency->SetInt(g_conf.sv_latency->GetInt());
 	}
 
 	Button *btn;
@@ -91,7 +91,6 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 CreateServerDlg::~CreateServerDlg()
 {
 }
-
 
 void CreateServerDlg::OnOK()
 {

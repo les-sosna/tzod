@@ -278,7 +278,7 @@ void Edit::OnEnable(bool enable)
 	else
 	{
 		SetSel(0, 0);
-		_blankText->SetColor(0xffaaaaaa);
+		_blankText->SetColor(0xaaaaaaaa);
 	}
 }
 
