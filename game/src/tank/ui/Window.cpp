@@ -552,16 +552,31 @@ void Window::ReleaseCapture()
 	_manager->ReleaseCapture(this);
 }
 
+void Window::Enable(bool enable)
+{
+	if( _isEnabled != enable )
+	{
+		_isEnabled = enable;
+		if( !IsEnabled() )
+		{
+			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
+			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
+		}
+		OnEnable(enable);
+	}
+}
+
 void Window::Show(bool show)
 {
 	if( _isVisible != show )
 	{
 		_isVisible = show;
-		OnShow(show);
-		if( !IsVisible() && GetManager()->GetFocusWnd() )
+		if( !IsVisible() )
 		{
-			GetManager()->Unfocus(this);
+			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
+			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
 		}
+		OnShow(show);
 	}
 }
 

@@ -3,10 +3,7 @@
 #include "stdafx.h"
 
 #include "gui.h"
-#include "gui_settings.h"
-#include "gui_desktop.h"
 #include "gui_maplist.h"
-#include "gui_network.h"
 
 #include "GuiManager.h"
 
@@ -35,110 +32,6 @@
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
-
-MainMenuDlg::MainMenuDlg(Window *parent) : Dialog(parent, 0, 0, 1, 1, false)
-{
-	SetBorder(false);
-	SetTexture("gui_splash");
-	Resize(GetTextureWidth(), GetTextureHeight());
-
-	OnParentSize(parent->GetWidth(), parent->GetHeight());
-
-	(new Button(this, 0, GetHeight(), "Игра (F2)"))
-		->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-
-//	new Button(this, 0, GetHeight() + 30, "Загрузить");
-//	new Button(this, 0, GetHeight() + 60, "Сохранить");
-
-//	new Button(this, 100, GetHeight(), "Host");
-//	new Button(this, 100, GetHeight() + 30, "Join");
-//	new Button(this, 100, GetHeight() + 60, "Профиль");
-
-//	new Button(this, 200, GetHeight(), "New map");
-//	new Button(this, 200, GetHeight() + 30, "Import");
-//	new Button(this, 200, GetHeight() + 60, "Export");
-
-	(new Button(this, 300, GetHeight(), "Опции (F12)"))
-		->eventClick.bind(&MainMenuDlg::OnSettings, this);
-
-	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))
-		->eventClick.bind(&MainMenuDlg::OnExit, this);
-
-
-	std::set<string_t> c;
-	g_fs->GetFileSystem("campaign")->EnumAllFiles(c, "*.lua");
-
-	float y = GetHeight() + 30;
-	for( std::set<string_t>::iterator it = c.begin(); it != c.end(); ++it )
-	{
-		it->erase(it->length() - 4); // cut out the file extension
-
-		DelegateAdapter1<string_t> d(*it);
-		d.eventOnEvent.bind(&MainMenuDlg::OnCampaign, this);
-		_campaigns.push_back(d);
-
-		Button *btn = new Button(this, 0, y, it->c_str());
-		btn->eventClick.bind(&DelegateAdapter1<string_t>::OnEvent, &_campaigns.back());
-
-		y += btn->GetHeight() + 1;
-	}
-}
-
-void MainMenuDlg::OnCampaign(string_t name)
-{
-	Close(_resultOK);
-	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
-	{
-		static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
-	}
-}
-
-void MainMenuDlg::OnNewGame()
-{
-//	NewGameDlg *dlg = new NewGameDlg(this);
-	CreateServerDlg *dlg = new CreateServerDlg(this);
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
-}
-
-void MainMenuDlg::OnExit()
-{
-	DestroyWindow(g_env.hMainWnd);
-}
-
-void MainMenuDlg::OnSettings()
-{
-	SettingsDlg *dlg = new SettingsDlg(this);
-//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
-}
-
-void MainMenuDlg::OnParentSize(float width, float height)
-{
-	Move( (width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f );
-}
-
-void MainMenuDlg::OnCloseChild(int result)
-{
-	if( Dialog::_resultOK == result )
-	{
-		Close(result);
-	}
-}
-
-void MainMenuDlg::OnRawChar(int c)
-{
-	switch(c)
-	{
-	case VK_F2:
-		OnNewGame();
-		break;
-	case VK_F12:
-		OnSettings();
-		break;
-	default:
-		Dialog::OnRawChar(c);
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +43,7 @@ NewGameDlg::NewGameDlg(Window *parent) : Dialog(parent, 0, 0, 770, 550, true)
 
 	float x1 = 16;
 	float x2 = x1 + 550;
-	float x3 = x2 + 16;
+	float x3 = x2 + 20;
 
 
 	//
@@ -186,7 +79,7 @@ NewGameDlg::NewGameDlg(Window *parent) : Dialog(parent, 0, 0, 770, 550, true)
 		_timeLimit = new Edit(this, x3+20, y+=15, 80);
 		_timeLimit->SetInt(g_conf.cl_timelimit->GetInt());
 
-		new Text(this, x3+30, y+=40, "(0 - нет лимита)", alignTextLT);
+		new Text(this, x3+30, y+=30, "(0 - нет лимита)", alignTextLT);
 	}
 
 
@@ -846,54 +739,6 @@ void EditBotDlg::OnChangeSkin(int index)
 		_skinPreview->SetTexture( ("skin/" + _skins->GetList()->GetItemText(index, 0)).c_str() );
 		_skinPreview->Resize( _skinPreview->GetTextureWidth(), _skinPreview->GetTextureHeight() );
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
-{
-	_text = new Text(this, 0, 0, "", alignTextLT);
-}
-
-void MessageArea::OnTimeStep(float dt)
-{
-	for( size_t i = 0; i < _lines.size(); ++i )
-		_lines[i].time += dt;
-	while( !_lines.empty() && _lines.front().time > 5 )
-		_lines.pop_front();
-
-	if( _lines.empty() )
-	{
-		SetTimeStep(false);
-		_text->Show(false);
-		return;
-	}
-
-	string_t str;
-	for( size_t i = 0; i < _lines.size(); ++i )
-		str.append(_lines[i].str);
-	_text->SetText(str.c_str());
-}
-
-void MessageArea::puts(const char *text)
-{
-	Line line;
-	line.time = 0;
-	line.str = text;
-	line.str.append("\n");
-	_lines.push_back(line);
-	g_console->puts(line.str.c_str());
-
-	SetTimeStep(true);
-	_text->Show(true);
-}
-
-void MessageArea::Clear()
-{
-	_lines.clear();
-	SetTimeStep(false);
-	_text->SetText("");
-	_text->Show(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

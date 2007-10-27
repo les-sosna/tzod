@@ -105,7 +105,7 @@ public:
 	void Move(float x, float y);
 	void Resize(float width, float height);
 
-	void Enable(bool enable) { OnEnable(_isEnabled = enable); }
+	void Enable(bool enable);
 	void Show  (bool show);
 
 	void BringToFront();

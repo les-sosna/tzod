@@ -920,6 +920,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\ui\gui_mainmenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_mainmenu.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\ui\gui_maplist.cpp"
 				>
 			</File>

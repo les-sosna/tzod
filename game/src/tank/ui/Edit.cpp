@@ -269,12 +269,24 @@ bool Edit::OnFocus(bool focus)
 	return true;
 }
 
+void Edit::OnEnable(bool enable)
+{
+	if( enable )
+	{
+		_blankText->SetColor(0xffffffff);
+	}
+	else
+	{
+		SetSel(0, 0);
+		_blankText->SetColor(0xffaaaaaa);
+	}
+}
+
 void Edit::OnTimeStep(float dt)
 {
 	_time += dt;
 	_cursor->Show(fmodf(_time, 1.0f) < 0.5f);
 }
-
 
 void Edit::Paste()
 {

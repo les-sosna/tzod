@@ -14,27 +14,6 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-class MainMenuDlg : public Dialog
-{
-	void OnNewGame();
-	void OnExit();
-	void OnSettings();
-
-	void OnCampaign(string_t name);
-
-	std::list<DelegateAdapter1<string_t> >  _campaigns;
-
-public:
-	MainMenuDlg(Window *parent);
-	virtual void OnParentSize(float width, float height);
-	virtual void OnRawChar(int c);
-
-protected:
-	void OnCloseChild(int result);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 // forward declarations
 class MapList;
 
@@ -133,27 +112,6 @@ protected:
 	void OnCancel();
 
 	void OnChangeSkin(int index);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class MessageArea : public Window
-{
-private:
-	struct Line
-	{
-		float time;
-		string_t str;
-	};
-	std::deque<Line> _lines;
-	Text *_text;
-
-public:
-	MessageArea(Window *parent, float x, float y);
-	void puts(const char *text);
-	void Clear();
-
-	void OnTimeStep(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

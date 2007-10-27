@@ -6,6 +6,7 @@
 #include "gui_desktop.h"
 #include "gui_editor.h"
 #include "gui_settings.h"
+#include "gui_mainmenu.h"
 #include "gui.h"
 #include "Console.h"
 
@@ -18,6 +19,54 @@
 
 namespace UI
 {
+///////////////////////////////////////////////////////////////////////////////
+
+MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
+{
+	_text = new Text(this, 0, 0, "", alignTextLT);
+}
+
+void MessageArea::OnTimeStep(float dt)
+{
+	for( size_t i = 0; i < _lines.size(); ++i )
+		_lines[i].time += dt;
+	while( !_lines.empty() && _lines.front().time > 5 )
+		_lines.pop_front();
+
+	if( _lines.empty() )
+	{
+		SetTimeStep(false);
+		_text->Show(false);
+		return;
+	}
+
+	string_t str;
+	for( size_t i = 0; i < _lines.size(); ++i )
+		str.append(_lines[i].str);
+	_text->SetText(str.c_str());
+}
+
+void MessageArea::puts(const char *text)
+{
+	Line line;
+	line.time = 0;
+	line.str = text;
+	line.str.append("\n");
+	_lines.push_back(line);
+	g_console->puts(line.str.c_str());
+
+	SetTimeStep(true);
+	_text->Show(true);
+}
+
+void MessageArea::Clear()
+{
+	_lines.clear();
+	SetTimeStep(false);
+	_text->SetText("");
+	_text->Show(false);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 Desktop::Desktop(GuiManager* manager) : Window(manager)

@@ -83,11 +83,11 @@ void ButtonBase::OnEnable(bool enable)
 {
 	if( enable )
 	{
-		OnChangeState(stateNormal);
+		SetState(stateNormal);
 	}
 	else
 	{
-		OnChangeState(stateDisabled);
+		SetState(stateDisabled);
 	}
 }
 

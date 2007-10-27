@@ -19,12 +19,33 @@ class CreateServerDlg : public Dialog
 	Edit      *_gameSpeed;
 	Edit      *_fragLimit;
 	Edit      *_timeLimit;
+	Edit      *_svFps;
+	Edit      *_svLatency;
 
 public:
 	CreateServerDlg(Window *parent);
 	~CreateServerDlg();
+
+protected:
+	void OnOK();
+	void OnCancel();
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class ConnectDlg : public Dialog
+{
+	Button *_btnOK;
+	Edit   *_name;
+
+public:
+	ConnectDlg(Window *parent);
+	~ConnectDlg();
+
+protected:
+	void OnOK();
+	void OnCancel();
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

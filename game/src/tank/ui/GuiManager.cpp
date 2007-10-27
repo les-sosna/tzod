@@ -247,6 +247,19 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 	return false;
 }
 
+UI::Window* GuiManager::GetHotTrackWnd() const
+{
+	return _hotTrackWnd;
+}
+
+void GuiManager::ResetHotTrackWnd(UI::Window* wnd)
+{
+	if( _hotTrackWnd == wnd )
+	{
+		_hotTrackWnd->OnMouseLeave();
+		_hotTrackWnd = NULL;
+	}
+}
 
 PtrList<UI::Window>::iterator GuiManager::TimeStepRegister(UI::Window* wnd)
 {
@@ -329,8 +342,11 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 			{
 				if( _hotTrackWnd )
 					_hotTrackWnd->OnMouseLeave();
-				_hotTrackWnd = wnd;
-				_hotTrackWnd->OnMouseEnter(x, y);
+				if( wnd->IsVisible() && wnd->IsEnabled() )
+				{
+					_hotTrackWnd = wnd;
+					_hotTrackWnd->OnMouseEnter(x, y);
+				}
 			}
 		}
 

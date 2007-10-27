@@ -8,11 +8,31 @@ namespace UI
 {
 	class EditorLayout;
 	class Console;
-	class MessageArea;
 
 	// widgets
 	class FpsCounter;
 	class TimeElapsed;
+
+///////////////////////////////////////////////////////////////////////////////
+
+class MessageArea : public Window
+{
+private:
+	struct Line
+	{
+		float time;
+		string_t str;
+	};
+	std::deque<Line> _lines;
+	Text *_text;
+
+public:
+	MessageArea(Window *parent, float x, float y);
+	void puts(const char *text);
+	void Clear();
+
+	void OnTimeStep(float dt);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
