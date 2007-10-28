@@ -289,6 +289,8 @@ public:
 	bool empty() const { return 0 == _size; }
 	object_type *front() const { return _begin->ptr; }
 	object_type *back()  const { return _end->ptr; }
+
+	size_t size() const { return _size; } // FIXME
 };
 
 template <class object_type>

@@ -445,10 +445,10 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 
 	if( IsDead() )
 	{
-		if( g_level->_client )
+		if( g_client )
 		{
-			g_level->_client->SendControl(cp);
-			bool ok = g_level->_client->RecvControl(ControlPacket());
+			g_client->SendControl(cp);
+			bool ok = g_client->RecvControl(ControlPacket());
 			_ASSERT(ok);
 		}
 	}
@@ -457,11 +457,11 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 		VehicleState vs;
 		GetControl(vs);
 
-		if( g_level->_client  )
+		if( g_client )
 		{
 			cp.fromvs(vs);
-			g_level->_client->SendControl(cp);
-			bool ok = g_level->_client->RecvControl(cp);
+			g_client->SendControl(cp);
+			bool ok = g_client->RecvControl(cp);
 			_ASSERT(ok);
 			cp.tovs(vs);
 		}
@@ -631,13 +631,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerRemote)
 	return true;
 }
 
-GC_PlayerRemote::GC_PlayerRemote()
+GC_PlayerRemote::GC_PlayerRemote(DWORD id)
 {
-	_networkId = 0;
+	_networkId = id;
 }
 
 GC_PlayerRemote::GC_PlayerRemote(FromFile)
 {
+	_networkId = -1;
 }
 
 GC_PlayerRemote::~GC_PlayerRemote()
@@ -652,19 +653,19 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
-	_ASSERT(g_level->_client);
+	_ASSERT(g_client);
 
 	GC_Player::TimeStepFixed( dt );
 	
 	if( IsDead() )
 	{
-		bool ok = g_level->_client->RecvControl(ControlPacket());
+		bool ok = g_client->RecvControl(ControlPacket());
 		_ASSERT(ok);
 	}
 	else
 	{
 		ControlPacket cp;
-		bool ok = g_level->_client->RecvControl(cp);
+		bool ok = g_client->RecvControl(cp);
 		_ASSERT(ok);
 
 		VehicleState vs;

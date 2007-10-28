@@ -91,8 +91,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 
 TankClient::TankClient(void)
 {
-	_bInit    = false;
-	_hWnd     = NULL;
+	_init    = false;
 	_hMainWnd = NULL;
 
 	//---------------------------------
@@ -102,19 +101,20 @@ TankClient::TankClient(void)
 	_buf_incoming_size  = 0;
 	_buf_outgoing_size  = 0;
 
-	_bReadyToSend = false;
+	_readyToSend = false;
 }
 
 TankClient::~TankClient(void)
 {
-	if( _bInit ) WSACleanup();
+	ShutDown();
+	if( _init ) WSACleanup();
 }
 
 bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 {
 	TRACE("Connecting...\n");
 
-	if( !_bInit )
+	if( !_init )
 	{
 		WSAData wsad;
 		if( WSAStartup(0x0002, &wsad) )
@@ -122,7 +122,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			TRACE("ERROR: Windows sockets init failed\n");
 			return false;
 		}
-		_bInit = true;
+		_init = true;
 	}
 
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -187,27 +187,26 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 
 bool TankClient::recv_all()
 {
-	int count = recv(_socket, _buf_incoming + _buf_incoming_size,
-		BUFFER_SIZE - _buf_incoming_size, 0
-	);
+	int count = recv(_socket, _buf_incoming + _buf_incoming_size, MAX_BUFFER_SIZE - _buf_incoming_size, 0);
 	if( SOCKET_ERROR == count && WSAEWOULDBLOCK != WSAGetLastError() )
+	{
 		return false;
+	}
 	DataBlock tmp;
 	_buf_incoming_size += count;
     void *bufptr = _buf_incoming;
 	while( tmp.from_stream(&bufptr, &_buf_incoming_size) )
+	{
 		NewData(tmp);
+	}
 	memmove(_buf_incoming, bufptr, _buf_incoming_size);
-	//--------------------------------------
-	_ASSERT(IsWindow(_hWnd));
-	PostMessage(_hWnd, WM_NEWDATA, 0, 0); // Post вместо Send, чтобы избежать рекурсии
 	return true;
 }
 
 bool TankClient::send_all()
 {
-	if( _outgoing.empty() || !_bReadyToSend ) return true;
-	while( _buf_outgoing_size + _outgoing.front().raw_size() <= BUFFER_SIZE )
+	if( _outgoing.empty() || !_readyToSend ) return true;
+	while( _buf_outgoing_size + _outgoing.front().raw_size() <= MAX_BUFFER_SIZE )
 	{
 		memcpy((char*) _buf_outgoing + _buf_outgoing_size,
 			_outgoing.front().raw_data(), _outgoing.front().raw_size());
@@ -218,7 +217,7 @@ bool TankClient::send_all()
 	int count = send(_socket, _buf_outgoing, _buf_outgoing_size, 0);
 	if( SOCKET_ERROR == count )
 	{
-		_bReadyToSend = false;
+		_readyToSend = false;
 		return (WSAEWOULDBLOCK == WSAGetLastError());
 	}
 	_stats.dwBytesSent += count;
@@ -234,7 +233,7 @@ LRESULT TankClient::Mirror(WPARAM wParam, LPARAM lParam)
 	if( WSAGETSELECTERROR(lParam) )
 	{
 		TRACE("network error: %d\n", WSAGETSELECTERROR(lParam));
-		Message("Сбой соединения", true);
+		Message("Сбой соединения.", true);
 		return 0;
 	}
 
@@ -246,12 +245,11 @@ LRESULT TankClient::Mirror(WPARAM wParam, LPARAM lParam)
 		recv_all();
 		break;
 	case FD_WRITE:
-		_bReadyToSend = true;
+		_readyToSend = true;
 		if( !_outgoing.empty() )
 			send_all();
 		break;
 	case FD_CONNECT:
-		Message("Соедиение установлено.");
 		Message("Обмен данными с сервером...");
 		break;
 	default:
@@ -278,9 +276,6 @@ void TankClient::Message(const char *msg, bool err)
 	memcpy(db.data(), msg, db.size());
 	db.type() = err ? DBTYPE_ERRORMSG : DBTYPE_TEXTMESSAGE;
 	NewData(db);
-	//--------------------------------------
-	_ASSERT(IsWindow(_hWnd));
-	SendMessage(_hWnd, WM_NEWDATA, 0, 0);
 }
 
 bool TankClient::GetData(DataBlock &data)
@@ -290,7 +285,9 @@ bool TankClient::GetData(DataBlock &data)
 		data = _incoming.front();
 		_incoming.pop();
 		if( DBTYPE_CONTROLPACKET == data.type() )
-			_stats.nFramesInBuffer --;
+		{
+			--_stats.nFramesInBuffer;
+		}
 		return true;
 	}
 	return false;
@@ -322,15 +319,6 @@ void TankClient::NewData(const DataBlock &data)
 	//-------------------------------
 	_incoming.push(data);
 	_stats.dwBytesRecv += data.raw_size();
-}
-
-void TankClient::SetWindow(HWND hWnd)
-{
-	_ASSERT(IsWindow(hWnd));
-	//--------------------------------------
-	_hWnd = hWnd;
-	if( !_incoming.empty() )
-		SendMessage(_hWnd, WM_NEWDATA, 0, 0);
 }
 
 void TankClient::SendDataToServer(const DataBlock &data)

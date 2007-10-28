@@ -38,8 +38,6 @@ public:
 #define STATE_TOWERCENTER	0x0100
 #define STATE_ENABLELIGHT	0x0200
 
-
-#define WM_NEWDATA			(WM_USER + 1002)
 #define WM_CUSTOMCLIENTMSG	(WM_USER + 1003) // this message must be mirrored back
 
 
@@ -52,15 +50,14 @@ typedef struct NETWORKSTATS
 
 class TankClient
 {
-	static const size_t BUFFER_SIZE = 4096;
-
+	static const size_t MAX_BUFFER_SIZE = 4096;
 
 	std::queue<DataBlock> _incoming;
-	char _buf_incoming[BUFFER_SIZE];
+	char _buf_incoming[MAX_BUFFER_SIZE];
 	size_t _buf_incoming_size;
 
 	std::queue<DataBlock> _outgoing;
-	char _buf_outgoing[BUFFER_SIZE];
+	char _buf_outgoing[MAX_BUFFER_SIZE];
 	size_t _buf_outgoing_size;
 
 	HWND _hMainWnd;
@@ -68,14 +65,13 @@ class TankClient
 	int _frame;
 
 
-	bool _bReadyToSend;
-	bool _bInit;
+	bool _readyToSend;
+	bool _init;
 
-	bool recv_all(); // return false if an error accrues
-	bool send_all(); // return false if an error accrues
+	bool recv_all(); // return false if an error occurs
+	bool send_all(); // return false if an error occurs
 
 	Socket   _socket;
-	HWND   _hWnd; // этому окну приходят сообщения о новых данных
 	void NewData(const DataBlock &data);
 	void Message(const char *msg, bool err = false);
 
@@ -83,12 +79,8 @@ public:
 	DWORD _dwLatency;
 
 private:
-
-
 	DWORD _dwClientId;
 	NETWORKSTATS _stats;
-
-	HANDLE _evCheckPoint;
 
 public:
 	TankClient(void);
@@ -99,16 +91,13 @@ public:
 	bool Connect(const char* hostaddr, HWND hMainWnd);
 	void ShutDown();
 
-	void SetWindow(HWND hWnd);
 	LRESULT Mirror(WPARAM wParam, LPARAM lParam);
 	bool GetData(DataBlock &data);
 
 	void SendDataToServer(const DataBlock &data);
 
-	//----------------
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
 	void GetStatistics(LPNETWORKSTATS lpStats);
-
 
 	std::queue<ControlPacket> _ctrlBuf;
 	bool RecvControl(ControlPacket &cp);

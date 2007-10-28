@@ -56,24 +56,15 @@ NewMapDlg::~NewMapDlg()
 
 void NewMapDlg::OnOK()
 {
-
+	g_conf.ed_width->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
+	g_conf.ed_height->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
+	script_exec(g_env.L, "reset(); newmap(conf.ed_width, conf.ed_height)");
 	Close(_resultOK);
 }
 
 void NewMapDlg::OnCancel()
 {
 	Close(_resultCancel);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-MapSettingsDlg::MapSettingsDlg(Window *parent)
-  : Dialog(parent, 0, 0, 256, 256)
-{
-}
-
-MapSettingsDlg::~MapSettingsDlg()
-{
 }
 
 ///////////////////////////////////////////////////////////////////////////////

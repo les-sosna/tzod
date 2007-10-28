@@ -12,8 +12,12 @@
 #include "GuiManager.h"
 
 #include "Button.h"
+#include "Text.h"
 
 #include "fs/FileSystem.h"
+
+#include "Level.h"
+
 
 namespace UI
 {
@@ -36,8 +40,22 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	(new Button(this, 300, GetHeight(), "Опции (F12)"))->eventClick.bind(&MainMenuDlg::OnSettings, this);
 	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
 
-	_panel = new Window(this, 0, GetHeight() + 40, NULL);
+	_panelFrame = new Window(this, 0, GetHeight() + 40, NULL);
+	_panelFrame->ClipChildren(true);
+	_panelFrame->Resize(GetWidth(), 64);
 
+	_panel = new Window(_panelFrame, 0, -_panelFrame->GetHeight(), NULL);
+	_panelTitle = NULL;
+
+	if( g_level && GT_EDITOR == g_level->_gameType )
+	{
+		SwitchPanel(PT_EDITOR);
+	}
+
+	if( g_level && GT_DEATHMATCH == g_level->_gameType )
+	{
+		SwitchPanel(PT_SINGLEPLAYER);
+	}
 
 
 /*
@@ -63,13 +81,7 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 
 void MainMenuDlg::OnSinglePlayer()
 {
-	if( ClearPanel(PT_SINGLEPLAYER) )
-	{
-		(new Button(_panel, 0, 0, "Кампания"));//->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-		(new Button(_panel, 0, 0, "Мясо (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-		new Button(_panel, 100, 0, "Загрузить");
-		new Button(_panel, 200, 0, "Сохранить");
-	}
+	SwitchPanel(PT_SINGLEPLAYER);
 }
 
 void MainMenuDlg::OnNewGame()
@@ -90,11 +102,7 @@ void MainMenuDlg::OnCampaign(string_t name)
 
 void MainMenuDlg::OnMultiPlayer()
 {
-	if( ClearPanel(PT_MULTIPLAYER) )
-	{
-		(new Button(_panel, 0, 0, "Создать"))->eventClick.bind(&MainMenuDlg::OnHost, this);
-		(new Button(_panel, 100, 0, "Подключиться"))->eventClick.bind(&MainMenuDlg::OnJoin, this);
-	}
+	SwitchPanel(PT_MULTIPLAYER);
 }
 
 void MainMenuDlg::OnHost()
@@ -107,24 +115,26 @@ void MainMenuDlg::OnHost()
 void MainMenuDlg::OnJoin()
 {
 	Show(false);
-	ConnectDlg *dlg = new ConnectDlg(GetParent());
+	ConnectDlg *dlg = new ConnectDlg(GetParent(), NULL);
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnEditor()
 {
-	if( ClearPanel(PT_EDITOR) )
-	{
-		(new Button(_panel, 0, 0, "Создать"))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
-		new Button(_panel, 100, 0, "Загрузить");
-		new Button(_panel, 200, 0, "Сохранить");
-	}
+	SwitchPanel(PT_EDITOR);
 }
 
 void MainMenuDlg::OnNewMap()
 {
 	Show(false);
 	NewMapDlg *dlg = new NewMapDlg(GetParent());
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+}
+
+void MainMenuDlg::OnMapSettings()
+{
+	Show(false);
+	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
@@ -135,8 +145,9 @@ void MainMenuDlg::OnExit()
 
 void MainMenuDlg::OnSettings()
 {
-	SettingsDlg *dlg = new SettingsDlg(this);
-//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	Show(false);
+	SettingsDlg *dlg = new SettingsDlg(GetParent());
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnParentSize(float width, float height)
@@ -172,21 +183,94 @@ void MainMenuDlg::OnRawChar(int c)
 	}
 }
 
-bool MainMenuDlg::ClearPanel(PanelType newtype)
+void MainMenuDlg::SwitchPanel(PanelType newtype)
 {
-	while( _panel->GetFirstChild() )
-	{
-		_panel->GetFirstChild()->Destroy();
-	}
 	if( _ptype != newtype )
 	{
 		_ptype = newtype;
-		return true;
 	}
-	_ptype = PT_NONE;
-	return false;
+	else
+	{
+		_ptype = PT_NONE;
+	}
+	_pstate = PS_DISAPPEARING;
+	SetTimeStep(true);
 }
 
+void MainMenuDlg::CreatePanel()
+{
+	_panelTitle = new Text(_panel, 0, 0, "", alignTextLT);
+	_panelTitle->SetTexture("font_default");
+	_panelTitle->Resize(_panelTitle->GetTextureWidth(), _panelTitle->GetTextureHeight());
+
+	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
+
+	switch( _ptype )
+	{
+	case PT_SINGLEPLAYER:
+		_panelTitle->SetText("Одиночная игра");
+		(new Button(_panel, 0, y, "Кампания"));//->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		(new Button(_panel, 100, y, "Мясо (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		new Button(_panel, 200, y, "Загрузить");
+		new Button(_panel, 300, y, "Сохранить");
+		break;
+	case PT_MULTIPLAYER:
+		_panelTitle->SetText("Сетевая игра");
+		(new Button(_panel, 0, y, "Создать"))->eventClick.bind(&MainMenuDlg::OnHost, this);
+		(new Button(_panel, 100, y, "Подключиться"))->eventClick.bind(&MainMenuDlg::OnJoin, this);
+		break;
+	case PT_EDITOR:
+		_panelTitle->SetText("Редактор карт");
+		(new Button(_panel, 0, y, "Новая карта"))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
+		(new Button(_panel, 100, y, "Настройки"))->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
+		new Button(_panel, 200, y, "Загрузить");
+		new Button(_panel, 300, y, "Сохранить");
+		break;
+	default:
+		_ASSERT(FALSE);
+	}
+}
+
+void MainMenuDlg::OnTimeStep(float dt)
+{
+	switch( _pstate )
+	{
+	case PS_APPEARING:
+		_panel->Move(0, _panel->GetY() + dt * 1000);
+		if( _panel->GetY() >= 0 )
+		{
+			_panel->Move(0, 0);
+			_pstate = PS_NONE;
+			SetTimeStep(false);
+		}
+		break;
+	case PS_DISAPPEARING:
+		_panel->Move(0, _panel->GetY() - dt * 1000);
+		if( _panel->GetY() <= -_panelFrame->GetHeight() )
+		{
+			while( _panel->GetFirstChild() )
+			{
+				_panel->GetFirstChild()->Destroy();
+			}
+			_panel->Move(0, -_panelFrame->GetHeight());
+			_panelTitle = NULL;
+
+			if( PT_NONE != _ptype )
+			{
+				_pstate = PS_APPEARING;
+				CreatePanel();
+			}
+			else
+			{
+				_pstate = PS_NONE;
+				SetTimeStep(false);
+			}
+		}
+		break;
+	default:
+		_ASSERT(FALSE);
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

@@ -57,7 +57,6 @@ class Window : public RefCounted
 protected:
 	int  GetFrameCount() const;
 	void SetFrame(int n) { _frame = n; }
-	void ClipChildren(bool clip) { _clipChildren = clip; }
 
 	void SetCapture();
 	void ReleaseCapture();
@@ -87,8 +86,9 @@ public:
 	float GetX()      const { return _x;     }
 	float GetY()      const { return _y;     }
 
-	void  SetColor(SpriteColor color) { _color     = color;  }
-	void  SetBorder(bool border)      { _hasBorder = border; }
+	void  SetColor(SpriteColor color) { _color        = color;  }
+	void  SetBorder(bool border)      { _hasBorder    = border; }
+	void  ClipChildren(bool clip)     { _clipChildren = clip;   }
 
 	Window* GetParent()      const { return _parent; }
 	Window* GetPrevSibling() const { return _prevSibling; }

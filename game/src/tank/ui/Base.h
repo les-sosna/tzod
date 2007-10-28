@@ -22,6 +22,8 @@ class List;
 class MouseCursor;
 class ScrollBar;
 class Text;
+class Console;
+
 } // end of namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////

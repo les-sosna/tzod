@@ -13,18 +13,20 @@ namespace UI
 
 class ScrollBar : public Window
 {
-    ImageButton *_btnUp;
-    ImageButton *_btnDown;
+    ImageButton *_btnUpLeft;
+    ImageButton *_btnDownRight;
     ImageButton *_btnBox;
 
-    float _tmpBoxY;
+    float _tmpBoxPos;
 
 	float _pos;
 	float _lineSize;
 	float _limit;
 
+	bool _hor;
+
 public:
-	ScrollBar(Window *parent, float x, float y, float height);
+	ScrollBar(Window *parent, float x, float y, float size, bool hor = false);
 
 	void  SetPos(float pos);
 	float GetPos() const;
@@ -44,8 +46,8 @@ private:
 	void OnBoxMouseUp(float x, float y);
 	void OnBoxMouseMove(float x, float y);
 
-	void OnUp();
-	void OnDown();
+	void OnUpLeft();
+	void OnDownRight();
 };
 
 

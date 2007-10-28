@@ -12,7 +12,7 @@ class TankServer
 	FILE *_logFile;
 	void SERVER_TRACE(const char *fmt, ...);
 
-	bool _bInit;
+	bool _init;
 	GAMEINFO _GameInfo;
 
 	struct ClientDesc
@@ -47,17 +47,17 @@ class TankServer
 	static DWORD WINAPI ClientProc(ClientThreadData *pData);
 
 
-	Socket _socketListen;              // прослушивающий сокет
-	HANDLE _evStopListen;              // событие отмены прослушивания
+	Socket _socketListen;        // прослушивающий сокет
+	HANDLE _evStopListen;        // событие отмены прослушивания
 
-	HANDLE _hAcceptThread;             // поток, принимающий подключения клиентов
+	HANDLE _hAcceptThread;       // поток, принимающий подключения клиентов
 	static DWORD WINAPI AcceptProc(TankServer *pServer);
 
 
-	HANDLE _hMainThread;               // основной серверный поток
-	HANDLE _hMainSemaphore;            // семафор контролирует наличие данных в очереди _MainData
-	HANDLE _hMainStopEvent;            // событие завершает основной поток
-	CRITICAL_SECTION _MainCS;          // критическая секция защищает данные _MainData
+	HANDLE _hMainThread;         // основной серверный поток
+	HANDLE _hMainSemaphore;      // семафор контролирует наличие данных в очереди _MainData
+	HANDLE _hMainStopEvent;      // событие завершает основной поток
+	CRITICAL_SECTION _MainCS;    // критическая секция защищает данные _MainData
 
 	struct MainThreadData
 	{
@@ -66,7 +66,7 @@ class TankServer
 	};
 	std::queue<MainThreadData> _MainData;   // данные, которые должны быть обработаны основным потоком
 
-	bool TrySendFrame();                // отправка кадра если все данные получены
+	bool TrySendFrame();         // отправка кадра если все данные получены
 	static DWORD WINAPI MainProc(TankServer *pServer);
 
 	void SendMainThreadData(DWORD id_from, const DataBlock &data);

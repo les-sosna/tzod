@@ -21,6 +21,7 @@ class MainMenuDlg : public Dialog
 
 	void OnEditor();
 	void OnNewMap();
+	void OnMapSettings();
 
 	void OnSettings();
 	void OnExit();
@@ -42,6 +43,8 @@ class MainMenuDlg : public Dialog
 	};
 
 	Window    *_panel;
+	Window    *_panelFrame;
+	Text      *_panelTitle;
 	PanelType  _ptype;
 	PanelState _pstate;
 
@@ -53,8 +56,10 @@ public:
 	virtual void OnRawChar(int c);
 
 protected:
+	void OnTimeStep(float dt);
 	void OnCloseChild(int result);
-	bool ClearPanel(PanelType newtype); // return true if newtype != oldtype
+	void CreatePanel(); // create panel of current _ptype and go to PS_APPEARING state
+	void SwitchPanel(PanelType newtype);
 };
 
 

@@ -146,7 +146,7 @@ class GC_PlayerRemote : public GC_Player
 	DWORD _networkId;
 
 public:
-	GC_PlayerRemote();
+	GC_PlayerRemote(DWORD id);
 	GC_PlayerRemote(FromFile);
 	virtual ~GC_PlayerRemote();
 

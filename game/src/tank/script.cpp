@@ -40,6 +40,7 @@ static int luaT_reset(lua_State *L)
 	SAFE_DELETE(g_level);
 
 
+
 	//
 	// clear the queue
 	//

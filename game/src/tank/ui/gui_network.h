@@ -29,6 +29,7 @@ public:
 protected:
 	void OnOK();
 	void OnCancel();
+	void OnCloseChild(int result);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,14 +38,37 @@ class ConnectDlg : public Dialog
 {
 	Button *_btnOK;
 	Edit   *_name;
+	List   *_status;
+
+	void Error(const char *msg);
 
 public:
-	ConnectDlg(Window *parent);
+	ConnectDlg(Window *parent, const char *autoConnect);
 	~ConnectDlg();
 
 protected:
 	void OnOK();
 	void OnCancel();
+	void OnTimeStep(float dt);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class WaitingForPlayersDlg : public Dialog
+{
+	List           *_players;
+	Console        *_chat;
+	ConsoleBuffer  *_buf;
+	Button         *_btnOK;
+
+public:
+	WaitingForPlayersDlg(Window *parent);
+	~WaitingForPlayersDlg();
+
+protected:
+	void OnOK();
+	void OnCancel();
+	void OnTimeStep(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

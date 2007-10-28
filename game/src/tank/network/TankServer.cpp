@@ -13,7 +13,7 @@ TankServer::TankServer(void)
 	_logFile = fopen("server_trace.txt", "w");
 	_ASSERT(_logFile);
 
-	_bInit = false;
+	_init = false;
 	_evStopListen  = NULL;
 	_hAcceptThread = NULL;
 
@@ -29,13 +29,15 @@ TankServer::TankServer(void)
 
 TankServer::~TankServer(void)
 {
+	ShutDown();
+
 	DeleteCriticalSection(&_MainCS);
 	DeleteCriticalSection(&_csClients);
 
 	_ASSERT( NULL == _evStopListen );
 	if( INVALID_SOCKET != _socketListen ) _socketListen.Close();
 	//----------------------------------------
-	if( _bInit ) WSACleanup();
+	if( _init ) WSACleanup();
 	fclose(_logFile);
 }
 
@@ -57,7 +59,7 @@ void TankServer::ShutDown()
 		_hMainSemaphore = NULL;
 		_hMainThread    = NULL;
 
-        _ASSERT(NULL == _hAcceptThread);
+		_ASSERT(NULL == _hAcceptThread);
 		_ASSERT(NULL == _hClientsEmptyEvent);
 		_ASSERT(NULL == _evStopListen);
 	}
@@ -85,7 +87,7 @@ void TankServer::SendClientThreadData(const std::list<ClientDesc>::iterator &it,
 
 bool TankServer::init(const LPGAMEINFO pGameInfo)
 {
-	_ASSERT(!_bInit);
+	_ASSERT(!_init);
 
 	memcpy(&_GameInfo, pGameInfo, sizeof(GAMEINFO));
 	_ASSERT(VERSION == _GameInfo.dwVersion);
@@ -93,12 +95,12 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	TRACE("Server startup...\n");
 	WSAData wsad;
-	if( !_bInit )
+	if( !_init )
 	{
 		if( WSAStartup(0x0002, &wsad) )
 			TRACE("ERROR: Windows sockets init failed\n");
 	}
-	_bInit = true;
+	_init = true;
 
 	_socketListen = socket(PF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socketListen )
@@ -512,7 +514,7 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 		DWORD     id_from = pServer->_MainData.front().id_from;
 		pServer->_MainData.pop();
 		LeaveCriticalSection(&pServer->_MainCS);
-        //---------------------------------------
+		//---------------------------------------
 		std::list<ClientDesc>::iterator it;
 		EnterCriticalSection(&pServer->_csClients);
 		switch( db.type() )
@@ -650,10 +652,10 @@ void TankServer::SERVER_TRACE(const char *fmt, ...)
 
 	fprintf(_logFile, "0x%X: ", GetCurrentThreadId());
 
-    va_list va;
-    va_start(va, fmt);
-    vfprintf(_logFile, fmt, va);
-    va_end(va);
+	va_list va;
+	va_start(va, fmt);
+	vfprintf(_logFile, fmt, va);
+	va_end(va);
 	fflush(_logFile);
 }
 

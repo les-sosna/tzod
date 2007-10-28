@@ -250,15 +250,21 @@ class GC_Weap_Ripper : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
+	SafePtr<GC_UserSprite> _disk;
+	void UpdateDisk();
+
 public:
 	virtual void Attach(GC_Actor *actor);
+	virtual void Detach();
 
 	GC_Weap_Ripper(float x, float y);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
+	virtual void Serialize(SaveFile &f);
 
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
+	virtual void TimeStepFloat(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

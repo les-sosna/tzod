@@ -53,6 +53,23 @@ void List::DeleteAllItems()
 	SetCurSel(-1, false);
 }
 
+void List::DeleteItem(int index)
+{
+	_items.erase(_items.begin() + index);
+	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
+	if( -1 != GetCurSel() )
+	{
+		if( GetCurSel() > index )
+		{
+			SetCurSel(GetCurSel() - 1, false);
+		}
+		else if( GetCurSel() == index )
+		{
+			SetCurSel(-1, false);
+		}
+	}
+}
+
 int List::AddItem(const char *str, UINT_PTR data)
 {
 	Item i;

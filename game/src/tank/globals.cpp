@@ -21,6 +21,8 @@ CSound      *g_pSounds[SND_COUNT] = {0};
 IRender     *g_render  = NULL;
 GuiManager  *g_gui     = NULL;
 Level       *g_level   = NULL;
+TankServer  *g_server  = NULL;
+TankClient  *g_client  = NULL;
 
 TextureManager *g_texman = NULL;
 

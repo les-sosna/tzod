@@ -17,8 +17,9 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 
-Console::Console(Window *parent, float x, float y)
+Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
   : Window(parent, x, y, "window")
+  , _buf(buf)
 {
 	SetBorder(true);
 
@@ -32,6 +33,8 @@ Console::Console(Window *parent, float x, float y)
 
 	_scrollBack = 0;
 	_cmdIndex   = g_conf.con_history->GetSize();
+
+	Resize(w, h);
 }
 
 void Console::OnChar(int c)
@@ -70,7 +73,7 @@ void Console::OnRawChar(int c)
 		const string_t &cmd = _input->GetText();
 		if( cmd.empty() )
 		{
-			g_console->printf(">\n");
+			_buf->printf(">\n");
 		}
 		else
 		{
@@ -85,7 +88,7 @@ void Console::OnRawChar(int c)
 			}
 			_cmdIndex = g_conf.con_history->GetSize();
 
-			g_console->printf("> %s\n", cmd.c_str());      // echo to console
+			_buf->printf("> %s\n", cmd.c_str());      // echo to console
 			if( eventOnSendCommand )
 				INVOKE(eventOnSendCommand) (cmd.c_str());  // send to the scripting system
 			_input->SetText("");                           // erase input field
@@ -93,13 +96,13 @@ void Console::OnRawChar(int c)
 		break;
 	}
 	case VK_PRIOR:
-		_scrollBack = __min(_scrollBack + 1, g_console->GetLineCount() - 1);
+		_scrollBack = __min(_scrollBack + 1, _buf->GetLineCount() - 1);
 		break;
 	case VK_NEXT:
 		if( _scrollBack > 0 ) --_scrollBack;
 		break;
 	case VK_HOME:
-		_scrollBack = g_console->GetLineCount() - 1;
+		_scrollBack = _buf->GetLineCount() - 1;
 		break;
 	case VK_END:
 		_scrollBack = 0;
@@ -145,7 +148,7 @@ bool Console::OnMouseWheel(float x, float y, float z)
 {
 	if( z > 0 )
 	{
-		_scrollBack = __min(_scrollBack + int(z * 3), g_console->GetLineCount() - 1);
+		_scrollBack = __min(_scrollBack + int(z * 3), _buf->GetLineCount() - 1);
 	}
 	else
 	{
@@ -165,11 +168,11 @@ void Console::DrawChildren(float sx, float sy)
 	Window::DrawChildren(sx, sy);
 	_blankText->Show(true);
 	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetHeight());
-	size_t scroll = __min(_scrollBack, g_console->GetLineCount());
-	size_t count  = __min( g_console->GetLineCount() - scroll, visibleLineCount );
+	size_t scroll = __min(_scrollBack, _buf->GetLineCount());
+	size_t count  = __min( _buf->GetLineCount() - scroll, visibleLineCount );
 	for( size_t i = 0; i < count; ++i )
 	{
-		_blankText->SetText( g_console->GetLine(g_console->GetLineCount() - scroll - i - 1) );
+		_blankText->SetText( _buf->GetLine(_buf->GetLineCount() - scroll - i - 1) );
 		_blankText->Draw(sx + 4, sy -= _blankText->GetHeight());
 	}
 	_blankText->Show(false);

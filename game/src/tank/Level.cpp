@@ -241,9 +241,6 @@ Level::Level()
 
 	_seed   = 1;
 
-	_server = NULL;
-	_client = NULL;
-
 	/////////////////////////
 	#ifdef _DEBUG
 	_bInitialized = FALSE;
@@ -376,20 +373,6 @@ Level::~Level()
 		_ASSERT(!obj->IsKilled());
 		obj->Kill();
 		++it;
-	}
-
-	if( _client )
-	{
-		_client->ShutDown();
-		delete _client;
-		_client = NULL;
-	}
-
-	if( _server )
-	{
-		_server->ShutDown();
-		delete _server;
-		_server = NULL;
 	}
 
 	// unregister config handlers
@@ -1022,7 +1005,7 @@ void Level::TimeStep(float dt)
 
 	_safeMode = false;
 
-	if( _client )
+	if( g_client )
 	{
 		//
 		// network mode
@@ -1038,7 +1021,7 @@ void Level::TimeStep(float dt)
 			// обработка команд кадра
 			//
 			DataBlock db;
-			while( _client->GetData(db) )
+			while( g_client->GetData(db) )
 			{
 				switch( db.type() )
 				{
@@ -1071,14 +1054,14 @@ void Level::TimeStep(float dt)
 						_ASSERT(0 == db.size() % sizeof(ControlPacket));
 						size_t count = db.size() / sizeof(ControlPacket);
 						for( size_t i = 0; i < count; i++ )
-							_client->_ctrlBuf.push( ((ControlPacket *) db.data())[i] );
+							g_client->_ctrlBuf.push( ((ControlPacket *) db.data())[i] );
 					} break;
 				} // end of switch( db.type )
 
 				if( DBTYPE_CONTROLPACKET == db.type() ) break;
 			}
 
-			if( _client->_ctrlBuf.empty() )
+			if( g_client->_ctrlBuf.empty() )
 			{
 				_timeBuffer = 0;
 				break; // нет кадра. пропускаем

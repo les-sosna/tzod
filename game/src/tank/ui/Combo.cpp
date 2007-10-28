@@ -17,14 +17,13 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 ComboBox::ComboBox(Window *parent, float x, float y, float width)
-  : Window(parent)
+  : Window(parent, x, y, "ctrl_list")
 {
 	_curSel = -1;
 
 	_text = new Text(this, 0, 1, "", alignTextLT);
 
 	SetBorder(true);
-	Move(x, y);
 	Resize(width, _text->GetHeight()+2);
 
 	_list = new List(this, 0, GetHeight()+2, width, _text->GetHeight()*6);

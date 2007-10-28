@@ -13,7 +13,11 @@
 #include "core/Console.h"
 
 #include "video/TextureManager.h"
-#include "video/RenderBase.h"
+#include "video/RenderOpenGL.h"
+#include "video/RenderDirect3D.h"
+
+#include "network/TankClient.h"
+#include "network/TankServer.h"
 
 #include "ui/Interface.h"
 #include "ui/GuiManager.h"
@@ -220,6 +224,10 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		g_fs = NULL; // free the file system
 		return 0;
 	}
+	else
+	{
+		g_render = g_conf.r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
+	}
 
 
 	//
@@ -301,19 +309,15 @@ int APIENTRY WinMain( HINSTANCE hinst,
 			{
 				ReadImmediateData();  // чтение состояния устройств ввода
 				//------------------------------
-				if( g_level && g_env.envInputs.keys[DIK_F8] && g_level->_modeEditor )
-				{
-					DialogBox(g_hInstance, (LPCTSTR) IDD_MAP_SETTINGS, g_env.hMainWnd, (DLGPROC) dlgMapSettings);
-					continue;
-				}
-				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
+				if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
 				{
 					if( g_level ) g_level->Pause(true);
 					ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
 					if( g_level ) g_level->Pause(false);
 					continue;
 				}
-				else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
+				else
+				if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
 				{
 					TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
 					DestroyWindow(g_env.hMainWnd);
@@ -324,7 +328,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				RenderFrame(false);
 				EndFrame();
 			}
-		}
+		}// end of main loop
 
 #ifndef _DEBUG
 		} // end of try block
@@ -335,6 +339,11 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		}
 #endif
 
+		SAFE_DELETE(g_level);
+		SAFE_DELETE(g_client);
+		SAFE_DELETE(g_server);
+
+
 		TRACE("Shutting down GUI subsystem\n");
 		SAFE_DELETE(g_gui);
 		timeEndPeriod(1);
@@ -343,7 +352,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	{
 		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);
 	}
-
 
 	SAFE_DELETE(timer);
 

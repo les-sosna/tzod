@@ -13,6 +13,8 @@ class Level;
 class IFileSystem;
 class ConsoleBuffer;
 class KeyMapper;
+class TankServer;
+class TankClient;
 
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
@@ -32,9 +34,12 @@ extern TextureManager *g_texman;
 extern CSoundManager  *g_pSoundManager;
 extern GuiManager     *g_gui;
 extern Level          *g_level;
+extern TankServer     *g_server;
+extern TankClient     *g_client;
 extern ConsoleBuffer  *g_console;
 extern KeyMapper      *g_keys;
 extern SafePtr<IFileSystem> g_fs;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

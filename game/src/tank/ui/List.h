@@ -37,6 +37,7 @@ public:
 	List(Window *parent, float x, float y, float width, float height);
 
 	void DeleteAllItems();
+	void DeleteItem(int index);
 
 	int      AddItem(const char *str, UINT_PTR data = 0);
 	void     SetItemText(int index, int sub, const char *str);

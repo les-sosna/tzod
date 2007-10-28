@@ -223,9 +223,6 @@ public:
 
 	unsigned long _seed;
 
-	TankServer *_server;
-	TankClient *_client;
-
 /////////////////////////////////////
 public:
 	float _time;

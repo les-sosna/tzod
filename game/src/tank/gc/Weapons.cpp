@@ -1175,11 +1175,21 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 	return true;
 }
 
+void GC_Weap_Ripper::UpdateDisk()
+{
+	_disk->Show(_time > _timeReload);
+	_disk->MoveTo(GetPos() - vec2d(GetRotation()) * 8);
+}
+
 void GC_Weap_Ripper::Attach(GC_Actor *actor)
 {
 	GC_Weapon::Attach(actor);
 
 	_timeReload = 0.5f;
+	_disk = new GC_UserSprite();
+	_disk->SetTexture("projectile_disk");
+	_disk->SetZ(Z_PROJECTILE);
+	UpdateDisk();
 
 //return;
 //	veh->SetMaxHP(80);
@@ -1194,11 +1204,16 @@ void GC_Weap_Ripper::Attach(GC_Actor *actor)
 //	veh->_MaxForvSpeed = 240;
 }
 
+void GC_Weap_Ripper::Detach()
+{
+	SAFE_KILL(_disk);
+	GC_Weapon::Detach();
+}
+
 GC_Weap_Ripper::GC_Weap_Ripper(float x, float y)
 : GC_Weapon(x, y)
 {
 	SetTexture("weap_ripper");
-//	new GC_Disk(this);
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(FromFile) : GC_Weapon(FromFile())
@@ -1207,6 +1222,12 @@ GC_Weap_Ripper::GC_Weap_Ripper(FromFile) : GC_Weapon(FromFile())
 
 GC_Weap_Ripper::~GC_Weap_Ripper()
 {
+}
+
+void GC_Weap_Ripper::Serialize(SaveFile &f)
+{
+	GC_Weapon::Serialize(f);
+	f.Serialize(_disk);
 }
 
 void GC_Weap_Ripper::Fire()
@@ -1233,6 +1254,16 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 500;
 	pSettings->fAttackRadius_crit =  60;
 	pSettings->fDistanceMultipler = _advanced ? 2.2f : 40.0f;
+}
+
+void GC_Weap_Ripper::TimeStepFloat(float dt)
+{
+	GC_Weapon::TimeStepFloat(dt);
+	if( _disk )
+	{
+		_disk->SetRotation(_disk->GetRotation() + dt * 10);
+		UpdateDisk();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

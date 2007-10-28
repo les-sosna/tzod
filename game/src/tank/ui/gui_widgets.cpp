@@ -66,7 +66,7 @@ void FpsCounter::OnTimeStep(float dt)
 		strcat(s, s1);
 
 		// network statistics
-		if( g_level && g_level->_client )
+		if( g_level && g_client )
 		{
 			min = max = _dts_net.front();
 			for( std::list<float>::iterator it = _dts_net.begin();
@@ -80,7 +80,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 
 			NETWORKSTATS ns;
-			g_level->_client->GetStatistics(&ns);
+			g_client->GetStatistics(&ns);
 			wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; fps: %3dmin %3davr %3dmax;",
 				ns.nFramesInBuffer, ns.dwBytesSent/1024, ns.dwBytesRecv/1024,
 				int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f)

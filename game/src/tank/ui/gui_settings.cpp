@@ -9,45 +9,54 @@
 #include "Button.h"
 #include "Scroll.h"
 #include "Edit.h"
+#include "Combo.h"
 
 #include "config/Config.h"
 
+#include "video/TextureManager.h"
+
 #include "KeyMapper.h"
+#include "Level.h"
 
 
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
+SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 296)
 {
 	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
+
+	Text *title = new Text(this, GetWidth() / 2, 16, "Настройки игры", alignTextCT);
+	title->SetTexture("font_default");
+	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
 
 	//
 	// profiles
 	//
 
-	new Text(this, 8, 8, "Профили", alignTextLT);
-	_profiles = new List(this, 8, 24, 128, 104);
+	new Text(this, 24, 48, "Профили", alignTextLT);
+	_profiles = new List(this, 24, 64, 128, 104);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
-	(new Button(this, 16, 144, "Добавить"))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
-	_editProfile = new Button(this, 16, 176, "Изменить");
+	(new Button(this, 40, 184, "Новый профиль"))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
+	_editProfile = new Button(this, 40, 216, "Изменить");
 	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->Enable( false );
-	_deleteProfile = new Button(this, 16, 208, "Удалить");
+	_deleteProfile = new Button(this, 40, 248, "Удалить");
 	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->Enable( false );
+
 
 	//
 	// other settings
 	//
 
-	float x = 192;
-	float y = 8;
+	float x = 200;
+	float y = 48;
 
 	_showFps = new CheckBox(this, x, y, "Показать FPS");
 	_showFps->SetCheck(g_conf.ui_showfps->Get());
@@ -65,17 +74,25 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 	_showDamage->SetCheck(g_conf.g_showdamage->Get());
 	y += _showDamage->GetHeight();
 
+	_askDisplaySettings = new CheckBox(this, x, y, "Запрос настроек экрана при запуске");
+	_askDisplaySettings->SetCheck(g_conf.r_askformode->Get());
+	y += _askDisplaySettings->GetHeight();
 
-//	_volume = new ScrollBar(this, x + 192, 8, 128 );
-//	_volume->SetLimit(100);
+	new Text(this, x, y += 20, "Громкость", alignTextLT);
+	_volume = new ScrollBar(this, x + 16, y += 15, 128, true);
+	_volume->SetLimit(1);
+	_volume->SetLineSize(0.1f);
+	_volume->SetPos(expf(g_conf.s_volume->GetFloat() / 2171.0f) - 0.01f);
+	_volume->eventScroll.bind(&SettingsDlg::OnVolume, this);
+	_initialVolume = g_conf.s_volume->GetInt();
 
 
 	//
 	// OK & Cancel
 	//
 
-	(new Button(this, 304, 216, "ОК"))->eventClick.bind(&SettingsDlg::OnOK, this);
-	(new Button(this, 408, 216, "Отмена"))->eventClick.bind(&SettingsDlg::OnCancel, this);
+	(new Button(this, 304, 256, "ОК"))->eventClick.bind(&SettingsDlg::OnOK, this);
+	(new Button(this, 408, 256, "Отмена"))->eventClick.bind(&SettingsDlg::OnCancel, this);
 
 
 	_profiles->SetCurSel(0, true);
@@ -84,6 +101,11 @@ SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 256)
 
 SettingsDlg::~SettingsDlg()
 {
+}
+
+void SettingsDlg::OnVolume(float pos)
+{
+	g_conf.s_volume->SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnAddProfile()
@@ -119,12 +141,14 @@ void SettingsDlg::OnOK()
 	g_conf.ui_showtime->Set(_showTime->GetCheck());
 	g_conf.g_particles->Set(_particles->GetCheck());
 	g_conf.g_showdamage->Set(_showDamage->GetCheck());
+	g_conf.r_askformode->Set(_askDisplaySettings->GetCheck());
 
-	Close(_resultOK);
+	Close(_resultCancel); // return cancel to show back the main menu
 }
 
 void SettingsDlg::OnCancel()
 {
+	g_conf.s_volume->SetInt(_initialVolume);
 	Close(_resultCancel);
 }
 
@@ -311,6 +335,93 @@ void ControlProfileDlg::OnRawChar(int c)
 		Dialog::OnRawChar(c);
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+MapSettingsDlg::MapSettingsDlg(Window *parent)
+  : Dialog(parent, 0, 0, 512, 512)
+{
+	_ASSERT(g_level);
+
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
+	SetEasyMove(true);
+
+	Text *title = new Text(this, GetWidth() / 2, 16, "Настройки карты", alignTextCT);
+	title->SetTexture("font_default");
+	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+
+
+	float x1 = 20;
+	float x2 = x1 + 12;
+
+	float y = 32;
+
+	new Text(this, x1, y += 20, "Автор", alignTextLT);
+	_author = new Edit(this, x2, y += 15, 256);
+	_author->SetText(g_level->_infoAuthor.c_str());
+
+	new Text(this, x1, y += 20, "E-Mail", alignTextLT);
+	_email = new Edit(this, x2, y += 15, 256);
+	_email->SetText(g_level->_infoEmail.c_str());
+
+	new Text(this, x1, y += 20, "Url", alignTextLT);
+	_url = new Edit(this, x2, y += 15, 256);
+	_url->SetText(g_level->_infoUrl.c_str());
+
+	new Text(this, x1, y += 20, "Описание", alignTextLT);
+	_desc = new Edit(this, x2, y += 15, 256);
+	_desc->SetText(g_level->_infoDesc.c_str());
+
+	new Text(this, x1, y += 20, "Тема оформления", alignTextLT);
+	_theme = new ComboBox(this, x2, y += 15, 256);
+	for( size_t i = 0; i < _ThemeManager::Inst().GetThemeCount(); i++ )
+	{
+		_theme->GetList()->AddItem(_ThemeManager::Inst().GetThemeName(i).c_str());
+	}
+	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme.c_str()));
+
+
+	//
+	// OK & Cancel
+	//
+	(new Button(this, 304, 480, "ОК"))->eventClick.bind(&MapSettingsDlg::OnOK, this);
+	(new Button(this, 408, 480, "Отмена"))->eventClick.bind(&MapSettingsDlg::OnCancel, this);
+}
+
+MapSettingsDlg::~MapSettingsDlg()
+{
+}
+
+void MapSettingsDlg::OnOK()
+{
+	g_level->_infoAuthor = _author->GetText();
+	g_level->_infoEmail = _email->GetText();
+	g_level->_infoUrl = _url->GetText();
+	g_level->_infoDesc = _desc->GetText();
+
+	int i = _theme->GetCurSel();
+	if( 0 != i )
+	{
+		g_level->_infoTheme = _theme->GetList()->GetItemText(i);
+	}
+	else
+	{
+		g_level->_infoTheme.clear();
+	}
+	if( !_ThemeManager::Inst().ApplyTheme(i) )
+	{
+	//	MessageBoxT(g_env.hMainWnd, "Ошибка при загрузке темы", MB_ICONERROR);
+	}
+
+	Close(_resultOK);
+}
+
+void MapSettingsDlg::OnCancel()
+{
+	Close(_resultCancel);
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

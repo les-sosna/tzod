@@ -24,8 +24,10 @@ class SettingsDlg : public Dialog
 	CheckBox  *_showFps;
 	CheckBox  *_showTime;
 	CheckBox  *_showDamage;
+	CheckBox  *_askDisplaySettings;
 
 	ScrollBar *_volume;
+	int _initialVolume;
 
 
 public:
@@ -33,6 +35,8 @@ public:
 	~SettingsDlg();
 
 protected:
+	void OnVolume(float pos);
+
 	void OnAddProfile();
 	void OnEditProfile();
 	void OnDeleteProfile();
@@ -73,6 +77,24 @@ protected:
 
 	void OnTimeStep(float dt);
 	void OnRawChar(int c);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class MapSettingsDlg : public Dialog
+{
+	Edit *_author;
+	Edit *_email;
+	Edit *_url;
+	Edit *_desc;
+	ComboBox *_theme;
+
+public:
+	MapSettingsDlg(Window *parent);
+	~MapSettingsDlg();
+
+	void OnOK();
+	void OnCancel();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

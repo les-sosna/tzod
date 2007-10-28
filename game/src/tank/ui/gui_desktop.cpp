@@ -76,7 +76,7 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 	_editor = new EditorLayout(this);
 	_editor->Show(false);
 
-	_con = new Console(this, 10, 0);
+	_con = new Console(this, 10, 0, 100, 100, g_console);
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->Show(false);
@@ -158,6 +158,15 @@ void Desktop::OnRawChar(int c)
 		{
 			g_level->ToggleEditorMode();
 			ShowEditor(g_level->_modeEditor);
+		}
+		break;
+
+	case VK_F8:
+		if( g_level && g_level->_modeEditor )
+		{
+			dlg = new MapSettingsDlg(this);
+			ShowDesktopBackground(true);
+			dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		}
 		break;
 	}

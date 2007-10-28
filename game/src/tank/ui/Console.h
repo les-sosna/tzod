@@ -6,6 +6,9 @@
 #include "Window.h"
 
 
+// forward declarations
+class ConsoleBuffer;
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,8 +21,10 @@ class Console : public Window
 	size_t _scrollBack;
 	size_t _cmdIndex;
 
+	ConsoleBuffer * const _buf;
+
 public:
-	Console(Window *parent, float x, float y);
+	Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
 	Delegate<void(const char *)> eventOnSendCommand;
 	Delegate<bool(const char *, string_t &)> eventOnRequestCompleteCommand;
 

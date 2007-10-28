@@ -369,7 +369,7 @@ void NewGameDlg::OnOK()
 	}
 	else
 	{
-		SAFE_DELETE(g_level);
+		script_exec(g_env.L, "reset()");
 //		MessageBoxT(NULL, "Ошибка при загрузке карты", MB_OK|MB_ICONHAND);
 		return;
 	}
