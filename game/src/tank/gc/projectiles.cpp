@@ -188,14 +188,20 @@ void GC_Projectile::TimeStepFixed(float dt)
 
 	if( object )
 	{
+#ifdef _DEBUG
+		vec2d pos = GetPos();
+#endif
 		if( Hit(object, hit, norm) )
 		{
-			MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+			_ASSERT(GetPos() == pos);
 			Kill();
+			return;
 		}
 		else
 		{
+			_ASSERT(GetPos() == pos);
 			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).sqr() / dx.sqr()));
+			_ASSERT(new_dt >= 0);
 			MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 			TimeStepFixed(new_dt);
 		}
@@ -589,7 +595,7 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	static TextureCache tex1("particle_green");
 	static TextureCache tex2("explosion_plazma");
 
-	if( IsAdvanced() )
+	if( IsAdvanced() && !object->IsKilled() )
 	{
 		new GC_HealthDaemon(object, GetRawPtr(_owner), 15.0f, 2.0f);
 	}
@@ -983,7 +989,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	}
 
 	_velocity -= norm * 2 * (_velocity * norm);
-	MoveTo(hit + norm, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+//	MoveTo(hit + norm, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 	for( int i = 0; i < 11; ++i )
 	{
 		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
@@ -1003,7 +1009,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 14; ++n )
 		{
 			(new GC_Bullet(
-				GetPos(), 
+				hit, 
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetRawPtr(_owner), 
 				IsAdvanced())
@@ -1033,7 +1039,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 11; ++n )
 		{
 			(new GC_Bullet(
-				GetPos(), 
+				hit, 
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetRawPtr(_owner), 
 				true)

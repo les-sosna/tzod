@@ -1021,7 +1021,7 @@ void GC_Text_ToolTip::TimeStepFloat(float dt)
 {
 	_time += dt;
 	MoveTo(vec2d(GetPos().x, _y0 - _time * 20.0f));
-	if( _time > 1.0f ) Kill();
+	if( _time > 1.2f ) Kill();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

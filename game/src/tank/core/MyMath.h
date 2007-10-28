@@ -23,42 +23,42 @@ public:
 		y = sinf(angle);
 	}
 
-	vec2d(const vec2d &rVector)
+	vec2d(const vec2d &v)
 	{
-		x = rVector.x;
-		y = rVector.y;
+		x = v.x;
+		y = v.y;
 	}
 
 public:
-	const vec2d& operator =(const vec2d &rVector)
+	const vec2d& operator =(const vec2d &v)
 	{
-		x = rVector.x;
-		y = rVector.y;
+		x = v.x;
+		y = v.y;
 		return *this;
 	}
 
-	vec2d& operator-=(const vec2d &rVector)
+	vec2d& operator-=(const vec2d &v)
 	{
-		x -= rVector.x;
-		y -= rVector.y;
+		x -= v.x;
+		y -= v.y;
 		return *this;
 	}
 
-	vec2d& operator+=(const vec2d &rVector)
+	vec2d& operator+=(const vec2d &v)
 	{
-		x += rVector.x;
-		y += rVector.y;
+		x += v.x;
+		y += v.y;
 		return *this;
 	}
 
-	vec2d operator + (const vec2d &rVector) const
+	vec2d operator + (const vec2d &v) const
 	{
-		return vec2d(x + rVector.x, y + rVector.y);
+		return vec2d(x + v.x, y + v.y);
 	}
 
-	vec2d operator - (const vec2d &rVector) const
+	vec2d operator - (const vec2d &v) const
 	{
-		return vec2d(x - rVector.x, y - rVector.y);
+		return vec2d(x - v.x, y - v.y);
 	}
 
 	vec2d operator - () const
@@ -99,6 +99,17 @@ public:
 	{
 		return vec2d(v.x * a, v.y * a);
 	}
+
+	bool operator ==(const vec2d &v) const
+	{
+		return v.x == x && v.y == y;
+	}
+
+	bool operator !=(const vec2d &v) const
+	{
+		return v.x != x || v.y != y;
+	}
+
 
 public:
 	float sqr() const

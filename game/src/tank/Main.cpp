@@ -350,7 +350,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 	FreeDirectInput();
 
-	g_texman->UnloadAllTextures();
+	if( g_texman ) g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);
 
 	TRACE("Shutting down the renderer\n");
