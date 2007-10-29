@@ -34,7 +34,18 @@ Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuff
 	_scrollBack = 0;
 	_cmdIndex   = g_conf.con_history->GetSize();
 
+	_echo = true;
+
 	Resize(w, h);
+}
+
+Console::~Console()
+{
+}
+
+void Console::SetEcho(bool echo)
+{
+	_echo = echo;
 }
 
 void Console::OnChar(int c)
@@ -87,10 +98,10 @@ void Console::OnRawChar(int c)
 					g_conf.con_history->PopFront();
 			}
 			_cmdIndex = g_conf.con_history->GetSize();
-
-			_buf->printf("> %s\n", cmd.c_str());      // echo to console
+			if( _echo )
+				_buf->printf("> %s\n", cmd.c_str());       // echo to the console
 			if( eventOnSendCommand )
-				INVOKE(eventOnSendCommand) (cmd.c_str());  // send to the scripting system
+				INVOKE(eventOnSendCommand) (cmd.c_str());  // send the command
 			_input->SetText("");                           // erase input field
 		}
 		break;

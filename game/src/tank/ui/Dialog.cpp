@@ -21,11 +21,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // Dialog class implementation
 
-Dialog::Dialog(Window *parent, float x, float y, float width, float height, bool modal)
+Dialog::Dialog(Window *parent, float width, float height, bool modal)
   : Window(/*modal ? new Substrate(parent) :*/ parent)
 {
-	Move(x, y);
 	Resize(width, height);
+	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetBorder(true);
 
 	_easyMove = false;

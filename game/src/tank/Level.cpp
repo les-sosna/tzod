@@ -241,6 +241,8 @@ Level::Level()
 
 	_seed   = 1;
 
+	_gameType = -1;
+
 	/////////////////////////
 	#ifdef _DEBUG
 	_bInitialized = FALSE;
@@ -334,9 +336,6 @@ BOOL Level::init_newdm(const char *mapName)
 	_modeEditor = false;
 	_seed       = rand();
 
-	// score table
-	new GC_TextScore();
-
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
 	return Import(mapName);
@@ -345,13 +344,8 @@ BOOL Level::init_newdm(const char *mapName)
 BOOL Level::init_load(const char *fileName)
 {
 	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);  // _ASSERT здесь чтобы не писать #ifdef _DEBUG
-
-	_gameType   = GT_DEATHMATCH;
+	_ASSERT(_bInitialized = TRUE);
 	_modeEditor = false;
-
-	new GC_TextScore();
-
 	return Unserialize(fileName);
 }
 
@@ -383,9 +377,9 @@ Level::~Level()
 	_ASSERT(GetList(LIST_objects).empty());
 }
 
-// уровень должен быть пустым
 bool Level::Unserialize(const char *fileName)
 {
+	_ASSERT(!_bInitialized);
 	_ASSERT(IsSafeMode());
 
 	TRACE("Loading saved game from file '%s'\n", fileName);
@@ -467,16 +461,15 @@ bool Level::Unserialize(const char *fileName)
 			sh.nObjects--;
 		}
 
-
-		//восстанавливаем связи
+		// restore links
 		if( !f.RestoreAllLinks() )
 			throw "ERROR: invalid links";
 
-		// применение темы
+		// apply the theme
 		_infoTheme = sh.theme;
 		_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(sh.theme));
 
-
+		// update skins
 		FOREACH( GetList(LIST_players), GC_Player, pPlayer )
 		{
 			pPlayer->UpdateSkin();

@@ -7,6 +7,7 @@
 #include "gui_editor.h"
 #include "gui_settings.h"
 #include "gui_mainmenu.h"
+#include "gui_scoretable.h"
 #include "gui.h"
 #include "Console.h"
 
@@ -81,6 +82,9 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->Show(false);
 
+	_score = new ScoreTable(this);
+	_score->Show(false);
+
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
 	g_conf.ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
@@ -131,6 +135,10 @@ void Desktop::OnRawChar(int c)
 
 	switch( c )
 	{
+	case VK_TAB:
+		_score->Show(!_score->IsVisible());
+		break;
+
 	case VK_OEM_3: // '~'
 		_con->Show(true);
 		break;

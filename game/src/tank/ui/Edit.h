@@ -44,6 +44,8 @@ public:
 	void Paste();
 	void Copy() const;
 
+	Delegate<void()> eventChange;
+
 protected:
 	virtual void OnChar(int c);
 	virtual void OnRawChar(int c);

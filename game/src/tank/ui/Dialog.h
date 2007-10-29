@@ -16,9 +16,8 @@ class Dialog : public Window
 	float _mouseY;
 
 public:
-	Dialog(Window *parent, float x, float y, float width, float height,
-		bool modal = true);
-	virtual ~Dialog();
+	Dialog(Window *parent, float width, float height, bool modal = true);
+	~Dialog();
 
 	void SetEasyMove(bool enable);
 

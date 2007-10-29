@@ -7,6 +7,7 @@
 #include "gui_network.h"
 #include "gui_settings.h"
 #include "gui_editor.h"
+#include "gui_getfilename.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -16,7 +17,15 @@
 
 #include "fs/FileSystem.h"
 
+#include "core/Console.h"
+
+#include "config/Config.h"
+
+#include "network/TankClient.h"
+#include "network/TankServer.h"
+
 #include "Level.h"
+#include "Macros.h"
 
 
 namespace UI
@@ -24,10 +33,11 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 MainMenuDlg::MainMenuDlg(Window *parent)
-  : Dialog(parent, 0, 0, 1, 1, false)
+  : Dialog(parent, 1, 1)
   , _panel(NULL)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
+  , _fileDlg(NULL)
 {
 	SetBorder(false);
 	SetTexture("gui_splash");
@@ -91,13 +101,93 @@ void MainMenuDlg::OnNewGame()
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
-void MainMenuDlg::OnCampaign(string_t name)
+void MainMenuDlg::OnCampaign()
 {
+	string_t name;
 	Close(_resultOK);
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
 	{
 		static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 	}
+}
+
+void MainMenuDlg::OnSaveGame()
+{
+	Show(false);
+
+	GetFileNameDlg::Params param;
+	param.title = "Сохраненить игру";
+	param.folder = g_fs->GetFileSystem(DIR_SAVE);
+	param.extension = "sav";
+
+	_ASSERT(NULL == _fileDlg);
+	_fileDlg = new GetFileNameDlg(GetParent(), param);
+	_fileDlg->eventClose.bind(&MainMenuDlg::OnSaveGameSelect, this);
+}
+
+void MainMenuDlg::OnSaveGameSelect(int result)
+{
+	_ASSERT(_fileDlg);
+	_ASSERT(g_level);
+	if( _resultOK == result )
+	{
+		string_t tmp = DIR_SAVE;
+		tmp += "/";
+		tmp += _fileDlg->GetFileName();
+
+		if( g_level->Serialize(tmp.c_str()) )
+		{
+			g_console->printf("game saved: '%s'\n", tmp.c_str());
+		}
+		else
+		{
+			g_console->printf("couldn't save game to '%s'", tmp.c_str());
+			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+		}
+	}
+	_fileDlg = NULL;
+	OnCloseChild(result);
+}
+
+void MainMenuDlg::OnLoadGame()
+{
+	Show(false);
+
+	GetFileNameDlg::Params param;
+	param.title = "Загрузить игру";
+	param.folder = g_fs->GetFileSystem(DIR_SAVE);
+	param.extension = "sav";
+
+	_ASSERT(NULL == _fileDlg);
+	_fileDlg = new GetFileNameDlg(GetParent(), param);
+	_fileDlg->eventClose.bind(&MainMenuDlg::OnLoadGameSelect, this);
+}
+
+void MainMenuDlg::OnLoadGameSelect(int result)
+{
+	_ASSERT(_fileDlg);
+	if( _resultOK == result )
+	{
+		script_exec(g_env.L, "reset()");
+
+		string_t tmp = DIR_SAVE;
+		tmp += "/";
+		tmp += _fileDlg->GetFileName();
+
+		SAFE_DELETE(g_level);
+		SAFE_DELETE(g_client);
+		SAFE_DELETE(g_server);
+
+		g_level = new Level();
+		if( !g_level->init_load(tmp.c_str()) )
+		{
+			SAFE_DELETE(g_level);
+			g_console->printf("couldn't load game from '%s'", tmp.c_str());
+			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+		}
+	}
+	_fileDlg = NULL;
+	OnCloseChild(result);
 }
 
 void MainMenuDlg::OnMultiPlayer()
@@ -138,9 +228,84 @@ void MainMenuDlg::OnMapSettings()
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
-void MainMenuDlg::OnExit()
+void MainMenuDlg::OnImportMap()
 {
-	DestroyWindow(g_env.hMainWnd);
+	Show(false);
+
+	GetFileNameDlg::Params param;
+	param.title = "Выбор карты для редактирования";
+	param.folder = g_fs->GetFileSystem(DIR_MAPS);
+	param.extension = "map";
+
+	_ASSERT(NULL == _fileDlg);
+	_fileDlg = new GetFileNameDlg(GetParent(), param);
+	_fileDlg->eventClose.bind(&MainMenuDlg::OnImportMapSelect, this);
+}
+
+void MainMenuDlg::OnImportMapSelect(int result)
+{
+	_ASSERT(_fileDlg);
+	if( _resultOK == result )
+	{
+		script_exec(g_env.L, "reset()");
+
+		string_t tmp = DIR_MAPS;
+		tmp += "/";
+		tmp += _fileDlg->GetFileName();
+
+		SAFE_DELETE(g_level);
+		SAFE_DELETE(g_client);
+		SAFE_DELETE(g_server);
+
+		g_level = new Level();
+		if( !g_level->init_import_and_edit(tmp.c_str()) )
+		{
+			SAFE_DELETE(g_level);
+			g_console->printf("couldn't import map '%s'", tmp.c_str());
+			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+		}
+	}
+	_fileDlg = NULL;
+	OnCloseChild(result);
+}
+
+void MainMenuDlg::OnExportMap()
+{
+	Show(false);
+
+	GetFileNameDlg::Params param;
+	param.title = "Сохранение карты";
+	param.folder = g_fs->GetFileSystem(DIR_MAPS);
+	param.extension = "map";
+
+	_ASSERT(NULL == _fileDlg);
+	_fileDlg = new GetFileNameDlg(GetParent(), param);
+	_fileDlg->eventClose.bind(&MainMenuDlg::OnExportMapSelect, this);
+}
+
+void MainMenuDlg::OnExportMapSelect(int result)
+{
+	_ASSERT(_fileDlg);
+	_ASSERT(g_level);
+	if( _resultOK == result )
+	{
+		string_t tmp = DIR_MAPS;
+		tmp += "/";
+		tmp += _fileDlg->GetFileName();
+
+		if( g_level->Export(tmp.c_str()) )
+		{
+			g_console->printf("map exported: '%s'\n", tmp.c_str());
+			g_conf.cl_map->Set(_fileDlg->GetFileTitle().c_str());
+		}
+		else
+		{
+			g_console->printf("couldn't export map to '%s'", tmp.c_str());
+			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+		}
+	}
+	_fileDlg = NULL;
+	OnCloseChild(result);
 }
 
 void MainMenuDlg::OnSettings()
@@ -148,6 +313,11 @@ void MainMenuDlg::OnSettings()
 	Show(false);
 	SettingsDlg *dlg = new SettingsDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+}
+
+void MainMenuDlg::OnExit()
+{
+	DestroyWindow(g_env.hMainWnd);
 }
 
 void MainMenuDlg::OnParentSize(float width, float height)
@@ -204,15 +374,18 @@ void MainMenuDlg::CreatePanel()
 	_panelTitle->Resize(_panelTitle->GetTextureWidth(), _panelTitle->GetTextureHeight());
 
 	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
+	Button *btn;
 
 	switch( _ptype )
 	{
 	case PT_SINGLEPLAYER:
 		_panelTitle->SetText("Одиночная игра");
-		(new Button(_panel, 0, y, "Кампания"));//->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		(new Button(_panel, 0, y, "Кампания"))->eventClick.bind(&MainMenuDlg::OnCampaign, this);
 		(new Button(_panel, 100, y, "Мясо (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-		new Button(_panel, 200, y, "Загрузить");
-		new Button(_panel, 300, y, "Сохранить");
+		(new Button(_panel, 200, y, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
+		btn = new Button(_panel, 300, y, "Сохранить");
+		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
+		btn->Enable(g_level && GT_DEATHMATCH == g_level->_gameType);
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText("Сетевая игра");
@@ -222,9 +395,13 @@ void MainMenuDlg::CreatePanel()
 	case PT_EDITOR:
 		_panelTitle->SetText("Редактор карт");
 		(new Button(_panel, 0, y, "Новая карта"))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
-		(new Button(_panel, 100, y, "Настройки"))->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
-		new Button(_panel, 200, y, "Загрузить");
-		new Button(_panel, 300, y, "Сохранить");
+		(new Button(_panel, 100, y, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnImportMap, this);
+		btn = new Button(_panel, 200, y, "Сохранить");
+		btn->eventClick.bind(&MainMenuDlg::OnExportMap, this);
+		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
+		btn = new Button(_panel, 300, y, "Настройки");
+		btn->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
+		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
 		break;
 	default:
 		_ASSERT(FALSE);

@@ -194,6 +194,9 @@ enum enumZOrder
 // тип игры deathmatch. каждый сам за себя.
 #define GT_DEATHMATCH    1
 
+// main menu intro
+#define GT_INTRO         2
+
 
 //---------------------------------------------------------------
 // математические константы

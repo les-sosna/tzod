@@ -8,6 +8,7 @@ namespace UI
 {
 	class EditorLayout;
 	class Console;
+	class ScoreTable;
 
 	// widgets
 	class FpsCounter;
@@ -41,6 +42,7 @@ class Desktop : public Window
 	EditorLayout *_editor;
 	Console      *_con;
 	MessageArea  *_msg;
+	ScoreTable   *_score;
 
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;

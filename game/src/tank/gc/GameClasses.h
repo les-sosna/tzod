@@ -255,31 +255,6 @@ public:
 };
 
 /////////////////////////////////////////////////////////////
-// таблица с фрагами
-class GC_TextScore : public GC_Text
-{
-	DECLARE_SELF_REGISTRATION(GC_TextScore);
-
-private:
-	SafePtr<GC_2dSprite> _background;
-	bool _bOldLimit;
-
-protected:
-	// PlayerDesc::index будет использоваться для хранения фрагов
-	std::vector<PlayerDesc> _players;
-
-	void Refresh();
-
-public:
-	GC_TextScore();
-	GC_TextScore(FromFile) : GC_Text(FromFile()) {};
-	virtual void Kill();
-
-	virtual void Draw();
-	virtual void EndFrame();
-};
-
-/////////////////////////////////////////////////////////////
 
 class GC_Text_ToolTip : public GC_Text
 {

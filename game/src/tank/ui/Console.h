@@ -23,8 +23,12 @@ class Console : public Window
 
 	ConsoleBuffer * const _buf;
 
+	bool _echo;
+
 public:
 	Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
+	~Console();
+	void SetEcho(bool echo);
 	Delegate<void(const char *)> eventOnSendCommand;
 	Delegate<bool(const char *, string_t &)> eventOnRequestCompleteCommand;
 

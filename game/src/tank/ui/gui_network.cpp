@@ -31,10 +31,8 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 CreateServerDlg::CreateServerDlg(Window *parent)
-  : Dialog(parent, 0, 0, 770, 450)
+  : Dialog(parent, 770, 450)
 {
-	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
-
 	Text *title = new Text(this, GetWidth() / 2, 16, "Создать сервер", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -146,7 +144,7 @@ void CreateServerDlg::OnOK()
 
 	g_conf.cl_map->Set(fn.c_str());
 
-	(new ConnectDlg(this, "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
+	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
 	Show(false);
 }
 
@@ -161,9 +159,10 @@ void CreateServerDlg::OnCloseChild(int result)
 	{
 		Show(true);
 	}
-	else
+
+	if( _resultOK == result )
 	{
-		Close(result);
+		Close(_resultOK);
 	}
 }
 
@@ -171,10 +170,8 @@ void CreateServerDlg::OnCloseChild(int result)
 ///////////////////////////////////////////////////////////////////////////////
 
 ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
-  : Dialog(parent, 0, 0, 512, 384)
+  : Dialog(parent, 512, 384)
 {
-	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
-
 	Text *title = new Text(this, GetWidth() / 2, 16, "Соединение с сервером", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -298,8 +295,8 @@ void ConnectDlg::OnTimeStep(float dt)
 					break;
 				}
 
-				new WaitingForPlayersDlg(GetParent());
-				Close(_resultOK);
+				(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
+				Close(-1); // close with any code except ok and cancel
 				break;
 			}
 
@@ -338,10 +335,8 @@ void ConnectDlg::Error(const char *msg)
 ///////////////////////////////////////////////////////////////////////////////
 
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
-  : Dialog(parent, 0, 0, 700, 512)
+  : Dialog(parent, 700, 512)
 {
-	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
-
 	Text *title = new Text(this, GetWidth() / 2, 16, "Ожидание других игроков", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -352,6 +347,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 	_buf = new ConsoleBuffer(80, 500);
 	_chat = new Console(this, 20, 300, 512, 200, _buf);
+	_chat->SetEcho(false);
 
 	_btnOK = new Button(this, 312, 350, "Я готов!");
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
@@ -403,7 +399,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		switch( db.type() )
 		{
 		case DBTYPE_PING:
-			_buf->printf("ваш пинг %d ms\n", timeGetTime() - db.cast<DWORD>());
+			_buf->printf("%d ms\n", timeGetTime() - db.cast<DWORD>());
 			break;
 		case DBTYPE_PLAYERREADY:
 		{
@@ -469,7 +465,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			PlayerDescEx &pd = db.cast<PlayerDescEx>();
 
 			GC_PlayerRemote *player = new GC_PlayerRemote(pd.dwNetworkId);
-			player->SetName(pd.nick);
+			player->SetNick(pd.nick);
 			player->SetSkin(pd.skin);
 			player->SetTeam(pd.team);
 			player->UpdateSkin();
@@ -483,7 +479,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			{
 				_btnOK->Enable(true);
 			}
-			_buf->printf("%s вошел в игру.\n", player->GetName());
+			_buf->printf("%s вошел в игру.\n", player->GetNick().c_str());
 			break;
 		}
 

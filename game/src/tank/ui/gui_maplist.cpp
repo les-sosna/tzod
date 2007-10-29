@@ -26,8 +26,6 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 		std::set<string_t> files;
 		if( dir->EnumAllFiles(files, TEXT("*.map")) )
 		{
-			int lastMapIndex = 0;
-
 			for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 			{
 				string_t tmp = DIR_MAPS;
@@ -39,9 +37,6 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 				{
 					it->erase(it->length() - 4); // cut out the file extension
 					int index = AddItem(it->c_str());
-
-					if( *it == g_conf.cl_map->Get() )
-						lastMapIndex = index;
 
 					char size[64];
 					int h = 0, w = 0;
@@ -56,15 +51,17 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 					}
 				}
 			}
-
-			SetCurSel(lastMapIndex, false);
-			ScrollTo(lastMapIndex - (GetNumLinesVisible() - 1) * 0.5f);
 		}
 		else
 		{
 			_ASSERT(FALSE); // EnumAllFiles has returned error...
 		}
 	}
+	Sort();
+
+	int selected = FindItem(g_conf.cl_map->Get());
+	SetCurSel(selected, false);
+	ScrollTo(selected - (GetNumLinesVisible() - 1) * 0.5f);
 }
 
 MapList::~MapList()

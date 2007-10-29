@@ -30,10 +30,8 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 NewMapDlg::NewMapDlg(Window *parent)
-  : Dialog(parent, 0, 0, 256, 256)
+  : Dialog(parent, 256, 256)
 {
-	Move( (parent->GetWidth() - GetWidth()) / 2, (parent->GetHeight() - GetHeight()) / 2 );
-
 	Text *header = new Text(this, 128, 20, "Новая карта:", alignTextCT);
 	header->SetTexture("font_default");
 	header->Resize(header->GetTextureWidth(), header->GetTextureHeight());
@@ -80,8 +78,9 @@ void PropertyList::Container::OnRawChar(int c)
 }
 
 PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
-  : Dialog(parent, x, y, w, h, false)
+  : Dialog(parent, w, h, false)
 {
+	Move(x, y);
 	_psheet = new Container(this);
 
 	_scrollBar = new ScrollBar(this, 0, 0, h);

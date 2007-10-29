@@ -920,6 +920,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\ui\gui_getfilename.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_getfilename.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\ui\gui_mainmenu.cpp"
 				>
 			</File>
@@ -941,6 +949,14 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\ui\gui_network.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_scoretable.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_scoretable.h"
 				>
 			</File>
 			<File

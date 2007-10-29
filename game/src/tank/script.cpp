@@ -19,6 +19,9 @@
 
 #include "video/TextureManager.h"
 
+#include "network/TankClient.h"
+#include "network/TankServer.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // c closures
@@ -187,6 +190,8 @@ static int luaT_load(lua_State *L)
 			return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 		delete g_level;
 	}
+	SAFE_DELETE(g_client);
+	SAFE_DELETE(g_server);
 	g_level = new Level();
 
 	if( !g_level->init_load(filename) )
@@ -244,6 +249,8 @@ static int luaT_import(lua_State *L)
 			return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 		delete g_level;
 	}
+	SAFE_DELETE(g_client);
+	SAFE_DELETE(g_server);
 	g_level = new Level();
 
 	if( !g_level->init_import_and_edit(filename) )

@@ -179,6 +179,30 @@ void List::AlignHeightToContent()
 	Resize(GetWidth(), GetItemHeight() * (float) GetSize());
 }
 
+void List::Sort()
+{
+	struct helper
+	{
+		static bool compare(const Item &left, const Item &right)
+		{
+			return left.text < right.text;
+		}
+	};
+	std::sort(_items.begin(), _items.end(), &helper::compare);
+}
+
+int List::FindItem(const char *text) const
+{
+	for( size_t i = 0; i < _items.size(); ++i )
+	{
+		if( _items[i].text[0] == text )
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 void List::OnSize(float width, float height)
 {
 	_selection->Resize(width, _selection->GetHeight());

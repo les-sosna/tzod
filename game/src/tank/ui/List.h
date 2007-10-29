@@ -60,18 +60,21 @@ public:
 
 	void AlignHeightToContent();
 
+	void Sort();
+	int FindItem(const char *text) const;
+
 	Delegate<void(int)> eventChangeCurSel;
 	Delegate<void(int)> eventClickItem;
 
 
 protected:
-	virtual void OnSize(float width, float height);
-	virtual bool OnMouseDown(float x, float y, int button);
-	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual void OnRawChar(int c);
-	virtual bool OnFocus(bool focus);
+	void OnSize(float width, float height);
+	bool OnMouseDown(float x, float y, int button);
+	bool OnMouseWheel(float x, float y, float z);
+	void OnRawChar(int c);
+	bool OnFocus(bool focus);
 
-	virtual void DrawChildren(float sx, float sy);
+	void DrawChildren(float sx, float sy);
 };
 
 

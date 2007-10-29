@@ -40,6 +40,8 @@ void Edit::SetText(const char *text)
 	_string = text;
 	_blankText->SetText(text);
 	SetSel(_string.length(), _string.length());
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 void Edit::SetInt(int value)
@@ -105,6 +107,8 @@ void Edit::OnChar(int c)
 		_string = _string.substr(0, start) + (char) c + _string.substr(__max(_selStart, _selEnd));
 		SetSel(start + 1, start + 1);
 		_blankText->SetText(_string.c_str());
+		if( eventChange )
+			INVOKE(eventChange) ();
 	}
 }
 
@@ -145,6 +149,8 @@ void Edit::OnRawChar(int c)
 			_blankText->SetText(_string.c_str());
 			tmp = __min(_selStart, _selEnd);
 			SetSel(tmp, tmp);
+			if( eventChange )
+				INVOKE(eventChange) ();
 		}
 		break;
 	case VK_DELETE:
@@ -165,6 +171,8 @@ void Edit::OnRawChar(int c)
 		_blankText->SetText(_string.c_str());
 		tmp = __min(_selStart, _selEnd);
 		SetSel(tmp, tmp);
+		if( eventChange )
+			INVOKE(eventChange) ();
 		break;
 	case VK_BACK:
 		if( _selStart == _selEnd && _selStart > 0 )
@@ -180,6 +188,8 @@ void Edit::OnRawChar(int c)
 		tmp = __max(0, _selEnd == _selStart ? _selStart - 1 : __min(_selStart, _selEnd));
 		SetSel(tmp, tmp);
 		_blankText->SetText(_string.c_str());
+		if( eventChange )
+			INVOKE(eventChange) ();
 		break;
 	case VK_LEFT:
 		tmp = __max(0, __min(_selStart, _selEnd) - 1);
@@ -302,6 +312,8 @@ void Edit::Paste()
 				_blankText->SetText(_string.c_str());
 				SetSel(_selStart + strlen(data), _selStart + strlen(data));
 				GlobalUnlock(hData);
+				if( eventChange )
+					INVOKE(eventChange) ();
 			}
 			else
 			{

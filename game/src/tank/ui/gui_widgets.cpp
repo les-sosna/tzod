@@ -68,16 +68,22 @@ void FpsCounter::OnTimeStep(float dt)
 		// network statistics
 		if( g_level && g_client )
 		{
-			min = max = _dts_net.front();
-			for( std::list<float>::iterator it = _dts_net.begin();
-				 it != _dts_net.end(); ++it )
+			if( _dts_net.empty() )
 			{
-				avr += *it;
-				if( *it > max ) max = *it;
-				if( *it < min ) min = *it;
+				min = max = avr = 0;
 			}
-			avr /= (float) _dts_net.size();
-
+			else
+			{
+				min = max = _dts_net.front();
+				for( std::list<float>::iterator it = _dts_net.begin();
+					it != _dts_net.end(); ++it )
+				{
+					avr += *it;
+					if( *it > max ) max = *it;
+					if( *it < min ) min = *it;
+				}
+				avr /= (float) _dts_net.size();
+			}
 
 			NETWORKSTATS ns;
 			g_client->GetStatistics(&ns);

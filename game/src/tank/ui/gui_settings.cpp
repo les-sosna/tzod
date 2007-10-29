@@ -23,9 +23,9 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent) : Dialog(parent, 0, 0, 512, 296)
+SettingsDlg::SettingsDlg(Window *parent)
+  : Dialog(parent, 512, 296)
 {
-	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, "Настройки игры", alignTextCT);
@@ -178,9 +178,8 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 // class ControlProfileDlg
 
 ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
-  : Dialog(parent, 10, 10, 512, 384)
+  : Dialog(parent, 512, 384)
 {
-	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
 
 	_time = 0;
@@ -339,12 +338,10 @@ void ControlProfileDlg::OnRawChar(int c)
 ///////////////////////////////////////////////////////////////////////////////
 
 MapSettingsDlg::MapSettingsDlg(Window *parent)
-  : Dialog(parent, 0, 0, 512, 512)
+  : Dialog(parent, 512, 512)
 {
-	_ASSERT(g_level);
-
-	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetEasyMove(true);
+	_ASSERT(g_level);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, "Настройки карты", alignTextCT);
 	title->SetTexture("font_default");

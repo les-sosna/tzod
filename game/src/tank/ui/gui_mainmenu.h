@@ -9,11 +9,19 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+// forward declarations
+class GetFileNameDlg;
+
+
 class MainMenuDlg : public Dialog
 {
 	void OnSinglePlayer();
 	void OnNewGame();
-	void OnCampaign(string_t name);
+	void OnCampaign();
+	void OnSaveGame();
+	void OnSaveGameSelect(int result);
+	void OnLoadGame();
+	void OnLoadGameSelect(int result);
 
 	void OnMultiPlayer();
 	void OnHost();
@@ -22,6 +30,10 @@ class MainMenuDlg : public Dialog
 	void OnEditor();
 	void OnNewMap();
 	void OnMapSettings();
+	void OnImportMap();
+	void OnImportMapSelect(int result);
+	void OnExportMap();
+	void OnExportMapSelect(int result);
 
 	void OnSettings();
 	void OnExit();
@@ -47,6 +59,8 @@ class MainMenuDlg : public Dialog
 	Text      *_panelTitle;
 	PanelType  _ptype;
 	PanelState _pstate;
+
+	GetFileNameDlg *_fileDlg;
 
 	std::list<DelegateAdapter1<string_t> >  _campaigns;
 

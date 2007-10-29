@@ -432,38 +432,6 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 /*
 
-void OutputTextBox(HWND hWndTB, LPCTSTR fmt, ...)
-{
-    static TCHAR tach[2048];
-    va_list va;
-
-    va_start(va, fmt);
-    vsprintf (tach, fmt, va);
-    va_end(va);
-
-	//-------------------------------
-
-	string_t str = tach;
-
-	int l = str.size();
-	bool just_r = false;
-	for( int i = 0; i < l; ++i )
-	{
-		if( !just_r && '\n' == str[i] )
-		{
-			str = str.substr(0, i) + "\r" + str.substr(i, l);
-			++l;
-		}
-
-		just_r = ('\r' == str[i]);
-	}
-
-	//-------------------------------
-
-	SendMessage(hWndTB, EM_SETSEL, 0x7fffffff, 0x7fffffff);
-	SendMessage(hWndTB, EM_REPLACESEL, (WPARAM) FALSE, (LPARAM) str.c_str());
-}
-
 LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static HFONT hFontTitle;
