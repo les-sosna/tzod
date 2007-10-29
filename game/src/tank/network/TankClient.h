@@ -76,17 +76,17 @@ class TankClient
 	void Message(const char *msg, bool err = false);
 
 public:
-	DWORD _dwLatency;
+	DWORD _latency;
 
 private:
-	DWORD _dwClientId;
+	DWORD _clientId;
 	NETWORKSTATS _stats;
 
 public:
 	TankClient(void);
 	~TankClient(void);
 
-	DWORD GetId() const { return _dwClientId; }
+	DWORD GetId() const { return _clientId; }
 
 	bool Connect(const char* hostaddr, HWND hMainWnd);
 	void ShutDown();

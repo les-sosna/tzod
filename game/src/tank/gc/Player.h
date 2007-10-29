@@ -14,7 +14,7 @@ class GC_Vehicle;
 
 class GC_Player : public GC_Service
 {
-	DECLARE_SELF_REGISTRATION(GC_Player);
+//	DECLARE_SELF_REGISTRATION(GC_Player);
 	MemberOfGlobalList<LIST_players> _memberOf;
 
 	float     _timeRespawn;
@@ -84,6 +84,8 @@ public:
 
 	void UpdateSkin();
 
+	virtual DWORD GetNetworkID() const = 0;
+
 	virtual void TimeStepFixed(float dt);
 
 private:
@@ -132,6 +134,8 @@ public:
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
 
+	virtual DWORD GetNetworkID() const;
+
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);
 
@@ -150,7 +154,7 @@ public:
 	GC_PlayerRemote(FromFile);
 	virtual ~GC_PlayerRemote();
 
-	DWORD GetNetworkID() const { return _networkId; }
+	virtual DWORD GetNetworkID() const { return _networkId; }
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);

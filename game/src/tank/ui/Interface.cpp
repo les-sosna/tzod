@@ -570,7 +570,7 @@ LRESULT CALLBACK dlgNetPlayers(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 				g_level->_client->SetWindow(g_env.hMainWnd);
 				g_level->_timer.Start();
 
-				for( size_t i = 0; i < g_level->_client->_dwLatency; ++i )
+				for( size_t i = 0; i < g_level->_client->_latency; ++i )
 					g_level->_client->SendControl(ControlPacket());
 			} break;
 			default:

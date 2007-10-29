@@ -178,6 +178,7 @@ public:
 	void SetLevel(int level) { _level = level; }
 
 protected:
+	virtual DWORD GetNetworkID() const { return 0; }
 	virtual void TimeStepFixed(float dt);
 };
 

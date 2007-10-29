@@ -97,7 +97,7 @@ TankClient::TankClient(void)
 	//---------------------------------
 	ZeroMemory(&_stats, sizeof(NETWORKSTATS));
 	_frame              = 0;
-	_dwClientId         = 0;
+	_clientId           = 0;
 	_buf_incoming_size  = 0;
 	_buf_outgoing_size  = 0;
 
@@ -302,18 +302,17 @@ void TankClient::NewData(const DataBlock &data)
 	{
 	case DBTYPE_CONTROLPACKET:
 		_stats.nFramesInBuffer++;
-
-		for( int i = 0; i < NET_MULTIPLER-1; i++ )
+		for( int i = 0; i < NET_MULTIPLER-1; i++ ) // duplicate packet
 		{
 			_incoming.push(data);
 			_stats.nFramesInBuffer++;
 		}
 		break;
 	case DBTYPE_GAMEINFO:
-		_dwLatency = data.cast<GAMEINFO>().latency;
+		_latency = data.cast<GAMEINFO>().latency;
 		break;
 	case DBTYPE_YOURID:
-		_dwClientId = data.cast<DWORD>();
+		_clientId = data.cast<DWORD>();
 		return;
 	}
 	//-------------------------------

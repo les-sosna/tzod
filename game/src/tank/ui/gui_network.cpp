@@ -411,7 +411,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			int index = 0;
 			for( ;index < count; ++index )
 			{
-				GC_PlayerRemote *player = (GC_PlayerRemote *) _players->GetItemData(index);
+				GC_Player *player = (GC_Player *) _players->GetItemData(index);
 				_ASSERT(player);
 				_ASSERT(!player->IsKilled());
 				_ASSERT(0 != player->GetNetworkID());
@@ -443,7 +443,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			int index = 0;
 			for( ; index < count; ++index )
 			{
-				GC_PlayerRemote *player = (GC_PlayerRemote *) _players->GetItemData(index);
+				GC_Player *player = (GC_Player *) _players->GetItemData(index);
 				_ASSERT(player);
 				_ASSERT(!player->IsKilled());
 				_ASSERT(0 != player->GetNetworkID());
@@ -464,7 +464,16 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		{
 			PlayerDescEx &pd = db.cast<PlayerDescEx>();
 
-			GC_PlayerRemote *player = new GC_PlayerRemote(pd.dwNetworkId);
+			GC_Player *player = NULL;
+			if( g_client->GetId() == pd.dwNetworkId )
+			{
+				player = new GC_PlayerLocal();
+			}
+			else
+			{
+				player = new GC_PlayerRemote(pd.dwNetworkId);
+			}
+			player->SetClass(pd.cls);
 			player->SetNick(pd.nick);
 			player->SetSkin(pd.skin);
 			player->SetTeam(pd.team);
@@ -475,11 +484,9 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		//	if( pd.type >= MAX_HUMANS )
 		//		ListView_SetItemText(hwndLV, ListView_GetItemCount(hwndLV) - 1, 3, "Бот");
 
-			if( g_client->GetId() )
-			{
-				_btnOK->Enable(true);
-			}
 			_buf->printf("%s вошел в игру.\n", player->GetNick().c_str());
+
+			_btnOK->Enable(true);
 			break;
 		}
 
@@ -492,7 +499,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		case DBTYPE_STARTGAME:
 		{
 			g_level->Pause(false);
-			for( size_t i = 0; i < g_client->_dwLatency; ++i )
+			for( size_t i = 0; i < g_client->_latency; ++i )
 			{
 				g_client->SendControl(ControlPacket());
 			}

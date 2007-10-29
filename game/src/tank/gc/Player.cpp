@@ -34,10 +34,10 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Player)
-{
-	return true;
-}
+//IMPLEMENT_SELF_REGISTRATION(GC_Player)
+//{
+//	return true;
+//}
 
 GC_Player::GC_Player()
   : GC_Service()
@@ -431,6 +431,12 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 		SetProfile(_profile.c_str());
 		_lastLightKeyState = false;
 	}
+}
+
+DWORD GC_PlayerLocal::GetNetworkID() const
+{
+	_ASSERT(g_client);
+	return g_client->GetId();
 }
 
 void GC_PlayerLocal::TimeStepFixed(float dt)
