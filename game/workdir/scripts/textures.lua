@@ -43,6 +43,12 @@ return {
    }
 },
 {
+   file="textures/editor/trigger.tga",
+   content={
+     editor_trigger={},
+   }
+},
+{
    file="textures/walls/walls.tga",
    content={
      brick_wall={left=0, top=0, right=128, bottom=64, xframes=4, yframes=2},

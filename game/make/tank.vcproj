@@ -788,6 +788,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\gc\Trigger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\gc\Trigger.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\gc\Turrets.cpp"
 				>
 			</File>
