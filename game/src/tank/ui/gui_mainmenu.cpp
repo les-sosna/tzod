@@ -209,6 +209,13 @@ void MainMenuDlg::OnJoin()
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
+void MainMenuDlg::OnNetworkProfile()
+{
+//	Show(false);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo);
+//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+}
+
 void MainMenuDlg::OnEditor()
 {
 	SwitchPanel(PT_EDITOR);
@@ -391,6 +398,7 @@ void MainMenuDlg::CreatePanel()
 		_panelTitle->SetText("Сетевая игра");
 		(new Button(_panel, 0, y, "Создать"))->eventClick.bind(&MainMenuDlg::OnHost, this);
 		(new Button(_panel, 100, y, "Подключиться"))->eventClick.bind(&MainMenuDlg::OnJoin, this);
+		(new Button(_panel, 200, y, "Профиль"))->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
 		break;
 	case PT_EDITOR:
 		_panelTitle->SetText("Редактор карт");

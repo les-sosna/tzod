@@ -71,13 +71,13 @@ typedef struct GAMEINFO
 {
 	DWORD dwVersion;
 	DWORD dwMapCRC32;
-    char  cMapName[MAX_PATH];
+	unsigned long seed;
+	char  cMapName[MAX_PATH];
 	char  cServerName[MAX_SRVNAME];
 	short server_fps;
 	short latency;
 	short timelimit;
 	short fraglimit;
-	short seed;
 	bool  nightmode;
 } GAMEINFO, *LPGAMEINFO;
 

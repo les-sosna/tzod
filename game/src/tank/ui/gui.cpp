@@ -340,7 +340,7 @@ void NewGameDlg::OnOK()
 	_ASSERT(!g_level);
 	g_level = new Level();
 
-	if( g_level->init_newdm(path.c_str()) )
+	if( g_level->init_newdm(path.c_str(), rand()) )
 	{
 		g_conf.cl_map->Set(fn.c_str());
 

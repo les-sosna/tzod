@@ -243,7 +243,7 @@ public:
 	BOOL init_emptymap();
 	BOOL init_import_and_edit(const char *mapName);
 
-	BOOL init_newdm(const char *mapName);
+	BOOL init_newdm(const char *mapName, unsigned long seed);
 	BOOL init_load(const char *fileName);
 
 

@@ -54,6 +54,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_INT(    cl_fraglimit,        21 );
 	CONFIG_VAR_BOOL(   cl_nightmode,     false );
 	CONFIG_VAR_STR(    cl_server,  "localhost" );
+	CONFIG_VAR_TABLE(  cl_playerinfo );
 
 	// sound
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );

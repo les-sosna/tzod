@@ -41,7 +41,8 @@ static int luaT_reset(lua_State *L)
 		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
 	SAFE_DELETE(g_level);
-
+	SAFE_DELETE(g_client);
+	SAFE_DELETE(g_server);
 
 
 	//
@@ -139,7 +140,7 @@ static int luaT_loadmap(lua_State *L)
 	}
 	g_level = new Level();
 
-	if( !g_level->init_newdm(filename) )
+	if( !g_level->init_newdm(filename, rand()) )
 	{
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't load map from '%s'", filename);

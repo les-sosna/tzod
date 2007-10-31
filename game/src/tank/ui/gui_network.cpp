@@ -285,7 +285,7 @@ void ConnectDlg::OnTimeStep(float dt)
 				g_level = new Level();
 				g_level->Pause(true);
 
-				if( g_level->init_newdm(path) )
+				if( g_level->init_newdm(path, gi.seed) )
 				{
 					g_conf.cl_map->Set(gi.cMapName);
 				}
@@ -297,7 +297,7 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
 				Close(-1); // close with any code except ok and cancel
-				break;
+				return;
 			}
 
 			case DBTYPE_ERRORMSG:
@@ -358,11 +358,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 	PlayerDescEx pde;
 	pde.dwNetworkId = g_client->GetId();
-	strcpy(pde.nick, "player");
-	strcpy(pde.cls, "");
+	strcpy(pde.nick, g_conf.cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
+	strcpy(pde.cls, g_conf.cl_playerinfo->GetStr("class", "default")->Get());
 	pde.score = 0;
-	strcpy(pde.skin, "");
-	pde.team = 0;
+	strcpy(pde.skin, g_conf.cl_playerinfo->GetStr("skin", "red")->Get());
+	pde.team = g_conf.cl_playerinfo->GetNum("team", 0)->GetInt();
 	g_client->SendDataToServer(DataWrap(pde, DBTYPE_NEWPLAYER));
 
 	SetTimeStep(true);

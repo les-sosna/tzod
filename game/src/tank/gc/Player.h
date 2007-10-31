@@ -14,7 +14,6 @@ class GC_Vehicle;
 
 class GC_Player : public GC_Service
 {
-//	DECLARE_SELF_REGISTRATION(GC_Player);
 	MemberOfGlobalList<LIST_players> _memberOf;
 
 	float     _timeRespawn;

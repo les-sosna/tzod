@@ -327,14 +327,14 @@ BOOL Level::init_import_and_edit(const char *mapName)
 	return true;
 }
 
-BOOL Level::init_newdm(const char *mapName)
+BOOL Level::init_newdm(const char *mapName, unsigned long seed)
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
 
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
-	_seed       = rand();
+	_seed       = seed;
 
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
