@@ -18,7 +18,7 @@ class ConsoleBuffer
 	FILE  *_logFile;
 
 public:
-	ConsoleBuffer(size_t lineLength, size_t _maxLines);
+	ConsoleBuffer(size_t lineLength, size_t _maxLines, const char *logfile);
 	~ConsoleBuffer();
 
 	void Fill(const ConsoleBuffer *src);

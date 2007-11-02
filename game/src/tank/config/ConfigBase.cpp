@@ -729,7 +729,7 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 		if( level )
 		{
 			if( delim ) fputs(",\n", file);
-			for(int i = 0; i < level; ++i )
+			for( int i = 0; i < level; ++i )
 			{
 				fputs("  ", file);
 			}
@@ -792,7 +792,7 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 	if( level )
 	{
 		fputs("\n", file);
-		for(int i = 0; i < level-1; ++i )
+		for( int i = 0; i < level-1; ++i )
 		{
 			fputs("  ", file);
 		}

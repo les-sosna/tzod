@@ -149,19 +149,19 @@ int APIENTRY WinMain( HINSTANCE hinst,
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
-	setlocale(LC_ALL, "");
+	setlocale(LC_CTYPE, "Russian");
 	g_hInstance = hinst;
 	srand( GetTickCount() );
 
 	// create the console buffer
-	g_console = new ConsoleBuffer(128, 512);
+	g_console = new ConsoleBuffer(128, 512, "log.txt");
 
 	// print UNIX-style date and time
 	time_t ltime;
 	char timebuf[26];
 	time(&ltime);
 	ctime_s(timebuf, 26, &ltime);
-	TRACE(" ZOD Engine started at %s", timebuf);
+	TRACE("ZOD Engine started at %s", timebuf);
 	TRACE("----------------------------------------------\n");
 
 

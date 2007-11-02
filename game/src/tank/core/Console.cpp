@@ -5,7 +5,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
+ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines, const char *logfile)
 {
 	_buffer = new char [maxLines * (lineLength+1)];
 	_lines  = new char*[maxLines];
@@ -19,7 +19,7 @@ ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
 	_lineLength   = lineLength;
 	_lineCount    = maxLines;
 
-	_logFile = fopen(FILE_LOG, "w");
+	_logFile = logfile ? fopen(logfile, "w") : NULL;
 }
 
 ConsoleBuffer::~ConsoleBuffer()
@@ -48,13 +48,13 @@ const char* ConsoleBuffer::GetLine(size_t index) const
 
 void ConsoleBuffer::printf(const char *fmt, ...)
 {
-    va_list args;
-    va_start(args, fmt);
-    int size = _vscprintf(fmt, args) + 1; // check how much space is needed
+	va_list args;
+	va_start(args, fmt);
+	int size = _vscprintf(fmt, args) + 1; // check how much space is needed
 
 	char *buf = new char[size];
 	vsprintf(buf, fmt, args);
-    va_end(args);
+	va_end(args);
 
 	puts(buf);
 
@@ -96,7 +96,6 @@ void ConsoleBuffer::puts(const char *s)
 		}
 	}
 	dst[_currentPos] = '\0';
-
 
 	if( _logFile )
 	{

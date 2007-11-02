@@ -33,7 +33,7 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 	_rotator.reset(0.0f, 0.0f, 
 		g_conf.g_rotcamera_m->GetFloat(), 
 		g_conf.g_rotcamera_a->GetFloat(), 
-		g_conf.g_rotcamera_s->GetFloat());
+		__max(0.001f, g_conf.g_rotcamera_s->GetFloat()));
 	if( _player )
 	{
 		MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );

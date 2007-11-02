@@ -349,7 +349,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 
 	new Text(this, 20, 285, "Окно чата", alignTextLT);
-	_buf = new ConsoleBuffer(80, 500);
+	_buf = new ConsoleBuffer(80, 500, "chat.txt");
 	_chat = new Console(this, 20, 300, 512, 200, _buf);
 	_chat->SetTexture("ctrl_list");
 	_chat->SetEcho(false);
