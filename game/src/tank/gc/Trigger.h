@@ -22,7 +22,7 @@ class GC_Trigger : public GC_2dSprite
 		ObjectProperty _propActive;
 		ObjectProperty _propRadius;
 		ObjectProperty _propOnEnter;
-		ObjectProperty _propOnExit;
+		ObjectProperty _propOnLeave;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -35,7 +35,7 @@ class GC_Trigger : public GC_2dSprite
 
 	float    _radius;
 	string_t _onEnter;
-	string_t _onExit;
+	string_t _onLeave;
 
 	SafePtr<GC_Vehicle> _veh;
 

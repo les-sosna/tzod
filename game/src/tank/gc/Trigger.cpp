@@ -41,7 +41,7 @@ void GC_Trigger::Serialize(SaveFile &f)
 {
 	f.Serialize(_radius);
 	f.Serialize(_onEnter);
-	f.Serialize(_onExit);
+	f.Serialize(_onLeave);
 	f.Serialize(_veh);
 }
 
@@ -51,7 +51,7 @@ void GC_Trigger::mapExchange(MapFile &f)
 
 	MAP_EXCHANGE_FLOAT(radius, _radius, 1);
 	MAP_EXCHANGE_STRING(on_enter, _onEnter, "");
-	MAP_EXCHANGE_STRING(on_exit, _onExit, "");
+	MAP_EXCHANGE_STRING(on_leave, _onLeave, "");
 }
 
 void GC_Trigger::TimeStepFixed(float dt)
@@ -87,7 +87,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 
 		if( (GetPos() - _veh->GetPos()).sqr() > _radius*_radius*CELL_SIZE*CELL_SIZE )
 		{
-			script_exec(g_env.L, _onExit.c_str());
+			script_exec(g_env.L, _onLeave.c_str());
 			_veh = NULL;
 			return;
 		}
@@ -111,7 +111,7 @@ GC_Trigger::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propActive( ObjectProperty::TYPE_INTEGER, "active" )
   , _propRadius( ObjectProperty::TYPE_FLOAT, "radius" )
   , _propOnEnter( ObjectProperty::TYPE_STRING, "on_enter" )
-  , _propOnExit( ObjectProperty::TYPE_STRING, "on_exit" )
+  , _propOnLeave( ObjectProperty::TYPE_STRING, "on_leave" )
 {
 	_propActive.SetIntRange(0, 1);
 	_propRadius.SetFloatRange(0, 100);
@@ -132,7 +132,7 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 	case 0: return &_propActive;
 	case 1: return &_propRadius;
 	case 2: return &_propOnEnter;
-	case 3: return &_propOnExit;
+	case 3: return &_propOnLeave;
 	}
 
 	_ASSERT(FALSE);
@@ -150,14 +150,14 @@ void GC_Trigger::MyPropertySet::Exchange(bool applyToObject)
 		_propActive.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ACTIVE) : tmp->ClearFlags(GC_FLAG_TRIGGER_ACTIVE);
 		tmp->_radius = _propRadius.GetFloatValue();
 		tmp->_onEnter = _propOnEnter.GetStringValue();
-		tmp->_onExit = _propOnExit.GetStringValue();
+		tmp->_onLeave = _propOnLeave.GetStringValue();
 	}
 	else
 	{
 		_propActive.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ACTIVE) ? 1 : 0);
 		_propRadius.SetFloatValue(tmp->_radius);
 		_propOnEnter.SetStringValue(tmp->_onEnter);
-		_propOnExit.SetStringValue(tmp->_onExit);
+		_propOnLeave.SetStringValue(tmp->_onLeave);
 	}
 }
 
