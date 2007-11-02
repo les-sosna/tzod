@@ -113,6 +113,7 @@ public:
 
 	void SetTopMost(bool topmost);
 	void SetTimeStep(bool enable);
+	bool GetTimeStep() const;
 
 
 	//

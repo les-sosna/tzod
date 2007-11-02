@@ -68,6 +68,7 @@ public:
 protected:
 	void OnOK();
 	void OnCancel();
+	void OnSendMessage(const char *msg);
 	void OnTimeStep(float dt);
 };
 

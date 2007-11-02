@@ -8,6 +8,7 @@
 #include "gui_settings.h"
 #include "gui_editor.h"
 #include "gui_getfilename.h"
+#include "gui_campaign.h"
 #include "gui.h"
 
 #include "GuiManager.h"
@@ -103,12 +104,9 @@ void MainMenuDlg::OnNewGame()
 
 void MainMenuDlg::OnCampaign()
 {
-	string_t name;
-	Close(_resultOK);
-	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
-	{
-		static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
-	}
+	Show(false);
+	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent());
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnSaveGame()
@@ -116,7 +114,7 @@ void MainMenuDlg::OnSaveGame()
 	Show(false);
 
 	GetFileNameDlg::Params param;
-	param.title = "Сохраненить игру";
+	param.title = "Сохранить игру";
 	param.folder = g_fs->GetFileSystem(DIR_SAVE);
 	param.extension = "sav";
 

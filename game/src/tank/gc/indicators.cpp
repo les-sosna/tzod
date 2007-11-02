@@ -83,9 +83,9 @@ PropertySet* GC_SpawnPoint::NewPropertySet()
 }
 
 GC_SpawnPoint::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
-, _propDir( ObjectProperty::TYPE_FLOAT, "dir" )
+  : BASE(object)
+  , _propTeam( ObjectProperty::TYPE_INTEGER, "team" )
+  , _propDir( ObjectProperty::TYPE_FLOAT, "dir" )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
 	_propDir.SetFloatRange(0, PI2);

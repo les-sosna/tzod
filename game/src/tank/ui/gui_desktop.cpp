@@ -16,6 +16,8 @@
 #include "config/Config.h"
 #include "core/Console.h"
 
+#include "network/TankClient.h"
+
 #include "Level.h"
 
 namespace UI
@@ -115,7 +117,7 @@ void Desktop::ShowConsole(bool show)
 
 void Desktop::ShowEditor(bool show)
 {
-	_ASSERT(show || g_level);
+	_ASSERT(!show || g_level);
 	_editor->Show(show);
 }
 
@@ -140,13 +142,28 @@ void Desktop::OnRawChar(int c)
 		break;
 
 	case VK_OEM_3: // '~'
-		_con->Show(true);
+		if( _con->IsVisible() )
+		{
+			_con->Show(false);
+		}
+		else
+		{
+			_con->Show(true);
+			GetManager()->SetFocusWnd(_con);
+		}
 		break;
 
 	case VK_ESCAPE:
-		dlg = new MainMenuDlg(this);
-		ShowDesktopBackground(true);
-		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
+		if( GetManager()->GetFocusWnd() && GetManager()->Unfocus(_con) )
+		{
+			_con->Show(false);
+		}
+		else
+		{
+			dlg = new MainMenuDlg(this);
+			ShowDesktopBackground(true);
+			dlg->eventClose.bind( &Desktop::OnCloseChild, this );
+		}
 		break;
 
 	case VK_F2:
@@ -205,7 +222,26 @@ void Desktop::OnChangeShowTime()
 
 void Desktop::OnCommand(const char *cmd)
 {
-	script_exec(g_env.L, cmd);
+	size_t len = strlen(cmd);
+
+	if( g_client )
+	{
+		if( cmd[0] != '/' )
+		{
+			DataBlock db(len + 1);
+			strcpy((char*) db.data(), cmd);
+			db.type() = DBTYPE_TEXTMESSAGE;
+			g_client->SendDataToServer(db);
+		}
+		else if( len > 1 )
+		{
+			script_exec(g_env.L, cmd + 1); // cut off first symbol '/'
+		}
+	}
+	else
+	{
+		script_exec(g_env.L, cmd);
+	}
 }
 
 bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)

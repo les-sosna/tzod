@@ -148,6 +148,8 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 {
 	if( wnd )
 	{
+		_ASSERT(wnd->IsEnabled() && wnd->IsVisible());
+
 		if( _focusWnd == wnd )
 			return true;
 
@@ -325,7 +327,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 		}
 
-		if( !wnd->IsDestroyed() && msgProcessed )
+		if( !wnd->IsDestroyed() && wnd->IsEnabled() && wnd->IsVisible() && msgProcessed )
 		{
 			switch( msg )
 			{
@@ -410,16 +412,6 @@ bool GuiManager::ProcessKeys(UINT msg, int c)
 	}
 
 	return true;
-}
-
-void GuiManager::Resize(float width, float height)
-{
-	_desktop->Resize(width, height);
-}
-
-void GuiManager::Show(bool show)
-{
-	_desktop->Show(show);
 }
 
 void GuiManager::Render() const

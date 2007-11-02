@@ -343,17 +343,24 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 	new Text(this, 20, 40, "Кто в игре", alignTextLT);
 	_players = new List(this, 20, 55, 512, 200);
+	_players->SetTabPos(1, 200);
+	_players->SetTabPos(2, 300);
+	_players->SetTabPos(3, 400);
 
 
+	new Text(this, 20, 285, "Окно чата", alignTextLT);
 	_buf = new ConsoleBuffer(80, 500);
 	_chat = new Console(this, 20, 300, 512, 200, _buf);
+	_chat->SetTexture("ctrl_list");
 	_chat->SetEcho(false);
+	_chat->eventOnSendCommand.bind(&WaitingForPlayersDlg::OnSendMessage, this);
 
-	_btnOK = new Button(this, 312, 350, "Я готов!");
+
+	_btnOK = new Button(this, 590, 450, "Я готов!");
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->Enable(false);
 
-	(new Button(this, 412, 350, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
+	(new Button(this, 590, 480, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	PlayerDescEx pde;
@@ -389,6 +396,27 @@ void WaitingForPlayersDlg::OnCancel()
 	SAFE_DELETE(g_server);
 
 	Close(_resultCancel);
+}
+
+void WaitingForPlayersDlg::OnSendMessage(const char *msg)
+{
+	if( size_t l = strlen(msg) )
+	{
+		if( 0 == strcmp(msg, "/ping") )
+		{
+			DataBlock db(sizeof(DWORD));
+			db.type() = DBTYPE_PING;
+			db.cast<DWORD>() = timeGetTime();
+			g_client->SendDataToServer(db);
+		}
+		else
+		{
+			DataBlock db(l + 1);
+			strcpy((char*) db.data(), msg);
+			db.type() = DBTYPE_TEXTMESSAGE;
+			g_client->SendDataToServer(db);
+		}
+	}
 }
 
 void WaitingForPlayersDlg::OnTimeStep(float dt)
@@ -451,7 +479,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 				if( who == player->GetNetworkID() )
 				{
 					_players->DeleteItem(index);
-					_buf->printf("%s покинул игру.\n", player->GetName());
+					_buf->printf("%s покинул игру.\n", player->GetNick());
 					player->Kill();
 					break;
 				}
@@ -480,7 +508,13 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			player->UpdateSkin();
 		//	player->SetController( pd.type );
 
-			_players->AddItem(player->GetNick().c_str(), (UINT_PTR) player);
+			int index = _players->AddItem(player->GetNick().c_str(), (UINT_PTR) player);
+			_players->SetItemText(index, 1, player->GetSkin().c_str());
+
+			std::ostringstream tmp;
+			tmp << "команда " << player->GetTeam();
+				_players->SetItemText(index, 2, tmp.str().c_str());
+
 		//	if( pd.type >= MAX_HUMANS )
 		//		ListView_SetItemText(hwndLV, ListView_GetItemCount(hwndLV) - 1, 3, "Бот");
 

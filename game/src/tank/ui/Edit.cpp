@@ -84,7 +84,7 @@ void Edit::SetSel(int begin, int end)
 	_cursor->Move(cpos + _blankText->GetX(), 0);
 	_cursor->Resize(_cursor->GetWidth(), _blankText->GetHeight());
 
-	_selection->Show(_selStart != _selEnd && _cursor->IsVisible());
+	_selection->Show(_selStart != _selEnd && GetTimeStep());
 	_selection->Move(_blankText->GetX() + __min(_selStart, _selEnd) * (_blankText->GetWidth() - 1) + 2, 2);
 	_selection->Resize((_blankText->GetWidth() - 1) * abs(_selStart - _selEnd) - 2, _blankText->GetHeight()-2);
 }
@@ -101,7 +101,7 @@ int Edit::GetSelEnd() const
 
 void Edit::OnChar(int c)
 {
-	if( isprint(c) )
+	if( isprint((unsigned char) c) )
 	{
 		int start = __min(_selStart, _selEnd);
 		_string = _string.substr(0, start) + (char) c + _string.substr(__max(_selStart, _selEnd));

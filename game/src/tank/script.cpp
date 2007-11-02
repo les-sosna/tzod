@@ -61,6 +61,7 @@ static int luaT_reset(lua_State *L)
 	//
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
 	return 0;
 }
@@ -146,6 +147,8 @@ static int luaT_loadmap(lua_State *L)
 		return luaL_error(L, "couldn't load map from '%s'", filename);
 	}
 
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
+
 	return 0;
 }
 
@@ -172,6 +175,8 @@ static int luaT_newmap(lua_State *L)
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
 	}
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
 
 	return 0;
 }
@@ -200,6 +205,8 @@ static int luaT_load(lua_State *L)
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't load game from '%s'", filename);
 	}
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
 	return 0;
 }
@@ -259,6 +266,8 @@ static int luaT_import(lua_State *L)
 		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't import map '%s'", filename);
 	}
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
 
 	return 0;
 }

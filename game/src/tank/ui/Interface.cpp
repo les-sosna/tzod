@@ -22,6 +22,8 @@
 #include "core/Console.h"
 
 #include "ui/GuiManager.h"
+#include "ui/Window.h"
+
 #include "network/TankClient.h"
 #include "network/TankServer.h"
 
@@ -112,7 +114,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			g_render->OnResizeWnd();
 			if( g_gui )
-				g_gui->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+				g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 		}
 		break;
 

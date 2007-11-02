@@ -89,7 +89,7 @@ void List::SetItemText(int index, int sub, const char *str)
 	_items[index].text[sub] = str;
 }
 
-string_t List::GetItemText(int index, int sub) const
+const string_t& List::GetItemText(int index, int sub) const
 {
 	_ASSERT(index >= 0 && index < (int) _items.size());
 	_ASSERT(sub >= 0 && sub < (int) _items[index].text.size());

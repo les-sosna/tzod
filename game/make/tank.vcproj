@@ -912,6 +912,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\ui\gui_campaign.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\ui\gui_campaign.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\ui\gui_desktop.cpp"
 				>
 			</File>

@@ -542,6 +542,11 @@ void Window::SetTimeStep(bool enable)
 	_isTimeStep = enable;
 }
 
+bool Window::GetTimeStep() const
+{
+	return _isTimeStep;
+}
+
 void Window::SetCapture()
 {
 	_manager->SetCapture(this);

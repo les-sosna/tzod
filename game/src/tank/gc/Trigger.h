@@ -5,9 +5,11 @@
 
 #include "2dSprite.h"
 
-#define GC_FLAG_TRIGGER_          GC_FLAG_2DSPRITE_
+#define GC_FLAG_TRIGGER_ACTIVE    (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_TRIGGER_          (GC_FLAG_2DSPRITE_ << 1)
 
-
+// forward declarations
+class GC_Vehicle;
 
 
 class GC_Trigger : public GC_2dSprite
@@ -17,8 +19,10 @@ class GC_Trigger : public GC_2dSprite
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
+		ObjectProperty _propActive;
 		ObjectProperty _propRadius;
 		ObjectProperty _propOnEnter;
+		ObjectProperty _propOnExit;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -29,10 +33,11 @@ class GC_Trigger : public GC_2dSprite
 
 	virtual PropertySet* NewPropertySet();
 
-	float  _radius;
+	float    _radius;
+	string_t _onEnter;
+	string_t _onExit;
 
-protected:
-	virtual GC_Vehicle* FindVehicle() const;
+	SafePtr<GC_Vehicle> _veh;
 
 
 public:
@@ -45,6 +50,7 @@ public:
 	virtual bool IsSaved() { return true; }
 
 	virtual void TimeStepFixed(float dt);
+	virtual void Draw();
 };
 
 // end of file

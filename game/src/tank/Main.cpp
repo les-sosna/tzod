@@ -145,10 +145,11 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 }
 
 int APIENTRY WinMain( HINSTANCE hinst,
-					  HINSTANCE /*hPrevInstance*/,
-					  LPSTR /*lpCmdLine*/,
-					  int /*nCmdShow*/ )
-{
+                      HINSTANCE, // hPrevInstance
+                      LPSTR, // lpCmdLine
+                      int // nCmdShow
+){
+	setlocale(LC_ALL, "");
 	g_hInstance = hinst;
 	srand( GetTickCount() );
 
@@ -158,10 +159,10 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	// print UNIX-style date and time
 	time_t ltime;
 	char timebuf[26];
-	time( &ltime );
+	time(&ltime);
 	ctime_s(timebuf, 26, &ltime);
 	TRACE(" ZOD Engine started at %s", timebuf);
-	TRACE("--------------------------------------------\n");
+	TRACE("----------------------------------------------\n");
 
 
 	// create main app window
@@ -283,7 +284,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		TRACE("GUI subsystem initialization\n");
 		g_gui = new GuiManager(CreateDesktopWindow);
 		g_render->OnResizeWnd();
-		g_gui->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+		g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
 		TRACE("Execing startup script '%s'\n", FILE_STARTUP);

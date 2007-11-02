@@ -32,10 +32,6 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	{
 		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 		{
-			string_t tmp = _folder->GetFullPath();
-			tmp += "/";
-			tmp += *it;
-
 			it->erase(it->length() - _ext.length() - 1); // cut out the file extension
 			int index = _files->AddItem(it->c_str());
 		}

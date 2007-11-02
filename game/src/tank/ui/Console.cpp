@@ -118,10 +118,9 @@ void Console::OnRawChar(int c)
 	case VK_END:
 		_scrollBack = 0;
 		break;
-	case VK_OEM_3:
-		Show(false);
-		GetManager()->SetFocusWnd(NULL);
-		break;
+//	case VK_OEM_3: // ~
+//		Show(false);
+//		break;
 	case VK_ESCAPE:
 		if( !_input->GetText().empty() )
 		{
@@ -129,8 +128,8 @@ void Console::OnRawChar(int c)
 		}
 		else
 		{
-			Show(false);
-			GetManager()->SetFocusWnd(NULL);
+		//	Show(false);
+			GetParent()->OnRawChar(c);
 		}
 		break;
 	case VK_TAB:
@@ -152,6 +151,8 @@ void Console::OnRawChar(int c)
 			}
 		}
 		break;
+	default:
+		GetParent()->OnRawChar(c);
 	}
 }
 
@@ -191,8 +192,8 @@ void Console::DrawChildren(float sx, float sy)
 
 void Console::OnShow(bool show)
 {
-	if( show )
-		GetManager()->SetFocusWnd(this);
+//	if( show )
+//		GetManager()->SetFocusWnd(this);
 }
 
 void Console::OnSize(float width, float height)
