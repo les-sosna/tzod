@@ -67,27 +67,6 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	{
 		SwitchPanel(PT_SINGLEPLAYER);
 	}
-
-
-/*
-	std::set<string_t> c;
-	g_fs->GetFileSystem("campaign")->EnumAllFiles(c, "*.lua");
-
-	float y = GetHeight() + 30;
-	for( std::set<string_t>::iterator it = c.begin(); it != c.end(); ++it )
-	{
-		it->erase(it->length() - 4); // cut out the file extension
-
-		DelegateAdapter1<string_t> d(*it);
-		d.eventOnEvent.bind(&MainMenuDlg::OnCampaign, this);
-		_campaigns.push_back(d);
-
-		Button *btn = new Button(this, 0, y, it->c_str());
-		btn->eventClick.bind(&DelegateAdapter1<string_t>::OnEvent, &_campaigns.back());
-
-		y += btn->GetHeight() + 1;
-	}
-*/
 }
 
 void MainMenuDlg::OnSinglePlayer()

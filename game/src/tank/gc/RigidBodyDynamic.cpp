@@ -64,8 +64,8 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 	GC_RigidBodyDynamic *tmp = static_cast<GC_RigidBodyDynamic *>(GetObject());
 	if( applyToObject )
 	{
-		tmp->_inv_m = 1.0f / _propM.GetFloatValue();
-		tmp->_inv_i = 1.0f / _propI.GetFloatValue();
+		tmp->_inv_m = _propM.GetFloatValue() > 0 ? 1.0f / _propM.GetFloatValue() : 0;
+		tmp->_inv_i = _propI.GetFloatValue() > 0 ? 1.0f / _propI.GetFloatValue() : 0;
 		tmp->_percussion = _propPercussion.GetFloatValue();
 		tmp->_fragility = _propFragility.GetFloatValue();
 		tmp->_Nx = _propNx.GetFloatValue();
@@ -74,8 +74,8 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 	}
 	else
 	{
-		_propM.SetFloatValue(1.0f / tmp->_inv_m);
-		_propI.SetFloatValue(1.0f / tmp->_inv_i);
+		_propM.SetFloatValue(tmp->_inv_m > 0 ? 1.0f / tmp->_inv_m : 0);
+		_propI.SetFloatValue(tmp->_inv_i > 0 ? 1.0f / tmp->_inv_i : 0);
 		_propPercussion.SetFloatValue(tmp->_percussion);
 		_propFragility.SetFloatValue(tmp->_fragility);
 		_propNx.SetFloatValue(tmp->_Nx);

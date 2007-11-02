@@ -718,6 +718,55 @@ bool ConfVarTable::Remove(const char *name)
 	return false;
 }
 
+bool ConfVarTable::Rename(ConfVar * const value, const char *newName)
+{
+	_ASSERT( typeTable == _type );
+
+	if( _val.asTable->count(newName) )
+	{
+		return false; // new name is already used
+	}
+
+	std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
+	for( ;_val.asTable->end() != it; ++it )
+	{
+		if( value == it->second )
+		{
+			break;
+		}
+	}
+	if( _val.asTable->end() == it )
+	{
+		return false; // old name not found
+	}
+
+	(*_val.asTable)[newName] = it->second;   // create new
+	_val.asTable->erase(it);                 // remove old
+
+	return true;
+}
+
+bool ConfVarTable::Rename(const char *oldName, const char *newName)
+{
+	_ASSERT( typeTable == _type );
+
+	if( _val.asTable->count(newName) )
+	{
+		return false; // new name is already used
+	}
+
+	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(oldName);
+	if( _val.asTable->end() == it )
+	{
+		return false; // old name not found
+	}
+
+	(*_val.asTable)[newName] = it->second;   // create new
+	_val.asTable->erase(it);                 // remove old
+
+	return true;
+}
+
 bool ConfVarTable::_Save(FILE *file, int level) const
 {
 	if( level ) fprintf(file, "{\n");

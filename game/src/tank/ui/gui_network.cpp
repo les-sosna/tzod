@@ -341,8 +341,8 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
-	new Text(this, 20, 40, " то в игре", alignTextLT);
-	_players = new List(this, 20, 55, 512, 200);
+	new Text(this, 20, 50, " то в игре", alignTextLT);
+	_players = new List(this, 20, 65, 512, 200);
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);

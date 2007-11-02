@@ -264,6 +264,11 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 
 void ControlProfileDlg::OnOK()
 {
+	if( !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
+	{
+		return;
+	}
+
 	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
 	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
 	for( int i = 0; i < _actions->GetSize(); ++i )

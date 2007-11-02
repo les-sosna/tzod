@@ -193,6 +193,8 @@ public:
 
 	bool Remove(ConfVar * const value);
 	bool Remove(const char *name);
+	bool Rename(ConfVar * const value, const char *newName);
+	bool Rename(const char *oldName, const char *newName);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);
