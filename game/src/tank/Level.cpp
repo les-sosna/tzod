@@ -228,8 +228,8 @@ Level::Level()
 
 	_time        = 0;
 	_timeBuffer  = 0;
+	_pauseCount  = 0;
 	_limitHit    = false;
-	_paused      = false;
 	_freezed     = false;
 
 	_safeMode    = true;
@@ -693,14 +693,15 @@ bool Level::Export(const char *fileName)
 
 void Level::Pause(bool pause)
 {
-//	if( _limitHit || _modeEditor ) return;
-
-	_paused = pause;
-
-	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
+	if( (pause && 0 == _pauseCount) || (!pause && 1 == _pauseCount) )
 	{
-		pSound->Freeze(pause);
+		FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
+		{
+			pSound->Freeze(pause);
+		}
 	}
+	_pauseCount += pause ? +1 : -1;
+	_ASSERT(_pauseCount >= 0);
 }
 
 void Level::ToggleEditorMode()
@@ -982,13 +983,11 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 
 void Level::TimeStep(float dt)
 {
-	if( _limitHit ) return;
+	if( _pauseCount && !g_client || _limitHit )
+		return;
 
 	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
-
-	if( _paused )
-		return;
 
 	_ASSERT(!_modeEditor);
 

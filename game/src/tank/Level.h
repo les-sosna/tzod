@@ -200,7 +200,7 @@ public:
 
 /////////////////////////////////////
 //settings
-	bool    _paused;
+	int     _pauseCount;
 	bool    _freezed;
 	bool    _modeEditor;
 	bool    _limitHit;  // достигнут fraglimit или timelimit
