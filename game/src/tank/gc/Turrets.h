@@ -46,7 +46,7 @@ protected:
 	};
 
 public:
-	enumTuretState	_state;
+	enumTuretState _state;
 
 	int      _team;  // 0 - no team
 	float    _initialDir;
@@ -141,21 +141,21 @@ public:
 class GC_TurretBunker : public GC_Turret
 {
 private:
-	float	_time;
+	float _time;
 
 protected:
 	void WakeUp();
 	void WakeDown();
 
 public:
-	float	_delta_angle;  // точность стрельбы
+	float _delta_angle;  // точность стрельбы
 
 public:
-	float	_time_wait;
-	float	_time_wait_max;
+	float _time_wait;
+	float _time_wait_max;
 
-	float	_time_wake;    // 0 - hidden
-	float	_time_wake_max;
+	float _time_wake;    // 0 - hidden
+	float _time_wake_max;
 
 public:
 	GC_TurretBunker(float x, float y);
@@ -179,8 +179,8 @@ class GC_TurretMinigun : public GC_TurretBunker
 
 private:
 	SafePtr<GC_Sound> _fireSound;
-	float	_time;
-	bool	_firing;
+	float _time;
+	bool  _firing;
 
 public:
 	GC_TurretMinigun(float x, float y);

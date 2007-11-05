@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Controller.h"
 #include "core/Rotator.h"
 
 #include "Service.h"
@@ -21,10 +20,12 @@ private:
 public:
 	GC_Background();
 	GC_Background(FromFile);
+	~GC_Background();
 	virtual void Draw();
 
 public:
 	void EnableGrid(bool bEnable);
+	void OnChangeDrawGridVariable();
 };
 
 /////////////////////////////////////////////////////////////
@@ -137,7 +138,7 @@ private:
 	SafePtr<GC_RigidBodyStatic> _owner;
 
 public:
-	GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic *pOwner,
+	GC_HealthDaemon(GC_RigidBodyStatic *victim, GC_RigidBodyStatic *owner,
 		            float damage, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();

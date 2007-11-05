@@ -73,8 +73,8 @@ struct VehicleState
 
 //----------------------------------------------------------
 
-#define MODE_EXPLICITTOWER	0x4000
-#define MODE_EXPLICITBODY	0x8000
+#define MODE_EXPLICITTOWER  0x4000
+#define MODE_EXPLICITBODY   0x8000
 
 //----------------------------------------------------------
 

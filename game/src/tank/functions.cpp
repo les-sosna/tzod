@@ -11,21 +11,21 @@
 //--------------------------------------------------
 
 // проверка на пересечение правильных прямоугольников
-BOOL IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
+bool IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
 {
 	float l, r, t, b;
 
 	l = __max(lprtRect1->left,   lprtRect2->left   );
 	r = __min(lprtRect1->right,  lprtRect2->right  );
 
-	if( !(l < r) ) return FALSE;
+	if( !(l < r) ) return false;
 
 	t = __max(lprtRect1->top,    lprtRect2->top    );
 	b = __min(lprtRect1->bottom, lprtRect2->bottom );
 
-	if( t < b ) return TRUE;
+	if( t < b ) return true;
 
-	return FALSE;
+	return false;
 }
 
 bool PtInFRect(const FRECT &rect, const vec2d &pt)
@@ -130,7 +130,7 @@ DWORD CalcCRC32(LPCTSTR fileName)
 
 	FILE *file = fopen(fileName, "rb");
 	if( NULL == file )
-		return -1;
+		return 0xffffffff;
 
 	DWORD crc = 0;
 	for(;;)

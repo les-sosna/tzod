@@ -195,7 +195,7 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 		UI::Window *tmp = wnd;
 		for( UI::Window *w = wnd->GetParent(); w; w = w->GetParent() )
 		{
-			if( !w->IsVisible() || !w->IsEnabled() || w->IsDestroyed() ) 
+			if( !w->IsVisible() || !w->IsEnabled() || w->IsDestroyed() )
 			{
 				tmp = w->GetParent();
 			}

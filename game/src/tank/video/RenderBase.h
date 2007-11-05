@@ -51,11 +51,11 @@ struct MyVertex
 struct IRender
 {
 	// return TRUE if ok
-	virtual BOOL Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen) = 0;
+	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen) = 0;
 	virtual void Release() = 0;
 
-	virtual BOOL  getDisplayMode(DWORD index, DisplayMode *pMode) const = 0;
-	virtual DWORD getModeCount() const  = 0;
+	virtual bool getDisplayMode(int index, DisplayMode *pMode) const = 0;
+	virtual int  getModeCount() const  = 0;
 
 	virtual void OnResizeWnd() = 0;
 

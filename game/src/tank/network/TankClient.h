@@ -27,26 +27,26 @@ public:
 	void tovs(VehicleState &vs) const;
 };
 
-#define STATE_MOVEFORWARD	0x0001
-#define STATE_MOVEBACK		0x0002
-#define STATE_ROTATELEFT	0x0004
-#define STATE_ROTATERIGHT	0x0008
-#define STATE_FIRE			0x0010
-#define STATE_ALLOWDROP		0x0020
-#define STATE_TOWERLEFT		0x0040
-#define STATE_TOWERRIGHT	0x0080
-#define STATE_TOWERCENTER	0x0100
-#define STATE_ENABLELIGHT	0x0200
+#define STATE_MOVEFORWARD   0x0001
+#define STATE_MOVEBACK      0x0002
+#define STATE_ROTATELEFT    0x0004
+#define STATE_ROTATERIGHT   0x0008
+#define STATE_FIRE          0x0010
+#define STATE_ALLOWDROP     0x0020
+#define STATE_TOWERLEFT     0x0040
+#define STATE_TOWERRIGHT    0x0080
+#define STATE_TOWERCENTER   0x0100
+#define STATE_ENABLELIGHT   0x0200
 
-#define WM_CUSTOMCLIENTMSG	(WM_USER + 1003) // this message must be mirrored back
+#define WM_CUSTOMCLIENTMSG  (WM_USER + 1003) // this message must be mirrored back
 
 
-typedef struct NETWORKSTATS
+struct NetworkStats
 {
 	int    nFramesInBuffer;
 	DWORD  dwBytesSent;
 	DWORD  dwBytesRecv;
-} NETWORKSTATS, *LPNETWORKSTATS;
+};
 
 class TankClient
 {
@@ -80,7 +80,7 @@ public:
 
 private:
 	DWORD _clientId;
-	NETWORKSTATS _stats;
+	NetworkStats _stats;
 
 public:
 	TankClient(void);
@@ -97,7 +97,7 @@ public:
 	void SendDataToServer(const DataBlock &data);
 
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
-	void GetStatistics(LPNETWORKSTATS lpStats);
+	void GetStatistics(NetworkStats *pStats);
 
 	std::queue<ControlPacket> _ctrlBuf;
 	bool RecvControl(ControlPacket &cp);

@@ -16,7 +16,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 {
-	ED_ACTOR("respawn_point", "Точка рождения танка", 
+	ED_ACTOR("respawn_point", "Точка рождения танка",
 	    0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2);
 	return true;
 }

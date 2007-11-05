@@ -95,7 +95,7 @@ TankClient::TankClient(void)
 	_hMainWnd = NULL;
 
 	//---------------------------------
-	ZeroMemory(&_stats, sizeof(NETWORKSTATS));
+	ZeroMemory(&_stats, sizeof(NetworkStats));
 	_frame              = 0;
 	_clientId           = 0;
 	_buf_incoming_size  = 0;
@@ -339,9 +339,9 @@ void TankClient::SendControl(const ControlPacket &cp)
 	_frame++;
 }
 
-void TankClient::GetStatistics(LPNETWORKSTATS lpStats)
+void TankClient::GetStatistics(NetworkStats *pStats)
 {
-	memcpy(lpStats, &_stats, sizeof(NETWORKSTATS));
+	memcpy(pStats, &_stats, sizeof(NetworkStats));
 }
 
 bool TankClient::RecvControl(ControlPacket &cp)

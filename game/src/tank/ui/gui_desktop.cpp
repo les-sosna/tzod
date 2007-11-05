@@ -119,6 +119,10 @@ void Desktop::ShowEditor(bool show)
 {
 	_ASSERT(!show || g_level);
 	_editor->Show(show);
+	if( show )
+	{
+		GetManager()->SetFocusWnd(_editor);
+	}
 }
 
 void Desktop::OnCloseChild(int result)

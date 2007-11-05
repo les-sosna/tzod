@@ -102,19 +102,21 @@ ConfVarTable* ConfVar::AsTable()
 	return static_cast<ConfVarTable*>(this);
 }
 
-bool ConfVar::_Save(FILE *file, int level) const
+bool ConfVar::_Save(FILE *, int) const
 {
-	return true;
+	_ASSERT(FALSE);
+	return false;
 }
 
-bool ConfVar::_Load(lua_State *L)
+bool ConfVar::_Load(lua_State *)
 {
-	return true;
+	_ASSERT(FALSE);
+	return false;
 }
 
-void ConfVar::Push(lua_State *L)
+void ConfVar::Push(lua_State *)
 {
-	lua_pushnil(L);
+	_ASSERT(FALSE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -722,11 +724,6 @@ bool ConfVarTable::Rename(ConfVar * const value, const char *newName)
 {
 	_ASSERT( typeTable == _type );
 
-	if( _val.asTable->count(newName) )
-	{
-		return false; // new name is already used
-	}
-
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 	for( ;_val.asTable->end() != it; ++it )
 	{
@@ -740,6 +737,16 @@ bool ConfVarTable::Rename(ConfVar * const value, const char *newName)
 		return false; // old name not found
 	}
 
+	if( it->first == newName )
+	{
+		return true;
+	}
+
+	if( _val.asTable->count(newName) )
+	{
+		return false; // new name is already used
+	}
+
 	(*_val.asTable)[newName] = it->second;   // create new
 	_val.asTable->erase(it);                 // remove old
 
@@ -750,15 +757,20 @@ bool ConfVarTable::Rename(const char *oldName, const char *newName)
 {
 	_ASSERT( typeTable == _type );
 
-	if( _val.asTable->count(newName) )
-	{
-		return false; // new name is already used
-	}
-
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(oldName);
 	if( _val.asTable->end() == it )
 	{
 		return false; // old name not found
+	}
+
+	if( it->first == newName )
+	{
+		return true;
+	}
+
+	if( _val.asTable->count(newName) )
+	{
+		return false; // new name is already used
 	}
 
 	(*_val.asTable)[newName] = it->second;   // create new

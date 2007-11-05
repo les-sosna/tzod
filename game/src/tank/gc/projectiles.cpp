@@ -145,7 +145,7 @@ void GC_Projectile::Serialize(SaveFile &f)
 	f.Serialize(_lastHit);
 }
 
-void GC_Projectile::MoveTo(const vec2d &pos, BOOL trail)
+void GC_Projectile::MoveTo(const vec2d &pos, bool trail)
 {
 	if( trail )
 	{
@@ -1009,9 +1009,9 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 14; ++n )
 		{
 			(new GC_Bullet(
-				hit, 
+				hit,
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
-				GetRawPtr(_owner), 
+				GetRawPtr(_owner),
 				IsAdvanced())
 			)->SetIgnoreOwner(false);
 		}
@@ -1039,9 +1039,9 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 11; ++n )
 		{
 			(new GC_Bullet(
-				hit, 
+				hit,
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
-				GetRawPtr(_owner), 
+				GetRawPtr(_owner),
 				true)
 			)->SetIgnoreOwner(false);
 		}

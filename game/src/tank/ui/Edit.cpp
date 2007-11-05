@@ -101,7 +101,7 @@ int Edit::GetSelEnd() const
 
 void Edit::OnChar(int c)
 {
-	if( isprint((unsigned char) c) )
+	if( isprint((unsigned char) c) && VK_TAB != c )
 	{
 		int start = __min(_selStart, _selEnd);
 		_string = _string.substr(0, start) + (char) c + _string.substr(__max(_selStart, _selEnd));
@@ -341,22 +341,22 @@ void Edit::Copy() const
 		{
 			if( EmptyClipboard() )
 			{
-				// Allocate a global memory object for the text. 
-				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(char)); 
-				if( NULL == hData ) 
-				{ 
+				// Allocate a global memory object for the text.
+				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(char));
+				if( NULL == hData )
+				{
 		//			TRACE(_T("Failed to allocate memory: %d\n"), GetLastError());
-					CloseClipboard(); 
+					CloseClipboard();
 					return;
-				} 
+				}
 
 				// Lock the handle and copy the text to the buffer.
-				char *data = (char *) GlobalLock(hData); 
+				char *data = (char *) GlobalLock(hData);
 				memcpy(data, str.c_str(), str.length());
-				data[str.length()] = '\0';    // null character 
-				GlobalUnlock(hData); 
+				data[str.length()] = '\0';    // null character
+				GlobalUnlock(hData);
 
-				// Place the handle on the clipboard. 
+				// Place the handle on the clipboard.
 				if( !SetClipboardData(CF_OEMTEXT, hData) )
 				{
 				//	TRACE(_T("Failed to set clipboard data: %d\n"), GetLastError());

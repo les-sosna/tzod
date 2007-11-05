@@ -103,7 +103,7 @@ public:
 	};
 
 
-	class safe_iterator : public base_iterator	// обеспечивает подсчет ссылок
+	class safe_iterator : public base_iterator  // обеспечивает подсчет ссылок
 	{
 	public:
 		safe_iterator() : _node(NULL) {}

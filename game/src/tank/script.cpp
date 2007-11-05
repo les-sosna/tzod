@@ -534,13 +534,13 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TNUMBER != lua_type(L, -1) )
 		{
-			luaL_error(L, "property '%s' - expected integer value; got %s", 
+			luaL_error(L, "property '%s' - expected integer value; got %s",
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		int v = lua_tointeger(L, -1);
 		if( v < p->GetIntMin() || v > p->GetIntMax() )
 		{
-			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]", 
+			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]",
 				pname, v, p->GetIntMin(), p->GetIntMax());
 		}
 		p->SetIntValue(v);
@@ -550,13 +550,13 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TNUMBER != lua_type(L, -1) )
 		{
-			luaL_error(L, "property '%s' - expected number value; got %s", 
+			luaL_error(L, "property '%s' - expected number value; got %s",
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		float v = (float) lua_tonumber(L, -1);
 		if( v < p->GetFloatMin() || v > p->GetFloatMax() )
 		{
-			return luaL_error(L, "property '%s' - value %g is out of range [%g, %g]", 
+			return luaL_error(L, "property '%s' - value %g is out of range [%g, %g]",
 				pname, v, p->GetFloatMin(), p->GetFloatMax());
 		}
 		p->SetFloatValue(v);
@@ -566,7 +566,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
-			luaL_error(L, "property '%s' - expected string value; got %s", 
+			luaL_error(L, "property '%s' - expected string value; got %s",
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		p->SetStringValue(lua_tostring(L, -1));
@@ -576,7 +576,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	{
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
-			luaL_error(L, "property '%s' - expected string value; got %s", 
+			luaL_error(L, "property '%s' - expected string value; got %s",
 				pname, lua_typename(L, lua_type(L, -1)));
 		}
 		const char *v = lua_tostring(L, -1);

@@ -14,7 +14,7 @@ LPDIRECTINPUTDEVICE8  g_pKeyboard = NULL;
 
 CSoundManager   *g_pSoundManager = NULL;
 
-HINSTANCE	 g_hInstance = NULL;
+HINSTANCE    g_hInstance = NULL;
 
 CSound      *g_pSounds[SND_COUNT] = {0};
 

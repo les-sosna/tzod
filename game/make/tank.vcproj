@@ -332,41 +332,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\tank\Editor.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profiler|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\tank\Editor.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\tank\functions.cpp"
 				>
 			</File>
@@ -669,14 +634,6 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\gc\Camera.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\gc\Controller.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\gc\Controller.h"
 				>
 			</File>
 			<File
@@ -1021,14 +978,6 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\ui\MousePointer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\ui\SaveLoad.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\ui\SaveLoad.h"
 				>
 			</File>
 			<File

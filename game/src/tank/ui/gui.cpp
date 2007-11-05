@@ -169,7 +169,7 @@ void NewGameDlg::RefreshPlayersList()
 		{
 			wsprintf(s, "%d", team);
 		}
-		else 
+		else
 		{
 			wsprintf(s, "[нет]");
 		}
@@ -199,7 +199,7 @@ void NewGameDlg::RefreshBotsList()
 		{
 			wsprintf(s, "%d", team);
 		}
-		else 
+		else
 		{
 			wsprintf(s, "[нет]");
 		}
@@ -441,7 +441,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	new Text(this, x1, y, "Имя", alignTextLT);
 	_name = new Edit(this, x2, y-=1, 200);
 	_name->SetText( _info->GetStr("nick", "Unnamed")->Get() );
-
+	GetManager()->SetFocusWnd(_name);
 
 	List *lst; // helps in combo box filling
 
@@ -606,9 +606,10 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_name = new Edit(this, x2, y-=1, 200);
 	lua_getglobal(g_env.L, "random_name");   // push function
 	lua_call(g_env.L, 0, 1);
-	_name->SetText( _info->GetStr("nick", 
+	_name->SetText( _info->GetStr("nick",
 		lua_tostring(g_env.L, -1))->Get() ); // random default nick
 	lua_pop(g_env.L, 1);                     // pop result
+	GetManager()->SetFocusWnd(_name);
 
 
 
@@ -780,7 +781,7 @@ void ScriptMessageBox::OnButton3()
 	RunScript(3);
 }
 
-ScriptMessageBox::ScriptMessageBox( Window *parent, int handler, 
+ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
                                     const char *text,
                                     const char *btn1,
                                     const char *btn2,

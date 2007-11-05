@@ -90,7 +90,7 @@
 #define LUA_USE_APICHECK
 #endif
 
-extern "C" 
+extern "C"
 {
 #include "lua.h"
 #include "lualib.h"

@@ -85,7 +85,7 @@ void FpsCounter::OnTimeStep(float dt)
 				avr /= (float) _dts_net.size();
 			}
 
-			NETWORKSTATS ns;
+			NetworkStats ns;
 			g_client->GetStatistics(&ns);
 			wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; fps: %3dmin %3davr %3dmax;",
 				ns.nFramesInBuffer, ns.dwBytesSent/1024, ns.dwBytesRecv/1024,

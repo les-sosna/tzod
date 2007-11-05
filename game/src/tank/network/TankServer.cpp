@@ -283,9 +283,6 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 					break;
 				case DBTYPE_PING:
 					pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
-
-				//	pData->pServer->SendClientThreadData(pData->it, db);
-				//	pData->pServer->SendMainThreadData(pData->it->id, db);
 					break;
 				default:
 					_ASSERT(FALSE);
@@ -522,8 +519,7 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 		case DBTYPE_TEXTMESSAGE:
 		{
 			string_t msg = "<";
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 			{
 				if( it->id == id_from )
 				{
@@ -539,18 +535,16 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 			db_new.type() = DBTYPE_TEXTMESSAGE;
 			strcpy((char *) db_new.data(), msg.c_str());
 
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 				pServer->SendClientThreadData(it, db_new);
 		} break;
 		case DBTYPE_PLAYERREADY:
 		{
-			BOOL bAllPlayersReady = TRUE;
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			bool bAllPlayersReady = true;
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 			{
 				if( it->id == id_from ) it->ready = db.cast<dbPlayerReady>().ready;
-				if( !it->ready ) bAllPlayersReady = FALSE;
+				if( !it->ready ) bAllPlayersReady = false;
 				pServer->SendClientThreadData(it, db);
 			}
 			if( bAllPlayersReady )
@@ -563,7 +557,6 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 				pServer->_hAcceptThread = NULL;
 				pServer->_evStopListen = NULL;
 
-
 				string_t msg = "Все игроки готовы. Запуск игры...";
 				DataBlock tmp(msg.size()+1);
 				tmp.type() = DBTYPE_TEXTMESSAGE;
@@ -574,26 +567,23 @@ DWORD WINAPI TankServer::MainProc(TankServer *pServer)
 				//------------------------------------------
 				tmp = DataBlock();
 				tmp.type() = DBTYPE_STARTGAME;
-				it = pServer->_clients.begin();
-				for( ; it != pServer->_clients.end(); ++it )
+				for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 					pServer->SendClientThreadData(it, tmp);
 			}
-		} break;
+			break;
+		}
 		case DBTYPE_NEWPLAYER:
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 				pServer->SendClientThreadData(it, db);
 			break;
 		case DBTYPE_PLAYERQUIT:
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 				if( id_from != it->id )
 					pServer->SendClientThreadData(it, db);
 			pServer->TrySendFrame();
 			break;
 		case DBTYPE_PING:
-			it = pServer->_clients.begin();
-			for( ; it != pServer->_clients.end(); ++it )
+			for( it = pServer->_clients.begin(); it != pServer->_clients.end(); ++it )
 			//	if( id_from == it->id )
 					pServer->SendClientThreadData(it, db);
 			break;

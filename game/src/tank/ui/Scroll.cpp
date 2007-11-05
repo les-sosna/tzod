@@ -76,7 +76,7 @@ void ScrollBar::SetLineSize(float ls)
 
 void ScrollBar::OnSize(float width, float height)
 {
-	_btnDownRight->Move(  _hor ? width - _btnDownRight->GetWidth() : 0, 
+	_btnDownRight->Move(  _hor ? width - _btnDownRight->GetWidth() : 0,
 	                      _hor ? 0 : height - _btnDownRight->GetHeight() );
 	SetPos(GetPos());  // to update scroll box position
 }

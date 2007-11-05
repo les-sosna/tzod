@@ -42,8 +42,8 @@ struct PLAYER
 
 //----------------------------------------------------------
 
-#define MAX_PLRNAME	30
-#define MAX_VEHCLSNAME	30
+#define MAX_PLRNAME     30
+#define MAX_VEHCLSNAME  30
 
 struct PlayerDesc
 {
@@ -81,23 +81,6 @@ typedef struct GAMEINFO
 	bool  nightmode;
 } GAMEINFO, *LPGAMEINFO;
 
-//----------------------------------------------------------
-
-
-//----------------------------------------------------------
-// параметры файлового диалога
-typedef struct GETFILENAME
-{
-	DWORD   dwFlags;
-	LPCTSTR lpszDirectory;
-	LPCTSTR lpszActionName; // надпись на кнопке OK
-	LPSTR   fileName;
-	LPCTSTR lpszFileExt;    // расширение (например, "map")
-	BOOL  (*lpValidateFunc)(LPCTSTR);
-} GETFILENAME, *LPGETFILENAME;
-
-#define GFNF_OVERWRITEPROMPT	1
-#define GFNF_FILEMUSTEXIST		2
 
 //----------------------------------------------------------
 

@@ -95,7 +95,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	float min_dist = _sight*_sight;
 	float dist;
 
-	GC_Vehicle	*target = NULL;
+	GC_Vehicle *target = NULL;
 	GC_RigidBodyStatic *pObstacle = NULL;
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
@@ -420,7 +420,7 @@ void GC_TurretCannon::Fire()
 			GetPos() + a * 31.9f,
 			a * SPEED_TANKBULLET + g_level->net_vrand(40),
 			this,
-			false ) 
+			false )
 		)->_damage = g_level->net_frand(10.0f) + 5.0f;
 		_timeReload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;

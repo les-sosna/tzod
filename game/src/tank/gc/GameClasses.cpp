@@ -35,11 +35,21 @@ IMPLEMENT_SELF_REGISTRATION(GC_Background)
 GC_Background::GC_Background() : GC_2dSprite()
 {
 	MoveTo(vec2d(0, 0));
-	_drawGrid = g_level->_modeEditor && g_conf.ed_drawgrid->Get();
+	_ASSERT(!g_conf.ed_drawgrid->eventChange);
+	g_conf.ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
+	OnChangeDrawGridVariable();
 }
 
 GC_Background::GC_Background(FromFile) : GC_2dSprite(FromFile())
 {
+	_ASSERT(!g_conf.ed_drawgrid->eventChange);
+	g_conf.ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
+	OnChangeDrawGridVariable();
+}
+
+GC_Background::~GC_Background()
+{
+	g_conf.ed_drawgrid->eventChange.clear();
 }
 
 void GC_Background::Draw()
@@ -71,6 +81,11 @@ void GC_Background::Draw()
 void GC_Background::EnableGrid(bool bEnable)
 {
 	_drawGrid = bEnable;
+}
+
+void GC_Background::OnChangeDrawGridVariable()
+{
+	_drawGrid = g_conf.ed_drawgrid->Get();
 }
 
 /////////////////////////////////////////////////////////////
@@ -643,8 +658,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explo
 
 			//smoke
 			a = vrand(frand(48.0f));
-			(new GC_Particle(GetPos() + a, SPEED_SMOKE + a / 2.0f,
-							 tex5, 1.5f))->_time = frand(1.0f);
+			(new GC_Particle(GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
 		}
 
 		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, frand(PI2));
@@ -669,14 +683,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *pVictim, GC_RigidBodyStatic *pOwner,
-								 float damage, float time)
+GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim, 
+                                 GC_RigidBodyStatic *owner,
+                                 float damage, float time)
 {
 	_time   = time;
 	_damage = damage;
 
-	_victim = pVictim;
-	_owner  = pOwner;
+	_victim = victim;
+	_owner  = owner;
 
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);

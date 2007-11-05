@@ -258,14 +258,13 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 {
 	int index = _actions->AddItem(display);
 	_actions->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->SetItemText(index, 1, 
+	_actions->SetItemText(index, 1,
 		g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())).c_str());
 }
 
 void ControlProfileDlg::OnOK()
 {
-	if( (_name.empty() || _name != _nameEdit->GetText())
-		&& !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
+	if( !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
 	{
 		return;
 	}
@@ -277,7 +276,7 @@ void ControlProfileDlg::OnOK()
 		_profile->SetStr((const char *) _actions->GetItemData(i),
 			_actions->GetItemText(i, 1).c_str());
 	}
-	Dialog::Close(_resultOK);
+	Close(_resultOK);
 }
 
 void ControlProfileDlg::OnCancel()
@@ -286,7 +285,7 @@ void ControlProfileDlg::OnCancel()
 	{
 		g_conf.dm_profiles->Remove(_profile);
 	}
-	Dialog::Close(_resultCancel);
+	Close(_resultCancel);
 }
 
 void ControlProfileDlg::OnTimeStep(float dt)
@@ -308,7 +307,7 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			}
 			else
 			{
-				_actions->SetItemText(_activeIndex, 1, 
+				_actions->SetItemText(_activeIndex, 1,
 					g_keys->GetName(
 						g_keys->GetCode(
 							_profile->GetStr(
@@ -331,10 +330,16 @@ void ControlProfileDlg::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_RETURN:
-		if( -1 != _actions->GetCurSel() )
+		if( GetManager()->GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
 		{
 			OnSelectAction(_actions->GetCurSel());
 		}
+		else
+		{
+			OnOK();
+		}
+		break;
+	case VK_ESCAPE:
 		break;
 	default:
 		Dialog::OnRawChar(c);
@@ -413,7 +418,7 @@ void MapSettingsDlg::OnOK()
 	}
 	if( !_ThemeManager::Inst().ApplyTheme(i) )
 	{
-	//	MessageBoxT(g_env.hMainWnd, "Ошибка при загрузке темы", MB_ICONERROR);
+//		MessageBoxT(g_env.hMainWnd, "Ошибка при загрузке темы", MB_ICONERROR);
 	}
 
 	Close(_resultOK);

@@ -15,14 +15,14 @@ class GC_Camera : public GC_Actor
 	MemberOfGlobalList<LIST_cameras> _memberOf;
 
 private:
-	vec2d	_target;
-	float   _time_shake;
-	float   _time_seed;
-	float   _angle_current;
-	DWORD   _dwTimeX;
-	DWORD   _dwTimeY;
-	float   _dt;
-	bool    _active;
+	vec2d  _target;
+	float  _time_shake;
+	float  _time_seed;
+	float  _angle_current;
+	DWORD  _dwTimeX;
+	DWORD  _dwTimeY;
+	float  _dt;
+	bool   _active;
 
 	Rotator _rotator;
 

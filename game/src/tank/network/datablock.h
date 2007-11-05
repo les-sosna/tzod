@@ -6,31 +6,31 @@
 
 /////////////////////////////////////////////////////////
 
-#define DBTYPE_UNKNOWN	-1
+#define DBTYPE_UNKNOWN     -1
 
 
-#define DBTYPE_TEXTMESSAGE	1
-#define DBTYPE_ERRORMSG		2
-#define DBTYPE_GAMEINFO		3
-#define DBTYPE_YOURID		4
-#define DBTYPE_NEWPLAYER	5
-#define DBTYPE_PLAYERQUIT	6
-//#define DBTYPE_KICK		7
-#define DBTYPE_SERVERQUIT	8
+#define DBTYPE_TEXTMESSAGE  1
+#define DBTYPE_ERRORMSG     2
+#define DBTYPE_GAMEINFO     3
+#define DBTYPE_YOURID       4
+#define DBTYPE_NEWPLAYER    5
+#define DBTYPE_PLAYERQUIT   6
+//#define DBTYPE_KICK         7
+#define DBTYPE_SERVERQUIT   8
 
-#define DBTYPE_PLAYERREADY	9
+#define DBTYPE_PLAYERREADY  9
 struct dbPlayerReady
 {
 	DWORD player_id;
 	BOOL  ready;
 };
 
-#define DBTYPE_STARTGAME	10
-#define DBTYPE_CONTROLPACKET	11
+#define DBTYPE_STARTGAME       10
+#define DBTYPE_CONTROLPACKET   11
 
-#define DBTYPE_PING			12
+#define DBTYPE_PING            12
 
-#define DBTYPE_CHECKSUM			13
+#define DBTYPE_CHECKSUM        13
 
 ////////////////////////////////////////////////////
 

@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 #include "RenderOpenGL.h"
+#include "core/debug.h"
+#include "core/Console.h"
 
 #include <gl/gl.h>
 
@@ -14,16 +16,16 @@ class RenderOpenGL : public IRender
 {
 	struct _header
 	{
-		char   IdLeight;        //   Длина текстовой информации после первого
-		char   ColorMap;        //   Идентификатор наличия цветовой карты - устарел
-		char   DataType;        //   Тип данных - запакованный или нет
-		char   ColorMapInfo[5]; //   Информация о цветовой карте - нужно пропустить эти 5 байт
-		short  x_origin;        //   Начало изображения по оси X
-		short  y_origin;        //   Начало изображения по оси Y
-		short  width;           //   Ширина изображения
-		short  height;          //   Высота изображения
-		char   BitPerPel;       //   Кол-во бит на пиксель - здесь только 24 или 32
-		char   Description;     //   Описание - пропускайте
+		char   IdLeight;        // Длина текстовой информации после первого
+		char   ColorMap;        // Идентификатор наличия цветовой карты - устарел
+		char   DataType;        // Тип данных - запакованный или нет
+		char   ColorMapInfo[5]; // Информация о цветовой карте - нужно пропустить эти 5 байт
+		short  x_origin;        // Начало изображения по оси X
+		short  y_origin;        // Начало изображения по оси Y
+		short  width;           // Ширина изображения
+		short  height;          // Высота изображения
+		char   BitPerPel;       // Кол-во бит на пиксель - здесь только 24 или 32
+		char   Description;     // Описание - пропускайте
 	};
 
 	struct _asyncinfo
@@ -66,11 +68,11 @@ private:
 	void _flush();
 
 
-	virtual BOOL Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen);
+	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen);
 	virtual void Release();
 
-	virtual DWORD getModeCount() const;
-	virtual BOOL  getDisplayMode(DWORD index, DisplayMode *pMode) const;
+	virtual int  getModeCount() const;
+	virtual bool getDisplayMode(int index, DisplayMode *pMode) const;
 
 	virtual void OnResizeWnd();
 
@@ -147,9 +149,9 @@ void RenderOpenGL::_cleanup()
 	}
 }
 
-DWORD RenderOpenGL::getModeCount() const
+int RenderOpenGL::getModeCount() const
 {
-	DWORD    count = 0;
+	int count = 0;
 	DEVMODE  dmode = { sizeof(DEVMODE) };
 	while( EnumDisplaySettings(NULL, count, &dmode) )
 	{
@@ -158,7 +160,7 @@ DWORD RenderOpenGL::getModeCount() const
 	return count;
 }
 
-BOOL RenderOpenGL::getDisplayMode(DWORD index, DisplayMode *pMode) const
+bool RenderOpenGL::getDisplayMode(int index, DisplayMode *pMode) const
 {
 	DEVMODE dmode = { sizeof(DEVMODE) };
 	if( BOOL res = EnumDisplaySettings(NULL, index, &dmode) )
@@ -167,12 +169,12 @@ BOOL RenderOpenGL::getDisplayMode(DWORD index, DisplayMode *pMode) const
 		pMode->Height       = dmode.dmPelsHeight;
 		pMode->BitsPerPixel = dmode.dmBitsPerPel;
 		pMode->RefreshRate  = dmode.dmDisplayFrequency;
-		return res;
+		return res ? true : false; // to avoid warning
 	}
-	return FALSE;
+	return false;
 }
 
-BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
+bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 {
 	if( bFullScreen )
 	{
@@ -188,7 +190,7 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		if( DISP_CHANGE_SUCCESSFUL != ChangeDisplaySettings(&dm, CDS_FULLSCREEN) )
 		{
 			ChangeDisplaySettings(NULL, 0);
-            return FALSE;
+            return false;
 		}
 
 		_bDisplayChanged = TRUE;
@@ -209,18 +211,15 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	//				SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
 	}
 
+	// Set window size
 	RECT rc;
-		// Set window size
-		SetRect( &rc, 0, 0, pMode->Width, pMode->Height );
-
-		AdjustWindowRectEx( &rc, GetWindowLong(hWnd, GWL_STYLE),
-			GetMenu(hWnd) != NULL, GetWindowLong(hWnd, GWL_EXSTYLE) );
-
-		SetWindowPos( hWnd, NULL, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
-					SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
-
-		SetWindowPos( hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
-					SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE );
+	SetRect( &rc, 0, 0, pMode->Width, pMode->Height );
+	AdjustWindowRectEx( &rc, GetWindowLong(hWnd, GWL_STYLE),
+		GetMenu(hWnd) != NULL, GetWindowLong(hWnd, GWL_EXSTYLE) );
+	SetWindowPos( hWnd, NULL, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
+		SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
+	SetWindowPos( hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+		SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE );
 
 
 	_hWnd = hWnd;
@@ -229,7 +228,7 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	OnResizeWnd();
 
 
-	BOOL result = TRUE;
+	bool result = true;
 
 	try
 	{
@@ -250,12 +249,6 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 			pfd.cBlueBits  = 8;
 			pfd.cAlphaBits = 8;
 			break;
-		//case 16:
-		//	pfd.cRedBits   = 4;
-		//	pfd.cGreenBits = 4;
-		//	pfd.cBlueBits  = 4;
-		//	pfd.cAlphaBits = 4;
-		//	break;
 		default:
 			throw "Display mode not supported";
 		}
@@ -285,12 +278,11 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);
-
-	//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // set wireframe mode
 	}
-	catch(const char*)
+	catch(const char *msg)
 	{
-		result = FALSE;
+		TRACE("OpenGL init error: %s", msg);
+		result = false;
 		_cleanup();
 	}
 
@@ -302,7 +294,6 @@ BOOL RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 	wglSwapIntervalEXT_Func wglSwapIntervalEXT =
 		wglSwapIntervalEXT_Func(wglGetProcAddress("wglSwapIntervalEXT"));
 	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0); // 1 - чтобы включить
-
 
 	return result;
 }
@@ -404,7 +395,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 {
 	if( _iaSize ) _flush();
 
-    switch( mode )
+	switch( mode )
 	{
 	case RM_LIGHT:
 		glDisable(GL_TEXTURE_2D);
@@ -425,10 +416,9 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		break;
 
 	default:
-        _ASSERT(FALSE);
+		_ASSERT(FALSE);
 	}
 
-//	if( RM_INTERFACE != mode )
 	_mode = mode;
 }
 

@@ -749,8 +749,8 @@ void GC_Weap_Plazma::Fire()
 	{
 		vec2d a(static_cast<GC_Vehicle*>(GetOwner())->GetRotation() + _angle);
 		new GC_PlazmaClod(GetPos() + a * 15.0f,
-			a * SPEED_PLAZMA + g_level->net_vrand(20), 
-			static_cast<GC_Vehicle*>(GetOwner()), 
+			a * SPEED_PLAZMA + g_level->net_vrand(20),
+			static_cast<GC_Vehicle*>(GetOwner()),
 			_advanced );
 		_time = 0;
 		_fireEffect->Show(true);
@@ -819,7 +819,7 @@ void GC_Weap_Gauss::Fire()
 		float c = cosf(a);
 
 		new GC_GaussRay(vec2d(GetPos().x + c + 5 * s, GetPos().y + s - 5 * c),
-			vec2d(c, s) * SPEED_GAUSS, 
+			vec2d(c, s) * SPEED_GAUSS,
 			static_cast<GC_Vehicle*>(GetOwner()), _advanced );
 
 		_time = 0;
@@ -1425,7 +1425,6 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 				{
 					if( g_level->net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _time_fire - WEAP_MG_TIME_RELAX * 0.2f )
 					{
-					//	_owner->_rotator.impulse(net_frand(4.0f) - 2.0f);
 						float m = veh->_inv_i;
 						veh->ApplyTorque(m * (g_level->net_frand(1.0f) - 0.5f));
 					}

@@ -277,7 +277,7 @@ void Level::Resize(int X, int Y)
 	_locations_x  = X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
 	_locations_y  = Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
 	_sx           = (float) X * CELL_SIZE;
-	_sy	          = (float) Y * CELL_SIZE;
+	_sy           = (float) Y * CELL_SIZE;
 
 	for( int i = 0; i < Z_COUNT; i++ )
 		z_grids[i].resize(_locations_x, _locations_y);
@@ -291,7 +291,7 @@ void Level::Resize(int X, int Y)
 	_field.Resize(X + 1, Y + 1);
 }
 
-BOOL Level::init_emptymap()
+bool Level::init_emptymap()
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
@@ -309,7 +309,7 @@ BOOL Level::init_emptymap()
 	return TRUE;
 }
 
-BOOL Level::init_import_and_edit(const char *mapName)
+bool Level::init_import_and_edit(const char *mapName)
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
@@ -320,14 +320,14 @@ BOOL Level::init_import_and_edit(const char *mapName)
 	g_render->SetAmbient( 1.0f );
 
 	if( !Import(mapName) )
-		return FALSE;
+		return false;
 
 	Pause(true);
 
 	return true;
 }
 
-BOOL Level::init_newdm(const char *mapName, unsigned long seed)
+bool Level::init_newdm(const char *mapName, unsigned long seed)
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
@@ -341,7 +341,7 @@ BOOL Level::init_newdm(const char *mapName, unsigned long seed)
 	return Import(mapName);
 }
 
-BOOL Level::init_load(const char *fileName)
+bool Level::init_load(const char *fileName)
 {
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
@@ -1188,15 +1188,17 @@ void Level::TimeStep(float dt)
 	_ASSERT(lua_gettop(L) == queueidx);
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 
-//#ifdef _DEBUG
-//	// check for dead objects
-//	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
-//	while( GetList(LIST_objects).end() != it )
-//	{
-//		_ASSERT(!(*it)->IsKilled());
-//		++it;
-//	}
-//#endif
+#if 0
+#ifdef _DEBUG
+	// check for dead objects
+	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
+	while( GetList(LIST_objects).end() != it )
+	{
+		_ASSERT(!(*it)->IsKilled());
+		++it;
+	}
+#endif
+#endif
 }
 
 

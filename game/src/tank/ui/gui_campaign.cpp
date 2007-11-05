@@ -39,7 +39,6 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 		_ASSERT(FALSE); // EnumAllFiles has returned error...
 	}
 	_files->Sort();
-//	_files->eventChangeCurSel.bind(&NewCampaignDlg::OnSelect, this);
 
 
 	(new Button(this, 290, 360, "OK"))->eventClick.bind(&NewCampaignDlg::OnOK, this);

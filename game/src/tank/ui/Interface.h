@@ -5,13 +5,8 @@
 
 int MessageBoxT(HWND hWnd, LPCTSTR lpText, UINT uType);
 
-#define WM_UPDATE_DATA	(WM_USER + 1024)
-
-
 LRESULT CALLBACK WndProc             (HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK dlgDisplaySettings  (HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK dlgOptions          (HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK dlgMapSettings      (HWND, UINT, WPARAM, LPARAM);
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

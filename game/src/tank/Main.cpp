@@ -185,7 +185,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	{
 		TRACE("couldn't load " FILE_CONFIG "\n");
 
-		int result = MessageBox(g_env.hMainWnd, 
+		int result = MessageBox(g_env.hMainWnd,
 			"Syntax error in the config file (see log). Default settings will be used.",
 			TXT_VERSION,
 			MB_ICONERROR | MB_OKCANCEL);
@@ -219,7 +219,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	//
 	// show graphics mode selection dialog
 	//
-	if( g_conf.r_askformode->Get() 
+	if( g_conf.r_askformode->Get()
 		&& IDOK != DialogBox(hinst, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
@@ -264,7 +264,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 
 #ifndef _DEBUG
-	BOOL bGeneralFault = FALSE;
+	bool bGeneralFault = false;
 #endif
 
 	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )

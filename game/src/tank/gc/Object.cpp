@@ -166,13 +166,13 @@ void PropertySet::LoadFromConfig()
 		{
 		case ObjectProperty::TYPE_INTEGER:
 			prop->SetIntValue(
-				__min(prop->GetIntMax(), __max(prop->GetIntMin(), 
+				__min(prop->GetIntMax(), __max(prop->GetIntMin(),
 					op->GetNum(prop->GetName().c_str(), prop->GetIntValue())->GetInt()
 			)));
 			break;
 		case ObjectProperty::TYPE_FLOAT:
 			prop->SetFloatValue(
-				__min(prop->GetFloatMax(), __max(prop->GetFloatMin(), 
+				__min(prop->GetFloatMax(), __max(prop->GetFloatMin(),
 					op->GetNum(prop->GetName().c_str(), prop->GetFloatValue())->GetFloat()
 			)));
 			break;
@@ -181,7 +181,7 @@ void PropertySet::LoadFromConfig()
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
 			prop->SetCurrentIndex(
-				__min((int) prop->GetListSize() - 1, __max(0, 
+				__min((int) prop->GetListSize() - 1, __max(0,
 					op->GetNum(prop->GetName().c_str(), (int) prop->GetCurrentIndex())->GetInt()
 			)));
 			break;
@@ -599,13 +599,13 @@ void GC_Object::PulseNotify(NotyfyType type, void *param)
 	{
 		if( type != it->type )
 		{
-			++it; 
+			++it;
 			continue;
 		}
 		_ASSERT(it->subscriber);
 		(GetRawPtr(it->subscriber)->*it->handler)(this, param);
 		tmp = it++;
-		if( tmp->once ) 
+		if( tmp->once )
 		{
 			if( tmp->hasGuard )
 			{

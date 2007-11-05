@@ -95,11 +95,11 @@ private:
 	void _cleanup();
 	void _flush();
 
-	virtual BOOL Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen);
+	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen);
 	virtual void Release();
 
-	virtual DWORD getModeCount() const;
-	virtual BOOL  getDisplayMode(DWORD index, DisplayMode *pMode) const;
+	virtual int  getModeCount() const;
+	virtual bool getDisplayMode(int index, DisplayMode *pMode) const;
 
 	virtual void OnResizeWnd();
 
@@ -209,30 +209,30 @@ void RenderDirect3D::_cleanup()
 	SAFE_RELEASE(_d3D);
 }
 
-DWORD RenderDirect3D::getModeCount() const
+int RenderDirect3D::getModeCount() const
 {
 	_ASSERT(_d3D);
 	return _d3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8);
 }
 
-BOOL RenderDirect3D::getDisplayMode(DWORD index, DisplayMode *pMode) const
+bool RenderDirect3D::getDisplayMode(int index, DisplayMode *pMode) const
 {
 	_ASSERT(_d3D);
 
 	D3DDISPLAYMODE mode;
 
 	if( FAILED(_d3D->EnumAdapterModes(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8, index, &mode)) )
-		return FALSE;
+		return false;
 
 	pMode->BitsPerPixel = 32;
 	pMode->Width        = mode.Width;
 	pMode->Height       = mode.Height;
 	pMode->RefreshRate  = mode.RefreshRate;
 
-	return TRUE;
+	return true;
 }
 
-BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
+bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 {
 	//
 	// resize window
@@ -291,7 +291,7 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
 		{
 			TRACE("ERROR: CreateDevice failed\n")
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -330,14 +330,14 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, NULL)) )
 	{
 		TRACE("ERROR: CreateVertexBuffer failed\n")
-		return FALSE;
+		return false;
 	}
 
 	if( FAILED(_pd3dDevice->CreateIndexBuffer(sizeof(WORD)*INDEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &_pIB, NULL)) )
 	{
 		TRACE("ERROR: CreateIndexBuffer failed\n")
-		return FALSE;
+		return false;
 	}
 
 	V(_pd3dDevice->SetStreamSource( 0, _pVB, 0, sizeof(MyVertex)));
@@ -348,7 +348,7 @@ BOOL RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, BOOL bFullScreen)
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
-	return TRUE;
+	return true;
 }
 
 void RenderDirect3D::OnResizeWnd()

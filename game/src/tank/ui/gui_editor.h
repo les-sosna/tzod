@@ -63,9 +63,12 @@ class EditorLayout : public Window
 	PropertyList *_propList;
 	ComboBox     *_typeList;
 	Window       *_selectionRect;
+	Text         *_help;
 
 	GC_Object *_selectedObject;
 	bool _isObjectNew;
+	bool _click;
+	int  _mbutton;
 
 	void OnKillSelected(GC_Object *sender, void *param);
 	void OnMoveSelected(GC_Object *sender, void *param);
@@ -79,6 +82,8 @@ protected:
 
 	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);
+	bool OnMouseUp(float x, float y, int button);
+	bool OnMouseMove(float x, float y);
 	bool OnFocus(bool focus);
 	void OnRawChar(int c);
 	void OnSize(float width, float height);

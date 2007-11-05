@@ -21,11 +21,11 @@ class GC_Sound : public GC_Actor
 	MemberOfGlobalList<LIST_sounds> _memberOf;
 
 private:
-	LPDIRECTSOUNDBUFFER	_soundBuffer;
-	enumSoundTemplate	_soundTemplate;
-	DWORD				_dwNormalFrequency;
-	DWORD				_dwCurrentFrequency;
-	DWORD				_dwPosition;
+	LPDIRECTSOUNDBUFFER _soundBuffer;
+	enumSoundTemplate   _soundTemplate;
+	DWORD _dwNormalFrequency;
+	DWORD _dwCurrentFrequency;
+	DWORD _dwPosition;
 
 protected:
 	bool          _freezed;
@@ -87,7 +87,7 @@ public:
 #if !defined NOSOUND
 #define PLAY(s, pos)  (new GC_Sound((s), SMODE_PLAY, (pos)))
 #else
-#define PLAY	// no sound
+#define PLAY // no sound
 #endif
 
 // end of file

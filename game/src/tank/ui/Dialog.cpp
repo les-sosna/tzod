@@ -31,19 +31,10 @@ Dialog::Dialog(Window *parent, float width, float height, bool modal)
 	_easyMove = false;
 
 	GetManager()->SetFocusWnd(this);
-
-//    if( _isModal = modal )
-//	{
-//		parent->Enable(false);
-//	}
 }
 
 Dialog::~Dialog()
 {
-//	if( _isModal )
-//	{
-//		GetParent()->Enable(true);
-//	}
 }
 
 void Dialog::SetEasyMove(bool enable)
@@ -105,6 +96,51 @@ void Dialog::OnRawChar(int c)
 {
 	switch(c)
 	{
+	case VK_UP:
+		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		{
+			// try to pass focus to previous siblings
+			UI::Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
+			for( ; r; r = r->GetPrevSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+		}
+		break;
+	case VK_DOWN:
+		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		{
+			// try to pass focus to next siblings
+			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			for( ; r; r = r->GetNextSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+		}
+		break;
+	case VK_TAB:
+		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		{
+			// try to pass focus to next siblings ...
+			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			for( ; r; r = r->GetNextSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+			if( r ) break;
+
+			// ... and then start from first one
+			r = GetFirstChild();
+			for( ; r; r = r->GetNextSibling() )
+			{
+				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( GetManager()->SetFocusWnd(r) ) break;
+			}
+		}
+		break;
 	case VK_ESCAPE:
 		Close(_resultCancel);
 		break;

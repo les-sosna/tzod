@@ -30,9 +30,9 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
   , _rotator(_angle_current)
 {
 	_player = pPlayer;
-	_rotator.reset(0.0f, 0.0f, 
-		g_conf.g_rotcamera_m->GetFloat(), 
-		g_conf.g_rotcamera_a->GetFloat(), 
+	_rotator.reset(0.0f, 0.0f,
+		g_conf.g_rotcamera_m->GetFloat(),
+		g_conf.g_rotcamera_a->GetFloat(),
 		__max(0.001f, g_conf.g_rotcamera_s->GetFloat()));
 	if( _player )
 	{

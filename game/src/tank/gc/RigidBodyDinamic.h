@@ -19,7 +19,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		GC_RigidBodyStatic  *obj2_s;
 		vec2d o,n,t; // origin, normal, tangent
 		float total_np, total_tp;
-		//		bool  inactive;
+//		bool  inactive;
 	};
 
 	typedef std::vector<Contact> ContactList;
@@ -82,7 +82,7 @@ public:
 	float _inv_m;   // 1/mass
 	float _inv_i;   // 1/moment_of_inertia
 
-	//	float _Nb;      // braking friction factor X
+//	float _Nb;      // braking friction factor X
 
 	float _Nx;      // dry friction factor X
 	float _Ny;      // dry friction factor Y

@@ -111,7 +111,7 @@ void PropertyList::Exchange(bool applyToObject)
 				n = static_cast<Edit*>(ctrl)->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
-					g_console->printf("WARNING: value %s out of range [%d, %d]\n", 
+					g_console->printf("WARNING: value %s out of range [%d, %d]\n",
 						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
 					n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
 				}
@@ -123,7 +123,7 @@ void PropertyList::Exchange(bool applyToObject)
 				f = static_cast<Edit*>(ctrl)->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
-					g_console->printf("WARNING: value %s out of range [%g, %g]\n", 
+					g_console->printf("WARNING: value %s out of range [%g, %g]\n",
 						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
 					f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
 				}
@@ -252,30 +252,6 @@ void PropertyList::OnRawChar(int c)
 	case VK_ESCAPE:
 		Show(false);
 		break;
-	case VK_UP:
-		if( GetManager()->GetFocusWnd() )
-		{
-			// try to pass focus to previous siblings
-			UI::Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
-			for( ; r; r = r->GetPrevSibling() )
-			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
-			}
-		}
-		break;
-	case VK_DOWN:
-		if( GetManager()->GetFocusWnd() )
-		{
-			// try to pass focus to previous siblings
-			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
-			for( ; r; r = r->GetNextSibling() )
-			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
-			}
-		}
-		break;
 	default:
 		GetParent()->OnRawChar(c);
 	}
@@ -293,7 +269,23 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 EditorLayout::EditorLayout(Window *parent) : Window(parent)
 {
 	SetTexture(NULL);
-	_propList = new PropertyList(this, 5, 5, 256, 256);
+
+	_help = new Text(this, 10, 10,
+		"F1                   - справка\n"
+		"F5                   - включить/выключить редактор\n"
+		"F9                   - включить/выключить слои\n"
+		"G                    - показать/спрятать сетку\n"
+		"ESC                  - выход в главное меню\n"
+		"Enter                - свойства выделенного объекта\n"
+		"Delete               - удалить выделенный объект\n"
+		"Стрелки              - движение камеры\n"
+		"Колёсико мышки       - выбрать тип объекта\n"
+		"Левая кнопка мышки   - создать объект; действие над объектом\n"
+		"Правая кнопка мышки  - удалить объект\n"
+		, alignTextLT);
+	_help->Show(false);
+
+	_propList = new PropertyList(this, 5, 5, 512, 256);
 	_propList->Show(false);
 
 	_typeList = new ComboBox(this, 0, 0, 256);
@@ -315,6 +307,8 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 
 	_selectedObject = NULL;
 	_isObjectNew = false;
+	_click = true;
+	_mbutton = 0;
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -373,10 +367,40 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
+bool EditorLayout::OnMouseMove(float x, float y)
+{
+	if( _mbutton )
+	{
+		OnMouseDown(x, y, _mbutton);
+	}
+	return true;
+}
+
+bool EditorLayout::OnMouseUp(float x, float y, int button)
+{
+	if( _mbutton == button )
+	{
+		_click = true;
+		_mbutton = 0;
+		ReleaseCapture();
+	}
+	return true;
+}
+
 bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
-	vec2d mouse;
+	if( 0 == _mbutton )
+	{
+		SetCapture();
+		_mbutton = button;
+	}
 
+	if( _mbutton != button )
+	{
+		return true;
+	}
+
+	vec2d mouse;
 	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
@@ -395,7 +419,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		{
 			if( 1 == button )
 			{
-				if( _selectedObject == object )
+				if( _click && _selectedObject == object )
 				{
 					object->EditorAction();
 					_propList->Exchange(false);
@@ -435,6 +459,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		}
 	}
 
+	_click = false;
 	return true;
 }
 
@@ -452,6 +477,23 @@ void EditorLayout::OnRawChar(int c)
 		{
 			_propList->Show(true);
 		}
+		break;
+	case VK_DELETE:
+		if( _selectedObject )
+		{
+			GC_Object *o = _selectedObject;
+			Select(_selectedObject, false);
+			o->Kill();
+		}
+		break;
+	case VK_F1:
+		_help->Show(!_help->IsVisible());
+		break;
+	case VK_F9:
+		g_conf.ed_uselayers->Set(!g_conf.ed_uselayers->Get());
+		break;
+	case 'G':
+		g_conf.ed_drawgrid->Set(!g_conf.ed_drawgrid->Get());
 		break;
 	default:
 		GetParent()->OnRawChar(c);

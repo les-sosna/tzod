@@ -23,12 +23,6 @@ MouseCursor::MouseCursor(GuiManager* manager, const char *texture)
 	SetTimeStep(true);
 }
 
-void MouseCursor::Draw(float sx, float sy)
-{
-//	Move( (float) g_env.envInputs.mouse_x, (float) g_env.envInputs.mouse_y );
-	Window::Draw(sx, sy);
-}
-
 void MouseCursor::OnTimeStep(float dt)
 {
 	_timeAnim += dt;

@@ -9,4 +9,8 @@ CONFIG_VAR_TABLE( dm_profiles, &InitializerFunc );
 
 remember last bot skill setting when adding a new bot
 
-dm_profiles->Rename
+zoom (Camera.cpp:167)
+
+minigun impulse (Weapons.cpp:1429)
+
+

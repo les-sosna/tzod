@@ -108,7 +108,7 @@ void CreateServerDlg::OnOK()
 	}
 	else
 	{
-		//		MessageBoxT(NULL, "Выберите карту", MB_OK|MB_ICONHAND);
+//		MessageBoxT(NULL, "Выберите карту", MB_OK|MB_ICONHAND);
 		return;
 	}
 
@@ -506,7 +506,6 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			player->SetSkin(pd.skin);
 			player->SetTeam(pd.team);
 			player->UpdateSkin();
-		//	player->SetController( pd.type );
 
 			int index = _players->AddItem(player->GetNick().c_str(), (UINT_PTR) player);
 			_players->SetItemText(index, 1, player->GetSkin().c_str());

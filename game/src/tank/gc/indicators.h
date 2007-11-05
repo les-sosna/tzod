@@ -74,11 +74,11 @@ public:
 	};
 
 private:
-	float		_time;
+	float _time;
 
 public:
-	float		_angle;
-	enChStyle	_chStyle;
+	float     _angle;
+	enChStyle _chStyle;
 
 public:
 	GC_Crosshair(enChStyle style);

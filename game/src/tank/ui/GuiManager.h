@@ -33,6 +33,7 @@ class GuiManager
 public:
 	void Add(UI::Window* wnd);
 	void Remove(UI::Window* wnd);
+	int  GetWndCount() const;
 
 	UI::Window* GetCapture() const;
 	void SetCapture(UI::Window* wnd);
@@ -53,7 +54,6 @@ public:
 public:
 	PtrList<UI::Window>::iterator TimeStepRegister(UI::Window* wnd);
 	void TimeStepUnregister(PtrList<UI::Window>::iterator it);
-	void TimeStep(float dt);
 
 public:
 	GuiManager(CreateWindowProc createDesctop);
@@ -64,9 +64,8 @@ public:
 
 	UI::Window* GetDesktop() const;
 
-	int GetWndCount() const;
-
 	void Render() const;
+	void TimeStep(float dt);
 };
 
 // end of file

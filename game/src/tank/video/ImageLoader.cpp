@@ -101,12 +101,12 @@ void TgaImageLoader::LoadUncompressedTGA(const SafePtr<IFile> &file)
 	if( !file->Read(tga.header, sizeof(tga.header)) )
 		throw -1;
 
-	_texData->width  = tga.header[1] * 256 + tga.header[0]; // Determine The TGA Width	(highbyte*256+lowbyte)
-	_texData->height = tga.header[3] * 256 + tga.header[2]; // Determine The TGA Height	(highbyte*256+lowbyte)
-	_texData->bpp	 = tga.header[4];    // Determine the bits per pixel
-	tga.width		= _texData->width;   // Copy width into local structure
-	tga.height		= _texData->height;  // Copy height into local structure
-	tga.bpp			= _texData->bpp;     // Copy BPP into local structure
+	_texData->width  = tga.header[1] * 256 + tga.header[0]; // Determine The TGA Width (highbyte*256+lowbyte)
+	_texData->height = tga.header[3] * 256 + tga.header[2]; // Determine The TGA Height (highbyte*256+lowbyte)
+	_texData->bpp = tga.header[4];    // Determine the bits per pixel
+	tga.width    = _texData->width;   // Copy width into local structure
+	tga.height   = _texData->height;  // Copy height into local structure
+	tga.bpp      = _texData->bpp;     // Copy BPP into local structure
 
 	if( (_texData->width <= 0) || (_texData->height <= 0) ||
 		((_texData->bpp != 24) && (_texData->bpp !=32)) ) // Make sure all information is valid
@@ -115,13 +115,13 @@ void TgaImageLoader::LoadUncompressedTGA(const SafePtr<IFile> &file)
 	}
 
 	// Compute the number of BYTES per pixel
-	tga.bytesPerPixel	= (tga.bpp / 8);
+	tga.bytesPerPixel = (tga.bpp / 8);
 
 	// Compute the total amout ofmemory needed to store data
-	tga.imageSize		= (tga.bytesPerPixel * tga.width * tga.height);
+	tga.imageSize = (tga.bytesPerPixel * tga.width * tga.height);
 
 	// Allocate that much memory
-	_texData->imageData	= new BYTE[tga.imageSize];
+	_texData->imageData = new BYTE[tga.imageSize];
 
 	// Attempt to read image data
 	if( !file->Read(_texData->imageData, tga.imageSize) )
@@ -146,7 +146,7 @@ void TgaImageLoader::LoadCompressedTGA(const SafePtr<IFile> &file)
 	if( !file->Read(tga.header, sizeof(tga.header)) )
 		throw -1;
 
-	_texData->width  = tga.header[1] * 256 + tga.header[0];  // Determine The TGA Width	(highbyte*256+lowbyte)
+	_texData->width  = tga.header[1] * 256 + tga.header[0];  // Determine The TGA Width (highbyte*256+lowbyte)
 	_texData->height = tga.header[3] * 256 + tga.header[2];  // Determine The TGA Height (highbyte*256+lowbyte)
 	_texData->bpp    = tga.header[4];                        // Determine Bits Per Pixel
 	tga.width        = _texData->width;                      // Copy width to local structure
@@ -159,11 +159,11 @@ void TgaImageLoader::LoadCompressedTGA(const SafePtr<IFile> &file)
 		throw -1;
 	}
 
-	tga.bytesPerPixel	= (tga.bpp / 8);                                // Compute BYTES per pixel
-	tga.imageSize		= (tga.bytesPerPixel * tga.width * tga.height); // Compute amout of memory needed to store image
+	tga.bytesPerPixel = (tga.bpp / 8);                                // Compute BYTES per pixel
+	tga.imageSize = (tga.bytesPerPixel * tga.width * tga.height); // Compute amout of memory needed to store image
 	_texData->imageData = new BYTE[tga.imageSize];                      // Allocate that much memory
 
-	int  pixelcount	  = tga.height * tga.width;                     // Nuber of pixels in the image
+	int  pixelcount   = tga.height * tga.width;                     // Nuber of pixels in the image
 	int  currentpixel = 0;                                          // Current pixel being read
 	int  currentbyte  = 0;                                          // Current byte
 	BYTE *colorbuffer = new BYTE[tga.bytesPerPixel];                // Storage for 1 pixel

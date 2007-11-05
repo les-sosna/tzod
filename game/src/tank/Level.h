@@ -31,7 +31,7 @@ class FieldCell
 		_objCount    = 0;
 		_prop        = 0;     // свободно
 		//------------------
-		_mySession   = -1;
+		_mySession   = 0xffffffff;
 	}
 public:
 
@@ -240,11 +240,11 @@ public:
 	void Resize(int X, int Y);
 
 
-	BOOL init_emptymap();
-	BOOL init_import_and_edit(const char *mapName);
+	bool init_emptymap();
+	bool init_import_and_edit(const char *mapName);
 
-	BOOL init_newdm(const char *mapName, unsigned long seed);
-	BOOL init_load(const char *fileName);
+	bool init_newdm(const char *mapName, unsigned long seed);
+	bool init_load(const char *fileName);
 
 
 public:

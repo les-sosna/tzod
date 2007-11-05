@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation
 
-static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const vec2d &p4, 
+static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const vec2d &p4,
                         vec2d &out, float s )
 {
 	float s2 = s * s;
@@ -480,11 +480,11 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv )
 	{
-		pState->_bState_MoveForward	= true;
+		pState->_bState_MoveForward = true;
 	}
 
 	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack )
-		pState->_bState_MoveBack	= true;
+		pState->_bState_MoveBack = true;
 
 	pState->_bExplicitBody = true;
 	pState->_fBodyAngle = ang2;
@@ -522,7 +522,7 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	_ASSERT(GetVehicle());
 	_ASSERT(GetVehicle()->GetWeapon());
 
-	if( !target->GetPlayer() || 
+	if( !target->GetPlayer() ||
 		(0 != target->GetPlayer()->GetTeam() && target->GetPlayer()->GetTeam() == GetTeam()) )
 	{
 		return AIP_NOTREQUIRED; // своих и буздушных не атакуем
@@ -576,7 +576,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		if( targets[i].bIsVisible )
 			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).len() / CELL_SIZE;
 		else
-			l = CreatePath( targets[i].target->GetPos().x, 
+			l = CreatePath( targets[i].target->GetPos().x,
 			                targets[i].target->GetPos().y, AI_MAX_DEPTH, true, ws );
 
         if( l >= 0 )
@@ -629,7 +629,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	if( !applicants.empty() )
 	{
 		GC_Pickup *items[2] = {
-			GetRawPtr(_pickupCurrent), 
+			GetRawPtr(_pickupCurrent),
 			applicants[g_level->net_rand() % applicants.size()]
 		};
 		for( int i = 0; i < 2; ++i )
@@ -802,7 +802,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 			_ASSERT(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y, 
+				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
 				               AI_MAX_DEPTH, false, ws) > 0 )
 				{
 					SmoothPath();
@@ -844,7 +844,7 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 		_ASSERT(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = GetVehicle()->GetPos() 
+			vec2d t = GetVehicle()->GetPos()
 				+ g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
 			float x = __min(__max(0, t.x), g_level->_sx);
 			float y = __min(__max(0, t.y), g_level->_sy);
@@ -973,8 +973,8 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
-		g_level->grid_rigid_s, 
-		GetVehicle(), 
+		g_level->grid_rigid_s,
+		GetVehicle(),
 		GetVehicle()->GetPos(),
 		target->GetPos() - GetVehicle()->GetPos() );
 

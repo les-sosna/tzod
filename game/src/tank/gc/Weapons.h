@@ -8,13 +8,13 @@
 
 struct AIWEAPSETTINGS
 {
-	BOOL  bNeedOutstrip;       // FALSE, если мгновенное оружие (gauss, ...)
 	float fMaxAttackAngle;     // максимальный прицельный угол
 	float fProjectileSpeed;    // скорость снар€да
 	float fAttackRadius_min;   // минимальный радиус атаки
 	float fAttackRadius_max;   // максимальный радиус атаки
 	float fAttackRadius_crit;  // критический радиус атаки, когда можно убитьс€
 	float fDistanceMultipler;  // сложность пробивани€ стен
+	bool  bNeedOutstrip;       // FALSE, если мгновенное оружие (gauss, ...)
 };
 
 
@@ -67,9 +67,6 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
-
-//private:
-//	void OnOwnerMove(GC_Vehicle *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

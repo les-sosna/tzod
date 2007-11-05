@@ -19,7 +19,6 @@ class MouseCursor : public Window
 
 public:
 	MouseCursor(GuiManager* manager, const char *texture);
-	virtual void Draw(float sx = 0, float sy = 0);
 
 protected:
 	void OnTimeStep(float dt);

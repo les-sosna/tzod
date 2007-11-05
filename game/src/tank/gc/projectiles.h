@@ -32,7 +32,7 @@ protected:
 	                    // рождается TrailParticle
 
 protected:
-	virtual void MoveTo(const vec2d &pos, BOOL trail);
+	virtual void MoveTo(const vec2d &pos, bool trail);
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm) = 0;
 	virtual void SpawnTrailParticle(const vec2d &pos) = 0;
 

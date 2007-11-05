@@ -565,8 +565,8 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 
 			if( dist < min_dist )
 			{
-				GC_RigidBodyStatic *pObstacle = g_level->agTrace(g_level->grid_rigid_s, 
-					static_cast<GC_RigidBodyStatic*>(GetOwner()), 
+				GC_RigidBodyStatic *pObstacle = g_level->agTrace(g_level->grid_rigid_s,
+					static_cast<GC_RigidBodyStatic*>(GetOwner()),
 					GetPos(), pTargetObj->GetPos() - GetPos());
 
 				if( pObstacle == pTargetObj )
@@ -607,13 +607,13 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light->SetLength((pNearTarget->GetPos() - GetPos()).len());
 					_light->SetAngle((pNearTarget->GetPos() - GetPos()).Angle());
 
-					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(), 
+					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(),
 						static_cast<GC_RigidBodyStatic*>(GetOwner()));
 				}
 				else
 				{
 					static_cast<GC_RigidBodyStatic*>(GetOwner())
-						->TakeDamage(1000.0, GetOwner()->GetPos(), 
+						->TakeDamage(1000.0, GetOwner()->GetPos(),
 							static_cast<GC_RigidBodyStatic*>(GetOwner()));
 					Disappear();
 				}

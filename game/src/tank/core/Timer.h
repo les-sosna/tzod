@@ -12,8 +12,8 @@
 class Timer
 {
 protected:
-	BOOL	_useQPF;
-	LONG	_stopCount;
+	BOOL _useQPF;
+	LONG _stopCount;
 
 	// qpf
 	double        _qpf_frequency;

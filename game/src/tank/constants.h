@@ -61,38 +61,38 @@ enum enumZOrder
 // ѕараметры оружи€
 #define WEAP_MG_TIME_RELAX      3.0f    // врем€ восстановлени€ прицела у пулемета
 
-#define WEAP_RL_HOMMING_FACTOR	600.0f  // к-нт наводимости ракеты
-#define WEAP_RL_HOMMING_TIME	4.0f    // врем€ до потери цели дл€ ракеты
+#define WEAP_RL_HOMMING_FACTOR  600.0f  // к-нт наводимости ракеты
+#define WEAP_RL_HOMMING_TIME    4.0f    // врем€ до потери цели дл€ ракеты
 
-#define WEAP_BFG_HOMMING_FACTOR	500.0f  // к-нт наводимости bfg
+#define WEAP_BFG_HOMMING_FACTOR 500.0f  // к-нт наводимости bfg
 #define WEAP_BFG_RADIUS         200.0f  // радиус повреждени€ шарика bfg
 
 #define WEAP_RAM_PERCUSSION     8.0f
 
 // скорости вс€кие
-#define SPEED_ROCKET		 750.0f
-#define SPEED_PLAZMA		 800.0f
-#define SPEED_BULLET		4000.0f
-#define SPEED_TANKBULLET	1400.0f
-#define SPEED_GAUSS		   10000.0f
-#define SPEED_ACBULLET		1800.0f
-#define SPEED_DISK			2000.0f
-#define SPEED_BFGCORE		 500.0f
-#define SPEED_SMOKE			vec2d(0, -40.0f)
+#define SPEED_ROCKET         750.0f
+#define SPEED_PLAZMA         800.0f
+#define SPEED_BULLET        4000.0f
+#define SPEED_TANKBULLET    1400.0f
+#define SPEED_GAUSS        10000.0f
+#define SPEED_ACBULLET      1800.0f
+#define SPEED_DISK          2000.0f
+#define SPEED_BFGCORE        500.0f
+#define SPEED_SMOKE          vec2d(0, -40.0f)
 
 // повреждение от снар€дов
-#define DAMAGE_ROCKET_AK47	 50.0f
-#define DAMAGE_BULLET		  4.0f
-#define DAMAGE_PLAZMA		 30.0f
-#define DAMAGE_TANKBULLET	 60.0f
-#define DAMAGE_BFGCORE		 60.0f
-#define DAMAGE_ACBULLET		 15.0f
-#define DAMAGE_GAUSS		 60.0f
-#define DAMAGE_GAUSS_FADE	 15.0f
-#define DAMAGE_DISK_MIN		 20.0f
-#define DAMAGE_DISK_MAX		 28.0f
-#define DAMAGE_DISK_FADE	  3.0f
-#define DAMAGE_RAM_ENGINE	100.0f
+#define DAMAGE_ROCKET_AK47   50.0f
+#define DAMAGE_BULLET         4.0f
+#define DAMAGE_PLAZMA        30.0f
+#define DAMAGE_TANKBULLET    60.0f
+#define DAMAGE_BFGCORE       60.0f
+#define DAMAGE_ACBULLET      15.0f
+#define DAMAGE_GAUSS         60.0f
+#define DAMAGE_GAUSS_FADE    15.0f
+#define DAMAGE_DISK_MIN      20.0f
+#define DAMAGE_DISK_MAX      28.0f
+#define DAMAGE_DISK_FADE      3.0f
+#define DAMAGE_RAM_ENGINE   100.0f
 
 
 // скорость анимации
@@ -140,13 +140,13 @@ enum enumZOrder
 
 //---------------------------------------------------------------
 // ѕараметры стационарных установок
-#define TURET_ROCKET_RELOAD		0.9f
-#define TURET_CANON_RELOAD		0.4f
-#define TURET_SIGHT_RADIUS		500
+#define TURET_ROCKET_RELOAD  0.9f
+#define TURET_CANON_RELOAD   0.4f
+#define TURET_SIGHT_RADIUS   500
 
 //---------------------------------------------------------------
 // ѕараметры игрока
-#define PLAYER_RESPAWNTIME		2.0f  // задержка рождени€ игрока
+#define PLAYER_RESPAWNTIME   2.0f  // задержка рождени€ игрока
 
 
 //---------------------------------------------------------------
@@ -159,7 +159,7 @@ enum enumZOrder
 
 // верси€  файла  Save  дл€  первичной  проверки на корректность.
 // файлы  с  отличающейс€  версией не будут отображатьс€ в списке
-#define VERSION		0x142b
+#define VERSION    0x142b
 
 //---------------------------------------------------------------
 // ќграничени€
@@ -206,7 +206,7 @@ enum enumZOrder
 
 //---------------------------------------------------------------
 // файлы
-#define DIR_SCRIPTS	     "scripts"
+#define DIR_SCRIPTS      "scripts"
 #define DIR_SAVE         "save"
 #define DIR_MAPS         "maps"
 #define DIR_SKINS        "skins"

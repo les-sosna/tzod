@@ -39,7 +39,6 @@ protected:
 	virtual bool OnMouseDown(float x, float y, int button);
 
 	virtual void DrawChildren(float sx, float sy);
-	virtual void OnShow(bool show);
 	virtual void OnSize(float width, float height);
 	virtual bool OnFocus(bool focus);
 };

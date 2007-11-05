@@ -248,6 +248,10 @@ void MainMenuDlg::OnImportMapSelect(int result)
 			g_console->printf("couldn't import map '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
+		else
+		{
+			static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
+		}
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);

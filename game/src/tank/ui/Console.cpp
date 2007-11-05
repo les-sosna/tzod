@@ -118,9 +118,6 @@ void Console::OnRawChar(int c)
 	case VK_END:
 		_scrollBack = 0;
 		break;
-//	case VK_OEM_3: // ~
-//		Show(false);
-//		break;
 	case VK_ESCAPE:
 		if( !_input->GetText().empty() )
 		{
@@ -128,7 +125,6 @@ void Console::OnRawChar(int c)
 		}
 		else
 		{
-		//	Show(false);
 			GetParent()->OnRawChar(c);
 		}
 		break;
@@ -136,12 +132,12 @@ void Console::OnRawChar(int c)
 		if( eventOnRequestCompleteCommand )
 		{
 			string_t result;
-			bool status = INVOKE(eventOnRequestCompleteCommand) 
+			bool status = INVOKE(eventOnRequestCompleteCommand)
 				(_input->GetText().substr(0, _input->GetSelEnd()).c_str(), result);
 			if( status )
 			{
 				int end = _input->GetSelEnd();
-				_input->SetText( 
+				_input->SetText(
 					( _input->GetText().substr(0, end)
 					+ result
 					+ _input->GetText().substr(end)
@@ -188,12 +184,6 @@ void Console::DrawChildren(float sx, float sy)
 		_blankText->Draw(sx + 4, sy -= _blankText->GetHeight());
 	}
 	_blankText->Show(false);
-}
-
-void Console::OnShow(bool show)
-{
-//	if( show )
-//		GetManager()->SetFocusWnd(this);
 }
 
 void Console::OnSize(float width, float height)

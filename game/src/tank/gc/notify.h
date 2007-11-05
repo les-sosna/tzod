@@ -3,7 +3,7 @@
 #pragma once
 
 
-enum NotyfyType 
+enum NotyfyType
 {
 	// GC_Object
 	NOTIFY_OBJECT_KILL,

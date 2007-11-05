@@ -9,7 +9,7 @@ local function split(src)
     local res, pos = string.match(src_rev, "^%s*([%w_]*)%s*%.?()", oldpos)
     if not res or oldpos == pos then break end
     oldpos = pos
-    if not tail then 
+    if not tail then
       tail = string.reverse(res)
     else
       table.insert(items, 1, string.reverse(res))
@@ -76,7 +76,7 @@ function autocomplete(src)
   for _,v in ipairs(items) do
     local success, result = pcall(function(arg) return current[arg] end, v)
     if success then
-      if nil ~= result then 
+      if nil ~= result then
         current = result
         path = path .. v .. "."
       else

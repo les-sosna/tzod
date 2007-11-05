@@ -34,11 +34,6 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-//IMPLEMENT_SELF_REGISTRATION(GC_Player)
-//{
-//	return true;
-//}
-
 GC_Player::GC_Player()
   : GC_Service()
   , _memberOf(this)
@@ -605,7 +600,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
 		if( !_moveToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
 		}
 
 		vec2d pt;
@@ -620,7 +615,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	{
 		vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
 		vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
-		vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter] 
+		vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter]
 			|| g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
 		if( vs._bState_TowerCenter )
 		{

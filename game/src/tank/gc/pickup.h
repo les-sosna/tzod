@@ -107,7 +107,7 @@ protected:
 public:
 	virtual DWORD checksum(void) const
 	{
-		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) 
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
 		         ^ reinterpret_cast<const DWORD&>(GetPos().y)
 		         ^ reinterpret_cast<const DWORD&>(_timeAttached);
 		return GC_2dSprite::checksum() ^ cs;
