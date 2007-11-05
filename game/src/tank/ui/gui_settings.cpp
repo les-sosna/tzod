@@ -264,7 +264,8 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 
 void ControlProfileDlg::OnOK()
 {
-	if( !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
+	if( (_name.empty() || _name != _nameEdit->GetText())
+		&& !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
 	{
 		return;
 	}
