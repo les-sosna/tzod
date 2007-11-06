@@ -64,8 +64,8 @@ KeyMapper::KeyMapper()
 	Pair( "Numpad *",        55 );
 	Pair( "Left Alt",        56 );
 	Pair( "Space",           57 );
-	Pair( "Caps Lock",       38 );
-	Pair( "F1",              39 );
+	Pair( "Caps Lock",       58 );
+	Pair( "F1",              59 );
 	Pair( "F2",              60 );
 	Pair( "F3",              61 );
 	Pair( "F4",              62 );
