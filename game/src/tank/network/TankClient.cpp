@@ -102,6 +102,7 @@ TankClient::TankClient(void)
 	_buf_outgoing_size  = 0;
 
 	_readyToSend = false;
+	_gameStarted = false;
 }
 
 TankClient::~TankClient(void)
@@ -300,6 +301,8 @@ void TankClient::NewData(const DataBlock &data)
 	// внутренний фильтр
 	switch( data.type() )
 	{
+	case DBTYPE_STARTGAME:
+		break;
 	case DBTYPE_CONTROLPACKET:
 		_stats.nFramesInBuffer++;
 		for( int i = 0; i < NET_MULTIPLER-1; i++ ) // duplicate packet
@@ -337,6 +340,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 		SendDataToServer(db);
 	}
 	_frame++;
+	_gameStarted = true; // FIXME
 }
 
 void TankClient::GetStatistics(NetworkStats *pStats)

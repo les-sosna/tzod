@@ -81,6 +81,7 @@ public:
 private:
 	DWORD _clientId;
 	NetworkStats _stats;
+	bool  _gameStarted;
 
 public:
 	TankClient(void);
@@ -99,8 +100,10 @@ public:
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
 	void GetStatistics(NetworkStats *pStats);
 
-	std::queue<ControlPacket> _ctrlBuf;
+	std::queue<ControlPacket> _ctrlBuf; // FIXME: move to Level class
 	bool RecvControl(ControlPacket &cp);
+
+	bool IsGameStarted() const { return _gameStarted; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1013,7 +1013,7 @@ void Level::TimeStep(float dt)
 			// обработка команд кадра
 			//
 			DataBlock db;
-			while( g_client->GetData(db) )
+			while( g_client->IsGameStarted() && g_client->GetData(db) )
 			{
 				switch( db.type() )
 				{
