@@ -41,7 +41,7 @@ return {
 {
   file="themes/winter/water.tga",
   content={
-    water={left=-16, top=-16, right=80, bottom=80, xframes=3, yframes=3},
+     water={left=0, top=0, right=96, bottom=96, xframes=3, yframes=3},
   }
 },
 {
