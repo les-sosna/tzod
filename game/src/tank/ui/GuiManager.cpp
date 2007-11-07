@@ -389,7 +389,7 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 			// calculate absolute coordinates of the window
 			float x_ = _desktop->GetX();
 			float y_ = _desktop->GetY();
-			for( UI::Window *wnd = (*it)->GetParent(); _desktop != wnd; wnd = wnd->GetParent() )
+			for( UI::Window *wnd = *it; _desktop != wnd; wnd = wnd->GetParent() )
 			{
 				_ASSERT(wnd);
 				x_ += wnd->GetX();

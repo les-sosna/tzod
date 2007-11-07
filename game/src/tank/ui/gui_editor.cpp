@@ -273,6 +273,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	_help = new Text(this, 10, 10,
 		"F1                   - справка\n"
 		"F5                   - включить/выключить редактор\n"
+		"F8                   - настройки карты\n"
 		"F9                   - включить/выключить слои\n"
 		"G                    - показать/спрятать сетку\n"
 		"ESC                  - выход в главное меню\n"
