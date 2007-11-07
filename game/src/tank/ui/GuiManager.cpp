@@ -293,16 +293,16 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 		//
 		for( UI::Window *w = wnd->GetLastChild(); w; w = w->GetPrevSibling() )
 		{
-			if( !w->IsEnabled() || !w->IsVisible() )
-				continue; // do not dispatch messages to disabled or invisible window
-
+			// do not dispatch messages to disabled or invisible
+			// topmost windows are processed in different way
+			if( !w->IsEnabled() || !w->IsVisible() || w->IsTopMost() )
+				continue;
 			if( _ProcessMouse(w, x - w->GetX(), y - w->GetY(), z, msg) )
 				return true;
 		}
 	}
 
-	if( (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight())
-		|| wnd->IsCaptured() )
+	if( (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight()) || wnd->IsCaptured() )
 	{
 		//
 		// window is captured or mouse pointer is inside the window
@@ -361,7 +361,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 
 bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 {
-	bool msgProcessed;
+	bool msgProcessed = false;
 
 	if( _captureWnd )
 	{
@@ -377,7 +377,35 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 	}
 	else
 	{
-		msgProcessed = _ProcessMouse(_desktop, x, y, z, msg);
+		//
+		// first try to pass messages to one of the topmost windows
+		//
+		std::list<UI::Window*>::const_reverse_iterator it = _topmost.rbegin();
+		for( ; _topmost.rend() != it; ++it )
+		{
+			if( !(*it)->IsEnabled() || !(*it)->IsVisible() )
+				continue;  // do not dispatch messages to disabled or invisible window
+
+			// calculate absolute coordinates of the window
+			float x_ = _desktop->GetX();
+			float y_ = _desktop->GetY();
+			for( UI::Window *wnd = (*it)->GetParent(); _desktop != wnd; wnd = wnd->GetParent() )
+			{
+				_ASSERT(wnd);
+				x_ += wnd->GetX();
+				y_ += wnd->GetY();
+			}
+			msgProcessed = _ProcessMouse(*it, x - x_, y - y_, z, msg);
+			if( msgProcessed ) break;
+		}
+
+		//
+		// then handle all children of the desktop recursively
+		//
+		if( !msgProcessed )
+		{
+			msgProcessed = _ProcessMouse(_desktop, x, y, z, msg);
+		}
 	}
 
 	if( !msgProcessed && _hotTrackWnd )
