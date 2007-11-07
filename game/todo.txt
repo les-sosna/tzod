@@ -14,3 +14,7 @@ zoom (Camera.cpp:167)
 minigun impulse (Weapons.cpp:1429)
 
 
+Q22) Why do I get an error when trying to open a new socket soon after I've closed a socket on the same port?
+This happens in TCP, because the implementation will wait for a while to allow any late, missed fragments to arrive (even though nobody will read them). This is to avoid confusing fragments from a previous connection with fragments from a new connection.
+
+To turn off this behavior, turn on the SO_REUSEADDR socket option as soon as you've created the socket; this will allow future sockets to re-bind to the same port without waiting for the timeout to expire.
