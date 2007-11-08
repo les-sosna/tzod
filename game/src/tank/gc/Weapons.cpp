@@ -247,7 +247,7 @@ void GC_Weapon::TimeStepFloat(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 {
-	ED_ITEM("weap_rockets", "Оружие:\tРакетница" );
+	ED_ITEM("weap_rockets", "Оружие:\tРакетница", 4 );
 	return true;
 }
 
@@ -406,7 +406,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 {
-	ED_ITEM( "weap_autocannon", "Оружие:\tАвтоматическая пушка" );
+	ED_ITEM( "weap_autocannon", "Оружие:\tАвтоматическая пушка", 4 );
 	return true;
 }
 
@@ -597,7 +597,7 @@ void GC_Weap_AutoCannon::Kill()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 {
-	ED_ITEM( "weap_cannon", "Оружие:\tТяжелая пушка" );
+	ED_ITEM( "weap_cannon", "Оружие:\tТяжелая пушка", 4 );
 	return true;
 }
 
@@ -704,7 +704,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 {
-	ED_ITEM( "weap_plazma", "Оружие:\tПлазменная пушка" );
+	ED_ITEM( "weap_plazma", "Оружие:\tПлазменная пушка", 4 );
 	return true;
 }
 
@@ -772,7 +772,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 {
-	ED_ITEM( "weap_gauss", "Оружие:\tПушка Гаусса" );
+	ED_ITEM( "weap_gauss", "Оружие:\tПушка Гаусса", 4 );
 	return true;
 }
 
@@ -842,7 +842,7 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 {
-	ED_ITEM( "weap_ram", "Оружие:\tТаран" );
+	ED_ITEM( "weap_ram", "Оружие:\tТаран", 4 );
 	return true;
 }
 
@@ -1077,7 +1077,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 {
-	ED_ITEM( "weap_bfg", "Оружие:\tBig Fucking Gun" );
+	ED_ITEM( "weap_bfg", "Оружие:\tБФГ", 4 );
 	return true;
 }
 
@@ -1171,7 +1171,7 @@ void GC_Weap_BFG::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
-	ED_ITEM( "weap_ripper", "Оружие:\tРипер" );
+	ED_ITEM( "weap_ripper", "Оружие:\tРипер", 4 );
 	return true;
 }
 
@@ -1270,7 +1270,7 @@ void GC_Weap_Ripper::TimeStepFloat(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 {
-	ED_ITEM( "weap_minigun", "Оружие:\tПулемет" );
+	ED_ITEM( "weap_minigun", "Оружие:\tПулемет", 4 );
 	return true;
 }
 

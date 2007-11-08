@@ -197,7 +197,7 @@ void GC_Light::Activate(bool activate)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 {
-	ED_ITEM( "spotlight", "Объект:\tПрожектор" );
+	ED_ITEM( "spotlight", "Объект:\tПрожектор", 3 );
 	return true;
 }
 

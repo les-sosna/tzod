@@ -92,7 +92,7 @@ void GC_Background::OnChangeDrawGridVariable()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 {
-	ED_LAND( "wood", "Ландшафт:\tЛес",  2 );
+	ED_LAND( "wood", "Ландшафт:\tЛес",  7 );
 	return true;
 }
 

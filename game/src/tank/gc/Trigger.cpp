@@ -13,7 +13,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {
-	ED_ITEM( "trigger", "Триггер" );
+	ED_ITEM( "trigger", "Триггер", 6 );
 	return true;
 }
 

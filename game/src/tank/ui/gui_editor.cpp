@@ -218,6 +218,7 @@ void PropertyList::Exchange(bool applyToObject)
 			_psheet->Resize(_psheet->GetWidth(), 0);
 			_scrollBar->SetLimit(0);
 		}
+		OnScroll(_scrollBar->GetPos());
 	}
 }
 
@@ -283,11 +284,14 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 		"Колёсико мышки       - выбрать тип объекта\n"
 		"Левая кнопка мышки   - создать объект; действие над объектом\n"
 		"Правая кнопка мышки  - удалить объект\n"
+		"\nУдерживайте Ctrl, чтобы создать объект с параметрами по умолчанию."
 		, alignTextLT);
 	_help->Show(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
 	_propList->Show(false);
+
+	_layerDisp = new Text(this, 0, 0, "", alignTextRT);
 
 	_typeList = new ComboBox(this, 0, 0, 256);
 	List *ls = _typeList->GetList();
@@ -296,10 +300,10 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		ls->AddItem(Level::GetTypeInfoByIndex(i).desc, Level::GetTypeByIndex(i));
 	}
-	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
+	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
 
 	_selectionRect = new Window(this, 0, 0, "selection");
 	_selectionRect->SetBorder(true);
@@ -310,6 +314,15 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	_isObjectNew = false;
 	_click = true;
 	_mbutton = 0;
+
+	_ASSERT(!g_conf.ed_uselayers->eventChange);
+	g_conf.ed_uselayers->eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
+	OnChangeUseLayers();
+}
+
+EditorLayout::~EditorLayout()
+{
+	g_conf.ed_uselayers->eventChange.clear();
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -449,11 +462,17 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		{
 			if( 1 == button )
 			{
-				// create object and set default properties
+				// create object
 				GC_Object *object = g_level->CreateObject(type, pt.x, pt.y);
 				SafePtr<PropertySet> properties = object->GetProperties();
-				properties->LoadFromConfig();
-				properties->Exchange(true);
+
+				// set default properties if Ctrl key is not pressed
+				if( 0 == (GetAsyncKeyState(VK_CONTROL) & 0x8000) )
+				{
+					properties->LoadFromConfig();
+					properties->Exchange(true);
+				}
+
 				Select(object, true);
 				_isObjectNew = true;
 			}
@@ -504,6 +523,7 @@ void EditorLayout::OnRawChar(int c)
 void EditorLayout::OnSize(float width, float height)
 {
 	_typeList->Move(width - _typeList->GetWidth() - 5, 5);
+	_layerDisp->Move(width - _typeList->GetWidth() - 5, 6);
 }
 
 void EditorLayout::OnShow(bool show)
@@ -519,6 +539,15 @@ void EditorLayout::OnShow(bool show)
 void EditorLayout::OnChangeObject(int index)
 {
 	g_conf.ed_object->SetInt(index);
+
+	std::ostringstream buf;
+	buf << "слой " << Level::GetTypeInfoByIndex(index).layer << ": ";
+	_layerDisp->SetText(buf.str().c_str());
+}
+
+void EditorLayout::OnChangeUseLayers()
+{
+	_layerDisp->Show(g_conf.ed_uselayers->Get());
 }
 
 void EditorLayout::DrawChildren(float sx, float sy)

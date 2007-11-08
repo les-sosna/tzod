@@ -25,6 +25,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic() : GC_2dSprite()
 	_health_max = 1;
 
 	_direction.Set(1, 0);
+	ZeroMemory(&_vertices, sizeof(_vertices));
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile) : GC_2dSprite(FromFile())
@@ -230,7 +231,7 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
-	ED_LAND("wall_brick", "Стена:\tКирпич",  0 );
+	ED_LAND("wall_brick", "Стена:\tКирпич",  2 );
 	return true;
 }
 
@@ -440,7 +441,7 @@ void GC_Wall::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 {
-	ED_LAND("wall_concrete", "Стена:\tБетон", 0 );
+	ED_LAND("wall_concrete", "Стена:\tБетон", 1 );
 	return true;
 }
 

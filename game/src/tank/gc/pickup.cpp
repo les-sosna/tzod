@@ -278,7 +278,7 @@ void GC_Pickup::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 {
-	ED_ITEM( "pu_health", "Предмет:\tАптека" );
+	ED_ITEM( "pu_health", "Предмет:\tАптека", 4 );
 	return true;
 }
 
@@ -326,7 +326,7 @@ GC_Actor* GC_pu_Health::FindNewOwner() const
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 {
-	ED_ITEM( "pu_mine", "Предмет:\tПротивотанковая мина" );
+	ED_ITEM( "pu_mine", "Предмет:\tПротивотанковая мина", 5 );
 	return true;
 }
 
@@ -359,7 +359,7 @@ void GC_pu_Mine::Attach(GC_Actor *actor)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Invulnerablity)
 {
-	ED_ITEM( "pu_shield", "Предмет:\tНеуязвимость" );
+	ED_ITEM( "pu_shield", "Предмет:\tНеуязвимость", 4 );
 	return true;
 }
 
@@ -479,7 +479,7 @@ void GC_pu_Invulnerablity::Serialize(SaveFile &f)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 {
-	ED_ITEM( "pu_shock", "Предмет:\tЭлектрошок" );
+	ED_ITEM( "pu_shock", "Предмет:\tЭлектрошок", 4 );
 	return true;
 }
 
@@ -639,7 +639,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 {
-	ED_ITEM( "pu_booster", "Предмет:\tБустер оружия" );
+	ED_ITEM( "pu_booster", "Предмет:\tБустер оружия", 4 );
 	return true;
 }
 

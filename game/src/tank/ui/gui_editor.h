@@ -61,6 +61,7 @@ protected:
 class EditorLayout : public Window
 {
 	PropertyList *_propList;
+	Text         *_layerDisp;
 	ComboBox     *_typeList;
 	Window       *_selectionRect;
 	Text         *_help;
@@ -70,12 +71,14 @@ class EditorLayout : public Window
 	bool _click;
 	int  _mbutton;
 
+
 	void OnKillSelected(GC_Object *sender, void *param);
 	void OnMoveSelected(GC_Object *sender, void *param);
 	void Select(GC_Object *object, bool bSelect);
 
 public:
 	EditorLayout(Window *parent);
+	~EditorLayout();
 
 protected:
 	void DrawChildren(float sx, float sy);
@@ -90,6 +93,7 @@ protected:
 	void OnShow(bool show);
 
 	void OnChangeObject(int index);
+	void OnChangeUseLayers();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

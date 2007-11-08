@@ -54,6 +54,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		ObjectProperty _propNx;
 		ObjectProperty _propNy;
 		ObjectProperty _propNw;
+		ObjectProperty _propRotation;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;

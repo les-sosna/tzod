@@ -21,13 +21,13 @@ class FieldCell
 	unsigned long _mySession;        // сессия, в которой данная клетка была проверена
 	//-----------------------------
 	GC_RigidBodyStatic **_ppObjects;
-	unsigned  char _objCount;
-	unsigned  char _prop;            // 0 - свободно, 1 - пробиваемо, 0xFF - непробиваемо
+	unsigned char _objCount;
+	unsigned char _prop;             // 0 - свободно, 1 - пробиваемо, 0xFF - непробиваемо
 	//-----------------------------
 	void UpdateProperties();
 	FieldCell()
 	{
-        _ppObjects   = NULL;
+		_ppObjects   = NULL;
 		_objCount    = 0;
 		_prop        = 0;     // свободно
 		//------------------
@@ -121,7 +121,7 @@ public:
 	Level::RegisterActor<__ThisClass>(                              \
 	(name), (desc), (layer), (width), (height), (align), (offset) )
 
-#define ED_ITEM(name, desc) ED_ACTOR(name, desc, 1, 2, 2, CELL_SIZE/2, 0)
+#define ED_ITEM(name, desc, layer) ED_ACTOR(name, desc, layer, 2, 2, CELL_SIZE/2, 0)
 #define ED_LAND(name, desc, layer) ED_ACTOR(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2)
 #define ED_TURRET(name, desc) ED_ACTOR(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE)
 

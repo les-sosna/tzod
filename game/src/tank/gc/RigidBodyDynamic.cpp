@@ -22,6 +22,7 @@ GC_RigidBodyDynamic::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propNx(ObjectProperty::TYPE_FLOAT, "Nx")
   , _propNy(ObjectProperty::TYPE_FLOAT, "Ny")
   , _propNw(ObjectProperty::TYPE_FLOAT, "Nw")
+  , _propRotation(ObjectProperty::TYPE_FLOAT, "rotation")
 {
 	_propM.SetFloatRange(0, 10000);
 	_propI.SetFloatRange(0, 10000);
@@ -30,11 +31,12 @@ GC_RigidBodyDynamic::MyPropertySet::MyPropertySet(GC_Object *object)
 	_propNx.SetFloatRange(0, 10000);
 	_propNy.SetFloatRange(0, 10000);
 	_propNw.SetFloatRange(0, 10000);
+	_propRotation.SetFloatRange(0, PI2);
 }
 
 int GC_RigidBodyDynamic::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 7;
+	return BASE::GetCount() + 8;
 }
 
 ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
@@ -51,6 +53,7 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	case 4: return &_propNx;
 	case 5: return &_propNy;
 	case 6: return &_propNw;
+	case 7: return &_propRotation;
 	}
 
 	_ASSERT(FALSE);
@@ -71,6 +74,7 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 		tmp->_Nx = _propNx.GetFloatValue();
 		tmp->_Ny = _propNy.GetFloatValue();
 		tmp->_Nw = _propNw.GetFloatValue();
+		tmp->SetBodyAngle(_propRotation.GetFloatValue());
 	}
 	else
 	{
@@ -81,6 +85,7 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 		_propNx.SetFloatValue(tmp->_Nx);
 		_propNy.SetFloatValue(tmp->_Ny);
 		_propNw.SetFloatValue(tmp->_Nw);
+		_propRotation.SetFloatValue(tmp->_angle);
 	}
 }
 
@@ -139,6 +144,12 @@ void GC_RigidBodyDynamic::mapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(Nx, _Nx, 0);
 	MAP_EXCHANGE_FLOAT(Ny, _Ny, 0);
 	MAP_EXCHANGE_FLOAT(Nw, _Nw, 0);
+	MAP_EXCHANGE_FLOAT(rotation, _angle, 0);
+
+	if( f.loading() )
+	{
+		SetBodyAngle(_angle);
+	}
 }
 
 void GC_RigidBodyDynamic::Serialize(SaveFile &f)

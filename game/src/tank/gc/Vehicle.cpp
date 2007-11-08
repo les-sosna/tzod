@@ -46,6 +46,8 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 
 	ZeroMemory(&_state, sizeof(_state));
 
+	_radius = 0;
+
 	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
@@ -196,10 +198,10 @@ void GC_Vehicle::SetState(const VehicleState &vs)
 	memcpy( &_state, &vs, sizeof(VehicleState) );
 }
 
-void GC_Vehicle::SetSkin(const char *pSkinName)
+void GC_Vehicle::SetSkin(const char *skin)
 {
 	string_t tmp = "skin/";
-	tmp += pSkinName;
+	tmp += skin;
 	SetTexture(tmp.c_str());
 	CenterPivot();
 }
@@ -308,45 +310,48 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(dd.from) )
 		{
-			if( veh->GetPlayer() == GetPlayer() )
+			if( veh->GetPlayer() )
 			{
-				// убил себя апстену =)
-				veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
-				font = "font_digits_red";
-				wsprintf( msg, "%s совершил самоубийство", veh->GetPlayer()->GetNick().c_str() );
-			}
-			else if( GetPlayer() )
-			{
-				if( 0 != GetPlayer()->GetTeam() &&
-					veh->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
+				if( veh->GetPlayer() == GetPlayer() )
 				{
-					// убил товарища
-					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
+					// убил себя апстену =)
+					GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf( msg, "нехороший %s замочил своего друга %s",
-						((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
-						GetPlayer()->GetNick().c_str() );
+					wsprintf( msg, "%s совершил самоубийство", GetPlayer()->GetNick().c_str() );
+				}
+				else if( GetPlayer() )
+				{
+					if( 0 != GetPlayer()->GetTeam() &&
+						veh->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
+					{
+						// убил товарища
+						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
+						font = "font_digits_red";
+						wsprintf( msg, "нехороший %s замочил своего друга %s",
+							((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
+							GetPlayer()->GetNick().c_str() );
+					}
+					else
+					{
+						// убил врага - молодец!
+						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
+						font = "font_digits_green";
+						wsprintf( msg, "%s замочил своего врага %s",
+							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str() );
+					}
 				}
 				else
 				{
-					// убил врага - молодец!
+					// this tank is playerless. score up the killer
 					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 					font = "font_digits_green";
-					wsprintf( msg, "%s замочил своего врага %s",
-						veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str() );
 				}
-			}
-			else
-			{
-				// убил бездушный танк
-				veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
-				font = "font_digits_green";
-			}
 
-			if( !veh->GetPlayer()->IsDead() )
-			{
-				wsprintf( score, "%d", veh->GetPlayer()->GetScore() );
-				new GC_Text_ToolTip(veh->GetPos(), score, font);
+				if( !veh->GetPlayer()->IsDead() )
+				{
+					wsprintf( score, "%d", veh->GetPlayer()->GetScore() );
+					new GC_Text_ToolTip(veh->GetPos(), score, font);
+				}
 			}
 		}
 		else
@@ -358,7 +363,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
 			wsprintf(msg, "%s нарвался на неприятности", GetPlayer()->GetNick().c_str());
 		}
-		else
+		else if( GetPlayer() )
 		{
 			wsprintf(msg, "c %s случился несчастный случай", GetPlayer()->GetNick().c_str());
 		}
@@ -584,6 +589,29 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 
 	SetMoveSound(SND_TankMove);
 	SetSkin("red");
+
+	_vertices[0].Set( 19.0f,  18.5f);
+	_vertices[1].Set(-18.5f,  18.5f);
+	_vertices[2].Set(-18.5f, -18.5f);
+	_vertices[3].Set( 19.0f, -18.5f);
+
+	_radius = 26.52f;
+
+
+
+	_inv_m  = 1 /   1.0f;
+	_inv_i  = 1 / 700.0f;
+
+	_Nx = 450;
+	_Ny = 5000;
+	_Nw = 28;
+
+	_Mx = 2.0f;
+	_My = 2.5f;
+	_Mw = 0;
+
+	SetMaxHP(400);
+
 }
 
 GC_Tank_Light::GC_Tank_Light(FromFile) : GC_Vehicle(FromFile())
