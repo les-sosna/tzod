@@ -52,7 +52,7 @@ public:
 	float    _initialDir;
 	float    _sight;
 
-	float    _dir;
+	float    _dir; // linked with the rotator
 	Rotator  _rotator;
 
 protected:

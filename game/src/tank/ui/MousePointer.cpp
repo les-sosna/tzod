@@ -4,6 +4,9 @@
 #include "MousePointer.h"
 #include "Text.h"
 
+#include "gc/Camera.h"
+#include "Level.h"
+
 namespace UI
 {
 ;
@@ -44,18 +47,18 @@ void MouseCursor::OnTimeStep(float dt)
 
 	Show( g_env.nNeedCursor > 0 || _timeShow < 2 );
 
-//	vec2d ptCurPos;
-//	if( IsVisible() && GC_Camera::GetWorldMousePos(ptCurPos) )
-//	{
-//		char str[32];
-//		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);
-//		_text->SetText(str);
-//		_text->Show(true);
-//	}
-//	else
-//	{
-//		_text->Show(false);
-//	}
+	vec2d ptCurPos;
+	if( IsVisible() && g_level && g_level->_modeEditor && GC_Camera::GetWorldMousePos(ptCurPos) )
+	{
+		char str[32];
+		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);
+		_text->SetText(str);
+		_text->Show(true);
+	}
+	else
+	{
+		_text->Show(false); // hide text if coordinates is not available
+	}
 
 	if( IsVisible() )
 		SetFrame( abs(GetFrameCount()-1 - int((_timeAnim * ANIMATION_FPS / 3)) % (GetFrameCount() * 2-2)) );

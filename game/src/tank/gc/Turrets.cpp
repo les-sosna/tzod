@@ -25,7 +25,9 @@
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(float x, float y) : GC_RigidBodyStatic(), _rotator(_dir)
+GC_Turret::GC_Turret(float x, float y)
+  : GC_RigidBodyStatic()
+  , _rotator(_dir)
 {
 	SetZ(Z_WALLS);
 
@@ -247,6 +249,7 @@ void GC_Turret::mapExchange(MapFile &f)
 		if( _team > MAX_TEAMS-1 )
 			_team = MAX_TEAMS-1;
 		_dir = _initialDir;
+		_weaponSprite->SetRotation(_dir);
 	}
 }
 

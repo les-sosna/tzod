@@ -5,8 +5,9 @@
 
 #include "2dSprite.h"
 
-#define GC_FLAG_TRIGGER_ACTIVE    (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_TRIGGER_          (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_TRIGGER_ACTIVE        (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_TRIGGER_ONLYVISIBLE   (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_TRIGGER_              (GC_FLAG_2DSPRITE_ << 2)
 
 // forward declarations
 class GC_Vehicle;
@@ -21,6 +22,8 @@ class GC_Trigger : public GC_2dSprite
 		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propRadius;
+		ObjectProperty _propRadiusDelta;
+		ObjectProperty _propOnlyVisible;
 		ObjectProperty _propOnEnter;
 		ObjectProperty _propOnLeave;
 
@@ -34,6 +37,7 @@ class GC_Trigger : public GC_2dSprite
 	virtual PropertySet* NewPropertySet();
 
 	float    _radius;
+	float    _radiusDelta;
 	string_t _onEnter;
 	string_t _onLeave;
 

@@ -768,6 +768,31 @@ int luaT_kill(lua_State *L)
 	return 0;
 }
 
+
+// exists("object name")
+int luaT_exists(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+
+	lua_pushboolean(L, NULL != obj);
+	return 1;
+}
+
+
+
 // pget("object name", "property name")
 int luaT_pget(lua_State *L)
 {
@@ -1003,6 +1028,7 @@ lua_State* script_open(void)
 	lua_register(L, "pget",     luaT_pget);
 	lua_register(L, "pset",     luaT_pset);
 	lua_register(L, "equip",    luaT_equip);
+	lua_register(L, "exists",   luaT_exists);
 
 	lua_register(L, "msgbox",   luaT_msgbox);
 

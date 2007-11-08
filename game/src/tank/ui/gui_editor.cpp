@@ -515,6 +515,16 @@ void EditorLayout::OnRawChar(int c)
 	case 'G':
 		g_conf.ed_drawgrid->Set(!g_conf.ed_drawgrid->Get());
 		break;
+	case VK_ESCAPE:
+		if( _selectedObject )
+		{
+			Select(_selectedObject, false);
+		}
+		else
+		{
+			GetParent()->OnRawChar(c);
+		}
+		break;
 	default:
 		GetParent()->OnRawChar(c);
 	}
