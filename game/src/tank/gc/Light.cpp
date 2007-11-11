@@ -14,6 +14,9 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
+#include "core/Console.h"
+#include "core/debug.h"
+
 /////////////////////////////////////////////////////////
 
 float GC_Light::_sintable[SINTABLE_SIZE];
@@ -24,7 +27,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	{
 		_sintable[i] = sinf((float) i / SINTABLE_SIZE * PI2);
 	}
-
 	return true;
 }
 
@@ -254,6 +256,8 @@ void GC_Spotlight::EditorAction()
 void GC_Spotlight::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
+
+	TRACE("light %s\n", GetName());
 
 	float a = GetRotation();
 	MAP_EXCHANGE_FLOAT(dir, a, 0);

@@ -73,15 +73,16 @@ class MapFile
 	};
 
 
-	typedef struct ChunkHeader{
-        enumChunkTypes chunkType;
-		size_t         chunkSize;
-	} ChunkHeader;
-
-	typedef struct AttributeSet
+	struct ChunkHeader
 	{
-		std::map<string_t, int>         attrs_int;
-		std::map<string_t, float>       attrs_float;
+		enumChunkTypes chunkType;
+		size_t         chunkSize;
+	};
+
+	struct AttributeSet
+	{
+		std::map<string_t, int>      attrs_int;
+		std::map<string_t, float>    attrs_float;
 		std::map<string_t, string_t> attrs_str;
 
 		void clear()
@@ -90,7 +91,7 @@ class MapFile
 			attrs_float.clear();
 			attrs_str.clear();
 		}
-	} AttributeSet;
+	};
 
 	class ObjectDefinition
 	{
@@ -125,7 +126,7 @@ class MapFile
 		size_t CalcSize() const
 		{
 			size_t size = sizeof(unsigned short) + _className.size();
-            for( size_t i = 0; i < _propertyset.size(); i++ )
+			for( size_t i = 0; i < _propertyset.size(); i++ )
 				size += _propertyset[i].CalcSize();
 			return size;
 		}
@@ -174,7 +175,7 @@ public:
 
 
 	bool NextObject();
-	const char* getCurrentClassName() const;
+	const char* GetCurrentClassName() const;
 
 
 	void BeginObject(const char *classname);

@@ -654,16 +654,13 @@ PropertySet* GC_Object::NewPropertySet()
 void GC_Object::mapExchange(MapFile &f)
 {
 	string_t tmp_name;
+	const char *name = GetName();
+	tmp_name = name ? name : "";
+	MAP_EXCHANGE_STRING(name, tmp_name, "");
 
 	if( f.loading() )
 	{
-		MAP_EXCHANGE_STRING(name, tmp_name, "");
 		SetName(tmp_name.c_str());
-	}
-	else if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
-	{
-		tmp_name = GetName();
-		MAP_EXCHANGE_STRING(name, tmp_name, "");
 	}
 }
 

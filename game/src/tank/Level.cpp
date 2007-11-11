@@ -633,7 +633,7 @@ bool Level::Import(const char *fileName)
 		float x, y;
 		if( !file.getObjectAttribute("x", x) ) continue;
 		if( !file.getObjectAttribute("y", y) ) continue;
-		name2type::iterator it = get_n2t().find(file.getCurrentClassName());
+		name2type::iterator it = get_n2t().find(file.GetCurrentClassName());
 		if( get_n2t().end() == it ) continue;
 		GC_Object *object = get_t2i()[it->second].Create(x, y);
 		object->mapExchange(file);

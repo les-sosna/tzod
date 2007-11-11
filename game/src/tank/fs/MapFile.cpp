@@ -418,7 +418,7 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, const string_t
 	_defaults[cls].attrs_str[attr] = value;
 }
 
-const char* MapFile::getCurrentClassName() const
+const char* MapFile::GetCurrentClassName() const
 {
 	_ASSERT(is_open() && !_modeWrite);
 	_ASSERT(_obj_type < _managed_classes.size());
