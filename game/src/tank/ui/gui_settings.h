@@ -87,6 +87,7 @@ class MapSettingsDlg : public Dialog
 	Edit *_email;
 	Edit *_url;
 	Edit *_desc;
+	Edit *_onInit;
 	ComboBox *_theme;
 
 public:

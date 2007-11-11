@@ -44,7 +44,6 @@ public:
 	GC_RigidBodyStatic::GC_RigidBodyStatic();
 	GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile);
 
-	virtual void MoveTo(const vec2d &pos);
 	virtual void Kill();
 
 	virtual void mapExchange(MapFile &f);
@@ -132,11 +131,11 @@ class GC_Wall : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_Wall);
 
 private:
-	void SetCornerView(int index); // 0 means normal view
-	int  GetCornerView(void);
+	void SetCorner(int index); // 0 means normal view
+	int  GetCorner(void);
 
 protected:
-	virtual const char *getCornerTexture(int i);
+	virtual const char *GetCornerTexture(int i);
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -154,7 +153,9 @@ protected:
 public:
 	GC_Wall(float xPos, float yPos);
 	GC_Wall(FromFile);
+	virtual ~GC_Wall();
 
+	virtual void Kill();
 
 	virtual float GetDefaultHealth() const { return 50; }
 
@@ -177,7 +178,7 @@ class GC_Wall_Concrete : public GC_Wall
 	DECLARE_SELF_REGISTRATION(GC_Wall_Concrete);
 
 protected:
-	virtual const char *getCornerTexture(int i);
+	virtual const char *GetCornerTexture(int i);
 
 public:
 	GC_Wall_Concrete(float xPos, float yPos);

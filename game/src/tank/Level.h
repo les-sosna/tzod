@@ -12,8 +12,7 @@ class GC_RigidBodyStatic;
 class Field;
 class FieldCell
 {
-	friend class Field;
-
+public:
 	static unsigned long _sessionId;    // идентификатор текущей сессии
 	//-----------------------------
 	short _x, _y;                       // координаты клетки
@@ -30,7 +29,6 @@ class FieldCell
 		_ppObjects   = NULL;
 		_objCount    = 0;
 		_prop        = 0;     // свободно
-		//------------------
 		_mySession   = 0xffffffff;
 	}
 public:
@@ -84,7 +82,7 @@ public:
 class Field
 {
 	FieldCell _edgeCell;
-    FieldCell **_cells;
+	FieldCell **_cells;
 	int _cx;
 	int _cy;
 
@@ -93,11 +91,14 @@ class Field
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
-    Field();
+	Field();
 	~Field();
 
 	void Resize(int cx, int cy);
-	void ProcessObject(GC_RigidBodyStatic *object, bool oper);
+	void ProcessObject(GC_RigidBodyStatic *object, bool add);
+	int GetX() const { return _cx; }
+	int GetY() const { return _cy; }
+
 
 #ifdef _DEBUG
 	FieldCell& operator() (int x, int y);
@@ -216,6 +217,7 @@ public:
 	string_t _infoUrl;
 	string_t _infoDesc;
 	string_t _infoTheme;
+	string_t _infoOnInit;
 
 
 /////////////////////////////////////////////////////
@@ -254,7 +256,7 @@ public:
 	bool Serialize(const char *fileName);
 
 	bool Export(const char *fileName);
-	bool Import(const char *fileName);
+	bool Import(const char *fileName, bool execInitScript);
 
 	void Pause(bool pause);
 	void Freeze(bool freeze) { _freezed = freeze; }

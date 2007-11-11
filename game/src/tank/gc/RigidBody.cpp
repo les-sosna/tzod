@@ -146,20 +146,6 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_rigid_s);
 }
 
-void GC_RigidBodyStatic::MoveTo(const vec2d &pos)
-{
-/*	if( GetPassability() > 0 )
-	{
-		g_level->_field.ProcessObject(this, false);
-		GC_2dSprite::MoveTo(pos);
-		g_level->_field.ProcessObject(this, true);
-	}
-	else
-*/	{
-		GC_2dSprite::MoveTo(pos);
-	}
-}
-
 void GC_RigidBodyStatic::Kill()
 {
 	if( GetPassability() > 0 )
@@ -255,15 +241,25 @@ GC_Wall::GC_Wall(FromFile) : GC_RigidBodyStatic(FromFile())
 {
 }
 
+GC_Wall::~GC_Wall()
+{
+}
+
+void GC_Wall::Kill()
+{
+	SetCorner(0);
+	GC_RigidBodyStatic::Kill();
+}
+
 void GC_Wall::mapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::mapExchange(f);
-	int corner = GetCornerView();
+	int corner = GetCorner();
 	MAP_EXCHANGE_INT(corner, corner, 0);
 
 	if( f.loading() )
 	{
-		SetCornerView(corner % 5);
+		SetCorner(corner % 5);
 	}
 }
 
@@ -323,7 +319,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 	return true;
 }
 
-void GC_Wall::SetCornerView(int index) // 0 means normal view
+void GC_Wall::SetCorner(int index) // 0 means normal view
 {
 	_ASSERT(index >= 0 && index < 5);
 	static const DWORD flags[] = {
@@ -334,17 +330,74 @@ void GC_Wall::SetCornerView(int index) // 0 means normal view
 		GC_FLAG_WALL_CORNER_LB
 	};
 
+	vec2d p = GetPos() / CELL_SIZE;
+	int x;
+	int y;
+	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
+	{
+		if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+		{
+			x = int(p.x+1);
+			y = int(p.y+1);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
+		{
+			x = int(p.x);
+			y = int(p.y + 1);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
+		{
+			x = int(p.x + 1);
+			y = int(p.y);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
+		{
+			x = int(p.x);
+			y = int(p.y);
+		}
+		g_level->_field(x, y).AddObject(this);
+	}
+
 	ClearFlags(GC_FLAG_WALL_CORNER_ALL);
 	SetFlags(flags[index]);
 
-	SetTexture(getCornerTexture(index));
+	SetTexture(GetCornerTexture(index));
 	Resize(CELL_SIZE, CELL_SIZE);
 	CenterPivot();
 	AlignToTexture();
 	if( 0 != index ) _vertices[index&3].Set(0,0);
+
+	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
+	{
+		if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+		{
+			x = int(p.x+1);
+			y = int(p.y+1);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
+		{
+			x = int(p.x);
+			y = int(p.y + 1);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
+		{
+			x = int(p.x + 1);
+			y = int(p.y);
+		}
+		if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
+		{
+			x = int(p.x);
+			y = int(p.y);
+		}
+		g_level->_field(x, y).RemoveObject(this);
+		if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
+		{
+			g_level->_field(x, y)._prop = 0xFF;
+		}
+	}
 }
 
-int GC_Wall::GetCornerView(void)
+int GC_Wall::GetCorner(void)
 {
 	int index = 0;
 	switch( GetFlags() & GC_FLAG_WALL_CORNER_ALL )
@@ -370,7 +423,7 @@ int GC_Wall::GetCornerView(void)
 	return index;
 }
 
-const char* GC_Wall::getCornerTexture(int i)
+const char* GC_Wall::GetCornerTexture(int i)
 {
 	_ASSERT(i >=0 && i < 5);
 	static const char* tex[] = {
@@ -386,7 +439,7 @@ const char* GC_Wall::getCornerTexture(int i)
 void GC_Wall::EditorAction()
 {
 	GC_2dSprite::EditorAction();
-	SetCornerView((GetCornerView() + 1) % 5);
+	SetCorner((GetCorner() + 1) % 5);
 }
 
 
@@ -429,11 +482,11 @@ void GC_Wall::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetCornerView(_propCorner.GetIntValue());
+		tmp->SetCorner(_propCorner.GetIntValue());
 	}
 	else
 	{
-		_propCorner.SetIntValue(tmp->GetCornerView());
+		_propCorner.SetIntValue(tmp->GetCorner());
 	}
 }
 
@@ -473,7 +526,7 @@ bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySt
 	return false;
 }
 
-const char* GC_Wall_Concrete::getCornerTexture(int i)
+const char* GC_Wall_Concrete::GetCornerTexture(int i)
 {
 	_ASSERT(i >=0 && i < 5);
 	static const char* tex[] = {

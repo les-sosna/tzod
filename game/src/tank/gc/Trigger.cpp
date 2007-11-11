@@ -3,10 +3,10 @@
 #include "stdafx.h"
 #include "Trigger.h"
 #include "Vehicle.h"
+#include "ai.h"
 
 #include "level.h"
 #include "Macros.h"
-
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
@@ -27,6 +27,7 @@ GC_Trigger::GC_Trigger(float x, float y) : GC_2dSprite()
 	SetFlags(GC_FLAG_TRIGGER_ACTIVE);
 	SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 
+	_team = 0;
 	_radius = 1;
 	_radiusDelta = 0;
 }
@@ -39,6 +40,13 @@ GC_Trigger::~GC_Trigger()
 {
 }
 
+bool GC_Trigger::IsVisible(const GC_Vehicle *v)
+{
+	GC_RigidBodyStatic *object = g_level->agTrace(
+		g_level->grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
+	return object == v;
+}
+
 void GC_Trigger::Serialize(SaveFile &f)
 {
 	f.Serialize(_radius);
@@ -46,6 +54,7 @@ void GC_Trigger::Serialize(SaveFile &f)
 	f.Serialize(_onEnter);
 	f.Serialize(_onLeave);
 	f.Serialize(_veh);
+	f.Serialize(_team);
 }
 
 void GC_Trigger::mapExchange(MapFile &f)
@@ -53,10 +62,13 @@ void GC_Trigger::mapExchange(MapFile &f)
 	GC_2dSprite::mapExchange(f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
+	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
 	int active = CheckFlags(GC_FLAG_TRIGGER_ACTIVE);
 
 	MAP_EXCHANGE_INT(active, active, 1);
 	MAP_EXCHANGE_INT(only_visible, onlyVisible, 0);
+	MAP_EXCHANGE_INT(only_human, onlyHuman, 0);
+	MAP_EXCHANGE_INT(team, _team, 0);
 	MAP_EXCHANGE_FLOAT(radius, _radius, 1);
 	MAP_EXCHANGE_FLOAT(radius_delta, _radiusDelta, 0);
 	MAP_EXCHANGE_STRING(on_enter, _onEnter, "");
@@ -65,6 +77,7 @@ void GC_Trigger::mapExchange(MapFile &f)
 	if( f.loading() )
 	{
 		onlyVisible ? SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) : ClearFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
+		onlyHuman ? SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN) : ClearFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
 		active ? SetFlags(GC_FLAG_TRIGGER_ACTIVE) : ClearFlags(GC_FLAG_TRIGGER_ACTIVE);
 	}
 }
@@ -79,17 +92,22 @@ void GC_Trigger::TimeStepFixed(float dt)
 		{
 			if( !veh->IsKilled() )
 			{
+				if( NULL == veh->GetPlayer()
+					|| CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
+					&& dynamic_cast<GC_PlayerAI*>(veh->GetPlayer()) )
+				{
+					continue;
+				}
+				if( _team && veh->GetPlayer()->GetTeam() != _team )
+				{
+					continue;
+				}
 				float rr = (GetPos() - veh->GetPos()).sqr();
 				if( rr < rr_min )
 				{
 					if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->_radius * veh->_radius )
 					{
-						GC_RigidBodyStatic *object = g_level->agTrace(
-							g_level->grid_rigid_s, NULL, GetPos(), veh->GetPos() - GetPos());
-						if( object != veh )
-						{
-							continue; // vehicle is invisible. skipping
-						}
+						if( !IsVisible(veh) ) continue; // vehicle is invisible. skipping
 					}
 					rr_min = rr;
 					_veh = veh;
@@ -109,8 +127,10 @@ void GC_Trigger::TimeStepFixed(float dt)
 			return;
 		}
 
+		float rr = (GetPos() - _veh->GetPos()).sqr();
 		float r = (_radius + _radiusDelta) * CELL_SIZE;
-		if( (GetPos() - _veh->GetPos()).sqr() > r*r )
+		if( rr > r*r || CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
+			&& rr > _veh->_radius * _veh->_radius && !IsVisible(GetRawPtr(_veh)) )
 		{
 			script_exec(g_env.L, _onLeave.c_str());
 			_veh = NULL;
@@ -134,21 +154,25 @@ PropertySet* GC_Trigger::NewPropertySet()
 GC_Trigger::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propActive(ObjectProperty::TYPE_INTEGER, "active")
+  , _propTeam(ObjectProperty::TYPE_INTEGER, "team")
   , _propRadius(ObjectProperty::TYPE_FLOAT, "radius")
   , _propRadiusDelta(ObjectProperty::TYPE_FLOAT, "radius_delta")
+  , _propOnlyHuman(ObjectProperty::TYPE_INTEGER, "only_human")
   , _propOnlyVisible(ObjectProperty::TYPE_INTEGER, "only_visible")
   , _propOnEnter(ObjectProperty::TYPE_STRING, "on_enter")
   , _propOnLeave(ObjectProperty::TYPE_STRING, "on_leave")
 {
 	_propActive.SetIntRange(0, 1);
+	_propOnlyHuman.SetIntRange(0, 1);
 	_propOnlyVisible.SetIntRange(0, 1);
+	_propTeam.SetIntRange(0, MAX_TEAMS);
 	_propRadius.SetFloatRange(0, 100);
 	_propRadiusDelta.SetFloatRange(0, 100);
 }
 
 int GC_Trigger::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 6;
+	return BASE::GetCount() + 8;
 }
 
 ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
@@ -158,12 +182,14 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 
 	switch( index - BASE::GetCount() )
 	{
-	case 0: return &_propActive;
-	case 1: return &_propOnlyVisible;
-	case 2: return &_propRadius;
-	case 3: return &_propRadiusDelta;
-	case 4: return &_propOnEnter;
-	case 5: return &_propOnLeave;
+		case 0: return &_propActive;
+		case 1: return &_propOnlyHuman;
+		case 2: return &_propOnlyVisible;
+		case 3: return &_propTeam;
+		case 4: return &_propRadius;
+		case 5: return &_propRadiusDelta;
+		case 6: return &_propOnEnter;
+		case 7: return &_propOnLeave;
 	}
 
 	_ASSERT(FALSE);
@@ -178,8 +204,10 @@ void GC_Trigger::MyPropertySet::Exchange(bool applyToObject)
 
 	if( applyToObject )
 	{
+		_propOnlyHuman.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN) : tmp->ClearFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
 		_propOnlyVisible.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) : tmp->ClearFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 		_propActive.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ACTIVE) : tmp->ClearFlags(GC_FLAG_TRIGGER_ACTIVE);
+		tmp->_team = _propTeam.GetIntValue();
 		tmp->_radius = _propRadius.GetFloatValue();
 		tmp->_radiusDelta = _propRadiusDelta.GetFloatValue();
 		tmp->_onEnter = _propOnEnter.GetStringValue();
@@ -187,8 +215,10 @@ void GC_Trigger::MyPropertySet::Exchange(bool applyToObject)
 	}
 	else
 	{
+		_propOnlyHuman.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) ? 1 : 0);
 		_propOnlyVisible.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) ? 1 : 0);
 		_propActive.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ACTIVE) ? 1 : 0);
+		_propTeam.SetIntValue(tmp->_team);
 		_propRadius.SetFloatValue(tmp->_radius);
 		_propRadiusDelta.SetFloatValue(tmp->_radiusDelta);
 		_propOnEnter.SetStringValue(tmp->_onEnter);

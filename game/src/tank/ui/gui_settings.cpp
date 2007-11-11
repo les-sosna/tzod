@@ -380,6 +380,10 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	_desc = new Edit(this, x2, y += 15, 256);
 	_desc->SetText(g_level->_infoDesc.c_str());
 
+	new Text(this, x1, y += 20, "Скрипт инициализации", alignTextLT);
+	_onInit = new Edit(this, x2, y += 15, 256);
+	_onInit->SetText(g_level->_infoOnInit.c_str());
+
 	new Text(this, x1, y += 20, "Тема оформления", alignTextLT);
 	_theme = new ComboBox(this, x2, y += 15, 256);
 	for( size_t i = 0; i < _ThemeManager::Inst().GetThemeCount(); i++ )
@@ -406,6 +410,7 @@ void MapSettingsDlg::OnOK()
 	g_level->_infoEmail = _email->GetText();
 	g_level->_infoUrl = _url->GetText();
 	g_level->_infoDesc = _desc->GetText();
+	g_level->_infoOnInit = _onInit->GetText();
 
 	int i = _theme->GetCurSel();
 	if( 0 != i )
@@ -428,8 +433,6 @@ void MapSettingsDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

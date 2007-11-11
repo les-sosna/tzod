@@ -26,6 +26,7 @@ List::List(Window *parent, float x, float y, float width, float height)
 
 	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
 	_selection->SetBorder(true);
+	_selection->Resize(1, GetItemHeight());
 
 	Resize(width, height); // it will resize the selection also, so create it first!
 	Move(x, y);
@@ -42,8 +43,8 @@ void List::OnScroll(float pos)
 void List::UpdateSelection()
 {
 	float y = (float) _curSel - _scrollBar->GetPos();
-	_selection->Move(0, floorf(y * GetItemHeight()));
-	_selection->Show( -1 != _curSel && y > -1 && y < GetNumLinesVisible() );
+	_selection->Move(2, floorf(y * GetItemHeight()));
+	_selection->Show(-1 != _curSel && y > -1 && y < GetNumLinesVisible());
 }
 
 void List::DeleteAllItems()

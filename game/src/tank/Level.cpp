@@ -34,6 +34,10 @@
 #include "gc/Sound.h"
 #include "gc/Camera.h"
 
+#ifdef _DEBUG
+#include "gc/ai.h"
+#endif
+
 
 ////////////////////////////////////////////////////////////
 unsigned long FieldCell::_sessionId;
@@ -153,23 +157,22 @@ void Field::Resize(int cx, int cy)
 	FieldCell::_sessionId = 0;
 }
 
-void Field::ProcessObject(GC_RigidBodyStatic *object, bool oper)
+void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 {
 	float r = object->GetRadius() / CELL_SIZE;
 	vec2d p = object->GetPos() / CELL_SIZE;
 
 	_ASSERT(r > 0);
 
-	//--------------------------------
-	int xmin = (int) __max(0, p.x - r + 0.5f);
-	int xmax = (int) __min((float) (_cx - 1), p.x + r + 0.5f);
-	int ymin = (int) __max(0, p.y - r + 0.5f);
-	int ymax = (int) __min((float) (_cy - 1), p.y + r + 0.5f);
-	//-------------------------------------------------------------
+	int xmin = __max(0,       int(p.x - r + 0.5f));
+	int xmax = __min(_cx - 1, int(p.x + r + 0.5f));
+	int ymin = __max(0,       int(p.y - r + 0.5f));
+	int ymax = __min(_cy - 1, int(p.y + r + 0.5f));
+
 	for( int x = xmin; x <= xmax; x++ )
 	for( int y = ymin; y <= ymax; y++ )
 	{
-		if( oper )
+		if( add )
 		{
 			(*this)(x, y).AddObject(object);
 		}
@@ -319,7 +322,7 @@ bool Level::init_import_and_edit(const char *mapName)
 
 	g_render->SetAmbient( 1.0f );
 
-	if( !Import(mapName) )
+	if( !Import(mapName, false) )
 		return false;
 
 	Pause(true);
@@ -338,7 +341,7 @@ bool Level::init_newdm(const char *mapName, unsigned long seed)
 
 	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 
-	return Import(mapName);
+	return Import(mapName, true);
 }
 
 bool Level::init_load(const char *fileName)
@@ -603,7 +606,7 @@ bool Level::Serialize(const char *fileName)
 	return result;
 }
 
-bool Level::Import(const char *fileName)
+bool Level::Import(const char *fileName, bool execInitScript)
 {
 	_ASSERT(IsSafeMode());
 
@@ -625,6 +628,7 @@ bool Level::Import(const char *fileName)
 	file.getMapAttribute("desc",     _infoDesc);
 	file.getMapAttribute("link-url", _infoUrl);
 	file.getMapAttribute("e-mail",   _infoEmail);
+	file.getMapAttribute("on_init",  _infoOnInit);
 
 	Init(width, height);
 
@@ -638,9 +642,8 @@ bool Level::Import(const char *fileName)
 		GC_Object *object = get_t2i()[it->second].Create(x, y);
 		object->mapExchange(file);
 	}
-
 	GC_Camera::SwitchEditor();
-	return true;
+	return !execInitScript || script_exec(g_env.L, _infoOnInit.c_str());
 }
 
 bool Level::Export(const char *fileName)
@@ -669,6 +672,7 @@ bool Level::Export(const char *fileName)
 
 	file.setMapAttribute("theme",    _infoTheme);
 
+	file.setMapAttribute("on_init",  _infoOnInit);
 
 	//
 	// objects
@@ -1314,18 +1318,18 @@ void Level::Render() const
 
 		if( pMaxShake ) break;
 	} // cameras
-/*
+
+#ifdef _DEBUG
 	HDC hdc = GetDC(g_env.hMainWnd);
-	FOREACH( players, GC_Player, p )
+	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
 	{
 		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
 		{
 			pp->debug_draw(hdc);
 		}
 	}
-
 	ReleaseDC(g_env.hMainWnd, hdc);
-*/
+#endif
 }
 
 GC_Object* Level::FindObject(const char *name) const
