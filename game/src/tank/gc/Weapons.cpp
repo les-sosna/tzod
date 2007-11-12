@@ -1425,7 +1425,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 				{
 					if( g_level->net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _time_fire - WEAP_MG_TIME_RELAX * 0.2f )
 					{
-						float m = veh->_inv_i;
+						float m = 3000;//veh->_inv_i;
 						veh->ApplyTorque(m * (g_level->net_frand(1.0f) - 0.5f));
 					}
 				}

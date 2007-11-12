@@ -120,7 +120,7 @@ return {
      indicator_fuel={left=0, top=0, right=48, bottom=6, xpivot=0, ypivot=0},
      indicator_ammo={left=0, top=12, right=48, bottom=17, xpivot=0, ypivot=0},
      indicator_crosshair1={left=48, top=16, right=64, bottom=32, color=0x00FF00},
-     indicator_crosshair2={left=48, top=0, right=64, bottom=16},
+     indicator_crosshair2={left=49, top=1, right=63, bottom=15},
    }
 },
 {
