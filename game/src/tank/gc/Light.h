@@ -9,7 +9,7 @@
 // flags
 
 #define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
-
+#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 1)
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward class declarations
@@ -54,6 +54,7 @@ public:
 
 	virtual bool IsSaved() { return true; }
 	virtual void Serialize(SaveFile &f);
+	virtual void mapExchange(MapFile &f);
 
 	void SetIntensity(float i)
 	{
@@ -122,6 +123,8 @@ public:
 	virtual void Shine();
 	virtual void Update(); // handles changing day/night
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 class GC_Spotlight : public GC_2dSprite
 {

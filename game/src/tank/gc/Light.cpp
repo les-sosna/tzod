@@ -70,6 +70,11 @@ void GC_Light::Serialize(SaveFile &f)
 	f.Serialize(_lamp);
 }
 
+void GC_Light::mapExchange(MapFile &f)
+{
+	GC_Actor::mapExchange(f);
+}
+
 void GC_Light::Shine()
 {
 	if( !IsActive() ) return;
@@ -260,13 +265,15 @@ void GC_Spotlight::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 
-	TRACE("light %s\n", GetName());
-
 	float a = GetRotation();
+	int active = _light->IsActive();
+
+	MAP_EXCHANGE_INT(active, active, 1);
 	MAP_EXCHANGE_FLOAT(dir, a, 0);
 
 	if( f.loading() )
 	{
+		_light->Activate(0 != active);
 		SetRotation(a);
 		_light->SetAngle(a);
 		_light->MoveTo(GetPos()+vec2d(a)*7);
