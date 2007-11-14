@@ -257,6 +257,7 @@ Level::Level()
 
 	// register config handlers
 	g_conf.s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
+	g_conf.sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
 }
 
 void Level::Init(int X, int Y)
@@ -339,8 +340,6 @@ bool Level::init_newdm(const char *mapName, unsigned long seed)
 	_modeEditor = false;
 	_seed       = seed;
 
-	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
-
 	return Import(mapName, true);
 }
 
@@ -374,6 +373,7 @@ Level::~Level()
 
 	// unregister config handlers
 	g_conf.s_volume->eventChange.clear();
+	g_conf.sv_nightmode->eventChange.clear();
 
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
@@ -1343,6 +1343,16 @@ void Level::OnChangeSoundVolume()
 	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->UpdateVolume();
+	}
+}
+
+void Level::OnChangeNightMode()
+{
+	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
+	FOREACH( GetList(LIST_lights), GC_Light, pLight )
+	{
+		_ASSERT(!pLight->IsKilled());
+		pLight->Update();
 	}
 }
 

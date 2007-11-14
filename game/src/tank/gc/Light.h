@@ -120,6 +120,7 @@ public:
 
 public:
 	virtual void Shine();
+	virtual void Update(); // handles changing day/night
 };
 
 class GC_Spotlight : public GC_2dSprite

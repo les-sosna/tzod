@@ -428,6 +428,7 @@ public:
 
 protected:
 	void OnChangeSoundVolume();
+	void OnChangeNightMode();
 
 };
 

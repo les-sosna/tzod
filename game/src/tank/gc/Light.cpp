@@ -43,14 +43,8 @@ GC_Light::GC_Light(enumLightType type)
 
 	_lamp = new GC_UserSprite();
 
-	if( g_conf.sv_nightmode->Get() ) // FIXME!
-	if( LIGHT_SPOT == type )
-	{
-		_lamp->SetTexture("shine");
-		_lamp->SetZ(Z_PARTICLE);
-	}
-
 	Activate(true);
+	Update();
 }
 
 GC_Light::GC_Light(FromFile) : GC_Actor(FromFile())
@@ -193,6 +187,15 @@ void GC_Light::Activate(bool activate)
 {
 	activate ? SetFlags(GC_FLAG_LIGHT_ACTIVE) : ClearFlags(GC_FLAG_LIGHT_ACTIVE);
 	_lamp->Show(activate);
+}
+
+void GC_Light::Update()
+{
+	if( LIGHT_SPOT == _type )
+	{
+		_lamp->SetTexture("shine");
+		_lamp->SetZ(g_conf.sv_nightmode->Get() ? Z_PARTICLE : Z_NONE);
+	}
 }
 
 /////////////////////////////////////////////////////////////
