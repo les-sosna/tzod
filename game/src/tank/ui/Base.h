@@ -1,4 +1,4 @@
-// gui_base.h
+// Base.h
 
 #pragma once
 
@@ -10,7 +10,6 @@
 namespace UI
 {
 class Window;
-
 class Button;
 class ButtonBase;
 class CheckBox;
@@ -23,7 +22,6 @@ class MouseCursor;
 class ScrollBar;
 class Text;
 class Console;
-
 } // end of namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////

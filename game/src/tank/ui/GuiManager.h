@@ -56,7 +56,7 @@ public:
 	void TimeStepUnregister(PtrList<UI::Window>::iterator it);
 
 public:
-	GuiManager(CreateWindowProc createDesctop);
+	GuiManager(CreateWindowProc createDesktop);
 	~GuiManager();
 
 	bool ProcessMouse(float x, float y, float z, UINT msg);

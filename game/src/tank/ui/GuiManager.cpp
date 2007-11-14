@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GuiManager::GuiManager(CreateWindowProc createDesctop)
+GuiManager::GuiManager(CreateWindowProc createDesktop)
 {
 	_focusWnd      = NULL;
 	_hotTrackWnd   = NULL;
@@ -17,7 +17,7 @@ GuiManager::GuiManager(CreateWindowProc createDesctop)
 	_captureCount  = 0;
 	_windowCount   = 0;
 
-	_desktop = createDesctop(this);
+	_desktop = createDesktop(this);
 	_cursor  = new UI::MouseCursor(this, "cursor");
 }
 
@@ -139,9 +139,13 @@ void GuiManager::PopClippingRect()
 	_ASSERT(!_clipStack.empty());
 	_clipStack.pop();
 	if( _clipStack.empty() )
+	{
 		g_render->SetViewport(NULL);
+	}
 	else
+	{
 		g_render->SetViewport(&_clipStack.top());
+	}
 }
 
 bool GuiManager::SetFocusWnd(UI::Window* wnd)

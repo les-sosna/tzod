@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-#include "console.h"
+#include "Console.h"
 #include "Text.h"
 #include "Edit.h"
 

@@ -21,7 +21,7 @@ public:
 
 	void SetEasyMove(bool enable);
 
-    static const int _resultOK     = 0;
+	static const int _resultOK     = 0;
 	static const int _resultCancel = 1;
 
 	Delegate<void(int)> eventClose;

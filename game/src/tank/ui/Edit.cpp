@@ -51,7 +51,7 @@ void Edit::SetInt(int value)
 	SetText(tmp.str().c_str());
 }
 
-int  Edit::GetInt() const
+int Edit::GetInt() const
 {
 	return atoi(_string.c_str());
 }
@@ -192,24 +192,26 @@ void Edit::OnRawChar(int c)
 			INVOKE(eventChange) ();
 		break;
 	case VK_LEFT:
-		tmp = __max(0, __min(_selStart, _selEnd) - 1);
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
+			tmp = __max(0, _selEnd - 1);
 			SetSel(_selStart, tmp);
 		}
 		else
 		{
+			tmp = __max(0, __min(_selStart, _selEnd) - 1);
 			SetSel(tmp, tmp);
 		}
 		break;
 	case VK_RIGHT:
-		tmp = __min((int) _string.length(), __max(_selStart, _selEnd) + 1);
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
+			tmp = __min((int) _string.length(), _selEnd + 1);
 			SetSel(_selStart, tmp);
 		}
 		else
 		{
+			tmp = __min((int) _string.length(), __max(_selStart, _selEnd) + 1);
 			SetSel(tmp, tmp);
 		}
 		break;
