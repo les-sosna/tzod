@@ -18,6 +18,8 @@
 #include "KeyMapper.h"
 #include "Level.h"
 
+#include "functions.h"
+
 
 namespace UI
 {
@@ -26,6 +28,8 @@ namespace UI
 SettingsDlg::SettingsDlg(Window *parent)
   : Dialog(parent, 512, 296)
 {
+	PauseGame(true);
+
 	SetEasyMove(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, "Настройки игры", alignTextCT);
@@ -101,6 +105,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 SettingsDlg::~SettingsDlg()
 {
+	PauseGame(false);
 }
 
 void SettingsDlg::OnVolume(float pos)

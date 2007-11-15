@@ -172,6 +172,8 @@ void CreateServerDlg::OnCloseChild(int result)
 ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
   : Dialog(parent, 512, 384)
 {
+	PauseGame(true);
+
 	Text *title = new Text(this, GetWidth() / 2, 16, "Соединение с сервером", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -206,6 +208,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 ConnectDlg::~ConnectDlg()
 {
+	PauseGame(false);
 }
 
 void ConnectDlg::OnOK()
@@ -283,7 +286,6 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				SAFE_DELETE(g_level);
 				g_level = new Level();
-				g_level->Pause(true);
 
 				if( g_level->init_newdm(path, gi.seed) )
 				{
@@ -531,7 +533,6 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 
 		case DBTYPE_STARTGAME:
 		{
-			g_level->Pause(false);
 			for( size_t i = 0; i < g_client->_latency; ++i )
 			{
 				g_client->SendControl(ControlPacket());

@@ -24,5 +24,8 @@ DWORD CalcCRC32(LPCTSTR fileName);
 // Ѕезопасный выбор текущей директории
 BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg);
 
+
+bool PauseGame(bool pause);
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

@@ -28,6 +28,8 @@
 #include "Level.h"
 #include "Macros.h"
 
+#include "functions.h"
+
 
 namespace UI
 {
@@ -40,6 +42,8 @@ MainMenuDlg::MainMenuDlg(Window *parent)
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
 {
+	PauseGame(true);
+
 	SetBorder(false);
 	SetTexture("gui_splash");
 	Resize(GetTextureWidth(), GetTextureHeight());
@@ -67,6 +71,11 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	{
 		SwitchPanel(PT_SINGLEPLAYER);
 	}
+}
+
+MainMenuDlg::~MainMenuDlg()
+{
+	PauseGame(false);
 }
 
 void MainMenuDlg::OnSinglePlayer()

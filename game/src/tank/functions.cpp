@@ -7,6 +7,29 @@
 
 #include "ui/Interface.h"
 
+#include "Level.h"
+
+bool PauseGame(bool pause)
+{
+	if( pause )
+	{
+		if( g_level && 0 == g_level->_pause + g_env.pause )
+		{
+			g_level->PauseSound(true);
+		}
+		g_env.pause++;
+	}
+	else
+	{
+		_ASSERT(g_env.pause > 0);
+		g_env.pause--;
+		if( g_level && 0 == g_level->_pause + g_env.pause )
+		{
+			g_level->PauseSound(false);
+		}
+	}
+	return g_env.pause > 0;
+}
 
 //--------------------------------------------------
 

@@ -36,6 +36,7 @@ class NewGameDlg : public Dialog
 
 public:
 	NewGameDlg(Window *parent);
+	~NewGameDlg();
 
 	virtual void OnRawChar(int c);
 

@@ -226,12 +226,13 @@ void Field::Dump()
 
 // в конструкторе нельзя создавать игровые объекты
 Level::Level()
+  : _modeEditor(false)
+  , _pause(0)
 {
 	TRACE("Constructing the level\n");
 
 	_time        = 0;
 	_timeBuffer  = 0;
-	_pauseCount  = 0;
 	_limitHit    = false;
 	_freezed     = false;
 
@@ -301,16 +302,15 @@ bool Level::init_emptymap()
 	_ASSERT(_bInitialized = TRUE);
 
 	_gameType   = GT_EDITOR;
-	_modeEditor = true;
 
-	g_render->SetAmbient( 1.0f );
-
-	_background->EnableGrid( g_conf.ed_drawgrid->Get() );
 	_ThemeManager::Inst().ApplyTheme(0);
 
-	Pause(true);
+	ToggleEditorMode();
+	_ASSERT(_modeEditor);
 
-	return TRUE;
+	g_conf.sv_nightmode->Set(false);
+
+	return true;
 }
 
 bool Level::init_import_and_edit(const char *mapName)
@@ -318,15 +318,14 @@ bool Level::init_import_and_edit(const char *mapName)
 	_ASSERT(!_bInitialized);
 	_ASSERT(_bInitialized = TRUE);
 
-	_gameType   = GT_EDITOR;
-	_modeEditor = true;
-
-	g_render->SetAmbient( 1.0f );
+	_gameType = GT_EDITOR;
+	g_conf.sv_nightmode->Set(false);
 
 	if( !Import(mapName, false) )
 		return false;
 
-	Pause(true);
+	ToggleEditorMode();
+	_ASSERT(_modeEditor);
 
 	return true;
 }
@@ -346,7 +345,6 @@ bool Level::init_newdm(const char *mapName, unsigned long seed)
 bool Level::init_load(const char *fileName)
 {
 	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);
 	_modeEditor = false;
 	return Unserialize(fileName);
 }
@@ -383,6 +381,7 @@ Level::~Level()
 bool Level::Unserialize(const char *fileName)
 {
 	_ASSERT(!_bInitialized);
+	_ASSERT(_bInitialized = TRUE);
 	_ASSERT(IsSafeMode());
 
 	TRACE("Loading saved game from file '%s'\n", fileName);
@@ -479,7 +478,6 @@ bool Level::Unserialize(const char *fileName)
 		}
 
 		GC_Camera::SwitchEditor();
-		Pause(false);
 	}
 	catch (const char *msg)
 	{
@@ -695,32 +693,53 @@ bool Level::Export(const char *fileName)
 	return true;
 }
 
-void Level::Pause(bool pause)
+void Level::PauseLocal(bool pause)
 {
-	if( (pause && 0 == _pauseCount) || (!pause && 1 == _pauseCount) )
+	if( pause )
 	{
-		FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
+		if( 0 == _pause + g_env.pause )
 		{
-			pSound->Freeze(pause);
+			PauseSound(true);
+		}
+		++_pause;
+	}
+	else
+	{
+		_ASSERT(_pause + g_env.pause > 0);
+		--_pause;
+		if( 0 == _pause + g_env.pause )
+		{
+			PauseSound(false);
 		}
 	}
-	_pauseCount += pause ? +1 : -1;
-	_ASSERT(_pauseCount >= 0);
+}
+
+void Level::PauseSound(bool pause)
+{
+	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
+	{
+		pSound->Freeze(pause);
+	}
 }
 
 void Level::ToggleEditorMode()
 {
+	if( GT_INTRO == _gameType )
+	{
+		return;
+	}
+
 	if( _modeEditor )
 	{
 		_modeEditor = false;
 		_background->EnableGrid(false);
-		Pause(false);
+		PauseLocal(false);
 	}
 	else
 	{
 		_modeEditor = true;
 		_background->EnableGrid(g_conf.ed_drawgrid->Get());
-		Pause(true);
+		PauseLocal(true);
 	}
 	GC_Camera::SwitchEditor();
 }
@@ -987,7 +1006,7 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 
 void Level::TimeStep(float dt)
 {
-	if( _pauseCount && !g_client || _limitHit )
+	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
 		return;
 
 	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
@@ -1229,6 +1248,8 @@ void Level::Render() const
 		}
 	}
 
+	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
+
 	int count = 0;
 	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 	{
@@ -1348,7 +1369,6 @@ void Level::OnChangeSoundVolume()
 
 void Level::OnChangeNightMode()
 {
-	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
 		_ASSERT(!pLight->IsKilled());

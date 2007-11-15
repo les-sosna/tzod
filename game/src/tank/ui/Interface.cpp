@@ -87,11 +87,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			TRACE("main window deactivated\n");
 			g_env.minimized = true;
+			PauseGame(true);
 		}
 		else if( g_env.minimized )
 		{
 			TRACE("main window activated\n");
 			g_env.minimized = false;
+			PauseGame(false);
 		}
 
 		g_env.envInputs.bLButtonState = false;

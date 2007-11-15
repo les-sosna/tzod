@@ -22,6 +22,8 @@
 #include "network/TankClient.h"
 #include "network/TankServer.h"
 
+#include "functions.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // c closures
@@ -96,12 +98,7 @@ static int luaT_pause(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-	if( !g_level )
-	{
-		return luaL_error(L, "no game started");
-	}
-
-	g_level->Pause( 0 != lua_toboolean(L, 1) );
+	PauseGame( 0 != lua_toboolean(L, 1) );
 
 	return 0;
 }
@@ -228,9 +225,9 @@ static int luaT_save(lua_State *L)
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
-	g_level->Pause(true);
+	g_level->PauseSound(true);
 	bool result = g_level->Serialize(filename);
-	g_level->Pause(false);
+	g_level->PauseSound(false);
 
 	if( !result )
 	{

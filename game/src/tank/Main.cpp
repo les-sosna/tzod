@@ -165,6 +165,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	TRACE("----------------------------------------------\n");
 
 
+	g_env.pause = 0;
+
+
 	// create main app window
 	g_env.hMainWnd = CreateMainWnd(hinst);
 
@@ -296,6 +299,11 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 		timer->Start();
 
+		if( g_level )
+		{
+			g_level->_gameType = GT_INTRO;
+		}
+
 		MSG msg;
 		for(;;)
 		{
@@ -312,9 +320,8 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				//------------------------------
 				if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
 				{
-					if( g_level ) g_level->Pause(true);
+				//	PauseGame(true);
 					ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
-					if( g_level ) g_level->Pause(false);
 					continue;
 				}
 				else

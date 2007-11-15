@@ -23,24 +23,6 @@ typedef struct VEHICLEKEYS
 
 //----------------------------------------------------------
 
-enum enumControlType
-{
-	CT_USER_KB,
-	CT_USER_KB2,
-	CT_USER_MOUSE,
-	CT_USER_MOUSE2,
-	CT_USER_HYBRID,
-};
-
-//----------------------------------------------------------
-
-struct PLAYER
-{
-	VEHICLEKEYS     KeyMap;
-	enumControlType ControlType;
-};
-
-//----------------------------------------------------------
 
 #define MAX_PLRNAME     30
 #define MAX_VEHCLSNAME  30

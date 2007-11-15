@@ -61,6 +61,8 @@ struct ENVIRONMENT
 
 	lua_State *L;            // handle to the script engine
 
+	int       pause;
+
 	int       nNeedCursor;   // счетчик контроллеров, которым нужен курсор
 	bool      minimized;     // признак свернутости главного окна.
 

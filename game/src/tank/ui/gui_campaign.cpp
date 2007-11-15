@@ -12,6 +12,8 @@
 
 #include "fs/FileSystem.h"
 
+#include "functions.h"
+
 
 namespace UI
 {
@@ -20,6 +22,8 @@ namespace UI
 NewCampaignDlg::NewCampaignDlg(Window *parent)
   : Dialog(parent, 512, 400)
 {
+	PauseGame(true);
+
 	Text *t = new Text(this, GetWidth() / 2, 16, "Новая кампания", alignTextCT);
 	t->SetTexture("font_default");
 	t->Resize(t->GetTextureWidth(), t->GetTextureHeight());
@@ -47,6 +51,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 
 NewCampaignDlg::~NewCampaignDlg()
 {
+	PauseGame(false);
 }
 
 void NewCampaignDlg::OnOK()

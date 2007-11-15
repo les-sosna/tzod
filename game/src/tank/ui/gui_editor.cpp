@@ -251,6 +251,7 @@ void PropertyList::OnRawChar(int c)
 		_ps->SaveToConfig();
 		break;
 	case VK_ESCAPE:
+		g_conf.ed_showproperties->Set(false);
 		Show(false);
 		break;
 	default:
@@ -278,8 +279,8 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 		"F9                   - включить/выключить слои\n"
 		"G                    - показать/спрятать сетку\n"
 		"ESC                  - выход в главное меню\n"
-		"Enter                - свойства выделенного объекта\n"
 		"Delete               - удалить выделенный объект\n"
+		"Enter                - свойства выделенного объекта\n"
 		"Стрелки              - движение камеры\n"
 		"Колёсико мышки       - выбрать тип объекта\n"
 		"Левая кнопка мышки   - создать объект; действие над объектом\n"
@@ -352,7 +353,10 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			if( _selectedObject )
 			{
 				_propList->ConnectTo(_selectedObject->GetProperties());
-				_propList->Show(true);
+				if( g_conf.ed_showproperties->Get() )
+				{
+					_propList->Show(true);
+				}
 			}
 		}
 	}
@@ -496,6 +500,7 @@ void EditorLayout::OnRawChar(int c)
 		if( _selectedObject )
 		{
 			_propList->Show(true);
+			g_conf.ed_showproperties->Set(true);
 		}
 		break;
 	case VK_DELETE:

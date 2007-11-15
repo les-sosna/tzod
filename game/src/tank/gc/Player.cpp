@@ -134,7 +134,7 @@ void GC_Player::SetScore(int score)
 	{
 		if( _score >= g_conf.sv_fraglimit->GetInt() )
 		{
-			g_level->Pause(true);
+			g_level->PauseLocal(true);
 			g_level->_limitHit = true;
 		}
 	}

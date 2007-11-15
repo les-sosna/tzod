@@ -67,6 +67,7 @@ class MainMenuDlg : public Dialog
 
 public:
 	MainMenuDlg(Window *parent);
+	~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual void OnRawChar(int c);
 

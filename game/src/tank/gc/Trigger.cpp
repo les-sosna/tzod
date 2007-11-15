@@ -123,6 +123,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 	{
 		if( _veh->IsKilled() )
 		{
+			script_exec(g_env.L, _onLeave.c_str());
 			_veh = NULL;
 			return;
 		}

@@ -18,10 +18,10 @@ conf.sv_fraglimit = 0;
 conf.sv_speed = 100;
 
 if math.random() > 0.5 then
-  conf.sv_nightmode = false;
+  conf.sv_nightmode = math.random() > 0.5;
   loadmap("maps/intro.map")
 else
-  conf.sv_nightmode = true;
+  conf.sv_nightmode = math.random() > 0.5;
   loadmap("maps/intro02.map")
 end
 

@@ -201,7 +201,6 @@ public:
 
 /////////////////////////////////////
 //settings
-	int     _pauseCount;
 	bool    _freezed;
 	bool    _modeEditor;
 	bool    _limitHit;  // достигнут fraglimit или timelimit
@@ -227,6 +226,7 @@ public:
 
 /////////////////////////////////////
 public:
+	int _pause;
 	float _time;
 	float _timeBuffer;
 
@@ -258,7 +258,8 @@ public:
 	bool Export(const char *fileName);
 	bool Import(const char *fileName, bool execInitScript);
 
-	void Pause(bool pause);
+	void PauseLocal(bool pause);
+	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _freezed = freeze; }
 
 	void TimeStep(float dt);

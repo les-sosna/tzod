@@ -38,6 +38,8 @@ namespace UI
 NewGameDlg::NewGameDlg(Window *parent)
   : Dialog(parent, 770, 550)
 {
+	PauseGame(true);
+
 	_newPlayer = false;
 
 	float x1 = 16;
@@ -148,6 +150,11 @@ NewGameDlg::NewGameDlg(Window *parent)
 	// call this after creation of buttons
 	RefreshPlayersList();
 	RefreshBotsList();
+}
+
+NewGameDlg::~NewGameDlg()
+{
+	PauseGame(false);
 }
 
 void NewGameDlg::RefreshPlayersList()
