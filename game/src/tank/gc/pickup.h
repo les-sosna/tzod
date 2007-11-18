@@ -58,7 +58,7 @@ protected:
 
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() { return true; }
+	virtual bool IsSaved() const { return true; }
 
 public:
 	void  SetRadius(float r)   { _radius = r;              }

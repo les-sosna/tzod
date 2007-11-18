@@ -59,8 +59,10 @@ public:
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 
 	size_t FindTexture(const char *name)   const;
-	const LogicalTexture& get(size_t index) const;
-	void bind(size_t index);
+	const LogicalTexture& Get(size_t index) const;
+	void Bind(size_t index);
+
+	bool IsValidTexture(size_t index) const;
 
 	void GetTextureNames(std::vector<string_t> &names,
 		const char *prefix, bool noPrefixReturn) const;

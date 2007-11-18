@@ -16,7 +16,7 @@ TextureCache::TextureCache(const char *name)
 {
 	_ASSERT(NULL != name);
 	texture = g_texman->FindTexture(name);
-	const LogicalTexture &lt = g_texman->get(texture);
+	const LogicalTexture &lt = g_texman->Get(texture);
 	width  = (float) lt.frame_width;
 	height = (float) lt.frame_height;
 	color  = lt.color;
@@ -73,13 +73,15 @@ void GC_2dSprite::Serialize(SaveFile &f)
 	f.Serialize(_zOrderCurrent);
 	f.Serialize(_zOrderPrefered);
 
+	_ASSERT(g_texman->IsValidTexture(_texId));
+
 	if( f.loading() )
 		UpdateCurrentZ();
 }
 
 int GC_2dSprite::GetFrameCount() const
 {
-	return g_texman->get(_texId).xframes * g_texman->get(_texId).yframes;
+	return g_texman->Get(_texId).xframes * g_texman->Get(_texId).yframes;
 }
 
 void GC_2dSprite::MoveTo(const vec2d &pos)
@@ -101,7 +103,7 @@ void GC_2dSprite::SetTexture(const char *name)
 	else
 	{
 		_texId = g_texman->FindTexture(name);
-		const LogicalTexture &lt = g_texman->get(_texId);
+		const LogicalTexture &lt = g_texman->Get(_texId);
 
 		_color.r  = lt.color.r;
 		_color.g  = lt.color.g;
@@ -213,7 +215,7 @@ void GC_2dSprite::SetFrame(int frame)
 	_ASSERT(0 <= frame && frame < GetFrameCount());
 	if( _frame == frame ) return;
 
-	const LogicalTexture &lt = g_texman->get(_texId);
+	const LogicalTexture &lt = g_texman->Get(_texId);
 
 	_frameRect.left   = (lt.left + lt.frame_width * (float) (frame % lt.xframes)) * lt.pixel_width;
 	_frameRect.right  = _frameRect.left + lt.frame_width * lt.pixel_width;
@@ -227,7 +229,7 @@ void GC_2dSprite::UpdateTexture()
 {
 	if( -1 == _frame ) return; // FIXME
 
-	const LogicalTexture &lt = g_texman->get(_texId);
+	const LogicalTexture &lt = g_texman->Get(_texId);
 
 	_width  = (float) lt.frame_width;
 	_height = (float) lt.frame_height;
@@ -284,7 +286,7 @@ void GC_2dSprite::Kill()
 
 void GC_2dSprite::Draw()
 {
-	g_texman->bind(_texId);
+	g_texman->Bind(_texId);
 
 	float px, py;
 	int i = 1;

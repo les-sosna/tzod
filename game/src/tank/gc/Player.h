@@ -78,7 +78,6 @@ public:
 	virtual ~GC_Player();
 	virtual void Kill();
 
-	virtual bool IsSaved() { return true; };
 	virtual void Serialize(SaveFile &f);
 
 	void UpdateSkin();

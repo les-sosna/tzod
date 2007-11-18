@@ -127,7 +127,6 @@ public:
 	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() { return true; };
 
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 

@@ -21,7 +21,7 @@ public:
 	GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);
@@ -46,7 +46,7 @@ public:
 
 	void SetFade(bool fade);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);

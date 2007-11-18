@@ -401,16 +401,21 @@ size_t TextureManager::FindTexture(const char *name) const
 	return 0; // index of checker texture
 }
 
-const LogicalTexture& TextureManager::get(size_t index) const
+const LogicalTexture& TextureManager::Get(size_t index) const
 {
 	_ASSERT(index < _LogicalTextures.size());
 	return _LogicalTextures[index];
 }
 
-void TextureManager::bind(size_t index)
+void TextureManager::Bind(size_t index)
 {
 	_ASSERT(index < _LogicalTextures.size());
 	g_render->TexBind(_LogicalTextures[index].dev_texture);
+}
+
+bool TextureManager::IsValidTexture(size_t index) const
+{
+	return index < _LogicalTextures.size();
 }
 
 void TextureManager::GetTextureNames(std::vector<string_t> &names,

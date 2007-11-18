@@ -310,7 +310,7 @@ void Edit::Paste()
 			{
 				_string = _string.substr(0, _selStart)
 					+ data
-					+ _string.substr(_selEnd, _string.length() - _selEnd - 1);
+					+ _string.substr(_selEnd, _string.length() - _selEnd);
 				_blankText->SetText(_string.c_str());
 				SetSel(_selStart + strlen(data), _selStart + strlen(data));
 				GlobalUnlock(hData);

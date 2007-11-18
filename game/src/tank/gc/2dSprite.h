@@ -144,7 +144,7 @@ public:
 	GC_UserSprite();
 	GC_UserSprite(FromFile);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 };
 
 

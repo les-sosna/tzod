@@ -39,7 +39,7 @@ public:
 	GC_SpawnPoint(float x, float y);
 	GC_SpawnPoint(FromFile);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Draw();
@@ -57,7 +57,7 @@ public:
 	GC_HideLabel(float x, float y);
 	GC_HideLabel(FromFile);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Draw();
 };
 
@@ -84,7 +84,7 @@ public:
 	GC_Crosshair(enChStyle style);
 	GC_Crosshair(FromFile);
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);
@@ -121,7 +121,7 @@ public:
 
 	virtual void Kill();
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	void OnParentKill(GC_Object *sender, void *param);
@@ -151,7 +151,7 @@ public:
 	virtual ~GC_DamLabel();
 	virtual void Kill();
 
-	virtual bool IsSaved() { return true; };
+	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);

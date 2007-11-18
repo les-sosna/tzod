@@ -429,7 +429,7 @@ bool Level::Unserialize(const char *fileName)
 				*sz = bytesRead;
 				return bytesRead ? buf : NULL;
 			}
-			static int read(lua_State *L)
+			static int read_user(lua_State *L)
 			{
 				void *ud = lua_touserdata(L, 1);
 				lua_settop(L, 0);
@@ -438,13 +438,32 @@ bool Level::Unserialize(const char *fileName)
 				lua_setglobal(L, "user");    // unpersisted object
 				return 0;
 			}
+			static int read_queue(lua_State *L)
+			{
+				void *ud = lua_touserdata(L, 1);
+				lua_settop(L, 0);
+				lua_newtable(g_env.L);       // permanent objects
+				pluto_unpersist(L, &r, ud);
+				lua_getglobal(L, "pushcmd");
+				_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+				lua_pushvalue(L, -2);
+				lua_setupvalue(L, -2, 1);    // unpersisted object
+				return 0;
+			}
 		};
-		if( lua_cpcall(g_env.L, &ReadHelper::read, f._file) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_user, f._file) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
 			TRACE("%s\n", err);
 			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto";
+			throw "ERROR: pluto user";
+		}
+		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, f._file) )
+		{
+			const char *err = lua_tostring(g_env.L, -1);
+			TRACE("%s\n", err);
+			lua_pop(g_env.L, 1);
+			throw "ERROR: pluto queue";
 		}
 
 
@@ -543,7 +562,7 @@ bool Level::Serialize(const char *fileName)
 				WriteFile((HANDLE) ud, p, sz, &written, NULL);
 				return sz - written;
 			}
-			static int write(lua_State *L)
+			static int write_user(lua_State *L)
 			{
 				void *ud = lua_touserdata(L, 1);
 				lua_settop(L, 0);
@@ -552,13 +571,32 @@ bool Level::Serialize(const char *fileName)
 				pluto_persist(L, &w, ud);
 				return 0;
 			}
+			static int write_queue(lua_State *L)
+			{
+				void *ud = lua_touserdata(L, 1);
+				lua_settop(L, 0);
+				lua_newtable(g_env.L);       // permanent objects
+				lua_getglobal(L, "pushcmd");
+				_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+				lua_getupvalue(L, -1, 1);    // object to persist
+				lua_remove(L, -2);
+				pluto_persist(L, &w, ud);
+				return 0;
+			}
 		};
-		if( lua_cpcall(g_env.L, &WriteHelper::write, f._file) )
+		if( lua_cpcall(g_env.L, &WriteHelper::write_user, f._file) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
 			TRACE("%s\n", err);
 			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto";
+			throw "ERROR: pluto user";
+		}
+		if( lua_cpcall(g_env.L, &WriteHelper::write_queue, f._file) )
+		{
+			const char *err = lua_tostring(g_env.L, -1);
+			TRACE("%s\n", err);
+			lua_pop(g_env.L, 1);
+			throw "ERROR: pluto queue";
 		}
 
 

@@ -70,7 +70,10 @@ public:
 private:
 	string_t               _name;
 	PropertyType           _type;
+	string_t               _str_value;
+	std::vector<string_t>  _value_set;
 	union {
+		size_t             _value_index;
 		int                _int_value;
 		float              _float_value;
 	};
@@ -82,9 +85,6 @@ private:
 		int                _int_max;
 		float              _float_max;
 	};
-	string_t               _str_value;
-	std::vector<string_t>  _value_set;
-	size_t                 _value_index;
 
 public:
 	ObjectProperty(PropertyType type, const string_t &name);
@@ -322,7 +322,7 @@ public:
 
 public:
 	static GC_Object* CreateFromFile(SaveFile &file);
-	virtual bool IsSaved() { return false; }
+	virtual bool IsSaved() const { return false; }
 	virtual void Serialize(SaveFile &f);
 
 protected:

@@ -177,12 +177,12 @@ bool Window::IsCaptured() const
 
 float Window::GetTextureWidth()  const
 {
-	return _texture ? g_texman->get(_texture).frame_width : 1;
+	return _texture ? g_texman->Get(_texture).frame_width : 1;
 }
 
 float Window::GetTextureHeight() const
 {
-	return _texture ? g_texman->get(_texture).frame_height : 1;
+	return _texture ? g_texman->Get(_texture).frame_height : 1;
 }
 
 void Window::SetTexture(const char *tex)
@@ -190,7 +190,7 @@ void Window::SetTexture(const char *tex)
 	if( tex )
 	{
 		_texture = g_texman->FindTexture(tex);
-		_color   = g_texman->get(_texture).color;
+		_color   = g_texman->Get(_texture).color;
 	}
 	else
 	{
@@ -201,7 +201,7 @@ void Window::SetTexture(const char *tex)
 
 int Window::GetFrameCount() const
 {
-	return _texture ? (g_texman->get(_texture).xframes * g_texman->get(_texture).yframes) : 0;
+	return _texture ? (g_texman->Get(_texture).xframes * g_texman->Get(_texture).yframes) : 0;
 }
 
 void Window::Draw(float sx, float sy)
@@ -219,8 +219,8 @@ void Window::Draw(float sx, float sy)
 
 	if( _texture )
 	{
-		g_texman->bind(_texture);
-		const LogicalTexture &lt = g_texman->get(_texture);
+		g_texman->Bind(_texture);
+		const LogicalTexture &lt = g_texman->Get(_texture);
 
 		float tex_left   = (lt.left+lt.frame_width*(float)(_frame%lt.xframes))*lt.pixel_width;
 		float tex_right  = tex_left+lt.frame_width*lt.pixel_width;

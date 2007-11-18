@@ -754,11 +754,11 @@ int luaT_kill(lua_State *L)
 	}
 
 	GC_Object *obj = g_level->FindObject(name);
-
 	if( NULL == obj )
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
+	_ASSERT(!obj->IsKilled());
 
 	obj->Kill();
 
@@ -783,6 +783,7 @@ int luaT_exists(lua_State *L)
 	}
 
 	GC_Object *obj = g_level->FindObject(name);
+	_ASSERT(!obj->IsKilled());
 
 	lua_pushboolean(L, NULL != obj);
 	return 1;
@@ -813,6 +814,7 @@ int luaT_pget(lua_State *L)
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
+	_ASSERT(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
 	_ASSERT(properties);
@@ -866,11 +868,11 @@ int luaT_pset(lua_State *L)
 	}
 
 	GC_Object *obj = g_level->FindObject(name);
-
 	if( NULL == obj )
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
+	_ASSERT(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
 	_ASSERT(properties);

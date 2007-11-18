@@ -49,6 +49,8 @@ bool GC_Trigger::IsVisible(const GC_Vehicle *v)
 
 void GC_Trigger::Serialize(SaveFile &f)
 {
+	GC_2dSprite::Serialize(f);
+
 	f.Serialize(_radius);
 	f.Serialize(_radiusDelta);
 	f.Serialize(_onEnter);

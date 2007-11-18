@@ -47,7 +47,7 @@ void GC_UserObject::Serialize(SaveFile &f)
 void GC_UserObject::OnDestroy()
 {
 	new GC_Boom_Big( GetPos(), NULL);
-	__super::OnDestroy();
+	GC_RigidBodyStatic::OnDestroy();
 }
 
 void GC_UserObject::mapExchange(MapFile &f)

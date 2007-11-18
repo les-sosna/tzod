@@ -68,7 +68,6 @@ public:
 	GC_Turret(FromFile);
 
 	virtual void Kill();
-	virtual bool IsSaved() { return true; };
 	virtual void Serialize(SaveFile &f);
 
 	GC_Vehicle* EnumTargets();

@@ -34,4 +34,26 @@ void SaveFile::RegPointer(void *ptr, size_t index)
 	_indexToPtr[index] = ptr;
 }
 
+void SaveFile::Serialize(string_t &str)
+{
+	string_t::size_type len = str.length();
+	Serialize(len);
+	if( len )
+	{
+		if( loading() )
+		{
+			std::vector<string_t::value_type> buffer(len);
+			SerializeArray(&*buffer.begin(), len);
+			str.resize(0);
+			str.reserve(len);
+			str.insert(str.begin(), buffer.begin(), buffer.end());
+		}
+		else
+		{
+			SerializeArray(const_cast<string_t::value_type*>(str.data()), len);
+		}
+	}
+}
+
+
 // end of file

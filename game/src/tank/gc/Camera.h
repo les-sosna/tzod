@@ -52,7 +52,7 @@ public:
 
 	// overrides
 	virtual void Kill();
-	virtual bool IsSaved() { return _player != NULL; }
+	virtual bool IsSaved() const { return _player != NULL; }
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFloat(float dt);
 	virtual void EndFrame();

@@ -48,6 +48,7 @@ public:
 
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
+	virtual bool IsSaved() const { return true; }
 	virtual unsigned char GetPassability() const = 0;
 
 	float GetRadius() const { return _radius; }
@@ -159,7 +160,6 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 
-	virtual bool IsSaved() { return true; }
 	virtual void Serialize(SaveFile &f);
 	virtual void mapExchange(MapFile &f);
 
@@ -216,7 +216,6 @@ public:
 	GC_Water(FromFile);
 
 	virtual void Kill();
-	virtual bool IsSaved() { return true; };
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Draw();

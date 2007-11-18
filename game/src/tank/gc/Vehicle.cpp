@@ -664,7 +664,7 @@ void GC_Tank_Light::SetDefaults()
 void GC_Tank_Light::OnDestroy()
 {
 	new GC_Boom_Big( GetPos(), NULL);
-	__super::OnDestroy();
+	GC_Vehicle::OnDestroy();
 }
 
 // end of file

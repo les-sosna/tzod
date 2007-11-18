@@ -19,7 +19,11 @@
 // ObjectProperty class implementation
 
 ObjectProperty::ObjectProperty(PropertyType type, const string_t &name)
-: _type(type), _name(name), _value_index(0), _int_value(0), _int_min(0), _int_max(0)
+  : _type(type)
+  , _name(name)
+  , _value_index(0)
+  , _int_min(0)
+  , _int_max(0)
 {
 }
 
@@ -282,6 +286,8 @@ void GC_Object::Kill()
 	if( IsKilled() ) return;
 	SetFlags(GC_FLAG_OBJECT_KILLED);
 
+	SetName(NULL);
+
 	// отписка от событий движка
 	SetEvents(0);
 
@@ -311,7 +317,11 @@ void GC_Object::Serialize(SaveFile &f)
 		{
 			string_t name;
 			f.Serialize(name);
-			SetName(name.c_str());
+
+			_ASSERT( 0 == g_level->_objectToNameMap.count(this) );
+			_ASSERT( 0 == g_level->_nameToObjectMap.count(name) );
+			g_level->_objectToNameMap[this] = name;
+			g_level->_nameToObjectMap[name] = this;
 		}
 		else
 		{
