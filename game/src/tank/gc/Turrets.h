@@ -78,7 +78,6 @@ public:
 
 	virtual void MoveTo(const vec2d &pos);
 	virtual void OnDestroy();
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Draw();

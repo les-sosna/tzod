@@ -170,11 +170,6 @@ void GC_Turret::OnDestroy()
 	GC_RigidBodyStatic::OnDestroy();
 }
 
-bool GC_Turret::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
-{
-	return GC_RigidBodyStatic::TakeDamage(damage, hit, from);
-}
-
 void GC_Turret::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);

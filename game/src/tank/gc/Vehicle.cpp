@@ -280,7 +280,10 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	dd.from   = from;
 
 	PulseNotify(NOTIFY_DAMAGE_FILTER, &dd);
-    if( 0 == dd.damage ) return false;
+    if( 0 == dd.damage )
+	{
+		return false;
+	}
 
 	SetHealthCur(GetHealth() - dd.damage);
 

@@ -34,6 +34,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile) : GC_2dSprite(FromFile())
 
 void GC_RigidBodyStatic::SetHealth(float cur, float max)
 {
+	_ASSERT(cur <= max);
 	_health = cur;
 	_health_max = max;
 	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
@@ -41,12 +42,14 @@ void GC_RigidBodyStatic::SetHealth(float cur, float max)
 
 void GC_RigidBodyStatic::SetHealthCur(float hp)
 {
+	_ASSERT(hp <= _health_max);
 	_health = hp;
 	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
 
 void GC_RigidBodyStatic::SetHealthMax(float hp)
 {
+	_ASSERT(hp >= _health);
 	_health_max = hp;
 	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
@@ -124,6 +127,7 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
+		_health = __min(_health, _health_max);
 		PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 	}
 }
@@ -160,14 +164,14 @@ PropertySet* GC_RigidBodyStatic::NewPropertySet()
 }
 
 GC_RigidBodyStatic::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propOnDestroy( ObjectProperty::TYPE_STRING,   "on_destroy"  )
-, _propOnDamage(  ObjectProperty::TYPE_STRING,   "on_damage"   )
-, _propHealth(    ObjectProperty::TYPE_INTEGER,  "health"      )
-, _propMaxHealth( ObjectProperty::TYPE_INTEGER,  "max_health"  )
+  : BASE(object)
+  , _propOnDestroy( ObjectProperty::TYPE_STRING,   "on_destroy"  )
+  , _propOnDamage(  ObjectProperty::TYPE_STRING,   "on_damage"   )
+  , _propHealth(    ObjectProperty::TYPE_FLOAT,    "health"      )
+  , _propMaxHealth( ObjectProperty::TYPE_FLOAT,    "max_health"  )
 {
-	_propMaxHealth.SetIntRange(0, 10000);
-	_propHealth.SetIntRange(0, 10000);
+	_propMaxHealth.SetFloatRange(0, 100000);
+	_propHealth.SetFloatRange(0, 100000);
 }
 
 int GC_RigidBodyStatic::MyPropertySet::GetCount() const
@@ -202,12 +206,13 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 	{
 		tmp->_scriptOnDestroy = _propOnDestroy.GetStringValue();
 		tmp->_scriptOnDamage  = _propOnDamage.GetStringValue();
-		tmp->SetHealth((float) _propHealth.GetIntValue(), (float) _propMaxHealth.GetIntValue());
+		tmp->SetHealth( __min(_propMaxHealth.GetFloatValue(), _propHealth.GetFloatValue()),
+		                _propMaxHealth.GetFloatValue() );
 	}
 	else
 	{
-		_propHealth.SetIntValue(int(tmp->GetHealth() + 0.5f));
-		_propMaxHealth.SetIntValue(int(tmp->GetHealthMax() + 0.5f));
+		_propHealth.SetFloatValue(tmp->GetHealth());
+		_propMaxHealth.SetFloatValue(tmp->GetHealthMax());
 		_propOnDestroy.SetStringValue(tmp->_scriptOnDestroy);
 		_propOnDamage.SetStringValue(tmp->_scriptOnDamage);
 	}
@@ -268,7 +273,40 @@ void GC_Wall::Serialize(SaveFile &f)
 	GC_RigidBodyStatic::Serialize(f);
 
 	if( !IsKilled() && f.loading() )
+	{
 		AddContext(&g_level->grid_walls);
+		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
+		{
+			vec2d p = GetPos() / CELL_SIZE;
+			int x;
+			int y;
+			if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+			{
+				x = int(p.x+1);
+				y = int(p.y+1);
+			}
+			if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
+			{
+				x = int(p.x);
+				y = int(p.y + 1);
+			}
+			if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
+			{
+				x = int(p.x + 1);
+				y = int(p.y);
+			}
+			if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
+			{
+				x = int(p.x);
+				y = int(p.y);
+			}
+			g_level->_field(x, y).RemoveObject(this);
+			if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
+			{
+				g_level->_field(x, y)._prop = 0xFF;
+			}
+		}
+	}
 }
 
 void GC_Wall::OnDestroy()
@@ -294,7 +332,7 @@ void GC_Wall::OnDestroy()
 
 bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
-	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) )
+	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) && GetHealthMax() > 0 )
 	{
 		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
 		if( g_conf.g_particles->Get() && damage >= DAMAGE_BULLET )

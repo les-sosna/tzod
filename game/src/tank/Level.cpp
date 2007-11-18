@@ -56,7 +56,15 @@ void FieldCell::UpdateProperties()
 void FieldCell::AddObject(GC_RigidBodyStatic *object)
 {
 	_ASSERT(object);
+	_ASSERT(!object->IsKilled());
 	_ASSERT(_objCount < 255);
+
+#ifdef _DEBUG
+	for( int i = 0; i < _objCount; ++i )
+	{
+		_ASSERT(object != _ppObjects[i]);
+	}
+#endif
 
 	GC_RigidBodyStatic **tmp = new GC_RigidBodyStatic* [_objCount + 1];
 

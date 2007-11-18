@@ -51,16 +51,20 @@ void FpsCounter::OnTimeStep(float dt)
 
 		char s[512];
 		wsprintf(s, "%5dobj; %3dlight; %5dsprite; %2dbatch; %3d-%3d-%3dfps; %6dsprites/sec",
-			-1, _nLights,
-			_nSprites, _nBatches,
-			int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f),
+			g_level->GetList(LIST_objects).size(), 
+			_nLights,
+			_nSprites, 
+			_nBatches,
+			int(1.0f / max + 0.5f), 
+			int(1.0f / avr + 0.5f), 
+			int(1.0f / min + 0.5f),
 			_nSprites * int(1.0f / avr + 0.5f));
 
 		char s1[256];
 		wsprintf(s1, "\nEvents: %4dfixed; %4dfloat; %4dendframe  Wnd: %3d total",
-			-1/*g_level->ts_fixed.size()*/,
-			-1/*g_level->ts_floating.size()*/,
-			-1/*g_level->endframe.size()*/,
+			g_level->ts_fixed.size(),
+			g_level->ts_floating.size(),
+			g_level->endframe.size(),
 			g_gui->GetWndCount()
 		);
 		strcat(s, s1);

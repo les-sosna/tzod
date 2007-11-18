@@ -236,16 +236,36 @@ void Desktop::OnCommand(const char *cmd)
 			strcpy((char*) db.data(), cmd);
 			db.type() = DBTYPE_TEXTMESSAGE;
 			g_client->SendDataToServer(db);
+			return;
 		}
-		else if( len > 1 )
+
+		if( len > 1 )
 		{
-			script_exec(g_env.L, cmd + 1); // cut off first symbol '/'
+			++cmd; // cut off the first symbol
 		}
 	}
-	else
+
+
+	if( luaL_loadstring(g_env.L, cmd) )
 	{
-		script_exec(g_env.L, cmd);
+		lua_pop(g_env.L, 1);
+
+		string_t tmp = "print(";
+		tmp += cmd;
+		tmp += ")";
+
+		if( luaL_loadstring(g_env.L, tmp.c_str()) )
+		{
+			lua_pop(g_env.L, 1);
+		}
+		else
+		{
+			script_exec(g_env.L, tmp.c_str());
+			return;
+		}
 	}
+
+	script_exec(g_env.L, cmd);
 }
 
 bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
@@ -254,7 +274,7 @@ bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
 	if( lua_isnil(g_env.L, -1) )
 	{
 		lua_pop(g_env.L, 1);
-		g_console->printf("There is no autocomplete module is loaded\n");
+		g_console->printf("There was no autocomplete module loaded\n");
 		return false;
 	}
 	lua_pushstring(g_env.L, cmd);
