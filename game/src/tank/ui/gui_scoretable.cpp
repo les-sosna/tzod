@@ -20,6 +20,7 @@ ScoreTable::ScoreTable(Window *parent)
   : Window(parent, 0, 0, "scoretbl")
 {
 	SetBorder(false);
+	SetTimeStep(true);
 
 	_text = new Text(this, 0, 0, "", alignTextLT);
 	_text->SetTexture("font_default");
@@ -137,6 +138,12 @@ void ScoreTable::DrawChildren(float sx, float sy)
 			break;
 		}
 	}
+}
+
+void ScoreTable::OnTimeStep(float dt)
+{
+	bool tab = g_env.envInputs.keys[DIK_TAB];
+	Show(g_level && !g_level->_modeEditor && (tab || g_level->_limitHit));
 }
 
 

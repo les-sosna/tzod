@@ -141,9 +141,9 @@ void Desktop::OnRawChar(int c)
 
 	switch( c )
 	{
-	case VK_TAB:
-		_score->Show(!_score->IsVisible());
-		break;
+//	case VK_TAB:
+//		_score->Show(!_score->IsVisible());
+//		break;
 
 	case VK_OEM_3: // '~'
 		if( _con->IsVisible() )

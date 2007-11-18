@@ -304,6 +304,14 @@ void Level::Resize(int X, int Y)
 	_field.Resize(X + 1, Y + 1);
 }
 
+void Level::HitLimit()
+{
+	_ASSERT(!_limitHit);
+	PauseLocal(true);
+	_limitHit = true;
+	PLAY(SND_Limit, vec2d(0,0));
+}
+
 bool Level::init_emptymap()
 {
 	_ASSERT(!_bInitialized);
@@ -1268,6 +1276,11 @@ void Level::TimeStep(float dt)
 	}
 #endif
 #endif
+
+	if( g_conf.sv_timelimit->GetInt() && g_conf.sv_timelimit->GetInt() * 60 <= _time )
+	{
+		HitLimit();
+	}
 }
 
 

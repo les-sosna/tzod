@@ -241,6 +241,8 @@ public:
 	void Init(int X, int Y);
 	void Resize(int X, int Y);
 
+	void HitLimit();
+
 
 	bool init_emptymap();
 	bool init_import_and_edit(const char *mapName);
