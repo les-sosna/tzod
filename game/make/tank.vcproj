@@ -1074,6 +1074,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\workdir\History.txt"
+			>
+		</File>
+		<File
 			RelativePath="..\workdir\Readme.txt"
 			>
 		</File>

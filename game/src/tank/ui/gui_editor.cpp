@@ -5,13 +5,13 @@
 #include "gui_editor.h"
 #include "GuiManager.h"
 
-#include "ui/Text.h"
-#include "ui/Edit.h"
-#include "ui/Combo.h"
-#include "ui/List.h"
-#include "ui/Scroll.h"
-#include "ui/Button.h"
-#include "ui/Button.h"
+#include "Text.h"
+#include "Edit.h"
+#include "Combo.h"
+#include "List.h"
+#include "Scroll.h"
+#include "Button.h"
+#include "Button.h"
 
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
@@ -46,6 +46,8 @@ NewMapDlg::NewMapDlg(Window *parent)
 
 	(new Button(this, 20, 200, "ОК"))->eventClick.bind(&NewMapDlg::OnOK, this);
 	(new Button(this, 140, 200, "Отмена"))->eventClick.bind(&NewMapDlg::OnCancel, this);
+
+	GetManager()->SetFocusWnd(_width);
 }
 
 NewMapDlg::~NewMapDlg()

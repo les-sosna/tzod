@@ -45,7 +45,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Sort();
 
 
-	(new Button(this, 290, 360, "OK"))->eventClick.bind(&NewCampaignDlg::OnOK, this);
+	(new Button(this, 290, 360, "Начать!"))->eventClick.bind(&NewCampaignDlg::OnOK, this);
 	(new Button(this, 400, 360, "Отмена"))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
 }
 
