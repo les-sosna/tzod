@@ -498,6 +498,8 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			if( g_client->GetId() == pd.dwNetworkId )
 			{
 				player = new GC_PlayerLocal();
+				static_cast<GC_PlayerLocal *>(player)
+					->SetProfile(g_conf.cl_playerinfo->GetStr("profile")->Get());
 			}
 			else
 			{

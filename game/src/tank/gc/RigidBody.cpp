@@ -611,6 +611,10 @@ GC_Water::GC_Water(FromFile) : GC_RigidBodyStatic(FromFile())
 {
 }
 
+GC_Water::~GC_Water()
+{
+}
+
 void GC_Water::UpdateTile(bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};

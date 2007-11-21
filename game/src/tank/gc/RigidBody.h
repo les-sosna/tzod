@@ -214,6 +214,9 @@ protected:
 public:
 	GC_Water(float xPos, float yPos);
 	GC_Water(FromFile);
+	~GC_Water();
+
+	void SetTile(char nTile, bool value);
 
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
@@ -221,13 +224,8 @@ public:
 	virtual void Draw();
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
-
 	virtual float GetDefaultHealth() const { return 0; }
-
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
-
-public:
-	void SetTile(char nTile, bool value);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
