@@ -38,9 +38,9 @@ class GC_Explosion : public GC_2dSprite
 protected:
 
 	// узел поля (клетка)
-	struct _tagFieldNode
+	struct FieldNode
 	{
-		_tagFieldNode *parent;
+		FieldNode *parent;
 
 		// размер одной клетки по горизонтали = 12; по диагонали = 17
 		unsigned int x        : 10;
@@ -49,7 +49,7 @@ protected:
 		bool checked          :  1;
 		bool open             :  1;
 
-		_tagFieldNode()
+		FieldNode()
 		{
 			distance = 0;
 			checked  = false;
@@ -71,7 +71,7 @@ protected:
 		operator size_t () const { return x + LEVEL_MAXSIZE * y; }
 	};
 
-	typedef std::map<struct coord, _tagFieldNode> FIELD_TYPE;
+	typedef std::map<coord, FieldNode> FIELD_TYPE;
 
 	bool _boomOK;
 

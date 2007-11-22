@@ -347,7 +347,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 	int x1 = int(dst_x   / CELL_SIZE);
 	int y1 = int(dst_y   / CELL_SIZE);
 
-	std::deque<_tagFieldNode *> open;
+	std::deque<FieldNode *> open;
 	open.push_front(&field[coord(x0, y0)]);
 	open.front()->checked  = true;
 	open.front()->distance = 0;
@@ -357,7 +357,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 	while( !open.empty() )
 	{
-		_tagFieldNode *node = open.back();
+		FieldNode *node = open.back();
 		open.pop_back();
 
 		if( x1 == node->x && y1 == node->y )
@@ -395,7 +395,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 			}
 
 			coord coord_(node->x + per_x[i], node->y + per_y[i]);
-			_tagFieldNode *next = &field[coord_];
+			FieldNode *next = &field[coord_];
 			next->x = coord_.x;
 			next->y = coord_.y;
 
@@ -442,7 +442,7 @@ void GC_Explosion::Boom(float radius, float damage)
 
 	FIELD_TYPE field;
 
-	_tagFieldNode node;
+	FieldNode node;
 	node.open = false;
 
 	//
@@ -459,7 +459,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	for( ; it != receive.end(); ++it )
 	{
 		OBJECT_LIST::iterator cdit = (*it)->begin();
-		while(cdit != (*it)->end())
+		while( (*it)->end() != cdit )
 		{
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
 			++cdit;
