@@ -260,7 +260,7 @@ Level::Level()
 	_bInitialized = FALSE;
 	#endif
 	#ifdef NETWORK_DEBUG
-	_dwChecksum = 0;
+	_checksum = 0;
 	#endif
 
 
@@ -1174,7 +1174,7 @@ void Level::TimeStep(float dt)
 			passedFixedDT = fixed_dt;
 
 #ifdef NETWORK_DEBUG
-			_dwChecksum = dwCheckSum;
+			_checksum = dwCheckSum;
 #endif
 		} while(0);
 	}

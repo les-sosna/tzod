@@ -175,7 +175,7 @@ class Level
 public:
 
 #ifdef NETWORK_DEBUG
-	DWORD _dwChecksum;
+	DWORD _checksum;
 #endif
 
 	OBJECT_LIST& GetList(GlobalListID id) { return _objectLists[id]; }

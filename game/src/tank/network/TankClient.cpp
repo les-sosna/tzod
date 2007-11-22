@@ -92,10 +92,12 @@ void ControlPacket::tovs(VehicleState &vs) const
 TankClient::TankClient(void)
 {
 	_init    = false;
-	_hMainWnd = NULL;
+	_hwnd = NULL;
 
 	//---------------------------------
 	ZeroMemory(&_stats, sizeof(NetworkStats));
+	ZeroMemory(&_lastPacket, sizeof(ControlPacket));
+
 	_frame              = 0;
 	_clientId           = 0;
 	_buf_incoming_size  = 0;
@@ -103,6 +105,8 @@ TankClient::TankClient(void)
 
 	_readyToSend = false;
 	_gameStarted = false;
+
+
 }
 
 TankClient::~TankClient(void)
@@ -155,7 +159,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
 		}
 
-		if( WSAAsyncSelect( _socket, _hMainWnd=hMainWnd,
+		if( WSAAsyncSelect( _socket, _hwnd=hMainWnd,
 			WM_CUSTOMCLIENTMSG, FD_CONNECT | FD_READ | FD_WRITE ) )
 		{
 			TRACE("ERROR: Unable to select event\n");
@@ -221,7 +225,7 @@ bool TankClient::send_all()
 		_readyToSend = false;
 		return (WSAEWOULDBLOCK == WSAGetLastError());
 	}
-	_stats.dwBytesSent += count;
+	_stats.bytesSent += count;
 	_buf_outgoing_size -= count;
 	memmove(_buf_outgoing, _buf_outgoing + count, _buf_outgoing_size);
 	if( !_outgoing.empty() && 0 == _buf_outgoing_size && 0 != count )
@@ -264,7 +268,7 @@ void TankClient::ShutDown()
 {
 	if( INVALID_SOCKET != _socket )
 	{
-		WSAAsyncSelect( _socket, _hMainWnd, 0, 0 ); // turn off notifications
+		WSAAsyncSelect( _socket, _hwnd, 0, 0 ); // turn off notifications
 		u_long ulParam = 0;
 		ioctlsocket( _socket, FIONBIO, &ulParam );  // return back to blocking mode
 		_socket.Close();
@@ -320,7 +324,7 @@ void TankClient::NewData(const DataBlock &data)
 	}
 	//-------------------------------
 	_incoming.push(data);
-	_stats.dwBytesRecv += data.raw_size();
+	_stats.bytesRecv += data.raw_size();
 }
 
 void TankClient::SendDataToServer(const DataBlock &data)
@@ -334,10 +338,20 @@ void TankClient::SendControl(const ControlPacket &cp)
 {
 	if( 0 == (_frame % NET_MULTIPLER) )
 	{
-		DataBlock db(sizeof(ControlPacket));
-		db.type() = DBTYPE_CONTROLPACKET;
-		memcpy(db.data(), &cp, db.size());
-		SendDataToServer(db);
+		//if( cp == _lastPacket )
+		//{
+		//	DataBlock db(0);
+		//	db.type() = DBTYPE_CONTROLPACKET;
+		//	SendDataToServer(db);
+		//}
+		//else
+		//{
+			_lastPacket = cp;
+			DataBlock db(sizeof(ControlPacket));
+			db.type() = DBTYPE_CONTROLPACKET;
+			memcpy(db.data(), &cp, db.size());
+			SendDataToServer(db);
+		//}
 	}
 	_frame++;
 	_gameStarted = true; // FIXME

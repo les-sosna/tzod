@@ -44,8 +44,8 @@ public:
 struct NetworkStats
 {
 	int    nFramesInBuffer;
-	DWORD  dwBytesSent;
-	DWORD  dwBytesRecv;
+	size_t  bytesSent;
+	size_t  bytesRecv;
 };
 
 class TankClient
@@ -60,13 +60,14 @@ class TankClient
 	char _buf_outgoing[MAX_BUFFER_SIZE];
 	size_t _buf_outgoing_size;
 
-	HWND _hMainWnd;
+	HWND _hwnd;
 
 	int _frame;
 
-
 	bool _readyToSend;
 	bool _init;
+
+	ControlPacket _lastPacket;
 
 	bool recv_all(); // return false if an error occurs
 	bool send_all(); // return false if an error occurs

@@ -350,7 +350,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					font = "font_digits_green";
 				}
 
-				if( !veh->GetPlayer()->IsDead() )
+				if( !veh->GetPlayer()->IsVehicleDead() )
 				{
 					wsprintf( score, "%d", veh->GetPlayer()->GetScore() );
 					new GC_Text_ToolTip(veh->GetPos(), score, font);

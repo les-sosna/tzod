@@ -72,7 +72,7 @@ GC_PlayerAI::~GC_PlayerAI()
 
 void GC_PlayerAI::Kill()
 {
-	if( !IsDead() )
+	if( !IsVehicleDead() )
 	{
 		_jobManager.UnregisterMember(this);
 	}
@@ -103,7 +103,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 			_attackList.push_back(tmp);
 		}
 
-		if( !IsDead() )
+		if( !IsVehicleDead() )
 		{
 			_jobManager.RegisterMember(this);
 		}
@@ -124,7 +124,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 {
 	GC_Player::TimeStepFixed(dt);
 
-	if( IsDead() )
+	if( IsVehicleDead() )
 	{
 		return;
 	}

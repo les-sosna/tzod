@@ -56,21 +56,23 @@ protected:
 	virtual void OnDie();
 
 public:
-	bool IsDead() const { return _vehicle == NULL; }
+	bool IsVehicleDead() const { return NULL == _vehicle; }
 	GC_Vehicle* GetVehicle() const { return GetRawPtr(_vehicle); }
-	int GetTeam() const { return _team; }
-	const string_t& GetNick() const { return _nick; }
-	const string_t& GetClass() const { return _class; }
 
 	void SetSkin(const string_t &skin);
 	const string_t& GetSkin() const { return _skin; }
 
 	void SetNick(const string_t &nick);
+	const string_t& GetNick() const { return _nick; }
+
 	void SetClass(const string_t &c);
+	const string_t& GetClass() const { return _class; }
+
 	void SetTeam(int team);
+	int GetTeam() const { return _team; }
 
 	void SetScore(int score);
-	int  GetScore() const { return _score; }
+	int GetScore() const { return _score; }
 
 public:
 	GC_Player();

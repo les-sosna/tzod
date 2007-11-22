@@ -13,11 +13,11 @@ namespace UI
 
 class ScrollBar : public Window
 {
-    ImageButton *_btnUpLeft;
-    ImageButton *_btnDownRight;
-    ImageButton *_btnBox;
+	ImageButton *_btnUpLeft;
+	ImageButton *_btnDownRight;
+	ImageButton *_btnBox;
 
-    float _tmpBoxPos;
+	float _tmpBoxPos;
 
 	float _pos;
 	float _lineSize;

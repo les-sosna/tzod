@@ -151,7 +151,7 @@ void GC_Player::TimeStepFixed(float dt)
 {
 	GC_Service::TimeStepFixed( dt );
 
-	if( IsDead() )
+	if( IsVehicleDead() )
 	{
 		_timeRespawn -= dt;
 		if( _timeRespawn <= 0 )
@@ -160,7 +160,7 @@ void GC_Player::TimeStepFixed(float dt)
 			// Respawn
 			//
 
-			_ASSERT(IsDead());
+			_ASSERT(IsVehicleDead());
 			_timeRespawn = PLAYER_RESPAWNTIME;
 
 			std::vector<GC_SpawnPoint*> points;
@@ -339,7 +339,7 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 		tmp->_scriptOnDie = _propOnDie.GetStringValue();
 		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
-		if( !tmp->IsDead() )
+		if( !tmp->IsVehicleDead() )
 		{
 			const char *name = _propVehName.GetStringValue().c_str();
 			GC_Object* found = g_level->FindObject(name);
@@ -440,10 +440,10 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 	ControlPacket cp;
 
 #ifdef NETWORK_DEBUG
-	cp.checksum = g_level->_dwChecksum;
+	cp.checksum = g_level->_checksum;
 #endif
 
-	if( IsDead() )
+	if( IsVehicleDead() )
 	{
 		if( g_client )
 		{
@@ -657,7 +657,7 @@ void GC_PlayerRemote::TimeStepFixed(float dt)
 
 	GC_Player::TimeStepFixed( dt );
 	
-	if( IsDead() )
+	if( IsVehicleDead() )
 	{
 		bool ok = g_client->RecvControl(ControlPacket());
 		_ASSERT(ok);

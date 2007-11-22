@@ -12,26 +12,26 @@
 
 Socket::Socket(void)
 {
-	_hEvent  = WSA_INVALID_EVENT;
-	_hSocket = INVALID_SOCKET;
+	_event  = WSA_INVALID_EVENT;
+	_socket = INVALID_SOCKET;
 	ZeroMemory(&_ne, sizeof(WSANETWORKEVENTS));
 }
 
 Socket::~Socket(void)
 {
-	_ASSERT(WSA_INVALID_EVENT == _hEvent);
-	_ASSERT(INVALID_SOCKET == _hSocket);
+	_ASSERT(WSA_INVALID_EVENT == _event);
+	_ASSERT(INVALID_SOCKET == _socket);
 }
 
 int Socket::SetEvents(long lNetworkEvents)
 {
-	if( WSA_INVALID_EVENT == _hEvent )
-		_hEvent = WSACreateEvent();
-	if( WSA_INVALID_EVENT == _hEvent )
+	if( WSA_INVALID_EVENT == _event )
+		_event = WSACreateEvent();
+	if( WSA_INVALID_EVENT == _event )
 		return SOCKET_ERROR;
 
-	WSAResetEvent(_hEvent);
-	return WSAEventSelect(_hSocket, _hEvent, lNetworkEvents);
+	WSAResetEvent(_event);
+	return WSAEventSelect(_socket, _event, lNetworkEvents);
 }
 
 int Socket::Recv(HANDLE hAbortEvent, void *buf, int len)
@@ -46,7 +46,7 @@ int Socket::Recv(HANDLE hAbortEvent, void *buf, int len)
 	while( recieved < len )
 	{
 		// попытка получения данных
-		int n = recv(_hSocket, (char *) buf + recieved, len - recieved, 0);
+		int n = recv(_socket, (char *) buf + recieved, len - recieved, 0);
 		if( SOCKET_ERROR == n || 0 == n )
 		{
 			// ожидание реакции сети
@@ -58,7 +58,7 @@ int Socket::Recv(HANDLE hAbortEvent, void *buf, int len)
 				return Error;
 
 			// получение данных
-			n = recv(_hSocket, (char *) buf + recieved, len - recieved, 0);
+			n = recv(_socket, (char *) buf + recieved, len - recieved, 0);
 			if( SOCKET_ERROR == n || 0 == n )
 				return Error;
 		}
@@ -80,7 +80,7 @@ int Socket::Recv(const HANDLE *lphAbortEvents, size_t count, void *buf, int bufl
 	while( recieved < buflen )
 	{
 		// попытка получения данных
-		int n = recv(_hSocket, (char *) buf + recieved, buflen - recieved, 0);
+		int n = recv(_socket, (char *) buf + recieved, buflen - recieved, 0);
 		if( SOCKET_ERROR == n || 0 == n )
 		{
 			// ожидание реакции сети
@@ -98,7 +98,7 @@ int Socket::Recv(const HANDLE *lphAbortEvents, size_t count, void *buf, int bufl
 			}
 
 			// получение данных
-			n = recv(_hSocket, (char *) buf + recieved, buflen - recieved, 0);
+			n = recv(_socket, (char *) buf + recieved, buflen - recieved, 0);
 			if( SOCKET_ERROR == n || 0 == n )
 				return Error;
 		}
@@ -120,7 +120,7 @@ int Socket::Send(HANDLE hAbortEvent, const void *buf, int len)
 	while( sent < len )
 	{
 		// попытка отправки данных
-		int n = send(_hSocket, (const char *) buf + sent, len - sent, 0);
+		int n = send(_socket, (const char *) buf + sent, len - sent, 0);
 		if( SOCKET_ERROR == n || 0 == n )
 		{
 			// ожидание реакции сети
@@ -139,7 +139,7 @@ int Socket::Send(HANDLE hAbortEvent, const void *buf, int len)
 			}
 
 			// отправка данных
-			n = send(_hSocket, (const char *) buf + sent, len - sent, 0);
+			n = send(_socket, (const char *) buf + sent, len - sent, 0);
 			if( SOCKET_ERROR == n || 0 == n )
 			{
 				TRACE("couldn't send the data\n");
@@ -167,25 +167,25 @@ void Socket::Accumulate(const void *buf, int len)
 
 int Socket::Wait()
 {
-	DWORD result = WSAWaitForMultipleEvents(1, &_hEvent, FALSE, WSA_INFINITE, FALSE);
+	DWORD result = WSAWaitForMultipleEvents(1, &_event, FALSE, WSA_INFINITE, FALSE);
 	if( WSA_WAIT_EVENT_0 != result )
 		return Error;
 	ZeroMemory(&_ne, sizeof(WSANETWORKEVENTS));
-	if( WSAEnumNetworkEvents(_hSocket, _hEvent, &_ne) )
+	if( WSAEnumNetworkEvents(_socket, _event, &_ne) )
 		return Error;
 	return OK;
 }
 
 int Socket::Wait(HANDLE hAbortEvent)
 {
-	HANDLE events[2] = {_hEvent, hAbortEvent};
+	HANDLE events[2] = {_event, hAbortEvent};
 	DWORD result = WSAWaitForMultipleEvents(2, events, FALSE, WSA_INFINITE, FALSE);
 	if( WSA_WAIT_EVENT_0+1 == result )
 		return Aborted;
 	if( WSA_WAIT_EVENT_0 != result )
 		return Error;
 	ZeroMemory(&_ne, sizeof(WSANETWORKEVENTS));
-	if( WSAEnumNetworkEvents(_hSocket, _hEvent, &_ne) )
+	if( WSAEnumNetworkEvents(_socket, _event, &_ne) )
 		return Error;
 	return OK;
 }
@@ -193,29 +193,29 @@ int Socket::Wait(HANDLE hAbortEvent)
 int Socket::Wait(const HANDLE *lphAbortEvents, size_t count)
 {
 	std::vector<HANDLE> handles (lphAbortEvents, lphAbortEvents + count);
-	handles.push_back(_hEvent);
+	handles.push_back(_event);
 	DWORD result = WaitForMultipleObjects(count+1, &handles.front(), FALSE, INFINITE);
 	if( result - WAIT_OBJECT_0 < count )
 		return Aborted + result - WAIT_OBJECT_0;
 	if( result - WAIT_OBJECT_0 != count )
 		return Error;
 	ZeroMemory(&_ne, sizeof(WSANETWORKEVENTS));
-	if( WSAEnumNetworkEvents(_hSocket, _hEvent, &_ne) )
+	if( WSAEnumNetworkEvents(_socket, _event, &_ne) )
 		return Error;
 	return OK;
 }
 
 int Socket::Close()
 {
-	_ASSERT(INVALID_SOCKET != _hSocket);
+	_ASSERT(INVALID_SOCKET != _socket);
 
-	int result = closesocket(_hSocket);
+	int result = closesocket(_socket);
 
-	if( WSA_INVALID_EVENT != _hEvent )
-		WSACloseEvent(_hEvent);
+	if( WSA_INVALID_EVENT != _event )
+		WSACloseEvent(_event);
 
-	_hSocket = INVALID_SOCKET;
-	_hEvent  = WSA_INVALID_EVENT;
+	_socket = INVALID_SOCKET;
+	_event  = WSA_INVALID_EVENT;
 
 	return result;
 }
@@ -233,14 +233,14 @@ bool Socket::CheckEvent(int bit)
 
 SOCKET Socket::operator = (SOCKET s)
 {
-	_ASSERT(NULL == _hEvent);
-	_hSocket = s;
+	_ASSERT(NULL == _event);
+	_socket = s;
 	BOOL on = TRUE;
 	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
 	{
 		TRACE("WARNING: setting TCP_NODELAY failed!\n");
 	}
-	return _hSocket;
+	return _socket;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
