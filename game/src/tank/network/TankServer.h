@@ -13,7 +13,7 @@ class TankServer
 	void SERVER_TRACE(const char *fmt, ...);
 
 	bool _init;
-	GAMEINFO _GameInfo;
+	GameInfo _gameInfo;
 
 	struct ClientDesc
 	{
@@ -76,7 +76,7 @@ public:
 	TankServer(void);
 	~TankServer(void);
 
-	bool init(const LPGAMEINFO pGameInfo);
+	bool init(const GameInfo *info);
 	void ShutDown();
 };
 

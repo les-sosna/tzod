@@ -25,6 +25,8 @@ public:
 
 	template<class T>
 	void Serialize(T &obj);
+	template<class T>
+	void Serialize(const T &obj);
 
 	template<class T>
 	void Serialize(SafePtr<T> &ptr);
@@ -49,6 +51,15 @@ void SaveFile::Serialize(T &obj)
 		ReadFile(_file, &obj, sizeof(T), &bytes, NULL);
 	else
 		WriteFile(_file, &obj, sizeof(T), &bytes, NULL);
+}
+
+template<class T>
+void SaveFile::Serialize(const T &obj)
+{
+	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
+	_ASSERT(!loading());
+	DWORD bytes;
+	WriteFile(_file, &obj, sizeof(T), &bytes, NULL);
 }
 
 template<class T>

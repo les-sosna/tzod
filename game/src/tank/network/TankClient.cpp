@@ -7,7 +7,10 @@
 #include "core/debug.h"
 #include "core/Console.h"
 
+#include "config/Config.h"
+
 #include "gc/Vehicle.h" // FIXME!
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,7 +145,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		sockaddr_in addr;
 		ZeroMemory(&addr, sizeof(sockaddr_in));
 		addr.sin_family = AF_INET;
-		addr.sin_port   = htons(GAME_PORT);
+		addr.sin_port   = htons(g_conf.sv_port->GetInt());
 
 		// пробуем преобразовать в числовой IP-адрес из строкового
 		addr.sin_addr.s_addr = inet_addr(hostaddr);
@@ -316,7 +319,7 @@ void TankClient::NewData(const DataBlock &data)
 		}
 		break;
 	case DBTYPE_GAMEINFO:
-		_latency = data.cast<GAMEINFO>().latency;
+		_latency = data.cast<GameInfo>().latency;
 		break;
 	case DBTYPE_YOURID:
 		_clientId = data.cast<DWORD>();

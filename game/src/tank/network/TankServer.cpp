@@ -6,6 +6,8 @@
 #include "core/debug.h"
 #include "core/console.h"
 
+#include "config/Config.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 TankServer::TankServer(void)
@@ -85,12 +87,12 @@ void TankServer::SendClientThreadData(const std::list<ClientDesc>::iterator &it,
 	ReleaseSemaphore(it->semaphore, 1, NULL);
 }
 
-bool TankServer::init(const LPGAMEINFO pGameInfo)
+bool TankServer::init(const GameInfo *info)
 {
 	_ASSERT(!_init);
 
-	memcpy(&_GameInfo, pGameInfo, sizeof(GAMEINFO));
-	_ASSERT(VERSION == _GameInfo.dwVersion);
+	_gameInfo = *info;
+	_ASSERT(VERSION == _gameInfo.dwVersion);
 
 
 	TRACE("Server startup...\n");
@@ -112,7 +114,7 @@ bool TankServer::init(const LPGAMEINFO pGameInfo)
 
 	sockaddr_in addr = {0};
 	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port        = htons(GAME_PORT);
+	addr.sin_port        = htons(g_conf.sv_port->GetInt());
 	addr.sin_family      = AF_INET;
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
@@ -157,7 +159,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 
 	try
 	{
-		DataBlock db = DataWrap(pData->pServer->_GameInfo, DBTYPE_GAMEINFO);
+		DataBlock db = DataWrap(pData->pServer->_gameInfo, DBTYPE_GAMEINFO);
 
 		// отправка информации о сервере
 		result = pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
@@ -171,7 +173,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 		DataBlock new_player = DataBlock(sizeof(PlayerDescEx));
 		result = pData->it->s.Recv(pData->it->stop, new_player.raw_data(), new_player.raw_size());
 		if( result ) throw result;
-		memcpy(&pData->it->desc, new_player.data(), sizeof(PlayerDesc));
+		pData->it->desc, new_player.cast<PlayerDesc>();
 
 
 

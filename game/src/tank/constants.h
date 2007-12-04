@@ -152,14 +152,14 @@ enum enumZOrder
 //---------------------------------------------------------------
 // Совместимость
 
-#define TXT_VERSION      "Танк: Зона смерти. Версия 1.44 beta"
+#define TXT_VERSION      "Танк: Зона смерти. Версия 1.45"
 #define TXT_WNDCLASS     "TankMainWindow"
 #define TXT_PROPGRID     "TankPropertyGrid"
 #define TXT_PROPGRIDINT  "TankPropertyGridInt"
 
 // версия  файла  Save  для  первичной  проверки на корректность.
 // файлы  с  отличающейся  версией не будут отображаться в списке
-#define VERSION    0x144b
+#define VERSION    0x1450
 
 //---------------------------------------------------------------
 // Ограничения
@@ -170,8 +170,6 @@ enum enumZOrder
 
 // максимальное число команд в командных играх (включая 0)
 #define MAX_TEAMS        6
-
-#define GAME_PORT     1945
 
 // максимальное время dt. Если при сильных тормозах dt вдруг
 // окажется больше, то оно принудительно будет уменьшено до MAX_DT

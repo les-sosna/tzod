@@ -119,7 +119,7 @@ void CreateServerDlg::OnOK()
 	path += "\\";
 	path += fn + ".map";
 
-	GAMEINFO gi = {0};
+	GameInfo gi = {0};
 	gi.dwVersion  = VERSION;
 	gi.dwMapCRC32 = CalcCRC32(path.c_str());
 	gi.seed       = rand();
@@ -257,7 +257,7 @@ void ConnectDlg::OnTimeStep(float dt)
 		{
 			case DBTYPE_GAMEINFO:
 			{
-				GAMEINFO &gi = db.cast<GAMEINFO>();
+				GameInfo &gi = db.cast<GameInfo>();
 
 				if( VERSION != gi.dwVersion )
 				{

@@ -98,9 +98,8 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 		f.Serialize(size);
 		while( size-- )
 		{
-			AttackListType::value_type tmp;
-			f.Serialize(tmp);
-			_attackList.push_back(tmp);
+			_attackList.push_back(AttackListType::value_type());
+			f.Serialize(_attackList.back());
 		}
 
 		if( !IsVehicleDead() )
@@ -114,8 +113,8 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 		f.Serialize(size);
 		for( AttackListType::const_iterator it = _attackList.begin(); _attackList.end() != it; ++it )
 		{
-			AttackListType::value_type tmp = *it;
-			f.Serialize(tmp);
+//			AttackListType::value_type tmp = *it;
+			f.Serialize(*it);
 		}
 	}
 }

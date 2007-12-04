@@ -168,6 +168,7 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 	f.Serialize(_My);
 	f.Serialize(_Mw);
 	f.Serialize(_percussion);
+	f.Serialize(_fragility);
 	f.Serialize(_external_force);
 	f.Serialize(_external_momentum);
 	f.Serialize(_external_impulse);

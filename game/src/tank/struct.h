@@ -49,7 +49,7 @@ struct PlayerDescEx : public PlayerDesc
 
 #define MAX_SRVNAME 16
 
-typedef struct GAMEINFO
+struct GameInfo
 {
 	DWORD dwVersion;
 	DWORD dwMapCRC32;
@@ -61,7 +61,7 @@ typedef struct GAMEINFO
 	short timelimit;
 	short fraglimit;
 	bool  nightmode;
-} GAMEINFO, *LPGAMEINFO;
+};
 
 
 //----------------------------------------------------------
