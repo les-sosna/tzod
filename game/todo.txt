@@ -11,7 +11,6 @@ remember last bot skill setting when adding a new bot
 
 zoom (Camera.cpp:167)
 
-user object serialize
 
 
 Q22) Why do I get an error when trying to open a new socket soon after I've closed a socket on the same port?
