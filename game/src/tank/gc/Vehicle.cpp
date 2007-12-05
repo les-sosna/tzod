@@ -35,6 +35,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
   , _memberOf(this)
 //  , _rotator(_dir1)
 {
+
 	SetZ(Z_VEHICLES);
 
 	_enginePower = 0;
@@ -79,8 +80,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 	MoveTo(vec2d(x, y));
 }
 
-GC_Vehicle::GC_Vehicle(FromFile)
-  : GC_RigidBodyDynamic(FromFile())
+GC_Vehicle::GC_Vehicle(FromFile) : GC_RigidBodyDynamic(FromFile())
   , _memberOf(this)
 //  , _rotator(_dir1)
 {

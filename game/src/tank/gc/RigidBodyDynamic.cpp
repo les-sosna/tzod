@@ -535,6 +535,7 @@ void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 {
 	_lv += impulse * _inv_m;
 	_av += ((origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x) * _inv_i;
+	_ASSERT(!_isnan(_av) && _finite(_av));
 }
 
 void GC_RigidBodyDynamic::apply_external_forces(float dt)
@@ -550,6 +551,7 @@ void GC_RigidBodyDynamic::apply_external_forces(float dt)
 void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
 {
 	_external_momentum += momentum;
+	_ASSERT(!_isnan(_external_momentum) && _finite(_external_momentum));
 }
 
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
@@ -567,6 +569,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse, const vec2d &origin
 {
 	_external_impulse += impulse;
 	_external_torque  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
+	_ASSERT(!_isnan(_external_torque) && _finite(_external_torque));
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
@@ -577,6 +580,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
 void GC_RigidBodyDynamic::ApplyTorque(float torque)
 {
 	_external_torque  += torque;
+	_ASSERT(!_isnan(_external_torque) && _finite(_external_torque));
 }
 
 void GC_RigidBodyDynamic::SetBodyAngle(float a)

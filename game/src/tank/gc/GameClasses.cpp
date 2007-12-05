@@ -493,8 +493,6 @@ void GC_Explosion::Boom(float radius, float damage)
 
 			if( d <= radius)
 			{
-				vec2d dir1 = dir / d;
-
 				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
 					g_level->grid_rigid_s, NULL, GetPos(), dir);
 
@@ -510,17 +508,17 @@ void GC_Explosion::Boom(float radius, float damage)
 					bNeedClean = true;
 				}
 
-				if( d >= 0 )
+				float dam = __max(0, damage * (1 - d / radius));
+				if( dam > 0 )
 				{
-					float dam = __max(0, damage * (1 - d / radius));
-					if( dam > 0 )
+					if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
 					{
-						if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
+						if( d > 1e-5 )
 						{
-							dyn->ApplyImpulse(dir1 * dam, dyn->GetPos());
+							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
-						pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
 					}
+					pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
 				}
 			}
 		}

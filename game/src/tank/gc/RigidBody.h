@@ -41,8 +41,8 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_RigidBodyStatic::GC_RigidBodyStatic();
-	GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile);
+	GC_RigidBodyStatic();
+	GC_RigidBodyStatic(FromFile);
 
 	virtual void Kill();
 

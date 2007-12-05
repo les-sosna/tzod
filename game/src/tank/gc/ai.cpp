@@ -62,7 +62,7 @@ GC_PlayerAI::GC_PlayerAI()
 	SetL1(L1_NONE);
 }
 
-GC_PlayerAI::GC_PlayerAI(FromFile)
+GC_PlayerAI::GC_PlayerAI(FromFile) : GC_Player(FromFile())
 {
 }
 
@@ -113,7 +113,6 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 		f.Serialize(size);
 		for( AttackListType::const_iterator it = _attackList.begin(); _attackList.end() != it; ++it )
 		{
-//			AttackListType::value_type tmp = *it;
 			f.Serialize(*it);
 		}
 	}

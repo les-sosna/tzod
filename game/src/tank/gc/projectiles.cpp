@@ -52,8 +52,7 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-GC_Projectile::GC_Projectile(FromFile)
-  : GC_2dSprite(FromFile())
+GC_Projectile::GC_Projectile(FromFile) : GC_2dSprite(FromFile())
   , _memberOf(this)
 {
 }

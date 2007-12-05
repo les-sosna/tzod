@@ -69,8 +69,7 @@ GC_Player::GC_Player()
 	SetSkin("red");
 }
 
-GC_Player::GC_Player(FromFile)
-  : GC_Service(FromFile())
+GC_Player::GC_Player(FromFile) : GC_Service(FromFile())
   , _memberOf(this)
 {
 }
@@ -84,6 +83,8 @@ void GC_Player::Serialize(SaveFile &f)
 	GC_Service::Serialize(f);
 
 	f.Serialize(_scriptOnDie);
+	f.Serialize(_scriptOnRespawn);
+	f.Serialize(_vehname);
 	f.Serialize(_nick);
 	f.Serialize(_skin);
 	f.Serialize(_class);
@@ -408,7 +409,7 @@ GC_PlayerLocal::GC_PlayerLocal()
 	SetProfile(tmp.empty() ? "" : tmp[0].c_str());
 }
 
-GC_PlayerLocal::GC_PlayerLocal(FromFile)
+GC_PlayerLocal::GC_PlayerLocal(FromFile) : GC_Player(FromFile())
 {
 }
 
@@ -636,7 +637,7 @@ GC_PlayerRemote::GC_PlayerRemote(DWORD id)
 	_networkId = id;
 }
 
-GC_PlayerRemote::GC_PlayerRemote(FromFile)
+GC_PlayerRemote::GC_PlayerRemote(FromFile) : GC_Player(FromFile())
 {
 	_networkId = -1;
 }

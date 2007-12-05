@@ -1,8 +1,10 @@
+Lobby
+
 Network
 
 Save/Load
 
-”правление
+”правление - immediate applying
 
 implement initializers concept:
 CONFIG_VAR_TABLE( dm_profiles, &InitializerFunc );
@@ -11,7 +13,11 @@ remember last bot skill setting when adding a new bot
 
 zoom (Camera.cpp:167)
 
+user objects serialization - costum textures are not saved
 
+save lua classes table
+
+save lua gc table (?)
 
 Q22) Why do I get an error when trying to open a new socket soon after I've closed a socket on the same port?
 This happens in TCP, because the implementation will wait for a while to allow any late, missed fragments to arrive (even though nobody will read them). This is to avoid confusing fragments from a previous connection with fragments from a new connection.

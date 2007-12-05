@@ -42,8 +42,8 @@ GC_Pickup::GC_Pickup(float x, float y) : _memberOf(this)
 	SetZ(Z_FREE_ITEM);
 }
 
-GC_Pickup::GC_Pickup(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(this)
+GC_Pickup::GC_Pickup(FromFile) : GC_2dSprite(FromFile())
+  , _memberOf(this)
 {
 }
 

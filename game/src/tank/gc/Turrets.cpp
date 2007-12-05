@@ -53,7 +53,8 @@ GC_Turret::GC_Turret(float x, float y)
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-GC_Turret::GC_Turret(FromFile) : GC_RigidBodyStatic(FromFile()), _rotator(_dir)
+GC_Turret::GC_Turret(FromFile) : GC_RigidBodyStatic(FromFile())
+  , _rotator(_dir)
 {
 }
 

@@ -30,6 +30,8 @@ public:
 
 	template<class T>
 	void Serialize(SafePtr<T> &ptr);
+	template<class T>
+	void Serialize(const SafePtr<T> &ptr);
 
 	template<class T>
 	void SerializeArray(T *p, size_t count);
@@ -46,6 +48,7 @@ template<class T>
 void SaveFile::Serialize(T &obj)
 {
 	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
+	_ASSERT(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
 	DWORD bytes;
 	if( loading() )
 		ReadFile(_file, &obj, sizeof(T), &bytes, NULL);
@@ -56,8 +59,9 @@ void SaveFile::Serialize(T &obj)
 template<class T>
 void SaveFile::Serialize(const T &obj)
 {
-	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
 	_ASSERT(!loading());
+	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
+	_ASSERT(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
 	DWORD bytes;
 	WriteFile(_file, &obj, sizeof(T), &bytes, NULL);
 }
@@ -95,8 +99,34 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 }
 
 template<class T>
+void SaveFile::Serialize(const SafePtr<T> &ptr)
+{
+	_ASSERT(!loading());
+	DWORD_PTR id;
+	if( !ptr )
+	{
+		id = 0;
+	}
+	else
+	{
+		if( _ptrToIndex.count(GetRawPtr(ptr)) )
+		{
+			id = _ptrToIndex[GetRawPtr(ptr)];
+		}
+		else
+		{
+			id = _ptrToIndex.size() + 1;
+			_ptrToIndex[GetRawPtr(ptr)] = id;
+		}
+	}
+	Serialize(id);
+}
+
+template<class T>
 void SaveFile::SerializeArray(T *p, size_t count)
 {
+	_ASSERT(0 != strcmp(typeid(T).raw_name(), typeid(string_t).raw_name()));
+	_ASSERT(NULL == strstr(typeid(T).raw_name(), "SafePtr"));
 	DWORD bytes;
 	if( loading() )
 		ReadFile(_file, p, sizeof(T)*count, &bytes, NULL);

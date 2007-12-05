@@ -31,8 +31,8 @@ GC_SpawnPoint::GC_SpawnPoint(float x, float y)
 	_team = 0;
 }
 
-GC_SpawnPoint::GC_SpawnPoint(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(this)
+GC_SpawnPoint::GC_SpawnPoint(FromFile) : GC_2dSprite(FromFile())
+  , _memberOf(this)
 {
 }
 
@@ -249,8 +249,8 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 }
 
-GC_IndicatorBar::GC_IndicatorBar(FromFile)
-  : GC_2dSprite(FromFile()), _memberOf(this)
+GC_IndicatorBar::GC_IndicatorBar(FromFile) : GC_2dSprite(FromFile())
+  , _memberOf(this)
 {
 }
 

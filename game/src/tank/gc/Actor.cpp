@@ -17,7 +17,7 @@ GC_Actor::GC_Actor() : GC_Object()
 	MoveTo(vec2d(0, 0));
 }
 
-GC_Actor::GC_Actor(FromFile)
+GC_Actor::GC_Actor(FromFile) : GC_Object(FromFile())
 {
 }
 
