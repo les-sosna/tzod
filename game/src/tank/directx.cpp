@@ -47,32 +47,6 @@ struct LoadSoundException
 	HRESULT   hr;
 };
 
-void LoadSound(bool init, enumSoundTemplate sound, const char *filename)
-{
-	if( init )
-	{
-		HRESULT hr;
-		TRACE("loading sound from '%s'...\n", filename);
-		if( FAILED(hr = g_pSoundManager->Create(
-			&g_pSounds[sound],
-			filename,
-			DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY,
-			GUID_NULL)) )
-		{
-			TRACE("ERROR: unknown\n");
-			//-------------------------------------------------------
-			LoadSoundException e;
-			e.filename = filename;
-			e.hr       = hr;
-			throw e;
-		}
-	}
-	else
-	{
-		SAFE_DELETE(g_pSounds[sound]);
-	}
-}
-
 void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 {
 	if( init )

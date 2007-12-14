@@ -124,6 +124,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 
 	if( !_init )
 	{
+		TRACE("Init windows sockets\n");
 		WSAData wsad;
 		if( WSAStartup(0x0002, &wsad) )
 		{
@@ -131,6 +132,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			return false;
 		}
 		_init = true;
+		TRACE("Windows sockets initialized\n");
 	}
 
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -139,6 +141,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		TRACE("ERROR: Unable to create socket\n");
 		return false;
 	}
+	TRACE("Socket created\n");
 
 	try
 	{

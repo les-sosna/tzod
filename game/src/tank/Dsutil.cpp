@@ -13,7 +13,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include "dxerr8.h"
+#include "dxerr.h"
 #include "dsound.h"
 #include "DSUtil.h"
 
@@ -405,7 +405,7 @@ HRESULT CSoundManager::CreateStreaming( CStreamingSound** ppStreamingSound,
         // If wave format isn't then it will return
         // either DSERR_BADFORMAT or E_INVALIDARG
         if( hr == DSERR_BADFORMAT || hr == E_INVALIDARG )
-            return DXTRACE_ERR_NOMSGBOX( TEXT("CreateSoundBuffer"), hr );
+            return DXTRACE_ERR( TEXT("CreateSoundBuffer"), hr );
 
         return DXTRACE_ERR( TEXT("CreateSoundBuffer"), hr );
     }
@@ -1059,7 +1059,7 @@ HRESULT CWaveFile::Open( LPCTSTR strFileName, WAVEFORMATEX* pwfx, DWORD dwFlags 
             if( NULL == ( hResInfo = FindResource( NULL, strFileName, TEXT("WAVE") ) ) )
             {
                 if( NULL == ( hResInfo = FindResource( NULL, strFileName, TEXT("WAV") ) ) )
-                    return DXTRACE_ERR_NOMSGBOX( TEXT("FindResource"), E_FAIL );
+                    return DXTRACE_ERR( TEXT("FindResource"), E_FAIL );
             }
 
             if( NULL == ( hResData = LoadResource( NULL, hResInfo ) ) )
@@ -1087,7 +1087,7 @@ HRESULT CWaveFile::Open( LPCTSTR strFileName, WAVEFORMATEX* pwfx, DWORD dwFlags 
         {
             // ReadMMIO will fail if its an not a wave file
             mmioClose( _hmmio, 0 );
-            return DXTRACE_ERR_NOMSGBOX( TEXT("ReadMMIO"), hr );
+            return DXTRACE_ERR( TEXT("ReadMMIO"), hr );
         }
 
         if( FAILED( hr = ResetFile() ) )
@@ -1161,7 +1161,7 @@ HRESULT CWaveFile::ReadMMIO()
     // Check to make sure this is a valid wave file
     if( (_ckRiff.ckid != FOURCC_RIFF) ||
         (_ckRiff.fccType != mmioFOURCC('W', 'A', 'V', 'E') ) )
-        return DXTRACE_ERR_NOMSGBOX( TEXT("mmioFOURCC"), E_FAIL );
+        return DXTRACE_ERR( TEXT("mmioFOURCC"), E_FAIL );
 
     // Search the input file for for the 'fmt ' chunk.
     ckIn.ckid = mmioFOURCC('f', 'm', 't', ' ');
