@@ -129,6 +129,23 @@ class GC_PlayerLocal : public GC_Player
 
 	void GetControl(VehicleState &vs);
 
+
+protected:
+	class MyPropertySet : public GC_Player::MyPropertySet
+	{
+		typedef GC_Player::MyPropertySet BASE;
+
+		ObjectProperty _propProfile;
+
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
+
+
 public:
 	GC_PlayerLocal();
 	GC_PlayerLocal(FromFile);
@@ -140,6 +157,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	void SetProfile(const char *name);
+	const string_t& GetProfile() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

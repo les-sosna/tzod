@@ -403,10 +403,32 @@ GC_PlayerLocal::GC_PlayerLocal()
 	_lights     = true;
 	_aimToMouse = false;
 
-	// select first available profile
+	// find first available profile that is not used by another player
+	string_t profile;
+
 	std::vector<string_t> tmp;
 	g_conf.dm_profiles->GetKeyList(tmp);
-	SetProfile(tmp.empty() ? "" : tmp[0].c_str());
+	for( size_t i = 0; i < tmp.size(); ++i )
+	{
+		bool in_use = false;
+		FOREACH(g_level->GetList(LIST_players), GC_Player, player)
+		{
+			if( GC_PlayerLocal *p = dynamic_cast<GC_PlayerLocal *>(player) )
+			{
+				if( p->GetProfile() == tmp[i] )
+				{
+					in_use = true;
+					break;
+				}
+			}
+		}
+		if( !in_use )
+		{
+			SetProfile(tmp[i].c_str());
+			return;
+		}
+	}
+	SetProfile(""); // there was no available profile found
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile) : GC_Player(FromFile())
@@ -469,6 +491,11 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 
 		GetVehicle()->SetState(vs);
 	}
+}
+
+const string_t& GC_PlayerLocal::GetProfile() const
+{
+	return _profile;
 }
 
 void GC_PlayerLocal::SetProfile(const char *name)
@@ -624,6 +651,54 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 		}
 	}
 }
+
+
+PropertySet* GC_PlayerLocal::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_PlayerLocal::MyPropertySet::MyPropertySet(GC_Object *object)
+  : BASE(object)
+  , _propProfile( ObjectProperty::TYPE_STRING, "profile"  )
+{
+}
+
+int GC_PlayerLocal::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_PlayerLocal::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+		case 0: return &_propProfile;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_PlayerLocal::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_PlayerLocal *tmp = static_cast<GC_PlayerLocal *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->SetProfile(_propProfile.GetStringValue().c_str());
+	}
+	else
+	{
+		_propProfile.SetStringValue(tmp->_profile);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

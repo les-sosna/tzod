@@ -46,7 +46,6 @@ bool TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
 	{
-		TRACE("loading texture file '%s' - in cache\n", fileName.c_str());
 		itTexDesc = it->second;
 		return true;
 	}
