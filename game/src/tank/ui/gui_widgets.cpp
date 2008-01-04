@@ -49,53 +49,53 @@ void FpsCounter::OnTimeStep(float dt)
 		}
 		avr /= (float) _dts.size();
 
-		char s[512];
-		wsprintf(s, "%5dobj; %3dlight; %5dsprite; %2dbatch; %3d-%3d-%3dfps; %6dsprites/sec",
-			g_level->GetList(LIST_objects).size(), 
-			_nLights,
-			_nSprites, 
-			_nBatches,
+		char s [512];
+		char s1[256];
+
+		wsprintf(s, "fps:%3d-%3d-%3d; wnd: %3d ",
 			int(1.0f / max + 0.5f), 
 			int(1.0f / avr + 0.5f), 
 			int(1.0f / min + 0.5f),
-			_nSprites * int(1.0f / avr + 0.5f));
-
-		char s1[256];
-		wsprintf(s1, "\nEvents: %4dfixed; %4dfloat; %4dendframe  Wnd: %3d total",
-			g_level->ts_fixed.size(),
-			g_level->ts_floating.size(),
-			g_level->endframe.size(),
 			g_gui->GetWndCount()
 		);
-		strcat(s, s1);
 
-		// network statistics
-		if( g_level && g_client )
+		if( g_level )
 		{
-			if( _dts_net.empty() )
-			{
-				min = max = avr = 0;
-			}
-			else
-			{
-				min = max = _dts_net.front();
-				for( std::list<float>::iterator it = _dts_net.begin();
-					it != _dts_net.end(); ++it )
-				{
-					avr += *it;
-					if( *it > max ) max = *it;
-					if( *it < min ) min = *it;
-				}
-				avr /= (float) _dts_net.size();
-			}
-
-			NetworkStats ns;
-			g_client->GetStatistics(&ns);
-			wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; fps: %3dmin %3davr %3dmax;",
-				ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024,
-				int(1.0f / max + 0.5f), int(1.0f / avr + 0.5f), int(1.0f / min + 0.5f)
+			wsprintf(s1, "%5dobj; Events: %4dfixed; %4dfloat; %4dendframe",
+				g_level->GetList(LIST_objects).size(), 
+				g_level->ts_fixed.size(),
+				g_level->ts_floating.size(),
+				g_level->endframe.size()
 			);
 			strcat(s, s1);
+
+			// network statistics
+			if( g_client )
+			{
+				if( _dts_net.empty() )
+				{
+					min = max = avr = 0;
+				}
+				else
+				{
+					min = max = _dts_net.front();
+					for( std::list<float>::iterator it = _dts_net.begin();
+						it != _dts_net.end(); ++it )
+					{
+						avr += *it;
+						if( *it > max ) max = *it;
+						if( *it < min ) min = *it;
+					}
+					avr /= (float) _dts_net.size();
+				}
+
+				NetworkStats ns;
+				g_client->GetStatistics(&ns);
+				wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; ms:%3d-%3d-%3d",
+					ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024, min, avr, max
+				);
+				strcat(s, s1);
+			}
 		}
 
 		SetText(s);
