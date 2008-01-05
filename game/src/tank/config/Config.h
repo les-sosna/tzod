@@ -41,7 +41,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_STR(    sv_name,   "ZOD server" );
 	CONFIG_VAR_INT(    sv_port,           1945 );
 	CONFIG_VAR_FLOAT(  sv_fps,              30 );
-	CONFIG_VAR_FLOAT(  sv_latency,           5 );
+	CONFIG_VAR_FLOAT(  sv_latency,           4 );
 	CONFIG_VAR_FLOAT(  sv_speed,           100 ); // percent
 	CONFIG_VAR_FLOAT(  sv_timelimit,         7 ); // minutes
 	CONFIG_VAR_INT(    sv_fraglimit,        21 );
@@ -49,7 +49,6 @@ CONFIG_BEGIN()    //  var_name      def_value
 
 	// client settings
 	CONFIG_VAR_STR(    cl_map,           "dm1" );
-	CONFIG_VAR_INT(    cl_latency,           1 );
 	CONFIG_VAR_FLOAT(  cl_speed,           100 ); // percent
 	CONFIG_VAR_FLOAT(  cl_timelimit,         7 ); // minutes
 	CONFIG_VAR_INT(    cl_fraglimit,        21 );
@@ -85,6 +84,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	// user interface
 	CONFIG_VAR_BOOL( ui_showfps,          false );
 	CONFIG_VAR_BOOL( ui_showtime,          true );
+	CONFIG_VAR_BOOL( ui_showmsg,           true );
 
 	// other
 	CONFIG_VAR_TABLE( dm_profiles );

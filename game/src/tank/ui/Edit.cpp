@@ -85,8 +85,8 @@ void Edit::SetSel(int begin, int end)
 	_cursor->Resize(_cursor->GetWidth(), _blankText->GetHeight());
 
 	_selection->Show(_selStart != _selEnd && GetTimeStep());
-	_selection->Move(_blankText->GetX() + __min(_selStart, _selEnd) * (_blankText->GetWidth() - 1) + 2, 2);
-	_selection->Resize((_blankText->GetWidth() - 1) * abs(_selStart - _selEnd) - 2, _blankText->GetHeight()-2);
+	_selection->Move(_blankText->GetX() + GetSelMin() * (_blankText->GetWidth() - 1) + 2, 2);
+	_selection->Resize((_blankText->GetWidth() - 1) * GetSelLength() - 2, _blankText->GetHeight() - 2);
 }
 
 int Edit::GetSelStart() const
@@ -99,12 +99,27 @@ int Edit::GetSelEnd() const
 	return _selEnd;
 }
 
+int Edit::GetSelLength() const
+{
+	return abs(_selStart - _selEnd);
+}
+
+int Edit::GetSelMin() const
+{
+	return __min(_selStart, _selEnd);
+}
+
+int Edit::GetSelMax() const
+{
+	return __max(_selStart, _selEnd);
+}
+
 void Edit::OnChar(int c)
 {
 	if( isprint((unsigned char) c) && VK_TAB != c )
 	{
-		int start = __min(_selStart, _selEnd);
-		_string = _string.substr(0, start) + (char) c + _string.substr(__max(_selStart, _selEnd));
+		int start = GetSelMin();
+		_string = _string.substr(0, start) + (char) c + _string.substr(GetSelMax());
 		SetSel(start + 1, start + 1);
 		_blankText->SetText(_string.c_str());
 		if( eventChange )
@@ -141,23 +156,21 @@ void Edit::OnRawChar(int c)
 		}
 		break;
 	case 'X':
-		if( _selStart != _selEnd && (GetAsyncKeyState(VK_CONTROL) & 0x8000) )
+		if( 0 != GetSelLength() && (GetAsyncKeyState(VK_CONTROL) & 0x8000) )
 		{
 			Copy();
-			_string = _string.substr(0, __min(_selStart, _selEnd))
-				+ _string.substr(__max(_selStart, _selEnd));
+			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
 			_blankText->SetText(_string.c_str());
-			tmp = __min(_selStart, _selEnd);
-			SetSel(tmp, tmp);
+			SetSel(GetSelMin(), GetSelMin());
 			if( eventChange )
 				INVOKE(eventChange) ();
 		}
 		break;
 	case VK_DELETE:
-		if( _selStart == _selEnd && _selEnd < (int) _string.length() )
+		if( 0 == GetSelLength() && GetSelEnd() < (int) _string.length() )
 		{
-			_string = _string.substr(0, _selStart)
-				+ _string.substr(_selEnd + 1, _string.length() - _selEnd - 1);
+			_string = _string.substr(0, GetSelStart())
+				+ _string.substr(GetSelEnd() + 1, _string.length() - GetSelEnd() - 1);
 		}
 		else
 		{
@@ -165,27 +178,24 @@ void Edit::OnRawChar(int c)
 			{
 				Copy();
 			}
-			_string = _string.substr(0, __min(_selStart, _selEnd))
-				+ _string.substr(__max(_selStart, _selEnd));
+			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
 		}
 		_blankText->SetText(_string.c_str());
-		tmp = __min(_selStart, _selEnd);
-		SetSel(tmp, tmp);
+		SetSel(GetSelMin(), GetSelMin());
 		if( eventChange )
 			INVOKE(eventChange) ();
 		break;
 	case VK_BACK:
-		if( _selStart == _selEnd && _selStart > 0 )
+		if( 0 == GetSelLength() && GetSelStart() > 0 )
 		{
-			_string = _string.substr(0, _selStart - 1)
-				+ _string.substr(_selEnd, _string.length() - _selEnd);
+			_string = _string.substr(0, GetSelStart() - 1)
+				+ _string.substr(GetSelEnd(), _string.length() - GetSelEnd());
 		}
 		else
 		{
-			_string = _string.substr(0, __min(_selStart, _selEnd))
-				+ _string.substr(__max(_selStart, _selEnd));
+			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
 		}
-		tmp = __max(0, _selEnd == _selStart ? _selStart - 1 : __min(_selStart, _selEnd));
+		tmp = __max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		SetSel(tmp, tmp);
 		_blankText->SetText(_string.c_str());
 		if( eventChange )
@@ -194,31 +204,31 @@ void Edit::OnRawChar(int c)
 	case VK_LEFT:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			tmp = __max(0, _selEnd - 1);
-			SetSel(_selStart, tmp);
+			tmp = __max(0, GetSelEnd() - 1);
+			SetSel(GetSelStart(), tmp);
 		}
 		else
 		{
-			tmp = __max(0, __min(_selStart, _selEnd) - 1);
+			tmp = __max(0, GetSelMin() - 1);
 			SetSel(tmp, tmp);
 		}
 		break;
 	case VK_RIGHT:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			tmp = __min((int) _string.length(), _selEnd + 1);
-			SetSel(_selStart, tmp);
+			tmp = __min((int) _string.length(), GetSelEnd() + 1);
+			SetSel(GetSelStart(), tmp);
 		}
 		else
 		{
-			tmp = __min((int) _string.length(), __max(_selStart, _selEnd) + 1);
+			tmp = __min((int) _string.length(), GetSelMax() + 1);
 			SetSel(tmp, tmp);
 		}
 		break;
 	case VK_HOME:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			SetSel(_selStart, 0);
+			SetSel(GetSelStart(), 0);
 		}
 		else
 		{
@@ -228,7 +238,7 @@ void Edit::OnRawChar(int c)
 	case VK_END:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			SetSel(_selStart, _string.length());
+			SetSel(GetSelStart(), _string.length());
 		}
 		else
 		{
@@ -276,7 +286,7 @@ bool Edit::OnFocus(bool focus)
 {
 	SetTimeStep(focus);
 	_cursor->Show(focus);
-	_selection->Show(_selStart != _selEnd && focus);
+	_selection->Show(0 != GetSelLength() && focus);
 	_time = 0;
 	return true;
 }
@@ -308,11 +318,11 @@ void Edit::Paste()
 		{
 			if( const char *data = (const char *) GlobalLock(hData) )
 			{
-				_string = _string.substr(0, _selStart)
+				_string = _string.substr(0, GetSelMin())
 					+ data
-					+ _string.substr(_selEnd, _string.length() - _selEnd);
+					+ _string.substr(GetSelMax(), _string.length() - GetSelMax());
 				_blankText->SetText(_string.c_str());
-				SetSel(_selStart + strlen(data), _selStart + strlen(data));
+				SetSel(GetSelMin() + strlen(data), GetSelMin() + strlen(data));
 				GlobalUnlock(hData);
 				if( eventChange )
 					INVOKE(eventChange) ();
@@ -336,7 +346,7 @@ void Edit::Paste()
 
 void Edit::Copy() const
 {
-	string_t str = GetText().substr(__min(_selStart, _selEnd), abs(GetSelEnd() - GetSelStart()));
+	string_t str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
 		if( OpenClipboard(NULL) )

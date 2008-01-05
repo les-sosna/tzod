@@ -25,10 +25,10 @@ class TankServer
 		BOOL       connected;        // флаг определяет, что поле desc корректно
 		BOOL       ready;            // игрок готов начать игру
 		//---------------------------//----------------------------
-		HANDLE semaphore;            // семафор контролирует наличие данных в очереди
+		HANDLE evData;               // событие означает наличие данных в data
 		CRITICAL_SECTION cs;         // критическая секция защищает поля data и ctrl
-		std::queue<DataBlock> data;  // данные, которые должны быть обработаны потоком
-		std::queue<ControlPacket> ctrl;// поступившие от игрока данные управления
+		std::vector<DataBlock> data; // данные для отправки в сеть
+		std::queue<ControlPacket> ctrl;// поступившие из сети данные управления
 	};
 
 
@@ -54,22 +54,9 @@ class TankServer
 	static DWORD WINAPI AcceptProc(TankServer *pServer);
 
 
-	HANDLE _hMainThread;         // основной серверный поток
-	HANDLE _hMainSemaphore;      // семафор контролирует наличие данных в очереди _MainData
-	HANDLE _hMainStopEvent;      // событие завершает основной поток
-	CRITICAL_SECTION _MainCS;    // критическая секция защищает данные _MainData
-
-	struct MainThreadData
-	{
-		DWORD id_from;
-		DataBlock data;
-	};
-	std::queue<MainThreadData> _MainData;   // данные, которые должны быть обработаны основным потоком
-
 	bool TrySendFrame();         // отправка кадра если все данные получены
 	static DWORD WINAPI MainProc(TankServer *pServer);
 
-	void SendMainThreadData(DWORD id_from, const DataBlock &data);
 	void SendClientThreadData(const std::list<ClientDesc>::iterator &it, const DataBlock &data);
 
 public:

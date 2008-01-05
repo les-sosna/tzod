@@ -40,6 +40,9 @@ public:
 	void SetSel(int begin, int end);
 	int GetSelStart() const;
 	int GetSelEnd() const;
+	int GetSelMin() const;
+	int GetSelMax() const;
+	int GetSelLength() const;
 
 	void Paste();
 	void Copy() const;

@@ -29,10 +29,15 @@ private:
 
 public:
 	MessageArea(Window *parent, float x, float y);
+	~MessageArea();
+
 	void puts(const char *text);
 	void Clear();
 
 	void OnTimeStep(float dt);
+
+private:
+	void OnToggleVisible();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

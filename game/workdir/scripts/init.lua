@@ -16,6 +16,7 @@ require "names"         -- fill the random_names array
 conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
 conf.sv_speed = 100;
+conf.ui_showmsg = false;
 
 if math.random() > 0.5 then
   conf.sv_nightmode = math.random() > 0.5;

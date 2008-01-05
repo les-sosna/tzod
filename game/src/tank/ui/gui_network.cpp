@@ -142,7 +142,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-	g_conf.cl_map->Set(fn.c_str());
+	g_conf.sv_latency->SetInt(gi.latency);
 
 	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
 	Show(false);
@@ -174,6 +174,8 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 {
 	PauseGame(true);
 
+	_auto = (NULL != autoConnect);
+
 	Text *title = new Text(this, GetWidth() / 2, 16, "Соединение с сервером", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -196,7 +198,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 	GetManager()->SetFocusWnd(_name);
 
 
-	if( autoConnect )
+	if( _auto )
 	{
 		_ASSERT(g_server);
 		_ASSERT(!g_level);
@@ -290,6 +292,11 @@ void ConnectDlg::OnTimeStep(float dt)
 				if( g_level->init_newdm(path, gi.seed) )
 				{
 					g_conf.cl_map->Set(gi.cMapName);
+					g_conf.ui_showmsg->Set(true);
+					if( !_auto )
+					{
+						g_conf.cl_server->Set(_name->GetText().c_str());
+					}
 				}
 				else
 				{
@@ -365,14 +372,13 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	(new Button(this, 590, 480, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
-	PlayerDescEx pde;
-	pde.dwNetworkId = g_client->GetId();
-	strcpy(pde.nick, g_conf.cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
-	strcpy(pde.cls, g_conf.cl_playerinfo->GetStr("class", "default")->Get());
-	pde.score = 0;
-	strcpy(pde.skin, g_conf.cl_playerinfo->GetStr("skin", "red")->Get());
-	pde.team = g_conf.cl_playerinfo->GetNum("team", 0)->GetInt();
-	g_client->SendDataToServer(DataWrap(pde, DBTYPE_NEWPLAYER));
+	PlayerDesc pd;
+	strcpy(pd.nick, g_conf.cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
+	strcpy(pd.cls, g_conf.cl_playerinfo->GetStr("class", "default")->Get());
+	pd.score = 0;
+	strcpy(pd.skin, g_conf.cl_playerinfo->GetStr("skin", "red")->Get());
+	pd.team = g_conf.cl_playerinfo->GetNum("team", 0)->GetInt();
+	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
 
 	SetTimeStep(true);
 }
@@ -495,7 +501,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			PlayerDescEx &pd = db.cast<PlayerDescEx>();
 
 			GC_Player *player = NULL;
-			if( g_client->GetId() == pd.dwNetworkId )
+			if( g_client->GetId() == pd.id )
 			{
 				player = new GC_PlayerLocal();
 				static_cast<GC_PlayerLocal *>(player)
@@ -503,7 +509,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			}
 			else
 			{
-				player = new GC_PlayerRemote(pd.dwNetworkId);
+				player = new GC_PlayerRemote(pd.id);
 			}
 			player->SetClass(pd.cls);
 			player->SetNick(pd.nick);

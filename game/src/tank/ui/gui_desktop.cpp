@@ -27,6 +27,15 @@ namespace UI
 MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
 {
 	_text = new Text(this, 0, 0, "", alignTextLT);
+	_ASSERT(!g_conf.ui_showmsg->eventChange);
+	g_conf.ui_showmsg->eventChange.bind(&MessageArea::OnToggleVisible, this);
+	OnToggleVisible();
+}
+
+MessageArea::~MessageArea()
+{
+	_ASSERT(g_conf.ui_showmsg->eventChange);
+	g_conf.ui_showmsg->eventChange.clear();
 }
 
 void MessageArea::OnTimeStep(float dt)
@@ -68,6 +77,11 @@ void MessageArea::Clear()
 	SetTimeStep(false);
 	_text->SetText("");
 	_text->Show(false);
+}
+
+void MessageArea::OnToggleVisible()
+{
+	Show(g_conf.ui_showmsg->Get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

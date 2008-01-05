@@ -350,6 +350,7 @@ void NewGameDlg::OnOK()
 	if( g_level->init_newdm(path.c_str(), rand()) )
 	{
 		g_conf.cl_map->Set(fn.c_str());
+		g_conf.ui_showmsg->Set(true);
 
 		for( size_t i = 0; i < g_conf.dm_players->GetSize(); ++i )
 		{

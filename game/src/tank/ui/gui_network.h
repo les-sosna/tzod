@@ -39,6 +39,7 @@ class ConnectDlg : public Dialog
 	Button *_btnOK;
 	Edit   *_name;
 	List   *_status;
+	bool    _auto;
 
 	void Error(const char *msg);
 

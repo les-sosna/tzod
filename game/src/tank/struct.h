@@ -38,11 +38,7 @@ struct PlayerDesc
 
 struct PlayerDescEx : public PlayerDesc
 {
-	union
-	{
-		DWORD dwHasPlayers; // флаги, означающие присутствие игроков в списке
-		DWORD dwNetworkId;
-	};
+	DWORD id;
 };
 
 //----------------------------------------------------------

@@ -1083,8 +1083,7 @@ void Level::TimeStep(float dt)
 		const float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
 
 		_timeBuffer += dt;
-		if( _timeBuffer > 0 )
-		do
+		while( _timeBuffer >= 0 )
 		{
 			//
 			// обработка команд кадра
@@ -1127,8 +1126,8 @@ void Level::TimeStep(float dt)
 					} break;
 				} // end of switch( db.type )
 
-				if( DBTYPE_CONTROLPACKET == db.type() ) break;
-			}
+				if( DBTYPE_CONTROLPACKET == db.type() ) break; // split frames
+			}// end of while g_client->GetData
 
 			if( g_client->_ctrlBuf.empty() )
 			{
@@ -1148,6 +1147,8 @@ void Level::TimeStep(float dt)
 
 			_time       += fixed_dt;
 			_timeBuffer -= fixed_dt;
+
+
 			if( !_freezed )
 			{
 				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
@@ -1176,9 +1177,10 @@ void Level::TimeStep(float dt)
 #ifdef NETWORK_DEBUG
 			_checksum = dwCheckSum;
 #endif
-		} while(0);
+			break;
+		} // end of while( _timeBuffer > 0 )
 	}
-	else // if( _client )
+	else // if( g_client )
 	{
 		int count = int(dt / MAX_DT_FIXED) + 1;
 		const float fixed_dt = dt / (float) count;
@@ -1202,7 +1204,7 @@ void Level::TimeStep(float dt)
 			passedFixedDT = fixed_dt;
 		}
 		while( --count );
-	}
+	} // end of if( g_client )
 
 	if( !_freezed )
 	{

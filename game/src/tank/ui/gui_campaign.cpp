@@ -11,6 +11,7 @@
 #include "GuiManager.h"
 
 #include "fs/FileSystem.h"
+#include "config/Config.h"
 
 #include "functions.h"
 
@@ -60,6 +61,8 @@ void NewCampaignDlg::OnOK()
 	{
 		return;
 	}
+
+	g_conf.ui_showmsg->Set(true);
 
 	const string_t& name = _files->GetItemText(_files->GetCurSel());
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
