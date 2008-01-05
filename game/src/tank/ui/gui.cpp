@@ -492,10 +492,13 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
 		_classNames.push_back(val);
 
-		int index = _classes->GetList()->AddItem(val.first.c_str());
-		if( val.first == _info->GetStr("class")->Get() )
+		if( std::string::npos == val.first.find('/') )
 		{
-			_classes->SetCurSel(index);
+			int index = _classes->GetList()->AddItem(val.first.c_str());
+			if( val.first == _info->GetStr("class")->Get() )
+			{
+				_classes->SetCurSel(index);
+			}
 		}
 	}
 	if( -1 == _classes->GetCurSel() )

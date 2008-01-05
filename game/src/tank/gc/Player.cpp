@@ -551,7 +551,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	// lights
 	//
 	bool tmp = g_env.envInputs.keys[_keyLight];
-	if( tmp && !_lastLightKeyState )
+	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode->Get() )
 	{
 		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
 		_lights = !_lights;

@@ -52,7 +52,7 @@ void FpsCounter::OnTimeStep(float dt)
 		char s [512];
 		char s1[256];
 
-		wsprintf(s, "fps:%3d-%3d-%3d; wnd: %3d ",
+		wsprintf(s, "fps:%04d-%04d-%04d; wnd:%03d",
 			int(1.0f / max + 0.5f), 
 			int(1.0f / avr + 0.5f), 
 			int(1.0f / min + 0.5f),
@@ -61,7 +61,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 		if( g_level )
 		{
-			wsprintf(s1, "%5dobj; Events: %4dfixed; %4dfloat; %4dendframe",
+			wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat %4def",
 				g_level->GetList(LIST_objects).size(), 
 				g_level->ts_fixed.size(),
 				g_level->ts_floating.size(),
@@ -91,8 +91,8 @@ void FpsCounter::OnTimeStep(float dt)
 
 				NetworkStats ns;
 				g_client->GetStatistics(&ns);
-				wsprintf(s1, "\nNetwork: %2dbuf; sent%3dk; recv%3dk; ms:%3d-%3d-%3d",
-					ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024, min, avr, max
+				wsprintf(s1, "\nnetwork: %2dbuf; sent%3dk; recv%3dk", // "; ms:%3d-%3d-%3d",
+					ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
 				);
 				strcat(s, s1);
 			}

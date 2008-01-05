@@ -99,15 +99,12 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 		_ASSERT(!g_pSoundManager);
 		TRACE("Init direct sound...\n");
 		g_pSoundManager = new CSoundManager();
-		if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_EXCLUSIVE, 2, 44100, 16)) )
+		if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_PRIORITY , 2, 44100, 16)) )
 		{
-			if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_PRIORITY , 2, 44100, 16)) )
+			if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_NORMAL , 2, 44100, 16)) )
 			{
-				if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_NORMAL , 2, 44100, 16)) )
-				{
-					TRACE("ERROR: direct sound init failed\n");
-					SAFE_DELETE(g_pSoundManager);
-				}
+				TRACE("ERROR: direct sound init failed\n");
+				SAFE_DELETE(g_pSoundManager);
 			}
 		}
 	}
