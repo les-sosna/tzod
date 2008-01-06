@@ -517,15 +517,13 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 			else
 				PLAY(SND_Impact1, it->o);
 		}
-		else
-			if( it->total_tp > 10 )
-			{
-				PLAY(SND_Slide1, it->o);
-			}
+		else if( it->total_tp > 10 )
+		{
+			PLAY(SND_Slide1, it->o);
+		}
 
-			/////////////////////////////////////
-			it->obj1_d->Release();
-			it->obj2_s->Release();
+		it->obj1_d->Release();
+		it->obj2_s->Release();
 	}
 
 	_contacts.clear();
