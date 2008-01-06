@@ -202,4 +202,4 @@ Q: При запуске игра жалуется на отсутствие 'dinput8.dll'.
 A: Установите DirectX 9.0 или более поздней версии.
 
 ----------------------------------------------------------------------
-Copyright ® 2002-2007 Insert. All rights reserved.
+Copyright ® 2002-2008 Insert. All rights reserved.

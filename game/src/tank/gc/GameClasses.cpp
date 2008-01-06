@@ -363,6 +363,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		if( x1 == node->x && y1 == node->y )
 		{
 			// путь найден.
+			_ASSERT(node->GetRealDistance() <= max_distance);
 			return node->GetRealDistance();
 		}
 
@@ -508,9 +509,10 @@ void GC_Explosion::Boom(float radius, float damage)
 					bNeedClean = true;
 				}
 
-				float dam = __max(0, damage * (1 - d / radius));
-				if( dam > 0 )
+				if( d >= 0 )
 				{
+					float dam = __max(0, damage * (1 - d / radius));
+					_ASSERT(dam >= 0);
 					if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
 					{
 						if( d > 1e-5 )

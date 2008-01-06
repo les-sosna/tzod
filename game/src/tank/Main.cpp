@@ -163,6 +163,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	ctime_s(timebuf, 26, &ltime);
 	TRACE("ZOD Engine started at %s", timebuf);
 	TRACE("----------------------------------------------\n");
+	TRACE("%s\n", TXT_VERSION);
 
 
 	g_env.pause = 0;

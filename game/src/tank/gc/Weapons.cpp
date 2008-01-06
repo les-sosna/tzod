@@ -958,7 +958,7 @@ void GC_Weap_Ram::Fire()
 		_bFire = true;
 		if( GC_RigidBodyDynamic *owner = dynamic_cast<GC_RigidBodyDynamic *>(GetOwner()) )
 		{
-			owner->ApplyForce( vec2d(_angle + owner->_angle) * 1000 );
+			owner->ApplyForce( vec2d(_angle + owner->_angle) * 2000 );
 		}
 	}
 }

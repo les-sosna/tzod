@@ -7,14 +7,12 @@ local function adjust_health(veh, h)
   veh.health = veh.health * (h / classes.default.health)
 end
 
--- идея такая. при подборе оружия вызывается соответствующая функция, которая
--- может менять любые параметры класса.
-
 -------------------------------------------------------------------------------
 
 function gc.weap_rockets.attach(veh)
---  message("Установлено орудие: ракетница")
   adjust_health(veh, 85)
+  veh.mass = veh.mass * 1.16
+  veh.inertia = veh.inertia * 1.2
 end
 
 -------------------------------------------------------------------------------
@@ -41,38 +39,35 @@ end
 -------------------------------------------------------------------------------
 
 function gc.weap_gauss.attach(veh)
---  message("Установлено орудие: пушка Гаусса")
   adjust_health(veh, 70)
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_ram.attach(veh)
---  message("Установлено орудие: таран")
---  veh.mass = veh.mass * 2                -- тяжелый, сцуко =)
-  adjust_health(veh, 350)                -- и жирный
-  veh.percussion  = veh.percussion * 8
+  adjust_health(veh, 350)
+  veh.mass = veh.mass * 2
+  veh.power[1] = veh.power[1] * 2
+  veh.percussion  = veh.percussion * 5
+  veh.fragility   = veh.fragility * 0.5
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_bfg.attach(veh)
---  message("Установлено орудие: БФГ");
   adjust_health(veh, 110)
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_ripper.attach(veh)
---  message("Установлено орудие: рипер")
   adjust_health(veh, 80)
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_minigun.attach(veh)
---  message("Установлено орудие: пулемет")
-  veh.mass = veh.mass * 0.8
+  veh.mass = veh.mass * 0.7
   adjust_health(veh, 65)
 end
 
