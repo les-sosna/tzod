@@ -143,6 +143,19 @@ public:
 	virtual void Draw();
 
 	virtual void OnPickup(GC_Pickup *pickup, bool attached);
+
+	//--------------------------------
+
+#ifdef NETWORK_DEBUG
+public:
+	virtual DWORD checksum(void) const
+	{
+		DWORD cs = reinterpret_cast<const DWORD&>(_enginePower) ^ reinterpret_cast<const DWORD&>(_rotatePower);
+		cs ^= reinterpret_cast<const DWORD&>(_maxRotSpeed) ^ reinterpret_cast<const DWORD&>(_maxLinSpeed);
+		return GC_RigidBodyDynamic::checksum() ^ cs;
+	}
+#endif
+
 };
 
 /////////////////////////////////////////////////////////////

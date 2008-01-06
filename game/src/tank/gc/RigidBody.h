@@ -107,7 +107,12 @@ public:
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
+		cs ^= reinterpret_cast<const DWORD&>(_health);
 		cs ^= reinterpret_cast<const DWORD&>(_direction.x) ^ reinterpret_cast<const DWORD&>(_direction.y);
+		cs ^= reinterpret_cast<const DWORD&>(_vertices[0].x) ^ reinterpret_cast<const DWORD&>(_vertices[0].y);
+		cs ^= reinterpret_cast<const DWORD&>(_vertices[1].x) ^ reinterpret_cast<const DWORD&>(_vertices[1].y);
+		cs ^= reinterpret_cast<const DWORD&>(_vertices[2].x) ^ reinterpret_cast<const DWORD&>(_vertices[2].y);
+		cs ^= reinterpret_cast<const DWORD&>(_vertices[3].x) ^ reinterpret_cast<const DWORD&>(_vertices[3].y);
 		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif

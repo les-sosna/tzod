@@ -284,11 +284,11 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 //    params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
+		D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE, &params, &_pd3dDevice)) )
 	{
 		TRACE("Hardware vertex processing not supported; trying software\n");
 		if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
-			D3DCREATE_SOFTWARE_VERTEXPROCESSING, &params, &_pd3dDevice)) )
+			D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE, &params, &_pd3dDevice)) )
 		{
 			TRACE("ERROR: CreateDevice failed\n")
 			return false;

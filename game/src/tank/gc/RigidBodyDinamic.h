@@ -116,9 +116,28 @@ public:
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(_av);
-		cs ^= reinterpret_cast<const DWORD&>(_lv.x);
-		cs ^= reinterpret_cast<const DWORD&>(_lv.y);
-		cs ^= reinterpret_cast<const DWORD&>(_health);
+		cs ^= reinterpret_cast<const DWORD&>(_angle);
+		cs ^= reinterpret_cast<const DWORD&>(_lv.x) ^ reinterpret_cast<const DWORD&>(_lv.y);
+		cs ^= reinterpret_cast<const DWORD&>(_inv_m) ^ reinterpret_cast<const DWORD&>(_inv_i);
+
+		cs ^= reinterpret_cast<const DWORD&>(_Nx);
+		cs ^= reinterpret_cast<const DWORD&>(_Ny);
+		cs ^= reinterpret_cast<const DWORD&>(_Nw);
+
+		cs ^= reinterpret_cast<const DWORD&>(_Mx);
+		cs ^= reinterpret_cast<const DWORD&>(_My);
+		cs ^= reinterpret_cast<const DWORD&>(_Mw);
+
+		cs ^= reinterpret_cast<const DWORD&>(_percussion) ^ reinterpret_cast<const DWORD&>(_fragility);
+
+		cs ^= reinterpret_cast<const DWORD&>(_external_force.x);
+		cs ^= reinterpret_cast<const DWORD&>(_external_force.y);
+		cs ^= reinterpret_cast<const DWORD&>(_external_momentum);
+
+		cs ^= reinterpret_cast<const DWORD&>(_external_impulse.x);
+		cs ^= reinterpret_cast<const DWORD&>(_external_impulse.y);
+		cs ^= reinterpret_cast<const DWORD&>(_external_torque);
+
 		return GC_RigidBodyStatic::checksum() ^ cs;
 	}
 #endif
