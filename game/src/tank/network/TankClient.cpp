@@ -311,8 +311,6 @@ void TankClient::NewData(const DataBlock &data)
 	// внутренний фильтр
 	switch( data.type() )
 	{
-	case DBTYPE_STARTGAME:
-		break;
 	case DBTYPE_CONTROLPACKET:
 		_stats.nFramesInBuffer++;
 		for( int i = 0; i < NET_MULTIPLER-1; i++ ) // duplicate packet
@@ -323,6 +321,8 @@ void TankClient::NewData(const DataBlock &data)
 		break;
 	case DBTYPE_GAMEINFO:
 		_latency = data.cast<GameInfo>().latency;
+		break;
+	case DBTYPE_STARTGAME:
 		break;
 	case DBTYPE_YOURID:
 		_clientId = data.cast<DWORD>();
@@ -342,6 +342,13 @@ void TankClient::SendDataToServer(const DataBlock &data)
 
 void TankClient::SendControl(const ControlPacket &cp)
 {
+	if( g_conf.sv_latency->GetInt() < _latency && _latency > 1 )
+	{
+		--_latency;
+		TRACE("packet skipped\n");
+		return;     // skip packet
+	}
+
 	if( 0 == (_frame % NET_MULTIPLER) )
 	{
 		//if( cp == _lastPacket )
@@ -360,7 +367,14 @@ void TankClient::SendControl(const ControlPacket &cp)
 		//}
 	}
 	_frame++;
-	_gameStarted = true; // FIXME
+
+
+	if( g_conf.sv_latency->GetInt() > _latency )
+	{
+		++_latency;
+		SendControl(cp); // duplicate packet
+		TRACE("packet duplicated\n");
+	}
 }
 
 void TankClient::GetStatistics(NetworkStats *pStats)

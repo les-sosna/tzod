@@ -77,11 +77,13 @@ class TankClient
 	void Message(const char *msg, bool err = false);
 
 public:
-	DWORD _latency;
+	int _latency;
 
 private:
 	DWORD _clientId;
 	NetworkStats _stats;
+
+public: // FIXME
 	bool  _gameStarted;
 
 public:

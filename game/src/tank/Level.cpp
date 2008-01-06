@@ -1148,7 +1148,6 @@ void Level::TimeStep(float dt)
 			_time       += fixed_dt;
 			_timeBuffer -= fixed_dt;
 
-
 			if( !_freezed )
 			{
 				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
@@ -1177,7 +1176,14 @@ void Level::TimeStep(float dt)
 #ifdef NETWORK_DEBUG
 			_checksum = dwCheckSum;
 #endif
-			break;
+
+			NetworkStats ns;
+			g_client->GetStatistics(&ns);
+
+			if( ns.nFramesInBuffer < g_conf.sv_latency->GetInt() )
+			{
+				break;
+			}
 		} // end of while( _timeBuffer > 0 )
 	}
 	else // if( g_client )

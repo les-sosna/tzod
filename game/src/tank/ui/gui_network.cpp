@@ -524,9 +524,6 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			tmp << "команда " << player->GetTeam();
 				_players->SetItemText(index, 2, tmp.str().c_str());
 
-		//	if( pd.type >= MAX_HUMANS )
-		//		ListView_SetItemText(hwndLV, ListView_GetItemCount(hwndLV) - 1, 3, "Бот");
-
 			_buf->printf("%s вошел в игру.\n", player->GetNick().c_str());
 
 			_btnOK->Enable(true);
@@ -540,14 +537,14 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			break;
 
 		case DBTYPE_STARTGAME:
-		{
-			for( size_t i = 0; i < g_client->_latency; ++i )
+			for( int i = 0; i < g_client->_latency; ++i )
 			{
 				g_client->SendControl(ControlPacket());
 			}
+			g_client->_gameStarted = true; // FIXME
 			Close(_resultOK);
 			break;
-		}
+
 		default:
 			_ASSERT(FALSE);
 		} // end of switch( db.type() )
