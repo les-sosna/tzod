@@ -15,8 +15,8 @@ class ControlPacket
 {
 public:
 	WORD  wControlState;
-	float fTowerAngle;
-	float fBodyAngle;
+	unsigned short weap;  // angle, if explicit
+	unsigned short body;  // angle, if explicit
 #ifdef NETWORK_DEBUG
 	DWORD checksum;
 #endif

@@ -139,10 +139,10 @@ void Console::OnRawChar(int c)
 				int end = _input->GetSelEnd();
 				_input->SetText(
 					( _input->GetText().substr(0, end)
-					+ result
-					+ _input->GetText().substr(end)
+					  + result
+					  + _input->GetText().substr(end)
 					).c_str()
-					);
+				);
 				_input->SetSel(end + result.length(), end + result.length());
 			}
 		}

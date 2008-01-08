@@ -23,8 +23,8 @@ ControlPacket::ControlPacket()
 void ControlPacket::fromvs(const VehicleState &vs)
 {
 	wControlState = 0;
-	fTowerAngle   = 0;
-	fBodyAngle    = 0;
+	weap = 0;
+	body = 0;
 
 	wControlState |= STATE_MOVEFORWARD * (false != vs._bState_MoveForward);
 	wControlState |= STATE_MOVEBACK    * (false != vs._bState_MoveBack);
@@ -34,7 +34,7 @@ void ControlPacket::fromvs(const VehicleState &vs)
 
 	if( vs._bExplicitBody )
 	{
-		fBodyAngle = vs._fBodyAngle;
+		body = (unsigned short) (int(vs._fBodyAngle / PI2 * 65536.0f + 0.5f) & 0xffff);
 		wControlState |= MODE_EXPLICITBODY;
 	}
 	else
@@ -45,7 +45,7 @@ void ControlPacket::fromvs(const VehicleState &vs)
 
 	if( vs._bExplicitTower )
 	{
-		fTowerAngle = vs._fTowerAngle;
+		weap = (unsigned short) (int(vs._fTowerAngle / PI2 * 65536.0f + 0.5f) & 0xffff);
 		wControlState |= MODE_EXPLICITTOWER;
 	}
 	else
@@ -72,7 +72,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 
 	if( vs._bExplicitBody)
 	{
-		vs._fBodyAngle = fBodyAngle;
+		vs._fBodyAngle = (float) body / 65536.0f * PI2;
 	}
 	else
 	{
@@ -81,7 +81,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 	}
 
 	if( vs._bExplicitTower)
-		vs._fTowerAngle = fTowerAngle;
+		vs._fTowerAngle = (float) weap / 65536.0f * PI2;
 	else
 	{
 		vs._bState_TowerLeft   = (0 != (wControlState & STATE_TOWERLEFT));
@@ -94,7 +94,7 @@ void ControlPacket::tovs(VehicleState &vs) const
 
 TankClient::TankClient(void)
 {
-	_init    = false;
+	_init = false;
 	_hwnd = NULL;
 
 	//---------------------------------
@@ -108,8 +108,6 @@ TankClient::TankClient(void)
 
 	_readyToSend = false;
 	_gameStarted = false;
-
-
 }
 
 TankClient::~TankClient(void)
