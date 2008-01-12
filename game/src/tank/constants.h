@@ -209,6 +209,7 @@ enum enumZOrder
 #define DIR_MAPS         "maps"
 #define DIR_SKINS        "skins"
 #define DIR_THEMES       "themes"
+#define DIR_MUSIC        "music"
 #define DIR_SCREENSHOTS  "screenshots"
 
 #define FILE_CONFIG      "config.cfg"

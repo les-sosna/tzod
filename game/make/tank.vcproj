@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\src\tank,..\src\auxiliary,..\src\lua\src,..\src\pluto"
+				AdditionalIncludeDirectories="..\src\tank,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
 				PreprocessorDefinitions="WIN32,_DEBUG,_WINDOWS,LOGFILE,NETWORK_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -140,7 +140,7 @@
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\src\tank,..\src\auxiliary,..\src\lua\src,..\src\pluto"
+				AdditionalIncludeDirectories="..\src\tank,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE_0;NOSOUND_0"
 				KeepComments="false"
 				StringPooling="true"
@@ -238,7 +238,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="..\src\tank,..\src\auxiliary,..\src\lua\src,..\src\pluto"
+				AdditionalIncludeDirectories="..\src\tank,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG_0"
 				StringPooling="true"
 				BufferSecurityCheck="false"
@@ -1070,6 +1070,26 @@
 			</File>
 			<File
 				RelativePath="..\workdir\scripts\weapons.lua"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="sound"
+			>
+			<File
+				RelativePath="..\src\tank\sound\MusicPlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\sound\MusicPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\sound\sfx.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\sound\sfx.h"
 				>
 			</File>
 		</Filter>

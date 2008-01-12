@@ -14,6 +14,10 @@
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
 
+#include "fs/FileSystem.h"
+
+#include "sound/MusicPlayer.h"
+
 #include "core/Console.h"
 #include "core/debug.h"
 
@@ -317,6 +321,27 @@ static int luaT_message(lua_State *L)
 		lua_pop(L, 1);            // pop result
 	}
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf.str().c_str());
+	return 0;
+}
+
+// select a soundtraack
+static int luaT_music(lua_State *L)
+{
+	int n = lua_gettop(L);     // get number of arguments
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
+	const char *filename = luaL_checkstring(L, 1);
+
+//	SAFE_DELETE(g_music);
+
+	SafePtr<IFileSystem> fs = g_fs->GetFileSystem(DIR_MUSIC);
+	if( SafePtr<IFile> file = fs->Open(filename) )
+	{
+		g_music->Load(file);
+		g_music->Play(true);
+	}
+
 	return 0;
 }
 
@@ -1018,6 +1043,8 @@ lua_State* script_open(void)
 	lua_register(L, "import",   luaT_import);
 	lua_register(L, "export",   luaT_export);
 	lua_register(L, "loadtheme",luaT_loadtheme);
+	lua_register(L, "music",    luaT_music);
+
 
 	lua_register(L, "actor",    luaT_actor);
 	lua_register(L, "service",  luaT_service);

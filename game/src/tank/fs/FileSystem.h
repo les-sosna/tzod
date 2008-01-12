@@ -13,8 +13,10 @@ protected:
     virtual ~IFile(); // delete only via Release
 
 public:
-    virtual bool Read(void *data, unsigned int size)        = 0;
-    virtual bool Write(const void *data, unsigned int size) = 0;
+    virtual size_t Read(void *data, size_t size)      = 0;
+    virtual bool Write(const void *data, size_t size) = 0;
+    virtual bool Seek(long offset, int origin)        = 0; // origin could be SEEK_CUR, SEEK_END, SEEK_SET
+    virtual size_t Tell() const                       = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,8 +68,10 @@ class OSFileSystem : public IFileSystem
         OSFile(const TCHAR *fileName);
         virtual ~OSFile();
 
-        virtual bool Read(void *data, unsigned int size);
-        virtual bool Write(const void *data, unsigned int size);
+        virtual size_t Read(void *data, size_t size);
+        virtual bool Write(const void *data, size_t size);
+        virtual bool Seek(long offset, int origin);
+		virtual size_t Tell() const;
 
         bool IsOpen() const;
     };

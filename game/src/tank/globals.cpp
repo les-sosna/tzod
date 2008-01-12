@@ -10,13 +10,14 @@
 
 ENVIRONMENT g_env;
 
-LPDIRECTINPUTDEVICE8  g_pKeyboard = NULL;
-
-CSoundManager   *g_pSoundManager = NULL;
-
 HINSTANCE    g_hInstance = NULL;
 
-CSound      *g_pSounds[SND_COUNT] = {0};
+
+LPDIRECTINPUTDEVICE8  g_pKeyboard = NULL;
+
+CSoundManager   *g_soundManager = NULL;
+MusicPlayer     *g_music         =  NULL;
+CSound          *g_pSounds[SND_COUNT] = {NULL};
 
 IRender     *g_render  = NULL;
 GuiManager  *g_gui     = NULL;

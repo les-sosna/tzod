@@ -157,18 +157,37 @@ OSFileSystem::OSFile::~OSFile()
 	}
 }
 
-bool OSFileSystem::OSFile::Read(void *data, unsigned int size)
+size_t OSFileSystem::OSFile::Read(void *data, size_t size)
 {
 	DWORD bytesRead = 0;
 	ReadFile(_handle, data, size, &bytesRead, NULL);
-	return bytesRead == size;
+	return bytesRead;
 }
 
-bool OSFileSystem::OSFile::Write(const void *data, unsigned int size)
+bool OSFileSystem::OSFile::Write(const void *data, size_t size)
 {
 	DWORD bytesWritten = 0;
 	WriteFile(_handle, data, size, &bytesWritten, NULL);
 	return bytesWritten == size;
+}
+
+bool OSFileSystem::OSFile::Seek(long offset, int origin)
+{
+	DWORD method = 0;
+	switch( origin )
+	{
+	case SEEK_SET: method = FILE_BEGIN;   break;
+	case SEEK_CUR: method = FILE_CURRENT; break;
+	case SEEK_END: method = FILE_END;     break;
+	default:
+		_ASSERT(FALSE);
+	}
+	return INVALID_SET_FILE_POINTER != SetFilePointer(_handle, offset, NULL, method);
+}
+
+size_t OSFileSystem::OSFile::Tell() const
+{
+	return SetFilePointer(_handle, 0, NULL, FILE_CURRENT);
 }
 
 bool OSFileSystem::OSFile::IsOpen() const

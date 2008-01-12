@@ -9,6 +9,8 @@
 
 #include "config/Config.h"
 
+#include "sound/MusicPlayer.h"
+
 #include "core/debug.h"
 #include "core/Console.h"
 
@@ -336,6 +338,10 @@ int APIENTRY WinMain( HINSTANCE hinst,
 				TimeStep(timer->GetDt());
 				RenderFrame(false);
 				EndFrame();
+				if( g_music )
+				{
+					g_music->HandleBufferFilling();
+				}
 			}
 		}// end of main loop
 

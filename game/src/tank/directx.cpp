@@ -14,6 +14,9 @@
 
 #include "config/Config.h"
 
+#include "sound/sfx.h"
+#include "sound/MusicPlayer.h"
+
 //--------------------------------------------------------------------------
 
 LPDIRECTINPUT8        g_pDI       = NULL;
@@ -41,51 +44,6 @@ VOID LoadSurfaces()
 
 #if !defined NOSOUND
 
-struct LoadSoundException
-{
-	string_t  filename;
-	HRESULT   hr;
-};
-
-void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
-{
-	if( init )
-	{
-		TRACE("loading sound from '%s'...\n", filename);
-
-		WAVEFORMATEX wfe = {0};
-		void *pData = NULL;
-		int size    = 0;
-
-		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
-		{
-			TRACE("ERROR: couldn't load file\n");
-			//-------------------------------------------------------
-			LoadSoundException e;
-			e.filename = filename;
-			e.hr       = E_FAIL;
-			throw e;
-		}
-
-		HRESULT hr = g_pSoundManager->CreateFromMemory( &g_pSounds[sound],
-			(BYTE *) pData, size, &wfe,
-			DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY, GUID_NULL);
-
-		if( FAILED(hr) )
-		{
-			TRACE("ERROR: couldn't create the sound buffer\n");
-			//-------------------------------------------------------
-			LoadSoundException e;
-			e.filename = filename;
-			e.hr       = hr;
-			throw e;
-		}
-	}
-	else
-	{
-		SAFE_DELETE(g_pSounds[sound]);
-	}
-}
 
 //-------------------------------------------------------//
 // throw LoadSoundException
@@ -96,24 +54,26 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 
 	if( init )
 	{
-		_ASSERT(!g_pSoundManager);
+		_ASSERT(!g_soundManager);
 		TRACE("Init direct sound...\n");
-		g_pSoundManager = new CSoundManager();
-		if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_PRIORITY , 2, 44100, 16)) )
+		g_soundManager = new CSoundManager();
+		if( FAILED(hr = g_soundManager->Initialize(hWnd, DSSCL_PRIORITY, 2, 44100, 16)) )
 		{
-			if( FAILED(hr = g_pSoundManager->Initialize(hWnd, DSSCL_NORMAL , 2, 44100, 16)) )
+			if( FAILED(hr = g_soundManager->Initialize(hWnd, DSSCL_NORMAL, 2, 44100, 16)) )
 			{
 				TRACE("ERROR: direct sound init failed\n");
-				SAFE_DELETE(g_pSoundManager);
+				SAFE_DELETE(g_soundManager);
 			}
 		}
+
+		g_music = new MusicPlayer();
 	}
 	else
 	{
 		TRACE("free direct sound...\n");
 	}
 
-	if( !g_pSoundManager ) return hr;
+	if( !g_soundManager ) return hr;
 
 
 	try
@@ -184,8 +144,9 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 
 void FreeDirectSound()
 {
-	InitDirectSound(0, 0);
-	SAFE_DELETE(g_pSoundManager);
+	InitDirectSound(NULL, 0);
+	SAFE_DELETE(g_music);
+	SAFE_DELETE(g_soundManager);
 }
 
 #endif

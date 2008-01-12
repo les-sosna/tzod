@@ -80,11 +80,11 @@
 
 #include "dsutil.h"
 
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
+#pragma comment(lib, "oggvorbis.lib")
 
-////////////////
-// my libs
 
-#include <auxiliary.h>
 
 #ifdef _DEBUG
 #define LUA_USE_APICHECK

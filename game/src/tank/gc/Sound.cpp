@@ -28,14 +28,14 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
   , _memberOf(this)
 {
 #ifndef NOSOUND
-	if( !g_pSoundManager )
+	if( !g_soundManager )
 	{
 		_mode = SMODE_STOP;
 		_soundBuffer = NULL;
 		return;
 	}
 
-	g_pSoundManager->GetDirectSound()->DuplicateSoundBuffer(
+	g_soundManager->GetDirectSound()->DuplicateSoundBuffer(
 		g_pSounds[sound]->GetBuffer(0), &_soundBuffer );
 	///////////////////////
 	_soundBuffer->GetFrequency(&_dwNormalFrequency);
@@ -95,7 +95,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 #ifndef NOSOUND
 
-	if( !g_pSoundManager ) return;
+	if( !g_soundManager ) return;
 	if( mode == _mode ) return;
 
 	switch (mode)
@@ -224,7 +224,7 @@ void GC_Sound::SetVolume(float vol)
 void GC_Sound::SetSpeed(float speed)
 {
 #if !defined NOSOUND
-	if( !g_pSoundManager ) return;
+	if( !g_soundManager ) return;
 	_dwCurrentFrequency = int((float)_dwNormalFrequency * speed
 		* g_conf.sv_speed->GetFloat() * 0.01f);
 	_soundBuffer->SetFrequency(_dwCurrentFrequency);
@@ -235,7 +235,7 @@ void GC_Sound::MoveTo(const vec2d &pos)
 {
 	GC_Actor::MoveTo(pos);
 #if !defined NOSOUND
-	if( !g_pSoundManager ) return;
+	if( !g_soundManager ) return;
 	_soundBuffer->SetPan(int(pos.x) - g_env.camera_x - g_render->GetWidth() / 2);
 #endif
 }
@@ -255,9 +255,9 @@ void GC_Sound::Serialize(SaveFile &f)
 	f.Serialize(_mode);
 	f.Serialize(_soundTemplate);
 	/////////////////////////////////////
-	if( f.loading() && g_pSoundManager )
+	if( f.loading() && g_soundManager )
 	{
-		g_pSoundManager->GetDirectSound()->DuplicateSoundBuffer(
+		g_soundManager->GetDirectSound()->DuplicateSoundBuffer(
 			g_pSounds[_soundTemplate]->GetBuffer(0), &_soundBuffer);
 
 		_soundBuffer->SetCurrentPosition( _dwPosition );
@@ -283,7 +283,7 @@ void GC_Sound::Serialize(SaveFile &f)
 void GC_Sound::EndFrame()
 {
 #if !defined NOSOUND
-	if( !g_pSoundManager || _freezed ) return;
+	if( !g_soundManager || _freezed ) return;
 
 	if( SMODE_PLAY == _mode )
 	{
@@ -298,7 +298,7 @@ void GC_Sound::EndFrame()
 void GC_Sound::Freeze(bool freeze)
 {
 #if !defined NOSOUND
-	if( !g_pSoundManager ) return;
+	if( !g_soundManager ) return;
 
 	_freezed = freeze;
 	if( IsKilled() )

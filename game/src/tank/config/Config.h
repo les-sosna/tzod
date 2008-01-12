@@ -59,6 +59,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	// sound
 	CONFIG_VAR_INT( s_volume,     DSBVOLUME_MAX );
 	CONFIG_VAR_INT( s_maxchanels,            16 );
+	CONFIG_VAR_INT( s_buffer,              2000 );
 
 	// game
 	CONFIG_VAR_BOOL(  g_showdamage,       false );
