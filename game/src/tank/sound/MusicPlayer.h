@@ -21,6 +21,7 @@ class MusicPlayer
 	static int    seek_func  (void *datasource, ogg_int64_t offset, int whence);
 	static long   tell_func  (void *datasource);
 
+	void OnChangeVolume();
 
 public:
 	MusicPlayer();

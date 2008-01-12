@@ -82,13 +82,21 @@ SettingsDlg::SettingsDlg(Window *parent)
 	_askDisplaySettings->SetCheck(g_conf.r_askformode->Get());
 	y += _askDisplaySettings->GetHeight();
 
-	new Text(this, x, y += 20, "Громкость", alignTextLT);
-	_volume = new ScrollBar(this, x + 16, y += 15, 128, true);
-	_volume->SetLimit(1);
-	_volume->SetLineSize(0.1f);
-	_volume->SetPos(expf(g_conf.s_volume->GetFloat() / 2171.0f) - 0.01f);
-	_volume->eventScroll.bind(&SettingsDlg::OnVolume, this);
-	_initialVolume = g_conf.s_volume->GetInt();
+	new Text(this, x + 50, y += 20, "Громкость", alignTextRT);
+	_volumeSfx = new ScrollBar(this, x + 60, y, 150, true);
+	_volumeSfx->SetLimit(1);
+	_volumeSfx->SetLineSize(0.1f);
+	_volumeSfx->SetPos(expf(g_conf.s_volume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeSfx->eventScroll.bind(&SettingsDlg::OnVolumeSfx, this);
+	_initialVolumeSfx = g_conf.s_volume->GetInt();
+
+	new Text(this, x + 50, y += 20, "Музыка", alignTextRT);
+	_volumeMusic = new ScrollBar(this, x + 60, y, 150, true);
+	_volumeMusic->SetLimit(1);
+	_volumeMusic->SetLineSize(0.1f);
+	_volumeMusic->SetPos(expf(g_conf.s_musicvolume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeMusic->eventScroll.bind(&SettingsDlg::OnVolumeMusic, this);
+	_initialVolumeMusic = g_conf.s_musicvolume->GetInt();
 
 
 	//
@@ -108,9 +116,14 @@ SettingsDlg::~SettingsDlg()
 	PauseGame(false);
 }
 
-void SettingsDlg::OnVolume(float pos)
+void SettingsDlg::OnVolumeSfx(float pos)
 {
 	g_conf.s_volume->SetInt( int(2171.0f * logf(0.01f + pos)) );
+}
+
+void SettingsDlg::OnVolumeMusic(float pos)
+{
+	g_conf.s_musicvolume->SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnAddProfile()
@@ -153,7 +166,8 @@ void SettingsDlg::OnOK()
 
 void SettingsDlg::OnCancel()
 {
-	g_conf.s_volume->SetInt(_initialVolume);
+	g_conf.s_volume->SetInt(_initialVolumeSfx);
+	g_conf.s_musicvolume->SetInt(_initialVolumeMusic);
 	Close(_resultCancel);
 }
 

@@ -18,11 +18,21 @@ MusicPlayer::MusicPlayer()
   , _bufHalfSize(0)
 {
 	ZeroMemory(&_vorbisFile, sizeof(OggVorbis_File));
+	g_conf.s_musicvolume->eventChange.bind(&MusicPlayer::OnChangeVolume, this);
 }
 
 MusicPlayer::~MusicPlayer()
 {
+	g_conf.s_musicvolume->eventChange.clear();
 	Cleanup();
+}
+
+void MusicPlayer::OnChangeVolume()
+{
+	if( _buffer )
+	{
+		_buffer->SetVolume(DSBVOLUME_MIN + int((float) (g_conf.s_musicvolume->GetInt() - DSBVOLUME_MIN)));
+	}
 }
 
 void MusicPlayer::Cleanup()
@@ -185,6 +195,7 @@ bool MusicPlayer::Load(SafePtr<IFile> file)
 	//release old, temp interface
 	SAFE_RELEASE(pTempBuffer);
 
+	OnChangeVolume();
 
 	Fill(true); // Fill first half of buffer with initial data
 	_firstHalfPlaying = false;

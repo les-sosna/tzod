@@ -26,8 +26,11 @@ class SettingsDlg : public Dialog
 	CheckBox  *_showDamage;
 	CheckBox  *_askDisplaySettings;
 
-	ScrollBar *_volume;
-	int _initialVolume;
+	ScrollBar *_volumeSfx;
+	int _initialVolumeSfx;
+
+	ScrollBar *_volumeMusic;
+	int _initialVolumeMusic;
 
 
 public:
@@ -35,7 +38,8 @@ public:
 	~SettingsDlg();
 
 protected:
-	void OnVolume(float pos);
+	void OnVolumeSfx(float pos);
+	void OnVolumeMusic(float pos);
 
 	void OnAddProfile();
 	void OnEditProfile();
