@@ -65,8 +65,6 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 				SAFE_DELETE(g_soundManager);
 			}
 		}
-
-		g_music = new MusicPlayer();
 	}
 	else
 	{
