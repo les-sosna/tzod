@@ -30,5 +30,7 @@ for _,s in pairs{"red","yellow","blue","FBI Tank","neutral"} do
   service("ai", {skin=s})
 end
 
+music "default.ogg"
+
 
 -- end of file
