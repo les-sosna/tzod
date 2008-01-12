@@ -78,7 +78,7 @@ sub copy_dir
 ###############################################################################
 
 
-mkdir "../out/Tank"; # or die "direcory 'out/Tank' is already exists";
+mkdir "../out/Tank" or die "direcory 'out/Tank' is already exists";
 
 # copy binary files from 'out/release'
 copy_dir("../out/release", "../out/Tank",
