@@ -85,7 +85,7 @@ copy_dir("../out/release", "../out/Tank",
 	['.'], # ignore all
 	[      # but force this files
 		'tank\.exe$',
-		'\.dll$',
+#		'\.dll$',
 	],
 	0   # non-recursive
 );
