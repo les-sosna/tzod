@@ -475,6 +475,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	{
 		_skins->SetCurSel(0);
 	}
+	lst->AlignHeightToContent();
 
 
 	//
@@ -504,7 +505,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	}
 	if( -1 == _classes->GetCurSel() )
 		_classes->SetCurSel(0);
-
+	_classes->GetList()->AlignHeightToContent();
 
 	new Text(this, x1, y+=24, "Команда", alignTextLT);
 	_teams = new ComboBox(this, x2, y-=1, 200);
@@ -551,6 +552,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	{
 		_profiles->SetCurSel(0);
 	}
+	lst->AlignHeightToContent();
 
 
 	//
@@ -587,6 +589,15 @@ void EditPlayerDlg::OnChangeSkin(int index)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+const char EditBotDlg::levels[][16] = {
+	"Новичок",
+	"Средний",
+	"Бывалый",
+	"Опытный",
+	"Ветеран",
+};
+
 
 EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
   : Dialog(parent, 384, 220)
@@ -648,6 +659,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	{
 		_skins->SetCurSel(0);
 	}
+	lst->AlignHeightToContent();
 
 
 	//
@@ -674,6 +686,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	}
 	if( -1 == _classes->GetCurSel() )
 		_classes->SetCurSel(0);
+	_classes->GetList()->AlignHeightToContent();
 
 
 	new Text(this, x1, y+=24, "Команда", alignTextLT);
@@ -705,13 +718,6 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_levels = new ComboBox(this, x2, y-=1, 200);
 	lst = _levels->GetList();
 
-	const char levels[][16] = {
-		"Новичок",
-		"Средний",
-		"Бывалый",
-		"Опытный",
-		"Ветеран",
-	};
 	for( int i = 0; i < 5; ++i )
 	{
 		int index = lst->AddItem(levels[i]);

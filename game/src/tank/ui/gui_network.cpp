@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 
+#include "gui.h"
 #include "gui_network.h"
 #include "gui_maplist.h"
 
@@ -24,6 +25,7 @@
 #include "network/TankServer.h"
 
 #include "gc/Player.h"
+#include "gc/ai.h"
 
 
 namespace UI
@@ -344,17 +346,25 @@ void ConnectDlg::Error(const char *msg)
 ///////////////////////////////////////////////////////////////////////////////
 
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
-  : Dialog(parent, 700, 512)
+  : Dialog(parent, 680, 512)
 {
 	Text *title = new Text(this, GetWidth() / 2, 16, "Ожидание других игроков", alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
 	new Text(this, 20, 50, "Кто в игре", alignTextLT);
-	_players = new List(this, 20, 65, 512, 200);
+	_players = new List(this, 20, 65, 512, 70);
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
+
+	new Text(this, 20, 150, "Боты", alignTextLT);
+	_bots = new List(this, 20, 165, 512, 100);
+	_bots->SetTabPos(1, 200);
+	_bots->SetTabPos(2, 300);
+	_bots->SetTabPos(3, 400);
+
+	(new Button(this, 560, 180, "Новый"))->eventClick.bind(&WaitingForPlayersDlg::OnAddBot, this);
 
 
 	new Text(this, 20, 285, "Окно чата", alignTextLT);
@@ -365,11 +375,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_chat->eventOnSendCommand.bind(&WaitingForPlayersDlg::OnSendMessage, this);
 
 
-	_btnOK = new Button(this, 590, 450, "Я готов!");
+	_btnOK = new Button(this, 560, 450, "Я готов!");
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->Enable(false);
 
-	(new Button(this, 590, 480, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
+	(new Button(this, 560, 480, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	PlayerDesc pd;
@@ -386,6 +396,27 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
 	SAFE_DELETE(_buf);
+}
+
+void WaitingForPlayersDlg::OnAddBot()
+{
+	(new EditBotDlg(this, g_conf.ui_netbotinfo))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
+}
+
+void WaitingForPlayersDlg::OnAddBotClose(int result)
+{
+	if( _resultOK == result )
+	{
+		BotDesc bd;
+		strcpy(bd.nick, g_conf.ui_netbotinfo->GetStr("nick", "Bot")->Get());
+		strcpy(bd.cls, g_conf.ui_netbotinfo->GetStr("class", "default")->Get());
+		strcpy(bd.skin, g_conf.ui_netbotinfo->GetStr("skin", "red")->Get());
+		bd.score = 0;
+		bd.team = g_conf.ui_netbotinfo->GetNum("team", 0)->GetInt();
+		bd.level = g_conf.ui_netbotinfo->GetNum("level", 2)->GetInt();
+
+		g_client->SendDataToServer(DataWrap(bd, DBTYPE_NEWBOT));
+	}
 }
 
 void WaitingForPlayersDlg::OnOK()
@@ -440,7 +471,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		case DBTYPE_PLAYERREADY:
 		{
 			int count = g_level->GetList(LIST_players).size();
-			_ASSERT(_players->GetSize() == count);
+			_ASSERT(_players->GetSize() <= count); // count includes bots
 
 			const DWORD who = db.cast<dbPlayerReady>().player_id;
 
@@ -496,6 +527,33 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			break;
 		}
 
+		case DBTYPE_NEWBOT:
+		{
+			BotDesc &bd = db.cast<BotDesc>();
+			GC_PlayerAI *ai = new GC_PlayerAI();
+
+			ai->SetClass(bd.cls);
+			ai->SetNick(bd.nick);
+			ai->SetSkin(bd.skin);
+			ai->SetTeam(bd.team);
+			ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
+			ai->UpdateSkin();
+
+			// nick & skin
+			int index = _bots->AddItem(ai->GetNick().c_str(), (UINT_PTR) ai);
+			_bots->SetItemText(index, 1, ai->GetSkin().c_str());
+
+			// team
+			std::ostringstream tmp;
+			tmp << "команда " << ai->GetTeam();
+			_bots->SetItemText(index, 2, tmp.str().c_str());
+
+			// level
+			_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
+
+			break;
+		}
+
 		case DBTYPE_NEWPLAYER:
 		{
 			PlayerDescEx &pd = db.cast<PlayerDescEx>();
@@ -522,7 +580,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 
 			std::ostringstream tmp;
 			tmp << "команда " << player->GetTeam();
-				_players->SetItemText(index, 2, tmp.str().c_str());
+			_players->SetItemText(index, 2, tmp.str().c_str());
 
 			_buf->printf("%s вошел в игру.\n", player->GetNick().c_str());
 

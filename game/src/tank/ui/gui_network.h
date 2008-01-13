@@ -58,6 +58,7 @@ protected:
 class WaitingForPlayersDlg : public Dialog
 {
 	List           *_players;
+	List           *_bots;
 	Console        *_chat;
 	ConsoleBuffer  *_buf;
 	Button         *_btnOK;
@@ -67,6 +68,8 @@ public:
 	~WaitingForPlayersDlg();
 
 protected:
+	void OnAddBot();
+	void OnAddBotClose(int result);
 	void OnOK();
 	void OnCancel();
 	void OnSendMessage(const char *msg);

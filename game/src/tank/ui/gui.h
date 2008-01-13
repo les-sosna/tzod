@@ -108,6 +108,8 @@ class EditBotDlg : public Dialog
 public:
 	EditBotDlg(Window *parent, ConfVarTable *info);
 
+	static const char levels[AI_MAX_LEVEL+1][16];
+
 protected:
 	void OnOK();
 	void OnCancel();

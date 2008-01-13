@@ -84,9 +84,11 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_ARRAY( con_history );
 
 	// user interface
-	CONFIG_VAR_BOOL( ui_showfps,          false );
-	CONFIG_VAR_BOOL( ui_showtime,          true );
-	CONFIG_VAR_BOOL( ui_showmsg,           true );
+	CONFIG_VAR_BOOL(  ui_showfps,          false );
+	CONFIG_VAR_BOOL(  ui_showtime,          true );
+	CONFIG_VAR_BOOL(  ui_showmsg,           true );
+	CONFIG_VAR_TABLE( ui_netbotinfo );
+
 
 	// other
 	CONFIG_VAR_TABLE( dm_profiles );

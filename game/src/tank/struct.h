@@ -41,6 +41,11 @@ struct PlayerDescEx : public PlayerDesc
 	DWORD id;
 };
 
+struct BotDesc : public PlayerDesc
+{
+	int level;
+};
+
 //----------------------------------------------------------
 
 #define MAX_SRVNAME 16

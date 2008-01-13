@@ -1128,9 +1128,9 @@ PropertySet* GC_PlayerAI::NewPropertySet()
 
 GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
 : BASE(object)
-, _propLevel(  ObjectProperty::TYPE_INTEGER, "level" )
+, _propLevel( ObjectProperty::TYPE_INTEGER, "level" )
 {
-	_propLevel.SetIntRange(0, 4);
+	_propLevel.SetIntRange(0, AI_MAX_LEVEL);
 }
 
 int GC_PlayerAI::MyPropertySet::GetCount() const

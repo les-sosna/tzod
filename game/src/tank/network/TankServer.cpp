@@ -351,6 +351,16 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 					break;
 				}
 
+				case DBTYPE_NEWBOT:
+				{
+					std::list<ClientDesc>::iterator it;
+					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
+					{
+						pData->pServer->SendClientThreadData(it, db);
+					}
+					break;
+				}
+
 				default:
 					_ASSERT(FALSE);
 					throw (int) Socket::Error;

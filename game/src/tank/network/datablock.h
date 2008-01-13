@@ -6,32 +6,33 @@
 
 /////////////////////////////////////////////////////////
 
-#define DBTYPE_UNKNOWN     -1
+enum DbType
+{
+	DBTYPE_TEXTMESSAGE,
+	DBTYPE_ERRORMSG,
+	DBTYPE_GAMEINFO,
+	DBTYPE_YOURID,
+	DBTYPE_NEWPLAYER,
+	DBTYPE_NEWBOT,
+	DBTYPE_PLAYERINFO,
+	DBTYPE_PLAYERQUIT,
+//	DBTYPE_KICK,
+	DBTYPE_SERVERQUIT,
+	DBTYPE_PLAYERREADY,
+	DBTYPE_STARTGAME,
+	DBTYPE_CONTROLPACKET,
+	DBTYPE_PING,
+	DBTYPE_CHECKSUM,
+	//----------------------
+	DBTYPE_UNKNOWN = 0xffff
+};
 
-
-#define DBTYPE_TEXTMESSAGE  1
-#define DBTYPE_ERRORMSG     2
-#define DBTYPE_GAMEINFO     3
-#define DBTYPE_YOURID       4
-#define DBTYPE_NEWPLAYER    5
-#define DBTYPE_PLAYERINFO   6
-#define DBTYPE_PLAYERQUIT   7
-//#define DBTYPE_KICK         8
-#define DBTYPE_SERVERQUIT   9
-
-#define DBTYPE_PLAYERREADY  10
 struct dbPlayerReady
 {
 	DWORD player_id;
 	BOOL  ready;
 };
 
-#define DBTYPE_STARTGAME       11
-#define DBTYPE_CONTROLPACKET   12
-
-#define DBTYPE_PING            13
-
-#define DBTYPE_CHECKSUM        14
 
 ////////////////////////////////////////////////////
 

@@ -176,6 +176,7 @@ public:
 	void debug_draw(HDC hdc);
 
 	void SetLevel(int level) { _level = level; }
+	int  GetLevel() const { return _level; }
 
 protected:
 	virtual DWORD GetNetworkID() const { return 0; }

@@ -11,6 +11,8 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
+#include "core/Console.h"
+
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {
 	ED_ITEM( "trigger", "Триггер", 6 );
@@ -118,7 +120,31 @@ void GC_Trigger::TimeStepFixed(float dt)
 		}
 		if( _veh )
 		{
-			script_exec(g_env.L, _onEnter.c_str());
+			const char *who = _veh->GetName();
+			std::stringstream buf;
+			buf << "return function(who)";
+			buf << _onEnter;
+			buf << ";end";
+
+			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
+			{
+				g_console->printf("syntax error %s\n", lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message from the stack
+			}
+			else
+			{
+				if( lua_pcall(g_env.L, 0, 1, 0) )
+				{
+					g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+					lua_pop(g_env.L, 1); // pop the error message from the stack
+				}
+				lua_pushstring(g_env.L, who ? who : "");
+				if( lua_pcall(g_env.L, 1, 0, 0) )
+				{
+					g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+					lua_pop(g_env.L, 1); // pop the error message from the stack
+				}
+			}
 		}
 	}
 	else if( _veh )
