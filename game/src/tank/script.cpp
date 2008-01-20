@@ -841,6 +841,35 @@ int luaT_exists(lua_State *L)
 
 
 
+// type("object name")
+int luaT_objtype(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+	_ASSERT(!obj->IsKilled());
+
+	lua_pushstring(L, Level::GetTypeName(obj->GetType()));
+	return 1;
+}
+
+
+
 // pget("object name", "property name")
 int luaT_pget(lua_State *L)
 {
@@ -1080,6 +1109,7 @@ lua_State* script_open(void)
 	lua_register(L, "pset",     luaT_pset);
 	lua_register(L, "equip",    luaT_equip);
 	lua_register(L, "exists",   luaT_exists);
+	lua_register(L, "objtype",  luaT_objtype);
 
 	lua_register(L, "msgbox",   luaT_msgbox);
 
@@ -1127,7 +1157,6 @@ lua_State* script_open(void)
 
 	lua_newtable(L);
 	lua_setglobal(L, "user"); // set global and pop one element from stack
-
 
 	return L;
 }
