@@ -21,6 +21,20 @@ struct AIWEAPSETTINGS
 class GC_Weapon : public GC_Pickup
 {
 protected:
+	class MyPropertySet : public GC_Pickup::MyPropertySet
+	{
+		typedef GC_Pickup::MyPropertySet BASE;
+		ObjectProperty _propTimeStay;
+
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
+
+protected:
 	bool _advanced; // weapon has booster attached
 
 	SafePtr<GC_UserSprite> _fireEffect;
@@ -35,8 +49,11 @@ public:
 	virtual void SetAdvanced(bool advanced) { _advanced = advanced; }
 	inline  bool GetAdvanced()              { return _advanced;     }
 
+	GC_RigidBodyStatic* GetOwner() const { return (GC_RigidBodyStatic *) GC_Pickup::GetOwner(); }
+
 public:
 	float _time;
+	float _timeStay;
 	float _timeReload;
 
 	float    _angle;          // угол поворота относительно платформы

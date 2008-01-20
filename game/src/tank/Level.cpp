@@ -950,8 +950,10 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
-					if( object->Trace0() ) continue;
-					if( ignore == object || object->IsKilled() ) continue;
+					if( object->GetTrace0() || ignore == object || object->IsKilled() )
+					{
+						continue;
+					}
 
 					//грубо
 					bool bHasHit = true;

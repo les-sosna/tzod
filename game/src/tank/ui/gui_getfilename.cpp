@@ -70,7 +70,7 @@ string_t GetFileNameDlg::GetFileTitle() const
 
 void GetFileNameDlg::OnSelect(int index)
 {
-	if( _changing ) return;
+	if( _changing || -1 == index ) return;
 	_fileName->SetText(_files->GetItemText(index).c_str());
 }
 

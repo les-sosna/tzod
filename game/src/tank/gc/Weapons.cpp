@@ -20,6 +20,54 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+PropertySet* GC_Weapon::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Weapon::MyPropertySet::MyPropertySet(GC_Object *object)
+: BASE(object)
+, _propTimeStay(ObjectProperty::TYPE_INTEGER, "stay_time")
+{
+	_propTimeStay.SetIntRange(0, 1000000);
+}
+
+int GC_Weapon::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 1;
+}
+
+ObjectProperty* GC_Weapon::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propTimeStay; break;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_Weapon::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_Weapon *obj = static_cast<GC_Weapon*>(GetObject());
+	if( applyToObject )
+	{
+		obj->_timeStay = (float) _propTimeStay.GetIntValue() / 1000.0f;
+	}
+	else
+	{
+		_propTimeStay.SetIntValue(int(obj->_timeStay * 1000.0f + 0.5f));
+	}
+}
+
+
 GC_Weapon::GC_Weapon(float x, float y) : GC_Pickup(x, y), _rotator(_angle)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
@@ -31,6 +79,8 @@ GC_Weapon::GC_Weapon(float x, float y) : GC_Pickup(x, y), _rotator(_angle)
 	_fePos.Set(0,0);
 
 	_time       = 0;
+	_timeStay   = 15.0f;
+	_timeReload = 0;
 }
 
 AIPRIORITY GC_Weapon::GetPriority(GC_Vehicle *veh)
@@ -149,6 +199,7 @@ void GC_Weapon::Serialize(SaveFile &f)
 	f.Serialize(_fePos);
 	f.Serialize(_feTime);
 	f.Serialize(_time);
+	f.Serialize(_timeStay);
 	f.Serialize(_timeReload);
 	f.Serialize(_crosshair);
 	f.Serialize(_fireEffect);
@@ -217,15 +268,15 @@ void GC_Weapon::TimeStepFixed(float dt)
 		if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
 		{
 			_crosshair->MoveTo(GetPos() + CH_DISTANCE_NORMAL * vec2d(
-				static_cast<GC_Vehicle*>(GetOwner())->_angle + _angle) );
+				GetOwner()->GetRotation() + _angle) );
 		}
 	}
 	else
 	{
 		if( GetRespawn() && IsVisible() )
 		{
-			SetBlinking(_time > 12.0f);
-			if( _time > 15.0f )
+			SetBlinking(_time > _timeStay - 3.0f);
+			if( _time > _timeStay )
 			{
 				SetBlinking(false);
 				Disappear();
@@ -288,7 +339,7 @@ void GC_Weap_RocketLauncher::Detach()
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(float x, float y) : GC_Weapon(x, y)
 {
 	_firing = false;
-	_feTime  = 0.1f;
+	_feTime = 0.1f;
 	SetTexture("weap_ak47");
 }
 

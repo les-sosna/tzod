@@ -176,6 +176,7 @@ bool RenderOpenGL::getDisplayMode(int index, DisplayMode *pMode) const
 
 bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 {
+	TRACE("OpenGL initialization...\n");
 	if( bFullScreen )
 	{
 		DEVMODE dm = {0};
@@ -190,7 +191,7 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 		if( DISP_CHANGE_SUCCESSFUL != ChangeDisplaySettings(&dm, CDS_FULLSCREEN) )
 		{
 			ChangeDisplaySettings(NULL, 0);
-            return false;
+			return false;
 		}
 
 		_bDisplayChanged = TRUE;
@@ -281,14 +282,14 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	}
 	catch(const char *msg)
 	{
-		TRACE("OpenGL init error: %s", msg);
+		TRACE(" OpenGL init error: %s", msg);
 		result = false;
 		_cleanup();
 	}
 
 
 	//
-	// disable vsync
+	// enable/disable vsync
 	//
 	typedef BOOL (APIENTRY * wglSwapIntervalEXT_Func)(int);
 	wglSwapIntervalEXT_Func wglSwapIntervalEXT =
@@ -300,7 +301,7 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 
 void RenderOpenGL::OnResizeWnd()
 {
-    if( !_hWnd ) return;
+	if( !_hWnd ) return;
 
 	RECT rt;
 	GetClientRect( _hWnd, &rt );
@@ -401,7 +402,6 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		break;
-
 
 	case RM_WORLD:
 		glEnable(GL_TEXTURE_2D);
@@ -570,7 +570,7 @@ bool RenderOpenGL::TakeScreenshot(TCHAR *fileName)
 		return false;
 	}
 
-    glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
+	glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
 
 	DWORD id;
 	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));

@@ -140,18 +140,21 @@ void List::SetCurSel(int sel, bool scroll)
 		sel = -1;
 	}
 
-	_curSel = sel;
-	if( scroll )
+	if( _curSel != sel )
 	{
-		float fs = (float) sel;
-		if( fs < _scrollBar->GetPos() )
-			_scrollBar->SetPos(fs);
-		else if( fs > _scrollBar->GetPos() + GetNumLinesVisible() - 1 )
-			_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
-	}
-	if( eventChangeCurSel )
-	{
-		INVOKE(eventChangeCurSel) (sel);
+		_curSel = sel;
+		if( scroll )
+		{
+			float fs = (float) sel;
+			if( fs < _scrollBar->GetPos() )
+				_scrollBar->SetPos(fs);
+			else if( fs > _scrollBar->GetPos() + GetNumLinesVisible() - 1 )
+				_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
+		}
+		if( eventChangeCurSel )
+		{
+			INVOKE(eventChangeCurSel) (sel);
+		}
 	}
 }
 

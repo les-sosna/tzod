@@ -22,6 +22,7 @@ class GC_Pickup : public GC_2dSprite
 {
 	MemberOfGlobalList<LIST_pickups> _memberOf;
 
+protected:
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
@@ -36,6 +37,7 @@ class GC_Pickup : public GC_2dSprite
 
 	virtual PropertySet* NewPropertySet();
 
+private:
 	SafePtr<GC_HideLabel> _label;
 	SafePtr<GC_Actor>   _owner;
 

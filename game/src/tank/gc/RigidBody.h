@@ -63,7 +63,7 @@ public:
 		);
 	}
 
-	inline bool Trace0()
+	inline bool GetTrace0()
 	{
 		return CheckFlags(GC_FLAG_RBSTATIC_TRACE0);
 	}

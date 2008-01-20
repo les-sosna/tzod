@@ -41,6 +41,8 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 	vec2d _external_impulse;
 	float _external_torque;
 
+
+
 	void apply_external_forces(float dt);
 
 
@@ -64,6 +66,8 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 
 
 public:
+	float _angle;   // current rotation // FIXME: make private
+
 	GC_RigidBodyDynamic::GC_RigidBodyDynamic();
 	GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile);
 
@@ -76,7 +80,6 @@ public:
 	float Energy() const;
 
 
-	float _angle;   // current rotation
 	float _av;      // angular velocity
 	vec2d _lv;      // linear velocity
 
