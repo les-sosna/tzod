@@ -124,7 +124,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 			std::stringstream buf;
 			buf << "return function(who)";
 			buf << _onEnter;
-			buf << ";end";
+			buf << "\nend";
 
 			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
 			{

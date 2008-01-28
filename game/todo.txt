@@ -6,6 +6,7 @@ Save/Load
  - user objects serialization - costum textures are not saved
  - save lua classes table
  - save lua gc table (?)
+ - music track
 
 ”правление - immediate applying
 

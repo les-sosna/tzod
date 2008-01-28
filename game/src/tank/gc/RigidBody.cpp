@@ -137,6 +137,7 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 	GC_2dSprite::Serialize(f);
 
 	f.Serialize(_scriptOnDestroy);
+	f.Serialize(_scriptOnDamage);
 	f.Serialize(_health);
 	f.Serialize(_health_max);
 	f.Serialize(_radius);
