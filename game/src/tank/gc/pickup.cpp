@@ -11,6 +11,8 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
+#include "core/Console.h"
+
 #include "GameClasses.h"
 #include "indicators.h"
 #include "vehicle.h"
@@ -22,12 +24,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Pickup::GC_Pickup(float x, float y) : _memberOf(this)
+GC_Pickup::GC_Pickup(float x, float y)
+  : _memberOf(this)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
 
-	_label  = new GC_HideLabel(x, y);
+	_label = new GC_HideLabel(x, y);
 
 	_radius         = 25.0;
 	_timeRespawn    = 0;
@@ -42,7 +45,8 @@ GC_Pickup::GC_Pickup(float x, float y) : _memberOf(this)
 	SetZ(Z_FREE_ITEM);
 }
 
-GC_Pickup::GC_Pickup(FromFile) : GC_2dSprite(FromFile())
+GC_Pickup::GC_Pickup(FromFile)
+  : GC_2dSprite(FromFile())
   , _memberOf(this)
 {
 }
@@ -69,6 +73,7 @@ void GC_Pickup::Serialize(SaveFile &f)
 	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
 	f.Serialize(_radius);
+	f.Serialize(_scriptOnPickup);
 	f.Serialize(_label);
 
 	if( !IsKilled() && f.loading() )
@@ -192,6 +197,36 @@ void GC_Pickup::TimeStepFixed(float dt)
 			if( GC_Actor *actor = FindNewOwner() )
 			{
 				Attach(actor);
+
+				//
+				// call on_pickup script
+				//
+
+				const char *who = actor->GetName();
+				std::stringstream buf;
+				buf << "return function(who)";
+				buf << _scriptOnPickup;
+				buf << "\nend";
+
+				if( luaL_loadstring(g_env.L, buf.str().c_str()) )
+				{
+					g_console->printf("syntax error %s\n", lua_tostring(g_env.L, -1));
+					lua_pop(g_env.L, 1); // pop the error message from the stack
+				}
+				else
+				{
+					if( lua_pcall(g_env.L, 0, 1, 0) )
+					{
+						g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+						lua_pop(g_env.L, 1); // pop the error message from the stack
+					}
+					lua_pushstring(g_env.L, who ? who : "");
+					if( lua_pcall(g_env.L, 1, 0, 0) )
+					{
+						g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+						lua_pop(g_env.L, 1); // pop the error message from the stack
+					}
+				}
 			}
 		}
 		else
@@ -214,6 +249,7 @@ void GC_Pickup::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
+	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }
 
 void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
@@ -234,15 +270,16 @@ PropertySet* GC_Pickup::NewPropertySet()
 }
 
 GC_Pickup::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "respawn_time")
+  : BASE(object)
+  , _propTimeRespawn(ObjectProperty::TYPE_INTEGER, "respawn_time")
+  , _propOnPickup(ObjectProperty::TYPE_STRING, "on_pickup")
 {
 	_propTimeRespawn.SetIntRange(0, 1000000);
 }
 
 int GC_Pickup::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
@@ -253,6 +290,7 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propTimeRespawn; break;
+	case 1: return &_propOnPickup;    break;
 	}
 
 	_ASSERT(FALSE);
@@ -267,10 +305,12 @@ void GC_Pickup::MyPropertySet::Exchange(bool applyToObject)
 	if( applyToObject )
 	{
 		obj->_timeRespawn = (float) _propTimeRespawn.GetIntValue() / 1000.0f;
+		obj->_scriptOnPickup = _propOnPickup.GetStringValue();
 	}
 	else
 	{
 		_propTimeRespawn.SetIntValue(int(obj->_timeRespawn * 1000.0f + 0.5f));
+		_propOnPickup.SetStringValue(obj->_scriptOnPickup);
 	}
 }
 

@@ -118,6 +118,7 @@ public:
 public:
 	void SetGridSet(bool bGridSet);
 	void SetZ(enumZOrder z);
+	enumZOrder GetZ() const;
 	void Show(bool bShow);
 
 

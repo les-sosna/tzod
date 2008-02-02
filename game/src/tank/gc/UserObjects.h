@@ -35,7 +35,39 @@ public:
 	virtual void OnDestroy();
 
 	virtual void mapExchange(MapFile &f);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GC_Decoration : public GC_UserSprite
+{
+	DECLARE_SELF_REGISTRATION(GC_Decoration);
+
+	string_t _textureName;
+
+protected:
+	class MyPropertySet : public GC_UserSprite::MyPropertySet
+	{
+		typedef GC_UserSprite::MyPropertySet BASE;
+		ObjectProperty _propTexture;
+		ObjectProperty _propLayer;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void Exchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
+
+public:
+	GC_Decoration(float x, float y);
+	GC_Decoration(FromFile);
+	virtual ~GC_Decoration();
+
+	virtual void Serialize(SaveFile &f);
+	virtual void mapExchange(MapFile &f);
 
 };
+
 
 // end of file

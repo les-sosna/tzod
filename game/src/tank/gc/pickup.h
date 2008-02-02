@@ -27,6 +27,7 @@ protected:
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
+		ObjectProperty _propOnPickup;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -38,10 +39,11 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	SafePtr<GC_HideLabel> _label;
-	SafePtr<GC_Actor>   _owner;
+	SafePtr<GC_HideLabel>  _label;
+	SafePtr<GC_Actor>      _owner;
 
-	float  _radius;
+	string_t  _scriptOnPickup;   // on_pickup(who)
+	float     _radius;
 	float  _timeAttached;
 	float  _timeAnimation;
 	float  _timeRespawn;

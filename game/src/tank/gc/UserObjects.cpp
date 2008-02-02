@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-#include "UserObject.h"
+#include "UserObjects.h"
 #include "GameClasses.h"
 
 #include "level.h"
@@ -122,6 +122,118 @@ void GC_UserObject::MyPropertySet::Exchange(bool applyToObject)
 				break;
 			}
 		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
+{
+	ED_ACTOR("user_sprite", "Декорации", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	return true;
+}
+
+GC_Decoration::GC_Decoration(float x, float y)
+{
+	_textureName = "turret_platform";
+	SetZ(Z_EDITOR);
+	MoveTo(vec2d(x, y));
+	SetTexture(_textureName.c_str());
+}
+
+GC_Decoration::GC_Decoration(FromFile)
+  : GC_UserSprite(FromFile())
+{
+}
+
+GC_Decoration::~GC_Decoration()
+{
+}
+
+void GC_Decoration::Serialize(SaveFile &f)
+{
+	GC_UserSprite::Serialize(f);
+	f.Serialize(_textureName);
+}
+
+void GC_Decoration::mapExchange(MapFile &f)
+{
+	GC_UserSprite::mapExchange(f);
+
+	int z = GetZ();
+
+	MAP_EXCHANGE_STRING(texture, _textureName, "");
+	MAP_EXCHANGE_INT(layer, z, 0);
+
+	if( f.loading() )
+	{
+		SetTexture(_textureName.c_str());
+		SetZ((enumZOrder) z);
+	}
+}
+
+PropertySet* GC_Decoration::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
+  : BASE(object)
+  , _propTexture(ObjectProperty::TYPE_MULTISTRING, "texture")
+  , _propLayer(ObjectProperty::TYPE_INTEGER, "layer")
+{
+	std::vector<string_t> names;
+	g_texman->GetTextureNames(names, NULL, false);
+	for( size_t i = 1; i < names.size(); ++i )
+	{
+		_propTexture.AddItem(names[i]);
+	}
+	_propLayer.SetIntRange(0, Z_COUNT-1);
+}
+
+int GC_Decoration::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 2;
+}
+
+ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propTexture;
+	case 1: return &_propLayer;
+	}
+
+	_ASSERT(FALSE);
+	return NULL;
+}
+
+void GC_Decoration::MyPropertySet::Exchange(bool applyToObject)
+{
+	BASE::Exchange(applyToObject);
+
+	GC_Decoration *tmp = static_cast<GC_Decoration *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
+		tmp->SetTexture(tmp->_textureName.c_str());
+		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
+	}
+	else
+	{
+		for( size_t i = 0; i < _propTexture.GetListSize(); ++i )
+		{
+			if( tmp->_textureName == _propTexture.GetListValue(i) )
+			{
+				_propTexture.SetCurrentIndex(i);
+				break;
+			}
+		}
+		_propLayer.SetIntValue(tmp->GetZ());
 	}
 }
 

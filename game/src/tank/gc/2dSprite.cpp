@@ -186,17 +186,21 @@ void GC_2dSprite::UpdateCurrentZ()
 
 void GC_2dSprite::SetZ(enumZOrder z)
 {
+	_ASSERT(z < Z_COUNT || z == Z_NONE);
 	if( _zOrderPrefered == z )
 	{
 		return;
 	}
-
-    _zOrderPrefered = z;
-
+	_zOrderPrefered = z;
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) )
 	{
 		SetZ_current(z);
 	}
+}
+
+enumZOrder GC_2dSprite::GetZ() const
+{
+	return _zOrderPrefered;
 }
 
 void GC_2dSprite::Show(bool bShow)

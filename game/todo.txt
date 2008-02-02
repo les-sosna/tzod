@@ -3,7 +3,7 @@ Lobby
 prediction in network multiplayer
 
 Save/Load
- - user objects serialization - costum textures are not saved
+ - user objects serialization - custom textures are not saved
  - save lua classes table
  - save lua gc table (?)
  - music track
@@ -36,6 +36,6 @@ layers
 4: pickups
 5: mine
 6: trigger
-7: wood
+7: wood, user_sprite
 
 

@@ -761,11 +761,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\tank\gc\UserObject.cpp"
+				RelativePath="..\src\tank\gc\UserObjects.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\tank\gc\UserObject.h"
+				RelativePath="..\src\tank\gc\UserObjects.h"
 				>
 			</File>
 			<File
