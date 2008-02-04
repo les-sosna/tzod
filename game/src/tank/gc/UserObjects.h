@@ -44,6 +44,8 @@ class GC_Decoration : public GC_UserSprite
 	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
 	string_t _textureName;
+	float _frameRate;
+	float _time;
 
 protected:
 	class MyPropertySet : public GC_UserSprite::MyPropertySet
@@ -51,6 +53,9 @@ protected:
 		typedef GC_UserSprite::MyPropertySet BASE;
 		ObjectProperty _propTexture;
 		ObjectProperty _propLayer;
+		ObjectProperty _propAnimate;
+		ObjectProperty _propFrame;
+		ObjectProperty _propRotation;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -67,6 +72,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual void mapExchange(MapFile &f);
 
+	virtual void TimeStepFixed(float dt);
 };
 
 

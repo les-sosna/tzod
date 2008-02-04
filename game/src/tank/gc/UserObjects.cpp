@@ -129,13 +129,15 @@ void GC_UserObject::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 {
-	ED_ACTOR("user_sprite", "Декорации", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_sprite", "Декорация", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 
 GC_Decoration::GC_Decoration(float x, float y)
+  : _textureName("turret_platform")
+  , _frameRate(0)
+  , _time(0)
 {
-	_textureName = "turret_platform";
 	SetZ(Z_EDITOR);
 	MoveTo(vec2d(x, y));
 	SetTexture(_textureName.c_str());
@@ -154,6 +156,8 @@ void GC_Decoration::Serialize(SaveFile &f)
 {
 	GC_UserSprite::Serialize(f);
 	f.Serialize(_textureName);
+	f.Serialize(_frameRate);
+	f.Serialize(_time);
 }
 
 void GC_Decoration::mapExchange(MapFile &f)
@@ -161,14 +165,37 @@ void GC_Decoration::mapExchange(MapFile &f)
 	GC_UserSprite::mapExchange(f);
 
 	int z = GetZ();
+	int frame = GetCurrentFrame();
+	float rot = GetRotation();
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 	MAP_EXCHANGE_INT(layer, z, 0);
+	MAP_EXCHANGE_INT(frame, frame, 0);
+	MAP_EXCHANGE_FLOAT(animate, _frameRate, 0);
+	MAP_EXCHANGE_FLOAT(rotation, rot, 0);
 
 	if( f.loading() )
 	{
 		SetTexture(_textureName.c_str());
+		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
+		SetRotation(rot);
+		if( _frameRate > 0 )
+		{
+			SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+		}
+		_time = 0;
+	}
+}
+
+void GC_Decoration::TimeStepFixed(float dt)
+{
+	_ASSERT(_frameRate > 0);
+	_time += dt;
+	if( _time * _frameRate > 1 )
+	{
+		SetFrame((GetCurrentFrame() + int(_time * _frameRate)) % GetFrameCount());
+		_time -= floor(_time * _frameRate) / _frameRate;
 	}
 }
 
@@ -181,6 +208,9 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propTexture(ObjectProperty::TYPE_MULTISTRING, "texture")
   , _propLayer(ObjectProperty::TYPE_INTEGER, "layer")
+  , _propAnimate(ObjectProperty::TYPE_FLOAT, "animate")
+  , _propFrame(ObjectProperty::TYPE_INTEGER, "frame")
+  , _propRotation(ObjectProperty::TYPE_FLOAT, "rotation")
 {
 	std::vector<string_t> names;
 	g_texman->GetTextureNames(names, NULL, false);
@@ -189,11 +219,14 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
 		_propTexture.AddItem(names[i]);
 	}
 	_propLayer.SetIntRange(0, Z_COUNT-1);
+	_propAnimate.SetFloatRange(0, 100);
+	_propFrame.SetIntRange(0, 1000);
+	_propRotation.SetFloatRange(0, PI2);
 }
 
 int GC_Decoration::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 2;
+	return BASE::GetCount() + 5;
 }
 
 ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
@@ -205,6 +238,9 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	{
 	case 0: return &_propTexture;
 	case 1: return &_propLayer;
+	case 2: return &_propAnimate;
+	case 3: return &_propFrame;
+	case 4: return &_propRotation;
 	}
 
 	_ASSERT(FALSE);
@@ -222,6 +258,10 @@ void GC_Decoration::MyPropertySet::Exchange(bool applyToObject)
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
+		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
+		tmp->SetRotation(_propRotation.GetFloatValue());
+		tmp->_frameRate = _propAnimate.GetFloatValue();
+		tmp->SetEvents(tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}
 	else
 	{
@@ -234,6 +274,9 @@ void GC_Decoration::MyPropertySet::Exchange(bool applyToObject)
 			}
 		}
 		_propLayer.SetIntValue(tmp->GetZ());
+		_propRotation.SetFloatValue(fmodf(tmp->GetRotation(), PI2));
+		_propFrame.SetIntValue(tmp->GetCurrentFrame());
+		_propAnimate.SetFloatValue(tmp->_frameRate);
 	}
 }
 
