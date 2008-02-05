@@ -178,9 +178,9 @@ void List::ScrollTo(float pos)
 	_scrollBar->SetPos(pos);
 }
 
-void List::AlignHeightToContent()
+void List::AlignHeightToContent(float maxHeight)
 {
-	Resize(GetWidth(), GetItemHeight() * (float) GetSize());
+	Resize(GetWidth(), __min(maxHeight, GetItemHeight() * (float) GetSize()));
 }
 
 void List::Sort()

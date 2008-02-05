@@ -67,12 +67,13 @@ void ComboBox::DropList()
 	if( _list->IsVisible() )
 	{
 		_list->Show(false);
-		_list->SetCurSel(_curSel);
+		_list->SetCurSel(GetCurSel());
 		GetManager()->SetFocusWnd(this);
 	}
 	else
 	{
 		_list->Show(true);
+		_list->ScrollTo((float) GetCurSel());
 		GetManager()->SetFocusWnd(_list);
 	}
 }

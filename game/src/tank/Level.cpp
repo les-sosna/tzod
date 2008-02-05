@@ -804,7 +804,7 @@ GC_Object* Level::CreateObject(ObjectType type, float x, float y)
 	return get_t2i()[type].Create(x, y);
 }
 
-GC_2dSprite* Level::PickEdObject(const vec2d &pt)
+GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
 	{
@@ -827,8 +827,7 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt)
 					for( int i = 0; i < GetTypeCount(); ++i )
 					{
 						if( object->GetType() == GetTypeByIndex(i)
-							&& ( !g_conf.ed_uselayers->Get() || GetTypeInfoByIndex(
-							g_conf.ed_object->GetInt()).layer == GetTypeInfoByIndex(i).layer ) )
+						    && (-1 == layer || GetTypeInfoByIndex(i).layer == layer) )
 						{
 							return object;
 						}

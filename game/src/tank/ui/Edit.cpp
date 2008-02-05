@@ -39,9 +39,14 @@ void Edit::SetText(const char *text)
 {
 	_string = text;
 	_blankText->SetText(text);
-	SetSel(_string.length(), _string.length());
+	SetSel(-1, -1);
 	if( eventChange )
 		INVOKE(eventChange) ();
+}
+
+int Edit::GetTextLength() const
+{
+	return (int) _string.length();
 }
 
 void Edit::SetInt(int value)
@@ -70,10 +75,13 @@ float Edit::GetFloat() const
 
 void Edit::SetSel(int begin, int end)
 {
+	_ASSERT(begin >= -1 && begin <= GetTextLength());
+	_ASSERT(end >= -1 && end <= GetTextLength());
+
 	_time = 0;
 
-	_selStart = begin;
-	_selEnd   = end;
+	_selStart = (-1 != begin) ? begin : GetTextLength();
+	_selEnd   = (-1 != end)   ? end   : GetTextLength();
 
 	float cpos = _selEnd * (_blankText->GetWidth() - 1) - 1;
 	if( cpos + _blankText->GetX() > GetWidth() - 10 || cpos + _blankText->GetX() < 10 )
@@ -167,10 +175,10 @@ void Edit::OnRawChar(int c)
 		}
 		break;
 	case VK_DELETE:
-		if( 0 == GetSelLength() && GetSelEnd() < (int) _string.length() )
+		if( 0 == GetSelLength() && GetSelEnd() < GetTextLength() )
 		{
 			_string = _string.substr(0, GetSelStart())
-				+ _string.substr(GetSelEnd() + 1, _string.length() - GetSelEnd() - 1);
+				+ _string.substr(GetSelEnd() + 1, GetTextLength() - GetSelEnd() - 1);
 		}
 		else
 		{
@@ -189,7 +197,7 @@ void Edit::OnRawChar(int c)
 		if( 0 == GetSelLength() && GetSelStart() > 0 )
 		{
 			_string = _string.substr(0, GetSelStart() - 1)
-				+ _string.substr(GetSelEnd(), _string.length() - GetSelEnd());
+				+ _string.substr(GetSelEnd(), GetTextLength() - GetSelEnd());
 		}
 		else
 		{
@@ -216,12 +224,12 @@ void Edit::OnRawChar(int c)
 	case VK_RIGHT:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			tmp = __min((int) _string.length(), GetSelEnd() + 1);
+			tmp = __min(GetTextLength(), GetSelEnd() + 1);
 			SetSel(GetSelStart(), tmp);
 		}
 		else
 		{
-			tmp = __min((int) _string.length(), GetSelMax() + 1);
+			tmp = __min(GetTextLength(), GetSelMax() + 1);
 			SetSel(tmp, tmp);
 		}
 		break;
@@ -238,11 +246,11 @@ void Edit::OnRawChar(int c)
 	case VK_END:
 		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
 		{
-			SetSel(GetSelStart(), _string.length());
+			SetSel(GetSelStart(), -1);
 		}
 		else
 		{
-			SetSel(_string.length(), _string.length());
+			SetSel(-1, -1);
 		}
 		break;
 	default:
@@ -255,7 +263,7 @@ bool Edit::OnMouseDown(float x, float y, int button)
 	if( 1 == button )
 	{
 		SetCapture();
-		int sel = __min(_string.length(), (size_t) __max(0,
+		int sel = __min(GetTextLength(), (int) __max(0,
 			(x - _blankText->GetX() + _blankText->GetWidth() / 2) / (_blankText->GetWidth() - 1)));
 		SetSel(sel, sel);
 	}
@@ -266,7 +274,7 @@ bool Edit::OnMouseMove(float x, float y)
 {
 	if( IsCaptured() )
 	{
-		int sel = __min(_string.length(), (size_t) __max(0,
+		int sel = __min(GetTextLength(), (int) __max(0,
 			(x - _blankText->GetX() + _blankText->GetWidth() / 2) / (_blankText->GetWidth() - 1)));
 		SetSel(GetSelStart(), sel);
 	}

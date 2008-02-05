@@ -30,6 +30,7 @@ public:
 
 	const string_t& GetText() const;
 	void SetText(const char *text);
+	int GetTextLength() const;
 
 	void SetInt(int value);
 	int  GetInt() const;
@@ -37,7 +38,7 @@ public:
 	void  SetFloat(float value);
 	float GetFloat() const;
 
-	void SetSel(int begin, int end);
+	void SetSel(int begin, int end); // -1 means end of string
 	int GetSelStart() const;
 	int GetSelEnd() const;
 	int GetSelMin() const;

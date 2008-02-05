@@ -75,7 +75,12 @@ GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{
-		_propTexture.AddItem(names[i]);
+		const LogicalTexture &lt = g_texman->Get(g_texman->FindTexture(names[i].c_str()));
+		if( lt.frame_width <= LOCATION_SIZE / 2 && lt.frame_height <= LOCATION_SIZE / 2 )
+		{
+			// only allow using textures which are less than half of cell
+			_propTexture.AddItem(names[i]);
+		}
 	}
 }
 
@@ -216,7 +221,12 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{
-		_propTexture.AddItem(names[i]);
+		const LogicalTexture &lt = g_texman->Get(g_texman->FindTexture(names[i].c_str()));
+		if( lt.frame_width <= LOCATION_SIZE / 2 && lt.frame_height <= LOCATION_SIZE / 2 )
+		{
+			// only allow using textures which are less than half of cell
+			_propTexture.AddItem(names[i]);
+		}
 	}
 	_propLayer.SetIntRange(0, Z_COUNT-1);
 	_propAnimate.SetFloatRange(0, 100);

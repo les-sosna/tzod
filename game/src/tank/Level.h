@@ -358,7 +358,7 @@ private:
 public:
 	void ToggleEditorMode();
 	GC_Object* CreateObject(ObjectType type, float x, float y);
-	GC_2dSprite* PickEdObject(const vec2d &pt);
+	GC_2dSprite* PickEdObject(const vec2d &pt, int layer);
 
 	static int GetTypeCount()
 	{
@@ -391,6 +391,7 @@ public:
 	                           float height, float align, float offset )
 	{
 		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
+		_ASSERT( 0 == get_n2t().count(name) );
 		EdItem ei;
 		ei.desc    = desc;
 		ei.name    = name;
@@ -409,6 +410,7 @@ public:
 	static void RegisterService( const char *name, const char *desc )
 	{
 		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
+		_ASSERT( 0 == get_n2t().count(name) );
 		EdItem ei = {0};
 		ei.desc    = desc;
 		ei.name    = name;

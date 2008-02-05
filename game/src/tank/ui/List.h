@@ -58,7 +58,7 @@ public:
 	float GetNumLinesVisible() const;
 	void ScrollTo(float pos);
 
-	void AlignHeightToContent();
+	void AlignHeightToContent(float maxHeight = 512);
 
 	void Sort();
 	int FindItem(const char *text) const;
