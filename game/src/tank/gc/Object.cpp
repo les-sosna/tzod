@@ -222,7 +222,7 @@ void PropertySet::SaveToConfig()
 
 int PropertySet::GetCount() const
 {
-	return 1;
+	return 1;  // name
 }
 
 GC_Object* PropertySet::GetObject() const
