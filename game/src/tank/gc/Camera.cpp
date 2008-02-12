@@ -186,7 +186,7 @@ void GC_Camera::EndFrame()
 	if( 0 == x || g_env.envInputs.keys[DIK_LEFTARROW] )
 	{
 		bMove = true;
-		while (dwCurTime - _dwTimeX > dt)
+		while( dwCurTime - _dwTimeX > dt )
 		{
 			pos.x -= CELL_SIZE;
 			_dwTimeX += dt;
@@ -196,7 +196,7 @@ void GC_Camera::EndFrame()
 	if( g_render->GetWidth() - 1 == x || g_env.envInputs.keys[DIK_RIGHTARROW] )
 	{
 		bMove = true;
-		while (dwCurTime - _dwTimeX > dt)
+		while( dwCurTime - _dwTimeX > dt )
 		{
 			pos.x += CELL_SIZE;
 			_dwTimeX += dt;

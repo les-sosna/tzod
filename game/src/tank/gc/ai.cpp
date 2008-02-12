@@ -666,8 +666,18 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 
 void GC_PlayerAI::SelectFavoriteWeapon()
 {
+	int wcount = 0;
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
+		ObjectType type = Level::GetTypeByIndex(i);
+		const char *name = Level::GetTypeName(type);
+		if( name == strstr(name, "weap_") )
+		{
+			if( 0 == g_level->net_rand() % ++wcount )
+			{
+				_favoriteWeaponType = type;
+			}
+		}
 	}
 }
 
@@ -989,32 +999,10 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 	}
 }
 
-//void GC_PlayerAI::Reset()
-//{
-//	_pickupCurrent = NULL;
-//
-//	ClearPath();
-//	FreeTarget();
-//
-///*
-//	static const ObjectType weapons[] = {
-//		OT_WEAP_AUTOCANNON, OT_WEAP_ROCKETLAUNCHER,
-//		OT_WEAP_CANON, OT_WEAP_GAUSS, OT_WEAP_RAM,
-//		OT_WEAP_BFG, OT_WEAP_RIPPER, OT_WEAP_MINIGUN };
-//
-//	_otFavoriteWeapon = weapons[net_rand() % (sizeof(weapons) / sizeof(enumObjectType))];
-//*/
-//
-//	_desired_offset = 0;
-//	_current_offset = 0;
-//
-//	SetL2(L2_PATH_SELECT);
-//	SetL1(L1_NONE);
-//}
-
 void GC_PlayerAI::OnRespawn()
 {
 	_jobManager.RegisterMember(this);
+	SelectFavoriteWeapon();
 }
 
 void GC_PlayerAI::OnDie()
@@ -1095,7 +1083,7 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 	/*
 	CAttackList al(_AttackList);
 	int count = 1;
-	while (!al.IsEmpty())
+	while( !al.IsEmpty() )
 	{
 		GC_RigidBodyStatic *target = al.Pop();
 		FRECT frect;

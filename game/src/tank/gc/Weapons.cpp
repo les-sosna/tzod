@@ -508,8 +508,8 @@ void GC_Weap_AutoCannon::Attach(GC_Actor *actor)
 
 void GC_Weap_AutoCannon::Detach()
 {
-	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(this, LOCATION_BOTTOM);
-	if (pIndicator) pIndicator->Kill();
+	GC_IndicatorBar *indicator = GC_IndicatorBar::FindIndicator(this, LOCATION_BOTTOM);
+	if( indicator ) indicator->Kill();
 
 	// убиваем звук перезарядки
 	FOREACH( g_level->GetList(LIST_sounds), GC_Sound, object )
