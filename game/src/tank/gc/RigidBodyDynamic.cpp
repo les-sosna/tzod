@@ -283,6 +283,12 @@ bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 	return (icount > 0);
 }
 
+float GC_RigidBodyDynamic::GetSpinup() const
+{
+//	_av
+	return 0;
+}
+
 void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 {
 	vec2d dx = _lv * dt;
@@ -362,12 +368,24 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	_lv = _direction * vx + dir_y * vy;
 
 
-	if( _av > 0 )
-		_av = __max(0, _av - _Nw * dt);
+	if( _Mw > 0 )
+	{
+		float e = expf(-_Mw * dt);
+		float nm = _Nw / _Mw;
+		if( _av > 0 )
+			_av = __max(0, _av * e - nm * (e - 1));
+		else
+			_av = __min(0, _av * e + nm * (e - 1));
+	}
 	else
-		_av = __min(0, _av + _Nw * dt);
-	_av *= expf(-_Mw * dt);
-
+	{
+		if( _av > 0 )
+			_av = __max(0, _av - _Nw * dt);
+		else
+			_av = __min(0, _av + _Nw * dt);
+	}
+	_ASSERT(!_isnan(_av));
+	_ASSERT(_finite(_av));
 
 	//------------------------------------
 	// collisions

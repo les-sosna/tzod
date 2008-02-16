@@ -64,6 +64,8 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		virtual void Exchange(bool applyToObject);
 	};
 
+protected:
+	float GetSpinup() const;
 
 public:
 	float _angle;   // current rotation // FIXME: make private

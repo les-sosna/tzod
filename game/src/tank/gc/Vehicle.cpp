@@ -483,14 +483,11 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	}
 	else
 	{
-		if( fabsf(_av) < _maxRotSpeed )
-		{
-			if( _state._bState_RotateLeft )
-				ApplyMomentum( -_rotatePower / _inv_i );
-			else
-			if( _state._bState_RotateRight )
-				ApplyMomentum(  _rotatePower / _inv_i );
-		}
+		if( _state._bState_RotateLeft && -_av < _maxRotSpeed )
+			ApplyMomentum( -_rotatePower / _inv_i );
+		else
+		if( _state._bState_RotateRight && _av < _maxRotSpeed )
+			ApplyMomentum(  _rotatePower / _inv_i );
 	}
 
 
