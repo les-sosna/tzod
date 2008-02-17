@@ -43,9 +43,6 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 
 
 
-	void apply_external_forces(float dt);
-
-
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;

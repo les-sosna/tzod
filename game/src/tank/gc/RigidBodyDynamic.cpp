@@ -338,12 +338,22 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	_direction = vec2d(_angle);
 	SetRotation(_angle);
 
-	//------------------------------------
 
-	apply_external_forces(dt);
+	//
+	// apply external forces
+	//
 
-	//------------------------------------
-	// friction
+	_lv += (_external_force * dt + _external_impulse) * _inv_m;
+	_av += (_external_momentum * dt + _external_torque) * _inv_i;
+	_external_force.Zero();
+	_external_impulse.Zero();
+	_external_momentum = 0;
+	_external_torque = 0;
+
+
+	//
+	// linear friction
+	//
 
 	vec2d dir_y(_direction.y, -_direction.x);
 
@@ -368,14 +378,17 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	_lv = _direction * vx + dir_y * vy;
 
 
+	//
+	// angular friction
+	//
 	if( _Mw > 0 )
 	{
 		float e = expf(-_Mw * dt);
-		float nm = _Nw / _Mw;
+		float nm = _Nw / _Mw * (e - 1);
 		if( _av > 0 )
-			_av = __max(0, _av * e - nm * (e - 1));
+			_av = __max(0, _av * e + nm);
 		else
-			_av = __min(0, _av * e + nm * (e - 1));
+			_av = __min(0, _av * e - nm);
 	}
 	else
 	{
@@ -431,26 +444,24 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	}
 }
 
-float GC_RigidBodyDynamic::geta_s(const vec2d &n, const vec2d &c,
-								  const GC_RigidBodyStatic *obj) const
+float GC_RigidBodyDynamic::geta_s(const vec2d &n, const vec2d &c, const GC_RigidBodyStatic *obj) const
 {
 	float k1 = n.x*(c.y-GetPos().y) - n.y*(c.x-GetPos().x);
 	return (float)
 		(
-		2 * ( _av * k1 - n.y*_lv.y - n.x*_lv.x ) /
-		( k1*k1*_inv_i + n.sqr() * _inv_m )
+			2 * ( _av * k1 - n.y*_lv.y - n.x*_lv.x ) /
+				( k1*k1*_inv_i + n.sqr() * _inv_m )
 		);
 }
 
-float GC_RigidBodyDynamic::geta_d(const vec2d &n, const vec2d &c,
-								  const GC_RigidBodyDynamic *obj) const
+float GC_RigidBodyDynamic::geta_d(const vec2d &n, const vec2d &c, const GC_RigidBodyDynamic *obj) const
 {
 	float k1 = n.x*(c.y-GetPos().y) - n.y*(c.x-GetPos().x);
 	float k2 = n.y*(c.x-obj->GetPos().x) - n.x*(c.y-obj->GetPos().y);
 	return (float)
 		(
-		2 * ( n.y*(obj->_lv.y-_lv.y) + n.x*(obj->_lv.x-_lv.x) + _av*k1 + obj->_av*k2 ) /
-		( k1*k1*_inv_i + k2*k2*obj->_inv_i + n.sqr() * (_inv_m+obj->_inv_m) )
+			2 * ( n.y*(obj->_lv.y-_lv.y) + n.x*(obj->_lv.x-_lv.x) + _av*k1 + obj->_av*k2 ) /
+			( k1*k1*_inv_i + k2*k2*obj->_inv_i + n.sqr() * (_inv_m+obj->_inv_m) )
 		);
 }
 
@@ -552,16 +563,6 @@ void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 	_lv += impulse * _inv_m;
 	_av += ((origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x) * _inv_i;
 	_ASSERT(!_isnan(_av) && _finite(_av));
-}
-
-void GC_RigidBodyDynamic::apply_external_forces(float dt)
-{
-	_lv += (_external_force * dt + _external_impulse) * _inv_m;
-	_av += (_external_momentum * dt + _external_torque) * _inv_i;
-	_external_force.Zero();
-	_external_impulse.Zero();
-	_external_momentum = 0;
-	_external_torque = 0;
 }
 
 void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
