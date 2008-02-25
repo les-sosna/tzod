@@ -454,24 +454,27 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		//
 
 		float target = fmodf(_state._fBodyAngle, PI2);
+		float current = fmodf(_angle + GetSpinup(), PI2);
+		if( current < 0 ) current += PI2;
 
 		float xt1 = target - PI2;
 		float xt2 = target + PI2;
 
-		if( fabsf(_angle - xt1) < fabsf(_angle - xt2) &&
-			fabsf(_angle - xt1) < fabsf(_angle - target) )
+
+		if( fabsf(current - xt1) < fabsf(current - xt2) &&
+			fabsf(current - xt1) < fabsf(current - target) )
 		{
 			ApplyMomentum( -_rotatePower / _inv_i );
 		}
 		else
-		if( fabsf(_angle - xt2) < fabsf(_angle - xt1) &&
-			fabsf(_angle - xt2) < fabsf(_angle - target) )
+		if( fabsf(current - xt2) < fabsf(current - xt1) &&
+			fabsf(current - xt2) < fabsf(current - target) )
 		{
 			ApplyMomentum(  _rotatePower / _inv_i );
 		}
 		else
 		{
-			if( target > _angle )
+			if( target > current )
 			{
 				ApplyMomentum(  _rotatePower / _inv_i );
 			}

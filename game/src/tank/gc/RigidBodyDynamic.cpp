@@ -285,8 +285,27 @@ bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec
 
 float GC_RigidBodyDynamic::GetSpinup() const
 {
-//	_av
-	return 0;
+	float result;
+	if( _Mw > 0 )
+	{
+		if( _Nw > 0 )
+		{
+			if( _av > 0 )
+				result = _av/_Mw - _Nw/(_Mw*_Mw)*(log(_Nw + _Mw*_av)-log(_Nw));
+			else
+				result = _av/_Mw + _Nw/(_Mw*_Mw)*(log(_Nw - _Mw*_av)-log(_Nw));
+		}
+		else
+		{
+			result = _av/_Mw;
+		}
+	}
+	else
+	{
+		result = _av*fabs(_av)/_Nw*0.5f;
+	}
+
+	return result;
 }
 
 void GC_RigidBodyDynamic::TimeStepFixed(float dt)

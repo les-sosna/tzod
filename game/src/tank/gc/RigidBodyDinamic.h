@@ -61,7 +61,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		virtual void Exchange(bool applyToObject);
 	};
 
-protected:
+public:
 	float GetSpinup() const;
 
 public:
