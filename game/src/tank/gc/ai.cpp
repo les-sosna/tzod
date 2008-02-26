@@ -907,20 +907,22 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		vec2d brake = GetVehicle()->GetBrakingLength();
 		vec2d pos = GetVehicle()->GetPos() + brake;
 		std::list<PathNode>::const_iterator nodeIt = FindNearPathNode(pos);
-	//	if( (nodeIt->coord - pos).sqr() > CELL_SIZE*CELL_SIZE/4 )
-	//	{
-	//		destPoint = nodeIt->coord;
-	//	}
-	//	else
-	//	{
+		if( (nodeIt->coord - pos).sqr() > CELL_SIZE*CELL_SIZE/4 )
+		{
+			destPoint = nodeIt->coord;
+			if( ++nodeIt != _path.end() )
+				destPoint = nodeIt->coord;
+		}
+		else
+		{
 			destPoint = pos + brake;
-	//	}
+		}
 	}
 
 	static const TextureCache tex1("particle_1");
 	(new GC_Particle(destPoint, vec2d(0,0), tex1, 0.5f))->SetFade(true);
 
-
+/*
 	while( !_path.empty() )
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
@@ -936,7 +938,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 	if( !_path.empty() )
 		destPoint = _path.front().coord;
-
+*/
 
 	bNeedStickCheck = false;
 
