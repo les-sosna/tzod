@@ -458,6 +458,24 @@ void GC_PlayerAI::SmoothPath()
 	}
 }
 
+std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode() const
+{
+	_ASSERT(!_path.empty());
+	vec2d pos = GetVehicle()->GetPos();
+	std::list<PathNode>::const_iterator it = _path.begin(), result = it;
+	float rr_min = (it->coord - pos).sqr();
+	while( ++it != _path.end() )
+	{
+		float rr = (it->coord - pos).sqr();
+		if( rr <= rr_min )
+		{
+			result = it;
+			rr_min = rr;
+		}
+	}
+	return result;
+}
+
 void GC_PlayerAI::ClearPath()
 {
 	_path.clear();
@@ -508,7 +526,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	}
 
 	pState->_bExplicitTower = true;
-	pState->_fTowerAngle = ang2 - GetVehicle()->_angle; //_player->_vehicle->_rotator.geta();
+	pState->_fTowerAngle = ang2 - GetVehicle()->_angle - GetVehicle()->GetSpinup();
 	//--------------------------------
 	_ASSERT(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
 }

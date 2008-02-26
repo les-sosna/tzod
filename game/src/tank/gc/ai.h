@@ -94,6 +94,10 @@ protected:
 	void SmoothPath();
 
 
+	// find the nearest node to the vehicle
+	std::list<PathNode>::const_iterator FindNearPathNode() const;
+
+
 	//-------------------------------------------------------------------------
 	// Desc: Проверка проходимости ячейки поля.
 	//-------------------------------------------------------------------------

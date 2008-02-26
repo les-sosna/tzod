@@ -63,6 +63,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 
 public:
 	float GetSpinup() const;
+	vec2d GetBrakingLength() const;
 
 public:
 	float _angle;   // current rotation // FIXME: make private

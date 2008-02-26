@@ -304,8 +304,32 @@ float GC_RigidBodyDynamic::GetSpinup() const
 	{
 		result = _av*fabs(_av)/_Nw*0.5f;
 	}
-
 	return result;
+}
+
+vec2d GC_RigidBodyDynamic::GetBrakingLength() const
+{
+	float result;
+	float vx = _lv.x * _direction.x + _lv.y * _direction.y;
+	if( _Mx > 0 )
+	{
+		if( _Nx > 0 )
+		{
+			if( vx > 0 )
+				result = vx/_Mx - _Nx/(_Mx*_Mx)*(log(_Nx + _Mx*vx)-log(_Nx));
+			else
+				result = vx/_Mx + _Nx/(_Mx*_Mx)*(log(_Nx - _Mx*vx)-log(_Nx));
+		}
+		else
+		{
+			result = vx/_Mx;
+		}
+	}
+	else
+	{
+		result = vx*fabs(vx)/_Nx*0.5f;
+	}
+	return _direction * result; // FIXME: add y coordinate
 }
 
 void GC_RigidBodyDynamic::TimeStepFixed(float dt)
