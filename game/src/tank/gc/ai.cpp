@@ -20,6 +20,8 @@
 #include "Player.h"
 #include "Weapons.h"
 
+#include "Particles.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation
@@ -458,10 +460,9 @@ void GC_PlayerAI::SmoothPath()
 	}
 }
 
-std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode() const
+std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(const vec2d &pos) const
 {
 	_ASSERT(!_path.empty());
-	vec2d pos = GetVehicle()->GetPos();
 	std::list<PathNode>::const_iterator it = _path.begin(), result = it;
 	float rr_min = (it->coord - pos).sqr();
 	while( ++it != _path.end() )
@@ -898,6 +899,28 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 
 	bool bNeedStickCheck = true;
+
+	vec2d destPoint = GetVehicle()->GetPos();
+
+	if( !_path.empty() )
+	{
+		vec2d brake = GetVehicle()->GetBrakingLength();
+		vec2d pos = GetVehicle()->GetPos() + brake;
+		std::list<PathNode>::const_iterator nodeIt = FindNearPathNode(pos);
+	//	if( (nodeIt->coord - pos).sqr() > CELL_SIZE*CELL_SIZE/4 )
+	//	{
+	//		destPoint = nodeIt->coord;
+	//	}
+	//	else
+	//	{
+			destPoint = pos + brake;
+	//	}
+	}
+
+	static const TextureCache tex1("particle_1");
+	(new GC_Particle(destPoint, vec2d(0,0), tex1, 0.5f))->SetFade(true);
+
+
 	while( !_path.empty() )
 	{
 		float desired = _path.size()>1 ? (_pickupCurrent ?
@@ -910,6 +933,12 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		bNeedStickCheck = false;
 		_path.pop_front();
 	}
+
+	if( !_path.empty() )
+		destPoint = _path.front().coord;
+
+
+	bNeedStickCheck = false;
 
 	// проверка убитости основной цели
 	if( _target && _target->IsKilled() )
@@ -964,7 +993,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
 		TowerTo(pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
-		RotateTo(pVehState, _path.empty() ? target->GetPos() : _path.front().coord,
+		RotateTo(pVehState, _path.empty() ? target->GetPos() : destPoint,
 			len > ws->fAttackRadius_max,
 			len < ws->fAttackRadius_min);
 	}
@@ -977,7 +1006,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		pVehState->_bExplicitTower = false;
 		pVehState->_bState_TowerCenter = true;
 		if( !_path.empty() )
-			RotateTo(pVehState, _path.front().coord, true, false);
+			RotateTo(pVehState, destPoint, true, false);
 	}
 
 
