@@ -1409,15 +1409,13 @@ void Level::Render() const
 	} // cameras
 
 #ifdef _DEBUG
-	HDC hdc = GetDC(g_env.hMainWnd);
 	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
 	{
 		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
 		{
-			pp->debug_draw(hdc);
+			pp->debug_draw();
 		}
 	}
-	ReleaseDC(g_env.hMainWnd, hdc);
 #endif
 }
 

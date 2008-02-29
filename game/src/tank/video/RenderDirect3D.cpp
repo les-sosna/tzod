@@ -130,6 +130,8 @@ private:
 
 	virtual MyVertex* DrawQuad();
 	virtual MyVertex* DrawFan(size_t nEdges);
+
+	virtual void DrawLine(float x1, float y1, float x2, float y2, SpriteColor c) {};
 };
 
 ///////////////////////////////////////////////////////////////////////////////

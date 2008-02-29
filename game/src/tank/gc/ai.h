@@ -178,7 +178,7 @@ public:
 	virtual void OnRespawn();
 	virtual void OnDie();
 
-	void debug_draw(HDC hdc);
+	void debug_draw();
 
 	void SetLevel(int level) { _level = level; }
 	int  GetLevel() const { return _level; }

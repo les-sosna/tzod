@@ -103,6 +103,8 @@ private:
 
 	virtual MyVertex* DrawQuad();
 	virtual MyVertex* DrawFan(size_t nEdges);
+
+	virtual void DrawLine(float x1, float y1, float x2, float y2, SpriteColor c);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -311,7 +313,7 @@ void RenderOpenGL::OnResizeWnd()
 
 void RenderOpenGL::SetViewport(const RECT *rect)
 {
-	if( _iaSize ) _flush();
+	_flush();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -347,7 +349,7 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 
 void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 {
-	if( _iaSize ) _flush();
+	_flush();
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -386,7 +388,7 @@ void RenderOpenGL::Begin()
 
 void RenderOpenGL::End()
 {
-	if( _iaSize ) _flush();
+	_flush();
 
 	glFlush();
 	SwapBuffers(_hDC);
@@ -394,7 +396,7 @@ void RenderOpenGL::End()
 
 void RenderOpenGL::SetMode(const RenderMode mode)
 {
-	if( _iaSize ) _flush();
+	_flush();
 
 	switch( mode )
 	{
@@ -458,7 +460,7 @@ void RenderOpenGL::TexFree(DEV_TEXTURE tex)
 void RenderOpenGL::TexBind(DEV_TEXTURE tex)
 {
 	if( _curtex == reinterpret_cast<GLuint&>(tex.index) ) return;
-	if( _iaSize ) _flush();
+	_flush();
 	_curtex = reinterpret_cast<GLuint&>(tex.index);
 	glBindTexture(GL_TEXTURE_2D, _curtex);
 }
@@ -466,8 +468,11 @@ void RenderOpenGL::TexBind(DEV_TEXTURE tex)
 void RenderOpenGL::_flush()
 {
 //	_FpsCounter::Inst()->OneMoreBatch();
-	glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
-	_vaSize = _iaSize = 0;
+	if( _iaSize )
+	{
+		glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
+		_vaSize = _iaSize = 0;
+	}
 }
 
 MyVertex* RenderOpenGL::DrawQuad()
@@ -517,6 +522,29 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 	_vaSize += nEdges+1;
 
 	return result;
+}
+
+void RenderOpenGL::DrawLine(float x1, float y1, float x2, float y2, SpriteColor c)
+{
+	_flush();
+
+//	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+//	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//	glDisableClientState(GL_COLOR_ARRAY);
+//	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glBegin(GL_LINES);
+		glColor4ub(c.rgba[3], c.rgba[2], c.rgba[1], c.rgba[0]);
+		glVertex2f(x1, y1);
+		glVertex2f(x2, y2);
+	glEnd();
+
+	SetMode(_mode); // to enable texture
+//	glEnable(GL_BLEND);
+//	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//	glEnableClientState(GL_COLOR_ARRAY);
+//	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 void RenderOpenGL::SetAmbient(float ambient)

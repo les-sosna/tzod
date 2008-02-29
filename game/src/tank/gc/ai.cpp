@@ -22,6 +22,7 @@
 
 #include "Particles.h"
 
+#include "video/RenderBase.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation
@@ -397,7 +398,8 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 void GC_PlayerAI::SmoothPath()
 {
-	if( _path.size() < 4 ) return;
+//	if( _path.size() < 4 ) 
+		return;
 
 	int init_size = _path.size();
 
@@ -902,12 +904,21 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 	vec2d destPoint = GetVehicle()->GetPos();
 
+	static const TextureCache tex1("particle_1");
+	static const TextureCache tex2("particle_2");
+
+
 	if( !_path.empty() )
 	{
 		vec2d brake = GetVehicle()->GetBrakingLength();
 		vec2d pos = GetVehicle()->GetPos() + brake;
+		(new GC_Particle(pos, vec2d(0,0), tex1, 0.5f))->SetFade(true);
+
 		std::list<PathNode>::const_iterator nodeIt = FindNearPathNode(pos);
-		if( (nodeIt->coord - pos).sqr() > CELL_SIZE*CELL_SIZE/4 )
+
+		(new GC_Particle(nodeIt->coord, vec2d(0,0), tex2, 0.5f))->SetFade(true);
+
+		if( (nodeIt->coord - pos).sqr() < CELL_SIZE*CELL_SIZE )
 		{
 			destPoint = nodeIt->coord;
 			if( ++nodeIt != _path.end() )
@@ -919,8 +930,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		}
 	}
 
-	static const TextureCache tex1("particle_1");
-	(new GC_Particle(destPoint, vec2d(0,0), tex1, 0.5f))->SetFade(true);
+
 
 /*
 	while( !_path.empty() )
@@ -1084,50 +1094,34 @@ void GC_PlayerAI::FreeTarget()
 ////////////////////////////////////////////
 // debug graphics
 
-void GC_PlayerAI::debug_draw(HDC hdc)
+void GC_PlayerAI::debug_draw()
 {
-	HPEN pen = CreatePen(PS_SOLID, 1, 0x00ffffff);
-	HPEN oldpen = (HPEN) SelectObject(hdc, pen);
-
 	if( !_path.empty() )
 	{
-		Ellipse(hdc, int(_path.front().coord.x) - 2, int(_path.front().coord.y) - 2,
-					 int(_path.front().coord.x) + 2, int(_path.front().coord.y) + 2);
+//		Ellipse(hdc, int(_path.front().coord.x) - 2, int(_path.front().coord.y) - 2,
+//					 int(_path.front().coord.x) + 2, int(_path.front().coord.y) + 2);
 
 		std::list<PathNode>::iterator it = _path.begin();
 		for(;;)
 		{
-			MoveToEx(hdc, int(it->coord.x), int(it->coord.y), NULL);
+			float x = it->coord.x;
+			float y = it->coord.y;
 			if( ++it == _path.end() ) break;
-			LineTo(hdc, int(it->coord.x), int(it->coord.y));
+			g_render->DrawLine(x,y, it->coord.x, it->coord.y, 0xffffffff);
 		}
 	}
 
 	if( _target )
 	{
-		SelectObject(hdc, oldpen);
-		DeleteObject(pen);
-
-		pen = CreatePen(PS_SOLID, 2, 0x00ff00ff);
-		oldpen = (HPEN) SelectObject(hdc, pen);
-
 		if( GetVehicle() )
 		{
-			MoveToEx(hdc, int(_target->GetPos().x), int(_target->GetPos().y), NULL);
-			LineTo(hdc, int(GetVehicle()->GetPos().x), int(GetVehicle()->GetPos().y));
+			g_render->DrawLine(
+				_target->GetPos().x, _target->GetPos().y,
+				GetVehicle()->GetPos().x, GetVehicle()->GetPos().y,
+				0xff00ffff
+			);
 		}
 	}
-
-	SelectObject(hdc, oldpen);
-	DeleteObject(pen);
-
-	pen = CreatePen(PS_DOT, 1, 0x0000ff55);
-	oldpen = (HPEN) SelectObject(hdc, pen);
-	LOGBRUSH lb = {BS_HOLLOW};
-	HBRUSH brush = CreateBrushIndirect(&lb);
-	HBRUSH oldbrush = (HBRUSH) SelectObject(hdc, brush);
-
-	SetBkMode(hdc, TRANSPARENT);
 
 	/*
 	CAttackList al(_AttackList);
@@ -1152,10 +1146,7 @@ void GC_PlayerAI::debug_draw(HDC hdc)
 		++count;
 	}
 */
-	SelectObject(hdc, oldbrush);
-	SelectObject(hdc, oldpen);
-	DeleteObject(brush);
-	DeleteObject(pen);
+
 }
 
 PropertySet* GC_PlayerAI::NewPropertySet()
