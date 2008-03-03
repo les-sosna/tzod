@@ -91,6 +91,37 @@ GC_Vehicle::~GC_Vehicle()
 	_player = NULL;
 }
 
+float GC_Vehicle::GetMaxSpeed() const
+{
+	return __min((_enginePower - _Nx) / _Mx, _maxLinSpeed);
+}
+
+float GC_Vehicle::GetMaxBrakingLength() const
+{
+	float result;
+	
+	float vx = GetMaxSpeed();
+	_ASSERT(vx > 0);
+
+	if( _Mx > 0 )
+	{
+		if( _Nx > 0 )
+		{
+			result = vx/_Mx - _Nx/(_Mx*_Mx)*(log(_Nx + _Mx*vx)-log(_Nx));
+		}
+		else
+		{
+			result = vx/_Mx;
+		}
+	}
+	else
+	{
+		result = vx*vx/_Nx*0.5f;
+	}
+
+	return result;
+}
+
 void GC_Vehicle::SetPlayer(GC_Player *player)
 {
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
@@ -280,7 +311,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	dd.from   = from;
 
 	PulseNotify(NOTIFY_DAMAGE_FILTER, &dd);
-    if( 0 == dd.damage )
+	if( 0 == dd.damage )
 	{
 		return false;
 	}

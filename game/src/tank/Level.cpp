@@ -34,9 +34,9 @@
 #include "gc/Sound.h"
 #include "gc/Camera.h"
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #include "gc/ai.h"
-#endif
+//#endif
 
 
 ////////////////////////////////////////////////////////////
@@ -1064,6 +1064,9 @@ void Level::TimeStep(float dt)
 	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
 		return;
 
+	_dbgLineBuffer.clear();
+
+
 	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
@@ -1408,7 +1411,7 @@ void Level::Render() const
 		if( pMaxShake ) break;
 	} // cameras
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
 	{
 		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
@@ -1416,7 +1419,19 @@ void Level::Render() const
 			pp->debug_draw();
 		}
 	}
-#endif
+
+	g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
+//#endif
+}
+
+void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color)
+{
+//	return;
+	_dbgLineBuffer.push_back(MyLine());
+	MyLine &line = _dbgLineBuffer.back();
+	line.begin = v1;
+	line.end = v2;
+	line.color = color;
 }
 
 GC_Object* Level::FindObject(const char *name) const

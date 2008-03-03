@@ -8,6 +8,8 @@
 
 #include "core/JobManager.h"
 #include "core/Debug.h"
+#include "core/Console.h"
+
 
 #include "fs/SaveFile.h"
 
@@ -20,9 +22,7 @@
 #include "Player.h"
 #include "Weapons.h"
 
-#include "Particles.h"
-
-#include "video/RenderBase.h"
+#include "Camera.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation
@@ -38,7 +38,7 @@ static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const
 ///////////////////////////////////////////////////////////////////////////////
 
 #define NODE_RADIUS         32.0f
-#define MIN_PATH_ANGLE       0.4f
+#define MIN_PATH_ANGLE       0.8f
 
 #define GRID_ALIGN(x, sz)    ((x)-(x)/(sz)*(sz)<(sz)/2)?((x)/(sz)):((x)/(sz)+1)
 
@@ -56,8 +56,11 @@ GC_PlayerAI::GC_PlayerAI()
 {
 	_desired_offset = 0;
 	_current_offset = 0;
+	_arrivalPoint.Set(0,0);
 
 	_level = 2;
+	_backTime = 0;
+	_stickTime = 0;
 
 	_favoriteWeaponType = INVALID_OBJECT_TYPE;
 
@@ -94,6 +97,9 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	f.Serialize(_favoriteWeaponType);
 	f.Serialize(_pickupCurrent);
 	f.Serialize(_target);
+	f.Serialize(_arrivalPoint);
+	f.Serialize(_backTime);
+	f.Serialize(_stickTime);
 
 	if( f.loading() )
 	{
@@ -129,6 +135,9 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	{
 		return;
 	}
+
+
+	GC_Camera::GetWorldMousePos(_arrivalPoint);
 
 
 	VehicleState vs;
@@ -201,6 +210,22 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 	// исполнение принятого решения
 	DoState(&vs, &weapSettings);
+	
+	_backTime -= dt;
+
+	if( (vs._bState_MoveForward || vs._bState_MoveBack) &&
+	    GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f )
+	{
+		_stickTime += dt;
+		if( _stickTime > 0.6f )
+		{
+			_backTime = g_level->net_frand(0.5f);
+		}
+	}
+	else
+	{
+		_stickTime = 0;
+	}
 
 
 	//
@@ -398,7 +423,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 void GC_PlayerAI::SmoothPath()
 {
-//	if( _path.size() < 4 ) 
+	if( _path.size() < 4 ) 
 		return;
 
 	int init_size = _path.size();
@@ -462,7 +487,8 @@ void GC_PlayerAI::SmoothPath()
 	}
 }
 
-std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(const vec2d &pos) const
+std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(
+	const vec2d &pos, vec2d *projection, float *offset) const
 {
 	_ASSERT(!_path.empty());
 	std::list<PathNode>::const_iterator it = _path.begin(), result = it;
@@ -476,6 +502,79 @@ std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(c
 			rr_min = rr;
 		}
 	}
+
+	_ASSERT(_path.end() != result);
+
+	if( projection )
+	{
+		vec2d dev = pos - result->coord;
+
+		float prevL = -1;
+		float nextL = -1;
+
+		vec2d prevPos;
+		vec2d nextPos;
+
+		vec2d nextDir;
+		vec2d prevDir;
+
+		float nextDir2;
+		float nextDot;
+
+		float prevDir2;
+		float prevDot;
+
+		std::list<PathNode>::const_iterator prevIt = result;
+		if( _path.begin() != result )
+		{
+			--prevIt;
+			prevDir  = prevIt->coord - result->coord;
+			prevDir2 = prevDir.sqr();
+			prevDot  = prevDir * dev;
+			prevL    = prevDot / sqrtf(prevDir2);
+		}
+
+		std::list<PathNode>::const_iterator nextIt = result; ++nextIt;
+		if( _path.end() != nextIt )
+		{
+			nextDir  = nextIt->coord - result->coord;
+			nextDir2 = nextDir.sqr();
+			nextDot  = nextDir * dev;
+			nextL    = nextDot / sqrtf(nextDir2);
+		}
+
+		if( prevL > 0 && prevL > nextL )
+		{
+			vec2d d = prevDir * (prevDot / prevDir2);
+			prevPos  = result->coord + d;
+			*projection = prevPos;
+//			result = prevIt;
+			if( offset ) 
+			{
+				*offset = d.len();
+			}
+		}
+		else
+		if( nextL > 0 && nextL > prevL )
+		{
+			vec2d d = nextDir * (nextDot / nextDir2);
+			nextPos  = result->coord + d;
+			*projection = nextPos;
+			if( offset )
+			{
+				*offset = -d.len();
+			}
+		}
+		else
+		{
+			*projection = result->coord;
+			if( offset )
+			{
+				*offset = 0;
+			}
+		}
+	}
+
 	return result;
 }
 
@@ -900,37 +999,97 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	// удаление ненужных узловых точек
 	//
 
-	bool bNeedStickCheck = true;
-
-	vec2d destPoint = GetVehicle()->GetPos();
 
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_2");
 
+	/*
+	_path.clear();
+	PathNode p1; p1.coord.Set(100,100);
+	PathNode p2; p2.coord.Set(400,400);
+	PathNode p3; p3.coord.Set(800,100);
+	PathNode p4; p4.coord.Set(800,400);
+
+	_path.push_back(p1);
+	_path.push_back(p2);
+	_path.push_back(p3);
+	_path.push_back(p4);
+	*/
+
+	vec2d brake = GetVehicle()->GetBrakingLength();
+	float brake_len = brake.len();
+
+	vec2d currentDir = GetVehicle()->_direction;
+	vec2d currentPos = GetVehicle()->GetPos();
+	vec2d predictedPos = GetVehicle()->GetPos() + brake;
 
 	if( !_path.empty() )
 	{
-		vec2d brake = GetVehicle()->GetBrakingLength();
-		vec2d pos = GetVehicle()->GetPos() + brake;
-		(new GC_Particle(pos, vec2d(0,0), tex1, 0.5f))->SetFade(true);
 
-		std::list<PathNode>::const_iterator nodeIt = FindNearPathNode(pos);
+		vec2d predictedProj;
+		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, NULL);
 
-		(new GC_Particle(nodeIt->coord, vec2d(0,0), tex2, 0.5f))->SetFade(true);
+		vec2d currentProj;
+		float offset;
+//		GC_Camera::GetWorldMousePos(currentPos);
+		std::list<PathNode>::const_iterator currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
 
-		if( (nodeIt->coord - pos).sqr() < CELL_SIZE*CELL_SIZE )
+		float desiredProjOffsetLen = GetVehicle()->GetMaxBrakingLength() * 2;//(1 + GetVehicle()->_lv.len() / GetVehicle()->GetMaxSpeed());
+		vec2d desiredProjOffset;
+
+		std::list<PathNode>::const_iterator it = currentNodeIt;
+		if( offset > 0 )
 		{
-			destPoint = nodeIt->coord;
-			if( ++nodeIt != _path.end() )
-				destPoint = nodeIt->coord;
+			vec2d d = it->coord;
+			--it;
+			d -= it->coord;
+			offset -= d.len();
 		}
-		else
+		offset += __min((currentPos - currentProj).len(), desiredProjOffsetLen);
+		for(;;)
 		{
-			destPoint = pos + brake;
+			vec2d d = it->coord;
+			if( ++it == _path.end() )
+			{
+				desiredProjOffset = d;
+				break;
+			}
+			d -= it->coord;
+			float len = d.len();
+			if( offset + len < desiredProjOffsetLen )
+			{
+				offset += len;
+			}
+			else
+			{
+				float ratio = 1 - (desiredProjOffsetLen - offset) / len;
+				desiredProjOffset = it->coord + d * ratio;
+				break;
+			}
 		}
+
+		if( ++currentNodeIt == _path.end() && (currentProj - currentPos).sqr() < CELL_SIZE*CELL_SIZE/16 )
+		{
+			_path.clear(); // end of path
+		}
+		//else
+		//{
+		//	if( (predictedPos - predictedProj).sqr() < CELL_SIZE*CELL_SIZE && brake_len > 1 )
+		//	{
+		//		_arrivalPoint = predictedProj + brake;
+		//	}
+		//	else
+		//	{
+				_arrivalPoint = desiredProjOffset;
+		//	}
+		//}
+
 	}
 
 
+//	GC_Camera::GetWorldMousePos(_arrivalPoint);
+
+	
 
 /*
 	while( !_path.empty() )
@@ -942,7 +1101,6 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		{
 			break;
 		}
-		bNeedStickCheck = false;
 		_path.pop_front();
 	}
 
@@ -950,7 +1108,11 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		destPoint = _path.front().coord;
 */
 
-	bNeedStickCheck = false;
+	pVehState->_bExplicitBody = false;
+	pVehState->_bExplicitTower = false;
+	pVehState->_bState_TowerCenter = true;
+
+
 
 	// проверка убитости основной цели
 	if( _target && _target->IsKilled() )
@@ -982,17 +1144,19 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		}
 
 		float len = (_target->GetPos() - GetVehicle()->GetPos()).len();
-		if( len < ws->fAttackRadius_min )
-		{
-			RotateTo(pVehState, _target->GetPos(), false, true);
-		}
-		else
-		{
-			RotateTo(pVehState, _path.empty() ? _target->GetPos() : _path.front().coord,
-				len > ws->fAttackRadius_max, false);
-		}
-
 		TowerTo(pVehState, fake, len > ws->fAttackRadius_crit, ws);
+
+		vec2d d = _target->GetPos() - currentPos;
+		float d_len = d.len();
+		if( d_len < ws->fAttackRadius_min )
+		{
+			if( d_len < 1 )
+			{
+				d = -currentDir;
+				d_len = 1;
+			}
+			_arrivalPoint = currentPos + d * (1 - ws->fAttackRadius_min / d_len);
+		}
 	}
 
 	//
@@ -1005,31 +1169,96 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
 		TowerTo(pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
-		RotateTo(pVehState, _path.empty() ? target->GetPos() : destPoint,
-			len > ws->fAttackRadius_max,
-			len < ws->fAttackRadius_min);
 	}
+
+
+	//
+	// avoid obstacles
+	//
+
+	{
+		float angle[] = {PI/4, 0, -PI/4};
+		float len[] = {1,2,1};
+
+		float min_d = -1;
+		vec2d min_hit, min_norm;
+		for( int i = 0; i < 3; ++i )
+		{
+			vec2d tmp = vec2d(angle[i] + GetVehicle()->GetRotation());
+
+			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
+			vec2d a  = brake * len[i];
+
+			g_level->DbgLine(x0, x0 + a);
+
+			vec2d hit, norm;
+			GC_Object *o = g_level->agTrace(
+				g_level->grid_rigid_s, 
+				GetVehicle(), 
+				x0,
+				a,
+				&hit,
+				&norm
+			);
+
+			if( o )
+			{
+				if( 1 == i && (hit - currentPos).len() < GetVehicle()->GetRadius() )
+				{
+					_backTime = 0.5f;
+					TRACE("back\n");
+				}
+
+				float d = (hit - x0).sqr();
+				if( min_d < 0 || d < min_d )
+				{
+					min_d = d;
+					min_hit = hit;
+					min_norm = norm;
+				}
+			}
+		}
+
+		if( min_d > 0 )
+		{
+			vec2d hit_dir = currentDir; // (min_hit - currentPos).Normalize();
+			min_norm = (min_norm - hit_dir * (min_norm * hit_dir)).Normalize() + min_norm;
+			min_norm.Normalize();
+			min_norm *= 1.4142f;// sqrt(2)
+			_arrivalPoint = min_hit + min_norm * GetVehicle()->GetRadius();
+			g_level->DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
+		}
+	}
+
+	g_level->DbgLine(GetVehicle()->GetPos(), _arrivalPoint, 0x0000ffff);
+
 
 	//
 	// обычное следование пути
 	//
-	else
+
+	float dst = (currentPos - _arrivalPoint).sqr();
+	if( dst > CELL_SIZE*CELL_SIZE/16 )
 	{
-		pVehState->_bExplicitTower = false;
-		pVehState->_bState_TowerCenter = true;
-		if( !_path.empty() )
-			RotateTo(pVehState, destPoint, true, false);
+		float brake = GetVehicle()->GetBrakingLength().sqr();
+		if( _backTime <= 0 )
+		{
+			RotateTo(pVehState, _arrivalPoint, dst > brake, false);
+		}
+		else
+		{
+			pVehState->_bState_MoveBack = true;
+		}
 	}
 
 
-	if( 0 && bNeedStickCheck )  // проверка на застревание
-	if( GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f
-		/* && engine_working_time > 1 sec */ )
-	{
-		// застряли :(
-		SetL1(L1_STICK);
-		_pickupCurrent = NULL;
-	}
+	//if( GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f
+	//	/* && engine_working_time > 1 sec */ )
+	//{
+	//	// застряли :(
+	//	SetL1(L1_STICK);
+	//	_pickupCurrent = NULL;
+	//}
 }
 
 bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
@@ -1104,24 +1333,20 @@ void GC_PlayerAI::debug_draw()
 		std::list<PathNode>::iterator it = _path.begin();
 		for(;;)
 		{
-			float x = it->coord.x;
-			float y = it->coord.y;
+			vec2d v = it->coord;
 			if( ++it == _path.end() ) break;
-			g_render->DrawLine(x,y, it->coord.x, it->coord.y, 0xffffffff);
+			g_level->DbgLine(v, it->coord, 0xffffffff);
 		}
 	}
-
+/*
 	if( _target )
 	{
 		if( GetVehicle() )
 		{
-			g_render->DrawLine(
-				_target->GetPos().x, _target->GetPos().y,
-				GetVehicle()->GetPos().x, GetVehicle()->GetPos().y,
-				0xff00ffff
-			);
+			g_render->DrawLine(_target->GetPos(), GetVehicle()->GetPos(), 0xff00ffff);
 		}
 	}
+*/
 
 	/*
 	CAttackList al(_AttackList);

@@ -435,6 +435,12 @@ protected:
 	void OnChangeSoundVolume();
 	void OnChangeNightMode();
 
+	//
+	// debugging routines
+	//
+public:
+	std::vector<MyLine> _dbgLineBuffer;
+	void DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color = 0x00ff00ff);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

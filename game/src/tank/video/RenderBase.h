@@ -45,7 +45,6 @@ struct MyVertex
 	float        u,v;    //  16       8
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 struct IRender
@@ -93,7 +92,7 @@ struct IRender
 	virtual MyVertex* DrawQuad() = 0;
 	virtual MyVertex* DrawFan(size_t nEdges) = 0;
 
-	virtual void DrawLine(float x1, float y1, float x2, float y2, SpriteColor c) = 0;
+	virtual void DrawLines(const MyLine *lines, size_t count) = 0;
 
 };
 

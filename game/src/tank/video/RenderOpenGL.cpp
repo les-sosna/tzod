@@ -104,7 +104,7 @@ private:
 	virtual MyVertex* DrawQuad();
 	virtual MyVertex* DrawFan(size_t nEdges);
 
-	virtual void DrawLine(float x1, float y1, float x2, float y2, SpriteColor c);
+	virtual void DrawLines(const MyLine *lines, size_t count);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -524,27 +524,23 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 	return result;
 }
 
-void RenderOpenGL::DrawLine(float x1, float y1, float x2, float y2, SpriteColor c)
+void RenderOpenGL::DrawLines(const MyLine *lines, size_t count)
 {
 	_flush();
 
-//	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
-//	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	glDisableClientState(GL_COLOR_ARRAY);
-//	glDisableClientState(GL_VERTEX_ARRAY);
 
 	glBegin(GL_LINES);
-		glColor4ub(c.rgba[3], c.rgba[2], c.rgba[1], c.rgba[0]);
-		glVertex2f(x1, y1);
-		glVertex2f(x2, y2);
+	const MyLine *it = lines, *end = lines + count;
+	for( ; it != end; ++it )
+	{
+		glColor4ub(it->color.rgba[3], it->color.rgba[2], it->color.rgba[1], it->color.rgba[0]);
+		glVertex2fv((const float *) &it->begin);
+		glVertex2fv((const float *) &it->end);
+	}
 	glEnd();
 
 	SetMode(_mode); // to enable texture
-//	glEnable(GL_BLEND);
-//	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//	glEnableClientState(GL_COLOR_ARRAY);
-//	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 void RenderOpenGL::SetAmbient(float ambient)

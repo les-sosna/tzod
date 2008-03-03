@@ -66,7 +66,7 @@ protected:
 	// текущий путь
 	//
 
-//	vec2d _arrivalPoint;
+	vec2d _arrivalPoint;
 	std::list<PathNode> _path;  // список узлов
 	AttackListType _attackList;
 
@@ -96,7 +96,7 @@ protected:
 
 
 	// find the nearest node to the vehicle
-	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos) const;
+	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
 
 
 	//-------------------------------------------------------------------------
@@ -149,6 +149,9 @@ protected:
 
 	// точность
 	int _level;
+
+	float _backTime;
+	float _stickTime;
 
 protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);

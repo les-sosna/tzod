@@ -69,6 +69,15 @@ struct GameInfo
 
 typedef float AIPRIORITY;
 
+//---------------------------------------------------------
+
+
+struct MyLine
+{
+	vec2d       begin;
+	vec2d       end;
+	SpriteColor color;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

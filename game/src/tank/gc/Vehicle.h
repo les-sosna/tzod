@@ -113,7 +113,8 @@ public:
 
 	VehicleState _state;
 
-	float GetMaxSpeed() const { return 100; }
+	float GetMaxSpeed() const;
+	float GetMaxBrakingLength() const;
 
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
