@@ -1159,4 +1159,19 @@ void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+ConfigCacheBase::ConfigCacheBase()
+{
+}
+
+ConfigCacheBase::~ConfigCacheBase()
+{
+}
+
+ConfigCacheBase::helper* ConfigCacheBase::operator ->()
+{
+	return &_helper;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // end of file

@@ -70,7 +70,7 @@ class ConfVarNumber : public ConfVar
 public:
 	ConfVarNumber();
 
-	const char* GetTypeName() const;
+	virtual const char* GetTypeName() const;
 
 	float GetFloat() const;
 	void SetFloat(float value);
@@ -90,7 +90,7 @@ class ConfVarBool : public ConfVar
 public:
 	ConfVarBool();
 
-	const char* GetTypeName() const;
+	virtual const char* GetTypeName() const;
 
 	bool Get() const;
 	void Set(bool value);
@@ -106,9 +106,9 @@ class ConfVarString : public ConfVar
 {
 public:
 	ConfVarString();
-	~ConfVarString();
+	virtual ~ConfVarString();
 
-	const char* GetTypeName() const;
+	virtual const char* GetTypeName() const;
 
 	const char* Get() const;
 	void Set(const char* value);
@@ -124,9 +124,9 @@ class ConfVarArray : public ConfVar
 {
 public:
 	ConfVarArray();
-	~ConfVarArray();
+	virtual ~ConfVarArray();
 
-	const char* GetTypeName() const;
+	virtual const char* GetTypeName() const;
 
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(size_t index, ConfVar::Type type);
@@ -167,9 +167,9 @@ class ConfVarTable : public ConfVar
 {
 public:
 	ConfVarTable();
-	~ConfVarTable();
+	virtual ~ConfVarTable();
 
-	const char* GetTypeName() const;
+	virtual const char* GetTypeName() const;
 
 	ConfVar* Find(const char *name); // returns NULL if variable not found
 	size_t GetSize() const;
@@ -206,6 +206,24 @@ protected:
 	bool _Load(lua_State *L);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// config cache
+
+class ConfigCacheBase
+{
+	class helper
+	{
+		ConfVarTable *_root;
+	public:
+		void InitLuaBinding(lua_State *L, const char *name);
+	};
+	helper _helper;
+
+public:
+	ConfigCacheBase();
+	virtual ~ConfigCacheBase();
+	helper* operator -> ();
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Lua binding
