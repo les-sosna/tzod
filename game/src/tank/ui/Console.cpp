@@ -32,7 +32,7 @@ Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuff
 	_input->SetTexture(NULL);
 
 	_scrollBack = 0;
-	_cmdIndex   = g_conf.con_history->GetSize();
+	_cmdIndex   = g_conf->con_history->GetSize();
 
 	_echo = true;
 
@@ -58,25 +58,25 @@ void Console::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_UP:
-		if( _cmdIndex > g_conf.con_history->GetSize() )
+		if( _cmdIndex > g_conf->con_history->GetSize() )
 		{
-			_cmdIndex = g_conf.con_history->GetSize();
+			_cmdIndex = g_conf->con_history->GetSize();
 		}
 		if( _cmdIndex > 0 )
 		{
-			_input->SetText(g_conf.con_history->GetStr(--_cmdIndex, "")->Get());
+			_input->SetText(g_conf->con_history->GetStr(--_cmdIndex, "")->Get());
 		}
 		break;
 	case VK_DOWN:
 		++_cmdIndex;
-		if( _cmdIndex < g_conf.con_history->GetSize() )
+		if( _cmdIndex < g_conf->con_history->GetSize() )
 		{
-			_input->SetText(g_conf.con_history->GetStr(_cmdIndex, "")->Get());
+			_input->SetText(g_conf->con_history->GetStr(_cmdIndex, "")->Get());
 		}
 		else
 		{
 			_input->SetText("");
-			_cmdIndex = g_conf.con_history->GetSize();
+			_cmdIndex = g_conf->con_history->GetSize();
 		}
 		break;
 	case VK_RETURN:
@@ -90,14 +90,14 @@ void Console::OnRawChar(int c)
 		{
 			_scrollBack = 0;
 
-			if( g_conf.con_history->GetSize() == 0 ||
-				cmd != g_conf.con_history->GetStr(g_conf.con_history->GetSize()-1, "")->Get() )
+			if( g_conf->con_history->GetSize() == 0 ||
+				cmd != g_conf->con_history->GetStr(g_conf->con_history->GetSize()-1, "")->Get() )
 			{
-				g_conf.con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd.c_str());
-				while( g_conf.con_history->GetSize() > (unsigned) g_conf.con_maxhistory->GetInt() )
-					g_conf.con_history->PopFront();
+				g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd.c_str());
+				while( g_conf->con_history->GetSize() > (unsigned) g_conf->con_maxhistory->GetInt() )
+					g_conf->con_history->PopFront();
 			}
-			_cmdIndex = g_conf.con_history->GetSize();
+			_cmdIndex = g_conf->con_history->GetSize();
 			if( _echo )
 				_buf->printf("> %s\n", cmd.c_str());       // echo to the console
 			if( eventOnSendCommand )

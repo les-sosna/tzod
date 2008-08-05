@@ -45,7 +45,7 @@ void GC_Crate::OnDestroy()
 {
 	PLAY(SND_WallDestroy, GetPos());
 
-	if( g_conf.g_particles->Get() )
+	if( g_conf->g_particles->Get() )
 	{
 		for( int n = 0; n < 5; ++n )
 		{

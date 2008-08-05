@@ -27,15 +27,15 @@ namespace UI
 MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
 {
 	_text = new Text(this, 0, 0, "", alignTextLT);
-	_ASSERT(!g_conf.ui_showmsg->eventChange);
-	g_conf.ui_showmsg->eventChange.bind(&MessageArea::OnToggleVisible, this);
+	_ASSERT(!g_conf->ui_showmsg->eventChange);
+	g_conf->ui_showmsg->eventChange.bind(&MessageArea::OnToggleVisible, this);
 	OnToggleVisible();
 }
 
 MessageArea::~MessageArea()
 {
-	_ASSERT(g_conf.ui_showmsg->eventChange);
-	g_conf.ui_showmsg->eventChange.clear();
+	_ASSERT(g_conf->ui_showmsg->eventChange);
+	g_conf->ui_showmsg->eventChange.clear();
 }
 
 void MessageArea::OnTimeStep(float dt)
@@ -81,7 +81,7 @@ void MessageArea::Clear()
 
 void MessageArea::OnToggleVisible()
 {
-	Show(g_conf.ui_showmsg->Get());
+	Show(g_conf->ui_showmsg->Get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,11 +103,11 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
-	g_conf.ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
+	g_conf->ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
 	OnChangeShowFps();
 
 	_time = new TimeElapsed(this, 0, 0, alignTextRB );
-	g_conf.ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
+	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
@@ -115,8 +115,8 @@ Desktop::Desktop(GuiManager* manager) : Window(manager)
 
 Desktop::~Desktop()
 {
-	g_conf.ui_showfps->eventChange.clear();
-	g_conf.ui_showtime->eventChange.clear();
+	g_conf->ui_showfps->eventChange.clear();
+	g_conf->ui_showtime->eventChange.clear();
 }
 
 void Desktop::ShowDesktopBackground(bool show)
@@ -230,12 +230,12 @@ void Desktop::OnSize(float width, float height)
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->Show(g_conf.ui_showfps->Get());
+	_fps->Show(g_conf->ui_showfps->Get());
 }
 
 void Desktop::OnChangeShowTime()
 {
-	_fps->Show(g_conf.ui_showfps->Get());
+	_fps->Show(g_conf->ui_showfps->Get());
 }
 
 void Desktop::OnCommand(const char *cmd)

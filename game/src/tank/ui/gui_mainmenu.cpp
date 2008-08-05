@@ -198,7 +198,7 @@ void MainMenuDlg::OnJoin()
 void MainMenuDlg::OnNetworkProfile()
 {
 //	Show(false);
-	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf->cl_playerinfo);
 //	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
@@ -293,7 +293,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		if( g_level->Export(tmp.c_str()) )
 		{
 			g_console->printf("map exported: '%s'\n", tmp.c_str());
-			g_conf.cl_map->Set(_fileDlg->GetFileTitle().c_str());
+			g_conf->cl_map->Set(_fileDlg->GetFileTitle().c_str());
 		}
 		else
 		{

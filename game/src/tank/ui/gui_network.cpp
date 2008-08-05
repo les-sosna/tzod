@@ -62,30 +62,30 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		float y =  56;
 
 		_nightMode = new CheckBox(this, x3, y, "Ночной режим");
-		_nightMode->SetCheck( g_conf.cl_nightmode->Get() );
+		_nightMode->SetCheck( g_conf->cl_nightmode->Get() );
 
 
 		new Text(this, x3, y+=30, "Скорость игры, %", alignTextLT);
 		_gameSpeed = new Edit(this, x4, y+=15, 80);
-		_gameSpeed->SetInt(g_conf.cl_speed->GetInt());
+		_gameSpeed->SetInt(g_conf->cl_speed->GetInt());
 
 		new Text(this, x3, y+=30, "Лимит фрагов", alignTextLT);
 		_fragLimit = new Edit(this, x4, y+=15, 80);
-		_fragLimit->SetInt(g_conf.cl_fraglimit->GetInt());
+		_fragLimit->SetInt(g_conf->cl_fraglimit->GetInt());
 
 		new Text(this, x3, y+=30, "Лимит времени", alignTextLT);
 		_timeLimit = new Edit(this, x4, y+=15, 80);
-		_timeLimit->SetInt(g_conf.cl_timelimit->GetInt());
+		_timeLimit->SetInt(g_conf->cl_timelimit->GetInt());
 
 		new Text(this, x3+30, y+=30, "(0 - нет лимита)", alignTextLT);
 
 		new Text(this, x3, y+=40, "Скорость сети, fps", alignTextLT);
 		_svFps = new Edit(this, x4, y+=15, 100);
-		_svFps->SetInt(g_conf.sv_fps->GetInt());
+		_svFps->SetInt(g_conf->sv_fps->GetInt());
 
 		new Text(this, x3, y+=30, "Задержка", alignTextLT);
 		_svLatency = new Edit(this, x4, y+=15, 100);
-		_svLatency->SetInt(g_conf.sv_latency->GetInt());
+		_svLatency->SetInt(g_conf->sv_latency->GetInt());
 	}
 
 	Button *btn;
@@ -144,7 +144,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-	g_conf.sv_latency->SetInt(gi.latency);
+	g_conf->sv_latency->SetInt(gi.latency);
 
 	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
 	Show(false);
@@ -185,7 +185,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 	new Text(this, 20, 65, "Адрес сервера", alignTextLT);
 	_name = new Edit(this, 25, 80, 300);
-	_name->SetText(g_conf.cl_server->Get());
+	_name->SetText(g_conf->cl_server->Get());
 
 
 	new Text(this, 20, 105, "Статус", alignTextLT);
@@ -269,10 +269,10 @@ void ConnectDlg::OnTimeStep(float dt)
 					break;
 				}
 
-				g_conf.sv_timelimit->SetInt(gi.timelimit);
-				g_conf.sv_fraglimit->SetInt(gi.fraglimit);
-				g_conf.sv_fps->SetInt(gi.server_fps);
-				g_conf.sv_nightmode->Set(gi.nightmode);
+				g_conf->sv_timelimit->SetInt(gi.timelimit);
+				g_conf->sv_fraglimit->SetInt(gi.fraglimit);
+				g_conf->sv_fps->SetInt(gi.server_fps);
+				g_conf->sv_nightmode->Set(gi.nightmode);
 
 				char msg[MAX_PATH + 32];
 				sprintf(msg, "Загрузка карты '%s'...", gi.cMapName);
@@ -293,11 +293,11 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				if( g_level->init_newdm(path, gi.seed) )
 				{
-					g_conf.cl_map->Set(gi.cMapName);
-					g_conf.ui_showmsg->Set(true);
+					g_conf->cl_map->Set(gi.cMapName);
+					g_conf->ui_showmsg->Set(true);
 					if( !_auto )
 					{
-						g_conf.cl_server->Set(_name->GetText().c_str());
+						g_conf->cl_server->Set(_name->GetText().c_str());
 					}
 				}
 				else
@@ -383,11 +383,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 
 	PlayerDesc pd;
-	strcpy(pd.nick, g_conf.cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
-	strcpy(pd.cls, g_conf.cl_playerinfo->GetStr("class", "default")->Get());
+	strcpy(pd.nick, g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
+	strcpy(pd.cls, g_conf->cl_playerinfo->GetStr("class", "default")->Get());
 	pd.score = 0;
-	strcpy(pd.skin, g_conf.cl_playerinfo->GetStr("skin", "red")->Get());
-	pd.team = g_conf.cl_playerinfo->GetNum("team", 0)->GetInt();
+	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get());
+	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
 	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
 
 	SetTimeStep(true);
@@ -400,7 +400,7 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 
 void WaitingForPlayersDlg::OnAddBot()
 {
-	(new EditBotDlg(this, g_conf.ui_netbotinfo))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
+	(new EditBotDlg(this, g_conf->ui_netbotinfo))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
 }
 
 void WaitingForPlayersDlg::OnAddBotClose(int result)
@@ -408,12 +408,12 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 	if( _resultOK == result )
 	{
 		BotDesc bd;
-		strcpy(bd.nick, g_conf.ui_netbotinfo->GetStr("nick", "Bot")->Get());
-		strcpy(bd.cls, g_conf.ui_netbotinfo->GetStr("class", "default")->Get());
-		strcpy(bd.skin, g_conf.ui_netbotinfo->GetStr("skin", "red")->Get());
+		strcpy(bd.nick, g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get());
+		strcpy(bd.cls, g_conf->ui_netbotinfo->GetStr("class", "default")->Get());
+		strcpy(bd.skin, g_conf->ui_netbotinfo->GetStr("skin", "red")->Get());
 		bd.score = 0;
-		bd.team = g_conf.ui_netbotinfo->GetNum("team", 0)->GetInt();
-		bd.level = g_conf.ui_netbotinfo->GetNum("level", 2)->GetInt();
+		bd.team = g_conf->ui_netbotinfo->GetNum("team", 0)->GetInt();
+		bd.level = g_conf->ui_netbotinfo->GetNum("level", 2)->GetInt();
 
 		g_client->SendDataToServer(DataWrap(bd, DBTYPE_NEWBOT));
 	}
@@ -563,7 +563,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			{
 				player = new GC_PlayerLocal();
 				static_cast<GC_PlayerLocal *>(player)
-					->SetProfile(g_conf.cl_playerinfo->GetStr("profile")->Get());
+					->SetProfile(g_conf->cl_playerinfo->GetStr("profile")->Get());
 			}
 			else
 			{

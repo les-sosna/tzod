@@ -209,7 +209,7 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 // config cache
 
-class ConfigCacheBase
+class LuaConfigCacheBase
 {
 	class helper
 	{
@@ -220,8 +220,8 @@ class ConfigCacheBase
 	helper _helper;
 
 public:
-	ConfigCacheBase();
-	virtual ~ConfigCacheBase();
+	LuaConfigCacheBase();
+	virtual ~LuaConfigCacheBase();
 	helper* operator -> ();
 };
 
@@ -229,6 +229,11 @@ public:
 // Lua binding
 
 void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName);
+
+
+///////////////////////////////////////////////////////////////////////////////
+// helper macros
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

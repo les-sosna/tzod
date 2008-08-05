@@ -155,7 +155,7 @@ void GC_Projectile::MoveTo(const vec2d &pos, bool trail)
 
 		while( _trailPath < len )
 		{
-			if( g_conf.g_particles->Get() )
+			if( g_conf->g_particles->Get() )
 				SpawnTrailParticle(GetPos() + e * _trailPath);
 			_trailPath += _trailDensity;
 		}

@@ -146,7 +146,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		sockaddr_in addr;
 		ZeroMemory(&addr, sizeof(sockaddr_in));
 		addr.sin_family = AF_INET;
-		addr.sin_port   = htons(g_conf.sv_port->GetInt());
+		addr.sin_port   = htons(g_conf->sv_port->GetInt());
 
 		// пробуем преобразовать в числовой IP-адрес из строкового
 		addr.sin_addr.s_addr = inet_addr(hostaddr);
@@ -340,7 +340,7 @@ void TankClient::SendDataToServer(const DataBlock &data)
 
 void TankClient::SendControl(const ControlPacket &cp)
 {
-	if( g_conf.sv_latency->GetInt() < _latency && _latency > 1 )
+	if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
 	{
 		--_latency;
 		TRACE("packet skipped\n");
@@ -367,7 +367,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 	_frame++;
 
 
-	if( g_conf.sv_latency->GetInt() > _latency )
+	if( g_conf->sv_latency->GetInt() > _latency )
 	{
 		++_latency;
 		SendControl(cp); // duplicate packet

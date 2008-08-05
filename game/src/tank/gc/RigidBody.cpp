@@ -316,7 +316,7 @@ void GC_Wall::OnDestroy()
 
 	PLAY(SND_WallDestroy, GetPos());
 
-	if( g_conf.g_particles->Get() )
+	if( g_conf->g_particles->Get() )
 	{
 		for( int n = 0; n < 5; ++n )
 		{
@@ -336,7 +336,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) && GetHealthMax() > 0 )
 	{
 		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
-		if( g_conf.g_particles->Get() && damage >= DAMAGE_BULLET )
+		if( g_conf->g_particles->Get() && damage >= DAMAGE_BULLET )
 		{
 			vec2d v = hit - GetPos();
 			if( fabsf(v.x) > fabsf(v.y) )

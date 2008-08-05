@@ -460,6 +460,22 @@
 				RelativePath="..\src\tank\config\ConfigBase.h"
 				>
 			</File>
+			<File
+				RelativePath="..\src\tank\config\ConfigCache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\workdir\lang.cfg"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\config\Language.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\config\Language.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="core"

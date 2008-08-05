@@ -75,9 +75,9 @@ void ScoreTable::DrawChildren(float sx, float sy)
 	Refresh();
 
 	char text[256];
-	if( g_conf.sv_timelimit->GetFloat() )
+	if( g_conf->sv_timelimit->GetFloat() )
 	{
-		int timeleft = int(g_conf.sv_timelimit->GetFloat() * 60.0f - g_level->_time);
+		int timeleft = int(g_conf->sv_timelimit->GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
 			if( timeleft % 60 < 10 )
@@ -93,7 +93,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		_text->Draw(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP);
 	}
 
-	if( g_conf.sv_fraglimit->GetInt() )
+	if( g_conf->sv_fraglimit->GetInt() )
 	{
 		int max_score = _players.empty() ? 0 : _players[0].score;
 		for( size_t i = 0; i < _players.size(); ++i )
@@ -101,7 +101,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 			if( _players[i].score > max_score )
 				max_score = _players[i].score;
 		}
-		int scoreleft = g_conf.sv_fraglimit->GetInt() - max_score;
+		int scoreleft = g_conf->sv_fraglimit->GetInt() - max_score;
 		if( scoreleft > 0 )
 			wsprintf(text, "Осталось фрагов  %d", scoreleft);
 		else

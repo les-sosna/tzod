@@ -21,6 +21,7 @@
 #include "video/TextureManager.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "core/Console.h"
 
@@ -51,7 +52,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	// map list
 	//
 
-	new Text(this, 16, 16, "Выберите карту", alignTextLT);
+	new Text(this, 16, 16, g_lang->choose_map->Get(), alignTextLT);
 
 	_maps = new MapList(this, x1, 32, x2 - x1, 192);
 	GetManager()->SetFocusWnd(_maps);
@@ -64,23 +65,23 @@ NewGameDlg::NewGameDlg(Window *parent)
 	{
 		float y =  16;
 
-		_nightMode = new CheckBox(this, x3, y, "Ночной режим");
-		_nightMode->SetCheck( g_conf.cl_nightmode->Get() );
+		_nightMode = new CheckBox(this, x3, y, g_lang->night_mode->Get());
+		_nightMode->SetCheck( g_conf->cl_nightmode->Get() );
 
 
-		new Text(this, x3, y+=30, "Скорость игры, %", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->game_speed->Get(), alignTextLT);
 		_gameSpeed = new Edit(this, x3+20, y+=15, 80);
-		_gameSpeed->SetInt(g_conf.cl_speed->GetInt());
+		_gameSpeed->SetInt(g_conf->cl_speed->GetInt());
 
-		new Text(this, x3, y+=30, "Лимит фрагов", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->frag_limit->Get(), alignTextLT);
 		_fragLimit = new Edit(this, x3+20, y+=15, 80);
-		_fragLimit->SetInt(g_conf.cl_fraglimit->GetInt());
+		_fragLimit->SetInt(g_conf->cl_fraglimit->GetInt());
 
-		new Text(this, x3, y+=30, "Лимит времени", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->time_limit->Get(), alignTextLT);
 		_timeLimit = new Edit(this, x3+20, y+=15, 80);
-		_timeLimit->SetInt(g_conf.cl_timelimit->GetInt());
+		_timeLimit->SetInt(g_conf->cl_timelimit->GetInt());
 
-		new Text(this, x3+30, y+=30, "(0 - нет лимита)", alignTextLT);
+		new Text(this, x3+30, y+=30, g_lang->zero_no_limits->Get(), alignTextLT);
 	}
 
 
@@ -162,9 +163,9 @@ void NewGameDlg::RefreshPlayersList()
 	int selected = _players->GetCurSel();
 	_players->DeleteAllItems();
 
-	for( size_t i = 0; i < g_conf.dm_players->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_players->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
 
 		int index = _players->AddItem( p->GetStr("nick")->Get() );
 		_players->SetItemText(index, 1, p->GetStr("skin")->Get());
@@ -178,7 +179,7 @@ void NewGameDlg::RefreshPlayersList()
 		}
 		else
 		{
-			wsprintf(s, "[нет]");
+			wsprintf(s, g_lang->team_none->Get());
 		}
 
 		_players->SetItemText(index, 3, s);
@@ -192,9 +193,9 @@ void NewGameDlg::RefreshBotsList()
 	int selected = _bots->GetCurSel();
 	_bots->DeleteAllItems();
 
-	for( size_t i = 0; i < g_conf.dm_bots->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_bots->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
 
 		int index = _bots->AddItem( p->GetStr("nick")->Get() );
 		_bots->SetItemText(index, 1, p->GetStr("skin")->Get());
@@ -222,7 +223,7 @@ void NewGameDlg::OnAddPlayer()
 	std::vector<string_t> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf.dm_players->PushBack(ConfVar::typeTable)->AsTable();
+	ConfVarTable *p = g_conf->dm_players->PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()].c_str());
 
 	_newPlayer = true;
@@ -237,7 +238,7 @@ void NewGameDlg::OnAddPlayerClose(int result)
 	}
 	else if( _newPlayer )
 	{
-		g_conf.dm_players->PopBack();
+		g_conf->dm_players->PopBack();
 	}
 	_newPlayer = false;
 }
@@ -245,7 +246,7 @@ void NewGameDlg::OnAddPlayerClose(int result)
 void NewGameDlg::OnRemovePlayer()
 {
 	_ASSERT( -1 != _players->GetCurSel() );
-	g_conf.dm_players->RemoveAt(_players->GetCurSel());
+	g_conf->dm_players->RemoveAt(_players->GetCurSel());
 	RefreshPlayersList();
 }
 
@@ -254,7 +255,7 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetCurSel();
 	_ASSERT(-1 != index);
 
-	(new EditPlayerDlg(this, g_conf.dm_players->GetAt(index)->AsTable()))
+	(new EditPlayerDlg(this, g_conf->dm_players->GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditPlayerClose, this );
 }
 
@@ -271,7 +272,7 @@ void NewGameDlg::OnAddBot()
 	std::vector<string_t> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf.dm_bots->PushBack(ConfVar::typeTable)->AsTable();
+	ConfVarTable *p = g_conf->dm_bots->PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()].c_str());
 
 	_newPlayer = true;
@@ -286,7 +287,7 @@ void NewGameDlg::OnAddBotClose(int result)
 	}
 	else if( _newPlayer )
 	{
-		g_conf.dm_bots->PopBack();
+		g_conf->dm_bots->PopBack();
 	}
 	_newPlayer = false;
 }
@@ -294,7 +295,7 @@ void NewGameDlg::OnAddBotClose(int result)
 void NewGameDlg::OnRemoveBot()
 {
 	_ASSERT( -1 != _bots->GetCurSel() );
-	g_conf.dm_bots->RemoveAt(_bots->GetCurSel());
+	g_conf->dm_bots->RemoveAt(_bots->GetCurSel());
 	RefreshBotsList();
 }
 
@@ -303,7 +304,7 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetCurSel();
 	_ASSERT(-1 != index);
 
-	(new EditBotDlg(this, g_conf.dm_bots->GetAt(index)->AsTable()))
+	(new EditBotDlg(this, g_conf->dm_bots->GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditBotClose, this );
 }
 
@@ -333,15 +334,15 @@ void NewGameDlg::OnOK()
 	path += "\\";
 	path += fn + ".map";
 
-	g_conf.cl_speed->SetInt( __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
-	g_conf.cl_fraglimit->SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
-	g_conf.cl_timelimit->SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
-	g_conf.cl_nightmode->Set( _nightMode->GetCheck() );
+	g_conf->cl_speed->SetInt( __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
+	g_conf->cl_fraglimit->SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
+	g_conf->cl_timelimit->SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
+	g_conf->cl_nightmode->Set( _nightMode->GetCheck() );
 
-	g_conf.sv_speed->SetInt( g_conf.cl_speed->GetInt() );
-	g_conf.sv_fraglimit->SetInt( g_conf.cl_fraglimit->GetInt() );
-	g_conf.sv_timelimit->SetInt( g_conf.cl_timelimit->GetInt() );
-	g_conf.sv_nightmode->Set( g_conf.cl_nightmode->Get() );
+	g_conf->sv_speed->SetInt( g_conf->cl_speed->GetInt() );
+	g_conf->sv_fraglimit->SetInt( g_conf->cl_fraglimit->GetInt() );
+	g_conf->sv_timelimit->SetInt( g_conf->cl_timelimit->GetInt() );
+	g_conf->sv_nightmode->Set( g_conf->cl_nightmode->Get() );
 
 	script_exec(g_env.L, "reset()");
 	_ASSERT(!g_level);
@@ -349,12 +350,12 @@ void NewGameDlg::OnOK()
 
 	if( g_level->init_newdm(path.c_str(), rand()) )
 	{
-		g_conf.cl_map->Set(fn.c_str());
-		g_conf.ui_showmsg->Set(true);
+		g_conf->cl_map->Set(fn.c_str());
+		g_conf->ui_showmsg->Set(true);
 
-		for( size_t i = 0; i < g_conf.dm_players->GetSize(); ++i )
+		for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
 		{
-			ConfVarTable *p = g_conf.dm_players->GetAt(i)->AsTable();
+			ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
 			GC_PlayerLocal *player = new GC_PlayerLocal();
 			player->SetTeam(    p->GetNum("team")->GetInt() );
 			player->SetSkin(    p->GetStr("skin")->Get()    );
@@ -363,9 +364,9 @@ void NewGameDlg::OnOK()
 			player->SetProfile( p->GetStr("profile")->Get() );
 		}
 
-		for( size_t i = 0; i < g_conf.dm_bots->GetSize(); ++i )
+		for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
 		{
-			ConfVarTable *p = g_conf.dm_bots->GetAt(i)->AsTable();
+			ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
 			GC_PlayerAI *bot = new GC_PlayerAI();
 			bot->SetTeam(  p->GetNum("team")->GetInt() );
 			bot->SetSkin(  p->GetStr("skin")->Get()    );
@@ -538,7 +539,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	lst = _profiles->GetList();
 
 	std::vector<string_t> profiles;
-	g_conf.dm_profiles->GetKeyList(profiles);
+	g_conf->dm_profiles->GetKeyList(profiles);
 
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{

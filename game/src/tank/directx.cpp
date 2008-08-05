@@ -282,12 +282,12 @@ HRESULT InitAll( HWND hWnd )
 	_ASSERT(g_render);
 
 	DisplayMode dm;
-	dm.Width         = g_conf.r_width->GetInt();
-    dm.Height        = g_conf.r_height->GetInt();
-    dm.RefreshRate   = g_conf.r_freq->GetInt();
-    dm.BitsPerPixel  = g_conf.r_bpp->GetInt();
+	dm.Width         = g_conf->r_width->GetInt();
+    dm.Height        = g_conf->r_height->GetInt();
+    dm.RefreshRate   = g_conf->r_freq->GetInt();
+    dm.BitsPerPixel  = g_conf->r_bpp->GetInt();
 
-	if( !g_render->Init(hWnd, &dm, g_conf.r_fullscreen->Get()) )
+	if( !g_render->Init(hWnd, &dm, g_conf->r_fullscreen->Get()) )
 	{
 		return E_FAIL;
 	}

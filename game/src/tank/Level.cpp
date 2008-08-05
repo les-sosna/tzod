@@ -265,8 +265,8 @@ Level::Level()
 
 
 	// register config handlers
-	g_conf.s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
-	g_conf.sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
+	g_conf->s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
+	g_conf->sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
 }
 
 void Level::Init(int X, int Y)
@@ -324,7 +324,7 @@ bool Level::init_emptymap()
 	ToggleEditorMode();
 	_ASSERT(_modeEditor);
 
-	g_conf.sv_nightmode->Set(false);
+	g_conf->sv_nightmode->Set(false);
 
 	return true;
 }
@@ -335,7 +335,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	_ASSERT(_bInitialized = TRUE);
 
 	_gameType = GT_EDITOR;
-	g_conf.sv_nightmode->Set(false);
+	g_conf->sv_nightmode->Set(false);
 
 	if( !Import(mapName, false) )
 		return false;
@@ -386,8 +386,8 @@ Level::~Level()
 	}
 
 	// unregister config handlers
-	g_conf.s_volume->eventChange.clear();
-	g_conf.sv_nightmode->eventChange.clear();
+	g_conf->s_volume->eventChange.clear();
+	g_conf->sv_nightmode->eventChange.clear();
 
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
@@ -485,9 +485,9 @@ bool Level::Unserialize(const char *fileName)
 
 		_gameType = sh.dwGameType;
 
-		g_conf.sv_timelimit->SetFloat(sh.timelimit);
-		g_conf.sv_fraglimit->SetInt(sh.fraglimit);
-		g_conf.sv_nightmode->Set(sh.nightmode);
+		g_conf->sv_timelimit->SetFloat(sh.timelimit);
+		g_conf->sv_fraglimit->SetInt(sh.fraglimit);
+		g_conf->sv_nightmode->Set(sh.nightmode);
 
 		_time = sh.time;
 		Init(sh.width, sh.height);
@@ -554,9 +554,9 @@ bool Level::Serialize(const char *fileName)
 		strcpy(sh.theme, _infoTheme.c_str());
 		sh.dwVersion    = VERSION;
 		sh.dwGameType   = _gameType;
-		sh.fraglimit    = g_conf.sv_fraglimit->GetInt();
-		sh.timelimit    = g_conf.sv_timelimit->GetFloat();
-		sh.nightmode    = g_conf.sv_nightmode->Get();
+		sh.fraglimit    = g_conf->sv_fraglimit->GetInt();
+		sh.timelimit    = g_conf->sv_timelimit->GetFloat();
+		sh.nightmode    = g_conf->sv_nightmode->Get();
 		sh.time         = _time;
 		sh.width        = (int) _sx / CELL_SIZE;
 		sh.height       = (int) _sy / CELL_SIZE;
@@ -792,7 +792,7 @@ void Level::ToggleEditorMode()
 	else
 	{
 		_modeEditor = true;
-		_background->EnableGrid(g_conf.ed_drawgrid->Get());
+		_background->EnableGrid(g_conf->ed_drawgrid->Get());
 		PauseLocal(true);
 	}
 	GC_Camera::SwitchEditor();
@@ -1067,7 +1067,7 @@ void Level::TimeStep(float dt)
 	_dbgLineBuffer.clear();
 
 
-	dt *= g_conf.sv_speed->GetFloat() / 100.0f;
+	dt *= g_conf->sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
 	_ASSERT(!_modeEditor);
@@ -1084,7 +1084,7 @@ void Level::TimeStep(float dt)
 		// network mode
 		//
 
-		const float fixed_dt = 1.0f / g_conf.sv_fps->GetFloat() / NET_MULTIPLER;
+		const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat() / NET_MULTIPLER;
 
 		_timeBuffer += dt;
 		while( _timeBuffer >= 0 )
@@ -1184,7 +1184,7 @@ void Level::TimeStep(float dt)
 			NetworkStats ns;
 			g_client->GetStatistics(&ns);
 
-			if( ns.nFramesInBuffer < g_conf.sv_latency->GetInt() )
+			if( ns.nFramesInBuffer < g_conf->sv_latency->GetInt() )
 			{
 				break;
 			}
@@ -1289,7 +1289,7 @@ void Level::TimeStep(float dt)
 #endif
 #endif
 
-	if( g_conf.sv_timelimit->GetInt() && g_conf.sv_timelimit->GetInt() * 60 <= _time )
+	if( g_conf->sv_timelimit->GetInt() && g_conf->sv_timelimit->GetInt() * 60 <= _time )
 	{
 		HitLimit();
 	}
@@ -1319,7 +1319,7 @@ void Level::Render() const
 		}
 	}
 
-	g_render->SetAmbient( g_conf.sv_nightmode->Get() ? 0.0f : 1.0f );
+	g_render->SetAmbient( g_conf->sv_nightmode->Get() ? 0.0f : 1.0f );
 
 	int count = 0;
 	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
@@ -1334,7 +1334,7 @@ void Level::Render() const
 
 		g_render->SetMode(RM_LIGHT);
 		pCamera->Select();
-		if( g_conf.sv_nightmode->Get() )
+		if( g_conf->sv_nightmode->Get() )
 		{
 			float xmin = (float) __max(0, g_env.camera_x );
 			float ymin = (float) __max(0, g_env.camera_y );
@@ -1420,7 +1420,10 @@ void Level::Render() const
 		}
 	}
 
-	g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
+	if( !_dbgLineBuffer.empty() )
+	{
+		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
+	}
 //#endif
 }
 

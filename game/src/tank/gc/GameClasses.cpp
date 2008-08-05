@@ -35,21 +35,21 @@ IMPLEMENT_SELF_REGISTRATION(GC_Background)
 GC_Background::GC_Background() : GC_2dSprite()
 {
 	MoveTo(vec2d(0, 0));
-	_ASSERT(!g_conf.ed_drawgrid->eventChange);
-	g_conf.ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
+	_ASSERT(!g_conf->ed_drawgrid->eventChange);
+	g_conf->ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
 	OnChangeDrawGridVariable();
 }
 
 GC_Background::GC_Background(FromFile) : GC_2dSprite(FromFile())
 {
-	_ASSERT(!g_conf.ed_drawgrid->eventChange);
-	g_conf.ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
+	_ASSERT(!g_conf->ed_drawgrid->eventChange);
+	g_conf->ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
 	OnChangeDrawGridVariable();
 }
 
 GC_Background::~GC_Background()
 {
-	g_conf.ed_drawgrid->eventChange.clear();
+	g_conf->ed_drawgrid->eventChange.clear();
 }
 
 void GC_Background::Draw()
@@ -85,7 +85,7 @@ void GC_Background::EnableGrid(bool bEnable)
 
 void GC_Background::OnChangeDrawGridVariable()
 {
-	_drawGrid = g_conf.ed_drawgrid->Get();
+	_drawGrid = g_conf->ed_drawgrid->Get();
 }
 
 /////////////////////////////////////////////////////////////
@@ -577,7 +577,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner) 
 	SetTexture("explosion_o");
 	MoveTo( pos );
 
-	if( g_conf.g_particles->Get() )
+	if( g_conf->g_particles->Get() )
 	{
 		for(int n = 0; n < 28; ++n)
 		{
@@ -635,7 +635,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explo
 	SetTexture("explosion_big");
 	MoveTo( pos );
 
-	if( g_conf.g_particles->Get() )
+	if( g_conf->g_particles->Get() )
 	{
 		for( int n = 0; n < 80; ++n )
 		{

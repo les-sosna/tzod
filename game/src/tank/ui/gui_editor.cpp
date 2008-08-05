@@ -38,11 +38,11 @@ NewMapDlg::NewMapDlg(Window *parent)
 
 	new Text(this, 40, 75, "Ширина", alignTextLT);
 	_width = new Edit(this, 60, 90, 80);
-	_width->SetInt(g_conf.ed_width->GetInt());
+	_width->SetInt(g_conf->ed_width->GetInt());
 
 	new Text(this, 40, 115, "Высота", alignTextLT);
 	_height = new Edit(this, 60, 130, 80);
-	_height->SetInt(g_conf.ed_height->GetInt());
+	_height->SetInt(g_conf->ed_height->GetInt());
 
 	(new Button(this, 20, 200, "ОК"))->eventClick.bind(&NewMapDlg::OnOK, this);
 	(new Button(this, 140, 200, "Отмена"))->eventClick.bind(&NewMapDlg::OnCancel, this);
@@ -56,8 +56,8 @@ NewMapDlg::~NewMapDlg()
 
 void NewMapDlg::OnOK()
 {
-	g_conf.ed_width->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
-	g_conf.ed_height->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
+	g_conf->ed_width->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
+	g_conf->ed_height->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
 	script_exec(g_env.L, "reset(); newmap(conf.ed_width, conf.ed_height)");
 	Close(_resultOK);
 }
@@ -268,7 +268,7 @@ void PropertyList::OnRawChar(int c)
 		_ps->SaveToConfig();
 		break;
 	case VK_ESCAPE:
-		g_conf.ed_showproperties->Set(false);
+		g_conf->ed_showproperties->Set(false);
 		Show(false);
 		break;
 	default:
@@ -321,7 +321,7 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
-	_typeList->SetCurSel( g_conf.ed_object->GetInt() );
+	_typeList->SetCurSel( g_conf->ed_object->GetInt() );
 
 	_selectionRect = new Window(this, 0, 0, "selection");
 	_selectionRect->SetBorder(true);
@@ -333,14 +333,14 @@ EditorLayout::EditorLayout(Window *parent) : Window(parent)
 	_click = true;
 	_mbutton = 0;
 
-	_ASSERT(!g_conf.ed_uselayers->eventChange);
-	g_conf.ed_uselayers->eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
+	_ASSERT(!g_conf->ed_uselayers->eventChange);
+	g_conf->ed_uselayers->eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
 
 EditorLayout::~EditorLayout()
 {
-	g_conf.ed_uselayers->eventChange.clear();
+	g_conf->ed_uselayers->eventChange.clear();
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -370,7 +370,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			if( _selectedObject )
 			{
 				_propList->ConnectTo(_selectedObject->GetProperties());
-				if( g_conf.ed_showproperties->Get() )
+				if( g_conf->ed_showproperties->Get() )
 				{
 					_propList->Show(true);
 				}
@@ -439,7 +439,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
-			_typeList->GetList()->GetItemData(g_conf.ed_object->GetInt()) );
+			_typeList->GetList()->GetItemData(g_conf->ed_object->GetInt()) );
 
 		float align = Level::GetTypeInfo(type).align;
 		float offset = Level::GetTypeInfo(type).offset;
@@ -451,7 +451,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		pt.y -= fmodf(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
 		int layer = -1;
-		if( g_conf.ed_uselayers->Get() )
+		if( g_conf->ed_uselayers->Get() )
 		{
 			layer = Level::GetTypeInfo(_typeList->GetList()->GetItemData(_typeList->GetCurSel())).layer;
 		}
@@ -523,7 +523,7 @@ void EditorLayout::OnRawChar(int c)
 		if( _selectedObject )
 		{
 			_propList->Show(true);
-			g_conf.ed_showproperties->Set(true);
+			g_conf->ed_showproperties->Set(true);
 		}
 		break;
 	case VK_DELETE:
@@ -538,10 +538,10 @@ void EditorLayout::OnRawChar(int c)
 		_help->Show(!_help->IsVisible());
 		break;
 	case VK_F9:
-		g_conf.ed_uselayers->Set(!g_conf.ed_uselayers->Get());
+		g_conf->ed_uselayers->Set(!g_conf->ed_uselayers->Get());
 		break;
 	case 'G':
-		g_conf.ed_drawgrid->Set(!g_conf.ed_drawgrid->Get());
+		g_conf->ed_drawgrid->Set(!g_conf->ed_drawgrid->Get());
 		break;
 	case VK_ESCAPE:
 		if( _selectedObject )
@@ -576,7 +576,7 @@ void EditorLayout::OnShow(bool show)
 
 void EditorLayout::OnChangeObject(int index)
 {
-	g_conf.ed_object->SetInt(index);
+	g_conf->ed_object->SetInt(index);
 
 	std::ostringstream buf;
 	buf << "слой " << Level::GetTypeInfo(_typeList->GetList()->GetItemData(index)).layer << ": ";
@@ -585,7 +585,7 @@ void EditorLayout::OnChangeObject(int index)
 
 void EditorLayout::OnChangeUseLayers()
 {
-	_layerDisp->Show(g_conf.ed_uselayers->Get());
+	_layerDisp->Show(g_conf->ed_uselayers->Get());
 }
 
 void EditorLayout::DrawChildren(float sx, float sy)

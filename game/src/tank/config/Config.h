@@ -3,28 +3,18 @@
 // don't use pragma once
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ConfigBase.h"
-
-
-#ifndef CONFIG_CPP
-
-#define CONFIG_BEGIN() struct ConfCache { void Initialize(ConfVarTable *cfg);
-#define CONFIG_END()  };
-
-#define CONFIG_VAR_FLOAT( var, def )  ConfVarNumber *var;
-#define CONFIG_VAR_INT(   var, def )  ConfVarNumber *var;
-#define CONFIG_VAR_BOOL(  var, def )  ConfVarBool   *var;
-#define CONFIG_VAR_STR(   var, def )  ConfVarString *var;
-#define CONFIG_VAR_ARRAY( var )       ConfVarArray  *var;
-#define CONFIG_VAR_TABLE( var )       ConfVarTable  *var;
-
+#ifndef CONFIG_CACHE_PASS
+ #define CONFIG_CACHE_PASS 1
 #endif
+
+#include "ConfigCache.h"
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // config map
 
-CONFIG_BEGIN()    //  var_name      def_value
+CONFIG_BEGIN(ConfCache) //  var_name  def_value
 
 	// display settings
 	CONFIG_VAR_INT(  r_render,           0 ); // 0 - opengl, 1 - d3d
@@ -95,12 +85,7 @@ CONFIG_BEGIN()    //  var_name      def_value
 	CONFIG_VAR_ARRAY( dm_players  );
 	CONFIG_VAR_ARRAY( dm_bots     );
 
-CONFIG_END()
-
-///////////////////////////////////////////////////////////////////////////////
-
-extern ConfCache       g_conf;
-extern ConfVarTable*   g_config;
+CONFIG_END(ConfCache, g_conf)
 
 
 ///////////////////////////////////////////////////////////////////////////////

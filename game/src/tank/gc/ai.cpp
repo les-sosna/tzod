@@ -588,7 +588,6 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 {
 	_ASSERT(!_isnan(x.x) && !_isnan(x.y));
 	_ASSERT(_finite(x.x) && _finite(x.y));
-	_ASSERT(x.x > 0 && x.y > 0);
 
 	float ang2 = (x - GetVehicle()->GetPos()).Angle();
 	float ang1 = GetVehicle()->_angle;

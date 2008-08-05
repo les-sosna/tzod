@@ -14,6 +14,7 @@
 #include "network/TankClient.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "video/TextureManager.h"
 
@@ -131,9 +132,9 @@ void GC_Player::UpdateSkin()
 void GC_Player::SetScore(int score)
 {
 	_score = score;
-	if( g_conf.sv_fraglimit->GetInt() )
+	if( g_conf->sv_fraglimit->GetInt() )
 	{
-		if( _score >= g_conf.sv_fraglimit->GetInt() )
+		if( _score >= g_conf->sv_fraglimit->GetInt() )
 		{
 			g_level->HitLimit();
 		}
@@ -202,7 +203,7 @@ void GC_Player::TimeStepFixed(float dt)
 			if( !pBestPoint && points.empty() )
 			{
 				char buf[64];
-				wsprintf(buf, "Для команды %d нет точек рождения!", _team);
+				wsprintf(buf, g_lang->no_respawns_for_team_x->Get(), _team);
 				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf);
 				return;
 			}
@@ -392,7 +393,7 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 {
-	ED_SERVICE("player_local", "Игрок");
+	ED_SERVICE("player_local", "Локальный игрок");
 	return true;
 }
 
@@ -407,7 +408,7 @@ GC_PlayerLocal::GC_PlayerLocal()
 	string_t profile;
 
 	std::vector<string_t> tmp;
-	g_conf.dm_profiles->GetKeyList(tmp);
+	g_conf->dm_profiles->GetKeyList(tmp);
 	for( size_t i = 0; i < tmp.size(); ++i )
 	{
 		bool in_use = false;
@@ -501,7 +502,7 @@ const string_t& GC_PlayerLocal::GetProfile() const
 void GC_PlayerLocal::SetProfile(const char *name)
 {
 	_profile = name;
-	ConfVar *p = g_conf.dm_profiles->Find(name);
+	ConfVar *p = g_conf->dm_profiles->Find(name);
 
 	if( p && ConfVar::typeTable == p->GetType() )
 	{
@@ -551,7 +552,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	// lights
 	//
 	bool tmp = g_env.envInputs.keys[_keyLight];
-	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode->Get() )
+	if( tmp && !_lastLightKeyState && g_conf->sv_nightmode->Get() )
 	{
 		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
 		_lights = !_lights;

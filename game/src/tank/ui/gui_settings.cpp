@@ -63,40 +63,40 @@ SettingsDlg::SettingsDlg(Window *parent)
 	float y = 48;
 
 	_showFps = new CheckBox(this, x, y, "Показать FPS");
-	_showFps->SetCheck(g_conf.ui_showfps->Get());
+	_showFps->SetCheck(g_conf->ui_showfps->Get());
 	y += _showFps->GetHeight();
 
 	_showTime = new CheckBox(this, x, y, "Показать время");
-	_showTime->SetCheck(g_conf.ui_showtime->Get());
+	_showTime->SetCheck(g_conf->ui_showtime->Get());
 	y += _showTime->GetHeight();
 
 	_particles = new CheckBox(this, x, y, "Частицы");
-	_particles->SetCheck(g_conf.g_particles->Get());
+	_particles->SetCheck(g_conf->g_particles->Get());
 	y += _particles->GetHeight();
 
 	_showDamage = new CheckBox(this, x, y, "Показывать повреждение");
-	_showDamage->SetCheck(g_conf.g_showdamage->Get());
+	_showDamage->SetCheck(g_conf->g_showdamage->Get());
 	y += _showDamage->GetHeight();
 
 	_askDisplaySettings = new CheckBox(this, x, y, "Запрос настроек экрана при запуске");
-	_askDisplaySettings->SetCheck(g_conf.r_askformode->Get());
+	_askDisplaySettings->SetCheck(g_conf->r_askformode->Get());
 	y += _askDisplaySettings->GetHeight();
 
 	new Text(this, x + 50, y += 20, "Громкость", alignTextRT);
 	_volumeSfx = new ScrollBar(this, x + 60, y, 150, true);
 	_volumeSfx->SetLimit(1);
 	_volumeSfx->SetLineSize(0.1f);
-	_volumeSfx->SetPos(expf(g_conf.s_volume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeSfx->SetPos(expf(g_conf->s_volume->GetFloat() / 2171.0f) - 0.01f);
 	_volumeSfx->eventScroll.bind(&SettingsDlg::OnVolumeSfx, this);
-	_initialVolumeSfx = g_conf.s_volume->GetInt();
+	_initialVolumeSfx = g_conf->s_volume->GetInt();
 
 	new Text(this, x + 50, y += 20, "Музыка", alignTextRT);
 	_volumeMusic = new ScrollBar(this, x + 60, y, 150, true);
 	_volumeMusic->SetLimit(1);
 	_volumeMusic->SetLineSize(0.1f);
-	_volumeMusic->SetPos(expf(g_conf.s_musicvolume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeMusic->SetPos(expf(g_conf->s_musicvolume->GetFloat() / 2171.0f) - 0.01f);
 	_volumeMusic->eventScroll.bind(&SettingsDlg::OnVolumeMusic, this);
-	_initialVolumeMusic = g_conf.s_musicvolume->GetInt();
+	_initialVolumeMusic = g_conf->s_musicvolume->GetInt();
 
 
 	//
@@ -118,12 +118,12 @@ SettingsDlg::~SettingsDlg()
 
 void SettingsDlg::OnVolumeSfx(float pos)
 {
-	g_conf.s_volume->SetInt( int(2171.0f * logf(0.01f + pos)) );
+	g_conf->s_volume->SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnVolumeMusic(float pos)
 {
-	g_conf.s_musicvolume->SetInt( int(2171.0f * logf(0.01f + pos)) );
+	g_conf->s_musicvolume->SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnAddProfile()
@@ -143,7 +143,7 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	_ASSERT(i >= 0);
-	g_conf.dm_profiles->Remove(_profiles->GetItemText(i).c_str());
+	g_conf->dm_profiles->Remove(_profiles->GetItemText(i).c_str());
 	UpdateProfilesList();
 }
 
@@ -155,19 +155,19 @@ void SettingsDlg::OnSelectProfile(int index)
 
 void SettingsDlg::OnOK()
 {
-	g_conf.ui_showfps->Set(_showFps->GetCheck());
-	g_conf.ui_showtime->Set(_showTime->GetCheck());
-	g_conf.g_particles->Set(_particles->GetCheck());
-	g_conf.g_showdamage->Set(_showDamage->GetCheck());
-	g_conf.r_askformode->Set(_askDisplaySettings->GetCheck());
+	g_conf->ui_showfps->Set(_showFps->GetCheck());
+	g_conf->ui_showtime->Set(_showTime->GetCheck());
+	g_conf->g_particles->Set(_particles->GetCheck());
+	g_conf->g_showdamage->Set(_showDamage->GetCheck());
+	g_conf->r_askformode->Set(_askDisplaySettings->GetCheck());
 
 	Close(_resultCancel); // return cancel to show back the main menu
 }
 
 void SettingsDlg::OnCancel()
 {
-	g_conf.s_volume->SetInt(_initialVolumeSfx);
-	g_conf.s_musicvolume->SetInt(_initialVolumeMusic);
+	g_conf->s_volume->SetInt(_initialVolumeSfx);
+	g_conf->s_musicvolume->SetInt(_initialVolumeMusic);
 	Close(_resultCancel);
 }
 
@@ -175,7 +175,7 @@ void SettingsDlg::UpdateProfilesList()
 {
 	int sel = _profiles->GetCurSel();
 	std::vector<string_t> profiles;
-	g_conf.dm_profiles->GetKeyList(profiles);
+	g_conf->dm_profiles->GetKeyList(profiles);
 	_profiles->DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
@@ -223,10 +223,10 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 			buf.str("");
 			buf << "Профиль " << ++i;
 		}
-		while( g_conf.dm_profiles->Find(buf.str().c_str()) );
+		while( g_conf->dm_profiles->Find(buf.str().c_str()) );
 		_nameEdit->SetText(buf.str().c_str());
 	}
-	_profile = g_conf.dm_profiles->GetTable(_nameEdit->GetText().c_str());
+	_profile = g_conf->dm_profiles->GetTable(_nameEdit->GetText().c_str());
 
 	new Text(this,  20, 65, "Действие", alignTextLT);
 	new Text(this, 220, 65, "Кнопка", alignTextLT);
@@ -284,7 +284,7 @@ void ControlProfileDlg::AddAction(const char *rawname, const char *display)
 void ControlProfileDlg::OnOK()
 {
 	if( _nameEdit->GetText().empty()
-		|| !g_conf.dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
+		|| !g_conf->dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
 	{
 		return;
 	}
@@ -303,7 +303,7 @@ void ControlProfileDlg::OnCancel()
 {
 	if( _name.empty() )
 	{
-		g_conf.dm_profiles->Remove(_profile);
+		g_conf->dm_profiles->Remove(_profile);
 	}
 	Close(_resultCancel);
 }

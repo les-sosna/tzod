@@ -8,6 +8,7 @@
 #include "KeyMapper.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "sound/MusicPlayer.h"
 
@@ -42,7 +43,7 @@ static void OnPrintScreen()
 	CreateDirectory(DIR_SCREENSHOTS, NULL);
 	SetCurrentDirectory(DIR_SCREENSHOTS);
 
-	int n = g_conf.r_screenshot->GetInt();
+	int n = g_conf->r_screenshot->GetInt();
 	char name[MAX_PATH];
 	for(;;)
 	{
@@ -58,7 +59,7 @@ static void OnPrintScreen()
 		n++;
 	}
 
-	g_conf.r_screenshot->SetInt(n);
+	g_conf->r_screenshot->SetInt(n);
 
 	if( !g_render->TakeScreenshot(name) )
 	{
@@ -186,10 +187,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	// init config system
 	//
 
-	g_config = new ConfVarTable();
-	if( g_fs->Open(FILE_CONFIG) && !g_config->Load(FILE_CONFIG) )
+	if( g_fs->Open(FILE_CONFIG) && !g_conf.GetRoot()->Load(FILE_CONFIG) )
 	{
-		TRACE("couldn't load " FILE_CONFIG "\n");
+		TRACE("couldn't load configuration file " FILE_CONFIG "\n");
 
 		int result = MessageBox(g_env.hMainWnd,
 			"Syntax error in the config file (see log). Default settings will be used.",
@@ -201,16 +201,37 @@ int APIENTRY WinMain( HINSTANCE hinst,
 			return 0;
 		}
 	}
-	g_conf.Initialize(g_config);
-	if( 0 == g_conf.dm_profiles->GetSize() )
+	if( 0 == g_conf->dm_profiles->GetSize() )
 		CreateDefaultProfiles();
 
+
+	//
+	// init localization
+	//
+	TRACE("Localization init...\n");
+	if( g_fs->Open(FILE_LANGUAGE) && !g_lang.GetRoot()->Load(FILE_LANGUAGE) )
+	{
+		TRACE("couldn't load language file " FILE_CONFIG "\n");
+
+		int result = MessageBox(g_env.hMainWnd,
+			"Syntax error in the language file (see log). Continue with default (English) language?",
+			TXT_VERSION,
+			MB_ICONERROR | MB_OKCANCEL);
+
+		if( IDOK != result )
+		{
+			return 0;
+		}
+	}
+
+
+	// set up the environment
 	g_env.nNeedCursor  = 0;
 	g_env.minimized    = false;
 	g_env.camera_x     = 0;
 	g_env.camera_y     = 0;
 
-	GC_Sound::_countMax = g_conf.s_maxchanels->GetInt();
+	GC_Sound::_countMax = g_conf->s_maxchanels->GetInt();
 
 
 	//
@@ -225,7 +246,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	//
 	// show graphics mode selection dialog
 	//
-	if( g_conf.r_askformode->Get()
+	if( g_conf->r_askformode->Get()
 		&& IDOK != DialogBox(hinst, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
@@ -233,7 +254,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	}
 	else
 	{
-		g_render = g_conf.r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
+		g_render = g_conf->r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
 	}
 
 
@@ -261,7 +282,8 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		TRACE("FAILED\n");
 		return -1;
 	}
-	InitConfigLuaBinding(g_env.L, g_config, "conf");
+	InitConfigLuaBinding(g_env.L, g_conf.GetRoot(), "conf");
+	InitConfigLuaBinding(g_env.L, g_lang.GetRoot(), "lang");
 
 
 	// create global timer
@@ -380,7 +402,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	SAFE_RELEASE(g_render);
 
 
-#if !defined NOSOUND
+#ifndef NOSOUND
 	FreeDirectSound();
 #endif
 
@@ -401,8 +423,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'\n");
-	g_config->Save(FILE_CONFIG);
-	SAFE_DELETE(g_config);
+	g_conf.GetRoot()->Save(FILE_CONFIG);
 
 	// clean up the file system
 	TRACE("Unmounting the file system\n");

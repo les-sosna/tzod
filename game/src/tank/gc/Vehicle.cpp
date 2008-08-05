@@ -318,7 +318,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 
 	SetHealthCur(GetHealth() - dd.damage);
 
-	if( g_conf.g_showdamage->Get() )
+	if( g_conf->g_showdamage->Get() )
 	{
 		if( _damLabel )
 			_damLabel->Reset();
@@ -540,7 +540,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	// caterpillar tracks
 	//
 
-	if( g_conf.g_particles->Get() )
+	if( g_conf->g_particles->Get() )
 	{
 		vec2d tmp(_angle+PI/2);
 		vec2d trackL_new = GetPos() + tmp*15;

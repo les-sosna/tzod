@@ -115,7 +115,7 @@ bool TankServer::init(const GameInfo *info)
 
 	sockaddr_in addr = {0};
 	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port        = htons(g_conf.sv_port->GetInt());
+	addr.sin_port        = htons(g_conf->sv_port->GetInt());
 	addr.sin_family      = AF_INET;
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )

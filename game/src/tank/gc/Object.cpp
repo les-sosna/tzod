@@ -162,7 +162,7 @@ const char* PropertySet::GetTypeName() const
 
 void PropertySet::LoadFromConfig()
 {
-	ConfVarTable *op = g_conf.ed_objproperties->GetTable(GetTypeName());
+	ConfVarTable *op = g_conf->ed_objproperties->GetTable(GetTypeName());
 	for( int i = 0; i < GetCount(); ++i )
 	{
 		ObjectProperty *prop = GetProperty(i);
@@ -197,7 +197,7 @@ void PropertySet::LoadFromConfig()
 
 void PropertySet::SaveToConfig()
 {
-	ConfVarTable *op = g_conf.ed_objproperties->GetTable(GetTypeName());
+	ConfVarTable *op = g_conf->ed_objproperties->GetTable(GetTypeName());
 	for( int i = 0; i < GetCount(); ++i )
 	{
 		ObjectProperty *prop = GetProperty(i);
