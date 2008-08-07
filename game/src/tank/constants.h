@@ -155,8 +155,6 @@ enum enumZOrder
 
 #define TXT_VERSION      "Tank: Zone of Death (1.48)"
 #define TXT_WNDCLASS     "TankMainWindow"
-#define TXT_PROPGRID     "TankPropertyGrid"
-#define TXT_PROPGRIDINT  "TankPropertyGridInt"
 
 // версия  файла  Save  для  первичной  проверки на корректность.
 // файлы  с  отличающейся  версией не будут отображаться в списке

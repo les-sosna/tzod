@@ -21,6 +21,7 @@
 #include "core/Console.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "network/TankClient.h"
 #include "network/TankServer.h"
@@ -49,11 +50,11 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	Resize(GetTextureWidth(), GetTextureHeight());
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	(new Button(this, 0, GetHeight(), "Одиночная"))->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
-	(new Button(this, 100, GetHeight(), "Сетевая"))->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this);
-	(new Button(this, 200, GetHeight(), "Редактор"))->eventClick.bind(&MainMenuDlg::OnEditor, this);
-	(new Button(this, 300, GetHeight(), "Опции (F12)"))->eventClick.bind(&MainMenuDlg::OnSettings, this);
-	(new Button(this, 416, GetHeight(), "Выход (Alt+А4)"))->eventClick.bind(&MainMenuDlg::OnExit, this);
+	(new Button(this, 0, GetHeight(), g_lang->single_player_btn->Get()))->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
+	(new Button(this, 100, GetHeight(), g_lang->network_btn->Get()))->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this);
+	(new Button(this, 200, GetHeight(), g_lang->editor_btn->Get()))->eventClick.bind(&MainMenuDlg::OnEditor, this);
+	(new Button(this, 300, GetHeight(), g_lang->settings_btn->Get()))->eventClick.bind(&MainMenuDlg::OnSettings, this);
+	(new Button(this, 416, GetHeight(), g_lang->exit_game_btn->Get()))->eventClick.bind(&MainMenuDlg::OnExit, this);
 
 	_panelFrame = new Window(this, 0, GetHeight() + 40, NULL);
 	_panelFrame->ClipChildren(true);
@@ -376,28 +377,28 @@ void MainMenuDlg::CreatePanel()
 	switch( _ptype )
 	{
 	case PT_SINGLEPLAYER:
-		_panelTitle->SetText("Одиночная игра");
-		(new Button(_panel, 0, y, "Кампания"))->eventClick.bind(&MainMenuDlg::OnCampaign, this);
-		(new Button(_panel, 100, y, "Мясо (F2)"))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-		(new Button(_panel, 200, y, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
-		btn = new Button(_panel, 300, y, "Сохранить");
+		_panelTitle->SetText(g_lang->single_player_title->Get());
+		(new Button(_panel, 0, y, g_lang->single_player_campaign->Get()))->eventClick.bind(&MainMenuDlg::OnCampaign, this);
+		(new Button(_panel, 100, y, g_lang->single_player_skirmish->Get()))->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		(new Button(_panel, 200, y, g_lang->single_player_load->Get()))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
+		btn = new Button(_panel, 300, y, g_lang->single_player_save->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
 		btn->Enable(g_level && GT_DEATHMATCH == g_level->_gameType);
 		break;
 	case PT_MULTIPLAYER:
-		_panelTitle->SetText("Сетевая игра");
-		(new Button(_panel, 0, y, "Создать"))->eventClick.bind(&MainMenuDlg::OnHost, this);
-		(new Button(_panel, 100, y, "Подключиться"))->eventClick.bind(&MainMenuDlg::OnJoin, this);
-		(new Button(_panel, 200, y, "Профиль"))->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
+		_panelTitle->SetText(g_lang->network_title->Get());
+		(new Button(_panel, 0, y, g_lang->network_host->Get()))->eventClick.bind(&MainMenuDlg::OnHost, this);
+		(new Button(_panel, 100, y, g_lang->network_join->Get()))->eventClick.bind(&MainMenuDlg::OnJoin, this);
+		(new Button(_panel, 200, y, g_lang->network_profile->Get()))->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
 		break;
 	case PT_EDITOR:
-		_panelTitle->SetText("Редактор карт");
-		(new Button(_panel, 0, y, "Новая карта"))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
-		(new Button(_panel, 100, y, "Загрузить"))->eventClick.bind(&MainMenuDlg::OnImportMap, this);
-		btn = new Button(_panel, 200, y, "Сохранить");
+		_panelTitle->SetText(g_lang->editor_title->Get());
+		(new Button(_panel, 0, y, g_lang->editor_new_map->Get()))->eventClick.bind(&MainMenuDlg::OnNewMap, this);
+		(new Button(_panel, 100, y, g_lang->editor_load_map->Get()))->eventClick.bind(&MainMenuDlg::OnImportMap, this);
+		btn = new Button(_panel, 200, y, g_lang->editor_save_map->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnExportMap, this);
 		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
-		btn = new Button(_panel, 300, y, "Настройки");
+		btn = new Button(_panel, 300, y, g_lang->editor_map_settings->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
 		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
 		break;

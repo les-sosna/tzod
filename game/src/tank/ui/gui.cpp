@@ -90,7 +90,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	// player list
 	//
 
-	new Text(this, 16, 240, "Игроки", alignTextLT);
+	new Text(this, 16, 240, g_lang->human_player_list->Get(), alignTextLT);
 
 	_players = new List(this, x1, 256, x2-x1, 96);
 	_players->SetTabPos(0,   4); // name
@@ -100,7 +100,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_players->eventChangeCurSel.bind(&NewGameDlg::OnSelectPlayer, this);
 
 
-	new Text(this, 16, 368, "Боты", alignTextLT);
+	new Text(this, 16, 368, g_lang->AI_player_list->Get(), alignTextLT);
 	_bots = new List(this, x1, 384, x2-x1, 96);
 	_bots->SetTabPos(0,   4); // name
 	_bots->SetTabPos(1, 192); // skin
@@ -117,34 +117,34 @@ NewGameDlg::NewGameDlg(Window *parent)
 		Button *btn;
 
 
-		btn = new Button(this, x3, 256, "Новый (Ins)");
+		btn = new Button(this, x3, 256, g_lang->human_player_add->Get());
 		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
 
-		_removePlayer = new Button(this, x3, 286, "Удалить");
+		_removePlayer = new Button(this, x3, 286, g_lang->human_player_remove->Get());
 		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->Enable(false);
 
-		_changePlayer = new Button(this, x3, 316, "Изменить");
+		_changePlayer = new Button(this, x3, 316, g_lang->human_player_modify->Get());
 		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->Enable(false);
 
-		btn = new Button(this, x3, 384, "Новый");
+		btn = new Button(this, x3, 384, g_lang->AI_player_add->Get());
 		btn->eventClick.bind(&NewGameDlg::OnAddBot, this);
 
-		_removeBot = new Button(this, x3, 414, "Удалить");
+		_removeBot = new Button(this, x3, 414, g_lang->AI_player_remove->Get());
 		_removeBot->eventClick.bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->Enable(false);
 
-		_changeBot = new Button(this, x3, 444, "Изменить");
+		_changeBot = new Button(this, x3, 444, g_lang->AI_player_modify->Get());
 		_changeBot->eventClick.bind(&NewGameDlg::OnEditBot, this);
 		_changeBot->Enable(false);
 
 
 
-		btn = new Button(this, 544, 510, "Поехали!");
+		btn = new Button(this, 544, 510, g_lang->dm_ok->Get());
 		btn->eventClick.bind(&NewGameDlg::OnOK, this);
 
-		btn = new Button(this, 656, 510, "Отмена");
+		btn = new Button(this, 656, 510, g_lang->dm_cancel->Get());
 		btn->eventClick.bind(&NewGameDlg::OnCancel, this);
 	}
 
@@ -209,7 +209,7 @@ void NewGameDlg::RefreshBotsList()
 		}
 		else
 		{
-			wsprintf(s, "[нет]");
+			wsprintf(s, g_lang->team_none->Get());
 		}
 
 		_bots->SetItemText(index, 3, s);
