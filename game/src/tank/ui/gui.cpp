@@ -515,7 +515,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : "[нет]", i);
+		wsprintf(buf, i ? "%u" : g_lang->team_none->Get(), i);
 		int index = lst->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
@@ -697,7 +697,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : "[нет]", i);
+		wsprintf(buf, i ? "%u" : g_lang->team_none->Get(), i);
 		int index = lst->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
