@@ -6,6 +6,7 @@
 
 //  -- notes --
 // do not allow implicit conversion to T*
+// do not allow implicit conversion from T*
 // do not define any member functions except the constructors/destructor. use friend functions instead
 // do not define operator bool
 // do not define operator& because it will break compatibility with STL
