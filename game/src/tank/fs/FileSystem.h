@@ -28,7 +28,7 @@ class IFileSystem : public RefCounted
     StrToFileSystemMap _children;
     string_t           _nodeName;
     IFileSystem*       _parent;  // 'unsafe' pointer allows to avoid cyclic references
-                                 // it assigned to NULL when the parent is been destoyed
+                                 // it assigned to NULL when the parent is been destroyed
 
 protected:
     IFileSystem(const string_t &nodeName);
@@ -43,9 +43,9 @@ public:
     const string_t  GetFullPath(void) const;
     const string_t& GetNodeName(void) const { return _nodeName; }
 
-    const SafePtr<IFileSystem> GetParent(void) const { return _parent; }
+    const SafePtr<IFileSystem> GetParent(void) const { return WrapRawPtr(_parent); }
 
-    virtual bool MountTo(SafePtr<IFileSystem> parent);
+    virtual bool MountTo(IFileSystem *parent);
     virtual void Unmount(); // object can become destroyed after that
 
     virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path);

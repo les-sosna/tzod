@@ -8,7 +8,9 @@
 
 class GC_Brick_Fragment_01 : public GC_2dSprite
 {
+	DECLARE_POOLED_ALLOCATION(GC_Brick_Fragment_01);
 	DECLARE_SELF_REGISTRATION(GC_Brick_Fragment_01);
+
 private:
 	int _StartFrame;
 
@@ -31,7 +33,9 @@ public:
 
 class GC_Particle : public GC_2dSprite
 {
+	DECLARE_POOLED_ALLOCATION(GC_Particle);
 	DECLARE_SELF_REGISTRATION(GC_Particle);
+
 public:
 	float _time;
 	float _time_life;

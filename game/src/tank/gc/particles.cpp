@@ -9,6 +9,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+IMPLEMENT_POOLED_ALLOCATION(GC_Brick_Fragment_01)
+
 IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 {
 	return true;
@@ -62,13 +64,15 @@ void GC_Brick_Fragment_01::TimeStepFloat(float dt)
 
 /////////////////////////////////////////////////////////////
 
+IMPLEMENT_POOLED_ALLOCATION(GC_Particle)
+
 IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 {
 	return true;
 }
 
-GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
-						 float LifeTime) : GC_2dSprite()
+GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture, float LifeTime)
+  : GC_2dSprite()
 {
 	SetZ(Z_PARTICLE);
 

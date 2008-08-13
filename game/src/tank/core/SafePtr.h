@@ -18,7 +18,8 @@ class SafePtr
 		void operator delete (void*) {} // it's private so we can't call delete ptr
 	};
 
-protected:
+	struct InitFromNullHelper {};
+
 	T *_ptr;
 
 public:
@@ -27,30 +28,43 @@ public:
 	// construction
 	//
 	SafePtr()
+	  : _ptr(NULL)
 	{
-		_ptr = NULL;
 	}
-	SafePtr(T *f)
+	SafePtr(const InitFromNullHelper *f) // to allow implicit construction from NULL
+	  : _ptr(NULL)
 	{
-		if( _ptr = f )
+		_ASSERT(NULL == f);
+	}
+	explicit SafePtr(T *f)
+	  : _ptr(f)
+	{
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
 	}
-	SafePtr(const SafePtr &f)
+	SafePtr(const SafePtr &f) // overwrite default copy constructor
+	  : _ptr(f._ptr)
 	{
-		if( _ptr = GetRawPtr(f) )
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
 	}
 	template<class U>
-	SafePtr(const SafePtr<U> &f) // initialize from another type of safe pointer
+	SafePtr(const SafePtr<U> &f) // initialize from any compatible type of safe pointer
+	  : _ptr(GetRawPtr(f))
 	{
-		if( _ptr = GetRawPtr(f) )
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
+	}
+
+	inline friend SafePtr WrapRawPtr(T *p)
+	{
+		return SafePtr(p);
 	}
 
 
@@ -59,7 +73,10 @@ public:
 	//
 	~SafePtr()
 	{
-		if( _ptr ) _ptr->Release();
+		if( _ptr )
+		{
+			_ptr->Release();
+		}
 	}
 
 
@@ -68,17 +85,25 @@ public:
 	//
 	const SafePtr& operator = (T *p)
 	{
-		if( _ptr ) _ptr->Release();
-		if( _ptr = p )
+		if( _ptr )
+		{
+			_ptr->Release();
+		}
+		_ptr = p;
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
 		return *this;
 	}
-	const SafePtr& operator = (const SafePtr &p)
+	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
 	{
-		if( _ptr ) _ptr->Release();
-		if( _ptr = p._ptr )
+		if( _ptr )
+		{
+			_ptr->Release();
+		}
+		_ptr = p._ptr;
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
@@ -87,8 +112,12 @@ public:
 	template<class U>
 	const SafePtr& operator = (const SafePtr<U> &p)
 	{
-		if( _ptr ) _ptr->Release();
-		if( _ptr = GetRawPtr(p) )
+		if( _ptr )
+		{
+			_ptr->Release();
+		}
+		_ptr = GetRawPtr(p); // access private _ptr of another SafePtr
+		if( _ptr )
 		{
 			_ptr->AddRef();
 		}
@@ -112,13 +141,13 @@ public:
 
 
 	//
-	// Direct access accsess to _ptr
+	// Direct access access to _ptr
 	//
-	friend T* GetRawPtr(const SafePtr &r)
+	inline friend T* GetRawPtr(const SafePtr &r)
 	{
 		return r._ptr;
 	}
-	friend void SetRawPtr(SafePtr &r, T *p)
+	inline friend void SetRawPtr(SafePtr &r, T *p)
 	{
 		r._ptr = p;
 	}

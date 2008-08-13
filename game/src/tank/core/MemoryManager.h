@@ -11,77 +11,78 @@
 template
 <
 	class T,
-	size_t block_size = 128,
-	size_t initial_blocks = 1
+	size_t block_size = 128
 >
 class MemoryManager
 {
-	union mem_block
+	union BlankObject
 	{
-		mem_block *pNext;
-		T object;
+		BlankObject *pNext;
+		char object[sizeof(T)];
 	};
 
-	std::vector<mem_block *> _memory_blocks;
-	mem_block *_freeBlock;
+	std::vector<BlankObject *> _memoryBlocks;
+	BlankObject *_freeBlock;
 
 #ifdef _DEBUG
-	size_t _allocated_count;
-	size_t _allocated_peak;
+	size_t _allocatedCount;
+	size_t _allocatedPeak;
 #endif
 
-	void grow()
+	void Grow()
 	{
-		mem_block *begin = new mem_block[block_size];
-		mem_block *end = begin + block_size;
-		_memory_blocks.push_back(begin);
-		do{ begin->pNext = begin+1; } while( ++begin != end );
+		BlankObject *begin = (BlankObject *) malloc(sizeof(BlankObject) * block_size);
+		BlankObject *end = begin + block_size;
+		_memoryBlocks.push_back(begin);
+
+		// link together newly allocated blanks
+		do {
+			begin->pNext = begin+1;
+		} while( ++begin != end );
+
 		(--end)->pNext = _freeBlock;
-		_freeBlock = _memory_blocks.back();
+		_freeBlock = _memoryBlocks.back();
 	}
 
 public:
-	MemoryManager(void)
-	{
+	MemoryManager()
+	  : _freeBlock(NULL)
 #ifdef _DEBUG
-		_allocated_count = 0;
-		_allocated_peak  = 0;
+	  , _allocatedCount(0)
+	  , _allocatedPeak(0)
 #endif
-		_freeBlock = NULL;
-		for( size_t i = 0; i < initial_blocks; i++ )
-			grow();
+	{
 	}
 
-	~MemoryManager(void)
+	~MemoryManager()
 	{
-		for( size_t i = 0; i < _memory_blocks.size(); i++ )
-			delete[] _memory_blocks[i];
+		for( size_t i = 0; i < _memoryBlocks.size(); i++ )
+			::free(_memoryBlocks[i]);
 
 #ifdef _DEBUG
-		_ASSERT(0 == _allocated_count);
-//		TRACE("MemoryManager<%s>: peak allocation is %u\n",
-//			typeid(T).name(), _allocated_peak);
+		_ASSERT(0 == _allocatedCount);
+	//	TRACE("MemoryManager<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
 #endif
 	}
 
-	T* allocate(void)
+	T* Alloc(void)
 	{
 #ifdef _DEBUG
-		if( ++_allocated_count > _allocated_peak )
-			_allocated_peak = _allocated_count;
+		if( ++_allocatedCount > _allocatedPeak )
+			_allocatedPeak = _allocatedCount;
 #endif
 
-		if( !_freeBlock ) grow();
-		mem_block* tmp = _freeBlock;
+		if( !_freeBlock ) Grow();
+		BlankObject* tmp = _freeBlock;
 		_freeBlock = _freeBlock->pNext;
 		return (T*) tmp;
 	}
 
-	void free(T* p)
+	void Free(T* p)
 	{
-		_ASSERT(_allocated_count--);
-		((mem_block*) p)->pNext = _freeBlock;
-		_freeBlock = (mem_block*) p;
+		_ASSERT(_allocatedCount--);
+		((BlankObject*) p)->pNext = _freeBlock;
+		_freeBlock = (BlankObject*) p;
 	}
 };
 

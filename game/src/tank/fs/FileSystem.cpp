@@ -20,11 +20,12 @@ IFile::~IFile()
 
 SafePtr<IFileSystem> IFileSystem::Create(const string_t &nodeName)
 {
-	return new IFileSystem(nodeName);
+	return WrapRawPtr(new IFileSystem(nodeName));
 }
 
 IFileSystem::IFileSystem(const string_t &nodeName)
-  : _nodeName(nodeName), _parent(NULL)
+  : _nodeName(nodeName)
+  , _parent(NULL)
 {
 }
 
@@ -45,19 +46,19 @@ const string_t IFileSystem::GetFullPath(void) const
 	return fullPath;
 }
 
-bool IFileSystem::MountTo(SafePtr<IFileSystem> parent)
+bool IFileSystem::MountTo(IFileSystem *parent)
 {
 	_ASSERT(!GetNodeName().empty() && GetNodeName() != TEXT("/"));
-	_ASSERT(!_parent); // may be is allready mounted somewhere?
+	_ASSERT(!_parent); // may be is already mounted somewhere?
 	                   // only one parent is allowed
 
-	// check if node with the same name is allready exists
+	// check if node with the same name is already exists
 	StrToFileSystemMap::iterator it = parent->_children.find(_nodeName);
 	if( parent->_children.end() != it )
-		return false; // node allready exists
+		return false; // node already exists
 
 	// mount
-	_parent = GetRawPtr(parent);
+	_parent = parent;
 	_parent->_children[_nodeName] = this;
 
 	return true;
@@ -112,7 +113,7 @@ SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path)
 	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
 
 	if( path.length() == offset )
-		return this; // path contains only one symbol '/'
+		return WrapRawPtr(this); // path contains only one symbol '/'
 
 	string_t::size_type p = path.find( DELIMITER, offset );
 
@@ -197,10 +198,9 @@ bool OSFileSystem::OSFile::IsOpen() const
 
 ///////////////////////////////////////
 
-SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory,
-                                           const string_t &nodeName)
+SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, const string_t &nodeName)
 {
-	return new OSFileSystem(rootDirectory, nodeName);
+	return WrapRawPtr(new OSFileSystem(rootDirectory, nodeName));
 }
 
 OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeName)
@@ -298,13 +298,11 @@ SafePtr<IFile> OSFileSystem::RawOpen(const string_t &fileName)
 	string_t tmp = _rootDirectory + TEXT('\\') + fileName;
 
 	// open file and return pointer if succeeded
-	OSFile *f = new OSFile(tmp.c_str());
+	SafePtr<OSFile> f(new OSFile(tmp.c_str()));
 	if( f->IsOpen() )
 		return f;
 
-	// open file failed. so free memory and return NULL
-	delete f;
-	return NULL;
+	return NULL;  // open file failed
 }
 
 SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path)
@@ -316,7 +314,7 @@ SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path)
 
 	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
 	if( path.length() == offset )
-		return this; // path contains only one symbol '/'
+		return WrapRawPtr(this); // path contains only one DELIMITER symbol
 
 	string_t::size_type p = path.find( DELIMITER, offset );
 	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
@@ -330,7 +328,7 @@ SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path)
 
 	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 	{
-		SafePtr<IFileSystem> child = new OSFileSystem(this, dirName);
+		SafePtr<IFileSystem> child(new OSFileSystem(this, dirName));
 		if( string_t::npos != p )
 			return child->GetFileSystem(path.substr(p)); // process the rest of the path
 		return child; // last path node was processed

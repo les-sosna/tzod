@@ -24,7 +24,7 @@ class PtrList
 	{
 		node->prev->next = node->next;
 		node->next->prev = node->prev;
-		nodeAllocator.free(node);
+		nodeAllocator.Free(node);
 	}
 
 public:
@@ -196,8 +196,8 @@ public:
 	PtrList(void)
 	{
 		_size  = 0;
-		_begin = nodeAllocator.allocate();
-		_end   = nodeAllocator.allocate();
+		_begin = nodeAllocator.Alloc();
+		_end   = nodeAllocator.Alloc();
 		_begin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
 		_begin->ref_count = 0;
 		_begin->next      = _end;
@@ -211,8 +211,8 @@ public:
 	PtrList(const PtrList &src)
 	{
 		_size  = src._size;
-		_begin = nodeAllocator.allocate();
-		_end   = nodeAllocator.allocate();
+		_begin = nodeAllocator.Alloc();
+		_end   = nodeAllocator.Alloc();
 		_begin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
 		_begin->ref_count = 0;
 		_begin->next      = _end;
@@ -233,13 +233,13 @@ public:
 		{
 			tmp = _begin;
 			_begin = _begin->next;
-			nodeAllocator.free(tmp);
+			nodeAllocator.Free(tmp);
 		}
 	}
 
 	void push_front(object_type *ptr)
 	{
-		Node *tmp = nodeAllocator.allocate();
+		Node *tmp = nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
 		tmp->ref_count  = 0;
 		tmp->prev       = _begin;
@@ -250,7 +250,7 @@ public:
 
 	void push_back(object_type *ptr)
 	{
-		Node *tmp = nodeAllocator.allocate();
+		Node *tmp = nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
 		tmp->ref_count  = 0;
 		tmp->prev       = _end->prev;
@@ -287,8 +287,8 @@ public:
 	base_iterator    rend()   const { return base_iterator(_begin); }
 
 	bool empty() const { return 0 == _size; }
-	object_type *front() const { return _begin->ptr; }
-	object_type *back()  const { return _end->ptr; }
+	object_type* front() const { return mybegin->next->ptr; }
+	object_type* back()  const { return myend->prev->ptr; }
 
 	size_t size() const { return _size; } // FIXME
 };

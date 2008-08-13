@@ -393,7 +393,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 					_ASSERT(GetVehicle()->GetWeapon());
 					_ASSERT(cell->Properties() > 0);
 
-					GC_Actor *object = cell->GetObject(i);
+					GC_RigidBodyStatic *object = cell->GetObject(i);
 
 					//
 					// этот блок запрещает мочить свои стационарки.
@@ -407,7 +407,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 							continue;
 						}
 					}
-					_attackList.push_front(static_cast<GC_RigidBodyStatic*>(object));
+					_attackList.push_front(WrapRawPtr(object));
 				}
 
 				cell = cell->_prevCell;

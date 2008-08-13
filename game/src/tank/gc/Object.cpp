@@ -653,7 +653,7 @@ void GC_Object::EditorAction()
 
 SafePtr<PropertySet> GC_Object::GetProperties()
 {
-	PropertySet *ps = NewPropertySet();
+	SafePtr<PropertySet> ps(NewPropertySet());
 	ps->Exchange(false); // get data from object
 	return ps;
 }

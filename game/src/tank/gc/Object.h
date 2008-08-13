@@ -17,6 +17,28 @@ typedef PtrList<GC_Object> OBJECT_LIST;
 typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
 
 /////////////////////////////////////////
+// memory management
+
+#define DECLARE_POOLED_ALLOCATION(cls)          \
+private:                                        \
+    static MemoryManager<cls> __memoryManager;  \
+public:                                         \
+    void* operator new(size_t count)            \
+    {                                           \
+        _ASSERT(sizeof(cls) == count);          \
+        return __memoryManager.Alloc();         \
+    }                                           \
+    void operator delete(void *ptr)             \
+    {                                           \
+        __memoryManager.Free((cls*) ptr);       \
+    }
+
+#define IMPLEMENT_POOLED_ALLOCATION(cls)        \
+    MemoryManager<cls> cls::__memoryManager;
+
+
+
+/////////////////////////////////////////
 // rtti and serialization
 
 #define DECLARE_SELF_REGISTRATION(cls)          \
