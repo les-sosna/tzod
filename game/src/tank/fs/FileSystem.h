@@ -40,10 +40,10 @@ protected:
 public:
     static const TCHAR DELIMITER = TEXT('/');
 
-    const string_t  GetFullPath(void) const;
+    const string_t GetFullPath(void) const;
     const string_t& GetNodeName(void) const { return _nodeName; }
 
-    const SafePtr<IFileSystem> GetParent(void) const { return WrapRawPtr(_parent); }
+    IFileSystem* GetParent(void) const { return _parent; }
 
     virtual bool MountTo(IFileSystem *parent);
     virtual void Unmount(); // object can become destroyed after that

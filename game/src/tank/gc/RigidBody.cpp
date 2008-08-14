@@ -221,6 +221,8 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+IMPLEMENT_POOLED_ALLOCATION(GC_Wall);
+
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
 	ED_LAND("wall_brick", "Стена:\tКирпич",  2 );

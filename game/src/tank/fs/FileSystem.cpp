@@ -39,7 +39,7 @@ IFileSystem::~IFileSystem(void)
 const string_t IFileSystem::GetFullPath(void) const
 {
 	string_t fullPath = GetNodeName();
-	for( SafePtr<IFileSystem> fs = GetParent(); fs; fs = fs->GetParent() )
+	for( const IFileSystem *fs = GetParent(); fs; fs = fs->GetParent() )
 	{
 		fullPath = fs->GetNodeName() + DELIMITER + fullPath;
 	}
