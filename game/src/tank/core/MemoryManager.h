@@ -102,10 +102,10 @@ class MemoryPool
 	{
 		union
 		{
-			BlankObject *next;
-			char data[sizeof(T)];
+			BlankObject *_next;
+			char _data[sizeof(T)];
 		};
-		Block *block;
+		Block *_block;
 	};
 
 	struct Block
@@ -114,6 +114,7 @@ class MemoryPool
 		Block *_next;
 		Block *_prevFree;
 		Block *_nextFree;
+
 		BlankObject *_blanks;
 		BlankObject *_free;
 		size_t _used;
@@ -132,12 +133,12 @@ class MemoryPool
 			BlankObject *end(_blanks + block_size - 1);
 			while( tmp != end )
 			{
-				tmp->block = this;
-				tmp->next = tmp + 1;
+				tmp->_block = this;
+				tmp->_next = tmp + 1;
 				++tmp;
 			}
-			end->block = this;
-			end->next = NULL;
+			end->_block = this;
+			end->_next = NULL;
 		}
 
 		~Block()
@@ -149,27 +150,31 @@ class MemoryPool
 		{
 			_ASSERT(_free);
 			BlankObject *tmp = _free;
-			_free = _free->next;
+			_free = _free->_next;
 			++_used;
 			return tmp;
 		}
 
 		void Free(BlankObject *p)
 		{
-			_ASSERT(this == p->block);
-			p->next = _free;
+			_ASSERT(this == p->_block);
+			_ASSERT(_used > 0);
+#ifdef _DEBUG
+			memset(p, 0xdb, sizeof(T));
+#endif
+			p->_next = _free;
 			_free = p;
 			--_used;
 		}
-	};
+	}; // struct block
 
 
 	Block *_blocks;
 	Block *_freeBlock;
 
 #ifdef _DEBUG
-	size_t _allocated_count;
-	size_t _allocated_peak;
+	size_t _allocatedCount;
+	size_t _allocatedPeak;
 #endif
 
 	void Grow()
@@ -198,11 +203,11 @@ class MemoryPool
 public:
 	MemoryPool()
 	  : _blocks(NULL)
-	{
 #ifdef _DEBUG
-		_allocated_count = 0;
-		_allocated_peak  = 0;
+	  , _allocatedCount(0)
+	  , _allocatedPeak(0)
 #endif
+	{
 	}
 
 	~MemoryPool()
@@ -215,16 +220,16 @@ public:
 		}
 
 #ifdef _DEBUG
-		_ASSERT(0 == _allocated_count);
-		printf("MemoryPool<%s>: peak allocation is %u\n", typeid(T).name(), _allocated_peak);
+		_ASSERT(0 == _allocatedCount);
+		printf("MemoryPool<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
 #endif
 	}
 
 	T* Alloc()
 	{
 #ifdef _DEBUG
-		if( ++_allocated_count > _allocated_peak )
-			_allocated_peak = _allocated_count;
+		if( ++_allocatedCount > _allocatedPeak )
+			_allocatedPeak = _allocatedCount;
 #endif
 
 		if( !_freeBlock )
@@ -233,26 +238,27 @@ public:
 		}
 
 		BlankObject *result = _freeBlock->Alloc();
-		_ASSERT(_freeBlock == result->block);
+		_ASSERT(_freeBlock == result->_block);
 
 		if( !_freeBlock->_free )
 		{
-			// no more free blanks in this block
+			// no more free blanks in this block; remove block from free list
+			_ASSERT(!_freeBlock->_prevFree);
 			Block *tmp = _freeBlock;
-			_freeBlock = _freeBlock->_nextFree;
+			_freeBlock = tmp->_nextFree;
+			if( _freeBlock )
+				_freeBlock->_prevFree = NULL;
 			tmp->_nextFree = NULL;
-			tmp->_prevFree = NULL;
-			_ASSERT(!tmp->_prevFree);
 		}
 
-		return (T *) result->data;
+		return (T *) result->_data;
 	}
 
 	void Free(void* p)
 	{
-		_ASSERT(_allocated_count--);
+		_ASSERT(_allocatedCount--);
 
-		Block *block = ((BlankObject*) p)->block;
+		Block *block = ((BlankObject*) p)->_block;
 		if( !block->_free )
 		{
 			// block just became free
@@ -272,6 +278,8 @@ public:
 
 		if( 0 == block->_used )
 		{
+			// free unused block
+
 			if( block == _blocks )
 				_blocks = _blocks->_next;
 			if( block->_prev )
