@@ -1507,5 +1507,187 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 	GC_Weapon::TimeStepFixed(dt);
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
+{
+	ED_ITEM( "weap_zippo", "Оружие:\tОгнемет", 4 );
+	return true;
+}
+
+GC_Weap_Zippo::GC_Weap_Zippo(float x, float y) : GC_Weapon(x, y)
+{
+	_bFire = false;
+
+	SetTexture("weap_zippo");
+
+	_fePos.Set(20, 0);
+	_feTime   = 0.1f;
+	_feOrient = frand(PI2);
+}
+
+GC_Weap_Zippo::GC_Weap_Zippo(FromFile) : GC_Weapon(FromFile())
+{
+}
+
+GC_Weap_Zippo::~GC_Weap_Zippo()
+{
+}
+
+void GC_Weap_Zippo::Attach(GC_Actor *actor)
+{
+	GC_Weapon::Attach(actor);
+
+	_timeReload = 0.03f;
+	_time_rotate = 0;
+	_time_fire   = 0;
+	_time_shot   = 0;
+
+	_sound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
+	_bFire = false;
+
+	_fireEffect->SetTexture("minigun_fire");
+
+
+	if( _crosshair_left )
+	{
+		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetOwner()) )
+		{
+			_crosshair_left->Show(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetPlayer()));
+		}
+		else
+		{
+			_crosshair_left->Show(false);
+		}
+	}
+
+
+
+//return;
+//	veh->SetMaxHP(65);
+
+//	veh->_ForvAccel = 700;
+//	veh->_BackAccel = 600;
+//	veh->_StopAccel = 2000;
+
+//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
+
+//	veh->_MaxBackSpeed = 300;
+//	veh->_MaxForvSpeed = 350;
+
+}
+
+void GC_Weap_Zippo::Detach()
+{
+	SAFE_KILL(_crosshair_left);
+	SAFE_KILL(_sound);
+
+	GC_Weapon::Detach();
+}
+
+void GC_Weap_Zippo::SetCrosshair()
+{
+	_crosshair      = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
+	_crosshair_left = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
+}
+
+void GC_Weap_Zippo::Serialize(SaveFile &f)
+{
+	GC_Weapon::Serialize(f);
+
+	f.Serialize(_bFire);
+	f.Serialize(_time_fire);
+	f.Serialize(_time_rotate);
+	f.Serialize(_time_shot);
+	f.Serialize(_crosshair_left);
+	f.Serialize(_sound);
+}
+
+void GC_Weap_Zippo::Kill()
+{
+	SAFE_KILL(_crosshair_left);
+	SAFE_KILL(_sound);
+
+	GC_Weapon::Kill();
+}
+
+void GC_Weap_Zippo::Fire()
+{
+	_ASSERT(IsAttached());
+	if( IsAttached() )
+		_bFire = true;
+}
+
+void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
+{
+	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->fMaxAttackAngle    = 0.3f;
+	pSettings->fProjectileSpeed   = SPEED_BULLET;
+	pSettings->fAttackRadius_max  = 200;
+	pSettings->fAttackRadius_min  = 100;
+	pSettings->fAttackRadius_crit =   0;
+	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
+}
+
+void GC_Weap_Zippo::TimeStepFixed(float dt)
+{
+	static const TextureCache tex("particle_1");
+
+	if( IsAttached() )
+	{
+		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
+		float va = veh ? veh->_angle : 0;
+
+		if( _bFire )
+		{
+			_time_rotate += dt;
+			_time_shot   += dt;
+
+//			SetTexture((fmodf(_time_rotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
+
+			_sound->MoveTo(GetPos());
+			_sound->Pause(false);
+			_bFire = false;
+
+			for(; _time_shot > 0; _time_shot -= _advanced ? 0.02f : 0.04f)
+			{
+				_time = frand(_feTime);
+				_feOrient = frand(PI2);
+				_fireEffect->Show(true);
+
+				float da = _time_fire * 0.07f / WEAP_MG_TIME_RELAX;
+
+				vec2d a(va + _angle + g_level->net_frand(da * 2.0f) - da);
+				a *= (1 - g_level->net_frand(0.2f));
+
+				new GC_Bullet(GetPos() + a * 18.0f, a * SPEED_ROCKET, veh, _advanced );
+			}
+
+			_time_fire = __min(_time_fire + dt * 2, WEAP_MG_TIME_RELAX);
+		}
+		else
+		{
+			_sound->Pause(true);
+			_time_fire = __max(_time_fire - dt, 0);
+		}
+
+		float da = _time_fire * 0.1f / WEAP_MG_TIME_RELAX;
+		if( _crosshair )
+		{
+			_crosshair->_angle = va + da + _angle;
+			_crosshair->MoveTo(GetPos() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
+		}
+
+		if( _crosshair_left )
+		{
+			_crosshair_left->_angle = va - da + _angle;
+			_crosshair_left->MoveTo(GetPos() + vec2d(_crosshair_left->_angle) * CH_DISTANCE_THIN);
+		}
+	}
+
+	GC_Weapon::TimeStepFixed(dt);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

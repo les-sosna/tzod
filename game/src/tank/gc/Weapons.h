@@ -314,4 +314,36 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+class GC_Weap_Zippo : public GC_Weapon
+{
+	DECLARE_SELF_REGISTRATION(GC_Weap_Zippo);
+
+private:
+	SafePtr<GC_Sound> _sound;
+	float _time_rotate; // дл€ эмул€ции вращени€ стволов
+	float _time_fire;   // врем€ непрерывнго огн€
+	float _time_shot;
+	bool _bFire;
+
+	SafePtr<GC_Crosshair> _crosshair_left;
+
+public:
+	virtual void Attach(GC_Actor *actor);
+	virtual void Detach();
+
+	GC_Weap_Zippo(float x, float y);
+	GC_Weap_Zippo(FromFile);
+	virtual ~GC_Weap_Zippo();
+	virtual void Kill();
+
+	virtual void SetCrosshair();
+
+	virtual void Serialize(SaveFile &f);
+	virtual void Fire();
+	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
+	virtual void TimeStepFixed(float dt);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // end of file

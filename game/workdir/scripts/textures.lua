@@ -168,6 +168,7 @@ return {
      weap_ripper={left=64, top=104, right=104, bottom=128},
      weap_plazma={left=64, top=80, right=112, bottom=104},
      weap_ram={left=64, top=0, right=120, bottom=40},
+     weap_zippo={left=128, top=0, right=176, bottom=32},
    }
 },
 {
