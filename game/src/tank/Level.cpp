@@ -1411,7 +1411,7 @@ void Level::Render() const
 		if( pMaxShake ) break;
 	} // cameras
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
 	{
 		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
@@ -1419,17 +1419,16 @@ void Level::Render() const
 			pp->debug_draw();
 		}
 	}
+#endif
 
 	if( !_dbgLineBuffer.empty() )
 	{
 		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
 	}
-//#endif
 }
 
 void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color)
 {
-//	return;
 	_dbgLineBuffer.push_back(MyLine());
 	MyLine &line = _dbgLineBuffer.back();
 	line.begin = v1;

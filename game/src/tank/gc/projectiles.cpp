@@ -894,9 +894,16 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 
 
 	float vdotn = (_velocity * norm) / v;
+	float up = (0.5f - 0.6f * g_level->net_frand(vdotn));
+	up *= up;
+	up *= up;
+	up *= up;
+	up *= up;
 
-	nn += norm * (0.1f - 0.1f * g_level->net_frand(vdotn));
+	nn += norm * up;
 	nn.Normalize();
+
+	nn /= (1 + up * 4);
 
 	_velocity = nn * (v * 0.9f);
 
