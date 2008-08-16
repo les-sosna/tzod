@@ -42,6 +42,7 @@ public:                                         \
 // rtti and serialization
 
 #define DECLARE_SELF_REGISTRATION(cls)          \
+    DECLARE_POOLED_ALLOCATION(cls)              \
     private:                                    \
         typedef cls __ThisClass;                \
         static ObjectType __thisType;           \
@@ -60,6 +61,7 @@ public:                                         \
 
 
 #define IMPLEMENT_SELF_REGISTRATION(cls)                      \
+    IMPLEMENT_POOLED_ALLOCATION(cls)                          \
     ObjectType cls::__thisType = __RegisterType<cls>(#cls);   \
     bool cls::__registered = cls::__SelfRegister();           \
     bool cls::__SelfRegister()

@@ -832,8 +832,6 @@ void GC_BfgCore::TimeStepFixed(float dt)
 
 /////////////////////////////////////////////////////////////
 
-IMPLEMENT_POOLED_ALLOCATION(GC_FireSpark)
-
 IMPLEMENT_SELF_REGISTRATION(GC_FireSpark)
 {
 	return true;
@@ -962,6 +960,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	Resize(R, R);
 	CenterPivot();
 
+	R *= 1.5; // for damage calculation
 
 	std::vector<OBJECT_LIST*> receive;
 	g_level->grid_rigid_s.OverlapCircle(receive,

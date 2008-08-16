@@ -134,7 +134,6 @@ public:
 
 class GC_Wall : public GC_RigidBodyStatic
 {
-	DECLARE_POOLED_ALLOCATION(GC_Wall);
 	DECLARE_SELF_REGISTRATION(GC_Wall);
 
 private:

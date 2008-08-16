@@ -199,7 +199,6 @@ public:
 
 class GC_FireSpark : public GC_Projectile
 {
-	DECLARE_POOLED_ALLOCATION(GC_FireSpark);
 	DECLARE_SELF_REGISTRATION(GC_FireSpark);
 
 private:
