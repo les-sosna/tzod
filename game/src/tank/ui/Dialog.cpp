@@ -12,7 +12,8 @@ namespace UI
 class Substrate : public Window
 {
 public:
-	Substrate(Window *parent) : Window(parent)
+	Substrate(Window *parent)
+	  : Window(parent)
 	{
 		Resize(GetManager()->GetDesktop()->GetWidth(), GetManager()->GetDesktop()->GetHeight());
 	}

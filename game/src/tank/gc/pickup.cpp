@@ -322,13 +322,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 	return true;
 }
 
-GC_pu_Health::GC_pu_Health(float x, float y) : GC_Pickup(x, y)
+GC_pu_Health::GC_pu_Health(float x, float y)
+  : GC_Pickup(x, y)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("pu_health");
 }
 
-GC_pu_Health::GC_pu_Health(FromFile) : GC_Pickup(FromFile())
+GC_pu_Health::GC_pu_Health(FromFile)
+  : GC_Pickup(FromFile())
 {
 }
 
@@ -370,14 +372,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 	return true;
 }
 
-GC_pu_Mine::GC_pu_Mine(float x, float y) : GC_Pickup(x, y)
+GC_pu_Mine::GC_pu_Mine(float x, float y)
+  : GC_Pickup(x, y)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("item_mine");
 	SetShadow(false);
 }
 
-GC_pu_Mine::GC_pu_Mine(FromFile) : GC_Pickup(FromFile())
+GC_pu_Mine::GC_pu_Mine(FromFile)
+  : GC_Pickup(FromFile())
 {
 }
 
@@ -403,7 +407,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Invulnerablity)
 	return true;
 }
 
-GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y) : GC_Pickup(x, y)
+GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y)
+  : GC_Pickup(x, y)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("pu_inv");
@@ -412,7 +417,8 @@ GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y) : GC_Pickup(x, y)
 	_timeHit = 0;
 }
 
-GC_pu_Invulnerablity::GC_pu_Invulnerablity(FromFile) : GC_Pickup(FromFile())
+GC_pu_Invulnerablity::GC_pu_Invulnerablity(FromFile)
+  : GC_Pickup(FromFile())
 {
 }
 
@@ -523,7 +529,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 	return true;
 }
 
-GC_pu_Shock::GC_pu_Shock(float x, float y) : GC_Pickup(x, y)
+GC_pu_Shock::GC_pu_Shock(float x, float y)
+  : GC_Pickup(x, y)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
@@ -532,7 +539,8 @@ GC_pu_Shock::GC_pu_Shock(float x, float y) : GC_Pickup(x, y)
 	_timeout = 1.5f;
 }
 
-GC_pu_Shock::GC_pu_Shock(FromFile) : GC_Pickup(FromFile())
+GC_pu_Shock::GC_pu_Shock(FromFile)
+  : GC_Pickup(FromFile())
 {
 }
 
@@ -683,13 +691,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 	return true;
 }
 
-GC_pu_Booster::GC_pu_Booster(float x, float y) : GC_Pickup(x, y)
+GC_pu_Booster::GC_pu_Booster(float x, float y)
+  : GC_Pickup(x, y)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetTexture("pu_booster");
 }
 
-GC_pu_Booster::GC_pu_Booster(FromFile) : GC_Pickup(FromFile())
+GC_pu_Booster::GC_pu_Booster(FromFile)
+  : GC_Pickup(FromFile())
 {
 }
 

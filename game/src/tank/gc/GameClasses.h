@@ -139,7 +139,7 @@ private:
 
 public:
 	GC_HealthDaemon(GC_RigidBodyStatic *victim, GC_RigidBodyStatic *owner,
-		            float damage, float time);
+		            float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
 

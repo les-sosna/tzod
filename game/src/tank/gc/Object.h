@@ -299,7 +299,7 @@ protected:
 	//
 
 public:
-	bool  IsKilled() const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
+	bool IsKilled() const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
 
 
 	//

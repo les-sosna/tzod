@@ -11,13 +11,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Actor::GC_Actor() : GC_Object()
+GC_Actor::GC_Actor()
+  : GC_Object()
 {
 	ZeroMemory(&_location, sizeof(Location));
 	MoveTo(vec2d(0, 0));
 }
 
-GC_Actor::GC_Actor(FromFile) : GC_Object(FromFile())
+GC_Actor::GC_Actor(FromFile)
+  : GC_Object(FromFile())
 {
 }
 
@@ -41,15 +43,15 @@ void GC_Actor::Serialize(SaveFile &f)
 
 void GC_Actor::MoveTo(const vec2d &pos)
 {
-	Location l;
-	g_level->LocationFromPoint(pos, l);
+	Location loc;
+	g_level->LocationFromPoint(pos, loc);
 
 	_pos = pos;
 
-	if( 0 != memcmp(&l, &_location, sizeof(Location)) )
+	if( 0 != memcmp(&loc, &_location, sizeof(Location)) )
 	{
 		LeaveAllContexts();
-		EnterAllContexts(l);
+		EnterAllContexts(loc);
 	}
 
 	PulseNotify(NOTIFY_ACTOR_MOVE);
@@ -89,8 +91,8 @@ void GC_Actor::EnterContext(Context &context, const Location &l)
 	_ASSERT(!IsKilled());
 	_ASSERT(!context.iterator);
 
-	(*context.grids)(l.level).element(l.x, l.y).push_front(this);
-	context.iterator  = (*context.grids)(l.level).element(l.x, l.y).begin();
+	(*context.grids)(l.level).element(l.x, l.y).push_back(this);
+	context.iterator  = (*context.grids)(l.level).element(l.x, l.y).rbegin();
 }
 
 void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)

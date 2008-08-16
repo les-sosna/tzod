@@ -30,7 +30,8 @@ GC_UserObject::GC_UserObject(float x, float y)
 	g_level->_field.ProcessObject(this, true);
 }
 
-GC_UserObject::GC_UserObject(FromFile) : GC_RigidBodyStatic(FromFile())
+GC_UserObject::GC_UserObject(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 

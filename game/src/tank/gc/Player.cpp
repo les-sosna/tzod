@@ -70,7 +70,8 @@ GC_Player::GC_Player()
 	SetSkin("red");
 }
 
-GC_Player::GC_Player(FromFile) : GC_Service(FromFile())
+GC_Player::GC_Player(FromFile)
+  : GC_Service(FromFile())
   , _memberOf(this)
 {
 }
@@ -432,7 +433,8 @@ GC_PlayerLocal::GC_PlayerLocal()
 	SetProfile(""); // there was no available profile found
 }
 
-GC_PlayerLocal::GC_PlayerLocal(FromFile) : GC_Player(FromFile())
+GC_PlayerLocal::GC_PlayerLocal(FromFile)
+  : GC_Player(FromFile())
 {
 }
 
@@ -713,9 +715,10 @@ GC_PlayerRemote::GC_PlayerRemote(DWORD id)
 	_networkId = id;
 }
 
-GC_PlayerRemote::GC_PlayerRemote(FromFile) : GC_Player(FromFile())
+GC_PlayerRemote::GC_PlayerRemote(FromFile)
+  : GC_Player(FromFile())
+  , _networkId(-1)
 {
-	_networkId = -1;
 }
 
 GC_PlayerRemote::~GC_PlayerRemote()

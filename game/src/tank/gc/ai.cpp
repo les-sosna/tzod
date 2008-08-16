@@ -68,7 +68,8 @@ GC_PlayerAI::GC_PlayerAI()
 	SetL1(L1_NONE);
 }
 
-GC_PlayerAI::GC_PlayerAI(FromFile) : GC_Player(FromFile())
+GC_PlayerAI::GC_PlayerAI(FromFile)
+  : GC_Player(FromFile())
 {
 }
 
@@ -1379,8 +1380,8 @@ PropertySet* GC_PlayerAI::NewPropertySet()
 }
 
 GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propLevel( ObjectProperty::TYPE_INTEGER, "level" )
+  : BASE(object)
+  , _propLevel( ObjectProperty::TYPE_INTEGER, "level" )
 {
 	_propLevel.SetIntRange(0, AI_MAX_LEVEL);
 }

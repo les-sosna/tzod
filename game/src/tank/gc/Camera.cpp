@@ -66,7 +66,8 @@ GC_Camera::GC_Camera(GC_Player *pPlayer)
 	UpdateLayout();
 }
 
-GC_Camera::GC_Camera(FromFile) : GC_Actor(FromFile())
+GC_Camera::GC_Camera(FromFile)
+  : GC_Actor(FromFile())
   , _memberOf(this)
   , _rotator(_angle_current)
 {

@@ -47,7 +47,8 @@ GC_Light::GC_Light(enumLightType type)
 	Update();
 }
 
-GC_Light::GC_Light(FromFile) : GC_Actor(FromFile())
+GC_Light::GC_Light(FromFile)
+  : GC_Actor(FromFile())
   , _memberOf(this)
 {
 }
@@ -211,7 +212,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 	return true;
 }
 
-GC_Spotlight::GC_Spotlight(FromFile) : GC_2dSprite(FromFile())
+GC_Spotlight::GC_Spotlight(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -286,8 +288,8 @@ PropertySet* GC_Spotlight::NewPropertySet()
 }
 
 GC_Spotlight::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
+  : BASE(object)
+  , _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
 {
 	_propActive.SetIntRange(0, 1);
 }

@@ -11,9 +11,10 @@
 
 // передается ссылка на управлюемую переменную.
 // Rotator будет автоматически изменять ее значение
-Rotator::Rotator(float &angle) : _rCurrent(angle)
+Rotator::Rotator(float &angle)
+  : _rCurrent(angle)
+  , _velocity_current(0)
 {
-	_velocity_current = 0;
 }
 
 Rotator::~Rotator()

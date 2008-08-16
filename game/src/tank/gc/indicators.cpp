@@ -31,7 +31,8 @@ GC_SpawnPoint::GC_SpawnPoint(float x, float y)
 	_team = 0;
 }
 
-GC_SpawnPoint::GC_SpawnPoint(FromFile) : GC_2dSprite(FromFile())
+GC_SpawnPoint::GC_SpawnPoint(FromFile)
+  : GC_2dSprite(FromFile())
   , _memberOf(this)
 {
 }
@@ -136,14 +137,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 	return true;
 }
 
-GC_HideLabel::GC_HideLabel(float x, float y) : GC_2dSprite()
+GC_HideLabel::GC_HideLabel(float x, float y)
+  : GC_2dSprite()
 {
 	SetZ(Z_EDITOR);
 	SetTexture("editor_item");
 	MoveTo(vec2d(x, y));
 }
 
-GC_HideLabel::GC_HideLabel(FromFile) : GC_2dSprite(FromFile())
+GC_HideLabel::GC_HideLabel(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -160,7 +163,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crosshair)
 	return true;
 }
 
-GC_Crosshair::GC_Crosshair(enChStyle style) : GC_2dSprite()
+GC_Crosshair::GC_Crosshair(enChStyle style)
+  : GC_2dSprite()
 {
 	SetZ(Z_VEHICLE_LABEL);
 
@@ -183,7 +187,8 @@ GC_Crosshair::GC_Crosshair(enChStyle style) : GC_2dSprite()
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 }
 
-GC_Crosshair::GC_Crosshair(FromFile) : GC_2dSprite(FromFile())
+GC_Crosshair::GC_Crosshair(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -249,7 +254,8 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 }
 
-GC_IndicatorBar::GC_IndicatorBar(FromFile) : GC_2dSprite(FromFile())
+GC_IndicatorBar::GC_IndicatorBar(FromFile)
+  : GC_2dSprite(FromFile())
   , _memberOf(this)
 {
 }
@@ -356,13 +362,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-GC_DamLabel::GC_DamLabel(GC_Vehicle *veh) : GC_2dSprite()
+GC_DamLabel::GC_DamLabel(GC_Vehicle *veh)
+  : GC_2dSprite()
+  , _vehicle(veh)
 {
 	SetTexture("indicator_damage");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 	SetZ(Z_VEHICLE_LABEL);
 
-	_vehicle = veh;
 	_vehicle->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
 
 	_time = 0;
@@ -370,7 +377,8 @@ GC_DamLabel::GC_DamLabel(GC_Vehicle *veh) : GC_2dSprite()
 	_rot = frand(PI2);
 }
 
-GC_DamLabel::GC_DamLabel(FromFile) : GC_2dSprite(FromFile())
+GC_DamLabel::GC_DamLabel(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 

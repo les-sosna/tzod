@@ -12,7 +12,7 @@ namespace UI
 // Button class implementation
 
 ButtonBase::ButtonBase(Window *parent, float x, float y, const char *texture)
-: Window(parent, x,y, texture)
+  : Window(parent, x,y, texture)
 {
 	_state = stateNormal;
 }
@@ -130,7 +130,7 @@ void ImageButton::OnChangeState(State state)
 // CheckBox class implementation
 
 CheckBox::CheckBox(Window *parent, float x, float y, const char *text)
-: ButtonBase(parent, x, y, "ctrl_checkbox")
+  : ButtonBase(parent, x, y, "ctrl_checkbox")
 {
 	_label = new Text(this, GetTextureWidth(), GetTextureHeight()/2, text, alignTextLC );
 	_isChecked = false;

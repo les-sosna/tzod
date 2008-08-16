@@ -10,7 +10,8 @@
 RefCounted::tracker RefCounted::_tracker;
 #endif
 
-RefCounted::RefCounted() : _refCount(0)
+RefCounted::RefCounted()
+  : _refCount(0)
 {
 #ifdef _DEBUG
     ++_tracker._count;

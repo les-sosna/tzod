@@ -147,6 +147,12 @@ return {
    }
 },
 {
+   file="textures/projectiles/fire.tga",
+   content={
+     projectile_fire={xframes=2, yframes=2},
+   }
+},
+{
    file="textures/items/powerups.tga",
    content={
      pu_health={left=0, top=192, right=64, bottom=256, xframes=4, yframes=4},

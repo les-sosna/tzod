@@ -32,7 +32,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 	return true;
 }
 
-GC_2dSprite::GC_2dSprite() : GC_Actor()
+GC_2dSprite::GC_2dSprite()
+  : GC_Actor()
 {
 	_zOrderPrefered = Z_NONE;
 	_zOrderCurrent  = Z_NONE;
@@ -49,7 +50,8 @@ GC_2dSprite::GC_2dSprite() : GC_Actor()
 	SetPivot(0,0);
 }
 
-GC_2dSprite::GC_2dSprite(FromFile) : GC_Actor(FromFile())
+GC_2dSprite::GC_2dSprite(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -384,11 +386,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserSprite)
 	return true;
 }
 
-GC_UserSprite::GC_UserSprite() : GC_2dSprite()
+GC_UserSprite::GC_UserSprite()
+  : GC_2dSprite()
 {
 }
 
-GC_UserSprite::GC_UserSprite(FromFile) : GC_2dSprite(FromFile())
+GC_UserSprite::GC_UserSprite(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 

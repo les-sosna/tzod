@@ -27,8 +27,8 @@ PropertySet* GC_Weapon::NewPropertySet()
 }
 
 GC_Weapon::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propTimeStay(ObjectProperty::TYPE_INTEGER, "stay_time")
+  : BASE(object)
+  , _propTimeStay(ObjectProperty::TYPE_INTEGER, "stay_time")
 {
 	_propTimeStay.SetIntRange(0, 1000000);
 }
@@ -68,19 +68,19 @@ void GC_Weapon::MyPropertySet::Exchange(bool applyToObject)
 }
 
 
-GC_Weapon::GC_Weapon(float x, float y) : GC_Pickup(x, y), _rotator(_angle)
+GC_Weapon::GC_Weapon(float x, float y)
+  : GC_Pickup(x, y)
+  , _rotator(_angle)
+  , _advanced(false)
+  , _feTime(1.0f)
+  , _feOrient(0)
+  , _fePos(0,0)
+  , _time(0)
+  , _timeStay(15.0f)
+  , _timeReload(0)
 {
-	SetRespawnTime( GetDefaultRespawnTime() );
+	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
-
-	_advanced     = false;
-	_feTime       = 1.0f;
-	_feOrient     = 0;
-	_fePos.Set(0,0);
-
-	_time       = 0;
-	_timeStay   = 15.0f;
-	_timeReload = 0;
 }
 
 AIPRIORITY GC_Weapon::GetPriority(GC_Vehicle *veh)
@@ -179,7 +179,9 @@ void GC_Weapon::SetCrosshair()
 	_crosshair = new GC_Crosshair(GC_Crosshair::CHS_SINGLE);
 }
 
-GC_Weapon::GC_Weapon(FromFile) : GC_Pickup(FromFile()), _rotator(_angle)
+GC_Weapon::GC_Weapon(FromFile)
+  : GC_Pickup(FromFile())
+  , _rotator(_angle)
 {
 }
 
@@ -336,14 +338,16 @@ void GC_Weap_RocketLauncher::Detach()
 	GC_Weapon::Detach();
 }
 
-GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(float x, float y) : GC_Weapon(x, y)
+GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(float x, float y)
+  : GC_Weapon(x, y)
+  , _firing(false)
 {
-	_firing = false;
 	_feTime = 0.1f;
 	SetTexture("weap_ak47");
 }
 
-GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile) : GC_Weapon(FromFile())
+GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -461,7 +465,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 	return true;
 }
 
-GC_Weap_AutoCannon::GC_Weap_AutoCannon(float x, float y) : GC_Weapon(x, y)
+GC_Weap_AutoCannon::GC_Weap_AutoCannon(float x, float y)
+  : GC_Weapon(x, y)
 {
 	_feTime = 0.2f;
 	SetTexture("weap_ac");
@@ -527,7 +532,8 @@ void GC_Weap_AutoCannon::Detach()
 	GC_Weapon::Detach();
 }
 
-GC_Weap_AutoCannon::GC_Weap_AutoCannon(FromFile) : GC_Weapon(FromFile())
+GC_Weap_AutoCannon::GC_Weap_AutoCannon(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -652,7 +658,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 	return true;
 }
 
-GC_Weap_Cannon::GC_Weap_Cannon(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Cannon::GC_Weap_Cannon(float x, float y)
+  : GC_Weapon(x, y)
 {
 	_fePos.Set(21, 0);
 	_feTime = 0.2f;
@@ -682,7 +689,8 @@ void GC_Weap_Cannon::Attach(GC_Actor *actor)
 //	veh->_MaxBackSpeed = 120;
 }
 
-GC_Weap_Cannon::GC_Weap_Cannon(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Cannon::GC_Weap_Cannon(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -759,14 +767,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 	return true;
 }
 
-GC_Weap_Plazma::GC_Weap_Plazma(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Plazma::GC_Weap_Plazma(float x, float y)
+  : GC_Weapon(x, y)
 {
 	SetTexture("weap_plazma");
 	_fePos.Set(0, 0);
 	_feTime = 0.2f;
 }
 
-GC_Weap_Plazma::GC_Weap_Plazma(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Plazma::GC_Weap_Plazma(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -827,7 +837,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 	return true;
 }
 
-GC_Weap_Gauss::GC_Weap_Gauss(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Gauss::GC_Weap_Gauss(float x, float y)
+  : GC_Weapon(x, y)
 {
 	SetTexture("weap_gauss");
 	_feTime = 0.15f;
@@ -853,7 +864,8 @@ void GC_Weap_Gauss::Attach(GC_Actor *actor)
 //	veh->_MaxForvSpeed = 260;
 }
 
-GC_Weap_Gauss::GC_Weap_Gauss(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -897,10 +909,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 	return true;
 }
 
-GC_Weap_Ram::GC_Weap_Ram(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Ram::GC_Weap_Ram(float x, float y)
+  : GC_Weapon(x, y)
+  , _bFire(false)
 {
-	_engineSound = NULL;
-	_bFire        = false;
 	SetTexture("weap_ram");
 }
 
@@ -966,7 +978,8 @@ void GC_Weap_Ram::Detach()
 	GC_Weapon::Detach();
 }
 
-GC_Weap_Ram::GC_Weap_Ram(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Ram::GC_Weap_Ram(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -1132,7 +1145,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 	return true;
 }
 
-GC_Weap_BFG::GC_Weap_BFG(float x, float y) : GC_Weapon(x, y)
+GC_Weap_BFG::GC_Weap_BFG(float x, float y)
+  : GC_Weapon(x, y)
 {
 	SetTexture("weap_bfg");
 }
@@ -1157,7 +1171,8 @@ void GC_Weap_BFG::Attach(GC_Actor *actor)
 //	veh->_MaxBackSpeed = 180;
 }
 
-GC_Weap_BFG::GC_Weap_BFG(FromFile) : GC_Weapon(FromFile())
+GC_Weap_BFG::GC_Weap_BFG(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -1262,12 +1277,13 @@ void GC_Weap_Ripper::Detach()
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(float x, float y)
-: GC_Weapon(x, y)
+  : GC_Weapon(x, y)
 {
 	SetTexture("weap_ripper");
 }
 
-GC_Weap_Ripper::GC_Weap_Ripper(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -1325,10 +1341,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 	return true;
 }
 
-GC_Weap_Minigun::GC_Weap_Minigun(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Minigun::GC_Weap_Minigun(float x, float y)
+  : GC_Weapon(x, y)
+  , _bFire(false)
 {
-	_bFire = false;
-
 	SetTexture("weap_mg1");
 
 	_fePos.Set(20, 0);
@@ -1336,7 +1352,8 @@ GC_Weap_Minigun::GC_Weap_Minigun(float x, float y) : GC_Weapon(x, y)
 	_feOrient = frand(PI2);
 }
 
-GC_Weap_Minigun::GC_Weap_Minigun(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -1349,9 +1366,9 @@ void GC_Weap_Minigun::Attach(GC_Actor *actor)
 	GC_Weapon::Attach(actor);
 
 	_timeReload = 0.03f;
-	_time_rotate = 0;
-	_time_fire   = 0;
-	_time_shot   = 0;
+	_timeRotate = 0;
+	_timeFire   = 0;
+	_timeShot   = 0;
 
 	_sound = new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos());
 	_bFire = false;
@@ -1359,15 +1376,15 @@ void GC_Weap_Minigun::Attach(GC_Actor *actor)
 	_fireEffect->SetTexture("minigun_fire");
 
 
-	if( _crosshair_left )
+	if( _crosshairLeft )
 	{
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetOwner()) )
 		{
-			_crosshair_left->Show(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetPlayer()));
+			_crosshairLeft->Show(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetPlayer()));
 		}
 		else
 		{
-			_crosshair_left->Show(false);
+			_crosshairLeft->Show(false);
 		}
 	}
 
@@ -1389,7 +1406,7 @@ void GC_Weap_Minigun::Attach(GC_Actor *actor)
 
 void GC_Weap_Minigun::Detach()
 {
-	SAFE_KILL(_crosshair_left);
+	SAFE_KILL(_crosshairLeft);
 	SAFE_KILL(_sound);
 
 	GC_Weapon::Detach();
@@ -1398,7 +1415,7 @@ void GC_Weap_Minigun::Detach()
 void GC_Weap_Minigun::SetCrosshair()
 {
 	_crosshair      = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
-	_crosshair_left = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
+	_crosshairLeft = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
 }
 
 void GC_Weap_Minigun::Serialize(SaveFile &f)
@@ -1406,16 +1423,16 @@ void GC_Weap_Minigun::Serialize(SaveFile &f)
 	GC_Weapon::Serialize(f);
 
 	f.Serialize(_bFire);
-	f.Serialize(_time_fire);
-	f.Serialize(_time_rotate);
-	f.Serialize(_time_shot);
-	f.Serialize(_crosshair_left);
+	f.Serialize(_timeFire);
+	f.Serialize(_timeRotate);
+	f.Serialize(_timeShot);
+	f.Serialize(_crosshairLeft);
 	f.Serialize(_sound);
 }
 
 void GC_Weap_Minigun::Kill()
 {
-	SAFE_KILL(_crosshair_left);
+	SAFE_KILL(_crosshairLeft);
 	SAFE_KILL(_sound);
 
 	GC_Weapon::Kill();
@@ -1450,57 +1467,58 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 		if( _bFire )
 		{
-			_time_rotate += dt;
-			_time_shot   += dt;
+			_timeRotate += dt;
+			_timeShot   += dt;
 
-			SetTexture((fmodf(_time_rotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
+			SetTexture((fmodf(_timeRotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
 
 			_sound->MoveTo(GetPos());
 			_sound->Pause(false);
 			_bFire = false;
 
-			for(; _time_shot > 0; _time_shot -= _advanced ? 0.02f : 0.04f)
+			for(; _timeShot > 0; _timeShot -= _advanced ? 0.02f : 0.04f)
 			{
 				_time = frand(_feTime);
 				_feOrient = frand(PI2);
 				_fireEffect->Show(true);
 
-				float da = _time_fire * 0.07f / WEAP_MG_TIME_RELAX;
+				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
 				vec2d a(va + _angle + g_level->net_frand(da * 2.0f) - da);
 				a *= (1 - g_level->net_frand(0.2f));
 
-				new GC_Bullet(GetPos() + a * 18.0f, a * SPEED_BULLET, veh, _advanced );
-
 				if( veh && !_advanced )
 				{
-					if( g_level->net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _time_fire - WEAP_MG_TIME_RELAX * 0.2f )
+					if( g_level->net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _timeFire - WEAP_MG_TIME_RELAX * 0.2f )
 					{
 						float m = 3000;//veh->_inv_i;
 						veh->ApplyTorque(m * (g_level->net_frand(1.0f) - 0.5f));
 					}
 				}
+
+				GC_Bullet *tmp = new GC_Bullet(GetPos() + a * 18.0f, a * SPEED_BULLET, veh, _advanced );
+				tmp->TimeStepFixed(_timeShot);
 			}
 
-			_time_fire = __min(_time_fire + dt * 2, WEAP_MG_TIME_RELAX);
+			_timeFire = __min(_timeFire + dt * 2, WEAP_MG_TIME_RELAX);
 		}
 		else
 		{
 			_sound->Pause(true);
-			_time_fire = __max(_time_fire - dt, 0);
+			_timeFire = __max(_timeFire - dt, 0);
 		}
 
-		float da = _time_fire * 0.1f / WEAP_MG_TIME_RELAX;
+		float da = _timeFire * 0.1f / WEAP_MG_TIME_RELAX;
 		if( _crosshair )
 		{
 			_crosshair->_angle = va + da + _angle;
 			_crosshair->MoveTo(GetPos() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
 		}
 
-		if( _crosshair_left )
+		if( _crosshairLeft )
 		{
-			_crosshair_left->_angle = va - da + _angle;
-			_crosshair_left->MoveTo(GetPos() + vec2d(_crosshair_left->_angle) * CH_DISTANCE_THIN);
+			_crosshairLeft->_angle = va - da + _angle;
+			_crosshairLeft->MoveTo(GetPos() + vec2d(_crosshairLeft->_angle) * CH_DISTANCE_THIN);
 		}
 	}
 
@@ -1516,18 +1534,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 	return true;
 }
 
-GC_Weap_Zippo::GC_Weap_Zippo(float x, float y) : GC_Weapon(x, y)
+GC_Weap_Zippo::GC_Weap_Zippo(float x, float y)
+  : GC_Weapon(x, y)
+  , _bFire(false)
+  , _timeBurn(0)
 {
-	_bFire = false;
-
 	SetTexture("weap_zippo");
-
-	_fePos.Set(20, 0);
-	_feTime   = 0.1f;
-	_feOrient = frand(PI2);
 }
 
-GC_Weap_Zippo::GC_Weap_Zippo(FromFile) : GC_Weapon(FromFile())
+GC_Weap_Zippo::GC_Weap_Zippo(FromFile)
+  : GC_Weapon(FromFile())
 {
 }
 
@@ -1539,57 +1555,18 @@ void GC_Weap_Zippo::Attach(GC_Actor *actor)
 {
 	GC_Weapon::Attach(actor);
 
-	_timeReload = 0.03f;
-	_time_rotate = 0;
-	_time_fire   = 0;
-	_time_shot   = 0;
+	_timeReload = 0.02f;
+	_timeFire   = 0;
+	_timeShot   = 0;
 
 	_sound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
 	_bFire = false;
-
-	_fireEffect->SetTexture("minigun_fire");
-
-
-	if( _crosshair_left )
-	{
-		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetOwner()) )
-		{
-			_crosshair_left->Show(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetPlayer()));
-		}
-		else
-		{
-			_crosshair_left->Show(false);
-		}
-	}
-
-
-
-//return;
-//	veh->SetMaxHP(65);
-
-//	veh->_ForvAccel = 700;
-//	veh->_BackAccel = 600;
-//	veh->_StopAccel = 2000;
-
-//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 300;
-//	veh->_MaxForvSpeed = 350;
-
 }
 
 void GC_Weap_Zippo::Detach()
 {
-	SAFE_KILL(_crosshair_left);
 	SAFE_KILL(_sound);
-
 	GC_Weapon::Detach();
-}
-
-void GC_Weap_Zippo::SetCrosshair()
-{
-	_crosshair      = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
-	_crosshair_left = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
 }
 
 void GC_Weap_Zippo::Serialize(SaveFile &f)
@@ -1597,92 +1574,80 @@ void GC_Weap_Zippo::Serialize(SaveFile &f)
 	GC_Weapon::Serialize(f);
 
 	f.Serialize(_bFire);
-	f.Serialize(_time_fire);
-	f.Serialize(_time_rotate);
-	f.Serialize(_time_shot);
-	f.Serialize(_crosshair_left);
+	f.Serialize(_timeFire);
+	f.Serialize(_timeShot);
+	f.Serialize(_timeBurn);
 	f.Serialize(_sound);
 }
 
 void GC_Weap_Zippo::Kill()
 {
-	SAFE_KILL(_crosshair_left);
 	SAFE_KILL(_sound);
-
 	GC_Weapon::Kill();
 }
 
 void GC_Weap_Zippo::Fire()
 {
 	_ASSERT(IsAttached());
-	if( IsAttached() )
-		_bFire = true;
+	_bFire = true;
 }
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.3f;
-	pSettings->fProjectileSpeed   = SPEED_BULLET;
-	pSettings->fAttackRadius_max  = 200;
+	pSettings->fMaxAttackAngle    = 0.5f;
+	pSettings->fProjectileSpeed   = SPEED_FIRE;
+	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
-	pSettings->fAttackRadius_crit =   0;
+	pSettings->fAttackRadius_crit =  10;
 	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
 }
 
 void GC_Weap_Zippo::TimeStepFixed(float dt)
 {
-	static const TextureCache tex("particle_1");
+	GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
 
 	if( IsAttached() )
 	{
-		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
 		float va = veh ? veh->_angle : 0;
+		vec2d vvel = veh ? veh->_lv : vec2d(0,0);
 
 		if( _bFire )
 		{
-			_time_rotate += dt;
-			_time_shot   += dt;
-
-//			SetTexture((fmodf(_time_rotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
+			_timeShot += dt;
+			_timeFire = __min(_timeFire + dt, WEAP_ZIPPO_TIME_RELAX);
 
 			_sound->MoveTo(GetPos());
 			_sound->Pause(false);
 			_bFire = false;
 
-			for(; _time_shot > 0; _time_shot -= _advanced ? 0.02f : 0.04f)
+			for(; _timeShot > 0; _timeShot -= _timeReload )
 			{
-				_time = frand(_feTime);
-				_feOrient = frand(PI2);
-				_fireEffect->Show(true);
-
-				float da = _time_fire * 0.07f / WEAP_MG_TIME_RELAX;
-
-				vec2d a(va + _angle + g_level->net_frand(da * 2.0f) - da);
+				vec2d a(va + _angle);
 				a *= (1 - g_level->net_frand(0.2f));
 
-				new GC_Bullet(GetPos() + a * 18.0f, a * SPEED_ROCKET, veh, _advanced );
+				GC_FireSpark *tmp = new GC_FireSpark(GetPos() + a * 18.0f, vvel/2 + a * SPEED_FIRE, veh, _advanced);
+				tmp->TimeStepFixed(_timeShot);
+				tmp->SetLifeTime(_timeFire);
+				tmp->SetHealOwner(_advanced);
 			}
-
-			_time_fire = __min(_time_fire + dt * 2, WEAP_MG_TIME_RELAX);
 		}
 		else
 		{
 			_sound->Pause(true);
-			_time_fire = __max(_time_fire - dt, 0);
+			_timeFire = __max(_timeFire - dt, 0);
 		}
+	}
 
-		float da = _time_fire * 0.1f / WEAP_MG_TIME_RELAX;
-		if( _crosshair )
+	if( _advanced )
+	{
+		_timeBurn += dt;
+		while( _timeBurn > 0 )
 		{
-			_crosshair->_angle = va + da + _angle;
-			_crosshair->MoveTo(GetPos() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
-		}
-
-		if( _crosshair_left )
-		{
-			_crosshair_left->_angle = va - da + _angle;
-			_crosshair_left->MoveTo(GetPos() + vec2d(_crosshair_left->_angle) * CH_DISTANCE_THIN);
+			GC_FireSpark *tmp = new GC_FireSpark(GetPos() + g_level->net_vrand(33), SPEED_SMOKE/2, veh, true);
+			tmp->TimeStepFixed(_timeBurn);
+			tmp->SetLifeTime(0.3f);
+			_timeBurn -= 0.01f;
 		}
 	}
 

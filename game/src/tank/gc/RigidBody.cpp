@@ -17,18 +17,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_RigidBodyStatic::GC_RigidBodyStatic() : GC_2dSprite()
+GC_RigidBodyStatic::GC_RigidBodyStatic()
+  : GC_2dSprite()
+  , _health(1)
+  , _health_max(1)
+  , _direction(1, 0)
 {
 	AddContext(&g_level->grid_rigid_s);
-
-	_health     = 1;
-	_health_max = 1;
-
-	_direction.Set(1, 0);
 	ZeroMemory(&_vertices, sizeof(_vertices));
 }
 
-GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile) : GC_2dSprite(FromFile())
+GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -229,7 +229,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
-GC_Wall::GC_Wall(float xPos, float yPos) : GC_RigidBodyStatic()
+GC_Wall::GC_Wall(float xPos, float yPos)
+  : GC_RigidBodyStatic()
 {
 	AddContext(&g_level->grid_walls);
 	SetZ(Z_WALLS);
@@ -245,7 +246,8 @@ GC_Wall::GC_Wall(float xPos, float yPos) : GC_RigidBodyStatic()
 	g_level->_field.ProcessObject(this, true);
 }
 
-GC_Wall::GC_Wall(FromFile) : GC_RigidBodyStatic(FromFile())
+GC_Wall::GC_Wall(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 
@@ -490,8 +492,8 @@ PropertySet* GC_Wall::NewPropertySet()
 }
 
 GC_Wall::MyPropertySet::MyPropertySet(GC_Object *object)
-: BASE(object)
-, _propCorner( ObjectProperty::TYPE_INTEGER,   "corner"  )
+  : BASE(object)
+  , _propCorner( ObjectProperty::TYPE_INTEGER,   "corner"  )
 {
 	_propCorner.SetIntRange(0, 4);
 }
@@ -539,7 +541,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 	return true;
 }
 
-GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos) : GC_Wall(xPos, yPos)
+GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
+  : GC_Wall(xPos, yPos)
 {
 	g_level->_field.ProcessObject(this, false);
 
@@ -588,7 +591,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
-GC_Water::GC_Water(float xPos, float yPos) : GC_RigidBodyStatic()
+GC_Water::GC_Water(float xPos, float yPos)
+  : GC_RigidBodyStatic()
 {
 	AddContext( &g_level->grid_water );
 
@@ -610,7 +614,8 @@ GC_Water::GC_Water(float xPos, float yPos) : GC_RigidBodyStatic()
 	g_level->_field.ProcessObject(this, true);
 }
 
-GC_Water::GC_Water(FromFile) : GC_RigidBodyStatic(FromFile())
+GC_Water::GC_Water(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 

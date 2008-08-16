@@ -289,12 +289,12 @@ class GC_Weap_Minigun : public GC_Weapon
 
 private:
 	SafePtr<GC_Sound> _sound;
-	float _time_rotate; // дл€ эмул€ции вращени€ стволов
-	float _time_fire;   // врем€ непрерывнго огн€
-	float _time_shot;
+	float _timeRotate; // дл€ эмул€ции вращени€ стволов
+	float _timeFire;   // врем€ непрерывнго огн€
+	float _timeShot;
 	bool _bFire;
 
-	SafePtr<GC_Crosshair> _crosshair_left;
+	SafePtr<GC_Crosshair> _crosshairLeft;
 
 public:
 	virtual void Attach(GC_Actor *actor);
@@ -321,12 +321,10 @@ class GC_Weap_Zippo : public GC_Weapon
 
 private:
 	SafePtr<GC_Sound> _sound;
-	float _time_rotate; // дл€ эмул€ции вращени€ стволов
-	float _time_fire;   // врем€ непрерывнго огн€
-	float _time_shot;
+	float _timeFire;   // врем€ непрерывнго огн€
+	float _timeShot;
+	float _timeBurn;
 	bool _bFire;
-
-	SafePtr<GC_Crosshair> _crosshair_left;
 
 public:
 	virtual void Attach(GC_Actor *actor);
@@ -336,8 +334,6 @@ public:
 	GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
 	virtual void Kill();
-
-	virtual void SetCrosshair();
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();

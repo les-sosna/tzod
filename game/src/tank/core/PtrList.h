@@ -38,7 +38,7 @@ public:
 
 	protected:
 		Node *_node;
-		class helper
+		class IfHelper
 		{
 			void operator delete (void*) {} // it's private so we can't call delete ptr
 		};
@@ -49,6 +49,11 @@ public:
 
 		object_type* operator * () const { return _node->ptr; }
 
+		//void operator = (const base_iterator &r)
+		//{
+		//	_node = r._node;
+		//}
+
 		bool operator != (const base_iterator& it) const
 		{
 			return _node != it._node;
@@ -57,14 +62,16 @@ public:
 		{
 			return _node == it._node;
 		}
-		operator const helper* () const // to allow if(iter), if(!iter)
+		operator const IfHelper* () const // to allow if(iter), if(!iter)
 		{
-			return reinterpret_cast<const helper*>(_node);
+			return reinterpret_cast<const IfHelper*>(_node);
 		}
 	};
 
 	class iterator : public base_iterator
 	{
+		struct NullHelper {};
+
 	public:
 		iterator() {}
 		explicit iterator(Node *p) : base_iterator(p) {}
@@ -95,7 +102,7 @@ public:
 			_node = _node->prev;
 			return tmp;
 		}
-		void operator = (const helper *arg) // to allow iter=NULL
+		void operator = (const NullHelper *arg) // to allow iter=NULL
 		{
 			_ASSERT(NULL == arg);
 			_node = NULL;
@@ -107,7 +114,8 @@ public:
 	{
 	public:
 		safe_iterator() : _node(NULL) {}
-		explicit safe_iterator(Node *p) : base_iterator(p)
+		explicit safe_iterator(Node *p)
+		  : base_iterator(p)
 		{
 			++_node->ref_count;
 		}
@@ -188,6 +196,11 @@ public:
 			reverse_iterator tmp(_node);
 			_node = _node->next;
 			return tmp;
+		}
+
+		operator iterator& ()
+		{
+			return *reinterpret_cast<iterator*>(this);
 		}
 	};
 

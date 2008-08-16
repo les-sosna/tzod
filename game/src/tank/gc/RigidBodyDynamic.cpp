@@ -94,7 +94,8 @@ void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
 std::vector<GC_RigidBodyDynamic::Contact> GC_RigidBodyDynamic::_contacts;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic() : GC_RigidBodyStatic()
+GC_RigidBodyDynamic::GC_RigidBodyDynamic()
+  : GC_RigidBodyStatic()
 {
 	_lv.Zero();
 	_av     = 0;
@@ -124,7 +125,8 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic() : GC_RigidBodyStatic()
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile) : GC_RigidBodyStatic(FromFile())
+GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 

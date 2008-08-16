@@ -38,7 +38,8 @@ class GC_Particle : public GC_2dSprite
 
 public:
 	float _time;
-	float _time_life;
+	float _timeLife;
+	float _rotationSpeed;
 	bool  _fade;
 
 	vec2d _velocity;
@@ -49,6 +50,7 @@ public:
 	GC_Particle(FromFile);
 
 	void SetFade(bool fade);
+	void SetAutoRotate(float speed);
 
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);

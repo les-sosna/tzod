@@ -61,10 +61,11 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 #endif
 }
 
-GC_Sound::GC_Sound(FromFile) : GC_Actor(FromFile())
+GC_Sound::GC_Sound(FromFile)
+  : GC_Actor(FromFile())
   , _memberOf(this)
+  , _soundBuffer(NULL)
 {
-	_soundBuffer = NULL;
 }
 
 GC_Sound::~GC_Sound()
@@ -342,7 +343,8 @@ GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Act
 #endif
 }
 
-GC_Sound_link::GC_Sound_link(FromFile) : GC_Sound(FromFile())
+GC_Sound_link::GC_Sound_link(FromFile)
+  : GC_Sound(FromFile())
 {
 }
 

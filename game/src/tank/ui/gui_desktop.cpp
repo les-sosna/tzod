@@ -24,9 +24,10 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MessageArea::MessageArea(Window *parent, float x, float y) : Window(parent, x, y, NULL)
+MessageArea::MessageArea(Window *parent, float x, float y)
+  : Window(parent, x, y, NULL)
+  , _text(new Text(this, 0, 0, "", alignTextLT))
 {
-	_text = new Text(this, 0, 0, "", alignTextLT);
 	_ASSERT(!g_conf->ui_showmsg->eventChange);
 	g_conf->ui_showmsg->eventChange.bind(&MessageArea::OnToggleVisible, this);
 	OnToggleVisible();
@@ -86,7 +87,8 @@ void MessageArea::OnToggleVisible()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Desktop::Desktop(GuiManager* manager) : Window(manager)
+Desktop::Desktop(GuiManager* manager)
+  : Window(manager)
 {
 	_msg = new MessageArea(this, 100, 100);
 

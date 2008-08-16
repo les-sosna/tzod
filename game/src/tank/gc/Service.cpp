@@ -18,7 +18,8 @@ GC_Service::GC_Service()
 {
 }
 
-GC_Service::GC_Service(FromFile) : GC_Object(FromFile())
+GC_Service::GC_Service(FromFile)
+  : GC_Object(FromFile())
   , _memberOf(this)
 {
 }

@@ -71,5 +71,9 @@ function gc.weap_minigun.attach(veh)
   adjust_health(veh, 65)
 end
 
+function gc.weap_zippo.attach(veh)
+  adjust_health(veh, 130)
+end
+
 -------------------------------------------------------------------------------
 -- end of file

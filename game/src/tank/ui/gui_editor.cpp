@@ -70,7 +70,8 @@ void NewMapDlg::OnCancel()
 ///////////////////////////////////////////////////////////////////////////////
 // PropertyList class implementation
 
-PropertyList::Container::Container(Window *parent) : Window(parent)
+PropertyList::Container::Container(Window *parent)
+  : Window(parent)
 {
 }
 
@@ -285,7 +286,8 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditorLayout::EditorLayout(Window *parent) : Window(parent)
+EditorLayout::EditorLayout(Window *parent)
+  : Window(parent)
 {
 	SetTexture(NULL);
 

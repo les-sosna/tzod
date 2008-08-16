@@ -10,7 +10,7 @@ namespace UI
 // Text class implementation
 
 Text::Text(Window *parent, float x, float y, const char *text, enumAlignText align)
-: Window(parent, x, y, "font_small" /*"font_default"*/)
+  : Window(parent, x, y, "font_small" /*"font_default"*/)
 {
 	SetAlign(align);
 	SetText(text);

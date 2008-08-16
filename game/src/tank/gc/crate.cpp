@@ -33,7 +33,8 @@ GC_Crate::GC_Crate(float x, float y)
 	SetHealth(30, 30);
 }
 
-GC_Crate::GC_Crate(FromFile) : GC_RigidBodyDynamic(FromFile())
+GC_Crate::GC_Crate(FromFile)
+  : GC_RigidBodyDynamic(FromFile())
 {
 }
 

@@ -67,7 +67,8 @@ public:
 			INVOKE(eventOnEvent) (param);
 	}
 
-	explicit DelegateAdapter1(const ParamType &p) : param(p)
+	explicit DelegateAdapter1(const ParamType &p)
+	  : param(p)
 	{
 	}
 };

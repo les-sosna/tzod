@@ -69,6 +69,8 @@ enum enumZOrder
 
 #define WEAP_RAM_PERCUSSION     8.0f
 
+#define WEAP_ZIPPO_TIME_RELAX   1.0f
+
 // скорости всякие
 #define SPEED_ROCKET         750.0f
 #define SPEED_PLAZMA         800.0f
@@ -78,6 +80,7 @@ enum enumZOrder
 #define SPEED_ACBULLET      1800.0f
 #define SPEED_DISK          2000.0f
 #define SPEED_BFGCORE        500.0f
+#define SPEED_FIRE           400.0f
 #define SPEED_SMOKE          vec2d(0, -40.0f)
 
 // повреждение от снарядов
@@ -86,6 +89,7 @@ enum enumZOrder
 #define DAMAGE_PLAZMA        30.0f
 #define DAMAGE_TANKBULLET    60.0f
 #define DAMAGE_BFGCORE       60.0f
+#define DAMAGE_FIRE          30.0f
 #define DAMAGE_ACBULLET      15.0f
 #define DAMAGE_GAUSS         60.0f
 #define DAMAGE_GAUSS_FADE    15.0f

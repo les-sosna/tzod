@@ -32,7 +32,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Background)
 	return true;
 }
 
-GC_Background::GC_Background() : GC_2dSprite()
+GC_Background::GC_Background()
+  : GC_2dSprite()
 {
 	MoveTo(vec2d(0, 0));
 	_ASSERT(!g_conf->ed_drawgrid->eventChange);
@@ -40,7 +41,8 @@ GC_Background::GC_Background() : GC_2dSprite()
 	OnChangeDrawGridVariable();
 }
 
-GC_Background::GC_Background(FromFile) : GC_2dSprite(FromFile())
+GC_Background::GC_Background(FromFile)
+  : GC_2dSprite(FromFile())
 {
 	_ASSERT(!g_conf->ed_drawgrid->eventChange);
 	g_conf->ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
@@ -96,7 +98,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
-GC_Wood::GC_Wood(float xPos, float yPos) : GC_2dSprite()
+GC_Wood::GC_Wood(float xPos, float yPos)
+  : GC_2dSprite()
 {
 	AddContext( &g_level->grid_wood );
 
@@ -111,7 +114,8 @@ GC_Wood::GC_Wood(float xPos, float yPos) : GC_2dSprite()
 	UpdateTile(true);
 }
 
-GC_Wood::GC_Wood(FromFile) : GC_2dSprite(FromFile())
+GC_Wood::GC_Wood(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -290,7 +294,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(GC_RigidBodyStatic *owner) : GC_2dSprite()
+GC_Explosion::GC_Explosion(GC_RigidBodyStatic *owner)
+  : GC_2dSprite()
 {
 	SetZ(Z_EXPLODE);
 
@@ -311,7 +316,8 @@ GC_Explosion::GC_Explosion(GC_RigidBodyStatic *owner) : GC_2dSprite()
 	_light = new GC_Light(GC_Light::LIGHT_POINT);
 }
 
-GC_Explosion::GC_Explosion(FromFile) : GC_2dSprite(FromFile())
+GC_Explosion::GC_Explosion(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -562,7 +568,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explosion(owner)
+GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner)
+  : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
@@ -603,7 +610,8 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner) 
 	PLAY(SND_BoomStandard, GetPos());
 }
 
-GC_Boom_Standard::GC_Boom_Standard(FromFile) : GC_Explosion(FromFile())
+GC_Boom_Standard::GC_Boom_Standard(FromFile)
+  : GC_Explosion(FromFile())
 {
 }
 
@@ -618,7 +626,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explosion(owner)
+GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner)
+  : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_2");
@@ -672,7 +681,8 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner) : GC_Explo
 	PLAY(SND_BoomBig, GetPos());
 }
 
-GC_Boom_Big::GC_Boom_Big(FromFile) : GC_Explosion(FromFile())
+GC_Boom_Big::GC_Boom_Big(FromFile)
+  : GC_Explosion(FromFile())
 {
 }
 
@@ -686,12 +696,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim, 
                                  GC_RigidBodyStatic *owner,
                                  float damage, float time)
+  : _time(time)
+  , _damage(damage)
+  , _victim(victim)
+  , _owner(owner)
 {
-	_time   = time;
-	_damage = damage;
-
-	_victim = victim;
-	_owner  = owner;
+	_ASSERT(victim);
+	_ASSERT(!victim->IsKilled());
 
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);
@@ -699,11 +710,11 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimKill, true);
 
 	MoveTo(_victim->GetPos());
-
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED /*| GC_FLAG_OBJECT_EVENTS_TS_FLOATING*/ );
 }
 
-GC_HealthDaemon::GC_HealthDaemon(FromFile) : GC_2dSprite(FromFile())
+GC_HealthDaemon::GC_HealthDaemon(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -742,7 +753,7 @@ void GC_HealthDaemon::TimeStepFixed(float dt)
 		bKill = true;
 	}
 	if( !_victim->TakeDamage(dt * _damage, _victim->GetPos(), GetRawPtr(_owner)) && bKill )
-		Kill();
+		Kill(); // victim has died
 }
 
 void GC_HealthDaemon::OnVictimMove(GC_Object *sender, void *param)
@@ -763,7 +774,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(int xPos, int yPos, const char *text, enumAlignText align) : GC_2dSprite()
+GC_Text::GC_Text(int xPos, int yPos, const char *text, enumAlignText align)
+  : GC_2dSprite()
 {
 	SetFont("font_default");
 	SetAlign(align);

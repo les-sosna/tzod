@@ -20,7 +20,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 }
 
 
-GC_Trigger::GC_Trigger(float x, float y) : GC_2dSprite()
+GC_Trigger::GC_Trigger(float x, float y)
+  : GC_2dSprite()
+  , _team(0)
+  , _radius(1)
+  , _radiusDelta(0)
 {
 	SetTexture("editor_trigger");
 	MoveTo(vec2d(x, y));
@@ -28,13 +32,10 @@ GC_Trigger::GC_Trigger(float x, float y) : GC_2dSprite()
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetFlags(GC_FLAG_TRIGGER_ACTIVE);
 	SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
-
-	_team = 0;
-	_radius = 1;
-	_radiusDelta = 0;
 }
 
-GC_Trigger::GC_Trigger(FromFile) : GC_2dSprite(FromFile())
+GC_Trigger::GC_Trigger(FromFile)
+  : GC_2dSprite(FromFile())
 {
 }
 

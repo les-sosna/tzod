@@ -27,6 +27,10 @@ protected:
 	SafePtr<GC_RigidBodyStatic> _owner;
 	SafePtr<GC_RigidBodyStatic> _lastHit;
 
+private:
+	float _hitDamage;   // negative damage will heal target
+	float _hitImpulse;
+
 	float _trailDensity;
 	float _trailPath;   // когда это значение превышает _trailDensity,
 	                    // рождается TrailParticle
@@ -35,22 +39,29 @@ protected:
 	virtual void MoveTo(const vec2d &pos, bool trail);
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm) = 0;
 	virtual void SpawnTrailParticle(const vec2d &pos) = 0;
+	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
 	bool Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 
 	vec2d _velocity;
 
+	void SetTrailDensity(float density);
+	float GetTrailDensity() { return _trailDensity; }
 
 public:
-	float _damage;
-	float _impulse;
 
 	GC_Projectile(GC_RigidBodyStatic *owner, bool advanced,
 		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
 	GC_Projectile(FromFile);
 	virtual ~GC_Projectile();
 
-	bool IsAdvanced() const
+	void SetHitDamage(float damage);
+	float GetHitDamage() { return _hitDamage; }
+
+	void SetHitImpulse(float impulse);
+	float GetHitImpulse() { return _hitImpulse; }
+
+	bool GetAdvanced() const
 	{
 		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
 	}
@@ -117,9 +128,7 @@ class GC_Bullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Bullet);
 
 private:
-	float _path;
-	float _path_trail_on;
-	float _path_trail_off;
+	bool _trailEnable;
 
 public:
 	GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
@@ -188,6 +197,40 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class GC_FireSpark : public GC_Projectile
+{
+	DECLARE_POOLED_ALLOCATION(GC_FireSpark);
+	DECLARE_SELF_REGISTRATION(GC_FireSpark);
+
+private:
+	float _time;
+	float _timeLife;
+	float _rotation;
+	bool  _healOwner;
+
+	float GetRadius() { return (_time + 0.2f) * 50; }
+
+public:
+	GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_FireSpark(FromFile);
+	virtual ~GC_FireSpark();
+
+	virtual void Kill();
+
+	virtual void Serialize(SaveFile &f);
+
+	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
+	virtual void SpawnTrailParticle(const vec2d &pos);
+	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
+
+	virtual void TimeStepFixed(float dt);
+
+	void SetHealOwner(bool heal);
+	void SetLifeTime(float t);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class GC_ACBullet : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_ACBullet);
@@ -230,7 +273,7 @@ public:
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
-
+	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 	virtual void TimeStepFixed(float dt);
 };
 
