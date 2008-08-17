@@ -208,7 +208,7 @@ void GC_Light::Update()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 {
-	ED_ITEM( "spotlight", "Объект:\tПрожектор", 3 );
+	ED_ITEM( "spotlight", "obj_spotlight", 3 );
 	return true;
 }
 

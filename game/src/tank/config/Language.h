@@ -46,6 +46,33 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 
 
 	//
+	// Editor
+	//
+
+	CONFIG_VAR_STR( obj_crate, "Object: Crate" )
+	CONFIG_VAR_STR( obj_wood, "Landscape: Wood" )
+	CONFIG_VAR_STR( obj_respawn, "Respawn point" )
+	CONFIG_VAR_STR( obj_spotlight, "Object: Spot light" )
+	CONFIG_VAR_STR( obj_health, "Item: Health" )
+	CONFIG_VAR_STR( obj_mine, "Item: Mine" )
+	CONFIG_VAR_STR( obj_shield, "Item: Shield" )
+	CONFIG_VAR_STR( obj_shock, "Item: Shock" )
+	CONFIG_VAR_STR( obj_booster, "Item: Booster" )
+	CONFIG_VAR_STR( obj_player_local, "Service: Local player" )
+	CONFIG_VAR_STR( obj_wall_brick, "Wall: Brick" )
+	CONFIG_VAR_STR( obj_wall_concrete, "Wall: Concrete" )
+	CONFIG_VAR_STR( obj_water, "Landscape: Water" )
+	CONFIG_VAR_STR( obj_trigger, "Trigger" )
+	CONFIG_VAR_STR( obj_turret_rocket, "Turret: Rockets" )
+	CONFIG_VAR_STR( obj_turret_cannon, "Turret: Cannon" )
+	CONFIG_VAR_STR( obj_turret_minigun, "Turret: Minigun" )
+	CONFIG_VAR_STR( obj_turret_gauss, "Turret: Gauss gun" )
+	CONFIG_VAR_STR( obj_user_object, "User object" )
+	CONFIG_VAR_STR( obj_user_sprite, "User sprite" )
+
+
+
+	//
 	// new dm dialog
 	//
 

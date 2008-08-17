@@ -223,7 +223,7 @@ void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
-	ED_LAND("wall_brick", "Стена:\tКирпич",  2 );
+	ED_LAND("wall_brick", "obj_wall_brick",  2 );
 	return true;
 }
 
@@ -535,7 +535,7 @@ void GC_Wall::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 {
-	ED_LAND("wall_concrete", "Стена:\tБетон", 1 );
+	ED_LAND("wall_concrete", "obj_wall_concrete", 1 );
 	return true;
 }
 
@@ -585,7 +585,7 @@ const char* GC_Wall_Concrete::GetCornerTexture(int i)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Water)
 {
-	ED_LAND( "water", "Ландшафт:\tВода", 0 );
+	ED_LAND( "water", "obj_water", 0 );
 	return true;
 }
 

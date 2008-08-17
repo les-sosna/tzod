@@ -16,7 +16,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
-	ED_ACTOR("user_object", "Особый объект", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_object", "obj_user_object", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 
@@ -135,7 +135,7 @@ void GC_UserObject::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 {
-	ED_ACTOR("user_sprite", "Декорация", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_sprite", "obj_user_sprite", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 

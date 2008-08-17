@@ -18,6 +18,7 @@
 #include "gc/Camera.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "core/Console.h"
 
@@ -318,10 +319,13 @@ EditorLayout::EditorLayout(Window *parent)
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
-		ls->AddItem(Level::GetTypeInfoByIndex(i).desc, Level::GetTypeByIndex(i));
+		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
+		const char *desc = g_lang.GetRoot()->GetStr(desc0, desc0)->Get();
+		ls->AddItem(desc, Level::GetTypeByIndex(i));
 	}
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
+	ls->Sort();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
 	_typeList->SetCurSel( g_conf->ed_object->GetInt() );
 

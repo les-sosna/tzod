@@ -393,7 +393,7 @@ public:
 		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
 		_ASSERT( 0 == get_n2t().count(name) );
 		EdItem ei;
-		ei.desc    = desc;
+		ei.desc    = desc;  // index in localization table
 		ei.name    = name;
 		ei.layer   = layer;
 		ei.size    = vec2d(width, height);

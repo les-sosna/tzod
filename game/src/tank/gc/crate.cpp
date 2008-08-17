@@ -12,7 +12,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 {
-	ED_ACTOR("crate", "ќбъект: ящик", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("crate", "obj_crate", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 

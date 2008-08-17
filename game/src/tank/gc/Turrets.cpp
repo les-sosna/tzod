@@ -318,7 +318,7 @@ void GC_Turret::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 {
-	ED_TURRET( "turret_rocket", "Стационарная ракетная установка" );
+	ED_TURRET( "turret_rocket", "obj_turret_rocket" );
 	return true;
 }
 
@@ -372,7 +372,7 @@ void GC_TurretRocket::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 {
-	ED_TURRET( "turret_cannon", "Стационарная тяжелая пушка" );
+	ED_TURRET( "turret_cannon", "obj_turret_cannon" );
 	return true;
 }
 
@@ -649,7 +649,7 @@ void GC_TurretBunker::EditorAction()
 
 IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 {
-	ED_TURRET( "turret_minigun", "Стационарный пулемет" );
+	ED_TURRET( "turret_minigun", "obj_turret_minigun" );
 	return true;
 }
 
@@ -742,7 +742,7 @@ void GC_TurretMinigun::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 {
-	ED_TURRET( "turret_gauss", "Стационарная пушка Гаусса" );
+	ED_TURRET( "turret_gauss", "obj_turret_gauss" );
 	return true;
 }
 

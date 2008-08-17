@@ -394,7 +394,7 @@ void GC_Player::MyPropertySet::Exchange(bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 {
-	ED_SERVICE("player_local", "Локальный игрок");
+	ED_SERVICE("player_local", "obj_player_local");
 	return true;
 }
 
