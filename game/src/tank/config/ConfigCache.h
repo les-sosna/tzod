@@ -9,25 +9,29 @@
     struct StructName                               \
     {                                               \
 		struct MyAccessorBase {};                   \
+		struct MyAccessor : public MyAccessorBase   \
+		{                                           \
+			MyAccessor(ConfVarTable *root);
+
+
+#define CONFIG_END(StructName, VarName)             \
+		};                                          \
 		static ConfVarTable* GetRoot()              \
 		{                                           \
 			static ConfVarTable root;               \
 			return &root;                           \
 		}                                           \
-		struct MyAccessor : public MyAccessorBase   \
-        {                                           \
-			MyAccessor(ConfVarTable *root);
-
-
-#define CONFIG_END(StructName, VarName)              \
-         };                                          \
-         MyAccessor* operator -> ()                  \
-         {                                           \
-             static MyAccessor a(GetRoot());         \
-             return &a;                              \
-         }                                           \
-     };                                              \
-     extern StructName       VarName;
+		static MyAccessor* GetAccessor()            \
+		{                                           \
+			static MyAccessor a(GetRoot());         \
+			return &a;                              \
+		}                                           \
+		MyAccessor* operator -> ()                  \
+		{                                           \
+			return GetAccessor();                   \
+		}                                           \
+	};                                              \
+	extern StructName       VarName;
 
 
  #define CONFIG_VAR_FLOAT( var, def )  ConfVarNumber *const var;

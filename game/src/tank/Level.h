@@ -404,7 +404,7 @@ public:
 		get_t2i()[T::GetTypeStatic()] = ei;
 		get_n2t()[name] = T::GetTypeStatic();
 		get_i2t().push_back(T::GetTypeStatic());
-		SortTypesByDesc();
+	//	SortTypesByDesc();
 	}
 	template<class T>
 	static void RegisterService( const char *name, const char *desc )
@@ -419,7 +419,7 @@ public:
 		get_t2i()[T::GetTypeStatic()] = ei;
 		get_n2t()[name] = T::GetTypeStatic();
 		get_i2t().push_back(T::GetTypeStatic());
-		SortTypesByDesc();
+	//	SortTypesByDesc();
 	}
 	static bool IsRegistered(ObjectType type)
 	{

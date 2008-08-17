@@ -300,7 +300,7 @@ void GC_Weapon::TimeStepFloat(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 {
-	ED_ITEM("weap_rockets", "Оружие:\tРакетница", 4 );
+	ED_ITEM("weap_rockets", "obj_weap_rockets", 4 );
 	return true;
 }
 
@@ -461,7 +461,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 {
-	ED_ITEM( "weap_autocannon", "Оружие:\tАвтоматическая пушка", 4 );
+	ED_ITEM( "weap_autocannon", "obj_weap_autocannon", 4 );
 	return true;
 }
 
@@ -654,7 +654,7 @@ void GC_Weap_AutoCannon::Kill()
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 {
-	ED_ITEM( "weap_cannon", "Оружие:\tТяжелая пушка", 4 );
+	ED_ITEM( "weap_cannon", "obj_weap_cannon", 4 );
 	return true;
 }
 
@@ -763,7 +763,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 {
-	ED_ITEM( "weap_plazma", "Оружие:\tПлазменная пушка", 4 );
+	ED_ITEM( "weap_plazma", "obj_weap_plazma", 4 );
 	return true;
 }
 
@@ -833,7 +833,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 {
-	ED_ITEM( "weap_gauss", "Оружие:\tПушка Гаусса", 4 );
+	ED_ITEM( "weap_gauss", "obj_weap_gauss", 4 );
 	return true;
 }
 
@@ -905,7 +905,7 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 {
-	ED_ITEM( "weap_ram", "Оружие:\tТаран", 4 );
+	ED_ITEM( "weap_ram", "obj_weap_ram", 4 );
 	return true;
 }
 
@@ -1141,7 +1141,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 {
-	ED_ITEM( "weap_bfg", "Оружие:\tБФГ", 4 );
+	ED_ITEM( "weap_bfg", "obj_weap_bfg", 4 );
 	return true;
 }
 
@@ -1237,7 +1237,7 @@ void GC_Weap_BFG::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
-	ED_ITEM( "weap_ripper", "Оружие:\tРипер", 4 );
+	ED_ITEM( "weap_ripper", "obj_weap_ripper", 4 );
 	return true;
 }
 
@@ -1337,7 +1337,7 @@ void GC_Weap_Ripper::TimeStepFloat(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 {
-	ED_ITEM( "weap_minigun", "Оружие:\tПулемет", 4 );
+	ED_ITEM( "weap_minigun", "obj_weap_minigun", 4 );
 	return true;
 }
 
@@ -1530,7 +1530,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 {
-	ED_ITEM( "weap_zippo", "Оружие:\tОгнемет", 4 );
+	ED_ITEM( "weap_zippo", "obj_weap_zippo", 4 );
 	return true;
 }
 

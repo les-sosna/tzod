@@ -54,7 +54,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( obj_respawn, "Respawn point" )
 	CONFIG_VAR_STR( obj_spotlight, "Object: Spot light" )
 	CONFIG_VAR_STR( obj_health, "Item: Health" )
-	CONFIG_VAR_STR( obj_mine, "Item: Mine" )
+	CONFIG_VAR_STR( obj_mine, "Item: Anti-tank mine" )
 	CONFIG_VAR_STR( obj_shield, "Item: Shield" )
 	CONFIG_VAR_STR( obj_shock, "Item: Shock" )
 	CONFIG_VAR_STR( obj_booster, "Item: Booster" )
@@ -69,6 +69,17 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( obj_turret_gauss, "Turret: Gauss gun" )
 	CONFIG_VAR_STR( obj_user_object, "User object" )
 	CONFIG_VAR_STR( obj_user_sprite, "User sprite" )
+	CONFIG_VAR_STR( obj_tank, "Object: Tank" )
+	CONFIG_VAR_STR( obj_weap_rockets, "Weapon: Rocket launcher" )
+	CONFIG_VAR_STR( obj_weap_autocannon, "Weapon: Auto cannon" )
+	CONFIG_VAR_STR( obj_weap_cannon, "Weapon: Cannon" )
+	CONFIG_VAR_STR( obj_weap_plazma, "Weapon: Plasma" )
+	CONFIG_VAR_STR( obj_weap_gauss, "Weapon: Gauss" )
+	CONFIG_VAR_STR( obj_weap_ram, "Weapon: Ram" )
+	CONFIG_VAR_STR( obj_weap_bfg, "Weapon: BFG" )
+	CONFIG_VAR_STR( obj_weap_ripper, "Weapon: Ripper" )
+	CONFIG_VAR_STR( obj_weap_minigun, "Weapon: Minigun" )
+	CONFIG_VAR_STR( obj_weap_zippo, "Weapon: Flamethrower" )
 
 
 

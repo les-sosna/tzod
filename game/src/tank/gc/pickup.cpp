@@ -196,6 +196,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 		{
 			if( GC_Actor *actor = FindNewOwner() )
 			{
+				AddRef(); // item can be killed inside attach function
 				Attach(actor);
 
 				//
@@ -227,6 +228,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 						lua_pop(g_env.L, 1); // pop the error message from the stack
 					}
 				}
+				Release();
 			}
 		}
 		else

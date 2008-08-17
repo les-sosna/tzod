@@ -384,6 +384,7 @@ static int luaT_print(lua_State *L)
 		{
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		}
+		if( i > 1 ) g_console->puts(" "); // delimiter
 		g_console->puts(s);
 		lua_pop(L, 1);         // pop result
 	}
@@ -840,6 +841,40 @@ int luaT_exists(lua_State *L)
 }
 
 
+// position("object name")
+int luaT_position(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	const char *name = luaL_checkstring(L, 1);
+
+	if( !g_level )
+	{
+		return luaL_error(L, "no game started");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+	if( NULL == obj )
+	{
+		return luaL_error(L, "object with name '%s' was not found", name);
+	}
+
+	GC_Actor *actor = dynamic_cast<GC_Actor *>(obj);
+	if( NULL == actor )
+	{
+		return luaL_error(L, "object '%s' is not an actor", name);
+	}
+
+	lua_pushnumber(L, actor->GetPos().x);
+	lua_pushnumber(L, actor->GetPos().y);
+
+	return 2;
+}
+
 
 // type("object name")
 int luaT_objtype(lua_State *L)
@@ -1109,6 +1144,7 @@ lua_State* script_open(void)
 	lua_register(L, "pset",     luaT_pset);
 	lua_register(L, "equip",    luaT_equip);
 	lua_register(L, "exists",   luaT_exists);
+	lua_register(L, "position", luaT_position);
 	lua_register(L, "objtype",  luaT_objtype);
 
 	lua_register(L, "msgbox",   luaT_msgbox);

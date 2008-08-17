@@ -612,7 +612,7 @@ void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
-	ED_ACTOR("tank", "Объект: Танк", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("tank", "obj_tank", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
 	return true;
 }
 

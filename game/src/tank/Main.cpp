@@ -201,6 +201,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 			return 0;
 		}
 	}
+	g_conf.GetAccessor(); // force accessor creation
 	if( 0 == g_conf->dm_profiles->GetSize() )
 		CreateDefaultProfiles();
 
@@ -223,6 +224,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 			return 0;
 		}
 	}
+	g_lang.GetAccessor(); // force accessor creation
 
 
 	// set up the environment
