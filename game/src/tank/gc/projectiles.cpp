@@ -844,7 +844,7 @@ GC_FireSpark::GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* o
   , _rotation(frand(10) - 5)
   , _healOwner(false)
 {
-	SetHitDamage(DAMAGE_FIRE / 10);
+	SetHitDamage(DAMAGE_FIRE / 7);
 	SetTrailDensity(4.5f);
 	SetFrame(rand() % GetFrameCount());
 	_light->SetRadius(0);
@@ -858,11 +858,6 @@ GC_FireSpark::GC_FireSpark(FromFile)
 
 GC_FireSpark::~GC_FireSpark()
 {
-}
-
-void GC_FireSpark::Kill()
-{
-	GC_Projectile::Kill();
 }
 
 void GC_FireSpark::Serialize(SaveFile &f)

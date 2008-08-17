@@ -89,7 +89,7 @@ enum enumZOrder
 #define DAMAGE_PLAZMA        30.0f
 #define DAMAGE_TANKBULLET    60.0f
 #define DAMAGE_BFGCORE       60.0f
-#define DAMAGE_FIRE          30.0f
+#define DAMAGE_FIRE           3.2f
 #define DAMAGE_ACBULLET      15.0f
 #define DAMAGE_GAUSS         60.0f
 #define DAMAGE_GAUSS_FADE    15.0f

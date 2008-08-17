@@ -214,8 +214,6 @@ public:
 	GC_FireSpark(FromFile);
 	virtual ~GC_FireSpark();
 
-	virtual void Kill();
-
 	virtual void Serialize(SaveFile &f);
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
