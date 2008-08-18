@@ -833,10 +833,7 @@ int luaT_exists(lua_State *L)
 		return luaL_error(L, "no game started");
 	}
 
-	GC_Object *obj = g_level->FindObject(name);
-	_ASSERT(!obj->IsKilled());
-
-	lua_pushboolean(L, NULL != obj);
+	lua_pushboolean(L, NULL != g_level->FindObject(name));
 	return 1;
 }
 
