@@ -287,6 +287,95 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
+  : Dialog(parent, h, w, false)
+  , _margins(5)
+{
+	_labelService = new Text(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
+	_labelName = new Text(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
+
+	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetTextHeight(), 1, 1);
+	_list->SetBorder(true);
+
+	_btnCreate = new Button(this, 0, 0, g_lang->service_create->Get());
+	_btnCreate->eventClick.bind(&ServiceList::OnCreateService, this);
+
+	_combo = new ComboBox(this, _margins, _margins, 1);
+	List *ls = _combo->GetList();
+	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	{
+		if( Level::GetTypeInfoByIndex(i).service )
+		{
+			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
+			const char *desc = g_lang.GetRoot()->GetStr(desc0, desc0)->Get();
+			ls->AddItem(desc, Level::GetTypeByIndex(i));
+		}
+	}
+	ls->SetTabPos(1, 128);
+	ls->AlignHeightToContent();
+	ls->Sort();
+
+	Move(x, y);
+	Resize(w, h);
+	SetEasyMove(true);
+}
+
+void ServiceList::UpdateList()
+{
+	_list->DeleteAllItems();
+	FOREACH(g_level->GetList(LIST_services), GC_Object, service)
+	{
+		const char *desc0 = g_level->GetTypeInfo(service->GetType()).desc;
+		int i = _list->AddItem(g_lang.GetRoot()->GetStr(desc0, desc0)->Get(), (ULONG_PTR) service);
+		const char *name = service->GetName();
+		_list->SetItemText(i, 1, name ? name : "");
+	}
+}
+
+void ServiceList::OnCreateService()
+{
+	if( -1 != _combo->GetCurSel() )
+	{
+		ObjectType type = (ObjectType) _combo->GetList()->GetItemData(_combo->GetCurSel());
+		GC_Object *service = g_level->CreateObject(type, 0, 0);
+		UpdateList();
+	}
+}
+
+void ServiceList::OnSize(float width, float height)
+{
+	_btnCreate->Move(width - _btnCreate->GetWidth() - _margins,
+		height - _btnCreate->GetHeight() - _margins);
+
+	_combo->Resize(width - _margins * 3 - _btnCreate->GetWidth(), _combo->GetHeight());
+	_combo->Move(_margins, _btnCreate->GetY() + (_btnCreate->GetHeight() - _combo->GetHeight()) / 2);
+
+	_list->Resize(width - 2*_list->GetX(), _btnCreate->GetY() - _list->GetY() - _margins);
+	_list->SetTabPos(1, _list->GetWidth() / 2);
+}
+
+void ServiceList::OnRawChar(int c)
+{
+	switch(c)
+	{
+//	case VK_RETURN:
+//		Exchange(true);
+//		_ps->SaveToConfig();
+//		break;
+
+	case 'S':
+	case VK_ESCAPE:
+		g_conf->ed_showservices->Set(false);
+		Show(false);
+		break;
+	default:
+		GetParent()->OnRawChar(c);
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
 EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
 {
@@ -311,6 +400,9 @@ EditorLayout::EditorLayout(Window *parent)
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
 	_propList->Show(false);
+
+	_serviceList = new ServiceList(this, 5, 300, 512, 256);
+	_serviceList->Show(g_conf->ed_showservices->Get());
 
 	_layerDisp = new Text(this, 0, 0, "", alignTextRT);
 
@@ -531,6 +623,10 @@ void EditorLayout::OnRawChar(int c)
 			_propList->Show(true);
 			g_conf->ed_showproperties->Set(true);
 		}
+		break;
+	case 'S':
+		_serviceList->Show(!_serviceList->IsVisible());
+		g_conf->ed_showservices->Set(_serviceList->IsVisible());
 		break;
 	case VK_DELETE:
 		if( _selectedObject )

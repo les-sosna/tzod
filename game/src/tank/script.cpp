@@ -838,7 +838,7 @@ int luaT_exists(lua_State *L)
 }
 
 
-// position("object name")
+// local x,y = position("object name")
 int luaT_position(lua_State *L)
 {
 	int n = lua_gettop(L);

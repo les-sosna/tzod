@@ -49,8 +49,8 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	// Editor
 	//
 
-	CONFIG_VAR_STR( obj_crate, "Object: Crate" )
-	CONFIG_VAR_STR( obj_wood, "Landscape: Wood" )
+	CONFIG_VAR_STR( obj_crate, "Object:\tCrate" )
+	CONFIG_VAR_STR( obj_wood, "Landscape:\tWood" )
 	CONFIG_VAR_STR( obj_respawn, "Respawn point" )
 	CONFIG_VAR_STR( obj_spotlight, "Object: Spot light" )
 	CONFIG_VAR_STR( obj_health, "Item: Health" )
@@ -58,7 +58,6 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( obj_shield, "Item: Shield" )
 	CONFIG_VAR_STR( obj_shock, "Item: Shock" )
 	CONFIG_VAR_STR( obj_booster, "Item: Booster" )
-	CONFIG_VAR_STR( obj_player_local, "Service: Local player" )
 	CONFIG_VAR_STR( obj_wall_brick, "Wall: Brick" )
 	CONFIG_VAR_STR( obj_wall_concrete, "Wall: Concrete" )
 	CONFIG_VAR_STR( obj_water, "Landscape: Water" )
@@ -80,6 +79,13 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( obj_weap_ripper, "Weapon: Ripper" )
 	CONFIG_VAR_STR( obj_weap_minigun, "Weapon: Minigun" )
 	CONFIG_VAR_STR( obj_weap_zippo, "Weapon: Flamethrower" )
+	CONFIG_VAR_STR( obj_service_player_ai, "Service: AI player" )
+	CONFIG_VAR_STR( obj_service_player_local, "Service: Local player" )
+
+
+	CONFIG_VAR_STR( service_create, "Create" )
+	CONFIG_VAR_STR( service_type, "Service" )
+	CONFIG_VAR_STR( service_name, "Name" )
 
 
 

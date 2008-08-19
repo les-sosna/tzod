@@ -58,9 +58,33 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class ServiceList : public Dialog
+{
+	List *_list;
+	Text *_labelService;
+	Text *_labelName;
+	ComboBox *_combo;
+	Button *_btnCreate;
+
+	float _margins;
+
+public:
+	ServiceList(Window *parent, float x, float y, float w, float h);
+
+protected:
+	void OnCreateService();
+	void UpdateList();
+
+	virtual void OnSize(float width, float height);
+	virtual void OnRawChar(int c);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class EditorLayout : public Window
 {
 	PropertyList *_propList;
+	ServiceList  *_serviceList;
 	Text         *_layerDisp;
 	ComboBox     *_typeList;
 	Window       *_selectionRect;

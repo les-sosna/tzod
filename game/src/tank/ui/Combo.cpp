@@ -23,10 +23,7 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 
 	_text = new Text(this, 0, 1, "", alignTextLT);
 
-	SetBorder(true);
-	Resize(width, _text->GetHeight()+2);
-
-	_list = new List(this, 0, GetHeight()+2, width, _text->GetHeight()*6);
+	_list = new List(this, 0, 0, 1, 1);
 	_list->Show(false);
 	_list->SetTopMost(true);
 	_list->eventClickItem.bind(&ComboBox::OnClickItem, this);
@@ -34,14 +31,15 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
 	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
-	_btn->Move(GetWidth() - _btn->GetWidth(), (GetHeight() - _btn->GetHeight()) * 0.5f);
 	_btn->eventClick.bind(&ComboBox::DropList, this);
 
 	_btn1 = new ImageButton(this, 0, 0, NULL);
-	_btn1->Resize(GetWidth(), GetHeight());
 	_btn1->eventClick.bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();
+
+	SetBorder(true);
+	Resize(width, _text->GetHeight()+2);
 }
 
 void ComboBox::SetCurSel(int index)
@@ -141,6 +139,14 @@ void ComboBox::OnRawChar(int c)
 bool ComboBox::OnFocus(bool focus)
 {
 	return true;
+}
+
+void ComboBox::OnSize(float width, float height)
+{
+	_list->Move(0, height + 2);
+	_list->Resize(width, _list->GetHeight());
+	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
+	_btn1->Resize(width, height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

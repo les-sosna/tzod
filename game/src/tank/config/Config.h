@@ -66,6 +66,7 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_INT(   ed_height,             24 )
 	CONFIG_VAR_INT(   ed_object,              0 )
 	CONFIG_VAR_BOOL(  ed_showproperties,   true )
+	CONFIG_VAR_BOOL(  ed_showservices,    false )
 	CONFIG_VAR_TABLE( ed_objproperties )
 
 	// console

@@ -34,6 +34,7 @@ public:
 protected:
 	void OnRawChar(int c);
 	bool OnFocus(bool focus);
+	void OnSize(float width, float height);
 
 	void OnClickItem(int index);
 	void OnChangeSelection(int index);
