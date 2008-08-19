@@ -58,6 +58,8 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class EditorLayout;
+
 class ServiceList : public Dialog
 {
 	List *_list;
@@ -70,10 +72,12 @@ class ServiceList : public Dialog
 
 public:
 	ServiceList(Window *parent, float x, float y, float w, float h);
+	void UpdateList();
 
 protected:
 	void OnCreateService();
-	void UpdateList();
+	void OnSelectService(int i);
+	EditorLayout* GetEditorLayout() const;
 
 	virtual void OnSize(float width, float height);
 	virtual void OnRawChar(int c);
@@ -98,11 +102,13 @@ class EditorLayout : public Window
 
 	void OnKillSelected(GC_Object *sender, void *param);
 	void OnMoveSelected(GC_Object *sender, void *param);
-	void Select(GC_Object *object, bool bSelect);
 
 public:
 	EditorLayout(Window *parent);
 	~EditorLayout();
+
+	void Select(GC_Object *object, bool bSelect);
+	void SelectNone();
 
 protected:
 	void DrawChildren(float sx, float sy);

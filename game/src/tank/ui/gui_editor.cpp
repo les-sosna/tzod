@@ -296,6 +296,7 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 
 	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetTextHeight(), 1, 1);
 	_list->SetBorder(true);
+	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
 
 	_btnCreate = new Button(this, 0, 0, g_lang->service_create->Get());
 	_btnCreate->eventClick.bind(&ServiceList::OnCreateService, this);
@@ -322,6 +323,7 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 
 void ServiceList::UpdateList()
 {
+//	ULONG_PTR sel = (-1 != _list->GetCurSel()) ? _list->GetItemData(_list->GetCurSel()) : 0;
 	_list->DeleteAllItems();
 	FOREACH(g_level->GetList(LIST_services), GC_Object, service)
 	{
@@ -332,6 +334,12 @@ void ServiceList::UpdateList()
 	}
 }
 
+EditorLayout* ServiceList::GetEditorLayout() const
+{
+	_ASSERT(dynamic_cast<EditorLayout*>(GetParent()));
+	return static_cast<EditorLayout*>(GetParent());
+}
+
 void ServiceList::OnCreateService()
 {
 	if( -1 != _combo->GetCurSel() )
@@ -339,6 +347,18 @@ void ServiceList::OnCreateService()
 		ObjectType type = (ObjectType) _combo->GetList()->GetItemData(_combo->GetCurSel());
 		GC_Object *service = g_level->CreateObject(type, 0, 0);
 		UpdateList();
+	}
+}
+
+void ServiceList::OnSelectService(int i)
+{
+	if( -1 == i )
+	{
+		GetEditorLayout()->SelectNone();
+	}
+	else
+	{
+		GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
 	}
 }
 
@@ -484,6 +504,14 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_propList->ConnectTo(NULL);
 		_selectionRect->Show(false);
 		_propList->Show(false);
+	}
+}
+
+void EditorLayout::SelectNone()
+{
+	if( _selectedObject )
+	{
+		Select(_selectedObject, false);
 	}
 }
 
