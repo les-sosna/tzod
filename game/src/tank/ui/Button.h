@@ -85,6 +85,9 @@ public:
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
+	void SetText(const char *text);
+	const char* GetText() const;
+
 protected:
 	virtual void OnChangeState(State state);
 	virtual void OnClick();

@@ -68,13 +68,13 @@ public:
 
 
 protected:
-	void OnSize(float width, float height);
-	bool OnMouseDown(float x, float y, int button);
-	bool OnMouseWheel(float x, float y, float z);
-	void OnRawChar(int c);
-	bool OnFocus(bool focus);
+	virtual void OnSize(float width, float height);
+	virtual bool OnMouseDown(float x, float y, int button);
+	virtual bool OnMouseWheel(float x, float y, float z);
+	virtual void OnRawChar(int c);
+	virtual bool OnFocus(bool focus);
 
-	void DrawChildren(float sx, float sy);
+	virtual void DrawChildren(float sx, float sy);
 };
 
 

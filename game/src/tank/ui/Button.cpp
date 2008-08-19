@@ -47,8 +47,9 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 		SetState(statePushed);
 		if( eventMouseDown )
 			INVOKE(eventMouseDown) (x, y);
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool ButtonBase::OnMouseUp(float x, float y, int button)
@@ -57,14 +58,15 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 	{
 		ReleaseCapture();
 		bool click = (GetState() == statePushed);
-		SetState(stateNormal);
+		SetState(stateHottrack);
 
 		if( eventMouseUp )
 			INVOKE(eventMouseUp) (x, y);
 		if( click )
 			OnClick();
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool ButtonBase::OnMouseLeave()
@@ -140,6 +142,16 @@ void CheckBox::SetCheck(bool checked)
 {
 	_isChecked = checked;
 	SetFrame(_isChecked ? GetState()+4 : GetState());
+}
+
+void CheckBox::SetText(const char *text)
+{
+	_label->SetText(text);
+}
+
+const char* CheckBox::GetText() const
+{
+	return _label->GetText();
 }
 
 void CheckBox::OnChangeState(State state)

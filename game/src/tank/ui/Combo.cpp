@@ -146,7 +146,7 @@ void ComboBox::OnSize(float width, float height)
 	_list->Move(0, height + 2);
 	_list->Resize(width, _list->GetHeight());
 	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
-	_btn1->Resize(width, height);
+	_btn1->Resize(_btn->GetX(), height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

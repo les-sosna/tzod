@@ -11,6 +11,11 @@ namespace UI
 
 Edit::Edit(Window *parent, float x, float y, float width)
   : Window(parent, x, y, "ctrl_list")
+  , _selStart(-1)
+  , _selEnd(-1)
+  , _selection(NULL)
+  , _blankText(NULL)
+  , _cursor(NULL)
 {
 	SetBorder(true);
 	ClipChildren(true);

@@ -74,6 +74,11 @@ void ScrollBar::SetLineSize(float ls)
 	_lineSize = ls;
 }
 
+float ScrollBar::GetLineSize() const
+{
+	return _lineSize;
+}
+
 void ScrollBar::OnSize(float width, float height)
 {
 	_btnDownRight->Move(  _hor ? width - _btnDownRight->GetWidth() : 0,

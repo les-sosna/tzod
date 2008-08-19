@@ -25,6 +25,7 @@ public:
 	Text(Window *parent, float x, float y, const char *text, enumAlignText align);
 
 	void SetText(const char *text);
+	const char* GetText() const { return _text.c_str(); }
 	void SetAlign(enumAlignText align);
 
 	float GetTextWidth();

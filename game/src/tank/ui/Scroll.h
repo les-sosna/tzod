@@ -35,6 +35,7 @@ public:
 	float GetLimit() const;
 
 	void  SetLineSize(float ls);
+	float GetLineSize() const;
 
 	Delegate<void(float)> eventScroll;
 
