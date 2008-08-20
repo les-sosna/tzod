@@ -152,7 +152,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
-	setlocale(LC_CTYPE, "Russian");
 	g_hInstance = hinst;
 	srand( GetTickCount() );
 
@@ -225,6 +224,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		}
 	}
 	g_lang.GetAccessor(); // force accessor creation
+	setlocale(LC_CTYPE, g_lang->c_locale->Get());
 
 
 	// set up the environment

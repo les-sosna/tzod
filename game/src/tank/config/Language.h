@@ -14,6 +14,8 @@
 
 CONFIG_BEGIN(LangCache) //  var_name  def_value
 
+	CONFIG_VAR_STR( c_locale, "English" )
+
 	//
 	// Main menu
 	//
