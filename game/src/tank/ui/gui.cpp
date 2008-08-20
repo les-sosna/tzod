@@ -428,7 +428,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	SetEasyMove(true);
 	_ASSERT(info);
 
-	Text *title = new Text(this, GetWidth() / 2, 16, "Параметры игрока", alignTextCT);
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->player_settings->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
@@ -447,7 +447,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// player name field
 	//
 
-	new Text(this, x1, y, "Имя", alignTextLT);
+	new Text(this, x1, y, g_lang->player_nick->Get(), alignTextLT);
 	_name = new Edit(this, x2, y-=1, 200);
 	_name->SetText( _info->GetStr("nick", "Unnamed")->Get() );
 	GetManager()->SetFocusWnd(_name);
@@ -458,7 +458,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	//
 	// skins combo
 	//
-	new Text(this, x1, y+=24, "Скин", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
 	_skins = new ComboBox(this, x2, y-=1, 200);
 	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
 	lst = _skins->GetList();
@@ -483,7 +483,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create and fill the classes list
 	//
 
-	new Text(this, x1, y+=24, "Класс", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
 	_classes = new ComboBox(this, x2, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
@@ -508,7 +508,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 		_classes->SetCurSel(0);
 	_classes->GetList()->AlignHeightToContent();
 
-	new Text(this, x1, y+=24, "Команда", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
 	_teams = new ComboBox(this, x2, y-=1, 200);
 	lst = _teams->GetList();
 
@@ -534,7 +534,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// player profile combo
 	//
 
-	new Text(this, x1, y+=24, "Профиль", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_profile->Get(), alignTextLT);
 	_profiles = new ComboBox(this, x2, y-=1, 200);
 	lst = _profiles->GetList();
 
@@ -560,8 +560,8 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	(new Button(this, 176, 190, "OK"))->eventClick.bind(&EditPlayerDlg::OnOK, this);
-	(new Button(this, 280, 190, "Отмена"))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+	(new Button(this, 176, 190, g_lang->common_ok->Get()))->eventClick.bind(&EditPlayerDlg::OnOK, this);
+	(new Button(this, 280, 190, g_lang->common_cancel->Get()))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOK()
@@ -592,11 +592,11 @@ void EditPlayerDlg::OnChangeSkin(int index)
 ///////////////////////////////////////////////////////////////////////////////
 
 const char EditBotDlg::levels[][16] = {
-	"Новичок",
-	"Средний",
-	"Бывалый",
-	"Опытный",
-	"Ветеран",
+	"bot_level_0",
+	"bot_level_1",
+	"bot_level_2",
+	"bot_level_3",
+	"bot_level_4",
 };
 
 
@@ -606,7 +606,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	SetEasyMove(true);
 	_ASSERT(info);
 
-	Text *title = new Text(this, GetWidth() / 2, 16, "Параметры бота", alignTextCT);
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->bot_settings->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
@@ -625,7 +625,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// player name field
 	//
 
-	new Text(this, x1, y, "Имя", alignTextLT);
+	new Text(this, x1, y, g_lang->player_nick->Get(), alignTextLT);
 	_name = new Edit(this, x2, y-=1, 200);
 	lua_getglobal(g_env.L, "random_name");   // push function
 	lua_call(g_env.L, 0, 1);
@@ -642,7 +642,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	//
 	// skins combo
 	//
-	new Text(this, x1, y+=24, "Скин", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
 	_skins = new ComboBox(this, x2, y-=1, 200);
 	_skins->eventChangeCurSel.bind( &EditBotDlg::OnChangeSkin, this );
 	lst = _skins->GetList();
@@ -667,7 +667,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create and fill the classes list
 	//
 
-	new Text(this, x1, y+=24, "Класс", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
 	_classes= new ComboBox(this, x2, y-=1, 200);
 
 	std::pair<string_t, string_t> val;
@@ -690,7 +690,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_classes->GetList()->AlignHeightToContent();
 
 
-	new Text(this, x1, y+=24, "Команда", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
 	_teams = new ComboBox(this, x2, y-=1, 200);
 	lst = _teams->GetList();
 
@@ -715,13 +715,13 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create and fill the levels list
 	//
 
-	new Text(this, x1, y+=24, "Уровень", alignTextLT);
+	new Text(this, x1, y+=24, g_lang->bot_level->Get(), alignTextLT);
 	_levels = new ComboBox(this, x2, y-=1, 200);
 	lst = _levels->GetList();
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = lst->AddItem(levels[i]);
+		int index = lst->AddItem(g_lang.GetRoot()->GetStr(levels[i], levels[i])->Get());
 		if( i == _info->GetNum("level", 2)->GetInt() )
 		{
 			_levels->SetCurSel(index);
@@ -738,8 +738,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	(new Button(this, 176, 190, "OK"))->eventClick.bind(&EditBotDlg::OnOK, this);
-	(new Button(this, 280, 190, "Отмена"))->eventClick.bind(&EditBotDlg::OnCancel, this);
+	(new Button(this, 176, 190, g_lang->common_ok->Get()))->eventClick.bind(&EditBotDlg::OnOK, this);
+	(new Button(this, 280, 190, g_lang->common_cancel->Get()))->eventClick.bind(&EditBotDlg::OnCancel, this);
 }
 
 void EditBotDlg::OnOK()

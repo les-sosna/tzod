@@ -42,6 +42,11 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 
 	CONFIG_VAR_STR( exit_game_btn, "Exit (Alt+F4)" )
 
+	CONFIG_VAR_STR( get_file_name_title, "File name" )
+	CONFIG_VAR_STR( get_file_name_save_game, "Save Game" )
+	CONFIG_VAR_STR( get_file_name_load_game, "Load Game" )
+	CONFIG_VAR_STR( get_file_name_save_map, "Save map" )
+	CONFIG_VAR_STR( get_file_name_load_map, "Select map for edit" )
 
 
 
@@ -113,6 +118,46 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 
 	CONFIG_VAR_STR( dm_ok, "Go!" )
 	CONFIG_VAR_STR( dm_cancel, "Cancel" )
+
+	CONFIG_VAR_STR( player_settings, "Player settings" )
+	CONFIG_VAR_STR( player_nick, "Nickname" )
+	CONFIG_VAR_STR( player_skin, "Skin" )
+	CONFIG_VAR_STR( player_team, "Team" )
+	CONFIG_VAR_STR( player_class, "Class" )
+	CONFIG_VAR_STR( player_profile, "Profile" )
+
+	CONFIG_VAR_STR( bot_settings, "Bot settings" )
+	CONFIG_VAR_STR( bot_level, "Experience" )
+	CONFIG_VAR_STR( bot_level_0, "Looser" )
+	CONFIG_VAR_STR( bot_level_1, "Normal" )
+	CONFIG_VAR_STR( bot_level_2, "Advanced" )
+	CONFIG_VAR_STR( bot_level_3, "Hardcore" )
+	CONFIG_VAR_STR( bot_level_4, "Nightmare" )
+
+	CONFIG_VAR_STR( common_ok, "OK" )
+	CONFIG_VAR_STR( common_cancel, "Cancel" )
+
+
+	//
+	// network
+	//
+
+	CONFIG_VAR_STR( net_server_title, "Host a new server" )
+	CONFIG_VAR_STR( net_server_fps, "Server fps" )
+	CONFIG_VAR_STR( net_server_latency, "Latency" )
+	CONFIG_VAR_STR( net_server_ok, "Create" )
+	CONFIG_VAR_STR( net_server_cancel, "Cancel" )
+
+	CONFIG_VAR_STR( net_connect_title, "Connect" )
+	CONFIG_VAR_STR( net_connect_address, "Server address" )
+	CONFIG_VAR_STR( net_connect_status, "Status log" )
+	CONFIG_VAR_STR( net_connect_ok, "Connect" )
+	CONFIG_VAR_STR( net_connect_cancel, "Cancel" )
+	CONFIG_VAR_STR( net_connect_error, "Network error" )
+	CONFIG_VAR_STR( net_connect_error_server_version, "Incompatible server version" )
+	CONFIG_VAR_STR( net_connect_error_map, "Could not load map" )
+	CONFIG_VAR_STR( net_connect_error_map_version, "Incompatible map version" )
+	CONFIG_VAR_STR( net_connect_loading_map_x, "Loading map '%s'..." )
 
 
 

@@ -10,6 +10,8 @@
 
 #include "GuiManager.h"
 
+#include "config/Language.h"
+
 #include "fs/FileSystem.h"
 
 namespace UI
@@ -44,12 +46,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);
 
 
-	new Text(this, 16, 370, "Имя файла", alignTextLT);
+	new Text(this, 16, 370, g_lang->get_file_name_title->Get(), alignTextLT);
 	_fileName = new Edit(this, 20, 385, 472);
 	_fileName->eventChange.bind(&GetFileNameDlg::OnChangeName, this);
 
-	(new Button(this, 290, 420, "OK"))->eventClick.bind(&GetFileNameDlg::OnOK, this);
-	(new Button(this, 400, 420, "Отмена"))->eventClick.bind(&GetFileNameDlg::OnCancel, this);
+	(new Button(this, 290, 420, g_lang->common_ok->Get()))->eventClick.bind(&GetFileNameDlg::OnOK, this);
+	(new Button(this, 400, 420, g_lang->common_cancel->Get()))->eventClick.bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_fileName);
 }

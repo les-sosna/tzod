@@ -103,7 +103,7 @@ void MainMenuDlg::OnSaveGame()
 	Show(false);
 
 	GetFileNameDlg::Params param;
-	param.title = "Сохранить игру";
+	param.title = g_lang->get_file_name_save_game->Get();
 	param.folder = g_fs->GetFileSystem(DIR_SAVE);
 	param.extension = "sav";
 
@@ -141,7 +141,7 @@ void MainMenuDlg::OnLoadGame()
 	Show(false);
 
 	GetFileNameDlg::Params param;
-	param.title = "Загрузить игру";
+	param.title = g_lang->get_file_name_load_game->Get();
 	param.folder = g_fs->GetFileSystem(DIR_SAVE);
 	param.extension = "sav";
 
@@ -227,7 +227,7 @@ void MainMenuDlg::OnImportMap()
 	Show(false);
 
 	GetFileNameDlg::Params param;
-	param.title = "Выбор карты для редактирования";
+	param.title = g_lang->get_file_name_load_map->Get();
 	param.folder = g_fs->GetFileSystem(DIR_MAPS);
 	param.extension = "map";
 
@@ -272,7 +272,7 @@ void MainMenuDlg::OnExportMap()
 	Show(false);
 
 	GetFileNameDlg::Params param;
-	param.title = "Сохранение карты";
+	param.title = g_lang->get_file_name_save_map->Get();
 	param.folder = g_fs->GetFileSystem(DIR_MAPS);
 	param.extension = "map";
 

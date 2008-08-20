@@ -19,6 +19,7 @@
 #include "Macros.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "core/Console.h"
 
@@ -35,7 +36,7 @@ namespace UI
 CreateServerDlg::CreateServerDlg(Window *parent)
   : Dialog(parent, 770, 450)
 {
-	Text *title = new Text(this, GetWidth() / 2, 16, "Создать сервер", alignTextCT);
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_server_title->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
@@ -48,7 +49,7 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 	// map list
 	//
 
-	new Text(this, x1, 46, "Выберите карту", alignTextLT);
+	new Text(this, x1, 46, g_lang->choose_map->Get(), alignTextLT);
 
 	_maps = new MapList(this, x1, 62, x2 - x1, 300);
 	GetManager()->SetFocusWnd(_maps);
@@ -61,38 +62,38 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 	{
 		float y =  56;
 
-		_nightMode = new CheckBox(this, x3, y, "Ночной режим");
+		_nightMode = new CheckBox(this, x3, y, g_lang->night_mode->Get());
 		_nightMode->SetCheck( g_conf->cl_nightmode->Get() );
 
 
-		new Text(this, x3, y+=30, "Скорость игры, %", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->game_speed->Get(), alignTextLT);
 		_gameSpeed = new Edit(this, x4, y+=15, 80);
 		_gameSpeed->SetInt(g_conf->cl_speed->GetInt());
 
-		new Text(this, x3, y+=30, "Лимит фрагов", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->frag_limit->Get(), alignTextLT);
 		_fragLimit = new Edit(this, x4, y+=15, 80);
 		_fragLimit->SetInt(g_conf->cl_fraglimit->GetInt());
 
-		new Text(this, x3, y+=30, "Лимит времени", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->time_limit->Get(), alignTextLT);
 		_timeLimit = new Edit(this, x4, y+=15, 80);
 		_timeLimit->SetInt(g_conf->cl_timelimit->GetInt());
 
-		new Text(this, x3+30, y+=30, "(0 - нет лимита)", alignTextLT);
+		new Text(this, x3+30, y+=30, g_lang->zero_no_limits->Get(), alignTextLT);
 
-		new Text(this, x3, y+=40, "Скорость сети, fps", alignTextLT);
+		new Text(this, x3, y+=40, g_lang->net_server_fps->Get(), alignTextLT);
 		_svFps = new Edit(this, x4, y+=15, 100);
 		_svFps->SetInt(g_conf->sv_fps->GetInt());
 
-		new Text(this, x3, y+=30, "Задержка", alignTextLT);
+		new Text(this, x3, y+=30, g_lang->net_server_latency->Get(), alignTextLT);
 		_svLatency = new Edit(this, x4, y+=15, 100);
 		_svLatency->SetInt(g_conf->sv_latency->GetInt());
 	}
 
 	Button *btn;
-	btn = new Button(this, 544, 410, "Создать");
+	btn = new Button(this, 544, 410, g_lang->net_server_ok->Get());
 	btn->eventClick.bind(&CreateServerDlg::OnOK, this);
 
-	btn = new Button(this, 656, 410, "Отмена");
+	btn = new Button(this, 656, 410, g_lang->net_server_cancel->Get());
 	btn->eventClick.bind(&CreateServerDlg::OnCancel, this);
 }
 
@@ -139,8 +140,7 @@ void CreateServerDlg::OnOK()
 	if( !g_server->init(&gi) )
 	{
 		SAFE_DELETE(g_server);
-		MessageBoxT(g_env.hMainWnd, "Не удалось запустить сервер. "
-			"Проверьте конфигурацию сети", MB_OK|MB_ICONHAND);
+		MessageBoxT(g_env.hMainWnd, "Не удалось запустить сервер. Проверьте конфигурацию сети", MB_OK|MB_ICONHAND);
 		return;
 	}
 
@@ -178,24 +178,25 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 	_auto = (NULL != autoConnect);
 
-	Text *title = new Text(this, GetWidth() / 2, 16, "Соединение с сервером", alignTextCT);
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_connect_title->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
 
-	new Text(this, 20, 65, "Адрес сервера", alignTextLT);
+	new Text(this, 20, 65, g_lang->net_connect_address->Get(), alignTextLT);
 	_name = new Edit(this, 25, 80, 300);
 	_name->SetText(g_conf->cl_server->Get());
 
 
-	new Text(this, 20, 105, "Статус", alignTextLT);
+	new Text(this, 20, 105, g_lang->net_connect_status->Get(), alignTextLT);
 	_status = new List(this, 25, 120, 400, 180);
 
 
-	_btnOK = new Button(this, 312, 350, "Соединение");
+	_btnOK = new Button(this, 312, 350, g_lang->net_connect_ok->Get());
 	_btnOK->eventClick.bind(&ConnectDlg::OnOK, this);
 
-	(new Button(this, 412, 350, "Отмена"))->eventClick.bind(&ConnectDlg::OnCancel, this);
+	(new Button(this, 412, 350, g_lang->net_connect_cancel->Get()))
+		->eventClick.bind(&ConnectDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
 
@@ -232,7 +233,7 @@ void ConnectDlg::OnOK()
 
 	if( !g_client->Connect(_name->GetText().c_str(), g_env.hMainWnd) )
 	{
-		Error("Ошибка сети!");
+		Error(g_lang->net_connect_error->Get());
 	}
 	else
 	{
@@ -265,7 +266,7 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				if( VERSION != gi.dwVersion )
 				{
-					Error("Несовместимая версия сервера");
+					Error(g_lang->net_connect_error_server_version->Get());
 					break;
 				}
 
@@ -275,7 +276,7 @@ void ConnectDlg::OnTimeStep(float dt)
 				g_conf->sv_nightmode->Set(gi.nightmode);
 
 				char msg[MAX_PATH + 32];
-				sprintf(msg, "Загрузка карты '%s'...", gi.cMapName);
+				sprintf(msg, g_lang->net_connect_loading_map_x->Get(), gi.cMapName);
 				_status->AddItem(msg);
 
 				char path[MAX_PATH];
@@ -283,7 +284,7 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				if( CalcCRC32(path) != gi.dwMapCRC32 )
 				{
-					Error("Несовместимая версия карты");
+					Error(g_lang->net_connect_error_map_version->Get());
 					break;
 				}
 
@@ -302,7 +303,7 @@ void ConnectDlg::OnTimeStep(float dt)
 				}
 				else
 				{
-					Error("Не удалось загрузить карту");
+					Error(g_lang->net_connect_error_map->Get());
 					break;
 				}
 
