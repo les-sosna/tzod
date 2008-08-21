@@ -140,7 +140,7 @@ void CreateServerDlg::OnOK()
 	if( !g_server->init(&gi) )
 	{
 		SAFE_DELETE(g_server);
-		MessageBoxT(g_env.hMainWnd, "Не удалось запустить сервер. Проверьте конфигурацию сети", MB_OK|MB_ICONHAND);
+		MessageBoxT(g_env.hMainWnd, g_lang->net_server_error->Get(), MB_OK|MB_ICONHAND);
 		return;
 	}
 
@@ -349,26 +349,26 @@ void ConnectDlg::Error(const char *msg)
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   : Dialog(parent, 680, 512)
 {
-	Text *title = new Text(this, GetWidth() / 2, 16, "Ожидание других игроков", alignTextCT);
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_chatroom_title->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
 
-	new Text(this, 20, 50, "Кто в игре", alignTextLT);
+	new Text(this, 20, 50, g_lang->net_chatroom_players->Get(), alignTextLT);
 	_players = new List(this, 20, 65, 512, 70);
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
 
-	new Text(this, 20, 150, "Боты", alignTextLT);
+	new Text(this, 20, 150, g_lang->net_chatroom_bots->Get(), alignTextLT);
 	_bots = new List(this, 20, 165, 512, 100);
 	_bots->SetTabPos(1, 200);
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
 
-	(new Button(this, 560, 180, "Новый"))->eventClick.bind(&WaitingForPlayersDlg::OnAddBot, this);
+	(new Button(this, 560, 180, g_lang->net_chatroom_bot_new->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnAddBot, this);
 
 
-	new Text(this, 20, 285, "Окно чата", alignTextLT);
+	new Text(this, 20, 285, g_lang->net_chatroom_chat_window->Get(), alignTextLT);
 	_buf = new ConsoleBuffer(80, 500, "chat.txt");
 	_chat = new Console(this, 20, 300, 512, 200, _buf);
 	_chat->SetTexture("ctrl_list");
@@ -376,11 +376,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_chat->eventOnSendCommand.bind(&WaitingForPlayersDlg::OnSendMessage, this);
 
 
-	_btnOK = new Button(this, 560, 450, "Я готов!");
+	_btnOK = new Button(this, 560, 450, g_lang->net_chatroom_ready_button->Get());
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->Enable(false);
 
-	(new Button(this, 560, 480, "Отмена"))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
+	(new Button(this, 560, 480, g_lang->common_cancel->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	PlayerDesc pd;
@@ -488,7 +488,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 				{
 					if( db.cast<dbPlayerReady>().ready )
 					{
-						_players->SetItemText(index, 3, "Готов");
+						_players->SetItemText(index, 3, g_lang->net_chatroom_player_ready->Get());
 					}
 					else
 					{
@@ -519,7 +519,8 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 				if( who == player->GetNetworkID() )
 				{
 					_players->DeleteItem(index);
-					_buf->printf("%s покинул игру.\n", player->GetNick());
+					_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get(), player->GetNick());
+					_buf->printf("\n");
 					player->Kill();
 					break;
 				}
@@ -546,7 +547,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 
 			// team
 			std::ostringstream tmp;
-			tmp << "команда " << ai->GetTeam();
+			tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
 			_bots->SetItemText(index, 2, tmp.str().c_str());
 
 			// level
@@ -580,10 +581,11 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			_players->SetItemText(index, 1, player->GetSkin().c_str());
 
 			std::ostringstream tmp;
-			tmp << "команда " << player->GetTeam();
+			tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
 			_players->SetItemText(index, 2, tmp.str().c_str());
 
-			_buf->printf("%s вошел в игру.\n", player->GetNick().c_str());
+			_buf->printf(g_lang->net_chatroom_player_x_connected->Get(), player->GetNick().c_str());
+			_buf->printf("\n", player->GetNick().c_str());
 
 			_btnOK->Enable(true);
 			break;

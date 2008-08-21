@@ -204,7 +204,7 @@ void GC_Player::TimeStepFixed(float dt)
 			if( !pBestPoint && points.empty() )
 			{
 				char buf[64];
-				wsprintf(buf, g_lang->no_respawns_for_team_x->Get(), _team);
+				wsprintf(buf, g_lang->msg_no_respawns_for_team_x->Get(), _team);
 				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf);
 				return;
 			}

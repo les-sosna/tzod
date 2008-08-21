@@ -33,20 +33,20 @@ namespace UI
 NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
 {
-	Text *header = new Text(this, 128, 20, "Новая карта:", alignTextCT);
+	Text *header = new Text(this, 128, 20, g_lang->newmap_title->Get(), alignTextCT);
 	header->SetTexture("font_default");
 	header->Resize(header->GetTextureWidth(), header->GetTextureHeight());
 
-	new Text(this, 40, 75, "Ширина", alignTextLT);
+	new Text(this, 40, 75, g_lang->newmap_width->Get(), alignTextLT);
 	_width = new Edit(this, 60, 90, 80);
 	_width->SetInt(g_conf->ed_width->GetInt());
 
-	new Text(this, 40, 115, "Высота", alignTextLT);
+	new Text(this, 40, 115, g_lang->newmap_height->Get(), alignTextLT);
 	_height = new Edit(this, 60, 130, 80);
 	_height->SetInt(g_conf->ed_height->GetInt());
 
-	(new Button(this, 20, 200, "ОК"))->eventClick.bind(&NewMapDlg::OnOK, this);
-	(new Button(this, 140, 200, "Отмена"))->eventClick.bind(&NewMapDlg::OnCancel, this);
+	(new Button(this, 20, 200, g_lang->common_ok->Get()))->eventClick.bind(&NewMapDlg::OnOK, this);
+	(new Button(this, 140, 200, g_lang->common_cancel->Get()))->eventClick.bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
 }
@@ -401,21 +401,7 @@ EditorLayout::EditorLayout(Window *parent)
 {
 	SetTexture(NULL);
 
-	_help = new Text(this, 10, 10,
-		"F1                   - справка\n"
-		"F5                   - включить/выключить редактор\n"
-		"F8                   - настройки карты\n"
-		"F9                   - включить/выключить слои\n"
-		"G                    - показать/спрятать сетку\n"
-		"ESC                  - выход в главное меню\n"
-		"Delete               - удалить выделенный объект\n"
-		"Enter                - свойства выделенного объекта\n"
-		"Стрелки              - движение камеры\n"
-		"Колёсико мышки       - выбрать тип объекта\n"
-		"Левая кнопка мышки   - создать объект; действие над объектом\n"
-		"Правая кнопка мышки  - удалить объект\n"
-		"\nУдерживайте Ctrl, чтобы создать объект с параметрами по умолчанию."
-		, alignTextLT);
+	_help = new Text(this, 10, 10, g_lang->f1_help_editor->Get(), alignTextLT);
 	_help->Show(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
@@ -709,7 +695,7 @@ void EditorLayout::OnChangeObject(int index)
 	g_conf->ed_object->SetInt(index);
 
 	std::ostringstream buf;
-	buf << "слой " << Level::GetTypeInfo(_typeList->GetList()->GetItemData(index)).layer << ": ";
+	buf << g_lang->layer->Get() << Level::GetTypeInfo(_typeList->GetList()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(buf.str().c_str());
 }
 

@@ -20,6 +20,7 @@
 #include "Weapons.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "core/Console.h"
 
@@ -352,7 +353,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					// убил себя апстену =)
 					GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf( msg, "%s совершил самоубийство", GetPlayer()->GetNick().c_str() );
+					wsprintf(msg, g_lang->msg_player_x_killed_him_self->Get(), GetPlayer()->GetNick().c_str());
 				}
 				else if( GetPlayer() )
 				{
@@ -362,29 +363,29 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						// убил товарища
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 						font = "font_digits_red";
-						wsprintf( msg, "нехороший %s замочил своего друга %s",
+						wsprintf(msg, g_lang->msg_player_x_killed_his_friend_x->Get(),
 							((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
-							GetPlayer()->GetNick().c_str() );
+							GetPlayer()->GetNick().c_str());
 					}
 					else
 					{
 						// убил врага - молодец!
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 						font = "font_digits_green";
-						wsprintf( msg, "%s замочил своего врага %s",
-							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str() );
+						wsprintf(msg, g_lang->msg_player_x_killed_his_enemy_x->Get(),
+							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str());
 					}
 				}
 				else
 				{
-					// this tank is playerless. score up the killer
+					// this tank does not have player service. score up the killer
 					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 					font = "font_digits_green";
 				}
 
 				if( !veh->GetPlayer()->IsVehicleDead() )
 				{
-					wsprintf( score, "%d", veh->GetPlayer()->GetScore() );
+					wsprintf(score, "%d", veh->GetPlayer()->GetScore());
 					new GC_Text_ToolTip(veh->GetPos(), score, font);
 				}
 			}
@@ -396,11 +397,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 			wsprintf(score, "%d", GetPlayer()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
-			wsprintf(msg, "%s нарвался на неприятности", GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang->msg_player_x_was_killed_by_turret->Get(), GetPlayer()->GetNick().c_str());
 		}
 		else if( GetPlayer() )
 		{
-			wsprintf(msg, "c %s случился несчастный случай", GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang->msg_player_x_died->Get(), GetPlayer()->GetNick().c_str());
 		}
 
 		AddRef();

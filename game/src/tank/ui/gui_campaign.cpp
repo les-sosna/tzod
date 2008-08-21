@@ -12,6 +12,7 @@
 
 #include "fs/FileSystem.h"
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "functions.h"
 
@@ -25,7 +26,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 {
 	PauseGame(true);
 
-	Text *t = new Text(this, GetWidth() / 2, 16, "Новая кампания", alignTextCT);
+	Text *t = new Text(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
 	t->SetTexture("font_default");
 	t->Resize(t->GetTextureWidth(), t->GetTextureHeight());
 
@@ -46,8 +47,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Sort();
 
 
-	(new Button(this, 290, 360, "Начать!"))->eventClick.bind(&NewCampaignDlg::OnOK, this);
-	(new Button(this, 400, 360, "Отмена"))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
+	(new Button(this, 290, 360, g_lang->campaign_ok->Get()))->eventClick.bind(&NewCampaignDlg::OnOK, this);
+	(new Button(this, 400, 360, g_lang->campaign_cancel->Get()))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()

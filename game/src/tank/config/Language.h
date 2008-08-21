@@ -149,6 +149,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_server_latency, "Latency" )
 	CONFIG_VAR_STR( net_server_ok, "Create" )
 	CONFIG_VAR_STR( net_server_cancel, "Cancel" )
+	CONFIG_VAR_STR( net_server_error, "Could not start server. Check your firewall settings." )
 
 	CONFIG_VAR_STR( net_connect_title, "Connect" )
 	CONFIG_VAR_STR( net_connect_address, "Server address" )
@@ -161,13 +162,56 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_connect_error_map_version, "Incompatible map version" )
 	CONFIG_VAR_STR( net_connect_loading_map_x, "Loading map '%s'..." )
 
+	CONFIG_VAR_STR( net_chatroom_title, "Waiting for players" )
+	CONFIG_VAR_STR( net_chatroom_players, "Players" )
+	CONFIG_VAR_STR( net_chatroom_bots, "Bots" )
+	CONFIG_VAR_STR( net_chatroom_bot_new, "New bot" )
+	CONFIG_VAR_STR( net_chatroom_chat_window, "Chat window" )
+	CONFIG_VAR_STR( net_chatroom_ready_button, "I am ready!" )
+	CONFIG_VAR_STR( net_chatroom_player_ready, "Ready" )
+	CONFIG_VAR_STR( net_chatroom_player_x_disconnected, "%s disconnected" )
+	CONFIG_VAR_STR( net_chatroom_player_x_connected, "%s connected" )
+	CONFIG_VAR_STR( net_chatroom_team, "team " )
+
+
+
+
+	CONFIG_VAR_STR( campaign_title, "Start a new campaign" )
+	CONFIG_VAR_STR( campaign_ok, "Let's go!" )
+	CONFIG_VAR_STR( campaign_cancel, "Cancel" )
+
+	CONFIG_VAR_STR( newmap_title, "Create a new map" )
+	CONFIG_VAR_STR( newmap_width, "Width" )
+	CONFIG_VAR_STR( newmap_height, "Height" )
+
+	CONFIG_VAR_STR( layer, "Layer " )
+	CONFIG_VAR_STR( f1_help_editor,
+		"F1                   - this help\n"
+		"F5                   - toggle editor\n"
+		"F8                   - map settings\n"
+		"F9                   - toggle layers\n"
+		"G                    - toggle grid\n"
+		"ESC                  - main menu\n"
+		"Delete               - delete selected object\n"
+		"Enter                - properties\n"
+		"Arrows               - move camera\n"
+		"Mouse wheel scroll   - choose object type to create\n"
+		"Left mouse button    - object create/select/modify\n"
+		"Right mouse button   - delete object\n"
+		"\nPress and hold Ctrl to create object with default properties" )
+
 
 
 	//
 	// in game messages
 	//
 
-	CONFIG_VAR_STR( no_respawns_for_team_x, "There are no respawn points for team %s!" )
+	CONFIG_VAR_STR( msg_no_respawns_for_team_x, "There are no respawn points for team %s!" )
+	CONFIG_VAR_STR( msg_player_x_killed_him_self, "Stupid %s has killed him self" )
+	CONFIG_VAR_STR( msg_player_x_killed_his_friend_x, "%s killed his friend %s" )
+	CONFIG_VAR_STR( msg_player_x_killed_his_enemy_x, "%s killed his enemy %s" )
+	CONFIG_VAR_STR( msg_player_x_was_killed_by_turret, "%s died because of an incident" )
+	CONFIG_VAR_STR( msg_player_x_died, "%s died" )
 
 CONFIG_END(LangCache, g_lang)
 

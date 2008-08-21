@@ -80,10 +80,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		int timeleft = int(g_conf->sv_timelimit->GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
-			if( timeleft % 60 < 10 )
-				wsprintf(text, "Осталось времени %d:0%d", timeleft / 60, timeleft % 60);
-			else
-				wsprintf(text, "Осталось времени %d:%d", timeleft / 60, timeleft % 60);
+			wsprintf(text, "Осталось времени %d:%02d", timeleft / 60, timeleft % 60);
 		}
 		else
 			wsprintf(text, "Достигнут лимит времени");
