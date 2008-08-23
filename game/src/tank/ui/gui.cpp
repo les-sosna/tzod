@@ -326,7 +326,6 @@ void NewGameDlg::OnOK()
 	}
 	else
 	{
-//		MessageBoxT(NULL, "Выберите карту", MB_OK|MB_ICONHAND);
 		return;
 	}
 
@@ -377,8 +376,8 @@ void NewGameDlg::OnOK()
 	}
 	else
 	{
+		// could not load map
 		script_exec(g_env.L, "reset()");
-//		MessageBoxT(NULL, "Ошибка при загрузке карты", MB_OK|MB_ICONHAND);
 		return;
 	}
 

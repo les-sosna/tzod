@@ -109,23 +109,13 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
 	if( !SetCurrentDirectory(lpstrName) )
 	{
 		char s[MAX_PATH];
-		wsprintf(s, "Не найден каталог '%s'. \n\tCоздать его?", lpstrName);
-
-		if( IDYES == MessageBoxT(hDlg, s, MB_YESNO|MB_ICONSTOP) )
+		if( !CreateDirectory(lpstrName, NULL) )
 		{
-			if( !CreateDirectory(lpstrName, NULL) )
-			{
-				wsprintf(s, "Не удается создать каталог %s. Возможно диск переполнен или защищен от записи", lpstrName);
-				MessageBoxT(hDlg, s, MB_OK|MB_ICONSTOP);
-				return FALSE;
-			}
-
-			SetCurrentDirectory(lpstrName);
-		}
-		else
-		{
+			wsprintf(s, "Could not create directory '%s'", lpstrName);
+			MessageBoxT(hDlg, s, MB_OK|MB_ICONSTOP);
 			return FALSE;
 		}
+		SetCurrentDirectory(lpstrName);
 	}
 
 	return TRUE;

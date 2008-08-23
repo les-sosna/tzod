@@ -29,13 +29,13 @@ VOID LoadSurfaces()
 	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
 	{
 		TRACE("WARNING: no textures loaded\n");
-		MessageBox(g_env.hMainWnd, "ой! а что с текстурами?", TXT_VERSION, MB_ICONERROR);
+		MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
 	}
 
 	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
 	{
 		TRACE("WARNING: no skins found\n");
-		MessageBox(g_env.hMainWnd, "ой! а где скины?", TXT_VERSION, MB_ICONERROR);
+		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
 	}
 }
 
@@ -294,7 +294,7 @@ HRESULT InitAll( HWND hWnd )
 
 	if( FAILED(hr = InitDirectInput(hWnd)) )
 	{
-		MessageBox( hWnd, "Ошибка инициализации DirectInput", TXT_VERSION, MB_ICONERROR | MB_OK );
+		MessageBox( hWnd, "Direct Input init error", TXT_VERSION, MB_ICONERROR | MB_OK );
 		return hr;
 	}
 
@@ -303,13 +303,13 @@ HRESULT InitAll( HWND hWnd )
 	{
 		if( FAILED(hr = InitDirectSound(hWnd, true)) )
 		{
-			MessageBox( hWnd, "Ошибка инициализации звука", TXT_VERSION, MB_ICONERROR | MB_OK );
+			MessageBox( hWnd, "Direct Sound init error", TXT_VERSION, MB_ICONERROR | MB_OK );
 		}
 	}
 	catch(LoadSoundException e)
 	{
 		std::ostringstream ss;
-		ss << "Ошибка при загрузке файла " << e.filename;
+		ss << "Could not load file " << e.filename;
 		MessageBox( hWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR | MB_OK );
 		return e.hr;
 	}

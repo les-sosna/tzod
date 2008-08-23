@@ -111,7 +111,6 @@ void CreateServerDlg::OnOK()
 	}
 	else
 	{
-//		MessageBoxT(NULL, "Выберите карту", MB_OK|MB_ICONHAND);
 		return;
 	}
 

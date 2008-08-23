@@ -175,6 +175,45 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 
 
 
+	CONFIG_VAR_STR( settings_title, "Settings" )
+	CONFIG_VAR_STR( settings_profiles, "Profiles" )
+	CONFIG_VAR_STR( settings_profile_new, "Create new" )
+	CONFIG_VAR_STR( settings_profile_edit, "Edit" )
+	CONFIG_VAR_STR( settings_profile_delete, "Delete" )
+	CONFIG_VAR_STR( settings_show_fps, "Show FPS" )
+	CONFIG_VAR_STR( settings_show_time, "Show time" )
+	CONFIG_VAR_STR( settings_show_particles, "Show particles" )
+	CONFIG_VAR_STR( settings_show_damage, "Show damage" )
+	CONFIG_VAR_STR( settings_ask_for_display_mode, "Ask for display mode at startup" )
+	CONFIG_VAR_STR( settings_sfx_volume, "Sfx volume" )
+	CONFIG_VAR_STR( settings_music_volume, "Music volume" )
+
+	CONFIG_VAR_STR( profile_name, "Profile name" )
+	CONFIG_VAR_STR( profile_autoname, "Profile " )
+	CONFIG_VAR_STR( profile_action, "Action" )
+	CONFIG_VAR_STR( profile_key, "Bound key" )
+	CONFIG_VAR_STR( profile_mouse_aim, "Mouse aim" )
+	CONFIG_VAR_STR( profile_mouse_move, "Mouse move" )
+
+	CONFIG_VAR_STR( action_move_forward, "Forward" )
+	CONFIG_VAR_STR( action_move_backward, "Backward" )
+	CONFIG_VAR_STR( action_turn_left, "Turn left" )
+	CONFIG_VAR_STR( action_turn_right, "Turn right" )
+	CONFIG_VAR_STR( action_fire, "Fire" )
+	CONFIG_VAR_STR( action_toggle_lights, "Toggle lights" )
+	CONFIG_VAR_STR( action_tower_left, "Turn weapon left" )
+	CONFIG_VAR_STR( action_tower_right, "Turn weapon right" )
+	CONFIG_VAR_STR( action_tower_center, "Center weapon" )
+	CONFIG_VAR_STR( action_pickup, "Pickup" )
+
+	CONFIG_VAR_STR( map_title, "Map settings" )
+	CONFIG_VAR_STR( map_author, "Author" )
+	CONFIG_VAR_STR( map_email, "E-Mail" )
+	CONFIG_VAR_STR( map_url, "Url" )
+	CONFIG_VAR_STR( map_desc, "Description" )
+	CONFIG_VAR_STR( map_init_script, "on_init script" )
+	CONFIG_VAR_STR( map_theme, "Theme" )
+
 
 	CONFIG_VAR_STR( campaign_title, "Start a new campaign" )
 	CONFIG_VAR_STR( campaign_ok, "Let's go!" )
@@ -207,7 +246,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	//
 
 	CONFIG_VAR_STR( msg_no_respawns_for_team_x, "There are no respawn points for team %s!" )
-	CONFIG_VAR_STR( msg_player_x_killed_him_self, "Stupid %s has killed him self" )
+	CONFIG_VAR_STR( msg_player_x_killed_him_self, "Stupid %s killed him self" )
 	CONFIG_VAR_STR( msg_player_x_killed_his_friend_x, "%s killed his friend %s" )
 	CONFIG_VAR_STR( msg_player_x_killed_his_enemy_x, "%s killed his enemy %s" )
 	CONFIG_VAR_STR( msg_player_x_was_killed_by_turret, "%s died because of an incident" )

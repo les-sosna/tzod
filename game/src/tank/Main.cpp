@@ -389,7 +389,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	} // end if( SUCCEEDED(InitAll(hWnd)) )
 	else
 	{
-		MessageBoxT(NULL, "Ошибка инициализации", MB_ICONERROR);
+		MessageBoxT(NULL, "Game engine init error", MB_ICONERROR);
 	}
 
 	SAFE_DELETE(timer);
@@ -411,7 +411,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 #ifndef _DEBUG
 	if( bGeneralFault )
 	{
-		MessageBoxT(NULL, "Критическая ошибка", MB_ICONERROR);
+		MessageBoxT(NULL, "Critical error: unknown exception", MB_ICONERROR);
 	}
 #endif
 
