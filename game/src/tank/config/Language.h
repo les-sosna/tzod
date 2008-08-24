@@ -139,6 +139,10 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( common_ok, "OK" )
 	CONFIG_VAR_STR( common_cancel, "Cancel" )
 
+	CONFIG_VAR_STR( campaign_title, "Start a new campaign" )
+	CONFIG_VAR_STR( campaign_ok, "Let's go!" )
+	CONFIG_VAR_STR( campaign_cancel, "Cancel" )
+
 
 	//
 	// network
@@ -173,7 +177,15 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_chatroom_player_x_connected, "%s connected" )
 	CONFIG_VAR_STR( net_chatroom_team, "team " )
 
+	CONFIG_VAR_STR( net_msg_connecting, "Connecting..." )
+	CONFIG_VAR_STR( net_msg_connection_failed, "Connection failed." )
+	CONFIG_VAR_STR( net_msg_connection_established, "Connection established" )
+	CONFIG_VAR_STR( net_msg_starting_game, "All players ready. Starting game..." )
 
+
+	//
+	// Settings
+	//
 
 	CONFIG_VAR_STR( settings_title, "Settings" )
 	CONFIG_VAR_STR( settings_profiles, "Profiles" )
@@ -206,6 +218,11 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( action_tower_center, "Center weapon" )
 	CONFIG_VAR_STR( action_pickup, "Pickup" )
 
+
+	//
+	// Editor
+	//
+
 	CONFIG_VAR_STR( map_title, "Map settings" )
 	CONFIG_VAR_STR( map_author, "Author" )
 	CONFIG_VAR_STR( map_email, "E-Mail" )
@@ -213,11 +230,6 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( map_desc, "Description" )
 	CONFIG_VAR_STR( map_init_script, "on_init script" )
 	CONFIG_VAR_STR( map_theme, "Theme" )
-
-
-	CONFIG_VAR_STR( campaign_title, "Start a new campaign" )
-	CONFIG_VAR_STR( campaign_ok, "Let's go!" )
-	CONFIG_VAR_STR( campaign_cancel, "Cancel" )
 
 	CONFIG_VAR_STR( newmap_title, "Create a new map" )
 	CONFIG_VAR_STR( newmap_width, "Width" )
@@ -245,12 +257,19 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	// in game messages
 	//
 
+	CONFIG_VAR_STR( score_time_left_xx, "Time left  %d:%02d" )
+	CONFIG_VAR_STR( score_frags_left_x, "Frags left %d" )
+	CONFIG_VAR_STR( score_time_limit_hit, "Time limit hit" )
+	CONFIG_VAR_STR( score_frag_limit_hit, "Frag limit hit" )
+
 	CONFIG_VAR_STR( msg_no_respawns_for_team_x, "There are no respawn points for team %s!" )
 	CONFIG_VAR_STR( msg_player_x_killed_him_self, "Stupid %s killed him self" )
 	CONFIG_VAR_STR( msg_player_x_killed_his_friend_x, "%s killed his friend %s" )
 	CONFIG_VAR_STR( msg_player_x_killed_his_enemy_x, "%s killed his enemy %s" )
 	CONFIG_VAR_STR( msg_player_x_was_killed_by_turret, "%s died because of an incident" )
 	CONFIG_VAR_STR( msg_player_x_died, "%s died" )
+	CONFIG_VAR_STR( msg_server_quit, "Server quit" )
+	CONFIG_VAR_STR( msg_player_quit, "Player quit" )
 
 CONFIG_END(LangCache, g_lang)
 

@@ -7,6 +7,7 @@
 #include "core/console.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -311,7 +312,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 						pData->pServer->_hAcceptThread = NULL;
 						pData->pServer->_evStopListen = NULL;
 
-						string_t msg = "¬се игроки готовы. «апуск игры...";
+						string_t msg = g_lang->net_msg_starting_game->Get();
 						DataBlock tmp(msg.size()+1);
 						tmp.type() = DBTYPE_TEXTMESSAGE;
 						strcpy((char *) tmp.data(), msg.c_str());
@@ -508,8 +509,8 @@ bool TankServer::TrySendFrame()
 		{
 			if( it->ctrl.empty() )
 			{
-				SERVER_TRACE("нет пакета от %d\n", it->id);
-				break; // от кого-то не поступили данные
+				SERVER_TRACE("no packet from %d\n", it->id);
+				break;
 			}
 			count++;
 		}

@@ -8,6 +8,7 @@
 #include "gc/Player.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "Level.h"
 #include "Macros.h"
@@ -80,10 +81,10 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		int timeleft = int(g_conf->sv_timelimit->GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
-			wsprintf(text, "Осталось времени %d:%02d", timeleft / 60, timeleft % 60);
+			wsprintf(text, g_lang->score_time_left_xx->Get(), timeleft / 60, timeleft % 60);
 		}
 		else
-			wsprintf(text, "Достигнут лимит времени");
+			wsprintf(text, g_lang->score_time_limit_hit->Get());
 
 		_text->SetText(text);
 		_text->SetAlign(alignTextLT);
@@ -100,9 +101,9 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		}
 		int scoreleft = g_conf->sv_fraglimit->GetInt() - max_score;
 		if( scoreleft > 0 )
-			wsprintf(text, "Осталось фрагов  %d", scoreleft);
+			wsprintf(text, g_lang->score_frags_left_x->Get(), scoreleft);
 		else
-			wsprintf(text, "Достигнут лимит фрагов");
+			wsprintf(text, g_lang->score_frag_limit_hit->Get());
 
 		_text->SetText(text);
 		_text->SetAlign(alignTextLT);

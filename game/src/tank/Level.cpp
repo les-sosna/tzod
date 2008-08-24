@@ -14,6 +14,7 @@
 #include "core/Console.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "network/TankClient.h"
 #include "network/TankServer.h"
@@ -1101,7 +1102,7 @@ void Level::TimeStep(float dt)
 						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.data());
 						break;
 					case DBTYPE_SERVERQUIT:
-						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts("Сервер вышел");
+						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_server_quit->Get());
 						break;
 					case DBTYPE_PLAYERQUIT:
 					{
@@ -1113,7 +1114,7 @@ void Level::TimeStep(float dt)
 							{
 								if( p->GetNetworkID() == id )
 								{
-									static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts("игрок вышел");
+									static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_player_quit->Get());
 									p->Kill();
 									break;
 								}

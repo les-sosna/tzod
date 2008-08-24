@@ -8,6 +8,7 @@
 #include "core/Console.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 
 #include "gc/Vehicle.h" // FIXME!
 
@@ -189,7 +190,7 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		return error;
 	}
 
-	Message("Соединение с сервером...");
+	Message(g_lang->net_msg_connecting->Get());
 
 	return true;
 }
@@ -242,7 +243,7 @@ LRESULT TankClient::Mirror(WPARAM wParam, LPARAM lParam)
 	if( WSAGETSELECTERROR(lParam) )
 	{
 		TRACE("network error: %d\n", WSAGETSELECTERROR(lParam));
-		Message("Сбой соединения.", true);
+		Message(g_lang->net_msg_connection_failed->Get(), true);
 		return 0;
 	}
 
@@ -259,7 +260,7 @@ LRESULT TankClient::Mirror(WPARAM wParam, LPARAM lParam)
 			send_all();
 		break;
 	case FD_CONNECT:
-		Message("Обмен данными с сервером...");
+		Message(g_lang->net_msg_connection_established->Get());
 		break;
 	default:
 		_ASSERT(FALSE);

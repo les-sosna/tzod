@@ -480,7 +480,7 @@ size_t ThemeManager::FindTheme(const char *name)
 string_t ThemeManager::GetThemeName(size_t index)
 {
 	if( 0 == index )
-		return "<стандарт>";
+		return "<standard>";
 	return _themes[index-1].fileName.substr(
 		0, _themes[index-1].fileName.size() - 4); // throw off the extension
 }
@@ -488,7 +488,7 @@ string_t ThemeManager::GetThemeName(size_t index)
 bool ThemeManager::ApplyTheme(size_t index)
 {
 	bool res = (g_texman->LoadPackage(FILE_TEXTURES) > 0);
-    if( index > 0 )
+	if( index > 0 )
 	{
 		string_t filename = DIR_THEMES;
 		filename += "\\";

@@ -444,7 +444,7 @@ void MapSettingsDlg::OnOK()
 	}
 	if( !_ThemeManager::Inst().ApplyTheme(i) )
 	{
-//		MessageBoxT(g_env.hMainWnd, "Ошибка при загрузке темы", MB_ICONERROR);
+//		MessageBoxT(g_env.hMainWnd, "Could not apply theme", MB_ICONERROR);
 	}
 
 	Close(_resultOK);

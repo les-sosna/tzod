@@ -64,7 +64,7 @@ static void OnPrintScreen()
 	if( !g_render->TakeScreenshot(name) )
 	{
 		TRACE("ERROR: screen shot failed\n");
-//		_MessageArea::Inst()->message("> ошибка!");
+//		_MessageArea::Inst()->message("> screen shot error!");
 	}
 	else
 	{
