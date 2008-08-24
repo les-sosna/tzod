@@ -844,7 +844,7 @@ GC_FireSpark::GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* o
   , _rotation(frand(10) - 5)
   , _healOwner(false)
 {
-	SetHitDamage(DAMAGE_FIRE / 7);
+	SetHitDamage(DAMAGE_FIRE_HIT);
 	SetTrailDensity(4.5f);
 	SetFrame(rand() % GetFrameCount());
 	_light->SetRadius(0);
@@ -871,6 +871,8 @@ void GC_FireSpark::Serialize(SaveFile &f)
 
 bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
+	SetIgnoreOwner(false); // allow hit owner next time
+
 	vec2d nn(norm.y, -norm.x);
 
 	float v = _velocity.len();
@@ -900,7 +902,8 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 
 	_velocity = nn * (v * 0.9f);
 
-	if( GetAdvanced() && !object->IsKilled() && _owner != object )
+	if( GetAdvanced() && !object->IsKilled() && _owner != object && (g_level->net_rand()&1)
+		&& CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
 	{
 		new GC_HealthDaemon(object, GetRawPtr(_owner), 10.0f, 3.0f);
 	}
@@ -1183,7 +1186,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	static const TextureCache tex1("particle_trace");
 	static const TextureCache tex2("explosion_e");
 
-	ClearFlags(GC_FLAG_PROJECTILE_IGNOREOWNER); // allow hit owner next time
+	SetIgnoreOwner(false); // allow hit owner next time
 
 
 	_velocity -= norm * 2 * (_velocity * norm);

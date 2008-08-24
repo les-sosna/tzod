@@ -171,6 +171,7 @@ protected:
 	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	virtual void Serialize(SaveFile &f);
+	virtual void mapExchange(MapFile &f);
 
 public:
 	GC_PlayerAI();

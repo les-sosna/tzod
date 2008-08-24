@@ -17,6 +17,7 @@ class GC_Vehicle;
 #define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_2DSPRITE_ << 1)
 #define GC_FLAG_PROJECTILE_IGNOREOWNER   (GC_FLAG_2DSPRITE_ << 2)
+#define GC_FLAG_PROJECTILE_              (GC_FLAG_2DSPRITE_ << 3)
 
 class GC_Projectile : public GC_2dSprite
 {
@@ -197,6 +198,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define GC_FLAG_FIRESPARK_SETFIRE      (GC_FLAG_PROJECTILE_ << 0)
+
 class GC_FireSpark : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_FireSpark);
@@ -224,6 +227,10 @@ public:
 
 	void SetHealOwner(bool heal);
 	void SetLifeTime(float t);
+	void SetSetFire(bool setFire)
+	{
+		setFire ? SetFlags(GC_FLAG_FIRESPARK_SETFIRE) : ClearFlags(GC_FLAG_FIRESPARK_SETFIRE);
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1630,6 +1630,7 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 				tmp->TimeStepFixed(_timeShot);
 				tmp->SetLifeTime(_timeFire);
 				tmp->SetHealOwner(_advanced);
+				tmp->SetSetFire(true);
 			}
 		}
 		else

@@ -12,6 +12,7 @@
 
 
 #include "fs/SaveFile.h"
+#include "fs/MapFile.h"
 
 #include "Macros.h"
 #include "Functions.h"
@@ -126,6 +127,12 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 			f.Serialize(*it);
 		}
 	}
+}
+
+void GC_PlayerAI::mapExchange(MapFile &f)
+{
+	GC_Player::mapExchange(f);
+	MAP_EXCHANGE_INT(level, _level, 0);
 }
 
 void GC_PlayerAI::TimeStepFixed(float dt)

@@ -10,6 +10,7 @@
 #include "KeyMapper.h"
 
 #include "fs/SaveFile.h"
+#include "fs/MapFile.h"
 
 #include "network/TankClient.h"
 
@@ -94,6 +95,19 @@ void GC_Player::Serialize(SaveFile &f)
 	f.Serialize(_team);
 	f.Serialize(_timeRespawn);
 	f.Serialize(_vehicle);
+}
+
+void GC_Player::mapExchange(MapFile &f)
+{
+	GC_Service::mapExchange(f);
+	MAP_EXCHANGE_STRING(on_die, _scriptOnDie, "");
+	MAP_EXCHANGE_STRING(on_respawn, _scriptOnRespawn, "");
+	MAP_EXCHANGE_STRING(vehname, _vehname, "");
+	MAP_EXCHANGE_STRING(nick, _nick, "");
+	MAP_EXCHANGE_STRING(skin, _skin, "");
+	MAP_EXCHANGE_STRING(class, _class, "");
+	MAP_EXCHANGE_INT(score, _score, 0);
+	MAP_EXCHANGE_INT(team, _team, 0);
 }
 
 void GC_Player::Kill()
@@ -446,6 +460,17 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 {
 	GC_Player::Serialize(f);
 	f.Serialize(_profile);
+	if( f.loading() )
+	{
+		SetProfile(_profile.c_str());
+		_lastLightKeyState = false;
+	}
+}
+
+void GC_PlayerLocal::mapExchange(MapFile &f)
+{
+	GC_Player::mapExchange(f);
+	MAP_EXCHANGE_STRING(profile, _profile, "");
 	if( f.loading() )
 	{
 		SetProfile(_profile.c_str());
