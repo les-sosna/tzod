@@ -226,9 +226,9 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Trigger::MyPropertySet::Exchange(bool applyToObject)
+void GC_Trigger::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Trigger *tmp = static_cast<GC_Trigger *>(GetObject());
 

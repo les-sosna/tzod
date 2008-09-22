@@ -8,13 +8,151 @@
 
 namespace UI
 {
+
 ///////////////////////////////////////////////////////////////////////////////
+// class ListDataSourceDefault
+
+void ListDataSourceDefault::SetCallback(ListCallback *cb)
+{
+	_callback = cb;
+}
+
+int ListDataSourceDefault::GetItemCount() const
+{
+	return (int) _items.size();
+}
+
+int ListDataSourceDefault::GetSubItemCount(int index) const
+{
+	return _items[index].text.size();
+}
+
+ULONG_PTR ListDataSourceDefault::GetItemData(int index) const
+{
+	_ASSERT(index >= 0);
+	return _items[index].data;
+}
+
+const string_t& ListDataSourceDefault::GetItemText(int index, int sub) const
+{
+	_ASSERT(index >= 0 && index < (int) _items.size());
+	_ASSERT(sub >= 0 && sub < (int) _items[index].text.size());
+	return _items[index].text[sub];
+}
+
+int ListDataSourceDefault::FindItem(const char *text) const
+{
+	for( size_t i = 0; i < _items.size(); ++i )
+	{
+		if( _items[i].text[0] == text )
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int ListDataSourceDefault::AddItem(const char *str, UINT_PTR data)
+{
+	Item i;
+	i.text.push_back(str);
+	i.data = data;
+	_items.push_back(i);
+
+	if( _callback )
+		_callback->OnAddItem();
+
+	return _items.size() - 1;
+}
+
+void ListDataSourceDefault::SetItemText(int index, int sub, const char *str)
+{
+	_ASSERT(index >= 0 && index < (int) _items.size());
+	if( sub >= (int) _items[index].text.size() )
+		_items[index].text.insert(_items[index].text.end(), 1+sub - _items[index].text.size(), "");
+	_items[index].text[sub] = str;
+}
+
+void ListDataSourceDefault::SetItemData(int index, ULONG_PTR data)
+{
+	_ASSERT(index >= 0);
+	_items[index].data = data;
+}
+
+void ListDataSourceDefault::DeleteItem(int index)
+{
+	_items.erase(_items.begin() + index);
+	if( _callback )
+		_callback->OnDeleteItem(index);
+}
+
+void ListDataSourceDefault::DeleteAllItems()
+{
+	_items.clear();
+	if( _callback )
+		_callback->OnDeleteAllItems();
+}
+
+void ListDataSourceDefault::Sort()
+{
+	struct helper
+	{
+		static bool compare(const Item &left, const Item &right)
+		{
+			return left.text < right.text;
+		}
+	};
+	std::sort(_items.begin(), _items.end(), &helper::compare);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// class List::ListCallbackImpl
+
+List::ListCallbackImpl::ListCallbackImpl(List *list)
+  : _list(list)
+{
+	_ASSERT(_list);
+}
+
+void List::ListCallbackImpl::OnDeleteAllItems()
+{
+	_list->_scrollBar->SetLimit(-1);
+	_list->SetCurSel(-1, false);
+}
+
+void List::ListCallbackImpl::OnDeleteItem(int idx)
+{
+	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount() - _list->GetNumLinesVisible());
+	if( -1 != _list->GetCurSel() )
+	{
+		if( _list->GetCurSel() > idx )
+		{
+			_list->SetCurSel(_list->GetCurSel() - 1, false);
+		}
+		else if( _list->GetCurSel() == idx )
+		{
+			_list->SetCurSel(-1, false);
+		}
+	}
+}
+
+void List::ListCallbackImpl::OnAddItem()
+{
+	_list->_scrollBar->SetLimit( (float) _list->_data->GetItemCount() - _list->GetNumLinesVisible() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// class List
 
 List::List(Window *parent, float x, float y, float width, float height)
   : Window(parent, x, y, "ctrl_list")
+  , _callbacks(this)
 {
 	ClipChildren(true);
 	SetBorder(true);
+
+	SetData(NULL);
 	SetTabPos(0, 1); // first column
 
 	_scrollBar = new ScrollBar(this, 0, 0, height);
@@ -35,6 +173,26 @@ List::List(Window *parent, float x, float y, float width, float height)
 	UpdateSelection();
 }
 
+List::~List()
+{
+}
+
+SafePtr<ListDataSource> List::GetData() const
+{
+	return _data;
+}
+
+SafePtr<ListDataSourceDefault> List::GetDataDefault() const
+{
+	return SafePtrCast<ListDataSourceDefault>(_data);
+}
+
+void List::SetData(const SafePtr<ListDataSource> &source)
+{
+	_data = source ? source : WrapRawPtr(new ListDataSourceDefault());
+	_data->SetCallback(&_callbacks);
+}
+
 void List::OnScroll(float pos)
 {
 	UpdateSelection();
@@ -47,54 +205,54 @@ void List::UpdateSelection()
 	_selection->Show(-1 != _curSel && y > -1 && y < GetNumLinesVisible());
 }
 
-void List::DeleteAllItems()
-{
-	_items.clear();
-	_scrollBar->SetLimit(-1);
-	SetCurSel(-1, false);
-}
-
 void List::DeleteItem(int index)
 {
-	_items.erase(_items.begin() + index);
-	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
-	if( -1 != GetCurSel() )
-	{
-		if( GetCurSel() > index )
-		{
-			SetCurSel(GetCurSel() - 1, false);
-		}
-		else if( GetCurSel() == index )
-		{
-			SetCurSel(-1, false);
-		}
-	}
+	GetDataDefault()->DeleteItem(index);
+}
+
+void List::DeleteAllItems()
+{
+	GetDataDefault()->DeleteAllItems();
 }
 
 int List::AddItem(const char *str, UINT_PTR data)
 {
-	Item i;
-	i.text.push_back(str);
-	i.data = data;
-	_items.push_back(i);
-	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
-
-	return _items.size() - 1;
+	return GetDataDefault()->AddItem(str, data);
 }
 
 void List::SetItemText(int index, int sub, const char *str)
 {
-	_ASSERT(index >= 0 && index < (int) _items.size());
-	if( sub >= (int) _items[index].text.size() )
-		_items[index].text.insert(_items[index].text.end(), 1+sub - _items[index].text.size(), "");
-	_items[index].text[sub] = str;
+	GetDataDefault()->SetItemText(index, sub, str);
+}
+
+void List::SetItemData(int index, ULONG_PTR data)
+{
+	GetDataDefault()->SetItemData(index, data);
+}
+
+void List::Sort()
+{
+	GetDataDefault()->Sort();
+}
+
+int List::FindItem(const char *text) const
+{
+	return _data->FindItem(text);
+}
+
+int List::GetItemCount() const
+{
+	return _data->GetItemCount();
 }
 
 const string_t& List::GetItemText(int index, int sub) const
 {
-	_ASSERT(index >= 0 && index < (int) _items.size());
-	_ASSERT(sub >= 0 && sub < (int) _items[index].text.size());
-	return _items[index].text[sub];
+	return _data->GetItemText(index, sub);
+}
+
+ULONG_PTR List::GetItemData(int index) const
+{
+	return _data->GetItemData(index);
 }
 
 void List::SetTabPos(int index, float pos)
@@ -106,26 +264,9 @@ void List::SetTabPos(int index, float pos)
 		_tabs[index] = pos;
 }
 
-void List::SetItemData(int index, ULONG_PTR data)
-{
-	_ASSERT(index >= 0);
-	_items[index].data = data;
-}
-
-ULONG_PTR List::GetItemData(int index)
-{
-	_ASSERT(index >= 0);
-	return _items[index].data;
-}
-
 float List::GetItemHeight() const
 {
 	return _blankText->GetHeight() + 1;
-}
-
-int List::GetSize() const
-{
-	return (int) _items.size();
 }
 
 int List::GetCurSel() const
@@ -135,7 +276,7 @@ int List::GetCurSel() const
 
 void List::SetCurSel(int sel, bool scroll)
 {
-	if( 0 == GetSize() )
+	if( 0 == _data->GetItemCount() )
 	{
 		sel = -1;
 	}
@@ -161,7 +302,7 @@ void List::SetCurSel(int sel, bool scroll)
 int List::HitTest(float y)
 {
 	int index = int( y / GetItemHeight() + _scrollBar->GetPos() );
-	if( index < 0 || index >= (int) _items.size() )
+	if( index < 0 || index >= _data->GetItemCount() )
 	{
 		index = -1;
 	}
@@ -173,38 +314,19 @@ float List::GetNumLinesVisible() const
 	return GetHeight() / GetItemHeight();
 }
 
-void List::ScrollTo(float pos)
+float List::GetScrollPos() const
+{
+	return _scrollBar->GetPos();
+}
+
+void List::SetScrollPos(float pos)
 {
 	_scrollBar->SetPos(pos);
 }
 
 void List::AlignHeightToContent(float maxHeight)
 {
-	Resize(GetWidth(), __min(maxHeight, GetItemHeight() * (float) GetSize()));
-}
-
-void List::Sort()
-{
-	struct helper
-	{
-		static bool compare(const Item &left, const Item &right)
-		{
-			return left.text < right.text;
-		}
-	};
-	std::sort(_items.begin(), _items.end(), &helper::compare);
-}
-
-int List::FindItem(const char *text) const
-{
-	for( size_t i = 0; i < _items.size(); ++i )
-	{
-		if( _items[i].text[0] == text )
-		{
-			return i;
-		}
-	}
-	return -1;
+	Resize(GetWidth(), __min(maxHeight, GetItemHeight() * (float) _data->GetItemCount()));
 }
 
 void List::OnSize(float width, float height)
@@ -212,7 +334,7 @@ void List::OnSize(float width, float height)
 	_selection->Resize(width, _selection->GetHeight());
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetLimit( (float) _items.size() - GetNumLinesVisible() );
+	_scrollBar->SetLimit( (float) _data->GetItemCount() - GetNumLinesVisible() );
 	UpdateSelection();
 }
 
@@ -243,19 +365,19 @@ void List::OnRawChar(int c)
 		SetCurSel(__max(0, GetCurSel() - 1), true);
 		break;
 	case VK_DOWN:
-		SetCurSel(__min(GetSize() - 1, GetCurSel() + 1), true);
+		SetCurSel(__min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
 		break;
 	case VK_HOME:
 		SetCurSel(0, true);
 		break;
 	case VK_END:
-		SetCurSel(GetSize() - 1, true);
+		SetCurSel(_data->GetItemCount() - 1, true);
 		break;
 	case VK_PRIOR: // page up
 		SetCurSel(__max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
 		break;
 	case VK_NEXT:  // page down
-		SetCurSel(__min(GetSize() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
+		SetCurSel(__min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -274,11 +396,11 @@ void List::DrawChildren(float sx, float sy)
 
 	Window::DrawChildren(sx, sy);
 
-	size_t i_min = (size_t) _scrollBar->GetPos();
-	size_t i_max = i_min + (size_t) GetNumLinesVisible() + 2;
+	int i_min = (int) _scrollBar->GetPos();
+	int i_max = i_min + (int) GetNumLinesVisible() + 2;
 
 	_blankText->Show(true);
-    for( size_t i = i_min; i < __min(_items.size(), i_max); ++i )
+    for( int i = i_min; i < __min(_data->GetItemCount(), i_max); ++i )
 	{
 		SpriteColor c = 0xc0c0c0c0;
 		float c1 = 192;
@@ -293,10 +415,10 @@ void List::DrawChildren(float sx, float sy)
 		_blankText->SetColor(c);
 
 		y = floorf(y * GetItemHeight() + 0.5f);
-		for( size_t k = 0; k < _items[i].text.size(); ++k )
+		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
 		{
-			_blankText->SetText(_items[i].text[k].c_str());
-			_blankText->Draw(sx + _tabs[__min(k, _tabs.size()-1)], sy + y );
+			_blankText->SetText(_data->GetItemText(i, k).c_str());
+			_blankText->Draw(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y );
 		}
 	}
 	_blankText->Show(false);

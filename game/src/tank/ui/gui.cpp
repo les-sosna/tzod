@@ -185,7 +185,7 @@ void NewGameDlg::RefreshPlayersList()
 		_players->SetItemText(index, 3, s);
 	}
 
-	_players->SetCurSel(__min(selected, _players->GetSize()-1));
+	_players->SetCurSel(__min(selected, _players->GetData()->GetItemCount()-1));
 }
 
 void NewGameDlg::RefreshBotsList()
@@ -215,7 +215,7 @@ void NewGameDlg::RefreshBotsList()
 		_bots->SetItemText(index, 3, s);
 	}
 
-	_bots->SetCurSel(__min(selected, _bots->GetSize()-1));
+	_bots->SetCurSel(__min(selected, _bots->GetData()->GetItemCount() - 1));
 }
 
 void NewGameDlg::OnAddPlayer()

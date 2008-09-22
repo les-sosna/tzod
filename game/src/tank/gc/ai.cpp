@@ -1412,9 +1412,9 @@ ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_PlayerAI::MyPropertySet::Exchange(bool applyToObject)
+void GC_PlayerAI::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_PlayerAI *tmp = static_cast<GC_PlayerAI *>(GetObject());
 

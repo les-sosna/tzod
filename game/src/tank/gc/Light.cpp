@@ -313,9 +313,9 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Spotlight::MyPropertySet::Exchange(bool applyToObject)
+void GC_Spotlight::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Spotlight *tmp = static_cast<GC_Spotlight *>(GetObject());
 

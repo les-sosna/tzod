@@ -52,9 +52,9 @@ ObjectProperty* GC_Weapon::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Weapon::MyPropertySet::Exchange(bool applyToObject)
+void GC_Weapon::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Weapon *obj = static_cast<GC_Weapon*>(GetObject());
 	if( applyToObject )

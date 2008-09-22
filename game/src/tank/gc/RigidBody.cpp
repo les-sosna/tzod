@@ -197,9 +197,9 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyStatic::MyPropertySet::Exchange(bool applyToObject)
+void GC_RigidBodyStatic::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_RigidBodyStatic *tmp = static_cast<GC_RigidBodyStatic *>(GetObject());
 
@@ -515,9 +515,9 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Wall::MyPropertySet::Exchange(bool applyToObject)
+void GC_Wall::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Wall *tmp = static_cast<GC_Wall *>(GetObject());
 

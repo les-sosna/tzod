@@ -97,7 +97,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	ClipChildren(true);
 }
 
-void PropertyList::Exchange(bool applyToObject)
+void PropertyList::DoExchange(bool applyToObject)
 {
 	int focus = -1;
 
@@ -245,7 +245,7 @@ void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
 {
 	if( _ps == ps ) return;
 	_ps = ps;
-	Exchange(false);
+	DoExchange(false);
 }
 
 void PropertyList::OnScroll(float pos)
@@ -266,7 +266,7 @@ void PropertyList::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_RETURN:
-		Exchange(true);
+		DoExchange(true);
 		_ps->SaveToConfig();
 		break;
 	case VK_ESCAPE:
@@ -290,6 +290,7 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, h, w, false)
   , _margins(5)
+  , _ignoreSelectService(false)
 {
 	_labelService = new Text(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
 	_labelName = new Text(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
@@ -319,11 +320,20 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 	Move(x, y);
 	Resize(w, h);
 	SetEasyMove(true);
+
+	_ASSERT(!GetEditorLayout()->eventOnChangeSelection);
+	GetEditorLayout()->eventOnChangeSelection.bind(&ServiceList::OnChangeSelectionGlobal, this);
+}
+
+ServiceList::~ServiceList()
+{
+	_ASSERT(GetEditorLayout()->eventOnChangeSelection);
+	GetEditorLayout()->eventOnChangeSelection.clear();
 }
 
 void ServiceList::UpdateList()
 {
-//	ULONG_PTR sel = (-1 != _list->GetCurSel()) ? _list->GetItemData(_list->GetCurSel()) : 0;
+	float pos = _list-> GetScrollPos();
 	_list->DeleteAllItems();
 	FOREACH(g_level->GetList(LIST_services), GC_Object, service)
 	{
@@ -332,6 +342,26 @@ void ServiceList::UpdateList()
 		const char *name = service->GetName();
 		_list->SetItemText(i, 1, name ? name : "");
 	}
+	_list->SetScrollPos(pos);
+}
+
+void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
+{
+//	int last = _list->GetCurSel();
+	_ignoreSelectService = true;
+	UpdateList();
+	if( obj )
+	{
+		for( int i = 0; i < _list->GetItemCount(); ++i )
+		{
+			if( _list->GetItemData(i) == (ULONG_PTR) obj )
+			{
+				_list->SetCurSel(i, true);
+				break;
+			}
+		}
+	}
+	_ignoreSelectService = false;
 }
 
 EditorLayout* ServiceList::GetEditorLayout() const
@@ -352,13 +382,16 @@ void ServiceList::OnCreateService()
 
 void ServiceList::OnSelectService(int i)
 {
-	if( -1 == i )
+	if( !_ignoreSelectService )
 	{
-		GetEditorLayout()->SelectNone();
-	}
-	else
-	{
-		GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
+		if( -1 == i )
+		{
+			GetEditorLayout()->SelectNone();
+		}
+		else
+		{
+			GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
+		}
 	}
 }
 
@@ -378,11 +411,6 @@ void ServiceList::OnRawChar(int c)
 {
 	switch(c)
 	{
-//	case VK_RETURN:
-//		Exchange(true);
-//		_ps->SaveToConfig();
-//		break;
-
 	case 'S':
 	case VK_ESCAPE:
 		g_conf->ed_showservices->Set(false);
@@ -398,6 +426,7 @@ void ServiceList::OnRawChar(int c)
 
 EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
+  , _selectedObject(NULL)
 {
 	SetTexture(NULL);
 
@@ -424,7 +453,7 @@ EditorLayout::EditorLayout(Window *parent)
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	ls->Sort();
-	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObject, this);
+	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel( g_conf->ed_object->GetInt() );
 
 	_selectionRect = new Window(this, 0, 0, "selection");
@@ -432,7 +461,6 @@ EditorLayout::EditorLayout(Window *parent)
 	_selectionRect->Show(false);
 	_selectionRect->BringToBack();
 
-	_selectedObject = NULL;
 	_isObjectNew = false;
 	_click = true;
 	_mbutton = 0;
@@ -459,7 +487,7 @@ void EditorLayout::OnMoveSelected(GC_Object *sender, void *param)
 
 void EditorLayout::Select(GC_Object *object, bool bSelect)
 {
-	_ASSERT(NULL != object);
+	_ASSERT(object);
 
 	if( bSelect )
 	{
@@ -471,13 +499,10 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			}
 
 			_selectedObject = object;
-			if( _selectedObject )
+			_propList->ConnectTo(_selectedObject->GetProperties());
+			if( g_conf->ed_showproperties->Get() )
 			{
-				_propList->ConnectTo(_selectedObject->GetProperties());
-				if( g_conf->ed_showproperties->Get() )
-				{
-					_propList->Show(true);
-				}
+				_propList->Show(true);
 			}
 		}
 	}
@@ -491,6 +516,9 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_selectionRect->Show(false);
 		_propList->Show(false);
 	}
+
+	if( eventOnChangeSelection )
+		INVOKE(eventOnChangeSelection)(_selectedObject);
 }
 
 void EditorLayout::SelectNone()
@@ -509,7 +537,7 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	}
 	if( z < 0 )
 	{
-		_typeList->SetCurSel( __min(_typeList->GetList()->GetSize()-1, _typeList->GetCurSel() + 1) );
+		_typeList->SetCurSel( __min(_typeList->GetList()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
 	}
 	return true;
 }
@@ -575,7 +603,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 				if( _click && _selectedObject == object )
 				{
 					object->EditorAction();
-					_propList->Exchange(false);
+					_propList->DoExchange(false);
 					if( _isObjectNew )
 					{
 						// save properties for new object
@@ -684,13 +712,11 @@ void EditorLayout::OnShow(bool show)
 {
 	if( !show )
 	{
-		_propList->ConnectTo(NULL);
-		_propList->Show(false);
-		_selectedObject = NULL;
+		SelectNone();
 	}
 }
 
-void EditorLayout::OnChangeObject(int index)
+void EditorLayout::OnChangeObjectType(int index)
 {
 	g_conf->ed_object->SetInt(index);
 

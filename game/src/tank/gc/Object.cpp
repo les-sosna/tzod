@@ -236,7 +236,7 @@ ObjectProperty* PropertySet::GetProperty(int index)
 	return &_propName;
 }
 
-void PropertySet::Exchange(bool applyToObject)
+void PropertySet::MyExchange(bool applyToObject)
 {
 	if( applyToObject )
 	{
@@ -256,6 +256,13 @@ void PropertySet::Exchange(bool applyToObject)
 		const char *name = GetObject()->GetName();
 		_propName.SetStringValue( name ? name : "" );
 	}
+}
+
+void PropertySet::Exchange(bool applyToObject)
+{
+	MyExchange(applyToObject);
+	if( eventExchange )
+		INVOKE(eventExchange)(applyToObject);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -654,7 +661,7 @@ void GC_Object::EditorAction()
 SafePtr<PropertySet> GC_Object::GetProperties()
 {
 	SafePtr<PropertySet> ps(NewPropertySet());
-	ps->Exchange(false); // get data from object
+	ps->Exchange(false); // fill property set with data from object
 	return ps;
 }
 

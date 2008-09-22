@@ -60,9 +60,9 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyDynamic::MyPropertySet::Exchange(bool applyToObject)
+void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_RigidBodyDynamic *tmp = static_cast<GC_RigidBodyDynamic *>(GetObject());
 	if( applyToObject )

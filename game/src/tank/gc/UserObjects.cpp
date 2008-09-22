@@ -104,9 +104,9 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_UserObject::MyPropertySet::Exchange(bool applyToObject)
+void GC_UserObject::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_UserObject *tmp = static_cast<GC_UserObject *>(GetObject());
 
@@ -258,9 +258,9 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Decoration::MyPropertySet::Exchange(bool applyToObject)
+void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Decoration *tmp = static_cast<GC_Decoration *>(GetObject());
 

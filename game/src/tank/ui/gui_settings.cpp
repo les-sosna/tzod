@@ -182,7 +182,7 @@ void SettingsDlg::UpdateProfilesList()
 	{
 		int index = _profiles->AddItem(profiles[i].c_str());
 	}
-	_profiles->SetCurSel(__min(_profiles->GetSize()-1, sel));
+	_profiles->SetCurSel(__min(_profiles->GetItemCount()-1, sel));
 }
 
 void SettingsDlg::OnProfileEditorClosed(int code)
@@ -292,7 +292,7 @@ void ControlProfileDlg::OnOK()
 
 	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
 	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
-	for( int i = 0; i < _actions->GetSize(); ++i )
+	for( int i = 0; i < _actions->GetItemCount(); ++i )
 	{
 		_profile->SetStr((const char *) _actions->GetItemData(i),
 			_actions->GetItemText(i, 1).c_str());

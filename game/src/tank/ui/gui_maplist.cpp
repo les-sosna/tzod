@@ -61,7 +61,7 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 
 	int selected = FindItem(g_conf->cl_map->Get());
 	SetCurSel(selected, false);
-	ScrollTo(selected - (GetNumLinesVisible() - 1) * 0.5f);
+	SetScrollPos(selected - (GetNumLinesVisible() - 1) * 0.5f);
 }
 
 MapList::~MapList()

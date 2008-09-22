@@ -36,7 +36,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool applyToObject);
+		virtual void MyExchange(bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
@@ -152,7 +152,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool applyToObject);
+		virtual void MyExchange(bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 

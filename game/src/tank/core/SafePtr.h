@@ -68,6 +68,13 @@ public:
 		return SafePtr(p);
 	}
 
+	template<class U>
+	inline friend SafePtr<U> SafePtrCast(const SafePtr &src)
+	{
+		_ASSERT(!src._ptr || dynamic_cast<U*>(src._ptr));
+		return WrapRawPtr(static_cast<U*>(src._ptr));
+	}
+
 
 	//
 	// destruction

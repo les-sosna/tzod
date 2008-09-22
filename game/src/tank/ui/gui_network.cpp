@@ -471,7 +471,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		case DBTYPE_PLAYERREADY:
 		{
 			int count = g_level->GetList(LIST_players).size();
-			_ASSERT(_players->GetSize() <= count); // count includes bots
+			_ASSERT(_players->GetItemCount() <= count); // count includes bots
 
 			const DWORD who = db.cast<dbPlayerReady>().player_id;
 
@@ -503,7 +503,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 		case DBTYPE_PLAYERQUIT:
 		{
 			int count = g_level->GetList(LIST_players).size();
-			_ASSERT(_players->GetSize() == count);
+			_ASSERT(_players->GetItemCount() == count);
 
 			const DWORD who = db.cast<DWORD>();
 

@@ -47,7 +47,7 @@ class PropertyList : public Dialog
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h);
 	void ConnectTo(const SafePtr<PropertySet> &ps);
-	void Exchange(bool applyToObject);
+	void DoExchange(bool applyToObject);
 
 protected:
 	void OnScroll(float pos);
@@ -69,12 +69,16 @@ class ServiceList : public Dialog
 	Button *_btnCreate;
 
 	float _margins;
+	bool _ignoreSelectService;
 
 public:
 	ServiceList(Window *parent, float x, float y, float w, float h);
+	~ServiceList();
 	void UpdateList();
 
 protected:
+	void OnChangeSelectionGlobal(GC_Object *obj);
+
 	void OnCreateService();
 	void OnSelectService(int i);
 	EditorLayout* GetEditorLayout() const;
@@ -110,6 +114,8 @@ public:
 	void Select(GC_Object *object, bool bSelect);
 	void SelectNone();
 
+	Delegate<void(GC_Object*)> eventOnChangeSelection;
+
 protected:
 	void DrawChildren(float sx, float sy);
 
@@ -122,7 +128,7 @@ protected:
 	void OnSize(float width, float height);
 	void OnShow(bool show);
 
-	void OnChangeObject(int index);
+	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
 };
 

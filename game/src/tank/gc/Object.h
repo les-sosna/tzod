@@ -160,6 +160,7 @@ class PropertySet : public RefCounted
 
 protected:
 	GC_Object* GetObject() const;
+	virtual void MyExchange(bool applyToObject);
 
 public:
 	PropertySet(GC_Object *object);
@@ -167,10 +168,12 @@ public:
 	const char* GetTypeName() const;
 	void LoadFromConfig();
 	void SaveToConfig();
+	void Exchange(bool applyToObject);
+
+	Delegate<void(bool)> eventExchange;
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
-	virtual void Exchange(bool applyToObject);
 };
 
 ////////////////////////////////////////////////////////////

@@ -11,61 +11,112 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // multi-column ListBox control
 
-class List : public Window
+interface ListCallback
+{
+	virtual void OnDeleteAllItems() = 0;
+	virtual void OnDeleteItem(int idx) = 0;
+	virtual void OnAddItem() = 0;
+};
+
+class ListDataSource : public RefCounted
 {
 public:
+	virtual void SetCallback(ListCallback *cb) = 0;
+
+	virtual int GetItemCount() const = 0;
+	virtual int GetSubItemCount(int index) const = 0;
+	virtual ULONG_PTR GetItemData(int index) const = 0;
+	virtual const string_t& GetItemText(int index, int sub) const = 0;
+	virtual int FindItem(const char *text) const = 0;
+};
+
+class ListDataSourceDefault : public ListDataSource
+{
+public:
+	// ListDataSource interface
+	virtual void SetCallback(ListCallback *cb);
+	virtual int GetItemCount() const;
+	virtual int GetSubItemCount(int index) const;
+	virtual ULONG_PTR GetItemData(int index) const;
+	virtual const string_t& GetItemText(int index, int sub) const;
+	virtual int FindItem(const char *text) const;
+
+	// extra
+	int  AddItem(const char *str, UINT_PTR data = 0);
+	void SetItemText(int index, int sub, const char *str);
+	void SetItemData(int index, ULONG_PTR data);
+	void DeleteItem(int index);
+	void DeleteAllItems();
+	void Sort();
+
+
+private:
 	struct Item
 	{
 		std::vector<string_t>  text;
 		UINT_PTR               data;
 	};
-
-private:
 	std::vector<Item>  _items;
-	std::vector<float> _tabs;
+	ListCallback *_callback;
+};
 
-	ScrollBar *_scrollBar;
-	Text      *_blankText; // used for text drawing
-	Window    *_selection;
 
-	int        _curSel;
-
-	void OnScroll(float pos);
-	void UpdateSelection();
-
+class List : public Window
+{
 public:
 	List(Window *parent, float x, float y, float width, float height);
+	virtual ~List();
 
-	void DeleteAllItems();
-	void DeleteItem(int index);
+	SafePtr<ListDataSourceDefault> GetDataDefault() const;
+	SafePtr<ListDataSource> GetData() const;
+	void SetData(const SafePtr<ListDataSource> &source);
 
-	int   AddItem(const char *str, UINT_PTR data = 0);
-	void  SetItemText(int index, int sub, const char *str);
+	float GetScrollPos() const;
+	void SetScrollPos(float pos);
+
 	float GetItemHeight() const;
-	const string_t& GetItemText(int index, int sub = 0) const;
+	float GetNumLinesVisible() const;
+	void AlignHeightToContent(float maxHeight = 512);
+	int HitTest(float y); // returns index of item
 
-	void SetTabPos(int index, float pos);
-
-	void SetItemData(int index, ULONG_PTR data);
-	ULONG_PTR GetItemData(int index);
-
-	int  GetSize() const;
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
 
-	int  HitTest(float y); // returns index of item
+	void SetTabPos(int index, float pos);
 
-	float GetNumLinesVisible() const;
-	void ScrollTo(float pos);
-
-	void AlignHeightToContent(float maxHeight = 512);
-
-	void Sort();
+	// these functions are directed to ListDataSource interface
+	int GetItemCount() const;
+	int GetSubItemCount(int index) const;
+	ULONG_PTR GetItemData(int index) const;
+	const string_t& GetItemText(int index, int sub = 0) const;
 	int FindItem(const char *text) const;
 
+	// these functions are directed to ListDataSourceDefault interface (if available one)
+	int  AddItem(const char *str, UINT_PTR data = 0);
+	void SetItemText(int index, int sub, const char *str);
+	void SetItemData(int index, ULONG_PTR data);
+	void DeleteItem(int index);
+	void DeleteAllItems();
+	void Sort();
+
+	// list events
 	Delegate<void(int)> eventChangeCurSel;
 	Delegate<void(int)> eventClickItem;
 
+protected:
+	// callback interface
+	class ListCallbackImpl : public ListCallback
+	{
+	public:
+		ListCallbackImpl(List *list);
+	private:
+		virtual void OnDeleteAllItems();
+		virtual void OnDeleteItem(int idx);
+		virtual void OnAddItem();
+		List *_list;
+	};
+
+	ListCallbackImpl _callbacks;
 
 protected:
 	virtual void OnSize(float width, float height);
@@ -75,6 +126,20 @@ protected:
 	virtual bool OnFocus(bool focus);
 
 	virtual void DrawChildren(float sx, float sy);
+
+private:
+	void OnScroll(float pos);
+	void UpdateSelection();
+
+	SafePtr<ListDataSource> _data;
+
+	std::vector<float> _tabs;
+
+	ScrollBar *_scrollBar;
+	Text      *_blankText; // used for text drawing
+	Window    *_selection;
+
+	int        _curSel;
 };
 
 

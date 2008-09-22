@@ -340,9 +340,9 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Player::MyPropertySet::Exchange(bool applyToObject)
+void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Player *tmp = static_cast<GC_Player *>(GetObject());
 
@@ -711,9 +711,9 @@ ObjectProperty* GC_PlayerLocal::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_PlayerLocal::MyPropertySet::Exchange(bool applyToObject)
+void GC_PlayerLocal::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_PlayerLocal *tmp = static_cast<GC_PlayerLocal *>(GetObject());
 

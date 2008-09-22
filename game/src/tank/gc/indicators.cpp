@@ -112,9 +112,9 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_SpawnPoint::MyPropertySet::Exchange(bool applyToObject)
+void GC_SpawnPoint::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_SpawnPoint *tmp = static_cast<GC_SpawnPoint *>(GetObject());
 

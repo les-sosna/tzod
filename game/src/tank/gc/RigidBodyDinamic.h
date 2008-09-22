@@ -58,7 +58,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void Exchange(bool applyToObject);
+		virtual void MyExchange(bool applyToObject);
 	};
 
 public:

@@ -299,9 +299,9 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Pickup::MyPropertySet::Exchange(bool applyToObject)
+void GC_Pickup::MyPropertySet::MyExchange(bool applyToObject)
 {
-	BASE::Exchange(applyToObject);
+	BASE::MyExchange(applyToObject);
 
 	GC_Pickup *obj = static_cast<GC_Pickup*>(GetObject());
 	if( applyToObject )

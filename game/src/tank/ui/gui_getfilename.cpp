@@ -81,7 +81,7 @@ void GetFileNameDlg::OnChangeName()
 	_changing = true;
 	size_t match = 0;
 	string_t txt = _fileName->GetText();
-	for( int i = 0; i < _files->GetSize(); ++i )
+	for( int i = 0; i < _files->GetItemCount(); ++i )
 	{
 		string_t fn = _files->GetItemText(i);
 		size_t n = 0;
