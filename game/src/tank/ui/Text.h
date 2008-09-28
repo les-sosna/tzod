@@ -22,10 +22,10 @@ private:
 	void OnSize(float width, float height);
 
 public:
-	Text(Window *parent, float x, float y, const char *text, enumAlignText align);
+	Text(Window *parent, float x, float y, const string_t &text, enumAlignText align);
 
-	void SetText(const char *text);
-	const char* GetText() const { return _text.c_str(); }
+	void SetText(const string_t &text);
+	const string_t& GetText() const { return _text; }
 	void SetAlign(enumAlignText align);
 
 	float GetTextWidth();

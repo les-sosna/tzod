@@ -97,7 +97,7 @@ void ButtonBase::OnEnable(bool enable)
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
 
-Button::Button(Window *parent, float x, float y, const char *text)
+Button::Button(Window *parent, float x, float y, const string_t &text)
   : ButtonBase(parent, x, y, "ctrl_button")
 {
 	_label = new Text(this, 0, 0, text, alignTextCC );
@@ -131,7 +131,7 @@ void ImageButton::OnChangeState(State state)
 ///////////////////////////////////////////////////////////////////////////////
 // CheckBox class implementation
 
-CheckBox::CheckBox(Window *parent, float x, float y, const char *text)
+CheckBox::CheckBox(Window *parent, float x, float y, const string_t &text)
   : ButtonBase(parent, x, y, "ctrl_checkbox")
 {
 	_label = new Text(this, GetTextureWidth(), GetTextureHeight()/2, text, alignTextLC );
@@ -144,12 +144,12 @@ void CheckBox::SetCheck(bool checked)
 	SetFrame(_isChecked ? GetState()+4 : GetState());
 }
 
-void CheckBox::SetText(const char *text)
+void CheckBox::SetText(const string_t &text)
 {
 	_label->SetText(text);
 }
 
-const char* CheckBox::GetText() const
+const string_t& CheckBox::GetText() const
 {
 	return _label->GetText();
 }

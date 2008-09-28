@@ -81,10 +81,10 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		int timeleft = int(g_conf->sv_timelimit->GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
-			wsprintf(text, g_lang->score_time_left_xx->Get(), timeleft / 60, timeleft % 60);
+			wsprintf(text, g_lang->score_time_left_xx->Get().c_str(), timeleft / 60, timeleft % 60);
 		}
 		else
-			wsprintf(text, g_lang->score_time_limit_hit->Get());
+			wsprintf(text, g_lang->score_time_limit_hit->Get().c_str());
 
 		_text->SetText(text);
 		_text->SetAlign(alignTextLT);
@@ -101,9 +101,9 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		}
 		int scoreleft = g_conf->sv_fraglimit->GetInt() - max_score;
 		if( scoreleft > 0 )
-			wsprintf(text, g_lang->score_frags_left_x->Get(), scoreleft);
+			wsprintf(text, g_lang->score_frags_left_x->Get().c_str(), scoreleft);
 		else
-			wsprintf(text, g_lang->score_frag_limit_hit->Get());
+			wsprintf(text, g_lang->score_frag_limit_hit->Get().c_str());
 
 		_text->SetText(text);
 		_text->SetAlign(alignTextLT);

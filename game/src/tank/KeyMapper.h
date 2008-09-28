@@ -14,7 +14,7 @@ public:
 	~KeyMapper();
 
 	string_t GetName(int code) const;
-	int GetCode(const char *name) const;
+	int GetCode(const string_t &name) const;
 };
 
 // end of file

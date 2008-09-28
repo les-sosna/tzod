@@ -49,11 +49,13 @@ MapFile::~MapFile(void)
 	if( is_open() ) Close();
 }
 
-bool MapFile::Open(const char *filename, bool write)
+bool MapFile::Open(const string_t &filename, bool write)
 {
 	_ASSERT(!is_open());
 
-	if( NULL == (_file = fopen(filename, write ? "wb" : "rb")) )
+	_file = fopen(filename.c_str(), write ? "wb" : "rb");
+
+	if( !_file )
 		return false;
 
 
@@ -88,7 +90,7 @@ bool MapFile::Open(const char *filename, bool write)
 				ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(int);
 				if( !_write_chunk_header(ch) )
 					throw false;
-                WriteInt(DATATYPE_INT);
+				WriteInt(DATATYPE_INT);
 				WriteString(it->first);
 				WriteInt(it->second);
 			}
@@ -99,7 +101,7 @@ bool MapFile::Open(const char *filename, bool write)
 				ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(float);
 				if( !_write_chunk_header(ch) )
 					throw false;
-                WriteInt(DATATYPE_FLOAT);
+				WriteInt(DATATYPE_FLOAT);
 				WriteString(it->first);
 				WriteFloat(it->second);
 			}
@@ -180,15 +182,15 @@ bool MapFile::Open(const char *filename, bool write)
 						{
 						case DATATYPE_INT:
 							if( !ReadInt(value_int) ) throw false;
-							setMapAttribute(name.c_str(), value_int);
+							setMapAttribute(name, value_int);
 							break;
 						case DATATYPE_FLOAT:
 							if( !ReadFloat(value_float) ) throw false;
-							setMapAttribute(name.c_str(), value_float);
+							setMapAttribute(name, value_float);
 							break;
 						case DATATYPE_STRING:
 							if( !ReadString(value_str) ) throw false;
-							setMapAttribute(name.c_str(), value_str);
+							setMapAttribute(name, value_str);
 							break;
 						default:
 							_ASSERT(0);
@@ -263,7 +265,7 @@ bool MapFile::ReadString(string_t &value)
     return result;
 }
 
-bool MapFile::getMapAttribute(const char *name, int &value) const
+bool MapFile::getMapAttribute(const string_t &name, int &value) const
 {
 	std::map<string_t, int>::const_iterator it = _mapAttrs.attrs_int.find(name);
 	if( _mapAttrs.attrs_int.end() != it )
@@ -274,7 +276,7 @@ bool MapFile::getMapAttribute(const char *name, int &value) const
 	return false;
 }
 
-bool MapFile::getMapAttribute(const char *name, float &value) const
+bool MapFile::getMapAttribute(const string_t &name, float &value) const
 {
 	std::map<string_t, float>::const_iterator it = _mapAttrs.attrs_float.find(name);
 	if( _mapAttrs.attrs_float.end() != it )
@@ -285,7 +287,7 @@ bool MapFile::getMapAttribute(const char *name, float &value) const
 	return false;
 }
 
-bool MapFile::getMapAttribute(const char *name, string_t &value) const
+bool MapFile::getMapAttribute(const string_t &name, string_t &value) const
 {
 	std::map<string_t, string_t>::const_iterator it = _mapAttrs.attrs_str.find(name);
 	if( _mapAttrs.attrs_str.end() != it )
@@ -297,24 +299,24 @@ bool MapFile::getMapAttribute(const char *name, string_t &value) const
 }
 
 
-void MapFile::setMapAttribute(const char *name, int value)
+void MapFile::setMapAttribute(const string_t &name, int value)
 {
 	_mapAttrs.attrs_int[name] = value;
 }
 
-void MapFile::setMapAttribute(const char *name, float value)
+void MapFile::setMapAttribute(const string_t &name, float value)
 {
 	_mapAttrs.attrs_float[name] = value;
 }
 
-void MapFile::setMapAttribute(const char *name, const string_t &value)
+void MapFile::setMapAttribute(const string_t &name, const string_t &value)
 {
 	_mapAttrs.attrs_str[name] = value;
 }
 
 
 
-bool MapFile::getObjectAttribute(const char *name, int &value) const
+bool MapFile::getObjectAttribute(const string_t &name, int &value) const
 {
 	_ASSERT(is_open() && !_modeWrite);
 	std::map<string_t, int>::const_iterator it;
@@ -325,7 +327,7 @@ bool MapFile::getObjectAttribute(const char *name, int &value) const
 	return true;
 }
 
-bool MapFile::getObjectAttribute(const char *name, float &value) const
+bool MapFile::getObjectAttribute(const string_t &name, float &value) const
 {
 	_ASSERT(is_open() && !_modeWrite);
 	std::map<string_t, float>::const_iterator it;
@@ -336,7 +338,7 @@ bool MapFile::getObjectAttribute(const char *name, float &value) const
 	return true;
 }
 
-bool MapFile::getObjectAttribute(const char *name, string_t &value) const
+bool MapFile::getObjectAttribute(const string_t &name, string_t &value) const
 {
 	_ASSERT(is_open() && !_modeWrite);
 	std::map<string_t, string_t>::const_iterator it;
@@ -347,7 +349,7 @@ bool MapFile::getObjectAttribute(const char *name, string_t &value) const
 	return true;
 }
 
-void MapFile::setObjectAttribute(const char *name, int value)
+void MapFile::setObjectAttribute(const string_t &name, int value)
 {
 	if( _isNewClass )
 	{
@@ -365,7 +367,7 @@ void MapFile::setObjectAttribute(const char *name, int value)
 	_buffer.write((const char*) &value, sizeof(int));
 }
 
-void MapFile::setObjectAttribute(const char *name, float value)
+void MapFile::setObjectAttribute(const string_t &name, float value)
 {
 	if( _isNewClass )
 	{
@@ -383,7 +385,7 @@ void MapFile::setObjectAttribute(const char *name, float value)
 	_buffer.write((const char*) &value, sizeof(float));
 }
 
-void MapFile::setObjectAttribute(const char *name, const string_t &value)
+void MapFile::setObjectAttribute(const string_t &name, const string_t &value)
 {
 	if( _isNewClass )
 	{
@@ -418,11 +420,11 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, const string_t
 	_defaults[cls].attrs_str[attr] = value;
 }
 
-const char* MapFile::GetCurrentClassName() const
+const string_t& MapFile::GetCurrentClassName() const
 {
 	_ASSERT(is_open() && !_modeWrite);
 	_ASSERT(_obj_type < _managed_classes.size());
-    return _managed_classes[_obj_type]._className.c_str();
+    return _managed_classes[_obj_type]._className;
 }
 
 void MapFile::BeginObject(const char *classname)

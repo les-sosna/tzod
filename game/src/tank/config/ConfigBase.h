@@ -110,8 +110,8 @@ public:
 
 	virtual const char* GetTypeName() const;
 
-	const char* Get() const;
-	void Set(const char* value);
+	const string_t& Get() const;
+	void Set(const string_t &value);
 
 	void Push(lua_State *L);
 
@@ -171,30 +171,30 @@ public:
 
 	virtual const char* GetTypeName() const;
 
-	ConfVar* Find(const char *name); // returns NULL if variable not found
+	ConfVar* Find(const string_t &name); // returns NULL if variable not found
 	size_t GetSize() const;
 	void GetKeyList(std::vector<string_t> &out) const;
 
 	// bool part contains true if value with the specified type was found
-	std::pair<ConfVar*, bool> GetVar(const char *name, ConfVar::Type type);
+	std::pair<ConfVar*, bool> GetVar(const string_t &name, ConfVar::Type type);
 
-	ConfVarNumber* GetNum(const char *name, float def);
-	ConfVarNumber* GetNum(const char *name, int   def = 0);
-	ConfVarBool*  GetBool(const char *name, bool  def = false);
-	ConfVarString* GetStr(const char *name, const char* def = "");
+	ConfVarNumber* GetNum(const string_t &name, float def);
+	ConfVarNumber* GetNum(const string_t &name, int   def = 0);
+	ConfVarBool*  GetBool(const string_t &name, bool  def = false);
+	ConfVarString* GetStr(const string_t &name, const char* def = "");
 
-	ConfVarNumber* SetNum(const char *name, float value);
-	ConfVarNumber* SetNum(const char *name, int   value);
-	ConfVarBool*  SetBool(const char *name, bool  value);
-	ConfVarString* SetStr(const char *name, const char* value);
+	ConfVarNumber* SetNum(const string_t &name, float value);
+	ConfVarNumber* SetNum(const string_t &name, int   value);
+	ConfVarBool*  SetBool(const string_t &name, bool  value);
+	ConfVarString* SetStr(const string_t &name, const string_t &value);
 
-	ConfVarArray* GetArray(const char *name);
-	ConfVarTable* GetTable(const char *name);
+	ConfVarArray* GetArray(const string_t &name);
+	ConfVarTable* GetTable(const string_t &name);
 
 	bool Remove(ConfVar * const value);
-	bool Remove(const char *name);
-	bool Rename(ConfVar * const value, const char *newName);
-	bool Rename(const char *oldName, const char *newName);
+	bool Remove(const string_t &name);
+	bool Rename(ConfVar * const value, const string_t &newName);
+	bool Rename(const string_t &oldName, const string_t &newName);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);

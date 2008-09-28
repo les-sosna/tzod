@@ -22,7 +22,7 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
   , _changing(false)
 {
-	Text *t = new Text(this, GetWidth() / 2, 16, param.title.c_str(), alignTextCT);
+	Text *t = new Text(this, GetWidth() / 2, 16, param.title, alignTextCT);
 	t->SetTexture("font_default");
 	t->Resize(t->GetTextureWidth(), t->GetTextureHeight());
 
@@ -30,12 +30,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_ext = param.extension;
 	_files = new List(this, 20, 56, 472, 300);
 	std::set<string_t> files;
-	if( _folder->EnumAllFiles(files, ("*." + _ext).c_str()) )
+	if( _folder->EnumAllFiles(files, "*." + _ext) )
 	{
 		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 		{
 			it->erase(it->length() - _ext.length() - 1); // cut out the file extension
-			int index = _files->AddItem(it->c_str());
+			int index = _files->AddItem(*it);
 		}
 	}
 	else
@@ -73,7 +73,7 @@ string_t GetFileNameDlg::GetFileTitle() const
 void GetFileNameDlg::OnSelect(int index)
 {
 	if( _changing || -1 == index ) return;
-	_fileName->SetText(_files->GetItemText(index).c_str());
+	_fileName->SetText(_files->GetItemText(index));
 }
 
 void GetFileNameDlg::OnChangeName()

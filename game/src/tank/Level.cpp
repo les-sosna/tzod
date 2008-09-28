@@ -675,7 +675,7 @@ bool Level::Import(const char *fileName, bool execInitScript)
 	}
 
 	file.getMapAttribute("theme", _infoTheme);
-	_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(_infoTheme.c_str()));
+	_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(_infoTheme));
 
 	file.getMapAttribute("author",   _infoAuthor);
 	file.getMapAttribute("desc",     _infoDesc);
@@ -1440,7 +1440,7 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color)
 #endif
 }
 
-GC_Object* Level::FindObject(const char *name) const
+GC_Object* Level::FindObject(const string_t &name) const
 {
 	std::map<string_t, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
 	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;

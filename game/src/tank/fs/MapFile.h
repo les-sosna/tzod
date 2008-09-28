@@ -167,7 +167,7 @@ public:
 	MapFile(void);
 	~MapFile(void);
 
-	bool Open(const char *filename, bool write);
+	bool Open(const string_t &filename, bool write);
 	bool Close();
 	bool is_open() const;
 
@@ -175,29 +175,29 @@ public:
 
 
 	bool NextObject();
-	const char* GetCurrentClassName() const;
+	const string_t& GetCurrentClassName() const;
 
 
 	void BeginObject(const char *classname);
 	bool WriteCurrentObject();
 
 
-	bool getMapAttribute(const char *name, int &value) const;
-	bool getMapAttribute(const char *name, float &value) const;
-	bool getMapAttribute(const char *name, string_t &value) const;
+	bool getMapAttribute(const string_t &name, int &value) const;
+	bool getMapAttribute(const string_t &name, float &value) const;
+	bool getMapAttribute(const string_t &name, string_t &value) const;
 
-	void setMapAttribute(const char *name, int value);
-	void setMapAttribute(const char *name, float value);
-	void setMapAttribute(const char *name, const string_t &value);
+	void setMapAttribute(const string_t &name, int value);
+	void setMapAttribute(const string_t &name, float value);
+	void setMapAttribute(const string_t &name, const string_t &value);
 
 
-	bool getObjectAttribute(const char *name, int &value) const;
-	bool getObjectAttribute(const char *name, float &value) const;
-	bool getObjectAttribute(const char *name, string_t &value) const;
+	bool getObjectAttribute(const string_t &name, int &value) const;
+	bool getObjectAttribute(const string_t &name, float &value) const;
+	bool getObjectAttribute(const string_t &name, string_t &value) const;
 
-	void setObjectAttribute(const char *name, int value);
-	void setObjectAttribute(const char *name, float value);
-	void setObjectAttribute(const char *name, const string_t &value);
+	void setObjectAttribute(const string_t &name, int value);
+	void setObjectAttribute(const string_t &name, float value);
+	void setObjectAttribute(const string_t &name, const string_t &value);
 
 	void setObjectDefault(const char *cls, const char *attr, int value);
 	void setObjectDefault(const char *cls, const char *attr, float value);

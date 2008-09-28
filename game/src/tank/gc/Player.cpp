@@ -141,7 +141,7 @@ void GC_Player::SetTeam(int team)
 void GC_Player::UpdateSkin()
 {
 	if( _vehicle )
-		_vehicle->SetSkin(_skin.c_str());
+		_vehicle->SetSkin(_skin);
 }
 
 void GC_Player::SetScore(int score)
@@ -218,7 +218,7 @@ void GC_Player::TimeStepFixed(float dt)
 			if( !pBestPoint && points.empty() )
 			{
 				char buf[64];
-				wsprintf(buf, g_lang->msg_no_respawns_for_team_x->Get(), _team);
+				wsprintf(buf, g_lang->msg_no_respawns_for_team_x->Get().c_str(), _team);
 				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf);
 				return;
 			}
@@ -228,11 +228,11 @@ void GC_Player::TimeStepFixed(float dt)
 				pBestPoint = points[g_level->net_rand() % points.size()];
 			}
 
-			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick.c_str(), "font_default");
+			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick, "font_default");
 
 
 			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
-			GC_Object* found = g_level->FindObject(_vehname.c_str());
+			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
 				g_console->printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
@@ -440,7 +440,7 @@ GC_PlayerLocal::GC_PlayerLocal()
 		}
 		if( !in_use )
 		{
-			SetProfile(tmp[i].c_str());
+			SetProfile(tmp[i]);
 			return;
 		}
 	}
@@ -462,7 +462,7 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 	f.Serialize(_profile);
 	if( f.loading() )
 	{
-		SetProfile(_profile.c_str());
+		SetProfile(_profile);
 		_lastLightKeyState = false;
 	}
 }
@@ -473,7 +473,7 @@ void GC_PlayerLocal::mapExchange(MapFile &f)
 	MAP_EXCHANGE_STRING(profile, _profile, "");
 	if( f.loading() )
 	{
-		SetProfile(_profile.c_str());
+		SetProfile(_profile);
 		_lastLightKeyState = false;
 	}
 }
@@ -526,7 +526,7 @@ const string_t& GC_PlayerLocal::GetProfile() const
 	return _profile;
 }
 
-void GC_PlayerLocal::SetProfile(const char *name)
+void GC_PlayerLocal::SetProfile(const string_t &name)
 {
 	_profile = name;
 	ConfVar *p = g_conf->dm_profiles->Find(name);
@@ -719,7 +719,7 @@ void GC_PlayerLocal::MyPropertySet::MyExchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetProfile(_propProfile.GetStringValue().c_str());
+		tmp->SetProfile(_propProfile.GetStringValue());
 	}
 	else
 	{

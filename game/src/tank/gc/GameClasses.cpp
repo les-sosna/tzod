@@ -774,23 +774,22 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(int xPos, int yPos, const char *text, enumAlignText align)
+GC_Text::GC_Text(int xPos, int yPos, const string_t &text, enumAlignText align)
   : GC_2dSprite()
 {
 	SetFont("font_default");
+	SetText(text);
 	SetAlign(align);
-	if( text ) SetText(text);
 	SetMargins(0, 0);
 
 	MoveTo( vec2d((float)xPos, (float)yPos) );
 }
 
-void GC_Text::SetText(const char *pText)
+void GC_Text::SetText(const string_t &text)
 {
-	_ASSERT(NULL != pText);
-	if( _text != pText )
+	if( _text != text )
 	{
-		_text = pText;
+		_text = text;
 		UpdateLines();
 	}
 }
@@ -866,7 +865,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const char *text, const char *font)
+GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const string_t &text, const char *font)
   : GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;

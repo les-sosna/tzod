@@ -55,7 +55,7 @@ public:
 	bool LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName);
     void UnloadAllTextures();
 
-	int LoadPackage(const char* fileName);
+	int LoadPackage(const string_t &fileName);
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 
 	size_t FindTexture(const char *name)   const;
@@ -84,7 +84,7 @@ public:
 	~ThemeManager();
 
 	size_t GetThemeCount();
-	size_t FindTheme(const char *name);
+	size_t FindTheme(const string_t &name);
 	string_t GetThemeName(size_t index);
 
     bool ApplyTheme(size_t index);

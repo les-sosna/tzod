@@ -320,7 +320,7 @@ static int luaT_message(lua_State *L)
 		buf << s;
 		lua_pop(L, 1);            // pop result
 	}
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf.str().c_str());
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(buf.str());
 	return 0;
 }
 

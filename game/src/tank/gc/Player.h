@@ -158,7 +158,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual void mapExchange(MapFile &f);
 
-	void SetProfile(const char *name);
+	void SetProfile(const string_t &name);
 	const string_t& GetProfile() const;
 };
 

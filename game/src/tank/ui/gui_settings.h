@@ -74,7 +74,7 @@ public:
 	~ControlProfileDlg();
 
 protected:
-	void AddAction(const char *rawname, const char *display);
+	void AddAction(const char *rawname, const string_t &display);
 
 	void OnOK();
 	void OnCancel();

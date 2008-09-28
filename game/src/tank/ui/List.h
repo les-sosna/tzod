@@ -27,7 +27,7 @@ public:
 	virtual int GetSubItemCount(int index) const = 0;
 	virtual ULONG_PTR GetItemData(int index) const = 0;
 	virtual const string_t& GetItemText(int index, int sub) const = 0;
-	virtual int FindItem(const char *text) const = 0;
+	virtual int FindItem(const string_t &text) const = 0;
 };
 
 class ListDataSourceDefault : public ListDataSource
@@ -39,11 +39,11 @@ public:
 	virtual int GetSubItemCount(int index) const;
 	virtual ULONG_PTR GetItemData(int index) const;
 	virtual const string_t& GetItemText(int index, int sub) const;
-	virtual int FindItem(const char *text) const;
+	virtual int FindItem(const string_t &text) const;
 
 	// extra
-	int  AddItem(const char *str, UINT_PTR data = 0);
-	void SetItemText(int index, int sub, const char *str);
+	int  AddItem(const string_t &str, UINT_PTR data = 0);
+	void SetItemText(int index, int sub, const string_t &str);
 	void SetItemData(int index, ULONG_PTR data);
 	void DeleteItem(int index);
 	void DeleteAllItems();
@@ -89,11 +89,12 @@ public:
 	int GetSubItemCount(int index) const;
 	ULONG_PTR GetItemData(int index) const;
 	const string_t& GetItemText(int index, int sub = 0) const;
-	int FindItem(const char *text) const;
+	int FindItem(const string_t &text) const;
 
 	// these functions are directed to ListDataSourceDefault interface (if available one)
-	int  AddItem(const char *str, UINT_PTR data = 0);
-	void SetItemText(int index, int sub, const char *str);
+	// to be removed!
+	int  AddItem(const string_t &str, UINT_PTR data = 0);
+	void SetItemText(int index, int sub, const string_t &str);
 	void SetItemData(int index, ULONG_PTR data);
 	void DeleteItem(int index);
 	void DeleteAllItems();

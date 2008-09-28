@@ -220,9 +220,10 @@ public:
 		_end->prev        = _begin;
 		_end->next        = NULL;
 	}
-
-	PtrList(const PtrList &src)
-	{
+private:
+	PtrList(const PtrList &src);
+	public:
+/*	{
 		_size  = src._size;
 		_begin = nodeAllocator.Alloc();
 		_end   = nodeAllocator.Alloc();
@@ -236,8 +237,10 @@ public:
 		_end->next        = NULL;
 
 		for( iterator it = src.begin(); it != src.end(); ++it )
+		{
 			if(*it) push_back(*it);
-	}
+		}
+	}*/
 
 	~PtrList(void)
 	{

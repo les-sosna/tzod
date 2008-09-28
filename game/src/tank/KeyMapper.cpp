@@ -158,11 +158,11 @@ string_t KeyMapper::GetName(int code) const
 	return it->second;
 }
 
-int KeyMapper::GetCode(const char *name) const
+int KeyMapper::GetCode(const string_t &name) const
 {
 	if( '#' == name[0] )
 	{
-		return atoi(name + 1);
+		return atoi(name.c_str() + 1);
 	}
 
 	std::map<string_t, int>::const_iterator it = _name2code.find(name);

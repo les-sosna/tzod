@@ -224,7 +224,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		}
 	}
 	g_lang.GetAccessor(); // force accessor creation
-	setlocale(LC_CTYPE, g_lang->c_locale->Get());
+	setlocale(LC_CTYPE, g_lang->c_locale->Get().c_str());
 
 
 	// set up the environment

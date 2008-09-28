@@ -117,7 +117,7 @@ TankClient::~TankClient(void)
 	if( _init ) WSACleanup();
 }
 
-bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
+bool TankClient::Connect(const string_t &hostaddr, HWND hMainWnd)
 {
 	TRACE("Connecting...\n");
 
@@ -150,12 +150,12 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 		addr.sin_port   = htons(g_conf->sv_port->GetInt());
 
 		// пробуем преобразовать в числовой IP-адрес из строкового
-		addr.sin_addr.s_addr = inet_addr(hostaddr);
+		addr.sin_addr.s_addr = inet_addr(hostaddr.c_str());
 
 		if( addr.sin_addr.s_addr == INADDR_NONE )
 		{
 			// Host не IP-адрес, может это имя хоста?
-			hostent* he = gethostbyname(hostaddr);
+			hostent* he = gethostbyname(hostaddr.c_str());
 			if( NULL == he )
 			{
 				TRACE("ERROR: Unable to resolve IP-address\n");
@@ -164,8 +164,8 @@ bool TankClient::Connect(const char* hostaddr, HWND hMainWnd)
 			addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
 		}
 
-		if( WSAAsyncSelect( _socket, _hwnd=hMainWnd,
-			WM_CUSTOMCLIENTMSG, FD_CONNECT | FD_READ | FD_WRITE ) )
+		_hwnd = hMainWnd;
+		if( WSAAsyncSelect(_socket, _hwnd, WM_CUSTOMCLIENTMSG, FD_CONNECT|FD_READ|FD_WRITE) )
 		{
 			TRACE("ERROR: Unable to select event\n");
 			throw false;
@@ -280,10 +280,10 @@ void TankClient::ShutDown()
 	}
 }
 
-void TankClient::Message(const char *msg, bool err)
+void TankClient::Message(const string_t &msg, bool err)
 {
-	DataBlock db(strlen(msg) + 1);
-	memcpy(db.data(), msg, db.size());
+	DataBlock db(msg.size() + 1);
+	memcpy(db.data(), msg.c_str(), db.size());
 	db.type() = err ? DBTYPE_ERRORMSG : DBTYPE_TEXTMESSAGE;
 	NewData(db);
 }

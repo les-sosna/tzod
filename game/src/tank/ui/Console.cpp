@@ -93,7 +93,7 @@ void Console::OnRawChar(int c)
 			if( g_conf->con_history->GetSize() == 0 ||
 				cmd != g_conf->con_history->GetStr(g_conf->con_history->GetSize()-1, "")->Get() )
 			{
-				g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd.c_str());
+				g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd);
 				while( g_conf->con_history->GetSize() > (unsigned) g_conf->con_maxhistory->GetInt() )
 					g_conf->con_history->PopFront();
 			}
@@ -137,12 +137,7 @@ void Console::OnRawChar(int c)
 			if( status )
 			{
 				int end = _input->GetSelEnd();
-				_input->SetText(
-					( _input->GetText().substr(0, end)
-					  + result
-					  + _input->GetText().substr(end)
-					).c_str()
-				);
+				_input->SetText(_input->GetText().substr(0, end) + result + _input->GetText().substr(end));
 				_input->SetSel(end + result.length(), end + result.length());
 			}
 		}

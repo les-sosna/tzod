@@ -37,7 +37,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 		{
 			it->erase(it->length() - 4); // cut out the file extension
-			int index = _files->AddItem(it->c_str());
+			int index = _files->AddItem(*it);
 		}
 	}
 	else

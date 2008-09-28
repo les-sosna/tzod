@@ -139,7 +139,7 @@ void CreateServerDlg::OnOK()
 	if( !g_server->init(&gi) )
 	{
 		SAFE_DELETE(g_server);
-		MessageBoxT(g_env.hMainWnd, g_lang->net_server_error->Get(), MB_OK|MB_ICONHAND);
+		MessageBoxT(g_env.hMainWnd, g_lang->net_server_error->Get().c_str(), MB_OK|MB_ICONHAND);
 		return;
 	}
 
@@ -230,9 +230,9 @@ void ConnectDlg::OnOK()
 	_ASSERT(NULL == g_client);
 	g_client = new TankClient();
 
-	if( !g_client->Connect(_name->GetText().c_str(), g_env.hMainWnd) )
+	if( !g_client->Connect(_name->GetText(), g_env.hMainWnd) )
 	{
-		Error(g_lang->net_connect_error->Get());
+		Error(g_lang->net_connect_error->Get().c_str());
 	}
 	else
 	{
@@ -265,7 +265,7 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				if( VERSION != gi.dwVersion )
 				{
-					Error(g_lang->net_connect_error_server_version->Get());
+					Error(g_lang->net_connect_error_server_version->Get().c_str());
 					break;
 				}
 
@@ -275,7 +275,7 @@ void ConnectDlg::OnTimeStep(float dt)
 				g_conf->sv_nightmode->Set(gi.nightmode);
 
 				char msg[MAX_PATH + 32];
-				sprintf(msg, g_lang->net_connect_loading_map_x->Get(), gi.cMapName);
+				sprintf(msg, g_lang->net_connect_loading_map_x->Get().c_str(), gi.cMapName);
 				_status->AddItem(msg);
 
 				char path[MAX_PATH];
@@ -283,7 +283,7 @@ void ConnectDlg::OnTimeStep(float dt)
 
 				if( CalcCRC32(path) != gi.dwMapCRC32 )
 				{
-					Error(g_lang->net_connect_error_map_version->Get());
+					Error(g_lang->net_connect_error_map_version->Get().c_str());
 					break;
 				}
 
@@ -297,12 +297,12 @@ void ConnectDlg::OnTimeStep(float dt)
 					g_conf->ui_showmsg->Set(true);
 					if( !_auto )
 					{
-						g_conf->cl_server->Set(_name->GetText().c_str());
+						g_conf->cl_server->Set(_name->GetText());
 					}
 				}
 				else
 				{
-					Error(g_lang->net_connect_error_map->Get());
+					Error(g_lang->net_connect_error_map->Get().c_str());
 					break;
 				}
 
@@ -383,10 +383,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 
 	PlayerDesc pd;
-	strcpy(pd.nick, g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get());
-	strcpy(pd.cls, g_conf->cl_playerinfo->GetStr("class", "default")->Get());
+	strcpy(pd.nick, g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get().c_str());
+	strcpy(pd.cls, g_conf->cl_playerinfo->GetStr("class", "default")->Get().c_str());
 	pd.score = 0;
-	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get());
+	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get().c_str());
 	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
 	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
 
@@ -408,9 +408,9 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 	if( _resultOK == result )
 	{
 		BotDesc bd;
-		strcpy(bd.nick, g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get());
-		strcpy(bd.cls, g_conf->ui_netbotinfo->GetStr("class", "default")->Get());
-		strcpy(bd.skin, g_conf->ui_netbotinfo->GetStr("skin", "red")->Get());
+		strcpy(bd.nick, g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get().c_str());
+		strcpy(bd.cls, g_conf->ui_netbotinfo->GetStr("class", "default")->Get().c_str());
+		strcpy(bd.skin, g_conf->ui_netbotinfo->GetStr("skin", "red")->Get().c_str());
 		bd.score = 0;
 		bd.team = g_conf->ui_netbotinfo->GetNum("team", 0)->GetInt();
 		bd.level = g_conf->ui_netbotinfo->GetNum("level", 2)->GetInt();
@@ -518,7 +518,7 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 				if( who == player->GetNetworkID() )
 				{
 					_players->DeleteItem(index);
-					_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get(), player->GetNick());
+					_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
 					_buf->printf("\n");
 					player->Kill();
 					break;
@@ -541,13 +541,13 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			ai->UpdateSkin();
 
 			// nick & skin
-			int index = _bots->AddItem(ai->GetNick().c_str(), (UINT_PTR) ai);
-			_bots->SetItemText(index, 1, ai->GetSkin().c_str());
+			int index = _bots->AddItem(ai->GetNick(), (UINT_PTR) ai);
+			_bots->SetItemText(index, 1, ai->GetSkin());
 
 			// team
 			std::ostringstream tmp;
 			tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
-			_bots->SetItemText(index, 2, tmp.str().c_str());
+			_bots->SetItemText(index, 2, tmp.str());
 
 			// level
 			_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
@@ -576,15 +576,15 @@ void WaitingForPlayersDlg::OnTimeStep(float dt)
 			player->SetTeam(pd.team);
 			player->UpdateSkin();
 
-			int index = _players->AddItem(player->GetNick().c_str(), (UINT_PTR) player);
-			_players->SetItemText(index, 1, player->GetSkin().c_str());
+			int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
+			_players->SetItemText(index, 1, player->GetSkin());
 
 			std::ostringstream tmp;
 			tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
-			_players->SetItemText(index, 2, tmp.str().c_str());
+			_players->SetItemText(index, 2, tmp.str());
 
-			_buf->printf(g_lang->net_chatroom_player_x_connected->Get(), player->GetNick().c_str());
-			_buf->printf("\n", player->GetNick().c_str());
+			_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
+			_buf->printf("\n");
 
 			_btnOK->Enable(true);
 			break;

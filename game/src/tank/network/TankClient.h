@@ -74,7 +74,7 @@ class TankClient
 
 	Socket   _socket;
 	void NewData(const DataBlock &data);
-	void Message(const char *msg, bool err = false);
+	void Message(const string_t &msg, bool err = false);
 
 public:
 	int _latency;
@@ -92,7 +92,7 @@ public:
 
 	DWORD GetId() const { return _clientId; }
 
-	bool Connect(const char* hostaddr, HWND hMainWnd);
+	bool Connect(const string_t &hostaddr, HWND hMainWnd);
 	void ShutDown();
 
 	LRESULT Mirror(WPARAM wParam, LPARAM lParam);

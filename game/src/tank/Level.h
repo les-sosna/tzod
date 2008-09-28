@@ -268,7 +268,7 @@ public:
 	void Render() const;
 	bool IsSafeMode() const { return _safeMode; }
 
-	GC_Object* FindObject(const char *name) const;
+	GC_Object* FindObject(const string_t &name) const;
 
 	int   net_rand();
 	float net_frand(float max);

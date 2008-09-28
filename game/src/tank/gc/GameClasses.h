@@ -240,12 +240,12 @@ private:
 	void UpdateLines();
 
 public:
-	GC_Text(int x, int y, const char *text, enumAlignText align = alignTextLT);
+	GC_Text(int x, int y, const string_t &text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
 
 public:
 	void SetFont(const char *fontname);
-	void SetText(const char *text);
+	void SetText(const string_t &text);
 	void SetAlign(enumAlignText align);
 	void SetMargins(float mx, float my);
 	size_t GetTextLenght() { return _text.size(); }
@@ -266,7 +266,7 @@ private:
 	float  _y0;
 
 public:
-	GC_Text_ToolTip(vec2d pos, const char *text, const char *font);
+	GC_Text_ToolTip(vec2d pos, const string_t &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
 	virtual void TimeStepFloat(float dt);

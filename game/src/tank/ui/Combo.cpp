@@ -81,7 +81,7 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText( _list->GetData()->GetItemText(index, 0).c_str() );
+		_text->SetText(_list->GetData()->GetItemText(index, 0));
 		_list->Show(false);
 		GetManager()->SetFocusWnd(this);
 
@@ -94,7 +94,7 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText( _list->GetData()->GetItemText(index, 0).c_str() );
+		_text->SetText(_list->GetData()->GetItemText(index, 0));
 	}
 }
 

@@ -56,7 +56,12 @@ void MessageArea::OnTimeStep(float dt)
 	string_t str;
 	for( size_t i = 0; i < _lines.size(); ++i )
 		str.append(_lines[i].str);
-	_text->SetText(str.c_str());
+	_text->SetText(str);
+}
+
+void MessageArea::puts(const string_t &text)
+{
+	puts(text.c_str());
 }
 
 void MessageArea::puts(const char *text)

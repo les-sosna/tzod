@@ -55,7 +55,7 @@ class Button : public ButtonBase
 	Text  *_label;
 
 public:
-	Button(Window *parent, float x, float y, const char *text);
+	Button(Window *parent, float x, float y, const string_t &text);
 
 protected:
 	virtual void OnChangeState(State state);
@@ -80,13 +80,13 @@ class CheckBox : public ButtonBase
 	bool  _isChecked;
 
 public:
-	CheckBox(Window *parent, float x, float y, const char *text);
+	CheckBox(Window *parent, float x, float y, const string_t &text);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
-	void SetText(const char *text);
-	const char* GetText() const;
+	void SetText(const string_t &text);
+	const string_t& GetText() const;
 
 protected:
 	virtual void OnChangeState(State state);

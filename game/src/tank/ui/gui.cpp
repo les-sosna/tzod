@@ -179,7 +179,7 @@ void NewGameDlg::RefreshPlayersList()
 		}
 		else
 		{
-			wsprintf(s, g_lang->team_none->Get());
+			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
 		_players->SetItemText(index, 3, s);
@@ -209,7 +209,7 @@ void NewGameDlg::RefreshBotsList()
 		}
 		else
 		{
-			wsprintf(s, g_lang->team_none->Get());
+			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
 		_bots->SetItemText(index, 3, s);
@@ -224,7 +224,7 @@ void NewGameDlg::OnAddPlayer()
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf->dm_players->PushBack(ConfVar::typeTable)->AsTable();
-	p->SetStr("skin", skinNames[rand() % skinNames.size()].c_str());
+	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
 	(new EditPlayerDlg(this, p))->eventClose.bind( &NewGameDlg::OnAddPlayerClose, this );
@@ -273,7 +273,7 @@ void NewGameDlg::OnAddBot()
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf->dm_bots->PushBack(ConfVar::typeTable)->AsTable();
-	p->SetStr("skin", skinNames[rand() % skinNames.size()].c_str());
+	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
 	(new EditBotDlg(this, p))->eventClose.bind( &NewGameDlg::OnAddBotClose, this );
@@ -349,7 +349,7 @@ void NewGameDlg::OnOK()
 
 	if( g_level->init_newdm(path.c_str(), rand()) )
 	{
-		g_conf->cl_map->Set(fn.c_str());
+		g_conf->cl_map->Set(fn);
 		g_conf->ui_showmsg->Set(true);
 
 		for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
@@ -465,7 +465,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
-		int index = lst->AddItem( names[i].c_str() );
+		int index = lst->AddItem(names[i]);
 		if( names[i] == _info->GetStr("skin")->Get() )
 		{
 			_skins->SetCurSel(index);
@@ -496,7 +496,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 		if( std::string::npos == val.first.find('/') )
 		{
-			int index = _classes->GetList()->AddItem(val.first.c_str());
+			int index = _classes->GetList()->AddItem(val.first);
 			if( val.first == _info->GetStr("class")->Get() )
 			{
 				_classes->SetCurSel(index);
@@ -514,7 +514,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang->team_none->Get(), i);
+		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
 		int index = lst->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
@@ -542,7 +542,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = lst->AddItem(profiles[i].c_str());
+		int index = lst->AddItem(profiles[i]);
 		if( profiles[i] == _info->GetStr("profile")->Get() )
 		{
 			_profiles->SetCurSel(index);
@@ -565,11 +565,11 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 void EditPlayerDlg::OnOK()
 {
-	_info->SetStr("nick",    _name->GetText().c_str() );
-	_info->SetStr("skin",    _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
-	_info->SetStr("class",   _classes->GetList()->GetItemText(_classes->GetCurSel(), 0).c_str() );
+	_info->SetStr("nick",    _name->GetText() );
+	_info->SetStr("skin",    _skins->GetList()->GetItemText(_skins->GetCurSel(), 0) );
+	_info->SetStr("class",   _classes->GetList()->GetItemText(_classes->GetCurSel(), 0) );
 	_info->SetNum("team",    _teams->GetCurSel());
-	_info->SetStr("profile", _profiles->GetList()->GetItemText(_profiles->GetCurSel(), 0).c_str() );
+	_info->SetStr("profile", _profiles->GetList()->GetItemText(_profiles->GetCurSel(), 0) );
 
 	Close(_resultOK);
 }
@@ -649,7 +649,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
-		int index = lst->AddItem( names[i].c_str() );
+		int index = lst->AddItem(names[i]);
 		if( names[i] == _info->GetStr("skin")->Get() )
 		{
 			_skins->SetCurSel(index);
@@ -678,7 +678,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
 		_classNames.push_back(val);
 
-		int index = _classes->GetList()->AddItem(val.first.c_str());
+		int index = _classes->GetList()->AddItem(val.first);
 		if( val.first == _info->GetStr("class")->Get() )
 		{
 			_classes->SetCurSel(index);
@@ -696,7 +696,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang->team_none->Get(), i);
+		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
 		int index = lst->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
@@ -720,7 +720,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = lst->AddItem(g_lang.GetRoot()->GetStr(levels[i], levels[i])->Get());
+		int index = lst->AddItem(g_lang.GetRoot()->GetStr(levels[i], NULL)->Get());
 		if( i == _info->GetNum("level", 2)->GetInt() )
 		{
 			_levels->SetCurSel(index);
@@ -743,9 +743,9 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 void EditBotDlg::OnOK()
 {
-	_info->SetStr("nick",  _name->GetText().c_str() );
-	_info->SetStr("skin",  _skins->GetList()->GetItemText(_skins->GetCurSel(), 0).c_str() );
-	_info->SetStr("class", _classes->GetList()->GetItemText(_classes->GetCurSel(), 0).c_str() );
+	_info->SetStr("nick",  _name->GetText() );
+	_info->SetStr("skin",  _skins->GetList()->GetItemText(_skins->GetCurSel(), 0) );
+	_info->SetStr("class", _classes->GetList()->GetItemText(_classes->GetCurSel(), 0) );
 	_info->SetNum("team",  _teams->GetCurSel());
 	_info->SetNum("level", _levels->GetCurSel());
 

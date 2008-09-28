@@ -144,7 +144,7 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	_ASSERT(i >= 0);
-	g_conf->dm_profiles->Remove(_profiles->GetItemText(i).c_str());
+	g_conf->dm_profiles->Remove(_profiles->GetItemText(i));
 	UpdateProfilesList();
 }
 
@@ -180,7 +180,7 @@ void SettingsDlg::UpdateProfilesList()
 	_profiles->DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = _profiles->AddItem(profiles[i].c_str());
+		int index = _profiles->AddItem(profiles[i]);
 	}
 	_profiles->SetCurSel(__min(_profiles->GetItemCount()-1, sel));
 }
@@ -213,7 +213,7 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	if( profileName )
 	{
 		_name = profileName;
-		_nameEdit->SetText(_name.c_str());
+		_nameEdit->SetText(_name);
 	}
 	else
 	{
@@ -224,10 +224,10 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 			buf.str("");
 			buf << g_lang->profile_autoname->Get() << ++i;
 		}
-		while( g_conf->dm_profiles->Find(buf.str().c_str()) );
-		_nameEdit->SetText(buf.str().c_str());
+		while( g_conf->dm_profiles->Find(buf.str()) );
+		_nameEdit->SetText(buf.str());
 	}
-	_profile = g_conf->dm_profiles->GetTable(_nameEdit->GetText().c_str());
+	_profile = g_conf->dm_profiles->GetTable(_nameEdit->GetText());
 
 	new Text(this,  20, 65, g_lang->profile_action->Get(), alignTextLT);
 	new Text(this, 220, 65, g_lang->profile_key->Get(), alignTextLT);
@@ -274,18 +274,16 @@ void ControlProfileDlg::OnSelectAction(int index)
 	SetTimeStep(true);
 }
 
-void ControlProfileDlg::AddAction(const char *rawname, const char *display)
+void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
 {
 	int index = _actions->AddItem(display);
 	_actions->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->SetItemText(index, 1,
-		g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())).c_str());
+	_actions->SetItemText(index, 1, g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())));
 }
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetText().empty()
-		|| !g_conf->dm_profiles->Rename(_profile, _nameEdit->GetText().c_str()) )
+	if( _nameEdit->GetText().empty() || !g_conf->dm_profiles->Rename(_profile, _nameEdit->GetText()) )
 	{
 		return;
 	}
@@ -294,8 +292,7 @@ void ControlProfileDlg::OnOK()
 	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
 	for( int i = 0; i < _actions->GetItemCount(); ++i )
 	{
-		_profile->SetStr((const char *) _actions->GetItemData(i),
-			_actions->GetItemText(i, 1).c_str());
+		_profile->SetStr((const char *) _actions->GetItemData(i), _actions->GetItemText(i, 1));
 	}
 	Close(_resultOK);
 }
@@ -324,18 +321,12 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			}
 			if( DIK_ESCAPE != k )
 			{
-				_actions->SetItemText(_activeIndex, 1, g_keys->GetName(k).c_str());
+				_actions->SetItemText(_activeIndex, 1, g_keys->GetName(k));
 			}
 			else
 			{
 				_actions->SetItemText(_activeIndex, 1,
-					g_keys->GetName(
-						g_keys->GetCode(
-							_profile->GetStr(
-								(const char *) _actions->GetItemData(_activeIndex)
-							)->Get()
-						)
-					).c_str()
+					g_keys->GetName(g_keys->GetCode(_profile->GetStr((const char *) _actions->GetItemData(_activeIndex))->Get()))
 				);
 			}
 			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
@@ -387,31 +378,31 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 
 	new Text(this, x1, y += 20, g_lang->map_author->Get(), alignTextLT);
 	_author = new Edit(this, x2, y += 15, 256);
-	_author->SetText(g_level->_infoAuthor.c_str());
+	_author->SetText(g_level->_infoAuthor);
 
 	new Text(this, x1, y += 20, g_lang->map_email->Get(), alignTextLT);
 	_email = new Edit(this, x2, y += 15, 256);
-	_email->SetText(g_level->_infoEmail.c_str());
+	_email->SetText(g_level->_infoEmail);
 
 	new Text(this, x1, y += 20, g_lang->map_url->Get(), alignTextLT);
 	_url = new Edit(this, x2, y += 15, 256);
-	_url->SetText(g_level->_infoUrl.c_str());
+	_url->SetText(g_level->_infoUrl);
 
 	new Text(this, x1, y += 20, g_lang->map_desc->Get(), alignTextLT);
 	_desc = new Edit(this, x2, y += 15, 256);
-	_desc->SetText(g_level->_infoDesc.c_str());
+	_desc->SetText(g_level->_infoDesc);
 
 	new Text(this, x1, y += 20, g_lang->map_init_script->Get(), alignTextLT);
 	_onInit = new Edit(this, x2, y += 15, 256);
-	_onInit->SetText(g_level->_infoOnInit.c_str());
+	_onInit->SetText(g_level->_infoOnInit);
 
 	new Text(this, x1, y += 20, g_lang->map_theme->Get(), alignTextLT);
 	_theme = new ComboBox(this, x2, y += 15, 256);
 	for( size_t i = 0; i < _ThemeManager::Inst().GetThemeCount(); i++ )
 	{
-		_theme->GetList()->AddItem(_ThemeManager::Inst().GetThemeName(i).c_str());
+		_theme->GetList()->AddItem(_ThemeManager::Inst().GetThemeName(i));
 	}
-	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme.c_str()));
+	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme));
 
 
 	//

@@ -193,13 +193,13 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const char* filename)
+int TextureManager::LoadPackage(const string_t &filename)
 {
-	TRACE("Loading textures from '%s'\n", filename);
+	TRACE("Loading textures from '%s'\n", filename.c_str());
 
 	lua_State *L = lua_open();
 
-	if( 0 != (luaL_loadfile(L, filename) || lua_pcall(L, 0, 1, 0)) )
+	if( 0 != (luaL_loadfile(L, filename.c_str()) || lua_pcall(L, 0, 1, 0)) )
 	{
 		TRACE("%s\n", lua_tostring(L, -1));
 		lua_close(L);
@@ -465,7 +465,7 @@ size_t ThemeManager::GetThemeCount()
 	return _themes.size() + 1;
 }
 
-size_t ThemeManager::FindTheme(const char *name)
+size_t ThemeManager::FindTheme(const string_t &name)
 {
 	for( size_t i = 0; i < _themes.size(); i++ )
 	{
@@ -493,7 +493,7 @@ bool ThemeManager::ApplyTheme(size_t index)
 		string_t filename = DIR_THEMES;
 		filename += "\\";
 		filename += _themes[index-1].fileName;
-		res = res && (g_texman->LoadPackage(filename.c_str()) > 0);
+		res = res && (g_texman->LoadPackage(filename) > 0);
 	}
 
 	FOREACH( g_level->GetList(LIST_objects), GC_Object, object )

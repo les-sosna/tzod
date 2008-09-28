@@ -29,7 +29,7 @@ public:
 	Edit(Window *parent, float x, float y, float width);
 
 	const string_t& GetText() const;
-	void SetText(const char *text);
+	void SetText(const string_t &text);
 	int GetTextLength() const;
 
 	void SetInt(int value);

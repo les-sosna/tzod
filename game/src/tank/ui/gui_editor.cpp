@@ -142,9 +142,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				_ASSERT( dynamic_cast<Edit*>(ctrl) );
-				const char *s;
-				s = static_cast<Edit*>(ctrl)->GetText().c_str();
-				prop->SetStringValue(s);
+				prop->SetStringValue(static_cast<Edit*>(ctrl)->GetText());
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
@@ -175,7 +173,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			ObjectProperty *prop = _ps->GetProperty(i);
 			
 			std::stringstream labelTextBuffer;
-			labelTextBuffer << prop->GetName().c_str();
+			labelTextBuffer << prop->GetName();
 
 			Text *label = new Text(_psheet, 5, y, "", alignTextLT);
 			y += label->GetHeight();
@@ -197,14 +195,14 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue().c_str());
+				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64);
 				for( size_t index = 0; index < prop->GetListSize(); ++index )
 				{
-					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index).c_str());
+					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index));
 				}
 				static_cast<ComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
 				static_cast<ComboBox*>(ctrl)->GetList()->AlignHeightToContent();
@@ -213,7 +211,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				_ASSERT(FALSE);
 			} // end of switch( prop->GetType() )
 
-			label->SetText(labelTextBuffer.str().c_str());
+			label->SetText(labelTextBuffer.str());
 
 			if( focus == i )
 			{
@@ -287,15 +285,75 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+ServiceListDataSource::ServiceListDataSource()
+  : _cb(NULL)
+{
+}
+
+ServiceListDataSource::~ServiceListDataSource()
+{
+}
+
+void ServiceListDataSource::SetCallback(ListCallback *cb)
+{
+	_cb = cb;
+}
+
+int ServiceListDataSource::GetItemCount() const
+{
+	return g_level ? g_level->GetList(LIST_services).size() : 0;
+}
+
+int ServiceListDataSource::GetSubItemCount(int index) const
+{
+	return 2;
+}
+
+ULONG_PTR ServiceListDataSource::GetItemData(int index) const
+{
+	OBJECT_LIST::iterator it = g_level->GetList(LIST_services).begin();
+	for( int i = 0; i < index; ++i )
+	{
+		++it;
+		_ASSERT(g_level->GetList(LIST_services).end() != it);
+	}
+	return (ULONG_PTR) *it;
+}
+
+const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
+{
+	GC_Object *s = (GC_Object *) GetItemData(index);
+	const char *name;
+	switch( sub )
+	{
+	case 0:
+		return g_lang.GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, NULL)->Get();
+	case 1:
+		name = s->GetName();
+		_nameCache = name ? name : "";
+		return _nameCache;
+	}
+	_ASSERT(false);
+	_nameCache = "";
+	return _nameCache;
+}
+
+int ServiceListDataSource::FindItem(const string_t &text) const
+{
+	return -1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, h, w, false)
   , _margins(5)
-  , _ignoreSelectService(false)
 {
 	_labelService = new Text(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
 	_labelName = new Text(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
 
 	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetTextHeight(), 1, 1);
+	_list->SetData(WrapRawPtr(new ServiceListDataSource()));
 	_list->SetBorder(true);
 	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
 
@@ -309,8 +367,7 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 		if( Level::GetTypeInfoByIndex(i).service )
 		{
 			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-			const char *desc = g_lang.GetRoot()->GetStr(desc0, desc0)->Get();
-			ls->AddItem(desc, Level::GetTypeByIndex(i));
+			ls->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 		}
 	}
 	ls->SetTabPos(1, 128);
@@ -331,25 +388,8 @@ ServiceList::~ServiceList()
 	GetEditorLayout()->eventOnChangeSelection.clear();
 }
 
-void ServiceList::UpdateList()
-{
-	float pos = _list-> GetScrollPos();
-	_list->DeleteAllItems();
-	FOREACH(g_level->GetList(LIST_services), GC_Object, service)
-	{
-		const char *desc0 = g_level->GetTypeInfo(service->GetType()).desc;
-		int i = _list->AddItem(g_lang.GetRoot()->GetStr(desc0, desc0)->Get(), (ULONG_PTR) service);
-		const char *name = service->GetName();
-		_list->SetItemText(i, 1, name ? name : "");
-	}
-	_list->SetScrollPos(pos);
-}
-
 void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
 {
-//	int last = _list->GetCurSel();
-	_ignoreSelectService = true;
-	UpdateList();
 	if( obj )
 	{
 		for( int i = 0; i < _list->GetItemCount(); ++i )
@@ -361,7 +401,6 @@ void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
 			}
 		}
 	}
-	_ignoreSelectService = false;
 }
 
 EditorLayout* ServiceList::GetEditorLayout() const
@@ -376,22 +415,20 @@ void ServiceList::OnCreateService()
 	{
 		ObjectType type = (ObjectType) _combo->GetList()->GetItemData(_combo->GetCurSel());
 		GC_Object *service = g_level->CreateObject(type, 0, 0);
-		UpdateList();
+		GetEditorLayout()->SelectNone();
+		GetEditorLayout()->Select(service, true);
 	}
 }
 
 void ServiceList::OnSelectService(int i)
 {
-	if( !_ignoreSelectService )
+	if( -1 == i )
 	{
-		if( -1 == i )
-		{
-			GetEditorLayout()->SelectNone();
-		}
-		else
-		{
-			GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
-		}
+		GetEditorLayout()->SelectNone();
+	}
+	else
+	{
+		GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
 	}
 }
 
@@ -447,14 +484,13 @@ EditorLayout::EditorLayout(Window *parent)
 	{
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-		const char *desc = g_lang.GetRoot()->GetStr(desc0, desc0)->Get();
-		ls->AddItem(desc, Level::GetTypeByIndex(i));
+		ls->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 	}
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	ls->Sort();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
-	_typeList->SetCurSel( g_conf->ed_object->GetInt() );
+	_typeList->SetCurSel(g_conf->ed_object->GetInt());
 
 	_selectionRect = new Window(this, 0, 0, "selection");
 	_selectionRect->SetBorder(true);
@@ -722,7 +758,7 @@ void EditorLayout::OnChangeObjectType(int index)
 
 	std::ostringstream buf;
 	buf << g_lang->layer->Get() << Level::GetTypeInfo(_typeList->GetList()->GetItemData(index)).layer << ": ";
-	_layerDisp->SetText(buf.str().c_str());
+	_layerDisp->SetText(buf.str());
 }
 
 void EditorLayout::OnChangeUseLayers()

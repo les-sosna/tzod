@@ -326,7 +326,6 @@ void GC_Wall::OnDestroy()
 				vec2d(frand(100.0f) - 50, -frand(100.0f))
 			))->SetShadow(true);
 		}
-
 		new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 	}
 

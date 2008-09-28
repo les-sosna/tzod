@@ -240,13 +240,13 @@ const char* ConfVarString::GetTypeName() const
 	return "string";
 }
 
-const char* ConfVarString::Get() const
+const string_t& ConfVarString::Get() const
 {
 	_ASSERT(typeString == _type);
-	return _val.asString->c_str();
+	return *_val.asString;
 }
 
-void ConfVarString::Set(const char* value)
+void ConfVarString::Set(const string_t &value)
 {
 	_ASSERT(typeString == _type);
 	*_val.asString = value;
@@ -290,7 +290,7 @@ bool ConfVarString::_Load(lua_State *L)
 
 void ConfVarString::Push(lua_State *L)
 {
-	lua_pushstring(L, Get());
+	lua_pushstring(L, Get().c_str());
 }
 
 
@@ -566,7 +566,7 @@ const char* ConfVarTable::GetTypeName() const
 	return "table";
 }
 
-ConfVar* ConfVarTable::Find(const char *name)  // returns NULL if variable not found
+ConfVar* ConfVarTable::Find(const string_t &name)  // returns NULL if variable not found
 {
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
 	return _val.asTable->end() != it ? it->second : NULL;
@@ -587,7 +587,7 @@ void ConfVarTable::GetKeyList(std::vector<string_t> &out) const
 	}
 }
 
-std::pair<ConfVar*, bool> ConfVarTable::GetVar(const char *name, ConfVar::Type type)
+std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Type type)
 {
 	std::pair<ConfVar*, bool> result(NULL, true);
 
@@ -615,14 +615,14 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const char *name, ConfVar::Type t
 		if( warn )
 		{
 			g_console->printf("WARNING: changing type of variable '%s' from %s to %s\n",
-				name, typeName, result.first->GetTypeName() );
+				name.c_str(), typeName, result.first->GetTypeName() );
 		}
 	}
 
 	return result;
 }
 
-ConfVarNumber* ConfVarTable::GetNum(const char *name, float def)
+ConfVarNumber* ConfVarTable::GetNum(const string_t &name, float def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
@@ -630,14 +630,14 @@ ConfVarNumber* ConfVarTable::GetNum(const char *name, float def)
 	return p.first->AsNum();
 }
 
-ConfVarNumber* ConfVarTable::SetNum(const char *name, float value)
+ConfVarNumber* ConfVarTable::SetNum(const string_t &name, float value)
 {
 	ConfVarNumber *v = GetVar(name, ConfVar::typeNumber).first->AsNum();
 	v->SetFloat(value);
 	return v;
 }
 
-ConfVarNumber* ConfVarTable::GetNum(const char *name, int def)
+ConfVarNumber* ConfVarTable::GetNum(const string_t &name, int def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
@@ -645,14 +645,14 @@ ConfVarNumber* ConfVarTable::GetNum(const char *name, int def)
 	return p.first->AsNum();
 }
 
-ConfVarNumber* ConfVarTable::SetNum(const char *name, int value)
+ConfVarNumber* ConfVarTable::SetNum(const string_t &name, int value)
 {
 	ConfVarNumber *v = GetVar(name, ConfVar::typeNumber).first->AsNum();
 	v->SetInt(value);
 	return v;
 }
 
-ConfVarBool* ConfVarTable::GetBool(const char *name, bool def)
+ConfVarBool* ConfVarTable::GetBool(const string_t &name, bool def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeBoolean);
 	if( !p.second )
@@ -660,34 +660,34 @@ ConfVarBool* ConfVarTable::GetBool(const char *name, bool def)
 	return p.first->AsBool();
 }
 
-ConfVarBool* ConfVarTable::SetBool(const char *name, bool value)
+ConfVarBool* ConfVarTable::SetBool(const string_t &name, bool value)
 {
 	ConfVarBool *v = GetVar(name, ConfVar::typeBoolean).first->AsBool();
 	v->Set(value);
 	return v;
 }
 
-ConfVarString* ConfVarTable::GetStr(const char *name, const char* def)
+ConfVarString* ConfVarTable::GetStr(const string_t &name, const char* def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeString);
 	if( !p.second )
-		p.first->AsStr()->Set(def);
+		p.first->AsStr()->Set(def ? def : name);
 	return p.first->AsStr();
 }
 
-ConfVarString* ConfVarTable::SetStr(const char *name, const char* value)
+ConfVarString* ConfVarTable::SetStr(const string_t &name, const string_t &value)
 {
 	ConfVarString *v = GetVar(name, ConfVar::typeString).first->AsStr();
 	v->Set(value);
 	return v;
 }
 
-ConfVarArray* ConfVarTable::GetArray(const char *name)
+ConfVarArray* ConfVarTable::GetArray(const string_t &name)
 {
 	return GetVar(name, ConfVar::typeArray).first->AsArray();
 }
 
-ConfVarTable* ConfVarTable::GetTable(const char *name)
+ConfVarTable* ConfVarTable::GetTable(const string_t &name)
 {
 	return GetVar(name, ConfVar::typeTable).first->AsTable();
 }
@@ -708,7 +708,7 @@ bool ConfVarTable::Remove(ConfVar * const value)
 	return false;
 }
 
-bool ConfVarTable::Remove(const char *name)
+bool ConfVarTable::Remove(const string_t &name)
 {
 	_ASSERT( typeTable == _type );
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
@@ -720,7 +720,7 @@ bool ConfVarTable::Remove(const char *name)
 	return false;
 }
 
-bool ConfVarTable::Rename(ConfVar * const value, const char *newName)
+bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 {
 	_ASSERT( typeTable == _type );
 
@@ -753,7 +753,7 @@ bool ConfVarTable::Rename(ConfVar * const value, const char *newName)
 	return true;
 }
 
-bool ConfVarTable::Rename(const char *oldName, const char *newName)
+bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
 {
 	_ASSERT( typeTable == _type );
 

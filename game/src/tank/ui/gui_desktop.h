@@ -31,6 +31,7 @@ public:
 	MessageArea(Window *parent, float x, float y);
 	~MessageArea();
 
+	void puts(const string_t &text);
 	void puts(const char *text);
 	void Clear();
 

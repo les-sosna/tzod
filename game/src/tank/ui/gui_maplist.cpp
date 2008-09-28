@@ -33,10 +33,10 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 				tmp += *it;
 
 				MapFile file;
-				if( file.Open(tmp.c_str(), false) )
+				if( file.Open(tmp, false) )
 				{
 					it->erase(it->length() - 4); // cut out the file extension
-					int index = AddItem(it->c_str());
+					int index = AddItem(*it);
 
 					char size[64];
 					int h = 0, w = 0;
@@ -47,7 +47,7 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 
 					if( file.getMapAttribute("theme", tmp) )
 					{
-						SetItemText(index, 2, tmp.c_str());
+						SetItemText(index, 2, tmp);
 					}
 				}
 			}

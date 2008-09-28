@@ -231,7 +231,7 @@ void GC_Vehicle::SetState(const VehicleState &vs)
 	memcpy( &_state, &vs, sizeof(VehicleState) );
 }
 
-void GC_Vehicle::SetSkin(const char *skin)
+void GC_Vehicle::SetSkin(const string_t &skin)
 {
 	string_t tmp = "skin/";
 	tmp += skin;
@@ -353,7 +353,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					// убил себя апстену =)
 					GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf(msg, g_lang->msg_player_x_killed_him_self->Get(), GetPlayer()->GetNick().c_str());
+					wsprintf(msg, g_lang->msg_player_x_killed_him_self->Get().c_str(), GetPlayer()->GetNick().c_str());
 				}
 				else if( GetPlayer() )
 				{
@@ -363,7 +363,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						// убил товарища
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 						font = "font_digits_red";
-						wsprintf(msg, g_lang->msg_player_x_killed_his_friend_x->Get(),
+						wsprintf(msg, g_lang->msg_player_x_killed_his_friend_x->Get().c_str(),
 							((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
 							GetPlayer()->GetNick().c_str());
 					}
@@ -372,7 +372,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						// убил врага - молодец!
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 						font = "font_digits_green";
-						wsprintf(msg, g_lang->msg_player_x_killed_his_enemy_x->Get(),
+						wsprintf(msg, g_lang->msg_player_x_killed_his_enemy_x->Get().c_str(),
 							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str());
 					}
 				}
@@ -397,11 +397,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 			wsprintf(score, "%d", GetPlayer()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
-			wsprintf(msg, g_lang->msg_player_x_was_killed_by_turret->Get(), GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang->msg_player_x_was_killed_by_turret->Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 		else if( GetPlayer() )
 		{
-			wsprintf(msg, g_lang->msg_player_x_died->Get(), GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang->msg_player_x_died->Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 
 		AddRef();

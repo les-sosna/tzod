@@ -171,22 +171,22 @@ void PropertySet::LoadFromConfig()
 		case ObjectProperty::TYPE_INTEGER:
 			prop->SetIntValue(
 				__min(prop->GetIntMax(), __max(prop->GetIntMin(),
-					op->GetNum(prop->GetName().c_str(), prop->GetIntValue())->GetInt()
+					op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt()
 			)));
 			break;
 		case ObjectProperty::TYPE_FLOAT:
 			prop->SetFloatValue(
 				__min(prop->GetFloatMax(), __max(prop->GetFloatMin(),
-					op->GetNum(prop->GetName().c_str(), prop->GetFloatValue())->GetFloat()
+					op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat()
 			)));
 			break;
 		case ObjectProperty::TYPE_STRING:
-			prop->SetStringValue(op->GetStr(prop->GetName().c_str(), prop->GetStringValue().c_str())->Get());
+			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
 			prop->SetCurrentIndex(
 				__min((int) prop->GetListSize() - 1, __max(0,
-					op->GetNum(prop->GetName().c_str(), (int) prop->GetCurrentIndex())->GetInt()
+					op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt()
 			)));
 			break;
 		default:
@@ -204,16 +204,16 @@ void PropertySet::SaveToConfig()
 		switch( prop->GetType() )
 		{
 		case ObjectProperty::TYPE_INTEGER:
-			op->SetNum(prop->GetName().c_str(), prop->GetIntValue());
+			op->SetNum(prop->GetName(), prop->GetIntValue());
 			break;
 		case ObjectProperty::TYPE_FLOAT:
-			op->SetNum(prop->GetName().c_str(), prop->GetFloatValue());
+			op->SetNum(prop->GetName(), prop->GetFloatValue());
 			break;
 		case ObjectProperty::TYPE_STRING:
-			op->SetStr(prop->GetName().c_str(), prop->GetStringValue().c_str());
+			op->SetStr(prop->GetName(), prop->GetStringValue().c_str());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
-			op->SetNum(prop->GetName().c_str(), (int) prop->GetCurrentIndex());
+			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
 			break;
 		default:
 			_ASSERT(FALSE);

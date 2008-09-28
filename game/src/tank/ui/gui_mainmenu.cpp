@@ -294,7 +294,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		if( g_level->Export(tmp.c_str()) )
 		{
 			g_console->printf("map exported: '%s'\n", tmp.c_str());
-			g_conf->cl_map->Set(_fileDlg->GetFileTitle().c_str());
+			g_conf->cl_map->Set(_fileDlg->GetFileTitle());
 		}
 		else
 		{

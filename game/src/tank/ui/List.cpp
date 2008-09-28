@@ -40,7 +40,7 @@ const string_t& ListDataSourceDefault::GetItemText(int index, int sub) const
 	return _items[index].text[sub];
 }
 
-int ListDataSourceDefault::FindItem(const char *text) const
+int ListDataSourceDefault::FindItem(const string_t &text) const
 {
 	for( size_t i = 0; i < _items.size(); ++i )
 	{
@@ -52,7 +52,7 @@ int ListDataSourceDefault::FindItem(const char *text) const
 	return -1;
 }
 
-int ListDataSourceDefault::AddItem(const char *str, UINT_PTR data)
+int ListDataSourceDefault::AddItem(const string_t &str, UINT_PTR data)
 {
 	Item i;
 	i.text.push_back(str);
@@ -65,7 +65,7 @@ int ListDataSourceDefault::AddItem(const char *str, UINT_PTR data)
 	return _items.size() - 1;
 }
 
-void ListDataSourceDefault::SetItemText(int index, int sub, const char *str)
+void ListDataSourceDefault::SetItemText(int index, int sub, const string_t &str)
 {
 	_ASSERT(index >= 0 && index < (int) _items.size());
 	if( sub >= (int) _items[index].text.size() )
@@ -139,7 +139,7 @@ void List::ListCallbackImpl::OnDeleteItem(int idx)
 
 void List::ListCallbackImpl::OnAddItem()
 {
-	_list->_scrollBar->SetLimit( (float) _list->_data->GetItemCount() - _list->GetNumLinesVisible() );
+	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount() - _list->GetNumLinesVisible());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -215,12 +215,12 @@ void List::DeleteAllItems()
 	GetDataDefault()->DeleteAllItems();
 }
 
-int List::AddItem(const char *str, UINT_PTR data)
+int List::AddItem(const string_t &str, UINT_PTR data)
 {
 	return GetDataDefault()->AddItem(str, data);
 }
 
-void List::SetItemText(int index, int sub, const char *str)
+void List::SetItemText(int index, int sub, const string_t &str)
 {
 	GetDataDefault()->SetItemText(index, sub, str);
 }
@@ -235,7 +235,7 @@ void List::Sort()
 	GetDataDefault()->Sort();
 }
 
-int List::FindItem(const char *text) const
+int List::FindItem(const string_t &text) const
 {
 	return _data->FindItem(text);
 }
@@ -301,7 +301,7 @@ void List::SetCurSel(int sel, bool scroll)
 
 int List::HitTest(float y)
 {
-	int index = int( y / GetItemHeight() + _scrollBar->GetPos() );
+	int index = int(y / GetItemHeight() + _scrollBar->GetPos());
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
 		index = -1;
@@ -417,8 +417,8 @@ void List::DrawChildren(float sx, float sy)
 		y = floorf(y * GetItemHeight() + 0.5f);
 		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
 		{
-			_blankText->SetText(_data->GetItemText(i, k).c_str());
-			_blankText->Draw(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y );
+			_blankText->SetText(_data->GetItemText(i, k));
+			_blankText->Draw(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y);
 		}
 	}
 	_blankText->Show(false);

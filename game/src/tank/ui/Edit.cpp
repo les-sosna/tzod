@@ -40,7 +40,7 @@ const string_t& Edit::GetText() const
 	return _string;
 }
 
-void Edit::SetText(const char *text)
+void Edit::SetText(const string_t &text)
 {
 	_string = text;
 	_blankText->SetText(text);
@@ -58,7 +58,7 @@ void Edit::SetInt(int value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(tmp.str().c_str());
+	SetText(tmp.str());
 }
 
 int Edit::GetInt() const
@@ -70,7 +70,7 @@ void Edit::SetFloat(float value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(tmp.str().c_str());
+	SetText(tmp.str());
 }
 
 float Edit::GetFloat() const
@@ -134,7 +134,7 @@ void Edit::OnChar(int c)
 		int start = GetSelMin();
 		_string = _string.substr(0, start) + (char) c + _string.substr(GetSelMax());
 		SetSel(start + 1, start + 1);
-		_blankText->SetText(_string.c_str());
+		_blankText->SetText(_string);
 		if( eventChange )
 			INVOKE(eventChange) ();
 	}
@@ -173,7 +173,7 @@ void Edit::OnRawChar(int c)
 		{
 			Copy();
 			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
-			_blankText->SetText(_string.c_str());
+			_blankText->SetText(_string);
 			SetSel(GetSelMin(), GetSelMin());
 			if( eventChange )
 				INVOKE(eventChange) ();
@@ -193,7 +193,7 @@ void Edit::OnRawChar(int c)
 			}
 			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
 		}
-		_blankText->SetText(_string.c_str());
+		_blankText->SetText(_string);
 		SetSel(GetSelMin(), GetSelMin());
 		if( eventChange )
 			INVOKE(eventChange) ();
@@ -210,7 +210,7 @@ void Edit::OnRawChar(int c)
 		}
 		tmp = __max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		SetSel(tmp, tmp);
-		_blankText->SetText(_string.c_str());
+		_blankText->SetText(_string);
 		if( eventChange )
 			INVOKE(eventChange) ();
 		break;
@@ -334,7 +334,7 @@ void Edit::Paste()
 				_string = _string.substr(0, GetSelMin())
 					+ data
 					+ _string.substr(GetSelMax(), _string.length() - GetSelMax());
-				_blankText->SetText(_string.c_str());
+				_blankText->SetText(_string);
 				SetSel(GetSelMin() + strlen(data), GetSelMin() + strlen(data));
 				GlobalUnlock(hData);
 				if( eventChange )

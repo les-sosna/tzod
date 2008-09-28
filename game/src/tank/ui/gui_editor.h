@@ -4,6 +4,7 @@
 
 #include "ui/Base.h"
 #include "ui/Dialog.h"
+#include "ui/List.h"
 
 // forward declarations
 class GC_Object;
@@ -58,6 +59,28 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class ServiceListDataSource : public ListDataSource
+{
+public:
+	virtual void SetCallback(ListCallback *cb);
+
+	virtual int GetItemCount() const;
+	virtual int GetSubItemCount(int index) const;
+	virtual ULONG_PTR GetItemData(int index) const;
+	virtual const string_t& GetItemText(int index, int sub) const;
+	virtual int FindItem(const string_t &text) const;
+
+public:
+	ServiceListDataSource();
+	virtual ~ServiceListDataSource();
+
+private:
+	mutable string_t _nameCache;
+	std::set<GC_Object*> _cache;
+	ListCallback *_cb;
+};
+
+
 class EditorLayout;
 
 class ServiceList : public Dialog
@@ -69,12 +92,10 @@ class ServiceList : public Dialog
 	Button *_btnCreate;
 
 	float _margins;
-	bool _ignoreSelectService;
 
 public:
 	ServiceList(Window *parent, float x, float y, float w, float h);
-	~ServiceList();
-	void UpdateList();
+	virtual ~ServiceList();
 
 protected:
 	void OnChangeSelectionGlobal(GC_Object *obj);

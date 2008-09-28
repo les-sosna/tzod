@@ -6,19 +6,27 @@
 /////////////////////////////////////////////////////////
 
 template <class grid_type>
-class Grid {
-	std::vector<grid_type> _data;
+class Grid
+{
+	grid_type *_data;
 	size_t _cx;
 	size_t _cy;
 
 public:
-	Grid(size_t cx, size_t cy) {
-		_cx = cx;
-		_cy = cy;
-		_data.resize(cy*cx);
+	Grid(size_t cx, size_t cy)
+	  : _data(new grid_type[cy*cx])
+	  , _cx(cx)
+	  , _cy(cy)
+	{
 	}
 
-	inline grid_type& element(size_t x, size_t y) {
+	~Grid()
+	{
+		delete [] _data;
+	}
+
+	inline grid_type& element(size_t x, size_t y)
+	{
 		_ASSERT(x < _cx && y < _cy);
 		return _data[y*_cx + x];
 	}
@@ -37,33 +45,37 @@ public:
 template <class element_type>
 class GridSet
 {
-	Grid<element_type> *_ppGrids[4];
+	Grid<element_type> *_grids[4];
 
 public:
-	void resize(size_t rows, size_t cols) {
+	void resize(size_t rows, size_t cols)
+	{
 		for( size_t i = 0; i < 4; i++ )
 		{
-			if( _ppGrids[i] )
+			if( _grids[i] )
 			{
-				delete _ppGrids[i];
+				delete _grids[i];
 			}
-			_ppGrids[i] = new Grid<element_type>(rows, cols);
+			_grids[i] = new Grid<element_type>(rows, cols);
 		}
 	}
 
-	GridSet() {
+	GridSet()
+	{
 		for( size_t i = 0; i < 4; ++i )
-			_ppGrids[i] = NULL;
+			_grids[i] = NULL;
 	}
 	GridSet(size_t rows, size_t cols) { init(rows, cols); }
 
-	inline Grid<element_type>& operator() (size_t n) {
+	inline Grid<element_type>& operator() (size_t n)
+	{
 		_ASSERT(n < 4);
-		return *_ppGrids[n];
+		return *_grids[n];
 	}
-	inline element_type& operator() (size_t n, size_t x, size_t y) {
+	inline element_type& operator() (size_t n, size_t x, size_t y)
+	{
 		_ASSERT(n < 4);
-		return _ppGrids[n]->element(x, y);
+		return _grids[n]->element(x, y);
 	}
 
 	////////////////////////
@@ -207,7 +219,7 @@ public:
 	~GridSet()
 	{
 		for( size_t i = 0; i < 4; ++i )
-			delete _ppGrids[i];
+			delete _grids[i];
 	}
 };
 

@@ -131,7 +131,7 @@ public:
 
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 
-	void SetSkin(const char *skin);
+	void SetSkin(const string_t &skin);
 	void SetState(const VehicleState &vs);
 
 	void SetMoveSound(enumSoundTemplate s);
