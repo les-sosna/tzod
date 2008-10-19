@@ -201,7 +201,7 @@ public:
 
 /////////////////////////////////////
 //settings
-	bool    _freezed;
+	bool    _frozen;
 	bool    _modeEditor;
 	bool    _limitHit;  // достигнут fraglimit или timelimit
 	float   _sx, _sy;   // размер уровня
@@ -239,7 +239,6 @@ public:
 	~Level();
 
 	void Init(int X, int Y);
-	void Resize(int X, int Y);
 
 	void HitLimit();
 
@@ -262,7 +261,7 @@ public:
 
 	void PauseLocal(bool pause);
 	void PauseSound(bool pause);
-	void Freeze(bool freeze) { _freezed = freeze; }
+	void Freeze(bool freeze) { _frozen = freeze; }
 
 	void TimeStep(float dt);
 	void Render() const;

@@ -3,15 +3,17 @@
 
 #pragma once
 
+#include "Delegate.h"
+
 ///////////////////////////////////
 
-template <class object_type>
+template <class T>
 class PtrList
 {
 	struct Node
 	{
-		object_type *ptr;
-		int ref_count;       // cout of safe iterators using this node
+		T *ptr;
+		int ref_count;       // count of safe iterators which use this node
 		Node *prev, *next;
 	};
 
@@ -27,7 +29,28 @@ class PtrList
 		nodeAllocator.Free(node);
 	}
 
+	void OnAddElement(T *ptr)
+	{
+		if( eventAddElement )
+			INVOKE(eventAddElement) (ptr);
+	}
+
+	void OnRemoveElement(T *ptr)
+	{
+		if( eventRemoveElement )
+			INVOKE(eventRemoveElement) (ptr);
+	}
+
+	PtrList(const PtrList &src); // no copy
+
 public:
+
+	/////////////////////////////////////////////
+	// callback interface
+
+	Delegate<void(T*)> eventAddElement;
+	Delegate<void(T*)> eventRemoveElement;
+
 
 	/////////////////////////////////////////////
 	// iterators
@@ -47,13 +70,10 @@ public:
 		base_iterator() : _node(NULL) {}
 		explicit base_iterator(Node *p) : _node(p) {}
 
-		object_type* operator * () const { return _node->ptr; }
-
-		//void operator = (const base_iterator &r)
-		//{
-		//	_node = r._node;
-		//}
-
+		T* operator * () const
+		{
+			return _node->ptr;
+		}
 		bool operator != (const base_iterator& it) const
 		{
 			return _node != it._node;
@@ -207,40 +227,19 @@ public:
 	/////////////////////////////////////////////
 
 	PtrList(void)
+	  : _size(0)
+	  , _begin(nodeAllocator.Alloc())
+	  , _end(nodeAllocator.Alloc())
 	{
-		_size  = 0;
-		_begin = nodeAllocator.Alloc();
-		_end   = nodeAllocator.Alloc();
-		_begin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
+		_begin->ptr       = (T*) -1;     // not NULL but invalid pointer
 		_begin->ref_count = 0;
 		_begin->next      = _end;
 		_begin->prev      = NULL;
-		_end->ptr         = (object_type*) -1;     // not NULL but invalid pointer
+		_end->ptr         = (T*) -1;     // not NULL but invalid pointer
 		_end->ref_count   = 0;
 		_end->prev        = _begin;
 		_end->next        = NULL;
 	}
-private:
-	PtrList(const PtrList &src);
-	public:
-/*	{
-		_size  = src._size;
-		_begin = nodeAllocator.Alloc();
-		_end   = nodeAllocator.Alloc();
-		_begin->ptr       = (object_type*) -1;     // not NULL but invalid pointer
-		_begin->ref_count = 0;
-		_begin->next      = _end;
-		_begin->prev      = NULL;
-		_end->ptr         = (object_type*) -1;     // not NULL but invalid pointer
-		_end->ref_count   = 0;
-		_end->prev        = _begin;
-		_end->next        = NULL;
-
-		for( iterator it = src.begin(); it != src.end(); ++it )
-		{
-			if(*it) push_back(*it);
-		}
-	}*/
 
 	~PtrList(void)
 	{
@@ -253,7 +252,7 @@ private:
 		}
 	}
 
-	void push_front(object_type *ptr)
+	void push_front(T *ptr)
 	{
 		Node *tmp = nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
@@ -262,9 +261,10 @@ private:
 		tmp->next       = _begin->next;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
+		OnAddElement(ptr);
 	}
 
-	void push_back(object_type *ptr)
+	void push_back(T *ptr)
 	{
 		Node *tmp = nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
@@ -273,25 +273,32 @@ private:
 		tmp->next       = _end;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
+		OnAddElement(ptr);
 	}
 
 	void erase(base_iterator &where)
 	{
 		_ASSERT(0 < _size);
-		_ASSERT(0 == where._node->ref_count);
+		_ASSERT(0 == where._node->ref_count);  // use safe_erase to handle this
+		_ASSERT(where._node != _begin);
+		_ASSERT(where._node != _end);
+		T *ptr = where._node->ptr;
 		FreeNode(where._node);
 		--_size;
+		OnRemoveElement(ptr);
 	}
 
 	void safe_erase(base_iterator &where)
 	{
 		_ASSERT(0 < _size);
 		_ASSERT(0 <= where._node->ref_count);
+		T *ptr = where._node->ptr;
 		if( where._node->ref_count )
 			where._node->ptr = 0;
 		else
 			FreeNode(where._node);
 		--_size;
+		OnRemoveElement(ptr);
 	}
 
 	__inline iterator      begin() const { return iterator(_begin->next); }
@@ -302,16 +309,29 @@ private:
 	reverse_iterator rbegin() const { return reverse_iterator(_end->prev); }
 	base_iterator    rend()   const { return base_iterator(_begin); }
 
-	bool empty() const { return 0 == _size; }
-	object_type* front() const { return mybegin->next->ptr; }
-	object_type* back()  const { return myend->prev->ptr; }
+	bool empty() const
+	{
+		return _begin->next == _end;
+	}
+
+	T* front() const
+	{
+		_ASSERT(!empty());
+		return _begin->next->ptr;
+	}
+
+	T* back()  const
+	{
+		_ASSERT(!empty());
+		return _end->prev->ptr;
+	}
 
 	size_t size() const { return _size; } // FIXME
 };
 
-template <class object_type>
-MemoryManager<typename PtrList<object_type>::Node>
-	PtrList<object_type>::nodeAllocator;
+template <class T>
+MemoryManager<typename PtrList<T>::Node>
+	PtrList<T>::nodeAllocator;
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

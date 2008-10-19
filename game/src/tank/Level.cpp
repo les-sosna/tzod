@@ -243,7 +243,7 @@ Level::Level()
 	_time        = 0;
 	_timeBuffer  = 0;
 	_limitHit    = false;
-	_freezed     = false;
+	_frozen     = false;
 
 	_safeMode    = true;
 
@@ -272,22 +272,10 @@ Level::Level()
 
 void Level::Init(int X, int Y)
 {
-	Resize(X, Y);
-
 	//
-	// other objects
+	// Resize
 	//
 
-	new GC_Camera((GC_Player *) NULL);
-
-	_background = new GC_Background();
-
-	_temporaryText = new GC_Text(0, 0, "");
-	_temporaryText->Show(false);
-}
-
-void Level::Resize(int X, int Y)
-{
 	_locations_x  = X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
 	_locations_y  = Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
 	_sx           = (float) X * CELL_SIZE;
@@ -303,6 +291,18 @@ void Level::Resize(int X, int Y)
 	grid_pickup.resize(_locations_x, _locations_y);
 
 	_field.Resize(X + 1, Y + 1);
+
+
+	//
+	// other objects
+	//
+
+	new GC_Camera((GC_Player *) NULL);
+
+	_background = new GC_Background();
+
+	_temporaryText = new GC_Text(0, 0, "");
+	_temporaryText->Show(false);
 }
 
 void Level::HitLimit()
@@ -1154,7 +1154,7 @@ void Level::TimeStep(float dt)
 			_time       += fixed_dt;
 			_timeBuffer -= fixed_dt;
 
-			if( !_freezed )
+			if( !_frozen )
 			{
 				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
 				while( it != ts_fixed.end() )
@@ -1200,7 +1200,7 @@ void Level::TimeStep(float dt)
 		do
 		{
 			_time += fixed_dt;
-			if( !_freezed )
+			if( !_frozen )
 			{
 				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
 				while( it != ts_fixed.end() )
@@ -1218,7 +1218,7 @@ void Level::TimeStep(float dt)
 		while( --count );
 	} // end of if( g_client )
 
-	if( !_freezed )
+	if( !_frozen )
 	{
 		OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
 		while( it != ts_floating.end() )
