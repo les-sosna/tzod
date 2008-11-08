@@ -35,18 +35,6 @@
 
 #include "res/resource.h"
 
-
-#define GET_DLG_ITEM_TEXT(hdlg, id, str)      \
-{                                             \
-	HWND item = GetDlgItem(hdlg, id);         \
-	_ASSERT(item);                            \
-	int len = 1+GetWindowTextLength(item);    \
-	str.resize(len);                          \
-	GetWindowText(item, &str[0], len);        \
-	str.resize(len-1);                        \
-}
-
-
 ////////////////////////////////////////////////////////////////////
 
 #define GETCHECK(id) (BST_CHECKED == SendDlgItemMessage(hDlg, (id), BM_GETCHECK, 0, 0))

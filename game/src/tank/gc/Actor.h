@@ -18,7 +18,7 @@ class GC_Actor : public GC_Object
 {
 	struct Context
 	{
-		GridSet<OBJECT_LIST> *grids;
+		Grid<OBJECT_LIST> *grids;
 		OBJECT_LIST::iterator iterator;
 	};
 

@@ -237,26 +237,20 @@ void Field::Dump()
 Level::Level()
   : _modeEditor(false)
   , _pause(0)
+  , _time(0)
+  , _timeBuffer(0)
+  , _limitHit(false)
+  , _frozen(false)
+  , _safeMode(true)
+  , _locations_x(0)
+  , _locations_y(0)
+  , _sx(0)
+  , _sy(0)
+  , _seed(1)
+  , _gameType(-1)
 {
 	TRACE("Constructing the level\n");
 
-	_time        = 0;
-	_timeBuffer  = 0;
-	_limitHit    = false;
-	_frozen     = false;
-
-	_safeMode    = true;
-
-	_locations_x  = 0;
-	_locations_y  = 0;
-	_sx = 0;
-	_sy = 0;
-
-	_seed   = 1;
-
-	_gameType = -1;
-
-	/////////////////////////
 	#ifdef _DEBUG
 	_bInitialized = FALSE;
 	#endif
@@ -264,20 +258,19 @@ Level::Level()
 	_checksum = 0;
 	#endif
 
-
 	// register config handlers
 	g_conf->s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
 	g_conf->sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
 }
 
-void Level::Init(int X, int Y)
+void Level::Resize(int X, int Y)
 {
 	//
 	// Resize
 	//
 
-	_locations_x  = X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
-	_locations_y  = Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0);
+	_locations_x  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
+	_locations_y  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx           = (float) X * CELL_SIZE;
 	_sy           = (float) Y * CELL_SIZE;
 
@@ -491,7 +484,7 @@ bool Level::Unserialize(const char *fileName)
 		g_conf->sv_nightmode->Set(sh.nightmode);
 
 		_time = sh.time;
-		Init(sh.width, sh.height);
+		Resize(sh.width, sh.height);
 
 		while( sh.nObjects > 0 )
 		{
@@ -683,7 +676,7 @@ bool Level::Import(const char *fileName, bool execInitScript)
 	file.getMapAttribute("e-mail",   _infoEmail);
 	file.getMapAttribute("on_init",  _infoOnInit);
 
-	Init(width, height);
+	Resize(width, height);
 
 	while( file.NextObject() )
 	{
@@ -810,10 +803,10 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
 	{
-		std::vector<OBJECT_LIST*> receive;
-		z_grids[i].OverlapCircle(receive, pt.x / LOCATION_SIZE, pt.y / LOCATION_SIZE, 0);
+		PtrList<OBJECT_LIST> receive;
+		z_grids[i].OverlapPoint(receive, pt / LOCATION_SIZE);
 
-		std::vector<OBJECT_LIST*>::iterator rit = receive.begin();
+		PtrList<OBJECT_LIST>::iterator rit = receive.begin();
 		for( ; rit != receive.end(); rit++ )
 		{
 			OBJECT_LIST::iterator it = (*rit)->begin();
@@ -885,17 +878,7 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	}
 }
 
-void Level::LocationFromPoint(const vec2d &pt, Location &l)
-{
-	int x = __max(0, int((pt.x + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
-	int y = __max(0, int((pt.y + LOCATION_SIZE / 4) / (LOCATION_SIZE / 2)) - 1);
-
-	l.level = (x & 1) + ((y & 1) << 1);
-	l.x = __min(_locations_x - 1, x >> 1);
-	l.y = __min(_locations_y - 1, y >> 1);
-}
-
-GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
+GC_RigidBodyStatic* Level::agTrace( Grid<OBJECT_LIST> &list,
 	                                const GC_RigidBodyStatic* ignore,
 	                                const vec2d &x0,  // origin
 	                                const vec2d &a,   // direction
@@ -913,41 +896,47 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 	// overlap line
 	//
 
-	vec2d x0_tmp(x0), a_tmp(a);
-	x0_tmp /= LOCATION_SIZE;
-	a_tmp /= LOCATION_SIZE;
+	vec2d begin(x0), end(x0 + a), delta(a);
+	begin /= LOCATION_SIZE;
+	end   /= LOCATION_SIZE;
+	delta /= LOCATION_SIZE;
 
-	static const float dx[4] = {0,-0.5f, 0,-0.5f};
-	static const float dy[4] = {0, 0,-0.5f,-0.5f};
+	const int halfBeginX = int(floorf(begin.x - 0.5f));
+	const int halfBeginY = int(floorf(begin.y - 0.5f));
 
-	const int stepx[2] = {a_tmp.x >= 0 ? 1 : -1, 0};
-	const int stepy[2] = {0, a_tmp.y >= 0 ? 1 : -1};
-	const int check[2] = {a_tmp.y == 0,   a_tmp.x == 0};
+	const int halfEndX = int(floorf(end.x - 0.5f));
+	const int halfEndY = int(floorf(end.y - 0.5f));
+
+	const int jitX[4] = {0,1,0,1};
+	const int jitY[4] = {0,0,1,1};
+
+	const int stepx = delta.x > 0 ? 2 : -2;
+	const int stepy = delta.y > 0 ? 2 : -2;
+
+	float p = delta.y * (begin.x - 0.5f) - delta.x * (begin.y - 0.5f);
+	float tx = p - delta.y * (float) stepx;
+	float ty = p + delta.x * (float) stepy;
+
 
 	float la = a.len();
 	float la_tmp = la / LOCATION_SIZE;
 
 	for( int i = 0; i < 4; i++ )
 	{
-		float cx = x0_tmp.x + dx[i];
-		float cy = x0_tmp.y + dy[i];
+		int cx = halfBeginX + jitX[i];
+		int cy = halfBeginY + jitY[i];
 
-		int targx = (int) floor(cx + a_tmp.x);
-		int targy = (int) floor(cy + a_tmp.y);
-		int curx  = (int) floor(cx);
-		int cury  = (int) floor(cy);
+		int count = (abs(cx-halfEndX - (cx<halfEndX))>>1) + (abs(cy-halfEndY - (cy<halfEndY))>>1);
+		_ASSERT(count >= 0);
 
-		int xmin = __min(curx, targx);
-		int xmax = __max(curx, targx);
-		int ymin = __min(cury, targy);
-		int ymax = __max(cury, targy);
-
-		for(;;)
+		do
 		{
-			if( curx >= 0 && curx < _locations_x &&
-				cury >= 0 && cury < _locations_y )
+			//
+			// check current cell
+			//
+			if( cx >= 0 && cx < _locations_x && cy >= 0 && cy < _locations_y )
 			{
-				OBJECT_LIST &tmp_list = list(i, curx, cury);
+				OBJECT_LIST &tmp_list = list.element(cx, cy);
 				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
@@ -1002,35 +991,15 @@ GC_RigidBodyStatic* Level::agTrace( GridSet<OBJECT_LIST> &list,
 				}
 			}
 
-			if( curx == targx && cury == targy ) break;
 
-			float d_min;
-			int   j_min = 0;
-			for( int j = 0; j < 2; j++ )
-			{
-				int newx = curx + stepx[j];
-				int newy = cury + stepy[j];
+			// step to the next cell
+			float t = delta.x * (float) cy - delta.y * (float) cx;
+			if( fabsf(t + tx) < fabsf(t + ty) )
+				cx += stepx;
+			else
+				cy += stepy;
 
-				if( newx < xmin || newx > xmax || newy < ymin || newy > ymax )
-				{
-					j_min = 1 - j;
-					break;
-				}
-
-				float d = fabsf(a_tmp.x*((float) newy + 0.5f - cy) -
-					a_tmp.y*((float) newx + 0.5f - cx)) / la_tmp;
-
-				if( 0 == j )
-					d_min = d;
-				else if( d < d_min || check[j] )
-				{
-					j_min = j;
-					d_min = d;
-				}
-			}
-			curx += stepx[j_min];
-			cury += stepy[j_min];
-		}// for(;;)
+		} while( count-- );
 	}
 
 	if( pBestObject )
@@ -1371,33 +1340,24 @@ void Level::Render() const
 
 		for( int z = 0; z < Z_COUNT; ++z )
 		{
-			// loop over grid sets
-			for( int lev = 0; lev < 4; ++lev )
+			int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
+			int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
+			int xmax = __min(_locations_x - 1,
+				(g_env.camera_x + int((float) g_render->GetViewportWidth() / pCamera->_zoom)) / LOCATION_SIZE);
+			int ymax = __min(_locations_y - 1,
+				(g_env.camera_y + int((float) g_render->GetViewportHeight() / pCamera->_zoom)) / LOCATION_SIZE);
+
+			for( int x = xmin; x <= xmax; ++x )
+			for( int y = ymin; y <= ymax; ++y )
 			{
-				static const int dx[] = {0, LOCATION_SIZE/2, 0, LOCATION_SIZE/2};
-				static const int dy[] = {0, 0, LOCATION_SIZE/2, LOCATION_SIZE/2};
-
-				int xmin = __max(0, (g_env.camera_x - dx[lev]) / LOCATION_SIZE);
-				int ymin = __max(0, (g_env.camera_y - dy[lev]) / LOCATION_SIZE);
-				int xmax = __min(_locations_x - 1,
-					((g_env.camera_x + int((float) g_render->GetViewportWidth() /
-					pCamera->_zoom)) - dx[lev]) / LOCATION_SIZE);
-				int ymax = __min(_locations_y - 1,
-					((g_env.camera_y + int((float) g_render->GetViewportHeight() /
-					pCamera->_zoom)) - dy[lev]) / LOCATION_SIZE);
-
-				for( int x = xmin; x <= xmax; ++x )
-				for( int y = ymin; y <= ymax; ++y )
+				// FIXME: using of global g_level
+				FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
 				{
-					// FIXME: using of global g_level
-					FOREACH( g_level->z_grids[z](lev).element(x,y), GC_2dSprite, object )
-					{
-						_ASSERT(!object->IsKilled());
-						object->Draw();
-						_ASSERT(!object->IsKilled());
-					}
+					_ASSERT(!object->IsKilled());
+					object->Draw();
+					_ASSERT(!object->IsKilled());
 				}
-			} // loop over grid sets
+			}
 
 
 			// loop over globals

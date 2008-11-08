@@ -14,7 +14,7 @@ class GC_Object;
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef PtrList<GC_Object> OBJECT_LIST;
-typedef GridSet<OBJECT_LIST> OBJECT_GRIDSET;
+typedef Grid<OBJECT_LIST> OBJECT_GRIDSET;
 
 /////////////////////////////////////////
 // memory management

@@ -170,7 +170,7 @@ static int luaT_newmap(lua_State *L)
 		delete g_level;
 	}
 	g_level = new Level();
-	g_level->Init(x, y);
+	g_level->Resize(x, y);
 	if( !g_level->init_emptymap() )
 	{
 		SAFE_DELETE(g_level);

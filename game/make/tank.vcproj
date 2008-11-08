@@ -56,7 +56,6 @@
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
-				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				CompileAs="0"

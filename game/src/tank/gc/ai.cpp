@@ -726,18 +726,24 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	std::vector<GC_Pickup *> applicants;
 
-	std::vector<OBJECT_LIST*> receive;
-	g_level->grid_pickup.OverlapCircle(receive,
-		GetVehicle()->GetPos().x / LOCATION_SIZE,
-		GetVehicle()->GetPos().y / LOCATION_SIZE,
-		AI_MAX_SIGHT * CELL_SIZE / LOCATION_SIZE );
-	for( size_t i = 0; i < receive.size(); ++i )
+	PtrList<OBJECT_LIST> receive;
+	FRECT rt = {
+		(GetVehicle()->GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(GetVehicle()->GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(GetVehicle()->GetPos().x + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(GetVehicle()->GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
+
+	g_level->grid_pickup.OverlapRect(receive, rt);
+	for( PtrList<OBJECT_LIST>::iterator i = receive.begin(); i != receive.end(); ++i )
 	{
-		OBJECT_LIST::iterator it = receive[i]->begin();
-		for(; it != receive[i]->end(); ++it )
+		OBJECT_LIST::iterator it = (*i)->begin();
+		for(; it != (*i)->end(); ++it )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) *it;
-			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) continue;
+			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) 
+			{
+				continue;
+			}
 
 			if( (GetVehicle()->GetPos() - pItem->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )

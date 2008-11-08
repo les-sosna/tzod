@@ -960,11 +960,10 @@ void GC_FireSpark::TimeStepFixed(float dt)
 
 	R *= 1.5; // for damage calculation
 
-	std::vector<OBJECT_LIST*> receive;
-	g_level->grid_rigid_s.OverlapCircle(receive,
-		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, 0);
+	PtrList<OBJECT_LIST> receive;
+	g_level->grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
-	std::vector<OBJECT_LIST*>::iterator it1 = receive.begin();
+	PtrList<OBJECT_LIST>::iterator it1 = receive.begin();
 	for( ; it1 != receive.end(); ++it1 )
 	{
 		for( OBJECT_LIST::safe_iterator it2 = (*it1)->safe_begin(); it2 != (*it1)->end(); ++it2 )

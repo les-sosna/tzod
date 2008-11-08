@@ -132,7 +132,6 @@ void GC_Wood::UpdateTile(bool flag)
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
 	PtrList<OBJECT_LIST> receive;
-
 	g_level->grid_wood.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
 	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
@@ -455,14 +454,18 @@ void GC_Explosion::Boom(float radius, float damage)
 	//
 	// получение списка локаций, накрываемых взрывом
 	//
-	std::vector<OBJECT_LIST*> receive;
-	g_level->grid_rigid_s.OverlapCircle(receive,
-		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, radius / LOCATION_SIZE);
+	PtrList<OBJECT_LIST> receive;
+	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
+	rt.left   /= LOCATION_SIZE;
+	rt.top    /= LOCATION_SIZE;
+	rt.right  /= LOCATION_SIZE;
+	rt.bottom /= LOCATION_SIZE;
+	g_level->grid_rigid_s.OverlapRect(receive, rt);
 
 	//
 	// подготовка поля для трассировки
 	//
-	std::vector<OBJECT_LIST*>::iterator it = receive.begin();
+	PtrList<OBJECT_LIST>::iterator it = receive.begin();
 	for( ; it != receive.end(); ++it )
 	{
 		OBJECT_LIST::iterator cdit = (*it)->begin();

@@ -448,14 +448,11 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	//------------------------------------
 	// collisions
 
-	std::vector<OBJECT_LIST*> receive;
-	g_level->grid_rigid_s.OverlapCircle(receive,
-		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, 0);
+	PtrList<OBJECT_LIST> receive;
+	g_level->grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	g_level->grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
-	g_level->grid_water.OverlapCircle(receive,
-		GetPos().x / LOCATION_SIZE, GetPos().y / LOCATION_SIZE, 0);
-
-	std::vector<OBJECT_LIST*>::iterator rit = receive.begin();
+	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
 
 	Contact c;
 	c.total_np = 0;

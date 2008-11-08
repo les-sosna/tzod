@@ -44,7 +44,8 @@ void GC_Actor::Serialize(SaveFile &f)
 void GC_Actor::MoveTo(const vec2d &pos)
 {
 	Location loc;
-	g_level->LocationFromPoint(pos, loc);
+	loc.x = __min(g_level->_locations_x-1, __max(0, int(pos.x / LOCATION_SIZE)));
+	loc.y = __min(g_level->_locations_y-1, __max(0, int(pos.y / LOCATION_SIZE)));
 
 	_pos = pos;
 
@@ -72,7 +73,7 @@ void GC_Actor::LeaveAllContexts()
 void GC_Actor::LeaveContext(Context &context)
 {
 	_ASSERT(context.iterator);
-	(*context.grids)(_location.level).element(_location.x,_location.y).safe_erase(context.iterator);
+	context.grids->element(_location.x,_location.y).safe_erase(context.iterator);
 	context.iterator = NULL;
 }
 
@@ -91,8 +92,8 @@ void GC_Actor::EnterContext(Context &context, const Location &l)
 	_ASSERT(!IsKilled());
 	_ASSERT(!context.iterator);
 
-	(*context.grids)(l.level).element(l.x, l.y).push_back(this);
-	context.iterator  = (*context.grids)(l.level).element(l.x, l.y).rbegin();
+	context.grids->element(l.x, l.y).push_back(this);
+	context.iterator = context.grids->element(l.x, l.y).rbegin();
 }
 
 void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)

@@ -3,20 +3,18 @@
 
 #pragma once
 
-/////////////////////////////////////////////////////////
-
-template <class grid_type>
+template <class T>
 class Grid
 {
-	grid_type *_data;
+	T *_data;
 	size_t _cx;
 	size_t _cy;
 
 public:
-	Grid(size_t cx, size_t cy)
-	  : _data(new grid_type[cy*cx])
-	  , _cx(cx)
-	  , _cy(cy)
+	Grid()
+	  : _data(NULL)
+	  , _cx(0)
+	  , _cy(0)
 	{
 	}
 
@@ -25,202 +23,94 @@ public:
 		delete [] _data;
 	}
 
-	inline grid_type& element(size_t x, size_t y)
+	void resize(size_t cx, size_t cy)
+	{
+		delete [] _data;
+		_data = new T[cy*cx];
+		_cx = cx;
+		_cy = cy;
+	}
+
+	inline T& element(size_t x, size_t y)
 	{
 		_ASSERT(x < _cx && y < _cy);
-		return _data[y*_cx + x];
+		return _data[_cx*y + x];
 	}
-};
 
-////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
 
-/*        X
-     *----*-->
-     |0    1
-     |
-   Y *    *
-     |2    3
-*/
-
-template <class element_type>
-class GridSet
-{
-	Grid<element_type> *_grids[4];
-
-public:
-	void resize(size_t rows, size_t cols)
+	void OverlapRect(PtrList<T> &receive, const FRECT &rect)
 	{
-		for( size_t i = 0; i < 4; i++ )
+		int xmin = __max(0, int(floorf(rect.left - 0.5f)));
+		int ymin = __max(0, int(floorf(rect.top  - 0.5f)));
+		int xmax = __min(g_level->_locations_x-1, int(floorf(rect.right  + 0.5f)));
+		int ymax = __min(g_level->_locations_y-1, int(floorf(rect.bottom + 0.5f)));
+
+		for( int y = ymin; y <= ymax; ++y )
 		{
-			if( _grids[i] )
-			{
-				delete _grids[i];
-			}
-			_grids[i] = new Grid<element_type>(rows, cols);
-		}
-	}
-
-	GridSet()
-	{
-		for( size_t i = 0; i < 4; ++i )
-			_grids[i] = NULL;
-	}
-	GridSet(size_t rows, size_t cols) { init(rows, cols); }
-
-	inline Grid<element_type>& operator() (size_t n)
-	{
-		_ASSERT(n < 4);
-		return *_grids[n];
-	}
-	inline element_type& operator() (size_t n, size_t x, size_t y)
-	{
-		_ASSERT(n < 4);
-		return _grids[n]->element(x, y);
-	}
-
-	////////////////////////
-
-	// не очищает список receive
-//	void OverlapRect(std::vector<element_type*> &receive, const FRECT &rect)
-	void OverlapRect(PtrList<element_type> &receive, const FRECT &rect)
-	{
-		static const float dx[4] = {0,-0.5f, 0,-0.5f};
-		static const float dy[4] = {0, 0,-0.5f,-0.5f};
-		for( int i = 0; i < 4; ++i )
-		{
-			int xmin = __max(0, (int) (rect.left + dx[i]));
-			int ymin = __max(0, (int) (rect.top  + dx[i]));
-			int xmax = __min(g_level->_locations_x-1, (int) (rect.right  + dx[i]));
-			int ymax = __min(g_level->_locations_y-1, (int) (rect.bottom + dx[i]));
-
 			for( int x = xmin; x <= xmax; ++x )
-			for( int y = ymin; y <= ymax; ++y )
 			{
-				receive.push_back(&(*this)(i, x, y));
+				receive.push_back(&element(x, y));
 			}
 		}
 	}
 
-	// не очищает список receive
-	void OverlapCircle(std::vector<element_type*> &receive, float cx, float cy, float cr)
+	void OverlapPoint(PtrList<T> &receive, const vec2d &pt)
 	{
-		static const float dx[4] = {0,-0.5f, 0,-0.5f};
-		static const float dy[4] = {0, 0,-0.5f,-0.5f};
-		for( int i = 0; i < 4; ++i )
+		int xmin = __min(__max(int(floorf(pt.x - 0.5f)), 0), g_level->_locations_x-1);
+		int ymin = __min(__max(int(floorf(pt.y - 0.5f)), 0), g_level->_locations_x-1);
+		int xmax = __min(__max(int(floorf(pt.x + 0.5f)), 0), g_level->_locations_x-1);
+		int ymax = __min(__max(int(floorf(pt.y + 0.5f)), 0), g_level->_locations_y-1);
+
+		for( int y = ymin; y <= ymax; ++y )
 		{
-			float cx_ = cx + dx[i];
-			float cy_ = cy + dy[i];
-
-			int xmin = __max(0, (int) (cx_ - cr));
-			int ymin = __max(0, (int) (cy_ - cr));
-			int xmax = __min(g_level->_locations_x-1, (int) (cx_ + cr));
-			int ymax = __min(g_level->_locations_y-1, (int) (cy_ + cr));
-
 			for( int x = xmin; x <= xmax; ++x )
-			for( int y = ymin; y <= ymax; ++y )
 			{
-				if( (float) y      <= cy_ && (float) (y+1)      >= cy_ &&
-					(float) x - cr <= cx_ && (float) (x+1) + cr >= cx_ )
-				{
-					receive.push_back(&(*this)(i, x, y));
-					continue;
-				}
-
-				if( (float) x      <= cx_ && (float) (x+1)      >= cx_ &&
-					(float) y - cr <= cy_ && (float) (y+1) + cr >= cy_ )
-				{
-					receive.push_back(&(*this)(i, x, y));
-					continue;
-				}
-
-				/////////////////////////////////////////////
-
-                if( ((float)x    -cx_)*((float)x    -cx_) + ((float)y    -cy_)*((float)y    -cy_) <= cr*cr ||
-					((float)(x+1)-cx_)*((float)(x+1)-cx_) + ((float)y    -cy_)*((float)y    -cy_) <= cr*cr ||
-					((float)x    -cx_)*((float)x    -cx_) + ((float)(y+1)-cy_)*((float)(y+1)-cy_) <= cr*cr ||
-					((float)(x+1)-cx_)*((float)(x+1)-cx_) + ((float)(y+1)-cy_)*((float)(y+1)-cy_) <= cr*cr )
-				{
-					receive.push_back(&(*this)(i, x, y));
-				}
+				receive.push_back(&element(x, y));
 			}
 		}
 	}
 
-	// не очищает список receive
-	// x0 - начальная точка
-	// a  - направление и глубина трассировки
-	void OverlapLine(std::vector<element_type*> &receive, const vec2d &x0, const vec2d &a)
-	{
-		static const float  dx[4] = {0,-0.5f, 0,-0.5f};
-		static const float  dy[4] = {0, 0,-0.5f,-0.5f};
 
-		const int stepx[2] = {a.x >= 0 ? 1 : -1, 0};
-		const int stepy[2] = {0, a.y >= 0 ? 1 : -1};
-		const int check[2] = {a.y == 0,   a.x == 0};
 
-		float la = a.Lenght();
+	// broken implementation
+	//void OverlapCircle(std::vector<T*> &receive, float cx, float cy, float cr)
+	//{
+	//	int xmin = __max(0, int(cx - cr));
+	//	int ymin = __max(0, int(cy - cr));
+	//	int xmax = __min(g_level->_locations_x-1, int(cx + cr));
+	//	int ymax = __min(g_level->_locations_y-1, int(cy + cr));
 
-		for( int i = 0; i < 4; ++i )
-		{
-			float cx = x0.x + dx[i];
-			float cy = x0.y + dy[i];
+	//	for( int x = xmin; x <= xmax; ++x )
+	//	{
+	//		for( int y = ymin; y <= ymax; ++y )
+	//		{
+	//			if( (float) y      <= cy && (float) (y+1)      >= cy &&
+	//				(float) x - cr <= cx && (float) (x+1) + cr >= cx )
+	//			{
+	//				receive.push_back(&element(x, y));
+	//				continue;
+	//			}
 
-			int targx = (int) floor(cx + a.x);
-			int targy = (int) floor(cy + a.y);
-			int curx  = (int) floor(cx);
-			int cury  = (int) floor(cy);
+	//			if( (float) x      <= cx && (float) (x+1)      >= cx &&
+	//				(float) y - cr <= cy && (float) (y+1) + cr >= cy )
+	//			{
+	//				receive.push_back(&element(x, y));
+	//				continue;
+	//			}
 
-			int xmin = __min(curx, targx);
-			int xmax = __max(curx, targx);
-			int ymin = __min(cury, targy);
-			int ymax = __max(cury, targy);
+	//			/////////////////////////////////////////////
 
-			for(;;)
-			{
-				if( curx >= 0 && curx < g_level->_locations_x &&
-					cury >= 0 && cury < g_level->_locations_y )
-				{
-					receive.push_back( &(*this)(i, curx, cury) );
-				}
-
-				if( curx == targx && cury == targy ) break;
-
-				float d_min;
-				int   j_min = 0;
-				for( int j = 0; j < 2; ++j )
-				{
-					int newx = curx + stepx[j];
-					int newy = cury + stepy[j];
-
-					if( newx < xmin || newx > xmax || newy < ymin || newy > ymax )
-					{
-						j_min = 1 - j;
-						break;
-					}
-
-					float d = fabsf(a.x*((float) newy + 0.5f - cy) -
-						a.y*((float) newx + 0.5f - cx)) / la;
-
-					if( 0 == j )
-						d_min = d;
-					else if( d < d_min || check[j] )
-					{
-						j_min = j;
-						d_min = d;
-					}
-				}
-				curx += stepx[j_min];
-				cury += stepy[j_min];
-			}
-		}
-	}
-	////////////////////////
-
-	~GridSet()
-	{
-		for( size_t i = 0; i < 4; ++i )
-			delete _grids[i];
-	}
+	//			if( ((float)x    -cx)*((float)x    -cx) + ((float)y    -cy)*((float)y    -cy) <= cr*cr ||
+	//				((float)(x+1)-cx)*((float)(x+1)-cx) + ((float)y    -cy)*((float)y    -cy) <= cr*cr ||
+	//				((float)x    -cx)*((float)x    -cx) + ((float)(y+1)-cy)*((float)(y+1)-cy) <= cr*cr ||
+	//				((float)(x+1)-cx)*((float)(x+1)-cx) + ((float)(y+1)-cy)*((float)(y+1)-cy) <= cr*cr )
+	//			{
+	//				receive.push_back(&element(x, y));
+	//			}
+	//		}
+	//	}
+	//}
 };
 
 ////////////////////////////////////////////////////
@@ -229,7 +119,7 @@ struct Location
 {
 	int x;
 	int y;
-	int level;
+//	int level;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

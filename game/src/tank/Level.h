@@ -238,7 +238,7 @@ public:
 	Level();
 	~Level();
 
-	void Init(int X, int Y);
+	void Resize(int X, int Y);
 
 	void HitLimit();
 
@@ -279,14 +279,13 @@ public:
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
 
-	void LocationFromPoint(const vec2d &pt, Location &l);
 
 	//
 	// tracing
 	//
 
 public:
-	GC_RigidBodyStatic* agTrace( GridSet<OBJECT_LIST> &list,
+	GC_RigidBodyStatic* agTrace( Grid<OBJECT_LIST> &list,
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // координаты начала
 	                             const vec2d &a,       // направление
@@ -353,7 +352,7 @@ private:
 	{
 		std::sort(get_i2t().begin(), get_i2t().end(), &CompareTypes);
 	}
-	
+
 public:
 	void ToggleEditorMode();
 	GC_Object* CreateObject(ObjectType type, float x, float y);

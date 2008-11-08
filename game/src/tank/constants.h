@@ -41,8 +41,8 @@ enum enumZOrder
 #define LEVEL_MINSIZE   16
 #define LEVEL_MAXSIZE   512
 #define CELL_SIZE       32             // размер клетки
-#define LOCATION_SIZE   (CELL_SIZE*8)  // размер локации (должен быть как минимум
-                                       // в 2 раза больша любого объекта)
+#define LOCATION_SIZE   (CELL_SIZE*4)  // размер локации (должен быть как минимум
+                                       // в 1 раз больша любого объекта)
 
 #define MAX_GAMESPEED   200
 #define MIN_GAMESPEED   20
