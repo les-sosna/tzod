@@ -375,13 +375,12 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		}
 #endif
 
-		SAFE_DELETE(g_level);  // FIXME: depends on gui
-		SAFE_DELETE(g_client);
-		SAFE_DELETE(g_server);
-
 		TRACE("Shutting down GUI subsystem\n");
 		SAFE_DELETE(g_gui);
 
+		SAFE_DELETE(g_level);
+		SAFE_DELETE(g_client);
+		SAFE_DELETE(g_server);
 
 		timeEndPeriod(1);
 	} // end if( SUCCEEDED(InitAll(hWnd)) )

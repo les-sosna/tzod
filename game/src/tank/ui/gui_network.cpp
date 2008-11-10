@@ -167,15 +167,13 @@ void CreateServerDlg::OnCloseChild(int result)
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
   : Dialog(parent, 512, 384)
+  , _auto(NULL != autoConnect)
 {
 	PauseGame(true);
-
-	_auto = (NULL != autoConnect);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_connect_title->Get(), alignTextCT);
 	title->SetTexture("font_default");

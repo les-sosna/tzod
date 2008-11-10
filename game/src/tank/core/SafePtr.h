@@ -136,10 +136,15 @@ public:
 	//
 	// dereference
 	//
-	T* operator -> () const
+	class NoAddRefRelease : public T
+	{
+		void AddRef();
+		void Release();
+	};
+	NoAddRefRelease* operator -> () const
 	{
 		_ASSERT(_ptr);
-		return _ptr;
+		return static_cast<NoAddRefRelease *>(_ptr);
 	}
 //    T& operator * () const
 //    {

@@ -305,8 +305,8 @@ void Level::Clear()
 {
 	_ASSERT(IsSafeMode());
 
-	_ASSERT(g_gui);  // FIXME: dependence on GUI
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
+	if( g_gui )  // FIXME: dependence on GUI
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
 	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
 	while( GetList(LIST_objects).end() != it )
