@@ -301,7 +301,7 @@ void ServiceListDataSource::SetCallback(ListCallback *cb)
 
 int ServiceListDataSource::GetItemCount() const
 {
-	return g_level ? g_level->GetList(LIST_services).size() : 0;
+	return g_level->GetList(LIST_services).size();
 }
 
 int ServiceListDataSource::GetSubItemCount(int index) const
@@ -612,7 +612,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
 	vec2d mouse;
-	if( g_level && GC_Camera::GetWorldMousePos(mouse) )
+	if( !g_level->IsEmpty() && GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetList()->GetItemData(g_conf->ed_object->GetInt()) );

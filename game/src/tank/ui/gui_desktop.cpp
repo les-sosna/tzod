@@ -204,7 +204,7 @@ void Desktop::OnRawChar(int c)
 		break;
 
 	case VK_F5:
-		if( g_level )
+		if( !g_level->IsEmpty() )
 		{
 			g_level->ToggleEditorMode();
 			ShowEditor(g_level->_modeEditor);
@@ -212,7 +212,7 @@ void Desktop::OnRawChar(int c)
 		break;
 
 	case VK_F8:
-		if( g_level && g_level->_modeEditor )
+		if( g_level->_modeEditor )
 		{
 			dlg = new MapSettingsDlg(this);
 			ShowDesktopBackground(true);

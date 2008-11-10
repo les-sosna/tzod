@@ -63,12 +63,12 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	_panel = new Window(_panelFrame, 0, -_panelFrame->GetHeight(), NULL);
 	_panelTitle = NULL;
 
-	if( g_level && GT_EDITOR == g_level->_gameType )
+	if( !g_level->IsEmpty() && GT_EDITOR == g_level->_gameType )
 	{
 		SwitchPanel(PT_EDITOR);
 	}
 
-	if( g_level && GT_DEATHMATCH == g_level->_gameType )
+	if( !g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType )
 	{
 		SwitchPanel(PT_SINGLEPLAYER);
 	}
@@ -161,14 +161,12 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
 
-		SAFE_DELETE(g_level);
+		g_level->Clear();
 		SAFE_DELETE(g_client);
 		SAFE_DELETE(g_server);
 
-		g_level = new Level();
 		if( !g_level->init_load(tmp.c_str()) )
 		{
-			SAFE_DELETE(g_level);
 			g_console->printf("couldn't load game from '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
@@ -247,14 +245,12 @@ void MainMenuDlg::OnImportMapSelect(int result)
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
 
-		SAFE_DELETE(g_level);
+		g_level->Clear();
 		SAFE_DELETE(g_client);
 		SAFE_DELETE(g_server);
 
-		g_level = new Level();
 		if( !g_level->init_import_and_edit(tmp.c_str()) )
 		{
-			SAFE_DELETE(g_level);
 			g_console->printf("couldn't import map '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
@@ -383,7 +379,7 @@ void MainMenuDlg::CreatePanel()
 		(new Button(_panel, 200, y, g_lang->single_player_load->Get()))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
 		btn = new Button(_panel, 300, y, g_lang->single_player_save->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
-		btn->Enable(g_level && GT_DEATHMATCH == g_level->_gameType);
+		btn->Enable(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType);
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang->network_title->Get());
@@ -397,10 +393,10 @@ void MainMenuDlg::CreatePanel()
 		(new Button(_panel, 100, y, g_lang->editor_load_map->Get()))->eventClick.bind(&MainMenuDlg::OnImportMap, this);
 		btn = new Button(_panel, 200, y, g_lang->editor_save_map->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnExportMap, this);
-		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
+		btn->Enable(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		btn = new Button(_panel, 300, y, g_lang->editor_map_settings->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
-		btn->Enable(g_level && GT_EDITOR == g_level->_gameType);
+		btn->Enable(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		break;
 	default:
 		_ASSERT(FALSE);

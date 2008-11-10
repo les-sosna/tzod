@@ -59,43 +59,40 @@ void FpsCounter::OnTimeStep(float dt)
 			g_gui->GetWndCount()
 		);
 
-		if( g_level )
+		wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat %4def",
+			g_level->GetList(LIST_objects).size(), 
+			g_level->ts_fixed.size(),
+			g_level->ts_floating.size(),
+			g_level->endframe.size()
+		);
+		strcat(s, s1);
+
+		// network statistics
+		if( g_client )
 		{
-			wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat %4def",
-				g_level->GetList(LIST_objects).size(), 
-				g_level->ts_fixed.size(),
-				g_level->ts_floating.size(),
-				g_level->endframe.size()
+			if( _dts_net.empty() )
+			{
+				min = max = avr = 0;
+			}
+			else
+			{
+				min = max = _dts_net.front();
+				for( std::list<float>::iterator it = _dts_net.begin();
+					it != _dts_net.end(); ++it )
+				{
+					avr += *it;
+					if( *it > max ) max = *it;
+					if( *it < min ) min = *it;
+				}
+				avr /= (float) _dts_net.size();
+			}
+
+			NetworkStats ns;
+			g_client->GetStatistics(&ns);
+			wsprintf(s1, "\nnetwork: %2dbuf; sent%3dk; recv%3dk", // "; ms:%3d-%3d-%3d",
+				ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
 			);
 			strcat(s, s1);
-
-			// network statistics
-			if( g_client )
-			{
-				if( _dts_net.empty() )
-				{
-					min = max = avr = 0;
-				}
-				else
-				{
-					min = max = _dts_net.front();
-					for( std::list<float>::iterator it = _dts_net.begin();
-						it != _dts_net.end(); ++it )
-					{
-						avr += *it;
-						if( *it > max ) max = *it;
-						if( *it < min ) min = *it;
-					}
-					avr /= (float) _dts_net.size();
-				}
-
-				NetworkStats ns;
-				g_client->GetStatistics(&ns);
-				wsprintf(s1, "\nnetwork: %2dbuf; sent%3dk; recv%3dk", // "; ms:%3d-%3d-%3d",
-					ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
-				);
-				strcat(s, s1);
-			}
 		}
 
 		SetText(s);
@@ -121,7 +118,7 @@ void TimeElapsed::OnShow(bool show)
 
 void TimeElapsed::OnTimeStep(float dt)
 {
-	if( g_level )
+	if( !g_level->IsEmpty() )
 	{
 		char text[16];
 		int time = int(g_level->_time);

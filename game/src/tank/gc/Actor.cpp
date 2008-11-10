@@ -44,8 +44,8 @@ void GC_Actor::Serialize(SaveFile &f)
 void GC_Actor::MoveTo(const vec2d &pos)
 {
 	Location loc;
-	loc.x = __min(g_level->_locations_x-1, __max(0, int(pos.x / LOCATION_SIZE)));
-	loc.y = __min(g_level->_locations_y-1, __max(0, int(pos.y / LOCATION_SIZE)));
+	loc.x = __min(g_level->_locationsX-1, __max(0, int(pos.x / LOCATION_SIZE)));
+	loc.y = __min(g_level->_locationsY-1, __max(0, int(pos.y / LOCATION_SIZE)));
 
 	_pos = pos;
 

@@ -68,11 +68,6 @@ void ScoreTable::OnParentSize(float width, float height)
 
 void ScoreTable::DrawChildren(float sx, float sy)
 {
-	if( !g_level )
-	{
-		return;
-	}
-
 	Refresh();
 
 	char text[256];
@@ -141,7 +136,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 void ScoreTable::OnTimeStep(float dt)
 {
 	bool tab = g_env.envInputs.keys[DIK_TAB];
-	Show(g_level && !g_level->_modeEditor && (tab || g_level->_limitHit));
+	Show(!g_level->IsEmpty() && !g_level->_modeEditor && (tab || g_level->_limitHit));
 }
 
 

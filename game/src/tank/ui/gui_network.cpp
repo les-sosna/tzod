@@ -203,7 +203,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 	if( _auto )
 	{
 		_ASSERT(g_server);
-		_ASSERT(!g_level);
+		_ASSERT(g_level->IsEmpty());
 
 		_name->SetText(autoConnect);
 		OnOK();
@@ -222,11 +222,9 @@ void ConnectDlg::OnOK()
 	_btnOK->Enable(false);
 	_name->Enable(false);
 
-	if( g_level )
-	{
-		script_exec(g_env.L, "reset()");
-	}
-	_ASSERT(NULL == g_level);
+	script_exec(g_env.L, "reset()");
+
+	_ASSERT(g_level->IsEmpty());
 	_ASSERT(NULL == g_client);
 	g_client = new TankClient();
 
@@ -244,7 +242,7 @@ void ConnectDlg::OnCancel()
 {
 	if( g_server )
 	{
-		SAFE_DELETE(g_level);
+		g_level->Clear();
 		SAFE_DELETE(g_client);
 		SAFE_DELETE(g_server);
 	}
@@ -288,8 +286,7 @@ void ConnectDlg::OnTimeStep(float dt)
 				}
 
 
-				SAFE_DELETE(g_level);
-				g_level = new Level();
+				g_level->Clear();
 
 				if( g_level->init_newdm(path, gi.seed) )
 				{
@@ -329,7 +326,7 @@ void ConnectDlg::OnTimeStep(float dt)
 void ConnectDlg::Error(const char *msg)
 {
 	_status->AddItem(msg);
-	SAFE_DELETE(g_level);
+	g_level->Clear();
 	SAFE_DELETE(g_client);
 	if( g_server )
 	{
@@ -430,7 +427,7 @@ void WaitingForPlayersDlg::OnOK()
 
 void WaitingForPlayersDlg::OnCancel()
 {
-	SAFE_DELETE(g_level);
+	g_level->Clear();
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
 

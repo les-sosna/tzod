@@ -13,7 +13,7 @@ bool PauseGame(bool pause)
 {
 	if( pause )
 	{
-		if( g_level && 0 == g_level->_pause + g_env.pause )
+		if( 0 == g_level->_pause + g_env.pause )
 		{
 			g_level->PauseSound(true);
 		}
@@ -23,7 +23,7 @@ bool PauseGame(bool pause)
 	{
 		_ASSERT(g_env.pause > 0);
 		g_env.pause--;
-		if( g_level && 0 == g_level->_pause + g_env.pause )
+		if( 0 == g_level->_pause + g_env.pause )
 		{
 			g_level->PauseSound(false);
 		}

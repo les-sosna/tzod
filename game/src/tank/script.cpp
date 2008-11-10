@@ -35,7 +35,7 @@
 // exit to the system
 static int luaT_quit(lua_State *L)
 {
-	if( g_level && !g_level->IsSafeMode() )
+	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
 	DestroyWindow(g_env.hMainWnd);
 	return 0;
@@ -43,10 +43,10 @@ static int luaT_quit(lua_State *L)
 
 static int luaT_reset(lua_State *L)
 {
-	if( g_level && !g_level->IsSafeMode() )
+	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
-	SAFE_DELETE(g_level);
+	g_level->Clear();
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
 
@@ -115,7 +115,7 @@ static int luaT_freeze(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -134,17 +134,13 @@ static int luaT_loadmap(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( g_level )
-	{
-		if( !g_level->IsSafeMode() )
-			return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
-		delete g_level;
-	}
-	g_level = new Level();
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
+
+	g_level->Clear();
 
 	if( !g_level->init_newdm(filename, rand()) )
 	{
-		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't load map from '%s'", filename);
 	}
 
@@ -163,17 +159,12 @@ static int luaT_newmap(lua_State *L)
 	int x = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
 	int y = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
 
-	if( g_level )
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
+
+	g_level->Clear();
+	if( !g_level->init_emptymap(x, y) )
 	{
-		if( !g_level->IsSafeMode() )
-			return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
-		delete g_level;
-	}
-	g_level = new Level();
-	g_level->Resize(x, y);
-	if( !g_level->init_emptymap() )
-	{
-		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
 	}
 
@@ -191,19 +182,15 @@ static int luaT_load(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( g_level )
-	{
-		if( !g_level->IsSafeMode() )
-			return luaL_error(L, "attempt to execute 'load' in unsafe mode");
-		delete g_level;
-	}
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
+
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
-	g_level = new Level();
+	g_level->Clear();
 
 	if( !g_level->init_load(filename) )
 	{
-		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't load game from '%s'", filename);
 	}
 
@@ -221,7 +208,7 @@ static int luaT_save(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -252,19 +239,15 @@ static int luaT_import(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( g_level )
-	{
-		if( !g_level->IsSafeMode() )
-			return luaL_error(L, "attempt to execute 'import' in unsafe mode");
-		delete g_level;
-	}
+	if( !g_level->IsSafeMode() )
+		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
+
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
-	g_level = new Level();
+	g_level->Clear();
 
 	if( !g_level->init_import_and_edit(filename) )
 	{
-		SAFE_DELETE(g_level);
 		return luaL_error(L, "couldn't import map '%s'", filename);
 	}
 
@@ -282,7 +265,7 @@ static int luaT_export(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no map loaded");
 	}
@@ -665,7 +648,7 @@ int luaT_actor(lua_State *L)
 	float y = (float) luaL_checknumber(L, 3);
 
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -714,7 +697,7 @@ int luaT_service(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -765,7 +748,7 @@ int luaT_damage(lua_State *L)
 	float hp = (float) luaL_checknumber(L, 1);
 	const char *name = luaL_checkstring(L, 2);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -799,7 +782,7 @@ int luaT_kill(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -828,7 +811,7 @@ int luaT_exists(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -849,7 +832,7 @@ int luaT_position(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -884,7 +867,7 @@ int luaT_objtype(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -914,7 +897,7 @@ int luaT_pget(lua_State *L)
 	const char *name = luaL_checkstring(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -973,7 +956,7 @@ int luaT_pset(lua_State *L)
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}
@@ -1009,7 +992,7 @@ int luaT_equip(lua_State *L)
 	const char *targetname = luaL_checkstring(L, 1);
 	const char *pickupname = luaL_checkstring(L, 2);
 
-	if( !g_level )
+	if( g_level->IsEmpty() )
 	{
 		return luaL_error(L, "no game started");
 	}

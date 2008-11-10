@@ -146,10 +146,6 @@ class TankClient;
 
 class Level
 {
-#ifdef _DEBUG
-	BOOL _bInitialized;
-#endif
-
 	friend class GC_Object;
 
 	std::map<const GC_Object*, string_t>  _objectToNameMap;
@@ -206,8 +202,8 @@ public:
 	bool    _limitHit;  // достигнут fraglimit или timelimit
 	float   _sx, _sy;   // размер уровня
 
-	int _locations_x;
-	int _locations_y;
+	int _locationsX;
+	int _locationsY;
 
 	DWORD    _gameType;
 
@@ -239,11 +235,12 @@ public:
 	~Level();
 
 	void Resize(int X, int Y);
+	void Clear();
 
 	void HitLimit();
 
 
-	bool init_emptymap();
+	bool init_emptymap(int X, int Y);
 	bool init_import_and_edit(const char *mapName);
 
 	bool init_newdm(const char *mapName, unsigned long seed);
@@ -251,6 +248,8 @@ public:
 
 
 public:
+	bool IsEmpty() const;
+
 	bool RestoreObject(ObjectType otType, HANDLE file);
 
 	bool Unserialize(const char *fileName);

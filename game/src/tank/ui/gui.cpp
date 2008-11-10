@@ -344,8 +344,7 @@ void NewGameDlg::OnOK()
 	g_conf->sv_nightmode->Set( g_conf->cl_nightmode->Get() );
 
 	script_exec(g_env.L, "reset()");
-	_ASSERT(!g_level);
-	g_level = new Level();
+	_ASSERT(g_level->IsEmpty());
 
 	if( g_level->init_newdm(path.c_str(), rand()) )
 	{

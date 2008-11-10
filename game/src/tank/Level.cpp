@@ -242,60 +242,95 @@ Level::Level()
   , _limitHit(false)
   , _frozen(false)
   , _safeMode(true)
-  , _locations_x(0)
-  , _locations_y(0)
+  , _locationsX(0)
+  , _locationsY(0)
   , _sx(0)
   , _sy(0)
   , _seed(1)
   , _gameType(-1)
+#ifdef NETWORK_DEBUG
+  , _checksum(0)
+#endif
 {
 	TRACE("Constructing the level\n");
-
-	#ifdef _DEBUG
-	_bInitialized = FALSE;
-	#endif
-	#ifdef NETWORK_DEBUG
-	_checksum = 0;
-	#endif
 
 	// register config handlers
 	g_conf->s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
 	g_conf->sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
 }
 
+bool Level::IsEmpty() const
+{
+	return GetList(LIST_objects).empty();
+}
+
 void Level::Resize(int X, int Y)
 {
+	_ASSERT(IsEmpty());
+
+
 	//
 	// Resize
 	//
 
-	_locations_x  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
-	_locations_y  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
+	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
+	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx           = (float) X * CELL_SIZE;
 	_sy           = (float) Y * CELL_SIZE;
 
 	for( int i = 0; i < Z_COUNT; i++ )
-		z_grids[i].resize(_locations_x, _locations_y);
+		z_grids[i].resize(_locationsX, _locationsY);
 
-	grid_rigid_s.resize(_locations_x, _locations_y);
-	grid_walls.resize(_locations_x, _locations_y);
-	grid_wood.resize(_locations_x, _locations_y);
-	grid_water.resize(_locations_x, _locations_y);
-	grid_pickup.resize(_locations_x, _locations_y);
+	grid_rigid_s.resize(_locationsX, _locationsY);
+	grid_walls.resize(_locationsX, _locationsY);
+	grid_wood.resize(_locationsX, _locationsY);
+	grid_water.resize(_locationsX, _locationsY);
+	grid_pickup.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
 
 
 	//
-	// other objects
+	// FIXME: default objects
 	//
 
 	new GC_Camera((GC_Player *) NULL);
 
 	_background = new GC_Background();
-
 	_temporaryText = new GC_Text(0, 0, "");
 	_temporaryText->Show(false);
+}
+
+void Level::Clear()
+{
+	_ASSERT(IsSafeMode());
+
+	_ASSERT(g_gui);  // FIXME: dependence on GUI
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
+
+	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
+	while( GetList(LIST_objects).end() != it )
+	{
+		GC_Object* obj = *it;
+		_ASSERT(!obj->IsKilled());
+		obj->Kill();
+		++it;
+	}
+	_background = NULL;
+	_temporaryText = NULL;
+	_ASSERT(IsEmpty());
+
+	// reset variables
+	_modeEditor = false;
+	_pause = 0;
+	_time = 0;
+	_timeBuffer = 0;
+	_limitHit = false;
+	_frozen = false;
+	_gameType = -1;
+#ifdef NETWORK_DEBUG
+	_checksum = 0;
+#endif
 }
 
 void Level::HitLimit()
@@ -306,10 +341,12 @@ void Level::HitLimit()
 	PLAY(SND_Limit, vec2d(0,0));
 }
 
-bool Level::init_emptymap()
+bool Level::init_emptymap(int X, int Y)
 {
-	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);
+	_ASSERT(IsSafeMode());
+	_ASSERT(IsEmpty());
+
+	Resize(X, Y);
 
 	_gameType   = GT_EDITOR;
 
@@ -325,8 +362,8 @@ bool Level::init_emptymap()
 
 bool Level::init_import_and_edit(const char *mapName)
 {
-	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);
+	_ASSERT(IsSafeMode());
+	_ASSERT(IsEmpty());
 
 	_gameType = GT_EDITOR;
 	g_conf->sv_nightmode->Set(false);
@@ -342,8 +379,8 @@ bool Level::init_import_and_edit(const char *mapName)
 
 bool Level::init_newdm(const char *mapName, unsigned long seed)
 {
-	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);
+	_ASSERT(IsSafeMode());
+	_ASSERT(IsEmpty());
 
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
@@ -354,7 +391,8 @@ bool Level::init_newdm(const char *mapName, unsigned long seed)
 
 bool Level::init_load(const char *fileName)
 {
-	_ASSERT(!_bInitialized);
+	_ASSERT(IsSafeMode());
+	_ASSERT(IsEmpty());
 	_modeEditor = false;
 	return Unserialize(fileName);
 }
@@ -364,20 +402,7 @@ Level::~Level()
 	_ASSERT(IsSafeMode());
 	TRACE("Destroying the level\n");
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
-
-
-	SAFE_KILL(_temporaryText);
-	SAFE_KILL(_background);
-
-	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
-	while( GetList(LIST_objects).end() != it )
-	{
-		GC_Object* obj = *it;
-		_ASSERT(!obj->IsKilled());
-		obj->Kill();
-		++it;
-	}
+	Clear();
 
 	// unregister config handlers
 	g_conf->s_volume->eventChange.clear();
@@ -385,13 +410,11 @@ Level::~Level()
 
 	//-------------------------------------------
 	_ASSERT(!g_env.nNeedCursor);
-	_ASSERT(GetList(LIST_objects).empty());
 }
 
 bool Level::Unserialize(const char *fileName)
 {
-	_ASSERT(!_bInitialized);
-	_ASSERT(_bInitialized = TRUE);
+	_ASSERT(IsEmpty());
 	_ASSERT(IsSafeMode());
 
 	TRACE("Loading saved game from file '%s'\n", fileName);
@@ -512,6 +535,7 @@ bool Level::Unserialize(const char *fileName)
 	{
 		TRACE("%s\n", msg);
 		result = false;
+		Clear();
 	}
 
 	CloseHandle(f._file);
@@ -520,6 +544,7 @@ bool Level::Unserialize(const char *fileName)
 
 bool Level::Serialize(const char *fileName)
 {
+	_ASSERT(!IsEmpty());
 	_ASSERT(IsSafeMode());
 
 	TRACE("Saving game to file '%s'\n", fileName);
@@ -654,6 +679,7 @@ bool Level::Serialize(const char *fileName)
 
 bool Level::Import(const char *fileName, bool execInitScript)
 {
+	_ASSERT(IsEmpty());
 	_ASSERT(IsSafeMode());
 
 	MapFile file;
@@ -690,11 +716,19 @@ bool Level::Import(const char *fileName, bool execInitScript)
 		object->mapExchange(file);
 	}
 	GC_Camera::SwitchEditor();
-	return !execInitScript || script_exec(g_env.L, _infoOnInit.c_str());
+
+	if( execInitScript && !script_exec(g_env.L, _infoOnInit.c_str()) )
+	{
+		Clear();
+		return false;
+	}
+
+	return true;
 }
 
 bool Level::Export(const char *fileName)
 {
+	_ASSERT(!IsEmpty());
 	_ASSERT(IsSafeMode());
 
 	MapFile file;
@@ -934,7 +968,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<OBJECT_LIST> &list,
 			//
 			// check current cell
 			//
-			if( cx >= 0 && cx < _locations_x && cy >= 0 && cy < _locations_y )
+			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
 			{
 				OBJECT_LIST &tmp_list = list.element(cx, cy);
 				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
@@ -1342,9 +1376,9 @@ void Level::Render() const
 		{
 			int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
 			int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
-			int xmax = __min(_locations_x - 1,
+			int xmax = __min(_locationsX - 1,
 				(g_env.camera_x + int((float) g_render->GetViewportWidth() / pCamera->_zoom)) / LOCATION_SIZE);
-			int ymax = __min(_locations_y - 1,
+			int ymax = __min(_locationsY - 1,
 				(g_env.camera_y + int((float) g_render->GetViewportHeight() / pCamera->_zoom)) / LOCATION_SIZE);
 
 			for( int x = xmin; x <= xmax; ++x )

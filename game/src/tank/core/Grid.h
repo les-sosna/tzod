@@ -43,8 +43,8 @@ public:
 	{
 		int xmin = __max(0, int(floorf(rect.left - 0.5f)));
 		int ymin = __max(0, int(floorf(rect.top  - 0.5f)));
-		int xmax = __min(g_level->_locations_x-1, int(floorf(rect.right  + 0.5f)));
-		int ymax = __min(g_level->_locations_y-1, int(floorf(rect.bottom + 0.5f)));
+		int xmax = __min(g_level->_locationsX-1, int(floorf(rect.right  + 0.5f)));
+		int ymax = __min(g_level->_locationsY-1, int(floorf(rect.bottom + 0.5f)));
 
 		for( int y = ymin; y <= ymax; ++y )
 		{
@@ -57,10 +57,10 @@ public:
 
 	void OverlapPoint(PtrList<T> &receive, const vec2d &pt)
 	{
-		int xmin = __min(__max(int(floorf(pt.x - 0.5f)), 0), g_level->_locations_x-1);
-		int ymin = __min(__max(int(floorf(pt.y - 0.5f)), 0), g_level->_locations_x-1);
-		int xmax = __min(__max(int(floorf(pt.x + 0.5f)), 0), g_level->_locations_x-1);
-		int ymax = __min(__max(int(floorf(pt.y + 0.5f)), 0), g_level->_locations_y-1);
+		int xmin = __min(__max(int(floorf(pt.x - 0.5f)), 0), g_level->_locationsX-1);
+		int ymin = __min(__max(int(floorf(pt.y - 0.5f)), 0), g_level->_locationsX-1);
+		int xmax = __min(__max(int(floorf(pt.x + 0.5f)), 0), g_level->_locationsX-1);
+		int ymax = __min(__max(int(floorf(pt.y + 0.5f)), 0), g_level->_locationsY-1);
 
 		for( int y = ymin; y <= ymax; ++y )
 		{
@@ -78,8 +78,8 @@ public:
 	//{
 	//	int xmin = __max(0, int(cx - cr));
 	//	int ymin = __max(0, int(cy - cr));
-	//	int xmax = __min(g_level->_locations_x-1, int(cx + cr));
-	//	int ymax = __min(g_level->_locations_y-1, int(cy + cr));
+	//	int xmax = __min(g_level->_locationsX-1, int(cx + cr));
+	//	int ymax = __min(g_level->_locationsY-1, int(cy + cr));
 
 	//	for( int x = xmin; x <= xmax; ++x )
 	//	{
