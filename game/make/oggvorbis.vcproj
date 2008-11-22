@@ -5,9 +5,6 @@
 	Name="oggvorbis"
 	ProjectGUID="{7E7DCD27-D75C-44C3-A135-312FB3A235C6}"
 	RootNamespace="oggvorbis"
-	SccProjectName="&quot;$/game&quot;, BFBAAAAA"
-	SccLocalPath=".."
-	SccProvider="MSSCCI:Microsoft Visual SourceSafe"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

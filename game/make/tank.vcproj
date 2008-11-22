@@ -5,9 +5,6 @@
 	Name="tank"
 	ProjectGUID="{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
 	RootNamespace="tank"
-	SccProjectName="&quot;$/game&quot;, BFBAAAAA"
-	SccLocalPath=".."
-	SccProvider="MSSCCI:Microsoft Visual SourceSafe"
 	>
 	<Platforms>
 		<Platform

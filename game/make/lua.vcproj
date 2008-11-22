@@ -4,9 +4,6 @@
 	Version="8,00"
 	Name="lua"
 	ProjectGUID="{69802413-3739-43E0-96C9-709713A35B34}"
-	SccProjectName="&quot;$/game&quot;, BFBAAAAA"
-	SccLocalPath=".."
-	SccProvider="MSSCCI:Microsoft Visual SourceSafe"
 	Keyword="Win32Proj"
 	>
 	<Platforms>

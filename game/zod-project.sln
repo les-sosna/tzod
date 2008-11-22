@@ -11,23 +11,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oggvorbis", "make\oggvorbis.vcproj", "{7E7DCD27-D75C-44C3-A135-312FB3A235C6}"
 EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 4
-		SccLocalPath0 = .
-		CanCheckoutShared = false
-		SccProjectUniqueName1 = make\\lua.vcproj
-		SccLocalPath1 = .
-		CanCheckoutShared = false
-		SccProjectFilePathRelativizedFromConnection1 = make\\
-		SccProjectUniqueName2 = make\\tank.vcproj
-		SccLocalPath2 = .
-		CanCheckoutShared = false
-		SccProjectFilePathRelativizedFromConnection2 = make\\
-		SccProjectUniqueName3 = make\\oggvorbis.vcproj
-		SccLocalPath3 = .
-		CanCheckoutShared = false
-		SccProjectFilePathRelativizedFromConnection3 = make\\
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Profiler|Win32 = Profiler|Win32
