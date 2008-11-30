@@ -18,8 +18,8 @@ class GC_Actor : public GC_Object
 {
 	struct Context
 	{
-		Grid<OBJECT_LIST> *grids;
-		OBJECT_LIST::iterator iterator;
+		Grid<ObjectList> *grids;
+		ObjectList::iterator iterator;
 	};
 
 	typedef std::list<Context>::iterator CONTEXTS_ITERATOR;
@@ -38,8 +38,8 @@ protected:
 	virtual void Serialize(SaveFile &f);
 	virtual void mapExchange(MapFile &f);
 
-	void AddContext(OBJECT_GRIDSET *pGridSet);
-	void RemoveContext(OBJECT_GRIDSET *pGridSet);
+	void AddContext(Grid<ObjectList> *pGridSet);
+	void RemoveContext(Grid<ObjectList> *pGridSet);
 
 public:
 	const vec2d& GetPos() const { return _pos; }

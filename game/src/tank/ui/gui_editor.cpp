@@ -311,7 +311,7 @@ int ServiceListDataSource::GetSubItemCount(int index) const
 
 ULONG_PTR ServiceListDataSource::GetItemData(int index) const
 {
-	OBJECT_LIST::iterator it = g_level->GetList(LIST_services).begin();
+	ObjectList::iterator it = g_level->GetList(LIST_services).begin();
 	for( int i = 0; i < index; ++i )
 	{
 		++it;

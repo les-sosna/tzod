@@ -131,13 +131,13 @@ void GC_Wood::UpdateTile(bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-	PtrList<OBJECT_LIST> receive;
+	PtrList<ObjectList> receive;
 	g_level->grid_wood.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
-	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
+	PtrList<ObjectList>::iterator rit = receive.begin();
 	for( ; rit != receive.end(); ++rit )
 	{
-		OBJECT_LIST::iterator it = (*rit)->begin();
+		ObjectList::iterator it = (*rit)->begin();
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_Wood *object = static_cast<GC_Wood *>(*it);
@@ -448,7 +448,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	//
 	// получение списка локаций, накрываемых взрывом
 	//
-	PtrList<OBJECT_LIST> receive;
+	PtrList<ObjectList> receive;
 	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
 	rt.left   /= LOCATION_SIZE;
 	rt.top    /= LOCATION_SIZE;
@@ -459,10 +459,10 @@ void GC_Explosion::Boom(float radius, float damage)
 	//
 	// подготовка поля для трассировки
 	//
-	PtrList<OBJECT_LIST>::iterator it = receive.begin();
+	PtrList<ObjectList>::iterator it = receive.begin();
 	for( ; it != receive.end(); ++it )
 	{
-		OBJECT_LIST::iterator cdit = (*it)->begin();
+		ObjectList::iterator cdit = (*it)->begin();
 		while( (*it)->end() != cdit )
 		{
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
@@ -485,7 +485,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	bool bNeedClean = false;
 	for( it = receive.begin(); it != receive.end(); ++it )
 	{
-		OBJECT_LIST::iterator cdit = (*it)->begin();
+		ObjectList::iterator cdit = (*it)->begin();
 		while(cdit != (*it)->end())
 		{
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);

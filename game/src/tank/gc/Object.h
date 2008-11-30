@@ -13,8 +13,7 @@ class GC_Object;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef PtrList<GC_Object> OBJECT_LIST;
-typedef Grid<OBJECT_LIST> OBJECT_GRIDSET;
+typedef PtrList<GC_Object> ObjectList;
 
 /////////////////////////////////////////
 // memory management
@@ -222,7 +221,7 @@ protected:
 	template<GlobalListID listId>
 	class MemberOfGlobalList
 	{
-		OBJECT_LIST::iterator  _pos;
+		ObjectList::iterator  _pos;
 	public:
 		MemberOfGlobalList(GC_Object *obj)
 		{
@@ -271,9 +270,9 @@ private:
 	DWORD           _flags;             // некоторые свойства определ€ютс€ флагами
 	int             _refCount;          // число ссылок на объект. при создании = 1
 
-	OBJECT_LIST::iterator _itPosFixed;      // позици€ в Level::ts_fixed
-	OBJECT_LIST::iterator _itPosFloating;   // позици€ в Level::ts_floating
-	OBJECT_LIST::iterator _itPosEndFrame;   // позици€ в Level::endframe
+	ObjectList::iterator _itPosFixed;      // позици€ в Level::ts_fixed
+	ObjectList::iterator _itPosFloating;   // позици€ в Level::ts_floating
+	ObjectList::iterator _itPosEndFrame;   // позици€ в Level::endframe
 
 	std::list<Notify> _notifyList;          // извещени€, рассылаемые данным объектом
 	int  _notifyProtectCount;               // счетчик блокировки удалени€ из списка _notifyList

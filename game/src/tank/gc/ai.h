@@ -8,11 +8,12 @@
 #include "Player.h"
 
 // forward declarations
-template<class T> class JobManager;
+template<class> class JobManager;
 struct VehicleState;
 struct AIWEAPSETTINGS;
 class GC_Actor;
 class GC_RigidBodyStatic;
+class GC_Pickup;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -135,8 +136,8 @@ protected:
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 
-	bool FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if target found
-	bool FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something found
+	bool FindTarget(AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if target found
+	bool FindItem(AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something found
 
 	void SelectFavoriteWeapon();
 

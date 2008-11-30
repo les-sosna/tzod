@@ -129,20 +129,12 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 class GC_Object;
-class GC_Sound;
-class GC_Wood;
-class GC_RigidBodyStatic;
-class GC_Wall;
-class GC_Pickup;
 class GC_2dSprite;
 class GC_Background;
 class GC_Text;
 
-
 //////////////////////
 
-class TankServer;
-class TankClient;
 
 class Level : public RefCounted
 {
@@ -166,7 +158,7 @@ class Level : public RefCounted
 		char  theme[MAX_PATH];
 	};
 
-	OBJECT_LIST _objectLists[GLOBAL_LIST_COUNT];
+	ObjectList _objectLists[GLOBAL_LIST_COUNT];
 
 public:
 
@@ -174,22 +166,22 @@ public:
 	DWORD _checksum;
 #endif
 
-	OBJECT_LIST& GetList(GlobalListID id) { return _objectLists[id]; }
-	const OBJECT_LIST& GetList(GlobalListID id) const { return _objectLists[id]; }
+	ObjectList& GetList(GlobalListID id) { return _objectLists[id]; }
+	const ObjectList& GetList(GlobalListID id) const { return _objectLists[id]; }
 
-	OBJECT_GRIDSET  grid_rigid_s;
-	OBJECT_GRIDSET  grid_walls;
-	OBJECT_GRIDSET  grid_wood;
-	OBJECT_GRIDSET  grid_water;
-	OBJECT_GRIDSET  grid_pickup;
+	Grid<ObjectList>  grid_rigid_s;
+	Grid<ObjectList>  grid_walls;
+	Grid<ObjectList>  grid_wood;
+	Grid<ObjectList>  grid_water;
+	Grid<ObjectList>  grid_pickup;
 
-	OBJECT_LIST     ts_floating;
-	OBJECT_LIST     ts_fixed;
-	OBJECT_LIST     endframe;
+	ObjectList     ts_floating;
+	ObjectList     ts_fixed;
+	ObjectList     endframe;
 
 	// graphics
-	OBJECT_LIST     z_globals[Z_COUNT];
-	OBJECT_GRIDSET  z_grids[Z_COUNT];
+	ObjectList        z_globals[Z_COUNT];
+	Grid<ObjectList>  z_grids[Z_COUNT];
 
 	SafePtr<GC_Background> _background;
 	SafePtr<GC_Text>   _temporaryText;
@@ -288,7 +280,7 @@ private:
 	//
 
 public:
-	GC_RigidBodyStatic* agTrace( Grid<OBJECT_LIST> &list,
+	GC_RigidBodyStatic* agTrace( Grid<ObjectList> &list,
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // координаты начала
 	                             const vec2d &a,       // направление

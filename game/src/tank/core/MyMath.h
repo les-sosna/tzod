@@ -1,7 +1,8 @@
 // MyMath.h
 #pragma once
 
-#include "constants.h"
+#define PI    3.141593f
+#define PI2   6.283185f
 
 /////////////////////////////////////////////////////////////////////////////
 

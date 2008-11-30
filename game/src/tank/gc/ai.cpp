@@ -726,7 +726,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	std::vector<GC_Pickup *> applicants;
 
-	PtrList<OBJECT_LIST> receive;
+	PtrList<ObjectList> receive;
 	FRECT rt = {
 		(GetVehicle()->GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
 		(GetVehicle()->GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
@@ -734,9 +734,9 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		(GetVehicle()->GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
 
 	g_level->grid_pickup.OverlapRect(receive, rt);
-	for( PtrList<OBJECT_LIST>::iterator i = receive.begin(); i != receive.end(); ++i )
+	for( PtrList<ObjectList>::iterator i = receive.begin(); i != receive.end(); ++i )
 	{
-		OBJECT_LIST::iterator it = (*i)->begin();
+		ObjectList::iterator it = (*i)->begin();
 		for(; it != (*i)->end(); ++it )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) *it;

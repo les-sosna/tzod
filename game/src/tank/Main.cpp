@@ -106,7 +106,7 @@ static void RenderFrame(bool thumbnail)
 static void EndFrame()
 {
 	_ASSERT(g_level);
-	OBJECT_LIST::safe_iterator it = g_level->endframe.safe_begin();
+	ObjectList::safe_iterator it = g_level->endframe.safe_begin();
 	while( it != g_level->endframe.end() )
 	{
 		(*it)->EndFrame();

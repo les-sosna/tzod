@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "Delegate.h"
-
 ///////////////////////////////////
 
 template <class T>
@@ -29,28 +27,9 @@ class PtrList
 		nodeAllocator.Free(node);
 	}
 
-	void OnAddElement(T *ptr)
-	{
-		if( eventAddElement )
-			INVOKE(eventAddElement) (ptr);
-	}
-
-	void OnRemoveElement(T *ptr)
-	{
-		if( eventRemoveElement )
-			INVOKE(eventRemoveElement) (ptr);
-	}
-
 	PtrList(const PtrList &src); // no copy
 
 public:
-
-	/////////////////////////////////////////////
-	// callback interface
-
-	Delegate<void(T*)> eventAddElement;
-	Delegate<void(T*)> eventRemoveElement;
-
 
 	/////////////////////////////////////////////
 	// iterators
@@ -261,7 +240,6 @@ public:
 		tmp->next       = _begin->next;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
-		OnAddElement(ptr);
 	}
 
 	void push_back(T *ptr)
@@ -273,7 +251,6 @@ public:
 		tmp->next       = _end;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
-		OnAddElement(ptr);
 	}
 
 	void erase(base_iterator &where)
@@ -285,7 +262,6 @@ public:
 		T *ptr = where._node->ptr;
 		FreeNode(where._node);
 		--_size;
-		OnRemoveElement(ptr);
 	}
 
 	void safe_erase(base_iterator &where)
@@ -298,7 +274,6 @@ public:
 		else
 			FreeNode(where._node);
 		--_size;
-		OnRemoveElement(ptr);
 	}
 
 	__inline iterator      begin() const { return iterator(_begin->next); }

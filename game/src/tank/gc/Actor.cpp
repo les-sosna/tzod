@@ -96,7 +96,7 @@ void GC_Actor::EnterContext(Context &context, const Location &l)
 	context.iterator = context.grids->element(l.x, l.y).rbegin();
 }
 
-void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)
+void GC_Actor::AddContext(Grid<ObjectList> *pGridSet)
 {
 	_ASSERT(!IsKilled());
 
@@ -107,7 +107,7 @@ void GC_Actor::AddContext(OBJECT_GRIDSET *pGridSet)
 	EnterContext(_contexts.front(), _location);
 }
 
-void GC_Actor::RemoveContext(OBJECT_GRIDSET *pGridSet)
+void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 {
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
 	{

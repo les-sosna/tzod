@@ -348,8 +348,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	{
 		float s = sinf(da);
 		float c = cosf(da) - 1;
-		const OBJECT_LIST &ls = g_level->GetList(LIST_projectiles);
-		OBJECT_LIST::safe_iterator it = ls.safe_begin();
+		const ObjectList &ls = g_level->GetList(LIST_projectiles);
+		ObjectList::safe_iterator it = ls.safe_begin();
 		while( it != ls.end() )
 		{
 			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
@@ -448,11 +448,11 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	//------------------------------------
 	// collisions
 
-	PtrList<OBJECT_LIST> receive;
+	PtrList<ObjectList> receive;
 	g_level->grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 	g_level->grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
-	PtrList<OBJECT_LIST>::iterator rit = receive.begin();
+	PtrList<ObjectList>::iterator rit = receive.begin();
 
 	Contact c;
 	c.total_np = 0;
@@ -461,7 +461,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 	for( ; rit != receive.end(); ++rit )
 	{
-		OBJECT_LIST::iterator it = (*rit)->begin();
+		ObjectList::iterator it = (*rit)->begin();
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it);

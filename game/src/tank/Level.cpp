@@ -308,7 +308,7 @@ void Level::Clear()
 	if( g_gui )  // FIXME: dependence on GUI
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
-	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
+	ObjectList::safe_iterator it = GetList(LIST_objects).safe_begin();
 	while( GetList(LIST_objects).end() != it )
 	{
 		GC_Object* obj = *it;
@@ -636,7 +636,7 @@ bool Level::Serialize(const char *fileName)
 
 
 		//перебираем все объекты. если нужно - сохраняем
-		OBJECT_LIST::reverse_iterator it = GetList(LIST_objects).rbegin();
+		ObjectList::reverse_iterator it = GetList(LIST_objects).rbegin();
 		for( ; it != GetList(LIST_objects).rend(); ++it )
 		{
 			GC_Object *object = *it;
@@ -837,13 +837,13 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
 	{
-		PtrList<OBJECT_LIST> receive;
+		PtrList<ObjectList> receive;
 		z_grids[i].OverlapPoint(receive, pt / LOCATION_SIZE);
 
-		PtrList<OBJECT_LIST>::iterator rit = receive.begin();
+		PtrList<ObjectList>::iterator rit = receive.begin();
 		for( ; rit != receive.end(); rit++ )
 		{
-			OBJECT_LIST::iterator it = (*rit)->begin();
+			ObjectList::iterator it = (*rit)->begin();
 			for( ; it != (*rit)->end(); ++it )
 			{
 				GC_2dSprite *object = static_cast<GC_2dSprite*>(*it);
@@ -912,7 +912,7 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	}
 }
 
-GC_RigidBodyStatic* Level::agTrace( Grid<OBJECT_LIST> &list,
+GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	                                const GC_RigidBodyStatic* ignore,
 	                                const vec2d &x0,  // origin
 	                                const vec2d &a,   // direction
@@ -970,8 +970,8 @@ GC_RigidBodyStatic* Level::agTrace( Grid<OBJECT_LIST> &list,
 			//
 			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
 			{
-				OBJECT_LIST &tmp_list = list.element(cx, cy);
-				for( OBJECT_LIST::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
+				ObjectList &tmp_list = list.element(cx, cy);
+				for( ObjectList::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
 					if( object->GetTrace0() || ignore == object || object->IsKilled() )
@@ -1111,7 +1111,7 @@ void Level::TimeStep(float dt)
 					case DBTYPE_PLAYERQUIT:
 					{
 						const DWORD &id = db.cast<DWORD>();
-						OBJECT_LIST::iterator it = GetList(LIST_players).begin();
+						ObjectList::iterator it = GetList(LIST_players).begin();
 						while( it != GetList(LIST_players).end() )
 						{
 							if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
@@ -1159,7 +1159,7 @@ void Level::TimeStep(float dt)
 
 			if( !_frozen )
 			{
-				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+				ObjectList::safe_iterator it = ts_fixed.safe_begin();
 				while( it != ts_fixed.end() )
 				{
 					GC_Object* pTS_Obj = *it;
@@ -1205,7 +1205,7 @@ void Level::TimeStep(float dt)
 			_time += fixed_dt;
 			if( !_frozen )
 			{
-				OBJECT_LIST::safe_iterator it = ts_fixed.safe_begin();
+				ObjectList::safe_iterator it = ts_fixed.safe_begin();
 				while( it != ts_fixed.end() )
 				{
 					GC_Object* pTS_Obj = *it;
@@ -1223,7 +1223,7 @@ void Level::TimeStep(float dt)
 
 	if( !_frozen )
 	{
-		OBJECT_LIST::safe_iterator it = ts_floating.safe_begin();
+		ObjectList::safe_iterator it = ts_floating.safe_begin();
 		while( it != ts_floating.end() )
 		{
 			GC_Object* pTS_Obj = *it;

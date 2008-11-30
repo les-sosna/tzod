@@ -13,14 +13,14 @@
 
 #define FOREACH(ls, type, var)                                          \
 	if( type *var = (type *) (0xffffffff) )                             \
-	for( OBJECT_LIST::iterator var##iterator = (ls).begin();            \
+	for( ObjectList::iterator var##iterator = (ls).begin();            \
 	         (var = static_cast<type *>(*var##iterator)),               \
 	         (var##iterator != (ls).end());                             \
 	    var##iterator++)
 
 #define FOREACH_R(ls, type, var)                                        \
 	if( type *var = (type *) (0xffffffff) )                             \
-	for( OBJECT_LIST::reverse_iterator var##iterator = (ls).rbegin();   \
+	for( ObjectList::reverse_iterator var##iterator = (ls).rbegin();   \
 	      (var = static_cast<type *>(*var##iterator)),                  \
 	      (var##iterator != (ls).rend());                               \
 	    var##iterator++ )
