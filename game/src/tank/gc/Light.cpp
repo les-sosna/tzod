@@ -32,17 +32,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 
 GC_Light::GC_Light(enumLightType type)
   : _memberOf(this)
+  , _lamp(WrapRawPtr(new GC_UserSprite()))
+  , _timeout(0)
+  , _aspect(1)
+  , _offset(0)
+  , _radius(200)
+  , _type(type)
+  , _angle(0)
+  , _intensity(1)
 {
-	_timeout    = 0;
-	_aspect     = 1;
-	_offset     = 0;
-	_radius     = 200;
-	_type       = type;
-	_angle      = 0;
-	_intensity  = 1;
-
-	_lamp = new GC_UserSprite();
-
 	Activate(true);
 	Update();
 }
@@ -218,8 +216,8 @@ GC_Spotlight::GC_Spotlight(FromFile)
 }
 
 GC_Spotlight::GC_Spotlight(float x, float y)
+  : _light(WrapRawPtr(new GC_Light(GC_Light::LIGHT_SPOT)))
 {
-	_light = new GC_Light(GC_Light::LIGHT_SPOT);
 	_light->SetRadius(200);
 	_light->SetIntensity(1.0f);
 	_light->SetOffset(170);

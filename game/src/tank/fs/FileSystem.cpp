@@ -59,7 +59,7 @@ bool IFileSystem::MountTo(IFileSystem *parent)
 
 	// mount
 	_parent = parent;
-	_parent->_children[_nodeName] = this;
+	_parent->_children[_nodeName] = WrapRawPtr(this);
 
 	return true;
 }

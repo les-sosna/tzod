@@ -119,7 +119,7 @@ public:
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
 
-	void SetPlayer(GC_Player *player);
+	void SetPlayer(SafePtr<GC_Player> &player);
 
 public:
 	GC_Vehicle(float x, float y);

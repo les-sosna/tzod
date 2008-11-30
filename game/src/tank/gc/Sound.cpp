@@ -335,8 +335,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 
 GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
    : GC_Sound(sound, mode, object->GetPos())
+   , _object(object)
 {
-	_object = object;
 	///////////////////////
 #if !defined NOSOUND
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);

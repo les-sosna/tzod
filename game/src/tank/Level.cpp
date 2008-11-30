@@ -294,10 +294,10 @@ void Level::Resize(int X, int Y)
 	// FIXME: default objects
 	//
 
-	new GC_Camera((GC_Player *) NULL);
+	new GC_Camera(SafePtr<GC_Player>()); // no player
 
-	_background = new GC_Background();
-	_temporaryText = new GC_Text(0, 0, "");
+	_background = WrapRawPtr(new GC_Background());
+	_temporaryText = WrapRawPtr(new GC_Text(0, 0, ""));
 	_temporaryText->Show(false);
 }
 

@@ -517,7 +517,7 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	//--------------------------------------------------
 	Notify notify;
 	notify.type         = type;
-	notify.subscriber   = subscriber;
+	notify.subscriber   = WrapRawPtr(subscriber);
 	notify.handler      = handler;
 	notify.once         = once;
 	notify.hasGuard     = guard;
@@ -526,7 +526,7 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	if( guard ) // защита на случай если subscriber умрет раньше, чем this
 	{
 		notify.type        = NOTIFY_OBJECT_KILL;
-		notify.subscriber  = this;
+		notify.subscriber  = WrapRawPtr(this);
 		notify.handler     = &GC_Object::OnKillSubscriber;
 		notify.once        = true;
 		notify.hasGuard    = false;

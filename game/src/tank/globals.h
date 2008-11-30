@@ -35,7 +35,7 @@ extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
 extern MusicPlayer     *g_music;
 extern GuiManager      *g_gui;
-extern Level           *g_level;
+extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
 extern TankClient      *g_client;
 extern ConsoleBuffer   *g_console;

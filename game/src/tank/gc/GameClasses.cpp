@@ -293,26 +293,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(GC_RigidBodyStatic *owner)
+GC_Explosion::GC_Explosion(SafePtr<GC_RigidBodyStatic> &owner)
   : GC_2dSprite()
+  , _owner(owner)
+  , _light(WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT)))
+  , _time(0)
+  , _time_life(0.5f)
+  , _time_boom(0)
+  , _damage(1)
+  , _radius(32)
+  , _boomOK(false)
 {
 	SetZ(Z_EXPLODE);
-
-	_time = 0;
-	_time_life = 0.5f;
-	_time_boom = 0;
-
-	_damage = 1;
-	_DamRadius = 32;
-
 	SetRotation(frand(PI2));
-
-	_boomOK = false;
-
-	_owner = owner;
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-
-	_light = new GC_Light(GC_Light::LIGHT_POINT);
 }
 
 GC_Explosion::GC_Explosion(FromFile)
@@ -337,7 +331,7 @@ void GC_Explosion::Serialize(SaveFile &f)
 	GC_2dSprite::Serialize(f);
 	f.Serialize(_boomOK);
 	f.Serialize(_damage);
-	f.Serialize(_DamRadius);
+	f.Serialize(_radius);
 	f.Serialize(_time);
 	f.Serialize(_time_boom);
 	f.Serialize(_time_life);
@@ -545,7 +539,7 @@ void GC_Explosion::TimeStepFixed(float dt)
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )
-		Boom(_DamRadius, _damage);
+		Boom(_radius, _damage);
 
 	if( _time >= _time_life )
 	{
@@ -571,14 +565,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner)
+GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
   : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
 	static const TextureCache tex3("smallblast");
 
-	_DamRadius = 70;
+	_radius = 70;
 	_damage    = 150;
 
 	_time_life = 0.32f;
@@ -607,7 +601,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner)
 		p->SetFade(true);
 	}
 
-	_light->SetRadius(_DamRadius * 5);
+	_light->SetRadius(_radius * 5);
 	_light->MoveTo(GetPos());
 
 	PLAY(SND_BoomStandard, GetPos());
@@ -629,7 +623,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner)
+GC_Boom_Big::GC_Boom_Big(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
   : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
@@ -638,7 +632,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner)
 	static const TextureCache tex5("particle_smoke");
 	static const TextureCache tex6("bigblast");
 
-	_DamRadius = 128;
+	_radius = 128;
 	_damage    = 90;
 
 	_time_life = 0.72f;
@@ -678,7 +672,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner)
 		p->SetFade(true);
 	}
 
-	_light->SetRadius(_DamRadius * 5);
+	_light->SetRadius(_radius * 5);
 	_light->MoveTo(GetPos());
 
 	PLAY(SND_BoomBig, GetPos());

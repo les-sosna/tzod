@@ -116,7 +116,7 @@ protected:
 	bool _bInverse;
 
 public:
-	GC_IndicatorBar(const char *texture, GC_2dSprite* object, float *pValue, float *pValueMax, LOCATION location);
+	GC_IndicatorBar(const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 
 	virtual void Kill();

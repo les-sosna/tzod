@@ -86,13 +86,13 @@ public:
 	float _time_boom;
 
 public:
-	GC_Explosion(GC_RigidBodyStatic *owner);
+	GC_Explosion(SafePtr<GC_RigidBodyStatic> &owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 
 
 	float _damage;
-	float _DamRadius;
+	float _radius;
 
 	void Boom(float radius, float damage);
 
@@ -109,7 +109,7 @@ class GC_Boom_Standard : public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Standard);
 public:
-	GC_Boom_Standard(const vec2d &pos, GC_RigidBodyStatic *owner);
+	GC_Boom_Standard(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner);
 	GC_Boom_Standard(FromFile);
 	virtual ~GC_Boom_Standard();
 };
@@ -120,7 +120,7 @@ class GC_Boom_Big :  public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
 public:
-	GC_Boom_Big(const vec2d &pos, GC_RigidBodyStatic *owner);
+	GC_Boom_Big(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner);
 	GC_Boom_Big(FromFile);
 };
 

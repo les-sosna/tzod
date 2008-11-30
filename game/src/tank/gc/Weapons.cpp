@@ -108,7 +108,7 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 	SetZ(Z_ATTACHED_ITEM);
 
-	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
+	_rotateSound = WrapRawPtr(new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos()));
 	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	Show(true);
@@ -130,11 +130,11 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 	PLAY(SND_w_Pickup, GetPos());
 
-	_fireEffect = new GC_UserSprite();
+	_fireEffect = WrapRawPtr(new GC_UserSprite());
 	_fireEffect->SetZ(Z_EXPLODE);
 	_fireEffect->Show(false);
 
-	_fireLight = new GC_Light(GC_Light::LIGHT_POINT);
+	_fireLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_fireLight->Activate(false);
 }
 
@@ -176,7 +176,7 @@ void GC_Weapon::ProcessRotate(float dt)
 
 void GC_Weapon::SetCrosshair()
 {
-	_crosshair = new GC_Crosshair(GC_Crosshair::CHS_SINGLE);
+	_crosshair = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_SINGLE));
 }
 
 GC_Weapon::GC_Weapon(FromFile)
@@ -934,9 +934,9 @@ void GC_Weap_Ram::Attach(GC_Actor *actor)
 {
 	GC_Weapon::Attach(actor);
 
-	_engineSound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
+	_engineSound = WrapRawPtr(new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos()));
 
-	_engineLight = new GC_Light(GC_Light::LIGHT_POINT);
+	_engineLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
 	_engineLight->Activate(false);
@@ -1252,7 +1252,7 @@ void GC_Weap_Ripper::Attach(GC_Actor *actor)
 	GC_Weapon::Attach(actor);
 
 	_timeReload = 0.5f;
-	_disk = new GC_UserSprite();
+	_disk = WrapRawPtr(new GC_UserSprite());
 	_disk->SetTexture("projectile_disk");
 	_disk->SetZ(Z_PROJECTILE);
 	UpdateDisk();
@@ -1370,7 +1370,7 @@ void GC_Weap_Minigun::Attach(GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos());
+	_sound = WrapRawPtr(new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos()));
 	_bFire = false;
 
 	_fireEffect->SetTexture("minigun_fire");
@@ -1414,8 +1414,8 @@ void GC_Weap_Minigun::Detach()
 
 void GC_Weap_Minigun::SetCrosshair()
 {
-	_crosshair      = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
-	_crosshairLeft = new GC_Crosshair(GC_Crosshair::CHS_DOUBLE);
+	_crosshair     = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_DOUBLE));
+	_crosshairLeft = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_DOUBLE));
 }
 
 void GC_Weap_Minigun::Serialize(SaveFile &f)
@@ -1559,7 +1559,7 @@ void GC_Weap_Zippo::Attach(GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
+	_sound = WrapRawPtr(new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos()));
 	_bFire = false;
 }
 

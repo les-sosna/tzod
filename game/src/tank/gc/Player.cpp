@@ -231,7 +231,7 @@ void GC_Player::TimeStepFixed(float dt)
 			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick, "font_default");
 
 
-			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+			_vehicle = WrapRawPtr(new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y));
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -243,7 +243,7 @@ void GC_Player::TimeStepFixed(float dt)
 			}
 
 			_vehicle->SetBodyAngle(pBestPoint->GetRotation());
-			_vehicle->SetPlayer(this);
+			_vehicle->SetPlayer(WrapRawPtr(this));
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this,
 				(NOTIFYPROC) &GC_Player::OnVehicleDestroy, true, false);
@@ -414,7 +414,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 
 GC_PlayerLocal::GC_PlayerLocal()
 {
-	new GC_Camera(this);
+	new GC_Camera(WrapRawPtr(this));
 	_lastLightKeyState = false;
 	_lights     = true;
 	_aimToMouse = false;

@@ -71,7 +71,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	GC_Vehicle* EnumTargets();
-	void SelectTarget(GC_Vehicle* target);
+	void SelectTarget(SafePtr<GC_Vehicle> &target);
 	virtual void TargetLost();
 
 	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);

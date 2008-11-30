@@ -226,7 +226,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 	return true;
 }
 
-GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
+GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
                                  float *pValue, float *pValueMax, LOCATION location)
   : GC_2dSprite()
   , _memberOf(this)
@@ -244,7 +244,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite* object,
 	_location = location;
 	SetInverse(false);
 
-	_object = object;
+	_object = WrapRawPtr(object);
 	///////////////////////
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);

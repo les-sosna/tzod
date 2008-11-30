@@ -26,19 +26,17 @@
 
 GC_Pickup::GC_Pickup(float x, float y)
   : _memberOf(this)
+  , _label(WrapRawPtr(new GC_HideLabel(x, y)))
+  , _radius(25.0)
+  , _timeRespawn(0)
+  , _timeAnimation(0)
+  , _timeAttached(0)
+  , _autoSwitch(true)
+  , _respawn(false)
+  , _blink(false)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
-
-	_label = new GC_HideLabel(x, y);
-
-	_radius         = 25.0;
-	_timeRespawn    = 0;
-	_timeAnimation  = 0;
-	_timeAttached   = 0;
-	_autoSwitch     = true;
-	_respawn        = false;
-	_blink          = false;
 
 	SetShadow(true);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
@@ -102,7 +100,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 void GC_Pickup::Attach(GC_Actor *actor)
 {
 	_ASSERT(!_owner);
-	_owner         = actor;
+	_owner         = WrapRawPtr(actor);
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
 	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove, false);
@@ -397,7 +395,7 @@ void GC_pu_Mine::Attach(GC_Actor *actor)
 //	GC_Pickup::Attach(actor);
 
 	_ASSERT(dynamic_cast<GC_RigidBodyStatic*>(actor));
-	new GC_Boom_Standard(GetPos(), static_cast<GC_RigidBodyStatic*>(actor));
+	new GC_Boom_Standard(GetPos(), SafePtrCast<GC_RigidBodyStatic>(WrapRawPtr(actor)));
 	Kill();
 }
 
@@ -647,11 +645,11 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 				if( pNearTarget )
 				{
-					_effect = new GC_Line(GetPos(), pNearTarget->GetPos(), "lighting");
+					_effect = WrapRawPtr(new GC_Line(GetPos(), pNearTarget->GetPos(), "lighting"));
 					_effect->SetPhase(frand(1));
 					_effect->SetZ(Z_FREE_ITEM);
 
-					_light = new GC_Light(GC_Light::LIGHT_DIRECT);
+					_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
 					_light->MoveTo(GetPos());
 					_light->SetRadius(100);
 					_light->SetLength((pNearTarget->GetPos() - GetPos()).len());
@@ -760,7 +758,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 
 	PLAY(SND_B_Start, GetPos());
 	_ASSERT(NULL == _sound);
-	_sound = new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this);
+	_sound = WrapRawPtr(new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this));
 
 	SetTexture("booster");
 	SetShadow(false);

@@ -115,7 +115,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 						if( !IsVisible(veh) ) continue; // vehicle is invisible. skipping
 					}
 					rr_min = rr;
-					_veh = veh;
+					_veh = WrapRawPtr(veh);
 				}
 			}
 		}

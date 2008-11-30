@@ -40,8 +40,8 @@ GC_Turret::GC_Turret(float x, float y)
 	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos());
-	_weaponSprite = new GC_UserSprite();
+	_rotateSound = WrapRawPtr(new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos()));
+	_weaponSprite = WrapRawPtr(new GC_UserSprite());
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(Z_FREE_ITEM);
 
@@ -129,7 +129,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	return target;
 }
 
-void GC_Turret::SelectTarget(GC_Vehicle* target)
+void GC_Turret::SelectTarget(SafePtr<GC_Vehicle> &target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
@@ -168,7 +168,7 @@ void GC_Turret::MoveTo(const vec2d &pos)
 
 void GC_Turret::OnDestroy()
 {
-	new GC_Boom_Big( GetPos(), NULL);
+	new GC_Boom_Big(GetPos(), SafePtr<GC_RigidBodyStatic>());
 	GC_RigidBodyStatic::OnDestroy();
 }
 
@@ -182,9 +182,8 @@ void GC_Turret::TimeStepFixed(float dt)
 	case TS_WAITING:
 		if( _jobManager.TakeJob(this) )
 		{
-			GC_Vehicle *target;
-			if( target = EnumTargets() )
-				SelectTarget(target);
+			if( GC_Vehicle *target = EnumTargets() )
+				SelectTarget(WrapRawPtr(target));
 		}
 		break;
 	case TS_ATACKING:
@@ -574,9 +573,8 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 		{
 		//	if( _jobManager.TakeJob(this) )
 			{
-				GC_Vehicle *target;
-				if( target = EnumTargets() )
-					SelectTarget(target);
+				if( GC_Vehicle *target = EnumTargets() )
+					SelectTarget(WrapRawPtr(target));
 			}
 		}
 		break;

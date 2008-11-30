@@ -24,12 +24,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-GC_Camera::GC_Camera(GC_Player *pPlayer)
+GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
   : GC_Actor()
   , _memberOf(this)
   , _rotator(_angle_current)
+  , _player(player)
 {
-	_player = pPlayer;
 	_rotator.reset(0.0f, 0.0f,
 		g_conf->g_rotcamera_m->GetFloat(),
 		g_conf->g_rotcamera_a->GetFloat(),

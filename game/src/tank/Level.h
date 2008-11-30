@@ -144,7 +144,7 @@ class GC_Text;
 class TankServer;
 class TankClient;
 
-class Level
+class Level : public RefCounted
 {
 	friend class GC_Object;
 
@@ -232,7 +232,6 @@ public:
 
 /////////////////////////////////////////////////////
 	Level();
-	~Level();
 
 	void Resize(int X, int Y);
 	void Clear();
@@ -277,6 +276,11 @@ public:
                        const vec2d &tx,    // target position
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
+
+
+private:
+	~Level();
+
 
 
 	//

@@ -260,7 +260,7 @@ bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	if( !IsKilled() && !object->IsKilled() )
 	{
 		_ASSERT(NULL == _lastHit);
-		_lastHit = object;
+		_lastHit = WrapRawPtr(object);
 		_lastHit->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 	}
 	object->Release();
@@ -342,7 +342,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 		// выбираем только если ближе 20 градусов
 		if( nearest_cosinus > 0.94f )
 		{
-			_target = pNearestVehicle;
+			_target = WrapRawPtr(pNearestVehicle);
 		}
 	}
 
@@ -373,7 +373,7 @@ void GC_Rocket::Serialize(SaveFile &f)
 
 bool GC_Rocket::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
-	(new GC_Boom_Standard(hit + norm, GetRawPtr(_owner)))->_damage = DAMAGE_ROCKET_AK47;
+	(new GC_Boom_Standard(hit + norm, _owner))->_damage = DAMAGE_ROCKET_AK47;
 	return true;
 }
 
@@ -547,7 +547,7 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	{
 		(new GC_Boom_Big( vec2d(__max(0, __min(g_level->_sx - 1, hit.x + norm.x)),
 								__max(0, __min(g_level->_sy - 1, hit.y + norm.y))),
-						  GetRawPtr(_owner) ))->_time_boom = 0.05f;
+						  _owner ))->_time_boom = 0.05f;
 	}
 	else
 	{
@@ -713,7 +713,7 @@ void GC_BfgCore::FindTarget()
 
 	// выбираем только если ближе 30 градусов
 	if( nearest_cosinus > 0.87f )
-		_target = pNearestVehicle;
+		_target = WrapRawPtr(pNearestVehicle);
 }
 
 void GC_BfgCore::Kill()
@@ -1096,7 +1096,7 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 
 	SAFE_KILL(_light);
 
-	_light = new GC_Light(GC_Light::LIGHT_DIRECT);
+	_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
 	_light->SetRadius(64);
 	_light->SetLength(0);
 	_light->SetIntensity(1.5f);

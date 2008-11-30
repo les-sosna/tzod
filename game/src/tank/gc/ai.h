@@ -18,7 +18,7 @@ class GC_RigidBodyStatic;
 
 struct AIITEMINFO
 {
-	GC_Actor  *object;
+	SafePtr<GC_Actor> object;
 	AIPRIORITY priority;
 };
 
@@ -131,7 +131,7 @@ protected:
 	SafePtr<GC_RigidBodyStatic> _target;  // текущая цель
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
-	void LockTarget(GC_RigidBodyStatic *target);
+	void LockTarget(SafePtr<GC_RigidBodyStatic> &target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 

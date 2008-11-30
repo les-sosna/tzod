@@ -91,7 +91,7 @@ public:
 	//
 	// assignment
 	//
-	const SafePtr& operator = (T *p)
+/*	const SafePtr& operator = (T *p)
 	{
 		if( _ptr )
 		{
@@ -104,7 +104,7 @@ public:
 		}
 		return *this;
 	}
-	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
+*/	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
 	{
 		if( _ptr )
 		{
@@ -136,11 +136,14 @@ public:
 	//
 	// dereference
 	//
+#pragma warning( push )
+#pragma warning( disable: 4624 ) // destructor could not be generated
 	class NoAddRefRelease : public T
 	{
 		void AddRef();
 		void Release();
 	};
+#pragma warning( pop )
 	NoAddRefRelease* operator -> () const
 	{
 		_ASSERT(_ptr);

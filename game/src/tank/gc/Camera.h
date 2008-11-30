@@ -35,7 +35,7 @@ public:
 
 	//--------------------------------
 public:
-	GC_Camera(GC_Player *pPlayer);
+	GC_Camera(SafePtr<GC_Player> &player);
 	GC_Camera(FromFile);
 
 	void Select();         // применение трансформации, выбор камеры как текущей

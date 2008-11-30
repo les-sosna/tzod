@@ -716,7 +716,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		}
 	}
 
-	info.object   = pOptTarget;
+	info.object   = WrapRawPtr(pOptTarget);
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
@@ -791,7 +791,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		}
 	}
 
-	info.object   = pOptItem;
+	info.object   = WrapRawPtr(pOptItem);
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
@@ -906,7 +906,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	AIITEMINFO ii_target;
 	if( FindTarget(ii_target, ws) )
 	{
-		LockTarget((GC_RigidBodyStatic *) ii_target.object);
+		LockTarget(SafePtrCast<GC_RigidBodyStatic>(ii_target.object));
 
 		if( ii_target.priority > ii_item.priority )
 		{
@@ -928,7 +928,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 				{
 					SmoothPath();
 				}
-				_pickupCurrent = (GC_Pickup *) ii_item.object;
+				_pickupCurrent = SafePtrCast<GC_Pickup>(ii_item.object);
 			}
 			SetL2(L2_PICKUP);
 			SetL1(L1_NONE);
@@ -948,7 +948,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 				{
 					SmoothPath();
 				}
-				_pickupCurrent = (GC_Pickup *) ii_item.object;
+				_pickupCurrent = SafePtrCast<GC_Pickup>(ii_item.object);
 			}
 			SetL2(L2_PICKUP);
 			SetL1(L1_NONE);
@@ -1315,7 +1315,7 @@ void GC_PlayerAI::OnDie()
 	_jobManager.UnregisterMember(this);
 }
 
-void GC_PlayerAI::LockTarget(GC_RigidBodyStatic *target)
+void GC_PlayerAI::LockTarget(SafePtr<GC_RigidBodyStatic> &target)
 {
 	_ASSERT(target);
 	_ASSERT(GetVehicle());

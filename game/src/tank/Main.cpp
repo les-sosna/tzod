@@ -78,12 +78,16 @@ static void OnPrintScreen()
 
 static void TimeStep(float dt)
 {
+	_ASSERT(g_level);
 	g_level->TimeStep(dt);
 	if( g_gui ) g_gui->TimeStep(dt);
 }
 
 static void RenderFrame(bool thumbnail)
 {
+	_ASSERT(g_level);
+	_ASSERT(g_render);
+
 	g_render->Begin();
 
 	if( !g_level->IsEmpty() ) g_level->Render();
@@ -101,11 +105,11 @@ static void RenderFrame(bool thumbnail)
 
 static void EndFrame()
 {
+	_ASSERT(g_level);
 	OBJECT_LIST::safe_iterator it = g_level->endframe.safe_begin();
 	while( it != g_level->endframe.end() )
 	{
-		GC_Object* pEF_Obj = *it;
-		pEF_Obj->EndFrame();
+		(*it)->EndFrame();
 		++it;
 	}
 }
@@ -294,6 +298,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	bool bGeneralFault = false;
 #endif
 
+	// init world
+	g_level = WrapRawPtr(new Level());
+
 	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )
 	{
 		// init texture manager
@@ -307,9 +314,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		{
 		;
 #endif
-		// init world
-		g_level = new Level();
-
 		// init GUI
 		TRACE("GUI subsystem initialization\n");
 		g_gui = new GuiManager(CreateDesktopWindow);
@@ -378,7 +382,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		TRACE("Shutting down GUI subsystem\n");
 		SAFE_DELETE(g_gui);
 
-		SAFE_DELETE(g_level);
 		SAFE_DELETE(g_client);
 		SAFE_DELETE(g_server);
 
@@ -388,6 +391,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	{
 		MessageBoxT(NULL, "Game engine init error", MB_ICONERROR);
 	}
+
+	// destroy level
+	g_level = NULL;
 
 	SAFE_DELETE(timer);
 

@@ -50,12 +50,12 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 
 	_radius = 0;
 
-	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
+	_light_ambient = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
 
-	_light1 = new GC_Light(GC_Light::LIGHT_SPOT);
-	_light2 = new GC_Light(GC_Light::LIGHT_SPOT);
+	_light1 = WrapRawPtr(new GC_Light(GC_Light::LIGHT_SPOT));
+	_light2 = WrapRawPtr(new GC_Light(GC_Light::LIGHT_SPOT));
 
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
@@ -124,7 +124,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	return result;
 }
 
-void GC_Vehicle::SetPlayer(GC_Player *player)
+void GC_Vehicle::SetPlayer(SafePtr<GC_Player> &player)
 {
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
@@ -184,7 +184,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			}
 
 			_ASSERT(!_weapon);
-			_weapon = w;
+			_weapon = WrapRawPtr(w);
 
 			//
 			// update class
@@ -325,7 +325,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		if( _damLabel )
 			_damLabel->Reset();
 		else
-			_damLabel = new GC_DamLabel(this);
+			_damLabel = WrapRawPtr(new GC_DamLabel(this));
 	}
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
@@ -606,7 +606,7 @@ void GC_Vehicle::Draw()
 
 void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
+	_moveSound = WrapRawPtr(new GC_Sound(s, SMODE_LOOP, GetPos()));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,7 +700,7 @@ void GC_Tank_Light::SetDefaults()
 
 void GC_Tank_Light::OnDestroy()
 {
-	new GC_Boom_Big( GetPos(), NULL);
+	new GC_Boom_Big(GetPos(), SafePtr<GC_RigidBodyStatic>());
 	GC_Vehicle::OnDestroy();
 }
 

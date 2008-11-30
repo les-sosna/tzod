@@ -17,7 +17,7 @@ remember last bot skill setting when adding a new bot
 
 zoom (Camera.cpp:167)
 
-get(/set?) object position from Lua
+set object position from Lua?
 
 equip(booster) doesn't work
 solution: create Pickup::Accept(obj)
