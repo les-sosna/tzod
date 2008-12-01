@@ -12,9 +12,9 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // class ListDataSourceDefault
 
-void ListDataSourceDefault::SetCallback(ListCallback *cb)
+void ListDataSourceDefault::SetListener(ListDataSourceListener *cb)
 {
-	_callback = cb;
+	_listener = cb;
 }
 
 int ListDataSourceDefault::GetItemCount() const
@@ -59,8 +59,8 @@ int ListDataSourceDefault::AddItem(const string_t &str, UINT_PTR data)
 	i.data = data;
 	_items.push_back(i);
 
-	if( _callback )
-		_callback->OnAddItem();
+	if( _listener )
+		_listener->OnAddItem();
 
 	return _items.size() - 1;
 }
@@ -82,15 +82,15 @@ void ListDataSourceDefault::SetItemData(int index, ULONG_PTR data)
 void ListDataSourceDefault::DeleteItem(int index)
 {
 	_items.erase(_items.begin() + index);
-	if( _callback )
-		_callback->OnDeleteItem(index);
+	if( _listener )
+		_listener->OnDeleteItem(index);
 }
 
 void ListDataSourceDefault::DeleteAllItems()
 {
 	_items.clear();
-	if( _callback )
-		_callback->OnDeleteAllItems();
+	if( _listener )
+		_listener->OnDeleteAllItems();
 }
 
 void ListDataSourceDefault::Sort()
@@ -190,7 +190,7 @@ SafePtr<ListDataSourceDefault> List::GetDataDefault() const
 void List::SetData(const SafePtr<ListDataSource> &source)
 {
 	_data = source ? source : WrapRawPtr(new ListDataSourceDefault());
-	_data->SetCallback(&_callbacks);
+	_data->SetListener(&_callbacks);
 }
 
 void List::OnScroll(float pos)

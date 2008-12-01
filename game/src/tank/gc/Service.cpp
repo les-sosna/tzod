@@ -16,6 +16,8 @@ GC_Service::GC_Service()
   : GC_Object()
   , _memberOf(this)
 {
+	if( g_level->_serviceListener )
+		g_level->_serviceListener->OnCreate(this);
 }
 
 GC_Service::GC_Service(FromFile)
@@ -26,6 +28,13 @@ GC_Service::GC_Service(FromFile)
 
 GC_Service::~GC_Service()
 {
+}
+
+void GC_Service::Kill()
+{
+	if( g_level->_serviceListener )
+		g_level->_serviceListener->OnKill(this);
+	GC_Object::Kill();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

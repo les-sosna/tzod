@@ -286,17 +286,21 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 ///////////////////////////////////////////////////////////////////////////////
 
 ServiceListDataSource::ServiceListDataSource()
-  : _cb(NULL)
+  : _listener(NULL)
 {
+	assert(!g_level->_serviceListener);
+	g_level->_serviceListener = this;
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
+	assert(this == g_level->_serviceListener);
+	g_level->_serviceListener = NULL;
 }
 
-void ServiceListDataSource::SetCallback(ListCallback *cb)
+void ServiceListDataSource::SetListener(ListDataSourceListener *listener)
 {
-	_cb = cb;
+	_listener = listener;
 }
 
 int ServiceListDataSource::GetItemCount() const
@@ -341,6 +345,30 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 int ServiceListDataSource::FindItem(const string_t &text) const
 {
 	return -1;
+}
+
+void ServiceListDataSource::OnCreate(GC_Object *obj)
+{
+	_listener->OnAddItem();
+}
+
+void ServiceListDataSource::OnKill(GC_Object *obj)
+{
+	ObjectList &list = g_level->GetList(LIST_services);
+	int found = -1;
+	int idx = 0;
+	for( ObjectList::iterator it = list.begin(); it != list.end(); ++it )
+	{
+		if( *it == obj )
+		{
+			found = idx;
+			break;
+		}
+		++idx;
+	}
+	assert(-1 != found);
+
+	_listener->OnDeleteItem(found);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

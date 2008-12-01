@@ -248,6 +248,7 @@ Level::Level()
   , _sy(0)
   , _seed(1)
   , _gameType(-1)
+  , _serviceListener(NULL)
 #ifdef NETWORK_DEBUG
   , _checksum(0)
 #endif

@@ -5,6 +5,7 @@
 #include "ui/Base.h"
 #include "ui/Dialog.h"
 #include "ui/List.h"
+#include "ObjectListener.h"
 
 // forward declarations
 class GC_Object;
@@ -59,10 +60,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ServiceListDataSource : public ListDataSource
+class ServiceListDataSource
+	: public ListDataSource
+	, public ObjectListener
 {
 public:
-	virtual void SetCallback(ListCallback *cb);
+	virtual void SetListener(ListDataSourceListener *listener);
 
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
@@ -70,14 +73,18 @@ public:
 	virtual const string_t& GetItemText(int index, int sub) const;
 	virtual int FindItem(const string_t &text) const;
 
+	// ObjectListener implementation
+	virtual void OnCreate(GC_Object *obj);
+	virtual void OnKill(GC_Object *obj);
+
 public:
 	ServiceListDataSource();
 	virtual ~ServiceListDataSource();
 
 private:
 	mutable string_t _nameCache;
-	std::set<GC_Object*> _cache;
-	ListCallback *_cb;
+//	std::set<GC_Object*> _cache;
+	ListDataSourceListener *_listener;
 };
 
 

@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "ObjectListener.h"
 #include "gc/Object.h" // FIXME!
-
 
 #pragma region path finding stuff
 
@@ -182,6 +182,8 @@ public:
 	// graphics
 	ObjectList        z_globals[Z_COUNT];
 	Grid<ObjectList>  z_grids[Z_COUNT];
+
+	ObjectListener *_serviceListener;
 
 	SafePtr<GC_Background> _background;
 	SafePtr<GC_Text>   _temporaryText;

@@ -15,6 +15,7 @@ public:
 	GC_Service(FromFile);
 	virtual ~GC_Service();
 	virtual bool IsSaved() const { return true; }
+	virtual void Kill();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

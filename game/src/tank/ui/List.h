@@ -11,7 +11,7 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // multi-column ListBox control
 
-interface ListCallback
+interface ListDataSourceListener
 {
 	virtual void OnDeleteAllItems() = 0;
 	virtual void OnDeleteItem(int idx) = 0;
@@ -21,7 +21,7 @@ interface ListCallback
 class ListDataSource : public RefCounted
 {
 public:
-	virtual void SetCallback(ListCallback *cb) = 0;
+	virtual void SetListener(ListDataSourceListener *cb) = 0;
 
 	virtual int GetItemCount() const = 0;
 	virtual int GetSubItemCount(int index) const = 0;
@@ -34,7 +34,7 @@ class ListDataSourceDefault : public ListDataSource
 {
 public:
 	// ListDataSource interface
-	virtual void SetCallback(ListCallback *cb);
+	virtual void SetListener(ListDataSourceListener *cb);
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
 	virtual ULONG_PTR GetItemData(int index) const;
@@ -57,7 +57,7 @@ private:
 		UINT_PTR               data;
 	};
 	std::vector<Item>  _items;
-	ListCallback *_callback;
+	ListDataSourceListener *_listener;
 };
 
 
@@ -106,7 +106,7 @@ public:
 
 protected:
 	// callback interface
-	class ListCallbackImpl : public ListCallback
+	class ListCallbackImpl : public ListDataSourceListener
 	{
 	public:
 		ListCallbackImpl(List *list);
