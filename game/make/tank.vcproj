@@ -368,6 +368,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\ObjectListener.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\res\resource.h"
 				>
 			</File>
