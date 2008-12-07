@@ -288,13 +288,13 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 ServiceListDataSource::ServiceListDataSource()
   : _listener(NULL)
 {
-	assert(!g_level->_serviceListener);
+	_ASSERT(!g_level->_serviceListener);
 	g_level->_serviceListener = this;
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
-	assert(this == g_level->_serviceListener);
+	_ASSERT(this == g_level->_serviceListener);
 	g_level->_serviceListener = NULL;
 }
 
@@ -366,7 +366,7 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 		}
 		++idx;
 	}
-	assert(-1 != found);
+	_ASSERT(-1 != found);
 
 	_listener->OnDeleteItem(found);
 }
