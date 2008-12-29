@@ -321,7 +321,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 		g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
-		TRACE("Execing startup script '%s'\n", FILE_STARTUP);
+		TRACE("Running startup script '%s'\n", FILE_STARTUP);
 		if( !script_exec_file(g_env.L, FILE_STARTUP) )
 		{
 			TRACE("ERROR: in startup script\n");

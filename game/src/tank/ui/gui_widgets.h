@@ -15,7 +15,6 @@ class FpsCounter : public Text
 	int _nSprites;
 	int _nLights;
 	int _nBatches;
-	Timer _timer_net;
 
 public:
 	FpsCounter(Window *parent, float x, float y, enumAlignText align);

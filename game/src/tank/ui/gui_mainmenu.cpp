@@ -161,10 +161,6 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
 
-		g_level->Clear();
-		SAFE_DELETE(g_client);
-		SAFE_DELETE(g_server);
-
 		if( !g_level->init_load(tmp.c_str()) )
 		{
 			g_console->printf("couldn't load game from '%s'", tmp.c_str());
@@ -244,10 +240,6 @@ void MainMenuDlg::OnImportMapSelect(int result)
 		string_t tmp = DIR_MAPS;
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
-
-		g_level->Clear();
-		SAFE_DELETE(g_client);
-		SAFE_DELETE(g_server);
 
 		if( !g_level->init_import_and_edit(tmp.c_str()) )
 		{

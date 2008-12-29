@@ -50,26 +50,24 @@ bool TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 		return true;
 	}
 
-	TRACE("loading texture file '%s'\n", fileName.c_str());
-
 	SafePtr<IFile> file = g_fs->Open(fileName);
 	if( !file )
 	{
-		TRACE("ERROR: file not found\n");
+		TRACE("ERROR: '%s' - file not found\n", fileName.c_str());
 		return false;
 	}
 
 	TgaImageLoader loader;
 	if( !loader.Load(file) )
 	{
-		TRACE("ERROR: invalid file format\n");
+		TRACE("ERROR: '%s' - invalid file format\n", fileName.c_str());
 		return false;
 	}
 
 	TexDesc td;
 	if( !g_render->TexCreate(td.id, loader.GetData()) )
 	{
-		TRACE("ERROR: error in render device\n");
+		TRACE("ERROR: '%s' - error in render device\n", fileName.c_str());
 		return false;
 	}
 
@@ -94,7 +92,6 @@ void TextureManager::Unload(TexDescIterator what)
 	{
 		if( it->second->id == what->id )
 		{
-			TRACE("Unloading texture file '%s'\n", it->first.c_str());
 			_mapFile_to_TexDescIter.erase(it);
 			break;
 		}
@@ -195,7 +192,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 
 int TextureManager::LoadPackage(const string_t &filename)
 {
-	TRACE("Loading textures from '%s'\n", filename.c_str());
+	TRACE("Loading texture package '%s'\n", filename.c_str());
 
 	lua_State *L = lua_open();
 

@@ -12,17 +12,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 TankServer::TankServer(void)
+  : _init(false)
+  , _evStopListen(NULL)
+  , _hAcceptThread(NULL)
+  , _nextFreeId(0x1000)
 {
-	_logFile = fopen("server_trace.txt", "w");
-	_ASSERT(_logFile);
-
-	_init = false;
-	_evStopListen  = NULL;
-	_hAcceptThread = NULL;
-
 	InitializeCriticalSection(&_csClients);
-
-	_nextFreeId = 0x1000;
+	TRACE("Server created\n");
 }
 
 TankServer::~TankServer(void)
@@ -35,15 +31,18 @@ TankServer::~TankServer(void)
 	if( INVALID_SOCKET != _socketListen ) _socketListen.Close();
 	//----------------------------------------
 	if( _init ) WSACleanup();
-	fclose(_logFile);
 
 	_ASSERT(NULL == _hAcceptThread);
 	_ASSERT(NULL == _hClientsEmptyEvent);
 	_ASSERT(NULL == _evStopListen);
+
+	TRACE("Server destroyed\n");
 }
 
 void TankServer::ShutDown()
 {
+	TRACE("Server is shutting down\n");
+
 	//
 	// ожидание завершения прослушивающего потока
 	//
@@ -97,7 +96,7 @@ bool TankServer::init(const GameInfo *info)
 	_ASSERT(VERSION == _gameInfo.dwVersion);
 
 
-	TRACE("Server startup...\n");
+	TRACE("Server init...\n");
 	WSAData wsad;
 	if( !_init )
 	{
@@ -251,7 +250,6 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 				{
 				case DBTYPE_CONTROLPACKET:
 				{
-					pData->pServer->SERVER_TRACE("control packet from %d\n", pData->it->id);
 					EnterCriticalSection(&pData->pServer->_csClients);
 					pData->it->ctrl.push( db.cast<ControlPacket>() );
 					pData->pServer->TrySendFrame();
@@ -448,12 +446,16 @@ DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
 		int result = pServer->_socketListen.Wait(pServer->_evStopListen);
 		if( result ) break;
 
+		TRACE("sv: Accepting connections...\n");
+
 		if( !pServer->_socketListen.CheckEvent(FD_ACCEPT_BIT) )
 			break;
 
 		SOCKET s = accept(pServer->_socketListen, NULL, NULL);
 		if( INVALID_SOCKET != s )
 		{
+			TRACE("sv: Client connected\n");
+
 			//
 			// подготовка и запуск клиентского потока
 			//
@@ -496,8 +498,6 @@ DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
 
 bool TankServer::TrySendFrame()
 {
-	SERVER_TRACE("call TrySendFrame()\n");
-
 	//
 	// определяем сколько у нас получено кадров
 	//
@@ -509,7 +509,6 @@ bool TankServer::TrySendFrame()
 		{
 			if( it->ctrl.empty() )
 			{
-				SERVER_TRACE("no packet from %d\n", it->id);
 				break;
 			}
 			count++;
@@ -556,7 +555,7 @@ bool TankServer::TrySendFrame()
 					DWORD tmp = it->ctrl.front().checksum;
 					if( tmp != chsum )
 					{
-						SERVER_TRACE("sync error detected!\n");
+						TRACE("sync error detected!\n");
 						char buf[128];
 						wsprintf(buf, "sync error: 0x%x 0x%x", tmp, chsum);
 						MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
@@ -566,9 +565,7 @@ bool TankServer::TrySendFrame()
 				#endif
 			}
 			_ASSERT(count * sizeof(ControlPacket) == db_new.size());
-			SERVER_TRACE("send frame to %d...\n", it1->id);
 			SendClientThreadData(it1, db_new);
-			SERVER_TRACE("OK\n");
 		}
 	}
 
@@ -579,28 +576,8 @@ bool TankServer::TrySendFrame()
 		if( it->connected )
 			it->ctrl.pop();
 
-
-	SERVER_TRACE("sent frames to all clients OK\n");
-
 	return true;
 }
-
-
-void TankServer::SERVER_TRACE(const char *fmt, ...)
-{
-#ifndef NETWORK_DEBUG
-	return;
-#endif
-
-	fprintf(_logFile, "0x%X: ", GetCurrentThreadId());
-
-	va_list va;
-	va_start(va, fmt);
-	vfprintf(_logFile, fmt, va);
-	va_end(va);
-	fflush(_logFile);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

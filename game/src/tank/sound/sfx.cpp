@@ -101,15 +101,13 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 {
 	if( init )
 	{
-		TRACE("loading sound from '%s'...\n", filename);
-
 		WAVEFORMATEX wfe = {0};
 		void *pData = NULL;
 		int size    = 0;
 
 		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
 		{
-			TRACE("ERROR: couldn't load file\n");
+			TRACE("ERROR: couldn't load sound file '%s'\n", filename);
 			//-------------------------------------------------------
 			LoadSoundException e;
 			e.filename = filename;

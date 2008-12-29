@@ -220,7 +220,8 @@ void ConnectDlg::OnOK()
 	_btnOK->Enable(false);
 	_name->Enable(false);
 
-	script_exec(g_env.L, "reset()");
+	if( !_auto )
+		script_exec(g_env.L, "reset()");
 
 	_ASSERT(g_level->IsEmpty());
 	_ASSERT(NULL == g_client);

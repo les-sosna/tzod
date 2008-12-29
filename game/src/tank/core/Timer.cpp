@@ -27,9 +27,7 @@ Timer::Timer()
 
 	if( _useQPF )
 	{
-		TRACE("timer: using QPF\n");
-		TRACE("timer: frequency is %I64u Hz\n", f.QuadPart);
-
+		TRACE("timer: using QPF; frequency is %I64u Hz\n", f.QuadPart);
 		_qpf_frequency = (double) f.QuadPart;
 
 		// по непонятным причинам в windows xp не работает

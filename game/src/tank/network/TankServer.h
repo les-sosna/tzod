@@ -9,9 +9,6 @@
 
 class TankServer
 {
-	FILE *_logFile;
-	void SERVER_TRACE(const char *fmt, ...);
-
 	bool _init;
 	GameInfo _gameInfo;
 
