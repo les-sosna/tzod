@@ -24,6 +24,7 @@
 #include "core/Console.h"
 
 #include "network/TankServer.h"
+#include "network/TankClient.h"
 
 #include "gc/Player.h"
 #include "gc/ai.h"
@@ -226,15 +227,8 @@ void ConnectDlg::OnOK()
 	_ASSERT(g_level->IsEmpty());
 	_ASSERT(NULL == g_client);
 	g_client = new TankClient();
-
-	if( !g_client->Connect(_name->GetText(), g_env.hMainWnd) )
-	{
-		Error(g_lang->net_connect_error->Get().c_str());
-	}
-	else
-	{
-		SetTimeStep(true);
-	}
+	g_client->eventNewData.bind(&ConnectDlg::OnNewData, this);
+	g_client->Connect(_name->GetText());
 }
 
 void ConnectDlg::OnCancel()
@@ -249,76 +243,67 @@ void ConnectDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-void ConnectDlg::OnTimeStep(float dt)
+void ConnectDlg::OnNewData(const DataBlock &db)
 {
-	DataBlock db;
-	while( g_client->GetData(db) )
+	switch( db.type() )
 	{
-		switch( db.type() )
+		case DBTYPE_GAMEINFO:
 		{
-			case DBTYPE_GAMEINFO:
+			GameInfo &gi = db.cast<GameInfo>();
+
+			if( VERSION != gi.dwVersion )
 			{
-				GameInfo &gi = db.cast<GameInfo>();
-
-				if( VERSION != gi.dwVersion )
-				{
-					Error(g_lang->net_connect_error_server_version->Get().c_str());
-					break;
-				}
-
-				g_conf->sv_timelimit->SetInt(gi.timelimit);
-				g_conf->sv_fraglimit->SetInt(gi.fraglimit);
-				g_conf->sv_fps->SetInt(gi.server_fps);
-				g_conf->sv_nightmode->Set(gi.nightmode);
-
-				char msg[MAX_PATH + 32];
-				sprintf(msg, g_lang->net_connect_loading_map_x->Get().c_str(), gi.cMapName);
-				_status->AddItem(msg);
-
-				char path[MAX_PATH];
-				wsprintf(path, "%s\\%s.map", DIR_MAPS, gi.cMapName);
-
-				if( CalcCRC32(path) != gi.dwMapCRC32 )
-				{
-					Error(g_lang->net_connect_error_map_version->Get().c_str());
-					break;
-				}
-
-
-				g_level->Clear();
-
-				if( g_level->init_newdm(path, gi.seed) )
-				{
-					g_conf->cl_map->Set(gi.cMapName);
-					g_conf->ui_showmsg->Set(true);
-					if( !_auto )
-					{
-						g_conf->cl_server->Set(_name->GetText());
-					}
-				}
-				else
-				{
-					Error(g_lang->net_connect_error_map->Get().c_str());
-					break;
-				}
-
-				(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
-				Close(-1); // close with any code except ok and cancel
-				return;
+				Error(g_lang->net_connect_error_server_version->Get().c_str());
+				break;
 			}
 
-			case DBTYPE_ERRORMSG:
-				Error((const char *) db.data());
-				break;
+			g_conf->sv_timelimit->SetInt(gi.timelimit);
+			g_conf->sv_fraglimit->SetInt(gi.fraglimit);
+			g_conf->sv_fps->SetInt(gi.server_fps);
+			g_conf->sv_nightmode->Set(gi.nightmode);
 
-			case DBTYPE_TEXTMESSAGE:
-				_status->AddItem((const char *) db.data());
+			char msg[MAX_PATH + 32];
+			sprintf(msg, g_lang->net_connect_loading_map_x->Get().c_str(), gi.cMapName);
+			_status->AddItem(msg);
+
+			char path[MAX_PATH];
+			wsprintf(path, "%s\\%s.map", DIR_MAPS, gi.cMapName);
+
+			if( CalcCRC32(path) != gi.dwMapCRC32 )
+			{
+				Error(g_lang->net_connect_error_map_version->Get().c_str());
 				break;
-			default:
-				_ASSERT(FALSE);
+			}
+
+
+			g_level->Clear();
+			if( !g_level->init_newdm(path, gi.seed) )
+			{
+				Error(g_lang->net_connect_error_map->Get().c_str());
+				break;
+			}
+
+			g_conf->cl_map->Set(gi.cMapName);
+			g_conf->ui_showmsg->Set(true);
+			if( !_auto )
+			{
+				g_conf->cl_server->Set(_name->GetText());
+			}
+
+			(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
+			Close(-1); // close with any code except ok and cancel
+			return;
 		}
 
-		if( !g_client ) break;
+		case DBTYPE_ERRORMSG:
+			Error((const char *) db.Data());
+			break;
+
+		case DBTYPE_TEXTMESSAGE:
+			_status->AddItem((const char *) db.Data());
+			break;
+		default:
+			_ASSERT(FALSE);
 	}
 }
 
@@ -326,16 +311,13 @@ void ConnectDlg::Error(const char *msg)
 {
 	_status->AddItem(msg);
 	g_level->Clear();
-	SAFE_DELETE(g_client);
-	if( g_server )
-	{
-		SAFE_DELETE(g_server);
-	}
-	else
+	if( !g_server )
 	{
 		_btnOK->Enable(true);
 		_name->Enable(true);
 	}
+	SAFE_DELETE(g_client);
+	SAFE_DELETE(g_server);
 	SetTimeStep(false);
 }
 
@@ -343,7 +325,15 @@ void ConnectDlg::Error(const char *msg)
 
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   : Dialog(parent, 680, 512)
+  , _buf(new ConsoleBuffer(80, 500, "chat.txt"))
 {
+	_ASSERT(g_client);
+	g_client->eventNewData.bind(&WaitingForPlayersDlg::OnNewData, this);
+
+	//
+	// create controls
+	//
+
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_chatroom_title->Get(), alignTextCT);
 	title->SetTexture("font_default");
 	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
@@ -364,8 +354,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 
 	new Text(this, 20, 285, g_lang->net_chatroom_chat_window->Get(), alignTextLT);
-	_buf = new ConsoleBuffer(80, 500, "chat.txt");
-	_chat = new Console(this, 20, 300, 512, 200, _buf);
+	_chat = new Console(this, 20, 300, 512, 200, GetRawPtr(_buf));
 	_chat->SetTexture("ctrl_list");
 	_chat->SetEcho(false);
 	_chat->eventOnSendCommand.bind(&WaitingForPlayersDlg::OnSendMessage, this);
@@ -378,6 +367,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	(new Button(this, 560, 480, g_lang->common_cancel->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
+	//
+	// send player info
+	//
+
 	PlayerDesc pd;
 	strcpy(pd.nick, g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get().c_str());
 	strcpy(pd.cls, g_conf->cl_playerinfo->GetStr("class", "default")->Get().c_str());
@@ -385,13 +378,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get().c_str());
 	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
 	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
-
-	SetTimeStep(true);
 }
 
 WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
-	SAFE_DELETE(_buf);
 }
 
 void WaitingForPlayersDlg::OnAddBot()
@@ -435,7 +425,7 @@ void WaitingForPlayersDlg::OnCancel()
 
 void WaitingForPlayersDlg::OnSendMessage(const char *msg)
 {
-	if( size_t l = strlen(msg) )
+	if( msg[0] )
 	{
 		if( 0 == strcmp(msg, "/ping") )
 		{
@@ -446,165 +436,158 @@ void WaitingForPlayersDlg::OnSendMessage(const char *msg)
 		}
 		else
 		{
-			DataBlock db(l + 1);
-			strcpy((char*) db.data(), msg);
-			db.type() = DBTYPE_TEXTMESSAGE;
-			g_client->SendDataToServer(db);
+			g_client->SendDataToServer(DataWrap(std::string(msg), DBTYPE_TEXTMESSAGE));
 		}
 	}
 }
 
-void WaitingForPlayersDlg::OnTimeStep(float dt)
+void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 {
-	DataBlock db;
-	while( g_client->GetData(db) )
+	switch( db.type() )
 	{
-		switch( db.type() )
-		{
-		case DBTYPE_PING:
-			_buf->printf("%d ms\n", timeGetTime() - db.cast<DWORD>());
-			break;
-		case DBTYPE_PLAYERREADY:
-		{
-			int count = g_level->GetList(LIST_players).size();
-			_ASSERT(_players->GetItemCount() <= count); // count includes bots
+	case DBTYPE_PING:
+		_buf->printf("%d ms\n", timeGetTime() - db.cast<DWORD>());
+		break;
+	case DBTYPE_PLAYERREADY:
+	{
+		int count = g_level->GetList(LIST_players).size();
+		_ASSERT(_players->GetItemCount() <= count); // count includes bots
 
-			const DWORD who = db.cast<dbPlayerReady>().player_id;
+		const DWORD who = db.cast<dbPlayerReady>().player_id;
 
-			int index = 0;
-			for( ;index < count; ++index )
+		int index = 0;
+		for( ;index < count; ++index )
+		{
+			GC_Player *player = (GC_Player *) _players->GetItemData(index);
+			_ASSERT(player);
+			_ASSERT(!player->IsKilled());
+			_ASSERT(0 != player->GetNetworkID());
+
+			if( who == player->GetNetworkID() )
 			{
-				GC_Player *player = (GC_Player *) _players->GetItemData(index);
-				_ASSERT(player);
-				_ASSERT(!player->IsKilled());
-				_ASSERT(0 != player->GetNetworkID());
-
-				if( who == player->GetNetworkID() )
+				if( db.cast<dbPlayerReady>().ready )
 				{
-					if( db.cast<dbPlayerReady>().ready )
-					{
-						_players->SetItemText(index, 3, g_lang->net_chatroom_player_ready->Get());
-					}
-					else
-					{
-						_players->SetItemText(index, 3, "");
-					}
-					break;
+					_players->SetItemText(index, 3, g_lang->net_chatroom_player_ready->Get());
 				}
-			}
-			_ASSERT(index < count);
-			break;
-		}
-
-		case DBTYPE_PLAYERQUIT:
-		{
-			int count = g_level->GetList(LIST_players).size();
-			_ASSERT(_players->GetItemCount() == count);
-
-			const DWORD who = db.cast<DWORD>();
-
-			int index = 0;
-			for( ; index < count; ++index )
-			{
-				GC_Player *player = (GC_Player *) _players->GetItemData(index);
-				_ASSERT(player);
-				_ASSERT(!player->IsKilled());
-				_ASSERT(0 != player->GetNetworkID());
-
-				if( who == player->GetNetworkID() )
+				else
 				{
-					_players->DeleteItem(index);
-					_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
-					_buf->printf("\n");
-					player->Kill();
-					break;
+					_players->SetItemText(index, 3, "");
 				}
+				break;
 			}
-			_ASSERT(index < count);
-			break;
 		}
-
-		case DBTYPE_NEWBOT:
-		{
-			BotDesc &bd = db.cast<BotDesc>();
-			GC_PlayerAI *ai = new GC_PlayerAI();
-
-			ai->SetClass(bd.cls);
-			ai->SetNick(bd.nick);
-			ai->SetSkin(bd.skin);
-			ai->SetTeam(bd.team);
-			ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
-			ai->UpdateSkin();
-
-			// nick & skin
-			int index = _bots->AddItem(ai->GetNick(), (UINT_PTR) ai);
-			_bots->SetItemText(index, 1, ai->GetSkin());
-
-			// team
-			std::ostringstream tmp;
-			tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
-			_bots->SetItemText(index, 2, tmp.str());
-
-			// level
-			_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
-
-			break;
-		}
-
-		case DBTYPE_NEWPLAYER:
-		{
-			PlayerDescEx &pd = db.cast<PlayerDescEx>();
-
-			GC_Player *player = NULL;
-			if( g_client->GetId() == pd.id )
-			{
-				player = new GC_PlayerLocal();
-				static_cast<GC_PlayerLocal *>(player)
-					->SetProfile(g_conf->cl_playerinfo->GetStr("profile")->Get());
-			}
-			else
-			{
-				player = new GC_PlayerRemote(pd.id);
-			}
-			player->SetClass(pd.cls);
-			player->SetNick(pd.nick);
-			player->SetSkin(pd.skin);
-			player->SetTeam(pd.team);
-			player->UpdateSkin();
-
-			int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
-			_players->SetItemText(index, 1, player->GetSkin());
-
-			std::ostringstream tmp;
-			tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
-			_players->SetItemText(index, 2, tmp.str());
-
-			_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
-			_buf->printf("\n");
-
-			_btnOK->Enable(true);
-			break;
-		}
-
-		case DBTYPE_ERRORMSG:
-			_btnOK->Enable(false);
-		case DBTYPE_TEXTMESSAGE:
-			_buf->printf("%s\n", (const char *) db.data());
-			break;
-
-		case DBTYPE_STARTGAME:
-			for( int i = 0; i < g_client->_latency; ++i )
-			{
-				g_client->SendControl(ControlPacket());
-			}
-			g_client->_gameStarted = true; // FIXME
-			Close(_resultOK);
-			break;
-
-		default:
-			_ASSERT(FALSE);
-		} // end of switch( db.type() )
+		_ASSERT(index < count);
+		break;
 	}
+
+	case DBTYPE_PLAYERQUIT:
+	{
+		int count = g_level->GetList(LIST_players).size();
+		_ASSERT(_players->GetItemCount() == count);
+
+		const DWORD who = db.cast<DWORD>();
+
+		int index = 0;
+		for( ; index < count; ++index )
+		{
+			GC_Player *player = (GC_Player *) _players->GetItemData(index);
+			_ASSERT(player);
+			_ASSERT(!player->IsKilled());
+			_ASSERT(0 != player->GetNetworkID());
+
+			if( who == player->GetNetworkID() )
+			{
+				_players->DeleteItem(index);
+				_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
+				_buf->printf("\n");
+				player->Kill();
+				break;
+			}
+		}
+		_ASSERT(index < count);
+		break;
+	}
+
+	case DBTYPE_NEWBOT:
+	{
+		BotDesc &bd = db.cast<BotDesc>();
+		GC_PlayerAI *ai = new GC_PlayerAI();
+
+		ai->SetClass(bd.cls);
+		ai->SetNick(bd.nick);
+		ai->SetSkin(bd.skin);
+		ai->SetTeam(bd.team);
+		ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
+		ai->UpdateSkin();
+
+		// nick & skin
+		int index = _bots->AddItem(ai->GetNick(), (UINT_PTR) ai);
+		_bots->SetItemText(index, 1, ai->GetSkin());
+
+		// team
+		std::ostringstream tmp;
+		tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
+		_bots->SetItemText(index, 2, tmp.str());
+
+		// level
+		_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
+
+		break;
+	}
+
+	case DBTYPE_NEWPLAYER:
+	{
+		PlayerDescEx &pd = db.cast<PlayerDescEx>();
+
+		GC_Player *player = NULL;
+		if( g_client->GetId() == pd.id )
+		{
+			player = new GC_PlayerLocal();
+			static_cast<GC_PlayerLocal *>(player)
+				->SetProfile(g_conf->cl_playerinfo->GetStr("profile")->Get());
+		}
+		else
+		{
+			player = new GC_PlayerRemote(pd.id);
+		}
+		player->SetClass(pd.cls);
+		player->SetNick(pd.nick);
+		player->SetSkin(pd.skin);
+		player->SetTeam(pd.team);
+		player->UpdateSkin();
+
+		int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
+		_players->SetItemText(index, 1, player->GetSkin());
+
+		std::ostringstream tmp;
+		tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
+		_players->SetItemText(index, 2, tmp.str());
+
+		_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
+		_buf->printf("\n");
+
+		_btnOK->Enable(true);
+		break;
+	}
+
+	case DBTYPE_ERRORMSG:
+		_btnOK->Enable(false);
+	case DBTYPE_TEXTMESSAGE:
+		_buf->printf("%s\n", (const char *) db.Data());
+		break;
+
+	case DBTYPE_STARTGAME:
+		for( int i = 0; i < g_client->_latency; ++i )
+		{
+			g_client->SendControl(ControlPacket());
+		}
+		g_client->eventNewData.bind(&Level::OnNewData, GetRawPtr(g_level));
+		Close(_resultOK);
+		break;
+
+	default:
+		_ASSERT(FALSE);
+	} // end of switch( db.type() )
 }
 
 ///////////////////////////////////////////////////////////////////////////////

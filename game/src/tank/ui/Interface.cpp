@@ -19,6 +19,7 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "ui/GuiManager.h"
 #include "ui/Window.h"
@@ -58,14 +59,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch( message )
 	{
-	case WM_CUSTOMCLIENTMSG:
-		_ASSERT(g_client);
-		if( g_client )
-		{
-			_ASSERT(g_client);
-			return g_client->Mirror(wParam, lParam);
-		}
-		break;
 	case WM_ACTIVATE:
 	{
 		WORD wActive = LOWORD(wParam);

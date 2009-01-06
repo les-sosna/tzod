@@ -1,114 +1,78 @@
 // TankServer.h
 
 #include "stdafx.h"
+
 #include "TankServer.h"
+#include "datablock.h"
 
 #include "core/debug.h"
 #include "core/console.h"
+#include "core/Application.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankServer::TankServer(void)
-  : _init(false)
-  , _evStopListen(NULL)
-  , _hAcceptThread(NULL)
-  , _nextFreeId(0x1000)
+PeerServer::PeerServer(SOCKET s_)
+  : Peer(s_)
 {
-	InitializeCriticalSection(&_csClients);
-	TRACE("Server created\n");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+TankServer::TankServer(void)
+//  : _evStopListen(NULL)
+//  , _hAcceptThread(NULL)
+  : _nextFreeId(0x1000)
+{
+	TRACE("sv: Server created\n");
 }
 
 TankServer::~TankServer(void)
 {
 	ShutDown();
-
-	DeleteCriticalSection(&_csClients);
-
-	_ASSERT( NULL == _evStopListen );
-	if( INVALID_SOCKET != _socketListen ) _socketListen.Close();
-	//----------------------------------------
-	if( _init ) WSACleanup();
-
-	_ASSERT(NULL == _hAcceptThread);
-	_ASSERT(NULL == _hClientsEmptyEvent);
-	_ASSERT(NULL == _evStopListen);
-
-	TRACE("Server destroyed\n");
+	TRACE("sv: Server destroyed\n");
 }
 
 void TankServer::ShutDown()
 {
-	TRACE("Server is shutting down\n");
+	TRACE("sv: Server is shutting down\n");
 
 	//
-	// ожидание завершения прослушивающего потока
+	// close listener
 	//
 
-	if( _hAcceptThread )
+	if( INVALID_SOCKET != _socketListen )
 	{
-		_ASSERT(NULL != _evStopListen);
-		SetEvent(_evStopListen);
-		WaitForSingleObject(_hAcceptThread, INFINITE);
-		CloseHandle(_evStopListen);
-		CloseHandle(_hAcceptThread);
-		_hAcceptThread = NULL;
-		_evStopListen = NULL;
+		g_app->UnregisterHandle(_socketListen.GetEvent());
+		_socketListen.Close();
 	}
 
 
 	//
-	// ожидание завершения клиентских потоков
+	// disconnect clients
 	//
 
-	EnterCriticalSection(&_csClients);
-	for( std::list<ClientDesc>::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		_ASSERT( WSA_INVALID_EVENT != it->stop );
-		SetEvent( it->stop );
+		(*it)->Close();
 	}
-	LeaveCriticalSection(&_csClients);
-
-	WaitForSingleObject(_hClientsEmptyEvent, INFINITE);
-	CloseHandle(_hClientsEmptyEvent);
-	_hClientsEmptyEvent = NULL;
-}
-
-void TankServer::SendClientThreadData(const std::list<ClientDesc>::iterator &it, const DataBlock &db)
-{
-	_ASSERT(DBTYPE_UNKNOWN != db.type());
-	EnterCriticalSection(&it->cs);
-	it->data.push_back(db);
-	if( 1 == it->data.size() )
-	{
-		SetEvent(it->evData);
-	}
-	LeaveCriticalSection(&it->cs);
 }
 
 bool TankServer::init(const GameInfo *info)
 {
-	_ASSERT(!_init);
+	g_app->InitNetwork();
 
 	_gameInfo = *info;
 	_ASSERT(VERSION == _gameInfo.dwVersion);
 
 
-	TRACE("Server init...\n");
-	WSAData wsad;
-	if( !_init )
-	{
-		if( WSAStartup(0x0002, &wsad) )
-			TRACE("ERROR: Windows sockets init failed\n");
-	}
-	_init = true;
-
+	TRACE("sv: Server init...\n");
 	_socketListen = socket(PF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socketListen )
 	{
-		TRACE("ERROR: Unable to create socket\n");
+		TRACE("sv: ERROR - Unable to create socket\n");
 		return false;
 	}
 
@@ -120,284 +84,236 @@ bool TankServer::init(const GameInfo *info)
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 	{
-		TRACE("ERROR: Unable to bind socket: %d\n", WSAGetLastError());
+		TRACE("sv: ERROR - Unable to bind socket: %d\n", WSAGetLastError());
 		return false;
 	}
 
 	if( listen(_socketListen, SOMAXCONN) )
 	{
-		TRACE("ERROR: Listen call failed\n");
+		TRACE("sv: ERROR - Listen call failed\n");
 		return false;
 	}
-
-	_evStopListen = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	if( _socketListen.SetEvents(FD_ACCEPT) )
 	{
-		TRACE("ERROR: Unable to select event\n");
+		TRACE("sv: ERROR - Unable to select event (%u)\n", WSAGetLastError());
 		return false;
 	}
 
-	_hClientsEmptyEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
+	Delegate<void()> d;
+	d.bind(&TankServer::OnListenerEvent, this);
+	g_app->RegisterHandle(_socketListen.GetEvent(), d);
 
-	TRACE("Server is online\n");
-
-	DWORD tmp;
-	_hAcceptThread  = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) AcceptProc, this, 0, &tmp);
+	TRACE("sv: Server is online\n");
 
 	return true;
 }
 
-DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
+void TankServer::OnListenerEvent()
 {
-	int result;
-
-	try
+	WSANETWORKEVENTS ne = {0};
+	if( _socketListen.EnumNetworkEvents(&ne) )
 	{
-		DataBlock db = DataWrap(pData->pServer->_gameInfo, DBTYPE_GAMEINFO);
+		TRACE("sv: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
+		return;
+	}
+	_ASSERT(ne.lNetworkEvents & FD_ACCEPT);
 
-		// send server info
-		result = pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
-		if( result ) throw result;
-
-		// send new client ID
-		db = DataWrap(pData->it->id, DBTYPE_YOURID);
-		result = pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
-		if( result ) throw result;
-
-		// recv player info
-		DataBlock new_player = DataBlock(sizeof(PlayerDesc));
-		result = pData->it->s.Recv(pData->it->stop, new_player.raw_data(), new_player.raw_size());
-		if( result ) throw result;
-		_ASSERT(new_player.type() == DBTYPE_PLAYERINFO);
-		pData->it->desc = new_player.cast<PlayerDesc>();
+	if( 0 != ne.iErrorCode[FD_ACCEPT_BIT] )
+	{
+		TRACE("sv: accept error 0x%08x\n", ne.iErrorCode[FD_ACCEPT_BIT]);
+		return;
+	}
 
 
-		//
-		// отправка информации об игроках
-		//
+	SOCKET s = accept(_socketListen, NULL, NULL);
+	if( INVALID_SOCKET == s )
+	{
+		TRACE("sv: accept call returned error 0x%08x\n", WSAGetLastError());
+		return;
+	}
 
-		EnterCriticalSection(&pData->pServer->_csClients);
+
+	TRACE("sv: Client connected\n");
+
+
+	//
+	// Add new client
+	//
+
+	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
+	PeerServer &cl = *GetRawPtr(_clients.back());
+	cl.connected = FALSE;
+	cl.ready = FALSE;
+	cl.id = ++_nextFreeId;
+	cl.eventRecv.bind(&TankServer::OnRecv, this);
+
+	// send server info
+	cl.Send(DataWrap(_gameInfo, DBTYPE_GAMEINFO));
+
+	// send new client ID
+	cl.Send(DataWrap(cl.id, DBTYPE_YOURID));
+}
+
+void TankServer::OnRecv(Peer *who_, const DataBlock &db)
+{
+	_ASSERT(dynamic_cast<PeerServer*>(who_));
+	PeerServer *who = static_cast<PeerServer*>(who_);
+
+	switch( db.type() )
+	{
+		case DBTYPE_CONTROLPACKET:
 		{
-			std::list<ClientDesc>::iterator it;
+			who->ctrl.push(db.cast<ControlPacket>());
+			TrySendFrame();
+			break;
+		}
 
-
-			//
-			// отправка данных
-			//
-
-			it = pData->pServer->_clients.begin();
-			for( ; it != pData->pServer->_clients.end(); ++it )
+		case DBTYPE_TEXTMESSAGE:
+		{
+			string_t msg = "<";
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
-				if( it->connected )
+				if( (*it)->id == who->id )
+				{
+					msg += (*it)->desc.nick;
+					break;
+				}
+			}
+			_ASSERT(msg.length() > 1);
+			msg += "> ";
+			msg += (char *) db.Data();
+
+			DataBlock db_new = DataWrap(msg, DBTYPE_TEXTMESSAGE);
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+				(*it)->Send(db_new);
+
+			break;
+		}
+
+		case DBTYPE_PLAYERREADY:
+		{
+			bool bAllPlayersReady = true;
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				if( (*it)->id == who->id )
+				{
+					(*it)->ready = db.cast<dbPlayerReady>().ready;
+				}
+				if( !(*it)->ready )
+				{
+					bAllPlayersReady = false;
+				}
+				(*it)->Send(db);
+			}
+
+			if( bAllPlayersReady )
+			{
+				// запрещение приема новых подключений
+				g_app->UnregisterHandle(_socketListen.GetEvent());
+				_socketListen.Close();
+
+//						SetEvent(pData->pServer->_evStopListen);
+//						WaitForSingleObject(pData->pServer->_hAcceptThread, INFINITE);
+//						CloseHandle(pData->pServer->_evStopListen);
+//						CloseHandle(pData->pServer->_hAcceptThread);
+//						pData->pServer->_hAcceptThread = NULL;
+//						pData->pServer->_evStopListen = NULL;
+
+				DataBlock tmp = DataWrap(g_lang->net_msg_starting_game->Get(), DBTYPE_TEXTMESSAGE);
+				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+				{
+					(*it)->Send(tmp);
+				}
+
+				tmp = DataBlock();
+				tmp.type() = DBTYPE_STARTGAME;
+				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+				{
+					(*it)->Send(tmp);
+				}
+			}
+			break;
+		}
+
+		case DBTYPE_PLAYERQUIT:
+		{
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				if( who->id != (*it)->id )
+				{
+					(*it)->Send(db);
+				}
+			}
+			TrySendFrame();
+			break;
+		}
+
+		case DBTYPE_PING:
+		{
+			who->Send(db); // send packet back
+			break;
+		}
+
+		case DBTYPE_NEWBOT:
+		{
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				(*it)->Send(db);
+			}
+			break;
+		}
+
+		case DBTYPE_PLAYERINFO:
+		{
+			who->desc = db.cast<PlayerDesc>();
+
+
+
+			//
+			// tell newly connected player about other players
+			//
+
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				if( (*it)->connected )
 				{
 					PlayerDescEx pde;
-					memcpy(&pde, &it->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
-					pde.id = it->id;
-
-					db = DataWrap(pde, DBTYPE_NEWPLAYER);
-					result = pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
-					if( result )
-					{
-						LeaveCriticalSection(&pData->pServer->_csClients);
-						throw result;
-					}
+					memcpy(&pde, &(*it)->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
+					pde.id = (*it)->id;
+					who->Send(DataWrap(pde, DBTYPE_NEWPLAYER));
 				}
 			}
-			pData->it->connected = TRUE;
+			who->connected = TRUE;
 
 
 			//
-			// извещение остальных игроков о пополнении
+			// tell other players about newly connected player
 			//
+
 			PlayerDescEx pde;
-			memcpy(&pde, &pData->it->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
-			pde.id = pData->it->id;
-			for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
+			memcpy(&pde, &who->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
+			pde.id = who->id;
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
-				pData->pServer->SendClientThreadData(it, DataWrap(pde, DBTYPE_NEWPLAYER));
+				(*it)->Send(DataWrap(pde, DBTYPE_NEWPLAYER));
 			}
+
+			break;
 		}
-		LeaveCriticalSection(&pData->pServer->_csClients);
 
-
-
-		//
-		// основной цикл
-		//
-		//                    Aborted + 0         Aborted + 1
-		HANDLE handles[2] = {pData->it->stop, pData->it->evData};
-		for(;;)
-		{
-			DataBlock::size_type size;
-			switch( pData->it->s.Recv(handles, 2, &size, sizeof(DataBlock::size_type)) )
-			{
-			case Socket::Error:
-				throw (int) Socket::Error;
-			case Socket::Aborted + 0:
-				throw (int) Socket::Aborted;
-			/////////////////////////////////////////////////////////////////
-			case Socket::OK:          // поступили новые данные из сети
-			{
-				int res;
-				DataBlock db(size);
-				res = pData->it->s.Recv(pData->it->stop, &db.type(), sizeof(DataBlock::type_type));
-				if( res ) throw res;
-				res = pData->it->s.Recv(pData->it->stop, db.data(), size);
-				if( res ) throw res;
-				//----------------------------
-				switch( db.type() )
-				{
-				case DBTYPE_CONTROLPACKET:
-				{
-					EnterCriticalSection(&pData->pServer->_csClients);
-					pData->it->ctrl.push( db.cast<ControlPacket>() );
-					pData->pServer->TrySendFrame();
-					LeaveCriticalSection(&pData->pServer->_csClients);
-					break;
-				}
-
-				case DBTYPE_TEXTMESSAGE:
-				{
-					std::list<ClientDesc>::iterator it;
-					string_t msg = "<";
-					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-					{
-						if( it->id == pData->it->id )
-						{
-							msg += it->desc.nick;
-							break;
-						}
-					}
-					_ASSERT(it != pData->pServer->_clients.end());
-					msg += "> ";
-					msg += (char *) db.data();
-
-					DataBlock db_new(msg.size()+1);
-					db_new.type() = DBTYPE_TEXTMESSAGE;
-					strcpy((char *) db_new.data(), msg.c_str());
-
-					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-						pData->pServer->SendClientThreadData(it, db_new);
-
-					break;
-				}
-
-				case DBTYPE_PLAYERREADY:
-				{
-					std::list<ClientDesc>::iterator it;
-					bool bAllPlayersReady = true;
-					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-					{
-						if( it->id == pData->it->id )
-						{
-							it->ready = db.cast<dbPlayerReady>().ready;
-						}
-						if( !it->ready )
-						{
-							bAllPlayersReady = false;
-						}
-						pData->pServer->SendClientThreadData(it, db);
-					}
-
-					if( bAllPlayersReady )
-					{
-						// запрещение приема новых подключений
-						SetEvent(pData->pServer->_evStopListen);
-						WaitForSingleObject(pData->pServer->_hAcceptThread, INFINITE);
-						CloseHandle(pData->pServer->_evStopListen);
-						CloseHandle(pData->pServer->_hAcceptThread);
-						pData->pServer->_hAcceptThread = NULL;
-						pData->pServer->_evStopListen = NULL;
-
-						string_t msg = g_lang->net_msg_starting_game->Get();
-						DataBlock tmp(msg.size()+1);
-						tmp.type() = DBTYPE_TEXTMESSAGE;
-						strcpy((char *) tmp.data(), msg.c_str());
-						it = pData->pServer->_clients.begin();
-						for( ; it != pData->pServer->_clients.end(); ++it )
-						{
-							pData->pServer->SendClientThreadData(it, tmp);
-						}
-
-						tmp = DataBlock();
-						tmp.type() = DBTYPE_STARTGAME;
-						for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-						{
-							pData->pServer->SendClientThreadData(it, tmp);
-						}
-					}
-					break;
-				}
-
-				case DBTYPE_PLAYERQUIT:
-				{
-					std::list<ClientDesc>::iterator it;
-					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-					{
-						if( pData->it->id != it->id )
-						{
-							pData->pServer->SendClientThreadData(it, db);
-						}
-					}
-					pData->pServer->TrySendFrame();
-					break;
-				}
-
-				case DBTYPE_PING:
-				{
-					pData->it->s.Send(pData->it->stop, db.raw_data(), db.raw_size());
-					break;
-				}
-
-				case DBTYPE_NEWBOT:
-				{
-					std::list<ClientDesc>::iterator it;
-					for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
-					{
-						pData->pServer->SendClientThreadData(it, db);
-					}
-					break;
-				}
-
-				default:
-					_ASSERT(FALSE);
-					throw (int) Socket::Error;
-				}
-				break;
-			}
-			/////////////////////////////////////////////////////////////////
-			case Socket::Aborted + 1: // поступили данные для отправки в сеть
-			{
-				EnterCriticalSection(&pData->it->cs);
-				_ASSERT(!pData->it->data.empty());
-				for( std::vector<DataBlock>::iterator it = pData->it->data.begin();
-				     it != pData->it->data.end(); ++it )
-				{
-					pData->it->s.Accumulate(it->raw_data(), it->raw_size());
-				}
-				pData->it->data.clear();
-				ResetEvent(pData->it->evData);
-				LeaveCriticalSection(&pData->it->cs);
-				if( int res = pData->it->s.Send_accum(pData->it->stop) )
-				{
-					throw res;
-				}
-				break;
-			}
-			/////////////////////////////////////////////////////////////////
-			default:
-				_ASSERT(FALSE);
-			}
-		}
+		default:
+			_ASSERT(FALSE);
+			// TODO: disconnect client
 	}
-	catch( int )
-	{
-	}
+}
 
-
-	EnterCriticalSection(&pData->pServer->_csClients);
-
+/*
+DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
+{
+//
+// disconnect
+//
 	if( pData->it->connected )
 	{
 		pData->it->connected = false;
@@ -406,7 +322,7 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 		db.type() = DBTYPE_PLAYERQUIT;
 		db.cast<DWORD>() = pData->it->id;
 
-		std::list<ClientDesc>::iterator it;
+		std::list<Peer>::iterator it;
 		for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
 		{
 			if( pData->it->id != it->id )
@@ -417,106 +333,33 @@ DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
 		pData->pServer->TrySendFrame();
 	}
 
-
-//	pData->it->s.SetEvents(FD_CLOSE);
-//	shutdown(pData->it->s, SD_SEND);
-//	pData->it->s.Wait(pData->it->stop);
 	if( INVALID_SOCKET != pData->it->s )
 		pData->it->s.Close();
-	WSACloseEvent(pData->it->stop);
-	DeleteCriticalSection(&pData->it->cs);
-	CloseHandle(pData->it->evData);
+
 	pData->pServer->_clients.erase(pData->it);
-	if( pData->pServer->_clients.empty() )
-	{
-		_ASSERT(NULL != pData->pServer->_hClientsEmptyEvent);
-		SetEvent(pData->pServer->_hClientsEmptyEvent);
-	}
-
-	LeaveCriticalSection(&pData->pServer->_csClients);
-
-	delete pData;
-	return 0;
-}
-
-DWORD WINAPI TankServer::AcceptProc(TankServer *pServer)
-{
-	for(;;)
-	{
-		int result = pServer->_socketListen.Wait(pServer->_evStopListen);
-		if( result ) break;
-
-		TRACE("sv: Accepting connections...\n");
-
-		if( !pServer->_socketListen.CheckEvent(FD_ACCEPT_BIT) )
-			break;
-
-		SOCKET s = accept(pServer->_socketListen, NULL, NULL);
-		if( INVALID_SOCKET != s )
-		{
-			TRACE("sv: Client connected\n");
-
-			//
-			// подготовка и запуск клиентского потока
-			//
-
-			HANDLE hThread = NULL;
-			ClientThreadData *pctd = new ClientThreadData;
-			pctd->pServer = pServer;
-			EnterCriticalSection(&pServer->_csClients);
-			{
-				DWORD tmp;
-				pServer->_clients.push_back(ClientDesc());
-				pctd->it = pServer->_clients.end(); pctd->it--;
-				pctd->it->connected = FALSE;
-				pctd->it->ready     = FALSE;
-				pctd->it->s         = s;
-				pctd->it->id        = ++pServer->_nextFreeId;
-				pctd->it->stop      = WSACreateEvent();
-				pctd->it->evData    = CreateEvent(NULL, TRUE, FALSE, NULL);
-				hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ClientProc,
-				/*------------------*/ pctd, CREATE_SUSPENDED, &tmp);
-				SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
-				_ASSERT(NULL != pServer->_hClientsEmptyEvent);
-				ResetEvent(pServer->_hClientsEmptyEvent);
-				InitializeCriticalSection(&pctd->it->cs);
-			}
-			LeaveCriticalSection(&pServer->_csClients);
-
-			_ASSERT(WSA_INVALID_EVENT != pctd->it->stop);
-			_ASSERT(NULL != hThread);
-
-			ResumeThread(hThread);
-			CloseHandle(hThread);
-		}
-	} // for(;;)
-
-	pServer->_socketListen.Close();
 
 	return 0;
 }
+*/
+
 
 bool TankServer::TrySendFrame()
 {
 	//
 	// определяем сколько у нас получено кадров
 	//
-	int count = 0;
-	std::list<ClientDesc>::iterator it = _clients.begin();
-	for( ; it != _clients.end(); ++it )
+	size_t count = 0;
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( it->connected )
+		if( (*it)->connected )
 		{
-			if( it->ctrl.empty() )
+			if( (*it)->ctrl.empty() )
 			{
-				break;
+				return false;
 			}
-			count++;
+			++count;
 		}
 	}
-
-	if( it != _clients.end() )
-		return false;
 
 
 	//
@@ -526,12 +369,11 @@ bool TankServer::TrySendFrame()
 	DataBlock db_new(sizeof(ControlPacket) * count);
 	db_new.type() = DBTYPE_CONTROLPACKET;
 
-	std::list<ClientDesc>::iterator it1 = _clients.begin();
-	for( ; it1 != _clients.end(); it1++ )
+	for( PeerList::iterator it1 = _clients.begin(); it1 != _clients.end(); it1++ )
 	{
-		if( it1->connected )
+		if( (*it1)->connected )
 		{
-			it = _clients.begin();
+			PeerList::iterator it = _clients.begin();
 
 			#ifdef NETWORK_DEBUG
 			DWORD chsum;
@@ -541,21 +383,21 @@ bool TankServer::TrySendFrame()
 
 			for( int i = 0; it != _clients.end(); ++it )
 			{
-				if( !it->connected ) continue;
-				db_new.cast<ControlPacket>(count - (++i)) = it->ctrl.front();
+				if( !(*it)->connected ) continue;
+				db_new.cast<ControlPacket>(count - (++i)) = (*it)->ctrl.front();
 
 				#ifdef NETWORK_DEBUG
 				if( first )
 				{
-					chsum = it->ctrl.front().checksum;
+					chsum = (*it)->ctrl.front().checksum;
 					first = false;
 				}
 				else
 				{
-					DWORD tmp = it->ctrl.front().checksum;
+					DWORD tmp = (*it)->ctrl.front().checksum;
 					if( tmp != chsum )
 					{
-						TRACE("sync error detected!\n");
+						TRACE("sv: sync error detected!\n");
 						char buf[128];
 						wsprintf(buf, "sync error: 0x%x 0x%x", tmp, chsum);
 						MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
@@ -564,17 +406,17 @@ bool TankServer::TrySendFrame()
 				}
 				#endif
 			}
-			_ASSERT(count * sizeof(ControlPacket) == db_new.size());
-			SendClientThreadData(it1, db_new);
+			_ASSERT(count * sizeof(ControlPacket) == db_new.DataSize());
+			(*it1)->Send(db_new);
 		}
 	}
 
 	//
 	// очистка буферов клиентов
 	//
-	for( it = _clients.begin(); it != _clients.end(); ++it )
-		if( it->connected )
-			it->ctrl.pop();
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		if( (*it)->connected )
+			(*it)->ctrl.pop();
 
 	return true;
 }

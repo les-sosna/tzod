@@ -4,8 +4,6 @@
 
 //----------------------------------------------------------
 
-VOID    LoadSurfaces();
-
 #if !defined NOSOUND
 HRESULT InitDirectSound(HWND hWnd, bool init);
 void    FreeDirectSound();

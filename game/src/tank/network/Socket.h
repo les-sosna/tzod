@@ -5,35 +5,25 @@
 
 class Socket
 {
-	SOCKET   _socket;
-	WSAEVENT _event;
-	WSANETWORKEVENTS _ne;
-	std::vector<char> _accum;
-
 public:
+	Socket(void);
+	~Socket(void);
 
 	enum { OK, Error, Aborted };
 
-	int Send(HANDLE hAbortEvent, const void *buf, int len);
-	int Send_accum(HANDLE hAbortEvent);
-	void Accumulate(const void *buf, int len);
-
-	int Recv(HANDLE hAbortEvent, void *buf, int len);
-	int Recv(const HANDLE *lphAbortEvents, size_t count, void *buf, int buflen);
-
-	int Wait();
-	int Wait(HANDLE hAbortEvent);
-	int Wait(const HANDLE *lphAbortEvents, size_t count);
+	int EnumNetworkEvents(LPWSANETWORKEVENTS lpNetworkEvents);
 
 	int SetEvents(long lNetworkEvents);  // return zero if the operation was successful
 	int Close();
-	bool CheckEvent(int bit);
+
+	HANDLE GetEvent() const { return _event; };
 
 	operator SOCKET () const { return _socket; }
 	SOCKET operator = (SOCKET s);
 
-	Socket(void);
-	~Socket(void);
+private:
+	SOCKET   _socket;
+	WSAEVENT _event;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

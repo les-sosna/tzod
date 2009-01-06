@@ -6,6 +6,7 @@
 #include "macros.h"
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include <d3d9.h>
 #include <d3dx9math.h>

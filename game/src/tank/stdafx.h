@@ -44,7 +44,6 @@
 
 #include <winsock2.h>
 #include <windows.h>
-#include <mmsystem.h>
 #include <commctrl.h>
 #include <stdio.h>
 #include <crtdbg.h>
@@ -69,6 +68,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <limits>
 
 #include <ios>
 
@@ -110,7 +110,6 @@ extern "C"
 #include "core/PtrList.h"
 #include "core/SafePtr.h"
 
-#include "core/Timer.h"
 #include "core/Grid.h"
 
 #include "core/Delegate.h"

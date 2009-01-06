@@ -16,6 +16,7 @@ class ConsoleBuffer;
 class KeyMapper;
 class TankServer;
 class TankClient;
+class AppBase;
 
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
@@ -38,9 +39,10 @@ extern GuiManager      *g_gui;
 extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
 extern TankClient      *g_client;
-extern ConsoleBuffer   *g_console;
 extern KeyMapper       *g_keys;
-extern SafePtr<IFileSystem> g_fs;
+extern AppBase         *g_app;
+
+extern SafePtr<IFileSystem>    g_fs;
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -483,6 +483,14 @@
 			Name="core"
 			>
 			<File
+				RelativePath="..\src\tank\core\Application.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\core\Application.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\core\Console.cpp"
 				>
 			</File>
@@ -1027,11 +1035,35 @@
 			Name="network"
 			>
 			<File
+				RelativePath="..\src\tank\network\ControlPacket.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\ControlPacket.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\network\datablock.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\tank\network\datablock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\init.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\init.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\Peer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\Peer.h"
 				>
 			</File>
 			<File

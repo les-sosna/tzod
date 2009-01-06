@@ -19,6 +19,7 @@
 #include "fs/FileSystem.h"
 
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -124,11 +125,11 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 
 		if( g_level->Serialize(tmp.c_str()) )
 		{
-			g_console->printf("game saved: '%s'\n", tmp.c_str());
+			g_app->GetConsole()->printf("game saved: '%s'\n", tmp.c_str());
 		}
 		else
 		{
-			g_console->printf("couldn't save game to '%s'", tmp.c_str());
+			g_app->GetConsole()->printf("couldn't save game to '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 	}
@@ -163,7 +164,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 
 		if( !g_level->init_load(tmp.c_str()) )
 		{
-			g_console->printf("couldn't load game from '%s'", tmp.c_str());
+			g_app->GetConsole()->printf("couldn't load game from '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 	}
@@ -243,7 +244,7 @@ void MainMenuDlg::OnImportMapSelect(int result)
 
 		if( !g_level->init_import_and_edit(tmp.c_str()) )
 		{
-			g_console->printf("couldn't import map '%s'", tmp.c_str());
+			g_app->GetConsole()->printf("couldn't import map '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 		else
@@ -281,12 +282,12 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 		if( g_level->Export(tmp.c_str()) )
 		{
-			g_console->printf("map exported: '%s'\n", tmp.c_str());
+			g_app->GetConsole()->printf("map exported: '%s'\n", tmp.c_str());
 			g_conf->cl_map->Set(_fileDlg->GetFileTitle());
 		}
 		else
 		{
-			g_console->printf("couldn't export map to '%s'", tmp.c_str());
+			g_app->GetConsole()->printf("couldn't export map to '%s'", tmp.c_str());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 	}

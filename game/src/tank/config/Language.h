@@ -160,7 +160,6 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_connect_status, "Status log" )
 	CONFIG_VAR_STR( net_connect_ok, "Connect" )
 	CONFIG_VAR_STR( net_connect_cancel, "Cancel" )
-	CONFIG_VAR_STR( net_connect_error, "Network error" )
 	CONFIG_VAR_STR( net_connect_error_server_version, "Incompatible server version" )
 	CONFIG_VAR_STR( net_connect_error_map, "Could not load map" )
 	CONFIG_VAR_STR( net_connect_error_map_version, "Incompatible map version" )

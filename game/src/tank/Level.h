@@ -5,6 +5,9 @@
 #include "ObjectListener.h"
 #include "gc/Object.h" // FIXME!
 
+#include "network/datablock.h"
+#include "network/ControlPacket.h"
+
 #pragma region path finding stuff
 
 class GC_RigidBodyStatic;
@@ -219,6 +222,12 @@ public:
 	int _pause;
 	float _time;
 	float _timeBuffer;
+	std::queue<DataBlock> _cmdQueue;
+	void OnNewData(const DataBlock &db);
+
+	std::queue<ControlPacket> _ctrlQueue;
+	ControlPacket GetControlPacket();
+
 
 	Field _field;
 

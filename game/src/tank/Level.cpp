@@ -12,6 +12,7 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -332,6 +333,9 @@ void Level::Clear()
 #ifdef NETWORK_DEBUG
 	_checksum = 0;
 #endif
+
+	_cmdQueue.c.clear();
+	_ctrlQueue.c.clear();
 }
 
 void Level::HitLimit()
@@ -1065,6 +1069,19 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->Draw();
 }
 
+void Level::OnNewData(const DataBlock &db)
+{
+	_cmdQueue.push(db);
+}
+
+ControlPacket Level::GetControlPacket()
+{
+	_ASSERT(!_ctrlQueue.empty());
+	ControlPacket cp = _ctrlQueue.front();
+	_ctrlQueue.pop();
+	return cp;
+}
+
 void Level::TimeStep(float dt)
 {
 	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
@@ -1098,13 +1115,14 @@ void Level::TimeStep(float dt)
 			//
 			// обработка команд кадра
 			//
-			DataBlock db;
-			while( g_client->IsGameStarted() && g_client->GetData(db) )
+			while( !_cmdQueue.empty() )
 			{
-				switch( db.type() )
+				const DataBlock &db = _cmdQueue.front();
+				DataBlock::type_type type = db.type();
+				switch( type )
 				{
 					case DBTYPE_TEXTMESSAGE:
-						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.data());
+						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.Data());
 						break;
 					case DBTYPE_SERVERQUIT:
 						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_server_quit->Get());
@@ -1126,20 +1144,27 @@ void Level::TimeStep(float dt)
 							}
 							++it;
 						}
-					} break;
+						break;
+					}
 					case DBTYPE_CONTROLPACKET:
 					{
-						_ASSERT(0 == db.size() % sizeof(ControlPacket));
-						size_t count = db.size() / sizeof(ControlPacket);
+						const size_t count = db.DataSize() / sizeof(ControlPacket);
+						_ASSERT(count);
 						for( size_t i = 0; i < count; i++ )
-							g_client->_ctrlBuf.push( ((ControlPacket *) db.data())[i] );
-					} break;
+						{
+							_ctrlQueue.push(db.cast<ControlPacket>(i));
+						}
+						break;
+					}
 				} // end of switch( db.type )
 
-				if( DBTYPE_CONTROLPACKET == db.type() ) break; // split frames
-			}// end of while g_client->GetData
+				_cmdQueue.pop();
 
-			if( g_client->_ctrlBuf.empty() )
+				if( DBTYPE_CONTROLPACKET == type )
+					break; // split frames
+			}// while( !_cmdQueue.empty() )
+
+			if( _ctrlQueue.empty() )
 			{
 				_timeBuffer = 0;
 				break; // нет кадра. пропускаем
@@ -1187,13 +1212,12 @@ void Level::TimeStep(float dt)
 			_checksum = dwCheckSum;
 #endif
 
-			NetworkStats ns;
-			g_client->GetStatistics(&ns);
-
-			if( ns.nFramesInBuffer < g_conf->sv_latency->GetInt() )
-			{
-				break;
-			}
+		//	NetworkStats ns;
+		//	g_client->GetStatistics(&ns);
+		//	if( ns.nFramesInBuffer < g_conf->sv_latency->GetInt() )
+		//	{
+		//		break;
+		//	}
 		} // end of while( _timeBuffer > 0 )
 	}
 	else // if( g_client )
@@ -1220,7 +1244,7 @@ void Level::TimeStep(float dt)
 			passedFixedDT = fixed_dt;
 		}
 		while( --count );
-	} // end of if( g_client )
+	} // if( g_client )
 
 	if( !_frozen )
 	{

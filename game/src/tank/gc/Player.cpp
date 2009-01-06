@@ -21,6 +21,7 @@
 
 #include "core/Console.h"
 #include "core/debug.h"
+#include "core/Application.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -235,7 +236,7 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
-				g_console->printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
+				g_app->GetConsole()->printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
 			}
 			else
 			{
@@ -362,7 +363,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 			GC_Object* found = g_level->FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
-				g_console->printf("WARNING: object with name \"%s\" already exists\n", name);
+				g_app->GetConsole()->printf("WARNING: object with name \"%s\" already exists\n", name);
 			}
 			else
 			{
@@ -499,8 +500,7 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 		if( g_client )
 		{
 			g_client->SendControl(cp);
-			bool ok = g_client->RecvControl(ControlPacket());
-			_ASSERT(ok);
+			g_level->GetControlPacket();
 		}
 	}
 	else
@@ -512,8 +512,7 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 		{
 			cp.fromvs(vs);
 			g_client->SendControl(cp);
-			bool ok = g_client->RecvControl(cp);
-			_ASSERT(ok);
+			cp = g_level->GetControlPacket();
 			cp.tovs(vs);
 		}
 
@@ -758,21 +757,15 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
-	_ASSERT(g_client);
-
 	GC_Player::TimeStepFixed( dt );
-	
+	_ASSERT(g_client);
 	if( IsVehicleDead() )
 	{
-		bool ok = g_client->RecvControl(ControlPacket());
-		_ASSERT(ok);
+		g_level->GetControlPacket();
 	}
 	else
 	{
-		ControlPacket cp;
-		bool ok = g_client->RecvControl(cp);
-		_ASSERT(ok);
-
+		ControlPacket cp = g_level->GetControlPacket();
 		VehicleState vs;
 		cp.tovs(vs);
 		GetVehicle()->SetState(vs);

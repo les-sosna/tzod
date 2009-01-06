@@ -14,6 +14,8 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
+#include "core/Timer.h"
 
 #include "video/TextureManager.h"
 #include "video/RenderOpenGL.h"
@@ -31,6 +33,26 @@
 #include "fs/FileSystem.h"
 
 #include "res/resource.h"
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+class ZodApp : public AppBase
+{
+public:
+	ZodApp();
+	virtual ~ZodApp();
+
+	virtual bool Pre();
+	virtual void Idle();
+	virtual void Post();
+
+private:
+	Timer timer;
+
+	//	SafePtr<ConsoleBuffer> _con;
+	//	SafePtr<IFileSystem>   _fs;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -154,10 +176,29 @@ int APIENTRY WinMain( HINSTANCE hinst,
                       int // nCmdShow
 ){
 	g_hInstance = hinst;
-	srand( GetTickCount() );
 
-	// create the console buffer
-	g_console = new ConsoleBuffer(128, 512, "log.txt");
+	ZodApp app;
+	return app.Run(hinst);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+ZodApp::ZodApp()
+{
+	_ASSERT(!g_app);
+	g_app = this;
+}
+
+ZodApp::~ZodApp()
+{
+	_ASSERT(this == g_app);
+	g_app = NULL;
+}
+
+bool ZodApp::Pre()
+{
+	srand( GetTickCount() );
 
 	// print UNIX-style date and time
 	time_t ltime;
@@ -173,7 +214,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 
 	// create main app window
-	g_env.hMainWnd = CreateMainWnd(hinst);
+	g_env.hMainWnd = CreateMainWnd(g_hInstance);
 
 
 	//
@@ -198,7 +239,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 		if( IDOK != result )
 		{
-			return 0;
+			return false;
 		}
 	}
 	g_conf.GetAccessor(); // force accessor creation
@@ -221,7 +262,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 		if( IDOK != result )
 		{
-			return 0;
+			return false;
 		}
 	}
 	g_lang.GetAccessor(); // force accessor creation
@@ -250,10 +291,10 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	// show graphics mode selection dialog
 	//
 	if( g_conf->r_askformode->Get()
-		&& IDOK != DialogBox(hinst, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
+		&& IDOK != DialogBox(g_hInstance, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
-		return 0;
+		return false;
 	}
 	else
 	{
@@ -283,119 +324,93 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	if( NULL == (g_env.L = script_open()) )
 	{
 		TRACE("FAILED\n");
-		return -1;
+		return false;
 	}
 	InitConfigLuaBinding(g_env.L, g_conf.GetRoot(), "conf");
 	InitConfigLuaBinding(g_env.L, g_lang.GetRoot(), "lang");
 
 
-	// create global timer
-	Timer *timer = new Timer();
-	timer->SetMaxDt(MAX_DT);
-
-
-#ifndef _DEBUG
-	bool bGeneralFault = false;
-#endif
+	timer.SetMaxDt(MAX_DT);
 
 	// init world
 	g_level = WrapRawPtr(new Level());
 
-	if( SUCCEEDED(InitAll(g_env.hMainWnd)) )
+	// init directX objects
+	if( FAILED(InitAll(g_env.hMainWnd)) )
+		return false;
+
+	// init texture manager
+	g_texman = new TextureManager;
+	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
 	{
-		// init texture manager
-		g_texman = new TextureManager;
-		LoadSurfaces();
-
-		timeBeginPeriod(1);
-
-#ifndef _DEBUG
-		try
-		{
-		;
-#endif
-		// init GUI
-		TRACE("GUI subsystem initialization\n");
-		g_gui = new GuiManager(CreateDesktopWindow);
-		g_render->OnResizeWnd();
-		g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
-
-
-		TRACE("Running startup script '%s'\n", FILE_STARTUP);
-		if( !script_exec_file(g_env.L, FILE_STARTUP) )
-		{
-			TRACE("ERROR: in startup script\n");
-			MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
-		}
-
-		timer->Start();
-
-		g_level->_gameType = GT_INTRO;
-
-		MSG msg;
-		for(;;)
-		{
-			if( PeekMessage(&msg, NULL, 0, 0, TRUE) )
-			{
-				if( WM_QUIT == msg.message ) break;
-
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			else
-			{
-				ReadImmediateData();  // чтение состояния устройств ввода
-				//------------------------------
-				if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
-				{
-				//	PauseGame(true);
-					ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
-					continue;
-				}
-				else
-				if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
-				{
-					TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
-					DestroyWindow(g_env.hMainWnd);
-					continue;
-				}
-				//--------------------------------
-				TimeStep(timer->GetDt());
-				RenderFrame(false);
-				EndFrame();
-				if( g_music )
-				{
-					g_music->HandleBufferFilling();
-				}
-			}
-		}// end of main loop
-
-#ifndef _DEBUG
-		} // end of try block
-		catch(...) // general error handling
-		{
-			TRACE("GENERAL FAULT\n");
-			bGeneralFault = TRUE;
-		}
-#endif
-
-		TRACE("Shutting down GUI subsystem\n");
-		SAFE_DELETE(g_gui);
-
-		SAFE_DELETE(g_client);
-		SAFE_DELETE(g_server);
-
-		timeEndPeriod(1);
-	} // end if( SUCCEEDED(InitAll(hWnd)) )
-	else
-	{
-		MessageBoxT(NULL, "Game engine init error", MB_ICONERROR);
+		TRACE("WARNING: no textures loaded\n");
+		MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
 	}
+	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
+	{
+		TRACE("WARNING: no skins found\n");
+		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
+	}
+
+
+	// init GUI
+	TRACE("GUI subsystem initialization\n");
+	g_gui = new GuiManager(CreateDesktopWindow);
+	g_render->OnResizeWnd();
+	g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+
+
+	TRACE("Running startup script '%s'\n", FILE_STARTUP);
+	if( !script_exec_file(g_env.L, FILE_STARTUP) )
+	{
+		TRACE("ERROR: in startup script\n");
+		MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
+	}
+
+	g_level->_gameType = GT_INTRO;
+
+	timer.Start();
+
+	return true;
+}
+
+void ZodApp::Idle()
+{
+	ReadImmediateData();  // чтение состояния устройств ввода
+
+	if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
+	{
+	//	PauseGame(true);
+		ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
+		return;
+	}
+	else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
+	{
+		TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
+		DestroyWindow(g_env.hMainWnd);
+		return;
+	}
+
+	TimeStep(timer.GetDt());
+	RenderFrame(false);
+	EndFrame();
+
+	if( g_music )
+	{
+		g_music->HandleBufferFilling();
+	}
+}
+
+void ZodApp::Post()
+{
+	TRACE("Shutting down GUI subsystem\n");
+	SAFE_DELETE(g_gui);
+
+	SAFE_DELETE(g_client);
+	SAFE_DELETE(g_server);
 
 	// destroy level
 	g_level = NULL;
-
-	SAFE_DELETE(timer);
 
 
 	FreeDirectInput();
@@ -409,13 +424,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 #ifndef NOSOUND
 	FreeDirectSound();
-#endif
-
-#ifndef _DEBUG
-	if( bGeneralFault )
-	{
-		MessageBoxT(NULL, "Critical error: unknown exception", MB_ICONERROR);
-	}
 #endif
 
 	// script engine cleanup
@@ -435,13 +443,9 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	g_fs = NULL;
 
 	TRACE("Exit.\n");
-
-	// free the console buffer
-	SAFE_DELETE(g_console);
-
-	Sleep(500);
-	return 0;
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

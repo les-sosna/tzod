@@ -4,26 +4,48 @@
 #include "stdafx.h"
 #include "datablock.h"
 
+
+////////////////////////////////////////////////////////////////
+
+template<>
+DataBlock DataWrap<std::string>(std::string &data, DataBlock::type_type type)
+{
+	DataBlock db(data.length() + 1); // include '\0'
+	db.type() = type;
+	memcpy(db.Data(), data.c_str(), db.DataSize());
+	return db;
+}
+
+template<>
+DataBlock DataWrap<const std::string>(const std::string &data, DataBlock::type_type type)
+{
+	DataBlock db(data.length() + 1); // include '\0'
+	db.type() = type;
+	memcpy(db.Data(), data.c_str(), db.DataSize());
+	return db;
+}
+
 ////////////////////////////////////////////////////////////////
 
 DataBlock::DataBlock()
 {
-	_data   = malloc(_raw_size = sizeof(_header) );
+	_data = malloc(sizeof(Header));
 	h().type = DBTYPE_UNKNOWN;
-	h().size = 0;
+	h().rawSize = sizeof(Header);
 }
 
-DataBlock::DataBlock(size_type size)
+DataBlock::DataBlock(size_t dataSize)
 {
-	_data   = malloc(_raw_size = sizeof(_header) + size);
+	_ASSERT((size_t) std::numeric_limits<size_type>::max() > dataSize + sizeof(Header));
+	_data = malloc(dataSize + sizeof(Header));
+	h().rawSize = dataSize + sizeof(Header);
 	h().type = DBTYPE_UNKNOWN;
-	h().size = size;
 }
 
 DataBlock::DataBlock(const DataBlock &src)
 {
-	_data = malloc(_raw_size = src._raw_size);
-	memcpy(_data, src._data, _raw_size);
+	_data = malloc(src.h().rawSize);
+	memcpy(_data, src._data, src.h().rawSize);
 }
 
 DataBlock::~DataBlock()
@@ -35,32 +57,35 @@ DataBlock::~DataBlock()
 DataBlock& DataBlock::operator=(const DataBlock &src)
 {
 	_ASSERT(_data);
-	if( src._raw_size != _raw_size )
+	if( src.RawSize() != RawSize() )
 	{
 		free(_data);
-		_data = malloc(_raw_size = src._raw_size);
+		_data = malloc(src.RawSize());
 	}
-	memcpy(_data, src._data, _raw_size);
+	memcpy(_data, src.RawData(), src.RawSize());
 	return *this;
 }
 
-bool DataBlock::from_stream(void **pointer, size_t *stream_len)
+size_t DataBlock::Parse(void *data, size_t size)
 {
-	if( *stream_len < sizeof(_header) )
+	_ASSERT(_data);
+
+	if( size < sizeof(Header) )
 		return false;
-	size_t raw_size = ((_header*)(*pointer))->size + sizeof(_header);
-	if( *stream_len < raw_size )
+
+	size_t rs = ((Header *) data)->rawSize;
+	if( size < rs )
 		return false;
-	if( raw_size != _raw_size )
+
+	if( RawSize() != rs )
 	{
 		free(_data);
-		_data = malloc(_raw_size = raw_size);
+		_data = malloc(rs);
 	}
-	memcpy(_data, (*pointer), _raw_size);
-	( char*& ) (*pointer) += raw_size;
-	*stream_len -= raw_size;
-	return true;
+	memcpy(_data, data, rs);
+	return rs;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

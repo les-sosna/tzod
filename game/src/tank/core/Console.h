@@ -3,7 +3,7 @@
 #pragma once
 
 
-class ConsoleBuffer
+class ConsoleBuffer : public RefCounted
 {
 	char*  _buffer;
 	char** _lines;      // line positions in the buffer
@@ -19,7 +19,7 @@ class ConsoleBuffer
 
 public:
 	ConsoleBuffer(size_t lineLength, size_t _maxLines, const char *logfile);
-	~ConsoleBuffer();
+	virtual ~ConsoleBuffer();
 
 	void Fill(const ConsoleBuffer *src);
 

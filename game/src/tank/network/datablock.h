@@ -43,51 +43,65 @@ public:
 	typedef unsigned short size_type;
 	typedef unsigned short type_type;
 
-private:
-	size_t _raw_size;
-	void *_data;
-
-	struct _header
-	{
-		size_type size;
-		type_type type;
-	};
-
-	_header& h() { return *((_header*) _data); }
-
-
-public:
 	DataBlock();
-	DataBlock(size_type size);
+	DataBlock(size_t dataSize);
 	DataBlock(const DataBlock &src);
 	~DataBlock();
 
 	DataBlock& operator= (const DataBlock& src);
-	bool from_stream(void **pointer, size_t *stream_len);
+	size_t Parse(void *data, size_t size);
 
-public:
-	size_type  size()  const { return ((_header*) _data)->size; }
-	type_type& type()  const { return ((_header*) _data)->type; }
-	void*      data()  const { return (char*) _data + sizeof(_header); }
 
-	void*  raw_data()  const { return _data; }
-	size_t raw_size()  const { return _raw_size; }
+	size_type  DataSize()  const { return h().rawSize - sizeof(Header); }
+	type_type& type() { return h().type; }
+	const type_type& type() const { return h().type; }
+	void*      Data()  const { return (char*) _data + sizeof(Header); }
 
-	template<class T> T& cast() const { return *((T*) data()); }
-	template<class T> T& cast(size_t index) const { return ((T*) data())[index]; }
+	const char*  RawData()  const { return (const char *) _data; }
+	size_t RawSize()  const { return h().rawSize; }
+
+	template<class T> T& cast() const
+	{
+		_ASSERT(sizeof(T) == DataSize());
+		return *(T*) Data();
+	}
+
+	template<class T> T& cast(size_t index) const
+	{
+		_ASSERT(0 == DataSize() % sizeof(T));
+		_ASSERT(sizeof(T) * index <= DataSize());
+		return ((T*) Data())[index];
+	}
+
+private:
+	void *_data;
+
+	struct Header
+	{
+		size_type rawSize; // size including header
+		type_type type;
+	};
+
+	Header& h() { return *((Header*) _data); }
+	const Header& h() const { return *((const Header*) _data); }
 };
 
 ////////////////////////////////////////////////////
 
 template<class T>
-DataBlock DataWrap(T& data, DataBlock::type_type type)
+DataBlock DataWrap(T &data, DataBlock::type_type type)
 {
 	DataBlock db(sizeof(T));
 	db.type() = type;
-    memcpy(db.data(), &data, sizeof(T));
+	memcpy(db.Data(), &data, sizeof(T));
 	return db;
 }
 
+template<>
+DataBlock DataWrap<const std::string>(const std::string &data, DataBlock::type_type type);
+
+template<>
+DataBlock DataWrap<std::string>(std::string &data, DataBlock::type_type type);
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

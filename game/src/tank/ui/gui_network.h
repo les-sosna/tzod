@@ -5,6 +5,10 @@
 #include "Base.h"
 #include "Dialog.h"
 
+// forward declarations
+class DataBlock;
+
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,12 +28,12 @@ class CreateServerDlg : public Dialog
 
 public:
 	CreateServerDlg(Window *parent);
-	~CreateServerDlg();
+	virtual ~CreateServerDlg();
 
 protected:
 	void OnOK();
 	void OnCancel();
-	void OnCloseChild(int result);
+	virtual void OnCloseChild(int result);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,12 +49,13 @@ class ConnectDlg : public Dialog
 
 public:
 	ConnectDlg(Window *parent, const char *autoConnect);
-	~ConnectDlg();
+	virtual ~ConnectDlg();
 
 protected:
 	void OnOK();
 	void OnCancel();
-	void OnTimeStep(float dt);
+
+	void OnNewData(const DataBlock &db);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,12 +65,12 @@ class WaitingForPlayersDlg : public Dialog
 	List           *_players;
 	List           *_bots;
 	Console        *_chat;
-	ConsoleBuffer  *_buf;
 	Button         *_btnOK;
+	SafePtr<ConsoleBuffer>  _buf;
 
 public:
 	WaitingForPlayersDlg(Window *parent);
-	~WaitingForPlayersDlg();
+	virtual ~WaitingForPlayersDlg();
 
 protected:
 	void OnAddBot();
@@ -73,7 +78,8 @@ protected:
 	void OnOK();
 	void OnCancel();
 	void OnSendMessage(const char *msg);
-	void OnTimeStep(float dt);
+	
+	void OnNewData(const DataBlock &db);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

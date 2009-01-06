@@ -23,6 +23,7 @@
 #include "config/Language.h"
 
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -200,7 +201,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 1, 0) )
 			{
 				// print error message
-				g_console->printf("%s\n", lua_tostring(L, -1));
+				g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -209,7 +210,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 0, 0) )
 			{
 				// print error message
-				g_console->printf("%s\n", lua_tostring(L, -1));
+				g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -285,7 +286,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
 	{
 		// print error message
-		g_console->printf("%s\n", lua_tostring(L, -1));
+		g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -295,7 +296,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 2, 0, 0) )
 	{
 		// print error message
-		g_console->printf("%s\n", lua_tostring(L, -1));
+		g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}

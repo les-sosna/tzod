@@ -12,6 +12,7 @@
 #include "fs/MapFile.h"
 
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "GameClasses.h"
 #include "indicators.h"
@@ -26,7 +27,7 @@
 
 GC_Pickup::GC_Pickup(float x, float y)
   : _memberOf(this)
-  , _label(WrapRawPtr(new GC_HideLabel(x, y)))
+  , _label(new GC_HideLabel(x, y))
   , _radius(25.0)
   , _timeRespawn(0)
   , _timeAnimation(0)
@@ -209,20 +210,20 @@ void GC_Pickup::TimeStepFixed(float dt)
 
 				if( luaL_loadstring(g_env.L, buf.str().c_str()) )
 				{
-					g_console->printf("syntax error %s\n", lua_tostring(g_env.L, -1));
+					g_app->GetConsole()->printf("syntax error %s\n", lua_tostring(g_env.L, -1));
 					lua_pop(g_env.L, 1); // pop the error message from the stack
 				}
 				else
 				{
 					if( lua_pcall(g_env.L, 0, 1, 0) )
 					{
-						g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+						g_app->GetConsole()->printf("%s\n", lua_tostring(g_env.L, -1));
 						lua_pop(g_env.L, 1); // pop the error message from the stack
 					}
 					lua_pushstring(g_env.L, who ? who : "");
 					if( lua_pcall(g_env.L, 1, 0, 0) )
 					{
-						g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+						g_app->GetConsole()->printf("%s\n", lua_tostring(g_env.L, -1));
 						lua_pop(g_env.L, 1); // pop the error message from the stack
 					}
 				}

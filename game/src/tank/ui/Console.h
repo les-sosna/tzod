@@ -21,13 +21,13 @@ class Console : public Window
 	size_t _scrollBack;
 	size_t _cmdIndex;
 
-	ConsoleBuffer * const _buf;
+	ConsoleBuffer *_buf;
 
 	bool _echo;
 
 public:
 	Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
-	~Console();
+	virtual ~Console();
 	void SetEcho(bool echo);
 	Delegate<void(const char *)> eventOnSendCommand;
 	Delegate<bool(const char *, string_t &)> eventOnRequestCompleteCommand;

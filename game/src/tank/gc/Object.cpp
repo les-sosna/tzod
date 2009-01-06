@@ -10,6 +10,7 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
@@ -244,7 +245,7 @@ void PropertySet::MyExchange(bool applyToObject)
 		GC_Object* found = g_level->FindObject(name);
 		if( found && GetObject() != found )
 		{
-			g_console->printf("WARNING: object with name \"%s\" already exists\n", name);
+			g_app->GetConsole()->printf("WARNING: object with name \"%s\" already exists\n", name);
 		}
 		else
 		{

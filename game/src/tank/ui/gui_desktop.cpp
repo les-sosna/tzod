@@ -15,6 +15,7 @@
 
 #include "config/Config.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "network/TankClient.h"
 
@@ -71,7 +72,7 @@ void MessageArea::puts(const char *text)
 	line.str = text;
 	line.str.append("\n");
 	_lines.push_back(line);
-	g_console->puts(line.str.c_str());
+	g_app->GetConsole()->puts(line.str.c_str());
 
 	SetTimeStep(true);
 	_text->Show(true);
@@ -100,7 +101,7 @@ Desktop::Desktop(GuiManager* manager)
 	_editor = new EditorLayout(this);
 	_editor->Show(false);
 
-	_con = new Console(this, 10, 0, 100, 100, g_console);
+	_con = new Console(this, 10, 0, 100, 100, g_app->GetConsole());
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->Show(false);
@@ -254,7 +255,7 @@ void Desktop::OnCommand(const char *cmd)
 		if( cmd[0] != '/' )
 		{
 			DataBlock db(len + 1);
-			strcpy((char*) db.data(), cmd);
+			strcpy((char*) db.Data(), cmd);
 			db.type() = DBTYPE_TEXTMESSAGE;
 			g_client->SendDataToServer(db);
 			return;
@@ -295,14 +296,14 @@ bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
 	if( lua_isnil(g_env.L, -1) )
 	{
 		lua_pop(g_env.L, 1);
-		g_console->printf("There was no autocomplete module loaded\n");
+		g_app->GetConsole()->printf("There was no autocomplete module loaded\n");
 		return false;
 	}
 	lua_pushstring(g_env.L, cmd);
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
-		g_console->printf("%s\n", lua_tostring(g_env.L, -1));
+		g_app->GetConsole()->printf("%s\n", lua_tostring(g_env.L, -1));
 	}
 	else
 	{

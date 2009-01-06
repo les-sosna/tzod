@@ -10,6 +10,7 @@
 #include "level.h"  // FIXME
 
 #include "core/debug.h"
+#include "core/Application.h"
 #include "core/Console.h"
 
 #include "gc/2dSprite.h"
@@ -392,7 +393,7 @@ size_t TextureManager::FindTexture(const char *name) const
 		return it->second;
 
 	// flood the console
-	g_console->printf("texture '%s' not found!\n", name);
+	g_app->GetConsole()->printf("texture '%s' not found!\n", name);
 
 	return 0; // index of checker texture
 }

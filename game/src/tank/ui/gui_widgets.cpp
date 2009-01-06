@@ -90,7 +90,7 @@ void FpsCounter::OnTimeStep(float dt)
 			NetworkStats ns;
 			g_client->GetStatistics(&ns);
 			wsprintf(s1, "\nnetwork: %2dbuf; sent%3dk; recv%3dk", // "; ms:%3d-%3d-%3d",
-				ns.nFramesInBuffer, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
+				/*ns.nFramesInBuffer*/-1, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
 			);
 			strcat(s, s1);
 		}

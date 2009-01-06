@@ -9,6 +9,7 @@
 
 #include "core/Debug.h"
 #include "core/Console.h"
+#include "core/Application.h"
 
 #include "video/TextureManager.h"
 
@@ -21,23 +22,6 @@
 
 LPDIRECTINPUT8        g_pDI       = NULL;
 //LPDIRECTINPUTDEVICE8  g_pMouse    = NULL;
-
-//--------------------------------------------------------------------------
-
-VOID LoadSurfaces()
-{
-	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
-	{
-		TRACE("WARNING: no textures loaded\n");
-		MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
-	}
-
-	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
-	{
-		TRACE("WARNING: no skins found\n");
-		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////

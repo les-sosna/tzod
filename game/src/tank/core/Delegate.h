@@ -19,16 +19,16 @@ class Delegate
 
 public:
 	Delegate()
+	  : _inst(NULL)
+	  , _func(NULL)
 	{
-		_inst = NULL;
-		_func = NULL;
 	}
 
 	blank* inst() const { return _inst; }
 	mp     func() const { return _func; }
 
 	template<class signature, class inst_type>
-	void bind (signature pmf, inst_type *inst)
+	void bind(signature pmf, inst_type *inst)
 	{
 		_ASSERT(pmf);
 		_ASSERT(inst);

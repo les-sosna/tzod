@@ -11,27 +11,26 @@
 
 ENVIRONMENT g_env;
 
-HINSTANCE    g_hInstance = NULL;
+HINSTANCE    g_hInstance;
 
 
-LPDIRECTINPUTDEVICE8  g_pKeyboard = NULL;
+LPDIRECTINPUTDEVICE8  g_pKeyboard;
 
-CSoundManager   *g_soundManager = NULL;
-MusicPlayer     *g_music         =  NULL;
-CSound          *g_pSounds[SND_COUNT] = {NULL};
+CSoundManager   *g_soundManager;
+MusicPlayer     *g_music;
+CSound          *g_pSounds[SND_COUNT];
 
-IRender     *g_render  = NULL;
-GuiManager  *g_gui     = NULL;
-TankServer  *g_server  = NULL;
-TankClient  *g_client  = NULL;
+AppBase     *g_app;
+IRender     *g_render;
+GuiManager  *g_gui;
+TankServer  *g_server;
+TankClient  *g_client;
 
-TextureManager *g_texman = NULL;
+TextureManager *g_texman;
 
 SafePtr<Level> g_level;
 SafePtr<IFileSystem> g_fs;
 
-ConsoleBuffer *g_console = NULL;
-
-KeyMapper *g_keys = NULL;
+KeyMapper *g_keys;
 
 // end of file
