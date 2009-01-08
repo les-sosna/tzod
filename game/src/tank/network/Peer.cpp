@@ -76,7 +76,7 @@ void Peer::Send(const DataBlock &db)
 					TRACE("peer: network error %u\n", err);
 					// TODO: disconnect peer
 				}
-				_outgoing.insert(_outgoing.end(), db.RawData() + sent, db.RawData() + (db.RawSize() - sent));
+				_outgoing.insert(_outgoing.end(), db.RawData() + sent, db.RawData() + db.RawSize());
 				break;
 			}
 			else
@@ -135,7 +135,7 @@ void Peer::OnSocketEvent()
 				}
 				if( parsedTotal < (unsigned) result )
 				{
-					_incoming.insert(_incoming.end(), buf + parsedTotal, buf + result - parsedTotal);
+					_incoming.insert(_incoming.end(), buf + parsedTotal, buf + result);
 				}
 			}
 			else
