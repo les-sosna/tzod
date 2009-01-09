@@ -106,7 +106,7 @@ void TankClient::OnRecv(Peer *who, const DataBlock &db)
 			}
 			break;
 		case DBTYPE_GAMEINFO:
-			_latency = db.cast<GameInfo>().latency;
+			_latency = g_conf->sv_latency->GetInt(); //db.cast<GameInfo>().latency;
 			break;
 		case DBTYPE_YOURID:
 			_clientId = db.cast<DWORD>();

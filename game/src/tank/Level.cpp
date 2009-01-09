@@ -1192,6 +1192,12 @@ void Level::TimeStep(float dt)
 				sprintf_s(fn, "network_dump_%u.txt", GetTickCount());
 				_dump = fopen(fn, "w");
 				_ASSERT(_dump);
+
+				for( int i = 0; i < Level::GetTypeCount(); ++i )
+				{
+					ObjectType type = GetTypeByIndex(i);
+					fprintf(_dump, "%d - %s\n", type, Level::GetTypeInfoByIndex(i).name);
+				}
 			}
 			++_frame;
 			fprintf(_dump, "\n### frame %04d ###\n", _frame);
@@ -1215,7 +1221,7 @@ void Level::TimeStep(float dt)
 					{
 						dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
 						dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
-						fprintf(_dump, "obj 0x%08x -> local 0x%08x, global 0x%08x\n", pTS_Obj, tmp_cs, dwCheckSum);
+						fprintf(_dump, "type %03d obj 0x%08x -> local 0x%08x, global 0x%08x\n", pTS_Obj->GetType(), pTS_Obj, tmp_cs, dwCheckSum);
 					}
 					#endif
 

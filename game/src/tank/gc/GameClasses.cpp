@@ -485,12 +485,10 @@ void GC_Explosion::Boom(float radius, float damage)
 	bool bNeedClean = false;
 	for( it = receive.begin(); it != receive.end(); ++it )
 	{
-		ObjectList::iterator cdit = (*it)->begin();
-		while(cdit != (*it)->end())
+		for( ObjectList::safe_iterator cdit = (*it)->safe_begin(); cdit != (*it)->end(); ++cdit )
 		{
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
-			++cdit;
-			if( pDamObject->IsKilled() ) continue;
+			if( pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) ) continue;
 
 			vec2d dir = pDamObject->GetPos() - GetPos();
 			float d = dir.len();

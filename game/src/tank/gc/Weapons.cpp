@@ -1484,8 +1484,6 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 	if( IsAttached() )
 	{
 		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
-		float va = veh ? veh->GetVisual()->GetSpriteRotation() : GetOwner()->GetSpriteRotation();
-
 		if( _bFire )
 		{
 			_timeRotate += dt;
@@ -1505,7 +1503,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
-				vec2d a(va + _angleReal + g_level->net_frand(da * 2.0f) - da);
+				vec2d a(veh->_angle + _angleReal + g_level->net_frand(da * 2.0f) - da);
 				a *= (1 - g_level->net_frand(0.2f));
 
 				if( veh && !_advanced )
@@ -1529,13 +1527,13 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 			_timeFire = __max(_timeFire - dt, 0);
 		}
 
+		float va = veh ? veh->GetVisual()->GetSpriteRotation() : GetOwner()->GetSpriteRotation();
 		float da = _timeFire * 0.1f / WEAP_MG_TIME_RELAX;
 		if( _crosshair )
 		{
 			_crosshair->_angle = va + da + _angleReal;
 			_crosshair->MoveTo(GetPosPredicted() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
 		}
-
 		if( _crosshairLeft )
 		{
 			_crosshairLeft->_angle = va - da + _angleReal;
