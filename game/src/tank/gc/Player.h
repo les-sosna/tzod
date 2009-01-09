@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Service.h"
+#include "Vehicle.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -101,6 +102,7 @@ class GC_PlayerLocal : public GC_Player
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
 	string_t _profile;
+	std::deque<VehicleState> _stateHistory;
 
 
 	//

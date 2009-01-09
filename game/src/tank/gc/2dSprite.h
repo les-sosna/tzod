@@ -84,19 +84,19 @@ public:
 
 	virtual void MoveTo(const vec2d &pos);
 
-	inline void SetRotation(float a) { _rotation = a; }
+	inline void SetSpriteRotation(float a) { _rotation = a; }
 	inline void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
 	inline void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
 	inline void SetColor(BYTE r, BYTE g, BYTE b) { _color.r=r; _color.g=g; _color.b=b; }
 
-	inline float GetRotation() const { return _rotation; }
+	inline float GetSpriteRotation() const { return _rotation; }
 
 
-	void SetShadow(bool bEnable)
+	inline void SetShadow(bool bEnable)
 	{
 		bEnable?SetFlags(GC_FLAG_2DSPRITE_DROPSHADOW):ClearFlags(GC_FLAG_2DSPRITE_DROPSHADOW);
 	}
-	bool GetShadow() const
+	inline bool GetShadow() const
 	{
 		return CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW);
 	}

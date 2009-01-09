@@ -119,13 +119,14 @@ public:
 	GC_IndicatorBar(const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 
-	virtual void Kill();
+	void OnParentKill(GC_Object *sender, void *param);
+	void OnUpdateValue(GC_Object *sender, void *param);
+	void OnUpdatePosition(GC_Object *sender, void *param);
 
+	// GC_Object
+	virtual void Kill();
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
-
-	void OnParentKill(GC_Object *sender, void *param);
-	void OnUpdate(GC_Object *sender, void *param);
 
 public:
 	void SetInverse(bool bInverse) { _bInverse = bInverse; };
@@ -133,6 +134,8 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+class GC_VehicleVisualDummy;
 
 class GC_DamLabel : public GC_2dSprite
 {
@@ -143,13 +146,10 @@ private:
 	float _time;
 	float _time_life;
 
-	SafePtr<GC_Vehicle> _vehicle;
-
 public:
-	GC_DamLabel(GC_Vehicle *veh);
+	GC_DamLabel(GC_VehicleVisualDummy *parent);
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
-	virtual void Kill();
 
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);

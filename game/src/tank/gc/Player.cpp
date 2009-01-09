@@ -243,7 +243,7 @@ void GC_Player::TimeStepFixed(float dt)
 				_vehicle->SetName(_vehname.c_str());
 			}
 
-			_vehicle->SetBodyAngle(pBestPoint->GetRotation());
+			_vehicle->SetBodyAngle(pBestPoint->GetSpriteRotation());
 			_vehicle->SetPlayer(WrapRawPtr(this));
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this,
@@ -510,13 +510,43 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 
 		if( g_client )
 		{
+			VehicleState vs1;
+			cp.fromvs(vs);
+			cp.tovs(vs1);
+
+			_stateHistory.push_back(vs1);
+			while( (signed) _stateHistory.size() > g_conf->sv_latency->GetInt()+1 )
+			{
+				_stateHistory.pop_front();
+			}
+
+			GetVehicle()->GetVisual()->Sync(GetVehicle());
+			GetVehicle()->GetVisual()->ClearFlags(GC_FLAG_VEHICLEDUMMY_TRACKS);
+			GC_RigidBodyDynamic::PushState();
+			for( std::deque<VehicleState>::const_iterator it = _stateHistory.begin(); it != _stateHistory.end(); ++it )
+			{
+				std::deque<VehicleState>::const_iterator it1(it);
+				if( ++it1 == _stateHistory.end() )
+					GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS);
+				GetVehicle()->SetPredictedState(*it);
+				GetVehicle()->GetVisual()->TimeStepFixed(dt);
+				GC_RigidBodyDynamic::ProcessResponse(dt);
+			}
+			GC_RigidBodyDynamic::PopState();
+
+
 			cp.fromvs(vs);
 			g_client->SendControl(cp);
 			cp = g_level->GetControlPacket();
 			cp.tovs(vs);
-		}
 
-		GetVehicle()->SetState(vs);
+			GetVehicle()->SetState(vs);
+		}
+		else
+		{
+			GetVehicle()->SetState(vs);
+			GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
+		}
 	}
 }
 
@@ -662,7 +692,7 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 		{
 			float a = (pt - GetVehicle()->GetPos()).Angle();
 			vs._bExplicitTower = true;
-			vs._fTowerAngle = a - GetVehicle()->GetRotation();
+			vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation();
 		}
 	}
 	else
@@ -726,7 +756,6 @@ void GC_PlayerLocal::MyPropertySet::MyExchange(bool applyToObject)
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerRemote)
@@ -769,6 +798,9 @@ void GC_PlayerRemote::TimeStepFixed(float dt)
 		VehicleState vs;
 		cp.tovs(vs);
 		GetVehicle()->SetState(vs);
+		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
+	//	GetVehicle()->SetPredictedState(vs);
+	//	GetVehicle()->GetVisual()->TimeStepFixed(dt);
 	}
 }
 

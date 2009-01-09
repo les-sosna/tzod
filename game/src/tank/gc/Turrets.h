@@ -64,7 +64,7 @@ protected:
 	virtual void mapExchange(MapFile &f);
 
 public:
-	GC_Turret(float x, float y);
+	GC_Turret(float x, float y, const char *tex);
 	GC_Turret(FromFile);
 
 	virtual void Kill();
@@ -156,7 +156,7 @@ public:
 	float _time_wake_max;
 
 public:
-	GC_TurretBunker(float x, float y);
+	GC_TurretBunker(float x, float y, const char *tex);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
 

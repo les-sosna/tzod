@@ -101,7 +101,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 	_velocity = v;
 
 	SetTexture(texture);
-	SetRotation(orient);
+	SetSpriteRotation(orient);
 
 	MoveTo(pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
@@ -139,7 +139,7 @@ void GC_Particle::TimeStepFloat(float dt)
 		SetOpacity(1.0f - _time / _timeLife);
 
 	if( _rotationSpeed )
-		SetRotation(GetRotation() + _rotationSpeed * dt);
+		SetSpriteRotation(GetSpriteRotation() + _rotationSpeed * dt);
 
 	MoveTo( GetPos() + _velocity * dt );
 }

@@ -11,6 +11,8 @@
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
 
+#include "core/debug.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,22 +58,22 @@ void GC_SpawnPoint::Draw()
 
 void GC_SpawnPoint::EditorAction()
 {
-	float rotation = GetRotation();
+	float rotation = GetSpriteRotation();
 	rotation += PI/3;
 	rotation -= fmodf(rotation, PI/4);
-	SetRotation(rotation);
+	SetSpriteRotation(rotation);
 }
 
 void GC_SpawnPoint::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 
-	float dir = GetRotation();
+	float dir = GetSpriteRotation();
 
 	MAP_EXCHANGE_FLOAT(dir, dir, 0);
 	MAP_EXCHANGE_INT(team, _team, 0);
 
-	SetRotation(dir);
+	SetSpriteRotation(dir);
 
 	if( _team > MAX_TEAMS-1 )
 		_team = MAX_TEAMS-1;
@@ -121,12 +123,12 @@ void GC_SpawnPoint::MyPropertySet::MyExchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_team = _propTeam.GetIntValue();
-		tmp->SetRotation(_propDir.GetFloatValue());
+		tmp->SetSpriteRotation(_propDir.GetFloatValue());
 	}
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
-		_propDir.SetFloatValue(fmodf(tmp->GetRotation(), PI2));
+		_propDir.SetFloatValue(fmodf(tmp->GetSpriteRotation(), PI2));
 	}
 }
 
@@ -209,10 +211,10 @@ void GC_Crosshair::TimeStepFloat(float dt)
 	switch (_chStyle)
 	{
 	case CHS_SINGLE:
-		SetRotation(_time*5);
+		SetSpriteRotation(_time*5);
 		break;
 	case CHS_DOUBLE:
-		SetRotation(_angle);
+		SetSpriteRotation(_angle);
 		break;
 	default:
 		_ASSERT(FALSE);
@@ -245,13 +247,20 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	SetInverse(false);
 
 	_object = WrapRawPtr(object);
-	///////////////////////
+
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);
-	_object->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
 	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this,
-		(NOTIFYPROC) &GC_IndicatorBar::OnUpdate, false, true);
+		(NOTIFYPROC) &GC_IndicatorBar::OnUpdateValue, false, true);
+
+	GC_2dSprite *sprite = object;
+	if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(object) )
+	{
+		sprite = veh->GetVisual();
+	}
+	sprite->Subscribe(NOTIFY_ACTOR_MOVE, this,
+		(NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition, false, true);
+	OnUpdatePosition(sprite, NULL);
 }
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
@@ -289,7 +298,31 @@ GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION loc
 	return NULL;
 }
 
-void GC_IndicatorBar::OnUpdate(GC_Object *sender, void *param)
+void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
+{
+	ASSERT_TYPE(sender, GC_2dSprite);
+	GC_2dSprite *sprite = static_cast<GC_2dSprite *>(sender);
+
+	vec2d pos = sprite->GetPosPredicted();
+	float top = pos.y - sprite->GetPivot().y;
+
+	switch( _location )
+	{
+	case LOCATION_TOP:
+		MoveTo( vec2d(pos.x - _initial_width / 2.0f,
+			__max(top - GetSpriteHeight(), 0)) );
+		break;
+	case LOCATION_BOTTOM:
+		MoveTo( vec2d(pos.x - _initial_width / 2.0f,
+			__min(top + sprite->GetSpriteHeight() + GetSpriteHeight(),
+			g_level->_sy - GetSpriteHeight()*2)) );
+		break;
+	default:
+		_ASSERT(FALSE);
+	}
+}
+
+void GC_IndicatorBar::OnUpdateValue(GC_Object *sender, void *param)
 {
 	_ASSERT(sender == _object);
 	_ASSERT(_object != NULL);
@@ -317,31 +350,6 @@ void GC_IndicatorBar::OnUpdate(GC_Object *sender, void *param)
 		ModifyFrameBounds(&rt);
 		Resize(_initial_width * rt.right, GetSpriteHeight());
 
-
-		//
-		// update position
-		//
-
-		const GC_2dSprite *sprite = static_cast<GC_2dSprite*>(sender);
-
-		FRECT frame;
-		sprite->GetGlobalRect(frame);
-
-		switch( _location )
-		{
-		case LOCATION_TOP:
-			MoveTo( vec2d(sprite->GetPos().x - _initial_width / 2.0f,
-				__max(frame.top - GetSpriteHeight(), 0)) );
-			break;
-		case LOCATION_BOTTOM:
-			MoveTo( vec2d(sprite->GetPos().x - _initial_width / 2.0f,
-				__min(frame.bottom + GetSpriteHeight(),
-				g_level->_sy - GetSpriteHeight()*2)) );
-			break;
-		default:
-			_ASSERT(FALSE);
-		}
-
 		Show(true);
 	}
 	else
@@ -362,15 +370,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-GC_DamLabel::GC_DamLabel(GC_Vehicle *veh)
+GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
   : GC_2dSprite()
-  , _vehicle(veh)
 {
 	SetTexture("indicator_damage");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 	SetZ(Z_VEHICLE_LABEL);
 
-	_vehicle->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
+	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
 
 	_time = 0;
 	_time_life = 0.4f;
@@ -393,27 +400,17 @@ void GC_DamLabel::Serialize(SaveFile &f)
 	f.Serialize(_rot);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
-	f.Serialize(_vehicle);
-}
-
-void GC_DamLabel::Kill()
-{
-	_vehicle = NULL;
-	GC_2dSprite::Kill();
 }
 
 void GC_DamLabel::TimeStepFloat(float dt)
 {
 	GC_2dSprite::TimeStepFloat(dt);
 
-	_ASSERT(_vehicle && !_vehicle->IsKilled());
-
 	_time += dt;
-	SetRotation(_rot + _time * 2.0f);
+	SetSpriteRotation(_rot + _time * 2.0f);
 
 	if( _time >= _time_life )
 	{
-		_vehicle->_damLabel = NULL;
 		Kill();
 	}
 	else

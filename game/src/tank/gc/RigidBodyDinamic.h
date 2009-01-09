@@ -1,5 +1,7 @@
 // RigidBodyDinamic.h
 
+#pragma once
+
 #include "RigidBody.h"
 
 
@@ -24,6 +26,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 
 	typedef std::vector<Contact> ContactList;
 	static ContactList _contacts;
+	static std::stack<ContactList> _contactsStack;
 	static bool _glob_parity;
 
 	bool Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal);
@@ -40,7 +43,6 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 	float _external_momentum;
 	vec2d _external_impulse;
 	float _external_torque;
-
 
 
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -76,8 +78,11 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 	static void ProcessResponse(float dt);
+	static void PushState();
+	static void PopState();
 
 	float Energy() const;
+	void Sync(GC_RigidBodyDynamic *src);
 
 
 	float _av;      // angular velocity
@@ -109,7 +114,7 @@ public:
 	void ApplyImpulse(const vec2d &impulse);
 	void ApplyImpulse(const vec2d &impulse, const vec2d &origin);
 
-	void SetBodyAngle(float a);
+	virtual void SetBodyAngle(float a);
 
 
 	//--------------------------------
@@ -144,6 +149,10 @@ public:
 		return GC_RigidBodyStatic::checksum() ^ cs;
 	}
 #endif
+
+
+protected:
+	virtual bool Ignore(GC_RigidBodyStatic *test) const { return false; }
 
 };
 

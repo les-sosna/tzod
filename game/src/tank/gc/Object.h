@@ -277,7 +277,7 @@ private:
 	std::list<Notify> _notifyList;          // извещения, рассылаемые данным объектом
 	int  _notifyProtectCount;               // счетчик блокировки удаления из списка _notifyList
 
-protected:
+public:
 	void SetFlags(DWORD flags)
 	{
 		_flags |= flags;
@@ -290,7 +290,6 @@ protected:
 	{
 		_flags &= ~flags;
 	}
-
 	// return true if one of the flags is set
 	bool CheckFlags(DWORD flags) const
 	{
@@ -304,6 +303,7 @@ protected:
 
 public:
 	bool IsKilled() const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
+
 
 
 	//

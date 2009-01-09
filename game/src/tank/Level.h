@@ -167,6 +167,8 @@ public:
 
 #ifdef NETWORK_DEBUG
 	DWORD _checksum;
+	int _frame;
+	FILE *_dump;
 #endif
 
 	ObjectList& GetList(GlobalListID id) { return _objectLists[id]; }

@@ -229,7 +229,7 @@ GC_Line::GC_Line(const vec2d &begin, const vec2d &end, const char *texture)
 
 	SetGridSet(false);
 
-	SetRotation((end-begin).Angle());
+	SetSpriteRotation((end-begin).Angle());
 	SetTexture(texture);
 	_sprite_width = GetSpriteWidth();
 
@@ -282,7 +282,7 @@ void GC_Line::MoveTo(const vec2d &begin, const vec2d &end)
 {
 	_begin = begin;
 	_end   = end;
-	SetRotation((end-begin).Angle());
+	SetSpriteRotation((end-begin).Angle());
 	SetPhase(_phase);
 }
 
@@ -305,7 +305,7 @@ GC_Explosion::GC_Explosion(SafePtr<GC_RigidBodyStatic> &owner)
   , _boomOK(false)
 {
 	SetZ(Z_EXPLODE);
-	SetRotation(frand(PI2));
+	SetSpriteRotation(frand(PI2));
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
@@ -523,7 +523,10 @@ void GC_Explosion::Boom(float radius, float damage)
 							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
 					}
-					pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
+					if( !pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
+					{
+						pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
+					}
 				}
 			}
 		}

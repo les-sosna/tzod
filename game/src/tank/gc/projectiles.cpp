@@ -44,7 +44,7 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 	_hitImpulse  = 0;
 
 
-	SetRotation( v.Angle() );
+	SetSpriteRotation( v.Angle() );
 
 	SetTexture(texture);
 	MoveTo(pos, FALSE);
@@ -424,7 +424,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 				dv *= WEAP_RL_HOMMING_FACTOR;
 
 				_velocity += dv * dt /* + vi * dt * WEAP_RL_HOMMING_FACTOR*/;
-				SetRotation( _velocity.Angle() );
+				SetSpriteRotation( _velocity.Angle() );
 			}
 		}
 	}
@@ -566,7 +566,7 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 		pLight->SetIntensity(1.5f);
 		pLight->SetTimeout(0.3f);
 
-		(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetRotation(frand(PI2));
+		(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetSpriteRotation(frand(PI2));
 		PLAY(SND_BoomBullet, hit);
 	}
 
@@ -641,7 +641,7 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	pLight->SetTimeout(0.4f);
 
 
-	(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetRotation(frand(PI2));
+	(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetSpriteRotation(frand(PI2));
 	PLAY(SND_PlazmaHit, hit);
 
 	return true;
@@ -954,7 +954,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 
 	_light->SetRadius(3*R);
 
-	SetRotation(GetRotation() + _rotation * dt);
+	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
 	Resize(R, R);
 	CenterPivot();
 
@@ -1142,7 +1142,7 @@ bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 {
 	static const TextureCache tex("particle_gausshit");
 	(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, norm.Angle() + PI*0.5f))->SetFade(true);;
-	SetHitDamage(GetHitDamage() - GetAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE);
+	SetHitDamage(GetHitDamage() - (GetAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE));
 	SetHitImpulse(GetHitDamage() / DAMAGE_GAUSS * 100);
 	return (0 >= GetHitDamage());
 }
@@ -1168,7 +1168,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	SetHitImpulse(GetHitDamage() / DAMAGE_DISK_MAX * 20);
 	SetTrailDensity(5.0f);
 	_light->Activate(false);
-	SetRotation(frand(PI2));
+	SetSpriteRotation(frand(PI2));
 }
 
 GC_Disk::GC_Disk(FromFile)
@@ -1215,7 +1215,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 			)->SetIgnoreOwner(false);
 		}
 
-		(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetRotation(frand(PI2));
+		(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetSpriteRotation(frand(PI2));
 
 		GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
 		pLight->MoveTo(hit);
@@ -1278,7 +1278,7 @@ float GC_Disk::FilterDamage(float damage, GC_RigidBodyStatic *object)
 
 void GC_Disk::TimeStepFixed(float dt)
 {
-	SetRotation( GetRotation() + dt * 10.0f );
+	SetSpriteRotation( GetSpriteRotation() + dt * 10.0f );
 	GC_Projectile::TimeStepFixed(dt);
 }
 

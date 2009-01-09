@@ -400,8 +400,8 @@ bool TankServer::TrySendFrame()
 						TRACE("sv: sync error detected!\n");
 						char buf[128];
 						wsprintf(buf, "sync error: 0x%x 0x%x", tmp, chsum);
-						MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
-						ExitProcess(-1);
+					//	MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
+					//	ExitProcess(-1);
 					}
 				}
 				#endif

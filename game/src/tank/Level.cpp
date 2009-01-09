@@ -252,6 +252,8 @@ Level::Level()
   , _serviceListener(NULL)
 #ifdef NETWORK_DEBUG
   , _checksum(0)
+  , _frame(0)
+  , _dump(NULL)
 #endif
 {
 	TRACE("Constructing the level\n");
@@ -332,6 +334,12 @@ void Level::Clear()
 	_gameType = -1;
 #ifdef NETWORK_DEBUG
 	_checksum = 0;
+	_frame = 0;
+	if( _dump )
+	{
+		fclose(_dump);
+		_dump = NULL;
+	}
 #endif
 
 	_cmdQueue.c.clear();
@@ -979,7 +987,8 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 				for( ObjectList::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
-					if( object->GetTrace0() || ignore == object || object->IsKilled() )
+					if( object->GetTrace0() || ignore == object
+						|| object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
 					{
 						continue;
 					}
@@ -1177,6 +1186,15 @@ void Level::TimeStep(float dt)
 
 			#ifdef NETWORK_DEBUG
 			DWORD dwCheckSum = 0, tmp_cs;
+			if( !_dump )
+			{
+				char fn[MAX_PATH];
+				sprintf_s(fn, "network_dump_%u.txt", GetTickCount());
+				_dump = fopen(fn, "w");
+				_ASSERT(_dump);
+			}
+			++_frame;
+			fprintf(_dump, "\n### frame %04d ###\n", _frame);
 			#endif
 
 
@@ -1197,6 +1215,7 @@ void Level::TimeStep(float dt)
 					{
 						dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
 						dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+						fprintf(_dump, "obj 0x%08x -> local 0x%08x, global 0x%08x\n", pTS_Obj, tmp_cs, dwCheckSum);
 					}
 					#endif
 
@@ -1210,6 +1229,7 @@ void Level::TimeStep(float dt)
 
 #ifdef NETWORK_DEBUG
 			_checksum = dwCheckSum;
+			fflush(_dump);
 #endif
 
 		//	NetworkStats ns;

@@ -35,13 +35,13 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 protected:
-	bool _advanced; // weapon has booster attached
 
 	SafePtr<GC_UserSprite> _fireEffect;
 	SafePtr<GC_Light>      _fireLight;
 	vec2d _fePos;
 	float _feTime;
 	float _feOrient;
+	bool _advanced; // weapon has booster attached
 
 	virtual void UpdateView();
 
@@ -56,7 +56,7 @@ public:
 	float _timeStay;
 	float _timeReload;
 
-	float    _angle;          // угол поворота относительно платформы
+	float    _angleReal;          // note that sprite rotation is predicted angle
 	Rotator  _rotator;
 
 	SafePtr<GC_Crosshair> _crosshair;
@@ -215,7 +215,7 @@ public:
 	float _fuel_max;
 	float _fuel_rate;  // расход топлива в сек.
 	float _fuel_rep;   // восстановление топлива в сек.
-	bool _bFire;
+	int _firingCounter;
 	bool _bReady;
 
 public:
@@ -234,6 +234,7 @@ public:
 	virtual void Fire();
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFloat(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

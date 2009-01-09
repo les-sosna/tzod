@@ -29,27 +29,27 @@
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Vehicle::GC_Vehicle(float x, float y)
-  : GC_RigidBodyDynamic()
-  , _memberOf(this)
-//  , _rotator(_dir1)
+IMPLEMENT_SELF_REGISTRATION(GC_VehicleVisualDummy)
 {
+	return true;
+}
 
+GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
+  : GC_VehicleBase()
+  , _time_smoke(0)
+  , _trackDensity(8)
+  , _trackPathL(0)
+  , _trackPathR(0)
+  , _parent(parent)
+{
+	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS);
 	SetZ(Z_VEHICLES);
+	SetShadow(true);
 
-	_enginePower = 0;
-	_rotatePower = 0;
-	_maxRotSpeed = 0;
-	_maxLinSpeed = 0;
-
-	_time_smoke   = 0;
-
-	ZeroMemory(&_state, sizeof(_state));
-
-	_radius = 0;
+	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this,
+		(NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent, false);
 
 	_light_ambient = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_light_ambient->SetIntensity(0.8f);
@@ -70,22 +70,340 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 	_light1->SetAspect(0.4f);
 	_light2->SetAspect(0.4f);
 
+	// time step fixed is called by player
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING /*| GC_FLAG_OBJECT_EVENTS_TS_FIXED*/);
+
+	MoveTo(_parent->GetPos());
 	UpdateLight();
+}
 
-	_trackDensity = 8;
-	_trackPathL   = 0;
-	_trackPathR   = 0;
+GC_VehicleVisualDummy::GC_VehicleVisualDummy(FromFile)
+  : GC_VehicleBase(FromFile())
+{
+}
 
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-	SetShadow(true);
+GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
+{
+}
+
+bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+{
+	_ASSERT(false);
+	return false;
+}
+
+void GC_VehicleVisualDummy::Kill()
+{
+	SAFE_KILL(_damLabel);
+	SAFE_KILL(_moveSound);
+	SAFE_KILL(_light_ambient);
+	SAFE_KILL(_light1);
+	SAFE_KILL(_light2);
+	_parent = NULL;
+	__super::Kill();
+}
+
+void GC_VehicleVisualDummy::Serialize(SaveFile &f)
+{
+	__super::Serialize(f);
+
+	f.Serialize(_time_smoke);
+	f.Serialize(_trackDensity);
+	f.Serialize(_trackPathL);
+	f.Serialize(_trackPathR);
+	f.Serialize(_damLabel);
+	f.Serialize(_light_ambient);
+	f.Serialize(_light1);
+	f.Serialize(_light2);
+	f.Serialize(_moveSound);
+	f.Serialize(_parent);
+}
+
+void GC_VehicleVisualDummy::TimeStepFixed(float dt)
+{
+	static const TextureCache track("cat_track");
+
+	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
+	{
+		_moveSound->MoveTo(GetPos());
+		float v = _lv.len() / _parent->GetMaxSpeed();
+		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * v));
+		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * v));
+	}
+
+
+	//
+	// remember position
+	//
+
+	vec2d trackTmp(_angle+PI/2);
+	vec2d trackL = GetPos() + trackTmp*15;
+	vec2d trackR = GetPos() - trackTmp*15;
+
+
+	// move
+	GC_VehicleBase::TimeStepFixed( dt );
+	_ASSERT(!IsKilled());
+
+	ApplyState(_parent->GetPredictedState());
+
+
+	//
+	// caterpillar tracks
+	//
+
+	if( g_conf->g_particles->Get() && CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
+	{
+		vec2d tmp(_angle+PI/2);
+		vec2d trackL_new = GetPos() + tmp*15;
+		vec2d trackR_new = GetPos() - tmp*15;
+
+		vec2d e = trackL_new - trackL;
+		float len = e.len();
+		e /= len;
+		while( _trackPathL < len )
+		{
+			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e.Angle());
+			p->SetZ(Z_WATER);
+			p->SetFade(true);
+			_trackPathL += _trackDensity;
+		}
+		_trackPathL -= len;
+
+		e   = trackR_new - trackR;
+		len = e.len();
+		e  /= len;
+		while( _trackPathR < len )
+		{
+			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR,
+				vec2d(0, 0), track, 12, e.Angle());
+			p->SetZ(Z_WATER);
+			p->SetFade(true);
+			_trackPathR += _trackDensity;
+		}
+		_trackPathR -= len;
+	}
+
+	UpdateLight();
+}
+
+void GC_VehicleVisualDummy::TimeStepFloat(float dt)
+{
+	static const TextureCache smoke("particle_smoke");
+
+	//
+	// spawn damage smoke
+	//
+	if( _parent->GetHealth() < (_parent->GetHealthMax() * 0.4f) )
+	{
+		_ASSERT(!_parent->IsKilled());
+		_ASSERT(_parent->GetHealth() > 0);
+		                    //    +-{ максимальное число частичек дыма в секунду }
+		_time_smoke += dt;  //    |
+		float smoke_dt = 1.0f / (60.0f * (1.0f - _parent->GetHealth() / (_parent->GetHealthMax() * 0.5f)));
+		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
+		{
+			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
+		}
+	}
+
+
+	__super::TimeStepFloat(dt);
+}
+
+void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
+{
+	_moveSound = WrapRawPtr(new GC_Sound(s, SMODE_LOOP, GetPos()));
+}
+
+void GC_VehicleVisualDummy::UpdateLight()
+{
+	_light1->MoveTo(GetPos() + vec2d(_angle + 0.6f) * 20 );
+	_light1->SetAngle(_angle + 0.2f);
+	_light1->Activate(_parent->GetPredictedState()._bLight);
+	_light2->MoveTo(GetPos() + vec2d(_angle - 0.6f) * 20 );
+	_light2->SetAngle(_angle - 0.2f);
+	_light2->Activate(_parent->GetPredictedState()._bLight);
+	_light_ambient->MoveTo(GetPos());
+	_light_ambient->Activate(_parent->GetPredictedState()._bLight);
+}
+
+void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
+{
+	if( g_conf->g_showdamage->Get() )
+	{
+		if( _damLabel )
+			_damLabel->Reset();
+		else
+		{
+			_damLabel = WrapRawPtr(new GC_DamLabel(this));
+			_damLabel->Subscribe(NOTIFY_OBJECT_KILL, this, 
+				(NOTIFYPROC) &GC_VehicleVisualDummy::OnDamLabelDisappear);
+		}
+	}
+}
+
+void GC_VehicleVisualDummy::OnDamLabelDisappear(GC_Object *sender, void *param)
+{
+	_ASSERT(_damLabel);
+	_damLabel = NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GC_VehicleBase::GC_VehicleBase()
+  : GC_RigidBodyDynamic()
+  , _enginePower(0)
+  , _rotatePower(0)
+  , _maxRotSpeed(0)
+  , _maxLinSpeed(0)
+{
+}
+
+GC_VehicleBase::GC_VehicleBase(FromFile)
+  : GC_RigidBodyDynamic(FromFile())
+{
+}
+
+GC_VehicleBase::~GC_VehicleBase()
+{
+}
+
+void GC_VehicleBase::SetClass(const VehicleClass &vc)
+{
+	float max_r = 0;
+	for( int i = 0; i < 4; i++ )
+	{
+		_vertices[i] = vc.bounds[i];
+		if( _vertices[i].len() > max_r )
+			max_r = _vertices[i].len();
+	}
+
+	_radius = max_r;
+
+
+	_inv_m  = 1.0f / vc.m;
+	_inv_i  = 1.0f / vc.i;
+
+	_Nx     = vc._Nx;
+	_Ny     = vc._Ny;
+	_Nw     = vc._Nw;
+
+	_Mx     = vc._Mx;
+	_My     = vc._My;
+	_Mw     = vc._Mw;
+
+	_percussion = vc.percussion;
+	_fragility  = vc.fragility;
+
+	_enginePower = vc.enginePower;
+	_rotatePower = vc.rotatePower;
+
+	_maxLinSpeed = vc.maxLinSpeed;
+	_maxRotSpeed = vc.maxRotSpeed;
+
+	SetMaxHP(vc.health);
+}
+
+void GC_VehicleBase::SetMaxHP(float hp)
+{
+	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
+}
+
+void GC_VehicleBase::Serialize(SaveFile &f)
+{
+	GC_RigidBodyDynamic::Serialize(f);
+
+	f.Serialize(_enginePower);
+	f.Serialize(_rotatePower);
+	f.Serialize(_maxRotSpeed);
+	f.Serialize(_maxLinSpeed);
+}
+
+void GC_VehicleBase::ApplyState(const VehicleState &vs)
+{
+	//
+	// adjust speed
+	//
+
+	if( vs._bState_MoveForward )
+	{
+		ApplyForce(_direction * _enginePower);
+	}
+	else
+	if( vs._bState_MoveBack )
+	{
+		ApplyForce(-_direction * _enginePower);
+	}
+
+
+	if( vs._bExplicitBody )
+	{
+		//
+		// выбираем направление
+		//
+
+		float target = fmodf(vs._fBodyAngle, PI2);
+		float current = fmodf(_angle + GetSpinup(), PI2);
+		if( current < 0 ) current += PI2;
+
+		float xt1 = target - PI2;
+		float xt2 = target + PI2;
+
+
+		if( fabsf(current - xt1) < fabsf(current - xt2) &&
+			fabsf(current - xt1) < fabsf(current - target) )
+		{
+			ApplyMomentum( -_rotatePower / _inv_i );
+		}
+		else
+		if( fabsf(current - xt2) < fabsf(current - xt1) &&
+			fabsf(current - xt2) < fabsf(current - target) )
+		{
+			ApplyMomentum(  _rotatePower / _inv_i );
+		}
+		else
+		{
+			if( target > current )
+			{
+				ApplyMomentum(  _rotatePower / _inv_i );
+			}
+			else
+			{
+				ApplyMomentum( -_rotatePower / _inv_i );
+			}
+		}
+	}
+	else
+	{
+		if( vs._bState_RotateLeft && -_av < _maxRotSpeed )
+			ApplyMomentum( -_rotatePower / _inv_i );
+		else
+		if( vs._bState_RotateRight && _av < _maxRotSpeed )
+			ApplyMomentum(  _rotatePower / _inv_i );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GC_Vehicle::GC_Vehicle(float x, float y)
+  : GC_VehicleBase()
+  , _memberOf(this)
+{
+	ZeroMemory(&_stateReal, sizeof(VehicleState));
+
+	_radius = 0;
 
 	MoveTo(vec2d(x, y));
+
+	_visual = WrapRawPtr(new GC_VehicleVisualDummy(this));
+
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
-  : GC_RigidBodyDynamic(FromFile())
+  : GC_VehicleBase(FromFile())
   , _memberOf(this)
-//  , _rotator(_dir1)
 {
 }
 
@@ -133,35 +451,20 @@ void GC_Vehicle::SetPlayer(SafePtr<GC_Player> &player)
 
 void GC_Vehicle::Serialize(SaveFile &f)
 {
-	GC_RigidBodyDynamic::Serialize(f);
+	GC_VehicleBase::Serialize(f);
 
-	f.Serialize(_enginePower);
-	f.Serialize(_rotatePower);
-	f.Serialize(_maxRotSpeed);
-	f.Serialize(_maxLinSpeed);
-	f.Serialize(_state);
-	f.Serialize(_time_smoke);
-	f.Serialize(_trackDensity);
-	f.Serialize(_trackPathL);
-	f.Serialize(_trackPathR);
-	f.Serialize(_damLabel);
-	f.Serialize(_light_ambient);
-	f.Serialize(_light1);
-	f.Serialize(_light2);
-	f.Serialize(_moveSound);
+	f.Serialize(_stateReal);
+	f.Serialize(_statePredicted);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
+	f.Serialize(_visual);
 }
 
 void GC_Vehicle::Kill()
 {
 	// _player освобождается в деструкторе
 
-	SAFE_KILL(_damLabel);
-	SAFE_KILL(_moveSound);
-	SAFE_KILL(_light_ambient);
-	SAFE_KILL(_light1);
-	SAFE_KILL(_light2);
+	SAFE_KILL(_visual);
 
 	if( _weapon )
 	{
@@ -169,12 +472,17 @@ void GC_Vehicle::Kill()
 		_weapon->Detach();
 	}
 
-	GC_RigidBodyDynamic::Kill();
+	GC_VehicleBase::Kill();
+}
+
+const vec2d& GC_Vehicle::GetPosPredicted() const
+{
+	return _visual->GetPos();
 }
 
 void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 {
-	GC_RigidBodyDynamic::OnPickup(pickup, attached);
+	GC_VehicleBase::OnPickup(pickup, attached);
 	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
 	{
 		if( attached )
@@ -216,6 +524,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			}
 
 			SetClass(vc);
+			_visual->SetClass(vc);
 		}
 		else
 		{
@@ -229,51 +538,26 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 
 void GC_Vehicle::SetState(const VehicleState &vs)
 {
-	memcpy( &_state, &vs, sizeof(VehicleState) );
+	_stateReal = vs;
+}
+
+void GC_Vehicle::SetPredictedState(const VehicleState &vs)
+{
+	_statePredicted = vs;
+}
+
+void GC_Vehicle::SetBodyAngle(float a)
+{
+	__super::SetBodyAngle(a);
+	_visual->SetBodyAngle(a);
 }
 
 void GC_Vehicle::SetSkin(const string_t &skin)
 {
 	string_t tmp = "skin/";
 	tmp += skin;
-	SetTexture(tmp.c_str());
-	CenterPivot();
-}
-
-void GC_Vehicle::SetClass(const VehicleClass &vc)
-{
-	float max_r = 0;
-	for( int i = 0; i < 4; i++ )
-	{
-		_vertices[i] = vc.bounds[i];
-		if( _vertices[i].len() > max_r )
-			max_r = _vertices[i].len();
-	}
-
-	_radius = max_r;
-
-
-	_inv_m  = 1.0f / vc.m;
-	_inv_i  = 1.0f / vc.i;
-
-	_Nx     = vc._Nx;
-	_Ny     = vc._Ny;
-	_Nw     = vc._Nw;
-
-	_Mx     = vc._Mx;
-	_My     = vc._My;
-	_Mw     = vc._Mw;
-
-	_percussion = vc.percussion;
-	_fragility  = vc.fragility;
-
-	_enginePower = vc.enginePower;
-	_rotatePower = vc.rotatePower;
-
-	_maxLinSpeed = vc.maxLinSpeed;
-	_maxRotSpeed = vc.maxRotSpeed;
-
-	SetMaxHP(vc.health);
+	_visual->SetTexture(tmp.c_str());
+	_visual->CenterPivot();
 }
 
 void GC_Vehicle::ResetClass()
@@ -302,6 +586,8 @@ void GC_Vehicle::ResetClass()
 	}
 
 	SetClass(vc);
+	if( _visual )
+		_visual->SetClass(vc);
 }
 
 bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
@@ -320,14 +606,6 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	}
 
 	SetHealthCur(GetHealth() - dd.damage);
-
-	if( g_conf->g_showdamage->Get() )
-	{
-		if( _damLabel )
-			_damLabel->Reset();
-		else
-			_damLabel = WrapRawPtr(new GC_DamLabel(this));
-	}
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
@@ -416,165 +694,30 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	return false;
 }
 
-void GC_Vehicle::SetMaxHP(float hp)
-{
-	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
-}
 
 void GC_Vehicle::TimeStepFixed(float dt)
 {
-	static const TextureCache smoke("particle_smoke");
-	static const TextureCache track("cat_track");
-
-
-	//
-	// запоминаем положение гусениц
-	//
-
-	vec2d trackTmp(_angle+PI/2);
-	vec2d trackL = GetPos() + trackTmp*15;
-	vec2d trackR = GetPos() - trackTmp*15;
-
-
-
-	//
-	// spawn damage smoke
-	//
-	if( GetHealth() < (GetHealthMax() * 0.4f) )
-	{
-		_ASSERT(GetHealth() > 0);
-		                    //    +-{ максимальное число частичек дыма в секунду }
-		_time_smoke += dt;  //    |
-		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
-		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
-		{
-			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE,
-				smoke, 1.5f))->_time = frand(1.0f);
-		}
-	}
-
 	// move...
-	GC_RigidBodyDynamic::TimeStepFixed( dt );
+	GC_VehicleBase::TimeStepFixed( dt );
 	if( IsKilled() ) return;
 
+#ifdef _DEBUG
+	for( int i = 0; i < 4; ++i )
+	{
+		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
+	}
+#endif // _DEBUG
+
+
 	// fire...
-	if( _weapon && _state._bState_Fire )
+	if( _weapon && _stateReal._bState_Fire )
 	{
 		_weapon->Fire();
 		if( IsKilled() ) return;
 	}
 
 
-	//
-	// adjust speed
-	//
-
-	if( _state._bState_MoveForward )
-	{
-		ApplyForce(_direction * _enginePower);
-	}
-	else
-	if( _state._bState_MoveBack )
-	{
-		ApplyForce(-_direction * _enginePower);
-	}
-
-
-
-	if( _state._bExplicitBody )
-	{
-		//
-		// выбираем направление
-		//
-
-		float target = fmodf(_state._fBodyAngle, PI2);
-		float current = fmodf(_angle + GetSpinup(), PI2);
-		if( current < 0 ) current += PI2;
-
-		float xt1 = target - PI2;
-		float xt2 = target + PI2;
-
-
-		if( fabsf(current - xt1) < fabsf(current - xt2) &&
-			fabsf(current - xt1) < fabsf(current - target) )
-		{
-			ApplyMomentum( -_rotatePower / _inv_i );
-		}
-		else
-		if( fabsf(current - xt2) < fabsf(current - xt1) &&
-			fabsf(current - xt2) < fabsf(current - target) )
-		{
-			ApplyMomentum(  _rotatePower / _inv_i );
-		}
-		else
-		{
-			if( target > current )
-			{
-				ApplyMomentum(  _rotatePower / _inv_i );
-			}
-			else
-			{
-				ApplyMomentum( -_rotatePower / _inv_i );
-			}
-		}
-	}
-	else
-	{
-		if( _state._bState_RotateLeft && -_av < _maxRotSpeed )
-			ApplyMomentum( -_rotatePower / _inv_i );
-		else
-		if( _state._bState_RotateRight && _av < _maxRotSpeed )
-			ApplyMomentum(  _rotatePower / _inv_i );
-	}
-
-
-
-	UpdateLight();
-
-	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
-	{
-		_moveSound->MoveTo(GetPos());
-		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * _lv.len() / GetMaxSpeed()));
-		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * _lv.len() / GetMaxSpeed()));
-	}
-
-
-	//
-	// caterpillar tracks
-	//
-
-	if( g_conf->g_particles->Get() )
-	{
-		vec2d tmp(_angle+PI/2);
-		vec2d trackL_new = GetPos() + tmp*15;
-		vec2d trackR_new = GetPos() - tmp*15;
-
-		vec2d e = trackL_new - trackL;
-		float len = e.len();
-		e /= len;
-		while( _trackPathL < len )
-		{
-			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL,
-				vec2d(0, 0), track, 12, e.Angle());
-			p->SetZ(Z_WATER);
-			p->SetFade(true);
-			_trackPathL += _trackDensity;
-		}
-		_trackPathL -= len;
-
-		e   = trackR_new - trackR;
-		len = e.len();
-		e  /= len;
-		while( _trackPathR < len )
-		{
-			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR,
-				vec2d(0, 0), track, 12, e.Angle());
-			p->SetZ(Z_WATER);
-			p->SetFade(true);
-			_trackPathR += _trackDensity;
-		}
-		_trackPathR -= len;
-	}
+	ApplyState(_stateReal);
 
 
 	//
@@ -587,27 +730,10 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	}
 }
 
-void GC_Vehicle::UpdateLight()
-{
-	_light1->MoveTo(GetPos() + vec2d(_angle + 0.6f) * 20 );
-	_light1->SetAngle(_angle + 0.2f);
-	_light1->Activate(_state._bLight);
-	_light2->MoveTo(GetPos() + vec2d(_angle - 0.6f) * 20 );
-	_light2->SetAngle(_angle - 0.2f);
-	_light2->Activate(_state._bLight);
-	_light_ambient->MoveTo(GetPos());
-	_light_ambient->Activate(_state._bLight);
-}
-
 void GC_Vehicle::Draw()
 {
-	SetRotation(_angle);
-	GC_RigidBodyDynamic::Draw();
-}
-
-void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
-{
-	_moveSound = WrapRawPtr(new GC_Sound(s, SMODE_LOOP, GetPos()));
+	SetSpriteRotation(_angle);
+	GC_VehicleBase::Draw();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -624,7 +750,7 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 //	_MaxBackSpeed = 150;
 //	_MaxForvSpeed = 200;
 
-	SetMoveSound(SND_TankMove);
+	_visual->SetMoveSound(SND_TankMove);
 	SetSkin("red");
 
 	_vertices[0].Set( 19.0f,  18.5f);

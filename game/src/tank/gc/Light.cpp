@@ -246,17 +246,17 @@ void GC_Spotlight::Kill()
 
 void GC_Spotlight::MoveTo(const vec2d &pos)
 {
-	_light->MoveTo(pos+vec2d(GetRotation())*7);
+	_light->MoveTo(pos+vec2d(GetSpriteRotation())*7);
 	GC_2dSprite::MoveTo(pos);
 }
 
 void GC_Spotlight::EditorAction()
 {
-	float a = GetRotation();
+	float a = GetSpriteRotation();
 	a += PI2 / 16;
 	a = fmodf(a, PI2);
 
-	SetRotation(a);
+	SetSpriteRotation(a);
 	_light->SetAngle(a);
 	_light->MoveTo(GetPos()+vec2d(a)*7);
 }
@@ -265,7 +265,7 @@ void GC_Spotlight::mapExchange(MapFile &f)
 {
 	GC_2dSprite::mapExchange(f);
 
-	float a = GetRotation();
+	float a = GetSpriteRotation();
 	int active = _light->IsActive();
 
 	MAP_EXCHANGE_INT(active, active, 1);
@@ -274,7 +274,7 @@ void GC_Spotlight::mapExchange(MapFile &f)
 	if( f.loading() )
 	{
 		_light->Activate(0 != active);
-		SetRotation(a);
+		SetSpriteRotation(a);
 		_light->SetAngle(a);
 		_light->MoveTo(GetPos()+vec2d(a)*7);
 	}

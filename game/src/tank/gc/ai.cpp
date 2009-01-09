@@ -255,6 +255,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 	// send state to the vehicle
 	GetVehicle()->SetState(vs);
+	GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
 }
 
 bool GC_PlayerAI::CheckCell(const FieldCell &cell)
@@ -621,7 +622,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	_ASSERT(GetVehicle()->GetWeapon());
 
 	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _current_offset;
-	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angle;
+	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angleReal;
 	if( ang1 > PI2 ) ang1 -= PI2;
 
 
@@ -1197,7 +1198,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		vec2d min_hit, min_norm;
 		for( int i = 0; i < 3; ++i )
 		{
-			vec2d tmp = vec2d(angle[i] + GetVehicle()->GetRotation());
+			vec2d tmp = vec2d(angle[i] + GetVehicle()->GetSpriteRotation());
 
 			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
 			vec2d a  = brake * len[i];

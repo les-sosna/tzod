@@ -91,7 +91,8 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::vector<GC_RigidBodyDynamic::Contact> GC_RigidBodyDynamic::_contacts;
+GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
+std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic()
@@ -344,8 +345,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	// защита от пролетания снарядов через объект
 	//
 
-	AddRef();
+	if( !CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 	{
+		AddRef();
 		float s = sinf(da);
 		float c = cosf(da) - 1;
 		const ObjectList &ls = g_level->GetList(LIST_projectiles);
@@ -370,8 +372,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 				return;
 			}
 		}
+		Release();
 	}
-	Release();
 
 
 
@@ -381,7 +383,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 
 	_direction = vec2d(_angle);
-	SetRotation(_angle);
+	SetSpriteRotation(_angle);
 
 
 	//
@@ -465,7 +467,10 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it);
-			if( this == object ) continue;
+			if( this == object || Ignore(object) )
+			{
+				continue;
+			}
 
 //			if( object->parity() != _glob_parity )
 			{
@@ -507,6 +512,18 @@ float GC_RigidBodyDynamic::geta_d(const vec2d &n, const vec2d &c, const GC_Rigid
 		);
 }
 
+void GC_RigidBodyDynamic::PushState()
+{
+	_contactsStack.push(ContactList());
+	_contactsStack.top().swap(_contacts);
+}
+
+void GC_RigidBodyDynamic::PopState()
+{
+	_contactsStack.top().swap(_contacts);
+	_contactsStack.pop();
+}
+
 void GC_RigidBodyDynamic::ProcessResponse(float dt)
 {
 	for( int i = 0; i < 128; i++ )
@@ -517,9 +534,9 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 			float a;
 			if( it->obj2_d )
-				a = 0.65f * it->obj1_d->geta_d(it->n, it->o, it->obj2_d );
+				a = 0.65f * it->obj1_d->geta_d(it->n, it->o, it->obj2_d);
 			else
-				a = 0.65f * it->obj1_d->geta_s(it->n, it->o, it->obj2_s );
+				a = 0.65f * it->obj1_d->geta_s(it->n, it->o, it->obj2_s);
 
 			if( a >= 0 )
 			{
@@ -528,14 +545,15 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 				float nd = it->total_np/60;
 
-				if( nd > 3 )
+				bool o1 = !it->obj1_d->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM);
+				bool o2 = !it->obj2_s->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM);
+
+				if( nd > 3 && o1 && o2 )
 				{
 					if( it->obj2_d )
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion *
-							it->obj1_d->_fragility, it->o, it->obj2_d);
-						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion *
-							it->obj2_d->_fragility, it->o, it->obj1_d);
+						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, it->obj2_d);
+						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, it->obj1_d);
 					}
 					else
 					{
@@ -547,22 +565,24 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				if( it->obj1_d->IsKilled() || it->obj2_s->IsKilled() )
 					a *= 0.1f;
 
+				// phantom may not affect real objects but it may affect other fhantoms
 				vec2d delta_p = it->n * a;
-				it->obj1_d->impulse(it->o, delta_p);
-				if( it->obj2_d ) it->obj2_d->impulse(it->o, -delta_p);
+				if( !o1 && !o2 || o2 ) it->obj1_d->impulse(it->o, delta_p);
+				if( it->obj2_d && (!o1 && !o2 || o1) ) 
+					it->obj2_d->impulse(it->o, -delta_p);
 
 
 				//
 				// трение
 				//
-
+#if 0
 				const float N = 0.1f;
 
 				float maxb;
 				if( it->obj2_d )
-					maxb = 0.5f * it->obj1_d->geta_d(it->t, it->o, it->obj2_d );
+					maxb = it->obj1_d->geta_d(it->t, it->o, it->obj2_d) / 2;
 				else
-					maxb = 0.5f * it->obj1_d->geta_s(it->t, it->o, it->obj2_s );
+					maxb = it->obj1_d->geta_s(it->t, it->o, it->obj2_s) / 2;
 
 				float signb = maxb > 0 ? 1.0f : -1.0f;
 				if( (maxb = fabsf(maxb)) > 0 )
@@ -573,6 +593,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 					it->obj1_d->impulse(it->o,  delta_p);
 					if( it->obj2_d ) it->obj2_d->impulse(it->o, -delta_p);
 				}
+#endif
 			}
 		}
 	}
@@ -646,7 +667,7 @@ void GC_RigidBodyDynamic::SetBodyAngle(float a)
 {
 	_angle = a;
 	_direction = vec2d(_angle);
-	SetRotation(_angle);
+	SetSpriteRotation(_angle);
 }
 
 float GC_RigidBodyDynamic::Energy() const
@@ -655,6 +676,32 @@ float GC_RigidBodyDynamic::Energy() const
 	if( _inv_i != 0 ) e  = _av*_av / _inv_i;
 	if( _inv_m != 0 ) e += _lv.sqr() / _inv_m;
 	return e;
+}
+
+void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
+{
+//	GC_RigidBodyStatic::Sync(src);
+
+	MoveTo(src->GetPos());
+	SetBodyAngle(src->_angle);
+
+	_av = src->_av;
+	_lv = src->_lv;
+	_inv_m = _inv_m;
+	_inv_i = _inv_i;
+	_angle = _angle;
+	_Nx = src->_Nx;
+	_Ny = src->_Ny;
+	_Nw = src->_Nw;
+	_Mx = src->_Mx;
+	_My = src->_My;
+	_Mw = src->_Mw;
+	_percussion = 0;//src->_percussion;
+	_fragility = 0;//src->_fragility;
+	_external_force = src->_external_force;
+	_external_momentum = src->_external_momentum;
+	_external_impulse = src->_external_impulse;
+	_external_torque = src->_external_torque;
 }
 
 // end of file

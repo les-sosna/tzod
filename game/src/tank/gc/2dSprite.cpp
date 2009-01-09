@@ -10,6 +10,8 @@
 #include "video/TextureManager.h"
 #include "video/RenderBase.h"
 
+#include "config/Config.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 TextureCache::TextureCache(const char *name)
@@ -297,14 +299,16 @@ void GC_2dSprite::Draw()
 	float px, py;
 	int i = 1;
 
+	vec2d pos = GetPosPredicted();
+
 	SpriteColor tmp_color;
 
-	if( CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW) )
+	if( !g_conf->sv_nightmode->Get() && CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW) )
 	{
 		tmp_color.dwColor = 0x00000000;
-		tmp_color.a = _color.a >> 3;
-		px = GetPos().x + 4;
-		py = GetPos().y + 4;
+		tmp_color.a = _color.a >> 2;
+		px = pos.x + 4;
+		py = pos.y + 4;
 		i  = 0;
 	}
 
@@ -314,8 +318,8 @@ void GC_2dSprite::Draw()
 
 		if( i )
 		{
-			px = GetPos().x;
-			py = GetPos().y;
+			px = pos.x;
+			py = pos.y;
 			tmp_color = _color;
 		}
 

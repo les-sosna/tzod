@@ -25,16 +25,17 @@
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(float x, float y)
+GC_Turret::GC_Turret(float x, float y, const char *tex)
   : GC_RigidBodyStatic()
   , _rotator(_dir)
+  , _team(0)
+  , _sight(TURET_SIGHT_RADIUS)
+  , _initialDir(0)
 {
 	SetZ(Z_WALLS);
-
-	_team   = 0;
-	_sight  = TURET_SIGHT_RADIUS;
-
-	_initialDir = 0;
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetTexture(tex);
+	AlignToTexture();
 
 	_jobManager.RegisterMember(this);
 	_state = TS_WAITING;
@@ -48,9 +49,6 @@ GC_Turret::GC_Turret(float x, float y)
 	MoveTo(vec2d(x, y)); // this also moves _rotateSound and _weaponSprite
 
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
-
-	///////////////////////
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Turret::GC_Turret(FromFile)
@@ -175,7 +173,7 @@ void GC_Turret::OnDestroy()
 void GC_Turret::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetRotation(_dir);
+	_weaponSprite->SetSpriteRotation(_dir);
 
 	switch( _state )
 	{
@@ -229,7 +227,7 @@ void GC_Turret::EditorAction()
 	_dir += PI2 / 16;
 	_dir = fmodf(_dir, PI2);
 	_initialDir = _dir;
-	_weaponSprite->SetRotation(_dir);
+	_weaponSprite->SetSpriteRotation(_dir);
 }
 
 void GC_Turret::mapExchange(MapFile &f)
@@ -245,7 +243,7 @@ void GC_Turret::mapExchange(MapFile &f)
 		if( _team > MAX_TEAMS-1 )
 			_team = MAX_TEAMS-1;
 		_dir = _initialDir;
-		_weaponSprite->SetRotation(_dir);
+		_weaponSprite->SetSpriteRotation(_dir);
 	}
 }
 
@@ -322,15 +320,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 }
 
 GC_TurretRocket::GC_TurretRocket(float x, float y)
-  : GC_Turret(x, y)
+  : GC_Turret(x, y, "turret_platform")
   , _timeReload(0)
 {
 	_weaponSprite->SetTexture("turret_rocket");
-	SetTexture("turret_platform");
-	AlignToTexture();
-
 	g_level->_field.ProcessObject(this, true);
-
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -376,15 +370,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 }
 
 GC_TurretCannon::GC_TurretCannon(float x, float y)
-  : GC_Turret(x, y)
+  : GC_Turret(x, y, "turret_platform")
   , _timeReload(0)
   , _time_smoke(0)
   , _time_smoke_dt(0)
 {
 	_weaponSprite->SetTexture("turret_cannon");
-	SetTexture("turret_platform");
-	AlignToTexture();
-
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
@@ -449,8 +440,8 @@ void GC_TurretCannon::TimeStepFixed(float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-GC_TurretBunker::GC_TurretBunker(float x, float y)
-  : GC_Turret(x, y)
+GC_TurretBunker::GC_TurretBunker(float x, float y, const char *tex)
+  : GC_Turret(x, y, tex)
   , _time(0)
   , _time_wait_max(1.0f)
   , _time_wait(_time_wait_max)
@@ -458,8 +449,8 @@ GC_TurretBunker::GC_TurretBunker(float x, float y)
   , _time_wake(0)  // hidden
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
-	_state = TS_HIDDEN;
 	_weaponSprite->Show(false);
+	_state = TS_HIDDEN; // base class member
 }
 
 GC_TurretBunker::GC_TurretBunker(FromFile)
@@ -484,7 +475,7 @@ void GC_TurretBunker::mapExchange(MapFile &f)
 	GC_Turret::mapExchange(f);
 	if( f.loading() )
 	{
-		SetRotation(_initialDir);
+		SetSpriteRotation(_initialDir);
 	}
 }
 
@@ -525,7 +516,7 @@ bool GC_TurretBunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySta
 void GC_TurretBunker::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetRotation(_dir);
+	_weaponSprite->SetSpriteRotation(_dir);
 
 	switch( _state )
 	{
@@ -639,8 +630,8 @@ void GC_TurretBunker::EditorAction()
 	_initialDir += PI / 2;
 	_initialDir = fmodf(_initialDir, PI2);
 	_dir = _initialDir;
-	SetRotation(_initialDir);
-	_weaponSprite->SetRotation(_initialDir);
+	SetSpriteRotation(_initialDir);
+	_weaponSprite->SetSpriteRotation(_initialDir);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -652,7 +643,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 }
 
 GC_TurretMinigun::GC_TurretMinigun(float x, float y)
-  : GC_TurretBunker(x, y)
+  : GC_TurretBunker(x, y, "turret_mg_wake")
   , _fireSound(new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos()))
 {
 	_delta_angle = 0.5f; // точность стрельбы
@@ -666,8 +657,6 @@ GC_TurretMinigun::GC_TurretMinigun(float x, float y)
 	_time_wake_max = 0.5f;
 
 	_weaponSprite->SetTexture("turret_mg");
-	SetTexture("turret_mg_wake");
-	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
@@ -745,7 +734,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 }
 
 GC_TurretGauss::GC_TurretGauss(float x, float y)
-  : GC_TurretBunker(x, y)
+  : GC_TurretBunker(x, y, "turret_gauss_wake")
 {
 	_delta_angle = 0.03f; // точность стрельбы
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
@@ -757,8 +746,6 @@ GC_TurretGauss::GC_TurretGauss(float x, float y)
 	_time_wake_max = 0.45f;
 
 	_weaponSprite->SetTexture("turret_gauss");
-	SetTexture("turret_gauss_wake");
-	AlignToTexture();
 
 	g_level->_field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());

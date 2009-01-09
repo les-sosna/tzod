@@ -107,8 +107,10 @@ protected:
 	void OnOwnerMove(GC_Object *sender, void *param);
 	void OnOwnerKill(GC_Object *sender, void *param);
 
-#ifdef NETWORK_DEBUG
 public:
+	virtual const vec2d& GetPosPredicted() const { return GetOwner() ? GetOwner()->GetPosPredicted() : GetPos(); }
+
+#ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)

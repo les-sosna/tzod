@@ -172,7 +172,7 @@ void GC_Decoration::mapExchange(MapFile &f)
 
 	int z = GetZ();
 	int frame = GetCurrentFrame();
-	float rot = GetRotation();
+	float rot = GetSpriteRotation();
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 	MAP_EXCHANGE_INT(layer, z, 0);
@@ -185,7 +185,7 @@ void GC_Decoration::mapExchange(MapFile &f)
 		SetTexture(_textureName.c_str());
 		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
-		SetRotation(rot);
+		SetSpriteRotation(rot);
 		if( _frameRate > 0 )
 		{
 			SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
@@ -270,7 +270,7 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
-		tmp->SetRotation(_propRotation.GetFloatValue());
+		tmp->SetSpriteRotation(_propRotation.GetFloatValue());
 		tmp->_frameRate = _propAnimate.GetFloatValue();
 		tmp->SetEvents(tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}
@@ -285,7 +285,7 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 			}
 		}
 		_propLayer.SetIntValue(tmp->GetZ());
-		_propRotation.SetFloatValue(fmodf(tmp->GetRotation(), PI2));
+		_propRotation.SetFloatValue(fmodf(tmp->GetSpriteRotation(), PI2));
 		_propFrame.SetIntValue(tmp->GetCurrentFrame());
 		_propAnimate.SetFloatValue(tmp->_frameRate);
 	}
