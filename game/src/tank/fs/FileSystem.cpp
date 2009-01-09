@@ -67,7 +67,7 @@ bool IFileSystem::MountTo(IFileSystem *parent)
 void IFileSystem::Unmount()
 {
 	_ASSERT(_parent); // not mounted?
-	_ASSERT(_parent->GetFileSystem(GetNodeName()) == this);
+	_ASSERT(_parent->GetFileSystem(GetNodeName(), false) == this);
 
 	AddRef(); // protect this object from deletion
 	_parent->_children.erase(GetNodeName());
@@ -87,7 +87,7 @@ SafePtr<IFile> IFileSystem::Open(const string_t &fileName)
 	string_t::size_type pd = fileName.rfind(DELIMITER);
 	if( string_t::npos != pd ) // is a path delimiter found?
 	{
-		if( SafePtr<IFileSystem> fs = GetFileSystem(fileName.substr(0, pd+1)) )
+		if( SafePtr<IFileSystem> fs = GetFileSystem(fileName.substr(0, pd+1), false) )
 			return fs->RawOpen(fileName.substr(pd+1));
 		return NULL;
 	}
@@ -104,7 +104,7 @@ SafePtr<IFile> IFileSystem::RawOpen(const string_t &fileName)
 	return NULL; // base file system can't contain any files
 }
 
-SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path)
+SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path, bool create)
 {
 	_ASSERT(!path.empty());
 
@@ -123,7 +123,7 @@ SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path)
 		return NULL; // node not found
 
 	if( string_t::npos != p )
-		return it->second->GetFileSystem(path.substr(p));
+		return it->second->GetFileSystem(path.substr(p), create);
 
 	return it->second;
 }
@@ -305,9 +305,9 @@ SafePtr<IFile> OSFileSystem::RawOpen(const string_t &fileName)
 	return NULL;  // open file failed
 }
 
-SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path)
+SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create)
 {
-	if( SafePtr<IFileSystem> child = IFileSystem::GetFileSystem(path) )
+	if( SafePtr<IFileSystem> child = IFileSystem::GetFileSystem(path, create) )
 		return child;
 
 	_ASSERT(!path.empty());
@@ -318,19 +318,36 @@ SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path)
 
 	string_t::size_type p = path.find( DELIMITER, offset );
 	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
+	string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
 
 	// try to find directory
 	WIN32_FIND_DATA fd = {0};
-	HANDLE search = FindFirstFile((_rootDirectory + TEXT('\\') + dirName).c_str(), &fd);
-	if( INVALID_HANDLE_VALUE == search )
-		return NULL; // not found
+	HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
 	FindClose(search);
+
+	if( INVALID_HANDLE_VALUE == search )
+	{
+		if( create && CreateDirectory(tmpDir.c_str(), NULL) )
+		{
+			// try to find again
+			HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+			FindClose(search);
+			if( INVALID_HANDLE_VALUE == search )
+			{
+				return NULL; // could not create
+			}
+		}
+		else
+		{
+			return NULL; // not found or could not create
+		}
+	}
 
 	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 	{
 		SafePtr<IFileSystem> child(new OSFileSystem(this, dirName));
 		if( string_t::npos != p )
-			return child->GetFileSystem(path.substr(p)); // process the rest of the path
+			return child->GetFileSystem(path.substr(p), create); // process the rest of the path
 		return child; // last path node was processed
 	}
 

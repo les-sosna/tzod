@@ -48,7 +48,7 @@ public:
     virtual bool MountTo(IFileSystem *parent);
     virtual void Unmount(); // object can become destroyed after that
 
-    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path);
+    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path, bool create = false);
 
     virtual bool IsValid() const;
     virtual SafePtr<IFile> Open(const string_t &path);
@@ -88,7 +88,7 @@ protected:
     virtual SafePtr<IFile> RawOpen(const string_t &fileName);
 
 public:
-    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path);
+    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path, bool create = false);
     virtual bool IsValid() const;
 	virtual bool EnumAllFiles(std::set<string_t> &files, const string_t &mask);
 

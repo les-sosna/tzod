@@ -20,6 +20,7 @@
 
 #include "core/Console.h"
 #include "core/Application.h"
+#include "core/debug.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -101,13 +102,19 @@ void MainMenuDlg::OnCampaign()
 
 void MainMenuDlg::OnSaveGame()
 {
-	Show(false);
-
 	GetFileNameDlg::Params param;
 	param.title = g_lang->get_file_name_save_game->Get();
-	param.folder = g_fs->GetFileSystem(DIR_SAVE);
+	param.folder = g_fs->GetFileSystem(DIR_SAVE, true);
 	param.extension = "sav";
 
+	if( !param.folder )
+	{
+		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		TRACE("ERROR: Could not open directory '%s'\n", DIR_SAVE);
+		return;
+	}
+
+	Show(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnSaveGameSelect, this);
@@ -139,13 +146,19 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 
 void MainMenuDlg::OnLoadGame()
 {
-	Show(false);
-
 	GetFileNameDlg::Params param;
 	param.title = g_lang->get_file_name_load_game->Get();
 	param.folder = g_fs->GetFileSystem(DIR_SAVE);
 	param.extension = "sav";
 
+	if( !param.folder )
+	{
+		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		TRACE("ERROR: Could not open directory '%s'\n", DIR_SAVE);
+		return;
+	}
+
+	Show(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnLoadGameSelect, this);
@@ -219,13 +232,19 @@ void MainMenuDlg::OnMapSettings()
 
 void MainMenuDlg::OnImportMap()
 {
-	Show(false);
-
 	GetFileNameDlg::Params param;
 	param.title = g_lang->get_file_name_load_map->Get();
 	param.folder = g_fs->GetFileSystem(DIR_MAPS);
 	param.extension = "map";
 
+	if( !param.folder )
+	{
+		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		TRACE("ERROR: Could not open directory '%s'\n", DIR_MAPS);
+		return;
+	}
+
+	Show(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnImportMapSelect, this);
@@ -258,13 +277,19 @@ void MainMenuDlg::OnImportMapSelect(int result)
 
 void MainMenuDlg::OnExportMap()
 {
-	Show(false);
-
 	GetFileNameDlg::Params param;
 	param.title = g_lang->get_file_name_save_map->Get();
-	param.folder = g_fs->GetFileSystem(DIR_MAPS);
+	param.folder = g_fs->GetFileSystem(DIR_MAPS, true);
 	param.extension = "map";
 
+	if( !param.folder )
+	{
+		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		TRACE("ERROR: Could not open directory '%s'\n", DIR_MAPS);
+		return;
+	}
+
+	Show(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnExportMapSelect, this);
@@ -372,7 +397,7 @@ void MainMenuDlg::CreatePanel()
 		(new Button(_panel, 200, y, g_lang->single_player_load->Get()))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
 		btn = new Button(_panel, 300, y, g_lang->single_player_save->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
-		btn->Enable(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType);
+		btn->Enable(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && !g_client);
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang->network_title->Get());
