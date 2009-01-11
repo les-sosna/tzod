@@ -58,7 +58,7 @@ struct GameInfo
 	char  cMapName[MAX_PATH];
 	char  cServerName[MAX_SRVNAME];
 	short server_fps;
-	short latency;
+//	short latency;
 	short timelimit;
 	short fraglimit;
 	bool  nightmode;

@@ -18,6 +18,7 @@
 TankClient::TankClient(void)
   : _frame(0)
   , _clientId(0)
+  , _latency(1)
 {
 	ZeroMemory(&_stats, sizeof(NetworkStats));
 }
@@ -76,6 +77,7 @@ void TankClient::Connect(const string_t &hostaddr)
 
 	_peer = WrapRawPtr(new Peer(s));
 	_peer->eventConnect.bind(&TankClient::OnConnect, this);
+	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
 	_peer->eventRecv.bind(&TankClient::OnRecv, this);
 	_peer->Connect(&addr);
 }
@@ -92,6 +94,11 @@ void TankClient::OnConnect(int err)
 	}
 }
 
+void TankClient::OnDisconnect(Peer *, int err)
+{
+	Message(g_lang->net_msg_connection_failed->Get(), 0!=err);
+}
+
 void TankClient::OnRecv(Peer *who, const DataBlock &db)
 {
 	_ASSERT(DBTYPE_UNKNOWN != db.type());
@@ -104,9 +111,6 @@ void TankClient::OnRecv(Peer *who, const DataBlock &db)
 			{
 				INVOKE(eventNewData) (db);   // duplicate packet
 			}
-			break;
-		case DBTYPE_GAMEINFO:
-			_latency = g_conf->sv_latency->GetInt(); //db.cast<GameInfo>().latency;
 			break;
 		case DBTYPE_YOURID:
 			_clientId = db.cast<DWORD>();

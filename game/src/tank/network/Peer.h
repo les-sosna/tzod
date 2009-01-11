@@ -24,7 +24,8 @@ public:
 	void Connect(const sockaddr_in *addr);
 	void Send(const DataBlock &db);
 	Delegate<void(Peer *, const DataBlock &)> eventRecv;
-	Delegate<void(int)> eventConnect;
+	Delegate<void(Peer *, int errorCode)> eventDisconnect;
+	Delegate<void(int errorCode)> eventConnect;
 
 private:
 	void OnSocketEvent();

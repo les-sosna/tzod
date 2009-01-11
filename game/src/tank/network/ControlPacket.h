@@ -54,8 +54,11 @@ struct VehicleState
 #define STATE_TOWERCENTER   0x0100
 #define STATE_ENABLELIGHT   0x0200
 
-#define MODE_EXPLICITTOWER  0x4000
-#define MODE_EXPLICITBODY   0x8000
+#define MODE_EXPLICITTOWER  0x1000
+#define MODE_EXPLICITBODY   0x2000
+
+#define MISC_YOUARETHELAST  0x4000
+
 
 #pragma pack(push)
 #pragma pack(2)

@@ -24,6 +24,7 @@ class TankClient
 	void Message(const string_t &msg, bool err = false);
 
 	void OnConnect(int err);
+	void OnDisconnect(Peer *, int err);
 	void OnRecv(Peer *who, const DataBlock &db);
 
 public:

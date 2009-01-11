@@ -49,19 +49,21 @@ GC_Player::GC_Player()
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 
 
+
 	// select nick from the random_names table
 	lua_getglobal(g_env.L, "random_name");     // push function
 	lua_call(g_env.L, 0, 1);                   // call it
 	SetNick(lua_tostring(g_env.L, -1));        // get value
 	lua_pop(g_env.L, 1);                       // pop result
 
+	// !! avoid using net_rand in constructor since it may cause sync error
 
-	// select random class
+	// select first available class
 	int count = 0;
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
-		if( 0 == g_level->net_rand() % ++count )
+	//	if( 0 == g_level->net_rand() % ++count )
 		{
 			SetClass(lua_tostring(g_env.L, -2));  // get vehicle class
 		}
@@ -414,12 +416,25 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 }
 
 GC_PlayerLocal::GC_PlayerLocal()
+  : _lastLightKeyState(false)
+  , _lights(true)
+  , _aimToMouse(false)
 {
 	new GC_Camera(WrapRawPtr(this));
-	_lastLightKeyState = false;
-	_lights     = true;
-	_aimToMouse = false;
+	SelectFreeProfile();
+}
 
+GC_PlayerLocal::GC_PlayerLocal(FromFile)
+  : GC_Player(FromFile())
+{
+}
+
+GC_PlayerLocal::~GC_PlayerLocal()
+{
+}
+
+void GC_PlayerLocal::SelectFreeProfile()
+{
 	// find first available profile that is not used by another player
 	string_t profile;
 
@@ -446,15 +461,6 @@ GC_PlayerLocal::GC_PlayerLocal()
 		}
 	}
 	SetProfile(""); // there was no available profile found
-}
-
-GC_PlayerLocal::GC_PlayerLocal(FromFile)
-  : GC_Player(FromFile())
-{
-}
-
-GC_PlayerLocal::~GC_PlayerLocal()
-{
 }
 
 void GC_PlayerLocal::Serialize(SaveFile &f)
@@ -500,7 +506,7 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 		if( g_client )
 		{
 			g_client->SendControl(cp);
-			g_level->GetControlPacket();
+			g_level->GetControlPacket(this);
 		}
 	}
 	else
@@ -537,10 +543,29 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 
 			cp.fromvs(vs);
 			g_client->SendControl(cp);
-			cp = g_level->GetControlPacket();
+			cp = g_level->GetControlPacket(this);
 			cp.tovs(vs);
-
 			GetVehicle()->SetState(vs);
+
+
+			//
+			// auto adjust latency
+			//
+
+			if( !g_server && g_conf->sv_autoLatency->Get() && g_conf->sv_latency->GetInt() < g_conf->sv_fps->GetInt() )
+			{
+				if( (cp.wControlState & MISC_YOUARETHELAST) && g_level->_dropedFrames > g_conf->sv_fps->GetInt() )
+				{
+					g_level->_dropedFrames = 0;
+					g_conf->sv_latency->SetInt(g_conf->sv_latency->GetInt() + 1);
+					TRACE("conf.sv_latency is set to %d\n", g_conf->sv_latency->GetInt());
+
+					if( g_conf->sv_latency->GetInt() >= g_conf->sv_fps->GetInt() )
+					{
+						TRACE("WARNING: latency is too high to play\n", g_conf->sv_latency->GetInt());
+					}
+				}
+			}
 		}
 		else
 		{
@@ -581,6 +606,8 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 	}
 	else
 	{
+		TRACE("WARNING: profile '%s' not found\n", name);
+
 		_keyForward     = 0;
 		_keyBack        = 0;
 		_keyLeft        = 0;
@@ -595,8 +622,6 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 		_lights         = true;
 		_aimToMouse     = false;
 		_moveToMouse    = false;
-
-		TRACE("WARNING: profile '%s' not found\n", name);
 	}
 }
 
@@ -790,11 +815,11 @@ void GC_PlayerRemote::TimeStepFixed(float dt)
 	_ASSERT(g_client);
 	if( IsVehicleDead() )
 	{
-		g_level->GetControlPacket();
+		g_level->GetControlPacket(this);
 	}
 	else
 	{
-		ControlPacket cp = g_level->GetControlPacket();
+		ControlPacket cp = g_level->GetControlPacket(this);
 		VehicleState vs;
 		cp.tovs(vs);
 		GetVehicle()->SetState(vs);

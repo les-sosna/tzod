@@ -15,10 +15,10 @@ Peer::Peer(SOCKET s)
 {
 	_socket = s;
 
-	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT) )
+	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
 		TRACE("peer: ERROR - Unable to select event (%u)\n", WSAGetLastError());
-		return; // TODO: report error
+		throw std::runtime_error("peer: Unable to select event");
 	}
 
 	Delegate<void()> d;
@@ -74,7 +74,9 @@ void Peer::Send(const DataBlock &db)
 				if( WSAEWOULDBLOCK != err )
 				{
 					TRACE("peer: network error %u\n", err);
-					// TODO: disconnect peer
+					_ASSERT(eventDisconnect);
+					INVOKE(eventDisconnect) (this, err);
+					return;
 				}
 				_outgoing.insert(_outgoing.end(), db.RawData() + sent, db.RawData() + db.RawSize());
 				break;
@@ -101,6 +103,8 @@ void Peer::OnSocketEvent()
 	if( _socket.EnumNetworkEvents(&ne) )
 	{
 		TRACE("peer: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
+		_ASSERT(eventDisconnect);
+		INVOKE(eventDisconnect) (this, WSAGetLastError());
 		return;
 	}
 
@@ -110,18 +114,41 @@ void Peer::OnSocketEvent()
 		INVOKE(eventConnect) (ne.iErrorCode[FD_CONNECT_BIT]);
 	}
 
+	if( ne.lNetworkEvents & FD_CLOSE )
+	{
+		_ASSERT(eventDisconnect);
+		INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_CLOSE_BIT]);
+	}
+
 	if( ne.lNetworkEvents & FD_READ )
 	{
 		if( ne.iErrorCode[FD_READ_BIT] )
 		{
 			TRACE("peer: read error 0x%08x\n", ne.iErrorCode[FD_READ_BIT]);
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_READ_BIT]);
 			return;
 		}
 
 		char buf[1024];
 		int result = recv(_socket, buf, sizeof(buf), 0);
 
-		if( result > 0 )
+		if( result < 0 )
+		{
+			TRACE("peer: unexpected error 0x%08x\n", WSAGetLastError());
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, WSAGetLastError());
+			return;
+		}
+		else if( 0 == result )
+		{
+			// connection was gracefully closed
+			TRACE("peer: connection closed by remote side\n");
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, 0);
+			return;
+		}
+		else
 		{
 			DataBlock db;
 			if( _incoming.empty() )
@@ -158,6 +185,8 @@ void Peer::OnSocketEvent()
 		if( ne.iErrorCode[FD_WRITE_BIT] )
 		{
 			TRACE("peer: write error 0x%08x\n", ne.iErrorCode[FD_WRITE_BIT]);
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_WRITE_BIT]);
 			return;
 		}
 
@@ -178,7 +207,9 @@ void Peer::OnSocketEvent()
 				if( WSAEWOULDBLOCK != err )
 				{
 					TRACE("peer: network error %u\n", err);
-					// TODO: disconnect peer
+					_ASSERT(eventDisconnect);
+					INVOKE(eventDisconnect) (this, err);
+					return;
 				}
 				break;
 			}

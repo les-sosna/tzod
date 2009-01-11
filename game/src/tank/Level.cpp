@@ -240,6 +240,7 @@ Level::Level()
   , _pause(0)
   , _time(0)
   , _timeBuffer(0)
+  , _dropedFrames(0)
   , _limitHit(false)
   , _frozen(false)
   , _safeMode(true)
@@ -344,6 +345,8 @@ void Level::Clear()
 
 	_cmdQueue.c.clear();
 	_ctrlQueue.c.clear();
+	_dropedFrames = 0;
+	_lag.clear();
 }
 
 void Level::HitLimit()
@@ -1083,11 +1086,18 @@ void Level::OnNewData(const DataBlock &db)
 	_cmdQueue.push(db);
 }
 
-ControlPacket Level::GetControlPacket()
+ControlPacket Level::GetControlPacket(GC_Object *player)
 {
 	_ASSERT(!_ctrlQueue.empty());
 	ControlPacket cp = _ctrlQueue.front();
 	_ctrlQueue.pop();
+
+	ASSERT_TYPE(player, GC_Player);
+	if( MISC_YOUARETHELAST & cp.wControlState )
+	{
+		_lag = static_cast<GC_Player*>(player)->GetNick();
+	}
+
 	return cp;
 }
 
@@ -1130,6 +1140,7 @@ void Level::TimeStep(float dt)
 				DataBlock::type_type type = db.type();
 				switch( type )
 				{
+					case DBTYPE_ERRORMSG:
 					case DBTYPE_TEXTMESSAGE:
 						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.Data());
 						break;
@@ -1175,7 +1186,8 @@ void Level::TimeStep(float dt)
 
 			if( _ctrlQueue.empty() )
 			{
-				_timeBuffer = 0;
+				_timeBuffer -= fixed_dt;
+				_dropedFrames += 1;
 				break; // нет кадра. пропускаем
 			}
 
@@ -1204,8 +1216,9 @@ void Level::TimeStep(float dt)
 			#endif
 
 
-			_time       += fixed_dt;
-			_timeBuffer -= fixed_dt;
+			_time         += fixed_dt;
+			_timeBuffer   -= fixed_dt;
+			_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
 
 			if( !_frozen )
 			{

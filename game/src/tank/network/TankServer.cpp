@@ -25,6 +25,8 @@ TankServer::TankServer(void)
 //  : _evStopListen(NULL)
 //  , _hAcceptThread(NULL)
   : _nextFreeId(0x1000)
+  , _connectedCount(0)
+  , _frameReadyCount(0)
 {
 	TRACE("sv: Server created\n");
 }
@@ -147,6 +149,7 @@ void TankServer::OnListenerEvent()
 	cl.ready = FALSE;
 	cl.id = ++_nextFreeId;
 	cl.eventRecv.bind(&TankServer::OnRecv, this);
+	cl.eventDisconnect.bind(&TankServer::OnDisconnect, this);
 
 	// send server info
 	cl.Send(DataWrap(_gameInfo, DBTYPE_GAMEINFO));
@@ -165,7 +168,15 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 		case DBTYPE_CONTROLPACKET:
 		{
 			who->ctrl.push(db.cast<ControlPacket>());
-			TrySendFrame();
+			if( 1 == who->ctrl.size() )
+			{
+				++_frameReadyCount;
+				if( _frameReadyCount == _connectedCount )
+				{
+					who->ctrl.front().wControlState |= MISC_YOUARETHELAST;
+					SendFrame();
+				}
+			}
 			break;
 		}
 
@@ -213,13 +224,6 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 				g_app->UnregisterHandle(_socketListen.GetEvent());
 				_socketListen.Close();
 
-//						SetEvent(pData->pServer->_evStopListen);
-//						WaitForSingleObject(pData->pServer->_hAcceptThread, INFINITE);
-//						CloseHandle(pData->pServer->_evStopListen);
-//						CloseHandle(pData->pServer->_hAcceptThread);
-//						pData->pServer->_hAcceptThread = NULL;
-//						pData->pServer->_evStopListen = NULL;
-
 				DataBlock tmp = DataWrap(g_lang->net_msg_starting_game->Get(), DBTYPE_TEXTMESSAGE);
 				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 				{
@@ -235,7 +239,7 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			}
 			break;
 		}
-
+/*
 		case DBTYPE_PLAYERQUIT:
 		{
 			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
@@ -245,10 +249,10 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 					(*it)->Send(db);
 				}
 			}
-			TrySendFrame();
+			SendFrame();
 			break;
 		}
-
+*/
 		case DBTYPE_PING:
 		{
 			who->Send(db); // send packet back
@@ -269,7 +273,6 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			who->desc = db.cast<PlayerDesc>();
 
 
-
 			//
 			// tell newly connected player about other players
 			//
@@ -285,6 +288,7 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 				}
 			}
 			who->connected = TRUE;
+			++_connectedCount;
 
 
 			//
@@ -308,66 +312,57 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 	}
 }
 
-/*
-DWORD WINAPI TankServer::ClientProc(ClientThreadData *pData)
+void TankServer::OnDisconnect(Peer *who_, int err)
 {
-//
-// disconnect
-//
-	if( pData->it->connected )
+	TRACE("sv: client disconnected\n");
+
+	_ASSERT(dynamic_cast<PeerServer*>(who_));
+	PeerServer *who = static_cast<PeerServer*>(who_);
+
+	if( who->connected )
 	{
-		pData->it->connected = false;
+		who->connected = false;
+		--_connectedCount;
+		if( !who->ctrl.empty() )
+		{
+			--_frameReadyCount;
+		}
 
 		DataBlock db(sizeof(DWORD));
 		db.type() = DBTYPE_PLAYERQUIT;
-		db.cast<DWORD>() = pData->it->id;
+		db.cast<DWORD>() = who->id;
 
-		std::list<Peer>::iterator it;
-		for( it = pData->pServer->_clients.begin(); it != pData->pServer->_clients.end(); ++it )
+		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{
-			if( pData->it->id != it->id )
+			if( who->id != (*it)->id )
 			{
-				pData->pServer->SendClientThreadData(it, db);
+				(*it)->Send(db);
 			}
 		}
-		pData->pServer->TrySendFrame();
+
+		if( _frameReadyCount == _connectedCount )
+		{
+			SendFrame();
+		}
 	}
 
-	if( INVALID_SOCKET != pData->it->s )
-		pData->it->s.Close();
-
-	pData->pServer->_clients.erase(pData->it);
-
-	return 0;
-}
-*/
-
-
-bool TankServer::TrySendFrame()
-{
-	//
-	// определяем сколько у нас получено кадров
-	//
-	size_t count = 0;
+	who->Close();
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( (*it)->connected )
+		if( (*it) == who )
 		{
-			if( (*it)->ctrl.empty() )
-			{
-				return false;
-			}
-			++count;
+			_clients.erase(it);
+			break;
 		}
 	}
+}
 
+void TankServer::SendFrame()
+{
+	_ASSERT(_frameReadyCount == _connectedCount);
 
-	//
-	// все данные получены. рассылаем кадры клиентам
-	//
-
-	DataBlock db_new(sizeof(ControlPacket) * count);
-	db_new.type() = DBTYPE_CONTROLPACKET;
+	DataBlock db(sizeof(ControlPacket) * _connectedCount);
+	db.type() = DBTYPE_CONTROLPACKET;
 
 	for( PeerList::iterator it1 = _clients.begin(); it1 != _clients.end(); it1++ )
 	{
@@ -384,7 +379,7 @@ bool TankServer::TrySendFrame()
 			for( int i = 0; it != _clients.end(); ++it )
 			{
 				if( !(*it)->connected ) continue;
-				db_new.cast<ControlPacket>(count - (++i)) = (*it)->ctrl.front();
+				db.cast<ControlPacket>(_connectedCount - (++i)) = (*it)->ctrl.front();
 
 				#ifdef NETWORK_DEBUG
 				if( first )
@@ -406,19 +401,23 @@ bool TankServer::TrySendFrame()
 				}
 				#endif
 			}
-			_ASSERT(count * sizeof(ControlPacket) == db_new.DataSize());
-			(*it1)->Send(db_new);
+			_ASSERT(_connectedCount * sizeof(ControlPacket) == db.DataSize());
+			(*it1)->Send(db);
 		}
 	}
 
-	//
-	// очистка буферов клиентов
-	//
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
 		if( (*it)->connected )
+		{
 			(*it)->ctrl.pop();
-
-	return true;
+			if( (*it)->ctrl.empty() )
+			{
+				_ASSERT(_frameReadyCount > 0);
+				--_frameReadyCount;
+			}
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

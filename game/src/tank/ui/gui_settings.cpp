@@ -144,6 +144,11 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	_ASSERT(i >= 0);
+	if( g_conf->cl_playerinfo->GetStr("profile")->Get() == _profiles->GetItemText(i) )
+	{
+		// profile that is being deleted is used in network settings
+		g_conf->cl_playerinfo->SetStr("profile", "");
+	}
 	g_conf->dm_profiles->Remove(_profiles->GetItemText(i));
 	UpdateProfilesList();
 }

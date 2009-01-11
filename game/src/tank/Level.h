@@ -224,11 +224,13 @@ public:
 	int _pause;
 	float _time;
 	float _timeBuffer;
+	float _dropedFrames;
+	string_t _lag;
 	std::queue<DataBlock> _cmdQueue;
 	void OnNewData(const DataBlock &db);
 
 	std::queue<ControlPacket> _ctrlQueue;
-	ControlPacket GetControlPacket();
+	ControlPacket GetControlPacket(GC_Object *player);
 
 
 	Field _field;

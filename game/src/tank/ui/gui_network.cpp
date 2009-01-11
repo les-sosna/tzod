@@ -85,9 +85,9 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		_svFps = new Edit(this, x4, y+=15, 100);
 		_svFps->SetInt(g_conf->sv_fps->GetInt());
 
-		new Text(this, x3, y+=30, g_lang->net_server_latency->Get(), alignTextLT);
-		_svLatency = new Edit(this, x4, y+=15, 100);
-		_svLatency->SetInt(g_conf->sv_latency->GetInt());
+//		new Text(this, x3, y+=30, g_lang->net_server_latency->Get(), alignTextLT);
+//		_svLatency = new Edit(this, x4, y+=15, 100);
+//		_svLatency->SetInt(g_conf->sv_latency->GetInt());
 	}
 
 	Button *btn;
@@ -129,7 +129,7 @@ void CreateServerDlg::OnOK()
 	gi.fraglimit  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
 	gi.timelimit  = __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt()));
 	gi.server_fps = __max(MIN_NETWORKSPEED, __min(MAX_NETWORKSPEED, _svFps->GetInt()));
-	gi.latency    = __max(MIN_LATENCY, __min(MAX_LATENCY, _svLatency->GetInt()));
+//	gi.latency    = __max(MIN_LATENCY, __min(MAX_LATENCY, _svLatency->GetInt()));
 	gi.nightmode  = _nightMode->GetCheck();
 
 	strcpy(gi.cMapName, fn.c_str());
@@ -144,7 +144,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-	g_conf->sv_latency->SetInt(gi.latency);
+	g_conf->sv_latency->SetInt(1);
 
 	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
 	Show(false);
@@ -282,6 +282,7 @@ void ConnectDlg::OnNewData(const DataBlock &db)
 				Error(g_lang->net_connect_error_map->Get().c_str());
 				break;
 			}
+			g_level->PauseLocal(true); // paused until game is started
 
 			g_conf->cl_map->Set(gi.cMapName);
 			g_conf->ui_showmsg->Set(true);
@@ -378,6 +379,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get().c_str());
 	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
 	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
+
+	// send ping request
+	DWORD t = timeGetTime();
+	g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
 }
 
 WaitingForPlayersDlg::~WaitingForPlayersDlg()
@@ -429,10 +434,8 @@ void WaitingForPlayersDlg::OnSendMessage(const char *msg)
 	{
 		if( 0 == strcmp(msg, "/ping") )
 		{
-			DataBlock db(sizeof(DWORD));
-			db.type() = DBTYPE_PING;
-			db.cast<DWORD>() = timeGetTime();
-			g_client->SendDataToServer(db);
+			DWORD t = timeGetTime();
+			g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
 		}
 		else
 		{
@@ -446,8 +449,34 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 	switch( db.type() )
 	{
 	case DBTYPE_PING:
-		_buf->printf("%d ms\n", timeGetTime() - db.cast<DWORD>());
+	{
+		DWORD ping = timeGetTime() - db.cast<DWORD>();
+		if( _pings.size() < _maxPings )
+		{
+			_pings.push_back(ping);
+			if( _pings.size() == _maxPings )
+			{
+				DWORD avg = 0;
+				for( size_t i = 0; i < _pings.size(); ++i )
+				{
+					avg += _pings[i];
+				}
+				avg /= _pings.size();
+				_buf->printf("ping %d ms\n", avg);
+				_buf->printf("latency %d frames\n", g_conf->sv_fps->GetInt() * avg / 1000);
+			}
+			else
+			{
+				DWORD t = timeGetTime();
+				g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
+			}
+		}
+		else
+		{
+			_buf->printf("%d ms\n", ping);
+		}
 		break;
+	}
 	case DBTYPE_PLAYERREADY:
 	{
 		int count = g_level->GetList(LIST_players).size();
@@ -543,8 +572,15 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		if( g_client->GetId() == pd.id )
 		{
 			player = new GC_PlayerLocal();
-			static_cast<GC_PlayerLocal *>(player)
-				->SetProfile(g_conf->cl_playerinfo->GetStr("profile")->Get());
+			const string_t &profile = g_conf->cl_playerinfo->GetStr("profile")->Get();
+			if( profile.empty() )
+			{
+				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
+			}
+			else
+			{
+				static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
+			}
 		}
 		else
 		{
@@ -577,11 +613,23 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		break;
 
 	case DBTYPE_STARTGAME:
-		for( int i = 0; i < g_client->_latency; ++i )
-		{
-			g_client->SendControl(ControlPacket());
-		}
+		g_client->SendControl(ControlPacket()); // initial empty packet
 		g_client->eventNewData.bind(&Level::OnNewData, GetRawPtr(g_level));
+		g_level->PauseLocal(false);
+
+		g_level->_dropedFrames = 0; // FIXME
+		if( g_conf->sv_autoLatency->Get() )
+		{
+			DWORD avg = 0;
+			for( size_t i = 0; i < _pings.size(); ++i )
+			{
+				avg += _pings[i];
+			}
+			avg /= _pings.size();
+			// set initial latency for auto adjustment algorithm
+			g_conf->sv_latency->SetInt(__max(1, g_conf->sv_fps->GetInt() * avg / 1000));
+		}
+
 		Close(_resultOK);
 		break;
 

@@ -132,7 +132,6 @@ class GC_PlayerLocal : public GC_Player
 
 	void GetControl(VehicleState &vs);
 
-
 protected:
 	class MyPropertySet : public GC_Player::MyPropertySet
 	{
@@ -153,6 +152,9 @@ public:
 	GC_PlayerLocal();
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
+
+	void SelectFreeProfile();
+
 
 	virtual DWORD GetNetworkID() const;
 

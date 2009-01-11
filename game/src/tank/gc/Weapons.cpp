@@ -1082,6 +1082,8 @@ void GC_Weap_Ram::TimeStepFloat(float dt)
 			}
 		}
 	}
+
+	GC_Weapon::TimeStepFloat(dt);
 }
 
 void GC_Weap_Ram::TimeStepFixed(float dt)

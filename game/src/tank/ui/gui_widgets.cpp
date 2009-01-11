@@ -87,10 +87,8 @@ void FpsCounter::OnTimeStep(float dt)
 				avr /= (float) _dts_net.size();
 			}
 
-			NetworkStats ns;
-			g_client->GetStatistics(&ns);
-			wsprintf(s1, "\nnetwork: %2dbuf; sent%3dk; recv%3dk", // "; ms:%3d-%3d-%3d",
-				/*ns.nFramesInBuffer*/-1, ns.bytesSent/1024, ns.bytesRecv/1024 //, min, avr, max
+			sprintf_s(s1, "\nnet: %3.fdrop; lag %s", // "; ms:%3d-%3d-%3d",
+				g_level->_dropedFrames, g_level->_lag.c_str() //, min, avr, max
 			);
 			strcat(s, s1);
 		}

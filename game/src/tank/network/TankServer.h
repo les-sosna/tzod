@@ -26,16 +26,18 @@ class TankServer
 
 	typedef std::list<SafePtr<PeerServer> >  PeerList;
 	PeerList _clients;
+	int _connectedCount;
+	int _frameReadyCount;     // how much clients have ctrl data in buffer
 
 
 	Socket _socketListen;
 
 
-	bool TrySendFrame();         // отправка кадра если все данные получены
-	static DWORD WINAPI MainProc(TankServer *pServer);
+	void SendFrame();
 
 	void OnListenerEvent();
 	void OnRecv(Peer *who, const DataBlock &db);
+	void OnDisconnect(Peer *who, int err);
 
 public:
 	TankServer(void);

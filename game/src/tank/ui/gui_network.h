@@ -24,7 +24,7 @@ class CreateServerDlg : public Dialog
 	Edit      *_fragLimit;
 	Edit      *_timeLimit;
 	Edit      *_svFps;
-	Edit      *_svLatency;
+//	Edit      *_svLatency;
 
 public:
 	CreateServerDlg(Window *parent);
@@ -67,6 +67,9 @@ class WaitingForPlayersDlg : public Dialog
 	Console        *_chat;
 	Button         *_btnOK;
 	SafePtr<ConsoleBuffer>  _buf;
+
+	static const size_t _maxPings = 5;
+	std::vector<DWORD> _pings;
 
 public:
 	WaitingForPlayersDlg(Window *parent);

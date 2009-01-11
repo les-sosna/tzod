@@ -52,12 +52,36 @@ int Socket::Close()
 	}
 
 	u_long ulParam = 0;
-	ioctlsocket(_socket, FIONBIO, &ulParam);  // return back to blocking mode
+	if( !ioctlsocket(_socket, FIONBIO, &ulParam) )  // return back to blocking mode
+	{
+		TRACE("peer: return back to blocking mode - ok\n");
+	}
+	else
+	{
+		TRACE("peer: return back to blocking mode - %d\n", WSAGetLastError());
+	}
 
-	int result = closesocket(_socket);
+	if( !shutdown(_socket, SD_SEND) )
+	{
+		TRACE("peer: socket shutdown - ok\n");
+	}
+	else
+	{
+		TRACE("peer: socket shutdown - %d\n", WSAGetLastError());
+	}
+
+	if( !closesocket(_socket) )
+	{
+		TRACE("peer: close socket - ok\n");
+	}
+	else
+	{
+		TRACE("peer: close socket - %d\n", WSAGetLastError());
+	}
+
 	_socket = INVALID_SOCKET;
 
-	return result;
+	return 0;
 }
 
 SOCKET Socket::operator = (SOCKET s)
