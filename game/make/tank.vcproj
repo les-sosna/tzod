@@ -1051,6 +1051,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\network\HttpClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\HttpClient.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\network\init.cpp"
 				>
 			</File>
