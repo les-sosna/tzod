@@ -26,6 +26,7 @@ class MainMenuDlg : public Dialog
 	void OnMultiPlayer();
 	void OnHost();
 	void OnJoin();
+	void OnInternet();
 	void OnNetworkProfile();
 
 	void OnEditor();

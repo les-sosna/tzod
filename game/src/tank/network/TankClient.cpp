@@ -34,7 +34,7 @@ void TankClient::Connect(const string_t &hostaddr)
 
 
 	//
-	// get ip addres
+	// get ip address
 	//
 
 	sockaddr_in addr = {0};

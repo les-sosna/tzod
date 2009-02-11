@@ -31,6 +31,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( network_title, "Network" )
 	CONFIG_VAR_STR( network_host, "Host" )
 	CONFIG_VAR_STR( network_join, "Join" )
+	CONFIG_VAR_STR( network_internet, "Internet" )
 	CONFIG_VAR_STR( network_profile, "Profile" )
 
 	CONFIG_VAR_STR( editor_btn, "Editor" )
@@ -154,6 +155,8 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_server_ok, "Create" )
 	CONFIG_VAR_STR( net_server_cancel, "Cancel" )
 	CONFIG_VAR_STR( net_server_error, "Could not start server. Check your firewall settings." )
+
+	CONFIG_VAR_STR( net_internet_title, "Search the Internet" )
 
 	CONFIG_VAR_STR( net_connect_title, "Connect" )
 	CONFIG_VAR_STR( net_connect_address, "Server address" )

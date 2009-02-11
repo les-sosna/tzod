@@ -25,6 +25,7 @@
 
 #include "network/TankServer.h"
 #include "network/TankClient.h"
+#include "network/HttpClient.h"
 
 #include "gc/Player.h"
 #include "gc/ai.h"
@@ -320,6 +321,72 @@ void ConnectDlg::Error(const char *msg)
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
 	SetTimeStep(false);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+InternetDlg::InternetDlg(Window *parent)
+  : Dialog(parent, 512, 384)
+  , _client(new HttpClient())
+{
+	_client->eventResult.bind(&InternetDlg::OnResult, this);
+	PauseGame(true);
+
+	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_internet_title->Get(), alignTextCT);
+	title->SetTexture("font_default");
+	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+
+
+	new Text(this, 20, 65, g_lang->net_connect_address->Get(), alignTextLT);
+	_name = new Edit(this, 25, 80, 300);
+	_name->SetText("tzod.fatal.ru/lobby/");
+
+
+	new Text(this, 20, 105, g_lang->net_connect_status->Get(), alignTextLT);
+	_status = new List(this, 25, 120, 400, 180);
+
+
+	_btnOK = new Button(this, 312, 350, g_lang->net_connect_ok->Get());
+	_btnOK->eventClick.bind(&InternetDlg::OnOK, this);
+
+	(new Button(this, 412, 350, g_lang->net_connect_cancel->Get()))
+		->eventClick.bind(&InternetDlg::OnCancel, this);
+
+	GetManager()->SetFocusWnd(_name);
+}
+
+InternetDlg::~InternetDlg()
+{
+	PauseGame(false);
+}
+
+void InternetDlg::OnOK()
+{
+	_status->DeleteAllItems();
+
+	_btnOK->Enable(false);
+	_name->Enable(false);
+
+	HttpClient::Param param;
+	param["ver"] = "149b";
+	_client->Get(_name->GetText(), param);
+}
+
+void InternetDlg::OnCancel()
+{
+	Close(_resultCancel);
+}
+
+void InternetDlg::OnResult(int err, const std::string &result, const HttpParam *headers)
+{
+	_status->AddItem(result);
+}
+
+void InternetDlg::Error(const char *msg)
+{
+	_status->AddItem(msg);
+	_btnOK->Enable(true);
+	_name->Enable(true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

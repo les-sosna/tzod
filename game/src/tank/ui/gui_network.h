@@ -7,6 +7,7 @@
 
 // forward declarations
 class DataBlock;
+class HttpClient;
 
 
 namespace UI
@@ -56,6 +57,29 @@ protected:
 	void OnCancel();
 
 	void OnNewData(const DataBlock &db);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class InternetDlg : public Dialog
+{
+	Button *_btnOK;
+	Edit   *_name;
+	List   *_status;
+
+public:
+	InternetDlg(Window *parent);
+	virtual ~InternetDlg();
+
+protected:
+	typedef std::map<std::string, std::string> HttpParam;
+
+	void OnOK();
+	void OnCancel();
+	void OnResult(int err, const std::string &result, const HttpParam *headers);
+	void Error(const char *msg);
+
+	SafePtr<HttpClient> _client;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -204,6 +204,13 @@ void MainMenuDlg::OnJoin()
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
+void MainMenuDlg::OnInternet()
+{
+	Show(false);
+	InternetDlg *dlg = new InternetDlg(GetParent());
+	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+}
+
 void MainMenuDlg::OnNetworkProfile()
 {
 //	Show(false);
@@ -403,7 +410,8 @@ void MainMenuDlg::CreatePanel()
 		_panelTitle->SetText(g_lang->network_title->Get());
 		(new Button(_panel, 0, y, g_lang->network_host->Get()))->eventClick.bind(&MainMenuDlg::OnHost, this);
 		(new Button(_panel, 100, y, g_lang->network_join->Get()))->eventClick.bind(&MainMenuDlg::OnJoin, this);
-		(new Button(_panel, 200, y, g_lang->network_profile->Get()))->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
+		(new Button(_panel, 200, y, g_lang->network_internet->Get()))->eventClick.bind(&MainMenuDlg::OnInternet, this);
+		(new Button(_panel, 300, y, g_lang->network_profile->Get()))->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
 		break;
 	case PT_EDITOR:
 		_panelTitle->SetText(g_lang->editor_title->Get());
