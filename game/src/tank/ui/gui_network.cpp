@@ -369,6 +369,8 @@ void InternetDlg::OnOK()
 
 	HttpClient::Param param;
 	param["ver"] = "149b";
+//	param["reg"] = "1945";
+//	param["key"] = "0123456789";
 	_client->Get(_name->GetText(), param);
 }
 
