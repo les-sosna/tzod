@@ -238,7 +238,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG_0"
 				StringPooling="true"
 				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
