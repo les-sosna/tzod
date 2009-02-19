@@ -19,7 +19,7 @@ my $dbfile = './data/servers.db';
 my $idfile = './data/servers.id';
 my $maxrecords = 100;
 my $timeout = 60;
-my $version = "149b";
+my $version = '149b';
 
 
 sub escape_chr($)
@@ -160,6 +160,8 @@ sub addrefresh($$$)
 ###########################################
 # main
 
+my $ip = exists $ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : '0.0.0.0';
+
 # check version
 if( param('ver') ne $version )
 {
@@ -172,7 +174,7 @@ if( param('ver') ne $version )
 if( param('reg') and param('key') )
 {
 	print "Content-type: text/plain\n\n";
-	addrefresh(param('reg'), param('key'), 1);
+	addrefresh("$ip:".param('reg'), param('key'), 1);
 	exit;
 }
 
@@ -180,7 +182,7 @@ if( param('reg') and param('key') )
 if( param('unreg') and param('key') )
 {
 	print "Content-type: text/plain\n\n";
-	addrefresh(param('unreg'), param('key'), 0);
+	addrefresh("$ip:".param('unreg'), param('key'), 0);
 	exit;
 }
 
