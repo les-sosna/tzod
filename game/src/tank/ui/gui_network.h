@@ -7,7 +7,7 @@
 
 // forward declarations
 class DataBlock;
-class HttpClient;
+class LobbyClient;
 
 
 namespace UI
@@ -72,14 +72,11 @@ public:
 	virtual ~InternetDlg();
 
 protected:
-	typedef std::map<std::string, std::string> HttpParam;
-
 	void OnOK();
 	void OnCancel();
-	void OnResult(int err, const std::string &result, const HttpParam *headers);
 	void Error(const char *msg);
 
-	SafePtr<HttpClient> _client;
+	SafePtr<LobbyClient> _client;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@
 
 #include "network/TankServer.h"
 #include "network/TankClient.h"
-#include "network/HttpClient.h"
+#include "network/LobbyClient.h"
 
 #include "gc/Player.h"
 #include "gc/ai.h"
@@ -327,9 +327,9 @@ void ConnectDlg::Error(const char *msg)
 
 InternetDlg::InternetDlg(Window *parent)
   : Dialog(parent, 512, 384)
-  , _client(new HttpClient())
+  , _client(new LobbyClient())
 {
-	_client->eventResult.bind(&InternetDlg::OnResult, this);
+//	_client->eventResult.bind(&InternetDlg::OnResult, this);
 	PauseGame(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_internet_title->Get(), alignTextCT);
@@ -366,22 +366,11 @@ void InternetDlg::OnOK()
 
 	_btnOK->Enable(false);
 	_name->Enable(false);
-
-	HttpClient::Param param;
-	param["ver"] = "149b";
-//	param["reg"] = "1945";
-//	param["key"] = "0123456789";
-	_client->Get(_name->GetText(), param);
 }
 
 void InternetDlg::OnCancel()
 {
 	Close(_resultCancel);
-}
-
-void InternetDlg::OnResult(int err, const std::string &result, const HttpParam *headers)
-{
-	_status->AddItem(result);
 }
 
 void InternetDlg::Error(const char *msg)
