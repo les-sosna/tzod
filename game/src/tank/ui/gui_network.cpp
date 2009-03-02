@@ -12,6 +12,7 @@
 #include "Edit.h"
 #include "Button.h"
 #include "Console.h"
+#include "Combo.h"
 
 #include "Interface.h"
 #include "functions.h"
@@ -91,6 +92,27 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 //		_svLatency->SetInt(g_conf->sv_latency->GetInt());
 	}
 
+
+	//
+	// Lobby
+	//
+	{
+		_lobbyEnable = new CheckBox(this, 32, 390, g_lang->net_server_use_lobby->Get());
+		_lobbyList = new ComboBox(this, 32, 415, 200);
+		_lobbyAdd = new Button(this, 250, 410, g_lang->net_server_add_lobby->Get());
+
+		_lobbyEnable->SetCheck(g_conf->sv_use_lobby->Get());
+		_lobbyList->Enable(_lobbyEnable->GetCheck());
+		_lobbyAdd->Enable(_lobbyEnable->GetCheck());
+		for( size_t i = 0; i < g_conf->lobby_servers->GetSize(); ++i )
+		{
+			_lobbyList->GetList()->AddItem(g_conf->lobby_servers->GetStr(i)->Get());
+		}
+		_lobbyList->GetList()->AlignHeightToContent(128);
+
+		_lobbyEnable->eventClick.bind(&CreateServerDlg::OnLobbyEnable, this);
+	}
+
 	Button *btn;
 	btn = new Button(this, 544, 410, g_lang->net_server_ok->Get());
 	btn->eventClick.bind(&CreateServerDlg::OnOK, this);
@@ -154,6 +176,12 @@ void CreateServerDlg::OnOK()
 void CreateServerDlg::OnCancel()
 {
 	Close(_resultCancel);
+}
+
+void CreateServerDlg::OnLobbyEnable()
+{
+	_lobbyList->Enable(_lobbyEnable->GetCheck());
+	_lobbyAdd->Enable(_lobbyEnable->GetCheck());
 }
 
 void CreateServerDlg::OnCloseChild(int result)
@@ -329,7 +357,9 @@ InternetDlg::InternetDlg(Window *parent)
   : Dialog(parent, 512, 384)
   , _client(new LobbyClient())
 {
-//	_client->eventResult.bind(&InternetDlg::OnResult, this);
+	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
+	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
+
 	PauseGame(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_internet_title->Get(), alignTextCT);
@@ -366,11 +396,25 @@ void InternetDlg::OnOK()
 
 	_btnOK->Enable(false);
 	_name->Enable(false);
+
+	_client->RequestServerList(_name->GetText());
 }
 
 void InternetDlg::OnCancel()
 {
 	Close(_resultCancel);
+}
+
+void InternetDlg::OnLobbyError(const std::string &msg)
+{
+	Error(msg.c_str());
+}
+
+void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
+{
+	std::stringstream s;
+	s << "servers found: " << result.size();
+	_status->AddItem(s.str());
 }
 
 void InternetDlg::Error(const char *msg)

@@ -27,6 +27,11 @@ class CreateServerDlg : public Dialog
 	Edit      *_svFps;
 //	Edit      *_svLatency;
 
+	CheckBox  *_lobbyEnable;
+	ComboBox  *_lobbyList;
+	Button    *_lobbyAdd;
+
+
 public:
 	CreateServerDlg(Window *parent);
 	virtual ~CreateServerDlg();
@@ -34,6 +39,7 @@ public:
 protected:
 	void OnOK();
 	void OnCancel();
+	void OnLobbyEnable();
 	virtual void OnCloseChild(int result);
 };
 
@@ -74,7 +80,13 @@ public:
 protected:
 	void OnOK();
 	void OnCancel();
+
+	void OnLobbyError(const std::string &msg);
+	void OnLobbyList(const std::vector<std::string> &result);
+
 	void Error(const char *msg);
+
+
 
 	SafePtr<LobbyClient> _client;
 };

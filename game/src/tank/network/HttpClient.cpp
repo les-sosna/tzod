@@ -137,10 +137,17 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 	g_app->InitNetwork();
 
+
+	// extract protocol if specified
+	std::string::size_type delim = url.find("://");
+	std::string protocol = std::string::npos != delim ? url.substr(0, delim) : "";
+	std::string fullpath = std::string::npos != delim ? url.substr(delim + 3) : url;
+
 	// extract host name and request
-	std::string::size_type delim = url.find('/');
-	_host = url.substr(0, delim);
-	_query = std::string::npos != delim ? url.substr(url.find('/')) : "/";
+	delim = fullpath.find('/');
+	_host = fullpath.substr(0, delim);
+	_query = std::string::npos != delim ? fullpath.substr(delim) : "/";
+
 
 	std::string body;
 	UrlParamEncode(body, param);
@@ -176,6 +183,8 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	// connect
 	//
 
+	_incoming.clear();
+	_connected = false;
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if( INVALID_SOCKET == _socket )
 	{
@@ -188,6 +197,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
+		_socket.Close();
 		TRACE("http: ERROR - Unable to select event (%u)\n", WSAGetLastError());
 		_ASSERT(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Unable to select event", NULL);
@@ -195,7 +205,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 	Delegate<void()> d;
 	d.bind(&HttpClient::OnSocketEvent, this);
-	g_app->RegisterHandle(_socket.GetEvent(), d);
+	_socket.SetCallback(d);
 
 
 	TRACE("http: connecting to %s\n", inet_ntoa(addr.sin_addr));
@@ -204,6 +214,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 	if( !connect(_socket, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 	{
+		_socket.Close();
 		TRACE("cl: ERROR - connect call failed!\n");
 		_ASSERT(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Could not connect", NULL);
@@ -211,6 +222,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	}
 	if( WSAEWOULDBLOCK != WSAGetLastError() )
 	{
+		_socket.Close();
 		TRACE("cl: error %d; WSAEWOULDBLOCK expected!\n", WSAGetLastError());
 		_ASSERT(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Could not connect", NULL);
@@ -239,6 +251,7 @@ void HttpClient::OnSocketEvent()
 	WSANETWORKEVENTS ne = {0};
 	if( _socket.EnumNetworkEvents(&ne) )
 	{
+		_socket.Close();
 		TRACE("http: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
 		_ASSERT(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "EnumNetworkEvents error", NULL);
@@ -249,6 +262,7 @@ void HttpClient::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_CONNECT_BIT] )
 		{
+			_socket.Close();
 			TRACE("http: could not connect 0x%08x\n", ne.iErrorCode[FD_CONNECT_BIT]);
 			_ASSERT(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_CONNECT_BIT], "could not connect", NULL);
@@ -261,6 +275,7 @@ void HttpClient::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_READ_BIT] )
 		{
+			_socket.Close();
 			TRACE("http: read error 0x%08x\n", ne.iErrorCode[FD_READ_BIT]);
 			_ASSERT(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_READ_BIT], "recv error", NULL);
@@ -272,6 +287,7 @@ void HttpClient::OnSocketEvent()
 
 		if( result < 0 )
 		{
+			_socket.Close();
 			TRACE("http: unexpected recv error 0x%08x\n", WSAGetLastError());
 			_ASSERT(eventResult);
 			INVOKE(eventResult) (WSAGetLastError(), "unexpected recv error", NULL);
@@ -280,6 +296,7 @@ void HttpClient::OnSocketEvent()
 		else if( 0 == result )
 		{
 			// connection was gracefully closed
+			_socket.Close();
 			TRACE("http: connection closed by server\n");
 			TRACE("http reply:\n%s\n", _incoming.c_str());
 			_ASSERT(eventResult);
@@ -296,6 +313,7 @@ void HttpClient::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_WRITE_BIT] )
 		{
+			_socket.Close();
 			TRACE("http: write error 0x%08x\n", ne.iErrorCode[FD_WRITE_BIT]);
 			_ASSERT(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_WRITE_BIT], "write error", NULL);
@@ -316,6 +334,7 @@ void HttpClient::OnSocketEvent()
 			{
 				if( WSAEWOULDBLOCK != WSAGetLastError() )
 				{
+					_socket.Close();
 					TRACE("http: send error %u\n", WSAGetLastError());
 					_ASSERT(eventResult);
 					INVOKE(eventResult) (WSAGetLastError(), "send error", NULL);
@@ -337,6 +356,7 @@ void HttpClient::OnSocketEvent()
 
 	if( ne.lNetworkEvents & FD_CLOSE )
 	{
+		_socket.Close();
 		_ASSERT(eventResult);
 		if( ne.iErrorCode[FD_CLOSE_BIT] )
 		{
@@ -345,8 +365,6 @@ void HttpClient::OnSocketEvent()
 		}
 		else
 		{
-			TRACE("http reply:\n%s\n", _incoming.c_str());
-
 			std::string body;
 			Param param;
 			int status = ParseHttpReply(body, param, _incoming);
@@ -372,6 +390,7 @@ void HttpClient::Send(const std::string &msg)
 				// schedule delayed sending rest of data
 				if( WSAEWOULDBLOCK != WSAGetLastError() )
 				{
+					_socket.Close();
 					TRACE("http: send error %u\n", WSAGetLastError());
 					_ASSERT(eventResult);
 					INVOKE(eventResult) (WSAGetLastError(), "send error", NULL);

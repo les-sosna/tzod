@@ -47,7 +47,6 @@ void TankServer::ShutDown()
 
 	if( INVALID_SOCKET != _socketListen )
 	{
-		g_app->UnregisterHandle(_socketListen.GetEvent());
 		_socketListen.Close();
 	}
 
@@ -104,7 +103,7 @@ bool TankServer::init(const GameInfo *info)
 
 	Delegate<void()> d;
 	d.bind(&TankServer::OnListenerEvent, this);
-	g_app->RegisterHandle(_socketListen.GetEvent(), d);
+	_socketListen.SetCallback(d);
 
 	TRACE("sv: Server is online\n");
 
@@ -221,7 +220,6 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			if( bAllPlayersReady )
 			{
 				// запрещение приема новых подключений
-				g_app->UnregisterHandle(_socketListen.GetEvent());
 				_socketListen.Close();
 
 				DataBlock tmp = DataWrap(g_lang->net_msg_starting_game->Get(), DBTYPE_TEXTMESSAGE);

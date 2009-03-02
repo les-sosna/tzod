@@ -152,6 +152,8 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_server_title, "Host a new server" )
 	CONFIG_VAR_STR( net_server_fps, "Server fps" )
 	CONFIG_VAR_STR( net_server_latency, "Latency" )
+	CONFIG_VAR_STR( net_server_use_lobby, "Global (use lobby server)" )
+	CONFIG_VAR_STR( net_server_add_lobby, "Add" )
 	CONFIG_VAR_STR( net_server_ok, "Create" )
 	CONFIG_VAR_STR( net_server_cancel, "Cancel" )
 	CONFIG_VAR_STR( net_server_error, "Could not start server. Check your firewall settings." )

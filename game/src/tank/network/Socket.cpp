@@ -12,9 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 Socket::Socket(void)
+  : _event(WSA_INVALID_EVENT)
+  , _socket(INVALID_SOCKET)
+  , _hasCallback(false)
 {
-	_event  = WSA_INVALID_EVENT;
-	_socket = INVALID_SOCKET;
 }
 
 Socket::~Socket(void)
@@ -46,6 +47,11 @@ int Socket::Close()
 
 	if( WSA_INVALID_EVENT != _event )
 	{
+		if( _hasCallback )
+		{
+			g_app->UnregisterHandle(_event);
+			_hasCallback = false;
+		}
 		WSAEventSelect(_socket, _event, 0); // cancel event association
 		WSACloseEvent(_event);
 		_event = WSA_INVALID_EVENT;
@@ -82,6 +88,15 @@ int Socket::Close()
 	_socket = INVALID_SOCKET;
 
 	return 0;
+}
+
+void Socket::SetCallback(Delegate<void()> callback)
+{
+	_ASSERT(!_hasCallback);
+	_ASSERT(INVALID_SOCKET != _socket);
+	_ASSERT(WSA_INVALID_EVENT != _event);
+	g_app->RegisterHandle(_event, callback);
+	_hasCallback = true;
 }
 
 SOCKET Socket::operator = (SOCKET s)

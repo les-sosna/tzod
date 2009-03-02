@@ -23,7 +23,7 @@ Peer::Peer(SOCKET s)
 
 	Delegate<void()> d;
 	d.bind(&Peer::OnSocketEvent, this);
-	g_app->RegisterHandle(_socket.GetEvent(), d);
+	_socket.SetCallback(d);
 }
 
 Peer::~Peer()
@@ -34,7 +34,6 @@ Peer::~Peer()
 void Peer::Close()
 {
 	_ASSERT(INVALID_SOCKET != _socket);
-	g_app->UnregisterHandle(_socket.GetEvent());
 	_socket.Close();
 }
 

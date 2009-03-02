@@ -16,7 +16,7 @@ public:
 	int SetEvents(long lNetworkEvents);  // return zero if the operation was successful
 	int Close();
 
-	HANDLE GetEvent() const { return _event; };
+	void SetCallback(Delegate<void()> callback);
 
 	operator SOCKET () const { return _socket; }
 	SOCKET operator = (SOCKET s);
@@ -24,6 +24,7 @@ public:
 private:
 	SOCKET   _socket;
 	WSAEVENT _event;
+	bool     _hasCallback;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
