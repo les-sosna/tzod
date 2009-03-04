@@ -365,7 +365,7 @@ void ConnectDlg::Error(const char *msg)
 ///////////////////////////////////////////////////////////////////////////////
 
 InternetDlg::InternetDlg(Window *parent)
-  : Dialog(parent, 512, 384)
+  : Dialog(parent, 450, 384)
   , _client(new LobbyClient())
 {
 	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
@@ -383,14 +383,20 @@ InternetDlg::InternetDlg(Window *parent)
 	_name->SetText("tzod.fatal.ru/lobby/");
 
 
-	new Text(this, 20, 105, g_lang->net_connect_status->Get(), alignTextLT);
-	_status = new List(this, 25, 120, 400, 180);
+	new Text(this, 20, 105, g_lang->net_internet_server_list->Get(), alignTextLT);
+	_servers = new List(this, 25, 120, 400, 180);
+	_status = new Text(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "No servers found", alignTextCC);
+	_status->SetColor(0x7f7f7f7f);
 
 
-	_btnOK = new Button(this, 312, 350, g_lang->net_connect_ok->Get());
-	_btnOK->eventClick.bind(&InternetDlg::OnOK, this);
+	_btnRefresh = new Button(this, 25, 320, g_lang->net_internet_refresh->Get());
+	_btnRefresh->eventClick.bind(&InternetDlg::OnRefresh, this);
 
-	(new Button(this, 412, 350, g_lang->net_connect_cancel->Get()))
+	_btnConnect = new Button(this, 175, 320, g_lang->net_internet_connect->Get());
+	_btnConnect->eventClick.bind(&InternetDlg::OnConnect, this);
+	_btnConnect->Enable(false);
+
+	(new Button(this, 325, 320, g_lang->net_internet_cancel->Get()))
 		->eventClick.bind(&InternetDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
@@ -401,15 +407,20 @@ InternetDlg::~InternetDlg()
 	PauseGame(false);
 }
 
-void InternetDlg::OnOK()
+void InternetDlg::OnRefresh()
 {
-	_status->DeleteAllItems();
+	_servers->DeleteAllItems();
+	_status->SetText(g_lang->net_internet_searching->Get());
 
-	_btnOK->Enable(false);
+	_btnRefresh->Enable(false);
 	_name->Enable(false);
 
 	_client->SetLobbyUrl(_name->GetText());
 	_client->RequestServerList();
+}
+
+void InternetDlg::OnConnect()
+{
 }
 
 void InternetDlg::OnCancel()
@@ -424,15 +435,19 @@ void InternetDlg::OnLobbyError(const std::string &msg)
 
 void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
 {
-	std::stringstream s;
-	s << "servers found: " << result.size();
-	_status->AddItem(s.str());
+	_status->SetText(result.empty() ? g_lang->net_internet_not_found->Get() : "");
+	for( size_t i = 0; i < result.size(); ++i )
+	{
+		_servers->AddItem(result[i]);
+	}
+	_btnRefresh->Enable(true);
+	_name->Enable(true);
 }
 
 void InternetDlg::Error(const char *msg)
 {
-	_status->AddItem(msg);
-	_btnOK->Enable(true);
+	_status->SetText(msg);
+	_btnRefresh->Enable(true);
 	_name->Enable(true);
 }
 

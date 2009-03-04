@@ -67,16 +67,19 @@ protected:
 
 class InternetDlg : public Dialog
 {
-	Button *_btnOK;
+	Button *_btnRefresh;
+	Button *_btnConnect;
 	Edit   *_name;
-	List   *_status;
+	List   *_servers;
+	Text   *_status;
 
 public:
 	InternetDlg(Window *parent);
 	virtual ~InternetDlg();
 
 protected:
-	void OnOK();
+	void OnRefresh();
+	void OnConnect();
 	void OnCancel();
 
 	void OnLobbyError(const std::string &msg);
