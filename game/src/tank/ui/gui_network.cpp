@@ -138,6 +138,17 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
+	SafePtr<LobbyClient> announcer;
+	if( _lobbyEnable->GetCheck() )
+	{
+		if( -1 == _lobbyList->GetCurSel() )
+		{
+			return;
+		}
+		announcer = WrapRawPtr(new LobbyClient());
+		announcer->SetLobbyUrl(_lobbyList->GetList()->GetItemText(_lobbyList->GetCurSel()));
+	}
+
 	script_exec(g_env.L, "reset()");
 
 
@@ -159,7 +170,7 @@ void CreateServerDlg::OnOK()
 	strcpy(gi.cServerName, "ZOD Server");
 
 	_ASSERT(NULL == g_server);
-	g_server = new TankServer();
+	g_server = new TankServer(announcer);
 	if( !g_server->init(&gi) )
 	{
 		SAFE_DELETE(g_server);
@@ -397,7 +408,8 @@ void InternetDlg::OnOK()
 	_btnOK->Enable(false);
 	_name->Enable(false);
 
-	_client->RequestServerList(_name->GetText());
+	_client->SetLobbyUrl(_name->GetText());
+	_client->RequestServerList();
 }
 
 void InternetDlg::OnCancel()

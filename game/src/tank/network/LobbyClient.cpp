@@ -17,7 +17,7 @@ static std::string GenerateKey(unsigned int length)
 	static const char dictionary[] = 
 		"abcdefghigklmnopqrstuvwxwz"
 		"ABCDEFGHIGKLMNOPQRSTUVWXWZ"
-		"0123456789-_!*'()";
+		"0123456789";
 
 	assert(length > 0);
 
@@ -58,11 +58,12 @@ LobbyClient::LobbyClient()
   , _sessionKey(GenerateKey(LOBBY_KEY_LENGTH))
   , _redirectCount(0)
   , _timer(CreateWaitableTimer(NULL, FALSE, NULL))
+  , _state(STATE_IDLE)
 {
 	// setup timer
 	if( !_timer || INVALID_HANDLE_VALUE == _timer )
 	{
-		throw std::runtime_error("failed to create waitable timer");
+		throw std::runtime_error("lobby: failed to create waitable timer");
 	}
 	Delegate<void()> d;
 	d.bind(&LobbyClient::OnTimer, this);
@@ -78,16 +79,27 @@ LobbyClient::~LobbyClient()
 	CloseHandle(_timer);
 }
 
-void LobbyClient::RequestServerList(const std::string &lobbyAddress)
+void LobbyClient::SetLobbyUrl(const std::string &lobbyUrl)
 {
+	assert(STATE_IDLE == _state);
+	_lobbyUrl = lobbyUrl;
+}
+
+void LobbyClient::RequestServerList()
+{
+	assert(STATE_IDLE == _state);
+	_state = STATE_LIST;
 	_redirectCount = 0;
 	_param.clear();
 	_param["ver"] = LOBBY_VERSION;
-	_http->Get(lobbyAddress, _param);
+	_http->Get(_lobbyUrl, _param);
 }
 
-void LobbyClient::AnnounceHost(const std::string &lobbyAddress, int port)
+void LobbyClient::AnnounceHost(int port)
 {
+	assert(STATE_IDLE == _state);
+	_state = STATE_ANNOUNCE;
+
 	std::stringstream s;
 	s << port; // convert integer to string
 
@@ -96,7 +108,7 @@ void LobbyClient::AnnounceHost(const std::string &lobbyAddress, int port)
 	_param["ver"] = LOBBY_VERSION;
 	_param["reg"] = s.str();
 	_param["key"] = _sessionKey;
-	_http->Get(lobbyAddress, _param);
+	_http->Get(_lobbyUrl, _param);
 }
 
 void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpParam *headers)
@@ -106,46 +118,77 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 	switch( err )
 	{
 		case 301: // moved permanently
-		{
+			assert(STATE_IDLE != _state);
 			++_redirectCount;
 			it = headers->find("Location"); // TODO: case insensitive search
 			if( headers->end() == it || _redirectCount > LOBBY_MAX_REDIRECT )
 			{
-				INVOKE(eventError)("LobbyClient: redirect failed");
+				_state = STATE_IDLE;
+				if( eventError )
+				{
+					INVOKE(eventError)("lobby: redirect failed");
+				}
+				return;
 			}
-			_http->Get(it->second, _param);
+			_lobbyUrl = it->second;
+			_http->Get(_lobbyUrl, _param);
 			break;
-		}
 
 		case 200: // ok
-		{
-			std::vector<std::string> svlist;
-			if( ParseServerList(svlist, result) )
+			assert(STATE_IDLE != _state);
+			if( STATE_ANNOUNCE == _state )
 			{
-				INVOKE(eventServerListReply) (svlist);
+				if( result.substr(0, 2) == "ok" )
+				{
+					LARGE_INTEGER dueTime;
+					dueTime.QuadPart = -300000000; // 30 seconds
+					SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+				}
+				else
+				{
+					_state = STATE_IDLE;
+					TRACE("lobby: invalid server reply - %s\n", result.c_str());
+					if( eventError )
+					{
+						INVOKE(eventError) ("invalid lobby reply");
+					}
+				}
 			}
 			else
 			{
-				TRACE("lobby: invalid server reply - %s\n", result.c_str());
-				INVOKE(eventError) ("invalid lobby reply");
+				_state = STATE_IDLE;
+				std::vector<std::string> svlist;
+				if( ParseServerList(svlist, result) )
+				{
+					if( eventServerListReply )
+					{
+						INVOKE(eventServerListReply) (svlist);
+					}
+				}
+				else
+				{
+					TRACE("lobby: invalid server reply - %s\n", result.c_str());
+					if( eventError )
+					{
+						INVOKE(eventError) ("invalid lobby reply");
+					}
+				}
 			}
 			break;
-		}
 
 		default:  // unknown error
-		{
 			std::stringstream s;
-			s << "LobbyClient: error " << err;
+			s << "lobby: error " << err;
 			INVOKE(eventError)(s.str());
-		}
 	}
-
-	TRACE("http responce: %s\n", result.c_str());
 }
 
 void LobbyClient::OnTimer()
 {
-	TRACE("lobby timer\n");
+	assert(STATE_ANNOUNCE == _state);
+	// refresh
+	_redirectCount = 0;
+	_http->Get(_lobbyUrl, _param);
 }
 
 

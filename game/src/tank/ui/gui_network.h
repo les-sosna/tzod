@@ -9,7 +9,6 @@
 class DataBlock;
 class LobbyClient;
 
-
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +29,6 @@ class CreateServerDlg : public Dialog
 	CheckBox  *_lobbyEnable;
 	ComboBox  *_lobbyList;
 	Button    *_lobbyAdd;
-
 
 public:
 	CreateServerDlg(Window *parent);
@@ -85,8 +83,6 @@ protected:
 	void OnLobbyList(const std::vector<std::string> &result);
 
 	void Error(const char *msg);
-
-
 
 	SafePtr<LobbyClient> _client;
 };

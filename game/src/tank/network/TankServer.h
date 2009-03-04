@@ -18,6 +18,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class LobbyClient;
+
 class TankServer
 {
 	GameInfo _gameInfo;
@@ -32,6 +34,8 @@ class TankServer
 
 	Socket _socketListen;
 
+	SafePtr<LobbyClient> _announcer;
+
 
 	void SendFrame();
 
@@ -40,7 +44,7 @@ class TankServer
 	void OnDisconnect(Peer *who, int err);
 
 public:
-	TankServer(void);
+	TankServer(const SafePtr<LobbyClient> &announcer);
 	~TankServer(void);
 
 	bool init(const GameInfo *info);

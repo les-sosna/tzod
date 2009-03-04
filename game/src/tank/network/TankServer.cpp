@@ -2,15 +2,17 @@
 
 #include "stdafx.h"
 
-#include "TankServer.h"
-#include "datablock.h"
-
 #include "core/debug.h"
 #include "core/console.h"
 #include "core/Application.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
+
+#include "TankServer.h"
+#include "datablock.h"
+
+#include "LobbyClient.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -21,12 +23,11 @@ PeerServer::PeerServer(SOCKET s_)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankServer::TankServer(void)
-//  : _evStopListen(NULL)
-//  , _hAcceptThread(NULL)
+TankServer::TankServer(const SafePtr<LobbyClient> &announcer)
   : _nextFreeId(0x1000)
   , _connectedCount(0)
   , _frameReadyCount(0)
+  , _announcer(announcer)
 {
 	TRACE("sv: Server created\n");
 }
@@ -106,6 +107,11 @@ bool TankServer::init(const GameInfo *info)
 	_socketListen.SetCallback(d);
 
 	TRACE("sv: Server is online\n");
+
+	if( _announcer )
+	{
+		_announcer->AnnounceHost(g_conf->sv_port->GetInt());
+	}
 
 	return true;
 }
