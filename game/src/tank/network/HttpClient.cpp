@@ -128,7 +128,10 @@ HttpClient::HttpClient()
 
 HttpClient::~HttpClient()
 {
-
+	if( INVALID_SOCKET != _socket )
+	{
+		_socket.Close();
+	}
 }
 
 void HttpClient::Get(const std::string &url, const Param &param)

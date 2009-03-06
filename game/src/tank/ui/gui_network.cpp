@@ -241,9 +241,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 	if( _auto )
 	{
-		_ASSERT(g_server);
 		_ASSERT(g_level->IsEmpty());
-
 		_name->SetText(autoConnect);
 		OnOK();
 	}
@@ -385,6 +383,7 @@ InternetDlg::InternetDlg(Window *parent)
 
 	new Text(this, 20, 105, g_lang->net_internet_server_list->Get(), alignTextLT);
 	_servers = new List(this, 25, 120, 400, 180);
+	_servers->eventChangeCurSel.bind(&InternetDlg::OnSelectServer, this);
 	_status = new Text(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "No servers found", alignTextCC);
 	_status->SetColor(0x7f7f7f7f);
 
@@ -421,11 +420,22 @@ void InternetDlg::OnRefresh()
 
 void InternetDlg::OnConnect()
 {
+	if( -1 != _servers->GetCurSel() )
+	{
+		const std::string &addr = _servers->GetItemText(_servers->GetCurSel());
+		(new ConnectDlg(GetParent(), addr.c_str()))->eventClose.bind(&InternetDlg::OnCloseChild, this);
+		Show(false);
+	}
 }
 
 void InternetDlg::OnCancel()
 {
 	Close(_resultCancel);
+}
+
+void InternetDlg::OnSelectServer(int idx)
+{
+	_btnConnect->Enable(-1 != idx);
 }
 
 void InternetDlg::OnLobbyError(const std::string &msg)
@@ -450,6 +460,20 @@ void InternetDlg::Error(const char *msg)
 	_btnRefresh->Enable(true);
 	_name->Enable(true);
 }
+
+void InternetDlg::OnCloseChild(int result)
+{
+	if( _resultCancel == result )
+	{
+		Show(true);
+	}
+
+	if( _resultOK == result )
+	{
+		Close(_resultOK);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

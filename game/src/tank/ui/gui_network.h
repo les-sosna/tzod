@@ -81,6 +81,9 @@ protected:
 	void OnRefresh();
 	void OnConnect();
 	void OnCancel();
+	void OnSelectServer(int idx);
+
+	void OnCloseChild(int result);
 
 	void OnLobbyError(const std::string &msg);
 	void OnLobbyList(const std::vector<std::string> &result);
