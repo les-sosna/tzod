@@ -384,7 +384,7 @@ InternetDlg::InternetDlg(Window *parent)
 	new Text(this, 20, 105, g_lang->net_internet_server_list->Get(), alignTextLT);
 	_servers = new List(this, 25, 120, 400, 180);
 	_servers->eventChangeCurSel.bind(&InternetDlg::OnSelectServer, this);
-	_status = new Text(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "No servers found", alignTextCC);
+	_status = new Text(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetColor(0x7f7f7f7f);
 
 
@@ -399,6 +399,8 @@ InternetDlg::InternetDlg(Window *parent)
 		->eventClick.bind(&InternetDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
+
+	OnRefresh();
 }
 
 InternetDlg::~InternetDlg()

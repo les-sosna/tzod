@@ -37,17 +37,25 @@ void TankClient::Connect(const string_t &hostaddr)
 	// get ip address
 	//
 
+	std::istringstream buf(hostaddr);
+	string_t sv;
+	std::getline(buf, sv, ':');
+
+	unsigned short port = g_conf->sv_port->GetInt();
+	buf >> port;
+
+
 	sockaddr_in addr = {0};
 	addr.sin_family = AF_INET;
-	addr.sin_port   = htons(g_conf->sv_port->GetInt());
+	addr.sin_port   = htons(port);
 
-	// try to convert string to ip addres
-	addr.sin_addr.s_addr = inet_addr(hostaddr.c_str());
+	// try to convert string to ip address
+	addr.sin_addr.s_addr = inet_addr(sv.c_str());
 
 	if( addr.sin_addr.s_addr == INADDR_NONE )
 	{
 		// try to resolve string as host name
-		hostent* he = gethostbyname(hostaddr.c_str());
+		hostent* he = gethostbyname(sv.c_str());
 		if( NULL == he )
 		{
 			int err = WSAGetLastError();

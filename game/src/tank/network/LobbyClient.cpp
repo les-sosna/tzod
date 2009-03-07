@@ -177,6 +177,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 			break;
 
 		default:  // unknown error
+			_state = STATE_IDLE;
 			std::stringstream s;
 			s << "lobby: error " << err;
 			INVOKE(eventError)(s.str());
