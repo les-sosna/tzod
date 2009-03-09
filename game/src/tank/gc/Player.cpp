@@ -499,6 +499,7 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 
 #ifdef NETWORK_DEBUG
 	cp.checksum = g_level->_checksum;
+	cp.frame = g_level->_frame;
 #endif
 
 	if( IsVehicleDead() )
@@ -570,7 +571,9 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 		else
 		{
 			GetVehicle()->SetState(vs);
-			GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
+			GetVehicle()->SetPredictedState(vs);
+			GetVehicle()->GetVisual()->TimeStepFixed(dt);
+			GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: what?
 		}
 	}
 }

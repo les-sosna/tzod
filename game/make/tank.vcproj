@@ -235,7 +235,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\src\tank,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG_0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG"
 				StringPooling="true"
 				BufferSecurityCheck="false"
 				FloatingPointModel="2"
@@ -1066,6 +1066,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\network\LobbyClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\LobbyClient.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\network\Peer.cpp"
 				>
 			</File>
@@ -1150,6 +1158,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\bugs.txt"
+			>
+		</File>
 		<File
 			RelativePath="..\workdir\History.txt"
 			>

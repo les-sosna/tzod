@@ -1,0 +1,26 @@
+list of known bags
+
+
+go to waiting for players dialog
+add bot
+incorrect bot skill is displayed
+
+
+
+start debug exe
+create new map
+debug lines from intro map are still displayed
+
+
+
+sync error when playing with bots
+
+
+S key is absent in editor help
+
+
+vehicle headlights don't work
+
+
+
+

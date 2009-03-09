@@ -70,6 +70,7 @@ public:
 	unsigned short body;  // angle, if explicit
 #ifdef NETWORK_DEBUG
 	DWORD checksum;
+	unsigned int frame;
 #endif
 	//--------------------------
 	ControlPacket();

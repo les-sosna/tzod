@@ -1196,50 +1196,16 @@ void Level::TimeStep(float dt)
 			// ок, кадр получен. расчет игровой ситуации
 			//
 
-			#ifdef NETWORK_DEBUG
-			DWORD dwCheckSum = 0, tmp_cs;
-			if( !_dump )
-			{
-				char fn[MAX_PATH];
-				sprintf_s(fn, "network_dump_%u.txt", GetTickCount());
-				_dump = fopen(fn, "w");
-				_ASSERT(_dump);
-
-				for( int i = 0; i < Level::GetTypeCount(); ++i )
-				{
-					ObjectType type = GetTypeByIndex(i);
-					fprintf(_dump, "%d - %s\n", type, Level::GetTypeInfoByIndex(i).name);
-				}
-			}
-			++_frame;
-			fprintf(_dump, "\n### frame %04d ###\n", _frame);
-			#endif
-
-
 			_time         += fixed_dt;
 			_timeBuffer   -= fixed_dt;
 			_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
 
 			if( !_frozen )
 			{
-				ObjectList::safe_iterator it = ts_fixed.safe_begin();
-				while( it != ts_fixed.end() )
+				for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 				{
-					GC_Object* pTS_Obj = *it;
-					_ASSERT(!pTS_Obj->IsKilled());
-
-					// расчет контрольной суммы для обнаружения потери синхронизации
-					#ifdef NETWORK_DEBUG
-					if( tmp_cs = pTS_Obj->checksum() )
-					{
-						dwCheckSum = dwCheckSum ^ tmp_cs ^ 0xD202EF8D;
-						dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
-						fprintf(_dump, "type %03d obj 0x%08x -> local 0x%08x, global 0x%08x\n", pTS_Obj->GetType(), pTS_Obj, tmp_cs, dwCheckSum);
-					}
-					#endif
-
-					pTS_Obj->TimeStepFixed(fixed_dt);
-					++it;
+					_ASSERT(!(*it)->IsKilled());
+					(*it)->TimeStepFixed(fixed_dt);
 				}
 				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
 			}
@@ -1247,16 +1213,33 @@ void Level::TimeStep(float dt)
 			passedFixedDT = fixed_dt;
 
 #ifdef NETWORK_DEBUG
+			//
+			// detect sync lost error
+			//
+
+			if( !_dump )
+			{
+				char fn[MAX_PATH];
+				sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
+				_dump = fopen(fn, "w");
+				_ASSERT(_dump);
+			}
+			++_frame;
+			fprintf(_dump, "\n### frame %04d ###\n", _frame);
+
+			DWORD dwCheckSum = 0;
+			for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
+			{
+				if( DWORD cs = (*it)->checksum() )
+				{
+					dwCheckSum = dwCheckSum ^ cs ^ 0xD202EF8D;
+					dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+					fprintf(_dump, "0x%08x -> local 0x%08x, global 0x%08x  (%s)\n", (*it), cs, dwCheckSum, typeid(**it).name());
+				}
+			}
 			_checksum = dwCheckSum;
 			fflush(_dump);
 #endif
-
-		//	NetworkStats ns;
-		//	g_client->GetStatistics(&ns);
-		//	if( ns.nFramesInBuffer < g_conf->sv_latency->GetInt() )
-		//	{
-		//		break;
-		//	}
 		} // end of while( _timeBuffer > 0 )
 	}
 	else // if( g_client )

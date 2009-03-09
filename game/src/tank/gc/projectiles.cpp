@@ -969,6 +969,11 @@ void GC_FireSpark::TimeStepFixed(float dt)
 		for( ObjectList::safe_iterator it2 = (*it1)->safe_begin(); it2 != (*it1)->end(); ++it2 )
 		{
 			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it2);
+			if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
+			{
+				continue;
+			}
+
 			vec2d dist = GetPos() - object->GetPos();
 			float destLen = dist.len();
 

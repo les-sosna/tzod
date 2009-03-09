@@ -36,6 +36,10 @@ class TankServer
 
 	SafePtr<LobbyClient> _announcer;
 
+#ifdef NETWORK_DEBUG
+	typedef std::map<unsigned int, DWORD> FrameToCSMap;
+	FrameToCSMap _frame2cs;
+#endif
 
 	void SendFrame();
 

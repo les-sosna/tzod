@@ -374,36 +374,23 @@ void TankServer::SendFrame()
 		{
 			PeerList::iterator it = _clients.begin();
 
-			#ifdef NETWORK_DEBUG
-			DWORD chsum;
-			bool first = true;
-			#endif
-
-
 			for( int i = 0; it != _clients.end(); ++it )
 			{
 				if( !(*it)->connected ) continue;
-				db.cast<ControlPacket>(_connectedCount - (++i)) = (*it)->ctrl.front();
+				const ControlPacket &cp = (*it)->ctrl.front();
+				db.cast<ControlPacket>(_connectedCount - (++i)) = cp;
 
-				#ifdef NETWORK_DEBUG
-				if( first )
+#ifdef NETWORK_DEBUG
+				FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
+				if( !ib.second && ib.first->second != cp.checksum )
 				{
-					chsum = (*it)->ctrl.front().checksum;
-					first = false;
+					TRACE("sv: sync error detected at frame %u!\n", cp.frame);
+					char buf[256];
+					wsprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
+					MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
+					ExitProcess(-1);
 				}
-				else
-				{
-					DWORD tmp = (*it)->ctrl.front().checksum;
-					if( tmp != chsum )
-					{
-						TRACE("sv: sync error detected!\n");
-						char buf[128];
-						wsprintf(buf, "sync error: 0x%x 0x%x", tmp, chsum);
-					//	MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
-					//	ExitProcess(-1);
-					}
-				}
-				#endif
+#endif
 			}
 			_ASSERT(_connectedCount * sizeof(ControlPacket) == db.DataSize());
 			(*it1)->Send(db);

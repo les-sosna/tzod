@@ -145,7 +145,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	}
 
 
-	GC_Camera::GetWorldMousePos(_arrivalPoint);
+//	GC_Camera::GetWorldMousePos(_arrivalPoint);
 
 
 	VehicleState vs;
@@ -177,6 +177,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	if( GetVehicle()->GetWeapon() )
 		GetVehicle()->GetWeapon()->SetupAI(&weapSettings);
 
+//	return;
 
 	// принятие решения
 	if( _jobManager.TakeJob(this) )

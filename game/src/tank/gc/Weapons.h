@@ -84,6 +84,16 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
+
+#ifdef NETWORK_DEBUG
+	virtual DWORD checksum(void) const
+	{
+		DWORD cs = reinterpret_cast<const DWORD&>(_angleReal)
+			^ reinterpret_cast<const DWORD&>(_timeReload)
+			^ reinterpret_cast<const DWORD&>(_timeStay);
+		return GC_Pickup::checksum() ^ cs;
+	}
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
