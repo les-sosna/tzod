@@ -1,6 +1,8 @@
-Lobby
+Lobby - done
 
-prediction in network multiplayer
+prediction in network multiplayer - done
+
+save screenshots in jpg
 
 Save/Load
  - user objects serialization - custom textures are not saved

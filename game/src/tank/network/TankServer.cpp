@@ -34,13 +34,18 @@ TankServer::TankServer(const SafePtr<LobbyClient> &announcer)
 
 TankServer::~TankServer(void)
 {
-	ShutDown();
-	TRACE("sv: Server destroyed\n");
-}
-
-void TankServer::ShutDown()
-{
 	TRACE("sv: Server is shutting down\n");
+
+
+	//
+	// cancel lobby registration
+	//
+
+	if( _announcer )
+	{
+		_announcer->Cancel();
+	}
+
 
 	//
 	// close listener
@@ -60,6 +65,9 @@ void TankServer::ShutDown()
 	{
 		(*it)->Close();
 	}
+
+
+	TRACE("sv: Server destroyed\n");
 }
 
 bool TankServer::init(const GameInfo *info)
@@ -227,6 +235,10 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			{
 				// запрещение приема новых подключений
 				_socketListen.Close();
+				if( _announcer )
+				{
+					_announcer->Cancel();
+				}
 
 				DataBlock tmp = DataWrap(g_lang->net_msg_starting_game->Get(), DBTYPE_TEXTMESSAGE);
 				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
@@ -372,9 +384,8 @@ void TankServer::SendFrame()
 	{
 		if( (*it1)->connected )
 		{
-			PeerList::iterator it = _clients.begin();
-
-			for( int i = 0; it != _clients.end(); ++it )
+			int i = 0;
+			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
 				if( !(*it)->connected ) continue;
 				const ControlPacket &cp = (*it)->ctrl.front();

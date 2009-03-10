@@ -54,8 +54,7 @@ static bool ParseServerList(std::vector<std::string> &result, const std::string 
 ///////////////////////////////////////////////////////////////////////////////
 
 LobbyClient::LobbyClient()
-  : _http(new HttpClient())
-  , _sessionKey(GenerateKey(LOBBY_KEY_LENGTH))
+  : _sessionKey(GenerateKey(LOBBY_KEY_LENGTH))
   , _redirectCount(0)
   , _timer(CreateWaitableTimer(NULL, FALSE, NULL))
   , _state(STATE_IDLE)
@@ -68,15 +67,19 @@ LobbyClient::LobbyClient()
 	Delegate<void()> d;
 	d.bind(&LobbyClient::OnTimer, this);
 	g_app->RegisterHandle(_timer, d);
-
-	// setup http client
-	_http->eventResult.bind(&LobbyClient::OnHttpResult, this);
 }
 
 LobbyClient::~LobbyClient()
 {
 	g_app->UnregisterHandle(_timer);
 	CloseHandle(_timer);
+}
+
+void LobbyClient::ResetHttp()
+{
+	// recreate http client to cancel any current requests
+	_http = WrapRawPtr(new HttpClient());
+	_http->eventResult.bind(&LobbyClient::OnHttpResult, this);
 }
 
 void LobbyClient::SetLobbyUrl(const std::string &lobbyUrl)
@@ -92,6 +95,8 @@ void LobbyClient::RequestServerList()
 	_redirectCount = 0;
 	_param.clear();
 	_param["ver"] = LOBBY_VERSION;
+
+	ResetHttp();
 	_http->Get(_lobbyUrl, _param);
 }
 
@@ -108,7 +113,32 @@ void LobbyClient::AnnounceHost(int port)
 	_param["ver"] = LOBBY_VERSION;
 	_param["reg"] = s.str();
 	_param["key"] = _sessionKey;
+
+	ResetHttp();
 	_http->Get(_lobbyUrl, _param);
+}
+
+void LobbyClient::Cancel()
+{
+	if( STATE_ANNOUNCE == _state )
+	{
+		_state = STATE_CANCEL;
+		_redirectCount = 0;
+		// use params from AnnounceHost call 
+		_param["unreg"] = _param["reg"];
+		_param.erase("reg");
+
+		ResetHttp();
+		_http->Get(_lobbyUrl, _param);
+
+		// prevent client deletion until command completes
+		AddRef();
+
+		// set up the timer to force deletion if command hangs
+		LARGE_INTEGER dueTime;
+		dueTime.QuadPart = -100000000; // 10 seconds
+		SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+	}
 }
 
 void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpParam *headers)
@@ -136,44 +166,66 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 
 		case 200: // ok
 			_ASSERT(STATE_IDLE != _state);
-			if( STATE_ANNOUNCE == _state )
+			switch( _state )
 			{
-				if( result.substr(0, 2) == "ok" )
+				case STATE_ANNOUNCE:
 				{
-					LARGE_INTEGER dueTime;
-					dueTime.QuadPart = -300000000; // 30 seconds
-					SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+					if( result.substr(0, 2) == "ok" )
+					{
+						LARGE_INTEGER dueTime;
+						dueTime.QuadPart = -300000000; // 30 seconds
+						SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+					}
+					else
+					{
+						_state = STATE_IDLE;
+						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						if( eventError )
+						{
+							INVOKE(eventError) ("invalid lobby reply");
+						}
+					}
+					break;
 				}
-				else
+
+				case STATE_LIST:
 				{
 					_state = STATE_IDLE;
-					TRACE("lobby: invalid server reply - %s\n", result.c_str());
-					if( eventError )
+					std::vector<std::string> svlist;
+					if( ParseServerList(svlist, result) )
 					{
-						INVOKE(eventError) ("invalid lobby reply");
+						if( eventServerListReply )
+						{
+							INVOKE(eventServerListReply) (svlist);
+						}
 					}
+					else
+					{
+						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						if( eventError )
+						{
+							INVOKE(eventError) ("invalid lobby reply");
+						}
+					}
+					break;
 				}
-			}
-			else
-			{
-				_state = STATE_IDLE;
-				std::vector<std::string> svlist;
-				if( ParseServerList(svlist, result) )
+
+				case STATE_CANCEL:
 				{
-					if( eventServerListReply )
+					CancelWaitableTimer(_timer);
+					_state = STATE_IDLE;
+					if( result.substr(0, 2) != "ok" )
 					{
-						INVOKE(eventServerListReply) (svlist);
+						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						if( eventError )
+						{
+							INVOKE(eventError) ("invalid lobby reply");
+						}
 					}
+					Release();
+					break;
 				}
-				else
-				{
-					TRACE("lobby: invalid server reply - %s\n", result.c_str());
-					if( eventError )
-					{
-						INVOKE(eventError) ("invalid lobby reply");
-					}
-				}
-			}
+			} // end of switch( _state )
 			break;
 
 		default:  // unknown error
@@ -186,10 +238,17 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 
 void LobbyClient::OnTimer()
 {
-	_ASSERT(STATE_ANNOUNCE == _state);
-	// refresh
-	_redirectCount = 0;
-	_http->Get(_lobbyUrl, _param);
+	if( STATE_ANNOUNCE == _state )
+	{
+		// refresh
+		_redirectCount = 0;
+		_http->Get(_lobbyUrl, _param);
+	}
+	else if( STATE_CANCEL == _state )
+	{
+		_state = STATE_IDLE;
+		Release();
+	}
 }
 
 

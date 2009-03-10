@@ -252,6 +252,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 		"F8                   - map settings\n"
 		"F9                   - toggle layers\n"
 		"G                    - toggle grid\n"
+		"S                    - toggle service list\n"
 		"ESC                  - main menu\n"
 		"Delete               - delete selected object\n"
 		"Enter                - properties\n"

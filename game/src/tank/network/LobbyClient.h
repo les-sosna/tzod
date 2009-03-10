@@ -16,6 +16,7 @@ public:
 
 	void RequestServerList();
 	void AnnounceHost(int port);
+	void Cancel();
 
 	Delegate<void()> eventAnnounceActive;
 	Delegate<void(const std::vector<std::string>&)> eventServerListReply;
@@ -26,7 +27,8 @@ private:
 	{
 		STATE_IDLE,
 		STATE_LIST,
-		STATE_ANNOUNCE
+		STATE_ANNOUNCE,
+		STATE_CANCEL,
 	};
 	typedef std::map<std::string, std::string> HttpParam;
 	HttpParam _param;
@@ -36,6 +38,8 @@ private:
 	int _redirectCount;
 	HANDLE _timer;
 	State _state;
+
+	void ResetHttp();
 
 	void OnHttpResult(int err, const std::string &result, const HttpParam *headers);
 

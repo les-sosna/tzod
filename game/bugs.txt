@@ -13,13 +13,9 @@ debug lines from intro map are still displayed
 
 
 
-sync error when playing with bots
+sync error when playing with bots?
 
 
-S key is absent in editor help
-
-
-vehicle headlights don't work
 
 
 
