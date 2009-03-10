@@ -17,6 +17,12 @@ sync error when playing with bots?
 
 
 
+net_connect_address instead of lobby address in internet dialog
+
+
+no lobby is selected by default in start server dialog
+
+
 
 
 
