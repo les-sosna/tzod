@@ -3,12 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank", "make\tank.vcproj", "{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{69802413-3739-43E0-96C9-709713A35B34} = {69802413-3739-43E0-96C9-709713A35B34}
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772} = {2E00FA2D-FB50-449E-BCB8-8E0DAF584772}
 		{7E7DCD27-D75C-44C3-A135-312FB3A235C6} = {7E7DCD27-D75C-44C3-A135-312FB3A235C6}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "make\lua.vcproj", "{69802413-3739-43E0-96C9-709713A35B34}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oggvorbis", "make\oggvorbis.vcproj", "{7E7DCD27-D75C-44C3-A135-312FB3A235C6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "make\zlib.vcproj", "{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +38,12 @@ Global
 		{7E7DCD27-D75C-44C3-A135-312FB3A235C6}.Profiler|Win32.Build.0 = Profiler|Win32
 		{7E7DCD27-D75C-44C3-A135-312FB3A235C6}.Release|Win32.ActiveCfg = Release|Win32
 		{7E7DCD27-D75C-44C3-A135-312FB3A235C6}.Release|Win32.Build.0 = Release|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Debug|Win32.ActiveCfg = LIB_Debug|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Debug|Win32.Build.0 = LIB_Debug|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Profiler|Win32.ActiveCfg = LIB_Release|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Profiler|Win32.Build.0 = LIB_Release|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Release|Win32.ActiveCfg = LIB_Release|Win32
+		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}.Release|Win32.Build.0 = LIB_Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
