@@ -60,7 +60,7 @@ void TankClient::Connect(const string_t &hostaddr)
 		{
 			int err = WSAGetLastError();
 			TRACE("cl: ERROR - Unable to resolve IP-address (%u)\n", err);
-			OnConnect(err ? err : -1);
+			OnDisconnect(NULL, err ? err : -1);
 			return;
 		}
 		addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
@@ -76,7 +76,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	{
 		int err = WSAGetLastError();
 		TRACE("cl: ERROR - Unable to create socket (%u)\n", WSAGetLastError());
-		OnConnect(err ? err : -1);
+		OnDisconnect(NULL, err ? err : -1);
 		return;
 	}
 
@@ -84,21 +84,11 @@ void TankClient::Connect(const string_t &hostaddr)
 	Message(g_lang->net_msg_connecting->Get());
 
 	_peer = WrapRawPtr(new Peer(s));
-	_peer->eventConnect.bind(&TankClient::OnConnect, this);
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
 	_peer->eventRecv.bind(&TankClient::OnRecv, this);
-	_peer->Connect(&addr);
-}
-
-void TankClient::OnConnect(int err)
-{
-	if( err )
+	if( int err = _peer->Connect(&addr) )
 	{
-		Message(g_lang->net_msg_connection_failed->Get(), true);
-	}
-	else
-	{
-		Message(g_lang->net_msg_connection_established->Get());
+		OnDisconnect(NULL, err);
 	}
 }
 

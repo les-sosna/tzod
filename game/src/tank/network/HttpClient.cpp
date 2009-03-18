@@ -206,9 +206,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 		INVOKE(eventResult) (WSAGetLastError(), "Unable to select event", NULL);
 	}
 
-	Delegate<void()> d;
-	d.bind(&HttpClient::OnSocketEvent, this);
-	_socket.SetCallback(d);
+	_socket.SetCallback(CreateDelegate(&HttpClient::OnSocketEvent, this));
 
 
 	TRACE("http: connecting to %s\n", inet_ntoa(addr.sin_addr));

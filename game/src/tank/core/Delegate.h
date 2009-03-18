@@ -8,14 +8,18 @@
 
 #define INVOKE(d) ((d).inst()->*(d).func())
 
+namespace delegate_detail
+{
+	struct blank {};
+}
+
 template<class F>
 class Delegate
 {
-	struct blank {};         // base for all targets
-	typedef F (blank::*mp);  // type pointer to member
+	typedef F (delegate_detail::blank::*MemFnPtr);
 
-	blank  *_inst;
-	mp      _func;
+	delegate_detail::blank     *_inst;
+	MemFnPtr   _func;
 
 public:
 	Delegate()
@@ -24,18 +28,25 @@ public:
 	{
 	}
 
-	blank* inst() const { return _inst; }
-	mp     func() const { return _func; }
-
-	template<class signature, class inst_type>
-	void bind(signature pmf, inst_type *inst)
+	template <class U>
+	Delegate(Delegate<U> const &src)
+	  : _inst(src.inst())
+	  , _func(src.func())
 	{
-		_ASSERT(pmf);
-		_ASSERT(inst);
-		typedef F (inst_type::*mem_fn);
-		mem_fn tmp = static_cast<mem_fn>(pmf); // safe(!) cast
-		_func = reinterpret_cast<mp>(tmp);     // unsafe, but it has been checked above
-		_inst = reinterpret_cast<blank*>(inst);
+	}
+
+
+	delegate_detail::blank*   inst() const { return _inst; }
+	MemFnPtr                  func() const { return _func; }
+
+	template<class MemFnType, class InstType>
+	void bind(MemFnType pmf, InstType *inst)
+	{
+		_ASSERT(pmf && inst);
+		typedef F (InstType::*MemFnCompat);
+		MemFnCompat tmp = static_cast<MemFnCompat>(pmf); // safe(!) cast
+		_func = reinterpret_cast<MemFnPtr>(tmp);         // unsafe, but it has been checked above
+		_inst = reinterpret_cast<delegate_detail::blank*>(inst);
 	}
 
 	void clear()
@@ -72,6 +83,17 @@ public:
 	{
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+template<class FF, class InstType>
+Delegate<FF> CreateDelegate(FF (InstType::*fn), InstType *inst)
+{
+	Delegate<FF> d;
+	d.bind(fn, inst);
+	return d;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////

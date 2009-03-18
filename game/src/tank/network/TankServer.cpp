@@ -10,6 +10,7 @@
 #include "config/Language.h"
 
 #include "TankServer.h"
+#include "ServerFunctions.h"
 #include "datablock.h"
 
 #include "LobbyClient.h"
@@ -110,9 +111,7 @@ bool TankServer::init(const GameInfo *info)
 		return false;
 	}
 
-	Delegate<void()> d;
-	d.bind(&TankServer::OnListenerEvent, this);
-	_socketListen.SetCallback(d);
+	_socketListen.SetCallback(CreateDelegate(&TankServer::OnListenerEvent, this));
 
 	TRACE("sv: Server is online\n");
 
@@ -158,6 +157,9 @@ void TankServer::OnListenerEvent()
 
 	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
 	PeerServer &cl = *GetRawPtr(_clients.back());
+
+//	cl.RegisterHandler(SV_POST_TEXTMESSAGE, CreateDelegate(&TankServer::TextMessage, this));
+
 	cl.connected = FALSE;
 	cl.ready = FALSE;
 	cl.id = ++_nextFreeId;

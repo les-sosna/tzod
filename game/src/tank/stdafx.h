@@ -78,15 +78,19 @@
 // direct x
 
 #define DIRECTINPUT_VERSION 0x0800
-#include "dinput.h"
+#include <dinput.h>
 
 #include "dsutil.h"
 
+///////////////
+// ogg/vorbis
+
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
-#pragma comment(lib, "oggvorbis.lib")
 
 
+///////////////
+// lua
 
 #ifdef _DEBUG
 #define LUA_USE_APICHECK
@@ -94,11 +98,17 @@
 
 extern "C"
 {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
-#pragma comment(lib, "lua.lib")
+
+
+///////////////
+// zlib
+
+#include <zlib.h>
+
 
 ///////////////////
 // other stuff

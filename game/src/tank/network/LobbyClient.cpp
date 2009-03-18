@@ -64,9 +64,7 @@ LobbyClient::LobbyClient()
 	{
 		throw std::runtime_error("lobby: failed to create waitable timer");
 	}
-	Delegate<void()> d;
-	d.bind(&LobbyClient::OnTimer, this);
-	g_app->RegisterHandle(_timer, d);
+	g_app->RegisterHandle(_timer, CreateDelegate(&LobbyClient::OnTimer, this));
 }
 
 LobbyClient::~LobbyClient()

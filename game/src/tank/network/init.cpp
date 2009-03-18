@@ -1,6 +1,6 @@
 // init.cpp
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include "init.h"
 
 #include "core/Application.h"

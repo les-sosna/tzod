@@ -47,6 +47,9 @@ class TankServer
 	void OnRecv(Peer *who, const DataBlock &db);
 	void OnDisconnect(Peer *who, int err);
 
+
+	void TextMessage(Peer *from, int task, const Variant &arg);
+
 public:
 	TankServer(const SafePtr<LobbyClient> &announcer);
 	~TankServer(void);

@@ -14,16 +14,12 @@
 Peer::Peer(SOCKET s)
 {
 	_socket = s;
-
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
 		TRACE("peer: ERROR - Unable to select event (%u)\n", WSAGetLastError());
 		throw std::runtime_error("peer: Unable to select event");
 	}
-
-	Delegate<void()> d;
-	d.bind(&Peer::OnSocketEvent, this);
-	_socket.SetCallback(d);
+	_socket.SetCallback(CreateDelegate(&Peer::OnSocketEvent, this));
 }
 
 Peer::~Peer()
@@ -37,22 +33,26 @@ void Peer::Close()
 	_socket.Close();
 }
 
-void Peer::Connect(const sockaddr_in *addr)
+int Peer::Connect(const sockaddr_in *addr)
 {
 	_ASSERT(INVALID_SOCKET != _socket);
-	_ASSERT(eventConnect);
 	if( !connect(_socket, (sockaddr *) addr, sizeof(sockaddr_in)) )
 	{
 		TRACE("cl: ERROR - connect call failed!\n");
-		INVOKE(eventConnect) (WSAGetLastError());
-		return;
+		return WSAGetLastError();
 	}
-	int error;
-	if( WSAEWOULDBLOCK != (error = WSAGetLastError()) )
+	if( WSAEWOULDBLOCK != WSAGetLastError() )
 	{
-		TRACE("cl: error %d; WSAEWOULDBLOCK expected!\n", error);
-		INVOKE(eventConnect) (error);
+		TRACE("cl: error %d; WSAEWOULDBLOCK expected!\n", WSAGetLastError());
+		return WSAGetLastError();
 	}
+	return 0;
+}
+
+void Peer::RegisterHandler(int func, HandlerType handler)
+{
+	_ASSERT(0 == _handlers->count(func));
+	_handlers[func] = handler;
 }
 
 void Peer::Send(const DataBlock &db)
@@ -109,8 +109,11 @@ void Peer::OnSocketEvent()
 
 	if( ne.lNetworkEvents & FD_CONNECT )
 	{
-		_ASSERT(eventConnect);
-		INVOKE(eventConnect) (ne.iErrorCode[FD_CONNECT_BIT]);
+		if( ne.iErrorCode[FD_CONNECT_BIT] )
+		{
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_CONNECT_BIT]);
+		}
 	}
 
 	if( ne.lNetworkEvents & FD_CLOSE )
