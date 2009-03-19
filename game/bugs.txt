@@ -23,6 +23,6 @@ net_connect_address instead of lobby address in internet dialog
 no lobby is selected by default in start server dialog
 
 
-
+in editor: invalid selection rect when zoom != 100%
 
 
