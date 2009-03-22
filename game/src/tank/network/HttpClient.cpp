@@ -210,7 +210,6 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 
 	TRACE("http: connecting to %s\n", inet_ntoa(addr.sin_addr));
-//	Message(g_lang->net_msg_connecting->Get());
 
 
 	if( !connect(_socket, (sockaddr *) &addr, sizeof(sockaddr_in)) )
