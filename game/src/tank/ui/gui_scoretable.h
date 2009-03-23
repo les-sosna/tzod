@@ -11,10 +11,6 @@ namespace UI
 
 class ScoreTable : public Window
 {
-	// PlayerDesc::index будет использоваться для хранения фрагов
-	std::vector<PlayerDesc> _players;
-	void Refresh();
-
 	Text *_text;
 
 public:

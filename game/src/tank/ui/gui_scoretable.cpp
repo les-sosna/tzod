@@ -32,35 +32,6 @@ ScoreTable::~ScoreTable()
 {
 }
 
-void ScoreTable::Refresh()
-{
-	_ASSERT(g_level);
-
-	_players.clear();
-	FOREACH( g_level->GetList(LIST_players), GC_Player, player )
-	{
-		if( player->IsKilled() ) continue;
-		_players.push_back( PlayerDesc() );
-		_players.back().score = player->GetScore();
-		strcpy(_players.back().nick, player->GetNick().c_str());
-	}
-
-	if( _players.empty() ) return;
-
-	for( int i = _players.size(); --i;)
-	{
-		for( int j = 0; j < i; ++j )
-		{
-			if( _players[j].score < _players[j+1].score )
-			{
-				PlayerDesc tmp = _players[j+1];
-				_players[j+1]  = _players[j];
-				_players[j]    = tmp;
-			}
-		}
-	}
-}
-
 void ScoreTable::OnParentSize(float width, float height)
 {
 	Move((width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f);
@@ -68,7 +39,31 @@ void ScoreTable::OnParentSize(float width, float height)
 
 void ScoreTable::DrawChildren(float sx, float sy)
 {
-	Refresh();
+	_ASSERT(g_level);
+
+	std::vector<GC_Player*> players;
+	FOREACH( g_level->GetList(LIST_players), GC_Player, player )
+	{
+		if( player->IsKilled() ) continue;
+		players.push_back(player);
+	}
+
+	int max_score = 0;
+	if( !players.empty() )
+	{
+		for( int i = players.size(); --i;)
+		{
+			for( int j = 0; j < i; ++j )
+			{
+				if( players[j]->GetScore() < players[j+1]->GetScore() )
+				{
+					std::swap(players[j+1], players[j]);
+				}
+			}
+		}
+		max_score = players[0]->GetScore();
+	}
+
 
 	char text[256];
 	if( g_conf->sv_timelimit->GetFloat() )
@@ -88,12 +83,6 @@ void ScoreTable::DrawChildren(float sx, float sy)
 
 	if( g_conf->sv_fraglimit->GetInt() )
 	{
-		int max_score = _players.empty() ? 0 : _players[0].score;
-		for( size_t i = 0; i < _players.size(); ++i )
-		{
-			if( _players[i].score > max_score )
-				max_score = _players[i].score;
-		}
 		int scoreleft = g_conf->sv_fraglimit->GetInt() - max_score;
 		if( scoreleft > 0 )
 			wsprintf(text, g_lang->score_frags_left_x->Get().c_str(), scoreleft);
@@ -105,7 +94,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 		_text->Draw(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP);
 	}
 
-	for( size_t i = 0; i < _players.size(); ++i )
+	for( size_t i = 0; i < players.size(); ++i )
 	{
 		if( i < 8 )
 		{
@@ -114,10 +103,10 @@ void ScoreTable::DrawChildren(float sx, float sy)
 			_text->SetAlign(alignTextLT);
 			_text->Draw(sx + SCORE_POS_NUMBER, sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
 
-			_text->SetText(_players[i].nick);
+			_text->SetText(players[i]->GetNick());
 			_text->Draw(sx + SCORE_POS_NAME, sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
 
-			wsprintf(text, "%d", _players[i].score);
+			wsprintf(text, "%d", players[i]->GetScore());
 			_text->SetText(text);
 			_text->SetAlign(alignTextRT);
 			_text->Draw(sx + (float) (GetWidth() - SCORE_POS_SCORE),
