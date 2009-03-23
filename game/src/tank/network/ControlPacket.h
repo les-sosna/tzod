@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Variant.h"
+
 // forward declarations
 struct VehicleState
 {
@@ -62,9 +64,8 @@ struct VehicleState
 
 #pragma pack(push)
 #pragma pack(2)
-class ControlPacket
+struct ControlPacket
 {
-public:
 	WORD  wControlState;
 	unsigned short weap;  // angle, if explicit
 	unsigned short body;  // angle, if explicit
@@ -80,5 +81,9 @@ public:
 };
 #pragma pack(pop)
 
+typedef std::vector<ControlPacket> ControlPacketVector;
+
+VARIANT_DECLARE_TYPE(ControlPacket);
+VARIANT_DECLARE_TYPE(ControlPacketVector);
 
 // end of file

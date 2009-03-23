@@ -4,8 +4,11 @@
 
 enum ServerFunction
 {
-	SV_POST_TEXTMESSAGE,
-
+	SV_POST_TEXTMESSAGE,  // std::string
+	SV_POST_CONTROL,      // ControlPacket
+	SV_POST_PLAYERREADY,  // bool
+	SV_POST_ADDBOT,       // BotDesc
+	SV_POST_ADDPLAYER,   // PlayerDesc
 };
 
 

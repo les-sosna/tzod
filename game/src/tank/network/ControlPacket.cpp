@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "ControlPacket.h"
 
+VARIANT_IMPLEMENT_TYPE(ControlPacket) RAW;
+VARIANT_IMPLEMENT_TYPE(ControlPacketVector) STD_VECTOR;
 
 ///////////////////////////////////////////////////////////////////////////////
 

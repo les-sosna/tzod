@@ -1034,19 +1034,23 @@
 			Name="network"
 			>
 			<File
+				RelativePath="..\src\tank\network\ClientFunctions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\CommonTypes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\CommonTypes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\network\ControlPacket.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\tank\network\ControlPacket.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\network\datablock.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\network\datablock.h"
 				>
 			</File>
 			<File
@@ -1082,6 +1086,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\network\ServerFunctions.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\network\Socket.cpp"
 				>
 			</File>
@@ -1103,6 +1111,14 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\network\TankServer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\Variant.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\network\Variant.h"
 				>
 			</File>
 		</Filter>
