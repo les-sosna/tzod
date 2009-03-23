@@ -3,21 +3,33 @@
 
 #include "stdafx.h"
 #include "TankClient.h"
+#include "ClientFunctions.h"
+#include "ServerFunctions.h"
+#include "CommonTypes.h"
+#include "ControlPacket.h"
 
 #include "core/debug.h"
 #include "core/Console.h"
 #include "core/Application.h"
 
+#include "ui/gui_desktop.h"
+#include "ui/GuiManager.h"
+
+#include "gc/ai.h"
+#include "gc/Player.h"
+
 #include "config/Config.h"
 #include "config/Language.h"
 
-
+#include "functions.h"
+#include "Level.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 TankClient::TankClient(void)
   : _frame(0)
   , _clientId(0)
+  , _gameStarted(false)
   , _latency(1)
 {
 	ZeroMemory(&_stats, sizeof(NetworkStats));
@@ -81,41 +93,39 @@ void TankClient::Connect(const string_t &hostaddr)
 	}
 
 	TRACE("cl: connecting to %s\n", inet_ntoa(addr.sin_addr));
-	Message(g_lang->net_msg_connecting->Get());
+	ClTextMessage(NULL, -1, Variant(g_lang->net_msg_connecting->Get()));
 
 	_peer = WrapRawPtr(new Peer(s));
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
-	_peer->eventRecv.bind(&TankClient::OnRecv, this);
+
+	_peer->RegisterHandler(CL_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankClient::ClTextMessage, this));
+	_peer->RegisterHandler(CL_POST_ERRORMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankClient::ClErrorMessage, this));
+	_peer->RegisterHandler(CL_POST_GAMEINFO, VariantTypeId<GameInfo>(), CreateDelegate(&TankClient::ClGameInfo, this));
+	_peer->RegisterHandler(CL_POST_SETID, VariantTypeId<unsigned short>(), CreateDelegate(&TankClient::ClSetId, this));
+	_peer->RegisterHandler(CL_POST_PLAYERQUIT, VariantTypeId<unsigned short>(), CreateDelegate(&TankClient::ClPlayerQuit, this));
+	_peer->RegisterHandler(CL_POST_CONTROL, VariantTypeId<ControlPacketVector>(), CreateDelegate(&TankClient::ClControl, this));
+	_peer->RegisterHandler(CL_POST_PLAYER_READY, VariantTypeId<PlayerReady>(), CreateDelegate(&TankClient::ClPlayerReady, this));
+	_peer->RegisterHandler(CL_POST_STARTGAME, VariantTypeId<bool>(), CreateDelegate(&TankClient::ClStartGame, this));
+	_peer->RegisterHandler(CL_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankClient::ClAddBot, this));
+	_peer->RegisterHandler(CL_POST_ADDPLAYER, VariantTypeId<PlayerDescEx>(), CreateDelegate(&TankClient::ClAddPlayer, this));
+
 	if( int err = _peer->Connect(&addr) )
 	{
 		OnDisconnect(NULL, err);
 	}
 }
 
-void TankClient::OnDisconnect(Peer *, int err)
+void TankClient::OnDisconnect(Peer *peer, int err)
 {
-	Message(g_lang->net_msg_connection_failed->Get(), 0!=err);
-}
-
-void TankClient::OnRecv(Peer *who, const DataBlock &db)
-{
-	_ASSERT(DBTYPE_UNKNOWN != db.type());
-	_ASSERT(eventNewData);
-
-	switch( db.type() )
+	Variant arg(g_lang->net_msg_connection_failed->Get());
+	if( err )
 	{
-		case DBTYPE_CONTROLPACKET:
-			for( int i = 0; i < NET_MULTIPLER-1; i++ )
-			{
-				INVOKE(eventNewData) (db);   // duplicate packet
-			}
-			break;
-		case DBTYPE_YOURID:
-			_clientId = db.cast<DWORD>();
-			return;
+		ClErrorMessage(peer, -1, arg);
 	}
-
-	INVOKE(eventNewData) (db);
+	else
+	{
+		ClTextMessage(peer, -1, arg);
+	}
 }
 
 void TankClient::ShutDown()
@@ -127,20 +137,15 @@ void TankClient::ShutDown()
 	}
 }
 
-void TankClient::Message(const string_t &msg, bool err)
+void TankClient::SendTextMessage(const std::string &msg)
 {
-	OnRecv(NULL, DataWrap(msg, err ? DBTYPE_ERRORMSG : DBTYPE_TEXTMESSAGE));
-}
-
-void TankClient::SendDataToServer(const DataBlock &data)
-{
-	_ASSERT(DBTYPE_UNKNOWN != data.type());
-	_ASSERT(_peer);
-	_peer->Send(data);
+	_peer->Post(SV_POST_TEXTMESSAGE, Variant(msg));
 }
 
 void TankClient::SendControl(const ControlPacket &cp)
 {
+	_ASSERT(_gameStarted);
+
 	if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
 	{
 		--_latency;
@@ -148,10 +153,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 		return;     // skip packet
 	}
 
-	if( 0 == (_frame % NET_MULTIPLER) )
-	{
-		SendDataToServer(DataWrap(cp, DBTYPE_CONTROLPACKET));
-	}
+	_peer->Post(SV_POST_CONTROL, Variant(cp));
 	_frame++;
 
 
@@ -163,10 +165,204 @@ void TankClient::SendControl(const ControlPacket &cp)
 	}
 }
 
+void TankClient::SendPlayerReady(bool ready)
+{
+	_ASSERT(!_gameStarted);
+	_peer->Post(SV_POST_PLAYERREADY, Variant(ready));
+}
+
+void TankClient::SendAddBot(const BotDesc &bot)
+{
+	_peer->Post(SV_POST_ADDBOT, Variant(bot));
+}
+
+void TankClient::SendPlayerInfo(const PlayerDesc &pd)
+{
+	_peer->Post(SV_POST_ADDPLAYER, Variant(pd));
+}
+
 void TankClient::GetStatistics(NetworkStats *pStats)
 {
 	memcpy(pStats, &_stats, sizeof(NetworkStats));
 }
+
+void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(!_gameStarted);
+
+	const GameInfo &gi = arg.Value<GameInfo>();
+
+	if( VERSION != gi.dwVersion )
+	{
+		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_server_version->Get()));
+		return;
+	}
+
+	g_conf->sv_timelimit->SetInt(gi.timelimit);
+	g_conf->sv_fraglimit->SetInt(gi.fraglimit);
+	g_conf->sv_fps->SetInt(gi.server_fps);
+	g_conf->sv_nightmode->Set(gi.nightmode);
+
+	std::string path = DIR_MAPS;
+	path += "\\";
+	path += gi.cMapName;
+	path += ".map";
+
+	if( CalcCRC32(path.c_str()) != gi.dwMapCRC32 )
+	{
+		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));
+		return;
+	}
+
+
+	g_level->Clear();
+	if( !g_level->init_newdm(path, gi.seed) )
+	{
+		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map->Get()));
+		return;
+	}
+	g_level->PauseLocal(true); // paused until game is started
+
+	g_conf->cl_map->Set(gi.cMapName);
+	g_conf->ui_showmsg->Set(true);
+
+	if( eventConnected )
+	{
+		INVOKE(eventConnected) ();
+	}
+}
+
+void TankClient::ClSetId(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(!_gameStarted);
+	_clientId = arg.Value<unsigned short>();
+}
+
+void TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(!_gameStarted);
+	if( eventPlayerReady )
+	{
+		INVOKE(eventPlayerReady) (arg.Value<PlayerReady>().id, arg.Value<PlayerReady>().ready);
+	}
+}
+
+void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(!_gameStarted);
+	_gameStarted = true;
+}
+
+void TankClient::ClAddPlayer(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(!_gameStarted);
+
+	const PlayerDescEx &pd = arg.Value<PlayerDescEx>();
+
+	GC_Player *player = NULL;
+	if( GetId() == pd.id )
+	{
+		player = new GC_PlayerLocal();
+		const string_t &profile = g_conf->cl_playerinfo->GetStr("profile")->Get();
+		if( profile.empty() )
+		{
+			static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
+		}
+		else
+		{
+			static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
+		}
+	}
+	else
+	{
+		player = new GC_PlayerRemote(pd.id);
+	}
+	player->SetClass(pd.cls);
+	player->SetNick(pd.nick);
+	player->SetSkin(pd.skin);
+	player->SetTeam(pd.team);
+	player->UpdateSkin();
+
+	if( eventPlayersUpdate )
+	{
+		INVOKE(eventPlayersUpdate) ();
+	}
+}
+
+void TankClient::ClTextMessage(Peer *from, int task, const Variant &arg)
+{
+	if( g_gui )
+	{
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(arg.Value<std::string>());
+	}
+	if( eventTextMessage )
+	{
+		INVOKE(eventTextMessage) (arg.Value<std::string>());
+	}
+}
+
+void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
+{
+	if( g_gui )
+	{
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(arg.Value<std::string>());
+	}
+	if( eventErrorMessage )
+	{
+		INVOKE(eventErrorMessage) (arg.Value<std::string>());
+	}
+}
+
+void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
+{
+	unsigned short id = arg.Value<unsigned short>();
+
+	ObjectList::iterator it = g_level->GetList(LIST_players).begin();
+	while( it != g_level->GetList(LIST_players).end() )
+	{
+		if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
+		{
+			if( p->GetNetworkID() == id )
+			{
+				if( g_gui )
+				{
+					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_player_quit->Get());
+				}
+				p->Kill();
+			}
+		}
+		++it;
+	}
+
+	if( eventPlayersUpdate )
+	{
+		INVOKE(eventPlayersUpdate) ();
+	}
+}
+
+void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
+{
+	const BotDesc &bd = arg.Value<BotDesc>();
+	GC_PlayerAI *ai = new GC_PlayerAI();
+
+	ai->SetClass(bd.cls);
+	ai->SetNick(bd.nick);
+	ai->SetSkin(bd.skin);
+	ai->SetTeam(bd.team);
+	ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
+	ai->UpdateSkin();
+
+	if( eventNewBot )
+	{
+		INVOKE(eventNewBot) (ai->GetNick(), ai->GetSkin(), ai->GetTeam(), ai->GetLevel());
+	}
+}
+
+void TankClient::ClControl(Peer *from, int task, const Variant &arg)
+{
+	_ASSERT(_gameStarted);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

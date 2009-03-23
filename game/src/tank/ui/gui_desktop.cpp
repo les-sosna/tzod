@@ -248,22 +248,21 @@ void Desktop::OnChangeShowTime()
 
 void Desktop::OnCommand(const char *cmd)
 {
-	size_t len = strlen(cmd);
+	if( '\0' == cmd[0] )
+	{
+		return;
+	}
 
 	if( g_client )
 	{
-		if( cmd[0] != '/' )
+		if( cmd[0] == '/' )
 		{
-			DataBlock db(len + 1);
-			strcpy((char*) db.Data(), cmd);
-			db.type() = DBTYPE_TEXTMESSAGE;
-			g_client->SendDataToServer(db);
-			return;
+			++cmd; // cut off the first symbol and execute cmd
 		}
-
-		if( len > 1 )
+		else
 		{
-			++cmd; // cut off the first symbol
+			g_client->SendTextMessage(cmd);
+			return;
 		}
 	}
 

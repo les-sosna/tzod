@@ -343,7 +343,7 @@ void Level::Clear()
 	}
 #endif
 
-	_cmdQueue.c.clear();
+//	_cmdQueue.c.clear();
 	_ctrlQueue.c.clear();
 	_dropedFrames = 0;
 	_lag.clear();
@@ -393,7 +393,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	return true;
 }
 
-bool Level::init_newdm(const char *mapName, unsigned long seed)
+bool Level::init_newdm(const string_t &mapName, unsigned long seed)
 {
 	_ASSERT(IsSafeMode());
 	_ASSERT(IsEmpty());
@@ -402,7 +402,7 @@ bool Level::init_newdm(const char *mapName, unsigned long seed)
 	_modeEditor = false;
 	_seed       = seed;
 
-	return Import(mapName, true);
+	return Import(mapName.c_str(), true);
 }
 
 bool Level::init_load(const char *fileName)
@@ -1080,12 +1080,12 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->SetAlign(align);
 	_temporaryText->Draw();
 }
-
+/*
 void Level::OnNewData(const DataBlock &db)
 {
 	_cmdQueue.push(db);
 }
-
+*/
 ControlPacket Level::GetControlPacket(GC_Object *player)
 {
 	_ASSERT(!_ctrlQueue.empty());
@@ -1126,7 +1126,7 @@ void Level::TimeStep(float dt)
 		// network mode
 		//
 
-		const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat() / NET_MULTIPLER;
+		const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
 
 		_timeBuffer += dt;
 		while( _timeBuffer >= 0 )
@@ -1134,7 +1134,7 @@ void Level::TimeStep(float dt)
 			//
 			// обработка команд кадра
 			//
-			while( !_cmdQueue.empty() )
+/*			while( !_cmdQueue.empty() )
 			{
 				const DataBlock &db = _cmdQueue.front();
 				DataBlock::type_type type = db.type();
@@ -1183,7 +1183,7 @@ void Level::TimeStep(float dt)
 				if( DBTYPE_CONTROLPACKET == type )
 					break; // split frames
 			}// while( !_cmdQueue.empty() )
-
+*/
 			if( _ctrlQueue.empty() )
 			{
 				_timeBuffer -= fixed_dt;

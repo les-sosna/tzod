@@ -86,7 +86,7 @@ public:
 
 	void UpdateSkin();
 
-	virtual DWORD GetNetworkID() const = 0;
+	virtual unsigned short GetNetworkID() const = 0;
 
 	virtual void TimeStepFixed(float dt);
 
@@ -156,7 +156,7 @@ public:
 	void SelectFreeProfile();
 
 
-	virtual DWORD GetNetworkID() const;
+	virtual unsigned short GetNetworkID() const;
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);
@@ -171,14 +171,14 @@ public:
 class GC_PlayerRemote : public GC_Player
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerRemote);
-	DWORD _networkId;
+	unsigned short _networkId;
 
 public:
-	GC_PlayerRemote(DWORD id);
+	GC_PlayerRemote(unsigned short id);
 	GC_PlayerRemote(FromFile);
 	virtual ~GC_PlayerRemote();
 
-	virtual DWORD GetNetworkID() const { return _networkId; }
+	virtual unsigned short GetNetworkID() const { return _networkId; }
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);

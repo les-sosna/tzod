@@ -4,7 +4,6 @@
 
 
 #include "Socket.h"
-#include "datablock.h"
 #include "Peer.h"
 
 /////////////////////////////////////////////////////////
@@ -15,39 +14,63 @@ struct NetworkStats
 	size_t  bytesRecv;
 };
 
+struct ControlPacket;
+struct PlayerDesc;
+struct BotDesc;
+
 class TankClient
 {
 	SafePtr<Peer> _peer;
-
 	int _frame;
-
-	void Message(const string_t &msg, bool err = false);
+	bool _gameStarted;
 
 	void OnDisconnect(Peer *, int err);
-	void OnRecv(Peer *who, const DataBlock &db);
 
 public:
 	int _latency;
 
 private:
-	DWORD _clientId;
+	unsigned short _clientId;
 	NetworkStats _stats;
 
 public:
 	TankClient(void);
 	~TankClient(void);
 
-	DWORD GetId() const { return _clientId; }
+	unsigned short GetId() const { return _clientId; }
 
 	void Connect(const string_t &hostaddr);
 	void ShutDown();
 
-	void SendDataToServer(const DataBlock &data);
-
+	void SendPlayerReady(bool ready);
+	void SendAddBot(const BotDesc &bot);
+	void SendPlayerInfo(const PlayerDesc &pd);
+	void SendTextMessage(const std::string &msg);
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
+
 	void GetStatistics(NetworkStats *pStats);
 
-	Delegate<void(const DataBlock&)> eventNewData;
+
+	Delegate<void(const string_t &, const string_t &, int, int)> eventNewBot;
+	Delegate<void()> eventPlayersUpdate;
+	Delegate<void(unsigned short, bool)> eventPlayerReady;
+	Delegate<void(const std::string&)> eventTextMessage;
+	Delegate<void(const std::string&)> eventErrorMessage;
+	Delegate<void()> eventConnected;
+
+
+private:
+	// remote functions
+	void ClTextMessage(Peer *from, int task, const Variant &arg);
+	void ClErrorMessage(Peer *from, int task, const Variant &arg);
+	void ClGameInfo(Peer *from, int task, const Variant &arg);
+	void ClSetId(Peer *from, int task, const Variant &arg);
+	void ClPlayerQuit(Peer *from, int task, const Variant &arg);
+	void ClControl(Peer *from, int task, const Variant &arg);
+	void ClPlayerReady(Peer *from, int task, const Variant &arg);
+	void ClStartGame(Peer *from, int task, const Variant &arg);
+	void ClAddBot(Peer *from, int task, const Variant &arg);
+	void ClAddPlayer(Peer *from, int task, const Variant &arg);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

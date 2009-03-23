@@ -347,7 +347,7 @@ void NewGameDlg::OnOK()
 	script_exec(g_env.L, "reset()");
 	_ASSERT(g_level->IsEmpty());
 
-	if( g_level->init_newdm(path.c_str(), rand()) )
+	if( g_level->init_newdm(path, rand()) )
 	{
 		g_conf->cl_map->Set(fn);
 		g_conf->ui_showmsg->Set(true);

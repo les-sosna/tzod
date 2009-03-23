@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "Peer.h"
-#include "datablock.h"
 
 #include "core/debug.h"
 #include "core/Console.h"
@@ -12,6 +11,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 Peer::Peer(SOCKET s)
+  : _in(false)
+  , _out(true)
 {
 	_socket = s;
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
@@ -49,49 +50,31 @@ int Peer::Connect(const sockaddr_in *addr)
 	return 0;
 }
 
-void Peer::RegisterHandler(int func, HandlerType handler)
+void Peer::Post(int func, const Variant &arg)
 {
-	_ASSERT(0 == _handlers->count(func));
-	_handlers[func] = handler;
+	bool trySend = _out.IsEmpty();
+
+	_out.EntityBegin();
+	_out & func;
+	_out & const_cast<Variant &>(arg);
+	_out.EntityEnd();
+
+	if( trySend )
+	{
+		if( int err = _out.Send(_socket) )
+		{
+			TRACE("peer: network error %u\n", err);
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, err);
+		}
+	}
 }
 
-void Peer::Send(const DataBlock &db)
+void Peer::RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler)
 {
-	_ASSERT(INVALID_SOCKET != _socket);
-
-	if( _outgoing.empty() )
-	{
-		// try sending immediately if outgoing queue is empty
-		size_t sent = 0;
-		do
-		{
-			int result = send(_socket, db.RawData() + sent, db.RawSize() - sent, 0);
-			if( SOCKET_ERROR == result )
-			{
-				// schedule delayed sending rest of data
-				int err = WSAGetLastError();
-				if( WSAEWOULDBLOCK != err )
-				{
-					TRACE("peer: network error %u\n", err);
-					_ASSERT(eventDisconnect);
-					INVOKE(eventDisconnect) (this, err);
-					return;
-				}
-				_outgoing.insert(_outgoing.end(), db.RawData() + sent, db.RawData() + db.RawSize());
-				break;
-			}
-			else
-			{
-				_ASSERT(result > 0);
-				sent += result;
-			}
-		} while( sent < db.RawSize() );
-	}
-	else
-	{
-		// schedule sending whole data if outgoing queue is not empty
-		_outgoing.insert(_outgoing.end(), db.RawData(), db.RawData() + db.RawSize());
-	}
+	_ASSERT(0 == _handlers.count(func));
+	_handlers[func].argType = argType;
+	_handlers[func].handler = handler;
 }
 
 void Peer::OnSocketEvent()
@@ -132,9 +115,7 @@ void Peer::OnSocketEvent()
 			return;
 		}
 
-		char buf[1024];
-		int result = recv(_socket, buf, sizeof(buf), 0);
-
+		int result = _in.Recv(_socket);
 		if( result < 0 )
 		{
 			TRACE("peer: unexpected error 0x%08x\n", WSAGetLastError());
@@ -152,32 +133,18 @@ void Peer::OnSocketEvent()
 		}
 		else
 		{
-			DataBlock db;
-			if( _incoming.empty() )
+			while( _in.EntityProbe() )
 			{
-				size_t parsedTotal = 0;
-				while( size_t parsed = db.Parse(buf + parsedTotal, result - parsedTotal) )
-				{
-					parsedTotal += parsed;
-					_ASSERT(eventRecv);
-					INVOKE(eventRecv) (this, db);
-				}
-				if( parsedTotal < (unsigned) result )
-				{
-					_incoming.insert(_incoming.end(), buf + parsedTotal, buf + result);
-				}
-			}
-			else
-			{
-				_incoming.insert(_incoming.end(), buf, buf + result);
-				size_t parsedTotal = 0;
-				while( size_t parsed = db.Parse(&_incoming.front() + parsedTotal, _incoming.size() - parsedTotal) )
-				{
-					parsedTotal += parsed;
-					_ASSERT(eventRecv);
-					INVOKE(eventRecv) (this, db);
-				}
-				_incoming.erase(_incoming.begin(), _incoming.begin() + parsedTotal);
+				int func;
+				Variant arg;
+				_in.EntityBegin();
+					_in & func;
+					HandlersMap::const_iterator it = _handlers.find(func);
+					_ASSERT(_handlers.end() != it);
+					arg.ChangeType(it->second.argType);
+					_in & arg;
+				_in.EntityEnd();
+				INVOKE(it->second.handler) (this, -1, arg);
 			}
 		}
 	}
@@ -192,39 +159,13 @@ void Peer::OnSocketEvent()
 			return;
 		}
 
-	//	_ASSERT(!outgoing.empty());
-		if( _outgoing.empty() )
+		if( int err = _out.Send(_socket) )
 		{
-			TRACE("nothing to send\n");
+			TRACE("peer: network error %u\n", err);
+			_ASSERT(eventDisconnect);
+			INVOKE(eventDisconnect) (this, err);
 			return;
 		}
-
-		size_t sent = 0;
-		do
-		{
-			int result = send(_socket, &_outgoing.front() + sent, _outgoing.size() - sent, 0);
-			if( SOCKET_ERROR == result )
-			{
-				int err = WSAGetLastError();
-				if( WSAEWOULDBLOCK != err )
-				{
-					TRACE("peer: network error %u\n", err);
-					_ASSERT(eventDisconnect);
-					INVOKE(eventDisconnect) (this, err);
-					return;
-				}
-				break;
-			}
-			else
-			{
-				_ASSERT(result > 0);
-				sent += result;
-			}
-		} while( sent < _outgoing.size() );
-
-		// remove sent bytes
-		_ASSERT(sent <= _outgoing.size());
-		_outgoing.erase(_outgoing.begin(), _outgoing.begin() + sent);
 	}
 }
 

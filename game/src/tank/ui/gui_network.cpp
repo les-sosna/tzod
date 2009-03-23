@@ -265,7 +265,9 @@ void ConnectDlg::OnOK()
 	_ASSERT(g_level->IsEmpty());
 	_ASSERT(NULL == g_client);
 	g_client = new TankClient();
-	g_client->eventNewData.bind(&ConnectDlg::OnNewData, this);
+	g_client->eventConnected.bind(&ConnectDlg::OnConnected, this);
+	g_client->eventErrorMessage.bind(&ConnectDlg::OnError, this);
+	g_client->eventTextMessage.bind(&ConnectDlg::OnMessage, this);
 	g_client->Connect(_name->GetText());
 }
 
@@ -281,72 +283,17 @@ void ConnectDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-void ConnectDlg::OnNewData(const DataBlock &db)
+void ConnectDlg::OnConnected()
 {
-	switch( db.type() )
+	if( !_auto )
 	{
-		case DBTYPE_GAMEINFO:
-		{
-			GameInfo &gi = db.cast<GameInfo>();
-
-			if( VERSION != gi.dwVersion )
-			{
-				Error(g_lang->net_connect_error_server_version->Get().c_str());
-				break;
-			}
-
-			g_conf->sv_timelimit->SetInt(gi.timelimit);
-			g_conf->sv_fraglimit->SetInt(gi.fraglimit);
-			g_conf->sv_fps->SetInt(gi.server_fps);
-			g_conf->sv_nightmode->Set(gi.nightmode);
-
-			char msg[MAX_PATH + 32];
-			sprintf(msg, g_lang->net_connect_loading_map_x->Get().c_str(), gi.cMapName);
-			_status->AddItem(msg);
-
-			char path[MAX_PATH];
-			wsprintf(path, "%s\\%s.map", DIR_MAPS, gi.cMapName);
-
-			if( CalcCRC32(path) != gi.dwMapCRC32 )
-			{
-				Error(g_lang->net_connect_error_map_version->Get().c_str());
-				break;
-			}
-
-
-			g_level->Clear();
-			if( !g_level->init_newdm(path, gi.seed) )
-			{
-				Error(g_lang->net_connect_error_map->Get().c_str());
-				break;
-			}
-			g_level->PauseLocal(true); // paused until game is started
-
-			g_conf->cl_map->Set(gi.cMapName);
-			g_conf->ui_showmsg->Set(true);
-			if( !_auto )
-			{
-				g_conf->cl_server->Set(_name->GetText());
-			}
-
-			(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
-			Close(-1); // close with any code except ok and cancel
-			return;
-		}
-
-		case DBTYPE_ERRORMSG:
-			Error((const char *) db.Data());
-			break;
-
-		case DBTYPE_TEXTMESSAGE:
-			_status->AddItem((const char *) db.Data());
-			break;
-		default:
-			_ASSERT(FALSE);
+		g_conf->cl_server->Set(_name->GetText());
 	}
+	(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
+	Close(-1); // close with any code except ok and cancel
 }
 
-void ConnectDlg::Error(const char *msg)
+void ConnectDlg::OnError(const std::string &msg)
 {
 	_status->AddItem(msg);
 	g_level->Clear();
@@ -357,7 +304,11 @@ void ConnectDlg::Error(const char *msg)
 	}
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
-	SetTimeStep(false);
+}
+
+void ConnectDlg::OnMessage(const std::string &msg)
+{
+	_status->AddItem(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -482,9 +433,18 @@ void InternetDlg::OnCloseChild(int result)
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   : Dialog(parent, 680, 512)
   , _buf(new ConsoleBuffer(80, 500, "chat.txt"))
+  , _players(NULL)
+  , _bots(NULL)
+  , _chat(NULL)
+  , _btnOK(NULL)
 {
 	_ASSERT(g_client);
-	g_client->eventNewData.bind(&WaitingForPlayersDlg::OnNewData, this);
+	g_client->eventErrorMessage.bind(&WaitingForPlayersDlg::OnError, this);
+	g_client->eventTextMessage.bind(&WaitingForPlayersDlg::OnMessage, this);
+	g_client->eventPlayerReady.bind(&WaitingForPlayersDlg::OnPlayerReady, this);
+	g_client->eventPlayersUpdate.bind(&WaitingForPlayersDlg::OnPlayersUpdate, this);
+	g_client->eventNewBot.bind(&WaitingForPlayersDlg::OnAddBot, this);
+
 
 	//
 	// create controls
@@ -506,7 +466,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
 
-	(new Button(this, 560, 180, g_lang->net_chatroom_bot_new->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnAddBot, this);
+	(new Button(this, 560, 180, g_lang->net_chatroom_bot_new->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 
 
 	new Text(this, 20, 285, g_lang->net_chatroom_chat_window->Get(), alignTextLT);
@@ -528,23 +488,31 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	//
 
 	PlayerDesc pd;
-	strcpy(pd.nick, g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get().c_str());
-	strcpy(pd.cls, g_conf->cl_playerinfo->GetStr("class", "default")->Get().c_str());
+	pd.nick = g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get();
+	pd.cls = g_conf->cl_playerinfo->GetStr("class", "default")->Get();
 	pd.score = 0;
-	strcpy(pd.skin, g_conf->cl_playerinfo->GetStr("skin", "red")->Get().c_str());
+	pd.skin = g_conf->cl_playerinfo->GetStr("skin", "red")->Get();
 	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
-	g_client->SendDataToServer(DataWrap(pd, DBTYPE_PLAYERINFO));
+	g_client->SendPlayerInfo(pd);
 
 	// send ping request
-	DWORD t = timeGetTime();
-	g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
+//	DWORD t = timeGetTime();
+//	g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
 }
 
 WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
+	if( g_client )
+	{
+		g_client->eventErrorMessage.clear();
+		g_client->eventTextMessage.clear();
+		g_client->eventPlayerReady.clear();
+		g_client->eventPlayersUpdate.clear();
+		g_client->eventNewBot.clear();
+	}
 }
 
-void WaitingForPlayersDlg::OnAddBot()
+void WaitingForPlayersDlg::OnAddBotClick()
 {
 	(new EditBotDlg(this, g_conf->ui_netbotinfo))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
 }
@@ -554,24 +522,20 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 	if( _resultOK == result )
 	{
 		BotDesc bd;
-		strcpy(bd.nick, g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get().c_str());
-		strcpy(bd.cls, g_conf->ui_netbotinfo->GetStr("class", "default")->Get().c_str());
-		strcpy(bd.skin, g_conf->ui_netbotinfo->GetStr("skin", "red")->Get().c_str());
+		bd.nick = g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get();
+		bd.cls = g_conf->ui_netbotinfo->GetStr("class", "default")->Get();
+		bd.skin = g_conf->ui_netbotinfo->GetStr("skin", "red")->Get();
 		bd.score = 0;
 		bd.team = g_conf->ui_netbotinfo->GetNum("team", 0)->GetInt();
 		bd.level = g_conf->ui_netbotinfo->GetNum("level", 2)->GetInt();
 
-		g_client->SendDataToServer(DataWrap(bd, DBTYPE_NEWBOT));
+		g_client->SendAddBot(bd);
 	}
 }
 
 void WaitingForPlayersDlg::OnOK()
 {
-	DataBlock db(sizeof(dbPlayerReady));
-	db.type() = DBTYPE_PLAYERREADY;
-	db.cast<dbPlayerReady>().player_id = g_client->GetId();
-	db.cast<dbPlayerReady>().ready = TRUE;
-	g_client->SendDataToServer(db);
+	g_client->SendPlayerReady(true);
 }
 
 void WaitingForPlayersDlg::OnCancel()
@@ -587,18 +551,93 @@ void WaitingForPlayersDlg::OnSendMessage(const char *msg)
 {
 	if( msg[0] )
 	{
-		if( 0 == strcmp(msg, "/ping") )
+//		if( 0 == strcmp(msg, "/ping") )
+//		{
+//			DWORD t = timeGetTime();
+//			g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
+//		}
+//		else
 		{
-			DWORD t = timeGetTime();
-			g_client->SendDataToServer(DataWrap(t, DBTYPE_PING));
-		}
-		else
-		{
-			g_client->SendDataToServer(DataWrap(std::string(msg), DBTYPE_TEXTMESSAGE));
+			g_client->SendTextMessage(msg);
 		}
 	}
 }
 
+void WaitingForPlayersDlg::OnError(const std::string &msg)
+{
+	_btnOK->Enable(false);
+	_buf->printf("%s\n", msg.c_str());
+}
+
+void WaitingForPlayersDlg::OnMessage(const std::string &msg)
+{
+	_buf->printf("%s\n", msg.c_str());
+}
+
+void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
+{
+	_ASSERT(g_level);
+	int count = g_level->GetList(LIST_players).size();
+	_ASSERT(_players->GetItemCount() <= count); // count includes bots
+
+	for( int index = 0; index < count; ++index )
+	{
+		GC_Player *player = (GC_Player *) _players->GetItemData(index);
+		_ASSERT(player);
+		_ASSERT(!player->IsKilled());
+		_ASSERT(0 != player->GetNetworkID());
+
+		if( player->GetNetworkID() == id )
+		{
+			_players->SetItemText(index, 3, ready ? g_lang->net_chatroom_player_ready->Get() : "");
+			return;
+		}
+	}
+	_ASSERT(false);
+}
+
+void WaitingForPlayersDlg::OnPlayersUpdate()
+{
+	size_t count = g_level->GetList(LIST_players).size();
+
+	// TODO: implement via the ListDataSource interface
+	_players->DeleteAllItems();
+	FOREACH(g_level->GetList(LIST_players), GC_Player, player)
+	{
+		int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
+		_players->SetItemText(index, 1, player->GetSkin());
+
+		std::ostringstream tmp;
+		tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
+		_players->SetItemText(index, 2, tmp.str());
+
+//		_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
+//		_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
+//		_buf->printf("\n");
+	}
+
+	_btnOK->Enable(_players->GetItemCount() > 0);
+}
+
+void WaitingForPlayersDlg::OnAddBot(const string_t &nick, const string_t &skin, int team, int level)
+{
+	// nick & skin
+	int index = _bots->AddItem(nick);
+	_bots->SetItemText(index, 1, skin);
+
+	// team
+	std::ostringstream tmp;
+	tmp << g_lang->net_chatroom_team->Get() << team;
+	_bots->SetItemText(index, 2, tmp.str());
+
+	// level
+	_ASSERT(level <= AI_MAX_LEVEL);
+	_bots->SetItemText(index, 3, EditBotDlg::levels[level]);
+
+}
+
+
+/*
 void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 {
 	switch( db.type() )
@@ -632,6 +671,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		}
 		break;
 	}
+
 	case DBTYPE_PLAYERREADY:
 	{
 		int count = g_level->GetList(LIST_players).size();
@@ -769,7 +809,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 
 	case DBTYPE_STARTGAME:
 		g_client->SendControl(ControlPacket()); // initial empty packet
-		g_client->eventNewData.bind(&Level::OnNewData, GetRawPtr(g_level));
+//		g_client->eventNewData.bind(&Level::OnNewData, GetRawPtr(g_level));
 		g_level->PauseLocal(false);
 
 		g_level->_dropedFrames = 0; // FIXME
@@ -792,7 +832,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		_ASSERT(FALSE);
 	} // end of switch( db.type() )
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 

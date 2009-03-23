@@ -6,7 +6,6 @@
 #include "Dialog.h"
 
 // forward declarations
-class DataBlock;
 class LobbyClient;
 
 namespace UI
@@ -50,8 +49,6 @@ class ConnectDlg : public Dialog
 	List   *_status;
 	bool    _auto;
 
-	void Error(const char *msg);
-
 public:
 	ConnectDlg(Window *parent, const char *autoConnect);
 	virtual ~ConnectDlg();
@@ -60,7 +57,9 @@ protected:
 	void OnOK();
 	void OnCancel();
 
-	void OnNewData(const DataBlock &db);
+	void OnConnected();
+	void OnError(const std::string &msg);
+	void OnMessage(const std::string &msg);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,13 +110,17 @@ public:
 	virtual ~WaitingForPlayersDlg();
 
 protected:
-	void OnAddBot();
+	void OnAddBotClick();
 	void OnAddBotClose(int result);
 	void OnOK();
 	void OnCancel();
 	void OnSendMessage(const char *msg);
-	
-	void OnNewData(const DataBlock &db);
+
+	void OnError(const std::string &msg);
+	void OnMessage(const std::string &msg);
+	void OnPlayerReady(unsigned short id, bool ready);
+	void OnPlayersUpdate();
+	void OnAddBot(const string_t &nick, const string_t &skin, int team, int level);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

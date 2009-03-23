@@ -11,7 +11,7 @@
 
 #include "TankServer.h"
 #include "ServerFunctions.h"
-#include "datablock.h"
+#include "ClientFunctions.h"
 
 #include "LobbyClient.h"
 
@@ -158,21 +158,24 @@ void TankServer::OnListenerEvent()
 	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
 	PeerServer &cl = *GetRawPtr(_clients.back());
 
-//	cl.RegisterHandler(SV_POST_TEXTMESSAGE, CreateDelegate(&TankServer::TextMessage, this));
+	cl.RegisterHandler(SV_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankServer::SvTextMessage, this));
+	cl.RegisterHandler(SV_POST_CONTROL, VariantTypeId<ControlPacket>(), CreateDelegate(&TankServer::SvControl, this));
+	cl.RegisterHandler(SV_POST_PLAYERREADY, VariantTypeId<bool>(), CreateDelegate(&TankServer::SvPlayerReady, this));
+	cl.RegisterHandler(SV_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankServer::SvAddBot, this));
+	cl.RegisterHandler(SV_POST_ADDPLAYER, VariantTypeId<PlayerDesc>(), CreateDelegate(&TankServer::SvAddPlayer, this));
 
 	cl.connected = FALSE;
 	cl.ready = FALSE;
 	cl.id = ++_nextFreeId;
-	cl.eventRecv.bind(&TankServer::OnRecv, this);
 	cl.eventDisconnect.bind(&TankServer::OnDisconnect, this);
 
 	// send server info
-	cl.Send(DataWrap(_gameInfo, DBTYPE_GAMEINFO));
+	cl.Post(CL_POST_GAMEINFO, Variant(_gameInfo));
 
 	// send new client ID
-	cl.Send(DataWrap(cl.id, DBTYPE_YOURID));
+	cl.Post(CL_POST_SETID, Variant(cl.id));
 }
-
+/*
 void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 {
 	_ASSERT(dynamic_cast<PeerServer*>(who_));
@@ -257,20 +260,20 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			}
 			break;
 		}
-/*
-		case DBTYPE_PLAYERQUIT:
-		{
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				if( who->id != (*it)->id )
-				{
-					(*it)->Send(db);
-				}
-			}
-			SendFrame();
-			break;
-		}
-*/
+
+		//case DBTYPE_PLAYERQUIT:
+		//{
+		//	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		//	{
+		//		if( who->id != (*it)->id )
+		//		{
+		//			(*it)->Send(db);
+		//		}
+		//	}
+		//	SendFrame();
+		//	break;
+		//}
+
 		case DBTYPE_PING:
 		{
 			who->Send(db); // send packet back
@@ -279,11 +282,11 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 
 		case DBTYPE_NEWBOT:
 		{
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				(*it)->Send(db);
-			}
-			break;
+		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		{
+		(*it)->Send(db);
+		}
+		break;
 		}
 
 		case DBTYPE_PLAYERINFO:
@@ -329,6 +332,16 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 			// TODO: disconnect client
 	}
 }
+*/
+
+void TankServer::BroadcastTextMessage(const std::string &msg)
+{
+	Variant broadcast(msg);
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		(*it)->Post(CL_POST_TEXTMESSAGE, broadcast);
+	}
+}
 
 void TankServer::OnDisconnect(Peer *who_, int err)
 {
@@ -346,15 +359,12 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 			--_frameReadyCount;
 		}
 
-		DataBlock db(sizeof(DWORD));
-		db.type() = DBTYPE_PLAYERQUIT;
-		db.cast<DWORD>() = who->id;
-
+		Variant arg(who->id);
 		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{
 			if( who->id != (*it)->id )
 			{
-				(*it)->Send(db);
+				(*it)->Post(CL_POST_PLAYERQUIT, arg);
 			}
 		}
 
@@ -379,36 +389,53 @@ void TankServer::SendFrame()
 {
 	_ASSERT(_frameReadyCount == _connectedCount);
 
-	DataBlock db(sizeof(ControlPacket) * _connectedCount);
-	db.type() = DBTYPE_CONTROLPACKET;
+
+	//
+	// collect control packets from all connected clients
+	//
+
+	Variant arg;
+	arg.ChangeType(VariantTypeId<ControlPacketVector>());
+	ControlPacketVector &ctrl = arg.Value<ControlPacketVector>();
+	ctrl.resize(_connectedCount);
+
+	int i = 0;
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		if( !(*it)->connected ) continue;
+		const ControlPacket &cp = (*it)->ctrl.front();
+		ctrl[_connectedCount - (++i)] = cp;
+
+#ifdef NETWORK_DEBUG
+		FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
+		if( !ib.second && ib.first->second != cp.checksum )
+		{
+			TRACE("sv: sync error detected at frame %u!\n", cp.frame);
+			char buf[256];
+			wsprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
+			MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
+			ExitProcess(-1);
+		}
+#endif
+	}
+
+
+	//
+	// broadcast control
+	//
 
 	for( PeerList::iterator it1 = _clients.begin(); it1 != _clients.end(); it1++ )
 	{
 		if( (*it1)->connected )
 		{
-			int i = 0;
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				if( !(*it)->connected ) continue;
-				const ControlPacket &cp = (*it)->ctrl.front();
-				db.cast<ControlPacket>(_connectedCount - (++i)) = cp;
-
-#ifdef NETWORK_DEBUG
-				FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
-				if( !ib.second && ib.first->second != cp.checksum )
-				{
-					TRACE("sv: sync error detected at frame %u!\n", cp.frame);
-					char buf[256];
-					wsprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
-					MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
-					ExitProcess(-1);
-				}
-#endif
-			}
-			_ASSERT(_connectedCount * sizeof(ControlPacket) == db.DataSize());
-			(*it1)->Send(db);
+			(*it1)->Post(CL_POST_CONTROL, arg);
 		}
 	}
+
+
+	//
+	// remove control packet from clients' queue
+	//
 
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
@@ -422,6 +449,110 @@ void TankServer::SendFrame()
 			}
 		}
 	}
+}
+
+void TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
+{
+	PeerServer *who = static_cast<PeerServer *>(from);
+	std::stringstream msg;
+	msg << "<" << who->desc.nick << "> " << arg.Value<std::string>();
+	BroadcastTextMessage(msg.str());
+}
+
+void TankServer::SvControl(Peer *from, int task, const Variant &arg)
+{
+	PeerServer *who = static_cast<PeerServer *>(from);
+	who->ctrl.push(arg.Value<ControlPacket>());
+	if( 1 == who->ctrl.size() )
+	{
+		++_frameReadyCount;
+		if( _frameReadyCount == _connectedCount )
+		{
+			who->ctrl.front().wControlState |= MISC_YOUARETHELAST;
+			SendFrame();
+		}
+	}
+}
+
+void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
+{
+	PeerServer *who = static_cast<PeerServer *>(from);
+
+	PlayerReady reply = { who->id,  arg.Value<bool>() };
+
+	bool bAllPlayersReady = true;
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		if( (*it)->id == who->id )
+		{
+			(*it)->ready = arg.Value<bool>();
+		}
+		if( !(*it)->ready )
+		{
+			bAllPlayersReady = false;
+		}
+		(*it)->Post(CL_POST_PLAYER_READY, Variant(reply));
+	}
+
+	if( bAllPlayersReady )
+	{
+		// запрещение приема новых подключений
+		_socketListen.Close();
+		if( _announcer )
+		{
+			_announcer->Cancel();
+		}
+		BroadcastTextMessage(g_lang->net_msg_starting_game->Get());
+		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		{
+			(*it)->Post(CL_POST_STARTGAME, Variant(true));
+		}
+	}
+}
+
+void TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
+{
+	PostType post(CL_POST_ADDBOT, arg);
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		(*it)->Post(post.first, post.second);
+	}
+	_players.push_back(post);
+}
+
+void TankServer::SvAddPlayer(Peer *from, int task, const Variant &arg)
+{
+	PeerServer *who = static_cast<PeerServer *>(from);
+
+	who->desc = arg.Value<PlayerDesc>();
+
+
+	//
+	// tell newly connected player about other players
+	//
+
+	for( size_t i = 0; i < _players.size(); ++i )
+	{
+		who->Post(_players[i].first, _players[i].second);
+	}
+
+	who->connected = TRUE;
+	++_connectedCount;
+
+
+	//
+	// tell other players about newly connected player
+	//
+
+	PlayerDescEx pde;
+	memcpy(&pde, &who->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
+	pde.id = who->id;
+	PostType post(CL_POST_ADDPLAYER, Variant(pde));
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		(*it)->Post(post.first, post.second);
+	}
+	_players.push_back(post);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

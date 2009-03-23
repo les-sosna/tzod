@@ -5,7 +5,6 @@
 #include "ObjectListener.h"
 #include "gc/Object.h" // FIXME!
 
-#include "network/datablock.h"
 #include "network/ControlPacket.h"
 
 #pragma region path finding stuff
@@ -226,8 +225,8 @@ public:
 	float _timeBuffer;
 	float _dropedFrames;
 	string_t _lag;
-	std::queue<DataBlock> _cmdQueue;
-	void OnNewData(const DataBlock &db);
+//	std::queue<DataBlock> _cmdQueue;
+//	void OnNewData(const DataBlock &db);
 
 	std::queue<ControlPacket> _ctrlQueue;
 	ControlPacket GetControlPacket(GC_Object *player);
@@ -249,7 +248,7 @@ public:
 	bool init_emptymap(int X, int Y);
 	bool init_import_and_edit(const char *mapName);
 
-	bool init_newdm(const char *mapName, unsigned long seed);
+	bool init_newdm(const string_t &mapName, unsigned long seed);
 	bool init_load(const char *fileName);
 
 

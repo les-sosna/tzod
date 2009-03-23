@@ -174,7 +174,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_connect_error_server_version, "Incompatible server version" )
 	CONFIG_VAR_STR( net_connect_error_map, "Could not load map" )
 	CONFIG_VAR_STR( net_connect_error_map_version, "Incompatible map version" )
-	CONFIG_VAR_STR( net_connect_loading_map_x, "Loading map '%s'..." )
+//	CONFIG_VAR_STR( net_connect_loading_map_x, "Loading map '%s'..." )
 
 	CONFIG_VAR_STR( net_chatroom_title, "Waiting for players" )
 	CONFIG_VAR_STR( net_chatroom_players, "Players" )

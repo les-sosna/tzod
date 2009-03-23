@@ -184,7 +184,7 @@ public:
 	int  GetLevel() const { return _level; }
 
 protected:
-	virtual DWORD GetNetworkID() const { return 0; }
+	virtual unsigned short GetNetworkID() const { return 0; }
 	virtual void TimeStepFixed(float dt);
 };
 

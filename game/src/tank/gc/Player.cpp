@@ -485,7 +485,7 @@ void GC_PlayerLocal::mapExchange(MapFile &f)
 	}
 }
 
-DWORD GC_PlayerLocal::GetNetworkID() const
+unsigned short GC_PlayerLocal::GetNetworkID() const
 {
 	_ASSERT(g_client);
 	return g_client->GetId();
@@ -791,7 +791,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerRemote)
 	return true;
 }
 
-GC_PlayerRemote::GC_PlayerRemote(DWORD id)
+GC_PlayerRemote::GC_PlayerRemote(unsigned short id)
 {
 	_networkId = id;
 }
