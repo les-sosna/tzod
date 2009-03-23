@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Base.h"
 
 // forward declaration
 class GuiManager;
