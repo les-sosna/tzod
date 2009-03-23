@@ -23,6 +23,7 @@
 
 #include "network/TankClient.h"
 #include "network/TankServer.h"
+#include "network/Variant.h"
 
 #include "ui/Interface.h"
 #include "ui/GuiManager.h"
@@ -176,7 +177,6 @@ int APIENTRY WinMain( HINSTANCE hinst,
                       int // nCmdShow
 ){
 	g_hInstance = hinst;
-
 	ZodApp app;
 	return app.Run(hinst);
 }
@@ -199,6 +199,7 @@ ZodApp::~ZodApp()
 bool ZodApp::Pre()
 {
 	srand( GetTickCount() );
+	Variant::Init();
 
 	// print UNIX-style date and time
 	time_t ltime;
