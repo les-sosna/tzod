@@ -51,8 +51,8 @@ public:
 	void GetStatistics(NetworkStats *pStats);
 
 
-	Delegate<void(const string_t &, const string_t &, int, int)> eventNewBot;
 	Delegate<void()> eventPlayersUpdate;
+	Delegate<void()> eventStartGame;
 	Delegate<void(unsigned short, bool)> eventPlayerReady;
 	Delegate<void(const std::string&)> eventTextMessage;
 	Delegate<void(const std::string&)> eventErrorMessage;

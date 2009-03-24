@@ -117,6 +117,7 @@ void TankClient::Connect(const string_t &hostaddr)
 
 void TankClient::OnDisconnect(Peer *peer, int err)
 {
+	// TODO: treat this as an error when disconnect is unexpected
 	Variant arg(g_lang->net_msg_connection_failed->Get());
 	if( err )
 	{
@@ -251,6 +252,27 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 {
 	_ASSERT(!_gameStarted);
 	_gameStarted = true;
+
+
+	SendControl(ControlPacket()); // initial empty packet
+	g_level->_dropedFrames = 0;   // FIXME
+	g_level->PauseLocal(false);
+	//if( g_conf->sv_autoLatency->Get() )
+	//{
+	//	DWORD avg = 0;
+	//	for( size_t i = 0; i < _pings.size(); ++i )
+	//	{
+	//		avg += _pings[i];
+	//	}
+	//	avg /= _pings.size();
+	//	// set initial latency for auto adjustment algorithm
+	//	g_conf->sv_latency->SetInt(__max(1, g_conf->sv_fps->GetInt() * avg / 1000));
+	//}
+
+	if( eventStartGame )
+	{
+		INVOKE(eventStartGame) ();
+	}
 }
 
 void TankClient::ClAddPlayer(Peer *from, int task, const Variant &arg)
@@ -329,6 +351,7 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_player_quit->Get());
 				}
 				p->Kill();
+				break;
 			}
 		}
 		++it;
@@ -352,15 +375,17 @@ void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 	ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
 	ai->UpdateSkin();
 
-	if( eventNewBot )
+	if( eventPlayersUpdate )
 	{
-		INVOKE(eventNewBot) (ai->GetNick(), ai->GetSkin(), ai->GetTeam(), ai->GetLevel());
+		INVOKE(eventPlayersUpdate) ();
 	}
 }
 
 void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 {
 	_ASSERT(_gameStarted);
+	_ASSERT(g_level);
+	g_level->Step(arg.Value<ControlPacketVector>());
 }
 
 

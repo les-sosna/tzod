@@ -443,7 +443,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	g_client->eventTextMessage.bind(&WaitingForPlayersDlg::OnMessage, this);
 	g_client->eventPlayerReady.bind(&WaitingForPlayersDlg::OnPlayerReady, this);
 	g_client->eventPlayersUpdate.bind(&WaitingForPlayersDlg::OnPlayersUpdate, this);
-	g_client->eventNewBot.bind(&WaitingForPlayersDlg::OnAddBot, this);
+	g_client->eventStartGame.bind(&WaitingForPlayersDlg::OnStartGame, this);
 
 
 	//
@@ -508,7 +508,7 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 		g_client->eventTextMessage.clear();
 		g_client->eventPlayerReady.clear();
 		g_client->eventPlayersUpdate.clear();
-		g_client->eventNewBot.clear();
+		g_client->eventStartGame.clear();
 	}
 }
 
@@ -565,6 +565,8 @@ void WaitingForPlayersDlg::OnSendMessage(const char *msg)
 
 void WaitingForPlayersDlg::OnError(const std::string &msg)
 {
+	_players->DeleteAllItems();
+	_bots->DeleteAllItems();
 	_btnOK->Enable(false);
 	_buf->printf("%s\n", msg.c_str());
 }
@@ -602,14 +604,33 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 
 	// TODO: implement via the ListDataSource interface
 	_players->DeleteAllItems();
+	_bots->DeleteAllItems();
 	FOREACH(g_level->GetList(LIST_players), GC_Player, player)
 	{
-		int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
-		_players->SetItemText(index, 1, player->GetSkin());
+		if( GC_PlayerAI *ai = dynamic_cast<GC_PlayerAI *>(player) )
+		{
+			// nick & skin
+			int index = _bots->AddItem(ai->GetNick());
+			_bots->SetItemText(index, 1, ai->GetSkin());
 
-		std::ostringstream tmp;
-		tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
-		_players->SetItemText(index, 2, tmp.str());
+			// team
+			std::ostringstream tmp;
+			tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
+			_bots->SetItemText(index, 2, tmp.str());
+
+			// level
+			_ASSERT(ai->GetLevel() <= AI_MAX_LEVEL);
+			_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
+		}
+		else
+		{
+			int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
+			_players->SetItemText(index, 1, player->GetSkin());
+
+			std::ostringstream tmp;
+			tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
+			_players->SetItemText(index, 2, tmp.str());
+		}
 
 //		_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
 //		_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
@@ -619,21 +640,9 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 	_btnOK->Enable(_players->GetItemCount() > 0);
 }
 
-void WaitingForPlayersDlg::OnAddBot(const string_t &nick, const string_t &skin, int team, int level)
+void WaitingForPlayersDlg::OnStartGame()
 {
-	// nick & skin
-	int index = _bots->AddItem(nick);
-	_bots->SetItemText(index, 1, skin);
-
-	// team
-	std::ostringstream tmp;
-	tmp << g_lang->net_chatroom_team->Get() << team;
-	_bots->SetItemText(index, 2, tmp.str());
-
-	// level
-	_ASSERT(level <= AI_MAX_LEVEL);
-	_bots->SetItemText(index, 3, EditBotDlg::levels[level]);
-
+	Close(_resultOK);
 }
 
 

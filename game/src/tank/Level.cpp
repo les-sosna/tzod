@@ -343,8 +343,6 @@ void Level::Clear()
 	}
 #endif
 
-//	_cmdQueue.c.clear();
-	_ctrlQueue.c.clear();
 	_dropedFrames = 0;
 	_lag.clear();
 }
@@ -1080,25 +1078,77 @@ void Level::DrawText(const char *string, const vec2d &position, enumAlignText al
 	_temporaryText->SetAlign(align);
 	_temporaryText->Draw();
 }
-/*
-void Level::OnNewData(const DataBlock &db)
-{
-	_cmdQueue.push(db);
-}
-*/
+
 ControlPacket Level::GetControlPacket(GC_Object *player)
 {
-	_ASSERT(!_ctrlQueue.empty());
-	ControlPacket cp = _ctrlQueue.front();
-	_ctrlQueue.pop();
-
 	ASSERT_TYPE(player, GC_Player);
+	const ControlPacket &cp = *(_ctrlPtr++);
 	if( MISC_YOUARETHELAST & cp.wControlState )
 	{
 		_lag = static_cast<GC_Player*>(player)->GetNick();
 	}
-
 	return cp;
+}
+
+void Level::Step(const ControlPacketVector &ctrl)
+{
+	_ctrlPtr = ctrl.begin();
+
+	_dbgLineBuffer.clear();
+
+	const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
+
+	_time         += fixed_dt;
+	_timeBuffer   -= fixed_dt;
+	_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
+
+	_safeMode = false;
+
+	if( !_frozen )
+	{
+		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
+		{
+			_ASSERT(!(*it)->IsKilled());
+			(*it)->TimeStepFixed(fixed_dt);
+		}
+		GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+	}
+
+	_safeMode = true;
+
+	RunCmdQueue(fixed_dt);
+
+
+	_ASSERT(_ctrlPtr == ctrl.end());
+
+#ifdef NETWORK_DEBUG
+	//
+	// detect sync lost error
+	//
+
+	if( !_dump )
+	{
+		char fn[MAX_PATH];
+		sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
+		_dump = fopen(fn, "w");
+		_ASSERT(_dump);
+	}
+	++_frame;
+	fprintf(_dump, "\n### frame %04d ###\n", _frame);
+
+	DWORD dwCheckSum = 0;
+	for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
+	{
+		if( DWORD cs = (*it)->checksum() )
+		{
+			dwCheckSum = dwCheckSum ^ cs ^ 0xD202EF8D;
+			dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+			fprintf(_dump, "0x%08x -> local 0x%08x, global 0x%08x  (%s)\n", (*it), cs, dwCheckSum, typeid(**it).name());
+		}
+	}
+	_checksum = dwCheckSum;
+	fflush(_dump);
+#endif
 }
 
 void Level::TimeStep(float dt)
@@ -1106,17 +1156,12 @@ void Level::TimeStep(float dt)
 	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
 		return;
 
-	_dbgLineBuffer.clear();
-
 
 	dt *= g_conf->sv_speed->GetFloat() / 100.0f;
 	_ASSERT(dt >= 0);
 
 	_ASSERT(!_modeEditor);
 
-
-	int    passedFixedLoopsCount = 0;
-	float  passedFixedDT;
 
 	_safeMode = false;
 
@@ -1129,6 +1174,7 @@ void Level::TimeStep(float dt)
 		const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
 
 		_timeBuffer += dt;
+#if 0
 		while( _timeBuffer >= 0 )
 		{
 			//
@@ -1190,57 +1236,8 @@ void Level::TimeStep(float dt)
 				_dropedFrames += 1;
 				break; // нет кадра. пропускаем
 			}
-
-
-			//
-			// ок, кадр получен. расчет игровой ситуации
-			//
-
-			_time         += fixed_dt;
-			_timeBuffer   -= fixed_dt;
-			_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
-
-			if( !_frozen )
-			{
-				for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
-				{
-					_ASSERT(!(*it)->IsKilled());
-					(*it)->TimeStepFixed(fixed_dt);
-				}
-				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
-			}
-			passedFixedLoopsCount++;
-			passedFixedDT = fixed_dt;
-
-#ifdef NETWORK_DEBUG
-			//
-			// detect sync lost error
-			//
-
-			if( !_dump )
-			{
-				char fn[MAX_PATH];
-				sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
-				_dump = fopen(fn, "w");
-				_ASSERT(_dump);
-			}
-			++_frame;
-			fprintf(_dump, "\n### frame %04d ###\n", _frame);
-
-			DWORD dwCheckSum = 0;
-			for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
-			{
-				if( DWORD cs = (*it)->checksum() )
-				{
-					dwCheckSum = dwCheckSum ^ cs ^ 0xD202EF8D;
-					dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
-					fprintf(_dump, "0x%08x -> local 0x%08x, global 0x%08x  (%s)\n", (*it), cs, dwCheckSum, typeid(**it).name());
-				}
-			}
-			_checksum = dwCheckSum;
-			fflush(_dump);
-#endif
 		} // end of while( _timeBuffer > 0 )
+#endif
 	}
 	else // if( g_client )
 	{
@@ -1262,8 +1259,7 @@ void Level::TimeStep(float dt)
 				}
 				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
 			}
-			passedFixedLoopsCount++;
-			passedFixedDT = fixed_dt;
+			RunCmdQueue(fixed_dt);
 		}
 		while( --count );
 	} // if( g_client )
@@ -1283,52 +1279,6 @@ void Level::TimeStep(float dt)
 	_safeMode = true;
 
 
-	//
-	// run through the command queue
-	//
-
-	lua_State * const L = g_env.L;
-
-	lua_getglobal(L, "pushcmd");
-	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
-	lua_getupvalue(L, -1, 1);
-	int queueidx = lua_gettop(L);
-
-	while( passedFixedLoopsCount-- )
-	{
-		for( lua_pushnil(L); lua_next(L, queueidx); lua_pop(L, 1) )
-		{
-			// -2 -> key; -1 -> value(table)
-
-			lua_rawgeti(L, -1, 2);
-			lua_Number time = lua_tonumber(L, -1) - passedFixedDT;
-			lua_pop(L, 1);
-
-			if( time <= 0 )
-			{
-				// call function and remove from queue
-				lua_rawgeti(L, -1, 1);
-				if( lua_pcall(L, 0, 0, 0) )
-				{
-					TRACE("%s\n", lua_tostring(g_env.L, -1));
-					lua_pop(g_env.L, 1); // pop the error message
-				}
-				lua_pushvalue(L, -2); // push copy of the key
-				lua_pushnil(L);
-				lua_settable(L, queueidx);
-			}
-			else
-			{
-				// update time value
-				lua_pushnumber(L, time);
-				lua_rawseti(L, -2, 2);
-			}
-		}
-	}
-
-	_ASSERT(lua_gettop(L) == queueidx);
-	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
-
 #if 0
 #ifdef _DEBUG
 	// check for dead objects
@@ -1347,6 +1297,47 @@ void Level::TimeStep(float dt)
 	}
 }
 
+void Level::RunCmdQueue(float dt)
+{
+	lua_State * const L = g_env.L;
+
+	lua_getglobal(L, "pushcmd");
+	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+	lua_getupvalue(L, -1, 1);
+	int queueidx = lua_gettop(L);
+
+	for( lua_pushnil(L); lua_next(L, queueidx); lua_pop(L, 1) )
+	{
+		// -2 -> key; -1 -> value(table)
+
+		lua_rawgeti(L, -1, 2);
+		lua_Number time = lua_tonumber(L, -1) - dt;
+		lua_pop(L, 1);
+
+		if( time <= 0 )
+		{
+			// call function and remove from queue
+			lua_rawgeti(L, -1, 1);
+			if( lua_pcall(L, 0, 0, 0) )
+			{
+				TRACE("%s\n", lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message
+			}
+			lua_pushvalue(L, -2); // push copy of the key
+			lua_pushnil(L);
+			lua_settable(L, queueidx);
+		}
+		else
+		{
+			// update time value
+			lua_pushnumber(L, time);
+			lua_rawseti(L, -2, 2);
+		}
+	}
+
+	_ASSERT(lua_gettop(L) == queueidx);
+	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
+}
 
 void Level::Render() const
 {

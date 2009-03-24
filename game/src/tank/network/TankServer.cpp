@@ -352,6 +352,15 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 
 	if( who->connected )
 	{
+		for( std::vector<PostType>::iterator it = _players.begin(); it != _players.end(); ++it )
+		{
+			if( CL_POST_ADDPLAYER == it->first && it->second.Value<PlayerDescEx>().id == who->id )
+			{
+				_players.erase(it);
+				break;
+			}
+		}
+
 		who->connected = false;
 		--_connectedCount;
 		if( !who->ctrl.empty() )

@@ -225,11 +225,11 @@ public:
 	float _timeBuffer;
 	float _dropedFrames;
 	string_t _lag;
-//	std::queue<DataBlock> _cmdQueue;
-//	void OnNewData(const DataBlock &db);
 
-	std::queue<ControlPacket> _ctrlQueue;
+	ControlPacketVector::const_iterator _ctrlPtr;
 	ControlPacket GetControlPacket(GC_Object *player);
+
+	void Step(const ControlPacketVector &ctrl);
 
 
 	Field _field;
@@ -267,6 +267,7 @@ public:
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
 
+	void RunCmdQueue(float dt);
 	void TimeStep(float dt);
 	void Render() const;
 	bool IsSafeMode() const { return _safeMode; }

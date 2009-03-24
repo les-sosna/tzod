@@ -110,17 +110,19 @@ public:
 	virtual ~WaitingForPlayersDlg();
 
 protected:
+	// GUI event handlers
 	void OnAddBotClick();
 	void OnAddBotClose(int result);
 	void OnOK();
 	void OnCancel();
 	void OnSendMessage(const char *msg);
 
+	// client event handlers
 	void OnError(const std::string &msg);
 	void OnMessage(const std::string &msg);
 	void OnPlayerReady(unsigned short id, bool ready);
 	void OnPlayersUpdate();
-	void OnAddBot(const string_t &nick, const string_t &skin, int team, int level);
+	void OnStartGame();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
