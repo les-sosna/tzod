@@ -11,18 +11,21 @@ class CSound;
 class MusicPlayer;
 class GuiManager;
 class Level;
-class IFileSystem;
 class ConsoleBuffer;
 class KeyMapper;
 class TankServer;
 class TankClient;
 class AppBase;
 
+namespace FS
+{
+	class FileSystem;
+}
+
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
 
 #include "SoundTemplates.h" // FIXME!
-#include "struct.h"         // FIXME!
 
 // ------------------------
 
@@ -34,7 +37,6 @@ extern LPDIRECTINPUTDEVICE8 g_pKeyboard;
 extern IRender         *g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
-extern MusicPlayer     *g_music;
 extern GuiManager      *g_gui;
 extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
@@ -42,7 +44,8 @@ extern TankClient      *g_client;
 extern KeyMapper       *g_keys;
 extern AppBase         *g_app;
 
-extern SafePtr<IFileSystem>    g_fs;
+extern SafePtr<MusicPlayer>     g_music;
+extern SafePtr<FS::FileSystem>  g_fs;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,5 +80,15 @@ struct ENVIRONMENT
 };
 
 extern ENVIRONMENT g_env;
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct MD5
+{
+	unsigned char bytes[16];
+};
+
+extern MD5 g_md5; // md5 digest of the main executable
+
 
 // end of file

@@ -7,6 +7,7 @@
 
 #include "level.h"
 #include "Macros.h"
+#include "script.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"

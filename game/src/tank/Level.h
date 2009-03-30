@@ -7,6 +7,9 @@
 
 #include "network/ControlPacket.h"
 
+#include "video/RenderBase.h"
+
+
 #pragma region path finding stuff
 
 class GC_RigidBodyStatic;

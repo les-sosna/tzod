@@ -6,9 +6,6 @@
 #include "Dialog.h"
 
 
-// forward declarations
-class IFileSystem;
-
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +15,7 @@ class GetFileNameDlg : public Dialog
 	List *_files;
 	Edit *_fileName;
 	string_t _ext;
-	SafePtr<IFileSystem> _folder;
+	SafePtr<FS::FileSystem> _folder;
 
 	bool _changing;
 
@@ -27,7 +24,7 @@ public:
 	{
 		string_t title;
 		string_t extension;
-		SafePtr<IFileSystem> folder;
+		SafePtr<FS::FileSystem> folder;
 	};
 
 	GetFileNameDlg(Window *parent, const Params &param);

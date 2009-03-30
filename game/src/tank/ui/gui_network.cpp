@@ -18,6 +18,7 @@
 #include "functions.h"
 #include "Level.h"
 #include "Macros.h"
+#include "script.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -157,7 +158,7 @@ void CreateServerDlg::OnOK()
 	path += fn + ".map";
 
 	GameInfo gi = {0};
-	gi.dwVersion  = VERSION;
+	memcpy(gi.exeVer, g_md5.bytes, 16);
 	gi.dwMapCRC32 = CalcCRC32(path.c_str());
 	gi.seed       = rand();
 	gi.fraglimit  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));

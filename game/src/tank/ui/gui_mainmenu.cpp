@@ -30,7 +30,7 @@
 
 #include "Level.h"
 #include "Macros.h"
-
+#include "script.h"
 #include "functions.h"
 
 

@@ -55,6 +55,11 @@
 #include <math.h>
 #include <time.h>
 
+// boost
+//#include <boost/iostreams/device/mapped_file.hpp>
+
+
+
 // c++ libraries
 
 #ifndef _DEBUG
@@ -127,6 +132,7 @@ extern "C"
 #include "core/Delegate.h"
 
 
+#include "constants.h"
 #include "globals.h"
 
 

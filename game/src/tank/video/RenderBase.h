@@ -12,6 +12,13 @@ struct DisplayMode
     UINT BitsPerPixel;
 };
 
+struct MyLine
+{
+	vec2d       begin;
+	vec2d       end;
+	SpriteColor color;
+};
+
 struct DEV_TEXTURE
 {
 	union
@@ -47,7 +54,18 @@ struct MyVertex
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct IRender
+class Image : public RefCounted
+{
+public:
+	virtual const void* GetData() const = 0;
+	virtual long GetBpp() const = 0;
+	virtual long GetWidth() const = 0;
+	virtual long GetHeight() const = 0;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+interface IRender
 {
 	// return TRUE if ok
 	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen) = 0;
@@ -80,7 +98,7 @@ struct IRender
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const TextureData *pData) = 0;
+	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img) = 0;
 	virtual void TexFree(DEV_TEXTURE tex) = 0;
 	virtual void TexBind(DEV_TEXTURE tex) = 0;
 

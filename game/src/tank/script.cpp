@@ -318,37 +318,27 @@ static int luaT_music(lua_State *L)
 
 	if( filename[0] )
 	{
-		SafePtr<IFileSystem> fs = g_fs->GetFileSystem(DIR_MUSIC);
-		if( fs )
+		try
 		{
-			if( SafePtr<IFile> file = fs->Open(filename) )
+			g_music = WrapRawPtr(new MusicPlayer());
+			if( g_music->Load(g_fs->GetFileSystem(DIR_MUSIC)->Open(filename)) )
 			{
-				SAFE_DELETE(g_music);
-				g_music = new MusicPlayer();
-				if( g_music->Load(file) )
-				{
-					g_music->Play(true);
-					lua_pushboolean(L, true);
-					return 1;
-				}
-				else
-				{
-					TRACE("WARNING: Could not load music file '%s'. "
-					      "Unsupported format?\n", filename);
-				}
+				g_music->Play(true);
+				lua_pushboolean(L, true);
+				return 1;
 			}
 			else
 			{
-				TRACE("WARNING: Music file '%s' not found.\n", filename);
+				TRACE("WARNING: Could not load music file '%s'. Unsupported format?\n", filename);
 			}
 		}
-		else
+		catch( const std::exception &e )
 		{
-			TRACE("WARNING: directory '" DIR_MUSIC "' not found\n");
+			TRACE("WARNING: Could not load music file '%s' - %s\n", filename, e.what())
 		}
 	}
 
-	SAFE_DELETE(g_music);
+	g_music = NULL;
 	lua_pushboolean(L, false);
 	return 1;
 }

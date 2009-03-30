@@ -8,7 +8,7 @@
 
 struct GameInfo
 {
-	DWORD dwVersion;
+	char exeVer[16];
 	DWORD dwMapCRC32;
 	unsigned long seed;
 	char  cMapName[MAX_PATH];

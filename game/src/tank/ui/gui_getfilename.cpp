@@ -30,17 +30,11 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_ext = param.extension;
 	_files = new List(this, 20, 56, 472, 300);
 	std::set<string_t> files;
-	if( _folder->EnumAllFiles(files, "*." + _ext) )
+	_folder->EnumAllFiles(files, "*." + _ext);
+	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
-		{
-			it->erase(it->length() - _ext.length() - 1); // cut out the file extension
-			int index = _files->AddItem(*it);
-		}
-	}
-	else
-	{
-		_ASSERT(FALSE); // EnumAllFiles has returned error...
+		it->erase(it->length() - _ext.length() - 1); // cut out the file extension
+		int index = _files->AddItem(*it);
 	}
 	_files->Sort();
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);

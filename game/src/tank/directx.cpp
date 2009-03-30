@@ -127,7 +127,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 void FreeDirectSound()
 {
 	InitDirectSound(NULL, 0);
-	SAFE_DELETE(g_music);
+	g_music = NULL;
 	SAFE_DELETE(g_soundManager);
 }
 

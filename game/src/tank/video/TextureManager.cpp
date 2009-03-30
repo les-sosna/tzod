@@ -17,8 +17,32 @@
 
 #include "fs/FileSystem.h"
 
+///////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////
+class CheckerImage : public Image
+{
+public:
+	CheckerImage() {}
+
+	// Image
+	virtual const void* GetData() const { return _bytes; }
+	virtual long GetBpp() const { return 24; }
+	virtual long GetWidth() const { return 4; }
+	virtual long GetHeight() const { return 4; }
+
+private:
+	static const unsigned char _bytes[];
+};
+
+const unsigned char CheckerImage::_bytes[] = {
+	0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
+	0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
+	255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
+	255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 TextureManager::TextureManager()
 {
@@ -51,29 +75,18 @@ bool TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 		return true;
 	}
 
-	SafePtr<IFile> file = g_fs->Open(fileName);
-	if( !file )
-	{
-		TRACE("ERROR: '%s' - file not found\n", fileName.c_str());
-		return false;
-	}
-
-	TgaImageLoader loader;
-	if( !loader.Load(file) )
-	{
-		TRACE("ERROR: '%s' - invalid file format\n", fileName.c_str());
-		return false;
-	}
+	SafePtr<FS::File> file = g_fs->Open(fileName);
+	SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 	TexDesc td;
-	if( !g_render->TexCreate(td.id, loader.GetData()) )
+	if( !g_render->TexCreate(td.id, GetRawPtr(image)) )
 	{
 		TRACE("ERROR: '%s' - error in render device\n", fileName.c_str());
 		return false;
 	}
 
-	td.width     = loader.GetData()->width;
-	td.height    = loader.GetData()->height;
+	td.width     = image->GetWidth();
+	td.height    = image->GetHeight();
 	td.refCount  = 0;
 
 	_textures.push_front(td);
@@ -132,21 +145,17 @@ void TextureManager::CreateChecker()
 	// create device texture
 	//
 
-	TextureData data;
-	data.bpp       = 24;
-	data.width     = 4;
-	data.height    = 4;
-	data.imageData = bytes;
+	SafePtr<CheckerImage> c(new CheckerImage());
 
-	if( !g_render->TexCreate(td.id, &data) )
+	if( !g_render->TexCreate(td.id, GetRawPtr(c) ) )
 	{
 		TRACE("ERROR: error in render device\n");
 		_ASSERT(FALSE);
 		return;
 	}
 
-	td.width     = data.width;
-	td.height    = data.height;
+	td.width     = c->GetWidth();
+	td.height    = c->GetHeight();
 	td.refCount  = 0;
 
 	_textures.push_front(td);
@@ -345,13 +354,10 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 {
 	int count = 0;
 
-	SafePtr<IFileSystem> dir = g_fs->GetFileSystem(dirName);
-	if( !dir )
-		return -1; // directory not found
+	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
 
 	std::set<string_t> files;
-	if( !dir->EnumAllFiles(files, TEXT("*.tga")) )
-		return -1; // something is wrong
+	dir->EnumAllFiles(files, TEXT("*.tga"));
 
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{

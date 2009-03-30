@@ -18,6 +18,7 @@ MusicPlayer::MusicPlayer()
   , _bufHalfSize(0)
 {
 	ZeroMemory(&_vorbisFile, sizeof(OggVorbis_File));
+	ZeroMemory(&_state, sizeof(State));
 	g_conf->s_musicvolume->eventChange.bind(&MusicPlayer::OnChangeVolume, this);
 }
 
@@ -40,7 +41,8 @@ void MusicPlayer::Cleanup()
 	SAFE_RELEASE(_buffer);
 	_bufHalfSize = 0;
 	ov_clear(&_vorbisFile);
-	_file = NULL;
+	_state.file = NULL;
+	_state.ptr = 0;
 }
 
 bool MusicPlayer::Fill(bool firstHalf)
@@ -118,24 +120,42 @@ bool MusicPlayer::Fill(bool firstHalf)
 
 size_t MusicPlayer::read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-	return reinterpret_cast<IFile*>(datasource)->Read(ptr, size*nmemb);
+	State *s = (State *) datasource;
+	_ASSERT(s->ptr <= s->file->GetSize());
+	size_t rd = __min(s->file->GetSize() - s->ptr, size*nmemb);
+	memcpy(ptr, s->file->GetData() + s->ptr, rd);
+	s->ptr += rd;
+	return rd;
 }
 
 int MusicPlayer::seek_func(void *datasource, ogg_int64_t offset, int whence)
 {
-	return reinterpret_cast<IFile*>(datasource)->Seek((long) offset, whence) ? 0 : -1;
+	State *s = (State *) datasource;
+	switch( whence )
+	{
+	case SEEK_CUR:
+		s->ptr += offset;
+		break;
+	case SEEK_END:
+		s->ptr = s->file->GetSize() - offset;
+		break;
+	case SEEK_SET:
+		s->ptr = offset;
+	}
+	return 0; // TODO: validate input
 }
 
 long MusicPlayer::tell_func(void *datasource)
 {
-	return reinterpret_cast<IFile*>(datasource)->Tell();
+	return ((State *) datasource)->ptr;
 }
 
-bool MusicPlayer::Load(SafePtr<IFile> file)
+bool MusicPlayer::Load(SafePtr<FS::File> file)
 {
-	_ASSERT(file);
-
 	Cleanup();
+
+	_state.file = file; // hold reference to file
+	_state.ptr = 0;
 
 	//open the file as an OGG file (allocates internal OGG buffers)
 	ov_callbacks cb;
@@ -144,7 +164,7 @@ bool MusicPlayer::Load(SafePtr<IFile> file)
 	cb.close_func = NULL;
 	cb.tell_func  = &MusicPlayer::tell_func;
 	
-	if( (ov_open_callbacks(GetRawPtr(file), &_vorbisFile, NULL, 0, cb)) != 0 )
+	if( (ov_open_callbacks(&_state, &_vorbisFile, NULL, 0, cb)) != 0 )
 	{
 		return false;
 	}
@@ -200,7 +220,6 @@ bool MusicPlayer::Load(SafePtr<IFile> file)
 	Fill(true); // Fill first half of buffer with initial data
 	_firstHalfPlaying = false;
 
-	_file = file; // hold reference to file
 	return true;
 }
 

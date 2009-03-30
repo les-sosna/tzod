@@ -17,6 +17,7 @@
 #include "functions.h"
 #include "level.h"
 #include "macros.h"
+#include "script.h"
 
 #include "video/TextureManager.h"
 

@@ -1,11 +1,12 @@
 // MusicPlayer.h
-
-class IFile;
-
-
-class MusicPlayer
+namespace FS
 {
-	SafePtr<IFile> _file;
+	class File;
+}
+
+
+class MusicPlayer : public RefCounted
+{
 	bool _looping;
 	bool _playbackDone;
 	bool _firstHalfPlaying;
@@ -16,8 +17,15 @@ class MusicPlayer
 	void Cleanup();
 	bool Fill(bool firstHalf);
 
+	struct State
+	{
+		SafePtr<FS::File> file;
+		unsigned long ptr;
+	};
+
+	State _state;
+
 	static size_t read_func  (void *ptr, size_t size, size_t nmemb, void *datasource);
-//	static int    close_func (void *datasource);
 	static int    seek_func  (void *datasource, ogg_int64_t offset, int whence);
 	static long   tell_func  (void *datasource);
 
@@ -25,9 +33,9 @@ class MusicPlayer
 
 public:
 	MusicPlayer();
-	~MusicPlayer();
+	virtual ~MusicPlayer();
 
-	bool Load(SafePtr<IFile> file);
+	bool Load(SafePtr<FS::File> file);
 
 	void Stop();
 	void Play(bool looping = false);

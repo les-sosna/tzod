@@ -3,54 +3,55 @@
 #include "stdafx.h"
 #include "FileSystem.h"
 
+namespace FS {
+
 ///////////////////////////////////////////////////////////////////////////////
 // IFile implementation
 
-IFile::IFile(/*IFileSystem* host*/)
+File::File(/*FileSystem* host*/)
 //  : _hostFileSystem(host)
 {
 //    _ASSERT(_hostFileSystem);
 }
 
-IFile::~IFile()
+File::~File()
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SafePtr<IFileSystem> IFileSystem::Create(const string_t &nodeName)
+SafePtr<FileSystem> FileSystem::Create(const string_t &nodeName)
 {
-	return WrapRawPtr(new IFileSystem(nodeName));
+	return WrapRawPtr(new FileSystem(nodeName));
 }
 
-IFileSystem::IFileSystem(const string_t &nodeName)
+FileSystem::FileSystem(const string_t &nodeName)
   : _nodeName(nodeName)
   , _parent(NULL)
 {
 }
 
-IFileSystem::~IFileSystem(void)
+FileSystem::~FileSystem(void)
 {
 	// unmount all children
 	while( !_children.empty() )
 		_children.begin()->second->Unmount();
 }
 
-const string_t IFileSystem::GetFullPath(void) const
+const string_t FileSystem::GetFullPath(void) const
 {
 	string_t fullPath = GetNodeName();
-	for( const IFileSystem *fs = GetParent(); fs; fs = fs->GetParent() )
+	for( const FileSystem *fs = GetParent(); fs; fs = fs->GetParent() )
 	{
 		fullPath = fs->GetNodeName() + DELIMITER + fullPath;
 	}
 	return fullPath;
 }
 
-bool IFileSystem::MountTo(IFileSystem *parent)
+bool FileSystem::MountTo(FileSystem *parent)
 {
 	_ASSERT(!GetNodeName().empty() && GetNodeName() != TEXT("/"));
-	_ASSERT(!_parent); // may be is already mounted somewhere?
-	                   // only one parent is allowed
+	_ASSERT(!_parent); // may be is already mounted somewhere? only one parent is allowed
 
 	// check if node with the same name is already exists
 	StrToFileSystemMap::iterator it = parent->_children.find(_nodeName);
@@ -64,7 +65,7 @@ bool IFileSystem::MountTo(IFileSystem *parent)
 	return true;
 }
 
-void IFileSystem::Unmount()
+void FileSystem::Unmount()
 {
 	_ASSERT(_parent); // not mounted?
 	_ASSERT(_parent->GetFileSystem(GetNodeName(), false) == this);
@@ -75,36 +76,35 @@ void IFileSystem::Unmount()
 	Release();
 }
 
-bool IFileSystem::IsValid() const
+bool FileSystem::IsValid() const
 {
 	return _parent ? _parent->IsValid() : true;
 }
 
-SafePtr<IFile> IFileSystem::Open(const string_t &fileName)
+SafePtr<File> FileSystem::Open(const string_t &fileName)
 {
-	if( fileName.empty() ) return NULL;
+//	if( fileName.empty() ) return NULL;
 
 	string_t::size_type pd = fileName.rfind(DELIMITER);
 	if( string_t::npos != pd ) // is a path delimiter found?
 	{
-		if( SafePtr<IFileSystem> fs = GetFileSystem(fileName.substr(0, pd+1), false) )
-			return fs->RawOpen(fileName.substr(pd+1));
-		return NULL;
+		return GetFileSystem(fileName.substr(0, pd+1), false)->RawOpen(fileName.substr(pd+1));
 	}
 	return RawOpen(fileName);
 }
 
-bool IFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
+void FileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 {
-	return true; // base file system can't contain any files
+	// base file system can't contain any files
 }
 
-SafePtr<IFile> IFileSystem::RawOpen(const string_t &fileName)
+SafePtr<File> FileSystem::RawOpen(const string_t &fileName)
 {
-	return NULL; // base file system can't contain any files
+	throw std::runtime_error("Base file system can't contain any files");
+	return NULL;
 }
 
-SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path, bool create)
+SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create)
 {
 	_ASSERT(!path.empty());
 
@@ -115,12 +115,12 @@ SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path, bool creat
 	if( path.length() == offset )
 		return WrapRawPtr(this); // path contains only one symbol '/'
 
-	string_t::size_type p = path.find( DELIMITER, offset );
+	string_t::size_type p = path.find(DELIMITER, offset);
 
 	StrToFileSystemMap::const_iterator it = _children.find(
 		path.substr(offset, string_t::npos != p ? p - offset : p));
 	if( _children.end() == it )
-		return NULL; // node not found
+		throw std::runtime_error("node not found in base file system");
 
 	if( string_t::npos != p )
 		return it->second->GetFileSystem(path.substr(p), create);
@@ -130,73 +130,81 @@ SafePtr<IFileSystem> IFileSystem::GetFileSystem(const string_t &path, bool creat
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSFile(const TCHAR *fileName)
+static string_t GetLastErrorMessage()
+{
+	LPVOID lpMsgBuf = NULL;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, GetLastError(), 0, (LPTSTR) &lpMsgBuf, 0, NULL );
+	string_t result((LPCTSTR) lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	return result;
+}
+
+OSFileSystem::OSFile::OSFile(const string_t &fileName)
+  : _data(NULL)
+  , _size(0)
 {
 	// replace all '/' by '\'
 	string_t tmp = fileName;
 	for( string_t::iterator it = tmp.begin(); tmp.end() != it; ++it )
 	{
-		if( DELIMITER == *it ) *it = TEXT('\\');
+		if( DELIMITER == *it )
+		{
+			*it = TEXT('\\');
+		}
 	}
 
-	_handle = ::CreateFile(
-		tmp.c_str(),
-		FILE_READ_ACCESS,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		0,
-		NULL
-	);
+	_file.h = ::CreateFile(tmp.c_str(), // lpFileName
+	    FILE_READ_DATA,                 // dwDesiredAccess
+	    FILE_SHARE_READ,                // dwShareMode
+	    NULL,                           // lpSecurityAttributes
+	    OPEN_EXISTING,                  // dwCreationDisposition
+	    FILE_FLAG_NO_BUFFERING,         // dwFlagsAndAttributes
+	    NULL);                          // hTemplateFile
+
+	if( INVALID_HANDLE_VALUE == _file.h )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	_size = GetFileSize(_file.h, NULL);
+	if( INVALID_FILE_SIZE == _size )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	_map.h = CreateFileMapping(_file.h, NULL, PAGE_READONLY, 0, 0, NULL);
+	if( NULL == _map.h )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	_data = MapViewOfFile(_map.h, FILE_MAP_READ, 0, 0, 0);
+	if( NULL == _data )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
 }
 
 OSFileSystem::OSFile::~OSFile()
 {
-	if( INVALID_HANDLE_VALUE != _handle )
+	if( _data )
 	{
-		CloseHandle(_handle);
+		UnmapViewOfFile(_data);
 	}
 }
 
-size_t OSFileSystem::OSFile::Read(void *data, size_t size)
+char* OSFileSystem::OSFile::GetData()
 {
-	DWORD bytesRead = 0;
-	ReadFile(_handle, data, size, &bytesRead, NULL);
-	return bytesRead;
+	return (char *) _data;
 }
 
-bool OSFileSystem::OSFile::Write(const void *data, size_t size)
+unsigned long OSFileSystem::OSFile::GetSize() const
 {
-	DWORD bytesWritten = 0;
-	WriteFile(_handle, data, size, &bytesWritten, NULL);
-	return bytesWritten == size;
+	return _size;
 }
 
-bool OSFileSystem::OSFile::Seek(long offset, int origin)
-{
-	DWORD method = 0;
-	switch( origin )
-	{
-	case SEEK_SET: method = FILE_BEGIN;   break;
-	case SEEK_CUR: method = FILE_CURRENT; break;
-	case SEEK_END: method = FILE_END;     break;
-	default:
-		_ASSERT(FALSE);
-	}
-	return INVALID_SET_FILE_POINTER != SetFilePointer(_handle, offset, NULL, method);
-}
-
-size_t OSFileSystem::OSFile::Tell() const
-{
-	return SetFilePointer(_handle, 0, NULL, FILE_CURRENT);
-}
-
-bool OSFileSystem::OSFile::IsOpen() const
-{
-	return INVALID_HANDLE_VALUE != _handle;
-}
-
-///////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, const string_t &nodeName)
 {
@@ -204,7 +212,7 @@ SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, const 
 }
 
 OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeName)
-  : IFileSystem(nodeName)
+  : FileSystem(nodeName)
 {
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
@@ -230,7 +238,7 @@ OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeNa
 }
 
 OSFileSystem::OSFileSystem(OSFileSystem *parent, const string_t &nodeName)
-  : IFileSystem(nodeName)
+  : FileSystem(nodeName)
 {
 	_ASSERT(parent);
 	_ASSERT(string_t::npos == nodeName.find(DELIMITER));
@@ -248,112 +256,110 @@ bool OSFileSystem::IsValid() const
 	return true;
 }
 
-bool OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
+void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 {
-	bool result = true;
-
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
-	TCHAR *curDir = new TCHAR[len];
-	GetCurrentDirectory(len, curDir);
+	std::vector<TCHAR> buf(len);
+	GetCurrentDirectory(len, &buf[0]);
 
-	if( SetCurrentDirectory(_rootDirectory.c_str()) )
+	if( !SetCurrentDirectory(_rootDirectory.c_str()) )
 	{
-		WIN32_FIND_DATA fd;
-		HANDLE hSearch = FindFirstFile(mask.c_str(), &fd);
-		if( INVALID_HANDLE_VALUE != hSearch )
-		{
-			files.clear();
-			do
-			{
-				if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
-				{
-					files.insert( fd.cFileName );
-				}
-			}
-			while( FindNextFile(hSearch, &fd) );
-			FindClose(hSearch);
-		}
-		else
-		{
-			if( ERROR_FILE_NOT_FOUND != GetLastError() )
-			{
-				result = false;
-			}
-		}
-		SetCurrentDirectory(curDir);
-	}
-	else
-	{
-		result = false;
+		throw std::runtime_error(GetLastErrorMessage());
 	}
 
-	delete[] curDir;
-	return result;
+	WIN32_FIND_DATA fd;
+	HANDLE hSearch = FindFirstFile(mask.c_str(), &fd);
+	if( INVALID_HANDLE_VALUE == hSearch )
+	{
+		if( ERROR_FILE_NOT_FOUND == GetLastError() )
+		{
+			return; // nothing matches
+		}
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	files.clear();
+	do
+	{
+		if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
+		{
+			files.insert( fd.cFileName );
+		}
+	}
+	while( FindNextFile(hSearch, &fd) );
+	FindClose(hSearch);
+
+	// restore last current directory
+	if( !SetCurrentDirectory(&buf[0]) )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
 }
 
-SafePtr<IFile> OSFileSystem::RawOpen(const string_t &fileName)
+SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName)
 {
 	// combine with the root path
-	string_t tmp = _rootDirectory + TEXT('\\') + fileName;
-
-	// open file and return pointer if succeeded
-	SafePtr<OSFile> f(new OSFile(tmp.c_str()));
-	if( f->IsOpen() )
-		return f;
-
-	return NULL;  // open file failed
+	return WrapRawPtr(new OSFile(_rootDirectory + TEXT('\\') + fileName));
 }
 
-SafePtr<IFileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create)
+SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create)
 {
-	if( SafePtr<IFileSystem> child = IFileSystem::GetFileSystem(path, create) )
-		return child;
-
-	_ASSERT(!path.empty());
-
-	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
-	if( path.length() == offset )
-		return WrapRawPtr(this); // path contains only one DELIMITER symbol
-
-	string_t::size_type p = path.find( DELIMITER, offset );
-	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
-	string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
-
-	// try to find directory
-	WIN32_FIND_DATA fd = {0};
-	HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
-	FindClose(search);
-
-	if( INVALID_HANDLE_VALUE == search )
+	try
 	{
-		if( create && CreateDirectory(tmpDir.c_str(), NULL) )
+		return __super::GetFileSystem(path, create);
+	}
+	catch( const std::exception& )
+	{
+		_ASSERT(!path.empty());
+
+		string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
+		if( path.length() == offset )
+			return WrapRawPtr(this); // path contains only one DELIMITER symbol
+
+		string_t::size_type p = path.find( DELIMITER, offset );
+		string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
+		string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
+
+		// try to find directory
+		WIN32_FIND_DATA fd = {0};
+		HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+		FindClose(search);
+
+		if( INVALID_HANDLE_VALUE == search )
 		{
-			// try to find again
-			HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
-			FindClose(search);
-			if( INVALID_HANDLE_VALUE == search )
+			if( create && CreateDirectory(tmpDir.c_str(), NULL) )
 			{
-				return NULL; // could not create
+				// try to find again
+				HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+				FindClose(search);
+				if( INVALID_HANDLE_VALUE == search )
+				{
+					throw std::runtime_error("could not create directory");
+				}
+			}
+			else
+			{
+				throw std::runtime_error("could not create or find directory");
 			}
 		}
-		else
-		{
-			return NULL; // not found or could not create
-		}
-	}
 
-	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
-	{
-		SafePtr<IFileSystem> child(new OSFileSystem(this, dirName));
-		if( string_t::npos != p )
-			return child->GetFileSystem(path.substr(p), create); // process the rest of the path
-		return child; // last path node was processed
+		if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+		{
+			SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
+			if( string_t::npos != p )
+				return child->GetFileSystem(path.substr(p), create); // process the rest of the path
+			return child; // last path node was processed
+		}
+
+		throw;
 	}
 
 	return NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+} // end of namespace FS
 ///////////////////////////////////////////////////////////////////////////////
 // end of file
 

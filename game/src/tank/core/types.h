@@ -22,14 +22,6 @@ struct SpriteColor
 	SpriteColor(DWORD c) : dwColor(c) {}
 };
 
-struct TextureData
-{
-	BYTE  *imageData;  // Hold All The Color Values For The Image.
-	int    bpp;        // Hold The Number Of Bits Per Pixel.
-	int    width;      // The Width Of The Entire Image.
-	int    height;     // The Height Of The Entire Image.
-};
-
 typedef size_t ObjectType;
 #define INVALID_OBJECT_TYPE (-1)
 

@@ -193,7 +193,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 	const GameInfo &gi = arg.Value<GameInfo>();
 
-	if( VERSION != gi.dwVersion )
+	if( 0 != memcmp(gi.exeVer, g_md5.bytes, 16) )
 	{
 		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_server_version->Get()));
 		return;

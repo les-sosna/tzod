@@ -15,6 +15,7 @@
 #include "config/Language.h"
 
 #include "functions.h"
+#include "script.h"
 
 
 namespace UI
@@ -32,17 +33,11 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 
 	_files = new List(this, 20, 56, 472, 280);
 	std::set<string_t> files;
-	if( g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua") )
+	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
+	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
-		{
-			it->erase(it->length() - 4); // cut out the file extension
-			int index = _files->AddItem(*it);
-		}
-	}
-	else
-	{
-		_ASSERT(FALSE); // EnumAllFiles has returned error...
+		it->erase(it->length() - 4); // cut out the file extension
+		int index = _files->AddItem(*it);
 	}
 	_files->Sort();
 

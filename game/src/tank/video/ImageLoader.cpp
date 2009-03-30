@@ -6,139 +6,133 @@
 #include "fs/FileSystem.h"
 
 
-ImageLoader::~ImageLoader(void)
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-TgaImageLoader::TgaImageLoader(void)
+TgaImage::TgaImage(const void *data, unsigned long size)
 {
-	_texData = NULL;
-}
+	static const unsigned char signatureU[12] = {0,0,2, 0,0,0,0,0,0,0,0,0}; // Uncompressed
+	static const unsigned char signatureC[12] = {0,0,10,0,0,0,0,0,0,0,0,0}; // Compressed
 
-TgaImageLoader::~TgaImageLoader(void)
-{
-	if( _texData )
+	struct Header
 	{
-		_ASSERT(_texData->imageData);
-		delete[] _texData->imageData;
-		delete _texData;
-		_texData = NULL;
+		unsigned char signature[12];
+		unsigned char header[6]; // First 6 useful bytes from the header
+		unsigned char data[1];
+	};
+	const Header &h = *(const Header *) data;
+
+	_width  = h.header[1] * 256 + h.header[0];
+	_height = h.header[3] * 256 + h.header[2];
+	_bpp    = h.header[4];
+
+	if( _width <= 0 || _height <= 0 || (_bpp != 24 && _bpp != 32) )
+	{
+		throw std::runtime_error("unsupported size or bpp");
 	}
-}
 
-bool TgaImageLoader::Load(const SafePtr<IFile> &file)
-{
-	_ASSERT(!_texData);
+	long bytesPerPixel = _bpp / 8;
+	long imageSize = bytesPerPixel * _width * _height;
 
-	static const BYTE uTGAcompare[12] = {0,0,2, 0,0,0,0,0,0,0,0,0}; // Uncompressed TGA Header
-	static const BYTE cTGAcompare[12] = {0,0,10,0,0,0,0,0,0,0,0,0}; // Compressed TGA Header
-
-	_texData = new TextureData;
-	_texData->imageData = NULL;
-
-	try
+	if( 0 == memcmp(signatureU, h.signature, 12) )
 	{
-		TGAHeader   tgaheader; // TGA header
-		if( !file->Read(&tgaheader, sizeof(TGAHeader)) )
-			throw -1;
+		_data.assign(h.data, h.data + imageSize);
+	}
+	else if( 0 == memcmp(signatureC, h.signature, 12) )
+	{
+		_data.reserve(imageSize);
 
-		if( memcmp(uTGAcompare, &tgaheader, sizeof(tgaheader)) == 0 )
-			LoadUncompressedTGA(file);
-		else
-		if( memcmp(cTGAcompare, &tgaheader, sizeof(tgaheader)) == 0 )
-			LoadCompressedTGA(file);
-		else
-			throw -1;
+		int  pixelcount   = _height * _width;
+		int  currentpixel = 0;
+		int  currentbyte  = 0;
 
-
-		//
-		// flip vertical
-		//
-
-		int lenght = _texData->width * (_texData->bpp >> 3);
-		for( int y = 0; y < _texData->height >> 1; y++ )
+		// FIXME: check for buffer overflows
+		do
 		{
-			BYTE *data1 = (BYTE*) _texData->imageData + y * lenght;
-			BYTE *data2 = (BYTE*) _texData->imageData + (_texData->height - y - 1) * lenght;
-			for( int x = 0; x < lenght; x++ )
-			{
-				BYTE tmp = data1[x];
-				data1[x] = data2[x];
-				data2[x] = tmp;
+			const unsigned char &chunkheader = h.data[currentbyte++];
+
+			if( chunkheader < 128 )    // If the header is < 128, it means the that is the number 
+			{                          // of RAW color packets minus 1 that follow the header
+				// Read RAW color values
+				int pcount = chunkheader + 1;
+				_data.insert(_data.end(), h.data + currentbyte, h.data + currentbyte + pcount * bytesPerPixel);
+				currentpixel += pcount;
+				currentbyte += pcount * bytesPerPixel;
 			}
+			else // chunkheader >= 128 RLE data, next color repeated chunkheader - 127 times
+			{
+				int pcount = chunkheader - 127;  // get rid of the ID bit
+
+				const unsigned char *colorbuffer = h.data + currentbyte;
+				currentbyte += bytesPerPixel;
+
+				for( int counter = 0; counter < pcount; ++counter )
+				{
+					_data.insert(_data.end(), colorbuffer, colorbuffer + bytesPerPixel);
+				}
+				currentpixel += pcount;
+			}
+		} while(currentpixel < pixelcount); // Loop while there are still pixels left
+	}
+	else
+	{
+		throw std::runtime_error("unsupported TGA signature");
+	}
+
+
+	//
+	// swap R <-> G
+	//
+
+	for( long cswap = 0; cswap < imageSize; cswap += bytesPerPixel )
+	{
+		std::swap(_data[cswap], _data[cswap + 2]);
+	}
+
+
+	//
+	// flip vertical
+	//
+
+	long lenght = _width * (_bpp >> 3);
+	for( long y = 0; y < _height >> 1; y++ )
+	{
+		char *data1 = &_data[y * lenght];
+		char *data2 = &_data[(_height - y - 1) * lenght];
+		for( long x = 0; x < lenght; ++x )
+		{
+			char tmp = data1[x];
+			data1[x] = data2[x];
+			data2[x] = tmp;
 		}
 	}
-	catch(int)
-	{
-		if( _texData->imageData )
-			delete[] _texData->imageData;
-		delete _texData;
-		_texData = NULL;
-	}
-
-	return NULL != _texData;
 }
 
-bool TgaImageLoader::IsLoaded()
+TgaImage::~TgaImage()
 {
-	return NULL != _texData;
 }
 
-const TextureData* TgaImageLoader::GetData()
+const void* TgaImage::GetData() const
 {
-	return _texData;
+	return &_data[0];
 }
 
-
-// Load an uncompressed TGA (note, much of this code is based on NeHe's
-void TgaImageLoader::LoadUncompressedTGA(const SafePtr<IFile> &file)
+long TgaImage::GetBpp() const
 {
-	_ASSERT(_texData);
-
-	TGA tga; // Read TGA header
-	if( !file->Read(tga.header, sizeof(tga.header)) )
-		throw -1;
-
-	_texData->width  = tga.header[1] * 256 + tga.header[0]; // Determine The TGA Width (highbyte*256+lowbyte)
-	_texData->height = tga.header[3] * 256 + tga.header[2]; // Determine The TGA Height (highbyte*256+lowbyte)
-	_texData->bpp = tga.header[4];    // Determine the bits per pixel
-	tga.width    = _texData->width;   // Copy width into local structure
-	tga.height   = _texData->height;  // Copy height into local structure
-	tga.bpp      = _texData->bpp;     // Copy BPP into local structure
-
-	if( (_texData->width <= 0) || (_texData->height <= 0) ||
-		((_texData->bpp != 24) && (_texData->bpp !=32)) ) // Make sure all information is valid
-	{
-		throw -1;
-	}
-
-	// Compute the number of BYTES per pixel
-	tga.bytesPerPixel = (tga.bpp / 8);
-
-	// Compute the total amout ofmemory needed to store data
-	tga.imageSize = (tga.bytesPerPixel * tga.width * tga.height);
-
-	// Allocate that much memory
-	_texData->imageData = new BYTE[tga.imageSize];
-
-	// Attempt to read image data
-	if( !file->Read(_texData->imageData, tga.imageSize) )
-	{
-		throw -1;
-	}
-
-	for( int cswap = 0; cswap < tga.imageSize; cswap += tga.bytesPerPixel )
-	{
-		BYTE tmp = _texData->imageData[cswap];
-		_texData->imageData[cswap] = _texData->imageData[cswap + 2];
-		_texData->imageData[cswap + 2] = tmp;
-	}
+	return _bpp;
 }
 
-// Load COMPRESSED TGAs
-void TgaImageLoader::LoadCompressedTGA(const SafePtr<IFile> &file)
+long TgaImage::GetWidth() const
+{
+	return _width;
+}
+
+long TgaImage::GetHeight() const
+{
+	return _height;
+}
+
+/*
+void TgaImageLoader::LoadCompressedTGA(const SafePtr<File> &file)
 {
 	_ASSERT(_texData);
 
@@ -146,9 +140,9 @@ void TgaImageLoader::LoadCompressedTGA(const SafePtr<IFile> &file)
 	if( !file->Read(tga.header, sizeof(tga.header)) )
 		throw -1;
 
-	_texData->width  = tga.header[1] * 256 + tga.header[0];  // Determine The TGA Width (highbyte*256+lowbyte)
-	_texData->height = tga.header[3] * 256 + tga.header[2];  // Determine The TGA Height (highbyte*256+lowbyte)
-	_texData->bpp    = tga.header[4];                        // Determine Bits Per Pixel
+	_width  = tga.header[1] * 256 + tga.header[0];  // Determine The TGA Width (highbyte*256+lowbyte)
+	_height = tga.header[3] * 256 + tga.header[2];  // Determine The TGA Height (highbyte*256+lowbyte)
+	_bpp    = tga.header[4];                        // Determine Bits Per Pixel
 	tga.width        = _texData->width;                      // Copy width to local structure
 	tga.height       = _texData->height;                     // Copy width to local structure
 	tga.bpp          = _texData->bpp;                        // Copy width to local structure
@@ -239,6 +233,6 @@ void TgaImageLoader::LoadCompressedTGA(const SafePtr<IFile> &file)
 
 	delete[] colorbuffer;
 }
-
+*/
 
 // end of file

@@ -6,6 +6,7 @@
 
 #include "level.h"
 #include "functions.h"
+#include "script.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"

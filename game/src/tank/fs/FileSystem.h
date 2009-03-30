@@ -4,97 +4,116 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class IFile : public RefCounted
+namespace FS {
+
+class File : public RefCounted
 {
-//    IFileSystem::Ptr _hostFileSystem; // this prevents the file system to be
-                                      // destroyed while the file remains open
+//    FileSystem::Ptr _hostFileSystem; // this prevents the file system to be
+									  // destroyed while the file remains open
 protected:
-    IFile(/*IFileSystem::Ptr host*/); // create via IFileSystem::Open only
-    virtual ~IFile(); // delete only via Release
+	File(/*FileSystem::Ptr host*/); // create via FileSystem::Open only
+	virtual ~File(); // delete only via Release
 
 public:
-    virtual size_t Read(void *data, size_t size)      = 0;
-    virtual bool Write(const void *data, size_t size) = 0;
-    virtual bool Seek(long offset, int origin)        = 0; // origin could be SEEK_CUR, SEEK_END, SEEK_SET
-    virtual size_t Tell() const                       = 0;
+	virtual char* GetData() = 0;
+	virtual unsigned long GetSize() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class IFileSystem : public RefCounted
+class FileSystem : public RefCounted
 {
-    typedef std::map<string_t, SafePtr<IFileSystem> > StrToFileSystemMap;
+	typedef std::map<string_t, SafePtr<FileSystem> > StrToFileSystemMap;
 
-    StrToFileSystemMap _children;
-    string_t           _nodeName;
-    IFileSystem*       _parent;  // 'unsafe' pointer allows to avoid cyclic references
-                                 // it assigned to NULL when the parent is been destroyed
+	StrToFileSystemMap _children;
+	string_t           _nodeName;
+	FileSystem*        _parent;  // 'unsafe' pointer allows to avoid cyclic references
+	                             // it assigned to NULL when the parent is been destroyed
 
 protected:
-    IFileSystem(const string_t &nodeName);
-    virtual ~IFileSystem(void); // delete only via Release
+	FileSystem(const string_t &nodeName);
+	virtual ~FileSystem(void); // delete only via Release
 
-    // open a file that strictly belongs to this file system
-    virtual SafePtr<IFile> RawOpen(const string_t &fileName);
+	// open a file that strictly belongs to this file system
+	virtual SafePtr<File> RawOpen(const string_t &fileName);
 
 public:
-    static const TCHAR DELIMITER = TEXT('/');
+	static const TCHAR DELIMITER = TEXT('/');
 
-    const string_t GetFullPath(void) const;
-    const string_t& GetNodeName(void) const { return _nodeName; }
+	const string_t GetFullPath(void) const;
+	const string_t& GetNodeName(void) const { return _nodeName; }
 
-    IFileSystem* GetParent(void) const { return _parent; }
+	FileSystem* GetParent(void) const { return _parent; }
 
-    virtual bool MountTo(IFileSystem *parent);
-    virtual void Unmount(); // object can become destroyed after that
+	virtual bool MountTo(FileSystem *parent);
+	virtual void Unmount(); // object can become destroyed after that
 
-    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path, bool create = false);
+	virtual SafePtr<FileSystem> GetFileSystem(const string_t &path, bool create = false);
 
-    virtual bool IsValid() const;
-    virtual SafePtr<IFile> Open(const string_t &path);
-	virtual bool EnumAllFiles(std::set<string_t> &files, const string_t &mask);
+	virtual bool IsValid() const;
+	virtual SafePtr<File> Open(const string_t &path);
+	virtual void EnumAllFiles(std::set<string_t> &files, const string_t &mask);
 
-    static SafePtr<IFileSystem> Create(const string_t &nodeName = TEXT(""));
+	static SafePtr<FileSystem> Create(const string_t &nodeName = TEXT(""));
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class OSFileSystem : public IFileSystem
+class OSFileSystem : public FileSystem
 {
-    class OSFile : public IFile
-    {
-        HANDLE _handle;
-    public:
-        OSFile(const TCHAR *fileName);
-        virtual ~OSFile();
+	struct AutoHandle
+	{
+		HANDLE h;
+		AutoHandle() : h(NULL) {}
+		~AutoHandle()
+		{
+			if( NULL != h && INVALID_HANDLE_VALUE != h )
+			{
+				CloseHandle(h);
+			}
+		}
+	private:
+		AutoHandle(const AutoHandle&);
+		AutoHandle& operator = (const AutoHandle&);
+	};
 
-        virtual size_t Read(void *data, size_t size);
-        virtual bool Write(const void *data, size_t size);
-        virtual bool Seek(long offset, int origin);
-		virtual size_t Tell() const;
+	class OSFile : public File
+	{
+	public:
+		OSFile(const string_t &fileName);
+		virtual ~OSFile();
 
-        bool IsOpen() const;
-    };
+		virtual char* GetData();
+		virtual unsigned long GetSize() const;
 
-    string_t  _rootDirectory;
+	private:
+		AutoHandle _file;
+		AutoHandle _map;
+		void *_data;
+		DWORD _size;
+	};
+
+	string_t  _rootDirectory;
 
 private:
-    // private constructors for internal use by GetFileSystem() and Create()
-    OSFileSystem(OSFileSystem *parent, const string_t &nodeName);
-    OSFileSystem(const string_t &rootDirectory, const string_t &nodeName = TEXT(""));
+	// private constructors for internal use by GetFileSystem() and Create()
+	OSFileSystem(OSFileSystem *parent, const string_t &nodeName);
+	OSFileSystem(const string_t &rootDirectory, const string_t &nodeName = TEXT(""));
 
 protected:
-    virtual ~OSFileSystem(); // protected destructor. delete via Release() only
-    virtual SafePtr<IFile> RawOpen(const string_t &fileName);
+	virtual ~OSFileSystem(); // protected destructor. delete via Release() only
+	virtual SafePtr<File> RawOpen(const string_t &fileName);
 
 public:
-    virtual SafePtr<IFileSystem> GetFileSystem(const string_t &path, bool create = false);
-    virtual bool IsValid() const;
-	virtual bool EnumAllFiles(std::set<string_t> &files, const string_t &mask);
+	virtual SafePtr<FileSystem> GetFileSystem(const string_t &path, bool create = false);
+	virtual bool IsValid() const;
+	virtual void EnumAllFiles(std::set<string_t> &files, const string_t &mask);
 
-    static SafePtr<OSFileSystem> Create(const string_t &rootDirectory,
-                                        const string_t &nodeName = TEXT(""));
+	static SafePtr<OSFileSystem> Create(const string_t &rootDirectory,
+										const string_t &nodeName = TEXT(""));
 };
 
+///////////////////////////////////////////////////////////////////////////////
+} // end of namespace FS
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

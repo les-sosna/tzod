@@ -98,7 +98,7 @@ private:
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const TextureData *pData);
+	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img);
 	virtual void TexFree(DEV_TEXTURE tex);
 	virtual void TexBind(DEV_TEXTURE tex);
 
@@ -425,7 +425,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
+bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, Image *img)
 {
 	glGenTextures(1, &tex.index);
 	glBindTexture(GL_TEXTURE_2D, tex.index);
@@ -434,12 +434,12 @@ bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
 		GL_TEXTURE_2D,                      // target
 		0,                                  // level
 		GL_RGBA,                            // internalformat
-		pData->width,                       // width
-		pData->height,                      // height
+		img->GetWidth(),                    // width
+		img->GetHeight(),                   // height
 		0,                                  // border
-		(24==pData->bpp)?GL_RGB:GL_RGBA,    // format
+		(24==img->GetBpp())?GL_RGB:GL_RGBA, // format
 		GL_UNSIGNED_BYTE,                   // type
-		pData->imageData                    // pixels
+		img->GetData()                      // pixels
 	);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, /*GL_NEAREST*/ GL_LINEAR);

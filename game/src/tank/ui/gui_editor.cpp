@@ -25,7 +25,7 @@
 
 #include "Level.h"
 #include "Macros.h"
-
+#include "script.h"
 
 namespace UI
 {

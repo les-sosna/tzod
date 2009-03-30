@@ -9,6 +9,7 @@
 #include "Level.h"
 #include "macros.h"
 #include "functions.h"
+#include "script.h"
 
 #include "core/debug.h"
 #include "core/Console.h"

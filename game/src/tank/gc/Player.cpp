@@ -4,6 +4,7 @@
 
 #include "Player.h"
 
+#include "script.h"
 #include "macros.h"
 #include "level.h"
 

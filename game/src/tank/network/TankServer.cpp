@@ -76,7 +76,6 @@ bool TankServer::init(const GameInfo *info)
 	g_app->InitNetwork();
 
 	_gameInfo = *info;
-	_ASSERT(VERSION == _gameInfo.dwVersion);
 
 
 	TRACE("sv: Server init...\n");

@@ -17,6 +17,8 @@ class GC_Pickup;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef float AIPRIORITY;
+
 struct AIITEMINFO
 {
 	SafePtr<GC_Actor> object;

@@ -6,6 +6,8 @@
 #include "core/Application.h"
 #include "core/Console.h"
 
+#include "fs/FileSystem.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 template< class key_t, class parent_t >
@@ -891,7 +893,12 @@ bool ConfVarTable::_Load(lua_State *L)
 
 bool ConfVarTable::Save(const char *filename) const
 {
-	FILE *file = fopen(filename, "w");
+	FILE *file = NULL;
+	errno_t err = fopen_s(&file, filename, "w");
+	if( !file )
+	{
+		return false;
+	}
 	fprintf(file, "-- config file\n-- don't modify!\n\n");
 	bool result = _Save(file, 0);
 	fclose(file);
@@ -903,7 +910,9 @@ bool ConfVarTable::Load(const char *filename)
 	lua_State *L = lua_open();
 
 	// try to read and execute the file
-	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
+	SafePtr<FS::File> file = g_fs->Open(filename);
+	if( luaL_loadbuffer(L, file->GetData(), file->GetSize(), filename)
+	    || lua_pcall(L, 0, 0, 0) )
 	{
 		g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 		lua_close(L);

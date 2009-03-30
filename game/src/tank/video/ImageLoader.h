@@ -2,58 +2,41 @@
 
 #pragma once
 
+#include "RenderBase.h"
+
 // forward declarations
-class IFile;
-struct TextureData;
-
-///////////////////////////////////////////////////////////////////////////////
-// ImageLoader interface class declaration
-
-class ImageLoader
+namespace FS
 {
-protected:
-	virtual ~ImageLoader(void) = 0;
+	class File;
+}
 
-public:
-	virtual bool Load(const SafePtr<IFile> &file) = 0;
-	virtual bool IsLoaded() = 0;
-	virtual const TextureData* GetData() = 0;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// TgaImageLoader class declaration
-
-class TgaImageLoader : public ImageLoader
+class TgaImage : public Image
 {
-	struct TGAHeader
-	{
-		BYTE header[12];  // TGA file header
-	};
 	struct TGA
 	{
-		BYTE  header[6];        // First 6 useful bytes from the header
-		int   bytesPerPixel;    // Holds number of bytes per pixel used in the tga file
-		int   imageSize;        // Used to store the image size when setting aside ram
-		int   temp;             // temporary variable
-		int   type;
-		int   height;           // Height of image
-		int   width;            // Width of image
-		int   bpp;              // Bits per pixel
+		long  bytesPerPixel;     // Holds number of bytes per pixel used in the tga file
+		long  imageSize;         // Used to store the image size when setting aside ram
+		long  temp;              // temporary variable
+		long  type;
 	};
 
-	void LoadUncompressedTGA(const SafePtr<IFile> &file);
-	void LoadCompressedTGA(const SafePtr<IFile> &file);
+	void LoadUncompressedTGA(const SafePtr<FS::File> &file);
+	void LoadCompressedTGA(const SafePtr<FS::File> &file);
 
-	TextureData *_texData;
-
+	long  _height;
+	long  _width;
+	long  _bpp;
+	std::vector<char> _data;
 
 public:
-	TgaImageLoader(void);
-	virtual ~TgaImageLoader(void);
+	TgaImage(const void *data, unsigned long size);
+	virtual ~TgaImage();
 
-	virtual bool Load(const SafePtr<IFile> &file);
-	virtual bool IsLoaded();
-	virtual const TextureData* GetData();
+	// Image methods
+	const void* GetData() const;
+	long GetBpp() const;
+	long GetWidth() const;
+	long GetHeight() const;
 };
 
 

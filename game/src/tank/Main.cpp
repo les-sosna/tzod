@@ -2,10 +2,12 @@
 
 #include "stdafx.h"
 
+#include "script.h"
 #include "macros.h"
 #include "Level.h"
 #include "directx.h"
 #include "KeyMapper.h"
+#include "md5.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -51,8 +53,8 @@ public:
 private:
 	Timer timer;
 
-	//	SafePtr<ConsoleBuffer> _con;
-	//	SafePtr<IFileSystem>   _fs;
+//	SafePtr<ConsoleBuffer> _con;
+//	SafePtr<FileSystem>   _fs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,6 +179,27 @@ int APIENTRY WinMain( HINSTANCE hinst,
                       int // nCmdShow
 ){
 	g_hInstance = hinst;
+
+	TCHAR buf[MAX_PATH];
+	GetModuleFileName(NULL, buf, MAX_PATH);
+
+	HANDLE hFile = CreateFile(buf, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
+	HANDLE hMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+	void *data = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
+	DWORD size = GetFileSize(hFile, NULL);
+
+	MD5_CTX md5;
+	MD5Init(&md5);
+	MD5Update(&md5, (const char *) data, size);
+	MD5Final(&md5);
+
+	UnmapViewOfFile(data);
+	CloseHandle(hMap);
+	CloseHandle(hFile);
+
+	memcpy(&g_md5, md5.digest, 16);
+
+
 	ZodApp app;
 	return app.Run(hinst);
 }
@@ -222,26 +245,31 @@ bool ZodApp::Pre()
 	// init file system
 	//
 	TRACE("Mounting file system\n");
-	g_fs = OSFileSystem::Create(".");
+	g_fs = FS::OSFileSystem::Create(".");
 
 
 	//
 	// init config system
 	//
 
-	if( g_fs->Open(FILE_CONFIG) && !g_conf.GetRoot()->Load(FILE_CONFIG) )
+	try
 	{
-		TRACE("couldn't load configuration file " FILE_CONFIG "\n");
-
-		int result = MessageBox(g_env.hMainWnd,
-			"Syntax error in the config file (see log). Default settings will be used.",
-			TXT_VERSION,
-			MB_ICONERROR | MB_OKCANCEL);
-
-		if( IDOK != result )
+		if( !g_conf.GetRoot()->Load(FILE_CONFIG) )
 		{
-			return false;
+			int result = MessageBox(g_env.hMainWnd,
+				"Syntax error in the config file (see log). Default settings will be used.",
+				TXT_VERSION,
+				MB_ICONERROR | MB_OKCANCEL);
+
+			if( IDOK != result )
+			{
+				return false;
+			}
 		}
+	}
+	catch( std::exception &e )
+	{
+		TRACE("could not load config file: %s\n", e.what());
 	}
 	g_conf.GetAccessor(); // force accessor creation
 	if( 0 == g_conf->dm_profiles->GetSize() )
@@ -437,7 +465,10 @@ void ZodApp::Post()
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'\n");
-	g_conf.GetRoot()->Save(FILE_CONFIG);
+	if( !g_conf.GetRoot()->Save(FILE_CONFIG) )
+	{
+		MessageBox(NULL, "Failed to save config file", TXT_VERSION, MB_ICONERROR);
+	}
 
 	// clean up the file system
 	TRACE("Unmounting the file system\n");

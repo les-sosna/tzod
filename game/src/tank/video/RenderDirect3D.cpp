@@ -125,7 +125,7 @@ private:
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const TextureData *pData);
+	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img);
 	virtual void TexFree(DEV_TEXTURE tex);
 	virtual void TexBind(DEV_TEXTURE tex);
 
@@ -514,14 +514,14 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
+bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, Image *img)
 {
 	IDirect3DTexture9 *pTex = NULL;
 	HRESULT hr;
 
 	hr = _pd3dDevice->CreateTexture(
-		pData->width,    // Width
-		pData->height,   // Height
+		img->GetWidth(), // Width
+		img->GetHeight(),// Height
 		1,               // Levels
 		0,               // Usage
 		D3DFMT_A8R8G8B8, // Format
@@ -540,16 +540,17 @@ bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
 		return false;
 	}
 
-	size_t size = pData->width*pData->height*4;
-	unsigned char *src = (unsigned char *) pData->imageData;
+	size_t size = img->GetWidth() * img->GetHeight() * 4;
+	unsigned char *src = (unsigned char *) img->GetData();
 	unsigned char *dst = (unsigned char *) lr.pBits;
-	unsigned char *end = dst + pData->width*pData->height*4;
-    while( dst != end )
+	unsigned char *end = dst + size;
+	bool bpp24 = (24 == img->GetBpp());
+	while( dst != end )
 	{
 		*(dst++) = src[2];
 		*(dst++) = src[1];
 		*(dst++) = src[0];
-		if( 24==pData->bpp )
+		if( bpp24 )
 		{
 			*(dst++) = 255;
 			src += 3;
@@ -563,7 +564,7 @@ bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, const TextureData *pData)
 
 	V(pTex->UnlockRect(0));
 
-    tex.ptr = pTex;
+	tex.ptr = pTex;
 	return true;
 }
 
