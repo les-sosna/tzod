@@ -22,13 +22,11 @@
 class CheckerImage : public Image
 {
 public:
-	CheckerImage() {}
-
-	// Image
+	// Image methods
 	virtual const void* GetData() const { return _bytes; }
-	virtual long GetBpp() const { return 24; }
-	virtual long GetWidth() const { return 4; }
-	virtual long GetHeight() const { return 4; }
+	virtual unsigned long GetBpp() const { return 24; }
+	virtual unsigned long GetWidth() const { return 4; }
+	virtual unsigned long GetHeight() const { return 4; }
 
 private:
 	static const unsigned char _bytes[];
@@ -66,35 +64,33 @@ void TextureManager::UnloadAllTextures()
 	_LogicalTextures.clear();
 }
 
-bool TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName)
+void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName)
 {
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
 	{
 		itTexDesc = it->second;
-		return true;
 	}
-
-	SafePtr<FS::File> file = g_fs->Open(fileName);
-	SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
-
-	TexDesc td;
-	if( !g_render->TexCreate(td.id, GetRawPtr(image)) )
+	else
 	{
-		TRACE("ERROR: '%s' - error in render device\n", fileName.c_str());
-		return false;
+		SafePtr<FS::File> file = g_fs->Open(fileName);
+		SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
+
+		TexDesc td;
+		if( !g_render->TexCreate(td.id, GetRawPtr(image)) )
+		{
+			throw std::exception("error in render device");
+		}
+
+		td.width     = image->GetWidth();
+		td.height    = image->GetHeight();
+		td.refCount  = 0;
+
+		_textures.push_front(td);
+		itTexDesc = _textures.begin();
+		_mapFile_to_TexDescIter[fileName] = itTexDesc;
+		_mapDevTex_to_TexDescIter[itTexDesc->id] = itTexDesc;
 	}
-
-	td.width     = image->GetWidth();
-	td.height    = image->GetHeight();
-	td.refCount  = 0;
-
-	_textures.push_front(td);
-	itTexDesc = _textures.begin();
-	_mapFile_to_TexDescIter[fileName] = itTexDesc;
-	_mapDevTex_to_TexDescIter[itTexDesc->id] = itTexDesc;
-
-	return true;
 }
 
 void TextureManager::Unload(TexDescIterator what)
@@ -120,14 +116,6 @@ void TextureManager::CreateChecker()
 {
 	TexDesc td;
 	LogicalTexture tex;
-
-	static BYTE bytes[] = {
-	    0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
-	    0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
-	  255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
-	  255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
-	};
-
 
 
 	//
@@ -236,14 +224,19 @@ int TextureManager::LoadPackage(const string_t &filename)
 
 			// get a file name; load
 			lua_getfield(L, -1, "file");
-			bool result = LoadTexture(td, lua_tostring(L, -1));
+			std::string f = lua_tostring(L, -1);
 			lua_pop(L, 1); // pop result of lua_getfield
 
-			if( !result )
+			try
 			{
-				// couldn't load TGA
-				break;
+				LoadTexture(td, f);
 			}
+			catch( const std::exception &e )
+			{
+				TRACE("WARNING: could not load texture '%s' - %s\n", f.c_str(), e.what());
+				continue;
+			}
+
 
 			// get 'content' field
 			lua_getfield(L, -1, "content");
@@ -362,32 +355,40 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
 		TexDescIterator td;
-		if( LoadTexture(td, dirName + TEXT("/") + *it) )
+		string_t f = dirName + TEXT("/") + *it;
+		try
 		{
-			string_t texName = texPrefix + *it;
-			texName.erase(texName.length() - 4); // cut out the file extension
-
-			LogicalTexture tex;
-			tex.dev_texture = td->id;
-			tex.left   = 0;
-			tex.top    = 0;
-			tex.right  = (float) td->width;
-			tex.bottom = (float) td->height;
-			tex.xframes  = 1;
-			tex.yframes  = 1;
-			tex.frame_width  = (float) td->width;
-			tex.frame_height = (float) td->height;
-			tex.pixel_width  = 1.0f / (float) td->width;
-			tex.pixel_height = 1.0f / (float) td->height;
-			tex.color = 0xffffffff;
-			//---------------------
-			if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
-				continue; // текстура с таким именем уже есть. пропускаем.
-			_mapName_to_Index[texName] = _LogicalTextures.size();
-            _LogicalTextures.push_back(tex);
-			td->refCount++;
-			count++;
+			LoadTexture(td, f);
 		}
+		catch( const std::exception &e )
+		{
+			TRACE("WARNING: could not load texture '%s' - %s\n", f.c_str(), e.what());
+			continue;
+		}
+
+		string_t texName = texPrefix + *it;
+		texName.erase(texName.length() - 4); // cut out the file extension
+
+		LogicalTexture tex;
+		tex.dev_texture = td->id;
+		tex.left   = 0;
+		tex.top    = 0;
+		tex.right  = (float) td->width;
+		tex.bottom = (float) td->height;
+		tex.xframes  = 1;
+		tex.yframes  = 1;
+		tex.frame_width  = (float) td->width;
+		tex.frame_height = (float) td->height;
+		tex.pixel_width  = 1.0f / (float) td->width;
+		tex.pixel_height = 1.0f / (float) td->height;
+		tex.color = 0xffffffff;
+		//---------------------
+		if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
+			continue; // текстура с таким именем уже есть. пропускаем.
+		_mapName_to_Index[texName] = _LogicalTextures.size();
+		_LogicalTextures.push_back(tex);
+		td->refCount++;
+		count++;
 	}
 	return count;
 }

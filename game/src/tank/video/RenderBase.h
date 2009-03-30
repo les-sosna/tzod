@@ -58,9 +58,9 @@ class Image : public RefCounted
 {
 public:
 	virtual const void* GetData() const = 0;
-	virtual long GetBpp() const = 0;
-	virtual long GetWidth() const = 0;
-	virtual long GetHeight() const = 0;
+	virtual unsigned long GetBpp() const = 0;
+	virtual unsigned long GetWidth() const = 0;
+	virtual unsigned long GetHeight() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

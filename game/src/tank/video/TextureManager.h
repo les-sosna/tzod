@@ -52,7 +52,7 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	bool LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName);
+	void LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName);
     void UnloadAllTextures();
 
 	int LoadPackage(const string_t &fileName);
