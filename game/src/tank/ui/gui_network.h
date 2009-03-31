@@ -100,6 +100,7 @@ class WaitingForPlayersDlg : public Dialog
 	List           *_bots;
 	Console        *_chat;
 	Button         *_btnOK;
+	Button         *_btnProfile;
 	SafePtr<ConsoleBuffer>  _buf;
 
 	static const size_t _maxPings = 5;
@@ -111,6 +112,8 @@ public:
 
 protected:
 	// GUI event handlers
+	void OnCloseProfileDlg(int result);
+	void OnChangeProfileClick();
 	void OnAddBotClick();
 	void OnAddBotClose(int result);
 	void OnOK();

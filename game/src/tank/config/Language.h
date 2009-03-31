@@ -178,6 +178,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 
 	CONFIG_VAR_STR( net_chatroom_title, "Waiting for players" )
 	CONFIG_VAR_STR( net_chatroom_players, "Players" )
+	CONFIG_VAR_STR( net_chatroom_my_profile, "My profile" )
 	CONFIG_VAR_STR( net_chatroom_bots, "Bots" )
 	CONFIG_VAR_STR( net_chatroom_bot_new, "New bot" )
 	CONFIG_VAR_STR( net_chatroom_chat_window, "Chat window" )

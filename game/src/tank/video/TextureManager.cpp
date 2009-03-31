@@ -168,7 +168,7 @@ void TextureManager::CreateChecker()
 	tex.pixel_height = 1.0f / tex.frame_height;
 	tex.color = 0xffffffff;
 	//---------------------
-    _LogicalTextures.push_back(tex);
+	_LogicalTextures.push_back(tex);
 	it->refCount++;
 }
 

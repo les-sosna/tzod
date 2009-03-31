@@ -12,11 +12,6 @@ create new map
 debug lines from intro map are still displayed
 
 
-
-sync error when playing with bots?
-
-
-
 net_connect_address instead of lobby address in internet dialog
 
 

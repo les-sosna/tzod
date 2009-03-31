@@ -438,6 +438,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   , _bots(NULL)
   , _chat(NULL)
   , _btnOK(NULL)
+  , _btnProfile(NULL)
 {
 	_ASSERT(g_client);
 	g_client->eventErrorMessage.bind(&WaitingForPlayersDlg::OnError, this);
@@ -460,6 +461,9 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
+
+	_btnProfile = new Button(this, 560, 65, g_lang->net_chatroom_my_profile->Get());
+	_btnProfile->eventClick.bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
 	new Text(this, 20, 150, g_lang->net_chatroom_bots->Get(), alignTextLT);
 	_bots = new List(this, 20, 165, 512, 100);
@@ -511,6 +515,20 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 		g_client->eventPlayersUpdate.clear();
 		g_client->eventStartGame.clear();
 	}
+}
+
+void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
+{
+	_btnProfile->Enable(true);
+	_btnOK->Enable(true);
+}
+
+void WaitingForPlayersDlg::OnChangeProfileClick()
+{
+	_btnProfile->Enable(false);
+	_btnOK->Enable(false);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf->cl_playerinfo);
+	dlg->eventClose.bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()
