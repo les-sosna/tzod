@@ -8,18 +8,21 @@ struct LogicalTexture
 {
 	DEV_TEXTURE dev_texture;
 
-	float left;
-	float top;
-	float right;
-	float bottom;
-	float pixel_width;
-	float pixel_height;
-	float frame_width;
-	float frame_height;
-	float pivot_x;
-	float pivot_y;
+	float uvLeft;
+	float uvTop;
+	float uvRight;
+	float uvBottom;
+	float uvFrameWidth;
+	float uvFrameHeight;
+	vec2d uvPivot;
+
+	float pxFrameWidth;
+	float pxFrameHeight;
 	int   xframes;
 	int   yframes;
+
+	std::vector<FRECT> uvFrames;
+
 	SpriteColor color;
 };
 
@@ -41,8 +44,8 @@ class TextureManager
 	FileToTexDescMap _mapFile_to_TexDescIter;
 	DevToTexDescMap  _mapDevTex_to_TexDescIter;
 	TexDescList      _textures;
-	std::map<string_t, size_t>   _mapName_to_Index;// index in _LogicalTextures
-	std::vector<LogicalTexture>  _LogicalTextures;
+	std::map<string_t, size_t>   _mapName_to_Index;// index in _logicalTextures
+	std::vector<LogicalTexture>  _logicalTextures;
 
 private:
 	void Unload(TexDescIterator what);
@@ -59,13 +62,14 @@ public:
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 
 	size_t FindTexture(const char *name)   const;
-	const LogicalTexture& Get(size_t index) const;
-	void Bind(size_t index);
+	const LogicalTexture& Get(size_t index) const { return _logicalTextures[index]; }
 
 	bool IsValidTexture(size_t index) const;
 
-	void GetTextureNames(std::vector<string_t> &names,
-		const char *prefix, bool noPrefixReturn) const;
+	void GetTextureNames(std::vector<string_t> &names, const char *prefix, bool noPrefixReturn) const;
+
+	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const;
+	void DrawIndicator(size_t tex, float x, float y, float value) const;
 };
 
 /////////////////////////////////////////////////////////////

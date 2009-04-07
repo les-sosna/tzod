@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "video/TextureManager.h" // TODO: try to remove
 
 /////////////////////////////////////////////////
 
@@ -12,7 +13,6 @@ class TextureCache
 	friend class GC_2dSprite;
 	float  width;
 	float  height;
-	vec2d  pivot;
 	size_t texture;
 	SpriteColor color;
 
@@ -25,64 +25,46 @@ public:
 #define GC_FLAG_2DSPRITE_VISIBLE               (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_ACTOR_ << 1)
 #define GC_FLAG_2DSPRITE_DROPSHADOW            (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_2DSPRITE_CENTERPIVOT           (GC_FLAG_ACTOR_ << 3)
-#define GC_FLAG_2DSPRITE_                      (GC_FLAG_ACTOR_ << 4)
+#define GC_FLAG_2DSPRITE_                      (GC_FLAG_ACTOR_ << 3)
 
 class GC_2dSprite : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_2dSprite);
 
 private:
-	FRECT  _frameRect;  // texture coords
-	float  _width;
-	float  _height;
 	float  _rotation;
 
 	SpriteColor  _color;
-
-	vec2d  _pivot;      // локальные координаты центра спрайта
 	size_t _texId;
 
 private:
-	int    _frame;      // value -1 means custom _rtFrame
+	unsigned int _frame;
 
 public:
-	inline int   GetFrameCount()   const;
+	inline size_t GetTexture() const { return _texId; }
+	inline int   GetFrameCount()   const { return g_texman->Get(_texId).uvFrames.size(); }
 	inline int   GetCurrentFrame() const { return _frame; }
-	inline const vec2d& GetPivot() const { return _pivot; }
 	inline void  GetGlobalRect(FRECT &rect) const
 	{
-		rect.left   = GetPos().x - _pivot.x;
-		rect.top    = GetPos().y - _pivot.y;
-		rect.right  = rect.left + GetSpriteWidth();
-		rect.bottom = rect.top  + GetSpriteHeight();
+		const LogicalTexture &lt = g_texman->Get(_texId);
+		rect.left   = GetPos().x - lt.pxFrameWidth * lt.uvPivot.x;
+		rect.top    = GetPos().y - lt.pxFrameHeight * lt.uvPivot.y;
+		rect.right  = rect.left + lt.pxFrameWidth;
+		rect.bottom = rect.top  + lt.pxFrameHeight;
 	}
 	inline void  GetLocalRect(FRECT &rect) const
 	{
-		_ASSERT(_texId);
-		rect.left   = -_pivot.x;
-		rect.top    = -_pivot.y;
-		rect.right  = rect.left + GetSpriteWidth();
-		rect.bottom = rect.top + GetSpriteHeight();
+		const LogicalTexture &lt = g_texman->Get(_texId);
+		rect.left   = -lt.uvPivot.x * lt.pxFrameWidth;
+		rect.top    = -lt.uvPivot.y * lt.pxFrameHeight;
+		rect.right  = rect.left + lt.pxFrameWidth;
+		rect.bottom = rect.top + lt.pxFrameHeight;
 	}
 
 	void SetTexture(const char *name);
 	void SetTexture(const TextureCache &tc);
-	void UpdateTexture();
-
-	void Resize(float width, float height)
-	{
-		_width = width;
-		_height = height;
-	}
 
 	void SetFrame(int nFrame);
-	void ModifyFrameBounds(const LPFRECT lpFrame);
-	void SetPivot(const vec2d &pivot);
-	void SetPivot(float x, float y);
-	void CenterPivot();
-
-	virtual void MoveTo(const vec2d &pos);
 
 	inline void SetSpriteRotation(float a) { _rotation = a; }
 	inline void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
@@ -112,8 +94,8 @@ private:
 	enumZOrder _zOrderPrefered;
 
 public:
-	inline float GetSpriteWidth() const { return _width; }
-	inline float GetSpriteHeight() const { return _height; }
+	inline float GetSpriteWidth() const { return g_texman->Get(_texId).pxFrameWidth; }
+	inline float GetSpriteHeight() const { return g_texman->Get(_texId).pxFrameHeight; }
 
 public:
 	void SetGridSet(bool bGridSet);

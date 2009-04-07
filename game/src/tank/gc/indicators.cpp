@@ -238,7 +238,6 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	SetZ(Z_VEHICLE_LABEL);
 
 	SetTexture(texture);
-	_initial_width = GetSpriteWidth();
 
 	_dwValueMax_offset = (DWORD) pValueMax - (DWORD) object;
 	_dwValue_offset    = (DWORD) pValue    - (DWORD) object;
@@ -269,6 +268,11 @@ GC_IndicatorBar::GC_IndicatorBar(FromFile)
 {
 }
 
+//void GC_IndicatorBar::Draw()
+//{
+//
+//}
+
 void GC_IndicatorBar::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
@@ -276,7 +280,6 @@ void GC_IndicatorBar::Serialize(SaveFile &f)
 	f.Serialize(_bInverse);
 	f.Serialize(_dwValueMax_offset);
 	f.Serialize(_dwValue_offset);
-	f.Serialize(_initial_width);
 	f.Serialize(_location);
 	f.Serialize(_object);
 }
@@ -304,8 +307,10 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 	GC_2dSprite *sprite = static_cast<GC_2dSprite *>(sender);
 
 	vec2d pos = sprite->GetPosPredicted();
-	float top = pos.y - sprite->GetPivot().y;
-
+	FRECT rt;
+	sprite->GetLocalRect(rt);
+	float top = pos.y + rt.top;
+/*
 	switch( _location )
 	{
 	case LOCATION_TOP:
@@ -319,7 +324,7 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 		break;
 	default:
 		_ASSERT(FALSE);
-	}
+	}*/
 }
 
 void GC_IndicatorBar::OnUpdateValue(GC_Object *sender, void *param)
@@ -341,14 +346,13 @@ void GC_IndicatorBar::OnUpdateValue(GC_Object *sender, void *param)
 		if( val > max_val )  val = max_val;
 		if( _bInverse )      val = max_val - val;
 
-		SetFrame(0);
 		FRECT rt;
 		rt.left = 0;
 		rt.top  = 0;
 		rt.bottom = 1;
 		rt.right = val / max_val;
-		ModifyFrameBounds(&rt);
-		Resize(_initial_width * rt.right, GetSpriteHeight());
+//		ModifyFrameBounds(&rt);
+//		SetScale(_initial_width * rt.right, 1);
 
 		Show(true);
 	}
@@ -417,11 +421,6 @@ void GC_DamLabel::TimeStepFloat(float dt)
 	{
 		SetFrame(int(_time * 10.0f) % GetFrameCount());
 	}
-}
-
-void GC_DamLabel::Draw()
-{
-	GC_2dSprite::Draw();
 }
 
 void GC_DamLabel::Reset()

@@ -106,8 +106,6 @@ class GC_IndicatorBar : public GC_2dSprite
 protected:
 	SafePtr<GC_2dSprite> _object;
 
-	float _initial_width;
-
 	DWORD _dwValue_offset;
 	DWORD _dwValueMax_offset;
 
@@ -122,6 +120,8 @@ public:
 	void OnParentKill(GC_Object *sender, void *param);
 	void OnUpdateValue(GC_Object *sender, void *param);
 	void OnUpdatePosition(GC_Object *sender, void *param);
+
+//	virtual void Draw();
 
 	// GC_Object
 	virtual void Kill();
@@ -155,7 +155,6 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);
-	virtual void Draw();
 
 	void Reset();
 

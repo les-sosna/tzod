@@ -830,13 +830,11 @@ void Level::ToggleEditorMode()
 	if( _modeEditor )
 	{
 		_modeEditor = false;
-		_background->EnableGrid(false);
 		PauseLocal(false);
 	}
 	else
 	{
 		_modeEditor = true;
-		_background->EnableGrid(g_conf->ed_drawgrid->Get());
 		PauseLocal(true);
 	}
 	GC_Camera::SwitchEditor();

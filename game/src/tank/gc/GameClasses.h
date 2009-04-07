@@ -15,17 +15,19 @@ class GC_Background : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Background);
 
 private:
+	size_t _texBg;
+	size_t _texGrid;
 	bool _drawGrid;
+
+	void DrawCustom(size_t tex);
 
 public:
 	GC_Background();
 	GC_Background(FromFile);
 	~GC_Background();
+	virtual void Serialize(SaveFile &f);
+	virtual bool IsSaved() { return true; }
 	virtual void Draw();
-
-public:
-	void EnableGrid(bool bEnable);
-	void OnChangeDrawGridVariable();
 };
 
 /////////////////////////////////////////////////////////////
@@ -203,9 +205,6 @@ private:
 	vec2d _end;
 
 	float _phase;
-	float _sprite_width;
-
-	int   _frame;
 
 public:
 	GC_Line(const vec2d &begin, const vec2d &end, const char *texture);
@@ -217,8 +216,6 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Draw();
-
-	void SetLineView(int index);
 };
 
 /////////////////////////////////////////////////////////////

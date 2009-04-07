@@ -34,60 +34,65 @@ IMPLEMENT_SELF_REGISTRATION(GC_Background)
 
 GC_Background::GC_Background()
   : GC_2dSprite()
+  , _texBg(g_texman->FindTexture("background"))
+  , _texGrid(g_texman->FindTexture("grid"))
 {
 	MoveTo(vec2d(0, 0));
-	_ASSERT(!g_conf->ed_drawgrid->eventChange);
-	g_conf->ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
-	OnChangeDrawGridVariable();
+	_ASSERT(_texBg);
+	_ASSERT(_texGrid);
 }
 
 GC_Background::GC_Background(FromFile)
   : GC_2dSprite(FromFile())
 {
-	_ASSERT(!g_conf->ed_drawgrid->eventChange);
-	g_conf->ed_drawgrid->eventChange.bind(&GC_Background::OnChangeDrawGridVariable, this);
-	OnChangeDrawGridVariable();
 }
 
 GC_Background::~GC_Background()
 {
-	g_conf->ed_drawgrid->eventChange.clear();
+}
+
+void GC_Background::Serialize(SaveFile &f)
+{
+	GC_2dSprite::Serialize(f);
+	f.Serialize(_texBg);
+	f.Serialize(_texGrid);
 }
 
 void GC_Background::Draw()
 {
+	DrawCustom(_texBg);
+	if( g_level->_modeEditor && g_conf->ed_drawgrid->Get() )
 	{
-		SetTexture("background");
-		FRECT rt  = {0};
-		rt.right  = g_level->_sx / GetSpriteWidth();
-		rt.bottom = g_level->_sy / GetSpriteHeight();
-		ModifyFrameBounds(&rt);
-		Resize(g_level->_sx, g_level->_sy);
-		SetPivot(0,0);
-		GC_2dSprite::Draw();
-	}
-
-	if( _drawGrid && g_level->_modeEditor )
-	{
-		SetTexture("grid");
-		FRECT rt  = {0};
-		rt.right  = g_level->_sx / GetSpriteWidth();
-		rt.bottom = g_level->_sy / GetSpriteHeight();
-		ModifyFrameBounds(&rt);
-		Resize(g_level->_sx, g_level->_sy);
-		SetPivot(0,0);
-		GC_2dSprite::Draw();
+		DrawCustom(_texGrid);
 	}
 }
 
-void GC_Background::EnableGrid(bool bEnable)
+void GC_Background::DrawCustom(size_t tex)
 {
-	_drawGrid = bEnable;
-}
+	const LogicalTexture &lt = g_texman->Get(tex);
+	g_render->TexBind(lt.dev_texture);
 
-void GC_Background::OnChangeDrawGridVariable()
-{
-	_drawGrid = g_conf->ed_drawgrid->Get();
+	MyVertex *v = g_render->DrawQuad();
+	v[0].color = 0xffffffff;
+	v[0].u = 0;
+	v[0].v = 0;
+	v[0].x = 0;
+	v[0].y = 0;
+	v[1].color = 0xffffffff;
+	v[1].u = g_level->_sx / lt.pxFrameWidth;
+	v[1].v = 0;
+	v[1].x = g_level->_sx;
+	v[1].y = 0;
+	v[2].color = 0xffffffff;
+	v[2].u = g_level->_sx / lt.pxFrameWidth;
+	v[2].v = g_level->_sy / lt.pxFrameHeight;
+	v[2].x = g_level->_sx;
+	v[2].y = g_level->_sy;
+	v[3].color = 0xffffffff;
+	v[3].u = 0;
+	v[3].v = g_level->_sy / lt.pxFrameHeight;
+	v[3].x = 0;
+	v[3].y = g_level->_sy;
 }
 
 /////////////////////////////////////////////////////////////
@@ -106,7 +111,6 @@ GC_Wood::GC_Wood(float xPos, float yPos)
 	SetZ(Z_WOOD);
 
 	SetTexture("wood");
-	CenterPivot();
 	MoveTo( vec2d(xPos, yPos) );
 	SetFrame(4);
 
@@ -174,33 +178,27 @@ void GC_Wood::Serialize(SaveFile &f)
 
 void GC_Wood::Draw()
 {
-	static float dx[8]   = {-32,-32,  0, 32, 32, 32,  0,-32 };
-	static float dy[8]   = {  0,-32,-32,-32,  0, 32, 32, 32 };
-	static int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
+	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
+	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
+	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
+
+	vec2d pos = GetPosPredicted();
 
 	if( !g_level->_modeEditor )
 	{
-		SetOpacity1i(255);
-
 		for( char i = 0; i < 8; ++i )
 		{
 			if( 0 == (_tile & (1 << i)) )
 			{
-				SetPivot(dx[i] + GetSpriteWidth() * 0.5f, dy[i] + GetSpriteHeight() * 0.5f);
-				SetFrame(frames[i]);
-				GC_2dSprite::Draw();
+				g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], 0);
 			}
 		}
-
-		CenterPivot();
-		SetFrame(4);
+		g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, 0);
 	}
 	else
 	{
-		SetOpacity1i(128);
+		g_texman->DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, 0);
 	}
-
-	GC_2dSprite::Draw();
 }
 
 void GC_Wood::SetTile(char nTile, bool value)
@@ -222,7 +220,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Line)
 
 GC_Line::GC_Line(const vec2d &begin, const vec2d &end, const char *texture)
 {
-	_frame = 0;
 	_phase = 0;
 	_begin = begin;
 	_end   = end;
@@ -231,33 +228,13 @@ GC_Line::GC_Line(const vec2d &begin, const vec2d &end, const char *texture)
 
 	SetSpriteRotation((end-begin).Angle());
 	SetTexture(texture);
-	_sprite_width = GetSpriteWidth();
 
 	GC_UserSprite::MoveTo((begin+end) * 0.5f);
 }
 
 void GC_Line::SetPhase(float f)
 {
-	float len = (_end-_begin).len();
-
-	SetFrame(_frame);
-
 	_phase = fmodf(f, 1);
-	FRECT rt;
-	rt.left = _phase;
-	rt.right = rt.left + len / _sprite_width;
-	rt.top = 0;
-	rt.bottom = 1;
-
-	ModifyFrameBounds(&rt);
-	Resize(len, GetSpriteHeight());
-	CenterPivot();
-}
-
-void GC_Line::SetLineView(int index)
-{
-	_frame = index;
-	SetPhase(_phase);
 }
 
 void GC_Line::Serialize(SaveFile &f)
@@ -266,16 +243,53 @@ void GC_Line::Serialize(SaveFile &f)
 	f.Serialize(_begin);
 	f.Serialize(_end);
 	f.Serialize(_phase);
-	f.Serialize(_sprite_width);
 }
 
 void GC_Line::Draw()
 {
+	float x = GetPos().x;
+	float y = GetPos().y;
+	float len = (_end-_begin).len();
+/*
+	FRECT rt;
+	rt.left = _phase;
+	rt.right = rt.left + len / _sprite_width;
+	rt.top = 0;
+	rt.bottom = 1;
+
 	for( int i = 0; i < 2; ++i )
 	{
-		SetPhase(-_phase + 0.5f);
-		GC_UserSprite::Draw();
-	}
+		float p = _phase + (float) i * 0.5f;
+
+
+		MyVertex *v = g_render->DrawQuad();
+
+		float c = cosf(_rotation), s = sinf(_rotation);
+
+		v[0].color = 0xffffffff;
+		v[0].u = rt.left;
+		v[0].v = rt.top;
+		v[0].x = x - px * c + py * s;
+		v[0].y = y - px * s - py * c;
+
+		v[1].color = 0xffffffff;
+		v[1].u = rt.right;
+		v[1].v = rt.top;
+		v[1].x = x + (width - px) * c + py * s;
+		v[1].y = y + (width - px) * s - py * c;
+
+		v[2].color = 0xffffffff;
+		v[2].u = rt.right;
+		v[2].v = rt.bottom;
+		v[2].x = x + (width - px) * c - (height - py) * s;
+		v[2].y = y + (width - px) * s + (height - py) * c;
+
+		v[3].color = 0xffffffff;
+		v[3].u = rt.left;
+		v[3].v = rt.bottom;
+		v[3].x = x - px * c - (height - py) * s;
+		v[3].y = y - px * s + (height - py) * c;
+	}*/
 }
 
 void GC_Line::MoveTo(const vec2d &begin, const vec2d &end)
@@ -830,14 +844,16 @@ void GC_Text::UpdateLines()
 
 void GC_Text::Draw()
 {
-	static const int dx_[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};
-	static const int dy_[] = {0, 0, 0, 1, 1, 1, 2, 2, 2};
+	static const int dx[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};
+	static const int dy[] = {0, 0, 0, 1, 1, 1, 2, 2, 2};
 
-	float x0 = _margin_x - (float) (dx_[_align] * (GetSpriteWidth() - 1) * _maxline / 2);
-	float y0 = _margin_y - (float) (dy_[_align] * (GetSpriteHeight() - 1) * _lines.size() / 2);
+	float x0 = _margin_x - (float) (dx[_align] * (GetSpriteWidth() - 1) * _maxline / 2);
+	float y0 = _margin_y - (float) (dy[_align] * (GetSpriteHeight() - 1) * _lines.size() / 2);
 
 	size_t count = 0;
 	size_t line  = 0;
+
+	vec2d pos = GetPosPredicted();
 
 	for( const char *tmp = _text.c_str(); *tmp; ++tmp )
 	{
@@ -848,11 +864,10 @@ void GC_Text::Draw()
 			continue;
 		}
 
-		SetFrame((unsigned char) *tmp - 32);
-		SetPivot(-x0 - (float) ((count++) * (GetSpriteWidth() - 1)),
-			-y0 - (float) (line * (GetSpriteHeight() - 1)));
-
-		GC_2dSprite::Draw();
+		int frame = (unsigned char) *tmp - 32;
+		g_texman->DrawSprite(GetTexture(), frame, 0xffffffff, 
+			pos.x - x0 + (float) ((count++) * (GetSpriteWidth() - 1)),
+			pos.y - y0 + (float) (line * (GetSpriteHeight() - 1)), 0);
 	}
 }
 

@@ -61,7 +61,7 @@ void TextureManager::UnloadAllTextures()
 	_mapFile_to_TexDescIter.clear();
 	_mapDevTex_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
-	_LogicalTextures.clear();
+	_logicalTextures.clear();
 }
 
 void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName)
@@ -122,7 +122,7 @@ void TextureManager::CreateChecker()
 	// check if checker texture already exists
 	//
 
-	_ASSERT(_LogicalTextures.empty()); // to be sure that checker will get index 0
+	_ASSERT(_logicalTextures.empty()); // to be sure that checker will get index 0
 	_ASSERT(_mapName_to_Index.empty());
 
 	TRACE("Creating checker texture\n");
@@ -156,19 +156,19 @@ void TextureManager::CreateChecker()
 	//
 
 	tex.dev_texture = it->id;
-	tex.left   = 0;
-	tex.top    = 0;
-	tex.right  = (float) td.width;
-	tex.bottom = (float) td.height;
+	tex.uvLeft   = 0;
+	tex.uvTop    = 0;
+	tex.uvRight  = 1;
+	tex.uvBottom = 1;
 	tex.xframes  = 1;
 	tex.yframes  = 1;
-	tex.frame_width  = 8.0f * (float) td.width;
-	tex.frame_height = 8.0f * (float) td.height;
-	tex.pixel_width  = 1.0f / tex.frame_width;
-	tex.pixel_height = 1.0f / tex.frame_height;
+	tex.uvFrameWidth  = 8.0f;
+	tex.uvFrameHeight = 8.0f;
+	tex.pxFrameWidth  = (float) td.width * tex.uvFrameWidth;
+	tex.pxFrameHeight = (float) td.height * tex.uvFrameHeight;
 	tex.color = 0xffffffff;
 	//---------------------
-	_LogicalTextures.push_back(tex);
+	_logicalTextures.push_back(tex);
 	it->refCount++;
 }
 
@@ -263,29 +263,44 @@ int TextureManager::LoadPackage(const string_t &filename)
 						tex.dev_texture = td->id;
 
 						// texture bounds
-						tex.left   = (float) floorf(auxgetfloat(L, -2, "left", 0)) * scale_x;
-						tex.right  = (float) floorf(auxgetfloat(L, -2, "right", (float) td->width)) * scale_x;
-						tex.top    = (float) floorf(auxgetfloat(L, -2, "top", 0)) * scale_y;
-						tex.bottom = (float) floorf(auxgetfloat(L, -2, "bottom", (float) td->height)) * scale_y;
+						tex.uvLeft   = (float) floorf(auxgetfloat(L, -2, "left", 0)) / (float) td->width;
+						tex.uvRight  = (float) floorf(auxgetfloat(L, -2, "right", (float) td->width)) / (float) td->width;
+						tex.uvTop    = (float) floorf(auxgetfloat(L, -2, "top", 0)) / (float) td->height;
+						tex.uvBottom = (float) floorf(auxgetfloat(L, -2, "bottom", (float) td->height)) / (float) td->height;
 
 						// frames count
 						tex.xframes = auxgetint(L, -2, "xframes", 1);
 						tex.yframes = auxgetint(L, -2, "yframes", 1);
 
 						// frame size
-						tex.frame_width  = (tex.right - tex.left) / (float) tex.xframes;
-						tex.frame_height = (tex.bottom - tex.top) / (float) tex.yframes;
+						tex.uvFrameWidth  = (tex.uvRight - tex.uvLeft) / (float) tex.xframes;
+						tex.uvFrameHeight = (tex.uvBottom - tex.uvTop) / (float) tex.yframes;
+
+						// original size
+						tex.pxFrameWidth  = (float) td->width  * scale_x * tex.uvFrameWidth;
+						tex.pxFrameHeight = (float) td->height * scale_y * tex.uvFrameHeight;
 
 						// pivot position
-						tex.pivot_x = (float) auxgetfloat(L, -2, "xpivot", tex.frame_width/2/scale_y) * scale_x;
-						tex.pivot_y = (float) auxgetfloat(L, -2, "ypivot", tex.frame_height/2/scale_y) * scale_y;
-
-						// pixel size
-						tex.pixel_width  = 1.0f / (float) td->width  / scale_x;
-						tex.pixel_height = 1.0f / (float) td->height / scale_y;
+						tex.uvPivot.x = (float) auxgetfloat(L, -2, "xpivot", (float) td->width * tex.uvFrameWidth / 2) / ((float) td->width * tex.uvFrameWidth);
+						tex.uvPivot.y = (float) auxgetfloat(L, -2, "ypivot", (float) td->height * tex.uvFrameHeight / 2) / ((float) td->height * tex.uvFrameHeight);
 
 						// sprite color
 						tex.color.dwColor = (DWORD) auxgetint(L, -2, "color", 0xffffffff);
+
+						// frames
+						tex.uvFrames.reserve(tex.xframes * tex.yframes);
+						for( int y = 0; y < tex.yframes; ++y )
+						{
+							for( int x = 0; x < tex.xframes; ++x )
+							{
+								FRECT rt;
+								rt.left   = tex.uvLeft + tex.uvFrameWidth * (float) x;
+								rt.right  = tex.uvLeft + tex.uvFrameWidth * (float) (x + 1);
+								rt.top    = tex.uvTop + tex.uvFrameHeight * (float) y;
+								rt.bottom = tex.uvTop + tex.uvFrameHeight * (float) (y + 1);
+								tex.uvFrames.push_back(rt);
+							}
+						}
 
 						//---------------------
 						if( tex.xframes > 0 && tex.yframes > 0 )
@@ -298,7 +313,7 @@ int TextureManager::LoadPackage(const string_t &filename)
 							if( _mapName_to_Index.end() != it )
 							{
 								// replace existing logical texture
-								LogicalTexture &existing = _LogicalTextures[it->second];
+								LogicalTexture &existing = _logicalTextures[it->second];
 								TexDescIterator tmp =
 									_mapDevTex_to_TexDescIter[existing.dev_texture];
 								existing = tex;
@@ -308,8 +323,8 @@ int TextureManager::LoadPackage(const string_t &filename)
 							else
 							{
 								// define new texture
-								_mapName_to_Index[texname] = _LogicalTextures.size();
-								_LogicalTextures.push_back(tex);
+								_mapName_to_Index[texname] = _logicalTextures.size();
+								_logicalTextures.push_back(tex);
 							}
 						} // end if( xframes > 0 && yframes > 0 )
 					} // end if( texname )
@@ -339,8 +354,8 @@ int TextureManager::LoadPackage(const string_t &filename)
 			Unload(tmp);
 	}
 
-	TRACE("Total number of loaded textures: %d\n", _LogicalTextures.size());
-	return _LogicalTextures.size();
+	TRACE("Total number of loaded textures: %d\n", _logicalTextures.size());
+	return _logicalTextures.size();
 }
 
 int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPrefix)
@@ -371,22 +386,26 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 
 		LogicalTexture tex;
 		tex.dev_texture = td->id;
-		tex.left   = 0;
-		tex.top    = 0;
-		tex.right  = (float) td->width;
-		tex.bottom = (float) td->height;
+		tex.uvLeft   = 0;
+		tex.uvTop    = 0;
+		tex.uvRight  = 1;
+		tex.uvBottom = 1;
+		tex.uvPivot  = vec2d(0.5f, 0.5f);
 		tex.xframes  = 1;
 		tex.yframes  = 1;
-		tex.frame_width  = (float) td->width;
-		tex.frame_height = (float) td->height;
-		tex.pixel_width  = 1.0f / (float) td->width;
-		tex.pixel_height = 1.0f / (float) td->height;
+		tex.uvFrameWidth  = 1;
+		tex.uvFrameHeight = 1;
+		tex.pxFrameWidth  = (float) td->width;
+		tex.pxFrameHeight = (float) td->height;
 		tex.color = 0xffffffff;
+
+		FRECT frame = {0,0,1,1};
+		tex.uvFrames.push_back(frame);
 		//---------------------
 		if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
 			continue; // текстура с таким именем уже есть. пропускаем.
-		_mapName_to_Index[texName] = _LogicalTextures.size();
-		_LogicalTextures.push_back(tex);
+		_mapName_to_Index[texName] = _logicalTextures.size();
+		_logicalTextures.push_back(tex);
 		td->refCount++;
 		count++;
 	}
@@ -405,25 +424,13 @@ size_t TextureManager::FindTexture(const char *name) const
 	return 0; // index of checker texture
 }
 
-const LogicalTexture& TextureManager::Get(size_t index) const
-{
-	_ASSERT(index < _LogicalTextures.size());
-	return _LogicalTextures[index];
-}
-
-void TextureManager::Bind(size_t index)
-{
-	_ASSERT(index < _LogicalTextures.size());
-	g_render->TexBind(_LogicalTextures[index].dev_texture);
-}
-
 bool TextureManager::IsValidTexture(size_t index) const
 {
-	return index < _LogicalTextures.size();
+	return index < _logicalTextures.size();
 }
 
 void TextureManager::GetTextureNames(std::vector<string_t> &names,
-									 const char *prefix, bool noPrefixReturn) const
+                                     const char *prefix, bool noPrefixReturn) const
 {
 	size_t trimLength = (prefix && noPrefixReturn) ? strlen(prefix) : 0;
 
@@ -435,6 +442,86 @@ void TextureManager::GetTextureNames(std::vector<string_t> &names,
 			continue;
 		names.push_back(it->first.substr(trimLength));
 	}
+}
+
+void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const
+{
+	const LogicalTexture &lt = g_texman->Get(tex);
+	const FRECT &rt = lt.uvFrames[frame];
+
+	g_render->TexBind(lt.dev_texture);
+	MyVertex *v = g_render->DrawQuad();
+
+	float c = cosf(rot);
+	float s = sinf(rot);
+
+	float width = lt.pxFrameWidth;
+	float height = lt.pxFrameHeight;
+
+	float px = lt.uvPivot.x * width;
+	float py = lt.uvPivot.y * height;
+
+
+	v[0].color = color;
+	v[0].u = rt.left;
+	v[0].v = rt.top;
+	v[0].x = x - px * c + py * s;
+	v[0].y = y - px * s - py * c;
+
+	v[1].color = color;
+	v[1].u = rt.right;
+	v[1].v = rt.top;
+	v[1].x = x + (width - px) * c + py * s;
+	v[1].y = y + (width - px) * s - py * c;
+
+	v[2].color = color;
+	v[2].u = rt.right;
+	v[2].v = rt.bottom;
+	v[2].x = x + (width - px) * c - (height - py) * s;
+	v[2].y = y + (width - px) * s + (height - py) * c;
+
+	v[3].color = color;
+	v[3].u = rt.left;
+	v[3].v = rt.bottom;
+	v[3].x = x - px * c - (height - py) * s;
+	v[3].y = y - px * s + (height - py) * c;
+}
+
+void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) const
+{
+	const LogicalTexture &lt = g_texman->Get(tex);
+	const FRECT &rt = lt.uvFrames[0];
+
+	g_render->TexBind(lt.dev_texture);
+	MyVertex *v = g_render->DrawQuad();
+
+	float s = 0, c = 1;
+	float px = lt.uvPivot.x * lt.pxFrameWidth;
+	float py = lt.uvPivot.y * lt.pxFrameHeight;
+
+	v[0].color = 0xffffffff;
+	v[0].u = rt.left;
+	v[0].v = rt.top;
+	v[0].x = x - px * c + py * s;
+	v[0].y = y - px * s - py * c;
+
+	v[1].color = 0xffffffff;
+	v[1].u = rt.right;
+	v[1].v = rt.top;
+	v[1].x = x + (lt.pxFrameWidth - px) * c + py * s;
+	v[1].y = y + (lt.pxFrameWidth - px) * s - py * c;
+
+	v[2].color = 0xffffffff;
+	v[2].u = rt.right;
+	v[2].v = rt.bottom;
+	v[2].x = x + (lt.pxFrameWidth - px) * c - (lt.pxFrameHeight - py) * s;
+	v[2].y = y + (lt.pxFrameWidth - px) * s + (lt.pxFrameHeight - py) * c;
+
+	v[3].color = 0xffffffff;
+	v[3].u = rt.left;
+	v[3].v = rt.bottom;
+	v[3].x = x - px * c - (lt.pxFrameHeight - py) * s;
+	v[3].y = y - px * s + (lt.pxFrameHeight - py) * c;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -500,7 +587,7 @@ bool ThemeManager::ApplyTheme(size_t index)
 		filename += _themes[index-1].fileName;
 		res = res && (g_texman->LoadPackage(filename) > 0);
 	}
-
+/*
 	FOREACH( g_level->GetList(LIST_objects), GC_Object, object )
 	{
 		GC_2dSprite *pSprite = dynamic_cast<GC_2dSprite*>(object);
@@ -509,7 +596,7 @@ bool ThemeManager::ApplyTheme(size_t index)
 			pSprite->UpdateTexture();
 		}
 	}
-
+*/
 	return res;
 }
 

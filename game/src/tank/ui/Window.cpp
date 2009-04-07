@@ -177,12 +177,12 @@ bool Window::IsCaptured() const
 
 float Window::GetTextureWidth()  const
 {
-	return _texture ? g_texman->Get(_texture).frame_width : 1;
+	return _texture ? g_texman->Get(_texture).pxFrameWidth : 1;
 }
 
 float Window::GetTextureHeight() const
 {
-	return _texture ? g_texman->Get(_texture).frame_height : 1;
+	return _texture ? g_texman->Get(_texture).pxFrameHeight : 1;
 }
 
 void Window::SetTexture(const char *tex)
@@ -219,16 +219,12 @@ void Window::Draw(float sx, float sy)
 
 	if( _texture )
 	{
-		g_texman->Bind(_texture);
 		const LogicalTexture &lt = g_texman->Get(_texture);
-
-		float tex_left   = (lt.left+lt.frame_width*(float)(_frame%lt.xframes))*lt.pixel_width;
-		float tex_right  = tex_left+lt.frame_width*lt.pixel_width;
-		float tex_top    = (lt.top+lt.frame_height*(float)(_frame/lt.xframes))*lt.pixel_height;
-		float tex_bottom = tex_top+lt.frame_height*lt.pixel_height;
+		const FRECT &rt = lt.uvFrames[_frame];
+		g_render->TexBind(lt.dev_texture);
 
 		const float borderWidth = 2;
-		const float borderTex   = borderWidth*lt.pixel_width;
+		const float uvBorder    = borderWidth * lt.uvFrameWidth / lt.pxFrameWidth;
 
 
 		MyVertex *v;
@@ -244,23 +240,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_left - borderTex;
-			v[0].v = tex_top;
+			v[0].u = rt.left - uvBorder;
+			v[0].v = rt.top;
 			v[0].x = l - borderWidth;
 			v[0].y = t;
 			v[1].color = _color;
-			v[1].u = tex_left;
-			v[1].v = tex_top;
+			v[1].u = rt.left;
+			v[1].v = rt.top;
 			v[1].x = l;
 			v[1].y = t;
 			v[2].color = _color;
-			v[2].u = tex_left;
-			v[2].v = tex_bottom;
+			v[2].u = rt.left;
+			v[2].v = rt.bottom;
 			v[2].x = l;
 			v[2].y = b;
 			v[3].color = _color;
-			v[3].u = tex_left - borderTex;
-			v[3].v = tex_bottom;
+			v[3].u = rt.left - uvBorder;
+			v[3].v = rt.bottom;
 			v[3].x = l - borderWidth;
 			v[3].y = b;
 
@@ -269,23 +265,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_right;
-			v[0].v = tex_top;
+			v[0].u = rt.right;
+			v[0].v = rt.top;
 			v[0].x = r;
 			v[0].y = t;
 			v[1].color = _color;
-			v[1].u = tex_right + borderTex;
-			v[1].v = tex_top;
+			v[1].u = rt.right + uvBorder;
+			v[1].v = rt.top;
 			v[1].x = r + borderWidth;
 			v[1].y = t;
 			v[2].color = _color;
-			v[2].u = tex_right + borderTex;
-			v[2].v = tex_bottom;
+			v[2].u = rt.right + uvBorder;
+			v[2].v = rt.bottom;
 			v[2].x = r + borderWidth;
 			v[2].y = b;
 			v[3].color = _color;
-			v[3].u = tex_right;
-			v[3].v = tex_bottom;
+			v[3].u = rt.right;
+			v[3].v = rt.bottom;
 			v[3].x = r;
 			v[3].y = b;
 
@@ -294,23 +290,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_left;
-			v[0].v = tex_top - borderTex;
+			v[0].u = rt.left;
+			v[0].v = rt.top - uvBorder;
 			v[0].x = l;
 			v[0].y = t - borderWidth;
 			v[1].color = _color;
-			v[1].u = tex_right;
-			v[1].v = tex_top - borderTex;
+			v[1].u = rt.right;
+			v[1].v = rt.top - uvBorder;
 			v[1].x = r;
 			v[1].y = t - borderWidth;
 			v[2].color = _color;
-			v[2].u = tex_right;
-			v[2].v = tex_top;
+			v[2].u = rt.right;
+			v[2].v = rt.top;
 			v[2].x = r;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = tex_left;
-			v[3].v = tex_top;
+			v[3].u = rt.left;
+			v[3].v = rt.top;
 			v[3].x = l;
 			v[3].y = t;
 
@@ -319,23 +315,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_left;
-			v[0].v = tex_bottom;
+			v[0].u = rt.left;
+			v[0].v = rt.bottom;
 			v[0].x = l;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = tex_right;
-			v[1].v = tex_bottom;
+			v[1].u = rt.right;
+			v[1].v = rt.bottom;
 			v[1].x = r;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = tex_right;
-			v[2].v = tex_bottom + borderTex;
+			v[2].u = rt.right;
+			v[2].v = rt.bottom + uvBorder;
 			v[2].x = r;
 			v[2].y = b + borderWidth;
 			v[3].color = _color;
-			v[3].u = tex_left;
-			v[3].v = tex_bottom + borderTex;
+			v[3].u = rt.left;
+			v[3].v = rt.bottom + uvBorder;
 			v[3].x = l;
 			v[3].y = b + borderWidth;
 
@@ -344,23 +340,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_left - borderTex;
-			v[0].v = tex_top - borderTex;
+			v[0].u = rt.left - uvBorder;
+			v[0].v = rt.top - uvBorder;
 			v[0].x = l - borderWidth;
 			v[0].y = t - borderWidth;
 			v[1].color = _color;
-			v[1].u = tex_left;
-			v[1].v = tex_top - borderTex;
+			v[1].u = rt.left;
+			v[1].v = rt.top - uvBorder;
 			v[1].x = l;
 			v[1].y = t - borderWidth;
 			v[2].color = _color;
-			v[2].u = tex_left;
-			v[2].v = tex_top;
+			v[2].u = rt.left;
+			v[2].v = rt.top;
 			v[2].x = l;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = tex_left - borderTex;
-			v[3].v = tex_top;
+			v[3].u = rt.left - uvBorder;
+			v[3].v = rt.top;
 			v[3].x = l - borderWidth;
 			v[3].y = t;
 
@@ -369,23 +365,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_right;
-			v[0].v = tex_top - borderTex;
+			v[0].u = rt.right;
+			v[0].v = rt.top - uvBorder;
 			v[0].x = r;
 			v[0].y = t - borderWidth;
 			v[1].color = _color;
-			v[1].u = tex_right + borderTex;
-			v[1].v = tex_top - borderTex;
+			v[1].u = rt.right + uvBorder;
+			v[1].v = rt.top - uvBorder;
 			v[1].x = r + borderWidth;
 			v[1].y = t - borderWidth;
 			v[2].color = _color;
-			v[2].u = tex_right + borderTex;
-			v[2].v = tex_top;
+			v[2].u = rt.right + uvBorder;
+			v[2].v = rt.top;
 			v[2].x = r + borderWidth;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = tex_right;
-			v[3].v = tex_top;
+			v[3].u = rt.right;
+			v[3].v = rt.top;
 			v[3].x = r;
 			v[3].y = t;
 
@@ -394,23 +390,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_right;
-			v[0].v = tex_bottom;
+			v[0].u = rt.right;
+			v[0].v = rt.bottom;
 			v[0].x = r;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = tex_right + borderTex;
-			v[1].v = tex_bottom;
+			v[1].u = rt.right + uvBorder;
+			v[1].v = rt.bottom;
 			v[1].x = r + borderWidth;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = tex_right + borderTex;
-			v[2].v = tex_bottom + borderTex;
+			v[2].u = rt.right + uvBorder;
+			v[2].v = rt.bottom + uvBorder;
 			v[2].x = r + borderWidth;
 			v[2].y = b + borderWidth;
 			v[3].color = _color;
-			v[3].u = tex_right;
-			v[3].v = tex_bottom + borderTex;
+			v[3].u = rt.right;
+			v[3].v = rt.bottom + uvBorder;
 			v[3].x = r;
 			v[3].y = b + borderWidth;
 
@@ -419,23 +415,23 @@ void Window::Draw(float sx, float sy)
 
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = tex_left - borderTex;
-			v[0].v = tex_bottom;
+			v[0].u = rt.left - uvBorder;
+			v[0].v = rt.bottom;
 			v[0].x = l - borderWidth;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = tex_left;
-			v[1].v = tex_bottom;
+			v[1].u = rt.left;
+			v[1].v = rt.bottom;
 			v[1].x = l;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = tex_left;
-			v[2].v = tex_bottom + borderTex;
+			v[2].u = rt.left;
+			v[2].v = rt.bottom + uvBorder;
 			v[2].x = l;
 			v[2].y = b + borderWidth;
 			v[3].color = _color;
-			v[3].u = tex_left - borderTex;
-			v[3].v = tex_bottom + borderTex;
+			v[3].u = rt.left - uvBorder;
+			v[3].v = rt.bottom + uvBorder;
 			v[3].x = l - borderWidth;
 			v[3].y = b + borderWidth;
 		}
@@ -447,26 +443,26 @@ void Window::Draw(float sx, float sy)
 		v = g_render->DrawQuad();
 
 		v[0].color = _color;
-		v[0].u = tex_left;
-		v[0].v = tex_top;
+		v[0].u = rt.left;
+		v[0].v = rt.top;
 		v[0].x = l;
 		v[0].y = t;
 
 		v[1].color = _color;
-		v[1].u = tex_right;
-		v[1].v = tex_top;
+		v[1].u = rt.right;
+		v[1].v = rt.top;
 		v[1].x = r;
 		v[1].y = t;
 
 		v[2].color = _color;
-		v[2].u = tex_right;
-		v[2].v = tex_bottom;
+		v[2].u = rt.right;
+		v[2].v = rt.bottom;
 		v[2].x = r;
 		v[2].y = b;
 
 		v[3].color = _color;
-		v[3].u = tex_left;
-		v[3].v = tex_bottom;
+		v[3].u = rt.left;
+		v[3].v = rt.bottom;
 		v[3].x = l;
 		v[3].y = b;
 	}

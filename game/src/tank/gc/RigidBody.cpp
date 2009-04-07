@@ -237,8 +237,7 @@ GC_Wall::GC_Wall(float xPos, float yPos)
 
 	SetTexture("brick_wall");
 
-	Resize(CELL_SIZE, CELL_SIZE);
-	CenterPivot();
+//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 	MoveTo( vec2d(xPos, yPos) );
 
@@ -403,8 +402,7 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 	SetFlags(flags[index]);
 
 	SetTexture(GetCornerTexture(index));
-	Resize(CELL_SIZE, CELL_SIZE);
-	CenterPivot();
+//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 	if( 0 != index ) _vertices[index&3].Set(0,0);
 
@@ -545,8 +543,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
 	g_level->_field.ProcessObject(this, false);
 
 	SetTexture("concrete_wall");
-	Resize(CELL_SIZE, CELL_SIZE);
-	CenterPivot();
+//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 
 	SetFrame(rand() % GetFrameCount());
@@ -597,8 +594,7 @@ GC_Water::GC_Water(float xPos, float yPos)
 	SetZ(Z_WATER);
 
 	SetTexture("water");
-	Resize(CELL_SIZE, CELL_SIZE);
-	CenterPivot();
+//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 
 	MoveTo( vec2d(xPos, yPos) );
@@ -676,24 +672,21 @@ void GC_Water::Serialize(SaveFile &f)
 
 void GC_Water::Draw()
 {
-	static float dx[8]   = {-32,-32,  0, 32, 32, 32,  0,-32 };
-	static float dy[8]   = {  0,-32,-32,-32,  0, 32, 32, 32 };
-	static int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
+	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
+	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
+	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
+
+	vec2d pos = GetPosPredicted();
 
 	for( char i = 0; i < 8; ++i )
 	{
 		if( 0 == (_tile & (1 << i)) )
 		{
-			SetPivot(dx[i] + GetSpriteWidth() * 0.5f, dy[i] + GetSpriteHeight() * 0.5f);
-			SetFrame(frames[i]);
-			GC_RigidBodyStatic::Draw();
+			g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], 0);
 		}
 	}
 
-	CenterPivot();
-	SetFrame(4);
-
-	GC_RigidBodyStatic::Draw();
+	g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, 0);
 }
 
 void GC_Water::SetTile(char nTile, bool value)

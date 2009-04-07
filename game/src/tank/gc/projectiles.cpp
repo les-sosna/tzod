@@ -920,8 +920,7 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 		GC_Particle *p = new GC_Particle(pos + vrand(3), _velocity/3 + vrand(10.0f), tex, 0.1f + frand(0.3f), frand(PI2));
 		p->SetFade(true);
 		p->SetAutoRotate(_rotation);
-		p->Resize(GetRadius(), GetRadius());
-		p->CenterPivot();
+//		p->SetScale(GetRadius(), GetRadius());
 	}
 
 	vec2d dv(_velocity.y, -_velocity.x);
@@ -955,8 +954,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	_light->SetRadius(3*R);
 
 	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
-	Resize(R, R);
-	CenterPivot();
+//	SetScale(R, R);
 
 	R *= 1.5; // for damage calculation
 
@@ -1110,6 +1108,7 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 	_light->MoveTo(GetPos());
 
 	SetShadow(false);
+	SetZ(Z_NONE);
 }
 
 GC_GaussRay::GC_GaussRay(FromFile)

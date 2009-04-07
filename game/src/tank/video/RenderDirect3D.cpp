@@ -77,11 +77,11 @@ class RenderDirect3D : public IRender
 
 	float  _ambient;
 
-	WORD       *_IndexArray;
+	WORD       *_indexArray;
 	MyVertex  *_VertexArray;
 
 	size_t    _vaSize;      // number of filled elements in _VertexArray
-	size_t    _iaSize;      // number of filled elements in _IndexArray
+	size_t    _iaSize;      // number of filled elements in _indexArray
 
 	RenderMode  _mode;
 
@@ -165,7 +165,7 @@ RenderDirect3D::RenderDirect3D()
 	_vaSize      = 0;
 	_iaSize      = 0;
 
-	_IndexArray  = NULL;
+	_indexArray  = NULL;
 	_VertexArray = NULL;
 
 	_curtex      = NULL;
@@ -194,10 +194,10 @@ void RenderDirect3D::_cleanup()
 {
 	_curtex = NULL;
 
-	if( _IndexArray )
+	if( _indexArray )
 	{
 		_pIB->Unlock();
-		_IndexArray = NULL;
+		_indexArray = NULL;
 	}
 
 	if( _VertexArray )
@@ -347,7 +347,7 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	V(_pd3dDevice->SetIndices(_pIB));
 
 	V(_pVB->Lock(0,sizeof(MyVertex)*VERTEX_BUFFER_SIZE,(void**)&_VertexArray,D3DLOCK_DISCARD));
-	V(_pIB->Lock(0,sizeof(WORD)*INDEX_BUFFER_SIZE,(void**)&_IndexArray, NULL));
+	V(_pIB->Lock(0,sizeof(WORD)*INDEX_BUFFER_SIZE,(void**)&_indexArray, NULL));
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
@@ -570,7 +570,11 @@ bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, Image *img)
 
 void RenderDirect3D::TexFree(DEV_TEXTURE tex)
 {
-	if( _curtex == tex.ptr ) _curtex = NULL;
+	if( _curtex == tex.ptr )
+	{
+		_curtex = NULL;
+		V(_pd3dDevice->SetTexture(0, NULL));
+	}
 	((IDirect3DTexture9 *) tex.ptr)->Release();
 }
 
@@ -587,7 +591,7 @@ void RenderDirect3D::_flush()
 //	_FpsCounter::Inst()->OneMoreBatch();
 
 	_ASSERT(_VertexArray);
-	_ASSERT(_IndexArray);
+	_ASSERT(_indexArray);
 
 	V(_pVB->Unlock());
 	V(_pIB->Unlock());
@@ -596,7 +600,7 @@ void RenderDirect3D::_flush()
 
 	V(_pVB->Lock(0, sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		(void**) &_VertexArray, D3DLOCK_DISCARD));
-	V(_pIB->Lock(0, sizeof(WORD)*INDEX_BUFFER_SIZE, (void**) &_IndexArray, NULL));
+	V(_pIB->Lock(0, sizeof(WORD)*INDEX_BUFFER_SIZE, (void**) &_indexArray, NULL));
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
@@ -613,12 +617,12 @@ MyVertex* RenderDirect3D::DrawQuad()
 
 	MyVertex *result = _VertexArray + _vaSize;
 
-    _IndexArray[_iaSize]   = _vaSize;
-    _IndexArray[_iaSize+1] = _vaSize+1;
-    _IndexArray[_iaSize+2] = _vaSize+2;
-    _IndexArray[_iaSize+3] = _vaSize;
-    _IndexArray[_iaSize+4] = _vaSize+2;
-    _IndexArray[_iaSize+5] = _vaSize+3;
+	_indexArray[_iaSize]   = _vaSize;
+	_indexArray[_iaSize+1] = _vaSize+1;
+	_indexArray[_iaSize+2] = _vaSize+2;
+	_indexArray[_iaSize+3] = _vaSize;
+	_indexArray[_iaSize+4] = _vaSize+2;
+	_indexArray[_iaSize+5] = _vaSize+3;
 
 	_iaSize += 6;
 	_vaSize += 4;
@@ -640,11 +644,11 @@ MyVertex* RenderDirect3D::DrawFan(size_t nEdges)
 
 	for( size_t i = 0; i < nEdges; ++i )
 	{
-		_IndexArray[_iaSize + i*3    ] = _vaSize;
-		_IndexArray[_iaSize + i*3 + 1] = _vaSize + i + 1;
-		_IndexArray[_iaSize + i*3 + 2] = _vaSize + i + 2;
+		_indexArray[_iaSize + i*3    ] = _vaSize;
+		_indexArray[_iaSize + i*3 + 1] = _vaSize + i + 1;
+		_indexArray[_iaSize + i*3 + 2] = _vaSize + i + 2;
 	}
-	_IndexArray[_iaSize + nEdges*3 - 1] = _vaSize + 1;
+	_indexArray[_iaSize + nEdges*3 - 1] = _vaSize + 1;
 
 	_iaSize += nEdges*3;
 	_vaSize += nEdges+1;
@@ -689,7 +693,7 @@ bool RenderDirect3D::TakeScreenshot(TCHAR *fileName)
 	}
 
 
-	ai->h.DataType  = 2;  // uncompresssed
+	ai->h.DataType  = 2;  // uncompressed
 	ai->h.width     = (short) _sizeWindow.cx;
 	ai->h.height    = (short) _sizeWindow.cy;
 	ai->h.BitPerPel = 24;

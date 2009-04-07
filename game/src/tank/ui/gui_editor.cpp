@@ -815,10 +815,13 @@ void EditorLayout::DrawChildren(float sx, float sy)
 		RECT viewport;
 		camera->GetViewport(viewport);
 
+		FRECT rt;
+		s->GetGlobalRect(rt);
+
 		_selectionRect->Show(true);
-		_selectionRect->Move(
-			(float) viewport.left + s->GetPos().x - s->GetPivot().x - camera->GetPos().x,
-			(float) viewport.top + s->GetPos().y - s->GetPivot().y - camera->GetPos().y );
+		_selectionRect->Move( // FIXME: camera zoom
+			(float) viewport.left + rt.left - camera->GetPos().x,
+			(float) viewport.top + rt.top - camera->GetPos().y );
 		_selectionRect->Resize(s->GetSpriteWidth(), s->GetSpriteHeight());
 	}
 	else
