@@ -122,7 +122,7 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic()
 	_external_torque = 0;
 
 
-	if( _glob_parity ) SetFlags(GC_FLAG_RBDYMAMIC_PARITY);
+	if( _glob_parity ) SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
@@ -687,9 +687,9 @@ void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
 
 	_av = src->_av;
 	_lv = src->_lv;
-	_inv_m = _inv_m;
-	_inv_i = _inv_i;
-	_angle = _angle;
+//	_inv_m = _inv_m;
+//	_inv_i = _inv_i;
+//	_angle = _angle;
 	_Nx = src->_Nx;
 	_Ny = src->_Ny;
 	_Nw = src->_Nw;

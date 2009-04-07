@@ -121,7 +121,7 @@ void GC_Pickup::Detach()
 void GC_Pickup::Respawn()
 {
 	SetRespawn(false);
-	Show(true);
+	SetVisible(true);
 	PLAY(SND_puRespawn, GetPos());
 
 	static const TextureCache tex1("particle_1");
@@ -138,11 +138,11 @@ bool GC_Pickup::Disappear()
 	{
 		Detach();
 	}
-	if( !IsVisible() )
+	if( !GetVisible() )
 	{
 		return IsKilled();
 	}
-	Show(false);
+	SetVisible(false);
 	PulseNotify(NOTIFY_PICKUP_DISAPPEAR);
 	if( _label )
 	{
@@ -179,7 +179,7 @@ void GC_Pickup::TimeStepFloat(float dt)
 {
 	_timeAnimation += dt;
 
-	if( !IsAttached() && IsVisible() )
+	if( !IsAttached() && GetVisible() )
 		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
 
 	GC_2dSprite::TimeStepFloat(dt);
@@ -191,7 +191,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 
 	if( !IsAttached() )
 	{
-		if( IsVisible() )
+		if( GetVisible() )
 		{
 			if( GC_Actor *actor = FindNewOwner() )
 			{
@@ -240,11 +240,11 @@ void GC_Pickup::TimeStepFixed(float dt)
 	GC_2dSprite::TimeStepFixed(dt);
 }
 
-void GC_Pickup::Draw()
+void GC_Pickup::Draw() const
 {
 	if( !_blink || fmodf(_timeAnimation, 0.16f) > 0.08f || g_level->_modeEditor )
 	{
-		GC_2dSprite::Draw();
+		__super::Draw();
 	}
 }
 

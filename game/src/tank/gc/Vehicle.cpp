@@ -45,7 +45,7 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
   , _trackPathR(0)
   , _parent(parent)
 {
-	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS);
+	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS, true);
 	SetZ(Z_VEHICLES);
 	SetShadow(true);
 
@@ -728,12 +728,6 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	{
 		if( !TakeDamage(GetHealth(), GetPos(), this) ) Kill();
 	}
-}
-
-void GC_Vehicle::Draw()
-{
-	SetSpriteRotation(_angle);
-	GC_VehicleBase::Draw();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

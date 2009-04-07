@@ -70,8 +70,8 @@ public:
 public:
 	float _angle;   // current rotation // FIXME: make private
 
-	GC_RigidBodyDynamic::GC_RigidBodyDynamic();
-	GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile);
+	GC_RigidBodyDynamic();
+	GC_RigidBodyDynamic(FromFile);
 
 	virtual PropertySet* NewPropertySet();
 	virtual void mapExchange(MapFile &f);

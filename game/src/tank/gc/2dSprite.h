@@ -76,7 +76,7 @@ public:
 
 	inline void SetShadow(bool bEnable)
 	{
-		bEnable?SetFlags(GC_FLAG_2DSPRITE_DROPSHADOW):ClearFlags(GC_FLAG_2DSPRITE_DROPSHADOW);
+		SetFlags(GC_FLAG_2DSPRITE_DROPSHADOW, bEnable);
 	}
 	inline bool GetShadow() const
 	{
@@ -101,10 +101,9 @@ public:
 	void SetGridSet(bool bGridSet);
 	void SetZ(enumZOrder z);
 	enumZOrder GetZ() const;
-	void Show(bool bShow);
 
-
-	inline bool IsVisible()  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
+	void SetVisible(bool bShow);
+	inline bool GetVisible() const  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
 
 public:
 	GC_2dSprite();
@@ -112,9 +111,7 @@ public:
 	virtual ~GC_2dSprite();
 
 	virtual void Serialize(SaveFile &f);
-
-	virtual void Kill();
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 /////////////////////////////////////////////////////////////

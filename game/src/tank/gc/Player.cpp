@@ -529,13 +529,13 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 			}
 
 			GetVehicle()->GetVisual()->Sync(GetVehicle());
-			GetVehicle()->GetVisual()->ClearFlags(GC_FLAG_VEHICLEDUMMY_TRACKS);
+			GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, false);
 			GC_RigidBodyDynamic::PushState();
 			for( std::deque<VehicleState>::const_iterator it = _stateHistory.begin(); it != _stateHistory.end(); ++it )
 			{
 				std::deque<VehicleState>::const_iterator it1(it);
 				if( ++it1 == _stateHistory.end() )
-					GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS);
+					GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, true);
 				GetVehicle()->SetPredictedState(*it);
 				GetVehicle()->GetVisual()->TimeStepFixed(dt);
 				GC_RigidBodyDynamic::ProcessResponse(dt);

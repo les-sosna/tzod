@@ -80,7 +80,7 @@ public:
 	virtual void OnDestroy();
 
 	virtual void TimeStepFixed(float dt);
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 /////////////////////////////////////////////////////////////

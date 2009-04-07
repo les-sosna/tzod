@@ -42,7 +42,7 @@ GC_2dSprite::GC_2dSprite()
   , _texId(0)
   , _frame(0)
 {
-	SetFlags(GC_FLAG_2DSPRITE_VISIBLE | GC_FLAG_2DSPRITE_INGRIDSET);
+	SetFlags(GC_FLAG_2DSPRITE_VISIBLE|GC_FLAG_2DSPRITE_INGRIDSET, true);
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
@@ -123,7 +123,7 @@ void GC_2dSprite::SetGridSet(bool bGridSet)
 {
 	enumZOrder current = _zOrderCurrent;
 	SetZ_current(Z_NONE);
-	bGridSet?SetFlags(GC_FLAG_2DSPRITE_INGRIDSET):ClearFlags(GC_FLAG_2DSPRITE_INGRIDSET);
+	SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, bGridSet);
 	SetZ_current(current);
 }
 
@@ -162,14 +162,14 @@ enumZOrder GC_2dSprite::GetZ() const
 	return _zOrderPrefered;
 }
 
-void GC_2dSprite::Show(bool bShow)
+void GC_2dSprite::SetVisible(bool bShow)
 {
 	_ASSERT(!bShow || !IsKilled()); // нельзя показывать убитые объекты
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;
 	}
-	bShow?SetFlags(GC_FLAG_2DSPRITE_VISIBLE):ClearFlags(GC_FLAG_2DSPRITE_VISIBLE);
+	SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow);
 	SetZ_current(bShow ? _zOrderPrefered : Z_NONE);
 }
 
@@ -179,13 +179,7 @@ void GC_2dSprite::SetFrame(int frame)
 	_frame = frame;
 }
 
-void GC_2dSprite::Kill()
-{
-	Show(false);
-	GC_Actor::Kill();
-}
-
-void GC_2dSprite::Draw()
+void GC_2dSprite::Draw() const
 {
 	vec2d pos = GetPosPredicted();
 

@@ -32,8 +32,7 @@ GC_Trigger::GC_Trigger(float x, float y)
 	MoveTo(vec2d(x, y));
 	SetZ(Z_WOOD);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-	SetFlags(GC_FLAG_TRIGGER_ACTIVE);
-	SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
+	SetFlags(GC_FLAG_TRIGGER_ACTIVE|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 
 GC_Trigger::GC_Trigger(FromFile)
@@ -45,7 +44,7 @@ GC_Trigger::~GC_Trigger()
 {
 }
 
-bool GC_Trigger::IsVisible(const GC_Vehicle *v)
+bool GC_Trigger::GetVisible(const GC_Vehicle *v)
 {
 	GC_RigidBodyStatic *object = g_level->agTrace(
 		g_level->grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
@@ -83,9 +82,9 @@ void GC_Trigger::mapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
-		onlyVisible ? SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) : ClearFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
-		onlyHuman ? SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN) : ClearFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
-		active ? SetFlags(GC_FLAG_TRIGGER_ACTIVE) : ClearFlags(GC_FLAG_TRIGGER_ACTIVE);
+		SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE, 0!=onlyVisible);
+		SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN, 0!=onlyHuman);
+		SetFlags(GC_FLAG_TRIGGER_ACTIVE, 0!=active);
 	}
 }
 
@@ -114,7 +113,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 				{
 					if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->_radius * veh->_radius )
 					{
-						if( !IsVisible(veh) ) continue; // vehicle is invisible. skipping
+						if( !GetVisible(veh) ) continue; // vehicle is invisible. skipping
 					}
 					rr_min = rr;
 					_veh = WrapRawPtr(veh);
@@ -162,7 +161,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 		float rr = (GetPos() - _veh->GetPos()).sqr();
 		float r = (_radius + _radiusDelta) * CELL_SIZE;
 		if( rr > r*r || CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
-			&& rr > _veh->_radius * _veh->_radius && !IsVisible(GetRawPtr(_veh)) )
+			&& rr > _veh->_radius * _veh->_radius && !GetVisible(GetRawPtr(_veh)) )
 		{
 			script_exec(g_env.L, _onLeave.c_str());
 			_veh = NULL;
@@ -171,10 +170,12 @@ void GC_Trigger::TimeStepFixed(float dt)
 	}
 }
 
-void GC_Trigger::Draw()
+void GC_Trigger::Draw() const
 {
 	if( g_level->_modeEditor )
-		GC_2dSprite::Draw();
+	{
+		__super::Draw();
+	}
 }
 
 PropertySet* GC_Trigger::NewPropertySet()
@@ -236,9 +237,9 @@ void GC_Trigger::MyPropertySet::MyExchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		_propOnlyHuman.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN) : tmp->ClearFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
-		_propOnlyVisible.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) : tmp->ClearFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
-		_propActive.GetIntValue() ? tmp->SetFlags(GC_FLAG_TRIGGER_ACTIVE) : tmp->ClearFlags(GC_FLAG_TRIGGER_ACTIVE);
+		tmp->SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN, 0!=_propOnlyHuman.GetIntValue());
+		tmp->SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE, 0!=_propOnlyVisible.GetIntValue());
+		tmp->SetFlags(GC_FLAG_TRIGGER_ACTIVE, 0!=_propActive.GetIntValue());
 		tmp->_team = _propTeam.GetIntValue();
 		tmp->_radius = _propRadius.GetFloatValue();
 		tmp->_radiusDelta = _propRadiusDelta.GetFloatValue();

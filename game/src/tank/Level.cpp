@@ -304,7 +304,7 @@ void Level::Resize(int X, int Y)
 
 	_background = WrapRawPtr(new GC_Background());
 	_temporaryText = WrapRawPtr(new GC_Text(0, 0, ""));
-	_temporaryText->Show(false);
+	_temporaryText->SetVisible(false);
 }
 
 void Level::Clear()
@@ -1093,8 +1093,6 @@ void Level::Step(const ControlPacketVector &ctrl)
 {
 	_ctrlPtr = ctrl.begin();
 
-	_dbgLineBuffer.clear();
-
 	const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
 
 	_time         += fixed_dt;
@@ -1457,6 +1455,7 @@ void Level::Render() const
 	if( !_dbgLineBuffer.empty() )
 	{
 		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
+		_dbgLineBuffer.clear();
 	}
 }
 

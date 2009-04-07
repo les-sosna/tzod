@@ -161,7 +161,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 	if( _pickupCurrent )
 	{
-		if( _pickupCurrent->IsKilled() || !_pickupCurrent->IsVisible() )
+		if( _pickupCurrent->IsKilled() || !_pickupCurrent->GetVisible() )
 		{
 			_pickupCurrent = NULL;
 		}
@@ -742,7 +742,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		for(; it != (*i)->end(); ++it )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) *it;
-			if( pItem->IsAttached() || !pItem->IsVisible() || pItem->IsKilled() ) 
+			if( pItem->IsAttached() || !pItem->GetVisible() || pItem->IsKilled() ) 
 			{
 				continue;
 			}
@@ -769,7 +769,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		{
 			if( NULL == items[i] ) continue;
 			_ASSERT(!items[i]->IsKilled());
-			_ASSERT(items[i]->IsVisible());
+			_ASSERT(items[i]->GetVisible());
 			if( items[i]->IsAttached() ) continue;
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )

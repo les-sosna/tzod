@@ -110,9 +110,6 @@ public:
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 
-	// GC_2dSprite
-	virtual void Draw();
-
 	// GC_Actor
 	virtual const vec2d& GetPosPredicted() const;
 	virtual void OnPickup(GC_Pickup *pickup, bool attached);

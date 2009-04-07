@@ -189,8 +189,8 @@ void GC_Light::TimeStepFixed(float dt)
 
 void GC_Light::Activate(bool activate)
 {
-	activate ? SetFlags(GC_FLAG_LIGHT_ACTIVE) : ClearFlags(GC_FLAG_LIGHT_ACTIVE);
-	_lamp->Show(activate);
+	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
+	_lamp->SetVisible(activate);
 }
 
 void GC_Light::Update()

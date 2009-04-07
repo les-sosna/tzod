@@ -59,7 +59,7 @@ protected:
 	virtual void TimeStepFloat(float dt);
 	virtual void Kill();
 
-	virtual void Draw();
+	virtual void Draw() const;
 
 	virtual void mapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);

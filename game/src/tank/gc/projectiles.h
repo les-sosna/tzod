@@ -57,10 +57,10 @@ public:
 	virtual ~GC_Projectile();
 
 	void SetHitDamage(float damage);
-	float GetHitDamage() { return _hitDamage; }
+	float GetHitDamage() const { return _hitDamage; }
 
 	void SetHitImpulse(float impulse);
-	float GetHitImpulse() { return _hitImpulse; }
+	float GetHitImpulse() const { return _hitImpulse; }
 
 	bool GetAdvanced() const
 	{
@@ -68,8 +68,7 @@ public:
 	}
 	void SetIgnoreOwner(bool bIgnore)
 	{
-		bIgnore ? SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER)
-			: ClearFlags(GC_FLAG_PROJECTILE_IGNOREOWNER);
+		SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER, bIgnore);
 	}
 
 	void SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path);
@@ -229,7 +228,7 @@ public:
 	void SetLifeTime(float t);
 	void SetSetFire(bool setFire)
 	{
-		setFire ? SetFlags(GC_FLAG_FIRESPARK_SETFIRE) : ClearFlags(GC_FLAG_FIRESPARK_SETFIRE);
+		SetFlags(GC_FLAG_FIRESPARK_SETFIRE, setFire);
 	}
 };
 

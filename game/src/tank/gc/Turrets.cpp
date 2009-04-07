@@ -247,9 +247,9 @@ void GC_Turret::mapExchange(MapFile &f)
 	}
 }
 
-void GC_Turret::Draw()
+void GC_Turret::Draw() const
 {
-	GC_RigidBodyStatic::Draw();
+	__super::Draw();
 
 	if( g_level->_modeEditor )
 	{
@@ -449,7 +449,7 @@ GC_TurretBunker::GC_TurretBunker(float x, float y, const char *tex)
   , _time_wake(0)  // hidden
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
-	_weaponSprite->Show(false);
+	_weaponSprite->SetVisible(false);
 	_state = TS_HIDDEN; // base class member
 }
 
@@ -584,7 +584,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 			_time_wake = _time_wake_max;
 			_state = TS_WAITING;
 			_jobManager.RegisterMember(this);
-			_weaponSprite->Show(true);
+			_weaponSprite->SetVisible(true);
 			SetFrame(GetFrameCount() - 1);
 		}
 		else
@@ -615,7 +615,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 		{
 			PLAY(SND_TuretWakeDown, GetPos());
 			_state = TS_WAKING_DOWN;
-			_weaponSprite->Show(false);
+			_weaponSprite->SetVisible(false);
 		}
 		break;
 	default:

@@ -294,7 +294,7 @@ GC_Object::~GC_Object()
 void GC_Object::Kill()
 {
 	if( IsKilled() ) return;
-	SetFlags(GC_FLAG_OBJECT_KILLED);
+	SetFlags(GC_FLAG_OBJECT_KILLED, true);
 
 	SetName(NULL);
 
@@ -344,7 +344,7 @@ void GC_Object::Serialize(SaveFile &f)
 	{
 		// events
 		DWORD tmp = _flags & GC_FLAG_OBJECT_EVENTS_ALL;
-		ClearFlags(GC_FLAG_OBJECT_EVENTS_ALL);
+		SetFlags(GC_FLAG_OBJECT_EVENTS_ALL, false);
 		SetEvents(tmp);
 	}
 
@@ -462,8 +462,8 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	}
 
 	//-------------------------
-	ClearFlags(GC_FLAG_OBJECT_EVENTS_ALL);
-	SetFlags(dwEvents);
+	SetFlags(GC_FLAG_OBJECT_EVENTS_ALL, false);
+	SetFlags(dwEvents, true);
 }
 
 const char* GC_Object::GetName() const
@@ -490,7 +490,7 @@ void GC_Object::SetName(const char *name)
 		g_level->_nameToObjectMap.erase(oldName);
 		g_level->_objectToNameMap.erase(this); // this invalidates *oldName pointer
 
-		ClearFlags(GC_FLAG_OBJECT_NAMED);
+		SetFlags(GC_FLAG_OBJECT_NAMED, false);
 	}
 
 	if( name && *name )
@@ -505,7 +505,7 @@ void GC_Object::SetName(const char *name)
 		g_level->_objectToNameMap[this] = name;
 		g_level->_nameToObjectMap[name] = this;
 
-		SetFlags(GC_FLAG_OBJECT_NAMED);
+		SetFlags(GC_FLAG_OBJECT_NAMED, true);
 	}
 }
 

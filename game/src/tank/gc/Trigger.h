@@ -47,7 +47,7 @@ class GC_Trigger : public GC_2dSprite
 
 	SafePtr<GC_Vehicle> _veh;
 
-	bool IsVisible(const GC_Vehicle *v);
+	bool GetVisible(const GC_Vehicle *v);
 
 public:
 	GC_Trigger(float x, float y);
@@ -59,7 +59,7 @@ public:
 	virtual bool IsSaved() const { return true; }
 
 	virtual void TimeStepFixed(float dt);
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 // end of file

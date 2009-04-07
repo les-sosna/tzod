@@ -58,7 +58,7 @@ void GC_Background::Serialize(SaveFile &f)
 	f.Serialize(_texGrid);
 }
 
-void GC_Background::Draw()
+void GC_Background::Draw() const
 {
 	DrawCustom(_texBg);
 	if( g_level->_modeEditor && g_conf->ed_drawgrid->Get() )
@@ -67,7 +67,7 @@ void GC_Background::Draw()
 	}
 }
 
-void GC_Background::DrawCustom(size_t tex)
+void GC_Background::DrawCustom(size_t tex) const
 {
 	const LogicalTexture &lt = g_texman->Get(tex);
 	g_render->TexBind(lt.dev_texture);
@@ -176,7 +176,7 @@ void GC_Wood::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_wood);
 }
 
-void GC_Wood::Draw()
+void GC_Wood::Draw() const
 {
 	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
@@ -245,7 +245,7 @@ void GC_Line::Serialize(SaveFile &f)
 	f.Serialize(_phase);
 }
 
-void GC_Line::Draw()
+void GC_Line::Draw() const
 {
 	float x = GetPos().x;
 	float y = GetPos().y;
@@ -563,7 +563,7 @@ void GC_Explosion::TimeStepFixed(float dt)
 			Kill();
 			return;
 		}
-		Show(false);
+		SetVisible(false);
 	}
 	else
 	{
@@ -842,7 +842,7 @@ void GC_Text::UpdateLines()
 	}
 }
 
-void GC_Text::Draw()
+void GC_Text::Draw() const
 {
 	static const int dx[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};
 	static const int dy[] = {0, 0, 0, 1, 1, 1, 2, 2, 2};

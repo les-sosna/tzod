@@ -42,7 +42,7 @@ public:
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Draw();
+	virtual void Draw() const;
 	virtual void EditorAction();
 	virtual void mapExchange(MapFile &f);
 };
@@ -58,7 +58,7 @@ public:
 	GC_HideLabel(FromFile);
 
 	virtual bool IsSaved() const { return true; }
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ public:
 	void OnUpdateValue(GC_Object *sender, void *param);
 	void OnUpdatePosition(GC_Object *sender, void *param);
 
-//	virtual void Draw();
+//	virtual void Draw() const;
 
 	// GC_Object
 	virtual void Kill();

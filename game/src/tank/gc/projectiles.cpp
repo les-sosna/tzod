@@ -33,9 +33,9 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 	SetZ(Z_PROJECTILE);
 	SetShadow(true);
 
-	SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER);
-	if( advanced ) SetFlags(GC_FLAG_PROJECTILE_ADVANCED);
-	if( trail )    SetFlags(GC_FLAG_PROJECTILE_TRAIL);
+	SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER, true);
+	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
+	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
 	_trailDensity = 10.0f;
 	_trailPath    = 0.0f;
@@ -43,11 +43,10 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 	_velocity = v;
 	_hitImpulse  = 0;
 
-
 	SetSpriteRotation( v.Angle() );
 
 	SetTexture(texture);
-	MoveTo(pos, FALSE);
+	MoveTo(pos, false);
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
@@ -452,7 +451,7 @@ GC_Bullet::GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 	SetHitImpulse(5);
 	SetTrailDensity(5.0f);
 
-	Show(false);
+	SetVisible(false);
 	_light->Activate(false);
 }
 

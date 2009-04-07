@@ -92,7 +92,7 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 		if( GetHealth() <= 0 )
 		{
 			AddRef();
-			SetFlags(GC_FLAG_RBSTATIC_DESTROYED);
+			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
 			OnDestroy();
 			Kill();
 			Release();
@@ -398,11 +398,10 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 		g_level->_field(x, y).AddObject(this);
 	}
 
-	ClearFlags(GC_FLAG_WALL_CORNER_ALL);
-	SetFlags(flags[index]);
+	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
+	SetFlags(flags[index], true);
 
 	SetTexture(GetCornerTexture(index));
-//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 	if( 0 != index ) _vertices[index&3].Set(0,0);
 
@@ -603,7 +602,7 @@ GC_Water::GC_Water(float xPos, float yPos)
 	_tile = 0;
 	UpdateTile(true);
 
-	SetFlags(GC_FLAG_RBSTATIC_TRACE0);
+	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 
 	g_level->_field.ProcessObject(this, true);
 }
@@ -670,7 +669,7 @@ void GC_Water::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_water);
 }
 
-void GC_Water::Draw()
+void GC_Water::Draw() const
 {
 	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };

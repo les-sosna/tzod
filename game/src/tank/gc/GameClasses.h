@@ -19,7 +19,7 @@ private:
 	size_t _texGrid;
 	bool _drawGrid;
 
-	void DrawCustom(size_t tex);
+	void DrawCustom(size_t tex) const;
 
 public:
 	GC_Background();
@@ -27,7 +27,7 @@ public:
 	~GC_Background();
 	virtual void Serialize(SaveFile &f);
 	virtual bool IsSaved() { return true; }
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 /////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ public:
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Draw();
+	virtual void Draw() const;
 
 public:
 	void SetTile(char nTile, bool value);
@@ -215,7 +215,7 @@ public:
 	virtual void MoveTo(const vec2d &pos) { GC_UserSprite::MoveTo(pos); }
 
 	virtual void Serialize(SaveFile &f);
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 /////////////////////////////////////////////////////////////
@@ -249,7 +249,7 @@ public:
 	string_t GetText() const { return _text; }
 
 public:
-	virtual void Draw();
+	virtual void Draw() const;
 };
 
 /////////////////////////////////////////////////////////////

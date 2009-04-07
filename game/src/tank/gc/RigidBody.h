@@ -227,7 +227,7 @@ public:
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Draw();
+	virtual void Draw() const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
 	virtual float GetDefaultHealth() const { return 0; }

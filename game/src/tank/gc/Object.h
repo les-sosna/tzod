@@ -278,17 +278,13 @@ private:
 	int  _notifyProtectCount;               // счетчик блокировки удаления из списка _notifyList
 
 public:
-	void SetFlags(DWORD flags)
+	void SetFlags(DWORD flags, bool value)
 	{
-		_flags |= flags;
+		_flags = value ? (_flags|flags) : (_flags & ~flags);
 	}
 	DWORD GetFlags()
 	{
 		return _flags;
-	}
-	void ClearFlags(DWORD flags)
-	{
-		_flags &= ~flags;
 	}
 	// return true if one of the flags is set
 	bool CheckFlags(DWORD flags) const
@@ -367,11 +363,11 @@ private:
 	{
 		return new T(FromFile());
 	}
-    template<class T> static void __RegisterForSerialization(ObjectType type)
+	template<class T> static void __RegisterForSerialization(ObjectType type)
 	{
 		_ASSERT(__GetFromFileMap().end() == __GetFromFileMap().find(type));
 		LPFROMFILEPROC pf = __FromFileProc<T>;
-        __GetFromFileMap()[type] = pf;
+		__GetFromFileMap()[type] = pf;
 	}
 
 
