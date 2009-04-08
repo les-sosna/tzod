@@ -446,7 +446,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 
 void GC_Vehicle::SetPlayer(SafePtr<GC_Player> &player)
 {
-//	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
+	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
 }
 

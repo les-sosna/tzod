@@ -91,6 +91,9 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// flags
+#define GC_FLAG_INDICATOR_INVERSE      (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_INDICATOR_             (GC_FLAG_2DSPRITE_ << 1)
 
 enum LOCATION
 {
@@ -111,17 +114,15 @@ protected:
 
 	LOCATION _location;
 
-	bool _bInverse;
-
 public:
 	GC_IndicatorBar(const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 
 	void OnParentKill(GC_Object *sender, void *param);
-	void OnUpdateValue(GC_Object *sender, void *param);
 	void OnUpdatePosition(GC_Object *sender, void *param);
 
-//	virtual void Draw() const;
+	// GC_2dSprite
+	virtual void Draw() const;
 
 	// GC_Object
 	virtual void Kill();
@@ -129,7 +130,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 public:
-	void SetInverse(bool bInverse) { _bInverse = bInverse; };
+	void SetInverse(bool bInverse) { SetFlags(GC_FLAG_INDICATOR_INVERSE, bInverse); }
 	static GC_IndicatorBar *FindIndicator(GC_2dSprite* object, LOCATION location);
 };
 

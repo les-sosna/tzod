@@ -38,21 +38,18 @@ void GC_RigidBodyStatic::SetHealth(float cur, float max)
 	_ASSERT(cur <= max);
 	_health = cur;
 	_health_max = max;
-	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
 
 void GC_RigidBodyStatic::SetHealthCur(float hp)
 {
 	_ASSERT(hp <= _health_max);
 	_health = hp;
-	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
 
 void GC_RigidBodyStatic::SetHealthMax(float hp)
 {
 	_ASSERT(hp >= _health);
 	_health_max = hp;
-	PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 }
 
 void GC_RigidBodyStatic::OnDestroy()
@@ -129,7 +126,6 @@ void GC_RigidBodyStatic::mapExchange(MapFile &f)
 	if( f.loading() )
 	{
 		_health = __min(_health, _health_max);
-		PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 	}
 }
 

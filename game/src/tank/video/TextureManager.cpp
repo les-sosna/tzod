@@ -495,33 +495,32 @@ void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) co
 	g_render->TexBind(lt.dev_texture);
 	MyVertex *v = g_render->DrawQuad();
 
-	float s = 0, c = 1;
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
 
 	v[0].color = 0xffffffff;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px * c + py * s;
-	v[0].y = y - px * s - py * c;
+	v[0].x = x - px;
+	v[0].y = y - py;
 
 	v[1].color = 0xffffffff;
-	v[1].u = rt.right;
+	v[1].u = rt.left + lt.uvFrameWidth * value;
 	v[1].v = rt.top;
-	v[1].x = x + (lt.pxFrameWidth - px) * c + py * s;
-	v[1].y = y + (lt.pxFrameWidth - px) * s - py * c;
+	v[1].x = x - px + lt.pxFrameWidth * value;
+	v[1].y = y - py;
 
 	v[2].color = 0xffffffff;
-	v[2].u = rt.right;
+	v[2].u = rt.left + lt.uvFrameWidth * value;
 	v[2].v = rt.bottom;
-	v[2].x = x + (lt.pxFrameWidth - px) * c - (lt.pxFrameHeight - py) * s;
-	v[2].y = y + (lt.pxFrameWidth - px) * s + (lt.pxFrameHeight - py) * c;
+	v[2].x = x - px + lt.pxFrameWidth * value;
+	v[2].y = y - py + lt.pxFrameHeight;
 
 	v[3].color = 0xffffffff;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px * c - (lt.pxFrameHeight - py) * s;
-	v[3].y = y - px * s + (lt.pxFrameHeight - py) * c;
+	v[3].x = x - px;
+	v[3].y = y - py + lt.pxFrameHeight;
 }
 
 ////////////////////////////////////////////////////////////////////

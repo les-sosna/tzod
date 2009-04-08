@@ -607,8 +607,6 @@ void GC_Weap_AutoCannon::Fire()
 
 				_fePos.Set(17.0f, -dy);
 				_fireEffect->SetVisible(true);
-
-				PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 			}
 		}
 	}
@@ -637,7 +635,6 @@ void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 			_firing = true;
 			_nshots  = 0;
 			_time    = 0;
-			PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 		}
 
 		_firing |= _advanced;
@@ -1146,8 +1143,6 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_fuel   = __min(_fuel_max, _fuel + _fuel_rep * dt);
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
-
-		PulseNotify(NOTIFY_OBJECT_UPDATE_INDICATOR);
 
 		_engineLight->Activate(_firingCounter > 0);
 		if( _firingCounter ) --_firingCounter;

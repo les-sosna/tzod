@@ -246,14 +246,11 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	_dwValue_offset    = (DWORD) pValue    - (DWORD) object;
 
 	_location = location;
-	SetInverse(false);
 
 	_object = WrapRawPtr(object);
 
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
 		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);
-	_object->Subscribe(NOTIFY_OBJECT_UPDATE_INDICATOR, this,
-		(NOTIFYPROC) &GC_IndicatorBar::OnUpdateValue, false, true);
 
 	GC_2dSprite *sprite = object;
 	if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(object) )
@@ -271,16 +268,10 @@ GC_IndicatorBar::GC_IndicatorBar(FromFile)
 {
 }
 
-//void GC_IndicatorBar::Draw()
-//{
-//
-//}
-
 void GC_IndicatorBar::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
 
-	f.Serialize(_bInverse);
 	f.Serialize(_dwValueMax_offset);
 	f.Serialize(_dwValue_offset);
 	f.Serialize(_location);
@@ -304,6 +295,26 @@ GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION loc
 	return NULL;
 }
 
+void GC_IndicatorBar::Draw() const
+{
+	_ASSERT(_object);
+
+	float val     = *((float *) ((char*) GetRawPtr(_object) + _dwValue_offset));
+	float max_val = *((float *) ((char*) GetRawPtr(_object) + _dwValueMax_offset));
+
+	if( max_val > 0 )
+	{
+		if( val < 0 )        val = 0;
+		if( val > max_val )  val = max_val;
+		if( CheckFlags(GC_FLAG_INDICATOR_INVERSE) )
+			val = max_val - val;
+
+		vec2d pos = GetPosPredicted();
+		g_texman->DrawIndicator(GetTexture(), pos.x, pos.y, val / max_val);
+	}
+}
+
+
 void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 {
 	ASSERT_TYPE(sender, GC_2dSprite);
@@ -313,55 +324,18 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 	FRECT rt;
 	sprite->GetLocalRect(rt);
 	float top = pos.y + rt.top;
-/*
+
 	switch( _location )
 	{
 	case LOCATION_TOP:
-		MoveTo( vec2d(pos.x - _initial_width / 2.0f,
-			__max(top - GetSpriteHeight(), 0)) );
+		MoveTo( vec2d(pos.x, __max(top - GetSpriteHeight(), 0)) );
 		break;
 	case LOCATION_BOTTOM:
-		MoveTo( vec2d(pos.x - _initial_width / 2.0f,
-			__min(top + sprite->GetSpriteHeight() + GetSpriteHeight(),
+		MoveTo( vec2d(pos.x, __min(top + sprite->GetSpriteHeight() + GetSpriteHeight(),
 			g_level->_sy - GetSpriteHeight()*2)) );
 		break;
 	default:
 		_ASSERT(FALSE);
-	}*/
-}
-
-void GC_IndicatorBar::OnUpdateValue(GC_Object *sender, void *param)
-{
-	_ASSERT(sender == _object);
-	_ASSERT(_object != NULL);
-	_ASSERT(!_object->IsKilled());
-
-	float val     = *((float *) ((char*) GetRawPtr(_object) + _dwValue_offset));
-	float max_val = *((float *) ((char*) GetRawPtr(_object) + _dwValueMax_offset));
-
-	if( max_val > 0 )
-	{
-		//
-		// update value
-		//
-
-		if( val < 0 )        val = 0;
-		if( val > max_val )  val = max_val;
-		if( _bInverse )      val = max_val - val;
-
-		FRECT rt;
-		rt.left = 0;
-		rt.top  = 0;
-		rt.bottom = 1;
-		rt.right = val / max_val;
-//		ModifyFrameBounds(&rt);
-//		SetScale(_initial_width * rt.right, 1);
-
-		SetVisible(true);
-	}
-	else
-	{
-		SetVisible(false);
 	}
 }
 

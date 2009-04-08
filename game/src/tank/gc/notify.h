@@ -7,7 +7,6 @@ enum NotyfyType
 {
 	// GC_Object
 	NOTIFY_OBJECT_KILL,
-	NOTIFY_OBJECT_UPDATE_INDICATOR,
 
 	// GC_Actor
 	NOTIFY_ACTOR_MOVE,
