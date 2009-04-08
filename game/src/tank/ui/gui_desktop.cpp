@@ -28,68 +28,73 @@ namespace UI
 
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent, x, y, NULL)
-  , _text(new Text(this, 0, 0, "", alignTextLT))
+  , _blankText(new Text(this, 0, 0, "", alignTextLT))
 {
-	_ASSERT(!g_conf->ui_showmsg->eventChange);
-	g_conf->ui_showmsg->eventChange.bind(&MessageArea::OnToggleVisible, this);
-	OnToggleVisible();
+	_blankText->Show(false);
 }
 
 MessageArea::~MessageArea()
 {
-	_ASSERT(g_conf->ui_showmsg->eventChange);
-	g_conf->ui_showmsg->eventChange.clear();
 }
 
 void MessageArea::OnTimeStep(float dt)
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
-		_lines[i].time += dt;
-	while( !_lines.empty() && _lines.front().time > 5 )
-		_lines.pop_front();
+		_lines[i].time -= dt;
+	while( !_lines.empty() && _lines.back().time <= 0 )
+		_lines.pop_back();
 
 	if( _lines.empty() )
 	{
 		SetTimeStep(false);
-		_text->Show(false);
+		return;
+	}
+}
+
+void MessageArea::DrawChildren(float sx, float sy)
+{
+	if( _lines.empty() || !g_conf->ui_showmsg->Get() )
+	{
 		return;
 	}
 
-	string_t str;
-	for( size_t i = 0; i < _lines.size(); ++i )
-		str.append(_lines[i].str);
-	_text->SetText(str);
+	_blankText->Show(true);
+	float y = std::max(_lines.front().time - 4.5f, 0.0f) * _blankText->GetTextHeight() * 2;
+	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
+	{
+		unsigned char cc = std::min(int(it->time * 255 * 2), 255);
+		SpriteColor c;
+		c.r = cc;
+		c.g = cc;
+		c.b = cc;
+		c.a = cc;
+
+		_blankText->SetColor(c);
+		_blankText->SetText(it->str);
+		_blankText->Draw(sx, sy + y);
+		y -= _blankText->GetTextHeight();
+	}
+
+	_blankText->Show(false);
 }
 
-void MessageArea::puts(const string_t &text)
+void MessageArea::WriteLine(const string_t &text)
 {
-	puts(text.c_str());
-}
+	g_app->GetConsole()->puts(text.c_str());
+	g_app->GetConsole()->puts("\n");
 
-void MessageArea::puts(const char *text)
-{
 	Line line;
-	line.time = 0;
+	line.time = 5;  // timeout
 	line.str = text;
-	line.str.append("\n");
-	_lines.push_back(line);
-	g_app->GetConsole()->puts(line.str.c_str());
+	_lines.push_front(line);
 
 	SetTimeStep(true);
-	_text->Show(true);
 }
 
 void MessageArea::Clear()
 {
 	_lines.clear();
 	SetTimeStep(false);
-	_text->SetText("");
-	_text->Show(false);
-}
-
-void MessageArea::OnToggleVisible()
-{
-	Show(g_conf->ui_showmsg->Get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -235,6 +240,7 @@ void Desktop::OnSize(float width, float height)
 	_con->Resize(GetWidth() - 20, floorf(GetHeight() * 0.5f + 0.5f));
 	_fps->Move(1, GetHeight() - 1);
 	_time->Move( GetWidth() - 1, GetHeight() - 1 );
+	_msg->Move(_msg->GetX(), GetHeight() - 50);
 }
 
 void Desktop::OnChangeShowFps()

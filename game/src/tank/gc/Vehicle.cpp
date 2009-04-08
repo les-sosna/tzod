@@ -688,7 +688,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			Kill();
 		Release();
 
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(msg);
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(msg);
 		return true;
 	}
 	return false;

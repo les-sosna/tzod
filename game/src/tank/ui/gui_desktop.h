@@ -24,18 +24,19 @@ private:
 		float time;
 		string_t str;
 	};
-	std::deque<Line> _lines;
-	Text *_text;
+	typedef std::deque<Line> LineList;
+	LineList _lines;
+	Text *_blankText; // used for text drawing
 
 public:
 	MessageArea(Window *parent, float x, float y);
 	~MessageArea();
 
-	void puts(const string_t &text);
-	void puts(const char *text);
+	void WriteLine(const string_t &text);
 	void Clear();
 
-	void OnTimeStep(float dt);
+	virtual void OnTimeStep(float dt);
+	virtual void DrawChildren(float sx, float sy);
 
 private:
 	void OnToggleVisible();

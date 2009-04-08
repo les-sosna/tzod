@@ -315,7 +315,7 @@ void TankClient::ClTextMessage(Peer *from, int task, const Variant &arg)
 {
 	if( g_gui )
 	{
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(arg.Value<std::string>());
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(arg.Value<std::string>());
 	}
 	if( eventTextMessage )
 	{
@@ -327,7 +327,7 @@ void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 {
 	if( g_gui )
 	{
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(arg.Value<std::string>());
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(arg.Value<std::string>());
 	}
 	if( eventErrorMessage )
 	{
@@ -348,7 +348,7 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 			{
 				if( g_gui )
 				{
-					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_player_quit->Get());
+					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang->msg_player_quit->Get());
 				}
 				p->Kill();
 				break;
