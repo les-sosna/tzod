@@ -118,7 +118,7 @@ protected:
 	void OnAddBotClose(int result);
 	void OnOK();
 	void OnCancel();
-	void OnSendMessage(const char *msg);
+	void OnSendMessage(const string_t &msg);
 
 	// client event handlers
 	void OnError(const std::string &msg);

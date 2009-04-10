@@ -126,7 +126,7 @@ protected:
 	virtual void OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
 
-	virtual void DrawChildren(float sx, float sy);
+	virtual void DrawChildren(float sx, float sy) const;
 
 private:
 	void OnScroll(float pos);

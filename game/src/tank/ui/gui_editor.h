@@ -145,7 +145,7 @@ public:
 	Delegate<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
-	void DrawChildren(float sx, float sy);
+	void DrawChildren(float sx, float sy) const;
 
 	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);

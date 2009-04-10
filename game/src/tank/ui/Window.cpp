@@ -17,6 +17,8 @@ namespace UI
 
 void Window::Reg(Window* parent, GuiManager* manager)
 {
+	_color = 0xffffffff;
+
 	_manager     = manager;
 	_parent      = parent;
 	_firstChild  = NULL;
@@ -107,8 +109,8 @@ void Window::Destroy()
 		//
 		// remove this window from the manager
 		//
-		if( IsTopMost()  ) SetTopMost(false);
-		if( IsTimeStep() ) SetTimeStep(false);
+		if( GetTopMost()  ) SetTopMost(false);
+		if( GetTimeStep() ) SetTimeStep(false);
 		_manager->Remove(this);
 
 
@@ -177,12 +179,12 @@ bool Window::IsCaptured() const
 
 float Window::GetTextureWidth()  const
 {
-	return _texture ? g_texman->Get(_texture).pxFrameWidth : 1;
+	return (-1 != _texture) ? g_texman->Get(_texture).pxFrameWidth : 1;
 }
 
 float Window::GetTextureHeight() const
 {
-	return _texture ? g_texman->Get(_texture).pxFrameHeight : 1;
+	return (-1 != _texture) ? g_texman->Get(_texture).pxFrameHeight : 1;
 }
 
 void Window::SetTexture(const char *tex)
@@ -190,21 +192,19 @@ void Window::SetTexture(const char *tex)
 	if( tex )
 	{
 		_texture = g_texman->FindTexture(tex);
-		_color   = g_texman->Get(_texture).color;
 	}
 	else
 	{
-		_texture = 0;
-		_color   = 0xffffffff;
+		_texture = -1;
 	}
 }
 
-int Window::GetFrameCount() const
+unsigned int Window::GetFrameCount() const
 {
-	return _texture ? (g_texman->Get(_texture).xframes * g_texman->Get(_texture).yframes) : 0;
+	return (-1 != _texture) ? (g_texman->Get(_texture).xframes * g_texman->Get(_texture).yframes) : 0;
 }
 
-void Window::Draw(float sx, float sy)
+void Window::Draw(float sx, float sy) const
 {
 	if( !_isVisible )
 	{
@@ -217,15 +217,11 @@ void Window::Draw(float sx, float sy)
 	float t = sy + _y;
 	float b = t  + _height;
 
-	if( _texture )
+	if( -1 != _texture )
 	{
 		const LogicalTexture &lt = g_texman->Get(_texture);
 		const FRECT &rt = lt.uvFrames[_frame];
 		g_render->TexBind(lt.dev_texture);
-
-		const float borderWidth = 2;
-		const float uvBorder    = borderWidth * lt.uvFrameWidth / lt.pxFrameWidth;
-
 
 		MyVertex *v;
 
@@ -236,204 +232,193 @@ void Window::Draw(float sx, float sy)
 
 		if( _hasBorder )
 		{
-			// left edge
+			const float pxBorderSize  = 2;
+			const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
+			const float uvBorderHeight = pxBorderSize * lt.uvFrameHeight / lt.pxFrameHeight;
 
+			// left edge
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.left - uvBorder;
-			v[0].v = rt.top;
-			v[0].x = l - borderWidth;
+			v[0].u = lt.uvLeft - uvBorderWidth;
+			v[0].v = lt.uvTop;
+			v[0].x = l - pxBorderSize;
 			v[0].y = t;
 			v[1].color = _color;
-			v[1].u = rt.left;
-			v[1].v = rt.top;
+			v[1].u = lt.uvLeft;
+			v[1].v = lt.uvTop;
 			v[1].x = l;
 			v[1].y = t;
 			v[2].color = _color;
-			v[2].u = rt.left;
-			v[2].v = rt.bottom;
+			v[2].u = lt.uvLeft;
+			v[2].v = lt.uvBottom;
 			v[2].x = l;
 			v[2].y = b;
 			v[3].color = _color;
-			v[3].u = rt.left - uvBorder;
-			v[3].v = rt.bottom;
-			v[3].x = l - borderWidth;
+			v[3].u = lt.uvLeft - uvBorderWidth;
+			v[3].v = lt.uvBottom;
+			v[3].x = l - pxBorderSize;
 			v[3].y = b;
-
 
 			// right edge
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.right;
-			v[0].v = rt.top;
+			v[0].u = lt.uvRight;
+			v[0].v = lt.uvTop;
 			v[0].x = r;
 			v[0].y = t;
 			v[1].color = _color;
-			v[1].u = rt.right + uvBorder;
-			v[1].v = rt.top;
-			v[1].x = r + borderWidth;
+			v[1].u = lt.uvRight + uvBorderWidth;
+			v[1].v = lt.uvTop;
+			v[1].x = r + pxBorderSize;
 			v[1].y = t;
 			v[2].color = _color;
-			v[2].u = rt.right + uvBorder;
-			v[2].v = rt.bottom;
-			v[2].x = r + borderWidth;
+			v[2].u = lt.uvRight + uvBorderWidth;
+			v[2].v = lt.uvBottom;
+			v[2].x = r + pxBorderSize;
 			v[2].y = b;
 			v[3].color = _color;
-			v[3].u = rt.right;
-			v[3].v = rt.bottom;
+			v[3].u = lt.uvRight;
+			v[3].v = lt.uvBottom;
 			v[3].x = r;
 			v[3].y = b;
 
-
 			// top edge
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.left;
-			v[0].v = rt.top - uvBorder;
+			v[0].u = lt.uvLeft;
+			v[0].v = lt.uvTop - uvBorderHeight;
 			v[0].x = l;
-			v[0].y = t - borderWidth;
+			v[0].y = t - pxBorderSize;
 			v[1].color = _color;
-			v[1].u = rt.right;
-			v[1].v = rt.top - uvBorder;
+			v[1].u = lt.uvRight;
+			v[1].v = lt.uvTop - uvBorderHeight;
 			v[1].x = r;
-			v[1].y = t - borderWidth;
+			v[1].y = t - pxBorderSize;
 			v[2].color = _color;
-			v[2].u = rt.right;
-			v[2].v = rt.top;
+			v[2].u = lt.uvRight;
+			v[2].v = lt.uvTop;
 			v[2].x = r;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = rt.left;
-			v[3].v = rt.top;
+			v[3].u = lt.uvLeft;
+			v[3].v = lt.uvTop;
 			v[3].x = l;
 			v[3].y = t;
-
 
 			// bottom edge
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.left;
-			v[0].v = rt.bottom;
+			v[0].u = lt.uvLeft;
+			v[0].v = lt.uvBottom;
 			v[0].x = l;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = rt.right;
-			v[1].v = rt.bottom;
+			v[1].u = lt.uvRight;
+			v[1].v = lt.uvBottom;
 			v[1].x = r;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = rt.right;
-			v[2].v = rt.bottom + uvBorder;
+			v[2].u = lt.uvRight;
+			v[2].v = lt.uvBottom + uvBorderHeight;
 			v[2].x = r;
-			v[2].y = b + borderWidth;
+			v[2].y = b + pxBorderSize;
 			v[3].color = _color;
-			v[3].u = rt.left;
-			v[3].v = rt.bottom + uvBorder;
+			v[3].u = lt.uvLeft;
+			v[3].v = lt.uvBottom + uvBorderHeight;
 			v[3].x = l;
-			v[3].y = b + borderWidth;
-
+			v[3].y = b + pxBorderSize;
 
 			// left top corner
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.left - uvBorder;
-			v[0].v = rt.top - uvBorder;
-			v[0].x = l - borderWidth;
-			v[0].y = t - borderWidth;
+			v[0].u = lt.uvLeft - uvBorderWidth;
+			v[0].v = lt.uvTop - uvBorderHeight;
+			v[0].x = l - pxBorderSize;
+			v[0].y = t - pxBorderSize;
 			v[1].color = _color;
-			v[1].u = rt.left;
-			v[1].v = rt.top - uvBorder;
+			v[1].u = lt.uvLeft;
+			v[1].v = lt.uvTop - uvBorderHeight;
 			v[1].x = l;
-			v[1].y = t - borderWidth;
+			v[1].y = t - pxBorderSize;
 			v[2].color = _color;
-			v[2].u = rt.left;
-			v[2].v = rt.top;
+			v[2].u = lt.uvLeft;
+			v[2].v = lt.uvTop;
 			v[2].x = l;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = rt.left - uvBorder;
-			v[3].v = rt.top;
-			v[3].x = l - borderWidth;
+			v[3].u = lt.uvLeft - uvBorderWidth;
+			v[3].v = lt.uvTop;
+			v[3].x = l - pxBorderSize;
 			v[3].y = t;
-
 
 			// right top corner
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.right;
-			v[0].v = rt.top - uvBorder;
+			v[0].u = lt.uvRight;
+			v[0].v = lt.uvTop - uvBorderHeight;
 			v[0].x = r;
-			v[0].y = t - borderWidth;
+			v[0].y = t - pxBorderSize;
 			v[1].color = _color;
-			v[1].u = rt.right + uvBorder;
-			v[1].v = rt.top - uvBorder;
-			v[1].x = r + borderWidth;
-			v[1].y = t - borderWidth;
+			v[1].u = lt.uvRight + uvBorderWidth;
+			v[1].v = lt.uvTop - uvBorderHeight;
+			v[1].x = r + pxBorderSize;
+			v[1].y = t - pxBorderSize;
 			v[2].color = _color;
-			v[2].u = rt.right + uvBorder;
-			v[2].v = rt.top;
-			v[2].x = r + borderWidth;
+			v[2].u = lt.uvRight + uvBorderWidth;
+			v[2].v = lt.uvTop;
+			v[2].x = r + pxBorderSize;
 			v[2].y = t;
 			v[3].color = _color;
-			v[3].u = rt.right;
-			v[3].v = rt.top;
+			v[3].u = lt.uvRight;
+			v[3].v = lt.uvTop;
 			v[3].x = r;
 			v[3].y = t;
 
-
 			// right bottom corner
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.right;
-			v[0].v = rt.bottom;
+			v[0].u = lt.uvRight;
+			v[0].v = lt.uvBottom;
 			v[0].x = r;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = rt.right + uvBorder;
-			v[1].v = rt.bottom;
-			v[1].x = r + borderWidth;
+			v[1].u = lt.uvRight + uvBorderWidth;
+			v[1].v = lt.uvBottom;
+			v[1].x = r + pxBorderSize;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = rt.right + uvBorder;
-			v[2].v = rt.bottom + uvBorder;
-			v[2].x = r + borderWidth;
-			v[2].y = b + borderWidth;
+			v[2].u = lt.uvRight + uvBorderWidth;
+			v[2].v = lt.uvBottom + uvBorderHeight;
+			v[2].x = r + pxBorderSize;
+			v[2].y = b + pxBorderSize;
 			v[3].color = _color;
-			v[3].u = rt.right;
-			v[3].v = rt.bottom + uvBorder;
+			v[3].u = lt.uvRight;
+			v[3].v = lt.uvBottom + uvBorderHeight;
 			v[3].x = r;
-			v[3].y = b + borderWidth;
-
+			v[3].y = b + pxBorderSize;
 
 			// left bottom corner
-
 			v = g_render->DrawQuad();
 			v[0].color = _color;
-			v[0].u = rt.left - uvBorder;
-			v[0].v = rt.bottom;
-			v[0].x = l - borderWidth;
+			v[0].u = lt.uvLeft - uvBorderWidth;
+			v[0].v = lt.uvBottom;
+			v[0].x = l - pxBorderSize;
 			v[0].y = b;
 			v[1].color = _color;
-			v[1].u = rt.left;
-			v[1].v = rt.bottom;
+			v[1].u = lt.uvLeft;
+			v[1].v = lt.uvBottom;
 			v[1].x = l;
 			v[1].y = b;
 			v[2].color = _color;
-			v[2].u = rt.left;
-			v[2].v = rt.bottom + uvBorder;
+			v[2].u = lt.uvLeft;
+			v[2].v = lt.uvBottom + uvBorderHeight;
 			v[2].x = l;
-			v[2].y = b + borderWidth;
+			v[2].y = b + pxBorderSize;
 			v[3].color = _color;
-			v[3].u = rt.left - uvBorder;
-			v[3].v = rt.bottom + uvBorder;
-			v[3].x = l - borderWidth;
-			v[3].y = b + borderWidth;
+			v[3].u = lt.uvLeft - uvBorderWidth;
+			v[3].v = lt.uvBottom + uvBorderHeight;
+			v[3].x = l - pxBorderSize;
+			v[3].y = b + pxBorderSize;
 		}
 
 		//
@@ -488,7 +473,7 @@ void Window::Draw(float sx, float sy)
 	}
 }
 
-void Window::DrawChildren(float sx, float sy)
+void Window::DrawChildren(float sx, float sy) const
 {
 	for( Window *w = _firstChild; w; w = w->_nextSibling )
 	{
@@ -538,11 +523,6 @@ void Window::SetTimeStep(bool enable)
 	_isTimeStep = enable;
 }
 
-bool Window::GetTimeStep() const
-{
-	return _isTimeStep;
-}
-
 void Window::SetCapture()
 {
 	_manager->SetCapture(this);
@@ -553,12 +533,12 @@ void Window::ReleaseCapture()
 	_manager->ReleaseCapture(this);
 }
 
-void Window::Enable(bool enable)
+void Window::SetEnabled(bool enable)
 {
 	if( _isEnabled != enable )
 	{
 		_isEnabled = enable;
-		if( !IsEnabled() )
+		if( !GetEnabled() )
 		{
 			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
 			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
@@ -567,12 +547,12 @@ void Window::Enable(bool enable)
 	}
 }
 
-void Window::Show(bool show)
+void Window::SetVisible(bool show)
 {
 	if( _isVisible != show )
 	{
 		_isVisible = show;
-		if( !IsVisible() )
+		if( !GetVisible() )
 		{
 			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
 			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);

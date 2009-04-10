@@ -45,23 +45,23 @@ void MouseCursor::OnTimeStep(float dt)
 //	else
 //		SetOpacity1i(255 - __min(255, int((_timeShow - 1) * 255)));
 
-	Show( g_env.nNeedCursor > 0 || _timeShow < 2 );
+	SetVisible( g_env.nNeedCursor > 0 || _timeShow < 2 );
 
 	vec2d ptCurPos;
-	if( IsVisible() && g_level->_modeEditor && GC_Camera::GetWorldMousePos(ptCurPos) )
+	if( GetVisible() && g_level->_modeEditor && GC_Camera::GetWorldMousePos(ptCurPos) )
 	{
 		char str[32];
 		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);
 		_text->SetText(str);
-		_text->Show(true);
+		_text->SetVisible(true);
 	}
 	else
 	{
-		_text->Show(false); // hide text if coordinates is not available
+		_text->SetVisible(false); // hide text if coordinates is not available
 	}
 
-	if( IsVisible() )
-		SetFrame( abs(GetFrameCount()-1 - int((_timeAnim * ANIMATION_FPS / 3)) % (GetFrameCount() * 2-2)) );
+	if( GetVisible() )
+		SetFrame( abs((int) GetFrameCount()-1 - int((_timeAnim * ANIMATION_FPS / 3)) % ((int) GetFrameCount() * 2 - 2)) );
 
 }
 

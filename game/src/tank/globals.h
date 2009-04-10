@@ -9,13 +9,17 @@ class TextureManager;
 class CSoundManager;
 class CSound;
 class MusicPlayer;
-class GuiManager;
 class Level;
 class ConsoleBuffer;
 class KeyMapper;
 class TankServer;
 class TankClient;
 class AppBase;
+
+namespace UI
+{
+	class GuiManager;
+}
 
 namespace FS
 {
@@ -37,7 +41,7 @@ extern LPDIRECTINPUTDEVICE8 g_pKeyboard;
 extern IRender         *g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
-extern GuiManager      *g_gui;
+extern UI::GuiManager  *g_gui;
 extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
 extern TankClient      *g_client;

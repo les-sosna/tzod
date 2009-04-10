@@ -22,7 +22,6 @@ public:
 		stateDisabled  = 3
 	};
 
-public:
 	ButtonBase(Window *parent, float x, float y, const char *texture);
 
 	Delegate<void(void)> eventClick;
@@ -39,7 +38,6 @@ protected:
 	virtual bool OnMouseUp  (float x, float y, int nButton);
 	virtual bool OnMouseLeave();
 
-protected:
 	virtual void OnEnable(bool enable);
 	virtual void OnClick();
 	virtual void OnChangeState(State state) = 0;
@@ -63,6 +61,22 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class TextButton : public ButtonBase
+{
+	Text  *_label;
+
+public:
+	TextButton(Window *parent, float x, float y, const string_t &text, const char *font);
+
+	void SetText(const string_t &text);
+	const string_t& GetText() const;
+
+protected:
+	virtual void OnChangeState(State state);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class ImageButton : public ButtonBase
 {
 public:
@@ -76,7 +90,7 @@ protected:
 
 class CheckBox : public ButtonBase
 {
-	Text *_label;
+	TextButton *_label;
 	bool  _isChecked;
 
 public:

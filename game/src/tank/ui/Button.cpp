@@ -5,6 +5,12 @@
 #include "Button.h"
 #include "Text.h"
 
+
+#include "core/Debug.h"
+#include "core/Console.h"
+#include "core/Application.h"
+
+
 namespace UI
 {
 
@@ -19,8 +25,11 @@ ButtonBase::ButtonBase(Window *parent, float x, float y, const char *texture)
 
 void ButtonBase::SetState(State s)
 {
-	_state = s;
-	OnChangeState(s);
+	if( _state != s )
+	{
+		_state = s;
+		OnChangeState(s);
+	}
 }
 
 bool ButtonBase::OnMouseMove(float x, float y)
@@ -58,12 +67,13 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 	{
 		ReleaseCapture();
 		bool click = (GetState() == statePushed);
-		SetState(stateHottrack);
-
+		SafePtr<Window> holder(this); // prevent from immediate destroying
 		if( eventMouseUp )
 			INVOKE(eventMouseUp) (x, y);
-		if( click )
+		if( click && !IsDestroyed() )
 			OnClick();
+		if( !IsDestroyed() )
+			SetState(stateHottrack);
 		return true;
 	}
 	return false;
@@ -100,20 +110,68 @@ void ButtonBase::OnEnable(bool enable)
 Button::Button(Window *parent, float x, float y, const string_t &text)
   : ButtonBase(parent, x, y, "ctrl_button")
 {
-	_label = new Text(this, 0, 0, text, alignTextCC );
-	SetState(stateNormal);
+	_label = new Text(this, 0, 0, text, alignTextCC);
+	OnChangeState(stateNormal);
 }
 
 void Button::OnChangeState(State state)
 {
 	SetFrame(state);
 	if( statePushed == state )
-		_label->Move(GetTextureWidth()/2, GetTextureHeight()/2);
+		_label->Move(GetWidth() / 2, GetHeight() / 2);
 	else
-		_label->Move(GetTextureWidth()/2-1, GetTextureHeight()/2-1);
+		_label->Move(GetWidth() / 2 - 1, GetHeight() / 2 - 1);
 
-	_label->SetColor(stateDisabled == state ? 0xbbbbbbbb : 0xffffffff);
+	_label->SetFontColor(stateDisabled == state ? 0xbbbbbbbb : 0xffffffff);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// text button class implementation
+
+TextButton::TextButton(Window *parent, float x, float y, const string_t &text, const char *font)
+  : ButtonBase(parent, x, y, NULL)
+{
+	_label = new Text(this, 0, 0, text, alignTextLT);
+	_label->SetFont(font);
+	Resize(_label->GetWidth(), _label->GetHeight());
+	OnChangeState(stateNormal);
+}
+
+void TextButton::OnChangeState(State state)
+{
+	switch( state )
+	{
+	case stateNormal:
+		_label->Move(0, 0);
+		_label->SetFontColor(0xccccccff);
+		break;
+	case stateDisabled:
+		_label->Move(0, 0);
+		_label->SetFontColor(0xbbbbbbbb);
+		break;
+	case stateHottrack:
+		_label->Move(-1, -1);
+		_label->SetFontColor(0xffffffff);
+		break;
+	case statePushed:
+		_label->Move(1, 1);
+		_label->SetFontColor(0xffffffff);
+		break;
+	}
+}
+
+void TextButton::SetText(const string_t &text)
+{
+	_label->SetText(text);
+	Resize(_label->GetWidth(), _label->GetHeight());
+}
+
+const string_t& TextButton::GetText() const
+{
+	return _label->GetText();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // ImageButton class implementation
@@ -133,9 +191,10 @@ void ImageButton::OnChangeState(State state)
 
 CheckBox::CheckBox(Window *parent, float x, float y, const string_t &text)
   : ButtonBase(parent, x, y, "ctrl_checkbox")
+  , _isChecked(false)
 {
-	_label = new Text(this, GetTextureWidth(), GetTextureHeight()/2, text, alignTextLC );
-	_isChecked = false;
+	_label = new TextButton(this, 0, 0, text, "font_small");
+	_label->Move(GetWidth(), GetHeight() / 2 - _label->GetHeight() / 2);
 }
 
 void CheckBox::SetCheck(bool checked)
@@ -156,6 +215,7 @@ const string_t& CheckBox::GetText() const
 
 void CheckBox::OnChangeState(State state)
 {
+	_label->SetEnabled(stateDisabled != state);
 	SetFrame(_isChecked ? state+4 : state);
 }
 

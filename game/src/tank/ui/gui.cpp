@@ -124,22 +124,22 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 		_removePlayer = new Button(this, x3, 286, g_lang->human_player_remove->Get());
 		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
-		_removePlayer->Enable(false);
+		_removePlayer->SetEnabled(false);
 
 		_changePlayer = new Button(this, x3, 316, g_lang->human_player_modify->Get());
 		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
-		_changePlayer->Enable(false);
+		_changePlayer->SetEnabled(false);
 
 		btn = new Button(this, x3, 384, g_lang->AI_player_add->Get());
 		btn->eventClick.bind(&NewGameDlg::OnAddBot, this);
 
 		_removeBot = new Button(this, x3, 414, g_lang->AI_player_remove->Get());
 		_removeBot->eventClick.bind(&NewGameDlg::OnRemoveBot, this);
-		_removeBot->Enable(false);
+		_removeBot->SetEnabled(false);
 
 		_changeBot = new Button(this, x3, 444, g_lang->AI_player_modify->Get());
 		_changeBot->eventClick.bind(&NewGameDlg::OnEditBot, this);
-		_changeBot->Enable(false);
+		_changeBot->SetEnabled(false);
 
 
 
@@ -392,14 +392,14 @@ void NewGameDlg::OnCancel()
 
 void NewGameDlg::OnSelectPlayer(int index)
 {
-	_removePlayer->Enable( -1 != index );
-	_changePlayer->Enable( -1 != index );
+	_removePlayer->SetEnabled( -1 != index );
+	_changePlayer->SetEnabled( -1 != index );
 }
 
 void NewGameDlg::OnSelectBot(int index)
 {
-	_removeBot->Enable( -1 != index );
-	_changeBot->Enable( -1 != index );
+	_removeBot->SetEnabled( -1 != index );
+	_changeBot->SetEnabled( -1 != index );
 }
 
 void NewGameDlg::OnRawChar(int c)
@@ -429,8 +429,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_ASSERT(info);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->player_settings->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	_info = info;
@@ -607,8 +606,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_ASSERT(info);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->bot_settings->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	_info = info;
@@ -815,14 +813,14 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	_handler = handler;
 	_text = new Text(this, 10, 10, text, alignTextLT);
 
-	_button1 = new Button(this, 0, _text->GetTextHeight() + 20, btn1);
+	_button1 = new Button(this, 0, _text->GetHeight() + 20, btn1);
 	_button1->eventClick.bind(&ScriptMessageBox::OnButton1, this);
 
 	int nbtn = 1 + (btn2 != NULL) + (btn3 != NULL);
 
-	float by = _text->GetTextHeight() + 20;
+	float by = _text->GetHeight() + 20;
 	float bw = _button1->GetWidth();
-	float w = __max(_text->GetTextWidth() + 10, (bw + 10) * (float) nbtn) + 10;
+	float w = __max(_text->GetWidth() + 10, (bw + 10) * (float) nbtn) + 10;
 	float h = by + _button1->GetHeight() + 10;
 
 

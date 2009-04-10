@@ -36,7 +36,7 @@ public:
 	void Clear();
 
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(float sx, float sy);
+	virtual void DrawChildren(float sx, float sy) const;
 
 private:
 	void OnToggleVisible();
@@ -75,8 +75,8 @@ private:
 	void OnChangeShowFps();
 	void OnChangeShowTime();
 
-	void OnCommand(const char *cmd);
-	bool OnCompleteCommand(const char *cmd, string_t &result);
+	void OnCommand(const string_t &cmd);
+	bool OnCompleteCommand(const string_t &cmd, string_t &result);
 };
 
 

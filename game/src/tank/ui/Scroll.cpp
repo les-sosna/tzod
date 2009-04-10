@@ -56,9 +56,9 @@ float ScrollBar::GetPos() const
 
 void ScrollBar::SetLimit(float limit)
 {
-	_btnBox->Show(limit > 0);
-	_btnUpLeft->Enable(limit > 0);
-	_btnDownRight->Enable(limit > 0);
+	_btnBox->SetVisible(limit > 0);
+	_btnUpLeft->SetEnabled(limit > 0);
+	_btnDownRight->SetEnabled(limit > 0);
 
 	_limit = limit;
 	SetPos(GetPos()); // update scroll box position

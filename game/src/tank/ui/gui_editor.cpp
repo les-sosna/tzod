@@ -35,8 +35,7 @@ NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
 {
 	Text *header = new Text(this, 128, 20, g_lang->newmap_title->Get(), alignTextCT);
-	header->SetTexture("font_default");
-	header->Resize(header->GetTextureWidth(), header->GetTextureHeight());
+	header->SetFont("font_default");
 
 	new Text(this, 40, 75, g_lang->newmap_width->Get(), alignTextLT);
 	_width = new Edit(this, 60, 90, 80);
@@ -95,7 +94,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 
 	Resize(w, h);
 	SetEasyMove(true);
-	ClipChildren(true);
+	SetClipChildren(true);
 }
 
 void PropertyList::DoExchange(bool applyToObject)
@@ -270,7 +269,7 @@ void PropertyList::OnRawChar(int c)
 		break;
 	case VK_ESCAPE:
 		g_conf->ed_showproperties->Set(false);
-		Show(false);
+		SetVisible(false);
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -381,7 +380,7 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 	_labelService = new Text(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
 	_labelName = new Text(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
 
-	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetTextHeight(), 1, 1);
+	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetHeight(), 1, 1);
 	_list->SetData(WrapRawPtr(new ServiceListDataSource()));
 	_list->SetBorder(true);
 	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
@@ -480,7 +479,7 @@ void ServiceList::OnRawChar(int c)
 	case 'S':
 	case VK_ESCAPE:
 		g_conf->ed_showservices->Set(false);
-		Show(false);
+		SetVisible(false);
 		break;
 	default:
 		GetParent()->OnRawChar(c);
@@ -497,13 +496,13 @@ EditorLayout::EditorLayout(Window *parent)
 	SetTexture(NULL);
 
 	_help = new Text(this, 10, 10, g_lang->f1_help_editor->Get(), alignTextLT);
-	_help->Show(false);
+	_help->SetVisible(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
-	_propList->Show(false);
+	_propList->SetVisible(false);
 
 	_serviceList = new ServiceList(this, 5, 300, 512, 256);
-	_serviceList->Show(g_conf->ed_showservices->Get());
+	_serviceList->SetVisible(g_conf->ed_showservices->Get());
 
 	_layerDisp = new Text(this, 0, 0, "", alignTextRT);
 
@@ -523,7 +522,7 @@ EditorLayout::EditorLayout(Window *parent)
 
 	_selectionRect = new Window(this, 0, 0, "selection");
 	_selectionRect->SetBorder(true);
-	_selectionRect->Show(false);
+	_selectionRect->SetVisible(false);
 	_selectionRect->BringToBack();
 
 	_isObjectNew = false;
@@ -567,7 +566,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			_propList->ConnectTo(_selectedObject->GetProperties());
 			if( g_conf->ed_showproperties->Get() )
 			{
-				_propList->Show(true);
+				_propList->SetVisible(true);
 			}
 		}
 	}
@@ -578,8 +577,8 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_isObjectNew = false;
 
 		_propList->ConnectTo(NULL);
-		_selectionRect->Show(false);
-		_propList->Show(false);
+		_selectionRect->SetVisible(false);
+		_propList->SetVisible(false);
 	}
 
 	if( eventOnChangeSelection )
@@ -727,13 +726,13 @@ void EditorLayout::OnRawChar(int c)
 	case VK_RETURN:
 		if( _selectedObject )
 		{
-			_propList->Show(true);
+			_propList->SetVisible(true);
 			g_conf->ed_showproperties->Set(true);
 		}
 		break;
 	case 'S':
-		_serviceList->Show(!_serviceList->IsVisible());
-		g_conf->ed_showservices->Set(_serviceList->IsVisible());
+		_serviceList->SetVisible(!_serviceList->GetVisible());
+		g_conf->ed_showservices->Set(_serviceList->GetVisible());
 		break;
 	case VK_DELETE:
 		if( _selectedObject )
@@ -744,7 +743,7 @@ void EditorLayout::OnRawChar(int c)
 		}
 		break;
 	case VK_F1:
-		_help->Show(!_help->IsVisible());
+		_help->SetVisible(!_help->GetVisible());
 		break;
 	case VK_F9:
 		g_conf->ed_uselayers->Set(!g_conf->ed_uselayers->Get());
@@ -792,10 +791,10 @@ void EditorLayout::OnChangeObjectType(int index)
 
 void EditorLayout::OnChangeUseLayers()
 {
-	_layerDisp->Show(g_conf->ed_uselayers->Get());
+	_layerDisp->SetVisible(g_conf->ed_uselayers->Get());
 }
 
-void EditorLayout::DrawChildren(float sx, float sy)
+void EditorLayout::DrawChildren(float sx, float sy) const
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
@@ -818,7 +817,7 @@ void EditorLayout::DrawChildren(float sx, float sy)
 		FRECT rt;
 		s->GetGlobalRect(rt);
 
-		_selectionRect->Show(true);
+		_selectionRect->SetVisible(true);
 		_selectionRect->Move( // FIXME: camera zoom
 			(float) viewport.left + rt.left - camera->GetPos().x,
 			(float) viewport.top + rt.top - camera->GetPos().y );
@@ -826,7 +825,7 @@ void EditorLayout::DrawChildren(float sx, float sy)
 	}
 	else
 	{
-		_selectionRect->Show(false);
+		_selectionRect->SetVisible(false);
 	}
 	Window::DrawChildren(sx, sy);
 }

@@ -26,7 +26,7 @@ Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuff
 	_arrow = new Text(this, 0, 0, ">", alignTextLT);
 
 	_blankText = new Text(this, 0, 0, "", alignTextLT);
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 
 	_input = new Edit(this, 0, 0, 0);
 	_input->SetTexture(NULL);
@@ -166,19 +166,19 @@ bool Console::OnMouseDown(float x, float y, int button)
 	return true;
 }
 
-void Console::DrawChildren(float sx, float sy)
+void Console::DrawChildren(float sx, float sy) const
 {
 	Window::DrawChildren(sx, sy);
-	_blankText->Show(true);
-	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetHeight());
+	_blankText->SetVisible(true);
+	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetCharHeight());
 	size_t scroll = __min(_scrollBack, _buf->GetLineCount());
 	size_t count  = __min( _buf->GetLineCount() - scroll, visibleLineCount );
 	for( size_t i = 0; i < count; ++i )
 	{
 		_blankText->SetText( _buf->GetLine(_buf->GetLineCount() - scroll - i - 1) );
-		_blankText->Draw(sx + 4, sy -= _blankText->GetHeight());
+		_blankText->Draw(sx + 4, sy -= _blankText->GetCharHeight());
 	}
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 }
 
 void Console::OnSize(float width, float height)

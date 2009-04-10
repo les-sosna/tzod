@@ -41,8 +41,7 @@ CreateServerDlg::CreateServerDlg(Window *parent)
   : Dialog(parent, 770, 450)
 {
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_server_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 	float x1 = 16;
 	float x2 = x1 + 550;
@@ -103,8 +102,8 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		_lobbyAdd = new Button(this, 250, 410, g_lang->net_server_add_lobby->Get());
 
 		_lobbyEnable->SetCheck(g_conf->sv_use_lobby->Get());
-		_lobbyList->Enable(_lobbyEnable->GetCheck());
-		_lobbyAdd->Enable(_lobbyEnable->GetCheck());
+		_lobbyList->SetEnabled(_lobbyEnable->GetCheck());
+		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 		for( size_t i = 0; i < g_conf->lobby_servers->GetSize(); ++i )
 		{
 			_lobbyList->GetList()->AddItem(g_conf->lobby_servers->GetStr(i)->Get());
@@ -182,7 +181,7 @@ void CreateServerDlg::OnOK()
 	g_conf->sv_latency->SetInt(1);
 
 	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
-	Show(false);
+	SetVisible(false);
 }
 
 void CreateServerDlg::OnCancel()
@@ -192,15 +191,15 @@ void CreateServerDlg::OnCancel()
 
 void CreateServerDlg::OnLobbyEnable()
 {
-	_lobbyList->Enable(_lobbyEnable->GetCheck());
-	_lobbyAdd->Enable(_lobbyEnable->GetCheck());
+	_lobbyList->SetEnabled(_lobbyEnable->GetCheck());
+	_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 }
 
 void CreateServerDlg::OnCloseChild(int result)
 {
 	if( _resultCancel == result )
 	{
-		Show(true);
+		SetVisible(true);
 	}
 
 	if( _resultOK == result )
@@ -218,8 +217,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 	PauseGame(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_connect_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	new Text(this, 20, 65, g_lang->net_connect_address->Get(), alignTextLT);
@@ -257,8 +255,8 @@ void ConnectDlg::OnOK()
 {
 	_status->DeleteAllItems();
 
-	_btnOK->Enable(false);
-	_name->Enable(false);
+	_btnOK->SetEnabled(false);
+	_name->SetEnabled(false);
 
 	if( !_auto )
 		script_exec(g_env.L, "reset()");
@@ -300,8 +298,8 @@ void ConnectDlg::OnError(const std::string &msg)
 	g_level->Clear();
 	if( !g_server )
 	{
-		_btnOK->Enable(true);
-		_name->Enable(true);
+		_btnOK->SetEnabled(true);
+		_name->SetEnabled(true);
 	}
 	SAFE_DELETE(g_client);
 	SAFE_DELETE(g_server);
@@ -324,8 +322,7 @@ InternetDlg::InternetDlg(Window *parent)
 	PauseGame(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_internet_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	new Text(this, 20, 65, g_lang->net_connect_address->Get(), alignTextLT);
@@ -337,7 +334,7 @@ InternetDlg::InternetDlg(Window *parent)
 	_servers = new List(this, 25, 120, 400, 180);
 	_servers->eventChangeCurSel.bind(&InternetDlg::OnSelectServer, this);
 	_status = new Text(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
-	_status->SetColor(0x7f7f7f7f);
+	_status->SetBackgroundColor(0x7f7f7f7f);
 
 
 	_btnRefresh = new Button(this, 25, 320, g_lang->net_internet_refresh->Get());
@@ -345,7 +342,7 @@ InternetDlg::InternetDlg(Window *parent)
 
 	_btnConnect = new Button(this, 175, 320, g_lang->net_internet_connect->Get());
 	_btnConnect->eventClick.bind(&InternetDlg::OnConnect, this);
-	_btnConnect->Enable(false);
+	_btnConnect->SetEnabled(false);
 
 	(new Button(this, 325, 320, g_lang->net_internet_cancel->Get()))
 		->eventClick.bind(&InternetDlg::OnCancel, this);
@@ -365,8 +362,8 @@ void InternetDlg::OnRefresh()
 	_servers->DeleteAllItems();
 	_status->SetText(g_lang->net_internet_searching->Get());
 
-	_btnRefresh->Enable(false);
-	_name->Enable(false);
+	_btnRefresh->SetEnabled(false);
+	_name->SetEnabled(false);
 
 	_client->SetLobbyUrl(_name->GetText());
 	_client->RequestServerList();
@@ -378,7 +375,7 @@ void InternetDlg::OnConnect()
 	{
 		const std::string &addr = _servers->GetItemText(_servers->GetCurSel());
 		(new ConnectDlg(GetParent(), addr.c_str()))->eventClose.bind(&InternetDlg::OnCloseChild, this);
-		Show(false);
+		SetVisible(false);
 	}
 }
 
@@ -389,7 +386,7 @@ void InternetDlg::OnCancel()
 
 void InternetDlg::OnSelectServer(int idx)
 {
-	_btnConnect->Enable(-1 != idx);
+	_btnConnect->SetEnabled(-1 != idx);
 }
 
 void InternetDlg::OnLobbyError(const std::string &msg)
@@ -404,22 +401,22 @@ void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
 	{
 		_servers->AddItem(result[i]);
 	}
-	_btnRefresh->Enable(true);
-	_name->Enable(true);
+	_btnRefresh->SetEnabled(true);
+	_name->SetEnabled(true);
 }
 
 void InternetDlg::Error(const char *msg)
 {
 	_status->SetText(msg);
-	_btnRefresh->Enable(true);
-	_name->Enable(true);
+	_btnRefresh->SetEnabled(true);
+	_name->SetEnabled(true);
 }
 
 void InternetDlg::OnCloseChild(int result)
 {
 	if( _resultCancel == result )
 	{
-		Show(true);
+		SetVisible(true);
 	}
 
 	if( _resultOK == result )
@@ -453,8 +450,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	//
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->net_chatroom_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 	new Text(this, 20, 50, g_lang->net_chatroom_players->Get(), alignTextLT);
 	_players = new List(this, 20, 65, 512, 70);
@@ -483,7 +479,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 	_btnOK = new Button(this, 560, 450, g_lang->net_chatroom_ready_button->Get());
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
-	_btnOK->Enable(false);
+	_btnOK->SetEnabled(false);
 
 	(new Button(this, 560, 480, g_lang->common_cancel->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
@@ -519,14 +515,14 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 
 void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
 {
-	_btnProfile->Enable(true);
-	_btnOK->Enable(true);
+	_btnProfile->SetEnabled(true);
+	_btnOK->SetEnabled(true);
 }
 
 void WaitingForPlayersDlg::OnChangeProfileClick()
 {
-	_btnProfile->Enable(false);
-	_btnOK->Enable(false);
+	_btnProfile->SetEnabled(false);
+	_btnOK->SetEnabled(false);
 	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf->cl_playerinfo);
 	dlg->eventClose.bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this);
 }
@@ -566,9 +562,9 @@ void WaitingForPlayersDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-void WaitingForPlayersDlg::OnSendMessage(const char *msg)
+void WaitingForPlayersDlg::OnSendMessage(const string_t &msg)
 {
-	if( msg[0] )
+	if( !msg.empty() )
 	{
 //		if( 0 == strcmp(msg, "/ping") )
 //		{
@@ -586,7 +582,7 @@ void WaitingForPlayersDlg::OnError(const std::string &msg)
 {
 	_players->DeleteAllItems();
 	_bots->DeleteAllItems();
-	_btnOK->Enable(false);
+	_btnOK->SetEnabled(false);
 	_buf->printf("%s\n", msg.c_str());
 }
 
@@ -656,7 +652,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 //		_buf->printf("\n");
 	}
 
-	_btnOK->Enable(_players->GetItemCount() > 0);
+	_btnOK->SetEnabled(_players->GetItemCount() > 0);
 }
 
 void WaitingForPlayersDlg::OnStartGame()
@@ -825,12 +821,12 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		_buf->printf(g_lang->net_chatroom_player_x_connected->Get().c_str(), player->GetNick().c_str());
 		_buf->printf("\n");
 
-		_btnOK->Enable(true);
+		_btnOK->SetEnabled(true);
 		break;
 	}
 
 	case DBTYPE_ERRORMSG:
-		_btnOK->Enable(false);
+		_btnOK->SetEnabled(false);
 	case DBTYPE_TEXTMESSAGE:
 		_buf->printf("%s\n", (const char *) db.Data());
 		break;

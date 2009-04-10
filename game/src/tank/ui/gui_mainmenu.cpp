@@ -59,7 +59,7 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	(new Button(this, 416, GetHeight(), g_lang->exit_game_btn->Get()))->eventClick.bind(&MainMenuDlg::OnExit, this);
 
 	_panelFrame = new Window(this, 0, GetHeight() + 40, NULL);
-	_panelFrame->ClipChildren(true);
+	_panelFrame->SetClipChildren(true);
 	_panelFrame->Resize(GetWidth(), 64);
 
 	_panel = new Window(_panelFrame, 0, -_panelFrame->GetHeight(), NULL);
@@ -88,14 +88,14 @@ void MainMenuDlg::OnSinglePlayer()
 
 void MainMenuDlg::OnNewGame()
 {
-	Show(false);
+	SetVisible(false);
 	NewGameDlg *dlg = new NewGameDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnCampaign()
 {
-	Show(false);
+	SetVisible(false);
 	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
@@ -114,7 +114,7 @@ void MainMenuDlg::OnSaveGame()
 		return;
 	}
 
-	Show(false);
+	SetVisible(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnSaveGameSelect, this);
@@ -158,7 +158,7 @@ void MainMenuDlg::OnLoadGame()
 		return;
 	}
 
-	Show(false);
+	SetVisible(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnLoadGameSelect, this);
@@ -192,28 +192,28 @@ void MainMenuDlg::OnMultiPlayer()
 
 void MainMenuDlg::OnHost()
 {
-	Show(false);
+	SetVisible(false);
 	CreateServerDlg *dlg = new CreateServerDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnJoin()
 {
-	Show(false);
+	SetVisible(false);
 	ConnectDlg *dlg = new ConnectDlg(GetParent(), NULL);
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnInternet()
 {
-	Show(false);
+	SetVisible(false);
 	InternetDlg *dlg = new InternetDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnNetworkProfile()
 {
-//	Show(false);
+//	SetVisible(false);
 	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf->cl_playerinfo);
 //	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
@@ -225,14 +225,14 @@ void MainMenuDlg::OnEditor()
 
 void MainMenuDlg::OnNewMap()
 {
-	Show(false);
+	SetVisible(false);
 	NewMapDlg *dlg = new NewMapDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnMapSettings()
 {
-	Show(false);
+	SetVisible(false);
 	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
@@ -251,7 +251,7 @@ void MainMenuDlg::OnImportMap()
 		return;
 	}
 
-	Show(false);
+	SetVisible(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnImportMapSelect, this);
@@ -296,7 +296,7 @@ void MainMenuDlg::OnExportMap()
 		return;
 	}
 
-	Show(false);
+	SetVisible(false);
 	_ASSERT(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose.bind(&MainMenuDlg::OnExportMapSelect, this);
@@ -329,7 +329,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 void MainMenuDlg::OnSettings()
 {
-	Show(false);
+	SetVisible(false);
 	SettingsDlg *dlg = new SettingsDlg(GetParent());
 	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
@@ -352,7 +352,7 @@ void MainMenuDlg::OnCloseChild(int result)
 	}
 	else
 	{
-		Show(true);
+		SetVisible(true);
 		GetManager()->SetFocusWnd(this);
 	}
 }
@@ -389,10 +389,9 @@ void MainMenuDlg::SwitchPanel(PanelType newtype)
 void MainMenuDlg::CreatePanel()
 {
 	_panelTitle = new Text(_panel, 0, 0, "", alignTextLT);
-	_panelTitle->SetTexture("font_default");
-	_panelTitle->Resize(_panelTitle->GetTextureWidth(), _panelTitle->GetTextureHeight());
+	_panelTitle->SetFont("font_default");
 
-	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
+	float y = _panelTitle->GetCharHeight() + _panelTitle->GetY() + 10;
 	Button *btn;
 
 	switch( _ptype )
@@ -404,7 +403,7 @@ void MainMenuDlg::CreatePanel()
 		(new Button(_panel, 200, y, g_lang->single_player_load->Get()))->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
 		btn = new Button(_panel, 300, y, g_lang->single_player_save->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
-		btn->Enable(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && !g_client);
+		btn->SetEnabled(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && !g_client);
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang->network_title->Get());
@@ -419,10 +418,10 @@ void MainMenuDlg::CreatePanel()
 		(new Button(_panel, 100, y, g_lang->editor_load_map->Get()))->eventClick.bind(&MainMenuDlg::OnImportMap, this);
 		btn = new Button(_panel, 200, y, g_lang->editor_save_map->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnExportMap, this);
-		btn->Enable(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
+		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		btn = new Button(_panel, 300, y, g_lang->editor_map_settings->Get());
 		btn->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
-		btn->Enable(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
+		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		break;
 	default:
 		_ASSERT(FALSE);

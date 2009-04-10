@@ -21,10 +21,10 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 {
 	_curSel = -1;
 
-	_text = new Text(this, 0, 1, "", alignTextLT);
+	_text = new Text(this, 0, 1, string_t(), alignTextLT);
 
 	_list = new List(this, 0, 0, 1, 1);
-	_list->Show(false);
+	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->eventClickItem.bind(&ComboBox::OnClickItem, this);
 	_list->eventChangeCurSel.bind(&ComboBox::OnChangeSelection, this);
@@ -39,7 +39,7 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_text->BringToFront();
 
 	SetBorder(true);
-	Resize(width, _text->GetHeight()+2);
+	Resize(width, _text->GetCharHeight()+2);
 }
 
 void ComboBox::SetCurSel(int index)
@@ -62,15 +62,15 @@ List* ComboBox::GetList() const
 
 void ComboBox::DropList()
 {
-	if( _list->IsVisible() )
+	if( _list->GetVisible() )
 	{
-		_list->Show(false);
+		_list->SetVisible(false);
 		_list->SetCurSel(GetCurSel());
 		GetManager()->SetFocusWnd(this);
 	}
 	else
 	{
-		_list->Show(true);
+		_list->SetVisible(true);
 		_list->SetScrollPos((float) GetCurSel());
 		GetManager()->SetFocusWnd(_list);
 	}
@@ -81,8 +81,8 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(_list->GetData()->GetItemText(index, 0));
-		_list->Show(false);
+		_text->SetText(_list->GetItemText(index, 0));
+		_list->SetVisible(false);
 		GetManager()->SetFocusWnd(this);
 
 		if( eventChangeCurSel )
@@ -94,14 +94,14 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText(_list->GetData()->GetItemText(index, 0));
+		_text->SetText(_list->GetItemText(index, 0));
 	}
 }
 
 void ComboBox::OnListLostFocus()
 {
 	_list->SetCurSel(_curSel); // cancel changes
-	_list->Show(false);
+	_list->SetVisible(false);
 }
 
 void ComboBox::OnRawChar(int c)
@@ -109,13 +109,13 @@ void ComboBox::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_ESCAPE:
-		if( _list->IsVisible() )
+		if( _list->GetVisible() )
 			GetManager()->SetFocusWnd(this);
 		else
 			GetParent()->OnRawChar(c);
 		break;
 	case VK_RETURN:
-		if( _list->IsVisible() )
+		if( _list->GetVisible() )
 		{
 			if( -1 != _list->GetCurSel() )
 			{
@@ -128,7 +128,7 @@ void ComboBox::OnRawChar(int c)
 		}
 		break;
 	case VK_DOWN:
-		if( !_list->IsVisible() )
+		if( !_list->GetVisible() )
 			DropList();
 		break;
 	default:

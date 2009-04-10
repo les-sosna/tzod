@@ -30,7 +30,7 @@ MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent, x, y, NULL)
   , _blankText(new Text(this, 0, 0, "", alignTextLT))
 {
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 }
 
 MessageArea::~MessageArea()
@@ -51,15 +51,15 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::DrawChildren(float sx, float sy)
+void MessageArea::DrawChildren(float sx, float sy) const
 {
 	if( _lines.empty() || !g_conf->ui_showmsg->Get() )
 	{
 		return;
 	}
 
-	_blankText->Show(true);
-	float y = std::max(_lines.front().time - 4.5f, 0.0f) * _blankText->GetTextHeight() * 2;
+	_blankText->SetVisible(true);
+	float y = std::max(_lines.front().time - 4.5f, 0.0f) * _blankText->GetCharHeight() * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{
 		unsigned char cc = std::min(int(it->time * 255 * 2), 255);
@@ -69,13 +69,13 @@ void MessageArea::DrawChildren(float sx, float sy)
 		c.b = cc;
 		c.a = cc;
 
-		_blankText->SetColor(c);
+		_blankText->SetBackgroundColor(c);
 		_blankText->SetText(it->str);
 		_blankText->Draw(sx, sy + y);
-		y -= _blankText->GetTextHeight();
+		y -= _blankText->GetCharHeight();
 	}
 
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 }
 
 void MessageArea::WriteLine(const string_t &text)
@@ -105,15 +105,15 @@ Desktop::Desktop(GuiManager* manager)
 	_msg = new MessageArea(this, 100, 100);
 
 	_editor = new EditorLayout(this);
-	_editor->Show(false);
+	_editor->SetVisible(false);
 
 	_con = new Console(this, 10, 0, 100, 100, g_app->GetConsole());
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
-	_con->Show(false);
+	_con->SetVisible(false);
 
 	_score = new ScoreTable(this);
-	_score->Show(false);
+	_score->SetVisible(false);
 
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
@@ -140,13 +140,13 @@ void Desktop::ShowDesktopBackground(bool show)
 
 void Desktop::ShowConsole(bool show)
 {
-	_con->Show(show);
+	_con->SetVisible(show);
 }
 
 void Desktop::ShowEditor(bool show)
 {
 	_ASSERT(!show || g_level);
-	_editor->Show(show);
+	_editor->SetVisible(show);
 	if( show )
 	{
 		GetManager()->SetFocusWnd(_editor);
@@ -170,17 +170,17 @@ void Desktop::OnRawChar(int c)
 	switch( c )
 	{
 //	case VK_TAB:
-//		_score->Show(!_score->IsVisible());
+//		_score->SetVisible(!_score->GetVisible());
 //		break;
 
 	case VK_OEM_3: // '~'
-		if( _con->IsVisible() )
+		if( _con->GetVisible() )
 		{
-			_con->Show(false);
+			_con->SetVisible(false);
 		}
 		else
 		{
-			_con->Show(true);
+			_con->SetVisible(true);
 			GetManager()->SetFocusWnd(_con);
 		}
 		break;
@@ -188,7 +188,7 @@ void Desktop::OnRawChar(int c)
 	case VK_ESCAPE:
 		if( GetManager()->GetFocusWnd() && GetManager()->Unfocus(_con) )
 		{
-			_con->Show(false);
+			_con->SetVisible(false);
 		}
 		else
 		{
@@ -245,26 +245,28 @@ void Desktop::OnSize(float width, float height)
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->Show(g_conf->ui_showfps->Get());
+	_fps->SetVisible(g_conf->ui_showfps->Get());
 }
 
 void Desktop::OnChangeShowTime()
 {
-	_fps->Show(g_conf->ui_showfps->Get());
+	_fps->SetVisible(g_conf->ui_showfps->Get());
 }
 
-void Desktop::OnCommand(const char *cmd)
+void Desktop::OnCommand(const string_t &cmd)
 {
-	if( '\0' == cmd[0] )
+	if( cmd.empty() )
 	{
 		return;
 	}
+
+	string_t exec;
 
 	if( g_client )
 	{
 		if( cmd[0] == '/' )
 		{
-			++cmd; // cut off the first symbol and execute cmd
+			exec = cmd.substr(1); // cut off the first symbol and execute cmd
 		}
 		else
 		{
@@ -272,14 +274,18 @@ void Desktop::OnCommand(const char *cmd)
 			return;
 		}
 	}
+	else
+	{
+		exec = cmd;
+	}
 
 
-	if( luaL_loadstring(g_env.L, cmd) )
+	if( luaL_loadstring(g_env.L, exec.c_str()) )
 	{
 		lua_pop(g_env.L, 1);
 
 		string_t tmp = "print(";
-		tmp += cmd;
+		tmp += exec;
 		tmp += ")";
 
 		if( luaL_loadstring(g_env.L, tmp.c_str()) )
@@ -293,10 +299,10 @@ void Desktop::OnCommand(const char *cmd)
 		}
 	}
 
-	script_exec(g_env.L, cmd);
+	script_exec(g_env.L, exec.c_str());
 }
 
-bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
+bool Desktop::OnCompleteCommand(const string_t &cmd, string_t &result)
 {
 	lua_getglobal(g_env.L, "autocomplete");
 	if( lua_isnil(g_env.L, -1) )
@@ -305,7 +311,7 @@ bool Desktop::OnCompleteCommand(const char *cmd, string_t &result)
 		g_app->GetConsole()->printf("There was no autocomplete module loaded\n");
 		return false;
 	}
-	lua_pushstring(g_env.L, cmd);
+	lua_pushlstring(g_env.L, cmd.c_str(), cmd.length());
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{

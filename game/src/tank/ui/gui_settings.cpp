@@ -34,8 +34,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 	SetEasyMove(true);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->settings_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	//
@@ -50,10 +49,10 @@ SettingsDlg::SettingsDlg(Window *parent)
 	(new Button(this, 40, 184, g_lang->settings_profile_new->Get()))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
 	_editProfile = new Button(this, 40, 216, g_lang->settings_profile_edit->Get());
 	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
-	_editProfile->Enable( false );
+	_editProfile->SetEnabled( false );
 	_deleteProfile = new Button(this, 40, 248, g_lang->settings_profile_delete->Get());
 	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
-	_deleteProfile->Enable( false );
+	_deleteProfile->SetEnabled( false );
 
 
 	//
@@ -155,8 +154,8 @@ void SettingsDlg::OnDeleteProfile()
 
 void SettingsDlg::OnSelectProfile(int index)
 {
-	_editProfile->Enable( -1 != index );
-	_deleteProfile->Enable( -1 != index );
+	_editProfile->SetEnabled( -1 != index );
+	_deleteProfile->SetEnabled( -1 != index );
 }
 
 void SettingsDlg::OnOK()
@@ -372,8 +371,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	_ASSERT(g_level);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->map_title->Get(), alignTextCT);
-	title->SetTexture("font_default");
-	title->Resize(title->GetTextureWidth(), title->GetTextureHeight());
+	title->SetFont("font_default");
 
 
 	float x1 = 20;

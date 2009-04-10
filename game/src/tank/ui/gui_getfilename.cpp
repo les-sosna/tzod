@@ -23,8 +23,7 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   , _changing(false)
 {
 	Text *t = new Text(this, GetWidth() / 2, 16, param.title, alignTextCT);
-	t->SetTexture("font_default");
-	t->Resize(t->GetTextureWidth(), t->GetTextureHeight());
+	t->SetFont("font_default");
 
 	_folder = param.folder;
 	_ext = param.extension;

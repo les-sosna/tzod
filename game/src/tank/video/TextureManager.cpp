@@ -444,9 +444,66 @@ void TextureManager::GetTextureNames(std::vector<string_t> &names,
 	}
 }
 
+void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float x0, float y0, enumAlignText align) const
+{
+	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
+	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+
+	const LogicalTexture &lt = Get(tex);
+	g_render->TexBind(lt.dev_texture);
+
+	size_t count = 0;
+	size_t line  = 0;
+
+	//float x0 = sx - floorf(dx[_align] * (lt.pxFrameWidth - 1) * (float) _maxline / 2);
+	//float y0 = sy - floorf(dy[_align] * lt.pxFrameHeight * (float) _lines.size() / 2);
+
+	for( const string_t::value_type *tmp = str.c_str(); *tmp; ++tmp )
+	{
+		if( '\n' == *tmp )
+		{
+			++line;
+			count = 0;
+			continue;
+		}
+
+		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - 32];
+		float x = x0 + (float) ((count++) * (lt.pxFrameWidth - 1));
+		float y = y0 + (float) (line * lt.pxFrameHeight);
+
+		g_render->TexBind(lt.dev_texture);
+		MyVertex *v = g_render->DrawQuad();
+
+		v[0].color = color;
+		v[0].u = rt.left;
+		v[0].v = rt.top;
+		v[0].x = x;
+		v[0].y = y ;
+
+		v[1].color = color;
+		v[1].u = rt.left + lt.uvFrameWidth;
+		v[1].v = rt.top;
+		v[1].x = x + lt.pxFrameWidth;
+		v[1].y = y;
+
+		v[2].color = color;
+		v[2].u = rt.left + lt.uvFrameWidth;
+		v[2].v = rt.bottom;
+		v[2].x = x + lt.pxFrameWidth;
+		v[2].y = y + lt.pxFrameHeight;
+
+		v[3].color = color;
+		v[3].u = rt.left;
+		v[3].v = rt.bottom;
+		v[3].x = x;
+		v[3].y = y + lt.pxFrameHeight;
+	}
+}
+
 void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const
 {
-	const LogicalTexture &lt = g_texman->Get(tex);
+	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
 	g_render->TexBind(lt.dev_texture);
@@ -489,14 +546,14 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) const
 {
-	const LogicalTexture &lt = g_texman->Get(tex);
+	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[0];
-
-	g_render->TexBind(lt.dev_texture);
-	MyVertex *v = g_render->DrawQuad();
 
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
+
+	g_render->TexBind(lt.dev_texture);
+	MyVertex *v = g_render->DrawQuad();
 
 	v[0].color = 0xffffffff;
 	v[0].u = rt.left;

@@ -149,7 +149,7 @@ List::List(Window *parent, float x, float y, float width, float height)
   : Window(parent, x, y, "ctrl_list")
   , _callbacks(this)
 {
-	ClipChildren(true);
+	SetClipChildren(true);
 	SetBorder(true);
 
 	SetData(NULL);
@@ -160,7 +160,7 @@ List::List(Window *parent, float x, float y, float width, float height)
 	_scrollBar->eventScroll.bind(&List::OnScroll, this);
 
 	_blankText = new Text(this, 0, 0, " ", alignTextLT);
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 
 	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
 	_selection->SetBorder(true);
@@ -202,7 +202,7 @@ void List::UpdateSelection()
 {
 	float y = (float) _curSel - _scrollBar->GetPos();
 	_selection->Move(2, floorf(y * GetItemHeight()));
-	_selection->Show(-1 != _curSel && y > -1 && y < GetNumLinesVisible());
+	_selection->SetVisible(-1 != _curSel && y > -1 && y < GetNumLinesVisible());
 }
 
 void List::DeleteItem(int index)
@@ -266,7 +266,7 @@ void List::SetTabPos(int index, float pos)
 
 float List::GetItemHeight() const
 {
-	return _blankText->GetHeight() + 1;
+	return _blankText->GetCharHeight() + 1;
 }
 
 int List::GetCurSel() const
@@ -292,6 +292,9 @@ void List::SetCurSel(int sel, bool scroll)
 			else if( fs > _scrollBar->GetPos() + GetNumLinesVisible() - 1 )
 				_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
 		}
+
+		UpdateSelection();
+
 		if( eventChangeCurSel )
 		{
 			INVOKE(eventChangeCurSel) (sel);
@@ -352,7 +355,7 @@ bool List::OnMouseDown(float x, float y, int button)
 
 bool List::OnMouseWheel(float x, float y, float z)
 {
-	_scrollBar->SetPos( _scrollBar->GetPos() - z * 3.0f );
+	_scrollBar->SetPos(_scrollBar->GetPos() - z * 3.0f);
 	UpdateSelection();
 	return true;
 }
@@ -390,16 +393,14 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::DrawChildren(float sx, float sy)
+void List::DrawChildren(float sx, float sy) const
 {
-	UpdateSelection();
-
 	Window::DrawChildren(sx, sy);
 
 	int i_min = (int) _scrollBar->GetPos();
 	int i_max = i_min + (int) GetNumLinesVisible() + 2;
 
-	_blankText->Show(true);
+	_blankText->SetVisible(true);
     for( int i = i_min; i < __min(_data->GetItemCount(), i_max); ++i )
 	{
 		SpriteColor c = 0xc0c0c0c0;
@@ -412,7 +413,7 @@ void List::DrawChildren(float sx, float sy)
 
 		float y = (float) i - _scrollBar->GetPos();
 
-		_blankText->SetColor(c);
+		_blankText->SetFontColor(c);
 
 		y = floorf(y * GetItemHeight() + 0.5f);
 		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
@@ -421,7 +422,7 @@ void List::DrawChildren(float sx, float sy)
 			_blankText->Draw(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y);
 		}
 	}
-	_blankText->Show(false);
+	_blankText->SetVisible(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

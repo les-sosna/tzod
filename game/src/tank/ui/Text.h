@@ -10,16 +10,12 @@ namespace UI
 // static text
 class Text : public Window
 {
-	std::vector<size_t>  _lines;    // длины строк
-	size_t               _maxline;  // макс. длина строки
+	std::vector<size_t>  _lines;
+	size_t               _maxline;
 	enumAlignText        _align;
 	string_t             _text;
-
-	int _w, _h;
-
-private:
-	void UpdateLines();
-	void OnSize(float width, float height);
+	size_t               _fontTexture;
+	SpriteColor          _fontColor;
 
 public:
 	Text(Window *parent, float x, float y, const string_t &text, enumAlignText align);
@@ -27,13 +23,14 @@ public:
 	void SetText(const string_t &text);
 	const string_t& GetText() const { return _text; }
 	void SetAlign(enumAlignText align);
+	void SetFont(const char *fontName);
+	void SetFontColor(SpriteColor color)       { _fontColor = color;   }
 
-	float GetTextWidth();
-	float GetTextHeight();
+	float GetCharWidth();
+	float GetCharHeight();
 
-	virtual void Draw(float sx = 0, float sy = 0);
+	virtual void DrawChildren(float sx, float sy) const;
 };
-
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

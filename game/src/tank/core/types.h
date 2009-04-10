@@ -31,7 +31,9 @@ enum enumAlignText {
 	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
 
-typedef std::string string_t;
+typedef std::string            string_t;
+typedef std::ostringstream     ostrstream_t;
+typedef std::istringstream     istrstream_t;
 
 
 // end of file

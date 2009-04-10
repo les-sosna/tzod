@@ -9,6 +9,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace UI
+{
+
 GuiManager::GuiManager(CreateWindowProc createDesktop)
 {
 	_focusWnd      = NULL;
@@ -40,7 +43,7 @@ void GuiManager::Add(UI::Window* wnd)
 
 void GuiManager::Remove(UI::Window* wnd)
 {
-	_ASSERT(!wnd->IsTopMost()); // can't remove top most window
+	_ASSERT(!wnd->GetTopMost()); // can't remove top most window
 
 	if( wnd == _hotTrackWnd )
 	{
@@ -152,7 +155,7 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 {
 	if( wnd )
 	{
-		_ASSERT(wnd->IsEnabled() && wnd->IsVisible());
+		_ASSERT(wnd->GetEnabled() && wnd->GetVisible());
 
 		if( _focusWnd == wnd )
 			return true;
@@ -199,7 +202,7 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 		UI::Window *tmp = wnd;
 		for( UI::Window *w = wnd->GetParent(); w; w = w->GetParent() )
 		{
-			if( !w->IsVisible() || !w->IsEnabled() || w->IsDestroyed() )
+			if( !w->GetVisible() || !w->GetEnabled() || w->IsDestroyed() )
 			{
 				tmp = w->GetParent();
 			}
@@ -217,7 +220,7 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 			// try to pass focus to next siblings
 			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
 			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
 				if( SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
@@ -225,14 +228,14 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 			// try to pass focus to previous siblings
 			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
 			{
-				if( !r->IsVisible() || !r->IsEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
 				if( SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
 
 			// and finally try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			_ASSERT(!tmp || (tmp->IsVisible() && tmp->IsEnabled() && !tmp->IsDestroyed()));
+			_ASSERT(!tmp || (tmp->GetVisible() && tmp->GetEnabled() && !tmp->IsDestroyed()));
 		}
 		if( !tmp )
 		{
@@ -299,7 +302,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 		{
 			// do not dispatch messages to disabled or invisible
 			// topmost windows are processed in different way
-			if( !w->IsEnabled() || !w->IsVisible() || w->IsTopMost() )
+			if( !w->GetEnabled() || !w->GetVisible() || w->GetTopMost() )
 				continue;
 			if( _ProcessMouse(w, x - w->GetX(), y - w->GetY(), z, msg) )
 				return true;
@@ -331,7 +334,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 		}
 
-		if( !wnd->IsDestroyed() && wnd->IsEnabled() && wnd->IsVisible() && msgProcessed )
+		if( !wnd->IsDestroyed() && wnd->GetEnabled() && wnd->GetVisible() && msgProcessed )
 		{
 			switch( msg )
 			{
@@ -348,7 +351,7 @@ bool GuiManager::_ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT 
 			{
 				if( _hotTrackWnd )
 					_hotTrackWnd->OnMouseLeave();
-				if( wnd->IsVisible() && wnd->IsEnabled() )
+				if( wnd->GetVisible() && wnd->GetEnabled() )
 				{
 					_hotTrackWnd = wnd;
 					_hotTrackWnd->OnMouseEnter(x, y);
@@ -387,7 +390,7 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 		std::list<UI::Window*>::const_reverse_iterator it = _topmost.rbegin();
 		for( ; _topmost.rend() != it; ++it )
 		{
-			if( !(*it)->IsEnabled() || !(*it)->IsVisible() )
+			if( !(*it)->GetEnabled() || !(*it)->GetVisible() )
 				continue;  // do not dispatch messages to disabled or invisible window
 
 			// calculate absolute coordinates of the window
@@ -423,27 +426,31 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 
 bool GuiManager::ProcessKeys(UINT msg, int c)
 {
-    switch( msg )
+	switch( msg )
 	{
 	case WM_KEYUP:
 		break;
 	case WM_KEYDOWN:
 		if( _focusWnd )
+		{
 			_focusWnd->OnRawChar(c);
-		else
-			GetDesktop()->OnRawChar(c);
+			return true;
+		}
+		GetDesktop()->OnRawChar(c);
 		break;
 	case WM_CHAR:
 		if( _focusWnd )
+		{
 			_focusWnd->OnChar(c);
-		else
-			GetDesktop()->OnChar(c);
+			return true;
+		}
+		GetDesktop()->OnChar(c);
 		break;
 	default:
 		_ASSERT(FALSE);
 	}
 
-	return true;
+	return false;
 }
 
 void GuiManager::Render() const
@@ -474,4 +481,5 @@ void GuiManager::Render() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+} // end of namespace UI
 // end of file

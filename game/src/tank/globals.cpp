@@ -24,7 +24,7 @@ CSound          *g_pSounds[SND_COUNT];
 
 AppBase     *g_app;
 IRender     *g_render;
-GuiManager  *g_gui;
+UI::GuiManager  *g_gui;
 TankServer  *g_server;
 TankClient  *g_client;
 

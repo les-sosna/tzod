@@ -4,12 +4,15 @@
 
 #include "Base.h"
 
-// forward declaration
-class GuiManager;
+#include "core/SafePtr.h"
+#include "core/PtrList.h"
+#include "core/Delegate.h"
 
 
 namespace UI
 {
+	// forward declaration
+	class GuiManager;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +46,7 @@ class Window : public RefCounted
 
 	SpriteColor  _color;
 	size_t       _texture;
-	int          _frame;
+	unsigned int _frame;
 
 	bool         _isDestroyed;
 	bool         _isVisible;
@@ -56,8 +59,9 @@ class Window : public RefCounted
 	void Reg(Window* parent, GuiManager* manager);
 
 protected:
-	int  GetFrameCount() const;
-	void SetFrame(int n) { _frame = n; }
+	unsigned int GetFrameCount() const;
+	void SetFrame(unsigned int n) { _frame = n; }
+	unsigned int GetFrame() const { return _frame; }
 
 	void SetCapture();
 	void ReleaseCapture();
@@ -73,25 +77,9 @@ public:
 	void Destroy();
 
 	bool IsDestroyed() const { return _isDestroyed; }
-	bool IsEnabled()   const { return _isEnabled;   }
-	bool IsVisible()   const { return _isVisible;   }
-	bool IsTopMost()   const { return _isTopMost;   }
-	bool IsTimeStep()  const { return _isTimeStep;  }
 	bool IsCaptured()  const;
 
-	float GetTextureWidth()  const;
-	float GetTextureHeight() const;
-
-	float GetWidth()  const { return _width;  }
-	float GetHeight() const { return _height; }
-	float GetX()      const { return _x;     }
-	float GetY()      const { return _y;     }
-
-	void  SetColor(SpriteColor color) { _color        = color;  }
-	void  SetBorder(bool border)      { _hasBorder    = border; }
-	void  ClipChildren(bool clip)     { _clipChildren = clip;   }
-
-	Window* GetParent()      const { return _parent; }
+	Window* GetParent()      const { return _parent;      }
 	Window* GetPrevSibling() const { return _prevSibling; }
 	Window* GetNextSibling() const { return _nextSibling; }
 	Window* GetFirstChild()  const { return _firstChild;  }
@@ -99,22 +87,55 @@ public:
 	GuiManager* GetManager() const { return _manager;     }
 
 
-	virtual void Draw(float sx = 0, float sy = 0);
-	virtual void DrawChildren(float sx, float sy);
+	//
+	// Appearance
+	//
+
+	void SetBackgroundColor(SpriteColor color) { _color = color; }
+	SpriteColor GetBackgroundColor() const { return _color; }
+
+	void SetBorder(bool border)   { _hasBorder = border;  }
+	bool GetBorder() const        { return _hasBorder;  }
+
 	void SetTexture(const char *tex);
+	float GetTextureWidth()  const;
+	float GetTextureHeight() const;
 
-	void Move(float x, float y);
-	void Resize(float width, float height);
+	void SetVisible(bool show);
+	bool GetVisible() const { return _isVisible; }
 
-	void Enable(bool enable);
-	void Show  (bool show);
+	void SetTopMost(bool topmost);
+	bool GetTopMost() const { return _isTopMost; }
+
+	void SetClipChildren(bool clip)  { _clipChildren = clip; }
+	bool GetClipChildren() const     { return _clipChildren; }
 
 	void BringToFront();
 	void BringToBack();
 
-	void SetTopMost(bool topmost);
+
+	//
+	// size & position
+	//
+
+	void Move(float x, float y);
+	float GetX() const { return _x; }
+	float GetY() const { return _y; }
+
+	void Resize(float width, float height);
+	float GetWidth()  const { return _width;  }
+	float GetHeight() const { return _height; }
+
+
+	//
+	// Behavior
+	//
+
+	void SetEnabled(bool enable);
+	bool GetEnabled() const { return _isEnabled; }
+
 	void SetTimeStep(bool enable);
-	bool GetTimeStep() const;
+	bool GetTimeStep() const { return _isTimeStep; }
 
 
 	//
@@ -150,6 +171,14 @@ public:
 	virtual void OnMove(float x, float y);
 	virtual void OnSize(float width, float height);
 	virtual void OnParentSize(float width, float height);
+
+
+	//
+	// rendering
+	//
+
+	virtual void Draw(float sx = 0, float sy = 0) const;
+	virtual void DrawChildren(float sx, float sy) const;
 
 
 	//

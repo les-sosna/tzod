@@ -24,8 +24,7 @@ ScoreTable::ScoreTable(Window *parent)
 	SetTimeStep(true);
 
 	_text = new Text(this, 0, 0, "", alignTextLT);
-	_text->SetTexture("font_default");
-	_text->Resize(_text->GetTextureWidth(), _text->GetTextureHeight());
+	_text->SetFont("font_default");
 }
 
 ScoreTable::~ScoreTable()
@@ -37,7 +36,7 @@ void ScoreTable::OnParentSize(float width, float height)
 	Move((width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f);
 }
 
-void ScoreTable::DrawChildren(float sx, float sy)
+void ScoreTable::DrawChildren(float sx, float sy) const
 {
 	_ASSERT(g_level);
 
@@ -125,7 +124,7 @@ void ScoreTable::DrawChildren(float sx, float sy)
 void ScoreTable::OnTimeStep(float dt)
 {
 	bool tab = g_env.envInputs.keys[DIK_TAB];
-	Show(!g_level->IsEmpty() && !g_level->_modeEditor && (tab || g_level->_limitHit));
+	SetVisible(!g_level->IsEmpty() && !g_level->_modeEditor && (tab || g_level->_limitHit));
 }
 
 

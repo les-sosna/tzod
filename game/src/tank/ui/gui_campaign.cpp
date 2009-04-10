@@ -28,8 +28,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	PauseGame(true);
 
 	Text *t = new Text(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
-	t->SetTexture("font_default");
-	t->Resize(t->GetTextureWidth(), t->GetTextureHeight());
+	t->SetFont("font_default");
 
 	_files = new List(this, 20, 56, 472, 280);
 	std::set<string_t> files;

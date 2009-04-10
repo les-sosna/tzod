@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "Text.h"
 
+#include "video/TextureManager.h"
+
 namespace UI
 {
 
@@ -10,33 +12,13 @@ namespace UI
 // Text class implementation
 
 Text::Text(Window *parent, float x, float y, const string_t &text, enumAlignText align)
-  : Window(parent, x, y, "font_small" /*"font_default"*/)
+  : Window(parent, x, y, NULL)
+  , _fontTexture(0)
+  , _fontColor(0xffffffff)
 {
 	SetAlign(align);
 	SetText(text);
-
-	_w = int(GetTextureWidth() - 1);
-	_h = int(GetTextureHeight() - 1);
-}
-
-void Text::UpdateLines()
-{
-	_lines.clear();
-	_maxline = 0;
-
-	size_t count = 0;
-	for( const char *tmp = _text.c_str(); *tmp; )
-	{
-		++count;
-		++tmp;
-		if( '\n' == *tmp || '\0' == *tmp )
-		{
-			if( count > _maxline ) _maxline = count;
-			_lines.push_back(count);
-			count = 0;
-			continue;
-		}
-	}
+	SetFont("font_small");
 }
 
 void Text::SetText(const string_t &text)
@@ -44,7 +26,32 @@ void Text::SetText(const string_t &text)
 	if( _text != text )
 	{
 		_text = text;
-		UpdateLines();
+
+		// update lines
+		_lines.clear();
+		_maxline = 0;
+		size_t count = 0;
+		for( const TCHAR *tmp = _text.c_str(); *tmp; )
+		{
+			++count;
+			++tmp;
+			if( '\n' == *tmp || '\0' == *tmp )
+			{
+				if( count > _maxline )
+				{
+					_maxline = count;
+				}
+				_lines.push_back(count);
+				count = 0;
+				continue;
+			}
+		}
+		if( _lines.empty() )
+		{
+			_lines.push_back(0);
+		}
+		const LogicalTexture &lt = g_texman->Get(_fontTexture);
+		Resize((lt.pxFrameWidth - 1) * (float) _maxline, lt.pxFrameHeight * (float) _lines.size());
 	}
 }
 
@@ -53,28 +60,46 @@ void Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-float Text::GetTextWidth()
+void Text::SetFont(const char *fontName)
 {
-	return (float) _w * (float) _maxline;
+	_fontTexture = _fontTexture = g_texman->FindTexture(fontName);
+	_ASSERT(_fontTexture);
+	const LogicalTexture &lt = g_texman->Get(_fontTexture);
+	Resize(lt.pxFrameWidth * (float) _maxline, lt.pxFrameHeight * (float) _lines.size());
 }
 
-float Text::GetTextHeight()
+float Text::GetCharWidth()
 {
-	return (float) _h * (float) _lines.size();
+	const LogicalTexture &lt = g_texman->Get(_fontTexture);
+	return lt.pxFrameWidth - 1;
 }
 
-void Text::Draw(float sx, float sy)
+float Text::GetCharHeight()
 {
-	static const int dx_[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};
-	static const int dy_[] = {0, 0, 0, 1, 1, 1, 2, 2, 2};
+	const LogicalTexture &lt = g_texman->Get(_fontTexture);
+	return lt.pxFrameHeight;
+}
 
-	float x0 = sx - (float) (dx_[_align] * _w * _maxline / 2);
-	float y0 = sy - (float) (dy_[_align] * _h * _lines.size() / 2);
+void Text::DrawChildren(float sx, float sy) const
+{
+	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
+	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
 
+	const LogicalTexture &lt = g_texman->Get(_fontTexture);
+	g_render->TexBind(lt.dev_texture);
+
+	float x0 = sx - floorf(dx[_align] * (lt.pxFrameWidth - 1) * (float) _maxline / 2);
+	float y0 = sy - floorf(dy[_align] * lt.pxFrameHeight * (float) _lines.size() / 2);
+
+
+	g_texman->DrawBitmapText(_fontTexture, _text, _fontColor, x0, y0, _align);
+
+/*
 	size_t count = 0;
 	size_t line  = 0;
 
-	for( const char *tmp = _text.c_str(); *tmp; ++tmp )
+	for( const TCHAR *tmp = _text.c_str(); *tmp; ++tmp )
 	{
 		if( '\n' == *tmp )
 		{
@@ -82,15 +107,11 @@ void Text::Draw(float sx, float sy)
 			count = 0;
 			continue;
 		}
-		SetFrame((unsigned char) *tmp - 32);
-		Window::Draw( x0 + (float) ((count++) * _w), y0 + (float) (line * _h) );
-	}
-}
 
-void Text::OnSize(float width, float height)
-{
-	_w = int(width - 1);
-	_h = int(height - 1);
+		g_texman->DrawSprite(_fontTexture, (unsigned char) *tmp - 32, _fontColor,
+			x0 + (float) ((count++) * (lt.pxFrameWidth - 1)), y0 + (float) (line * lt.pxFrameHeight), 0);
+	}
+*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////

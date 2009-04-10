@@ -20,7 +20,7 @@ public:
 protected:
 	void OnTimeStep(float dt);
 	void OnParentSize(float width, float height);
-	void DrawChildren(float sx, float sy);
+	void DrawChildren(float sx, float sy) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

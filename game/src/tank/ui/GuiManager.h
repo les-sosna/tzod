@@ -4,11 +4,12 @@
 
 #include "Base.h"
 
+namespace UI
+{
+	// forward declarations
+	class GuiManager;
 
-// forward declarations
-class GuiManager;
-
-typedef UI::Window* (*CreateWindowProc) (GuiManager *);
+	typedef UI::Window* (*CreateWindowProc) (GuiManager *);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,4 +69,6 @@ public:
 	void TimeStep(float dt);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+} // end of namespace UI
 // end of file
