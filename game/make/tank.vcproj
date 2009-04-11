@@ -228,24 +228,21 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="2"
-				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\src\tank,..\src\zlib,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG_0"
 				StringPooling="true"
 				BufferSecurityCheck="false"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile="$(IntDir)\tank.pch"
-				AssemblerListingLocation="$(IntDir)\"
-				ObjectFile="$(IntDir)\"
 				WarningLevel="3"
-				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -263,7 +260,6 @@
 				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib ws2_32.lib opengl32.lib"
 				Version=""
 				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				GenerateManifest="false"
 				DelayLoadDLLs=""
@@ -369,6 +365,38 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\tank\Md5.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Profiler|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\tank\md5.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\tank\ObjectListener.h"
 				>
 			</File>
@@ -418,10 +446,6 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\tank\struct.h"
 				>
 			</File>
 		</Filter>

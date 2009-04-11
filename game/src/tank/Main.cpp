@@ -7,7 +7,7 @@
 #include "Level.h"
 #include "directx.h"
 #include "KeyMapper.h"
-//#include "md5.h"
+#include "md5.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -188,16 +188,16 @@ int APIENTRY WinMain( HINSTANCE hinst,
 	void *data = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
 	DWORD size = GetFileSize(hFile, NULL);
 
-//	MD5_CTX md5;
-//	MD5Init(&md5);
-//	MD5Update(&md5, (const char *) data, size);
-//	MD5Final(&md5);
+	MD5_CTX md5;
+	MD5Init(&md5);
+	MD5Update(&md5, (const char *) data, size);
+	MD5Final(&md5);
 
 	UnmapViewOfFile(data);
 	CloseHandle(hMap);
 	CloseHandle(hFile);
 
-//	memcpy(&g_md5, md5.digest, 16);
+	memcpy(&g_md5, md5.digest, 16);
 
 
 	ZodApp app;
