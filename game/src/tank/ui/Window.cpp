@@ -533,32 +533,45 @@ void Window::ReleaseCapture()
 	_manager->ReleaseCapture(this);
 }
 
+void Window::Reset() // called when window is being hidden or disabled
+{
+	if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
+	if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
+
+	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	{
+		w->Reset();
+	}
+}
+
 void Window::SetEnabled(bool enable)
 {
 	if( _isEnabled != enable )
 	{
 		_isEnabled = enable;
-		if( !GetEnabled() )
-		{
-			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
-			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
-		}
-		OnEnable(enable);
+		if( !enable ) Reset();
+		OnEnabledChange(enable);
 	}
 }
 
-void Window::SetVisible(bool show)
+bool Window::GetEnabled() const
 {
-	if( _isVisible != show )
+	return _isEnabled && (GetParent() ? GetParent()->GetEnabled() : true);
+}
+
+void Window::SetVisible(bool visible)
+{
+	if( _isVisible != visible )
 	{
-		_isVisible = show;
-		if( !GetVisible() )
-		{
-			if( GetManager()->GetFocusWnd() ) GetManager()->Unfocus(this);
-			if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
-		}
-		OnShow(show);
+		_isVisible = visible;
+		if( !visible ) Reset();
+		OnVisibleChange(visible);
 	}
+}
+
+bool Window::GetVisible() const
+{
+	return _isVisible && (GetParent() ? GetParent()->GetVisible() : true);
 }
 
 void Window::BringToFront()
@@ -715,7 +728,7 @@ void Window::OnParentSize(float width, float height)
 // other
 //
 
-void Window::OnEnable(bool enable)
+void Window::OnEnabledChange(bool enable)
 {
 }
 
@@ -724,7 +737,7 @@ bool Window::OnFocus(bool focus)
 	return false;
 }
 
-void Window::OnShow(bool show)
+void Window::OnVisibleChange(bool visible)
 {
 }
 

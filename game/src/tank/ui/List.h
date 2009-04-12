@@ -121,6 +121,8 @@ protected:
 
 protected:
 	virtual void OnSize(float width, float height);
+	virtual bool OnMouseMove(float x, float y);
+	virtual bool OnMouseLeave();
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual void OnRawChar(int c);
@@ -141,6 +143,7 @@ private:
 	Window    *_selection;
 
 	int        _curSel;
+	int        _hotItem;
 };
 
 

@@ -772,9 +772,9 @@ void EditorLayout::OnSize(float width, float height)
 	_layerDisp->Move(width - _typeList->GetWidth() - 5, 6);
 }
 
-void EditorLayout::OnShow(bool show)
+void EditorLayout::OnVisibleChange(bool visible)
 {
-	if( !show )
+	if( !visible )
 	{
 		SelectNone();
 	}

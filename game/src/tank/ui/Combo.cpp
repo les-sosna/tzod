@@ -18,10 +18,10 @@ namespace UI
 
 ComboBox::ComboBox(Window *parent, float x, float y, float width)
   : Window(parent, x, y, "ctrl_list")
+  , _curSel(-1)
 {
-	_curSel = -1;
-
-	_text = new Text(this, 0, 1, string_t(), alignTextLT);
+	_text = new TextButton(this, 0, 1, string_t(), "font_small");
+	_text->eventClick.bind(&ComboBox::DropList, this);
 
 	_list = new List(this, 0, 0, 1, 1);
 	_list->SetVisible(false);
@@ -33,13 +33,13 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
 	_btn->eventClick.bind(&ComboBox::DropList, this);
 
-	_btn1 = new ImageButton(this, 0, 0, NULL);
-	_btn1->eventClick.bind(&ComboBox::DropList, this);
+//	_btn1 = new ImageButton(this, 0, 0, NULL);
+//	_btn1->eventClick.bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();
 
 	SetBorder(true);
-	Resize(width, _text->GetCharHeight()+2);
+	Resize(width, _text->GetHeight()+2);
 }
 
 void ComboBox::SetCurSel(int index)
@@ -82,6 +82,7 @@ void ComboBox::OnClickItem(int index)
 	{
 		_curSel = index;
 		_text->SetText(_list->GetItemText(index, 0));
+		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		GetManager()->SetFocusWnd(this);
 
@@ -95,6 +96,7 @@ void ComboBox::OnChangeSelection(int index)
 	if( -1 != index )
 	{
 		_text->SetText(_list->GetItemText(index, 0));
+		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 	}
 }
 
@@ -146,7 +148,7 @@ void ComboBox::OnSize(float width, float height)
 	_list->Move(0, height + 2);
 	_list->Resize(width, _list->GetHeight());
 	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
-	_btn1->Resize(_btn->GetX(), height);
+	_text->Resize(_btn->GetX(), height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

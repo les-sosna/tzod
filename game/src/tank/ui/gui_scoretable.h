@@ -15,12 +15,12 @@ class ScoreTable : public Window
 
 public:
 	ScoreTable(Window *parent);
-	~ScoreTable();
+	virtual ~ScoreTable();
 
 protected:
-	void OnTimeStep(float dt);
-	void OnParentSize(float width, float height);
-	void DrawChildren(float sx, float sy) const;
+	virtual void OnTimeStep(float dt);
+	virtual void OnParentSize(float width, float height);
+	virtual void DrawChildren(float sx, float sy) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

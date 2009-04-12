@@ -148,6 +148,8 @@ void List::ListCallbackImpl::OnAddItem()
 List::List(Window *parent, float x, float y, float width, float height)
   : Window(parent, x, y, "ctrl_list")
   , _callbacks(this)
+  , _curSel(-1)
+  , _hotItem(-1)
 {
 	SetClipChildren(true);
 	SetBorder(true);
@@ -169,7 +171,6 @@ List::List(Window *parent, float x, float y, float width, float height)
 	Resize(width, height); // it will resize the selection also, so create it first!
 	Move(x, y);
 
-	_curSel = -1;
 	UpdateSelection();
 }
 
@@ -341,6 +342,18 @@ void List::OnSize(float width, float height)
 	UpdateSelection();
 }
 
+bool List::OnMouseMove(float x, float y)
+{
+	_hotItem = HitTest(y);
+	return true;
+}
+
+bool List::OnMouseLeave()
+{
+	_hotItem = -1;
+	return true;
+}
+
 bool List::OnMouseDown(float x, float y, int button)
 {
 	if( 1 == button && x < _scrollBar->GetX() )
@@ -401,13 +414,15 @@ void List::DrawChildren(float sx, float sy) const
 	int i_max = i_min + (int) GetNumLinesVisible() + 2;
 
 	_blankText->SetVisible(true);
-    for( int i = i_min; i < __min(_data->GetItemCount(), i_max); ++i )
+	for( int i = i_min; i < __min(_data->GetItemCount(), i_max); ++i )
 	{
 		SpriteColor c = 0xc0c0c0c0;
-		float c1 = 192;
-		if( _curSel == i )
+		if( _hotItem == i )
 		{
-			c1 = 255;
+			c  = 0xffccccff;
+		}
+		else if( _curSel == i )
+		{
 			c  = 0xffffffff;
 		}
 

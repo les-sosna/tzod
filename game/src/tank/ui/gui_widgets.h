@@ -20,7 +20,7 @@ public:
 	FpsCounter(Window *parent, float x, float y, enumAlignText align);
 
 protected:
-	void OnShow(bool show);
+	void OnVisibleChange(bool visible);
 	void OnTimeStep(float dt);
 };
 
@@ -31,7 +31,7 @@ class TimeElapsed : public Text
 public:
 	TimeElapsed(Window *parent, float x, float y, enumAlignText align);
 protected:
-	void OnShow(bool show);
+	void OnVisibleChange(bool visible);
 	void OnTimeStep(float dt);
 };
 

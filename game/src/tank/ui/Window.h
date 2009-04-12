@@ -66,6 +66,8 @@ protected:
 	void SetCapture();
 	void ReleaseCapture();
 
+	void Reset();
+
 protected:
 	virtual ~Window(); // delete via Destroy() only
 
@@ -102,7 +104,7 @@ public:
 	float GetTextureHeight() const;
 
 	void SetVisible(bool show);
-	bool GetVisible() const { return _isVisible; }
+	bool GetVisible() const;
 
 	void SetTopMost(bool topmost);
 	bool GetTopMost() const { return _isTopMost; }
@@ -132,7 +134,7 @@ public:
 	//
 
 	void SetEnabled(bool enable);
-	bool GetEnabled() const { return _isEnabled; }
+	bool GetEnabled() const;
 
 	void SetTimeStep(bool enable);
 	bool GetTimeStep() const { return _isTimeStep; }
@@ -185,9 +187,9 @@ public:
 	// other
 	//
 
-	virtual void OnEnable(bool enable);
 	virtual bool OnFocus(bool focus); // return true if the window took focus
-	virtual void OnShow(bool show);
+	virtual void OnEnabledChange(bool enable);
+	virtual void OnVisibleChange(bool visible);
 	virtual void OnTimeStep(float dt);
 };
 

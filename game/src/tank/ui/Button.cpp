@@ -91,7 +91,7 @@ void ButtonBase::OnClick()
 		INVOKE(eventClick) ();
 }
 
-void ButtonBase::OnEnable(bool enable)
+void ButtonBase::OnEnabledChange(bool enable)
 {
 	if( enable )
 	{
@@ -144,19 +144,19 @@ void TextButton::OnChangeState(State state)
 	{
 	case stateNormal:
 		_label->Move(0, 0);
-		_label->SetFontColor(0xccccccff);
+		_label->SetFontColor(0xffffffff);
 		break;
 	case stateDisabled:
 		_label->Move(0, 0);
-		_label->SetFontColor(0xbbbbbbbb);
+		_label->SetFontColor(0xAAAAAAAA);
 		break;
 	case stateHottrack:
-		_label->Move(-1, -1);
-		_label->SetFontColor(0xffffffff);
+		_label->Move(0, 0);
+		_label->SetFontColor(0xffccccff);
 		break;
 	case statePushed:
 		_label->Move(1, 1);
-		_label->SetFontColor(0xffffffff);
+		_label->SetFontColor(0xffccccff);
 		break;
 	}
 }
@@ -195,6 +195,7 @@ CheckBox::CheckBox(Window *parent, float x, float y, const string_t &text)
 {
 	_label = new TextButton(this, 0, 0, text, "font_small");
 	_label->Move(GetWidth(), GetHeight() / 2 - _label->GetHeight() / 2);
+	_label->eventClick.bind(&CheckBox::OnLabelClick, this);
 }
 
 void CheckBox::SetCheck(bool checked)
@@ -222,7 +223,13 @@ void CheckBox::OnChangeState(State state)
 void CheckBox::OnClick()
 {
 	_isChecked = !_isChecked;
+	SetFrame(_isChecked ? GetState()+4 : GetState());
 	ButtonBase::OnClick();
+}
+
+void CheckBox::OnLabelClick()
+{
+	OnClick();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

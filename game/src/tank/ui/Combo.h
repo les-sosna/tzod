@@ -13,10 +13,10 @@ namespace UI
 
 class ComboBox : public Window
 {
-	Text        *_text;
+	TextButton  *_text;
 	List        *_list;
 	ButtonBase  *_btn;
-	ButtonBase  *_btn1; // invisible button at the whole line
+//	ButtonBase  *_btn1; // invisible button at the whole line
 
 	int _curSel;
 

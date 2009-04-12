@@ -19,6 +19,12 @@ Text::Text(Window *parent, float x, float y, const string_t &text, enumAlignText
 	SetAlign(align);
 	SetText(text);
 	SetFont("font_small");
+
+	// workaround: to get correct height
+	if( _lines.empty() )
+	{
+		_lines.push_back(0);
+	}
 }
 
 void Text::SetText(const string_t &text)
@@ -48,7 +54,7 @@ void Text::SetText(const string_t &text)
 		}
 		if( _lines.empty() )
 		{
-			_lines.push_back(0);
+			_lines.push_back(0); // workaround: to get correct height
 		}
 		const LogicalTexture &lt = g_texman->Get(_fontTexture);
 		Resize((lt.pxFrameWidth - 1) * (float) _maxline, lt.pxFrameHeight * (float) _lines.size());
