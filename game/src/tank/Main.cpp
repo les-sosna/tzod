@@ -361,9 +361,6 @@ bool ZodApp::Pre()
 
 	timer.SetMaxDt(MAX_DT);
 
-	// init world
-	g_level = WrapRawPtr(new Level());
-
 	// init directX objects
 	if( FAILED(InitAll(g_env.hMainWnd)) )
 		return false;
@@ -381,6 +378,9 @@ bool ZodApp::Pre()
 		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
 	}
 
+
+	// init world
+	g_level = WrapRawPtr(new Level());
 
 	// init GUI
 	TRACE("GUI subsystem initialization\n");

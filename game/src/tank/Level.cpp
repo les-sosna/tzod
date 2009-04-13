@@ -252,6 +252,8 @@ Level::Level()
   , _seed(1)
   , _gameType(-1)
   , _serviceListener(NULL)
+  , _texBack(g_texman->FindTexture("background"))
+  , _texGrid(g_texman->FindTexture("grid"))
 #ifdef NETWORK_DEBUG
   , _checksum(0)
   , _frame(0)
@@ -301,10 +303,6 @@ void Level::Resize(int X, int Y)
 	//
 
 	new GC_Camera(SafePtr<GC_Player>()); // no player
-
-	_background = WrapRawPtr(new GC_Background());
-	_temporaryText = WrapRawPtr(new GC_Text(0, 0, ""));
-	_temporaryText->SetVisible(false);
 }
 
 void Level::Clear()
@@ -322,8 +320,6 @@ void Level::Clear()
 		obj->Kill();
 		++it;
 	}
-	_background = NULL;
-	_temporaryText = NULL;
 	_ASSERT(IsEmpty());
 
 	// reset variables
@@ -1070,12 +1066,32 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	return NULL;
 }
 
-void Level::DrawText(const char *string, const vec2d &position, enumAlignText align)
+void Level::DrawBackground(size_t tex) const
 {
-	_temporaryText->MoveTo(position);
-	_temporaryText->SetText(string);
-	_temporaryText->SetAlign(align);
-	_temporaryText->Draw();
+	const LogicalTexture &lt = g_texman->Get(tex);
+	g_render->TexBind(lt.dev_texture);
+
+	MyVertex *v = g_render->DrawQuad();
+	v[0].color = 0xffffffff;
+	v[0].u = 0;
+	v[0].v = 0;
+	v[0].x = 0;
+	v[0].y = 0;
+	v[1].color = 0xffffffff;
+	v[1].u = _sx / lt.pxFrameWidth;
+	v[1].v = 0;
+	v[1].x = _sx;
+	v[1].y = 0;
+	v[2].color = 0xffffffff;
+	v[2].u = _sx / lt.pxFrameWidth;
+	v[2].v = _sy / lt.pxFrameHeight;
+	v[2].x = _sx;
+	v[2].y = _sy;
+	v[3].color = 0xffffffff;
+	v[3].u = 0;
+	v[3].v = _sy / lt.pxFrameHeight;
+	v[3].x = 0;
+	v[3].y = _sy;
 }
 
 ControlPacket Level::GetControlPacket(GC_Object *player)
@@ -1404,8 +1420,11 @@ void Level::Render() const
 
 		g_render->SetMode(RM_WORLD);
 
-		// paint background texture
-		_background->Draw();
+		// background texture
+		DrawBackground(_texBack);
+		if( g_level->_modeEditor && g_conf->ed_drawgrid->Get() )
+			DrawBackground(_texGrid);
+
 
 		for( int z = 0; z < Z_COUNT; ++z )
 		{

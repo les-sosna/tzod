@@ -135,7 +135,6 @@ public:
 
 class GC_Object;
 class GC_2dSprite;
-class GC_Background;
 class GC_Text;
 
 //////////////////////
@@ -192,9 +191,9 @@ public:
 
 	ObjectListener *_serviceListener;
 
-	SafePtr<GC_Background> _background;
-	SafePtr<GC_Text>   _temporaryText;
-	void DrawText(const char *string, const vec2d &position, enumAlignText align = alignTextLT);
+	size_t _texBack;
+	size_t _texGrid;
+	void DrawBackground(size_t tex) const;
 
 /////////////////////////////////////
 //settings

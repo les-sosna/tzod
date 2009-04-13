@@ -250,12 +250,13 @@ void GC_Turret::mapExchange(MapFile &f)
 void GC_Turret::Draw() const
 {
 	__super::Draw();
-
 	if( g_level->_modeEditor )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
-		g_level->DrawText(teams[_team], GetPos() - vec2d(CELL_SIZE, CELL_SIZE));
+		static size_t font = g_texman->FindTexture("font_default");
+		g_texman->DrawBitmapText(font, teams[_team], 0xffffffff,
+			GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, alignTextLT);
 	}
 }
 

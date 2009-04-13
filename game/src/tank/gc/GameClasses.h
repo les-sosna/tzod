@@ -10,28 +10,6 @@
 
 /////////////////////////////////////////////////////////////
 
-class GC_Background : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_Background);
-
-private:
-	size_t _texBg;
-	size_t _texGrid;
-	bool _drawGrid;
-
-	void DrawCustom(size_t tex) const;
-
-public:
-	GC_Background();
-	GC_Background(FromFile);
-	~GC_Background();
-	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() { return true; }
-	virtual void Draw() const;
-};
-
-/////////////////////////////////////////////////////////////
-
 class GC_RigidBodyStatic;
 
 class GC_Explosion : public GC_2dSprite

@@ -12,7 +12,6 @@
 
 namespace UI
 {
-;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -32,9 +31,6 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 
 	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
 	_btn->eventClick.bind(&ComboBox::DropList, this);
-
-//	_btn1 = new ImageButton(this, 0, 0, NULL);
-//	_btn1->eventClick.bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();
 
