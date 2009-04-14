@@ -1,5 +1,7 @@
 Lobby - done
 
+подписи с никами!
+
 prediction in network multiplayer - done
 
 save screenshots in jpg
