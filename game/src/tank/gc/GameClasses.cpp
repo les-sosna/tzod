@@ -722,18 +722,13 @@ GC_Text::GC_Text(int xPos, int yPos, const string_t &text, enumAlignText align)
 	SetFont("font_default");
 	SetText(text);
 	SetAlign(align);
-	SetMargins(0, 0);
 
 	MoveTo( vec2d((float)xPos, (float)yPos) );
 }
 
 void GC_Text::SetText(const string_t &text)
 {
-	if( _text != text )
-	{
-		_text = text;
-		UpdateLines();
-	}
+	_text = text;
 }
 
 void GC_Text::SetFont(const char *fontname)
@@ -746,59 +741,10 @@ void GC_Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-void GC_Text::SetMargins(float mx, float my)
-{
-	_margin_x = mx;
-	_margin_y = my;
-}
-
-void GC_Text::UpdateLines()
-{
-	_lines.clear();
-	_maxline = 0;
-
-	size_t count = 0;
-	for( const char *tmp = _text.c_str(); *tmp; )
-	{
-		++count;
-		++tmp;
-		if( '\n' == *tmp || '\0' == *tmp )
-		{
-			if( count > _maxline ) _maxline = count;
-			_lines.push_back(count);
-			count = 0;
-			continue;
-		}
-	}
-}
-
 void GC_Text::Draw() const
 {
-	static const int dx[] = {0, 1, 2, 0, 1, 2, 0, 1, 2};
-	static const int dy[] = {0, 0, 0, 1, 1, 1, 2, 2, 2};
-
-	float x0 = _margin_x - (float) (dx[_align] * (GetSpriteWidth() - 1) * _maxline / 2);
-	float y0 = _margin_y - (float) (dy[_align] * (GetSpriteHeight() - 1) * _lines.size() / 2);
-
-	size_t count = 0;
-	size_t line  = 0;
-
 	vec2d pos = GetPosPredicted();
-
-	for( const char *tmp = _text.c_str(); *tmp; ++tmp )
-	{
-		if( '\n' == *tmp )
-		{
-			++line;
-			count = 0;
-			continue;
-		}
-
-		int frame = (unsigned char) *tmp - 32;
-		g_texman->DrawSprite(GetTexture(), frame, 0xffffffff, 
-			pos.x - x0 + (float) ((count++) * (GetSpriteWidth() - 1)),
-			pos.y - y0 + (float) (line * (GetSpriteHeight() - 1)), 0);
-	}
+	g_texman->DrawBitmapText(GetTexture(), _text, GetColor(), pos.x, pos.y, _align);
 }
 
 /////////////////////////////////////////////////////////////

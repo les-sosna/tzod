@@ -15,16 +15,12 @@ Text::Text(Window *parent, float x, float y, const string_t &text, enumAlignText
   : Window(parent, x, y, NULL)
   , _fontTexture(0)
   , _fontColor(0xffffffff)
+  , _lineCount(1)
+  , _maxline(0)
 {
 	SetAlign(align);
 	SetText(text);
 	SetFont("font_small");
-
-	// workaround: to get correct height
-	if( _lines.empty() )
-	{
-		_lines.push_back(0);
-	}
 }
 
 void Text::SetText(const string_t &text)
@@ -34,30 +30,22 @@ void Text::SetText(const string_t &text)
 		_text = text;
 
 		// update lines
-		_lines.clear();
+		_lineCount = 1;
 		_maxline = 0;
 		size_t count = 0;
-		for( const TCHAR *tmp = _text.c_str(); *tmp; )
+		for( size_t n = 0; n != _text.size(); ++n )
 		{
-			++count;
-			++tmp;
-			if( '\n' == *tmp || '\0' == *tmp )
+			if( '\n' == _text[n] )
 			{
-				if( count > _maxline )
-				{
+				if( _maxline < count )
 					_maxline = count;
-				}
-				_lines.push_back(count);
+				++_lineCount;
 				count = 0;
-				continue;
 			}
-		}
-		if( _lines.empty() )
-		{
-			_lines.push_back(0); // workaround: to get correct height
+			++count;
 		}
 		const LogicalTexture &lt = g_texman->Get(_fontTexture);
-		Resize((lt.pxFrameWidth - 1) * (float) _maxline, lt.pxFrameHeight * (float) _lines.size());
+		Resize((lt.pxFrameWidth - 1) * (float) _maxline, lt.pxFrameHeight * (float) _lineCount);
 	}
 }
 
@@ -71,7 +59,7 @@ void Text::SetFont(const char *fontName)
 	_fontTexture = _fontTexture = g_texman->FindTexture(fontName);
 	_ASSERT(_fontTexture);
 	const LogicalTexture &lt = g_texman->Get(_fontTexture);
-	Resize(lt.pxFrameWidth * (float) _maxline, lt.pxFrameHeight * (float) _lines.size());
+	Resize(lt.pxFrameWidth * (float) _maxline, lt.pxFrameHeight * (float) _lineCount);
 }
 
 float Text::GetCharWidth()
@@ -88,36 +76,7 @@ float Text::GetCharHeight()
 
 void Text::DrawChildren(float sx, float sy) const
 {
-	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
-	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
-
-	const LogicalTexture &lt = g_texman->Get(_fontTexture);
-	g_render->TexBind(lt.dev_texture);
-
-	float x0 = sx - floorf(dx[_align] * (lt.pxFrameWidth - 1) * (float) _maxline / 2);
-	float y0 = sy - floorf(dy[_align] * lt.pxFrameHeight * (float) _lines.size() / 2);
-
-
-	g_texman->DrawBitmapText(_fontTexture, _text, _fontColor, x0, y0, _align);
-
-/*
-	size_t count = 0;
-	size_t line  = 0;
-
-	for( const TCHAR *tmp = _text.c_str(); *tmp; ++tmp )
-	{
-		if( '\n' == *tmp )
-		{
-			++line;
-			count = 0;
-			continue;
-		}
-
-		g_texman->DrawSprite(_fontTexture, (unsigned char) *tmp - 32, _fontColor,
-			x0 + (float) ((count++) * (lt.pxFrameWidth - 1)), y0 + (float) (line * lt.pxFrameHeight), 0);
-	}
-*/
+	g_texman->DrawBitmapText(_fontTexture, _text, _fontColor, sx, sy, _align);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

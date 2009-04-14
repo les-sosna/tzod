@@ -42,6 +42,7 @@ private:
 
 public:
 	inline size_t GetTexture() const { return _texId; }
+	inline SpriteColor GetColor() const { return _color; }
 	inline int   GetFrameCount()   const { return g_texman->Get(_texId).uvFrames.size(); }
 	inline int   GetCurrentFrame() const { return _frame; }
 	inline void  GetGlobalRect(FRECT &rect) const

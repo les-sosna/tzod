@@ -444,11 +444,36 @@ void TextureManager::GetTextureNames(std::vector<string_t> &names,
 	}
 }
 
-void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float x0, float y0, enumAlignText align) const
+float TextureManager::GetCharHeight(size_t fontTexture) const
+{
+	return Get(fontTexture).pxFrameHeight;
+}
+
+void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float sx, float sy, enumAlignText align) const
 {
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+
+	std::vector<size_t> lines;
+	size_t maxline = 0;
+	if( align )
+	{
+		size_t count = 0;
+		for( const string_t::value_type *tmp = str.c_str(); *tmp; )
+		{
+			++count;
+			++tmp;
+			if( '\n' == *tmp || '\0' == *tmp )
+			{
+				if( maxline < count ) 
+					maxline = count;
+				lines.push_back(count);
+				count = 0;
+			}
+		}
+	}
+
 
 	const LogicalTexture &lt = Get(tex);
 	g_render->TexBind(lt.dev_texture);
@@ -456,8 +481,8 @@ void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor
 	size_t count = 0;
 	size_t line  = 0;
 
-	//float x0 = sx - floorf(dx[_align] * (lt.pxFrameWidth - 1) * (float) _maxline / 2);
-	//float y0 = sy - floorf(dy[_align] * lt.pxFrameHeight * (float) _lines.size() / 2);
+	float x0 = sx - floorf(dx[align] * (lt.pxFrameWidth - 1) * (float) maxline / 2);
+	float y0 = sy - floorf(dy[align] * lt.pxFrameHeight * (float) lines.size() / 2);
 
 	for( const string_t::value_type *tmp = str.c_str(); *tmp; ++tmp )
 	{

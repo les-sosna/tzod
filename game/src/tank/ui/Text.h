@@ -10,12 +10,12 @@ namespace UI
 // static text
 class Text : public Window
 {
-	std::vector<size_t>  _lines;
-	size_t               _maxline;
-	enumAlignText        _align;
-	string_t             _text;
-	size_t               _fontTexture;
-	SpriteColor          _fontColor;
+	size_t           _lineCount;
+	size_t           _maxline;
+	enumAlignText    _align;
+	string_t         _text;
+	size_t           _fontTexture;
+	SpriteColor      _fontColor;
 
 public:
 	Text(Window *parent, float x, float y, const string_t &text, enumAlignText align);

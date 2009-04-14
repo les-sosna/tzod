@@ -12,6 +12,7 @@
 #include "Console.h"
 
 #include "GuiManager.h"
+#include "video/TextureManager.h"
 
 #include "config/Config.h"
 #include "core/Console.h"
@@ -28,9 +29,8 @@ namespace UI
 
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent, x, y, NULL)
-  , _blankText(new Text(this, 0, 0, "", alignTextLT))
+  , _fontTexture(g_texman->FindTexture("font_small"))
 {
-	_blankText->SetVisible(false);
 }
 
 MessageArea::~MessageArea()
@@ -58,8 +58,8 @@ void MessageArea::DrawChildren(float sx, float sy) const
 		return;
 	}
 
-	_blankText->SetVisible(true);
-	float y = std::max(_lines.front().time - 4.5f, 0.0f) * _blankText->GetCharHeight() * 2;
+	float h = g_texman->GetCharHeight(_fontTexture);
+	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{
 		unsigned char cc = std::min(int(it->time * 255 * 2), 255);
@@ -69,13 +69,9 @@ void MessageArea::DrawChildren(float sx, float sy) const
 		c.b = cc;
 		c.a = cc;
 
-		_blankText->SetBackgroundColor(c);
-		_blankText->SetText(it->str);
-		_blankText->Draw(sx, sy + y);
-		y -= _blankText->GetCharHeight();
+		g_texman->DrawBitmapText(_fontTexture, it->str, c, sx, sy + y);
+		y -= h;
 	}
-
-	_blankText->SetVisible(false);
 }
 
 void MessageArea::WriteLine(const string_t &text)

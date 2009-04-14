@@ -26,7 +26,7 @@ private:
 	};
 	typedef std::deque<Line> LineList;
 	LineList _lines;
-	Text *_blankText; // used for text drawing
+	size_t _fontTexture;
 
 public:
 	MessageArea(Window *parent, float x, float y);

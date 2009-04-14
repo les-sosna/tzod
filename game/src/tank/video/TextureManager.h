@@ -68,7 +68,9 @@ public:
 
 	void GetTextureNames(std::vector<string_t> &names, const char *prefix, bool noPrefixReturn) const;
 
-	void DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float x, float y, enumAlignText align) const;
+	float GetCharHeight(size_t fontTexture) const;
+
+	void DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float x, float y, enumAlignText align = alignTextLT) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const;
 	void DrawIndicator(size_t tex, float x, float y, float value) const;
 };
