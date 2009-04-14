@@ -55,7 +55,6 @@
 				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -73,7 +72,6 @@
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib dxerr.lib ws2_32.lib opengl32.lib"
 				LinkIncremental="2"
-				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
