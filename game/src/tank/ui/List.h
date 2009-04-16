@@ -139,7 +139,7 @@ private:
 	std::vector<float> _tabs;
 
 	ScrollBar *_scrollBar;
-	Text      *_blankText; // used for text drawing
+	size_t     _font;
 	Window    *_selection;
 
 	int        _curSel;

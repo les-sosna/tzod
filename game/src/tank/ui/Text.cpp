@@ -44,6 +44,10 @@ void Text::SetText(const string_t &text)
 			}
 			++count;
 		}
+		if( 1 == _lineCount )
+		{
+			_maxline = _text.size();
+		}
 		const LogicalTexture &lt = g_texman->Get(_fontTexture);
 		Resize((lt.pxFrameWidth - 1) * (float) _maxline, lt.pxFrameHeight * (float) _lineCount);
 	}

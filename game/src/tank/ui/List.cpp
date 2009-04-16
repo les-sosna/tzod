@@ -4,7 +4,8 @@
 
 #include "List.h"
 #include "Scroll.h"
-#include "Text.h"
+
+#include "video/TextureManager.h"
 
 namespace UI
 {
@@ -150,6 +151,7 @@ List::List(Window *parent, float x, float y, float width, float height)
   , _callbacks(this)
   , _curSel(-1)
   , _hotItem(-1)
+  , _font(g_texman->FindTexture("font_small"))
 {
 	SetClipChildren(true);
 	SetBorder(true);
@@ -160,9 +162,6 @@ List::List(Window *parent, float x, float y, float width, float height)
 	_scrollBar = new ScrollBar(this, 0, 0, height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll.bind(&List::OnScroll, this);
-
-	_blankText = new Text(this, 0, 0, " ", alignTextLT);
-	_blankText->SetVisible(false);
 
 	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
 	_selection->SetBorder(true);
@@ -267,7 +266,7 @@ void List::SetTabPos(int index, float pos)
 
 float List::GetItemHeight() const
 {
-	return _blankText->GetCharHeight() + 1;
+	return g_texman->Get(_font).pxFrameHeight + 1;
 }
 
 int List::GetCurSel() const
@@ -413,8 +412,7 @@ void List::DrawChildren(float sx, float sy) const
 	int i_min = (int) _scrollBar->GetPos();
 	int i_max = i_min + (int) GetNumLinesVisible() + 2;
 
-	_blankText->SetVisible(true);
-	for( int i = i_min; i < __min(_data->GetItemCount(), i_max); ++i )
+	for( int i = i_min; i < std::min(_data->GetItemCount(), i_max); ++i )
 	{
 		SpriteColor c = 0xc0c0c0c0;
 		if( _hotItem == i )
@@ -426,18 +424,13 @@ void List::DrawChildren(float sx, float sy) const
 			c  = 0xffffffff;
 		}
 
-		float y = (float) i - _scrollBar->GetPos();
-
-		_blankText->SetFontColor(c);
-
-		y = floorf(y * GetItemHeight() + 0.5f);
+		float y = floorf(GetItemHeight() * ((float) i - _scrollBar->GetPos()) + 0.5f);
 		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
 		{
-			_blankText->SetText(_data->GetItemText(i, k));
-			_blankText->Draw(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y);
+			g_texman->DrawBitmapText(_font, _data->GetItemText(i, k), c, 
+				sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y);
 		}
 	}
-	_blankText->SetVisible(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

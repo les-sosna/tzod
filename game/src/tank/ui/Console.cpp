@@ -6,6 +6,7 @@
 #include "Text.h"
 #include "Edit.h"
 
+#include "video/TextureManager.h"
 #include "core/Console.h"
 #include "config/Config.h"
 
@@ -20,13 +21,11 @@ namespace UI
 Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
   : Window(parent, x, y, "window")
   , _buf(buf)
+  , _font(g_texman->FindTexture("font_small"))
 {
 	SetBorder(true);
 
 	_arrow = new Text(this, 0, 0, ">", alignTextLT);
-
-	_blankText = new Text(this, 0, 0, "", alignTextLT);
-	_blankText->SetVisible(false);
 
 	_input = new Edit(this, 0, 0, 0);
 	_input->SetTexture(NULL);
@@ -169,16 +168,16 @@ bool Console::OnMouseDown(float x, float y, int button)
 void Console::DrawChildren(float sx, float sy) const
 {
 	Window::DrawChildren(sx, sy);
-	_blankText->SetVisible(true);
-	size_t visibleLineCount = (size_t) (GetHeight() / _blankText->GetCharHeight());
+	sy += _arrow->GetY() - 2;
+	float h = g_texman->Get(_font).pxFrameHeight;
+	size_t visibleLineCount = (size_t) (GetHeight() / h);
 	size_t scroll = __min(_scrollBack, _buf->GetLineCount());
 	size_t count  = __min( _buf->GetLineCount() - scroll, visibleLineCount );
 	for( size_t i = 0; i < count; ++i )
 	{
-		_blankText->SetText( _buf->GetLine(_buf->GetLineCount() - scroll - i - 1) );
-		_blankText->Draw(sx + 4, sy -= _blankText->GetCharHeight());
+		g_texman->DrawBitmapText(_font, _buf->GetLine(_buf->GetLineCount() - scroll - i - 1),
+			0xffffffff, sx + 4, sy -= h);
 	}
-	_blankText->SetVisible(false);
 }
 
 void Console::OnSize(float width, float height)
@@ -186,7 +185,6 @@ void Console::OnSize(float width, float height)
 	Window::OnSize(width, height);
 
 	_arrow->Move(0, height - _arrow->GetHeight() - 1);
-	_blankText->Move( 0, _arrow->GetY() - 2 );
 	_input->Move( _arrow->GetWidth(), _arrow->GetY()-1 );
 	_input->Resize( width - _arrow->GetWidth(), _input->GetHeight() );
 }

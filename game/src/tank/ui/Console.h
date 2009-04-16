@@ -15,11 +15,12 @@ namespace UI
 
 class Console : public Window
 {
-	Text  *_blankText;
 	Text  *_arrow;
 	Edit  *_input;
 	size_t _scrollBack;
 	size_t _cmdIndex;
+
+	size_t _font;
 
 	ConsoleBuffer * const _buf;
 

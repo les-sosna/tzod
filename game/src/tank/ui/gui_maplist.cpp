@@ -20,37 +20,34 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 	SetTabPos(1, 384); // size
 	SetTabPos(2, 448); // theme
 
-	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_MAPS);
-	if( dir )
+	std::set<string_t> files;
+	g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles(files, TEXT("*.map"));
+	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		std::set<string_t> files;
-		dir->EnumAllFiles(files, TEXT("*.map"));
-		for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+		string_t tmp = DIR_MAPS;
+		tmp += "/";
+		tmp += *it;
+
+		MapFile file;
+		if( file.Open(tmp, false) )
 		{
-			string_t tmp = DIR_MAPS;
-			tmp += "/";
-			tmp += *it;
+			it->erase(it->length() - 4); // cut out the file extension
+			int index = AddItem(*it);
 
-			MapFile file;
-			if( file.Open(tmp, false) )
+			char size[64];
+			int h = 0, w = 0;
+			file.getMapAttribute("width", w);
+			file.getMapAttribute("height", h);
+			wsprintf(size, "%3d*%d", w, h);
+			SetItemText(index, 1, size);
+
+			if( file.getMapAttribute("theme", tmp) )
 			{
-				it->erase(it->length() - 4); // cut out the file extension
-				int index = AddItem(*it);
-
-				char size[64];
-				int h = 0, w = 0;
-				file.getMapAttribute("width", w);
-				file.getMapAttribute("height", h);
-				wsprintf(size, "%3d*%d", w, h);
-				SetItemText(index, 1, size);
-
-				if( file.getMapAttribute("theme", tmp) )
-				{
-					SetItemText(index, 2, tmp);
-				}
+				SetItemText(index, 2, tmp);
 			}
 		}
 	}
+
 	Sort();
 
 	int selected = FindItem(g_conf->cl_map->Get());
