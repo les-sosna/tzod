@@ -211,7 +211,7 @@ void PropertySet::SaveToConfig()
 			op->SetNum(prop->GetName(), prop->GetFloatValue());
 			break;
 		case ObjectProperty::TYPE_STRING:
-			op->SetStr(prop->GetName(), prop->GetStringValue().c_str());
+			op->SetStr(prop->GetName(), prop->GetStringValue());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
 			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());

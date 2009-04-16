@@ -61,7 +61,7 @@ public:
 	int LoadPackage(const string_t &fileName);
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 
-	size_t FindTexture(const char *name)   const;
+	size_t FindTexture(const string_t &name)   const;
 	const LogicalTexture& Get(size_t index) const { return _logicalTextures[index]; }
 
 	bool IsValidTexture(size_t index) const;

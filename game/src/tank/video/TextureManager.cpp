@@ -412,7 +412,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 	return count;
 }
 
-size_t TextureManager::FindTexture(const char *name) const
+size_t TextureManager::FindTexture(const string_t &name) const
 {
 	std::map<string_t, size_t>::const_iterator it = _mapName_to_Index.find(name);
 	if( _mapName_to_Index.end() != it )

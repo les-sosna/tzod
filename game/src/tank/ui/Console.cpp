@@ -100,7 +100,7 @@ void Console::OnRawChar(int c)
 			if( _echo )
 				_buf->printf("> %s\n", cmd.c_str());       // echo to the console
 			if( eventOnSendCommand )
-				INVOKE(eventOnSendCommand) (cmd.c_str());  // send the command
+				INVOKE(eventOnSendCommand) (cmd);          // send the command
 			_input->SetText("");                           // erase input field
 		}
 		break;
@@ -132,7 +132,7 @@ void Console::OnRawChar(int c)
 		{
 			string_t result;
 			bool status = INVOKE(eventOnRequestCompleteCommand)
-				(_input->GetText().substr(0, _input->GetSelEnd()).c_str(), result);
+				(_input->GetText().substr(0, _input->GetSelEnd()), result);
 			if( status )
 			{
 				int end = _input->GetSelEnd();

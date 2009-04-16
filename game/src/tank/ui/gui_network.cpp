@@ -325,7 +325,7 @@ InternetDlg::InternetDlg(Window *parent)
 	title->SetFont("font_default");
 
 
-	new Text(this, 20, 65, g_lang->net_connect_address->Get(), alignTextLT);
+	new Text(this, 20, 65, g_lang->net_internet_lobby_address->Get(), alignTextLT);
 	_name = new Edit(this, 25, 80, 300);
 	_name->SetText("tzod.fatal.ru/lobby/");
 

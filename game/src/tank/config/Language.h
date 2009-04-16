@@ -159,6 +159,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( net_server_error, "Could not start server. Check your firewall settings." )
 
 	CONFIG_VAR_STR( net_internet_title, "Search the Internet" )
+	CONFIG_VAR_STR( net_internet_lobby_address, "Lobby server address" )
 	CONFIG_VAR_STR( net_internet_refresh, "Refresh" )
 	CONFIG_VAR_STR( net_internet_connect, "Connect" )
 	CONFIG_VAR_STR( net_internet_cancel, "Cancel" )
