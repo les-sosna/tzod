@@ -1,12 +1,6 @@
 list of known bags
 
 
-go to waiting for players dialog
-add bot
-incorrect bot skill is displayed
-
-
-
 start debug exe
 create new map
 debug lines from intro map are still displayed

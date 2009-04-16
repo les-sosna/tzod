@@ -635,7 +635,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 
 			// level
 			_ASSERT(ai->GetLevel() <= AI_MAX_LEVEL);
-			_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
+			_bots->SetItemText(index, 3, g_lang.GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
 		}
 		else
 		{
@@ -778,7 +778,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		_bots->SetItemText(index, 2, tmp.str());
 
 		// level
-		_bots->SetItemText(index, 3, EditBotDlg::levels[ai->GetLevel()]);
+		_bots->SetItemText(index, 3, g_lang.GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
 
 		break;
 	}
