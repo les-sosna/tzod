@@ -685,14 +685,20 @@ ConfVarString* ConfVarTable::SetStr(const string_t &name, const string_t &value)
 	return v;
 }
 
-ConfVarArray* ConfVarTable::GetArray(const string_t &name)
+ConfVarArray* ConfVarTable::GetArray(const string_t &name, void (*init)(ConfVarArray*))
 {
-	return GetVar(name, ConfVar::typeArray).first->AsArray();
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeArray);
+	if( !p.second && init )
+		init(p.first->AsArray());
+	return p.first->AsArray();
 }
 
-ConfVarTable* ConfVarTable::GetTable(const string_t &name)
+ConfVarTable* ConfVarTable::GetTable(const string_t &name, void (*init)(ConfVarTable*))
 {
-	return GetVar(name, ConfVar::typeTable).first->AsTable();
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeTable);
+	if( !p.second && init )
+		init(p.first->AsTable());
+	return p.first->AsTable();
 }
 
 bool ConfVarTable::Remove(ConfVar * const value)

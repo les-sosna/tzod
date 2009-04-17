@@ -188,8 +188,8 @@ public:
 	ConfVarBool*  SetBool(const string_t &name, bool  value);
 	ConfVarString* SetStr(const string_t &name, const string_t &value);
 
-	ConfVarArray* GetArray(const string_t &name);
-	ConfVarTable* GetTable(const string_t &name);
+	ConfVarArray* GetArray(const string_t &name, void (*init)(ConfVarArray*) = NULL);
+	ConfVarTable* GetTable(const string_t &name, void (*init)(ConfVarTable*) = NULL);
 
 	bool Remove(ConfVar * const value);
 	bool Remove(const string_t &name);
@@ -229,11 +229,6 @@ public:
 // Lua binding
 
 void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName);
-
-
-///////////////////////////////////////////////////////////////////////////////
-// helper macros
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

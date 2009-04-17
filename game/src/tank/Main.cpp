@@ -272,8 +272,6 @@ bool ZodApp::Pre()
 		TRACE("could not load config file: %s\n", e.what());
 	}
 	g_conf.GetAccessor(); // force accessor creation
-	if( 0 == g_conf->dm_profiles->GetSize() )
-		CreateDefaultProfiles();
 
 
 	//

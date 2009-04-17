@@ -772,7 +772,7 @@ void EditorLayout::OnSize(float width, float height)
 	_layerDisp->Move(width - _typeList->GetWidth() - 5, 6);
 }
 
-void EditorLayout::OnVisibleChange(bool visible)
+void EditorLayout::OnVisibleChange(bool visible, bool inherited)
 {
 	if( !visible )
 	{

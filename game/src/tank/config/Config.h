@@ -31,12 +31,13 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_INT(    sv_port,           1945 )
 	CONFIG_VAR_FLOAT(  sv_fps,              30 )
 	CONFIG_VAR_FLOAT(  sv_latency,           1 )
-	CONFIG_VAR_BOOL(   sv_use_lobby,     false )
 	CONFIG_VAR_BOOL(   sv_autoLatency,    true )
 	CONFIG_VAR_FLOAT(  sv_speed,           100 ) // percent
 	CONFIG_VAR_FLOAT(  sv_timelimit,         7 ) // minutes
 	CONFIG_VAR_INT(    sv_fraglimit,        21 )
 	CONFIG_VAR_BOOL(   sv_nightmode,     false )
+	CONFIG_VAR_STR(    sv_lobby,            "" )
+	CONFIG_VAR_BOOL(   sv_use_lobby,     false )
 
 	// client settings
 	CONFIG_VAR_STR(    cl_map,           "dm1" )
@@ -46,7 +47,7 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_BOOL(   cl_nightmode,     false )
 	CONFIG_VAR_STR(    cl_server,  "localhost" )
 	CONFIG_VAR_FLOAT(  cl_latency,           4 )
-	CONFIG_VAR_TABLE(  cl_playerinfo )
+	CONFIG_VAR_TABLE(  cl_playerinfo,     NULL )
 
 	// sound
 	CONFIG_VAR_INT( s_volume,      DSBVOLUME_MAX )
@@ -70,32 +71,25 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_INT(   ed_object,              0 )
 	CONFIG_VAR_BOOL(  ed_showproperties,   true )
 	CONFIG_VAR_BOOL(  ed_showservices,    false )
-	CONFIG_VAR_TABLE( ed_objproperties )
+	CONFIG_VAR_TABLE( ed_objproperties,    NULL )
 
 	// console
 	CONFIG_VAR_INT(   con_maxhistory,        30 )
-	CONFIG_VAR_ARRAY( con_history )
+	CONFIG_VAR_ARRAY( con_history,         NULL )
 
 	// user interface
 	CONFIG_VAR_BOOL(  ui_showfps,         false )
 	CONFIG_VAR_BOOL(  ui_showtime,         true )
 	CONFIG_VAR_BOOL(  ui_showmsg,          true )
-	CONFIG_VAR_TABLE( ui_netbotinfo )
+	CONFIG_VAR_TABLE( ui_netbotinfo,       NULL )
 
 	// other
-	CONFIG_VAR_TABLE( dm_profiles )
-	CONFIG_VAR_ARRAY( dm_players  )
-	CONFIG_VAR_ARRAY( dm_bots     )
-	CONFIG_VAR_ARRAY( lobby_servers )
+	CONFIG_VAR_TABLE( dm_profiles,       InitProfiles )
+	CONFIG_VAR_ARRAY( dm_players,                NULL )
+	CONFIG_VAR_ARRAY( dm_bots,                   NULL )
+	CONFIG_VAR_ARRAY( lobby_servers,    InitLobbyList )
 
 CONFIG_END(ConfCache, g_conf)
-
-
-///////////////////////////////////////////////////////////////////////////////
-// helper functions
-
-void CreateDefaultProfiles();
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -544,13 +544,31 @@ void Window::Reset() // called when window is being hidden or disabled
 	}
 }
 
+void Window::OnEnabledChangeInternal(bool enable, bool inherited)
+{
+	OnEnabledChange(enable, inherited);
+	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	{
+		w->OnEnabledChange(enable, true);
+	}
+}
+
+void Window::OnVisibleChangeInternal(bool visible, bool inherited)
+{
+	OnVisibleChange(visible, inherited);
+	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	{
+		w->OnVisibleChange(visible, true);
+	}
+}
+
 void Window::SetEnabled(bool enable)
 {
 	if( _isEnabled != enable )
 	{
 		_isEnabled = enable;
 		if( !enable ) Reset();
-		OnEnabledChange(enable);
+		OnEnabledChangeInternal(enable, false);
 	}
 }
 
@@ -565,7 +583,7 @@ void Window::SetVisible(bool visible)
 	{
 		_isVisible = visible;
 		if( !visible ) Reset();
-		OnVisibleChange(visible);
+		OnVisibleChangeInternal(visible, false);
 	}
 }
 
@@ -728,7 +746,7 @@ void Window::OnParentSize(float width, float height)
 // other
 //
 
-void Window::OnEnabledChange(bool enable)
+void Window::OnEnabledChange(bool enable, bool inherited)
 {
 }
 
@@ -737,7 +755,7 @@ bool Window::OnFocus(bool focus)
 	return false;
 }
 
-void Window::OnVisibleChange(bool visible)
+void Window::OnVisibleChange(bool visible, bool inherited)
 {
 }
 

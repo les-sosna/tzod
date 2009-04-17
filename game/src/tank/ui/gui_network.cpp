@@ -107,6 +107,10 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		for( size_t i = 0; i < g_conf->lobby_servers->GetSize(); ++i )
 		{
 			_lobbyList->GetList()->AddItem(g_conf->lobby_servers->GetStr(i)->Get());
+			if( !i || g_conf->sv_lobby->Get() == g_conf->lobby_servers->GetStr(i)->Get() )
+			{
+				_lobbyList->SetCurSel(i);
+			}
 		}
 		_lobbyList->GetList()->AlignHeightToContent(128);
 
@@ -139,14 +143,16 @@ void CreateServerDlg::OnOK()
 	}
 
 	SafePtr<LobbyClient> announcer;
+	g_conf->sv_use_lobby->Set(_lobbyEnable->GetCheck());
 	if( _lobbyEnable->GetCheck() )
 	{
 		if( -1 == _lobbyList->GetCurSel() )
 		{
 			return;
 		}
+		g_conf->sv_lobby->Set(_lobbyList->GetList()->GetItemText(_lobbyList->GetCurSel()));
 		announcer = WrapRawPtr(new LobbyClient());
-		announcer->SetLobbyUrl(_lobbyList->GetList()->GetItemText(_lobbyList->GetCurSel()));
+		announcer->SetLobbyUrl(g_conf->sv_lobby->Get());
 	}
 
 	script_exec(g_env.L, "reset()");

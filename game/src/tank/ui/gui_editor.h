@@ -154,7 +154,7 @@ protected:
 	bool OnFocus(bool focus);
 	void OnRawChar(int c);
 	void OnSize(float width, float height);
-	void OnVisibleChange(bool visible);
+	void OnVisibleChange(bool visible, bool inherited);
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();

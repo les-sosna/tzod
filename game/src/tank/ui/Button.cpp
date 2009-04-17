@@ -91,7 +91,7 @@ void ButtonBase::OnClick()
 		INVOKE(eventClick) ();
 }
 
-void ButtonBase::OnEnabledChange(bool enable)
+void ButtonBase::OnEnabledChange(bool enable, bool inherited)
 {
 	if( enable )
 	{

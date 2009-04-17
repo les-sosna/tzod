@@ -57,7 +57,7 @@ protected:
 	virtual bool OnMouseUp(float x, float y, int button);
 	virtual bool OnMouseMove(float x, float y);
 	virtual bool OnFocus(bool focus);
-	virtual void OnEnabledChange(bool enable);
+	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTimeStep(float dt);
 };
 

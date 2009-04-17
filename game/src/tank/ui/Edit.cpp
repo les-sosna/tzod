@@ -311,7 +311,7 @@ bool Edit::OnFocus(bool focus)
 	return true;
 }
 
-void Edit::OnEnabledChange(bool enable)
+void Edit::OnEnabledChange(bool enable, bool inherited)
 {
 	if( enable )
 	{

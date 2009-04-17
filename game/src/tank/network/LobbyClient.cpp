@@ -230,7 +230,10 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 			_state = STATE_IDLE;
 			std::stringstream s;
 			s << "lobby: error " << err;
-			INVOKE(eventError)(s.str());
+			if( eventError )
+			{
+				INVOKE(eventError)(s.str());
+			}
 	}
 }
 

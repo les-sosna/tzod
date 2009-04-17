@@ -38,7 +38,7 @@ protected:
 	virtual bool OnMouseUp  (float x, float y, int nButton);
 	virtual bool OnMouseLeave();
 
-	virtual void OnEnabledChange(bool enable);
+	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnClick();
 	virtual void OnChangeState(State state) = 0;
 

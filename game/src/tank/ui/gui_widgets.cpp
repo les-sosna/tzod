@@ -25,7 +25,7 @@ FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align)
 	SetTimeStep(true);
 }
 
-void FpsCounter::OnVisibleChange(bool visible)
+void FpsCounter::OnVisibleChange(bool visible, bool inherited)
 {
 	SetTimeStep(visible);
 }
@@ -109,7 +109,7 @@ TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align)
 	SetTimeStep(true);
 }
 
-void TimeElapsed::OnVisibleChange(bool visible)
+void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
 {
 	SetTimeStep(visible);
 }

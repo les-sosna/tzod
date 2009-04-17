@@ -5,10 +5,3 @@ start debug exe
 create new map
 debug lines from intro map are still displayed
 
-
-net_connect_address instead of lobby address in internet dialog
-
-
-no lobby is selected by default in start server dialog
-
-

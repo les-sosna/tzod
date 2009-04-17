@@ -68,6 +68,9 @@ protected:
 
 	void Reset();
 
+	void OnEnabledChangeInternal(bool enable, bool inherited);
+	void OnVisibleChangeInternal(bool visible, bool inherited);
+
 protected:
 	virtual ~Window(); // delete via Destroy() only
 
@@ -153,9 +156,9 @@ public:
 	virtual bool OnMouseDown (float x, float y, int button);
 	virtual bool OnMouseUp   (float x, float y, int button);
 	virtual bool OnMouseMove (float x, float y);
+	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
-	virtual bool OnMouseWheel(float x, float y, float z);
 
 
 	//
@@ -188,8 +191,8 @@ public:
 	//
 
 	virtual bool OnFocus(bool focus); // return true if the window took focus
-	virtual void OnEnabledChange(bool enable);
-	virtual void OnVisibleChange(bool visible);
+	virtual void OnEnabledChange(bool enable, bool inherited);
+	virtual void OnVisibleChange(bool visible, bool inherited);
 	virtual void OnTimeStep(float dt);
 };
 

@@ -38,8 +38,8 @@
  #define CONFIG_VAR_INT(   var, def )  ConfVarNumber *const var;
  #define CONFIG_VAR_BOOL(  var, def )  ConfVarBool   *const var;
  #define CONFIG_VAR_STR(   var, def )  ConfVarString *const var;
- #define CONFIG_VAR_ARRAY( var )       ConfVarArray  *const var;
- #define CONFIG_VAR_TABLE( var )       ConfVarTable  *const var;
+ #define CONFIG_VAR_ARRAY( var, def )  ConfVarArray  *const var;
+ #define CONFIG_VAR_TABLE( var, def )  ConfVarTable  *const var;
 
 #elif CONFIG_CACHE_PASS == 2
 
@@ -59,8 +59,8 @@
 #define CONFIG_VAR_INT(   var, def )  , var( root->GetNum(#var, (int) (def)) )
 #define CONFIG_VAR_BOOL(  var, def )  , var( root->GetBool(#var, (def)) )
 #define CONFIG_VAR_STR(   var, def )  , var( root->GetStr(#var, (def)) )
-#define CONFIG_VAR_ARRAY( var )       , var( root->GetArray(#var) )
-#define CONFIG_VAR_TABLE( var )       , var( root->GetTable(#var) )
+#define CONFIG_VAR_ARRAY( var, def )  , var( root->GetArray(#var, def) )
+#define CONFIG_VAR_TABLE( var, def )  , var( root->GetTable(#var, def) )
 
 #define CONFIG_END(StructName, VarName)  {}               \
     StructName       VarName;
