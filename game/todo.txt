@@ -12,8 +12,6 @@ Save/Load
  - save lua gc table (?)
  - music track
 
-Управление - immediate applying
-
 Настройка профиля прямо из чата
 
 implement initializers concept:

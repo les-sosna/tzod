@@ -1,7 +1,4 @@
 list of known bags
 
 
-start debug exe
-create new map
-debug lines from intro map are still displayed
-
+demo campaign doesn't work

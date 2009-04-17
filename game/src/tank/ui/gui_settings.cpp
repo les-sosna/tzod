@@ -20,6 +20,7 @@
 #include "Level.h"
 
 #include "functions.h"
+#include "Macros.h"
 
 
 namespace UI
@@ -195,6 +196,11 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 	{
 		UpdateProfilesList();
 		GetManager()->SetFocusWnd(_profiles);
+
+		FOREACH(g_level->GetList(LIST_players), GC_Object, player)
+		{
+			player->GetProperties()->Exchange(true);
+		}
 	}
 }
 
