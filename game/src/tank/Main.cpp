@@ -278,19 +278,26 @@ bool ZodApp::Pre()
 	// init localization
 	//
 	TRACE("Localization init...\n");
-	if( g_fs->Open(FILE_LANGUAGE) && !g_lang.GetRoot()->Load(FILE_LANGUAGE) )
+	try
 	{
-		TRACE("couldn't load language file " FILE_CONFIG "\n");
-
-		int result = MessageBox(g_env.hMainWnd,
-			"Syntax error in the language file (see log). Continue with default (English) language?",
-			TXT_VERSION,
-			MB_ICONERROR | MB_OKCANCEL);
-
-		if( IDOK != result )
+		if( !g_lang.GetRoot()->Load(FILE_LANGUAGE) )
 		{
-			return false;
+			TRACE("couldn't load language file " FILE_CONFIG "\n");
+
+			int result = MessageBox(g_env.hMainWnd,
+				"Syntax error in the language file (see log). Continue with default (English) language?",
+				TXT_VERSION,
+				MB_ICONERROR | MB_OKCANCEL);
+
+			if( IDOK != result )
+			{
+				return false;
+			}
 		}
+	}
+	catch( std::exception &e )
+	{
+		TRACE("could not load localization file: %s\n", e.what());
 	}
 	g_lang.GetAccessor(); // force accessor creation
 	setlocale(LC_CTYPE, g_lang->c_locale->Get().c_str());
@@ -454,9 +461,12 @@ void ZodApp::Post()
 #endif
 
 	// script engine cleanup
-	TRACE("Shutting down the scripting subsystem\n");
-	script_close(g_env.L);
-	g_env.L = NULL;
+	if( g_env.L )
+	{
+		TRACE("Shutting down the scripting subsystem\n");
+		script_close(g_env.L);
+		g_env.L = NULL;
+	}
 
 	// key mapper
 	SAFE_DELETE(g_keys);
