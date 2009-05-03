@@ -348,10 +348,10 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 				if( !next.IsChecked() )
 				{
-					next.UpdatePath(end_x, end_y);
-					next.Check();
 					next._pathBefore = cn._pathBefore + dist[i] * dist_mult;
 					next._prevCell  = &cn;
+					next.UpdatePath(end_x, end_y);
+					next.Check();
 					//-----------------
 					if( next.Rate() < max_depth )
 						open.push(RefFieldCell(next));

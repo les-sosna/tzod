@@ -40,7 +40,7 @@ public:
 
 	const FieldCell *_prevCell; // предыдущая клетка пути
 	float _pathBefore;          // стоимость пути до данной клетки
-	float _pathAfter;           // оценка стоимости пути от данной клетки до пункта назначения
+	float _rate;                // оценка общей стоимости пути
 
 	inline int GetObjectsCount() const { return _objCount; }
 	inline GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
@@ -52,7 +52,8 @@ public:
 	{
 		int dx = abs(x - GetX());
 		int dy = abs(y - GetY());
-		_pathAfter = (float) __max(dx, dy) + (float) __min(dx, dy) * 0.4142f;
+		float pathAfter = (float) __max(dx, dy) + (float) __min(dx, dy) * 0.4142f;
+		_rate = _pathBefore + pathAfter;
 	}
 
 	void AddObject(GC_RigidBodyStatic *object);
@@ -62,13 +63,13 @@ public:
 	inline short GetY()               const { return _y;    }
 	inline unsigned char Properties() const { return _prop; }
 
-	inline float Rate() const { return _pathBefore + _pathAfter; }
+	inline float Rate() const { return _rate; }
 
-	inline bool operator > (const FieldCell &cell) const
-	{
-		assert(_mySession == cell._mySession);
-		return Rate() > cell.Rate();
-	}
+	//inline bool operator > (const FieldCell &cell) const
+	//{
+	//	assert(_mySession == cell._mySession);
+	//	return Rate() > cell.Rate();
+	//}
 };
 
 class RefFieldCell
@@ -79,7 +80,7 @@ public:
 	operator FieldCell& () const { return *_cell; }
 	bool operator > (const RefFieldCell &cell) const
 	{
-		return *_cell > *cell._cell;
+		return _cell->Rate() > cell._cell->Rate();
 	}
 };
 
