@@ -181,7 +181,7 @@ void GC_Player::TimeStepFixed(float dt)
 			// Respawn
 			//
 
-			_ASSERT(IsVehicleDead());
+			assert(IsVehicleDead());
 			_timeRespawn = PLAYER_RESPAWNTIME;
 
 			std::vector<GC_SpawnPoint*> points;
@@ -340,7 +340,7 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 		case 7: return &_propOnRespawn;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -488,7 +488,7 @@ void GC_PlayerLocal::mapExchange(MapFile &f)
 
 unsigned short GC_PlayerLocal::GetNetworkID() const
 {
-	_ASSERT(g_client);
+	assert(g_client);
 	return g_client->GetId();
 }
 
@@ -765,7 +765,7 @@ ObjectProperty* GC_PlayerLocal::MyPropertySet::GetProperty(int index)
 		case 0: return &_propProfile;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -816,7 +816,7 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
 	GC_Player::TimeStepFixed( dt );
-	_ASSERT(g_client);
+	assert(g_client);
 	if( IsVehicleDead() )
 	{
 		g_level->GetControlPacket(this);

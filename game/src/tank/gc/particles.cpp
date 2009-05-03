@@ -85,7 +85,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 	MoveTo(pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 
-	_ASSERT(_timeLife > 0);
+	assert(_timeLife > 0);
 }
 
 GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
@@ -106,7 +106,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 	MoveTo(pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 
-	_ASSERT(_timeLife > 0);
+	assert(_timeLife > 0);
 }
 
 GC_Particle::GC_Particle(FromFile)
@@ -126,7 +126,7 @@ void GC_Particle::Serialize(SaveFile &f)
 
 void GC_Particle::TimeStepFloat(float dt)
 {
-	_ASSERT(_timeLife > 0);
+	assert(_timeLife > 0);
 	_time += dt;
 
 	if( _time >= _timeLife )

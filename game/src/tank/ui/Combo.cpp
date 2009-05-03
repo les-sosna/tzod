@@ -16,7 +16,7 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 ComboBox::ComboBox(Window *parent, float x, float y, float width)
-  : Window(parent, x, y, "ctrl_list")
+  : Window(parent, x, y, "ui/list")
   , _curSel(-1)
 {
 	_text = new TextButton(this, 0, 1, string_t(), "font_small");
@@ -29,7 +29,7 @@ ComboBox::ComboBox(Window *parent, float x, float y, float width)
 	_list->eventChangeCurSel.bind(&ComboBox::OnChangeSelection, this);
 	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
-	_btn = new ImageButton(this, 0, 0, "ctrl_scroll_down");
+	_btn = new ImageButton(this, 0, 0, "ui/scroll_down");
 	_btn->eventClick.bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();

@@ -48,16 +48,12 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <stdio.h>
-#include <crtdbg.h>
+#include <assert.h>
 #include <fcntl.h>
 #include <io.h>
 
 #include <math.h>
 #include <time.h>
-
-// boost
-//#include <boost/iostreams/device/mapped_file.hpp>
-
 
 
 // c++ libraries

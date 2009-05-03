@@ -419,7 +419,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		break;
 
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 
 	_mode = mode;
@@ -454,7 +454,7 @@ bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, Image *img)
 
 void RenderOpenGL::TexFree(DEV_TEXTURE tex)
 {
-	_ASSERT(glIsTexture(tex.index));
+	assert(glIsTexture(tex.index));
 	glDeleteTextures(1, &tex.index);
 }
 
@@ -501,7 +501,7 @@ MyVertex* RenderOpenGL::DrawQuad()
 
 MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 {
-	_ASSERT(nEdges*3 < INDEX_ARRAY_SIZE);
+	assert(nEdges*3 < INDEX_ARRAY_SIZE);
 
 	if( _vaSize + nEdges   > VERTEX_ARRAY_SIZE - 1 ||
 		_iaSize + nEdges*3 > INDEX_ARRAY_SIZE )

@@ -19,7 +19,7 @@
 #endif
 
 
-#define ASSERT_TYPE(pointer, type) _ASSERT(NULL != dynamic_cast<type*>(pointer))
+#define ASSERT_TYPE(pointer, type) assert(NULL != dynamic_cast<type*>(pointer))
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

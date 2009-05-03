@@ -400,8 +400,8 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 				for( int i = 0; i < cell->GetObjectsCount(); ++i )
 				{
-					_ASSERT(GetVehicle()->GetWeapon());
-					_ASSERT(cell->Properties() > 0);
+					assert(GetVehicle()->GetWeapon());
+					assert(cell->Properties() > 0);
 
 					GC_RigidBodyStatic *object = cell->GetObject(i);
 
@@ -452,7 +452,7 @@ void GC_PlayerAI::SmoothPath()
 		{
 			PathNode new_node;
 			new_node.coord = (it[0]->coord + it[1]->coord) * 0.5f;
-			_ASSERT(new_node.coord.x > 0 && new_node.coord.y > 0);
+			assert(new_node.coord.x > 0 && new_node.coord.y > 0);
 			_path.insert(it[1], new_node);
 			if( it[0] != _path.begin() )
 				_path.erase(it[0]);
@@ -470,7 +470,7 @@ void GC_PlayerAI::SmoothPath()
 	{
 		it[i] = tmp++;
 		vn[i] = it[i]->coord;
-		_ASSERT(vn[i].x > 0 && vn[i].y > 0);
+		assert(vn[i].x > 0 && vn[i].y > 0);
 	}
 
 	for(;;)
@@ -480,7 +480,7 @@ void GC_PlayerAI::SmoothPath()
 		for( int i = 1; i < 4; ++i )
 		{
 			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node.coord, (float) i / 4.0f);
-			_ASSERT(new_node.coord.x > 0 && new_node.coord.y > 0);
+			assert(new_node.coord.x > 0 && new_node.coord.y > 0);
 			_path.insert(it[2], new_node);
 		}
 
@@ -500,7 +500,7 @@ void GC_PlayerAI::SmoothPath()
 std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(
 	const vec2d &pos, vec2d *projection, float *offset) const
 {
-	_ASSERT(!_path.empty());
+	assert(!_path.empty());
 	std::list<PathNode>::const_iterator it = _path.begin(), result = it;
 	float rr_min = (it->coord - pos).sqr();
 	while( ++it != _path.end() )
@@ -513,7 +513,7 @@ std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(
 		}
 	}
 
-	_ASSERT(_path.end() != result);
+	assert(_path.end() != result);
 
 	if( projection )
 	{
@@ -596,8 +596,8 @@ void GC_PlayerAI::ClearPath()
 
 void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
 {
-	_ASSERT(!_isnan(x.x) && !_isnan(x.y));
-	_ASSERT(_finite(x.x) && _finite(x.y));
+	assert(!_isnan(x.x) && !_isnan(x.y));
+	assert(_finite(x.x) && _finite(x.y));
 
 	float ang2 = (x - GetVehicle()->GetPos()).Angle();
 	float ang1 = GetVehicle()->_angle;
@@ -619,8 +619,8 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 
 void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws)
 {
-	_ASSERT(GetVehicle());
-	_ASSERT(GetVehicle()->GetWeapon());
+	assert(GetVehicle());
+	assert(GetVehicle()->GetWeapon());
 
 	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _current_offset;
 	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angleReal;
@@ -639,15 +639,15 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	pState->_bExplicitTower = true;
 	pState->_fTowerAngle = ang2 - GetVehicle()->_angle - GetVehicle()->GetSpinup();
 	//--------------------------------
-	_ASSERT(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
+	assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
 }
 
 // оценка полезности атаки данной цели
 AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 {
-	_ASSERT(target);
-	_ASSERT(GetVehicle());
-	_ASSERT(GetVehicle()->GetWeapon());
+	assert(target);
+	assert(GetVehicle());
+	assert(GetVehicle()->GetWeapon());
 
 	if( !target->GetPlayer() ||
 		(0 != target->GetPlayer()->GetTeam() && target->GetPlayer()->GetTeam() == GetTeam()) )
@@ -768,8 +768,8 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		for( int i = 0; i < 2; ++i )
 		{
 			if( NULL == items[i] ) continue;
-			_ASSERT(!items[i]->IsKilled());
-			_ASSERT(items[i]->GetVisible());
+			assert(!items[i]->IsKilled());
+			assert(items[i]->GetVisible());
 			if( items[i]->IsAttached() ) continue;
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )
@@ -865,7 +865,7 @@ void GC_PlayerAI::SetL1(aiState_l1 new_state)
 		break;
 	default:
 //		REPORT("AI switch to L1<unknown>\n");
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 #endif
 
@@ -887,12 +887,12 @@ void GC_PlayerAI::SetL2(aiState_l2 new_state)
 //		REPORT("AI switch to L2_PICKUP\n");
 		break;
 	case L2_ATTACK:
-		_ASSERT(_target);
+		assert(_target);
 //		REPORT("AI switch to L2_ATTACK\n");
 		break;
 	default:
 //		REPORT("AI switch to L2<unknown>\n");
-		_ASSERT(0);
+		assert(0);
 	}
 #endif
 
@@ -922,7 +922,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 		}
 		else
 		{
-			_ASSERT(ii_item.object);
+			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
 				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
@@ -942,7 +942,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 
 		if( ii_item.priority > AIP_NOTREQUIRED )
 		{
-			_ASSERT(ii_item.object);
+			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
 				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
@@ -966,7 +966,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 //Оценка ситуации, принятие решения
 void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 {
-	_ASSERT(GetVehicle());
+	assert(GetVehicle());
 
 	GC_Pickup  *pItem    = NULL;
 	GC_Vehicle *veh = NULL;
@@ -980,11 +980,11 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 	} break;
 	case L2_ATTACK: // атакуем игрока
 	{
-		_ASSERT(_target);
+		assert(_target);
 	} break;
 	case L2_PATH_SELECT:
 	{
-		_ASSERT(NULL == _target);
+		assert(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
 			vec2d t = GetVehicle()->GetPos()
@@ -1149,7 +1149,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	if( _target && IsTargetVisible(GetRawPtr(_target)))
 	{
-		_ASSERT(GetVehicle()->GetWeapon());
+		assert(GetVehicle()->GetWeapon());
 
 		vec2d fake = _target->GetPos();
 		GC_Vehicle *enemy = dynamic_cast<GC_Vehicle *>(GetRawPtr(_target));
@@ -1179,7 +1179,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	else if( !_attackList.empty() && IsTargetVisible(GetRawPtr(_attackList.front())) )
 	{
-		_ASSERT(GetVehicle()->GetWeapon());
+		assert(GetVehicle()->GetWeapon());
 		GC_RigidBodyStatic *target = GetRawPtr(_attackList.front());
 
 		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
@@ -1278,7 +1278,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
 {
-	_ASSERT(GetVehicle()->GetWeapon());
+	assert(GetVehicle()->GetWeapon());
 
 	if( GC_Weap_Gauss::GetTypeStatic() == GetVehicle()->GetWeapon()->GetType() )  // FIXME!
 		return true;
@@ -1319,9 +1319,9 @@ void GC_PlayerAI::OnDie()
 
 void GC_PlayerAI::LockTarget(SafePtr<GC_RigidBodyStatic> &target)
 {
-	_ASSERT(target);
-	_ASSERT(GetVehicle());
-	_ASSERT(GetVehicle()->GetWeapon());
+	assert(target);
+	assert(GetVehicle());
+	assert(GetVehicle()->GetWeapon());
 
 	if( target != _target )
 	{
@@ -1416,7 +1416,7 @@ ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
 	case 0: return &_propLevel;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 

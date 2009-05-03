@@ -16,8 +16,8 @@
 
 TextureCache::TextureCache(const char *name)
 {
-	_ASSERT(NULL != name);
-	texture = g_texman->FindTexture(name);
+	assert(NULL != name);
+	texture = g_texman->FindSprite(name);
 	const LogicalTexture &lt = g_texman->Get(texture);
 	width  = lt.pxFrameWidth;
 	height = lt.pxFrameHeight;
@@ -66,7 +66,7 @@ void GC_2dSprite::Serialize(SaveFile &f)
 	f.Serialize(_zOrderCurrent);
 	f.Serialize(_zOrderPrefered);
 
-	_ASSERT(g_texman->IsValidTexture(_texId));
+	assert(g_texman->IsValidTexture(_texId));
 
 	if( f.loading() )
 		UpdateCurrentZ();
@@ -81,7 +81,7 @@ void GC_2dSprite::SetTexture(const char *name)
 	}
 	else
 	{
-		_texId = g_texman->FindTexture(name);
+		_texId = g_texman->FindSprite(name);
 		SetFrame(0);
 	}
 }
@@ -95,7 +95,7 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 // изменение текущего значения z-order
 void GC_2dSprite::SetZ_current(enumZOrder z)
 {
-	_ASSERT(0 <= z && Z_COUNT > z || Z_NONE == z);
+	assert(0 <= z && Z_COUNT > z || Z_NONE == z);
 	if( _zOrderCurrent == z ) return;
 
 
@@ -145,7 +145,7 @@ void GC_2dSprite::UpdateCurrentZ()
 
 void GC_2dSprite::SetZ(enumZOrder z)
 {
-	_ASSERT(z < Z_COUNT || z == Z_NONE);
+	assert(z < Z_COUNT || z == Z_NONE);
 	if( _zOrderPrefered == z )
 	{
 		return;
@@ -164,7 +164,7 @@ enumZOrder GC_2dSprite::GetZ() const
 
 void GC_2dSprite::SetVisible(bool bShow)
 {
-	_ASSERT(!bShow || !IsKilled()); // нельзя показывать убитые объекты
+	assert(!bShow || !IsKilled()); // нельзя показывать убитые объекты
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;
@@ -175,7 +175,7 @@ void GC_2dSprite::SetVisible(bool bShow)
 
 void GC_2dSprite::SetFrame(int frame)
 {
-	_ASSERT(0 <= frame && frame < GetFrameCount());
+	assert(0 <= frame && frame < GetFrameCount());
 	_frame = frame;
 }
 

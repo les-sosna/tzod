@@ -33,7 +33,7 @@ public:
 
 	inline T& element(size_t x, size_t y)
 	{
-		_ASSERT(x < _cx && y < _cy);
+		assert(x < _cx && y < _cy);
 		return _data[_cx*y + x];
 	}
 

@@ -133,7 +133,7 @@ void GC_Wood::Draw() const
 
 void GC_Wood::SetTile(char nTile, bool value)
 {
-	_ASSERT(0 <= nTile && nTile < 8);
+	assert(0 <= nTile && nTile < 8);
 
 	if( value )
 		_tile |=  (1 << nTile);
@@ -260,7 +260,7 @@ GC_Explosion::GC_Explosion(FromFile)
 
 GC_Explosion::~GC_Explosion()
 {
-	_ASSERT(!_owner);
+	assert(!_owner);
 }
 
 void GC_Explosion::Kill()
@@ -306,7 +306,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		if( x1 == node->x && y1 == node->y )
 		{
 			// путь найден.
-			_ASSERT(node->GetRealDistance() <= max_distance);
+			assert(node->GetRealDistance() <= max_distance);
 			return node->GetRealDistance();
 		}
 
@@ -457,7 +457,7 @@ void GC_Explosion::Boom(float radius, float damage)
 				if( d >= 0 )
 				{
 					float dam = __max(0, damage * (1 - d / radius));
-					_ASSERT(dam >= 0);
+					assert(dam >= 0);
 					if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
 					{
 						if( d > 1e-5 )
@@ -643,8 +643,8 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
   , _victim(victim)
   , _owner(owner)
 {
-	_ASSERT(victim);
-	_ASSERT(!victim->IsKilled());
+	assert(victim);
+	assert(!victim->IsKilled());
 
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this,
 		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);

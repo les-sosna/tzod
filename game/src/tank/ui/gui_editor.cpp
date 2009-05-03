@@ -45,8 +45,8 @@ NewMapDlg::NewMapDlg(Window *parent)
 	_height = new Edit(this, 60, 130, 80);
 	_height->SetInt(g_conf->ed_height->GetInt());
 
-	(new Button(this, 20, 200, g_lang->common_ok->Get()))->eventClick.bind(&NewMapDlg::OnOK, this);
-	(new Button(this, 140, 200, g_lang->common_cancel->Get()))->eventClick.bind(&NewMapDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 20, 200))->eventClick.bind(&NewMapDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 140, 200))->eventClick.bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
 }
@@ -103,7 +103,7 @@ void PropertyList::DoExchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		_ASSERT(_ps);
+		assert(_ps);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
@@ -117,7 +117,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				assert( dynamic_cast<Edit*>(ctrl) );
 				int n;
 				n = static_cast<Edit*>(ctrl)->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
@@ -129,7 +129,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetIntValue(n);
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				assert( dynamic_cast<Edit*>(ctrl) );
 				float f;
 				f = static_cast<Edit*>(ctrl)->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
@@ -141,17 +141,17 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetFloatValue(f);
 				break;
 			case ObjectProperty::TYPE_STRING:
-				_ASSERT( dynamic_cast<Edit*>(ctrl) );
+				assert( dynamic_cast<Edit*>(ctrl) );
 				prop->SetStringValue(static_cast<Edit*>(ctrl)->GetText());
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				_ASSERT( dynamic_cast<ComboBox*>(ctrl) );
+				assert( dynamic_cast<ComboBox*>(ctrl) );
 				int index;
 				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
 				prop->SetCurrentIndex(index);
 				break;
 			default:
-				_ASSERT(FALSE);
+				assert(FALSE);
 			}
 		}
 		_ps->Exchange(true);
@@ -208,7 +208,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				static_cast<ComboBox*>(ctrl)->GetList()->AlignHeightToContent();
 				break;
 			default:
-				_ASSERT(FALSE);
+				assert(FALSE);
 			} // end of switch( prop->GetType() )
 
 			label->SetText(labelTextBuffer.str());
@@ -222,7 +222,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				GetManager()->SetFocusWnd(ctrl);
 			}
 
-			_ASSERT(NULL != ctrl);
+			assert(NULL != ctrl);
 			_ctrls.push_back(ctrl);
 			y += ctrl->GetHeight();
 			y += 10;
@@ -288,13 +288,13 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 ServiceListDataSource::ServiceListDataSource()
   : _listener(NULL)
 {
-	_ASSERT(!g_level->_serviceListener);
+	assert(!g_level->_serviceListener);
 	g_level->_serviceListener = this;
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
-	_ASSERT(this == g_level->_serviceListener);
+	assert(this == g_level->_serviceListener);
 	g_level->_serviceListener = NULL;
 }
 
@@ -319,7 +319,7 @@ ULONG_PTR ServiceListDataSource::GetItemData(int index) const
 	for( int i = 0; i < index; ++i )
 	{
 		++it;
-		_ASSERT(g_level->GetList(LIST_services).end() != it);
+		assert(g_level->GetList(LIST_services).end() != it);
 	}
 	return (ULONG_PTR) *it;
 }
@@ -337,7 +337,7 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 		_nameCache = name ? name : "";
 		return _nameCache;
 	}
-	_ASSERT(false);
+	assert(false);
 	_nameCache = "";
 	return _nameCache;
 }
@@ -366,7 +366,7 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 		}
 		++idx;
 	}
-	_ASSERT(-1 != found);
+	assert(-1 != found);
 
 	_listener->OnDeleteItem(found);
 }
@@ -385,7 +385,7 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 	_list->SetBorder(true);
 	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
 
-	_btnCreate = new Button(this, 0, 0, g_lang->service_create->Get());
+	_btnCreate = new Button(this, g_lang->service_create->Get(), 0, 0);
 	_btnCreate->eventClick.bind(&ServiceList::OnCreateService, this);
 
 	_combo = new ComboBox(this, _margins, _margins, 1);
@@ -406,13 +406,13 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
 	Resize(w, h);
 	SetEasyMove(true);
 
-	_ASSERT(!GetEditorLayout()->eventOnChangeSelection);
+	assert(!GetEditorLayout()->eventOnChangeSelection);
 	GetEditorLayout()->eventOnChangeSelection.bind(&ServiceList::OnChangeSelectionGlobal, this);
 }
 
 ServiceList::~ServiceList()
 {
-	_ASSERT(GetEditorLayout()->eventOnChangeSelection);
+	assert(GetEditorLayout()->eventOnChangeSelection);
 	GetEditorLayout()->eventOnChangeSelection.clear();
 }
 
@@ -433,7 +433,7 @@ void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
 
 EditorLayout* ServiceList::GetEditorLayout() const
 {
-	_ASSERT(dynamic_cast<EditorLayout*>(GetParent()));
+	assert(dynamic_cast<EditorLayout*>(GetParent()));
 	return static_cast<EditorLayout*>(GetParent());
 }
 
@@ -520,7 +520,7 @@ EditorLayout::EditorLayout(Window *parent)
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel(g_conf->ed_object->GetInt());
 
-	_selectionRect = new Window(this, 0, 0, "selection");
+	_selectionRect = new Window(this, 0, 0, "ui/selection");
 	_selectionRect->SetBorder(true);
 	_selectionRect->SetVisible(false);
 	_selectionRect->BringToBack();
@@ -529,7 +529,7 @@ EditorLayout::EditorLayout(Window *parent)
 	_click = true;
 	_mbutton = 0;
 
-	_ASSERT(!g_conf->ed_uselayers->eventChange);
+	assert(!g_conf->ed_uselayers->eventChange);
 	g_conf->ed_uselayers->eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
@@ -546,12 +546,12 @@ void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
 
 void EditorLayout::OnMoveSelected(GC_Object *sender, void *param)
 {
-	_ASSERT(_selectedObject == sender);
+	assert(_selectedObject == sender);
 }
 
 void EditorLayout::Select(GC_Object *object, bool bSelect)
 {
-	_ASSERT(object);
+	assert(object);
 
 	if( bSelect )
 	{
@@ -572,7 +572,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 	}
 	else
 	{
-		_ASSERT(object == _selectedObject);
+		assert(object == _selectedObject);
 		_selectedObject = NULL;
 		_isObjectNew = false;
 
@@ -798,7 +798,7 @@ void EditorLayout::DrawChildren(float sx, float sy) const
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
-		_ASSERT(g_level);
+		assert(g_level);
 		GC_Camera *camera = NULL;
 
 		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, c )
@@ -810,7 +810,7 @@ void EditorLayout::DrawChildren(float sx, float sy) const
 			}
 		}
 
-		_ASSERT(camera);
+		assert(camera);
 		RECT viewport;
 		camera->GetViewport(viewport);
 

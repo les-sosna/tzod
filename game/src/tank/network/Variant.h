@@ -97,7 +97,7 @@ int VariantRegisterMetaType(T * = 0)
 
 #define STD_VECTOR                                                      \
 {                                                                       \
-	_ASSERT(value.size() < 0xffff);                                     \
+	assert(value.size() < 0xffff);                                     \
 	unsigned short count = value.size();                                \
 	s & count;                                                          \
 	value.resize(count);                                                \
@@ -135,13 +135,13 @@ public:
 
 	template<class T> T& Value()
 	{
-		_ASSERT(_type == VariantTypeId<T>());
+		assert(_type == VariantTypeId<T>());
 		return *reinterpret_cast<T *>(_data);
 	}
 
 	template<class T> const T& Value() const
 	{
-		_ASSERT(_type == VariantTypeId<T>());
+		assert(_type == VariantTypeId<T>());
 		return *reinterpret_cast<const T *>(_data);
 	}
 
@@ -151,7 +151,7 @@ public:
 #ifdef VARIANT_DEBUG
 		TypeId tmp = value._type;
 		s.Serialize(&tmp, sizeof(tmp));
-		_ASSERT(tmp == value._type);
+		assert(tmp == value._type);
 #endif
 		value._types[value._type].ser(s, value._data);
 		s.EntityEnd();

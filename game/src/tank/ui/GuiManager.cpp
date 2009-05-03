@@ -32,18 +32,18 @@ GuiManager::~GuiManager()
 	_cursor->Destroy();
 	_cursor = NULL;
 
-	_ASSERT(0 == GetWndCount());
+	assert(0 == GetWndCount());
 }
 
 void GuiManager::Add(UI::Window* wnd)
 {
-	_ASSERT(wnd);
+	assert(wnd);
 	++_windowCount;
 }
 
 void GuiManager::Remove(UI::Window* wnd)
 {
-	_ASSERT(!wnd->GetTopMost()); // can't remove top most window
+	assert(!wnd->GetTopMost()); // can't remove top most window
 
 	if( wnd == _hotTrackWnd )
 	{
@@ -52,7 +52,7 @@ void GuiManager::Remove(UI::Window* wnd)
 	if( wnd == _focusWnd )
 	{
 		Unfocus(wnd);
-		_ASSERT(wnd != _focusWnd);
+		assert(wnd != _focusWnd);
 	}
 
 	if( wnd == _captureWnd )
@@ -83,12 +83,12 @@ void GuiManager::SetCapture(UI::Window* wnd)
 {
 	if( _captureWnd )
 	{
-		_ASSERT(_captureWnd == wnd);
-		_ASSERT(_captureCount != 0);
+		assert(_captureWnd == wnd);
+		assert(_captureCount != 0);
 	}
 	else
 	{
-		_ASSERT(0 == _captureCount);
+		assert(0 == _captureCount);
 		_captureWnd = wnd;
 	}
 	_captureCount++;
@@ -96,8 +96,8 @@ void GuiManager::SetCapture(UI::Window* wnd)
 
 void GuiManager::ReleaseCapture(UI::Window* wnd)
 {
-	_ASSERT(wnd == _captureWnd);
-	_ASSERT(0 != _captureCount);
+	assert(wnd == _captureWnd);
+	assert(0 != _captureCount);
 
 	if( 0 == --_captureCount )
 	{
@@ -109,7 +109,7 @@ void GuiManager::AddTopMost(UI::Window* wnd, bool add)
 {
 	if( add )
 	{
-		_ASSERT(!wnd->IsDestroyed());
+		assert(!wnd->IsDestroyed());
 		_topmost.push_back(wnd);
 	}
 	else
@@ -139,7 +139,7 @@ void GuiManager::PushClippingRect(const RECT &rect)
 
 void GuiManager::PopClippingRect()
 {
-	_ASSERT(!_clipStack.empty());
+	assert(!_clipStack.empty());
 	_clipStack.pop();
 	if( _clipStack.empty() )
 	{
@@ -155,7 +155,7 @@ bool GuiManager::SetFocusWnd(UI::Window* wnd)
 {
 	if( wnd )
 	{
-		_ASSERT(wnd->GetEnabled() && wnd->GetVisible());
+		assert(wnd->GetEnabled() && wnd->GetVisible());
 
 		if( _focusWnd == wnd )
 			return true;
@@ -190,8 +190,8 @@ UI::Window* GuiManager::GetFocusWnd() const
 
 bool GuiManager::Unfocus(UI::Window* wnd)
 {
-	_ASSERT(wnd);
-	_ASSERT(_focusWnd);
+	assert(wnd);
+	assert(_focusWnd);
 
 	if( wnd == _focusWnd )
 	{
@@ -235,13 +235,13 @@ bool GuiManager::Unfocus(UI::Window* wnd)
 
 			// and finally try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			_ASSERT(!tmp || (tmp->GetVisible() && tmp->GetEnabled() && !tmp->IsDestroyed()));
+			assert(!tmp || (tmp->GetVisible() && tmp->GetEnabled() && !tmp->IsDestroyed()));
 		}
 		if( !tmp )
 		{
 			SetFocusWnd(NULL);
 		}
-		_ASSERT(wnd != _focusWnd);
+		assert(wnd != _focusWnd);
 		return true;
 	}
 
@@ -376,7 +376,7 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 		// calc relative mouse position and route message to captured window
 		for( UI::Window *wnd = _captureWnd; _desktop != wnd; wnd = wnd->GetParent() )
 		{
-			_ASSERT(wnd);
+			assert(wnd);
 			x -= wnd->GetX();
 			y -= wnd->GetY();
 		}
@@ -398,7 +398,7 @@ bool GuiManager::ProcessMouse(float x, float y, float z, UINT msg)
 			float y_ = _desktop->GetY();
 			for( UI::Window *wnd = *it; _desktop != wnd; wnd = wnd->GetParent() )
 			{
-				_ASSERT(wnd);
+				assert(wnd);
 				x_ += wnd->GetX();
 				y_ += wnd->GetY();
 			}
@@ -447,7 +447,7 @@ bool GuiManager::ProcessKeys(UINT msg, int c)
 		GetDesktop()->OnChar(c);
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 
 	return false;
@@ -455,7 +455,7 @@ bool GuiManager::ProcessKeys(UINT msg, int c)
 
 void GuiManager::Render() const
 {
-	_ASSERT(_clipStack.empty());
+	assert(_clipStack.empty());
 
 	g_render->SetMode(RM_INTERFACE);
 
@@ -468,7 +468,7 @@ void GuiManager::Render() const
 		float y = _desktop->GetY();
 		for( UI::Window *wnd = (*it)->GetParent(); _desktop != wnd; wnd = wnd->GetParent() )
 		{
-			_ASSERT(wnd);
+			assert(wnd);
 			x += wnd->GetX();
 			y += wnd->GetY();
 		}
@@ -477,7 +477,7 @@ void GuiManager::Render() const
 
 	_cursor->Draw();
 
-	_ASSERT(_clipStack.empty());
+	assert(_clipStack.empty());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

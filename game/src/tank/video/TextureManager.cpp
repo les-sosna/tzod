@@ -6,9 +6,6 @@
 #include "RenderBase.h"
 #include "ImageLoader.h"
 
-#include "macros.h"
-#include "level.h"  // FIXME
-
 #include "core/debug.h"
 #include "core/Application.h"
 #include "core/Console.h"
@@ -122,8 +119,8 @@ void TextureManager::CreateChecker()
 	// check if checker texture already exists
 	//
 
-	_ASSERT(_logicalTextures.empty()); // to be sure that checker will get index 0
-	_ASSERT(_mapName_to_Index.empty());
+	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
+	assert(_mapName_to_Index.empty());
 
 	TRACE("Creating checker texture\n");
 
@@ -138,7 +135,7 @@ void TextureManager::CreateChecker()
 	if( !g_render->TexCreate(td.id, GetRawPtr(c) ) )
 	{
 		TRACE("ERROR: error in render device\n");
-		_ASSERT(FALSE);
+		assert(FALSE);
 		return;
 	}
 
@@ -318,7 +315,7 @@ int TextureManager::LoadPackage(const string_t &filename)
 									_mapDevTex_to_TexDescIter[existing.dev_texture];
 								existing = tex;
 								tmp->refCount--;
-								_ASSERT(tmp->refCount >= 0);
+								assert(tmp->refCount >= 0);
 							}
 							else
 							{
@@ -349,7 +346,7 @@ int TextureManager::LoadPackage(const string_t &filename)
 	while( _textures.end() != it )
 	{
         TexDescIterator tmp = it++;
-		_ASSERT(tmp->refCount >= 0);
+		assert(tmp->refCount >= 0);
 		if( 0 == tmp->refCount )
 			Unload(tmp);
 	}
@@ -412,7 +409,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 	return count;
 }
 
-size_t TextureManager::FindTexture(const string_t &name) const
+size_t TextureManager::FindSprite(const string_t &name) const
 {
 	std::map<string_t, size_t>::const_iterator it = _mapName_to_Index.find(name);
 	if( _mapName_to_Index.end() != it )

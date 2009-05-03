@@ -29,7 +29,7 @@ namespace UI
 
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent, x, y, NULL)
-  , _fontTexture(g_texman->FindTexture("font_small"))
+  , _fontTexture(g_texman->FindSprite("font_small"))
 {
 }
 
@@ -131,7 +131,7 @@ Desktop::~Desktop()
 
 void Desktop::ShowDesktopBackground(bool show)
 {
-	SetTexture(show ? "window" : NULL);
+	SetTexture(show ? "ui/window" : NULL);
 }
 
 void Desktop::ShowConsole(bool show)
@@ -141,7 +141,7 @@ void Desktop::ShowConsole(bool show)
 
 void Desktop::ShowEditor(bool show)
 {
-	_ASSERT(!show || g_level);
+	assert(!show || g_level);
 	_editor->SetVisible(show);
 	if( show )
 	{

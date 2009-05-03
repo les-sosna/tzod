@@ -10,12 +10,12 @@ public:
 
     ~JobManager()
 	{
-		_ASSERT(_members.empty());
+		assert(_members.empty());
 	}
 
 	void RegisterMember(const T *member)
 	{
-		_ASSERT(std::find(_members.begin(), _members.end(), member) == _members.end());
+		assert(std::find(_members.begin(), _members.end(), member) == _members.end());
 		_members.push_back(member);
 		if( 1 == _members.size() )
 			_active = _members.begin();
@@ -23,7 +23,7 @@ public:
 
 	void UnregisterMember(const T *member)
 	{
-		_ASSERT(std::find(_members.begin(), _members.end(), member) != _members.end());
+		assert(std::find(_members.begin(), _members.end(), member) != _members.end());
 		if( *_active == member )
 			++_active;
 		_members.remove(member);

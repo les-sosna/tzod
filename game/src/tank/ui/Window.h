@@ -97,10 +97,10 @@ public:
 	//
 
 	void SetBackgroundColor(SpriteColor color) { _color = color; }
-	SpriteColor GetBackgroundColor() const { return _color; }
+	SpriteColor GetBackgroundColor() const     { return _color;  }
 
-	void SetBorder(bool border)   { _hasBorder = border;  }
-	bool GetBorder() const        { return _hasBorder;  }
+	void SetBorder(bool border)      { _hasBorder = border; }
+	bool GetBorder() const           { return _hasBorder;   }
 
 	void SetTexture(const char *tex);
 	float GetTextureWidth()  const;

@@ -52,8 +52,8 @@ void GC_SpawnPoint::Draw() const
 		__super::Draw();
 
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
-		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
-		static size_t font = g_texman->FindTexture("font_default");
+		assert(_team >= 0 && _team < MAX_TEAMS);
+		static size_t font = g_texman->FindSprite("font_default");
 		g_texman->DrawBitmapText(font, teams[_team], 0xffffffff, GetPos().x, GetPos().y, alignTextCC);
 	}
 }
@@ -112,7 +112,7 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	case 1: return &_propDir;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -186,7 +186,7 @@ GC_Crosshair::GC_Crosshair(enChStyle style)
 		SetTexture("indicator_crosshair2");
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 
 	///////////////////////
@@ -221,7 +221,7 @@ void GC_Crosshair::TimeStepFloat(float dt)
 		SetSpriteRotation(_angle);
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 }
 
@@ -237,7 +237,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
   : GC_2dSprite()
   , _memberOf(this)
 {
-	_ASSERT(NULL == FindIndicator(object, location));
+	assert(NULL == FindIndicator(object, location));
 
 	SetZ(Z_VEHICLE_LABEL);
 
@@ -298,7 +298,7 @@ GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION loc
 
 void GC_IndicatorBar::Draw() const
 {
-	_ASSERT(_object);
+	assert(_object);
 
 	float val     = *((float *) ((char*) GetRawPtr(_object) + _dwValue_offset));
 	float max_val = *((float *) ((char*) GetRawPtr(_object) + _dwValueMax_offset));
@@ -336,7 +336,7 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 			g_level->_sy - GetSpriteHeight()*2)) );
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 }
 

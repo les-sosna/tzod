@@ -21,7 +21,7 @@ bool PauseGame(bool pause)
 	}
 	else
 	{
-		_ASSERT(g_env.pause > 0);
+		assert(g_env.pause > 0);
 		g_env.pause--;
 		if( 0 == g_level->_pause + g_env.pause )
 		{

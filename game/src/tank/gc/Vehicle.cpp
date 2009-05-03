@@ -89,7 +89,7 @@ GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
 
 bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
-	_ASSERT(false);
+	assert(false);
 	return false;
 }
 
@@ -144,7 +144,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 
 	// move
 	GC_VehicleBase::TimeStepFixed( dt );
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 
 	ApplyState(_parent->GetPredictedState());
 
@@ -197,8 +197,8 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 	//
 	if( _parent->GetHealth() < (_parent->GetHealthMax() * 0.4f) )
 	{
-		_ASSERT(!_parent->IsKilled());
-		_ASSERT(_parent->GetHealth() > 0);
+		assert(!_parent->IsKilled());
+		assert(_parent->GetHealth() > 0);
 		                    //    +-{ максимальное число частичек дыма в секунду }
 		_time_smoke += dt;  //    |
 		float smoke_dt = 1.0f / (60.0f * (1.0f - _parent->GetHealth() / (_parent->GetHealthMax() * 0.5f)));
@@ -246,7 +246,7 @@ void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
 
 void GC_VehicleVisualDummy::OnDamLabelDisappear(GC_Object *sender, void *param)
 {
-	_ASSERT(_damLabel);
+	assert(_damLabel);
 	_damLabel = NULL;
 }
 
@@ -423,7 +423,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	float result;
 	
 	float vx = GetMaxSpeed();
-	_ASSERT(vx > 0);
+	assert(vx > 0);
 
 	if( _Mx > 0 )
 	{
@@ -493,7 +493,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 				_weapon->Disappear(); // this will detach weapon and call OnPickup(attached=false)
 			}
 
-			_ASSERT(!_weapon);
+			assert(!_weapon);
 			_weapon = WrapRawPtr(w);
 
 			//
@@ -529,7 +529,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 		}
 		else
 		{
-			_ASSERT(_weapon);
+			assert(_weapon);
 			Unsubscribe( GetRawPtr(_weapon) );
 			_weapon = NULL;
 			ResetClass();
@@ -592,7 +592,7 @@ void GC_Vehicle::ResetClass()
 
 bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 
 	DamageDesc dd;
 	dd.damage = damage;

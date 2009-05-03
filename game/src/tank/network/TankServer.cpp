@@ -130,7 +130,7 @@ void TankServer::OnListenerEvent()
 		TRACE("sv: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
 		return;
 	}
-	_ASSERT(ne.lNetworkEvents & FD_ACCEPT);
+	assert(ne.lNetworkEvents & FD_ACCEPT);
 
 	if( 0 != ne.iErrorCode[FD_ACCEPT_BIT] )
 	{
@@ -177,7 +177,7 @@ void TankServer::OnListenerEvent()
 /*
 void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 {
-	_ASSERT(dynamic_cast<PeerServer*>(who_));
+	assert(dynamic_cast<PeerServer*>(who_));
 	PeerServer *who = static_cast<PeerServer*>(who_);
 
 	switch( db.type() )
@@ -208,7 +208,7 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 					break;
 				}
 			}
-			_ASSERT(msg.length() > 1);
+			assert(msg.length() > 1);
 			msg += "> ";
 			msg += (char *) db.Data();
 
@@ -327,7 +327,7 @@ void TankServer::OnRecv(Peer *who_, const DataBlock &db)
 		}
 
 		default:
-			_ASSERT(FALSE);
+			assert(FALSE);
 			// TODO: disconnect client
 	}
 }
@@ -346,7 +346,7 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 {
 	TRACE("sv: client disconnected\n");
 
-	_ASSERT(dynamic_cast<PeerServer*>(who_));
+	assert(dynamic_cast<PeerServer*>(who_));
 	PeerServer *who = static_cast<PeerServer*>(who_);
 
 	if( who->connected )
@@ -395,7 +395,7 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 
 void TankServer::SendFrame()
 {
-	_ASSERT(_frameReadyCount == _connectedCount);
+	assert(_frameReadyCount == _connectedCount);
 
 
 	//
@@ -452,7 +452,7 @@ void TankServer::SendFrame()
 			(*it)->ctrl.pop();
 			if( (*it)->ctrl.empty() )
 			{
-				_ASSERT(_frameReadyCount > 0);
+				assert(_frameReadyCount > 0);
 				--_frameReadyCount;
 			}
 		}

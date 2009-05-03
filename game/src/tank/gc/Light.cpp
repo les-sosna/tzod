@@ -156,7 +156,7 @@ void GC_Light::Shine()
 		}
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 }
 
@@ -174,14 +174,14 @@ void GC_Light::MoveTo(const vec2d &pos)
 
 void GC_Light::SetTimeout(float t)
 {
-	_ASSERT(t > 0);
+	assert(t > 0);
 	_timeout = t;
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 void GC_Light::TimeStepFixed(float dt)
 {
-	_ASSERT(_timeout > 0);
+	assert(_timeout > 0);
 	_intensity = _intensity * (_timeout - dt) / _timeout;
 	_timeout -= dt;
 	if( _timeout <= 0 ) Kill();
@@ -307,7 +307,7 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	case 0: return &_propActive;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 

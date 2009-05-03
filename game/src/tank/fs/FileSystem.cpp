@@ -11,7 +11,7 @@ namespace FS {
 File::File(/*FileSystem* host*/)
 //  : _hostFileSystem(host)
 {
-//    _ASSERT(_hostFileSystem);
+//    assert(_hostFileSystem);
 }
 
 File::~File()
@@ -50,8 +50,8 @@ const string_t FileSystem::GetFullPath(void) const
 
 bool FileSystem::MountTo(FileSystem *parent)
 {
-	_ASSERT(!GetNodeName().empty() && GetNodeName() != TEXT("/"));
-	_ASSERT(!_parent); // may be is already mounted somewhere? only one parent is allowed
+	assert(!GetNodeName().empty() && GetNodeName() != TEXT("/"));
+	assert(!_parent); // may be is already mounted somewhere? only one parent is allowed
 
 	// check if node with the same name is already exists
 	StrToFileSystemMap::iterator it = parent->_children.find(_nodeName);
@@ -67,8 +67,8 @@ bool FileSystem::MountTo(FileSystem *parent)
 
 void FileSystem::Unmount()
 {
-	_ASSERT(_parent); // not mounted?
-	_ASSERT(_parent->GetFileSystem(GetNodeName(), false) == this);
+	assert(_parent); // not mounted?
+	assert(_parent->GetFileSystem(GetNodeName(), false) == this);
 
 	AddRef(); // protect this object from deletion
 	_parent->_children.erase(GetNodeName());
@@ -106,7 +106,7 @@ SafePtr<File> FileSystem::RawOpen(const string_t &fileName)
 
 SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create)
 {
-	_ASSERT(!path.empty());
+	assert(!path.empty());
 
 //    if( path[0] == DELIMITER ) //
 
@@ -240,8 +240,8 @@ OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeNa
 OSFileSystem::OSFileSystem(OSFileSystem *parent, const string_t &nodeName)
   : FileSystem(nodeName)
 {
-	_ASSERT(parent);
-	_ASSERT(string_t::npos == nodeName.find(DELIMITER));
+	assert(parent);
+	assert(string_t::npos == nodeName.find(DELIMITER));
 
 	MountTo(parent);
 	_rootDirectory = parent->_rootDirectory + TEXT('\\') + nodeName;
@@ -311,7 +311,7 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool creat
 	}
 	catch( const std::exception& )
 	{
-		_ASSERT(!path.empty());
+		assert(!path.empty());
 
 		string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
 		if( path.length() == offset )

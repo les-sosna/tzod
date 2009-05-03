@@ -77,33 +77,33 @@ public:
 
 		iterator& operator++ ()  // prefix increment
 		{
-			_ASSERT(_node && _node->next);
+			assert(_node && _node->next);
 			_node = _node->next;
 			return (*this);
 		}
 		iterator operator++ (int)  // postfix increment
 		{
-			_ASSERT(_node && _node->next);
+			assert(_node && _node->next);
 			iterator tmp(_node);
 			_node = _node->next;
 			return tmp;
 		}
 		iterator& operator-- ()  // prefix decrement
 		{
-			_ASSERT(_node && _node->prev);
+			assert(_node && _node->prev);
 			_node = _node->prev;
 			return (*this);
 		}
 		iterator operator-- (int)  // postfix decrement
 		{
-			_ASSERT(_node && _node->prev);
+			assert(_node && _node->prev);
 			iterator tmp(_node);
 			_node = _node->prev;
 			return tmp;
 		}
 		void operator = (const NullHelper *arg) // to allow iter=NULL
 		{
-			_ASSERT(NULL == arg);
+			assert(NULL == arg);
 			_node = NULL;
 		}
 	};
@@ -126,7 +126,7 @@ public:
 
 		safe_iterator& operator++ ()  // prefix increment
 		{
-			_ASSERT(_node && _node->next);
+			assert(_node && _node->next);
 			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
 			{
 				_node = _node->next;
@@ -141,7 +141,7 @@ public:
 		}
 		safe_iterator& operator-- ()  // prefix decrement
 		{
-			_ASSERT(_node && _node->prev);
+			assert(_node && _node->prev);
 			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
 			{
 				_node = _node->prev;
@@ -172,26 +172,26 @@ public:
 
 		reverse_iterator& operator++ ()  // prefix increment
 		{
-			_ASSERT(_node && _node->prev);
+			assert(_node && _node->prev);
 			_node = _node->prev;
 			return (*this);
 		}
 		reverse_iterator operator++ (int)  // postfix increment
 		{
-			_ASSERT(_node && _node->prev);
+			assert(_node && _node->prev);
 			reverse_iterator tmp(_node);
 			_node = _node->prev;
 			return tmp;
 		}
 		reverse_iterator& operator-- ()  // prefix decrement
 		{
-			_ASSERT(_node && _node->next);
+			assert(_node && _node->next);
 			_node = _node->next;
 			return (*this);
 		}
 		reverse_iterator operator-- (int)  // postfix decrement
 		{
-			_ASSERT(_node && _node->next);
+			assert(_node && _node->next);
 			reverse_iterator tmp(_node);
 			_node = _node->next;
 			return tmp;
@@ -255,10 +255,10 @@ public:
 
 	void erase(base_iterator &where)
 	{
-		_ASSERT(0 < _size);
-		_ASSERT(0 == where._node->ref_count);  // use safe_erase to handle this
-		_ASSERT(where._node != _begin);
-		_ASSERT(where._node != _end);
+		assert(0 < _size);
+		assert(0 == where._node->ref_count);  // use safe_erase to handle this
+		assert(where._node != _begin);
+		assert(where._node != _end);
 		T *ptr = where._node->ptr;
 		FreeNode(where._node);
 		--_size;
@@ -266,8 +266,8 @@ public:
 
 	void safe_erase(base_iterator &where)
 	{
-		_ASSERT(0 < _size);
-		_ASSERT(0 <= where._node->ref_count);
+		assert(0 < _size);
+		assert(0 <= where._node->ref_count);
 		T *ptr = where._node->ptr;
 		if( where._node->ref_count )
 			where._node->ptr = 0;
@@ -291,13 +291,13 @@ public:
 
 	T* front() const
 	{
-		_ASSERT(!empty());
+		assert(!empty());
 		return _begin->next->ptr;
 	}
 
 	T* back()  const
 	{
-		_ASSERT(!empty());
+		assert(!empty());
 		return _end->prev->ptr;
 	}
 

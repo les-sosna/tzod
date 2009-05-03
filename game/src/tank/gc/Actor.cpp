@@ -72,14 +72,14 @@ void GC_Actor::LeaveAllContexts()
 
 void GC_Actor::LeaveContext(Context &context)
 {
-	_ASSERT(context.iterator);
+	assert(context.iterator);
 	context.grids->element(_location.x,_location.y).safe_erase(context.iterator);
 	context.iterator = NULL;
 }
 
 void GC_Actor::EnterAllContexts(const Location &l)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 	_location = l;
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
 	{
@@ -89,8 +89,8 @@ void GC_Actor::EnterAllContexts(const Location &l)
 
 void GC_Actor::EnterContext(Context &context, const Location &l)
 {
-	_ASSERT(!IsKilled());
-	_ASSERT(!context.iterator);
+	assert(!IsKilled());
+	assert(!context.iterator);
 
 	context.grids->element(l.x, l.y).push_back(this);
 	context.iterator = context.grids->element(l.x, l.y).rbegin();
@@ -98,7 +98,7 @@ void GC_Actor::EnterContext(Context &context, const Location &l)
 
 void GC_Actor::AddContext(Grid<ObjectList> *pGridSet)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 
 	Context context;
 	context.grids = pGridSet;
@@ -120,7 +120,7 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 		}
 	}
 	// не найден удаляемый контекст
-	_ASSERT(FALSE);
+	assert(FALSE);
 }
 
 void GC_Actor::mapExchange(MapFile &f)

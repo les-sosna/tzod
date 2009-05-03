@@ -35,20 +35,20 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 
 void GC_RigidBodyStatic::SetHealth(float cur, float max)
 {
-	_ASSERT(cur <= max);
+	assert(cur <= max);
 	_health = cur;
 	_health_max = max;
 }
 
 void GC_RigidBodyStatic::SetHealthCur(float hp)
 {
-	_ASSERT(hp <= _health_max);
+	assert(hp <= _health_max);
 	_health = hp;
 }
 
 void GC_RigidBodyStatic::SetHealthMax(float hp)
 {
-	_ASSERT(hp >= _health);
+	assert(hp >= _health);
 	_health_max = hp;
 }
 
@@ -63,7 +63,7 @@ void GC_RigidBodyStatic::OnDestroy()
 
 bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
@@ -190,7 +190,7 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	case 3: return &_propMaxHealth;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -357,7 +357,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 
 void GC_Wall::SetCorner(int index) // 0 means normal view
 {
-	_ASSERT(index >= 0 && index < 5);
+	assert(index >= 0 && index < 5);
 	static const DWORD flags[] = {
 		0,
 		GC_FLAG_WALL_CORNER_LT,
@@ -452,14 +452,14 @@ int GC_Wall::GetCorner(void)
 		index = 4;
         break;
 	default:
-		_ASSERT(0);
+		assert(0);
 	}
 	return index;
 }
 
 const char* GC_Wall::GetCornerTexture(int i)
 {
-	_ASSERT(i >=0 && i < 5);
+	assert(i >=0 && i < 5);
 	static const char* tex[] = {
 		"brick_wall",
 		"brick_lt",
@@ -504,7 +504,7 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	case 0: return &_propCorner;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -562,7 +562,7 @@ bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySt
 
 const char* GC_Wall_Concrete::GetCornerTexture(int i)
 {
-	_ASSERT(i >=0 && i < 5);
+	assert(i >=0 && i < 5);
 	static const char* tex[] = {
 		"concrete_wall",
 		"concrete_lt",
@@ -686,7 +686,7 @@ void GC_Water::Draw() const
 
 void GC_Water::SetTile(char nTile, bool value)
 {
-	_ASSERT(0 <= nTile && nTile < 8);
+	assert(0 <= nTile && nTile < 8);
 
 	if( value )
 		_tile |= (1 << nTile);

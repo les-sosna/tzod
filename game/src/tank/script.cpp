@@ -56,7 +56,7 @@ static int luaT_reset(lua_State *L)
 	//
 
 	lua_getglobal(L, "pushcmd");
-	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+	assert(LUA_TFUNCTION == lua_type(L, -1));
 	lua_newtable(L);
 	lua_setupvalue(L, -2, 1); // pops result of lua_newtable
 	lua_pop(L, 1);  // pop result of lua_getglobal
@@ -618,7 +618,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		break;
 	}
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 
 	return 1;
@@ -662,7 +662,7 @@ int luaT_actor(lua_State *L)
 		luaL_checktype(L, 4, LUA_TTABLE);
 
 		SafePtr<PropertySet> properties = obj->GetProperties();
-		_ASSERT(properties);
+		assert(properties);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
 		{
@@ -711,7 +711,7 @@ int luaT_service(lua_State *L)
 		luaL_checktype(L, 2, LUA_TTABLE);
 
 		SafePtr<PropertySet> properties = obj->GetProperties();
-		_ASSERT(properties);
+		assert(properties);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
 		{
@@ -782,7 +782,7 @@ int luaT_kill(lua_State *L)
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
-	_ASSERT(!obj->IsKilled());
+	assert(!obj->IsKilled());
 
 	obj->Kill();
 
@@ -867,7 +867,7 @@ int luaT_objtype(lua_State *L)
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
-	_ASSERT(!obj->IsKilled());
+	assert(!obj->IsKilled());
 
 	lua_pushstring(L, Level::GetTypeName(obj->GetType()));
 	return 1;
@@ -898,10 +898,10 @@ int luaT_pget(lua_State *L)
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
-	_ASSERT(!obj->IsKilled());
+	assert(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
-	_ASSERT(properties);
+	assert(properties);
 
 	for( int i = 0; i < properties->GetCount(); ++i )
 	{
@@ -923,7 +923,7 @@ int luaT_pget(lua_State *L)
 				lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
 				break;
 			default:
-				_ASSERT(FALSE);
+				assert(FALSE);
 			}
 			return 1;
 		}
@@ -956,10 +956,10 @@ int luaT_pset(lua_State *L)
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
 	}
-	_ASSERT(!obj->IsKilled());
+	assert(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
-	_ASSERT(properties);
+	assert(properties);
 
 	// prop name at -2; prop value at -1
 	if( !pset_helper(properties, L) )
@@ -1169,13 +1169,13 @@ lua_State* script_open(void)
 
 void script_close(lua_State *L)
 {
-	_ASSERT(L);
+	assert(L);
 	lua_close(L);
 }
 
 bool script_exec(lua_State *L, const char *string)
 {
-	_ASSERT(L);
+	assert(L);
 
 	if( luaL_loadstring(L, string) )
 	{
@@ -1196,7 +1196,7 @@ bool script_exec(lua_State *L, const char *string)
 
 bool script_exec_file(lua_State *L, const char *filename)
 {
-	_ASSERT(L);
+	assert(L);
 
 	if( luaL_loadfile(L, filename) )
 	{

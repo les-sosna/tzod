@@ -19,9 +19,9 @@ ScrollBar::ScrollBar(Window *parent, float x, float y, float size, bool hor)
 	_limit     = 1.0f;
 	_tmpBoxPos = -1;
 
-	_btnUpLeft     = new ImageButton( this, 0, 0, hor ? "ctrl_scroll_left"  : "ctrl_scroll_up"   );
-	_btnBox        = new ImageButton( this, 0, 0, hor ? "ctrl_scroll_hor"   : "ctrl_scroll_vert" );
-	_btnDownRight  = new ImageButton( this, 0, 0, hor ? "ctrl_scroll_right" : "ctrl_scroll_down" );
+	_btnUpLeft     = new ImageButton( this, 0, 0, hor ? "ui/scroll_left"  : "ui/scroll_up"   );
+	_btnBox        = new ImageButton( this, 0, 0, hor ? "ui/scroll_hor"   : "ui/scroll_vert" );
+	_btnDownRight  = new ImageButton( this, 0, 0, hor ? "ui/scroll_right" : "ui/scroll_down" );
 
 	_btnUpLeft->eventClick.bind(&ScrollBar::OnUpLeft, this);
 	_btnDownRight->eventClick.bind(&ScrollBar::OnDownRight, this);

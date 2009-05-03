@@ -57,7 +57,7 @@ public:
 
 	inline vec2d GetVertex(int index)
 	{
-		_ASSERT(index >= 0 && index < 4);
+		assert(index >= 0 && index < 4);
 		return vec2d(
 			GetPos().x + _vertices[index].x*_direction.x - _vertices[index].y*_direction.y,
 			GetPos().y + _vertices[index].x*_direction.y + _vertices[index].y*_direction.x

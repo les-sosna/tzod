@@ -20,8 +20,8 @@ Socket::Socket(void)
 
 Socket::~Socket(void)
 {
-	_ASSERT(WSA_INVALID_EVENT == _event);
-	_ASSERT(INVALID_SOCKET == _socket);
+	assert(WSA_INVALID_EVENT == _event);
+	assert(INVALID_SOCKET == _socket);
 }
 
 int Socket::SetEvents(long lNetworkEvents)
@@ -43,7 +43,7 @@ int Socket::EnumNetworkEvents(LPWSANETWORKEVENTS lpNetworkEvents)
 
 int Socket::Close()
 {
-	_ASSERT(INVALID_SOCKET != _socket);
+	assert(INVALID_SOCKET != _socket);
 
 	if( WSA_INVALID_EVENT != _event )
 	{
@@ -92,16 +92,16 @@ int Socket::Close()
 
 void Socket::SetCallback(Delegate<void()> callback)
 {
-	_ASSERT(!_hasCallback);
-	_ASSERT(INVALID_SOCKET != _socket);
-	_ASSERT(WSA_INVALID_EVENT != _event);
+	assert(!_hasCallback);
+	assert(INVALID_SOCKET != _socket);
+	assert(WSA_INVALID_EVENT != _event);
 	g_app->RegisterHandle(_event, callback);
 	_hasCallback = true;
 }
 
 SOCKET Socket::operator = (SOCKET s)
 {
-	_ASSERT(NULL == _event);
+	assert(NULL == _event);
 	_socket = s;
 	BOOL on = TRUE;
 	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )

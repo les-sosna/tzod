@@ -28,7 +28,7 @@ void Window::Reg(Window* parent, GuiManager* manager)
 	{
 		if( _prevSibling = _parent->_lastChild )
 		{
-			_ASSERT(NULL == _prevSibling->_nextSibling);
+			assert(NULL == _prevSibling->_nextSibling);
 			_prevSibling->_nextSibling = this;
 		}
 		_parent->_lastChild = this;
@@ -59,7 +59,7 @@ Window::Window(GuiManager* manager)
 
 	_frame    = 0;
 
-	SetTexture("window");
+	SetTexture("ui/window");
 
 	_x      = 0;
 	_y      = 0;
@@ -73,7 +73,7 @@ Window::Window(Window* parent)
 
 	_frame    = 0;
 
-	SetTexture("window");
+	SetTexture("ui/window");
 
 	_x      = 0;
 	_y      = 0;
@@ -97,7 +97,7 @@ Window::Window(Window* parent, float x, float y, const char *texture)
 
 Window::~Window()
 {
-	_ASSERT( _isDestroyed );
+	assert( _isDestroyed );
 }
 
 void Window::Destroy()
@@ -141,13 +141,13 @@ void Window::Destroy()
 
 		if( _prevSibling )
 		{
-			_ASSERT( this == _prevSibling->_nextSibling );
+			assert(this == _prevSibling->_nextSibling);
 			_prevSibling->_nextSibling = _nextSibling;
 		}
 
 		if( _nextSibling )
 		{
-			_ASSERT( this == _nextSibling->_prevSibling );
+			assert(this == _nextSibling->_prevSibling);
 			_nextSibling->_prevSibling = _prevSibling;
 		}
 
@@ -155,13 +155,13 @@ void Window::Destroy()
 		{
 			if( this == _parent->_firstChild )
 			{
-				_ASSERT(NULL == _prevSibling);
+				assert(NULL == _prevSibling);
 				_parent->_firstChild = _nextSibling;
 			}
 
 			if( this == _parent->_lastChild )
 			{
-				_ASSERT(NULL == _nextSibling);
+				assert(NULL == _nextSibling);
 				_parent->_lastChild = _prevSibling;
 			}
 
@@ -191,7 +191,7 @@ void Window::SetTexture(const char *tex)
 {
 	if( tex )
 	{
-		_texture = g_texman->FindTexture(tex);
+		_texture = g_texman->FindSprite(tex);
 	}
 	else
 	{
@@ -452,8 +452,9 @@ void Window::Draw(float sx, float sy) const
 		v[3].y = b;
 	}
 
-	//---------------------------
-	// draw children windows
+	//
+	// draw children windows with optional clipping
+	//
 
 	if( _clipChildren )
 	{
@@ -478,7 +479,9 @@ void Window::DrawChildren(float sx, float sy) const
 	for( Window *w = _firstChild; w; w = w->_nextSibling )
 	{
 		if( !w->_isTopMost ) // topmost windows are drawn separately
+		{
 			w->Draw(sx, sy);
+		}
 	}
 }
 
@@ -502,7 +505,7 @@ void Window::Resize(float width, float height)
 
 void Window::SetTopMost(bool topmost)
 {
-	_ASSERT(_isTopMost != topmost);
+	assert(_isTopMost != topmost);
 	_manager->AddTopMost(this, topmost);
 	_isTopMost = topmost;
 }
@@ -511,7 +514,7 @@ void Window::SetTimeStep(bool enable)
 {
 	if( enable )
 	{
-		_ASSERT(!IsDestroyed());
+		assert(!IsDestroyed());
 		if( !_isTimeStep )
 			_timeStepReg = GetManager()->TimeStepRegister(this);
 	}
@@ -594,11 +597,11 @@ bool Window::GetVisible() const
 
 void Window::BringToFront()
 {
-	_ASSERT(_parent);
+	assert(_parent);
 	if( _nextSibling )
 	{
-		_ASSERT( _parent->_firstChild );
-		_ASSERT( this != _parent->_lastChild );
+		assert( _parent->_firstChild );
+		assert( this != _parent->_lastChild );
 
 
 		//
@@ -607,16 +610,16 @@ void Window::BringToFront()
 
 		if( _prevSibling )
 		{
-			_ASSERT( this == _prevSibling->_nextSibling );
+			assert( this == _prevSibling->_nextSibling );
 			_prevSibling->_nextSibling = _nextSibling;
 		}
 		else
 		{
-			_ASSERT( this == _parent->_firstChild );
+			assert( this == _parent->_firstChild );
 			_parent->_firstChild = _nextSibling;
 		}
 
-		_ASSERT( this == _nextSibling->_prevSibling );
+		assert( this == _nextSibling->_prevSibling );
 		_nextSibling->_prevSibling = _prevSibling;
 		_nextSibling = NULL;
 
@@ -626,8 +629,8 @@ void Window::BringToFront()
 		//
 
 		_prevSibling = _parent->_lastChild;
-		_ASSERT(_prevSibling);
-		_ASSERT(NULL == _prevSibling->_nextSibling);
+		assert(_prevSibling);
+		assert(NULL == _prevSibling->_nextSibling);
 		_prevSibling->_nextSibling = this;
 		_parent->_lastChild = this;
 	}
@@ -636,11 +639,11 @@ void Window::BringToFront()
 
 void Window::BringToBack()
 {
-	_ASSERT(_parent);
+	assert(_parent);
 	if( _prevSibling )
 	{
-		_ASSERT( _parent->_lastChild );
-		_ASSERT( this != _parent->_firstChild );
+		assert( _parent->_lastChild );
+		assert( this != _parent->_firstChild );
 
 
 		//
@@ -649,16 +652,16 @@ void Window::BringToBack()
 
 		if( _nextSibling )
 		{
-			_ASSERT( this == _nextSibling->_prevSibling );
+			assert( this == _nextSibling->_prevSibling );
 			_nextSibling->_prevSibling = _prevSibling;
 		}
 		else
 		{
-			_ASSERT( this == _parent->_lastChild );
+			assert( this == _parent->_lastChild );
 			_parent->_lastChild = _prevSibling;
 		}
 
-		_ASSERT( this == _prevSibling->_nextSibling );
+		assert( this == _prevSibling->_nextSibling );
 		_prevSibling->_nextSibling = _nextSibling;
 		_prevSibling = NULL;
 
@@ -668,8 +671,8 @@ void Window::BringToBack()
 		//
 
 		_nextSibling = _parent->_firstChild;
-		_ASSERT(_nextSibling);
-		_ASSERT(NULL == _nextSibling->_prevSibling);
+		assert(_nextSibling);
+		assert(NULL == _nextSibling->_prevSibling);
 		_nextSibling->_prevSibling = this;
 		_parent->_firstChild = this;
 	}

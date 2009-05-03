@@ -14,7 +14,6 @@ namespace UI
 
 class Edit : public Window
 {
-	Text   *_blankText;
 	Window *_cursor;
 	Window *_selection;
 
@@ -22,6 +21,8 @@ class Edit : public Window
 	int   _selEnd;
 
 	string_t _string;
+	size_t _offset;
+	size_t _font;
 
 	float _time;
 
@@ -51,6 +52,7 @@ public:
 	Delegate<void()> eventChange;
 
 protected:
+	virtual void DrawChildren(float sx, float sy) const;
 	virtual void OnChar(int c);
 	virtual void OnRawChar(int c);
 	virtual bool OnMouseDown(float x, float y, int button);

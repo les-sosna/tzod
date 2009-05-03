@@ -57,7 +57,7 @@ public:
 			::free(_memoryBlocks[i]);
 
 #ifdef _DEBUG
-		_ASSERT(0 == _allocatedCount);
+		assert(0 == _allocatedCount);
 	//	TRACE("MemoryManager<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
 #endif
 	}
@@ -77,7 +77,7 @@ public:
 
 	void Free(T* p)
 	{
-		_ASSERT(_allocatedCount--);
+		assert(_allocatedCount--);
 		((BlankObject*) p)->pNext = _freeBlock;
 		_freeBlock = (BlankObject*) p;
 	}
@@ -145,7 +145,7 @@ class MemoryPool
 
 		BlankObject* Alloc()
 		{
-			_ASSERT(_free);
+			assert(_free);
 			BlankObject *tmp = _free;
 			_free = _free->_next;
 			++_used;
@@ -154,8 +154,8 @@ class MemoryPool
 
 		void Free(BlankObject *p)
 		{
-			_ASSERT(this == p->_block);
-			_ASSERT(_used > 0);
+			assert(this == p->_block);
+			assert(_used > 0);
 #ifdef _DEBUG
 			memset(p, 0xdb, sizeof(T));
 #endif
@@ -178,7 +178,7 @@ class MemoryPool
 	{
 		if( _blocks )
 		{
-			_ASSERT(!_blocks->_prev);
+			assert(!_blocks->_prev);
 			_blocks->_prev = new Block();
 			_blocks->_prev->_next = _blocks;
 			_blocks = _blocks->_prev;
@@ -190,7 +190,7 @@ class MemoryPool
 
 		if( _freeBlock )
 		{
-			_ASSERT(!_freeBlock->_prevFree);
+			assert(!_freeBlock->_prevFree);
 			_blocks->_nextFree = _freeBlock;
 			_freeBlock->_prevFree = _blocks;
 		}
@@ -217,7 +217,7 @@ public:
 		}
 
 #ifdef _DEBUG
-		_ASSERT(0 == _allocatedCount);
+		assert(0 == _allocatedCount);
 		printf("MemoryPool<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
 #endif
 	}
@@ -235,12 +235,12 @@ public:
 		}
 
 		BlankObject *result = _freeBlock->Alloc();
-		_ASSERT(_freeBlock == result->_block);
+		assert(_freeBlock == result->_block);
 
 		if( !_freeBlock->_free )
 		{
 			// no more free blanks in this block; remove block from free list
-			_ASSERT(!_freeBlock->_prevFree);
+			assert(!_freeBlock->_prevFree);
 			Block *tmp = _freeBlock;
 			_freeBlock = tmp->_nextFree;
 			if( _freeBlock )
@@ -253,18 +253,18 @@ public:
 
 	void Free(void* p)
 	{
-		_ASSERT(_allocatedCount--);
+		assert(_allocatedCount--);
 
 		Block *block = ((BlankObject*) p)->_block;
 		if( !block->_free )
 		{
 			// block just became free
-			_ASSERT(!block->_prevFree);
-			_ASSERT(!block->_nextFree);
+			assert(!block->_prevFree);
+			assert(!block->_nextFree);
 
 			if( _freeBlock )
 			{
-				_ASSERT(!_freeBlock->_prevFree);
+				assert(!_freeBlock->_prevFree);
 				_freeBlock->_prevFree = block;
 				block->_nextFree = _freeBlock;
 			}

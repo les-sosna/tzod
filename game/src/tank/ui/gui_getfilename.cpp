@@ -43,8 +43,8 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_fileName = new Edit(this, 20, 385, 472);
 	_fileName->eventChange.bind(&GetFileNameDlg::OnChangeName, this);
 
-	(new Button(this, 290, 420, g_lang->common_ok->Get()))->eventClick.bind(&GetFileNameDlg::OnOK, this);
-	(new Button(this, 400, 420, g_lang->common_cancel->Get()))->eventClick.bind(&GetFileNameDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 290, 420))->eventClick.bind(&GetFileNameDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 400, 420))->eventClick.bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_fileName);
 }

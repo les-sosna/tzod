@@ -33,9 +33,9 @@ void Rotator::reset(float angle, float velocity, float limit, float current, flo
 
 void Rotator::setl(float limit, float current, float stop)
 {
-	_ASSERT(current > 0);
-	_ASSERT(stop  > 0);
-	_ASSERT(limit > 0);
+	assert(current > 0);
+	assert(stop  > 0);
+	assert(limit > 0);
 
 	_velocity_limit   = limit;
 	_accel_current    = current;
@@ -49,9 +49,9 @@ void Rotator::setl(float limit, float current, float stop)
 
 void Rotator::rotate_to(float new_target)
 {
-	_ASSERT(!_isnan(new_target) && _finite(new_target));
-	_ASSERT(_accel_current > 0);
-	_ASSERT(_accel_stop > 0);
+	assert(!_isnan(new_target) && _finite(new_target));
+	assert(_accel_current > 0);
+	assert(_accel_stop > 0);
 
 	new_target = fmodf(new_target, PI2);
 	if( new_target < 0 ) new_target += PI2;
@@ -64,21 +64,21 @@ void Rotator::rotate_to(float new_target)
 
 void Rotator::rotate_left()
 {
-	_ASSERT(_accel_current > 0);
-	_ASSERT(_accel_stop > 0);
+	assert(_accel_current > 0);
+	assert(_accel_stop > 0);
 	_state = RS_LEFT;
 }
 
 void Rotator::rotate_right()
 {
-	_ASSERT(_accel_current > 0);
-	_ASSERT(_accel_stop > 0);
+	assert(_accel_current > 0);
+	assert(_accel_stop > 0);
 	_state = RS_RIGHT;
 }
 
 void Rotator::stop()
 {
-	_ASSERT(_accel_stop > 0);
+	assert(_accel_stop > 0);
 
 	if( RS_STOPPED != _state )
 	{

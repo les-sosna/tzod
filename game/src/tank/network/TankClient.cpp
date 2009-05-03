@@ -145,7 +145,7 @@ void TankClient::SendTextMessage(const std::string &msg)
 
 void TankClient::SendControl(const ControlPacket &cp)
 {
-	_ASSERT(_gameStarted);
+	assert(_gameStarted);
 
 	if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
 	{
@@ -168,7 +168,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 
 void TankClient::SendPlayerReady(bool ready)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 	_peer->Post(SV_POST_PLAYERREADY, Variant(ready));
 }
 
@@ -189,7 +189,7 @@ void TankClient::GetStatistics(NetworkStats *pStats)
 
 void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 
 	const GameInfo &gi = arg.Value<GameInfo>();
 
@@ -235,13 +235,13 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClSetId(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 	_clientId = arg.Value<unsigned short>();
 }
 
 void TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 	if( eventPlayerReady )
 	{
 		INVOKE(eventPlayerReady) (arg.Value<PlayerReady>().id, arg.Value<PlayerReady>().ready);
@@ -250,7 +250,7 @@ void TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 	_gameStarted = true;
 
 
@@ -277,7 +277,7 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClAddPlayer(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(!_gameStarted);
+	assert(!_gameStarted);
 
 	const PlayerDescEx &pd = arg.Value<PlayerDescEx>();
 
@@ -383,8 +383,8 @@ void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 {
-	_ASSERT(_gameStarted);
-	_ASSERT(g_level);
+	assert(_gameStarted);
+	assert(g_level);
 	g_level->Step(arg.Value<ControlPacketVector>());
 }
 

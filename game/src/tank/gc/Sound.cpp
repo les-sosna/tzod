@@ -71,8 +71,8 @@ GC_Sound::GC_Sound(FromFile)
 GC_Sound::~GC_Sound()
 {
 #if !defined NOSOUND
-	_ASSERT(NULL == _soundBuffer);
-	_ASSERT(SMODE_STOP == _mode);
+	assert(NULL == _soundBuffer);
+	assert(SMODE_STOP == _mode);
 #endif
 }
 
@@ -92,7 +92,7 @@ void GC_Sound::Kill()
 
 void GC_Sound::SetMode(enumSoundMode mode)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 
 #ifndef NOSOUND
 
@@ -102,7 +102,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 	switch (mode)
 	{
 	case SMODE_PLAY:
-		_ASSERT(SMODE_UNKNOWN == _mode);
+		assert(SMODE_UNKNOWN == _mode);
 		if( _countActive == _countMax )
 		{
 			FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
@@ -127,7 +127,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 			}
 		}
 		////////////////////////////
-		_ASSERT(_countActive < _countMax);
+		assert(_countActive < _countMax);
 		/////////////////////////////
 		++_countActive;
 		_mode = SMODE_PLAY;
@@ -135,7 +135,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 			_soundBuffer->Play(0, 0, 0);
 		break;
 	case SMODE_LOOP:
-		_ASSERT(SMODE_PLAY != _mode);
+		assert(SMODE_PLAY != _mode);
 		if( _countActive == _countMax )
 		{
 			if( SMODE_WAIT != _mode )
@@ -179,15 +179,15 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		_mode = SMODE_STOP;
 		break;
 	case SMODE_WAIT:
-		_ASSERT(SMODE_LOOP == _mode);
-		_ASSERT(_countActive > 0);
+		assert(SMODE_LOOP == _mode);
+		assert(_countActive > 0);
 		--_countActive;
 		++_countWaiting;
 		_mode = SMODE_WAIT;
 		_soundBuffer->Stop();
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 #endif
 }
@@ -195,7 +195,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 void GC_Sound::Pause(bool pause)
 {
 #if !defined NOSOUND
-	_ASSERT(SMODE_PLAY != _mode);
+	assert(SMODE_PLAY != _mode);
 	if( !IsKilled() )
 		SetMode(pause ? SMODE_STOP : SMODE_LOOP);
 #endif
@@ -215,8 +215,8 @@ void GC_Sound::UpdateVolume()
 void GC_Sound::SetVolume(float vol)
 {
 #if !defined NOSOUND
-	_ASSERT(0 <= vol);
-	_ASSERT(1 >= vol);
+	assert(0 <= vol);
+	assert(1 >= vol);
 	_volume = vol;
 	UpdateVolume();
 #endif
@@ -246,7 +246,7 @@ void GC_Sound::Serialize(SaveFile &f)
 	GC_Actor::Serialize(f);
 
 #if !defined NOSOUND
-	_ASSERT(f.loading() || _freezed);  // freeze it before saving!
+	assert(f.loading() || _freezed);  // freeze it before saving!
 	/////////////////////////////////////
 	f.Serialize(_freezed);
 	f.Serialize(_dwNormalFrequency);
@@ -362,7 +362,7 @@ void GC_Sound_link::Serialize(SaveFile &f)
 
 void GC_Sound_link::TimeStepFixed(float dt)
 {
-	_ASSERT(_object);
+	assert(_object);
 
 	if( _object->IsKilled() )
 		Kill();

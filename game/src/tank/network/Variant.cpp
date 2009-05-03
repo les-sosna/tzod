@@ -19,15 +19,15 @@ bool DataStream::Direction() const
 
 void DataStream::Serialize(void *data, int bytes)
 {
-	_ASSERT(_entityLevel > 0); // everything must be inside an entity
-	_ASSERT(bytes >= 0);
+	assert(_entityLevel > 0); // everything must be inside an entity
+	assert(bytes >= 0);
 	if( _serialization )
 	{
 		_buffer.insert(_buffer.end(), (const char *) data, (const char *) data + bytes);
 	}
 	else
 	{
-		_ASSERT(bytes <= std::distance(_ptr, _buffer.end()));
+		assert(bytes <= std::distance(_ptr, _buffer.end()));
 		memcpy(data, &*_ptr, bytes);
 		_ptr += bytes;
 	}
@@ -44,7 +44,7 @@ void DataStream::EntityBegin()
 		}
 		else
 		{
-			_ASSERT(EntityProbe());
+			assert(EntityProbe());
 			_ptr += sizeof(EntitySizeType); // skip entity size
 		}
 	}
@@ -52,13 +52,13 @@ void DataStream::EntityBegin()
 
 void DataStream::EntityEnd()
 {
-	_ASSERT(_entityLevel > 0);
+	assert(_entityLevel > 0);
 	if( 0 == --_entityLevel )
 	{
 		if( _serialization )
 		{
 			size_t entitySize = _buffer.size() - _entitySizeOffset;
-			_ASSERT(entitySize < 0xffff);
+			assert(entitySize < 0xffff);
 			*(EntitySizeType *) &_buffer[_entitySizeOffset] = (EntitySizeType) entitySize;
 		}
 		else
@@ -71,10 +71,10 @@ void DataStream::EntityEnd()
 
 bool DataStream::EntityProbe() const
 {
-	_ASSERT(!_serialization);
+	assert(!_serialization);
 	if( 0 == _entityLevel )
 	{
-		_ASSERT(_ptr <= _buffer.end());
+		assert(_ptr <= _buffer.end());
 		size_t restSize = (unsigned) std::distance(_ptr, const_cast<std::vector<char> &>(_buffer).end());
 		if( restSize < sizeof(EntitySizeType) )
 		{
@@ -93,8 +93,8 @@ bool DataStream::IsEmpty() const
 
 int DataStream::Send(SOCKET s)
 {
-	_ASSERT(_serialization);
-	_ASSERT(0 == _entityLevel);
+	assert(_serialization);
+	assert(0 == _entityLevel);
 
 	if( _buffer.empty() )
 	{
@@ -116,22 +116,22 @@ int DataStream::Send(SOCKET s)
 		}
 		else
 		{
-			_ASSERT(result > 0);
+			assert(result > 0);
 			sent += result;
 		}
 	} while( sent < _buffer.size() );
 
 	// remove sent bytes
-	_ASSERT(sent <= _buffer.size());
+	assert(sent <= _buffer.size());
 	_buffer.erase(_buffer.begin(), _buffer.begin() + sent);
 	return 0;
 }
 
 int DataStream::Recv(SOCKET s)
 {
-	_ASSERT(!_serialization);
-	_ASSERT(0 == _entityLevel);
-	_ASSERT(_buffer.begin() == _ptr);
+	assert(!_serialization);
+	assert(0 == _entityLevel);
+	assert(_buffer.begin() == _ptr);
 
 	u_long pending = 0;
 	if( ioctlsocket(s, FIONREAD, &pending) )
@@ -211,7 +211,7 @@ void Variant::ChangeType(TypeId type)
 Variant::TypeId Variant::RegisterType(Constructor ctor, Destructor dtor, Serialize ser)
 {
 #ifdef VARIANT_DEBUG
-	_ASSERT(_reg && !_init); // did you forget VARIANT_DECLARE_TYPE or Variant::Init()?
+	assert(_reg && !_init); // did you forget VARIANT_DECLARE_TYPE or Variant::Init()?
 #endif
 	UserType ut = {ctor, dtor, ser};
 	_types.push_back(ut);
@@ -220,7 +220,7 @@ Variant::TypeId Variant::RegisterType(Constructor ctor, Destructor dtor, Seriali
 
 bool Variant::DeclareType(TypeId (*declarator)())
 {
-	_ASSERT(GetDecl().end() == std::find(GetDecl().begin(), GetDecl().end(), declarator));
+	assert(GetDecl().end() == std::find(GetDecl().begin(), GetDecl().end(), declarator));
 	GetDecl().push_back(declarator);
 	return true;
 }
@@ -235,7 +235,7 @@ Variant::Declarators& Variant::GetDecl()
 void Variant::Init()
 {
 #ifdef VARIANT_DEBUG
-	_ASSERT(!_init); // did you call Init() more than once?
+	assert(!_init); // did you call Init() more than once?
 	_reg = true;
 #endif
 	for( size_t i = 0; i < GetDecl().size(); ++i )
@@ -265,7 +265,7 @@ VARIANT_IMPLEMENT_TYPE(double) RAW
 
 VARIANT_IMPLEMENT_TYPE(std::string)
 {
-	_ASSERT(value.length() < 0xffff);
+	assert(value.length() < 0xffff);
 	unsigned short len = value.length();
 	s & len;
 	value.resize(len);

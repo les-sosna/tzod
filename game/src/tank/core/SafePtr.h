@@ -35,7 +35,7 @@ public:
 	SafePtr(const InitFromNullHelper *f) // to allow implicit construction from NULL
 	  : _ptr(NULL)
 	{
-		_ASSERT(NULL == f);
+		assert(NULL == f);
 	}
 	explicit SafePtr(T *f)
 	  : _ptr(f)
@@ -71,7 +71,7 @@ public:
 	template<class U>
 	inline friend SafePtr<U> SafePtrCast(const SafePtr &src)
 	{
-		_ASSERT(!src._ptr || dynamic_cast<U*>(src._ptr));
+		assert(!src._ptr || dynamic_cast<U*>(src._ptr));
 		return WrapRawPtr(static_cast<U*>(src._ptr));
 	}
 
@@ -146,12 +146,12 @@ public:
 #pragma warning( pop )
 	NoAddRefRelease* operator -> () const
 	{
-		_ASSERT(_ptr);
+		assert(_ptr);
 		return static_cast<NoAddRefRelease *>(_ptr);
 	}
 //    T& operator * () const
 //    {
-//        _ASSERT(_ptr);
+//        assert(_ptr);
 //        return *_ptr;
 //    }
 
@@ -224,7 +224,7 @@ class RefCounted
 		int _count;
 		~tracker() // destructor will be called by runtime at the end of program
 		{
-			_ASSERT(0 == _count); // leaks!
+			assert(0 == _count); // leaks!
 		}
 	};
 	static tracker _tracker;

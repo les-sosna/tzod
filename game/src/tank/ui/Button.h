@@ -53,7 +53,7 @@ class Button : public ButtonBase
 	Text  *_label;
 
 public:
-	Button(Window *parent, float x, float y, const string_t &text);
+	Button(Window *parent, const string_t &text, float x, float y, float w=-1, float h=-1);
 
 protected:
 	virtual void OnChangeState(State state);

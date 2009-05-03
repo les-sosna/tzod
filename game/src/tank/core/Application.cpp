@@ -27,7 +27,7 @@ void AppBase::InitNetwork()
 
 int AppBase::Run(HINSTANCE hInst)
 {
-	_ASSERT(!_hinst);
+	assert(!_hinst);
 	_hinst = hInst;
 	if( Pre() )
 	{
@@ -49,14 +49,14 @@ int AppBase::Run(HINSTANCE hInst)
 				DWORD result = WaitForMultipleObjects(_handles.size(), &_handles[0], FALSE, 0);
 				if( WAIT_TIMEOUT == result )
 					break; // no objects in signaled state
-				_ASSERT(result < WAIT_OBJECT_0 + _handles.size());
+				assert(result < WAIT_OBJECT_0 + _handles.size());
 
 				// process signaled object
 				INVOKE(_callbacks[result - WAIT_OBJECT_0]) ();
 			}
 			Idle();
 		}
-		_ASSERT(false);
+		assert(false);
 	}
 	Post();
 	return -1;
@@ -64,16 +64,16 @@ int AppBase::Run(HINSTANCE hInst)
 
 void AppBase::RegisterHandle(HANDLE h, Delegate<void()> callback)
 {
-	_ASSERT(_handles.size() < MAXIMUM_WAIT_OBJECTS);
+	assert(_handles.size() < MAXIMUM_WAIT_OBJECTS);
 	_handles.push_back(h);
 	_callbacks.push_back(callback);
-	_ASSERT(_handles.size() == _callbacks.size());
+	assert(_handles.size() == _callbacks.size());
 }
 
 void AppBase::UnregisterHandle(HANDLE h)
 {
 	std::vector<HANDLE>::iterator it = std::find(_handles.begin(), _handles.end(), h);
-	_ASSERT(_handles.end() != it);
+	assert(_handles.end() != it);
 	_callbacks.erase(_callbacks.begin() + (it - _handles.begin()));
 	_handles.erase(it);
 }

@@ -99,7 +99,7 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 	{
 		_lobbyEnable = new CheckBox(this, 32, 390, g_lang->net_server_use_lobby->Get());
 		_lobbyList = new ComboBox(this, 32, 415, 200);
-		_lobbyAdd = new Button(this, 250, 410, g_lang->net_server_add_lobby->Get());
+		_lobbyAdd = new Button(this, g_lang->net_server_add_lobby->Get(), 250, 410);
 
 		_lobbyEnable->SetCheck(g_conf->sv_use_lobby->Get());
 		_lobbyList->SetEnabled(_lobbyEnable->GetCheck());
@@ -118,10 +118,10 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 	}
 
 	Button *btn;
-	btn = new Button(this, 544, 410, g_lang->net_server_ok->Get());
+	btn = new Button(this, g_lang->net_server_ok->Get(), 544, 410);
 	btn->eventClick.bind(&CreateServerDlg::OnOK, this);
 
-	btn = new Button(this, 656, 410, g_lang->net_server_cancel->Get());
+	btn = new Button(this, g_lang->net_server_cancel->Get(), 656, 410);
 	btn->eventClick.bind(&CreateServerDlg::OnCancel, this);
 }
 
@@ -175,7 +175,7 @@ void CreateServerDlg::OnOK()
 	strcpy(gi.cMapName, fn.c_str());
 	strcpy(gi.cServerName, "ZOD Server");
 
-	_ASSERT(NULL == g_server);
+	assert(NULL == g_server);
 	g_server = new TankServer(announcer);
 	if( !g_server->init(&gi) )
 	{
@@ -235,10 +235,10 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 	_status = new List(this, 25, 120, 400, 180);
 
 
-	_btnOK = new Button(this, 312, 350, g_lang->net_connect_ok->Get());
+	_btnOK = new Button(this, g_lang->net_connect_ok->Get(), 312, 350);
 	_btnOK->eventClick.bind(&ConnectDlg::OnOK, this);
 
-	(new Button(this, 412, 350, g_lang->net_connect_cancel->Get()))
+	(new Button(this, g_lang->net_connect_cancel->Get(), 412, 350))
 		->eventClick.bind(&ConnectDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
@@ -246,7 +246,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 	if( _auto )
 	{
-		_ASSERT(g_level->IsEmpty());
+		assert(g_level->IsEmpty());
 		_name->SetText(autoConnect);
 		OnOK();
 	}
@@ -267,8 +267,8 @@ void ConnectDlg::OnOK()
 	if( !_auto )
 		script_exec(g_env.L, "reset()");
 
-	_ASSERT(g_level->IsEmpty());
-	_ASSERT(NULL == g_client);
+	assert(g_level->IsEmpty());
+	assert(NULL == g_client);
 	g_client = new TankClient();
 	g_client->eventConnected.bind(&ConnectDlg::OnConnected, this);
 	g_client->eventErrorMessage.bind(&ConnectDlg::OnError, this);
@@ -343,14 +343,14 @@ InternetDlg::InternetDlg(Window *parent)
 	_status->SetBackgroundColor(0x7f7f7f7f);
 
 
-	_btnRefresh = new Button(this, 25, 320, g_lang->net_internet_refresh->Get());
+	_btnRefresh = new Button(this, g_lang->net_internet_refresh->Get(), 25, 320);
 	_btnRefresh->eventClick.bind(&InternetDlg::OnRefresh, this);
 
-	_btnConnect = new Button(this, 175, 320, g_lang->net_internet_connect->Get());
+	_btnConnect = new Button(this, g_lang->net_internet_connect->Get(), 175, 320);
 	_btnConnect->eventClick.bind(&InternetDlg::OnConnect, this);
 	_btnConnect->SetEnabled(false);
 
-	(new Button(this, 325, 320, g_lang->net_internet_cancel->Get()))
+	(new Button(this, g_lang->net_internet_cancel->Get(), 325, 320))
 		->eventClick.bind(&InternetDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
@@ -443,7 +443,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   , _btnOK(NULL)
   , _btnProfile(NULL)
 {
-	_ASSERT(g_client);
+	assert(g_client);
 	g_client->eventErrorMessage.bind(&WaitingForPlayersDlg::OnError, this);
 	g_client->eventTextMessage.bind(&WaitingForPlayersDlg::OnMessage, this);
 	g_client->eventPlayerReady.bind(&WaitingForPlayersDlg::OnPlayerReady, this);
@@ -464,7 +464,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
 
-	_btnProfile = new Button(this, 560, 65, g_lang->net_chatroom_my_profile->Get());
+	_btnProfile = new Button(this, g_lang->net_chatroom_my_profile->Get(), 560, 65);
 	_btnProfile->eventClick.bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
 	new Text(this, 20, 150, g_lang->net_chatroom_bots->Get(), alignTextLT);
@@ -473,21 +473,21 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
 
-	(new Button(this, 560, 180, g_lang->net_chatroom_bot_new->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnAddBotClick, this);
+	(new Button(this, g_lang->net_chatroom_bot_new->Get(), 560, 180))->eventClick.bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 
 
 	new Text(this, 20, 285, g_lang->net_chatroom_chat_window->Get(), alignTextLT);
 	_chat = new Console(this, 20, 300, 512, 200, GetRawPtr(_buf));
-	_chat->SetTexture("ctrl_list");
+	_chat->SetTexture("ui/list");
 	_chat->SetEcho(false);
 	_chat->eventOnSendCommand.bind(&WaitingForPlayersDlg::OnSendMessage, this);
 
 
-	_btnOK = new Button(this, 560, 450, g_lang->net_chatroom_ready_button->Get());
+	_btnOK = new Button(this, g_lang->net_chatroom_ready_button->Get(), 560, 450);
 	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->SetEnabled(false);
 
-	(new Button(this, 560, 480, g_lang->common_cancel->Get()))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
+	(new Button(this, g_lang->common_cancel->Get(), 560, 480))->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	//
@@ -599,16 +599,16 @@ void WaitingForPlayersDlg::OnMessage(const std::string &msg)
 
 void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
 {
-	_ASSERT(g_level);
+	assert(g_level);
 	int count = g_level->GetList(LIST_players).size();
-	_ASSERT(_players->GetItemCount() <= count); // count includes bots
+	assert(_players->GetItemCount() <= count); // count includes bots
 
 	for( int index = 0; index < count; ++index )
 	{
 		GC_Player *player = (GC_Player *) _players->GetItemData(index);
-		_ASSERT(player);
-		_ASSERT(!player->IsKilled());
-		_ASSERT(0 != player->GetNetworkID());
+		assert(player);
+		assert(!player->IsKilled());
+		assert(0 != player->GetNetworkID());
 
 		if( player->GetNetworkID() == id )
 		{
@@ -616,7 +616,7 @@ void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
 			return;
 		}
 	}
-	_ASSERT(false);
+	assert(false);
 }
 
 void WaitingForPlayersDlg::OnPlayersUpdate()
@@ -640,7 +640,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 			_bots->SetItemText(index, 2, tmp.str());
 
 			// level
-			_ASSERT(ai->GetLevel() <= AI_MAX_LEVEL);
+			assert(ai->GetLevel() <= AI_MAX_LEVEL);
 			_bots->SetItemText(index, 3, g_lang.GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
 		}
 		else
@@ -705,7 +705,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 	case DBTYPE_PLAYERREADY:
 	{
 		int count = g_level->GetList(LIST_players).size();
-		_ASSERT(_players->GetItemCount() <= count); // count includes bots
+		assert(_players->GetItemCount() <= count); // count includes bots
 
 		const DWORD who = db.cast<dbPlayerReady>().player_id;
 
@@ -713,9 +713,9 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		for( ;index < count; ++index )
 		{
 			GC_Player *player = (GC_Player *) _players->GetItemData(index);
-			_ASSERT(player);
-			_ASSERT(!player->IsKilled());
-			_ASSERT(0 != player->GetNetworkID());
+			assert(player);
+			assert(!player->IsKilled());
+			assert(0 != player->GetNetworkID());
 
 			if( who == player->GetNetworkID() )
 			{
@@ -730,14 +730,14 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 				break;
 			}
 		}
-		_ASSERT(index < count);
+		assert(index < count);
 		break;
 	}
 
 	case DBTYPE_PLAYERQUIT:
 	{
 		int count = g_level->GetList(LIST_players).size();
-		_ASSERT(_players->GetItemCount() == count);
+		assert(_players->GetItemCount() == count);
 
 		const DWORD who = db.cast<DWORD>();
 
@@ -745,9 +745,9 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		for( ; index < count; ++index )
 		{
 			GC_Player *player = (GC_Player *) _players->GetItemData(index);
-			_ASSERT(player);
-			_ASSERT(!player->IsKilled());
-			_ASSERT(0 != player->GetNetworkID());
+			assert(player);
+			assert(!player->IsKilled());
+			assert(0 != player->GetNetworkID());
 
 			if( who == player->GetNetworkID() )
 			{
@@ -758,7 +758,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 				break;
 			}
 		}
-		_ASSERT(index < count);
+		assert(index < count);
 		break;
 	}
 
@@ -859,7 +859,7 @@ void WaitingForPlayersDlg::OnNewData(const DataBlock &db)
 		break;
 
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	} // end of switch( db.type() )
 }
 */

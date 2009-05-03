@@ -38,7 +38,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 
 	if( init )
 	{
-		_ASSERT(!g_soundManager);
+		assert(!g_soundManager);
 		TRACE("Init direct sound...\n");
 		g_soundManager = new CSoundManager();
 		if( FAILED(hr = g_soundManager->Initialize(hWnd, DSSCL_PRIORITY, 2, 44100, 16)) )
@@ -263,7 +263,7 @@ HRESULT InitAll( HWND hWnd )
 	HRESULT  hr;
 
 
-	_ASSERT(g_render);
+	assert(g_render);
 
 	DisplayMode dm;
 	dm.Width         = g_conf->r_width->GetInt();

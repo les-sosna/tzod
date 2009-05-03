@@ -3,32 +3,34 @@
 #include "stdafx.h"
 
 #include "Edit.h"
-#include "Text.h"
+
+#include "video/TextureManager.h"
 
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
 Edit::Edit(Window *parent, float x, float y, float width)
-  : Window(parent, x, y, "ctrl_list")
+  : Window(parent, x, y, "ui/list")
   , _selStart(-1)
   , _selEnd(-1)
   , _selection(NULL)
-  , _blankText(NULL)
   , _cursor(NULL)
+  , _offset(0)
 {
 	SetBorder(true);
 	SetClipChildren(true);
 
-	_blankText = new Text(this, 1, 1, string_t(), alignTextLT);
-	_cursor    = new Window(this, 0, 0, "ctrl_editcursor");
+	_font = g_texman->FindSprite("font_small");
+
+	_cursor    = new Window(this, 0, 0, "ui/editcursor");
 	_cursor->SetVisible(false);
 
-	_selection = new Window(this, 0, 0, "ctrl_editsel");
+	_selection = new Window(this, 0, 0, "ui/editsel");
 	_selection->SetBorder(true);
 
 	Move(x, y);
-	Resize(width, _blankText->GetCharHeight() + 2);
+	Resize(width, g_texman->Get(_font).pxFrameHeight + 2);
 
 	SetSel(0, 0);
 
@@ -42,8 +44,8 @@ const string_t& Edit::GetText() const
 
 void Edit::SetText(const string_t &text)
 {
+	_string.swap(string_t());
 	_string = text;
-	_blankText->SetText(text);
 	SetSel(-1, -1);
 	if( eventChange )
 		INVOKE(eventChange) ();
@@ -86,26 +88,29 @@ float Edit::GetFloat() const
 
 void Edit::SetSel(int begin, int end)
 {
-	_ASSERT(begin >= -1 && begin <= GetTextLength());
-	_ASSERT(end >= -1 && end <= GetTextLength());
+	assert(begin >= -1 && begin <= GetTextLength());
+	assert(end >= -1 && end <= GetTextLength());
 
 	_time = 0;
 
 	_selStart = (-1 != begin) ? begin : GetTextLength();
 	_selEnd   = (-1 != end)   ? end   : GetTextLength();
 
-	float cpos = _selEnd * _blankText->GetCharWidth() - 1;
-	if( cpos + _blankText->GetX() > GetWidth() - 10 || cpos + _blankText->GetX() < 10 )
+	float w = g_texman->Get(_font).pxFrameWidth - 1;
+	float h = g_texman->Get(_font).pxFrameHeight;
+
+	float cpos = _selEnd * w - 1;
+	if( cpos - (float) (_offset * w) > GetWidth() - 10 || cpos - (float) (_offset * w) < 10 )
 	{
-		_blankText->Move(__min(0, GetWidth() * 0.5f - cpos), _blankText->GetY());
+		_offset = size_t(std::max<float>(0, cpos - GetWidth() * 0.5f) / w);
 	}
 
-	_cursor->Move(cpos + _blankText->GetX(), 0);
-	_cursor->Resize(_cursor->GetWidth(), _blankText->GetCharHeight());
+	_cursor->Move(cpos - (float) (_offset * w), 0);
+	_cursor->Resize(_cursor->GetWidth(), h);
 
 	_selection->SetVisible(_selStart != _selEnd && GetTimeStep());
-	_selection->Move(_blankText->GetX() + GetSelMin() * _blankText->GetCharWidth() + 2, 2);
-	_selection->Resize(_blankText->GetCharWidth() * GetSelLength() - 2, _blankText->GetCharHeight() - 2);
+	_selection->Move(GetSelMin() * w + 2 - (float) (_offset * w), 2);
+	_selection->Resize(w * GetSelLength() - 2, h - 2);
 }
 
 int Edit::GetSelStart() const
@@ -133,6 +138,15 @@ int Edit::GetSelMax() const
 	return __max(_selStart, _selEnd);
 }
 
+void Edit::DrawChildren(float sx, float sy) const
+{
+	SpriteColor c = GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
+	float w = g_texman->Get(_font).pxFrameWidth - 1;
+	g_texman->DrawBitmapText(_font, _string.substr(_offset), c, sx, sy + 1);
+
+	Window::DrawChildren(sx, sy);
+}
+
 void Edit::OnChar(int c)
 {
 	if( isprint((unsigned char) c) && VK_TAB != c )
@@ -140,7 +154,6 @@ void Edit::OnChar(int c)
 		int start = GetSelMin();
 		_string = _string.substr(0, start) + (string_t::value_type) c + _string.substr(GetSelMax());
 		SetSel(start + 1, start + 1);
-		_blankText->SetText(_string);
 		if( eventChange )
 			INVOKE(eventChange) ();
 	}
@@ -179,7 +192,6 @@ void Edit::OnRawChar(int c)
 		{
 			Copy();
 			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
-			_blankText->SetText(_string);
 			SetSel(GetSelMin(), GetSelMin());
 			if( eventChange )
 				INVOKE(eventChange) ();
@@ -199,7 +211,6 @@ void Edit::OnRawChar(int c)
 			}
 			_string = _string.substr(0, GetSelMin()) + _string.substr(GetSelMax());
 		}
-		_blankText->SetText(_string);
 		SetSel(GetSelMin(), GetSelMin());
 		if( eventChange )
 			INVOKE(eventChange) ();
@@ -216,7 +227,6 @@ void Edit::OnRawChar(int c)
 		}
 		tmp = __max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		SetSel(tmp, tmp);
-		_blankText->SetText(_string);
 		if( eventChange )
 			INVOKE(eventChange) ();
 		break;
@@ -274,7 +284,8 @@ bool Edit::OnMouseDown(float x, float y, int button)
 	if( 1 == button )
 	{
 		SetCapture();
-		int sel = __min(GetTextLength(), (int) __max(0, (x - _blankText->GetX() + _blankText->GetCharWidth() / 2) / _blankText->GetCharWidth()));
+		float w = g_texman->Get(_font).pxFrameWidth - 1;
+		int sel = __min(GetTextLength(), (int) __max(0, x / w) + (int) _offset);
 		SetSel(sel, sel);
 		return true;
 	}
@@ -285,7 +296,8 @@ bool Edit::OnMouseMove(float x, float y)
 {
 	if( IsCaptured() )
 	{
-		int sel = __min(GetTextLength(), (int) __max(0, (x - _blankText->GetX() + _blankText->GetCharWidth() / 2) / _blankText->GetCharWidth()));
+		float w = g_texman->Get(_font).pxFrameWidth - 1;
+		int sel = __min(GetTextLength(), (int) __max(0, x / w) + (int) _offset);
 		SetSel(GetSelStart(), sel);
 		return true;
 	}
@@ -313,14 +325,9 @@ bool Edit::OnFocus(bool focus)
 
 void Edit::OnEnabledChange(bool enable, bool inherited)
 {
-	if( enable )
-	{
-		_blankText->SetFontColor(0xffffffff);
-	}
-	else
+	if( !enable )
 	{
 		SetSel(0, 0);
-		_blankText->SetFontColor(0xaaaaaaaa);
 	}
 }
 
@@ -342,8 +349,7 @@ void Edit::Paste()
 				buf << _string.substr(0, GetSelMin());
 				buf << data;
 				buf << _string.substr(GetSelMax(), _string.length() - GetSelMax());
-				_string = buf.str();
-				_blankText->SetText(_string);
+				_string.swap(buf.str());
 				SetSel(GetSelMin() + strlen(data), GetSelMin() + strlen(data));
 				GlobalUnlock(hData);
 				if( eventChange )

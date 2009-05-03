@@ -50,7 +50,7 @@ void FieldCell::UpdateProperties()
 	_prop = 0;
 	for( int i = 0; i < _objCount; i++ )
 	{
-		_ASSERT(_ppObjects[i]->GetPassability() > 0);
+		assert(_ppObjects[i]->GetPassability() > 0);
 		if( _ppObjects[i]->GetPassability() > _prop )
 			_prop = _ppObjects[i]->GetPassability();
 	}
@@ -58,14 +58,14 @@ void FieldCell::UpdateProperties()
 
 void FieldCell::AddObject(GC_RigidBodyStatic *object)
 {
-	_ASSERT(object);
-	_ASSERT(!object->IsKilled());
-	_ASSERT(_objCount < 255);
+	assert(object);
+	assert(!object->IsKilled());
+	assert(_objCount < 255);
 
 #ifdef _DEBUG
 	for( int i = 0; i < _objCount; ++i )
 	{
-		_ASSERT(object != _ppObjects[i]);
+		assert(object != _ppObjects[i]);
 	}
 #endif
 
@@ -73,7 +73,7 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 
 	if( _ppObjects )
 	{
-		_ASSERT(_objCount > 0);
+		assert(_objCount > 0);
 		memcpy(tmp, _ppObjects, sizeof(GC_RigidBodyStatic*) * _objCount);
 		delete[] _ppObjects;
 	}
@@ -86,12 +86,12 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 
 void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 {
-	_ASSERT(object);
-	_ASSERT(_objCount > 0);
+	assert(object);
+	assert(_objCount > 0);
 
 	if( 1 == _objCount )
 	{
-		_ASSERT(object == _ppObjects[0]);
+		assert(object == _ppObjects[0]);
 		_objCount = 0;
 		delete[] _ppObjects;
 		_ppObjects = NULL;
@@ -106,7 +106,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 			tmp[j++] = _ppObjects[i];
 		}
 		_objCount--;
-		_ASSERT(j == _objCount);
+		assert(j == _objCount);
 		delete[] _ppObjects;
 		_ppObjects = tmp;
 	}
@@ -144,12 +144,12 @@ void Field::Clear()
 		_cx    = 0;
 		_cy    = 0;
 	}
-	_ASSERT(0 == _cx && 0 == _cy);
+	assert(0 == _cx && 0 == _cy);
 }
 
 void Field::Resize(int cx, int cy)
 {
-	_ASSERT(cx > 0 && cy > 0);
+	assert(cx > 0 && cy > 0);
 	Clear();
 	_cx = cx;
 	_cy = cy;
@@ -173,7 +173,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 	float r = object->GetRadius() / CELL_SIZE;
 	vec2d p = object->GetPos() / CELL_SIZE;
 
-	_ASSERT(r > 0);
+	assert(r > 0);
 
 	int xmin = __max(0,       int(p.x - r + 0.5f));
 	int xmax = __min(_cx - 1, int(p.x + r + 0.5f));
@@ -199,7 +199,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 #ifdef _DEBUG
 FieldCell& Field::operator() (int x, int y)
 {
-	_ASSERT(NULL != _cells);
+	assert(NULL != _cells);
 	return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;
 }
 
@@ -252,8 +252,8 @@ Level::Level()
   , _seed(1)
   , _gameType(-1)
   , _serviceListener(NULL)
-  , _texBack(g_texman->FindTexture("background"))
-  , _texGrid(g_texman->FindTexture("grid"))
+  , _texBack(g_texman->FindSprite("background"))
+  , _texGrid(g_texman->FindSprite("grid"))
 #ifdef NETWORK_DEBUG
   , _checksum(0)
   , _frame(0)
@@ -274,7 +274,7 @@ bool Level::IsEmpty() const
 
 void Level::Resize(int X, int Y)
 {
-	_ASSERT(IsEmpty());
+	assert(IsEmpty());
 
 
 	//
@@ -307,7 +307,7 @@ void Level::Resize(int X, int Y)
 
 void Level::Clear()
 {
-	_ASSERT(IsSafeMode());
+	assert(IsSafeMode());
 
 	if( g_gui )  // FIXME: dependence on GUI
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
@@ -316,11 +316,11 @@ void Level::Clear()
 	while( GetList(LIST_objects).end() != it )
 	{
 		GC_Object* obj = *it;
-		_ASSERT(!obj->IsKilled());
+		assert(!obj->IsKilled());
 		obj->Kill();
 		++it;
 	}
-	_ASSERT(IsEmpty());
+	assert(IsEmpty());
 
 	// reset variables
 	_modeEditor = false;
@@ -346,7 +346,7 @@ void Level::Clear()
 
 void Level::HitLimit()
 {
-	_ASSERT(!_limitHit);
+	assert(!_limitHit);
 	PauseLocal(true);
 	_limitHit = true;
 	PLAY(SND_Limit, vec2d(0,0));
@@ -354,8 +354,8 @@ void Level::HitLimit()
 
 bool Level::init_emptymap(int X, int Y)
 {
-	_ASSERT(IsSafeMode());
-	_ASSERT(IsEmpty());
+	assert(IsSafeMode());
+	assert(IsEmpty());
 
 	Resize(X, Y);
 
@@ -364,7 +364,7 @@ bool Level::init_emptymap(int X, int Y)
 	_ThemeManager::Inst().ApplyTheme(0);
 
 	ToggleEditorMode();
-	_ASSERT(_modeEditor);
+	assert(_modeEditor);
 
 	g_conf->sv_nightmode->Set(false);
 
@@ -373,8 +373,8 @@ bool Level::init_emptymap(int X, int Y)
 
 bool Level::init_import_and_edit(const char *mapName)
 {
-	_ASSERT(IsSafeMode());
-	_ASSERT(IsEmpty());
+	assert(IsSafeMode());
+	assert(IsEmpty());
 
 	_gameType = GT_EDITOR;
 	g_conf->sv_nightmode->Set(false);
@@ -383,15 +383,15 @@ bool Level::init_import_and_edit(const char *mapName)
 		return false;
 
 	ToggleEditorMode();
-	_ASSERT(_modeEditor);
+	assert(_modeEditor);
 
 	return true;
 }
 
 bool Level::init_newdm(const string_t &mapName, unsigned long seed)
 {
-	_ASSERT(IsSafeMode());
-	_ASSERT(IsEmpty());
+	assert(IsSafeMode());
+	assert(IsEmpty());
 
 	_gameType   = GT_DEATHMATCH;
 	_modeEditor = false;
@@ -402,15 +402,15 @@ bool Level::init_newdm(const string_t &mapName, unsigned long seed)
 
 bool Level::init_load(const char *fileName)
 {
-	_ASSERT(IsSafeMode());
-	_ASSERT(IsEmpty());
+	assert(IsSafeMode());
+	assert(IsEmpty());
 	_modeEditor = false;
 	return Unserialize(fileName);
 }
 
 Level::~Level()
 {
-	_ASSERT(IsSafeMode());
+	assert(IsSafeMode());
 	TRACE("Destroying the level\n");
 
 	Clear();
@@ -420,13 +420,13 @@ Level::~Level()
 	g_conf->sv_nightmode->eventChange.clear();
 
 	//-------------------------------------------
-	_ASSERT(!g_env.nNeedCursor);
+	assert(!g_env.nNeedCursor);
 }
 
 bool Level::Unserialize(const char *fileName)
 {
-	_ASSERT(IsEmpty());
-	_ASSERT(IsSafeMode());
+	assert(IsEmpty());
+	assert(IsSafeMode());
 
 	TRACE("Loading saved game from file '%s'\n", fileName);
 
@@ -489,7 +489,7 @@ bool Level::Unserialize(const char *fileName)
 				lua_newtable(g_env.L);       // permanent objects
 				pluto_unpersist(L, &r, ud);
 				lua_getglobal(L, "pushcmd");
-				_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+				assert(LUA_TFUNCTION == lua_type(L, -1));
 				lua_pushvalue(L, -2);
 				lua_setupvalue(L, -2, 1);    // unpersisted object
 				return 0;
@@ -555,8 +555,8 @@ bool Level::Unserialize(const char *fileName)
 
 bool Level::Serialize(const char *fileName)
 {
-	_ASSERT(!IsEmpty());
-	_ASSERT(IsSafeMode());
+	assert(!IsEmpty());
+	assert(IsSafeMode());
 
 	TRACE("Saving game to file '%s'\n", fileName);
 
@@ -623,7 +623,7 @@ bool Level::Serialize(const char *fileName)
 				lua_settop(L, 0);
 				lua_newtable(g_env.L);       // permanent objects
 				lua_getglobal(L, "pushcmd");
-				_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+				assert(LUA_TFUNCTION == lua_type(L, -1));
 				lua_getupvalue(L, -1, 1);    // object to persist
 				lua_remove(L, -2);
 				pluto_persist(L, &w, ud);
@@ -690,8 +690,8 @@ bool Level::Serialize(const char *fileName)
 
 bool Level::Import(const char *fileName, bool execInitScript)
 {
-	_ASSERT(IsEmpty());
-	_ASSERT(IsSafeMode());
+	assert(IsEmpty());
+	assert(IsSafeMode());
 
 	MapFile file;
 	if( !file.Open(fileName, false) )
@@ -739,8 +739,8 @@ bool Level::Import(const char *fileName, bool execInitScript)
 
 bool Level::Export(const char *fileName)
 {
-	_ASSERT(!IsEmpty());
-	_ASSERT(IsSafeMode());
+	assert(!IsEmpty());
+	assert(IsSafeMode());
 
 	MapFile file;
 
@@ -799,7 +799,7 @@ void Level::PauseLocal(bool pause)
 	}
 	else
 	{
-		_ASSERT(_pause + g_env.pause > 0);
+		assert(_pause + g_env.pause > 0);
 		--_pause;
 		if( 0 == _pause + g_env.pause )
 		{
@@ -838,7 +838,7 @@ void Level::ToggleEditorMode()
 
 GC_Object* Level::CreateObject(ObjectType type, float x, float y)
 {
-	_ASSERT(IsRegistered(type));
+	assert(IsRegistered(type));
 	return get_t2i()[type].Create(x, y);
 }
 
@@ -970,7 +970,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 		int cy = halfBeginY + jitY[i];
 
 		int count = (abs(cx-halfEndX - (cx<halfEndX))>>1) + (abs(cy-halfEndY - (cy<halfEndY))>>1);
-		_ASSERT(count >= 0);
+		assert(count >= 0);
 
 		do
 		{
@@ -1121,7 +1121,7 @@ void Level::Step(const ControlPacketVector &ctrl)
 	{
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{
-			_ASSERT(!(*it)->IsKilled());
+			assert(!(*it)->IsKilled());
 			(*it)->TimeStepFixed(fixed_dt);
 		}
 		GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
@@ -1132,7 +1132,7 @@ void Level::Step(const ControlPacketVector &ctrl)
 	RunCmdQueue(fixed_dt);
 
 
-	_ASSERT(_ctrlPtr == ctrl.end());
+	assert(_ctrlPtr == ctrl.end());
 
 #ifdef NETWORK_DEBUG
 	//
@@ -1144,7 +1144,7 @@ void Level::Step(const ControlPacketVector &ctrl)
 		char fn[MAX_PATH];
 		sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
 		_dump = fopen(fn, "w");
-		_ASSERT(_dump);
+		assert(_dump);
 	}
 	++_frame;
 	fprintf(_dump, "\n### frame %04d ###\n", _frame);
@@ -1171,9 +1171,9 @@ void Level::TimeStep(float dt)
 
 
 	dt *= g_conf->sv_speed->GetFloat() / 100.0f;
-	_ASSERT(dt >= 0);
+	assert(dt >= 0);
 
-	_ASSERT(!_modeEditor);
+	assert(!_modeEditor);
 
 
 	_safeMode = false;
@@ -1228,7 +1228,7 @@ void Level::TimeStep(float dt)
 					case DBTYPE_CONTROLPACKET:
 					{
 						const size_t count = db.DataSize() / sizeof(ControlPacket);
-						_ASSERT(count);
+						assert(count);
 						for( size_t i = 0; i < count; i++ )
 						{
 							_ctrlQueue.push(db.cast<ControlPacket>(i));
@@ -1266,7 +1266,7 @@ void Level::TimeStep(float dt)
 				while( it != ts_fixed.end() )
 				{
 					GC_Object* pTS_Obj = *it;
-					_ASSERT(!pTS_Obj->IsKilled());
+					assert(!pTS_Obj->IsKilled());
 					pTS_Obj->TimeStepFixed(fixed_dt);
 					++it;
 				}
@@ -1283,7 +1283,7 @@ void Level::TimeStep(float dt)
 		while( it != ts_floating.end() )
 		{
 			GC_Object* pTS_Obj = *it;
-			_ASSERT(!pTS_Obj->IsKilled());
+			assert(!pTS_Obj->IsKilled());
 			pTS_Obj->TimeStepFloat(dt);
 			++it;
 		}
@@ -1298,7 +1298,7 @@ void Level::TimeStep(float dt)
 	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
 	while( GetList(LIST_objects).end() != it )
 	{
-		_ASSERT(!(*it)->IsKilled());
+		assert(!(*it)->IsKilled());
 		++it;
 	}
 #endif
@@ -1315,7 +1315,7 @@ void Level::RunCmdQueue(float dt)
 	lua_State * const L = g_env.L;
 
 	lua_getglobal(L, "pushcmd");
-	_ASSERT(LUA_TFUNCTION == lua_type(L, -1));
+	assert(LUA_TFUNCTION == lua_type(L, -1));
 	lua_getupvalue(L, -1, 1);
 	int queueidx = lua_gettop(L);
 
@@ -1348,7 +1348,7 @@ void Level::RunCmdQueue(float dt)
 		}
 	}
 
-	_ASSERT(lua_gettop(L) == queueidx);
+	assert(lua_gettop(L) == queueidx);
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 }
 
@@ -1401,7 +1401,7 @@ void Level::Render() const
 
 			FOREACH( GetList(LIST_lights), GC_Light, pLight )
 			{
-				_ASSERT(!pLight->IsKilled());
+				assert(!pLight->IsKilled());
 				if( pLight->IsActive() &&
 					pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
 					pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
@@ -1441,9 +1441,9 @@ void Level::Render() const
 				// FIXME: using of global g_level
 				FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
 				{
-					_ASSERT(!object->IsKilled());
+					assert(!object->IsKilled());
 					object->Draw();
-					_ASSERT(!object->IsKilled());
+					assert(!object->IsKilled());
 				}
 			}
 
@@ -1452,9 +1452,9 @@ void Level::Render() const
 			// FIXME: using of global g_level
 			FOREACH( g_level->z_globals[z], GC_2dSprite, object )
 			{
-				_ASSERT(!object->IsKilled());
+				assert(!object->IsKilled());
 				object->Draw();
-				_ASSERT(!object->IsKilled());
+				assert(!object->IsKilled());
 			}
 		}
 
@@ -1507,7 +1507,7 @@ void Level::OnChangeNightMode()
 {
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
-		_ASSERT(!pLight->IsKilled());
+		assert(!pLight->IsKilled());
 		pLight->Update();
 	}
 }

@@ -100,7 +100,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 
 void GC_Pickup::Attach(GC_Actor *actor)
 {
-	_ASSERT(!_owner);
+	assert(!_owner);
 	_owner         = WrapRawPtr(actor);
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
@@ -111,7 +111,7 @@ void GC_Pickup::Attach(GC_Actor *actor)
 
 void GC_Pickup::Detach()
 {
-	_ASSERT(_owner);
+	assert(_owner);
 	SetZ(Z_FREE_ITEM);
 	_owner->Unsubscribe(this);
 	_owner->OnPickup(this, false);
@@ -171,7 +171,7 @@ void GC_Pickup::SetAutoSwitch(bool autoSwitch)
 
 void GC_Pickup::SetBlinking(bool blink)
 {
-	_ASSERT(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FLOATING));
+	assert(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FLOATING));
 	_blink = blink;
 }
 
@@ -257,8 +257,8 @@ void GC_Pickup::mapExchange(MapFile &f)
 
 void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
 {
-	_ASSERT(IsAttached());
-	_ASSERT(GetOwner() == sender);
+	assert(IsAttached());
+	assert(GetOwner() == sender);
 	MoveTo(GetOwner()->GetPos());
 }
 
@@ -296,7 +296,7 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	case 1: return &_propOnPickup;    break;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -397,7 +397,7 @@ void GC_pu_Mine::Attach(GC_Actor *actor)
 {
 //	GC_Pickup::Attach(actor);
 
-	_ASSERT(dynamic_cast<GC_RigidBodyStatic*>(actor));
+	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
 	new GC_Boom_Standard(GetPos(), SafePtrCast<GC_RigidBodyStatic>(WrapRawPtr(actor)));
 	Kill();
 }
@@ -434,7 +434,7 @@ void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 {
 	if( GC_Object *p = actor->GetSubscriber(GetType()) )
 	{
-		_ASSERT(dynamic_cast<GC_pu_Invulnerablity*>(p));
+		assert(dynamic_cast<GC_pu_Invulnerablity*>(p));
 		static_cast<GC_Pickup*>(p)->Disappear();
 	}
 
@@ -498,7 +498,7 @@ void GC_pu_Invulnerablity::OnOwnerDamage(GC_Object *sender, void *param)
 	static TextureCache tex("particle_3");
 
 	DamageDesc *pdd = reinterpret_cast<DamageDesc*>(param);
-	_ASSERT(NULL != pdd);
+	assert(NULL != pdd);
 	if( pdd->damage > 5 || 0 == rand() % 4 || 0 == _timeHit )
 	{
 		const vec2d &pos = static_cast<GC_Actor*>(sender)->GetPos();
@@ -582,7 +582,7 @@ AIPRIORITY GC_pu_Shock::GetPriority(GC_Vehicle *veh)
 
 void GC_pu_Shock::Attach(GC_Actor* actor)
 {
-	_ASSERT(dynamic_cast<GC_RigidBodyStatic*>(actor));
+	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
 
 	GC_Pickup::Attach(actor);
 	PLAY(SND_ShockActivate, GetPos());
@@ -746,7 +746,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 		{
 			if( pickup->GetType() == GetType() && this != pickup )
 			{
-				_ASSERT(dynamic_cast<GC_pu_Booster*>(pickup));
+				assert(dynamic_cast<GC_pu_Booster*>(pickup));
 				if( static_cast<GC_pu_Booster*>(pickup)->GetOwner() == w )
 				{
 					pickup->Disappear(); // detach previous booster
@@ -760,7 +760,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 	w->Subscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 
 	PLAY(SND_B_Start, GetPos());
-	_ASSERT(NULL == _sound);
+	assert(NULL == _sound);
 	_sound = WrapRawPtr(new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this));
 
 	SetTexture("booster");
@@ -769,7 +769,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 
 void GC_pu_Booster::Detach()
 {
-	_ASSERT(dynamic_cast<GC_Weapon*>(GetOwner()));
+	assert(dynamic_cast<GC_Weapon*>(GetOwner()));
 	static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
 	SetTexture("pu_booster");
 	SetShadow(true);
@@ -799,7 +799,7 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 	GC_Pickup::TimeStepFixed(dt);
 	if( IsAttached() )
 	{
-		_ASSERT(!GetOwner()->IsKilled());
+		assert(!GetOwner()->IsKilled());
 		if( GetTimeAttached() > BOOSTER_TIME )
 		{
 			PLAY(SND_B_End, GetPos());

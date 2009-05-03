@@ -48,7 +48,7 @@ ObjectProperty* GC_Weapon::MyPropertySet::GetProperty(int index)
 	case 0: return &_propTimeStay; break;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -101,7 +101,7 @@ AIPRIORITY GC_Weapon::GetPriority(GC_Vehicle *veh)
 
 void GC_Weapon::Attach(GC_Actor *actor)
 {
-	_ASSERT(dynamic_cast<GC_Vehicle*>(actor));
+	assert(dynamic_cast<GC_Vehicle*>(actor));
 	GC_Vehicle *veh = static_cast<GC_Vehicle*>(actor);
 
 	GC_Pickup::Attach(actor);
@@ -216,9 +216,9 @@ void GC_Weapon::Kill()
 	{
 		Detach();
 	}
-	_ASSERT(!_crosshair);
-	_ASSERT(!_rotateSound);
-	_ASSERT(!_fireEffect);
+	assert(!_crosshair);
+	assert(!_rotateSound);
+	assert(!_fireEffect);
 
 	GC_Pickup::Kill();
 }
@@ -364,7 +364,7 @@ void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 
 void GC_Weap_RocketLauncher::Fire()
 {
-	_ASSERT(IsAttached());
+	assert(IsAttached());
 	float a = static_cast<GC_Vehicle*>(GetOwner())->GetSpriteRotation() + _angleReal;
 
 	if( _advanced )
@@ -1013,7 +1013,7 @@ void GC_Weap_Ram::Kill()
 
 void GC_Weap_Ram::Fire()
 {
-	_ASSERT(IsAttached());
+	assert(IsAttached());
 
 	if( _bReady )
 	{
@@ -1089,7 +1089,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		_ASSERT(_engineSound);
+		assert(_engineSound);
 
 		if( _advanced )
 			_fuel = _fuel_max;
@@ -1149,7 +1149,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 	}
 	else
 	{
-		_ASSERT(!_engineSound);
+		assert(!_engineSound);
 	}
 
 	return;
@@ -1206,7 +1206,7 @@ void GC_Weap_BFG::Serialize(SaveFile &f)
 
 void GC_Weap_BFG::Fire()
 {
-	_ASSERT(IsAttached());
+	assert(IsAttached());
 
 	if( _time >= _timeReload )
 	{
@@ -1458,7 +1458,7 @@ void GC_Weap_Minigun::Kill()
 
 void GC_Weap_Minigun::Fire()
 {
-	_ASSERT(IsAttached());
+	assert(IsAttached());
 	if( IsAttached() )
 		_bFire = true;
 }
@@ -1604,7 +1604,7 @@ void GC_Weap_Zippo::Kill()
 
 void GC_Weap_Zippo::Fire()
 {
-	_ASSERT(IsAttached());
+	assert(IsAttached());
 	_bFire = true;
 }
 

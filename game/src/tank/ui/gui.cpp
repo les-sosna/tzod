@@ -119,34 +119,34 @@ NewGameDlg::NewGameDlg(Window *parent)
 		Button *btn;
 
 
-		btn = new Button(this, x3, 256, g_lang->human_player_add->Get());
+		btn = new Button(this, g_lang->human_player_add->Get(), x3, 256);
 		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
 
-		_removePlayer = new Button(this, x3, 286, g_lang->human_player_remove->Get());
+		_removePlayer = new Button(this, g_lang->human_player_remove->Get(), x3, 286);
 		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->SetEnabled(false);
 
-		_changePlayer = new Button(this, x3, 316, g_lang->human_player_modify->Get());
+		_changePlayer = new Button(this, g_lang->human_player_modify->Get(), x3, 316);
 		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->SetEnabled(false);
 
-		btn = new Button(this, x3, 384, g_lang->AI_player_add->Get());
+		btn = new Button(this, g_lang->AI_player_add->Get(), x3, 384);
 		btn->eventClick.bind(&NewGameDlg::OnAddBot, this);
 
-		_removeBot = new Button(this, x3, 414, g_lang->AI_player_remove->Get());
+		_removeBot = new Button(this, g_lang->AI_player_remove->Get(), x3, 414);
 		_removeBot->eventClick.bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->SetEnabled(false);
 
-		_changeBot = new Button(this, x3, 444, g_lang->AI_player_modify->Get());
+		_changeBot = new Button(this, g_lang->AI_player_modify->Get(), x3, 444);
 		_changeBot->eventClick.bind(&NewGameDlg::OnEditBot, this);
 		_changeBot->SetEnabled(false);
 
 
 
-		btn = new Button(this, 544, 510, g_lang->dm_ok->Get());
+		btn = new Button(this, g_lang->dm_ok->Get(), 544, 510);
 		btn->eventClick.bind(&NewGameDlg::OnOK, this);
 
-		btn = new Button(this, 656, 510, g_lang->dm_cancel->Get());
+		btn = new Button(this, g_lang->dm_cancel->Get(), 656, 510);
 		btn->eventClick.bind(&NewGameDlg::OnCancel, this);
 	}
 
@@ -247,7 +247,7 @@ void NewGameDlg::OnAddPlayerClose(int result)
 
 void NewGameDlg::OnRemovePlayer()
 {
-	_ASSERT( -1 != _players->GetCurSel() );
+	assert( -1 != _players->GetCurSel() );
 	g_conf->dm_players->RemoveAt(_players->GetCurSel());
 	RefreshPlayersList();
 }
@@ -255,7 +255,7 @@ void NewGameDlg::OnRemovePlayer()
 void NewGameDlg::OnEditPlayer()
 {
 	int index = _players->GetCurSel();
-	_ASSERT(-1 != index);
+	assert(-1 != index);
 
 	(new EditPlayerDlg(this, g_conf->dm_players->GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditPlayerClose, this );
@@ -296,7 +296,7 @@ void NewGameDlg::OnAddBotClose(int result)
 
 void NewGameDlg::OnRemoveBot()
 {
-	_ASSERT( -1 != _bots->GetCurSel() );
+	assert( -1 != _bots->GetCurSel() );
 	g_conf->dm_bots->RemoveAt(_bots->GetCurSel());
 	RefreshBotsList();
 }
@@ -304,7 +304,7 @@ void NewGameDlg::OnRemoveBot()
 void NewGameDlg::OnEditBot()
 {
 	int index = _bots->GetCurSel();
-	_ASSERT(-1 != index);
+	assert(-1 != index);
 
 	(new EditBotDlg(this, g_conf->dm_bots->GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditBotClose, this );
@@ -346,7 +346,7 @@ void NewGameDlg::OnOK()
 	g_conf->sv_nightmode->Set( g_conf->cl_nightmode->Get() );
 
 	script_exec(g_env.L, "reset()");
-	_ASSERT(g_level->IsEmpty());
+	assert(g_level->IsEmpty());
 
 	if( g_level->init_newdm(path, rand()) )
 	{
@@ -426,7 +426,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
   : Dialog(parent, 384, 220)
 {
 	SetEasyMove(true);
-	_ASSERT(info);
+	assert(info);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->player_settings->Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -559,8 +559,8 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	(new Button(this, 176, 190, g_lang->common_ok->Get()))->eventClick.bind(&EditPlayerDlg::OnOK, this);
-	(new Button(this, 280, 190, g_lang->common_cancel->Get()))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 176, 190))->eventClick.bind(&EditPlayerDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 280, 190))->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOK()
@@ -603,7 +603,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
   : Dialog(parent, 384, 220)
 {
 	SetEasyMove(true);
-	_ASSERT(info);
+	assert(info);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->bot_settings->Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -736,8 +736,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	(new Button(this, 176, 190, g_lang->common_ok->Get()))->eventClick.bind(&EditBotDlg::OnOK, this);
-	(new Button(this, 280, 190, g_lang->common_cancel->Get()))->eventClick.bind(&EditBotDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 176, 190))->eventClick.bind(&EditBotDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 280, 190))->eventClick.bind(&EditBotDlg::OnCancel, this);
 }
 
 void EditBotDlg::OnOK()
@@ -804,8 +804,8 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
                                     const char *btn3)
   : Window(parent)
 {
-	_ASSERT(text);
-	_ASSERT(btn1);
+	assert(text);
+	assert(btn1);
 
 	SetBorder(true);
 	BringToBack();
@@ -813,7 +813,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	_handler = handler;
 	_text = new Text(this, 10, 10, text, alignTextLT);
 
-	_button1 = new Button(this, 0, _text->GetHeight() + 20, btn1);
+	_button1 = new Button(this, btn1, 0, _text->GetHeight() + 20);
 	_button1->eventClick.bind(&ScriptMessageBox::OnButton1, this);
 
 	int nbtn = 1 + (btn2 != NULL) + (btn3 != NULL);
@@ -832,7 +832,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 
 	if( btn2 )
 	{
-		_button2 = new Button(this, _button1->GetX() - 10 - bw, by, btn2);
+		_button2 = new Button(this, btn2, _button1->GetX() - 10 - bw, by);
 		_button2->eventClick.bind(&ScriptMessageBox::OnButton2, this);
 	}
 	else
@@ -842,7 +842,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 
 	if( btn3 )
 	{
-		_button3 = new Button(this, _button2->GetX() - 10 - bw, by, btn3);
+		_button3 = new Button(this, btn3, _button2->GetX() - 10 - bw, by);
 		_button3->eventClick.bind(&ScriptMessageBox::OnButton3, this);
 	}
 	else

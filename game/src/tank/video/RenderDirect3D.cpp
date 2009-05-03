@@ -27,7 +27,7 @@
 
 
 #ifdef _DEBUG
-#define V(x) _ASSERT(SUCCEEDED(x))
+#define V(x) assert(SUCCEEDED(x))
 #else
 #define V(x) x
 #endif
@@ -214,13 +214,13 @@ void RenderDirect3D::_cleanup()
 
 int RenderDirect3D::getModeCount() const
 {
-	_ASSERT(_d3D);
+	assert(_d3D);
 	return _d3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8);
 }
 
 bool RenderDirect3D::getDisplayMode(int index, DisplayMode *pMode) const
 {
-	_ASSERT(_d3D);
+	assert(_d3D);
 
 	D3DDISPLAYMODE mode;
 
@@ -508,7 +508,7 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 		break;
 
 	default:
-        _ASSERT(FALSE);
+        assert(FALSE);
 	}
 
 	_mode = mode;
@@ -590,8 +590,8 @@ void RenderDirect3D::_flush()
 {
 //	_FpsCounter::Inst()->OneMoreBatch();
 
-	_ASSERT(_VertexArray);
-	_ASSERT(_indexArray);
+	assert(_VertexArray);
+	assert(_indexArray);
 
 	V(_pVB->Unlock());
 	V(_pIB->Unlock());
@@ -632,7 +632,7 @@ MyVertex* RenderDirect3D::DrawQuad()
 
 MyVertex* RenderDirect3D::DrawFan(size_t nEdges)
 {
-	_ASSERT(nEdges*3 < INDEX_BUFFER_SIZE);
+	assert(nEdges*3 < INDEX_BUFFER_SIZE);
 
 	if( _vaSize + nEdges   > VERTEX_BUFFER_SIZE - 1 ||
 		_iaSize + nEdges*3 > INDEX_BUFFER_SIZE )

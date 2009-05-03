@@ -196,13 +196,13 @@ void GC_Projectile::TimeStepFixed(float dt)
 #endif
 		if( Hit(object, hit, norm) )
 		{
-			_ASSERT(GetPos() == pos);
+			assert(GetPos() == pos);
 			Kill();
 			return;
 		}
 		else
 		{
-			_ASSERT(GetPos() == pos);
+			assert(GetPos() == pos);
 			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).sqr() / dx.sqr()));
 			if( new_dt > 1e-6 )
 			{
@@ -232,7 +232,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 
 bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
-	_ASSERT(_lastHit != object);
+	assert(_lastHit != object);
 	if( _lastHit )
 	{
 		_lastHit->Unsubscribe(this);
@@ -258,7 +258,7 @@ bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	bool result = OnHit(object, hit, norm);
 	if( !IsKilled() && !object->IsKilled() )
 	{
-		_ASSERT(NULL == _lastHit);
+		assert(NULL == _lastHit);
 		_lastHit = WrapRawPtr(object);
 		_lastHit->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 	}

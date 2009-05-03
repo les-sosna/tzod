@@ -69,57 +69,57 @@ void ConfVar::SetType(Type type)
 			case typeString:  new( this ) ConfVarString();  break;
 			case typeArray:   new( this ) ConfVarArray();   break;
 			case typeTable:   new( this ) ConfVarTable();   break;
-			default: _ASSERT(FALSE);
+			default: assert(FALSE);
 		}
-		_ASSERT( _type == type );
+		assert( _type == type );
 	}
 }
 
 ConfVarNumber* ConfVar::AsNum()
 {
-	_ASSERT(typeNumber == _type);
+	assert(typeNumber == _type);
 	return static_cast<ConfVarNumber*>(this);
 }
 
 ConfVarBool* ConfVar::AsBool()
 {
-	_ASSERT(typeBoolean == _type);
+	assert(typeBoolean == _type);
 	return static_cast<ConfVarBool*>(this);
 }
 
 ConfVarString* ConfVar::AsStr()
 {
-	_ASSERT(typeString == _type);
+	assert(typeString == _type);
 	return static_cast<ConfVarString*>(this);
 }
 
 ConfVarArray* ConfVar::AsArray()
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	return static_cast<ConfVarArray*>(this);
 }
 
 ConfVarTable* ConfVar::AsTable()
 {
-	_ASSERT(typeTable == _type);
+	assert(typeTable == _type);
 	return static_cast<ConfVarTable*>(this);
 }
 
 bool ConfVar::_Save(FILE *, int) const
 {
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return false;
 }
 
 bool ConfVar::_Load(lua_State *)
 {
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return false;
 }
 
 void ConfVar::Push(lua_State *)
 {
-	_ASSERT(FALSE);
+	assert(FALSE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,12 +138,12 @@ const char* ConfVarNumber::GetTypeName() const
 
 float ConfVarNumber::GetFloat() const
 {
-	_ASSERT(typeNumber == _type);
+	assert(typeNumber == _type);
 	return (float) _val.asNumber;
 }
 void ConfVarNumber::SetFloat(float value)
 {
-	_ASSERT(typeNumber == _type);
+	assert(typeNumber == _type);
 	_val.asNumber = value;
 	if( eventChange )
 		INVOKE(eventChange) ();
@@ -151,12 +151,12 @@ void ConfVarNumber::SetFloat(float value)
 
 int ConfVarNumber::GetInt() const
 {
-	_ASSERT(typeNumber == _type);
+	assert(typeNumber == _type);
 	return (int) _val.asNumber;
 }
 void ConfVarNumber::SetInt(int value)
 {
-	_ASSERT(typeNumber == _type);
+	assert(typeNumber == _type);
 	_val.asNumber = value;
 	if( eventChange )
 		INVOKE(eventChange) ();
@@ -195,12 +195,12 @@ const char* ConfVarBool::GetTypeName() const
 
 bool ConfVarBool::Get() const
 {
-	_ASSERT(typeBoolean == _type);
+	assert(typeBoolean == _type);
 	return _val.asBool;
 }
 void ConfVarBool::Set(bool value)
 {
-	_ASSERT(typeBoolean == _type);
+	assert(typeBoolean == _type);
 	_val.asBool = value;
 	if( eventChange )
 		INVOKE(eventChange) ();
@@ -234,7 +234,7 @@ ConfVarString::ConfVarString()
 
 ConfVarString::~ConfVarString()
 {
-	_ASSERT( typeString == _type );
+	assert( typeString == _type );
 	delete _val.asString;
 }
 
@@ -245,13 +245,13 @@ const char* ConfVarString::GetTypeName() const
 
 const string_t& ConfVarString::Get() const
 {
-	_ASSERT(typeString == _type);
+	assert(typeString == _type);
 	return *_val.asString;
 }
 
 void ConfVarString::Set(const string_t &value)
 {
-	_ASSERT(typeString == _type);
+	assert(typeString == _type);
 	*_val.asString = value;
 	if( eventChange )
 		INVOKE(eventChange) ();
@@ -308,7 +308,7 @@ ConfVarArray::ConfVarArray()
 
 ConfVarArray::~ConfVarArray()
 {
-	_ASSERT( typeArray == _type );
+	assert( typeArray == _type );
 	for( size_t i = 0; i < _val.asArray->size(); ++i )
 	{
 		delete (*_val.asArray)[i];
@@ -323,7 +323,7 @@ const char* ConfVarArray::GetTypeName() const
 
 std::pair<ConfVar*, bool> ConfVarArray::GetVar(size_t index, ConfVar::Type type)
 {
-	_ASSERT( index < GetSize() );
+	assert( index < GetSize() );
 	std::pair<ConfVar*, bool> result( (*_val.asArray)[index], true);
 
 	if( result.first->GetType() != type )
@@ -416,7 +416,7 @@ ConfVarTable* ConfVarArray::GetTable(size_t index)
 
 void ConfVarArray::Resize(size_t newSize)
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 
 	size_t oldSize = _val.asArray->size();
 
@@ -447,33 +447,33 @@ void ConfVarArray::Resize(size_t newSize)
 
 size_t ConfVarArray::GetSize() const
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	return _val.asArray->size();
 }
 
 ConfVar* ConfVarArray::GetAt(size_t index) const
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	return (*_val.asArray)[index];
 }
 
 void ConfVarArray::RemoveAt(size_t index)
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	delete (*_val.asArray) [index];
 	_val.asArray->erase(_val.asArray->begin() + index);
 }
 
 void ConfVarArray::PopFront()
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	delete _val.asArray->front();
 	_val.asArray->pop_front();
 }
 
 ConfVar* ConfVarArray::PushBack(Type type)
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	ConfVar *result = new ConfVar();
 	result->SetType(type);
 	_val.asArray->push_back(result);
@@ -482,14 +482,14 @@ ConfVar* ConfVarArray::PushBack(Type type)
 
 void ConfVarArray::PopBack()
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	delete _val.asArray->back();
 	_val.asArray->pop_back();
 }
 
 ConfVar* ConfVarArray::PushFront(Type type)
 {
-	_ASSERT(typeArray == _type);
+	assert(typeArray == _type);
 	ConfVar *result = new ConfVar();
 	result->SetType(type);
 	_val.asArray->push_front(result);
@@ -555,7 +555,7 @@ ConfVarTable::ConfVarTable()
 
 ConfVarTable::~ConfVarTable()
 {
-	_ASSERT( typeTable == _type );
+	assert( typeTable == _type );
 	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 	     _val.asTable->end() != it; ++it )
 	{
@@ -594,7 +594,7 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Ty
 {
 	std::pair<ConfVar*, bool> result(NULL, true);
 
-	_ASSERT( ConfVar::typeNil != type );
+	assert( ConfVar::typeNil != type );
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() == it )
 	{
@@ -703,7 +703,7 @@ ConfVarTable* ConfVarTable::GetTable(const string_t &name, void (*init)(ConfVarT
 
 bool ConfVarTable::Remove(ConfVar * const value)
 {
-	_ASSERT( typeTable == _type );
+	assert( typeTable == _type );
 	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 		_val.asTable->end() != it; ++it )
 	{
@@ -719,7 +719,7 @@ bool ConfVarTable::Remove(ConfVar * const value)
 
 bool ConfVarTable::Remove(const string_t &name)
 {
-	_ASSERT( typeTable == _type );
+	assert( typeTable == _type );
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() != it )
 	{
@@ -731,7 +731,7 @@ bool ConfVarTable::Remove(const string_t &name)
 
 bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 {
-	_ASSERT( typeTable == _type );
+	assert( typeTable == _type );
 
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 	for( ;_val.asTable->end() != it; ++it )
@@ -764,7 +764,7 @@ bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 
 bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
 {
-	_ASSERT( typeTable == _type );
+	assert( typeTable == _type );
 
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(oldName);
 	if( _val.asTable->end() == it )
@@ -948,7 +948,7 @@ void ConfVarTable::Push(lua_State *L)
 // returns type string for arrays and tables
 static int luaT_conftostring(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	assert(lua_type(L, 1) == LUA_TUSERDATA);
 	ConfVar *v = *reinterpret_cast<ConfVar **>( lua_touserdata(L, 1) );
 	switch( v->GetType() )
 	{
@@ -959,7 +959,7 @@ static int luaT_conftostring(lua_State *L)
 		lua_pushfstring(L, "conf_table: %p", v);
 		break;
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}
 	return 1;
 }
@@ -967,10 +967,10 @@ static int luaT_conftostring(lua_State *L)
 // retrieving an array element
 static int luaT_getconfarray(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	assert(lua_type(L, 1) == LUA_TUSERDATA);
 
 	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
-	_ASSERT( ConfVar::typeArray == v->GetType() );
+	assert( ConfVar::typeArray == v->GetType() );
 
 	if( lua_isnumber(L, 2) )
 	{
@@ -992,10 +992,10 @@ static int luaT_getconfarray(lua_State *L)
 // retrieving a table element
 static int luaT_getconftable(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	assert(lua_type(L, 1) == LUA_TUSERDATA);
 
 	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
-	_ASSERT( ConfVar::typeTable == v->GetType() );
+	assert( ConfVar::typeTable == v->GetType() );
 
 	if( lua_isstring(L, 2) )
 	{
@@ -1020,10 +1020,10 @@ static int luaT_getconftable(lua_State *L)
 // assinging a value to an array element
 static int luaT_setconfarray(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	assert(lua_type(L, 1) == LUA_TUSERDATA);
 
 	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
-	_ASSERT( ConfVar::typeArray == v->GetType() );
+	assert( ConfVar::typeArray == v->GetType() );
 
 	if( lua_isnumber(L, 2) )
 	{
@@ -1062,10 +1062,10 @@ static int luaT_setconfarray(lua_State *L)
 // assinging a value to a table element
 static int luaT_setconftable(lua_State *L)
 {
-	_ASSERT(lua_type(L, 1) == LUA_TUSERDATA);
+	assert(lua_type(L, 1) == LUA_TUSERDATA);
 
 	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
-	_ASSERT( ConfVar::typeTable == v->GetType() );
+	assert( ConfVar::typeTable == v->GetType() );
 
 	if( lua_isstring(L, 2) )
 	{
@@ -1108,7 +1108,7 @@ static int luaT_conftablenext(lua_State *L)
 	luaL_checktype(L, 1, LUA_TUSERDATA);
 
 	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
-	_ASSERT( ConfVar::typeTable == v->GetType() );
+	assert( ConfVar::typeTable == v->GetType() );
 
 	if( v->_val.asTable->empty() )
 	{

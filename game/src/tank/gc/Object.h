@@ -24,7 +24,7 @@ private:                                        \
 public:                                         \
     void* operator new(size_t count)            \
     {                                           \
-        _ASSERT(sizeof(cls) == count);          \
+        assert(sizeof(cls) == count);          \
         return __memoryManager.Alloc();         \
     }                                           \
     void operator delete(void *ptr)             \
@@ -365,7 +365,7 @@ private:
 	}
 	template<class T> static void __RegisterForSerialization(ObjectType type)
 	{
-		_ASSERT(__GetFromFileMap().end() == __GetFromFileMap().find(type));
+		assert(__GetFromFileMap().end() == __GetFromFileMap().find(type));
 		LPFROMFILEPROC pf = __FromFileProc<T>;
 		__GetFromFileMap()[type] = pf;
 	}

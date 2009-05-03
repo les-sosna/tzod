@@ -206,7 +206,7 @@ public:
 	template<class T>
 	void Exchange(const char *name, T *value, T defaultValue)
 	{
-		_ASSERT(value)
+		assert(value)
 		if( loading() )
 		{
 			if( !getObjectAttribute(name, *value) )

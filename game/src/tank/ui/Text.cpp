@@ -60,8 +60,8 @@ void Text::SetAlign(enumAlignText align)
 
 void Text::SetFont(const char *fontName)
 {
-	_fontTexture = _fontTexture = g_texman->FindTexture(fontName);
-	_ASSERT(_fontTexture);
+	_fontTexture = _fontTexture = g_texman->FindSprite(fontName);
+	assert(_fontTexture);
 	const LogicalTexture &lt = g_texman->Get(_fontTexture);
 	Resize(lt.pxFrameWidth * (float) _maxline, lt.pxFrameHeight * (float) _lineCount);
 }

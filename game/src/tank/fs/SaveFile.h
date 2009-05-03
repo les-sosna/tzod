@@ -41,14 +41,14 @@ public:
 
 private:
 	template<class T>
-	void Serialize(T *obj) {_ASSERT(FALSE);} // you are not allowed to serialize raw pointers
+	void Serialize(T *obj) {assert(FALSE);} // you are not allowed to serialize raw pointers
 };
 
 template<class T>
 void SaveFile::Serialize(T &obj)
 {
-	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
-	_ASSERT(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
+	assert(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
+	assert(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
 	DWORD bytes;
 	if( loading() )
 		ReadFile(_file, &obj, sizeof(T), &bytes, NULL);
@@ -59,9 +59,9 @@ void SaveFile::Serialize(T &obj)
 template<class T>
 void SaveFile::Serialize(const T &obj)
 {
-	_ASSERT(!loading());
-	_ASSERT(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
-	_ASSERT(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
+	assert(!loading());
+	assert(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
+	assert(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
 	DWORD bytes;
 	WriteFile(_file, &obj, sizeof(T), &bytes, NULL);
 }
@@ -101,7 +101,7 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 template<class T>
 void SaveFile::Serialize(const SafePtr<T> &ptr)
 {
-	_ASSERT(!loading());
+	assert(!loading());
 	DWORD_PTR id;
 	if( !ptr )
 	{
@@ -125,8 +125,8 @@ void SaveFile::Serialize(const SafePtr<T> &ptr)
 template<class T>
 void SaveFile::SerializeArray(T *p, size_t count)
 {
-	_ASSERT(0 != strcmp(typeid(T).raw_name(), typeid(string_t).raw_name()));
-	_ASSERT(NULL == strstr(typeid(T).raw_name(), "SafePtr"));
+	assert(0 != strcmp(typeid(T).raw_name(), typeid(string_t).raw_name()));
+	assert(NULL == strstr(typeid(T).raw_name(), "SafePtr"));
 	DWORD bytes;
 	if( loading() )
 		ReadFile(_file, p, sizeof(T)*count, &bytes, NULL);

@@ -149,7 +149,7 @@ void GC_Camera::Select()
 
 void GC_Camera::Activate(bool bActivate)
 {
-	_ASSERT(!IsKilled());
+	assert(!IsKilled());
 	_active = bActivate;
 }
 
@@ -319,7 +319,7 @@ void GC_Camera::UpdateLayout()
 			SetRect(&viewports[3], w/2 + 1, h/2 + 1, w, h );
 			break;
 		default:
-			_ASSERT(false);
+			assert(false);
 		}
 
 		size_t count = 0;
@@ -353,7 +353,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 
 void GC_Camera::Shake(float level)
 {
-	_ASSERT(_player);
+	assert(_player);
 	if( 0 == _time_shake )
 		_time_seed = frand(1000.0f);
 	_time_shake = __min(_time_shake + 0.5f * level, PLAYER_RESPAWNTIME / 2);

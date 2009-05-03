@@ -42,7 +42,7 @@ size_t ConsoleBuffer::GetLineCount() const
 
 const char* ConsoleBuffer::GetLine(size_t index) const
 {
-	_ASSERT(index < _currentCount);
+	assert(index < _currentCount);
 	return _lines[(_lineCount + index + _currentLine + 1 - _currentCount) % _lineCount];
 }
 

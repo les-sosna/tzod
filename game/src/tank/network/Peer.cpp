@@ -25,18 +25,18 @@ Peer::Peer(SOCKET s)
 
 Peer::~Peer()
 {
-	_ASSERT(INVALID_SOCKET == _socket);
+	assert(INVALID_SOCKET == _socket);
 }
 
 void Peer::Close()
 {
-	_ASSERT(INVALID_SOCKET != _socket);
+	assert(INVALID_SOCKET != _socket);
 	_socket.Close();
 }
 
 int Peer::Connect(const sockaddr_in *addr)
 {
-	_ASSERT(INVALID_SOCKET != _socket);
+	assert(INVALID_SOCKET != _socket);
 	if( !connect(_socket, (sockaddr *) addr, sizeof(sockaddr_in)) )
 	{
 		TRACE("cl: ERROR - connect call failed!\n");
@@ -64,7 +64,7 @@ void Peer::Post(int func, const Variant &arg)
 		if( int err = _out.Send(_socket) )
 		{
 			TRACE("peer: network error %u\n", err);
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, err);
 		}
 	}
@@ -72,20 +72,20 @@ void Peer::Post(int func, const Variant &arg)
 
 void Peer::RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler)
 {
-	_ASSERT(0 == _handlers.count(func));
+	assert(0 == _handlers.count(func));
 	_handlers[func].argType = argType;
 	_handlers[func].handler = handler;
 }
 
 void Peer::OnSocketEvent()
 {
-	_ASSERT(INVALID_SOCKET != _socket);
+	assert(INVALID_SOCKET != _socket);
 
 	WSANETWORKEVENTS ne = {0};
 	if( _socket.EnumNetworkEvents(&ne) )
 	{
 		TRACE("peer: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
-		_ASSERT(eventDisconnect);
+		assert(eventDisconnect);
 		INVOKE(eventDisconnect) (this, WSAGetLastError());
 		return;
 	}
@@ -94,14 +94,14 @@ void Peer::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_CONNECT_BIT] )
 		{
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_CONNECT_BIT]);
 		}
 	}
 
 	if( ne.lNetworkEvents & FD_CLOSE )
 	{
-		_ASSERT(eventDisconnect);
+		assert(eventDisconnect);
 		INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_CLOSE_BIT]);
 	}
 
@@ -110,7 +110,7 @@ void Peer::OnSocketEvent()
 		if( ne.iErrorCode[FD_READ_BIT] )
 		{
 			TRACE("peer: read error 0x%08x\n", ne.iErrorCode[FD_READ_BIT]);
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_READ_BIT]);
 			return;
 		}
@@ -119,7 +119,7 @@ void Peer::OnSocketEvent()
 		if( result < 0 )
 		{
 			TRACE("peer: unexpected error 0x%08x\n", WSAGetLastError());
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, WSAGetLastError());
 			return;
 		}
@@ -127,7 +127,7 @@ void Peer::OnSocketEvent()
 		{
 			// connection was gracefully closed
 			TRACE("peer: connection closed by remote side\n");
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, 0);
 			return;
 		}
@@ -140,7 +140,7 @@ void Peer::OnSocketEvent()
 				_in.EntityBegin();
 					_in & func;
 					HandlersMap::const_iterator it = _handlers.find(func);
-					_ASSERT(_handlers.end() != it);
+					assert(_handlers.end() != it);
 					arg.ChangeType(it->second.argType);
 					_in & arg;
 				_in.EntityEnd();
@@ -154,7 +154,7 @@ void Peer::OnSocketEvent()
 		if( ne.iErrorCode[FD_WRITE_BIT] )
 		{
 			TRACE("peer: write error 0x%08x\n", ne.iErrorCode[FD_WRITE_BIT]);
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_WRITE_BIT]);
 			return;
 		}
@@ -162,7 +162,7 @@ void Peer::OnSocketEvent()
 		if( int err = _out.Send(_socket) )
 		{
 			TRACE("peer: network error %u\n", err);
-			_ASSERT(eventDisconnect);
+			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, err);
 			return;
 		}

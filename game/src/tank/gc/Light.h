@@ -77,17 +77,17 @@ public:
 	}
 	void SetOffset(float o)
 	{
-		_ASSERT(LIGHT_DIRECT != _type);
+		assert(LIGHT_DIRECT != _type);
 		_offset = o;
 	}
 	void SetLength(float l)
 	{
-		_ASSERT(LIGHT_DIRECT == _type);
+		assert(LIGHT_DIRECT == _type);
 		_radius = l;
 	}
 	float GetLength() const
 	{
-		_ASSERT(LIGHT_DIRECT == _type);
+		assert(LIGHT_DIRECT == _type);
 		return _radius;
 	}
 

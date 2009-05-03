@@ -41,8 +41,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Sort();
 
 
-	(new Button(this, 290, 360, g_lang->campaign_ok->Get()))->eventClick.bind(&NewCampaignDlg::OnOK, this);
-	(new Button(this, 400, 360, g_lang->campaign_cancel->Get()))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
+	(new Button(this, g_lang->campaign_ok->Get(), 290, 360))->eventClick.bind(&NewCampaignDlg::OnOK, this);
+	(new Button(this, g_lang->campaign_cancel->Get(), 400, 360))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()

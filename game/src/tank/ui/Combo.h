@@ -16,7 +16,6 @@ class ComboBox : public Window
 	TextButton  *_text;
 	List        *_list;
 	ButtonBase  *_btn;
-//	ButtonBase  *_btn1; // invisible button at the whole line
 
 	int _curSel;
 

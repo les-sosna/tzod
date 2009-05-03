@@ -103,15 +103,15 @@ static void OnPrintScreen()
 
 static void TimeStep(float dt)
 {
-	_ASSERT(g_level);
+	assert(g_level);
 	g_level->TimeStep(dt);
 	if( g_gui ) g_gui->TimeStep(dt);
 }
 
 static void RenderFrame(bool thumbnail)
 {
-	_ASSERT(g_level);
-	_ASSERT(g_render);
+	assert(g_level);
+	assert(g_render);
 
 	g_render->Begin();
 
@@ -130,7 +130,7 @@ static void RenderFrame(bool thumbnail)
 
 static void EndFrame()
 {
-	_ASSERT(g_level);
+	assert(g_level);
 	ObjectList::safe_iterator it = g_level->endframe.safe_begin();
 	while( it != g_level->endframe.end() )
 	{
@@ -209,13 +209,13 @@ int APIENTRY WinMain( HINSTANCE hinst,
 ///////////////////////////////////////////////////////////////////////////////
 ZodApp::ZodApp()
 {
-	_ASSERT(!g_app);
+	assert(!g_app);
 	g_app = this;
 }
 
 ZodApp::~ZodApp()
 {
-	_ASSERT(this == g_app);
+	assert(this == g_app);
 	g_app = NULL;
 }
 

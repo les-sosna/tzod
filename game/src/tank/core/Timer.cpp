@@ -80,7 +80,7 @@ void Timer::Start()
 {
 	_stopCount--;
 	TRACE("timer: start;  now stop count is %d\n", _stopCount);
-	_ASSERT(_stopCount >= 0);
+	assert(_stopCount >= 0);
 
 	if( !_stopCount )
 	{

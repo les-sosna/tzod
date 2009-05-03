@@ -30,14 +30,14 @@ int ListDataSourceDefault::GetSubItemCount(int index) const
 
 ULONG_PTR ListDataSourceDefault::GetItemData(int index) const
 {
-	_ASSERT(index >= 0);
+	assert(index >= 0);
 	return _items[index].data;
 }
 
 const string_t& ListDataSourceDefault::GetItemText(int index, int sub) const
 {
-	_ASSERT(index >= 0 && index < (int) _items.size());
-	_ASSERT(sub >= 0 && sub < (int) _items[index].text.size());
+	assert(index >= 0 && index < (int) _items.size());
+	assert(sub >= 0 && sub < (int) _items[index].text.size());
 	return _items[index].text[sub];
 }
 
@@ -68,7 +68,7 @@ int ListDataSourceDefault::AddItem(const string_t &str, UINT_PTR data)
 
 void ListDataSourceDefault::SetItemText(int index, int sub, const string_t &str)
 {
-	_ASSERT(index >= 0 && index < (int) _items.size());
+	assert(index >= 0 && index < (int) _items.size());
 	if( sub >= (int) _items[index].text.size() )
 		_items[index].text.insert(_items[index].text.end(), 1+sub - _items[index].text.size(), "");
 	_items[index].text[sub] = str;
@@ -76,7 +76,7 @@ void ListDataSourceDefault::SetItemText(int index, int sub, const string_t &str)
 
 void ListDataSourceDefault::SetItemData(int index, ULONG_PTR data)
 {
-	_ASSERT(index >= 0);
+	assert(index >= 0);
 	_items[index].data = data;
 }
 
@@ -113,7 +113,7 @@ void ListDataSourceDefault::Sort()
 List::ListCallbackImpl::ListCallbackImpl(List *list)
   : _list(list)
 {
-	_ASSERT(_list);
+	assert(_list);
 }
 
 void List::ListCallbackImpl::OnDeleteAllItems()
@@ -147,11 +147,11 @@ void List::ListCallbackImpl::OnAddItem()
 // class List
 
 List::List(Window *parent, float x, float y, float width, float height)
-  : Window(parent, x, y, "ctrl_list")
+  : Window(parent, x, y, "ui/list")
   , _callbacks(this)
   , _curSel(-1)
   , _hotItem(-1)
-  , _font(g_texman->FindTexture("font_small"))
+  , _font(g_texman->FindSprite("font_small"))
 {
 	SetClipChildren(true);
 	SetBorder(true);
@@ -163,7 +163,7 @@ List::List(Window *parent, float x, float y, float width, float height)
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll.bind(&List::OnScroll, this);
 
-	_selection = new Window(this, 0, 0, "ctrl_listsel_u");
+	_selection = new Window(this, 0, 0, "ui/listsel_u");
 	_selection->SetBorder(true);
 	_selection->Resize(1, GetItemHeight());
 
@@ -257,7 +257,7 @@ ULONG_PTR List::GetItemData(int index) const
 
 void List::SetTabPos(int index, float pos)
 {
-	_ASSERT(index >= 0);
+	assert(index >= 0);
 	if( index >= (int) _tabs.size() )
 		_tabs.insert(_tabs.end(), 1+index - _tabs.size(), pos);
 	else
@@ -401,7 +401,7 @@ void List::OnRawChar(int c)
 
 bool List::OnFocus(bool focus)
 {
-	_selection->SetTexture(focus ? "ctrl_listsel" : "ctrl_listsel_u");
+	_selection->SetTexture(focus ? "ui/listsel" : "ui/listsel_u");
 	return true;
 }
 

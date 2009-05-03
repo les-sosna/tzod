@@ -40,105 +40,105 @@ const string_t& ObjectProperty::GetName(void) const
 
 int ObjectProperty::GetIntValue(void) const
 {
-	_ASSERT(TYPE_INTEGER == _type);
+	assert(TYPE_INTEGER == _type);
 	return _int_value;
 }
 
 int ObjectProperty::GetIntMin(void) const
 {
-	_ASSERT(TYPE_INTEGER == _type);
+	assert(TYPE_INTEGER == _type);
 	return _int_min;
 }
 
 int ObjectProperty::GetIntMax(void) const
 {
-	_ASSERT(TYPE_INTEGER == _type);
+	assert(TYPE_INTEGER == _type);
 	return _int_max;
 }
 
 void ObjectProperty::SetIntValue(int value)
 {
-	_ASSERT(TYPE_INTEGER == _type);
-	_ASSERT(value >= GetIntMin());
-	_ASSERT(value <= GetIntMax());
+	assert(TYPE_INTEGER == _type);
+	assert(value >= GetIntMin());
+	assert(value <= GetIntMax());
 	_int_value = value;
 }
 
 void ObjectProperty::SetIntRange(int min, int max)
 {
-	_ASSERT(TYPE_INTEGER == _type);
+	assert(TYPE_INTEGER == _type);
 	_int_min = min;
 	_int_max = max;
 }
 
 float ObjectProperty::GetFloatValue(void) const
 {
-	_ASSERT(TYPE_FLOAT == _type);
+	assert(TYPE_FLOAT == _type);
 	return _float_value;
 }
 
 float ObjectProperty::GetFloatMin(void) const
 {
-	_ASSERT(TYPE_FLOAT == _type);
+	assert(TYPE_FLOAT == _type);
 	return _float_min;
 }
 
 float ObjectProperty::GetFloatMax(void) const
 {
-	_ASSERT(TYPE_FLOAT == _type);
+	assert(TYPE_FLOAT == _type);
 	return _float_max;
 }
 
 void ObjectProperty::SetFloatValue(float value)
 {
-	_ASSERT(TYPE_FLOAT == _type);
-	_ASSERT(value >= GetFloatMin());
-	_ASSERT(value <= GetFloatMax());
+	assert(TYPE_FLOAT == _type);
+	assert(value >= GetFloatMin());
+	assert(value <= GetFloatMax());
 	_float_value = value;
 }
 
 void ObjectProperty::SetFloatRange(float min, float max)
 {
-	_ASSERT(TYPE_FLOAT == _type);
+	assert(TYPE_FLOAT == _type);
 	_float_min = min;
 	_float_max = max;
 }
 
 void ObjectProperty::SetStringValue(const string_t &str)
 {
-	_ASSERT(TYPE_STRING == _type);
+	assert(TYPE_STRING == _type);
 	_str_value = str;
 }
 
 const string_t& ObjectProperty::GetStringValue(void) const
 {
-	_ASSERT( TYPE_STRING == _type );
+	assert( TYPE_STRING == _type );
 	return _str_value;
 }
 
 void ObjectProperty::AddItem(const string_t &str)
 {
-	_ASSERT(TYPE_MULTISTRING == _type);
+	assert(TYPE_MULTISTRING == _type);
 	_value_set.push_back(str);
 }
 
 const string_t& ObjectProperty::GetListValue(size_t index) const
 {
-	_ASSERT(TYPE_MULTISTRING == _type);
-	_ASSERT(index < _value_set.size());
+	assert(TYPE_MULTISTRING == _type);
+	assert(index < _value_set.size());
 	return _value_set[index];
 }
 
 size_t ObjectProperty::GetCurrentIndex(void) const
 {
-	_ASSERT(TYPE_MULTISTRING == _type);
+	assert(TYPE_MULTISTRING == _type);
 	return _value_index;
 }
 
 void ObjectProperty::SetCurrentIndex(size_t index)
 {
-	_ASSERT(TYPE_MULTISTRING == _type);
-	_ASSERT(index < _value_set.size());
+	assert(TYPE_MULTISTRING == _type);
+	assert(index < _value_set.size());
 	_value_index = index;
 }
 
@@ -191,7 +191,7 @@ void PropertySet::LoadFromConfig()
 			)));
 			break;
 		default:
-			_ASSERT(FALSE);
+			assert(FALSE);
 		} // end of switch( prop->GetType() )
 	}
 }
@@ -217,7 +217,7 @@ void PropertySet::SaveToConfig()
 			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
 			break;
 		default:
-			_ASSERT(FALSE);
+			assert(FALSE);
 		} // end of switch( prop->GetType() )
 	}}
 
@@ -233,7 +233,7 @@ GC_Object* PropertySet::GetObject() const
 
 ObjectProperty* PropertySet::GetProperty(int index)
 {
-	_ASSERT(index < GetCount());
+	assert(index < GetCount());
 	return &_propName;
 }
 
@@ -285,9 +285,9 @@ GC_Object::GC_Object(FromFile)
 
 GC_Object::~GC_Object()
 {
-	_ASSERT(0 == _refCount);
-	_ASSERT(0 == _notifyProtectCount);
-	_ASSERT(IsKilled());
+	assert(0 == _refCount);
+	assert(0 == _notifyProtectCount);
+	assert(IsKilled());
 	SetName(NULL);
 }
 
@@ -328,8 +328,8 @@ void GC_Object::Serialize(SaveFile &f)
 			string_t name;
 			f.Serialize(name);
 
-			_ASSERT( 0 == g_level->_objectToNameMap.count(this) );
-			_ASSERT( 0 == g_level->_nameToObjectMap.count(name) );
+			assert( 0 == g_level->_objectToNameMap.count(this) );
+			assert( 0 == g_level->_nameToObjectMap.count(name) );
 			g_level->_objectToNameMap[this] = name;
 			g_level->_nameToObjectMap[name] = this;
 		}
@@ -353,7 +353,7 @@ void GC_Object::Serialize(SaveFile &f)
 	f.Serialize(count);
 	if( f.loading() )
 	{
-		_ASSERT(_notifyList.empty());
+		assert(_notifyList.empty());
 		for( int i = 0; i < count; i++ )
 		{
 			_notifyList.push_back(Notify());
@@ -404,10 +404,10 @@ int GC_Object::AddRef()
 
 int GC_Object::Release()
 {
-	_ASSERT(_refCount > 0);
+	assert(_refCount > 0);
 	if( 0 == (--_refCount) )
 	{
-		_ASSERT(IsKilled());
+		assert(IsKilled());
 		delete this;
 		return 0;
 	}
@@ -426,7 +426,7 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-		_ASSERT(!IsKilled());
+		assert(!IsKilled());
 		g_level->ts_fixed.push_front(this);
 		_itPosFixed = g_level->ts_fixed.begin();
 	}
@@ -441,7 +441,7 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	else if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & _flags) &&
 			 0 != (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & dwEvents) )
 	{
-		_ASSERT(!IsKilled());
+		assert(!IsKilled());
 		g_level->ts_floating.push_front(this);
 		_itPosFloating = g_level->ts_floating.begin();
 	}
@@ -456,7 +456,7 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_ENDFRAME & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_ENDFRAME & _flags) )
 	{
-		_ASSERT(!IsKilled());
+		assert(!IsKilled());
 		g_level->endframe.push_front(this);
 		_itPosEndFrame = g_level->endframe.begin();
 	}
@@ -470,7 +470,7 @@ const char* GC_Object::GetName() const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		_ASSERT( g_level->_objectToNameMap.count(this) );
+		assert( g_level->_objectToNameMap.count(this) );
 		return g_level->_objectToNameMap[this].c_str();
 	}
 	return NULL;
@@ -484,9 +484,9 @@ void GC_Object::SetName(const char *name)
 		// remove old name
 		//
 
-		_ASSERT( g_level->_objectToNameMap.count(this) );
+		assert( g_level->_objectToNameMap.count(this) );
 		const char *oldName = g_level->_objectToNameMap[this].c_str();
-		_ASSERT( g_level->_nameToObjectMap.count(oldName) );
+		assert( g_level->_nameToObjectMap.count(oldName) );
 		g_level->_nameToObjectMap.erase(oldName);
 		g_level->_objectToNameMap.erase(this); // this invalidates *oldName pointer
 
@@ -499,8 +499,8 @@ void GC_Object::SetName(const char *name)
 		// set new name
 		//
 
-		_ASSERT( 0 == g_level->_objectToNameMap.count(this) );
-		_ASSERT( 0 == g_level->_nameToObjectMap.count(name) );
+		assert( 0 == g_level->_objectToNameMap.count(this) );
+		assert( 0 == g_level->_nameToObjectMap.count(name) );
 
 		g_level->_objectToNameMap[this] = name;
 		g_level->_nameToObjectMap[name] = this;
@@ -512,9 +512,9 @@ void GC_Object::SetName(const char *name)
 void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
                           NOTIFYPROC handler, bool once, bool guard)
 {
-	_ASSERT(!IsKilled());
-	_ASSERT(subscriber && !subscriber->IsKilled());
-	_ASSERT(handler);
+	assert(!IsKilled());
+	assert(subscriber && !subscriber->IsKilled());
+	assert(handler);
 	//--------------------------------------------------
 	Notify notify;
 	notify.type         = type;
@@ -546,15 +546,15 @@ void GC_Object::Unguard(GC_Object *subscriber)
 			continue;
 		}
 		std::list<Notify>::iterator tmp = it++;
-		_ASSERT(!tmp->hasGuard);
-		_ASSERT(NOTIFY_OBJECT_KILL == tmp->type);
+		assert(!tmp->hasGuard);
+		assert(NOTIFY_OBJECT_KILL == tmp->type);
 		if( _notifyProtectCount )
 			tmp->removed = true;
 		else
 			_notifyList.erase(tmp);
 		return;
 	}
-	_ASSERT(FALSE); // guard has not been found
+	assert(FALSE); // guard has not been found
 }
 
 void GC_Object::Unsubscribe(GC_Object *subscriber)
@@ -622,7 +622,7 @@ void GC_Object::PulseNotify(NotyfyType type, void *param)
 			++it;
 			continue;
 		}
-		_ASSERT(it->subscriber);
+		assert(it->subscriber);
 		(GetRawPtr(it->subscriber)->*it->handler)(this, param);
 		tmp = it++;
 		if( tmp->once )

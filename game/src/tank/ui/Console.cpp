@@ -19,9 +19,9 @@ namespace UI
 
 
 Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
-  : Window(parent, x, y, "window")
+  : Window(parent, x, y, "ui/window")
   , _buf(buf)
-  , _font(g_texman->FindTexture("font_small"))
+  , _font(g_texman->FindSprite("font_small"))
 {
 	SetBorder(true);
 

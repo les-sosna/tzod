@@ -19,7 +19,7 @@ static std::string GenerateKey(unsigned int length)
 		"ABCDEFGHIGKLMNOPQRSTUVWXWZ"
 		"0123456789";
 
-	_ASSERT(length > 0);
+	assert(length > 0);
 
 	std::string result;
 	result.resize(length);
@@ -82,13 +82,13 @@ void LobbyClient::ResetHttp()
 
 void LobbyClient::SetLobbyUrl(const std::string &lobbyUrl)
 {
-	_ASSERT(STATE_IDLE == _state);
+	assert(STATE_IDLE == _state);
 	_lobbyUrl = lobbyUrl;
 }
 
 void LobbyClient::RequestServerList()
 {
-	_ASSERT(STATE_IDLE == _state);
+	assert(STATE_IDLE == _state);
 	_state = STATE_LIST;
 	_redirectCount = 0;
 	_param.clear();
@@ -100,7 +100,7 @@ void LobbyClient::RequestServerList()
 
 void LobbyClient::AnnounceHost(int port)
 {
-	_ASSERT(STATE_IDLE == _state);
+	assert(STATE_IDLE == _state);
 	_state = STATE_ANNOUNCE;
 
 	std::stringstream s;
@@ -146,7 +146,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 	switch( err )
 	{
 		case 301: // moved permanently
-			_ASSERT(STATE_IDLE != _state);
+			assert(STATE_IDLE != _state);
 			++_redirectCount;
 			it = headers->find("Location"); // TODO: case insensitive search
 			if( headers->end() == it || _redirectCount > LOBBY_MAX_REDIRECT )
@@ -163,7 +163,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 			break;
 
 		case 200: // ok
-			_ASSERT(STATE_IDLE != _state);
+			assert(STATE_IDLE != _state);
 			switch( _state )
 			{
 				case STATE_ANNOUNCE:

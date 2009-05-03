@@ -47,11 +47,11 @@ SettingsDlg::SettingsDlg(Window *parent)
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
-	(new Button(this, 40, 184, g_lang->settings_profile_new->Get()))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
-	_editProfile = new Button(this, 40, 216, g_lang->settings_profile_edit->Get());
+	(new Button(this, g_lang->settings_profile_new->Get(), 40, 184))->eventClick.bind(&SettingsDlg::OnAddProfile, this);
+	_editProfile = new Button(this, g_lang->settings_profile_edit->Get(), 40, 216);
 	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled( false );
-	_deleteProfile = new Button(this, 40, 248, g_lang->settings_profile_delete->Get());
+	_deleteProfile = new Button(this, g_lang->settings_profile_delete->Get(), 40, 248);
 	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled( false );
 
@@ -104,8 +104,8 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// OK & Cancel
 	//
 
-	(new Button(this, 304, 256, g_lang->common_ok->Get()))->eventClick.bind(&SettingsDlg::OnOK, this);
-	(new Button(this, 408, 256, g_lang->common_cancel->Get()))->eventClick.bind(&SettingsDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 304, 256))->eventClick.bind(&SettingsDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 408, 256))->eventClick.bind(&SettingsDlg::OnCancel, this);
 
 
 	_profiles->SetCurSel(0, true);
@@ -135,7 +135,7 @@ void SettingsDlg::OnAddProfile()
 void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetCurSel();
-	_ASSERT(i >= 0);
+	assert(i >= 0);
 	(new ControlProfileDlg(this, _profiles->GetItemText(i).c_str()))
 		->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
 }
@@ -143,7 +143,7 @@ void SettingsDlg::OnEditProfile()
 void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
-	_ASSERT(i >= 0);
+	assert(i >= 0);
 	if( g_conf->cl_playerinfo->GetStr("profile")->Get() == _profiles->GetItemText(i) )
 	{
 		// profile that is being deleted is used in network settings
@@ -264,8 +264,8 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_moveToMouse = new CheckBox(this, 146, 345, g_lang->profile_mouse_move->Get());
 	_moveToMouse->SetCheck(_profile->GetBool("move_to_mouse", false)->Get());
 
-	(new Button(this, 304, 350, g_lang->common_ok->Get()))->eventClick.bind(&ControlProfileDlg::OnOK, this);
-	(new Button(this, 408, 350, g_lang->common_cancel->Get()))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 304, 350))->eventClick.bind(&ControlProfileDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 408, 350))->eventClick.bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_actions);
 }
@@ -374,7 +374,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
   : Dialog(parent, 512, 512)
 {
 	SetEasyMove(true);
-	_ASSERT(g_level);
+	assert(g_level);
 
 	Text *title = new Text(this, GetWidth() / 2, 16, g_lang->map_title->Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -417,8 +417,8 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	//
 	// OK & Cancel
 	//
-	(new Button(this, 304, 480, g_lang->common_ok->Get()))->eventClick.bind(&MapSettingsDlg::OnOK, this);
-	(new Button(this, 408, 480, g_lang->common_cancel->Get()))->eventClick.bind(&MapSettingsDlg::OnCancel, this);
+	(new Button(this, g_lang->common_ok->Get(), 304, 480))->eventClick.bind(&MapSettingsDlg::OnOK, this);
+	(new Button(this, g_lang->common_cancel->Get(), 408, 480))->eventClick.bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()

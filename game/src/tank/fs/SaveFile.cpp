@@ -29,8 +29,8 @@ bool SaveFile::RestoreAllLinks()
 
 void SaveFile::RegPointer(void *ptr, size_t index)
 {
-	_ASSERT(_ptrToIndex.empty());
-	_ASSERT(0 == _indexToPtr.count(index));
+	assert(_ptrToIndex.empty());
+	assert(0 == _indexToPtr.count(index));
 	_indexToPtr[index] = ptr;
 }
 

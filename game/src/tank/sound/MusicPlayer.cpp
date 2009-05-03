@@ -58,7 +58,7 @@ bool MusicPlayer::Fill(bool firstHalf)
 		return false;
 	}
 
-	_ASSERT(firstSegmentSize == _bufHalfSize);
+	assert(firstSegmentSize == _bufHalfSize);
 	
 
 	//
@@ -121,7 +121,7 @@ bool MusicPlayer::Fill(bool firstHalf)
 size_t MusicPlayer::read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
 	State *s = (State *) datasource;
-	_ASSERT(s->ptr <= s->file->GetSize());
+	assert(s->ptr <= s->file->GetSize());
 	size_t rd = __min(s->file->GetSize() - s->ptr, size*nmemb);
 	memcpy(ptr, s->file->GetData() + s->ptr, rd);
 	s->ptr += rd;

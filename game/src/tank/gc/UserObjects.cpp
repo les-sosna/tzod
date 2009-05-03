@@ -76,7 +76,7 @@ GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{
-		const LogicalTexture &lt = g_texman->Get(g_texman->FindTexture(names[i]));
+		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
 		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
 		{
 			// only allow using textures which are less than half of cell
@@ -100,7 +100,7 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	case 0: return &_propTexture;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -196,7 +196,7 @@ void GC_Decoration::mapExchange(MapFile &f)
 
 void GC_Decoration::TimeStepFixed(float dt)
 {
-	_ASSERT(_frameRate > 0);
+	assert(_frameRate > 0);
 	_time += dt;
 	if( _time * _frameRate > 1 )
 	{
@@ -222,7 +222,7 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{
-		const LogicalTexture &lt = g_texman->Get(g_texman->FindTexture(names[i]));
+		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
 		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
 		{
 			// only allow using textures which are less than half of cell
@@ -254,7 +254,7 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	case 4: return &_propRotation;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 

@@ -1,15 +1,6 @@
 // MapFile.cpp
 
-/*
-#define _CRT_SECURE_NO_DEPRECATE
-
-#ifdef _WIN32
-#include <crtdbg.h>
-#else
-#undef _DEBUG
-#define _ASSERT
-#endif
-*/
+//#include <assert.h>
 
 #include "stdafx.h"
 #include "MapFile.h"
@@ -18,19 +9,19 @@
 
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	return (1 == fread(&chdr, sizeof(ChunkHeader), 1, _file));
 }
 
 bool MapFile::_write_chunk_header(const ChunkHeader &chdr)
 {
-	_ASSERT(is_open() && _modeWrite);
+	assert(is_open() && _modeWrite);
 	return (1 == fwrite(&chdr, sizeof(ChunkHeader), 1, _file));
 }
 
 bool MapFile::_skip_block(size_t size)
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	return (0 == fseek(_file, (long) size, SEEK_CUR));
 }
 
@@ -51,7 +42,7 @@ MapFile::~MapFile(void)
 
 bool MapFile::Open(const string_t &filename, bool write)
 {
-	_ASSERT(!is_open());
+	assert(!is_open());
 
 	_file = fopen(filename.c_str(), write ? "wb" : "rb");
 
@@ -193,7 +184,7 @@ bool MapFile::Open(const string_t &filename, bool write)
 							setMapAttribute(name, value_str);
 							break;
 						default:
-							_ASSERT(0);
+							assert(0);
 						};
 					}
 					else if( !_skip_block(ch.chunkSize - sizeof(int)) )
@@ -219,20 +210,20 @@ bool MapFile::Open(const string_t &filename, bool write)
 
 bool MapFile::WriteInt(int value)
 {
-	_ASSERT(is_open() && _modeWrite);
+	assert(is_open() && _modeWrite);
 	return (1 == fwrite(&value, sizeof(int), 1, _file));
 }
 
 bool MapFile::WriteFloat(float value)
 {
-	_ASSERT(is_open() && _modeWrite);
+	assert(is_open() && _modeWrite);
 	return (1 == fwrite(&value, sizeof(float), 1, _file));
 }
 
 bool MapFile::WriteString(const string_t &value)
 {
-	_ASSERT(is_open() && _modeWrite);
-	_ASSERT(value.length() <= 0xffff);
+	assert(is_open() && _modeWrite);
+	assert(value.length() <= 0xffff);
     unsigned short len = (unsigned short) (value.length() & 0xffff);
 	if( 1 != fwrite(&len, sizeof(unsigned short), 1, _file) )
 		return false;
@@ -242,19 +233,19 @@ bool MapFile::WriteString(const string_t &value)
 
 bool MapFile::ReadInt(int &value)
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	return (1 == fread(&value, sizeof(int), 1, _file));
 }
 
 bool MapFile::ReadFloat(float &value)
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	return (1 == fread(&value, sizeof(float), 1, _file));
 }
 
 bool MapFile::ReadString(string_t &value)
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
     unsigned short len;
 	if( 1 != fread(&len, sizeof(unsigned short), 1, _file) )
 		return false;
@@ -318,7 +309,7 @@ void MapFile::setMapAttribute(const string_t &name, const string_t &value)
 
 bool MapFile::getObjectAttribute(const string_t &name, int &value) const
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	std::map<string_t, int>::const_iterator it;
 	it = _obj_attrs.attrs_int.find(name);
 	if( _obj_attrs.attrs_int.end() == it )
@@ -329,7 +320,7 @@ bool MapFile::getObjectAttribute(const string_t &name, int &value) const
 
 bool MapFile::getObjectAttribute(const string_t &name, float &value) const
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	std::map<string_t, float>::const_iterator it;
 	it = _obj_attrs.attrs_float.find(name);
 	if( _obj_attrs.attrs_float.end() == it )
@@ -340,7 +331,7 @@ bool MapFile::getObjectAttribute(const string_t &name, float &value) const
 
 bool MapFile::getObjectAttribute(const string_t &name, string_t &value) const
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 	std::map<string_t, string_t>::const_iterator it;
 	it = _obj_attrs.attrs_str.find(name);
 	if( _obj_attrs.attrs_str.end() == it )
@@ -356,7 +347,7 @@ void MapFile::setObjectAttribute(const string_t &name, int value)
 #ifdef _DEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			_ASSERT(_managed_classes.back()._propertyset[i].name != name);
+			assert(_managed_classes.back()._propertyset[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
@@ -374,7 +365,7 @@ void MapFile::setObjectAttribute(const string_t &name, float value)
 #ifdef _DEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			_ASSERT(_managed_classes.back()._propertyset[i].name != name);
+			assert(_managed_classes.back()._propertyset[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
@@ -392,7 +383,7 @@ void MapFile::setObjectAttribute(const string_t &name, const string_t &value)
 #ifdef _DEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			_ASSERT(_managed_classes.back()._propertyset[i].name != name);
+			assert(_managed_classes.back()._propertyset[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
@@ -422,14 +413,14 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, const string_t
 
 const string_t& MapFile::GetCurrentClassName() const
 {
-	_ASSERT(is_open() && !_modeWrite);
-	_ASSERT(_obj_type < _managed_classes.size());
+	assert(is_open() && !_modeWrite);
+	assert(_obj_type < _managed_classes.size());
     return _managed_classes[_obj_type]._className;
 }
 
 void MapFile::BeginObject(const char *classname)
 {
-	_ASSERT(is_open() && _modeWrite);
+	assert(is_open() && _modeWrite);
 
 	_buffer.str(""); // clear buffer
 
@@ -461,7 +452,7 @@ void MapFile::BeginObject(const char *classname)
 
 bool MapFile::WriteCurrentObject()
 {
-	_ASSERT(is_open() && _modeWrite);
+	assert(is_open() && _modeWrite);
 
 	ChunkHeader ch;
 
@@ -496,14 +487,14 @@ bool MapFile::WriteCurrentObject()
 	string_t str(_buffer.str());
 	ch.chunkType = CHUNK_OBJECT;
 	ch.chunkSize = str.size();
-	_ASSERT(ch.chunkSize > 0);
+	assert(ch.chunkSize > 0);
 	_write_chunk_header(ch);
 	return (ch.chunkSize == fwrite(str.data(), sizeof(char), ch.chunkSize, _file));
 }
 
 bool MapFile::NextObject()
 {
-	_ASSERT(is_open() && !_modeWrite);
+	assert(is_open() && !_modeWrite);
 
 	ChunkHeader ch;
 	while( _read_chunk_header(ch) )
@@ -554,7 +545,7 @@ bool MapFile::NextObject()
 								return false;
 							break;
 						default:
-							_ASSERT(0);
+							assert(0);
 							return false;
 						}
 					}
@@ -573,7 +564,7 @@ bool MapFile::NextObject()
 
 bool MapFile::Close()
 {
-	_ASSERT(is_open());
+	assert(is_open());
 
     bool res = (0 == fclose(_file));
 	_file = NULL;

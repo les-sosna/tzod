@@ -5,12 +5,6 @@
 #include "Button.h"
 #include "Text.h"
 
-
-#include "core/Debug.h"
-#include "core/Console.h"
-#include "core/Application.h"
-
-
 namespace UI
 {
 
@@ -19,8 +13,8 @@ namespace UI
 
 ButtonBase::ButtonBase(Window *parent, float x, float y, const char *texture)
   : Window(parent, x,y, texture)
+  , _state(stateNormal)
 {
-	_state = stateNormal;
 }
 
 void ButtonBase::SetState(State s)
@@ -107,10 +101,14 @@ void ButtonBase::OnEnabledChange(bool enable, bool inherited)
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
 
-Button::Button(Window *parent, float x, float y, const string_t &text)
-  : ButtonBase(parent, x, y, "ctrl_button")
+Button::Button(Window *parent, const string_t &text, float x, float y, float w, float h)
+  : ButtonBase(parent, x, y, "ui/button")
 {
 	_label = new Text(this, 0, 0, text, alignTextCC);
+	if( w >= 0 && h >= 0 )
+	{
+		Resize(w, h);
+	}
 	OnChangeState(stateNormal);
 }
 
@@ -190,7 +188,7 @@ void ImageButton::OnChangeState(State state)
 // CheckBox class implementation
 
 CheckBox::CheckBox(Window *parent, float x, float y, const string_t &text)
-  : ButtonBase(parent, x, y, "ctrl_checkbox")
+  : ButtonBase(parent, x, y, "ui/checkbox")
   , _isChecked(false)
 {
 	_label = new TextButton(this, 0, 0, text, "font_small");
@@ -216,7 +214,6 @@ const string_t& CheckBox::GetText() const
 
 void CheckBox::OnChangeState(State state)
 {
-	_label->SetEnabled(stateDisabled != state);
 	SetFrame(_isChecked ? state+4 : state);
 }
 

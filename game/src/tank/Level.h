@@ -66,7 +66,7 @@ public:
 
 	inline bool operator > (const FieldCell &cell) const
 	{
-		_ASSERT(_mySession == cell._mySession);
+		assert(_mySession == cell._mySession);
 		return Rate() > cell.Rate();
 	}
 };
@@ -393,15 +393,15 @@ public:
 	}
 	static const char* GetTypeName(ObjectType type)
 	{
-		_ASSERT(IsRegistered(type));
+		assert(IsRegistered(type));
 		return get_t2i()[type].name;
 	}
 	template<class T>
 	static void RegisterActor( const char *name, const char *desc, int layer, float width,
 	                           float height, float align, float offset )
 	{
-		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
-		_ASSERT( 0 == get_n2t().count(name) );
+		assert( !IsRegistered(T::GetTypeStatic()) );
+		assert( 0 == get_n2t().count(name) );
 		EdItem ei;
 		ei.desc    = desc;  // index in localization table
 		ei.name    = name;
@@ -419,8 +419,8 @@ public:
 	template<class T>
 	static void RegisterService( const char *name, const char *desc )
 	{
-		_ASSERT( !IsRegistered(T::GetTypeStatic()) );
-		_ASSERT( 0 == get_n2t().count(name) );
+		assert( !IsRegistered(T::GetTypeStatic()) );
+		assert( 0 == get_n2t().count(name) );
 		EdItem ei = {0};
 		ei.desc    = desc;
 		ei.name    = name;

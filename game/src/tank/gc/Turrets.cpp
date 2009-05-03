@@ -216,7 +216,7 @@ void GC_Turret::TimeStepFixed(float dt)
 		break;
 	} // end case TS_ATACKING
 	default:
-		_ASSERT(FALSE);
+		assert(FALSE);
 	}  // end switch (_state)
 
 	_rotator.setup_sound(GetRawPtr(_rotateSound));
@@ -253,8 +253,8 @@ void GC_Turret::Draw() const
 	if( g_level->_modeEditor )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
-		_ASSERT(_team >= 0 && _team < MAX_TEAMS);
-		static size_t font = g_texman->FindTexture("font_default");
+		assert(_team >= 0 && _team < MAX_TEAMS);
+		static size_t font = g_texman->FindSprite("font_default");
 		g_texman->DrawBitmapText(font, teams[_team], 0xffffffff,
 			GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, alignTextLT);
 	}
@@ -290,7 +290,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 		case 1: return &_propSight;
 	}
 
-	_ASSERT(FALSE);
+	assert(FALSE);
 	return NULL;
 }
 
@@ -620,7 +620,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 		}
 		break;
 	default:
-		_ASSERT(0);
+		assert(0);
 	} // end switch (_state);
 
 	_rotator.setup_sound(GetRawPtr(_rotateSound));

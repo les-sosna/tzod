@@ -42,7 +42,7 @@ public:
 	template<class MemFnType, class InstType>
 	void bind(MemFnType pmf, InstType *inst)
 	{
-		_ASSERT(pmf && inst);
+		assert(pmf && inst);
 		typedef F (InstType::*MemFnCompat);
 		MemFnCompat tmp = static_cast<MemFnCompat>(pmf); // safe(!) cast
 		_func = reinterpret_cast<MemFnPtr>(tmp);         // unsafe, but it has been checked above
