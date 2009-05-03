@@ -293,8 +293,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 	if( !CheckCell(start) ) return -1;
 
 	start.Check();
-	start.UpdatePath(end_x, end_y);
-	start._pathBefore = 0;
+	start.UpdatePath(0, end_x, end_y);
 	start._prevCell  = NULL;
 
 	open.push( RefFieldCell(start) );
@@ -348,24 +347,23 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 				if( !next.IsChecked() )
 				{
-					next._pathBefore = cn._pathBefore + dist[i] * dist_mult;
 					next._prevCell  = &cn;
-					next.UpdatePath(end_x, end_y);
+					next.UpdatePath(cn.Before() + dist[i] * dist_mult, end_x, end_y);
 					next.Check();
 					//-----------------
-					if( next.Rate() < max_depth )
+					if( next.Total() < max_depth )
 						open.push(RefFieldCell(next));
 				}
 
 				// next part of code causes assertions in <algorithm> because
 				// it can modify cells that are being stored in "open" queue
 
-				//else if( next._pathBefore > cn._pathBefore + dist[i] * dist_mult )
+				//else if( next._before > cn._before + dist[i] * dist_mult )
 				//{
-				//	next._pathBefore = cn._pathBefore + dist[i] * dist_mult;
+				//	next._before = cn._before + dist[i] * dist_mult;
 				//	next._prevCell  = &cn;
 				//	//-----------------
-				//	if( next.Rate() < max_depth )
+				//	if( next.Total() < max_depth )
 				//		open.push(RefFieldCell(next));
 				//}
 			}
@@ -376,7 +374,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 	{
 		// путь найден
 		const FieldCell *cell = &field(end_x, end_y);
-		float distance = cell->_pathBefore;
+		float distance = cell->Before();
 
 		if( !bTest )
 		{
