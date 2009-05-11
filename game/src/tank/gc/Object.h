@@ -282,7 +282,7 @@ public:
 	{
 		_flags = value ? (_flags|flags) : (_flags & ~flags);
 	}
-	DWORD GetFlags()
+	DWORD GetFlags() const
 	{
 		return _flags;
 	}

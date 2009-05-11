@@ -122,15 +122,16 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-#define GC_FLAG_WALL_CORNER_LT    (GC_FLAG_RBSTATIC_ << 0)
-#define GC_FLAG_WALL_CORNER_RT    (GC_FLAG_RBSTATIC_ << 1)
-#define GC_FLAG_WALL_CORNER_RB    (GC_FLAG_RBSTATIC_ << 2)
-#define GC_FLAG_WALL_CORNER_LB    (GC_FLAG_RBSTATIC_ << 3)
-#define GC_FLAG_WALL_             (GC_FLAG_RBSTATIC_ << 4)
+#define GC_FLAG_WALL_CORNER_BIT_0 (GC_FLAG_RBSTATIC_ << 0)
+#define GC_FLAG_WALL_CORNER_BIT_1 (GC_FLAG_RBSTATIC_ << 1)
+#define GC_FLAG_WALL_CORNER_BIT_2 (GC_FLAG_RBSTATIC_ << 2)
+#define GC_FLAG_WALL_STYLE_BIT_0  (GC_FLAG_RBSTATIC_ << 3)
+#define GC_FLAG_WALL_STYLE_BIT_1  (GC_FLAG_RBSTATIC_ << 4)
+#define GC_FLAG_WALL_             (GC_FLAG_RBSTATIC_ << 5)
 
-#define GC_FLAG_WALL_CORNER_ALL (                     \
-    GC_FLAG_WALL_CORNER_LT|GC_FLAG_WALL_CORNER_RT |   \
-	GC_FLAG_WALL_CORNER_RB|GC_FLAG_WALL_CORNER_LB )
+#define GC_FLAG_WALL_CORNER_ALL   (GC_FLAG_WALL_CORNER_BIT_0\
+                                  |GC_FLAG_WALL_CORNER_BIT_1\
+                                  |GC_FLAG_WALL_CORNER_BIT_2)
 
 
 class GC_Wall : public GC_RigidBodyStatic
@@ -141,6 +142,9 @@ private:
 	void SetCorner(int index); // 0 means normal view
 	int  GetCorner(void);
 
+	void SetStyle(int style); // 0-3
+	int GetStyle() const;
+
 protected:
 	virtual const char *GetCornerTexture(int i);
 
@@ -149,6 +153,7 @@ protected:
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propCorner;
+		ObjectProperty _propStyle;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -212,7 +217,7 @@ private:
  *    +-----+
  *   3   2   1
 **/
-	BYTE _tile;
+	int _tile;
 
 protected:
 	void UpdateTile(bool flag);

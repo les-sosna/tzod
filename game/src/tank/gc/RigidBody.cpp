@@ -233,7 +233,6 @@ GC_Wall::GC_Wall(float xPos, float yPos)
 
 	SetTexture("brick_wall");
 
-//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 	MoveTo( vec2d(xPos, yPos) );
 
@@ -259,11 +258,14 @@ void GC_Wall::mapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::mapExchange(f);
 	int corner = GetCorner();
+	int style = GetStyle();
 	MAP_EXCHANGE_INT(corner, corner, 0);
+	MAP_EXCHANGE_INT(style, style, 0);
 
 	if( f.loading() )
 	{
 		SetCorner(corner % 5);
+		SetStyle(style % 4);
 	}
 }
 
@@ -279,25 +281,26 @@ void GC_Wall::Serialize(SaveFile &f)
 			vec2d p = GetPos() / CELL_SIZE;
 			int x;
 			int y;
-			if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+			switch( GetCorner() )
 			{
+			case 0:
+				break;
+			case 1:
 				x = int(p.x+1);
 				y = int(p.y+1);
-			}
-			if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
-			{
+				break;
+			case 2:
 				x = int(p.x);
 				y = int(p.y + 1);
-			}
-			if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
-			{
+				break;
+			case 3:
 				x = int(p.x + 1);
 				y = int(p.y);
-			}
-			if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
-			{
+				break;
+			case 4:
 				x = int(p.x);
 				y = int(p.y);
+				break;
 			}
 			g_level->_field(x, y).RemoveObject(this);
 			if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
@@ -360,10 +363,10 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 	assert(index >= 0 && index < 5);
 	static const DWORD flags[] = {
 		0,
-		GC_FLAG_WALL_CORNER_LT,
-		GC_FLAG_WALL_CORNER_RT,
-		GC_FLAG_WALL_CORNER_RB,
-		GC_FLAG_WALL_CORNER_LB
+		GC_FLAG_WALL_CORNER_BIT_0,
+		GC_FLAG_WALL_CORNER_BIT_1,
+		GC_FLAG_WALL_CORNER_BIT_0|GC_FLAG_WALL_CORNER_BIT_1,
+		GC_FLAG_WALL_CORNER_BIT_2
 	};
 
 	vec2d p = GetPos() / CELL_SIZE;
@@ -371,25 +374,26 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 	int y;
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
-		if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+		switch( GetCorner() )
 		{
+		case 0:
+			break;
+		case 1:
 			x = int(p.x+1);
 			y = int(p.y+1);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
-		{
+			break;
+		case 2:
 			x = int(p.x);
 			y = int(p.y + 1);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
-		{
+			break;
+		case 3:
 			x = int(p.x + 1);
 			y = int(p.y);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
-		{
+			break;
+		case 4:
 			x = int(p.x);
 			y = int(p.y);
+			break;
 		}
 		g_level->_field(x, y).AddObject(this);
 	}
@@ -399,29 +403,33 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 
 	SetTexture(GetCornerTexture(index));
 	AlignToTexture();
-	if( 0 != index ) _vertices[index&3].Set(0,0);
+	if( 0 != index )
+	{
+		_vertices[index&3].Set(0,0);
+	}
 
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
-		if( CheckFlags(GC_FLAG_WALL_CORNER_LT) )
+		switch( GetCorner() )
 		{
+		case 0:
+			break;
+		case 1:
 			x = int(p.x+1);
 			y = int(p.y+1);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_RT) )
-		{
+			break;
+		case 2:
 			x = int(p.x);
 			y = int(p.y + 1);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_LB) )
-		{
+			break;
+		case 3:
 			x = int(p.x + 1);
 			y = int(p.y);
-		}
-		if( CheckFlags(GC_FLAG_WALL_CORNER_RB) )
-		{
+			break;
+		case 4:
 			x = int(p.x);
 			y = int(p.y);
+			break;
 		}
 		g_level->_field(x, y).RemoveObject(this);
 		if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
@@ -439,22 +447,50 @@ int GC_Wall::GetCorner(void)
 	case 0:
 		index = 0;
 		break;
-	case GC_FLAG_WALL_CORNER_LT:
+	case GC_FLAG_WALL_CORNER_BIT_0:
 		index = 1;
 		break;
-	case GC_FLAG_WALL_CORNER_RT:
+	case GC_FLAG_WALL_CORNER_BIT_1:
 		index = 2;
 		break;
-	case GC_FLAG_WALL_CORNER_RB:
+	case GC_FLAG_WALL_CORNER_BIT_0|GC_FLAG_WALL_CORNER_BIT_1:
 		index = 3;
 		break;
-	case GC_FLAG_WALL_CORNER_LB:
+	case GC_FLAG_WALL_CORNER_BIT_2:
 		index = 4;
-        break;
+		break;
 	default:
 		assert(0);
 	}
 	return index;
+}
+
+void GC_Wall::SetStyle(int style) // 0-3
+{
+	assert(style >= 0 && style < 4);
+	static const int s[] = 
+	{
+		0, 
+		GC_FLAG_WALL_STYLE_BIT_0,
+		GC_FLAG_WALL_STYLE_BIT_1,
+		GC_FLAG_WALL_STYLE_BIT_0|GC_FLAG_WALL_STYLE_BIT_1
+	};
+	SetFlags(GC_FLAG_WALL_STYLE_BIT_0|GC_FLAG_WALL_STYLE_BIT_1, false);
+	SetFlags(s[style], true);
+}
+
+int GC_Wall::GetStyle() const
+{
+	switch( GetFlags() & (GC_FLAG_WALL_STYLE_BIT_0|GC_FLAG_WALL_STYLE_BIT_1) )
+	{
+	case GC_FLAG_WALL_STYLE_BIT_0:
+		return 1;
+	case GC_FLAG_WALL_STYLE_BIT_1:
+		return 2;
+	case GC_FLAG_WALL_STYLE_BIT_0|GC_FLAG_WALL_STYLE_BIT_1:
+		return 3;
+	}
+	return 0;
 }
 
 const char* GC_Wall::GetCornerTexture(int i)
@@ -485,13 +521,15 @@ PropertySet* GC_Wall::NewPropertySet()
 GC_Wall::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propCorner( ObjectProperty::TYPE_INTEGER,   "corner"  )
+  , _propStyle(  ObjectProperty::TYPE_INTEGER,   "style"   )
 {
 	_propCorner.SetIntRange(0, 4);
+	_propStyle.SetIntRange(0, 3);
 }
 
 int GC_Wall::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
@@ -502,6 +540,7 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propCorner;
+	case 1: return &_propStyle;
 	}
 
 	assert(FALSE);
@@ -517,10 +556,12 @@ void GC_Wall::MyPropertySet::MyExchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->SetCorner(_propCorner.GetIntValue());
+		tmp->SetStyle(_propStyle.GetIntValue());
 	}
 	else
 	{
 		_propCorner.SetIntValue(tmp->GetCorner());
+		_propStyle.SetIntValue(tmp->GetStyle());
 	}
 }
 
@@ -538,7 +579,6 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
 	g_level->_field.ProcessObject(this, false);
 
 	SetTexture("concrete_wall");
-//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 
 	SetFrame(rand() % GetFrameCount());
@@ -583,19 +623,18 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 
 GC_Water::GC_Water(float xPos, float yPos)
   : GC_RigidBodyStatic()
+  , _tile(0)
 {
 	AddContext( &g_level->grid_water );
 
 	SetZ(Z_WATER);
 
 	SetTexture("water");
-//	SetScale(CELL_SIZE, CELL_SIZE);
 	AlignToTexture();
 
 	MoveTo( vec2d(xPos, yPos) );
 	SetFrame(4);
 
-	_tile = 0;
 	UpdateTile(true);
 
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
@@ -673,7 +712,7 @@ void GC_Water::Draw() const
 
 	vec2d pos = GetPosPredicted();
 
-	for( char i = 0; i < 8; ++i )
+	for( int i = 0; i < 8; ++i )
 	{
 		if( 0 == (_tile & (1 << i)) )
 		{
