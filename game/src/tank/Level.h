@@ -287,7 +287,7 @@ public:
 
 
 private:
-	~Level();
+	virtual ~Level();
 
 
 

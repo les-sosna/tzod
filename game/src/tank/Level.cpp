@@ -1172,11 +1172,8 @@ void Level::TimeStep(float dt)
 
 	dt *= g_conf->sv_speed->GetFloat() / 100.0f;
 	assert(dt >= 0);
-
 	assert(!_modeEditor);
 
-
-	_safeMode = false;
 
 	if( g_client )
 	{
@@ -1262,15 +1259,16 @@ void Level::TimeStep(float dt)
 			_time += fixed_dt;
 			if( !_frozen )
 			{
+				_safeMode = false;
 				ObjectList::safe_iterator it = ts_fixed.safe_begin();
 				while( it != ts_fixed.end() )
 				{
-					GC_Object* pTS_Obj = *it;
-					assert(!pTS_Obj->IsKilled());
-					pTS_Obj->TimeStepFixed(fixed_dt);
+					assert(!(*it)->IsKilled());
+					(*it)->TimeStepFixed(fixed_dt);
 					++it;
 				}
 				GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+				_safeMode = true;
 			}
 			RunCmdQueue(fixed_dt);
 		}
@@ -1279,17 +1277,17 @@ void Level::TimeStep(float dt)
 
 	if( !_frozen )
 	{
+		_safeMode = false;
 		ObjectList::safe_iterator it = ts_floating.safe_begin();
 		while( it != ts_floating.end() )
 		{
-			GC_Object* pTS_Obj = *it;
-			assert(!pTS_Obj->IsKilled());
-			pTS_Obj->TimeStepFloat(dt);
+			assert(!(*it)->IsKilled());
+			(*it)->TimeStepFloat(dt);
 			++it;
 		}
+		_safeMode = true;
 	}
 
-	_safeMode = true;
 
 
 #if 0
@@ -1312,6 +1310,8 @@ void Level::TimeStep(float dt)
 
 void Level::RunCmdQueue(float dt)
 {
+	assert(_safeMode);
+
 	lua_State * const L = g_env.L;
 
 	lua_getglobal(L, "pushcmd");
@@ -1329,7 +1329,7 @@ void Level::RunCmdQueue(float dt)
 
 		if( time <= 0 )
 		{
-			// call function and remove from queue
+			// call function and remove it from queue
 			lua_rawgeti(L, -1, 1);
 			if( lua_pcall(L, 0, 0, 0) )
 			{
