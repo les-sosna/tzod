@@ -111,7 +111,6 @@ void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
 		if( Hit(pObj, GetPos(), norm) )
 		{
 			Kill();
-			return;
 		}
 	}
 }
@@ -189,6 +188,13 @@ void GC_Projectile::TimeStepFixed(float dt)
 		), GetPos(), dx, &hit, &norm
 	);
 
+	if( _lastHit )
+	{
+		_lastHit->Unsubscribe(this);
+		_lastHit = NULL;
+	}
+
+
 	if( object )
 	{
 #ifdef _DEBUG
@@ -198,46 +204,32 @@ void GC_Projectile::TimeStepFixed(float dt)
 		{
 			assert(GetPos() == pos);
 			Kill();
-			return;
 		}
 		else
 		{
 			assert(GetPos() == pos);
 			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).sqr() / dx.sqr()));
-			if( new_dt > 1e-6 )
+			if( new_dt > 1e-3 )
 			{
 				MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 				TimeStepFixed(new_dt);
 			}
 		}
-		return;
 	}
 	else
 	{
-		if( _lastHit )
-		{
-			_lastHit->Unsubscribe(this);
-			_lastHit = NULL;
-		}
 		MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
-	}
-
-	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
-		GetPos().y < 0 || GetPos().y > g_level->_sy )
-	{
-		Kill();
-		return;
+	
+		if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
+			GetPos().y < 0 || GetPos().y > g_level->_sy )
+		{
+			Kill();
+		}
 	}
 }
 
 bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
-	assert(_lastHit != object);
-	if( _lastHit )
-	{
-		_lastHit->Unsubscribe(this);
-		_lastHit = NULL;
-	}
 	object->AddRef();
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
@@ -258,7 +250,6 @@ bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	bool result = OnHit(object, hit, norm);
 	if( !IsKilled() && !object->IsKilled() )
 	{
-		assert(NULL == _lastHit);
 		_lastHit = WrapRawPtr(object);
 		_lastHit->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 	}
@@ -281,7 +272,6 @@ void GC_Projectile::SetHitImpulse(float impulse)
 {
 	_hitImpulse = impulse;
 }
-
 
 void GC_Projectile::OnKillLastHit(GC_Object *sender, void *param)
 {
@@ -874,9 +864,9 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 
 	vec2d nn(norm.y, -norm.x);
 
-	float v = _velocity.len();
+	float vlen = _velocity.len();
 
-	if( (_velocity * nn) / v < g_level->net_frand(0.6f) - 0.3f )
+	if( _velocity * nn < (g_level->net_frand(0.6f) - 0.3f) * vlen )
 	{
 		nn = -nn;
 		_rotation = frand(4) + 5;
@@ -887,7 +877,7 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 	}
 
 
-	float vdotn = (_velocity * norm) / v;
+	float vdotn = (_velocity * norm) / vlen;
 	float up = (0.5f - 0.6f * g_level->net_frand(vdotn));
 	up *= up;
 	up *= up;
@@ -899,7 +889,7 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 
 	nn /= (1 + up * 4);
 
-	_velocity = nn * (v * 0.9f);
+	_velocity = nn * (vlen * 0.9f);
 
 	if( GetAdvanced() && !object->IsKilled() && _owner != object && (g_level->net_rand()&1)
 		&& CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
