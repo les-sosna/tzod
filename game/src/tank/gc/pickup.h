@@ -157,16 +157,16 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_pu_Invulnerablity : public GC_Pickup
+class GC_pu_Shield : public GC_Pickup
 {
-	DECLARE_SELF_REGISTRATION(GC_pu_Invulnerablity);
+	DECLARE_SELF_REGISTRATION(GC_pu_Shield);
 
 private:
 	float _timeHit;
 
 public:
-	GC_pu_Invulnerablity(float x, float y);
-	GC_pu_Invulnerablity(FromFile);
+	GC_pu_Shield(float x, float y);
+	GC_pu_Shield(FromFile);
 
 	virtual void Serialize(SaveFile &f);
 

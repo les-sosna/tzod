@@ -404,13 +404,13 @@ void GC_pu_Mine::Attach(GC_Actor *actor)
 
 /////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_pu_Invulnerablity)
+IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 {
 	ED_ITEM( "pu_shield", "obj_shield", 4 );
 	return true;
 }
 
-GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y)
+GC_pu_Shield::GC_pu_Shield(float x, float y)
   : GC_Pickup(x, y)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
@@ -420,21 +420,21 @@ GC_pu_Invulnerablity::GC_pu_Invulnerablity(float x, float y)
 	_timeHit = 0;
 }
 
-GC_pu_Invulnerablity::GC_pu_Invulnerablity(FromFile)
+GC_pu_Shield::GC_pu_Shield(FromFile)
   : GC_Pickup(FromFile())
 {
 }
 
-AIPRIORITY GC_pu_Invulnerablity::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Shield::GetPriority(GC_Vehicle *veh)
 {
 	return AIP_INVULN;
 }
 
-void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
+void GC_pu_Shield::Attach(GC_Actor *actor)
 {
 	if( GC_Object *p = actor->GetSubscriber(GetType()) )
 	{
-		assert(dynamic_cast<GC_pu_Invulnerablity*>(p));
+		assert(dynamic_cast<GC_pu_Shield*>(p));
 		static_cast<GC_Pickup*>(p)->Disappear();
 	}
 
@@ -443,14 +443,14 @@ void GC_pu_Invulnerablity::Attach(GC_Actor *actor)
 	PLAY(SND_Inv, GetPos());
 
 	actor->Subscribe(NOTIFY_DAMAGE_FILTER, this,
-		(NOTIFYPROC) &GC_pu_Invulnerablity::OnOwnerDamage, false);
+		(NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage, false);
 
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
 }
 
-void GC_pu_Invulnerablity::Detach()
+void GC_pu_Shield::Detach()
 {
 	SetTexture("pu_inv");
 	SetShadow(true);
@@ -460,7 +460,7 @@ void GC_pu_Invulnerablity::Detach()
 	GC_Pickup::Detach();
 }
 
-void GC_pu_Invulnerablity::TimeStepFixed(float dt)
+void GC_pu_Shield::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
 
@@ -483,7 +483,7 @@ void GC_pu_Invulnerablity::TimeStepFixed(float dt)
 	}
 }
 
-void GC_pu_Invulnerablity::TimeStepFloat(float dt)
+void GC_pu_Shield::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
 	if( IsAttached() )
@@ -493,7 +493,7 @@ void GC_pu_Invulnerablity::TimeStepFloat(float dt)
 	}
 }
 
-void GC_pu_Invulnerablity::OnOwnerDamage(GC_Object *sender, void *param)
+void GC_pu_Shield::OnOwnerDamage(GC_Object *sender, void *param)
 {
 	static TextureCache tex("particle_3");
 
@@ -515,10 +515,10 @@ void GC_pu_Invulnerablity::OnOwnerDamage(GC_Object *sender, void *param)
 			new GC_Particle(pos + dir * 26.0f - p * (float) (i<<1), v, tex, frand(0.4f)+0.1f);
 		}
 	}
-	pdd->damage = 0;
+	pdd->damage *= 0.25;
 }
 
-void GC_pu_Invulnerablity::Serialize(SaveFile &f)
+void GC_pu_Shield::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
 	f.Serialize(_timeHit);

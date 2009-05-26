@@ -115,7 +115,7 @@ enum enumZOrder
 
 // время действия
 #define BOOSTER_TIME        20.0f
-#define PROTECT_TIME        15.0f
+#define PROTECT_TIME        20.0f
 
 
 //-----------------------------------------------------------------------------
