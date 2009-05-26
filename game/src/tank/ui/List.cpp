@@ -167,10 +167,8 @@ List::List(Window *parent, float x, float y, float width, float height)
 	_selection->SetBorder(true);
 	_selection->Resize(1, GetItemHeight());
 
-	Resize(width, height); // it will resize the selection also, so create it first!
 	Move(x, y);
-
-	UpdateSelection();
+	Resize(width, height); // it will resize the selection also, so create it first!
 }
 
 List::~List()
@@ -325,6 +323,7 @@ float List::GetScrollPos() const
 void List::SetScrollPos(float pos)
 {
 	_scrollBar->SetPos(pos);
+	UpdateSelection();
 }
 
 void List::AlignHeightToContent(float maxHeight)
