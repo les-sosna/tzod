@@ -953,9 +953,8 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	PtrList<ObjectList>::iterator it1 = receive.begin();
 	for( ; it1 != receive.end(); ++it1 )
 	{
-		for( ObjectList::safe_iterator it2 = (*it1)->safe_begin(); it2 != (*it1)->end(); ++it2 )
+		FOREACH_SAFE(**it1, GC_RigidBodyStatic, object)
 		{
-			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it2);
 			if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
 			{
 				continue;

@@ -59,11 +59,10 @@ void FpsCounter::OnTimeStep(float dt)
 			g_gui->GetWndCount()
 		);
 
-		wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat %4def",
+		wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat",
 			g_level->GetList(LIST_objects).size(), 
 			g_level->ts_fixed.size(),
-			g_level->ts_floating.size(),
-			g_level->endframe.size()
+			g_level->ts_floating.size()
 		);
 		strcat(s, s1);
 

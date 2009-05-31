@@ -185,12 +185,10 @@ public:
 // engine events
 #define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000004
 #define GC_FLAG_OBJECT_EVENTS_TS_FLOATING     0x00000008
-#define GC_FLAG_OBJECT_EVENTS_ENDFRAME        0x00000010
 
 #define GC_FLAG_OBJECT_EVENTS_ALL           \
-	(GC_FLAG_OBJECT_EVENTS_TS_FIXED|        \
-	GC_FLAG_OBJECT_EVENTS_TS_FLOATING|      \
-	GC_FLAG_OBJECT_EVENTS_ENDFRAME)
+    (GC_FLAG_OBJECT_EVENTS_TS_FIXED|        \
+    GC_FLAG_OBJECT_EVENTS_TS_FLOATING)
 
 #define GC_FLAG_OBJECT_                       0x00000020
 
@@ -272,7 +270,6 @@ private:
 
 	ObjectList::iterator _itPosFixed;      // позиция в Level::ts_fixed
 	ObjectList::iterator _itPosFloating;   // позиция в Level::ts_floating
-	ObjectList::iterator _itPosEndFrame;   // позиция в Level::endframe
 
 	std::list<Notify> _notifyList;          // извещения, рассылаемые данным объектом
 	int  _notifyProtectCount;               // счетчик блокировки удаления из списка _notifyList
@@ -416,7 +413,6 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
-	virtual void EndFrame();
 	virtual void EditorAction();
 
 	virtual void mapExchange(MapFile &f);

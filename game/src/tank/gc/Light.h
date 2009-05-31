@@ -120,7 +120,7 @@ public:
 	virtual void TimeStepFixed(float dt);
 
 public:
-	virtual void Shine();
+	virtual void Shine() const;
 	virtual void Update(); // handles changing day/night
 };
 

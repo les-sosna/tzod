@@ -1,4 +1,3 @@
 list of known bags
 
 
-demo campaign doesn't work

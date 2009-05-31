@@ -182,7 +182,6 @@ public:
 
 	ObjectList     ts_floating;
 	ObjectList     ts_fixed;
-	ObjectList     endframe;
 
 	// graphics
 	ObjectList        z_globals[Z_COUNT];

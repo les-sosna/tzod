@@ -446,21 +446,6 @@ void GC_Object::SetEvents(DWORD dwEvents)
 		_itPosFloating = g_level->ts_floating.begin();
 	}
 
-	// удаление из ENDFRAME
-	if( 0 == (GC_FLAG_OBJECT_EVENTS_ENDFRAME & dwEvents) &&
-		0 != (GC_FLAG_OBJECT_EVENTS_ENDFRAME & _flags) )
-	{
-		g_level->endframe.safe_erase(_itPosEndFrame);
-	}
-	// добавление в ENDFRAME
-	else if( 0 != (GC_FLAG_OBJECT_EVENTS_ENDFRAME & dwEvents) &&
-			 0 == (GC_FLAG_OBJECT_EVENTS_ENDFRAME & _flags) )
-	{
-		assert(!IsKilled());
-		g_level->endframe.push_front(this);
-		_itPosEndFrame = g_level->endframe.begin();
-	}
-
 	//-------------------------
 	SetFlags(GC_FLAG_OBJECT_EVENTS_ALL, false);
 	SetFlags(dwEvents, true);
@@ -648,10 +633,6 @@ void GC_Object::TimeStepFixed(float dt)
 }
 
 void GC_Object::TimeStepFloat(float dt)
-{
-}
-
-void GC_Object::EndFrame()
 {
 }
 

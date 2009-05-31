@@ -54,7 +54,6 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	///////////////////////
 	_mode = SMODE_UNKNOWN;
 	SetMode(mode);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
 	//////////////////////
 	if( g_level->_modeEditor )
 		Freeze(true);
@@ -281,7 +280,7 @@ void GC_Sound::Serialize(SaveFile &f)
 #endif
 }
 
-void GC_Sound::EndFrame()
+void GC_Sound::KillWhenFinished()
 {
 #if !defined NOSOUND
 	if( !g_soundManager || _freezed ) return;

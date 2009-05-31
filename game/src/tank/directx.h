@@ -12,7 +12,7 @@ void    FreeDirectSound();
 
 HRESULT InitDirectInput(HWND hWnd);
 void    FreeDirectInput();
-HRESULT ReadImmediateData();
+HRESULT InquireInputDevices();
 void    GetKeyName(int nKey, char *pBuf);
 
 /////////////////////////////////////////

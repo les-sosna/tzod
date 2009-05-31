@@ -51,7 +51,6 @@ GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
 	else
 	{
 		MoveTo( vec2d(0, 0) );
-		SetEvents(GC_FLAG_OBJECT_EVENTS_ENDFRAME);
 		_active = g_level->_modeEditor;
 	}
 	//---------------------------------------
@@ -158,16 +157,16 @@ void GC_Camera::GetViewport(RECT &vp) const
 	vp = _viewport;
 }
 
-void GC_Camera::EndFrame()
+void GC_Camera::HandleFreeMovement()
 {
-	if( !IsActive() ) return;
+	if( !IsActive() || _player ) return;
 
 	static char  LastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
 	static int   level    = 4;
 
 	if( !LastIn && g_env.envInputs.keys[DIK_PGUP] )
-		level = __min(level+1, sizeof(levels) / sizeof(float)-1);
+		level = __min(level+1, sizeof(levels) / sizeof(float) - 1);
 	LastIn = g_env.envInputs.keys[DIK_PGUP];
 
 	if( !LastOut && g_env.envInputs.keys[DIK_PGDN] )

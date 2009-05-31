@@ -43,7 +43,7 @@ public:
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual void EndFrame();
+	void KillWhenFinished();
 	virtual void MoveTo(const vec2d &pos);
 
 	void Pause(bool pause);

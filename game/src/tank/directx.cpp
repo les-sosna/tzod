@@ -195,7 +195,7 @@ void FreeDirectInput()
 }
 
 
-HRESULT ReadImmediateData()
+HRESULT InquireInputDevices()
 {
 	HRESULT hr;
 

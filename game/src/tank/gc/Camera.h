@@ -47,6 +47,7 @@ public:
 	static void UpdateLayout(); // пересчет координат viewports
 	static bool GetWorldMousePos(vec2d &pos);
 
+	void HandleFreeMovement();
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
@@ -55,7 +56,6 @@ public:
 	virtual bool IsSaved() const { return _player != NULL; }
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFloat(float dt);
-	virtual void EndFrame();
 
 	// message handlers
 	void OnDetach(GC_Object *sender, void *param);

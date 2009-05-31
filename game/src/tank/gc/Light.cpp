@@ -74,7 +74,7 @@ void GC_Light::mapExchange(MapFile &f)
 	GC_Actor::mapExchange(f);
 }
 
-void GC_Light::Shine()
+void GC_Light::Shine() const
 {
 	if( !IsActive() ) return;
 //	_FpsCounter::Inst()->OneMoreLight();

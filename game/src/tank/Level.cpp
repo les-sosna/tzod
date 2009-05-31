@@ -312,13 +312,14 @@ void Level::Clear()
 	if( g_gui )  // FIXME: dependence on GUI
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
-	ObjectList::safe_iterator it = GetList(LIST_objects).safe_begin();
-	while( GetList(LIST_objects).end() != it )
+//	ObjectList::safe_iterator it = GetList(LIST_objects).safe_begin();
+//	while( GetList(LIST_objects).end() != it )
+	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
-		GC_Object* obj = *it;
+//		GC_Object* obj = *it;
 		assert(!obj->IsKilled());
 		obj->Kill();
-		++it;
+//		++it;
 	}
 	assert(IsEmpty());
 
@@ -1166,6 +1167,17 @@ void Level::Step(const ControlPacketVector &ctrl)
 
 void Level::TimeStep(float dt)
 {
+	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
+	{
+		pCamera->HandleFreeMovement();
+	}
+
+	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
+	{
+		pSound->KillWhenFinished();
+	}
+	
+
 	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
 		return;
 
@@ -1385,7 +1397,7 @@ void Level::Render() const
 
 
 		//
-		// рендеринг освещения
+		// draw lights to alpha channel
 		//
 
 		g_render->SetMode(RM_LIGHT);
@@ -1415,7 +1427,7 @@ void Level::Render() const
 
 
 		//
-		// paint all objects
+		// draw world to rgb
 		//
 
 		g_render->SetMode(RM_WORLD);
@@ -1426,15 +1438,15 @@ void Level::Render() const
 			DrawBackground(_texGrid);
 
 
+		int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
+		int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
+		int xmax = __min(_locationsX - 1,
+			(g_env.camera_x + int((float) g_render->GetViewportWidth() / pCamera->_zoom)) / LOCATION_SIZE);
+		int ymax = __min(_locationsY - 1,
+			(g_env.camera_y + int((float) g_render->GetViewportHeight() / pCamera->_zoom)) / LOCATION_SIZE + 1);
+
 		for( int z = 0; z < Z_COUNT; ++z )
 		{
-			int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
-			int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
-			int xmax = __min(_locationsX - 1,
-				(g_env.camera_x + int((float) g_render->GetViewportWidth() / pCamera->_zoom)) / LOCATION_SIZE);
-			int ymax = __min(_locationsY - 1,
-				(g_env.camera_y + int((float) g_render->GetViewportHeight() / pCamera->_zoom)) / LOCATION_SIZE);
-
 			for( int x = xmin; x <= xmax; ++x )
 			for( int y = ymin; y <= ymax; ++y )
 			{

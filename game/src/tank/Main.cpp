@@ -128,17 +128,6 @@ static void RenderFrame(bool thumbnail)
 	_oldRQ = g_env.envInputs.keys[DIK_SYSRQ];
 }
 
-static void EndFrame()
-{
-	assert(g_level);
-	ObjectList::safe_iterator it = g_level->endframe.safe_begin();
-	while( it != g_level->endframe.end() )
-	{
-		(*it)->EndFrame();
-		++it;
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static UI::Window* CreateDesktopWindow(UI::GuiManager *mgr)
@@ -410,24 +399,24 @@ bool ZodApp::Pre()
 
 void ZodApp::Idle()
 {
-	ReadImmediateData();  // чтение состояния устройств ввода
+	InquireInputDevices();
 
-	if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
-	{
-	//	PauseGame(true);
-		ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
-		return;
-	}
-	else if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
-	{
-		TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
-		DestroyWindow(g_env.hMainWnd);
-		return;
-	}
+	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
+	//{
+	////	PauseGame(true);
+	//	ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
+	//	return;
+	//}
+	//else
+	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
+	//{
+	//	TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
+	//	DestroyWindow(g_env.hMainWnd);
+	//	return;
+	//}
 
 	TimeStep(timer.GetDt());
 	RenderFrame(false);
-	EndFrame();
 
 	if( g_music )
 	{
