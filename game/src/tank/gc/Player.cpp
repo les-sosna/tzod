@@ -101,9 +101,9 @@ void GC_Player::Serialize(SaveFile &f)
 	f.Serialize(_vehicle);
 }
 
-void GC_Player::mapExchange(MapFile &f)
+void GC_Player::MapExchange(MapFile &f)
 {
-	GC_Service::mapExchange(f);
+	GC_Service::MapExchange(f);
 	MAP_EXCHANGE_STRING(on_die, _scriptOnDie, "");
 	MAP_EXCHANGE_STRING(on_respawn, _scriptOnRespawn, "");
 	MAP_EXCHANGE_STRING(vehname, _vehname, "");
@@ -475,9 +475,9 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 	}
 }
 
-void GC_PlayerLocal::mapExchange(MapFile &f)
+void GC_PlayerLocal::MapExchange(MapFile &f)
 {
-	GC_Player::mapExchange(f);
+	GC_Player::MapExchange(f);
 	MAP_EXCHANGE_STRING(profile, _profile, "");
 	if( f.loading() )
 	{

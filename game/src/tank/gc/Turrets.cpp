@@ -230,9 +230,9 @@ void GC_Turret::EditorAction()
 	_weaponSprite->SetSpriteRotation(_dir);
 }
 
-void GC_Turret::mapExchange(MapFile &f)
+void GC_Turret::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::mapExchange(f);
+	GC_RigidBodyStatic::MapExchange(f);
 
 	MAP_EXCHANGE_FLOAT(sight_radius,  _sight, TURET_SIGHT_RADIUS);
 	MAP_EXCHANGE_FLOAT(dir, _initialDir, 0);
@@ -471,9 +471,9 @@ void GC_TurretBunker::Serialize(SaveFile &f)
 	f.Serialize(_time_wake_max);
 }
 
-void GC_TurretBunker::mapExchange(MapFile &f)
+void GC_TurretBunker::MapExchange(MapFile &f)
 {
-	GC_Turret::mapExchange(f);
+	GC_Turret::MapExchange(f);
 	if( f.loading() )
 	{
 		SetSpriteRotation(_initialDir);

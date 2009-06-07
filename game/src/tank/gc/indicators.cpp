@@ -66,9 +66,9 @@ void GC_SpawnPoint::EditorAction()
 	SetSpriteRotation(rotation);
 }
 
-void GC_SpawnPoint::mapExchange(MapFile &f)
+void GC_SpawnPoint::MapExchange(MapFile &f)
 {
-	GC_2dSprite::mapExchange(f);
+	GC_2dSprite::MapExchange(f);
 
 	float dir = GetSpriteRotation();
 

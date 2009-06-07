@@ -58,10 +58,14 @@ public:
 protected:
 	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake) = 0;
 	virtual void Fire() = 0;
+	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
+	virtual void TargetLost();
+	GC_Vehicle* EnumTargets();
+	void SelectTarget(SafePtr<GC_Vehicle> &target);
 
 	// editor functions
 	virtual void EditorAction();
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 public:
 	GC_Turret(float x, float y, const char *tex);
@@ -70,11 +74,6 @@ public:
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
-	GC_Vehicle* EnumTargets();
-	void SelectTarget(SafePtr<GC_Vehicle> &target);
-	virtual void TargetLost();
-
-	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 
 	virtual void MoveTo(const vec2d &pos);
 	virtual void OnDestroy();
@@ -166,7 +165,7 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void EditorAction();
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 };
 
 /////////////////////////////////////////////////////////////

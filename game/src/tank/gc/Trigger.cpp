@@ -63,9 +63,9 @@ void GC_Trigger::Serialize(SaveFile &f)
 	f.Serialize(_team);
 }
 
-void GC_Trigger::mapExchange(MapFile &f)
+void GC_Trigger::MapExchange(MapFile &f)
 {
-	GC_2dSprite::mapExchange(f);
+	GC_2dSprite::MapExchange(f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);

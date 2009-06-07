@@ -36,7 +36,7 @@ class GC_Actor : public GC_Object
 
 protected:
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	void AddContext(Grid<ObjectList> *pGridSet);
 	void RemoveContext(Grid<ObjectList> *pGridSet);

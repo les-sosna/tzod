@@ -82,7 +82,7 @@ public:
 	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	void UpdateSkin();
 
@@ -160,7 +160,7 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	void SetProfile(const string_t &name);
 	const string_t& GetProfile() const;

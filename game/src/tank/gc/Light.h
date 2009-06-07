@@ -54,7 +54,7 @@ public:
 
 	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	void SetIntensity(float i)
 	{
@@ -157,7 +157,7 @@ public:
 	virtual void MoveTo(const vec2d &pos);
 
 	virtual void EditorAction();
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 };
 
 

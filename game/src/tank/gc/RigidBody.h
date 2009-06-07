@@ -47,7 +47,7 @@ public:
 
 	virtual void Kill();
 
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
 	virtual bool IsSaved() const { return true; }
 	virtual unsigned char GetPassability() const = 0;
@@ -172,7 +172,7 @@ public:
 	virtual float GetDefaultHealth() const { return 50; }
 
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 

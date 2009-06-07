@@ -415,7 +415,7 @@ public:
 	virtual void TimeStepFloat(float dt);
 	virtual void EditorAction();
 
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 
 	//

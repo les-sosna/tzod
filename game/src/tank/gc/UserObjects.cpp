@@ -51,9 +51,9 @@ void GC_UserObject::OnDestroy()
 	GC_RigidBodyStatic::OnDestroy();
 }
 
-void GC_UserObject::mapExchange(MapFile &f)
+void GC_UserObject::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::mapExchange(f);
+	GC_RigidBodyStatic::MapExchange(f);
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 	
@@ -166,9 +166,9 @@ void GC_Decoration::Serialize(SaveFile &f)
 	f.Serialize(_time);
 }
 
-void GC_Decoration::mapExchange(MapFile &f)
+void GC_Decoration::MapExchange(MapFile &f)
 {
-	GC_UserSprite::mapExchange(f);
+	GC_UserSprite::MapExchange(f);
 
 	int z = GetZ();
 	int frame = GetCurrentFrame();

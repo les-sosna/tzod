@@ -55,8 +55,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
 
 GC_PlayerAI::GC_PlayerAI()
 {
-	_desired_offset = 0;
-	_current_offset = 0;
+	_desiredOffset = 0;
+	_currentOffset = 0;
 	_arrivalPoint.Set(0,0);
 
 	_level = 2;
@@ -94,8 +94,8 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	f.Serialize(_level);
 	f.Serialize(_aiState_l1);
 	f.Serialize(_aiState_l2);
-	f.Serialize(_current_offset);
-	f.Serialize(_desired_offset);
+	f.Serialize(_currentOffset);
+	f.Serialize(_desiredOffset);
 	f.Serialize(_favoriteWeaponType);
 	f.Serialize(_pickupCurrent);
 	f.Serialize(_target);
@@ -129,9 +129,9 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	}
 }
 
-void GC_PlayerAI::mapExchange(MapFile &f)
+void GC_PlayerAI::MapExchange(MapFile &f)
 {
-	GC_Player::mapExchange(f);
+	GC_Player::MapExchange(f);
 	MAP_EXCHANGE_INT(level, _level, 0);
 }
 
@@ -184,14 +184,14 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		SelectState(&weapSettings);
 
 
-	// установка _current_offset для понижения меткости стрельбы
+	// установка _currentOffset для понижения меткости стрельбы
 	const float acc_speed = 0.4f; // угловая скорость движения мнимой цели
 	if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
 	{
-		float len = fabsf(_desired_offset - _current_offset);
+		float len = fabsf(_desiredOffset - _currentOffset);
 		if( acc_speed*dt >= len )
 		{
-			_current_offset = _desired_offset;
+			_currentOffset = _desiredOffset;
 
 			static float d_array[5] = {0.186f, 0.132f, 0.09f, 0.05f, 0.00f};
 
@@ -204,17 +204,17 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 						static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
 			}
 
-			_desired_offset = (d > 0) ? (g_level->net_frand(d) - d * 0.5f) : 0;
+			_desiredOffset = (d > 0) ? (g_level->net_frand(d) - d * 0.5f) : 0;
 		}
 		else
 		{
-			_current_offset += (_desired_offset - _current_offset) * dt * acc_speed / len;
+			_currentOffset += (_desiredOffset - _currentOffset) * dt * acc_speed / len;
 		}
 	}
 	else
 	{
-		_desired_offset = 0;
-		_current_offset = 0;
+		_desiredOffset = 0;
+		_currentOffset = 0;
 	}
 
 	// исполнение принятого решения
@@ -620,7 +620,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	assert(GetVehicle());
 	assert(GetVehicle()->GetWeapon());
 
-	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _current_offset;
+	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _currentOffset;
 	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angleReal;
 	if( ang1 > PI2 ) ang1 -= PI2;
 

@@ -652,7 +652,7 @@ PropertySet* GC_Object::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_Object::mapExchange(MapFile &f)
+void GC_Object::MapExchange(MapFile &f)
 {
 	string_t tmp_name;
 	const char *name = GetName();

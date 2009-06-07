@@ -139,8 +139,8 @@ protected:
 	void SelectFavoriteWeapon();
 
 	// смещение прицела для понижения меткости стрельбы
-	float _desired_offset;
-	float _current_offset;
+	float _desiredOffset;
+	float _currentOffset;
 
 	// любимое оружие
 	ObjectType _favoriteWeaponType;
@@ -169,7 +169,7 @@ protected:
 	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 public:
 	GC_PlayerAI();

@@ -74,7 +74,7 @@ public:
 	GC_RigidBodyDynamic(FromFile);
 
 	virtual PropertySet* NewPropertySet();
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 	static void ProcessResponse(float dt);

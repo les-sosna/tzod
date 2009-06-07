@@ -61,7 +61,7 @@ protected:
 
 	virtual void Draw() const;
 
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
 	virtual bool IsSaved() const { return true; }
 

@@ -725,7 +725,7 @@ bool Level::Import(const char *fileName, bool execInitScript)
 		name2type::iterator it = get_n2t().find(file.GetCurrentClassName());
 		if( get_n2t().end() == it ) continue;
 		GC_Object *object = get_t2i()[it->second].Create(x, y);
-		object->mapExchange(file);
+		object->MapExchange(file);
 	}
 	GC_Camera::SwitchEditor();
 
@@ -780,7 +780,7 @@ bool Level::Export(const char *fileName)
 		if( IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(GetTypeName(object->GetType()));
-			object->mapExchange(file);
+			object->MapExchange(file);
 			if( !file.WriteCurrentObject() ) return false;
 		}
 	}

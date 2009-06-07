@@ -34,7 +34,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 	virtual void OnDestroy();
 
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ public:
 	virtual ~GC_Decoration();
 
 	virtual void Serialize(SaveFile &f);
-	virtual void mapExchange(MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 	virtual void TimeStepFixed(float dt);
 };

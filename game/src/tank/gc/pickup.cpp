@@ -248,9 +248,9 @@ void GC_Pickup::Draw() const
 	}
 }
 
-void GC_Pickup::mapExchange(MapFile &f)
+void GC_Pickup::MapExchange(MapFile &f)
 {
-	GC_2dSprite::mapExchange(f);
+	GC_2dSprite::MapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }

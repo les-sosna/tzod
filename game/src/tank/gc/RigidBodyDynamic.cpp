@@ -136,9 +136,9 @@ PropertySet* GC_RigidBodyDynamic::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_RigidBodyDynamic::mapExchange(MapFile &f)
+void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::mapExchange(f);
+	GC_RigidBodyStatic::MapExchange(f);
 
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);
 	MAP_EXCHANGE_FLOAT(inv_i, _inv_i, 1);

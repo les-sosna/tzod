@@ -114,9 +114,9 @@ void GC_RigidBodyStatic::AlignToTexture()
 		+ GetSpriteHeight() * GetSpriteHeight() ) * 0.5f;
 }
 
-void GC_RigidBodyStatic::mapExchange(MapFile &f)
+void GC_RigidBodyStatic::MapExchange(MapFile &f)
 {
-	GC_2dSprite::mapExchange(f);
+	GC_2dSprite::MapExchange(f);
 
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
@@ -254,9 +254,9 @@ void GC_Wall::Kill()
 	GC_RigidBodyStatic::Kill();
 }
 
-void GC_Wall::mapExchange(MapFile &f)
+void GC_Wall::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::mapExchange(f);
+	GC_RigidBodyStatic::MapExchange(f);
 	int corner = GetCorner();
 	int style = GetStyle();
 	MAP_EXCHANGE_INT(corner, corner, 0);

@@ -123,9 +123,9 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 	assert(FALSE);
 }
 
-void GC_Actor::mapExchange(MapFile &f)
+void GC_Actor::MapExchange(MapFile &f)
 {
-	GC_Object::mapExchange(f);
+	GC_Object::MapExchange(f);
 
 	if( !f.loading() )
 	{
