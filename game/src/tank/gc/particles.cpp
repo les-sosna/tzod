@@ -16,18 +16,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0)
   : GC_2dSprite()
+  , _velocity(v0)
+  , _startFrame(rand())
+  , _time(0)
+  , _timeLife(frand(0.5f) + 1.0f)
 {
+	static TextureCache tex("particle_brick");
+
+	SetTexture(tex);
 	SetZ(Z_PARTICLE);
-
-	_StartFrame = rand();
-	_time = 0;
-	_time_life = frand(0.5f) + 1.0f;
-
-	SetTexture("particle_brick");
-
 	MoveTo(x0);
-	_velocity = v0;
-
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 }
 
@@ -39,9 +37,9 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
 void GC_Brick_Fragment_01::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	f.Serialize(_StartFrame);
+	f.Serialize(_startFrame);
 	f.Serialize(_time);
-	f.Serialize(_time_life);
+	f.Serialize(_timeLife);
 	f.Serialize(_velocity);
 }
 
@@ -49,14 +47,14 @@ void GC_Brick_Fragment_01::TimeStepFloat(float dt)
 {
 	_time += dt;
 
-	if( _time >= _time_life * 0.5f )
+	if( _time >= _timeLife * 0.5f )
 	{
 		Kill();
 		return;
 	}
 
-	SetFrame(int((float)_StartFrame + (float)(GetFrameCount() - 1) *
-		_time / _time_life)%(GetFrameCount() - 1) );
+	SetFrame(int((float)_startFrame + (float)(GetFrameCount() - 1) *
+		_time / _timeLife)%(GetFrameCount() - 1) );
 
 	MoveTo( GetPos() + _velocity * dt );
 	_velocity += vec2d(0, 300.0f) * dt;
@@ -69,44 +67,23 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture, float LifeTime)
-  : GC_2dSprite()
-  , _rotationSpeed(0)
-{
-	SetZ(Z_PARTICLE);
-
-	_fade = false;
-	_time = 0;
-	_timeLife = LifeTime;
-	_velocity = v;
-
-	SetTexture(texture);
-
-	MoveTo(pos);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
-
-	assert(_timeLife > 0);
-}
-
 GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
-						 float LifeTime, float orient)
+                         float lifeTime, float orient)
   : GC_2dSprite()
   , _rotationSpeed(0)
+  , _time(0)
+  , _timeLife(lifeTime)
+  , _velocity(v)
 {
-	SetZ(Z_PARTICLE);
+	assert(_timeLife > 0);
 
-	_fade = false;
-	_time = 0;
-	_timeLife = LifeTime;
-	_velocity = v;
+	SetZ(Z_PARTICLE);
 
 	SetTexture(texture);
 	SetSpriteRotation(orient);
 
 	MoveTo(pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
-
-	assert(_timeLife > 0);
 }
 
 GC_Particle::GC_Particle(FromFile)
@@ -117,7 +94,6 @@ GC_Particle::GC_Particle(FromFile)
 void GC_Particle::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
-	f.Serialize(_fade);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
@@ -134,8 +110,10 @@ void GC_Particle::TimeStepFloat(float dt)
 		Kill();
 		return;
 	}
+
 	SetFrame( int((float)(GetFrameCount() - 1) * _time / _timeLife) );
-	if( _fade )
+
+	if( CheckFlags(GC_FLAG_PARTICLE_FADE) )
 		SetOpacity(1.0f - _time / _timeLife);
 
 	if( _rotationSpeed )
@@ -146,8 +124,8 @@ void GC_Particle::TimeStepFloat(float dt)
 
 void GC_Particle::SetFade(bool fade)
 {
-	_fade = fade;
-	if( _fade )
+	SetFlags(GC_FLAG_PARTICLE_FADE, fade);
+	if( fade )
 		SetOpacity(1.0f - _time / _timeLife);
 	else
 		SetOpacity1i(255);
@@ -156,6 +134,37 @@ void GC_Particle::SetFade(bool fade)
 void GC_Particle::SetAutoRotate(float speed)
 {
 	_rotationSpeed = speed;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
+{
+	return true;
+}
+
+GC_ParticleScaled::GC_ParticleScaled(const vec2d &pos, const vec2d &v, const TextureCache &texture, 
+                                     float lifeTime, float orient, float size)
+  : GC_Particle(pos, v, texture, lifeTime, orient)
+  , _size(size)
+{
+}
+
+GC_ParticleScaled::GC_ParticleScaled(FromFile)
+  : GC_Particle(FromFile())
+{
+}
+
+void GC_ParticleScaled::Serialize(SaveFile &f)
+{
+	GC_Particle::Serialize(f);
+	f.Serialize(_size);
+}
+
+void GC_ParticleScaled::Draw() const
+{
+	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), 
+		GetPos().x, GetPos().y, _size, _size, GetSpriteRotation());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

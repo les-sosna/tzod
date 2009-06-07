@@ -198,6 +198,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_FIRESPARK_SETFIRE      (GC_FLAG_PROJECTILE_ << 0)
+#define GC_FLAG_FIRESPARK_HEALOWNER    (GC_FLAG_PROJECTILE_ << 1)
 
 class GC_FireSpark : public GC_Projectile
 {
@@ -207,9 +208,8 @@ private:
 	float _time;
 	float _timeLife;
 	float _rotation;
-	bool  _healOwner;
 
-	float GetRadius() { return (_time + 0.2f) * 50; }
+	float GetRadius() const { return (_time + 0.2f) * 50; }
 
 public:
 	GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
@@ -217,6 +217,7 @@ public:
 	virtual ~GC_FireSpark();
 
 	virtual void Serialize(SaveFile &f);
+	virtual void Draw() const;
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);

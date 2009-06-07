@@ -831,7 +831,6 @@ GC_FireSpark::GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* o
   , _time(0)
   , _timeLife(1)
   , _rotation(frand(10) - 5)
-  , _healOwner(false)
 {
 	SetHitDamage(DAMAGE_FIRE_HIT);
 	SetTrailDensity(4.5f);
@@ -855,7 +854,13 @@ void GC_FireSpark::Serialize(SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotation);
-	f.Serialize(_healOwner);
+}
+
+void GC_FireSpark::Draw() const
+{
+	vec2d pos = GetPosPredicted();
+	float r = GetRadius();
+	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetSpriteRotation());
 }
 
 bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
@@ -906,10 +911,9 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 	
 	if( g_conf->g_particles->Get() )
 	{
-		GC_Particle *p = new GC_Particle(pos + vrand(3), _velocity/3 + vrand(10.0f), tex, 0.1f + frand(0.3f), frand(PI2));
+		GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), _velocity/3 + vrand(10.0f), tex, 0.1f + frand(0.3f), frand(PI2), GetRadius());
 		p->SetFade(true);
 		p->SetAutoRotate(_rotation);
-//		p->SetScale(GetRadius(), GetRadius());
 	}
 
 	vec2d dv(_velocity.y, -_velocity.x);
@@ -922,7 +926,7 @@ float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
 {
 	if( GetAdvanced() && _owner == object )
 	{
-		return _healOwner ? -damage : 0;
+		return CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER) ? -damage : 0;
 	}
 	return damage;
 }
@@ -938,17 +942,18 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	}
 
 
-	float R = GetRadius();
+	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
 
+	float R = GetRadius();
 	_light->SetRadius(3*R);
 
-	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
-//	SetScale(R, R);
 
 	R *= 1.5; // for damage calculation
 
 	PtrList<ObjectList> receive;
 	g_level->grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+
+	const bool healOwner = CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER);
 
 	PtrList<ObjectList>::iterator it1 = receive.begin();
 	for( ; it1 != receive.end(); ++it1 )
@@ -968,7 +973,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 			{
 				if( GetAdvanced() && object == _owner )
 				{
-					if( _healOwner )
+					if( healOwner )
 					{
 						_owner->SetHealthCur(__min(_owner->GetHealth() + damage, _owner->GetHealthMax()));
 					}
@@ -992,7 +997,7 @@ void GC_FireSpark::SetLifeTime(float t)
 
 void GC_FireSpark::SetHealOwner(bool heal)
 {
-	_healOwner = heal;
+	SetFlags(GC_FLAG_FIRESPARK_HEALOWNER, heal);
 }
 
 /////////////////////////////////////////////////////////////
