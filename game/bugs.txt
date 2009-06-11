@@ -1,8 +1,5 @@
 list of known bags
 
-
-text in score table
-
 bots' night lights
 
 bots and ram

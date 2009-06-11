@@ -11,7 +11,7 @@ namespace UI
 
 class ScoreTable : public Window
 {
-	Text *_text;
+	size_t _font;
 
 public:
 	ScoreTable(Window *parent);

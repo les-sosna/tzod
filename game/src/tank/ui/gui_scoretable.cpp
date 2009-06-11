@@ -3,8 +3,6 @@
 #include "stdafx.h"
 #include "gui_scoretable.h"
 
-#include "Text.h"
-
 #include "gc/Player.h"
 
 #include "config/Config.h"
@@ -19,12 +17,10 @@ namespace UI
 
 ScoreTable::ScoreTable(Window *parent)
   : Window(parent, 0, 0, "scoretbl")
+  , _font(g_texman->FindSprite("font_default"))
 {
 	SetBorder(false);
 	SetTimeStep(true);
-
-	_text = new Text(this, 0, 0, "", alignTextLT);
-	_text->SetFont("font_default");
 }
 
 ScoreTable::~ScoreTable()
@@ -74,10 +70,7 @@ void ScoreTable::DrawChildren(float sx, float sy) const
 		}
 		else
 			wsprintf(text, g_lang->score_time_limit_hit->Get().c_str());
-
-		_text->SetText(text);
-		_text->SetAlign(alignTextLT);
-		_text->Draw(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP);
+		g_texman->DrawBitmapText(_font, text, 0xffffffff, sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP);
 	}
 
 	if( g_conf->sv_fraglimit->GetInt() )
@@ -87,35 +80,29 @@ void ScoreTable::DrawChildren(float sx, float sy) const
 			wsprintf(text, g_lang->score_frags_left_x->Get().c_str(), scoreleft);
 		else
 			wsprintf(text, g_lang->score_frag_limit_hit->Get().c_str());
-
-		_text->SetText(text);
-		_text->SetAlign(alignTextLT);
-		_text->Draw(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP);
+		g_texman->DrawBitmapText(_font, text, 0xffffffff, sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP);
 	}
 
+	float h = g_texman->GetCharHeight(_font);
 	for( size_t i = 0; i < players.size(); ++i )
 	{
 		if( i < 8 )
 		{
-			wsprintf(text, "%d", i + 1);
-			_text->SetText(text);
-			_text->SetAlign(alignTextLT);
-			_text->Draw(sx + SCORE_POS_NUMBER, sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
+			g_texman->DrawBitmapText(_font, players[i]->GetNick(), 0xffffffff, 
+				sx + SCORE_POS_NAME, sy + SCORE_NAMES_TOP + (h - 1) * (float) i);
 
-			_text->SetText(players[i]->GetNick());
-			_text->Draw(sx + SCORE_POS_NAME, sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
+			wsprintf(text, "%d", i + 1);
+			g_texman->DrawBitmapText(_font, text, 0xffffffff, 
+				sx + SCORE_POS_NUMBER, sy + SCORE_NAMES_TOP + (h - 1) * (float) i);
 
 			wsprintf(text, "%d", players[i]->GetScore());
-			_text->SetText(text);
-			_text->SetAlign(alignTextRT);
-			_text->Draw(sx + (float) (GetWidth() - SCORE_POS_SCORE),
-				sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
+			g_texman->DrawBitmapText(_font, text, 0xffffffff, 
+				sx + GetWidth() - SCORE_POS_SCORE, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, alignTextRT);
 		}
 		else
 		{
-			_text->SetAlign(alignTextLT);
-			_text->SetText("......");
-			_text->Draw(sx + SCORE_POS_NAME, sy + (float) (SCORE_NAMES_TOP + (_text->GetTextureHeight() - 1) * i));
+			g_texman->DrawBitmapText(_font, "......", 0xffffffff, 
+				sx + SCORE_POS_NAME, sy + SCORE_NAMES_TOP + (h - 1) * (float) i);
 			break;
 		}
 	}
