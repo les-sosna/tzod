@@ -526,6 +526,8 @@ void GC_pu_Shield::Serialize(SaveFile &f)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const float SHOCK_TIMEOUT = 1.5f;
+
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 {
 	ED_ITEM( "pu_shock", "obj_shock", 4 );
@@ -534,12 +536,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 
 GC_pu_Shock::GC_pu_Shock(float x, float y)
   : GC_Pickup(x, y)
+  , _targetPosPredicted(0, 0)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
 	SetTexture("pu_shock");
-
-	_timeout = 1.5f;
 }
 
 GC_pu_Shock::GC_pu_Shock(FromFile)
@@ -554,16 +555,14 @@ GC_pu_Shock::~GC_pu_Shock()
 void GC_pu_Shock::Kill()
 {
 	SAFE_KILL(_light);
-	SAFE_KILL(_effect);
 	GC_Pickup::Kill();
 }
 
 void GC_pu_Shock::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
-	f.Serialize(_timeout);
-	f.Serialize(_effect);
 	f.Serialize(_light);
+	f.Serialize(_targetPosPredicted);
 }
 
 AIPRIORITY GC_pu_Shock::GetPriority(GC_Vehicle *veh)
@@ -593,7 +592,7 @@ void GC_pu_Shock::Detach()
 {
 	GC_Pickup::Detach();
 	SetTexture("pu_shock");
-	SAFE_KILL(_effect);
+	SetGridSet(true);
 	SAFE_KILL(_light);
 }
 
@@ -639,50 +638,61 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		if( !_effect )
+		if( GetGridSet() )
 		{
-			if( GetTimeAttached() >= _timeout )
+			if( GetTimeAttached() >= SHOCK_TIMEOUT )
 			{
-				GC_Vehicle *pNearTarget = FindNearVehicle(
-					static_cast<GC_RigidBodyStatic*>(GetOwner()));
-
-				if( pNearTarget )
+				GC_RigidBodyStatic *owner = static_cast<GC_RigidBodyStatic*>(GetOwner());
+				if( GC_Vehicle *pNearTarget = FindNearVehicle(owner) )
 				{
-					_effect = WrapRawPtr(new GC_Line(GetPos(), pNearTarget->GetPos(), "lighting"));
-					_effect->SetPhase(frand(1));
-					_effect->SetZ(Z_FREE_ITEM);
+					SetGridSet(false);
+					SetZ(Z_FREE_ITEM);
+
+					_targetPosPredicted = pNearTarget->GetPosPredicted();
 
 					_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
 					_light->MoveTo(GetPos());
 					_light->SetRadius(100);
-					_light->SetLength((pNearTarget->GetPos() - GetPos()).len());
-					_light->SetAngle((pNearTarget->GetPos() - GetPos()).Angle());
+					_light->SetLength((_targetPosPredicted - GetPos()).len());
+					_light->SetAngle((_targetPosPredicted - GetPos()).Angle());
 
-					pNearTarget->TakeDamage(1000.0, pNearTarget->GetPos(),
-						static_cast<GC_RigidBodyStatic*>(GetOwner()));
+					pNearTarget->TakeDamage(1000, pNearTarget->GetPos(), owner);
 				}
 				else
 				{
-					static_cast<GC_RigidBodyStatic*>(GetOwner())
-						->TakeDamage(1000.0, GetOwner()->GetPos(),
-							static_cast<GC_RigidBodyStatic*>(GetOwner()));
+					owner->TakeDamage(1000, owner->GetPos(), owner);
 					Disappear();
 				}
 			}
 		}
 		else
 		{
-			float a = (GetTimeAttached() - _timeout) * 5.0f;
+			float a = (GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f;
 			if( a > 1 )
 			{
 				Disappear();
 			}
 			else
 			{
-				_effect->SetOpacity(1.0f - a);
 				_light->SetIntensity(1.0f - powf(a, 6));
 			}
 		}
+	}
+}
+
+void GC_pu_Shock::Draw() const
+{
+	if( GetGridSet() )
+	{
+		GC_Pickup::Draw();
+	}
+	else
+	{
+		static TextureCache t("lightning");
+		SpriteColor c;
+		c.r = c.g = c.b = c.a = int((1.0f - ((GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
+		const vec2d &pos = GetPosPredicted();
+		g_texman->DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPosPredicted.x, _targetPosPredicted.y, frand(1));
 	}
 }
 

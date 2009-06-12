@@ -14,10 +14,10 @@ class TextureCache
 	float  width;
 	float  height;
 	size_t texture;
-	SpriteColor color;
 
 public:
 	TextureCache(const char *name);
+	size_t GetTexture() const { return texture; }
 };
 
 ///////////////////////////////////////////
@@ -100,6 +100,7 @@ public:
 
 public:
 	void SetGridSet(bool bGridSet);
+	bool GetGridSet() const { return CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET); }
 	void SetZ(enumZOrder z);
 	enumZOrder GetZ() const;
 

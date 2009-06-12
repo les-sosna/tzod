@@ -12,7 +12,6 @@
 --   yframes  = 1,
 --   xscale   = 1,
 --   yscale   = 1,
---   color    = 0xffffffff
 
 
 return {
@@ -122,7 +121,7 @@ return {
      indicator_health={left=0, top=6, right=48, bottom=11, ypivot=0},
      indicator_fuel={left=0, top=0, right=48, bottom=6, ypivot=0},
      indicator_ammo={left=0, top=12, right=48, bottom=17, ypivot=0},
-     indicator_crosshair1={left=48, top=16, right=64, bottom=32, color=0x00FF00},
+     indicator_crosshair1={left=48, top=16, right=64, bottom=32},
      indicator_crosshair2={left=49, top=1, right=63, bottom=15},
    }
 },
@@ -211,9 +210,9 @@ return {
    }
 },
 {
-   file="textures/effects/lighting.tga",
+   file="textures/effects/lightning.tga",
    content={
-     lighting={},
+     lightning={},
    }
 },
 {

@@ -172,32 +172,7 @@ public:
 	void SetTile(char nTile, bool value);
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_Line : public GC_UserSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_Line);
-
-private:
-	vec2d _begin;
-	vec2d _end;
-
-	float _phase;
-
-public:
-	GC_Line(const vec2d &begin, const vec2d &end, const char *texture);
-	GC_Line(FromFile) : GC_UserSprite(FromFile()) {}
-
-	void SetPhase(float f);
-	void MoveTo(const vec2d &begin, const vec2d &end);
-	virtual void MoveTo(const vec2d &pos) { GC_UserSprite::MoveTo(pos); }
-
-	virtual void Serialize(SaveFile &f);
-	virtual void Draw() const;
-};
-
 /////////////////////////////////////////////////////////////
-//class text
 
 class GC_Text : public GC_2dSprite
 {

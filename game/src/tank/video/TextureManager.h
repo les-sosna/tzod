@@ -22,8 +22,6 @@ struct LogicalTexture
 	int   yframes;
 
 	std::vector<FRECT> uvFrames;
-
-	SpriteColor color;
 };
 
 class TextureManager
@@ -49,6 +47,7 @@ public:
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, float rot) const;
 	void DrawIndicator(size_t tex, float x, float y, float value) const;
+	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase) const;
 
 private:
 	struct TexDesc

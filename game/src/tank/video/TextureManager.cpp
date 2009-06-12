@@ -163,7 +163,6 @@ void TextureManager::CreateChecker()
 	tex.uvFrameHeight = 8.0f;
 	tex.pxFrameWidth  = (float) td.width * tex.uvFrameWidth;
 	tex.pxFrameHeight = (float) td.height * tex.uvFrameHeight;
-	tex.color = 0xffffffff;
 	//---------------------
 	_logicalTextures.push_back(tex);
 	it->refCount++;
@@ -281,9 +280,6 @@ int TextureManager::LoadPackage(const string_t &filename)
 						tex.uvPivot.x = (float) auxgetfloat(L, -2, "xpivot", (float) td->width * tex.uvFrameWidth / 2) / ((float) td->width * tex.uvFrameWidth);
 						tex.uvPivot.y = (float) auxgetfloat(L, -2, "ypivot", (float) td->height * tex.uvFrameHeight / 2) / ((float) td->height * tex.uvFrameHeight);
 
-						// sprite color
-						tex.color.dwColor = (DWORD) auxgetint(L, -2, "color", 0xffffffff);
-
 						// frames
 						tex.uvFrames.reserve(tex.xframes * tex.yframes);
 						for( int y = 0; y < tex.yframes; ++y )
@@ -394,7 +390,6 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 		tex.uvFrameHeight = 1;
 		tex.pxFrameWidth  = (float) td->width;
 		tex.pxFrameHeight = (float) td->height;
-		tex.color = 0xffffffff;
 
 		FRECT frame = {0,0,1,1};
 		tex.uvFrames.push_back(frame);
@@ -640,6 +635,45 @@ void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) co
 	v[3].v = rt.bottom;
 	v[3].x = x - px;
 	v[3].y = y - py + lt.pxFrameHeight;
+}
+
+void TextureManager::DrawLine(size_t tex, SpriteColor color,
+                              float x0, float y0, float x1, float y1, float phase) const
+{
+	const LogicalTexture &lt = Get(tex);
+
+	g_render->TexBind(lt.dev_texture);
+	MyVertex *v = g_render->DrawQuad();
+
+	float len = sqrtf((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
+	float phase1 = phase + len / lt.pxFrameWidth;
+	float c = (x1-x0) / len;
+	float s = (y1-y0) / len;
+	float py = lt.pxFrameHeight / 2;
+
+	v[0].color = color;
+	v[0].u = phase;
+	v[0].v = 0;
+	v[0].x = x0 + py * s;
+	v[0].y = y0 - py * c;
+
+	v[1].color = color;
+	v[1].u = phase1;
+	v[1].v = 0;
+	v[1].x = x0 + len * c + py * s;
+	v[1].y = y0 + len * s - py * c;
+
+	v[2].color = color;
+	v[2].u = phase1;
+	v[2].v = 1;
+	v[2].x = x0 + len * c - py * s;
+	v[2].y = y0 + len * s + py * c;
+
+	v[3].color = color;
+	v[3].u = phase;
+	v[3].v = 1;
+	v[3].x = x0 - py * s;
+	v[3].y = y0 + py * c;
 }
 
 ////////////////////////////////////////////////////////////////////

@@ -11,7 +11,6 @@
 
 class GC_HideLabel;
 class GC_Vehicle;
-class GC_Line;
 class GC_Light;
 class GC_Crosshair;
 class GC_Weapon;
@@ -190,10 +189,8 @@ class GC_pu_Shock : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 
 private:
-	SafePtr<GC_Line>  _effect;
 	SafePtr<GC_Light> _light;
-
-	float _timeout;
+	vec2d _targetPosPredicted;
 
 	GC_Vehicle *FindNearVehicle(const GC_RigidBodyStatic *ignore);
 
@@ -212,6 +209,7 @@ public:
 	virtual void Detach();
 
 	virtual void TimeStepFixed(float dt);
+	virtual void Draw() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -21,9 +21,7 @@ TextureCache::TextureCache(const char *name)
 	const LogicalTexture &lt = g_texman->Get(texture);
 	width  = lt.pxFrameWidth;
 	height = lt.pxFrameHeight;
-	color  = lt.color;
 }
-
 
 /////////////////////////////////////////////////////////////
 //class GC_2dSprite - базовый класс для графических объектов
