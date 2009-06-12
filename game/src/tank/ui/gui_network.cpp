@@ -434,6 +434,16 @@ void InternetDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static PlayerDesc GetPlayerDescFromConf(ConfVarTable *p)
+{
+	PlayerDesc result;
+	result.nick = p->GetStr("nick", "Unnamed Player")->Get();
+	result.cls = p->GetStr("class", "default")->Get();
+	result.skin = p->GetStr("skin", "red")->Get();
+	result.team = p->GetNum("team", 0)->GetInt();
+	return result;
+}
+
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   : Dialog(parent, 680, 512)
   , _buf(new ConsoleBuffer(80, 500, "chat.txt"))
@@ -494,13 +504,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	// send player info
 	//
 
-	PlayerDesc pd;
-	pd.nick = g_conf->cl_playerinfo->GetStr("nick", "Unnamed Player")->Get();
-	pd.cls = g_conf->cl_playerinfo->GetStr("class", "default")->Get();
-	pd.score = 0;
-	pd.skin = g_conf->cl_playerinfo->GetStr("skin", "red")->Get();
-	pd.team = g_conf->cl_playerinfo->GetNum("team", 0)->GetInt();
-	g_client->SendPlayerInfo(pd);
+	g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf->cl_playerinfo));
 
 	// send ping request
 //	DWORD t = timeGetTime();
@@ -523,6 +527,11 @@ void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
 {
 	_btnProfile->SetEnabled(true);
 	_btnOK->SetEnabled(true);
+
+	if( _resultOK == result )
+	{
+		g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf->cl_playerinfo));
+	}
 }
 
 void WaitingForPlayersDlg::OnChangeProfileClick()
@@ -543,13 +552,8 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 	if( _resultOK == result )
 	{
 		BotDesc bd;
-		bd.nick = g_conf->ui_netbotinfo->GetStr("nick", "Bot")->Get();
-		bd.cls = g_conf->ui_netbotinfo->GetStr("class", "default")->Get();
-		bd.skin = g_conf->ui_netbotinfo->GetStr("skin", "red")->Get();
-		bd.score = 0;
-		bd.team = g_conf->ui_netbotinfo->GetNum("team", 0)->GetInt();
+		bd.pd = GetPlayerDescFromConf(g_conf->ui_netbotinfo);
 		bd.level = g_conf->ui_netbotinfo->GetNum("level", 2)->GetInt();
-
 		g_client->SendAddBot(bd);
 	}
 }

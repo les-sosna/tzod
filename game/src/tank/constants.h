@@ -47,8 +47,8 @@ enum enumZOrder
 #define MAX_GAMESPEED   200
 #define MIN_GAMESPEED   20
 
-#define MAX_TIMELIMIT   180
-#define MAX_FRAGLIMIT   1000
+#define MAX_TIMELIMIT   1000
+#define MAX_FRAGLIMIT   10000
 
 #define MAX_NETWORKSPEED    60
 #define MIN_NETWORKSPEED    10

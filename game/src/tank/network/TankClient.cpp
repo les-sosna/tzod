@@ -21,6 +21,7 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "Macros.h"
 #include "functions.h"
 #include "Level.h"
 
@@ -107,7 +108,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	_peer->RegisterHandler(CL_POST_PLAYER_READY, VariantTypeId<PlayerReady>(), CreateDelegate(&TankClient::ClPlayerReady, this));
 	_peer->RegisterHandler(CL_POST_STARTGAME, VariantTypeId<bool>(), CreateDelegate(&TankClient::ClStartGame, this));
 	_peer->RegisterHandler(CL_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankClient::ClAddBot, this));
-	_peer->RegisterHandler(CL_POST_ADDPLAYER, VariantTypeId<PlayerDescEx>(), CreateDelegate(&TankClient::ClAddPlayer, this));
+	_peer->RegisterHandler(CL_POST_PLAYERINFO, VariantTypeId<PlayerDescEx>(), CreateDelegate(&TankClient::ClSetPlayerInfo, this));
 
 	if( int err = _peer->Connect(&addr) )
 	{
@@ -179,7 +180,7 @@ void TankClient::SendAddBot(const BotDesc &bot)
 
 void TankClient::SendPlayerInfo(const PlayerDesc &pd)
 {
-	_peer->Post(SV_POST_ADDPLAYER, Variant(pd));
+	_peer->Post(SV_POST_PLAYERINFO, Variant(pd));
 }
 
 void TankClient::GetStatistics(NetworkStats *pStats)
@@ -275,34 +276,53 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	}
 }
 
-void TankClient::ClAddPlayer(Peer *from, int task, const Variant &arg)
+void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 
-	const PlayerDescEx &pd = arg.Value<PlayerDescEx>();
+	const PlayerDescEx &pde = arg.Value<PlayerDescEx>();
 
 	GC_Player *player = NULL;
-	if( GetId() == pd.id )
+
+
+	//
+	// find existing player or create new one
+	//
+
+	FOREACH(g_level->GetList(LIST_players), GC_Player, p)
 	{
-		player = new GC_PlayerLocal();
-		const string_t &profile = g_conf->cl_playerinfo->GetStr("profile")->Get();
-		if( profile.empty() )
+		if( p->GetNetworkID() == pde.id )
 		{
-			static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
+			player = p;
+			break;
+		}
+	}
+
+	if( !player )
+	{
+		if( GetId() == pde.id )
+		{
+			player = new GC_PlayerLocal();
+			const string_t &profile = g_conf->cl_playerinfo->GetStr("profile")->Get();
+			if( profile.empty() )
+			{
+				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
+			}
+			else
+			{
+				static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
+			}
 		}
 		else
 		{
-			static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
+			player = new GC_PlayerRemote(pde.id);
 		}
 	}
-	else
-	{
-		player = new GC_PlayerRemote(pd.id);
-	}
-	player->SetClass(pd.cls);
-	player->SetNick(pd.nick);
-	player->SetSkin(pd.skin);
-	player->SetTeam(pd.team);
+
+	player->SetClass(pde.pd.cls);
+	player->SetNick(pde.pd.nick);
+	player->SetSkin(pde.pd.skin);
+	player->SetTeam(pde.pd.team);
 	player->UpdateSkin();
 
 	if( eventPlayersUpdate )
@@ -368,10 +388,10 @@ void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 	const BotDesc &bd = arg.Value<BotDesc>();
 	GC_PlayerAI *ai = new GC_PlayerAI();
 
-	ai->SetClass(bd.cls);
-	ai->SetNick(bd.nick);
-	ai->SetSkin(bd.skin);
-	ai->SetTeam(bd.team);
+	ai->SetClass(bd.pd.cls);
+	ai->SetNick(bd.pd.nick);
+	ai->SetSkin(bd.pd.skin);
+	ai->SetTeam(bd.pd.team);
 	ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
 	ai->UpdateSkin();
 

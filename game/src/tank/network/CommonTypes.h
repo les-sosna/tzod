@@ -29,25 +29,26 @@ struct PlayerDesc
 	std::string nick;
 	std::string skin;
 	std::string cls;
-	int  team;
-	int  score;
+	unsigned int team;
 };
 
 VARIANT_DECLARE_TYPE(PlayerDesc);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct BotDesc : public PlayerDesc
+struct BotDesc
 {
-	int level;
+	PlayerDesc pd;
+	unsigned int level;
 };
 
 VARIANT_DECLARE_TYPE(BotDesc);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct PlayerDescEx : public PlayerDesc
+struct PlayerDescEx
 {
+	PlayerDesc pd;
 	unsigned short id;
 };
 

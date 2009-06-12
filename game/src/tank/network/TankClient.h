@@ -70,7 +70,7 @@ private:
 	void ClPlayerReady(Peer *from, int task, const Variant &arg);
 	void ClStartGame(Peer *from, int task, const Variant &arg);
 	void ClAddBot(Peer *from, int task, const Variant &arg);
-	void ClAddPlayer(Peer *from, int task, const Variant &arg);
+	void ClSetPlayerInfo(Peer *from, int task, const Variant &arg);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

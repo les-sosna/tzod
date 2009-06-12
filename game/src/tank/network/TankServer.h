@@ -10,11 +10,11 @@
 class PeerServer : public Peer
 {
 public:
+	std::queue<ControlPacket> ctrl;       // поступившие из сети данные управления
+	PlayerDesc          desc;             // описание игрока
 	unsigned short      id;               // уникальный идентификатор клиента
-	PlayerDesc desc;             // описание игрока
-	BOOL       connected;        // флаг определяет, что поле desc корректно
-	BOOL       ready;            // игрок готов начать игру
-	std::queue<ControlPacket> ctrl;// поступившие из сети данные управления
+	bool                connected;        // флаг определяет, что поле desc корректно
+	bool                ready;            // игрок готов начать игру
 
 	PeerServer(SOCKET s_);
 };
@@ -60,7 +60,7 @@ class TankServer
 	void SvTextMessage(Peer *from, int task, const Variant &arg);
 	void SvPlayerReady(Peer *from, int task, const Variant &arg);
 	void SvAddBot(Peer *from, int task, const Variant &arg);
-	void SvAddPlayer(Peer *from, int task, const Variant &arg);
+	void SvPlayerInfo(Peer *from, int task, const Variant &arg);
 
 public:
 	TankServer(const SafePtr<LobbyClient> &announcer);

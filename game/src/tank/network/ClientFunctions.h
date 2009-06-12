@@ -13,7 +13,7 @@ enum ClientFunction
 	CL_POST_PLAYER_READY,  // PlayerReady
 	CL_POST_STARTGAME,     // bool -- dummy
 	CL_POST_ADDBOT,        // BotDesc
-	CL_POST_ADDPLAYER,     // PlayerDescEx
+	CL_POST_PLAYERINFO,    // PlayerDescEx
 };
 
 

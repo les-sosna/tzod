@@ -8,7 +8,7 @@ enum ServerFunction
 	SV_POST_CONTROL,      // ControlPacket
 	SV_POST_PLAYERREADY,  // bool
 	SV_POST_ADDBOT,       // BotDesc
-	SV_POST_ADDPLAYER,   // PlayerDesc
+	SV_POST_PLAYERINFO,   // PlayerDesc
 };
 
 

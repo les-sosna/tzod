@@ -13,18 +13,17 @@ VARIANT_IMPLEMENT_TYPE(PlayerDesc)
 		& value.nick
 		& value.skin
 		& value.cls
-		& value.team
-		& value.score;
+		& value.team;
 }
 
 VARIANT_IMPLEMENT_TYPE(PlayerDescEx)
 {
-	return s & (PlayerDesc&) value & value.id;
+	return s & value.pd & value.id;
 }
 
 VARIANT_IMPLEMENT_TYPE(BotDesc)
 {
-	return s & (PlayerDesc&) value & value.level;
+	return s & value.pd & value.level;
 }
 
 // end of file

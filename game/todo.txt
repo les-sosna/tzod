@@ -12,7 +12,6 @@ Save/Load
  - save lua gc table (?)
  - music track
 
-Настройка профиля прямо из чата
 
 implement initializers concept:
 CONFIG_VAR_TABLE( dm_profiles, &InitializerFunc );

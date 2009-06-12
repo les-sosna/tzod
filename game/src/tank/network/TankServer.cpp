@@ -161,10 +161,10 @@ void TankServer::OnListenerEvent()
 	cl.RegisterHandler(SV_POST_CONTROL, VariantTypeId<ControlPacket>(), CreateDelegate(&TankServer::SvControl, this));
 	cl.RegisterHandler(SV_POST_PLAYERREADY, VariantTypeId<bool>(), CreateDelegate(&TankServer::SvPlayerReady, this));
 	cl.RegisterHandler(SV_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankServer::SvAddBot, this));
-	cl.RegisterHandler(SV_POST_ADDPLAYER, VariantTypeId<PlayerDesc>(), CreateDelegate(&TankServer::SvAddPlayer, this));
+	cl.RegisterHandler(SV_POST_PLAYERINFO, VariantTypeId<PlayerDesc>(), CreateDelegate(&TankServer::SvPlayerInfo, this));
 
-	cl.connected = FALSE;
-	cl.ready = FALSE;
+	cl.connected = false;
+	cl.ready = false;
 	cl.id = ++_nextFreeId;
 	cl.eventDisconnect.bind(&TankServer::OnDisconnect, this);
 
@@ -353,7 +353,7 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 	{
 		for( std::vector<PostType>::iterator it = _players.begin(); it != _players.end(); ++it )
 		{
-			if( CL_POST_ADDPLAYER == it->first && it->second.Value<PlayerDescEx>().id == who->id )
+			if( CL_POST_PLAYERINFO == it->first && it->second.Value<PlayerDescEx>().id == who->id )
 			{
 				_players.erase(it);
 				break;
@@ -528,39 +528,60 @@ void TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
 	_players.push_back(post);
 }
 
-void TankServer::SvAddPlayer(Peer *from, int task, const Variant &arg)
+void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 
 	who->desc = arg.Value<PlayerDesc>();
 
-
-	//
-	// tell newly connected player about other players
-	//
-
-	for( size_t i = 0; i < _players.size(); ++i )
+	if( !who->connected )
 	{
-		who->Post(_players[i].first, _players[i].second);
+		//
+		// tell newly connected player about other players
+		//
+
+		for( size_t i = 0; i < _players.size(); ++i )
+		{
+			who->Post(_players[i].first, _players[i].second);
+		}
+
+		who->connected = true;
+		++_connectedCount;
+
+
+		//
+		// tell other players about newly connected player
+		//
+
+		PlayerDescEx pde;
+		pde.pd = who->desc;
+		pde.id = who->id;
+		PostType post(CL_POST_PLAYERINFO, Variant(pde));
+		_players.push_back(post);
+		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+		{
+			(*it)->Post(post.first, post.second);
+		}
 	}
-
-	who->connected = TRUE;
-	++_connectedCount;
-
-
-	//
-	// tell other players about newly connected player
-	//
-
-	PlayerDescEx pde;
-	memcpy(&pde, &who->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
-	pde.id = who->id;
-	PostType post(CL_POST_ADDPLAYER, Variant(pde));
-	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	else
 	{
-		(*it)->Post(post.first, post.second);
+		for( size_t i = 0; i < _players.size(); ++i )
+		{
+			if( CL_POST_PLAYERINFO == _players[i].first && 
+			    who->id == _players[i].second.Value<PlayerDescEx>().id )
+			{
+				// update info in player list
+				_players[i].second.Value<PlayerDescEx>().pd = who->desc;
+
+				// send changed info to other players
+				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+				{
+					(*it)->Post(CL_POST_PLAYERINFO, _players[i].second);
+				}
+				break;
+			}
+		}
 	}
-	_players.push_back(post);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
