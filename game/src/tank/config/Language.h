@@ -208,6 +208,7 @@ CONFIG_BEGIN(LangCache) //  var_name  def_value
 	CONFIG_VAR_STR( settings_show_time, "Show time" )
 	CONFIG_VAR_STR( settings_show_particles, "Show particles" )
 	CONFIG_VAR_STR( settings_show_damage, "Show damage" )
+	CONFIG_VAR_STR( settings_show_names, "Show player names" )
 	CONFIG_VAR_STR( settings_ask_for_display_mode, "Ask for display mode at startup" )
 	CONFIG_VAR_STR( settings_sfx_volume, "Sfx volume" )
 	CONFIG_VAR_STR( settings_music_volume, "Music volume" )

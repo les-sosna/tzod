@@ -24,6 +24,7 @@ class SettingsDlg : public Dialog
 	CheckBox  *_showFps;
 	CheckBox  *_showTime;
 	CheckBox  *_showDamage;
+	CheckBox  *_showNames;
 	CheckBox  *_askDisplaySettings;
 
 	ScrollBar *_volumeSfx;
@@ -35,7 +36,7 @@ class SettingsDlg : public Dialog
 
 public:
 	SettingsDlg(Window *parent);
-	~SettingsDlg();
+	virtual ~SettingsDlg();
 
 protected:
 	void OnVolumeSfx(float pos);

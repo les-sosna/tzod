@@ -56,6 +56,7 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_INT( s_buffer,               1000 )
 
 	// game
+	CONFIG_VAR_BOOL(  g_shownames,         true )
 	CONFIG_VAR_BOOL(  g_showdamage,       false )
 	CONFIG_VAR_BOOL(  g_particles,         true )
 	CONFIG_VAR_BOOL(  g_rotcamera,        false )

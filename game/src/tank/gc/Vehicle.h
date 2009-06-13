@@ -154,6 +154,8 @@ public:
 	virtual float GetDefaultHealth() const { return 1; }
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
 
+	// GC_2dSprite
+	virtual void Draw() const;
 
 	// GC_Object
 	virtual void Kill();

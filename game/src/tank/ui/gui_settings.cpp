@@ -79,6 +79,10 @@ SettingsDlg::SettingsDlg(Window *parent)
 	_showDamage->SetCheck(g_conf->g_showdamage->Get());
 	y += _showDamage->GetHeight();
 
+	_showNames = new CheckBox(this, x, y, g_lang->settings_show_names->Get());
+	_showNames->SetCheck(g_conf->g_shownames->Get());
+	y += _showNames->GetHeight();
+
 	_askDisplaySettings = new CheckBox(this, x, y, g_lang->settings_ask_for_display_mode->Get());
 	_askDisplaySettings->SetCheck(g_conf->r_askformode->Get());
 	y += _askDisplaySettings->GetHeight();
@@ -165,6 +169,7 @@ void SettingsDlg::OnOK()
 	g_conf->ui_showtime->Set(_showTime->GetCheck());
 	g_conf->g_particles->Set(_particles->GetCheck());
 	g_conf->g_showdamage->Set(_showDamage->GetCheck());
+	g_conf->g_shownames->Set(_showNames->GetCheck());
 	g_conf->r_askformode->Set(_askDisplaySettings->GetCheck());
 
 	Close(_resultCancel); // return cancel to show back the main menu

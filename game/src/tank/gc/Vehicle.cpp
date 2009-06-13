@@ -101,12 +101,12 @@ void GC_VehicleVisualDummy::Kill()
 	SAFE_KILL(_light1);
 	SAFE_KILL(_light2);
 	_parent = NULL;
-	__super::Kill();
+	GC_VehicleBase::Kill();
 }
 
 void GC_VehicleVisualDummy::Serialize(SaveFile &f)
 {
-	__super::Serialize(f);
+	GC_VehicleBase::Serialize(f);
 
 	f.Serialize(_time_smoke);
 	f.Serialize(_trackDensity);
@@ -118,6 +118,19 @@ void GC_VehicleVisualDummy::Serialize(SaveFile &f)
 	f.Serialize(_light2);
 	f.Serialize(_moveSound);
 	f.Serialize(_parent);
+}
+
+void GC_VehicleVisualDummy::Draw() const
+{
+	GC_VehicleBase::Draw();
+
+	if( g_conf->g_shownames->Get() )
+	{
+		const vec2d &pos = GetPosPredicted();
+		static TextureCache f("font_small");
+		g_texman->DrawBitmapText(f.GetTexture(), _parent->GetPlayer()->GetNick(), 
+			0x7f7f7f7f, floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2), alignTextCT);
+	}
 }
 
 void GC_VehicleVisualDummy::TimeStepFixed(float dt)
@@ -209,7 +222,7 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 	}
 
 
-	__super::TimeStepFloat(dt);
+	GC_VehicleBase::TimeStepFloat(dt);
 }
 
 void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
