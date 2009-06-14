@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
 
-class GC_Text;
 class GC_Vehicle;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,7 +38,6 @@ public:
 	GC_SpawnPoint(float x, float y);
 	GC_SpawnPoint(FromFile);
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Draw() const;
@@ -57,7 +55,6 @@ public:
 	GC_HideLabel(float x, float y);
 	GC_HideLabel(FromFile);
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Draw() const;
 };
 
@@ -84,7 +81,6 @@ public:
 	GC_Crosshair(enChStyle style);
 	GC_Crosshair(FromFile);
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);
@@ -126,7 +122,6 @@ public:
 
 	// GC_Object
 	virtual void Kill();
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 public:
@@ -152,7 +147,6 @@ public:
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);

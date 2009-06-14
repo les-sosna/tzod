@@ -125,8 +125,6 @@ class GC_UserSprite : public GC_2dSprite
 public:
 	GC_UserSprite();
 	GC_UserSprite(FromFile);
-
-	virtual bool IsSaved() const { return true; }
 };
 
 

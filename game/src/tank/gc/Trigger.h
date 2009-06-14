@@ -56,7 +56,6 @@ public:
 
 	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() const { return true; }
 
 	virtual void TimeStepFixed(float dt);
 	virtual void Draw() const;

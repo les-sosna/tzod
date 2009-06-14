@@ -52,7 +52,6 @@ public:
 	GC_Light(FromFile);
 	virtual ~GC_Light();
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 	virtual void MapExchange(MapFile &f);
 
@@ -150,7 +149,6 @@ public:
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Kill();

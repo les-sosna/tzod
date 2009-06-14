@@ -49,7 +49,6 @@ public:
 
 	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() const { return true; }
 	virtual unsigned char GetPassability() const = 0;
 
 	float GetRadius() const { return _radius; }

@@ -134,7 +134,7 @@ public:
 
 class GC_Object;
 class GC_2dSprite;
-class GC_Text;
+
 
 //////////////////////
 

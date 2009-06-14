@@ -190,7 +190,7 @@ public:
     (GC_FLAG_OBJECT_EVENTS_TS_FIXED|        \
     GC_FLAG_OBJECT_EVENTS_TS_FLOATING)
 
-#define GC_FLAG_OBJECT_                       0x00000020
+#define GC_FLAG_OBJECT_                       0x00000010
 
 
 enum GlobalListID
@@ -341,8 +341,8 @@ public:
 
 public:
 	static GC_Object* CreateFromFile(SaveFile &file);
-	virtual bool IsSaved() const { return false; }
 	virtual void Serialize(SaveFile &f);
+	virtual bool IsSaved() const { return true; } // TODO: remove
 
 protected:
 	struct FromFile {};

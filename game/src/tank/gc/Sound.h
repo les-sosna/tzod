@@ -40,7 +40,6 @@ public:
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
 	virtual void Kill();
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	void KillWhenFinished();

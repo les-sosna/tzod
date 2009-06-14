@@ -161,13 +161,13 @@ void GC_Camera::HandleFreeMovement()
 {
 	if( !IsActive() || _player ) return;
 
-	static char  LastIn   = 0, LastOut = 0;
+	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
 	static int   level    = 4;
 
-	if( !LastIn && g_env.envInputs.keys[DIK_PGUP] )
+	if( !lastIn && g_env.envInputs.keys[DIK_PGUP] )
 		level = __min(level+1, sizeof(levels) / sizeof(float) - 1);
-	LastIn = g_env.envInputs.keys[DIK_PGUP];
+	lastIn = g_env.envInputs.keys[DIK_PGUP];
 
 	if( !LastOut && g_env.envInputs.keys[DIK_PGDN] )
 		level = __max(level-1, 0);
@@ -177,13 +177,11 @@ void GC_Camera::HandleFreeMovement()
 
 	vec2d pos = GetPos();
 
-	int   x         = g_env.envInputs.mouse_x;
-	int   y         = g_env.envInputs.mouse_y;
 	bool  bMove     = false;
 	DWORD dwCurTime = GetTickCount();
 	DWORD dt        = DWORD(_dt);
 	//---------------------------------------
-	if( 0 == x || g_env.envInputs.keys[DIK_LEFTARROW] )
+	if( 0 == g_env.envInputs.mouse_x || g_env.envInputs.keys[DIK_LEFTARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -193,7 +191,7 @@ void GC_Camera::HandleFreeMovement()
 		}
 	}
 	else
-	if( g_render->GetWidth() - 1 == x || g_env.envInputs.keys[DIK_RIGHTARROW] )
+	if( g_render->GetWidth() - 1 == g_env.envInputs.mouse_x || g_env.envInputs.keys[DIK_RIGHTARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -205,7 +203,7 @@ void GC_Camera::HandleFreeMovement()
 	else
 		_dwTimeX = GetTickCount();
 	//---------------------------------------
-	if( 0 == y || g_env.envInputs.keys[DIK_UPARROW] )
+	if( 0 == g_env.envInputs.mouse_y || g_env.envInputs.keys[DIK_UPARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -215,7 +213,7 @@ void GC_Camera::HandleFreeMovement()
 		}
 	}
 	else
-	if( g_render->GetHeight()-1 == y || g_env.envInputs.keys[DIK_DOWNARROW] )
+	if( g_render->GetHeight()-1 == g_env.envInputs.mouse_y || g_env.envInputs.keys[DIK_DOWNARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )

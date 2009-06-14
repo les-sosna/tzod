@@ -78,7 +78,6 @@ public:
 
 	// overrides
 	virtual void Kill();
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 };
@@ -125,7 +124,6 @@ public:
 
 	virtual void Kill();
 
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFloat(float dt);
@@ -163,7 +161,6 @@ public:
 	GC_Wood(FromFile);
 
 	virtual void Kill();
-	virtual bool IsSaved() const { return true; }
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Draw() const;
