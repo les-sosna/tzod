@@ -79,7 +79,7 @@ bool TankServer::init(const GameInfo *info)
 
 
 	TRACE("sv: Server init...\n");
-	_socketListen = socket(PF_INET, SOCK_STREAM, 0);
+	_socketListen.Attach(socket(PF_INET, SOCK_STREAM, 0));
 	if( INVALID_SOCKET == _socketListen )
 	{
 		TRACE("sv: ERROR - Unable to create socket\n");

@@ -6,8 +6,8 @@
 class Socket
 {
 public:
-	Socket(void);
-	~Socket(void);
+	explicit Socket(SOCKET s = INVALID_SOCKET);
+	~Socket();
 
 	enum { OK, Error, Aborted };
 
@@ -19,7 +19,7 @@ public:
 	void SetCallback(Delegate<void()> callback);
 
 	operator SOCKET () const { return _socket; }
-	SOCKET operator = (SOCKET s);
+	void Attach(SOCKET s);
 
 private:
 	SOCKET   _socket;

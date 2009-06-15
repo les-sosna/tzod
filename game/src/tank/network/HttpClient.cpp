@@ -188,7 +188,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 
 	_incoming.clear();
 	_connected = false;
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
+	_socket.Attach(socket(AF_INET, SOCK_STREAM, 0));
 	if( INVALID_SOCKET == _socket )
 	{
 		int err = WSAGetLastError();

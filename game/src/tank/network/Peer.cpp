@@ -13,8 +13,8 @@
 Peer::Peer(SOCKET s)
   : _in(false)
   , _out(true)
+  , _socket(s)
 {
-	_socket = s;
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
 		TRACE("peer: ERROR - Unable to select event (%u)\n", WSAGetLastError());

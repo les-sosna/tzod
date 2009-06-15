@@ -11,14 +11,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Socket::Socket(void)
+Socket::Socket(SOCKET s)
   : _event(WSA_INVALID_EVENT)
   , _socket(INVALID_SOCKET)
   , _hasCallback(false)
 {
+	if( INVALID_SOCKET != s )
+	{
+		Attach(s);
+	}
 }
 
-Socket::~Socket(void)
+Socket::~Socket()
 {
 	assert(WSA_INVALID_EVENT == _event);
 	assert(INVALID_SOCKET == _socket);
@@ -99,16 +103,17 @@ void Socket::SetCallback(Delegate<void()> callback)
 	_hasCallback = true;
 }
 
-SOCKET Socket::operator = (SOCKET s)
+void Socket::Attach(SOCKET s)
 {
 	assert(NULL == _event);
+	assert(INVALID_SOCKET == _socket);
+	assert(INVALID_SOCKET != s);
 	_socket = s;
 	BOOL on = TRUE;
 	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
 	{
 		TRACE("WARNING: setting TCP_NODELAY failed!\n");
 	}
-	return _socket;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
