@@ -8,6 +8,7 @@ class DataStream
 {
 public:
 	DataStream(bool serialize);
+	~DataStream();
 
 	bool Direction() const; // true - serialize, false - restore
 	void Serialize(void *data, int bytes);
@@ -22,9 +23,9 @@ public:
 private:
 	typedef unsigned short EntitySizeType;
 	std::vector<char> _buffer;
-	std::vector<char>::iterator _ptr;
 	int _entityLevel;
 	size_t _entitySizeOffset;
+	z_stream _z;
 	bool _serialization;
 };
 

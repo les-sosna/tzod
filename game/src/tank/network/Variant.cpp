@@ -5,11 +5,38 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static Bytef g_buffer[16384];
+
 DataStream::DataStream(bool serialize)
   : _serialization(serialize)
   , _entityLevel(0)
-  , _ptr(_buffer.begin())
 {
+	memset(&_z, 0, sizeof(z_stream));
+	int result;
+	if( _serialization )
+	{
+		result = deflateInit(&_z, Z_BEST_COMPRESSION);
+	}
+	else
+	{
+		result = inflateInit(&_z);
+	}
+	if( Z_OK != result )
+	{
+		throw std::runtime_error("failed to init zlib");
+	}
+}
+
+DataStream::~DataStream()
+{
+	if( _serialization )
+	{
+		deflateEnd(&_z);
+	}
+	else
+	{
+		inflateEnd(&_z);
+	}
 }
 
 bool DataStream::Direction() const
@@ -23,29 +50,45 @@ void DataStream::Serialize(void *data, int bytes)
 	assert(bytes >= 0);
 	if( _serialization )
 	{
-		_buffer.insert(_buffer.end(), (const char *) data, (const char *) data + bytes);
+		_z.avail_in = bytes;
+		_z.next_in = (Bytef *) data;
+		do 
+		{
+			_z.next_out = g_buffer;
+			_z.avail_out = sizeof(g_buffer);
+			deflate(&_z, Z_NO_FLUSH);
+			_buffer.insert(_buffer.end(), g_buffer, _z.next_out);
+		} while( _z.avail_in || 0 == _z.avail_out );
 	}
 	else
 	{
-		assert(bytes <= std::distance(_ptr, _buffer.end()));
-		memcpy(data, &*_ptr, bytes);
-		_ptr += bytes;
+		assert(_z.avail_in);
+		_z.next_out = (Bytef *) data;
+		_z.avail_out = bytes;
+		int result = inflate(&_z, Z_SYNC_FLUSH);
+		assert(Z_OK == result);
+		assert(0 == _z.avail_out);
 	}
 }
 
 void DataStream::EntityBegin()
 {
-	if( 0 == _entityLevel++ )
+	++_entityLevel;
+	if( _serialization )
 	{
-		if( _serialization )
+		if( 1 == _entityLevel )
 		{
 			_entitySizeOffset = _buffer.size();
-			_buffer.resize(_buffer.size() + sizeof(EntitySizeType)); // placeholder
+			_buffer.resize(_buffer.size() + sizeof(EntitySizeType)); // placeholder for size
 		}
-		else
+	}
+	else
+	{
+		assert(EntityProbe());
+		if( 1 == _entityLevel )
 		{
-			assert(EntityProbe());
-			_ptr += sizeof(EntitySizeType); // skip entity size
+			_z.avail_in = *(EntitySizeType *) &_buffer[0] - sizeof(EntitySizeType);
+			_z.next_in = (Bytef *) &_buffer[sizeof(EntitySizeType)];
 		}
 	}
 }
@@ -57,14 +100,24 @@ void DataStream::EntityEnd()
 	{
 		if( _serialization )
 		{
+			assert(0 == _z.avail_in);
+			_z.next_in = NULL;
+			do 
+			{
+				_z.next_out = g_buffer;
+				_z.avail_out = sizeof(g_buffer);
+				deflate(&_z, Z_SYNC_FLUSH);
+				_buffer.insert(_buffer.end(), g_buffer, _z.next_out);
+			} while( 0 == _z.avail_out );
+
 			size_t entitySize = _buffer.size() - _entitySizeOffset;
 			assert(entitySize < 0xffff);
 			*(EntitySizeType *) &_buffer[_entitySizeOffset] = (EntitySizeType) entitySize;
 		}
 		else
 		{
-			_buffer.erase(_buffer.begin(), _ptr);
-			_ptr = _buffer.begin();
+			assert(0 == _z.avail_in);
+			_buffer.erase(_buffer.begin(), _buffer.begin() + *(EntitySizeType *) &_buffer[0]);
 		}
 	}
 }
@@ -74,14 +127,11 @@ bool DataStream::EntityProbe() const
 	assert(!_serialization);
 	if( 0 == _entityLevel )
 	{
-		assert(_ptr <= _buffer.end());
-		size_t restSize = (unsigned) std::distance(_ptr, const_cast<std::vector<char> &>(_buffer).end());
-		if( restSize < sizeof(EntitySizeType) )
+		if( _buffer.size() < sizeof(EntitySizeType) )
 		{
 			return false;
 		}
-		const EntitySizeType &entitySize = (const EntitySizeType &) *_ptr;
-		return entitySize <= restSize;
+		return _buffer.size() >= *(EntitySizeType *) &_buffer[0];
 	}
 	return true;
 }
@@ -131,7 +181,6 @@ int DataStream::Recv(SOCKET s)
 {
 	assert(!_serialization);
 	assert(0 == _entityLevel);
-	assert(_buffer.begin() == _ptr);
 
 	u_long pending = 0;
 	if( ioctlsocket(s, FIONREAD, &pending) )
@@ -142,7 +191,6 @@ int DataStream::Recv(SOCKET s)
 
 	size_t offset = _buffer.size();
 	_buffer.resize(_buffer.size() + pending);
-	_ptr = _buffer.begin();
 
 	return recv(s, &_buffer[offset], pending, 0);
 }
