@@ -4,7 +4,7 @@
 
 
 #include "Socket.h"
-#include "Peer.h"
+
 
 /////////////////////////////////////////////////////////
 
@@ -17,6 +17,10 @@ struct NetworkStats
 struct ControlPacket;
 struct PlayerDesc;
 struct BotDesc;
+
+class Peer;
+class Variant;
+
 
 class TankClient
 {

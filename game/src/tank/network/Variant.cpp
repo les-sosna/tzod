@@ -39,6 +39,11 @@ DataStream::~DataStream()
 	}
 }
 
+size_t DataStream::GetTraffic() const
+{
+	return _serialization ? _z.total_out : _z.total_in;
+}
+
 bool DataStream::Direction() const
 {
 	return _serialization;

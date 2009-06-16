@@ -69,6 +69,12 @@ void FpsCounter::OnTimeStep(float dt)
 		// network statistics
 		if( g_client )
 		{
+			NetworkStats ns;
+			g_client->GetStatistics(&ns);
+			sprintf_s(s1, "\nsent:%uk; recv:%uk", ns.bytesSent>>10, ns.bytesRecv>>10);
+			strcat(s, s1);
+
+
 			if( _dts_net.empty() )
 			{
 				min = max = avr = 0;

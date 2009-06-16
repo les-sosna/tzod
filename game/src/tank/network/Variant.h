@@ -20,6 +20,8 @@ public:
 	int Send(SOCKET s);
 	int Recv(SOCKET s);
 
+	size_t GetTraffic() const;
+
 private:
 	typedef unsigned short EntitySizeType;
 	std::vector<char> _buffer;

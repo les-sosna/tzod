@@ -7,6 +7,7 @@
 #include "ServerFunctions.h"
 #include "CommonTypes.h"
 #include "ControlPacket.h"
+#include "Peer.h"
 
 #include "core/debug.h"
 #include "core/Console.h"
@@ -185,7 +186,10 @@ void TankClient::SendPlayerInfo(const PlayerDesc &pd)
 
 void TankClient::GetStatistics(NetworkStats *pStats)
 {
-	memcpy(pStats, &_stats, sizeof(NetworkStats));
+	pStats->bytesSent = _peer->GetTrafficOut();
+	pStats->bytesRecv = _peer->GetTrafficIn();
+
+//	memcpy(pStats, &_stats, sizeof(NetworkStats));
 }
 
 void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)

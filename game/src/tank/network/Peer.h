@@ -28,6 +28,8 @@ public:
 	int Connect(const sockaddr_in *addr);
 	Delegate<void(Peer *, int errorCode)> eventDisconnect;
 
+	size_t GetTrafficIn() const { return _in.GetTraffic(); }
+	size_t GetTrafficOut() const { return _out.GetTraffic(); }
 
 	void Post(int func, const Variant &arg);
 	void Send(int func, const Variant &arg, Delegate<void(const Variant &)> onResult);
