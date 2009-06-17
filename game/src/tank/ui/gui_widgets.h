@@ -35,6 +35,23 @@ protected:
 	void OnTimeStep(float dt);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class Oscilloscope : public Window
+{
+public:
+	Oscilloscope(Window *parent, float x, float y);
+	void Push(float value);
+
+protected:
+	void DrawChildren(float sx, float sy) const;
+
+private:
+	size_t _barTexture;
+	std::deque<float> _data;
+	float _scale;
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

@@ -116,9 +116,11 @@ Desktop::Desktop(GuiManager* manager)
 	g_conf->ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
 	OnChangeShowFps();
 
-	_time = new TimeElapsed(this, 0, 0, alignTextRB );
+	_time = new TimeElapsed(this, 0, 0, alignTextRB);
 	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
+
+	_oscill = new Oscilloscope(this, 100, 100);
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
 }

@@ -13,6 +13,7 @@ namespace UI
 	// widgets
 	class FpsCounter;
 	class TimeElapsed;
+	class Oscilloscope;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,7 @@ class Desktop : public Window
 
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
+	Oscilloscope *_oscill;
 
 public:
 	Desktop(GuiManager* manager);
@@ -65,6 +67,7 @@ public:
 	void OnCloseChild(int result);
 
 	MessageArea* GetMsgArea() const;
+	Oscilloscope* GetOscilloscope() const { return _oscill; }
 
 protected:
 	virtual void OnRawChar(int c);

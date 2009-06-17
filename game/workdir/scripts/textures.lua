@@ -271,6 +271,7 @@ return {
      ["ui/listsel_u"]={left=2, right=30, top=210, bottom=222, xpivot=0, ypivot=0},
      ["ui/editcursor"]={left=32, right=40, top=193, bottom=207, xpivot=4, ypivot=0},
      ["ui/editsel"]={left=42, right=46, top=202, bottom=206, xpivot=0, ypivot=0},
+     ["ui/bar"]={left=0, right=1, top=226, bottom=228, xpivot=0, ypivot=0},
    }
 },
 {

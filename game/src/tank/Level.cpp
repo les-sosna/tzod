@@ -30,6 +30,7 @@
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
+#include "ui/gui_widgets.h"
 
 #include "gc/GameClasses.h"
 #include "gc/RigidBodyDinamic.h"
@@ -1164,6 +1165,8 @@ void Level::Step(const ControlPacketVector &ctrl)
 
 void Level::TimeStep(float dt)
 {
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(dt);
+
 	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		pCamera->HandleFreeMovement();

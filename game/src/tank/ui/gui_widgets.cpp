@@ -5,6 +5,7 @@
 #include "gui_widgets.h"
 
 #include "ui/GuiManager.h"
+#include "video/TextureManager.h"
 
 #include "Level.h"
 
@@ -148,6 +149,37 @@ void TimeElapsed::OnTimeStep(float dt)
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+Oscilloscope::Oscilloscope(Window *parent, float x, float y)
+  : Window(parent, x, y, "ui/list")
+  , _barTexture(g_texman->FindSprite("ui/bar"))
+  , _scale(0.01f)
+{
+	SetBorder(true);
+	SetClipChildren(true);
+	Resize(200, 50);
+}
+
+void Oscilloscope::Push(float value)
+{
+	_data.push_back(value);
+	size_t size = (size_t) GetWidth();
+	if( _data.size() > size )
+	{
+		_data.erase(_data.begin(), _data.begin() + (_data.size() - size));
+	}
+}
+
+void Oscilloscope::DrawChildren(float sx, float sy) const
+{
+	float half = GetHeight() / 2;
+	for( size_t i = 0; i < _data.size(); ++i )
+	{
+		g_texman->DrawSprite(_barTexture, 0, 0xffffffff, (float) i + sx, half + sy,
+			1, -_data[i] / _scale * half, 0);
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
