@@ -19,6 +19,10 @@
 
 PeerServer::PeerServer(SOCKET s_)
   : Peer(s_)
+  , ctrlValid(false)
+  , ready(false)
+  , descValid(false)
+  , id(-1)
 {
 }
 
@@ -163,7 +167,7 @@ void TankServer::OnListenerEvent()
 	cl.RegisterHandler(SV_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankServer::SvAddBot, this));
 	cl.RegisterHandler(SV_POST_PLAYERINFO, VariantTypeId<PlayerDesc>(), CreateDelegate(&TankServer::SvPlayerInfo, this));
 
-	cl.connected = false;
+	cl.descValid = false;
 	cl.ready = false;
 	cl.id = ++_nextFreeId;
 	cl.eventDisconnect.bind(&TankServer::OnDisconnect, this);
@@ -174,164 +178,6 @@ void TankServer::OnListenerEvent()
 	// send new client ID
 	cl.Post(CL_POST_SETID, Variant(cl.id));
 }
-/*
-void TankServer::OnRecv(Peer *who_, const DataBlock &db)
-{
-	assert(dynamic_cast<PeerServer*>(who_));
-	PeerServer *who = static_cast<PeerServer*>(who_);
-
-	switch( db.type() )
-	{
-		case DBTYPE_CONTROLPACKET:
-		{
-			who->ctrl.push(db.cast<ControlPacket>());
-			if( 1 == who->ctrl.size() )
-			{
-				++_frameReadyCount;
-				if( _frameReadyCount == _connectedCount )
-				{
-					who->ctrl.front().wControlState |= MISC_YOUARETHELAST;
-					SendFrame();
-				}
-			}
-			break;
-		}
-
-		case DBTYPE_TEXTMESSAGE:
-		{
-			string_t msg = "<";
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				if( (*it)->id == who->id )
-				{
-					msg += (*it)->desc.nick;
-					break;
-				}
-			}
-			assert(msg.length() > 1);
-			msg += "> ";
-			msg += (char *) db.Data();
-
-			DataBlock db_new = DataWrap(msg, DBTYPE_TEXTMESSAGE);
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-				(*it)->Send(db_new);
-
-			break;
-		}
-
-		case DBTYPE_PLAYERREADY:
-		{
-			bool bAllPlayersReady = true;
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				if( (*it)->id == who->id )
-				{
-					(*it)->ready = db.cast<dbPlayerReady>().ready;
-				}
-				if( !(*it)->ready )
-				{
-					bAllPlayersReady = false;
-				}
-				(*it)->Send(db);
-			}
-
-			if( bAllPlayersReady )
-			{
-				// запрещение приема новых подключений
-				_socketListen.Close();
-				if( _announcer )
-				{
-					_announcer->Cancel();
-				}
-
-				DataBlock tmp = DataWrap(g_lang->net_msg_starting_game->Get(), DBTYPE_TEXTMESSAGE);
-				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-				{
-					(*it)->Send(tmp);
-				}
-
-				tmp = DataBlock();
-				tmp.type() = DBTYPE_STARTGAME;
-				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-				{
-					(*it)->Send(tmp);
-				}
-			}
-			break;
-		}
-
-		//case DBTYPE_PLAYERQUIT:
-		//{
-		//	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-		//	{
-		//		if( who->id != (*it)->id )
-		//		{
-		//			(*it)->Send(db);
-		//		}
-		//	}
-		//	SendFrame();
-		//	break;
-		//}
-
-		case DBTYPE_PING:
-		{
-			who->Send(db); // send packet back
-			break;
-		}
-
-		case DBTYPE_NEWBOT:
-		{
-		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-		{
-		(*it)->Send(db);
-		}
-		break;
-		}
-
-		case DBTYPE_PLAYERINFO:
-		{
-			who->desc = db.cast<PlayerDesc>();
-
-
-			//
-			// tell newly connected player about other players
-			//
-
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				if( (*it)->connected )
-				{
-					PlayerDescEx pde;
-					memcpy(&pde, &(*it)->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
-					pde.id = (*it)->id;
-					who->Send(DataWrap(pde, DBTYPE_NEWPLAYER));
-				}
-			}
-			who->connected = TRUE;
-			++_connectedCount;
-
-
-			//
-			// tell other players about newly connected player
-			//
-
-			PlayerDescEx pde;
-			memcpy(&pde, &who->desc, sizeof(PlayerDesc)); // copy PlayerDesc part of PlayerDescEx
-			pde.id = who->id;
-			for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-			{
-				(*it)->Send(DataWrap(pde, DBTYPE_NEWPLAYER));
-			}
-
-			break;
-		}
-
-		default:
-			assert(FALSE);
-			// TODO: disconnect client
-	}
-}
-*/
 
 void TankServer::BroadcastTextMessage(const std::string &msg)
 {
@@ -349,7 +195,7 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 	assert(dynamic_cast<PeerServer*>(who_));
 	PeerServer *who = static_cast<PeerServer*>(who_);
 
-	if( who->connected )
+	if( who->descValid )
 	{
 		for( std::vector<PostType>::iterator it = _players.begin(); it != _players.end(); ++it )
 		{
@@ -360,9 +206,9 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 			}
 		}
 
-		who->connected = false;
+		who->descValid = false;
 		--_connectedCount;
-		if( !who->ctrl.empty() )
+		if( who->ctrlValid )
 		{
 			--_frameReadyCount;
 		}
@@ -410,8 +256,8 @@ void TankServer::SendFrame()
 	int i = 0;
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( !(*it)->connected ) continue;
-		const ControlPacket &cp = (*it)->ctrl.front();
+		if( !(*it)->descValid ) continue;
+		const ControlPacket &cp = (*it)->ctrl;
 		ctrl[_connectedCount - (++i)] = cp;
 
 #ifdef NETWORK_DEBUG
@@ -434,7 +280,7 @@ void TankServer::SendFrame()
 
 	for( PeerList::iterator it1 = _clients.begin(); it1 != _clients.end(); it1++ )
 	{
-		if( (*it1)->connected )
+		if( (*it1)->descValid )
 		{
 			(*it1)->Post(CL_POST_CONTROL, arg);
 		}
@@ -445,16 +291,14 @@ void TankServer::SendFrame()
 	// remove control packet from clients' queue
 	//
 
+	_frameReadyCount = 0;
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( (*it)->connected )
+		if( (*it)->descValid )
 		{
-			(*it)->ctrl.pop();
-			if( (*it)->ctrl.empty() )
-			{
-				assert(_frameReadyCount > 0);
-				--_frameReadyCount;
-			}
+			assert((*it)->ctrlValid);
+			(*it)->ctrlValid = false;
+			(*it)->Resume();
 		}
 	}
 }
@@ -464,9 +308,9 @@ std::string TankServer::GetStats() const
 	std::stringstream s;
 	for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( (*it)->connected )
+		if( (*it)->descValid )
 		{
-			s << (*it)->desc.nick << ":" << (*it)->ctrl.size() << "  ";
+			s << (*it)->desc.nick << ":" << (*it)->GetPending() << "  ";
 		}
 	}
 	return s.str();
@@ -483,15 +327,15 @@ void TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
 void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
-	who->ctrl.push(arg.Value<ControlPacket>());
-	if( 1 == who->ctrl.size() )
+	who->Pause();
+	who->ctrl = arg.Value<ControlPacket>();
+	who->ctrlValid = true;
+
+	++_frameReadyCount;
+	if( _frameReadyCount == _connectedCount )
 	{
-		++_frameReadyCount;
-		if( _frameReadyCount == _connectedCount )
-		{
-			who->ctrl.front().wControlState |= MISC_YOUARETHELAST;
-			SendFrame();
-		}
+		who->ctrl.wControlState |= MISC_YOUARETHELAST;
+		SendFrame();
 	}
 }
 
@@ -547,7 +391,7 @@ void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 
 	who->desc = arg.Value<PlayerDesc>();
 
-	if( !who->connected )
+	if( !who->descValid )
 	{
 		//
 		// tell newly connected player about other players
@@ -558,7 +402,7 @@ void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 			who->Post(_players[i].first, _players[i].second);
 		}
 
-		who->connected = true;
+		who->descValid = true;
 		++_connectedCount;
 
 

@@ -10,11 +10,12 @@
 class PeerServer : public Peer
 {
 public:
-	std::queue<ControlPacket> ctrl;       // поступившие из сети данные управления
-	unsigned short      id;               // уникальный идентификатор клиента
-	PlayerDesc          desc;             // описание игрока
-	bool                connected;        // флаг определяет, что поле desc корректно
-	bool                ready;            // игрок готов начать игру
+	unsigned short      id;
+	ControlPacket       ctrl;
+	PlayerDesc          desc;
+	bool                descValid;
+	bool                ctrlValid;
+	bool                ready;
 
 	PeerServer(SOCKET s_);
 };
