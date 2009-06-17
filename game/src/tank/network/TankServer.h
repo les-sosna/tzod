@@ -11,8 +11,8 @@ class PeerServer : public Peer
 {
 public:
 	std::queue<ControlPacket> ctrl;       // поступившие из сети данные управления
-	PlayerDesc          desc;             // описание игрока
 	unsigned short      id;               // уникальный идентификатор клиента
+	PlayerDesc          desc;             // описание игрока
 	bool                connected;        // флаг определяет, что поле desc корректно
 	bool                ready;            // игрок готов начать игру
 
@@ -65,6 +65,8 @@ class TankServer
 public:
 	TankServer(const SafePtr<LobbyClient> &announcer);
 	~TankServer(void);
+
+	std::string GetStats() const;
 
 	bool init(const GameInfo *info);
 };

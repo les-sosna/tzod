@@ -14,6 +14,7 @@ Peer::Peer(SOCKET s)
   : _in(false)
   , _out(true)
   , _socket(s)
+  , _paused(false)
 {
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
@@ -133,19 +134,7 @@ void Peer::OnSocketEvent()
 		}
 		else
 		{
-			while( _in.EntityProbe() )
-			{
-				int func;
-				Variant arg;
-				_in.EntityBegin();
-					_in & func;
-					HandlersMap::const_iterator it = _handlers.find(func);
-					assert(_handlers.end() != it);
-					arg.ChangeType(it->second.argType);
-					_in & arg;
-				_in.EntityEnd();
-				INVOKE(it->second.handler) (this, -1, arg);
-			}
+			ProcessInput();
 		}
 	}
 
@@ -169,5 +158,41 @@ void Peer::OnSocketEvent()
 	}
 }
 
+void Peer::ProcessInput()
+{
+	while( _in.EntityProbe() )
+	{
+		if( _paused )
+		{
+			break;
+		}
+
+		int func;
+		Variant arg;
+		_in.EntityBegin();
+		_in & func;
+		HandlersMap::const_iterator it = _handlers.find(func);
+		assert(_handlers.end() != it);
+		arg.ChangeType(it->second.argType);
+		_in & arg;
+		_in.EntityEnd();
+		INVOKE(it->second.handler) (this, -1, arg);
+	}
+}
+
+void Peer::Pause()
+{
+	assert(!_paused);
+	_paused = true;
+}
+
+void Peer::Resume()
+{
+	if( _paused )
+	{
+		_paused = false;
+		ProcessInput();
+	}
+}
 
 // end of file

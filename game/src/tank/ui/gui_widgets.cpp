@@ -9,6 +9,7 @@
 #include "Level.h"
 
 #include "network/TankClient.h"
+#include "network/TankServer.h"
 
 namespace UI
 {
@@ -49,7 +50,7 @@ void FpsCounter::OnTimeStep(float dt)
 		}
 		avr /= (float) _dts.size();
 
-		char s [512];
+		char s [1024];
 		char s1[256];
 
 		wsprintf(s, "fps:%04d-%04d-%04d; wnd:%03d",
@@ -66,12 +67,20 @@ void FpsCounter::OnTimeStep(float dt)
 		);
 		strcat(s, s1);
 
+
+		if( g_server )
+		{
+			strcat(s, "\nsv - ");
+			strcat(s, g_server->GetStats().c_str());
+		}
+
 		// network statistics
 		if( g_client )
 		{
 			NetworkStats ns;
 			g_client->GetStatistics(&ns);
-			sprintf_s(s1, "\nsent:%uk; recv:%uk", ns.bytesSent>>10, ns.bytesRecv>>10);
+			sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f", 
+				ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, g_level->_timeBuffer);
 			strcat(s, s1);
 
 

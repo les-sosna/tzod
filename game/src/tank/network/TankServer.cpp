@@ -459,6 +459,19 @@ void TankServer::SendFrame()
 	}
 }
 
+std::string TankServer::GetStats() const
+{
+	std::stringstream s;
+	for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		if( (*it)->connected )
+		{
+			s << (*it)->desc.nick << ":" << (*it)->ctrl.size() << "  ";
+		}
+	}
+	return s.str();
+}
+
 void TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);

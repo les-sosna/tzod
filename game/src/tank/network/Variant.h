@@ -21,6 +21,7 @@ public:
 	int Recv(SOCKET s);
 
 	size_t GetTraffic() const;
+	size_t GetPending() const { return _buffer.size(); }
 
 private:
 	typedef unsigned short EntitySizeType;

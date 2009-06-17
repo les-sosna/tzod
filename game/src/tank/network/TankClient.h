@@ -12,6 +12,7 @@ struct NetworkStats
 {
 	size_t  bytesSent;
 	size_t  bytesRecv;
+	size_t  bytesPending;
 };
 
 struct ControlPacket;
@@ -53,6 +54,8 @@ public:
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
 
 	void GetStatistics(NetworkStats *pStats);
+
+	void Resume();
 
 
 	Delegate<void()> eventPlayersUpdate;

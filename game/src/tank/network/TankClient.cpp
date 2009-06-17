@@ -186,6 +186,7 @@ void TankClient::SendPlayerInfo(const PlayerDesc &pd)
 
 void TankClient::GetStatistics(NetworkStats *pStats)
 {
+	pStats->bytesPending = _peer->GetPending();
 	pStats->bytesSent = _peer->GetTrafficOut();
 	pStats->bytesRecv = _peer->GetTrafficIn();
 
@@ -410,6 +411,12 @@ void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 	assert(_gameStarted);
 	assert(g_level);
 	g_level->Step(arg.Value<ControlPacketVector>());
+	_peer->Pause();
+}
+
+void TankClient::Resume()
+{
+	_peer->Resume();
 }
 
 

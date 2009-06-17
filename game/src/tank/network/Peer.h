@@ -28,6 +28,7 @@ public:
 	int Connect(const sockaddr_in *addr);
 	Delegate<void(Peer *, int errorCode)> eventDisconnect;
 
+	size_t GetPending() const { return _in.GetPending(); }
 	size_t GetTrafficIn() const { return _in.GetTraffic(); }
 	size_t GetTrafficOut() const { return _out.GetTraffic(); }
 
@@ -39,9 +40,12 @@ public:
 	typedef Delegate<void(Peer *from, int taskId, const Variant &arg)> HandlerProc;
 	void RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler);
 
+	void Pause();
+	void Resume();
 
 private:
 	void OnSocketEvent();
+	void ProcessInput();
 
 	Socket _socket;
 
@@ -56,6 +60,8 @@ private:
 
 	typedef std::map<int, RemoteFunction> HandlersMap;
 	HandlersMap _handlers;
+
+	bool _paused;
 };
 
 // end of file

@@ -1108,38 +1108,35 @@ ControlPacket Level::GetControlPacket(GC_Object *player)
 
 void Level::Step(const ControlPacketVector &ctrl)
 {
-	_ctrlPtr = ctrl.begin();
-
 	const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
 
-	_time         += fixed_dt;
-	_timeBuffer   -= fixed_dt;
+	_time        += fixed_dt;
+	_timeBuffer  -= fixed_dt;
 	_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
 
-	_safeMode = false;
 
 	if( !_frozen )
 	{
+		_ctrlPtr = ctrl.begin();
+		_safeMode = false;
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{
 			assert(!(*it)->IsKilled());
 			(*it)->TimeStepFixed(fixed_dt);
 		}
 		GC_RigidBodyDynamic::ProcessResponse(fixed_dt);
+		_safeMode = true;
+		assert(_ctrlPtr == ctrl.end());
 	}
-
-	_safeMode = true;
 
 	RunCmdQueue(fixed_dt);
 
 
-	assert(_ctrlPtr == ctrl.end());
-
-#ifdef NETWORK_DEBUG
 	//
 	// detect sync lost error
 	//
 
+#ifdef NETWORK_DEBUG
 	if( !_dump )
 	{
 		char fn[MAX_PATH];
@@ -1193,73 +1190,12 @@ void Level::TimeStep(float dt)
 		// network mode
 		//
 
-		const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
+		_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), 1.0f);
 
-		_timeBuffer += dt;
-#if 0
-		while( _timeBuffer >= 0 )
+		if( _timeBuffer > 0 )
 		{
-			//
-			// обработка команд кадра
-			//
-/*			while( !_cmdQueue.empty() )
-			{
-				const DataBlock &db = _cmdQueue.front();
-				DataBlock::type_type type = db.type();
-				switch( type )
-				{
-					case DBTYPE_ERRORMSG:
-					case DBTYPE_TEXTMESSAGE:
-						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts((const char*) db.Data());
-						break;
-					case DBTYPE_SERVERQUIT:
-						static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_server_quit->Get());
-						break;
-					case DBTYPE_PLAYERQUIT:
-					{
-						const DWORD &id = db.cast<DWORD>();
-						ObjectList::iterator it = GetList(LIST_players).begin();
-						while( it != GetList(LIST_players).end() )
-						{
-							if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
-							{
-								if( p->GetNetworkID() == id )
-								{
-									static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->puts(g_lang->msg_player_quit->Get());
-									p->Kill();
-									break;
-								}
-							}
-							++it;
-						}
-						break;
-					}
-					case DBTYPE_CONTROLPACKET:
-					{
-						const size_t count = db.DataSize() / sizeof(ControlPacket);
-						assert(count);
-						for( size_t i = 0; i < count; i++ )
-						{
-							_ctrlQueue.push(db.cast<ControlPacket>(i));
-						}
-						break;
-					}
-				} // end of switch( db.type )
-
-				_cmdQueue.pop();
-
-				if( DBTYPE_CONTROLPACKET == type )
-					break; // split frames
-			}// while( !_cmdQueue.empty() )
-*/
-			if( _ctrlQueue.empty() )
-			{
-				_timeBuffer -= fixed_dt;
-				_dropedFrames += 1;
-				break; // нет кадра. пропускаем
-			}
-		} // end of while( _timeBuffer > 0 )
-#endif
+			g_client->Resume();
+		}
 	}
 	else // if( g_client )
 	{
