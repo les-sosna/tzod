@@ -154,11 +154,12 @@ void TimeElapsed::OnTimeStep(float dt)
 Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   : Window(parent, x, y, "ui/list")
   , _barTexture(g_texman->FindSprite("ui/bar"))
-  , _scale(0.01f)
+  , _titleFont(g_texman->FindSprite("font_small"))
+  , _rangeMin(-0.1f)
+  , _rangeMax(0.1f)
 {
 	SetBorder(true);
 	SetClipChildren(true);
-	Resize(200, 50);
 }
 
 void Oscilloscope::Push(float value)
@@ -171,14 +172,39 @@ void Oscilloscope::Push(float value)
 	}
 }
 
+void Oscilloscope::SetRange(float rmin, float rmax)
+{
+	_rangeMin = rmin;
+	_rangeMax = rmax;
+}
+
+void Oscilloscope::SetTitle(const string_t &title)
+{
+	_title = title;
+}
+
+void Oscilloscope::SetGrid(const float *data, size_t count)
+{
+	_vgrid.assign(data, data + count);
+}
+
 void Oscilloscope::DrawChildren(float sx, float sy) const
 {
-	float half = GetHeight() / 2;
+	float scale = GetHeight() / (_rangeMin - _rangeMax);
+	float center = sy - _rangeMax * scale;
+	float dx = sx + GetWidth() - (float) _data.size();
+
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0xffffffff, (float) i + sx, half + sy,
-			1, -_data[i] / _scale * half, 0);
+		g_texman->DrawSprite(_barTexture, 0, 0x55555555, (float) i + dx, center, 1, _data[i] * scale, 0);
 	}
+
+	for( std::vector<float>::const_iterator it = _vgrid.begin(); it != _vgrid.end(); ++it )
+	{
+		g_texman->DrawSprite(_barTexture, 0, 0xaaaaaaaa, sx, sy - (_rangeMax - *it) * scale, GetWidth(), -1, 0);
+	}
+
+	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

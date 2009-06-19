@@ -42,14 +42,21 @@ class Oscilloscope : public Window
 public:
 	Oscilloscope(Window *parent, float x, float y);
 	void Push(float value);
+	void SetRange(float rmin, float rmax);
+	void SetTitle(const string_t &title);
+	void SetGrid(const float *data, size_t count);
 
 protected:
 	void DrawChildren(float sx, float sy) const;
 
 private:
 	size_t _barTexture;
+	size_t _titleFont;
+	string_t _title;
+	std::vector<float> _vgrid;
 	std::deque<float> _data;
-	float _scale;
+	float _rangeMin;
+	float _rangeMax;
 };
 
 

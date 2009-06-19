@@ -120,7 +120,14 @@ Desktop::Desktop(GuiManager* manager)
 	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
-	_oscill = new Oscilloscope(this, 100, 100);
+	_oscill = new Oscilloscope(this, 100, 10);
+	_oscill->Resize(80, 40);
+	_oscill->SetRange(0, 1/60.0f+1/120.0f);
+	_oscill->SetTitle("dt");
+
+	float grid[] = {0, 1/60.0f};
+	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
+
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
 }
