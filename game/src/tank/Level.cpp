@@ -1177,7 +1177,7 @@ void Level::TimeStep(float dt)
 	{
 		pSound->KillWhenFinished();
 	}
-	
+
 
 	if( g_env.pause + _pause > 0 && !g_client && _gameType != GT_INTRO || _limitHit )
 		return;
@@ -1242,6 +1242,7 @@ void Level::TimeStep(float dt)
 				_safeMode = true;
 			}
 			RunCmdQueue(fixed_dt);
+			++_steps;
 		}
 		while( --count );
 	} // if( g_client )

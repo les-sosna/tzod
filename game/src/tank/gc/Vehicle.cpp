@@ -124,7 +124,7 @@ void GC_VehicleVisualDummy::Draw() const
 {
 	GC_VehicleBase::Draw();
 
-	if( g_conf->g_shownames->Get() )
+	if( g_conf->g_shownames->Get() && _parent->GetPlayer() )
 	{
 		const vec2d &pos = GetPosPredicted();
 		static TextureCache f("font_small");

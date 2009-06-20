@@ -6,4 +6,5 @@ bots' tracks
 
 bots and ram
 
+unable to select tank in editor
 
