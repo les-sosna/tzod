@@ -120,13 +120,26 @@ Desktop::Desktop(GuiManager* manager)
 	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
-	_oscill = new Oscilloscope(this, 100, 10);
-	_oscill->Resize(80, 40);
-	_oscill->SetRange(0, 1/60.0f+1/120.0f);
-	_oscill->SetTitle("dt");
-
-	float grid[] = {0, 1/60.0f};
+	_oscill = new Oscilloscope(this, 100, 5);
+	_oscill->Resize(400, 45);
+	_oscill->SetRange(-1/30.0f, 1/10.0f);
+	_oscill->SetTitle("timebuf");
+	float grid[] = {0};
 	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
+
+	_oscill2 = new Oscilloscope(this, 100, 55);
+	_oscill2->Resize(400, 45);
+	_oscill2->SetRange(0, 1/30.0f);
+	_oscill2->SetTitle("jitter");
+	float grid2[] = {1/60.0f};
+	_oscill2->SetGrid(grid2, sizeof(grid2) / sizeof(grid2[0]));
+
+	_oscill3 = new Oscilloscope(this, 100, 105);
+	_oscill3->Resize(400, 45);
+	_oscill3->SetRange(0, 3);
+	_oscill3->SetTitle("steps");
+	float grid3[] = {1, 2};
+	_oscill3->SetGrid(grid3, sizeof(grid3) / sizeof(grid3[0]));
 
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog

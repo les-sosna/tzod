@@ -414,9 +414,9 @@ void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 	_peer->Pause();
 }
 
-void TankClient::Resume()
+bool TankClient::Resume()
 {
-	_peer->Resume();
+	return _peer->Resume();
 }
 
 

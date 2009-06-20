@@ -158,8 +158,9 @@ void Peer::OnSocketEvent()
 	}
 }
 
-void Peer::ProcessInput()
+bool Peer::ProcessInput()
 {
+	bool result = false;
 	while( _in.EntityProbe() )
 	{
 		if( _paused )
@@ -177,7 +178,9 @@ void Peer::ProcessInput()
 		_in & arg;
 		_in.EntityEnd();
 		INVOKE(it->second.handler) (this, -1, arg);
+		result = true;
 	}
+	return result;
 }
 
 void Peer::Pause()
@@ -186,13 +189,14 @@ void Peer::Pause()
 	_paused = true;
 }
 
-void Peer::Resume()
+bool Peer::Resume()
 {
 	if( _paused )
 	{
 		_paused = false;
-		ProcessInput();
+		return ProcessInput();
 	}
+	return false;
 }
 
 // end of file

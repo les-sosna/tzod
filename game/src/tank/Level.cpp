@@ -239,6 +239,7 @@ void Field::Dump()
 // в конструкторе нельзя создавать игровые объекты
 Level::Level()
   : _modeEditor(false)
+  , _steps(0)
   , _pause(0)
   , _time(0)
   , _timeBuffer(0)
@@ -1111,6 +1112,8 @@ void Level::Step(const ControlPacketVector &ctrl)
 {
 	const float fixed_dt = 1.0f / g_conf->sv_fps->GetFloat();
 
+	++_steps;
+
 	_time        += fixed_dt;
 	_timeBuffer  -= fixed_dt;
 	_dropedFrames = __max(0, _dropedFrames - fixed_dt); // it's allowed one dropped frame per second
@@ -1165,8 +1168,6 @@ void Level::Step(const ControlPacketVector &ctrl)
 
 void Level::TimeStep(float dt)
 {
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(dt);
-
 	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		pCamera->HandleFreeMovement();
@@ -1186,6 +1187,22 @@ void Level::TimeStep(float dt)
 	assert(dt >= 0);
 	assert(!_modeEditor);
 
+	if( g_conf->cl_dtwindow->GetInt() > 1 )
+	{
+		_dt.push_back(dt);
+		while( (signed) _dt.size() > g_conf->cl_dtwindow->GetInt() )
+		{
+			_dt.pop_front();
+		}
+
+		dt = 0;
+		for( std::deque<float>::const_iterator it = _dt.begin(); it != _dt.end(); ++it )
+		{
+			dt += (*it);
+		}
+		dt /= (float) _dt.size();
+	}
+
 
 	if( g_client )
 	{
@@ -1193,11 +1210,14 @@ void Level::TimeStep(float dt)
 		// network mode
 		//
 
-		_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), 1.0f);
+		_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), 2 / g_conf->sv_fps->GetFloat());
 
-		if( _timeBuffer > 0 )
+		while( _timeBuffer > 0 )
 		{
-			g_client->Resume();
+			if( !g_client->Resume() )
+			{
+				break;
+			}
 		}
 	}
 	else // if( g_client )
@@ -1257,6 +1277,12 @@ void Level::TimeStep(float dt)
 	{
 		HitLimit();
 	}
+
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) _steps);
+
+	_steps = 0;
 }
 
 void Level::RunCmdQueue(float dt)

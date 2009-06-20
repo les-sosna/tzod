@@ -220,6 +220,9 @@ public:
 
 /////////////////////////////////////
 public:
+	std::deque<float> _dt;
+
+	int _steps;
 	int _pause;
 	float _time;
 	float _timeBuffer;

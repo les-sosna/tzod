@@ -55,7 +55,7 @@ public:
 
 	void GetStatistics(NetworkStats *pStats);
 
-	void Resume();
+	bool Resume();
 
 
 	Delegate<void()> eventPlayersUpdate;

@@ -55,6 +55,8 @@ class Desktop : public Window
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
 	Oscilloscope *_oscill;
+	Oscilloscope *_oscill2;
+	Oscilloscope *_oscill3;
 
 public:
 	Desktop(GuiManager* manager);
@@ -68,6 +70,8 @@ public:
 
 	MessageArea* GetMsgArea() const;
 	Oscilloscope* GetOscilloscope() const { return _oscill; }
+	Oscilloscope* GetOscilloscope2() const { return _oscill2; }
+	Oscilloscope* GetOscilloscope3() const { return _oscill3; }
 
 protected:
 	virtual void OnRawChar(int c);

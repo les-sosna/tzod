@@ -196,7 +196,7 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x55555555, (float) i + dx, center, 1, _data[i] * scale, 0);
+		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i + dx, center, 1, _data[i] * scale, 0);
 	}
 
 	for( std::vector<float>::const_iterator it = _vgrid.begin(); it != _vgrid.end(); ++it )

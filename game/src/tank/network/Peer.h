@@ -41,11 +41,11 @@ public:
 	void RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler);
 
 	void Pause();
-	void Resume();
+	bool Resume();
 
 private:
 	void OnSocketEvent();
-	void ProcessInput();
+	bool ProcessInput();
 
 	Socket _socket;
 
