@@ -163,6 +163,9 @@ void TextureManager::CreateChecker()
 	tex.uvFrameHeight = 8.0f;
 	tex.pxFrameWidth  = (float) td.width * tex.uvFrameWidth;
 	tex.pxFrameHeight = (float) td.height * tex.uvFrameHeight;
+
+	FRECT whole = {0,0,1,1};
+	tex.uvFrames.push_back(whole);
 	//---------------------
 	_logicalTextures.push_back(tex);
 	it->refCount++;
