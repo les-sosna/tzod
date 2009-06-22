@@ -422,6 +422,11 @@ void ZodApp::Idle()
 	{
 		g_music->HandleBufferFilling();
 	}
+
+	if( g_conf->dbg_sleep->GetInt() > 0 )
+	{
+		Sleep(std::min(g_conf->dbg_sleep->GetInt(), 5000));
+	}
 }
 
 void ZodApp::Post()

@@ -86,11 +86,15 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_BOOL(  ui_showmsg,          true )
 	CONFIG_VAR_TABLE( ui_netbotinfo,       NULL )
 
+	// debug
+	CONFIG_VAR_INT(   dbg_sleep,              0 )
+
 	// other
 	CONFIG_VAR_TABLE( dm_profiles,       InitProfiles )
 	CONFIG_VAR_ARRAY( dm_players,                NULL )
 	CONFIG_VAR_ARRAY( dm_bots,                   NULL )
 	CONFIG_VAR_ARRAY( lobby_servers,    InitLobbyList )
+
 
 CONFIG_END(ConfCache, g_conf)
 
