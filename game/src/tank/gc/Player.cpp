@@ -410,6 +410,28 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GC_PlayerHuman::GC_PlayerHuman()
+{
+	ZeroMemory(&_ctrlState, sizeof(_ctrlState));
+}
+
+GC_PlayerHuman::GC_PlayerHuman(FromFile)
+  : GC_Player(FromFile())
+{
+	ZeroMemory(&_ctrlState, sizeof(_ctrlState));
+}
+
+GC_PlayerHuman::~GC_PlayerHuman()
+{
+}
+
+void GC_PlayerHuman::SetControllerState(const VehicleState &vs)
+{
+	_ctrlState = vs;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 {
 	ED_SERVICE("player_local", "obj_service_player_local");
@@ -418,7 +440,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 
 GC_PlayerLocal::GC_PlayerLocal()
   : _lastLightKeyState(false)
-  , _lights(true)
+  , _lastLightsState(true)
   , _aimToMouse(false)
 {
 	new GC_Camera(WrapRawPtr(this));
@@ -426,7 +448,7 @@ GC_PlayerLocal::GC_PlayerLocal()
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)
-  : GC_Player(FromFile())
+  : GC_PlayerHuman(FromFile())
 {
 }
 
@@ -466,7 +488,7 @@ void GC_PlayerLocal::SelectFreeProfile()
 
 void GC_PlayerLocal::Serialize(SaveFile &f)
 {
-	GC_Player::Serialize(f);
+	GC_PlayerHuman::Serialize(f);
 	f.Serialize(_profile);
 	if( f.loading() )
 	{
@@ -477,7 +499,7 @@ void GC_PlayerLocal::Serialize(SaveFile &f)
 
 void GC_PlayerLocal::MapExchange(MapFile &f)
 {
-	GC_Player::MapExchange(f);
+	GC_PlayerHuman::MapExchange(f);
 	MAP_EXCHANGE_STRING(profile, _profile, "");
 	if( f.loading() )
 	{
@@ -494,88 +516,30 @@ unsigned short GC_PlayerLocal::GetNetworkID() const
 
 void GC_PlayerLocal::TimeStepFixed(float dt)
 {
-	GC_Player::TimeStepFixed( dt );
+	GC_PlayerHuman::TimeStepFixed( dt );
 
-	ControlPacket cp;
+	assert(!_stateHistory.empty());
+	_stateHistory.pop_front();
 
-#ifdef NETWORK_DEBUG
-	cp.checksum = g_level->_checksum;
-	cp.frame = g_level->_frame;
-#endif
-
-	if( IsVehicleDead() )
+	if( !IsVehicleDead() )
 	{
-		if( g_client )
-		{
-			g_client->SendControl(cp);
-			g_level->GetControlPacket(this);
-		}
+		GetVehicle()->SetState(_ctrlState);
+		GetVehicle()->TimeStepFixed(dt); // vehicle may die here
 	}
-	else
+
+	if( !IsVehicleDead() )
 	{
-		VehicleState vs;
-		GetControl(vs);
-
-		if( g_client )
+		GC_RigidBodyDynamic::PushState();
+		GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, false);
+		GetVehicle()->GetVisual()->Sync(GetVehicle());
+		for( std::deque<VehicleState>::const_iterator it = _stateHistory.begin(); it != _stateHistory.end(); ++it )
 		{
-			VehicleState vs1;
-			cp.fromvs(vs);
-			cp.tovs(vs1);
-
-			_stateHistory.push_back(vs1);
-			while( (signed) _stateHistory.size() > g_conf->sv_latency->GetInt()+1 )
-			{
-				_stateHistory.pop_front();
-			}
-
-			GetVehicle()->GetVisual()->Sync(GetVehicle());
-			GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, false);
-			GC_RigidBodyDynamic::PushState();
-			for( std::deque<VehicleState>::const_iterator it = _stateHistory.begin(); it != _stateHistory.end(); ++it )
-			{
-				std::deque<VehicleState>::const_iterator it1(it);
-				if( ++it1 == _stateHistory.end() )
-					GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, true);
-				GetVehicle()->SetPredictedState(*it);
-				GetVehicle()->GetVisual()->TimeStepFixed(dt);
-				GC_RigidBodyDynamic::ProcessResponse(dt);
-			}
-			GC_RigidBodyDynamic::PopState();
-
-
-			cp.fromvs(vs);
-			g_client->SendControl(cp);
-			cp = g_level->GetControlPacket(this);
-			cp.tovs(vs);
-			GetVehicle()->SetState(vs);
-
-
-			//
-			// auto adjust latency
-			//
-
-			if( !g_server && g_conf->sv_autoLatency->Get() && g_conf->sv_latency->GetInt() < g_conf->sv_fps->GetInt() )
-			{
-				if( (cp.wControlState & MISC_YOUARETHELAST) && g_level->_dropedFrames > g_conf->sv_fps->GetInt() )
-				{
-					g_level->_dropedFrames = 0;
-					g_conf->sv_latency->SetInt(g_conf->sv_latency->GetInt() + 1);
-					TRACE("conf.sv_latency is set to %d\n", g_conf->sv_latency->GetInt());
-
-					if( g_conf->sv_latency->GetInt() >= g_conf->sv_fps->GetInt() )
-					{
-						TRACE("WARNING: latency is too high to play\n", g_conf->sv_latency->GetInt());
-					}
-				}
-			}
-		}
-		else
-		{
-			GetVehicle()->SetState(vs);
-			GetVehicle()->SetPredictedState(vs);
+			GetVehicle()->SetPredictedState(*it);
 			GetVehicle()->GetVisual()->TimeStepFixed(dt);
-			GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: what?
+			GC_RigidBodyDynamic::ProcessResponse(dt);
 		}
+		GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, true);
+		GC_RigidBodyDynamic::PopState();
 	}
 }
 
@@ -604,7 +568,7 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 		_keyTowerCenter = g_keys->GetCode(t->GetStr( "key_tower_center" )->Get());
 		_keyPickup      = g_keys->GetCode(t->GetStr( "key_pickup"       )->Get());
 
-		_lights         = t->GetBool("lights",         true)->Get();
+		_lastLightsState         = t->GetBool("lights",         true)->Get();
 		_aimToMouse     = t->GetBool("aim_to_mouse",  false)->Get();
 		_moveToMouse    = t->GetBool("move_to_mouse", false)->Get();
 	}
@@ -623,13 +587,13 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 		_keyTowerCenter = 0;
 		_keyPickup      = 0;
 
-		_lights         = true;
+		_lastLightsState         = true;
 		_aimToMouse     = false;
 		_moveToMouse    = false;
 	}
 }
 
-void GC_PlayerLocal::GetControl(VehicleState &vs)
+void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float dt)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
 
@@ -640,10 +604,10 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 	if( tmp && !_lastLightKeyState && g_conf->sv_nightmode->Get() )
 	{
 		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
-		_lights = !_lights;
+		_lastLightsState = !_lastLightsState;
 	}
 	_lastLightKeyState = tmp;
-	vs._bLight = _lights;
+	vs._bLight = _lastLightsState;
 
 
 	//
@@ -736,8 +700,27 @@ void GC_PlayerLocal::GetControl(VehicleState &vs)
 			vs._bState_TowerRight = false;
 		}
 	}
-}
 
+
+	//
+	// step predicted
+	//
+
+	VehicleState vs1;
+	ControlPacket cp;
+	cp.fromvs(vs);
+	cp.tovs(vs1);
+	_stateHistory.push_back(vs1);
+
+	if( !IsVehicleDead() )
+	{
+		GC_RigidBodyDynamic::PushState();
+		GetVehicle()->SetPredictedState(vs1);
+		GetVehicle()->GetVisual()->TimeStepFixed(dt);
+		GC_RigidBodyDynamic::ProcessResponse(dt);
+		GC_RigidBodyDynamic::PopState();
+	}
+}
 
 PropertySet* GC_PlayerLocal::NewPropertySet()
 {
@@ -798,7 +781,7 @@ GC_PlayerRemote::GC_PlayerRemote(unsigned short id)
 }
 
 GC_PlayerRemote::GC_PlayerRemote(FromFile)
-  : GC_Player(FromFile())
+  : GC_PlayerHuman(FromFile())
   , _networkId(-1)
 {
 }
@@ -809,24 +792,17 @@ GC_PlayerRemote::~GC_PlayerRemote()
 
 void GC_PlayerRemote::Serialize(SaveFile &f)
 {
-	GC_Player::Serialize(f);
+	GC_PlayerHuman::Serialize(f);
 	f.Serialize(_networkId);
 }
 
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
-	GC_Player::TimeStepFixed( dt );
+	GC_PlayerHuman::TimeStepFixed( dt );
 	assert(g_client);
-	if( IsVehicleDead() )
+	if( !IsVehicleDead() )
 	{
-		g_level->GetControlPacket(this);
-	}
-	else
-	{
-		ControlPacket cp = g_level->GetControlPacket(this);
-		VehicleState vs;
-		cp.tovs(vs);
-		GetVehicle()->SetState(vs);
+		GetVehicle()->SetState(_ctrlState);
 		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
 	//	GetVehicle()->SetPredictedState(vs);
 	//	GetVehicle()->GetVisual()->TimeStepFixed(dt);

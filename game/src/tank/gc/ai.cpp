@@ -256,7 +256,11 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 	// send state to the vehicle
 	GetVehicle()->SetState(vs);
-	GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME
+	GetVehicle()->TimeStepFixed(dt);
+	if( GetVehicle() )
+	{
+		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: cat tracks
+	}
 }
 
 bool GC_PlayerAI::CheckCell(const FieldCell &cell)

@@ -413,6 +413,9 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 	_visual = WrapRawPtr(new GC_VehicleVisualDummy(this));
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+#ifdef _DEBUG
+	SetZ(Z_VEHICLES);
+#endif
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
@@ -461,6 +464,9 @@ void GC_Vehicle::SetPlayer(SafePtr<GC_Player> &player)
 {
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
+
+	// time step fixed will be called by player
+	SetEvents(0);
 }
 
 void GC_Vehicle::Serialize(SaveFile &f)
@@ -707,19 +713,22 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 	return false;
 }
 
+#ifdef _DEBUG
+void GC_Vehicle::Draw() const
+{
+//	GC_VehicleBase::Draw();
+	for( int i = 0; i < 4; ++i )
+	{
+		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
+	}
+}
+#endif // _DEBUG
 
 void GC_Vehicle::TimeStepFixed(float dt)
 {
 	// move...
 	GC_VehicleBase::TimeStepFixed( dt );
 	if( IsKilled() ) return;
-
-#ifdef _DEBUG
-	for( int i = 0; i < 4; ++i )
-	{
-		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
-	}
-#endif // _DEBUG
 
 
 	// fire...

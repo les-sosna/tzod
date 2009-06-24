@@ -4,6 +4,7 @@
 
 
 #include "Socket.h"
+#include "ControlPacket.h"
 
 
 /////////////////////////////////////////////////////////
@@ -27,6 +28,8 @@ class TankClient
 {
 	SafePtr<Peer> _peer;
 	int _frame;
+	ControlPacketVector _ctrl;
+	bool _hasCtrl;
 	bool _gameStarted;
 
 	void OnDisconnect(Peer *, int err);
@@ -52,10 +55,10 @@ public:
 	void SendPlayerInfo(const PlayerDesc &pd);
 	void SendTextMessage(const std::string &msg);
 	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
+	bool RecvControl(ControlPacketVector &result);
 
 	void GetStatistics(NetworkStats *pStats);
 
-	bool Resume();
 
 
 	Delegate<void()> eventPlayersUpdate;

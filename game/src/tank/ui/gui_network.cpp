@@ -184,7 +184,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-	g_conf->sv_latency->SetInt(1);
+//	g_conf->sv_latency->SetInt(1);
 
 	(new ConnectDlg(GetParent(), "localhost"))->eventClose.bind(&CreateServerDlg::OnCloseChild, this);
 	SetVisible(false);

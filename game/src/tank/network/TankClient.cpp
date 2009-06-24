@@ -33,6 +33,7 @@ TankClient::TankClient(void)
   , _clientId(0)
   , _gameStarted(false)
   , _latency(1)
+  , _hasCtrl(false)
 {
 	ZeroMemory(&_stats, sizeof(NetworkStats));
 }
@@ -149,23 +150,23 @@ void TankClient::SendControl(const ControlPacket &cp)
 {
 	assert(_gameStarted);
 
-	if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
-	{
-		--_latency;
-		TRACE("cl: packet skipped\n");
-		return;     // skip packet
-	}
+	//if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
+	//{
+	//	--_latency;
+	//	TRACE("cl: packet skipped\n");
+	//	return;     // skip packet
+	//}
 
 	_peer->Post(SV_POST_CONTROL, Variant(cp));
 	_frame++;
 
 
-	if( g_conf->sv_latency->GetInt() > _latency )
-	{
-		++_latency;
-		SendControl(cp); // duplicate packet
-		TRACE("cl: packet duplicated\n");
-	}
+	//if( g_conf->sv_latency->GetInt() > _latency )
+	//{
+	//	++_latency;
+	//	SendControl(cp); // duplicate packet
+	//	TRACE("cl: packet duplicated\n");
+	//}
 }
 
 void TankClient::SendPlayerReady(bool ready)
@@ -260,7 +261,7 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	_gameStarted = true;
 
 
-	SendControl(ControlPacket()); // initial empty packet
+//	SendControl(ControlPacket()); // initial empty packet
 	g_level->_dropedFrames = 0;   // FIXME
 	g_level->PauseLocal(false);
 	//if( g_conf->sv_autoLatency->Get() )
@@ -410,13 +411,27 @@ void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 {
 	assert(_gameStarted);
 	assert(g_level);
-	g_level->Step(arg.Value<ControlPacketVector>());
+	assert(!_hasCtrl);
+
+//	g_level->Step(arg.Value<ControlPacketVector>(), 1.0f / g_conf->sv_fps->GetFloat());
+	_ctrl = arg.Value<ControlPacketVector>();
+	_hasCtrl = true;
 	_peer->Pause();
 }
 
-bool TankClient::Resume()
+bool TankClient::RecvControl(ControlPacketVector &result)
 {
-	return _peer->Resume();
+	if( !_hasCtrl )
+	{
+		_peer->Resume();
+	}
+	if( _hasCtrl )
+	{
+		result.swap(_ctrl);
+		_hasCtrl = false;
+		return true;
+	}
+	return false;
 }
 
 

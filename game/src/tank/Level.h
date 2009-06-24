@@ -229,15 +229,16 @@ public:
 	float _dropedFrames;
 	string_t _lag;
 
-	ControlPacketVector::const_iterator _ctrlPtr;
-	ControlPacket GetControlPacket(GC_Object *player);
+//	ControlPacketVector::const_iterator _ctrlPtr;
+//	ControlPacket GetControlPacket(GC_Object *player);
 
-	void Step(const ControlPacketVector &ctrl);
+	void Step(const ControlPacketVector &ctrl, float dt);
 
 
 	Field _field;
 
 	bool  _safeMode;
+	bool  _ctrlSent;
 
 /////////////////////////////////////////////////////
 	Level();
@@ -290,6 +291,27 @@ public:
 
 private:
 	virtual ~Level();
+
+
+	class AbstractClient
+	{
+		ControlPacketVector _cpv;
+		bool _hasData;
+	public:
+		AbstractClient()
+			: _hasData(false)
+		{
+		}
+
+		void Reset() {_hasData = false;}
+		bool Recv(ControlPacketVector &result);
+		void Send(std::vector<VehicleState> &ctrl
+#ifdef NETWORK_DEBUG
+		          , DWORD cs, int frame
+#endif
+		         );
+	} _abstractClient;
+
 
 
 

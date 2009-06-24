@@ -114,6 +114,11 @@ public:
 	virtual const vec2d& GetPosPredicted() const;
 	virtual void OnPickup(GC_Pickup *pickup, bool attached);
 
+	// GC_2dSprite
+#ifdef _DEBUG
+	virtual void Draw() const;
+#endif
+
 	// GC_Object
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);

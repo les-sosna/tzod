@@ -97,7 +97,20 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_PlayerLocal : public GC_Player
+class GC_PlayerHuman : public GC_Player
+{
+protected:
+	VehicleState _ctrlState;
+public:
+	GC_PlayerHuman();
+	GC_PlayerHuman(FromFile);
+	virtual ~GC_PlayerHuman() = 0;
+	void SetControllerState(const VehicleState &vs);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GC_PlayerLocal : public GC_PlayerHuman
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
@@ -119,7 +132,6 @@ class GC_PlayerLocal : public GC_Player
 	int _keyTowerRight;
 	int _keyTowerCenter;
 	int _keyPickup;
-	bool _lights;
 	bool _aimToMouse;
 	bool _moveToMouse;
 
@@ -128,9 +140,8 @@ class GC_PlayerLocal : public GC_Player
 	// controller state
 	//
 
-	bool _lastLightKeyState;
-
-	void GetControl(VehicleState &vs);
+	mutable bool _lastLightKeyState;
+	mutable bool _lastLightsState;
 
 protected:
 	class MyPropertySet : public GC_Player::MyPropertySet
@@ -154,7 +165,7 @@ public:
 	virtual ~GC_PlayerLocal();
 
 	void SelectFreeProfile();
-
+	void ReadControllerStateAndStepPredicted(VehicleState &vs, float dt);
 
 	virtual unsigned short GetNetworkID() const;
 
@@ -168,7 +179,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_PlayerRemote : public GC_Player
+class GC_PlayerRemote : public GC_PlayerHuman
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerRemote);
 	unsigned short _networkId;
