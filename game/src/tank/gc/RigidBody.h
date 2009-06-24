@@ -54,7 +54,7 @@ public:
 	float GetRadius() const { return _radius; }
 	void AlignToTexture();
 
-	inline vec2d GetVertex(int index)
+	inline vec2d GetVertex(int index) const
 	{
 		assert(index >= 0 && index < 4);
 		return vec2d(
