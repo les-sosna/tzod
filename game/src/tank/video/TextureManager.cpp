@@ -485,6 +485,10 @@ void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor
 		{
 			++line;
 			count = 0;
+		}
+
+		if( (unsigned char) *tmp < 32 )
+		{
 			continue;
 		}
 
