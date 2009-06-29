@@ -141,6 +141,13 @@ Desktop::Desktop(GuiManager* manager)
 	float grid3[] = {1, 2};
 	_oscill3->SetGrid(grid3, sizeof(grid3) / sizeof(grid3[0]));
 
+	_oscill4 = new Oscilloscope(this, 100, 155);
+	_oscill4->Resize(400, 45);
+	_oscill4->SetRange(0, 10);
+	_oscill4->SetTitle("client latency");
+	float grid4[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	_oscill4->SetGrid(grid4, sizeof(grid4) / sizeof(grid4[0]));
+
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
 }

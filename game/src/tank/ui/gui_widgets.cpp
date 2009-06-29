@@ -201,7 +201,7 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 
 	for( std::vector<float>::const_iterator it = _vgrid.begin(); it != _vgrid.end(); ++it )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0xaaaaaaaa, sx, sy - (_rangeMax - *it) * scale, GetWidth(), -1, 0);
+		g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - *it) * scale, GetWidth(), -1, 0);
 	}
 
 	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy);

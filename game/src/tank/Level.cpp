@@ -247,7 +247,7 @@ Level::Level()
   , _limitHit(false)
   , _frozen(false)
   , _safeMode(true)
-  , _ctrlSent(false)
+  , _ctrlSentCount(0)
   , _locationsX(0)
   , _locationsY(0)
   , _sx(0)
@@ -327,7 +327,7 @@ void Level::Clear()
 	assert(IsEmpty());
 
 	// reset variables
-	_ctrlSent = false;
+	_ctrlSentCount = 0;
 	_modeEditor = false;
 	_pause = 0;
 	_time = 0;
@@ -1230,7 +1230,7 @@ void Level::TimeStep(float dt)
 	float dt_fixed = g_client ? 1.0f / g_conf->sv_fps->GetFloat() : dt;
 
 
-	if( !_ctrlSent )
+	if( _ctrlSentCount <= g_conf->cl_latency->GetInt() )
 	{
 		//
 		// read controller state for local players
@@ -1255,7 +1255,7 @@ void Level::TimeStep(float dt)
 			, _checksum, _frame
 #endif
 		);
-		_ctrlSent = true;
+		++_ctrlSentCount;
 	}
 
 
@@ -1267,7 +1267,7 @@ void Level::TimeStep(float dt)
 		if( _abstractClient.Recv(cpv) )
 		{
 			Step(cpv, dt_fixed);
-			_ctrlSent = false;
+			--_ctrlSentCount;
 		}
 	}
 
@@ -1308,6 +1308,7 @@ void Level::TimeStep(float dt)
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) _steps);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _ctrlSentCount);
 
 	_steps = 0;
 }
@@ -1537,13 +1538,12 @@ void Level::AbstractClient::Send(std::vector<VehicleState> &ctrl
 	}
 	else
 	{
-		assert(!_hasData);
-		_cpv.resize(ctrl.size());
+		_cpv.push_back(ControlPacketVector());
+		_cpv.back().resize(ctrl.size());
 		for( size_t i = 0; i < ctrl.size(); ++i )
 		{
-			_cpv[i].fromvs(ctrl[i]);
+			_cpv.back()[i].fromvs(ctrl[i]);
 		}
-		_hasData = true;
 	}
 }
 
@@ -1553,10 +1553,10 @@ bool Level::AbstractClient::Recv(ControlPacketVector &result)
 	{
 		return g_client->RecvControl(result);
 	}
-	if( _hasData )
+	if( !_cpv.empty() )
 	{
-		result.swap(_cpv);
-		_hasData = false;
+		result.swap(_cpv.front());
+		_cpv.pop_front();
 		return true;
 	}
 	return false;

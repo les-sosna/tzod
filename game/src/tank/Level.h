@@ -237,8 +237,8 @@ public:
 
 	Field _field;
 
+	int  _ctrlSentCount;
 	bool  _safeMode;
-	bool  _ctrlSent;
 
 /////////////////////////////////////////////////////
 	Level();
@@ -295,15 +295,9 @@ private:
 
 	class AbstractClient
 	{
-		ControlPacketVector _cpv;
-		bool _hasData;
+		std::deque<ControlPacketVector> _cpv;
 	public:
-		AbstractClient()
-			: _hasData(false)
-		{
-		}
-
-		void Reset() {_hasData = false;}
+		void Reset() {_cpv.clear();}
 		bool Recv(ControlPacketVector &result);
 		void Send(std::vector<VehicleState> &ctrl
 #ifdef NETWORK_DEBUG
