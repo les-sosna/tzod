@@ -13,6 +13,7 @@ public:
 	unsigned short      id;
 	ControlPacket       ctrl;
 	PlayerDesc          desc;
+	int                 latency;
 	bool                descValid;
 	bool                ctrlValid;
 	bool                ready;

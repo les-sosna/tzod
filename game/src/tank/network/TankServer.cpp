@@ -23,6 +23,7 @@ PeerServer::PeerServer(SOCKET s_)
   , ready(false)
   , descValid(false)
   , id(-1)
+  , latency(0)
 {
 }
 
@@ -297,8 +298,21 @@ void TankServer::SendFrame()
 		if( (*it)->descValid )
 		{
 			assert((*it)->ctrlValid);
-			(*it)->ctrlValid = false;
-			(*it)->Resume();
+			if( (*it)->latency < g_conf->sv_latency->GetInt() )
+			{
+				TRACE("sv: extra packet added\n");
+				++(*it)->latency;
+				++_frameReadyCount;
+				if( _frameReadyCount == _connectedCount )
+				{
+					SendFrame();
+				}
+			}
+			else
+			{
+				(*it)->ctrlValid = false;
+				(*it)->Resume();
+			}
 		}
 	}
 }
@@ -327,15 +341,25 @@ void TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
 void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
-	who->Pause();
-	who->ctrl = arg.Value<ControlPacket>();
-	who->ctrlValid = true;
+	assert(!who->ctrlValid);
 
-	++_frameReadyCount;
-	if( _frameReadyCount == _connectedCount )
+	if( who->latency > g_conf->sv_latency->GetInt() )
 	{
-		who->ctrl.wControlState |= MISC_YOUARETHELAST;
-		SendFrame();
+		TRACE("sv: extra packet skipped\n");
+		--who->latency;
+	}
+	else
+	{
+		who->ctrlValid = true;
+		who->ctrl = arg.Value<ControlPacket>();
+		who->Pause();
+
+		++_frameReadyCount;
+		if( _frameReadyCount == _connectedCount )
+		{
+			who->ctrl.wControlState |= MISC_YOUARETHELAST;
+			SendFrame();
+		}
 	}
 }
 

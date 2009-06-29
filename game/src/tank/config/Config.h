@@ -30,7 +30,7 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_STR(    sv_name,   "ZOD server" )
 	CONFIG_VAR_INT(    sv_port,           1945 )
 	CONFIG_VAR_FLOAT(  sv_fps,              30 )
-//	CONFIG_VAR_FLOAT(  sv_latency,           1 )
+	CONFIG_VAR_FLOAT(  sv_latency,           0 )
 //	CONFIG_VAR_BOOL(   sv_autoLatency,    true )
 	CONFIG_VAR_FLOAT(  sv_speed,           100 ) // percent
 	CONFIG_VAR_FLOAT(  sv_timelimit,         7 ) // minutes
