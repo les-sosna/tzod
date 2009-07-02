@@ -131,13 +131,11 @@ void Console::OnRawChar(int c)
 		if( eventOnRequestCompleteCommand )
 		{
 			string_t result;
-			bool status = INVOKE(eventOnRequestCompleteCommand)
-				(_input->GetText().substr(0, _input->GetSelEnd()), result);
-			if( status )
+			int pos = _input->GetSelEnd();
+			if( INVOKE(eventOnRequestCompleteCommand)(_input->GetText(), pos, result) )
 			{
-				int end = _input->GetSelEnd();
-				_input->SetText(_input->GetText().substr(0, end) + result + _input->GetText().substr(end));
-				_input->SetSel(end + result.length(), end + result.length());
+				_input->SetText(result);
+				_input->SetSel(pos, pos);
 			}
 		}
 		break;

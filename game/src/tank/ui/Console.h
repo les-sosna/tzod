@@ -31,7 +31,7 @@ public:
 	virtual ~Console();
 	void SetEcho(bool echo);
 	Delegate<void(const string_t &)> eventOnSendCommand;
-	Delegate<bool(const string_t &, string_t &)> eventOnRequestCompleteCommand;
+	Delegate<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual void OnChar(int c);

@@ -327,7 +327,7 @@ void Desktop::OnCommand(const string_t &cmd)
 	script_exec(g_env.L, exec.c_str());
 }
 
-bool Desktop::OnCompleteCommand(const string_t &cmd, string_t &result)
+bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 {
 	lua_getglobal(g_env.L, "autocomplete");
 	if( lua_isnil(g_env.L, -1) )
@@ -345,7 +345,16 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, string_t &result)
 	else
 	{
 		const char *str = lua_tostring(g_env.L, -1);
-		result = str ? str : "";
+		string_t insert = str ? str : "";
+
+		result = cmd.substr(0, pos) + insert + cmd.substr(pos);
+		pos += insert.length();
+
+		if( g_client && !result.empty() && result[0] != '/' )
+		{
+			result = string_t("/") + result;
+			++pos;
+		}
 	}
 	lua_pop(g_env.L, 1); // pop result
 	return true;

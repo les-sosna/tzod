@@ -85,7 +85,7 @@ private:
 	void OnChangeShowTime();
 
 	void OnCommand(const string_t &cmd);
-	bool OnCompleteCommand(const string_t &cmd, string_t &result);
+	bool OnCompleteCommand(const string_t &cmd, int &pos, string_t &result);
 };
 
 
