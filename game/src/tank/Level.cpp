@@ -1101,25 +1101,11 @@ void Level::DrawBackground(size_t tex) const
 	v[3].y = _sy;
 }
 
-/*
-ControlPacket Level::GetControlPacket(GC_Object *player)
-{
-	ASSERT_TYPE(player, GC_Player);
-	const ControlPacket &cp = *(_ctrlPtr++);
-	if( MISC_YOUARETHELAST & cp.wControlState )
-	{
-		_lag = static_cast<GC_Player*>(player)->GetNick();
-	}
-	return cp;
-}
-*/
-
 void Level::Step(const ControlPacketVector &ctrl, float dt)
 {
 	++_steps;
 
 	_time        += dt;
-	_timeBuffer  -= dt;
 	_dropedFrames = __max(0, _dropedFrames - dt); // it's allowed one dropped frame per second
 
 	if( !_frozen )
@@ -1137,7 +1123,6 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		assert(ctrlIt == ctrl.end());
 
 
-//		_ctrlPtr = ctrl.begin();
 		_safeMode = false;
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{
@@ -1146,7 +1131,6 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		}
 		GC_RigidBodyDynamic::ProcessResponse(dt);
 		_safeMode = true;
-//		assert(_ctrlPtr == ctrl.end());
 	}
 
 	RunCmdQueue(dt);
@@ -1230,7 +1214,7 @@ void Level::TimeStep(float dt)
 	float dt_fixed = g_client ? 1.0f / g_conf->sv_fps->GetFloat() : dt;
 
 
-	if( _ctrlSentCount <= g_conf->cl_latency->GetInt() )
+	while( _ctrlSentCount <= g_conf->cl_latency->GetInt() )
 	{
 		//
 		// read controller state for local players
@@ -1259,16 +1243,33 @@ void Level::TimeStep(float dt)
 	}
 
 
-	_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), 2 / g_conf->sv_fps->GetFloat());
+	_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), (g_conf->cl_latency->GetFloat() + 1) / g_conf->sv_fps->GetFloat());
+//	_timeBuffer += dt * g_conf->cl_boost->GetFloat();
 
-	if( _timeBuffer > 0 )
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
+	NetworkStats stats = {0};
+	if( g_client ) g_client->GetStatistics(&stats);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) stats.bytesPending);
+
+
+	assert(_ctrlSentCount > 0);
+	if( _timeBuffer + dt_fixed / 2 > 0 )
 	{
-		ControlPacketVector cpv;
-		if( _abstractClient.Recv(cpv) )
+		do
 		{
-			Step(cpv, dt_fixed);
-			--_ctrlSentCount;
-		}
+			ControlPacketVector cpv;
+			if( _abstractClient.Recv(cpv) )
+			{
+				Step(cpv, dt_fixed);
+				_ctrlSentCount -= 1;
+				_timeBuffer -= dt_fixed;
+			}
+			else
+			{
+				break;
+			}
+		} while( _timeBuffer > 0 && _ctrlSentCount > 0 );
 	}
 
 
@@ -1305,11 +1306,7 @@ void Level::TimeStep(float dt)
 		HitLimit();
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) _steps);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _ctrlSentCount);
-
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _steps);
 	_steps = 0;
 }
 

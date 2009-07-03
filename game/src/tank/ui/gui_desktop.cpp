@@ -122,9 +122,9 @@ Desktop::Desktop(GuiManager* manager)
 
 	_oscill = new Oscilloscope(this, 100, 5);
 	_oscill->Resize(400, 45);
-	_oscill->SetRange(-1/30.0f, 1/10.0f);
+	_oscill->SetRange(-1/30.0f, 1/30.0f);
 	_oscill->SetTitle("timebuf");
-	float grid[] = {0};
+	float grid[] = {-1/60.0f, 0, 1/60.0f};
 	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
 
 	_oscill2 = new Oscilloscope(this, 100, 55);
@@ -136,16 +136,16 @@ Desktop::Desktop(GuiManager* manager)
 
 	_oscill3 = new Oscilloscope(this, 100, 105);
 	_oscill3->Resize(400, 45);
-	_oscill3->SetRange(0, 3);
-	_oscill3->SetTitle("steps");
-	float grid3[] = {1, 2};
+	_oscill3->SetRange(0, 50);
+	_oscill3->SetTitle("pending");
+	float grid3[] = {10, 20, 30, 40};
 	_oscill3->SetGrid(grid3, sizeof(grid3) / sizeof(grid3[0]));
 
 	_oscill4 = new Oscilloscope(this, 100, 155);
 	_oscill4->Resize(400, 45);
-	_oscill4->SetRange(0, 10);
-	_oscill4->SetTitle("client latency");
-	float grid4[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	_oscill4->SetRange(0, 3);
+	_oscill4->SetTitle("steps");
+	float grid4[] = {1, 2};
 	_oscill4->SetGrid(grid4, sizeof(grid4) / sizeof(grid4[0]));
 
 

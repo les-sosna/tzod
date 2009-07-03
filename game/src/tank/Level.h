@@ -229,9 +229,6 @@ public:
 	float _dropedFrames;
 	string_t _lag;
 
-//	ControlPacketVector::const_iterator _ctrlPtr;
-//	ControlPacket GetControlPacket(GC_Object *player);
-
 	void Step(const ControlPacketVector &ctrl, float dt);
 
 

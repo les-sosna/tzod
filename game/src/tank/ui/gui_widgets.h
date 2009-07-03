@@ -57,6 +57,7 @@ private:
 	std::deque<float> _data;
 	float _rangeMin;
 	float _rangeMax;
+	float _scale;
 };
 
 

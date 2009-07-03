@@ -88,6 +88,7 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 
 	// debug
 	CONFIG_VAR_INT(   dbg_sleep,              0 )
+	CONFIG_VAR_INT(   dbg_sleep_rand,         0 )
 
 	// other
 	CONFIG_VAR_TABLE( dm_profiles,       InitProfiles )

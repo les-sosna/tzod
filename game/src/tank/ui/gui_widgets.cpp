@@ -157,6 +157,7 @@ Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   , _titleFont(g_texman->FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
+  , _scale(3)
 {
 	SetBorder(true);
 	SetClipChildren(true);
@@ -165,7 +166,7 @@ Oscilloscope::Oscilloscope(Window *parent, float x, float y)
 void Oscilloscope::Push(float value)
 {
 	_data.push_back(value);
-	size_t size = (size_t) GetWidth();
+	size_t size = (size_t) (GetWidth() / _scale);
 	if( _data.size() > size )
 	{
 		_data.erase(_data.begin(), _data.begin() + (_data.size() - size));
@@ -192,11 +193,11 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 {
 	float scale = GetHeight() / (_rangeMin - _rangeMax);
 	float center = sy - _rangeMax * scale;
-	float dx = sx + GetWidth() - (float) _data.size();
+	float dx = sx + GetWidth() - (float) _data.size() * _scale;
 
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i + dx, center, 1, _data[i] * scale, 0);
+		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, 0);
 	}
 
 	for( std::vector<float>::const_iterator it = _vgrid.begin(); it != _vgrid.end(); ++it )

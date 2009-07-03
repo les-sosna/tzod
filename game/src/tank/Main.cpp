@@ -423,9 +423,9 @@ void ZodApp::Idle()
 		g_music->HandleBufferFilling();
 	}
 
-	if( g_conf->dbg_sleep->GetInt() > 0 )
+	if( g_conf->dbg_sleep->GetInt() > 0 && g_conf->dbg_sleep_rand->GetInt() >= 0 )
 	{
-		Sleep(std::min(g_conf->dbg_sleep->GetInt(), 5000));
+		Sleep(std::min(5000, g_conf->dbg_sleep->GetInt() + rand() % (g_conf->dbg_sleep_rand->GetInt() + 1)));
 	}
 }
 
