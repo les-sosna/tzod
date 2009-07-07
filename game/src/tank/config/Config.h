@@ -31,7 +31,6 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_INT(    sv_port,           1945 )
 	CONFIG_VAR_FLOAT(  sv_fps,              30 )
 	CONFIG_VAR_FLOAT(  sv_latency,           0 )
-//	CONFIG_VAR_BOOL(   sv_autoLatency,    true )
 	CONFIG_VAR_FLOAT(  sv_speed,           100 ) // percent
 	CONFIG_VAR_FLOAT(  sv_timelimit,         7 ) // minutes
 	CONFIG_VAR_INT(    sv_fraglimit,        21 )
@@ -48,6 +47,8 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_STR(    cl_server,  "localhost" )
 	CONFIG_VAR_FLOAT(  cl_latency,           0 )
 	CONFIG_VAR_FLOAT(  cl_boost,             1 )
+	CONFIG_VAR_FLOAT(  cl_boost_slow,      0.9 )
+	CONFIG_VAR_FLOAT(  cl_boost_fast,      1.1 )
 	CONFIG_VAR_FLOAT(  cl_dtwindow,          2 )
 	CONFIG_VAR_TABLE(  cl_playerinfo,     NULL )
 

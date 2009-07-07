@@ -58,6 +58,8 @@ class Desktop : public Window
 	Oscilloscope *_oscill2;
 	Oscilloscope *_oscill3;
 	Oscilloscope *_oscill4;
+	Oscilloscope *_oscill5;
+	Oscilloscope *_oscill6;
 
 public:
 	Desktop(GuiManager* manager);
@@ -74,6 +76,8 @@ public:
 	Oscilloscope* GetOscilloscope2() const { return _oscill2; }
 	Oscilloscope* GetOscilloscope3() const { return _oscill3; }
 	Oscilloscope* GetOscilloscope4() const { return _oscill4; }
+	Oscilloscope* GetOscilloscope5() const { return _oscill5; }
+	Oscilloscope* GetOscilloscope6() const { return _oscill6; }
 
 protected:
 	virtual void OnRawChar(int c);

@@ -243,7 +243,6 @@ Level::Level()
   , _pause(0)
   , _time(0)
   , _timeBuffer(0)
-  , _dropedFrames(0)
   , _limitHit(false)
   , _frozen(false)
   , _safeMode(true)
@@ -344,9 +343,6 @@ void Level::Clear()
 		_dump = NULL;
 	}
 #endif
-
-	_dropedFrames = 0;
-	_lag.clear();
 
 	_abstractClient.Reset();
 }
@@ -1106,7 +1102,6 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 	++_steps;
 
 	_time        += dt;
-	_dropedFrames = __max(0, _dropedFrames - dt); // it's allowed one dropped frame per second
 
 	if( !_frozen )
 	{
@@ -1115,9 +1110,27 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		{
 			if( GC_PlayerHuman *ph = dynamic_cast<GC_PlayerHuman *>(p) )
 			{
+				if( dynamic_cast<GC_PlayerLocal*>(p) )
+				{
+					if( ctrlIt->wControlState & MISC_SLOWDOWN )
+					{
+						g_conf->cl_boost->SetFloat(g_conf->cl_boost_slow->GetFloat());
+					}
+					else if( ctrlIt->wControlState & MISC_SPEEDUP )
+					{
+						g_conf->cl_boost->SetFloat(g_conf->cl_boost_fast->GetFloat());
+					}
+					else
+					{
+						g_conf->cl_boost->SetFloat(1);
+					}
+				}
+
 				VehicleState vs;
-				(ctrlIt++)->tovs(vs);
+				ctrlIt->tovs(vs);
 				ph->SetControllerState(vs);
+
+				++ctrlIt;
 			}
 		}
 		assert(ctrlIt == ctrl.end());
@@ -1243,8 +1256,13 @@ void Level::TimeStep(float dt)
 	}
 
 
-	_timeBuffer = std::min(_timeBuffer + dt * g_conf->cl_boost->GetFloat(), (g_conf->cl_latency->GetFloat() + 1) / g_conf->sv_fps->GetFloat());
-//	_timeBuffer += dt * g_conf->cl_boost->GetFloat();
+	_timeBuffer += dt * g_conf->cl_boost->GetFloat();
+	float bufmax = (g_conf->cl_latency->GetFloat()*0+1 + 1) / g_conf->sv_fps->GetFloat();
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope5()->Push(_timeBuffer - bufmax);
+	if( _timeBuffer > bufmax )
+	{
+		_timeBuffer = bufmax;//0;
+	}
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
@@ -1252,6 +1270,7 @@ void Level::TimeStep(float dt)
 	if( g_client ) g_client->GetStatistics(&stats);
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) stats.bytesPending);
 
+	static int filter = 0;
 
 	assert(_ctrlSentCount > 0);
 	if( _timeBuffer + dt_fixed / 2 > 0 )
@@ -1267,11 +1286,27 @@ void Level::TimeStep(float dt)
 			}
 			else
 			{
+				++filter;
+				if( filter > 100 )
+				{
+					g_conf->cl_latency->SetInt(std::min(g_conf->cl_latency->GetInt() + 1, g_conf->sv_fps->GetInt()));
+					filter = 0;
+				}
 				break;
 			}
 		} while( _timeBuffer > 0 && _ctrlSentCount > 0 );
 	}
 
+	if( g_client ) g_client->GetStatistics(&stats);
+	if( stats.bytesPending && _timeBuffer <= 0 )
+	{
+		++filter;
+		if( filter > 100 )
+		{
+			g_conf->cl_latency->SetInt(std::max(0, g_conf->cl_latency->GetInt() - 1));
+			filter = 0;
+		}
+	}
 
 
 	if( !_frozen )
@@ -1307,6 +1342,7 @@ void Level::TimeStep(float dt)
 	}
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _steps);
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope6()->Push(g_conf->cl_latency->GetFloat());
 	_steps = 0;
 }
 

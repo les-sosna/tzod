@@ -226,8 +226,6 @@ public:
 	int _pause;
 	float _time;
 	float _timeBuffer;
-	float _dropedFrames;
-	string_t _lag;
 
 	void Step(const ControlPacketVector &ctrl, float dt);
 

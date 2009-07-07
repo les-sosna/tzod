@@ -245,6 +245,19 @@ void TankServer::SendFrame()
 	assert(_frameReadyCount == _connectedCount);
 
 
+	// find the "fastest" client
+	size_t maxPending = 0;
+	PeerList::const_iterator fastestClient(NULL);
+	for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		if( !(*it)->descValid ) continue;
+		if( (*it)->GetPending() > maxPending )
+		{
+			maxPending = (*it)->GetPending();
+			fastestClient = it;
+		}
+	}
+
 	//
 	// collect control packets from all connected clients
 	//
@@ -259,7 +272,19 @@ void TankServer::SendFrame()
 	{
 		if( !(*it)->descValid ) continue;
 		const ControlPacket &cp = (*it)->ctrl;
-		ctrl[_connectedCount - (++i)] = cp;
+		++i;
+		ctrl[_connectedCount - i] = cp;
+		if( maxPending > 0 )
+		{
+			if( fastestClient == it )
+			{
+				ctrl[_connectedCount - i].wControlState |= MISC_SLOWDOWN;
+			}
+			else
+			{
+				ctrl[_connectedCount - i].wControlState |= MISC_SPEEDUP;
+			}
+		}
 
 #ifdef NETWORK_DEBUG
 		FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
@@ -357,7 +382,6 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 		++_frameReadyCount;
 		if( _frameReadyCount == _connectedCount )
 		{
-			who->ctrl.wControlState |= MISC_YOUARETHELAST;
 			SendFrame();
 		}
 	}

@@ -59,7 +59,8 @@ struct VehicleState
 #define MODE_EXPLICITTOWER  0x1000
 #define MODE_EXPLICITBODY   0x2000
 
-#define MISC_YOUARETHELAST  0x4000
+#define MISC_SLOWDOWN  0x4000
+#define MISC_SPEEDUP   0x8000
 
 
 #pragma pack(push)

@@ -265,20 +265,7 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	_gameStarted = true;
 
 
-//	SendControl(ControlPacket()); // initial empty packet
-	g_level->_dropedFrames = 0;   // FIXME
 	g_level->PauseLocal(false);
-	//if( g_conf->sv_autoLatency->Get() )
-	//{
-	//	DWORD avg = 0;
-	//	for( size_t i = 0; i < _pings.size(); ++i )
-	//	{
-	//		avg += _pings[i];
-	//	}
-	//	avg /= _pings.size();
-	//	// set initial latency for auto adjustment algorithm
-	//	g_conf->sv_latency->SetInt(__max(1, g_conf->sv_fps->GetInt() * avg / 1000));
-	//}
 
 	if( eventStartGame )
 	{

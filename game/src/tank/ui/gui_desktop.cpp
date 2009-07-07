@@ -120,33 +120,50 @@ Desktop::Desktop(GuiManager* manager)
 	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
-	_oscill = new Oscilloscope(this, 100, 5);
-	_oscill->Resize(400, 45);
-	_oscill->SetRange(-1/30.0f, 1/30.0f);
-	_oscill->SetTitle("timebuf");
-	float grid[] = {-1/60.0f, 0, 1/60.0f};
-	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
+	float yy = 5;
+	float hh = 60;
 
-	_oscill2 = new Oscilloscope(this, 100, 55);
-	_oscill2->Resize(400, 45);
+	_oscill = new Oscilloscope(this, 100, yy);
+	_oscill->Resize(400, hh);
+	_oscill->SetRange(-1/15.0f, 1/15.0f);
+	_oscill->SetTitle("timebuf");
+	float grid[] = {-1/30.0f, -1/60.0f, 0, 1/60.0f, 1/30.0f};
+	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
+	yy += hh+5;
+	_oscill5 = new Oscilloscope(this, 100, yy);
+	_oscill5->Resize(400, hh);
+	_oscill5->SetRange(0, 1/15.0f);
+	_oscill5->SetTitle("drops");
+	float grid5[] = {1/60.0f, 1/30.0f};
+	_oscill5->SetGrid(grid5, sizeof(grid5) / sizeof(grid5[0]));
+	yy += hh+5;
+	_oscill2 = new Oscilloscope(this, 100, yy);
+	_oscill2->Resize(400, hh);
 	_oscill2->SetRange(0, 1/30.0f);
-	_oscill2->SetTitle("jitter");
+	_oscill2->SetTitle("frame time");
 	float grid2[] = {1/60.0f};
 	_oscill2->SetGrid(grid2, sizeof(grid2) / sizeof(grid2[0]));
-
-	_oscill3 = new Oscilloscope(this, 100, 105);
-	_oscill3->Resize(400, 45);
-	_oscill3->SetRange(0, 50);
+	yy += hh+5;
+	_oscill3 = new Oscilloscope(this, 100, yy);
+	_oscill3->Resize(400, hh);
+	_oscill3->SetRange(0, 100);
 	_oscill3->SetTitle("pending");
-	float grid3[] = {10, 20, 30, 40};
+	float grid3[] = {20, 40, 60, 80};
 	_oscill3->SetGrid(grid3, sizeof(grid3) / sizeof(grid3[0]));
-
-	_oscill4 = new Oscilloscope(this, 100, 155);
-	_oscill4->Resize(400, 45);
-	_oscill4->SetRange(0, 3);
+	yy += hh+5;
+	_oscill4 = new Oscilloscope(this, 100, yy);
+	_oscill4->Resize(400, hh);
+	_oscill4->SetRange(0, 5);
 	_oscill4->SetTitle("steps");
-	float grid4[] = {1, 2};
+	float grid4[] = {1, 2, 3};
 	_oscill4->SetGrid(grid4, sizeof(grid4) / sizeof(grid4[0]));
+	yy += hh+5;
+	_oscill6 = new Oscilloscope(this, 100, yy);
+	_oscill6->Resize(400, hh);
+	_oscill6->SetRange(0, 10);
+	_oscill6->SetTitle("cl_latency");
+	float grid6[] = {2, 4, 6, 8};
+	_oscill6->SetGrid(grid6, sizeof(grid6) / sizeof(grid6[0]));
 
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
