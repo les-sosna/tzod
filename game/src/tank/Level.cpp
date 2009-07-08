@@ -1110,22 +1110,6 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		{
 			if( GC_PlayerHuman *ph = dynamic_cast<GC_PlayerHuman *>(p) )
 			{
-				if( dynamic_cast<GC_PlayerLocal*>(p) )
-				{
-					if( ctrlIt->wControlState & MISC_SLOWDOWN )
-					{
-						g_conf->cl_boost->SetFloat(g_conf->cl_boost_slow->GetFloat());
-					}
-					else if( ctrlIt->wControlState & MISC_SPEEDUP )
-					{
-						g_conf->cl_boost->SetFloat(g_conf->cl_boost_fast->GetFloat());
-					}
-					else
-					{
-						g_conf->cl_boost->SetFloat(1);
-					}
-				}
-
 				VehicleState vs;
 				ctrlIt->tovs(vs);
 				ph->SetControllerState(vs);

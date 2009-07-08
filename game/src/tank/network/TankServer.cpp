@@ -245,19 +245,6 @@ void TankServer::SendFrame()
 	assert(_frameReadyCount == _connectedCount);
 
 
-	// find the "fastest" client
-	size_t maxPending = 0;
-	PeerList::const_iterator fastestClient(NULL);
-	for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
-	{
-		if( !(*it)->descValid ) continue;
-		if( (*it)->GetPending() > maxPending )
-		{
-			maxPending = (*it)->GetPending();
-			fastestClient = it;
-		}
-	}
-
 	//
 	// collect control packets from all connected clients
 	//
@@ -274,17 +261,6 @@ void TankServer::SendFrame()
 		const ControlPacket &cp = (*it)->ctrl;
 		++i;
 		ctrl[_connectedCount - i] = cp;
-		if( maxPending > 0 )
-		{
-			if( fastestClient == it )
-			{
-				ctrl[_connectedCount - i].wControlState |= MISC_SLOWDOWN;
-			}
-			else
-			{
-				ctrl[_connectedCount - i].wControlState |= MISC_SPEEDUP;
-			}
-		}
 
 #ifdef NETWORK_DEBUG
 		FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
@@ -349,7 +325,7 @@ std::string TankServer::GetStats() const
 	{
 		if( (*it)->descValid )
 		{
-			s << (*it)->desc.nick << ":" << (*it)->GetPending() << "  ";
+			s << (*it)->desc.nick << ":" << (*it)->leading.Count() << "  ";
 		}
 	}
 	return s.str();
@@ -383,6 +359,14 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 		if( _frameReadyCount == _connectedCount )
 		{
 			SendFrame();
+			assert(!_connectedCount || _frameReadyCount != _connectedCount);
+			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				if( (*it)->descValid )
+				{
+					(*it)->leading.Push((*it)->GetPending() > 0);
+				}
+			}
 		}
 	}
 }

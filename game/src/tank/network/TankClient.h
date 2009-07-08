@@ -29,6 +29,7 @@ class TankClient
 	SafePtr<Peer> _peer;
 	int _frame;
 	ControlPacketVector _ctrl;
+	float _boost;
 	bool _hasCtrl;
 	bool _gameStarted;
 
@@ -46,6 +47,7 @@ public:
 	~TankClient(void);
 
 	unsigned short GetId() const { return _clientId; }
+	float GetBoost() const { return _boost; }
 
 	void Connect(const string_t &hostaddr);
 	void ShutDown();
@@ -81,6 +83,7 @@ private:
 	void ClStartGame(Peer *from, int task, const Variant &arg);
 	void ClAddBot(Peer *from, int task, const Variant &arg);
 	void ClSetPlayerInfo(Peer *from, int task, const Variant &arg);
+	void ClSetBoost(Peer *from, int task, const Variant &arg);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

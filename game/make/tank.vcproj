@@ -132,13 +132,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\src\tank,..\src\zlib,..\src\lua\src,..\src\pluto,..\src\oggvorbis\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE_0;NOSOUND_0"
-				KeepComments="false"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -511,6 +510,10 @@
 			</File>
 			<File
 				RelativePath="..\src\tank\core\Application.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tank\core\BitCounter.h"
 				>
 			</File>
 			<File

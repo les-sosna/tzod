@@ -47,8 +47,6 @@ CONFIG_BEGIN(ConfCache) //  var_name  def_value
 	CONFIG_VAR_STR(    cl_server,  "localhost" )
 	CONFIG_VAR_FLOAT(  cl_latency,           0 )
 	CONFIG_VAR_FLOAT(  cl_boost,             1 )
-	CONFIG_VAR_FLOAT(  cl_boost_slow,      0.9 )
-	CONFIG_VAR_FLOAT(  cl_boost_fast,      1.1 )
 	CONFIG_VAR_FLOAT(  cl_dtwindow,          2 )
 	CONFIG_VAR_TABLE(  cl_playerinfo,     NULL )
 

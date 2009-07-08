@@ -14,6 +14,7 @@ enum ClientFunction
 	CL_POST_STARTGAME,     // bool -- dummy
 	CL_POST_ADDBOT,        // BotDesc
 	CL_POST_PLAYERINFO,    // PlayerDescEx
+	CL_POST_SETBOOST,      // float
 };
 
 

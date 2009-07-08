@@ -31,6 +31,7 @@
 TankClient::TankClient(void)
   : _frame(0)
   , _clientId(0)
+  , _boost(1)
   , _gameStarted(false)
   , _latency(1)
   , _hasCtrl(false)
@@ -111,6 +112,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	_peer->RegisterHandler(CL_POST_STARTGAME, VariantTypeId<bool>(), CreateDelegate(&TankClient::ClStartGame, this));
 	_peer->RegisterHandler(CL_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankClient::ClAddBot, this));
 	_peer->RegisterHandler(CL_POST_PLAYERINFO, VariantTypeId<PlayerDescEx>(), CreateDelegate(&TankClient::ClSetPlayerInfo, this));
+	_peer->RegisterHandler(CL_POST_SETBOOST, VariantTypeId<float>(), CreateDelegate(&TankClient::ClSetBoost, this));
 
 	if( int err = _peer->Connect(&addr) )
 	{
@@ -407,6 +409,11 @@ void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 	_ctrl = arg.Value<ControlPacketVector>();
 	_hasCtrl = true;
 	_peer->Pause();
+}
+
+void TankClient::ClSetBoost(Peer *from, int task, const Variant &arg)
+{
+	_boost = arg.Value<float>();
 }
 
 bool TankClient::RecvControl(ControlPacketVector &result)

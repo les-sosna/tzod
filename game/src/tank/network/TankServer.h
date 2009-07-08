@@ -6,6 +6,8 @@
 #include "ControlPacket.h"
 #include "CommonTypes.h"
 
+#include "core/BitCounter.h"
+
 
 class PeerServer : public Peer
 {
@@ -14,6 +16,7 @@ public:
 	ControlPacket       ctrl;
 	PlayerDesc          desc;
 	int                 latency;
+	BitCounter<128>     leading;
 	bool                descValid;
 	bool                ctrlValid;
 	bool                ready;
