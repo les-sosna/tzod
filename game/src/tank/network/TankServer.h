@@ -15,7 +15,8 @@ public:
 	unsigned short      id;
 	ControlPacket       ctrl;
 	PlayerDesc          desc;
-	int                 latency;
+	int                 svlatency;
+	float               clboost;
 	BitCounter<128>     leading;
 	bool                descValid;
 	bool                ctrlValid;

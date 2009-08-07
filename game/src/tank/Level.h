@@ -299,6 +299,7 @@ private:
 		          , DWORD cs, int frame
 #endif
 		         );
+		float GetBoost() const;
 	} _abstractClient;
 
 

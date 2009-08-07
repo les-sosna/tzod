@@ -1210,7 +1210,7 @@ void Level::TimeStep(float dt)
 
 	float dt_fixed = g_client ? 1.0f / g_conf->sv_fps->GetFloat() : dt;
 
-
+	int ctrlSent = 0;
 	while( _ctrlSentCount <= g_conf->cl_latency->GetInt() )
 	{
 		//
@@ -1237,10 +1237,11 @@ void Level::TimeStep(float dt)
 #endif
 		);
 		++_ctrlSentCount;
+		++ctrlSent;
 	}
 
 
-	_timeBuffer += dt * g_conf->cl_boost->GetFloat();
+	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf->cl_boost->GetFloat();
 	float bufmax = (g_conf->cl_latency->GetFloat()*0+1 + 1) / g_conf->sv_fps->GetFloat();
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope5()->Push(_timeBuffer - bufmax);
 	if( _timeBuffer > bufmax )
@@ -1273,7 +1274,7 @@ void Level::TimeStep(float dt)
 				++filter;
 				if( filter > 100 )
 				{
-					g_conf->cl_latency->SetInt(std::min(g_conf->cl_latency->GetInt() + 1, g_conf->sv_fps->GetInt()));
+				//	g_conf->cl_latency->SetInt(std::min(g_conf->cl_latency->GetInt() + 1, g_conf->sv_fps->GetInt()));
 					filter = 0;
 				}
 				break;
@@ -1287,7 +1288,7 @@ void Level::TimeStep(float dt)
 		++filter;
 		if( filter > 100 )
 		{
-			g_conf->cl_latency->SetInt(std::max(0, g_conf->cl_latency->GetInt() - 1));
+		//	g_conf->cl_latency->SetInt(std::max(0, g_conf->cl_latency->GetInt() - 1));
 			filter = 0;
 		}
 	}
@@ -1326,7 +1327,7 @@ void Level::TimeStep(float dt)
 	}
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _steps);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope6()->Push(g_conf->cl_latency->GetFloat());
+	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope6()->Push((float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
 	_steps = 0;
 }
 
@@ -1577,6 +1578,15 @@ bool Level::AbstractClient::Recv(ControlPacketVector &result)
 		return true;
 	}
 	return false;
+}
+
+float Level::AbstractClient::GetBoost() const
+{
+	if( g_client )
+	{
+		return g_client->GetBoost();
+	}
+	return g_conf->cl_boost->GetFloat();
 }
 
 

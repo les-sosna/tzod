@@ -23,7 +23,8 @@ PeerServer::PeerServer(SOCKET s_)
   , ready(false)
   , descValid(false)
   , id(-1)
-  , latency(0)
+  , svlatency(0)
+  , clboost(1)
 {
 }
 
@@ -285,6 +286,7 @@ void TankServer::SendFrame()
 		if( (*it1)->descValid )
 		{
 			(*it1)->Post(CL_POST_CONTROL, arg);
+			(*it1)->Post(CL_POST_SETBOOST, Variant((*it1)->clboost));
 		}
 	}
 
@@ -299,10 +301,10 @@ void TankServer::SendFrame()
 		if( (*it)->descValid )
 		{
 			assert((*it)->ctrlValid);
-			if( (*it)->latency < g_conf->sv_latency->GetInt() )
+			if( (*it)->svlatency < g_conf->sv_latency->GetInt() )
 			{
 				TRACE("sv: extra packet added\n");
-				++(*it)->latency;
+				++(*it)->svlatency;
 				++_frameReadyCount;
 				if( _frameReadyCount == _connectedCount )
 				{
@@ -325,7 +327,7 @@ std::string TankServer::GetStats() const
 	{
 		if( (*it)->descValid )
 		{
-			s << (*it)->desc.nick << ":" << (*it)->leading.Count() << "  ";
+			s << (*it)->desc.nick << ":" << (*it)->leading.Count() << " (boost:" << (*it)->clboost << ") ";
 		}
 	}
 	return s.str();
@@ -344,10 +346,10 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 	PeerServer *who = static_cast<PeerServer *>(from);
 	assert(!who->ctrlValid);
 
-	if( who->latency > g_conf->sv_latency->GetInt() )
+	if( who->svlatency > g_conf->sv_latency->GetInt() )
 	{
 		TRACE("sv: extra packet skipped\n");
-		--who->latency;
+		--who->svlatency;
 	}
 	else
 	{
@@ -360,11 +362,21 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 		{
 			SendFrame();
 			assert(!_connectedCount || _frameReadyCount != _connectedCount);
+			float sum = 0;
 			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
 				if( (*it)->descValid )
 				{
 					(*it)->leading.Push((*it)->GetPending() > 0);
+					(*it)->clboost -= g_conf->sv_sensitivity->GetFloat() * (float) (*it)->leading.Count() / (*it)->leading.GetCapacity();
+					sum += (*it)->clboost;
+				}
+			}
+			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
+			{
+				if( (*it)->descValid )
+				{
+					(*it)->clboost /= sum / (float) _connectedCount;
 				}
 			}
 		}

@@ -109,11 +109,16 @@ void Socket::Attach(SOCKET s)
 	assert(INVALID_SOCKET == _socket);
 	assert(INVALID_SOCKET != s);
 	_socket = s;
-	BOOL on = TRUE;
-	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
-	{
-		TRACE("WARNING: setting TCP_NODELAY failed!\n");
-	}
+//	BOOL on = TRUE;
+//	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
+//	{
+//		TRACE("WARNING: setting TCP_NODELAY failed!\n");
+//	}
+//	int bufsize = 0;
+//	if( setsockopt(s, SOL_SOCKET, SO_SNDBUF, (const char*) &bufsize, sizeof(int)) )
+//	{
+//		TRACE("WARNING: setting SO_SNDBUF failed! %d\n", WSAGetLastError());
+//	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
