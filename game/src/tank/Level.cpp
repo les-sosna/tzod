@@ -1101,7 +1101,9 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 {
 	++_steps;
 
-	_time        += dt;
+	_time          += dt;
+	_ctrlSentCount -= 1;
+	_timeBuffer    -= dt;
 
 	if( !_frozen )
 	{
@@ -1266,8 +1268,6 @@ void Level::TimeStep(float dt)
 			if( _abstractClient.Recv(cpv) )
 			{
 				Step(cpv, dt_fixed);
-				_ctrlSentCount -= 1;
-				_timeBuffer -= dt_fixed;
 			}
 			else
 			{

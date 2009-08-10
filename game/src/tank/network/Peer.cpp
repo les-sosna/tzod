@@ -15,6 +15,9 @@ Peer::Peer(SOCKET s)
   , _out(true)
   , _socket(s)
   , _paused(false)
+  , _readyToSend(true)
+  , _processingLevel(0)
+  , _processingLevelMax(0)
 {
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
@@ -27,6 +30,7 @@ Peer::Peer(SOCKET s)
 Peer::~Peer()
 {
 	assert(INVALID_SOCKET == _socket);
+	assert(0 == _processingLevel);
 }
 
 void Peer::Close()
@@ -53,21 +57,14 @@ int Peer::Connect(const sockaddr_in *addr)
 
 void Peer::Post(int func, const Variant &arg)
 {
-	bool trySend = _out.IsEmpty();
-
 	_out.EntityBegin();
 	_out & func;
 	_out & const_cast<Variant &>(arg);
 	_out.EntityEnd();
 
-	if( trySend )
+	if( _readyToSend )
 	{
-		if( int err = _out.Send(_socket) )
-		{
-			TRACE("peer: network error %u\n", err);
-			assert(eventDisconnect);
-			INVOKE(eventDisconnect) (this, err);
-		}
+		TrySend();
 	}
 }
 
@@ -81,6 +78,7 @@ void Peer::RegisterHandler(int func, Variant::TypeId argType, HandlerProc handle
 void Peer::OnSocketEvent()
 {
 	assert(INVALID_SOCKET != _socket);
+	assert(0 == _processingLevel);
 
 	WSANETWORKEVENTS ne = {0};
 	if( _socket.EnumNetworkEvents(&ne) )
@@ -134,7 +132,33 @@ void Peer::OnSocketEvent()
 		}
 		else
 		{
-			ProcessInput();
+			while( _in.EntityProbe() )
+			{
+				_pendingCalls.push(PendingRemoteCall());
+				PendingRemoteCall &pc = _pendingCalls.back();
+
+				_in.EntityBegin();
+				int func;
+				_in & func;
+				HandlersMap::const_iterator it = _handlers.find(func);
+				if( _handlers.end() == it )
+				{
+					_pendingCalls.pop();
+					TRACE("peer: invalid function code\n");
+					assert(eventDisconnect);
+					INVOKE(eventDisconnect) (this, 0);
+					return;
+				}
+				pc.handler = it->second.handler;
+				pc.arg.ChangeType(it->second.argType);
+				_in & pc.arg;
+				_in.EntityEnd();
+			}
+
+			if( !_paused )
+			{
+				ProcessInput();
+			}
 		}
 	}
 
@@ -147,56 +171,62 @@ void Peer::OnSocketEvent()
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_WRITE_BIT]);
 			return;
 		}
+		_readyToSend = true;
+		if( !_out.IsEmpty() )
+		{
+			TrySend();
+		}
+	}
+}
 
-		if( int err = _out.Send(_socket) )
+void Peer::ProcessInput()
+{
+	++_processingLevel;
+	if( _processingLevelMax < _processingLevel )
+	{
+		_processingLevelMax = _processingLevel;
+		_paused = false;
+	}
+	while( !_pendingCalls.empty() )
+	{
+		PendingRemoteCall pc(_pendingCalls.front());
+		_pendingCalls.pop();
+
+		bool cont = INVOKE(pc.handler) (this, -1, pc.arg);
+		if( !cont )
+		{
+			if( _processingLevel == _processingLevelMax )
+			{
+				_paused = true;
+			}
+			break;
+		}
+	}
+	--_processingLevel;
+	if( 0 == _processingLevel )
+	{
+		_processingLevelMax = 0;
+	}
+}
+
+bool Peer::TrySend()
+{
+	assert(_readyToSend);
+	if( int err = _out.Send(_socket) )
+	{
+		if( WSAEWOULDBLOCK == err )
+		{
+			_readyToSend = false;
+		}
+		else
 		{
 			TRACE("peer: network error %u\n", err);
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, err);
-			return;
+			return false;
 		}
 	}
-}
-
-bool Peer::ProcessInput()
-{
-	bool result = false;
-	while( _in.EntityProbe() )
-	{
-		if( _paused )
-		{
-			break;
-		}
-
-		int func;
-		Variant arg;
-		_in.EntityBegin();
-		_in & func;
-		HandlersMap::const_iterator it = _handlers.find(func);
-		assert(_handlers.end() != it);
-		arg.ChangeType(it->second.argType);
-		_in & arg;
-		_in.EntityEnd();
-		INVOKE(it->second.handler) (this, -1, arg);
-		result = true;
-	}
-	return result;
-}
-
-void Peer::Pause()
-{
-	assert(!_paused);
-	_paused = true;
-}
-
-bool Peer::Resume()
-{
-	if( _paused )
-	{
-		_paused = false;
-		return ProcessInput();
-	}
-	return false;
+	return true;
 }
 
 // end of file

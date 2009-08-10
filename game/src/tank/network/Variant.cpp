@@ -162,12 +162,7 @@ int DataStream::Send(SOCKET s)
 		int result = send(s, &_buffer.front() + sent, _buffer.size() - sent, 0);
 		if( SOCKET_ERROR == result )
 		{
-			int err = WSAGetLastError();
-			if( WSAEWOULDBLOCK != err )
-			{
-				return err;
-			}
-			break;
+			return WSAGetLastError();
 		}
 		else
 		{
