@@ -146,34 +146,39 @@ bool DataStream::IsEmpty() const
 	return _buffer.empty();
 }
 
-int DataStream::Send(SOCKET s)
+int DataStream::Send(SOCKET s, size_t *outSent)
 {
 	assert(_serialization);
 	assert(0 == _entityLevel);
 
-	if( _buffer.empty() )
+	size_t sent = 0;
+
+	if( !_buffer.empty() )
 	{
-		return 0;
+		do
+		{
+			int result = send(s, &_buffer.front() + sent, _buffer.size() - sent, 0);
+			if( SOCKET_ERROR == result )
+			{
+				return WSAGetLastError();
+			}
+			else
+			{
+				assert(result > 0);
+				sent += result;
+			}
+		} while( sent < _buffer.size() );
+
+		// remove sent bytes
+		assert(sent <= _buffer.size());
+		_buffer.erase(_buffer.begin(), _buffer.begin() + sent);
 	}
 
-	size_t sent = 0;
-	do
+	if( outSent )
 	{
-		int result = send(s, &_buffer.front() + sent, _buffer.size() - sent, 0);
-		if( SOCKET_ERROR == result )
-		{
-			return WSAGetLastError();
-		}
-		else
-		{
-			assert(result > 0);
-			sent += result;
-		}
-	} while( sent < _buffer.size() );
+		*outSent = sent;
+	}
 
-	// remove sent bytes
-	assert(sent <= _buffer.size());
-	_buffer.erase(_buffer.begin(), _buffer.begin() + sent);
 	return 0;
 }
 

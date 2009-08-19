@@ -314,7 +314,7 @@ void TankServer::SendFrame()
 			else
 			{
 				(*it)->ctrlValid = false;
-				(*it)->ProcessInput();
+				(*it)->Resume();
 			}
 		}
 	}
@@ -333,16 +333,15 @@ std::string TankServer::GetStats() const
 	return s.str();
 }
 
-bool TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
+void TankServer::SvTextMessage(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 	std::stringstream msg;
 	msg << "<" << who->desc.nick << "> " << arg.Value<std::string>();
 	BroadcastTextMessage(msg.str());
-	return true;
 }
 
-bool TankServer::SvControl(Peer *from, int task, const Variant &arg)
+void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 	assert(!who->ctrlValid);
@@ -351,40 +350,40 @@ bool TankServer::SvControl(Peer *from, int task, const Variant &arg)
 	{
 		TRACE("sv: extra packet skipped\n");
 		--who->svlatency;
-		return true;
 	}
-
-	who->ctrlValid = true;
-	who->ctrl = arg.Value<ControlPacket>();
-
-	++_frameReadyCount;
-	if( _frameReadyCount == _connectedCount )
+	else
 	{
-		SendFrame();
-		assert(!_connectedCount || _frameReadyCount != _connectedCount);
-		float sum = 0;
-		for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
+		who->ctrlValid = true;
+		who->ctrl = arg.Value<ControlPacket>();
+		who->Pause();
+
+		++_frameReadyCount;
+		if( _frameReadyCount == _connectedCount )
 		{
-			if( (*it)->descValid )
+			SendFrame();
+			assert(!_connectedCount || _frameReadyCount != _connectedCount);
+			float sum = 0;
+			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
-				(*it)->leading.Push((*it)->GetPending() > 0);
-				(*it)->clboost -= g_conf->sv_sensitivity->GetFloat() * (float) (*it)->leading.Count() / (*it)->leading.GetCapacity();
-				sum += (*it)->clboost;
+				if( (*it)->descValid )
+				{
+					(*it)->leading.Push((*it)->GetPending() > 0);
+					(*it)->clboost -= g_conf->sv_sensitivity->GetFloat() * (float) (*it)->leading.Count() / (*it)->leading.GetCapacity();
+					sum += (*it)->clboost;
+				}
 			}
-		}
-		for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
-		{
-			if( (*it)->descValid )
+			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
-				(*it)->clboost /= sum / (float) _connectedCount;
+				if( (*it)->descValid )
+				{
+					(*it)->clboost /= sum / (float) _connectedCount;
+				}
 			}
 		}
 	}
-
-	return false;
 }
 
-bool TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
+void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 
@@ -418,10 +417,9 @@ bool TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 			(*it)->Post(CL_POST_STARTGAME, Variant(true));
 		}
 	}
-	return true;
 }
 
-bool TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
+void TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
 {
 	PostType post(CL_POST_ADDBOT, arg);
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
@@ -429,10 +427,9 @@ bool TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
 		(*it)->Post(post.first, post.second);
 	}
 	_players.push_back(post);
-	return true;
 }
 
-bool TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
+void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 
@@ -486,8 +483,6 @@ bool TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 			}
 		}
 	}
-
-	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

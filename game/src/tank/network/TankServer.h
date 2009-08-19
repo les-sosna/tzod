@@ -62,11 +62,11 @@ class TankServer
 	void BroadcastTextMessage(const std::string &msg);
 
 	// remote functions
-	bool SvControl(Peer *from, int task, const Variant &arg);
-	bool SvTextMessage(Peer *from, int task, const Variant &arg);
-	bool SvPlayerReady(Peer *from, int task, const Variant &arg);
-	bool SvAddBot(Peer *from, int task, const Variant &arg);
-	bool SvPlayerInfo(Peer *from, int task, const Variant &arg);
+	void SvControl(Peer *from, int task, const Variant &arg);
+	void SvTextMessage(Peer *from, int task, const Variant &arg);
+	void SvPlayerReady(Peer *from, int task, const Variant &arg);
+	void SvAddBot(Peer *from, int task, const Variant &arg);
+	void SvPlayerInfo(Peer *from, int task, const Variant &arg);
 
 public:
 	TankServer(const SafePtr<LobbyClient> &announcer);

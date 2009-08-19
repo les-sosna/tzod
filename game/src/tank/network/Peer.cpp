@@ -16,8 +16,6 @@ Peer::Peer(SOCKET s)
   , _socket(s)
   , _paused(false)
   , _readyToSend(true)
-  , _processingLevel(0)
-  , _processingLevelMax(0)
 {
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
@@ -30,7 +28,6 @@ Peer::Peer(SOCKET s)
 Peer::~Peer()
 {
 	assert(INVALID_SOCKET == _socket);
-	assert(0 == _processingLevel);
 }
 
 void Peer::Close()
@@ -78,7 +75,6 @@ void Peer::RegisterHandler(int func, Variant::TypeId argType, HandlerProc handle
 void Peer::OnSocketEvent()
 {
 	assert(INVALID_SOCKET != _socket);
-	assert(0 == _processingLevel);
 
 	WSANETWORKEVENTS ne = {0};
 	if( _socket.EnumNetworkEvents(&ne) )
@@ -181,38 +177,25 @@ void Peer::OnSocketEvent()
 
 void Peer::ProcessInput()
 {
-	++_processingLevel;
-	if( _processingLevelMax < _processingLevel )
-	{
-		_processingLevelMax = _processingLevel;
-		_paused = false;
-	}
 	while( !_pendingCalls.empty() )
 	{
+		if( _paused )
+		{
+			break;
+		}
+
 		PendingRemoteCall pc(_pendingCalls.front());
 		_pendingCalls.pop();
 
-		bool cont = INVOKE(pc.handler) (this, -1, pc.arg);
-		if( !cont )
-		{
-			if( _processingLevel == _processingLevelMax )
-			{
-				_paused = true;
-			}
-			break;
-		}
-	}
-	--_processingLevel;
-	if( 0 == _processingLevel )
-	{
-		_processingLevelMax = 0;
+		INVOKE(pc.handler) (this, -1, pc.arg);
 	}
 }
 
 bool Peer::TrySend()
 {
 	assert(_readyToSend);
-	if( int err = _out.Send(_socket) )
+	size_t sent;
+	if( int err = _out.Send(_socket, &sent) )
 	{
 		if( WSAEWOULDBLOCK == err )
 		{
@@ -226,7 +209,23 @@ bool Peer::TrySend()
 			return false;
 		}
 	}
+	_sentRecent += sent;
 	return true;
+}
+
+void Peer::Pause()
+{
+	assert(!_paused);
+	_paused = true;
+}
+
+void Peer::Resume()
+{
+	if( _paused )
+	{
+		_paused = false;
+		ProcessInput();
+	}
 }
 
 // end of file

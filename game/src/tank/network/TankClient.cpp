@@ -192,9 +192,15 @@ void TankClient::GetStatistics(NetworkStats *pStats)
 	pStats->bytesSent = _peer->GetTrafficOut();
 	pStats->bytesRecv = _peer->GetTrafficIn();
 	pStats->bytesPending = _peer->GetPending();
+	if( _hasCtrl )
+	{
+		pStats->bytesPending += 10;
+	}
+
+//	memcpy(pStats, &_stats, sizeof(NetworkStats));
 }
 
-bool TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
+void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 
@@ -203,7 +209,7 @@ bool TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	if( 0 != memcmp(gi.exeVer, g_md5.bytes, 16) )
 	{
 		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_server_version->Get()));
-		return false;
+		return;
 	}
 
 	g_conf->sv_timelimit->SetInt(gi.timelimit);
@@ -219,7 +225,7 @@ bool TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	if( CalcCRC32(path.c_str()) != gi.dwMapCRC32 )
 	{
 		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));
-		return false;
+		return;
 	}
 
 
@@ -227,7 +233,7 @@ bool TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	if( !g_level->init_newdm(path, gi.seed) )
 	{
 		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map->Get()));
-		return false;
+		return;
 	}
 	g_level->PauseLocal(true); // paused until game is started
 
@@ -238,28 +244,24 @@ bool TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventConnected) ();
 	}
-
-	return true;
 }
 
-bool TankClient::ClSetId(Peer *from, int task, const Variant &arg)
+void TankClient::ClSetId(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 	_clientId = arg.Value<unsigned short>();
-	return true;
 }
 
-bool TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
+void TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 	if( eventPlayerReady )
 	{
 		INVOKE(eventPlayerReady) (arg.Value<PlayerReady>().id, arg.Value<PlayerReady>().ready);
 	}
-	return true;
 }
 
-bool TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
+void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 	_gameStarted = true;
@@ -271,11 +273,9 @@ bool TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventStartGame) ();
 	}
-
-	return true;
 }
 
-bool TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
+void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 
@@ -328,11 +328,9 @@ bool TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventPlayersUpdate) ();
 	}
-
-	return true;
 }
 
-bool TankClient::ClTextMessage(Peer *from, int task, const Variant &arg)
+void TankClient::ClTextMessage(Peer *from, int task, const Variant &arg)
 {
 	if( g_gui )
 	{
@@ -342,11 +340,9 @@ bool TankClient::ClTextMessage(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventTextMessage) (arg.Value<std::string>());
 	}
-
-	return true;
 }
 
-bool TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
+void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 {
 	if( g_gui )
 	{
@@ -356,11 +352,9 @@ bool TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventErrorMessage) (arg.Value<std::string>());
 	}
-
-	return true;
 }
 
-bool TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
+void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 {
 	unsigned short id = arg.Value<unsigned short>();
 
@@ -386,11 +380,9 @@ bool TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventPlayersUpdate) ();
 	}
-
-	return true;
 }
 
-bool TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
+void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 {
 	const BotDesc &bd = arg.Value<BotDesc>();
 	GC_PlayerAI *ai = new GC_PlayerAI();
@@ -406,11 +398,9 @@ bool TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 	{
 		INVOKE(eventPlayersUpdate) ();
 	}
-
-	return true;
 }
 
-bool TankClient::ClControl(Peer *from, int task, const Variant &arg)
+void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 {
 	assert(_gameStarted);
 	assert(g_level);
@@ -418,22 +408,19 @@ bool TankClient::ClControl(Peer *from, int task, const Variant &arg)
 
 	_ctrl = arg.Value<ControlPacketVector>();
 	_hasCtrl = true;
-
-	return false;
+	_peer->Pause();
 }
 
-bool TankClient::ClSetBoost(Peer *from, int task, const Variant &arg)
+void TankClient::ClSetBoost(Peer *from, int task, const Variant &arg)
 {
 	_boost = arg.Value<float>();
-	return true;
 }
 
-// called by engine when it's ready to process next frame
 bool TankClient::RecvControl(ControlPacketVector &result)
 {
 	if( !_hasCtrl )
 	{
-		_peer->ProcessInput();
+		_peer->Resume();
 	}
 	if( _hasCtrl )
 	{

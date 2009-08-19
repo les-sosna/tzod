@@ -28,6 +28,7 @@ public:
 	int Connect(const sockaddr_in *addr);
 	Delegate<void(Peer *, int errorCode)> eventDisconnect;
 
+	size_t GetSentRecent() { size_t tmp = _sentRecent; _sentRecent = 0; return tmp; }
 	size_t GetPending() const { return _pendingCalls.size(); }
 	size_t GetTrafficIn() const { return _in.GetTraffic(); }
 	size_t GetTrafficOut() const { return _out.GetTraffic(); }
@@ -37,13 +38,15 @@ public:
 
 	void Reply(const Variant &result, int taskId);
 
-	typedef Delegate<bool(Peer *from, int taskId, const Variant &arg)> HandlerProc;
+	typedef Delegate<void(Peer *from, int taskId, const Variant &arg)> HandlerProc;
 	void RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler);
 
-	void ProcessInput();
+	void Pause();
+	void Resume();
 
 private:
 	void OnSocketEvent();
+	void ProcessInput();
 	bool TrySend();
 
 	Socket _socket;
@@ -67,8 +70,7 @@ private:
 	};
 	std::queue<PendingRemoteCall> _pendingCalls;
 
-	int _processingLevel;
-	int _processingLevelMax;
+	size_t _sentRecent;
 	bool _paused;
 	bool _readyToSend;
 };

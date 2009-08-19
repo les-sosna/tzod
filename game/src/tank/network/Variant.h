@@ -17,7 +17,7 @@ public:
 	bool EntityProbe() const;
 	bool IsEmpty() const;
 
-	int Send(SOCKET s);
+	int Send(SOCKET s, size_t *outSent = NULL);
 	int Recv(SOCKET s);
 
 	size_t GetTraffic() const;

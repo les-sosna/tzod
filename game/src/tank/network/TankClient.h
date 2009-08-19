@@ -73,17 +73,17 @@ public:
 
 private:
 	// remote functions
-	bool ClTextMessage(Peer *from, int task, const Variant &arg);
-	bool ClErrorMessage(Peer *from, int task, const Variant &arg);
-	bool ClGameInfo(Peer *from, int task, const Variant &arg);
-	bool ClSetId(Peer *from, int task, const Variant &arg);
-	bool ClPlayerQuit(Peer *from, int task, const Variant &arg);
-	bool ClControl(Peer *from, int task, const Variant &arg);
-	bool ClPlayerReady(Peer *from, int task, const Variant &arg);
-	bool ClStartGame(Peer *from, int task, const Variant &arg);
-	bool ClAddBot(Peer *from, int task, const Variant &arg);
-	bool ClSetPlayerInfo(Peer *from, int task, const Variant &arg);
-	bool ClSetBoost(Peer *from, int task, const Variant &arg);
+	void ClTextMessage(Peer *from, int task, const Variant &arg);
+	void ClErrorMessage(Peer *from, int task, const Variant &arg);
+	void ClGameInfo(Peer *from, int task, const Variant &arg);
+	void ClSetId(Peer *from, int task, const Variant &arg);
+	void ClPlayerQuit(Peer *from, int task, const Variant &arg);
+	void ClControl(Peer *from, int task, const Variant &arg);
+	void ClPlayerReady(Peer *from, int task, const Variant &arg);
+	void ClStartGame(Peer *from, int task, const Variant &arg);
+	void ClAddBot(Peer *from, int task, const Variant &arg);
+	void ClSetPlayerInfo(Peer *from, int task, const Variant &arg);
+	void ClSetBoost(Peer *from, int task, const Variant &arg);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
