@@ -1329,6 +1329,11 @@ void Level::TimeStep(float dt)
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _steps);
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope6()->Push((float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
 	_steps = 0;
+
+	if( g_client )
+	{
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope7()->Push((float) g_client->_peer->GetSentRecent());
+	}
 }
 
 void Level::RunCmdQueue(float dt)

@@ -26,6 +26,7 @@ class Variant;
 
 class TankClient
 {
+public:
 	SafePtr<Peer> _peer;
 	int _frame;
 	ControlPacketVector _ctrl;

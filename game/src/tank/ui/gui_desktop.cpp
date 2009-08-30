@@ -165,6 +165,13 @@ Desktop::Desktop(GuiManager* manager)
 	_oscill6->SetTitle("ctrl sent");
 	float grid6[] = {2, 4, 6, 8};
 	_oscill6->SetGrid(grid6, sizeof(grid6) / sizeof(grid6[0]));
+	yy += hh+5;
+	_oscill7 = new Oscilloscope(this, xx, yy);
+	_oscill7->Resize(400, hh);
+	_oscill7->SetRange(0, 100);
+	_oscill7->SetTitle("bytes sent");
+	float grid7[] = {0,20,40,60,80};
+	_oscill7->SetGrid(grid7, sizeof(grid7) / sizeof(grid7[0]));
 
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
