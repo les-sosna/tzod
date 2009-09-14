@@ -11,6 +11,11 @@
 
 bool PauseGame(bool pause)
 {
+	if( !g_level )
+	{
+		return false;
+	}
+	
 	if( pause )
 	{
 		if( 0 == g_level->_pause + g_env.pause )

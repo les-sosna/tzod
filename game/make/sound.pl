@@ -2,7 +2,7 @@
 
 use strict;
 
-my %ignore = ( 'interface'=>1 );
+my %ignore = ( 'interface'=>1, '.'=>1, '..'=>1, '.svn'=>1 );
 
 sub process_dir
 {
@@ -14,7 +14,7 @@ sub process_dir
 
 	while ( my $file = readdir( $dir ) )
 	{
-		next if( '.' eq $file or '..' eq $file or exists $ignore{$file} );
+		next if( exists $ignore{$file} );
 
 		my $in = "$path/$file";
 
@@ -30,7 +30,7 @@ sub process_dir
 		#	my $out = "$path_out/$in";
 			my $out = $in;
 			$out =~ s/wav$/ogg/;
-			my $cmd = "../tools_bin/venc -q9 $in";
+			my $cmd = "venc -q9 $in";
 			print "$cmd\n";
 			print `$cmd`;
 
@@ -42,9 +42,8 @@ sub process_dir
 }
 
 
-process_dir('../workdir/sounds', '../workdir/sounds');
+process_dir('../data/sounds', '../data/sounds');
 
 print "---------------------------------------------------\n";
 print "Done.\n";
 
-<STDIN>

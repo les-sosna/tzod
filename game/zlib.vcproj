@@ -15,8 +15,8 @@
 	<Configurations>
 		<Configuration
 			Name="DLL_Release|Win32"
-			OutputDirectory="..\tmp\$(ConfigurationName)"
-			IntermediateDirectory="..\tmp\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="tmp\$(ConfigurationName)"
+			IntermediateDirectory="tmp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			>
 			<Tool
@@ -106,8 +106,8 @@
 		</Configuration>
 		<Configuration
 			Name="LIB_Debug|Win32"
-			OutputDirectory="..\tmp\$(ConfigurationName)"
-			IntermediateDirectory="..\tmp\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="tmp\$(ConfigurationName)"
+			IntermediateDirectory="tmp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="4"
 			>
 			<Tool
@@ -167,8 +167,8 @@
 		</Configuration>
 		<Configuration
 			Name="DLL_Debug|Win32"
-			OutputDirectory="..\tmp\$(ConfigurationName)"
-			IntermediateDirectory="..\tmp\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="tmp\$(ConfigurationName)"
+			IntermediateDirectory="tmp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			>
 			<Tool
@@ -250,8 +250,8 @@
 		</Configuration>
 		<Configuration
 			Name="LIB_Release|Win32"
-			OutputDirectory="..\tmp\$(ConfigurationName)"
-			IntermediateDirectory="..\tmp\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="tmp\$(ConfigurationName)"
+			IntermediateDirectory="tmp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="4"
 			>
 			<Tool
@@ -386,51 +386,51 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\src\zlib\adler32.c"
+				RelativePath="src\zlib\adler32.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\compress.c"
+				RelativePath="src\zlib\compress.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\crc32.c"
+				RelativePath="src\zlib\crc32.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\deflate.c"
+				RelativePath="src\zlib\deflate.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\gzio.c"
+				RelativePath="src\zlib\gzio.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\infback.c"
+				RelativePath="src\zlib\infback.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inffast.c"
+				RelativePath="src\zlib\inffast.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inflate.c"
+				RelativePath="src\zlib\inflate.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inftrees.c"
+				RelativePath="src\zlib\inftrees.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\trees.c"
+				RelativePath="src\zlib\trees.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\uncompr.c"
+				RelativePath="src\zlib\uncompr.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\win32\zlib.def"
+				RelativePath="src\zlib\win32\zlib.def"
 				>
 				<FileConfiguration
 					Name="LIB_Debug|Win32"
@@ -458,7 +458,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\zlib\zutil.c"
+				RelativePath="src\zlib\zutil.c"
 				>
 			</File>
 		</Filter>
@@ -467,43 +467,43 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="..\src\zlib\crc32.h"
+				RelativePath="src\zlib\crc32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\deflate.h"
+				RelativePath="src\zlib\deflate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inffast.h"
+				RelativePath="src\zlib\inffast.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inffixed.h"
+				RelativePath="src\zlib\inffixed.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inflate.h"
+				RelativePath="src\zlib\inflate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\inftrees.h"
+				RelativePath="src\zlib\inftrees.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\trees.h"
+				RelativePath="src\zlib\trees.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\zconf.h"
+				RelativePath="src\zlib\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\zlib.h"
+				RelativePath="src\zlib\zlib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\zlib\zutil.h"
+				RelativePath="src\zlib\zutil.h"
 				>
 			</File>
 		</Filter>
@@ -512,7 +512,7 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="..\src\zlib\win32\zlib1.rc"
+				RelativePath="src\zlib\win32\zlib1.rc"
 				>
 				<FileConfiguration
 					Name="DLL_Release|Win32"
@@ -520,7 +520,7 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="..\src\zlib\win32"
+						AdditionalIncludeDirectories="src\zlib\win32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -528,7 +528,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\src\zlib\win32"
+						AdditionalIncludeDirectories="src\zlib\win32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -536,7 +536,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\src\zlib\win32"
+						AdditionalIncludeDirectories="src\zlib\win32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -545,7 +545,7 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="..\src\zlib\win32"
+						AdditionalIncludeDirectories="src\zlib\win32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -554,7 +554,7 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="..\src\zlib\win32"
+						AdditionalIncludeDirectories="src\zlib\win32"
 					/>
 				</FileConfiguration>
 			</File>

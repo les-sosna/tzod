@@ -197,16 +197,17 @@ enum enumZOrder
 
 //-----------------------------------------------------------------------------
 // פאיכû
-#define DIR_SCRIPTS      "scripts"
-#define DIR_SAVE         "save"
-#define DIR_MAPS         "maps"
-#define DIR_SKINS        "skins"
-#define DIR_THEMES       "themes"
-#define DIR_MUSIC        "music"
+#define DIR_SCRIPTS      "data/scripts"
+#define DIR_SAVE         "data/save"
+#define DIR_MAPS         "data/maps"
+#define DIR_SKINS        "data/skins"
+#define DIR_THEMES       "data/themes"
+#define DIR_MUSIC        "data/music"
+#define DIR_SOUND        "data/sounds"
 #define DIR_SCREENSHOTS  "screenshots"
 
 #define FILE_CONFIG      "config.cfg"
-#define FILE_LANGUAGE    "lang.cfg"
+#define FILE_LANGUAGE    "data/lang.cfg"
 #define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
 #define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
 
