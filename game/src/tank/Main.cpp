@@ -366,7 +366,7 @@ bool ZodApp::Pre()
 		TRACE("WARNING: no textures loaded\n");
 		MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
 	}
-	if( g_texman->LoadDirectory("skins", "skin/") <= 0 )
+	if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
 	{
 		TRACE("WARNING: no skins found\n");
 		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);

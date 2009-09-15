@@ -1,7 +1,7 @@
 -- init.lua
 -- autorun script
 
-package.path = "scripts/?.lua"
+package.path = "data/scripts/?.lua"
 
 
 require "autocomplete"  -- init autocomplete engine for the console
@@ -20,10 +20,10 @@ conf.ui_showmsg = false;
 
 if math.random() > 0.5 then
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("maps/intro.map")
+  loadmap("data/maps/intro.map")
 else
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("maps/intro02.map")
+  loadmap("data/maps/intro02.map")
 end
 
 for _,s in pairs{"red","yellow","blue","FBI Tank","neutral"} do

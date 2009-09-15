@@ -315,8 +315,8 @@
 		</Configuration>
 		<Configuration
 			Name="LIB_Profiler|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="tmp\$(ConfigurationName)"
+			IntermediateDirectory="tmp\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="4"
 			>
 			<Tool
