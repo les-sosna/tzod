@@ -234,7 +234,7 @@ bool ZodApp::Pre()
 	// init file system
 	//
 	TRACE("Mounting file system\n");
-	g_fs = FS::OSFileSystem::Create(".");
+	g_fs = FS::OSFileSystem::Create("data");
 
 
 	//
@@ -284,7 +284,7 @@ bool ZodApp::Pre()
 			}
 		}
 	}
-	catch( std::exception &e )
+	catch( const std::exception &e )
 	{
 		TRACE("could not load localization file: %s\n", e.what());
 	}
@@ -361,17 +361,26 @@ bool ZodApp::Pre()
 
 	// init texture manager
 	g_texman = new TextureManager;
-	if( g_texman->LoadPackage(FILE_TEXTURES) <= 0 )
+	try
 	{
-		TRACE("WARNING: no textures loaded\n");
-		MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
+		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)) <= 0 )
+		{
+			TRACE("WARNING: no textures loaded\n");
+			MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
+		}
+		if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
+		{
+			TRACE("WARNING: no skins found\n");
+			MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
+		}
 	}
-	if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
+	catch( const std::exception &e )
 	{
-		TRACE("WARNING: no skins found\n");
-		MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
+		TRACE("ERROR: %s\n", e.what());
+		delete g_texman;
+		g_texman = NULL;
+		return false;
 	}
-
 
 	// init world
 	g_level = WrapRawPtr(new Level());

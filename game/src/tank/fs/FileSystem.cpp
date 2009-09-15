@@ -68,7 +68,7 @@ bool FileSystem::MountTo(FileSystem *parent)
 void FileSystem::Unmount()
 {
 	assert(_parent); // not mounted?
-	assert(_parent->GetFileSystem(GetNodeName(), false) == this);
+	assert(_parent->GetFileSystem(GetNodeName(), false, true) == this);
 
 	AddRef(); // protect this object from deletion
 	_parent->_children.erase(GetNodeName());
@@ -86,9 +86,9 @@ SafePtr<File> FileSystem::Open(const string_t &fileName)
 //	if( fileName.empty() ) return NULL;
 
 	string_t::size_type pd = fileName.rfind(DELIMITER);
-	if( string_t::npos != pd ) // is a path delimiter found?
+	if( string_t::npos != pd ) // was a path delimiter found?
 	{
-		return GetFileSystem(fileName.substr(0, pd+1), false)->RawOpen(fileName.substr(pd+1));
+		return GetFileSystem(fileName.substr(0, pd + 1))->RawOpen(fileName.substr(pd + 1));
 	}
 	return RawOpen(fileName);
 }
@@ -104,7 +104,7 @@ SafePtr<File> FileSystem::RawOpen(const string_t &fileName)
 	return NULL;
 }
 
-SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create)
+SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
 
@@ -120,10 +120,15 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create)
 	StrToFileSystemMap::const_iterator it = _children.find(
 		path.substr(offset, string_t::npos != p ? p - offset : p));
 	if( _children.end() == it )
-		throw std::runtime_error("node not found in base file system");
+	{
+		if( nothrow )
+			return NULL;
+		else
+			throw std::runtime_error("node not found in base file system");
+	}
 
 	if( string_t::npos != p )
-		return it->second->GetFileSystem(path.substr(p), create);
+		return it->second->GetFileSystem(path.substr(p), create, nothrow);
 
 	return it->second;
 }
@@ -303,58 +308,62 @@ SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName)
 	return WrapRawPtr(new OSFile(_rootDirectory + TEXT('\\') + fileName));
 }
 
-SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create)
+SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
 {
-	try
+	if( SafePtr<FileSystem> tmp = __super::GetFileSystem(path, create, true) )
 	{
-		return __super::GetFileSystem(path, create);
+		return tmp;
 	}
-	catch( const std::exception& )
+
+	assert(!path.empty());
+
+	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
+	if( path.length() == offset )
+		return WrapRawPtr(this); // path contains only one DELIMITER symbol
+
+	string_t::size_type p = path.find( DELIMITER, offset );
+	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
+	string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
+
+	// try to find directory
+	WIN32_FIND_DATA fd = {0};
+	HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+	FindClose(search);
+
+	if( INVALID_HANDLE_VALUE == search )
 	{
-		assert(!path.empty());
-
-		string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
-		if( path.length() == offset )
-			return WrapRawPtr(this); // path contains only one DELIMITER symbol
-
-		string_t::size_type p = path.find( DELIMITER, offset );
-		string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
-		string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
-
-		// try to find directory
-		WIN32_FIND_DATA fd = {0};
-		HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
-		FindClose(search);
-
-		if( INVALID_HANDLE_VALUE == search )
+		if( create && CreateDirectory(tmpDir.c_str(), NULL) )
 		{
-			if( create && CreateDirectory(tmpDir.c_str(), NULL) )
+			// try to find again
+			HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+			FindClose(search);
+			if( INVALID_HANDLE_VALUE == search )
 			{
-				// try to find again
-				HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
-				FindClose(search);
-				if( INVALID_HANDLE_VALUE == search )
-				{
+				if( nothrow )
+					return NULL;
+				else
 					throw std::runtime_error("could not create directory");
-				}
-			}
-			else
-			{
-				throw std::runtime_error("could not create or find directory");
 			}
 		}
-
-		if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+		else
 		{
-			SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
-			if( string_t::npos != p )
-				return child->GetFileSystem(path.substr(p), create); // process the rest of the path
-			return child; // last path node was processed
+			if( nothrow )
+				return NULL;
+			else
+				throw std::runtime_error("could not create or find directory");
 		}
-
-		throw;
 	}
 
+	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+	{
+		SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
+		if( string_t::npos != p )
+			return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
+		return child; // last path node was processed
+	}
+
+	if( !nothrow )
+		throw std::runtime_error("object is not a directory");
 	return NULL;
 }
 

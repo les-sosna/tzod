@@ -4,6 +4,11 @@
 
 #include "RenderBase.h"
 
+namespace FS
+{
+	class File;
+}
+
 struct LogicalTexture
 {
 	DEV_TEXTURE dev_texture;
@@ -30,7 +35,7 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	int LoadPackage(const string_t &fileName);
+	int LoadPackage(const string_t &packageName, SafePtr<FS::File> &file);
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 	void UnloadAllTextures();
 
@@ -84,6 +89,7 @@ class ThemeManager
 	struct ThemeDesc
 	{
 		string_t fileName;
+		SafePtr<FS::File> file;
 	};
 
 	std::vector<ThemeDesc> _themes;

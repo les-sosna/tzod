@@ -1030,9 +1030,16 @@ int luaT_loadtheme(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( 0 == g_texman->LoadPackage(filename) )
+	try
 	{
-		g_app->GetConsole()->puts("WARNING: there are no textures loaded\n");
+		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)) )
+		{
+			g_app->GetConsole()->puts("WARNING: there are no textures loaded\n");
+		}
+	}
+	catch( const std::exception &e )
+	{
+		return luaL_error(L, "could not load theme - %s", e.what());
 	}
 
 	return 0;
@@ -1198,16 +1205,23 @@ bool script_exec_file(lua_State *L, const char *filename)
 {
 	assert(L);
 
-	if( luaL_loadfile(L, filename) )
+	try
 	{
-		TRACE("%s\n", lua_tostring(L, -1));
-		return false;
+		SafePtr<FS::File> f = g_fs->Open(filename);
+		if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
+		{
+			throw std::runtime_error(lua_tostring(L, -1));
+		}
+		if( lua_pcall(L, 0, 0, 0) )
+		{
+			std::string err = lua_tostring(L, -1);
+			lua_pop(L, 1); // pop the error message from the stack
+			throw std::runtime_error(std::string("runtime error: ") + err);
+		}
 	}
-
-	if( lua_pcall(L, 0, 0, 0) )
+	catch( const std::runtime_error &e )
 	{
-		TRACE("runtime error: %s\n", lua_tostring(L, -1));
-		lua_pop(L, 1); // pop the error message from the stack
+		TRACE("%s\n", e.what());
 		return false;
 	}
 

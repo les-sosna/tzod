@@ -17,38 +17,38 @@
 return {
 --------------------------------------
 {
-   file="data/textures/background/back01.tga",
+   file="textures/background/back01.tga",
    content={
      background={xpivot=0, ypivot=0},
    }
 },
 {
-   file="data/textures/background/scoretbl.tga",
+   file="textures/background/scoretbl.tga",
    content={
      scoretbl={xpivot=0, ypivot=0},
    }
 },
 {
-   file="data/textures/editor/grid.tga",
+   file="textures/editor/grid.tga",
    content={
      grid={xpivot=0, ypivot=0},
    }
 },
 {
-   file="data/textures/editor/labels.tga",
+   file="textures/editor/labels.tga",
    content={
      editor_respawn={left=0, top=0, right=32, bottom=32},
      editor_item={left=64, top=0, right=128, bottom=64},
    }
 },
 {
-   file="data/textures/editor/trigger.tga",
+   file="textures/editor/trigger.tga",
    content={
      editor_trigger={},
    }
 },
 {
-   file="data/textures/walls/walls.tga",
+   file="textures/walls/walls.tga",
    content={
      brick_wall={left=0, top=0, right=128, bottom=64, xframes=4, yframes=2},
      brick_lt={left=128, top=0, right=160, bottom=128, yframes=4},
@@ -66,19 +66,19 @@ return {
    }
 },
 {
-   file="data/textures/landscape/wood.tga",
+   file="textures/landscape/wood.tga",
    content={
      wood={left=16, top=16, right=112, bottom=112, xframes=3, yframes=3},
    }
 },
 {
-   file="data/textures/landscape/water.tga",
+   file="textures/landscape/water.tga",
    content={
      water={left=0, top=0, right=96, bottom=96, xframes=3, yframes=3},
    }
 },
 {
-   file="data/textures/turrets/turrets.tga",
+   file="textures/turrets/turrets.tga",
    content={
      -- weapons --
      turret_cannon={left=0, top=384, right=64, bottom=448},
@@ -92,7 +92,7 @@ return {
    }
 },
 {
-   file="data/textures/particles/particles.tga",
+   file="textures/particles/particles.tga",
    content={
      particle_brick={left=0, top=0, right=128, bottom=128, xframes=8, yframes=8},
      particle_smoke={left=128, top=0, right=256, bottom=128, xframes=4, yframes=4},
@@ -116,7 +116,7 @@ return {
    }
 },
 {
-   file="data/textures/indicators/indicators.tga",
+   file="textures/indicators/indicators.tga",
    content={
      indicator_health={left=0, top=6, right=48, bottom=11, ypivot=0},
      indicator_fuel={left=0, top=0, right=48, bottom=6, ypivot=0},
@@ -126,13 +126,13 @@ return {
    }
 },
 {
-   file="data/textures/indicators/damage.tga",
+   file="textures/indicators/damage.tga",
    content={
      indicator_damage={xframes=2},
    }
 },
 {
-   file="data/textures/projectiles/projectiles.tga",
+   file="textures/projectiles/projectiles.tga",
    content={
      projectile_ac={left=0, top=0, right=4, bottom=4, xpivot=2, ypivot=2},
      projectile_cannon={left=16, top=8, right=25, bottom=13, xpivot=5, ypivot=3},
@@ -143,19 +143,19 @@ return {
    }
 },
 {
-   file="data/textures/projectiles/bfg1.tga",
+   file="textures/projectiles/bfg1.tga",
    content={
      projectile_bfg={xframes=2, yframes=2, xpivot=64, ypivot=64},
    }
 },
 {
-   file="data/textures/projectiles/fire.tga",
+   file="textures/projectiles/fire.tga",
    content={
      projectile_fire={xframes=2, yframes=2},
    }
 },
 {
-   file="data/textures/items/powerups.tga",
+   file="textures/items/powerups.tga",
    content={
      pu_health={left=0, top=192, right=64, bottom=256, xframes=4, yframes=4},
      pu_shock={left=0, top=128, right=128, bottom=192, xframes=8, yframes=4},
@@ -164,7 +164,7 @@ return {
    }
 },
 {
-   file="data/textures/items/weapons.tga",
+   file="textures/items/weapons.tga",
    content={
      weap_gauss={left=0, top=0, right=48, bottom=32},
      weap_ac={left=60, top=40, right=104, bottom=80},
@@ -180,13 +180,13 @@ return {
    }
 },
 {
-   file="data/textures/items/mine.tga",
+   file="textures/items/mine.tga",
    content={
      item_mine={},
    }
 },
 {
-   file="data/textures/effects/explosions.tga",
+   file="textures/effects/explosions.tga",
    content={
      explosion_big={left=0, top=0, right=768, bottom=384, xframes=6, yframes=3},
      explosion_plazma={left=768, top=256, right=1008, bottom=352, xframes=5, yframes=2},
@@ -198,31 +198,31 @@ return {
    }
 },
 {
-   file="data/textures/effects/shield.tga",
+   file="textures/effects/shield.tga",
    content={
      shield={right=224, bottom=224, xframes=4, yframes=4},
    }
 },
 {
-   file="data/textures/effects/booster.tga",
+   file="textures/effects/booster.tga",
    content={
      booster={xscale=1.5, yscale=1.5},
    }
 },
 {
-   file="data/textures/effects/lightning.tga",
+   file="textures/effects/lightning.tga",
    content={
      lightning={},
    }
 },
 {
-   file="data/textures/effects/shine.tga",
+   file="textures/effects/shine.tga",
    content={
      shine={},
    }
 },
 {
-   file="data/textures/effects/decals.tga",
+   file="textures/effects/decals.tga",
    content={
      cat_track={left=0, top=0, right=8, bottom=8},
      bigblast={left=64, top=0, right=128, bottom=64, xscale=2, yscale=2},
@@ -230,13 +230,13 @@ return {
    }
 },
 {
-   file="data/textures/objects/light.tga",
+   file="textures/objects/light.tga",
    content={
      spotlight={},
    }
 },
 {
-   file="data/textures/objects/crate.tga",
+   file="textures/objects/crate.tga",
    content={
      crate01={},
    }
@@ -245,7 +245,7 @@ return {
 
 --- GUI ---
 {
-   file="data/textures/gui/fonts.tga",
+   file="textures/gui/fonts.tga",
    content={
      font_small={left=100, right=212, top=0, bottom=140, xframes=16, yframes=14, xpivot=0, ypivot=0},
      font_default={left=212, top=0, right=512, bottom=240, xframes=20, yframes=12, xpivot=0, ypivot=0},
@@ -254,7 +254,7 @@ return {
    }
 },
 {
-   file="data/textures/gui/controls.tga",
+   file="textures/gui/controls.tga",
    content={
      ["ui/window"]={left=50, top=146, right=94, bottom=190, xpivot=0, ypivot=0},
      ["ui/selection"]={left=2, top=226, right=6, bottom=230, xpivot=0, ypivot=0},
@@ -275,19 +275,19 @@ return {
    }
 },
 {
-   file="data/textures/gui/splash.tga",
+   file="textures/gui/splash.tga",
    content={
      gui_splash={xpivot=0, ypivot=0},
    }
 },
 {
-   file="data/textures/gui/logos.tga",
+   file="textures/gui/logos.tga",
    content={
      gui_logos={xpivot=0, ypivot=0},
    }
 },
 {
-   file="data/textures/gui/cursor.tga",
+   file="textures/gui/cursor.tga",
    content={
      cursor={right=128, bottom=64, xframes=4, yframes=2, xpivot=1, ypivot=1},
    }

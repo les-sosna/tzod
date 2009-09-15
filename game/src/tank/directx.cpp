@@ -115,7 +115,7 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	LoadOggVorbis(init, SND_Limit,          DIR_SOUND"/misc/limit.ogg"           );
 	LoadOggVorbis(init, SND_LightSwitch,    DIR_SOUND"/misc/light1.ogg"          ); //
 	}
-	catch( LoadSoundException )
+	catch( const std::exception & )
 	{
 		if( init ) FreeDirectSound();
 		throw;
@@ -290,12 +290,12 @@ HRESULT InitAll( HWND hWnd )
 			MessageBox( hWnd, "Direct Sound init error", TXT_VERSION, MB_ICONERROR | MB_OK );
 		}
 	}
-	catch(LoadSoundException e)
+	catch( const std::exception &e )
 	{
 		std::ostringstream ss;
-		ss << "Could not load file " << e.filename;
+		ss << "DirectSound init: " << e.what();
 		MessageBox( hWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR | MB_OK );
-		return e.hr;
+		return E_FAIL;
 	}
 #endif
 

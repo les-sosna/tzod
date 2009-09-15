@@ -1,13 +1,6 @@
 // sfx.h
 
-
-struct LoadSoundException
-{
-	string_t  filename;
-	HRESULT   hr;
-};
-
-//  throws LoadSoundException
+//  throws std::runtime_error
 void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename);
 
 

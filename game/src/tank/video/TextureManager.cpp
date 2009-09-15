@@ -187,13 +187,13 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const string_t &filename)
+int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::File> &file)
 {
-	TRACE("Loading texture package '%s'\n", filename.c_str());
+	TRACE("Loading texture package '%s'\n", packageName.c_str());
 
 	lua_State *L = lua_open();
 
-	if( 0 != (luaL_loadfile(L, filename.c_str()) || lua_pcall(L, 0, 1, 0)) )
+	if( 0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)) )
 	{
 		TRACE("%s\n", lua_tostring(L, -1));
 		lua_close(L);
@@ -233,7 +233,7 @@ int TextureManager::LoadPackage(const string_t &filename)
 			catch( const std::exception &e )
 			{
 				TRACE("WARNING: could not load texture '%s' - %s\n", f.c_str(), e.what());
-				continue;
+				break;
 			}
 
 
@@ -700,6 +700,12 @@ ThemeManager::ThemeManager()
 		do {
 			ThemeDesc td;
 			td.fileName = fd.cFileName;
+
+			string_t filename = DIR_THEMES;
+			filename += "\\";
+			filename += td.fileName;
+			td.file = g_fs->Open(filename);
+
 			_themes.push_back(td);
 		} while( FindNextFile(hSearch, &fd) );
 		FindClose(hSearch);
@@ -738,24 +744,11 @@ string_t ThemeManager::GetThemeName(size_t index)
 
 bool ThemeManager::ApplyTheme(size_t index)
 {
-	bool res = (g_texman->LoadPackage(FILE_TEXTURES) > 0);
+	bool res = (g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)) > 0);
 	if( index > 0 )
 	{
-		string_t filename = DIR_THEMES;
-		filename += "\\";
-		filename += _themes[index-1].fileName;
-		res = res && (g_texman->LoadPackage(filename) > 0);
+		res = res && (g_texman->LoadPackage(_themes[index-1].fileName, _themes[index-1].file) > 0);
 	}
-/*
-	FOREACH( g_level->GetList(LIST_objects), GC_Object, object )
-	{
-		GC_2dSprite *pSprite = dynamic_cast<GC_2dSprite*>(object);
-		if( pSprite && !pSprite->IsKilled() )
-		{
-			pSprite->UpdateTexture();
-		}
-	}
-*/
 	return res;
 }
 

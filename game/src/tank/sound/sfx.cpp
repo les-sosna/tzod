@@ -109,11 +109,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
 		{
 			TRACE("ERROR: couldn't load sound file '%s'\n", filename);
-			//-------------------------------------------------------
-			LoadSoundException e;
-			e.filename = filename;
-			e.hr       = E_FAIL;
-			throw e;
+			throw std::runtime_error(std::string("failed to load ") + filename);
 		}
 
 		HRESULT hr = g_soundManager->CreateFromMemory( &g_pSounds[sound],
@@ -123,11 +119,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 		if( FAILED(hr) )
 		{
 			TRACE("ERROR: couldn't create the sound buffer\n");
-			//-------------------------------------------------------
-			LoadSoundException e;
-			e.filename = filename;
-			e.hr       = hr;
-			throw e;
+			throw std::runtime_error(std::string("failed to create buffer for ") + filename);
 		}
 	}
 	else

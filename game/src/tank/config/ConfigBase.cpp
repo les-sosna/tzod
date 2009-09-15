@@ -905,7 +905,7 @@ bool ConfVarTable::Save(const char *filename) const
 	{
 		return false;
 	}
-	fprintf(file, "-- config file\n-- don't modify!\n\n");
+	fprintf(file, "-- config file\n\n");
 	bool result = _Save(file, 0);
 	fclose(file);
 	return result;
@@ -916,9 +916,7 @@ bool ConfVarTable::Load(const char *filename)
 	lua_State *L = lua_open();
 
 	// try to read and execute the file
-	SafePtr<FS::File> file = g_fs->Open(filename);
-	if( luaL_loadbuffer(L, file->GetData(), file->GetSize(), filename)
-	    || lua_pcall(L, 0, 0, 0) )
+	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
 	{
 		g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
 		lua_close(L);
