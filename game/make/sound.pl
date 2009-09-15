@@ -34,7 +34,10 @@ sub process_dir
 			print "$cmd\n";
 			print `$cmd`;
 
-			rename("$in.ogg", $out) or die "couldn't rename: $!";
+			if( not rename("$in.ogg", $out) )
+			{
+				-f $out or die "no output file produced";
+			}
 		}
 	}
 
