@@ -81,16 +81,16 @@ bool FileSystem::IsValid() const
 	return _parent ? _parent->IsValid() : true;
 }
 
-SafePtr<File> FileSystem::Open(const string_t &fileName)
+SafePtr<File> FileSystem::Open(const string_t &fileName, FileMode mode)
 {
 //	if( fileName.empty() ) return NULL;
 
 	string_t::size_type pd = fileName.rfind(DELIMITER);
 	if( string_t::npos != pd ) // was a path delimiter found?
 	{
-		return GetFileSystem(fileName.substr(0, pd + 1))->RawOpen(fileName.substr(pd + 1));
+		return GetFileSystem(fileName.substr(0, pd + 1))->RawOpen(fileName.substr(pd + 1), mode);
 	}
-	return RawOpen(fileName);
+	return RawOpen(fileName, mode);
 }
 
 void FileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
@@ -98,7 +98,7 @@ void FileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 	// base file system can't contain any files
 }
 
-SafePtr<File> FileSystem::RawOpen(const string_t &fileName)
+SafePtr<File> FileSystem::RawOpen(const string_t &fileName, FileMode mode)
 {
 	throw std::runtime_error("Base file system can't contain any files");
 	return NULL;
@@ -145,10 +145,13 @@ static string_t GetLastErrorMessage()
 	return result;
 }
 
-OSFileSystem::OSFile::OSFile(const string_t &fileName)
+OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
   : _data(NULL)
   , _size(0)
+  , _mode(mode)
 {
+	assert(_mode);
+
 	// replace all '/' by '\'
 	string_t tmp = fileName;
 	for( string_t::iterator it = tmp.begin(); tmp.end() != it; ++it )
@@ -159,11 +162,28 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName)
 		}
 	}
 
+	DWORD dwDesiredAccess = 0;
+	DWORD dwShareMode = FILE_SHARE_READ;
+	DWORD dwCreationDisposition;
+
+	if( _mode & ModeWrite )
+	{
+		dwDesiredAccess |= FILE_WRITE_DATA;
+		dwShareMode = 0;
+		dwCreationDisposition = CREATE_ALWAYS;
+	}
+
+	if( _mode & ModeRead )
+	{
+		dwDesiredAccess |= FILE_READ_DATA;
+		dwCreationDisposition = (_mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
+	}
+
 	_file.h = ::CreateFile(tmp.c_str(), // lpFileName
-	    FILE_READ_DATA,                 // dwDesiredAccess
-	    FILE_SHARE_READ,                // dwShareMode
+	    dwDesiredAccess,
+	    dwShareMode,
 	    NULL,                           // lpSecurityAttributes
-	    OPEN_EXISTING,                  // dwCreationDisposition
+	    dwCreationDisposition,
 	    FILE_FLAG_NO_BUFFERING,         // dwFlagsAndAttributes
 	    NULL);                          // hTemplateFile
 
@@ -172,6 +192,19 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName)
 		throw std::runtime_error(GetLastErrorMessage());
 	}
 
+	SetupMapping();
+}
+
+OSFileSystem::OSFile::~OSFile()
+{
+	if( _data )
+	{
+		UnmapViewOfFile(_data);
+	}
+}
+
+void OSFileSystem::OSFile::SetupMapping()
+{
 	_size = GetFileSize(_file.h, NULL);
 	if( INVALID_FILE_SIZE == _size )
 	{
@@ -191,14 +224,6 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName)
 	}
 }
 
-OSFileSystem::OSFile::~OSFile()
-{
-	if( _data )
-	{
-		UnmapViewOfFile(_data);
-	}
-}
-
 char* OSFileSystem::OSFile::GetData()
 {
 	return (char *) _data;
@@ -207,6 +232,32 @@ char* OSFileSystem::OSFile::GetData()
 unsigned long OSFileSystem::OSFile::GetSize() const
 {
 	return _size;
+}
+
+void OSFileSystem::OSFile::SetSize(unsigned long size)
+{
+	assert(_mode & ModeWrite);
+	BOOL bUnmapped = UnmapViewOfFile(_data);
+	_data = NULL;
+	_size = 0;
+	if( !bUnmapped )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	CloseHandle(_map.h);
+
+	if( INVALID_SET_FILE_POINTER == SetFilePointer(_file.h, size, NULL, FILE_BEGIN) )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+	if( !SetEndOfFile(_file.h) )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+
+	SetupMapping();
+	assert(_size == size);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -302,10 +353,10 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 	}
 }
 
-SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName)
+SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName, FileMode mode)
 {
 	// combine with the root path
-	return WrapRawPtr(new OSFile(_rootDirectory + TEXT('\\') + fileName));
+	return WrapRawPtr(new OSFile(_rootDirectory + TEXT('\\') + fileName, mode));
 }
 
 SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
