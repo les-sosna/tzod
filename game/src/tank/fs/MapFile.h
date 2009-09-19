@@ -47,6 +47,11 @@
 	((((unsigned long) (s)) & 0xff000000) >> 24)|       \
 	((((unsigned long) (s)) & 0x00ff0000) >>  8)  ) )
 
+namespace FS
+{
+	class Stream;
+}
+
 
 class MapFile
 {
@@ -135,7 +140,7 @@ class MapFile
 private:
 	std::ostringstream _buffer;
 
-	FILE  *_file;
+	SafePtr<FS::Stream> _file;
 	bool   _modeWrite;
 	bool   _isNewClass;
 
@@ -150,26 +155,24 @@ private:
 	std::map<string_t, AttributeSet> _defaults;
 
 
-	bool _read_chunk_header(ChunkHeader &chdr);
-	bool _write_chunk_header(const ChunkHeader &chdr);
-	bool _skip_block(size_t size);
+	void _read_chunk_header(ChunkHeader &chdr);
+	void _write_chunk_header(const ChunkHeader &chdr);
+	void _skip_block(size_t size);
 
 
-	bool WriteInt(int value);
-	bool WriteFloat(float value);
-	bool WriteString(const string_t &value);
+	void WriteInt(int value);
+	void WriteFloat(float value);
+	void WriteString(const string_t &value);
 
-	bool ReadInt(int &value);
-	bool ReadFloat(float &value);
-	bool ReadString(string_t &value);
+	void ReadInt(int &value);
+	void ReadFloat(float &value);
+	void ReadString(string_t &value);
 
 public:
-	MapFile(void);
-	~MapFile(void);
+	MapFile(const SafePtr<FS::Stream> &file, bool write);
+	~MapFile();
 
-	bool Open(const string_t &filename, bool write);
-	bool Close();
-	bool is_open() const;
+//	bool Open(const string_t &filename, bool write);
 
 	bool loading() const;
 
@@ -179,7 +182,7 @@ public:
 
 
 	void BeginObject(const char *classname);
-	bool WriteCurrentObject();
+	void WriteCurrentObject();
 
 
 	bool getMapAttribute(const string_t &name, int &value) const;
@@ -217,6 +220,10 @@ public:
 			setObjectAttribute(name, *value);
 		}
 	}
+
+private:
+	MapFile(const MapFile&);
+	MapFile& operator = (const MapFile&);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -222,6 +222,21 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	path += gi.cMapName;
 	path += ".map";
 
+	try
+	{
+		SafePtr<FS::File> f = g_fs->Open(path);
+
+		MD5_CTX md5;
+
+		SafePtr<FS::MemMap> m = f->QueryMap();
+		MD5Init(&md5);
+		MD5Update(&md5, m->GetData(), m->GetSize());
+		MD5Final(&md5);
+	}
+	catch( const std::exception &e )
+	{
+	}
+
 	if( CalcCRC32(path.c_str()) != gi.dwMapCRC32 )
 	{
 		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));

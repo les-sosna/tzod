@@ -126,7 +126,7 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
 	return TRUE;
 }
 
-DWORD CalcCRC32(LPCTSTR fileName)
+DWORD CalcCRC32(const void *data, size_t size)
 {
 	const DWORD CRC_POLY = 0xEDB88320;
 	const DWORD CRC_MASK = 0xD202EF8D;
@@ -146,21 +146,14 @@ DWORD CalcCRC32(LPCTSTR fileName)
 		init = true;
 	}
 
-	FILE *file = fopen(fileName, "rb");
-	if( NULL == file )
-		return 0xffffffff;
-
 	DWORD crc = 0;
-	for(;;)
+	for( size_t i = 0; i < size; ++i )
 	{
-		unsigned char data;
-		if( 1 != fread(&data, 1, 1, file) )
-			break;
-		crc = table[(crc & 0xFF) ^ data] ^ crc >> 8;
+		unsigned char c = ((const unsigned char *) data)[i];
+		crc = table[(crc & 0xFF) ^ c] ^ crc >> 8;
 		crc ^= CRC_MASK;
 	}
 
-	fclose(file);
     return crc;
 }
 

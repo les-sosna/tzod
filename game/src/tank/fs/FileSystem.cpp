@@ -6,12 +6,34 @@
 namespace FS {
 
 ///////////////////////////////////////////////////////////////////////////////
+
+MemMap::MemMap(SafePtr<File> &parent)
+  : _file(parent)
+{
+}
+
+MemMap::~MemMap()
+{
+	_file->Unmap();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Stream::Stream(SafePtr<File> &parent)
+  : _file(parent)
+{
+}
+
+Stream::~Stream()
+{
+	_file->Unstream();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // IFile implementation
 
-File::File(/*FileSystem* host*/)
-//  : _hostFileSystem(host)
+File::File()
 {
-//    assert(_hostFileSystem);
 }
 
 File::~File()
@@ -83,8 +105,6 @@ bool FileSystem::IsValid() const
 
 SafePtr<File> FileSystem::Open(const string_t &fileName, FileMode mode)
 {
-//	if( fileName.empty() ) return NULL;
-
 	string_t::size_type pd = fileName.rfind(DELIMITER);
 	if( string_t::npos != pd ) // was a path delimiter found?
 	{
@@ -107,8 +127,6 @@ SafePtr<File> FileSystem::RawOpen(const string_t &fileName, FileMode mode)
 SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
-
-//    if( path[0] == DELIMITER ) //
 
 	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
 
@@ -146,9 +164,9 @@ static string_t GetLastErrorMessage()
 }
 
 OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
-  : _data(NULL)
-  , _size(0)
-  , _mode(mode)
+  : _mode(mode)
+  , _mapped(false)
+  , _streamed(false)
 {
 	assert(_mode);
 
@@ -184,18 +202,128 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
 	    dwShareMode,
 	    NULL,                           // lpSecurityAttributes
 	    dwCreationDisposition,
-	    FILE_FLAG_NO_BUFFERING,         // dwFlagsAndAttributes
+	    FILE_FLAG_SEQUENTIAL_SCAN,      // dwFlagsAndAttributes
 	    NULL);                          // hTemplateFile
 
 	if( INVALID_HANDLE_VALUE == _file.h )
 	{
 		throw std::runtime_error(GetLastErrorMessage());
 	}
-
-	SetupMapping();
 }
 
 OSFileSystem::OSFile::~OSFile()
+{
+}
+
+SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
+{
+	assert(!_mapped && !_streamed);
+	SafePtr<MemMap> result(new OSMemMap(WrapRawPtr(this), _file.h));
+	_mapped = true;
+	return result;
+}
+
+SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
+{
+	assert(!_mapped && !_streamed);
+	_streamed = true;
+	SafePtr<Stream> result(new OSStream(WrapRawPtr(this), _file.h));
+	return result;
+}
+
+void OSFileSystem::OSFile::Unmap()
+{
+	assert(_mapped && !_streamed);
+	_mapped = false;
+}
+
+void OSFileSystem::OSFile::Unstream()
+{
+	assert(_streamed && !_mapped);
+	_streamed = false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+OSFileSystem::OSFile::OSStream::OSStream(SafePtr<File> &parent, HANDLE hFile)
+  : Stream(parent)
+  , _hFile(hFile)
+{
+	Seek(0, SEEK_SET);
+}
+
+bool OSFileSystem::OSFile::OSStream::IsEof()
+{
+	unsigned long position = SetFilePointer(_hFile, 0, NULL, FILE_CURRENT);
+	unsigned long size = GetFileSize(_hFile, NULL);
+	if( INVALID_FILE_SIZE == position || INVALID_FILE_SIZE == size )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+	return position >= size;
+}
+
+void OSFileSystem::OSFile::OSStream::Read(void *dst, unsigned long byteCount)
+{
+	DWORD read;
+	BOOL result = ReadFile(_hFile, dst, byteCount, &read, NULL);
+	if( !result || read != byteCount )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+}
+
+void OSFileSystem::OSFile::OSStream::Write( const void *src, unsigned long byteCount )
+{
+	DWORD written;
+	BOOL result = WriteFile(_hFile, src, byteCount, &written, NULL);
+	if( !result || written != byteCount )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+}
+
+unsigned long OSFileSystem::OSFile::OSStream::Seek(long amount, unsigned int origin)
+{
+	DWORD dwMoveMethod;
+	switch( origin )
+	{
+	case SEEK_SET: dwMoveMethod = FILE_BEGIN; break;
+	case SEEK_CUR: dwMoveMethod = FILE_CURRENT; break;
+	case SEEK_END: dwMoveMethod = FILE_END; break;
+	default:
+		assert(false);
+	}
+	unsigned long result = SetFilePointer(_hFile, amount, NULL, dwMoveMethod);
+	if( INVALID_FILE_SIZE == result )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+	return result;
+}
+
+unsigned long OSFileSystem::OSFile::OSStream::GetSize()
+{
+	unsigned long result = GetFileSize(_hFile, NULL);
+	if( INVALID_FILE_SIZE == result )
+	{
+		throw std::runtime_error(GetLastErrorMessage());
+	}
+	return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+OSFileSystem::OSFile::OSMemMap::OSMemMap(SafePtr<File> &parent, HANDLE hFile)
+  : MemMap(parent)
+  , _hFile(hFile)
+  , _data(NULL)
+  , _size(0)
+{
+	SetupMapping();
+}
+
+OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 {
 	if( _data )
 	{
@@ -203,15 +331,15 @@ OSFileSystem::OSFile::~OSFile()
 	}
 }
 
-void OSFileSystem::OSFile::SetupMapping()
+void OSFileSystem::OSFile::OSMemMap::SetupMapping()
 {
-	_size = GetFileSize(_file.h, NULL);
+	_size = GetFileSize(_hFile, NULL);
 	if( INVALID_FILE_SIZE == _size )
 	{
 		throw std::runtime_error(GetLastErrorMessage());
 	}
 
-	_map.h = CreateFileMapping(_file.h, NULL, PAGE_READONLY, 0, 0, NULL);
+	_map.h = CreateFileMapping(_hFile, NULL, PAGE_READONLY, 0, 0, NULL);
 	if( NULL == _map.h )
 	{
 		throw std::runtime_error(GetLastErrorMessage());
@@ -224,19 +352,18 @@ void OSFileSystem::OSFile::SetupMapping()
 	}
 }
 
-char* OSFileSystem::OSFile::GetData()
+char* OSFileSystem::OSFile::OSMemMap::GetData()
 {
 	return (char *) _data;
 }
 
-unsigned long OSFileSystem::OSFile::GetSize() const
+unsigned long OSFileSystem::OSFile::OSMemMap::GetSize() const
 {
 	return _size;
 }
 
-void OSFileSystem::OSFile::SetSize(unsigned long size)
+void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 {
-	assert(_mode & ModeWrite);
 	BOOL bUnmapped = UnmapViewOfFile(_data);
 	_data = NULL;
 	_size = 0;
@@ -247,11 +374,11 @@ void OSFileSystem::OSFile::SetSize(unsigned long size)
 
 	CloseHandle(_map.h);
 
-	if( INVALID_SET_FILE_POINTER == SetFilePointer(_file.h, size, NULL, FILE_BEGIN) )
+	if( INVALID_SET_FILE_POINTER == SetFilePointer(_hFile, size, NULL, FILE_BEGIN) )
 	{
 		throw std::runtime_error(GetLastErrorMessage());
 	}
-	if( !SetEndOfFile(_file.h) )
+	if( !SetEndOfFile(_hFile) )
 	{
 		throw std::runtime_error(GetLastErrorMessage());
 	}

@@ -52,7 +52,7 @@
 #include <fcntl.h>
 #include <io.h>
 
-#include <math.h>
+#include <cmath>
 #include <time.h>
 
 

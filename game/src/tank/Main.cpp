@@ -363,7 +363,7 @@ bool ZodApp::Pre()
 	g_texman = new TextureManager;
 	try
 	{
-		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)) <= 0 )
+		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
 		{
 			TRACE("WARNING: no textures loaded\n");
 			MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);

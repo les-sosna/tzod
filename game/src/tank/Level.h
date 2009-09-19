@@ -12,6 +12,11 @@
 
 #pragma region path finding stuff
 
+namespace FS
+{
+	class Stream;
+}
+
 class GC_RigidBodyStatic;
 
 class Field;
@@ -259,8 +264,8 @@ public:
 	bool Unserialize(const char *fileName);
 	bool Serialize(const char *fileName);
 
-	bool Export(const char *fileName);
-	bool Import(const char *fileName, bool execInitScript);
+	void Export(const SafePtr<FS::Stream> &file);
+	void Import(const SafePtr<FS::Stream> &file, bool execInitScript);
 
 	void PauseLocal(bool pause);
 	void PauseSound(bool pause);

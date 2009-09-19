@@ -1,7 +1,7 @@
 // MusicPlayer.h
 namespace FS
 {
-	class File;
+	class MemMap;
 }
 
 
@@ -19,7 +19,7 @@ class MusicPlayer : public RefCounted
 
 	struct State
 	{
-		SafePtr<FS::File> file;
+		SafePtr<FS::MemMap> file; // TODO: use stream
 		unsigned long ptr;
 	};
 
@@ -35,7 +35,7 @@ public:
 	MusicPlayer();
 	virtual ~MusicPlayer();
 
-	bool Load(SafePtr<FS::File> file);
+	bool Load(SafePtr<FS::MemMap> file); // TODO: use stream
 
 	void Stop();
 	void Play(bool looping = false);

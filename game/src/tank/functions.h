@@ -19,7 +19,7 @@ float frand(float max);
 // генерация случайно направленого вектора длиной len
 vec2d vrand(float len);
 
-DWORD CalcCRC32(LPCTSTR fileName);
+DWORD CalcCRC32(const void *data, size_t size);
 
 // Безопасный выбор текущей директории
 BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg);

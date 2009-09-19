@@ -9,7 +9,7 @@
 struct GameInfo
 {
 	char exeVer[16];
-	DWORD dwMapCRC32;
+	char mapVer[16];
 	unsigned long seed;
 	char  cMapName[MAX_PATH];
 	char  cServerName[MAX_SRVNAME];

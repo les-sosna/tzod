@@ -24,6 +24,7 @@
 #include "video/RenderBase.h"
 #include "video/TextureManager.h" // for ThemeManager
 
+#include "fs/FileSystem.h"
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
@@ -382,8 +383,15 @@ bool Level::init_import_and_edit(const char *mapName)
 	_gameType = GT_EDITOR;
 	g_conf->sv_nightmode->Set(false);
 
-	if( !Import(mapName, false) )
+	try
+	{
+		Import(g_fs->Open(mapName)->QueryStream(), false);
+	}
+	catch( const std::exception &e )
+	{
+		TRACE("%s\n", e.what());
 		return false;
+	}
 
 	ToggleEditorMode();
 	assert(_modeEditor);
@@ -400,7 +408,17 @@ bool Level::init_newdm(const string_t &mapName, unsigned long seed)
 	_modeEditor = false;
 	_seed       = seed;
 
-	return Import(mapName.c_str(), true);
+	try
+	{
+		Import(g_fs->Open(mapName)->QueryStream(), true);
+	}
+	catch( const std::exception &e )
+	{
+		TRACE("%s\n", e.what());
+		return false;
+	}
+
+	return true;
 }
 
 bool Level::init_load(const char *fileName)
@@ -691,20 +709,18 @@ bool Level::Serialize(const char *fileName)
 	return result;
 }
 
-bool Level::Import(const char *fileName, bool execInitScript)
+void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)
 {
 	assert(IsEmpty());
 	assert(IsSafeMode());
 
-	MapFile file;
-	if( !file.Open(fileName, false) )
-		return false;
+	MapFile file(s, false);
 
 	int width, height;
 	if( !file.getMapAttribute("width", width) ||
 		!file.getMapAttribute("height", height) )
 	{
-		return false;
+		throw std::runtime_error("unknown map size");
 	}
 
 	file.getMapAttribute("theme", _infoTheme);
@@ -734,18 +750,16 @@ bool Level::Import(const char *fileName, bool execInitScript)
 	if( execInitScript && !script_exec(g_env.L, _infoOnInit.c_str()) )
 	{
 		Clear();
-		return false;
+		throw std::runtime_error("init script error");
 	}
-
-	return true;
 }
 
-bool Level::Export(const char *fileName)
+void Level::Export(const SafePtr<FS::Stream> &s)
 {
 	assert(!IsEmpty());
 	assert(IsSafeMode());
 
-	MapFile file;
+	MapFile file(s, true);
 
 	//
 	// map info
@@ -773,8 +787,8 @@ bool Level::Export(const char *fileName)
 	// objects
 	//
 
-	if( !file.Open(fileName, true) )
-		return false;
+//	if( !file.Open(fileName, true) )
+//		return false;
 
 	FOREACH( GetList(LIST_objects), GC_Object, object )
 	{
@@ -783,11 +797,9 @@ bool Level::Export(const char *fileName)
 		{
 			file.BeginObject(GetTypeName(object->GetType()));
 			object->MapExchange(file);
-			if( !file.WriteCurrentObject() ) return false;
+			file.WriteCurrentObject();
 		}
 	}
-
-	return true;
 }
 
 void Level::PauseLocal(bool pause)

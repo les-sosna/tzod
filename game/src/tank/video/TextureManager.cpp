@@ -70,7 +70,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 	}
 	else
 	{
-		SafePtr<FS::File> file = g_fs->Open(fileName);
+		SafePtr<FS::MemMap> file = g_fs->Open(fileName)->QueryMap();
 		SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
@@ -187,7 +187,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::File> &file)
+int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap> &file)
 {
 	TRACE("Loading texture package '%s'\n", packageName.c_str());
 
@@ -704,7 +704,7 @@ ThemeManager::ThemeManager()
 			string_t filename = DIR_THEMES;
 			filename += "\\";
 			filename += td.fileName;
-			td.file = g_fs->Open(filename);
+			td.file = g_fs->Open(filename)->QueryMap();
 
 			_themes.push_back(td);
 		} while( FindNextFile(hSearch, &fd) );
@@ -744,7 +744,7 @@ string_t ThemeManager::GetThemeName(size_t index)
 
 bool ThemeManager::ApplyTheme(size_t index)
 {
-	bool res = (g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)) > 0);
+	bool res = (g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) > 0);
 	if( index > 0 )
 	{
 		res = res && (g_texman->LoadPackage(_themes[index-1].fileName, _themes[index-1].file) > 0);

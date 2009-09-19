@@ -321,7 +321,7 @@ static int luaT_music(lua_State *L)
 		try
 		{
 			g_music = WrapRawPtr(new MusicPlayer());
-			if( g_music->Load(g_fs->GetFileSystem(DIR_MUSIC)->Open(filename)) )
+			if( g_music->Load(g_fs->GetFileSystem(DIR_MUSIC)->Open(filename)->QueryMap()) )
 			{
 				g_music->Play(true);
 				lua_pushboolean(L, true);
@@ -1032,7 +1032,7 @@ int luaT_loadtheme(lua_State *L)
 
 	try
 	{
-		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)) )
+		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)->QueryMap()) )
 		{
 			g_app->GetConsole()->puts("WARNING: there are no textures loaded\n");
 		}
@@ -1207,7 +1207,7 @@ bool script_exec_file(lua_State *L, const char *filename)
 
 	try
 	{
-		SafePtr<FS::File> f = g_fs->Open(filename);
+		SafePtr<FS::MemMap> f = g_fs->Open(filename)->QueryMap();
 		if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
 		{
 			throw std::runtime_error(lua_tostring(L, -1));

@@ -6,7 +6,7 @@
 
 namespace FS
 {
-	class File;
+	class MemMap;
 }
 
 struct LogicalTexture
@@ -35,7 +35,7 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	int LoadPackage(const string_t &packageName, SafePtr<FS::File> &file);
+	int LoadPackage(const string_t &packageName, SafePtr<FS::MemMap> &file);
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 	void UnloadAllTextures();
 
@@ -89,7 +89,7 @@ class ThemeManager
 	struct ThemeDesc
 	{
 		string_t fileName;
-		SafePtr<FS::File> file;
+		SafePtr<FS::MemMap> file;
 	};
 
 	std::vector<ThemeDesc> _themes;

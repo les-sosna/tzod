@@ -150,7 +150,7 @@ long MusicPlayer::tell_func(void *datasource)
 	return ((State *) datasource)->ptr;
 }
 
-bool MusicPlayer::Load(SafePtr<FS::File> file)
+bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
 {
 	Cleanup();
 

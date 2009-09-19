@@ -164,7 +164,7 @@ void CreateServerDlg::OnOK()
 
 	GameInfo gi = {0};
 	memcpy(gi.exeVer, g_md5.bytes, 16);
-	gi.dwMapCRC32 = CalcCRC32(path.c_str());
+	gi.mapVer     = CalcCRC32(path.c_str());
 	gi.seed       = rand();
 	gi.fraglimit  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
 	gi.timelimit  = __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt()));

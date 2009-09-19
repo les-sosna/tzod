@@ -12,18 +12,55 @@ enum FileMode
 	ModeWrite = 0x02,
 };
 
-class File : public RefCounted
-{
-//    FileSystem::Ptr _hostFileSystem; // this prevents the file system to be
-									  // destroyed while the file remains open
-protected:
-	File(/*FileSystem::Ptr host*/); // create via FileSystem::Open only
-	virtual ~File(); // delete only via Release
+class File;
 
+class MemMap : public RefCounted
+{
 public:
 	virtual char* GetData() = 0;
 	virtual unsigned long GetSize() const = 0;
 	virtual void SetSize(unsigned long size) = 0; // may invalidate pointer returned by GetData()
+
+protected:
+	MemMap(SafePtr<File> &parent);
+	virtual ~MemMap();
+
+private:
+	SafePtr<File> _file;
+};
+
+class Stream : public RefCounted
+{
+public:
+	virtual bool IsEof() = 0;
+	virtual void Read(void *dst, unsigned long byteCount) = 0;
+	virtual void Write(const void *src, unsigned long byteCount) = 0;
+	virtual unsigned long Seek(long amount, unsigned int origin) = 0;
+	virtual unsigned long GetSize() = 0;
+
+protected:
+	Stream(SafePtr<File> &parent);
+	virtual ~Stream();
+
+private:
+	SafePtr<File> _file;
+};
+
+class File : public RefCounted
+{
+	friend class MemMap;
+	virtual void Unmap() = 0;
+
+	friend class Stream;
+	virtual void Unstream() = 0;
+
+protected:
+	File(); // create via FileSystem::Open only
+	virtual ~File(); // delete only via Release
+
+public:
+	virtual SafePtr<MemMap> QueryMap() = 0;
+	virtual SafePtr<Stream> QueryStream() = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,18 +127,51 @@ class OSFileSystem : public FileSystem
 		OSFile(const string_t &fileName, FileMode mode);
 		virtual ~OSFile();
 
-		virtual char* GetData();
-		virtual unsigned long GetSize() const;
-		virtual void SetSize(unsigned long size); // may invalidate pointer returned by GetData()
+		// File
+		virtual SafePtr<MemMap> QueryMap();
+		virtual SafePtr<Stream> QueryStream();
+		virtual void Unmap();
+		virtual void Unstream();
+
+	private:
+		class OSMemMap : public MemMap
+		{
+		public:
+			OSMemMap(SafePtr<File> &parent, HANDLE hFile);
+			virtual ~OSMemMap();
+
+			virtual char* GetData();
+			virtual unsigned long GetSize() const;
+			virtual void SetSize(unsigned long size); // may invalidate pointer returned by GetData()
+
+		private:
+			HANDLE _hFile;
+			AutoHandle _map;
+			void *_data;
+			DWORD _size;
+			void SetupMapping();
+		};
+
+		class OSStream : public Stream
+		{
+		public:
+			OSStream(SafePtr<File> &parent, HANDLE hFile);
+
+			virtual bool IsEof();
+			virtual void Read(void *dst, unsigned long byteCount);
+			virtual void Write(const void *src, unsigned long byteCount);
+			virtual unsigned long Seek(long amount, unsigned int origin);
+			virtual unsigned long GetSize();
+
+		private:
+			HANDLE _hFile;
+		};
 
 	private:
 		AutoHandle _file;
-		AutoHandle _map;
-		void *_data;
-		DWORD _size;
 		FileMode _mode;
-
-		void SetupMapping();
+		bool _mapped;
+		bool _streamed;
 	};
 
 	string_t  _rootDirectory;

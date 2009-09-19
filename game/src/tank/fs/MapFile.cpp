@@ -4,256 +4,221 @@
 
 #include "stdafx.h"
 #include "MapFile.h"
+#include "FileSystem.h"
+#include "globals.h" // FIXME: only for g_fs
 
 //////////////////////////////////////////////////////////
 
-bool MapFile::_read_chunk_header(ChunkHeader &chdr)
+void MapFile::_read_chunk_header(ChunkHeader &chdr)
 {
-	assert(is_open() && !_modeWrite);
-	return (1 == fread(&chdr, sizeof(ChunkHeader), 1, _file));
+	assert(!_modeWrite);
+	_file->Read(&chdr, sizeof(ChunkHeader));
 }
 
-bool MapFile::_write_chunk_header(const ChunkHeader &chdr)
+void MapFile::_write_chunk_header(const ChunkHeader &chdr)
 {
-	assert(is_open() && _modeWrite);
-	return (1 == fwrite(&chdr, sizeof(ChunkHeader), 1, _file));
+	assert(_modeWrite);
+	_file->Write(&chdr, sizeof(ChunkHeader));
 }
 
-bool MapFile::_skip_block(size_t size)
+void MapFile::_skip_block(size_t size)
 {
-	assert(is_open() && !_modeWrite);
-	return (0 == fseek(_file, (long) size, SEEK_CUR));
+	assert(!_modeWrite);
+	_file->Seek((long) size, SEEK_CUR);
 }
 
 //////////////////////////////////////////////////////////
 
-MapFile::MapFile(void)
+MapFile::MapFile(const SafePtr<FS::Stream> &file, bool write)
+  : _file(file)
+  , _modeWrite(write)
+  , _isNewClass(true)
+  , _obj_type(-1)
 {
-	_file        = NULL;
-	_modeWrite   = false;
-	_isNewClass  = true;
-	_obj_type    = -1;
-}
-
-MapFile::~MapFile(void)
-{
-	if( is_open() ) Close();
-}
-
-bool MapFile::Open(const string_t &filename, bool write)
-{
-	assert(!is_open());
-
-	_file = fopen(filename.c_str(), write ? "wb" : "rb");
-
-	if( !_file )
-		return false;
-
-
-	_modeWrite = write;
-
-    try
+	if( write )
 	{
-		if( write )
+		ChunkHeader ch;
+
+
+		//
+		// write file header
+		//
+
+		ch.chunkType = CHUNK_HEADER_OPEN;
+		ch.chunkSize = 0;
+		_write_chunk_header(ch);
+
+
+		//
+		// write attributes
+		//
+
+		ch.chunkType = CHUNK_ATTRIB;
+
+		for( std::map<string_t, int>::iterator
+			it = _mapAttrs.attrs_int.begin(); it != _mapAttrs.attrs_int.end(); ++it )
 		{
-			ChunkHeader ch;
-
-
-			//
-			// write file header
-			//
-
-			ch.chunkType = CHUNK_HEADER_OPEN;
-			ch.chunkSize = 0;
-			if( !_write_chunk_header(ch) )
-				throw false;
-
-
-			//
-			// write attributes
-			//
-
-			ch.chunkType = CHUNK_ATTRIB;
-
-			for( std::map<string_t, int>::iterator
-				it = _mapAttrs.attrs_int.begin(); it != _mapAttrs.attrs_int.end(); ++it )
-			{
-				ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(int);
-				if( !_write_chunk_header(ch) )
-					throw false;
-				WriteInt(DATATYPE_INT);
-				WriteString(it->first);
-				WriteInt(it->second);
-			}
-
-			for( std::map<string_t, float>::iterator
-				it = _mapAttrs.attrs_float.begin(); it != _mapAttrs.attrs_float.end(); ++it )
-			{
-				ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(float);
-				if( !_write_chunk_header(ch) )
-					throw false;
-				WriteInt(DATATYPE_FLOAT);
-				WriteString(it->first);
-				WriteFloat(it->second);
-			}
-
-			for( std::map<string_t, string_t>::iterator
-				it = _mapAttrs.attrs_str.begin(); it != _mapAttrs.attrs_str.end(); ++it )
-			{
-				ch.chunkSize = it->first.length() + it->second.length() + sizeof(unsigned short) * 2;
-				if( !_write_chunk_header(ch) )
-					throw false;
-                WriteInt(DATATYPE_STRING);
-				WriteString(it->first);
-				WriteString(it->second);
-			}
-
-
-			//
-			// close header
-			//
-
-			ch.chunkType = CHUNK_HEADER_CLOSE;
-			ch.chunkSize = 0;
-			if( !_write_chunk_header(ch) )
-				throw false;
+			ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(int);
+			_write_chunk_header(ch);
+			WriteInt(DATATYPE_INT);
+			WriteString(it->first);
+			WriteInt(it->second);
 		}
-		else
+
+		for( std::map<string_t, float>::iterator
+			it = _mapAttrs.attrs_float.begin(); it != _mapAttrs.attrs_float.end(); ++it )
 		{
-			ChunkHeader ch;
+			ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(float);
+			_write_chunk_header(ch);
+			WriteInt(DATATYPE_FLOAT);
+			WriteString(it->first);
+			WriteFloat(it->second);
+		}
 
-			if( !_read_chunk_header(ch) || CHUNK_HEADER_OPEN != ch.chunkType )
-				throw false;
+		for( std::map<string_t, string_t>::iterator
+			it = _mapAttrs.attrs_str.begin(); it != _mapAttrs.attrs_str.end(); ++it )
+		{
+			ch.chunkSize = it->first.length() + it->second.length() + sizeof(unsigned short) * 2;
+			_write_chunk_header(ch);
+			WriteInt(DATATYPE_STRING);
+			WriteString(it->first);
+			WriteString(it->second);
+		}
 
-			_mapAttrs.clear();
 
-			do
+		//
+		// close header
+		//
+
+		ch.chunkType = CHUNK_HEADER_CLOSE;
+		ch.chunkSize = 0;
+		_write_chunk_header(ch);
+	}
+	else
+	{
+		ChunkHeader ch;
+
+		_read_chunk_header(ch);
+		if( CHUNK_HEADER_OPEN != ch.chunkType )
+			throw std::runtime_error("invalid file");
+
+		_mapAttrs.clear();
+
+		do
+		{
+			_read_chunk_header(ch);
+
+			if( CHUNK_ATTRIB == ch.chunkType )
 			{
-				if( !_read_chunk_header(ch) )
-					throw false;
+				int type;
+				ReadInt(type); // read attribute type
 
-				if( CHUNK_ATTRIB == ch.chunkType )
+
+				//
+				// check whether type is supported
+				//
+
+				bool supported_type = false;
+
+				switch( type )
 				{
-					int type;
-					if( !ReadInt(type) ) // read attribute type
-						throw false;
+				case DATATYPE_INT:
+				case DATATYPE_FLOAT:
+				case DATATYPE_STRING:
+					supported_type = true;
+					break;
+				};
 
 
-					//
-					// check whether type is supported
-					//
+				//
+				// read attribute's name and value
+				//
 
-					bool supported_type = false;
+				if( supported_type )
+				{
+					string_t name;
+					ReadString(name); // read attribute name
 
-					switch(type)
+					string_t  value_str;
+					int       value_int;
+					float     value_float;
+
+					switch( type )
 					{
 					case DATATYPE_INT:
-					case DATATYPE_FLOAT:
-					case DATATYPE_STRING:
-						supported_type = true;
+						ReadInt(value_int);
+						setMapAttribute(name, value_int);
 						break;
-					};
-
-
-					//
-					// read attribute's name and value
-					//
-
-					if( supported_type )
-					{
-						string_t name;
-						if( !ReadString(name) ) // read attribute name
-							throw false;
-
-						string_t  value_str;
-						int       value_int;
-						float     value_float;
-
-						switch(type)
-						{
-						case DATATYPE_INT:
-							if( !ReadInt(value_int) ) throw false;
-							setMapAttribute(name, value_int);
-							break;
-						case DATATYPE_FLOAT:
-							if( !ReadFloat(value_float) ) throw false;
-							setMapAttribute(name, value_float);
-							break;
-						case DATATYPE_STRING:
-							if( !ReadString(value_str) ) throw false;
-							setMapAttribute(name, value_str);
-							break;
-						default:
-							assert(0);
-						};
-					}
-					else if( !_skip_block(ch.chunkSize - sizeof(int)) )
-					{
-						throw false;
+					case DATATYPE_FLOAT:
+						ReadFloat(value_float);
+						setMapAttribute(name, value_float);
+						break;
+					case DATATYPE_STRING:
+						ReadString(value_str);
+						setMapAttribute(name, value_str);
+						break;
+					default:
+						throw std::runtime_error("invalid file");
 					}
 				}
 				else
 				{
-					_skip_block(ch.chunkSize);
+					_skip_block(ch.chunkSize - sizeof(int));
 				}
-			} while( CHUNK_HEADER_CLOSE != ch.chunkType );
-		}
+			}
+			else
+			{
+				_skip_block(ch.chunkSize);
+			}
+		} while( CHUNK_HEADER_CLOSE != ch.chunkType );
 	}
-	catch(bool)
-	{
-		Close();
-		return false;
-	}
-
-	return true;
 }
 
-bool MapFile::WriteInt(int value)
+MapFile::~MapFile(void)
 {
-	assert(is_open() && _modeWrite);
-	return (1 == fwrite(&value, sizeof(int), 1, _file));
 }
 
-bool MapFile::WriteFloat(float value)
+void MapFile::WriteInt(int value)
 {
-	assert(is_open() && _modeWrite);
-	return (1 == fwrite(&value, sizeof(float), 1, _file));
+	assert(_modeWrite);
+	_file->Write(&value, sizeof(int));
 }
 
-bool MapFile::WriteString(const string_t &value)
+void MapFile::WriteFloat(float value)
 {
-	assert(is_open() && _modeWrite);
+	assert(_modeWrite);
+	_file->Write(&value, sizeof(float));
+}
+
+void MapFile::WriteString(const string_t &value)
+{
+	assert(_modeWrite);
 	assert(value.length() <= 0xffff);
-    unsigned short len = (unsigned short) (value.length() & 0xffff);
-	if( 1 != fwrite(&len, sizeof(unsigned short), 1, _file) )
-		return false;
-	if( 0 == len ) return true;
-    return (len == fwrite(&(*value.begin()), sizeof(char), len, _file));
+	unsigned short len = (unsigned short) (value.length() & 0xffff);
+	_file->Write(&len, sizeof(unsigned short));
+	_file->Write(value.c_str(), sizeof(string_t::value_type) * len);
 }
 
-bool MapFile::ReadInt(int &value)
+void MapFile::ReadInt(int &value)
 {
-	assert(is_open() && !_modeWrite);
-	return (1 == fread(&value, sizeof(int), 1, _file));
+	assert(!_modeWrite);
+	_file->Read(&value, sizeof(int));
 }
 
-bool MapFile::ReadFloat(float &value)
+void MapFile::ReadFloat(float &value)
 {
-	assert(is_open() && !_modeWrite);
-	return (1 == fread(&value, sizeof(float), 1, _file));
+	assert(!_modeWrite);
+	_file->Read(&value, sizeof(float));
 }
 
-bool MapFile::ReadString(string_t &value)
+void MapFile::ReadString(string_t &value)
 {
-	assert(is_open() && !_modeWrite);
-    unsigned short len;
-	if( 1 != fread(&len, sizeof(unsigned short), 1, _file) )
-		return false;
-	std::vector<char> tmp(len+1);
-	bool result = (len == fread(&*tmp.begin(), sizeof(char), len, _file));
-	tmp[len] = 0;
-	value = &*tmp.begin();
-    return result;
+	assert(!_modeWrite);
+	unsigned short len;
+	_file->Read(&len, sizeof(unsigned short));
+	std::vector<string_t::value_type> tmp(len);
+	_file->Read(&tmp[0], sizeof(string_t::value_type) * len);
+	value.assign(tmp.begin(), tmp.end());
 }
 
 bool MapFile::getMapAttribute(const string_t &name, int &value) const
@@ -309,7 +274,7 @@ void MapFile::setMapAttribute(const string_t &name, const string_t &value)
 
 bool MapFile::getObjectAttribute(const string_t &name, int &value) const
 {
-	assert(is_open() && !_modeWrite);
+	assert(!_modeWrite);
 	std::map<string_t, int>::const_iterator it;
 	it = _obj_attrs.attrs_int.find(name);
 	if( _obj_attrs.attrs_int.end() == it )
@@ -320,7 +285,7 @@ bool MapFile::getObjectAttribute(const string_t &name, int &value) const
 
 bool MapFile::getObjectAttribute(const string_t &name, float &value) const
 {
-	assert(is_open() && !_modeWrite);
+	assert(!_modeWrite);
 	std::map<string_t, float>::const_iterator it;
 	it = _obj_attrs.attrs_float.find(name);
 	if( _obj_attrs.attrs_float.end() == it )
@@ -331,7 +296,7 @@ bool MapFile::getObjectAttribute(const string_t &name, float &value) const
 
 bool MapFile::getObjectAttribute(const string_t &name, string_t &value) const
 {
-	assert(is_open() && !_modeWrite);
+	assert(!_modeWrite);
 	std::map<string_t, string_t>::const_iterator it;
 	it = _obj_attrs.attrs_str.find(name);
 	if( _obj_attrs.attrs_str.end() == it )
@@ -413,14 +378,14 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, const string_t
 
 const string_t& MapFile::GetCurrentClassName() const
 {
-	assert(is_open() && !_modeWrite);
+	assert(!_modeWrite);
 	assert(_obj_type < _managed_classes.size());
     return _managed_classes[_obj_type]._className;
 }
 
 void MapFile::BeginObject(const char *classname)
 {
-	assert(is_open() && _modeWrite);
+	assert(_modeWrite);
 
 	_buffer.str(""); // clear buffer
 
@@ -450,9 +415,9 @@ void MapFile::BeginObject(const char *classname)
 	_buffer.write((const char*) &obj_type, sizeof(int));
 }
 
-bool MapFile::WriteCurrentObject()
+void MapFile::WriteCurrentObject()
 {
-	assert(is_open() && _modeWrite);
+	assert(_modeWrite);
 
 	ChunkHeader ch;
 
@@ -466,114 +431,90 @@ bool MapFile::WriteCurrentObject()
 		ch.chunkType = CHUNK_OBJDEF;
 		ch.chunkSize = od.CalcSize();
 		_write_chunk_header(ch);
-		if( !WriteString(od._className) ||
-			!WriteInt((int)od._propertyset.size()) )
-		{
-			return false;
-		}
+		WriteString(od._className);
+		WriteInt((int)od._propertyset.size());
 		for( size_t i = 0; i < od._propertyset.size(); i++ )
 		{
-			if( !WriteInt(od._propertyset[i].type) ||
-				!WriteString(od._propertyset[i].name) )
-			{
-				return false;
-			}
+			WriteInt(od._propertyset[i].type);
+			WriteString(od._propertyset[i].name);
 		}
 	}
 
 	//
 	// writing buffered data
 	//
-	string_t str(_buffer.str());
+	std::string str(_buffer.str());
 	ch.chunkType = CHUNK_OBJECT;
 	ch.chunkSize = str.size();
 	assert(ch.chunkSize > 0);
 	_write_chunk_header(ch);
-	return (ch.chunkSize == fwrite(str.data(), sizeof(char), ch.chunkSize, _file));
+	_file->Write(str.data(), ch.chunkSize);
 }
 
 bool MapFile::NextObject()
 {
-	assert(is_open() && !_modeWrite);
+	assert(!_modeWrite);
 
-	ChunkHeader ch;
-	while( _read_chunk_header(ch) )
+	while( !_file->IsEof() )
 	{
-		switch(ch.chunkType)
+		ChunkHeader ch;
+		_read_chunk_header(ch);
+		switch( ch.chunkType )
 		{
 			case CHUNK_OBJDEF:
 			{
 				_managed_classes.push_back(ObjectDefinition());
 				ObjectDefinition &od = _managed_classes.back();
-				if( !ReadString(od._className) ) return false;
-				int property_count;
-				if( !ReadInt(property_count) ) return false;
-				od._propertyset.resize(property_count);
-				for( int i = 0; i < property_count; i++ )
+				ReadString(od._className);
+				int propertyCount;
+				ReadInt(propertyCount);
+				od._propertyset.resize(propertyCount);
+				for( int i = 0; i < propertyCount; i++ )
 				{
-					if( !ReadInt(reinterpret_cast<int&>(od._propertyset[i].type)) )
-						return false;
-					if( !ReadString(od._propertyset[i].name) ) return false;
+					ReadInt(reinterpret_cast<int&>(od._propertyset[i].type));
+					ReadString(od._propertyset[i].name);
 				}
-			} break;
+				break;
+			}
 
 			case CHUNK_OBJECT:
 			{
 				_obj_attrs.clear();
 
-				if( !ReadInt(reinterpret_cast<int&>(_obj_type)) )
-					return false;
-                if( _obj_type < _managed_classes.size() )
-				{
-					const std::vector<ObjectDefinition::Property> &ps =
-						_managed_classes[_obj_type]._propertyset;
+				ReadInt(reinterpret_cast<int&>(_obj_type));
+				if( _obj_type >= _managed_classes.size() )
+					throw std::runtime_error("invalid class");
 
-					for( size_t i = 0; i < ps.size(); i++ )
+				const std::vector<ObjectDefinition::Property> &ps =
+					_managed_classes[_obj_type]._propertyset;
+
+				for( size_t i = 0; i < ps.size(); i++ )
+				{
+					switch( ps[i].type )
 					{
-						switch( ps[i].type )
-						{
-						case DATATYPE_INT:
-							if( !ReadInt(_obj_attrs.attrs_int[ps[i].name]) )
-								return false;
-							break;
-						case DATATYPE_FLOAT:
-							if( !ReadFloat(_obj_attrs.attrs_float[ps[i].name]) )
-								return false;
-							break;
-						case DATATYPE_STRING:
-							if( !ReadString(_obj_attrs.attrs_str[ps[i].name]) )
-								return false;
-							break;
-						default:
-							assert(0);
-							return false;
-						}
+					case DATATYPE_INT:
+						ReadInt(_obj_attrs.attrs_int[ps[i].name]);
+						break;
+					case DATATYPE_FLOAT:
+						ReadFloat(_obj_attrs.attrs_float[ps[i].name]);
+						break;
+					case DATATYPE_STRING:
+						ReadString(_obj_attrs.attrs_str[ps[i].name]);
+						break;
+					default:
+						throw std::runtime_error("invalid file");
 					}
-                    return true;
 				}
-				return false;
-			} break;
+				return true;
+			}
 
 			default:
+				// skip everything we don't understand
 				_skip_block(ch.chunkSize);
 		}
 	}
 
 	return false;
-}
-
-bool MapFile::Close()
-{
-	assert(is_open());
-
-    bool res = (0 == fclose(_file));
-	_file = NULL;
-	return res;
-}
-
-bool MapFile::is_open() const
-{
-	return (NULL != _file);
 }
 
 bool MapFile::loading() const
