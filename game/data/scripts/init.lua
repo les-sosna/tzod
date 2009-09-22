@@ -20,10 +20,10 @@ conf.ui_showmsg = false;
 
 if math.random() > 0.5 then
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("data/maps/intro.map")
+  loadmap("maps/intro.map")
 else
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("data/maps/intro02.map")
+  loadmap("maps/intro02.map")
 end
 
 for _,s in pairs{"red","yellow","blue","FBI Tank","neutral"} do

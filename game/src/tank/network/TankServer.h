@@ -69,12 +69,10 @@ class TankServer
 	void SvPlayerInfo(Peer *from, int task, const Variant &arg);
 
 public:
-	TankServer(const SafePtr<LobbyClient> &announcer);
+	TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer);
 	~TankServer(void);
 
 	std::string GetStats() const;
-
-	bool init(const GameInfo *info);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

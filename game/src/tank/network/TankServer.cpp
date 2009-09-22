@@ -15,6 +15,8 @@
 
 #include "LobbyClient.h"
 
+#include "functions.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 PeerServer::PeerServer(SOCKET s_)
@@ -30,18 +32,54 @@ PeerServer::PeerServer(SOCKET s_)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankServer::TankServer(const SafePtr<LobbyClient> &announcer)
+TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer)
   : _nextFreeId(0x1000)
   , _connectedCount(0)
   , _frameReadyCount(0)
+  , _gameInfo(info)
   , _announcer(announcer)
 {
-	TRACE("sv: Server created\n");
+	g_app->InitNetwork();
+
+	_socketListen.Attach(socket(PF_INET, SOCK_STREAM, 0));
+	if( INVALID_SOCKET == _socketListen )
+	{
+		throw std::runtime_error("sv: Unable to create socket");
+	}
+
+	sockaddr_in addr = {0};
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port        = htons(g_conf->sv_port->GetInt());
+	addr.sin_family      = AF_INET;
+
+	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
+	{
+		throw std::runtime_error(std::string("[sv] Unable to bind socket - ") + StrFromErr(WSAGetLastError()));
+	}
+
+	if( listen(_socketListen, SOMAXCONN) )
+	{
+		throw std::runtime_error(std::string("[sv] Listen call failed - ") + StrFromErr(WSAGetLastError()));
+	}
+
+	if( _socketListen.SetEvents(FD_ACCEPT) )
+	{
+		throw std::runtime_error(std::string("[sv] Unable to select event - ") + StrFromErr(WSAGetLastError()));
+	}
+
+	_socketListen.SetCallback(CreateDelegate(&TankServer::OnListenerEvent, this));
+
+	if( _announcer )
+	{
+		_announcer->AnnounceHost(g_conf->sv_port->GetInt());
+	}
+
+	TRACE("Server is online!\n");
 }
 
 TankServer::~TankServer(void)
 {
-	TRACE("sv: Server is shutting down\n");
+	TRACE("Server is shutting down\n");
 
 
 	//
@@ -75,57 +113,6 @@ TankServer::~TankServer(void)
 
 
 	TRACE("sv: Server destroyed\n");
-}
-
-bool TankServer::init(const GameInfo *info)
-{
-	g_app->InitNetwork();
-
-	_gameInfo = *info;
-
-
-	TRACE("sv: Server init...\n");
-	_socketListen.Attach(socket(PF_INET, SOCK_STREAM, 0));
-	if( INVALID_SOCKET == _socketListen )
-	{
-		TRACE("sv: ERROR - Unable to create socket\n");
-		return false;
-	}
-
-
-	sockaddr_in addr = {0};
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port        = htons(g_conf->sv_port->GetInt());
-	addr.sin_family      = AF_INET;
-
-	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
-	{
-		TRACE("sv: ERROR - Unable to bind socket: %d\n", WSAGetLastError());
-		return false;
-	}
-
-	if( listen(_socketListen, SOMAXCONN) )
-	{
-		TRACE("sv: ERROR - Listen call failed\n");
-		return false;
-	}
-
-	if( _socketListen.SetEvents(FD_ACCEPT) )
-	{
-		TRACE("sv: ERROR - Unable to select event (%u)\n", WSAGetLastError());
-		return false;
-	}
-
-	_socketListen.SetCallback(CreateDelegate(&TankServer::OnListenerEvent, this));
-
-	TRACE("sv: Server is online\n");
-
-	if( _announcer )
-	{
-		_announcer->AnnounceHost(g_conf->sv_port->GetInt());
-	}
-
-	return true;
 }
 
 void TankServer::OnListenerEvent()

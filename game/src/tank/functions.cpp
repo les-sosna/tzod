@@ -157,5 +157,16 @@ DWORD CalcCRC32(const void *data, size_t size)
     return crc;
 }
 
+string_t StrFromErr(DWORD dwMessageId)
+{
+	LPVOID lpMsgBuf = NULL;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, dwMessageId, 0, (LPTSTR) &lpMsgBuf, 0, NULL);
+	string_t result((LPCTSTR) lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	return result;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

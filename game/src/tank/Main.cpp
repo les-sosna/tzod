@@ -7,7 +7,6 @@
 #include "Level.h"
 #include "directx.h"
 #include "KeyMapper.h"
-#include "md5.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

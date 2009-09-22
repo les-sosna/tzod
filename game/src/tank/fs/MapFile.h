@@ -142,6 +142,7 @@ private:
 
 	SafePtr<FS::Stream> _file;
 	bool   _modeWrite;
+	bool   _headerWritten;
 	bool   _isNewClass;
 
 	AttributeSet _mapAttrs;
@@ -156,9 +157,9 @@ private:
 
 
 	void _read_chunk_header(ChunkHeader &chdr);
-	void _write_chunk_header(const ChunkHeader &chdr);
 	void _skip_block(size_t size);
 
+	void WriteHeader();
 
 	void WriteInt(int value);
 	void WriteFloat(float value);
@@ -171,8 +172,6 @@ private:
 public:
 	MapFile(const SafePtr<FS::Stream> &file, bool write);
 	~MapFile();
-
-//	bool Open(const string_t &filename, bool write);
 
 	bool loading() const;
 

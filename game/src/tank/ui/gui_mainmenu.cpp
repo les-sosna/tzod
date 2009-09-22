@@ -312,16 +312,18 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
 
-		if( g_level->Export(tmp.c_str()) )
+		try
 		{
-			g_app->GetConsole()->printf("map exported: '%s'\n", tmp.c_str());
-			g_conf->cl_map->Set(_fileDlg->GetFileTitle());
+			g_level->Export(g_fs->Open(tmp, FS::ModeWrite)->QueryStream());
 		}
-		else
+		catch( const std::exception &e )
 		{
-			g_app->GetConsole()->printf("couldn't export map to '%s'", tmp.c_str());
+			g_app->GetConsole()->printf("couldn't export map to '%s' - ", tmp.c_str(), e.what());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
+
+		g_app->GetConsole()->printf("map exported: '%s'\n", tmp.c_str());
+		g_conf->cl_map->Set(_fileDlg->GetFileTitle());
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);

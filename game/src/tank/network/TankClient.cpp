@@ -22,6 +22,8 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "fs/FileSystem.h"
+
 #include "Macros.h"
 #include "functions.h"
 #include "Level.h"
@@ -228,28 +230,28 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 		MD5_CTX md5;
 
-		SafePtr<FS::MemMap> m = f->QueryMap();
-		MD5Init(&md5);
-		MD5Update(&md5, m->GetData(), m->GetSize());
-		MD5Final(&md5);
+		{
+			SafePtr<FS::MemMap> m = f->QueryMap();
+			MD5Init(&md5);
+			MD5Update(&md5, m->GetData(), m->GetSize());
+			MD5Final(&md5);
+		}
+
+		if( 0 != memcmp(gi.mapVer, md5.digest, 16) )
+		{
+			ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));
+			return;
+		}
+
+		g_level->Clear();
+		g_level->init_newdm(f->QueryStream(), gi.seed);
 	}
 	catch( const std::exception &e )
 	{
-	}
-
-	if( CalcCRC32(path.c_str()) != gi.dwMapCRC32 )
-	{
-		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));
+		ClErrorMessage(NULL, -1, Variant(std::string(e.what())));
 		return;
 	}
 
-
-	g_level->Clear();
-	if( !g_level->init_newdm(path, gi.seed) )
-	{
-		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map->Get()));
-		return;
-	}
 	g_level->PauseLocal(true); // paused until game is started
 
 	g_conf->cl_map->Set(gi.cMapName);

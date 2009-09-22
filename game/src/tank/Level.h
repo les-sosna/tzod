@@ -252,7 +252,7 @@ public:
 	bool init_emptymap(int X, int Y);
 	bool init_import_and_edit(const char *mapName);
 
-	bool init_newdm(const string_t &mapName, unsigned long seed);
+	void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
 	bool init_load(const char *fileName);
 
 

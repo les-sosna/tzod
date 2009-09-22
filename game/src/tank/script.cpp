@@ -139,9 +139,13 @@ static int luaT_loadmap(lua_State *L)
 
 	g_level->Clear();
 
-	if( !g_level->init_newdm(filename, rand()) )
+	try
 	{
-		return luaL_error(L, "couldn't load map from '%s'", filename);
+		g_level->init_newdm(g_fs->Open(filename)->QueryStream(), rand());
+	}
+	catch( const std::exception &e )
+	{
+		return luaL_error(L, "couldn't load map '%s' - %s", filename, e.what());
 	}
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
@@ -273,11 +277,13 @@ static int luaT_export(lua_State *L)
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
 
-	bool result = g_level->Export(filename);
-
-	if( !result )
+	try
 	{
-		return luaL_error(L, "couldn't export map to '%s'", filename);
+		g_level->Export(g_fs->Open(filename, FS::ModeWrite)->QueryStream());
+	}
+	catch( const std::exception &e )
+	{
+		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
 	}
 
 	g_app->GetConsole()->printf("map exported: '%s'\n", filename);

@@ -26,6 +26,7 @@
 
 #include "core/Console.h"
 #include "core/Application.h"
+#include "core/debug.h"
 
 #include "fs/FileSystem.h"
 #include "fs/MapFile.h"
@@ -348,38 +349,40 @@ void NewGameDlg::OnOK()
 	script_exec(g_env.L, "reset()");
 	assert(g_level->IsEmpty());
 
-	if( g_level->init_newdm(path, rand()) )
+	try
 	{
-		g_conf->cl_map->Set(fn);
-		g_conf->ui_showmsg->Set(true);
-
-		for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
-		{
-			ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
-			GC_PlayerLocal *player = new GC_PlayerLocal();
-			player->SetTeam(    p->GetNum("team")->GetInt() );
-			player->SetSkin(    p->GetStr("skin")->Get()    );
-			player->SetClass(   p->GetStr("class")->Get()   );
-			player->SetNick(    p->GetStr("nick")->Get()    );
-			player->SetProfile( p->GetStr("profile")->Get() );
-		}
-
-		for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
-		{
-			ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
-			GC_PlayerAI *bot = new GC_PlayerAI();
-			bot->SetTeam(  p->GetNum("team")->GetInt() );
-			bot->SetSkin(  p->GetStr("skin")->Get()    );
-			bot->SetClass( p->GetStr("class")->Get()   );
-			bot->SetNick(  p->GetStr("nick")->Get()    );
-			bot->SetLevel( p->GetNum("level", 2)->GetInt() );
-		}
+		g_level->init_newdm(g_fs->Open(path)->QueryStream(), rand());
 	}
-	else
+	catch( const std::exception &e )
 	{
-		// could not load map
+		TRACE("could not load map - %s\n", e.what());
 		script_exec(g_env.L, "reset()");
 		return;
+	}
+
+	g_conf->cl_map->Set(fn);
+	g_conf->ui_showmsg->Set(true);
+
+	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
+	{
+		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
+		GC_PlayerLocal *player = new GC_PlayerLocal();
+		player->SetTeam(    p->GetNum("team")->GetInt() );
+		player->SetSkin(    p->GetStr("skin")->Get()    );
+		player->SetClass(   p->GetStr("class")->Get()   );
+		player->SetNick(    p->GetStr("nick")->Get()    );
+		player->SetProfile( p->GetStr("profile")->Get() );
+	}
+
+	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
+	{
+		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
+		GC_PlayerAI *bot = new GC_PlayerAI();
+		bot->SetTeam(  p->GetNum("team")->GetInt() );
+		bot->SetSkin(  p->GetStr("skin")->Get()    );
+		bot->SetClass( p->GetStr("class")->Get()   );
+		bot->SetNick(  p->GetStr("nick")->Get()    );
+		bot->SetLevel( p->GetNum("level", 2)->GetInt() );
 	}
 
 	Close(_resultOK);

@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "FileSystem.h"
+#include "functions.h"
 
 namespace FS {
 
@@ -153,16 +154,6 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static string_t GetLastErrorMessage()
-{
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, GetLastError(), 0, (LPTSTR) &lpMsgBuf, 0, NULL );
-	string_t result((LPCTSTR) lpMsgBuf);
-	LocalFree(lpMsgBuf);
-	return result;
-}
-
 OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
   : _mode(mode)
   , _mapped(false)
@@ -207,7 +198,7 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
 
 	if( INVALID_HANDLE_VALUE == _file.h )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
@@ -258,7 +249,7 @@ bool OSFileSystem::OSFile::OSStream::IsEof()
 	unsigned long size = GetFileSize(_hFile, NULL);
 	if( INVALID_FILE_SIZE == position || INVALID_FILE_SIZE == size )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 	return position >= size;
 }
@@ -269,7 +260,7 @@ void OSFileSystem::OSFile::OSStream::Read(void *dst, unsigned long byteCount)
 	BOOL result = ReadFile(_hFile, dst, byteCount, &read, NULL);
 	if( !result || read != byteCount )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
@@ -279,7 +270,7 @@ void OSFileSystem::OSFile::OSStream::Write( const void *src, unsigned long byteC
 	BOOL result = WriteFile(_hFile, src, byteCount, &written, NULL);
 	if( !result || written != byteCount )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
@@ -297,7 +288,7 @@ unsigned long OSFileSystem::OSFile::OSStream::Seek(long amount, unsigned int ori
 	unsigned long result = SetFilePointer(_hFile, amount, NULL, dwMoveMethod);
 	if( INVALID_FILE_SIZE == result )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 	return result;
 }
@@ -307,7 +298,7 @@ unsigned long OSFileSystem::OSFile::OSStream::GetSize()
 	unsigned long result = GetFileSize(_hFile, NULL);
 	if( INVALID_FILE_SIZE == result )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 	return result;
 }
@@ -336,19 +327,19 @@ void OSFileSystem::OSFile::OSMemMap::SetupMapping()
 	_size = GetFileSize(_hFile, NULL);
 	if( INVALID_FILE_SIZE == _size )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	_map.h = CreateFileMapping(_hFile, NULL, PAGE_READONLY, 0, 0, NULL);
 	if( NULL == _map.h )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	_data = MapViewOfFile(_map.h, FILE_MAP_READ, 0, 0, 0);
 	if( NULL == _data )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
@@ -369,18 +360,18 @@ void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 	_size = 0;
 	if( !bUnmapped )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	CloseHandle(_map.h);
 
 	if( INVALID_SET_FILE_POINTER == SetFilePointer(_hFile, size, NULL, FILE_BEGIN) )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 	if( !SetEndOfFile(_hFile) )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	SetupMapping();
@@ -448,7 +439,7 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 
 	if( !SetCurrentDirectory(_rootDirectory.c_str()) )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	WIN32_FIND_DATA fd;
@@ -459,7 +450,7 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 		{
 			return; // nothing matches
 		}
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	files.clear();
@@ -476,7 +467,7 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 	// restore last current directory
 	if( !SetCurrentDirectory(&buf[0]) )
 	{
-		throw std::runtime_error(GetLastErrorMessage());
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 

@@ -27,5 +27,7 @@ BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg);
 
 bool PauseGame(bool pause);
 
+string_t StrFromErr(DWORD dwMessageId);
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

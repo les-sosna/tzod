@@ -399,7 +399,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	return true;
 }
 
-bool Level::init_newdm(const string_t &mapName, unsigned long seed)
+void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
@@ -408,17 +408,7 @@ bool Level::init_newdm(const string_t &mapName, unsigned long seed)
 	_modeEditor = false;
 	_seed       = seed;
 
-	try
-	{
-		Import(g_fs->Open(mapName)->QueryStream(), true);
-	}
-	catch( const std::exception &e )
-	{
-		TRACE("%s\n", e.what());
-		return false;
-	}
-
-	return true;
+	Import(s, true);
 }
 
 bool Level::init_load(const char *fileName)
@@ -783,13 +773,7 @@ void Level::Export(const SafePtr<FS::Stream> &s)
 
 	file.setMapAttribute("on_init",  _infoOnInit);
 
-	//
 	// objects
-	//
-
-//	if( !file.Open(fileName, true) )
-//		return false;
-
 	FOREACH( GetList(LIST_objects), GC_Object, object )
 	{
 		if( object->IsKilled() ) continue;

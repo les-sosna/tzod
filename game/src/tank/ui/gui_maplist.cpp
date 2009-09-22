@@ -9,6 +9,10 @@
 
 #include "config/Config.h"
 
+#include "core/debug.h"
+#include "core/Console.h"
+#include "core/Application.h"
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,9 +32,9 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 		tmp += "/";
 		tmp += *it;
 
-		MapFile file;
-		if( file.Open(tmp, false) )
+		try
 		{
+			MapFile file(g_fs->Open(tmp)->QueryStream(), false);
 			it->erase(it->length() - 4); // cut out the file extension
 			int index = AddItem(*it);
 
@@ -45,6 +49,10 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 			{
 				SetItemText(index, 2, tmp);
 			}
+		}
+		catch( const std::exception &e )
+		{
+			TRACE("could not open get map attributes - %s\n", e.what());
 		}
 	}
 

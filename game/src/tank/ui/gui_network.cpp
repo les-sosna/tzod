@@ -24,6 +24,8 @@
 #include "config/Language.h"
 
 #include "core/Console.h"
+#include "core/debug.h"
+#include "core/Application.h"
 
 #include "network/TankServer.h"
 #include "network/TankClient.h"
@@ -31,6 +33,8 @@
 
 #include "gc/Player.h"
 #include "gc/ai.h"
+
+#include "fs/FileSystem.h"
 
 
 namespace UI
@@ -86,10 +90,6 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		new Text(this, x3, y+=40, g_lang->net_server_fps->Get(), alignTextLT);
 		_svFps = new Edit(this, x4, y+=15, 100);
 		_svFps->SetInt(g_conf->sv_fps->GetInt());
-
-//		new Text(this, x3, y+=30, g_lang->net_server_latency->Get(), alignTextLT);
-//		_svLatency = new Edit(this, x4, y+=15, 100);
-//		_svLatency->SetInt(g_conf->sv_latency->GetInt());
 	}
 
 
@@ -164,22 +164,30 @@ void CreateServerDlg::OnOK()
 
 	GameInfo gi = {0};
 	memcpy(gi.exeVer, g_md5.bytes, 16);
-	gi.mapVer     = CalcCRC32(path.c_str());
 	gi.seed       = rand();
 	gi.fraglimit  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
 	gi.timelimit  = __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt()));
 	gi.server_fps = __max(MIN_NETWORKSPEED, __min(MAX_NETWORKSPEED, _svFps->GetInt()));
-//	gi.latency    = __max(MIN_LATENCY, __min(MAX_LATENCY, _svLatency->GetInt()));
 	gi.nightmode  = _nightMode->GetCheck();
 
 	strcpy(gi.cMapName, fn.c_str());
 	strcpy(gi.cServerName, "ZOD Server");
 
 	assert(NULL == g_server);
-	g_server = new TankServer(announcer);
-	if( !g_server->init(&gi) )
+	try
 	{
-		SAFE_DELETE(g_server);
+		SafePtr<FS::MemMap> m = g_fs->Open(path)->QueryMap();
+		MD5_CTX md5;
+		MD5Init(&md5);
+		MD5Update(&md5, m->GetData(), m->GetSize());
+		MD5Final(&md5);
+		memcpy(gi.mapVer, md5.digest, 16);
+
+		g_server = new TankServer(gi, announcer);
+	}
+	catch( const std::exception &e )
+	{
+		TRACE("%s\n", e.what());
 		MessageBoxT(g_env.hMainWnd, g_lang->net_server_error->Get().c_str(), MB_OK|MB_ICONHAND);
 		return;
 	}
