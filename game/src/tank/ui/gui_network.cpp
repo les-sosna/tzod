@@ -25,7 +25,6 @@
 
 #include "core/Console.h"
 #include "core/debug.h"
-#include "core/Application.h"
 
 #include "network/TankServer.h"
 #include "network/TankClient.h"

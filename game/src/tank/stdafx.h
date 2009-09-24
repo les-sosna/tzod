@@ -52,7 +52,6 @@
 #include <fcntl.h>
 #include <io.h>
 
-#include <cmath>
 #include <time.h>
 
 
@@ -62,6 +61,7 @@
 #define _SECURE_SCL 0  // disable checked iterators
 #endif
 
+#include <cmath>
 #include <list>
 #include <queue>
 #include <stack>

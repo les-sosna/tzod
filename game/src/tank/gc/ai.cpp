@@ -9,7 +9,6 @@
 #include "core/JobManager.h"
 #include "core/Debug.h"
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"

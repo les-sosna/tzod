@@ -21,7 +21,6 @@
 #include "config/Language.h"
 
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "Level.h"
 #include "Macros.h"
@@ -122,7 +121,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				n = static_cast<Edit*>(ctrl)->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
-					g_app->GetConsole()->printf("WARNING: value %s out of range [%d, %d]\n",
+					GetConsole().printf("WARNING: value %s out of range [%d, %d]\n",
 						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
 					n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
 				}
@@ -134,7 +133,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				f = static_cast<Edit*>(ctrl)->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
-					g_app->GetConsole()->printf("WARNING: value %s out of range [%g, %g]\n",
+					GetConsole().printf("WARNING: value %s out of range [%g, %g]\n",
 						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
 					f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
 				}

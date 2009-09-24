@@ -19,7 +19,6 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "ui/GuiManager.h"
 #include "ui/Window.h"

@@ -36,7 +36,6 @@ struct ENVIRONMENT;
 extern CSound *g_pSounds[SND_COUNT];
 
 extern HINSTANCE    g_hInstance;
-extern LPDIRECTINPUTDEVICE8 g_pKeyboard;
 
 extern IRender         *g_render;
 extern TextureManager  *g_texman;

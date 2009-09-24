@@ -22,7 +22,6 @@
 
 #include "core/Console.h"
 #include "core/debug.h"
-#include "core/Application.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -239,7 +238,7 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
-				g_app->GetConsole()->printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
+				GetConsole().printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
 			}
 			else
 			{
@@ -366,7 +365,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 			GC_Object* found = g_level->FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
-				g_app->GetConsole()->printf("WARNING: object with name \"%s\" already exists\n", name);
+				GetConsole().printf("WARNING: object with name \"%s\" already exists\n", name);
 			}
 			else
 			{

@@ -16,7 +16,6 @@
 
 #include "config/Config.h"
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "network/TankClient.h"
 
@@ -76,8 +75,8 @@ void MessageArea::DrawChildren(float sx, float sy) const
 
 void MessageArea::WriteLine(const string_t &text)
 {
-	g_app->GetConsole()->puts(text.c_str());
-	g_app->GetConsole()->puts("\n");
+	GetConsole().puts(text.c_str());
+	GetConsole().puts("\n");
 
 	Line line;
 	line.time = 5;  // timeout
@@ -103,7 +102,7 @@ Desktop::Desktop(GuiManager* manager)
 	_editor = new EditorLayout(this);
 	_editor->SetVisible(false);
 
-	_con = new Console(this, 10, 0, 100, 100, g_app->GetConsole());
+	_con = new Console(this, 10, 0, 100, 100, &GetConsole());
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->SetVisible(false);
@@ -358,14 +357,14 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 	if( lua_isnil(g_env.L, -1) )
 	{
 		lua_pop(g_env.L, 1);
-		g_app->GetConsole()->printf("There was no autocomplete module loaded\n");
+		GetConsole().printf("There was no autocomplete module loaded\n");
 		return false;
 	}
 	lua_pushlstring(g_env.L, cmd.c_str(), cmd.length());
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
-		g_app->GetConsole()->printf("%s\n", lua_tostring(g_env.L, -1));
+		GetConsole().printf("%s\n", lua_tostring(g_env.L, -1));
 	}
 	else
 	{

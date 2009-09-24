@@ -17,8 +17,6 @@ ENVIRONMENT g_env;
 HINSTANCE    g_hInstance;
 
 
-LPDIRECTINPUTDEVICE8  g_pKeyboard;
-
 CSoundManager   *g_soundManager;
 CSound          *g_pSounds[SND_COUNT];
 

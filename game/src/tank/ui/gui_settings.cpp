@@ -284,7 +284,7 @@ void ControlProfileDlg::OnSelectAction(int index)
 	_actions->SetItemText(index, 1, "...");
 	_time = 0;
 	_activeIndex = index;
-	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+//	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 	_skip = true;
 	SetTimeStep(true);
 }
@@ -344,7 +344,7 @@ void ControlProfileDlg::OnTimeStep(float dt)
 					g_keys->GetName(g_keys->GetCode(_profile->GetStr((const char *) _actions->GetItemData(_activeIndex))->Get()))
 				);
 			}
-			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+//			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 			SetTimeStep(false);
 		}
 	}

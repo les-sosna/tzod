@@ -18,7 +18,6 @@
 
 #include "sound/MusicPlayer.h"
 
-#include "core/Application.h"
 #include "core/Console.h"
 #include "core/debug.h"
 
@@ -229,7 +228,7 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "couldn't save game to '%s'", filename);
 	}
 
-	g_app->GetConsole()->printf("game saved: '%s'\n", filename);
+	GetConsole().printf("game saved: '%s'\n", filename);
 
 	return 0;
 }
@@ -286,7 +285,7 @@ static int luaT_export(lua_State *L)
 		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
 	}
 
-	g_app->GetConsole()->printf("map exported: '%s'\n", filename);
+	GetConsole().printf("map exported: '%s'\n", filename);
 
 	return 0;
 }
@@ -363,11 +362,11 @@ static int luaT_print(lua_State *L)
 		{
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		}
-		if( i > 1 ) g_app->GetConsole()->puts(" "); // delimiter
-		g_app->GetConsole()->puts(s);
+		if( i > 1 ) GetConsole().puts(" "); // delimiter
+		GetConsole().puts(s);
 		lua_pop(L, 1);         // pop result
 	}
-	g_app->GetConsole()->puts("\n");
+	GetConsole().puts("\n");
 	return 0;
 }
 
@@ -1040,7 +1039,7 @@ int luaT_loadtheme(lua_State *L)
 	{
 		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)->QueryMap()) )
 		{
-			g_app->GetConsole()->puts("WARNING: there are no textures loaded\n");
+			GetConsole().puts("WARNING: there are no textures loaded\n");
 		}
 	}
 	catch( const std::exception &e )
@@ -1192,14 +1191,14 @@ bool script_exec(lua_State *L, const char *string)
 
 	if( luaL_loadstring(L, string) )
 	{
-		g_app->GetConsole()->printf("syntax error %s\n", lua_tostring(L, -1));
+		GetConsole().printf("syntax error %s\n", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
 	if( lua_pcall(L, 0, 0, 0) )
 	{
-		g_app->GetConsole()->printf("%s\n", lua_tostring(L, -1));
+		GetConsole().printf("%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}

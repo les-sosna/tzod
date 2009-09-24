@@ -30,5 +30,6 @@ public:
 	void puts(const char *s);
 };
 
+ConsoleBuffer& GetConsole();
 
 // end of file

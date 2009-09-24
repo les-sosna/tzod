@@ -17,8 +17,6 @@ public:
 	void RegisterHandle(HANDLE h, Delegate<void()> callback);
 	void UnregisterHandle(HANDLE h);
 
-	ConsoleBuffer* GetConsole() const { return GetRawPtr(_console); }
-
 	void InitNetwork();
 
 
@@ -30,7 +28,6 @@ private:
 	HINSTANCE _hinst;
 	std::vector<HANDLE> _handles;
 	std::vector<Delegate<void()> > _callbacks;
-	SafePtr<ConsoleBuffer> _console;
 	SafePtr<NetworkInitHelper> _netHelper;
 };
 

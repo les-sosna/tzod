@@ -13,7 +13,6 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

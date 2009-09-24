@@ -7,7 +7,6 @@
 #include "ImageLoader.h"
 
 #include "core/debug.h"
-#include "core/Application.h"
 #include "core/Console.h"
 
 #include "gc/2dSprite.h"
@@ -414,7 +413,7 @@ size_t TextureManager::FindSprite(const string_t &name) const
 		return it->second;
 
 	// flood the console
-	g_app->GetConsole()->printf("texture '%s' not found!\n", name);
+	GetConsole().printf("texture '%s' not found!\n", name);
 
 	return 0; // index of checker texture
 }

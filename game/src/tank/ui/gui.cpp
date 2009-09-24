@@ -25,7 +25,6 @@
 #include "config/Language.h"
 
 #include "core/Console.h"
-#include "core/Application.h"
 #include "core/debug.h"
 
 #include "fs/FileSystem.h"
@@ -778,7 +777,7 @@ void ScriptMessageBox::RunScript(int btn)
 	lua_pushinteger(g_env.L, btn);
 	if( lua_pcall(g_env.L, 1, 0, 0) )
 	{
-		g_app->GetConsole()->printf("%s\n", lua_tostring(g_env.L, -1));
+		GetConsole().printf("%s\n", lua_tostring(g_env.L, -1));
 		lua_pop(g_env.L, 1); // pop the error message from the stack
 	}
 

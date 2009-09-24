@@ -9,7 +9,6 @@
 
 AppBase::AppBase()
   : _hinst(NULL)
-  , _console(new ConsoleBuffer(128, 512, "log.txt"))
 {
 }
 

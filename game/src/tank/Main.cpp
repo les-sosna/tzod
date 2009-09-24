@@ -7,6 +7,7 @@
 #include "Level.h"
 #include "directx.h"
 #include "KeyMapper.h"
+#include "InputManager.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -51,8 +52,8 @@ public:
 
 private:
 	Timer timer;
+	SafePtr<InputManager> _inputMgr;
 
-//	SafePtr<ConsoleBuffer> _con;
 //	SafePtr<FileSystem>   _fs;
 };
 
@@ -354,9 +355,39 @@ bool ZodApp::Pre()
 
 	timer.SetMaxDt(MAX_DT);
 
-	// init directX objects
-	if( FAILED(InitAll(g_env.hMainWnd)) )
+	// init render
+	assert(g_render);
+	DisplayMode dm;
+	dm.Width         = g_conf->r_width->GetInt();
+	dm.Height        = g_conf->r_height->GetInt();
+	dm.RefreshRate   = g_conf->r_freq->GetInt();
+	dm.BitsPerPixel  = g_conf->r_bpp->GetInt();
+	if( !g_render->Init(g_env.hMainWnd, &dm, g_conf->r_fullscreen->Get()) )
+	{
 		return false;
+	}
+
+
+#if !defined NOSOUND
+	// init sound
+	try
+	{
+		if( FAILED(InitDirectSound(g_env.hMainWnd, true)) )
+		{
+			MessageBox(g_env.hMainWnd, "Direct Sound init error", TXT_VERSION, MB_ICONERROR|MB_OK);
+		}
+	}
+	catch( const std::exception &e )
+	{
+		std::ostringstream ss;
+		ss << "DirectSound init: " << e.what();
+		MessageBox(g_env.hMainWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR|MB_OK);
+		return false;
+	}
+#endif
+
+
+	_inputMgr = WrapRawPtr(new InputManager(g_env.hMainWnd));
 
 	// init texture manager
 	g_texman = new TextureManager;
@@ -407,7 +438,7 @@ bool ZodApp::Pre()
 
 void ZodApp::Idle()
 {
-	InquireInputDevices();
+	_inputMgr->InquireInputDevices();
 
 	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
 	//{
@@ -448,8 +479,8 @@ void ZodApp::Post()
 	// destroy level
 	g_level = NULL;
 
-
-	FreeDirectInput();
+	// release input devices
+	_inputMgr = NULL;
 
 	if( g_texman ) g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);

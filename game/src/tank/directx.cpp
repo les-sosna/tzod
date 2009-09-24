@@ -9,7 +9,6 @@
 
 #include "core/Debug.h"
 #include "core/Console.h"
-#include "core/Application.h"
 
 #include "video/TextureManager.h"
 
@@ -18,20 +17,10 @@
 #include "sound/sfx.h"
 #include "sound/MusicPlayer.h"
 
-//--------------------------------------------------------------------------
-
-LPDIRECTINPUT8        g_pDI       = NULL;
-//LPDIRECTINPUTDEVICE8  g_pMouse    = NULL;
-
-///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #if !defined NOSOUND
 
-
-//-------------------------------------------------------//
-// throw LoadSoundException
-//-------------------------------------------------------//
 HRESULT InitDirectSound(HWND hWnd, bool init)
 {
 	HRESULT hr = S_OK;
@@ -132,175 +121,6 @@ void FreeDirectSound()
 }
 
 #endif
-
-///////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////
-
-HRESULT InitDirectInput( HWND hWnd )
-{
-	TRACE("init direct input\n");
-
-	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
-    FreeDirectInput();
-
-	DWORD dwPriority = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
-
-
-    HRESULT hr;
-
-    if( FAILED( hr = DirectInput8Create( GetModuleHandle(NULL), DIRECTINPUT_VERSION,
-                                         IID_IDirectInput8, (VOID**)&g_pDI, NULL ) ) )
-        return hr;
-    if( FAILED( hr = g_pDI->CreateDevice( GUID_SysKeyboard, &g_pKeyboard, NULL ) ) )
-        return hr;
-    if( FAILED( hr = g_pKeyboard->SetDataFormat( &c_dfDIKeyboard ) ) )
-        return hr;
-    if( FAILED(hr = g_pKeyboard->SetCooperativeLevel( hWnd, dwPriority)) )
-        return hr;
-    g_pKeyboard->Acquire();
-
-
-
-//    if( FAILED( hr = g_pDI->CreateDevice( GUID_SysMouse, &g_pMouse, NULL ) ) )
-//        return hr;
-//    if( FAILED( hr = g_pMouse->SetDataFormat( &c_dfDIMouse2 ) ) )
-//        return hr;
-//    if( FAILED(hr = g_pMouse->SetCooperativeLevel( hWnd, dwPriority)) )
-//        return hr;
-//    g_pMouse->Acquire();
-
-	g_env.envInputs.mouse_x = g_render->GetWidth() / 2;
-	g_env.envInputs.mouse_y = g_render->GetHeight() / 2;
-	g_env.envInputs.mouse_wheel = 0;
-	g_env.envInputs.bLButtonState = false;
-	g_env.envInputs.bRButtonState = false;
-	g_env.envInputs.bMButtonState = false;
-
-    return S_OK;
-}
-
-void FreeDirectInput()
-{
-//    if( g_pMouse )
-//        g_pMouse->Unacquire();
-
-    if( g_pKeyboard )
-        g_pKeyboard->Unacquire();
-
-//    SAFE_RELEASE( g_pMouse );
-    SAFE_RELEASE( g_pKeyboard );
-    SAFE_RELEASE( g_pDI );
-
-	TRACE("free direct input\n");
-}
-
-
-HRESULT InquireInputDevices()
-{
-	HRESULT hr;
-
-	if( NULL == g_pKeyboard )
-		return S_OK;
-
-	char data[256];
-	hr = g_pKeyboard->GetDeviceState(sizeof(data), data);
-	if( FAILED(hr) )
-	{
-		hr = g_pKeyboard->Acquire();
-		while( hr == DIERR_INPUTLOST )
-		{
-			Sleep(50);
-			hr = g_pKeyboard->Acquire();
-		}
-		return S_OK;
-	}
-
-	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
-	for( int i = 0; i < sizeof(data); ++i )
-	{
-		g_env.envInputs.keys[i] = (data[i] & 0x80) != 0;
-	}
-
-
-/*
-    DIMOUSESTATE2 dims2 = {0};
-
-    hr = g_pMouse->GetDeviceState( sizeof(DIMOUSESTATE2), &dims2 );
-    if( FAILED(hr) )
-    {
-        hr = g_pMouse->Acquire();
-        while( hr == DIERR_INPUTLOST )
-		{
-			Sleep(50);
-            hr = g_pMouse->Acquire();
-		}
-        return S_OK;
-    }
-
-	g_env.envInputs.mouse_wheel = dims2.lZ;
-
-	g_env.envInputs.mouse_x += dims2.lX;
-	g_env.envInputs.mouse_y += dims2.lY;
-	g_env.envInputs.mouse_x = __max(0,
-		__min(g_render->GetWidth() - 1, g_env.envInputs.mouse_x));
-	g_env.envInputs.mouse_y = __max(0,
-		__min(g_render->GetHeight() - 1, g_env.envInputs.mouse_y));
-
-
-	g_env.envInputs.bLButtonState = (dims2.rgbButtons[0] & 0x80) != 0;
-	g_env.envInputs.bRButtonState = (dims2.rgbButtons[1] & 0x80) != 0;
-	g_env.envInputs.bMButtonState = (dims2.rgbButtons[2] & 0x80) != 0;
-*/
-
-    return S_OK;
-}
-
-
-//--------------------------------------------------------------------------
-
-HRESULT InitAll( HWND hWnd )
-{
-	HRESULT  hr;
-
-
-	assert(g_render);
-
-	DisplayMode dm;
-	dm.Width         = g_conf->r_width->GetInt();
-    dm.Height        = g_conf->r_height->GetInt();
-    dm.RefreshRate   = g_conf->r_freq->GetInt();
-    dm.BitsPerPixel  = g_conf->r_bpp->GetInt();
-
-	if( !g_render->Init(hWnd, &dm, g_conf->r_fullscreen->Get()) )
-	{
-		return E_FAIL;
-	}
-
-	if( FAILED(hr = InitDirectInput(hWnd)) )
-	{
-		MessageBox( hWnd, "Direct Input init error", TXT_VERSION, MB_ICONERROR | MB_OK );
-		return hr;
-	}
-
-#if !defined NOSOUND
-	try
-	{
-		if( FAILED(hr = InitDirectSound(hWnd, true)) )
-		{
-			MessageBox( hWnd, "Direct Sound init error", TXT_VERSION, MB_ICONERROR | MB_OK );
-		}
-	}
-	catch( const std::exception &e )
-	{
-		std::ostringstream ss;
-		ss << "DirectSound init: " << e.what();
-		MessageBox( hWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR | MB_OK );
-		return E_FAIL;
-	}
-#endif
-
-	return S_OK;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file
