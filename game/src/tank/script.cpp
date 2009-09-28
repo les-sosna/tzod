@@ -8,7 +8,6 @@
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/pickup.h"
-#include "gc/ai.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -192,9 +191,13 @@ static int luaT_load(lua_State *L)
 	SAFE_DELETE(g_server);
 	g_level->Clear();
 
-	if( !g_level->init_load(filename) )
+	try
 	{
-		return luaL_error(L, "couldn't load game from '%s'", filename);
+		g_level->Unserialize(filename);
+	}
+	catch( const std::exception &e )
+	{
+		return luaL_error(L, "couldn't load game from '%s' - %s", filename, e.what());
 	}
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
@@ -220,16 +223,17 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
 	g_level->PauseSound(true);
-	bool result = g_level->Serialize(filename);
-	g_level->PauseSound(false);
-
-	if( !result )
+	try
 	{
-		return luaL_error(L, "couldn't save game to '%s'", filename);
+		g_level->Serialize(filename);
 	}
-
+	catch( const std::exception &e )
+	{
+		g_level->PauseSound(false);
+		return luaL_error(L, "couldn't save game to '%s' - ", filename, e.what());
+	}
+	g_level->PauseSound(false);
 	GetConsole().printf("game saved: '%s'\n", filename);
-
 	return 0;
 }
 

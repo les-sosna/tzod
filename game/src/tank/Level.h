@@ -253,7 +253,6 @@ public:
 	bool init_import_and_edit(const char *mapName);
 
 	void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
-	bool init_load(const char *fileName);
 
 
 public:
@@ -261,8 +260,8 @@ public:
 
 	bool RestoreObject(ObjectType otType, HANDLE file);
 
-	bool Unserialize(const char *fileName);
-	bool Serialize(const char *fileName);
+	void Unserialize(const char *fileName);
+	void Serialize(const char *fileName);
 
 	void Export(const SafePtr<FS::Stream> &file);
 	void Import(const SafePtr<FS::Stream> &file, bool execInitScript);

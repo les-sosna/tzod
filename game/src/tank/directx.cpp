@@ -10,10 +10,6 @@
 #include "core/Debug.h"
 #include "core/Console.h"
 
-#include "video/TextureManager.h"
-
-#include "config/Config.h"
-
 #include "sound/sfx.h"
 #include "sound/MusicPlayer.h"
 

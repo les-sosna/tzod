@@ -35,5 +35,6 @@ typedef std::string            string_t;
 typedef std::ostringstream     ostrstream_t;
 typedef std::istringstream     istrstream_t;
 
+typedef float AIPRIORITY;
 
 // end of file

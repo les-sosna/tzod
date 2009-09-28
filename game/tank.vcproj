@@ -344,6 +344,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\tank\InputManager.h"
+				>
+			</File>
+			<File
 				RelativePath="src\tank\KeyMapper.cpp"
 				>
 			</File>
@@ -1215,10 +1219,6 @@
 		</File>
 		<File
 			RelativePath="History.txt"
-			>
-		</File>
-		<File
-			RelativePath="src\tank\InputManager.h"
 			>
 		</File>
 		<File

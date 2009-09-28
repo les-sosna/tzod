@@ -21,7 +21,6 @@
 //-----------------------------------------------------------------------------
 class CSoundManager;
 class CSound;
-class CStreamingSound;
 class CWaveFile;
 
 
@@ -65,7 +64,6 @@ public:
 
     HRESULT Create( CSound** ppSound, LPCTSTR strWaveFileName, DWORD dwCreationFlags = 0, GUID guid3DAlgorithm = GUID_NULL, DWORD dwNumBuffers = 1 );
     HRESULT CreateFromMemory( CSound** ppSound, BYTE* pbData, ULONG ulDataSize, LPWAVEFORMATEX pwfx, DWORD dwCreationFlags = 0, GUID guid3DAlgorithm = GUID_NULL, DWORD dwNumBuffers = 1 );
-    HRESULT CreateStreaming( CStreamingSound** ppStreamingSound, LPTSTR strWaveFileName, DWORD dwCreationFlags, GUID guid3DAlgorithm, DWORD dwNotifyCount, DWORD dwNotifySize, HANDLE hNotifyEvent );
 };
 
 
@@ -99,34 +97,6 @@ public:
     HRESULT Reset();
     BOOL    IsSoundPlaying();
 };
-
-
-
-
-//-----------------------------------------------------------------------------
-// Name: class CStreamingSound
-// Desc: Encapsulates functionality to play a wave file with DirectSound.
-//       The Create() method loads a chunk of wave file into the buffer,
-//       and as sound plays more is written to the buffer by calling
-//       HandleWaveStreamNotification() whenever hNotifyEvent is signaled.
-//-----------------------------------------------------------------------------
-class CStreamingSound : public CSound
-{
-protected:
-    DWORD _dwLastPlayPos;
-    DWORD _dwPlayProgress;
-    DWORD _dwNotifySize;
-    DWORD _dwNextWriteOffset;
-    BOOL  _bFillNextNotificationWithSilence;
-
-public:
-    CStreamingSound( LPDIRECTSOUNDBUFFER pDSBuffer, DWORD dwDSBufferSize, CWaveFile* pWaveFile, DWORD dwNotifySize );
-    ~CStreamingSound();
-
-    HRESULT HandleWaveStreamNotification( BOOL bLoopedPlay );
-    HRESULT Reset();
-};
-
 
 
 

@@ -410,14 +410,6 @@ void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
 	Import(s, true);
 }
 
-bool Level::init_load(const char *fileName)
-{
-	assert(IsSafeMode());
-	assert(IsEmpty());
-	_modeEditor = false;
-	return Unserialize(fileName);
-}
-
 Level::~Level()
 {
 	assert(IsSafeMode());
@@ -433,41 +425,25 @@ Level::~Level()
 	assert(!g_env.nNeedCursor);
 }
 
-bool Level::Unserialize(const char *fileName)
+void Level::Unserialize(const char *fileName)
 {
-	assert(IsEmpty());
 	assert(IsSafeMode());
+	assert(IsEmpty());
+	_modeEditor = false;
 
 	TRACE("Loading saved game from file '%s'\n", fileName);
 
-	SaveFile f;
-	f._load = true;
-	f._file = CreateFile(fileName,
-	                     GENERIC_READ,
-	                     0,
-	                     NULL,
-	                     OPEN_EXISTING,
-	                     FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-	                     NULL);
-
-	if( INVALID_HANDLE_VALUE == f._file )
-	{
-		TRACE("ERROR: couldn't open file\n");
-		return false;
-	}
+	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeRead)->QueryStream());
+	SaveFile f(stream, true);
 
 	bool result = true;
 	try
 	{
-		DWORD bytesRead = 0;
-
-		SaveHeader sh = {0};
-		ReadFile(f._file, &sh, sizeof(SaveHeader), &bytesRead, NULL);
-		if( sizeof(SaveHeader) != bytesRead )
-			throw "ERROR: unexpected end of file";
+		SaveHeader sh;
+		stream->Read(&sh, sizeof(SaveHeader));
 
 		if( VERSION != sh.dwVersion )
-			throw "ERROR: invalid version";
+			throw std::runtime_error("invalid version");
 
 
 		//
@@ -478,10 +454,17 @@ bool Level::Unserialize(const char *fileName)
 			static const char* r(lua_State *L, void* data, size_t *sz)
 			{
 				static char buf[1];
-				DWORD bytesRead = 0;
-				ReadFile((HANDLE) data, buf, sizeof(buf), &bytesRead, NULL);
-				*sz = bytesRead;
-				return bytesRead ? buf : NULL;
+				try
+				{
+					reinterpret_cast<FS::Stream*>(data)->Read(buf, sizeof(buf));
+					*sz = sizeof(buf);
+				}
+				catch( const std::exception & )
+				{
+					*sz = 0;
+					return NULL;
+				}
+				return buf;
 			}
 			static int read_user(lua_State *L)
 			{
@@ -505,19 +488,19 @@ bool Level::Unserialize(const char *fileName)
 				return 0;
 			}
 		};
-		if( lua_cpcall(g_env.L, &ReadHelper::read_user, f._file) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_user, GetRawPtr(stream)) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
 			TRACE("%s\n", err);
 			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto user";
+			throw std::runtime_error("ERROR: pluto user");
 		}
-		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, f._file) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, GetRawPtr(stream)) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
 			TRACE("%s\n", err);
 			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto queue";
+			throw std::runtime_error("ERROR: pluto queue");
 		}
 
 
@@ -538,7 +521,7 @@ bool Level::Unserialize(const char *fileName)
 
 		// restore links
 		if( !f.RestoreAllLinks() )
-			throw "ERROR: invalid links";
+			throw std::runtime_error("ERROR: invalid links");
 
 		// apply the theme
 		_infoTheme = sh.theme;
@@ -552,150 +535,117 @@ bool Level::Unserialize(const char *fileName)
 
 		GC_Camera::SwitchEditor();
 	}
-	catch (const char *msg)
+	catch( const std::runtime_error& )
 	{
-		TRACE("%s\n", msg);
-		result = false;
 		Clear();
+		throw;
 	}
-
-	CloseHandle(f._file);
-	return result;
 }
 
-bool Level::Serialize(const char *fileName)
+void Level::Serialize(const char *fileName)
 {
 	assert(!IsEmpty());
 	assert(IsSafeMode());
 
 	TRACE("Saving game to file '%s'\n", fileName);
 
-	DWORD bytesWritten = 0;
+	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeWrite)->QueryStream());
+	SaveFile f(stream, false);
 
-	SaveFile f;
-	f._load = false;
-	f._file = CreateFile(fileName,
-	                     GENERIC_WRITE,
-	                     0,
-	                     NULL,
-	                     CREATE_ALWAYS,
-	                     FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-	                     NULL);
-	if( INVALID_HANDLE_VALUE == f._file )
+	SaveHeader sh = {0};
+	strcpy(sh.theme, _infoTheme.c_str());
+	sh.dwVersion    = VERSION;
+	sh.dwGameType   = _gameType;
+	sh.fraglimit    = g_conf->sv_fraglimit->GetInt();
+	sh.timelimit    = g_conf->sv_timelimit->GetFloat();
+	sh.nightmode    = g_conf->sv_nightmode->Get();
+	sh.time         = _time;
+	sh.width        = (int) _sx / CELL_SIZE;
+	sh.height       = (int) _sy / CELL_SIZE;
+	sh.nObjects     = 0; // будем увеличивать по мере записи
+
+	stream->Write(&sh, sizeof(SaveHeader));
+
+
+	//
+	// writing lua user environment
+	//
+	struct WriteHelper
 	{
-		TRACE("ERROR: couldn't open file for writing\n");
-		return false;
+		static int w(lua_State *L, const void* p, size_t sz, void* ud)
+		{
+			try
+			{
+				reinterpret_cast<FS::Stream*>(ud)->Write(p, sz);
+			}
+			catch( const std::exception &e )
+			{
+				TRACE("%s\n", e.what());
+			}
+			return 0;
+		}
+		static int write_user(lua_State *L)
+		{
+			void *ud = lua_touserdata(L, 1);
+			lua_settop(L, 0);
+			lua_newtable(g_env.L);       // permanent objects
+			lua_getglobal(L, "user");    // object to persist
+			pluto_persist(L, &w, ud);
+			return 0;
+		}
+		static int write_queue(lua_State *L)
+		{
+			void *ud = lua_touserdata(L, 1);
+			lua_settop(L, 0);
+			lua_newtable(g_env.L);       // permanent objects
+			lua_getglobal(L, "pushcmd");
+			assert(LUA_TFUNCTION == lua_type(L, -1));
+			lua_getupvalue(L, -1, 1);    // object to persist
+			lua_remove(L, -2);
+			pluto_persist(L, &w, ud);
+			return 0;
+		}
+	};
+	if( lua_cpcall(g_env.L, &WriteHelper::write_user, GetRawPtr(stream)) )
+	{
+		const char *err = lua_tostring(g_env.L, -1);
+		TRACE("%s\n", err);
+		lua_pop(g_env.L, 1);
+		throw std::runtime_error("ERROR: writing pluto user");
+	}
+	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, GetRawPtr(stream)) )
+	{
+		const char *err = lua_tostring(g_env.L, -1);
+		TRACE("%s\n", err);
+		lua_pop(g_env.L, 1);
+		throw std::runtime_error("ERROR: writing pluto queue");
 	}
 
-	bool result = true;
-    try
+
+	//перебираем все объекты. если нужно - сохраняем
+	ObjectList::reverse_iterator it = GetList(LIST_objects).rbegin();
+	for( ; it != GetList(LIST_objects).rend(); ++it )
 	{
-		SaveHeader sh = {0};
-		strcpy(sh.theme, _infoTheme.c_str());
-		sh.dwVersion    = VERSION;
-		sh.dwGameType   = _gameType;
-		sh.fraglimit    = g_conf->sv_fraglimit->GetInt();
-		sh.timelimit    = g_conf->sv_timelimit->GetFloat();
-		sh.nightmode    = g_conf->sv_nightmode->Get();
-		sh.time         = _time;
-		sh.width        = (int) _sx / CELL_SIZE;
-		sh.height       = (int) _sy / CELL_SIZE;
-		sh.nObjects     = 0; // будем увеличивать по мере записи
-
-		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
-		if( bytesWritten != sizeof(SaveHeader) )
-			throw "ERROR: couldn't write file. check disk space";
-
-
-		//
-		// writing lua user environment
-		//
-		struct WriteHelper
+		GC_Object *object = *it;
+		if( object->IsSaved() )
 		{
-			static int w(lua_State *L, const void* p, size_t sz, void* ud)
-			{
-				DWORD written = 0;
-				WriteFile((HANDLE) ud, p, sz, &written, NULL);
-				return sz - written;
-			}
-			static int write_user(lua_State *L)
-			{
-				void *ud = lua_touserdata(L, 1);
-				lua_settop(L, 0);
-				lua_newtable(g_env.L);       // permanent objects
-				lua_getglobal(L, "user");    // object to persist
-				pluto_persist(L, &w, ud);
-				return 0;
-			}
-			static int write_queue(lua_State *L)
-			{
-				void *ud = lua_touserdata(L, 1);
-				lua_settop(L, 0);
-				lua_newtable(g_env.L);       // permanent objects
-				lua_getglobal(L, "pushcmd");
-				assert(LUA_TFUNCTION == lua_type(L, -1));
-				lua_getupvalue(L, -1, 1);    // object to persist
-				lua_remove(L, -2);
-				pluto_persist(L, &w, ud);
-				return 0;
-			}
-		};
-		if( lua_cpcall(g_env.L, &WriteHelper::write_user, f._file) )
-		{
-			const char *err = lua_tostring(g_env.L, -1);
-			TRACE("%s\n", err);
-			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto user";
+			ObjectType type = object->GetType();
+			stream->Write(&type, sizeof(type));
+
+			SafePtr<void> tmp;
+			SetRawPtr(tmp, object);
+			f.Serialize(tmp);
+			SetRawPtr(tmp, NULL);
+
+			object->Serialize(f);
+
+			sh.nObjects++;
 		}
-		if( lua_cpcall(g_env.L, &WriteHelper::write_queue, f._file) )
-		{
-			const char *err = lua_tostring(g_env.L, -1);
-			TRACE("%s\n", err);
-			lua_pop(g_env.L, 1);
-			throw "ERROR: pluto queue";
-		}
-
-
-		//перебираем все объекты. если нужно - сохраняем
-		ObjectList::reverse_iterator it = GetList(LIST_objects).rbegin();
-		for( ; it != GetList(LIST_objects).rend(); ++it )
-		{
-			GC_Object *object = *it;
-			if( object->IsSaved() )
-			{
-				ObjectType type = object->GetType();
-				WriteFile(f._file, &type, sizeof(type), &bytesWritten, NULL);
-				try
-				{
-					SafePtr<void> tmp;
-					SetRawPtr(tmp, object);
-					f.Serialize(tmp);
-					SetRawPtr(tmp, NULL);
-
-					object->Serialize(f);
-				}
-				catch (...)
-				{
-					throw "ERROR: serialize object failed\n";
-				}
-				sh.nObjects++;
-			}
-		}
-
-		// return to begin of file and write count of saved objects
-		SetFilePointer(f._file, 0, NULL, FILE_BEGIN);
-		WriteFile(f._file, &sh, sizeof(SaveHeader), &bytesWritten, NULL);
-		if( bytesWritten != sizeof(SaveHeader) )
-			throw "ERROR: couldn't write file. check disk space";
 	}
-	catch(const char *msg)
-	{
-		TRACE("%s\n", msg);
-		result = false;
-	}
-	CloseHandle(f._file);
 
-	return result;
+	// return to begin of file and write count of saved objects
+	stream->Seek(0, SEEK_SET);
+	stream->Write(&sh, sizeof(SaveHeader));
 }
 
 void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)

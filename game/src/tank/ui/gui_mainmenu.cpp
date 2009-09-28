@@ -128,14 +128,14 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		string_t tmp = DIR_SAVE;
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
-
-		if( g_level->Serialize(tmp.c_str()) )
+		try
 		{
+			g_level->Serialize(tmp.c_str());
 			GetConsole().printf("game saved: '%s'\n", tmp.c_str());
 		}
-		else
+		catch( const std::exception &e )
 		{
-			GetConsole().printf("couldn't save game to '%s'", tmp.c_str());
+			GetConsole().printf("couldn't save game to '%s' - ", tmp.c_str(), e.what());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 	}
@@ -174,9 +174,13 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
 
-		if( !g_level->init_load(tmp.c_str()) )
+		try
 		{
-			GetConsole().printf("couldn't load game from '%s'", tmp.c_str());
+			g_level->Unserialize(tmp.c_str());
+		}
+		catch( const std::exception &e )
+		{
+			GetConsole().printf("couldn't load game from '%s' - %s\n", tmp.c_str(), e.what());
 			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
 		}
 	}

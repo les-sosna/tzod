@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "ai.h"
 #include "2dSprite.h"
 #include "core/rotator.h"
 

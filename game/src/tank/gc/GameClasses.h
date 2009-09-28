@@ -184,6 +184,7 @@ public:
 	void SetAlign(enumAlignText align);
 	const string_t& GetText() const { return _text; }
 
+	virtual void Serialize(SaveFile &f);
 	virtual void Draw() const;
 
 private:
@@ -205,6 +206,7 @@ public:
 	GC_Text_ToolTip(vec2d pos, const string_t &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
+	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFloat(float dt);
 };
 

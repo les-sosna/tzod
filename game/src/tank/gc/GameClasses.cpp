@@ -654,6 +654,13 @@ void GC_Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
+void GC_Text::Serialize(SaveFile &f)
+{
+	GC_2dSprite::Serialize(f);
+	f.Serialize(_text);
+	f.Serialize(_align);
+}
+
 void GC_Text::Draw() const
 {
 	vec2d pos = GetPosPredicted();
@@ -684,6 +691,13 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const string_t &text, const char *fo
 	MoveTo( vec2d(__min(x_max, __max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+}
+
+void GC_Text_ToolTip::Serialize(SaveFile &f)
+{
+	GC_Text::Serialize(f);
+	f.Serialize(_time);
+	f.Serialize(_y0);
 }
 
 void GC_Text_ToolTip::TimeStepFloat(float dt)

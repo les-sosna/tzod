@@ -3,6 +3,11 @@
 #include "stdafx.h"
 #include "SaveFile.h"
 
+SaveFile::SaveFile(SafePtr<FS::Stream> &s, bool loading)
+  : _stream(s)
+  , _load(loading)
+{
+}
 
 bool SaveFile::RestoreAllLinks()
 {

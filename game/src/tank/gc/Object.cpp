@@ -369,21 +369,16 @@ void GC_Object::Serialize(SaveFile &f)
 
 GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 {
-	DWORD bytesRead;
-	ObjectType type;
+	assert(file.loading());
 
-	ReadFile(file._file, &type, sizeof(type), &bytesRead, NULL);
-	if( bytesRead != sizeof(type) )
-	{
-		TRACE("ERROR: unexpected end of file\n");
-		throw "Load error: unexpected end of file\n";
-	}
+	ObjectType type;
+	file.Serialize(type);
 
 	__FromFileMap::const_iterator it = __GetFromFileMap().find(type);
 	if( __GetFromFileMap().end() == it )
 	{
 		TRACE("ERROR: unknown object type %u\n", type);
-		throw "Load error: unknown object type\n";
+		throw std::runtime_error("Load error: unknown object type");
 	}
 
 	GC_Object *object = it->second();
