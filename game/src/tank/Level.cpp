@@ -325,6 +325,14 @@ void Level::Clear()
 	}
 	assert(IsEmpty());
 
+	// reset info
+	_infoAuthor.clear();
+	_infoEmail.clear();
+	_infoUrl.clear();
+	_infoDesc.clear();
+	_infoTheme.clear();
+	_infoOnInit.clear();
+
 	// reset variables
 	_ctrlSentCount = 0;
 	_modeEditor = false;
