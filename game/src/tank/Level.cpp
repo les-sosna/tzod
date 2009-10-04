@@ -13,6 +13,7 @@
 
 #include "core/debug.h"
 #include "core/Console.h"
+#include "core/Profiler.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -41,6 +42,14 @@
 //#ifdef _DEBUG
 #include "gc/ai.h"
 //#endif
+
+DECLARE_PERFORMANCE_MARKER(Steps, "Steps");
+DECLARE_PERFORMANCE_MARKER(Drops, "drops");
+DECLARE_PERFORMANCE_MARKER(TimeBuffer, "time buffer");
+DECLARE_PERFORMANCE_MARKER(Dt, "dt");
+DECLARE_PERFORMANCE_MARKER(BytesPending, "bytes pending");
+DECLARE_PERFORMANCE_MARKER(CtrlSent, "ctrl sent");
+DECLARE_PERFORMANCE_MARKER(BytesSent, "bytes sent");
 
 
 ////////////////////////////////////////////////////////////
@@ -314,14 +323,10 @@ void Level::Clear()
 	if( g_gui )  // FIXME: dependence on GUI
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
-//	ObjectList::safe_iterator it = GetList(LIST_objects).safe_begin();
-//	while( GetList(LIST_objects).end() != it )
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
-//		GC_Object* obj = *it;
 		assert(!obj->IsKilled());
 		obj->Kill();
-//		++it;
 	}
 	assert(IsEmpty());
 
@@ -1198,17 +1203,19 @@ void Level::TimeStep(float dt)
 
 	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf->cl_boost->GetFloat();
 	float bufmax = (g_conf->cl_latency->GetFloat()*0+1 + 1) / g_conf->sv_fps->GetFloat();
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope5()->Push(_timeBuffer - bufmax);
+	INSERT_MARKER(Drops, _timeBuffer - bufmax);
+
 	if( _timeBuffer > bufmax )
 	{
 		_timeBuffer = bufmax;//0;
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope()->Push(_timeBuffer);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope2()->Push(dt);
+	INSERT_MARKER(TimeBuffer, _timeBuffer);
+	INSERT_MARKER(Dt, dt);
+
 	NetworkStats stats = {0};
 	if( g_client ) g_client->GetStatistics(&stats);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope3()->Push((float) stats.bytesPending);
+	INSERT_MARKER(BytesPending, (float) stats.bytesPending);
 
 	static int filter = 0;
 
@@ -1279,13 +1286,13 @@ void Level::TimeStep(float dt)
 		HitLimit();
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope4()->Push((float) _steps);
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope6()->Push((float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
+	INSERT_MARKER(Steps, (float) _steps);
+	INSERT_MARKER(CtrlSent, (float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
 	_steps = 0;
 
 	if( g_client )
 	{
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetOscilloscope7()->Push((float) g_client->_peer->GetSentRecent());
+		INSERT_MARKER(BytesSent, (float) g_client->_peer->GetSentRecent());
 	}
 }
 

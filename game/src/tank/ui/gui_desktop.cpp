@@ -16,6 +16,7 @@
 
 #include "config/Config.h"
 #include "core/Console.h"
+#include "core/Profiler.h"
 
 #include "network/TankClient.h"
 
@@ -122,56 +123,15 @@ Desktop::Desktop(GuiManager* manager)
 	float xx = 200;
 	float yy = 3;
 	float hh = 50;
-
-	_oscill = new Oscilloscope(this, xx, yy);
-	_oscill->Resize(400, hh);
-	_oscill->SetRange(-1/15.0f, 1/15.0f);
-	_oscill->SetTitle("timebuf");
-	float grid[] = {-1/30.0f, -1/60.0f, 0, 1/60.0f, 1/30.0f};
-	_oscill->SetGrid(grid, sizeof(grid) / sizeof(grid[0]));
-	yy += hh+5;
-	_oscill5 = new Oscilloscope(this, xx, yy);
-	_oscill5->Resize(400, hh);
-	_oscill5->SetRange(0, 1/15.0f);
-	_oscill5->SetTitle("drops");
-	float grid5[] = {1/60.0f, 1/30.0f};
-	_oscill5->SetGrid(grid5, sizeof(grid5) / sizeof(grid5[0]));
-	yy += hh+5;
-	_oscill2 = new Oscilloscope(this, xx, yy);
-	_oscill2->Resize(400, hh);
-	_oscill2->SetRange(0, 1/30.0f);
-	_oscill2->SetTitle("dt");
-	float grid2[] = {1/60.0f};
-	_oscill2->SetGrid(grid2, sizeof(grid2) / sizeof(grid2[0]));
-	yy += hh+5;
-	_oscill3 = new Oscilloscope(this, xx, yy);
-	_oscill3->Resize(400, hh);
-	_oscill3->SetRange(0, 100);
-	_oscill3->SetTitle("pending");
-	float grid3[] = {20, 40, 60, 80};
-	_oscill3->SetGrid(grid3, sizeof(grid3) / sizeof(grid3[0]));
-	yy += hh+5;
-	_oscill4 = new Oscilloscope(this, xx, yy);
-	_oscill4->Resize(400, hh);
-	_oscill4->SetRange(0, 5);
-	_oscill4->SetTitle("steps");
-	float grid4[] = {1, 2, 3};
-	_oscill4->SetGrid(grid4, sizeof(grid4) / sizeof(grid4[0]));
-	yy += hh+5;
-	_oscill6 = new Oscilloscope(this, xx, yy);
-	_oscill6->Resize(400, hh);
-	_oscill6->SetRange(0, 10);
-	_oscill6->SetTitle("ctrl sent");
-	float grid6[] = {2, 4, 6, 8};
-	_oscill6->SetGrid(grid6, sizeof(grid6) / sizeof(grid6[0]));
-	yy += hh+5;
-	_oscill7 = new Oscilloscope(this, xx, yy);
-	_oscill7->Resize(400, hh);
-	_oscill7->SetRange(0, 100);
-	_oscill7->SetTitle("bytes sent");
-	float grid7[] = {0,20,40,60,80};
-	_oscill7->SetGrid(grid7, sizeof(grid7) / sizeof(grid7[0]));
-
+	for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
+	{
+		Oscilloscope *os = new Oscilloscope(this, xx, yy);
+		os->Resize(400, hh);
+		os->SetRange(-1/15.0f, 1/15.0f);
+		os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
+		CounterBase::SetMarkerCallbackStatic(i, CreateDelegate(&Oscilloscope::Push, os));
+		yy += hh+5;
+	}
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
 }

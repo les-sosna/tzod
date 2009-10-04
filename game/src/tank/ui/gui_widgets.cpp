@@ -152,6 +152,8 @@ Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   , _titleFont(g_texman->FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
+  , _gridStepX(1)
+  , _gridStepY(1)
   , _scale(3)
 {
 	SetBorder(true);
@@ -166,6 +168,9 @@ void Oscilloscope::Push(float value)
 	{
 		_data.erase(_data.begin(), _data.begin() + (_data.size() - size));
 	}
+
+	AutoGrid();
+	AutoRange();
 }
 
 void Oscilloscope::SetRange(float rmin, float rmax)
@@ -179,9 +184,78 @@ void Oscilloscope::SetTitle(const string_t &title)
 	_title = title;
 }
 
-void Oscilloscope::SetGrid(const float *data, size_t count)
+void Oscilloscope::SetGridStep(float stepX, float stepY)
 {
-	_vgrid.assign(data, data + count);
+	_gridStepY = stepY;
+	_gridStepX = stepX;
+}
+
+void Oscilloscope::AutoGrid()
+{
+	assert(!_data.empty());
+
+	float valMin = _data[0];
+	float valMax = _data[0];
+	for( size_t i = 1; i < _data.size(); ++i )
+	{
+		valMin = std::min(valMin, _data[i]);
+		valMax = std::max(valMax, _data[i]);
+	}
+
+	float range = valMax - valMin;
+	if( range != 0 )
+	{
+		float count = floor(GetHeight() / g_texman->GetCharHeight(_titleFont) / 2);
+		float dy = range / count;
+		if( dy < 1 )
+		{
+			float p = pow(10, -floor(log10(dy)));
+			_gridStepY = ceil(dy * p) / p;
+		}
+		else if ( dy > 1 )
+		{
+			float p = pow(10, floor(log10(dy)));
+			_gridStepY = ceil(dy / p) * p;
+		}
+		else
+		{
+			_gridStepY = 1;
+		}
+	}
+	else
+	{
+		_gridStepY = 0;
+	}
+}
+
+void Oscilloscope::AutoRange()
+{
+	assert(!_data.empty());
+
+	float valMin = _data[0];
+	float valMax = _data[0];
+	for( size_t i = 1; i < _data.size(); ++i )
+	{
+		valMin = std::min(valMin, _data[i]);
+		valMax = std::max(valMax, _data[i]);
+	}
+
+	if( _gridStepY != 0 )
+	{
+		_rangeMax = ceil(valMax / _gridStepY) * _gridStepY;
+		_rangeMin = floor(valMin / _gridStepY) * _gridStepY;
+	}
+	else
+	{
+		_rangeMax = valMax;
+		_rangeMin = valMin;
+	}
+
+	if( _rangeMin == _rangeMax )
+	{
+		_rangeMin = 0;
+		_rangeMax = valMax * 1.5f;
+	}
 }
 
 void Oscilloscope::DrawChildren(float sx, float sy) const
@@ -190,14 +264,25 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 	float center = sy - _rangeMax * scale;
 	float dx = sx + GetWidth() - (float) _data.size() * _scale;
 
+	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
 		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, 0);
 	}
 
-	for( std::vector<float>::const_iterator it = _vgrid.begin(); it != _vgrid.end(); ++it )
+	// grid
+	if( _gridStepY != 0 )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - *it) * scale, GetWidth(), -1, 0);
+		int start = int(_rangeMin / _gridStepY);
+		int stop = int(_rangeMax / _gridStepY);
+		for( int i = start; i <= stop; ++i )
+		{
+			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - (float) i * _gridStepY) * scale, GetWidth(), -1, 0);
+		}
+	}
+	else
+	{
+		g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, 0);
 	}
 
 	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy);

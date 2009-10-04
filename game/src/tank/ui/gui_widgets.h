@@ -44,7 +44,10 @@ public:
 	void Push(float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const string_t &title);
-	void SetGrid(const float *data, size_t count);
+	void SetGridStep(float stepX, float stepY);
+
+	void AutoGrid();
+	void AutoRange();
 
 protected:
 	void DrawChildren(float sx, float sy) const;
@@ -53,10 +56,11 @@ private:
 	size_t _barTexture;
 	size_t _titleFont;
 	string_t _title;
-	std::vector<float> _vgrid;
 	std::deque<float> _data;
 	float _rangeMin;
 	float _rangeMax;
+	float _gridStepX;
+	float _gridStepY;
 	float _scale;
 };
 
