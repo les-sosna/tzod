@@ -31,9 +31,4 @@ private:
 	static std::vector<CounterInfoEx>& GetRegisteredCountersStatic();
 };
 
-
-#define DECLARE_PERFORMANCE_MARKER(id, title) CounterBase g_perf##id(#id, title)
-#define INSERT_MARKER(id, value) g_perf##id.Push(value)
-
-
 // end of file

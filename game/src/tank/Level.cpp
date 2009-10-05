@@ -43,13 +43,13 @@
 #include "gc/ai.h"
 //#endif
 
-DECLARE_PERFORMANCE_MARKER(Steps, "Steps");
-DECLARE_PERFORMANCE_MARKER(Drops, "drops");
-DECLARE_PERFORMANCE_MARKER(TimeBuffer, "time buffer");
-DECLARE_PERFORMANCE_MARKER(Dt, "dt");
-DECLARE_PERFORMANCE_MARKER(BytesPending, "bytes pending");
-DECLARE_PERFORMANCE_MARKER(CtrlSent, "ctrl sent");
-DECLARE_PERFORMANCE_MARKER(BytesSent, "bytes sent");
+static CounterBase counterSteps("Steps", "Steps");
+static CounterBase counterDrops("Drops", "Frame drops");
+static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
+static CounterBase counterDt("dt", "dt, ms");
+static CounterBase counterBytesPending("BytesPending", "bytes pending");
+static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
+static CounterBase counterBytesSent("BytesSent", "Bytes sent");
 
 
 ////////////////////////////////////////////////////////////
@@ -1203,19 +1203,19 @@ void Level::TimeStep(float dt)
 
 	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf->cl_boost->GetFloat();
 	float bufmax = (g_conf->cl_latency->GetFloat()*0+1 + 1) / g_conf->sv_fps->GetFloat();
-	INSERT_MARKER(Drops, _timeBuffer - bufmax);
+	counterDrops.Push(_timeBuffer - bufmax);
 
 	if( _timeBuffer > bufmax )
 	{
 		_timeBuffer = bufmax;//0;
 	}
 
-	INSERT_MARKER(TimeBuffer, _timeBuffer);
-	INSERT_MARKER(Dt, dt);
+	counterTimeBuffer.Push(_timeBuffer);
+	counterDt.Push(dt);
 
 	NetworkStats stats = {0};
 	if( g_client ) g_client->GetStatistics(&stats);
-	INSERT_MARKER(BytesPending, (float) stats.bytesPending);
+	counterBytesPending.Push((float) stats.bytesPending);
 
 	static int filter = 0;
 
@@ -1286,13 +1286,13 @@ void Level::TimeStep(float dt)
 		HitLimit();
 	}
 
-	INSERT_MARKER(Steps, (float) _steps);
-	INSERT_MARKER(CtrlSent, (float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
+	counterSteps.Push((float) _steps);
+	counterCtrlSent.Push((float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
 	_steps = 0;
 
 	if( g_client )
 	{
-		INSERT_MARKER(BytesSent, (float) g_client->_peer->GetSentRecent());
+		counterBytesSent.Push((float) g_client->_peer->GetSentRecent());
 	}
 }
 
