@@ -65,7 +65,7 @@ private:
 	static DWORD WINAPI _ss_thread(_asyncinfo *lpInfo);
 
 	void _cleanup();
-	void _flush();
+	void Flush();
 
 
 	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen);
@@ -253,7 +253,7 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 			pfd.cAlphaBits = 8;
 			break;
 		default:
-			throw "Display mode not supported";
+			throw std::runtime_error("32 bit Display required");
 		}
 
 
@@ -261,16 +261,16 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 
 		int nPixelFormat = ChoosePixelFormat(_hDC, &pfd);
 		if( 0 == nPixelFormat )
-			throw "ChoosePixelFormat failed";
+			throw std::runtime_error("ChoosePixelFormat failed");
 
 		if( !SetPixelFormat(_hDC, nPixelFormat, &pfd) )
-			throw "SetPixelFormat Failed";
+			throw std::runtime_error("SetPixelFormat Failed");
 
 		if( !(_hRC = wglCreateContext(_hDC)) )
-			throw "wglCreateContext Failed";
+			throw std::runtime_error("wglCreateContext Failed");
 
 		if( !wglMakeCurrent(_hDC, _hRC) )
-			throw "wglMakeCurrent Failed";
+			throw std::runtime_error("wglMakeCurrent Failed");
 
 		glEnable(GL_BLEND);
 
@@ -282,9 +282,9 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);
 	}
-	catch(const char *msg)
+	catch(const std::exception &e)
 	{
-		TRACE(" OpenGL init error: %s", msg);
+		TRACE(" OpenGL init error: %s\n", e.what());
 		result = false;
 		_cleanup();
 	}
@@ -313,7 +313,7 @@ void RenderOpenGL::OnResizeWnd()
 
 void RenderOpenGL::SetViewport(const RECT *rect)
 {
-	_flush();
+	Flush();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -349,7 +349,7 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 
 void RenderOpenGL::Camera(float x, float y, float scale, float angle)
 {
-	_flush();
+	Flush();
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -388,7 +388,7 @@ void RenderOpenGL::Begin()
 
 void RenderOpenGL::End()
 {
-	_flush();
+	Flush();
 
 	glFlush();
 	SwapBuffers(_hDC);
@@ -396,7 +396,7 @@ void RenderOpenGL::End()
 
 void RenderOpenGL::SetMode(const RenderMode mode)
 {
-	_flush();
+	Flush();
 
 	switch( mode )
 	{
@@ -460,14 +460,13 @@ void RenderOpenGL::TexFree(DEV_TEXTURE tex)
 void RenderOpenGL::TexBind(DEV_TEXTURE tex)
 {
 	if( _curtex == reinterpret_cast<GLuint&>(tex.index) ) return;
-	_flush();
+	Flush();
 	_curtex = reinterpret_cast<GLuint&>(tex.index);
 	glBindTexture(GL_TEXTURE_2D, _curtex);
 }
 
-void RenderOpenGL::_flush()
+void RenderOpenGL::Flush()
 {
-//	_FpsCounter::Inst()->OneMoreBatch();
 	if( _iaSize )
 	{
 		glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
@@ -480,7 +479,7 @@ MyVertex* RenderOpenGL::DrawQuad()
 	if( _vaSize > VERTEX_ARRAY_SIZE - 4 ||
 		_iaSize > INDEX_ARRAY_SIZE  - 6 )
 	{
-		_flush();
+		Flush();
 	}
 
 	MyVertex *result = &_VertexArray[_vaSize];
@@ -505,7 +504,7 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 	if( _vaSize + nEdges   > VERTEX_ARRAY_SIZE - 1 ||
 		_iaSize + nEdges*3 > INDEX_ARRAY_SIZE )
 	{
-		_flush();
+		Flush();
 	}
 
 	MyVertex *result = &_VertexArray[_vaSize];
@@ -526,7 +525,7 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 
 void RenderOpenGL::DrawLines(const MyLine *lines, size_t count)
 {
-	_flush();
+	Flush();
 
 	glDisable(GL_TEXTURE_2D);
 
