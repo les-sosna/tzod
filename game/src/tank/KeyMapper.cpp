@@ -4,6 +4,34 @@
 
 #include "KeyMapper.h"
 
+class KeyMapper
+{
+	std::map<string_t, int> _name2code;
+	std::map<int, string_t> _code2name;
+
+	void Pair(const char *name, int code);
+
+public:
+	KeyMapper();
+
+	inline string_t GetName(int code) const;
+	inline int GetCode(const string_t &name) const;
+};
+
+static KeyMapper s_keyMapper;
+
+string_t GetKeyName(int code)
+{
+	return s_keyMapper.GetName(code);
+}
+
+int GetKeyCode(const string_t &name)
+{
+	return s_keyMapper.GetCode(name);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 KeyMapper::KeyMapper()
 {
@@ -133,10 +161,6 @@ KeyMapper::KeyMapper()
 	Pair( "Mouse 7",        262 );
 	Pair( "Mouse Wheel Up",   270 );
 	Pair( "Mouse Wheel Down", 271 );
-}
-
-KeyMapper::~KeyMapper()
-{
 }
 
 void KeyMapper::Pair(const char *name, int code)

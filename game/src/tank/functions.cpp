@@ -106,26 +106,6 @@ vec2d vrand(float len)
 	return vec2d(frand(PI2)) * len;
 }
 
-// если каталог не существует, то пользователь
-// получит запрос на создание этого каталога
-//      return TRUE - удачно
-BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg)
-{
-	if( !SetCurrentDirectory(lpstrName) )
-	{
-		char s[MAX_PATH];
-		if( !CreateDirectory(lpstrName, NULL) )
-		{
-			wsprintf(s, "Could not create directory '%s'", lpstrName);
-			MessageBoxT(hDlg, s, MB_OK|MB_ICONSTOP);
-			return FALSE;
-		}
-		SetCurrentDirectory(lpstrName);
-	}
-
-	return TRUE;
-}
-
 DWORD CalcCRC32(const void *data, size_t size)
 {
 	const DWORD CRC_POLY = 0xEDB88320;

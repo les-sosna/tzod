@@ -8,7 +8,6 @@
 
 
 AppBase::AppBase()
-  : _hinst(NULL)
 {
 }
 
@@ -24,10 +23,8 @@ void AppBase::InitNetwork()
 	}
 }
 
-int AppBase::Run(HINSTANCE hInst)
+int AppBase::Run()
 {
-	assert(!_hinst);
-	_hinst = hInst;
 	if( Pre() )
 	{
 		for(;;)

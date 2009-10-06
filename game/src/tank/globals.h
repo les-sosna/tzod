@@ -11,7 +11,6 @@ class CSound;
 class MusicPlayer;
 class Level;
 class ConsoleBuffer;
-class KeyMapper;
 class TankServer;
 class TankClient;
 class AppBase;
@@ -35,8 +34,6 @@ struct ENVIRONMENT;
 
 extern CSound *g_pSounds[SND_COUNT];
 
-extern HINSTANCE    g_hInstance;
-
 extern IRender         *g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
@@ -44,7 +41,6 @@ extern UI::GuiManager  *g_gui;
 extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
 extern TankClient      *g_client;
-extern KeyMapper       *g_keys;
 extern AppBase         *g_app;
 
 extern SafePtr<MusicPlayer>     g_music;

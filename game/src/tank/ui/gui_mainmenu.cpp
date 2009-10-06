@@ -136,7 +136,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		catch( const std::exception &e )
 		{
 			GetConsole().printf("couldn't save game to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -181,7 +181,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		catch( const std::exception &e )
 		{
 			GetConsole().printf("couldn't load game from '%s' - %s\n", tmp.c_str(), e.what());
-			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -274,11 +274,11 @@ void MainMenuDlg::OnImportMapSelect(int result)
 		if( !g_level->init_import_and_edit(tmp.c_str()) )
 		{
 			GetConsole().printf("couldn't import map '%s'", tmp.c_str());
-			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 		else
 		{
-			static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
+			static_cast<UI::Desktop*>(GetManager()->GetDesktop())->ShowEditor(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -322,7 +322,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		catch( const std::exception &e )
 		{
 			GetConsole().printf("couldn't export map to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 
 		GetConsole().printf("map exported: '%s'\n", tmp.c_str());

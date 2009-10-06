@@ -21,10 +21,6 @@ vec2d vrand(float len);
 
 DWORD CalcCRC32(const void *data, size_t size);
 
-// Ѕезопасный выбор текущей директории
-BOOL SafeSetCurDir(LPCTSTR lpstrName, HWND hDlg);
-
-
 bool PauseGame(bool pause);
 
 string_t StrFromErr(DWORD dwMessageId);

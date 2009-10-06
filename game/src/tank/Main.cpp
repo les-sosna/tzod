@@ -6,7 +6,6 @@
 #include "macros.h"
 #include "Level.h"
 #include "directx.h"
-#include "KeyMapper.h"
 #include "InputManager.h"
 
 #include "config/Config.h"
@@ -162,13 +161,11 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 	return h;
 }
 
-int APIENTRY WinMain( HINSTANCE hinst,
+int APIENTRY WinMain( HINSTANCE, // hInstance
                       HINSTANCE, // hPrevInstance
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
-	g_hInstance = hinst;
-
 	TCHAR buf[MAX_PATH];
 	GetModuleFileName(NULL, buf, MAX_PATH);
 
@@ -190,7 +187,7 @@ int APIENTRY WinMain( HINSTANCE hinst,
 
 
 	ZodApp app;
-	return app.Run(hinst);
+	return app.Run();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +224,7 @@ bool ZodApp::Pre()
 
 
 	// create main app window
-	g_env.hMainWnd = CreateMainWnd(g_hInstance);
+	g_env.hMainWnd = CreateMainWnd(GetModuleHandle(NULL));
 
 
 	//
@@ -314,7 +311,7 @@ bool ZodApp::Pre()
 	// show graphics mode selection dialog
 	//
 	if( g_conf->r_askformode->Get()
-		&& IDOK != DialogBox(g_hInstance, (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
+		&& IDOK != DialogBox(GetModuleHandle(NULL), (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
 		return false;
@@ -323,12 +320,6 @@ bool ZodApp::Pre()
 	{
 		g_render = g_conf->r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
 	}
-
-
-	//
-	// init key mapper
-	//
-	g_keys = new KeyMapper();
 
 
 	//
@@ -426,7 +417,7 @@ bool ZodApp::Pre()
 	if( !script_exec_file(g_env.L, FILE_STARTUP) )
 	{
 		TRACE("ERROR: in startup script\n");
-		MessageBoxT(g_env.hMainWnd, "startup script error", MB_ICONERROR);
+		MessageBox(g_env.hMainWnd, "startup script error", TXT_VERSION, MB_ICONERROR);
 	}
 
 	g_level->_gameType = GT_INTRO;
@@ -500,9 +491,6 @@ void ZodApp::Post()
 		script_close(g_env.L);
 		g_env.L = NULL;
 	}
-
-	// key mapper
-	SAFE_DELETE(g_keys);
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'\n");

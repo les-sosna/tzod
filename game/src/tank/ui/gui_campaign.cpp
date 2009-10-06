@@ -62,7 +62,7 @@ void NewCampaignDlg::OnOK()
 	const string_t& name = _files->GetItemText(_files->GetCurSel());
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
 	{
-		static_cast<Desktop*>(g_gui->GetDesktop())->ShowConsole(true);
+		static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 	}
 
 	Close(_resultOK);

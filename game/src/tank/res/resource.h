@@ -3,12 +3,8 @@
 // Used by tank.rc
 //
 #define IDI_BIG                         162
-#define IDD_MSGBOX_OKCANCEL             224
-#define IDD_MSGBOX_OK                   225
-#define IDD_MSGBOX_YESNO                226
 #define IDD_DISPLAY                     245
 #define IDC_RATE                        1022
-#define IDC_TEXT                        1045
 #define IDC_RENDER_OPENGL               1089
 #define IDC_RENDER_DIRECT3D             1090
 #define IDC_FULLSCREEN                  1091

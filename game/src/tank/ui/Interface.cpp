@@ -160,53 +160,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-LRESULT CALLBACK dlgMsgBox(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-
-		switch (wmEvent)
-		{
-		case BN_CLICKED:
-			EndDialog(hDlg, wmId);
-			break;
-		case BN_SETFOCUS:
-			SendMessage(hDlg, DM_SETDEFID, wmId, 0);
-			break;
-		}
-
-		break;
-
-	case WM_INITDIALOG:
-		SendDlgItemMessage(hDlg, IDC_TEXT, WM_SETTEXT, 0, lParam);
-		return TRUE;
-	}
-    return FALSE;
-}
-
-int MessageBoxT(
-	HWND hWnd,          // handle of owner window
-	LPCTSTR lpText,     // address of text in message box
-	UINT uType)         // style of message box
-{
-	LPCTSTR templ;
-
-	if( MB_OKCANCEL & uType )
-		templ = (LPCTSTR) IDD_MSGBOX_OKCANCEL;
-	else if( MB_YESNO & uType )
-		templ = (LPCTSTR) IDD_MSGBOX_YESNO;
-	else
-		templ = (LPCTSTR) IDD_MSGBOX_OK;
-
-	return DialogBoxParam(g_hInstance, templ, hWnd, (DLGPROC) dlgMsgBox, (LPARAM) lpText);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
 bool operator < (const DisplayMode &left, const DisplayMode &right)
 {
 	return memcmp(&left, &right, sizeof(DisplayMode)) < 0;

@@ -293,7 +293,7 @@ void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
 {
 	int index = _actions->AddItem(display);
 	_actions->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->SetItemText(index, 1, g_keys->GetName(g_keys->GetCode(_profile->GetStr(rawname)->Get())));
+	_actions->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname)->Get())));
 }
 
 void ControlProfileDlg::OnOK()
@@ -336,12 +336,12 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			}
 			if( DIK_ESCAPE != k )
 			{
-				_actions->SetItemText(_activeIndex, 1, g_keys->GetName(k));
+				_actions->SetItemText(_activeIndex, 1, GetKeyName(k));
 			}
 			else
 			{
 				_actions->SetItemText(_activeIndex, 1,
-					g_keys->GetName(g_keys->GetCode(_profile->GetStr((const char *) _actions->GetItemData(_activeIndex))->Get()))
+					GetKeyName(GetKeyCode(_profile->GetStr((const char *) _actions->GetItemData(_activeIndex))->Get()))
 				);
 			}
 //			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);

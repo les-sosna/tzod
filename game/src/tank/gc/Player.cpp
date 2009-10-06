@@ -556,18 +556,18 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 	{
 		ConfVarTable *t = static_cast<ConfVarTable *>(p);
 
-		_keyForward     = g_keys->GetCode(t->GetStr( "key_forward"      )->Get());
-		_keyBack        = g_keys->GetCode(t->GetStr( "key_back"         )->Get());
-		_keyLeft        = g_keys->GetCode(t->GetStr( "key_left"         )->Get());
-		_keyRight       = g_keys->GetCode(t->GetStr( "key_right"        )->Get());
-		_keyFire        = g_keys->GetCode(t->GetStr( "key_fire"         )->Get());
-		_keyLight       = g_keys->GetCode(t->GetStr( "key_light"        )->Get());
-		_keyTowerLeft   = g_keys->GetCode(t->GetStr( "key_tower_left"   )->Get());
-		_keyTowerRight  = g_keys->GetCode(t->GetStr( "key_tower_right"  )->Get());
-		_keyTowerCenter = g_keys->GetCode(t->GetStr( "key_tower_center" )->Get());
-		_keyPickup      = g_keys->GetCode(t->GetStr( "key_pickup"       )->Get());
+		_keyForward     = GetKeyCode(t->GetStr( "key_forward"      )->Get());
+		_keyBack        = GetKeyCode(t->GetStr( "key_back"         )->Get());
+		_keyLeft        = GetKeyCode(t->GetStr( "key_left"         )->Get());
+		_keyRight       = GetKeyCode(t->GetStr( "key_right"        )->Get());
+		_keyFire        = GetKeyCode(t->GetStr( "key_fire"         )->Get());
+		_keyLight       = GetKeyCode(t->GetStr( "key_light"        )->Get());
+		_keyTowerLeft   = GetKeyCode(t->GetStr( "key_tower_left"   )->Get());
+		_keyTowerRight  = GetKeyCode(t->GetStr( "key_tower_right"  )->Get());
+		_keyTowerCenter = GetKeyCode(t->GetStr( "key_tower_center" )->Get());
+		_keyPickup      = GetKeyCode(t->GetStr( "key_pickup"       )->Get());
 
-		_lastLightsState         = t->GetBool("lights",         true)->Get();
+		_lastLightsState= t->GetBool("lights",         true)->Get();
 		_aimToMouse     = t->GetBool("aim_to_mouse",  false)->Get();
 		_moveToMouse    = t->GetBool("move_to_mouse", false)->Get();
 	}

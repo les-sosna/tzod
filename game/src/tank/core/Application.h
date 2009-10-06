@@ -12,7 +12,7 @@ public:
 	AppBase();
 	virtual ~AppBase();
 
-	int Run(HINSTANCE hInst);
+	int Run();
 
 	void RegisterHandle(HANDLE h, Delegate<void()> callback);
 	void UnregisterHandle(HANDLE h);
@@ -25,7 +25,6 @@ public:
 	virtual void Post() = 0;
 
 private:
-	HINSTANCE _hinst;
 	std::vector<HANDLE> _handles;
 	std::vector<Delegate<void()> > _callbacks;
 	SafePtr<NetworkInitHelper> _netHelper;
