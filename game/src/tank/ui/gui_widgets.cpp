@@ -205,7 +205,8 @@ void Oscilloscope::AutoGrid()
 	float range = valMax - valMin;
 	if( range != 0 )
 	{
-		float count = floor(GetHeight() / g_texman->GetCharHeight(_titleFont) / 2);
+		float cheight = g_texman->GetCharHeight(_titleFont);
+		float count = floor((GetHeight() - cheight) / cheight / 2);
 		float dy = range / count;
 		if( dy < 1 )
 		{
@@ -260,7 +261,10 @@ void Oscilloscope::AutoRange()
 
 void Oscilloscope::DrawChildren(float sx, float sy) const
 {
-	float scale = GetHeight() / (_rangeMin - _rangeMax);
+	float labelOffset = g_texman->GetCharHeight(_titleFont) / 2;
+	sy += labelOffset;
+
+	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);
 	float center = sy - _rangeMax * scale;
 	float dx = sx + GetWidth() - (float) _data.size() * _scale;
 
@@ -277,7 +281,12 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 		int stop = int(_rangeMax / _gridStepY);
 		for( int i = start; i <= stop; ++i )
 		{
-			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - (float) i * _gridStepY) * scale, GetWidth(), -1, 0);
+			float y = (float) i * _gridStepY;
+			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, 0);
+			char buf[64];
+			sprintf_s(buf, "%.3g", y);
+			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
+			g_texman->DrawBitmapText(_titleFont, buf, 0x77777777, sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset);
 		}
 	}
 	else
@@ -285,7 +294,7 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 		g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, 0);
 	}
 
-	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy);
+	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy - labelOffset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
