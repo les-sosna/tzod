@@ -18,7 +18,7 @@ Peer::Peer(SOCKET s)
 {
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
-		TRACE("peer: ERROR - Unable to select event (%u)\n", WSAGetLastError());
+		TRACE("peer: ERROR - Unable to select event (%u)", WSAGetLastError());
 		throw std::runtime_error("peer: Unable to select event");
 	}
 	_socket.SetCallback(CreateDelegate(&Peer::OnSocketEvent, this));
@@ -40,12 +40,12 @@ int Peer::Connect(const sockaddr_in *addr)
 	assert(INVALID_SOCKET != _socket);
 	if( !connect(_socket, (sockaddr *) addr, sizeof(sockaddr_in)) )
 	{
-		TRACE("cl: ERROR - connect call failed!\n");
+		TRACE("peer: ERROR - connect call failed!");
 		return WSAGetLastError();
 	}
 	if( WSAEWOULDBLOCK != WSAGetLastError() )
 	{
-		TRACE("cl: error %d; WSAEWOULDBLOCK expected!\n", WSAGetLastError());
+		TRACE("peer: error %d; WSAEWOULDBLOCK expected!", WSAGetLastError());
 		return WSAGetLastError();
 	}
 	return 0;
@@ -78,7 +78,7 @@ void Peer::OnSocketEvent()
 	WSANETWORKEVENTS ne = {0};
 	if( _socket.EnumNetworkEvents(&ne) )
 	{
-		TRACE("peer: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
+		TRACE("peer: EnumNetworkEvents error 0x%08x", WSAGetLastError());
 		assert(eventDisconnect);
 		INVOKE(eventDisconnect) (this, WSAGetLastError());
 		return;
@@ -103,7 +103,7 @@ void Peer::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_READ_BIT] )
 		{
-			TRACE("peer: read error 0x%08x\n", ne.iErrorCode[FD_READ_BIT]);
+			TRACE("peer: read error 0x%08x", ne.iErrorCode[FD_READ_BIT]);
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_READ_BIT]);
 			return;
@@ -112,7 +112,7 @@ void Peer::OnSocketEvent()
 		int result = _in.Recv(_socket);
 		if( result < 0 )
 		{
-			TRACE("peer: unexpected error 0x%08x\n", WSAGetLastError());
+			TRACE("peer: unexpected error 0x%08x", WSAGetLastError());
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, WSAGetLastError());
 			return;
@@ -120,7 +120,7 @@ void Peer::OnSocketEvent()
 		else if( 0 == result )
 		{
 			// connection was gracefully closed
-			TRACE("peer: connection closed by remote side\n");
+			TRACE("peer: connection closed by remote side");
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, 0);
 			return;
@@ -139,7 +139,7 @@ void Peer::OnSocketEvent()
 				if( _handlers.end() == it )
 				{
 					_pendingCalls.pop();
-					TRACE("peer: invalid function code\n");
+					TRACE("peer: invalid function code");
 					assert(eventDisconnect);
 					INVOKE(eventDisconnect) (this, 0);
 					return;
@@ -161,7 +161,7 @@ void Peer::OnSocketEvent()
 	{
 		if( ne.iErrorCode[FD_WRITE_BIT] )
 		{
-			TRACE("peer: write error 0x%08x\n", ne.iErrorCode[FD_WRITE_BIT]);
+			TRACE("peer: write error 0x%08x", ne.iErrorCode[FD_WRITE_BIT]);
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, ne.iErrorCode[FD_WRITE_BIT]);
 			return;
@@ -202,7 +202,7 @@ bool Peer::TrySend()
 		}
 		else
 		{
-			TRACE("peer: network error %u\n", err);
+			TRACE("peer: network error %u", err);
 			assert(eventDisconnect);
 			INVOKE(eventDisconnect) (this, err);
 			return false;

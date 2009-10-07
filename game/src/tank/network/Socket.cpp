@@ -63,29 +63,29 @@ int Socket::Close()
 	u_long ulParam = 0;
 	if( !ioctlsocket(_socket, FIONBIO, &ulParam) )  // return back to blocking mode
 	{
-		TRACE("peer: return back to blocking mode - ok\n");
+		TRACE("peer: return back to blocking mode - ok");
 	}
 	else
 	{
-		TRACE("peer: return back to blocking mode - %d\n", WSAGetLastError());
+		TRACE("peer: return back to blocking mode - %d", WSAGetLastError());
 	}
 
 	if( !shutdown(_socket, SD_SEND) )
 	{
-		TRACE("peer: socket shutdown - ok\n");
+		TRACE("peer: socket shutdown - ok");
 	}
 	else
 	{
-		TRACE("peer: socket shutdown - %d\n", WSAGetLastError());
+		TRACE("peer: socket shutdown - %d", WSAGetLastError());
 	}
 
 	if( !closesocket(_socket) )
 	{
-		TRACE("peer: close socket - ok\n");
+		TRACE("peer: close socket - ok");
 	}
 	else
 	{
-		TRACE("peer: close socket - %d\n", WSAGetLastError());
+		TRACE("peer: close socket - %d", WSAGetLastError());
 	}
 
 	_socket = INVALID_SOCKET;
@@ -111,12 +111,12 @@ void Socket::Attach(SOCKET s)
 //	BOOL on = TRUE;
 //	if( setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (const char*) &on, sizeof(BOOL)) )
 //	{
-//		TRACE("WARNING: setting TCP_NODELAY failed!\n");
+//		TRACE("WARNING: setting TCP_NODELAY failed!");
 //	}
 //	int bufsize = 0;
 //	if( setsockopt(s, SOL_SOCKET, SO_SNDBUF, (const char*) &bufsize, sizeof(int)) )
 //	{
-//		TRACE("WARNING: setting SO_SNDBUF failed! %d\n", WSAGetLastError());
+//		TRACE("WARNING: setting SO_SNDBUF failed! %d", WSAGetLastError());
 //	}
 }
 

@@ -287,11 +287,11 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE, &params, &_pd3dDevice)) )
 	{
-		TRACE("Hardware vertex processing not supported; trying software\n");
+		TRACE("Hardware vertex processing not supported; trying software");
 		if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE, &params, &_pd3dDevice)) )
 		{
-			TRACE("ERROR: CreateDevice failed\n")
+			TRACE("ERROR: CreateDevice failed")
 			return false;
 		}
 	}
@@ -330,14 +330,14 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	if( FAILED(_pd3dDevice->CreateVertexBuffer(sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, NULL)) )
 	{
-		TRACE("ERROR: CreateVertexBuffer failed\n")
+		TRACE("ERROR: CreateVertexBuffer failed")
 		return false;
 	}
 
 	if( FAILED(_pd3dDevice->CreateIndexBuffer(sizeof(WORD)*INDEX_BUFFER_SIZE,
 		D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &_pIB, NULL)) )
 	{
-		TRACE("ERROR: CreateIndexBuffer failed\n")
+		TRACE("ERROR: CreateIndexBuffer failed")
 		return false;
 	}
 

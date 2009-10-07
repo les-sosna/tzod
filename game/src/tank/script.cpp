@@ -232,7 +232,7 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "couldn't save game to '%s' - ", filename, e.what());
 	}
 	g_level->PauseSound(false);
-	GetConsole().Printf(0, "game saved: '%s'\n", filename);
+	GetConsole().Printf(0, "game saved: '%s'", filename);
 	return 0;
 }
 
@@ -288,7 +288,7 @@ static int luaT_export(lua_State *L)
 		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
 	}
 
-	GetConsole().Printf(0, "map exported: '%s'\n", filename);
+	GetConsole().Printf(0, "map exported: '%s'", filename);
 
 	return 0;
 }
@@ -337,12 +337,12 @@ static int luaT_music(lua_State *L)
 			}
 			else
 			{
-				TRACE("WARNING: Could not load music file '%s'. Unsupported format?\n", filename);
+				TRACE("WARNING: Could not load music file '%s'. Unsupported format?", filename);
 			}
 		}
 		catch( const std::exception &e )
 		{
-			TRACE("WARNING: Could not load music file '%s' - %s\n", filename, e.what())
+			TRACE("WARNING: Could not load music file '%s' - %s", filename, e.what())
 		}
 	}
 
@@ -1043,7 +1043,7 @@ int luaT_loadtheme(lua_State *L)
 	{
 		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)->QueryMap()) )
 		{
-			GetConsole().WriteLine(1, "WARNING: there are no textures loaded\n");
+			GetConsole().WriteLine(1, "WARNING: there are no textures loaded");
 		}
 	}
 	catch( const std::exception &e )
@@ -1195,14 +1195,14 @@ bool script_exec(lua_State *L, const char *string)
 
 	if( luaL_loadstring(L, string) )
 	{
-		GetConsole().Printf(1, "syntax error %s\n", lua_tostring(L, -1));
+		GetConsole().Printf(1, "syntax error %s", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
 	if( lua_pcall(L, 0, 0, 0) )
 	{
-		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
@@ -1230,7 +1230,7 @@ bool script_exec_file(lua_State *L, const char *filename)
 	}
 	catch( const std::runtime_error &e )
 	{
-		TRACE("%s\n", e.what());
+		GetConsole().WriteLine(1, e.what());
 		return false;
 	}
 

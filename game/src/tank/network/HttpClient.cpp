@@ -172,7 +172,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 		hostent* he = gethostbyname(_host.c_str());
 		if( NULL == he )
 		{
-			TRACE("cl: ERROR - Unable to resolve IP-address (%u)\n", WSAGetLastError());
+			TRACE("http client: ERROR - Unable to resolve IP-address (%u)", WSAGetLastError());
 			assert(eventResult);
 			INVOKE(eventResult) (WSAGetLastError(), "Unable to resolve IP-address", NULL);
 			return;
@@ -191,7 +191,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	if( INVALID_SOCKET == _socket )
 	{
 		int err = WSAGetLastError();
-		TRACE("http: ERROR - Unable to create socket (%u)\n", WSAGetLastError());
+		TRACE("http client: ERROR - Unable to create socket (%u)", WSAGetLastError());
 		assert(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Unable to create socket", NULL);
 		return;
@@ -200,7 +200,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	if( _socket.SetEvents(FD_READ|FD_WRITE|FD_CONNECT|FD_CLOSE) )
 	{
 		_socket.Close();
-		TRACE("http: ERROR - Unable to select event (%u)\n", WSAGetLastError());
+		TRACE("http client: ERROR - Unable to select event (%u)", WSAGetLastError());
 		assert(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Unable to select event", NULL);
 	}
@@ -208,13 +208,13 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	_socket.SetCallback(CreateDelegate(&HttpClient::OnSocketEvent, this));
 
 
-	TRACE("http: connecting to %s\n", inet_ntoa(addr.sin_addr));
+	TRACE("http: connecting to %s", inet_ntoa(addr.sin_addr));
 
 
 	if( !connect(_socket, (sockaddr *) &addr, sizeof(sockaddr_in)) )
 	{
 		_socket.Close();
-		TRACE("cl: ERROR - connect call failed!\n");
+		TRACE("cl: ERROR - connect call failed!");
 		assert(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Could not connect", NULL);
 		return;
@@ -222,7 +222,7 @@ void HttpClient::Get(const std::string &url, const Param &param)
 	if( WSAEWOULDBLOCK != WSAGetLastError() )
 	{
 		_socket.Close();
-		TRACE("cl: error %d; WSAEWOULDBLOCK expected!\n", WSAGetLastError());
+		TRACE("cl: error %d; WSAEWOULDBLOCK expected!", WSAGetLastError());
 		assert(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "Could not connect", NULL);
 	}
@@ -251,7 +251,7 @@ void HttpClient::OnSocketEvent()
 	if( _socket.EnumNetworkEvents(&ne) )
 	{
 		_socket.Close();
-		TRACE("http: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
+		TRACE("http: EnumNetworkEvents error 0x%08x", WSAGetLastError());
 		assert(eventResult);
 		INVOKE(eventResult) (WSAGetLastError(), "EnumNetworkEvents error", NULL);
 		return;
@@ -262,12 +262,12 @@ void HttpClient::OnSocketEvent()
 		if( ne.iErrorCode[FD_CONNECT_BIT] )
 		{
 			_socket.Close();
-			TRACE("http: could not connect 0x%08x\n", ne.iErrorCode[FD_CONNECT_BIT]);
+			TRACE("http: could not connect 0x%08x", ne.iErrorCode[FD_CONNECT_BIT]);
 			assert(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_CONNECT_BIT], "could not connect", NULL);
 		}
 		_connected = true;
-		TRACE("http: connected\n");
+		TRACE("http: connected");
 	}
 
 	if( ne.lNetworkEvents & FD_READ )
@@ -275,7 +275,7 @@ void HttpClient::OnSocketEvent()
 		if( ne.iErrorCode[FD_READ_BIT] )
 		{
 			_socket.Close();
-			TRACE("http: read error 0x%08x\n", ne.iErrorCode[FD_READ_BIT]);
+			TRACE("http: read error 0x%08x", ne.iErrorCode[FD_READ_BIT]);
 			assert(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_READ_BIT], "recv error", NULL);
 			return;
@@ -287,7 +287,7 @@ void HttpClient::OnSocketEvent()
 		if( result < 0 )
 		{
 			_socket.Close();
-			TRACE("http: unexpected recv error 0x%08x\n", WSAGetLastError());
+			TRACE("http: unexpected recv error 0x%08x", WSAGetLastError());
 			assert(eventResult);
 			INVOKE(eventResult) (WSAGetLastError(), "unexpected recv error", NULL);
 			return;
@@ -296,8 +296,8 @@ void HttpClient::OnSocketEvent()
 		{
 			// connection was gracefully closed
 			_socket.Close();
-			TRACE("http: connection closed by server\n");
-			TRACE("http reply:\n%s\n", _incoming.c_str());
+			TRACE("http: connection closed by server");
+			TRACE("http reply:\n%s", _incoming.c_str());
 			assert(eventResult);
 			INVOKE(eventResult) (0, _incoming, NULL);
 			return;
@@ -313,7 +313,7 @@ void HttpClient::OnSocketEvent()
 		if( ne.iErrorCode[FD_WRITE_BIT] )
 		{
 			_socket.Close();
-			TRACE("http: write error 0x%08x\n", ne.iErrorCode[FD_WRITE_BIT]);
+			TRACE("http: write error 0x%08x", ne.iErrorCode[FD_WRITE_BIT]);
 			assert(eventResult);
 			INVOKE(eventResult) (ne.iErrorCode[FD_WRITE_BIT], "write error", NULL);
 			return;
@@ -321,7 +321,7 @@ void HttpClient::OnSocketEvent()
 
 		if( _outgoing.empty() )
 		{
-			TRACE("http: nothing to send\n");
+			TRACE("http: nothing to send");
 			return;
 		}
 
@@ -334,7 +334,7 @@ void HttpClient::OnSocketEvent()
 				if( WSAEWOULDBLOCK != WSAGetLastError() )
 				{
 					_socket.Close();
-					TRACE("http: send error %u\n", WSAGetLastError());
+					TRACE("http: send error %u", WSAGetLastError());
 					assert(eventResult);
 					INVOKE(eventResult) (WSAGetLastError(), "send error", NULL);
 					return;
@@ -359,7 +359,7 @@ void HttpClient::OnSocketEvent()
 		assert(eventResult);
 		if( ne.iErrorCode[FD_CLOSE_BIT] )
 		{
-			TRACE("http: connection error 0x%08x\n", ne.iErrorCode[FD_CLOSE_BIT]);
+			TRACE("http: connection error 0x%08x", ne.iErrorCode[FD_CLOSE_BIT]);
 			INVOKE(eventResult) (ne.iErrorCode[FD_CLOSE_BIT], "connection error", NULL);
 		}
 		else
@@ -390,7 +390,7 @@ void HttpClient::Send(const std::string &msg)
 				if( WSAEWOULDBLOCK != WSAGetLastError() )
 				{
 					_socket.Close();
-					TRACE("http: send error %u\n", WSAGetLastError());
+					TRACE("http: send error %u", WSAGetLastError());
 					assert(eventResult);
 					INVOKE(eventResult) (WSAGetLastError(), "send error", NULL);
 					return;

@@ -108,6 +108,8 @@ Desktop::Desktop(LayoutManager* manager)
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->SetVisible(false);
+	SpriteColor colors[] = {0xffffffff, 0xffff7fff};
+	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 
 	_score = new ScoreTable(this);
 	_score->SetVisible(false);
@@ -318,14 +320,14 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 	if( lua_isnil(g_env.L, -1) )
 	{
 		lua_pop(g_env.L, 1);
-		GetConsole().Printf(1, "There was no autocomplete module loaded\n");
+		GetConsole().WriteLine(1, "There was no autocomplete module loaded");
 		return false;
 	}
 	lua_pushlstring(g_env.L, cmd.c_str(), cmd.length());
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
-		GetConsole().Printf(1, "%s\n", lua_tostring(g_env.L, -1));
+		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 	}
 	else
 	{

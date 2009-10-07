@@ -23,20 +23,20 @@ HRESULT InitDirectSound(HWND hWnd, bool init)
 	if( init )
 	{
 		assert(!g_soundManager);
-		TRACE("Init direct sound...\n");
+		TRACE("Init direct sound...");
 		g_soundManager = new CSoundManager();
 		if( FAILED(hr = g_soundManager->Initialize(hWnd, DSSCL_PRIORITY, 2, 44100, 16)) )
 		{
 			if( FAILED(hr = g_soundManager->Initialize(hWnd, DSSCL_NORMAL, 2, 44100, 16)) )
 			{
-				TRACE("ERROR: direct sound init failed\n");
+				TRACE("ERROR: direct sound init failed");
 				SAFE_DELETE(g_soundManager);
 			}
 		}
 	}
 	else
 	{
-		TRACE("free direct sound...\n");
+		TRACE("free direct sound...");
 	}
 
 	if( !g_soundManager ) return hr;

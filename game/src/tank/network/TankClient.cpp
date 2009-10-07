@@ -76,7 +76,7 @@ void TankClient::Connect(const string_t &hostaddr)
 		if( NULL == he )
 		{
 			int err = WSAGetLastError();
-			TRACE("cl: ERROR - Unable to resolve IP-address (%u)\n", err);
+			TRACE("client: ERROR - Unable to resolve IP-address (%u)", err);
 			OnDisconnect(NULL, err ? err : -1);
 			return;
 		}
@@ -92,12 +92,12 @@ void TankClient::Connect(const string_t &hostaddr)
 	if( INVALID_SOCKET == s )
 	{
 		int err = WSAGetLastError();
-		TRACE("cl: ERROR - Unable to create socket (%u)\n", WSAGetLastError());
+		TRACE("cl: ERROR - Unable to create socket (%u)", WSAGetLastError());
 		OnDisconnect(NULL, err ? err : -1);
 		return;
 	}
 
-	TRACE("cl: connecting to %s\n", inet_ntoa(addr.sin_addr));
+	TRACE("cl: connecting to %s", inet_ntoa(addr.sin_addr));
 	ClTextMessage(NULL, -1, Variant(g_lang->net_msg_connecting->Get()));
 
 	_peer = WrapRawPtr(new Peer(s));
@@ -156,7 +156,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 	//if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
 	//{
 	//	--_latency;
-	//	TRACE("cl: packet skipped\n");
+	//	TRACE("cl: packet skipped");
 	//	return;     // skip packet
 	//}
 
@@ -168,7 +168,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 	//{
 	//	++_latency;
 	//	SendControl(cp); // duplicate packet
-	//	TRACE("cl: packet duplicated\n");
+	//	TRACE("cl: packet duplicated");
 	//}
 }
 

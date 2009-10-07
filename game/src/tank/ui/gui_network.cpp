@@ -186,7 +186,7 @@ void CreateServerDlg::OnOK()
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("%s\n", e.what());
+		TRACE("%s", e.what());
 		MessageBox(g_env.hMainWnd, g_lang->net_server_error->Get().c_str(), TXT_VERSION, MB_OK|MB_ICONERROR);
 		return;
 	}

@@ -353,7 +353,7 @@ void NewGameDlg::OnOK()
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("could not load map - %s\n", e.what());
+		TRACE("could not load map - %s", e.what());
 		script_exec(g_env.L, "reset()");
 		return;
 	}
@@ -779,7 +779,7 @@ void ScriptMessageBox::RunScript(int btn)
 	lua_pushinteger(g_env.L, btn);
 	if( lua_pcall(g_env.L, 1, 0, 0) )
 	{
-		GetConsole().Printf(1, "%s\n", lua_tostring(g_env.L, -1));
+		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 		lua_pop(g_env.L, 1); // pop the error message from the stack
 	}
 

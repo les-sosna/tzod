@@ -27,7 +27,7 @@ static ConfVar* FromLuaType(lua_State *L, parent_t *parent, key_t key)
 		result = parent->GetVar(key, lua_objlen(L,-1) ? ConfVar::typeArray : ConfVar::typeTable).first;
 		break;
 	default:
-		GetConsole().Printf(1, "WARNING: unknown lua type - %s\n", lua_typename(L, valueType));
+		GetConsole().Format(1) << "Unknown lua type - " << lua_typename(L, valueType);
 		return NULL;
 	}
 
@@ -333,7 +333,7 @@ std::pair<ConfVar*, bool> ConfVarArray::GetVar(size_t index, ConfVar::Type type)
 
 		if( warn )
 		{
-			GetConsole().Printf(1, "WARNING: changing type of element with index %u from %s to %s\n",
+			GetConsole().Printf(1, "config: changing type of element with index %u from %s to %s",
 				index, typeName, result.first->GetTypeName() );
 		}
 	}
@@ -614,7 +614,7 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Ty
 
 		if( warn )
 		{
-			GetConsole().Printf(1, "WARNING: changing type of variable '%s' from %s to %s\n",
+			GetConsole().Printf(1, "config: changing type of variable '%s' from %s to %s",
 				name.c_str(), typeName, result.first->GetTypeName() );
 		}
 	}
@@ -915,7 +915,7 @@ bool ConfVarTable::Load(const char *filename)
 	// try to read and execute the file
 	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
 	{
-		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_close(L);
 		return false;
 	}

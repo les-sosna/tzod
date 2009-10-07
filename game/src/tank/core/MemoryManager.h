@@ -58,7 +58,7 @@ public:
 
 #ifdef _DEBUG
 		assert(0 == _allocatedCount);
-	//	TRACE("MemoryManager<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
+	//	TRACE("MemoryManager<%s>: peak allocation is %u", typeid(T).name(), _allocatedPeak);
 #endif
 	}
 

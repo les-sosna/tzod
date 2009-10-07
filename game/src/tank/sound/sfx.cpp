@@ -106,7 +106,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( 0 != ogg_load_vorbis(filename, &wfe, &pData, &size) )
 		{
-			TRACE("ERROR: couldn't load sound file '%s'\n", filename);
+			TRACE("sfx: Couldn't load sound file '%s'", filename);
 			throw std::runtime_error(std::string("failed to load ") + filename);
 		}
 
@@ -116,7 +116,7 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 
 		if( FAILED(hr) )
 		{
-			TRACE("ERROR: couldn't create the sound buffer\n");
+			TRACE("sfx: Couldn't create the sound buffer");
 			throw std::runtime_error(std::string("failed to create buffer for ") + filename);
 		}
 	}

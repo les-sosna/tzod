@@ -73,12 +73,12 @@ TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announc
 		_announcer->AnnounceHost(g_conf->sv_port->GetInt());
 	}
 
-	TRACE("Server is online!\n");
+	TRACE("Server is online!");
 }
 
 TankServer::~TankServer(void)
 {
-	TRACE("Server is shutting down\n");
+	TRACE("Server is shutting down");
 
 
 	//
@@ -111,7 +111,7 @@ TankServer::~TankServer(void)
 	}
 
 
-	TRACE("sv: Server destroyed\n");
+	TRACE("sv: Server destroyed");
 }
 
 void TankServer::OnListenerEvent()
@@ -119,14 +119,14 @@ void TankServer::OnListenerEvent()
 	WSANETWORKEVENTS ne = {0};
 	if( _socketListen.EnumNetworkEvents(&ne) )
 	{
-		TRACE("sv: EnumNetworkEvents error 0x%08x\n", WSAGetLastError());
+		TRACE("sv: EnumNetworkEvents error 0x%08x", WSAGetLastError());
 		return;
 	}
 	assert(ne.lNetworkEvents & FD_ACCEPT);
 
 	if( 0 != ne.iErrorCode[FD_ACCEPT_BIT] )
 	{
-		TRACE("sv: accept error 0x%08x\n", ne.iErrorCode[FD_ACCEPT_BIT]);
+		TRACE("sv: accept error 0x%08x", ne.iErrorCode[FD_ACCEPT_BIT]);
 		return;
 	}
 
@@ -134,12 +134,12 @@ void TankServer::OnListenerEvent()
 	SOCKET s = accept(_socketListen, NULL, NULL);
 	if( INVALID_SOCKET == s )
 	{
-		TRACE("sv: accept call returned error 0x%08x\n", WSAGetLastError());
+		TRACE("sv: accept call returned error 0x%08x", WSAGetLastError());
 		return;
 	}
 
 
-	TRACE("sv: Client connected\n");
+	TRACE("sv: Client connected");
 
 
 	//
@@ -178,7 +178,7 @@ void TankServer::BroadcastTextMessage(const std::string &msg)
 
 void TankServer::OnDisconnect(Peer *who_, int err)
 {
-	TRACE("sv: client disconnected\n");
+	TRACE("sv: client disconnected");
 
 	assert(dynamic_cast<PeerServer*>(who_));
 	PeerServer *who = static_cast<PeerServer*>(who_);
@@ -253,7 +253,7 @@ void TankServer::SendFrame()
 		FrameToCSMap::_Pairib ib = _frame2cs.insert(FrameToCSMap::value_type(cp.frame, cp.checksum));
 		if( !ib.second && ib.first->second != cp.checksum )
 		{
-			TRACE("sv: sync error detected at frame %u!\n", cp.frame);
+			TRACE("sv: sync error detected at frame %u!", cp.frame);
 			char buf[256];
 			wsprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
 			MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
@@ -289,7 +289,7 @@ void TankServer::SendFrame()
 			assert((*it)->ctrlValid);
 			if( (*it)->svlatency < g_conf->sv_latency->GetInt() )
 			{
-				TRACE("sv: extra packet added\n");
+				TRACE("sv: extra packet added");
 				++(*it)->svlatency;
 				++_frameReadyCount;
 				if( _frameReadyCount == _connectedCount )
@@ -334,7 +334,7 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 
 	if( who->svlatency > g_conf->sv_latency->GetInt() )
 	{
-		TRACE("sv: extra packet skipped\n");
+		TRACE("sv: extra packet skipped");
 		--who->svlatency;
 	}
 	else

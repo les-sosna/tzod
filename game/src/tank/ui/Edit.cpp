@@ -372,18 +372,18 @@ void Edit::Paste()
 			}
 			else
 			{
-//				TRACE(_T("Failed to lock data: %d\n"), GetLastError());
+//				TRACE(_T("Failed to lock data: %d"), GetLastError());
 			}
 		}
 		else
 		{
-//			TRACE(_T("Failed to get clipboard data: %d\n"), GetLastError());
+//			TRACE(_T("Failed to get clipboard data: %d"), GetLastError());
 		}
 		CloseClipboard();
 	}
 	else
 	{
-//		TRACE(_T("Failed to open clipboard: %d\n"), GetLastError());
+//		TRACE(_T("Failed to open clipboard: %d"), GetLastError());
 	}
 }
 
@@ -400,7 +400,7 @@ void Edit::Copy() const
 				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(string_t::value_type));
 				if( NULL == hData )
 				{
-//					TRACE(_T("Failed to allocate memory: %d\n"), GetLastError());
+//					TRACE(_T("Failed to allocate memory: %d"), GetLastError());
 					CloseClipboard();
 					return;
 				}
@@ -417,18 +417,18 @@ void Edit::Copy() const
 				if( !SetClipboardData(CF_OEMTEXT, hData) )
 #endif
 				{
-//					TRACE(_T("Failed to set clipboard data: %d\n"), GetLastError());
+//					TRACE(_T("Failed to set clipboard data: %d"), GetLastError());
 				}
 			}
 			else
 			{
-//				TRACE(_T("Failed to empty clipboard: %d\n"), GetLastError());
+//				TRACE(_T("Failed to empty clipboard: %d"), GetLastError());
 			}
 			CloseClipboard();
 		}
 		else
 		{
-//			TRACE(_T("Failed to open clipboard: %d\n"), GetLastError());
+//			TRACE(_T("Failed to open clipboard: %d"), GetLastError());
 		}
 	}
 }

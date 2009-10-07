@@ -12,10 +12,9 @@ NetworkInitHelper::NetworkInitHelper()
 	WSAData wsad;
 	if( WSAStartup(0x0002, &wsad) )
 	{
-		TRACE("ERROR: Windows sockets init failed\n");
 		throw std::runtime_error("Windows sockets init failed");
 	}
-	TRACE("Windows sockets initialized\n");
+	TRACE("Windows sockets initialized");
 }
 
 NetworkInitHelper::~NetworkInitHelper()

@@ -121,7 +121,7 @@ void TextureManager::CreateChecker()
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
 
-	TRACE("Creating checker texture\n");
+	TRACE("Creating checker texture...");
 
 
 
@@ -133,7 +133,7 @@ void TextureManager::CreateChecker()
 
 	if( !g_render->TexCreate(td.id, GetRawPtr(c) ) )
 	{
-		TRACE("ERROR: error in render device\n");
+		TRACE("ERROR: error in render device");
 		assert(FALSE);
 		return;
 	}
@@ -188,13 +188,13 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 
 int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap> &file)
 {
-	TRACE("Loading texture package '%s'\n", packageName.c_str());
+	TRACE("Loading texture package '%s'", packageName.c_str());
 
 	lua_State *L = lua_open();
 
 	if( 0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)) )
 	{
-		TRACE("%s\n", lua_tostring(L, -1));
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_close(L);
 		return 0;
 	}
@@ -213,7 +213,7 @@ int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap>
 		// check that value is a table
 		if( !lua_istable(L, -1) )
 		{
-			TRACE("WARNING: value is not a table; skipping.\n");
+			TRACE("WARNING: value is not a table; skipping.");
 		}
 
 		while( lua_istable(L, -1) )
@@ -231,7 +231,7 @@ int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap>
 			}
 			catch( const std::exception &e )
 			{
-				TRACE("WARNING: could not load texture '%s' - %s\n", f.c_str(), e.what());
+				TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
 				break;
 			}
 
@@ -245,7 +245,7 @@ int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap>
 				{
 					if( !lua_istable(L, -1) )
 					{
-						TRACE("WARNING: element of 'content' is not a table; skipping\n");
+						TRACE("WARNING: element of 'content' is not a table; skipping");
 						continue;
 					}
 
@@ -328,7 +328,7 @@ int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap>
 			} // end if 'content' is table
 			else
 			{
-				TRACE("WARNING: 'content' field is not a table.\n");
+				TRACE("WARNING: 'content' field is not a table.");
 			}
 			lua_pop(L, 1); // pop the result of getfield("content")
 			break;
@@ -349,7 +349,7 @@ int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap>
 			Unload(tmp);
 	}
 
-	TRACE("Total number of loaded textures: %d\n", _logicalTextures.size());
+	TRACE("Total number of loaded textures: %d", _logicalTextures.size());
 	return _logicalTextures.size();
 }
 
@@ -372,7 +372,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 		}
 		catch( const std::exception &e )
 		{
-			TRACE("WARNING: could not load texture '%s' - %s\n", f.c_str(), e.what());
+			TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
 			continue;
 		}
 
@@ -413,7 +413,7 @@ size_t TextureManager::FindSprite(const string_t &name) const
 		return it->second;
 
 	// flood the console
-	GetConsole().Printf(1, "texture '%s' not found!\n", name);
+	GetConsole().Printf(1, "texture '%s' not found!", name);
 
 	return 0; // index of checker texture
 }

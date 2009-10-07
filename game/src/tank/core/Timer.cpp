@@ -72,13 +72,13 @@ void Timer::Stop()
 	}
 
 	_stopCount++;
-	TRACE("timer: stop;  now stop count is %d\n", _stopCount);
+	TRACE("timer: stop;  now stop count is %d", _stopCount);
 }
 
 void Timer::Start()
 {
 	_stopCount--;
-	TRACE("timer: start;  now stop count is %d\n", _stopCount);
+	TRACE("timer: start;  now stop count is %d", _stopCount);
 	assert(_stopCount >= 0);
 
 	if( !_stopCount )

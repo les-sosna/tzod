@@ -1221,7 +1221,6 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 				if( 1 == i && (hit - currentPos).len() < GetVehicle()->GetRadius() )
 				{
 					_backTime = 0.5f;
-					TRACE("back\n");
 				}
 
 				float d = (hit - x0).sqr();

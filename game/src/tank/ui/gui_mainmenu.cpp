@@ -113,7 +113,7 @@ void MainMenuDlg::OnSaveGame()
 	if( !param.folder )
 	{
 		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
-		TRACE("ERROR: Could not open directory '%s'\n", DIR_SAVE);
+		GetConsole().Printf(1, "Could not open directory '%s'", DIR_SAVE);
 		return;
 	}
 
@@ -135,11 +135,11 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		try
 		{
 			g_level->Serialize(tmp.c_str());
-			GetConsole().Printf(0, "game saved: '%s'\n", tmp.c_str());
+			GetConsole().Printf(0, "game saved: '%s'", tmp.c_str());
 		}
 		catch( const std::exception &e )
 		{
-			GetConsole().Printf(1, "couldn't save game to '%s' - ", tmp.c_str(), e.what());
+			GetConsole().Printf(1, "Couldn't save game to '%s' - ", tmp.c_str(), e.what());
 			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 	}
@@ -157,7 +157,7 @@ void MainMenuDlg::OnLoadGame()
 	if( !param.folder )
 	{
 		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
-		TRACE("ERROR: Could not open directory '%s'\n", DIR_SAVE);
+		TRACE("ERROR: Could not open directory '%s'", DIR_SAVE);
 		return;
 	}
 
@@ -184,7 +184,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		}
 		catch( const std::exception &e )
 		{
-			GetConsole().Printf(1, "couldn't load game from '%s' - %s\n", tmp.c_str(), e.what());
+			GetConsole().Printf(1, "Couldn't load game from '%s' - %s", tmp.c_str(), e.what());
 			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 	}
@@ -254,7 +254,7 @@ void MainMenuDlg::OnImportMap()
 	if( !param.folder )
 	{
 		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
-		TRACE("ERROR: Could not open directory '%s'\n", DIR_MAPS);
+		TRACE("ERROR: Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
 
@@ -299,7 +299,7 @@ void MainMenuDlg::OnExportMap()
 	if( !param.folder )
 	{
 		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
-		TRACE("ERROR: Could not open directory '%s'\n", DIR_MAPS);
+		TRACE("ERROR: Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
 
@@ -325,11 +325,11 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		}
 		catch( const std::exception &e )
 		{
-			GetConsole().Printf(1, "couldn't export map to '%s' - ", tmp.c_str(), e.what());
+			GetConsole().Printf(1, "Couldn't export map to '%s' - ", tmp.c_str(), e.what());
 			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 
-		GetConsole().Printf(0, "map exported: '%s'\n", tmp.c_str());
+		GetConsole().Printf(0, "map exported: '%s'", tmp.c_str());
 		g_conf->cl_map->Set(_fileDlg->GetFileTitle());
 	}
 	_fileDlg = NULL;

@@ -176,7 +176,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 					else
 					{
 						_state = STATE_IDLE;
-						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						TRACE("lobby: invalid server reply - %s", result.c_str());
 						if( eventError )
 						{
 							INVOKE(eventError) ("invalid lobby reply");
@@ -198,7 +198,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 					}
 					else
 					{
-						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						TRACE("lobby: invalid server reply - %s", result.c_str());
 						if( eventError )
 						{
 							INVOKE(eventError) ("invalid lobby reply");
@@ -213,7 +213,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 					_state = STATE_IDLE;
 					if( result.substr(0, 2) != "ok" )
 					{
-						TRACE("lobby: invalid server reply - %s\n", result.c_str());
+						TRACE("lobby: invalid server reply - %s", result.c_str());
 						if( eventError )
 						{
 							INVOKE(eventError) ("invalid lobby reply");

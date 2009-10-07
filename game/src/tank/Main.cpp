@@ -86,12 +86,12 @@ static void OnPrintScreen()
 
 	if( !g_render->TakeScreenshot(name) )
 	{
-		TRACE("ERROR: screen shot failed\n");
+		GetConsole().WriteLine(1, "screenshot failed");
 //		_MessageArea::Inst()->message("> screen shot error!");
 	}
 	else
 	{
-		TRACE("Screenshot '%s'\n", name);
+		TRACE("Screenshot '%s'", name);
 	}
 
 	SetCurrentDirectory("..");
@@ -157,12 +157,12 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 	RegisterClass(&wc);
 
 
-	TRACE("Create main app window\n");
 	HWND h = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
 	                       WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
 	                       CW_USEDEFAULT, CW_USEDEFAULT, // position
 	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
 	                       NULL, NULL, hInstance, NULL );
+	TRACE("Created main app window");
 
 	return h;
 }
@@ -222,8 +222,8 @@ bool ZodApp::Pre()
 	time(&ltime);
 	ctime_s(timebuf, 26, &ltime);
 	TRACE("ZOD Engine started at %s", timebuf);
-	TRACE("----------------------------------------------\n");
-	TRACE("%s\n", TXT_VERSION);
+	TRACE("----------------------------------------------");
+	TRACE("%s", TXT_VERSION);
 
 
 	g_env.pause = 0;
@@ -236,7 +236,7 @@ bool ZodApp::Pre()
 	//
 	// init file system
 	//
-	TRACE("Mounting file system\n");
+	TRACE("Mounting file system...");
 	g_fs = FS::OSFileSystem::Create("data");
 
 
@@ -261,7 +261,7 @@ bool ZodApp::Pre()
 	}
 	catch( std::exception &e )
 	{
-		TRACE("could not load config file: %s\n", e.what());
+		TRACE("Could not load config file: %s", e.what());
 	}
 	g_conf.GetAccessor(); // force accessor creation
 
@@ -269,12 +269,12 @@ bool ZodApp::Pre()
 	//
 	// init localization
 	//
-	TRACE("Localization init...\n");
+	TRACE("Localization init...");
 	try
 	{
 		if( !g_lang.GetRoot()->Load(FILE_LANGUAGE) )
 		{
-			TRACE("couldn't load language file " FILE_CONFIG "\n");
+			TRACE("couldn't load language file " FILE_CONFIG);
 
 			int result = MessageBox(g_env.hMainWnd,
 				"Syntax error in the language file (see log). Continue with default (English) language?",
@@ -289,7 +289,7 @@ bool ZodApp::Pre()
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("could not load localization file: %s\n", e.what());
+		TRACE("could not load localization file: %s", e.what());
 	}
 	g_lang.GetAccessor(); // force accessor creation
 	setlocale(LC_CTYPE, g_lang->c_locale->Get().c_str());
@@ -308,7 +308,7 @@ bool ZodApp::Pre()
 	// init common controls
 	//
 
-	TRACE("windows common controls initialization\n");
+	TRACE("windows common controls initialization");
 	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), 0 };
 	InitCommonControlsEx(&iccex);
 
@@ -340,10 +340,10 @@ bool ZodApp::Pre()
 	// init scripting system
 	//
 
-	TRACE("scripting subsystem initialization\n");
+	TRACE("scripting subsystem initialization");
 	if( NULL == (g_env.L = script_open()) )
 	{
-		TRACE("FAILED\n");
+		TRACE(" ->FAILED");
 		return false;
 	}
 	InitConfigLuaBinding(g_env.L, g_conf.GetRoot(), "conf");
@@ -393,18 +393,18 @@ bool ZodApp::Pre()
 	{
 		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
 		{
-			TRACE("WARNING: no textures loaded\n");
+			TRACE("WARNING: no textures loaded");
 			MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
 		}
 		if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
 		{
-			TRACE("WARNING: no skins found\n");
+			TRACE("WARNING: no skins found");
 			MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
 		}
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("ERROR: %s\n", e.what());
+		GetConsole().WriteLine(1, e.what());
 		delete g_texman;
 		g_texman = NULL;
 		return false;
@@ -414,16 +414,16 @@ bool ZodApp::Pre()
 	g_level = WrapRawPtr(new Level());
 
 	// init GUI
-	TRACE("GUI subsystem initialization\n");
+	TRACE("GUI subsystem initialization");
 	g_gui = new UI::LayoutManager(&DesktopFactory());
 	g_render->OnResizeWnd();
 	g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
-	TRACE("Running startup script '%s'\n", FILE_STARTUP);
+	TRACE("Running startup script '%s'", FILE_STARTUP);
 	if( !script_exec_file(g_env.L, FILE_STARTUP) )
 	{
-		TRACE("ERROR: in startup script\n");
+		TRACE("ERROR: in startup script");
 		MessageBox(g_env.hMainWnd, "startup script error", TXT_VERSION, MB_ICONERROR);
 	}
 
@@ -447,7 +447,7 @@ void ZodApp::Idle()
 	//else
 	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
 	//{
-	//	TRACE("Alt + F4 has been pressed. Destroying the main app window\n");
+	//	TRACE("Alt + F4 has been pressed. Destroying the main app window");
 	//	DestroyWindow(g_env.hMainWnd);
 	//	return;
 	//}
@@ -468,7 +468,7 @@ void ZodApp::Idle()
 
 void ZodApp::Post()
 {
-	TRACE("Shutting down GUI subsystem\n");
+	TRACE("Shutting down GUI subsystem");
 	SAFE_DELETE(g_gui);
 
 	SAFE_DELETE(g_client);
@@ -483,7 +483,7 @@ void ZodApp::Post()
 	if( g_texman ) g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);
 
-	TRACE("Shutting down the renderer\n");
+	TRACE("Shutting down the renderer");
 	SAFE_RELEASE(g_render);
 
 
@@ -494,23 +494,23 @@ void ZodApp::Post()
 	// script engine cleanup
 	if( g_env.L )
 	{
-		TRACE("Shutting down the scripting subsystem\n");
+		TRACE("Shutting down the scripting subsystem");
 		script_close(g_env.L);
 		g_env.L = NULL;
 	}
 
 	// config
-	TRACE("Saving config to '" FILE_CONFIG "'\n");
+	TRACE("Saving config to '" FILE_CONFIG "'");
 	if( !g_conf.GetRoot()->Save(FILE_CONFIG) )
 	{
 		MessageBox(NULL, "Failed to save config file", TXT_VERSION, MB_ICONERROR);
 	}
 
 	// clean up the file system
-	TRACE("Unmounting the file system\n");
+	TRACE("Unmounting the file system");
 	g_fs = NULL;
 
-	TRACE("Exit.\n");
+	TRACE("Exit.");
 }
 
 

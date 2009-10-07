@@ -237,7 +237,7 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
-				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
+				GetConsole().Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
 			}
 			else
 			{
@@ -364,7 +364,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 			GC_Object* found = g_level->FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
-				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists\n", name);
+				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists", name);
 			}
 			else
 			{
@@ -572,7 +572,7 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 	}
 	else
 	{
-		TRACE("WARNING: profile '%s' not found\n", name);
+		TRACE("WARNING: profile '%s' not found", name);
 
 		_keyForward     = 0;
 		_keyBack        = 0;

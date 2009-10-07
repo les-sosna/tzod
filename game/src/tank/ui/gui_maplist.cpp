@@ -50,7 +50,7 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 		}
 		catch( const std::exception &e )
 		{
-			TRACE("could not open get map attributes - %s\n", e.what());
+			TRACE("could not open get map attributes - %s", e.what());
 		}
 	}
 

@@ -177,7 +177,7 @@ bool RenderOpenGL::getDisplayMode(int index, DisplayMode *pMode) const
 
 bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 {
-	TRACE("OpenGL initialization...\n");
+	TRACE("OpenGL initialization...");
 	if( bFullScreen )
 	{
 		DEVMODE dm = {0};
@@ -283,7 +283,7 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	}
 	catch(const std::exception &e)
 	{
-		TRACE(" OpenGL init error: %s\n", e.what());
+		TRACE(" OpenGL init error: %s", e.what());
 		result = false;
 		_cleanup();
 	}

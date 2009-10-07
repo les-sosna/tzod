@@ -214,7 +214,7 @@ FieldCell& Field::operator() (int x, int y)
 
 void Field::Dump()
 {
-	TRACE("==== Field dump ====\n");
+	TRACE("==== Field dump ====");
 
 	for( int y = 0; y < _cy; y++ )
 	{
@@ -234,10 +234,10 @@ void Field::Dump()
 				break;
 			}
 		}
-		TRACE("%s\n", buf);
+		TRACE("%s", buf);
 	}
 
-	TRACE("=== end of dump ====\n");
+	TRACE("=== end of dump ====");
 }
 
 #endif
@@ -270,7 +270,7 @@ Level::Level()
   , _dump(NULL)
 #endif
 {
-	TRACE("Constructing the level\n");
+	TRACE("Constructing the level");
 
 	// register config handlers
 	g_conf->s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
@@ -400,7 +400,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("%s\n", e.what());
+		GetConsole().WriteLine(1, e.what());
 		return false;
 	}
 
@@ -425,7 +425,7 @@ void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
 Level::~Level()
 {
 	assert(IsSafeMode());
-	TRACE("Destroying the level\n");
+	TRACE("Destroying the level");
 
 	Clear();
 
@@ -443,7 +443,7 @@ void Level::Unserialize(const char *fileName)
 	assert(IsEmpty());
 	_modeEditor = false;
 
-	TRACE("Loading saved game from file '%s'\n", fileName);
+	TRACE("Loading saved game from file '%s'...", fileName);
 
 	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeRead)->QueryStream());
 	SaveFile f(stream, true);
@@ -503,14 +503,14 @@ void Level::Unserialize(const char *fileName)
 		if( lua_cpcall(g_env.L, &ReadHelper::read_user, GetRawPtr(stream)) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
-			TRACE("%s\n", err);
+			GetConsole().WriteLine(1, err);
 			lua_pop(g_env.L, 1);
 			throw std::runtime_error("ERROR: pluto user");
 		}
 		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, GetRawPtr(stream)) )
 		{
 			const char *err = lua_tostring(g_env.L, -1);
-			TRACE("%s\n", err);
+			GetConsole().WriteLine(1, err);
 			lua_pop(g_env.L, 1);
 			throw std::runtime_error("ERROR: pluto queue");
 		}
@@ -559,7 +559,7 @@ void Level::Serialize(const char *fileName)
 	assert(!IsEmpty());
 	assert(IsSafeMode());
 
-	TRACE("Saving game to file '%s'\n", fileName);
+	TRACE("Saving game to file '%s'...", fileName);
 
 	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeWrite)->QueryStream());
 	SaveFile f(stream, false);
@@ -592,7 +592,7 @@ void Level::Serialize(const char *fileName)
 			}
 			catch( const std::exception &e )
 			{
-				TRACE("%s\n", e.what());
+				GetConsole().WriteLine(1, e.what());
 			}
 			return 0;
 		}
@@ -621,14 +621,14 @@ void Level::Serialize(const char *fileName)
 	if( lua_cpcall(g_env.L, &WriteHelper::write_user, GetRawPtr(stream)) )
 	{
 		const char *err = lua_tostring(g_env.L, -1);
-		TRACE("%s\n", err);
+		GetConsole().WriteLine(1, err);
 		lua_pop(g_env.L, 1);
 		throw std::runtime_error("ERROR: writing pluto user");
 	}
 	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, GetRawPtr(stream)) )
 	{
 		const char *err = lua_tostring(g_env.L, -1);
-		TRACE("%s\n", err);
+		GetConsole().WriteLine(1, err);
 		lua_pop(g_env.L, 1);
 		throw std::runtime_error("ERROR: writing pluto queue");
 	}
@@ -1320,7 +1320,7 @@ void Level::RunCmdQueue(float dt)
 			lua_rawgeti(L, -1, 1);
 			if( lua_pcall(L, 0, 0, 0) )
 			{
-				TRACE("%s\n", lua_tostring(g_env.L, -1));
+				GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 				lua_pop(g_env.L, 1); // pop the error message
 			}
 			lua_pushvalue(L, -2); // push copy of the key

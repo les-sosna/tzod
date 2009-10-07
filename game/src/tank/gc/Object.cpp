@@ -243,17 +243,17 @@ void PropertySet::MyExchange(bool applyToObject)
 		GC_Object* found = g_level->FindObject(name);
 		if( found && GetObject() != found )
 		{
-			GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists\n", name);
+			GetConsole().Format(1) << "object with name \"" << name << "\" already exists";
 		}
 		else
 		{
-			GetObject()->SetName( name );
+			GetObject()->SetName(name);
 		}
 	}
 	else
 	{
 		const char *name = GetObject()->GetName();
-		_propName.SetStringValue( name ? name : "" );
+		_propName.SetStringValue(name ? name : "");
 	}
 }
 
@@ -376,7 +376,7 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 	__FromFileMap::const_iterator it = __GetFromFileMap().find(type);
 	if( __GetFromFileMap().end() == it )
 	{
-		TRACE("ERROR: unknown object type %u\n", type);
+		TRACE("ERROR: unknown object type - %u", type);
 		throw std::runtime_error("Load error: unknown object type");
 	}
 

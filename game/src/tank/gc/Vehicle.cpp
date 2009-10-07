@@ -526,7 +526,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 1, 0) )
 			{
 				// print error message
-				GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+				GetConsole().WriteLine(1, lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -535,7 +535,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 0, 0) )
 			{
 				// print error message
-				GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+				GetConsole().WriteLine(1, lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -586,7 +586,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
 	{
 		// print error message
-		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -596,7 +596,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 2, 0, 0) )
 	{
 		// print error message
-		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}

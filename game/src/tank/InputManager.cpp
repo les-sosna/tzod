@@ -7,7 +7,7 @@
 
 InputManager::InputManager(HWND hWnd)
 {
-	TRACE("init direct input\n");
+	TRACE("init direct input");
 
 	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
 
