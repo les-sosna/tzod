@@ -6,7 +6,6 @@
 
 #include "core/Application.h"
 #include "core/debug.h"
-#include "core/Console.h"
 
 #define LOBBY_KEY_LENGTH   10
 #define LOBBY_VERSION      "149b"

@@ -12,8 +12,6 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
-#include "core/Console.h"
-
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {
 	ED_ITEM( "trigger", "obj_trigger", 6 );
@@ -129,20 +127,20 @@ void GC_Trigger::TimeStepFixed(float dt)
 
 			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
 			{
-				GetConsole().printf("syntax error %s\n", lua_tostring(g_env.L, -1));
+				GetConsole().Printf(1, "syntax error %s\n", lua_tostring(g_env.L, -1));
 				lua_pop(g_env.L, 1); // pop the error message from the stack
 			}
 			else
 			{
 				if( lua_pcall(g_env.L, 0, 1, 0) )
 				{
-					GetConsole().printf("%s\n", lua_tostring(g_env.L, -1));
+					GetConsole().Printf(1, "%s\n", lua_tostring(g_env.L, -1));
 					lua_pop(g_env.L, 1); // pop the error message from the stack
 				}
 				lua_pushstring(g_env.L, who ? who : "");
 				if( lua_pcall(g_env.L, 1, 0, 0) )
 				{
-					GetConsole().printf("%s\n", lua_tostring(g_env.L, -1));
+					GetConsole().Printf(1, "%s\n", lua_tostring(g_env.L, -1));
 					lua_pop(g_env.L, 1); // pop the error message from the stack
 				}
 			}

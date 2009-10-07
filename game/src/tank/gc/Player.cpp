@@ -20,7 +20,6 @@
 
 #include "video/TextureManager.h"
 
-#include "core/Console.h"
 #include "core/debug.h"
 
 #include "ui/GuiManager.h"
@@ -238,7 +237,7 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
-				GetConsole().printf("WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
+				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists\n", _vehname.c_str());
 			}
 			else
 			{
@@ -365,7 +364,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 			GC_Object* found = g_level->FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
-				GetConsole().printf("WARNING: object with name \"%s\" already exists\n", name);
+				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists\n", name);
 			}
 			else
 			{

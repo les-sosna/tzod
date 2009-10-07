@@ -54,7 +54,7 @@ void GC_SpawnPoint::Draw() const
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
 		static size_t font = g_texman->FindSprite("font_default");
-		g_texman->DrawBitmapText(font, teams[_team], 0xffffffff, GetPos().x, GetPos().y, alignTextCC);
+		g_texman->DrawBitmapText(GetPos().x, GetPos().y, font, 0xffffffff, teams[_team], alignTextCC);
 	}
 }
 

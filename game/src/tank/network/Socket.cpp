@@ -6,7 +6,6 @@
 #include "ui/interface.h"
 
 #include "core/debug.h"
-#include "core/Console.h"
 #include "core/Application.h"
 
 ///////////////////////////////////////////////////////////////////////////////

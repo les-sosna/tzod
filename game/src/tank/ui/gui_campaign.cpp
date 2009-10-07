@@ -27,10 +27,10 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 {
 	PauseGame(true);
 
-	Text *t = new Text(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
+	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
 	t->SetFont("font_default");
 
-	_files = new List(this, 20, 56, 472, 280);
+	_files = List::Create(this, 20, 56, 472, 280);
 	std::set<string_t> files;
 	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
@@ -41,8 +41,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Sort();
 
 
-	(new Button(this, g_lang->campaign_ok->Get(), 290, 360))->eventClick.bind(&NewCampaignDlg::OnOK, this);
-	(new Button(this, g_lang->campaign_cancel->Get(), 400, 360))->eventClick.bind(&NewCampaignDlg::OnCancel, this);
+	Button::Create(this, g_lang->campaign_ok->Get(), 290, 360)->eventClick.bind(&NewCampaignDlg::OnOK, this);
+	Button::Create(this, g_lang->campaign_cancel->Get(), 400, 360)->eventClick.bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()

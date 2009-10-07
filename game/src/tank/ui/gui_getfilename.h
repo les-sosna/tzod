@@ -28,7 +28,7 @@ public:
 	};
 
 	GetFileNameDlg(Window *parent, const Params &param);
-	~GetFileNameDlg();
+	virtual ~GetFileNameDlg();
 
 	string_t GetFileName() const;
 	string_t GetFileTitle() const;
@@ -36,7 +36,7 @@ public:
 protected:
 	void OnSelect(int index);
 	void OnChangeName();
-	void OnRawChar(int c);
+	bool OnRawChar(int c);
 
 	void OnOK();
 	void OnCancel();

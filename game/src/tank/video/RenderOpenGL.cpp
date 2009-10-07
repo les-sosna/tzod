@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "RenderOpenGL.h"
 #include "core/debug.h"
-#include "core/Console.h"
 
 #include <gl/gl.h>
 

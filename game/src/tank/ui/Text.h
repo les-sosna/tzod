@@ -10,26 +10,33 @@ namespace UI
 // static text
 class Text : public Window
 {
-	size_t           _lineCount;
-	size_t           _maxline;
-	enumAlignText    _align;
-	string_t         _text;
-	size_t           _fontTexture;
-	SpriteColor      _fontColor;
-
 public:
-	Text(Window *parent, float x, float y, const string_t &text, enumAlignText align);
+	static Text* Create(Window *parent, float x, float y, const string_t &text, enumAlignText align);
 
-	void SetText(const string_t &text);
-	const string_t& GetText() const { return _text; }
+	void SetDrawShadow(bool drawShadow);
+	bool GetDrawShadow() const;
+
 	void SetAlign(enumAlignText align);
 	void SetFont(const char *fontName);
-	void SetFontColor(SpriteColor color)       { _fontColor = color;   }
+	void SetFontColor(SpriteColor color);
 
 	float GetCharWidth();
 	float GetCharHeight();
 
-	virtual void DrawChildren(float sx, float sy) const;
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void OnTextChange();
+
+protected:
+	Text(Window *parent);
+
+private:
+	size_t         _lineCount;
+	size_t         _maxline;
+	enumAlignText  _align;
+	size_t         _fontTexture;
+	SpriteColor    _fontColor;
+
+	bool           _drawShadow;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

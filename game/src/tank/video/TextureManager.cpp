@@ -7,7 +7,6 @@
 #include "ImageLoader.h"
 
 #include "core/debug.h"
-#include "core/Console.h"
 
 #include "gc/2dSprite.h"
 
@@ -40,6 +39,7 @@ const unsigned char CheckerImage::_bytes[] = {
 
 TextureManager::TextureManager()
 {
+	memset(&_viewport, 0, sizeof(_viewport));
 	CreateChecker();
 }
 
@@ -413,7 +413,7 @@ size_t TextureManager::FindSprite(const string_t &name) const
 		return it->second;
 
 	// flood the console
-	GetConsole().printf("texture '%s' not found!\n", name);
+	GetConsole().Printf(1, "texture '%s' not found!\n", name);
 
 	return 0; // index of checker texture
 }
@@ -443,7 +443,17 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 	return Get(fontTexture).pxFrameHeight;
 }
 
-void TextureManager::DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float sx, float sy, enumAlignText align) const
+void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
+{
+	DrawSprite(sprite, frame, color, dst->left, dst->top, dst->right - dst->left, dst->bottom - dst->top, 0);
+}
+
+void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
+{
+
+}
+
+void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const string_t &str, enumAlignText align) const
 {
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
@@ -680,6 +690,46 @@ void TextureManager::DrawLine(size_t tex, SpriteColor color,
 	v[3].v = 1;
 	v[3].x = x0 - py * s;
 	v[3].y = y0 + py * c;
+}
+
+void TextureManager::SetCanvasSize(unsigned int width, unsigned int height)
+{
+	_viewport.right = width;
+	_viewport.bottom = height;
+}
+
+void TextureManager::PushClippingRect(const RECT &rect) const
+{
+	if( _clipStack.empty() )
+	{
+		_clipStack.push(rect);
+		g_render->SetViewport(&rect);
+	}
+	else
+	{
+		RECT tmp = _clipStack.top();
+		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
+		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
+		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
+		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
+		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
+		_clipStack.push(tmp);
+		g_render->SetViewport(&tmp);
+	}
+}
+
+void TextureManager::PopClippingRect() const
+{
+	assert(!_clipStack.empty());
+	_clipStack.pop();
+	if( _clipStack.empty() )
+	{
+		g_render->SetViewport(&_viewport);
+	}
+	else
+	{
+		g_render->SetViewport(&_clipStack.top());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////

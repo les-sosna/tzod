@@ -14,7 +14,6 @@
 #include "sound/MusicPlayer.h"
 
 #include "core/debug.h"
-#include "core/Console.h"
 #include "core/Application.h"
 #include "core/Timer.h"
 
@@ -129,9 +128,16 @@ static void RenderFrame(bool thumbnail)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static UI::Window* CreateDesktopWindow(UI::GuiManager *mgr)
+namespace
 {
-	return new UI::Desktop(mgr);
+	class DesktopFactory : public UI::IWindowFactory
+	{
+	public:
+		virtual UI::Window* Create(UI::LayoutManager *manager)
+		{
+			return new UI::Desktop(manager);
+		}
+	};
 }
 
 static HWND CreateMainWnd(HINSTANCE hInstance)
@@ -408,7 +414,7 @@ bool ZodApp::Pre()
 
 	// init GUI
 	TRACE("GUI subsystem initialization\n");
-	g_gui = new UI::GuiManager(CreateDesktopWindow);
+	g_gui = new UI::LayoutManager(&DesktopFactory());
 	g_render->OnResizeWnd();
 	g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 

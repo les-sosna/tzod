@@ -19,18 +19,16 @@ class Edit : public Window
 
 	int   _selStart;
 	int   _selEnd;
+	int   _offset;
 
-	string_t _string;
-	size_t _offset;
 	size_t _font;
 
 	float _time;
 
 public:
-	Edit(Window *parent, float x, float y, float width);
+	Edit(Window *parent);
+	static Edit* Create(Window *parent, float x, float y, float width);
 
-	const string_t& GetText() const;
-	void SetText(const string_t &text);
 	int GetTextLength() const;
 
 	void SetInt(int value);
@@ -52,14 +50,15 @@ public:
 	Delegate<void()> eventChange;
 
 protected:
-	virtual void DrawChildren(float sx, float sy) const;
-	virtual void OnChar(int c);
-	virtual void OnRawChar(int c);
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual bool OnChar(int c);
+	virtual bool OnRawChar(int c);
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseUp(float x, float y, int button);
 	virtual bool OnMouseMove(float x, float y);
 	virtual bool OnFocus(bool focus);
 	virtual void OnEnabledChange(bool enable, bool inherited);
+	virtual void OnTextChange();
 	virtual void OnTimeStep(float dt);
 };
 

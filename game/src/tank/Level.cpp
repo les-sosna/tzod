@@ -12,7 +12,6 @@
 #include "script.h"
 
 #include "core/debug.h"
-#include "core/Console.h"
 #include "core/Profiler.h"
 
 #include "config/Config.h"

@@ -18,13 +18,14 @@ namespace UI
 // FPS counter implementation
 
 FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align)
-  : Text(parent, x, y, "", align)
+  : Text(parent)
+  , _nSprites(0)
+  , _nLights(0)
+  , _nBatches(0)
 {
-	_nSprites = 0;
-	_nLights  = 0;
-	_nBatches = 0;
-
 	SetTimeStep(true);
+	Move(x, y);
+	SetAlign(align);
 }
 
 void FpsCounter::OnVisibleChange(bool visible, bool inherited)
@@ -114,9 +115,11 @@ void FpsCounter::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align)
-  : Text(parent, x, y, "", align)
+  : Text(parent)
 {
 	SetTimeStep(true);
+	Move(x, y);
+	SetAlign(align);
 }
 
 void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
@@ -147,7 +150,7 @@ void TimeElapsed::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 Oscilloscope::Oscilloscope(Window *parent, float x, float y)
-  : Window(parent, x, y, "ui/list")
+  : Window(parent)
   , _barTexture(g_texman->FindSprite("ui/bar"))
   , _titleFont(g_texman->FindSprite("font_small"))
   , _rangeMin(-0.1f)
@@ -156,7 +159,9 @@ Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   , _gridStepY(1)
   , _scale(3)
 {
-	SetBorder(true);
+	Move(x, y);
+	SetTexture("ui/list", true);
+	SetDrawBorder(true);
 	SetClipChildren(true);
 }
 
@@ -259,7 +264,7 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::DrawChildren(float sx, float sy) const
+void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	float labelOffset = g_texman->GetCharHeight(_titleFont) / 2;
 	sy += labelOffset;
@@ -286,15 +291,15 @@ void Oscilloscope::DrawChildren(float sx, float sy) const
 			char buf[64];
 			sprintf_s(buf, "%.3g", y);
 			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
-			g_texman->DrawBitmapText(_titleFont, buf, 0x77777777, sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset);
+			dc->DrawBitmapText(sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
 		}
 	}
 	else
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, 0);
+		dc->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, 0);
 	}
 
-	g_texman->DrawBitmapText(_titleFont, _title, 0x77777777, sx, sy - labelOffset);
+	dc->DrawBitmapText(sx, sy - labelOffset, _titleFont, 0x77777777, _title);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -7,66 +7,75 @@
 namespace UI
 {
 	// forward declarations
-	class GuiManager;
+	class LayoutManager;
 
-	typedef UI::Window* (*CreateWindowProc) (GuiManager *);
+	struct IWindowFactory
+	{
+		virtual Window* Create(LayoutManager *pManager) = 0;
+	};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GuiManager
+class LayoutManager
 {
-	UI::Window* _desktop;
-	UI::Window* _cursor;
-
-	UI::Window* _focusWnd;
-	UI::Window* _hotTrackWnd;
-	UI::Window* _captureWnd;
-
-	PtrList<UI::Window>    _timestep;
-	std::list<UI::Window*> _topmost;
-	std::stack<RECT>       _clipStack;
-
-	int _captureCount;
-	int _windowCount;
-
-	bool _ProcessMouse(UI::Window* wnd, float x, float y, float z, UINT msg);
-
 public:
-	void Add(UI::Window* wnd);
-	void Remove(UI::Window* wnd);
-	int  GetWndCount() const;
+	LayoutManager(IWindowFactory *pDesktopFactory);
+	~LayoutManager();
 
-	UI::Window* GetCapture() const;
-	void SetCapture(UI::Window* wnd);
-	void ReleaseCapture(UI::Window* wnd);
+	//using DrawingContext::AttachRender;
+	//using DrawingContext::DetachRender;
 
-	void AddTopMost(UI::Window* wnd, bool add);
+	void TimeStep(float dt);
+	void Render() const;
 
-	void PushClippingRect(const RECT &rect);
-	void PopClippingRect();
-
-	bool SetFocusWnd(UI::Window* wnd);
-	UI::Window* GetFocusWnd() const;
-	bool Unfocus(UI::Window* wnd);
-
-	UI::Window* GetHotTrackWnd() const;
-	void ResetHotTrackWnd(UI::Window* wnd);
-
-public:
-	PtrList<UI::Window>::iterator TimeStepRegister(UI::Window* wnd);
-	void TimeStepUnregister(PtrList<UI::Window>::iterator it);
-
-public:
-	GuiManager(CreateWindowProc createDesktop);
-	~GuiManager();
-
+	// TODO: should it handle WM_SIZE message instead of exposing SetCanvasSize?
+	bool ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	bool ProcessMouse(float x, float y, float z, UINT msg);
 	bool ProcessKeys(UINT msg, int c);
 
-	UI::Window* GetDesktop() const;
+	void SetCanvasSize(unsigned int width, unsigned int height);
 
-	void Render() const;
-	void TimeStep(float dt);
+	unsigned int GetWndCount() const;
+
+	TextureManager* GetTextureManager() const;
+	Window* GetDesktop() const;
+
+	Window* GetCapture() const;
+	void SetCapture(Window* wnd);
+
+	bool SetFocusWnd(Window* wnd);
+	Window* GetFocusWnd() const;
+	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
+
+	Window* GetHotTrackWnd() const;
+
+	bool IsMainWindowActive() const { return _isAppActive; }
+
+private:
+	friend class Window;
+	void Add(Window* wnd);
+	void Remove(Window* wnd);
+	void AddTopMost(Window* wnd, bool add);
+	void ResetHotTrackWnd(Window* wnd);
+	PtrList<Window>::iterator TimeStepRegister(Window* wnd);
+	void TimeStepUnregister(PtrList<Window>::iterator it);
+
+private:
+	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, UINT msg);
+
+	Window* _desktop;
+
+	Window* _focusWnd;
+	Window* _hotTrackWnd;
+	Window* _captureWnd;
+
+	PtrList<Window> _timestep;
+	PtrList<Window> _topmost;
+
+	unsigned int _captureCountSystem;
+	unsigned int _captureCount;
+	unsigned int _windowCount;
+	bool _isAppActive;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

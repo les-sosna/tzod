@@ -3,43 +3,85 @@
 #include "stdafx.h"
 
 #include "Console.h"
-#include "Text.h"
 #include "Edit.h"
+#include "ConsoleBuffer.h"
 
 #include "video/TextureManager.h"
-#include "core/Console.h"
-#include "config/Config.h"
-
 #include "GuiManager.h"
 
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 
-Console::Console(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
-  : Window(parent, x, y, "ui/window")
-  , _buf(buf)
-  , _font(g_texman->FindSprite("font_small"))
+ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
+  : _maxSize(maxSize)
 {
-	SetBorder(true);
-
-	_arrow = new Text(this, 0, 0, ">", alignTextLT);
-
-	_input = new Edit(this, 0, 0, 0);
-	_input->SetTexture(NULL);
-
-	_scrollBack = 0;
-	_cmdIndex   = g_conf->con_history->GetSize();
-
-	_echo = true;
-
-	Resize(w, h);
 }
 
-Console::~Console()
+void ConsoleHistoryDefault::Enter(const string_t &str)
 {
+	_buf.push_back(str);
+	if( _buf.size() > _maxSize )
+	{
+		_buf.pop_front();
+	}
+}
+
+size_t ConsoleHistoryDefault::GetItemCount() const
+{
+	return _buf.size();
+}
+
+const string_t& ConsoleHistoryDefault::GetItem(size_t index) const
+{
+	return _buf[index];
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Console* Console::Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
+{
+	Console *res = new Console(parent);
+	res->Move(x, y);
+	res->Resize(w, h);
+	res->SetBuffer(buf);
+	return res;
+}
+
+Console::Console(Window *parent)
+  : Window(parent)
+  , _buf(NULL)
+  , _history(NULL)
+  , _echo(true)
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _scrollBack(0)
+  , _cmdIndex(0)
+{
+	SetTexture("ui/console", false);
+	SetDrawBorder(true);
+	_input = Edit::Create(this, 0, 0, 0);
+}
+
+float Console::GetInputHeight() const
+{
+	return _input->GetHeight();
+}
+
+void Console::SetColors(const SpriteColor *colors, size_t count)
+{
+	_colors.assign(colors, colors + count);
+}
+
+void Console::SetHistory(IConsoleHistory *history)
+{
+	_history = history;
+	_cmdIndex = _history->GetItemCount();
+}
+
+void Console::SetBuffer(ConsoleBuffer *buf)
+{
+	_buf = buf;
 }
 
 void Console::SetEcho(bool echo)
@@ -47,35 +89,40 @@ void Console::SetEcho(bool echo)
 	_echo = echo;
 }
 
-void Console::OnChar(int c)
+bool Console::OnChar(int c)
 {
 	GetManager()->SetFocusWnd(_input);
+	return true;
 }
 
-void Console::OnRawChar(int c)
+bool Console::OnRawChar(int c)
 {
 	switch(c)
 	{
 	case VK_UP:
-		if( _cmdIndex > g_conf->con_history->GetSize() )
+		if( _history )
 		{
-			_cmdIndex = g_conf->con_history->GetSize();
-		}
-		if( _cmdIndex > 0 )
-		{
-			_input->SetText(g_conf->con_history->GetStr(--_cmdIndex, "")->Get());
+			_cmdIndex = std::min(_cmdIndex, _history->GetItemCount());
+			if( _cmdIndex > 0 )
+			{
+				--_cmdIndex;
+				_input->SetText(_history->GetItem(_cmdIndex));
+			}
 		}
 		break;
 	case VK_DOWN:
-		++_cmdIndex;
-		if( _cmdIndex < g_conf->con_history->GetSize() )
+		if( _history )
 		{
-			_input->SetText(g_conf->con_history->GetStr(_cmdIndex, "")->Get());
-		}
-		else
-		{
-			_input->SetText("");
-			_cmdIndex = g_conf->con_history->GetSize();
+			++_cmdIndex;
+			if( _cmdIndex < _history->GetItemCount() )
+			{
+				_input->SetText(_history->GetItem(_cmdIndex));
+			}
+			else
+			{
+				_input->SetText(string_t());
+				_cmdIndex = _history->GetItemCount();
+			}
 		}
 		break;
 	case VK_RETURN:
@@ -83,30 +130,32 @@ void Console::OnRawChar(int c)
 		const string_t &cmd = _input->GetText();
 		if( cmd.empty() )
 		{
-			_buf->printf(">\n");
+			_buf->WriteLine(0, string_t(">"));
 		}
 		else
 		{
 			_scrollBack = 0;
-
-			if( g_conf->con_history->GetSize() == 0 ||
-				cmd != g_conf->con_history->GetStr(g_conf->con_history->GetSize()-1, "")->Get() )
+			if( _history )
 			{
-				g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(cmd);
-				while( g_conf->con_history->GetSize() > (unsigned) g_conf->con_maxhistory->GetInt() )
-					g_conf->con_history->PopFront();
+				if( _history->GetItemCount() == 0 || cmd != _history->GetItem(_history->GetItemCount() - 1) )
+				{
+					_history->Enter(cmd);
+				}
+				_cmdIndex = _history->GetItemCount();
 			}
-			_cmdIndex = g_conf->con_history->GetSize();
+
 			if( _echo )
-				_buf->printf("> %s\n", cmd.c_str());       // echo to the console
+			{
+				_buf->Format(0) << "> " << cmd;       // echo to the console
+			}
 			if( eventOnSendCommand )
-				INVOKE(eventOnSendCommand) (cmd);          // send the command
-			_input->SetText("");                           // erase input field
+				INVOKE(eventOnSendCommand) (cmd.c_str());
+			_input->SetText(string_t());
 		}
 		break;
 	}
 	case VK_PRIOR:
-		_scrollBack = __min(_scrollBack + 1, _buf->GetLineCount() - 1);
+		_scrollBack = std::min(_scrollBack + 1, _buf->GetLineCount() - 1);
 		break;
 	case VK_NEXT:
 		if( _scrollBack > 0 ) --_scrollBack;
@@ -118,14 +167,9 @@ void Console::OnRawChar(int c)
 		_scrollBack = 0;
 		break;
 	case VK_ESCAPE:
-		if( !_input->GetText().empty() )
-		{
-			_input->SetText("");
-		}
-		else
-		{
-			GetParent()->OnRawChar(c);
-		}
+		if( _input->GetText().empty() )
+			return false;
+		_input->SetText(string_t());
 		break;
 	case VK_TAB:
 		if( eventOnRequestCompleteCommand )
@@ -140,19 +184,20 @@ void Console::OnRawChar(int c)
 		}
 		break;
 	default:
-		GetParent()->OnRawChar(c);
+		return false;
 	}
+	return true;
 }
 
 bool Console::OnMouseWheel(float x, float y, float z)
 {
 	if( z > 0 )
 	{
-		_scrollBack = __min(_scrollBack + int(z * 3), _buf->GetLineCount() - 1);
+		_scrollBack = std::min(_scrollBack + int(z * 3), _buf->GetLineCount() - 1);
 	}
 	else
 	{
-		size_t dz = __min((signed) _scrollBack, int(-z * 3));
+		size_t dz = std::min((signed) _scrollBack, int(-z * 3));
 		_scrollBack -= dz;
 	}
 	return true;
@@ -163,28 +208,45 @@ bool Console::OnMouseDown(float x, float y, int button)
 	return true;
 }
 
-void Console::DrawChildren(float sx, float sy) const
+bool Console::OnMouseUp(float x, float y, int button)
 {
-	Window::DrawChildren(sx, sy);
-	sy += _arrow->GetY() - 2;
-	float h = g_texman->Get(_font).pxFrameHeight;
-	size_t visibleLineCount = (size_t) (GetHeight() / h);
-	size_t scroll = __min(_scrollBack, _buf->GetLineCount());
-	size_t count  = __min( _buf->GetLineCount() - scroll, visibleLineCount );
-	for( size_t i = 0; i < count; ++i )
+	return true;
+}
+
+bool Console::OnMouseMove(float x, float y)
+{
+	return true;
+}
+
+void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+{
+	Window::DrawChildren(dc, sx, sy);
+
+	_buf->Lock();
+
+	float h = dc->GetFrameHeight(_font, 0);
+	size_t visibleLineCount = size_t(_input->GetY() / h);
+	size_t scroll = std::min(_scrollBack, _buf->GetLineCount());
+	size_t count  = std::min(_buf->GetLineCount() - scroll, visibleLineCount);
+
+	sy -= fmodf(_input->GetY(), h);
+	sy += (float) (visibleLineCount - count) * h;
+
+	for( size_t line = _buf->GetLineCount() - count - scroll; line < _buf->GetLineCount() - scroll; ++line )
 	{
-		g_texman->DrawBitmapText(_font, _buf->GetLine(_buf->GetLineCount() - scroll - i - 1),
-			0xffffffff, sx + 4, sy -= h);
+		unsigned int sev = _buf->GetSeverity(line);
+		SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
+		dc->DrawBitmapText(sx + 4, sy, _font, color, _buf->GetLine(line));
+		sy += h;
 	}
+
+	_buf->Unlock();
 }
 
 void Console::OnSize(float width, float height)
 {
-	Window::OnSize(width, height);
-
-	_arrow->Move(0, height - _arrow->GetHeight() - 1);
-	_input->Move( _arrow->GetWidth(), _arrow->GetY()-1 );
-	_input->Resize( width - _arrow->GetWidth(), _input->GetHeight() );
+	_input->Move(0, height - _input->GetHeight());
+	_input->Resize(width, _input->GetHeight());
 }
 
 bool Console::OnFocus(bool focus)

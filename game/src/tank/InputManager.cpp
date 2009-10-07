@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
-#include "core/Console.h"
 #include "core/debug.h"
 
 InputManager::InputManager(HWND hWnd)

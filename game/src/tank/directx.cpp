@@ -8,7 +8,6 @@
 #include "Macros.h"
 
 #include "core/Debug.h"
-#include "core/Console.h"
 
 #include "sound/sfx.h"
 #include "sound/MusicPlayer.h"

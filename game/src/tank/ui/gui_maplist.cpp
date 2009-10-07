@@ -10,14 +10,13 @@
 #include "config/Config.h"
 
 #include "core/debug.h"
-#include "core/Console.h"
 
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
 MapList::MapList(Window *parent, float x, float y, float width, float height)
-  : List(parent, x, y, width, height)
+  : List(parent)
 {
 	SetTabPos(0,   4); // name
 	SetTabPos(1, 384); // size
@@ -60,13 +59,13 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 	int selected = FindItem(g_conf->cl_map->Get());
 	SetCurSel(selected, false);
 	SetScrollPos(selected - (GetNumLinesVisible() - 1) * 0.5f);
+	Move(x, y);
+	Resize(width, height);
 }
 
 MapList::~MapList()
 {
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

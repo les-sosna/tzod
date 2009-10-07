@@ -37,7 +37,7 @@ public:
 	void Clear();
 
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(float sx, float sy) const;
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 private:
 	void OnToggleVisible();
@@ -57,10 +57,9 @@ class Desktop : public Window
 
 
 public:
-	Desktop(GuiManager* manager);
+	Desktop(LayoutManager* manager);
 	~Desktop();
 
-	void ShowDesktopBackground(bool show);
 	void ShowConsole(bool show);
 	void ShowEditor(bool show);
 
@@ -69,7 +68,7 @@ public:
 	MessageArea* GetMsgArea() const;
 
 protected:
-	virtual void OnRawChar(int c);
+	virtual bool OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
 	virtual void OnSize(float width, float height);
 

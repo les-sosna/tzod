@@ -36,9 +36,9 @@ class NewGameDlg : public Dialog
 
 public:
 	NewGameDlg(Window *parent);
-	~NewGameDlg();
+	virtual ~NewGameDlg();
 
-	virtual void OnRawChar(int c);
+	virtual bool OnRawChar(int c);
 
 protected:
 	void RefreshPlayersList();

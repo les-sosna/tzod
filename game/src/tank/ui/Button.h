@@ -10,19 +10,19 @@
 namespace UI
 {
 
-// base class for all button stuff
 class ButtonBase : public Window
 {
 public:
 	enum State
 	{
-		stateNormal    = 0,
-		stateHottrack  = 1,
-		statePushed    = 2,
-		stateDisabled  = 3
+		stateNormal,
+		stateHottrack,
+		statePushed,
+		stateDisabled,
 	};
 
-	ButtonBase(Window *parent, float x, float y, const char *texture);
+	ButtonBase(Window *parent);
+	virtual ~ButtonBase() = 0 {}
 
 	Delegate<void(void)> eventClick;
 	Delegate<void(float, float)> eventMouseDown;
@@ -30,7 +30,6 @@ public:
 	Delegate<void(float, float)> eventMouseMove;
 
 	State GetState() const { return _state; }
-	void SetState(State s);
 
 protected:
 	virtual bool OnMouseMove(float x, float y);
@@ -39,40 +38,55 @@ protected:
 	virtual bool OnMouseLeave();
 
 	virtual void OnEnabledChange(bool enable, bool inherited);
-	virtual void OnClick();
-	virtual void OnChangeState(State state) = 0;
+	virtual void OnChangeState(State state);
 
 private:
+	virtual void OnClick();
+
 	State _state;
+	void SetState(State s);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class Button : public ButtonBase
 {
-	Text  *_label;
-
 public:
-	Button(Window *parent, const string_t &text, float x, float y, float w=-1, float h=-1);
+	static Button* Create(Window *parent, const string_t &text, float x, float y, float w=-1, float h=-1);
 
 protected:
+	Button(Window *parent);
 	virtual void OnChangeState(State state);
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+
+private:
+	size_t _font;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class TextButton : public ButtonBase
 {
-	Text  *_label;
-
 public:
-	TextButton(Window *parent, float x, float y, const string_t &text, const char *font);
+	static TextButton* Create(Window *parent, float x, float y, const string_t &text, const char *font);
 
-	void SetText(const string_t &text);
-	const string_t& GetText() const;
+	void SetFont(const char *fontName);
+
+	void SetDrawShadow(bool drawShadow);
+	bool GetDrawShadow() const;
 
 protected:
-	virtual void OnChangeState(State state);
+	TextButton(Window *parent);
+
+	void AlignSizeToContent();
+
+	virtual void OnTextChange();
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+
+
+private:
+	size_t _fontTexture;
+	bool   _drawShadow;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,9 +94,10 @@ protected:
 class ImageButton : public ButtonBase
 {
 public:
-	ImageButton(Window *parent, float x, float y, const char *texture);
+	static ImageButton* Create(Window *parent, float x, float y, const char *texture);
 
 protected:
+	ImageButton(Window *parent);
 	virtual void OnChangeState(State state);
 };
 
@@ -90,24 +105,31 @@ protected:
 
 class CheckBox : public ButtonBase
 {
-	TextButton *_label;
-	bool  _isChecked;
-
 public:
-	CheckBox(Window *parent, float x, float y, const string_t &text);
+	static CheckBox* Create(Window *parent, float x, float y, const string_t &text);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
-	void SetText(const string_t &text);
-	const string_t& GetText() const;
+	void SetDrawShadow(bool drawShadow);
+	bool GetDrawShadow() const;
 
 protected:
-	virtual void OnChangeState(State state);
+	CheckBox(Window *parent);
+
+	void AlignSizeToContent();
+
 	virtual void OnClick();
+	virtual void OnTextChange();
+	virtual void OnChangeState(State state);
+
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 private:
-	void OnLabelClick();
+	size_t _fontTexture;
+	size_t _boxTexture;
+	bool   _drawShadow;
+	bool   _isChecked;
 };
 
 

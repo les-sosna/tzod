@@ -22,12 +22,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
   , _changing(false)
 {
-	Text *t = new Text(this, GetWidth() / 2, 16, param.title, alignTextCT);
+	Text *t = Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
 	t->SetFont("font_default");
 
 	_folder = param.folder;
 	_ext = param.extension;
-	_files = new List(this, 20, 56, 472, 300);
+	_files = List::Create(this, 20, 56, 472, 300);
 	std::set<string_t> files;
 	_folder->EnumAllFiles(files, "*." + _ext);
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
@@ -39,12 +39,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);
 
 
-	new Text(this, 16, 370, g_lang->get_file_name_title->Get(), alignTextLT);
-	_fileName = new Edit(this, 20, 385, 472);
+	Text::Create(this, 16, 370, g_lang->get_file_name_title->Get(), alignTextLT);
+	_fileName = Edit::Create(this, 20, 385, 472);
 	_fileName->eventChange.bind(&GetFileNameDlg::OnChangeName, this);
 
-	(new Button(this, g_lang->common_ok->Get(), 290, 420))->eventClick.bind(&GetFileNameDlg::OnOK, this);
-	(new Button(this, g_lang->common_cancel->Get(), 400, 420))->eventClick.bind(&GetFileNameDlg::OnCancel, this);
+	Button::Create(this, g_lang->common_ok->Get(), 290, 420)->eventClick.bind(&GetFileNameDlg::OnOK, this);
+	Button::Create(this, g_lang->common_cancel->Get(), 400, 420)->eventClick.bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_fileName);
 }
@@ -92,20 +92,19 @@ void GetFileNameDlg::OnChangeName()
 	_changing = false;
 }
 
-void GetFileNameDlg::OnRawChar(int c)
+bool GetFileNameDlg::OnRawChar(int c)
 {
 	switch( c )
 	{
-	case VK_UP:
-	case VK_DOWN:
-		static_cast<Window *>(_files)->OnRawChar(c);
-		break;
+	//case VK_UP:
+	//case VK_DOWN:
+	//	static_cast<Window *>(_files)->OnRawChar(c);
+	//	return true;
 	case VK_RETURN:
 		OnOK();
-		break;
-	default:
-		Dialog::OnRawChar(c);
+		return true;
 	}
+	return false;
 }
 
 void GetFileNameDlg::OnOK()

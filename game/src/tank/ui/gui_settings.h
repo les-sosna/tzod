@@ -27,10 +27,10 @@ class SettingsDlg : public Dialog
 	CheckBox  *_showNames;
 	CheckBox  *_askDisplaySettings;
 
-	ScrollBar *_volumeSfx;
+	ScrollBarHorizontal *_volumeSfx;
 	int _initialVolumeSfx;
 
-	ScrollBar *_volumeMusic;
+	ScrollBarHorizontal *_volumeMusic;
 	int _initialVolumeMusic;
 
 
@@ -81,7 +81,7 @@ protected:
 	void OnCancel();
 
 	void OnTimeStep(float dt);
-	void OnRawChar(int c);
+	bool OnRawChar(int c);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

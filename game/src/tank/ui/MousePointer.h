@@ -18,7 +18,7 @@ class MouseCursor : public Window
 	float _timeAnim;
 
 public:
-	MouseCursor(GuiManager* manager, const char *texture);
+	MouseCursor(LayoutManager* manager, const char *texture);
 
 protected:
 	void OnTimeStep(float dt);

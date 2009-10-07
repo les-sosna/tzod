@@ -4,7 +4,7 @@
 
 
 //#ifdef _DEBUG
-#define TRACE(fmt, ...) GetConsole().printf(fmt, __VA_ARGS__);
+#define TRACE(fmt, ...) GetConsole().Printf(0, fmt, __VA_ARGS__);
 //#else
 //#define TRACE
 //#endif

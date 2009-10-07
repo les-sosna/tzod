@@ -35,7 +35,7 @@ protected:
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
 
-	virtual void OnRawChar(int c);
+	virtual bool OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
 };
 

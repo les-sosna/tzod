@@ -5,7 +5,6 @@
 
 #include "Level.h"
 #include "fs/FileSystem.h"
-#include "core/Console.h"
 #include "sound/MusicPlayer.h"
 
 MD5 g_md5;
@@ -17,7 +16,7 @@ CSound          *g_pSounds[SND_COUNT];
 
 AppBase     *g_app;
 IRender     *g_render;
-UI::GuiManager  *g_gui;
+UI::LayoutManager  *g_gui;
 TankServer  *g_server;
 TankClient  *g_client;
 

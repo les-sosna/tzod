@@ -27,7 +27,7 @@ Dialog::Dialog(Window *parent, float width, float height, bool modal)
 {
 	Resize(width, height);
 	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
-	SetBorder(true);
+	SetDrawBorder(true);
 
 	_easyMove = false;
 
@@ -59,7 +59,7 @@ bool Dialog::OnMouseDown(float x, float y, int button)
 {
 	if( _easyMove && 1 == button )
 	{
-		SetCapture();
+		GetManager()->SetCapture(this);
 		_mouseX = x;
 		_mouseY = y;
 	}
@@ -69,16 +69,16 @@ bool Dialog::OnMouseUp(float x, float y, int button)
 {
 	if( 1 == button )
 	{
-		if( IsCaptured() )
+		if( this == GetManager()->GetCapture() )
 		{
-			ReleaseCapture();
+			GetManager()->SetCapture(NULL);
 		}
 	}
 	return true;
 }
 bool Dialog::OnMouseMove(float x, float y)
 {
-	if( IsCaptured() )
+	if( this == GetManager()->GetCapture() )
 	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}
@@ -93,9 +93,9 @@ bool Dialog::OnMouseLeave()
 	return true;
 }
 
-void Dialog::OnRawChar(int c)
+bool Dialog::OnRawChar(int c)
 {
-	switch(c)
+	switch( c )
 	{
 	case VK_UP:
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
@@ -145,14 +145,18 @@ void Dialog::OnRawChar(int c)
 	case VK_ESCAPE:
 		Close(_resultCancel);
 		break;
+
+	default:
+		return false;
 	}
+
+	return true;
 }
 
 bool Dialog::OnFocus(bool focus)
 {
 	return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

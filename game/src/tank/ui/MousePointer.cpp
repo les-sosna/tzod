@@ -14,12 +14,11 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // MouseCursor class implementation
 
-MouseCursor::MouseCursor(GuiManager* manager, const char *texture)
-  : Window(manager)
+MouseCursor::MouseCursor(LayoutManager* manager, const char *texture)
+  : Window(NULL, manager)
 {
-	SetTexture(texture);
-	Resize(GetTextureWidth(), GetTextureHeight());
-	_text = new Text(this, GetWidth(), GetHeight(), "", alignTextLT);
+	SetTexture(texture, true);
+	_text = Text::Create(this, GetWidth(), GetHeight(), "", alignTextLT);
 	_timeShow = 0;
 	_timeAnim = 0;
 

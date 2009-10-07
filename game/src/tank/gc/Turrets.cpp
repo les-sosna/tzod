@@ -255,8 +255,7 @@ void GC_Turret::Draw() const
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
 		static size_t font = g_texman->FindSprite("font_default");
-		g_texman->DrawBitmapText(font, teams[_team], 0xffffffff,
-			GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, alignTextLT);
+		g_texman->DrawBitmapText(GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, font, 0xffffffff, teams[_team], alignTextLT);
 	}
 }
 

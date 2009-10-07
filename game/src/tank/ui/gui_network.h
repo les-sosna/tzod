@@ -101,7 +101,7 @@ class WaitingForPlayersDlg : public Dialog
 	Console        *_chat;
 	Button         *_btnOK;
 	Button         *_btnProfile;
-	SafePtr<ConsoleBuffer>  _buf;
+	std::auto_ptr<UI::ConsoleBuffer>  _buf;
 
 	static const size_t _maxPings = 5;
 	std::vector<DWORD> _pings;

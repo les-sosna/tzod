@@ -11,16 +11,16 @@ namespace UI
 
 class ScoreTable : public Window
 {
-	size_t _font;
-
 public:
 	ScoreTable(Window *parent);
-	virtual ~ScoreTable();
 
 protected:
 	virtual void OnTimeStep(float dt);
 	virtual void OnParentSize(float width, float height);
-	virtual void DrawChildren(float sx, float sy) const;
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+
+private:
+	size_t _font;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

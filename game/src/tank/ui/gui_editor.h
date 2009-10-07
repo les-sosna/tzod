@@ -34,14 +34,14 @@ class PropertyList : public Dialog
 {
 	class Container : public Window
 	{
-		void OnRawChar(int c); // need to pass messages through
+//		bool OnRawChar(int c); // need to pass messages through
 	public:
 		Container(Window *parent);
 	};
 
 
 	Container  *_psheet;
-	ScrollBar  *_scrollBar;
+	ScrollBarVertical  *_scrollBar;
 
 	SafePtr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
@@ -54,7 +54,7 @@ public:
 protected:
 	void OnScroll(float pos);
 	void OnSize(float width, float height);
-	void OnRawChar(int c);
+	bool OnRawChar(int c);
 	bool OnMouseWheel(float x, float y, float z);
 };
 
@@ -112,7 +112,7 @@ protected:
 	EditorLayout* GetEditorLayout() const;
 
 	virtual void OnSize(float width, float height);
-	virtual void OnRawChar(int c);
+	virtual bool OnRawChar(int c);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,14 +145,14 @@ public:
 	Delegate<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
-	void DrawChildren(float sx, float sy) const;
+	void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);
 	bool OnMouseUp(float x, float y, int button);
 	bool OnMouseMove(float x, float y);
 	bool OnFocus(bool focus);
-	void OnRawChar(int c);
+	bool OnRawChar(int c);
 	void OnSize(float width, float height);
 	void OnVisibleChange(bool visible, bool inherited);
 

@@ -20,8 +20,6 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "core/Console.h"
-
 #include "Level.h"
 #include "Macros.h"
 #include "script.h"
@@ -33,19 +31,19 @@ namespace UI
 NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
 {
-	Text *header = new Text(this, 128, 20, g_lang->newmap_title->Get(), alignTextCT);
+	Text *header = Text::Create(this, 128, 20, g_lang->newmap_title->Get(), alignTextCT);
 	header->SetFont("font_default");
 
-	new Text(this, 40, 75, g_lang->newmap_width->Get(), alignTextLT);
-	_width = new Edit(this, 60, 90, 80);
+	Text::Create(this, 40, 75, g_lang->newmap_width->Get(), alignTextLT);
+	_width = Edit::Create(this, 60, 90, 80);
 	_width->SetInt(g_conf->ed_width->GetInt());
 
-	new Text(this, 40, 115, g_lang->newmap_height->Get(), alignTextLT);
-	_height = new Edit(this, 60, 130, 80);
+	Text::Create(this, 40, 115, g_lang->newmap_height->Get(), alignTextLT);
+	_height = Edit::Create(this, 60, 130, 80);
 	_height->SetInt(g_conf->ed_height->GetInt());
 
-	(new Button(this, g_lang->common_ok->Get(), 20, 200))->eventClick.bind(&NewMapDlg::OnOK, this);
-	(new Button(this, g_lang->common_cancel->Get(), 140, 200))->eventClick.bind(&NewMapDlg::OnCancel, this);
+	Button::Create(this, g_lang->common_ok->Get(), 20, 200)->eventClick.bind(&NewMapDlg::OnOK, this);
+	Button::Create(this, g_lang->common_cancel->Get(), 140, 200)->eventClick.bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
 }
@@ -75,10 +73,10 @@ PropertyList::Container::Container(Window *parent)
 {
 }
 
-void PropertyList::Container::OnRawChar(int c)
-{
-	GetParent()->OnRawChar(c); // pass messages through
-}
+//bool PropertyList::Container::OnRawChar(int c)
+//{
+//	return GetParent()->OnRawChar(c); // pass messages through
+//}
 
 PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, w, h, false)
@@ -86,7 +84,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	Move(x, y);
 	_psheet = new Container(this);
 
-	_scrollBar = new ScrollBar(this, 0, 0, h);
+	_scrollBar = ScrollBarVertical::Create(this, 0, 0, h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll.bind(&PropertyList::OnScroll, this);
 	_scrollBar->SetLimit(100);
@@ -121,7 +119,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				n = static_cast<Edit*>(ctrl)->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
-					GetConsole().printf("WARNING: value %s out of range [%d, %d]\n",
+					GetConsole().Printf(1, "WARNING: value %s out of range [%d, %d]\n",
 						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
 					n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
 				}
@@ -133,7 +131,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				f = static_cast<Edit*>(ctrl)->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
-					GetConsole().printf("WARNING: value %s out of range [%g, %g]\n",
+					GetConsole().Printf(1, "WARNING: value %s out of range [%g, %g]\n",
 						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
 					f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
 				}
@@ -174,7 +172,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			std::stringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
-			Text *label = new Text(_psheet, 5, y, "", alignTextLT);
+			Text *label = Text::Create(_psheet, 5, y, "", alignTextLT);
 			y += label->GetHeight();
 			y += 5;
 
@@ -183,22 +181,22 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
 				static_cast<Edit*>(ctrl)->SetInt(prop->GetIntValue());
 				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
 				static_cast<Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
 				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = new Edit(_psheet, 32, y, _psheet->GetWidth() - 64);
+				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
 				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				ctrl = new ComboBox(_psheet, 32, y, _psheet->GetWidth() - 64);
+				ctrl = ComboBox::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
 				for( size_t index = 0; index < prop->GetListSize(); ++index )
 				{
 					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index));
@@ -258,7 +256,7 @@ void PropertyList::OnSize(float width, float height)
 	_psheet->Resize(_scrollBar->GetX(), _psheet->GetHeight());
 }
 
-void PropertyList::OnRawChar(int c)
+bool PropertyList::OnRawChar(int c)
 {
 	switch(c)
 	{
@@ -271,8 +269,9 @@ void PropertyList::OnRawChar(int c)
 		SetVisible(false);
 		break;
 	default:
-		GetParent()->OnRawChar(c);
+		return false;
 	}
+	return true;
 }
 
 bool PropertyList::OnMouseWheel(float x, float y, float z)
@@ -376,18 +375,18 @@ ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, h, w, false)
   , _margins(5)
 {
-	_labelService = new Text(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
-	_labelName = new Text(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
+	_labelService = Text::Create(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
+	_labelName = Text::Create(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
 
-	_list = new List(this, _margins, _margins + _labelService->GetY() + _labelService->GetHeight(), 1, 1);
+	_list = List::Create(this, _margins, _margins + _labelService->GetY() + _labelService->GetHeight(), 1, 1);
 	_list->SetData(WrapRawPtr(new ServiceListDataSource()));
-	_list->SetBorder(true);
+	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
 
-	_btnCreate = new Button(this, g_lang->service_create->Get(), 0, 0);
+	_btnCreate = Button::Create(this, g_lang->service_create->Get(), 0, 0);
 	_btnCreate->eventClick.bind(&ServiceList::OnCreateService, this);
 
-	_combo = new ComboBox(this, _margins, _margins, 1);
+	_combo = ComboBox::Create(this, _margins, _margins, 1);
 	List *ls = _combo->GetList();
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
@@ -471,7 +470,7 @@ void ServiceList::OnSize(float width, float height)
 	_list->SetTabPos(1, _list->GetWidth() / 2);
 }
 
-void ServiceList::OnRawChar(int c)
+bool ServiceList::OnRawChar(int c)
 {
 	switch(c)
 	{
@@ -481,8 +480,9 @@ void ServiceList::OnRawChar(int c)
 		SetVisible(false);
 		break;
 	default:
-		GetParent()->OnRawChar(c);
+		return false;
 	}
+	return true;
 }
 
 
@@ -492,9 +492,9 @@ EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
   , _selectedObject(NULL)
 {
-	SetTexture(NULL);
+	SetTexture(NULL, false);
 
-	_help = new Text(this, 10, 10, g_lang->f1_help_editor->Get(), alignTextLT);
+	_help = Text::Create(this, 10, 10, g_lang->f1_help_editor->Get(), alignTextLT);
 	_help->SetVisible(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
@@ -503,9 +503,9 @@ EditorLayout::EditorLayout(Window *parent)
 	_serviceList = new ServiceList(this, 5, 300, 512, 256);
 	_serviceList->SetVisible(g_conf->ed_showservices->Get());
 
-	_layerDisp = new Text(this, 0, 0, "", alignTextRT);
+	_layerDisp = Text::Create(this, 0, 0, "", alignTextRT);
 
-	_typeList = new ComboBox(this, 0, 0, 256);
+	_typeList = ComboBox::Create(this, 0, 0, 256);
 	List *ls = _typeList->GetList();
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
@@ -519,8 +519,9 @@ EditorLayout::EditorLayout(Window *parent)
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel(g_conf->ed_object->GetInt());
 
-	_selectionRect = new Window(this, 0, 0, "ui/selection");
-	_selectionRect->SetBorder(true);
+	_selectionRect = Window::Create(this);
+	_selectionRect->SetTexture("ui/selection", true);
+	_selectionRect->SetDrawBorder(true);
 	_selectionRect->SetVisible(false);
 	_selectionRect->BringToBack();
 
@@ -629,7 +630,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
 	if( 0 == _mbutton )
 	{
-		SetCapture();
+		GetManager()->SetCapture(this);
 		_mbutton = button;
 	}
 
@@ -718,7 +719,7 @@ bool EditorLayout::OnFocus(bool focus)
 	return true;
 }
 
-void EditorLayout::OnRawChar(int c)
+bool EditorLayout::OnRawChar(int c)
 {
 	switch(c)
 	{
@@ -757,12 +758,13 @@ void EditorLayout::OnRawChar(int c)
 		}
 		else
 		{
-			GetParent()->OnRawChar(c);
+			return false;
 		}
 		break;
 	default:
-		GetParent()->OnRawChar(c);
+		return false;
 	}
+	return true;
 }
 
 void EditorLayout::OnSize(float width, float height)
@@ -793,7 +795,7 @@ void EditorLayout::OnChangeUseLayers()
 	_layerDisp->SetVisible(g_conf->ed_uselayers->Get());
 }
 
-void EditorLayout::DrawChildren(float sx, float sy) const
+void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
@@ -826,7 +828,7 @@ void EditorLayout::DrawChildren(float sx, float sy) const
 	{
 		_selectionRect->SetVisible(false);
 	}
-	Window::DrawChildren(sx, sy);
+	Window::DrawChildren(dc, sx, sy);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

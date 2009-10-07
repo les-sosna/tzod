@@ -40,7 +40,10 @@ public:
 	void UnloadAllTextures();
 
 	size_t FindSprite(const string_t &name)   const;
-	const LogicalTexture& Get(size_t index) const { return _logicalTextures[index]; }
+	const LogicalTexture& Get(size_t texIndex) const { return _logicalTextures[texIndex]; }
+	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
+	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
+	size_t GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].xframes * _logicalTextures[texIndex].yframes; }
 
 	bool IsValidTexture(size_t index) const;
 
@@ -48,11 +51,17 @@ public:
 
 	float GetCharHeight(size_t fontTexture) const;
 
-	void DrawBitmapText(size_t tex, const string_t &str, SpriteColor color, float x, float y, enumAlignText align = alignTextLT) const;
+	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
+	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
+	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const string_t &str, enumAlignText align = alignTextLT) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, float rot) const;
 	void DrawIndicator(size_t tex, float x, float y, float value) const;
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase) const;
+
+	void SetCanvasSize(unsigned int width, unsigned int height);
+	void PushClippingRect(const RECT &rect) const;
+	void PopClippingRect() const;
 
 private:
 	struct TexDesc
@@ -74,12 +83,17 @@ private:
 	std::map<string_t, size_t>   _mapName_to_Index;// index in _logicalTextures
 	std::vector<LogicalTexture>  _logicalTextures;
 
+	RECT _viewport;
+	mutable std::stack<RECT> _clipStack;
 
 	void LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName);
 	void Unload(TexDescIterator what);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
+};
 
+class DrawingContext : public TextureManager
+{
 };
 
 /////////////////////////////////////////////////////////////

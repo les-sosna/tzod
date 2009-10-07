@@ -17,7 +17,6 @@
 
 #include "sound/MusicPlayer.h"
 
-#include "core/Console.h"
 #include "core/debug.h"
 
 #include "video/TextureManager.h"
@@ -233,7 +232,7 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "couldn't save game to '%s' - ", filename, e.what());
 	}
 	g_level->PauseSound(false);
-	GetConsole().printf("game saved: '%s'\n", filename);
+	GetConsole().Printf(0, "game saved: '%s'\n", filename);
 	return 0;
 }
 
@@ -289,7 +288,7 @@ static int luaT_export(lua_State *L)
 		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
 	}
 
-	GetConsole().printf("map exported: '%s'\n", filename);
+	GetConsole().Printf(0, "map exported: '%s'\n", filename);
 
 	return 0;
 }
@@ -354,6 +353,7 @@ static int luaT_music(lua_State *L)
 
 static int luaT_print(lua_State *L)
 {
+	std::stringstream buf;
 	int n = lua_gettop(L);     // get number of arguments
 	lua_getglobal(L, "tostring");
 	for( int i = 1; i <= n; ++i )
@@ -366,11 +366,11 @@ static int luaT_print(lua_State *L)
 		{
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		}
-		if( i > 1 ) GetConsole().puts(" "); // delimiter
-		GetConsole().puts(s);
+		if( i > 1 ) buf << " "; // delimiter
+		buf << s;
 		lua_pop(L, 1);         // pop result
 	}
-	GetConsole().puts("\n");
+	GetConsole().WriteLine(0, buf.str());
 	return 0;
 }
 
@@ -1043,7 +1043,7 @@ int luaT_loadtheme(lua_State *L)
 	{
 		if( 0 == g_texman->LoadPackage(filename, g_fs->Open(filename)->QueryMap()) )
 		{
-			GetConsole().puts("WARNING: there are no textures loaded\n");
+			GetConsole().WriteLine(1, "WARNING: there are no textures loaded\n");
 		}
 	}
 	catch( const std::exception &e )
@@ -1195,14 +1195,14 @@ bool script_exec(lua_State *L, const char *string)
 
 	if( luaL_loadstring(L, string) )
 	{
-		GetConsole().printf("syntax error %s\n", lua_tostring(L, -1));
+		GetConsole().Printf(1, "syntax error %s\n", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
 
 	if( lua_pcall(L, 0, 0, 0) )
 	{
-		GetConsole().printf("%s\n", lua_tostring(L, -1));
+		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}

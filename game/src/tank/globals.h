@@ -17,7 +17,7 @@ class AppBase;
 
 namespace UI
 {
-	class GuiManager;
+	class LayoutManager;
 }
 
 namespace FS
@@ -37,7 +37,7 @@ extern CSound *g_pSounds[SND_COUNT];
 extern IRender         *g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
-extern UI::GuiManager  *g_gui;
+extern UI::LayoutManager  *g_gui;
 extern SafePtr<Level>   g_level;
 extern TankServer      *g_server;
 extern TankClient      *g_client;

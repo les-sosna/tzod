@@ -529,14 +529,6 @@
 				>
 			</File>
 			<File
-				RelativePath="src\tank\core\Console.cpp"
-				>
-			</File>
-			<File
-				RelativePath="src\tank\core\Console.h"
-				>
-			</File>
-			<File
 				RelativePath="src\tank\core\debug.h"
 				>
 			</File>
@@ -914,6 +906,14 @@
 			</File>
 			<File
 				RelativePath="src\tank\ui\Console.h"
+				>
+			</File>
+			<File
+				RelativePath="src\tank\ui\ConsoleBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\tank\ui\ConsoleBuffer.h"
 				>
 			</File>
 			<File

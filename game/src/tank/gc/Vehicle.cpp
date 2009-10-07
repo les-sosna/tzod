@@ -23,8 +23,6 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "core/Console.h"
-
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
@@ -127,8 +125,8 @@ void GC_VehicleVisualDummy::Draw() const
 	{
 		const vec2d &pos = GetPosPredicted();
 		static TextureCache f("font_small");
-		g_texman->DrawBitmapText(f.GetTexture(), _parent->GetPlayer()->GetNick(), 
-			0x7f7f7f7f, floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2), alignTextCT);
+		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
+			f.GetTexture(), 0x7f7f7f7f, _parent->GetPlayer()->GetNick(), alignTextCT);
 	}
 }
 
@@ -528,7 +526,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 1, 0) )
 			{
 				// print error message
-				GetConsole().printf("%s\n", lua_tostring(L, -1));
+				GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -537,7 +535,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			if( lua_pcall(L, 2, 0, 0) )
 			{
 				// print error message
-				GetConsole().printf("%s\n", lua_tostring(L, -1));
+				GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
 				lua_pop(L, 1);
 				return;
 			}
@@ -588,7 +586,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
 	{
 		// print error message
-		GetConsole().printf("%s\n", lua_tostring(L, -1));
+		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}
@@ -598,7 +596,7 @@ void GC_Vehicle::ResetClass()
 	if( lua_pcall(L, 2, 0, 0) )
 	{
 		// print error message
-		GetConsole().printf("%s\n", lua_tostring(L, -1));
+		GetConsole().Printf(1, "%s\n", lua_tostring(L, -1));
 		lua_pop(L, 1);
 		return;
 	}

@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "core/debug.h"
-#include "core/console.h"
 #include "core/Application.h"
 
 #include "config/Config.h"

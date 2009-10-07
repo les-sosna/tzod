@@ -9,18 +9,10 @@
 namespace UI
 {
 
-// ComboBox control
-
 class ComboBox : public Window
 {
-	TextButton  *_text;
-	List        *_list;
-	ButtonBase  *_btn;
-
-	int _curSel;
-
 public:
-	ComboBox(Window *parent, float x, float y, float width);
+	static ComboBox* Create(Window *parent, float x, float y, float width);
 
 	void SetCurSel(int index);
 	int GetCurSel() const;
@@ -31,7 +23,10 @@ public:
 	Delegate<void(int)> eventChangeCurSel;
 
 protected:
-	void OnRawChar(int c);
+	ComboBox(Window *parent);
+
+	void OnEnabledChange(bool enable, bool inherited);
+	bool OnRawChar(int c);
 	bool OnFocus(bool focus);
 	void OnSize(float width, float height);
 
@@ -39,6 +34,12 @@ protected:
 	void OnChangeSelection(int index);
 
 	void OnListLostFocus();
+
+private:
+	TextButton  *_text;
+	ButtonBase  *_btn;
+	List        *_list;
+	int _curSel;
 };
 
 

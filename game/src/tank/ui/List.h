@@ -64,7 +64,7 @@ private:
 class List : public Window
 {
 public:
-	List(Window *parent, float x, float y, float width, float height);
+	static List* Create(Window *parent, float x, float y, float width, float height);
 	virtual ~List();
 
 	SafePtr<ListDataSourceDefault> GetDataDefault() const;
@@ -105,6 +105,8 @@ public:
 	Delegate<void(int)> eventClickItem;
 
 protected:
+	List(Window *parent);
+
 	// callback interface
 	class ListCallbackImpl : public ListDataSourceListener
 	{
@@ -125,22 +127,19 @@ protected:
 	virtual bool OnMouseLeave();
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual void OnRawChar(int c);
+	virtual bool OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
 
-	virtual void DrawChildren(float sx, float sy) const;
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 private:
-	void OnScroll(float pos);
-	void UpdateSelection();
-
 	SafePtr<ListDataSource> _data;
 
 	std::vector<float> _tabs;
 
-	ScrollBar *_scrollBar;
+	ScrollBarVertical *_scrollBar;
 	size_t     _font;
-	Window    *_selection;
+	size_t     _selection;
 
 	int        _curSel;
 	int        _hotItem;

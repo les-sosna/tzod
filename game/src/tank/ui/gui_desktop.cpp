@@ -10,12 +10,12 @@
 #include "gui_scoretable.h"
 #include "gui.h"
 #include "Console.h"
+#include "ConsoleBuffer.h"
 
 #include "GuiManager.h"
 #include "video/TextureManager.h"
 
 #include "config/Config.h"
-#include "core/Console.h"
 #include "core/Profiler.h"
 
 #include "network/TankClient.h"
@@ -28,9 +28,10 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 MessageArea::MessageArea(Window *parent, float x, float y)
-  : Window(parent, x, y, NULL)
+  : Window(parent)
   , _fontTexture(g_texman->FindSprite("font_small"))
 {
+	Move(x, y);
 }
 
 MessageArea::~MessageArea()
@@ -51,7 +52,7 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::DrawChildren(float sx, float sy) const
+void MessageArea::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	if( _lines.empty() || !g_conf->ui_showmsg->Get() )
 	{
@@ -69,15 +70,14 @@ void MessageArea::DrawChildren(float sx, float sy) const
 		c.b = cc;
 		c.a = cc;
 
-		g_texman->DrawBitmapText(_fontTexture, it->str, c, sx, sy + y);
+		dc->DrawBitmapText(sx, sy + y, _fontTexture, c, it->str);
 		y -= h;
 	}
 }
 
 void MessageArea::WriteLine(const string_t &text)
 {
-	GetConsole().puts(text.c_str());
-	GetConsole().puts("\n");
+	GetConsole().WriteLine(0, text);
 
 	Line line;
 	line.time = 5;  // timeout
@@ -95,15 +95,15 @@ void MessageArea::Clear()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Desktop::Desktop(GuiManager* manager)
-  : Window(manager)
+Desktop::Desktop(LayoutManager* manager)
+  : Window(NULL, manager)
 {
 	_msg = new MessageArea(this, 100, 100);
 
 	_editor = new EditorLayout(this);
 	_editor->SetVisible(false);
 
-	_con = new Console(this, 10, 0, 100, 100, &GetConsole());
+	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->SetVisible(false);
@@ -142,11 +142,6 @@ Desktop::~Desktop()
 	g_conf->ui_showtime->eventChange.clear();
 }
 
-void Desktop::ShowDesktopBackground(bool show)
-{
-	SetTexture(show ? "ui/window" : NULL);
-}
-
 void Desktop::ShowConsole(bool show)
 {
 	_con->SetVisible(show);
@@ -164,7 +159,7 @@ void Desktop::ShowEditor(bool show)
 
 void Desktop::OnCloseChild(int result)
 {
-	ShowDesktopBackground(false);
+	SetDrawBackground(false);
 }
 
 MessageArea* Desktop::GetMsgArea() const
@@ -172,7 +167,7 @@ MessageArea* Desktop::GetMsgArea() const
 	return _msg;
 }
 
-void Desktop::OnRawChar(int c)
+bool Desktop::OnRawChar(int c)
 {
 	Dialog *dlg = NULL;
 
@@ -195,27 +190,27 @@ void Desktop::OnRawChar(int c)
 		break;
 
 	case VK_ESCAPE:
-		if( GetManager()->GetFocusWnd() && GetManager()->Unfocus(_con) )
+		if( GetManager()->GetFocusWnd() && GetManager()->ResetFocus(_con) )
 		{
 			_con->SetVisible(false);
 		}
 		else
 		{
 			dlg = new MainMenuDlg(this);
-			ShowDesktopBackground(true);
+			SetDrawBackground(true);
 			dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		}
 		break;
 
 	case VK_F2:
 		dlg = new NewGameDlg(this);
-		ShowDesktopBackground(true);
+		SetDrawBackground(true);
 		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		break;
 
 	case VK_F12:
 		dlg = new SettingsDlg(this);
-		ShowDesktopBackground(true);
+		SetDrawBackground(true);
 		dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		break;
 
@@ -231,11 +226,16 @@ void Desktop::OnRawChar(int c)
 		if( g_level->_modeEditor )
 		{
 			dlg = new MapSettingsDlg(this);
-			ShowDesktopBackground(true);
+			SetDrawBackground(true);
 			dlg->eventClose.bind( &Desktop::OnCloseChild, this );
 		}
 		break;
+
+	default:
+		return false;
 	}
+
+	return true;
 }
 
 bool Desktop::OnFocus(bool focus)
@@ -317,14 +317,14 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 	if( lua_isnil(g_env.L, -1) )
 	{
 		lua_pop(g_env.L, 1);
-		GetConsole().printf("There was no autocomplete module loaded\n");
+		GetConsole().Printf(1, "There was no autocomplete module loaded\n");
 		return false;
 	}
 	lua_pushlstring(g_env.L, cmd.c_str(), cmd.length());
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
-		GetConsole().printf("%s\n", lua_tostring(g_env.L, -1));
+		GetConsole().Printf(1, "%s\n", lua_tostring(g_env.L, -1));
 	}
 	else
 	{

@@ -13,29 +13,40 @@
 namespace UI
 {
 
+ComboBox* ComboBox::Create(Window *parent, float x, float y, float width)
+{
+	ComboBox *res = new ComboBox(parent);
+	res->Move(x, y);
+	res->Resize(width, res->GetHeight());
+	return res;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-ComboBox::ComboBox(Window *parent, float x, float y, float width)
-  : Window(parent, x, y, "ui/list")
+ComboBox::ComboBox(Window *parent)
+  : Window(parent)
   , _curSel(-1)
 {
-	_text = new TextButton(this, 0, 1, string_t(), "font_small");
+	_text = TextButton::Create(this, 0, 4, string_t(), "font_small");
 	_text->eventClick.bind(&ComboBox::DropList, this);
 
-	_list = new List(this, 0, 0, 1, 1);
+	_list = List::Create(this, 0, 0, 1, 1);
+	_list->SetTexture("ui/combo_list", false);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->eventClickItem.bind(&ComboBox::OnClickItem, this);
 	_list->eventChangeCurSel.bind(&ComboBox::OnChangeSelection, this);
 	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
-	_btn = new ImageButton(this, 0, 0, "ui/scroll_down");
+	_btn = ImageButton::Create(this, 0, 0, "ui/scroll_down");
 	_btn->eventClick.bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();
+	_text->SetDrawShadow(false);
 
-	SetBorder(true);
-	Resize(width, _text->GetHeight()+2);
+
+	SetDrawBorder(true);
+	SetTexture("ui/combo", true);
 }
 
 void ComboBox::SetCurSel(int index)
@@ -60,12 +71,14 @@ void ComboBox::DropList()
 {
 	if( _list->GetVisible() )
 	{
+		_btn->SetTexture("ui/scroll_down", false);
 		_list->SetVisible(false);
 		_list->SetCurSel(GetCurSel());
 		GetManager()->SetFocusWnd(this);
 	}
 	else
 	{
+		_btn->SetTexture("ui/scroll_up", false);
 		_list->SetVisible(true);
 		_list->SetScrollPos((float) GetCurSel());
 		GetManager()->SetFocusWnd(_list);
@@ -80,6 +93,7 @@ void ComboBox::OnClickItem(int index)
 		_text->SetText(_list->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
+		_btn->SetTexture("ui/scroll_down", false);
 		GetManager()->SetFocusWnd(this);
 
 		if( eventChangeCurSel )
@@ -100,17 +114,24 @@ void ComboBox::OnListLostFocus()
 {
 	_list->SetCurSel(_curSel); // cancel changes
 	_list->SetVisible(false);
+	_btn->SetTexture("ui/scroll_down", false);
 }
 
-void ComboBox::OnRawChar(int c)
+void ComboBox::OnEnabledChange(bool enable, bool inherited)
 {
-	switch(c)
+	SetFrame(enable ? 0 : 3);
+}
+
+bool ComboBox::OnRawChar(int c)
+{
+	switch( c )
 	{
 	case VK_ESCAPE:
 		if( _list->GetVisible() )
+		{
 			GetManager()->SetFocusWnd(this);
-		else
-			GetParent()->OnRawChar(c);
+			return true;
+		}
 		break;
 	case VK_RETURN:
 		if( _list->GetVisible() )
@@ -118,20 +139,16 @@ void ComboBox::OnRawChar(int c)
 			if( -1 != _list->GetCurSel() )
 			{
 				OnClickItem(_list->GetCurSel());
+				return true;
 			}
-		}
-		else
-		{
-			GetParent()->OnRawChar(c);
 		}
 		break;
 	case VK_DOWN:
 		if( !_list->GetVisible() )
 			DropList();
-		break;
-	default:
-		GetParent()->OnRawChar(c);
+		return true;
 	}
+	return false;
 }
 
 bool ComboBox::OnFocus(bool focus)
@@ -141,7 +158,7 @@ bool ComboBox::OnFocus(bool focus)
 
 void ComboBox::OnSize(float width, float height)
 {
-	_list->Move(0, height + 2);
+	_list->Move(0, height);
 	_list->Resize(width, _list->GetHeight());
 	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
 	_text->Resize(_btn->GetX(), height);

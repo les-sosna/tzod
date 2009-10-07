@@ -4,6 +4,7 @@
 
 #include "List.h"
 #include "Scroll.h"
+#include "GuiManager.h"
 
 #include "video/TextureManager.h"
 
@@ -146,29 +147,30 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List::List(Window *parent, float x, float y, float width, float height)
-  : Window(parent, x, y, "ui/list")
+List* List::Create(Window *parent, float x, float y, float width, float height)
+{
+	List *res = new List(parent);
+	res->Move(x, y);
+	res->Resize(width, height);
+	return res;
+}
+
+List::List(Window *parent)
+  : Window(parent)
   , _callbacks(this)
   , _curSel(-1)
   , _hotItem(-1)
-  , _font(g_texman->FindSprite("font_small"))
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
 {
-	SetClipChildren(true);
-	SetBorder(true);
+	_scrollBar = ScrollBarVertical::Create(this, 0, 0, 0);
 
 	SetData(NULL);
+
+	SetTexture("ui/list", false);
+	SetDrawBorder(true);
 	SetTabPos(0, 1); // first column
-
-	_scrollBar = new ScrollBar(this, 0, 0, height);
-	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->eventScroll.bind(&List::OnScroll, this);
-
-	_selection = new Window(this, 0, 0, "ui/listsel_u");
-	_selection->SetBorder(true);
-	_selection->Resize(1, GetItemHeight());
-
-	Move(x, y);
-	Resize(width, height); // it will resize the selection also, so create it first!
+	SetClipChildren(true);
 }
 
 List::~List()
@@ -189,18 +191,6 @@ void List::SetData(const SafePtr<ListDataSource> &source)
 {
 	_data = source ? source : WrapRawPtr(new ListDataSourceDefault());
 	_data->SetListener(&_callbacks);
-}
-
-void List::OnScroll(float pos)
-{
-	UpdateSelection();
-}
-
-void List::UpdateSelection()
-{
-	float y = (float) _curSel - _scrollBar->GetPos();
-	_selection->Move(2, floorf(y * GetItemHeight()));
-	_selection->SetVisible(-1 != _curSel && y > -1 && y < GetNumLinesVisible());
 }
 
 void List::DeleteItem(int index)
@@ -291,8 +281,6 @@ void List::SetCurSel(int sel, bool scroll)
 				_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
 		}
 
-		UpdateSelection();
-
 		if( eventChangeCurSel )
 		{
 			INVOKE(eventChangeCurSel) (sel);
@@ -323,7 +311,6 @@ float List::GetScrollPos() const
 void List::SetScrollPos(float pos)
 {
 	_scrollBar->SetPos(pos);
-	UpdateSelection();
 }
 
 void List::AlignHeightToContent(float maxHeight)
@@ -333,11 +320,9 @@ void List::AlignHeightToContent(float maxHeight)
 
 void List::OnSize(float width, float height)
 {
-	_selection->Resize(width, _selection->GetHeight());
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->SetLimit( (float) _data->GetItemCount() - GetNumLinesVisible() );
-	UpdateSelection();
 }
 
 bool List::OnMouseMove(float x, float y)
@@ -367,11 +352,10 @@ bool List::OnMouseDown(float x, float y, int button)
 bool List::OnMouseWheel(float x, float y, float z)
 {
 	_scrollBar->SetPos(_scrollBar->GetPos() - z * 3.0f);
-	UpdateSelection();
 	return true;
 }
 
-void List::OnRawChar(int c)
+bool List::OnRawChar(int c)
 {
 	switch(c)
 	{
@@ -394,19 +378,19 @@ void List::OnRawChar(int c)
 		SetCurSel(__min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
 		break;
 	default:
-		GetParent()->OnRawChar(c);
+		return false;
 	}
+	return true;
 }
 
 bool List::OnFocus(bool focus)
 {
-	_selection->SetTexture(focus ? "ui/listsel" : "ui/listsel_u");
 	return true;
 }
 
-void List::DrawChildren(float sx, float sy) const
+void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	Window::DrawChildren(sx, sy);
+	Window::DrawChildren(dc, sx, sy);
 
 	int i_min = (int) _scrollBar->GetPos();
 	int i_max = i_min + (int) GetNumLinesVisible() + 2;
@@ -426,8 +410,7 @@ void List::DrawChildren(float sx, float sy) const
 		float y = floorf(GetItemHeight() * ((float) i - _scrollBar->GetPos()) + 0.5f);
 		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
 		{
-			g_texman->DrawBitmapText(_font, _data->GetItemText(i, k), c, 
-				sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y);
+			dc->DrawBitmapText(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y, _font, c, _data->GetItemText(i, k));
 		}
 	}
 }

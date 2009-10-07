@@ -2,7 +2,6 @@
 
 #include "stdafx.h"
 #include "Application.h"
-#include "Console.h"
 
 #include "network/init.h"
 

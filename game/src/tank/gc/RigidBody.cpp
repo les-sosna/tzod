@@ -11,7 +11,6 @@
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
 #include "config/Config.h"
-#include "core/Console.h"
 
 #include "Sound.h"
 #include "Particles.h"

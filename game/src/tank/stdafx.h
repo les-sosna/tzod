@@ -113,6 +113,9 @@ extern "C"
 
 ///////////////////
 // other stuff
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
 
 #include "core/types.h"
 

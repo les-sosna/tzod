@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "core/Debug.h"
-#include "core/Console.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
@@ -664,7 +663,7 @@ void GC_Text::Serialize(SaveFile &f)
 void GC_Text::Draw() const
 {
 	vec2d pos = GetPosPredicted();
-	g_texman->DrawBitmapText(GetTexture(), _text, GetColor(), pos.x, pos.y, _align);
+	g_texman->DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
 }
 
 /////////////////////////////////////////////////////////////

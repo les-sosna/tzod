@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <string>
+#include <sstream>
 
 namespace UI
 {
@@ -20,9 +22,24 @@ namespace UI
 	class ImageButton;
 	class List;
 	class MouseCursor;
-	class ScrollBar;
+	class ScrollBarBase;
+	class ScrollBarVertical;
+	class ScrollBarHorizontal;
 	class Text;
 	class Console;
+	class ConsoleBuffer;
+	class ConsoleHistoryDefault;
+	class Oscilloscope;
+
+#ifdef UNICODE
+	typedef std::wstring string_t;
+	typedef std::wostringstream ostrstream_t;
+	typedef std::wistringstream istrstream_t;
+#else
+	typedef std::string string_t;
+	typedef std::ostringstream ostrstream_t;
+	typedef std::istringstream istrstream_t;
+#endif
 
 } // end of namespace UI
 

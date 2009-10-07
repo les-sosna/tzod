@@ -3,7 +3,8 @@
 #include "stdafx.h"
 
 #include "Button.h"
-#include "Text.h"
+#include "GuiManager.h"
+#include "video/TextureManager.h"
 
 namespace UI
 {
@@ -11,8 +12,8 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // Button class implementation
 
-ButtonBase::ButtonBase(Window *parent, float x, float y, const char *texture)
-  : Window(parent, x,y, texture)
+ButtonBase::ButtonBase(Window *parent)
+  : Window(parent)
   , _state(stateNormal)
 {
 }
@@ -28,7 +29,7 @@ void ButtonBase::SetState(State s)
 
 bool ButtonBase::OnMouseMove(float x, float y)
 {
-	if( IsCaptured() )
+	if( GetManager()->GetCapture() == this )
 	{
 		bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
 		SetState(push ? statePushed : stateNormal);
@@ -46,7 +47,7 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 {
 	if( 1 == button ) // left button only
 	{
-		SetCapture();
+		GetManager()->SetCapture(this);
 		SetState(statePushed);
 		if( eventMouseDown )
 			INVOKE(eventMouseDown) (x, y);
@@ -57,15 +58,19 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 
 bool ButtonBase::OnMouseUp(float x, float y, int button)
 {
-	if( IsCaptured() )
+	if( GetManager()->GetCapture() == this )
 	{
-		ReleaseCapture();
+		GetManager()->SetCapture(NULL);
 		bool click = (GetState() == statePushed);
 		SafePtr<Window> holder(this); // prevent from immediate destroying
 		if( eventMouseUp )
 			INVOKE(eventMouseUp) (x, y);
 		if( click && !IsDestroyed() )
+		{
 			OnClick();
+			if( eventClick && !IsDestroyed() )
+				INVOKE(eventClick) ();
+		}
 		if( !IsDestroyed() )
 			SetState(stateHottrack);
 		return true;
@@ -81,8 +86,10 @@ bool ButtonBase::OnMouseLeave()
 
 void ButtonBase::OnClick()
 {
-	if( eventClick )
-		INVOKE(eventClick) ();
+}
+
+void ButtonBase::OnChangeState(State state)
+{
 }
 
 void ButtonBase::OnEnabledChange(bool enable, bool inherited)
@@ -101,81 +108,146 @@ void ButtonBase::OnEnabledChange(bool enable, bool inherited)
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
 
-Button::Button(Window *parent, const string_t &text, float x, float y, float w, float h)
-  : ButtonBase(parent, x, y, "ui/button")
+Button* Button::Create(Window *parent, const string_t &text, float x, float y, float w, float h)
 {
-	_label = new Text(this, 0, 0, text, alignTextCC);
+	Button *res = new Button(parent);
+	res->Move(x, y);
+	res->SetText(text);
 	if( w >= 0 && h >= 0 )
 	{
-		Resize(w, h);
+		res->Resize(w, h);
 	}
+
+	return res;
+}
+
+Button::Button(Window *parent)
+  : ButtonBase(parent)
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+{
+	SetTexture("ui/button", true);
+	SetDrawBorder(true);
 	OnChangeState(stateNormal);
 }
 
 void Button::OnChangeState(State state)
 {
 	SetFrame(state);
-	if( statePushed == state )
-		_label->Move(GetWidth() / 2, GetHeight() / 2);
-	else
-		_label->Move(GetWidth() / 2 - 1, GetHeight() / 2 - 1);
+}
 
-	_label->SetFontColor(stateDisabled == state ? 0xbbbbbbbb : 0xffffffff);
+void Button::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+{
+	float x = GetWidth() / 2;
+	float y = GetHeight() / 2;
+	SpriteColor c = 0;
+
+	switch( GetState() )
+	{
+	case statePushed:
+		c = 0xffffffff;
+		break;
+	case stateHottrack:
+		c = 0xffffffff;
+		break;
+	case stateNormal:
+		c = 0xffffffff;
+		break;
+	case stateDisabled:
+		c = 0xbbbbbbbb;
+		break;
+	default:
+		assert(false);
+	}
+
+	dc->DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
+
+	__super::DrawChildren(dc, sx, sy);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // text button class implementation
 
-TextButton::TextButton(Window *parent, float x, float y, const string_t &text, const char *font)
-  : ButtonBase(parent, x, y, NULL)
+TextButton* TextButton::Create(Window *parent, float x, float y, const string_t &text, const char *font)
 {
-	_label = new Text(this, 0, 0, text, alignTextLT);
-	_label->SetFont(font);
-	Resize(_label->GetWidth(), _label->GetHeight());
+	TextButton *res = new TextButton(parent);
+	res->Move(x, y);
+	res->SetText(text);
+	res->SetFont(font);
+	return res;
+}
+
+TextButton::TextButton(Window *parent)
+  : ButtonBase(parent)
+  , _fontTexture((size_t) -1)
+  , _drawShadow(true)
+{
+	SetTexture(NULL, false);
 	OnChangeState(stateNormal);
 }
 
-void TextButton::OnChangeState(State state)
+void TextButton::AlignSizeToContent()
 {
-	switch( state )
+	if( -1 != _fontTexture )
 	{
-	case stateNormal:
-		_label->Move(0, 0);
-		_label->SetFontColor(0xffffffff);
-		break;
-	case stateDisabled:
-		_label->Move(0, 0);
-		_label->SetFontColor(0xAAAAAAAA);
-		break;
-	case stateHottrack:
-		_label->Move(0, 0);
-		_label->SetFontColor(0xffccccff);
-		break;
-	case statePushed:
-		_label->Move(1, 1);
-		_label->SetFontColor(0xffccccff);
-		break;
+		float w = GetManager()->GetTextureManager()->GetFrameWidth(_fontTexture, 0);
+		float h = GetManager()->GetTextureManager()->GetFrameHeight(_fontTexture, 0);
+		Resize((w - 1) * (float) GetText().length(), h + 1);
 	}
 }
 
-void TextButton::SetText(const string_t &text)
+void TextButton::SetDrawShadow(bool drawShadow)
 {
-	_label->SetText(text);
-	Resize(_label->GetWidth(), _label->GetHeight());
+	_drawShadow = drawShadow;
 }
 
-const string_t& TextButton::GetText() const
+bool TextButton::GetDrawShadow() const
 {
-	return _label->GetText();
+	return _drawShadow;
 }
 
+void TextButton::SetFont(const char *fontName)
+{
+	_fontTexture = GetManager()->GetTextureManager()->FindSprite(fontName);
+	AlignSizeToContent();
+}
+
+void TextButton::OnTextChange()
+{
+	AlignSizeToContent();
+}
+
+void TextButton::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+{
+	// grep 'enum State'
+	SpriteColor colors[] = 
+	{
+		SpriteColor(0xffffffff), // normal
+		SpriteColor(0xffccccff), // hottrack
+		SpriteColor(0xffccccff), // pushed
+		SpriteColor(0xAAAAAAAA), // disabled
+	};
+	if( _drawShadow && stateDisabled != GetState() )
+	{
+		dc->DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText());
+	}
+	dc->DrawBitmapText(sx, sy, _fontTexture, colors[GetState()], GetText());
+	__super::DrawChildren(dc, sx, sy);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // ImageButton class implementation
 
-ImageButton::ImageButton(Window *parent, float x, float y, const char *texture)
-  : ButtonBase(parent, x, y, texture)
+ImageButton* ImageButton::Create(Window *parent, float x, float y, const char *texture)
+{
+	ImageButton *res = new ImageButton(parent);
+	res->Move(x, y);
+	res->SetTexture(texture, true);
+	return res;
+}
+
+ImageButton::ImageButton(Window *parent)
+  : ButtonBase(parent)
 {
 }
 
@@ -187,13 +259,33 @@ void ImageButton::OnChangeState(State state)
 ///////////////////////////////////////////////////////////////////////////////
 // CheckBox class implementation
 
-CheckBox::CheckBox(Window *parent, float x, float y, const string_t &text)
-  : ButtonBase(parent, x, y, "ui/checkbox")
-  , _isChecked(false)
+CheckBox* CheckBox::Create(Window *parent, float x, float y, const string_t &text)
 {
-	_label = new TextButton(this, 0, 0, text, "font_small");
-	_label->Move(GetWidth(), GetHeight() / 2 - _label->GetHeight() / 2);
-	_label->eventClick.bind(&CheckBox::OnLabelClick, this);
+	CheckBox *res = new CheckBox(parent);
+	res->Move(x, y);
+	res->SetText(text);
+	return res;
+}
+
+CheckBox::CheckBox(Window *parent)
+  : ButtonBase(parent)
+  , _boxTexture(GetManager()->GetTextureManager()->FindSprite("ui/checkbox"))
+  , _fontTexture(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _isChecked(false)
+  , _drawShadow(true)
+{
+	SetTexture(NULL, false);
+	AlignSizeToContent();
+}
+
+void CheckBox::AlignSizeToContent()
+{
+	TextureManager *dc = GetManager()->GetTextureManager();
+	float th = dc->GetFrameHeight(_fontTexture, 0);
+	float tw = dc->GetFrameWidth(_fontTexture, 0);
+	float bh = dc->GetFrameHeight(_boxTexture, GetFrame());
+	float bw = dc->GetFrameWidth(_boxTexture, GetFrame());
+	Resize(bw + (tw - 1) * (float) GetText().length(), std::max(th + 1, bh));
 }
 
 void CheckBox::SetCheck(bool checked)
@@ -202,14 +294,14 @@ void CheckBox::SetCheck(bool checked)
 	SetFrame(_isChecked ? GetState()+4 : GetState());
 }
 
-void CheckBox::SetText(const string_t &text)
+void CheckBox::OnClick()
 {
-	_label->SetText(text);
+	SetCheck(!GetCheck());
 }
 
-const string_t& CheckBox::GetText() const
+void CheckBox::OnTextChange()
 {
-	return _label->GetText();
+	AlignSizeToContent();
 }
 
 void CheckBox::OnChangeState(State state)
@@ -217,17 +309,32 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::OnClick()
+void CheckBox::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	_isChecked = !_isChecked;
-	SetFrame(_isChecked ? GetState()+4 : GetState());
-	ButtonBase::OnClick();
+	float bh = dc->GetFrameHeight(_boxTexture, GetFrame());
+	float bw = dc->GetFrameWidth(_boxTexture, GetFrame());
+	float th = dc->GetFrameHeight(_fontTexture, 0);
+
+	FRECT box = {sx, sy + (GetHeight() - bh) / 2, sx + bw, sy + (GetHeight() - bh) / 2 + bh};
+	dc->DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
+
+	// grep 'enum State'
+	SpriteColor colors[] = 
+	{
+		SpriteColor(0xffffffff), // Normal
+		SpriteColor(0xffffffff), // Hottrack
+		SpriteColor(0xffffffff), // Pushed
+		SpriteColor(0xffffffff), // Disabled
+	};
+	if( _drawShadow && stateDisabled != GetState() )
+	{
+		dc->DrawBitmapText(sx + bw + 1, sy + (GetHeight() - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
+	}
+	dc->DrawBitmapText(sx + bw, sy + (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
+
+	__super::DrawChildren(dc, sx, sy);
 }
 
-void CheckBox::OnLabelClick()
-{
-	OnClick();
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
