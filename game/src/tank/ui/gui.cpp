@@ -417,7 +417,7 @@ bool NewGameDlg::OnRawChar(int c)
 		OnAddPlayer();
 		break;
 	default:
-		return false;
+		return __super::OnRawChar(c);
 	}
 	return true;
 }

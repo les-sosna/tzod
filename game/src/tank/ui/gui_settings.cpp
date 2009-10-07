@@ -369,7 +369,7 @@ bool ControlProfileDlg::OnRawChar(int c)
 	case VK_ESCAPE:
 		break;
 	default:
-		return false;
+		return __super::OnRawChar(c);
 	}
 	return true;
 }

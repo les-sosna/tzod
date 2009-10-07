@@ -24,13 +24,15 @@ public:
 
 Dialog::Dialog(Window *parent, float width, float height, bool modal)
   : Window(/*modal ? new Substrate(parent) :*/ parent)
+  , _easyMove(false)
+  , _mouseX(0)
+  , _mouseY(0)
 {
+	SetTexture("ui/window", false);
 	Resize(width, height);
 	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
 	SetDrawBorder(true);
-
-	_easyMove = false;
-
+	SetDrawBackground(true);
 	GetManager()->SetFocusWnd(this);
 }
 

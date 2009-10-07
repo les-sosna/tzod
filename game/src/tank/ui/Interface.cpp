@@ -87,8 +87,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if( g_render )
 		{
 			g_render->OnResizeWnd();
+			if( g_texman )
+			{
+				g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
+			}
 			if( g_gui )
+			{
 				g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+			}
 		}
 		break;
 

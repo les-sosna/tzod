@@ -269,7 +269,7 @@ bool PropertyList::OnRawChar(int c)
 		SetVisible(false);
 		break;
 	default:
-		return false;
+		return __super::OnRawChar(c);
 	}
 	return true;
 }
@@ -480,7 +480,7 @@ bool ServiceList::OnRawChar(int c)
 		SetVisible(false);
 		break;
 	default:
-		return false;
+		return __super::OnRawChar(c);
 	}
 	return true;
 }

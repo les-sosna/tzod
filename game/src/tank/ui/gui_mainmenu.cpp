@@ -56,11 +56,15 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	Button::Create(this, g_lang->exit_game_btn->Get(), 416, GetHeight())->eventClick.bind(&MainMenuDlg::OnExit, this);
 
 	_panelFrame = Window::Create(this);
+	_panelFrame->SetDrawBackground(false);
+	_panelFrame->SetDrawBorder(false);
 	_panelFrame->SetClipChildren(true);
 	_panelFrame->Move(0, GetHeight() + 40);
 	_panelFrame->Resize(GetWidth(), 64);
 
 	_panel = Window::Create(_panelFrame);
+	_panel->SetDrawBackground(false);
+	_panel->SetDrawBorder(false);
 	_panel->Move(0, -_panelFrame->GetHeight());
 	_panelTitle = NULL;
 
@@ -373,7 +377,7 @@ bool MainMenuDlg::OnRawChar(int c)
 		OnSettings();
 		break;
 	default:
-		return false;
+		return __super::OnRawChar(c);
 	}
 	return true;
 }

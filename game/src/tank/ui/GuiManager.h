@@ -33,8 +33,6 @@ public:
 	bool ProcessMouse(float x, float y, float z, UINT msg);
 	bool ProcessKeys(UINT msg, int c);
 
-	void SetCanvasSize(unsigned int width, unsigned int height);
-
 	unsigned int GetWndCount() const;
 
 	TextureManager* GetTextureManager() const;

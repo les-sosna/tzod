@@ -41,6 +41,7 @@ Window::Window(Window *parent, LayoutManager *manager)
   , _drawBorder(true)
   , _drawBackground(true)
   , _clipChildren(false)
+  , _texture(-1)
 {
 	if( _parent )
 	{
@@ -62,8 +63,6 @@ Window::Window(Window *parent, LayoutManager *manager)
 
 	_manager->Add(this);
 	AddRef(); // increment ref counter to allow using Destroy()
-
-	SetTexture("ui/window", true);
 }
 
 Window::~Window()

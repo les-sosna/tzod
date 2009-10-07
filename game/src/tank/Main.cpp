@@ -388,6 +388,7 @@ bool ZodApp::Pre()
 
 	// init texture manager
 	g_texman = new TextureManager;
+	g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
 	try
 	{
 		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )

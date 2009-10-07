@@ -99,12 +99,14 @@ bool GetFileNameDlg::OnRawChar(int c)
 	//case VK_UP:
 	//case VK_DOWN:
 	//	static_cast<Window *>(_files)->OnRawChar(c);
-	//	return true;
+	//	break;
 	case VK_RETURN:
 		OnOK();
-		return true;
+		break;
+	default:
+		return __super::OnRawChar(c);
 	}
-	return false;
+	return true;
 }
 
 void GetFileNameDlg::OnOK()

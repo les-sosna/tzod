@@ -98,6 +98,7 @@ void MessageArea::Clear()
 Desktop::Desktop(LayoutManager* manager)
   : Window(NULL, manager)
 {
+	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
 
 	_editor = new EditorLayout(this);
