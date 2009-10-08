@@ -1045,6 +1045,14 @@
 				>
 			</File>
 			<File
+				RelativePath="src\tank\ui\ListBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="src\tank\ui\ListBase.h"
+				>
+			</File>
+			<File
 				RelativePath="src\tank\ui\MousePointer.cpp"
 				>
 			</File>

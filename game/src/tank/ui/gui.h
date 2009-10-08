@@ -15,11 +15,11 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 // forward declarations
-class MapList;
+class ListDataSourceMaps;
 
 class NewGameDlg : public Dialog
 {
-	MapList   *_maps;
+	List      *_maps;
 	List      *_players;
 	List      *_bots;
 	CheckBox  *_nightMode;
@@ -32,7 +32,11 @@ class NewGameDlg : public Dialog
 	Button    *_removeBot;
 	Button    *_changeBot;
 
-	bool       _newPlayer;
+	std::auto_ptr<ListDataSourceMaps>    _mapsData;
+	std::auto_ptr<ListDataSourceDefault> _playersData;
+	std::auto_ptr<ListDataSourceDefault> _botsData;
+
+	bool _newPlayer;
 
 public:
 	NewGameDlg(Window *parent);

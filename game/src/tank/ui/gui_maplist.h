@@ -8,12 +8,10 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-class MapList : public List
+class ListDataSourceMaps : public ListDataSourceDefault
 {
 public:
-	MapList(Window *parent, float x, float y, float width, float height);
-	~MapList();
-
+	ListDataSourceMaps();
 };
 
 

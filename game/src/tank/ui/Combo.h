@@ -14,6 +14,9 @@ class ComboBox : public Window
 public:
 	static ComboBox* Create(Window *parent, float x, float y, float width);
 
+	ListDataSource* GetDataSource() const;
+	void SetDataSource(const ListDataSource* source);
+
 	void SetCurSel(int index);
 	int GetCurSel() const;
 

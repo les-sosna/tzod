@@ -14,99 +14,6 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // class ListDataSourceDefault
 
-void ListDataSourceDefault::SetListener(ListDataSourceListener *cb)
-{
-	_listener = cb;
-}
-
-int ListDataSourceDefault::GetItemCount() const
-{
-	return (int) _items.size();
-}
-
-int ListDataSourceDefault::GetSubItemCount(int index) const
-{
-	return _items[index].text.size();
-}
-
-ULONG_PTR ListDataSourceDefault::GetItemData(int index) const
-{
-	assert(index >= 0);
-	return _items[index].data;
-}
-
-const string_t& ListDataSourceDefault::GetItemText(int index, int sub) const
-{
-	assert(index >= 0 && index < (int) _items.size());
-	assert(sub >= 0 && sub < (int) _items[index].text.size());
-	return _items[index].text[sub];
-}
-
-int ListDataSourceDefault::FindItem(const string_t &text) const
-{
-	for( size_t i = 0; i < _items.size(); ++i )
-	{
-		if( _items[i].text[0] == text )
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-int ListDataSourceDefault::AddItem(const string_t &str, UINT_PTR data)
-{
-	Item i;
-	i.text.push_back(str);
-	i.data = data;
-	_items.push_back(i);
-
-	if( _listener )
-		_listener->OnAddItem();
-
-	return _items.size() - 1;
-}
-
-void ListDataSourceDefault::SetItemText(int index, int sub, const string_t &str)
-{
-	assert(index >= 0 && index < (int) _items.size());
-	if( sub >= (int) _items[index].text.size() )
-		_items[index].text.insert(_items[index].text.end(), 1+sub - _items[index].text.size(), "");
-	_items[index].text[sub] = str;
-}
-
-void ListDataSourceDefault::SetItemData(int index, ULONG_PTR data)
-{
-	assert(index >= 0);
-	_items[index].data = data;
-}
-
-void ListDataSourceDefault::DeleteItem(int index)
-{
-	_items.erase(_items.begin() + index);
-	if( _listener )
-		_listener->OnDeleteItem(index);
-}
-
-void ListDataSourceDefault::DeleteAllItems()
-{
-	_items.clear();
-	if( _listener )
-		_listener->OnDeleteAllItems();
-}
-
-void ListDataSourceDefault::Sort()
-{
-	struct helper
-	{
-		static bool compare(const Item &left, const Item &right)
-		{
-			return left.text < right.text;
-		}
-	};
-	std::sort(_items.begin(), _items.end(), &helper::compare);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // class List::ListCallbackImpl
@@ -162,6 +69,7 @@ List::List(Window *parent)
   , _hotItem(-1)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
   , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
+  , _data(NULL)
 {
 	_scrollBar = ScrollBarVertical::Create(this, 0, 0, 0);
 
@@ -177,70 +85,27 @@ List::~List()
 {
 }
 
-SafePtr<ListDataSource> List::GetData() const
+ListDataSource* List::GetDataSource() const
 {
 	return _data;
 }
 
-SafePtr<ListDataSourceDefault> List::GetDataDefault() const
+void List::SetDataSource(const ListDataSource *source)
 {
-	return SafePtrCast<ListDataSourceDefault>(_data);
-}
-
-void List::SetData(const SafePtr<ListDataSource> &source)
-{
-	_data = source ? source : WrapRawPtr(new ListDataSourceDefault());
-	_data->SetListener(&_callbacks);
-}
-
-void List::DeleteItem(int index)
-{
-	GetDataDefault()->DeleteItem(index);
-}
-
-void List::DeleteAllItems()
-{
-	GetDataDefault()->DeleteAllItems();
-}
-
-int List::AddItem(const string_t &str, UINT_PTR data)
-{
-	return GetDataDefault()->AddItem(str, data);
-}
-
-void List::SetItemText(int index, int sub, const string_t &str)
-{
-	GetDataDefault()->SetItemText(index, sub, str);
-}
-
-void List::SetItemData(int index, ULONG_PTR data)
-{
-	GetDataDefault()->SetItemData(index, data);
-}
-
-void List::Sort()
-{
-	GetDataDefault()->Sort();
+	if( _data != source )
+	{
+		if( _data )
+		{
+			_data->RemoveListener(&_callbacks);
+		}
+		_data = source;
+		_data->AddListener(&_callbacks);
+	}
 }
 
 int List::FindItem(const string_t &text) const
 {
 	return _data->FindItem(text);
-}
-
-int List::GetItemCount() const
-{
-	return _data->GetItemCount();
-}
-
-const string_t& List::GetItemText(int index, int sub) const
-{
-	return _data->GetItemText(index, sub);
-}
-
-ULONG_PTR List::GetItemData(int index) const
-{
-	return _data->GetItemData(index);
 }
 
 void List::SetTabPos(int index, float pos)

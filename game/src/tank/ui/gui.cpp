@@ -39,6 +39,9 @@ namespace UI
 
 NewGameDlg::NewGameDlg(Window *parent)
   : Dialog(parent, 770, 550)
+  , _mapsData(new ListDataSourceMaps())
+  , _playersData(new ListDataSourceDefault())
+  , _botsData(new ListDataSourceDefault())
 {
 	PauseGame(true);
 
@@ -55,7 +58,14 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 	Text::Create(this, 16, 16, g_lang->choose_map->Get(), alignTextLT);
 
-	_maps = new MapList(this, x1, 32, x2 - x1, 192);
+	_maps = List::Create(this, x1, 32, x2 - x1, 192);
+	_maps->SetTabPos(0,   4); // name
+	_maps->SetTabPos(1, 384); // size
+	_maps->SetTabPos(2, 448); // theme
+	_maps->SetDataSource(_mapsData.get());
+	_maps->SetCurSel(_mapsData->FindItem(g_conf->cl_map->Get()), false);
+	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
+
 	GetManager()->SetFocusWnd(_maps);
 
 
@@ -94,6 +104,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	Text::Create(this, 16, 240, g_lang->human_player_list->Get(), alignTextLT);
 
 	_players = List::Create(this, x1, 256, x2-x1, 96);
+	_players->SetDataSource(_playersData.get());
 	_players->SetTabPos(0,   4); // name
 	_players->SetTabPos(1, 192); // skin
 	_players->SetTabPos(2, 256); // class
@@ -103,6 +114,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 	Text::Create(this, 16, 368, g_lang->AI_player_list->Get(), alignTextLT);
 	_bots = List::Create(this, x1, 384, x2-x1, 96);
+	_bots->SetDataSource(_botsData.get());
 	_bots->SetTabPos(0,   4); // name
 	_bots->SetTabPos(1, 192); // skin
 	_bots->SetTabPos(2, 256); // class
@@ -162,15 +174,15 @@ NewGameDlg::~NewGameDlg()
 void NewGameDlg::RefreshPlayersList()
 {
 	int selected = _players->GetCurSel();
-	_players->DeleteAllItems();
+	_playersData->DeleteAllItems();
 
 	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
 	{
 		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
 
-		int index = _players->AddItem( p->GetStr("nick")->Get() );
-		_players->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_players->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _playersData->AddItem( p->GetStr("nick")->Get() );
+		_playersData->SetItemText(index, 1, p->GetStr("skin")->Get());
+		_playersData->SetItemText(index, 2, p->GetStr("class")->Get());
 
 		char s[16];
 		int team = p->GetNum("team", 0)->GetInt();
@@ -183,24 +195,24 @@ void NewGameDlg::RefreshPlayersList()
 			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
-		_players->SetItemText(index, 3, s);
+		_playersData->SetItemText(index, 3, s);
 	}
 
-	_players->SetCurSel(__min(selected, _players->GetData()->GetItemCount()-1));
+	_players->SetCurSel(__min(selected, _playersData->GetItemCount()-1));
 }
 
 void NewGameDlg::RefreshBotsList()
 {
 	int selected = _bots->GetCurSel();
-	_bots->DeleteAllItems();
+	_botsData->DeleteAllItems();
 
 	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
 	{
 		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
 
-		int index = _bots->AddItem( p->GetStr("nick")->Get() );
-		_bots->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_bots->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _botsData->AddItem( p->GetStr("nick")->Get() );
+		_botsData->SetItemText(index, 1, p->GetStr("skin")->Get());
+		_botsData->SetItemText(index, 2, p->GetStr("class")->Get());
 
 		char s[16];
 		int team = p->GetNum("team", 0)->GetInt();
@@ -213,10 +225,10 @@ void NewGameDlg::RefreshBotsList()
 			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
-		_bots->SetItemText(index, 3, s);
+		_botsData->SetItemText(index, 3, s);
 	}
 
-	_bots->SetCurSel(__min(selected, _bots->GetData()->GetItemCount() - 1));
+	_bots->SetCurSel(__min(selected, _botsData->GetItemCount() - 1));
 }
 
 void NewGameDlg::OnAddPlayer()
@@ -323,7 +335,7 @@ void NewGameDlg::OnOK()
 	int index = _maps->GetCurSel();
 	if( -1 != index )
 	{
-		fn = _maps->GetItemText(index, 0);
+		fn = _mapsData->GetItemText(index, 0);
 	}
 	else
 	{

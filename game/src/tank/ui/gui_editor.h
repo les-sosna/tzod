@@ -65,7 +65,8 @@ class ServiceListDataSource
 	, public ObjectListener
 {
 public:
-	virtual void SetListener(ListDataSourceListener *listener);
+	virtual void AddListener(ListDataSourceListener *listener);
+	virtual void RemoveListener(ListDataSourceListener *listener);
 
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;

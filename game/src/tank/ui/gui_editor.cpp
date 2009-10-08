@@ -296,7 +296,7 @@ ServiceListDataSource::~ServiceListDataSource()
 	g_level->_serviceListener = NULL;
 }
 
-void ServiceListDataSource::SetListener(ListDataSourceListener *listener)
+void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
 {
 	_listener = listener;
 }

@@ -31,6 +31,9 @@ namespace UI
 	class ConsoleHistoryDefault;
 	class Oscilloscope;
 
+	struct ListDataSource;
+	class ListDataSourceDefault;
+
 #ifdef UNICODE
 	typedef std::wstring string_t;
 	typedef std::wostringstream ostrstream_t;

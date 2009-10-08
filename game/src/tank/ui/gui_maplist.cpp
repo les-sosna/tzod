@@ -15,13 +15,8 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MapList::MapList(Window *parent, float x, float y, float width, float height)
-  : List(parent)
+ListDataSourceMaps::ListDataSourceMaps()
 {
-	SetTabPos(0,   4); // name
-	SetTabPos(1, 384); // size
-	SetTabPos(2, 448); // theme
-
 	std::set<string_t> files;
 	g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles(files, TEXT("*.map"));
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
@@ -55,12 +50,6 @@ MapList::MapList(Window *parent, float x, float y, float width, float height)
 	}
 
 	Sort();
-
-	int selected = FindItem(g_conf->cl_map->Get());
-	SetCurSel(selected, false);
-	SetScrollPos(selected - (GetNumLinesVisible() - 1) * 0.5f);
-	Move(x, y);
-	Resize(width, height);
 }
 
 MapList::~MapList()
