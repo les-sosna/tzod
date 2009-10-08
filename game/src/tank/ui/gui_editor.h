@@ -22,7 +22,6 @@ class NewMapDlg : public Dialog
 
 public:
 	NewMapDlg(Window *parent);
-	~NewMapDlg();
 
 	void OnOK();
 	void OnCancel();
@@ -65,9 +64,9 @@ class ServiceListDataSource
 	, public ObjectListener
 {
 public:
+	// ListDataSource implementation
 	virtual void AddListener(ListDataSourceListener *listener);
 	virtual void RemoveListener(ListDataSourceListener *listener);
-
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
 	virtual ULONG_PTR GetItemData(int index) const;
@@ -80,30 +79,32 @@ public:
 
 public:
 	ServiceListDataSource();
-	virtual ~ServiceListDataSource();
+	~ServiceListDataSource();
 
 private:
 	mutable string_t _nameCache;
-//	std::set<GC_Object*> _cache;
 	ListDataSourceListener *_listener;
 };
 
-
+// forward declaration
 class EditorLayout;
 
-class ServiceList : public Dialog
+class ServiceEditor : public Dialog
 {
-	List *_list;
+	typedef ListAdapter<ServiceListDataSource, List> ServiceListBox;
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+
+	ServiceListBox *_list;
+	DefaultComboBox *_combo;
 	Text *_labelService;
 	Text *_labelName;
-	ComboBox *_combo;
 	Button *_btnCreate;
 
 	float _margins;
 
 public:
-	ServiceList(Window *parent, float x, float y, float w, float h);
-	virtual ~ServiceList();
+	ServiceEditor(Window *parent, float x, float y, float w, float h);
+	virtual ~ServiceEditor();
 
 protected:
 	void OnChangeSelectionGlobal(GC_Object *obj);
@@ -120,10 +121,12 @@ protected:
 
 class EditorLayout : public Window
 {
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+
 	PropertyList *_propList;
-	ServiceList  *_serviceList;
+	ServiceEditor    *_serviceList;
 	Text         *_layerDisp;
-	ComboBox     *_typeList;
+	DefaultComboBox  *_typeList;
 	Window       *_selectionRect;
 	Text         *_help;
 

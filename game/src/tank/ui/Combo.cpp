@@ -13,24 +13,16 @@
 namespace UI
 {
 
-ComboBox* ComboBox::Create(Window *parent, float x, float y, float width)
-{
-	ComboBox *res = new ComboBox(parent);
-	res->Move(x, y);
-	res->Resize(width, res->GetHeight());
-	return res;
-}
+	///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-
-ComboBox::ComboBox(Window *parent)
+ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
   : Window(parent)
   , _curSel(-1)
 {
 	_text = TextButton::Create(this, 0, 4, string_t(), "font_small");
 	_text->eventClick.bind(&ComboBox::DropList, this);
 
-	_list = List::Create(this, 0, 0, 1, 1);
+	_list = List::Create(this, dataSource, 0, 0, 1, 1);
 	_list->SetTexture("ui/combo_list", false);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
@@ -47,6 +39,11 @@ ComboBox::ComboBox(Window *parent)
 
 	SetDrawBorder(true);
 	SetTexture("ui/combo", true);
+}
+
+ListDataSource* ComboBox::GetData() const
+{
+	return _list->GetData();
 }
 
 void ComboBox::SetCurSel(int index)
@@ -90,7 +87,7 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(_list->GetItemText(index, 0));
+		_text->SetText(_list->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetTexture("ui/scroll_down", false);
@@ -105,7 +102,7 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText(_list->GetItemText(index, 0));
+		_text->SetText(_list->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 	}
 }

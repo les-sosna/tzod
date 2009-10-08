@@ -12,7 +12,7 @@
 #include "Text.h"
 #include "Edit.h"
 #include "Combo.h"
-
+#include "DataSourceAdapters.h"
 
 #include "functions.h"
 #include "level.h"
@@ -39,9 +39,6 @@ namespace UI
 
 NewGameDlg::NewGameDlg(Window *parent)
   : Dialog(parent, 770, 550)
-  , _mapsData(new ListDataSourceMaps())
-  , _playersData(new ListDataSourceDefault())
-  , _botsData(new ListDataSourceDefault())
 {
 	PauseGame(true);
 
@@ -58,12 +55,13 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 	Text::Create(this, 16, 16, g_lang->choose_map->Get(), alignTextLT);
 
-	_maps = List::Create(this, x1, 32, x2 - x1, 192);
+	_maps = MapList::Create(this);
+	_maps->Move(x1, 32);
+	_maps->Resize(x2 - x1, 192);
 	_maps->SetTabPos(0,   4); // name
 	_maps->SetTabPos(1, 384); // size
 	_maps->SetTabPos(2, 448); // theme
-	_maps->SetDataSource(_mapsData.get());
-	_maps->SetCurSel(_mapsData->FindItem(g_conf->cl_map->Get()), false);
+	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf->cl_map->Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 
 	GetManager()->SetFocusWnd(_maps);
@@ -103,8 +101,9 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 	Text::Create(this, 16, 240, g_lang->human_player_list->Get(), alignTextLT);
 
-	_players = List::Create(this, x1, 256, x2-x1, 96);
-	_players->SetDataSource(_playersData.get());
+	_players = DefaultListBox::Create(this);
+	_players->Move(x1, 256);
+	_players->Resize(x2-x1, 96);
 	_players->SetTabPos(0,   4); // name
 	_players->SetTabPos(1, 192); // skin
 	_players->SetTabPos(2, 256); // class
@@ -113,8 +112,9 @@ NewGameDlg::NewGameDlg(Window *parent)
 
 
 	Text::Create(this, 16, 368, g_lang->AI_player_list->Get(), alignTextLT);
-	_bots = List::Create(this, x1, 384, x2-x1, 96);
-	_bots->SetDataSource(_botsData.get());
+	_bots = DefaultListBox::Create(this);
+	_bots->Move(x1, 384);
+	_bots->Resize(x2-x1, 96);
 	_bots->SetTabPos(0,   4); // name
 	_bots->SetTabPos(1, 192); // skin
 	_bots->SetTabPos(2, 256); // class
@@ -174,15 +174,15 @@ NewGameDlg::~NewGameDlg()
 void NewGameDlg::RefreshPlayersList()
 {
 	int selected = _players->GetCurSel();
-	_playersData->DeleteAllItems();
+	_players->GetData()->DeleteAllItems();
 
 	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
 	{
 		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
 
-		int index = _playersData->AddItem( p->GetStr("nick")->Get() );
-		_playersData->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_playersData->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _players->GetData()->AddItem( p->GetStr("nick")->Get() );
+		_players->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
+		_players->GetData()->SetItemText(index, 2, p->GetStr("class")->Get());
 
 		char s[16];
 		int team = p->GetNum("team", 0)->GetInt();
@@ -195,24 +195,24 @@ void NewGameDlg::RefreshPlayersList()
 			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
-		_playersData->SetItemText(index, 3, s);
+		_players->GetData()->SetItemText(index, 3, s);
 	}
 
-	_players->SetCurSel(__min(selected, _playersData->GetItemCount()-1));
+	_players->SetCurSel(__min(selected, _players->GetData()->GetItemCount()-1));
 }
 
 void NewGameDlg::RefreshBotsList()
 {
 	int selected = _bots->GetCurSel();
-	_botsData->DeleteAllItems();
+	_bots->GetData()->DeleteAllItems();
 
 	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
 	{
 		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
 
-		int index = _botsData->AddItem( p->GetStr("nick")->Get() );
-		_botsData->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_botsData->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _bots->GetData()->AddItem( p->GetStr("nick")->Get() );
+		_bots->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
+		_bots->GetData()->SetItemText(index, 2, p->GetStr("class")->Get());
 
 		char s[16];
 		int team = p->GetNum("team", 0)->GetInt();
@@ -225,10 +225,10 @@ void NewGameDlg::RefreshBotsList()
 			wsprintf(s, g_lang->team_none->Get().c_str());
 		}
 
-		_botsData->SetItemText(index, 3, s);
+		_bots->GetData()->SetItemText(index, 3, s);
 	}
 
-	_bots->SetCurSel(__min(selected, _botsData->GetItemCount() - 1));
+	_bots->SetCurSel(__min(selected, _bots->GetData()->GetItemCount() - 1));
 }
 
 void NewGameDlg::OnAddPlayer()
@@ -335,7 +335,7 @@ void NewGameDlg::OnOK()
 	int index = _maps->GetCurSel();
 	if( -1 != index )
 	{
-		fn = _mapsData->GetItemText(index, 0);
+		fn = _maps->GetData()->GetItemText(index, 0);
 	}
 	else
 	{
@@ -438,16 +438,13 @@ bool NewGameDlg::OnRawChar(int c)
 
 EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
   : Dialog(parent, 384, 220)
+  , _info(info)
 {
 	SetEasyMove(true);
 	assert(info);
 
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->player_settings->Get(), alignTextCT);
 	title->SetFont("font_default");
-
-
-	_info = info;
-
 
 	float x1 = 30;
 	float x2 = x1 + 56;
@@ -467,21 +464,20 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_name->SetText( _info->GetStr("nick", "Unnamed")->Get() );
 	GetManager()->SetFocusWnd(_name);
 
-	List *lst; // helps in combo box filling
-
 
 	//
 	// skins combo
 	//
 	Text::Create(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
-	_skins = ComboBox::Create(this, x2, y-=1, 200);
+	_skins = DefaultComboBox::Create(this);
+	_skins->Move(x2, y -= 1);
+	_skins->Resize(200);
 	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
-	lst = _skins->GetList();
 	std::vector<string_t> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
-		int index = lst->AddItem(names[i]);
+		int index = _skins->GetData()->AddItem(names[i]);
 		if( names[i] == _info->GetStr("skin")->Get() )
 		{
 			_skins->SetCurSel(index);
@@ -491,7 +487,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	{
 		_skins->SetCurSel(0);
 	}
-	lst->AlignHeightToContent();
+	_skins->GetList()->AlignHeightToContent();
 
 
 	//
@@ -499,7 +495,9 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	//
 
 	Text::Create(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
-	_classes = ComboBox::Create(this, x2, y-=1, 200);
+	_classes = DefaultComboBox::Create(this);
+	_classes->Move(x2, y -= 1);
+	_classes->Resize(200);
 
 	std::pair<string_t, string_t> val;
 	lua_getglobal(g_env.L, "classes");
@@ -512,7 +510,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 		if( std::string::npos == val.first.find('/') )
 		{
-			int index = _classes->GetList()->AddItem(val.first);
+			int index = _classes->GetData()->AddItem(val.first);
 			if( val.first == _info->GetStr("class")->Get() )
 			{
 				_classes->SetCurSel(index);
@@ -524,14 +522,14 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_classes->GetList()->AlignHeightToContent();
 
 	Text::Create(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
-	_teams = ComboBox::Create(this, x2, y-=1, 200);
-	lst = _teams->GetList();
-
+	_teams = DefaultComboBox::Create(this);
+	_teams->Move(x2, y -= 1);
+	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
 		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
-		int index = lst->AddItem(buf);
+		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
 			_teams->SetCurSel(index);
@@ -541,7 +539,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	{
 		_teams->SetCurSel(0);
 	}
-	lst->AlignHeightToContent();
+	_teams->GetList()->AlignHeightToContent();
 
 
 
@@ -550,15 +548,15 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	//
 
 	Text::Create(this, x1, y+=24, g_lang->player_profile->Get(), alignTextLT);
-	_profiles = ComboBox::Create(this, x2, y-=1, 200);
-	lst = _profiles->GetList();
-
+	_profiles = DefaultComboBox::Create(this);
+	_profiles->Move(x2, y -= 1);
+	_profiles->Resize(200);
 	std::vector<string_t> profiles;
 	g_conf->dm_profiles->GetKeyList(profiles);
 
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = lst->AddItem(profiles[i]);
+		int index = _profiles->GetData()->AddItem(profiles[i]);
 		if( profiles[i] == _info->GetStr("profile")->Get() )
 		{
 			_profiles->SetCurSel(index);
@@ -568,7 +566,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	{
 		_profiles->SetCurSel(0);
 	}
-	lst->AlignHeightToContent();
+	_profiles->GetList()->AlignHeightToContent();
 
 
 	//
@@ -582,10 +580,10 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 void EditPlayerDlg::OnOK()
 {
 	_info->SetStr("nick",    _name->GetText() );
-	_info->SetStr("skin",    _skins->GetList()->GetItemText(_skins->GetCurSel(), 0) );
-	_info->SetStr("class",   _classes->GetList()->GetItemText(_classes->GetCurSel(), 0) );
+	_info->SetStr("skin",    _skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
+	_info->SetStr("class",   _classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
 	_info->SetNum("team",    _teams->GetCurSel());
-	_info->SetStr("profile", _profiles->GetList()->GetItemText(_profiles->GetCurSel(), 0) );
+	_info->SetStr("profile", _profiles->GetData()->GetItemText(_profiles->GetCurSel(), 0) );
 
 	Close(_resultOK);
 }
@@ -599,7 +597,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture(("skin/" + _skins->GetList()->GetItemText(index, 0)).c_str(), true);
+		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str(), true);
 	}
 }
 
@@ -616,15 +614,13 @@ const char EditBotDlg::levels[][16] = {
 
 EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
   : Dialog(parent, 384, 220)
+  , _info(info)
 {
 	SetEasyMove(true);
 	assert(info);
 
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->bot_settings->Get(), alignTextCT);
 	title->SetFont("font_default");
-
-
-	_info = info;
 
 
 	float x1 = 30;
@@ -650,22 +646,19 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	GetManager()->SetFocusWnd(_name);
 
 
-
-	List *lst; // helps in combo box filling
-
-
 	//
 	// skins combo
 	//
 	Text::Create(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
-	_skins = ComboBox::Create(this, x2, y-=1, 200);
+	_skins = DefaultComboBox::Create(this);
+	_skins->Move(x2, y -= 1);
+	_skins->Resize(200);
 	_skins->eventChangeCurSel.bind( &EditBotDlg::OnChangeSkin, this );
-	lst = _skins->GetList();
 	std::vector<string_t> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
-		int index = lst->AddItem(names[i]);
+		int index = _skins->GetData()->AddItem(names[i]);
 		if( names[i] == _info->GetStr("skin")->Get() )
 		{
 			_skins->SetCurSel(index);
@@ -675,7 +668,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	{
 		_skins->SetCurSel(0);
 	}
-	lst->AlignHeightToContent();
+	_skins->GetList()->AlignHeightToContent();
 
 
 	//
@@ -683,7 +676,9 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	//
 
 	Text::Create(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
-	_classes= ComboBox::Create(this, x2, y-=1, 200);
+	_classes = DefaultComboBox::Create(this);
+	_classes->Move(x2, y -= 1);
+	_classes->Resize(200);
 
 	std::pair<string_t, string_t> val;
 	lua_getglobal(g_env.L, "classes");
@@ -694,7 +689,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
 		_classNames.push_back(val);
 
-		int index = _classes->GetList()->AddItem(val.first);
+		int index = _classes->GetData()->AddItem(val.first);
 		if( val.first == _info->GetStr("class")->Get() )
 		{
 			_classes->SetCurSel(index);
@@ -706,14 +701,14 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 
 	Text::Create(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
-	_teams = ComboBox::Create(this, x2, y-=1, 200);
-	lst = _teams->GetList();
-
+	_teams = DefaultComboBox::Create(this);
+	_teams->Move(x2, y -= 1);
+	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
 		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
-		int index = lst->AddItem(buf);
+		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
 			_teams->SetCurSel(index);
@@ -723,7 +718,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	{
 		_teams->SetCurSel(0);
 	}
-	lst->AlignHeightToContent();
+	_teams->GetList()->AlignHeightToContent();
 
 
 	//
@@ -731,12 +726,13 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	//
 
 	Text::Create(this, x1, y+=24, g_lang->bot_level->Get(), alignTextLT);
-	_levels = ComboBox::Create(this, x2, y-=1, 200);
-	lst = _levels->GetList();
+	_levels = DefaultComboBox::Create(this);
+	_levels->Move(x2, y -= 1);
+	_levels->Resize(200);
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = lst->AddItem(g_lang.GetRoot()->GetStr(levels[i], NULL)->Get());
+		int index = _levels->GetData()->AddItem(g_lang.GetRoot()->GetStr(levels[i], NULL)->Get());
 		if( i == _info->GetNum("level", 2)->GetInt() )
 		{
 			_levels->SetCurSel(index);
@@ -746,7 +742,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	{
 		_levels->SetCurSel(2);
 	}
-	lst->AlignHeightToContent();
+	_levels->GetList()->AlignHeightToContent();
 
 
 	//
@@ -760,8 +756,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 void EditBotDlg::OnOK()
 {
 	_info->SetStr("nick",  _name->GetText() );
-	_info->SetStr("skin",  _skins->GetList()->GetItemText(_skins->GetCurSel(), 0) );
-	_info->SetStr("class", _classes->GetList()->GetItemText(_classes->GetCurSel(), 0) );
+	_info->SetStr("skin",  _skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
+	_info->SetStr("class", _classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
 	_info->SetNum("team",  _teams->GetCurSel());
 	_info->SetNum("level", _levels->GetCurSel());
 
@@ -777,7 +773,7 @@ void EditBotDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture(("skin/" + _skins->GetList()->GetItemText(index, 0)).c_str(), true);
+		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str(), true);
 	}
 }
 

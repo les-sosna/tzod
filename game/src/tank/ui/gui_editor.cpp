@@ -11,7 +11,8 @@
 #include "List.h"
 #include "Scroll.h"
 #include "Button.h"
-#include "Button.h"
+#include "DataSourceAdapters.h"
+#include "ListBase.h"
 
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
@@ -46,10 +47,6 @@ NewMapDlg::NewMapDlg(Window *parent)
 	Button::Create(this, g_lang->common_cancel->Get(), 140, 200)->eventClick.bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
-}
-
-NewMapDlg::~NewMapDlg()
-{
 }
 
 void NewMapDlg::OnOK()
@@ -196,16 +193,19 @@ void PropertyList::DoExchange(bool applyToObject)
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				ctrl = ComboBox::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
+				typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+				ctrl = DefaultComboBox::Create(_psheet);
+				ctrl->Move(32, y);
+				static_cast<DefaultComboBox *>(ctrl)->Resize(_psheet->GetWidth() - 64);
 				for( size_t index = 0; index < prop->GetListSize(); ++index )
 				{
-					static_cast<ComboBox*>(ctrl)->GetList()->AddItem(prop->GetListValue(index));
+					static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(prop->GetListValue(index));
 				}
-				static_cast<ComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
-				static_cast<ComboBox*>(ctrl)->GetList()->AlignHeightToContent();
+				static_cast<DefaultComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
+				static_cast<DefaultComboBox*>(ctrl)->GetList()->AlignHeightToContent();
 				break;
 			default:
-				assert(FALSE);
+				assert(false);
 			} // end of switch( prop->GetType() )
 
 			label->SetText(labelTextBuffer.str());
@@ -301,6 +301,12 @@ void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
 	_listener = listener;
 }
 
+void ServiceListDataSource::RemoveListener(ListDataSourceListener *listener)
+{
+	assert(_listener && _listener == listener);
+	_listener = NULL;
+}
+
 int ServiceListDataSource::GetItemCount() const
 {
 	return g_level->GetList(LIST_services).size();
@@ -371,56 +377,58 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceList::ServiceList(Window *parent, float x, float y, float w, float h)
+ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, h, w, false)
   , _margins(5)
 {
 	_labelService = Text::Create(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
 	_labelName = Text::Create(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
 
-	_list = List::Create(this, _margins, _margins + _labelService->GetY() + _labelService->GetHeight(), 1, 1);
-	_list->SetData(WrapRawPtr(new ServiceListDataSource()));
+	_list = ServiceListBox::Create(this);
+	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
-	_list->eventChangeCurSel.bind(&ServiceList::OnSelectService, this);
+	_list->eventChangeCurSel.bind(&ServiceEditor::OnSelectService, this);
 
 	_btnCreate = Button::Create(this, g_lang->service_create->Get(), 0, 0);
-	_btnCreate->eventClick.bind(&ServiceList::OnCreateService, this);
+	_btnCreate->eventClick.bind(&ServiceEditor::OnCreateService, this);
 
-	_combo = ComboBox::Create(this, _margins, _margins, 1);
-	List *ls = _combo->GetList();
+	_combo = DefaultComboBox::Create(this);
+	_combo->Move(_margins, _margins);
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
 		if( Level::GetTypeInfoByIndex(i).service )
 		{
 			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-			ls->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+			_combo->GetData()->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 		}
 	}
+	_combo->GetData()->Sort();
+
+	List *ls = _combo->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
-	ls->Sort();
 
 	Move(x, y);
 	Resize(w, h);
 	SetEasyMove(true);
 
 	assert(!GetEditorLayout()->eventOnChangeSelection);
-	GetEditorLayout()->eventOnChangeSelection.bind(&ServiceList::OnChangeSelectionGlobal, this);
+	GetEditorLayout()->eventOnChangeSelection.bind(&ServiceEditor::OnChangeSelectionGlobal, this);
 }
 
-ServiceList::~ServiceList()
+ServiceEditor::~ServiceEditor()
 {
 	assert(GetEditorLayout()->eventOnChangeSelection);
 	GetEditorLayout()->eventOnChangeSelection.clear();
 }
 
-void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
+void ServiceEditor::OnChangeSelectionGlobal(GC_Object *obj)
 {
 	if( obj )
 	{
-		for( int i = 0; i < _list->GetItemCount(); ++i )
+		for( int i = 0; i < _list->GetData()->GetItemCount(); ++i )
 		{
-			if( _list->GetItemData(i) == (ULONG_PTR) obj )
+			if( _list->GetData()->GetItemData(i) == (ULONG_PTR) obj )
 			{
 				_list->SetCurSel(i, true);
 				break;
@@ -429,24 +437,24 @@ void ServiceList::OnChangeSelectionGlobal(GC_Object *obj)
 	}
 }
 
-EditorLayout* ServiceList::GetEditorLayout() const
+EditorLayout* ServiceEditor::GetEditorLayout() const
 {
 	assert(dynamic_cast<EditorLayout*>(GetParent()));
 	return static_cast<EditorLayout*>(GetParent());
 }
 
-void ServiceList::OnCreateService()
+void ServiceEditor::OnCreateService()
 {
 	if( -1 != _combo->GetCurSel() )
 	{
-		ObjectType type = (ObjectType) _combo->GetList()->GetItemData(_combo->GetCurSel());
+		ObjectType type = (ObjectType) _combo->GetData()->GetItemData(_combo->GetCurSel());
 		GC_Object *service = g_level->CreateObject(type, 0, 0);
 		GetEditorLayout()->SelectNone();
 		GetEditorLayout()->Select(service, true);
 	}
 }
 
-void ServiceList::OnSelectService(int i)
+void ServiceEditor::OnSelectService(int i)
 {
 	if( -1 == i )
 	{
@@ -454,23 +462,23 @@ void ServiceList::OnSelectService(int i)
 	}
 	else
 	{
-		GetEditorLayout()->Select((GC_Object *) _list->GetItemData(i), true);
+		GetEditorLayout()->Select((GC_Object *) _list->GetData()->GetItemData(i), true);
 	}
 }
 
-void ServiceList::OnSize(float width, float height)
+void ServiceEditor::OnSize(float width, float height)
 {
 	_btnCreate->Move(width - _btnCreate->GetWidth() - _margins,
 		height - _btnCreate->GetHeight() - _margins);
 
-	_combo->Resize(width - _margins * 3 - _btnCreate->GetWidth(), _combo->GetHeight());
+	_combo->Resize(width - _margins * 3 - _btnCreate->GetWidth());
 	_combo->Move(_margins, _btnCreate->GetY() + (_btnCreate->GetHeight() - _combo->GetHeight()) / 2);
 
 	_list->Resize(width - 2*_list->GetX(), _btnCreate->GetY() - _list->GetY() - _margins);
 	_list->SetTabPos(1, _list->GetWidth() / 2);
 }
 
-bool ServiceList::OnRawChar(int c)
+bool ServiceEditor::OnRawChar(int c)
 {
 	switch(c)
 	{
@@ -500,22 +508,23 @@ EditorLayout::EditorLayout(Window *parent)
 	_propList = new PropertyList(this, 5, 5, 512, 256);
 	_propList->SetVisible(false);
 
-	_serviceList = new ServiceList(this, 5, 300, 512, 256);
+	_serviceList = new ServiceEditor(this, 5, 300, 512, 256);
 	_serviceList->SetVisible(g_conf->ed_showservices->Get());
 
 	_layerDisp = Text::Create(this, 0, 0, "", alignTextRT);
 
-	_typeList = ComboBox::Create(this, 0, 0, 256);
-	List *ls = _typeList->GetList();
+	_typeList = DefaultComboBox::Create(this);
+	_typeList->Resize(256);
 	for( int i = 0; i < Level::GetTypeCount(); ++i )
 	{
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-		ls->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+		_typeList->GetData()->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 	}
+	_typeList->GetData()->Sort();
+	List *ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
-	ls->Sort();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel(g_conf->ed_object->GetInt());
 
@@ -601,7 +610,7 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	}
 	if( z < 0 )
 	{
-		_typeList->SetCurSel( __min(_typeList->GetList()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
+		_typeList->SetCurSel( __min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
 	}
 	return true;
 }
@@ -643,7 +652,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	if( !g_level->IsEmpty() && GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
-			_typeList->GetList()->GetItemData(g_conf->ed_object->GetInt()) );
+			_typeList->GetData()->GetItemData(g_conf->ed_object->GetInt()) );
 
 		float align = Level::GetTypeInfo(type).align;
 		float offset = Level::GetTypeInfo(type).offset;
@@ -657,7 +666,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		int layer = -1;
 		if( g_conf->ed_uselayers->Get() )
 		{
-			layer = Level::GetTypeInfo(_typeList->GetList()->GetItemData(_typeList->GetCurSel())).layer;
+			layer = Level::GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
 		}
 
 		if( GC_Object *object = g_level->PickEdObject(mouse, layer) )
@@ -786,7 +795,7 @@ void EditorLayout::OnChangeObjectType(int index)
 	g_conf->ed_object->SetInt(index);
 
 	std::ostringstream buf;
-	buf << g_lang->layer->Get() << Level::GetTypeInfo(_typeList->GetList()->GetItemData(index)).layer << ": ";
+	buf << g_lang->layer->Get() << Level::GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(buf.str());
 }
 

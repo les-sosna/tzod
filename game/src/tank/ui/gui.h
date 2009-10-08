@@ -19,9 +19,12 @@ class ListDataSourceMaps;
 
 class NewGameDlg : public Dialog
 {
-	List      *_maps;
-	List      *_players;
-	List      *_bots;
+	typedef ListAdapter<ListDataSourceMaps, List> MapList;
+	typedef ListAdapter<ListDataSourceMaps, List> DefaultListBox;
+
+	MapList      *_maps;
+	DefaultListBox  *_players;
+	DefaultListBox  *_bots;
 	CheckBox  *_nightMode;
 	Edit      *_gameSpeed;
 	Edit      *_fragLimit;
@@ -31,10 +34,6 @@ class NewGameDlg : public Dialog
 	Button    *_changePlayer;
 	Button    *_removeBot;
 	Button    *_changeBot;
-
-	std::auto_ptr<ListDataSourceMaps>    _mapsData;
-	std::auto_ptr<ListDataSourceDefault> _playersData;
-	std::auto_ptr<ListDataSourceDefault> _botsData;
 
 	bool _newPlayer;
 
@@ -71,13 +70,14 @@ protected:
 
 class EditPlayerDlg : public Dialog
 {
-	Edit     *_name;
-	ComboBox *_profiles;
-	ComboBox *_skins;
-	ComboBox *_classes;
-	ComboBox *_teams;
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
 
 	Window   *_skinPreview;
+	Edit     *_name;
+	DefaultComboBox *_profiles;
+	DefaultComboBox *_skins;
+	DefaultComboBox *_classes;
+	DefaultComboBox *_teams;
 
 	std::vector<std::pair<string_t, string_t> > _classNames;
 
@@ -97,13 +97,14 @@ protected:
 
 class EditBotDlg : public Dialog
 {
-	Edit     *_name;
-	ComboBox *_skins;
-	ComboBox *_classes;
-	ComboBox *_teams;
-	ComboBox *_levels;
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
 
+	Edit     *_name;
 	Window   *_skinPreview;
+	DefaultComboBox *_skins;
+	DefaultComboBox *_classes;
+	DefaultComboBox *_teams;
+	DefaultComboBox *_levels;
 
 	std::vector<std::pair<string_t, string_t> > _classNames;
 

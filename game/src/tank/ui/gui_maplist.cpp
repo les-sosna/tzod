@@ -52,10 +52,6 @@ ListDataSourceMaps::ListDataSourceMaps()
 	Sort();
 }
 
-MapList::~MapList()
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 

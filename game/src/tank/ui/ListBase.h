@@ -16,7 +16,6 @@ struct ListDataSource
 {
 	virtual void AddListener(ListDataSourceListener *cb) = 0;
 	virtual void RemoveListener(ListDataSourceListener *cb) = 0;
-
 	virtual int GetItemCount() const = 0;
 	virtual int GetSubItemCount(int index) const = 0;
 	virtual ULONG_PTR GetItemData(int index) const = 0;
@@ -29,6 +28,8 @@ struct ListDataSource
 class ListDataSourceDefault : public ListDataSource
 {
 public:
+	ListDataSourceDefault();
+
 	// ListDataSource interface
 	virtual void AddListener(ListDataSourceListener *cb);
 	virtual void RemoveListener(ListDataSourceListener *cb);

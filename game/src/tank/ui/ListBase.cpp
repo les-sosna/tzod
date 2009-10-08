@@ -3,6 +3,14 @@
 #include "stdafx.h"
 #include "ListBase.h"
 
+namespace UI
+{
+
+ListDataSourceDefault::ListDataSourceDefault()
+  : _listener(NULL)
+{
+}
+
 void ListDataSourceDefault::AddListener(ListDataSourceListener *cb)
 {
 	_listener = cb;
@@ -102,4 +110,6 @@ void ListDataSourceDefault::Sort()
 	std::sort(_items.begin(), _items.end(), &helper::compare);
 }
 
+
+} // end of namespace UI
 // end of file

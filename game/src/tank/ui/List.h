@@ -15,10 +15,9 @@ namespace UI
 class List : public Window
 {
 public:
-	static List* Create(Window *parent, float x, float y, float width, float height);
+	static List* Create(Window *parent, ListDataSource* dataSource, float x, float y, float width, float height);
 
-	ListDataSource* GetDataSource() const;
-	void SetDataSource(const ListDataSource* source);
+	ListDataSource* GetData() const;
 
 	float GetScrollPos() const;
 	void SetScrollPos(float pos);
@@ -38,7 +37,7 @@ public:
 	Delegate<void(int)> eventClickItem;
 
 protected:
-	List(Window *parent);
+	List(Window *parent, ListDataSource* dataSource);
 	virtual ~List();
 
 	// callback interface
@@ -68,7 +67,10 @@ protected:
 	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 private:
-	const ListDataSource *_data;
+	List(const List &); // no copy
+	List& operator = (const List &);
+
+	ListDataSource *_data;
 
 	std::vector<float> _tabs;
 

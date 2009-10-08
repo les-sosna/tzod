@@ -54,26 +54,25 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List* List::Create(Window *parent, float x, float y, float width, float height)
+List* List::Create(Window *parent, ListDataSource* dataSource, float x, float y, float width, float height)
 {
-	List *res = new List(parent);
+	List *res = new List(parent, dataSource);
 	res->Move(x, y);
 	res->Resize(width, height);
 	return res;
 }
 
-List::List(Window *parent)
+List::List(Window *parent, ListDataSource* dataSource)
   : Window(parent)
   , _callbacks(this)
   , _curSel(-1)
   , _hotItem(-1)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
   , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
-  , _data(NULL)
+  , _data(dataSource)
+  , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
 {
-	_scrollBar = ScrollBarVertical::Create(this, 0, 0, 0);
-
-	SetData(NULL);
+	_data->AddListener(&_callbacks);
 
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
@@ -85,27 +84,9 @@ List::~List()
 {
 }
 
-ListDataSource* List::GetDataSource() const
+ListDataSource* List::GetData() const
 {
 	return _data;
-}
-
-void List::SetDataSource(const ListDataSource *source)
-{
-	if( _data != source )
-	{
-		if( _data )
-		{
-			_data->RemoveListener(&_callbacks);
-		}
-		_data = source;
-		_data->AddListener(&_callbacks);
-	}
-}
-
-int List::FindItem(const string_t &text) const
-{
-	return _data->FindItem(text);
 }
 
 void List::SetTabPos(int index, float pos)
@@ -211,6 +192,11 @@ bool List::OnMouseDown(float x, float y, int button)
 		if( -1 != index && eventClickItem )
 			INVOKE(eventClickItem) (index);
 	}
+	return true;
+}
+
+bool List::OnMouseUp(float x, float y, int button)
+{
 	return true;
 }
 

@@ -12,10 +12,14 @@ namespace UI
 class ComboBox : public Window
 {
 public:
-	static ComboBox* Create(Window *parent, float x, float y, float width);
+	static ComboBox* Create(Window *parent, ListDataSource *dataSource)
+	{
+		return new ComboBox(parent, dataSource);
+	}
 
-	ListDataSource* GetDataSource() const;
-	void SetDataSource(const ListDataSource* source);
+	void Resize(float width) { Window::Resize(width, GetHeight()); }
+
+	ListDataSource* GetData() const;
 
 	void SetCurSel(int index);
 	int GetCurSel() const;
@@ -26,7 +30,7 @@ public:
 	Delegate<void(int)> eventChangeCurSel;
 
 protected:
-	ComboBox(Window *parent);
+	ComboBox(Window *parent, ListDataSource *dataSource);
 
 	void OnEnabledChange(bool enable, bool inherited);
 	bool OnRawChar(int c);

@@ -14,6 +14,7 @@
 #include "Console.h"
 #include "ConsoleBuffer.h"
 #include "Combo.h"
+#include "DataSourceAdapters.h"
 
 #include "Interface.h"
 #include "functions.h"
@@ -57,7 +58,14 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 
 	Text::Create(this, x1, 46, g_lang->choose_map->Get(), alignTextLT);
 
-	_maps = new MapList(this, x1, 62, x2 - x1, 300);
+	_maps = MapListBox::Create(this);
+	_maps->Move(x1, 62);
+	_maps->Resize(x2 - x1, 300);
+	_maps->SetTabPos(0,   4); // name
+	_maps->SetTabPos(1, 384); // size
+	_maps->SetTabPos(2, 448); // theme
+	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf->cl_map->Get()), false);
+	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	GetManager()->SetFocusWnd(_maps);
 
 
@@ -97,7 +105,9 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 	//
 	{
 		_lobbyEnable = CheckBox::Create(this, 32, 390, g_lang->net_server_use_lobby->Get());
-		_lobbyList = ComboBox::Create(this, 32, 415, 200);
+		_lobbyList = DefaultComboBox::Create(this);
+		_lobbyList->Move(32, 415);
+		_lobbyList->Resize(200);
 		_lobbyAdd = Button::Create(this, g_lang->net_server_add_lobby->Get(), 250, 410);
 
 		_lobbyEnable->SetCheck(g_conf->sv_use_lobby->Get());
@@ -105,7 +115,7 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 		for( size_t i = 0; i < g_conf->lobby_servers->GetSize(); ++i )
 		{
-			_lobbyList->GetList()->AddItem(g_conf->lobby_servers->GetStr(i)->Get());
+			_lobbyList->GetData()->AddItem(g_conf->lobby_servers->GetStr(i)->Get());
 			if( !i || g_conf->sv_lobby->Get() == g_conf->lobby_servers->GetStr(i)->Get() )
 			{
 				_lobbyList->SetCurSel(i);
@@ -134,7 +144,7 @@ void CreateServerDlg::OnOK()
 	int index = _maps->GetCurSel();
 	if( -1 != index )
 	{
-		fn = _maps->GetItemText(index, 0);
+		fn = _maps->GetData()->GetItemText(index, 0);
 	}
 	else
 	{
@@ -149,7 +159,7 @@ void CreateServerDlg::OnOK()
 		{
 			return;
 		}
-		g_conf->sv_lobby->Set(_lobbyList->GetList()->GetItemText(_lobbyList->GetCurSel()));
+		g_conf->sv_lobby->Set(_lobbyList->GetData()->GetItemText(_lobbyList->GetCurSel(), 0));
 		announcer = WrapRawPtr(new LobbyClient());
 		announcer->SetLobbyUrl(g_conf->sv_lobby->Get());
 	}
@@ -239,8 +249,9 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 
 	Text::Create(this, 20, 105, g_lang->net_connect_status->Get(), alignTextLT);
-	_status = List::Create(this, 25, 120, 400, 180);
-
+	_status = DefaultListBox::Create(this);
+	_status->Move(25, 120);
+	_status->Resize(400, 180);
 
 	_btnOK = Button::Create(this, g_lang->net_connect_ok->Get(), 312, 350);
 	_btnOK->eventClick.bind(&ConnectDlg::OnOK, this);
@@ -265,7 +276,7 @@ ConnectDlg::~ConnectDlg()
 
 void ConnectDlg::OnOK()
 {
-	_status->DeleteAllItems();
+	_status->GetData()->DeleteAllItems();
 
 	_btnOK->SetEnabled(false);
 	_name->SetEnabled(false);
@@ -306,7 +317,7 @@ void ConnectDlg::OnConnected()
 
 void ConnectDlg::OnError(const std::string &msg)
 {
-	_status->AddItem(msg);
+	_status->GetData()->AddItem(msg);
 	g_level->Clear();
 	if( !g_server )
 	{
@@ -319,7 +330,7 @@ void ConnectDlg::OnError(const std::string &msg)
 
 void ConnectDlg::OnMessage(const std::string &msg)
 {
-	_status->AddItem(msg);
+	_status->GetData()->AddItem(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -343,7 +354,9 @@ InternetDlg::InternetDlg(Window *parent)
 
 
 	Text::Create(this, 20, 105, g_lang->net_internet_server_list->Get(), alignTextLT);
-	_servers = List::Create(this, 25, 120, 400, 180);
+	_servers = DefaultListBox::Create(this);
+	_servers->Move(25, 120);
+	_servers->Resize(400, 180);
 	_servers->eventChangeCurSel.bind(&InternetDlg::OnSelectServer, this);
 	_status = Text::Create(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
@@ -370,7 +383,7 @@ InternetDlg::~InternetDlg()
 
 void InternetDlg::OnRefresh()
 {
-	_servers->DeleteAllItems();
+	_servers->GetData()->DeleteAllItems();
 	_status->SetText(g_lang->net_internet_searching->Get());
 
 	_btnRefresh->SetEnabled(false);
@@ -384,7 +397,7 @@ void InternetDlg::OnConnect()
 {
 	if( -1 != _servers->GetCurSel() )
 	{
-		const std::string &addr = _servers->GetItemText(_servers->GetCurSel());
+		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
 		(new ConnectDlg(GetParent(), addr.c_str()))->eventClose.bind(&InternetDlg::OnCloseChild, this);
 		SetVisible(false);
 	}
@@ -410,7 +423,7 @@ void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
 	_status->SetText(result.empty() ? g_lang->net_internet_not_found->Get() : "");
 	for( size_t i = 0; i < result.size(); ++i )
 	{
-		_servers->AddItem(result[i]);
+		_servers->GetData()->AddItem(result[i]);
 	}
 	_btnRefresh->SetEnabled(true);
 	_name->SetEnabled(true);
@@ -474,7 +487,9 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	title->SetFont("font_default");
 
 	Text::Create(this, 20, 50, g_lang->net_chatroom_players->Get(), alignTextLT);
-	_players = List::Create(this, 20, 65, 512, 70);
+	_players = DefaultListBox::Create(this);
+	_players->Move(20, 65);
+	_players->Resize(512, 70);
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
@@ -483,7 +498,9 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_btnProfile->eventClick.bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
 	Text::Create(this, 20, 150, g_lang->net_chatroom_bots->Get(), alignTextLT);
-	_bots = List::Create(this, 20, 165, 512, 100);
+	_bots = DefaultListBox::Create(this);
+	_bots->Move(20, 165);
+	_bots->Resize(512, 100);
 	_bots->SetTabPos(1, 200);
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
@@ -596,8 +613,8 @@ void WaitingForPlayersDlg::OnSendMessage(const string_t &msg)
 
 void WaitingForPlayersDlg::OnError(const std::string &msg)
 {
-	_players->DeleteAllItems();
-	_bots->DeleteAllItems();
+	_players->GetData()->DeleteAllItems();
+	_bots->GetData()->DeleteAllItems();
 	_btnOK->SetEnabled(false);
 	_buf->WriteLine(0, msg);
 }
@@ -611,18 +628,18 @@ void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
 {
 	assert(g_level);
 	int count = g_level->GetList(LIST_players).size();
-	assert(_players->GetItemCount() <= count); // count includes bots
+	assert(_players->GetData()->GetItemCount() <= count); // count includes bots
 
 	for( int index = 0; index < count; ++index )
 	{
-		GC_Player *player = (GC_Player *) _players->GetItemData(index);
+		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
 		assert(player);
 		assert(!player->IsKilled());
 		assert(0 != player->GetNetworkID());
 
 		if( player->GetNetworkID() == id )
 		{
-			_players->SetItemText(index, 3, ready ? g_lang->net_chatroom_player_ready->Get() : "");
+			_players->GetData()->SetItemText(index, 3, ready ? g_lang->net_chatroom_player_ready->Get() : "");
 			return;
 		}
 	}
@@ -634,33 +651,33 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 	size_t count = g_level->GetList(LIST_players).size();
 
 	// TODO: implement via the ListDataSource interface
-	_players->DeleteAllItems();
-	_bots->DeleteAllItems();
+	_players->GetData()->DeleteAllItems();
+	_bots->GetData()->DeleteAllItems();
 	FOREACH(g_level->GetList(LIST_players), GC_Player, player)
 	{
 		if( GC_PlayerAI *ai = dynamic_cast<GC_PlayerAI *>(player) )
 		{
 			// nick & skin
-			int index = _bots->AddItem(ai->GetNick());
-			_bots->SetItemText(index, 1, ai->GetSkin());
+			int index = _bots->GetData()->AddItem(ai->GetNick());
+			_bots->GetData()->SetItemText(index, 1, ai->GetSkin());
 
 			// team
 			std::ostringstream tmp;
 			tmp << g_lang->net_chatroom_team->Get() << ai->GetTeam();
-			_bots->SetItemText(index, 2, tmp.str());
+			_bots->GetData()->SetItemText(index, 2, tmp.str());
 
 			// level
 			assert(ai->GetLevel() <= AI_MAX_LEVEL);
-			_bots->SetItemText(index, 3, g_lang.GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
+			_bots->GetData()->SetItemText(index, 3, g_lang.GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
 		}
 		else
 		{
-			int index = _players->AddItem(player->GetNick(), (UINT_PTR) player);
-			_players->SetItemText(index, 1, player->GetSkin());
+			int index = _players->GetData()->AddItem(player->GetNick(), (UINT_PTR) player);
+			_players->GetData()->SetItemText(index, 1, player->GetSkin());
 
 			std::ostringstream tmp;
 			tmp << g_lang->net_chatroom_team->Get() << player->GetTeam();
-			_players->SetItemText(index, 2, tmp.str());
+			_players->GetData()->SetItemText(index, 2, tmp.str());
 		}
 
 //		_buf->printf(g_lang->net_chatroom_player_x_disconnected->Get().c_str(), player->GetNick().c_str());
@@ -668,7 +685,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 //		_buf->printf("\n");
 	}
 
-	_btnOK->SetEnabled(_players->GetItemCount() > 0);
+	_btnOK->SetEnabled(_players->GetData()->GetItemCount() > 0);
 }
 
 void WaitingForPlayersDlg::OnStartGame()

@@ -917,6 +917,10 @@
 				>
 			</File>
 			<File
+				RelativePath="src\tank\ui\DataSourceAdapters.h"
+				>
+			</File>
+			<File
 				RelativePath="src\tank\ui\Dialog.cpp"
 				>
 			</File>

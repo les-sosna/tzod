@@ -10,6 +10,7 @@
 #include "Scroll.h"
 #include "Edit.h"
 #include "Combo.h"
+#include "DataSourceAdapters.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -43,7 +44,9 @@ SettingsDlg::SettingsDlg(Window *parent)
 	//
 
 	Text::Create(this, 24, 48, g_lang->settings_profiles->Get(), alignTextLT);
-	_profiles = List::Create(this, 24, 64, 128, 104);
+	_profiles = DefaultListBox::Create(this);
+	_profiles->Move(24, 64);
+	_profiles->Resize(128, 104);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
@@ -140,7 +143,7 @@ void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	(new ControlProfileDlg(this, _profiles->GetItemText(i).c_str()))
+	(new ControlProfileDlg(this, _profiles->GetData()->GetItemText(i, 0).c_str()))
 		->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
 }
 
@@ -148,12 +151,12 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	if( g_conf->cl_playerinfo->GetStr("profile")->Get() == _profiles->GetItemText(i) )
+	if( g_conf->cl_playerinfo->GetStr("profile")->Get() == _profiles->GetData()->GetItemText(i, 0) )
 	{
 		// profile that is being deleted is used in network settings
 		g_conf->cl_playerinfo->SetStr("profile", "");
 	}
-	g_conf->dm_profiles->Remove(_profiles->GetItemText(i));
+	g_conf->dm_profiles->Remove(_profiles->GetData()->GetItemText(i, 0));
 	UpdateProfilesList();
 }
 
@@ -187,12 +190,12 @@ void SettingsDlg::UpdateProfilesList()
 	int sel = _profiles->GetCurSel();
 	std::vector<string_t> profiles;
 	g_conf->dm_profiles->GetKeyList(profiles);
-	_profiles->DeleteAllItems();
+	_profiles->GetData()->DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = _profiles->AddItem(profiles[i]);
+		int index = _profiles->GetData()->AddItem(profiles[i]);
 	}
-	_profiles->SetCurSel(__min(_profiles->GetItemCount()-1, sel));
+	_profiles->SetCurSel(__min(_profiles->GetData()->GetItemCount() - 1, sel));
 }
 
 void SettingsDlg::OnProfileEditorClosed(int code)
@@ -246,7 +249,9 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 
 	Text::Create(this,  20, 65, g_lang->profile_action->Get(), alignTextLT);
 	Text::Create(this, 220, 65, g_lang->profile_key->Get(), alignTextLT);
-	_actions = List::Create(this, 20, 80, 400, 250);
+	_actions = DefaultListBox::Create(this);
+	_actions->Move(20, 80);
+	_actions->Resize(400, 250);
 	_actions->SetTabPos(0, 2);
 	_actions->SetTabPos(1, 200);
 	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
@@ -281,7 +286,7 @@ ControlProfileDlg::~ControlProfileDlg()
 
 void ControlProfileDlg::OnSelectAction(int index)
 {
-	_actions->SetItemText(index, 1, "...");
+	_actions->GetData()->SetItemText(index, 1, "...");
 	_time = 0;
 	_activeIndex = index;
 //	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
@@ -291,9 +296,9 @@ void ControlProfileDlg::OnSelectAction(int index)
 
 void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
 {
-	int index = _actions->AddItem(display);
-	_actions->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname)->Get())));
+	int index = _actions->GetData()->AddItem(display);
+	_actions->GetData()->SetItemData(index, (ULONG_PTR) rawname);
+	_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname)->Get())));
 }
 
 void ControlProfileDlg::OnOK()
@@ -305,9 +310,9 @@ void ControlProfileDlg::OnOK()
 
 	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
 	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
-	for( int i = 0; i < _actions->GetItemCount(); ++i )
+	for( int i = 0; i < _actions->GetData()->GetItemCount(); ++i )
 	{
-		_profile->SetStr((const char *) _actions->GetItemData(i), _actions->GetItemText(i, 1));
+		_profile->SetStr((const char *) _actions->GetData()->GetItemData(i), _actions->GetData()->GetItemText(i, 1));
 	}
 	Close(_resultOK);
 }
@@ -324,7 +329,7 @@ void ControlProfileDlg::OnCancel()
 void ControlProfileDlg::OnTimeStep(float dt)
 {
 	_time += dt;
-	_actions->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
+	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
 
 	for( int k = 0; k < sizeof(g_env.envInputs.keys) / sizeof(g_env.envInputs.keys[0]); ++k )
 	{
@@ -336,13 +341,12 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			}
 			if( DIK_ESCAPE != k )
 			{
-				_actions->SetItemText(_activeIndex, 1, GetKeyName(k));
+				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(k));
 			}
 			else
 			{
-				_actions->SetItemText(_activeIndex, 1,
-					GetKeyName(GetKeyCode(_profile->GetStr((const char *) _actions->GetItemData(_activeIndex))->Get()))
-				);
+				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
+					_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex))->Get())) );
 			}
 //			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 			SetTimeStep(false);
@@ -412,10 +416,12 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	_onInit->SetText(g_level->_infoOnInit);
 
 	Text::Create(this, x1, y += 20, g_lang->map_theme->Get(), alignTextLT);
-	_theme = ComboBox::Create(this, x2, y += 15, 256);
+	_theme = DefaultComboBox::Create(this);
+	_theme->Move(x2, y += 15);
+	_theme->Resize(256);
 	for( size_t i = 0; i < _ThemeManager::Inst().GetThemeCount(); i++ )
 	{
-		_theme->GetList()->AddItem(_ThemeManager::Inst().GetThemeName(i));
+		_theme->GetData()->AddItem(_ThemeManager::Inst().GetThemeName(i));
 	}
 	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme));
 
@@ -442,7 +448,7 @@ void MapSettingsDlg::OnOK()
 	int i = _theme->GetCurSel();
 	if( 0 != i )
 	{
-		g_level->_infoTheme = _theme->GetList()->GetItemText(i);
+		g_level->_infoTheme = _theme->GetData()->GetItemText(i, 0);
 	}
 	else
 	{

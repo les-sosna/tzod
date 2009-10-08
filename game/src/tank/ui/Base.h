@@ -34,6 +34,9 @@ namespace UI
 	struct ListDataSource;
 	class ListDataSourceDefault;
 
+	template <class DataSourceType, class ListType>
+	class ListAdapter;
+
 #ifdef UNICODE
 	typedef std::wstring string_t;
 	typedef std::wostringstream ostrstream_t;

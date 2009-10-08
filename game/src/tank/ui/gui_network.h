@@ -13,11 +13,14 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 // forward declarations
-class MapList;
+class ListDataSourceMaps;
 
 class CreateServerDlg : public Dialog
 {
-	MapList   *_maps;
+	typedef ListAdapter<ListDataSourceMaps, List> MapListBox;
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+
+	MapListBox *_maps;
 	CheckBox  *_nightMode;
 	Edit      *_gameSpeed;
 	Edit      *_fragLimit;
@@ -25,8 +28,8 @@ class CreateServerDlg : public Dialog
 	Edit      *_svFps;
 //	Edit      *_svLatency;
 
+	DefaultComboBox *_lobbyList;
 	CheckBox  *_lobbyEnable;
-	ComboBox  *_lobbyList;
 	Button    *_lobbyAdd;
 
 public:
@@ -44,9 +47,10 @@ protected:
 
 class ConnectDlg : public Dialog
 {
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_status;
 	Button *_btnOK;
 	Edit   *_name;
-	List   *_status;
 	bool    _auto;
 
 public:
@@ -66,10 +70,11 @@ protected:
 
 class InternetDlg : public Dialog
 {
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_servers;
 	Button *_btnRefresh;
 	Button *_btnConnect;
 	Edit   *_name;
-	List   *_servers;
 	Text   *_status;
 
 public:
@@ -96,8 +101,9 @@ protected:
 
 class WaitingForPlayersDlg : public Dialog
 {
-	List           *_players;
-	List           *_bots;
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_players;
+	DefaultListBox *_bots;
 	Console        *_chat;
 	Button         *_btnOK;
 	Button         *_btnProfile;

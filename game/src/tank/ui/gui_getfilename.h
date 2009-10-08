@@ -12,7 +12,8 @@ namespace UI
 
 class GetFileNameDlg : public Dialog
 {
-	List *_files;
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_files;
 	Edit *_fileName;
 	string_t _ext;
 	SafePtr<FS::FileSystem> _folder;

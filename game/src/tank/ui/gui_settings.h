@@ -16,7 +16,8 @@ namespace UI
 
 class SettingsDlg : public Dialog
 {
-	List      *_profiles;
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_profiles;
 	Button    *_editProfile;
 	Button    *_deleteProfile;
 
@@ -58,8 +59,9 @@ protected:
 
 class ControlProfileDlg : public Dialog
 {
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox  *_actions;
 	Edit         *_nameEdit;
-	List         *_actions;
 	CheckBox     *_aimToMouse;
 	CheckBox     *_moveToMouse;
 	ConfVarTable *_profile;
@@ -88,12 +90,13 @@ protected:
 
 class MapSettingsDlg : public Dialog
 {
+	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	DefaultComboBox *_theme;
 	Edit *_author;
 	Edit *_email;
 	Edit *_url;
 	Edit *_desc;
 	Edit *_onInit;
-	ComboBox *_theme;
 
 public:
 	MapSettingsDlg(Window *parent);

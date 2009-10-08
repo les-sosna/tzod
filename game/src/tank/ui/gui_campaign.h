@@ -11,7 +11,8 @@ namespace UI
 
 class NewCampaignDlg : public Dialog
 {
-	List *_files;
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_files;
 
 public:
 	NewCampaignDlg(Window *parent);

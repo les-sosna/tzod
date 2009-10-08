@@ -7,6 +7,7 @@
 #include "List.h"
 #include "Button.h"
 #include "Text.h"
+#include "DataSourceAdapters.h"
 
 #include "GuiManager.h"
 
@@ -30,16 +31,18 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
 	t->SetFont("font_default");
 
-	_files = List::Create(this, 20, 56, 472, 280);
+	_files = DefaultListBox::Create(this);
+	_files->Move(20, 56);
+	_files->Resize(472, 280);
+
 	std::set<string_t> files;
 	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
 		it->erase(it->length() - 4); // cut out the file extension
-		int index = _files->AddItem(*it);
+		int index = _files->GetData()->AddItem(*it);
 	}
-	_files->Sort();
-
+	_files->GetData()->Sort();
 
 	Button::Create(this, g_lang->campaign_ok->Get(), 290, 360)->eventClick.bind(&NewCampaignDlg::OnOK, this);
 	Button::Create(this, g_lang->campaign_cancel->Get(), 400, 360)->eventClick.bind(&NewCampaignDlg::OnCancel, this);
@@ -59,7 +62,7 @@ void NewCampaignDlg::OnOK()
 
 	g_conf->ui_showmsg->Set(true);
 
-	const string_t& name = _files->GetItemText(_files->GetCurSel());
+	const string_t& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
 	{
 		static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
