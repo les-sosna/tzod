@@ -90,34 +90,30 @@ void LayoutManager::AddTopMost(Window* wnd, bool add)
 
 bool LayoutManager::SetFocusWnd(Window* wnd)
 {
-	if( wnd )
+	if( _focusWnd != wnd )
 	{
-		assert(wnd->GetEnabled() && wnd->GetVisible());
+		WindowWatchdog wdNew(wnd);
+		WindowWatchdog wdOld(_focusWnd);
 
-		if( _focusWnd == wnd )
-			return true;
-
-		if( wnd->OnFocus(true) )
+		// reset old focus
+		if( wdOld.IsAlive() )
 		{
-			if( _focusWnd )
-			{
-				_focusWnd->OnFocus(false);
-				if( _focusWnd->eventLostFocus )
-					INVOKE(_focusWnd->eventLostFocus) ();
-			}
+			Window *tmp = _focusWnd;
+			_focusWnd = NULL;
+			tmp->OnFocus(false);
+			if( wdOld.IsAlive() && tmp->eventLostFocus )
+				INVOKE(tmp->eventLostFocus) ();
+		}
+
+		// try setting new focus
+		if( wdNew.IsAlive() && wnd->GetEnabled() && wnd->GetVisible()
+			&& wnd->OnFocus(true) && wdNew.IsAlive() )
+		{
+			assert(wnd->GetEnabled() && wnd->GetVisible());
 			_focusWnd = wnd;
-			return true;
 		}
 	}
-	else if( _focusWnd )
-	{
-		_focusWnd->OnFocus(false);
-		if( _focusWnd->eventLostFocus )
-			INVOKE(_focusWnd->eventLostFocus) ();
-		_focusWnd = NULL;
-	}
-
-	return false;
+	return NULL != _focusWnd;
 }
 
 Window* LayoutManager::GetFocusWnd() const

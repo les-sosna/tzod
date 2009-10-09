@@ -39,7 +39,7 @@ public:
 	Window* GetCapture() const;
 	void SetCapture(Window* wnd);
 
-	bool SetFocusWnd(Window* wnd);
+	bool SetFocusWnd(Window* wnd);  // always resets previous focus
 	Window* GetFocusWnd() const;
 	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 

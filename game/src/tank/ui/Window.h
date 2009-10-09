@@ -220,17 +220,17 @@ class WindowWatchdog
 {
 public:
 	explicit WindowWatchdog(Window *p)
-		: _resident(p->_resident)
+		: _resident(p ? p->_resident : NULL)
 	{
-		assert(_resident);
-		assert(_resident->isWndAlive);
-		_resident->counter++;
+		assert(!p || _resident);
+		assert(!_resident || _resident->isWndAlive);
+		if( _resident ) _resident->counter++;
 	}
 
 	~WindowWatchdog()
 	{
-		assert(_resident->counter > 0);
-		if( 0 == --_resident->counter && !_resident->isWndAlive )
+		assert(!_resident || _resident->counter > 0);
+		if( _resident && 0 == --_resident->counter && !_resident->isWndAlive )
 		{
 			delete _resident;
 		}
@@ -238,7 +238,7 @@ public:
 
 	bool IsAlive() const
 	{
-		return _resident->isWndAlive;
+		return _resident && _resident->isWndAlive;
 	}
 
 private:

@@ -285,7 +285,7 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 	if( visible )
 	{
 		// show children last
-		_isVisible = true;
+		if( !inherited ) _isVisible = true;
 		OnVisibleChange(true, inherited);
 		for( Window *w = _firstChild; w; w = w->_nextSibling )
 		{
@@ -300,7 +300,7 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 			w->OnVisibleChangeInternal(false, true);
 		}
 		GetManager()->ResetWindow(this);
-		_isVisible = false;
+		if( !inherited ) _isVisible = false;
 		OnVisibleChange(false, inherited);
 	}
 }
