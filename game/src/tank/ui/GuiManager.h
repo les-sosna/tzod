@@ -35,7 +35,7 @@ public:
 
 	unsigned int GetWndCount() const;
 
-	TextureManager* GetTextureManager() const;
+	TextureManager* GetTextureManager();
 	Window* GetDesktop() const;
 
 	Window* GetCapture() const;
@@ -51,7 +51,7 @@ public:
 
 private:
 	friend class Window;
-	void Add(Window* wnd);
+	void Add(Window* wnd) throw();
 	void Remove(Window* wnd);
 	void AddTopMost(Window* wnd, bool add);
 	void ResetHotTrackWnd(Window* wnd);

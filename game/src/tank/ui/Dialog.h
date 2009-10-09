@@ -11,13 +11,8 @@ namespace UI
 
 class Dialog : public Window
 {
-	bool  _easyMove;
-	float _mouseX;
-	float _mouseY;
-
 public:
 	Dialog(Window *parent, float width, float height, bool modal = true);
-	virtual ~Dialog();
 
 	void SetEasyMove(bool enable);
 
@@ -37,6 +32,11 @@ protected:
 
 	virtual bool OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
+
+private:
+	float _mouseX;
+	float _mouseY;
+	bool  _easyMove;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

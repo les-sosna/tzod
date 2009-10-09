@@ -4,7 +4,6 @@
 
 #include "Base.h"
 
-#include "core/SafePtr.h"
 #include "core/PtrList.h"
 #include "core/Delegate.h"
 
@@ -17,8 +16,17 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Window : public RefCounted
+class Window
 {
+	friend class WindowWatchdog;
+	struct WatchdogResident
+	{
+		unsigned int counter;
+		bool isWndAlive;
+		WatchdogResident() : counter(0), isWndAlive(true) {}
+	};
+	WatchdogResident *_resident;
+
 	friend class LayoutManager;
 	LayoutManager *_manager;
 
@@ -55,7 +63,6 @@ class Window : public RefCounted
 
 	struct
 	{
-		bool _isDestroyed    : 1;
 		bool _isVisible      : 1;
 		bool _isEnabled      : 1;
 		bool _isTopMost      : 1;
@@ -83,8 +90,6 @@ protected:
 public:
 	static Window* Create(Window *parent);
 	void Destroy();
-
-	bool IsDestroyed() const { return _isDestroyed; }
 
 	Window* GetParent()      const { return _parent;      }
 	Window* GetPrevSibling() const { return _prevSibling; }
@@ -209,6 +214,37 @@ private:
 	virtual void OnTimeStep(float dt);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+class WindowWatchdog
+{
+public:
+	explicit WindowWatchdog(Window *p)
+		: _resident(p->_resident)
+	{
+		assert(_resident);
+		_resident->counter++;
+	}
+
+	~WindowWatchdog()
+	{
+		assert(_resident->counter > 0);
+		if( 0 == --_resident->counter && !_resident->isWndAlive )
+		{
+			delete _resident;
+		}
+	}
+
+	bool IsAlive() const
+	{
+		return _resident->isWndAlive;
+	}
+
+private:
+	WindowWatchdog(const WindowWatchdog&); // no copy
+	WindowWatchdog& operator = (const WindowWatchdog&);
+	Window::WatchdogResident *_resident;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI

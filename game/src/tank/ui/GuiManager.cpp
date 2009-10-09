@@ -109,7 +109,6 @@ void LayoutManager::AddTopMost(Window* wnd, bool add)
 {
 	if( add )
 	{
-		assert(!wnd->IsDestroyed());
 		_topmost.push_back(wnd);
 	}
 	else
@@ -162,7 +161,7 @@ Window* LayoutManager::GetFocusWnd() const
 	return _focusWnd;
 }
 
-TextureManager* LayoutManager::GetTextureManager() const
+TextureManager* LayoutManager::GetTextureManager()
 {
 	return g_texman;
 }
@@ -181,7 +180,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 		Window *tmp = wnd;
 		for( Window *w = wnd->GetParent(); w; w = w->GetParent() )
 		{
-			if( !w->GetVisible() || !w->GetEnabled() || w->IsDestroyed() )
+			if( !w->GetVisible() || !w->GetEnabled() )
 			{
 				tmp = w->GetParent();
 			}
@@ -199,22 +198,26 @@ bool LayoutManager::ResetFocus(Window* wnd)
 			// try to pass focus to next siblings
 			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
-				if( SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() )
+				{
+					if( SetFocusWnd(r) ) break;
+				}
 			}
 			if( r ) break;
 
 			// try to pass focus to previous siblings
 			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
-				if( SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() )
+				{
+					if( SetFocusWnd(r) ) break;
+				}
 			}
 			if( r ) break;
 
 			// and finally try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			assert(!tmp || (tmp->GetVisible() && tmp->GetEnabled() && !tmp->IsDestroyed()));
+			assert(!tmp || (tmp->GetVisible() && tmp->GetEnabled()));
 		}
 		if( !tmp )
 		{
@@ -298,7 +301,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 		// window is captured or mouse pointer is inside the window
 		//
 
-		wnd->AddRef(); // to be sure that pointer is valid if window was destroyed
+		WindowWatchdog wd(wnd);
 
 		bool msgProcessed = false;
 		switch( msg )
@@ -316,7 +319,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 		}
 
-		if( !wnd->IsDestroyed() && wnd->GetEnabled() && wnd->GetVisible() && msgProcessed )
+		if( wd.IsAlive() && wnd->GetEnabled() && wnd->GetVisible() && msgProcessed )
 		{
 			switch( msg )
 			{
@@ -341,7 +344,6 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 			}
 		}
 
-		wnd->Release();
 		return msgProcessed;
 	}
 
@@ -455,7 +457,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 void LayoutManager::Render() const
 {
 	g_render->SetMode(RM_INTERFACE);
-	const DrawingContext *dc = static_cast<const DrawingContext*>(GetTextureManager());
+	const DrawingContext *dc = static_cast<const DrawingContext*>(const_cast<LayoutManager*>(this)->GetTextureManager());
 
 	// draw desktop and all its children
 	if( _desktop->GetVisible() )

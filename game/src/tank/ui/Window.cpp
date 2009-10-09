@@ -33,7 +33,6 @@ Window::Window(Window *parent, LayoutManager *manager)
   , _firstChild(NULL)
   , _lastChild(NULL)
   , _nextSibling(NULL)
-  , _isDestroyed(false)
   , _isVisible(true)
   , _isEnabled(true)
   , _isTopMost(false)
@@ -42,6 +41,7 @@ Window::Window(Window *parent, LayoutManager *manager)
   , _drawBackground(true)
   , _clipChildren(false)
   , _texture(-1)
+  , _resident(new WatchdogResident())
 {
 	if( _parent )
 	{
@@ -54,92 +54,74 @@ Window::Window(Window *parent, LayoutManager *manager)
 		_parent->_lastChild = this;
 		if( !_parent->_firstChild )
 			_parent->_firstChild = this;
-		_parent->AddRef();
 	}
 	else
 	{
 		_prevSibling = NULL;
 	}
-
 	_manager->Add(this);
-	AddRef(); // increment ref counter to allow using Destroy()
 }
 
 Window::~Window()
 {
-	assert( _isDestroyed );
 }
 
 void Window::Destroy()
 {
-	if( !_isDestroyed )
+	assert(_resident);
+	_resident->isWndAlive = false;
+	if( 0 == _resident->counter )
 	{
-		_isDestroyed = true;
-
-		//
-		// remove this window from the manager
-		//
-		if( GetTopMost()  ) SetTopMost(false);
-		if( GetTimeStep() ) SetTimeStep(false);
-		_manager->Remove(this);
-
-
-		// destroy all children
-		if( Window *w = _firstChild )
-		{
-			w->AddRef();
-			for( ;; )
-			{
-				Window *tmp = w;
-
-				w = w->_nextSibling;
-				if( w )
-					w->AddRef();
-
-				tmp->Destroy();
-				tmp->Release();
-
-				if( !w )
-					break;
-			}
-		}
-
-
-		//
-		// destroy it self
-		//
-
-		if( _prevSibling )
-		{
-			assert(this == _prevSibling->_nextSibling);
-			_prevSibling->_nextSibling = _nextSibling;
-		}
-
-		if( _nextSibling )
-		{
-			assert(this == _nextSibling->_prevSibling);
-			_nextSibling->_prevSibling = _prevSibling;
-		}
-
-		if( _parent )
-		{
-			if( this == _parent->_firstChild )
-			{
-				assert(NULL == _prevSibling);
-				_parent->_firstChild = _nextSibling;
-			}
-
-			if( this == _parent->_lastChild )
-			{
-				assert(NULL == _nextSibling);
-				_parent->_lastChild = _prevSibling;
-			}
-
-			_parent->Release();
-		}
-
-		Release();
+		delete _resident;
 	}
+
+
+	//
+	// remove this window from the manager
+	//
+	if( GetTopMost()  ) SetTopMost(false);
+	if( GetTimeStep() ) SetTimeStep(false);
+	_manager->Remove(this);
+
+
+	// destroy all children
+	while( GetFirstChild() )
+	{
+		GetFirstChild()->Destroy();
+	}
+
+
+	//
+	// destroy it self
+	//
+
+	if( _prevSibling )
+	{
+		assert(this == _prevSibling->_nextSibling);
+		_prevSibling->_nextSibling = _nextSibling;
+	}
+
+	if( _nextSibling )
+	{
+		assert(this == _nextSibling->_prevSibling);
+		_nextSibling->_prevSibling = _prevSibling;
+	}
+
+	if( _parent )
+	{
+		if( this == _parent->_firstChild )
+		{
+			assert(NULL == _prevSibling);
+			_parent->_firstChild = _nextSibling;
+		}
+		if( this == _parent->_lastChild )
+		{
+			assert(NULL == _nextSibling);
+			_parent->_lastChild = _prevSibling;
+		}
+	}
+
+	delete this;
 }
 
 float Window::GetTextureWidth() const
@@ -255,7 +237,6 @@ void Window::SetTimeStep(bool enable)
 {
 	if( enable )
 	{
-		assert(!IsDestroyed());
 		if( !_isTimeStep )
 			_timeStepReg = GetManager()->TimeStepRegister(this);
 	}

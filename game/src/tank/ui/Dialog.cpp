@@ -8,16 +8,6 @@
 
 namespace UI
 {
-/*
-class Substrate : public Window
-{
-public:
-	Substrate(Window *parent)
-	  : Window(parent)
-	{
-		Resize(GetManager()->GetDesktop()->GetWidth(), GetManager()->GetDesktop()->GetHeight());
-	}
-};*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dialog class implementation
@@ -34,10 +24,6 @@ Dialog::Dialog(Window *parent, float width, float height, bool modal)
 	SetDrawBorder(true);
 	SetDrawBackground(true);
 	GetManager()->SetFocusWnd(this);
-}
-
-Dialog::~Dialog()
-{
 }
 
 void Dialog::SetEasyMove(bool enable)
@@ -103,10 +89,10 @@ bool Dialog::OnRawChar(int c)
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to previous siblings
-			UI::Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
+			Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
 			for( ; r; r = r->GetPrevSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() ) continue;
 				if( GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
@@ -115,10 +101,10 @@ bool Dialog::OnRawChar(int c)
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to next siblings
-			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() ) continue;
 				if( GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
@@ -127,10 +113,10 @@ bool Dialog::OnRawChar(int c)
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to next siblings ...
-			UI::Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() ) continue;
 				if( GetManager()->SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
@@ -139,7 +125,7 @@ bool Dialog::OnRawChar(int c)
 			r = GetFirstChild();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() || r->IsDestroyed() ) continue;
+				if( !r->GetVisible() || !r->GetEnabled() ) continue;
 				if( GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
@@ -147,11 +133,9 @@ bool Dialog::OnRawChar(int c)
 	case VK_ESCAPE:
 		Close(_resultCancel);
 		break;
-
 	default:
 		return false;
 	}
-
 	return true;
 }
 
