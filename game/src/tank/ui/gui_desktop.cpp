@@ -193,7 +193,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case VK_ESCAPE:
-		if( GetManager()->GetFocusWnd() && GetManager()->ResetFocus(_con) )
+		if( _con->Contains(GetManager()->GetFocusWnd()) )
 		{
 			_con->SetVisible(false);
 		}

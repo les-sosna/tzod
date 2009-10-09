@@ -20,7 +20,6 @@ LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory)
   , _captureWnd(NULL)
   , _captureCountSystem(0)
   , _captureCount(0)
-  , _windowCount(0)
   , _isAppActive(false)
 {
 	_desktop = pDesktopFactory->Create(this);
@@ -31,46 +30,11 @@ LayoutManager::~LayoutManager()
 	_desktop->Destroy();
 	_desktop = NULL;
 	assert(_topmost.empty());
-	assert(0 == GetWndCount());
-}
-
-void LayoutManager::Add(Window* wnd)
-{
-	assert(wnd);
-	++_windowCount;
-}
-
-void LayoutManager::Remove(Window* wnd)
-{
-	assert(!wnd->GetTopMost()); // can't remove top most window
-
-	if( wnd == _hotTrackWnd )
-	{
-		_hotTrackWnd = NULL;
-	}
-	if( wnd == _focusWnd )
-	{
-		ResetFocus(wnd);
-		assert(wnd != _focusWnd);
-	}
-
-	if( wnd == _captureWnd )
-	{
-		_captureWnd   = NULL;
-		_captureCount = 0;
-	}
-
-	--_windowCount;
 }
 
 Window* LayoutManager::GetCapture() const
 {
 	return _captureWnd;
-}
-
-unsigned int LayoutManager::GetWndCount() const
-{
-	return _windowCount;
 }
 
 Window* LayoutManager::GetDesktop() const
@@ -243,12 +207,21 @@ Window* LayoutManager::GetHotTrackWnd() const
 	return _hotTrackWnd;
 }
 
-void LayoutManager::ResetHotTrackWnd(Window* wnd)
+void LayoutManager::ResetWindow(Window* wnd)
 {
+	if( GetFocusWnd() == wnd )
+		SetFocusWnd(NULL);
+
 	if( _hotTrackWnd == wnd )
 	{
 		_hotTrackWnd->OnMouseLeave();
 		_hotTrackWnd = NULL;
+	}
+
+	if( _captureWnd == wnd )
+	{
+		_captureWnd   = NULL;
+		_captureCount = 0;
 	}
 }
 

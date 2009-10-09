@@ -78,8 +78,6 @@ protected:
 	unsigned int GetFrame() const { return _frame; }
 	void SetFrame(unsigned int n) { _frame = n; }
 
-	void Reset();
-
 	void OnEnabledChangeInternal(bool enable, bool inherited);
 	void OnVisibleChangeInternal(bool visible, bool inherited);
 
@@ -97,6 +95,8 @@ public:
 	Window* GetFirstChild()  const { return _firstChild;  }
 	Window* GetLastChild()   const { return _lastChild;   }
 	LayoutManager* GetManager() const { return _manager;  }
+
+	bool Contains(const Window *other) const;
 
 
 	//
@@ -223,6 +223,7 @@ public:
 		: _resident(p->_resident)
 	{
 		assert(_resident);
+		assert(_resident->isWndAlive);
 		_resident->counter++;
 	}
 

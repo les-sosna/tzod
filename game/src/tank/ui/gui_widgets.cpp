@@ -59,7 +59,7 @@ void FpsCounter::OnTimeStep(float dt)
 			int(1.0f / max + 0.5f), 
 			int(1.0f / avr + 0.5f), 
 			int(1.0f / min + 0.5f),
-			GetManager()->GetWndCount()
+			-1
 		);
 
 		wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat",

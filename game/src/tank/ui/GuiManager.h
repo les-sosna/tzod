@@ -33,8 +33,6 @@ public:
 	bool ProcessMouse(float x, float y, float z, UINT msg);
 	bool ProcessKeys(UINT msg, int c);
 
-	unsigned int GetWndCount() const;
-
 	TextureManager* GetTextureManager();
 	Window* GetDesktop() const;
 
@@ -51,10 +49,8 @@ public:
 
 private:
 	friend class Window;
-	void Add(Window* wnd) throw();
-	void Remove(Window* wnd);
 	void AddTopMost(Window* wnd, bool add);
-	void ResetHotTrackWnd(Window* wnd);
+	void ResetWindow(Window* wnd);
 	PtrList<Window>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(PtrList<Window>::iterator it);
 
@@ -72,7 +68,6 @@ private:
 
 	unsigned int _captureCountSystem;
 	unsigned int _captureCount;
-	unsigned int _windowCount;
 	bool _isAppActive;
 };
 

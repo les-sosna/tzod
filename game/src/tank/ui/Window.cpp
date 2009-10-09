@@ -59,42 +59,10 @@ Window::Window(Window *parent, LayoutManager *manager)
 	{
 		_prevSibling = NULL;
 	}
-	_manager->Add(this);
 }
 
 Window::~Window()
 {
-}
-
-void Window::Destroy()
-{
-	assert(_resident);
-	_resident->isWndAlive = false;
-	if( 0 == _resident->counter )
-	{
-		delete _resident;
-	}
-
-
-	//
-	// remove this window from the manager
-	//
-	if( GetTopMost()  ) SetTopMost(false);
-	if( GetTimeStep() ) SetTimeStep(false);
-	_manager->Remove(this);
-
-
-	// destroy all children
-	while( GetFirstChild() )
-	{
-		GetFirstChild()->Destroy();
-	}
-
-
-	//
-	// destroy it self
-	//
-
 	if( _prevSibling )
 	{
 		assert(this == _prevSibling->_nextSibling);
@@ -120,8 +88,50 @@ void Window::Destroy()
 			_parent->_lastChild = _prevSibling;
 		}
 	}
+}
 
+void Window::Destroy()
+{
+	// this removes focus and mouse hover if any.
+	// the window don't yet suspect that it's being destroyed
+	GetManager()->ResetWindow(this);
+
+	// do not call virtual functions after children got destroyed!
+	while( GetFirstChild() )
+	{
+		GetFirstChild()->Destroy();
+	}
+
+	if( _isTopMost )
+		GetManager()->AddTopMost(this, false);
+
+	if( _isTimeStep )
+		GetManager()->TimeStepUnregister(_timeStepReg);
+
+	// mark window as dead
+	assert(_resident);
+	_resident->isWndAlive = false;
+	if( 0 == _resident->counter )
+	{
+		delete _resident;
+	}
+	_resident = NULL;
+
+	// destroy it self
 	delete this;
+}
+
+bool Window::Contains(const Window *other) const
+{
+	while( other )
+	{
+		if( this == other )
+		{
+			return true;
+		}
+		other = other->_parent;
+	}
+	return false;
 }
 
 float Window::GetTextureWidth() const
@@ -229,51 +239,69 @@ void Window::Resize(float width, float height)
 void Window::SetTopMost(bool topmost)
 {
 	assert(_isTopMost != topmost);
-	_manager->AddTopMost(this, topmost);
+	GetManager()->AddTopMost(this, topmost);
 	_isTopMost = topmost;
 }
 
 void Window::SetTimeStep(bool enable)
 {
-	if( enable )
-	{
-		if( !_isTimeStep )
-			_timeStepReg = GetManager()->TimeStepRegister(this);
-	}
-	else
+	if( enable != _isTimeStep )
 	{
 		if( _isTimeStep )
 			GetManager()->TimeStepUnregister(_timeStepReg);
-	}
-	_isTimeStep = enable;
-}
-
-void Window::Reset() // called when window is being hidden or disabled
-{
-	if( GetManager()->GetFocusWnd() ) GetManager()->ResetFocus(this);
-	if( GetManager()->GetHotTrackWnd() ) GetManager()->ResetHotTrackWnd(this);
-
-	for( Window *w = _firstChild; w; w = w->_nextSibling )
-	{
-		w->Reset();
+		else
+			_timeStepReg = GetManager()->TimeStepRegister(this);
+		_isTimeStep = enable;
 	}
 }
 
 void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 {
-	OnEnabledChange(enable, inherited);
-	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	if( enable )
 	{
-		w->OnEnabledChangeInternal(enable, true);
+		// enable children last
+		if( !inherited ) _isEnabled = true;
+		OnEnabledChange(true, inherited);
+		for( Window *w = _firstChild; w; w = w->_nextSibling )
+		{
+			w->OnEnabledChangeInternal(true, true);
+		}
+	}
+	else
+	{
+		// disable children first
+		for( Window *w = _firstChild; w; w = w->_nextSibling )
+		{
+			w->OnEnabledChangeInternal(false, true);
+		}
+		GetManager()->ResetWindow(this);
+		if( !inherited ) _isEnabled = false;
+		OnEnabledChange(false, inherited);
 	}
 }
 
 void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 {
-	OnVisibleChange(visible, inherited);
-	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	if( visible )
 	{
-		w->OnVisibleChangeInternal(visible, true);
+		// show children last
+		_isVisible = true;
+		OnVisibleChange(true, inherited);
+		for( Window *w = _firstChild; w; w = w->_nextSibling )
+		{
+			w->OnVisibleChangeInternal(true, true);
+		}
+	}
+	else
+	{
+		// hide children first
+		for( Window *w = _firstChild; w; w = w->_nextSibling )
+		{
+			w->OnVisibleChangeInternal(false, true);
+		}
+		GetManager()->ResetWindow(this);
+		_isVisible = false;
+		OnVisibleChange(false, inherited);
 	}
 }
 
@@ -281,9 +309,8 @@ void Window::SetEnabled(bool enable)
 {
 	if( _isEnabled != enable )
 	{
-		_isEnabled = enable;
-		if( !enable ) Reset();
 		OnEnabledChangeInternal(enable, false);
+		assert(_isEnabled == enable);
 	}
 }
 
@@ -296,9 +323,8 @@ void Window::SetVisible(bool visible)
 {
 	if( _isVisible != visible )
 	{
-		_isVisible = visible;
-		if( !visible ) Reset();
 		OnVisibleChangeInternal(visible, false);
+		assert(_isVisible == visible);
 	}
 }
 
