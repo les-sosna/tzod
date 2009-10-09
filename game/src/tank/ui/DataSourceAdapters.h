@@ -8,7 +8,9 @@ namespace UI
 {
 
 template <class DataSourceType, class ListType>
-class ListAdapter : public ListType
+class ListAdapter
+	: private DataSourceType
+	, public ListType
 {
 public:
 	static ListAdapter* Create(Window *parent)
@@ -16,24 +18,20 @@ public:
 		return new ListAdapter(parent);
 	}
 
-	DataSourceType* GetData() const
+	DataSourceType* GetData()
 	{
-		return _data;
+		return this;
 	}
 
 protected:
 	ListAdapter(Window *parent)
-		: ListType(parent, new DataSourceType()) // FIXME: memory leak when ListType::ListType throws
-		, _data(static_cast<DataSourceType*>(ListType::GetData()))
+		: DataSourceType()
+		, ListType(parent, this)
 	{
 	}
 	virtual ~ListAdapter()
 	{
-		delete _data;
 	}
-
-private:
-	DataSourceType *_data;
 };
 
 
