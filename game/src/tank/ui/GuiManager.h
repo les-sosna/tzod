@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Base.h"
+#include "Window.h"
 
 namespace UI
 {
@@ -41,9 +41,7 @@ public:
 
 	bool SetFocusWnd(Window* wnd);  // always resets previous focus
 	Window* GetFocusWnd() const;
-	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
-
-	Window* GetHotTrackWnd() const;
+//	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 
 	bool IsMainWindowActive() const { return _isAppActive; }
 
@@ -57,17 +55,18 @@ private:
 private:
 	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, UINT msg);
 
-	Window* _desktop;
-
-	Window* _focusWnd;
-	Window* _hotTrackWnd;
-	Window* _captureWnd;
-
 	PtrList<Window> _timestep;
 	PtrList<Window> _topmost;
 
 	unsigned int _captureCountSystem;
 	unsigned int _captureCount;
+
+	WindowWeakPtr _focusWnd;
+	WindowWeakPtr _hotTrackWnd;
+	WindowWeakPtr _captureWnd;
+
+	WindowWeakPtr _desktop;
+
 	bool _isAppActive;
 };
 

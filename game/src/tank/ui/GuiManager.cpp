@@ -15,56 +15,56 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory) 
-  : _focusWnd(NULL)
+  : _captureCountSystem(0)
+  , _captureCount(0)
+  , _focusWnd(NULL)
   , _hotTrackWnd(NULL)
   , _captureWnd(NULL)
-  , _captureCountSystem(0)
-  , _captureCount(0)
+  , _desktop(NULL)
   , _isAppActive(false)
 {
-	_desktop = pDesktopFactory->Create(this);
+	_desktop.Set(pDesktopFactory->Create(this));
 }
 
 LayoutManager::~LayoutManager()
 {
 	_desktop->Destroy();
-	_desktop = NULL;
 	assert(_topmost.empty());
 }
 
 Window* LayoutManager::GetCapture() const
 {
-	return _captureWnd;
+	return _captureWnd.Get();
 }
 
 Window* LayoutManager::GetDesktop() const
 {
-	return _desktop;
+	return _desktop.Get();
 }
 
 void LayoutManager::SetCapture(Window* wnd)
 {
 	if( wnd )
 	{
-		if( _captureWnd )
+		if( _captureWnd.Get() )
 		{
-			assert(_captureWnd == wnd);
+			assert(_captureWnd.Get() == wnd);
 			assert(_captureCount != 0);
 		}
 		else
 		{
 			assert(0 == _captureCount);
-			_captureWnd = wnd;
+			_captureWnd.Set(wnd);
 		}
 		_captureCount++;
 	}
 	else
 	{
-		assert(_captureWnd);
+		assert(_captureWnd.Get());
 		assert(0 != _captureCount);
 		if( 0 == --_captureCount )
 		{
-			_captureWnd = NULL;
+			_captureWnd.Set(NULL);
 		}
 	}
 }
@@ -90,42 +90,42 @@ void LayoutManager::AddTopMost(Window* wnd, bool add)
 
 bool LayoutManager::SetFocusWnd(Window* wnd)
 {
-	if( _focusWnd != wnd )
+	if( _focusWnd.Get() != wnd )
 	{
-		WindowWatchdog wdNew(wnd);
-		WindowWatchdog wdOld(_focusWnd);
+		WindowWeakPtr wp(wnd);
 
 		// reset old focus
-		if( wdOld.IsAlive() )
+		if( _focusWnd.Get() )
 		{
-			Window *tmp = _focusWnd;
-			_focusWnd = NULL;
+			WindowWeakPtr tmp(_focusWnd.Get());
+			_focusWnd.Set(NULL);
 			tmp->OnFocus(false);
-			if( wdOld.IsAlive() && tmp->eventLostFocus )
+			if( tmp.Get() && tmp->eventLostFocus )
 				INVOKE(tmp->eventLostFocus) ();
 		}
 
 		// try setting new focus
-		if( wdNew.IsAlive() && wnd->GetEnabled() && wnd->GetVisible()
-			&& wnd->OnFocus(true) && wdNew.IsAlive() )
+		if( wp.Get() && wnd->GetEnabled() && wnd->GetVisible()
+			&& wnd->OnFocus(true) && wp.Get() )
 		{
 			assert(wnd->GetEnabled() && wnd->GetVisible());
-			_focusWnd = wnd;
+			assert(!_focusWnd.Get());
+			_focusWnd.Set(wnd);
 		}
 	}
-	return NULL != _focusWnd;
+	return NULL != _focusWnd.Get();
 }
 
 Window* LayoutManager::GetFocusWnd() const
 {
-	return _focusWnd;
+	return _focusWnd.Get();
 }
 
 TextureManager* LayoutManager::GetTextureManager()
 {
 	return g_texman;
 }
-
+/*
 bool LayoutManager::ResetFocus(Window* wnd)
 {
 	assert(wnd);
@@ -197,26 +197,23 @@ bool LayoutManager::ResetFocus(Window* wnd)
 
 	return false;
 }
-
-Window* LayoutManager::GetHotTrackWnd() const
-{
-	return _hotTrackWnd;
-}
-
+*/
 void LayoutManager::ResetWindow(Window* wnd)
 {
+	assert(wnd);
+
 	if( GetFocusWnd() == wnd )
 		SetFocusWnd(NULL);
 
-	if( _hotTrackWnd == wnd )
+	if( _hotTrackWnd.Get() == wnd )
 	{
 		_hotTrackWnd->OnMouseLeave();
-		_hotTrackWnd = NULL;
+		_hotTrackWnd.Set(NULL);
 	}
 
-	if( _captureWnd == wnd )
+	if( _captureWnd.Get() == wnd )
 	{
-		_captureWnd   = NULL;
+		_captureWnd.Set(NULL);
 		_captureCount = 0;
 	}
 }
@@ -246,20 +243,22 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 
 	if( GetCapture() != wnd )
 	{
-		//
 		// route message to each child until someone process it
-		//
-
-		if( !wnd->GetClipChildren() || bMouseInside )
+		if( bMouseInside || !wnd->GetClipChildren() )
 		{
 			for( Window *w = wnd->GetLastChild(); w; w = w->GetPrevSibling() )
 			{
-				// do not dispatch messages to disabled or invisible
-				// topmost windows are processed in different way
-				if( !w->GetEnabled() || !w->GetVisible() || w->GetTopMost() )
-					continue;
-				if( ProcessMouseInternal(w, x - w->GetX(), y - w->GetY(), z, msg) )
+#ifndef NDEBUG
+				WindowWeakPtr wp(w);
+#endif
+				// do not dispatch messages to disabled or invisible window.
+				// topmost windows are processed separately
+				if( w->GetEnabled() && w->GetVisible() && !w->GetTopMost() &&
+					ProcessMouseInternal(w, x - w->GetX(), y - w->GetY(), z, msg) )
+				{
 					return true;
+				}
+				assert(wp.Get());
 			}
 		}
 	}
@@ -270,7 +269,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 		// window is captured or mouse pointer is inside the window
 		//
 
-		WindowWatchdog wd(wnd);
+		WindowWeakPtr wp(wnd);
 
 		bool msgProcessed = false;
 		switch( msg )
@@ -287,27 +286,26 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 		}
+		// if window did not process the message, it should not destroy it self
+		assert(!msgProcessed || wp.Get());
 
-		if( wd.IsAlive() && wnd->GetEnabled() && wnd->GetVisible() && msgProcessed )
+		if( wp.Get() && msgProcessed )
 		{
 			switch( msg )
 			{
 			case WM_LBUTTONDOWN:
 			case WM_RBUTTONDOWN:
 			case WM_MBUTTONDOWN:
-				if( _focusWnd != wnd )
-				{
-					SetFocusWnd(wnd);
-				}
+				SetFocusWnd(wnd); // may destroy wnd
 			}
 
-			if( wnd != _hotTrackWnd )
+			if( wp.Get() && wnd != _hotTrackWnd.Get() )
 			{
-				if( _hotTrackWnd )
-					_hotTrackWnd->OnMouseLeave();
-				if( wnd->GetVisible() && wnd->GetEnabled() )
+				if( _hotTrackWnd.Get() )
+					_hotTrackWnd->OnMouseLeave(); // may destroy wnd
+				if( wp.Get() && wnd->GetVisible() && wnd->GetEnabled() )
 				{
-					_hotTrackWnd = wnd;
+					_hotTrackWnd.Set(wnd);
 					_hotTrackWnd->OnMouseEnter(x, y);
 				}
 			}
@@ -321,59 +319,49 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 
 bool LayoutManager::ProcessMouse(float x, float y, float z, UINT msg)
 {
-	bool msgProcessed = false;
-
-	if( _captureWnd )
+	if( _captureWnd.Get() )
 	{
-		// we have a captured window
 		// calc relative mouse position and route message to captured window
-		for( Window *wnd = _captureWnd; _desktop != wnd; wnd = wnd->GetParent() )
+		for( Window *wnd = _captureWnd.Get(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
 		{
 			assert(wnd);
 			x -= wnd->GetX();
 			y -= wnd->GetY();
 		}
-		msgProcessed = ProcessMouseInternal(_captureWnd, x, y, z, msg);
+		if( ProcessMouseInternal(_captureWnd.Get(), x, y, z, msg) )
+			return true;
 	}
 	else
 	{
-		//
-		// first try to pass messages to one of the topmost windows
-		//
+		// first try to pass messages to one of topmost windows
 		for( PtrList<Window>::reverse_iterator it = _topmost.rbegin(); _topmost.rend() != it; ++it )
 		{
-			if( !(*it)->GetEnabled() || !(*it)->GetVisible() )
-				continue;  // do not dispatch messages to disabled or invisible window
-
-			// calculate absolute coordinates of the window
-			float x_ = _desktop->GetX();
-			float y_ = _desktop->GetY();
-			for( Window *wnd = *it; _desktop != wnd; wnd = wnd->GetParent() )
+			// do not dispatch messages to disabled or invisible window
+			if( (*it)->GetEnabled() && (*it)->GetVisible() )
 			{
-				assert(wnd);
-				x_ += wnd->GetX();
-				y_ += wnd->GetY();
+				// calculate absolute coordinates of the window
+				float x_ = _desktop->GetX();
+				float y_ = _desktop->GetY();
+				for( Window *wnd = *it; _desktop.Get() != wnd; wnd = wnd->GetParent() )
+				{
+					assert(wnd);
+					x_ += wnd->GetX();
+					y_ += wnd->GetY();
+				}
+				if( ProcessMouseInternal(*it, x - x_, y - y_, z, msg) )
+					return true;
 			}
-			msgProcessed = ProcessMouseInternal(*it, x - x_, y - y_, z, msg);
-			if( msgProcessed ) break;
 		}
-
-		//
 		// then handle all children of the desktop recursively
-		//
-		if( !msgProcessed )
-		{
-			msgProcessed = ProcessMouseInternal(_desktop, x, y, z, msg);
-		}
+		if( ProcessMouseInternal(_desktop.Get(), x, y, z, msg) )
+			return true;
 	}
-
-	if( !msgProcessed && _hotTrackWnd )
+	if( _hotTrackWnd.Get() )
 	{
 		_hotTrackWnd->OnMouseLeave();
-		_hotTrackWnd = NULL;
+		_hotTrackWnd.Set(NULL);
 	}
-
-	return msgProcessed;
+	return false;
 }
 
 bool LayoutManager::ProcessKeys(UINT msg, int c)
@@ -383,7 +371,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 	case WM_KEYUP:
 		break;
 	case WM_KEYDOWN:
-		if( Window *wnd = _focusWnd )
+		if( Window *wnd = _focusWnd.Get() )
 		{
 			while( wnd )
 			{
@@ -400,7 +388,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 		}
 		break;
 	case WM_CHAR:
-		if( Window *wnd = _focusWnd )
+		if( Window *wnd = _focusWnd.Get() )
 		{
 			while( wnd )
 			{
@@ -439,7 +427,7 @@ void LayoutManager::Render() const
 		{
 			float x = _desktop->GetX();
 			float y = _desktop->GetY();
-			for( Window *wnd = (*it)->GetParent(); _desktop != wnd; wnd = wnd->GetParent() )
+			for( Window *wnd = (*it)->GetParent(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
 			{
 				assert(wnd);
 				x += wnd->GetX();

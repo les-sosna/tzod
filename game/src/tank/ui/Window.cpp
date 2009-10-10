@@ -45,7 +45,7 @@ Window::Window(Window *parent, LayoutManager *manager)
   , _drawBackground(true)
   , _clipChildren(false)
   , _texture(-1)
-  , _resident(new WatchdogResident())
+  , _resident(new Resident(this))
 #ifdef DEBUG
   , _debugNoDestroy(0)
 #endif
@@ -123,7 +123,7 @@ void Window::Destroy()
 
 	// mark window as dead
 	assert(_resident);
-	_resident->isWndAlive = false;
+	_resident->ptr = NULL;
 	if( 0 == _resident->counter )
 	{
 		delete _resident;

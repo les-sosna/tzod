@@ -62,16 +62,16 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 	{
 		GetManager()->SetCapture(NULL);
 		bool click = (GetState() == statePushed);
-		WindowWatchdog wd(this);
+		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
 			INVOKE(eventMouseUp) (x, y); // handler may destroy this object
-		if( click && wd.IsAlive() )
+		if( click && wwp.Get() )
 		{
 			OnClick();                   // handler may destroy this object
-			if( eventClick && wd.IsAlive() )
+			if( eventClick && wwp.Get() )
 				INVOKE(eventClick) ();   // handler may destroy this object
 		}
-		if( wd.IsAlive() )
+		if( wwp.Get() )
 			SetState(stateHottrack);
 		return true;
 	}

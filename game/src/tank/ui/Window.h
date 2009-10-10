@@ -18,14 +18,14 @@ namespace UI
 
 class Window
 {
-	friend class WindowWatchdog;
-	struct WatchdogResident
+	friend class WindowWeakPtr;
+	struct Resident
 	{
 		unsigned int counter;
-		bool isWndAlive;
-		WatchdogResident() : counter(0), isWndAlive(true) {}
+		Window *ptr;
+		Resident(Window *p) : counter(0), ptr(p) {}
 	};
-	WatchdogResident *_resident;
+	Resident *_resident;
 
 	friend class LayoutManager;
 	LayoutManager *_manager;
@@ -227,35 +227,51 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class WindowWatchdog
+class WindowWeakPtr
 {
 public:
-	explicit WindowWatchdog(Window *p)
+	explicit WindowWeakPtr(Window *p)
 		: _resident(p ? p->_resident : NULL)
 	{
 		assert(!p || _resident);
-		assert(!_resident || _resident->isWndAlive);
+		assert(!_resident || _resident->ptr);
 		if( _resident ) _resident->counter++;
 	}
 
-	~WindowWatchdog()
+	~WindowWeakPtr()
+	{
+		Set(NULL);
+	}
+
+	Window* operator->() const
+	{
+		assert(_resident && _resident->ptr);
+		return _resident->ptr;
+	}
+
+	Window* Get() const
+	{
+		return _resident ? _resident->ptr : NULL;
+	}
+
+	void Set(Window *p)
 	{
 		assert(!_resident || _resident->counter > 0);
-		if( _resident && 0 == --_resident->counter && !_resident->isWndAlive )
+		if( _resident && 0 == --_resident->counter && !_resident->ptr )
 		{
 			delete _resident;
 		}
-	}
 
-	bool IsAlive() const
-	{
-		return _resident && _resident->isWndAlive;
+		_resident = p ? p->_resident : NULL;
+		assert(!p || _resident);
+		assert(!_resident || _resident->ptr);
+		if( _resident ) _resident->counter++;
 	}
 
 private:
-	WindowWatchdog(const WindowWatchdog&); // no copy
-	WindowWatchdog& operator = (const WindowWatchdog&);
-	Window::WatchdogResident *_resident;
+	WindowWeakPtr(const WindowWeakPtr&); // no copy
+	WindowWeakPtr& operator = (const WindowWeakPtr&);
+	Window::Resident *_resident;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
