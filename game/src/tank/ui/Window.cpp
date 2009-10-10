@@ -20,6 +20,10 @@ Window* Window::Create(Window *parent)
 ///////////////////////////////////////////////////////////////////////////////
 // Window class implementation
 
+#ifndef DEBUG
+#define NoDestroyHelper
+#endif
+
 Window::Window(Window *parent, LayoutManager *manager)
   : _x(0)
   , _y(0)
@@ -42,6 +46,9 @@ Window::Window(Window *parent, LayoutManager *manager)
   , _clipChildren(false)
   , _texture(-1)
   , _resident(new WatchdogResident())
+#ifdef DEBUG
+  , _debugNoDestroy(0)
+#endif
 {
 	if( _parent )
 	{
@@ -92,21 +99,27 @@ Window::~Window()
 
 void Window::Destroy()
 {
-	// this removes focus and mouse hover if any.
-	// the window don't yet suspect that it's being destroyed
-	GetManager()->ResetWindow(this);
-
-	// do not call virtual functions after children got destroyed!
-	while( GetFirstChild() )
+#ifdef DEBUG
+	assert(!_debugNoDestroy);
+#endif
 	{
-		GetFirstChild()->Destroy();
+		NoDestroyHelper(this);
+
+		// this removes focus and mouse hover if any.
+		// the window don't yet suspect that it's being destroyed
+		GetManager()->ResetWindow(this);
+
+		// do not call virtual functions after children got destroyed!
+		while( GetFirstChild() )
+		{
+			GetFirstChild()->Destroy();
+		}
+
+		if( _isTopMost )
+			GetManager()->AddTopMost(this, false);
+		if( _isTimeStep )
+			GetManager()->TimeStepUnregister(_timeStepReg);
 	}
-
-	if( _isTopMost )
-		GetManager()->AddTopMost(this, false);
-
-	if( _isTimeStep )
-		GetManager()->TimeStepUnregister(_timeStepReg);
 
 	// mark window as dead
 	assert(_resident);
@@ -117,7 +130,7 @@ void Window::Destroy()
 	}
 	_resident = NULL;
 
-	// destroy it self
+	// do destroy
 	delete this;
 }
 
@@ -167,6 +180,7 @@ unsigned int Window::GetFrameCount() const
 
 void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 {
+	NoDestroyHelper(this);
 	assert(_isVisible);
 
 	//           left     top      right             bottom
@@ -208,6 +222,8 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 
 void Window::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
+	NoDestroyHelper(this);
+
 	for( Window *w = _firstChild; w; w = w->_nextSibling )
 	{
 		// topmost windows are drawn separately
@@ -227,6 +243,8 @@ void Window::Move(float x, float y)
 
 void Window::Resize(float width, float height)
 {
+	NoDestroyHelper(this);
+
 	_width  = width;
 	_height = height;
 	OnSize(width, height);
@@ -257,6 +275,7 @@ void Window::SetTimeStep(bool enable)
 
 void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 {
+	NoDestroyHelper(this);
 	if( enable )
 	{
 		// enable children last
@@ -282,6 +301,7 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 
 void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 {
+	NoDestroyHelper(this);
 	if( visible )
 	{
 		// show children last

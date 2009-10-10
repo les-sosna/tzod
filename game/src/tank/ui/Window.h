@@ -72,6 +72,17 @@ class Window
 		bool _clipChildren   : 1;
 	};
 
+#ifdef DEBUG
+	unsigned int _debugNoDestroy;
+	class NoDestroyHelper
+	{
+	public:
+		NoDestroyHelper(Window *wnd) : _var(wnd->_debugNoDestroy) { ++_var; }
+		~NoDestroyHelper() { --_var; }
+	private:
+		unsigned int &_var;
+	};
+#endif
 
 protected:
 	unsigned int GetFrameCount() const;
