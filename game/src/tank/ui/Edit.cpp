@@ -142,7 +142,7 @@ void Edit::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		dc->DrawBitmapText(sx, sy, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
 
-	dc->DrawBitmapText(sx + (GetSelMin() - _offset) * w, sy, _font, 0xff000000, GetText().substr(GetSelMin(), GetSelLength()));
+	dc->DrawBitmapText(sx + (GetSelMin() - _offset) * w, sy, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
 	dc->DrawBitmapText(sx + (GetSelMax() - _offset) * w, sy, _font, c, GetText().substr(GetSelMax()));
 }
 

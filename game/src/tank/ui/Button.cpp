@@ -126,7 +126,7 @@ Button::Button(Window *parent)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
 {
 	SetTexture("ui/button", true);
-	SetDrawBorder(true);
+	SetDrawBorder(false);
 	OnChangeState(stateNormal);
 }
 

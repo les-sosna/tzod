@@ -287,7 +287,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 		}
 		// if window did not process the message, it should not destroy it self
-		assert(!msgProcessed || wp.Get());
+		assert(msgProcessed || wp.Get());
 
 		if( wp.Get() && msgProcessed )
 		{

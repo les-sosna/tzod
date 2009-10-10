@@ -450,7 +450,197 @@ void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor col
 
 void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
 {
+	const LogicalTexture &lt = Get(sprite);
 
+	const float pxBorderSize  = 2;
+	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
+	const float uvBorderHeight = pxBorderSize * lt.uvFrameHeight / lt.pxFrameHeight;
+
+	MyVertex *v;
+
+	// left edge
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvLeft - uvBorderWidth;
+	v[0].v = lt.uvTop;
+	v[0].x = dst->left - pxBorderSize;
+	v[0].y = dst->top;
+	v[1].color = color;
+	v[1].u = lt.uvLeft;
+	v[1].v = lt.uvTop;
+	v[1].x = dst->left;
+	v[1].y = dst->top;
+	v[2].color = color;
+	v[2].u = lt.uvLeft;
+	v[2].v = lt.uvBottom;
+	v[2].x = dst->left;
+	v[2].y = dst->bottom;
+	v[3].color = color;
+	v[3].u = lt.uvLeft - uvBorderWidth;
+	v[3].v = lt.uvBottom;
+	v[3].x = dst->left - pxBorderSize;
+	v[3].y = dst->bottom;
+
+	// right edge
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvRight;
+	v[0].v = lt.uvTop;
+	v[0].x = dst->right;
+	v[0].y = dst->top;
+	v[1].color = color;
+	v[1].u = lt.uvRight + uvBorderWidth;
+	v[1].v = lt.uvTop;
+	v[1].x = dst->right + pxBorderSize;
+	v[1].y = dst->top;
+	v[2].color = color;
+	v[2].u = lt.uvRight + uvBorderWidth;
+	v[2].v = lt.uvBottom;
+	v[2].x = dst->right + pxBorderSize;
+	v[2].y = dst->bottom;
+	v[3].color = color;
+	v[3].u = lt.uvRight;
+	v[3].v = lt.uvBottom;
+	v[3].x = dst->right;
+	v[3].y = dst->bottom;
+
+	// top edge
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvLeft;
+	v[0].v = lt.uvTop - uvBorderHeight;
+	v[0].x = dst->left;
+	v[0].y = dst->top - pxBorderSize;
+	v[1].color = color;
+	v[1].u = lt.uvRight;
+	v[1].v = lt.uvTop - uvBorderHeight;
+	v[1].x = dst->right;
+	v[1].y = dst->top - pxBorderSize;
+	v[2].color = color;
+	v[2].u = lt.uvRight;
+	v[2].v = lt.uvTop;
+	v[2].x = dst->right;
+	v[2].y = dst->top;
+	v[3].color = color;
+	v[3].u = lt.uvLeft;
+	v[3].v = lt.uvTop;
+	v[3].x = dst->left;
+	v[3].y = dst->top;
+
+	// bottom edge
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvLeft;
+	v[0].v = lt.uvBottom;
+	v[0].x = dst->left;
+	v[0].y = dst->bottom;
+	v[1].color = color;
+	v[1].u = lt.uvRight;
+	v[1].v = lt.uvBottom;
+	v[1].x = dst->right;
+	v[1].y = dst->bottom;
+	v[2].color = color;
+	v[2].u = lt.uvRight;
+	v[2].v = lt.uvBottom + uvBorderHeight;
+	v[2].x = dst->right;
+	v[2].y = dst->bottom + pxBorderSize;
+	v[3].color = color;
+	v[3].u = lt.uvLeft;
+	v[3].v = lt.uvBottom + uvBorderHeight;
+	v[3].x = dst->left;
+	v[3].y = dst->bottom + pxBorderSize;
+
+	// left top corner
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvLeft - uvBorderWidth;
+	v[0].v = lt.uvTop - uvBorderHeight;
+	v[0].x = dst->left - pxBorderSize;
+	v[0].y = dst->top - pxBorderSize;
+	v[1].color = color;
+	v[1].u = lt.uvLeft;
+	v[1].v = lt.uvTop - uvBorderHeight;
+	v[1].x = dst->left;
+	v[1].y = dst->top - pxBorderSize;
+	v[2].color = color;
+	v[2].u = lt.uvLeft;
+	v[2].v = lt.uvTop;
+	v[2].x = dst->left;
+	v[2].y = dst->top;
+	v[3].color = color;
+	v[3].u = lt.uvLeft - uvBorderWidth;
+	v[3].v = lt.uvTop;
+	v[3].x = dst->left - pxBorderSize;
+	v[3].y = dst->top;
+
+	// right top corner
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvRight;
+	v[0].v = lt.uvTop - uvBorderHeight;
+	v[0].x = dst->right;
+	v[0].y = dst->top - pxBorderSize;
+	v[1].color = color;
+	v[1].u = lt.uvRight + uvBorderWidth;
+	v[1].v = lt.uvTop - uvBorderHeight;
+	v[1].x = dst->right + pxBorderSize;
+	v[1].y = dst->top - pxBorderSize;
+	v[2].color = color;
+	v[2].u = lt.uvRight + uvBorderWidth;
+	v[2].v = lt.uvTop;
+	v[2].x = dst->right + pxBorderSize;
+	v[2].y = dst->top;
+	v[3].color = color;
+	v[3].u = lt.uvRight;
+	v[3].v = lt.uvTop;
+	v[3].x = dst->right;
+	v[3].y = dst->top;
+
+	// right bottom corner
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvRight;
+	v[0].v = lt.uvBottom;
+	v[0].x = dst->right;
+	v[0].y = dst->bottom;
+	v[1].color = color;
+	v[1].u = lt.uvRight + uvBorderWidth;
+	v[1].v = lt.uvBottom;
+	v[1].x = dst->right + pxBorderSize;
+	v[1].y = dst->bottom;
+	v[2].color = color;
+	v[2].u = lt.uvRight + uvBorderWidth;
+	v[2].v = lt.uvBottom + uvBorderHeight;
+	v[2].x = dst->right + pxBorderSize;
+	v[2].y = dst->bottom + pxBorderSize;
+	v[3].color = color;
+	v[3].u = lt.uvRight;
+	v[3].v = lt.uvBottom + uvBorderHeight;
+	v[3].x = dst->right;
+	v[3].y = dst->bottom + pxBorderSize;
+
+	// left bottom corner
+	v = g_render->DrawQuad();
+	v[0].color = color;
+	v[0].u = lt.uvLeft - uvBorderWidth;
+	v[0].v = lt.uvBottom;
+	v[0].x = dst->left - pxBorderSize;
+	v[0].y = dst->bottom;
+	v[1].color = color;
+	v[1].u = lt.uvLeft;
+	v[1].v = lt.uvBottom;
+	v[1].x = dst->left;
+	v[1].y = dst->bottom;
+	v[2].color = color;
+	v[2].u = lt.uvLeft;
+	v[2].v = lt.uvBottom + uvBorderHeight;
+	v[2].x = dst->left;
+	v[2].y = dst->bottom + pxBorderSize;
+	v[3].color = color;
+	v[3].u = lt.uvLeft - uvBorderWidth;
+	v[3].v = lt.uvBottom + uvBorderHeight;
+	v[3].x = dst->left - pxBorderSize;
+	v[3].y = dst->bottom + pxBorderSize;
 }
 
 void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const string_t &str, enumAlignText align) const
