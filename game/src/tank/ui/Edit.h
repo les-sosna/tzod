@@ -14,16 +14,13 @@ namespace UI
 
 class Edit : public Window
 {
-	Window *_cursor;
-	Window *_selection;
-
 	int   _selStart;
 	int   _selEnd;
 	int   _offset;
-
-	size_t _font;
-
 	float _time;
+	size_t _font;
+	size_t _cursor;
+	size_t _selection;
 
 public:
 	Edit(Window *parent);

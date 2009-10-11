@@ -24,21 +24,12 @@ Edit::Edit(Window *parent)
   : Window(parent)
   , _selStart(-1)
   , _selEnd(-1)
-  , _selection(NULL)
-  , _cursor(NULL)
   , _offset(0)
   , _time(0)
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _cursor(GetManager()->GetTextureManager()->FindSprite("ui/editcursor"))
+  , _selection(GetManager()->GetTextureManager()->FindSprite("ui/editsel"))
 {
-	_font = GetManager()->GetTextureManager()->FindSprite("font_small");
-
-	_cursor = Window::Create(this);
-	_cursor->SetTexture("ui/editcursor", true);
-	_cursor->SetVisible(false);
-
-	_selection = Window::Create(this);
-	_selection->SetTexture("ui/editsel", true);
-	_selection->SetDrawBorder(true);
-
 	SetTexture("ui/edit", true);
 	SetDrawBorder(true);
 	SetClipChildren(true);
@@ -90,19 +81,11 @@ void Edit::SetSel(int begin, int end)
 	_time     = 0;
 
 	float w = GetManager()->GetTextureManager()->GetFrameWidth(_font, 0) - 1;
-
 	float cpos = GetSelEnd() * w;
 	if( cpos - (float) (_offset * w) > GetWidth() - 10 || cpos - (float) (_offset * w) < 10 )
 	{
 		_offset = size_t(std::max<float>(0, cpos - GetWidth() * 0.5f) / w);
 	}
-
-	_cursor->Move(cpos - (float) (_offset * w), 0);
-	_cursor->Resize(_cursor->GetWidth(), GetHeight());
-
-	_selection->SetVisible(GetSelLength() && GetTimeStep());
-	_selection->Move(GetSelMin() * w + 1 - (float) (_offset * w), 0);
-	_selection->Resize(w * GetSelLength(), GetHeight());
 }
 
 int Edit::GetSelStart() const
@@ -132,18 +115,40 @@ int Edit::GetSelMax() const
 
 void Edit::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	Window::DrawChildren(dc, sx, sy);
-
-	SpriteColor c = GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	float w = dc->GetFrameWidth(_font, 0) - 1;
 
+	// selection
+	if( GetSelLength() && GetTimeStep() )
+	{
+		FRECT rt;
+		rt.left = sx + 1 + (GetSelMin() - (float) _offset) * w;
+		rt.top = sy;
+		rt.right = rt.left + w * GetSelLength();
+		rt.bottom = rt.top + GetHeight();
+		dc->DrawSprite(&rt, _selection, 0xffffffff, 0);
+	}
+
+	// text
+	SpriteColor c = GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
 		dc->DrawBitmapText(sx, sy, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
-
 	dc->DrawBitmapText(sx + (GetSelMin() - _offset) * w, sy, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
 	dc->DrawBitmapText(sx + (GetSelMax() - _offset) * w, sy, _font, c, GetText().substr(GetSelMax()));
+
+	// cursor
+	if( this == GetManager()->GetFocusWnd() && fmodf(_time, 1.0f) < 0.5f )
+	{
+		FRECT rt;
+		rt.left = sx + (GetSelEnd() - (float) _offset) * w;
+		rt.top = sy;
+		rt.right = rt.left + dc->GetFrameWidth(_cursor, 0);
+		rt.bottom = rt.top + GetHeight();
+		dc->DrawSprite(&rt, _cursor, 0xffffffff, 0);
+	}
+
+	Window::DrawChildren(dc, sx, sy);
 }
 
 bool Edit::OnChar(int c)
@@ -315,10 +320,8 @@ bool Edit::OnMouseUp(float x, float y, int button)
 
 bool Edit::OnFocus(bool focus)
 {
-	SetTimeStep(focus);
-	_cursor->SetVisible(focus);
-	_selection->SetBackColor(focus ? 0xffffffff : 0x00000000);
 	_time = 0;
+	SetTimeStep(focus);
 	return true;
 }
 
@@ -345,7 +348,6 @@ void Edit::OnTextChange()
 void Edit::OnTimeStep(float dt)
 {
 	_time += dt;
-	_cursor->SetVisible(fmodf(_time, 1.0f) < 0.5f);
 }
 
 void Edit::Paste()
