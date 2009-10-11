@@ -630,7 +630,7 @@ bool EditorLayout::OnMouseUp(float x, float y, int button)
 	{
 		_click = true;
 		_mbutton = 0;
-		ReleaseCapture();
+//		ReleaseCapture();
 	}
 	return true;
 }
@@ -639,7 +639,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
 	if( 0 == _mbutton )
 	{
-		GetManager()->SetCapture(this);
+//		GetManager()->SetCapture(this);
 		_mbutton = button;
 	}
 
@@ -660,8 +660,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		vec2d pt;
 		pt.x = __min(g_level->_sx - align, __max(align - offset, mouse.x));
 		pt.y = __min(g_level->_sy - align, __max(align - offset, mouse.y));
-		pt.x -= fmodf(pt.x + align * 0.5f - offset, align) - align * 0.5f;
-		pt.y -= fmodf(pt.y + align * 0.5f - offset, align) - align * 0.5f;
+		pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
+		pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
 		int layer = -1;
 		if( g_conf->ed_uselayers->Get() )

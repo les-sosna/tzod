@@ -19,7 +19,7 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
   : Window(parent)
   , _curSel(-1)
 {
-	_text = TextButton::Create(this, 0, 4, string_t(), "font_small");
+	_text = TextButton::Create(this, 0, 1, string_t(), "font_small");
 	_text->eventClick.bind(&ComboBox::DropList, this);
 
 	_list = List::Create(this, dataSource, 0, 0, 1, 1);
@@ -36,9 +36,9 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
 	_text->BringToFront();
 	_text->SetDrawShadow(false);
 
-
 	SetDrawBorder(true);
-	SetTexture("ui/combo", true);
+	SetTexture("ui/combo", false);
+	Window::Resize(GetWidth(), _text->GetHeight() + _text->GetY() * 2);
 }
 
 ListDataSource* ComboBox::GetData() const

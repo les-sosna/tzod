@@ -87,7 +87,7 @@ class Window
 protected:
 	unsigned int GetFrameCount() const;
 	unsigned int GetFrame() const { return _frame; }
-	void SetFrame(unsigned int n) { _frame = n; }
+	void SetFrame(unsigned int n) { assert(-1 == _texture || n < GetFrameCount()); _frame = n; }
 
 	void OnEnabledChangeInternal(bool enable, bool inherited);
 	void OnVisibleChangeInternal(bool visible, bool inherited);

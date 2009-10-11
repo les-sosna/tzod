@@ -32,7 +32,7 @@ ScrollBarBase::ScrollBarBase(Window *parent)
 	_btnBox->SetDrawBorder(true);
 
 	SetDrawBorder(true);
-	SetShowButtons(false);
+	SetShowButtons(true);
 }
 
 void ScrollBarBase::SetShowButtons(bool showButtons)
