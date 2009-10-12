@@ -74,6 +74,7 @@ List::List(Window *parent, ListDataSource* dataSource)
 
 	_data->AddListener(&_callbacks);
 	_scrollBar->SetLimit((float) _data->GetItemCount());
+	_scrollBar->SetLineSize(1);
 }
 
 List::~List()
@@ -268,13 +269,16 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 			c = 0xffd0d0d0; // normal;
 			if( _curSel == i )
 			{
-				c = 0xffffffff; // selected;
-
 				// selection frame around selected item
 				FRECT sel = {sx + 1, sy + y, sx + GetWidth(), sy + y + GetItemHeight()};
 				if( this == GetManager()->GetFocusWnd() )
 				{
+					c = 0xff000000; // selected focused;
 					dc->DrawSprite(&sel, _selection, 0xffffffff, 0);
+				}
+				else
+				{
+					c = 0xffffffff; // selected unfocused;
 				}
 				dc->DrawBorder(&sel, _selection, 0xffffffff, 0);
 			}

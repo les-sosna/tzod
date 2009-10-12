@@ -274,7 +274,6 @@ return {
      ["ui/console"]={left=66, right=70, top=202, bottom=206, xframes=1, yframes=1, xpivot=0, ypivot=0},
      ["ui/combo"]={left=66, right=70, top=194, bottom=198, xframes=1, yframes=1, xpivot=0, ypivot=0},
      ["ui/listsel"]={left=2, right=30, top=194, bottom=206, xpivot=0, ypivot=0},
-     ["ui/listsel_u"]={left=2, right=30, top=210, bottom=222, xpivot=0, ypivot=0},
      ["ui/editcursor"]={left=34, right=40, top=193, bottom=207, xpivot=0, ypivot=0},
      ["ui/editsel"]={left=42, right=46, top=202, bottom=206, xpivot=0, ypivot=0},
      ["ui/bar"]={left=0, right=1, top=226, bottom=228, xpivot=0, ypivot=0},

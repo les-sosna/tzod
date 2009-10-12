@@ -451,6 +451,7 @@ void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor col
 void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
 {
 	const LogicalTexture &lt = Get(sprite);
+	g_render->TexBind(lt.dev_texture);
 
 	const float pxBorderSize  = 2;
 	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
