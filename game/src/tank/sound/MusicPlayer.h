@@ -1,4 +1,7 @@
 // MusicPlayer.h
+
+#include "core/ComPtr.h"
+
 namespace FS
 {
 	class MemMap;
@@ -11,7 +14,7 @@ class MusicPlayer : public RefCounted
 	bool _playbackDone;
 	bool _firstHalfPlaying;
 	OggVorbis_File _vorbisFile;
-	LPDIRECTSOUNDBUFFER8 _buffer;
+	ComPtr<IDirectSoundBuffer8> _buffer;
 	DWORD _bufHalfSize;
 
 	void Cleanup();

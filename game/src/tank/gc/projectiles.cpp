@@ -230,7 +230,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 
 bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
-	object->AddRef();
+	SafePtr<GC_Object> refHolder(object);
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
 		vec2d tmp = _velocity;
@@ -253,7 +253,6 @@ bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 		_lastHit = WrapRawPtr(object);
 		_lastHit->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 	}
-	object->Release();
 	return result;
 }
 

@@ -14,7 +14,6 @@ MusicPlayer::MusicPlayer()
   : _looping(true)
   , _playbackDone(false)
   , _firstHalfPlaying(true)
-  , _buffer(NULL)
   , _bufHalfSize(0)
 {
 	ZeroMemory(&_vorbisFile, sizeof(OggVorbis_File));
@@ -38,7 +37,7 @@ void MusicPlayer::OnChangeVolume()
 
 void MusicPlayer::Cleanup()
 {
-	SAFE_RELEASE(_buffer);
+	_buffer.Release();
 	_bufHalfSize = 0;
 	ov_clear(&_vorbisFile);
 	_state.file = NULL;
@@ -195,9 +194,8 @@ bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
 	desc.dwBufferBytes  = _bufHalfSize * 2;
 	desc.dwFlags        = DSBCAPS_CTRLVOLUME;
 
-
 	//pointer to old interface, used to obtain pointer to new interface
-	LPDIRECTSOUNDBUFFER pTempBuffer = NULL;	
+	ComPtr<IDirectSoundBuffer> pTempBuffer;	
 	if( FAILED(g_soundManager->GetDirectSound()->CreateSoundBuffer(&desc, &pTempBuffer, NULL)) )
 	{
 		_bufHalfSize = 0;
@@ -207,14 +205,10 @@ bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
 	//query for updated interface
 	if( FAILED(pTempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&_buffer)))
 	{
-		SAFE_RELEASE(pTempBuffer);
 		_bufHalfSize = 0;
 		return false;
 	}
 	
-	//release old, temp interface
-	SAFE_RELEASE(pTempBuffer);
-
 	OnChangeVolume();
 
 	Fill(true); // Fill first half of buffer with initial data

@@ -347,7 +347,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 	if( !CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 	{
-		AddRef();
+		SafePtr<GC_Object> refHolder(this);
 		float s = sinf(da);
 		float c = cosf(da) - 1;
 		const ObjectList &ls = g_level->GetList(LIST_projectiles);
@@ -368,14 +368,10 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 			if( IsKilled() )
 			{
-				Release();
 				return;
 			}
 		}
-		Release();
 	}
-
-
 
 	MoveTo(GetPos() + dx);
 	_angle = fmodf(_angle + da, PI2);

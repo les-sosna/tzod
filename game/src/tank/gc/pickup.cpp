@@ -192,7 +192,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 		{
 			if( GC_Actor *actor = FindNewOwner() )
 			{
-				AddRef(); // item can be killed inside attach function
+				SafePtr<GC_Object> refHolder(this); // item can be killed inside attach function
 				Attach(actor);
 
 				//
@@ -224,7 +224,6 @@ void GC_Pickup::TimeStepFixed(float dt)
 						lua_pop(g_env.L, 1); // pop the error message from the stack
 					}
 				}
-				Release();
 			}
 		}
 		else
@@ -429,11 +428,11 @@ AIPRIORITY GC_pu_Shield::GetPriority(GC_Vehicle *veh)
 
 void GC_pu_Shield::Attach(GC_Actor *actor)
 {
-	if( GC_Object *p = actor->GetSubscriber(GetType()) )
-	{
-		assert(dynamic_cast<GC_pu_Shield*>(p));
-		static_cast<GC_Pickup*>(p)->Disappear();
-	}
+	//if( GC_Object *p = actor->GetSubscriber(GetType()) )
+	//{
+	//	assert(dynamic_cast<GC_pu_Shield*>(p));
+	//	static_cast<GC_Pickup*>(p)->Disappear();
+	//}
 
 	GC_Pickup::Attach(actor);
 

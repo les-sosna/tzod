@@ -484,7 +484,11 @@ void ZodApp::Post()
 	SAFE_DELETE(g_texman);
 
 	TRACE("Shutting down the renderer");
-	SAFE_RELEASE(g_render);
+	if( g_render )
+	{
+		g_render->Release();
+		g_render = NULL;
+	}
 
 
 #ifndef NOSOUND

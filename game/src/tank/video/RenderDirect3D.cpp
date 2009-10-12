@@ -5,6 +5,7 @@
 
 #include "macros.h"
 #include "core/debug.h"
+#include "core/ComPtr.h"
 
 #include <d3d9.h>
 #include <d3dx9math.h>
@@ -62,11 +63,12 @@ class RenderDirect3D : public IRender
         void *data;
 	};
 
-	IDirect3D9              *_d3D;
-	IDirect3DDevice9        *_pd3dDevice;
-	IDirect3DVertexBuffer9  *_pVB;
-	IDirect3DIndexBuffer9   *_pIB;
-	IDirect3DTexture9       *_curtex;
+	ComPtr<IDirect3D9>              _d3D;
+	ComPtr<IDirect3DDevice9>        _pd3dDevice;
+	ComPtr<IDirect3DVertexBuffer9>  _pVB;
+	ComPtr<IDirect3DIndexBuffer9>   _pIB;
+
+	IDirect3DTexture9 *_curtex;
 
 
 	HWND   _hWnd;
@@ -153,11 +155,6 @@ typedef IDirect3D9* (__stdcall *D3DCREATEPROC)(UINT);
 
 RenderDirect3D::RenderDirect3D()
 {
-	_d3D         = NULL;
-	_pd3dDevice  = NULL;
-	_pVB         = NULL;
-	_pIB         = NULL;
-
     _hWnd        = NULL;
 
 	_vaSize      = 0;
@@ -204,10 +201,10 @@ void RenderDirect3D::_cleanup()
 		_VertexArray = NULL;
 	}
 
-	SAFE_RELEASE(_pIB);
-	SAFE_RELEASE(_pVB);
-	SAFE_RELEASE(_pd3dDevice);
-	SAFE_RELEASE(_d3D);
+	_pIB.Release();
+	_pVB.Release();
+	_pd3dDevice.Release();
+	_d3D.Release();
 }
 
 int RenderDirect3D::getModeCount() const

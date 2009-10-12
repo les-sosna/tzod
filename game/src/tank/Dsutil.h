@@ -11,7 +11,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <mmreg.h>
-#include "dsound.h"
+#include <dsound.h>
 
 
 
@@ -30,7 +30,6 @@ class CWaveFile;
 // Typing macros
 //-----------------------------------------------------------------------------
 #define WAVEFILE_READ   1
-#define WAVEFILE_WRITE  2
 
 
 //-----------------------------------------------------------------------------
@@ -62,7 +61,6 @@ public:
 		return _dSBPrimary->GetVolume(lpVolume);
 	};
 
-    HRESULT Create( CSound** ppSound, LPCTSTR strWaveFileName, DWORD dwCreationFlags = 0, GUID guid3DAlgorithm = GUID_NULL, DWORD dwNumBuffers = 1 );
     HRESULT CreateFromMemory( CSound** ppSound, BYTE* pbData, ULONG ulDataSize, LPWAVEFORMATEX pwfx, DWORD dwCreationFlags = 0, GUID guid3DAlgorithm = GUID_NULL, DWORD dwNumBuffers = 1 );
 };
 
@@ -95,7 +93,6 @@ public:
     HRESULT Play( DWORD dwPriority, DWORD dwFlags );
     HRESULT Stop();
     HRESULT Reset();
-    BOOL    IsSoundPlaying();
 };
 
 
@@ -108,35 +105,18 @@ class CWaveFile
 {
 public:
     WAVEFORMATEX* _pwfx;        // Pointer to WAVEFORMATEX structure
-    HMMIO         _hmmio;       // MM I/O handle for the WAVE
-    MMCKINFO      _ck;          // Multimedia RIFF chunk
-    MMCKINFO      _ckRiff;      // Use in opening a WAVE file
-    DWORD         _dwSize;      // The size of the wave file
-    MMIOINFO      _mmioinfoOut;
-    DWORD         _flags;
-    BOOL          _bIsReadingFromMemory;
     BYTE*         _pbData;
     BYTE*         _pbDataCur;
     ULONG         _ulDataSize;
 
-protected:
-    HRESULT ReadMMIO();
-    HRESULT WriteMMIO( WAVEFORMATEX *pwfxDest );
-
 public:
     CWaveFile();
-    ~CWaveFile();
 
-    HRESULT Open( LPCTSTR strFileName, WAVEFORMATEX* pwfx, DWORD dwFlags );
-    HRESULT OpenFromMemory( BYTE* pbData, ULONG ulDataSize, WAVEFORMATEX* pwfx, DWORD dwFlags );
-    HRESULT Close();
+    HRESULT OpenFromMemory( BYTE* pbData, ULONG ulDataSize, WAVEFORMATEX* pwfx );
 
     HRESULT Read( BYTE* pBuffer, DWORD dwSizeToRead, DWORD* pdwSizeRead );
-    HRESULT Write( UINT nSizeToWrite, BYTE* pbData, UINT* pnSizeWrote );
 
-    DWORD   GetSize();
     HRESULT ResetFile();
-    WAVEFORMATEX* GetFormat() { return _pwfx; };
 };
 
 

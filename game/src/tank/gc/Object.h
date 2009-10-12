@@ -238,11 +238,11 @@ private:
 	struct Notify
 	{
 		NotyfyType           type;
+		SafePtr<GC_Object>   subscriber;
+		NOTIFYPROC           handler;
 		bool                 once;      // событие должно быть удалено после исполнения
 		bool                 removed;   // событие помечено для удаления
 		bool                 hasGuard;  // у события есть пара OnKillSubscriber
-		SafePtr<GC_Object>   subscriber;
-		NOTIFYPROC           handler;
 		//---------------------------------------
 		inline Notify()  { removed = false; }
 		inline ~Notify() { subscriber = NULL; }
@@ -331,8 +331,6 @@ public:
 	void Subscribe(NotyfyType type, GC_Object *subscriber,
 		NOTIFYPROC handler, bool once = true, bool guard = true);
 	void Unsubscribe(GC_Object *subscriber);
-	bool IsSubscriber(const GC_Object *object) const;
-	GC_Object* GetSubscriber(ObjectType type)  const;
 
 
 	//

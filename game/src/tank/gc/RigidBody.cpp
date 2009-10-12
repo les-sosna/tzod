@@ -75,23 +75,20 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 
 		if( !_scriptOnDamage.empty() )
 		{
-			AddRef();
+			SafePtr<GC_Object> refHolder(this);
 			script_exec(g_env.L, _scriptOnDamage.c_str());
 			if( IsKilled() )
 			{
-				Release();
 				return true;
 			}
-			Release();
 		}
 
 		if( GetHealth() <= 0 )
 		{
-			AddRef();
+			SafePtr<GC_Object> refHolder(this);
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
 			OnDestroy();
 			Kill();
-			Release();
 			return true;
 		}
 	}

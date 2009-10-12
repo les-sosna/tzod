@@ -269,10 +269,10 @@ void PropertySet::Exchange(bool applyToObject)
 
 GC_Object::GC_Object()
   : _memberOf(this)
+  , _refCount(1)
+  , _flags(0)
 {
-	_refCount             = 1;
-	_notifyProtectCount   = 0;
-	_flags                = 0;
+	_notifyProtectCount = 0;
 }
 
 GC_Object::GC_Object(FromFile)
@@ -557,28 +557,6 @@ void GC_Object::Unsubscribe(GC_Object *subscriber)
 		else
 			_notifyList.erase(tmp);
 	}
-}
-
-bool GC_Object::IsSubscriber(const GC_Object *object) const
-{
-	std::list<Notify>::const_iterator it = _notifyList.begin();
-	for( ; it != _notifyList.end(); ++it )
-	{
-		if( it->removed ) continue;
-		if( object == it->subscriber ) return true;
-	}
-	return false;
-}
-
-GC_Object* GC_Object::GetSubscriber(ObjectType type) const
-{
-	std::list<Notify>::const_iterator it = _notifyList.begin();
-	for( ;it != _notifyList.end(); ++it )
-	{
-		if( it->removed ) continue;
-		if( it->subscriber->GetType() == type ) return GetRawPtr(it->subscriber);
-	}
-	return NULL;
 }
 
 void GC_Object::OnKillSubscriber(GC_Object *sender, void *param)

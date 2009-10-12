@@ -699,10 +699,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			wsprintf(msg, g_lang->msg_player_x_died->Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 
-		AddRef();
+		{
+			SafePtr<GC_Object> refHolder(this);
 			OnDestroy();
 			Kill();
-		Release();
+		}
 
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(msg);
 		return true;
