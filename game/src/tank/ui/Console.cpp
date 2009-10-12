@@ -76,7 +76,7 @@ void Console::SetColors(const SpriteColor *colors, size_t count)
 void Console::SetHistory(IConsoleHistory *history)
 {
 	_history = history;
-	_cmdIndex = _history->GetItemCount();
+	_cmdIndex = _history ? _history->GetItemCount() : 0;
 }
 
 void Console::SetBuffer(ConsoleBuffer *buf)

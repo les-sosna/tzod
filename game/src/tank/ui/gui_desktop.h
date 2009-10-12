@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Window.h"
+#include "Console.h"
 
 namespace UI
 {
@@ -47,6 +48,16 @@ private:
 
 class Desktop : public Window
 {
+	class MyConsoleHistory : public UI::IConsoleHistory
+	{
+	public:
+		virtual void Enter(const UI::string_t &str);
+		virtual size_t GetItemCount() const;
+		virtual const UI::string_t& GetItem(size_t index) const;
+	};
+
+	MyConsoleHistory  _history;
+
 	EditorLayout *_editor;
 	Console      *_con;
 	MessageArea  *_msg;
@@ -54,7 +65,6 @@ class Desktop : public Window
 
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
-
 
 public:
 	Desktop(LayoutManager* manager);

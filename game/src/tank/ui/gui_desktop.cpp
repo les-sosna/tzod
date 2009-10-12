@@ -95,6 +95,26 @@ void MessageArea::Clear()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+void Desktop::MyConsoleHistory::Enter(const UI::string_t &str)
+{
+	g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(str);
+	while( (signed) g_conf->con_history->GetSize() > g_conf->con_maxhistory->GetInt() )
+	{
+		g_conf->con_history->PopFront();
+	}
+}
+
+size_t Desktop::MyConsoleHistory::GetItemCount() const
+{
+	return g_conf->con_history->GetSize();
+}
+
+const UI::string_t& Desktop::MyConsoleHistory::GetItem(size_t index) const
+{
+	return g_conf->con_history->GetStr(index, "")->Get();
+}
+
 Desktop::Desktop(LayoutManager* manager)
   : Window(NULL, manager)
 {
@@ -108,8 +128,10 @@ Desktop::Desktop(LayoutManager* manager)
 	_con->eventOnSendCommand.bind( &Desktop::OnCommand, this );
 	_con->eventOnRequestCompleteCommand.bind( &Desktop::OnCompleteCommand, this );
 	_con->SetVisible(false);
+	_con->SetTopMost(true);
 	SpriteColor colors[] = {0xffffffff, 0xffff7fff};
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
+	_con->SetHistory(&_history);
 
 	_score = new ScoreTable(this);
 	_score->SetVisible(false);
@@ -143,6 +165,7 @@ Desktop::~Desktop()
 {
 	g_conf->ui_showfps->eventChange.clear();
 	g_conf->ui_showtime->eventChange.clear();
+	_con->SetHistory(NULL);
 }
 
 void Desktop::ShowConsole(bool show)
