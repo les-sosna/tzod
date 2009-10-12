@@ -12,10 +12,6 @@ namespace UI
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-// class ListDataSourceDefault
-
-
-///////////////////////////////////////////////////////////////////////////////
 // class List::ListCallbackImpl
 
 List::ListCallbackImpl::ListCallbackImpl(List *list)
@@ -30,16 +26,16 @@ void List::ListCallbackImpl::OnDeleteAllItems()
 	_list->SetCurSel(-1, false);
 }
 
-void List::ListCallbackImpl::OnDeleteItem(int idx)
+void List::ListCallbackImpl::OnDeleteItem(int index)
 {
-	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount() - _list->GetNumLinesVisible());
+	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount());
 	if( -1 != _list->GetCurSel() )
 	{
-		if( _list->GetCurSel() > idx )
+		if( _list->GetCurSel() > index )
 		{
 			_list->SetCurSel(_list->GetCurSel() - 1, false);
 		}
-		else if( _list->GetCurSel() == idx )
+		else if( _list->GetCurSel() == index )
 		{
 			_list->SetCurSel(-1, false);
 		}
@@ -48,7 +44,7 @@ void List::ListCallbackImpl::OnDeleteItem(int idx)
 
 void List::ListCallbackImpl::OnAddItem()
 {
-	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount() - _list->GetNumLinesVisible());
+	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,12 +68,12 @@ List::List(Window *parent, ListDataSource* dataSource)
   , _data(dataSource)
   , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
 {
-	_data->AddListener(&_callbacks);
-
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
 	SetTabPos(0, 1); // first column
-	SetClipChildren(true);
+
+	_data->AddListener(&_callbacks);
+	_scrollBar->SetLimit((float) _data->GetItemCount());
 }
 
 List::~List()
@@ -100,7 +96,7 @@ void List::SetTabPos(int index, float pos)
 
 float List::GetItemHeight() const
 {
-	return g_texman->Get(_font).pxFrameHeight + 1;
+	return GetManager()->GetTextureManager()->GetFrameHeight(_font, 0);
 }
 
 int List::GetCurSel() const
@@ -121,10 +117,10 @@ void List::SetCurSel(int sel, bool scroll)
 		if( scroll )
 		{
 			float fs = (float) sel;
-			if( fs < _scrollBar->GetPos() )
-				_scrollBar->SetPos(fs);
-			else if( fs > _scrollBar->GetPos() + GetNumLinesVisible() - 1 )
-				_scrollBar->SetPos(fs - GetNumLinesVisible() + 1);
+			if( fs < GetScrollPos() )
+				SetScrollPos(fs);
+			else if( fs > GetScrollPos() + GetNumLinesVisible() - 1 )
+				SetScrollPos(fs - GetNumLinesVisible() + 1);
 		}
 
 		if( eventChangeCurSel )
@@ -136,7 +132,7 @@ void List::SetCurSel(int sel, bool scroll)
 
 int List::HitTest(float y)
 {
-	int index = int(y / GetItemHeight() + _scrollBar->GetPos());
+	int index = int(y / GetItemHeight() + GetScrollPos());
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
 		index = -1;
@@ -151,12 +147,19 @@ float List::GetNumLinesVisible() const
 
 float List::GetScrollPos() const
 {
-	return _scrollBar->GetPos();
+	if( _scrollBar->GetLimit() < _scrollBar->GetPageSize() )
+	{
+		return 0;
+	}
+	return (_scrollBar->GetLimit() - _scrollBar->GetPageSize()) / _scrollBar->GetLimit() * _scrollBar->GetPos();
 }
 
-void List::SetScrollPos(float pos)
+void List::SetScrollPos(float line)
 {
-	_scrollBar->SetPos(pos);
+	if( _scrollBar->GetLimit() > _scrollBar->GetPageSize() )
+	{
+		_scrollBar->SetPos(line * _scrollBar->GetLimit() / (_scrollBar->GetLimit() - _scrollBar->GetPageSize()));
+	}
 }
 
 void List::AlignHeightToContent(float maxHeight)
@@ -168,7 +171,7 @@ void List::OnSize(float width, float height)
 {
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetLimit( (float) _data->GetItemCount() - GetNumLinesVisible() );
+	_scrollBar->SetPageSize(GetNumLinesVisible());
 }
 
 bool List::OnMouseMove(float x, float y)
@@ -202,13 +205,13 @@ bool List::OnMouseUp(float x, float y, int button)
 
 bool List::OnMouseWheel(float x, float y, float z)
 {
-	_scrollBar->SetPos(_scrollBar->GetPos() - z * 3.0f);
+	SetScrollPos(GetScrollPos() - z * 3.0f);
 	return true;
 }
 
 bool List::OnRawChar(int c)
 {
-	switch(c)
+	switch( c )
 	{
 	case VK_UP:
 		SetCurSel(__max(0, GetCurSel() - 1), true);
@@ -243,27 +246,55 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	Window::DrawChildren(dc, sx, sy);
 
-	int i_min = (int) _scrollBar->GetPos();
+	float pos = GetScrollPos();
+	int i_min = (int) pos;
 	int i_max = i_min + (int) GetNumLinesVisible() + 2;
+	int maxtab = (int) _tabs.size() - 1;
 
-	for( int i = i_min; i < std::min(_data->GetItemCount(), i_max); ++i )
+	RECT clip;
+	clip.left   = (int) sx;
+	clip.top    = (int) sy;
+	clip.right  = (int) (sx + _scrollBar->GetX());
+	clip.bottom = (int) (sy + GetHeight());
+	dc->PushClippingRect(clip);
+
+	for( int i = std::min(_data->GetItemCount(), i_max); i--; )
 	{
-		SpriteColor c = 0xc0c0c0c0;
-		if( _hotItem == i )
+		SpriteColor c;
+		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
+
+		if( GetEnabled() )
 		{
-			c  = 0xffccccff;
+			c = 0xffd0d0d0; // normal;
+			if( _curSel == i )
+			{
+				c = 0xffffffff; // selected;
+
+				// selection frame around selected item
+				FRECT sel = {sx + 1, sy + y, sx + GetWidth(), sy + y + GetItemHeight()};
+				if( this == GetManager()->GetFocusWnd() )
+				{
+					dc->DrawSprite(&sel, _selection, 0xffffffff, 0);
+				}
+				dc->DrawBorder(&sel, _selection, 0xffffffff, 0);
+			}
+			else if( _hotItem == i )
+			{
+				c = 0xffffffff; // hot;
+			}
 		}
-		else if( _curSel == i )
+		else
 		{
-			c  = 0xffffffff;
+			c = 0x70707070; // disabled;
 		}
 
-		float y = floorf(GetItemHeight() * ((float) i - _scrollBar->GetPos()) + 0.5f);
-		for( int k = 0; k < _data->GetSubItemCount(i); ++k )
+		for( int k = _data->GetSubItemCount(i); k--; )
 		{
-			dc->DrawBitmapText(sx + _tabs[__min(k, (int) _tabs.size()-1)], sy + y, _font, c, _data->GetItemText(i, k));
+			dc->DrawBitmapText(sx + _tabs[std::min(k, maxtab)], sy + y, _font, c, _data->GetItemText(i, k));
 		}
 	}
+
+	dc->PopClippingRect();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

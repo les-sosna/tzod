@@ -71,7 +71,6 @@ private:
 	List& operator = (const List &);
 
 	ListDataSource *_data;
-
 	std::vector<float> _tabs;
 
 	ScrollBarVertical *_scrollBar;

@@ -20,7 +20,7 @@ class ListDataSourceMaps;
 class NewGameDlg : public Dialog
 {
 	typedef ListAdapter<ListDataSourceMaps, List> MapList;
-	typedef ListAdapter<ListDataSourceMaps, List> DefaultListBox;
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 
 	MapList      *_maps;
 	DefaultListBox  *_players;
