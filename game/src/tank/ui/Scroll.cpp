@@ -16,7 +16,7 @@ ScrollBarBase::ScrollBarBase(Window *parent)
   , _pos(0)
   , _lineSize(0.1f)
   , _pageSize(0)
-  , _limit(1.0f)
+  , _documentSize(1.0f)
   , _tmpBoxPos(-1)
 {
 	_btnBox        = ImageButton::Create(this, 0, 0, NULL);
@@ -50,7 +50,7 @@ bool ScrollBarBase::GetShowButtons() const
 
 void ScrollBarBase::SetPos(float pos)
 {
-	_pos = __max(0, __min(_limit, pos));
+	_pos = __max(0, __min(_documentSize - _pageSize, pos));
 }
 
 float ScrollBarBase::GetPos() const
@@ -70,16 +70,16 @@ float ScrollBarBase::GetPageSize() const
 	return _pageSize;
 }
 
-void ScrollBarBase::SetLimit(float limit)
+void ScrollBarBase::SetDocumentSize(float limit)
 {
-	_limit = limit;
+	_documentSize = limit;
 	OnLimitsChanged();
 	SetPos(GetPos()); // update scroll box position
 }
 
-float ScrollBarBase::GetLimit() const
+float ScrollBarBase::GetDocumentSize() const
 {
-	return _limit;
+	return _documentSize;
 }
 
 void ScrollBarBase::SetLineSize(float ls)
@@ -127,7 +127,7 @@ void ScrollBarBase::OnBoxMouseMove(float x, float y)
 		pos -= Select(_btnUpLeft->GetWidth(), _btnUpLeft->GetHeight());
 	}
 	pos /= GetScrollPaneLength() - Select(_btnBox->GetWidth(), _btnBox->GetHeight());
-	SetPos(pos * _limit);
+	SetPos(pos * (_documentSize - _pageSize));
 	if( eventScroll )
 		INVOKE(eventScroll) (GetPos());
 }
@@ -148,7 +148,7 @@ void ScrollBarBase::OnDownRight()
 
 void ScrollBarBase::OnLimitsChanged()
 {
-	bool needScroll = _limit > _pageSize;
+	bool needScroll = _documentSize > _pageSize;
 	_btnBox->SetVisible(needScroll);
 	_btnUpLeft->SetEnabled(needScroll);
 	_btnDownRight->SetEnabled(needScroll);
@@ -211,9 +211,9 @@ void ScrollBarVertical::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(_btnBox->GetWidth(),
-		std::max(GetScrollPaneLength() * GetPageSize() / GetLimit(), _btnBox->GetTextureHeight()));
+		std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureHeight()));
 	_btnBox->Move(_btnBox->GetX(), floorf(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
-		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / GetLimit() + 0.5f));
+		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -250,10 +250,10 @@ void ScrollBarHorizontal::SetPos(float pos)
 	ScrollBarBase::SetPos(pos);
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
-	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetLimit(), _btnBox->GetTextureWidth()),
+	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureWidth()),
 		_btnBox->GetHeight());
 	_btnBox->Move(floorf(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
-		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / GetLimit() + 0.5f), _btnBox->GetY());
+		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -22,13 +22,13 @@ List::ListCallbackImpl::ListCallbackImpl(List *list)
 
 void List::ListCallbackImpl::OnDeleteAllItems()
 {
-	_list->_scrollBar->SetLimit(-1);
+	_list->_scrollBar->SetDocumentSize(0);
 	_list->SetCurSel(-1, false);
 }
 
 void List::ListCallbackImpl::OnDeleteItem(int index)
 {
-	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount());
+	_list->_scrollBar->SetDocumentSize((float) _list->_data->GetItemCount());
 	if( -1 != _list->GetCurSel() )
 	{
 		if( _list->GetCurSel() > index )
@@ -44,7 +44,7 @@ void List::ListCallbackImpl::OnDeleteItem(int index)
 
 void List::ListCallbackImpl::OnAddItem()
 {
-	_list->_scrollBar->SetLimit((float) _list->_data->GetItemCount());
+	_list->_scrollBar->SetDocumentSize((float) _list->_data->GetItemCount());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ List::List(Window *parent, ListDataSource* dataSource)
 	SetTabPos(0, 1); // first column
 
 	_data->AddListener(&_callbacks);
-	_scrollBar->SetLimit((float) _data->GetItemCount());
+	_scrollBar->SetDocumentSize((float) _data->GetItemCount());
 	_scrollBar->SetLineSize(1);
 }
 
@@ -148,19 +148,12 @@ float List::GetNumLinesVisible() const
 
 float List::GetScrollPos() const
 {
-	if( _scrollBar->GetLimit() < _scrollBar->GetPageSize() )
-	{
-		return 0;
-	}
-	return (_scrollBar->GetLimit() - _scrollBar->GetPageSize()) / _scrollBar->GetLimit() * _scrollBar->GetPos();
+	return _scrollBar->GetPos();
 }
 
 void List::SetScrollPos(float line)
 {
-	if( _scrollBar->GetLimit() > _scrollBar->GetPageSize() )
-	{
-		_scrollBar->SetPos(line * _scrollBar->GetLimit() / (_scrollBar->GetLimit() - _scrollBar->GetPageSize()));
-	}
+	_scrollBar->SetPos(line);
 }
 
 void List::AlignHeightToContent(float maxHeight)

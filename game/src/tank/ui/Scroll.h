@@ -20,8 +20,8 @@ public:
 	virtual void SetPos(float pos);
 	float GetPos() const;
 
-	void  SetLimit(float limit);
-	float GetLimit() const;
+	void  SetDocumentSize(float limit);
+	float GetDocumentSize() const;
 
 	void  SetLineSize(float ls);
 	float GetLineSize() const;
@@ -60,7 +60,7 @@ private:
 	float _pos;
 	float _lineSize;
 	float _pageSize;
-	float _limit;
+	float _documentSize;
 
 	bool _showButtons;
 };

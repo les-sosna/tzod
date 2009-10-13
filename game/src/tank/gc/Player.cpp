@@ -299,6 +299,7 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn"  )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS);
+	_propScore.SetIntRange(INT_MIN, INT_MAX);
 
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
@@ -338,7 +339,7 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 		case 7: return &_propOnRespawn;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

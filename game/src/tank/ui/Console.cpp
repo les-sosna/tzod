@@ -4,6 +4,7 @@
 
 #include "Console.h"
 #include "Edit.h"
+#include "Scroll.h"
 #include "ConsoleBuffer.h"
 
 #include "video/TextureManager.h"
@@ -53,14 +54,16 @@ Console::Console(Window *parent)
   : Window(parent)
   , _buf(NULL)
   , _history(NULL)
-  , _echo(true)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _scrollBack(0)
   , _cmdIndex(0)
+  , _echo(true)
+  , _autoScroll(true)
 {
+	_input = Edit::Create(this, 0, 0, 0);
+	_scroll = ScrollBarVertical::Create(this, 0, 0, 0);
 	SetTexture("ui/console", false);
 	SetDrawBorder(true);
-	_input = Edit::Create(this, 0, 0, 0);
+	SetTimeStep(true); // FIXME: workaround
 }
 
 float Console::GetInputHeight() const
@@ -82,6 +85,7 @@ void Console::SetHistory(IConsoleHistory *history)
 void Console::SetBuffer(ConsoleBuffer *buf)
 {
 	_buf = buf;
+	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 
 void Console::SetEcho(bool echo)
@@ -100,7 +104,12 @@ bool Console::OnRawChar(int c)
 	switch(c)
 	{
 	case VK_UP:
-		if( _history )
+		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
+		{
+			_scroll->SetPos(_scroll->GetPos() - 1);
+			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
+		}
+		else if( _history )
 		{
 			_cmdIndex = std::min(_cmdIndex, _history->GetItemCount());
 			if( _cmdIndex > 0 )
@@ -111,7 +120,12 @@ bool Console::OnRawChar(int c)
 		}
 		break;
 	case VK_DOWN:
-		if( _history )
+		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
+		{
+			_scroll->SetPos(_scroll->GetPos() + 1);
+			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
+		}
+		else if( _history )
 		{
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
@@ -134,7 +148,6 @@ bool Console::OnRawChar(int c)
 		}
 		else
 		{
-			_scrollBack = 0;
 			if( _history )
 			{
 				if( _history->GetItemCount() == 0 || cmd != _history->GetItem(_history->GetItemCount() - 1) )
@@ -152,20 +165,22 @@ bool Console::OnRawChar(int c)
 				INVOKE(eventOnSendCommand) (cmd.c_str());
 			_input->SetText(string_t());
 		}
+		_scroll->SetPos(_scroll->GetDocumentSize());
+		_autoScroll = true;
 		break;
 	}
 	case VK_PRIOR:
-		_scrollBack = std::min(_scrollBack + 1, _buf->GetLineCount() - 1);
+		_scroll->SetPos(_scroll->GetPos() - _scroll->GetPageSize());
+		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
 	case VK_NEXT:
-		if( _scrollBack > 0 ) --_scrollBack;
+		_scroll->SetPos(_scroll->GetPos() + _scroll->GetPageSize());
+		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-	case VK_HOME:
-		_scrollBack = _buf->GetLineCount() - 1;
-		break;
-	case VK_END:
-		_scrollBack = 0;
-		break;
+//	case VK_HOME:
+//		break;
+//	case VK_END:
+//		break;
 	case VK_ESCAPE:
 		if( _input->GetText().empty() )
 			return false;
@@ -191,15 +206,8 @@ bool Console::OnRawChar(int c)
 
 bool Console::OnMouseWheel(float x, float y, float z)
 {
-	if( z > 0 )
-	{
-		_scrollBack = std::min(_scrollBack + int(z * 3), _buf->GetLineCount() - 1);
-	}
-	else
-	{
-		size_t dz = std::min((signed) _scrollBack, int(-z * 3));
-		_scrollBack -= dz;
-	}
+	_scroll->SetPos(_scroll->GetPos() - z * 3);
+	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 	return true;
 }
 
@@ -218,35 +226,49 @@ bool Console::OnMouseMove(float x, float y)
 	return true;
 }
 
+void Console::OnTimeStep(float dt)
+{
+	// FIXME: workaround
+	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() - 1 : 0);
+	if( _autoScroll )
+		_scroll->SetPos(_scroll->GetDocumentSize());
+}
+
 void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	Window::DrawChildren(dc, sx, sy);
-
-	_buf->Lock();
-
-	float h = dc->GetFrameHeight(_font, 0);
-	size_t visibleLineCount = size_t(_input->GetY() / h);
-	size_t scroll = std::min(_scrollBack, _buf->GetLineCount());
-	size_t count  = std::min(_buf->GetLineCount() - scroll, visibleLineCount);
-
-	sy -= fmodf(_input->GetY(), h);
-	sy += (float) (visibleLineCount - count) * h;
-
-	for( size_t line = _buf->GetLineCount() - count - scroll; line < _buf->GetLineCount() - scroll; ++line )
+	if( _buf )
 	{
-		unsigned int sev = _buf->GetSeverity(line);
-		SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-		dc->DrawBitmapText(sx + 4, sy, _font, color, _buf->GetLine(line));
-		sy += h;
-	}
+		_buf->Lock();
 
-	_buf->Unlock();
+		float h = dc->GetFrameHeight(_font, 0);
+		size_t visibleLineCount = size_t(_input->GetY() / h);
+		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
+		size_t lineMax = _buf->GetLineCount() - scroll;
+		size_t count   = std::min(lineMax, visibleLineCount);
+
+		float y = sy - fmod(_input->GetY(), h) + (float) (visibleLineCount - count) * h;
+
+		for( size_t line = lineMax - count; line < lineMax; ++line )
+		{
+			unsigned int sev = _buf->GetSeverity(line);
+			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
+			dc->DrawBitmapText(sx + 4, y, _font, color, _buf->GetLine(line));
+			y += h;
+		}
+
+		_buf->Unlock();
+	}
+	Window::DrawChildren(dc, sx, sy);
 }
 
 void Console::OnSize(float width, float height)
 {
 	_input->Move(0, height - _input->GetHeight());
 	_input->Resize(width, _input->GetHeight());
+	_scroll->Move(width - _scroll->GetWidth(), 0);
+	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
+	_scroll->SetPageSize(_input->GetY() / GetManager()->GetTextureManager()->GetFrameHeight(_font, 0));
+	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 
 bool Console::OnFocus(bool focus)

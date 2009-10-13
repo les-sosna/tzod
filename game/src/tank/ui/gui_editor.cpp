@@ -84,7 +84,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 	_scrollBar = ScrollBarVertical::Create(this, 0, 0, h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll.bind(&PropertyList::OnScroll, this);
-	_scrollBar->SetLimit(100);
+//	_scrollBar->SetLimit(100);
 
 	Resize(w, h);
 	SetEasyMove(true);
@@ -158,10 +158,11 @@ void PropertyList::DoExchange(bool applyToObject)
 	_ctrls.clear();
 
 	// create new controls
+	float y = 0;
 	if( _ps )
 	{
+		y += 5;
 		_ps->Exchange(false);
-		float y = 5;
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
@@ -224,15 +225,9 @@ void PropertyList::DoExchange(bool applyToObject)
 			y += ctrl->GetHeight();
 			y += 10;
 		}
-
-		_psheet->Resize(_psheet->GetWidth(), y);
-		_scrollBar->SetLimit(y - GetHeight());
 	}
-	else
-	{
-		_psheet->Resize(_psheet->GetWidth(), 0);
-		_scrollBar->SetLimit(0);
-	}
+	_psheet->Resize(_psheet->GetWidth(), y);
+	_scrollBar->SetDocumentSize(y);
 	OnScroll(_scrollBar->GetPos());
 }
 
@@ -252,7 +247,7 @@ void PropertyList::OnSize(float width, float height)
 {
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetLimit(_psheet->GetHeight() - height);
+	_scrollBar->SetPageSize(height);
 	_psheet->Resize(_scrollBar->GetX(), _psheet->GetHeight());
 }
 

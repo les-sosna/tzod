@@ -88,6 +88,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_TABLE( ui_netbotinfo,       NULL )
 
 	// debug
+	VAR_BOOL(  dbg_graph,          false )
 	VAR_INT(   dbg_sleep,              0 )
 	VAR_INT(   dbg_sleep_rand,         0 )
 

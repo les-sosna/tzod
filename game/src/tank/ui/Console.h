@@ -62,13 +62,14 @@ protected:
 	virtual bool OnMouseUp(float x, float y, int button);
 	virtual bool OnMouseMove(float x, float y);
 
+	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 	virtual void OnSize(float width, float height);
 	virtual bool OnFocus(bool focus);
 
 private:
+	ScrollBarVertical *_scroll;
 	Edit  *_input;
-	size_t _scrollBack;
 	size_t _cmdIndex;
 	size_t _font;
 
@@ -77,6 +78,7 @@ private:
 	std::vector<SpriteColor> _colors;
 
 	bool _echo;
+	bool _autoScroll;
 };
 
 

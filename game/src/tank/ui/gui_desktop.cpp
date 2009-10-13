@@ -145,17 +145,20 @@ Desktop::Desktop(LayoutManager* manager)
 	g_conf.ui_showtime.eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
-	float xx = 200;
-	float yy = 3;
-	float hh = 50;
-	for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
+	if( g_conf.dbg_graph.Get() )
 	{
-		Oscilloscope *os = new Oscilloscope(this, xx, yy);
-		os->Resize(400, hh);
-		os->SetRange(-1/15.0f, 1/15.0f);
-		os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
-		CounterBase::SetMarkerCallbackStatic(i, CreateDelegate(&Oscilloscope::Push, os));
-		yy += hh+5;
+		float xx = 200;
+		float yy = 3;
+		float hh = 50;
+		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
+		{
+			Oscilloscope *os = new Oscilloscope(this, xx, yy);
+			os->Resize(400, hh);
+			os->SetRange(-1/15.0f, 1/15.0f);
+			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
+			CounterBase::SetMarkerCallbackStatic(i, CreateDelegate(&Oscilloscope::Push, os));
+			yy += hh+5;
+		}
 	}
 
 	OnRawChar(VK_ESCAPE); // to invoke main menu dialog

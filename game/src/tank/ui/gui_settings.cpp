@@ -92,7 +92,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 	Text::Create(this, x + 50, y += 20, g_lang.settings_sfx_volume.Get(), alignTextRT);
 	_volumeSfx = ScrollBarHorizontal::Create(this, x + 60, y, 150);
-	_volumeSfx->SetLimit(1);
+	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
 	_volumeSfx->SetPos(expf(g_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeSfx->eventScroll.bind(&SettingsDlg::OnVolumeSfx, this);
@@ -100,7 +100,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 	Text::Create(this, x + 50, y += 20, g_lang.settings_music_volume.Get(), alignTextRT);
 	_volumeMusic = ScrollBarHorizontal::Create(this, x + 60, y, 150);
-	_volumeMusic->SetLimit(1);
+	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
 	_volumeMusic->SetPos(expf(g_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeMusic->eventScroll.bind(&SettingsDlg::OnVolumeMusic, this);
