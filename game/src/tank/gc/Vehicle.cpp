@@ -121,7 +121,7 @@ void GC_VehicleVisualDummy::Draw() const
 {
 	GC_VehicleBase::Draw();
 
-	if( g_conf->g_shownames->Get() && _parent->GetPlayer() )
+	if( g_conf.g_shownames.Get() && _parent->GetPlayer() )
 	{
 		const vec2d &pos = GetPosPredicted();
 		static TextureCache f("font_small");
@@ -163,7 +163,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 	// caterpillar tracks
 	//
 
-	if( g_conf->g_particles->Get() && CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
+	if( g_conf.g_particles.Get() && CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
 	{
 		vec2d tmp(_angle+PI/2);
 		vec2d trackL_new = GetPos() + tmp*15;
@@ -241,7 +241,7 @@ void GC_VehicleVisualDummy::UpdateLight()
 
 void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
 {
-	if( g_conf->g_showdamage->Get() )
+	if( g_conf.g_showdamage.Get() )
 	{
 		if( _damLabel )
 			_damLabel->Reset();
@@ -648,7 +648,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 					// убил себя апстену =)
 					GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf(msg, g_lang->msg_player_x_killed_him_self->Get().c_str(), GetPlayer()->GetNick().c_str());
+					wsprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetPlayer()->GetNick().c_str());
 				}
 				else if( GetPlayer() )
 				{
@@ -658,7 +658,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						// убил товарища
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
 						font = "font_digits_red";
-						wsprintf(msg, g_lang->msg_player_x_killed_his_friend_x->Get().c_str(),
+						wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
 							((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
 							GetPlayer()->GetNick().c_str());
 					}
@@ -667,7 +667,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 						// убил врага - молодец!
 						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
 						font = "font_digits_green";
-						wsprintf(msg, g_lang->msg_player_x_killed_his_enemy_x->Get().c_str(),
+						wsprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
 							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str());
 					}
 				}
@@ -692,11 +692,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 			GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
 			wsprintf(score, "%d", GetPlayer()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
-			wsprintf(msg, g_lang->msg_player_x_was_killed_by_turret->Get().c_str(), GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang.msg_player_x_was_killed_by_turret.Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 		else if( GetPlayer() )
 		{
-			wsprintf(msg, g_lang->msg_player_x_died->Get().c_str(), GetPlayer()->GetNick().c_str());
+			wsprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 
 		{

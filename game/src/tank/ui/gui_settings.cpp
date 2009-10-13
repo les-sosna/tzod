@@ -35,7 +35,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 	SetEasyMove(true);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->settings_title->Get(), alignTextCT);
+	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.settings_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -43,18 +43,18 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// profiles
 	//
 
-	Text::Create(this, 24, 48, g_lang->settings_profiles->Get(), alignTextLT);
+	Text::Create(this, 24, 48, g_lang.settings_profiles.Get(), alignTextLT);
 	_profiles = DefaultListBox::Create(this);
 	_profiles->Move(24, 64);
 	_profiles->Resize(128, 104);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
-	Button::Create(this, g_lang->settings_profile_new->Get(), 40, 184)->eventClick.bind(&SettingsDlg::OnAddProfile, this);
-	_editProfile = Button::Create(this, g_lang->settings_profile_edit->Get(), 40, 216);
+	Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick.bind(&SettingsDlg::OnAddProfile, this);
+	_editProfile = Button::Create(this, g_lang.settings_profile_edit.Get(), 40, 216);
 	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled( false );
-	_deleteProfile = Button::Create(this, g_lang->settings_profile_delete->Get(), 40, 248);
+	_deleteProfile = Button::Create(this, g_lang.settings_profile_delete.Get(), 40, 248);
 	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled( false );
 
@@ -66,53 +66,53 @@ SettingsDlg::SettingsDlg(Window *parent)
 	float x = 200;
 	float y = 48;
 
-	_showFps = CheckBox::Create(this, x, y, g_lang->settings_show_fps->Get());
-	_showFps->SetCheck(g_conf->ui_showfps->Get());
+	_showFps = CheckBox::Create(this, x, y, g_lang.settings_show_fps.Get());
+	_showFps->SetCheck(g_conf.ui_showfps.Get());
 	y += _showFps->GetHeight();
 
-	_showTime = CheckBox::Create(this, x, y, g_lang->settings_show_time->Get());
-	_showTime->SetCheck(g_conf->ui_showtime->Get());
+	_showTime = CheckBox::Create(this, x, y, g_lang.settings_show_time.Get());
+	_showTime->SetCheck(g_conf.ui_showtime.Get());
 	y += _showTime->GetHeight();
 
-	_particles = CheckBox::Create(this, x, y, g_lang->settings_show_particles->Get());
-	_particles->SetCheck(g_conf->g_particles->Get());
+	_particles = CheckBox::Create(this, x, y, g_lang.settings_show_particles.Get());
+	_particles->SetCheck(g_conf.g_particles.Get());
 	y += _particles->GetHeight();
 
-	_showDamage = CheckBox::Create(this, x, y, g_lang->settings_show_damage->Get());
-	_showDamage->SetCheck(g_conf->g_showdamage->Get());
+	_showDamage = CheckBox::Create(this, x, y, g_lang.settings_show_damage.Get());
+	_showDamage->SetCheck(g_conf.g_showdamage.Get());
 	y += _showDamage->GetHeight();
 
-	_showNames = CheckBox::Create(this, x, y, g_lang->settings_show_names->Get());
-	_showNames->SetCheck(g_conf->g_shownames->Get());
+	_showNames = CheckBox::Create(this, x, y, g_lang.settings_show_names.Get());
+	_showNames->SetCheck(g_conf.g_shownames.Get());
 	y += _showNames->GetHeight();
 
-	_askDisplaySettings = CheckBox::Create(this, x, y, g_lang->settings_ask_for_display_mode->Get());
-	_askDisplaySettings->SetCheck(g_conf->r_askformode->Get());
+	_askDisplaySettings = CheckBox::Create(this, x, y, g_lang.settings_ask_for_display_mode.Get());
+	_askDisplaySettings->SetCheck(g_conf.r_askformode.Get());
 	y += _askDisplaySettings->GetHeight();
 
-	Text::Create(this, x + 50, y += 20, g_lang->settings_sfx_volume->Get(), alignTextRT);
+	Text::Create(this, x + 50, y += 20, g_lang.settings_sfx_volume.Get(), alignTextRT);
 	_volumeSfx = ScrollBarHorizontal::Create(this, x + 60, y, 150);
 	_volumeSfx->SetLimit(1);
 	_volumeSfx->SetLineSize(0.1f);
-	_volumeSfx->SetPos(expf(g_conf->s_volume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeSfx->SetPos(expf(g_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeSfx->eventScroll.bind(&SettingsDlg::OnVolumeSfx, this);
-	_initialVolumeSfx = g_conf->s_volume->GetInt();
+	_initialVolumeSfx = g_conf.s_volume.GetInt();
 
-	Text::Create(this, x + 50, y += 20, g_lang->settings_music_volume->Get(), alignTextRT);
+	Text::Create(this, x + 50, y += 20, g_lang.settings_music_volume.Get(), alignTextRT);
 	_volumeMusic = ScrollBarHorizontal::Create(this, x + 60, y, 150);
 	_volumeMusic->SetLimit(1);
 	_volumeMusic->SetLineSize(0.1f);
-	_volumeMusic->SetPos(expf(g_conf->s_musicvolume->GetFloat() / 2171.0f) - 0.01f);
+	_volumeMusic->SetPos(expf(g_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeMusic->eventScroll.bind(&SettingsDlg::OnVolumeMusic, this);
-	_initialVolumeMusic = g_conf->s_musicvolume->GetInt();
+	_initialVolumeMusic = g_conf.s_musicvolume.GetInt();
 
 
 	//
 	// OK & Cancel
 	//
 
-	Button::Create(this, g_lang->common_ok->Get(), 304, 256)->eventClick.bind(&SettingsDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 408, 256)->eventClick.bind(&SettingsDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 304, 256)->eventClick.bind(&SettingsDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 408, 256)->eventClick.bind(&SettingsDlg::OnCancel, this);
 
 
 	_profiles->SetCurSel(0, true);
@@ -126,12 +126,12 @@ SettingsDlg::~SettingsDlg()
 
 void SettingsDlg::OnVolumeSfx(float pos)
 {
-	g_conf->s_volume->SetInt( int(2171.0f * logf(0.01f + pos)) );
+	g_conf.s_volume.SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnVolumeMusic(float pos)
 {
-	g_conf->s_musicvolume->SetInt( int(2171.0f * logf(0.01f + pos)) );
+	g_conf.s_musicvolume.SetInt( int(2171.0f * logf(0.01f + pos)) );
 }
 
 void SettingsDlg::OnAddProfile()
@@ -151,12 +151,12 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	if( g_conf->cl_playerinfo->GetStr("profile")->Get() == _profiles->GetData()->GetItemText(i, 0) )
+	if( g_conf.cl_playerinfo.GetStr("profile")->Get() == _profiles->GetData()->GetItemText(i, 0) )
 	{
 		// profile that is being deleted is used in network settings
-		g_conf->cl_playerinfo->SetStr("profile", "");
+		g_conf.cl_playerinfo.SetStr("profile", "");
 	}
-	g_conf->dm_profiles->Remove(_profiles->GetData()->GetItemText(i, 0));
+	g_conf.dm_profiles.Remove(_profiles->GetData()->GetItemText(i, 0));
 	UpdateProfilesList();
 }
 
@@ -168,20 +168,20 @@ void SettingsDlg::OnSelectProfile(int index)
 
 void SettingsDlg::OnOK()
 {
-	g_conf->ui_showfps->Set(_showFps->GetCheck());
-	g_conf->ui_showtime->Set(_showTime->GetCheck());
-	g_conf->g_particles->Set(_particles->GetCheck());
-	g_conf->g_showdamage->Set(_showDamage->GetCheck());
-	g_conf->g_shownames->Set(_showNames->GetCheck());
-	g_conf->r_askformode->Set(_askDisplaySettings->GetCheck());
+	g_conf.ui_showfps.Set(_showFps->GetCheck());
+	g_conf.ui_showtime.Set(_showTime->GetCheck());
+	g_conf.g_particles.Set(_particles->GetCheck());
+	g_conf.g_showdamage.Set(_showDamage->GetCheck());
+	g_conf.g_shownames.Set(_showNames->GetCheck());
+	g_conf.r_askformode.Set(_askDisplaySettings->GetCheck());
 
 	Close(_resultCancel); // return cancel to show back the main menu
 }
 
 void SettingsDlg::OnCancel()
 {
-	g_conf->s_volume->SetInt(_initialVolumeSfx);
-	g_conf->s_musicvolume->SetInt(_initialVolumeMusic);
+	g_conf.s_volume.SetInt(_initialVolumeSfx);
+	g_conf.s_musicvolume.SetInt(_initialVolumeMusic);
 	Close(_resultCancel);
 }
 
@@ -189,7 +189,7 @@ void SettingsDlg::UpdateProfilesList()
 {
 	int sel = _profiles->GetCurSel();
 	std::vector<string_t> profiles;
-	g_conf->dm_profiles->GetKeyList(profiles);
+	g_conf.dm_profiles.GetKeyList(profiles);
 	_profiles->GetData()->DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
@@ -225,7 +225,7 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_skip = false;
 
 
-	Text::Create(this, 20, 15, g_lang->profile_name->Get(), alignTextLT);
+	Text::Create(this, 20, 15, g_lang.profile_name.Get(), alignTextLT);
 	_nameEdit = Edit::Create(this, 20, 30, 250);
 
 	if( profileName )
@@ -240,15 +240,15 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 		do
 		{
 			buf.str("");
-			buf << g_lang->profile_autoname->Get() << ++i;
+			buf << g_lang.profile_autoname.Get() << ++i;
 		}
-		while( g_conf->dm_profiles->Find(buf.str()) );
+		while( g_conf.dm_profiles.Find(buf.str()) );
 		_nameEdit->SetText(buf.str());
 	}
-	_profile = g_conf->dm_profiles->GetTable(_nameEdit->GetText());
+	_profile = g_conf.dm_profiles.GetTable(_nameEdit->GetText());
 
-	Text::Create(this,  20, 65, g_lang->profile_action->Get(), alignTextLT);
-	Text::Create(this, 220, 65, g_lang->profile_key->Get(), alignTextLT);
+	Text::Create(this,  20, 65, g_lang.profile_action.Get(), alignTextLT);
+	Text::Create(this, 220, 65, g_lang.profile_key.Get(), alignTextLT);
 	_actions = DefaultListBox::Create(this);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
@@ -256,26 +256,26 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_actions->SetTabPos(1, 200);
 	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
 
-	AddAction( "key_forward"      , g_lang->action_move_forward->Get()    );
-	AddAction( "key_back"         , g_lang->action_move_backward->Get()   );
-	AddAction( "key_left"         , g_lang->action_turn_left->Get()       );
-	AddAction( "key_right"        , g_lang->action_turn_right->Get()      );
-	AddAction( "key_fire"         , g_lang->action_fire->Get()            );
-	AddAction( "key_light"        , g_lang->action_toggle_lights->Get()   );
-	AddAction( "key_tower_left"   , g_lang->action_tower_left->Get()      );
-	AddAction( "key_tower_right"  , g_lang->action_tower_right->Get()     );
-	AddAction( "key_tower_center" , g_lang->action_tower_center->Get()    );
-	AddAction( "key_pickup"       , g_lang->action_pickup->Get()          );
+	AddAction( "key_forward"      , g_lang.action_move_forward.Get()    );
+	AddAction( "key_back"         , g_lang.action_move_backward.Get()   );
+	AddAction( "key_left"         , g_lang.action_turn_left.Get()       );
+	AddAction( "key_right"        , g_lang.action_turn_right.Get()      );
+	AddAction( "key_fire"         , g_lang.action_fire.Get()            );
+	AddAction( "key_light"        , g_lang.action_toggle_lights.Get()   );
+	AddAction( "key_tower_left"   , g_lang.action_tower_left.Get()      );
+	AddAction( "key_tower_right"  , g_lang.action_tower_right.Get()     );
+	AddAction( "key_tower_center" , g_lang.action_tower_center.Get()    );
+	AddAction( "key_pickup"       , g_lang.action_pickup.Get()          );
 	_actions->SetCurSel(0, true);
 
-	_aimToMouse = CheckBox::Create(this, 16, 345, g_lang->profile_mouse_aim->Get());
+	_aimToMouse = CheckBox::Create(this, 16, 345, g_lang.profile_mouse_aim.Get());
 	_aimToMouse->SetCheck(_profile->GetBool("aim_to_mouse", false)->Get());
 
-	_moveToMouse = CheckBox::Create(this, 146, 345, g_lang->profile_mouse_move->Get());
+	_moveToMouse = CheckBox::Create(this, 146, 345, g_lang.profile_mouse_move.Get());
 	_moveToMouse->SetCheck(_profile->GetBool("move_to_mouse", false)->Get());
 
-	Button::Create(this, g_lang->common_ok->Get(), 304, 350)->eventClick.bind(&ControlProfileDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 408, 350)->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 304, 350)->eventClick.bind(&ControlProfileDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 408, 350)->eventClick.bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_actions);
 }
@@ -303,7 +303,7 @@ void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetText().empty() || !g_conf->dm_profiles->Rename(_profile, _nameEdit->GetText()) )
+	if( _nameEdit->GetText().empty() || !g_conf.dm_profiles.Rename(_profile, _nameEdit->GetText()) )
 	{
 		return;
 	}
@@ -321,7 +321,7 @@ void ControlProfileDlg::OnCancel()
 {
 	if( _name.empty() )
 	{
-		g_conf->dm_profiles->Remove(_profile);
+		g_conf.dm_profiles.Remove(_profile);
 	}
 	Close(_resultCancel);
 }
@@ -386,7 +386,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	SetEasyMove(true);
 	assert(g_level);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->map_title->Get(), alignTextCT);
+	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.map_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -395,27 +395,27 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 
 	float y = 32;
 
-	Text::Create(this, x1, y += 20, g_lang->map_author->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_author.Get(), alignTextLT);
 	_author = Edit::Create(this, x2, y += 15, 256);
 	_author->SetText(g_level->_infoAuthor);
 
-	Text::Create(this, x1, y += 20, g_lang->map_email->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_email.Get(), alignTextLT);
 	_email = Edit::Create(this, x2, y += 15, 256);
 	_email->SetText(g_level->_infoEmail);
 
-	Text::Create(this, x1, y += 20, g_lang->map_url->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_url.Get(), alignTextLT);
 	_url = Edit::Create(this, x2, y += 15, 256);
 	_url->SetText(g_level->_infoUrl);
 
-	Text::Create(this, x1, y += 20, g_lang->map_desc->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_desc.Get(), alignTextLT);
 	_desc = Edit::Create(this, x2, y += 15, 256);
 	_desc->SetText(g_level->_infoDesc);
 
-	Text::Create(this, x1, y += 20, g_lang->map_init_script->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_init_script.Get(), alignTextLT);
 	_onInit = Edit::Create(this, x2, y += 15, 256);
 	_onInit->SetText(g_level->_infoOnInit);
 
-	Text::Create(this, x1, y += 20, g_lang->map_theme->Get(), alignTextLT);
+	Text::Create(this, x1, y += 20, g_lang.map_theme.Get(), alignTextLT);
 	_theme = DefaultComboBox::Create(this);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
@@ -429,8 +429,8 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	//
 	// OK & Cancel
 	//
-	Button::Create(this, g_lang->common_ok->Get(), 304, 480)->eventClick.bind(&MapSettingsDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 408, 480)->eventClick.bind(&MapSettingsDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick.bind(&MapSettingsDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick.bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()

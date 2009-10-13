@@ -58,7 +58,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	string_t sv;
 	std::getline(buf, sv, ':');
 
-	unsigned short port = g_conf->sv_port->GetInt();
+	unsigned short port = g_conf.sv_port.GetInt();
 	buf >> port;
 
 
@@ -98,7 +98,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	}
 
 	TRACE("cl: connecting to %s", inet_ntoa(addr.sin_addr));
-	ClTextMessage(NULL, -1, Variant(g_lang->net_msg_connecting->Get()));
+	ClTextMessage(NULL, -1, Variant(g_lang.net_msg_connecting.Get()));
 
 	_peer = WrapRawPtr(new Peer(s));
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
@@ -124,7 +124,7 @@ void TankClient::Connect(const string_t &hostaddr)
 void TankClient::OnDisconnect(Peer *peer, int err)
 {
 	// TODO: treat this as an error when disconnect is unexpected
-	Variant arg(g_lang->net_msg_connection_failed->Get());
+	Variant arg(g_lang.net_msg_connection_failed.Get());
 	if( err )
 	{
 		ClErrorMessage(peer, -1, arg);
@@ -153,7 +153,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 {
 	assert(_gameStarted);
 
-	//if( g_conf->sv_latency->GetInt() < _latency && _latency > 1 )
+	//if( g_conf.sv_latency.GetInt() < _latency && _latency > 1 )
 	//{
 	//	--_latency;
 	//	TRACE("cl: packet skipped");
@@ -164,7 +164,7 @@ void TankClient::SendControl(const ControlPacket &cp)
 	_frame++;
 
 
-	//if( g_conf->sv_latency->GetInt() > _latency )
+	//if( g_conf.sv_latency.GetInt() > _latency )
 	//{
 	//	++_latency;
 	//	SendControl(cp); // duplicate packet
@@ -209,14 +209,14 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 	if( 0 != memcmp(gi.exeVer, g_md5.bytes, 16) )
 	{
-		ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_server_version->Get()));
+		ClErrorMessage(NULL, -1, Variant(g_lang.net_connect_error_server_version.Get()));
 		return;
 	}
 
-	g_conf->sv_timelimit->SetInt(gi.timelimit);
-	g_conf->sv_fraglimit->SetInt(gi.fraglimit);
-	g_conf->sv_fps->SetInt(gi.server_fps);
-	g_conf->sv_nightmode->Set(gi.nightmode);
+	g_conf.sv_timelimit.SetInt(gi.timelimit);
+	g_conf.sv_fraglimit.SetInt(gi.fraglimit);
+	g_conf.sv_fps.SetInt(gi.server_fps);
+	g_conf.sv_nightmode.Set(gi.nightmode);
 
 	std::string path = DIR_MAPS;
 	path += "\\";
@@ -238,7 +238,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 		if( 0 != memcmp(gi.mapVer, md5.digest, 16) )
 		{
-			ClErrorMessage(NULL, -1, Variant(g_lang->net_connect_error_map_version->Get()));
+			ClErrorMessage(NULL, -1, Variant(g_lang.net_connect_error_map_version.Get()));
 			return;
 		}
 
@@ -253,8 +253,8 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 	g_level->PauseLocal(true); // paused until game is started
 
-	g_conf->cl_map->Set(gi.cMapName);
-	g_conf->ui_showmsg->Set(true);
+	g_conf.cl_map.Set(gi.cMapName);
+	g_conf.ui_showmsg.Set(true);
 
 	if( eventConnected )
 	{
@@ -318,7 +318,7 @@ void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 		if( GetId() == pde.id )
 		{
 			player = new GC_PlayerLocal();
-			const string_t &profile = g_conf->cl_playerinfo->GetStr("profile")->Get();
+			const string_t &profile = g_conf.cl_playerinfo.GetStr("profile")->Get();
 			if( profile.empty() )
 			{
 				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
@@ -383,7 +383,7 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 			{
 				if( g_gui )
 				{
-					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang->msg_player_quit->Get());
+					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
 				}
 				p->Kill();
 				break;

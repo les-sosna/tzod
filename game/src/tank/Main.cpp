@@ -66,7 +66,7 @@ static void OnPrintScreen()
 	CreateDirectory(DIR_SCREENSHOTS, NULL);
 	SetCurrentDirectory(DIR_SCREENSHOTS);
 
-	int n = g_conf->r_screenshot->GetInt();
+	int n = g_conf.r_screenshot.GetInt();
 	char name[MAX_PATH];
 	for(;;)
 	{
@@ -82,7 +82,7 @@ static void OnPrintScreen()
 		n++;
 	}
 
-	g_conf->r_screenshot->SetInt(n);
+	g_conf.r_screenshot.SetInt(n);
 
 	if( !g_render->TakeScreenshot(name) )
 	{
@@ -246,7 +246,7 @@ bool ZodApp::Pre()
 
 	try
 	{
-		if( !g_conf.GetRoot()->Load(FILE_CONFIG) )
+		if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
 		{
 			int result = MessageBox(g_env.hMainWnd,
 				"Syntax error in the config file (see log). Default settings will be used.",
@@ -263,7 +263,6 @@ bool ZodApp::Pre()
 	{
 		TRACE("Could not load config file: %s", e.what());
 	}
-	g_conf.GetAccessor(); // force accessor creation
 
 
 	//
@@ -272,7 +271,7 @@ bool ZodApp::Pre()
 	TRACE("Localization init...");
 	try
 	{
-		if( !g_lang.GetRoot()->Load(FILE_LANGUAGE) )
+		if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
 		{
 			TRACE("couldn't load language file " FILE_CONFIG);
 
@@ -291,8 +290,7 @@ bool ZodApp::Pre()
 	{
 		TRACE("could not load localization file: %s", e.what());
 	}
-	g_lang.GetAccessor(); // force accessor creation
-	setlocale(LC_CTYPE, g_lang->c_locale->Get().c_str());
+	setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
 
 
 	// set up the environment
@@ -301,7 +299,7 @@ bool ZodApp::Pre()
 	g_env.camera_x     = 0;
 	g_env.camera_y     = 0;
 
-	GC_Sound::_countMax = g_conf->s_maxchanels->GetInt();
+	GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 
 
 	//
@@ -316,7 +314,7 @@ bool ZodApp::Pre()
 	//
 	// show graphics mode selection dialog
 	//
-	if( g_conf->r_askformode->Get()
+	if( g_conf.r_askformode.Get()
 		&& IDOK != DialogBox(GetModuleHandle(NULL), (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
@@ -324,7 +322,7 @@ bool ZodApp::Pre()
 	}
 	else
 	{
-		g_render = g_conf->r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
+		g_render = g_conf.r_render.GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
 	}
 
 
@@ -346,8 +344,8 @@ bool ZodApp::Pre()
 		TRACE(" ->FAILED");
 		return false;
 	}
-	InitConfigLuaBinding(g_env.L, g_conf.GetRoot(), "conf");
-	InitConfigLuaBinding(g_env.L, g_lang.GetRoot(), "lang");
+	InitConfigLuaBinding(g_env.L, g_conf->GetRoot(), "conf");
+	InitConfigLuaBinding(g_env.L, g_lang->GetRoot(), "lang");
 
 
 	timer.SetMaxDt(MAX_DT);
@@ -355,11 +353,11 @@ bool ZodApp::Pre()
 	// init render
 	assert(g_render);
 	DisplayMode dm;
-	dm.Width         = g_conf->r_width->GetInt();
-	dm.Height        = g_conf->r_height->GetInt();
-	dm.RefreshRate   = g_conf->r_freq->GetInt();
-	dm.BitsPerPixel  = g_conf->r_bpp->GetInt();
-	if( !g_render->Init(g_env.hMainWnd, &dm, g_conf->r_fullscreen->Get()) )
+	dm.Width         = g_conf.r_width.GetInt();
+	dm.Height        = g_conf.r_height.GetInt();
+	dm.RefreshRate   = g_conf.r_freq.GetInt();
+	dm.BitsPerPixel  = g_conf.r_bpp.GetInt();
+	if( !g_render->Init(g_env.hMainWnd, &dm, g_conf.r_fullscreen.Get()) )
 	{
 		return false;
 	}
@@ -460,9 +458,9 @@ void ZodApp::Idle()
 		g_music->HandleBufferFilling();
 	}
 
-	if( g_conf->dbg_sleep->GetInt() > 0 && g_conf->dbg_sleep_rand->GetInt() >= 0 )
+	if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
 	{
-		Sleep(std::min(5000, g_conf->dbg_sleep->GetInt() + rand() % (g_conf->dbg_sleep_rand->GetInt() + 1)));
+		Sleep(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1)));
 	}
 }
 
@@ -505,7 +503,7 @@ void ZodApp::Post()
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'");
-	if( !g_conf.GetRoot()->Save(FILE_CONFIG) )
+	if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
 	{
 		MessageBox(NULL, "Failed to save config file", TXT_VERSION, MB_ICONERROR);
 	}

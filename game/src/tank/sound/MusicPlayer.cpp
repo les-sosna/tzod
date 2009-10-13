@@ -18,12 +18,12 @@ MusicPlayer::MusicPlayer()
 {
 	ZeroMemory(&_vorbisFile, sizeof(OggVorbis_File));
 	ZeroMemory(&_state, sizeof(State));
-	g_conf->s_musicvolume->eventChange.bind(&MusicPlayer::OnChangeVolume, this);
+	g_conf.s_musicvolume.eventChange.bind(&MusicPlayer::OnChangeVolume, this);
 }
 
 MusicPlayer::~MusicPlayer()
 {
-	g_conf->s_musicvolume->eventChange.clear();
+	g_conf.s_musicvolume.eventChange.clear();
 	Cleanup();
 }
 
@@ -31,7 +31,7 @@ void MusicPlayer::OnChangeVolume()
 {
 	if( _buffer )
 	{
-		_buffer->SetVolume(DSBVOLUME_MIN + int((float) (g_conf->s_musicvolume->GetInt() - DSBVOLUME_MIN)));
+		_buffer->SetVolume(DSBVOLUME_MIN + int((float) (g_conf.s_musicvolume.GetInt() - DSBVOLUME_MIN)));
 	}
 }
 
@@ -186,7 +186,7 @@ bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
 	wf.wBitsPerSample   = 16;  // always 16 in OGG
 	wf.cbSize           = 0;   // no extra info
 
-	_bufHalfSize = __min(10000, __max(100, g_conf->s_buffer->GetInt())) * wf.nAvgBytesPerSec / 2000;
+	_bufHalfSize = __min(10000, __max(100, g_conf.s_buffer.GetInt())) * wf.nAvgBytesPerSec / 2000;
 
 	DSBUFFERDESC desc = {0};
 	desc.dwSize         = sizeof(DSBUFFERDESC);

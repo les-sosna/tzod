@@ -28,7 +28,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 {
 	PauseGame(true);
 
-	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang->campaign_title->Get(), alignTextCT);
+	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang.campaign_title.Get(), alignTextCT);
 	t->SetFont("font_default");
 
 	_files = DefaultListBox::Create(this);
@@ -44,8 +44,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	}
 	_files->GetData()->Sort();
 
-	Button::Create(this, g_lang->campaign_ok->Get(), 290, 360)->eventClick.bind(&NewCampaignDlg::OnOK, this);
-	Button::Create(this, g_lang->campaign_cancel->Get(), 400, 360)->eventClick.bind(&NewCampaignDlg::OnCancel, this);
+	Button::Create(this, g_lang.campaign_ok.Get(), 290, 360)->eventClick.bind(&NewCampaignDlg::OnOK, this);
+	Button::Create(this, g_lang.campaign_cancel.Get(), 400, 360)->eventClick.bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()
@@ -60,7 +60,7 @@ void NewCampaignDlg::OnOK()
 		return;
 	}
 
-	g_conf->ui_showmsg->Set(true);
+	g_conf.ui_showmsg.Set(true);
 
 	const string_t& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )

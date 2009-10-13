@@ -438,7 +438,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, SafePtr<GC_RigidBodyStatic>
 	SetTexture("explosion_o");
 	MoveTo( pos );
 
-	if( g_conf->g_particles->Get() )
+	if( g_conf.g_particles.Get() )
 	{
 		for(int n = 0; n < 28; ++n)
 		{
@@ -498,7 +498,7 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
 	SetTexture("explosion_big");
 	MoveTo( pos );
 
-	if( g_conf->g_particles->Get() )
+	if( g_conf.g_particles.Get() )
 	{
 		for( int n = 0; n < 80; ++n )
 		{

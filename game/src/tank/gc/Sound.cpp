@@ -47,7 +47,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	_soundTemplate = sound;
 	_freezed       = false;
 	SetVolume(1.0f);
-	if( 100 != g_conf->sv_speed->GetInt() )
+	if( 100 != g_conf.sv_speed.GetInt() )
 	{
 		SetSpeed(1.0f);
 	}
@@ -206,7 +206,7 @@ void GC_Sound::UpdateVolume()
 	if( _soundBuffer )
 	{
 		_soundBuffer->SetVolume(DSBVOLUME_MIN
-			+ int((float) (g_conf->s_volume->GetInt() - DSBVOLUME_MIN) * _volume));
+			+ int((float) (g_conf.s_volume.GetInt() - DSBVOLUME_MIN) * _volume));
 	}
 #endif
 }
@@ -226,7 +226,7 @@ void GC_Sound::SetSpeed(float speed)
 #if !defined NOSOUND
 	if( !g_soundManager ) return;
 	_dwCurrentFrequency = int((float)_dwNormalFrequency * speed
-		* g_conf->sv_speed->GetFloat() * 0.01f);
+		* g_conf.sv_speed.GetFloat() * 0.01f);
 	_soundBuffer->SetFrequency(_dwCurrentFrequency);
 #endif
 }

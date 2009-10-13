@@ -908,7 +908,7 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 {
 	static TextureCache tex("projectile_fire");
 	
-	if( g_conf->g_particles->Get() )
+	if( g_conf.g_particles.Get() )
 	{
 		GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), _velocity/3 + vrand(10.0f), tex, 0.1f + frand(0.3f), frand(PI2), GetRadius());
 		p->SetFade(true);

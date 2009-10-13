@@ -49,11 +49,11 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	SetTexture("gui_splash", true);
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	Button::Create(this, g_lang->single_player_btn->Get(), 0, GetHeight())->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
-	Button::Create(this, g_lang->network_btn->Get(), 100, GetHeight())->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this);
-	Button::Create(this, g_lang->editor_btn->Get(), 200, GetHeight())->eventClick.bind(&MainMenuDlg::OnEditor, this);
-	Button::Create(this, g_lang->settings_btn->Get(), 300, GetHeight())->eventClick.bind(&MainMenuDlg::OnSettings, this);
-	Button::Create(this, g_lang->exit_game_btn->Get(), 416, GetHeight())->eventClick.bind(&MainMenuDlg::OnExit, this);
+	Button::Create(this, g_lang.single_player_btn.Get(), 0, GetHeight())->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
+	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this);
+	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick.bind(&MainMenuDlg::OnEditor, this);
+	Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick.bind(&MainMenuDlg::OnSettings, this);
+	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick.bind(&MainMenuDlg::OnExit, this);
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);
@@ -106,7 +106,7 @@ void MainMenuDlg::OnCampaign()
 void MainMenuDlg::OnSaveGame()
 {
 	GetFileNameDlg::Params param;
-	param.title = g_lang->get_file_name_save_game->Get();
+	param.title = g_lang.get_file_name_save_game.Get();
 	param.folder = g_fs->GetFileSystem(DIR_SAVE, true);
 	param.extension = "sav";
 
@@ -150,7 +150,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 void MainMenuDlg::OnLoadGame()
 {
 	GetFileNameDlg::Params param;
-	param.title = g_lang->get_file_name_load_game->Get();
+	param.title = g_lang.get_file_name_load_game.Get();
 	param.folder = g_fs->GetFileSystem(DIR_SAVE);
 	param.extension = "sav";
 
@@ -221,7 +221,7 @@ void MainMenuDlg::OnInternet()
 void MainMenuDlg::OnNetworkProfile()
 {
 //	SetVisible(false);
-	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf->cl_playerinfo);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), &g_conf.cl_playerinfo);
 //	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
@@ -247,7 +247,7 @@ void MainMenuDlg::OnMapSettings()
 void MainMenuDlg::OnImportMap()
 {
 	GetFileNameDlg::Params param;
-	param.title = g_lang->get_file_name_load_map->Get();
+	param.title = g_lang.get_file_name_load_map.Get();
 	param.folder = g_fs->GetFileSystem(DIR_MAPS);
 	param.extension = "map";
 
@@ -292,7 +292,7 @@ void MainMenuDlg::OnImportMapSelect(int result)
 void MainMenuDlg::OnExportMap()
 {
 	GetFileNameDlg::Params param;
-	param.title = g_lang->get_file_name_save_map->Get();
+	param.title = g_lang.get_file_name_save_map.Get();
 	param.folder = g_fs->GetFileSystem(DIR_MAPS, true);
 	param.extension = "map";
 
@@ -330,7 +330,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		}
 
 		GetConsole().Printf(0, "map exported: '%s'", tmp.c_str());
-		g_conf->cl_map->Set(_fileDlg->GetFileTitle());
+		g_conf.cl_map.Set(_fileDlg->GetFileTitle());
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);
@@ -407,29 +407,29 @@ void MainMenuDlg::CreatePanel()
 	switch( _ptype )
 	{
 	case PT_SINGLEPLAYER:
-		_panelTitle->SetText(g_lang->single_player_title->Get());
-		Button::Create(_panel, g_lang->single_player_campaign->Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnCampaign, this);
-		Button::Create(_panel, g_lang->single_player_skirmish->Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnNewGame, this);
-		Button::Create(_panel, g_lang->single_player_load->Get(), 200, y)->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
-		btn = Button::Create(_panel, g_lang->single_player_save->Get(), 300, y);
+		_panelTitle->SetText(g_lang.single_player_title.Get());
+		Button::Create(_panel, g_lang.single_player_campaign.Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnCampaign, this);
+		Button::Create(_panel, g_lang.single_player_skirmish.Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnNewGame, this);
+		Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
+		btn = Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
 		btn->SetEnabled(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && !g_client);
 		break;
 	case PT_MULTIPLAYER:
-		_panelTitle->SetText(g_lang->network_title->Get());
-		Button::Create(_panel, g_lang->network_host->Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnHost, this);
-		Button::Create(_panel, g_lang->network_join->Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnJoin, this);
-		Button::Create(_panel, g_lang->network_internet->Get(), 200, y)->eventClick.bind(&MainMenuDlg::OnInternet, this);
-		Button::Create(_panel, g_lang->network_profile->Get(), 300, y)->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
+		_panelTitle->SetText(g_lang.network_title.Get());
+		Button::Create(_panel, g_lang.network_host.Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnHost, this);
+		Button::Create(_panel, g_lang.network_join.Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnJoin, this);
+		Button::Create(_panel, g_lang.network_internet.Get(), 200, y)->eventClick.bind(&MainMenuDlg::OnInternet, this);
+		Button::Create(_panel, g_lang.network_profile.Get(), 300, y)->eventClick.bind(&MainMenuDlg::OnNetworkProfile, this);
 		break;
 	case PT_EDITOR:
-		_panelTitle->SetText(g_lang->editor_title->Get());
-		Button::Create(_panel, g_lang->editor_new_map->Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnNewMap, this);
-		Button::Create(_panel, g_lang->editor_load_map->Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnImportMap, this);
-		btn = Button::Create(_panel, g_lang->editor_save_map->Get(), 200, y);
+		_panelTitle->SetText(g_lang.editor_title.Get());
+		Button::Create(_panel, g_lang.editor_new_map.Get(), 0, y)->eventClick.bind(&MainMenuDlg::OnNewMap, this);
+		Button::Create(_panel, g_lang.editor_load_map.Get(), 100, y)->eventClick.bind(&MainMenuDlg::OnImportMap, this);
+		btn = Button::Create(_panel, g_lang.editor_save_map.Get(), 200, y);
 		btn->eventClick.bind(&MainMenuDlg::OnExportMap, this);
 		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
-		btn = Button::Create(_panel, g_lang->editor_map_settings->Get(), 300, y);
+		btn = Button::Create(_panel, g_lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick.bind(&MainMenuDlg::OnMapSettings, this);
 		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		break;

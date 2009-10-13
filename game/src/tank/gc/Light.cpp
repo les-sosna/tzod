@@ -197,7 +197,7 @@ void GC_Light::Update()
 	if( LIGHT_SPOT == _type )
 	{
 		_lamp->SetTexture("shine");
-		_lamp->SetZ(g_conf->sv_nightmode->Get() ? Z_PARTICLE : Z_NONE);
+		_lamp->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
 	}
 }
 

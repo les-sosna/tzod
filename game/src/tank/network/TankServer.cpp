@@ -48,7 +48,7 @@ TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announc
 
 	sockaddr_in addr = {0};
 	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port        = htons(g_conf->sv_port->GetInt());
+	addr.sin_port        = htons(g_conf.sv_port.GetInt());
 	addr.sin_family      = AF_INET;
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
@@ -70,7 +70,7 @@ TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announc
 
 	if( _announcer )
 	{
-		_announcer->AnnounceHost(g_conf->sv_port->GetInt());
+		_announcer->AnnounceHost(g_conf.sv_port.GetInt());
 	}
 
 	TRACE("Server is online!");
@@ -287,7 +287,7 @@ void TankServer::SendFrame()
 		if( (*it)->descValid )
 		{
 			assert((*it)->ctrlValid);
-			if( (*it)->svlatency < g_conf->sv_latency->GetInt() )
+			if( (*it)->svlatency < g_conf.sv_latency.GetInt() )
 			{
 				TRACE("sv: extra packet added");
 				++(*it)->svlatency;
@@ -332,7 +332,7 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 	PeerServer *who = static_cast<PeerServer *>(from);
 	assert(!who->ctrlValid);
 
-	if( who->svlatency > g_conf->sv_latency->GetInt() )
+	if( who->svlatency > g_conf.sv_latency.GetInt() )
 	{
 		TRACE("sv: extra packet skipped");
 		--who->svlatency;
@@ -354,7 +354,7 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 				if( (*it)->descValid )
 				{
 					(*it)->leading.Push((*it)->GetPending() > 0);
-					(*it)->clboost -= g_conf->sv_sensitivity->GetFloat() * (float) (*it)->leading.Count() / (*it)->leading.GetCapacity();
+					(*it)->clboost -= g_conf.sv_sensitivity.GetFloat() * (float) (*it)->leading.Count() / (*it)->leading.GetCapacity();
 					sum += (*it)->clboost;
 				}
 			}
@@ -397,7 +397,7 @@ void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 		{
 			_announcer->Cancel();
 		}
-		BroadcastTextMessage(g_lang->net_msg_starting_game->Get());
+		BroadcastTextMessage(g_lang.net_msg_starting_game.Get());
 		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{
 			(*it)->Post(CL_POST_STARTGAME, Variant(true));

@@ -149,9 +149,9 @@ void GC_Player::UpdateSkin()
 void GC_Player::SetScore(int score)
 {
 	_score = score;
-	if( g_conf->sv_fraglimit->GetInt() )
+	if( g_conf.sv_fraglimit.GetInt() )
 	{
-		if( _score >= g_conf->sv_fraglimit->GetInt() )
+		if( _score >= g_conf.sv_fraglimit.GetInt() )
 		{
 			g_level->HitLimit();
 		}
@@ -220,7 +220,7 @@ void GC_Player::TimeStepFixed(float dt)
 			if( !pBestPoint && points.empty() )
 			{
 				char buf[64];
-				wsprintf(buf, g_lang->msg_no_respawns_for_team_x->Get().c_str(), _team);
+				wsprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
 				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(buf);
 				return;
 			}
@@ -460,7 +460,7 @@ void GC_PlayerLocal::SelectFreeProfile()
 	string_t profile;
 
 	std::vector<string_t> tmp;
-	g_conf->dm_profiles->GetKeyList(tmp);
+	g_conf.dm_profiles.GetKeyList(tmp);
 	for( size_t i = 0; i < tmp.size(); ++i )
 	{
 		bool in_use = false;
@@ -549,7 +549,7 @@ const string_t& GC_PlayerLocal::GetProfile() const
 void GC_PlayerLocal::SetProfile(const string_t &name)
 {
 	_profile = name;
-	ConfVar *p = g_conf->dm_profiles->Find(name);
+	ConfVar *p = g_conf.dm_profiles.Find(name);
 
 	if( p && ConfVar::typeTable == p->GetType() )
 	{
@@ -599,7 +599,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 	// lights
 	//
 	bool tmp = g_env.envInputs.keys[_keyLight];
-	if( tmp && !_lastLightKeyState && g_conf->sv_nightmode->Get() )
+	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 	{
 		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
 		_lastLightsState = !_lastLightsState;

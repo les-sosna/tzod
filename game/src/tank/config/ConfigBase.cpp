@@ -37,15 +37,14 @@ static ConfVar* FromLuaType(lua_State *L, parent_t *parent, key_t key)
 ///////////////////////////////////////////////////////////////////////////////
 
 ConfVar::ConfVar()
+  : _type(typeNil)
+  , _frozen(false)
 {
-	_type    = typeNil;
-	_val.ptr = NULL;
 }
 
 ConfVar::~ConfVar()
 {
-	_type    = typeNil;
-	_val.ptr = NULL;
+	_type = typeNil;
 }
 
 const char* ConfVar::GetTypeName() const
@@ -104,20 +103,26 @@ ConfVarTable* ConfVar::AsTable()
 
 bool ConfVar::_Save(FILE *, int) const
 {
-	assert(FALSE);
+	assert(false);
 	return false;
 }
 
 bool ConfVar::_Load(lua_State *)
 {
-	assert(FALSE);
+	assert(false);
 	return false;
 }
 
 void ConfVar::Push(lua_State *)
 {
-	assert(FALSE);
+	assert(false);
 }
+
+void ConfVar::Freeze(bool freeze)
+{
+	_frozen = freeze;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // number

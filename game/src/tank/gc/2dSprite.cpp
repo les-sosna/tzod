@@ -181,7 +181,7 @@ void GC_2dSprite::Draw() const
 {
 	vec2d pos = GetPosPredicted();
 
-	if( !g_conf->sv_nightmode->Get() && CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW) )
+	if( !g_conf.sv_nightmode.Get() && CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW) )
 	{
 		SpriteColor tmp_color = 0x00000000;
 		tmp_color.a = _color.a >> 2;

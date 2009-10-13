@@ -12,5 +12,7 @@
 #define CONFIG_CACHE_PASS 2
 #include "Language.h"
 
+// global
+LangCache g_lang;
 
 // end of file

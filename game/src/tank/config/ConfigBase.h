@@ -38,6 +38,8 @@ public:
 	ConfVarTable*  AsTable();
 
 	// lua binding
+	void Freeze(bool freeze);
+	bool IsFrozen() const { return _frozen; }
 	virtual void Push(lua_State *L);
 
 	Delegate<void(void)> eventChange;
@@ -63,6 +65,7 @@ public:
 
 	Type  _type;
 	Value _val;
+	bool _frozen;    // frozen value can not change its type and also its content in case of table
 };
 
 class ConfVarNumber : public ConfVar

@@ -54,7 +54,7 @@ void MessageArea::OnTimeStep(float dt)
 
 void MessageArea::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	if( _lines.empty() || !g_conf->ui_showmsg->Get() )
+	if( _lines.empty() || !g_conf.ui_showmsg.Get() )
 	{
 		return;
 	}
@@ -98,21 +98,21 @@ void MessageArea::Clear()
 
 void Desktop::MyConsoleHistory::Enter(const UI::string_t &str)
 {
-	g_conf->con_history->PushBack(ConfVar::typeString)->AsStr()->Set(str);
-	while( (signed) g_conf->con_history->GetSize() > g_conf->con_maxhistory->GetInt() )
+	g_conf.con_history.PushBack(ConfVar::typeString)->AsStr()->Set(str);
+	while( (signed) g_conf.con_history.GetSize() > g_conf.con_maxhistory.GetInt() )
 	{
-		g_conf->con_history->PopFront();
+		g_conf.con_history.PopFront();
 	}
 }
 
 size_t Desktop::MyConsoleHistory::GetItemCount() const
 {
-	return g_conf->con_history->GetSize();
+	return g_conf.con_history.GetSize();
 }
 
 const UI::string_t& Desktop::MyConsoleHistory::GetItem(size_t index) const
 {
-	return g_conf->con_history->GetStr(index, "")->Get();
+	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
 Desktop::Desktop(LayoutManager* manager)
@@ -138,11 +138,11 @@ Desktop::Desktop(LayoutManager* manager)
 
 
 	_fps = new FpsCounter(this, 0, 0, alignTextLB);
-	g_conf->ui_showfps->eventChange.bind( &Desktop::OnChangeShowFps, this );
+	g_conf.ui_showfps.eventChange.bind( &Desktop::OnChangeShowFps, this );
 	OnChangeShowFps();
 
 	_time = new TimeElapsed(this, 0, 0, alignTextRB);
-	g_conf->ui_showtime->eventChange.bind( &Desktop::OnChangeShowTime, this );
+	g_conf.ui_showtime.eventChange.bind( &Desktop::OnChangeShowTime, this );
 	OnChangeShowTime();
 
 	float xx = 200;
@@ -163,8 +163,8 @@ Desktop::Desktop(LayoutManager* manager)
 
 Desktop::~Desktop()
 {
-	g_conf->ui_showfps->eventChange.clear();
-	g_conf->ui_showtime->eventChange.clear();
+	g_conf.ui_showfps.eventChange.clear();
+	g_conf.ui_showtime.eventChange.clear();
 	_con->SetHistory(NULL);
 }
 
@@ -280,12 +280,12 @@ void Desktop::OnSize(float width, float height)
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->SetVisible(g_conf->ui_showfps->Get());
+	_fps->SetVisible(g_conf.ui_showfps.Get());
 }
 
 void Desktop::OnChangeShowTime()
 {
-	_fps->SetVisible(g_conf->ui_showfps->Get());
+	_fps->SetVisible(g_conf.ui_showfps.Get());
 }
 
 void Desktop::OnCommand(const string_t &cmd)

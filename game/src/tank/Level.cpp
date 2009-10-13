@@ -273,8 +273,8 @@ Level::Level()
 	TRACE("Constructing the level");
 
 	// register config handlers
-	g_conf->s_volume->eventChange.bind(&Level::OnChangeSoundVolume, this);
-	g_conf->sv_nightmode->eventChange.bind(&Level::OnChangeNightMode, this);
+	g_conf.s_volume.eventChange.bind(&Level::OnChangeSoundVolume, this);
+	g_conf.sv_nightmode.eventChange.bind(&Level::OnChangeNightMode, this);
 }
 
 bool Level::IsEmpty() const
@@ -381,7 +381,7 @@ bool Level::init_emptymap(int X, int Y)
 	ToggleEditorMode();
 	assert(_modeEditor);
 
-	g_conf->sv_nightmode->Set(false);
+	g_conf.sv_nightmode.Set(false);
 
 	return true;
 }
@@ -392,7 +392,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	assert(IsEmpty());
 
 	_gameType = GT_EDITOR;
-	g_conf->sv_nightmode->Set(false);
+	g_conf.sv_nightmode.Set(false);
 
 	try
 	{
@@ -430,8 +430,8 @@ Level::~Level()
 	Clear();
 
 	// unregister config handlers
-	g_conf->s_volume->eventChange.clear();
-	g_conf->sv_nightmode->eventChange.clear();
+	g_conf.s_volume.eventChange.clear();
+	g_conf.sv_nightmode.eventChange.clear();
 
 	//-------------------------------------------
 	assert(!g_env.nNeedCursor);
@@ -518,9 +518,9 @@ void Level::Unserialize(const char *fileName)
 
 		_gameType = sh.dwGameType;
 
-		g_conf->sv_timelimit->SetFloat(sh.timelimit);
-		g_conf->sv_fraglimit->SetInt(sh.fraglimit);
-		g_conf->sv_nightmode->Set(sh.nightmode);
+		g_conf.sv_timelimit.SetFloat(sh.timelimit);
+		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
+		g_conf.sv_nightmode.Set(sh.nightmode);
 
 		_time = sh.time;
 		Resize(sh.width, sh.height);
@@ -568,9 +568,9 @@ void Level::Serialize(const char *fileName)
 	strcpy(sh.theme, _infoTheme.c_str());
 	sh.dwVersion    = VERSION;
 	sh.dwGameType   = _gameType;
-	sh.fraglimit    = g_conf->sv_fraglimit->GetInt();
-	sh.timelimit    = g_conf->sv_timelimit->GetFloat();
-	sh.nightmode    = g_conf->sv_nightmode->Get();
+	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
+	sh.timelimit    = g_conf.sv_timelimit.GetFloat();
+	sh.nightmode    = g_conf.sv_nightmode.Get();
 	sh.time         = _time;
 	sh.width        = (int) _sx / CELL_SIZE;
 	sh.height       = (int) _sy / CELL_SIZE;
@@ -1142,7 +1142,7 @@ void Level::TimeStep(float dt)
 		return;
 
 
-	dt *= g_conf->sv_speed->GetFloat() / 100.0f;
+	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 	assert(dt >= 0);
 	assert(!_modeEditor);
 
@@ -1151,10 +1151,10 @@ void Level::TimeStep(float dt)
 	// apply dt filter
 	//
 
-	if( g_conf->cl_dtwindow->GetInt() > 1 )
+	if( g_conf.cl_dtwindow.GetInt() > 1 )
 	{
 		_dt.push_back(dt);
-		while( (signed) _dt.size() > g_conf->cl_dtwindow->GetInt() )
+		while( (signed) _dt.size() > g_conf.cl_dtwindow.GetInt() )
 		{
 			_dt.pop_front();
 		}
@@ -1167,10 +1167,10 @@ void Level::TimeStep(float dt)
 		dt /= (float) _dt.size();
 	}
 
-	float dt_fixed = g_client ? 1.0f / g_conf->sv_fps->GetFloat() : dt;
+	float dt_fixed = g_client ? 1.0f / g_conf.sv_fps.GetFloat() : dt;
 
 	int ctrlSent = 0;
-	while( _ctrlSentCount <= g_conf->cl_latency->GetInt() )
+	while( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
 	{
 		//
 		// read controller state for local players
@@ -1200,8 +1200,8 @@ void Level::TimeStep(float dt)
 	}
 
 
-	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf->cl_boost->GetFloat();
-	float bufmax = (g_conf->cl_latency->GetFloat()*0+1 + 1) / g_conf->sv_fps->GetFloat();
+	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf.cl_boost.GetFloat();
+	float bufmax = (g_conf.cl_latency.GetFloat()*0+1 + 1) / g_conf.sv_fps.GetFloat();
 	counterDrops.Push(_timeBuffer - bufmax);
 
 	if( _timeBuffer > bufmax )
@@ -1233,7 +1233,7 @@ void Level::TimeStep(float dt)
 				++filter;
 				if( filter > 100 )
 				{
-				//	g_conf->cl_latency->SetInt(std::min(g_conf->cl_latency->GetInt() + 1, g_conf->sv_fps->GetInt()));
+				//	g_conf.cl_latency.SetInt(std::min(g_conf.cl_latency.GetInt() + 1, g_conf.sv_fps.GetInt()));
 					filter = 0;
 				}
 				break;
@@ -1247,7 +1247,7 @@ void Level::TimeStep(float dt)
 		++filter;
 		if( filter > 100 )
 		{
-		//	g_conf->cl_latency->SetInt(std::max(0, g_conf->cl_latency->GetInt() - 1));
+		//	g_conf.cl_latency.SetInt(std::max(0, g_conf.cl_latency.GetInt() - 1));
 			filter = 0;
 		}
 	}
@@ -1280,13 +1280,13 @@ void Level::TimeStep(float dt)
 #endif
 #endif
 
-	if( g_conf->sv_timelimit->GetInt() && g_conf->sv_timelimit->GetInt() * 60 <= _time )
+	if( g_conf.sv_timelimit.GetInt() && g_conf.sv_timelimit.GetInt() * 60 <= _time )
 	{
 		HitLimit();
 	}
 
 	counterSteps.Push((float) _steps);
-	counterCtrlSent.Push((float) ctrlSent/*g_conf->cl_latency->GetFloat()*/);
+	counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
 	_steps = 0;
 
 	if( g_client )
@@ -1362,7 +1362,7 @@ void Level::Render() const
 		}
 	}
 
-	g_render->SetAmbient( g_conf->sv_nightmode->Get() ? 0.0f : 1.0f );
+	g_render->SetAmbient( g_conf.sv_nightmode.Get() ? 0.0f : 1.0f );
 
 	int count = 0;
 	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
@@ -1377,7 +1377,7 @@ void Level::Render() const
 
 		g_render->SetMode(RM_LIGHT);
 		pCamera->Select();
-		if( g_conf->sv_nightmode->Get() )
+		if( g_conf.sv_nightmode.Get() )
 		{
 			float xmin = (float) __max(0, g_env.camera_x );
 			float ymin = (float) __max(0, g_env.camera_y );
@@ -1409,7 +1409,7 @@ void Level::Render() const
 
 		// background texture
 		DrawBackground(_texBack);
-		if( g_level->_modeEditor && g_conf->ed_drawgrid->Get() )
+		if( g_level->_modeEditor && g_conf.ed_drawgrid.Get() )
 			DrawBackground(_texGrid);
 
 
@@ -1550,7 +1550,7 @@ float Level::AbstractClient::GetBoost() const
 	{
 		return g_client->GetBoost();
 	}
-	return g_conf->cl_boost->GetFloat();
+	return g_conf.cl_boost.GetFloat();
 }
 
 

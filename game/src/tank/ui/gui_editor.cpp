@@ -32,27 +32,27 @@ namespace UI
 NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
 {
-	Text *header = Text::Create(this, 128, 20, g_lang->newmap_title->Get(), alignTextCT);
+	Text *header = Text::Create(this, 128, 20, g_lang.newmap_title.Get(), alignTextCT);
 	header->SetFont("font_default");
 
-	Text::Create(this, 40, 75, g_lang->newmap_width->Get(), alignTextLT);
+	Text::Create(this, 40, 75, g_lang.newmap_width.Get(), alignTextLT);
 	_width = Edit::Create(this, 60, 90, 80);
-	_width->SetInt(g_conf->ed_width->GetInt());
+	_width->SetInt(g_conf.ed_width.GetInt());
 
-	Text::Create(this, 40, 115, g_lang->newmap_height->Get(), alignTextLT);
+	Text::Create(this, 40, 115, g_lang.newmap_height.Get(), alignTextLT);
 	_height = Edit::Create(this, 60, 130, 80);
-	_height->SetInt(g_conf->ed_height->GetInt());
+	_height->SetInt(g_conf.ed_height.GetInt());
 
-	Button::Create(this, g_lang->common_ok->Get(), 20, 200)->eventClick.bind(&NewMapDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 140, 200)->eventClick.bind(&NewMapDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick.bind(&NewMapDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick.bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
 }
 
 void NewMapDlg::OnOK()
 {
-	g_conf->ed_width->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
-	g_conf->ed_height->SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
+	g_conf.ed_width.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
+	g_conf.ed_height.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
 	script_exec(g_env.L, "reset(); newmap(conf.ed_width, conf.ed_height)");
 	Close(_resultOK);
 }
@@ -265,7 +265,7 @@ bool PropertyList::OnRawChar(int c)
 		_ps->SaveToConfig();
 		break;
 	case VK_ESCAPE:
-		g_conf->ed_showproperties->Set(false);
+		g_conf.ed_showproperties.Set(false);
 		SetVisible(false);
 		break;
 	default:
@@ -335,7 +335,7 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 	switch( sub )
 	{
 	case 0:
-		return g_lang.GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, NULL)->Get();
+		return g_lang->GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, NULL)->Get();
 	case 1:
 		name = s->GetName();
 		_nameCache = name ? name : "";
@@ -381,15 +381,15 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
   : Dialog(parent, h, w, false)
   , _margins(5)
 {
-	_labelService = Text::Create(this, _margins, _margins, g_lang->service_type->Get(), alignTextLT);
-	_labelName = Text::Create(this, w/2, _margins, g_lang->service_name->Get(), alignTextLT);
+	_labelService = Text::Create(this, _margins, _margins, g_lang.service_type.Get(), alignTextLT);
+	_labelName = Text::Create(this, w/2, _margins, g_lang.service_name.Get(), alignTextLT);
 
 	_list = ServiceListBox::Create(this);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel.bind(&ServiceEditor::OnSelectService, this);
 
-	_btnCreate = Button::Create(this, g_lang->service_create->Get(), 0, 0);
+	_btnCreate = Button::Create(this, g_lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick.bind(&ServiceEditor::OnCreateService, this);
 
 	_combo = DefaultComboBox::Create(this);
@@ -399,7 +399,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 		if( Level::GetTypeInfoByIndex(i).service )
 		{
 			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-			_combo->GetData()->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 		}
 	}
 	_combo->GetData()->Sort();
@@ -484,7 +484,7 @@ bool ServiceEditor::OnRawChar(int c)
 	{
 	case 'S':
 	case VK_ESCAPE:
-		g_conf->ed_showservices->Set(false);
+		g_conf.ed_showservices.Set(false);
 		SetVisible(false);
 		break;
 	default:
@@ -502,14 +502,14 @@ EditorLayout::EditorLayout(Window *parent)
 {
 	SetTexture(NULL, false);
 
-	_help = Text::Create(this, 10, 10, g_lang->f1_help_editor->Get(), alignTextLT);
+	_help = Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256);
 	_propList->SetVisible(false);
 
 	_serviceList = new ServiceEditor(this, 5, 300, 512, 256);
-	_serviceList->SetVisible(g_conf->ed_showservices->Get());
+	_serviceList->SetVisible(g_conf.ed_showservices.Get());
 
 	_layerDisp = Text::Create(this, 0, 0, "", alignTextRT);
 
@@ -519,14 +519,14 @@ EditorLayout::EditorLayout(Window *parent)
 	{
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(g_lang.GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
 	List *ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
-	_typeList->SetCurSel(g_conf->ed_object->GetInt());
+	_typeList->SetCurSel(g_conf.ed_object.GetInt());
 
 	_selectionRect = Window::Create(this);
 	_selectionRect->SetTexture("ui/selection", true);
@@ -538,14 +538,14 @@ EditorLayout::EditorLayout(Window *parent)
 	_click = true;
 	_mbutton = 0;
 
-	assert(!g_conf->ed_uselayers->eventChange);
-	g_conf->ed_uselayers->eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
+	assert(!g_conf.ed_uselayers.eventChange);
+	g_conf.ed_uselayers.eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
 
 EditorLayout::~EditorLayout()
 {
-	g_conf->ed_uselayers->eventChange.clear();
+	g_conf.ed_uselayers.eventChange.clear();
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
@@ -573,7 +573,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 
 			_selectedObject = object;
 			_propList->ConnectTo(_selectedObject->GetProperties());
-			if( g_conf->ed_showproperties->Get() )
+			if( g_conf.ed_showproperties.Get() )
 			{
 				_propList->SetVisible(true);
 			}
@@ -652,7 +652,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	if( !g_level->IsEmpty() && GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
-			_typeList->GetData()->GetItemData(g_conf->ed_object->GetInt()) );
+			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
 
 		float align = Level::GetTypeInfo(type).align;
 		float offset = Level::GetTypeInfo(type).offset;
@@ -664,7 +664,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
 		int layer = -1;
-		if( g_conf->ed_uselayers->Get() )
+		if( g_conf.ed_uselayers.Get() )
 		{
 			layer = Level::GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
 		}
@@ -736,12 +736,12 @@ bool EditorLayout::OnRawChar(int c)
 		if( _selectedObject )
 		{
 			_propList->SetVisible(true);
-			g_conf->ed_showproperties->Set(true);
+			g_conf.ed_showproperties.Set(true);
 		}
 		break;
 	case 'S':
 		_serviceList->SetVisible(!_serviceList->GetVisible());
-		g_conf->ed_showservices->Set(_serviceList->GetVisible());
+		g_conf.ed_showservices.Set(_serviceList->GetVisible());
 		break;
 	case VK_DELETE:
 		if( _selectedObject )
@@ -755,10 +755,10 @@ bool EditorLayout::OnRawChar(int c)
 		_help->SetVisible(!_help->GetVisible());
 		break;
 	case VK_F9:
-		g_conf->ed_uselayers->Set(!g_conf->ed_uselayers->Get());
+		g_conf.ed_uselayers.Set(!g_conf.ed_uselayers.Get());
 		break;
 	case 'G':
-		g_conf->ed_drawgrid->Set(!g_conf->ed_drawgrid->Get());
+		g_conf.ed_drawgrid.Set(!g_conf.ed_drawgrid.Get());
 		break;
 	case VK_ESCAPE:
 		if( _selectedObject )
@@ -792,16 +792,16 @@ void EditorLayout::OnVisibleChange(bool visible, bool inherited)
 
 void EditorLayout::OnChangeObjectType(int index)
 {
-	g_conf->ed_object->SetInt(index);
+	g_conf.ed_object.SetInt(index);
 
 	std::ostringstream buf;
-	buf << g_lang->layer->Get() << Level::GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
+	buf << g_lang.layer.Get() << Level::GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(buf.str());
 }
 
 void EditorLayout::OnChangeUseLayers()
 {
-	_layerDisp->SetVisible(g_conf->ed_uselayers->Get());
+	_layerDisp->SetVisible(g_conf.ed_uselayers.Get());
 }
 
 void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) const

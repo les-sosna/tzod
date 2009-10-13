@@ -41,12 +41,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);
 
-	Text::Create(this, 16, 370, g_lang->get_file_name_title->Get(), alignTextLT);
+	Text::Create(this, 16, 370, g_lang.get_file_name_title.Get(), alignTextLT);
 	_fileName = Edit::Create(this, 20, 385, 472);
 	_fileName->eventChange.bind(&GetFileNameDlg::OnChangeName, this);
 
-	Button::Create(this, g_lang->common_ok->Get(), 290, 420)->eventClick.bind(&GetFileNameDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 400, 420)->eventClick.bind(&GetFileNameDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick.bind(&GetFileNameDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick.bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_fileName);
 }

@@ -60,25 +60,25 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 
 
 	char text[256];
-	if( g_conf->sv_timelimit->GetFloat() )
+	if( g_conf.sv_timelimit.GetFloat() )
 	{
-		int timeleft = int(g_conf->sv_timelimit->GetFloat() * 60.0f - g_level->_time);
+		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
-			wsprintf(text, g_lang->score_time_left_xx->Get().c_str(), timeleft / 60, timeleft % 60);
+			wsprintf(text, g_lang.score_time_left_xx.Get().c_str(), timeleft / 60, timeleft % 60);
 		}
 		else
-			wsprintf(text, g_lang->score_time_limit_hit->Get().c_str());
+			wsprintf(text, g_lang.score_time_limit_hit.Get().c_str());
 		dc->DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text);
 	}
 
-	if( g_conf->sv_fraglimit->GetInt() )
+	if( g_conf.sv_fraglimit.GetInt() )
 	{
-		int scoreleft = g_conf->sv_fraglimit->GetInt() - max_score;
+		int scoreleft = g_conf.sv_fraglimit.GetInt() - max_score;
 		if( scoreleft > 0 )
-			wsprintf(text, g_lang->score_frags_left_x->Get().c_str(), scoreleft);
+			wsprintf(text, g_lang.score_frags_left_x.Get().c_str(), scoreleft);
 		else
-			wsprintf(text, g_lang->score_frag_limit_hit->Get().c_str());
+			wsprintf(text, g_lang.score_frag_limit_hit.Get().c_str());
 		dc->DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text);
 	}
 

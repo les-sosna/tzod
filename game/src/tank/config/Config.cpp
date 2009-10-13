@@ -52,5 +52,8 @@ static void InitLobbyList(ConfVarArray *lobby_servers)
 #define CONFIG_CACHE_PASS 2
 #include "Config.h"
 
+// global
+ConfCache g_conf;
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

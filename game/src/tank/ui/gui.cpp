@@ -53,7 +53,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	// map list
 	//
 
-	Text::Create(this, 16, 16, g_lang->choose_map->Get(), alignTextLT);
+	Text::Create(this, 16, 16, g_lang.choose_map.Get(), alignTextLT);
 
 	_maps = MapList::Create(this);
 	_maps->Move(x1, 32);
@@ -61,7 +61,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_maps->SetTabPos(0,   4); // name
 	_maps->SetTabPos(1, 384); // size
 	_maps->SetTabPos(2, 448); // theme
-	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf->cl_map->Get()), false);
+	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 
 	GetManager()->SetFocusWnd(_maps);
@@ -74,23 +74,23 @@ NewGameDlg::NewGameDlg(Window *parent)
 	{
 		float y =  16;
 
-		_nightMode = CheckBox::Create(this, x3, y, g_lang->night_mode->Get());
-		_nightMode->SetCheck( g_conf->cl_nightmode->Get() );
+		_nightMode = CheckBox::Create(this, x3, y, g_lang.night_mode.Get());
+		_nightMode->SetCheck( g_conf.cl_nightmode.Get() );
 
 
-		Text::Create(this, x3, y+=30, g_lang->game_speed->Get(), alignTextLT);
+		Text::Create(this, x3, y+=30, g_lang.game_speed.Get(), alignTextLT);
 		_gameSpeed = Edit::Create(this, x3+20, y+=15, 80);
-		_gameSpeed->SetInt(g_conf->cl_speed->GetInt());
+		_gameSpeed->SetInt(g_conf.cl_speed.GetInt());
 
-		Text::Create(this, x3, y+=30, g_lang->frag_limit->Get(), alignTextLT);
+		Text::Create(this, x3, y+=30, g_lang.frag_limit.Get(), alignTextLT);
 		_fragLimit = Edit::Create(this, x3+20, y+=15, 80);
-		_fragLimit->SetInt(g_conf->cl_fraglimit->GetInt());
+		_fragLimit->SetInt(g_conf.cl_fraglimit.GetInt());
 
-		Text::Create(this, x3, y+=30, g_lang->time_limit->Get(), alignTextLT);
+		Text::Create(this, x3, y+=30, g_lang.time_limit.Get(), alignTextLT);
 		_timeLimit = Edit::Create(this, x3+20, y+=15, 80);
-		_timeLimit->SetInt(g_conf->cl_timelimit->GetInt());
+		_timeLimit->SetInt(g_conf.cl_timelimit.GetInt());
 
-		Text::Create(this, x3+30, y+=30, g_lang->zero_no_limits->Get(), alignTextLT);
+		Text::Create(this, x3+30, y+=30, g_lang.zero_no_limits.Get(), alignTextLT);
 	}
 
 
@@ -99,7 +99,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	// player list
 	//
 
-	Text::Create(this, 16, 240, g_lang->human_player_list->Get(), alignTextLT);
+	Text::Create(this, 16, 240, g_lang.human_player_list.Get(), alignTextLT);
 
 	_players = DefaultListBox::Create(this);
 	_players->Move(x1, 256);
@@ -111,7 +111,7 @@ NewGameDlg::NewGameDlg(Window *parent)
 	_players->eventChangeCurSel.bind(&NewGameDlg::OnSelectPlayer, this);
 
 
-	Text::Create(this, 16, 368, g_lang->AI_player_list->Get(), alignTextLT);
+	Text::Create(this, 16, 368, g_lang.AI_player_list.Get(), alignTextLT);
 	_bots = DefaultListBox::Create(this);
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
@@ -130,34 +130,34 @@ NewGameDlg::NewGameDlg(Window *parent)
 		Button *btn;
 
 
-		btn = Button::Create(this, g_lang->human_player_add->Get(), x3, 256);
+		btn = Button::Create(this, g_lang.human_player_add.Get(), x3, 256);
 		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
 
-		_removePlayer = Button::Create(this, g_lang->human_player_remove->Get(), x3, 286);
+		_removePlayer = Button::Create(this, g_lang.human_player_remove.Get(), x3, 286);
 		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->SetEnabled(false);
 
-		_changePlayer = Button::Create(this, g_lang->human_player_modify->Get(), x3, 316);
+		_changePlayer = Button::Create(this, g_lang.human_player_modify.Get(), x3, 316);
 		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->SetEnabled(false);
 
-		btn = Button::Create(this, g_lang->AI_player_add->Get(), x3, 384);
+		btn = Button::Create(this, g_lang.AI_player_add.Get(), x3, 384);
 		btn->eventClick.bind(&NewGameDlg::OnAddBot, this);
 
-		_removeBot = Button::Create(this, g_lang->AI_player_remove->Get(), x3, 414);
+		_removeBot = Button::Create(this, g_lang.AI_player_remove.Get(), x3, 414);
 		_removeBot->eventClick.bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->SetEnabled(false);
 
-		_changeBot = Button::Create(this, g_lang->AI_player_modify->Get(), x3, 444);
+		_changeBot = Button::Create(this, g_lang.AI_player_modify.Get(), x3, 444);
 		_changeBot->eventClick.bind(&NewGameDlg::OnEditBot, this);
 		_changeBot->SetEnabled(false);
 
 
 
-		btn = Button::Create(this, g_lang->dm_ok->Get(), 544, 510);
+		btn = Button::Create(this, g_lang.dm_ok.Get(), 544, 510);
 		btn->eventClick.bind(&NewGameDlg::OnOK, this);
 
-		btn = Button::Create(this, g_lang->dm_cancel->Get(), 656, 510);
+		btn = Button::Create(this, g_lang.dm_cancel.Get(), 656, 510);
 		btn->eventClick.bind(&NewGameDlg::OnCancel, this);
 	}
 
@@ -176,9 +176,9 @@ void NewGameDlg::RefreshPlayersList()
 	int selected = _players->GetCurSel();
 	_players->GetData()->DeleteAllItems();
 
-	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf.dm_players.GetAt(i)->AsTable();
 
 		int index = _players->GetData()->AddItem( p->GetStr("nick")->Get() );
 		_players->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
@@ -192,7 +192,7 @@ void NewGameDlg::RefreshPlayersList()
 		}
 		else
 		{
-			wsprintf(s, g_lang->team_none->Get().c_str());
+			wsprintf(s, g_lang.team_none.Get().c_str());
 		}
 
 		_players->GetData()->SetItemText(index, 3, s);
@@ -206,9 +206,9 @@ void NewGameDlg::RefreshBotsList()
 	int selected = _bots->GetCurSel();
 	_bots->GetData()->DeleteAllItems();
 
-	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf.dm_bots.GetAt(i)->AsTable();
 
 		int index = _bots->GetData()->AddItem( p->GetStr("nick")->Get() );
 		_bots->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
@@ -222,7 +222,7 @@ void NewGameDlg::RefreshBotsList()
 		}
 		else
 		{
-			wsprintf(s, g_lang->team_none->Get().c_str());
+			wsprintf(s, g_lang.team_none.Get().c_str());
 		}
 
 		_bots->GetData()->SetItemText(index, 3, s);
@@ -236,7 +236,7 @@ void NewGameDlg::OnAddPlayer()
 	std::vector<string_t> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf->dm_players->PushBack(ConfVar::typeTable)->AsTable();
+	ConfVarTable *p = g_conf.dm_players.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
@@ -251,7 +251,7 @@ void NewGameDlg::OnAddPlayerClose(int result)
 	}
 	else if( _newPlayer )
 	{
-		g_conf->dm_players->PopBack();
+		g_conf.dm_players.PopBack();
 	}
 	_newPlayer = false;
 }
@@ -259,7 +259,7 @@ void NewGameDlg::OnAddPlayerClose(int result)
 void NewGameDlg::OnRemovePlayer()
 {
 	assert( -1 != _players->GetCurSel() );
-	g_conf->dm_players->RemoveAt(_players->GetCurSel());
+	g_conf.dm_players.RemoveAt(_players->GetCurSel());
 	RefreshPlayersList();
 }
 
@@ -268,7 +268,7 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetCurSel();
 	assert(-1 != index);
 
-	(new EditPlayerDlg(this, g_conf->dm_players->GetAt(index)->AsTable()))
+	(new EditPlayerDlg(this, g_conf.dm_players.GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditPlayerClose, this );
 }
 
@@ -285,7 +285,7 @@ void NewGameDlg::OnAddBot()
 	std::vector<string_t> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf->dm_bots->PushBack(ConfVar::typeTable)->AsTable();
+	ConfVarTable *p = g_conf.dm_bots.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
@@ -300,7 +300,7 @@ void NewGameDlg::OnAddBotClose(int result)
 	}
 	else if( _newPlayer )
 	{
-		g_conf->dm_bots->PopBack();
+		g_conf.dm_bots.PopBack();
 	}
 	_newPlayer = false;
 }
@@ -308,7 +308,7 @@ void NewGameDlg::OnAddBotClose(int result)
 void NewGameDlg::OnRemoveBot()
 {
 	assert( -1 != _bots->GetCurSel() );
-	g_conf->dm_bots->RemoveAt(_bots->GetCurSel());
+	g_conf.dm_bots.RemoveAt(_bots->GetCurSel());
 	RefreshBotsList();
 }
 
@@ -317,7 +317,7 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetCurSel();
 	assert(-1 != index);
 
-	(new EditBotDlg(this, g_conf->dm_bots->GetAt(index)->AsTable()))
+	(new EditBotDlg(this, g_conf.dm_bots.GetAt(index)->AsTable()))
 		->eventClose.bind( &NewGameDlg::OnEditBotClose, this );
 }
 
@@ -346,15 +346,15 @@ void NewGameDlg::OnOK()
 	path += "\\";
 	path += fn + ".map";
 
-	g_conf->cl_speed->SetInt( __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
-	g_conf->cl_fraglimit->SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
-	g_conf->cl_timelimit->SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
-	g_conf->cl_nightmode->Set( _nightMode->GetCheck() );
+	g_conf.cl_speed.SetInt( __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
+	g_conf.cl_fraglimit.SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
+	g_conf.cl_timelimit.SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
+	g_conf.cl_nightmode.Set( _nightMode->GetCheck() );
 
-	g_conf->sv_speed->SetInt( g_conf->cl_speed->GetInt() );
-	g_conf->sv_fraglimit->SetInt( g_conf->cl_fraglimit->GetInt() );
-	g_conf->sv_timelimit->SetInt( g_conf->cl_timelimit->GetInt() );
-	g_conf->sv_nightmode->Set( g_conf->cl_nightmode->Get() );
+	g_conf.sv_speed.SetInt( g_conf.cl_speed.GetInt() );
+	g_conf.sv_fraglimit.SetInt( g_conf.cl_fraglimit.GetInt() );
+	g_conf.sv_timelimit.SetInt( g_conf.cl_timelimit.GetInt() );
+	g_conf.sv_nightmode.Set( g_conf.cl_nightmode.Get() );
 
 	script_exec(g_env.L, "reset()");
 	assert(g_level->IsEmpty());
@@ -370,12 +370,12 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-	g_conf->cl_map->Set(fn);
-	g_conf->ui_showmsg->Set(true);
+	g_conf.cl_map.Set(fn);
+	g_conf.ui_showmsg.Set(true);
 
-	for( size_t i = 0; i < g_conf->dm_players->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf->dm_players->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf.dm_players.GetAt(i)->AsTable();
 		GC_PlayerLocal *player = new GC_PlayerLocal();
 		player->SetTeam(    p->GetNum("team")->GetInt() );
 		player->SetSkin(    p->GetStr("skin")->Get()    );
@@ -384,9 +384,9 @@ void NewGameDlg::OnOK()
 		player->SetProfile( p->GetStr("profile")->Get() );
 	}
 
-	for( size_t i = 0; i < g_conf->dm_bots->GetSize(); ++i )
+	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf->dm_bots->GetAt(i)->AsTable();
+		ConfVarTable *p = g_conf.dm_bots.GetAt(i)->AsTable();
 		GC_PlayerAI *bot = new GC_PlayerAI();
 		bot->SetTeam(  p->GetNum("team")->GetInt() );
 		bot->SetSkin(  p->GetStr("skin")->Get()    );
@@ -443,7 +443,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	SetEasyMove(true);
 	assert(info);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->player_settings->Get(), alignTextCT);
+	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.player_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 	float x1 = 30;
@@ -459,7 +459,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// player name field
 	//
 
-	Text::Create(this, x1, y, g_lang->player_nick->Get(), alignTextLT);
+	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
 	_name->SetText( _info->GetStr("nick", "Unnamed")->Get() );
 	GetManager()->SetFocusWnd(_name);
@@ -468,7 +468,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	//
 	// skins combo
 	//
-	Text::Create(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_skin.Get(), alignTextLT);
 	_skins = DefaultComboBox::Create(this);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
@@ -494,7 +494,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create and fill the classes list
 	//
 
-	Text::Create(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_class.Get(), alignTextLT);
 	_classes = DefaultComboBox::Create(this);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
@@ -521,14 +521,14 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 		_classes->SetCurSel(0);
 	_classes->GetList()->AlignHeightToContent();
 
-	Text::Create(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_team.Get(), alignTextLT);
 	_teams = DefaultComboBox::Create(this);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
+		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
@@ -547,12 +547,12 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// player profile combo
 	//
 
-	Text::Create(this, x1, y+=24, g_lang->player_profile->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_profile.Get(), alignTextLT);
 	_profiles = DefaultComboBox::Create(this);
 	_profiles->Move(x2, y -= 1);
 	_profiles->Resize(200);
 	std::vector<string_t> profiles;
-	g_conf->dm_profiles->GetKeyList(profiles);
+	g_conf.dm_profiles.GetKeyList(profiles);
 
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
@@ -573,8 +573,8 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	Button::Create(this, g_lang->common_ok->Get(), 176, 190)->eventClick.bind(&EditPlayerDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 280, 190)->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick.bind(&EditPlayerDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick.bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOK()
@@ -619,7 +619,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	SetEasyMove(true);
 	assert(info);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang->bot_settings->Get(), alignTextCT);
+	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.bot_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -636,7 +636,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// player name field
 	//
 
-	Text::Create(this, x1, y, g_lang->player_nick->Get(), alignTextLT);
+	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
 	lua_getglobal(g_env.L, "random_name");   // push function
 	lua_call(g_env.L, 0, 1);
@@ -649,7 +649,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	//
 	// skins combo
 	//
-	Text::Create(this, x1, y+=24, g_lang->player_skin->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_skin.Get(), alignTextLT);
 	_skins = DefaultComboBox::Create(this);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
@@ -675,7 +675,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create and fill the classes list
 	//
 
-	Text::Create(this, x1, y+=24, g_lang->player_class->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_class.Get(), alignTextLT);
 	_classes = DefaultComboBox::Create(this);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
@@ -700,14 +700,14 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_classes->GetList()->AlignHeightToContent();
 
 
-	Text::Create(this, x1, y+=24, g_lang->player_team->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.player_team.Get(), alignTextLT);
 	_teams = DefaultComboBox::Create(this);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang->team_none->Get().c_str(), i);
+		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info->GetNum("team")->GetInt() )
 		{
@@ -725,14 +725,14 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create and fill the levels list
 	//
 
-	Text::Create(this, x1, y+=24, g_lang->bot_level->Get(), alignTextLT);
+	Text::Create(this, x1, y+=24, g_lang.bot_level.Get(), alignTextLT);
 	_levels = DefaultComboBox::Create(this);
 	_levels->Move(x2, y -= 1);
 	_levels->Resize(200);
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = _levels->GetData()->AddItem(g_lang.GetRoot()->GetStr(levels[i], NULL)->Get());
+		int index = _levels->GetData()->AddItem(g_lang->GetRoot()->GetStr(levels[i], NULL)->Get());
 		if( i == _info->GetNum("level", 2)->GetInt() )
 		{
 			_levels->SetCurSel(index);
@@ -749,8 +749,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	Button::Create(this, g_lang->common_ok->Get(), 176, 190)->eventClick.bind(&EditBotDlg::OnOK, this);
-	Button::Create(this, g_lang->common_cancel->Get(), 280, 190)->eventClick.bind(&EditBotDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick.bind(&EditBotDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick.bind(&EditBotDlg::OnCancel, this);
 }
 
 void EditBotDlg::OnOK()

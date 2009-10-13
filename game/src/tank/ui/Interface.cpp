@@ -178,24 +178,24 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 
 	if( bSaveAndValidate )
 	{
-		g_conf->r_fullscreen->Set( GETCHECK(IDC_FULLSCREEN) );
+		g_conf.r_fullscreen.Set( GETCHECK(IDC_FULLSCREEN) );
 		int render = GETCHECK(IDC_RENDER_OPENGL) ? 0 : 1;
-		if( render != g_conf->r_render->GetInt() )
+		if( render != g_conf.r_render.GetInt() )
 		{
 			SAFE_DELETE(g_render);
-			g_conf->r_render->SetInt(render);
+			g_conf.r_render.SetInt(render);
 		}
 	}
 	else
 	{
-		SETCHECK(IDC_FULLSCREEN, g_conf->r_fullscreen->Get());
-		SETCHECK(g_conf->r_render->GetInt() ? IDC_RENDER_DIRECT3D : IDC_RENDER_OPENGL, TRUE);
+		SETCHECK(IDC_FULLSCREEN, g_conf.r_fullscreen.Get());
+		SETCHECK(g_conf.r_render.GetInt() ? IDC_RENDER_DIRECT3D : IDC_RENDER_OPENGL, TRUE);
 	}
 
 
 	if( !g_render )
 	{
-		g_render = g_conf->r_render->GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
+		g_render = g_conf.r_render.GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
 	}
 
 	typedef std::map<DisplayMode, DWORD> ModeMap;
@@ -244,8 +244,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RESOLUTION, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.Width == g_conf->r_width->GetInt() &&
-					it->first.Height == g_conf->r_height->GetInt() )
+				if( it->first.Width == g_conf.r_width.GetInt() &&
+					it->first.Height == g_conf.r_height.GetInt() )
 				{
 					SendDlgItemMessage(hDlg, IDC_RESOLUTION, CB_SETCURSEL, index, 0);
 				}
@@ -257,8 +257,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					g_conf->r_width->SetInt( it->first.Width );
-					g_conf->r_height->SetInt( it->first.Height );
+					g_conf.r_width.SetInt( it->first.Width );
+					g_conf.r_height.SetInt( it->first.Height );
 				}
 			}
 		}
@@ -275,7 +275,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_BPP, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.BitsPerPixel == g_conf->r_bpp->GetInt() )
+				if( it->first.BitsPerPixel == g_conf.r_bpp.GetInt() )
 					SendDlgItemMessage(hDlg, IDC_BPP, CB_SETCURSEL, index, 0);
 			}
 			else
@@ -285,7 +285,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_BPP,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					g_conf->r_bpp->SetInt(it->first.BitsPerPixel);
+					g_conf.r_bpp.SetInt(it->first.BitsPerPixel);
 				}
 			}
 		}
@@ -301,7 +301,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RATE, CB_ADDSTRING, 0, (LPARAM) buf);
-				if( it->first.RefreshRate == g_conf->r_freq->GetInt() )
+				if( it->first.RefreshRate == g_conf.r_freq.GetInt() )
 					SendDlgItemMessage(hDlg, IDC_RATE, CB_SETCURSEL, index, 0);
 			}
 			else
@@ -311,7 +311,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 					SendDlgItemMessage(hDlg,IDC_RATE,CB_GETCURSEL,0,0), (LPARAM)item_text);
 				if( 0 == strcmp(item_text, buf) )
 				{
-					g_conf->r_freq->SetInt(it->first.RefreshRate);
+					g_conf.r_freq.SetInt(it->first.RefreshRate);
 				}
 			}
 		}
@@ -319,8 +319,8 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 			SendDlgItemMessage(hDlg, IDC_RATE, CB_SETCURSEL, 0, 0);
 	}
 
-	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), g_conf->r_fullscreen->Get() );
-	EnableWindow(GetDlgItem(hDlg, IDC_RATE), g_conf->r_fullscreen->Get() );
+	EnableWindow(GetDlgItem(hDlg, IDC_BPP ), g_conf.r_fullscreen.Get() );
+	EnableWindow(GetDlgItem(hDlg, IDC_RATE), g_conf.r_fullscreen.Get() );
 
 	s_bUpdating = FALSE;
 }
