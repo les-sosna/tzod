@@ -221,7 +221,7 @@ void MainMenuDlg::OnInternet()
 void MainMenuDlg::OnNetworkProfile()
 {
 //	SetVisible(false);
-	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), &g_conf.cl_playerinfo);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo->GetRoot());
 //	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 

@@ -344,8 +344,8 @@ bool ZodApp::Pre()
 		TRACE(" ->FAILED");
 		return false;
 	}
-	InitConfigLuaBinding(g_env.L, g_conf->GetRoot(), "conf");
-	InitConfigLuaBinding(g_env.L, g_lang->GetRoot(), "lang");
+	g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
+	g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
 
 
 	timer.SetMaxDt(MAX_DT);

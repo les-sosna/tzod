@@ -3,11 +3,13 @@
 #pragma once
 
 // forward declarations
+class ConfVar;
 class ConfVarNumber;
 class ConfVarBool;
 class ConfVarString;
 class ConfVarArray;
 class ConfVarTable;
+struct lua_State;
 
 //
 class ConfVar
@@ -26,6 +28,9 @@ public:
 	ConfVar();
 	virtual ~ConfVar();
 
+	void SetHelpString(const string_t &str) { _help = str; }
+	const string_t& GetHelpString() const { return _help; }
+
 	void SetType(Type type);
 	Type GetType() const { return _type; }
 	virtual const char* GetTypeName() const;
@@ -37,34 +42,35 @@ public:
 	ConfVarArray*  AsArray();
 	ConfVarTable*  AsTable();
 
-	// lua binding
+	// lua binding helpers
 	void Freeze(bool freeze);
 	bool IsFrozen() const { return _frozen; }
-	virtual void Push(lua_State *L);
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
 
+	// notifications
 	Delegate<void(void)> eventChange;
 
+	// serialization
+	virtual bool Write(FILE *file, int indent) const;
+
 protected:
-	virtual bool _Save(FILE *file, int level) const;
-	virtual bool _Load(lua_State *L);
+	void FireValueUpdate(ConfVar *pVar);
 
-	// to call _Load and _Save
-	friend class ConfVarArray;
-	friend class ConfVarTable;
+	typedef std::map<string_t, ConfVar*> TableType;
 
-public:
 	union Value
 	{
-		lua_Number                     asNumber;
+		double                        asNumber;
 		bool                           asBool;
 		string_t                      *asString;
 		std::deque<ConfVar*>          *asArray;
-		std::map<string_t, ConfVar*>  *asTable;
-		void                          *ptr;
+		TableType                     *asTable;
 	};
 
 	Type  _type;
 	Value _val;
+	string_t _help;
 	bool _frozen;    // frozen value can not change its type and also its content in case of table
 };
 
@@ -72,8 +78,11 @@ class ConfVarNumber : public ConfVar
 {
 public:
 	ConfVarNumber();
+	virtual ~ConfVarNumber();
 
-	virtual const char* GetTypeName() const;
+
+	double GetRawNumber() const;
+	void SetRawNumber(double value);
 
 	float GetFloat() const;
 	void SetFloat(float value);
@@ -81,28 +90,27 @@ public:
 	int GetInt() const;
 	void SetInt(int value);
 
-	void Push(lua_State *L);
-
-protected:
-	virtual bool _Save(FILE *file, int level) const;
-	virtual bool _Load(lua_State *L);
+	// ConfVar
+	virtual const char* GetTypeName() const;
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
+	virtual bool Write(FILE *file, int indent) const;
 };
 
 class ConfVarBool : public ConfVar
 {
 public:
 	ConfVarBool();
-
-	virtual const char* GetTypeName() const;
+	virtual ~ConfVarBool();
 
 	bool Get() const;
 	void Set(bool value);
 
-	void Push(lua_State *L);
-
-protected:
-	virtual bool _Save(FILE *file, int level) const;
-	virtual bool _Load(lua_State *L);
+	// ConfVar
+	virtual const char* GetTypeName() const;
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
+	virtual bool Write(FILE *file, int indent) const;
 };
 
 class ConfVarString : public ConfVar
@@ -111,16 +119,15 @@ public:
 	ConfVarString();
 	virtual ~ConfVarString();
 
-	virtual const char* GetTypeName() const;
 
 	const string_t& Get() const;
 	void Set(const string_t &value);
 
-	void Push(lua_State *L);
-
-protected:
-	virtual bool _Save(FILE *file, int level) const;
-	virtual bool _Load(lua_State *L);
+	// ConfVar
+	virtual const char* GetTypeName() const;
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
+	virtual bool Write(FILE *file, int indent) const;
 };
 
 class ConfVarArray : public ConfVar
@@ -129,24 +136,21 @@ public:
 	ConfVarArray();
 	virtual ~ConfVarArray();
 
-	virtual const char* GetTypeName() const;
-
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(size_t index, ConfVar::Type type);
 
 	ConfVarNumber* GetNum(size_t index, float def);
 	ConfVarNumber* GetNum(size_t index, int   def = 0);
 	ConfVarBool*  GetBool(size_t index, bool  def = false);
-	ConfVarString* GetStr(size_t index, const char* def = "");
+	ConfVarString* GetStr(size_t index, const string_t &def);
 
 	ConfVarNumber* SetNum(size_t index, float value);
 	ConfVarNumber* SetNum(size_t index, int   value);
 	ConfVarBool*  SetBool(size_t index, bool  value);
-	ConfVarString* SetStr(size_t index, const char* value);
+	ConfVarString* SetStr(size_t index, const string_t &value);
 
 	ConfVarArray* GetArray(size_t index);
 	ConfVarTable* GetTable(size_t index);
-
 
 	void      Resize(size_t newSize);
 	size_t    GetSize() const;
@@ -159,11 +163,11 @@ public:
 	ConfVar*  PushFront(Type type);
 	ConfVar*  PushBack(Type type);
 
-	void Push(lua_State *L);
-
-protected:
-	bool _Save(FILE *file, int level) const;
-	bool _Load(lua_State *L);
+	// ConfVar
+	virtual const char* GetTypeName() const;
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
+	virtual bool Write(FILE *file, int indent) const;
 };
 
 class ConfVarTable : public ConfVar
@@ -172,11 +176,11 @@ public:
 	ConfVarTable();
 	virtual ~ConfVarTable();
 
-	virtual const char* GetTypeName() const;
-
 	ConfVar* Find(const string_t &name); // returns NULL if variable not found
 	size_t GetSize() const;
-	void GetKeyList(std::vector<string_t> &out) const;
+
+	typedef std::vector<string_t> KeyListType;
+	void GetKeyList(KeyListType &out) const;
 
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(const string_t &name, ConfVar::Type type);
@@ -184,7 +188,7 @@ public:
 	ConfVarNumber* GetNum(const string_t &name, float def);
 	ConfVarNumber* GetNum(const string_t &name, int   def = 0);
 	ConfVarBool*  GetBool(const string_t &name, bool  def = false);
-	ConfVarString* GetStr(const string_t &name, const char* def = "");
+	ConfVarString* GetStr(const string_t &name, const string_t &def);
 
 	ConfVarNumber* SetNum(const string_t &name, float value);
 	ConfVarNumber* SetNum(const string_t &name, int   value);
@@ -194,6 +198,7 @@ public:
 	ConfVarArray* GetArray(const string_t &name, void (*init)(ConfVarArray*) = NULL);
 	ConfVarTable* GetTable(const string_t &name, void (*init)(ConfVarTable*) = NULL);
 
+	void Clear();
 	bool Remove(ConfVar * const value);
 	bool Remove(const string_t &name);
 	bool Rename(ConfVar * const value, const string_t &newName);
@@ -202,11 +207,18 @@ public:
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);
 
-	void Push(lua_State *L);
+	// Lua binding
+	void InitConfigLuaBinding(lua_State *L, const char *globName);
+
+	// ConfVar
+	virtual const char* GetTypeName() const;
+	virtual void Push(lua_State *L) const;
+	virtual bool Assign(lua_State *L);
+	virtual bool Write(FILE *file, int indent) const;
 
 protected:
-	bool _Save(FILE *file, int level) const;
-	bool _Load(lua_State *L);
+	void ClearInternal();
+	static int luaT_conftablenext(lua_State *L);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,11 +239,6 @@ public:
 	virtual ~LuaConfigCacheBase();
 	helper* operator -> ();
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// Lua binding
-
-void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName);
 
 
 ///////////////////////////////////////////////////////////////////////////////

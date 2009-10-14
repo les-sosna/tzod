@@ -178,14 +178,14 @@ void NewGameDlg::RefreshPlayersList()
 
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_players.GetAt(i)->AsTable();
+		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
 
-		int index = _players->GetData()->AddItem( p->GetStr("nick")->Get() );
-		_players->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_players->GetData()->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _players->GetData()->AddItem(p.nick.Get());
+		_players->GetData()->SetItemText(index, 1, p.skin.Get());
+		_players->GetData()->SetItemText(index, 2, p.platform_class.Get());
 
 		char s[16];
-		int team = p->GetNum("team", 0)->GetInt();
+		int team = p.team.GetInt();
 		if( 0 != team )
 		{
 			wsprintf(s, "%d", team);
@@ -208,14 +208,14 @@ void NewGameDlg::RefreshBotsList()
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_bots.GetAt(i)->AsTable();
+		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
 
-		int index = _bots->GetData()->AddItem( p->GetStr("nick")->Get() );
-		_bots->GetData()->SetItemText(index, 1, p->GetStr("skin")->Get());
-		_bots->GetData()->SetItemText(index, 2, p->GetStr("class")->Get());
+		int index = _bots->GetData()->AddItem(p.nick.Get());
+		_bots->GetData()->SetItemText(index, 1, p.skin.Get());
+		_bots->GetData()->SetItemText(index, 2, p.platform_class.Get());
 
 		char s[16];
-		int team = p->GetNum("team", 0)->GetInt();
+		int team = p.team.GetInt();
 		if( 0 != team )
 		{
 			wsprintf(s, "%d", team);
@@ -375,24 +375,24 @@ void NewGameDlg::OnOK()
 
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_players.GetAt(i)->AsTable();
+		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
 		GC_PlayerLocal *player = new GC_PlayerLocal();
-		player->SetTeam(    p->GetNum("team")->GetInt() );
-		player->SetSkin(    p->GetStr("skin")->Get()    );
-		player->SetClass(   p->GetStr("class")->Get()   );
-		player->SetNick(    p->GetStr("nick")->Get()    );
-		player->SetProfile( p->GetStr("profile")->Get() );
+		player->SetTeam(p.team.GetInt());
+		player->SetSkin(p.skin.Get());
+		player->SetClass(p.platform_class.Get());
+		player->SetNick(p.nick.Get());
+		player->SetProfile(p.profile.Get());
 	}
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfVarTable *p = g_conf.dm_bots.GetAt(i)->AsTable();
+		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
 		GC_PlayerAI *bot = new GC_PlayerAI();
-		bot->SetTeam(  p->GetNum("team")->GetInt() );
-		bot->SetSkin(  p->GetStr("skin")->Get()    );
-		bot->SetClass( p->GetStr("class")->Get()   );
-		bot->SetNick(  p->GetStr("nick")->Get()    );
-		bot->SetLevel( p->GetNum("level", 2)->GetInt() );
+		bot->SetTeam(p.team.GetInt());
+		bot->SetSkin(p.skin.Get());
+		bot->SetClass(p.platform_class.Get());
+		bot->SetNick(p.nick.Get());
+		bot->SetLevel(p.level.GetInt());
 	}
 
 	Close(_resultOK);
@@ -461,7 +461,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
-	_name->SetText( _info->GetStr("nick", "Unnamed")->Get() );
+	_name->SetText( _info.nick.Get() );
 	GetManager()->SetFocusWnd(_name);
 
 
@@ -478,7 +478,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);
-		if( names[i] == _info->GetStr("skin")->Get() )
+		if( names[i] == _info.skin.Get() )
 		{
 			_skins->SetCurSel(index);
 		}
@@ -511,7 +511,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 		if( std::string::npos == val.first.find('/') )
 		{
 			int index = _classes->GetData()->AddItem(val.first);
-			if( val.first == _info->GetStr("class")->Get() )
+			if( val.first == _info.platform_class.Get() )
 			{
 				_classes->SetCurSel(index);
 			}
@@ -530,7 +530,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 		char buf[8];
 		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
-		if( i == _info->GetNum("team")->GetInt() )
+		if( i == _info.team.GetInt() )
 		{
 			_teams->SetCurSel(index);
 		}
@@ -557,7 +557,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
 		int index = _profiles->GetData()->AddItem(profiles[i]);
-		if( profiles[i] == _info->GetStr("profile")->Get() )
+		if( profiles[i] == _info.profile.Get() )
 		{
 			_profiles->SetCurSel(index);
 		}
@@ -579,11 +579,11 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 void EditPlayerDlg::OnOK()
 {
-	_info->SetStr("nick",    _name->GetText() );
-	_info->SetStr("skin",    _skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
-	_info->SetStr("class",   _classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
-	_info->SetNum("team",    _teams->GetCurSel());
-	_info->SetStr("profile", _profiles->GetData()->GetItemText(_profiles->GetCurSel(), 0) );
+	_info.nick.Set(_name->GetText());
+	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
+	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
+	_info.team.SetInt(_teams->GetCurSel());
+	_info.profile.Set(_profiles->GetData()->GetItemText(_profiles->GetCurSel(), 0) );
 
 	Close(_resultOK);
 }
@@ -639,9 +639,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
 	lua_getglobal(g_env.L, "random_name");   // push function
-	lua_call(g_env.L, 0, 1);
-	_name->SetText( _info->GetStr("nick",
-		lua_tostring(g_env.L, -1))->Get() ); // random default nick
+	lua_call(g_env.L, 0, 1);                 // random default nick
+	_name->SetText(_info.nick.Get().empty() ? lua_tostring(g_env.L, -1) : _info.nick.Get());
 	lua_pop(g_env.L, 1);                     // pop result
 	GetManager()->SetFocusWnd(_name);
 
@@ -659,7 +658,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);
-		if( names[i] == _info->GetStr("skin")->Get() )
+		if( names[i] == _info.skin.Get() )
 		{
 			_skins->SetCurSel(index);
 		}
@@ -690,7 +689,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 		_classNames.push_back(val);
 
 		int index = _classes->GetData()->AddItem(val.first);
-		if( val.first == _info->GetStr("class")->Get() )
+		if( val.first == _info.platform_class.Get() )
 		{
 			_classes->SetCurSel(index);
 		}
@@ -709,7 +708,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 		char buf[8];
 		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
-		if( i == _info->GetNum("team")->GetInt() )
+		if( i == _info.team.GetInt() )
 		{
 			_teams->SetCurSel(index);
 		}
@@ -732,8 +731,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = _levels->GetData()->AddItem(g_lang->GetRoot()->GetStr(levels[i], NULL)->Get());
-		if( i == _info->GetNum("level", 2)->GetInt() )
+		int index = _levels->GetData()->AddItem(g_lang->GetRoot()->GetStr(levels[i], "")->Get());
+		if( i == _info.level.GetInt() )
 		{
 			_levels->SetCurSel(index);
 		}
@@ -755,11 +754,11 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 void EditBotDlg::OnOK()
 {
-	_info->SetStr("nick",  _name->GetText() );
-	_info->SetStr("skin",  _skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
-	_info->SetStr("class", _classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
-	_info->SetNum("team",  _teams->GetCurSel());
-	_info->SetNum("level", _levels->GetCurSel());
+	_info.nick.Set(_name->GetText());
+	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
+	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
+	_info.team.SetInt(_teams->GetCurSel());
+	_info.level.SetInt(_levels->GetCurSel());
 
 	Close(_resultOK);
 }

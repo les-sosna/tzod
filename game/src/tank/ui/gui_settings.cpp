@@ -151,10 +151,10 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	if( g_conf.cl_playerinfo.GetStr("profile")->Get() == _profiles->GetData()->GetItemText(i, 0) )
+	if( g_conf.cl_playerinfo.profile.Get() == _profiles->GetData()->GetItemText(i, 0) )
 	{
 		// profile that is being deleted is used in network settings
-		g_conf.cl_playerinfo.SetStr("profile", "");
+		g_conf.cl_playerinfo.profile.Set("");
 	}
 	g_conf.dm_profiles.Remove(_profiles->GetData()->GetItemText(i, 0));
 	UpdateProfilesList();
@@ -298,7 +298,7 @@ void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
 {
 	int index = _actions->GetData()->AddItem(display);
 	_actions->GetData()->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname)->Get())));
+	_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname, "")->Get())));
 }
 
 void ControlProfileDlg::OnOK()
@@ -346,7 +346,7 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			else
 			{
 				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
-					_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex))->Get())) );
+					_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
 			}
 //			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 			SetTimeStep(false);

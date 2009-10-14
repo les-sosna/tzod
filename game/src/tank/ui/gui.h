@@ -5,6 +5,7 @@
 #include "Base.h"
 #include "Dialog.h"
 
+#include "config/Config.h"
 
 // forward declarations
 class ConfVarTable;
@@ -81,7 +82,7 @@ class EditPlayerDlg : public Dialog
 
 	std::vector<std::pair<string_t, string_t> > _classNames;
 
-	ConfVarTable *_info;
+	ConfPlayerLocal _info;
 
 public:
 	EditPlayerDlg(Window *parent, ConfVarTable *info);
@@ -108,7 +109,7 @@ class EditBotDlg : public Dialog
 
 	std::vector<std::pair<string_t, string_t> > _classNames;
 
-	ConfVarTable *_info;
+	ConfPlayerAI _info;
 
 public:
 	EditBotDlg(Window *parent, ConfVarTable *info);

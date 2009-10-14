@@ -318,7 +318,7 @@ void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 		if( GetId() == pde.id )
 		{
 			player = new GC_PlayerLocal();
-			const string_t &profile = g_conf.cl_playerinfo.GetStr("profile")->Get();
+			const string_t &profile = g_conf.cl_playerinfo.profile.Get();
 			if( profile.empty() )
 			{
 				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();

@@ -7,8 +7,45 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template< class key_t, class parent_t >
-static ConfVar* FromLuaType(lua_State *L, parent_t *parent, key_t key)
+static ConfVar* GetVarIfTypeMatch(ConfVarTable *parent, const char *key, ConfVar::Type type)
+{
+	if( ConfVar *v = parent->Find(key) )
+	{
+		return v->GetType() == type ? v : NULL;
+	}
+	else if( parent->IsFrozen() )
+	{
+		return NULL;
+	}
+	return parent->GetVar(key, type).first;
+}
+
+static ConfVar* TableElementFromLua(lua_State *L, ConfVarTable *parent, const char *key)
+{
+	ConfVar* result = NULL;
+	int valueType = lua_type(L, -1);
+	switch( valueType )
+	{
+	case LUA_TSTRING:
+		result = GetVarIfTypeMatch(parent, key, ConfVar::typeString);
+		break;
+	case LUA_TBOOLEAN:
+		result = GetVarIfTypeMatch(parent, key, ConfVar::typeBoolean);
+		break;
+	case LUA_TNUMBER:
+		result = GetVarIfTypeMatch(parent, key, ConfVar::typeNumber);
+		break;
+	case LUA_TTABLE:
+		result = GetVarIfTypeMatch(parent, key, lua_objlen(L,-1) ? ConfVar::typeArray : ConfVar::typeTable);
+		break;
+	default:
+		return NULL;
+	}
+
+	return result;
+}
+
+static ConfVar* ArrayElementFromLua(lua_State *L, ConfVarArray *parent, size_t key)
 {
 	ConfVar* result = NULL;
 	int valueType = lua_type(L, -1);
@@ -44,7 +81,13 @@ ConfVar::ConfVar()
 
 ConfVar::~ConfVar()
 {
-	_type = typeNil;
+	assert(typeNil == _type);
+}
+
+void ConfVar::FireValueUpdate(ConfVar *pVar)
+{
+	if( eventChange )
+		INVOKE(eventChange) ();
 }
 
 const char* ConfVar::GetTypeName() const
@@ -54,18 +97,22 @@ const char* ConfVar::GetTypeName() const
 
 void ConfVar::SetType(Type type)
 {
+	assert(!_frozen);
 	if( type != _type )
 	{
 		this->~ConfVar(); // manually call the destructor
 		switch( type )
 		{
-			case typeNil:     new( this ) ConfVar();        break;
-			case typeNumber:  new( this ) ConfVarNumber();  break;
-			case typeBoolean: new( this ) ConfVarBool();    break;
-			case typeString:  new( this ) ConfVarString();  break;
-			case typeArray:   new( this ) ConfVarArray();   break;
-			case typeTable:   new( this ) ConfVarTable();   break;
-			default: assert(FALSE);
+#pragma push_macro("new")
+#undef new
+			case typeNil:     new(this) ConfVar();        break;
+			case typeNumber:  new(this) ConfVarNumber();  break;
+			case typeBoolean: new(this) ConfVarBool();    break;
+			case typeString:  new(this) ConfVarString();  break;
+			case typeArray:   new(this) ConfVarArray();   break;
+			case typeTable:   new(this) ConfVarTable();   break;
+			default: assert(!"unknown ConfVar type");
+#pragma pop_macro("new")
 		}
 		assert( _type == type );
 	}
@@ -101,19 +148,19 @@ ConfVarTable* ConfVar::AsTable()
 	return static_cast<ConfVarTable*>(this);
 }
 
-bool ConfVar::_Save(FILE *, int) const
+bool ConfVar::Write(FILE *, int) const
 {
 	assert(false);
 	return false;
 }
 
-bool ConfVar::_Load(lua_State *)
+bool ConfVar::Assign(lua_State *)
 {
 	assert(false);
 	return false;
 }
 
-void ConfVar::Push(lua_State *)
+void ConfVar::Push(lua_State *) const
 {
 	assert(false);
 }
@@ -129,13 +176,34 @@ void ConfVar::Freeze(bool freeze)
 
 ConfVarNumber::ConfVarNumber()
 {
-	_val.asNumber = 0;
 	_type = typeNumber;
+	_val.asNumber = 0;
+}
+
+ConfVarNumber::~ConfVarNumber()
+{
+	_type = typeNil;
 }
 
 const char* ConfVarNumber::GetTypeName() const
 {
 	return "number";
+}
+
+double ConfVarNumber::GetRawNumber() const
+{
+	assert(typeNumber == _type);
+	return _val.asNumber;
+}
+
+void ConfVarNumber::SetRawNumber(double value)
+{
+	assert(typeNumber == _type);
+	if( _val.asNumber != value )
+	{
+		_val.asNumber = value;
+		FireValueUpdate(this);
+	}
 }
 
 float ConfVarNumber::GetFloat() const
@@ -146,9 +214,11 @@ float ConfVarNumber::GetFloat() const
 void ConfVarNumber::SetFloat(float value)
 {
 	assert(typeNumber == _type);
-	_val.asNumber = value;
-	if( eventChange )
-		INVOKE(eventChange) ();
+	if( _val.asNumber != value )
+	{
+		_val.asNumber = value;
+		FireValueUpdate(this);
+	}
 }
 
 int ConfVarNumber::GetInt() const
@@ -159,24 +229,26 @@ int ConfVarNumber::GetInt() const
 void ConfVarNumber::SetInt(int value)
 {
 	assert(typeNumber == _type);
-	_val.asNumber = value;
-	if( eventChange )
-		INVOKE(eventChange) ();
+	if( _val.asNumber != value )
+	{
+		_val.asNumber = value;
+		FireValueUpdate(this);
+	}
 }
 
-bool ConfVarNumber::_Save(FILE *file, int level) const
+bool ConfVarNumber::Write(FILE *file, int indent) const
 {
-	fprintf(file, "%g", GetFloat());
+	fprintf(file, "%.10g", _val.asNumber);
 	return true;
 }
 
-bool ConfVarNumber::_Load(lua_State *L)
+bool ConfVarNumber::Assign(lua_State *L)
 {
 	SetFloat( (float) lua_tonumber(L, -1) );
 	return true;
 }
 
-void ConfVarNumber::Push(lua_State *L)
+void ConfVarNumber::Push(lua_State *L) const
 {
 	lua_pushnumber(L, GetFloat());
 }
@@ -186,8 +258,13 @@ void ConfVarNumber::Push(lua_State *L)
 
 ConfVarBool::ConfVarBool()
 {
-	_val.asBool = false;
 	_type = typeBoolean;
+	_val.asBool = false;
+}
+
+ConfVarBool::~ConfVarBool()
+{
+	_type = typeNil;
 }
 
 const char* ConfVarBool::GetTypeName() const
@@ -204,23 +281,22 @@ void ConfVarBool::Set(bool value)
 {
 	assert(typeBoolean == _type);
 	_val.asBool = value;
-	if( eventChange )
-		INVOKE(eventChange) ();
+	FireValueUpdate(this);
 }
 
-bool ConfVarBool::_Save(FILE *file, int level) const
+bool ConfVarBool::Write(FILE *file, int indent) const
 {
 	fprintf(file, Get() ? "true" : "false");
 	return true;
 }
 
-bool ConfVarBool::_Load(lua_State *L)
+bool ConfVarBool::Assign(lua_State *L)
 {
 	Set( 0 != lua_toboolean(L, -1) );
 	return true;
 }
 
-void ConfVarBool::Push(lua_State *L)
+void ConfVarBool::Push(lua_State *L) const
 {
 	lua_pushboolean(L, Get());
 }
@@ -230,14 +306,15 @@ void ConfVarBool::Push(lua_State *L)
 
 ConfVarString::ConfVarString()
 {
-	_val.asString = new string_t();
 	_type = typeString;
+	_val.asString = new string_t();
 }
 
 ConfVarString::~ConfVarString()
 {
 	assert( typeString == _type );
 	delete _val.asString;
+	_type = typeNil;
 }
 
 const char* ConfVarString::GetTypeName() const
@@ -255,11 +332,10 @@ void ConfVarString::Set(const string_t &value)
 {
 	assert(typeString == _type);
 	*_val.asString = value;
-	if( eventChange )
-		INVOKE(eventChange) ();
+	FireValueUpdate(this);
 }
 
-bool ConfVarString::_Save(FILE *file, int level) const
+bool ConfVarString::Write(FILE *file, int indent) const
 {
 	fputc('"', file);
 	for( size_t i = 0; i < _val.asString->size(); ++i )
@@ -287,13 +363,13 @@ bool ConfVarString::_Save(FILE *file, int level) const
 	return true;
 }
 
-bool ConfVarString::_Load(lua_State *L)
+bool ConfVarString::Assign(lua_State *L)
 {
 	Set(lua_tostring(L, -1));
 	return true;
 }
 
-void ConfVarString::Push(lua_State *L)
+void ConfVarString::Push(lua_State *L) const
 {
 	lua_pushstring(L, Get().c_str());
 }
@@ -304,8 +380,8 @@ void ConfVarString::Push(lua_State *L)
 
 ConfVarArray::ConfVarArray()
 {
-	_val.asArray = new std::deque<ConfVar*>();
 	_type = typeArray;
+	_val.asArray = new std::deque<ConfVar*>();
 }
 
 ConfVarArray::~ConfVarArray()
@@ -316,6 +392,7 @@ ConfVarArray::~ConfVarArray()
 		delete (*_val.asArray)[i];
 	}
 	delete _val.asArray;
+	_type = typeNil;
 }
 
 const char* ConfVarArray::GetTypeName() const
@@ -330,17 +407,10 @@ std::pair<ConfVar*, bool> ConfVarArray::GetVar(size_t index, ConfVar::Type type)
 
 	if( result.first->GetType() != type )
 	{
-		const bool warn = result.first->GetType() != ConfVar::typeNil;
-		const char *typeName = result.first->GetTypeName();
-
 		result.first->SetType(type);
 		result.second = false;
-
-		if( warn )
-		{
-			GetConsole().Printf(1, "config: changing type of element with index %u from %s to %s",
-				index, typeName, result.first->GetTypeName() );
-		}
+		FireValueUpdate(this);
+		assert(result.first->GetType() == type);
 	}
 
 	return result;
@@ -391,7 +461,7 @@ ConfVarBool* ConfVarArray::SetBool(size_t index, bool value)
 	return v;
 }
 
-ConfVarString* ConfVarArray::GetStr(size_t index, const char* def)
+ConfVarString* ConfVarArray::GetStr(size_t index, const string_t &def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(index, ConfVar::typeString);
 	if( !p.second )
@@ -399,7 +469,7 @@ ConfVarString* ConfVarArray::GetStr(size_t index, const char* def)
 	return p.first->AsStr();
 }
 
-ConfVarString* ConfVarArray::SetStr(size_t index, const char* value)
+ConfVarString* ConfVarArray::SetStr(size_t index, const string_t &value)
 {
 	ConfVarString *v = GetVar(index, ConfVar::typeString).first->AsStr();
 	v->Set(value);
@@ -419,9 +489,7 @@ ConfVarTable* ConfVarArray::GetTable(size_t index)
 void ConfVarArray::Resize(size_t newSize)
 {
 	assert(typeArray == _type);
-
 	size_t oldSize = _val.asArray->size();
-
 	if( newSize > oldSize )
 	{
 		_val.asArray->resize(newSize);
@@ -429,21 +497,16 @@ void ConfVarArray::Resize(size_t newSize)
 		{
 			(*_val.asArray)[i] = new ConfVar();
 		}
-
-//		if( eventChange )
-//			INVOKE(eventChange) ();
+		FireValueUpdate(this);
 	}
-	else
-	if( newSize < oldSize )
+	else if( newSize < oldSize )
 	{
 		for( size_t i = newSize; i < oldSize; ++i )
 		{
 			delete (*_val.asArray)[i];
 		}
 		_val.asArray->resize(newSize);
-
-//		if( eventChangeValue )
-//			INVOKE(eventChangeValue) ();
+		FireValueUpdate(this);
 	}
 }
 
@@ -464,6 +527,7 @@ void ConfVarArray::RemoveAt(size_t index)
 	assert(typeArray == _type);
 	delete (*_val.asArray) [index];
 	_val.asArray->erase(_val.asArray->begin() + index);
+	FireValueUpdate(this);
 }
 
 void ConfVarArray::PopFront()
@@ -471,6 +535,7 @@ void ConfVarArray::PopFront()
 	assert(typeArray == _type);
 	delete _val.asArray->front();
 	_val.asArray->pop_front();
+	FireValueUpdate(this);
 }
 
 ConfVar* ConfVarArray::PushBack(Type type)
@@ -479,6 +544,7 @@ ConfVar* ConfVarArray::PushBack(Type type)
 	ConfVar *result = new ConfVar();
 	result->SetType(type);
 	_val.asArray->push_back(result);
+	FireValueUpdate(this);
 	return result;
 }
 
@@ -487,6 +553,7 @@ void ConfVarArray::PopBack()
 	assert(typeArray == _type);
 	delete _val.asArray->back();
 	_val.asArray->pop_back();
+	FireValueUpdate(this);
 }
 
 ConfVar* ConfVarArray::PushFront(Type type)
@@ -495,29 +562,30 @@ ConfVar* ConfVarArray::PushFront(Type type)
 	ConfVar *result = new ConfVar();
 	result->SetType(type);
 	_val.asArray->push_front(result);
+	FireValueUpdate(this);
 	return result;
 }
 
-bool ConfVarArray::_Save(FILE *file, int level) const
+bool ConfVarArray::Write(FILE *file, int indent) const
 {
 	fprintf(file, "{\n");
 	bool delim = false;
 	for( size_t i = 0; i < GetSize(); ++i )
 	{
 		if( delim ) fprintf(file, ",\n");
-		for( int n = 0; n < level; ++n )
+		for( int n = 0; n < indent; ++n )
 		{
 			fprintf(file, "  ");
 		}
 		delim = true;
-		if( !GetAt(i)->_Save(file, level+1) )
+		if( !GetAt(i)->Write(file, indent+1) )
 			return false;
 	}
 	fprintf(file, "\n}");
 	return true;
 }
 
-bool ConfVarArray::_Load(lua_State *L)
+bool ConfVarArray::Assign(lua_State *L)
 {
 	Resize( lua_objlen(L, -1) );
 
@@ -526,9 +594,9 @@ bool ConfVarArray::_Load(lua_State *L)
 		lua_pushinteger(L, i+1); // push the key
 		lua_gettable(L, -2);   // pop the key, push the value
 
-		if( ConfVar *v = FromLuaType(L, this, i) )
+		if( ConfVar *v = ArrayElementFromLua(L, this, i) )
 		{
-			if( !v->_Load(L) )
+			if( !v->Assign(L) )
 				return false;
 		}
 
@@ -538,9 +606,9 @@ bool ConfVarArray::_Load(lua_State *L)
 	return true;
 }
 
-void ConfVarArray::Push(lua_State *L)
+void ConfVarArray::Push(lua_State *L) const
 {
-	*reinterpret_cast<ConfVarArray**>( lua_newuserdata(L, sizeof(this)) ) = this;
+	*reinterpret_cast<ConfVarArray const**>( lua_newuserdata(L, sizeof(this)) ) = this;
 	luaL_getmetatable(L, "conf_array");  // metatable for config
 	lua_setmetatable(L, -2);
 }
@@ -551,19 +619,26 @@ void ConfVarArray::Push(lua_State *L)
 
 ConfVarTable::ConfVarTable()
 {
-	_val.asTable = new std::map<string_t, ConfVar*>();
 	_type = typeTable;
+	_val.asTable = new std::map<string_t, ConfVar*>();
 }
 
 ConfVarTable::~ConfVarTable()
 {
-	assert( typeTable == _type );
-	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
-	     _val.asTable->end() != it; ++it )
+	assert(typeTable == _type);
+	ClearInternal();
+	delete _val.asTable;
+	_type = typeNil;
+}
+
+void ConfVarTable::ClearInternal()
+{
+	assert(typeTable == _type);
+	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
 		delete it->second;
 	}
-	delete _val.asTable;
+	_val.asTable->clear();
 }
 
 const char* ConfVarTable::GetTypeName() const
@@ -596,13 +671,16 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Ty
 {
 	std::pair<ConfVar*, bool> result(NULL, true);
 
-	assert( ConfVar::typeNil != type );
+	assert(ConfVar::typeNil != type);
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() == it )
 	{
+		// create new item
+		assert( !_frozen );
 		result.first = new ConfVar();
 		std::pair<string_t, ConfVar*> pair(name, result.first);
 		_val.asTable->insert(pair);
+		FireValueUpdate(this);
 	}
 	else
 	{
@@ -611,18 +689,13 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Ty
 
 	if( result.first->GetType() != type )
 	{
-		const bool warn = result.first->GetType() != ConfVar::typeNil;
-		const char *typeName = result.first->GetTypeName();
-
+		// change type of the existing item
+		assert( !_frozen );
 		result.first->SetType(type);
 		result.second = false;
-
-		if( warn )
-		{
-			GetConsole().Printf(1, "config: changing type of variable '%s' from %s to %s",
-				name.c_str(), typeName, result.first->GetTypeName() );
-		}
+		FireValueUpdate(this);
 	}
+	assert(result.first->GetType() == type);
 
 	return result;
 }
@@ -672,11 +745,11 @@ ConfVarBool* ConfVarTable::SetBool(const string_t &name, bool value)
 	return v;
 }
 
-ConfVarString* ConfVarTable::GetStr(const string_t &name, const char* def)
+ConfVarString* ConfVarTable::GetStr(const string_t &name, const string_t &def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeString);
 	if( !p.second )
-		p.first->AsStr()->Set(def ? def : name);
+		p.first->AsStr()->Set(def);
 	return p.first->AsStr();
 }
 
@@ -703,9 +776,18 @@ ConfVarTable* ConfVarTable::GetTable(const string_t &name, void (*init)(ConfVarT
 	return p.first->AsTable();
 }
 
+void ConfVarTable::Clear()
+{
+	assert( typeTable == _type );
+	assert( !_frozen );
+	ClearInternal();
+	FireValueUpdate(this);
+}
+
 bool ConfVarTable::Remove(ConfVar * const value)
 {
 	assert( typeTable == _type );
+	assert( !_frozen );
 	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 		_val.asTable->end() != it; ++it )
 	{
@@ -713,6 +795,7 @@ bool ConfVarTable::Remove(ConfVar * const value)
 		{
 			delete it->second;
 			_val.asTable->erase(it);
+			FireValueUpdate(this);
 			return true;
 		}
 	}
@@ -722,10 +805,12 @@ bool ConfVarTable::Remove(ConfVar * const value)
 bool ConfVarTable::Remove(const string_t &name)
 {
 	assert( typeTable == _type );
+	assert( !_frozen );
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() != it )
 	{
 		_val.asTable->erase(it);
+		FireValueUpdate(this);
 		return true;
 	}
 	return false;
@@ -734,6 +819,7 @@ bool ConfVarTable::Remove(const string_t &name)
 bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 {
 	assert( typeTable == _type );
+	assert( !_frozen );
 
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
 	for( ;_val.asTable->end() != it; ++it )
@@ -760,6 +846,7 @@ bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 
 	(*_val.asTable)[newName] = it->second;   // create new
 	_val.asTable->erase(it);                 // remove old
+	FireValueUpdate(this);
 
 	return true;
 }
@@ -767,6 +854,7 @@ bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
 {
 	assert( typeTable == _type );
+	assert( !_frozen );
 
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(oldName);
 	if( _val.asTable->end() == it )
@@ -786,36 +874,30 @@ bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
 
 	(*_val.asTable)[newName] = it->second;   // create new
 	_val.asTable->erase(it);                 // remove old
+	FireValueUpdate(this);
 
 	return true;
 }
 
-bool ConfVarTable::_Save(FILE *file, int level) const
+bool ConfVarTable::Write(FILE *file, int indent) const
 {
-	if( level ) fprintf(file, "{\n");
+	if( indent ) fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (string_t(" -- ") + GetHelpString()).c_str());
 
-	bool delim = false;
 	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin();
 	     _val.asTable->end() != it; ++it )
 	{
-		if( level )
+		for( int i = 0; i < indent; ++i )
 		{
-			if( delim ) fputs(",\n", file);
-			for( int i = 0; i < level; ++i )
-			{
-				fputs("  ", file);
-			}
+			fputs("  ", file);
 		}
-		delim = true;
 
 		bool safe = true;
 		for( size_t i = 0; i < it->first.size(); ++i )
 		{
-			unsigned char c = it->first[i];
-
-			if( !isalpha(c) && '_' != c )
+			string_t::value_type c = it->first[i];
+			if( !isalpha((unsigned) c) && '_' != c )
 			{
-				if( 0 == i || !isdigit(c) )
+				if( 0 == i || !isdigit((unsigned) c) )
 				{
 					safe = false;
 					break;
@@ -856,15 +938,22 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 
 		fputs(" = ", file);
 
-		if( !it->second->_Save(file, level+1) )
+		if( !it->second->Write(file, indent+1) )
 			return false;
 
-		if( !level ) fputs(";\n", file);
-	}
-	if( level )
-	{
+		fputs(indent ? ",":";", file);
+
+		// help string
+		if( !it->second->GetHelpString().empty() )
+		{
+			fputs("  -- ", file);
+			fputs(it->second->GetHelpString().c_str(), file);
+		}
 		fputs("\n", file);
-		for( int i = 0; i < level-1; ++i )
+	}
+	if( indent )
+	{
+		for( int i = 0; i < indent-1; ++i )
 		{
 			fputs("  ", file);
 		}
@@ -874,7 +963,7 @@ bool ConfVarTable::_Save(FILE *file, int level) const
 	return true;
 }
 
-bool ConfVarTable::_Load(lua_State *L)
+bool ConfVarTable::Assign(lua_State *L)
 {
 	// enumerate all fields of the table
 	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
@@ -884,15 +973,15 @@ bool ConfVarTable::_Load(lua_State *L)
 		if( LUA_TSTRING == lua_type(L, -2) )
 		{
 			const char *key = lua_tostring(L, -2);
-			if( ConfVar *v = FromLuaType(L, this, key) )
+			if( ConfVar *v = TableElementFromLua(L, this, key) )
 			{
-				if( !v->_Load(L) )
+				if( !v->Assign(L) )
 					return false;
 			}
-		}
-		else
-		{
-			GetConsole().WriteLine(1, "WARNING: key value is not a string");
+			else
+			{
+				GetConsole().Printf(1, "variable '%s' was dropped", key);
+			}
 		}
 	}
 
@@ -907,8 +996,8 @@ bool ConfVarTable::Save(const char *filename) const
 	{
 		return false;
 	}
-	fprintf(file, "-- config file\n\n");
-	bool result = _Save(file, 0);
+	fprintf(file, "-- config file was automatically generated by application\n\n");
+	bool result = Write(file, 0);
 	fclose(file);
 	return result;
 }
@@ -927,23 +1016,25 @@ bool ConfVarTable::Load(const char *filename)
 
 	// get global table
 	lua_pushvalue(L, LUA_GLOBALSINDEX);
-	bool result = _Load(L);
+	bool result = Assign(L);
 
 	lua_close(L);
+
+	FireValueUpdate(this);
 
 	return result;
 }
 
-void ConfVarTable::Push(lua_State *L)
+void ConfVarTable::Push(lua_State *L) const
 {
-	*reinterpret_cast<ConfVarTable**>( lua_newuserdata(L, sizeof(this)) ) = this;
+	*reinterpret_cast<ConfVarTable const**>(lua_newuserdata(L, sizeof(this))) = this;
 	luaL_getmetatable(L, "conf_table");  // metatable for config
 	lua_setmetatable(L, -2);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// lua interface implementation
+// lua binding
 
 // returns type string for arrays and tables
 static int luaT_conftostring(lua_State *L)
@@ -967,147 +1058,122 @@ static int luaT_conftostring(lua_State *L)
 // retrieving an array element
 static int luaT_getconfarray(lua_State *L)
 {
-	assert(lua_type(L, 1) == LUA_TUSERDATA);
+	lua_settop(L, 2);
 
-	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>(luaL_checkudata(L, 1, "conf_array"));
 	assert( ConfVar::typeArray == v->GetType() );
 
-	if( lua_isnumber(L, 2) )
+	size_t index = luaL_checkinteger(L, 2);
+	if( index >= v->AsArray()->GetSize() )
 	{
-		size_t index = lua_tointeger(L, 2);
-		if( index >= v->AsArray()->GetSize() )
-		{
-			return luaL_error(L, "array index is out of range");
-		}
-		v->GetAt(index)->Push(L);
+		return luaL_error(L, "array index is out of range");
 	}
-	else
-	{
-		return luaL_error(L, "number expected");
-	}
-
+	v->GetAt(index)->Push(L);
 	return 1;
 }
 
 // retrieving a table element
 static int luaT_getconftable(lua_State *L)
 {
-	assert(lua_type(L, 1) == LUA_TUSERDATA);
+	lua_settop(L, 2);
 
-	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>(luaL_checkudata(L, 1, "conf_table"));
 	assert( ConfVar::typeTable == v->GetType() );
 
-	if( lua_isstring(L, 2) )
+	const char *key = luaL_checkstring(L, 2);
+
+	if( ConfVar *result = v->Find(key) )
 	{
-		const char *key = lua_tostring(L, 2);
-		if( ConfVar *result = v->Find(key) )
-		{
-			result->Push(L);
-		}
-		else
-		{
-			return luaL_error(L, "variable '%s' doesn't exists", key);
-		}
+		result->Push(L);
 	}
 	else
 	{
-		return luaL_error(L, "string expected");
+		return luaL_error(L, "variable '%s' not found", key);
 	}
 
 	return 1;
 }
 
-// assinging a value to an array element
+// assigning a value to an array element
 static int luaT_setconfarray(lua_State *L)
 {
-	assert(lua_type(L, 1) == LUA_TUSERDATA);
+	lua_settop(L, 3);
 
-	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>( lua_touserdata(L, 1) );
+	ConfVarArray *v = *reinterpret_cast<ConfVarArray **>(luaL_checkudata(L, 1, "conf_array"));
 	assert( ConfVar::typeArray == v->GetType() );
 
-	if( lua_isnumber(L, 2) )
-	{
-		size_t index = lua_tointeger(L, 2);
-		if( index >= v->AsArray()->GetSize() )
-		{
-			return luaL_error(L, "array index is out of range");
-		}
+	size_t index = luaL_checkinteger(L, 2);
 
-		ConfVar *val = v->GetAt(index);
+	if( index >= v->AsArray()->GetSize() )
+	{
+		return luaL_error(L, "array index is out of range");
+	}
+
+	ConfVar *val = v->GetAt(index);
+	switch( val->GetType() )
+	{
+	case ConfVar::typeBoolean:
+		val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
+		break;
+	case ConfVar::typeNumber:
+		val->AsNum()->SetFloat( (float) luaL_checknumber(L, 3) );
+		break;
+	case ConfVar::typeString:
+		val->AsStr()->Set(luaL_checkstring(L, 3));
+		break;
+	case ConfVar::typeArray:
+		return luaL_error(L, "attempt to modify conf_array");
+	case ConfVar::typeTable:
+		return luaL_error(L, "attempt to modify conf_table");
+	}
+
+	return 0;
+}
+
+// assigning a value to a table element
+static int luaT_setconftable(lua_State *L)
+{
+	lua_settop(L, 3);
+
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>(luaL_checkudata(L, 1, "conf_table"));
+	assert( ConfVar::typeTable == v->GetType() );
+
+	const char *key = luaL_checkstring(L, 2);
+
+	if( ConfVar *val = v->Find(key) )
+	{
 		switch( val->GetType() )
 		{
 		case ConfVar::typeBoolean:
-			val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
+			val->AsBool()->Set(0 != lua_toboolean(L, 3));
 			break;
 		case ConfVar::typeNumber:
-			val->AsNum()->SetFloat( (float) lua_tonumber(L, 3) );
+			val->AsNum()->SetFloat( (float) luaL_checknumber(L, 3) );
 			break;
 		case ConfVar::typeString:
-			val->AsStr()->Set( lua_tostring(L, 3) );
+			val->AsStr()->Set( luaL_checkstring(L, 3) );
 			break;
 		case ConfVar::typeArray:
-			return luaL_error(L, "attempt to modify conf_array");
+			luaL_checktype(L, 3, LUA_TTABLE);
+			return val->Assign(L);
 		case ConfVar::typeTable:
+			luaL_checktype(L, 3, LUA_TTABLE);
 			return luaL_error(L, "attempt to modify conf_table");
 		}
 	}
 	else
 	{
-		return luaL_error(L, "number expected");
-	}
-
-	return 0;
-}
-
-// assinging a value to a table element
-static int luaT_setconftable(lua_State *L)
-{
-	assert(lua_type(L, 1) == LUA_TUSERDATA);
-
-	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
-	assert( ConfVar::typeTable == v->GetType() );
-
-	if( lua_isstring(L, 2) )
-	{
-		const char *key = lua_tostring(L, 2);
-		if( ConfVar *val = v->Find(key) )
-		{
-			switch( val->GetType() )
-			{
-			case ConfVar::typeBoolean:
-				val->AsBool()->Set( 0 != lua_toboolean(L, 3) );
-				break;
-			case ConfVar::typeNumber:
-				val->AsNum()->SetFloat( (float) lua_tonumber(L, 3) );
-				break;
-			case ConfVar::typeString:
-				val->AsStr()->Set( lua_tostring(L, 3) );
-				break;
-			case ConfVar::typeArray:
-				return luaL_error(L, "attempt to modify conf_array");
-			case ConfVar::typeTable:
-				return luaL_error(L, "attempt to modify conf_table");
-			}
-		}
-		else
-		{
-			return luaL_error(L, "variable not found");
-		}
-	}
-	else
-	{
-		return luaL_error(L, "string expected");
+		return luaL_error(L, "variable '%s' not found", key);
 	}
 	return 0;
 }
 
 // generic __next support for tables
-static int luaT_conftablenext(lua_State *L)
+int ConfVarTable::luaT_conftablenext(lua_State *L)
 {
 	lua_settop(L, 2);
-	luaL_checktype(L, 1, LUA_TUSERDATA);
 
-	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>( lua_touserdata(L, 1) );
+	ConfVarTable *v = *reinterpret_cast<ConfVarTable **>(luaL_checkudata(L, 1, "conf_table"));
 	assert( ConfVar::typeTable == v->GetType() );
 
 	if( v->_val.asTable->empty() )
@@ -1148,30 +1214,34 @@ static int luaT_conftablenext(lua_State *L)
 
 
 // map config to the conf lua variable
-void InitConfigLuaBinding(lua_State *L, ConfVarTable *conf, const char *globName)
+void ConfVarTable::InitConfigLuaBinding(lua_State *L, const char *globName)
 {
+	int top = lua_gettop(L);
+
 	luaL_newmetatable(L, "conf_table");  // metatable for tables
-	lua_pushcfunction(L, luaT_setconftable);
-	lua_setfield(L, -2, "__newindex");
-	lua_pushcfunction(L, luaT_getconftable);
-	lua_setfield(L, -2, "__index");
-	lua_pushcfunction(L, luaT_conftostring);
-	lua_setfield(L, -2, "__tostring");
-	lua_pushcfunction(L, luaT_conftablenext);
-	lua_setfield(L, -2, "__next");
-	lua_pop(L, 1); // pop the metatable
+	 lua_pushcfunction(L, luaT_setconftable);
+	  lua_setfield(L, -2, "__newindex");
+	 lua_pushcfunction(L, luaT_getconftable);
+	  lua_setfield(L, -2, "__index");
+	 lua_pushcfunction(L, luaT_conftostring);
+	  lua_setfield(L, -2, "__tostring");
+	 lua_pushcfunction(L, luaT_conftablenext);
+	  lua_setfield(L, -2, "__next");
+	 lua_pop(L, 1); // pop the metatable
 
 	luaL_newmetatable(L, "conf_array");  // metatable for arrays
-	lua_pushcfunction(L, luaT_setconfarray);  // push handler function
-	lua_setfield(L, -2, "__newindex");        // this also pops function from the stack
-	lua_pushcfunction(L, luaT_getconfarray);  // push handler function
-	lua_setfield(L, -2, "__index");           // this also pops function from the stack
-	lua_pushcfunction(L, luaT_conftostring);  // push handler function
-	lua_setfield(L, -2, "__tostring");        // this also pops function from the stack
-	lua_pop(L, 1); // pop the metatable
+	 lua_pushcfunction(L, luaT_setconfarray);  // push handler function
+	  lua_setfield(L, -2, "__newindex");        // this also pops function from the stack
+	 lua_pushcfunction(L, luaT_getconfarray);  // push handler function
+	  lua_setfield(L, -2, "__index");           // this also pops function from the stack
+	 lua_pushcfunction(L, luaT_conftostring);  // push handler function
+	  lua_setfield(L, -2, "__tostring");        // this also pops function from the stack
+	 lua_pop(L, 1); // pop the metatable
 
-	conf->Push(L);
-	lua_setglobal(L, globName);    // set global and pop one element from stack
+	Push(L);
+	 lua_setglobal(L, globName);    // set global and pop one element from stack
+
+	assert(lua_gettop(L) == top);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

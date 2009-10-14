@@ -554,22 +554,22 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 
 	if( p && ConfVar::typeTable == p->GetType() )
 	{
-		ConfVarTable *t = static_cast<ConfVarTable *>(p);
+		ConfControllerProfile t(p->AsTable());
 
-		_keyForward     = GetKeyCode(t->GetStr( "key_forward"      )->Get());
-		_keyBack        = GetKeyCode(t->GetStr( "key_back"         )->Get());
-		_keyLeft        = GetKeyCode(t->GetStr( "key_left"         )->Get());
-		_keyRight       = GetKeyCode(t->GetStr( "key_right"        )->Get());
-		_keyFire        = GetKeyCode(t->GetStr( "key_fire"         )->Get());
-		_keyLight       = GetKeyCode(t->GetStr( "key_light"        )->Get());
-		_keyTowerLeft   = GetKeyCode(t->GetStr( "key_tower_left"   )->Get());
-		_keyTowerRight  = GetKeyCode(t->GetStr( "key_tower_right"  )->Get());
-		_keyTowerCenter = GetKeyCode(t->GetStr( "key_tower_center" )->Get());
-		_keyPickup      = GetKeyCode(t->GetStr( "key_pickup"       )->Get());
+		_keyForward     = GetKeyCode(t.key_forward.Get());
+		_keyBack        = GetKeyCode(t.key_back.Get());
+		_keyLeft        = GetKeyCode(t.key_left.Get());
+		_keyRight       = GetKeyCode(t.key_right.Get());
+		_keyFire        = GetKeyCode(t.key_fire.Get());
+		_keyLight       = GetKeyCode(t.key_light.Get());
+		_keyTowerLeft   = GetKeyCode(t.key_tower_left.Get());
+		_keyTowerRight  = GetKeyCode(t.key_tower_right.Get());
+		_keyTowerCenter = GetKeyCode(t.key_tower_center.Get());
+		_keyPickup      = GetKeyCode(t.key_pickup.Get());
 
-		_lastLightsState= t->GetBool("lights",         true)->Get();
-		_aimToMouse     = t->GetBool("aim_to_mouse",  false)->Get();
-		_moveToMouse    = t->GetBool("move_to_mouse", false)->Get();
+		_lastLightsState = t.lights.Get();
+		_aimToMouse = t.aim_to_mouse.Get();
+		_moveToMouse = t.move_to_mouse.Get();
 	}
 	else
 	{

@@ -330,7 +330,7 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 	switch( sub )
 	{
 	case 0:
-		return g_lang->GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, NULL)->Get();
+		return g_lang->GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, "")->Get();
 	case 1:
 		name = s->GetName();
 		_nameCache = name ? name : "";
@@ -394,7 +394,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 		if( Level::GetTypeInfoByIndex(i).service )
 		{
 			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), Level::GetTypeByIndex(i));
 		}
 	}
 	_combo->GetData()->Sort();
@@ -514,7 +514,7 @@ EditorLayout::EditorLayout(Window *parent)
 	{
 		if( Level::GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, NULL)->Get(), Level::GetTypeByIndex(i));
+		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), Level::GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
 	List *ls = _typeList->GetList();

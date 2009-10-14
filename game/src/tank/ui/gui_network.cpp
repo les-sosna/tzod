@@ -115,8 +115,9 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 		for( size_t i = 0; i < g_conf.lobby_servers.GetSize(); ++i )
 		{
-			_lobbyList->GetData()->AddItem(g_conf.lobby_servers.GetStr(i)->Get());
-			if( !i || g_conf.sv_lobby.Get() == g_conf.lobby_servers.GetStr(i)->Get() )
+			const string_t &lobbyAddr = g_conf.lobby_servers.GetStr(i, "")->Get();
+			_lobbyList->GetData()->AddItem(lobbyAddr);
+			if( !i || g_conf.sv_lobby.Get() == lobbyAddr )
 			{
 				_lobbyList->SetCurSel(i);
 			}
@@ -452,13 +453,13 @@ void InternetDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static PlayerDesc GetPlayerDescFromConf(ConfVarTable *p)
+static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 {
 	PlayerDesc result;
-	result.nick = p->GetStr("nick", "Unnamed Player")->Get();
-	result.cls = p->GetStr("class", "default")->Get();
-	result.skin = p->GetStr("skin", "red")->Get();
-	result.team = p->GetNum("team", 0)->GetInt();
+	result.nick = p.nick.Get();
+	result.cls = p.platform_class.Get();
+	result.skin = p.skin.Get();
+	result.team = p.team.GetInt();
 	return result;
 }
 
@@ -527,7 +528,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	// send player info
 	//
 
-	g_client->SendPlayerInfo(GetPlayerDescFromConf(&g_conf.cl_playerinfo));
+	g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 
 	// send ping request
 //	DWORD t = timeGetTime();
@@ -553,7 +554,7 @@ void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
 
 	if( _resultOK == result )
 	{
-		g_client->SendPlayerInfo(GetPlayerDescFromConf(&g_conf.cl_playerinfo));
+		g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 	}
 }
 
@@ -561,13 +562,13 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 {
 	_btnProfile->SetEnabled(false);
 	_btnOK->SetEnabled(false);
-	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), &g_conf.cl_playerinfo);
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo->GetRoot());
 	dlg->eventClose.bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()
 {
-	(new EditBotDlg(this, &g_conf.ui_netbotinfo))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
+	(new EditBotDlg(this, g_conf.ui_netbotinfo->GetRoot()))->eventClose.bind(&WaitingForPlayersDlg::OnAddBotClose, this);
 }
 
 void WaitingForPlayersDlg::OnAddBotClose(int result)
@@ -575,8 +576,8 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 	if( _resultOK == result )
 	{
 		BotDesc bd;
-		bd.pd = GetPlayerDescFromConf(&g_conf.ui_netbotinfo);
-		bd.level = g_conf.ui_netbotinfo.GetNum("level", 2)->GetInt();
+		bd.pd = GetPlayerDescFromConf(g_conf.ui_netbotinfo);
+		bd.level = g_conf.ui_netbotinfo.level.GetInt();
 		g_client->SendAddBot(bd);
 	}
 }
@@ -668,7 +669,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 
 			// level
 			assert(ai->GetLevel() <= AI_MAX_LEVEL);
-			_bots->GetData()->SetItemText(index, 3, g_lang->GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], NULL)->Get());
+			_bots->GetData()->SetItemText(index, 3, g_lang->GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], "")->Get());
 		}
 		else
 		{

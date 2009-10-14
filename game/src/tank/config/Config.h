@@ -11,6 +11,37 @@
 #include "ConfigCache.h"
 
 
+REFLECTION_BEGIN(ConfControllerProfile)
+	VAR_STR(key_forward,      "W")
+	VAR_STR(key_back,         "S")
+	VAR_STR(key_left,         "A")
+	VAR_STR(key_right,        "D")
+	VAR_STR(key_fire,         "Left Ctrl")
+	VAR_STR(key_light,        "Q")
+	VAR_STR(key_tower_left,   "1")
+	VAR_STR(key_tower_center, "2")
+	VAR_STR(key_tower_right,  "3")
+	VAR_STR(key_pickup,       "Left Shift")
+	VAR_BOOL(lights,         true)
+	VAR_BOOL(aim_to_mouse,  false)
+	VAR_BOOL(move_to_mouse, false)
+REFLECTION_END()
+
+REFLECTION_BEGIN(ConfPlayerBase)
+	VAR_STR(nick, "Unnamed")
+	VAR_INT(team,        0)
+	VAR_STR(skin,       "")
+	VAR_STR(platform_class, "default")
+REFLECTION_END()
+
+REFLECTION_BEGIN_(ConfPlayerLocal, ConfPlayerBase)
+	VAR_STR(profile,   "")
+REFLECTION_END()
+
+REFLECTION_BEGIN_(ConfPlayerAI, ConfPlayerBase)
+	VAR_INT(level,  2)
+REFLECTION_END()
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // config map
@@ -50,7 +81,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_FLOAT(  cl_latency,           0 )
 	VAR_FLOAT(  cl_boost,             1 )
 	VAR_FLOAT(  cl_dtwindow,          2 )
-	VAR_TABLE(  cl_playerinfo,     NULL )
+	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 
 	// sound
 	VAR_INT( s_volume,      DSBVOLUME_MAX )
@@ -85,7 +116,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_BOOL(  ui_showfps,         false )
 	VAR_BOOL(  ui_showtime,         true )
 	VAR_BOOL(  ui_showmsg,          true )
-	VAR_TABLE( ui_netbotinfo,       NULL )
+	VAR_REFLECTION( ui_netbotinfo,  ConfPlayerAI )
 
 	// debug
 	VAR_BOOL(  dbg_graph,          false )
@@ -93,7 +124,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(   dbg_sleep_rand,         0 )
 
 	// other
-	VAR_TABLE( dm_profiles,       InitProfiles )
+	VAR_TABLE( dm_profiles,       InitProfiles ) // ConfControllerProfile
 	VAR_ARRAY( dm_players,                NULL )
 	VAR_ARRAY( dm_bots,                   NULL )
 	VAR_ARRAY( lobby_servers,    InitLobbyList )
