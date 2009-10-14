@@ -340,7 +340,6 @@ public:
 public:
 	static GC_Object* CreateFromFile(SaveFile &file);
 	virtual void Serialize(SaveFile &f);
-	virtual bool IsSaved() const { return true; } // TODO: remove
 
 protected:
 	struct FromFile {};

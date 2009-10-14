@@ -281,11 +281,11 @@ void GC_Explosion::Boom(float radius, float damage)
 {
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		if( !pCamera->_player ) continue;
-		if( pCamera->_player->GetVehicle() )
+		if( !pCamera->GetPlayer() ) continue;
+		if( pCamera->GetPlayer()->GetVehicle() )
 		{
 			float level = 0.5f * (radius - (GetPos() -
-				pCamera->_player->GetVehicle()->GetPos()).len() * 0.3f) / radius;
+				pCamera->GetPlayer()->GetVehicle()->GetPos()).len() * 0.3f) / radius;
 			//--------------------------
 			if( level > 0 )
 				pCamera->Shake(level);

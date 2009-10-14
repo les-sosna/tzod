@@ -10,6 +10,7 @@
 #include "macros.h"
 #include "functions.h"
 #include "script.h"
+#include "DefaultCamera.h"
 
 #include "core/debug.h"
 #include "core/Profiler.h"
@@ -306,13 +307,6 @@ void Level::Resize(int X, int Y)
 	grid_pickup.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
-
-
-	//
-	// FIXME: default objects
-	//
-
-	new GC_Camera(SafePtr<GC_Player>()); // no player
 }
 
 void Level::Clear()
@@ -639,23 +633,20 @@ void Level::Serialize(const char *fileName)
 	for( ; it != GetList(LIST_objects).rend(); ++it )
 	{
 		GC_Object *object = *it;
-		if( object->IsSaved() )
-		{
-			ObjectType type = object->GetType();
-			stream->Write(&type, sizeof(type));
+		ObjectType type = object->GetType();
+		stream->Write(&type, sizeof(type));
 
-			SafePtr<void> tmp;
-			SetRawPtr(tmp, object);
-			f.Serialize(tmp);
-			SetRawPtr(tmp, NULL);
+		SafePtr<void> tmp;
+		SetRawPtr(tmp, object);
+		f.Serialize(tmp);
+		SetRawPtr(tmp, NULL);
 
-			object->Serialize(f);
+		object->Serialize(f);
 
-			sh.nObjects++;
-		}
+		sh.nObjects++;
 	}
 
-	// return to begin of file and write count of saved objects
+	// return to the beginning and write saved objects count
 	stream->Seek(0, SEEK_SET);
 	stream->Write(&sh, sizeof(SaveHeader));
 }
@@ -1127,15 +1118,12 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 
 void Level::TimeStep(float dt)
 {
-	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
-	{
-		pCamera->HandleFreeMovement();
-	}
-
 	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->KillWhenFinished();
 	}
+
+	_defaultCamera.HandleMovement(_sx, _sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
 	if( g_env.pause + _pause > 0 /*&& !g_client*/ && _gameType != GT_INTRO || _limitHit )
@@ -1341,112 +1329,47 @@ void Level::RunCmdQueue(float dt)
 
 void Level::Render() const
 {
-	//
-	// определение активных камер и выбор конфигурации дисплея
-	//
+	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? 0.0f : 1.0f);
 
-	GC_Camera *pMaxShake = NULL;
-
-	if( g_render->GetWidth() >= (int) _sx &&
-		g_render->GetHeight() >= (int) _sy )
+	if( _modeEditor || GetList(LIST_cameras).empty() )
 	{
-		float max_shake = 0;
-		FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
+		// render from default camera
+		g_env.camera_x = int(_defaultCamera.GetPosX());
+		g_env.camera_y = int(_defaultCamera.GetPosY());
+		g_render->SetViewport(NULL);
+		g_render->Camera((float) g_env.camera_x, (float) g_env.camera_y, _defaultCamera.GetZoom(), 0);
+		RenderInternal(_defaultCamera.GetZoom());
+	}
+	else
+	{
+		if( g_render->GetWidth() >= int(_sx) && g_render->GetHeight() >= int(_sy) )
 		{
-			if( !pCamera->IsActive() ) continue;
-			if( pCamera->GetShake() >= max_shake )
+			// render from single camera with maximum shake
+			float max_shake = -1;
+			GC_Camera *singleCamera = NULL;
+			FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 			{
-				pMaxShake = pCamera;
-				max_shake = pCamera->GetShake();
+				if( pCamera->GetShake() > max_shake )
+				{
+					singleCamera = pCamera;
+					max_shake = pCamera->GetShake();
+				}
+			}
+			assert(singleCamera);
+			singleCamera->Apply();
+			RenderInternal(singleCamera->GetZoom());
+		}
+		else
+		{
+			// render from each camera
+			FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
+			{
+				pCamera->Apply();
+				RenderInternal(pCamera->GetZoom());
 			}
 		}
 	}
 
-	g_render->SetAmbient( g_conf.sv_nightmode.Get() ? 0.0f : 1.0f );
-
-	int count = 0;
-	FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
-	{
-		if( pMaxShake ) pCamera = pMaxShake;
-		if( !pCamera->IsActive() ) continue;
-
-
-		//
-		// draw lights to alpha channel
-		//
-
-		g_render->SetMode(RM_LIGHT);
-		pCamera->Select();
-		if( g_conf.sv_nightmode.Get() )
-		{
-			float xmin = (float) __max(0, g_env.camera_x );
-			float ymin = (float) __max(0, g_env.camera_y );
-			float xmax = __min(_sx, (float) g_env.camera_x +
-				(float) g_render->GetViewportWidth() / pCamera->_zoom );
-			float ymax = __min(_sy, (float) g_env.camera_y +
-				(float) g_render->GetViewportHeight() / pCamera->_zoom );
-
-			FOREACH( GetList(LIST_lights), GC_Light, pLight )
-			{
-				assert(!pLight->IsKilled());
-				if( pLight->IsActive() &&
-					pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
-					pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
-					pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
-					pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
-				{
-					pLight->Shine();
-				}
-			}
-		}
-
-
-		//
-		// draw world to rgb
-		//
-
-		g_render->SetMode(RM_WORLD);
-
-		// background texture
-		DrawBackground(_texBack);
-		if( g_level->_modeEditor && g_conf.ed_drawgrid.Get() )
-			DrawBackground(_texGrid);
-
-
-		int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
-		int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
-		int xmax = __min(_locationsX - 1,
-			(g_env.camera_x + int((float) g_render->GetViewportWidth() / pCamera->_zoom)) / LOCATION_SIZE);
-		int ymax = __min(_locationsY - 1,
-			(g_env.camera_y + int((float) g_render->GetViewportHeight() / pCamera->_zoom)) / LOCATION_SIZE + 1);
-
-		for( int z = 0; z < Z_COUNT; ++z )
-		{
-			for( int x = xmin; x <= xmax; ++x )
-			for( int y = ymin; y <= ymax; ++y )
-			{
-				// FIXME: using of global g_level
-				FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
-				{
-					assert(!object->IsKilled());
-					object->Draw();
-					assert(!object->IsKilled());
-				}
-			}
-
-
-			// loop over globals
-			// FIXME: using of global g_level
-			FOREACH( g_level->z_globals[z], GC_2dSprite, object )
-			{
-				assert(!object->IsKilled());
-				object->Draw();
-				assert(!object->IsKilled());
-			}
-		}
-
-		if( pMaxShake ) break;
-	} // cameras
 
 #ifdef _DEBUG
 	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
@@ -1462,6 +1385,79 @@ void Level::Render() const
 	{
 		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
 		_dbgLineBuffer.clear();
+	}
+}
+
+void Level::RenderInternal(float zoom) const
+{
+	//
+	// draw lights to alpha channel
+	//
+
+	g_render->SetMode(RM_LIGHT);
+	if( g_conf.sv_nightmode.Get() )
+	{
+		float xmin = (float) __max(0, g_env.camera_x );
+		float ymin = (float) __max(0, g_env.camera_y );
+		float xmax = __min(_sx, (float) g_env.camera_x + (float) g_render->GetViewportWidth() / zoom);
+		float ymax = __min(_sy, (float) g_env.camera_y + (float) g_render->GetViewportHeight() / zoom);
+
+		FOREACH( GetList(LIST_lights), GC_Light, pLight )
+		{
+			assert(!pLight->IsKilled());
+			if( pLight->IsActive() &&
+				pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
+				pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
+				pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
+				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
+			{
+				pLight->Shine();
+			}
+		}
+	}
+
+
+	//
+	// draw world to rgb
+	//
+
+	g_render->SetMode(RM_WORLD);
+
+	// background texture
+	DrawBackground(_texBack);
+	if( g_level->_modeEditor && g_conf.ed_drawgrid.Get() )
+		DrawBackground(_texGrid);
+
+
+	int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
+	int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
+	int xmax = __min(_locationsX - 1,
+		(g_env.camera_x + int((float) g_render->GetViewportWidth() / zoom)) / LOCATION_SIZE);
+	int ymax = __min(_locationsY - 1,
+		(g_env.camera_y + int((float) g_render->GetViewportHeight() / zoom)) / LOCATION_SIZE + 1);
+
+	for( int z = 0; z < Z_COUNT; ++z )
+	{
+		for( int x = xmin; x <= xmax; ++x )
+		for( int y = ymin; y <= ymax; ++y )
+		{
+			// FIXME: using of global g_level
+			FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
+			{
+				assert(!object->IsKilled());
+				object->Draw();
+				assert(!object->IsKilled());
+			}
+		}
+
+		// loop over globals
+		// FIXME: using of global g_level
+		FOREACH( g_level->z_globals[z], GC_2dSprite, object )
+		{
+			assert(!object->IsKilled());
+			object->Draw();
+			assert(!object->IsKilled());
+		}
 	}
 }
 

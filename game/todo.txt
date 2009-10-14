@@ -1,8 +1,11 @@
+implement more stable notifications (GC_Object::Subscribe)
+
+
 Lobby - done
 
 prediction in network multiplayer - done
 
-save screenshots in jpg
+save screenshots in jpg or png
 
 Save/Load
  - user objects serialization - custom textures are not saved

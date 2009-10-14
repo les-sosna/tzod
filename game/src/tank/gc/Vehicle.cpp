@@ -625,8 +625,8 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		if( !pCamera->_player ) continue;
-		if( this == pCamera->_player->GetVehicle() )
+		if( !pCamera->GetPlayer() ) continue;
+		if( this == pCamera->GetPlayer()->GetVehicle() )
 		{
 			pCamera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
 			break;

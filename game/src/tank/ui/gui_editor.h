@@ -127,8 +127,9 @@ class EditorLayout : public Window
 	ServiceEditor    *_serviceList;
 	Text         *_layerDisp;
 	DefaultComboBox  *_typeList;
-	Window       *_selectionRect;
 	Text         *_help;
+
+	size_t       _selectionRect;
 
 	GC_Object *_selectedObject;
 	bool _isObjectNew;

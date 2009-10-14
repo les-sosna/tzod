@@ -308,6 +308,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\tank\DefaultCamera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tank\DefaultCamera.h"
+				>
+			</File>
+			<File
 				RelativePath="src\tank\directx.cpp"
 				>
 			</File>

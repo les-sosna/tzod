@@ -894,10 +894,10 @@ bool ConfVarTable::Write(FILE *file, int indent) const
 		bool safe = true;
 		for( size_t i = 0; i < it->first.size(); ++i )
 		{
-			string_t::value_type c = it->first[i];
-			if( !isalpha((unsigned) c) && '_' != c )
+			unsigned char c = it->first[i];
+			if( !isalpha(c) && '_' != c )
 			{
-				if( 0 == i || !isdigit((unsigned) c) )
+				if( 0 == i || !isdigit(c) )
 				{
 					safe = false;
 					break;

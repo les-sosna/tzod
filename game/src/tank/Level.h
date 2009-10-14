@@ -9,6 +9,8 @@
 
 #include "video/RenderBase.h"
 
+#include "DefaultCamera.h"
+
 
 #pragma region path finding stuff
 
@@ -193,6 +195,7 @@ public:
 	Grid<ObjectList>  z_grids[Z_COUNT];
 
 	ObjectListener *_serviceListener;
+	DefaultCamera _defaultCamera;
 
 	size_t _texBack;
 	size_t _texGrid;
@@ -290,6 +293,8 @@ public:
 
 private:
 	virtual ~Level();
+
+	void RenderInternal(float zoom) const;
 
 
 	class AbstractClient

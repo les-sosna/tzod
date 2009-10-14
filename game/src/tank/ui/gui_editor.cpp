@@ -24,6 +24,7 @@
 #include "Level.h"
 #include "Macros.h"
 #include "script.h"
+#include "DefaultCamera.h"
 
 namespace UI
 {
@@ -494,6 +495,7 @@ bool ServiceEditor::OnRawChar(int c)
 EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
   , _selectedObject(NULL)
+  , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
 {
 	SetTexture(NULL, false);
 
@@ -522,12 +524,6 @@ EditorLayout::EditorLayout(Window *parent)
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel(g_conf.ed_object.GetInt());
-
-	_selectionRect = Window::Create(this);
-	_selectionRect->SetTexture("ui/selection", true);
-	_selectionRect->SetDrawBorder(true);
-	_selectionRect->SetVisible(false);
-	_selectionRect->BringToBack();
 
 	_isObjectNew = false;
 	_click = true;
@@ -581,7 +577,6 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_isObjectNew = false;
 
 		_propList->ConnectTo(NULL);
-		_selectionRect->SetVisible(false);
 		_propList->SetVisible(false);
 	}
 
@@ -804,33 +799,19 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
 		assert(g_level);
-		GC_Camera *camera = NULL;
-
-		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, c )
-		{
-			if( c->IsActive() )
-			{
-				camera = c;
-				break;
-			}
-		}
-
-		assert(camera);
-		RECT viewport;
-		camera->GetViewport(viewport);
+		const DefaultCamera &cam = g_level->_defaultCamera;
 
 		FRECT rt;
 		s->GetGlobalRect(rt);
 
-		_selectionRect->SetVisible(true);
-		_selectionRect->Move(
-			(float) viewport.left + (rt.left - camera->GetPos().x) * camera->_zoom,
-			(float) viewport.top + (rt.top - camera->GetPos().y) * camera->_zoom );
-		_selectionRect->Resize(s->GetSpriteWidth() * camera->_zoom, s->GetSpriteHeight() * camera->_zoom);
-	}
-	else
-	{
-		_selectionRect->SetVisible(false);
+		FRECT sel = {
+			(rt.left - cam.GetPosX()) * cam.GetZoom(),
+			(rt.top - cam.GetPosY()) * cam.GetZoom(),
+			(rt.left - cam.GetPosX()) * cam.GetZoom() + s->GetSpriteWidth() * cam.GetZoom(),
+			(rt.top - cam.GetPosY()) * cam.GetZoom() + s->GetSpriteHeight() * cam.GetZoom()
+		};
+		dc->DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
+		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	Window::DrawChildren(dc, sx, sy);
 }
