@@ -61,6 +61,7 @@ Console::Console(Window *parent)
 {
 	_input = Edit::Create(this, 0, 0, 0);
 	_scroll = ScrollBarVertical::Create(this, 0, 0, 0);
+	_scroll->eventScroll.bind(&Console::OnScroll, this);
 	SetTexture("ui/console", false);
 	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround
@@ -257,6 +258,12 @@ void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		}
 
 		_buf->Unlock();
+
+		if( _autoScroll )
+		{
+			// FIXME: magic number
+			dc->DrawBitmapText(sx + _scroll->GetX() - 2, sy + _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
+		}
 	}
 	Window::DrawChildren(dc, sx, sy);
 }
@@ -274,6 +281,11 @@ void Console::OnSize(float width, float height)
 bool Console::OnFocus(bool focus)
 {
 	return true;
+}
+
+void Console::OnScroll(float pos)
+{
+	_autoScroll = pos + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

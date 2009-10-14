@@ -68,6 +68,9 @@ protected:
 	virtual bool OnFocus(bool focus);
 
 private:
+	void OnScroll(float pos);
+
+private:
 	ScrollBarVertical *_scroll;
 	Edit  *_input;
 	size_t _cmdIndex;
