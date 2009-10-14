@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "DefaultCamera.h"
 #include "globals.h"
-#include "video/RenderBase.h"
 
 DefaultCamera::DefaultCamera()
   : _zoom(1)
@@ -44,7 +43,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 		}
 	}
 	else
-	if( g_render->GetWidth() - 1 == g_env.envInputs.mouse_x || g_env.envInputs.keys[DIK_RIGHTARROW] )
+	if( screenWidth - 1 == g_env.envInputs.mouse_x || g_env.envInputs.keys[DIK_RIGHTARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -66,7 +65,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 		}
 	}
 	else
-	if( g_render->GetHeight()-1 == g_env.envInputs.mouse_y || g_env.envInputs.keys[DIK_DOWNARROW] )
+	if( screenHeight - 1 == g_env.envInputs.mouse_y || g_env.envInputs.keys[DIK_DOWNARROW] )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
