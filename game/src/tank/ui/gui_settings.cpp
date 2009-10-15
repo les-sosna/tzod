@@ -215,37 +215,33 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 ///////////////////////////////////////////////////////////////////////////////
 // class ControlProfileDlg
 
+static std::string GenerateProfileName()
+{
+	int i = 0;
+	std::ostringstream buf;
+	do
+	{
+		buf.str("");
+		buf << g_lang.profile_autoname.Get() << ++i;
+	}
+	while( g_conf.dm_profiles.Find(buf.str()) );
+	return buf.str();
+}
+
 ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
-  : Dialog(parent, 512, 384)
+  : Dialog(parent, 448, 416)
+  , _nameOrig(profileName ? profileName : GenerateProfileName())
+  , _profile(g_conf.dm_profiles.GetTable(_nameOrig))
+  , _time(0)
+  , _activeIndex(-1)
+  , _skipNextKey(false)
+  , _createNewProfile(!profileName)
 {
 	SetEasyMove(true);
 
-	_time = 0;
-	_activeIndex = -1;
-	_skip = false;
-
-
 	Text::Create(this, 20, 15, g_lang.profile_name.Get(), alignTextLT);
 	_nameEdit = Edit::Create(this, 20, 30, 250);
-
-	if( profileName )
-	{
-		_name = profileName;
-		_nameEdit->SetText(_name);
-	}
-	else
-	{
-		int i = 0;
-		std::ostringstream buf;
-		do
-		{
-			buf.str("");
-			buf << g_lang.profile_autoname.Get() << ++i;
-		}
-		while( g_conf.dm_profiles.Find(buf.str()) );
-		_nameEdit->SetText(buf.str());
-	}
-	_profile = g_conf.dm_profiles.GetTable(_nameEdit->GetText());
+	_nameEdit->SetText(_nameOrig);
 
 	Text::Create(this,  20, 65, g_lang.profile_action.Get(), alignTextLT);
 	Text::Create(this, 220, 65, g_lang.profile_key.Get(), alignTextLT);
@@ -256,26 +252,29 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_actions->SetTabPos(1, 200);
 	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
 
-	AddAction( "key_forward"      , g_lang.action_move_forward.Get()    );
-	AddAction( "key_back"         , g_lang.action_move_backward.Get()   );
-	AddAction( "key_left"         , g_lang.action_turn_left.Get()       );
-	AddAction( "key_right"        , g_lang.action_turn_right.Get()      );
-	AddAction( "key_fire"         , g_lang.action_fire.Get()            );
-	AddAction( "key_light"        , g_lang.action_toggle_lights.Get()   );
-	AddAction( "key_tower_left"   , g_lang.action_tower_left.Get()      );
-	AddAction( "key_tower_right"  , g_lang.action_tower_right.Get()     );
-	AddAction( "key_tower_center" , g_lang.action_tower_center.Get()    );
-	AddAction( "key_pickup"       , g_lang.action_pickup.Get()          );
+	AddAction(_profile.key_forward      , g_lang.action_move_forward.Get()  );
+	AddAction(_profile.key_back         , g_lang.action_move_backward.Get() );
+	AddAction(_profile.key_left         , g_lang.action_turn_left.Get()     );
+	AddAction(_profile.key_right        , g_lang.action_turn_right.Get()    );
+	AddAction(_profile.key_fire         , g_lang.action_fire.Get()          );
+	AddAction(_profile.key_light        , g_lang.action_toggle_lights.Get() );
+	AddAction(_profile.key_tower_left   , g_lang.action_tower_left.Get()    );
+	AddAction(_profile.key_tower_right  , g_lang.action_tower_right.Get()   );
+	AddAction(_profile.key_tower_center , g_lang.action_tower_center.Get()  );
+	AddAction(_profile.key_pickup       , g_lang.action_pickup.Get()        );
 	_actions->SetCurSel(0, true);
 
-	_aimToMouse = CheckBox::Create(this, 16, 345, g_lang.profile_mouse_aim.Get());
-	_aimToMouse->SetCheck(_profile->GetBool("aim_to_mouse", false)->Get());
+	_aimToMouseChkBox = CheckBox::Create(this, 16, 345, g_lang.profile_mouse_aim.Get());
+	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 
-	_moveToMouse = CheckBox::Create(this, 146, 345, g_lang.profile_mouse_move.Get());
-	_moveToMouse->SetCheck(_profile->GetBool("move_to_mouse", false)->Get());
+	_moveToMouseChkBox = CheckBox::Create(this, 146, 345, g_lang.profile_mouse_move.Get());
+	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 
-	Button::Create(this, g_lang.common_ok.Get(), 304, 350)->eventClick.bind(&ControlProfileDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 408, 350)->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+	_arcadeStyleChkBox = CheckBox::Create(this, 276, 345, g_lang.profile_arcade_style.Get());
+	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
+
+	Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick.bind(&ControlProfileDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick.bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_actions);
 }
@@ -290,38 +289,53 @@ void ControlProfileDlg::OnSelectAction(int index)
 	_time = 0;
 	_activeIndex = index;
 //	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	_skip = true;
+	_skipNextKey = true;
 	SetTimeStep(true);
 }
 
-void ControlProfileDlg::AddAction(const char *rawname, const string_t &display)
+void ControlProfileDlg::AddAction(ConfVarString &var, const string_t &display)
 {
-	int index = _actions->GetData()->AddItem(display);
-	_actions->GetData()->SetItemData(index, (ULONG_PTR) rawname);
-	_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(_profile->GetStr(rawname, "")->Get())));
+	ConfVarTable::KeyListType names;
+	_profile->GetRoot()->GetKeyList(names);
+	for( size_t i = 0; i != names.size(); ++i )
+	{
+		if( _profile->GetRoot()->Find(names[i]) == &var )
+		{
+			int index = _actions->GetData()->AddItem(display);
+			_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(var.Get())));
+			_actions->GetData()->SetItemData(index, i);
+			return;
+		}
+	}
+	assert(false);
 }
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetText().empty() || !g_conf.dm_profiles.Rename(_profile, _nameEdit->GetText()) )
+	if( _nameEdit->GetText().empty() || !g_conf.dm_profiles.Rename(_profile->GetRoot(), _nameEdit->GetText()) )
 	{
 		return;
 	}
 
-	_profile->SetBool("aim_to_mouse", _aimToMouse->GetCheck());
-	_profile->SetBool("move_to_mouse", _moveToMouse->GetCheck());
+	ConfVarTable::KeyListType names;
+	_profile->GetRoot()->GetKeyList(names);
 	for( int i = 0; i < _actions->GetData()->GetItemCount(); ++i )
 	{
-		_profile->SetStr((const char *) _actions->GetData()->GetItemData(i), _actions->GetData()->GetItemText(i, 1));
+		_profile->GetRoot()->SetStr(names[_actions->GetData()->GetItemData(i)], _actions->GetData()->GetItemText(i, 1));
 	}
+
+	_profile.aim_to_mouse.Set(_aimToMouseChkBox->GetCheck());
+	_profile.move_to_mouse.Set(_moveToMouseChkBox->GetCheck());
+	_profile.arcade_style.Set(_arcadeStyleChkBox->GetCheck());
+
 	Close(_resultOK);
 }
 
 void ControlProfileDlg::OnCancel()
 {
-	if( _name.empty() )
+	if( _createNewProfile )
 	{
-		g_conf.dm_profiles.Remove(_profile);
+		g_conf.dm_profiles.Remove(_profile->GetRoot());
 	}
 	Close(_resultCancel);
 }
@@ -335,7 +349,7 @@ void ControlProfileDlg::OnTimeStep(float dt)
 	{
 		if( g_env.envInputs.keys[k] )
 		{
-			if( _skip )
+			if( _skipNextKey )
 			{
 				return;
 			}
@@ -346,14 +360,14 @@ void ControlProfileDlg::OnTimeStep(float dt)
 			else
 			{
 				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
-					_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
+					_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
 			}
 //			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 			SetTimeStep(false);
 		}
 	}
 
-	_skip = false;
+	_skipNextKey = false;
 }
 
 bool ControlProfileDlg::OnRawChar(int c)

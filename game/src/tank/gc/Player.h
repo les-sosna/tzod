@@ -134,6 +134,7 @@ class GC_PlayerLocal : public GC_PlayerHuman
 	int _keyPickup;
 	bool _aimToMouse;
 	bool _moveToMouse;
+	bool _arcadeStyle;
 
 
 	//

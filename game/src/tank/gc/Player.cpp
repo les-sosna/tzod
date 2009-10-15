@@ -440,7 +440,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 GC_PlayerLocal::GC_PlayerLocal()
   : _lastLightKeyState(false)
   , _lastLightsState(true)
-  , _aimToMouse(false)
 {
 	new GC_Camera(WrapRawPtr(this));
 	SelectFreeProfile();
@@ -570,6 +569,7 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 		_lastLightsState = t.lights.Get();
 		_aimToMouse = t.aim_to_mouse.Get();
 		_moveToMouse = t.move_to_mouse.Get();
+		_arcadeStyle = t.arcade_style.Get();
 	}
 	else
 	{
@@ -586,9 +586,10 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 		_keyTowerCenter = 0;
 		_keyPickup      = 0;
 
-		_lastLightsState         = true;
-		_aimToMouse     = false;
-		_moveToMouse    = false;
+		_lastLightsState  = true;
+		_aimToMouse       = false;
+		_moveToMouse      = false;
+		_arcadeStyle      = false;
 	}
 }
 
@@ -602,7 +603,8 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 	bool tmp = g_env.envInputs.keys[_keyLight];
 	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 	{
-		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
+		if( GetVehicle() )
+			PLAY(SND_LightSwitch, GetVehicle()->GetPos());
 		_lastLightsState = !_lastLightsState;
 	}
 	_lastLightKeyState = tmp;
@@ -659,6 +661,49 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			vs._bExplicitBody = true;
 			vs._fBodyAngle = ang2;
 		}
+	}
+	else if( _arcadeStyle )
+	{
+		vec2d x;
+		int flags = 0;
+
+		const int FORWARD = 0x01;
+		const int BACK = 0x02;
+		const int LEFT = 0x04;
+		const int RIGHT = 0x08;
+
+		flags |= g_env.envInputs.keys[_keyForward] ? FORWARD : 0;
+		flags |= g_env.envInputs.keys[_keyBack]    ? BACK    : 0;
+		flags |= g_env.envInputs.keys[_keyLeft]    ? LEFT    : 0;
+		flags |= g_env.envInputs.keys[_keyRight]   ? RIGHT   : 0;
+
+		float ang2 = 0;
+		switch( flags )
+		{
+		case RIGHT:              ang2 = 0;          break;
+		case BACK|RIGHT:         ang2 = PI * 1/4;   break;
+		case BACK:               ang2 = PI * 2/4;   break;
+		case BACK|LEFT:          ang2 = PI * 3/4;   break;
+		case LEFT:               ang2 = PI * 4/4;   break;
+		case LEFT|FORWARD:       ang2 = PI * 5/4;   break;
+		case FORWARD:            ang2 = PI * 6/4;   break;
+		case FORWARD|RIGHT:      ang2 = PI * 7/4;   break;
+		}
+
+		bool bForv = flags != 0;
+		bool bBack = false;
+
+		float ang1 = GetVehicle() ? GetVehicle()->_angle : 0;
+
+		float d1 = fabsf(ang2-ang1);
+		float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+
+		const float MIN_PATH_ANGLE = 0.8f;
+
+		vs._bState_MoveForward = (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv;
+		vs._bState_MoveBack = (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack;
+		vs._bExplicitBody = bForv || bBack;
+		vs._fBodyAngle = ang2;
 	}
 	else
 	{

@@ -220,6 +220,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( profile_key, "Bound key" )
 	VAR_STR( profile_mouse_aim, "Mouse aim" )
 	VAR_STR( profile_mouse_move, "Mouse move" )
+	VAR_STR( profile_arcade_style, "Arcade style" )
 
 	VAR_STR( action_move_forward, "Forward" )
 	VAR_STR( action_move_backward, "Backward" )

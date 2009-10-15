@@ -4,11 +4,7 @@
 
 #include "ui/Base.h"
 #include "ui/Dialog.h"
-
-
-// forward declaration
-class ConfVarTable;
-
+#include "config/Config.h"
 
 namespace UI
 {
@@ -62,14 +58,17 @@ class ControlProfileDlg : public Dialog
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox  *_actions;
 	Edit         *_nameEdit;
-	CheckBox     *_aimToMouse;
-	CheckBox     *_moveToMouse;
-	ConfVarTable *_profile;
-	string_t      _name;
+	CheckBox     *_aimToMouseChkBox;
+	CheckBox     *_moveToMouseChkBox;
+	CheckBox     *_arcadeStyleChkBox;
+	string_t      _nameOrig;
+	ConfControllerProfile _profile;
 
 	float _time;
 	int   _activeIndex;
-	bool  _skip;
+	bool  _createNewProfile;
+	bool  _skipNextKey;
+
 	void OnSelectAction(int index);
 
 public:
@@ -77,7 +76,7 @@ public:
 	~ControlProfileDlg();
 
 protected:
-	void AddAction(const char *rawname, const string_t &display);
+	void AddAction(ConfVarString &var, const string_t &display);
 
 	void OnOK();
 	void OnCancel();
