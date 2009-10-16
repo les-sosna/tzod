@@ -596,6 +596,11 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float dt)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
+	if( !GetVehicle() )
+	{
+		return;
+	}
+	
 
 	//
 	// lights
@@ -603,8 +608,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 	bool tmp = g_env.envInputs.keys[_keyLight];
 	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 	{
-		if( GetVehicle() )
-			PLAY(SND_LightSwitch, GetVehicle()->GetPos());
+		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
 		_lastLightsState = !_lastLightsState;
 	}
 	_lastLightKeyState = tmp;
@@ -693,7 +697,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		bool bForv = flags != 0;
 		bool bBack = false;
 
-		float ang1 = GetVehicle() ? GetVehicle()->_angle : 0;
+		float ang1 = GetVehicle()->_angle : 0;
 
 		float d1 = fabsf(ang2-ang1);
 		float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
