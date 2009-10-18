@@ -294,17 +294,18 @@ float GC_RigidBodyDynamic::GetSpinup() const
 		if( _Nw > 0 )
 		{
 			if( _av > 0 )
-				result = _av/_Mw - _Nw/(_Mw*_Mw)*(log(_Nw + _Mw*_av)-log(_Nw));
+				result = (_av - log(1 + _av * _Mw/_Nw) * _Nw/_Mw) / _Mw;
 			else
-				result = _av/_Mw + _Nw/(_Mw*_Mw)*(log(_Nw - _Mw*_av)-log(_Nw));
+				result = (_av + log(1 - _av * _Mw/_Nw) * _Nw/_Mw) / _Mw;
 		}
 		else
 		{
-			result = _av/_Mw;
+			result = _av / _Mw;
 		}
 	}
 	else
 	{
+		assert(_Nw > 0);
 		result = _av*fabs(_av)/_Nw*0.5f;
 	}
 	return result;

@@ -45,22 +45,21 @@ struct VehicleState
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define STATE_MOVEFORWARD   0x0001
-#define STATE_MOVEBACK      0x0002
-#define STATE_ROTATELEFT    0x0004
-#define STATE_ROTATERIGHT   0x0008
-#define STATE_FIRE          0x0010
-#define STATE_ALLOWDROP     0x0020
-#define STATE_TOWERLEFT     0x0040
-#define STATE_TOWERRIGHT    0x0080
-#define STATE_TOWERCENTER   0x0100
-#define STATE_ENABLELIGHT   0x0200
+const unsigned int STATE_MOVEFORWARD   = 0x0001;
+const unsigned int STATE_MOVEBACK      = 0x0002;
+const unsigned int STATE_ROTATELEFT    = 0x0004;
+const unsigned int STATE_ROTATERIGHT   = 0x0008;
+const unsigned int STATE_FIRE          = 0x0010;
+const unsigned int STATE_ALLOWDROP     = 0x0020;
+const unsigned int STATE_TOWERLEFT     = 0x0040;
+const unsigned int STATE_TOWERRIGHT    = 0x0080;
+const unsigned int STATE_TOWERCENTER   = 0x0100;
+const unsigned int STATE_ENABLELIGHT   = 0x0200;
 
-#define MODE_EXPLICITTOWER  0x1000
-#define MODE_EXPLICITBODY   0x2000
-
-//#define MISC_SLOWDOWN  0x4000
-//#define MISC_SPEEDUP   0x8000
+const unsigned int MODE_EXPLICITTOWER  = 0x1000;
+const unsigned int MODE_EXPLICITBODY   = 0x2000;
+const unsigned int MODE_BODY_HINT_CW   = 0x4000;
+const unsigned int MODE_BODY_HINT_CCW  = 0x8000;
 
 
 #pragma pack(push)

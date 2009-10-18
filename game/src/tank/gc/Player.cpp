@@ -596,159 +596,170 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float dt)
 {
 	ZeroMemory(&vs, sizeof(VehicleState));
-	if( !GetVehicle() )
+	if( GetVehicle() )
 	{
-		return;
-	}
-	
-
-	//
-	// lights
-	//
-	bool tmp = g_env.envInputs.keys[_keyLight];
-	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
-	{
-		PLAY(SND_LightSwitch, GetVehicle()->GetPos());
-		_lastLightsState = !_lastLightsState;
-	}
-	_lastLightKeyState = tmp;
-	vs._bLight = _lastLightsState;
-
-
-	//
-	// pickup
-	//
-	vs._bState_AllowDrop = g_env.envInputs.keys[_keyPickup]
-		|| ( g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]  )
-		|| ( g_env.envInputs.keys[_keyLeft]    && g_env.envInputs.keys[_keyRight] );
-
-	//
-	// fire
-	//
-	vs._bState_Fire = g_env.envInputs.keys[_keyFire];
-
-
-	//
-	// movement
-	//
-	if( _moveToMouse )
-	{
-		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
-		vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
-
-		vec2d pt;
-		if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
+		//
+		// lights
+		//
+		bool tmp = g_env.envInputs.keys[_keyLight];
+		if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 		{
-			float ang2 = (pt - GetVehicle()->GetPos()).Angle();
-			float ang1 = GetVehicle()->_angle;
+			PLAY(SND_LightSwitch, GetVehicle()->GetPos());
+			_lastLightsState = !_lastLightsState;
+		}
+		_lastLightKeyState = tmp;
+		vs._bLight = _lastLightsState;
 
+
+		//
+		// pickup
+		//
+		vs._bState_AllowDrop = g_env.envInputs.keys[_keyPickup]
+			|| ( g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]  )
+			|| ( g_env.envInputs.keys[_keyLeft]    && g_env.envInputs.keys[_keyRight] );
+
+		//
+		// fire
+		//
+		vs._bState_Fire = g_env.envInputs.keys[_keyFire];
+
+
+		//
+		// movement
+		//
+		if( _moveToMouse )
+		{
+			vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+
+			vec2d pt;
+			if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
+			{
+				float ang2 = (pt - GetVehicle()->GetPos()).Angle();
+				float ang1 = GetVehicle()->_angle;
+
+				float d1 = fabsf(ang2-ang1);
+				float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+
+				if( __min(d1, d2) * 2 > PI )
+				{
+					ang2 -= PI;
+
+					if( ang2 < 0 )
+						ang2 += PI2;
+
+					d1 = fabsf(ang2-ang1);
+					d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+
+					vs._bState_MoveBack    = true;
+				}
+				else
+				{
+					vs._bState_MoveForward = true;
+				}
+
+				vs._bExplicitBody = true;
+				vs._fBodyAngle = ang2;
+			}
+		}
+		else if( _arcadeStyle )
+		{
+			const int FORWARD = 0x01;
+			const int BACK = 0x02;
+			const int LEFT = 0x04;
+			const int RIGHT = 0x08;
+
+			int flags = 0;
+			flags |= g_env.envInputs.keys[_keyForward] ? FORWARD : 0;
+			flags |= g_env.envInputs.keys[_keyBack]    ? BACK    : 0;
+			flags |= g_env.envInputs.keys[_keyLeft]    ? LEFT    : 0;
+			flags |= g_env.envInputs.keys[_keyRight]   ? RIGHT   : 0;
+
+			float ang2 = 0;
+			switch( flags )
+			{
+				case RIGHT:              ang2 = 0;          break;
+				case BACK|RIGHT:         ang2 = PI * 1/4;   break;
+				case BACK:               ang2 = PI * 2/4;   break;
+				case BACK|LEFT:          ang2 = PI * 3/4;   break;
+				case LEFT:               ang2 = PI * 4/4;   break;
+				case LEFT|FORWARD:       ang2 = PI * 5/4;   break;
+				case FORWARD:            ang2 = PI * 6/4;   break;
+				case FORWARD|RIGHT:      ang2 = PI * 7/4;   break;
+				default:                 flags = 0;         break;
+			}
+			float ang1 = GetVehicle()->_angle;
 			float d1 = fabsf(ang2-ang1);
 			float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+			float d = std::min(d1, d2);
 
-			if( __min(d1, d2) * 2 > PI )
+
+
+			bool bBack = false;
+			if( flags && d > PI/4 )
 			{
-				ang2 -= PI;
-
-				if( ang2 < 0 )
-					ang2 += PI2;
-
-				d1 = fabsf(ang2-ang1);
-				d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-
-				vs._bState_MoveBack    = true;
-			}
-			else
-			{
-				vs._bState_MoveForward = true;
+				vec2d tmp = vec2d(GetVehicle()->GetSpriteRotation());
+				vec2d x0 = GetVehicle()->GetPos();
+				vec2d a  = tmp * GetVehicle()->GetRadius();
+				if( g_level->agTrace(g_level->grid_rigid_s, GetVehicle(), x0, a) )
+				{
+					bBack = flags != 0;
+				}
+				g_level->DbgLine(x0, x0 + a);
 			}
 
-			vs._bExplicitBody = true;
+
+
+
+			bool bForv = flags != 0 && !bBack;
+
+			vs._bState_MoveForward = d < PI/4 && bForv;
+			vs._bState_MoveBack = bBack;
+			vs._bExplicitBody = bForv || bBack;
 			vs._fBodyAngle = ang2;
 		}
-	}
-	else if( _arcadeStyle )
-	{
-		vec2d x;
-		int flags = 0;
-
-		const int FORWARD = 0x01;
-		const int BACK = 0x02;
-		const int LEFT = 0x04;
-		const int RIGHT = 0x08;
-
-		flags |= g_env.envInputs.keys[_keyForward] ? FORWARD : 0;
-		flags |= g_env.envInputs.keys[_keyBack]    ? BACK    : 0;
-		flags |= g_env.envInputs.keys[_keyLeft]    ? LEFT    : 0;
-		flags |= g_env.envInputs.keys[_keyRight]   ? RIGHT   : 0;
-
-		float ang2 = 0;
-		switch( flags )
+		else
 		{
-		case RIGHT:              ang2 = 0;          break;
-		case BACK|RIGHT:         ang2 = PI * 1/4;   break;
-		case BACK:               ang2 = PI * 2/4;   break;
-		case BACK|LEFT:          ang2 = PI * 3/4;   break;
-		case LEFT:               ang2 = PI * 4/4;   break;
-		case LEFT|FORWARD:       ang2 = PI * 5/4;   break;
-		case FORWARD:            ang2 = PI * 6/4;   break;
-		case FORWARD|RIGHT:      ang2 = PI * 7/4;   break;
+			vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
+			vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
+			vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
+			vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
 		}
 
-		bool bForv = flags != 0;
-		bool bBack = false;
 
-		float ang1 = GetVehicle()->_angle : 0;
-
-		float d1 = fabsf(ang2-ang1);
-		float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-
-		const float MIN_PATH_ANGLE = 0.8f;
-
-		vs._bState_MoveForward = (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv;
-		vs._bState_MoveBack = (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack;
-		vs._bExplicitBody = bForv || bBack;
-		vs._fBodyAngle = ang2;
-	}
-	else
-	{
-		vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
-		vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
-		vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
-		vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
-	}
-
-	//
-	// tower control
-	//
-	if( _aimToMouse )
-	{
-		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
-		if( !_moveToMouse )
+		//
+		// tower control
+		//
+		if( _aimToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
+			vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+			if( !_moveToMouse )
+			{
+				vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
+			}
+
+			vec2d pt;
+			if( GetVehicle() && GetVehicle()->GetWeapon() && GC_Camera::GetWorldMousePos(pt) )
+			{
+				float a = (pt - GetVehicle()->GetPos()).Angle();
+				vs._bExplicitTower = true;
+				vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation();
+			}
+		}
+		else
+		{
+			vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
+			vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
+			vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter]
+				|| g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
+			if( vs._bState_TowerCenter )
+			{
+				vs._bState_TowerLeft  = false;
+				vs._bState_TowerRight = false;
+			}
 		}
 
-		vec2d pt;
-		if( GetVehicle() && GetVehicle()->GetWeapon() && GC_Camera::GetWorldMousePos(pt) )
-		{
-			float a = (pt - GetVehicle()->GetPos()).Angle();
-			vs._bExplicitTower = true;
-			vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation();
-		}
 	}
-	else
-	{
-		vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
-		vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
-		vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter]
-			|| g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
-		if( vs._bState_TowerCenter )
-		{
-			vs._bState_TowerLeft  = false;
-			vs._bState_TowerRight = false;
-		}
-	}
-
 
 	//
 	// step predicted

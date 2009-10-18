@@ -999,10 +999,8 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 
 	if( pBestObject )
 	{
-		if( ( ((x0.x <= hit.x) && (hit.x <= x0.x + a.x))
-		      ||((x0.x + a.x <= hit.x) && (hit.x <= x0.x)) ) &&
-		    ( ((x0.y <= hit.y) && (hit.y <= x0.y + a.y))
-		      ||((x0.y + a.y <= hit.y) && (hit.y <= x0.y)) ) )
+		if( ( ((x0.x <= hit.x) && (hit.x <= x0.x + a.x)) ||((x0.x + a.x <= hit.x) && (hit.x <= x0.x)) ) &&
+		    ( ((x0.y <= hit.y) && (hit.y <= x0.y + a.y)) ||((x0.y + a.y <= hit.y) && (hit.y <= x0.y)) ) )
 		{
 			if( norm )
 			{

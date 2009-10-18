@@ -968,7 +968,7 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 {
 	assert(GetVehicle());
 
-	GC_Pickup  *pItem    = NULL;
+	GC_Pickup  *pItem = NULL;
 	GC_Vehicle *veh = NULL;
 
 	ProcessAction(ws);
@@ -1033,6 +1033,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 	vec2d brake = GetVehicle()->GetBrakingLength();
 	float brake_len = brake.len();
+	float brakeSqr = brake.sqr();
 
 	vec2d currentDir = GetVehicle()->_direction;
 	vec2d currentPos = GetVehicle()->GetPos();
@@ -1254,10 +1255,9 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	float dst = (currentPos - _arrivalPoint).sqr();
 	if( dst > CELL_SIZE*CELL_SIZE/16 )
 	{
-		float brake = GetVehicle()->GetBrakingLength().sqr();
 		if( _backTime <= 0 )
 		{
-			RotateTo(pVehState, _arrivalPoint, dst > brake, false);
+			RotateTo(pVehState, _arrivalPoint, dst > brakeSqr, false);
 		}
 		else
 		{
