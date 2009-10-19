@@ -451,7 +451,6 @@ void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor col
 void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
 {
 	const LogicalTexture &lt = Get(sprite);
-	g_render->TexBind(lt.dev_texture);
 
 	const float pxBorderSize  = 2;
 	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
@@ -460,7 +459,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	MyVertex *v;
 
 	// left edge
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop;
@@ -483,7 +482,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// right edge
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop;
@@ -506,7 +505,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// top edge
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -529,7 +528,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// bottom edge
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvBottom;
@@ -552,7 +551,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left top corner
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -575,7 +574,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right top corner
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -598,7 +597,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right bottom corner
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvBottom;
@@ -621,7 +620,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left bottom corner
-	v = g_render->DrawQuad();
+	v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvBottom;
@@ -671,7 +670,6 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 
 
 	const LogicalTexture &lt = Get(tex);
-	g_render->TexBind(lt.dev_texture);
 
 	size_t count = 0;
 	size_t line  = 0;
@@ -696,8 +694,7 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		float x = x0 + (float) ((count++) * (lt.pxFrameWidth - 1));
 		float y = y0 + (float) (line * lt.pxFrameHeight);
 
-		g_render->TexBind(lt.dev_texture);
-		MyVertex *v = g_render->DrawQuad();
+		MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
 		v[0].color = color;
 		v[0].u = rt.left;
@@ -730,8 +727,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	g_render->TexBind(lt.dev_texture);
-	MyVertex *v = g_render->DrawQuad();
+	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
 	float c = cosf(rot);
 	float s = sinf(rot);
@@ -773,8 +769,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	g_render->TexBind(lt.dev_texture);
-	MyVertex *v = g_render->DrawQuad();
+	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
 	float c = cosf(rot);
 	float s = sinf(rot);
@@ -816,8 +811,7 @@ void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) co
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
 
-	g_render->TexBind(lt.dev_texture);
-	MyVertex *v = g_render->DrawQuad();
+	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
 	v[0].color = 0xffffffff;
 	v[0].u = rt.left;
@@ -849,8 +843,7 @@ void TextureManager::DrawLine(size_t tex, SpriteColor color,
 {
 	const LogicalTexture &lt = Get(tex);
 
-	g_render->TexBind(lt.dev_texture);
-	MyVertex *v = g_render->DrawQuad();
+	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
 	float len = sqrtf((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
 	float phase1 = phase + len / lt.pxFrameWidth;

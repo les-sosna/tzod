@@ -100,14 +100,13 @@ interface IRender
 
 	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img) = 0;
 	virtual void TexFree(DEV_TEXTURE tex) = 0;
-	virtual void TexBind(DEV_TEXTURE tex) = 0;
 
 
 	//
 	// high level primitive drawing
 	//
 
-	virtual MyVertex* DrawQuad() = 0;
+	virtual MyVertex* DrawQuad(DEV_TEXTURE tex) = 0;
 	virtual MyVertex* DrawFan(size_t nEdges) = 0;
 
 	virtual void DrawLines(const MyLine *lines, size_t count) = 0;

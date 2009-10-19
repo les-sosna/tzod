@@ -930,7 +930,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 			//
 			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
 			{
-				ObjectList &tmp_list = list.element(cx, cy);
+				const ObjectList &tmp_list = list.element(cx, cy);
 				for( ObjectList::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
@@ -949,7 +949,6 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 					if( bHasHit )
 					{
 						vec2d m[4];
-
 						for( int i = 0; i < 4; ++i )
 						{
 							m[i] = object->GetVertex(i);
@@ -1018,9 +1017,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 void Level::DrawBackground(size_t tex) const
 {
 	const LogicalTexture &lt = g_texman->Get(tex);
-	g_render->TexBind(lt.dev_texture);
-
-	MyVertex *v = g_render->DrawQuad();
+	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 	v[0].color = 0xffffffff;
 	v[0].u = 0;
 	v[0].v = 0;

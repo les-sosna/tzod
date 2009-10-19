@@ -98,9 +98,8 @@ private:
 
 	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img);
 	virtual void TexFree(DEV_TEXTURE tex);
-	virtual void TexBind(DEV_TEXTURE tex);
 
-	virtual MyVertex* DrawQuad();
+	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
 	virtual MyVertex* DrawFan(size_t nEdges);
 
 	virtual void DrawLines(const MyLine *lines, size_t count);
@@ -456,14 +455,6 @@ void RenderOpenGL::TexFree(DEV_TEXTURE tex)
 	glDeleteTextures(1, &tex.index);
 }
 
-void RenderOpenGL::TexBind(DEV_TEXTURE tex)
-{
-	if( _curtex == reinterpret_cast<GLuint&>(tex.index) ) return;
-	Flush();
-	_curtex = reinterpret_cast<GLuint&>(tex.index);
-	glBindTexture(GL_TEXTURE_2D, _curtex);
-}
-
 void RenderOpenGL::Flush()
 {
 	if( _iaSize )
@@ -473,10 +464,15 @@ void RenderOpenGL::Flush()
 	}
 }
 
-MyVertex* RenderOpenGL::DrawQuad()
+MyVertex* RenderOpenGL::DrawQuad(DEV_TEXTURE tex)
 {
-	if( _vaSize > VERTEX_ARRAY_SIZE - 4 ||
-		_iaSize > INDEX_ARRAY_SIZE  - 6 )
+	if( _curtex != reinterpret_cast<GLuint&>(tex.index) )
+	{
+		Flush();
+		_curtex = reinterpret_cast<GLuint&>(tex.index);
+		glBindTexture(GL_TEXTURE_2D, _curtex);
+	}
+	if( _vaSize > VERTEX_ARRAY_SIZE - 4 || _iaSize > INDEX_ARRAY_SIZE  - 6 )
 	{
 		Flush();
 	}

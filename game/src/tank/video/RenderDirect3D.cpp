@@ -127,9 +127,8 @@ private:
 
 	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img);
 	virtual void TexFree(DEV_TEXTURE tex);
-	virtual void TexBind(DEV_TEXTURE tex);
 
-	virtual MyVertex* DrawQuad();
+	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
 	virtual MyVertex* DrawFan(size_t nEdges);
 
 	virtual void DrawLines(const MyLine *lines, size_t count) {}; // TODO: implement
@@ -573,18 +572,8 @@ void RenderDirect3D::TexFree(DEV_TEXTURE tex)
 	((IDirect3DTexture9 *) tex.ptr)->Release();
 }
 
-void RenderDirect3D::TexBind(DEV_TEXTURE tex)
-{
-	if( _curtex == tex.ptr ) return;
-	if( _iaSize ) _flush();
-	_curtex = ((IDirect3DTexture9 *) tex.ptr);
-	V(_pd3dDevice->SetTexture(0, _curtex));
-}
-
 void RenderDirect3D::_flush()
 {
-//	_FpsCounter::Inst()->OneMoreBatch();
-
 	assert(_VertexArray);
 	assert(_indexArray);
 
@@ -602,10 +591,15 @@ void RenderDirect3D::_flush()
 	_vaSize = _iaSize = 0;
 }
 
-MyVertex* RenderDirect3D::DrawQuad()
+MyVertex* RenderDirect3D::DrawQuad(DEV_TEXTURE tex)
 {
-	if( _vaSize > VERTEX_BUFFER_SIZE - 4 ||
-		_iaSize > INDEX_BUFFER_SIZE  - 6 )
+	if( _curtex != tex.ptr )
+	{
+		if( _iaSize ) _flush();
+		_curtex = ((IDirect3DTexture9 *) tex.ptr);
+		V(_pd3dDevice->SetTexture(0, _curtex));
+	}
+	if( _vaSize > VERTEX_BUFFER_SIZE - 4 || _iaSize > INDEX_BUFFER_SIZE  - 6 )
 	{
 		_flush();
 	}
