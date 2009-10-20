@@ -32,13 +32,14 @@ GC_Pickup::GC_Pickup(float x, float y)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
-	SetAutoSwitch(true);
-	SetRespawn(false);
-	SetBlinking(false);
 
 	SetShadow(true);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(Z_FREE_ITEM);
+
+	SetAutoSwitch(true);
+	SetRespawn(false);
+	SetBlinking(false);
 }
 
 GC_Pickup::GC_Pickup(FromFile)
