@@ -29,12 +29,12 @@ GC_Pickup::GC_Pickup(float x, float y)
   , _timeRespawn(0)
   , _timeAnimation(0)
   , _timeAttached(0)
-  , _autoSwitch(true)
-  , _respawn(false)
-  , _blink(false)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
+	SetAutoSwitch(true);
+	SetRespawn(false);
+	SetBlinking(false);
 
 	SetShadow(true);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
@@ -62,9 +62,6 @@ void GC_Pickup::Serialize(SaveFile &f)
 	GC_2dSprite::Serialize(f);
 
 	f.Serialize(_owner);
-	f.Serialize(_blink);
-	f.Serialize(_autoSwitch);
-	f.Serialize(_respawn);
 	f.Serialize(_timeAttached);
 	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
@@ -86,7 +83,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 		{
 			if( (GetPos() - veh->GetPos()).sqr() < r_sq )
 			{
-				if( _autoSwitch || veh->_stateReal._bState_AllowDrop )
+				if( GetAutoSwitch() || veh->_stateReal._bState_AllowDrop )
 					return veh;
 			}
 		}
@@ -161,15 +158,10 @@ float GC_Pickup::GetRespawnTime() const
 	return _timeRespawn;
 }
 
-void GC_Pickup::SetAutoSwitch(bool autoSwitch)
-{
-	_autoSwitch = autoSwitch;
-}
-
 void GC_Pickup::SetBlinking(bool blink)
 {
 	assert(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FLOATING));
-	_blink = blink;
+	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 
 void GC_Pickup::TimeStepFloat(float dt)
@@ -238,7 +230,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 
 void GC_Pickup::Draw() const
 {
-	if( !_blink || fmodf(_timeAnimation, 0.16f) > 0.08f || g_level->_modeEditor )
+	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || g_level->_modeEditor )
 	{
 		__super::Draw();
 	}

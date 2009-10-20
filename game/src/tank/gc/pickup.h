@@ -17,6 +17,11 @@ class GC_RigidBodyStatic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 1)
+
 class GC_Pickup : public GC_2dSprite
 {
 	MemberOfGlobalList<LIST_pickups> _memberOf;
@@ -46,9 +51,6 @@ private:
 	float  _timeAttached;
 	float  _timeAnimation;
 	float  _timeRespawn;
-	bool   _autoSwitch;
-	bool   _respawn;    // flag indicates that item will be respawned in the original position
-	bool   _blink;      // item is blinking
 
 protected:
 	virtual void Respawn();
@@ -71,10 +73,11 @@ public:
 	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;
 
-	void SetRespawn(bool respawn) { _respawn = respawn; }
-	bool GetRespawn() const       { return _respawn;    }
+	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
+	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
 
-	void SetAutoSwitch(bool autoSwitch);
+	void SetAutoSwitch(bool autoSwitch) { SetFlags(GC_FLAG_PICKUP_AUTO, autoSwitch); }
+	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
 
 	float GetTimeAnimation() const { return _timeAnimation; }
 	float GetTimeAttached() const { return _timeAttached; }
@@ -87,7 +90,7 @@ public:
 	GC_Pickup(FromFile);
 
 	void SetBlinking(bool blink);
-	bool GetBlinking() const { return _blink; }
+	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// оценка полезности предмета для данного танка.
 	// если 0, то предмет бесполезен и его не нужно брать
