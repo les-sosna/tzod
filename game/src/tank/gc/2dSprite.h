@@ -32,7 +32,7 @@ class GC_2dSprite : public GC_Actor
 	DECLARE_SELF_REGISTRATION(GC_2dSprite);
 
 private:
-	float  _rotation;
+	vec2d _direction;
 
 	SpriteColor  _color;
 	size_t _texId;
@@ -67,12 +67,14 @@ public:
 
 	void SetFrame(int nFrame);
 
-	inline void SetSpriteRotation(float a) { _rotation = a; }
+	inline void SetSpriteRotation(float a) { _direction = vec2d(a); }
 	inline void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
 	inline void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
 	inline void SetColor(BYTE r, BYTE g, BYTE b) { _color.r=r; _color.g=g; _color.b=b; }
 
-	inline float GetSpriteRotation() const { return _rotation; }
+	__declspec(deprecated) inline float GetSpriteRotation() const { return _direction.Angle(); }
+
+	inline const vec2d& GetDirection() const { return _direction; }
 
 
 	inline void SetShadow(bool bEnable)

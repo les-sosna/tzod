@@ -879,6 +879,8 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	                                vec2d *ht,
 	                                vec2d *norm ) const
 {
+	DbgLine(x0, x0 + a);
+
 	vec2d hit;
 	float nx, ny;
 
@@ -1456,7 +1458,7 @@ void Level::RenderInternal(float zoom) const
 	}
 }
 
-void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color)
+void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 {
 #ifdef _DEBUG
 	_dbgLineBuffer.push_back(MyLine());

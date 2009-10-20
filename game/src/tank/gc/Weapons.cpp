@@ -70,7 +70,7 @@ void GC_Weapon::MyPropertySet::MyExchange(bool applyToObject)
 
 GC_Weapon::GC_Weapon(float x, float y)
   : GC_Pickup(x, y)
-  , _rotator(_angleReal)
+  , _rotatorWeap(_angleReal)
   , _advanced(false)
   , _feTime(1.0f)
   , _feOrient(0)
@@ -110,7 +110,7 @@ void GC_Weapon::Attach(GC_Actor *actor)
 	SetZ(Z_ATTACHED_ITEM);
 
 	_rotateSound = WrapRawPtr(new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos()));
-	_rotator.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
+	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	SetVisible(true);
 	SetBlinking(false);
@@ -153,26 +153,25 @@ void GC_Weapon::Detach()
 
 void GC_Weapon::ProcessRotate(float dt)
 {
-	if( IsAttached() )
+	assert(IsAttached());
+	_rotatorWeap.process_dt(dt);
+	const VehicleState &vs = static_cast<GC_Vehicle*>(GetOwner())->_stateReal;
+	if( vs._bExplicitTower )
 	{
-		const VehicleState &vs = static_cast<GC_Vehicle*>(GetOwner())->_stateReal;
-		if( vs._bExplicitTower )
-		{
-			_rotator.rotate_to( vs._fTowerAngle );
-		}
-		else
-		{
-			if( vs._bState_TowerCenter )
-				_rotator.rotate_to( 0.0f );
-			else if( vs._bState_TowerLeft )
-				_rotator.rotate_left();
-			else if( vs._bState_TowerRight )
-				_rotator.rotate_right();
-			else if( RS_GETTING_ANGLE != _rotator.GetState() )
-				_rotator.stop();
-		}
-		_rotator.setup_sound(GetRawPtr(_rotateSound));
+		_rotatorWeap.rotate_to( vs._fTowerAngle );
 	}
+	else
+	{
+		if( vs._bState_TowerCenter )
+			_rotatorWeap.rotate_to( 0.0f );
+		else if( vs._bState_TowerLeft )
+			_rotatorWeap.rotate_left();
+		else if( vs._bState_TowerRight )
+			_rotatorWeap.rotate_right();
+		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
+			_rotatorWeap.stop();
+	}
+	_rotatorWeap.setup_sound(GetRawPtr(_rotateSound));
 }
 
 void GC_Weapon::SetCrosshair()
@@ -182,7 +181,7 @@ void GC_Weapon::SetCrosshair()
 
 GC_Weapon::GC_Weapon(FromFile)
   : GC_Pickup(FromFile())
-  , _rotator(_angleReal)
+  , _rotatorWeap(_angleReal)
 {
 }
 
@@ -194,7 +193,7 @@ void GC_Weapon::Serialize(SaveFile &f)
 {
 	GC_Pickup::Serialize(f);
 
-	_rotator.Serialize(f);
+	_rotatorWeap.Serialize(f);
 
 	f.Serialize(_angleReal);
 	f.Serialize(_advanced);
@@ -241,8 +240,7 @@ void GC_Weapon::UpdateView()
 
 			float s = sinf(a);
 			float c = cosf(a);
-			_fireEffect->MoveTo(GetPosPredicted() +
-				vec2d(_fePos.x*c + _fePos.y*s, _fePos.x*s - _fePos.y*c));
+			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos.x*c + _fePos.y*s, _fePos.x*s - _fePos.y*c));
 
 			_fireLight->MoveTo(_fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
@@ -265,7 +263,6 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		_rotator.process_dt(dt);
 		ProcessRotate(dt);
 		UpdateView();
 		if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
@@ -383,8 +380,8 @@ void GC_Weap_RocketLauncher::Fire()
 						  vec2d(a + dang) * SPEED_ROCKET,
 						  static_cast<GC_Vehicle*>(GetOwner()), _advanced );
 
-			_time    = 0;
-			_nshots  = 0;
+			_time   = 0;
+			_nshots = 0;
 			_firing = false;
 
 			_fireEffect->SetVisible(true);
@@ -434,7 +431,7 @@ void GC_Weap_RocketLauncher::Fire()
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.2f;
+	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_ROCKET;
 	pSettings->fAttackRadius_max  = 600.0f;
 	pSettings->fAttackRadius_min  = 100.0f;
@@ -553,10 +550,9 @@ void GC_Weap_AutoCannon::Serialize(SaveFile &f)
 
 void GC_Weap_AutoCannon::Fire()
 {
-	float a = static_cast<GC_Vehicle*>(GetOwner())->GetSpriteRotation() + _angleReal;
-
 	if( _firing && IsAttached() )
 	{
+		float a = static_cast<GC_Vehicle*>(GetOwner())->GetSpriteRotation() + _angleReal;
 		if( _advanced )
 		{
 			if( _time >= _time_shot )
@@ -615,7 +611,7 @@ void GC_Weap_AutoCannon::Fire()
 void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.1f;
+	pSettings->fMaxAttackAngleCos = cos(0.1f);
 	pSettings->fProjectileSpeed   = SPEED_ACBULLET;
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
@@ -728,7 +724,7 @@ void GC_Weap_Cannon::Fire()
 void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.1f;
+	pSettings->fMaxAttackAngleCos = cos(0.1f);
 	pSettings->fProjectileSpeed   = SPEED_TANKBULLET;
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
@@ -742,16 +738,14 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( !IsAttached() ) return;
-
-	if( _time_smoke > 0 )
+	if( IsAttached() && _time_smoke > 0 )
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
 
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			vec2d a(static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetSpriteRotation() + _angleReal);
+			vec2d a = Vec2dSumDirection(static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetDirection(), vec2d(_angleReal));
 			new GC_Particle(GetPosPredicted() + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
 		}
 	}
@@ -819,7 +813,7 @@ void GC_Weap_Plazma::Fire()
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.2f;
+	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_PLAZMA;
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
@@ -891,7 +885,7 @@ void GC_Weap_Gauss::Fire()
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = FALSE;
-	pSettings->fMaxAttackAngle    = 0.01f;
+	pSettings->fMaxAttackAngleCos = cos(0.01f);
 	pSettings->fProjectileSpeed   = 0;
 	pSettings->fAttackRadius_max  = 800;
 	pSettings->fAttackRadius_min  = 400;
@@ -988,7 +982,7 @@ GC_Weap_Ram::~GC_Weap_Ram()
 void GC_Weap_Ram::UpdateView()
 {
 	GC_Weapon::UpdateView();
-	_engineLight->MoveTo(GetPosPredicted()-vec2d(GetSpriteRotation())*20);
+	_engineLight->MoveTo(GetPosPredicted() - GetDirection() * 20);
 }
 
 void GC_Weap_Ram::Serialize(SaveFile &f)
@@ -1020,7 +1014,7 @@ void GC_Weap_Ram::Fire()
 		_firingCounter = 2;
 		if( GC_RigidBodyDynamic *owner = dynamic_cast<GC_RigidBodyDynamic *>(GetOwner()) )
 		{
-			owner->ApplyForce( vec2d(_angleReal + owner->_angle) * 2000 );
+			owner->ApplyForce( vec2d(owner->GetSpriteRotation() + _angleReal) * 2000 );
 		}
 	}
 }
@@ -1028,7 +1022,7 @@ void GC_Weap_Ram::Fire()
 void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = FALSE;
-	pSettings->fMaxAttackAngle    = 0.3f;
+	pSettings->fMaxAttackAngleCos = cos(0.3f);
 	pSettings->fProjectileSpeed   = 0;
 	pSettings->fAttackRadius_max  = 100;
 	pSettings->fAttackRadius_min  = 0;
@@ -1109,7 +1103,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			// основна€ стру€
 			{
 				const float lenght = 50.0f;
-				vec2d a(veh->_angle + _angleReal);
+				vec2d a(veh->GetSpriteRotation() + _angleReal);
 				vec2d emitter = GetPos() - a * 20.0f;
 				vec2d hit;
 				GC_RigidBodyStatic *object = g_level->agTrace (
@@ -1125,7 +1119,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			for( float l = -1; l < 2; l += 2 )
 			{
 				const float lenght = 50.0f;
-				vec2d a(veh->_angle + _angleReal + l * 0.15f);
+				vec2d a(veh->GetSpriteRotation() + _angleReal + l * 0.15f);
 				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 				vec2d hit;
 				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s,
@@ -1219,7 +1213,7 @@ void GC_Weap_BFG::Fire()
 		if( _time_ready >= 0.7f || _advanced )
 		{
 			GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
-			vec2d a((veh ? veh->_angle : 0) + _angleReal);
+			vec2d a((veh ? veh->GetSpriteRotation() : 0) + _angleReal);
 
 			new GC_BfgCore(GetPos() + a * 16.0f, a * SPEED_BFGCORE,
 				dynamic_cast<GC_RigidBodyStatic*>(GetOwner()), _advanced );
@@ -1233,7 +1227,7 @@ void GC_Weap_BFG::Fire()
 void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.01f;
+	pSettings->fMaxAttackAngleCos = cos(0.01f);
 	pSettings->fProjectileSpeed   = SPEED_BFGCORE;
 	pSettings->fAttackRadius_max  = 600;
 	pSettings->fAttackRadius_min  = 200;
@@ -1320,7 +1314,7 @@ void GC_Weap_Ripper::Fire()
 	if( IsAttached() && _time >= _timeReload )
 	{
 		GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(GetOwner());
-		vec2d a((veh ? veh->_angle : 0) + _angleReal);
+		vec2d a((veh ? veh->GetSpriteRotation() : 0) + _angleReal);
 
 		new GC_Disk(GetPos() - a * 9.0f, a * SPEED_DISK + g_level->net_vrand(10),
 			dynamic_cast<GC_RigidBodyStatic*>(GetOwner()), _advanced );
@@ -1333,7 +1327,7 @@ void GC_Weap_Ripper::Fire()
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.2f;
+	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_DISK;
 	pSettings->fAttackRadius_max  = 700;
 	pSettings->fAttackRadius_min  = 500;
@@ -1466,7 +1460,7 @@ void GC_Weap_Minigun::Fire()
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.3f;
+	pSettings->fMaxAttackAngleCos = cos(0.3f);
 	pSettings->fProjectileSpeed   = SPEED_BULLET;
 	pSettings->fAttackRadius_max  = 200;
 	pSettings->fAttackRadius_min  = 100;
@@ -1500,7 +1494,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
-				vec2d a(veh->_angle + _angleReal + g_level->net_frand(da * 2.0f) - da);
+				vec2d a(veh->GetSpriteRotation() + _angleReal + g_level->net_frand(da * 2.0f) - da);
 				a *= (1 - g_level->net_frand(0.2f));
 
 				if( veh && !_advanced )
@@ -1611,7 +1605,7 @@ void GC_Weap_Zippo::Fire()
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = TRUE;
-	pSettings->fMaxAttackAngle    = 0.5f;
+	pSettings->fMaxAttackAngleCos = cos(0.5f);
 	pSettings->fProjectileSpeed   = SPEED_FIRE;
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
@@ -1625,7 +1619,7 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		float va = veh ? veh->_angle : 0;
+		float va = veh ? veh->GetSpriteRotation() : 0;
 		vec2d vvel = veh ? veh->_lv : vec2d(0,0);
 
 		if( _bFire )

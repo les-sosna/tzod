@@ -108,7 +108,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 				float rr = (GetPos() - veh->GetPos()).sqr();
 				if( rr < rr_min )
 				{
-					if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->_radius * veh->_radius )
+					if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->GetRadius() * veh->GetRadius() )
 					{
 						if( !GetVisible(veh) ) continue; // vehicle is invisible. skipping
 					}
@@ -158,7 +158,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 		float rr = (GetPos() - _veh->GetPos()).sqr();
 		float r = (_radius + _radiusDelta) * CELL_SIZE;
 		if( rr > r*r || CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
-			&& rr > _veh->_radius * _veh->_radius && !GetVisible(GetRawPtr(_veh)) )
+			&& rr > _veh->GetRadius() * _veh->GetRadius() && !GetVisible(GetRawPtr(_veh)) )
 		{
 			script_exec(g_env.L, _onLeave.c_str());
 			_veh = NULL;

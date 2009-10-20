@@ -36,10 +36,10 @@ private:
 	float  _timeout;
 	float  _aspect;
 	float  _offset;
-	float  _angle;
 	float  _radius;
 	float  _intensity;
 	enumLightType _type;
+	vec2d  _lightDirection;
 
 	SafePtr<GC_UserSprite> _lamp;
 
@@ -70,9 +70,13 @@ public:
 		else
 			_radius = r;
 	}
-	void SetAngle(float a)
+	__declspec(deprecated) void SetAngle(float a)
 	{
-		_angle = a;
+		_lightDirection = vec2d(a);
+	}
+	void SetLightDirection(const vec2d &d)
+	{
+		_lightDirection = d;
 	}
 	void SetOffset(float o)
 	{

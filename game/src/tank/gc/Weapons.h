@@ -8,7 +8,7 @@
 
 struct AIWEAPSETTINGS
 {
-	float fMaxAttackAngle;     // максимальный прицельный угол
+	float fMaxAttackAngleCos;
 	float fProjectileSpeed;    // скорость снаряда
 	float fAttackRadius_min;   // минимальный радиус атаки
 	float fAttackRadius_max;   // максимальный радиус атаки
@@ -57,7 +57,7 @@ public:
 	float _timeReload;
 
 	float    _angleReal;          // note that sprite rotation is predicted angle
-	Rotator  _rotator;
+	Rotator  _rotatorWeap;
 
 	SafePtr<GC_Crosshair> _crosshair;
 	SafePtr<GC_Sound>     _rotateSound;

@@ -635,22 +635,11 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			vec2d pt;
 			if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
 			{
-				float ang2 = (pt - GetVehicle()->GetPos()).Angle();
-				float ang1 = GetVehicle()->_angle;
-
-				float d1 = fabsf(ang2-ang1);
-				float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-
-				if( __min(d1, d2) * 2 > PI )
+				vec2d tmp = pt - GetVehicle()->GetPos();
+				tmp.Normalize();
+				if( tmp * GetVehicle()->GetDirection() < 0 )
 				{
-					ang2 -= PI;
-
-					if( ang2 < 0 )
-						ang2 += PI2;
-
-					d1 = fabsf(ang2-ang1);
-					d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-
+					tmp = -tmp;
 					vs._bState_MoveBack    = true;
 				}
 				else
@@ -659,64 +648,29 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 				}
 
 				vs._bExplicitBody = true;
-				vs._fBodyAngle = ang2;
+				vs._fBodyAngle = tmp.Angle();
 			}
 		}
 		else if( _arcadeStyle )
 		{
-			const int FORWARD = 0x01;
-			const int BACK = 0x02;
-			const int LEFT = 0x04;
-			const int RIGHT = 0x08;
+			vec2d tmp(0, 0);
+			if( g_env.envInputs.keys[_keyForward] ) tmp.y -= 1;
+			if( g_env.envInputs.keys[_keyBack]    ) tmp.y += 1;
+			if( g_env.envInputs.keys[_keyLeft]    ) tmp.x -= 1;
+			if( g_env.envInputs.keys[_keyRight]   ) tmp.x += 1;
+			tmp.Normalize();
 
-			int flags = 0;
-			flags |= g_env.envInputs.keys[_keyForward] ? FORWARD : 0;
-			flags |= g_env.envInputs.keys[_keyBack]    ? BACK    : 0;
-			flags |= g_env.envInputs.keys[_keyLeft]    ? LEFT    : 0;
-			flags |= g_env.envInputs.keys[_keyRight]   ? RIGHT   : 0;
+			bool move = tmp.x || tmp.y;
+			bool sameDirection = tmp * GetVehicle()->GetDirection() > cos(PI/4);
 
-			float ang2 = 0;
-			switch( flags )
-			{
-				case RIGHT:              ang2 = 0;          break;
-				case BACK|RIGHT:         ang2 = PI * 1/4;   break;
-				case BACK:               ang2 = PI * 2/4;   break;
-				case BACK|LEFT:          ang2 = PI * 3/4;   break;
-				case LEFT:               ang2 = PI * 4/4;   break;
-				case LEFT|FORWARD:       ang2 = PI * 5/4;   break;
-				case FORWARD:            ang2 = PI * 6/4;   break;
-				case FORWARD|RIGHT:      ang2 = PI * 7/4;   break;
-				default:                 flags = 0;         break;
-			}
-			float ang1 = GetVehicle()->_angle;
-			float d1 = fabsf(ang2-ang1);
-			float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-			float d = std::min(d1, d2);
+			bool bBack = move && !sameDirection && NULL != g_level->agTrace(g_level->grid_rigid_s, GetVehicle(), 
+				GetVehicle()->GetPos(), GetVehicle()->GetDirection() * GetVehicle()->GetRadius());
+			bool bForv = move && !bBack;
 
-
-
-			bool bBack = false;
-			if( flags && d > PI/4 )
-			{
-				vec2d tmp = vec2d(GetVehicle()->GetSpriteRotation());
-				vec2d x0 = GetVehicle()->GetPos();
-				vec2d a  = tmp * GetVehicle()->GetRadius();
-				if( g_level->agTrace(g_level->grid_rigid_s, GetVehicle(), x0, a) )
-				{
-					bBack = flags != 0;
-				}
-				g_level->DbgLine(x0, x0 + a);
-			}
-
-
-
-
-			bool bForv = flags != 0 && !bBack;
-
-			vs._bState_MoveForward = d < PI/4 && bForv;
+			vs._bState_MoveForward = sameDirection && bForv;
 			vs._bState_MoveBack = bBack;
-			vs._bExplicitBody = bForv || bBack;
-			vs._fBodyAngle = ang2;
+			vs._bExplicitBody = move;
+			vs._fBodyAngle = tmp.Angle();
 		}
 		else
 		{
@@ -743,7 +697,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			{
 				float a = (pt - GetVehicle()->GetPos()).Angle();
 				vs._bExplicitTower = true;
-				vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation();
+				vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation() - GetVehicle()->GetSpinup();
 			}
 		}
 		else

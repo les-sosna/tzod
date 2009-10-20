@@ -445,7 +445,7 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 
 void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
 {
-	DrawSprite(sprite, frame, color, dst->left, dst->top, dst->right - dst->left, dst->bottom - dst->top, 0);
+	DrawSprite(sprite, frame, color, dst->left, dst->top, dst->right - dst->left, dst->bottom - dst->top, vec2d(1,0));
 }
 
 void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
@@ -722,15 +722,12 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	}
 }
 
-void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const
+void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir) const
 {
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
 	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
-
-	float c = cosf(rot);
-	float s = sinf(rot);
 
 	float width = lt.pxFrameWidth;
 	float height = lt.pxFrameHeight;
@@ -742,65 +739,61 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px * c + py * s;
-	v[0].y = y - px * s - py * c;
+	v[0].x = x - px * dir.x + py * dir.y;
+	v[0].y = y - px * dir.y - py * dir.x;
 
 	v[1].color = color;
 	v[1].u = rt.right;
 	v[1].v = rt.top;
-	v[1].x = x + (width - px) * c + py * s;
-	v[1].y = y + (width - px) * s - py * c;
+	v[1].x = x + (width - px) * dir.x + py * dir.y;
+	v[1].y = y + (width - px) * dir.y - py * dir.x;
 
 	v[2].color = color;
 	v[2].u = rt.right;
 	v[2].v = rt.bottom;
-	v[2].x = x + (width - px) * c - (height - py) * s;
-	v[2].y = y + (width - px) * s + (height - py) * c;
+	v[2].x = x + (width - px) * dir.x - (height - py) * dir.y;
+	v[2].y = y + (width - px) * dir.y + (height - py) * dir.x;
 
 	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px * c - (height - py) * s;
-	v[3].y = y - px * s + (height - py) * c;
+	v[3].x = x - px * dir.x - (height - py) * dir.y;
+	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
-void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, float rot) const
+void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir) const
 {
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
 	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
 
-	float c = cosf(rot);
-	float s = sinf(rot);
-
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
-
 
 	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px * c + py * s;
-	v[0].y = y - px * s - py * c;
+	v[0].x = x - px * dir.x + py * dir.y;
+	v[0].y = y - px * dir.y - py * dir.x;
 
 	v[1].color = color;
 	v[1].u = rt.right;
 	v[1].v = rt.top;
-	v[1].x = x + (width - px) * c + py * s;
-	v[1].y = y + (width - px) * s - py * c;
+	v[1].x = x + (width - px) * dir.x + py * dir.y;
+	v[1].y = y + (width - px) * dir.y - py * dir.x;
 
 	v[2].color = color;
 	v[2].u = rt.right;
 	v[2].v = rt.bottom;
-	v[2].x = x + (width - px) * c - (height - py) * s;
-	v[2].y = y + (width - px) * s + (height - py) * c;
+	v[2].x = x + (width - px) * dir.x - (height - py) * dir.y;
+	v[2].y = y + (width - px) * dir.y + (height - py) * dir.x;
 
 	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px * c - (height - py) * s;
-	v[3].y = y - px * s + (height - py) * c;
+	v[3].x = x - px * dir.x - (height - py) * dir.y;
+	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
 void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) const

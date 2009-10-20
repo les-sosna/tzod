@@ -276,7 +276,7 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, 0);
+		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, vec2d(1,0));
 	}
 
 	// grid
@@ -287,7 +287,7 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, 0);
+			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
 			char buf[64];
 			sprintf_s(buf, "%.3g", y);
 			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
@@ -296,7 +296,7 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 	}
 	else
 	{
-		dc->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, 0);
+		dc->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, vec2d(1,0));
 	}
 
 	dc->DrawBitmapText(sx, sy - labelOffset, _titleFont, 0x77777777, _title);

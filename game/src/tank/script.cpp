@@ -440,25 +440,8 @@ int luaT_ConvertVehicleClass(lua_State *L)
 	// get bounds
 	//
 
-	lua_getfield(L, 1, "bounds");
-	if( !lua_istable(L, -1) )
-	{
-		return luaL_error(L, "absent mandatory table field 'bounds'");
-	}
-
-	for( int i = 1; i <= 4; i++ )
-	{
-		lua_pushinteger(L, i); // push key
-		lua_gettable(L, -2);   // pop key and push value
-		if( !lua_istable(L, -1) )
-		{
-			return luaL_error(L, "table expected at bounds[%d]", i);
-		}
-		get_array(L, (float*) (vc.bounds + i-1), 2);
-		lua_pop(L, 1); // pop result of gettable
-	}
-
-	lua_pop(L, 1); // pop result of getfield(bounds)
+	get_numeric(L, "width",   vc.width);
+	get_numeric(L, "length",  vc.length);
 
 
 	//

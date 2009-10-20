@@ -68,8 +68,6 @@ public:
 	vec2d GetBrakingLength() const;
 
 public:
-	float _angle;   // current rotation // FIXME: make private
-
 	GC_RigidBodyDynamic();
 	GC_RigidBodyDynamic(FromFile);
 
@@ -114,9 +112,6 @@ public:
 	void ApplyImpulse(const vec2d &impulse);
 	void ApplyImpulse(const vec2d &impulse, const vec2d &origin);
 
-	virtual void SetBodyAngle(float a);
-
-
 	//--------------------------------
 
 #ifdef NETWORK_DEBUG
@@ -124,7 +119,6 @@ public:
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(_av);
-		cs ^= reinterpret_cast<const DWORD&>(_angle);
 		cs ^= reinterpret_cast<const DWORD&>(_lv.x) ^ reinterpret_cast<const DWORD&>(_lv.y);
 		cs ^= reinterpret_cast<const DWORD&>(_inv_m) ^ reinterpret_cast<const DWORD&>(_inv_i);
 

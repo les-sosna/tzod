@@ -164,7 +164,7 @@ void GC_ParticleScaled::Serialize(SaveFile &f)
 void GC_ParticleScaled::Draw() const
 {
 	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), 
-		GetPos().x, GetPos().y, _size, _size, GetSpriteRotation());
+		GetPos().x, GetPos().y, _size, _size, GetDirection());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

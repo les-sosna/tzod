@@ -598,23 +598,19 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 {
 	assert(!_isnan(x.x) && !_isnan(x.y));
 	assert(_finite(x.x) && _finite(x.y));
+	assert(GetVehicle());
 
-	float ang2 = (x - GetVehicle()->GetPos()).Angle();
-	float ang1 = GetVehicle()->_angle;
+	vec2d tmp = x - GetVehicle()->GetPos();
+	tmp.Normalize();
 
-	float d1 = fabsf(ang2-ang1);
-	float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
+	float cosDiff = tmp * GetVehicle()->GetDirection();
+	float minDiff = std::cos(MIN_PATH_ANGLE);
 
-	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bForv )
-	{
-		pState->_bState_MoveForward = true;
-	}
-
-	if( (d1 < MIN_PATH_ANGLE || d2 < MIN_PATH_ANGLE) && bBack )
-		pState->_bState_MoveBack = true;
+	pState->_bState_MoveForward = cosDiff > minDiff && bForv;
+	pState->_bState_MoveBack = cosDiff > minDiff && bBack;
 
 	pState->_bExplicitBody = true;
-	pState->_fBodyAngle = ang2;
+	pState->_fBodyAngle = tmp.Angle();
 }
 
 void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws)
@@ -622,22 +618,15 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	assert(GetVehicle());
 	assert(GetVehicle()->GetWeapon());
 
-	float ang2 = (x - GetVehicle()->GetPos()).Angle() + _currentOffset;
-	float ang1 = GetVehicle()->_angle + GetVehicle()->GetWeapon()->_angleReal;
-	if( ang1 > PI2 ) ang1 -= PI2;
+	vec2d tmp = x - GetVehicle()->GetPos();
+	tmp.Normalize();
+	tmp = Vec2dSumDirection(tmp, vec2d(_currentOffset));
 
+	float cosDiff = tmp * Vec2dSumDirection(GetVehicle()->GetDirection(), vec2d(GetVehicle()->GetWeapon()->_angleReal));
 
-	float d1 = fabsf(ang2-ang1);
-	float d2 = ang1 < ang2 ? ang1-ang2+PI2 : ang2-ang1+PI2;
-
-	if( (d1 < ws->fMaxAttackAngle ||
-		 d2 < ws->fMaxAttackAngle) && bFire)
-	{
-		pState->_bState_Fire = true;
-	}
-
+	pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 	pState->_bExplicitTower = true;
-	pState->_fTowerAngle = ang2 - GetVehicle()->_angle - GetVehicle()->GetSpinup();
+	pState->_fTowerAngle = tmp.Angle() - GetVehicle()->GetSpriteRotation() - GetVehicle()->GetSpinup();
 	//--------------------------------
 	assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
 }
@@ -820,20 +809,18 @@ void GC_PlayerAI::SelectFavoriteWeapon()
 void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 {
 	ASSERT_TYPE(target, GC_Vehicle);
-
-	float c = cosf(target->_angle);
-	float s = sinf(target->_angle);
-
-	float x = (target->GetPos().x - GetVehicle()->GetPos().x) * c +
-	          (target->GetPos().y - GetVehicle()->GetPos().y) * s;
-	float y = (target->GetPos().y - GetVehicle()->GetPos().y) * c -
-	          (target->GetPos().x - GetVehicle()->GetPos().x) * s;
-
 	float Vt = target->_lv.len();
-
 	if( Vt < Vp )
 	{
-		float fx = x + Vt * (x * Vt + sqrtf(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
+		float c = target->GetDirection().x;
+		float s = target->GetDirection().y;
+
+		float x = (target->GetPos().x - GetVehicle()->GetPos().x) * c +
+		          (target->GetPos().y - GetVehicle()->GetPos().y) * s;
+		float y = (target->GetPos().y - GetVehicle()->GetPos().y) * c -
+		          (target->GetPos().x - GetVehicle()->GetPos().x) * s;
+
+		float fx = x + Vt * (x * Vt + sqrt(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
 
 		fake.x = GetVehicle()->GetPos().x + fx * c - y * s;
 		fake.y = GetVehicle()->GetPos().y + fx * s + y * c;
@@ -1035,7 +1022,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	float brake_len = brake.len();
 	float brakeSqr = brake.sqr();
 
-	vec2d currentDir = GetVehicle()->_direction;
+	vec2d currentDir = GetVehicle()->GetDirection();
 	vec2d currentPos = GetVehicle()->GetPos();
 	vec2d predictedPos = GetVehicle()->GetPos() + brake;
 
@@ -1204,8 +1191,6 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
 			vec2d a  = brake * len[i];
-
-			g_level->DbgLine(x0, x0 + a);
 
 			vec2d hit, norm;
 			GC_Object *o = g_level->agTrace(

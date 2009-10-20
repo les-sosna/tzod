@@ -21,10 +21,11 @@ GC_RigidBodyStatic::GC_RigidBodyStatic()
   : GC_2dSprite()
   , _health(1)
   , _health_max(1)
-  , _direction(1, 0)
+  , _radius(0)
+  , _width(0)
+  , _length(0)
 {
 	AddContext(&g_level->grid_rigid_s);
-	ZeroMemory(&_vertices, sizeof(_vertices));
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
@@ -97,17 +98,14 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBody
 
 void GC_RigidBodyStatic::AlignToTexture()
 {
-	_vertices[0].x =  GetSpriteWidth()  * 0.5f;
-	_vertices[0].y = -GetSpriteHeight() * 0.5f;
-	_vertices[1].x =  GetSpriteWidth()  * 0.5f;
-	_vertices[1].y =  GetSpriteHeight() * 0.5f;
-	_vertices[2].x = -GetSpriteWidth()  * 0.5f;
-	_vertices[2].y =  GetSpriteHeight() * 0.5f;
-	_vertices[3].x = -GetSpriteWidth()  * 0.5f;
-	_vertices[3].y = -GetSpriteHeight() * 0.5f;
+	SetSize(GetSpriteHeight(), GetSpriteWidth());
+}
 
-	_radius = sqrtf( GetSpriteWidth() * GetSpriteWidth()
-		+ GetSpriteHeight() * GetSpriteHeight() ) * 0.5f;
+void GC_RigidBodyStatic::SetSize(float width, float length)
+{
+	_width = width;
+	_length = length;
+	_radius = sqrt(width*width + length*length) / 2;
 }
 
 void GC_RigidBodyStatic::MapExchange(MapFile &f)
@@ -134,8 +132,8 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 	f.Serialize(_health);
 	f.Serialize(_health_max);
 	f.Serialize(_radius);
-	f.Serialize(_direction);
-	f.SerializeArray(_vertices, 4);
+	f.Serialize(_width);
+	f.Serialize(_length);
 
 	if( !IsKilled() && f.loading() && GetPassability() > 0 )
 		g_level->_field.ProcessObject(this, true);
@@ -399,10 +397,11 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 
 	SetTexture(GetCornerTexture(index));
 	AlignToTexture();
-	if( 0 != index )
-	{
-		_vertices[index&3].Set(0,0);
-	}
+	// FIXME: corner
+//	if( 0 != index )
+//	{
+//		_vertices[index&3].Set(0,0);
+//	}
 
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
@@ -712,11 +711,10 @@ void GC_Water::Draw() const
 	{
 		if( 0 == (_tile & (1 << i)) )
 		{
-			g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], 0);
+			g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
 		}
 	}
-
-	g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, 0);
+	g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
 }
 
 void GC_Water::SetTile(char nTile, bool value)

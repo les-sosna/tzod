@@ -22,7 +22,8 @@ struct VehicleClass
 	float percussion;
 	float fragility;
 
-	vec2d bounds[4];
+	float length;
+	float width;
 
 	float m, i;
 
@@ -102,9 +103,7 @@ public:
 	void SetPredictedState(const VehicleState &vs);
 	const VehicleState& GetPredictedState() const { return _statePredicted; }
 	GC_VehicleVisualDummy* GetVisual() const { return GetRawPtr(_visual); }
-
-	// GC_RigidBodyDynamic
-	virtual void SetBodyAngle(float a);
+	void SetBodyAngle(float a);
 
 	// GC_RigidBodyStatic
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);

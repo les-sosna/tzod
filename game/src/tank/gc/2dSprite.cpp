@@ -35,7 +35,7 @@ GC_2dSprite::GC_2dSprite()
   : GC_Actor()
   , _zOrderPrefered(Z_NONE)
   , _zOrderCurrent(Z_NONE)
-  , _rotation(0)
+  , _direction(1, 0)
   , _color(0xffffffff)
   , _texId(0)
   , _frame(0)
@@ -59,7 +59,7 @@ void GC_2dSprite::Serialize(SaveFile &f)
 
 	f.Serialize(_color);
 	f.Serialize(_frame);
-	f.Serialize(_rotation);
+	f.Serialize(_direction);
 	f.Serialize(_texId);
 	f.Serialize(_zOrderCurrent);
 	f.Serialize(_zOrderPrefered);
@@ -185,10 +185,10 @@ void GC_2dSprite::Draw() const
 	{
 		SpriteColor tmp_color = 0x00000000;
 		tmp_color.a = _color.a >> 2;
-		g_texman->DrawSprite(_texId, _frame, tmp_color, pos.x + 4, pos.y + 4, _rotation);
+		g_texman->DrawSprite(_texId, _frame, tmp_color, pos.x + 4, pos.y + 4, _direction);
 	}
 
-	g_texman->DrawSprite(_texId, _frame, _color, pos.x, pos.y, _rotation);
+	g_texman->DrawSprite(_texId, _frame, _color, pos.x, pos.y, _direction);
 }
 
 

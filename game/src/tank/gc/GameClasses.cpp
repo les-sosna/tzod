@@ -119,14 +119,14 @@ void GC_Wood::Draw() const
 		{
 			if( 0 == (_tile & (1 << i)) )
 			{
-				g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], 0);
+				g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
 			}
 		}
-		g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, 0);
+		g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
 	}
 	else
 	{
-		g_texman->DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, 0);
+		g_texman->DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, GetDirection());
 	}
 }
 

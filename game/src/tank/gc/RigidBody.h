@@ -54,16 +54,24 @@ public:
 	float GetRadius() const { return _radius; }
 	void AlignToTexture();
 
-	inline vec2d GetVertex(int index) const
+	__declspec(deprecated) vec2d GetVertex(int index) const
 	{
-		assert(index >= 0 && index < 4);
+		float x, y;
+		switch( index )
+		{
+		case 0: x =  _length / 2; y =  _width / 2; break;
+		case 1: x = -_length / 2; y =  _width / 2; break;
+		case 2: x = -_length / 2; y = -_width / 2; break;
+		case 3: x =  _length / 2; y = -_width / 2; break;
+		default: assert(false);
+		}
 		return vec2d(
-			GetPos().x + _vertices[index].x*_direction.x - _vertices[index].y*_direction.y,
-			GetPos().y + _vertices[index].x*_direction.y + _vertices[index].y*_direction.x
+			GetPos().x + x * GetDirection().x - y * GetDirection().y,
+			GetPos().y + x * GetDirection().y + y * GetDirection().x
 		);
 	}
 
-	inline bool GetTrace0()
+	inline bool GetTrace0() const
 	{
 		return CheckFlags(GC_FLAG_RBSTATIC_TRACE0);
 	}
@@ -94,10 +102,11 @@ public:
 	//
 	// physics
 	//
-
+	void SetSize(float width, float length);
+private:
 	float _radius;     // cached radius of bounding sphere
-	vec2d _direction;  // cached direction
-	vec2d _vertices[4];
+	float _width;
+	float _length;
 
 
 	//--------------------------------
@@ -108,11 +117,7 @@ public:
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_health);
-		cs ^= reinterpret_cast<const DWORD&>(_direction.x) ^ reinterpret_cast<const DWORD&>(_direction.y);
-		cs ^= reinterpret_cast<const DWORD&>(_vertices[0].x) ^ reinterpret_cast<const DWORD&>(_vertices[0].y);
-		cs ^= reinterpret_cast<const DWORD&>(_vertices[1].x) ^ reinterpret_cast<const DWORD&>(_vertices[1].y);
-		cs ^= reinterpret_cast<const DWORD&>(_vertices[2].x) ^ reinterpret_cast<const DWORD&>(_vertices[2].y);
-		cs ^= reinterpret_cast<const DWORD&>(_vertices[3].x) ^ reinterpret_cast<const DWORD&>(_vertices[3].y);
+		cs ^= reinterpret_cast<const DWORD&>(_width) ^ reinterpret_cast<const DWORD&>(_length);
 		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif

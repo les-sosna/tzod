@@ -37,7 +37,7 @@ GC_Light::GC_Light(enumLightType type)
   , _offset(0)
   , _radius(200)
   , _type(type)
-  , _angle(0)
+  , _lightDirection(1, 0)
   , _intensity(1)
 {
 	Activate(true);
@@ -58,7 +58,7 @@ void GC_Light::Serialize(SaveFile &f)
 {
 	GC_Actor::Serialize(f);
 
-	f.Serialize(_angle);
+	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
 	f.Serialize(_intensity);
 	f.Serialize(_offset);
@@ -79,7 +79,7 @@ void GC_Light::Shine() const
 //	_FpsCounter::Inst()->OneMoreLight();
 
 	MyVertex *v;
-	float s,c, x,y;
+	float x,y;
 
 	SpriteColor color;
 	color.dwColor = 0x00000000;
@@ -100,7 +100,6 @@ void GC_Light::Shine() const
 		}
 		break;
 	case LIGHT_SPOT:
-		s = sinf(_angle); c = cosf(_angle);
 		v = g_render->DrawFan(SINTABLE_SIZE);
 		v[0].color = color;
 		v[0].x = GetPos().x;
@@ -109,13 +108,12 @@ void GC_Light::Shine() const
 		{
 			x = _offset + _radius * _sintable[i+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			y = _radius * _sintable[i] * _aspect;
-			v[i+1].x = GetPos().x + x*c - y*s;
-			v[i+1].y = GetPos().y + y*c + x*s;
+			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
+			v[i+1].y = GetPos().y + y*_lightDirection.x + x*_lightDirection.y;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 		break;
 	case LIGHT_DIRECT:
-		s = sinf(_angle); c = cosf(_angle);
 		v = g_render->DrawFan((SINTABLE_SIZE>>2)+4);
 		v[0].color = color;
 		v[0].x = GetPos().x;
@@ -124,38 +122,38 @@ void GC_Light::Shine() const
 		{
 			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			x = _offset * _sintable[i<<1];
-			v[i+1].x = GetPos().x - x*c - y*s;
-			v[i+1].y = GetPos().y - x*s + y*c;
+			v[i+1].x = GetPos().x - x*_lightDirection.x - y*_lightDirection.y;
+			v[i+1].y = GetPos().y - x*_lightDirection.y + y*_lightDirection.x;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 
 		v[(SINTABLE_SIZE>>2)+2].color.dwColor = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+2].x = GetPos().x + _radius * c + _offset*s;
-		v[(SINTABLE_SIZE>>2)+2].y = GetPos().y + _radius * s - _offset*c;
+		v[(SINTABLE_SIZE>>2)+2].x = GetPos().x + _radius * _lightDirection.x + _offset*_lightDirection.y;
+		v[(SINTABLE_SIZE>>2)+2].y = GetPos().y + _radius * _lightDirection.y - _offset*_lightDirection.x;
 
 		v[(SINTABLE_SIZE>>2)+3].color = color;
-		v[(SINTABLE_SIZE>>2)+3].x = GetPos().x + _radius * c;
-		v[(SINTABLE_SIZE>>2)+3].y = GetPos().y + _radius * s;
+		v[(SINTABLE_SIZE>>2)+3].x = GetPos().x + _radius * _lightDirection.x;
+		v[(SINTABLE_SIZE>>2)+3].y = GetPos().y + _radius * _lightDirection.y;
 
 		v[(SINTABLE_SIZE>>2)+4].color.dwColor = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * c - _offset*s;
-		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * s + _offset*c;
+		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * _lightDirection.x - _offset*_lightDirection.y;
+		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * _lightDirection.y + _offset*_lightDirection.x;
 
 		v = g_render->DrawFan((SINTABLE_SIZE>>2)+1);
 		v[0].color = color;
-		v[0].x = GetPos().x + _radius * c;
-		v[0].y = GetPos().y + _radius * s;
+		v[0].x = GetPos().x + _radius * _lightDirection.x;
+		v[0].y = GetPos().y + _radius * _lightDirection.y;
 		for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
 		{
 			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			x = _offset * _sintable[i<<1] + _radius;
-			v[i+1].x = GetPos().x + x*c - y*s;
-			v[i+1].y = GetPos().y + x*s + y*c;
+			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
+			v[i+1].y = GetPos().y + x*_lightDirection.y + y*_lightDirection.x;
 			v[i+1].color.dwColor = 0x00000000;
 		}
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 }
 
@@ -256,8 +254,8 @@ void GC_Spotlight::EditorAction()
 	a = fmodf(a, PI2);
 
 	SetSpriteRotation(a);
-	_light->SetAngle(a);
-	_light->MoveTo(GetPos()+vec2d(a)*7);
+	_light->SetLightDirection(GetDirection());
+	_light->MoveTo(GetPos() + GetDirection() * 7);
 }
 
 void GC_Spotlight::MapExchange(MapFile &f)
@@ -274,8 +272,8 @@ void GC_Spotlight::MapExchange(MapFile &f)
 	{
 		_light->Activate(0 != active);
 		SetSpriteRotation(a);
-		_light->SetAngle(a);
-		_light->MoveTo(GetPos()+vec2d(a)*7);
+		_light->SetLightDirection(GetDirection());
+		_light->MoveTo(GetPos() + GetDirection() * 7);
 	}
 }
 

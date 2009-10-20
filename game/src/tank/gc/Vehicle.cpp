@@ -147,7 +147,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 	// remember position
 	//
 
-	vec2d trackTmp(_angle+PI/2);
+	vec2d trackTmp(GetDirection().y, -GetDirection().x);
 	vec2d trackL = GetPos() + trackTmp*15;
 	vec2d trackR = GetPos() - trackTmp*15;
 
@@ -165,7 +165,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 
 	if( g_conf.g_particles.Get() && CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
 	{
-		vec2d tmp(_angle+PI/2);
+		vec2d tmp(GetDirection().y, -GetDirection().x);
 		vec2d trackL_new = GetPos() + tmp*15;
 		vec2d trackR_new = GetPos() - tmp*15;
 
@@ -229,11 +229,11 @@ void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
 
 void GC_VehicleVisualDummy::UpdateLight()
 {
-	_light1->MoveTo(GetPos() + vec2d(_angle + 0.6f) * 20 );
-	_light1->SetAngle(_angle + 0.2f);
+	_light1->MoveTo(GetPos() + vec2d(GetSpriteRotation() + 0.6f) * 20 );
+	_light1->SetLightDirection(GetDirection());
 	_light1->Activate(_parent->GetPredictedState()._bLight);
-	_light2->MoveTo(GetPos() + vec2d(_angle - 0.6f) * 20 );
-	_light2->SetAngle(_angle - 0.2f);
+	_light2->MoveTo(GetPos() + vec2d(GetSpriteRotation() - 0.6f) * 20 );
+	_light2->SetLightDirection(GetDirection());
 	_light2->Activate(_parent->GetPredictedState()._bLight);
 	_light_ambient->MoveTo(GetPos());
 	_light_ambient->Activate(_parent->GetPredictedState()._bLight);
@@ -244,7 +244,9 @@ void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
 	if( g_conf.g_showdamage.Get() )
 	{
 		if( _damLabel )
+		{
 			_damLabel->Reset();
+		}
 		else
 		{
 			_damLabel = WrapRawPtr(new GC_DamLabel(this));
@@ -282,16 +284,10 @@ GC_VehicleBase::~GC_VehicleBase()
 
 void GC_VehicleBase::SetClass(const VehicleClass &vc)
 {
-	float max_r = 0;
 	for( int i = 0; i < 4; i++ )
 	{
-		_vertices[i] = vc.bounds[i];
-		if( _vertices[i].len() > max_r )
-			max_r = _vertices[i].len();
+		SetSize(vc.width, vc.length);
 	}
-
-	_radius = max_r;
-
 
 	_inv_m  = 1.0f / vc.m;
 	_inv_i  = 1.0f / vc.i;
@@ -339,12 +335,12 @@ void GC_VehicleBase::ApplyState(const VehicleState &vs)
 
 	if( vs._bState_MoveForward )
 	{
-		ApplyForce(_direction * _enginePower);
+		ApplyForce(GetDirection() * _enginePower);
 	}
 	else
 	if( vs._bState_MoveBack )
 	{
-		ApplyForce(-_direction * _enginePower);
+		ApplyForce(-GetDirection() * _enginePower);
 	}
 
 
@@ -355,7 +351,7 @@ void GC_VehicleBase::ApplyState(const VehicleState &vs)
 		//
 
 		float target = fmodf(vs._fBodyAngle, PI2);
-		float current = fmodf(_angle + GetSpinup(), PI2);
+		float current = fmodf(GetSpriteRotation() + GetSpinup(), PI2);
 		if( current < 0 ) current += PI2;
 
 		float xt1 = target - PI2;
@@ -402,8 +398,6 @@ GC_Vehicle::GC_Vehicle(float x, float y)
   , _memberOf(this)
 {
 	ZeroMemory(&_stateReal, sizeof(VehicleState));
-
-	_radius = 0;
 
 	MoveTo(vec2d(x, y));
 
@@ -475,6 +469,11 @@ void GC_Vehicle::Serialize(SaveFile &f)
 	f.Serialize(_player);
 	f.Serialize(_weapon);
 	f.Serialize(_visual);
+
+	if( f.loading() )
+	{
+		SetBodyAngle(GetSpriteRotation());
+	}
 }
 
 void GC_Vehicle::Kill()
@@ -565,8 +564,8 @@ void GC_Vehicle::SetPredictedState(const VehicleState &vs)
 
 void GC_Vehicle::SetBodyAngle(float a)
 {
-	__super::SetBodyAngle(a);
-	_visual->SetBodyAngle(a);
+	_visual->SetSpriteRotation(a);
+	SetSpriteRotation(a);
 }
 
 void GC_Vehicle::SetSkin(const string_t &skin)
@@ -766,15 +765,7 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 
 	_visual->SetMoveSound(SND_TankMove);
 	SetSkin("red");
-
-	_vertices[0].Set( 19.0f,  18.5f);
-	_vertices[1].Set(-18.5f,  18.5f);
-	_vertices[2].Set(-18.5f, -18.5f);
-	_vertices[3].Set( 19.0f, -18.5f);
-
-	_radius = 26.52f;
-
-
+	SetSize(37, 37.5f);
 
 	_inv_m  = 1 /   1.0f;
 	_inv_i  = 1 / 700.0f;

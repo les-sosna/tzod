@@ -54,8 +54,8 @@ public:
 	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
 	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
 	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const string_t &str, enumAlignText align = alignTextLT) const;
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float rot) const;
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, float rot) const;
+	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir) const;
+	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir) const;
 	void DrawIndicator(size_t tex, float x, float y, float value) const;
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase) const;
 

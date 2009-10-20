@@ -74,7 +74,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 		tmp->_Nx = _propNx.GetFloatValue();
 		tmp->_Ny = _propNy.GetFloatValue();
 		tmp->_Nw = _propNw.GetFloatValue();
-		tmp->SetBodyAngle(_propRotation.GetFloatValue());
+		tmp->SetSpriteRotation(_propRotation.GetFloatValue());
 	}
 	else
 	{
@@ -85,7 +85,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 		_propNx.SetFloatValue(tmp->_Nx);
 		_propNy.SetFloatValue(tmp->_Ny);
 		_propNw.SetFloatValue(tmp->_Nw);
-		_propRotation.SetFloatValue(tmp->_angle);
+		_propRotation.SetFloatValue(tmp->GetSpriteRotation());
 	}
 }
 
@@ -102,7 +102,6 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic()
 	_av     = 0;
 	_inv_m  = 1.0f / 1;
 	_inv_i  = _inv_m * 12.0f / (36*36 + 36*36);
-	_angle  = 0;
 
 	_Nx     = 0;
 	_Ny     = 0;
@@ -140,6 +139,7 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(f);
 
+	float rotTmp = GetSpriteRotation();
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);
 	MAP_EXCHANGE_FLOAT(inv_i, _inv_i, 1);
 	MAP_EXCHANGE_FLOAT(percussion, _percussion, 1);
@@ -147,11 +147,10 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(Nx, _Nx, 0);
 	MAP_EXCHANGE_FLOAT(Ny, _Ny, 0);
 	MAP_EXCHANGE_FLOAT(Nw, _Nw, 0);
-	MAP_EXCHANGE_FLOAT(rotation, _angle, 0);
-
+	MAP_EXCHANGE_FLOAT(rotation, rotTmp, 0);
 	if( f.loading() )
 	{
-		SetBodyAngle(_angle);
+		SetSpriteRotation(rotTmp);
 	}
 }
 
@@ -163,7 +162,6 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 	f.Serialize(_lv);
 	f.Serialize(_inv_m);
 	f.Serialize(_inv_i);
-	f.Serialize(_angle);
 	f.Serialize(_Nx);
 	f.Serialize(_Ny);
 	f.Serialize(_Nw);
@@ -180,6 +178,8 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 
 bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
 {
+	// TODO: implement SAT
+
 	if( (pObj->GetPos() - GetPos()).len() > GetRadius() + pObj->GetRadius() )
 	{
 		return false;
@@ -314,7 +314,7 @@ float GC_RigidBodyDynamic::GetSpinup() const
 vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 {
 	float result;
-	float vx = _lv.x * _direction.x + _lv.y * _direction.y;
+	float vx = _lv * GetDirection();
 	if( _Mx > 0 )
 	{
 		if( _Nx > 0 )
@@ -333,7 +333,7 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 	{
 		result = vx*fabs(vx)/_Nx*0.5f;
 	}
-	return _direction * result; // FIXME: add y coordinate
+	return GetDirection() * result; // FIXME: add y coordinate
 }
 
 void GC_RigidBodyDynamic::TimeStepFixed(float dt)
@@ -375,12 +375,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	}
 
 	MoveTo(GetPos() + dx);
-	_angle = fmodf(_angle + da, PI2);
-	if( _angle < 0 ) _angle += PI2;
-
-
-	_direction = vec2d(_angle);
-	SetSpriteRotation(_angle);
+	SetSpriteRotation(GetSpriteRotation() + da);
 
 
 	//
@@ -399,13 +394,13 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	// linear friction
 	//
 
-	vec2d dir_y(_direction.y, -_direction.x);
+	vec2d dir_y(GetDirection().y, -GetDirection().x);
 
-	float vx = _lv.x * _direction.x + _lv.y * _direction.y;
-	float vy = _lv.x * _direction.y - _lv.y * _direction.x;
+	float vx = _lv * GetDirection();
+	float vy = _lv * dir_y;
 
 	_lv.Normalize();
-	vec2d dev(_lv * _direction, _lv * dir_y);
+	vec2d dev(_lv * GetDirection(), _lv * dir_y);
 
 	if( vx > 0 )
 		vx = __max(0, vx - _Nx * dt * dev.x);
@@ -419,7 +414,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		vy = __min(0, vy - _Ny * dt * dev.y);
 	vy *= expf(-_My * dt);
 
-	_lv = _direction * vx + dir_y * vy;
+	_lv = GetDirection() * vx + dir_y * vy;
 
 
 	//
@@ -660,13 +655,6 @@ void GC_RigidBodyDynamic::ApplyTorque(float torque)
 	assert(!_isnan(_external_torque) && _finite(_external_torque));
 }
 
-void GC_RigidBodyDynamic::SetBodyAngle(float a)
-{
-	_angle = a;
-	_direction = vec2d(_angle);
-	SetSpriteRotation(_angle);
-}
-
 float GC_RigidBodyDynamic::Energy() const
 {
 	float e = 0;
@@ -680,7 +668,7 @@ void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
 //	GC_RigidBodyStatic::Sync(src);
 
 	MoveTo(src->GetPos());
-	SetBodyAngle(src->_angle);
+	SetSpriteRotation(src->GetSpriteRotation());
 
 	_av = src->_av;
 	_lv = src->_lv;

@@ -859,7 +859,7 @@ void GC_FireSpark::Draw() const
 {
 	vec2d pos = GetPosPredicted();
 	float r = GetRadius();
-	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetSpriteRotation());
+	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
 }
 
 bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
@@ -1095,8 +1095,9 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 	_light->SetRadius(64);
 	_light->SetLength(0);
 	_light->SetIntensity(1.5f);
-	_light->SetAngle(v.Angle() + PI);
-
+	vec2d d = -v;
+	d.Normalize();
+	_light->SetLightDirection(d);
 	_light->MoveTo(GetPos());
 
 	SetShadow(false);
