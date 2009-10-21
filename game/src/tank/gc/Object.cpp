@@ -326,9 +326,9 @@ void GC_Object::Serialize(SaveFile &f)
 			string_t name;
 			f.Serialize(name);
 
-			assert( 0 == g_level->_objectToNameMap.count(this) );
+			assert( 0 == g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
 			assert( 0 == g_level->_nameToObjectMap.count(name) );
-			g_level->_objectToNameMap[this] = name;
+			g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
 			g_level->_nameToObjectMap[name] = this;
 		}
 		else
@@ -448,8 +448,8 @@ const char* GC_Object::GetName() const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		assert( g_level->_objectToNameMap.count(this) );
-		return g_level->_objectToNameMap[this].c_str();
+		assert( g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+		return g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this].c_str();
 	}
 	return NULL;
 }
@@ -462,12 +462,11 @@ void GC_Object::SetName(const char *name)
 		// remove old name
 		//
 
-		assert( g_level->_objectToNameMap.count(this) );
-		const char *oldName = g_level->_objectToNameMap[this].c_str();
-		assert( g_level->_nameToObjectMap.count(oldName) );
+		assert(g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this));
+		const string_t &oldName = g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
+		assert(g_level->_nameToObjectMap.count(oldName));
 		g_level->_nameToObjectMap.erase(oldName);
-		g_level->_objectToNameMap.erase(this); // this invalidates *oldName pointer
-
+		g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
 	}
 
@@ -477,10 +476,10 @@ void GC_Object::SetName(const char *name)
 		// set new name
 		//
 
-		assert( 0 == g_level->_objectToNameMap.count(this) );
+		assert( 0 == g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
 		assert( 0 == g_level->_nameToObjectMap.count(name) );
 
-		g_level->_objectToNameMap[this] = name;
+		g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
 		g_level->_nameToObjectMap[name] = this;
 
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);

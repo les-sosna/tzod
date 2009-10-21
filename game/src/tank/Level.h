@@ -150,8 +150,8 @@ class Level : public RefCounted
 {
 	friend class GC_Object;
 
-	std::map<const GC_Object*, string_t>  _objectToNameMap;
-	std::map<string_t, const GC_Object*>  _nameToObjectMap;
+	std::map<const GC_Object*, string_t>  _objectToStringMaps[32];
+	std::map<string_t, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
 
 
 	struct SaveHeader

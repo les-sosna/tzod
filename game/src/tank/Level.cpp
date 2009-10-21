@@ -51,8 +51,8 @@ static CounterBase counterBytesPending("BytesPending", "bytes pending");
 static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 static CounterBase counterBytesSent("BytesSent", "Bytes sent");
 
-
 ////////////////////////////////////////////////////////////
+
 unsigned long FieldCell::_sessionId;
 
 void FieldCell::UpdateProperties()
@@ -294,8 +294,8 @@ void Level::Resize(int X, int Y)
 
 	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
-	_sx           = (float) X * CELL_SIZE;
-	_sy           = (float) Y * CELL_SIZE;
+	_sx          = (float) X * CELL_SIZE;
+	_sy          = (float) Y * CELL_SIZE;
 
 	for( int i = 0; i < Z_COUNT; i++ )
 		z_grids[i].resize(_locationsX, _locationsY);
