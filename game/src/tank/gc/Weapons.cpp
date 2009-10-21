@@ -172,6 +172,36 @@ void GC_Weapon::ProcessRotate(float dt)
 			_rotatorWeap.stop();
 	}
 	_rotatorWeap.setup_sound(GetRawPtr(_rotateSound));
+
+
+	vec2d d = Vec2dSumDirection(static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetDirection(),
+	                            vec2d(_angleReal));
+	SetDirection(d);
+	if( _fireEffect->GetVisible() )
+	{
+		int frame = int( _time / _feTime * (float) _fireEffect->GetFrameCount() );
+		if( frame < _fireEffect->GetFrameCount() )
+		{
+			float op = 1.0f - pow(_time / _feTime, 2);
+
+			_fireEffect->SetFrame(frame);
+			_fireEffect->SetDirection(Vec2dSumDirection(d, vec2d((float) _feOrient)));
+			_fireEffect->SetOpacity(op);
+
+			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos * d, _fePos.x*d.y - _fePos.y*d.x));
+			_fireLight->MoveTo(_fireEffect->GetPos());
+			_fireLight->SetIntensity(op);
+			_fireLight->Activate(true);
+		}
+		else
+		{
+			_fireEffect->SetFrame(0);
+			_fireEffect->SetVisible(false);
+			_fireLight->Activate(false);
+		}
+	}
+
+	OnUpdateView();
 }
 
 void GC_Weapon::SetCrosshair()
@@ -222,39 +252,6 @@ void GC_Weapon::Kill()
 	GC_Pickup::Kill();
 }
 
-void GC_Weapon::UpdateView()
-{
-	float a = static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetSpriteRotation() + _angleReal;
-
-	SetSpriteRotation(a);
-	if( _fireEffect->GetVisible() )
-	{
-		int frame = int( _time / _feTime * (float) _fireEffect->GetFrameCount() );
-		if( frame < _fireEffect->GetFrameCount() )
-		{
-			float op = 1.0f - powf(_time / _feTime, 2);
-
-			_fireEffect->SetFrame(frame);
-			_fireEffect->SetSpriteRotation(a + _feOrient);
-			_fireEffect->SetOpacity(op);
-
-			float s = sinf(a);
-			float c = cosf(a);
-			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos.x*c + _fePos.y*s, _fePos.x*s - _fePos.y*c));
-
-			_fireLight->MoveTo(_fireEffect->GetPos());
-			_fireLight->SetIntensity(op);
-			_fireLight->Activate(true);
-		}
-		else
-		{
-			_fireEffect->SetFrame(0);
-			_fireEffect->SetVisible(false);
-			_fireLight->Activate(false);
-		}
-	}
-}
-
 void GC_Weapon::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
@@ -264,11 +261,9 @@ void GC_Weapon::TimeStepFixed(float dt)
 	if( IsAttached() )
 	{
 		ProcessRotate(dt);
-		UpdateView();
 		if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
 		{
-			_crosshair->MoveTo(GetPosPredicted() + CH_DISTANCE_NORMAL * vec2d(
-				static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetSpriteRotation() + _angleReal) );
+			_crosshair->MoveTo(GetPosPredicted() + GetDirection() * CH_DISTANCE_NORMAL);
 		}
 	}
 	else
@@ -979,9 +974,8 @@ GC_Weap_Ram::~GC_Weap_Ram()
 {
 }
 
-void GC_Weap_Ram::UpdateView()
+void GC_Weap_Ram::OnUpdateView()
 {
-	GC_Weapon::UpdateView();
 	_engineLight->MoveTo(GetPosPredicted() - GetDirection() * 20);
 }
 
@@ -1044,17 +1038,14 @@ void GC_Weap_Ram::TimeStepFloat(float dt)
 
 		// primary
 		{
-			vec2d a(veh->GetVisual()->GetSpriteRotation() + _angleReal);
+			const vec2d &a = GetDirection();
 			vec2d emitter = GetPosPredicted() - a * 20.0f;
-
 			for( int i = 0; i < 29; ++i )
 			{
 				float time = frand(0.05f) + 0.02f;
 				float t = (frand(1.0f) - 0.5f) * 6.0f;
 				vec2d dx( -a.y * t, a.x * t);
-
-				new GC_Particle(emitter + dx, v - a * (frand(800.0f)) - dx / time,
-					fabsf(t) > 1.5 ? tex1 : tex2, time);
+				new GC_Particle(emitter + dx, v - a * (frand(800.0f)) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
 			}
 		}
 

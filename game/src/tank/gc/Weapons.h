@@ -43,8 +43,6 @@ protected:
 	float _feOrient;
 	bool _advanced; // weapon has booster attached
 
-	virtual void UpdateView();
-
 public:
 	virtual void SetAdvanced(bool advanced) { _advanced = advanced; }
 	inline  bool GetAdvanced()              { return _advanced;     }
@@ -84,6 +82,9 @@ public:
 
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
+
+private:
+	virtual void OnUpdateView() {};
 
 #ifdef NETWORK_DEBUG
 /*	virtual DWORD checksum(void) const
@@ -218,7 +219,7 @@ private:
 	SafePtr<GC_Light> _engineLight;
 
 protected:
-	virtual void UpdateView();
+	virtual void OnUpdateView();
 
 public:
 	float _fuel;
