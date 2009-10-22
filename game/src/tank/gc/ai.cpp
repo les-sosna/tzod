@@ -620,14 +620,13 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 
 	vec2d tmp = x - GetVehicle()->GetPos();
 	tmp.Normalize();
-	tmp = Vec2dSumDirection(tmp, vec2d(_currentOffset));
+	tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
 
-	float cosDiff = tmp * Vec2dSumDirection(GetVehicle()->GetDirection(), vec2d(GetVehicle()->GetWeapon()->_angleReal));
-
+	float cosDiff = tmp * GetVehicle()->GetWeapon()->GetDirectionReal();
 	pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 	pState->_bExplicitTower = true;
-	pState->_fTowerAngle = tmp.Angle() - GetVehicle()->GetSpriteRotation() - GetVehicle()->GetSpinup();
-	//--------------------------------
+	pState->_fTowerAngle = Vec2dSubDirection(tmp, GetVehicle()->GetDirection()).Angle() - GetVehicle()->GetSpinup();
+
 	assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
 }
 
@@ -1187,7 +1186,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		vec2d min_hit, min_norm;
 		for( int i = 0; i < 3; ++i )
 		{
-			vec2d tmp = Vec2dSumDirection(GetVehicle()->GetDirection(), vec2d(angle[i]));
+			vec2d tmp = Vec2dAddDirection(GetVehicle()->GetDirection(), vec2d(angle[i]));
 
 			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
 			vec2d a  = brake * len[i];

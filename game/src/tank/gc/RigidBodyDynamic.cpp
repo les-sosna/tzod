@@ -373,7 +373,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	}
 
 	MoveTo(GetPos() + dx);
-	vec2d dirTmp = Vec2dSumDirection(GetDirection(), da);
+	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
 	dirTmp.Normalize();
 	SetDirection(dirTmp);
 
@@ -668,7 +668,7 @@ void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
 //	GC_RigidBodyStatic::Sync(src);
 
 	MoveTo(src->GetPos());
-	SetSpriteRotation(src->GetSpriteRotation());
+	SetDirection(src->GetDirection());
 
 	_av = src->_av;
 	_lv = src->_lv;

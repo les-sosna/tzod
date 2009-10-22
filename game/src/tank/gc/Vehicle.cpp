@@ -174,7 +174,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 		e /= len;
 		while( _trackPathL < len )
 		{
-			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e.Angle());
+			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
 			_trackPathL += _trackDensity;
@@ -186,8 +186,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 		e  /= len;
 		while( _trackPathR < len )
 		{
-			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR,
-				vec2d(0, 0), track, 12, e.Angle());
+			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
 			p->SetZ(Z_WATER);
 			p->SetFade(true);
 			_trackPathR += _trackDensity;
@@ -231,10 +230,10 @@ void GC_VehicleVisualDummy::UpdateLight()
 {
 	static const vec2d delta1(0.6f);
 	static const vec2d delta2(-0.6f);
-	_light1->MoveTo(GetPos() + Vec2dSumDirection(GetDirection(), delta1) * 20 );
+	_light1->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
 	_light1->SetLightDirection(GetDirection());
 	_light1->Activate(_parent->GetPredictedState()._bLight);
-	_light2->MoveTo(GetPos() + Vec2dSumDirection(GetDirection(), delta2) * 20 );
+	_light2->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
 	_light2->SetLightDirection(GetDirection());
 	_light2->Activate(_parent->GetPredictedState()._bLight);
 	_light_ambient->MoveTo(GetPos());
@@ -348,47 +347,16 @@ void GC_VehicleBase::ApplyState(const VehicleState &vs)
 
 	if( vs._bExplicitBody )
 	{
-		//
-		// выбираем направление
-		//
-
-		float target = fmodf(vs._fBodyAngle, PI2);
-		float current = fmodf(GetSpriteRotation() + GetSpinup(), PI2);
-		if( current < 0 ) current += PI2;
-
-		float xt1 = target - PI2;
-		float xt2 = target + PI2;
-
-
-		if( fabsf(current - xt1) < fabsf(current - xt2) &&
-			fabsf(current - xt1) < fabsf(current - target) )
-		{
+		if( Vec2dCross(GetDirection(), vec2d(vs._fBodyAngle - GetSpinup())) < 0 && -_av < _maxRotSpeed )
 			ApplyMomentum( -_rotatePower / _inv_i );
-		}
-		else
-		if( fabsf(current - xt2) < fabsf(current - xt1) &&
-			fabsf(current - xt2) < fabsf(current - target) )
-		{
-			ApplyMomentum(  _rotatePower / _inv_i );
-		}
-		else
-		{
-			if( target > current )
-			{
-				ApplyMomentum(  _rotatePower / _inv_i );
-			}
-			else
-			{
-				ApplyMomentum( -_rotatePower / _inv_i );
-			}
-		}
+		else if( _av < _maxRotSpeed )
+			ApplyMomentum( _rotatePower / _inv_i );
 	}
 	else
 	{
 		if( vs._bState_RotateLeft && -_av < _maxRotSpeed )
 			ApplyMomentum( -_rotatePower / _inv_i );
-		else
-		if( vs._bState_RotateRight && _av < _maxRotSpeed )
+		else if( vs._bState_RotateRight && _av < _maxRotSpeed )
 			ApplyMomentum(  _rotatePower / _inv_i );
 	}
 }

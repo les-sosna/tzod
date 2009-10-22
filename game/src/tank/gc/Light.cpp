@@ -250,7 +250,7 @@ void GC_Spotlight::MoveTo(const vec2d &pos)
 void GC_Spotlight::EditorAction()
 {
 	static vec2d delta(PI2 / 16);
-	vec2d dir = Vec2dSumDirection(GetDirection(), delta);
+	vec2d dir = Vec2dAddDirection(GetDirection(), delta);
 	dir.Normalize();
 	SetDirection(dir);
 	_light->SetLightDirection(dir);
@@ -261,18 +261,18 @@ void GC_Spotlight::MapExchange(MapFile &f)
 {
 	GC_2dSprite::MapExchange(f);
 
-	float a = GetSpriteRotation();
+	float dir = GetDirection().Angle();
 	int active = _light->IsActive();
 
 	MAP_EXCHANGE_INT(active, active, 1);
-	MAP_EXCHANGE_FLOAT(dir, a, 0);
+	MAP_EXCHANGE_FLOAT(dir, dir, 0);
 
 	if( f.loading() )
 	{
-		_light->Activate(0 != active);
-		SetSpriteRotation(a);
+		SetDirection(vec2d(dir));
 		_light->SetLightDirection(GetDirection());
 		_light->MoveTo(GetPos() + GetDirection() * 7);
+		_light->Activate(0 != active);
 	}
 }
 

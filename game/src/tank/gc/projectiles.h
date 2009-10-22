@@ -28,7 +28,10 @@ protected:
 	SafePtr<GC_RigidBodyStatic> _owner;
 	SafePtr<GC_RigidBodyStatic> _lastHit;
 
+	float _velocity;
+
 private:
+
 	float _hitDamage;   // negative damage will heal target
 	float _hitImpulse;
 
@@ -43,8 +46,6 @@ protected:
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
 	bool Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
-
-	vec2d _velocity;
 
 	void SetTrailDensity(float density);
 	float GetTrailDensity() { return _trailDensity; }
@@ -86,8 +87,7 @@ public:
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x);
 		cs ^= reinterpret_cast<const DWORD&>(GetPos().y);
-		cs ^= reinterpret_cast<const DWORD&>(_velocity.x);
-		cs ^= reinterpret_cast<const DWORD&>(_velocity.y);
+		cs ^= reinterpret_cast<const DWORD&>(_velocity);
 		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif

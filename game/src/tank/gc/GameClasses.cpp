@@ -159,7 +159,7 @@ GC_Explosion::GC_Explosion(SafePtr<GC_RigidBodyStatic> &owner)
   , _boomOK(false)
 {
 	SetZ(Z_EXPLODE);
-	SetSpriteRotation(frand(PI2));
+	SetDirection(vrand(1));
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
@@ -453,7 +453,7 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, SafePtr<GC_RigidBodyStatic>
 			(new GC_Particle(GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
 				->_time = frand(1.0f);
 		}
-		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, frand(PI2));
+		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
 		p->SetZ(Z_WATER);
 		p->SetFade(true);
 	}
@@ -516,15 +516,15 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
 			new GC_Particle(GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
 
 			// sparkles
-			a = vrand(frand(40.0f));
-			new GC_Particle(GetPos() + a, a * 2, tex4, frand(0.3f) + 0.2f, a.Angle());
+			a = vrand(1);
+			new GC_Particle(GetPos() + a * frand(40.0f), a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
 
 			//smoke
 			a = vrand(frand(48.0f));
 			(new GC_Particle(GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
 		}
 
-		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, frand(PI2));
+		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
 		p->SetZ(Z_WATER);
 		p->SetFade(true);
 	}

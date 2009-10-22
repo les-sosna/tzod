@@ -29,6 +29,10 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
   , _light(new GC_Light(GC_Light::LIGHT_POINT))
   , _owner(owner)
   , _hitDamage(0)
+  , _trailDensity(10.0f)
+  , _trailPath(0.0f)
+  , _velocity(v.len())
+  , _hitImpulse(0)
 {
 	SetZ(Z_PROJECTILE);
 	SetShadow(true);
@@ -37,16 +41,12 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *owner, bool advanced, bool trai
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
 	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
-	_trailDensity = 10.0f;
-	_trailPath    = 0.0f;
-
-	_velocity = v;
-	_hitImpulse  = 0;
-
-	SetSpriteRotation( v.Angle() );
-
 	SetTexture(texture);
 	MoveTo(pos, false);
+
+	vec2d dir(v);
+	dir.Normalize();
+	SetDirection(dir);
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
@@ -178,8 +178,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 {
 	GC_2dSprite::TimeStepFixed(dt);
 
-	vec2d dx = _velocity * dt;
-
+	vec2d dx = GetDirection() * (_velocity * dt);
 	vec2d hit, norm;
 	GC_RigidBodyStatic *object = g_level->agTrace(
 		g_level->grid_rigid_s,
@@ -233,9 +232,7 @@ bool GC_Projectile::Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	SafePtr<GC_Object> refHolder(object);
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 	{
-		vec2d tmp = _velocity;
-		tmp.Normalize();
-		dyn->ApplyImpulse(tmp * _hitImpulse, hit);
+		dyn->ApplyImpulse(GetDirection() * _hitImpulse, hit);
 	}
 	float damage = FilterDamage(_hitDamage, object);
 	if( damage >= 0 )
@@ -313,12 +310,12 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 
 
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity.len(), veh->GetPos(), veh->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity, veh->GetPos(), veh->_lv, target);
 
 			vec2d a = target - GetPos();
 
 			// косинус угла направления на цель
-			float cosinus = (a * _velocity) / (a.len() * _velocity.len());
+			float cosinus = (a * GetDirection()) / a.len();
 
 			if( cosinus > nearest_cosinus )
 			{
@@ -370,16 +367,8 @@ void GC_Rocket::SpawnTrailParticle(const vec2d &pos)
 	static TextureCache fire1("particle_fire");
 	static TextureCache fire2("particle_fire2");
 
-	if( _target )
-	{
-		new GC_Particle(pos - _velocity * 8.0f / _velocity.len(),
-			_velocity * 0.3f, fire2, frand(0.1f) + 0.02f);
-	}
-	else
-	{
-		new GC_Particle(pos - _velocity * 8.0f / _velocity.len(),
-			_velocity * 0.3f, fire1, frand(0.1f) + 0.02f);
-	}
+	new GC_Particle(pos - GetDirection() * 8.0f,
+		GetDirection() * (_velocity * 0.3f), _target ? fire2:fire1, frand(0.1f) + 0.02f);
 }
 
 void GC_Rocket::TimeStepFixed(float dt)
@@ -395,24 +384,23 @@ void GC_Rocket::TimeStepFixed(float dt)
 		else
 		{
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity.len(), _target->GetPos(), _target->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
 
 			vec2d a = target - GetPos();
 
-			vec2d vi(_velocity);
-			vi.Normalize();
-
-			vec2d p = a - vi;
-			vec2d dv = p - vi * (vi * p);
+			vec2d p = a - GetDirection();
+			vec2d dv = p - GetDirection() * (GetDirection() * p);
 
 			float ldv = dv.len();
 			if( ldv > 0 )
 			{
-				dv /= ldv;
+				dv /= (ldv * _velocity);
 				dv *= WEAP_RL_HOMMING_FACTOR;
 
-				_velocity += dv * dt /* + vi * dt * WEAP_RL_HOMMING_FACTOR*/;
-				SetSpriteRotation( _velocity.Angle() );
+				vec2d dir(GetDirection());
+				dir += dv * dt;
+				dir.Normalize();
+				SetDirection(dir);
 			}
 		}
 	}
@@ -471,8 +459,8 @@ bool GC_Bullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d 
 	float a2 = n + 1.4f;
 	for( int i = 0; i < 7; ++i )
 	{
-		float a = a1 + frand(a2 - a1);
-		new GC_Particle(hit, vec2d(a) * (frand(50.0f) + 50.0f), tex, frand(0.1f) + 0.03f, a);
+		vec2d a(a1 + frand(a2 - a1));
+		new GC_Particle(hit, a * (frand(50.0f) + 50.0f), tex, frand(0.1f) + 0.03f, a);
 	}
 
 	GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -496,7 +484,7 @@ void GC_Bullet::SpawnTrailParticle(const vec2d &pos)
 
 	if( _trailEnable )
 	{
-		new GC_Particle(pos, vec2d(0,0), tex, frand(0.01f) + 0.09f, _velocity.Angle());
+		new GC_Particle(pos, vec2d(0,0), tex, frand(0.01f) + 0.09f, GetDirection());
 	}
 }
 
@@ -544,8 +532,8 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 		float a2 = a + 1.4f;
 		for( int n = 0; n < 9; n++ )
 		{
-			float a = a1 + frand(a2 - a1);
-			new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
+			vec2d a(a1 + frand(a2 - a1));
+			new GC_Particle(hit, a * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
 		}
 
 		GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -554,7 +542,7 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 		pLight->SetIntensity(1.5f);
 		pLight->SetTimeout(0.3f);
 
-		(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetSpriteRotation(frand(PI2));
+		new GC_Particle(hit, vec2d(0,0), tex2, 0.3f, vrand(1));
 		PLAY(SND_BoomBullet, hit);
 	}
 
@@ -565,17 +553,7 @@ void GC_TankBullet::SpawnTrailParticle(const vec2d &pos)
 {
 	static TextureCache tex1("particle_trace");
 	static TextureCache tex2("particle_trace2");
-
-	if( GetAdvanced() )
-	{
-		new GC_Particle(pos, vec2d(0,0), tex1,
-			frand(0.05f) + 0.05f, _velocity.Angle());
-	}
-	else
-	{
-		new GC_Particle(pos, vec2d(0,0), tex2,
-			frand(0.05f) + 0.05f, _velocity.Angle());
-	}
+	new GC_Particle(pos, vec2d(0,0), GetAdvanced() ? tex1:tex2, frand(0.05f) + 0.05f, GetDirection());
 }
 
 /////////////////////////////////////////////////////////////
@@ -618,8 +596,8 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	float a2 = a + 1.5f;
 	for( int n = 0; n < 15; n++ )
 	{
-		float a = a1 + frand(a2 - a1);
-		new GC_Particle(hit, vec2d(a) * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
+		vec2d a(a1 + frand(a2 - a1));
+		new GC_Particle(hit, a * (frand(100.0f) + 50.0f), tex1, frand(0.2f) + 0.05f, a);
 	}
 
 	GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -628,8 +606,7 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	pLight->SetIntensity(1.5f);
 	pLight->SetTimeout(0.4f);
 
-
-	(new GC_Particle( hit, vec2d(0,0), tex2, 0.3f ))->SetSpriteRotation(frand(PI2));
+	new GC_Particle( hit, vec2d(0,0), tex2, 0.3f, vrand(1));
 	PLAY(SND_PlazmaHit, hit);
 
 	return true;
@@ -685,12 +662,12 @@ void GC_BfgCore::FindTarget()
 			GetRawPtr(_owner), GetPos(), veh->GetPos() - GetPos()) ) continue;
 
 		vec2d target;
-		g_level->CalcOutstrip(GetPos(), _velocity.len(), veh->GetPos(), veh->_lv, target);
+		g_level->CalcOutstrip(GetPos(), _velocity, veh->GetPos(), veh->_lv, target);
 
 		vec2d a = target - GetPos();
 
 		// косинус угла направления на цель
-		float cosinus = (a * _velocity) / (a.len() * _velocity.len());
+		float cosinus = (a * GetDirection()) / a.len();
 
 		if( cosinus > nearest_cosinus )
 		{
@@ -789,27 +766,26 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		}
 		else
 		{
-			float v = _velocity.len();
-
 			vec2d target;
-			g_level->CalcOutstrip(GetPos(), v, _target->GetPos(), _target->_lv, target);
+			g_level->CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
 
 			vec2d a = target - GetPos();
 
-			vec2d vi = _velocity / v;
-
-			vec2d p = a - vi;
-			vec2d dv = p - vi * (vi * p);
+			vec2d p = a - GetDirection();
+			vec2d dv = p - GetDirection() * (GetDirection() * p);
 
 			float ldv = dv.len();
 			if( ldv > 0 )
 			{
-				dv /= ldv;
+				dv /= (ldv * _velocity);
 				dv *= (3.0f * fabsf(_target->_lv.len()) /
 					_target->GetMaxSpeed() +
 					GetAdvanced() ? 1 : 0) * WEAP_BFG_HOMMING_FACTOR;
 
-				_velocity += dv * dt;
+				vec2d dir(GetDirection());
+				dir += dv * dt;
+				dir.Normalize();
+				SetDirection(dir);
 			}
 		}
 	}
@@ -868,9 +844,7 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 
 	vec2d nn(norm.y, -norm.x);
 
-	float vlen = _velocity.len();
-
-	if( _velocity * nn < (g_level->net_frand(0.6f) - 0.3f) * vlen )
+	if( GetDirection() * nn < (g_level->net_frand(0.6f) - 0.3f) )
 	{
 		nn = -nn;
 		_rotation = frand(4) + 5;
@@ -881,7 +855,7 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 	}
 
 
-	float vdotn = (_velocity * norm) / vlen;
+	float vdotn = GetDirection() * norm;
 	float up = (0.5f - 0.6f * g_level->net_frand(vdotn));
 	up *= up;
 	up *= up;
@@ -891,9 +865,8 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 	nn += norm * up;
 	nn.Normalize();
 
-	nn /= (1 + up * 4);
-
-	_velocity = nn * (vlen * 0.9f);
+	SetDirection(nn);
+	_velocity *= 0.9f / (1 + up * 4);
 
 	if( GetAdvanced() && !object->IsKilled() && _owner != object && (g_level->net_rand()&1)
 		&& CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
@@ -910,15 +883,15 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 	
 	if( g_conf.g_particles.Get() )
 	{
-		GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), _velocity/3 + vrand(10.0f), tex, 0.1f + frand(0.3f), frand(PI2), GetRadius());
+		GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), 
+			GetDirection() * (_velocity/3) + vrand(10.0f), tex, 0.1f + frand(0.3f), vrand(1), GetRadius());
 		p->SetFade(true);
 		p->SetAutoRotate(_rotation);
 	}
 
-	vec2d dv(_velocity.y, -_velocity.x);
-	dv.Normalize();
+	vec2d dv(GetDirection().y, -GetDirection().x);
 	dv *= g_level->net_frand(20) - 10;
-	_velocity += dv;
+//	_velocity += dv; // TODO:
 }
 
 float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
@@ -941,7 +914,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	}
 
 
-	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
+//	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
 
 	float R = GetRadius();
 	_light->SetRadius(3*R);
@@ -1053,8 +1026,8 @@ bool GC_ACBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	float a2 = a + 1.0f;
 	for(int i = 0; i < 12; i++)
 	{
-		float ang = a1 + frand(a2 - a1);
-		new GC_Particle(hit, vec2d(ang) * frand(300.0f), tex, frand(0.05f) + 0.05f, ang);
+		vec2d dir(a1 + frand(a2 - a1));
+		new GC_Particle(hit, dir * frand(300.0f), tex, frand(0.05f) + 0.05f, dir);
 	}
 
 	GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
@@ -1069,8 +1042,7 @@ bool GC_ACBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 void GC_ACBullet::SpawnTrailParticle(const vec2d &pos)
 {
 	static const TextureCache tex("particle_trace2");
-	new GC_Particle(pos, vec2d(0,0), tex,
-		frand(0.05f) + 0.05f, _velocity.Angle());
+	new GC_Particle(pos, vec2d(0,0), tex, frand(0.05f) + 0.05f, GetDirection());
 }
 
 /////////////////////////////////////////////////////////////
@@ -1120,15 +1092,13 @@ void GC_GaussRay::SpawnTrailParticle(const vec2d &pos)
 
 	const TextureCache *t = &tex1;
 
-	float a = _velocity.Angle();
-
 	if( GetAdvanced() )
 	{
 		t = &tex2;
-//		(new GC_Particle(pos + vrand(4), _velocity * 0.01f, tex3, 0.3f, a))->SetFade(true);
+//		(new GC_Particle(pos + vrand(4), GetDirection() * (_velocity * 0.01f), tex3, 0.3f, GetDirection()))->SetFade(true);
 	}
 
-	GC_Particle *p = new GC_Particle(pos, vec2d(0,0), *t, 0.4f, a);
+	GC_Particle *p = new GC_Particle(pos, vec2d(0,0), *t, 0.2f, GetDirection());
 	p->SetZ(Z_GAUSS_RAY);
 	p->SetFade(true);
 
@@ -1138,10 +1108,10 @@ void GC_GaussRay::SpawnTrailParticle(const vec2d &pos)
 bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
 {
 	static const TextureCache tex("particle_gausshit");
-	(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, norm.Angle() + PI*0.5f))->SetFade(true);;
+	(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, vec2d(norm.y, -norm.x)))->SetFade(true);
 	SetHitDamage(GetHitDamage() - (GetAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE));
 	SetHitImpulse(GetHitDamage() / DAMAGE_GAUSS * 100);
-	return (0 >= GetHitDamage());
+	return 0 >= GetHitDamage();
 }
 
 void GC_GaussRay::Kill()
@@ -1165,7 +1135,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	SetHitImpulse(GetHitDamage() / DAMAGE_DISK_MAX * 20);
 	SetTrailDensity(5.0f);
 	_light->Activate(false);
-	SetSpriteRotation(frand(PI2));
+//	SetSpriteRotation(frand(PI2));
 }
 
 GC_Disk::GC_Disk(FromFile)
@@ -1185,11 +1155,12 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	SetIgnoreOwner(false); // allow hit owner next time
 
 
-	_velocity -= norm * 2 * (_velocity * norm);
+	SetDirection(GetDirection() - norm * 2 * (GetDirection() * norm));
+
 	for( int i = 0; i < 11; ++i )
 	{
 		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
-		new GC_Particle(hit, v, tex1, frand(0.2f) + 0.02f, v.Angle());
+		new GC_Particle(hit, v, tex1, frand(0.2f) + 0.02f, GetDirection());
 	}
 
 	SetHitDamage(GetHitDamage() - DAMAGE_DISK_FADE);
@@ -1212,7 +1183,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 			)->SetIgnoreOwner(false);
 		}
 
-		(new GC_Particle( hit, vec2d(0,0), tex2, 0.2f ))->SetSpriteRotation(frand(PI2));
+		new GC_Particle(hit, vec2d(0,0), tex2, 0.2f, vrand(1));
 
 		GC_Light *pLight = new GC_Light(GC_Light::LIGHT_POINT);
 		pLight->MoveTo(hit);
@@ -1257,11 +1228,12 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 	static const TextureCache tex("particle_trace2");
 
 	vec2d dx = vrand(3.0f);
-	vec2d ve = _velocity / _velocity.len();
 	float time = frand(0.01f) + 0.03f;
 
-	vec2d v = (-dx - ve * (-dx * ve)) / time;
-	new GC_Particle(pos + dx - ve*4.0f, v, tex, time, (v - ve * (32.0f / time)).Angle());
+	vec2d v = (-dx - GetDirection() * (-dx * GetDirection())) / time;
+	vec2d dir(v - GetDirection() * (32.0f / time));
+	dir.Normalize();
+	new GC_Particle(pos + dx - GetDirection()*4.0f, v, tex, time, dir);
 }
 
 float GC_Disk::FilterDamage(float damage, GC_RigidBodyStatic *object)
@@ -1275,7 +1247,7 @@ float GC_Disk::FilterDamage(float damage, GC_RigidBodyStatic *object)
 
 void GC_Disk::TimeStepFixed(float dt)
 {
-	SetSpriteRotation( GetSpriteRotation() + dt * 10.0f );
+//	SetSpriteRotation( GetSpriteRotation() + dt * 10.0f );
 	GC_Projectile::TimeStepFixed(dt);
 }
 

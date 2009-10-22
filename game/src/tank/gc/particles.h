@@ -43,7 +43,8 @@ public:
 	vec2d _velocity;
 
 public:
-	GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture, float lifeTime, float orient = 0);
+	GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture, 
+		float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 
 	void SetFade(bool fade);
@@ -63,7 +64,7 @@ class GC_ParticleScaled : public GC_Particle
 	float _size;
 
 public:
-	GC_ParticleScaled(const vec2d &pos, const vec2d &v, const TextureCache &texture, float lifeTime, float orient, float size);
+	GC_ParticleScaled(const vec2d &pos, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient, float size);
 	GC_ParticleScaled(FromFile);
 
 	virtual void Serialize(SaveFile &f);

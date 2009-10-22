@@ -158,11 +158,23 @@ public:
 	}
 };
 
-inline vec2d Vec2dSumDirection(const vec2d &a, const vec2d &b)
+inline vec2d Vec2dAddDirection(const vec2d &a, const vec2d &b)
 {
 	assert(abs(a.sqr() - 1) < 1e-5);
 	assert(abs(b.sqr() - 1) < 1e-5);
 	return vec2d(a.x*b.x - a.y*b.y, a.y*b.x + a.x*b.y);
+}
+
+inline vec2d Vec2dSubDirection(const vec2d &a, const vec2d &b)
+{
+	assert(abs(a.sqr() - 1) < 1e-5);
+	assert(abs(b.sqr() - 1) < 1e-5);
+	return vec2d(a.x*b.x + a.y*b.y, a.y*b.x - a.x*b.y);
+}
+
+inline float Vec2dCross(const vec2d &a, const vec2d &b)
+{
+	return a.x*b.y - a.y*b.x;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

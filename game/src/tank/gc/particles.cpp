@@ -68,7 +68,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 }
 
 GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
-                         float lifeTime, float orient)
+                         float lifeTime, const vec2d &orient)
   : GC_2dSprite()
   , _rotationSpeed(0)
   , _time(0)
@@ -80,7 +80,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 	SetZ(Z_PARTICLE);
 
 	SetTexture(texture);
-	SetSpriteRotation(orient);
+	SetDirection(orient);
 
 	MoveTo(pos);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
@@ -144,7 +144,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 }
 
 GC_ParticleScaled::GC_ParticleScaled(const vec2d &pos, const vec2d &v, const TextureCache &texture, 
-                                     float lifeTime, float orient, float size)
+                                     float lifeTime, const vec2d &orient, float size)
   : GC_Particle(pos, v, texture, lifeTime, orient)
   , _size(size)
 {
