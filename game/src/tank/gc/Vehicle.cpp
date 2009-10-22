@@ -229,10 +229,12 @@ void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
 
 void GC_VehicleVisualDummy::UpdateLight()
 {
-	_light1->MoveTo(GetPos() + vec2d(GetSpriteRotation() + 0.6f) * 20 );
+	static const vec2d delta1(0.6f);
+	static const vec2d delta2(-0.6f);
+	_light1->MoveTo(GetPos() + Vec2dSumDirection(GetDirection(), delta1) * 20 );
 	_light1->SetLightDirection(GetDirection());
 	_light1->Activate(_parent->GetPredictedState()._bLight);
-	_light2->MoveTo(GetPos() + vec2d(GetSpriteRotation() - 0.6f) * 20 );
+	_light2->MoveTo(GetPos() + Vec2dSumDirection(GetDirection(), delta2) * 20 );
 	_light2->SetLightDirection(GetDirection());
 	_light2->Activate(_parent->GetPredictedState()._bLight);
 	_light_ambient->MoveTo(GetPos());
@@ -463,17 +465,11 @@ void GC_Vehicle::SetPlayer(SafePtr<GC_Player> &player)
 void GC_Vehicle::Serialize(SaveFile &f)
 {
 	GC_VehicleBase::Serialize(f);
-
 	f.Serialize(_stateReal);
 	f.Serialize(_statePredicted);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
 	f.Serialize(_visual);
-
-	if( f.loading() )
-	{
-		SetBodyAngle(GetSpriteRotation());
-	}
 }
 
 void GC_Vehicle::Kill()
@@ -560,12 +556,6 @@ void GC_Vehicle::SetState(const VehicleState &vs)
 void GC_Vehicle::SetPredictedState(const VehicleState &vs)
 {
 	_statePredicted = vs;
-}
-
-void GC_Vehicle::SetBodyAngle(float a)
-{
-	_visual->SetSpriteRotation(a);
-	SetSpriteRotation(a);
 }
 
 void GC_Vehicle::SetSkin(const string_t &skin)

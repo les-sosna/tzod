@@ -244,7 +244,8 @@ void GC_Player::TimeStepFixed(float dt)
 				_vehicle->SetName(_vehname.c_str());
 			}
 
-			_vehicle->SetBodyAngle(pBestPoint->GetSpriteRotation());
+			_vehicle->SetDirection(pBestPoint->GetDirection());
+			_vehicle->GetVisual()->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetPlayer(WrapRawPtr(this));
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this,

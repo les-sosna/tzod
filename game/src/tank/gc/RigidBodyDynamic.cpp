@@ -339,7 +339,7 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 {
 	vec2d dx = _lv * dt;
-	float da = _av * dt;
+	vec2d da(_av * dt);
 
 
 	//
@@ -349,8 +349,6 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	if( !CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 	{
 		SafePtr<GC_Object> refHolder(this);
-		float s = sinf(da);
-		float c = cosf(da) - 1;
 		const ObjectList &ls = g_level->GetList(LIST_projectiles);
 		ObjectList::safe_iterator it = ls.safe_begin();
 		while( it != ls.end() )
@@ -358,8 +356,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
 
 			vec2d delta, tmp = pProj->GetPos() - GetPos();
-			delta.x = tmp.x * c - tmp.y * s - dx.x;
-			delta.y = tmp.x * s - tmp.y * c - dx.y;
+			delta.x = tmp.x * (da.x - 1) - tmp.y * da.y - dx.x;
+			delta.y = tmp.x * da.y - tmp.y * (da.x - 1) - dx.y;
 
 			float dl_sq = delta.sqr();
 			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
@@ -375,7 +373,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	}
 
 	MoveTo(GetPos() + dx);
-	SetSpriteRotation(GetSpriteRotation() + da);
+	vec2d dirTmp = Vec2dSumDirection(GetDirection(), da);
+	dirTmp.Normalize();
+	SetDirection(dirTmp);
 
 
 	//

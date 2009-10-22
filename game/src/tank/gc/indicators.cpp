@@ -130,7 +130,7 @@ void GC_SpawnPoint::MyPropertySet::MyExchange(bool applyToObject)
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
-		_propDir.SetFloatValue(fmodf(tmp->GetSpriteRotation(), PI2));
+		_propDir.SetFloatValue(tmp->GetSpriteRotation());
 	}
 }
 

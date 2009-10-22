@@ -173,10 +173,10 @@ void GC_Weapon::ProcessRotate(float dt)
 	}
 	_rotatorWeap.setup_sound(GetRawPtr(_rotateSound));
 
-
-	vec2d d = Vec2dSumDirection(static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetDirection(),
-	                            vec2d(_angleReal));
-	SetDirection(d);
+	vec2d a(_angleReal);
+	_directionReal = Vec2dSumDirection(static_cast<GC_Vehicle*>(GetOwner())->GetDirection(), a);
+	vec2d directionVisual = Vec2dSumDirection(static_cast<GC_Vehicle*>(GetOwner())->GetVisual()->GetDirection(), a);
+	SetDirection(directionVisual);
 	if( _fireEffect->GetVisible() )
 	{
 		int frame = int( _time / _feTime * (float) _fireEffect->GetFrameCount() );
@@ -185,10 +185,10 @@ void GC_Weapon::ProcessRotate(float dt)
 			float op = 1.0f - pow(_time / _feTime, 2);
 
 			_fireEffect->SetFrame(frame);
-			_fireEffect->SetDirection(Vec2dSumDirection(d, vec2d((float) _feOrient)));
+			_fireEffect->SetDirection(Vec2dSumDirection(directionVisual, vec2d((float) _feOrient)));
 			_fireEffect->SetOpacity(op);
 
-			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos * d, _fePos.x*d.y - _fePos.y*d.x));
+			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos * directionVisual, _fePos.x*directionVisual.y - _fePos.y*directionVisual.x));
 			_fireLight->MoveTo(_fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
 			_fireLight->Activate(true);
@@ -225,6 +225,7 @@ void GC_Weapon::Serialize(SaveFile &f)
 
 	_rotatorWeap.Serialize(f);
 
+	f.Serialize(_directionReal);
 	f.Serialize(_angleReal);
 	f.Serialize(_advanced);
 	f.Serialize(_feOrient);
@@ -357,23 +358,20 @@ void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 void GC_Weap_RocketLauncher::Fire()
 {
 	assert(IsAttached());
-	float a = static_cast<GC_Vehicle*>(GetOwner())->GetSpriteRotation() + _angleReal;
-
+	const vec2d &dir = GetDirectionReal();
 	if( _advanced )
 	{
 		if( _time >= _time_shot )
 		{
-			float dang = g_level->net_frand(0.1f) - 0.05f;
-			float dy = (((float)(g_level->net_rand()%(_nshots_total+1)) - 0.5f) /
-				(float)_nshots_total - 0.5f) * 18.0f;
+			float dy = (((float)(g_level->net_rand()%(_nshots_total+1)) - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
 			_fePos.Set(13, dy);
 
-			float ax = cosf(a) * 15.0f + dy * sinf(a);
-			float ay = sinf(a) * 15.0f - dy * cosf(a);
+			float ax = dir.x * 15.0f + dy * dir.y;
+			float ay = dir.y * 15.0f - dy * dir.x;
 
 			new GC_Rocket(GetOwner()->GetPos() + vec2d(ax, ay),
-						  vec2d(a + dang) * SPEED_ROCKET,
-						  static_cast<GC_Vehicle*>(GetOwner()), _advanced );
+			              Vec2dSumDirection(dir, vec2d(g_level->net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
+			              static_cast<GC_Vehicle*>(GetOwner()), _advanced );
 
 			_time   = 0;
 			_nshots = 0;
@@ -390,7 +388,6 @@ void GC_Weap_RocketLauncher::Fire()
 			{
 				_nshots++;
 
-				float dang = g_level->net_frand(0.1f) - 0.05f;
 				float dy = (((float)_nshots - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
 				_fePos.Set(13, dy);
 
@@ -400,17 +397,16 @@ void GC_Weap_RocketLauncher::Fire()
 					_nshots = 0;
 				}
 
-				float ax = cosf(a) * 15.0f + dy * sinf(a);
-				float ay = sinf(a) * 15.0f - dy * cosf(a);
+				float ax = dir.x * 15.0f + dy * dir.y;
+				float ay = dir.y * 15.0f - dy * dir.x;
 
 				new GC_Rocket( GetOwner()->GetPos() + vec2d(ax, ay),
-				               vec2d(a + dang) * SPEED_ROCKET,
+				               Vec2dSumDirection(dir, vec2d(g_level->net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
 				               static_cast<GC_Vehicle*>(GetOwner()), _advanced );
 
 				_time = 0;
 				_fireEffect->SetVisible(true);
 			}
-
 		}
 
 		if( _time >= _timeReload )

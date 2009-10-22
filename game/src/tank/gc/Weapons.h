@@ -34,8 +34,9 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 
-protected:
+	vec2d _directionReal;
 
+protected:
 	SafePtr<GC_UserSprite> _fireEffect;
 	SafePtr<GC_Light>      _fireLight;
 	vec2d _fePos;
@@ -47,7 +48,9 @@ public:
 	virtual void SetAdvanced(bool advanced) { _advanced = advanced; }
 	inline  bool GetAdvanced()              { return _advanced;     }
 
-	GC_RigidBodyStatic* GetOwner() const { return (GC_RigidBodyStatic *) GC_Pickup::GetOwner(); }
+	GC_RigidBodyStatic* GetOwner() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetOwner()); }
+	const vec2d& GetDirectionReal() const { return _directionReal; }
+
 
 public:
 	float _time;

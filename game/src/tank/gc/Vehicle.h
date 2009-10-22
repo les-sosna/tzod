@@ -103,7 +103,6 @@ public:
 	void SetPredictedState(const VehicleState &vs);
 	const VehicleState& GetPredictedState() const { return _statePredicted; }
 	GC_VehicleVisualDummy* GetVisual() const { return GetRawPtr(_visual); }
-	void SetBodyAngle(float a);
 
 	// GC_RigidBodyStatic
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);

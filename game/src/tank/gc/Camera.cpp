@@ -80,8 +80,7 @@ void GC_Camera::TimeStepFloat(float dt)
 
 		if( _player->GetVehicle()->GetWeapon() )
 		{
-			r += vec2d(_player->GetVehicle()->GetVisual()->GetSpriteRotation() +
-				_player->GetVehicle()->GetWeapon()->_angleReal)*130.0f;
+			r += _player->GetVehicle()->GetWeapon()->GetDirection() * 130.0f;
 		}
 		else
 		{

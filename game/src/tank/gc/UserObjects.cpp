@@ -285,7 +285,7 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 			}
 		}
 		_propLayer.SetIntValue(tmp->GetZ());
-		_propRotation.SetFloatValue(fmodf(tmp->GetSpriteRotation(), PI2));
+		_propRotation.SetFloatValue(tmp->GetSpriteRotation());
 		_propFrame.SetIntValue(tmp->GetCurrentFrame());
 		_propAnimate.SetFloatValue(tmp->_frameRate);
 	}

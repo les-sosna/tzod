@@ -243,19 +243,18 @@ void GC_Spotlight::Kill()
 
 void GC_Spotlight::MoveTo(const vec2d &pos)
 {
-	_light->MoveTo(pos+vec2d(GetSpriteRotation())*7);
+	_light->MoveTo(pos + GetDirection() * 7);
 	GC_2dSprite::MoveTo(pos);
 }
 
 void GC_Spotlight::EditorAction()
 {
-	float a = GetSpriteRotation();
-	a += PI2 / 16;
-	a = fmodf(a, PI2);
-
-	SetSpriteRotation(a);
-	_light->SetLightDirection(GetDirection());
-	_light->MoveTo(GetPos() + GetDirection() * 7);
+	static vec2d delta(PI2 / 16);
+	vec2d dir = Vec2dSumDirection(GetDirection(), delta);
+	dir.Normalize();
+	SetDirection(dir);
+	_light->SetLightDirection(dir);
+	_light->MoveTo(GetPos() + dir * 7);
 }
 
 void GC_Spotlight::MapExchange(MapFile &f)

@@ -1180,14 +1180,14 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 
 	{
-		float angle[] = {PI/4, 0, -PI/4};
+		vec2d angle[] = {vec2d(PI/4), vec2d(0), vec2d(-PI/4)};
 		float len[] = {1,2,1};
 
 		float min_d = -1;
 		vec2d min_hit, min_norm;
 		for( int i = 0; i < 3; ++i )
 		{
-			vec2d tmp = vec2d(angle[i] + GetVehicle()->GetSpriteRotation());
+			vec2d tmp = Vec2dSumDirection(GetVehicle()->GetDirection(), vec2d(angle[i]));
 
 			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
 			vec2d a  = brake * len[i];
