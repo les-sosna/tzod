@@ -913,9 +913,6 @@ void GC_FireSpark::TimeStepFixed(float dt)
 		return;
 	}
 
-
-//	SetSpriteRotation(GetSpriteRotation() + _rotation * dt);
-
 	float R = GetRadius();
 	_light->SetRadius(3*R);
 
@@ -1135,7 +1132,6 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	SetHitImpulse(GetHitDamage() / DAMAGE_DISK_MAX * 20);
 	SetTrailDensity(5.0f);
 	_light->Activate(false);
-//	SetSpriteRotation(frand(PI2));
 }
 
 GC_Disk::GC_Disk(FromFile)
@@ -1243,12 +1239,6 @@ float GC_Disk::FilterDamage(float damage, GC_RigidBodyStatic *object)
 		return damage / 2; // half damage to owner
 	}
 	return damage;
-}
-
-void GC_Disk::TimeStepFixed(float dt)
-{
-//	SetSpriteRotation( GetSpriteRotation() + dt * 10.0f );
-	GC_Projectile::TimeStepFixed(dt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

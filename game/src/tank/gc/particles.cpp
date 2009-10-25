@@ -74,6 +74,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
   , _time(0)
   , _timeLife(lifeTime)
   , _velocity(v)
+  , _rotationPhase(0)
 {
 	assert(_timeLife > 0);
 
@@ -97,6 +98,7 @@ void GC_Particle::Serialize(SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
+	f.Serialize(_rotationPhase);
 	f.Serialize(_velocity);
 }
 
@@ -117,7 +119,7 @@ void GC_Particle::TimeStepFloat(float dt)
 		SetOpacity(1.0f - _time / _timeLife);
 
 	if( _rotationSpeed )
-		SetSpriteRotation(GetSpriteRotation() + _rotationSpeed * dt);
+		SetDirection(vec2d(_rotationPhase + _rotationSpeed * _time));
 
 	MoveTo( GetPos() + _velocity * dt );
 }

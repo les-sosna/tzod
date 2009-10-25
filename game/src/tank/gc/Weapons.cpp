@@ -1043,7 +1043,7 @@ void GC_Weap_Ram::TimeStepFloat(float dt)
 		// secondary
 		for( float l = -1; l < 2; l += 2 )
 		{
-			vec2d a(veh->GetVisual()->GetSpriteRotation() + _angleReal + l * 0.15f);
+			vec2d a = Vec2dAddDirection(GetDirection(), vec2d(l * 0.15f));
 			vec2d emitter = GetPosPredicted() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 			for( int i = 0; i < 10; i++ )
 			{
@@ -1097,7 +1097,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			for( float l = -1; l < 2; l += 2 )
 			{
 				const float lenght = 50.0f;
-				vec2d a(veh->GetSpriteRotation() + _angleReal + l * 0.15f);
+				vec2d a = Vec2dAddDirection(GetDirectionReal(), vec2d(l * 0.15f));
 				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 				vec2d hit;
 				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s,
@@ -1232,7 +1232,7 @@ void GC_Weap_Ripper::UpdateDisk()
 {
 	_disk->SetVisible(_time > _timeReload);
 	_disk->MoveTo(GetPosPredicted() - GetDirection() * 8);
-	_disk->SetSpriteRotation(GetTimeAnimation() * 10);
+	_disk->SetDirection(vec2d(GetTimeAnimation() * 10));
 }
 
 void GC_Weap_Ripper::Attach(GC_Actor *actor)
@@ -1466,7 +1466,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
-				vec2d a(veh->GetSpriteRotation() + _angleReal + g_level->net_frand(da * 2.0f) - da);
+				vec2d a = Vec2dAddDirection(GetDirectionReal(), vec2d(g_level->net_frand(da * 2.0f) - da));
 				a *= (1 - g_level->net_frand(0.2f));
 
 				if( veh && !_advanced )

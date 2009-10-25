@@ -173,7 +173,7 @@ void GC_Turret::OnDestroy()
 void GC_Turret::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetSpriteRotation(_dir);
+	_weaponSprite->SetDirection(vec2d(_dir));
 
 	switch( _state )
 	{
@@ -225,9 +225,9 @@ void GC_Turret::TimeStepFixed(float dt)
 void GC_Turret::EditorAction()
 {
 	_dir += PI2 / 16;
-	_dir = fmodf(_dir, PI2);
+	_dir = fmod(_dir, PI2);
 	_initialDir = _dir;
-	_weaponSprite->SetSpriteRotation(_dir);
+	_weaponSprite->SetDirection(vec2d(_dir));
 }
 
 void GC_Turret::MapExchange(MapFile &f)
@@ -243,7 +243,7 @@ void GC_Turret::MapExchange(MapFile &f)
 		if( _team > MAX_TEAMS-1 )
 			_team = MAX_TEAMS-1;
 		_dir = _initialDir;
-		_weaponSprite->SetSpriteRotation(_dir);
+		_weaponSprite->SetDirection(vec2d(_dir));
 	}
 }
 
@@ -475,7 +475,7 @@ void GC_TurretBunker::MapExchange(MapFile &f)
 	GC_Turret::MapExchange(f);
 	if( f.loading() )
 	{
-		SetSpriteRotation(_initialDir);
+		SetDirection(vec2d(_initialDir));
 	}
 }
 
@@ -516,7 +516,7 @@ bool GC_TurretBunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodySta
 void GC_TurretBunker::TimeStepFixed(float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetSpriteRotation(_dir);
+	_weaponSprite->SetDirection(vec2d(_dir));
 
 	switch( _state )
 	{
@@ -628,10 +628,10 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 void GC_TurretBunker::EditorAction()
 {
 	_initialDir += PI / 2;
-	_initialDir = fmodf(_initialDir, PI2);
+	_initialDir = fmod(_initialDir, PI2);
 	_dir = _initialDir;
-	SetSpriteRotation(_initialDir);
-	_weaponSprite->SetSpriteRotation(_initialDir);
+	SetDirection(vec2d(_initialDir));
+	_weaponSprite->SetDirection(GetDirection());
 }
 
 ////////////////////////////////////////////////////////////////////

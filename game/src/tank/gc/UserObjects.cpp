@@ -172,7 +172,7 @@ void GC_Decoration::MapExchange(MapFile &f)
 
 	int z = GetZ();
 	int frame = GetCurrentFrame();
-	float rot = GetSpriteRotation();
+	float rot = GetDirection().Angle();
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 	MAP_EXCHANGE_INT(layer, z, 0);
@@ -185,7 +185,7 @@ void GC_Decoration::MapExchange(MapFile &f)
 		SetTexture(_textureName.c_str());
 		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
-		SetSpriteRotation(rot);
+		SetDirection(vec2d(rot));
 		if( _frameRate > 0 )
 		{
 			SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);

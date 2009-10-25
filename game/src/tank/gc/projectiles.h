@@ -277,7 +277,6 @@ public:
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
 	virtual void SpawnTrailParticle(const vec2d &pos);
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
-	virtual void TimeStepFixed(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
