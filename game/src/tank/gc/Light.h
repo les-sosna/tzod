@@ -105,7 +105,7 @@ public:
 	float GetTimeout() const { return _timeout; }
 
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
-	void Activate(bool activate); // TODO: rename to SetActive
+	void SetActive(bool activate);
 
 	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);

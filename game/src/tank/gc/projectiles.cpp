@@ -429,7 +429,7 @@ GC_Bullet::GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, 
 	SetTrailDensity(5.0f);
 
 	SetVisible(false);
-	_light->Activate(false);
+	_light->SetActive(false);
 }
 
 GC_Bullet::GC_Bullet(FromFile)
@@ -479,7 +479,7 @@ void GC_Bullet::SpawnTrailParticle(const vec2d &pos)
 	if( !(rand() & (_trailEnable ? 0x1f : 0x7F)) )
 	{
 		_trailEnable = !_trailEnable;
-		_light->Activate(_trailEnable);
+		_light->SetActive(_trailEnable);
 	}
 
 	if( _trailEnable )
@@ -501,7 +501,7 @@ GC_TankBullet::GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic*
 	SetTrailDensity(5.0f);
 	SetHitDamage(DAMAGE_TANKBULLET);
 	SetHitImpulse(100);
-	_light->Activate(advanced);
+	_light->SetActive(advanced);
 	PLAY(SND_Shoot, GetPos());
 }
 
@@ -984,7 +984,7 @@ GC_ACBullet::GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* own
 	SetTrailDensity(5.0f);
 	_light->SetRadius(30);
 	_light->SetIntensity(0.6f);
-	_light->Activate(advanced);
+	_light->SetActive(advanced);
 }
 
 GC_ACBullet::GC_ACBullet(FromFile)
@@ -1131,7 +1131,7 @@ GC_Disk::GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool
 	SetHitDamage(g_level->net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f));
 	SetHitImpulse(GetHitDamage() / DAMAGE_DISK_MAX * 20);
 	SetTrailDensity(5.0f);
-	_light->Activate(false);
+	_light->SetActive(false);
 }
 
 GC_Disk::GC_Disk(FromFile)

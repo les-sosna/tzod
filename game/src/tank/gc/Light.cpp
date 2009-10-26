@@ -40,7 +40,7 @@ GC_Light::GC_Light(enumLightType type)
   , _lightDirection(1, 0)
   , _intensity(1)
 {
-	Activate(true);
+	SetActive(true);
 	Update();
 }
 
@@ -184,7 +184,7 @@ void GC_Light::TimeStepFixed(float dt)
 	if( _timeout <= 0 ) Kill();
 }
 
-void GC_Light::Activate(bool activate)
+void GC_Light::SetActive(bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
 	_lampSprite->SetVisible(activate);
@@ -272,7 +272,7 @@ void GC_Spotlight::MapExchange(MapFile &f)
 		SetDirection(vec2d(dir));
 		_light->SetLightDirection(GetDirection());
 		_light->MoveTo(GetPos() + GetDirection() * 7);
-		_light->Activate(0 != active);
+		_light->SetActive(0 != active);
 	}
 }
 
@@ -315,7 +315,7 @@ void GC_Spotlight::MyPropertySet::MyExchange(bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_light->Activate(0 != _propActive.GetIntValue());
+		tmp->_light->SetActive(0 != _propActive.GetIntValue());
 	}
 	else
 	{

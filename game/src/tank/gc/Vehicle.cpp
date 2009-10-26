@@ -232,12 +232,12 @@ void GC_VehicleVisualDummy::UpdateLight()
 	static const vec2d delta2(-0.6f);
 	_light1->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
 	_light1->SetLightDirection(GetDirection());
-	_light1->Activate(_parent->GetPredictedState()._bLight);
+	_light1->SetActive(_parent->GetPredictedState()._bLight);
 	_light2->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
 	_light2->SetLightDirection(GetDirection());
-	_light2->Activate(_parent->GetPredictedState()._bLight);
+	_light2->SetActive(_parent->GetPredictedState()._bLight);
 	_light_ambient->MoveTo(GetPos());
-	_light_ambient->Activate(_parent->GetPredictedState()._bLight);
+	_light_ambient->SetActive(_parent->GetPredictedState()._bLight);
 }
 
 void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)

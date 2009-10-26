@@ -136,7 +136,7 @@ void GC_Weapon::Attach(GC_Actor *actor)
 	_fireEffect->SetVisible(false);
 
 	_fireLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
-	_fireLight->Activate(false);
+	_fireLight->SetActive(false);
 }
 
 void GC_Weapon::Detach()
@@ -191,13 +191,13 @@ void GC_Weapon::ProcessRotate(float dt)
 			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos * directionVisual, _fePos.x*directionVisual.y - _fePos.y*directionVisual.x));
 			_fireLight->MoveTo(_fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
-			_fireLight->Activate(true);
+			_fireLight->SetActive(true);
 		}
 		else
 		{
 			_fireEffect->SetFrame(0);
 			_fireEffect->SetVisible(false);
-			_fireLight->Activate(false);
+			_fireLight->SetActive(false);
 		}
 	}
 
@@ -922,7 +922,7 @@ void GC_Weap_Ram::Attach(GC_Actor *actor)
 	_engineLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
-	_engineLight->Activate(false);
+	_engineLight->SetActive(false);
 
 
 	_fuel_max  = _fuel = 1.0f;
@@ -1121,7 +1121,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 
-		_engineLight->Activate(_firingCounter > 0);
+		_engineLight->SetActive(_firingCounter > 0);
 		if( _firingCounter ) --_firingCounter;
 	}
 	else
