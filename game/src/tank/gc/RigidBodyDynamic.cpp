@@ -139,7 +139,7 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(f);
 
-	float rotTmp = GetSpriteRotation();
+	float rotTmp = GetDirection().Angle();
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);
 	MAP_EXCHANGE_FLOAT(inv_i, _inv_i, 1);
 	MAP_EXCHANGE_FLOAT(percussion, _percussion, 1);
@@ -150,7 +150,7 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(rotation, rotTmp, 0);
 	if( f.loading() )
 	{
-		SetSpriteRotation(rotTmp);
+		SetDirection(vec2d(rotTmp));
 	}
 }
 
@@ -674,7 +674,6 @@ void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
 	_lv = src->_lv;
 //	_inv_m = _inv_m;
 //	_inv_i = _inv_i;
-//	_angle = _angle;
 	_Nx = src->_Nx;
 	_Ny = src->_Ny;
 	_Nw = src->_Nw;

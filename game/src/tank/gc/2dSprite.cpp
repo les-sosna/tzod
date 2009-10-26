@@ -191,23 +191,5 @@ void GC_2dSprite::Draw() const
 	g_texman->DrawSprite(_texId, _frame, _color, pos.x, pos.y, _direction);
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_UserSprite)
-{
-	return true;
-}
-
-GC_UserSprite::GC_UserSprite()
-  : GC_2dSprite()
-{
-}
-
-GC_UserSprite::GC_UserSprite(FromFile)
-  : GC_2dSprite(FromFile())
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

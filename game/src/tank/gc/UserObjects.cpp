@@ -150,7 +150,7 @@ GC_Decoration::GC_Decoration(float x, float y)
 }
 
 GC_Decoration::GC_Decoration(FromFile)
-  : GC_UserSprite(FromFile())
+  : GC_2dSprite(FromFile())
 {
 }
 
@@ -160,7 +160,7 @@ GC_Decoration::~GC_Decoration()
 
 void GC_Decoration::Serialize(SaveFile &f)
 {
-	GC_UserSprite::Serialize(f);
+	GC_2dSprite::Serialize(f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
@@ -168,7 +168,7 @@ void GC_Decoration::Serialize(SaveFile &f)
 
 void GC_Decoration::MapExchange(MapFile &f)
 {
-	GC_UserSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(f);
 
 	int z = GetZ();
 	int frame = GetCurrentFrame();

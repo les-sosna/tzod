@@ -131,7 +131,7 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 	PLAY(SND_w_Pickup, GetPos());
 
-	_fireEffect = WrapRawPtr(new GC_UserSprite());
+	_fireEffect = WrapRawPtr(new GC_2dSprite());
 	_fireEffect->SetZ(Z_EXPLODE);
 	_fireEffect->SetVisible(false);
 
@@ -206,12 +206,15 @@ void GC_Weapon::ProcessRotate(float dt)
 
 void GC_Weapon::SetCrosshair()
 {
-	_crosshair = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_SINGLE));
+	_crosshair = WrapRawPtr(new GC_2dSprite());
+	_crosshair->SetTexture("indicator_crosshair1");
+	_crosshair->SetZ(Z_VEHICLE_LABEL);
 }
 
 GC_Weapon::GC_Weapon(FromFile)
   : GC_Pickup(FromFile())
   , _rotatorWeap(_angleReal)
+  , _fixmeChAnimate(true)
 {
 }
 
@@ -238,6 +241,7 @@ void GC_Weapon::Serialize(SaveFile &f)
 	f.Serialize(_fireEffect);
 	f.Serialize(_fireLight);
 	f.Serialize(_rotateSound);
+	f.Serialize(_fixmeChAnimate);
 }
 
 void GC_Weapon::Kill()
@@ -262,9 +266,10 @@ void GC_Weapon::TimeStepFixed(float dt)
 	if( IsAttached() )
 	{
 		ProcessRotate(dt);
-		if( _crosshair && GC_Crosshair::CHS_SINGLE == _crosshair->_chStyle )
+		if( _crosshair && _fixmeChAnimate )
 		{
 			_crosshair->MoveTo(GetPosPredicted() + GetDirection() * CH_DISTANCE_NORMAL);
+			_crosshair->SetDirection(vec2d(_time * 5));
 		}
 	}
 	else
@@ -1230,9 +1235,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 
 void GC_Weap_Ripper::UpdateDisk()
 {
-	_disk->SetVisible(_time > _timeReload);
-	_disk->MoveTo(GetPosPredicted() - GetDirection() * 8);
-	_disk->SetDirection(vec2d(GetTimeAnimation() * 10));
+	_diskSprite->SetVisible(_time > _timeReload);
+	_diskSprite->MoveTo(GetPosPredicted() - GetDirection() * 8);
+	_diskSprite->SetDirection(vec2d(GetTimeAnimation() * 10));
 }
 
 void GC_Weap_Ripper::Attach(GC_Actor *actor)
@@ -1240,9 +1245,9 @@ void GC_Weap_Ripper::Attach(GC_Actor *actor)
 	GC_Weapon::Attach(actor);
 
 	_timeReload = 0.5f;
-	_disk = WrapRawPtr(new GC_UserSprite());
-	_disk->SetTexture("projectile_disk");
-	_disk->SetZ(Z_PROJECTILE);
+	_diskSprite = WrapRawPtr(new GC_2dSprite());
+	_diskSprite->SetTexture("projectile_disk");
+	_diskSprite->SetZ(Z_PROJECTILE);
 	UpdateDisk();
 
 //return;
@@ -1260,7 +1265,7 @@ void GC_Weap_Ripper::Attach(GC_Actor *actor)
 
 void GC_Weap_Ripper::Detach()
 {
-	SAFE_KILL(_disk);
+	SAFE_KILL(_diskSprite);
 	GC_Weapon::Detach();
 }
 
@@ -1282,7 +1287,7 @@ GC_Weap_Ripper::~GC_Weap_Ripper()
 void GC_Weap_Ripper::Serialize(SaveFile &f)
 {
 	GC_Weapon::Serialize(f);
-	f.Serialize(_disk);
+	f.Serialize(_diskSprite);
 }
 
 void GC_Weap_Ripper::Fire()
@@ -1311,7 +1316,7 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 void GC_Weap_Ripper::TimeStepFloat(float dt)
 {
 	GC_Weapon::TimeStepFloat(dt);
-	if( _disk )
+	if( _diskSprite )
 	{
 		UpdateDisk();
 	}
@@ -1398,8 +1403,15 @@ void GC_Weap_Minigun::Detach()
 
 void GC_Weap_Minigun::SetCrosshair()
 {
-	_crosshair     = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_DOUBLE));
-	_crosshairLeft = WrapRawPtr(new GC_Crosshair(GC_Crosshair::CHS_DOUBLE));
+	_crosshair = WrapRawPtr(new GC_2dSprite());
+	_crosshair->SetTexture("indicator_crosshair2");
+	_crosshair->SetZ(Z_VEHICLE_LABEL);
+
+	_crosshairLeft = WrapRawPtr(new GC_2dSprite());
+	_crosshairLeft->SetTexture("indicator_crosshair2");
+	_crosshairLeft->SetZ(Z_VEHICLE_LABEL);
+
+	_fixmeChAnimate = false;
 }
 
 void GC_Weap_Minigun::Serialize(SaveFile &f)
@@ -1494,13 +1506,13 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 		float da = _timeFire * 0.1f / WEAP_MG_TIME_RELAX;
 		if( _crosshair )
 		{
-			_crosshair->_angle = va + da + _angleReal;
-			_crosshair->MoveTo(GetPosPredicted() + vec2d(_crosshair->_angle) * CH_DISTANCE_THIN);
+			_crosshair->SetDirection(vec2d(va + da + _angleReal));
+			_crosshair->MoveTo(GetPosPredicted() + _crosshair->GetDirection() * CH_DISTANCE_THIN);
 		}
 		if( _crosshairLeft )
 		{
-			_crosshairLeft->_angle = va - da + _angleReal;
-			_crosshairLeft->MoveTo(GetPosPredicted() + vec2d(_crosshairLeft->_angle) * CH_DISTANCE_THIN);
+			_crosshairLeft->SetDirection(vec2d(va - da + _angleReal));
+			_crosshairLeft->MoveTo(GetPosPredicted() + _crosshairLeft->GetDirection() * CH_DISTANCE_THIN);
 		}
 	}
 

@@ -33,7 +33,7 @@ protected:
 
 	SafePtr<GC_Sound>       _rotateSound;
 	SafePtr<GC_Vehicle>     _target;
-	SafePtr<GC_UserSprite>  _weaponSprite;
+	SafePtr<GC_2dSprite>    _weaponSprite;
 
 	enum enumTuretState
 	{

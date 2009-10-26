@@ -59,34 +59,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-class GC_Crosshair : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_Crosshair);
-public:
-	enum enChStyle
-	{
-		CHS_SINGLE,
-		CHS_DOUBLE
-	};
-
-private:
-	float _time;
-
-public:
-	float     _angle;
-	enChStyle _chStyle;
-
-public:
-	GC_Crosshair(enChStyle style);
-	GC_Crosshair(FromFile);
-
-	virtual void Serialize(SaveFile &f);
-
-	virtual void TimeStepFloat(float dt);
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // flags
 #define GC_FLAG_INDICATOR_INVERSE      (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_INDICATOR_             (GC_FLAG_2DSPRITE_ << 1)

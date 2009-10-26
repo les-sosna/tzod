@@ -12,12 +12,6 @@
 #define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 1)
 
 ///////////////////////////////////////////////////////////////////////////////
-// forward class declarations
-
-class GC_UserSprite;
-
-
-///////////////////////////////////////////////////////////////////////////////
 
 class GC_Light : public GC_Actor
 {
@@ -41,7 +35,7 @@ private:
 	enumLightType _type;
 	vec2d  _lightDirection;
 
-	SafePtr<GC_UserSprite> _lamp;
+	SafePtr<GC_2dSprite> _lampSprite;
 
 	static const int SINTABLE_SIZE = 32;
 	static const int SINTABLE_MASK = 0x1f;

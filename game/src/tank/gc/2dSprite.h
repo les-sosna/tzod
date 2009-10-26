@@ -119,17 +119,5 @@ public:
 	virtual void Draw() const;
 };
 
-/////////////////////////////////////////////////////////////
-
-class GC_UserSprite : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_UserSprite);
-
-public:
-	GC_UserSprite();
-	GC_UserSprite(FromFile);
-};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

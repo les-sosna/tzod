@@ -42,7 +42,7 @@ GC_Turret::GC_Turret(float x, float y, const char *tex)
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
 	_rotateSound = WrapRawPtr(new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos()));
-	_weaponSprite = WrapRawPtr(new GC_UserSprite());
+	_weaponSprite = WrapRawPtr(new GC_2dSprite());
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(Z_FREE_ITEM);
 

@@ -31,7 +31,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 
 GC_Light::GC_Light(enumLightType type)
   : _memberOf(this)
-  , _lamp(new GC_UserSprite())
+  , _lampSprite(new GC_2dSprite())
   , _timeout(0)
   , _aspect(1)
   , _offset(0)
@@ -65,7 +65,7 @@ void GC_Light::Serialize(SaveFile &f)
 	f.Serialize(_radius);
 	f.Serialize(_timeout);
 	f.Serialize(_type);
-	f.Serialize(_lamp);
+	f.Serialize(_lampSprite);
 }
 
 void GC_Light::MapExchange(MapFile &f)
@@ -159,13 +159,13 @@ void GC_Light::Shine() const
 
 void GC_Light::Kill()
 {
-	SAFE_KILL(_lamp);
+	SAFE_KILL(_lampSprite);
 	GC_Actor::Kill();
 }
 
 void GC_Light::MoveTo(const vec2d &pos)
 {
-	_lamp->MoveTo(pos);
+	_lampSprite->MoveTo(pos);
 	GC_Actor::MoveTo(pos);
 }
 
@@ -187,15 +187,15 @@ void GC_Light::TimeStepFixed(float dt)
 void GC_Light::Activate(bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
-	_lamp->SetVisible(activate);
+	_lampSprite->SetVisible(activate);
 }
 
 void GC_Light::Update()
 {
 	if( LIGHT_SPOT == _type )
 	{
-		_lamp->SetTexture("shine");
-		_lamp->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
+		_lampSprite->SetTexture("shine");
+		_lampSprite->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
 	}
 }
 

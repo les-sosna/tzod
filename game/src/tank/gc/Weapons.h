@@ -37,8 +37,8 @@ protected:
 	vec2d _directionReal;
 
 protected:
-	SafePtr<GC_UserSprite> _fireEffect;
-	SafePtr<GC_Light>      _fireLight;
+	SafePtr<GC_2dSprite> _fireEffect;
+	SafePtr<GC_Light>    _fireLight;
 	vec2d _fePos;
 	float _feTime;
 	float _feOrient;
@@ -60,8 +60,9 @@ public:
 	float    _angleReal;          // note that sprite rotation is predicted angle
 	Rotator  _rotatorWeap;
 
-	SafePtr<GC_Crosshair> _crosshair;
 	SafePtr<GC_Sound>     _rotateSound;
+	SafePtr<GC_2dSprite>  _crosshair;
+	bool _fixmeChAnimate;
 
 public:
 	GC_Weapon(float x, float y);
@@ -279,7 +280,7 @@ class GC_Weap_Ripper : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
-	SafePtr<GC_UserSprite> _disk;
+	SafePtr<GC_2dSprite> _diskSprite;
 	void UpdateDisk();
 
 public:
@@ -309,7 +310,7 @@ private:
 	float _timeShot;
 	bool _bFire;
 
-	SafePtr<GC_Crosshair> _crosshairLeft;
+	SafePtr<GC_2dSprite> _crosshairLeft;
 
 public:
 	virtual void Attach(GC_Actor *actor);

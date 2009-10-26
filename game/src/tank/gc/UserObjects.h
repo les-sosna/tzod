@@ -39,7 +39,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Decoration : public GC_UserSprite
+class GC_Decoration : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
@@ -48,9 +48,9 @@ class GC_Decoration : public GC_UserSprite
 	float _time;
 
 protected:
-	class MyPropertySet : public GC_UserSprite::MyPropertySet
+	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
-		typedef GC_UserSprite::MyPropertySet BASE;
+		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propTexture;
 		ObjectProperty _propLayer;
 		ObjectProperty _propAnimate;

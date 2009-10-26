@@ -782,7 +782,7 @@ void GC_Tank_Light::SetDefaults()
 	_BackAccel = 200;
 	_StopAccel = 500;
 
-//	_rotator.reset(_angle, _rotator.getv(), 3.5f, 10.0f, 30.0f);
+//	_rotator.reset(_angle0, _rotator.getv(), 3.5f, 10.0f, 30.0f);
 
 	SetMaxHP(GetDefaultHealth());
 }

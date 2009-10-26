@@ -164,69 +164,6 @@ void GC_HideLabel::Draw() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Crosshair)
-{
-	return true;
-}
-
-GC_Crosshair::GC_Crosshair(enChStyle style)
-  : GC_2dSprite()
-{
-	SetZ(Z_VEHICLE_LABEL);
-
-	_time = 0;
-	_chStyle = style;
-
-	switch (_chStyle)
-	{
-	case CHS_SINGLE:
-		SetTexture("indicator_crosshair1");
-		break;
-	case CHS_DOUBLE:
-		SetTexture("indicator_crosshair2");
-		break;
-	default:
-		assert(FALSE);
-	}
-
-	///////////////////////
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
-}
-
-GC_Crosshair::GC_Crosshair(FromFile)
-  : GC_2dSprite(FromFile())
-{
-}
-
-void GC_Crosshair::Serialize(SaveFile &f)
-{
-	GC_2dSprite::Serialize(f);
-	f.Serialize(_angle);
-	f.Serialize(_chStyle);
-	f.Serialize(_time);
-}
-
-void GC_Crosshair::TimeStepFloat(float dt)
-{
-	GC_2dSprite::TimeStepFloat(dt);
-
-	_time += dt;
-
-	switch (_chStyle)
-	{
-	case CHS_SINGLE:
-		SetSpriteRotation(_time*5);
-		break;
-	case CHS_DOUBLE:
-		SetSpriteRotation(_angle);
-		break;
-	default:
-		assert(FALSE);
-	}
-}
-
-/////////////////////////////////////////////////////////////
-
 IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 {
 	return true;
