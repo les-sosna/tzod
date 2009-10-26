@@ -80,7 +80,7 @@ enum enumZOrder
 #define SPEED_ACBULLET      1800.0f
 #define SPEED_DISK          2000.0f
 #define SPEED_BFGCORE        500.0f
-#define SPEED_FIRE           400.0f
+#define SPEED_FIRE           600.0f
 #define SPEED_SMOKE          vec2d(0, -40.0f)
 
 // повреждение от снарядов

@@ -207,7 +207,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 		else
 		{
 			assert(GetPos() == pos);
-			float new_dt = dt * (1.0f - sqrtf((hit - GetPos()).sqr() / dx.sqr()));
+			float new_dt = dt * (1.0f - sqrt((hit - GetPos()).sqr() / dx.sqr()));
 			if( new_dt > 1e-3 )
 			{
 				MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
@@ -889,9 +889,9 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 		p->SetAutoRotate(_rotation);
 	}
 
-	vec2d dv(GetDirection().y, -GetDirection().x);
-	dv *= g_level->net_frand(20) - 10;
-//	_velocity += dv; // TODO:
+	// random walk
+	vec2d tmp = GetDirection() + vec2d(GetDirection().y, -GetDirection().x) * (g_level->net_frand(0.06f) - 0.03f);
+	SetDirection(tmp.Normalize());
 }
 
 float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
@@ -905,17 +905,8 @@ float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
 
 void GC_FireSpark::TimeStepFixed(float dt)
 {
-	_time += dt;
-
-	if( _time > _timeLife )
-	{
-		Kill();
-		return;
-	}
-
 	float R = GetRadius();
 	_light->SetRadius(3*R);
-
 
 	R *= 1.5; // for damage calculation
 
@@ -956,7 +947,24 @@ void GC_FireSpark::TimeStepFixed(float dt)
 		}
 	}
 
+	_time += dt;
+	if( _time > _timeLife )
+	{
+		Kill();
+		return;
+	}
+
+	// this moves the particle by velocity*dt
 	GC_Projectile::TimeStepFixed(dt);
+
+	if( !IsKilled() )
+	{
+		const float a = 1.5;
+		float e = exp(-a * dt);
+		vec2d correcton = GetDirection() * (_velocity * ((1 - e) / a - dt));
+		_velocity *= e;
+		MoveTo(GetPos() + correcton, false);
+	}
 }
 
 void GC_FireSpark::SetLifeTime(float t)
