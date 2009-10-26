@@ -51,11 +51,11 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	{
 		SetSpeed(1.0f);
 	}
-	///////////////////////
+
 	_mode = SMODE_UNKNOWN;
 	SetMode(mode);
-	//////////////////////
-	if( g_level->_modeEditor )
+
+	if( g_level->GetEditorMode() )
 		Freeze(true);
 #endif
 }

@@ -4,6 +4,7 @@
 
 #include "Window.h"
 #include "Console.h"
+#include "Level.h"
 
 namespace UI
 {
@@ -46,7 +47,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Desktop : public Window
+class Desktop
+	: public Window
+	, private EditorModeListenerHelper
 {
 	class MyConsoleHistory : public UI::IConsoleHistory
 	{
@@ -66,12 +69,14 @@ class Desktop : public Window
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
 
+	// IEditorModeListener
+	virtual void OnEditorModeChanged(bool editorMode);
+
 public:
 	Desktop(LayoutManager* manager);
 	~Desktop();
 
 	void ShowConsole(bool show);
-	void ShowEditor(bool show);
 
 	void OnCloseChild(int result);
 

@@ -136,7 +136,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	(new ControlProfileDlg(this, NULL))->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
+	(new ControlProfileDlg(this, NULL))->eventClose = boost::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
 }
 
 void SettingsDlg::OnEditProfile()
@@ -144,7 +144,7 @@ void SettingsDlg::OnEditProfile()
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
 	(new ControlProfileDlg(this, _profiles->GetData()->GetItemText(i, 0).c_str()))
-		->eventClose.bind(&SettingsDlg::OnProfileEditorClosed, this);
+		->eventClose = boost::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
 }
 
 void SettingsDlg::OnDeleteProfile()

@@ -231,7 +231,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 
 void GC_Pickup::Draw() const
 {
-	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || g_level->_modeEditor )
+	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || g_level->GetEditorMode() )
 	{
 		__super::Draw();
 	}

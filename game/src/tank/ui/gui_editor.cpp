@@ -530,7 +530,7 @@ EditorLayout::EditorLayout(Window *parent)
 	_mbutton = 0;
 
 	assert(!g_conf.ed_uselayers.eventChange);
-	g_conf.ed_uselayers.eventChange.bind(&EditorLayout::OnChangeUseLayers, this);
+	g_conf.ed_uselayers.eventChange = boost::bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
 

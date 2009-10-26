@@ -93,14 +93,14 @@ void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
 	NewGameDlg *dlg = new NewGameDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnCampaign()
 {
 	SetVisible(false);
 	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnSaveGame()
@@ -120,7 +120,7 @@ void MainMenuDlg::OnSaveGame()
 	SetVisible(false);
 	assert(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
-	_fileDlg->eventClose.bind(&MainMenuDlg::OnSaveGameSelect, this);
+	_fileDlg->eventClose = boost::bind(&MainMenuDlg::OnSaveGameSelect, this, _1);
 }
 
 void MainMenuDlg::OnSaveGameSelect(int result)
@@ -164,7 +164,7 @@ void MainMenuDlg::OnLoadGame()
 	SetVisible(false);
 	assert(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
-	_fileDlg->eventClose.bind(&MainMenuDlg::OnLoadGameSelect, this);
+	_fileDlg->eventClose = boost::bind(&MainMenuDlg::OnLoadGameSelect, this, _1);
 }
 
 void MainMenuDlg::OnLoadGameSelect(int result)
@@ -201,21 +201,21 @@ void MainMenuDlg::OnHost()
 {
 	SetVisible(false);
 	CreateServerDlg *dlg = new CreateServerDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnJoin()
 {
 	SetVisible(false);
 	ConnectDlg *dlg = new ConnectDlg(GetParent(), NULL);
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnInternet()
 {
 	SetVisible(false);
 	InternetDlg *dlg = new InternetDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnNetworkProfile()
@@ -234,14 +234,14 @@ void MainMenuDlg::OnNewMap()
 {
 	SetVisible(false);
 	NewMapDlg *dlg = new NewMapDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnMapSettings()
 {
 	SetVisible(false);
 	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnImportMap()
@@ -261,7 +261,7 @@ void MainMenuDlg::OnImportMap()
 	SetVisible(false);
 	assert(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
-	_fileDlg->eventClose.bind(&MainMenuDlg::OnImportMapSelect, this);
+	_fileDlg->eventClose = boost::bind(&MainMenuDlg::OnImportMapSelect, this, _1);
 }
 
 void MainMenuDlg::OnImportMapSelect(int result)
@@ -279,10 +279,6 @@ void MainMenuDlg::OnImportMapSelect(int result)
 		{
 			GetConsole().Printf(1, "couldn't import map '%s'", tmp.c_str());
 			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
-		}
-		else
-		{
-			static_cast<UI::Desktop*>(GetManager()->GetDesktop())->ShowEditor(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -306,7 +302,7 @@ void MainMenuDlg::OnExportMap()
 	SetVisible(false);
 	assert(NULL == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
-	_fileDlg->eventClose.bind(&MainMenuDlg::OnExportMapSelect, this);
+	_fileDlg->eventClose = boost::bind(&MainMenuDlg::OnExportMapSelect, this, _1);
 }
 
 void MainMenuDlg::OnExportMapSelect(int result)
@@ -340,7 +336,7 @@ void MainMenuDlg::OnSettings()
 {
 	SetVisible(false);
 	SettingsDlg *dlg = new SettingsDlg(GetParent());
-	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
+	dlg->eventClose = boost::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
 void MainMenuDlg::OnExit()

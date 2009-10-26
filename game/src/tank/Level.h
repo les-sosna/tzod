@@ -145,6 +145,17 @@ class GC_2dSprite;
 
 //////////////////////
 
+struct IEditorModeListener
+{
+	virtual void OnEditorModeChanged(bool editorMode) = 0;
+};
+
+class EditorModeListenerHelper: private IEditorModeListener
+{
+protected:
+	EditorModeListenerHelper();
+	~EditorModeListenerHelper();
+};
 
 class Level : public RefCounted
 {
@@ -169,6 +180,8 @@ class Level : public RefCounted
 	};
 
 	ObjectList _objectLists[GLOBAL_LIST_COUNT];
+	std::set<IEditorModeListener*> _editorModeListeners;
+	bool    _modeEditor;
 
 public:
 
@@ -204,7 +217,6 @@ public:
 /////////////////////////////////////
 //settings
 	bool    _frozen;
-	bool    _modeEditor;
 	bool    _limitHit;  // достигнут fraglimit или timelimit
 	float   _sx, _sy;   // размер уровня
 
@@ -237,7 +249,6 @@ public:
 
 	void Step(const ControlPacketVector &ctrl, float dt);
 
-
 	Field _field;
 
 	int  _ctrlSentCount;
@@ -245,6 +256,9 @@ public:
 
 /////////////////////////////////////////////////////
 	Level();
+
+	void AddEditorModeListener(IEditorModeListener *ls);
+	void RemoveEditorModeListener(IEditorModeListener *ls);
 
 	void Resize(int X, int Y);
 	void Clear();
@@ -388,7 +402,8 @@ private:
 	}
 
 public:
-	void ToggleEditorMode();
+	bool GetEditorMode() const { return _modeEditor; }
+	void SetEditorMode(bool editorModeEnable);
 	GC_Object* CreateObject(ObjectType type, float x, float y);
 	GC_2dSprite* PickEdObject(const vec2d &pt, int layer);
 

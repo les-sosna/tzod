@@ -87,7 +87,7 @@ ConfVar::~ConfVar()
 void ConfVar::FireValueUpdate(ConfVar *pVar)
 {
 	if( eventChange )
-		INVOKE(eventChange) ();
+		eventChange();
 }
 
 const char* ConfVar::GetTypeName() const

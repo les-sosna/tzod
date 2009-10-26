@@ -47,7 +47,7 @@ void GC_SpawnPoint::Serialize(SaveFile &f)
 
 void GC_SpawnPoint::Draw() const
 {
-	if( g_level->_modeEditor )
+	if( g_level->GetEditorMode() )
 	{
 		__super::Draw();
 
@@ -158,7 +158,7 @@ GC_HideLabel::GC_HideLabel(FromFile)
 
 void GC_HideLabel::Draw() const
 {
-	if( g_level->_modeEditor )
+	if( g_level->GetEditorMode() )
 	{
 		__super::Draw();
 	}

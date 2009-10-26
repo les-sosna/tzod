@@ -106,7 +106,7 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 void ScoreTable::OnTimeStep(float dt)
 {
 	bool tab = g_env.envInputs.keys[DIK_TAB];
-	SetVisible(!g_level->IsEmpty() && !g_level->_modeEditor && (tab || g_level->_limitHit));
+	SetVisible(!g_level->IsEmpty() && !g_level->GetEditorMode() && (tab || g_level->_limitHit));
 }
 
 

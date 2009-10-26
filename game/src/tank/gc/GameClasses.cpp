@@ -113,7 +113,7 @@ void GC_Wood::Draw() const
 
 	vec2d pos = GetPosPredicted();
 
-	if( !g_level->_modeEditor )
+	if( !g_level->GetEditorMode() )
 	{
 		for( char i = 0; i < 8; ++i )
 		{

@@ -245,6 +245,18 @@ void Field::Dump()
 
 ////////////////////////////////////////////////////////////
 
+EditorModeListenerHelper::EditorModeListenerHelper()
+{
+	g_level->AddEditorModeListener(this);
+}
+
+EditorModeListenerHelper::~EditorModeListenerHelper()
+{
+	g_level->RemoveEditorModeListener(this);
+}
+
+////////////////////////////////////////////////////////////
+
 // в конструкторе нельзя создавать игровые объекты
 Level::Level()
   : _modeEditor(false)
@@ -274,8 +286,20 @@ Level::Level()
 	TRACE("Constructing the level");
 
 	// register config handlers
-	g_conf.s_volume.eventChange.bind(&Level::OnChangeSoundVolume, this);
-	g_conf.sv_nightmode.eventChange.bind(&Level::OnChangeNightMode, this);
+	g_conf.s_volume.eventChange = boost::bind(&Level::OnChangeSoundVolume, this);
+	g_conf.sv_nightmode.eventChange = boost::bind(&Level::OnChangeNightMode, this);
+}
+
+void Level::AddEditorModeListener(IEditorModeListener *ls)
+{
+	assert(!_editorModeListeners.count(ls));
+	_editorModeListeners.insert(ls);
+}
+
+void Level::RemoveEditorModeListener(IEditorModeListener *ls)
+{
+	assert(_editorModeListeners.count(ls));
+	_editorModeListeners.erase(ls);
 }
 
 bool Level::IsEmpty() const
@@ -312,9 +336,7 @@ void Level::Resize(int X, int Y)
 void Level::Clear()
 {
 	assert(IsSafeMode());
-
-	if( g_gui )  // FIXME: dependence on GUI
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
+	SetEditorMode(false);
 
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
@@ -333,7 +355,6 @@ void Level::Clear()
 
 	// reset variables
 	_ctrlSentCount = 0;
-	_modeEditor = false;
 	_pause = 0;
 	_time = 0;
 	_timeBuffer = 0;
@@ -372,8 +393,7 @@ bool Level::init_emptymap(int X, int Y)
 
 	_ThemeManager::Inst().ApplyTheme(0);
 
-	ToggleEditorMode();
-	assert(_modeEditor);
+	SetEditorMode(true);
 
 	g_conf.sv_nightmode.Set(false);
 
@@ -398,8 +418,7 @@ bool Level::init_import_and_edit(const char *mapName)
 		return false;
 	}
 
-	ToggleEditorMode();
-	assert(_modeEditor);
+	SetEditorMode(true);
 
 	return true;
 }
@@ -410,9 +429,9 @@ void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
 	assert(IsEmpty());
 
 	_gameType   = GT_DEATHMATCH;
-	_modeEditor = false;
 	_seed       = seed;
 
+	SetEditorMode(false);
 	Import(s, true);
 }
 
@@ -429,15 +448,17 @@ Level::~Level()
 
 	//-------------------------------------------
 	assert(!g_env.nNeedCursor);
+	assert(_editorModeListeners.empty());
 }
 
 void Level::Unserialize(const char *fileName)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
-	_modeEditor = false;
 
 	TRACE("Loading saved game from file '%s'...", fileName);
+
+	SetEditorMode(false);
 
 	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeRead)->QueryStream());
 	SaveFile f(stream, true);
@@ -539,7 +560,7 @@ void Level::Unserialize(const char *fileName)
 			pPlayer->UpdateSkin();
 		}
 
-		GC_Camera::SwitchEditor();
+		GC_Camera::UpdateLayout();
 	}
 	catch( const std::runtime_error& )
 	{
@@ -687,7 +708,7 @@ void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)
 		GC_Object *object = get_t2i()[it->second].Create(x, y);
 		object->MapExchange(file);
 	}
-	GC_Camera::SwitchEditor();
+	GC_Camera::UpdateLayout();
 
 	if( execInitScript && !script_exec(g_env.L, _infoOnInit.c_str()) )
 	{
@@ -767,24 +788,28 @@ void Level::PauseSound(bool pause)
 	}
 }
 
-void Level::ToggleEditorMode()
+void Level::SetEditorMode(bool editorModeEnable)
 {
 	if( GT_INTRO == _gameType )
 	{
 		return;
 	}
 
-	if( _modeEditor )
+	if( !_modeEditor ^ !editorModeEnable )
 	{
-		_modeEditor = false;
-		PauseLocal(false);
+		if( _modeEditor )
+		{
+			_modeEditor = false;
+			PauseLocal(false);
+		}
+		else
+		{
+			_modeEditor = true;
+			PauseLocal(true);
+		}
+		std::for_each(_editorModeListeners.begin(), _editorModeListeners.end(),
+			std::bind2nd(std::mem_fun1(&IEditorModeListener::OnEditorModeChanged), _modeEditor));
 	}
-	else
-	{
-		_modeEditor = true;
-		PauseLocal(true);
-	}
-	GC_Camera::SwitchEditor();
 }
 
 GC_Object* Level::CreateObject(ObjectType type, float x, float y)
@@ -1129,7 +1154,7 @@ void Level::TimeStep(float dt)
 
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 	assert(dt >= 0);
-	assert(!_modeEditor);
+	assert(!GetEditorMode());
 
 
 	//
@@ -1328,7 +1353,7 @@ void Level::Render() const
 {
 	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? 0.0f : 1.0f);
 
-	if( _modeEditor || GetList(LIST_cameras).empty() )
+	if( GetEditorMode() || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera
 		g_env.camera_x = int(_defaultCamera.GetPosX());
@@ -1422,7 +1447,7 @@ void Level::RenderInternal(float zoom) const
 
 	// background texture
 	DrawBackground(_texBack);
-	if( g_level->_modeEditor && g_conf.ed_drawgrid.Get() )
+	if( GetEditorMode() && g_conf.ed_drawgrid.Get() )
 		DrawBackground(_texGrid);
 
 

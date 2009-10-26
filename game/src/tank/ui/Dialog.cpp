@@ -34,7 +34,7 @@ void Dialog::SetEasyMove(bool enable)
 void Dialog::Close(int result)
 {
 	if( eventClose )
-		INVOKE(eventClose) (result);
+		eventClose(result);
 	Destroy();
 }
 

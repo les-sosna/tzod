@@ -73,7 +73,7 @@ GC_Weapon::GC_Weapon(float x, float y)
   , _rotatorWeap(_angleReal)
   , _advanced(false)
   , _feTime(1.0f)
-  , _feOrient(0)
+  , _feOrient(1,0)
   , _fePos(0,0)
   , _time(0)
   , _timeStay(15.0f)
@@ -186,7 +186,7 @@ void GC_Weapon::ProcessRotate(float dt)
 			float op = 1.0f - pow(_time / _feTime, 2);
 
 			_fireEffect->SetFrame(frame);
-			_fireEffect->SetDirection(Vec2dAddDirection(directionVisual, vec2d((float) _feOrient)));
+			_fireEffect->SetDirection(Vec2dAddDirection(directionVisual, _feOrient));
 			_fireEffect->SetOpacity(op);
 
 			_fireEffect->MoveTo(GetPosPredicted() + vec2d(_fePos * directionVisual, _fePos.x*directionVisual.y - _fePos.y*directionVisual.x));
@@ -1338,7 +1338,7 @@ GC_Weap_Minigun::GC_Weap_Minigun(float x, float y)
 
 	_fePos.Set(20, 0);
 	_feTime   = 0.1f;
-	_feOrient = frand(PI2);
+	_feOrient = vrand(1);
 }
 
 GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
@@ -1473,7 +1473,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 			for(; _timeShot > 0; _timeShot -= _advanced ? 0.02f : 0.04f)
 			{
 				_time = frand(_feTime);
-				_feOrient = frand(PI2);
+				_feOrient = vrand(1);
 				_fireEffect->SetVisible(true);
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;

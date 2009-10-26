@@ -134,7 +134,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 {
 	static const TextureCache track("cat_track");
 
-	if( _moveSound && !(g_level->_modeEditor || g_level->_limitHit) )
+	if( _moveSound && !(g_level->GetEditorMode() || g_level->_limitHit) )
 	{
 		_moveSound->MoveTo(GetPos());
 		float v = _lv.len() / _parent->GetMaxSpeed();

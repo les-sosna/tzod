@@ -130,11 +130,6 @@ void GC_Camera::GetViewport(RECT &vp) const
 	vp = _viewport;
 }
 
-void GC_Camera::SwitchEditor()
-{
-	UpdateLayout();
-}
-
 void GC_Camera::UpdateLayout()
 {
 	GC_Camera *any = NULL;
@@ -210,7 +205,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 {
 	POINT ptinscr = { g_env.envInputs.mouse_x, g_env.envInputs.mouse_y };
 
-	if( g_level->_modeEditor || g_level->GetList(LIST_cameras).empty() )
+	if( g_level->GetEditorMode() || g_level->GetList(LIST_cameras).empty() )
 	{
 		// use default camera
 		pos.x = float(ptinscr.x) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosX();

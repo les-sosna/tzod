@@ -18,7 +18,7 @@ MusicPlayer::MusicPlayer()
 {
 	ZeroMemory(&_vorbisFile, sizeof(OggVorbis_File));
 	ZeroMemory(&_state, sizeof(State));
-	g_conf.s_musicvolume.eventChange.bind(&MusicPlayer::OnChangeVolume, this);
+	g_conf.s_musicvolume.eventChange = boost::bind(&MusicPlayer::OnChangeVolume, this);
 }
 
 MusicPlayer::~MusicPlayer()

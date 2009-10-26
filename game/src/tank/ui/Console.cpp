@@ -163,7 +163,7 @@ bool Console::OnRawChar(int c)
 				_buf->Format(0) << "> " << cmd;       // echo to the console
 			}
 			if( eventOnSendCommand )
-				INVOKE(eventOnSendCommand) (cmd.c_str());
+				eventOnSendCommand(cmd.c_str());
 			_input->SetText(string_t());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());
@@ -192,7 +192,7 @@ bool Console::OnRawChar(int c)
 		{
 			string_t result;
 			int pos = _input->GetSelEnd();
-			if( INVOKE(eventOnRequestCompleteCommand)(_input->GetText(), pos, result) )
+			if( eventOnRequestCompleteCommand(_input->GetText(), pos, result) )
 			{
 				_input->SetText(result);
 				_input->SetSel(pos, pos);

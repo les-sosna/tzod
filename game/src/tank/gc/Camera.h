@@ -35,7 +35,6 @@ public:
 	float GetZoom() const { return _zoom; }
 	const SafePtr<GC_Player>& GetPlayer() const { assert(_player); return _player; }
 
-	static void SwitchEditor();
 	static void UpdateLayout();
 	static bool GetWorldMousePos(vec2d &pos);
 

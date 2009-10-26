@@ -64,7 +64,6 @@ static int luaT_reset(lua_State *L)
 	//
 
 	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
 
 	return 0;
 }
@@ -112,11 +111,6 @@ static int luaT_freeze(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	g_level->Freeze( 0 != lua_toboolean(L, 1) );
 
 	return 0;
@@ -145,8 +139,6 @@ static int luaT_loadmap(lua_State *L)
 		return luaL_error(L, "couldn't load map '%s' - %s", filename, e.what());
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
-
 	return 0;
 }
 
@@ -168,8 +160,6 @@ static int luaT_newmap(lua_State *L)
 	{
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
 	}
-
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
 
 	return 0;
 }
@@ -199,8 +189,6 @@ static int luaT_load(lua_State *L)
 		return luaL_error(L, "couldn't load game from '%s' - %s", filename, e.what());
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(false);
-
 	return 0;
 }
 
@@ -212,11 +200,6 @@ static int luaT_save(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
@@ -257,8 +240,6 @@ static int luaT_import(lua_State *L)
 		return luaL_error(L, "couldn't import map '%s'", filename);
 	}
 
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->ShowEditor(true);
-
 	return 0;
 }
 
@@ -270,11 +251,6 @@ static int luaT_export(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no map loaded");
-	}
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
@@ -629,12 +605,6 @@ int luaT_actor(lua_State *L)
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
 
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	ObjectType type = Level::GetTypeByName(name);
 	if( INVALID_OBJECT_TYPE == type )
 	{
@@ -678,11 +648,6 @@ int luaT_service(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
 
 	ObjectType type = Level::GetTypeByName(name);
 	if( INVALID_OBJECT_TYPE == type )
@@ -730,13 +695,7 @@ int luaT_damage(lua_State *L)
 	float hp = (float) luaL_checknumber(L, 1);
 	const char *name = luaL_checkstring(L, 2);
 
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	GC_Object *obj = g_level->FindObject(name);
-
 	if( NULL == obj )
 	{
 		return luaL_error(L, "object with name '%s' was not found", name);
@@ -764,11 +723,6 @@ int luaT_kill(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	GC_Object *obj = g_level->FindObject(name);
 	if( NULL == obj )
 	{
@@ -792,12 +746,6 @@ int luaT_exists(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	lua_pushboolean(L, NULL != g_level->FindObject(name));
 	return 1;
 }
@@ -813,12 +761,6 @@ int luaT_position(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	GC_Object *obj = g_level->FindObject(name);
 	if( NULL == obj )
 	{
@@ -848,12 +790,6 @@ int luaT_objtype(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	GC_Object *obj = g_level->FindObject(name);
 	if( NULL == obj )
 	{
@@ -878,11 +814,6 @@ int luaT_pget(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
 
 	GC_Object *obj = g_level->FindObject(name);
 
@@ -938,11 +869,6 @@ int luaT_pset(lua_State *L)
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
 
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
-
 	GC_Object *obj = g_level->FindObject(name);
 	if( NULL == obj )
 	{
@@ -973,11 +899,6 @@ int luaT_equip(lua_State *L)
 	}
 	const char *targetname = luaL_checkstring(L, 1);
 	const char *pickupname = luaL_checkstring(L, 2);
-
-	if( g_level->IsEmpty() )
-	{
-		return luaL_error(L, "no game started");
-	}
 
 	GC_Object *target_raw = g_level->FindObject(targetname);
 	if( NULL == target_raw )

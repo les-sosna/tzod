@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank", "tank.vcproj", "{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
 	ProjectSection(ProjectDependencies) = postProject
 		{69802413-3739-43E0-96C9-709713A35B34} = {69802413-3739-43E0-96C9-709713A35B34}

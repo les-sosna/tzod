@@ -113,7 +113,7 @@ static void RenderFrame(bool thumbnail)
 
 	g_render->Begin();
 
-	if( !g_level->IsEmpty() ) g_level->Render();
+	g_level->Render();
 	if( g_gui ) g_gui->Render();
 
 	g_render->End(); // display new frame

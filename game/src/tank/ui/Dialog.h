@@ -19,7 +19,7 @@ public:
 	static const int _resultOK     = 0;
 	static const int _resultCancel = 1;
 
-	Delegate<void(int)> eventClose;
+	boost::function<void(int)> eventClose;
 
 protected:
 	void Close(int result);

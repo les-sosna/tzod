@@ -40,8 +40,8 @@ protected:
 	SafePtr<GC_2dSprite> _fireEffect;
 	SafePtr<GC_Light>    _fireLight;
 	vec2d _fePos;
+	vec2d _feOrient;
 	float _feTime;
-	float _feOrient;
 	bool _advanced; // weapon has booster attached
 
 public:

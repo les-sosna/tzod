@@ -51,8 +51,8 @@ public:
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);
 	void SetEcho(bool echo);
-	Delegate<void(const string_t &)> eventOnSendCommand;
-	Delegate<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
+	boost::function<void(const string_t &)> eventOnSendCommand;
+	boost::function<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual bool OnChar(int c);

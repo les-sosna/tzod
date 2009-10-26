@@ -169,7 +169,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 
 void GC_Trigger::Draw() const
 {
-	if( g_level->_modeEditor )
+	if( g_level->GetEditorMode() )
 	{
 		__super::Draw();
 	}

@@ -49,7 +49,7 @@ public:
 	virtual bool Assign(lua_State *L);
 
 	// notifications
-	Delegate<void(void)> eventChange;
+	boost::function<void(void)> eventChange;
 
 	// serialization
 	virtual bool Write(FILE *file, int indent) const;

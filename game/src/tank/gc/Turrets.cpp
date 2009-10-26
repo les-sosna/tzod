@@ -250,7 +250,7 @@ void GC_Turret::MapExchange(MapFile &f)
 void GC_Turret::Draw() const
 {
 	__super::Draw();
-	if( g_level->_modeEditor )
+	if( g_level->GetEditorMode() )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
