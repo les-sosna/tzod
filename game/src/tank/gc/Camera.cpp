@@ -27,7 +27,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
   : GC_Actor()
   , _memberOf(this)
-  , _rotator(_angle_current)
+  , _rotator(_rotatorAngle)
   , _player(player)
 {
 	assert(_player);
@@ -40,7 +40,7 @@ GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
 	MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );
 	if( _player->GetVehicle() )
 	{
-		_angle_current =  -_player->GetVehicle()->GetVisual()->GetSpriteRotation() + PI/2;
+		_rotatorAngle =  -_player->GetVehicle()->GetVisual()->GetDirection().Angle() + PI/2;
 		MoveTo( _player->GetVehicle()->GetPosPredicted() );
 	}
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
@@ -58,7 +58,7 @@ GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
 GC_Camera::GC_Camera(FromFile)
   : GC_Actor(FromFile())
   , _memberOf(this)
-  , _rotator(_angle_current)
+  , _rotator(_rotatorAngle)
 {
 }
 
@@ -69,7 +69,7 @@ void GC_Camera::TimeStepFloat(float dt)
 	_rotator.process_dt(dt);
 	if( _player->GetVehicle() )
 	{
-		_rotator.rotate_to(-_player->GetVehicle()->GetVisual()->GetSpriteRotation() - PI/2);
+		_rotator.rotate_to(-_player->GetVehicle()->GetVisual()->GetDirection().Angle() - PI/2);
 
 		mu += _player->GetVehicle()->GetVisual()->_lv.len() / 100;
 
@@ -112,10 +112,8 @@ void GC_Camera::Apply()
 	vec2d shake(0, 0);
 	if( _time_shake > 0 )
 	{
-		shake.Set(
-			cosf((_time_shake + _time_seed)*70.71068f),
-			sinf((_time_shake + _time_seed)*86.60254f) );
-		shake *= CELL_SIZE * _time_shake * 0.1f;
+		shake.Set(cos((_time_shake + _time_seed)*70.71068f), sin((_time_shake + _time_seed)*86.60254f));
+		shake *= _time_shake * CELL_SIZE * 0.1f;
 	}
 
 	g_env.camera_x = int(floorf((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
@@ -124,7 +122,7 @@ void GC_Camera::Apply()
 	g_render->Camera((float) g_env.camera_x,
 	                 (float) g_env.camera_y,
 	                 _zoom,
-	                 g_conf.g_rotcamera.Get() ? _angle_current : 0);
+	                 g_conf.g_rotcamera.Get() ? _rotatorAngle : 0);
 }
 
 void GC_Camera::GetViewport(RECT &vp) const
@@ -247,7 +245,7 @@ void GC_Camera::Serialize(SaveFile &f)
 {
 	GC_Actor::Serialize(f);
 
-	f.Serialize(_angle_current);
+	f.Serialize(_rotatorAngle);
 	f.Serialize(_target);
 	f.Serialize(_time_seed);
 	f.Serialize(_time_shake);

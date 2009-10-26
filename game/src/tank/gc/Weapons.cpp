@@ -1464,7 +1464,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 			_timeRotate += dt;
 			_timeShot   += dt;
 
-			SetTexture((fmodf(_timeRotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
+			SetTexture((fmod(_timeRotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
 
 			_sound->MoveTo(GetPos());
 			_sound->Pause(false);
@@ -1502,16 +1502,15 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 			_timeFire = __max(_timeFire - dt, 0);
 		}
 
-		float va = veh ? veh->GetVisual()->GetSpriteRotation() : GetOwner()->GetSpriteRotation();
-		float da = _timeFire * 0.1f / WEAP_MG_TIME_RELAX;
+		vec2d delta(_timeFire * 0.1f / WEAP_MG_TIME_RELAX);
 		if( _crosshair )
 		{
-			_crosshair->SetDirection(vec2d(va + da + _angleReal));
+			_crosshair->SetDirection(Vec2dAddDirection(GetDirection(), delta));
 			_crosshair->MoveTo(GetPosPredicted() + _crosshair->GetDirection() * CH_DISTANCE_THIN);
 		}
 		if( _crosshairLeft )
 		{
-			_crosshairLeft->SetDirection(vec2d(va - da + _angleReal));
+			_crosshairLeft->SetDirection(Vec2dSubDirection(GetDirection(), delta));
 			_crosshairLeft->MoveTo(GetPosPredicted() + _crosshairLeft->GetDirection() * CH_DISTANCE_THIN);
 		}
 	}
@@ -1603,9 +1602,6 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 
 	if( IsAttached() )
 	{
-		float va = veh ? veh->GetSpriteRotation() : 0;
-		vec2d vvel = veh ? veh->_lv : vec2d(0,0);
-
 		if( _bFire )
 		{
 			_timeShot += dt;
@@ -1615,12 +1611,15 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 			_sound->Pause(false);
 			_bFire = false;
 
+
+			vec2d vvel = veh ? veh->_lv : vec2d(0,0);
+
 			for(; _timeShot > 0; _timeShot -= _timeReload )
 			{
-				vec2d a(va + _angleReal);
+				vec2d a(GetDirection());
 				a *= (1 - g_level->net_frand(0.2f));
 
-				GC_FireSpark *tmp = new GC_FireSpark(GetPos() + a * 18.0f, vvel/2 + a * SPEED_FIRE, veh, _advanced);
+				GC_FireSpark *tmp = new GC_FireSpark(GetPos() + a * 18.0f, vvel + a * SPEED_FIRE, veh, _advanced);
 				tmp->TimeStepFixed(_timeShot);
 				tmp->SetLifeTime(_timeFire);
 				tmp->SetHealOwner(_advanced);

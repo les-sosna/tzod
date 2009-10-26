@@ -270,7 +270,7 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
-		tmp->SetSpriteRotation(_propRotation.GetFloatValue());
+		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
 		tmp->SetEvents(tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}
@@ -285,7 +285,7 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 			}
 		}
 		_propLayer.SetIntValue(tmp->GetZ());
-		_propRotation.SetFloatValue(tmp->GetSpriteRotation());
+		_propRotation.SetFloatValue(tmp->GetDirection().Angle());
 		_propFrame.SetIntValue(tmp->GetCurrentFrame());
 		_propAnimate.SetFloatValue(tmp->_frameRate);
 	}

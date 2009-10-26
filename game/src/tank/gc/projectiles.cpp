@@ -1156,7 +1156,9 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	for( int i = 0; i < 11; ++i )
 	{
 		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
-		new GC_Particle(hit, v, tex1, frand(0.2f) + 0.02f, GetDirection());
+		vec2d vnorm = v;
+		vnorm.Normalize();
+		new GC_Particle(hit, v, tex1, frand(0.2f) + 0.02f, vnorm);
 	}
 
 	SetHitDamage(GetHitDamage() - DAMAGE_DISK_FADE);

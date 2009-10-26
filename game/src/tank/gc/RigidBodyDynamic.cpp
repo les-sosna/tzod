@@ -74,7 +74,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 		tmp->_Nx = _propNx.GetFloatValue();
 		tmp->_Ny = _propNy.GetFloatValue();
 		tmp->_Nw = _propNw.GetFloatValue();
-		tmp->SetSpriteRotation(_propRotation.GetFloatValue());
+		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 	}
 	else
 	{
@@ -85,7 +85,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
 		_propNx.SetFloatValue(tmp->_Nx);
 		_propNy.SetFloatValue(tmp->_Ny);
 		_propNw.SetFloatValue(tmp->_Nw);
-		_propRotation.SetFloatValue(tmp->GetSpriteRotation());
+		_propRotation.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
 

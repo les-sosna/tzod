@@ -18,7 +18,7 @@ private:
 	vec2d  _target;
 	float  _time_shake;
 	float  _time_seed;
-	float  _angle_current;
+	float  _rotatorAngle;
 
 	Rotator _rotator;
 

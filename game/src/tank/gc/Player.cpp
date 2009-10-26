@@ -698,7 +698,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			{
 				float a = (pt - GetVehicle()->GetPos()).Angle();
 				vs._bExplicitTower = true;
-				vs._fTowerAngle = a - GetVehicle()->GetSpriteRotation() - GetVehicle()->GetSpinup();
+				vs._fTowerAngle = a - GetVehicle()->GetDirection().Angle() - GetVehicle()->GetSpinup();
 			}
 		}
 		else

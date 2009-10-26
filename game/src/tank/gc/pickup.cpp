@@ -642,8 +642,10 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
 					_light->MoveTo(GetPos());
 					_light->SetRadius(100);
-					_light->SetLength((_targetPosPredicted - GetPos()).len());
-					_light->SetAngle((_targetPosPredicted - GetPos()).Angle());
+
+					vec2d tmp = _targetPosPredicted - GetPos();
+					_light->SetLength(tmp.len());
+					_light->SetLightDirection(tmp.Normalize());
 
 					pNearTarget->TakeDamage(1000, pNearTarget->GetPos(), owner);
 				}
@@ -789,7 +791,7 @@ void GC_pu_Booster::TimeStepFloat(float dt)
 	GC_Pickup::TimeStepFloat(dt);
 	if( IsAttached() )
 	{
-		SetSpriteRotation(GetTimeAnimation() * 50);
+		SetDirection(vec2d(GetTimeAnimation() * 50));
 	}
 }
 

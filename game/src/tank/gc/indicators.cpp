@@ -60,25 +60,27 @@ void GC_SpawnPoint::Draw() const
 
 void GC_SpawnPoint::EditorAction()
 {
-	float rotation = GetSpriteRotation();
+	float rotation = GetDirection().Angle();
 	rotation += PI/3;
-	rotation -= fmodf(rotation, PI/4);
-	SetSpriteRotation(rotation);
+	rotation -= fmod(rotation, PI/4);
+	SetDirection(vec2d(rotation));
 }
 
 void GC_SpawnPoint::MapExchange(MapFile &f)
 {
 	GC_2dSprite::MapExchange(f);
 
-	float dir = GetSpriteRotation();
+	float dir = GetDirection().Angle();
 
 	MAP_EXCHANGE_FLOAT(dir, dir, 0);
 	MAP_EXCHANGE_INT(team, _team, 0);
 
-	SetSpriteRotation(dir);
-
-	if( _team > MAX_TEAMS-1 )
-		_team = MAX_TEAMS-1;
+	if( f.loading() )
+	{
+		SetDirection(vec2d(dir));
+		if( _team > MAX_TEAMS-1 )
+			_team = MAX_TEAMS-1;
+	}
 }
 
 
@@ -125,12 +127,12 @@ void GC_SpawnPoint::MyPropertySet::MyExchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_team = _propTeam.GetIntValue();
-		tmp->SetSpriteRotation(_propDir.GetFloatValue());
+		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
 	}
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
-		_propDir.SetFloatValue(tmp->GetSpriteRotation());
+		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
 
@@ -291,16 +293,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 
 GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
   : GC_2dSprite()
+  , _time(0)
+  , _time_life(0.4f)
+  , _phase(frand(PI2))
 {
 	SetTexture("indicator_damage");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 	SetZ(Z_VEHICLE_LABEL);
-
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
-
-	_time = 0;
-	_time_life = 0.4f;
-	_rot = frand(PI2);
 }
 
 GC_DamLabel::GC_DamLabel(FromFile)
@@ -316,7 +316,7 @@ void GC_DamLabel::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
 
-	f.Serialize(_rot);
+	f.Serialize(_phase);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
 }
@@ -326,7 +326,7 @@ void GC_DamLabel::TimeStepFloat(float dt)
 	GC_2dSprite::TimeStepFloat(dt);
 
 	_time += dt;
-	SetSpriteRotation(_rot + _time * 2.0f);
+	SetDirection(vec2d(_phase + _time * 2.0f));
 
 	if( _time >= _time_life )
 	{

@@ -64,10 +64,6 @@ public:
 		else
 			_radius = r;
 	}
-	__declspec(deprecated) void SetAngle(float a)
-	{
-		_lightDirection = vec2d(a);
-	}
 	void SetLightDirection(const vec2d &d)
 	{
 		_lightDirection = d;
