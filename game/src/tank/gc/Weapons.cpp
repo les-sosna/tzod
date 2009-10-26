@@ -78,6 +78,7 @@ GC_Weapon::GC_Weapon(float x, float y)
   , _time(0)
   , _timeStay(15.0f)
   , _timeReload(0)
+  , _fixmeChAnimate(true)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
@@ -214,7 +215,6 @@ void GC_Weapon::SetCrosshair()
 GC_Weapon::GC_Weapon(FromFile)
   : GC_Pickup(FromFile())
   , _rotatorWeap(_angleReal)
-  , _fixmeChAnimate(true)
 {
 }
 
