@@ -286,8 +286,8 @@ Level::Level()
 	TRACE("Constructing the level");
 
 	// register config handlers
-	g_conf.s_volume.eventChange = boost::bind(&Level::OnChangeSoundVolume, this);
-	g_conf.sv_nightmode.eventChange = boost::bind(&Level::OnChangeNightMode, this);
+	g_conf.s_volume.eventChange = std::tr1::bind(&Level::OnChangeSoundVolume, this);
+	g_conf.sv_nightmode.eventChange = std::tr1::bind(&Level::OnChangeNightMode, this);
 }
 
 void Level::AddEditorModeListener(IEditorModeListener *ls)
@@ -443,8 +443,8 @@ Level::~Level()
 	Clear();
 
 	// unregister config handlers
-	g_conf.s_volume.eventChange.clear();
-	g_conf.sv_nightmode.eventChange.clear();
+	g_conf.s_volume.eventChange = NULL;
+	g_conf.sv_nightmode.eventChange = NULL;
 
 	//-------------------------------------------
 	assert(!g_env.nNeedCursor);

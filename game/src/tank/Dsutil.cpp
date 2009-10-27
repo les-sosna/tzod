@@ -7,7 +7,6 @@
 //
 // Copyright (c) 1999-2000 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
-#define STRICT
 
 #include "stdafx.h"
 

@@ -240,7 +240,7 @@ void NewGameDlg::OnAddPlayer()
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditPlayerDlg(this, p))->eventClose = boost::bind(&NewGameDlg::OnAddPlayerClose, this, _1);
+	(new EditPlayerDlg(this, p))->eventClose = std::tr1::bind(&NewGameDlg::OnAddPlayerClose, this, _1);
 }
 
 void NewGameDlg::OnAddPlayerClose(int result)
@@ -269,7 +269,7 @@ void NewGameDlg::OnEditPlayer()
 	assert(-1 != index);
 
 	(new EditPlayerDlg(this, g_conf.dm_players.GetAt(index)->AsTable()))
-		->eventClose = boost::bind(&NewGameDlg::OnEditPlayerClose, this, _1);
+		->eventClose = std::tr1::bind(&NewGameDlg::OnEditPlayerClose, this, _1);
 }
 
 void NewGameDlg::OnEditPlayerClose(int result)
@@ -289,7 +289,7 @@ void NewGameDlg::OnAddBot()
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditBotDlg(this, p))->eventClose = boost::bind(&NewGameDlg::OnAddBotClose, this, _1);
+	(new EditBotDlg(this, p))->eventClose = std::tr1::bind(&NewGameDlg::OnAddBotClose, this, _1);
 }
 
 void NewGameDlg::OnAddBotClose(int result)
@@ -318,7 +318,7 @@ void NewGameDlg::OnEditBot()
 	assert(-1 != index);
 
 	(new EditBotDlg(this, g_conf.dm_bots.GetAt(index)->AsTable()))
-		->eventClose = boost::bind(&NewGameDlg::OnEditBotClose, this, _1);
+		->eventClose = std::tr1::bind(&NewGameDlg::OnEditBotClose, this, _1);
 }
 
 void NewGameDlg::OnEditBotClose(int result)

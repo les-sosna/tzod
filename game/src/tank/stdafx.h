@@ -61,8 +61,8 @@
 #define _SECURE_SCL 0  // disable checked iterators
 #endif
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <functional>
+using namespace std::tr1::placeholders; // _1, _2, etc.
 
 
 #include <cmath>

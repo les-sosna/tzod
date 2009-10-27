@@ -19,7 +19,7 @@ public:
 	static const int _resultOK     = 0;
 	static const int _resultCancel = 1;
 
-	boost::function<void(int)> eventClose;
+	std::tr1::function<void(int)> eventClose;
 
 protected:
 	void Close(int result);

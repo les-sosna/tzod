@@ -530,13 +530,13 @@ EditorLayout::EditorLayout(Window *parent)
 	_mbutton = 0;
 
 	assert(!g_conf.ed_uselayers.eventChange);
-	g_conf.ed_uselayers.eventChange = boost::bind(&EditorLayout::OnChangeUseLayers, this);
+	g_conf.ed_uselayers.eventChange = std::tr1::bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
 
 EditorLayout::~EditorLayout()
 {
-	g_conf.ed_uselayers.eventChange.clear();
+	g_conf.ed_uselayers.eventChange = NULL;
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)

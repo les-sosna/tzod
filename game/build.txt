@@ -4,7 +4,7 @@
    Компиляция
 
 необходимые инструменты
- 1. Microsoft Visual Studio 2008
+ 1. Microsoft Visual Studio 2008 SP1
  2. Microsoft DirectX SDK
  3. Perl
  4. aoTuV encoder
