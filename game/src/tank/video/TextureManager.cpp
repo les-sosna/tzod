@@ -413,7 +413,7 @@ size_t TextureManager::FindSprite(const string_t &name) const
 		return it->second;
 
 	// flood the console
-	GetConsole().Printf(1, "texture '%s' not found!", name);
+	GetConsole().Printf(1, "texture '%s' not found!", name.c_str());
 
 	return 0; // index of checker texture
 }

@@ -407,7 +407,7 @@ void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 	ai->SetNick(bd.pd.nick);
 	ai->SetSkin(bd.pd.skin);
 	ai->SetTeam(bd.pd.team);
-	ai->SetLevel(__max(0, __min(AI_MAX_LEVEL, bd.level)));
+	ai->SetLevel(std::max(0U, std::min(AI_MAX_LEVEL, bd.level)));
 	ai->UpdateSkin();
 
 	if( eventPlayersUpdate )

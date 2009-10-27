@@ -70,6 +70,7 @@ protected:
 public:
 	GC_Turret(float x, float y, const char *tex);
 	GC_Turret(FromFile);
+	virtual ~GC_Turret();
 
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);

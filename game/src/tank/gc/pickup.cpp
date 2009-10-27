@@ -48,6 +48,10 @@ GC_Pickup::GC_Pickup(FromFile)
 {
 }
 
+GC_Pickup::~GC_Pickup()
+{
+}
+
 void GC_Pickup::Kill()
 {
 	SAFE_KILL(_label);

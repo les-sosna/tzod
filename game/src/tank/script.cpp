@@ -304,7 +304,7 @@ static int luaT_music(lua_State *L)
 	{
 		try
 		{
-			g_music = WrapRawPtr(new MusicPlayer());
+			g_music = SafePtr<MusicPlayer>(new MusicPlayer());
 			if( g_music->Load(g_fs->GetFileSystem(DIR_MUSIC)->Open(filename)->QueryMap()) )
 			{
 				g_music->Play(true);

@@ -57,6 +57,10 @@ GC_Turret::GC_Turret(FromFile)
 {
 }
 
+GC_Turret::~GC_Turret()
+{
+}
+
 void GC_Turret::Serialize(SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(f);

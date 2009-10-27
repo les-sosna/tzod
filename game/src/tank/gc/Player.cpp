@@ -574,7 +574,7 @@ void GC_PlayerLocal::SetProfile(const string_t &name)
 	}
 	else
 	{
-		TRACE("WARNING: profile '%s' not found", name);
+		TRACE("WARNING: profile '%s' not found", name.c_str());
 
 		_keyForward     = 0;
 		_keyBack        = 0;

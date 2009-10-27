@@ -88,6 +88,7 @@ public:
 public:
 	GC_Pickup(float x, float y);
 	GC_Pickup(FromFile);
+	virtual ~GC_Pickup();
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }

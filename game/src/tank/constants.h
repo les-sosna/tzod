@@ -142,7 +142,7 @@ enum enumZOrder
 
 #define AI_MAX_DEPTH   50.0f
 #define AI_MAX_SIGHT   20.0f
-#define AI_MAX_LEVEL   4
+#define AI_MAX_LEVEL   4U
 
 //-----------------------------------------------------------------------------
 // Параметры стационарных установок

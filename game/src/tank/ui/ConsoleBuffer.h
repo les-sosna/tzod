@@ -44,6 +44,12 @@ class ConsoleBuffer
 		{
 		}
 
+		StreamHelper(const StreamHelper &other)
+			: m_con(other.m_con)
+			, m_severity(other.m_severity)
+		{
+		}
+
 		~StreamHelper()
 		{
 			if( m_con && !m_buf.str().empty() )
