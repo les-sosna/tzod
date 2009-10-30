@@ -436,20 +436,6 @@ void ZodApp::Idle()
 {
 	_inputMgr->InquireInputDevices();
 
-	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_TAB] )
-	//{
-	////	PauseGame(true);
-	//	ShowWindow(g_env.hMainWnd, SW_MINIMIZE);
-	//	return;
-	//}
-	//else
-	//if( g_env.envInputs.keys[DIK_LALT] && g_env.envInputs.keys[DIK_F4] )
-	//{
-	//	TRACE("Alt + F4 has been pressed. Destroying the main app window");
-	//	DestroyWindow(g_env.hMainWnd);
-	//	return;
-	//}
-
 	TimeStep(timer.GetDt());
 	RenderFrame(false);
 

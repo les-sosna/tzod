@@ -818,6 +818,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	assert(text);
 	assert(btn1);
 
+	SetTexture("ui/window", false);
 	SetDrawBorder(true);
 	BringToBack();
 

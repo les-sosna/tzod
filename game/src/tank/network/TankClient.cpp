@@ -251,7 +251,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 		return;
 	}
 
-	g_level->PauseLocal(true); // paused until game is started
+//	g_level->PauseLocal(true); // paused until game is started
 
 	g_conf.cl_map.Set(gi.cMapName);
 	g_conf.ui_showmsg.Set(true);
@@ -283,7 +283,7 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	_gameStarted = true;
 
 
-	g_level->PauseLocal(false);
+//	g_level->PauseLocal(false);
 
 	if( eventStartGame )
 	{

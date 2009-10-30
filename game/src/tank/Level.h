@@ -75,6 +75,9 @@ public:
 private:
 	float _before;          // стоимость пути до данной клетки
 	float _total;                // оценка общей стоимости пути
+
+	FieldCell(const FieldCell &other); // no copy
+	FieldCell& operator = (const FieldCell &other);
 };
 
 class RefFieldCell
@@ -283,7 +286,6 @@ public:
 	void Export(const SafePtr<FS::Stream> &file);
 	void Import(const SafePtr<FS::Stream> &file, bool execInitScript);
 
-	void PauseLocal(bool pause);
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
 
@@ -291,7 +293,7 @@ public:
 	void TimeStep(float dt);
 	void Render() const;
 	bool IsSafeMode() const { return _safeMode; }
-
+	bool IsGamePaused() const;
 	GC_Object* FindObject(const string_t &name) const;
 
 	int   net_rand();

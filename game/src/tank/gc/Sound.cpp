@@ -26,12 +26,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
   : GC_Actor()
   , _memberOf(this)
+  , _soundTemplate(sound)
+  , _freezed(false)
 {
 #ifndef NOSOUND
 	if( !g_soundManager )
 	{
 		_mode = SMODE_STOP;
-		_soundBuffer = NULL;
 		return;
 	}
 
@@ -44,8 +45,6 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	///////////////////////
 	MoveTo(pos);
 	///////////////////////
-	_soundTemplate = sound;
-	_freezed       = false;
 	SetVolume(1.0f);
 	if( 100 != g_conf.sv_speed.GetInt() )
 	{
@@ -63,14 +62,13 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 GC_Sound::GC_Sound(FromFile)
   : GC_Actor(FromFile())
   , _memberOf(this)
-  , _soundBuffer(NULL)
 {
 }
 
 GC_Sound::~GC_Sound()
 {
 #if !defined NOSOUND
-	assert(NULL == _soundBuffer);
+	assert(!_soundBuffer);
 	assert(SMODE_STOP == _mode);
 #endif
 }
@@ -81,8 +79,7 @@ void GC_Sound::Kill()
 	if( _soundBuffer )
 	{
 		SetMode(SMODE_STOP);
-		_soundBuffer->Release();
-		_soundBuffer = NULL;
+		_soundBuffer.Release();
 	}
 #endif
 

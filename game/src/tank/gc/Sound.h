@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "core/ComPtr.h"
 
 /////////////////////////////////////////////////////////////
 
@@ -21,7 +22,7 @@ class GC_Sound : public GC_Actor
 	MemberOfGlobalList<LIST_sounds> _memberOf;
 
 private:
-	LPDIRECTSOUNDBUFFER _soundBuffer;
+	ComPtr<IDirectSoundBuffer> _soundBuffer;
 	enumSoundTemplate   _soundTemplate;
 	DWORD _dwNormalFrequency;
 	DWORD _dwCurrentFrequency;

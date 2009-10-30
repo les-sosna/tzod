@@ -212,7 +212,7 @@ static int luaT_save(lua_State *L)
 	catch( const std::exception &e )
 	{
 		g_level->PauseSound(false);
-		return luaL_error(L, "couldn't save game to '%s' - ", filename, e.what());
+		return luaL_error(L, "couldn't save game to '%s' - %s", filename, e.what());
 	}
 	g_level->PauseSound(false);
 	GetConsole().Printf(0, "game saved: '%s'", filename);

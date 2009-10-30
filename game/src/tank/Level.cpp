@@ -261,7 +261,7 @@ EditorModeListenerHelper::~EditorModeListenerHelper()
 Level::Level()
   : _modeEditor(false)
   , _steps(0)
-  , _pause(0)
+//  , _pause(0)
   , _time(0)
   , _timeBuffer(0)
   , _limitHit(false)
@@ -355,7 +355,7 @@ void Level::Clear()
 
 	// reset variables
 	_ctrlSentCount = 0;
-	_pause = 0;
+//	_pause = 0;
 	_time = 0;
 	_timeBuffer = 0;
 	_limitHit = false;
@@ -377,7 +377,7 @@ void Level::Clear()
 void Level::HitLimit()
 {
 	assert(!_limitHit);
-	PauseLocal(true);
+//	PauseLocal(true);
 	_limitHit = true;
 	PLAY(SND_Limit, vec2d(0,0));
 }
@@ -759,27 +759,6 @@ void Level::Export(const SafePtr<FS::Stream> &s)
 	}
 }
 
-void Level::PauseLocal(bool pause)
-{
-	if( pause )
-	{
-		if( 0 == _pause + g_env.pause )
-		{
-			PauseSound(true);
-		}
-		++_pause;
-	}
-	else
-	{
-		assert(_pause + g_env.pause > 0);
-		--_pause;
-		if( 0 == _pause + g_env.pause )
-		{
-			PauseSound(false);
-		}
-	}
-}
-
 void Level::PauseSound(bool pause)
 {
 	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
@@ -797,18 +776,14 @@ void Level::SetEditorMode(bool editorModeEnable)
 
 	if( !_modeEditor ^ !editorModeEnable )
 	{
-		if( _modeEditor )
-		{
-			_modeEditor = false;
-			PauseLocal(false);
-		}
-		else
-		{
-			_modeEditor = true;
-			PauseLocal(true);
-		}
+		bool paused = IsGamePaused();
+		_modeEditor = editorModeEnable;
 		std::for_each(_editorModeListeners.begin(), _editorModeListeners.end(),
 			std::bind2nd(std::mem_fun1(&IEditorModeListener::OnEditorModeChanged), _modeEditor));
+		if( !paused ^ !IsGamePaused() )
+		{
+			PauseSound(IsGamePaused());
+		}
 	}
 }
 
@@ -1147,9 +1122,10 @@ void Level::TimeStep(float dt)
 
 	_defaultCamera.HandleMovement(_sx, _sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
-
-	if( g_env.pause + _pause > 0 /*&& !g_client*/ && _gameType != GT_INTRO || _limitHit )
+	if( IsGamePaused() )
+	{
 		return;
+	}
 
 
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
@@ -1492,6 +1468,14 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 	line.end = v2;
 	line.color = color;
 #endif
+}
+
+bool Level::IsGamePaused() const
+{ 
+	return g_env.pause > 0 /*&& !g_client*/ && _gameType != GT_INTRO 
+		|| _limitHit 
+		|| _modeEditor
+		|| g_client && !g_client->_gameStarted;
 }
 
 GC_Object* Level::FindObject(const string_t &name) const

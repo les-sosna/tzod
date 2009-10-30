@@ -56,7 +56,7 @@ namespace FS
 class MapFile
 {
 #pragma warning(push)
-#pragma warning(disable: 1899)
+//#pragma warning(disable: 1899)
 	enum enumChunkTypes
 	{
 		CHUNK_HEADER_OPEN  = SIGNATURE('hdr{'),
