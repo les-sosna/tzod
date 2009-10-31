@@ -619,15 +619,25 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	assert(GetVehicle()->GetWeapon());
 
 	vec2d tmp = x - GetVehicle()->GetPos();
-	tmp.Normalize();
-	tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
-
-	float cosDiff = tmp * GetVehicle()->GetWeapon()->GetDirectionReal();
-	pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
-	pState->_bExplicitTower = true;
-	pState->_fTowerAngle = Vec2dSubDirection(tmp, GetVehicle()->GetDirection()).Angle() - GetVehicle()->GetSpinup();
-
-	assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
+	if( tmp.x && tmp.y )
+	{
+		tmp.Normalize();
+		tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
+		float cosDiff = tmp * GetVehicle()->GetWeapon()->GetDirectionReal();
+		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
+		pState->_bExplicitTower = true;
+		pState->_fTowerAngle = Vec2dSubDirection(tmp, GetVehicle()->GetDirection()).Angle() - GetVehicle()->GetSpinup();
+		assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
+	}
+	else
+	{
+		pState->_bState_Fire = bFire;
+		pState->_bExplicitTower = false;
+		pState->_fTowerAngle = 0;
+		pState->_bState_TowerLeft = false;
+		pState->_bState_TowerRight = false;
+		pState->_bState_TowerCenter = false;
+	}
 }
 
 // оценка полезности атаки данной цели
