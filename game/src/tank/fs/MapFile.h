@@ -56,7 +56,9 @@ namespace FS
 class MapFile
 {
 #pragma warning(push)
-//#pragma warning(disable: 1899)
+#ifdef __INTEL_COMPILER
+# pragma warning(disable: 1899)
+#endif
 	enum enumChunkTypes
 	{
 		CHUNK_HEADER_OPEN  = SIGNATURE('hdr{'),

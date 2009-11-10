@@ -271,16 +271,16 @@ Variant::TypeId Variant::RegisterType(Constructor ctor, Destructor dtor, Seriali
 	return _types.size() - 1;
 }
 
-bool Variant::DeclareType(TypeId (*declarator)())
+void Variant::DeclareType(TypeRegHelperBase *regHelper, void (TypeRegHelperBase::*declarator)())
 {
-	assert(GetDecl().end() == std::find(GetDecl().begin(), GetDecl().end(), declarator));
-	GetDecl().push_back(declarator);
-	return true;
+	Declarator d(regHelper, declarator);
+	assert(GetDecl().end() == std::find(GetDecl().begin(), GetDecl().end(), d));
+	GetDecl().push_back(d);
 }
 
-Variant::Declarators& Variant::GetDecl()
+Variant::DeclaratorList& Variant::GetDecl()
 {
-	static Declarators decl;
+	static DeclaratorList decl;
 	return decl;
 }
 
@@ -293,7 +293,7 @@ void Variant::Init()
 #endif
 	for( size_t i = 0; i < GetDecl().size(); ++i )
 	{
-		GetDecl()[i] ();
+		(GetDecl()[i].first->*GetDecl()[i].second) ();
 	}
 #ifdef VARIANT_DEBUG
 	_reg = false;

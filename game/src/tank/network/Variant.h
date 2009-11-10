@@ -42,7 +42,7 @@ struct VariantTypeIdHelper
 template <typename T>
 inline int VariantTypeId(T * = 0) 
 {
-	return VariantTypeIdHelper<T>::GetTypeId();
+	return VariantTypeIdHelper<T>::t.GetTypeId();
 }
 
 template <typename T>
@@ -73,35 +73,45 @@ int VariantRegisterMetaType(T * = 0)
 		reinterpret_cast<Variant::Serialize>(VariantSerializeOp<T>));
 }
 
+struct TypeRegHelperBase {};
 
 #define VARIANT_DECLARE_TYPE(type)                                      \
 	template <>                                                         \
 	struct VariantTypeIdHelper< type >                                  \
 	{                                                                   \
-		static bool registered;                                         \
-		static Variant::TypeId GetTypeId()                              \
+		class TypeRegHelper : public TypeRegHelperBase                  \
 		{                                                               \
-			static Variant::TypeId typeId = -1;                         \
-			if( -1 == typeId )                                          \
+			Variant::TypeId _typeId;                                    \
+			TypeRegHelper(const TypeRegHelper &);                       \
+			TypeRegHelper& operator = (const TypeRegHelper &);          \
+			void Init()                                                 \
 			{                                                           \
-				typeId = VariantRegisterMetaType< type >();             \
+				_typeId = VariantRegisterMetaType< type >();            \
 			}                                                           \
-			return typeId;                                              \
-		}                                                               \
+		public:                                                         \
+			TypeRegHelper()                                             \
+			{                                                           \
+				Variant::DeclareType(this, &TypeRegHelper::Init);       \
+			}                                                           \
+			inline Variant::TypeId GetTypeId() const                    \
+			{                                                           \
+				return _typeId;                                         \
+			}                                                           \
+		};                                                              \
+		static TypeRegHelper t;                                         \
 	};                                                                  \
 	DataStream& operator & (DataStream &, type &);
 
 
-#define VARIANT_IMPLEMENT_TYPE(type)                                    \
-	bool VariantTypeIdHelper< type >::registered =                      \
-	    Variant::DeclareType(VariantTypeIdHelper< type >::GetTypeId);   \
+#define VARIANT_IMPLEMENT_TYPE(type)                                            \
+	VariantTypeIdHelper< type >::TypeRegHelper VariantTypeIdHelper< type >::t;  \
 	DataStream& operator & (DataStream &s, type &value)
 
 #define RAW { s.Serialize(&value, sizeof(value)); return s; }
 
 #define STD_VECTOR                                                      \
 {                                                                       \
-	assert(value.size() < 0xffff);                                     \
+	assert(value.size() < 0xffff);                                      \
 	unsigned short count = value.size();                                \
 	s & count;                                                          \
 	value.resize(count);                                                \
@@ -131,8 +141,6 @@ public:
 
 	Variant(const Variant &src);
 	Variant& operator = (const Variant &src);
-
-
 	~Variant();
 
 	void ChangeType(TypeId type);
@@ -165,7 +173,7 @@ public:
 
 	static void Init();
 	static TypeId RegisterType(Constructor ctor, Destructor dtor, Serialize ser);
-	static bool DeclareType(TypeId (*declarator)());
+	static void DeclareType(TypeRegHelperBase *regHelper, void (TypeRegHelperBase::*declarator)());
 
 
 private:
@@ -181,8 +189,9 @@ private:
 
 	static std::vector<UserType> _types;
 
-	typedef std::vector<TypeId (*)()> Declarators;
-	static Declarators& GetDecl();
+	typedef std::pair<TypeRegHelperBase*, void (TypeRegHelperBase::*)()> Declarator;
+	typedef std::vector<Declarator> DeclaratorList;
+	static DeclaratorList& GetDecl();
 
 
 	void *_data;
