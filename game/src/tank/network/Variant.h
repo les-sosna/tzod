@@ -45,65 +45,52 @@ inline int VariantTypeId(T * = 0)
 	return VariantTypeIdHelper<T>::t.GetTypeId();
 }
 
-template <typename T>
-void VariantMetaDesctructor(T *obj) 
-{
-	delete obj;
-}
-
-template <typename T>
-void *VariantMetaConstructor(const T *copy)
-{
-	return copy ? new T(*copy) : new T;
-}
-
-template <typename T>
-void VariantSerializeOp(DataStream &s, T *obj) 
-{
-	s & *obj;
-}
-
-
-template <typename T>
-int VariantRegisterMetaType(T * = 0)
-{
-	return Variant::RegisterType(
-		reinterpret_cast<Variant::Constructor>(VariantMetaConstructor<T>),
-		reinterpret_cast<Variant::Destructor>(VariantMetaDesctructor<T>),
-		reinterpret_cast<Variant::Serialize>(VariantSerializeOp<T>));
-}
-
-#define VARIANT_DECLARE_TYPE(type)                                      \
-	template <>                                                         \
-	struct VariantTypeIdHelper< type >                                  \
-	{                                                                   \
-		class TypeRegHelper                                             \
-		{                                                               \
-			Variant::TypeId _typeId;                                    \
-			TypeRegHelper(const TypeRegHelper &);                       \
-			TypeRegHelper& operator = (const TypeRegHelper &);          \
-			static void Init(Variant::TypeId *param)                    \
-			{                                                           \
-				*param = VariantRegisterMetaType< type >();             \
-			}                                                           \
-		public:                                                         \
-			TypeRegHelper()                                             \
-			{                                                           \
-				Variant::DeclareType(&_typeId, &Init);                  \
-			}                                                           \
-			inline Variant::TypeId GetTypeId() const                    \
-			{                                                           \
-				return _typeId;                                         \
-			}                                                           \
-		};                                                              \
-		static TypeRegHelper t;                                         \
-	};                                                                  \
-	DataStream& operator & (DataStream &, type &);
+#define VARIANT_DECLARE_TYPE(T)                                         \
+    template <>                                                         \
+    struct VariantTypeIdHelper< T >                                     \
+    {                                                                   \
+        class TypeRegHelper                                             \
+        {                                                               \
+            Variant::TypeId _typeId;                                    \
+            TypeRegHelper(const TypeRegHelper &);                       \
+            TypeRegHelper& operator = (const TypeRegHelper &);          \
+            static void* Ctor(const void *other)                        \
+            {                                                           \
+                return other ?                                          \
+                    new T(*reinterpret_cast<const T*>(other)) : new T;  \
+            }                                                           \
+            static void Dtor(void *obj)                                 \
+            {                                                           \
+                delete reinterpret_cast<T*>(obj);                       \
+            }                                                           \
+            template <typename U>                                       \
+            static void Serialize(DataStream &s, void *obj)             \
+            {                                                           \
+                s & *reinterpret_cast<T*>(obj);                         \
+            }                                                           \
+            static void Init(Variant::TypeId *p)                        \
+            {                                                           \
+                *p = Variant::RegisterType(Ctor, Dtor, Serialize<T>);   \
+            }                                                           \
+        public:                                                         \
+            TypeRegHelper() : _typeId(-1)                               \
+            {                                                           \
+                Variant::ScheduleTypeRegistration(Init, &_typeId);      \
+            }                                                           \
+            inline Variant::TypeId GetTypeId() const                    \
+            {                                                           \
+                assert(!"type not registered" || -1 != _typeId);        \
+                return _typeId;                                         \
+            }                                                           \
+        };                                                              \
+        static TypeRegHelper t;                                         \
+    };                                                                  \
+    DataStream& operator & (DataStream &, T &);
 
 
 #define VARIANT_IMPLEMENT_TYPE(type)                                            \
-	VariantTypeIdHelper< type >::TypeRegHelper VariantTypeIdHelper< type >::t;  \
-	DataStream& operator & (DataStream &s, type &value)
+    VariantTypeIdHelper< type >::TypeRegHelper VariantTypeIdHelper< type >::t;  \
+    DataStream& operator & (DataStream &s, type &value)
 
 #define RAW { s.Serialize(&value, sizeof(value)); return s; }
 
@@ -125,8 +112,8 @@ class Variant
 public:
 	typedef int TypeId;
 	typedef void  (*Serialize)(DataStream &s, void *);
-	typedef void  (*Destructor)(void *);
-	typedef void* (*Constructor)(const void *);
+	typedef void  (*DtorType)(void *);
+	typedef void* (*CtorType)(const void *);
 
 	Variant();
 	template<class T>
@@ -162,15 +149,15 @@ public:
 		s.Serialize(&tmp, sizeof(tmp));
 		assert(tmp == value._type);
 #endif
-		value._types[value._type].ser(s, value._data);
+		value._types[value._type].serialize(s, value._data);
 		s.EntityEnd();
 		return s;
 	}
 
 
 	static void Init();
-	static TypeId RegisterType(Constructor ctor, Destructor dtor, Serialize ser);
-	static void DeclareType(TypeId *param, void (*declarator)(TypeId *));
+	static TypeId RegisterType(CtorType ctor, DtorType dtor, Serialize ser);
+	static void ScheduleTypeRegistration(void (*registrator)(TypeId *), TypeId *result);
 
 
 private:
@@ -179,16 +166,16 @@ private:
 
 	struct UserType
 	{
-		Constructor ctor;
-		Destructor dtor;
-		Serialize ser;
+		CtorType ctor;
+		DtorType dtor;
+		Serialize serialize;
 	};
 
 	static std::vector<UserType> _types;
 
-	typedef std::pair<TypeId*, void (*)(TypeId*)> Declarator;
-	typedef std::vector<Declarator> DeclaratorList;
-	static DeclaratorList& GetDecl();
+	typedef std::pair<void (*)(TypeId *), TypeId*> BoundRegistrator;
+	typedef std::list<BoundRegistrator> BoundRegistratorList;
+	static BoundRegistratorList& GetPendingRegs();
 
 
 	void *_data;

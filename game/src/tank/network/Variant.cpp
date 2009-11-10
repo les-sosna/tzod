@@ -261,7 +261,7 @@ void Variant::ChangeType(TypeId type)
 }
 
 
-Variant::TypeId Variant::RegisterType(Constructor ctor, Destructor dtor, Serialize ser)
+Variant::TypeId Variant::RegisterType(CtorType ctor, DtorType dtor, Serialize ser)
 {
 #ifdef VARIANT_DEBUG
 	assert(_reg && !_init); // did you forget VARIANT_DECLARE_TYPE or Variant::Init()?
@@ -271,16 +271,16 @@ Variant::TypeId Variant::RegisterType(Constructor ctor, Destructor dtor, Seriali
 	return _types.size() - 1;
 }
 
-void Variant::DeclareType(TypeId *param, void (*declarator)(TypeId *))
+void Variant::ScheduleTypeRegistration(void (*registrator)(TypeId *), TypeId *result)
 {
-	Declarator d(param, declarator);
-	assert(GetDecl().end() == std::find(GetDecl().begin(), GetDecl().end(), d));
-	GetDecl().push_back(d);
+	BoundRegistrator f(registrator, result);
+	assert(GetPendingRegs().end() == std::find(GetPendingRegs().begin(), GetPendingRegs().end(), f));
+	GetPendingRegs().push_back(f);
 }
 
-Variant::DeclaratorList& Variant::GetDecl()
+Variant::BoundRegistratorList& Variant::GetPendingRegs()
 {
-	static DeclaratorList decl;
+	static BoundRegistratorList decl;
 	return decl;
 }
 
@@ -291,10 +291,12 @@ void Variant::Init()
 	assert(!_init); // did you call Init() more than once?
 	_reg = true;
 #endif
-	for( size_t i = 0; i < GetDecl().size(); ++i )
+	for( BoundRegistratorList::const_iterator it = GetPendingRegs().begin();
+		it != GetPendingRegs().end(); ++it )
 	{
-		GetDecl()[i].second(GetDecl()[i].first);
+		it->first(it->second);
 	}
+	GetPendingRegs().clear();
 #ifdef VARIANT_DEBUG
 	_reg = false;
 	_init = true;
