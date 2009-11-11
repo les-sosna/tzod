@@ -68,14 +68,11 @@ inline int VariantTypeId(T * = 0)
             {                                                           \
                 s & *reinterpret_cast<T*>(obj);                         \
             }                                                           \
-            static void Init(Variant::TypeId *p)                        \
-            {                                                           \
-                *p = Variant::RegisterType(Ctor, Dtor, Serialize<T>);   \
-            }                                                           \
         public:                                                         \
             TypeRegHelper() : _typeId(-1)                               \
             {                                                           \
-                Variant::ScheduleTypeRegistration(Init, &_typeId);      \
+                Variant::ScheduleTypeRegistration(                      \
+                    Ctor, Dtor, Serialize<T>, &_typeId);                \
             }                                                           \
             inline Variant::TypeId GetTypeId() const                    \
             {                                                           \
@@ -156,8 +153,7 @@ public:
 
 
 	static void Init();
-	static TypeId RegisterType(CtorType ctor, DtorType dtor, Serialize ser);
-	static void ScheduleTypeRegistration(void (*registrator)(TypeId *), TypeId *result);
+	static void ScheduleTypeRegistration(CtorType ctor, DtorType dtor, Serialize ser, TypeId *result);
 
 
 private:
@@ -173,9 +169,9 @@ private:
 
 	static std::vector<UserType> _types;
 
-	typedef std::pair<void (*)(TypeId *), TypeId*> BoundRegistrator;
-	typedef std::list<BoundRegistrator> BoundRegistratorList;
-	static BoundRegistratorList& GetPendingRegs();
+	typedef std::pair<TypeId*, UserType> RegData;
+	typedef std::list<RegData> PendingRegList;
+	static PendingRegList& GetPendingRegs();
 
 
 	void *_data;

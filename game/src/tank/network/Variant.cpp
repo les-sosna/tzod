@@ -260,27 +260,15 @@ void Variant::ChangeType(TypeId type)
 	_type = type;
 }
 
-
-Variant::TypeId Variant::RegisterType(CtorType ctor, DtorType dtor, Serialize ser)
+void Variant::ScheduleTypeRegistration(CtorType ctor, DtorType dtor, Serialize ser, TypeId *result)
 {
-#ifdef VARIANT_DEBUG
-	assert(_reg && !_init); // did you forget VARIANT_DECLARE_TYPE or Variant::Init()?
-#endif
 	UserType ut = {ctor, dtor, ser};
-	_types.push_back(ut);
-	return _types.size() - 1;
+	GetPendingRegs().push_back(RegData(result, ut));
 }
 
-void Variant::ScheduleTypeRegistration(void (*registrator)(TypeId *), TypeId *result)
+Variant::PendingRegList& Variant::GetPendingRegs()
 {
-	BoundRegistrator f(registrator, result);
-	assert(GetPendingRegs().end() == std::find(GetPendingRegs().begin(), GetPendingRegs().end(), f));
-	GetPendingRegs().push_back(f);
-}
-
-Variant::BoundRegistratorList& Variant::GetPendingRegs()
-{
-	static BoundRegistratorList decl;
+	static PendingRegList decl;
 	return decl;
 }
 
@@ -291,10 +279,10 @@ void Variant::Init()
 	assert(!_init); // did you call Init() more than once?
 	_reg = true;
 #endif
-	for( BoundRegistratorList::const_iterator it = GetPendingRegs().begin();
-		it != GetPendingRegs().end(); ++it )
+	for( PendingRegList::const_iterator it = GetPendingRegs().begin(); it != GetPendingRegs().end(); ++it )
 	{
-		it->first(it->second);
+		_types.push_back(it->second);
+		*it->first = _types.size() - 1;
 	}
 	GetPendingRegs().clear();
 #ifdef VARIANT_DEBUG
