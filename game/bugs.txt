@@ -8,3 +8,9 @@ bots and ram
 
 unable to select tank in editor
 
+
+run under debugger
+start new dm (F2)
+host a network game
+type /quit() in console
+-> heap corruption
