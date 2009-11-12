@@ -46,6 +46,7 @@ inline int VariantTypeId(T * = 0)
 }
 
 #define VARIANT_DECLARE_TYPE(T)                                         \
+    DataStream& operator & (DataStream &, T &);                         \
     template <>                                                         \
     struct VariantTypeIdHelper< T >                                     \
     {                                                                   \
@@ -63,7 +64,6 @@ inline int VariantTypeId(T * = 0)
             {                                                           \
                 delete reinterpret_cast<T*>(obj);                       \
             }                                                           \
-            template <typename U>                                       \
             static void Serialize(DataStream &s, void *obj)             \
             {                                                           \
                 s & *reinterpret_cast<T*>(obj);                         \
@@ -72,17 +72,16 @@ inline int VariantTypeId(T * = 0)
             TypeRegHelper() : _typeId(-1)                               \
             {                                                           \
                 Variant::ScheduleTypeRegistration(                      \
-                    Ctor, Dtor, Serialize<T>, &_typeId);                \
+                    Ctor, Dtor, Serialize, &_typeId);                   \
             }                                                           \
             inline Variant::TypeId GetTypeId() const                    \
             {                                                           \
-                assert(!"type not registered" || -1 != _typeId);        \
+                assert(-1 != _typeId);                                  \
                 return _typeId;                                         \
             }                                                           \
         };                                                              \
         static TypeRegHelper t;                                         \
-    };                                                                  \
-    DataStream& operator & (DataStream &, T &);
+    };
 
 
 #define VARIANT_IMPLEMENT_TYPE(type)                                            \
