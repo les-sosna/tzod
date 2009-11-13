@@ -4,15 +4,17 @@
 
 #include "FileSystem.h"
 
+class GC_Object;
+
 class SaveFile
 {
-	typedef std::map<void*, size_t> PtrToIndex;
-	typedef std::map<size_t, void*> IndexToPtr;
+	typedef std::map<GC_Object*, size_t> PtrToIndex;
+	typedef std::map<size_t, GC_Object*> IndexToPtr;
 
 	PtrToIndex _ptrToIndex;
 	IndexToPtr _indexToPtr;
 
-	std::list<SafePtr<void>*>    _refs;
+	std::list<SafePtr<GC_Object>*> _refs;
 
 	SafePtr<FS::Stream> _stream;
 	bool _load;
@@ -41,8 +43,8 @@ public:
 	template<class T>
 	void SerializeArray(T *p, size_t count);
 
-	bool RestoreAllLinks();
-	void RegPointer(void *ptr, size_t index);
+	void RestoreAllLinks(); // throws std::runtime_error
+	void RegPointer(GC_Object *ptr, size_t index);
 
 private:
 	template<class T>
@@ -76,12 +78,19 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 	if( loading() )
 	{
 		Serialize(id);
-		SetRawPtr(ptr, reinterpret_cast<T*>(id));
-		_refs.push_back(reinterpret_cast<SafePtr<void>*>(&ptr));
+		if( id )
+		{
+			SetRawPtr(ptr, reinterpret_cast<T*>(id));
+			_refs.push_back(reinterpret_cast<SafePtr<GC_Object>*>(&ptr));
+		}
+		else
+		{
+			ptr = NULL;
+		}
 	}
 	else
 	{
-		if( !ptr )
+		if( !ptr || ptr->IsKilled() )
 		{
 			id = 0;
 		}

@@ -3,25 +3,27 @@
 #include "stdafx.h"
 #include "SaveFile.h"
 
+#include "gc/Object.h"
+
 SaveFile::SaveFile(SafePtr<FS::Stream> &s, bool loading)
   : _stream(s)
   , _load(loading)
 {
 }
 
-bool SaveFile::RestoreAllLinks()
+void SaveFile::RestoreAllLinks()
 {
 	SafePtr<void> boo; // to make compiler find GetRawPtr
 
-	for( std::list<SafePtr<void>*>::iterator it = _refs.begin(); it != _refs.end(); ++it )
+	for( std::list<SafePtr<GC_Object>*>::iterator it = _refs.begin(); it != _refs.end(); ++it )
 	{
 		if( DWORD_PTR id = reinterpret_cast<DWORD_PTR>(GetRawPtr(**it)) )
 		{
 			IndexToPtr::iterator p = _indexToPtr.find(id);
-            if( _indexToPtr.end() == p )
-				return false;
-			else
-				SetRawPtr(**it, p->second);
+			if( _indexToPtr.end() == p )
+				throw std::runtime_error("ERROR: invalid links");
+			SetRawPtr(**it, p->second);
+			p->second->AddRef();
 		}
 		else
 		{
@@ -29,10 +31,9 @@ bool SaveFile::RestoreAllLinks()
 		}
 	}
 	_refs.clear();
-	return true;
 }
 
-void SaveFile::RegPointer(void *ptr, size_t index)
+void SaveFile::RegPointer(GC_Object *ptr, size_t index)
 {
 	assert(_ptrToIndex.empty());
 	assert(0 == _indexToPtr.count(index));

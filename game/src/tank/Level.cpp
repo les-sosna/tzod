@@ -261,7 +261,6 @@ EditorModeListenerHelper::~EditorModeListenerHelper()
 Level::Level()
   : _modeEditor(false)
   , _steps(0)
-//  , _pause(0)
   , _time(0)
   , _timeBuffer(0)
   , _limitHit(false)
@@ -355,7 +354,6 @@ void Level::Clear()
 
 	// reset variables
 	_ctrlSentCount = 0;
-//	_pause = 0;
 	_time = 0;
 	_timeBuffer = 0;
 	_limitHit = false;
@@ -547,8 +545,7 @@ void Level::Unserialize(const char *fileName)
 		}
 
 		// restore links
-		if( !f.RestoreAllLinks() )
-			throw std::runtime_error("ERROR: invalid links");
+		f.RestoreAllLinks();
 
 		// apply the theme
 		_infoTheme = sh.theme;
@@ -573,6 +570,8 @@ void Level::Serialize(const char *fileName)
 {
 	assert(!IsEmpty());
 	assert(IsSafeMode());
+
+	PauseGame(true); // FIXME: exception safety
 
 	TRACE("Saving game to file '%s'...", fileName);
 
@@ -649,27 +648,28 @@ void Level::Serialize(const char *fileName)
 	}
 
 
-	//перебираем все объекты. если нужно - сохраняем
 	ObjectList::reverse_iterator it = GetList(LIST_objects).rbegin();
 	for( ; it != GetList(LIST_objects).rend(); ++it )
 	{
 		GC_Object *object = *it;
-		ObjectType type = object->GetType();
-		stream->Write(&type, sizeof(type));
+		if( !object->IsKilled() )
+		{
+			ObjectType type = object->GetType();
+			stream->Write(&type, sizeof(type));
 
-		SafePtr<void> tmp;
-		SetRawPtr(tmp, object);
-		f.Serialize(tmp);
-		SetRawPtr(tmp, NULL);
+			f.Serialize(WrapRawPtr(object));
+			object->Serialize(f);
 
-		object->Serialize(f);
-
-		sh.nObjects++;
+			sh.nObjects++;
+		}
 	}
 
 	// return to the beginning and write saved objects count
 	stream->Seek(0, SEEK_SET);
 	stream->Write(&sh, sizeof(SaveHeader));
+
+
+	PauseGame(false);
 }
 
 void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)

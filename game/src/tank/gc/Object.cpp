@@ -277,6 +277,7 @@ GC_Object::GC_Object()
 
 GC_Object::GC_Object(FromFile)
   : _memberOf(this)
+  , _refCount(1)
   , _notifyProtectCount(0)
 {
 }
@@ -316,7 +317,7 @@ void GC_Object::Serialize(SaveFile &f)
 	assert(0 == _notifyProtectCount);
 
 	f.Serialize(_flags);
-	f.Serialize(_refCount);
+	assert(!IsKilled());
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -359,8 +360,8 @@ void GC_Object::Serialize(SaveFile &f)
 	}
 	else
 	{
-		std::list<Notify>::iterator it = _notifyList.begin();
-		for( ; it != _notifyList.end(); ++it )
+		_notifyList.remove_if(std::mem_fun_ref(&Notify::IsRemoved)); // get rid of dead objects
+		for( std::list<Notify>::iterator it = _notifyList.begin(); it != _notifyList.end(); ++it )
 			it->Serialize(f);
 	}
 }

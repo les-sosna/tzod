@@ -11,22 +11,12 @@
 
 bool PauseGame(bool pause)
 {
-	if( pause )
+	bool pausedBefore = g_level->IsGamePaused();
+	g_env.pause = pause ? g_env.pause + 1 : g_env.pause - 1;
+	assert(g_env.pause >= 0);
+	if( !g_level->IsGamePaused() ^ !pausedBefore )
 	{
-		if( 0 == g_level->_pause + g_env.pause )
-		{
-			g_level->PauseSound(true);
-		}
-		g_env.pause++;
-	}
-	else
-	{
-		assert(g_env.pause > 0);
-		g_env.pause--;
-		if( 0 == g_level->_pause + g_env.pause )
-		{
-			g_level->PauseSound(false);
-		}
+		g_level->PauseSound(g_level->IsGamePaused());
 	}
 	return g_env.pause > 0;
 }
