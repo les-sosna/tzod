@@ -222,6 +222,9 @@ public:
 
 class GC_Object
 {
+	GC_Object(const GC_Object&); // no copy
+	GC_Object& operator = (const GC_Object&);
+
 protected:
 	// works if v is EXACTLY a power of 2
 	static inline unsigned long FastLog2(unsigned long v)

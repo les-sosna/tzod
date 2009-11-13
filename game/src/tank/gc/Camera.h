@@ -27,7 +27,7 @@ private:
 	SafePtr<GC_Player>  _player;
 
 public:
-	GC_Camera(SafePtr<GC_Player> &player);
+	explicit GC_Camera(const SafePtr<GC_Player> &player);
 	GC_Camera(FromFile);
 
 	void Apply();

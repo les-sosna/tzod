@@ -24,7 +24,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-GC_Camera::GC_Camera(SafePtr<GC_Player> &player)
+GC_Camera::GC_Camera(const SafePtr<GC_Player> &player)
   : GC_Actor()
   , _memberOf(this)
   , _rotator(_rotatorAngle)
