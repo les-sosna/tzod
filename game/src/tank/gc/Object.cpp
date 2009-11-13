@@ -271,14 +271,14 @@ GC_Object::GC_Object()
   : _memberOf(this)
   , _refCount(1)
   , _flags(0)
+  , _notifyProtectCount(0)
 {
-	_notifyProtectCount = 0;
 }
 
 GC_Object::GC_Object(FromFile)
   : _memberOf(this)
+  , _notifyProtectCount(0)
 {
-	_notifyProtectCount = 0;
 }
 
 GC_Object::~GC_Object()
@@ -291,23 +291,20 @@ GC_Object::~GC_Object()
 
 void GC_Object::Kill()
 {
-	if( IsKilled() ) return;
-	SetFlags(GC_FLAG_OBJECT_KILLED, true);
-
-	SetName(NULL);
-
-	// отписка от событий движка
-	SetEvents(0);
+	assert(!IsKilled());
 
 	PulseNotify(NOTIFY_OBJECT_KILL);
+
+	SetFlags(GC_FLAG_OBJECT_KILLED, true);
+	SetName(NULL);
+	SetEvents(0);
+
 	Release();
 }
 
 void GC_Object::Notify::Serialize(SaveFile &f)
 {
 	f.Serialize(type);
-	f.Serialize(once);
-	f.Serialize(hasGuard);
 	f.Serialize(subscriber);
 
 	// we are not allowed to serialize raw pointers so we use a small hack :)
@@ -316,6 +313,8 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 
 void GC_Object::Serialize(SaveFile &f)
 {
+	assert(0 == _notifyProtectCount);
+
 	f.Serialize(_flags);
 	f.Serialize(_refCount);
 
@@ -347,12 +346,12 @@ void GC_Object::Serialize(SaveFile &f)
 	}
 
 	// notify list
-	unsigned short count = _notifyList.size();
+	size_t count = _notifyList.size();
 	f.Serialize(count);
 	if( f.loading() )
 	{
 		assert(_notifyList.empty());
-		for( int i = 0; i < count; i++ )
+		for( size_t i = 0; i < count; i++ )
 		{
 			_notifyList.push_back(Notify());
 			_notifyList.back().Serialize(f);
@@ -486,8 +485,7 @@ void GC_Object::SetName(const char *name)
 	}
 }
 
-void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
-                          NOTIFYPROC handler, bool once, bool guard)
+void GC_Object::Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
 {
 	assert(!IsKilled());
 	assert(subscriber && !subscriber->IsKilled());
@@ -497,105 +495,38 @@ void GC_Object::Subscribe(NotyfyType type, GC_Object *subscriber,
 	notify.type         = type;
 	notify.subscriber   = WrapRawPtr(subscriber);
 	notify.handler      = handler;
-	notify.once         = once;
-	notify.hasGuard     = guard;
 	_notifyList.push_back(notify);
-	//--------------------------------------------------
-	if( guard ) // защита на случай если subscriber умрет раньше, чем this
+}
+
+void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
+{
+	assert(subscriber);
+	for( NotifyList::iterator it = _notifyList.begin(); it != _notifyList.end(); ++it )
 	{
-		notify.type        = NOTIFY_OBJECT_KILL;
-		notify.subscriber  = WrapRawPtr(this);
-		notify.handler     = &GC_Object::OnKillSubscriber;
-		notify.once        = true;
-		notify.hasGuard    = false;
-		subscriber->_notifyList.push_back(notify);
-	}
-}
-
-void GC_Object::Unguard(GC_Object *subscriber)
-{
-	std::list<Notify>::iterator it = _notifyList.begin();
-	while( it != _notifyList.end() )
-	{
-		if( &GC_Object::OnKillSubscriber != it->handler || subscriber != it->subscriber )
+		if( type == it->type && subscriber == it->subscriber && handler == it->handler )
 		{
-			++it;
-			continue;
+			if( _notifyProtectCount )
+				it->subscriber = NULL;
+			else
+				_notifyList.erase(it);
+			return;
 		}
-		std::list<Notify>::iterator tmp = it++;
-		assert(!tmp->hasGuard);
-		assert(NOTIFY_OBJECT_KILL == tmp->type);
-		if( _notifyProtectCount )
-			tmp->removed = true;
-		else
-			_notifyList.erase(tmp);
-		return;
 	}
-	assert(FALSE); // guard has not been found
+	assert(!"subscription not found");
 }
 
-void GC_Object::Unsubscribe(GC_Object *subscriber)
+void GC_Object::PulseNotify(NotifyType type, void *param)
 {
-	std::list<Notify>::iterator it = _notifyList.begin();
-	while( it != _notifyList.end() )
-	{
-		if( subscriber != it->subscriber )
-		{
-			++it;
-			continue;
-		}
-		std::list<Notify>::iterator tmp = it++;
-		if( tmp->hasGuard )
-		{
-			// find self in the subscriber's list and remove OnKillSubscriber
-			tmp->subscriber->Unguard(this);
-			tmp->hasGuard = false;
-		}
-		if( _notifyProtectCount )
-			tmp->removed = true;
-		else
-			_notifyList.erase(tmp);
-	}
-}
-
-void GC_Object::OnKillSubscriber(GC_Object *sender, void *param)
-{
-	Unsubscribe(sender);
-}
-
-void GC_Object::PulseNotify(NotyfyType type, void *param)
-{
-	if( _notifyList.empty() ) return;
-
 	_notifyProtectCount++;
-
-	std::list<Notify>::iterator tmp, it = _notifyList.begin();
-	while( it != _notifyList.end() )
+	for( std::list<Notify>::iterator tmp, it = _notifyList.begin(); it != _notifyList.end(); ++it )
 	{
-		if( type != it->type )
+		if( type == it->type && !it->IsRemoved() )
 		{
-			++it;
-			continue;
-		}
-		assert(it->subscriber);
-		(GetRawPtr(it->subscriber)->*it->handler)(this, param);
-		tmp = it++;
-		if( tmp->once )
-		{
-			if( tmp->hasGuard )
-			{
-				// find self in the subscriber's list and remove OnKillSubscriber
-				tmp->subscriber->Unguard(this);
-				tmp->hasGuard = false;
-			}
-			_notifyList.erase(tmp);
+			(GetRawPtr(it->subscriber)->*it->handler)(this, param);
 		}
 	}
-
 	if( 0 == --_notifyProtectCount )
-	{
-		_notifyList.remove_if(Notify::CleanUp());
-	}
+		_notifyList.remove_if(std::mem_fun_ref(&Notify::IsRemoved));
 }
 
 void GC_Object::TimeStepFixed(float dt)

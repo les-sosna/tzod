@@ -188,17 +188,14 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	_location = location;
 
 	_object = WrapRawPtr(object);
-
-	_object->Subscribe(NOTIFY_OBJECT_KILL, this,
-		(NOTIFYPROC) &GC_IndicatorBar::OnParentKill, true, true);
+	_object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_IndicatorBar::OnParentKill);
 
 	GC_2dSprite *sprite = object;
 	if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(object) )
 	{
 		sprite = veh->GetVisual();
 	}
-	sprite->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition, false, true);
+	sprite->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition);
 	OnUpdatePosition(sprite, NULL);
 }
 
@@ -275,7 +272,7 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 			g_level->_sy - GetSpriteHeight()*2)) );
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 }
 
@@ -300,7 +297,7 @@ GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
 	SetTexture("indicator_damage");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
 	SetZ(Z_VEHICLE_LABEL);
-	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove, false);
+	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }
 
 GC_DamLabel::GC_DamLabel(FromFile)

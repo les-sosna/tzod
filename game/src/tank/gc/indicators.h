@@ -74,6 +74,9 @@ class GC_IndicatorBar : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
 	MemberOfGlobalList<LIST_indicators> _memberOf;
 
+	void OnParentKill(GC_Object *sender, void *param);
+	void OnUpdatePosition(GC_Object *sender, void *param);
+
 protected:
 	SafePtr<GC_2dSprite> _object;
 
@@ -85,9 +88,6 @@ protected:
 public:
 	GC_IndicatorBar(const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
-
-	void OnParentKill(GC_Object *sender, void *param);
-	void OnUpdatePosition(GC_Object *sender, void *param);
 
 	// GC_2dSprite
 	virtual void Draw() const;

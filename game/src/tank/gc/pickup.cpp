@@ -103,7 +103,7 @@ void GC_Pickup::Attach(GC_Actor *actor)
 	_owner         = WrapRawPtr(actor);
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
-	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove, false);
+	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
 	actor->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
 	actor->OnPickup(this, true);
 }
@@ -112,7 +112,8 @@ void GC_Pickup::Detach()
 {
 	assert(_owner);
 	SetZ(Z_FREE_ITEM);
-	_owner->Unsubscribe(this);
+	_owner->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
+	_owner->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
 	_owner->OnPickup(this, false);
 	_owner = NULL;
 }
@@ -433,18 +434,19 @@ void GC_pu_Shield::Attach(GC_Actor *actor)
 
 	GC_Pickup::Attach(actor);
 
-	PLAY(SND_Inv, GetPos());
-
-	actor->Subscribe(NOTIFY_DAMAGE_FILTER, this,
-		(NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage, false);
+	GetOwner()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
+
+	PLAY(SND_Inv, GetPos());
 }
 
 void GC_pu_Shield::Detach()
 {
+	GetOwner()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
+
 	SetTexture("pu_inv");
 	SetShadow(true);
 	SetBlinking(false);

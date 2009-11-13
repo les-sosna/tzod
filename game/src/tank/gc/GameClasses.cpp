@@ -558,10 +558,8 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
 	assert(victim);
 	assert(!victim->IsKilled());
 
-	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this,
-		(NOTIFYPROC) &GC_HealthDaemon::OnVictimMove, false);
-	_victim->Subscribe(NOTIFY_OBJECT_KILL, this,
-		(NOTIFYPROC) &GC_HealthDaemon::OnVictimKill, true);
+	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
+	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
 
 	MoveTo(_victim->GetPos());
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED /*| GC_FLAG_OBJECT_EVENTS_TS_FLOATING*/ );

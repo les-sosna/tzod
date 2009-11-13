@@ -340,8 +340,8 @@ void Level::Clear()
 
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
-		assert(!obj->IsKilled());
-		obj->Kill();
+		if( !obj->IsKilled() )
+			obj->Kill();
 	}
 	assert(IsEmpty());
 

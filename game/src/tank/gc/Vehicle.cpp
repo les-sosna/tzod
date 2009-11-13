@@ -46,8 +46,7 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
 	SetZ(Z_VEHICLES);
 	SetShadow(true);
 
-	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this,
-		(NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent, false);
+	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent);
 
 	_light_ambient = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
 	_light_ambient->SetIntensity(0.8f);
@@ -509,7 +508,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 		else
 		{
 			assert(_weapon);
-			Unsubscribe( GetRawPtr(_weapon) );
+//			Unsubscribe( GetRawPtr(_weapon) );
 			_weapon = NULL;
 			ResetClass();
 		}

@@ -248,10 +248,8 @@ void GC_Player::TimeStepFixed(float dt)
 			_vehicle->GetVisual()->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetPlayer(WrapRawPtr(this));
 
-			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this,
-				(NOTIFYPROC) &GC_Player::OnVehicleDestroy, true, false);
-			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this,
-				(NOTIFYPROC) &GC_Player::OnVehicleKill, true, false);
+			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
+			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 
 			_vehicle->ResetClass();
 
@@ -267,7 +265,8 @@ void GC_Player::TimeStepFixed(float dt)
 
 void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
 {
-	_vehicle->Unsubscribe(this);
+	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
+	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 	_vehicle = NULL;
 	OnDie();
 	if( !_scriptOnDie.empty() )
@@ -278,7 +277,8 @@ void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
 
 void GC_Player::OnVehicleKill(GC_Object *sender, void *param)
 {
-	_vehicle->Unsubscribe(this);
+	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
+	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 	_vehicle = NULL;
 	OnDie();
 }

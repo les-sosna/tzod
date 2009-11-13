@@ -63,6 +63,8 @@ GC_Projectile::~GC_Projectile()
 
 void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
 {
+	assert(!IsKilled());
+
 	if( CheckFlags(GC_FLAG_PROJECTILE_IGNOREOWNER) && _owner == pObj )
 	{
 		return;
@@ -189,7 +191,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 
 	if( _lastHit )
 	{
-		_lastHit->Unsubscribe(this);
+		_lastHit->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
 		_lastHit = NULL;
 	}
 

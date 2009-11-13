@@ -350,24 +350,25 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	{
 		SafePtr<GC_Object> refHolder(this);
 		const ObjectList &ls = g_level->GetList(LIST_projectiles);
-		ObjectList::safe_iterator it = ls.safe_begin();
-		while( it != ls.end() )
+
+		for( ObjectList::safe_iterator it = ls.safe_begin(); it != ls.end(); ++it )
 		{
 			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
-
-			vec2d delta, tmp = pProj->GetPos() - GetPos();
-			delta.x = tmp.x * (da.x - 1) - tmp.y * da.y - dx.x;
-			delta.y = tmp.x * da.y - tmp.y * (da.x - 1) - dx.y;
-
-			float dl_sq = delta.sqr();
-			if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
-
-			pProj->SpecialTrace(this, delta);
-			++it;
-
-			if( IsKilled() )
+			if( !pProj->IsKilled() )
 			{
-				return;
+				vec2d delta, tmp = pProj->GetPos() - GetPos();
+				delta.x = tmp.x * (da.x - 1) - tmp.y * da.y - dx.x;
+				delta.y = tmp.x * da.y - tmp.y * (da.x - 1) - dx.y;
+
+				float dl_sq = delta.sqr();
+				if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
+
+				pProj->SpecialTrace(this, delta);
+
+				if( IsKilled() )
+				{
+					return;
+				}
 			}
 		}
 	}

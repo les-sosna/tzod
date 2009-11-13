@@ -213,6 +213,13 @@ enum GlobalListID
 
 typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
+template <NOTIFYPROC pMemFn, NotifyType type>
+class SubscribeHelper
+{
+	SafePtr<GC_Object> _s;
+public:
+};
+
 class GC_Object
 {
 protected:
@@ -249,27 +256,20 @@ private:
 
 	struct Notify
 	{
-		NotyfyType           type;
 		SafePtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
-		bool                 once;      // событие должно быть удалено после исполнения
-		bool                 removed;   // событие помечено для удаления
-		bool                 hasGuard;  // у события есть пара OnKillSubscriber
-		//---------------------------------------
-		inline Notify()  { removed = false; }
-		inline ~Notify() { subscriber = NULL; }
-		bool operator == (const Notify &src) const
+		NotifyType           type;
+
+//		bool operator == (const Notify &src) const
+//		{
+//			return subscriber == src.subscriber && type == src.type && handler == src.handler;
+//		}
+		bool IsRemoved() const
 		{
-			return subscriber == src.subscriber && type == src.type && handler == src.handler;
+			return !subscriber || subscriber->IsKilled();
 		}
-		struct CleanUp
-		{
-			bool operator() ( Notify &test ) { return test.removed; }
-		};
 		void Serialize(SaveFile &f);
 	};
-
-	void Unguard(GC_Object *subscriber);
 
 
 	//
@@ -283,7 +283,8 @@ private:
 	ObjectList::iterator _itPosFixed;      // позиция в Level::ts_fixed
 	ObjectList::iterator _itPosFloating;   // позиция в Level::ts_floating
 
-	std::list<Notify> _notifyList;          // извещения, рассылаемые данным объектом
+	typedef std::list<Notify> NotifyList;
+	NotifyList _notifyList;          // извещения, рассылаемые данным объектом
 	int  _notifyProtectCount;               // счетчик блокировки удаления из списка _notifyList
 
 public:
@@ -323,11 +324,8 @@ public:
 	// operations
 	//
 
-private:
-	void OnKillSubscriber(GC_Object *sender, void *param);
-
 protected:
-	void PulseNotify(NotyfyType type, void *param = NULL);
+	void PulseNotify(NotifyType type, void *param = NULL);
 
 public:
 	int  AddRef();
@@ -338,11 +336,8 @@ public:
 	const char* GetName() const;
 	void SetName(const char *name);
 
-	// использовать флаг guard=false можно только в том случае,
-	// если подписчик гарантировано живет дольше, чем источник события
-	void Subscribe(NotyfyType type, GC_Object *subscriber,
-		NOTIFYPROC handler, bool once = true, bool guard = true);
-	void Unsubscribe(GC_Object *subscriber);
+	void Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
+	void Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
 
 
 	//
