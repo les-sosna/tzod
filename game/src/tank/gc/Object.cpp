@@ -271,6 +271,7 @@ GC_Object::GC_Object()
   : _memberOf(this)
   , _refCount(1)
   , _flags(0)
+  , _firstNotify(NULL)
   , _notifyProtectCount(0)
 {
 }
@@ -278,6 +279,7 @@ GC_Object::GC_Object()
 GC_Object::GC_Object(FromFile)
   : _memberOf(this)
   , _refCount(1)
+  , _firstNotify(NULL)
   , _notifyProtectCount(0)
 {
 }
@@ -288,6 +290,12 @@ GC_Object::~GC_Object()
 	assert(0 == _notifyProtectCount);
 	assert(IsKilled());
 	SetName(NULL);
+	while( _firstNotify )
+	{
+		Notify *n = _firstNotify;
+		_firstNotify = n->next;
+		delete n;
+	}
 }
 
 void GC_Object::Kill()
@@ -302,6 +310,8 @@ void GC_Object::Kill()
 
 	Release();
 }
+
+IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
 
 void GC_Object::Notify::Serialize(SaveFile &f)
 {
@@ -318,6 +328,11 @@ void GC_Object::Serialize(SaveFile &f)
 
 	f.Serialize(_flags);
 	assert(!IsKilled());
+
+
+	//
+	// name
+	//
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -338,31 +353,43 @@ void GC_Object::Serialize(SaveFile &f)
 		}
 	}
 
+
+	//
+	// events
+	//
+
 	if( f.loading() )
 	{
-		// events
 		DWORD tmp = _flags & GC_FLAG_OBJECT_EVENTS_ALL;
 		SetFlags(GC_FLAG_OBJECT_EVENTS_ALL, false);
 		SetEvents(tmp);
 	}
 
-	// notify list
-	size_t count = _notifyList.size();
+
+	//
+	// notifications
+	//
+
+	size_t count = 0;
+	if( const Notify *n = _firstNotify )
+		do { count += !n->IsRemoved(); } while( n = n->next );
 	f.Serialize(count);
 	if( f.loading() )
 	{
-		assert(_notifyList.empty());
+		assert(NULL == _firstNotify);
 		for( size_t i = 0; i < count; i++ )
 		{
-			_notifyList.push_back(Notify());
-			_notifyList.back().Serialize(f);
+			_firstNotify = new Notify(_firstNotify);
+			_firstNotify->Serialize(f);
 		}
 	}
 	else
 	{
-		_notifyList.remove_if(std::mem_fun_ref(&Notify::IsRemoved)); // get rid of dead objects
-		for( std::list<Notify>::iterator it = _notifyList.begin(); it != _notifyList.end(); ++it )
-			it->Serialize(f);
+		for( Notify *n = _firstNotify; n; n = n->next )
+		{
+			if( !n->IsRemoved() )
+				n->Serialize(f);
+		}
 	}
 }
 
@@ -492,42 +519,64 @@ void GC_Object::Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC han
 	assert(subscriber && !subscriber->IsKilled());
 	assert(handler);
 	//--------------------------------------------------
-	Notify notify;
-	notify.type         = type;
-	notify.subscriber   = WrapRawPtr(subscriber);
-	notify.handler      = handler;
-	_notifyList.push_back(notify);
+	_firstNotify = new Notify(_firstNotify);
+	_firstNotify->type        = type;
+	_firstNotify->subscriber  = WrapRawPtr(subscriber);
+	_firstNotify->handler     = handler;
 }
 
 void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
 {
-	assert(subscriber);
-	for( NotifyList::iterator it = _notifyList.begin(); it != _notifyList.end(); ++it )
+	assert(subscriber && !subscriber->IsKilled());
+	for( Notify *prev = NULL, *n = _firstNotify; n; n = n->next )
 	{
-		if( type == it->type && subscriber == it->subscriber && handler == it->handler )
+		if( type == n->type && subscriber == n->subscriber && handler == n->handler )
 		{
 			if( _notifyProtectCount )
-				it->subscriber = NULL;
+			{
+				n->subscriber = NULL;
+			}
 			else
-				_notifyList.erase(it);
+			{
+				(prev ? prev->next : _firstNotify) = n->next;
+				delete n;
+			}
 			return;
 		}
+		prev = n;
 	}
 	assert(!"subscription not found");
 }
 
 void GC_Object::PulseNotify(NotifyType type, void *param)
 {
-	_notifyProtectCount++;
-	for( std::list<Notify>::iterator tmp, it = _notifyList.begin(); it != _notifyList.end(); ++it )
+	++_notifyProtectCount;
+	for( Notify *n = _firstNotify; n; n = n->next )
 	{
-		if( type == it->type && !it->IsRemoved() )
+		if( type == n->type && !n->IsRemoved() )
 		{
-			(GetRawPtr(it->subscriber)->*it->handler)(this, param);
+			(GetRawPtr(n->subscriber)->*n->handler)(this, param);
 		}
 	}
-	if( 0 == --_notifyProtectCount )
-		_notifyList.remove_if(std::mem_fun_ref(&Notify::IsRemoved));
+	--_notifyProtectCount;
+	if( 0 == _notifyProtectCount )
+	{
+		for( Notify *prev = NULL, *n = _firstNotify; n; )
+		{
+			if( n->IsRemoved() )
+			{
+				Notify *&pp = prev ? prev->next : _firstNotify;
+				pp = n->next;
+				delete n;
+				n = pp;
+			}
+			else
+			{
+				prev = n;
+				n = n->next;
+			}
+		}
+	}
 }
 
 void GC_Object::TimeStepFixed(float dt)

@@ -259,6 +259,9 @@ private:
 
 	struct Notify
 	{
+		DECLARE_POOLED_ALLOCATION(Notify);
+
+		Notify *next;
 		SafePtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
 		NotifyType           type;
@@ -267,6 +270,7 @@ private:
 			return !subscriber || subscriber->IsKilled();
 		}
 		void Serialize(SaveFile &f);
+		explicit Notify(Notify *nxt) : next(nxt) {}
 	};
 
 
@@ -281,9 +285,8 @@ private:
 	ObjectList::iterator _itPosFixed;      // позиция в Level::ts_fixed
 	ObjectList::iterator _itPosFloating;   // позиция в Level::ts_floating
 
-	typedef std::list<Notify> NotifyList;
-	NotifyList _notifyList;          // извещения, рассылаемые данным объектом
-	int  _notifyProtectCount;               // счетчик блокировки удаления из списка _notifyList
+	Notify *_firstNotify;
+	int  _notifyProtectCount;
 
 public:
 	void SetFlags(DWORD flags, bool value)
