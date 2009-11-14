@@ -104,8 +104,9 @@ private:
 
 	virtual void OnResizeWnd();
 
+	void SetViewportInternal(const RECT *rect, bool ifaceMode);
 	virtual void SetViewport(const RECT *rect);
-	virtual void Camera(float x, float y, float scale, float angle);
+	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle);
 
 	virtual int  GetWidth() const;
     virtual int  GetHeight() const;
@@ -360,6 +361,11 @@ void RenderDirect3D::OnResizeWnd()
 
 void RenderDirect3D::SetViewport(const RECT *rect)
 {
+	SetViewportInternal(rect, true);
+}
+
+void RenderDirect3D::SetViewportInternal(const RECT *rect, bool ifaceMode)
+{
 	if( _iaSize ) _flush();
 
 	D3DXMATRIX m;
@@ -369,7 +375,7 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 
 	if( rect )
 	{
-		if( RM_INTERFACE == _mode )
+		if( ifaceMode )
 		{
 			MatrixOrthoOffCenterRH(m, (float) rect->left, (float) rect->right,
 				(float) rect->bottom, (float) rect->top);
@@ -413,8 +419,9 @@ void RenderDirect3D::SetViewport(const RECT *rect)
 	}
 }
 
-void RenderDirect3D::Camera(float x, float y, float scale, float angle)
+void RenderDirect3D::Camera(const RECT *vp, float x, float y, float scale, float angle)
 {
+	SetViewportInternal(vp, false);
 	if( _iaSize ) _flush();
 
 	D3DXMATRIX m;
@@ -496,7 +503,7 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 
 	case RM_INTERFACE:
 		SetViewport(NULL);
-		Camera(0, 0, 1, 0);
+		Camera(NULL, 0, 0, 1, 0);
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_ONE         ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA ));
 		break;

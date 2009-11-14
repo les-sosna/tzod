@@ -75,8 +75,9 @@ private:
 
 	virtual void OnResizeWnd();
 
+	void SetViewportInternal(const RECT *rect, bool ifaceMode);
 	virtual void SetViewport(const RECT *rect);
-	virtual void Camera(float x, float y, float scale, float angle);
+	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle);
 
 	virtual int  GetWidth() const;
 	virtual int  GetHeight() const;
@@ -311,13 +312,18 @@ void RenderOpenGL::OnResizeWnd()
 
 void RenderOpenGL::SetViewport(const RECT *rect)
 {
+	SetViewportInternal(rect, true);
+}
+
+void RenderOpenGL::SetViewportInternal(const RECT *rect, bool ifaceMode)
+{
 	Flush();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if( rect )
 	{
-		if( RM_INTERFACE == _mode )
+		if( ifaceMode )
 		{
 			glOrtho((GLdouble) rect->left, (GLdouble) rect->right,
 				(GLdouble) rect->bottom, (GLdouble) rect->top, -1, 1);
@@ -345,8 +351,9 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 	}
 }
 
-void RenderOpenGL::Camera(float x, float y, float scale, float angle)
+void RenderOpenGL::Camera(const RECT *vp, float x, float y, float scale, float angle)
 {
+	SetViewportInternal(vp, false);
 	Flush();
 
 	glMatrixMode(GL_MODELVIEW);
@@ -410,7 +417,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 
 	case RM_INTERFACE:
 		SetViewport(NULL);
-		Camera(0, 0, 1, 0);
+		Camera(NULL, 0, 0, 1, 0);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		break;

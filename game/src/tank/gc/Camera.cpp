@@ -107,8 +107,6 @@ void GC_Camera::TimeStepFloat(float dt)
 
 void GC_Camera::Apply()
 {
-	g_render->SetViewport(&_viewport);
-
 	vec2d shake(0, 0);
 	if( _time_shake > 0 )
 	{
@@ -119,7 +117,8 @@ void GC_Camera::Apply()
 	g_env.camera_x = int(floorf((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
 	g_env.camera_y = int(floorf((GetPos().y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
 
-	g_render->Camera((float) g_env.camera_x,
+	g_render->Camera(&_viewport,
+	                 (float) g_env.camera_x,
 	                 (float) g_env.camera_y,
 	                 _zoom,
 	                 g_conf.g_rotcamera.Get() ? _rotatorAngle : 0);

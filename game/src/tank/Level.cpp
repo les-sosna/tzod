@@ -1327,15 +1327,14 @@ void Level::RunCmdQueue(float dt)
 
 void Level::Render() const
 {
-	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? 0.0f : 1.0f);
+	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (GetEditorMode() ? 0.5f : 0) : 1);
 
 	if( GetEditorMode() || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera
 		g_env.camera_x = int(_defaultCamera.GetPosX());
 		g_env.camera_y = int(_defaultCamera.GetPosY());
-		g_render->SetViewport(NULL);
-		g_render->Camera((float) g_env.camera_x, (float) g_env.camera_y, _defaultCamera.GetZoom(), 0);
+		g_render->Camera(NULL, (float) g_env.camera_x, (float) g_env.camera_y, _defaultCamera.GetZoom(), 0);
 		RenderInternal(_defaultCamera.GetZoom());
 	}
 	else

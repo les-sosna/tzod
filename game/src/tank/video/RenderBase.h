@@ -77,7 +77,7 @@ interface IRender
 	virtual void OnResizeWnd() = 0;
 
 	virtual void SetViewport(const RECT *rect) = 0;
-	virtual void Camera(float x, float y, float scale, float angle) = 0;
+	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle) = 0;
 
     virtual int  GetWidth() const = 0;
     virtual int  GetHeight() const = 0;
