@@ -639,7 +639,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
 	vec2d mouse;
-	if( !g_level->IsEmpty() && GC_Camera::GetWorldMousePos(mouse) )
+	if( GC_Camera::GetWorldMousePos(mouse) )
 	{
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
