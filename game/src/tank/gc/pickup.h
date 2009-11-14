@@ -18,9 +18,9 @@ class GC_RigidBodyStatic;
 ///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_PICKUP_BLINK             (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 2)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 3)
 
 class GC_Pickup : public GC_2dSprite
 {

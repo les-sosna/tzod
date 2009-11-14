@@ -17,8 +17,6 @@ type /quit() in console
 
 16x16 map displayed incorrectly
 
-shield is flashing
-
 it's possible to open dialogs several times (F2)
 
 when game is frozen, it's possible to control tank visual
