@@ -262,11 +262,6 @@ private:
 		SafePtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
 		NotifyType           type;
-
-//		bool operator == (const Notify &src) const
-//		{
-//			return subscriber == src.subscriber && type == src.type && handler == src.handler;
-//		}
 		bool IsRemoved() const
 		{
 			return !subscriber || subscriber->IsKilled();
