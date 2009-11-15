@@ -54,6 +54,9 @@ public:
 	float GetRadius() const { return _radius; }
 	void AlignToTexture();
 
+	float GetWidth() const { return _width; }
+	float GetLength() const { return _length; }
+
 	__declspec(deprecated) vec2d GetVertex(int index) const
 	{
 		float x, y;

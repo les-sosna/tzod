@@ -177,5 +177,10 @@ inline float Vec2dCross(const vec2d &a, const vec2d &b)
 	return a.x*b.y - a.y*b.x;
 }
 
+inline float Vec2dDot(const vec2d &a, const vec2d &b)
+{
+	return a.x*b.x + a.y*b.y;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

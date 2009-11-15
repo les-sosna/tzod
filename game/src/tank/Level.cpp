@@ -872,6 +872,12 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	}
 }
 
+inline static float Project(const GC_RigidBodyStatic* obj, const vec2d &axis)
+{
+	const vec2d &dir = obj->GetDirection();
+	return fabs(Vec2dCross(dir, axis) * obj->GetWidth()) + fabs(Vec2dDot(dir, axis) * obj->GetLength());
+}
+
 GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	                                const GC_RigidBodyStatic* ignore,
 	                                const vec2d &x0,  // origin
@@ -886,6 +892,9 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 
 	GC_RigidBodyStatic *pBestObject = NULL;
 	float minLen = 1.0e8;
+
+	vec2d axis(a.y, -a.x);
+	float x0_proj = Vec2dDot(axis, x0);
 
 
 	//
@@ -942,12 +951,20 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 						continue;
 					}
 
-					//грубо
-					bool bHasHit = true;
-					// FIXME! TODO: estimate
 
+					bool bHasHit = false;
+					float proj = Project(object, axis);
+					float objProj = Vec2dDot(object->GetPos(), axis);
+					if( fabs(objProj - x0_proj) < proj / 2 )
+					{
+						bHasHit = true;
 
-					// точно
+						for( int i = 0; i < 4; ++i )
+						{
+							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+						}
+					}
+
 					if( bHasHit )
 					{
 						vec2d m[4];
@@ -1381,7 +1398,12 @@ void Level::Render() const
 	if( !_dbgLineBuffer.empty() )
 	{
 		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
-		_dbgLineBuffer.clear();
+#ifdef _DEBUG
+		if( !GetAsyncKeyState(VK_BACK) )
+#endif
+		{
+			_dbgLineBuffer.clear();
+		}
 	}
 }
 
