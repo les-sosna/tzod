@@ -48,7 +48,7 @@
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				DisableSpecificWarnings="4244;4305"
 			/>
 			<Tool
@@ -109,7 +109,6 @@
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="3"
 				DisableSpecificWarnings="4244;4305"
 			/>
 			<Tool

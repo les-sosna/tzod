@@ -51,8 +51,6 @@
 				RuntimeLibrary="1"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="$(IntDir)\tank.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
@@ -81,8 +79,6 @@
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				MapFileName=""
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -143,8 +139,6 @@
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="$(IntDir)\tank.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
@@ -174,8 +168,6 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\tank.pdb"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -227,10 +219,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
+				Optimization="3"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="src\tank,src\zlib,src\lua\src,src\pluto,src\oggvorbis\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;LOGFILE;NOSOUND_0;NETWORK_DEBUG_0"
@@ -238,8 +228,6 @@
 				BufferSecurityCheck="false"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile="$(IntDir)\tank.pch"
 				WarningLevel="3"
 			/>
 			<Tool
@@ -257,18 +245,12 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib dxguid.lib dsound.lib dinput8.lib Comctl32.lib ws2_32.lib opengl32.lib"
 				Version=""
-				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				GenerateManifest="false"
 				DelayLoadDLLs=""
 				ProgramDatabaseFile=""
 				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
 				SetChecksum="true"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
