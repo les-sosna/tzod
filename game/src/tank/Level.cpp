@@ -872,12 +872,6 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	}
 }
 
-inline static float Project(const GC_RigidBodyStatic* obj, const vec2d &axis)
-{
-	const vec2d &dir = obj->GetDirection();
-	return fabs(Vec2dCross(dir, axis) * obj->GetWidth()) + fabs(Vec2dDot(dir, axis) * obj->GetLength());
-}
-
 GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	                                const GC_RigidBodyStatic* ignore,
 	                                const vec2d &x0,  // origin
@@ -893,8 +887,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	GC_RigidBodyStatic *pBestObject = NULL;
 	float minLen = 1.0e8;
 
-	vec2d axis(a.y, -a.x);
-	float x0_proj = Vec2dDot(axis, x0);
+	vec2d lineCenter(x0 + a/2);
 
 
 	//
@@ -906,11 +899,11 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 	end   /= LOCATION_SIZE;
 	delta /= LOCATION_SIZE;
 
-	const int halfBeginX = int(floorf(begin.x - 0.5f));
-	const int halfBeginY = int(floorf(begin.y - 0.5f));
+	const int halfBeginX = int(floor(begin.x - 0.5f));
+	const int halfBeginY = int(floor(begin.y - 0.5f));
 
-	const int halfEndX = int(floorf(end.x - 0.5f));
-	const int halfEndY = int(floorf(end.y - 0.5f));
+	const int halfEndX = int(floor(end.x - 0.5f));
+	const int halfEndY = int(floor(end.y - 0.5f));
 
 	const int jitX[4] = {0,1,0,1};
 	const int jitY[4] = {0,0,1,1};
@@ -952,13 +945,9 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 					}
 
 
-					bool bHasHit = false;
-					float proj = Project(object, axis);
-					float objProj = Vec2dDot(object->GetPos(), axis);
-					if( fabs(objProj - x0_proj) < proj / 2 )
+					bool bHasHit = object->CollideWithLine(lineCenter, a, NULL, NULL);
+					if( bHasHit )
 					{
-						bHasHit = true;
-
 						for( int i = 0; i < 4; ++i )
 						{
 							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
@@ -1007,7 +996,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 
 			// step to the next cell
 			float t = delta.x * (float) cy - delta.y * (float) cx;
-			if( fabsf(t + tx) < fabsf(t + ty) )
+			if( fabs(t + tx) < fabs(t + ty) )
 				cx += stepx;
 			else
 				cy += stepy;
@@ -1022,7 +1011,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 		{
 			if( norm )
 			{
-				float l = sqrtf(nx*nx + ny*ny);
+				float l = sqrt(nx*nx + ny*ny);
 				norm->Set(nx / l, ny / l);
 			}
 			if( ht ) *ht = hit;

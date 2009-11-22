@@ -33,6 +33,54 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 {
 }
 
+bool GC_RigidBodyStatic::CollideWithLine(vec2d lineCenter, vec2d lineDirection,
+                                         vec2d *outWhere, vec2d *outNormal)
+{
+	float lineProjL = Vec2dDot(lineDirection, GetDirection());
+	float lineProjW = Vec2dCross(lineDirection, GetDirection());
+	float lineProjL_abs = fabs(lineProjL);
+	float lineProjW_abs = fabs(lineProjW);
+
+	//
+	// project box to lineDirection axis
+	//
+
+	vec2d delta = lineCenter - GetPos();
+	float halfProjLine = lineProjL_abs * GetHalfWidth() + lineProjW_abs * GetHalfLength();
+	if( fabs(Vec2dCross(delta, lineDirection)) > halfProjLine )
+		return false;
+
+	//
+	// project lineDirection to box axes
+	//
+
+	float dirDotDelta = Vec2dDot(GetDirection(), delta);
+	if( fabs(dirDotDelta) > lineProjL_abs / 2 + GetHalfLength() )
+		return false;
+
+	float dirCrossDelta = Vec2dCross(GetDirection(), delta);
+	if( fabs(dirCrossDelta) > lineProjW_abs / 2 + GetHalfWidth() )
+		return false;
+
+	//
+	// calc intersection point and normal
+	//
+
+	if( outWhere || outNormal )
+	{
+		float b1 = dirCrossDelta / lineProjW - GetHalfWidth() / lineProjW_abs;
+		float b2 = -dirDotDelta / lineProjL - GetHalfLength() / lineProjL_abs;
+
+		if( outWhere )
+			*outWhere = lineCenter + lineDirection * std::max(b1, b2);
+
+//		if( outNormal )
+//			*outNormal = b1 < b2 ? GetDirection()
+	}
+
+	return true;
+}
+
 void GC_RigidBodyStatic::SetHealth(float cur, float max)
 {
 	assert(cur <= max);

@@ -54,8 +54,10 @@ public:
 	float GetRadius() const { return _radius; }
 	void AlignToTexture();
 
-	float GetWidth() const { return _width; }
-	float GetLength() const { return _length; }
+	float GetHalfWidth() const { return _width/2; }
+	float GetHalfLength() const { return _length/2; }
+
+	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d *outWhere, vec2d *outNormal);
 
 	__declspec(deprecated) vec2d GetVertex(int index) const
 	{
