@@ -881,13 +881,10 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 {
 	DbgLine(x0, x0 + a);
 
-	vec2d hit;
-	float nx, ny;
-
-	GC_RigidBodyStatic *pBestObject = NULL;
-	float minLen = 1.0e8;
+	GC_RigidBodyStatic *result = NULL;
 
 	vec2d lineCenter(x0 + a/2);
+	vec2d lineDirection(a);
 
 
 	//
@@ -944,50 +941,19 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 						continue;
 					}
 
-
-					bool bHasHit = object->CollideWithLine(lineCenter, a, NULL, NULL);
-					if( bHasHit )
+					vec2d tmpHit, tmpNorm;
+					if( object->CollideWithLine(lineCenter, lineDirection, &tmpHit, &tmpNorm) )
 					{
+						result = object;
+						lineCenter = (x0 + tmpHit) / 2;
+						lineDirection = tmpHit - x0;
+
+						if( ht ) *ht = tmpHit;
+						if( norm ) *norm = tmpNorm;
+
 						for( int i = 0; i < 4; ++i )
 						{
 							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
-						}
-					}
-
-					if( bHasHit )
-					{
-						vec2d m[4];
-						for( int i = 0; i < 4; ++i )
-						{
-							m[i] = object->GetVertex(i);
-						}
-
-						for( int n = 0; n < 4; ++n )
-						{
-							float xb = m[n].x;
-							float yb = m[n].y;
-
-							float bx = m[(n+1)&3].x - xb;
-							float by = m[(n+1)&3].y - yb;
-
-							float delta = a.y*bx - a.x*by;
-							if( delta <= 0 ) continue;
-
-							float tb = (a.x*(yb - x0.y) - a.y*(xb - x0.x)) / delta;
-
-							if( tb <= 1 && tb >= 0 )
-							{
-								float len = (bx*(yb - x0.y) - by*(xb - x0.x)) / delta;
-
-								if( len >= 0 && len < minLen )
-								{
-									minLen = len;
-									pBestObject = object;
-									nx =  by;
-									ny = -bx;
-									hit.Set(xb + bx * tb, yb + by * tb);
-								}
-							}
 						}
 					}
 				}
@@ -1004,22 +970,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 		} while( count-- );
 	}
 
-	if( pBestObject )
-	{
-		if( ( ((x0.x <= hit.x) && (hit.x <= x0.x + a.x)) ||((x0.x + a.x <= hit.x) && (hit.x <= x0.x)) ) &&
-		    ( ((x0.y <= hit.y) && (hit.y <= x0.y + a.y)) ||((x0.y + a.y <= hit.y) && (hit.y <= x0.y)) ) )
-		{
-			if( norm )
-			{
-				float l = sqrt(nx*nx + ny*ny);
-				norm->Set(nx / l, ny / l);
-			}
-			if( ht ) *ht = hit;
-			return pBestObject;
-		}
-	}
-
-	return NULL;
+	return result;
 }
 
 void Level::DrawBackground(size_t tex) const
