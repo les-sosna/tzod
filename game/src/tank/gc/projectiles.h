@@ -51,7 +51,6 @@ protected:
 	float GetTrailDensity() { return _trailDensity; }
 
 public:
-
 	GC_Projectile(GC_RigidBodyStatic *owner, bool advanced,
 		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
 	GC_Projectile(FromFile);
@@ -71,8 +70,6 @@ public:
 	{
 		SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER, bIgnore);
 	}
-
-	void SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path);
 
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);

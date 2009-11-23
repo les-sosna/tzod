@@ -341,38 +341,6 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);
 
-
-	//
-	// защита от пролетания снарядов через объект
-	//
-
-	if( !CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
-	{
-		SafePtr<GC_Object> refHolder(this);
-		const ObjectList &ls = g_level->GetList(LIST_projectiles);
-
-		for( ObjectList::safe_iterator it = ls.safe_begin(); it != ls.end(); ++it )
-		{
-			GC_Projectile* pProj = static_cast<GC_Projectile*>(*it);
-			if( !pProj->IsKilled() )
-			{
-				vec2d delta, tmp = pProj->GetPos() - GetPos();
-				delta.x = tmp.x * (da.x - 1) - tmp.y * da.y - dx.x;
-				delta.y = tmp.x * da.y - tmp.y * (da.x - 1) - dx.y;
-
-				float dl_sq = delta.sqr();
-				if( dl_sq < 1 ) delta /= sqrtf(dl_sq);
-
-				pProj->SpecialTrace(this, delta);
-
-				if( IsKilled() )
-				{
-					return;
-				}
-			}
-		}
-	}
-
 	MoveTo(GetPos() + dx);
 	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
 	dirTmp.Normalize();

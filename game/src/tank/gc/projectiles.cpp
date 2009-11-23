@@ -61,62 +61,6 @@ GC_Projectile::~GC_Projectile()
 {
 }
 
-void GC_Projectile::SpecialTrace(GC_RigidBodyDynamic *pObj, const vec2d &path)
-{
-	assert(!IsKilled());
-
-	if( CheckFlags(GC_FLAG_PROJECTILE_IGNOREOWNER) && _owner == pObj )
-	{
-		return;
-	}
-
-	vec2d norm;
-	vec2d m[4];
-
-	float min_len = path.len();
-	bool  hit     = false;
-
-	for( int i = 0; i < 4; ++i )
-	{
-		m[i] = pObj->GetVertex(i);
-	}
-
-	for( int n = 0; n < 4; ++n )
-	{
-		float xb = m[n].x;
-		float yb = m[n].y;
-
-		float bx = m[(n+1)&3].x - xb;
-		float by = m[(n+1)&3].y - yb;
-
-		float delta = path.y*bx - path.x*by;
-		if( delta <= 0 ) continue;
-
-		float tb = (path.x*(yb - GetPos().y) - path.y*(xb - GetPos().x)) / delta;
-
-		if( tb <= 1 && tb >= 0 )
-		{
-			float len = (bx*(yb - GetPos().y) - by*(xb - GetPos().x)) / delta;
-			if( len >= 0 && len <= min_len )
-			{
-				min_len = len;
-				hit     = true;
-				norm.x  =  by;
-				norm.y  = -bx;
-			}
-		}
-	}
-
-	if( hit )
-	{
-		norm.Normalize();
-		if( Hit(pObj, GetPos(), norm) )
-		{
-			Kill();
-		}
-	}
-}
-
 void GC_Projectile::Kill()
 {
 	_owner   = NULL;
