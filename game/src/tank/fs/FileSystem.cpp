@@ -8,7 +8,7 @@ namespace FS {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MemMap::MemMap(SafePtr<File> &parent)
+MemMap::MemMap(const SafePtr<File> &parent)
   : _file(parent)
 {
 }
@@ -20,7 +20,7 @@ MemMap::~MemMap()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Stream::Stream(SafePtr<File> &parent)
+Stream::Stream(const SafePtr<File> &parent)
   : _file(parent)
 {
 }
@@ -236,7 +236,7 @@ void OSFileSystem::OSFile::Unstream()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSStream::OSStream(SafePtr<File> &parent, HANDLE hFile)
+OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<File> &parent, HANDLE hFile)
   : Stream(parent)
   , _hFile(hFile)
 {
@@ -305,7 +305,7 @@ unsigned long OSFileSystem::OSFile::OSStream::GetSize()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSMemMap::OSMemMap(SafePtr<File> &parent, HANDLE hFile)
+OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<File> &parent, HANDLE hFile)
   : MemMap(parent)
   , _hFile(hFile)
   , _data(NULL)

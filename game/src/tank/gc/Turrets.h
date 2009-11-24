@@ -61,7 +61,7 @@ protected:
 	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 	virtual void TargetLost();
 	GC_Vehicle* EnumTargets();
-	void SelectTarget(SafePtr<GC_Vehicle> &target);
+	void SelectTarget(const SafePtr<GC_Vehicle> &target);
 
 	// editor functions
 	virtual void EditorAction();

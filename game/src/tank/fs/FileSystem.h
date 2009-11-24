@@ -22,7 +22,7 @@ public:
 	virtual void SetSize(unsigned long size) = 0; // may invalidate pointer returned by GetData()
 
 protected:
-	MemMap(SafePtr<File> &parent);
+	MemMap(const SafePtr<File> &parent);
 	virtual ~MemMap();
 
 private:
@@ -39,7 +39,7 @@ public:
 	virtual unsigned long GetSize() = 0;
 
 protected:
-	Stream(SafePtr<File> &parent);
+	Stream(const SafePtr<File> &parent);
 	virtual ~Stream();
 
 private:
@@ -137,7 +137,7 @@ class OSFileSystem : public FileSystem
 		class OSMemMap : public MemMap
 		{
 		public:
-			OSMemMap(SafePtr<File> &parent, HANDLE hFile);
+			OSMemMap(const SafePtr<File> &parent, HANDLE hFile);
 			virtual ~OSMemMap();
 
 			virtual char* GetData();
@@ -155,7 +155,7 @@ class OSFileSystem : public FileSystem
 		class OSStream : public Stream
 		{
 		public:
-			OSStream(SafePtr<File> &parent, HANDLE hFile);
+			OSStream(const SafePtr<File> &parent, HANDLE hFile);
 
 			virtual bool IsEof();
 			virtual void Read(void *dst, unsigned long byteCount);

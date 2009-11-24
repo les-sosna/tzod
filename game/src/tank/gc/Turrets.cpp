@@ -131,7 +131,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	return target;
 }
 
-void GC_Turret::SelectTarget(SafePtr<GC_Vehicle> &target)
+void GC_Turret::SelectTarget(const SafePtr<GC_Vehicle> &target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
