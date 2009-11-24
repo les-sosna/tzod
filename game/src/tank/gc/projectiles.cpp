@@ -64,7 +64,11 @@ GC_Projectile::~GC_Projectile()
 void GC_Projectile::Kill()
 {
 	_owner   = NULL;
-	_lastHit = NULL;
+	if( _lastHit )
+	{
+		_lastHit->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Projectile::OnKillLastHit);
+		_lastHit = NULL;
+	}
 	if( _light )
 	{
 		if( _light->GetTimeout() > 0 )
@@ -367,7 +371,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Bullet)
 }
 
 GC_Bullet::GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced)
-  : GC_Projectile(owner, advanced, TRUE, x, v, /*"projectile_bullet"*/ NULL)
+  : GC_Projectile(owner, advanced, true, x, v, /*"projectile_bullet"*/ NULL)
   , _trailEnable(false)
 {
 	SetHitDamage(advanced ? DAMAGE_BULLET * 2 : DAMAGE_BULLET);
