@@ -35,11 +35,11 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	int LoadPackage(const string_t &packageName, SafePtr<FS::MemMap> &file);
+	int LoadPackage(const string_t &packageName, const SafePtr<FS::MemMap> &file);
 	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
 	void UnloadAllTextures();
 
-	size_t FindSprite(const string_t &name)   const;
+	size_t FindSprite(const string_t &name) const;
 	const LogicalTexture& Get(size_t texIndex) const { return _logicalTextures[texIndex]; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }

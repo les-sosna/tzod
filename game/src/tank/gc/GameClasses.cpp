@@ -147,7 +147,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(SafePtr<GC_RigidBodyStatic> &owner)
+GC_Explosion::GC_Explosion(const SafePtr<GC_RigidBodyStatic> &owner)
   : GC_2dSprite()
   , _owner(owner)
   , _light(new GC_Light(GC_Light::LIGHT_POINT))
@@ -422,7 +422,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
+GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, const SafePtr<GC_RigidBodyStatic> &owner)
   : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");
@@ -480,7 +480,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(const vec2d &pos, SafePtr<GC_RigidBodyStatic> &owner)
+GC_Boom_Big::GC_Boom_Big(const vec2d &pos, const SafePtr<GC_RigidBodyStatic> &owner)
   : GC_Explosion(owner)
 {
 	static const TextureCache tex1("particle_1");

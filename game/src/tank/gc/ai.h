@@ -127,7 +127,7 @@ protected:
 	SafePtr<GC_RigidBodyStatic> _target;  // текущая цель
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
-	void LockTarget(SafePtr<GC_RigidBodyStatic> &target);
+	void LockTarget(const SafePtr<GC_RigidBodyStatic> &target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 

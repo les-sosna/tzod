@@ -186,7 +186,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const string_t &packageName, SafePtr<FS::MemMap> &file)
+int TextureManager::LoadPackage(const string_t &packageName, const SafePtr<FS::MemMap> &file)
 {
 	TRACE("Loading texture package '%s'", packageName.c_str());
 

@@ -1310,7 +1310,7 @@ void GC_PlayerAI::OnDie()
 	_jobManager.UnregisterMember(this);
 }
 
-void GC_PlayerAI::LockTarget(SafePtr<GC_RigidBodyStatic> &target)
+void GC_PlayerAI::LockTarget(const SafePtr<GC_RigidBodyStatic> &target)
 {
 	assert(target);
 	assert(GetVehicle());
