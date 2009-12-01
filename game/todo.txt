@@ -1,10 +1,3 @@
-implement more stable notifications (GC_Object::Subscribe)
-
-
-Lobby - done
-
-prediction in network multiplayer - done
-
 save screenshots in jpg or png
 
 Save/Load
@@ -21,6 +14,9 @@ set object position from Lua?
 equip(booster) doesn't work
 solution: create Pickup::Accept(obj)
 
+make it possible to access objects w/o name from script
+ - introduce user data type that holds weak reference to object
+ - should all other functions accept both name and reference?
 
 Q22) Why do I get an error when trying to open a new socket soon after I've closed a socket on the same port?
 This happens in TCP, because the implementation will wait for a while to allow any late, missed fragments to arrive (even though nobody will read them). This is to avoid confusing fragments from a previous connection with fragments from a new connection.
