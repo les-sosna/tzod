@@ -27,6 +27,38 @@
 #include "functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// helper functions
+
+static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
+{
+	const char *name = lua_tostring(L, n);
+	if( !name )
+	{
+		luaL_typerror(L, n, "object or name");
+	}
+
+	GC_Object *obj = g_level->FindObject(name);
+	if( !obj || obj->IsKilled() )
+	{
+		luaL_error(L, "object with name '%s' does not exists", name);
+	}
+
+	return obj;
+}
+
+template<class T>
+static T* luaT_checkobjectT(lua_State *L, int n) throw()
+{
+	GC_Object *obj = luaT_checkobject(L, n);
+	T *result = dynamic_cast<T *>(obj);
+	if( !result )
+	{
+		luaL_argerror(L, n, "incompatible object type");
+	}
+	return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // c closures
 
 // exit to the system
@@ -693,19 +725,7 @@ int luaT_damage(lua_State *L)
 	}
 
 	float hp = (float) luaL_checknumber(L, 1);
-	const char *name = luaL_checkstring(L, 2);
-
-	GC_Object *obj = g_level->FindObject(name);
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-
-	GC_RigidBodyStatic *rbs = dynamic_cast<GC_RigidBodyStatic *>(obj);
-	if( NULL == rbs )
-	{
-		return luaL_error(L, "object '%s' couldn't be damaged");
-	}
+	GC_RigidBodyStatic *rbs = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
 
 	rbs->TakeDamage(hp, rbs->GetPos(), NULL);
 
@@ -721,17 +741,7 @@ int luaT_kill(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	const char *name = luaL_checkstring(L, 1);
-
-	GC_Object *obj = g_level->FindObject(name);
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-	assert(!obj->IsKilled());
-
-	obj->Kill();
-
+	luaT_checkobject(L, 1)->Kill();
 	return 0;
 }
 
@@ -760,19 +770,7 @@ int luaT_position(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	const char *name = luaL_checkstring(L, 1);
-	GC_Object *obj = g_level->FindObject(name);
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-
-	GC_Actor *actor = dynamic_cast<GC_Actor *>(obj);
-	if( NULL == actor )
-	{
-		return luaL_error(L, "object '%s' is not an actor", name);
-	}
-
+	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
 	lua_pushnumber(L, actor->GetPos().x);
 	lua_pushnumber(L, actor->GetPos().y);
 
@@ -789,14 +787,7 @@ int luaT_objtype(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	const char *name = luaL_checkstring(L, 1);
-	GC_Object *obj = g_level->FindObject(name);
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-	assert(!obj->IsKilled());
-
+	GC_Object *obj = luaT_checkobject(L, 1);
 	lua_pushstring(L, Level::GetTypeName(obj->GetType()));
 	return 1;
 }
@@ -812,16 +803,8 @@ int luaT_pget(lua_State *L)
 		return luaL_error(L, "2 arguments expected; got %d", n);
 	}
 
-	const char *name = luaL_checkstring(L, 1);
+	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
-
-	GC_Object *obj = g_level->FindObject(name);
-
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-	assert(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
 	assert(properties);
@@ -852,7 +835,8 @@ int luaT_pget(lua_State *L)
 		}
 	}
 
-	return luaL_error(L, "object '%s' has no property '%s'", name, prop);
+	return luaL_error(L, "object of type '%s' has no property '%s'", 
+		Level::GetTypeName(obj->GetType()), prop);
 }
 
 
@@ -865,16 +849,9 @@ int luaT_pset(lua_State *L)
 		return luaL_error(L, "3 arguments expected; got %d", n);
 	}
 
-	const char *name = luaL_checkstring(L, 1);
+	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
-
-	GC_Object *obj = g_level->FindObject(name);
-	if( NULL == obj )
-	{
-		return luaL_error(L, "object with name '%s' was not found", name);
-	}
-	assert(!obj->IsKilled());
 
 	SafePtr<PropertySet> properties = obj->GetProperties();
 	assert(properties);
@@ -882,7 +859,8 @@ int luaT_pset(lua_State *L)
 	// prop name at -2; prop value at -1
 	if( !pset_helper(properties, L) )
 	{
-		return luaL_error(L, "object '%s' has no property '%s'", name, prop);
+		return luaL_error(L, "object of type '%s' has no property '%s'", 
+			Level::GetTypeName(obj->GetType()), prop);
 	}
 
 	properties->Exchange(true);
@@ -897,32 +875,9 @@ int luaT_equip(lua_State *L)
 	{
 		return luaL_error(L, "2 arguments expected; got %d", n);
 	}
-	const char *targetname = luaL_checkstring(L, 1);
-	const char *pickupname = luaL_checkstring(L, 2);
 
-	GC_Object *target_raw = g_level->FindObject(targetname);
-	if( NULL == target_raw )
-	{
-		return luaL_error(L, "object with name '%s' was not found", targetname);
-	}
-
-	GC_Object *pickup_raw = g_level->FindObject(pickupname);
-	if( NULL == target_raw )
-	{
-		return luaL_error(L, "object with name '%s' was not found", pickupname);
-	}
-
-	GC_Pickup *pickup = dynamic_cast<GC_Pickup *>(pickup_raw);
-	if( NULL == pickup )
-	{
-		return luaL_error(L, "object '%s' is not a pickup", pickupname);
-	}
-
-	GC_Vehicle *target = dynamic_cast<GC_Vehicle *>(target_raw);
-	if( NULL == target )
-	{
-		return luaL_error(L, "target object '%s' is not a vehicle", targetname);
-	}
+	GC_Vehicle *target = luaT_checkobjectT<GC_Vehicle>(L, 1);
+	GC_Pickup *pickup = luaT_checkobjectT<GC_Pickup>(L, 2);
 
 	if( pickup->IsAttached() )
 	{
