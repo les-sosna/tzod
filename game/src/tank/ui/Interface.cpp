@@ -325,7 +325,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 	s_bUpdating = FALSE;
 }
 
-LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 	switch (message)
@@ -334,7 +334,7 @@ LRESULT CALLBACK dlgDisplaySettings(HWND hDlg, UINT message, WPARAM wParam, LPAR
 		wmId    = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
 
-		switch (wmEvent)
+		switch( wmEvent )
 		{
 		case BN_CLICKED:
 			switch (wmId)

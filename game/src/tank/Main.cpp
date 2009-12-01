@@ -148,7 +148,7 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 	// register class
 	//
 	wc.lpszClassName = TXT_WNDCLASS;
-	wc.lpfnWndProc   = (WNDPROC) WndProc;
+	wc.lpfnWndProc   = WndProc;
 	wc.style         = CS_VREDRAW | CS_HREDRAW;
 	wc.hInstance     = hInstance;
 	wc.hIcon         = LoadIcon(hInstance, (LPCTSTR) IDI_BIG);
@@ -307,15 +307,18 @@ bool ZodApp::Pre()
 	//
 
 	TRACE("windows common controls initialization");
-	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), 0 };
-	InitCommonControlsEx(&iccex);
+	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_STANDARD_CLASSES };
+	if( !InitCommonControlsEx(&iccex) )
+	{
+		return false;
+	}
 
 
 	//
 	// show graphics mode selection dialog
 	//
 	if( g_conf.r_askformode.Get()
-		&& IDOK != DialogBox(GetModuleHandle(NULL), (LPCTSTR) IDD_DISPLAY, NULL, (DLGPROC) dlgDisplaySettings) )
+		&& IDOK != DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DISPLAY), NULL, dlgDisplaySettings) )
 	{
 		g_fs = NULL; // free the file system
 		return false;
