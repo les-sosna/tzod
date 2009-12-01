@@ -27,10 +27,60 @@
 #include "functions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// aux
+
+void luaT_pushobject(lua_State *L, GC_Object *obj)
+{
+	GC_Object **ppObj = (GC_Object **) lua_newuserdata(L, sizeof(obj));
+	luaL_getmetatable(L, "object");
+	lua_setmetatable(L, -2);
+	*ppObj = obj;
+	(*ppObj)->AddRef();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // helper functions
+
+static int luaT_objfinalizer(lua_State *L)
+{
+	assert(1 == lua_gettop(L));
+	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, 1);
+	assert(*ppObj);
+	(*ppObj)->Release();
+	return 0;
+}
 
 static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 {
+	//
+	// resolve by reference
+	//
+
+	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, n);
+
+	lua_getmetatable(L, -1);
+	luaL_getmetatable(L, "object");
+	if( !lua_rawequal(L, -1, -2) )
+		ppObj = NULL;
+	lua_pop(L, 2);
+
+	if( ppObj )
+	{
+		if( !*ppObj || (*ppObj)->IsKilled() )
+		{
+			luaL_argerror(L, n, "object does not exist");
+		}
+		else
+		{
+			return *ppObj;
+		}
+	}
+
+
+	//
+	// resolve by name
+	//
+
 	const char *name = lua_tostring(L, n);
 	if( !name )
 	{
@@ -40,7 +90,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 	GC_Object *obj = g_level->FindObject(name);
 	if( !obj || obj->IsKilled() )
 	{
-		luaL_error(L, "object with name '%s' does not exists", name);
+		luaL_error(L, "object with name '%s' does not exist", name);
 	}
 
 	return obj;
@@ -714,6 +764,19 @@ int luaT_service(lua_State *L)
 	return 0;
 }
 
+// object("object name")
+int luaT_object(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	GC_Object *obj = luaT_checkobject(L, 1);
+	luaT_pushobject(L, obj);
+	return 1;
+}
 
 // damage(hp, "victim")
 int luaT_damage(lua_State *L)
@@ -965,6 +1028,16 @@ lua_State* script_open(void)
 	}
 
 
+	//
+	// init metatable for object variables
+	//
+
+	luaL_newmetatable(L, "object");
+	 lua_pushstring(L, "__gc");
+	  lua_pushcfunction(L, luaT_objfinalizer);
+	   lua_settable(L, -3);
+	 lua_pop(L, 1); // pop the metatable
+
 
 	//
 	// register functions
@@ -979,6 +1052,7 @@ lua_State* script_open(void)
 	lua_register(L, "loadtheme",luaT_loadtheme);
 	lua_register(L, "music",    luaT_music);
 
+	lua_register(L, "object",   luaT_object);
 
 	lua_register(L, "actor",    luaT_actor);
 	lua_register(L, "service",  luaT_service);

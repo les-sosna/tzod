@@ -119,7 +119,6 @@ void GC_Trigger::TimeStepFixed(float dt)
 		}
 		if( _veh )
 		{
-			const char *who = _veh->GetName();
 			std::stringstream buf;
 			buf << "return function(who)";
 			buf << _onEnter;
@@ -137,11 +136,14 @@ void GC_Trigger::TimeStepFixed(float dt)
 					GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 					lua_pop(g_env.L, 1); // pop the error message from the stack
 				}
-				lua_pushstring(g_env.L, who ? who : "");
-				if( lua_pcall(g_env.L, 1, 0, 0) )
+				else
 				{
-					GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-					lua_pop(g_env.L, 1); // pop the error message from the stack
+					luaT_pushobject(g_env.L, GetRawPtr(_veh));
+					if( lua_pcall(g_env.L, 1, 0, 0) )
+					{
+						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+						lua_pop(g_env.L, 1); // pop the error message from the stack
+					}
 				}
 			}
 		}

@@ -14,7 +14,7 @@ bool script_exec_file(lua_State *L, const char *filename);
 
 // aux
 int luaT_ConvertVehicleClass(lua_State *L);
-
+void luaT_pushobject(lua_State *L, class GC_Object *obj);
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file
