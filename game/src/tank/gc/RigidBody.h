@@ -57,7 +57,7 @@ public:
 	float GetHalfWidth() const { return _width/2; }
 	float GetHalfLength() const { return _length/2; }
 
-	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d *outWhere, vec2d *outNormal);
+	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal);
 
 	__declspec(deprecated) vec2d GetVertex(int index) const
 	{
@@ -131,16 +131,18 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-#define GC_FLAG_WALL_CORNER_BIT_0 (GC_FLAG_RBSTATIC_ << 0)
-#define GC_FLAG_WALL_CORNER_BIT_1 (GC_FLAG_RBSTATIC_ << 1)
-#define GC_FLAG_WALL_CORNER_BIT_2 (GC_FLAG_RBSTATIC_ << 2)
-#define GC_FLAG_WALL_STYLE_BIT_0  (GC_FLAG_RBSTATIC_ << 3)
-#define GC_FLAG_WALL_STYLE_BIT_1  (GC_FLAG_RBSTATIC_ << 4)
-#define GC_FLAG_WALL_             (GC_FLAG_RBSTATIC_ << 5)
+#define GC_FLAG_WALL_CORNER_1 (GC_FLAG_RBSTATIC_ << 0) //  0-----1
+#define GC_FLAG_WALL_CORNER_2 (GC_FLAG_RBSTATIC_ << 1) //  |     |
+#define GC_FLAG_WALL_CORNER_3 (GC_FLAG_RBSTATIC_ << 2) //  |     |
+#define GC_FLAG_WALL_CORNER_4 (GC_FLAG_RBSTATIC_ << 3) //  3-----2
+#define GC_FLAG_WALL_STYLE_BIT_0  (GC_FLAG_RBSTATIC_ << 4)
+#define GC_FLAG_WALL_STYLE_BIT_1  (GC_FLAG_RBSTATIC_ << 5)
+#define GC_FLAG_WALL_             (GC_FLAG_RBSTATIC_ << 6)
 
-#define GC_FLAG_WALL_CORNER_ALL   (GC_FLAG_WALL_CORNER_BIT_0\
-                                  |GC_FLAG_WALL_CORNER_BIT_1\
-                                  |GC_FLAG_WALL_CORNER_BIT_2)
+#define GC_FLAG_WALL_CORNER_ALL   (GC_FLAG_WALL_CORNER_1\
+                                  |GC_FLAG_WALL_CORNER_2\
+                                  |GC_FLAG_WALL_CORNER_3\
+                                  |GC_FLAG_WALL_CORNER_4)
 
 
 class GC_Wall : public GC_RigidBodyStatic
@@ -148,8 +150,8 @@ class GC_Wall : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_Wall);
 
 private:
-	void SetCorner(int index); // 0 means normal view
-	int  GetCorner(void);
+	void SetCorner(unsigned int index); // 01
+	unsigned int GetCorner(void) const; // 32
 
 	void SetStyle(int style); // 0-3
 	int GetStyle() const;
@@ -175,6 +177,8 @@ public:
 	GC_Wall(float xPos, float yPos);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
+
+	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal);
 
 	virtual void Kill();
 

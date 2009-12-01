@@ -942,7 +942,7 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 					}
 
 					vec2d tmpHit, tmpNorm;
-					if( object->CollideWithLine(lineCenter, lineDirection, &tmpHit, &tmpNorm) )
+					if( object->CollideWithLine(lineCenter, lineDirection, tmpHit, tmpNorm) )
 					{
 						result = object;
 						lineCenter = (x0 + tmpHit) / 2;

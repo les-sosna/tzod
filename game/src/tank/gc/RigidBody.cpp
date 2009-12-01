@@ -34,14 +34,12 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 }
 
 bool GC_RigidBodyStatic::CollideWithLine(vec2d lineCenter, vec2d lineDirection,
-                                         vec2d *outWhere, vec2d *outNormal)
+                                         vec2d &outWhere, vec2d &outNormal)
 {
 	float lineProjL = Vec2dDot(lineDirection, GetDirection());
 	float lineProjW = Vec2dCross(lineDirection, GetDirection());
 	float lineProjL_abs = fabs(lineProjL);
 	float lineProjW_abs = fabs(lineProjW);
-
-	static int c0 = 0; ++c0;
 
 	//
 	// project box to lineDirection axis
@@ -56,41 +54,30 @@ bool GC_RigidBodyStatic::CollideWithLine(vec2d lineCenter, vec2d lineDirection,
 	// project lineDirection to box axes
 	//
 
-	static int c1 = 0; ++c1;
-
 	float dirDotDelta = Vec2dDot(GetDirection(), delta);
 	if( fabs(dirDotDelta) > lineProjL_abs / 2 + GetHalfLength() )
 		return false;
-
-	static int c2 = 0; ++c2;
 
 	float dirCrossDelta = Vec2dCross(GetDirection(), delta);
 	if( fabs(dirCrossDelta) > lineProjW_abs / 2 + GetHalfWidth() )
 		return false;
 
-	static int c3 = 0; ++c3;
-	GetConsole().Printf(0, "%d/%d/%d/%d",c0,c1,c2,c3);
-
 	//
 	// calc intersection point and normal
 	//
 
-	if( outWhere && outNormal )
+	float b1 = dirCrossDelta / lineProjW - GetHalfWidth() / lineProjW_abs;
+	float b2 = -dirDotDelta / lineProjL - GetHalfLength() / lineProjL_abs;
+	if( b1 > b2 )
 	{
-		float b1 = dirCrossDelta / lineProjW - GetHalfWidth() / lineProjW_abs;
-		float b2 = -dirDotDelta / lineProjL - GetHalfLength() / lineProjL_abs;
-
-		if( b1 > b2 )
-		{
-			*outWhere = lineCenter + lineDirection * b1;
-			*outNormal = lineProjW < 0 ?
-				vec2d(GetDirection().y, -GetDirection().x) : vec2d(-GetDirection().y, GetDirection().x);
-		}
-		else
-		{
-			*outWhere = lineCenter + lineDirection * b2;
-			*outNormal = lineProjL < 0 ? GetDirection() : -GetDirection();
-		}
+		outWhere = lineCenter + lineDirection * b1;
+		outNormal = lineProjW < 0 ?
+			vec2d(GetDirection().y, -GetDirection().x) : vec2d(-GetDirection().y, GetDirection().x);
+	}
+	else
+	{
+		outWhere = lineCenter + lineDirection * b2;
+		outNormal = lineProjL < 0 ? GetDirection() : -GetDirection();
 	}
 
 	return true;
@@ -305,6 +292,20 @@ GC_Wall::~GC_Wall()
 {
 }
 
+bool GC_Wall::CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal)
+{
+	unsigned int corner = GetCorner();
+	if( corner )
+	{
+		return false;
+	}
+	else
+	{
+		return __super::CollideWithLine(lineCenter, lineDirection, outWhere, outNormal);
+	}
+}
+
+
 void GC_Wall::Kill()
 {
 	SetCorner(0);
@@ -415,22 +416,22 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *fro
 	return true;
 }
 
-void GC_Wall::SetCorner(int index) // 0 means normal view
+void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 {
-	assert(index >= 0 && index < 5);
+	assert(index < 5);
 	static const DWORD flags[] = {
 		0,
-		GC_FLAG_WALL_CORNER_BIT_0,
-		GC_FLAG_WALL_CORNER_BIT_1,
-		GC_FLAG_WALL_CORNER_BIT_0|GC_FLAG_WALL_CORNER_BIT_1,
-		GC_FLAG_WALL_CORNER_BIT_2
+		GC_FLAG_WALL_CORNER_1,
+		GC_FLAG_WALL_CORNER_2,
+		GC_FLAG_WALL_CORNER_3,
+		GC_FLAG_WALL_CORNER_4
 	};
 
 	vec2d p = GetPos() / CELL_SIZE;
-	int x;
-	int y;
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
+		int x;
+		int y;
 		switch( GetCorner() )
 		{
 		case 0:
@@ -460,14 +461,11 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 
 	SetTexture(GetCornerTexture(index));
 	AlignToTexture();
-	// FIXME: corner
-//	if( 0 != index )
-//	{
-//		_vertices[index&3].Set(0,0);
-//	}
 
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
+		int x;
+		int y;
 		switch( GetCorner() )
 		{
 		case 0:
@@ -497,30 +495,17 @@ void GC_Wall::SetCorner(int index) // 0 means normal view
 	}
 }
 
-int GC_Wall::GetCorner(void)
+unsigned int GC_Wall::GetCorner(void) const
 {
-	int index = 0;
 	switch( GetFlags() & GC_FLAG_WALL_CORNER_ALL )
 	{
-	case 0:
-		index = 0;
-		break;
-	case GC_FLAG_WALL_CORNER_BIT_0:
-		index = 1;
-		break;
-	case GC_FLAG_WALL_CORNER_BIT_1:
-		index = 2;
-		break;
-	case GC_FLAG_WALL_CORNER_BIT_0|GC_FLAG_WALL_CORNER_BIT_1:
-		index = 3;
-		break;
-	case GC_FLAG_WALL_CORNER_BIT_2:
-		index = 4;
-		break;
-	default:
-		assert(0);
+	default: assert(false);
+	case 0:                     return 0;
+	case GC_FLAG_WALL_CORNER_1: return 1;
+	case GC_FLAG_WALL_CORNER_2: return 2;
+	case GC_FLAG_WALL_CORNER_3: return 3;
+	case GC_FLAG_WALL_CORNER_4: return 4;
 	}
-	return index;
 }
 
 void GC_Wall::SetStyle(int style) // 0-3
