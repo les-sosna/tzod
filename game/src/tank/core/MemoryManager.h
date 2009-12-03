@@ -21,7 +21,7 @@ class MemoryManager1
 	std::vector<BlankObject *> _memoryBlocks;
 	BlankObject *_freeBlock;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	size_t _allocatedCount;
 	size_t _allocatedPeak;
 #endif
@@ -44,7 +44,7 @@ class MemoryManager1
 public:
 	MemoryManager1()
 	  : _freeBlock(NULL)
-#ifdef _DEBUG
+#ifndef NDEBUG
 	  , _allocatedCount(0)
 	  , _allocatedPeak(0)
 #endif
@@ -56,7 +56,7 @@ public:
 		for( size_t i = 0; i < _memoryBlocks.size(); i++ )
 			::free(_memoryBlocks[i]);
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 		assert(0 == _allocatedCount);
 	//	TRACE("MemoryManager<%s>: peak allocation is %u", typeid(T).name(), _allocatedPeak);
 #endif
@@ -64,7 +64,7 @@ public:
 
 	T* Alloc(void)
 	{
-#ifdef _DEBUG
+#ifndef NDEBUG
 		if( ++_allocatedCount > _allocatedPeak )
 			_allocatedPeak = _allocatedCount;
 #endif
@@ -93,8 +93,6 @@ template
 >
 class MemoryPool
 {
-	struct Block;
-
 	struct BlankObject
 	{
 		union
@@ -102,7 +100,7 @@ class MemoryPool
 			BlankObject *_next;
 			char _data[sizeof(T)];
 		};
-		Block *_block;
+		struct Block *_block;
 	};
 
 	struct Block
@@ -156,7 +154,7 @@ class MemoryPool
 		{
 			assert(this == p->_block);
 			assert(_used > 0);
-#ifdef _DEBUG
+#ifndef NDEBUG
 			memset(p, 0xdb, sizeof(T));
 #endif
 			p->_next = _free;
@@ -169,7 +167,7 @@ class MemoryPool
 	Block *_blocks;
 	Block *_freeBlock;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	size_t _allocatedCount;
 	size_t _allocatedPeak;
 #endif
@@ -200,7 +198,7 @@ class MemoryPool
 public:
 	MemoryPool()
 	  : _blocks(NULL)
-#ifdef _DEBUG
+#ifndef NDEBUG
 	  , _allocatedCount(0)
 	  , _allocatedPeak(0)
 #endif
@@ -216,7 +214,7 @@ public:
 			delete tmp;
 		}
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 		assert(0 == _allocatedCount);
 		printf("MemoryPool<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
 #endif
@@ -224,7 +222,7 @@ public:
 
 	T* Alloc()
 	{
-#ifdef _DEBUG
+#ifndef NDEBUG
 		if( ++_allocatedCount > _allocatedPeak )
 			_allocatedPeak = _allocatedCount;
 #endif
