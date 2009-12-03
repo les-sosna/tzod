@@ -120,7 +120,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	{
 		size_t size = _attackList.size();
 		f.Serialize(size);
-		for( AttackListType::const_iterator it = _attackList.begin(); _attackList.end() != it; ++it )
+		for( AttackListType::iterator it = _attackList.begin(); _attackList.end() != it; ++it )
 		{
 			f.Serialize(*it);
 		}

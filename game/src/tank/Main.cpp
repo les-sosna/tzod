@@ -21,8 +21,6 @@
 #include "video/RenderOpenGL.h"
 #include "video/RenderDirect3D.h"
 
-#include "network/TankClient.h"
-#include "network/TankServer.h"
 #include "network/Variant.h"
 
 #include "ui/Interface.h"
@@ -336,21 +334,6 @@ bool ZodApp::Pre()
 	UpdateWindow(g_env.hMainWnd);
 
 
-
-	//
-	// init scripting system
-	//
-
-	TRACE("scripting subsystem initialization");
-	if( NULL == (g_env.L = script_open()) )
-	{
-		TRACE(" ->FAILED");
-		return false;
-	}
-	g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
-	g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-
-
 	timer.SetMaxDt(MAX_DT);
 
 	// init render
@@ -364,7 +347,6 @@ bool ZodApp::Pre()
 	{
 		return false;
 	}
-
 
 #if !defined NOSOUND
 	// init sound
@@ -387,7 +369,11 @@ bool ZodApp::Pre()
 
 	_inputMgr = WrapRawPtr(new InputManager(g_env.hMainWnd));
 
+
+	//
 	// init texture manager
+	//
+
 	g_texman = new TextureManager;
 	g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
 	try
@@ -413,6 +399,21 @@ bool ZodApp::Pre()
 
 	// init world
 	g_level = WrapRawPtr(new Level());
+
+
+	//
+	// init scripting system
+	//
+
+	TRACE("scripting subsystem initialization");
+	if( NULL == (g_env.L = script_open()) )
+	{
+		TRACE(" ->FAILED");
+		return false;
+	}
+	g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
+	g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
+
 
 	// init GUI
 	TRACE("GUI subsystem initialization");
@@ -455,32 +456,11 @@ void ZodApp::Idle()
 
 void ZodApp::Post()
 {
+//	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_server);
+
 	TRACE("Shutting down GUI subsystem");
 	SAFE_DELETE(g_gui);
-
-	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
-
-	// destroy level
-	g_level = NULL;
-
-	// release input devices
-	_inputMgr = NULL;
-
-	if( g_texman ) g_texman->UnloadAllTextures();
-	SAFE_DELETE(g_texman);
-
-	TRACE("Shutting down the renderer");
-	if( g_render )
-	{
-		g_render->Release();
-		g_render = NULL;
-	}
-
-
-#ifndef NOSOUND
-	FreeDirectSound();
-#endif
 
 	// script engine cleanup
 	if( g_env.L )
@@ -489,6 +469,27 @@ void ZodApp::Post()
 		script_close(g_env.L);
 		g_env.L = NULL;
 	}
+
+	// destroy level
+	g_level = NULL;
+
+	if( g_texman ) g_texman->UnloadAllTextures();
+	SAFE_DELETE(g_texman);
+
+	// release input devices
+	_inputMgr = NULL;
+
+#ifndef NOSOUND
+	FreeDirectSound();
+#endif
+	TRACE("Shutting down the renderer");
+	if( g_render )
+	{
+		g_render->Release();
+		g_render = NULL;
+	}
+
+
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'");

@@ -1071,7 +1071,7 @@ bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 
 void GC_GaussRay::Kill()
 {
-	if( !_light->IsKilled() ) // _light can be killed during level cleanup
+	if( _light && !_light->IsKilled() ) // _light can be killed during level cleanup
 		_light->SetTimeout(0.4f);
 	GC_Projectile::Kill();
 }

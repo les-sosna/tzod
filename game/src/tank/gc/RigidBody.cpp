@@ -30,6 +30,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic()
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
   : GC_2dSprite(FromFile())
+  , _radius(0) // for proper handling of bad save files
 {
 }
 
@@ -297,6 +298,7 @@ bool GC_Wall::CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outW
 	unsigned int corner = GetCorner();
 	if( corner )
 	{
+
 		return false;
 	}
 	else

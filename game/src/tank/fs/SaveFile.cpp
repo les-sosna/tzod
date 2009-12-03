@@ -11,33 +11,11 @@ SaveFile::SaveFile(SafePtr<FS::Stream> &s, bool loading)
 {
 }
 
-void SaveFile::RestoreAllLinks()
+void SaveFile::RegPointer(GC_Object *ptr)
 {
-	SafePtr<void> boo; // to make compiler find GetRawPtr
-
-	for( std::list<SafePtr<GC_Object>*>::iterator it = _refs.begin(); it != _refs.end(); ++it )
-	{
-		if( DWORD_PTR id = reinterpret_cast<DWORD_PTR>(GetRawPtr(**it)) )
-		{
-			IndexToPtr::iterator p = _indexToPtr.find(id);
-			if( _indexToPtr.end() == p )
-				throw std::runtime_error("ERROR: invalid links");
-			SetRawPtr(**it, p->second);
-			p->second->AddRef();
-		}
-		else
-		{
-			SetRawPtr(**it, NULL);
-		}
-	}
-	_refs.clear();
-}
-
-void SaveFile::RegPointer(GC_Object *ptr, size_t index)
-{
-	assert(_ptrToIndex.empty());
-	assert(0 == _indexToPtr.count(index));
-	_indexToPtr[index] = ptr;
+	assert(!_ptrToIndex.count(ptr));
+	_ptrToIndex[ptr] = _indexToPtr.size();
+	_indexToPtr.push_back(ptr);
 }
 
 void SaveFile::Serialize(string_t &str)

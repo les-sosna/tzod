@@ -183,7 +183,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 	float r = object->GetRadius() / CELL_SIZE;
 	vec2d p = object->GetPos() / CELL_SIZE;
 
-	assert(r > 0);
+	assert(r >= 0);
 
 	int xmin = __max(0,       int(p.x - r + 0.5f));
 	int xmax = __min(_cx - 1, int(p.x + r + 0.5f));
@@ -470,10 +470,39 @@ void Level::Unserialize(const char *fileName)
 		if( VERSION != sh.dwVersion )
 			throw std::runtime_error("invalid version");
 
+		_gameType = sh.dwGameType;
+
+		g_conf.sv_timelimit.SetFloat(sh.timelimit);
+		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
+		g_conf.sv_nightmode.Set(sh.nightmode);
+
+		_time = sh.time;
+		Resize(sh.width, sh.height);
+
+
+		// fill pointers cache
+		for(;;)
+		{
+			ObjectType type;
+			f.Serialize(type);
+			if( INVALID_OBJECT_TYPE == type )
+			{
+				break;
+			}
+			f.RegPointer(GC_Object::Create(type));
+		}
+
+		// read objects contents in the same order as pointers
+		for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+		{
+			(*it)->Serialize(f);
+		}
+
 
 		//
-		// restoring lua user environment
+		// restore lua user environment
 		//
+
 		struct ReadHelper
 		{
 			static const char* r(lua_State *L, void* data, size_t *sz)
@@ -528,25 +557,6 @@ void Level::Unserialize(const char *fileName)
 			throw std::runtime_error("ERROR: pluto queue");
 		}
 
-
-		_gameType = sh.dwGameType;
-
-		g_conf.sv_timelimit.SetFloat(sh.timelimit);
-		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
-		g_conf.sv_nightmode.Set(sh.nightmode);
-
-		_time = sh.time;
-		Resize(sh.width, sh.height);
-
-		while( sh.nObjects > 0 )
-		{
-			GC_Object::CreateFromFile(f);
-			sh.nObjects--;
-		}
-
-		// restore links
-		f.RestoreAllLinks();
-
 		// apply the theme
 		_infoTheme = sh.theme;
 		_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(sh.theme));
@@ -588,14 +598,46 @@ void Level::Serialize(const char *fileName)
 	sh.time         = _time;
 	sh.width        = (int) _sx / CELL_SIZE;
 	sh.height       = (int) _sy / CELL_SIZE;
-	sh.nObjects     = 0; // будем увеличивать по мере записи
 
 	stream->Write(&sh, sizeof(SaveHeader));
 
 
 	//
-	// writing lua user environment
+	// pointers to game objects
 	//
+
+	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+	{
+		GC_Object *object(*it);
+		if( !object->IsKilled() )
+		{
+			ObjectType type = object->GetType();
+			stream->Write(&type, sizeof(type));
+			f.RegPointer(object);
+		}
+	}
+	ObjectType terminator(INVALID_OBJECT_TYPE);
+	f.Serialize(terminator);
+
+
+	//
+	// write objects contents in the same order as pointers
+	//
+
+	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+	{
+		GC_Object *object = *it;
+		if( !object->IsKilled() )
+		{
+			object->Serialize(f);
+		}
+	}
+
+
+	//
+	// write lua user environment
+	//
+
 	struct WriteHelper
 	{
 		static int w(lua_State *L, const void* p, size_t sz, void* ud)
@@ -646,27 +688,6 @@ void Level::Serialize(const char *fileName)
 		lua_pop(g_env.L, 1);
 		throw std::runtime_error("ERROR: writing pluto queue");
 	}
-
-
-	ObjectList::reverse_iterator it = GetList(LIST_objects).rbegin();
-	for( ; it != GetList(LIST_objects).rend(); ++it )
-	{
-		GC_Object *object = *it;
-		if( !object->IsKilled() )
-		{
-			ObjectType type = object->GetType();
-			stream->Write(&type, sizeof(type));
-
-			f.Serialize(WrapRawPtr(object));
-			object->Serialize(f);
-
-			sh.nObjects++;
-		}
-	}
-
-	// return to the beginning and write saved objects count
-	stream->Seek(0, SEEK_SET);
-	stream->Write(&sh, sizeof(SaveHeader));
 
 
 	PauseGame(false);

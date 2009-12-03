@@ -45,6 +45,8 @@ GC_2dSprite::GC_2dSprite()
 
 GC_2dSprite::GC_2dSprite(FromFile)
   : GC_Actor(FromFile())
+  , _zOrderCurrent(Z_NONE) // for proper handling of bad save files
+  , _texId(0) // for proper handling of bad save files
 {
 }
 

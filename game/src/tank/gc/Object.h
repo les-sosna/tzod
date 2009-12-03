@@ -179,7 +179,7 @@ public:
 // object flags
 
 // general
-#define GC_FLAG_OBJECT_KILLED                 0x00000001
+#define GC_FLAG_OBJECT_KILLED                 0x00000001 // FIXME: this flag should not be serialized
 #define GC_FLAG_OBJECT_NAMED                  0x00000002
 
 // engine events
@@ -245,8 +245,8 @@ protected:
 	public:
 		MemberOfGlobalList(GC_Object *obj)
 		{
-			g_level->GetList(listId).push_front(obj);
-			_pos = g_level->GetList(listId).begin();
+			g_level->GetList(listId).push_back(obj);
+			_pos = g_level->GetList(listId).rbegin();
 		}
 		~MemberOfGlobalList()
 		{
@@ -346,7 +346,7 @@ public:
 	//
 
 public:
-	static GC_Object* CreateFromFile(SaveFile &file);
+	static GC_Object* Create(ObjectType type);
 	virtual void Serialize(SaveFile &f);
 
 protected:

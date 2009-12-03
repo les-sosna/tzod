@@ -281,6 +281,7 @@ GC_Object::GC_Object(FromFile)
   , _refCount(1)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
+  , _flags(0) // to set GC_FLAG_OBJECT_KILLED=0 for proper handling of bad save files
 {
 }
 
@@ -325,9 +326,10 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 void GC_Object::Serialize(SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
+	assert(!f.loading() || !IsKilled());
 
 	f.Serialize(_flags);
-	assert(!IsKilled());
+	SetFlags(GC_FLAG_OBJECT_KILLED, false); // workaround for proper handling of bad save files
 
 
 	//
@@ -393,12 +395,12 @@ void GC_Object::Serialize(SaveFile &f)
 	}
 }
 
-GC_Object* GC_Object::CreateFromFile(SaveFile &file)
+GC_Object* GC_Object::Create(ObjectType type)
 {
-	assert(file.loading());
-
-	ObjectType type;
-	file.Serialize(type);
+	if( INVALID_OBJECT_TYPE == type )
+	{
+		return NULL;
+	}
 
 	__FromFileMap::const_iterator it = __GetFromFileMap().find(type);
 	if( __GetFromFileMap().end() == it )
@@ -407,14 +409,7 @@ GC_Object* GC_Object::CreateFromFile(SaveFile &file)
 		throw std::runtime_error("Load error: unknown object type");
 	}
 
-	GC_Object *object = it->second();
-
-	size_t id;
-	file.Serialize(id);
-	file.RegPointer(object, id);
-
-	object->Serialize(file);
-	return object;
+	return it->second();
 }
 
 int GC_Object::AddRef()

@@ -175,7 +175,6 @@ class Level : public RefCounted
 		bool  nightmode;
 		float timelimit;
 		int   fraglimit;
-		int   nObjects;
 		float time;
 		int   width;
 		int   height;

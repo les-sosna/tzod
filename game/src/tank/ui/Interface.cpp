@@ -151,7 +151,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		g_gui->ProcessKeys(message, wParam);
+		if( g_gui ) g_gui->ProcessKeys(message, wParam);
 		break;
 
 	case WM_DESTROY:

@@ -9,12 +9,10 @@ class GC_Object;
 class SaveFile
 {
 	typedef std::map<GC_Object*, size_t> PtrToIndex;
-	typedef std::map<size_t, GC_Object*> IndexToPtr;
+	typedef std::vector<GC_Object*> IndexToPtr;
 
 	PtrToIndex _ptrToIndex;
 	IndexToPtr _indexToPtr;
-
-	std::list<SafePtr<GC_Object>*> _refs;
 
 	SafePtr<FS::Stream> _stream;
 	bool _load;
@@ -32,21 +30,20 @@ public:
 
 	template<class T>
 	void Serialize(T &obj);
-	template<class T>
-	void Serialize(const T &obj);
 
 	template<class T>
 	void Serialize(SafePtr<T> &ptr);
-	template<class T>
-	void Serialize(const SafePtr<T> &ptr);
 
 	template<class T>
 	void SerializeArray(T *p, size_t count);
 
-	void RestoreAllLinks(); // throws std::runtime_error
-	void RegPointer(GC_Object *ptr, size_t index);
+	void RegPointer(GC_Object *ptr);
 
 private:
+	template<class T>
+	void Serialize(const T &obj);
+	template<class T>
+	void Serialize(const SafePtr<T> &ptr);
 	template<class T>
 	void Serialize(T *) {assert(!"you are not allowed to serialize raw pointers");}
 };
@@ -63,15 +60,6 @@ void SaveFile::Serialize(T &obj)
 }
 
 template<class T>
-void SaveFile::Serialize(const T &obj)
-{
-	assert(!loading());
-	assert(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
-	assert(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
-	_stream->Write(&obj, sizeof(T));
-}
-
-template<class T>
 void SaveFile::Serialize(SafePtr<T> &ptr)
 {
 	DWORD_PTR id;
@@ -80,8 +68,11 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 		Serialize(id);
 		if( id )
 		{
-			SetRawPtr(ptr, reinterpret_cast<T*>(id));
-			_refs.push_back(reinterpret_cast<SafePtr<GC_Object>*>(&ptr));
+			if( _indexToPtr.size() <= id )
+				throw std::runtime_error("ERROR: invalid links");
+			if( !dynamic_cast<T*>(_indexToPtr[id]) )
+				throw std::runtime_error("ERROR: invalid object pointer");
+			ptr = WrapRawPtr(static_cast<T*>(_indexToPtr[id]));
 		}
 		else
 		{
@@ -96,42 +87,11 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 		}
 		else
 		{
-			if( _ptrToIndex.count(GetRawPtr(ptr)) )
-			{
-				id = _ptrToIndex[GetRawPtr(ptr)];
-			}
-			else
-			{
-				id = _ptrToIndex.size() + 1;
-				_ptrToIndex[GetRawPtr(ptr)] = id;
-			}
+			assert(_ptrToIndex.count(GetRawPtr(ptr)));
+			id = _ptrToIndex[GetRawPtr(ptr)];
 		}
 		Serialize(id);
 	}
-}
-
-template<class T>
-void SaveFile::Serialize(const SafePtr<T> &ptr)
-{
-	assert(!loading());
-	DWORD_PTR id;
-	if( !ptr )
-	{
-		id = 0;
-	}
-	else
-	{
-		if( _ptrToIndex.count(GetRawPtr(ptr)) )
-		{
-			id = _ptrToIndex[GetRawPtr(ptr)];
-		}
-		else
-		{
-			id = _ptrToIndex.size() + 1;
-			_ptrToIndex[GetRawPtr(ptr)] = id;
-		}
-	}
-	Serialize(id);
 }
 
 template<class T>

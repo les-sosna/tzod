@@ -22,7 +22,7 @@ struct SpriteColor
 	SpriteColor(DWORD c) : dwColor(c) {}
 };
 
-typedef size_t ObjectType;
+typedef int ObjectType;
 #define INVALID_OBJECT_TYPE (-1)
 
 enum enumAlignText {

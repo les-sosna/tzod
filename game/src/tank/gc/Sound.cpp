@@ -62,6 +62,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 GC_Sound::GC_Sound(FromFile)
   : GC_Actor(FromFile())
   , _memberOf(this)
+  , _mode(SMODE_STOP)
 {
 }
 
