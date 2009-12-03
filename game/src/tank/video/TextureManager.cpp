@@ -160,6 +160,7 @@ void TextureManager::CreateChecker()
 	tex.yframes  = 1;
 	tex.uvFrameWidth  = 8.0f;
 	tex.uvFrameHeight = 8.0f;
+	tex.uvPivot = vec2d(0, 0);
 	tex.pxFrameWidth  = (float) td.width * tex.uvFrameWidth;
 	tex.pxFrameHeight = (float) td.height * tex.uvFrameHeight;
 
