@@ -93,42 +93,43 @@ public:
 	//
 /*	const SafePtr& operator = (T *p)
 	{
+		if( p )
+		{
+			p->AddRef();
+		}
 		if( _ptr )
 		{
 			_ptr->Release();
 		}
 		_ptr = p;
-		if( _ptr )
-		{
-			_ptr->AddRef();
-		}
 		return *this;
 	}
-*/	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
+*/
+	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
 	{
+		if( p._ptr )
+		{
+			p._ptr->AddRef();
+		}
 		if( _ptr )
 		{
 			_ptr->Release();
 		}
 		_ptr = p._ptr;
-		if( _ptr )
-		{
-			_ptr->AddRef();
-		}
 		return *this;
 	}
 	template<class U>
 	const SafePtr& operator = (const SafePtr<U> &p)
 	{
+		if( p )
+		{
+			GetRawPtr(p)->AddRef();
+		}
 		if( _ptr )
 		{
 			_ptr->Release();
 		}
 		_ptr = GetRawPtr(p); // access private _ptr of another SafePtr
-		if( _ptr )
-		{
-			_ptr->AddRef();
-		}
 		return *this;
 	}
 
