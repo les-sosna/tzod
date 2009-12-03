@@ -168,7 +168,6 @@ Desktop::~Desktop()
 {
 	g_conf.ui_showfps.eventChange = NULL;
 	g_conf.ui_showtime.eventChange = NULL;
-	_con->SetHistory(NULL);
 }
 
 void Desktop::OnEditorModeChanged(bool editorMode)
