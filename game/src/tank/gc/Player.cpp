@@ -233,7 +233,7 @@ void GC_Player::TimeStepFixed(float dt)
 			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick, "font_default");
 
 
-			_vehicle = WrapRawPtr(new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y));
+			_vehicle = /*WrapRawPtr*/(new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y));
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{

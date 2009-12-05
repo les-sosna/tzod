@@ -101,7 +101,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 void GC_Pickup::Attach(GC_Actor *actor)
 {
 	assert(!_owner);
-	_owner         = WrapRawPtr(actor);
+	_owner         = /*WrapRawPtr*/(actor);
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
 	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
@@ -194,34 +194,33 @@ void GC_Pickup::TimeStepFixed(float dt)
 				SafePtr<GC_Object> refHolder(this); // item can be killed inside attach function
 				Attach(actor);
 
-				//
-				// call on_pickup script
-				//
-
-				std::stringstream buf;
-				buf << "return function(who)";
-				buf << _scriptOnPickup;
-				buf << "\nend";
-
-				if( luaL_loadstring(g_env.L, buf.str().c_str()) )
+				if( !_scriptOnPickup.empty() )
 				{
-					GetConsole().Printf(1, "OnPickup: %s", lua_tostring(g_env.L, -1));
-					lua_pop(g_env.L, 1); // pop the error message from the stack
-				}
-				else
-				{
-					if( lua_pcall(g_env.L, 0, 1, 0) )
+					std::stringstream buf;
+					buf << "return function(who)";
+					buf << _scriptOnPickup;
+					buf << "\nend";
+
+					if( luaL_loadstring(g_env.L, buf.str().c_str()) )
 					{
-						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+						GetConsole().Printf(1, "OnPickup: %s", lua_tostring(g_env.L, -1));
 						lua_pop(g_env.L, 1); // pop the error message from the stack
 					}
 					else
 					{
-						luaT_pushobject(g_env.L, actor);
-						if( lua_pcall(g_env.L, 1, 0, 0) )
+						if( lua_pcall(g_env.L, 0, 1, 0) )
 						{
 							GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 							lua_pop(g_env.L, 1); // pop the error message from the stack
+						}
+						else
+						{
+							luaT_pushobject(g_env.L, actor);
+							if( lua_pcall(g_env.L, 1, 0, 0) )
+							{
+								GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+								lua_pop(g_env.L, 1); // pop the error message from the stack
+							}
 						}
 					}
 				}

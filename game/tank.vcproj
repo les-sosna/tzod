@@ -137,6 +137,7 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
+				FloatingPointModel="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				AssemblerListingLocation="$(IntDir)\"

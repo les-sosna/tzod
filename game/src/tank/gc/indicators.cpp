@@ -187,7 +187,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 
 	_location = location;
 
-	_object = WrapRawPtr(object);
+	_object = /*WrapRawPtr*/(object);
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_IndicatorBar::OnParentKill);
 
 	GC_2dSprite *sprite = object;

@@ -187,6 +187,10 @@ class Level : public RefCounted
 
 public:
 
+#ifndef NDEBUG
+	std::set<GC_Object*> _garbage;
+#endif
+
 #ifdef NETWORK_DEBUG
 	DWORD _checksum;
 	int _frame;

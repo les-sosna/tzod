@@ -297,11 +297,13 @@ GC_Object::~GC_Object()
 		_firstNotify = n->next;
 		delete n;
 	}
+	assert(g_level->_garbage.erase(this) == 1);
 }
 
 void GC_Object::Kill()
 {
 	assert(!IsKilled());
+	assert(g_level->_garbage.insert(this).second);
 
 	PulseNotify(NOTIFY_OBJECT_KILL);
 

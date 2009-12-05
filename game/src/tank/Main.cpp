@@ -305,10 +305,10 @@ bool ZodApp::Pre()
 	//
 
 	TRACE("windows common controls initialization");
-	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_STANDARD_CLASSES };
+	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), /*ICC_STANDARD_CLASSES*/ };
 	if( !InitCommonControlsEx(&iccex) )
 	{
-		return false;
+//		return false;
 	}
 
 
@@ -458,6 +458,9 @@ void ZodApp::Post()
 {
 //	SAFE_DELETE(g_client);
 //	SAFE_DELETE(g_server);
+
+	if( g_level ) g_level->Clear();
+
 
 	TRACE("Shutting down GUI subsystem");
 	SAFE_DELETE(g_gui);

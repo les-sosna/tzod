@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="lua"
 	ProjectGUID="{69802413-3739-43E0-96C9-709713A35B34}"
+	RootNamespace="lua"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -111,8 +112,8 @@
 				WholeProgramOptimization="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
+				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"

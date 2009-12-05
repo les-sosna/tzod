@@ -91,7 +91,7 @@ public:
 	//
 	// assignment
 	//
-/*	const SafePtr& operator = (T *p)
+	const SafePtr& operator = (T *p)
 	{
 		if( p )
 		{
@@ -104,7 +104,7 @@ public:
 		_ptr = p;
 		return *this;
 	}
-*/
+
 	const SafePtr& operator = (const SafePtr &p) // overwrite default assignment operator
 	{
 		if( p._ptr )
