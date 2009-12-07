@@ -160,7 +160,7 @@ protected:
 	~EditorModeListenerHelper();
 };
 
-class Level : public RefCounted
+class Level
 {
 	friend class GC_Object;
 
@@ -261,6 +261,8 @@ public:
 
 /////////////////////////////////////////////////////
 	Level();
+	~Level();
+
 
 	void AddEditorModeListener(IEditorModeListener *ls);
 	void RemoveEditorModeListener(IEditorModeListener *ls);
@@ -308,9 +310,6 @@ public:
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
 
-
-private:
-	virtual ~Level();
 
 	void RenderInternal(float zoom) const;
 

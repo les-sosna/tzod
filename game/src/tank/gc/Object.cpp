@@ -281,7 +281,7 @@ GC_Object::GC_Object(FromFile)
   , _refCount(1)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
-  , _flags(0) // to set GC_FLAG_OBJECT_KILLED=0 for proper handling of bad save files
+  , _flags(0) // to clear GC_FLAG_OBJECT_KILLED & GC_FLAG_OBJECT_NAMED for proper handling of bad save files
 {
 }
 

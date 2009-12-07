@@ -398,7 +398,7 @@ bool ZodApp::Pre()
 	}
 
 	// init world
-	g_level = WrapRawPtr(new Level());
+	g_level = new Level();
 
 
 	//
@@ -474,7 +474,7 @@ void ZodApp::Post()
 	}
 
 	// destroy level
-	g_level = NULL;
+	SAFE_DELETE(g_level);
 
 	if( g_texman ) g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);

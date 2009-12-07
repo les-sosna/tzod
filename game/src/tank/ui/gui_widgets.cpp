@@ -69,6 +69,11 @@ void FpsCounter::OnTimeStep(float dt)
 		);
 		strcat(s, s1);
 
+#ifndef NDEBUG
+		wsprintf(s1, "; %4dgarbage", g_level->_garbage.size());
+#endif
+		strcat(s, s1);
+
 
 		if( g_server )
 		{

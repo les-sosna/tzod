@@ -342,7 +342,6 @@ void Level::Clear()
 		if( !obj->IsKilled() )
 			obj->Kill();
 	}
-	assert(IsEmpty());
 
 	// reset info
 	_infoAuthor.clear();
@@ -444,7 +443,7 @@ Level::~Level()
 	g_conf.s_volume.eventChange = NULL;
 	g_conf.sv_nightmode.eventChange = NULL;
 
-	//-------------------------------------------
+	assert(IsEmpty() && _garbage.empty());
 	assert(!g_env.nNeedCursor);
 	assert(_editorModeListeners.empty());
 }

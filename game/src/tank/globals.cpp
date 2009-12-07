@@ -22,7 +22,7 @@ TankClient  *g_client;
 
 TextureManager *g_texman;
 
-SafePtr<Level>           g_level;
+Level          *g_level;
 SafePtr<MusicPlayer>     g_music;
 SafePtr<FS::FileSystem>  g_fs;
 
