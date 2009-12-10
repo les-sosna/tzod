@@ -386,7 +386,6 @@ GC_Vehicle::GC_Vehicle(FromFile)
 
 GC_Vehicle::~GC_Vehicle()
 {
-	_player = NULL;
 }
 
 float GC_Vehicle::GetMaxSpeed() const
@@ -441,8 +440,6 @@ void GC_Vehicle::Serialize(SaveFile &f)
 
 void GC_Vehicle::Kill()
 {
-	// _player освобождается в деструкторе
-
 	SAFE_KILL(_visual);
 
 	if( _weapon )
@@ -450,6 +447,8 @@ void GC_Vehicle::Kill()
 		_weapon->SetRespawn(true);
 		_weapon->Detach();
 	}
+
+	_player = NULL;
 
 	GC_VehicleBase::Kill();
 }
