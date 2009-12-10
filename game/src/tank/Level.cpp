@@ -974,20 +974,11 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 						}
 
-						vec2d tmp = lineCenter + lineDirection * tmpHit;
-
-						if( ht ) *ht = tmp;
+						if( ht ) *ht = lineCenter + lineDirection * tmpHit;
 						if( norm ) *norm = tmpNorm;
-						if( tmpHit <= 0 ) return object;
-
 						result = object;
-						
-						lineCenter = (x0 + tmp) / 2;
-						lineDirection = tmp - x0;
-
-// TODO: make it work
-//						lineDirection *= tmpHit;
-//						lineCenter = x0 + lineDirection / 2;
+						lineDirection *= tmpHit + 0.5f;
+						lineCenter = x0 + lineDirection / 2;
 					}
 				}
 			}

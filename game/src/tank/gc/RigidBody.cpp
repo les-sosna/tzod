@@ -37,23 +37,21 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          float &outWhere, vec2d &outNormal)
 {
-	assert(_fpclass(lineDirection.x) & (_FPCLASS_NN|_FPCLASS_NZ|_FPCLASS_PZ|_FPCLASS_PN));
-	assert(_fpclass(lineDirection.y) & (_FPCLASS_NN|_FPCLASS_NZ|_FPCLASS_PZ|_FPCLASS_PN));
-
 	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
 	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
+	assert(!_isnan(lineDirection.x) && _finite(lineDirection.x));
+	assert(!_isnan(lineDirection.y) && _finite(lineDirection.y));
 
 	float lineProjL = Vec2dDot(lineDirection, GetDirection());
 	float lineProjW = Vec2dCross(lineDirection, GetDirection());
 	float lineProjL_abs = fabs(lineProjL);
 	float lineProjW_abs = fabs(lineProjW);
-	assert(lineProjL_abs > 1e-30 || lineProjW_abs > 1e-30);
 
 	//
 	// project box to lineDirection axis
 	//
 
-	vec2d delta = lineCenter - GetPos();
+	vec2d delta = GetPos() - lineCenter;
 	float halfProjLine = lineProjL_abs * GetHalfWidth() + lineProjW_abs * GetHalfLength();
 	if( fabs(Vec2dCross(delta, lineDirection)) > halfProjLine )
 		return false;
@@ -62,30 +60,33 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 	// project lineDirection to box axes
 	//
 
-	float dirDotDelta = Vec2dDot(GetDirection(), delta);
-	if( fabs(dirDotDelta) > lineProjL_abs / 2 + GetHalfLength() )
+	float deltaDotDir = Vec2dDot(delta, GetDirection());
+	if( fabs(deltaDotDir) > lineProjL_abs / 2 + GetHalfLength() )
 		return false;
 
-	float dirCrossDelta = Vec2dCross(GetDirection(), delta);
-	if( fabs(dirCrossDelta) > lineProjW_abs / 2 + GetHalfWidth() )
+	float deltaCrossDir = Vec2dCross(delta, GetDirection());
+	if( fabs(deltaCrossDir) > lineProjW_abs / 2 + GetHalfWidth() )
 		return false;
 
 	//
 	// calc intersection point and normal
 	//
 
-	float b1 = dirCrossDelta / lineProjW - GetHalfWidth() / lineProjW_abs;
-	float b2 = -dirDotDelta / lineProjL - GetHalfLength() / lineProjL_abs;
-	if( lineProjL_abs < 1e-30 || (lineProjW_abs > 1e-30 && b1 > b2) )
+	float signW = lineProjW > 0 ? 1.0f : -1.0f;
+	float signL = lineProjL > 0 ? 1.0f : -1.0f;
+
+	float b1 = (deltaCrossDir * signW - GetHalfWidth());
+	float b2 = (deltaDotDir * signL - GetHalfLength());
+	if( b1 * lineProjL_abs > b2 * lineProjW_abs )
 	{
-		outWhere = b1;
-		outNormal = lineProjW < 0 ?
-			vec2d(GetDirection().y, -GetDirection().x) : vec2d(-GetDirection().y, GetDirection().x);
+		outWhere = lineProjW_abs > 0 ? b1 / lineProjW_abs : 0;
+		outNormal = lineProjW > 0 ?
+			vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
 	}
 	else
 	{
-		outWhere = b2;
-		outNormal = lineProjL < 0 ? GetDirection() : -GetDirection();
+		outWhere = lineProjL_abs > 0 ? b2 / lineProjL_abs : 0;
+		outNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
 	}
 
 	return true;

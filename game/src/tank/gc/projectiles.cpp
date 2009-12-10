@@ -134,6 +134,8 @@ void GC_Projectile::TimeStepFixed(float dt)
 #endif
 
 		_ignore = object;
+		bool endOfLife = OnHit(object, hit, norm);
+		assert(!object->IsKilled());
 
 		if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
 		{
@@ -150,17 +152,13 @@ void GC_Projectile::TimeStepFixed(float dt)
 			object->SetHealthCur(__min(object->GetHealth() - damage, object->GetHealthMax()));
 		}
 
-		if( OnHit(object, hit, norm) )
+		assert(GetPos() == pos);
+		if( endOfLife )
 		{
-			if( !IsKilled() )
-			{
-				assert(GetPos() == pos);
-				Kill();
-			}
+			Kill();
 		}
 		else
 		{
-			assert(GetPos() == pos);
 			float new_dt = dt * (1.0f - sqrt((hit - GetPos()).sqr() / dx.sqr()));
 			if( new_dt > 1e-3 )
 			{
