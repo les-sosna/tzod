@@ -44,7 +44,7 @@ protected:
 
 private:
 	SafePtr<GC_HideLabel>  _label;
-	SafePtr<GC_Actor>      _owner;
+	SafePtr<GC_Actor>      _pickupCarrier;
 
 	string_t  _scriptOnPickup;   // on_pickup(who)
 	float     _radius;
@@ -67,8 +67,8 @@ protected:
 public:
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
-	GC_Actor* GetOwner() const { return GetRawPtr(_owner); }
-	bool IsAttached()    const { return NULL != _owner;    }
+	GC_Actor* GetCarrier() const { return GetRawPtr(_pickupCarrier); }
+	bool IsAttached()    const { return NULL != _pickupCarrier;    }
 
 	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;
@@ -110,7 +110,7 @@ protected:
 	void OnOwnerKill(GC_Object *sender, void *param);
 
 public:
-	virtual const vec2d& GetPosPredicted() const { return GetOwner() ? GetOwner()->GetPosPredicted() : GetPos(); }
+	virtual const vec2d& GetPosPredicted() const { return GetCarrier() ? GetCarrier()->GetPosPredicted() : GetPos(); }
 
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const

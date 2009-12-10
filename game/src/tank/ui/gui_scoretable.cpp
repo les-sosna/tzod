@@ -4,6 +4,7 @@
 #include "GuiManager.h"
 #include "gui_scoretable.h"
 
+#include "video/TextureManager.h"
 
 #include "gc/Player.h"
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Service.h"
-#include "Vehicle.h"
+#include "network/ControlPacket.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -57,7 +57,6 @@ protected:
 	virtual void OnDie();
 
 public:
-	bool IsVehicleDead() const { return NULL == _vehicle; }
 	GC_Vehicle* GetVehicle() const { return GetRawPtr(_vehicle); }
 
 	void SetSkin(const string_t &skin);

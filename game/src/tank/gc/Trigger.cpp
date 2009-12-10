@@ -95,13 +95,13 @@ void GC_Trigger::TimeStepFixed(float dt)
 		{
 			if( !veh->IsKilled() )
 			{
-				if( NULL == veh->GetPlayer()
+				if( !veh->GetOwner() 
 					|| CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
-					&& dynamic_cast<GC_PlayerAI*>(veh->GetPlayer()) )
+						&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner()) )
 				{
 					continue;
 				}
-				if( _team && veh->GetPlayer()->GetTeam() != _team )
+				if( _team && veh->GetOwner()->GetTeam() != _team )
 				{
 					continue;
 				}

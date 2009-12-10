@@ -83,7 +83,7 @@ GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
 {
 }
 
-bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	assert(false);
 	return false;
@@ -120,12 +120,12 @@ void GC_VehicleVisualDummy::Draw() const
 {
 	GC_VehicleBase::Draw();
 
-	if( g_conf.g_shownames.Get() && _parent->GetPlayer() )
+	if( g_conf.g_shownames.Get() && _parent->GetOwner() )
 	{
 		const vec2d &pos = GetPosPredicted();
 		static TextureCache f("font_small");
 		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
-			f.GetTexture(), 0x7f7f7f7f, _parent->GetPlayer()->GetNick(), alignTextCT);
+			f.GetTexture(), 0x7f7f7f7f, _parent->GetOwner()->GetNick(), alignTextCT);
 	}
 }
 
@@ -483,7 +483,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			lua_State *L = g_env.L;
 			lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 			lua_getglobal(L, "getvclass");
-			lua_pushstring(L, GetPlayer()->GetClass().c_str());  // cls arg
+			lua_pushstring(L, GetOwner()->GetClass().c_str());  // cls arg
 			lua_pushstring(L, g_level->GetTypeName(_weapon->GetType()));  // weap arg
 			if( lua_pcall(L, 2, 1, 0) )
 			{
@@ -538,7 +538,7 @@ void GC_Vehicle::ResetClass()
 	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 
 	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, GetPlayer()->GetClass().c_str()); // cls arg
+	lua_pushstring(L, GetOwner()->GetClass().c_str()); // cls arg
 	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
 	{
 		// print error message
@@ -562,7 +562,7 @@ void GC_Vehicle::ResetClass()
 		_visual->SetClass(vc);
 }
 
-bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	assert(!IsKilled());
 
@@ -595,64 +595,55 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *
 		char score[8];
 		char *font = NULL;
 
-		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(dd.from) )
+		if( from )
 		{
-			if( veh->GetPlayer() )
+			if( from == GetOwner() )
 			{
-				if( veh->GetPlayer() == GetPlayer() )
+				// убил себя апстену =)
+				GetOwner()->SetScore(GetOwner()->GetScore() - 1);
+				font = "font_digits_red";
+				wsprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
+			}
+			else if( GetOwner() )
+			{
+				if( 0 != GetOwner()->GetTeam() &&
+					from->GetTeam() == GetOwner()->GetTeam() )
 				{
-					// убил себя апстену =)
-					GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
+					// from убил товарища
+					from->SetScore(from->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetPlayer()->GetNick().c_str());
-				}
-				else if( GetPlayer() )
-				{
-					if( 0 != GetPlayer()->GetTeam() &&
-						veh->GetPlayer()->GetTeam() == GetPlayer()->GetTeam() )
-					{
-						// убил товарища
-						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() - 1);
-						font = "font_digits_red";
-						wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
-							((GC_Vehicle *) dd.from)->GetPlayer()->GetNick().c_str(),
-							GetPlayer()->GetNick().c_str());
-					}
-					else
-					{
-						// убил врага - молодец!
-						veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
-						font = "font_digits_green";
-						wsprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
-							veh->GetPlayer()->GetNick().c_str(), GetPlayer()->GetNick().c_str());
-					}
+					wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
+						((GC_Vehicle *) dd.from)->GetOwner()->GetNick().c_str(),
+						GetOwner()->GetNick().c_str());
 				}
 				else
 				{
-					// this tank does not have player service. score up the killer
-					veh->GetPlayer()->SetScore(veh->GetPlayer()->GetScore() + 1);
+					// from убил врага - молодец!
+					from->SetScore(from->GetScore() + 1);
 					font = "font_digits_green";
-				}
-
-				if( !veh->GetPlayer()->IsVehicleDead() )
-				{
-					wsprintf(score, "%d", veh->GetPlayer()->GetScore());
-					new GC_Text_ToolTip(veh->GetPos(), score, font);
+					wsprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
+						from->GetNick().c_str(), GetOwner()->GetNick().c_str());
 				}
 			}
+			else
+			{
+				// this tank does not have player service. score up the killer
+				from->SetScore(from->GetScore() + 1);
+				font = "font_digits_green";
+			}
+
+			if( from->GetVehicle() )
+			{
+				wsprintf(score, "%d", from->GetScore());
+				new GC_Text_ToolTip(from->GetVehicle()->GetPos(), score, font);
+			}
 		}
-		else
-		if( dynamic_cast<GC_Turret *>(dd.from) )
+		else if( GetOwner() )
 		{
-			// убийца - стационарная установка
-			GetPlayer()->SetScore(GetPlayer()->GetScore() - 1);
-			wsprintf(score, "%d", GetPlayer()->GetScore());
+			wsprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
+			GetOwner()->SetScore(GetOwner()->GetScore() - 1);
+			wsprintf(score, "%d", GetOwner()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
-			wsprintf(msg, g_lang.msg_player_x_was_killed_by_turret.Get().c_str(), GetPlayer()->GetNick().c_str());
-		}
-		else if( GetPlayer() )
-		{
-			wsprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetPlayer()->GetNick().c_str());
 		}
 
 		{
@@ -702,7 +693,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
 		GetPos().y < 0 || GetPos().y > g_level->_sy )
 	{
-		if( !TakeDamage(GetHealth(), GetPos(), this) ) Kill();
+		if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
 	}
 }
 
@@ -789,7 +780,7 @@ void GC_Tank_Light::SetDefaults()
 
 void GC_Tank_Light::OnDestroy()
 {
-	new GC_Boom_Big(GetPos(), SafePtr<GC_RigidBodyStatic>());
+	new GC_Boom_Big(GetPos(), NULL);
 	GC_Vehicle::OnDestroy();
 }
 

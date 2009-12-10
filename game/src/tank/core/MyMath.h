@@ -24,20 +24,7 @@ public:
 		y = sinf(angle);
 	}
 
-	vec2d(const vec2d &v)
-	{
-		x = v.x;
-		y = v.y;
-	}
-
 public:
-	const vec2d& operator =(const vec2d &v)
-	{
-		x = v.x;
-		y = v.y;
-		return *this;
-	}
-
 	vec2d& operator-=(const vec2d &v)
 	{
 		x -= v.x;
@@ -120,18 +107,18 @@ public:
 
 	float len() const
 	{
-		return sqrtf(x*x + y*y);
+		return sqrt(x*x + y*y);
 	}
 
 	float Angle() const // угол к оси X
 	{
-		float a = atan2f(y, x);
+		float a = atan2(y, x);
 		return (a < 0) ? (a + PI2) : a;
 	}
 
 	vec2d& Normalize() // приведение к единичной длине
 	{
-		float len = sqrtf(x*x + y*y);
+		float len = sqrt(x*x + y*y);
 		if( len < 1e-7 )
 		{
 			Zero();

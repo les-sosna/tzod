@@ -47,7 +47,7 @@ void GC_UserObject::Serialize(SaveFile &f)
 
 void GC_UserObject::OnDestroy()
 {
-	new GC_Boom_Big(GetPos(), SafePtr<GC_RigidBodyStatic>());
+	new GC_Boom_Big(GetPos(), NULL);
 	GC_RigidBodyStatic::OnDestroy();
 }
 

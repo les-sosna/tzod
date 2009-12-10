@@ -11,24 +11,27 @@ class GC_RigidBodyStatic;
 class GC_RigidBodyDynamic;
 class GC_Light;
 class GC_Vehicle;
+class GC_Player;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_PROJECTILE_IGNOREOWNER   (GC_FLAG_2DSPRITE_ << 2)
-#define GC_FLAG_PROJECTILE_              (GC_FLAG_2DSPRITE_ << 3)
+#define GC_FLAG_PROJECTILE_              (GC_FLAG_2DSPRITE_ << 2)
 
 class GC_Projectile : public GC_2dSprite
 {
 	MemberOfGlobalList<LIST_projectiles> _memberOf;
 
+	SafePtr<GC_RigidBodyStatic> _ignore;
+	SafePtr<GC_Player> _owner;
+
 protected:
 	SafePtr<GC_Light>  _light;
-	SafePtr<GC_RigidBodyStatic> _owner;
-	SafePtr<GC_RigidBodyStatic> _lastHit;
 
 	float _velocity;
+	inline GC_RigidBodyStatic* GetIgnore() const;
+	GC_Player* GetOwner() const { return GetRawPtr(_owner); }
 
 private:
 
@@ -45,13 +48,11 @@ protected:
 	virtual void SpawnTrailParticle(const vec2d &pos) = 0;
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
-	bool Hit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm);
-
 	void SetTrailDensity(float density);
 	float GetTrailDensity() { return _trailDensity; }
 
 public:
-	GC_Projectile(GC_RigidBodyStatic *owner, bool advanced,
+	GC_Projectile(GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced,
 		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
 	GC_Projectile(FromFile);
 	virtual ~GC_Projectile();
@@ -66,17 +67,11 @@ public:
 	{
 		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
 	}
-	void SetIgnoreOwner(bool bIgnore)
-	{
-		SetFlags(GC_FLAG_PROJECTILE_IGNOREOWNER, bIgnore);
-	}
 
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 	virtual void TimeStepFixed(float dt);
-
-	void OnKillLastHit(GC_Object *sender, void *param);
 
 #ifdef NETWORK_DEBUG
 public:
@@ -97,14 +92,14 @@ class GC_Rocket : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Rocket);
 
 private:
-	SafePtr<GC_Vehicle> _target;
+	SafePtr<GC_RigidBodyDynamic> _target;
 	float _timeHomming;
 
 protected:
 	void FreeTarget();
 
 public:
-	GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Rocket(FromFile);
 	virtual ~GC_Rocket();
 
@@ -127,7 +122,7 @@ private:
 	bool _trailEnable;
 
 public:
-	GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_Bullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Bullet(FromFile);
 	virtual ~GC_Bullet();
 
@@ -143,7 +138,7 @@ class GC_TankBullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_TankBullet);
 
 public:
-	GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_TankBullet(FromFile);
 	virtual ~GC_TankBullet();
 
@@ -158,7 +153,7 @@ class GC_PlazmaClod : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_PlazmaClod);
 
 public:
-	GC_PlazmaClod(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_PlazmaClod(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_PlazmaClod(FromFile);
 	virtual ~GC_PlazmaClod();
 
@@ -172,12 +167,12 @@ class GC_BfgCore : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_BfgCore);
 private:
-	SafePtr<GC_Vehicle> _target;
+	SafePtr<GC_RigidBodyDynamic> _target;
 	float _time;
 	void FindTarget();
 
 public:
-	GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_BfgCore(FromFile);
 	virtual ~GC_BfgCore();
 
@@ -208,7 +203,7 @@ private:
 	float GetRadius() const { return (_time + 0.2f) * 50; }
 
 public:
-	GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_FireSpark(FromFile);
 	virtual ~GC_FireSpark();
 
@@ -236,7 +231,7 @@ class GC_ACBullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_ACBullet);
 
 public:
-	GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_ACBullet(FromFile);
 	virtual ~GC_ACBullet();
 
@@ -251,7 +246,7 @@ class GC_GaussRay : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_GaussRay);
 
 public:
-	GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_GaussRay(FromFile);
 	virtual ~GC_GaussRay();
 
@@ -267,7 +262,7 @@ class GC_Disk : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Disk);
 
 public:
-	GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic* owner, bool advanced);
+	GC_Disk(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Disk(FromFile);
 	virtual ~GC_Disk();
 

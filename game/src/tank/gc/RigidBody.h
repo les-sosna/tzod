@@ -11,13 +11,13 @@
 #define GC_FLAG_RBSTATIC_PHANTOM    (GC_FLAG_2DSPRITE_ << 2)
 #define GC_FLAG_RBSTATIC_           (GC_FLAG_2DSPRITE_ << 3)
 
-class GC_RigidBodyStatic;
+class GC_Player;
 
 struct DamageDesc
 {
 	float  damage;
 	vec2d  hit;
-	GC_RigidBodyStatic *from;
+	GC_Player *from;
 };
 
 class GC_RigidBodyStatic : public GC_2dSprite
@@ -45,6 +45,9 @@ public:
 	GC_RigidBodyStatic();
 	GC_RigidBodyStatic(FromFile);
 
+	virtual GC_Player* GetOwner() const { return NULL; }
+
+	// GC_Object
 	virtual void Kill();
 
 	virtual void MapExchange(MapFile &f);
@@ -57,7 +60,7 @@ public:
 	float GetHalfWidth() const { return _width/2; }
 	float GetHalfLength() const { return _length/2; }
 
-	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal);
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
 
 	__declspec(deprecated) vec2d GetVertex(int index) const
 	{
@@ -101,7 +104,7 @@ public:
 	virtual void  OnDestroy();
 
 	// return true if object has been killed
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 
 
 	//
@@ -178,7 +181,7 @@ public:
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
 
-	virtual bool CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal);
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
 
 	virtual void Kill();
 
@@ -190,7 +193,7 @@ public:
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void OnDestroy();
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 
 	virtual void EditorAction();
 };
@@ -209,7 +212,7 @@ public:
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // непроходимое препятствие
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 };
 
 /////////////////////////////////////////////////////////////
@@ -249,7 +252,7 @@ public:
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
 	virtual float GetDefaultHealth() const { return 0; }
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

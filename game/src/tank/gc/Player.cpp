@@ -170,7 +170,7 @@ void GC_Player::TimeStepFixed(float dt)
 {
 	GC_Service::TimeStepFixed( dt );
 
-	if( IsVehicleDead() )
+	if( !GetVehicle() )
 	{
 		_timeRespawn -= dt;
 		if( _timeRespawn <= 0 )
@@ -179,7 +179,7 @@ void GC_Player::TimeStepFixed(float dt)
 			// Respawn
 			//
 
-			assert(IsVehicleDead());
+			assert(!GetVehicle());
 			_timeRespawn = PLAYER_RESPAWNTIME;
 
 			std::vector<GC_SpawnPoint*> points;
@@ -360,7 +360,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 		tmp->_scriptOnDie = _propOnDie.GetStringValue();
 		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
-		if( !tmp->IsVehicleDead() )
+		if( tmp->GetVehicle() )
 		{
 			const char *name = _propVehName.GetStringValue().c_str();
 			GC_Object* found = g_level->FindObject(name);
@@ -520,13 +520,13 @@ void GC_PlayerLocal::TimeStepFixed(float dt)
 	assert(!_stateHistory.empty());
 	_stateHistory.pop_front();
 
-	if( !IsVehicleDead() )
+	if( GetVehicle() )
 	{
 		GetVehicle()->SetState(_ctrlState);
 		GetVehicle()->TimeStepFixed(dt); // vehicle may die here
 	}
 
-	if( !IsVehicleDead() )
+	if( GetVehicle() )
 	{
 		GC_RigidBodyDynamic::PushState();
 		GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, false);
@@ -726,7 +726,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 	cp.tovs(vs1);
 	_stateHistory.push_back(vs1);
 
-	if( !IsVehicleDead() )
+	if( GetVehicle() )
 	{
 		GC_RigidBodyDynamic::PushState();
 		GetVehicle()->SetPredictedState(vs1);
@@ -814,7 +814,7 @@ void GC_PlayerRemote::TimeStepFixed(float dt)
 {
 	GC_PlayerHuman::TimeStepFixed( dt );
 	assert(g_client);
-	if( !IsVehicleDead() )
+	if( GetVehicle() )
 	{
 		GetVehicle()->SetState(_ctrlState);
 		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME

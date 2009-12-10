@@ -106,11 +106,11 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
-		if( !pDamObj->GetPlayer() )
+		if( !pDamObj->GetOwner() )
 		{
 			continue;
 		}
-		if( pDamObj->GetPlayer()->GetTeam() && pDamObj->GetPlayer()->GetTeam() == _team )
+		if( pDamObj->GetOwner()->GetTeam() && pDamObj->GetOwner()->GetTeam() == _team )
 		{
 			continue;
 		}
@@ -170,7 +170,7 @@ void GC_Turret::MoveTo(const vec2d &pos)
 
 void GC_Turret::OnDestroy()
 {
-	new GC_Boom_Big(GetPos(), SafePtr<GC_RigidBodyStatic>());
+	new GC_Boom_Big(GetPos(), NULL);
 	GC_RigidBodyStatic::OnDestroy();
 }
 
@@ -353,7 +353,7 @@ void GC_TurretRocket::Fire()
 	if( _timeReload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_Rocket(GetPos() + a * 25.0f, a * SPEED_ROCKET, this, true))
+		(new GC_Rocket(GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true))
 			->SetHitDamage(g_level->net_frand(10.0f));
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
@@ -416,6 +416,7 @@ void GC_TurretCannon::Fire()
 			GetPos() + a * 31.9f,
 			a * SPEED_TANKBULLET + g_level->net_vrand(40),
 			this,
+			NULL,
 			false )
 		)->SetHitDamage(g_level->net_frand(10.0f) + 5.0f);
 		_timeReload = TURET_CANON_RELOAD;
@@ -500,7 +501,7 @@ void GC_TurretBunker::WakeDown()
 	_jobManager.UnregisterMember(this);
 }
 
-bool GC_TurretBunker::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_TurretBunker::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	if( _state != TS_HIDDEN )
 	{
@@ -716,7 +717,7 @@ void GC_TurretMinigun::TimeStepFixed(float dt)
 		{
 			float ang = _dir + g_level->net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
-			new GC_Bullet(GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, false );
+			new GC_Bullet(GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false );
 			new GC_Particle(GetPos() + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
 		}
 
@@ -797,7 +798,7 @@ void GC_TurretGauss::Fire()
 
 		new GC_GaussRay(vec2d(GetPos().x + c * 20.0f - dy * s,
 		                      GetPos().y + s * 20.0f + dy * c),
-		                vec2d(c, s) * SPEED_GAUSS, this, false );
+		                vec2d(c, s) * SPEED_GAUSS, this, NULL, false );
 
 		if( ++_shotCount == 2 )
 		{

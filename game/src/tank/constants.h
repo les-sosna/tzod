@@ -64,6 +64,7 @@ enum enumZOrder
 #define WEAP_RL_HOMMING_FACTOR  600.0f  // к-нт наводимости ракеты
 #define WEAP_RL_HOMMING_TIME    4.0f    // время до потери цели для ракеты
 
+#define WEAP_BFG_TARGET_SPEED   500.0f
 #define WEAP_BFG_HOMMING_FACTOR 500.0f  // к-нт наводимости bfg
 #define WEAP_BFG_RADIUS         200.0f  // радиус повреждения шарика bfg
 

@@ -513,13 +513,13 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				{
 					if( it->obj2_d )
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, it->obj2_d);
-						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, it->obj1_d);
+						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, it->obj2_d->GetOwner());
+						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, it->obj1_d->GetOwner());
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, it->obj1_d);
-						it->obj2_s->TakeDamage(a/60 * it->obj1_d->_percussion, it->o, it->obj1_d);
+						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, it->obj1_d->GetOwner());
+						it->obj2_s->TakeDamage(a/60 * it->obj1_d->_percussion, it->o, it->obj1_d->GetOwner());
 					}
 				}
 

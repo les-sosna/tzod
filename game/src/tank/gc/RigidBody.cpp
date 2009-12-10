@@ -34,13 +34,20 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 {
 }
 
-bool GC_RigidBodyStatic::CollideWithLine(vec2d lineCenter, vec2d lineDirection,
-                                         vec2d &outWhere, vec2d &outNormal)
+bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
+                                         float &outWhere, vec2d &outNormal)
 {
+	assert(_fpclass(lineDirection.x) & (_FPCLASS_NN|_FPCLASS_NZ|_FPCLASS_PZ|_FPCLASS_PN));
+	assert(_fpclass(lineDirection.y) & (_FPCLASS_NN|_FPCLASS_NZ|_FPCLASS_PZ|_FPCLASS_PN));
+
+	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
+	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
+
 	float lineProjL = Vec2dDot(lineDirection, GetDirection());
 	float lineProjW = Vec2dCross(lineDirection, GetDirection());
 	float lineProjL_abs = fabs(lineProjL);
 	float lineProjW_abs = fabs(lineProjW);
+	assert(lineProjL_abs > 1e-30 || lineProjW_abs > 1e-30);
 
 	//
 	// project box to lineDirection axis
@@ -69,15 +76,15 @@ bool GC_RigidBodyStatic::CollideWithLine(vec2d lineCenter, vec2d lineDirection,
 
 	float b1 = dirCrossDelta / lineProjW - GetHalfWidth() / lineProjW_abs;
 	float b2 = -dirDotDelta / lineProjL - GetHalfLength() / lineProjL_abs;
-	if( b1 > b2 )
+	if( lineProjL_abs < 1e-30 || (lineProjW_abs > 1e-30 && b1 > b2) )
 	{
-		outWhere = lineCenter + lineDirection * b1;
+		outWhere = b1;
 		outNormal = lineProjW < 0 ?
 			vec2d(GetDirection().y, -GetDirection().x) : vec2d(-GetDirection().y, GetDirection().x);
 	}
 	else
 	{
-		outWhere = lineCenter + lineDirection * b2;
+		outWhere = b2;
 		outNormal = lineProjL < 0 ? GetDirection() : -GetDirection();
 	}
 
@@ -112,7 +119,7 @@ void GC_RigidBodyStatic::OnDestroy()
 	}
 }
 
-bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	assert(!IsKilled());
 
@@ -293,7 +300,7 @@ GC_Wall::~GC_Wall()
 {
 }
 
-bool GC_Wall::CollideWithLine(vec2d lineCenter, vec2d lineDirection, vec2d &outWhere, vec2d &outNormal)
+bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal)
 {
 	unsigned int corner = GetCorner();
 	if( corner )
@@ -391,7 +398,7 @@ void GC_Wall::OnDestroy()
 	GC_RigidBodyStatic::OnDestroy();
 }
 
-bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) && GetHealthMax() > 0 )
 	{
@@ -631,7 +638,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
 	g_level->_field.ProcessObject(this, true);
 }
 
-bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	if( damage >= DAMAGE_BULLET )
 	{
@@ -777,7 +784,7 @@ void GC_Water::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-bool GC_Water::TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from)
+bool GC_Water::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	return false;
 }

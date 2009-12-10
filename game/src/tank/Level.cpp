@@ -864,7 +864,7 @@ vec2d Level::net_vrand(float len)
 	return vec2d(net_frand(PI2)) * len;
 }
 
-void Level::CalcOutstrip( const vec2d &fp, // fire point
+bool Level::CalcOutstrip( const vec2d &fp, // fire point
                           float vp,        // speed of the projectile
                           const vec2d &tx, // target position
                           const vec2d &tv, // target velocity
@@ -875,21 +875,21 @@ void Level::CalcOutstrip( const vec2d &fp, // fire point
 	if( vt >= vp || vt < 1e-7 )
 	{
 		out_fake = tx;
+		return false;
 	}
-	else
-	{
-		float cg = tv.x / vt;
-		float sg = tv.y / vt;
 
-		float x   = (tx.x - fp.x) * cg + (tx.y - fp.y) * sg;
-		float y   = (tx.y - fp.y) * cg - (tx.x - fp.x) * sg;
-		float tmp = vp*vp - vt*vt;
+	float cg = tv.x / vt;
+	float sg = tv.y / vt;
 
-		float fx = x + vt * (x*vt + sqrtf(x*x * vp*vp + y*y * tmp)) / tmp;
+	float x   = (tx.x - fp.x) * cg + (tx.y - fp.y) * sg;
+	float y   = (tx.y - fp.y) * cg - (tx.x - fp.x) * sg;
+	float tmp = vp*vp - vt*vt;
 
-		out_fake.x = __max(0, __min(_sx, fp.x + fx*cg - y*sg));
-		out_fake.y = __max(0, __min(_sy, fp.y + fx*sg + y*cg));
-	}
+	float fx = x + vt * (x*vt + sqrtf(x*x * vp*vp + y*y * tmp)) / tmp;
+
+	out_fake.x = __max(0, __min(_sx, fp.x + fx*cg - y*sg));
+	out_fake.y = __max(0, __min(_sy, fp.y + fx*sg + y*cg));
+	return true;
 }
 
 GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
@@ -961,20 +961,33 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 						continue;
 					}
 
-					vec2d tmpHit, tmpNorm;
+					float tmpHit;
+					vec2d tmpNorm;
 					if( object->CollideWithLine(lineCenter, lineDirection, tmpHit, tmpNorm) )
 					{
-						result = object;
-						lineCenter = (x0 + tmpHit) / 2;
-						lineDirection = tmpHit - x0;
-
-						if( ht ) *ht = tmpHit;
-						if( norm ) *norm = tmpNorm;
+						assert(!_isnan(tmpHit) && _finite(tmpHit));
+						assert(!_isnan(tmpNorm.x) && _finite(tmpNorm.x));
+						assert(!_isnan(tmpNorm.y) && _finite(tmpNorm.y));
 
 						for( int i = 0; i < 4; ++i )
 						{
 							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 						}
+
+						vec2d tmp = lineCenter + lineDirection * tmpHit;
+
+						if( ht ) *ht = tmp;
+						if( norm ) *norm = tmpNorm;
+						if( tmpHit <= 0 ) return object;
+
+						result = object;
+						
+						lineCenter = (x0 + tmp) / 2;
+						lineDirection = tmp - x0;
+
+// TODO: make it work
+//						lineDirection *= tmpHit;
+//						lineCenter = x0 + lineDirection / 2;
 					}
 				}
 			}

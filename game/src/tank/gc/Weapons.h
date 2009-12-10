@@ -48,7 +48,7 @@ public:
 	virtual void SetAdvanced(bool advanced) { _advanced = advanced; }
 	inline  bool GetAdvanced()              { return _advanced;     }
 
-	GC_RigidBodyStatic* GetOwner() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetOwner()); }
+	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 	const vec2d& GetDirectionReal() const { return _directionReal; }
 
 

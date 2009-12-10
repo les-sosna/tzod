@@ -78,7 +78,7 @@ GC_PlayerAI::~GC_PlayerAI()
 
 void GC_PlayerAI::Kill()
 {
-	if( !IsVehicleDead() )
+	if( GetVehicle() )
 	{
 		_jobManager.UnregisterMember(this);
 	}
@@ -111,7 +111,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 			f.Serialize(_attackList.back());
 		}
 
-		if( !IsVehicleDead() )
+		if( GetVehicle() )
 		{
 			_jobManager.RegisterMember(this);
 		}
@@ -137,7 +137,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 {
 	GC_Player::TimeStepFixed(dt);
 
-	if( IsVehicleDead() )
+	if( !GetVehicle() )
 	{
 		return;
 	}
@@ -647,8 +647,8 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	assert(GetVehicle());
 	assert(GetVehicle()->GetWeapon());
 
-	if( !target->GetPlayer() ||
-		(0 != target->GetPlayer()->GetTeam() && target->GetPlayer()->GetTeam() == GetTeam()) )
+	if( !target->GetOwner() ||
+		(0 != target->GetOwner()->GetTeam() && target->GetOwner()->GetTeam() == GetTeam()) )
 	{
 		return AIP_NOTREQUIRED; // своих и буздушных не атакуем
 	}
@@ -1188,6 +1188,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	// avoid obstacles
 	//
 
+	if( brake.sqr() > 0 )
 	{
 		vec2d angle[] = {vec2d(PI/4), vec2d(0), vec2d(-PI/4)};
 		float len[] = {1,2,1};

@@ -162,7 +162,7 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 
 	virtual void TimeStepFixed(float dt);
 	virtual void EditorAction();

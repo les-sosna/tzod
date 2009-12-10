@@ -88,7 +88,6 @@ public:
 	float GetMaxBrakingLength() const;
 
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
-	GC_Player* GetPlayer() const { return GetRawPtr(_player); }
 
 	void SetPlayer(const SafePtr<GC_Player> &player);
 
@@ -105,8 +104,9 @@ public:
 	GC_VehicleVisualDummy* GetVisual() const { return GetRawPtr(_visual); }
 
 	// GC_RigidBodyStatic
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
+	virtual GC_Player* GetOwner() const { return GetRawPtr(_player); }
 
 	// GC_Actor
 	virtual const vec2d& GetPosPredicted() const;
@@ -155,7 +155,7 @@ public:
 	// GC_RigidBodyStatic
 	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
 	virtual float GetDefaultHealth() const { return 1; }
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_RigidBodyStatic *from);
+	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 
 	// GC_2dSprite
 	virtual void Draw() const;

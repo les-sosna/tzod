@@ -304,7 +304,7 @@ public:
 	float net_frand(float max);
 	vec2d net_vrand(float len);
 
-	void CalcOutstrip( const vec2d &fp,    // fire point
+	bool CalcOutstrip( const vec2d &fp,    // fire point
                        float vp,           // speed of the projectile
                        const vec2d &tx,    // target position
                        const vec2d &tv,    // target velocity

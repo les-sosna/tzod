@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////
 
-class GC_RigidBodyStatic;
+class GC_Player;
 
 class GC_Explosion : public GC_2dSprite
 {
@@ -55,8 +55,8 @@ protected:
 
 	bool _boomOK;
 
-	SafePtr<GC_RigidBodyStatic>  _owner;
-	SafePtr<GC_Light>            _light;
+	SafePtr<GC_Player>  _owner;
+	SafePtr<GC_Light>   _light;
 
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
 
@@ -66,7 +66,7 @@ public:
 	float _time_boom;
 
 public:
-	GC_Explosion(const SafePtr<GC_RigidBodyStatic> &owner);
+	GC_Explosion(GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 
@@ -88,7 +88,7 @@ class GC_Boom_Standard : public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Standard);
 public:
-	GC_Boom_Standard(const vec2d &pos, const SafePtr<GC_RigidBodyStatic> &owner);
+	GC_Boom_Standard(const vec2d &pos, GC_Player *owner);
 	GC_Boom_Standard(FromFile);
 	virtual ~GC_Boom_Standard();
 };
@@ -99,7 +99,7 @@ class GC_Boom_Big :  public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
 public:
-	GC_Boom_Big(const vec2d &pos, const SafePtr<GC_RigidBodyStatic> &owner);
+	GC_Boom_Big(const vec2d &pos, GC_Player *owner);
 	GC_Boom_Big(FromFile);
 };
 
@@ -114,10 +114,10 @@ private:
 	float _damage; //  hp per sec
 
 	SafePtr<GC_RigidBodyStatic> _victim;
-	SafePtr<GC_RigidBodyStatic> _owner;
+	SafePtr<GC_Player> _owner;
 
 public:
-	GC_HealthDaemon(GC_RigidBodyStatic *victim, GC_RigidBodyStatic *owner,
+	GC_HealthDaemon(GC_RigidBodyStatic *victim, GC_Player *owner,
 		            float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();

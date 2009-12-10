@@ -67,7 +67,7 @@ void GC_Pickup::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
 
-	f.Serialize(_owner);
+	f.Serialize(_pickupCarrier);
 	f.Serialize(_timeAttached);
 	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
@@ -100,8 +100,8 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 
 void GC_Pickup::Attach(GC_Actor *actor)
 {
-	assert(!_owner);
-	_owner         = /*WrapRawPtr*/(actor);
+	assert(!_pickupCarrier);
+	_pickupCarrier         = /*WrapRawPtr*/(actor);
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
 	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
@@ -111,12 +111,12 @@ void GC_Pickup::Attach(GC_Actor *actor)
 
 void GC_Pickup::Detach()
 {
-	assert(_owner);
+	assert(_pickupCarrier);
 	SetZ(Z_FREE_ITEM);
-	_owner->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
-	_owner->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
-	_owner->OnPickup(this, false);
-	_owner = NULL;
+	_pickupCarrier->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
+	_pickupCarrier->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
+	_pickupCarrier->OnPickup(this, false);
+	_pickupCarrier = NULL;
 }
 
 void GC_Pickup::Respawn()
@@ -254,8 +254,8 @@ void GC_Pickup::MapExchange(MapFile &f)
 void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
 {
 	assert(IsAttached());
-	assert(GetOwner() == sender);
-	MoveTo(GetOwner()->GetPos());
+	assert(GetCarrier() == sender);
+	MoveTo(GetCarrier()->GetPos());
 }
 
 void GC_Pickup::OnOwnerKill(GC_Object *sender, void *param)
@@ -393,8 +393,8 @@ void GC_pu_Mine::Attach(GC_Actor *actor)
 {
 //	GC_Pickup::Attach(actor);
 
-	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
-	new GC_Boom_Standard(GetPos(), SafePtrCast<GC_RigidBodyStatic>(WrapRawPtr(actor)));
+//	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
+	new GC_Boom_Standard(GetPos(), NULL);
 	Kill();
 }
 
@@ -436,7 +436,7 @@ void GC_pu_Shield::Attach(GC_Actor *actor)
 
 	GC_Pickup::Attach(actor);
 
-	GetOwner()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
+	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
 	SetZ(Z_PARTICLE);
 	SetTexture("shield");
@@ -447,7 +447,7 @@ void GC_pu_Shield::Attach(GC_Actor *actor)
 
 void GC_pu_Shield::Detach()
 {
-	GetOwner()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
+	GetCarrier()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
 	SetTexture("pu_inv");
 	SetShadow(true);
@@ -567,8 +567,7 @@ AIPRIORITY GC_pu_Shock::GetPriority(GC_Vehicle *veh)
 	GC_Vehicle *tmp = FindNearVehicle(veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
 
-	if( tmp->GetPlayer()->GetTeam() == veh->GetPlayer()->GetTeam()
-		&& 0 != tmp->GetPlayer()->GetTeam() )
+	if( tmp->GetOwner()->GetTeam() == veh->GetOwner()->GetTeam() && 0 != tmp->GetOwner()->GetTeam() )
 	{
 		return AIP_NOTREQUIRED;
 	}
@@ -613,7 +612,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 			if( dist < min_dist )
 			{
 				GC_RigidBodyStatic *pObstacle = g_level->agTrace(g_level->grid_rigid_s,
-					static_cast<GC_RigidBodyStatic*>(GetOwner()),
+					static_cast<GC_RigidBodyStatic*>(GetCarrier()),
 					GetPos(), pTargetObj->GetPos() - GetPos());
 
 				if( pObstacle == pTargetObj )
@@ -639,8 +638,8 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 		{
 			if( GetTimeAttached() >= SHOCK_TIMEOUT )
 			{
-				GC_RigidBodyStatic *owner = static_cast<GC_RigidBodyStatic*>(GetOwner());
-				if( GC_Vehicle *pNearTarget = FindNearVehicle(owner) )
+				GC_RigidBodyStatic *carrier = static_cast<GC_RigidBodyStatic *>(GetCarrier());
+				if( GC_Vehicle *pNearTarget = FindNearVehicle(carrier) )
 				{
 					SetGridSet(false);
 					SetZ(Z_FREE_ITEM);
@@ -655,11 +654,11 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					_light->SetLength(tmp.len());
 					_light->SetLightDirection(tmp.Normalize());
 
-					pNearTarget->TakeDamage(1000, pNearTarget->GetPos(), owner);
+					pNearTarget->TakeDamage(1000, pNearTarget->GetPos(), carrier->GetOwner());
 				}
 				else
 				{
-					owner->TakeDamage(1000, owner->GetPos(), owner);
+					carrier->TakeDamage(1000, GetCarrier()->GetPos(), carrier->GetOwner());
 					Disappear();
 				}
 			}
@@ -756,7 +755,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 			if( pickup->GetType() == GetType() && this != pickup )
 			{
 				assert(dynamic_cast<GC_pu_Booster*>(pickup));
-				if( static_cast<GC_pu_Booster*>(pickup)->GetOwner() == w )
+				if( static_cast<GC_pu_Booster*>(pickup)->GetCarrier() == w )
 				{
 					pickup->Disappear(); // detach previous booster
 					break;
@@ -778,8 +777,8 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 
 void GC_pu_Booster::Detach()
 {
-	assert(dynamic_cast<GC_Weapon*>(GetOwner()));
-	static_cast<GC_Weapon*>(GetOwner())->SetAdvanced(false);
+	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
+	static_cast<GC_Weapon*>(GetCarrier())->SetAdvanced(false);
 	SetTexture("pu_booster");
 	SetShadow(true);
 	SAFE_KILL(_sound);
@@ -808,7 +807,7 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 	GC_Pickup::TimeStepFixed(dt);
 	if( IsAttached() )
 	{
-		assert(!GetOwner()->IsKilled());
+		assert(!GetCarrier()->IsKilled());
 		if( GetTimeAttached() > BOOSTER_TIME )
 		{
 			PLAY(SND_B_End, GetPos());
