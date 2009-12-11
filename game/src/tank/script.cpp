@@ -717,7 +717,8 @@ int luaT_actor(lua_State *L)
 		properties->Exchange(true);
 	}
 
-	return 0;
+	luaT_pushobject(L, obj);
+	return 1;
 }
 
 // service("type name" [, params])
@@ -761,7 +762,8 @@ int luaT_service(lua_State *L)
 		properties->Exchange(true);
 	}
 
-	return 0;
+	luaT_pushobject(L, obj);
+	return 1;
 }
 
 // object("object name")
