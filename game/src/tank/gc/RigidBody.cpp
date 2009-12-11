@@ -334,8 +334,8 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 		float halfDiag = sqrt(GetHalfWidth()*GetHalfWidth() + GetHalfLength()*GetHalfLength());
 		float lineProjD = Vec2dDot(lineDirection, diagonal);
 		float lineProjD_abs = fabs(lineProjD);
-		float deltaDotDiagonalOffset = Vec2dDot(delta + diagonal * (halfDiag / 2), diagonal);
-		if( fabs(deltaDotDiagonalOffset) > lineProjD_abs / 2 + halfDiag / 2 )
+		float deltaDotDiagonal = Vec2dDot(delta, diagonal);
+		if( fabs(deltaDotDiagonal + halfDiag / 2) > lineProjD_abs / 2 + halfDiag / 2 )
 			return false;
 
 		//
@@ -360,7 +360,7 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 
 		float bW = deltaCrossDir * signW - GetHalfWidth();
 		float bL = deltaDotDir * signL - GetHalfLength();
-		float bD = Vec2dDot(delta + diagonal * halfDiag, diagonal) - halfDiag;
+		float bD = deltaDotDiagonal;
 
 		if( bW * lineProjL_abs > bL * lineProjW_abs && bW * lineProjD_abs > bD * lineProjW_abs )
 		{
