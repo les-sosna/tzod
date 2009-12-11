@@ -6,22 +6,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 // RefCounted class implementation
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 RefCounted::tracker RefCounted::_tracker;
 #endif
 
 RefCounted::RefCounted()
   : _refCount(0)
 {
-#ifdef _DEBUG
-    ++_tracker._count;
+#ifndef NDEBUG
+    _tracker._objects.insert(this);
 #endif
 }
 
 RefCounted::~RefCounted()
 {
-#ifdef _DEBUG
-    --_tracker._count;
+#ifndef NDEBUG
+    _tracker._objects.erase(this);
 #endif
 }
 

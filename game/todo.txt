@@ -2,6 +2,7 @@ save screenshots in jpg or png
 
 Save/Load
  - user objects serialization - custom textures are not saved
+ - save references to objects
  - save lua classes table
  - save lua gc table (?)
  - music track
@@ -15,7 +16,7 @@ equip(booster) doesn't work
 solution: create Pickup::Accept(obj)
 
 make it possible to access objects w/o name from script
- - introduce user data type that holds weak reference to object
+ - introduce user data type that holds weak reference to object - done
  - should all other functions accept both name and reference?
 
 Q22) Why do I get an error when trying to open a new socket soon after I've closed a socket on the same port?

@@ -219,13 +219,13 @@ class RefCounted
 {
 	int _refCount;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	struct tracker
 	{
-		int _count;
+		std::set<RefCounted*> _objects;
 		~tracker() // destructor will be called by runtime at the end of program
 		{
-			assert(0 == _count); // leaks!
+			assert(_objects.empty()); // leaks!
 		}
 	};
 	static tracker _tracker;

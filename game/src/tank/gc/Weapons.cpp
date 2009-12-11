@@ -1640,9 +1640,9 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 		while( _timeBurn > 0 )
 		{
 			GC_FireSpark *tmp = new GC_FireSpark(GetPos() + g_level->net_vrand(33), 
-				SPEED_SMOKE/2, GetCarrier(), GetCarrier()->GetOwner(), true);
-			tmp->TimeStepFixed(_timeBurn);
+				SPEED_SMOKE/2, GetCarrier(), GetCarrier() ? GetCarrier()->GetOwner() : NULL, true);
 			tmp->SetLifeTime(0.3f);
+			tmp->TimeStepFixed(_timeBurn);
 			_timeBurn -= 0.01f;
 		}
 	}
