@@ -155,7 +155,7 @@ void GC_Weapon::Detach()
 
 void GC_Weapon::ProcessRotate(float dt)
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 	_rotatorWeap.process_dt(dt);
 	const VehicleState &vs = static_cast<GC_Vehicle*>(GetCarrier())->_stateReal;
 	if( vs._bExplicitTower )
@@ -247,7 +247,7 @@ void GC_Weapon::Serialize(SaveFile &f)
 
 void GC_Weapon::Kill()
 {
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		Detach();
 	}
@@ -264,7 +264,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 
 	_time += dt;
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		ProcessRotate(dt);
 		if( _crosshair && _fixmeChAnimate )
@@ -290,7 +290,7 @@ void GC_Weapon::TimeStepFixed(float dt)
 void GC_Weapon::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( !IsAttached() && !GetRespawn() )
+	if( !GetCarrier() && !GetRespawn() )
 	{
 		SetDirection(vec2d(GetTimeAnimation()));
 	}
@@ -363,7 +363,7 @@ void GC_Weap_RocketLauncher::Serialize(SaveFile &f)
 
 void GC_Weap_RocketLauncher::Fire()
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 	const vec2d &dir = GetDirectionReal();
 	if( _advanced )
 	{
@@ -438,7 +438,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_RocketLauncher::TimeStepFixed(float dt)
 {
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		if( _firing )
 			Fire();
@@ -547,7 +547,7 @@ void GC_Weap_AutoCannon::Serialize(SaveFile &f)
 
 void GC_Weap_AutoCannon::Fire()
 {
-	if( _firing && IsAttached() )
+	if( _firing && GetCarrier() )
 	{
 		const vec2d &dir = GetDirectionReal();
 		if( _advanced )
@@ -617,7 +617,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 {
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		if( _advanced )
 			_nshots  = 0;
@@ -697,7 +697,7 @@ void GC_Weap_Cannon::Serialize(SaveFile &f)
 
 void GC_Weap_Cannon::Fire()
 {
-	if( IsAttached() && _time >= _timeReload )
+	if( GetCarrier() && _time >= _timeReload )
 	{
 		GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
 		const vec2d &dir = GetDirectionReal();
@@ -734,7 +734,7 @@ void GC_Weap_Cannon::TimeStepFixed(float dt)
 
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( IsAttached() && _time_smoke > 0 )
+	if( GetCarrier() && _time_smoke > 0 )
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
@@ -794,7 +794,7 @@ void GC_Weap_Plazma::Attach(GC_Actor *actor)
 
 void GC_Weap_Plazma::Fire()
 {
-	if( IsAttached() && _time >= _timeReload )
+	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirectionReal();
 		new GC_PlazmaClod(GetPos() + a * 15.0f,
@@ -862,7 +862,7 @@ GC_Weap_Gauss::~GC_Weap_Gauss()
 
 void GC_Weap_Gauss::Fire()
 {
-	if( IsAttached() && _time >= _timeReload )
+	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &dir = GetDirectionReal();
 		new GC_GaussRay(vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
@@ -997,7 +997,7 @@ void GC_Weap_Ram::Kill()
 
 void GC_Weap_Ram::Fire()
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 	if( _bReady )
 	{
 		_firingCounter = 2;
@@ -1026,7 +1026,7 @@ void GC_Weap_Ram::TimeStepFloat(float dt)
 	static const TextureCache tex3("particle_fire");
 
 
-	if( IsAttached() && _firingCounter )
+	if( GetCarrier() && _firingCounter )
 	{
 		GC_Vehicle *veh = static_cast<GC_Vehicle *>(GetCarrier());
 		vec2d v = veh->GetVisual()->_lv;
@@ -1067,7 +1067,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 {
 	GC_Weapon::TimeStepFixed( dt );
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		assert(_engineSound);
 
@@ -1183,7 +1183,7 @@ void GC_Weap_BFG::Serialize(SaveFile &f)
 
 void GC_Weap_BFG::Fire()
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 
 	if( _time >= _timeReload )
 	{
@@ -1218,7 +1218,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 void GC_Weap_BFG::TimeStepFixed(float dt)
 {
 	GC_Weapon::TimeStepFixed(dt);
-	if( IsAttached() && _time_ready != 0 )
+	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
 		Fire();
@@ -1292,7 +1292,7 @@ void GC_Weap_Ripper::Serialize(SaveFile &f)
 
 void GC_Weap_Ripper::Fire()
 {
-	if( IsAttached() && _time >= _timeReload )
+	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirectionReal();
 		new GC_Disk(GetPos() - a * 9.0f, a * SPEED_DISK + g_level->net_vrand(10),
@@ -1436,8 +1436,8 @@ void GC_Weap_Minigun::Kill()
 
 void GC_Weap_Minigun::Fire()
 {
-	assert(IsAttached());
-	if( IsAttached() )
+	assert(GetCarrier());
+	if( GetCarrier() )
 		_bFire = true;
 }
 
@@ -1456,7 +1456,7 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 {
 	static const TextureCache tex("particle_1");
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
 		if( _bFire )
@@ -1581,7 +1581,7 @@ void GC_Weap_Zippo::Kill()
 
 void GC_Weap_Zippo::Fire()
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 	_bFire = true;
 }
 
@@ -1600,7 +1600,7 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 {
 	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		if( _bFire )
 		{

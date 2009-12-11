@@ -731,7 +731,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		for(; it != (*i)->end(); ++it )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) *it;
-			if( pItem->IsAttached() || !pItem->GetVisible() || pItem->IsKilled() ) 
+			if( pItem->GetCarrier() || !pItem->GetVisible() || pItem->IsKilled() ) 
 			{
 				continue;
 			}
@@ -759,7 +759,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 			if( NULL == items[i] ) continue;
 			assert(!items[i]->IsKilled());
 			assert(items[i]->GetVisible());
-			if( items[i]->IsAttached() ) continue;
+			if( items[i]->GetCarrier() ) continue;
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )
 			{

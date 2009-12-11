@@ -68,7 +68,6 @@ public:
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
 	GC_Actor* GetCarrier() const { return GetRawPtr(_pickupCarrier); }
-	bool IsAttached()    const { return NULL != _pickupCarrier;    }
 
 	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;

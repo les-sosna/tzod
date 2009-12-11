@@ -135,7 +135,7 @@ void GC_Pickup::Respawn()
 
 bool GC_Pickup::Disappear()
 {
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		Detach();
 	}
@@ -175,7 +175,7 @@ void GC_Pickup::TimeStepFloat(float dt)
 {
 	_timeAnimation += dt;
 
-	if( !IsAttached() && GetVisible() )
+	if( !GetCarrier() && GetVisible() )
 		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
 
 	GC_2dSprite::TimeStepFloat(dt);
@@ -185,7 +185,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 {
 	_timeAttached += dt;
 
-	if( !IsAttached() )
+	if( !GetCarrier() )
 	{
 		if( GetVisible() )
 		{
@@ -253,7 +253,7 @@ void GC_Pickup::MapExchange(MapFile &f)
 
 void GC_Pickup::OnOwnerMove(GC_Object *sender, void *param)
 {
-	assert(IsAttached());
+	assert(GetCarrier());
 	assert(GetCarrier() == sender);
 	MoveTo(GetCarrier()->GetPos());
 }
@@ -461,7 +461,7 @@ void GC_pu_Shield::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		if( GetTimeAttached() + 2.0f > PROTECT_TIME )
 		{
@@ -483,7 +483,7 @@ void GC_pu_Shield::TimeStepFixed(float dt)
 void GC_pu_Shield::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		_timeHit = __max(0, _timeHit - dt);
 		SetFrame( int((GetTimeAnimation() * ANIMATION_FPS)) % (GetFrameCount()) );
@@ -632,7 +632,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
 
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		if( GetGridSet() )
 		{
@@ -796,7 +796,7 @@ GC_Actor* GC_pu_Booster::FindNewOwner() const
 void GC_pu_Booster::TimeStepFloat(float dt)
 {
 	GC_Pickup::TimeStepFloat(dt);
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		SetDirection(vec2d(GetTimeAnimation() * 50));
 	}
@@ -805,7 +805,7 @@ void GC_pu_Booster::TimeStepFloat(float dt)
 void GC_pu_Booster::TimeStepFixed(float dt)
 {
 	GC_Pickup::TimeStepFixed(dt);
-	if( IsAttached() )
+	if( GetCarrier() )
 	{
 		assert(!GetCarrier()->IsKilled());
 		if( GetTimeAttached() > BOOSTER_TIME )
