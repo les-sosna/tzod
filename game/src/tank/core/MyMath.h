@@ -1,8 +1,11 @@
 // MyMath.h
 #pragma once
 
+#include <cmath>
+
 #define PI    3.141593f
 #define PI2   6.283185f
+#define PI4   0.785398f
 
 /////////////////////////////////////////////////////////////////////////////
 

@@ -303,11 +303,83 @@ GC_Wall::~GC_Wall()
 
 bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal)
 {
+	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
+	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
+	assert(!_isnan(lineDirection.x) && _finite(lineDirection.x));
+	assert(!_isnan(lineDirection.y) && _finite(lineDirection.y));
+
 	unsigned int corner = GetCorner();
 	if( corner )
 	{
+		vec2d delta = GetPos() - lineCenter;
 
-		return false;
+		//
+		// project lineDirection to triangle axes
+		//
+
+		float lineProjL = Vec2dDot(lineDirection, GetDirection());
+		float lineProjL_abs = fabs(lineProjL);
+		float deltaDotDir = Vec2dDot(delta, GetDirection());
+		if( fabs(deltaDotDir) > lineProjL_abs / 2 + GetHalfLength() )
+			return false;
+
+		float lineProjW = Vec2dCross(lineDirection, GetDirection());
+		float lineProjW_abs = fabs(lineProjW);
+		float deltaCrossDir = Vec2dCross(delta, GetDirection());
+		if( fabs(deltaCrossDir) > lineProjW_abs / 2 + GetHalfWidth() )
+			return false;
+
+		static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
+		vec2d diagonal = Vec2dAddDirection(angles[corner-1], GetDirection());
+		float halfDiag = sqrt(GetHalfWidth()*GetHalfWidth() + GetHalfLength()*GetHalfLength());
+		float lineProjD = Vec2dDot(lineDirection, diagonal);
+		float lineProjD_abs = fabs(lineProjD);
+		float deltaDotDiagonalOffset = Vec2dDot(delta + diagonal * (halfDiag / 2), diagonal);
+		if( fabs(deltaDotDiagonalOffset) > lineProjD_abs / 2 + halfDiag / 2 )
+			return false;
+
+		//
+		// project triangle to lineDirection axis
+		//
+
+		float halfProjLineW = lineProjL_abs * GetHalfWidth();
+		float halfProjLineL = lineProjW_abs * GetHalfLength();
+		float halfProjLineD = lineProjD_abs * halfDiag;
+		float halfProjLine = std::max(halfProjLineW, std::max(halfProjLineL, halfProjLineD));
+		float dirLen = lineDirection.len();
+		vec2d offset = diagonal * (halfProjLineW + halfProjLineL - halfProjLine);
+		if( fabs(Vec2dCross(delta * dirLen + offset, lineDirection)) > halfProjLine * dirLen )
+			return false;
+
+		//
+		// calc intersection point and normal
+		//
+
+		float signW = lineProjW > 0 ? 1.0f : -1.0f;
+		float signL = lineProjL > 0 ? 1.0f : -1.0f;
+
+		float bW = deltaCrossDir * signW - GetHalfWidth();
+		float bL = deltaDotDir * signL - GetHalfLength();
+		float bD = Vec2dDot(delta + diagonal * halfDiag, diagonal) - halfDiag;
+
+		if( bW * lineProjL_abs > bL * lineProjW_abs && bW * lineProjD_abs > bD * lineProjW_abs )
+		{
+			outWhere = lineProjW_abs > 0 ? bW / lineProjW_abs : 0;
+			outNormal = lineProjW > 0 ?
+				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+		}
+		else if( bL * lineProjD_abs > bD * lineProjL_abs )
+		{
+			outWhere = lineProjL_abs > 0 ? bL / lineProjL_abs : 0;
+			outNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
+		}
+		else
+		{
+			outWhere = lineProjD_abs > 0 ? bD / lineProjD_abs : 0;
+			outNormal = -diagonal;
+		}
+
+		return true;
 	}
 	else
 	{
