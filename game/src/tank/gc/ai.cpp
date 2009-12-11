@@ -76,15 +76,6 @@ GC_PlayerAI::~GC_PlayerAI()
 {
 }
 
-void GC_PlayerAI::Kill()
-{
-	if( GetVehicle() )
-	{
-		_jobManager.UnregisterMember(this);
-	}
-	GC_Player::Kill();
-}
-
 void GC_PlayerAI::Serialize(SaveFile &f)
 {
 	GC_Player::Serialize(f);

@@ -173,7 +173,6 @@ public:
 	GC_PlayerAI();
 	GC_PlayerAI(FromFile);
 	virtual ~GC_PlayerAI();
-	virtual void Kill();
 
 	virtual void OnRespawn();
 	virtual void OnDie();
