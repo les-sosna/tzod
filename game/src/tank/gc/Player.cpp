@@ -467,12 +467,15 @@ void GC_PlayerLocal::SelectFreeProfile()
 		bool in_use = false;
 		FOREACH(g_level->GetList(LIST_players), GC_Player, player)
 		{
-			if( GC_PlayerLocal *p = dynamic_cast<GC_PlayerLocal *>(player) )
+			if( !player->IsKilled() )
 			{
-				if( p->GetProfile() == tmp[i] )
+				if( GC_PlayerLocal *p = dynamic_cast<GC_PlayerLocal *>(player) )
 				{
-					in_use = true;
-					break;
+					if( p->GetProfile() == tmp[i] )
+					{
+						in_use = true;
+						break;
+					}
 				}
 			}
 		}

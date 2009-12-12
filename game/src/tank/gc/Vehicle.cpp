@@ -612,7 +612,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 					from->SetScore(from->GetScore() - 1);
 					font = "font_digits_red";
 					wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
-						((GC_Vehicle *) dd.from)->GetOwner()->GetNick().c_str(),
+						dd.from->GetNick().c_str(),
 						GetOwner()->GetNick().c_str());
 				}
 				else
