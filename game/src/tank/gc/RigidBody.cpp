@@ -92,6 +92,78 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 	return true;
 }
 
+bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
+                                         float &outWhere, vec2d &outNormal)
+{
+	assert(!_isnan(rectHalfSize.x) && _finite(rectHalfSize.x));
+	assert(!_isnan(rectHalfSize.y) && _finite(rectHalfSize.y));
+	assert(!_isnan(rectCenter.x) && _finite(rectCenter.x));
+	assert(!_isnan(rectCenter.y) && _finite(rectCenter.y));
+	assert(!_isnan(rectDirection.x) && _finite(rectDirection.x));
+	assert(!_isnan(rectDirection.y) && _finite(rectDirection.y));
+
+	vec2d delta = GetPos() - rectCenter;
+
+	//
+	// project this to rectDirection axis
+	//
+
+	float projL = Vec2dDot(rectDirection, GetDirection());
+	float projW = Vec2dCross(rectDirection, GetDirection());
+	float projL_abs = fabs(projL);
+	float projW_abs = fabs(projW);
+
+	float halfProjRectL = projL_abs * GetHalfWidth() + projW_abs * GetHalfLength();
+	if( fabs(Vec2dCross(delta, rectDirection)) > rectHalfSize.y + halfProjRectL )
+		return false;
+
+	//
+	// project this to rectDirection|- axis
+	//
+
+	float halfProjRectW = projW_abs * GetHalfWidth() + projL_abs * GetHalfLength();
+	float deltaDotDir = Vec2dDot(delta, GetDirection());
+	if( fabs(deltaDotDir) > rectHalfSize.x + halfProjRectW )
+		return false;
+
+
+	//
+	// project rectDirection to this axes
+	//
+
+	if( fabs(deltaDotDir) > projL_abs * rectHalfSize.x + projW_abs * rectHalfSize.y + GetHalfLength() )
+		return false;
+
+	float deltaCrossDir = Vec2dCross(delta, GetDirection());
+	if( fabs(deltaCrossDir) > projW_abs * rectHalfSize.x + projL_abs * rectHalfSize.y + GetHalfWidth() )
+		return false;
+
+
+
+	//
+	// calc intersection point and normal
+	//
+
+	float signW = projW > 0 ? 1.0f : -1.0f;
+	float signL = projL > 0 ? 1.0f : -1.0f;
+
+	float b1 = (deltaCrossDir * signW - GetHalfWidth());
+	float b2 = (deltaDotDir * signL - GetHalfLength());
+	if( b1 * projL_abs > b2 * projW_abs )
+	{
+		outWhere = projW_abs > 0 ? b1 / projW_abs : 0;
+		outNormal = projW > 0 ?
+			vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+	}
+	else
+	{
+		outWhere = projL_abs > 0 ? b2 / projL_abs : 0;
+		outNormal = projL > 0 ? -GetDirection() : GetDirection();
+	}
+
+	return true;
+}
+
 void GC_RigidBodyStatic::SetHealth(float cur, float max)
 {
 	assert(cur <= max);

@@ -668,6 +668,12 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, object )
 	{
+		if( !object->GetOwner() ||
+			(0 != object->GetOwner()->GetTeam() && object->GetOwner()->GetTeam() == GetTeam()) )
+		{
+			continue;
+		}
+
 		if( !object->IsKilled() && object != GetVehicle() )
 		{
 			if( (GetVehicle()->GetPos() - object->GetPos()).sqr() <

@@ -494,7 +494,8 @@ void Level::Unserialize(const char *fileName)
 		// read objects contents in the same order as pointers
 		for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 		{
-			(*it)->Serialize(f);
+			if( !(*it)->IsKilled() ) // workaround to avoid dead garbage
+				(*it)->Serialize(f);
 		}
 
 

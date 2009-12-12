@@ -178,14 +178,6 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 
 bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
 {
-	// TODO: implement SAT
-
-	if( (pObj->GetPos() - GetPos()).len() > GetRadius() + pObj->GetRadius() )
-	{
-		return false;
-	}
-
-
 	//
 	// exact intersection testing
 	//
@@ -422,6 +414,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	c.total_tp = 0;
 	c.obj1_d   = this;
 
+	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
+
 	for( ; rit != receive.end(); ++rit )
 	{
 		ObjectList::iterator it = (*rit)->begin();
@@ -434,7 +428,17 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 			}
 
 //			if( object->parity() != _glob_parity )
+
+			float tmp1;
+			vec2d tmp2;
+			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), tmp1, tmp2) )
 			{
+				for( int i = 0; i < 4; ++i )
+				{
+					g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+				}
+
+
 				if( Intersect(object, c.o, c.n) )
 				{
 					c.t.x =  c.n.y;
