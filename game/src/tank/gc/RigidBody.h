@@ -61,7 +61,7 @@ public:
 	float GetHalfLength() const { return _length/2; }
 
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
-	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, float &outWhere, vec2d &outNormal);
+	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal);
 
 	__declspec(deprecated) vec2d GetVertex(int index) const
 	{

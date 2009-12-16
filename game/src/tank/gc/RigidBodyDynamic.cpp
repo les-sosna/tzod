@@ -429,28 +429,24 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 //			if( object->parity() != _glob_parity )
 
-			float tmp1;
-			vec2d tmp2;
-			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), tmp1, tmp2) )
+			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n) )
+		//	if( Intersect(object, c.o, c.n) )
 			{
 				for( int i = 0; i < 4; ++i )
 				{
 					g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 				}
+				g_level->DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
 
+				c.t.x =  c.n.y;
+				c.t.y = -c.n.x;
+				c.obj2_s = object;
+				c.obj2_d = dynamic_cast<GC_RigidBodyDynamic*>(object);
 
-				if( Intersect(object, c.o, c.n) )
-				{
-					c.t.x =  c.n.y;
-					c.t.y = -c.n.x;
-					c.obj2_s = object;
-					c.obj2_d = dynamic_cast<GC_RigidBodyDynamic*>(object);
+				c.obj1_d->AddRef();
+				c.obj2_s->AddRef();
 
-					c.obj1_d->AddRef();
-					c.obj2_s->AddRef();
-
-					_contacts.push_back(c);
-				}
+				_contacts.push_back(c);
 			}
 		}
 	}
