@@ -176,108 +176,6 @@ void GC_RigidBodyDynamic::Serialize(SaveFile &f)
 	f.Serialize(_external_torque);
 }
 
-bool GC_RigidBodyDynamic::Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal)
-{
-	//
-	// exact intersection testing
-	//
-
-	vec2d verts1[4];
-	vec2d verts2[4];
-
-	for( int i = 0; i < 4; ++i )
-	{
-		verts1[i] = GetVertex(i);
-		verts2[i] = pObj->GetVertex(i);
-	}
-
-	float ax1, ay1, ax2, ay2;
-	float bx1, by1, bx2, by2;
-	float ax, ay, bx, by;
-
-	float det, ta, tb;
-
-	vec2d pt[2];
-	vec2d ns[2];
-	int icount = 0;
-
-	for( int i = 0; i < 4; ++i )
-	for( int j = 0; j < 4; ++j )
-	{
-		ax1 = verts1[i].x;
-		ay1 = verts1[i].y;
-		ax2 = verts1[(i+1)&3].x;
-		ay2 = verts1[(i+1)&3].y;
-		bx1 = verts2[j].x;
-		by1 = verts2[j].y;
-		bx2 = verts2[(j+1)&3].x;
-		by2 = verts2[(j+1)&3].y;
-
-		ax = ax2 - ax1;
-		ay = ay2 - ay1;
-		bx = bx2 - bx1;
-		by = by2 - by1;
-
-		if( fabsf(det = ay*bx - ax*by) > 1e-7 )
-		{
-			ta = ( by*(ax1-bx1) + bx*(by1-ay1) ) / det;
-			if( ta < 0 || ta > 1 )
-				continue;
-
-			tb = ( ay*(ax1-bx1) + ax*(by1-ay1) ) / det;
-			if( tb < 0 || tb > 1 )
-				continue;
-
-			origin.x = ax1 + ax * ta;
-			origin.y = ay1 + ay * ta;
-
-			pt[icount++] = origin;
-
-			if( 2 == icount )
-			{
-				origin = (pt[0] + pt[1]) * 0.5f;
-
-				normal.x = pt[1].y - pt[0].y;
-				normal.y = pt[0].x - pt[1].x;
-
-				if( normal.x * (origin.x - GetPos().x) +
-					normal.y * (origin.y - GetPos().y) > 0 )
-				{
-					normal.x = -normal.x;
-					normal.y = -normal.y;
-				}
-
-
-				float len = normal.len();
-				if( len < 1e-7 )
-				{
-					return false;
-				}
-
-				normal /= len;
-				return true;
-			}
-
-			if( fabsf(ta - 0.5f) < fabsf(tb - 0.5f) )
-			{
-				normal.x = -ay;
-				normal.y =  ax;
-			}
-			else
-			{
-				normal.x =  by;
-				normal.y = -bx;
-			}
-			normal.Normalize();
-		}
-		else
-		{
-		}
-	}
-
-	return (icount > 0);
-}
-
 float GC_RigidBodyDynamic::GetSpinup() const
 {
 	float result;
@@ -431,7 +329,6 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 //			if( object->parity() != _glob_parity )
 
 			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
-		//	if( Intersect(object, c.o, c.n) )
 			{
 				for( int i = 0; i < 4; ++i )
 				{

@@ -30,8 +30,6 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 	static std::stack<ContactList> _contactsStack;
 	static bool _glob_parity;
 
-	bool Intersect(GC_RigidBodyStatic *pObj, vec2d &origin, vec2d &normal);
-
 	float geta_s(const vec2d &n, const vec2d &c, const GC_RigidBodyStatic *obj) const;
 	float geta_d(const vec2d &n, const vec2d &c, const GC_RigidBodyDynamic *obj) const;
 
