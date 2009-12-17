@@ -21,6 +21,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		GC_RigidBodyStatic  *obj2_s;
 		vec2d o,n,t; // origin, normal, tangent
 		float total_np, total_tp;
+		float depth;
 //		bool  inactive;
 	};
 

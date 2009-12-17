@@ -410,6 +410,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	PtrList<ObjectList>::iterator rit = receive.begin();
 
 	Contact c;
+	c.depth = 0;
 	c.total_np = 0;
 	c.total_tp = 0;
 	c.obj1_d   = this;
@@ -429,7 +430,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 
 //			if( object->parity() != _glob_parity )
 
-			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n) )
+			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
 		//	if( Intersect(object, c.o, c.n) )
 			{
 				for( int i = 0; i < 4; ++i )
@@ -527,8 +528,11 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 					a *= 0.1f;
 
 				// phantom may not affect real objects but it may affect other fhantoms
-				vec2d delta_p = it->n * a;
-				if( !o1 && !o2 || o2 ) it->obj1_d->impulse(it->o, delta_p);
+				vec2d delta_p = it->n * (a + it->depth);
+
+				if( !o1 && !o2 || o2 )
+					it->obj1_d->impulse(it->o, delta_p);
+
 				if( it->obj2_d && (!o1 && !o2 || o1) ) 
 					it->obj2_d->impulse(it->o, -delta_p);
 

@@ -93,7 +93,7 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 }
 
 bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
-                                         vec2d &outWhere, vec2d &outNormal)
+                                         vec2d &outWhere, vec2d &outNormal, float &outDepth)
 {
 	assert(!_isnan(rectHalfSize.x) && _finite(rectHalfSize.x));
 	assert(!_isnan(rectHalfSize.y) && _finite(rectHalfSize.y));
@@ -145,24 +145,24 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 	// calculate penetration depth
 	//
 
-	float minDepth = depth[0];
+	outDepth = depth[0];
 	unsigned int mdIndex = 0;
 	for( int i = 1; i < 4; ++i )
 	{
-		if( depth[i] < minDepth )
+		if( depth[i] < outDepth )
 		{
-			minDepth = depth[i];
+			outDepth = depth[i];
 			mdIndex = i;
 		}
 	}
 	
-
 	// calc normal
 	switch( mdIndex )
 	{
 	case 0:
 		outNormal = deltaCrossRectDir > 0 ?
 			vec2d(-rectDirection.y, rectDirection.x) : vec2d(rectDirection.y, -rectDirection.x);
+
 		break;
 	case 1:
 		outNormal = deltaDotRectDir > 0 ? -rectDirection : rectDirection;
@@ -178,7 +178,13 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 		assert(false);
 	}
 
+//	int group = mdIndex/2;
+//	int ingrp = mdIndex%2;
+//	int neighbor = group*2 + 1 - ingrp
+
+
 	// contact manifold
+
 	float xx, xy, yx, yy;
 	float sign;
 	vec2d center;
@@ -208,19 +214,43 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 		vec2d(-xx - yy, yx - xy),
 		vec2d(-xx + yy, -yx - xy)
 	};
+	unsigned int idx;
 	float mindot = 1e30;
-	for( int i = 0; i < 4; ++i )
+	for( unsigned int i = 0; i < 4; ++i )
 	{
 		float dot = sign*Vec2dDot(outNormal, v[i]);
 		if( mindot > dot )
 		{
 			mindot = dot;
-			outWhere = center + v[i];
+			idx = i;
 		}
 	}
 
-//	TODO: edge-edge collision
-//	bool isEE = projL_abs < 1e-6 || projW_abs < 1e-6;
+	if( projL_abs < 1e-3 || projW_abs < 1e-3 )
+	{
+		// for edge-edge collision find second closest point
+		mindot = 1e30;
+		unsigned int idx2;
+		for( unsigned int i = 0; i < 4; ++i )
+		{
+			if( i != idx )
+			{
+				float dot = sign*Vec2dDot(outNormal, v[i]);
+				if( mindot > dot )
+				{
+					mindot = dot;
+					idx2 = i;
+				}
+			}
+		}
+
+		outWhere = center + (v[idx] + v[idx2]) * 0.5f;
+	}
+	else
+	{
+		outWhere = center + v[idx];
+	}
+
 
 	return true;
 }
