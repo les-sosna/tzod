@@ -142,9 +142,27 @@ struct Proto {
 	Object p[sizep];	/* Inner Protos referenced */
 	int sizecode;		/* Number of instructions in code */
 	Instruction code[sizecode];	/* The proto's code */
+	ProtoDebug debuginfo;	/* Debug information for the proto */
 	lu_byte nups;		/* Number of upvalues used */
 	lu_byte numparams;	/* Number of parameters taken */
 	lu_byte is_vararg;	/* 1 if function accepts varargs, 0 otherwise */
 	lu_byte maxstacksize;	/* Size of stack reserved for the function */
 };
 
+struct ProtoDebug {
+	int sizeupvals;		/* Number of upvalue names */
+	Object upvals;		/* Upvalue names */
+	int sizelocvars;	/* Number of local variable names */
+	LocVar[sizelocvars];	/* Local variable names */
+	Object source;		/* The source code */
+	int sizelineinfo;	/* Number of opcode-line mappings */
+	int lineinfo[sizelineinfo];	/* opcode-line mappings */
+	int linedefined;	/* Start of line range */
+	int lastlinedefined;	/* End of line range */
+};
+
+struct LocVar {
+	Object name;		/* Name of the local variable */
+	int startpc;		/* Point where variable is active */
+	int endpc;		/* Point where variable is dead */
+};

@@ -1,5 +1,7 @@
 -- $Id$
 
+require "pluto"
+
 permtable = { 1234 } 
 
 perms = { [1] = coroutine.yield, [2] = permtable }
@@ -15,6 +17,7 @@ function testuvinthread(func)
 	return success and result == 5
 end
 
+
 function test(rootobj)
 	local passed = 0
 	local total = 0
@@ -27,6 +30,7 @@ function test(rootobj)
 			print(name, "* FAILED")
 		end
 	end
+
 		
 	dotest("Boolean FALSE        ", rootobj.testfalse == false)
 	dotest("Boolean TRUE         ", rootobj.testtrue == true)
@@ -60,6 +64,10 @@ function test(rootobj)
 		testcounter(rootobj.testsharedupval))
 	dotest("Open upvalues        ", 
 		testuvinthread(rootobj.testuvinthread))
+	dotest("Upvalue cycles       ", 
+		rootobj.testuvcycle()[1] == rootobj.testuvcycle()[2])
+	dotest("__newindex metamethod", rootobj.testniinmt.a == 3)
+	dotest("Debug info           ", (rootobj.testdebuginfo(2)) == "foo")
 	print()
 	if passed == total then
 		print("All tests passed.")

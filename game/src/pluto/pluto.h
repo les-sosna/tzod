@@ -1,9 +1,9 @@
 /* $Id$ */
 
 /* Pluto - Heavy-duty persistence for Lua
- * Copyright (C) 2004 by Ben Sunshine-Hill, and released into the public 
+ * Copyright (C) 2004 by Ben Sunshine-Hill, and released into the public
  * domain. People making use of this software as part of an application
- * are politely requested to email the author at sneftel@gmail.com 
+ * are politely requested to email the author at sneftel@gmail.com
  * with a brief description of the application, primarily to satisfy his
  * curiosity.
  *
@@ -18,21 +18,8 @@
 
 /* lua.h must be included before this file */
 
-#ifdef __cplusplus
-extern "C" 
-{
-#endif
+void pluto_persist(lua_State *L, lua_Chunkwriter writer, void *ud);
 
-LUA_API void pluto_persist(lua_State *L, lua_Chunkwriter writer, void *ud);
-LUA_API void pluto_unpersist(lua_State *L, lua_Chunkreader reader, void *ud);
+void pluto_unpersist(lua_State *L, lua_Chunkreader reader, void *ud);
 
-LUA_API int persist_l(lua_State *L);
-LUA_API int unpersist_l(lua_State *L);
-
-/* int pluto_open(lua_State *L); */
-
-#ifdef __cplusplus
-};
-#endif
-
-
+LUALIB_API int luaopen_pluto(lua_State *L);

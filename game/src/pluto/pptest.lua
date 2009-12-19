@@ -1,5 +1,7 @@
 -- $Id$
 
+require "pluto"
+
 permtable = { 1234 } 
 
 perms = { [coroutine.yield] = 1, [permtable] = 2 }
@@ -101,6 +103,33 @@ end
 uvinthread = coroutine.create(uvinthreadfunc)
 coroutine.resume(uvinthread)
 
+niinmt = { a = 3 }
+setmetatable(niinmt, {__newindex = function(key, val) end })
+
+
+
+
+local function GenerateObjects()
+   local Table = {}
+
+   function Table:Func()
+       return { Table, self }
+   end
+
+   function uvcycle()
+       return Table:Func()
+   end
+end
+
+GenerateObjects()
+
+
+
+function debuginfo(foo)
+	foo = foo + foo
+	return debug.getlocal(1,1)
+end
+
 rootobj = {
 	testfalse = false,
 	testtrue = true,
@@ -125,7 +154,10 @@ rootobj = {
 	testspudata1 = boxboolean(true),
 	testspudata2 = boxboolean(false),
 	testsharedupval = makecounter(),
-	testuvinthread = uvinthread
+	testuvinthread = uvinthread,
+	testniinmt = niinmt,
+	testuvcycle = uvcycle,
+	testdebuginfo = debuginfo
 }
 
 buf = pluto.persist(perms, rootobj)

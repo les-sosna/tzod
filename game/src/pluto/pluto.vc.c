@@ -19,7 +19,7 @@
 #include "lua.h"
 #include "pluto.h"
 
-/* #define USE_PDEP */
+#define USE_PDEP
 
 #ifdef USE_PDEP
 #include "pdep/pdep.h"
@@ -42,9 +42,9 @@
 #include <string.h>
 
 
-#ifdef _DEBUG
- #define PLUTO_DEBUG
-#endif
+
+#define PLUTO_DEBUG
+
 
 
 
@@ -286,13 +286,6 @@ static void pushclosure(lua_State *L, Closure *closure)
 	LIF(A,pushobject)(L, &o);
 }
 
-static void pushstring(lua_State *L, TString *s)
-{
-	TValue o;
-	setsvalue(L, &o, s);
-	LIF(A,pushobject)(L, &o);
-}
-
 static void persistfunction(PersistInfo *pi)
 {
 					/* perms reftbl ... func */
@@ -426,57 +419,11 @@ static void persistproto(PersistInfo *pi)
 		}
 	}
 					/* perms reftbl ... proto */
-
 	/* Serialize code */
 	{
 		pi->writer(pi->L, &p->sizecode, sizeof(int), pi->ud);
 		pi->writer(pi->L, p->code, sizeof(Instruction) * p->sizecode, pi->ud);
 	}
-
-	/* Serialize upvalue names */
-	{
-		int i;
-		pi->writer(pi->L, &p->sizeupvalues, sizeof(int), pi->ud);
-		for(i=0; i<p->sizeupvalues; i++)
-		{
-			pushstring(pi->L, p->upvalues[i]);
-			persist(pi);
-			lua_pop(pi->L, 1);
-		}
-	}
-	/* Serialize local variable infos */
-	{
-		int i;
-		pi->writer(pi->L, &p->sizelocvars, sizeof(int), pi->ud);
-		for(i=0; i<p->sizelocvars; i++)
-		{
-			pushstring(pi->L, p->locvars[i].varname);
-			persist(pi);
-			lua_pop(pi->L, 1);
-
-			pi->writer(pi->L, &p->locvars[i].startpc, sizeof(int), pi->ud);
-			pi->writer(pi->L, &p->locvars[i].endpc, sizeof(int), pi->ud);
-		}
-	}
-
-	/* Serialize source string */
-	pushstring(pi->L, p->source);
-	persist(pi);
-	lua_pop(pi->L, 1);
-
-	/* Serialize line numbers */
-	{
-		pi->writer(pi->L, &p->sizelineinfo, sizeof(int), pi->ud);
-		if (p->sizelineinfo)
-		{
-			pi->writer(pi->L, p->lineinfo, sizeof(int) * p->sizelineinfo, pi->ud);
-		}
-	}
-
-	/* Serialize linedefined and lastlinedefined */
-	pi->writer(pi->L, &p->linedefined, sizeof(int), pi->ud);
-	pi->writer(pi->L, &p->lastlinedefined, sizeof(int), pi->ud);
-
 	/* Serialize misc values */
 	{
 		pi->writer(pi->L, &p->nups, sizeof(lu_byte), pi->ud);
@@ -828,7 +775,7 @@ int persist_l(lua_State *L)
 					/* (empty) */
 	lua_pushlstring(L, wi.buf, wi.buflen);
 					/* str */
-	LIF(M,freearray)(L, wi.buf, wi.buflen, char);
+	pdep_freearray(L, wi.buf, wi.buflen, char);
 	return 1;
 }
 
@@ -894,11 +841,11 @@ static void unpersiststring(UnpersistInfo *upi)
 	char* string;
 	lua_checkstack(upi->L, 1);
 	verify(LIF(Z,read)(&upi->zio, &length, sizeof(int)) == 0);
-	string = LIF(M,newvector)(upi->L, length, char);
+	string = pdep_newvector(upi->L, length, char);
 	verify(LIF(Z,read)(&upi->zio, string, length) == 0);
 	lua_pushlstring(upi->L, string, length);
 					/* perms reftbl sptbl ref str */
-	LIF(M,freearray)(upi->L, string, length, char);
+	pdep_freearray(upi->L, string, length, char);
 }
 
 static void unpersistspecialtable(int ref, UnpersistInfo *upi)
@@ -983,8 +930,8 @@ static void unpersisttable(int ref, UnpersistInfo *upi)
 
 static UpVal *makeupval(lua_State *L, int stackpos)
 {
-	UpVal *uv = LIF(M,new)(L, UpVal);
-	LIF(C,link)(L, (GCObject*)uv, LUA_TUPVAL);
+	UpVal *uv = pdep_new(L, UpVal);
+	pdep_link(L, (GCObject*)uv, LUA_TUPVAL);
 	uv->tt = LUA_TUPVAL;
 	uv->v = &uv->u.value;
 	uv->u.l.prev = NULL;
@@ -995,14 +942,14 @@ static UpVal *makeupval(lua_State *L, int stackpos)
 
 static Proto *makefakeproto(lua_State *L, lu_byte nups)
 {
-	Proto *p = LIF(F,newproto)(L);
+	Proto *p = pdep_newproto(L);
 	p->sizelineinfo = 1;
-	p->lineinfo = LIF(M,newvector)(L, 1, int);
+	p->lineinfo = pdep_newvector(L, 1, int);
 	p->lineinfo[0] = 1;
 	p->sizecode = 1;
-	p->code = LIF(M,newvector)(L, 1, Instruction);
+	p->code = pdep_newvector(L, 1, Instruction);
 	p->code[0] = CREATE_ABC(OP_RETURN, 0, 1, 0);
-	p->source = LIF(S,newlstr)(L, "", 0);
+	p->source = pdep_newlstr(L, "", 0);
 	p->maxstacksize = 2;
 	p->nups = nups;
 	p->sizek = 0;
@@ -1020,7 +967,7 @@ static Proto *makefakeproto(lua_State *L, lu_byte nups)
 static void boxupval_start(lua_State *L)
 {
 	LClosure *lcl;
-	lcl = (LClosure*)LIF(F,newLclosure)(L, 1, hvalue(&L->l_gt));
+	lcl = (LClosure*)pdep_newLclosure(L, 1, hvalue(&L->l_gt));
 	pushclosure(L, (Closure*)lcl);
 					/* ... func */
 	lcl->p = makefakeproto(L, 1);
@@ -1035,6 +982,7 @@ static void boxupval_start(lua_State *L)
 static void boxupval_finish(lua_State *L)
 {
 					/* ... func obj */
+	UpVal *uv;
 	LClosure *lcl = (LClosure *) clvalue(getobject(L, -2));
 
 	lcl->upvals[0]->u.value = *getobject(L, -1);
@@ -1066,7 +1014,7 @@ static void unpersistfunction(int ref, UnpersistInfo *upi)
 
 	verify(LIF(Z,read)(&upi->zio, &nupvalues, sizeof(lu_byte)) == 0);
 
-	lcl = (LClosure*)LIF(F,newLclosure)(upi->L, nupvalues, hvalue(&upi->L->l_gt));
+	lcl = (LClosure*)pdep_newLclosure(upi->L, nupvalues, hvalue(&upi->L->l_gt));
 	pushclosure(upi->L, (Closure*)lcl);
 
 					/* perms reftbl ... func */
@@ -1128,8 +1076,10 @@ static void unpersistfunction(int ref, UnpersistInfo *upi)
 static void unpersistupval(int ref, UnpersistInfo *upi)
 {
 					/* perms reftbl ... */
+	UpVal *uv;
 	lua_checkstack(upi->L, 2);
 
+	/* the upval will initially point to nil */
 	boxupval_start(upi->L);
 					/* perms reftbl ... func */
 	registerobject(ref, upi);
@@ -1151,11 +1101,11 @@ static void unpersistproto(int ref, UnpersistInfo *upi)
 	 * particular, we need to give the function a valid string for its
 	 * source, and valid code, even before we actually read in the real
 	 * code. */
-	TString *source = LIF(S,newlstr)(upi->L, "", 0);
-	p = LIF(F,newproto)(upi->L);
+	TString *source = pdep_newlstr(upi->L, "", 0);
+	p = pdep_newproto(upi->L);
 	p->source = source;
 	p->sizecode=1;
-	p->code = LIF(M,newvector)(upi->L, 1, Instruction);
+	p->code = pdep_newvector(upi->L, 1, Instruction);
 	p->code[0] = CREATE_ABC(OP_RETURN, 0, 1, 0);
 	p->maxstacksize = 2;
 	p->sizek = 0;
@@ -1206,59 +1156,6 @@ static void unpersistproto(int ref, UnpersistInfo *upi)
 		verify(LIF(Z,read)(&upi->zio, p->code,
 			sizeof(Instruction) * p->sizecode) == 0);
 	}
-
-	/* Read in upvalue names */
-	{
-		verify(LIF(Z,read)(&upi->zio, &p->sizeupvalues, sizeof(int)) == 0);
-		if (p->sizeupvalues)
-		{
-			LIF(M,reallocvector)(upi->L, p->upvalues, 0, p->sizeupvalues, TString *);
-			for(i=0; i<p->sizeupvalues; i++)
-			{
-				unpersist(upi);
-				p->upvalues[i] = LIF(S,newlstr)(upi->L, lua_tostring(upi->L, -1), strlen(lua_tostring(upi->L, -1)));
-				lua_pop(upi->L, 1);
-			}
-		}
-	}
-
-	/* Read in local variable infos */
-	{
-		verify(LIF(Z,read)(&upi->zio, &p->sizelocvars, sizeof(int)) == 0);
-		if (p->sizelocvars)
-		{
-			LIF(M,reallocvector)(upi->L, p->locvars, 0, p->sizelocvars, LocVar);
-			for(i=0; i<p->sizelocvars; i++)
-			{
-				unpersist(upi);
-				p->locvars[i].varname = LIF(S,newlstr)(upi->L, lua_tostring(upi->L, -1), strlen(lua_tostring(upi->L, -1)));
-				lua_pop(upi->L, 1);
-
-				verify(LIF(Z,read)(&upi->zio, &p->locvars[i].startpc, sizeof(int)) == 0);
-				verify(LIF(Z,read)(&upi->zio, &p->locvars[i].endpc, sizeof(int)) == 0);
-			}
-		}
-	}
-
-	/* Read in source string*/
-	unpersist(upi);
-	p->source = LIF(S,newlstr)(upi->L, lua_tostring(upi->L, -1), strlen(lua_tostring(upi->L, -1)));
-	lua_pop(upi->L, 1);
-
-	/* Read in line numbers */
-	{
-		verify(LIF(Z,read)(&upi->zio, &p->sizelineinfo, sizeof(int)) == 0);
-		if (p->sizelineinfo)
-		{
-			LIF(M,reallocvector)(upi->L, p->lineinfo, 0, p->sizelineinfo, int);
-			verify(LIF(Z,read)(&upi->zio, p->lineinfo,
-			sizeof(int) * p->sizelineinfo) == 0);
-		}
-	}
-
-	/* Read in linedefined and lastlinedefined */
-	verify(LIF(Z,read)(&upi->zio, &p->linedefined, sizeof(int)) == 0);
-	verify(LIF(Z,read)(&upi->zio, &p->lastlinedefined, sizeof(int)) == 0);
 
 	/* Read in misc values */
 	{
@@ -1652,7 +1549,7 @@ static luaL_reg pluto_reg[] = {
 	{ NULL, NULL }
 };
 
-LUALIB_API int luaopen_pluto(lua_State *L) {
-	luaL_register(L, "pluto", pluto_reg);
+__declspec(dllexport) LUALIB_API int luaopen_pluto(lua_State *L) {
+	luaL_openlib(L, "pluto", pluto_reg, 0);
 	return 1;
 }

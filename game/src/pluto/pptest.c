@@ -6,7 +6,6 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
-#include "pluto.h"
 
 static int LUAF_createludata(lua_State *L)
 {
@@ -63,7 +62,14 @@ static int LUAF_unboxboolean(lua_State *L)
 
 static int LUAF_onerror(lua_State *L)
 {
-	const char* str = lua_tostring(L, -1);
+	
+	const char* str = 0;
+	if(lua_gettop(L) != 0)
+	{
+		str = lua_tostring(L, -1);
+		printf("%s\n",str);
+	}
+	return 0;
 }
 
 int main()
@@ -71,7 +77,6 @@ int main()
 	lua_State* L = lua_open();
 
 	luaL_openlibs(L);
-	pluto_open(L);
 	lua_settop(L, 0);
 
 	lua_register(L, "createludata", LUAF_createludata);

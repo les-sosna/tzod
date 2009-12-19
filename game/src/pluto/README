@@ -15,8 +15,12 @@ Pluto has the following major features:
 * Support for "invariant" permanent objects, of all datatypes
 * Can invoke metafunctions for custom persistence of tables and userdata
 
-Pluto 2.0 requires Lua 5.1 or later. If you need to use Pluto with Lua
+Pluto 2.2 requires Lua 5.1.3. If you need to use Pluto with Lua
 5.0, please use version 1.2 of Pluto.
+
+Starting with version 2.2, Pluto no longer depends on the Lua sources.
+Instead, it subsumes the required headers into its own codebase.
+As a result, it may not work properly with Lua version 5.1.4 or later.
 
 Pluto may have bugs. Users are advised to define lua_assert in 
 luaconf.h to something useful when compiling in debug mode, to catch
