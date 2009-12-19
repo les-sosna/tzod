@@ -513,10 +513,10 @@ void Level::Unserialize(const char *fileName)
 					reinterpret_cast<FS::Stream*>(data)->Read(buf, sizeof(buf));
 					*sz = sizeof(buf);
 				}
-				catch( const std::exception & )
+				catch( const std::exception &e )
 				{
 					*sz = 0;
-					return NULL;
+					luaL_error(L, "[file read] %s", e.what());
 				}
 				return buf;
 			}
@@ -544,17 +544,17 @@ void Level::Unserialize(const char *fileName)
 		};
 		if( lua_cpcall(g_env.L, &ReadHelper::read_user, GetRawPtr(stream)) )
 		{
-			const char *err = lua_tostring(g_env.L, -1);
-			GetConsole().WriteLine(1, err);
+			std::string err = "[pluto read user] ";
+			err += lua_tostring(g_env.L, -1);
 			lua_pop(g_env.L, 1);
-			throw std::runtime_error("ERROR: pluto user");
+			throw std::runtime_error(err);
 		}
 		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, GetRawPtr(stream)) )
 		{
-			const char *err = lua_tostring(g_env.L, -1);
-			GetConsole().WriteLine(1, err);
+			std::string err = "[pluto read queue] ";
+			err += lua_tostring(g_env.L, -1);
 			lua_pop(g_env.L, 1);
-			throw std::runtime_error("ERROR: pluto queue");
+			throw std::runtime_error(err);
 		}
 
 		// apply the theme
@@ -578,7 +578,6 @@ void Level::Unserialize(const char *fileName)
 
 void Level::Serialize(const char *fileName)
 {
-	assert(!IsEmpty());
 	assert(IsSafeMode());
 
 	PauseGame(true); // FIXME: exception safety
@@ -648,7 +647,7 @@ void Level::Serialize(const char *fileName)
 			}
 			catch( const std::exception &e )
 			{
-				GetConsole().WriteLine(1, e.what());
+				return luaL_error(L, "[file write] %s", e.what());
 			}
 			return 0;
 		}
@@ -676,17 +675,17 @@ void Level::Serialize(const char *fileName)
 	};
 	if( lua_cpcall(g_env.L, &WriteHelper::write_user, GetRawPtr(stream)) )
 	{
-		const char *err = lua_tostring(g_env.L, -1);
-		GetConsole().WriteLine(1, err);
+		std::string err = "[pluto write user] ";
+		err += lua_tostring(g_env.L, -1);
 		lua_pop(g_env.L, 1);
-		throw std::runtime_error("ERROR: writing pluto user");
+		throw std::runtime_error(err);
 	}
 	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, GetRawPtr(stream)) )
 	{
-		const char *err = lua_tostring(g_env.L, -1);
-		GetConsole().WriteLine(1, err);
+		std::string err = "[pluto write queue] ";
+		err += lua_tostring(g_env.L, -1);
 		lua_pop(g_env.L, 1);
-		throw std::runtime_error("ERROR: writing pluto queue");
+		throw std::runtime_error(err);
 	}
 
 
