@@ -18,18 +18,19 @@ class SaveFile
 	bool _load;
 
 public:
-	SaveFile(SafePtr<FS::Stream> &s, bool loading);
+	SaveFile(const SafePtr<FS::Stream> &s, bool loading);
 
 	bool loading() const
 	{
 		return _load;
 	}
 
+	FS::Stream* GetStream() const { return GetRawPtr(_stream); }
 
 	void Serialize(string_t &str);
 
 	template<class T>
-	void Serialize(T &obj);
+	void Serialize(T &value);
 
 	template<class T>
 	void Serialize(SafePtr<T> &ptr);
@@ -38,15 +39,19 @@ public:
 	void SerializeArray(T *p, size_t count);
 
 	void RegPointer(GC_Object *ptr);
+	size_t GetPointerId(GC_Object *ptr) const;
+	GC_Object* RestorePointer(size_t id) const;
 
 private:
 	template<class T>
-	void Serialize(const T &obj);
+	void Serialize(const T &);
 	template<class T>
-	void Serialize(const SafePtr<T> &ptr);
+	void Serialize(const SafePtr<T> &);
 	template<class T>
 	void Serialize(T *) {assert(!"you are not allowed to serialize raw pointers");}
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 template<class T>
 void SaveFile::Serialize(T &obj)
@@ -68,11 +73,10 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 		Serialize(id);
 		if( id )
 		{
-			if( _indexToPtr.size() <= id )
-				throw std::runtime_error("ERROR: invalid links");
-			if( !dynamic_cast<T*>(_indexToPtr[id]) )
+			GC_Object *raw = RestorePointer(id);
+			if( !dynamic_cast<T*>(raw) )
 				throw std::runtime_error("ERROR: invalid object pointer");
-			ptr = WrapRawPtr(static_cast<T*>(_indexToPtr[id]));
+			ptr = WrapRawPtr(static_cast<T*>(raw));
 		}
 		else
 		{
@@ -87,8 +91,7 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 		}
 		else
 		{
-			assert(_ptrToIndex.count(GetRawPtr(ptr)));
-			id = _ptrToIndex[GetRawPtr(ptr)];
+			id = GetPointerId(GetRawPtr(ptr));
 		}
 		Serialize(id);
 	}

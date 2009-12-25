@@ -14,6 +14,7 @@
 #include "ui/gui.h"
 
 #include "fs/FileSystem.h"
+#include "fs/SaveFile.h"
 
 #include "sound/MusicPlayer.h"
 
@@ -35,7 +36,8 @@ void luaT_pushobject(lua_State *L, GC_Object *obj)
 	luaL_getmetatable(L, "object");
 	lua_setmetatable(L, -2);
 	*ppObj = obj;
-	(*ppObj)->AddRef();
+	if( *ppObj )
+		(*ppObj)->AddRef();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,9 +47,34 @@ static int luaT_objfinalizer(lua_State *L)
 {
 	assert(1 == lua_gettop(L));
 	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, 1);
-	assert(*ppObj);
-	(*ppObj)->Release();
+	if( *ppObj )
+		(*ppObj)->Release();
 	return 0;
+}
+
+static int luaT_objpersist(lua_State *L)
+{
+	assert(3 == lua_gettop(L));
+	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, 1);
+	if( *ppObj && (*ppObj)->IsKilled() )
+	{
+		(*ppObj)->Release();
+		(*ppObj) = NULL;
+	}
+	SaveFile *f = (SaveFile *) lua_touserdata(L, 3);
+	assert(f);
+
+	if( luaL_loadstring(L,
+		"return function(restore_ptr, id) return function() return restore_ptr(id) end end") )
+	{
+		return lua_error(L); // use error message on stack
+	}
+	lua_call(L, 0, 1);
+
+	lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
+	lua_pushlightuserdata(L, (void *) (*ppObj ? f->GetPointerId(*ppObj) : 0));
+	lua_call(L, 2, 1);
+	return 1;
 }
 
 static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
@@ -68,7 +95,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 	{
 		if( !*ppObj || (*ppObj)->IsKilled() )
 		{
-			luaL_argerror(L, n, "object does not exist");
+			luaL_argerror(L, n, "reference to dead object");
 		}
 		else
 		{
@@ -1037,6 +1064,9 @@ lua_State* script_open(void)
 	luaL_newmetatable(L, "object");
 	 lua_pushstring(L, "__gc");
 	  lua_pushcfunction(L, luaT_objfinalizer);
+	   lua_settable(L, -3);
+	 lua_pushstring(L, "__persist");
+	  lua_pushcfunction(L, luaT_objpersist);
 	   lua_settable(L, -3);
 	 lua_pop(L, 1); // pop the metatable
 

@@ -2,7 +2,6 @@ save screenshots in jpg or png
 
 Save/Load
  - user objects serialization - custom textures are not saved
- - save references to objects
  - save lua classes table
  - save lua gc table (?)
  - music track

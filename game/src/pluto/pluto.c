@@ -53,6 +53,7 @@
 #endif
 
 #define PLUTO_TPERMANENT 101
+#define PLUTO_PASS_USERDATA_TO_PERSIST
 
 #define verify(x) { int v = (int)((x)); v=v; lua_assert(v); }
 

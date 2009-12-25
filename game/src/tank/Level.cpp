@@ -525,6 +525,9 @@ void Level::Unserialize(const char *fileName)
 				void *ud = lua_touserdata(L, 1);
 				lua_settop(L, 0);
 				lua_newtable(g_env.L);       // permanent objects
+				lua_pushstring(L, "any_id_12345");
+				lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
+				lua_settable(L, -3);
 				pluto_unpersist(L, &r, ud);
 				lua_setglobal(L, "user");    // unpersisted object
 				return 0;
@@ -541,7 +544,28 @@ void Level::Unserialize(const char *fileName)
 				lua_setupvalue(L, -2, 1);    // unpersisted object
 				return 0;
 			}
+			static int restore_ptr(lua_State *L)
+			{
+				assert(1 == lua_gettop(L));
+				size_t id = (size_t) lua_touserdata(L, 1);
+				SaveFile *f = (SaveFile *) lua_touserdata(L, lua_upvalueindex(1));
+				assert(f);
+				GC_Object *obj;
+				try
+				{
+					obj = id ? f->RestorePointer(id) : NULL;
+				}
+				catch( const std::exception &e )
+				{
+					return luaL_error(L, "%s", e.what());
+				}
+				luaT_pushobject(L, obj);
+				return 1;
+			}
 		};
+		lua_pushlightuserdata(g_env.L, &f);
+		lua_pushcclosure(g_env.L, &ReadHelper::restore_ptr, 1);
+		lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
 		if( lua_cpcall(g_env.L, &ReadHelper::read_user, GetRawPtr(stream)) )
 		{
 			std::string err = "[pluto read user] ";
@@ -643,7 +667,7 @@ void Level::Serialize(const char *fileName)
 		{
 			try
 			{
-				reinterpret_cast<FS::Stream*>(ud)->Write(p, sz);
+				reinterpret_cast<SaveFile*>(ud)->GetStream()->Write(p, sz);
 			}
 			catch( const std::exception &e )
 			{
@@ -656,6 +680,9 @@ void Level::Serialize(const char *fileName)
 			void *ud = lua_touserdata(L, 1);
 			lua_settop(L, 0);
 			lua_newtable(g_env.L);       // permanent objects
+			lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
+			lua_pushstring(L, "any_id_12345");
+			lua_settable(L, -3);
 			lua_getglobal(L, "user");    // object to persist
 			pluto_persist(L, &w, ud);
 			return 0;
@@ -673,20 +700,23 @@ void Level::Serialize(const char *fileName)
 			return 0;
 		}
 	};
-	if( lua_cpcall(g_env.L, &WriteHelper::write_user, GetRawPtr(stream)) )
+	lua_newuserdata(g_env.L, 0); // placeholder for restore_ptr
+	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
+	if( lua_cpcall(g_env.L, &WriteHelper::write_user, &f) )
 	{
 		std::string err = "[pluto write user] ";
 		err += lua_tostring(g_env.L, -1);
 		lua_pop(g_env.L, 1);
 		throw std::runtime_error(err);
 	}
-	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, GetRawPtr(stream)) )
+	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, &f) )
 	{
 		std::string err = "[pluto write queue] ";
 		err += lua_tostring(g_env.L, -1);
 		lua_pop(g_env.L, 1);
 		throw std::runtime_error(err);
 	}
+	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
 
 
 	PauseGame(false);
