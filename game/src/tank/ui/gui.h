@@ -147,6 +147,7 @@ public:
 		const char *btn2 = NULL,
 		const char *btn3 = NULL
 	);
+	virtual ~ScriptMessageBox();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

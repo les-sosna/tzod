@@ -1167,7 +1167,7 @@ void Level::TimeStep(float dt)
 	float dt_fixed = g_client ? 1.0f / g_conf.sv_fps.GetFloat() : dt;
 
 	int ctrlSent = 0;
-	while( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
+	while( !_frozen && _ctrlSentCount <= g_conf.cl_latency.GetInt() )
 	{
 		//
 		// read controller state for local players

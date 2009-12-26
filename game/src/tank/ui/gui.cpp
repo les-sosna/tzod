@@ -781,15 +781,12 @@ void EditBotDlg::OnChangeSkin(int index)
 void ScriptMessageBox::RunScript(int btn)
 {
 	lua_rawgeti(g_env.L, LUA_REGISTRYINDEX, _handler);
-	luaL_unref(g_env.L, LUA_REGISTRYINDEX, _handler);
-
 	lua_pushinteger(g_env.L, btn);
 	if( lua_pcall(g_env.L, 1, 0, 0) )
 	{
 		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 		lua_pop(g_env.L, 1); // pop the error message from the stack
 	}
-
 	Destroy();
 }
 
@@ -814,6 +811,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
                                     const char *btn2,
                                     const char *btn3)
   : Window(parent)
+  , _handler(handler)
 {
 	assert(text);
 	assert(btn1);
@@ -822,7 +820,6 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	SetDrawBorder(true);
 	BringToBack();
 
-	_handler = handler;
 	_text = Text::Create(this, 10, 10, text, alignTextLT);
 
 	_button1 = Button::Create(this, btn1, 0, _text->GetHeight() + 20);
@@ -837,7 +834,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 
 
 	Resize(w, h);
-	Move(ceilf((GetParent()->GetWidth() - w) / 2), ceilf((GetParent()->GetHeight() - h) / 2));
+	Move(ceil((GetParent()->GetWidth() - w) / 2), ceil((GetParent()->GetHeight() - h) / 2));
 
 	_button1->Move(w - 10 - _button1->GetWidth(), _button1->GetY());
 
@@ -861,6 +858,11 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	{
 		_button3 = NULL;
 	}
+}
+
+ScriptMessageBox::~ScriptMessageBox()
+{
+	luaL_unref(g_env.L, LUA_REGISTRYINDEX, _handler);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
