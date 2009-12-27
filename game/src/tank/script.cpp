@@ -83,23 +83,25 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 	// resolve by reference
 	//
 
-	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, n);
-
-	lua_getmetatable(L, -1);
-	luaL_getmetatable(L, "object");
-	if( !lua_rawequal(L, -1, -2) )
-		ppObj = NULL;
-	lua_pop(L, 2);
-
-	if( ppObj )
+	if( GC_Object **ppObj = (GC_Object **) lua_touserdata(L, n) )
 	{
-		if( !*ppObj || (*ppObj)->IsKilled() )
+		if( lua_getmetatable(L, n) )
 		{
-			luaL_argerror(L, n, "reference to dead object");
-		}
-		else
-		{
-			return *ppObj;
+			luaL_getmetatable(L, "object");
+			if( !lua_rawequal(L, -1, -2) )
+			{
+				luaL_argerror(L, n, "not an object reference");
+			}
+			lua_pop(L, 2); // pop both tables
+
+			if( !*ppObj || (*ppObj)->IsKilled() )
+			{
+				luaL_argerror(L, n, "reference to dead object");
+			}
+			else
+			{
+				return *ppObj;
+			}
 		}
 	}
 

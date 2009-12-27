@@ -126,7 +126,7 @@ function user.OnDestroyGenerator()
 --            freeze(true)
             service("msgbox", {
                    on_select=[[
-                     dofile("scripts/init.lua")
+                     dofile("data/scripts/init.lua")
                    ]],
                    text="  Дополнительная информация по скриптам:\n    http://ru.zod.wikia.com\n\n" ..
                    "  Задавайте вопросы на форуме:\n    http://zod.borda.ru\n\n" .. 
