@@ -1,4 +1,4 @@
-list of known bags
+list of known bugs
 
 bots' night lights
 
