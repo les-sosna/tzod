@@ -2,6 +2,24 @@
 -- defines some usefull functions
 
 
+function msgbox(handler_func, text, option1, option2, option3)
+ print "msgbox function is deprecated; use service \"msgbox\" instead"
+ if exists "__msgbox_deprecated_workaround_service" then 
+  kill "__msgbox_deprecated_workaround_service"
+ end
+ user.__msgbox_deprecated_workaround_handler = handler_func
+ service("msgbox", {
+  name="__msgbox_deprecated_workaround_service",
+  on_select=[[
+    user.__msgbox_deprecated_workaround_handler(n)
+    user.__msgbox_deprecated_workaround_handler = nil
+  ]],
+  option1=option1 or "OK",
+  option2=option2,
+  option3=option3,
+ })
+end
+
 
 -- makes a deep copy of a given table (the 2nd param is optional and for internal use)
 -- circular dependencies are correctly copied.

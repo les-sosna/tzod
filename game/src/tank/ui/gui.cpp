@@ -778,44 +778,29 @@ void EditBotDlg::OnChangeSkin(int index)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ScriptMessageBox::RunScript(int btn)
-{
-	lua_rawgeti(g_env.L, LUA_REGISTRYINDEX, _handler);
-	lua_pushinteger(g_env.L, btn);
-	if( lua_pcall(g_env.L, 1, 0, 0) )
-	{
-		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-		lua_pop(g_env.L, 1); // pop the error message from the stack
-	}
-	Destroy();
-}
-
 void ScriptMessageBox::OnButton1()
 {
-	RunScript(1);
+	INVOKE(eventSelect) (1);
 }
 
 void ScriptMessageBox::OnButton2()
 {
-	RunScript(2);
+	INVOKE(eventSelect) (2);
 }
 
 void ScriptMessageBox::OnButton3()
 {
-	RunScript(3);
+	INVOKE(eventSelect) (3);
 }
 
-ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
-                                    const char *text,
-                                    const char *btn1,
-                                    const char *btn2,
-                                    const char *btn3)
+ScriptMessageBox::ScriptMessageBox( Window *parent,
+                                    const string_t &title,
+                                    const string_t &text,
+                                    const string_t &btn1,
+                                    const string_t &btn2,
+                                    const string_t &btn3)
   : Window(parent)
-  , _handler(handler)
 {
-	assert(text);
-	assert(btn1);
-
 	SetTexture("ui/window", false);
 	SetDrawBorder(true);
 	BringToBack();
@@ -825,7 +810,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	_button1 = Button::Create(this, btn1, 0, _text->GetHeight() + 20);
 	_button1->eventClick.bind(&ScriptMessageBox::OnButton1, this);
 
-	int nbtn = 1 + (btn2 != NULL) + (btn3 != NULL);
+	int nbtn = 1 + !btn2.empty() + !(btn3.empty() || btn2.empty());
 
 	float by = _text->GetHeight() + 20;
 	float bw = _button1->GetWidth();
@@ -839,17 +824,18 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	_button1->Move(w - 10 - _button1->GetWidth(), _button1->GetY());
 
 
-	if( btn2 )
+	if( !btn2.empty() )
 	{
 		_button2 = Button::Create(this, btn2, _button1->GetX() - 10 - bw, by);
 		_button2->eventClick.bind(&ScriptMessageBox::OnButton2, this);
+
 	}
 	else
 	{
 		_button2 = NULL;
 	}
 
-	if( btn3 )
+	if( !btn2.empty() && !btn3.empty() )
 	{
 		_button3 = Button::Create(this, btn3, _button2->GetX() - 10 - bw, by);
 		_button3->eventClick.bind(&ScriptMessageBox::OnButton3, this);
@@ -858,11 +844,6 @@ ScriptMessageBox::ScriptMessageBox( Window *parent, int handler,
 	{
 		_button3 = NULL;
 	}
-}
-
-ScriptMessageBox::~ScriptMessageBox()
-{
-	luaL_unref(g_env.L, LUA_REGISTRYINDEX, _handler);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -722,6 +722,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\tank\gc\MessageBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\tank\gc\MessageBox.h"
+				>
+			</File>
+			<File
 				RelativePath="src\tank\gc\notify.h"
 				>
 			</File>

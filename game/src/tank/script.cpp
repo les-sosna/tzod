@@ -177,27 +177,6 @@ static int luaT_reset(lua_State *L)
 	return 0;
 }
 
-// msgbox(handler, "text", "btn1 text")
-static int luaT_msgbox(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( n > 5 || 2 > n )
-		return luaL_error(L, "wrong number of arguments: 2-5 expected, got %d", n);
-
-	luaL_checktype(L, 1, LUA_TFUNCTION);
-	const char *text = luaL_checkstring(L, 2);
-	const char *btn1 = lua_tostring(L, 3);
-	const char *btn2 = lua_tostring(L, 4);
-	const char *btn3 = lua_tostring(L, 5);
-
-	lua_pushvalue(L, 1);
-	int handler = luaL_ref(L, LUA_REGISTRYINDEX);
-
-	new UI::ScriptMessageBox(g_gui->GetDesktop(), handler, text, btn1 ? btn1 : "OK", btn2, btn3);
-
-	return 0;
-}
-
 // start/stop the timer
 static int luaT_pause(lua_State *L)
 {
@@ -1097,8 +1076,6 @@ lua_State* script_open(void)
 	lua_register(L, "exists",   luaT_exists);
 	lua_register(L, "position", luaT_position);
 	lua_register(L, "objtype",  luaT_objtype);
-
-	lua_register(L, "msgbox",   luaT_msgbox);
 
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);

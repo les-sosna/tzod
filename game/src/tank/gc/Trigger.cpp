@@ -120,7 +120,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 		if( _veh )
 		{
 			std::stringstream buf;
-			buf << "return function(who)";
+			buf << "return function(self,who)";
 			buf << _onEnter;
 			buf << "\nend";
 
@@ -138,8 +138,9 @@ void GC_Trigger::TimeStepFixed(float dt)
 				}
 				else
 				{
+					luaT_pushobject(g_env.L, this);
 					luaT_pushobject(g_env.L, GetRawPtr(_veh));
-					if( lua_pcall(g_env.L, 1, 0, 0) )
+					if( lua_pcall(g_env.L, 2, 0, 0) )
 					{
 						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 						lua_pop(g_env.L, 1); // pop the error message from the stack

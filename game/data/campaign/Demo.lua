@@ -54,17 +54,21 @@ time = time + 2;
 pushcmd(function() message("   (попробуйте убить одну из стационарок)") end, time)
 
 time = time + 1;
-pushcmd(function() actor("respawn_point", 100, 300, {team=1}); service("player_local", {name="player", nick="Убийцо", team=1}) end, time)
+pushcmd(function() actor("respawn_point", 100, 300, {team=1}); user.p=service("player_local", {nick="Убийцо", team=1}) end, time)
 
 time = time + 3;
 pushcmd(function()
-          freeze(true)              -- ставим игру на паузу на время показа диалога
-          msgbox(function(btn)
-                   actor(({"weap_cannon", "weap_minigun", "weap_plazma"})[btn], 150, 200, {name="weap"})
-                   freeze(false)    -- снимаем с паузы
-                 end,
-                 "Какое оружие вы предпочитаете?", 
-                 "Тяж.пушка", "пулемет", "плазма")
+--          freeze(true)              -- ставим игру на паузу на время показа диалога
+          service("msgbox", {
+              on_select=[[
+                  user.w=actor(({"weap_cannon", "weap_minigun", "weap_plazma"})[n], 150, 200)
+--                  freeze(false)    -- снимаем с паузы
+              ]],
+              text="Какое оружие вы предпочитаете?", 
+              option1="Тяж.пушка",
+              option2="пулемет",
+              option3="плазма"
+          })
         end, time)
 
 
@@ -77,13 +81,13 @@ function user.TaskComplete1()
   pushcmd(function() message("Уберем игрока с поля...") end, time)
   
   time = time + 2;
-  pushcmd(function() kill("player") end, time)
+  pushcmd(function() kill(user.p) end, time)
   
   time = time + 3;
   pushcmd(function() message(" ...и оружие тоже надо убрать") end, time)
   
   time = time + 2;
-  pushcmd(function() kill("weap") end, time)
+  pushcmd(function() kill(user.w) end, time)
 
   time = time + 3;
   pushcmd(function() message("Рассмотрим более сложный пример") end, time)
@@ -97,7 +101,7 @@ function user.TaskComplete1()
   time = time + 4;
   pushcmd(function()
             message("В центре находится генератор. Уничтожте его!")
-            service("player_local", {name="player", nick="Агент 007"})
+            service("player_local", {nick="Агент 007"})
           end, time)
 end
 
@@ -119,13 +123,15 @@ function user.OnDestroyGenerator()
   
   time = time + 3
   pushcmd(function()
-            freeze(true)
-            msgbox(function()
+--            freeze(true)
+            service("msgbox", {
+                   on_select=[[
                      dofile("scripts/init.lua")
-                   end,
-                   "  Дополнительная информация по скриптам:\n    http://ru.zod.wikia.com\n\n" ..
+                   ]],
+                   text="  Дополнительная информация по скриптам:\n    http://ru.zod.wikia.com\n\n" ..
                    "  Задавайте вопросы на форуме:\n    http://zod.borda.ru\n\n" .. 
-                   "С вами был Insert.\n  Следите за новостями! =)")
+                   "С вами был Insert.\n  Следите за новостями! =)"
+            })
           end, time)
   
   
