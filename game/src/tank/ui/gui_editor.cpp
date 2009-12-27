@@ -468,10 +468,10 @@ void ServiceEditor::OnSize(float width, float height)
 		height - _btnCreate->GetHeight() - _margins);
 
 	_combo->Resize(width - _margins * 3 - _btnCreate->GetWidth());
-	_combo->Move(_margins, _btnCreate->GetY() + (_btnCreate->GetHeight() - _combo->GetHeight()) / 2);
+	_combo->Move(_margins, _btnCreate->GetY() + floor((_btnCreate->GetHeight() - _combo->GetHeight()) / 2 + 0.5f));
 
 	_list->Resize(width - 2*_list->GetX(), _btnCreate->GetY() - _list->GetY() - _margins);
-	_list->SetTabPos(1, _list->GetWidth() / 2);
+	_list->SetTabPos(1, floor(_list->GetWidth() / 2));
 }
 
 bool ServiceEditor::OnRawChar(int c)
