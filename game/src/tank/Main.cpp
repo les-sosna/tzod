@@ -165,11 +165,48 @@ static HWND CreateMainWnd(HINSTANCE hInstance)
 	return h;
 }
 
+namespace
+{
+	class ConsoleLog : public UI::IConsoleLog
+	{
+		FILE *_file;
+		ConsoleLog(const ConsoleLog&); // no copy
+		ConsoleLog& operator= (const ConsoleLog&);
+	public:
+		explicit ConsoleLog(const char *filename)
+			: _file(fopen(filename, "w"))
+		{
+		}
+		~ConsoleLog()
+		{
+			if( _file )
+				fclose(_file);
+		}
+
+		// IConsoleLog
+		virtual void WriteLine(int severity, const string_t &str)
+		{
+			if( _file )
+			{
+				fputs(str.c_str(), _file);
+				fputs("\n", _file);
+				fflush(_file);
+			}
+		}
+		virtual void Release()
+		{
+			delete this;
+		}
+	};
+}
+
 int APIENTRY WinMain( HINSTANCE, // hInstance
                       HINSTANCE, // hPrevInstance
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
+	GetConsole().SetLog(new ConsoleLog("log.txt"));
+
 	TCHAR buf[MAX_PATH];
 	GetModuleFileName(NULL, buf, MAX_PATH);
 
