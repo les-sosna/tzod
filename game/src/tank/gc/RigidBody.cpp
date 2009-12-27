@@ -162,7 +162,6 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 	case 0:
 		outNormal = deltaCrossRectDir > 0 ?
 			vec2d(-rectDirection.y, rectDirection.x) : vec2d(rectDirection.y, -rectDirection.x);
-
 		break;
 	case 1:
 		outNormal = deltaDotRectDir > 0 ? -rectDirection : rectDirection;
@@ -464,6 +463,8 @@ GC_Wall::~GC_Wall()
 {
 }
 
+static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
+
 bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal)
 {
 	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
@@ -492,7 +493,6 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 		if( fabs(deltaCrossDir) > lineProjW_abs / 2 + GetHalfWidth() )
 			return false;
 
-		static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
 		vec2d diagonal = Vec2dAddDirection(angles[corner-1], GetDirection());
 		float halfDiag = sqrt(GetHalfWidth()*GetHalfWidth() + GetHalfLength()*GetHalfLength());
 		float lineProjD = Vec2dDot(lineDirection, diagonal);
@@ -550,6 +550,198 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 	}
 }
 
+bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth)
+{
+	assert(!_isnan(rectHalfSize.x) && _finite(rectHalfSize.x));
+	assert(!_isnan(rectHalfSize.y) && _finite(rectHalfSize.y));
+	assert(!_isnan(rectCenter.x) && _finite(rectCenter.x));
+	assert(!_isnan(rectCenter.y) && _finite(rectCenter.y));
+	assert(!_isnan(rectDirection.x) && _finite(rectDirection.x));
+	assert(!_isnan(rectDirection.y) && _finite(rectDirection.y));
+
+	unsigned int corner = GetCorner();
+	if( corner )
+	{
+		vec2d delta = GetPos() - rectCenter;
+		float depth[5];
+
+		float projL = Vec2dDot(rectDirection, GetDirection());
+		float projW = Vec2dCross(rectDirection, GetDirection());
+		float projL_abs = fabs(projL);
+		float projW_abs = fabs(projW);
+
+		//
+		// project rectDirection to this axes
+		//
+
+		float halfProjThisL = projW_abs * rectHalfSize.x + projL_abs * rectHalfSize.y;
+		float deltaCrossDir = Vec2dCross(delta, GetDirection());
+		depth[2] = GetHalfWidth() + halfProjThisL - fabs(deltaCrossDir);
+		if( depth[2] < 0 ) return false;
+
+		float halfProjThisW = projL_abs * rectHalfSize.x + projW_abs * rectHalfSize.y;
+		float deltaDotDir = Vec2dDot(delta, GetDirection());
+		depth[3] = GetHalfLength() + halfProjThisW - fabs(deltaDotDir);
+		if( depth[3] < 0 ) return false;
+
+		vec2d diagonal = Vec2dAddDirection(angles[corner-1], GetDirection());
+		float halfDiag = sqrt(GetHalfWidth()*GetHalfWidth() + GetHalfLength()*GetHalfLength());
+		float deltaDotDiag = Vec2dDot(delta, diagonal);
+		float projLd = Vec2dDot(rectDirection, diagonal);
+		float projWd = Vec2dCross(rectDirection, diagonal);
+		float projLd_abs = fabs(projLd);
+		float projWd_abs = fabs(projWd);
+		float halfProjThisD = projLd_abs * rectHalfSize.x + projWd_abs * rectHalfSize.y;
+		depth[4] = halfDiag/2 + halfProjThisD - fabs(deltaDotDiag + halfDiag/2);
+		if( depth[4] < 0 ) return false;
+
+
+		//
+		// project this to rectDirection axes
+		//
+
+		float halfProjLineWp = projW_abs * GetHalfWidth();
+		float halfProjLineLp = projL_abs * GetHalfLength();
+		float halfProjLineDp = projLd_abs * halfDiag;
+		float halfProjRectL = std::max(halfProjLineWp, std::max(halfProjLineLp, halfProjLineDp));
+		vec2d offsetL = diagonal * (halfProjLineWp + halfProjLineLp - halfProjRectL);
+
+		float deltaCrossRectDir = Vec2dCross(delta, rectDirection);
+		depth[0] = rectHalfSize.y + halfProjRectL - fabs(Vec2dCross(delta+offsetL, rectDirection));
+		if( depth[0] < 0 ) return false;
+
+
+		float halfProjLineW = projL_abs * GetHalfWidth();
+		float halfProjLineL = projW_abs * GetHalfLength();
+		float halfProjLineD = projWd_abs * halfDiag;
+		float halfProjRectW = std::max(halfProjLineW, std::max(halfProjLineL, halfProjLineD));
+		vec2d offsetW = diagonal * (halfProjLineW + halfProjLineL - halfProjRectW);
+
+		float deltaDotRectDir = Vec2dDot(delta, rectDirection);
+		depth[1] = rectHalfSize.x + halfProjRectW - fabs(Vec2dDot(delta+offsetW, rectDirection));
+		if( depth[1] < 0 ) return false;
+
+
+		//
+		// calculate penetration depth
+		//
+
+		outDepth = depth[0];
+		unsigned int mdIndex = 0;
+		for( int i = 1; i < 5; ++i )
+		{
+			if( depth[i] < outDepth )
+			{
+				outDepth = depth[i];
+				mdIndex = i;
+			}
+		}
+		
+		// calc normal
+		switch( mdIndex )
+		{
+		case 0:
+			outNormal = deltaCrossRectDir > 0 ?
+				vec2d(-rectDirection.y, rectDirection.x) : vec2d(rectDirection.y, -rectDirection.x);
+			break;
+		case 1:
+			outNormal = deltaDotRectDir > 0 ? -rectDirection : rectDirection;
+			break;
+		case 2:
+			outNormal = deltaCrossDir > 0 ?
+				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+			break;
+		case 3:
+			outNormal = deltaDotDir > 0 ? -GetDirection() : GetDirection();
+			break;
+		case 4:
+			outNormal = -diagonal;
+			break;
+		default:
+			assert(false);
+		}
+
+
+		// contact manifold
+		float xx, xy, yx, yy;
+		float sign;
+		vec2d center;
+		unsigned int vcount = 0;
+		vec2d v[4];
+		if( mdIndex < 2 )
+		{
+			xx = GetHalfLength()*GetDirection().x;
+			xy = GetHalfLength()*GetDirection().y;
+			yx = GetHalfWidth()*GetDirection().x;
+			yy = GetHalfWidth()*GetDirection().y;
+			center = GetPos();
+			sign = -1;
+
+			if(corner != 1) v[vcount++].Set(xx - yy, yx + xy);
+			if(corner != 4) v[vcount++].Set(xx + yy, -yx + xy);
+			if(corner != 2) v[vcount++].Set(-xx - yy, yx - xy);
+			if(corner != 3) v[vcount++].Set(-xx + yy, -yx - xy);
+		}
+		else
+		{
+			xx = rectHalfSize.x*rectDirection.x;
+			xy = rectHalfSize.x*rectDirection.y;
+			yx = rectHalfSize.y*rectDirection.x;
+			yy = rectHalfSize.y*rectDirection.y;
+			center = rectCenter;
+			sign = 1;
+
+			vcount = 4;
+			v[0].Set(xx - yy, yx + xy);
+			v[1].Set(xx + yy, -yx + xy);
+			v[2].Set(-xx - yy, yx - xy);
+			v[3].Set(-xx + yy, -yx - xy);
+		}
+
+		unsigned int idx;
+		float mindot = 1e30;
+		for( unsigned int i = 0; i < vcount; ++i )
+		{
+			float dot = sign*Vec2dDot(outNormal, v[i]);
+			if( mindot > dot )
+			{
+				mindot = dot;
+				idx = i;
+			}
+		}
+
+		if( projLd_abs < 1e-3 || projWd_abs < 1e-3 || projL_abs < 1e-3 || projW_abs < 1e-3 )
+		{
+			// for edge-edge collision find second closest point
+			mindot = 1e30;
+			unsigned int idx2;
+			for( unsigned int i = 0; i < vcount; ++i )
+			{
+				if( i != idx )
+				{
+					float dot = sign*Vec2dDot(outNormal, v[i]);
+					if( mindot > dot )
+					{
+						mindot = dot;
+						idx2 = i;
+					}
+				}
+			}
+
+			outWhere = center + (v[idx] + v[idx2]) * 0.5f;
+		}
+		else
+		{
+			outWhere = center + v[idx];
+		}
+
+		return true;
+	}
+	else
+	{
+		return __super::CollideWithRect(rectHalfSize, rectCenter, rectDirection, outWhere, outNormal, outDepth);
+	}
+}
 
 void GC_Wall::Kill()
 {
