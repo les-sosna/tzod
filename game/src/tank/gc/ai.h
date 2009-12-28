@@ -36,6 +36,7 @@ protected:
 	{
 		typedef GC_Player::MyPropertySet BASE;
 		ObjectProperty _propLevel;
+		ObjectProperty _propActive;
 
 	public:
 		MyPropertySet(GC_Object *object);
@@ -149,6 +150,8 @@ protected:
 	float _backTime;
 	float _stickTime;
 
+	bool _isActive;
+
 protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);
 	void TowerTo (VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws);
@@ -166,6 +169,9 @@ protected:
 	void SelectState(const AIWEAPSETTINGS *ws);
 	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
+	void SetActive(bool active);
+	bool GetActive() const { return _isActive; }
+
 	virtual void Serialize(SaveFile &f);
 	virtual void MapExchange(MapFile &f);
 
@@ -181,6 +187,10 @@ public:
 
 	void SetLevel(int level) { _level = level; }
 	int  GetLevel() const { return _level; }
+
+	bool March(float x, float y);
+	bool Attack(GC_RigidBodyStatic *target);
+	bool Pickup(GC_Pickup *p);
 
 protected:
 	virtual unsigned short GetNetworkID() const { return 0; }

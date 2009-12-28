@@ -52,17 +52,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
 }
 
 GC_PlayerAI::GC_PlayerAI()
+  : _isActive(true)
+  , _desiredOffset(0)
+  , _currentOffset(0)
+  , _arrivalPoint(0,0)
+  , _level(2)
+  , _backTime(0)
+  , _stickTime(0)
+  , _favoriteWeaponType(INVALID_OBJECT_TYPE)
 {
-	_desiredOffset = 0;
-	_currentOffset = 0;
-	_arrivalPoint.Set(0,0);
-
-	_level = 2;
-	_backTime = 0;
-	_stickTime = 0;
-
-	_favoriteWeaponType = INVALID_OBJECT_TYPE;
-
 	SetL2(L2_PATH_SELECT);
 	SetL1(L1_NONE);
 }
@@ -91,6 +89,7 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	f.Serialize(_arrivalPoint);
 	f.Serialize(_backTime);
 	f.Serialize(_stickTime);
+	f.Serialize(_isActive);
 
 	if( f.loading() )
 	{
@@ -122,6 +121,7 @@ void GC_PlayerAI::MapExchange(MapFile &f)
 {
 	GC_Player::MapExchange(f);
 	MAP_EXCHANGE_INT(level, _level, 0);
+	MAP_EXCHANGE_INT(active, _isActive, true);
 }
 
 void GC_PlayerAI::TimeStepFixed(float dt)
@@ -246,7 +246,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	// send state to the vehicle
 	GetVehicle()->SetState(vs);
 	GetVehicle()->TimeStepFixed(dt);
-	if( GetVehicle() )
+	if( GetVehicle() ) // vehicle might be killed in its time step
 	{
 		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: cat tracks
 	}
@@ -915,18 +915,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 		}
 		else
 		{
-			assert(ii_item.object);
-			if( _pickupCurrent != ii_item.object )
-			{
-				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
-				               AI_MAX_DEPTH, false, ws) > 0 )
-				{
-					SmoothPath();
-				}
-				_pickupCurrent = SafePtrCast<GC_Pickup>(ii_item.object);
-			}
-			SetL2(L2_PICKUP);
-			SetL1(L1_NONE);
+			Pickup(GetRawPtr(SafePtrCast<GC_Pickup>(ii_item.object)));
 		}
 	}
 	else
@@ -956,10 +945,79 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	}
 }
 
+bool GC_PlayerAI::March(float x, float y)
+{
+	if( GetVehicle() )
+	{
+		AIWEAPSETTINGS ws;
+		if( GetVehicle()->GetWeapon() )
+			GetVehicle()->GetWeapon()->SetupAI(&ws);
+		if( CreatePath(x, y, AI_MAX_DEPTH, false, &ws) > 0 )
+		{
+			SmoothPath();
+			SetL1(L1_NONE);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool GC_PlayerAI::Attack(GC_RigidBodyStatic *target)
+{
+	if( GetVehicle() && GetVehicle()->GetWeapon() )
+	{
+		if( target )
+		{
+			LockTarget(WrapRawPtr(target));
+		}
+		else
+		{
+			FreeTarget();
+		}
+		return true;
+	}
+	return false;
+}
+
+
+bool GC_PlayerAI::Pickup(GC_Pickup *p)
+{
+	assert(p);
+	if( GetVehicle() )
+	{
+		if( _pickupCurrent != p )
+		{
+			AIWEAPSETTINGS ws;
+			if( GetVehicle()->GetWeapon() )
+				GetVehicle()->GetWeapon()->SetupAI(&ws);
+
+			if( CreatePath(p->GetPos().x, p->GetPos().y, AI_MAX_DEPTH, false, &ws) > 0 )
+			{
+				SmoothPath();
+				_pickupCurrent = WrapRawPtr(p);
+				SetL2(L2_PICKUP);
+				SetL1(L1_NONE);
+				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 //Оценка ситуации, принятие решения
 void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 {
 	assert(GetVehicle());
+	if( !_isActive )
+	{
+		return;
+	}
+	
 
 	GC_Pickup  *pItem = NULL;
 	GC_Vehicle *veh = NULL;
@@ -995,6 +1053,11 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 		}
 	} break;
 	}
+}
+
+void GC_PlayerAI::SetActive(bool active)
+{
+	_isActive = active;
 }
 
 // Исполнение принятого решения
@@ -1034,7 +1097,6 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 	if( !_path.empty() )
 	{
-
 		vec2d predictedProj;
 		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, NULL);
 
@@ -1295,6 +1357,7 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 
 void GC_PlayerAI::OnRespawn()
 {
+	_arrivalPoint = GetVehicle()->GetPos();
 	_jobManager.RegisterMember(this);
 	SelectFavoriteWeapon();
 }
@@ -1388,13 +1451,15 @@ PropertySet* GC_PlayerAI::NewPropertySet()
 GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propLevel( ObjectProperty::TYPE_INTEGER, "level" )
+  , _propActive( ObjectProperty::TYPE_INTEGER, "active" )
 {
 	_propLevel.SetIntRange(0, AI_MAX_LEVEL);
+	_propActive.SetIntRange(0, 1);
 }
 
 int GC_PlayerAI::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
@@ -1404,11 +1469,10 @@ ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
 
 	switch( index - BASE::GetCount() )
 	{
+	default: assert(false);
 	case 0: return &_propLevel;
+	case 1: return &_propActive;
 	}
-
-	assert(FALSE);
-	return NULL;
 }
 
 void GC_PlayerAI::MyPropertySet::MyExchange(bool applyToObject)
@@ -1420,10 +1484,12 @@ void GC_PlayerAI::MyPropertySet::MyExchange(bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->SetLevel( _propLevel.GetIntValue() );
+		tmp->SetActive( 0 != _propActive.GetIntValue() );
 	}
 	else
 	{
 		_propLevel.SetIntValue(tmp->_level);
+		_propActive.SetIntValue(tmp->GetActive());
 	}
 }
 

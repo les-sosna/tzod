@@ -8,6 +8,7 @@
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/pickup.h"
+#include "gc/ai.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -201,7 +202,8 @@ static int luaT_freeze(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-	g_level->Freeze( 0 != lua_toboolean(L, 1) );
+//	g_level->Freeze( 0 != lua_toboolean(L, 1) );
+	GetConsole().WriteLine(0, "freeze - function is unavailable in this version");
 
 	return 0;
 }
@@ -961,6 +963,55 @@ int luaT_equip(lua_State *L)
 	return 0;
 }
 
+// ai_attack(player, x, y)
+int luaT_ai_march(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 3 != n )
+	{
+		return luaL_error(L, "3 arguments expected; got %d", n);
+	}
+
+	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	float x = (float) luaL_checknumber(L, 2);
+	float y = (float) luaL_checknumber(L, 3);
+
+	lua_pushboolean(L, who->March(x, y));
+	return 1;
+}
+
+// ai_attack(player, target)
+int luaT_ai_attack(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+	{
+		return luaL_error(L, "2 argument expected; got %d", n);
+	}
+
+	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	GC_RigidBodyStatic *what = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
+
+	lua_pushboolean(L, who->Attack(what));
+	return 1;
+}
+
+// ai_pickup(player, target)
+int luaT_ai_pickup(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 2 != n )
+	{
+		return luaL_error(L, "2 argument expected; got %d", n);
+	}
+
+	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	GC_Pickup *what = luaT_checkobjectT<GC_Pickup>(L, 2);
+
+	lua_pushboolean(L, who->Pickup(what));
+	return 1;
+}
+
 int luaT_loadtheme(lua_State *L)
 {
 	int n = lua_gettop(L);
@@ -1078,6 +1129,10 @@ lua_State* script_open(void)
 	lua_register(L, "exists",   luaT_exists);
 	lua_register(L, "position", luaT_position);
 	lua_register(L, "objtype",  luaT_objtype);
+
+	lua_register(L, "ai_march", luaT_ai_march);
+	lua_register(L, "ai_attack",luaT_ai_attack);
+	lua_register(L, "ai_pickup",luaT_ai_pickup);
 
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
