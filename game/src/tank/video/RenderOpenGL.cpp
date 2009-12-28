@@ -170,7 +170,7 @@ bool RenderOpenGL::getDisplayMode(int index, DisplayMode *pMode) const
 		pMode->Height       = dmode.dmPelsHeight;
 		pMode->BitsPerPixel = dmode.dmBitsPerPel;
 		pMode->RefreshRate  = dmode.dmDisplayFrequency;
-		return res ? true : false; // to avoid warning
+		return FALSE != res;
 	}
 	return false;
 }

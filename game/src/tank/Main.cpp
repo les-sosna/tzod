@@ -281,18 +281,25 @@ bool ZodApp::Pre()
 
 	try
 	{
-		if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
+		// workaround - check if file exists
+		if( FILE *f = fopen(FILE_CONFIG, "r") )
 		{
-			int result = MessageBox(g_env.hMainWnd,
-				"Syntax error in the config file (see log). Default settings will be used.",
-				TXT_VERSION,
-				MB_ICONERROR | MB_OKCANCEL);
+			fclose(f);
 
-			if( IDOK != result )
+			if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
 			{
-				return false;
+				int result = MessageBox(g_env.hMainWnd,
+					"Failed to load config file. See log for details. Default settings will be used.",
+					TXT_VERSION,
+					MB_ICONERROR | MB_OKCANCEL);
+
+				if( IDOK != result )
+				{
+					return false;
+				}
 			}
 		}
+
 	}
 	catch( std::exception &e )
 	{
@@ -311,7 +318,7 @@ bool ZodApp::Pre()
 			TRACE("couldn't load language file " FILE_CONFIG);
 
 			int result = MessageBox(g_env.hMainWnd,
-				"Syntax error in the language file (see log). Continue with default (English) language?",
+				"Failed to load language file. See log for details. Continue with default (English) language?",
 				TXT_VERSION,
 				MB_ICONERROR | MB_OKCANCEL);
 

@@ -79,29 +79,25 @@ sub copy_dir
 
 
 mkdir "../out/Tank" or die "direcory 'out/Tank' is already exists";
+mkdir "../out/Tank/data" or die "direcory 'out/Tank/data' is already exists";
 
 # copy binary files from 'out/release'
 copy_dir("../out/release", "../out/Tank",
 	['.'], # ignore all
 	[      # but force this files
 		'tank\.exe$',
-#		'\.dll$',
 	],
 	0   # non-recursive
 );
 
-# copy resource files from 'workdir'
-copy_dir("../workdir", "../out/Tank",
+# copy resource files
+copy_dir("../data", "../out/Tank/data",
 	[      # ignore this files
-		'config\.cfg$',
+		'\.svn$',
 		'\.psd$',
 		'\.wav$',
 		'\.sav$',
 		'\.scc$',
-		'log\.txt$',
-		'server_trace\.txt$',
-		'network_dump\.txt$',
-		'chat\.txt$',
 		'screenshot\d+\.tga$',
 		'Копия fonts\.tga$',
 		'sounds\/interface',
@@ -109,6 +105,17 @@ copy_dir("../workdir", "../out/Tank",
 	],
 	undef, # force none
 	1      # recursive
+);
+
+# other stuff
+copy_dir("..", "../out/Tank",
+	['.'], # ignore all
+	[      # but force this files
+		'Readme\.txt$',
+		'History\.txt$',
+		'license\.txt$',
+	],
+	0   # non-recursive
 );
 
 print "Done.\n";

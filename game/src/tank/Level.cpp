@@ -1474,16 +1474,16 @@ void Level::RenderInternal(float zoom) const
 	}
 }
 
+#ifdef _DEBUG
 void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 {
-#ifdef _DEBUG
 	_dbgLineBuffer.push_back(MyLine());
 	MyLine &line = _dbgLineBuffer.back();
 	line.begin = v1;
 	line.end = v2;
 	line.color = color;
-#endif
 }
+#endif
 
 bool Level::IsGamePaused() const
 { 

@@ -490,7 +490,11 @@ protected:
 	//
 public:
 	mutable std::vector<MyLine> _dbgLineBuffer;
-	void DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color = 0x00ff00ff) const;
+	void DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color = 0x00ff00ff) const
+#ifndef _DEBUG
+	{} // do nothing in release mode
+#endif
+		;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
