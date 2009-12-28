@@ -50,7 +50,7 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
 	Button::Create(this, g_lang.single_player_btn.Get(), 0, GetHeight())->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
-	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this);
+	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())/*->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this)*/->SetEnabled(false);
 	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick.bind(&MainMenuDlg::OnEditor, this);
 	Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick.bind(&MainMenuDlg::OnSettings, this);
 	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick.bind(&MainMenuDlg::OnExit, this);
