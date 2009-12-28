@@ -390,25 +390,26 @@ OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeNa
 {
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
-	TCHAR *curDir = new TCHAR[len];
-	GetCurrentDirectory(len, curDir);
+	std::vector<TCHAR> curDir(len);
+	GetCurrentDirectory(len, &curDir[0]);
 
 	if( SetCurrentDirectory(rootDirectory.c_str()) )
 	{
 		DWORD tmpLen = GetCurrentDirectory(0, NULL);
-		TCHAR *tmp = new TCHAR[tmpLen];
-		GetCurrentDirectory(tmpLen, tmp);
-		_rootDirectory = tmp;
-		delete[] tmp;
+		std::vector<TCHAR> tmp(tmpLen);
+		GetCurrentDirectory(tmpLen, &tmp[0]);
+		_rootDirectory = &tmp[0];
 
-		SetCurrentDirectory(curDir);
+		// restore last current directory
+		if( !SetCurrentDirectory(&curDir[0]) )
+		{
+			throw std::runtime_error(StrFromErr(GetLastError()));
+		}
 	}
 	else
 	{
 		// error: nodeName doesn't exists or something nasty happened
 	}
-
-	delete[] curDir;
 }
 
 OSFileSystem::OSFileSystem(OSFileSystem *parent, const string_t &nodeName)
@@ -448,6 +449,11 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 	{
 		if( ERROR_FILE_NOT_FOUND == GetLastError() )
 		{
+			// restore last current directory
+			if( !SetCurrentDirectory(&buf[0]) )
+			{
+				throw std::runtime_error(StrFromErr(GetLastError()));
+			}
 			return; // nothing matches
 		}
 		throw std::runtime_error(StrFromErr(GetLastError()));
