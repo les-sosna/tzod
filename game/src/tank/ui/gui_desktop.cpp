@@ -337,6 +337,7 @@ void Desktop::OnCommand(const string_t &cmd)
 
 bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 {
+	assert(pos >= 0);
 	lua_getglobal(g_env.L, "autocomplete");
 	if( lua_isnil(g_env.L, -1) )
 	{
@@ -344,7 +345,7 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 		GetConsole().WriteLine(1, "There was no autocomplete module loaded");
 		return false;
 	}
-	lua_pushlstring(g_env.L, cmd.c_str(), cmd.length());
+	lua_pushlstring(g_env.L, cmd.substr(0, pos).c_str(), pos);
 	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
@@ -364,7 +365,7 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 			++pos;
 		}
 	}
-	lua_pop(g_env.L, 1); // pop result
+	lua_pop(g_env.L, 1); // pop result or error message
 	return true;
 }
 

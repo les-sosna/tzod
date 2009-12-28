@@ -197,6 +197,8 @@ bool Console::OnRawChar(int c)
 				_input->SetText(result);
 				_input->SetSel(pos, pos);
 			}
+			_scroll->SetPos(_scroll->GetDocumentSize());
+			_autoScroll = true;
 		}
 		break;
 	default:
