@@ -74,7 +74,7 @@ class Desktop
 
 public:
 	Desktop(LayoutManager* manager);
-	~Desktop();
+	virtual ~Desktop();
 
 	void ShowConsole(bool show);
 
