@@ -496,6 +496,7 @@ EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
   , _selectedObject(NULL)
   , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
+  , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
 {
 	SetTexture(NULL, false);
 
@@ -813,6 +814,14 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		dc->DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
 		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
+	vec2d mouse;
+	if( GC_Camera::GetWorldMousePos(mouse) )
+	{
+		std::stringstream buf;
+		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
+		dc->DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	}
+	
 	Window::DrawChildren(dc, sx, sy);
 }
 

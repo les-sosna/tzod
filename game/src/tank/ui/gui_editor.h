@@ -128,6 +128,7 @@ class EditorLayout : public Window
 	Text         *_layerDisp;
 	DefaultComboBox  *_typeList;
 	Text         *_help;
+	size_t        _fontSmall;
 
 	size_t       _selectionRect;
 
@@ -142,7 +143,7 @@ class EditorLayout : public Window
 
 public:
 	EditorLayout(Window *parent);
-	~EditorLayout();
+	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);
 	void SelectNone();
