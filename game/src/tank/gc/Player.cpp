@@ -631,31 +631,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		//
 		// movement
 		//
-		if( _moveToMouse )
-		{
-			vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
-			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
-
-			vec2d pt;
-			if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
-			{
-				vec2d tmp = pt - GetVehicle()->GetPos();
-				tmp.Normalize();
-				if( tmp * GetVehicle()->GetDirection() < 0 )
-				{
-					tmp = -tmp;
-					vs._bState_MoveBack    = true;
-				}
-				else
-				{
-					vs._bState_MoveForward = true;
-				}
-
-				vs._bExplicitBody = true;
-				vs._fBodyAngle = tmp.Angle();
-			}
-		}
-		else if( _arcadeStyle )
+		if( _arcadeStyle )
 		{
 			vec2d tmp(0, 0);
 			if( g_env.envInputs.keys[_keyForward] ) tmp.y -= 1;
@@ -683,6 +659,33 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
 			vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
 		}
+
+		if( _moveToMouse )
+		{
+			vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+
+			vec2d pt;
+			if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
+			{
+				vec2d tmp = pt - GetVehicle()->GetPos() - GetVehicle()->GetBrakingLength();
+				if( tmp.sqr() > 1 )
+				{
+					if( tmp * GetVehicle()->GetDirection() < 0 )
+					{
+						tmp = -tmp;
+						vs._bState_MoveBack    = true;
+					}
+					else
+					{
+						vs._bState_MoveForward = true;
+					}
+					vs._bExplicitBody = true;
+					vs._fBodyAngle = tmp.Angle();
+				}
+			}
+		}
+
 
 
 		//
