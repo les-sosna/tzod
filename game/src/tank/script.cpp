@@ -9,6 +9,7 @@
 #include "gc/vehicle.h"
 #include "gc/pickup.h"
 #include "gc/ai.h"
+#include "gc/Weapons.h" // for ugly workaround
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -1015,10 +1016,19 @@ int luaT_equip(lua_State *L)
 	GC_Vehicle *target = luaT_checkobjectT<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = luaT_checkobjectT<GC_Pickup>(L, 2);
 
-	if( pickup->GetCarrier() && pickup->GetCarrier() != target )
+	if( pickup->GetCarrier() != target )
 	{
-		pickup->Detach();
-		pickup->Attach(target);
+		if( pickup->GetCarrier() )
+			pickup->Detach();
+		// FIXME: ugly workaround
+		if( dynamic_cast<GC_pu_Booster*>(pickup) )
+		{
+			pickup->Attach(target->GetWeapon());
+		}
+		else
+		{
+			pickup->Attach(target);
+		}
 	}
 
 	return 0;
