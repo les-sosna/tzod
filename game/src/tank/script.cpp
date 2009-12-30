@@ -78,6 +78,82 @@ static int luaT_objpersist(lua_State *L)
 	return 1;
 }
 
+static void pushprop(lua_State *L, ObjectProperty *p)
+{
+	assert(L && p);
+	switch( p->GetType() )
+	{
+	case ObjectProperty::TYPE_INTEGER:
+		lua_pushinteger(L, p->GetIntValue());
+		break;
+	case ObjectProperty::TYPE_FLOAT:
+		lua_pushnumber(L, p->GetFloatValue());
+		break;
+	case ObjectProperty::TYPE_STRING:
+		lua_pushstring(L, p->GetStringValue().c_str());
+		break;
+	case ObjectProperty::TYPE_MULTISTRING:
+		lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
+		break;
+	default:
+		assert(false);
+	}
+}
+
+// generic __next support for object properties
+static int luaT_objnextprop(lua_State *L)
+{
+	lua_settop(L, 2);
+
+	GC_Object *obj = *reinterpret_cast<GC_Object **>(luaL_checkudata(L, 1, "object"));
+	if( !obj || obj->IsKilled() )
+	{
+		luaL_argerror(L, 1, "reference to dead object");
+	}
+
+	SafePtr<PropertySet> properties = obj->GetProperties();
+	assert(properties);
+
+	if( lua_isnil(L, 2) )
+	{
+		// begin iteration
+		ObjectProperty *p = properties->GetProperty(0);
+		lua_pushstring(L, p->GetName().c_str()); // key
+		pushprop(L, p); // value
+		return 2;
+	}
+
+	const char *key = luaL_checkstring(L, 2);
+
+	bool found = false;
+	int count = properties->GetCount();
+	for( int i = 0; i < count; ++i )
+	{
+		ObjectProperty *p = properties->GetProperty(i);
+		if( found )
+		{
+			// return next pair
+			lua_pushstring(L, p->GetName().c_str()); // key
+			pushprop(L, p); // value
+			return 2;
+		}
+		else if( p->GetName() == key )
+		{
+			found = true;
+		}
+	}
+
+	if( found )
+	{
+		// end of list
+		lua_pushnil(L);
+		return 1;
+	}
+
+	return luaL_error(L, "invalid key to 'next'");
+}
+
+
 static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 {
 	//
@@ -86,6 +162,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 
 	if( GC_Object **ppObj = (GC_Object **) lua_touserdata(L, n) )
 	{
+//		luaL_checkudata(L, n, "object");
 		if( lua_getmetatable(L, n) )
 		{
 			luaL_getmetatable(L, "object");
@@ -889,23 +966,7 @@ int luaT_pget(lua_State *L)
 		ObjectProperty *p = properties->GetProperty(i);
 		if( p->GetName() == prop )
 		{
-			switch( p->GetType() )
-			{
-			case ObjectProperty::TYPE_INTEGER:
-				lua_pushinteger(L, p->GetIntValue());
-				break;
-			case ObjectProperty::TYPE_FLOAT:
-				lua_pushnumber(L, p->GetFloatValue());
-				break;
-			case ObjectProperty::TYPE_STRING:
-				lua_pushstring(L, p->GetStringValue().c_str());
-				break;
-			case ObjectProperty::TYPE_MULTISTRING:
-				lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
-				break;
-			default:
-				assert(FALSE);
-			}
+			pushprop(L, p);
 			return 1;
 		}
 	}
@@ -1099,6 +1160,15 @@ lua_State* script_open(void)
 	   lua_settable(L, -3);
 	 lua_pushstring(L, "__persist");
 	  lua_pushcfunction(L, luaT_objpersist);
+	   lua_settable(L, -3);
+	 lua_pushstring(L, "__newindex");
+	  lua_pushcfunction(L, luaT_pset);
+	   lua_settable(L, -3);
+	 lua_pushstring(L, "__index");
+	  lua_pushcfunction(L, luaT_pget);
+	   lua_settable(L, -3);
+	 lua_pushstring(L, "__next");
+	  lua_pushcfunction(L, luaT_objnextprop);
 	   lua_settable(L, -3);
 	 lua_pop(L, 1); // pop the metatable
 
