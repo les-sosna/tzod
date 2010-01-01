@@ -30,8 +30,9 @@ public:
 	explicit GC_Camera(const SafePtr<GC_Player> &player);
 	GC_Camera(FromFile);
 
-	void Apply();
-	void GetViewport(RECT &vp) const;
+	float GetAngle() const { return _rotatorAngle; }
+	void GetWorld(FRECT &outWorld) const;
+	void GetScreen(RECT &vp) const;
 	float GetZoom() const { return _zoom; }
 	const SafePtr<GC_Player>& GetPlayer() const { assert(_player); return _player; }
 

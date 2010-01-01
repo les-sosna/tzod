@@ -338,8 +338,6 @@ bool ZodApp::Pre()
 	// set up the environment
 	g_env.nNeedCursor  = 0;
 	g_env.minimized    = false;
-	g_env.camera_x     = 0;
-	g_env.camera_y     = 0;
 
 	GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 

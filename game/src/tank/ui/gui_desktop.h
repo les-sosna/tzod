@@ -76,6 +76,8 @@ public:
 	Desktop(LayoutManager* manager);
 	virtual ~Desktop();
 
+	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy);
+
 	void ShowConsole(bool show);
 
 	void OnCloseChild(int result);

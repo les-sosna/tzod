@@ -170,6 +170,11 @@ Desktop::~Desktop()
 	g_conf.ui_showtime.eventChange = NULL;
 }
 
+void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy)
+{
+	Window::DrawChildren(dc, sx, sy);
+}
+
 void Desktop::OnEditorModeChanged(bool editorMode)
 {
 	assert(!editorMode || g_level);

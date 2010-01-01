@@ -105,7 +105,7 @@ void GC_Camera::TimeStepFloat(float dt)
 	MoveTo(_target + (GetPos() - _target) * expf(-dt * mu));
 }
 
-void GC_Camera::Apply()
+void GC_Camera::GetWorld(FRECT &outWorld) const
 {
 	vec2d shake(0, 0);
 	if( _time_shake > 0 )
@@ -114,17 +114,13 @@ void GC_Camera::Apply()
 		shake *= _time_shake * CELL_SIZE * 0.1f;
 	}
 
-	g_env.camera_x = int(floorf((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
-	g_env.camera_y = int(floorf((GetPos().y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom);
-
-	g_render->Camera(&_viewport,
-	                 (float) g_env.camera_x,
-	                 (float) g_env.camera_y,
-	                 _zoom,
-	                 g_conf.g_rotcamera.Get() ? _rotatorAngle : 0);
+	outWorld.left   = floor((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom;
+	outWorld.top    = floor((GetPos().y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom;
+	outWorld.right  = outWorld.left + (float)  WIDTH(_viewport) / _zoom;
+	outWorld.bottom = outWorld.top + (float) HEIGHT(_viewport) / _zoom;
 }
 
-void GC_Camera::GetViewport(RECT &vp) const
+void GC_Camera::GetScreen(RECT &vp) const
 {
 	vp = _viewport;
 }
@@ -217,9 +213,11 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 		{
 			if( !pCamera->IsKilled() && PtInRect(&pCamera->_viewport, ptinscr) )
 			{
-				pCamera->Apply();
-				pos.x = (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom + (float) g_env.camera_x;
-				pos.y = (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom + (float) g_env.camera_y;
+				FRECT w;
+				pCamera->GetWorld(w);
+
+				pos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
+				pos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
 				return true;
 			}
 		}

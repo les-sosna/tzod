@@ -1343,10 +1343,15 @@ void Level::Render() const
 	if( GetEditorMode() || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera
-		g_env.camera_x = int(_defaultCamera.GetPosX());
-		g_env.camera_y = int(_defaultCamera.GetPosY());
-		g_render->Camera(NULL, (float) g_env.camera_x, (float) g_env.camera_y, _defaultCamera.GetZoom(), 0);
-		RenderInternal(_defaultCamera.GetZoom());
+		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
+
+		FRECT world;
+		world.left = _defaultCamera.GetPosX();
+		world.top = _defaultCamera.GetPosY();
+		world.right = world.left + (float) g_render->GetWidth() / _defaultCamera.GetZoom();
+		world.bottom = world.top + (float) g_render->GetHeight() / _defaultCamera.GetZoom();
+
+		RenderInternal(world);
 	}
 	else
 	{
@@ -1364,16 +1369,39 @@ void Level::Render() const
 				}
 			}
 			assert(singleCamera);
-			singleCamera->Apply();
-			RenderInternal(singleCamera->GetZoom());
+
+			FRECT world;
+			singleCamera->GetWorld(world);
+
+			RECT screen;
+			singleCamera->GetScreen(screen);
+
+			g_render->Camera(&screen,
+				world.left,
+				world.top,
+				singleCamera->GetZoom(),
+				g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
+
+			RenderInternal(world);
 		}
 		else
 		{
 			// render from each camera
 			FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
 			{
-				pCamera->Apply();
-				RenderInternal(pCamera->GetZoom());
+				FRECT world;
+				pCamera->GetWorld(world);
+
+				RECT screen;
+				pCamera->GetScreen(screen);
+
+				g_render->Camera(&screen,
+					world.left,
+					world.top,
+					pCamera->GetZoom(),
+					g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
+
+				RenderInternal(world);
 			}
 		}
 	}
@@ -1401,7 +1429,7 @@ void Level::Render() const
 	}
 }
 
-void Level::RenderInternal(float zoom) const
+void Level::RenderInternal(const FRECT &world) const
 {
 	//
 	// draw lights to alpha channel
@@ -1410,10 +1438,10 @@ void Level::RenderInternal(float zoom) const
 	g_render->SetMode(RM_LIGHT);
 	if( g_conf.sv_nightmode.Get() )
 	{
-		float xmin = (float) __max(0, g_env.camera_x );
-		float ymin = (float) __max(0, g_env.camera_y );
-		float xmax = __min(_sx, (float) g_env.camera_x + (float) g_render->GetViewportWidth() / zoom);
-		float ymax = __min(_sy, (float) g_env.camera_y + (float) g_render->GetViewportHeight() / zoom);
+		float xmin = __max(0, world.left );
+		float ymin = __max(0, world.top );
+		float xmax = __min(_sx, world.right);
+		float ymax = __min(_sy, world.bottom);
 
 		FOREACH( GetList(LIST_lights), GC_Light, pLight )
 		{
@@ -1442,12 +1470,10 @@ void Level::RenderInternal(float zoom) const
 		DrawBackground(_texGrid);
 
 
-	int xmin = __max(0, g_env.camera_x / LOCATION_SIZE);
-	int ymin = __max(0, g_env.camera_y / LOCATION_SIZE);
-	int xmax = __min(_locationsX - 1,
-		(g_env.camera_x + int((float) g_render->GetViewportWidth() / zoom)) / LOCATION_SIZE);
-	int ymax = __min(_locationsY - 1,
-		(g_env.camera_y + int((float) g_render->GetViewportHeight() / zoom)) / LOCATION_SIZE + 1);
+	int xmin = __max(0, int(world.left / LOCATION_SIZE));
+	int ymin = __max(0, int(world.top / LOCATION_SIZE));
+	int xmax = __min(_locationsX - 1, int(world.right / LOCATION_SIZE));
+	int ymax = __min(_locationsY - 1, int(world.bottom / LOCATION_SIZE) + 1);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{

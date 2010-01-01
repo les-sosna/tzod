@@ -311,7 +311,7 @@ public:
                        vec2d &out_fake );  // out: fake target position
 
 
-	void RenderInternal(float zoom) const;
+	void RenderInternal(const FRECT &world) const;
 
 
 	class AbstractClient
