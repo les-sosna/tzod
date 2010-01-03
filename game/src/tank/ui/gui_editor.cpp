@@ -146,7 +146,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetCurrentIndex(index);
 				break;
 			default:
-				assert(FALSE);
+				assert(false);
 			}
 		}
 		_ps->Exchange(true);

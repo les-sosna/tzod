@@ -768,7 +768,7 @@ ObjectProperty* GC_PlayerLocal::MyPropertySet::GetProperty(int index)
 		case 0: return &_propProfile;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

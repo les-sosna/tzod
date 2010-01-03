@@ -430,7 +430,7 @@ void MainMenuDlg::CreatePanel()
 		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 }
 
@@ -471,7 +471,7 @@ void MainMenuDlg::OnTimeStep(float dt)
 		}
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 }
 

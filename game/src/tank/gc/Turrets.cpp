@@ -220,7 +220,7 @@ void GC_Turret::TimeStepFixed(float dt)
 		break;
 	} // end case TS_ATACKING
 	default:
-		assert(FALSE);
+		assert(false);
 	}  // end switch (_state)
 
 	_rotator.setup_sound(GetRawPtr(_rotateSound));
@@ -293,7 +293,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 		case 1: return &_propSight;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

@@ -111,8 +111,15 @@ static void RenderFrame(bool thumbnail)
 
 	g_render->Begin();
 
-	g_level->Render();
-	if( g_gui ) g_gui->Render();
+	if( g_gui )
+	{
+		// level is rendered as part of gui
+		g_gui->Render();
+	}
+	else
+	{
+		g_level->Render();
+	}
 
 	g_render->End(); // display new frame
 
@@ -205,6 +212,9 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
+#if 0 // memory leaks detection
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 	GetConsole().SetLog(new ConsoleLog("log.txt"));
 
 	TCHAR buf[MAX_PATH];

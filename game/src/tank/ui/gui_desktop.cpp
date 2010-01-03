@@ -170,8 +170,11 @@ Desktop::~Desktop()
 	g_conf.ui_showtime.eventChange = NULL;
 }
 
-void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy)
+void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
+	g_level->Render();
+	g_render->SetMode(RM_INTERFACE);
+
 	Window::DrawChildren(dc, sx, sy);
 }
 

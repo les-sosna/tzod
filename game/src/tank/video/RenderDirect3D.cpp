@@ -491,14 +491,17 @@ void RenderDirect3D::SetMode(const RenderMode mode)
     switch(mode)
 	{
 	case RM_LIGHT:
-		V(_pd3dDevice->SetTexture( 0, NULL )); _curtex = NULL;
+		_curtex = NULL;
+		V(_pd3dDevice->SetTexture( 0, NULL ));
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA  ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE       ));
+		V(_pd3dDevice->SetRenderState( D3DRS_COLORWRITEENABLE, D3DCOLORWRITEENABLE_ALPHA));
 		break;
 
 	case RM_WORLD:
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_DESTALPHA   ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA ));
+		V(_pd3dDevice->SetRenderState( D3DRS_COLORWRITEENABLE, D3DCOLORWRITEENABLE_BLUE|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_RED));
 		break;
 
 	case RM_INTERFACE:
@@ -506,10 +509,11 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 		Camera(NULL, 0, 0, 1, 0);
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_ONE         ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA ));
+		V(_pd3dDevice->SetRenderState( D3DRS_COLORWRITEENABLE, D3DCOLORWRITEENABLE_BLUE|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_RED));
 		break;
 
 	default:
-        assert(FALSE);
+		assert(false);
 	}
 
 	_mode = mode;

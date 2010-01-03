@@ -405,7 +405,7 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	case 3: return &_propMaxHealth;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 
@@ -1023,7 +1023,7 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	case 1: return &_propStyle;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

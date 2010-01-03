@@ -756,7 +756,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 		break;
 	}
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 
 	return 1;

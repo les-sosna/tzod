@@ -120,7 +120,7 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 		}
 	}
 	// не найден удаляемый контекст
-	assert(FALSE);
+	assert(false);
 }
 
 void GC_Actor::MapExchange(MapFile &f)

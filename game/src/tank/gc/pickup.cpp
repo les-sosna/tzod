@@ -292,7 +292,7 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	case 1: return &_propOnPickup;    break;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

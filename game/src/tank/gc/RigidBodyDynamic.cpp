@@ -56,7 +56,7 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	case 7: return &_propRotation;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

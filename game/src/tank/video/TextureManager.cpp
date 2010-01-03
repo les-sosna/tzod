@@ -134,7 +134,7 @@ void TextureManager::CreateChecker()
 	if( !g_render->TexCreate(td.id, GetRawPtr(c) ) )
 	{
 		TRACE("ERROR: error in render device");
-		assert(FALSE);
+		assert(false);
 		return;
 	}
 

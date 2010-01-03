@@ -114,7 +114,7 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	case 1: return &_propDir;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

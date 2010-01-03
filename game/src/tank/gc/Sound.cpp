@@ -184,7 +184,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		_soundBuffer->Stop();
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 #endif
 }

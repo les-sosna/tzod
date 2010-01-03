@@ -49,7 +49,7 @@ ObjectProperty* GC_Weapon::MyPropertySet::GetProperty(int index)
 	case 0: return &_propTimeStay; break;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

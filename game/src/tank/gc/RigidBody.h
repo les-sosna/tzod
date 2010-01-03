@@ -63,7 +63,10 @@ public:
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
-	__declspec(deprecated) vec2d GetVertex(int index) const
+#ifdef NDEBUG
+	__declspec(deprecated("Using this function is not recomended in Release build"))
+#endif
+	vec2d GetVertex(int index) const
 	{
 		float x, y;
 		switch( index )

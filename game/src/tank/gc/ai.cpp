@@ -858,7 +858,7 @@ void GC_PlayerAI::SetL1(aiState_l1 new_state)
 		break;
 	default:
 //		REPORT("AI switch to L1<unknown>\n");
-		assert(FALSE);
+		assert(false);
 	}
 #endif
 

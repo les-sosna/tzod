@@ -215,7 +215,6 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 			{
 				FRECT w;
 				pCamera->GetWorld(w);
-
 				pos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
 				pos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
 				return true;

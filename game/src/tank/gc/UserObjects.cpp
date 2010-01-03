@@ -100,7 +100,7 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	case 0: return &_propTexture;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 
@@ -254,7 +254,7 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	case 4: return &_propRotation;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

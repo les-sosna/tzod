@@ -915,10 +915,10 @@ bool Level::CalcOutstrip( const vec2d &fp, // fire point
 	float y   = (tx.y - fp.y) * cg - (tx.x - fp.x) * sg;
 	float tmp = vp*vp - vt*vt;
 
-	float fx = x + vt * (x*vt + sqrtf(x*x * vp*vp + y*y * tmp)) / tmp;
+	float fx = x + vt * (x*vt + sqrt(x*x * vp*vp + y*y * tmp)) / tmp;
 
-	out_fake.x = __max(0, __min(_sx, fp.x + fx*cg - y*sg));
-	out_fake.y = __max(0, __min(_sy, fp.y + fx*sg + y*cg));
+	out_fake.x = std::max(0.0f, std::min(_sx, fp.x + fx*cg - y*sg));
+	out_fake.y = std::max(0.0f, std::min(_sy, fp.y + fx*sg + y*cg));
 	return true;
 }
 
@@ -1438,10 +1438,10 @@ void Level::RenderInternal(const FRECT &world) const
 	g_render->SetMode(RM_LIGHT);
 	if( g_conf.sv_nightmode.Get() )
 	{
-		float xmin = __max(0, world.left );
-		float ymin = __max(0, world.top );
-		float xmax = __min(_sx, world.right);
-		float ymax = __min(_sy, world.bottom);
+		float xmin = std::max(0.0f, world.left);
+		float ymin = std::max(0.0f, world.top);
+		float xmax = std::min(_sx, world.right);
+		float ymax = std::min(_sy, world.bottom);
 
 		FOREACH( GetList(LIST_lights), GC_Light, pLight )
 		{

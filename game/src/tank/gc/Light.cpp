@@ -303,7 +303,7 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	case 0: return &_propActive;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

@@ -1050,7 +1050,7 @@ static int luaT_conftostring(lua_State *L)
 		lua_pushfstring(L, "conf_table: %p", v);
 		break;
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 	return 1;
 }

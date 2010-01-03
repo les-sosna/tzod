@@ -189,7 +189,7 @@ void PropertySet::LoadFromConfig()
 			)));
 			break;
 		default:
-			assert(FALSE);
+			assert(false);
 		} // end of switch( prop->GetType() )
 	}
 }
@@ -215,7 +215,7 @@ void PropertySet::SaveToConfig()
 			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
 			break;
 		default:
-			assert(FALSE);
+			assert(false);
 		} // end of switch( prop->GetType() )
 	}}
 

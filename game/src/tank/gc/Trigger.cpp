@@ -225,7 +225,7 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 		case 7: return &_propOnLeave;
 	}
 
-	assert(FALSE);
+	assert(false);
 	return NULL;
 }
 

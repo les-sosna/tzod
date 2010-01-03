@@ -345,7 +345,8 @@ void RenderOpenGL::SetViewportInternal(const RECT *rect, bool ifaceMode)
 	{
 		glOrtho(0, (GLdouble) _sizeWindow.cx, (GLdouble) _sizeWindow.cy, 0, -1, 1);
 		glViewport(0, 0, _sizeWindow.cx, _sizeWindow.cy);
-		_rtViewport.left   = _rtViewport.top = 0;
+		_rtViewport.left   = 0;
+		_rtViewport.top    = 0;
 		_rtViewport.right  = _sizeWindow.cx;
 		_rtViewport.bottom = _sizeWindow.cy;
 	}
@@ -388,6 +389,7 @@ int RenderOpenGL::GetViewportHeight() const
 void RenderOpenGL::Begin()
 {
 	glClearColor(0, 0, 0, _ambient);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -408,11 +410,13 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 	case RM_LIGHT:
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 		break;
 
 	case RM_WORLD:
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		break;
 
 	case RM_INTERFACE:
@@ -420,10 +424,11 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		Camera(NULL, 0, 0, 1, 0);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		break;
 
 	default:
-		assert(FALSE);
+		assert(false);
 	}
 
 	_mode = mode;
