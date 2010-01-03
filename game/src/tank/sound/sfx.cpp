@@ -114,6 +114,8 @@ void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
 			(BYTE *) pData, size, &wfe,
 			DSBCAPS_CTRLPAN|DSBCAPS_CTRLVOLUME|DSBCAPS_CTRLFREQUENCY, GUID_NULL);
 
+		free(pData);
+
 		if( FAILED(hr) )
 		{
 			TRACE("sfx: Couldn't create the sound buffer");
