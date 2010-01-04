@@ -279,7 +279,7 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	params.AutoDepthStencilFormat       = D3DFMT_UNKNOWN;
 	params.Flags                        = 0;
 	params.FullScreen_RefreshRateInHz   = bFullScreen?pMode->RefreshRate:0;
-//    params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
+    params.PresentationInterval         = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	if( FAILED(_d3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE, &params, &_pd3dDevice)) )

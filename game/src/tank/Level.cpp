@@ -998,12 +998,12 @@ GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
 						assert(!_isnan(tmpHit) && _finite(tmpHit));
 						assert(!_isnan(tmpNorm.x) && _finite(tmpNorm.x));
 						assert(!_isnan(tmpNorm.y) && _finite(tmpNorm.y));
-
+#ifndef NDEBUG
 						for( int i = 0; i < 4; ++i )
 						{
 							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 						}
-
+#endif
 						if( ht ) *ht = lineCenter + lineDirection * tmpHit;
 						if( norm ) *norm = tmpNorm;
 						result = object;

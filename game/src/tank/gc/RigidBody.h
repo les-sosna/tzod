@@ -64,7 +64,7 @@ public:
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
 #ifdef NDEBUG
-	__declspec(deprecated("Using this function is not recomended in Release build"))
+	__declspec(deprecated("Using this function is not recomended for Release build"))
 #endif
 	vec2d GetVertex(int index) const
 	{

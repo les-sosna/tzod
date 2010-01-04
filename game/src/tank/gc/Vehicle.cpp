@@ -657,7 +657,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	return false;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 void GC_Vehicle::Draw() const
 {
 //	GC_VehicleBase::Draw();
@@ -666,7 +666,7 @@ void GC_Vehicle::Draw() const
 		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
 	}
 }
-#endif // _DEBUG
+#endif // NDEBUG
 
 void GC_Vehicle::TimeStepFixed(float dt)
 {

@@ -311,7 +311,7 @@ void RenderOpenGL::OnResizeWnd()
 		_sizeWindow.cx = rt.right - rt.left;
 		_sizeWindow.cy = rt.bottom - rt.top;
 
-		if( _hDC )
+		if( _hRC )
 			SetViewport(NULL);
 	}
 }
@@ -362,7 +362,6 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 void RenderOpenGL::Camera(const RECT *vp, float x, float y, float scale, float angle)
 {
 	RenderOpenGL::SetViewport(vp);
-	Flush();
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -462,8 +461,6 @@ bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, Image *img)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, /*GL_NEAREST*/ GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MULT);
 
 	return true;
 }
