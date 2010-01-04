@@ -101,7 +101,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 void GC_Pickup::Attach(GC_Actor *actor)
 {
 	assert(!_pickupCarrier);
-	_pickupCarrier         = /*WrapRawPtr*/(actor);
+	_pickupCarrier = actor;
 	_timeAttached  = 0;
 	MoveTo(actor->GetPos());
 	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
@@ -779,6 +779,7 @@ void GC_pu_Booster::Detach()
 {
 	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
 	static_cast<GC_Weapon*>(GetCarrier())->SetAdvanced(false);
+	GetCarrier()->Unsubscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 	SetTexture("pu_booster");
 	SetShadow(true);
 	SAFE_KILL(_sound);
@@ -818,6 +819,7 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 
 void GC_pu_Booster::OnWeaponDisappear(GC_Object *sender, void *param)
 {
+	assert(GetCarrier());
 	Disappear();
 }
 

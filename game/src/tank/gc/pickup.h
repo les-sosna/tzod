@@ -79,7 +79,7 @@ public:
 	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
 
 	float GetTimeAnimation() const { return _timeAnimation; }
-	float GetTimeAttached() const { return _timeAttached; }
+	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
 
 	// hide or kill depending on _respawn; return true if object is killed
 	virtual bool Disappear();
