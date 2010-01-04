@@ -914,30 +914,16 @@ void TextureManager::PopClippingRect() const
 
 ThemeManager::ThemeManager()
 {
-	TCHAR curdir[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, curdir);
-
-	if( !SetCurrentDirectory(DIR_THEMES) )
-		return;
-
-	WIN32_FIND_DATA fd = {0};
-	HANDLE hSearch = FindFirstFile("*.lua", &fd);
-	if( INVALID_HANDLE_VALUE != hSearch )
+	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);
+	std::set<string_t> files;
+	dir->EnumAllFiles(files, TEXT("*.lua"));
+	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		do {
-			ThemeDesc td;
-			td.fileName = fd.cFileName;
-
-			string_t filename = DIR_THEMES;
-			filename += "\\";
-			filename += td.fileName;
-			td.file = g_fs->Open(filename)->QueryMap();
-
-			_themes.push_back(td);
-		} while( FindNextFile(hSearch, &fd) );
-		FindClose(hSearch);
+		ThemeDesc td;
+		td.fileName = *it;
+		td.file = dir->Open(td.fileName)->QueryMap();
+		_themes.push_back(td);
 	}
-	SetCurrentDirectory(curdir);
 }
 
 ThemeManager::~ThemeManager()
