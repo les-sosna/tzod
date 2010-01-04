@@ -497,6 +497,9 @@ EditorLayout::EditorLayout(Window *parent)
   , _selectedObject(NULL)
   , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
   , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _isObjectNew(false)
+  , _click(true)
+  , _mbutton(0)
 {
 	SetTexture(NULL, false);
 
@@ -525,10 +528,6 @@ EditorLayout::EditorLayout(Window *parent)
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
 	_typeList->SetCurSel(g_conf.ed_object.GetInt());
-
-	_isObjectNew = false;
-	_click = true;
-	_mbutton = 0;
 
 	assert(!g_conf.ed_uselayers.eventChange);
 	g_conf.ed_uselayers.eventChange = std::tr1::bind(&EditorLayout::OnChangeUseLayers, this);
@@ -621,7 +620,7 @@ bool EditorLayout::OnMouseUp(float x, float y, int button)
 	{
 		_click = true;
 		_mbutton = 0;
-//		ReleaseCapture();
+		GetManager()->SetCapture(NULL);
 	}
 	return true;
 }
@@ -630,7 +629,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
 	if( 0 == _mbutton )
 	{
-//		GetManager()->SetCapture(this);
+		GetManager()->SetCapture(this);
 		_mbutton = button;
 	}
 
