@@ -75,8 +75,8 @@ private:
 
 	virtual void OnResizeWnd();
 
-	void SetViewportInternal(const RECT *rect, bool ifaceMode);
 	virtual void SetViewport(const RECT *rect);
+	virtual void SetScissor(const RECT *rect);
 	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle);
 
 	virtual int  GetWidth() const;
@@ -297,25 +297,40 @@ bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 		wglSwapIntervalEXT_Func(wglGetProcAddress("wglSwapIntervalEXT"));
 	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0); // 1 - чтобы включить
 
+	SetViewport(NULL);
+
 	return result;
 }
 
 void RenderOpenGL::OnResizeWnd()
 {
-	if( !_hWnd ) return;
+	if( _hWnd )
+	{
+		RECT rt;
+		GetClientRect(_hWnd, &rt);
+		_sizeWindow.cx = rt.right - rt.left;
+		_sizeWindow.cy = rt.bottom - rt.top;
 
-	RECT rt;
-	GetClientRect( _hWnd, &rt );
-	_sizeWindow.cx = rt.right - rt.left;
-	_sizeWindow.cy = rt.bottom - rt.top;
+		if( _hDC )
+			SetViewport(NULL);
+	}
+}
+
+void RenderOpenGL::SetScissor(const RECT *rect)
+{
+	Flush();
+	if( rect )
+	{
+		glScissor(rect->left, _sizeWindow.cy - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
+		glEnable(GL_SCISSOR_TEST);
+	}
+	else
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
 }
 
 void RenderOpenGL::SetViewport(const RECT *rect)
-{
-	SetViewportInternal(rect, true);
-}
-
-void RenderOpenGL::SetViewportInternal(const RECT *rect, bool ifaceMode)
 {
 	Flush();
 
@@ -323,22 +338,14 @@ void RenderOpenGL::SetViewportInternal(const RECT *rect, bool ifaceMode)
 	glLoadIdentity();
 	if( rect )
 	{
-		if( ifaceMode )
-		{
-			glOrtho((GLdouble) rect->left, (GLdouble) rect->right,
-				(GLdouble) rect->bottom, (GLdouble) rect->top, -1, 1);
-		}
-		else
-		{
-			glOrtho(0, (GLdouble) (rect->right - rect->left),
-				(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
-		}
+		glOrtho(0, (GLdouble) (rect->right - rect->left),
+			(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
 		glViewport(
 			rect->left,                       // X
 			_sizeWindow.cy - rect->bottom,    // Y
 			rect->right - rect->left,         // width
 			rect->bottom - rect->top          // height
-		);
+			);
 		_rtViewport = *rect;
 	}
 	else
@@ -354,7 +361,7 @@ void RenderOpenGL::SetViewportInternal(const RECT *rect, bool ifaceMode)
 
 void RenderOpenGL::Camera(const RECT *vp, float x, float y, float scale, float angle)
 {
-	SetViewportInternal(vp, false);
+	RenderOpenGL::SetViewport(vp);
 	Flush();
 
 	glMatrixMode(GL_MODELVIEW);

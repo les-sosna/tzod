@@ -881,7 +881,7 @@ void TextureManager::PushClippingRect(const RECT &rect) const
 	if( _clipStack.empty() )
 	{
 		_clipStack.push(rect);
-		g_render->SetViewport(&rect);
+		g_render->SetScissor(&rect);
 	}
 	else
 	{
@@ -892,7 +892,7 @@ void TextureManager::PushClippingRect(const RECT &rect) const
 		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
 		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
 		_clipStack.push(tmp);
-		g_render->SetViewport(&tmp);
+		g_render->SetScissor(&tmp);
 	}
 }
 
@@ -902,11 +902,11 @@ void TextureManager::PopClippingRect() const
 	_clipStack.pop();
 	if( _clipStack.empty() )
 	{
-		g_render->SetViewport(&_viewport);
+		g_render->SetScissor(&_viewport);
 	}
 	else
 	{
-		g_render->SetViewport(&_clipStack.top());
+		g_render->SetScissor(&_clipStack.top());
 	}
 }
 

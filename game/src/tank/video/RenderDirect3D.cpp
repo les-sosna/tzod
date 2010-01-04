@@ -104,7 +104,7 @@ private:
 
 	virtual void OnResizeWnd();
 
-	void SetViewportInternal(const RECT *rect, bool ifaceMode);
+	virtual void SetScissor(const RECT *rect);
 	virtual void SetViewport(const RECT *rect);
 	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle);
 
@@ -346,25 +346,42 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
+	SetViewport(NULL);
+
 	return true;
 }
 
 void RenderDirect3D::OnResizeWnd()
 {
-    if( !_hWnd ) return;
+	if( _hWnd )
+	{
+		RECT rt;
+		GetClientRect( _hWnd, &rt );
+		_sizeWindow.cx = rt.right - rt.left;
+		_sizeWindow.cy = rt.bottom - rt.top;
 
-	RECT rt;
-	GetClientRect( _hWnd, &rt );
-	_sizeWindow.cx = rt.right - rt.left;
-	_sizeWindow.cy = rt.bottom - rt.top;
+		if( _pd3dDevice )
+			SetViewport(NULL);
+	}
+}
+
+void RenderDirect3D::SetScissor(const RECT *rect)
+{
+	if( _iaSize )
+		_flush();
+
+	if( rect )
+	{
+		_pd3dDevice->SetScissorRect(rect);
+		_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+	}
+	else
+	{
+		_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+	}
 }
 
 void RenderDirect3D::SetViewport(const RECT *rect)
-{
-	SetViewportInternal(rect, true);
-}
-
-void RenderDirect3D::SetViewportInternal(const RECT *rect, bool ifaceMode)
 {
 	if( _iaSize ) _flush();
 
@@ -375,27 +392,13 @@ void RenderDirect3D::SetViewportInternal(const RECT *rect, bool ifaceMode)
 
 	if( rect )
 	{
-		if( ifaceMode )
-		{
-			MatrixOrthoOffCenterRH(m, (float) rect->left, (float) rect->right,
-				(float) rect->bottom, (float) rect->top);
+		MatrixOrthoOffCenterRH(m, 0, (float) (rect->right - rect->left),
+			(float) (rect->bottom - rect->top), 0);
 
-			vp.X = rect->left;
-			vp.Y = rect->top;
-			vp.Width  = rect->right - rect->left;
-			vp.Height = rect->bottom - rect->top;
-		}
-		else
-		{
-			MatrixOrthoOffCenterRH(m, 0, (float) (rect->right - rect->left),
-				(float) (rect->bottom - rect->top), 0);
-
-			vp.X = rect->left;
-			vp.Y = _sizeWindow.cy - rect->bottom;
-			vp.Width  = rect->right - rect->left;
-			vp.Height = rect->bottom - rect->top;
-		}
-
+		vp.X = rect->left;
+		vp.Y = _sizeWindow.cy - rect->bottom;
+		vp.Width  = rect->right - rect->left;
+		vp.Height = rect->bottom - rect->top;
 
 		V(_pd3dDevice->SetTransform(D3DTS_PROJECTION, &m));
 		V(_pd3dDevice->SetViewport(&vp));
@@ -413,7 +416,8 @@ void RenderDirect3D::SetViewportInternal(const RECT *rect, bool ifaceMode)
 		vp.Height = _sizeWindow.cy;
 		V(_pd3dDevice->SetViewport(&vp));
 
-		_rtViewport.left   = _rtViewport.top = 0;
+		_rtViewport.left   = 0;
+		_rtViewport.top    = 0;
 		_rtViewport.right  = _sizeWindow.cx;
 		_rtViewport.bottom = _sizeWindow.cy;
 	}
@@ -421,8 +425,7 @@ void RenderDirect3D::SetViewportInternal(const RECT *rect, bool ifaceMode)
 
 void RenderDirect3D::Camera(const RECT *vp, float x, float y, float scale, float angle)
 {
-	SetViewportInternal(vp, false);
-	if( _iaSize ) _flush();
+	RenderDirect3D::SetViewport(vp);
 
 	D3DXMATRIX m;
 
@@ -505,7 +508,7 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(NULL);
+		SetScissor(NULL);
 		Camera(NULL, 0, 0, 1, 0);
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_ONE         ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA ));

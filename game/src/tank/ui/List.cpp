@@ -242,7 +242,7 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
-	int i_max = i_min + (int) GetNumLinesVisible() + 2;
+	int i_max = i_min + (int) GetNumLinesVisible() + 1;
 	int maxtab = (int) _tabs.size() - 1;
 
 	RECT clip;
@@ -252,7 +252,7 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	clip.bottom = (int) (sy + GetHeight());
 	dc->PushClippingRect(clip);
 
-	for( int i = std::min(_data->GetItemCount(), i_max); i--; )
+	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
 		SpriteColor c;
 		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
