@@ -71,7 +71,7 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 			if( eventClick && wwp.Get() )
 				INVOKE(eventClick) ();   // handler may destroy this object
 		}
-		if( wwp.Get() )
+		if( wwp.Get() && GetEnabled() )  // handler may disable this button
 			SetState(stateHottrack);
 		return true;
 	}
