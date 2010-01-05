@@ -438,6 +438,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 		_theme->GetData()->AddItem(_ThemeManager::Inst().GetThemeName(i));
 	}
 	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme));
+	_theme->GetList()->AlignHeightToContent();
 
 
 	//
