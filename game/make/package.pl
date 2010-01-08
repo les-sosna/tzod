@@ -102,6 +102,7 @@ copy_dir("../data", "../out/Tank/data",
 		'Копия fonts\.tga$',
 		'sounds\/interface',
 		'maps\/\_.+\.map$',
+		'vsluaplugin_log\.txt$',
 	],
 	undef, # force none
 	1      # recursive
