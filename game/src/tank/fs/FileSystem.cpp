@@ -254,17 +254,21 @@ bool OSFileSystem::OSFile::OSStream::IsEof()
 	return position >= size;
 }
 
-void OSFileSystem::OSFile::OSStream::Read(void *dst, unsigned long byteCount)
+unsigned long OSFileSystem::OSFile::OSStream::Read(void *dst, unsigned long blockSize, unsigned long numBlocks)
 {
-	DWORD read;
-	BOOL result = ReadFile(_hFile, dst, byteCount, &read, NULL);
-	if( !result || read != byteCount )
+	DWORD bytesRead;
+	if( !ReadFile(_hFile, dst, blockSize*numBlocks, &bytesRead, NULL) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
+	if( bytesRead % blockSize )
+	{
+		throw std::runtime_error(StrFromErr(ERROR_HANDLE_EOF));
+	}
+	return bytesRead / blockSize;
 }
 
-void OSFileSystem::OSFile::OSStream::Write( const void *src, unsigned long byteCount )
+void OSFileSystem::OSFile::OSStream::Write(const void *src, unsigned long byteCount)
 {
 	DWORD written;
 	BOOL result = WriteFile(_hFile, src, byteCount, &written, NULL);
@@ -274,7 +278,7 @@ void OSFileSystem::OSFile::OSStream::Write( const void *src, unsigned long byteC
 	}
 }
 
-unsigned long OSFileSystem::OSFile::OSStream::Seek(long amount, unsigned int origin)
+unsigned long long OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
 	DWORD dwMoveMethod;
 	switch( origin )
@@ -285,22 +289,24 @@ unsigned long OSFileSystem::OSFile::OSStream::Seek(long amount, unsigned int ori
 	default:
 		assert(false);
 	}
-	unsigned long result = SetFilePointer(_hFile, amount, NULL, dwMoveMethod);
-	if( INVALID_FILE_SIZE == result )
+	LARGE_INTEGER result;
+	LARGE_INTEGER liAmount;
+	liAmount.QuadPart = amount;
+	if( !SetFilePointerEx(_hFile, liAmount, &result, dwMoveMethod) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
-	return result;
+	return result.QuadPart;
 }
 
-unsigned long OSFileSystem::OSFile::OSStream::GetSize()
+unsigned long long OSFileSystem::OSFile::OSStream::GetSize()
 {
-	unsigned long result = GetFileSize(_hFile, NULL);
-	if( INVALID_FILE_SIZE == result )
+	LARGE_INTEGER result;
+	if( !GetFileSizeEx(_hFile, &result) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
-	return result;
+	return result.QuadPart;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

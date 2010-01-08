@@ -204,7 +204,7 @@ enum enumZOrder
 #define DIR_SKINS        "skins"
 #define DIR_THEMES       "themes"
 #define DIR_MUSIC        "music"
-#define DIR_SOUND        "data/sounds" // FIXME: data
+#define DIR_SOUND        "sounds"
 #define DIR_SCREENSHOTS  "screenshots"
 
 #define FILE_CONFIG      "config.cfg"

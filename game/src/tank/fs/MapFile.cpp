@@ -15,7 +15,7 @@ void MapFile::_read_chunk_header(ChunkHeader &chdr)
 void MapFile::_skip_block(size_t size)
 {
 	assert(!_modeWrite);
-	_file->Seek((long) size, SEEK_CUR);
+	_file->Seek(size, SEEK_CUR);
 }
 
 //////////////////////////////////////////////////////////

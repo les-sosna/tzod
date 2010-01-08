@@ -33,10 +33,10 @@ class Stream : public RefCounted
 {
 public:
 	virtual bool IsEof() = 0;
-	virtual void Read(void *dst, unsigned long byteCount) = 0;
+	virtual unsigned long Read(void *dst, unsigned long blockSize, unsigned long numBlocks = 1) = 0;
 	virtual void Write(const void *src, unsigned long byteCount) = 0;
-	virtual unsigned long Seek(long amount, unsigned int origin) = 0;
-	virtual unsigned long GetSize() = 0;
+	virtual unsigned long long Seek(long long amount, unsigned int origin) = 0;
+	virtual unsigned long long GetSize() = 0;
 
 protected:
 	Stream(const SafePtr<File> &parent);
@@ -158,10 +158,10 @@ class OSFileSystem : public FileSystem
 			OSStream(const SafePtr<File> &parent, HANDLE hFile);
 
 			virtual bool IsEof();
-			virtual void Read(void *dst, unsigned long byteCount);
+			virtual unsigned long Read(void *dst, unsigned long byteCount, unsigned long numBlocks);
 			virtual void Write(const void *src, unsigned long byteCount);
-			virtual unsigned long Seek(long amount, unsigned int origin);
-			virtual unsigned long GetSize();
+			virtual unsigned long long Seek(long long amount, unsigned int origin);
+			virtual unsigned long long GetSize();
 
 		private:
 			HANDLE _hFile;
