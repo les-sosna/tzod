@@ -60,7 +60,7 @@ public:
 	float GetHalfWidth() const { return _width/2; }
 	float GetHalfLength() const { return _length/2; }
 
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
 #ifdef NDEBUG
@@ -81,11 +81,6 @@ public:
 			GetPos().x + x * GetDirection().x - y * GetDirection().y,
 			GetPos().y + x * GetDirection().y + y * GetDirection().x
 		);
-	}
-
-	inline bool GetTrace0() const
-	{
-		return CheckFlags(GC_FLAG_RBSTATIC_TRACE0);
 	}
 
 
@@ -185,7 +180,7 @@ public:
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
 
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal);
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
 	virtual void Kill();

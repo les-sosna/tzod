@@ -643,7 +643,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 			bool move = tmp.x || tmp.y;
 			bool sameDirection = tmp * GetVehicle()->GetDirection() > cos(PI/4);
 
-			bool bBack = move && !sameDirection && NULL != g_level->agTrace(g_level->grid_rigid_s, GetVehicle(), 
+			bool bBack = move && !sameDirection && NULL != g_level->TraceNearest(g_level->grid_rigid_s, GetVehicle(), 
 				GetVehicle()->GetPos(), GetVehicle()->GetDirection() * GetVehicle()->GetRadius());
 			bool bForv = move && !bBack;
 

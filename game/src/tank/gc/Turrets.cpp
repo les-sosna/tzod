@@ -148,7 +148,7 @@ void GC_Turret::TargetLost()
 
 bool GC_Turret::IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle)
 {
-	GC_RigidBodyStatic *object = g_level->agTrace(
+	GC_RigidBodyStatic *object = g_level->TraceNearest(
 		g_level->grid_rigid_s, this, GetPos(), target->GetPos() - GetPos());
 
 	if( object != target )

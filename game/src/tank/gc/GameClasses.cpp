@@ -351,7 +351,7 @@ void GC_Explosion::Boom(float radius, float damage)
 
 			if( d <= radius)
 			{
-				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
+				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->TraceNearest(
 					g_level->grid_rigid_s, NULL, GetPos(), dir);
 
 				if( object && object != pDamObject )

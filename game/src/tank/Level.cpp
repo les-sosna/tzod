@@ -922,109 +922,95 @@ bool Level::CalcOutstrip( const vec2d &fp, // fire point
 	return true;
 }
 
-GC_RigidBodyStatic* Level::agTrace( Grid<ObjectList> &list,
-	                                const GC_RigidBodyStatic* ignore,
-	                                const vec2d &x0,  // origin
-	                                const vec2d &a,   // direction
-	                                vec2d *ht,
-	                                vec2d *norm ) const
+GC_RigidBodyStatic* Level::TraceNearest( Grid<ObjectList> &list,
+                                         const GC_RigidBodyStatic* ignore,
+                                         const vec2d &x0,      // координаты начала
+                                         const vec2d &a,       // направление
+                                         vec2d *ht,
+                                         vec2d *norm) const
 {
 	DbgLine(x0, x0 + a);
 
-	GC_RigidBodyStatic *result = NULL;
-
-	vec2d lineCenter(x0 + a/2);
-	vec2d lineDirection(a);
-
-
-	//
-	// overlap line
-	//
-
-	vec2d begin(x0), end(x0 + a), delta(a);
-	begin /= LOCATION_SIZE;
-	end   /= LOCATION_SIZE;
-	delta /= LOCATION_SIZE;
-
-	const int halfBeginX = int(floor(begin.x - 0.5f));
-	const int halfBeginY = int(floor(begin.y - 0.5f));
-
-	const int halfEndX = int(floor(end.x - 0.5f));
-	const int halfEndY = int(floor(end.y - 0.5f));
-
-	const int jitX[4] = {0,1,0,1};
-	const int jitY[4] = {0,0,1,1};
-
-	const int stepx = delta.x > 0 ? 2 : -2;
-	const int stepy = delta.y > 0 ? 2 : -2;
-
-	float p = delta.y * (begin.x - 0.5f) - delta.x * (begin.y - 0.5f);
-	float tx = p - delta.y * (float) stepx;
-	float ty = p + delta.x * (float) stepy;
-
-
-	float la = a.len();
-	float la_tmp = la / LOCATION_SIZE;
-
-	for( int i = 0; i < 4; i++ )
+	struct SelectNearest
 	{
-		int cx = halfBeginX + jitX[i];
-		int cy = halfBeginY + jitY[i];
+		const GC_RigidBodyStatic *ignore;
+		vec2d x0;
+		vec2d lineCenter;
+		vec2d lineDirection;
 
-		int count = (abs(cx-halfEndX - (cx<halfEndX))>>1) + (abs(cy-halfEndY - (cy<halfEndY))>>1);
-		assert(count >= 0);
+		GC_RigidBodyStatic *result;
+		vec2d resultPos;
+		vec2d resultNorm;
 
-		do
+		SelectNearest()
+			: result(NULL)
 		{
-			//
-			// check current cell
-			//
-			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
+		}
+
+		bool Select(GC_RigidBodyStatic *obj, vec2d norm, float enter, float exit)
+		{
+			if( ignore != obj )
 			{
-				const ObjectList &tmp_list = list.element(cx, cy);
-				for( ObjectList::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
-				{
-					GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) *it;
-					if( object->GetTrace0() || ignore == object
-						|| object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
-					{
-						continue;
-					}
+				result = obj;
+				resultPos = lineCenter + lineDirection * enter;
+				resultNorm = norm;
 
-					float tmpHit;
-					vec2d tmpNorm;
-					if( object->CollideWithLine(lineCenter, lineDirection, tmpHit, tmpNorm) )
-					{
-						assert(!_isnan(tmpHit) && _finite(tmpHit));
-						assert(!_isnan(tmpNorm.x) && _finite(tmpNorm.x));
-						assert(!_isnan(tmpNorm.y) && _finite(tmpNorm.y));
-#ifndef NDEBUG
-						for( int i = 0; i < 4; ++i )
-						{
-							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
-						}
-#endif
-						if( ht ) *ht = lineCenter + lineDirection * tmpHit;
-						if( norm ) *norm = tmpNorm;
-						result = object;
-						lineDirection *= tmpHit + 0.5f;
-						lineCenter = x0 + lineDirection / 2;
-					}
-				}
+				lineDirection *= enter + 0.5f;
+				lineCenter = x0 + lineDirection / 2;
 			}
-
-
-			// step to the next cell
-			float t = delta.x * (float) cy - delta.y * (float) cx;
-			if( fabs(t + tx) < fabs(t + ty) )
-				cx += stepx;
-			else
-				cy += stepy;
-
-		} while( count-- );
+			return false;
+		}
+		inline const vec2d& GetCenter() const { return lineCenter; }
+		inline const vec2d& GetDirection() const { return lineDirection; }
+	};
+	SelectNearest selector;
+	selector.ignore = ignore;
+	selector.x0 = x0;
+	selector.lineCenter = x0 + a/2;
+	selector.lineDirection = a;
+	RayTrace(list, selector);
+	if( selector.result )
+	{
+		if( ht ) *ht = selector.resultPos;
+		if( norm ) *norm = selector.resultNorm;
 	}
+	return selector.result;
+}
 
-	return result;
+void Level::TraceAll( Grid<ObjectList> &list,
+                      const vec2d &x0,      // координаты начала
+                      const vec2d &a,       // направление
+                      std::vector<CollisionPoint> &result) const
+{
+	struct SelectAll
+	{
+		vec2d lineCenter;
+		vec2d lineDirection;
+
+		std::vector<CollisionPoint> &result;
+
+		explicit SelectAll(std::vector<CollisionPoint> &r)
+			: result(r)
+		{
+		}
+
+		bool Select(GC_RigidBodyStatic *obj, vec2d norm, float enter, float exit)
+		{
+			CollisionPoint cp;
+			cp.obj = obj;
+			cp.normal = norm;
+			cp.enter = enter;
+			cp.exit = exit;
+			result.push_back(cp);
+			return false;
+		}
+		inline const vec2d& GetCenter() const { return lineCenter; }
+		inline const vec2d& GetDirection() const { return lineDirection; }
+	};
+	SelectAll selector(result);
+	selector.lineCenter = x0 + a/2;
+	selector.lineDirection = a;
+	RayTrace(list, selector);
 }
 
 void Level::DrawBackground(size_t tex) const

@@ -611,7 +611,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 
 			if( dist < min_dist )
 			{
-				GC_RigidBodyStatic *pObstacle = g_level->agTrace(g_level->grid_rigid_s,
+				GC_RigidBodyStatic *pObstacle = g_level->TraceNearest(g_level->grid_rigid_s,
 					static_cast<GC_RigidBodyStatic*>(GetCarrier()),
 					GetPos(), pTargetObj->GetPos() - GetPos());
 

@@ -680,7 +680,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
-					g_level->agTrace(g_level->grid_rigid_s, GetVehicle(),
+					g_level->TraceNearest(g_level->grid_rigid_s, GetVehicle(),
 					GetVehicle()->GetPos(), object->GetPos() - GetVehicle()->GetPos()) );
 
 				TargetDesc td;
@@ -1262,7 +1262,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 			vec2d a  = brake * len[i];
 
 			vec2d hit, norm;
-			GC_Object *o = g_level->agTrace(
+			GC_Object *o = g_level->TraceNearest(
 				g_level->grid_rigid_s, 
 				GetVehicle(), 
 				x0,
@@ -1336,7 +1336,7 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 	if( GC_Weap_Gauss::GetTypeStatic() == GetVehicle()->GetWeapon()->GetType() )  // FIXME!
 		return true;
 
-	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->agTrace(
+	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->TraceNearest(
 		g_level->grid_rigid_s,
 		GetVehicle(),
 		GetVehicle()->GetPos(),

@@ -43,7 +43,7 @@ GC_Trigger::~GC_Trigger()
 
 bool GC_Trigger::GetVisible(const GC_Vehicle *v)
 {
-	GC_RigidBodyStatic *object = g_level->agTrace(
+	GC_RigidBodyStatic *object = g_level->TraceNearest(
 		g_level->grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
 	return object == v;
 }

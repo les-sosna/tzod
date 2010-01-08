@@ -1092,7 +1092,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				const vec2d &a = GetDirectionReal();
 				vec2d emitter = GetPos() - a * 20.0f;
 				vec2d hit;
-				if( GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s, GetCarrier(), emitter, -a * lenght, &hit) )
+				if( GC_RigidBodyStatic *object = g_level->TraceNearest(g_level->grid_rigid_s, GetCarrier(), emitter, -a * lenght, &hit) )
 				{
 					object->TakeDamage(dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).len() / lenght), hit, GetCarrier()->GetOwner());
 				}
@@ -1105,7 +1105,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				vec2d a = Vec2dAddDirection(GetDirectionReal(), vec2d(l * 0.15f));
 				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
 				vec2d hit;
-				GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s,
+				GC_RigidBodyStatic *object = g_level->TraceNearest(g_level->grid_rigid_s,
 					GetCarrier(), emitter + a * 2.0f, -a * lenght, &hit);
 				if( object )
 				{

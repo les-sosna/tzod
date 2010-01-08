@@ -35,7 +35,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 }
 
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
-                                         float &outWhere, vec2d &outNormal)
+                                         vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
 	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
 	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
@@ -75,18 +75,29 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 	float signW = lineProjW > 0 ? 1.0f : -1.0f;
 	float signL = lineProjL > 0 ? 1.0f : -1.0f;
 
-	float b1 = (deltaCrossDir * signW - GetHalfWidth());
-	float b2 = (deltaDotDir * signL - GetHalfLength());
+	float b1 = deltaCrossDir * signW - GetHalfWidth();
+	float b2 = deltaDotDir * signL - GetHalfLength();
 	if( b1 * lineProjL_abs > b2 * lineProjW_abs )
 	{
-		outWhere = lineProjW_abs > 0 ? b1 / lineProjW_abs : 0;
-		outNormal = lineProjW > 0 ?
+		outEnter = lineProjW_abs > std::numeric_limits<float>::epsilon() ? b1 / lineProjW_abs : 0;
+		outEnterNormal = lineProjW > 0 ?
 			vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
 	}
 	else
 	{
-		outWhere = lineProjL_abs > 0 ? b2 / lineProjL_abs : 0;
-		outNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
+		outEnter = lineProjL_abs > std::numeric_limits<float>::epsilon() ? b2 / lineProjL_abs : 0;
+		outEnterNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
+	}
+
+	float b1e = deltaCrossDir * signW + GetHalfWidth();
+	float b2e = deltaDotDir * signL + GetHalfLength();
+	if( b1e * lineProjL_abs < b2e * lineProjW_abs )
+	{
+		outExit = lineProjW_abs > std::numeric_limits<float>::epsilon() ? b1e / lineProjW_abs : 0;
+	}
+	else
+	{
+		outExit = lineProjL_abs > std::numeric_limits<float>::epsilon() ? b2e / lineProjL_abs : 0;
 	}
 
 	return true;
@@ -465,7 +476,7 @@ GC_Wall::~GC_Wall()
 
 static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
 
-bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, float &outWhere, vec2d &outNormal)
+bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
 	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
 	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
@@ -515,7 +526,7 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 			return false;
 
 		//
-		// calc intersection point and normal
+		// calc intersection points and normal
 		//
 
 		float signW = lineProjW > 0 ? 1.0f : -1.0f;
@@ -525,28 +536,45 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 		float bL = deltaDotDir * signL - GetHalfLength();
 		float bD = deltaDotDiagonal;
 
-		if( bW * lineProjL_abs > bL * lineProjW_abs && bW * lineProjD_abs > bD * lineProjW_abs )
+		if( lineProjD > 0 && bD * lineProjW_abs > bW * lineProjD_abs && bD * lineProjL_abs > bL * lineProjD_abs )
 		{
-			outWhere = lineProjW_abs > 0 ? bW / lineProjW_abs : 0;
-			outNormal = lineProjW > 0 ?
-				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+			outEnter = lineProjD_abs > 0 ? bD / lineProjD_abs : 0;
+			outEnterNormal = -diagonal;
 		}
-		else if( bL * lineProjD_abs > bD * lineProjL_abs )
+		else if( bW * lineProjL_abs > bL * lineProjW_abs )
 		{
-			outWhere = lineProjL_abs > 0 ? bL / lineProjL_abs : 0;
-			outNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
+			outEnter = lineProjW_abs > 0 ? bW / lineProjW_abs : 0;
+			outEnterNormal = lineProjW > 0 ?
+				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
 		}
 		else
 		{
-			outWhere = lineProjD_abs > 0 ? bD / lineProjD_abs : 0;
-			outNormal = -diagonal;
+			outEnter = lineProjL_abs > 0 ? bL / lineProjL_abs : 0;
+			outEnterNormal = lineProjL > 0 ? -GetDirection() : GetDirection();
+		}
+
+		float bWe = deltaCrossDir * signW + GetHalfWidth();
+		float bLe = deltaDotDir * signL + GetHalfLength();
+		float bDe = -deltaDotDiagonal;
+
+		if( lineProjD < 0 && bDe * lineProjW_abs < bWe * lineProjD_abs && bDe * lineProjL_abs < bLe * lineProjD_abs )
+		{
+			outExit = lineProjD_abs > 0 ? bDe / lineProjD_abs : 0;
+		}
+		else if( bWe * lineProjL_abs < bLe * lineProjW_abs )
+		{
+			outExit = lineProjW_abs > 0 ? bWe / lineProjW_abs : 0;
+		}
+		else
+		{
+			outExit = lineProjL_abs > 0 ? bLe / lineProjL_abs : 0;
 		}
 
 		return true;
 	}
 	else
 	{
-		return __super::CollideWithLine(lineCenter, lineDirection, outWhere, outNormal);
+		return __super::CollideWithLine(lineCenter, lineDirection, outEnterNormal, outEnter, outExit);
 	}
 }
 

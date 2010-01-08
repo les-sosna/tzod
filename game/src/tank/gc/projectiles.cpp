@@ -119,63 +119,76 @@ float GC_Projectile::FilterDamage(float damage, GC_RigidBodyStatic *object)
 	return damage;
 }
 
+void GC_Projectile::ApplyHitDamage(GC_RigidBodyStatic *target, const vec2d &hitPoint)
+{
+	assert(!target->IsKilled());
+	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(target) )
+	{
+		dyn->ApplyImpulse(GetDirection() * _hitImpulse, hitPoint);
+	}
+	float damage = FilterDamage(_hitDamage, target);
+	if( damage >= 0 )
+	{
+		target->TakeDamage(damage, hitPoint, GetRawPtr(_owner));
+	}
+	else
+	{
+		// heal
+		target->SetHealthCur(std::min(target->GetHealth() - damage, target->GetHealthMax()));
+	}
+}
+
 void GC_Projectile::TimeStepFixed(float dt)
 {
 	GC_2dSprite::TimeStepFixed(dt);
 
 	vec2d dx = GetDirection() * (_velocity * dt);
-	vec2d hit, norm;
-	GC_RigidBodyStatic *object = g_level->agTrace(g_level->grid_rigid_s, GetIgnore(), GetPos(), dx, &hit, &norm);
+	std::vector<Level::CollisionPoint> obstacles;
+	g_level->TraceAll(g_level->grid_rigid_s, GetPos(), dx, obstacles);
 
-	if( object )
+	if( !obstacles.empty() )
 	{
-#ifndef NDEBUG
-		vec2d pos = GetPos();
-#endif
-
-		_ignore = object;
-		bool endOfLife = OnHit(object, hit, norm);
-		assert(!object->IsKilled());
-
-		if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
+		struct cmp 
 		{
-			dyn->ApplyImpulse(GetDirection() * _hitImpulse, hit);
-		}
-		float damage = FilterDamage(_hitDamage, object);
-		if( damage >= 0 )
-		{
-			object->TakeDamage(damage, hit, GetRawPtr(_owner));
-		}
-		else
-		{
-			// heal
-			object->SetHealthCur(__min(object->GetHealth() - damage, object->GetHealthMax()));
-		}
-
-		assert(GetPos() == pos);
-		if( endOfLife )
-		{
-			Kill();
-		}
-		else
-		{
-			float new_dt = dt * (1.0f - sqrt((hit - GetPos()).sqr() / dx.sqr()));
-			if( new_dt > 1e-3 )
+			bool operator () (const Level::CollisionPoint &left, const Level::CollisionPoint &right)
 			{
-				MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
-				TimeStepFixed(new_dt);
+				return left.enter < right.enter;
 			}
+		};
+		std::sort(obstacles.begin(), obstacles.end(), cmp());
+		for( std::vector<Level::CollisionPoint>::const_iterator it = obstacles.begin(); obstacles.end() != it; ++it )
+		{
+			if( _ignore == it->obj )
+			{
+				continue;
+			}
+			_ignore = NULL;
+
+			vec2d enter = GetPos() + dx * (it->enter + 0.5f);
+			float depth = it->exit - it->enter;
+			float relativeDepth = depth > std::numeric_limits<float>::epsilon() ?
+				(std::min(.5f, it->exit) - std::max(-.5f, it->enter)) / depth : 1;
+			assert(!_isnan(relativeDepth) && _finite(relativeDepth));
+			assert(relativeDepth >= 0);
+
+			AddRef();
+			bool stop = OnHit(it->obj, enter, it->normal, relativeDepth);
+			if( stop )
+			{
+				if( !IsKilled() )
+					_ignore = NULL;
+				Release();
+				return;
+			}
+			Release();
 		}
 	}
-	else
+
+	MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
+		GetPos().y < 0 || GetPos().y > g_level->_sy )
 	{
-		MoveTo(GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
-	
-		if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
-			GetPos().y < 0 || GetPos().y > g_level->_sy )
-		{
-			Kill();
-		}
+		Kill();
 	}
 }
 
@@ -229,7 +242,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore,
 			if( veh->IsKilled() || GetOwner() == veh->GetOwner() )
 				continue;
 
-			if( veh != g_level->agTrace(g_level->grid_rigid_s, GetIgnore(), GetPos(), veh->GetPos() - GetPos()) )
+			if( veh != g_level->TraceNearest(g_level->grid_rigid_s, GetIgnore(), GetPos(), veh->GetPos() - GetPos()) )
 			{
 				// target invisible
 				continue;
@@ -286,9 +299,11 @@ void GC_Rocket::Serialize(SaveFile &f)
 	f.Serialize(_target);
 }
 
-bool GC_Rocket::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_Rocket::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	(new GC_Boom_Standard(hit + norm, GetOwner()))->_damage = DAMAGE_ROCKET_AK47;
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -377,7 +392,7 @@ void GC_Bullet::Serialize(SaveFile &f)
 	f.Serialize(_trailEnable);
 }
 
-bool GC_Bullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_Bullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static TextureCache tex("particle_trace");
 
@@ -399,6 +414,8 @@ bool GC_Bullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d 
 	pLight->SetIntensity(0.5f);
 	pLight->SetTimeout(0.3f);
 
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -444,7 +461,7 @@ GC_TankBullet::~GC_TankBullet()
 {
 }
 
-bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static TextureCache tex1("particle_trace");
 	static TextureCache tex2("explosion_s");
@@ -476,6 +493,8 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 		PLAY(SND_BoomBullet, hit);
 	}
 
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -511,7 +530,7 @@ GC_PlazmaClod::~GC_PlazmaClod()
 {
 }
 
-bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static TextureCache tex1("particle_green");
 	static TextureCache tex2("explosion_plazma");
@@ -539,6 +558,8 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	new GC_Particle( hit, vec2d(0,0), tex2, 0.3f, vrand(1));
 	PLAY(SND_PlazmaHit, hit);
 
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -588,7 +609,7 @@ void GC_BfgCore::FindTarget()
 		if( veh->IsKilled() || GetOwner() == veh->GetOwner() ) continue;
 
 		// проверка видимости цели
-		if( veh != g_level->agTrace(g_level->grid_rigid_s,
+		if( veh != g_level->TraceNearest(g_level->grid_rigid_s,
 			GetIgnore(), GetPos(), veh->GetPos() - GetPos()) ) continue;
 
 		vec2d a = veh->GetPos() - GetPos();
@@ -621,7 +642,7 @@ void GC_BfgCore::Serialize(SaveFile &f)
 	f.Serialize(_target);
 }
 
-bool GC_BfgCore::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_BfgCore::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static TextureCache tex1("particle_green");
 	static TextureCache tex2("explosion_g");
@@ -643,10 +664,11 @@ bool GC_BfgCore::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d
 	pLight->SetIntensity(1.5f);
 	pLight->SetTimeout(0.5f);
 
-
 	new GC_Particle( hit, vec2d(0,0), tex2, 0.3f );
 	PLAY(SND_BfgFlash, hit);
 
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -765,7 +787,7 @@ void GC_FireSpark::Draw() const
 	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
 }
 
-bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	assert(!object->IsKilled());
 
@@ -801,7 +823,21 @@ bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec
 		new GC_HealthDaemon(object, GetOwner(), 10.0f, 3.0f);
 	}
 
-	return false;
+	ApplyHitDamage(object, hit);
+
+	if( GC_RigidBodyStatic *tmp = g_level->TraceNearest(g_level->grid_rigid_s, object, hit, norm) )
+	{
+		if( tmp->GetOwner() != GetOwner() )
+		{
+			ApplyHitDamage(tmp, hit);
+			Kill();
+		}
+	}
+	else
+	{
+		MoveTo(hit + norm, true);
+	}
+	return true;
 }
 
 void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
@@ -936,7 +972,7 @@ GC_ACBullet::~GC_ACBullet()
 {
 }
 
-bool GC_ACBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_ACBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static const TextureCache tex("particle_trace");
 
@@ -973,6 +1009,8 @@ bool GC_ACBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 	pLight->SetIntensity(1.5f);
 	pLight->SetTimeout(0.1f);
 
+	ApplyHitDamage(object, hit);
+	Kill();
 	return true;
 }
 
@@ -1042,13 +1080,34 @@ void GC_GaussRay::SpawnTrailParticle(const vec2d &pos)
 	_light->SetLength(_light->GetLength() + GetTrailDensity());
 }
 
-bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static const TextureCache tex("particle_gausshit");
 	(new GC_Particle(hit, vec2d(0,0), tex, 0.5f, vec2d(norm.y, -norm.x)))->SetFade(true);
-	SetHitDamage(GetHitDamage() - (GetAdvanced() ? DAMAGE_GAUSS_FADE/4 : DAMAGE_GAUSS_FADE));
+
+	//ApplyHitDamage(object, hit);
+	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(object) )
+	{
+		dyn->ApplyImpulse(GetDirection() * GetHitDamage() / DAMAGE_GAUSS * 100, hit);
+	}
+	float damage = FilterDamage(GetHitDamage(), object);
+	if( damage >= 0 )
+	{
+		object->TakeDamage(damage * relativeDepth, hit, GetOwner());
+	}
+
+
+	if( GetAdvanced() )
+		relativeDepth /= 4;
+	SetHitDamage(GetHitDamage() - relativeDepth * DAMAGE_GAUSS_FADE);
 	SetHitImpulse(GetHitDamage() / DAMAGE_GAUSS * 100);
-	return 0 >= GetHitDamage();
+	if( GetHitDamage() <= 0 )
+	{
+		MoveTo(hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL)); // workaround to see trail at last step
+		Kill();
+		return true;
+	}
+	return false; // don't stop
 }
 
 void GC_GaussRay::Kill()
@@ -1083,12 +1142,15 @@ GC_Disk::~GC_Disk()
 {
 }
 
-bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm)
+bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	static const TextureCache tex1("particle_trace");
 	static const TextureCache tex2("explosion_e");
 
+	ApplyHitDamage(object, hit);
+
 	SetDirection(GetDirection() - norm * 2 * (GetDirection() * norm));
+	MoveTo(hit + norm, true);
 
 	for( int i = 0; i < 11; ++i )
 	{
@@ -1111,7 +1173,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 14; ++n )
 		{
 			new GC_Bullet(
-				hit,
+				GetPos(),
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetIgnore(),
 				GetOwner(),
@@ -1127,6 +1189,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		pLight->SetTimeout(0.2f);
 
 		PLAY(SND_BoomBullet, hit);
+		Kill();
 		return true;
 	}
 
@@ -1141,7 +1204,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 		for( int n = 0; n < 11; ++n )
 		{
 			new GC_Bullet(
-				hit,
+				GetPos(),
 				vec2d(a1 + g_level->net_frand(a2 - a1)) * (g_level->net_frand(2000.0f) + 3000.0f),
 				GetIgnore(),
 				GetOwner(),
@@ -1155,7 +1218,7 @@ bool GC_Disk::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &n
 	pLight->SetIntensity(1.5f);
 	pLight->SetTimeout(0.1f);
 
-	return false;
+	return true;
 }
 
 void GC_Disk::SpawnTrailParticle(const vec2d &pos)
