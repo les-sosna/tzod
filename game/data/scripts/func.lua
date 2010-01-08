@@ -1,6 +1,16 @@
 -- func.lua
 -- defines some usefull functions
 
+local upval_dofile = dofile
+function dofile(filename)
+	upval_dofile("data/" .. filename)
+end
+
+local upval_loadfile = loadfile
+function loadfile(filename)
+	upval_loadfile("data/" .. filename)
+end
+
 
 function msgbox(handler_func, text, option1, option2, option3)
  print "msgbox function is deprecated; use service \"msgbox\" instead"
