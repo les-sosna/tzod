@@ -20,6 +20,7 @@ function msgbox(handler_func, text, option1, option2, option3)
  user.__msgbox_deprecated_workaround_handler = handler_func
  service("msgbox", {
   name="__msgbox_deprecated_workaround_service",
+  text=text,
   on_select=[[
     user.__msgbox_deprecated_workaround_handler(n)
     user.__msgbox_deprecated_workaround_handler = nil
