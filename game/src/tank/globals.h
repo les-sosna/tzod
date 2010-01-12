@@ -51,13 +51,21 @@ extern SafePtr<FS::FileSystem>  g_fs;
 
 struct InputState
 {
-	bool  keys[300];
+	bool  _keys[300];
 	int   mouse_x;
 	int   mouse_y;
 	int   mouse_wheel;
 	bool  bLButtonState;
 	bool  bRButtonState;
 	bool  bMButtonState;
+	bool IsKeyPressed(int code)
+	{
+		if( code > 0 && code < sizeof(_keys) / sizeof(_keys[0]) )
+		{
+			return _keys[code];
+		}
+		return false;
+	}
 };
 
 

@@ -345,9 +345,9 @@ void ControlProfileDlg::OnTimeStep(float dt)
 	_time += dt;
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
 
-	for( int k = 0; k < sizeof(g_env.envInputs.keys) / sizeof(g_env.envInputs.keys[0]); ++k )
+	for( int k = 0; k < sizeof(g_env.envInputs._keys) / sizeof(g_env.envInputs._keys[0]); ++k )
 	{
-		if( g_env.envInputs.keys[k] )
+		if( g_env.envInputs.IsKeyPressed(k) )
 		{
 			if( _skipNextKey )
 			{

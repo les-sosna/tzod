@@ -126,9 +126,9 @@ static void RenderFrame(bool thumbnail)
 
 	// check if print screen key is pressed
 	static char _oldRQ = 0;
-	if( g_env.envInputs.keys[DIK_SYSRQ] && !_oldRQ )
+	if( g_env.envInputs.IsKeyPressed(DIK_SYSRQ) && !_oldRQ )
 		OnPrintScreen();
-	_oldRQ = g_env.envInputs.keys[DIK_SYSRQ];
+	_oldRQ = g_env.envInputs.IsKeyPressed(DIK_SYSRQ);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

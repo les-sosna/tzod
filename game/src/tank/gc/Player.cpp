@@ -605,7 +605,7 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		//
 		// lights
 		//
-		bool tmp = g_env.envInputs.keys[_keyLight];
+		bool tmp = g_env.envInputs.IsKeyPressed(_keyLight);
 		if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 		{
 			PLAY(SND_LightSwitch, GetVehicle()->GetPos());
@@ -618,14 +618,14 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		//
 		// pickup
 		//
-		vs._bState_AllowDrop = g_env.envInputs.keys[_keyPickup]
-			|| ( g_env.envInputs.keys[_keyForward] && g_env.envInputs.keys[_keyBack]  )
-			|| ( g_env.envInputs.keys[_keyLeft]    && g_env.envInputs.keys[_keyRight] );
+		vs._bState_AllowDrop = g_env.envInputs.IsKeyPressed(_keyPickup)
+			|| ( g_env.envInputs.IsKeyPressed(_keyForward) && g_env.envInputs.IsKeyPressed(_keyBack)  )
+			|| ( g_env.envInputs.IsKeyPressed(_keyLeft)    && g_env.envInputs.IsKeyPressed(_keyRight) );
 
 		//
 		// fire
 		//
-		vs._bState_Fire = g_env.envInputs.keys[_keyFire];
+		vs._bState_Fire = g_env.envInputs.IsKeyPressed(_keyFire);
 
 
 		//
@@ -634,10 +634,10 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		if( _arcadeStyle )
 		{
 			vec2d tmp(0, 0);
-			if( g_env.envInputs.keys[_keyForward] ) tmp.y -= 1;
-			if( g_env.envInputs.keys[_keyBack]    ) tmp.y += 1;
-			if( g_env.envInputs.keys[_keyLeft]    ) tmp.x -= 1;
-			if( g_env.envInputs.keys[_keyRight]   ) tmp.x += 1;
+			if( g_env.envInputs.IsKeyPressed(_keyForward) ) tmp.y -= 1;
+			if( g_env.envInputs.IsKeyPressed(_keyBack)    ) tmp.y += 1;
+			if( g_env.envInputs.IsKeyPressed(_keyLeft)    ) tmp.x -= 1;
+			if( g_env.envInputs.IsKeyPressed(_keyRight)   ) tmp.x += 1;
 			tmp.Normalize();
 
 			bool move = tmp.x || tmp.y;
@@ -654,10 +654,10 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		}
 		else
 		{
-			vs._bState_MoveForward = g_env.envInputs.keys[_keyForward];
-			vs._bState_MoveBack    = g_env.envInputs.keys[_keyBack   ];
-			vs._bState_RotateLeft  = g_env.envInputs.keys[_keyLeft   ];
-			vs._bState_RotateRight = g_env.envInputs.keys[_keyRight  ];
+			vs._bState_MoveForward = g_env.envInputs.IsKeyPressed(_keyForward);
+			vs._bState_MoveBack    = g_env.envInputs.IsKeyPressed(_keyBack   );
+			vs._bState_RotateLeft  = g_env.envInputs.IsKeyPressed(_keyLeft   );
+			vs._bState_RotateRight = g_env.envInputs.IsKeyPressed(_keyRight  );
 		}
 
 		if( _moveToMouse )
@@ -709,10 +709,10 @@ void GC_PlayerLocal::ReadControllerStateAndStepPredicted(VehicleState &vs, float
 		}
 		else
 		{
-			vs._bState_TowerLeft   = g_env.envInputs.keys[_keyTowerLeft];
-			vs._bState_TowerRight  = g_env.envInputs.keys[_keyTowerRight];
-			vs._bState_TowerCenter = g_env.envInputs.keys[_keyTowerCenter]
-				|| g_env.envInputs.keys[_keyTowerLeft] && g_env.envInputs.keys[_keyTowerRight];
+			vs._bState_TowerLeft   = g_env.envInputs.IsKeyPressed(_keyTowerLeft);
+			vs._bState_TowerRight  = g_env.envInputs.IsKeyPressed(_keyTowerRight);
+			vs._bState_TowerCenter = g_env.envInputs.IsKeyPressed(_keyTowerCenter)
+				|| g_env.envInputs.IsKeyPressed(_keyTowerLeft) && g_env.envInputs.IsKeyPressed(_keyTowerRight);
 			if( vs._bState_TowerCenter )
 			{
 				vs._bState_TowerLeft  = false;

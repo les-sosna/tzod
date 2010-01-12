@@ -9,7 +9,7 @@ InputManager::InputManager(HWND hWnd)
 {
 	TRACE("init direct input");
 
-	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
+	ZeroMemory(g_env.envInputs._keys, sizeof(g_env.envInputs._keys));
 
 	DWORD dwPriority = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
 
@@ -62,10 +62,10 @@ HRESULT InputManager::InquireInputDevices()
 		return S_OK;
 	}
 
-	ZeroMemory(g_env.envInputs.keys, sizeof(g_env.envInputs.keys));
+	ZeroMemory(g_env.envInputs._keys, sizeof(g_env.envInputs._keys));
 	for( int i = 0; i < sizeof(data); ++i )
 	{
-		g_env.envInputs.keys[i] = (data[i] & 0x80) != 0;
+		g_env.envInputs._keys[i] = (data[i] & 0x80) != 0;
 	}
 
 
