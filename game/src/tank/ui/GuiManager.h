@@ -68,6 +68,9 @@ private:
 	WindowWeakPtr _desktop;
 
 	bool _isAppActive;
+#ifndef NDEBUG
+	bool _dbgFocusIsChanging;
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////

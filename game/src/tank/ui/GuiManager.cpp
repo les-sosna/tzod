@@ -22,6 +22,9 @@ LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory)
   , _captureWnd(NULL)
   , _desktop(NULL)
   , _isAppActive(false)
+#ifndef NDEBUG
+  , _dbgFocusIsChanging(false)
+#endif
 {
 	_desktop.Set(pDesktopFactory->Create(this));
 }
@@ -90,27 +93,42 @@ void LayoutManager::AddTopMost(Window* wnd, bool add)
 
 bool LayoutManager::SetFocusWnd(Window* wnd)
 {
+	assert(!_dbgFocusIsChanging);
 	if( _focusWnd.Get() != wnd )
 	{
 		WindowWeakPtr wp(wnd);
+		WindowWeakPtr oldFocusWnd(_focusWnd.Get());
 
-		// reset old focus
-		if( _focusWnd.Get() )
+		// try setting new focus. it should not change _focusWnd
+#ifndef NDEBUG
+		_dbgFocusIsChanging = true;
+#endif
+		bool focusAccepted = wnd && wnd->GetEnabled() && wnd->GetVisible() && wnd->OnFocus(true);
+#ifndef NDEBUG
+		_dbgFocusIsChanging = false;
+#endif
+		if( !focusAccepted && wp.Get() && oldFocusWnd.Get() )
 		{
-			WindowWeakPtr tmp(_focusWnd.Get());
-			_focusWnd.Set(NULL);
-			tmp->OnFocus(false);
-			if( tmp.Get() && tmp->eventLostFocus )
-				INVOKE(tmp->eventLostFocus) ();
+			for( Window *w = wp.Get()->GetParent(); w; w = w->GetParent() )
+			{
+				if( w == oldFocusWnd.Get() )
+				{
+					// don't reset focus from parent
+					return false;
+				}
+			}
 		}
 
-		// try setting new focus
-		if( wp.Get() && wnd->GetEnabled() && wnd->GetVisible()
-			&& wnd->OnFocus(true) && wp.Get() )
+		// set new focus
+		_focusWnd.Set(focusAccepted ? wp.Get() : NULL);
+		assert(!_focusWnd.Get() || _focusWnd->GetEnabled() && _focusWnd->GetVisible());
+
+		// reset old focus
+		if( oldFocusWnd.Get() && oldFocusWnd.Get() != _focusWnd.Get() )
 		{
-			assert(wnd->GetEnabled() && wnd->GetVisible());
-			assert(!_focusWnd.Get());
-			_focusWnd.Set(wnd);
+			oldFocusWnd->OnFocus(false); // _focusWnd may be destroyed here
+			if( oldFocusWnd.Get() && oldFocusWnd->eventLostFocus )
+				INVOKE(oldFocusWnd->eventLostFocus) ();
 		}
 	}
 	return NULL != _focusWnd.Get();
@@ -118,6 +136,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 
 Window* LayoutManager::GetFocusWnd() const
 {
+	assert(!_dbgFocusIsChanging);
 	return _focusWnd.Get();
 }
 
@@ -371,7 +390,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 	case WM_KEYUP:
 		break;
 	case WM_KEYDOWN:
-		if( Window *wnd = _focusWnd.Get() )
+		if( Window *wnd = GetFocusWnd() )
 		{
 			while( wnd )
 			{
@@ -388,7 +407,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 		}
 		break;
 	case WM_CHAR:
-		if( Window *wnd = _focusWnd.Get() )
+		if( Window *wnd = GetFocusWnd() )
 		{
 			while( wnd )
 			{

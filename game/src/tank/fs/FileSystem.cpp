@@ -129,10 +129,13 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create,
 {
 	assert(!path.empty());
 
-	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
+	// skip delimiters at the beginning
+	string_t::size_type offset = 0;
+	while( offset < path.length() && path[offset] == DELIMITER )
+		++offset;
 
 	if( path.length() == offset )
-		return WrapRawPtr(this); // path contains only one symbol '/'
+		return WrapRawPtr(this); // path consists of delimiters only
 
 	string_t::size_type p = path.find(DELIMITER, offset);
 
@@ -498,13 +501,15 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool creat
 
 	assert(!path.empty());
 
-	string_t::size_type offset = (string_t::size_type) (path[0] == DELIMITER);
-	if( path.length() == offset )
-		return WrapRawPtr(this); // path contains only one DELIMITER symbol
+	// skip delimiters at the beginning
+	string_t::size_type offset = 0;
+	while( offset < path.length() && path[offset] == DELIMITER )
+		++offset;
+	assert(path.length() > offset);
 
-	string_t::size_type p = path.find( DELIMITER, offset );
+	string_t::size_type p = path.find(DELIMITER, offset);
 	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
-	string_t tmpDir = (_rootDirectory + TEXT('\\') + dirName);
+	string_t tmpDir = _rootDirectory + TEXT('\\') + dirName;
 
 	// try to find directory
 	WIN32_FIND_DATA fd = {0};

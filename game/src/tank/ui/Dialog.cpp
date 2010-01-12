@@ -92,8 +92,7 @@ bool Dialog::OnRawChar(int c)
 			Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
 			for( ; r; r = r->GetPrevSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
 		break;
@@ -104,8 +103,7 @@ bool Dialog::OnRawChar(int c)
 			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
 		break;
@@ -116,8 +114,7 @@ bool Dialog::OnRawChar(int c)
 			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
 
@@ -125,8 +122,7 @@ bool Dialog::OnRawChar(int c)
 			r = GetFirstChild();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( !r->GetVisible() || !r->GetEnabled() ) continue;
-				if( GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
 			}
 		}
 		break;
