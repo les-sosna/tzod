@@ -346,6 +346,9 @@ bool ConfVarString::Write(FILE *file, int indent) const
 		case '\\':
 			fputs("\\\\", file);
 			break;
+		case '\r':
+			fputs("\\r", file);
+			break;
 		case '\n':
 			fputs("\\n", file);
 			break;
