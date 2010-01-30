@@ -30,9 +30,7 @@ static long tell_func(void *datasource)
 	return s->Seek(0, SEEK_CUR);
 }
 
-
-// release retrieved data with free()
-void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector<char> *data)
+static void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector<char> *data)
 {
 	SafePtr<FS::Stream> s = g_fs->Open(filename)->QueryStream();
 
