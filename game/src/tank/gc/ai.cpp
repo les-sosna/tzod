@@ -161,20 +161,19 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		}
 	}
 
-	// получение настроек оружия
 	AIWEAPSETTINGS weapSettings;
 	if( GetVehicle()->GetWeapon() )
 		GetVehicle()->GetWeapon()->SetupAI(&weapSettings);
 
 //	return;
 
-	// принятие решения
+	// take decision
 	if( _jobManager.TakeJob(this) )
 		SelectState(&weapSettings);
 
 
-	// установка _currentOffset для понижения меткости стрельбы
-	const float acc_speed = 0.4f; // угловая скорость движения мнимой цели
+	// select a _currentOffset to reduce shooting accuracy
+	const float acc_speed = 0.4f; // angular velocity of a fake target
 	if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
 	{
 		float len = fabsf(_desiredOffset - _currentOffset);
@@ -206,7 +205,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		_currentOffset = 0;
 	}
 
-	// исполнение принятого решения
+	// realize the decision
 	DoState(&vs, &weapSettings);
 	
 	_backTime -= dt;
@@ -227,7 +226,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 
 	//
-	// управление фарами
+	// headlight control
 	//
 	switch( _level )
 	{
@@ -252,7 +251,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	}
 }
 
-bool GC_PlayerAI::CheckCell(const FieldCell &cell)
+bool GC_PlayerAI::CheckCell(const FieldCell &cell) const
 {
 	if( (0xFF != cell.Properties() && GetVehicle()->GetWeapon()) ||
 		(0 == cell.Properties() && !GetVehicle()->GetWeapon()) )
@@ -298,29 +297,29 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		open.pop();
 
 		if( cn.GetX() == end_x && cn.GetY() == end_y )
-			break; // путь найден
+			break; // a path was found
 
 
-		// порядок проверки соседних узлов
+		// neighbor nodes check order
 		//    4 | 0 | 6
 		//   ---+---+---
 		//    2 | n | 3
 		//   ---+---+---
 		//    7 | 1 | 5
 		//                         0  1  2  3  4  5  6  7
-		static int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // смещение клетки по x
-		static int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // смещение клетки по y
+		static int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
+		static int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
 		static float dist [8] = {
 			1.0f, 1.0f, 1.0f, 1.0f,
-			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // стоимость пути
+			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
 
-		// для проверки проходимости по диагонали
+		// for diagonal checks
 		//                           4     5     6     7
 		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
 
 		for( int i = 0; i < 8; ++i )
 		{
-			if( i > 3 ) // проверка проходимости по диагонали
+			if( i > 3 ) // check diagonal passability
 			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]],
 			                     cn.GetY() + per_y[check_diag[(i-4)*2  ]])) ||
 			    !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]],
@@ -333,7 +332,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 			FieldCell &next = field(cn.GetX() + per_x[i], cn.GetY() + per_y[i]);
 			if( CheckCell(next) )
 			{
-				// увеличение стоимости пути при пробивании сквозь стены
+				// increase path cost when travel through the walls
 				float dist_mult = 1;
 				if( 1 == next.Properties() )
 					dist_mult = ws->fDistanceMultipler;
@@ -365,14 +364,14 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 	if( field(end_x, end_y).IsChecked() )
 	{
-		// путь найден
+		// a path was found
 		const FieldCell *cell = &field(end_x, end_y);
 		float distance = cell->Before();
 
 		if( !bTest )
 		{
 			//
-			// создание нового пути
+			// construct a new path
 			//
 
 			ClearPath();
@@ -397,8 +396,8 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 					GC_RigidBodyStatic *object = cell->GetObject(i);
 
 					//
-					// этот блок запрещает мочить свои стационарки.
-					//  (не самая лучшая реализация)
+					// this piece of code protects friendly turrets.
+					//  (could be implemented better)
 					//
 					if( GetTeam() && _level > 0 )
 					{
@@ -418,7 +417,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		return distance;
 	}
 
-	// путь не найден
+	// path not found
 	return -1;
 }
 
@@ -433,7 +432,7 @@ void GC_PlayerAI::SmoothPath()
 	std::list<PathNode>::iterator it[4], tmp;
 
 	//
-	// сглаживание углов
+	// smooth angles
 	//
 	if( _path.size() > 4 )
 	{
@@ -453,7 +452,7 @@ void GC_PlayerAI::SmoothPath()
 
 
 	//
-	// интерполяция сплайном
+	// spline interpolation
 	//
 
 	tmp = _path.begin();
@@ -631,7 +630,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	}
 }
 
-// оценка полезности атаки данной цели
+// evaluate the rate of attacking of the given target
 AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 {
 	assert(target);
@@ -641,7 +640,7 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	if( !target->GetOwner() ||
 		(0 != target->GetOwner()->GetTeam() && target->GetOwner()->GetTeam() == GetTeam()) )
 	{
-		return AIP_NOTREQUIRED; // своих и буздушных не атакуем
+		return AIP_NOTREQUIRED; // don't attack friends and playerless vehicles
 	}
 
 	AIPRIORITY p = AIP_NORMAL;
@@ -652,7 +651,7 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 	return p;
 }
 
-// return TRUE еслт цель найдена
+// return TRUE if a target was found
 bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	if( !GetVehicle()->GetWeapon() ) return FALSE;
@@ -663,7 +662,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	std::vector<TargetDesc> targets;
 
 	//
-	// проверяем цели
+	// check targets
 	//
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, object )
@@ -811,7 +810,7 @@ void GC_PlayerAI::SelectFavoriteWeapon()
 	}
 }
 
-// вычисление координат мнимой цели для стрельбы на опережение
+// calculates the position of a fake target for more accurate shooting
 void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 {
 	ASSERT_TYPE(target, GC_Vehicle);
@@ -892,7 +891,6 @@ void GC_PlayerAI::SetL2(aiState_l2 new_state)
 	_aiState_l2 = new_state;
 }
 
-// выбор действия
 void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 {
 	AIITEMINFO ii_item;
@@ -1009,7 +1007,6 @@ bool GC_PlayerAI::Pickup(GC_Pickup *p)
 }
 
 
-//Оценка ситуации, принятие решения
 void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 {
 	assert(GetVehicle());
@@ -1026,10 +1023,10 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 
 	switch( _aiState_l2 )
 	{
-	case L2_PICKUP: // едем прокачиваться
+	case L2_PICKUP:
 	{
 	} break;
-	case L2_ATTACK: // атакуем игрока
+	case L2_ATTACK:
 	{
 		assert(_target);
 	} break;
@@ -1060,32 +1057,11 @@ void GC_PlayerAI::SetActive(bool active)
 	_isActive = active;
 }
 
-// Исполнение принятого решения
 void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 {
 	if( L1_NONE != _aiState_l1 )
-		return; // ожидание реакции на сообщение
+		return;
 
-	//
-	// удаление ненужных узловых точек
-	//
-
-
-	static const TextureCache tex1("particle_1");
-	static const TextureCache tex2("particle_2");
-
-	/*
-	_path.clear();
-	PathNode p1; p1.coord.Set(100,100);
-	PathNode p2; p2.coord.Set(400,400);
-	PathNode p3; p3.coord.Set(800,100);
-	PathNode p4; p4.coord.Set(800,400);
-
-	_path.push_back(p1);
-	_path.push_back(p2);
-	_path.push_back(p3);
-	_path.push_back(p4);
-	*/
 
 	vec2d brake = GetVehicle()->GetBrakingLength();
 	float brake_len = brake.len();
@@ -1185,7 +1161,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 
-	// проверка убитости основной цели
+	// check if the primary target is still alive
 	if( _target && _target->IsKilled() )
 	{
 		FreeTarget(); // free killed target
@@ -1201,7 +1177,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	//
-	// пробуем атаковать основную цель
+	// attack the primary target if possible
 	//
 	if( _target && IsTargetVisible(GetRawPtr(_target)))
 	{
@@ -1231,7 +1207,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	}
 
 	//
-	// пробуем атаковать побочную цель
+	// attack secondary targets of possible
 	//
 	else if( !_attackList.empty() && IsTargetVisible(GetRawPtr(_attackList.front())) )
 	{
@@ -1303,7 +1279,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	//
-	// обычное следование пути
+	// follow the path
 	//
 
 	float dst = (currentPos - _arrivalPoint).sqr();
@@ -1323,7 +1299,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//if( GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f
 	//	/* && engine_working_time > 1 sec */ )
 	//{
-	//	// застряли :(
+	//	// got stuck :(
 	//	SetL1(L1_STICK);
 	//	_pickupCurrent = NULL;
 	//}
@@ -1344,7 +1320,6 @@ bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic
 
 	if( object && object != target )
 	{
-		// может возникнуть ошибка, если цель убита
 		if( ppObstacle ) *ppObstacle = object;
 		return false;
 	}

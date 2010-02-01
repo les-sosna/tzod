@@ -215,7 +215,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 		if( x1 == node->x && y1 == node->y )
 		{
-			// путь найден.
+			// a path was found
 			assert(node->GetRealDistance() <= max_distance);
 			return node->GetRealDistance();
 		}
@@ -223,7 +223,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 
 		//
-		// проверка соседей
+		// check neighbors
 		//
 		//  4 | 0  | 6
 		// ---+----+---
@@ -232,7 +232,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		//  7 | 1  | 5      //   0  1  2  3  4  5  6  7
 		static int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };
 		static int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };
-		static int dist [8] = { 12,12,12,12,17,17,17,17 }; // стоимость пути
+		static int dist [8] = { 12,12,12,12,17,17,17,17 }; // path cost
 
 		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
 
@@ -300,7 +300,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	node.open = false;
 
 	//
-	// получение списка локаций, накрываемых взрывом
+	// get a list of locations which are affected by the explosion
 	//
 	PtrList<ObjectList> receive;
 	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
@@ -311,7 +311,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	g_level->grid_rigid_s.OverlapRect(receive, rt);
 
 	//
-	// подготовка поля для трассировки
+	// prepare the field for tracing
 	//
 	PtrList<ObjectList>::iterator it = receive.begin();
 	for( ; it != receive.end(); ++it )
@@ -333,7 +333,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	}
 
 	//
-	// трассировка до ближайших объектов
+	// trace to the nearest objects
 	//
 
 	bool bNeedClean = false;
@@ -619,7 +619,7 @@ void GC_HealthDaemon::OnVictimKill(GC_Object *sender, void *param)
 }
 
 /////////////////////////////////////////////////////////////
-//class GC_Text - отображение текста
+//class GC_Text - text drawing
 
 IMPLEMENT_SELF_REGISTRATION(GC_Text)
 {

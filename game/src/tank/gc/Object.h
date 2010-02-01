@@ -279,11 +279,11 @@ private:
 	//
 
 private:
-	DWORD           _flags;             // некоторые свойства определ€ютс€ флагами
-	int             _refCount;          // число ссылок на объект. при создании = 1
+	DWORD           _flags;             // define various object properties
+	int             _refCount;          // = 1 at the construction time
 
-	ObjectList::iterator _itPosFixed;      // позици€ в Level::ts_fixed
-	ObjectList::iterator _itPosFloating;   // позици€ в Level::ts_floating
+	ObjectList::iterator _itPosFixed;      // position in the Level::ts_fixed
+	ObjectList::iterator _itPosFloating;   // position in the Level::ts_floating
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;

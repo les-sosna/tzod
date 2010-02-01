@@ -109,7 +109,7 @@ public:
 	};
 
 
-	class safe_iterator : public base_iterator  // обеспечивает подсчет ссылок
+	class safe_iterator : public base_iterator  // increments node's reference counter
 	{
 	public:
 		safe_iterator() : _node(NULL) {}

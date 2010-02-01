@@ -77,8 +77,8 @@ struct ENVIRONMENT
 
 	int       pause;
 
-	int       nNeedCursor;   // счетчик контроллеров, которым нужен курсор
-	bool      minimized;     // признак свернутости главного окна.
+	int       nNeedCursor;   // number of systems which need the mouse cursor to be visible
+	bool      minimized;     // indicates that the main app window is minimized
 
 	HWND      hMainWnd;      // handle to main application window
 };

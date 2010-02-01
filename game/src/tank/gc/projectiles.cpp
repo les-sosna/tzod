@@ -257,7 +257,6 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore,
 
 			vec2d a = target - GetPos();
 
-			// косинус угла направления на цель
 			float cosinus = (a * GetDirection()) / a.len();
 
 			if( cosinus > nearest_cosinus )
@@ -267,7 +266,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore,
 			}
 		}
 
-		// выбираем только если ближе 20 градусов
+		// select only if less than 20 degrees
 		if( nearest_cosinus > 0.94f )
 		{
 			_target = WrapRawPtr(pNearestTarget);
@@ -322,7 +321,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 
 	if( _target )
 	{
-		if( _target->IsKilled() || WEAP_RL_HOMMING_TIME < _timeHomming )
+		if( _target->IsKilled() || WEAP_RL_HOMING_TIME < _timeHomming )
 		{
 			FreeTarget();
 		}
@@ -340,7 +339,7 @@ void GC_Rocket::TimeStepFixed(float dt)
 			if( ldv > 0 )
 			{
 				dv /= (ldv * _velocity);
-				dv *= WEAP_RL_HOMMING_FACTOR;
+				dv *= WEAP_RL_HOMING_FACTOR;
 
 				vec2d dir(GetDirection());
 				dir += dv * dt;
@@ -608,13 +607,12 @@ void GC_BfgCore::FindTarget()
 	{
 		if( veh->IsKilled() || GetOwner() == veh->GetOwner() ) continue;
 
-		// проверка видимости цели
+		// check target visibility
 		if( veh != g_level->TraceNearest(g_level->grid_rigid_s,
 			GetIgnore(), GetPos(), veh->GetPos() - GetPos()) ) continue;
 
 		vec2d a = veh->GetPos() - GetPos();
 
-		// косинус угла направления на цель
 		float cosinus = (a * GetDirection()) / a.len();
 
 		if( cosinus > nearest_cosinus )
@@ -624,7 +622,7 @@ void GC_BfgCore::FindTarget()
 		}
 	}
 
-	// выбираем только если ближе 30 градусов
+	// accept only if the angle is less than 30 degrees
 	if( nearest_cosinus > 0.87f )
 		_target = pNearestTarget;
 }

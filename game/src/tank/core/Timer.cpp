@@ -15,18 +15,14 @@
 Timer::Timer()
 {
 	_qpf_time_max_dt.QuadPart = MAXLONGLONG;
-	_stopCount = 1; // изначально таймер остановлен
+	_stopCount = 1; // timer is stopped initially
 
 	LARGE_INTEGER  f;
 	QueryPerformanceFrequency(&f);
 	_qpf_frequency = (double) f.QuadPart;
 
-	// по непонятным причинам в windows xp не работает
-	// вызов QueryPerformanceCounter(&_qpf_time_last_dt)
-
-	QueryPerformanceCounter(&f);
-	_qpf_time_last_dt = f;
-	_qpf_time_pause   = f;
+	QueryPerformanceCounter(&_qpf_time_last_dt);
+	_qpf_time_pause = _qpf_time_last_dt;
 }
 
 float Timer::GetDt()
@@ -63,12 +59,7 @@ void Timer::Stop()
 {
 	if( !_stopCount )
 	{
-		// по непонятным причинам в windows xp не работает прямой
-		// вызов QueryPerformanceCounter(&_qpf_time_pause)
-
-		LARGE_INTEGER tmp;
-		QueryPerformanceCounter(&tmp);
-		_qpf_time_pause = tmp;
+		QueryPerformanceCounter(&_qpf_time_pause);
 	}
 
 	_stopCount++;

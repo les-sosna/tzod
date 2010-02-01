@@ -30,24 +30,6 @@ bool PauseGame(bool pause)
 
 //--------------------------------------------------
 
-// проверка на пересечение правильных прямоугольников
-bool IsIntersect(LPFRECT lprtRect1, LPFRECT lprtRect2)
-{
-	float l, r, t, b;
-
-	l = __max(lprtRect1->left,   lprtRect2->left   );
-	r = __min(lprtRect1->right,  lprtRect2->right  );
-
-	if( !(l < r) ) return false;
-
-	t = __max(lprtRect1->top,    lprtRect2->top    );
-	b = __min(lprtRect1->bottom, lprtRect2->bottom );
-
-	if( t < b ) return true;
-
-	return false;
-}
-
 bool PtInFRect(const FRECT &rect, const vec2d &pt)
 {
 	return rect.left <= pt.x && pt.x < rect.right &&
@@ -86,13 +68,11 @@ void OffsetFRect(LPFRECT lpfrt, const vec2d &x)
 	lpfrt->bottom += x.y;
 }
 
-// генерация случайного числа от 0 до max
 float frand(float max)
 {
 	return (float) rand() / RAND_MAX * max;
 }
 
-// генерация случайно направленого вектора длиной len
 vec2d vrand(float len)
 {
 	return vec2d(frand(PI2)) * len;

@@ -197,7 +197,7 @@ void GC_Turret::TimeStepFixed(float dt)
 			{
 				float RotSpeed = 0;
 
-				vec2d fake; // координаты мнимой цели
+				vec2d fake;
 				CalcOutstrip(GetRawPtr(_target), fake);
 
 				float ang2 = ( fake - GetPos() ).Angle();
@@ -651,7 +651,7 @@ GC_TurretMinigun::GC_TurretMinigun(float x, float y)
   : GC_TurretBunker(x, y, "turret_mg_wake")
   , _fireSound(new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos()))
 {
-	_delta_angle = 0.5f; // точность стрельбы
+	_delta_angle = 0.5f; // shooting accuracy
 	_rotator.reset(0, 0, 6.0f, 21.0f, 36.0f);
 
 	_time = 0;
@@ -741,7 +741,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 GC_TurretGauss::GC_TurretGauss(float x, float y)
   : GC_TurretBunker(x, y, "turret_gauss_wake")
 {
-	_delta_angle = 0.03f; // точность стрельбы
+	_delta_angle = 0.03f; // shooting accuracy
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
 
 	_time = 0;

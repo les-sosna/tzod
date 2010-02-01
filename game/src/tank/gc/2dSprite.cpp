@@ -24,7 +24,7 @@ TextureCache::TextureCache(const char *name)
 }
 
 /////////////////////////////////////////////////////////////
-//class GC_2dSprite - базовый класс для графических объектов
+//class GC_2dSprite
 
 IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 {
@@ -92,7 +92,6 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 	SetFrame(0);
 }
 
-// изменение текущего значения z-order
 void GC_2dSprite::SetZ_current(enumZOrder z)
 {
 	assert(0 <= z && Z_COUNT > z || Z_NONE == z);
@@ -164,7 +163,7 @@ enumZOrder GC_2dSprite::GetZ() const
 
 void GC_2dSprite::SetVisible(bool bShow)
 {
-	assert(!bShow || !IsKilled()); // нельзя показывать убитые объекты
+	assert(!bShow || !IsKilled()); // we should now show killed objects
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;

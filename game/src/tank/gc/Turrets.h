@@ -146,7 +146,7 @@ protected:
 	void WakeDown();
 
 public:
-	float _delta_angle;  // точность стрельбы
+	float _delta_angle;  // shooting accuracy control
 
 public:
 	float _time_wait;

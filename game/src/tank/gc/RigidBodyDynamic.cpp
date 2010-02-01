@@ -437,7 +437,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 
 				//
-				// трение
+				// friction
 				//
 #if 0
 				const float N = 0.1f;

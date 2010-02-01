@@ -10,10 +10,10 @@
 enum enumSoundMode
 {
 	SMODE_UNKNOWN = 0,
-	SMODE_PLAY,  // при достижении конца буфера объект автоматически удаляется
+	SMODE_PLAY,  // the GC_Soung object will be destroyed at the end
 	SMODE_LOOP,
-	SMODE_STOP,  // остановка с освобождением ресурса
-	SMODE_WAIT,  // принудительная пауза.
+	SMODE_STOP,  // pause with the resource releasing
+	SMODE_WAIT,  // forced pause
 };
 
 class GC_Sound : public GC_Actor
@@ -51,7 +51,7 @@ public:
 
 	void SetSpeed(float speed);
 	void SetVolume(float vol);
-	void UpdateVolume();  // нужно вызвать после изменения s_volume
+	void UpdateVolume();  // should be called each time the conf.s_volume changes
 
 public:
 	static int _countMax;
@@ -60,7 +60,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////
-//такой звук сам удаляется при удалении объекта
+// got destroyed together with the target object
 class GC_Sound_link : public GC_Sound
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound_link);

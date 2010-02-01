@@ -207,7 +207,7 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 	{
 		assert(!_parent->IsKilled());
 		assert(_parent->GetHealth() > 0);
-		                    //    +-{ максимальное число частичек дыма в секунду }
+		                    //    +-{ particles per second }
 		_time_smoke += dt;  //    |
 		float smoke_dt = 1.0f / (60.0f * (1.0f - _parent->GetHealth() / (_parent->GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
@@ -598,7 +598,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 		{
 			if( from == GetOwner() )
 			{
-				// убил себя апстену =)
+				// killed it self
 				GetOwner()->SetScore(GetOwner()->GetScore() - 1);
 				font = "font_digits_red";
 				wsprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
@@ -608,7 +608,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 				if( 0 != GetOwner()->GetTeam() &&
 					from->GetTeam() == GetOwner()->GetTeam() )
 				{
-					// from убил товарища
+					// 'from' killed his friend
 					from->SetScore(from->GetScore() - 1);
 					font = "font_digits_red";
 					wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
@@ -617,7 +617,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 				}
 				else
 				{
-					// from убил врага - молодец!
+					// 'from' killed his enemy
 					from->SetScore(from->GetScore() + 1);
 					font = "font_digits_green";
 					wsprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),

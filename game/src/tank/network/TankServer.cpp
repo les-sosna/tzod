@@ -391,7 +391,6 @@ void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 
 	if( bAllPlayersReady )
 	{
-		// запрещение приема новых подключений
 		_socketListen.Close();
 		if( _announcer )
 		{

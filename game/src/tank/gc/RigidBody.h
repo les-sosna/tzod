@@ -211,7 +211,7 @@ public:
 	GC_Wall_Concrete(float xPos, float yPos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
-	virtual unsigned char GetPassability() const { return 0xFF; } // непроходимое препятствие
+	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 };
 
@@ -250,7 +250,7 @@ public:
 
 	virtual void Draw() const;
 
-	virtual unsigned char GetPassability() const { return 0xFF; }  // непроходимое препятствие
+	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 };

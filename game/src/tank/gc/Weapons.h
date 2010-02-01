@@ -9,12 +9,12 @@
 struct AIWEAPSETTINGS
 {
 	float fMaxAttackAngleCos;
-	float fProjectileSpeed;    // скорость снаряда
-	float fAttackRadius_min;   // минимальный радиус атаки
-	float fAttackRadius_max;   // максимальный радиус атаки
-	float fAttackRadius_crit;  // критический радиус атаки, когда можно убиться
-	float fDistanceMultipler;  // сложность пробивания стен
-	bool  bNeedOutstrip;       // FALSE, если мгновенное оружие (gauss, ...)
+	float fProjectileSpeed;
+	float fAttackRadius_min;
+	float fAttackRadius_max;
+	float fAttackRadius_crit;  // if you closer than critical distance you may damage your self
+	float fDistanceMultipler;  // applies when traveling through brick walls
+	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
 
 
@@ -228,8 +228,8 @@ protected:
 public:
 	float _fuel;
 	float _fuel_max;
-	float _fuel_rate;  // расход топлива в сек.
-	float _fuel_rep;   // восстановление топлива в сек.
+	float _fuel_consumption_rate;
+	float _fuel_recuperation_rate;
 	int _firingCounter;
 	bool _bReady;
 
@@ -305,8 +305,8 @@ class GC_Weap_Minigun : public GC_Weapon
 
 private:
 	SafePtr<GC_Sound> _sound;
-	float _timeRotate; // для эмуляции вращения стволов
-	float _timeFire;   // время непрерывнго огня
+	float _timeRotate; // for firing animation
+	float _timeFire;
 	float _timeShot;
 	bool _bFire;
 
@@ -337,7 +337,7 @@ class GC_Weap_Zippo : public GC_Weapon
 
 private:
 	SafePtr<GC_Sound> _sound;
-	float _timeFire;   // время непрерывнго огня
+	float _timeFire;
 	float _timeShot;
 	float _timeBurn;
 	bool _bFire;

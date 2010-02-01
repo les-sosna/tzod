@@ -39,8 +39,7 @@ private:
 	float _hitImpulse;
 
 	float _trailDensity;
-	float _trailPath;   // когда это значение превышает _trailDensity,
-	                    // рождается TrailParticle
+	float _trailPath;   // each time this value exceeds the _trailDensity, a trail particle is spawned
 
 protected:
 	virtual void MoveTo(const vec2d &pos, bool trail);

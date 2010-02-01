@@ -433,13 +433,13 @@ int GC_Object::Release()
 
 void GC_Object::SetEvents(DWORD dwEvents)
 {
-	// удаление из TIMESTEP_FIXED
+	// remove from the TIMESTEP_FIXED list
 	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 		0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
         g_level->ts_fixed.safe_erase(_itPosFixed);
 	}
-	// добавление в TIMESTEP_FIXED
+	// add to the TIMESTEP_FIXED list
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
@@ -448,13 +448,13 @@ void GC_Object::SetEvents(DWORD dwEvents)
 		_itPosFixed = g_level->ts_fixed.begin();
 	}
 
-	// удаление из TIMESTEP_FLOATING
+	// remove from the TIMESTEP_FLOATING list
 	if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & _flags) &&
 		0 == (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & dwEvents) )
 	{
 		g_level->ts_floating.safe_erase(_itPosFloating);
 	}
-	// добавление в TIMESTEP_FLOATING
+	// add to the TIMESTEP_FLOATING list
 	else if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & _flags) &&
 			 0 != (GC_FLAG_OBJECT_EVENTS_TS_FLOATING & dwEvents) )
 	{

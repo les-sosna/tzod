@@ -34,19 +34,19 @@ public:
 	//-----------------------------
 	GC_RigidBodyStatic **_ppObjects;
 	unsigned char _objCount;
-	unsigned char _prop;             // 0 - свободно, 1 - пробиваемо, 0xFF - непробиваемо
+	unsigned char _prop;             // 0 - free, 1 - could be broken, 0xFF - impassable
 	//-----------------------------
 	void UpdateProperties();
 	FieldCell()
 	{
 		_ppObjects   = NULL;
 		_objCount    = 0;
-		_prop        = 0;     // свободно
+		_prop        = 0;     // free
 		_mySession   = 0xffffffff;
 	}
 public:
 
-	const FieldCell *_prevCell; // предыдущая клетка пути
+	const FieldCell *_prevCell;
 
 	inline int GetObjectsCount() const { return _objCount; }
 	inline GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
@@ -74,8 +74,8 @@ public:
 	inline float Before() const { return _before; }
 
 private:
-	float _before;          // стоимость пути до данной клетки
-	float _total;                // оценка общей стоимости пути
+	float _before;          // path cost to this node
+	float _total;           // total path cost estimate
 
 	FieldCell(const FieldCell &other); // no copy
 	FieldCell& operator = (const FieldCell &other);
@@ -224,8 +224,8 @@ public:
 /////////////////////////////////////
 //settings
 	bool    _frozen;
-	bool    _limitHit;  // достигнут fraglimit или timelimit
-	float   _sx, _sy;   // размер уровня
+	bool    _limitHit;  // fraglimit or timelimit hit
+	float   _sx, _sy;   // world size
 
 	int _locationsX;
 	int _locationsY;
@@ -347,14 +347,14 @@ public:
 
 	GC_RigidBodyStatic* TraceNearest( Grid<ObjectList> &list,
 	                             const GC_RigidBodyStatic* ignore,
-	                             const vec2d &x0,      // координаты начала
-	                             const vec2d &a,       // направление
+	                             const vec2d &x0,      // origin
+	                             const vec2d &a,       // direction and length
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
 
 	void TraceAll( Grid<ObjectList> &list,
-	               const vec2d &x0,      // координаты начала
-	               const vec2d &a,       // направление
+	               const vec2d &x0,      // origin
+	               const vec2d &a,       // direction and length
 	               std::vector<CollisionPoint> &result) const;
 
 	template<class SelectorType>

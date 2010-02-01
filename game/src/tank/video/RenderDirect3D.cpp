@@ -44,16 +44,16 @@ class RenderDirect3D : public IRender
 {
 	struct _header
 	{
-		char   IdLeight;       //   Длина текстовой информации после первого
-		char   ColorMap;       //   Идентификатор наличия цветовой карты - устарел
-		char   DataType;       //   Тип данных - запакованный или нет
-		char   ColorMapInfo[5];//   Информация о цветовой карте - нужно пропустить эти 5 байт
-		short  x_origin;       //   Начало изображения по оси X
-		short  y_origin;       //   Начало изображения по оси Y
-		short  width;          //   Ширина изображения
-		short  height;         //   Высота изображения
-		char   BitPerPel;      //   Кол-во бит на пиксель - здесь только 24 или 32
-		char   Description;    //   Описание - пропускайте
+		char   IdLeight;        // text section length
+		char   ColorMap;        // obsolete
+		char   DataType;        // compressed or not
+		char   ColorMapInfo[5]; // skip this
+		short  x_origin;        // 
+		short  y_origin;        // 
+		short  width;           // 
+		short  height;          // 
+		char   BitPerPel;       // 24 or 32 only
+		char   Description;     // skip this
 	};
 
 	struct _asyncinfo

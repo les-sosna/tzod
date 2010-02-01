@@ -119,7 +119,7 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 			return;
 		}
 	}
-	// не найден удаляемый контекст
+	// context not found
 	assert(false);
 }
 
@@ -129,8 +129,8 @@ void GC_Actor::MapExchange(MapFile &f)
 
 	if( !f.loading() )
 	{
-		// координаты только сохраняются.
-		// загруженные значения передаются через конструктор.
+		// we only store coordinates.
+		// loaded coordinates are being passed through the constructor.
 		MAP_EXCHANGE_FLOAT(x, _pos.x, 0);
 		MAP_EXCHANGE_FLOAT(y, _pos.y, 0);
 	}

@@ -24,8 +24,8 @@ class GC_Actor : public GC_Object
 
 	typedef std::list<Context>::iterator CONTEXTS_ITERATOR;
 
-	std::list<Context> _contexts;    // список контекстов данного объекта
-	Location           _location;    // координаты в контексте.
+	std::list<Context> _contexts;    // contexts this object belongs to
+	Location           _location;    // location on all contexts.
 
 	vec2d _pos;
 

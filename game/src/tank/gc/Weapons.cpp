@@ -511,7 +511,7 @@ void GC_Weap_AutoCannon::Detach()
 	GC_IndicatorBar *indicator = GC_IndicatorBar::FindIndicator(this, LOCATION_BOTTOM);
 	if( indicator ) indicator->Kill();
 
-	// убиваем звук перезар€дки
+	// kill the reload sound
 	FOREACH( g_level->GetList(LIST_sounds), GC_Sound, object )
 	{
 		if( GC_Sound_link::GetTypeStatic() == object->GetType() )
@@ -926,8 +926,8 @@ void GC_Weap_Ram::Attach(GC_Actor *actor)
 
 
 	_fuel_max  = _fuel = 1.0f;
-	_fuel_rate = 0.2f;
-	_fuel_rep  = 0.1f;
+	_fuel_consumption_rate = 0.2f;
+	_fuel_recuperation_rate  = 0.1f;
 
 	_firingCounter = 0;
 	_bReady = true;
@@ -983,8 +983,8 @@ void GC_Weap_Ram::Serialize(SaveFile &f)
 	f.Serialize(_bReady);
 	f.Serialize(_fuel);
 	f.Serialize(_fuel_max);
-	f.Serialize(_fuel_rate);
-	f.Serialize(_fuel_rep);
+	f.Serialize(_fuel_consumption_rate);
+	f.Serialize(_fuel_recuperation_rate);
 	f.Serialize(_engineSound);
 	f.Serialize(_engineLight);
 }
@@ -1079,14 +1079,14 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_engineSound->Pause(false);
 			_engineSound->MoveTo(GetPos());
 
-			_fuel = __max(0, _fuel - _fuel_rate * dt);
+			_fuel = __max(0, _fuel - _fuel_consumption_rate * dt);
 			if( 0 == _fuel ) _bReady = false;
 
 			GC_RigidBodyDynamic *veh = static_cast<GC_RigidBodyDynamic *>(GetCarrier());
 
 			vec2d v = veh->_lv;
 
-			// основна€ стру€
+			// the primary jet
 			{
 				const float lenght = 50.0f;
 				const vec2d &a = GetDirectionReal();
@@ -1098,7 +1098,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 				}
 			}
 
-			// боковые струи
+			// secondary jets
 			for( float l = -1; l < 2; l += 2 )
 			{
 				const float lenght = 50.0f;
@@ -1117,7 +1117,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 		else
 		{
 			_engineSound->Pause(true);
-			_fuel   = __min(_fuel_max, _fuel + _fuel_rep * dt);
+			_fuel   = __min(_fuel_max, _fuel + _fuel_recuperation_rate * dt);
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 

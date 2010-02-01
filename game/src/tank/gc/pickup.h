@@ -92,8 +92,7 @@ public:
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
-	// оценка полезности предмета для данного танка.
-	// если 0, то предмет бесполезен и его не нужно брать
+	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(GC_Vehicle *veh) { return AIP_NORMAL; }
 
 	// default implementation searches for the nearest vehicle

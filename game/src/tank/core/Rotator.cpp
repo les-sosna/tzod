@@ -9,8 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-// передается ссылка на управлюемую переменную.
-// Rotator будет автоматически изменять ее значение
+// Rotator changes the value of the referenced variable
 Rotator::Rotator(float &angle)
   : _rCurrent(angle)
   , _velocity_current(0)
@@ -246,7 +245,7 @@ void Rotator::OnGettingAngle(float dt)
 
 
 	//
-	// выбираем направление
+	// choose rotation direction
 	//
 
 	float xt1 = _angle_target - PI2;
@@ -255,8 +254,7 @@ void Rotator::OnGettingAngle(float dt)
 	if( fabsf(xc - xt1) < fabsf(xc - xt2) &&
 		fabsf(xc - xt1) < fabsf(xc - _angle_target) )
 	{
-		// отрицательное
-
+		// nagative
 		xt = xt1;
 		vl = -_velocity_limit;
 		ac = -_accel_current;
@@ -266,8 +264,7 @@ void Rotator::OnGettingAngle(float dt)
 	else if( fabsf(xc - xt2) < fabsf(xc - xt1) &&
 		fabsf(xc - xt2) < fabsf(xc - _angle_target) )
 	{
-		// положительное
-
+		// positive
 		xt = xt2;
 		vl = _velocity_limit;
 		ac = _accel_current;
@@ -279,16 +276,14 @@ void Rotator::OnGettingAngle(float dt)
 
 		if( xt > xc )
 		{
-			// положительное
-
+			// positive
 			vl = _velocity_limit;
 			ac = _accel_current;
 			as = -_accel_stop;
 		}
 		else
 		{
-			// отрицательное
-
+			// negative
 			vl = -_velocity_limit;
 			ac = -_accel_current;
 			as = _accel_stop;
@@ -303,21 +298,19 @@ void Rotator::OnGettingAngle(float dt)
 	}
 
 
-	// к этому моменту имеем:
-	// xt - целевая точка
-	// vl - предел скорости с учетом направления
-	// as - коэффициент торможения с учетом направления
-	// aс - коэффициент ускорения с учетом направления
+	// xt - target angle
+	// vl - speed limit
+	// as - breaking factor
+	// ac - acceleration factor
 
 	if( xt > xc && vc >= 0 || xt < xc && vc <= 0 )
 	{
-		// начальная скорость уже направлена в нужную сторону,
-		// или равняется нулю. предварительная остановка не требуется
+		// current speed has the right sign or equals to zero,
+		// so breaking is not needed here
 
 		float x0;
 
-		// координата цели такова, что наблюдается самый общий случай
-		// т.е. ускорение, движение с постоянной скоростью и замедление
+		// accelerate, rotate with constant velocity, then slow down
 		x0 = (vl*vl - vc*vc)/(2.0f * ac) - (vl*vl)/(2.0f * as) + xc;
 		if( (xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt) )
 		{
@@ -325,8 +318,8 @@ void Rotator::OnGettingAngle(float dt)
 			return;
 		}
 
-		// вырождается участок с прямолинейным движением.
-		// в этом случае не достигается максимальная скорость
+		// accelerate, then slow down;
+		// there are no region with constant velocity here
 		x0 = xc - (vc*vc)/(2.0f * as);
 		if( (xc <= x0 && x0 <= xt) || (xc >= x0 && x0 >= xt) )
 		{
@@ -335,27 +328,24 @@ void Rotator::OnGettingAngle(float dt)
 		}
 
 
-		// если дошли до этого места, то целевая точка
-		// слишком близко и затормозить вовремя невозможно
+		// it is too late to break, rotator will miss the target point
 		ga_t3(dt, as);
 	}
 	else
 	{
-		// двигаемся не туда, куда нужно.
-		// вначале необходимо затормозить
-		// далее - обычный порядок обработки с нулевой начальной скоростью
-
+		// rotation has wrong direction
+		// slow down at first; then start with zero	initial velocity
 		ga_t3(dt, -as);
 	}
 }
 
-// ускорение, движение с постоянной скоростью и замедление
+// accelerate, rotate with constant velocity, then slow down
 void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 {
 	float &xc = _rCurrent;
 	float &vc = _velocity_current;
 
-	// фаза ускорения
+	// acceleration phase
 	float t1 = (vl - vc) / ac;
 	if( t <= t1 )
 	{
@@ -364,7 +354,7 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 		return;
 	}
 
-	// фаза движения с постоянной скоростью
+	// constant velocity phase
 	float t2 = (ac * vl*vl + as*((vc - vl)*(vc - vl) + 2*ac*(xt - xc)))/(2.0f*ac*as*vl);
 	if( t <= t2 )
 	{
@@ -373,7 +363,7 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 		return;
 	}
 
-	// фаза замедления
+	// slowdown phase
 	float t3 = (as*((vc - vl)*(vc - vl) + 2*ac*(-xc + xt)) - ac*vl*vl)/(2.0f*ac*as*vl);
 	if( t <= t3 )
 	{
@@ -384,19 +374,19 @@ void Rotator::ga_t1(float t, float ac, float as, float vl, float xt)
 		return;
 	}
 
-	// целевая точка достигнута. полная остановка
+	// reached target point - full stop
 	xc = xt;
 	vc = 0;
 	_state = RS_STOPPED;
 }
 
-// только ускорение и замедление
+// accelerate and slowdown only
 void Rotator::ga_t2(float t, float ac, float as, float xt)
 {
 	float &xc = _rCurrent;
 	float &vc = _velocity_current;
 
-	// фаза ускорения
+	// acceleration phase
 	float t1;
 	if( ac - as > 0 && as < 0 )
 		t1 = ((-vc + sqrtf((as*(2*ac*(xc - xt) - (vc*vc)))/(ac - as)))/ac);
@@ -409,12 +399,12 @@ void Rotator::ga_t2(float t, float ac, float as, float xt)
 		return;
 	}
 
-	// фаза замедления
+	// slowdown phase
 	float t2;
 	if( ac - as > 0 && as < 0 )
-		t2 = ((-vc + sqrtf(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
+		t2 = ((-vc + sqrt(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
 	else
-		t2 = ((-vc - sqrtf(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
+		t2 = ((-vc - sqrt(((ac - as)*(2*ac*(xc - xt) - (vc*vc)))/as))/ac);
 	if( t <= t2 )
 	{
 		float new_xc = ((ac*ac)*as*(t*t) + 2*ac*as*t*vc - ac*(vc*vc) + 2*as*(vc*vc) +
@@ -425,34 +415,32 @@ void Rotator::ga_t2(float t, float ac, float as, float xt)
 		return;
 	}
 
-	// целевая точка достигнута. полная остановка
+	// reached target point - full stop
 	xc = xt;
 	vc = 0;
 	_state = RS_STOPPED;
 }
 
-// только замедление, далее рекурсивно: ускорение, торможение
+// slowdown only, then accelerate and slowdown recursively
 void Rotator::ga_t3(float t, float as)
 {
 	float &xc = _rCurrent;
 	float &vc = _velocity_current;
 
-	// здесь целевая точка не может быть достигнута.
-	// поэтому двигаемся до полной остановки, а потом
-	// вызываем стандартную процедуру достижения цели
+	// rotator anyway will miss the target point
+	// so just break where possible, then start from zero velocity
 
-	// критическое время - момент остановки
+	// stop time
 	float t0 = -vc/as;
 	if( t <= t0 )
 	{
-		// точка остановки не достигнута
+		// stop point was not reached
 		xc = (as * t*t) * 0.5f + t*vc + xc;
 		vc = as*t + vc;
 		return;
 	}
 
-	// проскочили точку остановки
-	// возвращаемся в нее и начинаем движение с нулевой скоростью
+	// move to the stop point, then start from zero velocity
 	vc = 0;
 	xc = xc - (vc*vc)/(2.0f * as);
 	process_dt(t - t0);

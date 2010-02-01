@@ -57,7 +57,7 @@ public:
 	void SendAddBot(const BotDesc &bot);
 	void SendPlayerInfo(const PlayerDesc &pd);
 	void SendTextMessage(const std::string &msg);
-	void SendControl(const ControlPacket &cp); // вызов функции завершает кадр
+	void SendControl(const ControlPacket &cp); // this function terminates current frame and starts next
 	bool RecvControl(ControlPacketVector &result);
 
 	void GetStatistics(NetworkStats *pStats);

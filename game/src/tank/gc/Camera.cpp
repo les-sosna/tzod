@@ -229,7 +229,7 @@ void GC_Camera::Shake(float level)
 	assert(_player);
 	if( 0 == _time_shake )
 		_time_seed = frand(1000.0f);
-	_time_shake = __min(_time_shake + 0.5f * level, PLAYER_RESPAWNTIME / 2);
+	_time_shake = __min(_time_shake + 0.5f * level, PLAYER_RESPAWN_DELAY / 2);
 }
 
 void GC_Camera::Serialize(SaveFile &f)

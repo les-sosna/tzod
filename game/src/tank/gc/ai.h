@@ -47,59 +47,40 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 
-	/*
-	 танк ¬—≈√ƒј едет к начальному узлу в списке.
-	 в процессе движени€ танка узлы удал€ютс€ автоматически.
-	 если путь пустой, танк стоит на месте.
-	----------------------------------------------------------*/
-
-	// узел пути
 	struct PathNode
 	{
 		vec2d coord;
 	};
 
-	//
-	// текущий путь
-	//
 
+	// current path settings
 	vec2d _arrivalPoint;
 	std::list<PathNode> _path;
 	AttackListType _attackList;
 
 
 	//-------------------------------------------------------------------------
-	// Desc: —троит путь до заданной точки, вычисл€ет стоимости пути
-	//  dst_x, dst_y - координаты точки назначени€
-	//  max_depth    - максимальна€ глубина поиска в клетках
-	//  bTest        - если true, то вычисл€етс€ только стоимомть пути
-	// Return: стоимость пути или -1 если путь не найден
+	//  dst_x, dst_y - coordinates of the arrival point
+	//  max_depth    - maximum search depth
+	//  bTest        - if true then path cost is evaluated only; current path remains unchanged
+	// Return: path cost or -1 if path was not found
 	//-------------------------------------------------------------------------
 	float CreatePath(float dst_x, float dst_y, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
 
 
-	//-------------------------------------------------------------------------
-	// Name: CreatePath()
-	// Desc: ќчищает текущий путь и список атаки.
-	//-------------------------------------------------------------------------
+	// clears the current path and the attack list
 	void ClearPath();
 
 
-	//-------------------------------------------------------------------------
-	// Desc: ƒобавл€ет в текущий путь дополнительные узлы дл€ получени€ более
-	//       плавной траектории.
-	//-------------------------------------------------------------------------
+	// create additional path nodes to make it more smooth
 	void SmoothPath();
 
 
 	// find the nearest node to the vehicle
 	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
 
-
-	//-------------------------------------------------------------------------
-	// Desc: ѕроверка проходимости €чейки пол€.
-	//-------------------------------------------------------------------------
-	bool CheckCell(const FieldCell &cell);
+	// check the cell's passability taking into account current weapon settings
+	bool CheckCell(const FieldCell &cell) const;
 
 	struct TargetDesc
 	{
@@ -107,45 +88,43 @@ protected:
         bool bIsVisible;
 	};
 
-	// состо€ни€ »»
+	// ai states
 	enum aiState_l2
 	{
-		L2_PATH_SELECT,   // бесцельно слон€емс€ по уровню
-		L2_PICKUP,        // едем за предметом
-		L2_ATTACK,        // преследуем и, если возможно, атакуем цель
+		L2_PATH_SELECT,   // select any destination with no specific purpose
+		L2_PICKUP,        // go for the item
+		L2_ATTACK,        // pursue the enemy and attack if possible
 	} _aiState_l2;
 
-	// сообщение верхнему уровню
+	// message to the top level
 	enum aiState_l1
 	{
-		L1_NONE,           // все идет по плану
-		L1_PATH_END,       // достигнут конец пути
-		L1_STICK,          // застр€ли
+		L1_NONE,
+		L1_PATH_END,
+		L1_STICK,
 	} _aiState_l1;
 
 protected:
 	SafePtr<GC_Pickup>          _pickupCurrent;
-	SafePtr<GC_RigidBodyStatic> _target;  // текуща€ цель
+	SafePtr<GC_RigidBodyStatic> _target;  // current target
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
 	void LockTarget(const SafePtr<GC_RigidBodyStatic> &target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 
-	bool FindTarget(AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if target found
-	bool FindItem(AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something found
+	bool FindTarget(AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
+	bool FindItem(AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
 
 	void SelectFavoriteWeapon();
 
-	// смещение прицела дл€ понижени€ меткости стрельбы
+	// for aim jitter
 	float _desiredOffset;
 	float _currentOffset;
 
-	// любимое оружие
 	ObjectType _favoriteWeaponType;
 
-	// точность
-	int _level;
+	int _level; // that is difficulty setting
 
 	float _backTime;
 	float _stickTime;
@@ -156,15 +135,14 @@ protected:
 	void RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack);
 	void TowerTo (VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws);
 
-	// вычисл€ет координаты мнимой цели дл€ стрельбы на опережение
-	// target - цель
-	// Vp      - скорость снар€да
+	// calculates the position of a fake target for more accurate shooting
+	// Vp - projectile speed
 	void CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake);
 
 	void ProcessAction(const AIWEAPSETTINGS *ws);
 
-	void SetL1(GC_PlayerAI::aiState_l1 new_state); // переключене состо€ни€ l1
-	void SetL2(GC_PlayerAI::aiState_l2 new_state); // переключене состо€ни€ l2
+	void SetL1(GC_PlayerAI::aiState_l1 new_state);
+	void SetL2(GC_PlayerAI::aiState_l2 new_state);
 
 	void SelectState(const AIWEAPSETTINGS *ws);
 	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);

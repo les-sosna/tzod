@@ -113,13 +113,13 @@ public:
 		return sqrt(x*x + y*y);
 	}
 
-	float Angle() const // угол к оси X
+	float Angle() const // angle to the X axis
 	{
 		float a = atan2(y, x);
 		return (a < 0) ? (a + PI2) : a;
 	}
 
-	vec2d& Normalize() // приведение к единичной длине
+	vec2d& Normalize()
 	{
 		float len = sqrt(x*x + y*y);
 		if( len < 1e-7 )

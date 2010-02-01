@@ -53,7 +53,7 @@ enum enumSoundTemplate
 	SND_Slide1,
 
 	//--------------------------
-	SND_COUNT, // число звуков
+	SND_COUNT, // sound count
 	SND_FORCE_DWORD = 0x7FFFFFFF
 };
 

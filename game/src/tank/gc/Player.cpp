@@ -40,7 +40,7 @@ GC_Player::GC_Player()
   : GC_Service()
   , _memberOf(this)
 {
-	_timeRespawn = PLAYER_RESPAWNTIME;
+	_timeRespawn = PLAYER_RESPAWN_DELAY;
 
 	_team  = 0;
 	_score = 0;
@@ -115,7 +115,7 @@ void GC_Player::MapExchange(MapFile &f)
 void GC_Player::Kill()
 {
 	if( _vehicle )
-		_vehicle->Kill(); // объект будет освобожден в OnVehicleKill()
+		_vehicle->Kill(); // the reference is released in the OnVehicleKill()
 	GC_Service::Kill();
 }
 
@@ -180,12 +180,12 @@ void GC_Player::TimeStepFixed(float dt)
 			//
 
 			assert(!GetVehicle());
-			_timeRespawn = PLAYER_RESPAWNTIME;
+			_timeRespawn = PLAYER_RESPAWN_DELAY;
 
 			std::vector<GC_SpawnPoint*> points;
 			GC_SpawnPoint *pSpawnPoint;
 
-			GC_SpawnPoint *pBestPoint = NULL; // оптимальная точка
+			GC_SpawnPoint *pBestPoint = NULL;
 			float max_dist = -1;
 
 			FOREACH( g_level->GetList(LIST_respawns), GC_SpawnPoint, object )

@@ -423,7 +423,7 @@ GC_pu_Shield::GC_pu_Shield(FromFile)
 
 AIPRIORITY GC_pu_Shield::GetPriority(GC_Vehicle *veh)
 {
-	return AIP_INVULN;
+	return AIP_SHIELD;
 }
 
 void GC_pu_Shield::Attach(GC_Actor *actor)
@@ -595,7 +595,7 @@ void GC_pu_Shock::Detach()
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 {
 	//
-	// находим ближайшего врага
+	// find the nearest enemy
 	//
 
 	float min_dist = AI_MAX_SIGHT * CELL_SIZE;
@@ -606,7 +606,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 	{
 		if( !pTargetObj->IsKilled() && pTargetObj != ignore )
 		{
-			// расстояние до объекта
+			// distance to the object
 			dist = (GetPos() - pTargetObj->GetPos()).len();
 
 			if( dist < min_dist )
@@ -617,7 +617,6 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 
 				if( pObstacle == pTargetObj )
 				{
-					// трассировка уперлась в целевой объект. запомним его.
 					pNearTarget = pTargetObj;
 					min_dist = dist;
 				}

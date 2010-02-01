@@ -7,16 +7,16 @@
 class Timer
 {
 protected:
-	LONG _stopCount;
-
 	// qpf
 	double        _qpf_frequency;
 	LARGE_INTEGER _qpf_time_pause;
 	LARGE_INTEGER _qpf_time_last_dt;
-	LARGE_INTEGER _qpf_time_max_dt;  // максимальное значение dt.
+	LARGE_INTEGER _qpf_time_max_dt;
+
+	LONG _stopCount;
 
 public:
-	Timer();  // при создании таймер остановлен
+	Timer();  // initially stopped
 
 public:
 	float GetDt();

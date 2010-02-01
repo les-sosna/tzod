@@ -105,7 +105,7 @@ public:
 
 	// GC_RigidBodyStatic
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
-	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
+	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return GetRawPtr(_player); }
 
 	// GC_Actor
@@ -153,7 +153,7 @@ public:
 	void SetMoveSound(enumSoundTemplate s);
 
 	// GC_RigidBodyStatic
-	virtual unsigned char GetPassability() const { return 0; } // не является препятствием
+	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual float GetDefaultHealth() const { return 1; }
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 

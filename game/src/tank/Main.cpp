@@ -59,7 +59,7 @@ static void OnPrintScreen()
 {
 	PLAY(SND_Screenshot, vec2d(0, 0));
 
-	// определяем № файла
+	// generate a file name
 
 	CreateDirectory(DIR_SCREENSHOTS, NULL);
 	SetCurrentDirectory(DIR_SCREENSHOTS);

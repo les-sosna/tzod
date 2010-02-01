@@ -17,12 +17,11 @@ class GC_Explosion : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Explosion);
 protected:
 
-	// узел поля (клетка)
 	struct FieldNode
 	{
 		FieldNode *parent;
 
-		// размер одной клетки по горизонтали = 12; по диагонали = 17
+		// horizontal size = 12; diagonal = 17
 		unsigned int x        : 10;
 		unsigned int y        : 10;
 		unsigned int distance : 10;

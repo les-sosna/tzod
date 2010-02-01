@@ -257,7 +257,7 @@ EditorModeListenerHelper::~EditorModeListenerHelper()
 
 ////////////////////////////////////////////////////////////
 
-// в конструкторе нельзя создавать игровые объекты
+// don't create game objects in the constructor
 Level::Level()
   : _modeEditor(false)
   , _steps(0)
@@ -924,8 +924,8 @@ bool Level::CalcOutstrip( const vec2d &fp, // fire point
 
 GC_RigidBodyStatic* Level::TraceNearest( Grid<ObjectList> &list,
                                          const GC_RigidBodyStatic* ignore,
-                                         const vec2d &x0,      // координаты начала
-                                         const vec2d &a,       // направление
+                                         const vec2d &x0,      // origin
+                                         const vec2d &a,       // direction with length
                                          vec2d *ht,
                                          vec2d *norm) const
 {
@@ -978,8 +978,8 @@ GC_RigidBodyStatic* Level::TraceNearest( Grid<ObjectList> &list,
 }
 
 void Level::TraceAll( Grid<ObjectList> &list,
-                      const vec2d &x0,      // координаты начала
-                      const vec2d &a,       // направление
+                      const vec2d &x0,      // origin
+                      const vec2d &a,       // direction with length
                       std::vector<CollisionPoint> &result) const
 {
 	struct SelectAll

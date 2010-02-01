@@ -398,7 +398,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 		tex.uvFrames.push_back(frame);
 		//---------------------
 		if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
-			continue; // текстура с таким именем уже есть. пропускаем.
+			continue; // skip if there is a texture with the same name
 		_mapName_to_Index[texName] = _logicalTextures.size();
 		_logicalTextures.push_back(tex);
 		td->refCount++;
