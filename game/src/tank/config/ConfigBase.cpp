@@ -672,7 +672,7 @@ void ConfVarTable::GetKeyList(std::vector<string_t> &out) const
 
 std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Type type)
 {
-	std::pair<ConfVar*, bool> result(NULL, true);
+	std::pair<ConfVar*, bool> result(nullptr, true);
 
 	assert(ConfVar::typeNil != type);
 	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);

@@ -28,8 +28,9 @@ ListDataSourceMaps::ListDataSourceMaps()
 		try
 		{
 			MapFile file(g_fs->Open(tmp)->QueryStream(), false);
-			it->erase(it->length() - 4); // cut out the file extension
-			int index = AddItem(*it);
+			string_t tmp2 = *it;
+			tmp2.erase(it->length() - 4); // cut out the file extension
+			int index = AddItem(tmp2);
 
 			char size[64];
 			int h = 0, w = 0;

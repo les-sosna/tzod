@@ -35,8 +35,9 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_folder->EnumAllFiles(files, "*." + _ext);
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		it->erase(it->length() - _ext.length() - 1); // cut out the file extension
-		int index = _files->GetData()->AddItem(*it);
+		string_t tmp = *it;
+		tmp.erase(it->length() - _ext.length() - 1); // cut out the file extension
+		int index = _files->GetData()->AddItem(tmp);
 	}
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);

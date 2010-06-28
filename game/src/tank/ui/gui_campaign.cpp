@@ -39,8 +39,9 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
 	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		it->erase(it->length() - 4); // cut out the file extension
-		int index = _files->GetData()->AddItem(*it);
+		string_t tmp = *it;
+		tmp.erase(it->length() - 4); // cut out the file extension
+		int index = _files->GetData()->AddItem(tmp);
 	}
 	_files->GetData()->Sort();
 
