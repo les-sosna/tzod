@@ -26,4 +26,3 @@ layers
 6: trigger
 7: wood, user_sprite
 
-
