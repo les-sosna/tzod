@@ -104,7 +104,7 @@ public:
 
 	// return true if object has been killed
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
-
+	virtual void TDFV(GC_Actor *from);
 
 	//
 	// physics

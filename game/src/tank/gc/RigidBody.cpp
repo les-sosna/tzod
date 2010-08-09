@@ -14,6 +14,8 @@
 
 #include "Sound.h"
 #include "Particles.h"
+#include "Player.h"
+#include "Vehicle.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -293,6 +295,47 @@ void GC_RigidBodyStatic::OnDestroy()
 	}
 }
 
+void GC_RigidBodyStatic::TDFV(GC_Actor *from)
+{
+	if( !_scriptOnDamage.empty() )
+	{
+		if( from && !from->IsKilled() )
+		{
+			std::stringstream buf;
+			buf << "return function(who)";
+			buf << _scriptOnDamage;
+			buf << "\nend";
+
+			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
+			{
+				GetConsole().Printf(1, "OnDamage: %s", lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message from the stack
+			}
+			else
+			{
+				if( lua_pcall(g_env.L, 0, 1, 0) )
+				{
+					GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+					lua_pop(g_env.L, 1); // pop the error message from the stack
+				}
+				else
+				{
+					luaT_pushobject(g_env.L, from);
+					if( lua_pcall(g_env.L, 1, 0, 0) )
+					{
+						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+						lua_pop(g_env.L, 1); // pop the error message from the stack
+					}
+				}
+			}
+		}
+		else
+		{
+			script_exec(g_env.L, _scriptOnDamage.c_str());
+		}
+	}
+}
+
 bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	assert(!IsKilled());
@@ -306,10 +349,9 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *f
 	{
 		SetHealthCur(GetHealth() - damage);
 
-		if( !_scriptOnDamage.empty() )
 		{
 			SafePtr<GC_Object> refHolder(this);
-			script_exec(g_env.L, _scriptOnDamage.c_str());
+			TDFV(from ? from->GetVehicle() : NULL);
 			if( IsKilled() )
 			{
 				return true;

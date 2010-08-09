@@ -575,8 +575,16 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	{
 		return false;
 	}
-
 	SetHealthCur(GetHealth() - dd.damage);
+	{
+		SafePtr<GC_Object> refHolder(this); // this may be killed during script execution
+		TDFV(from ? from->GetVehicle() : NULL);
+		if( IsKilled() )
+		{
+			// TODO: score
+			return true;
+		}
+	}
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{

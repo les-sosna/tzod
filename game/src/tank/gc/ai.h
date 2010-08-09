@@ -141,8 +141,8 @@ protected:
 
 	void ProcessAction(const AIWEAPSETTINGS *ws);
 
-	void SetL1(GC_PlayerAI::aiState_l1 new_state);
-	void SetL2(GC_PlayerAI::aiState_l2 new_state);
+	void SetL1(aiState_l1 new_state);
+	void SetL2(aiState_l2 new_state);
 
 	void SelectState(const AIWEAPSETTINGS *ws);
 	void DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws);
@@ -169,6 +169,7 @@ public:
 	bool March(float x, float y);
 	bool Attack(GC_RigidBodyStatic *target);
 	bool Pickup(GC_Pickup *p);
+	void Stop();
 
 protected:
 	virtual unsigned short GetNetworkID() const { return 0; }

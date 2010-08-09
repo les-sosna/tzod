@@ -1006,6 +1006,11 @@ bool GC_PlayerAI::Pickup(GC_Pickup *p)
 	return false;
 }
 
+void GC_PlayerAI::Stop()
+{
+	FreeTarget();
+	ClearPath();
+}
 
 void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 {

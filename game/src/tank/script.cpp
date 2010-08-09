@@ -19,6 +19,8 @@
 #include "fs/SaveFile.h"
 
 #include "sound/MusicPlayer.h"
+#include "sound/sfx.h"
+#include "gc/Sound.h"
 
 #include "core/debug.h"
 
@@ -913,6 +915,32 @@ int luaT_exists(lua_State *L)
 	return 1;
 }
 
+//setposition(name,x,y)
+int luaT_setposition(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 3 != n )
+	{
+		return luaL_error(L, "3 arguments expected; got %d", n);
+	}
+
+	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
+	float x = (float) luaL_checknumber(L, 2);
+	float y = (float) luaL_checknumber(L, 3);
+	bool d=false;
+	if( GC_Vehicle *ph = dynamic_cast<GC_Vehicle *>(actor)	)
+	{
+		actor->MoveTo(vec2d(x,y));
+	}
+	else if( GC_RigidBodyStatic *ph = dynamic_cast<GC_RigidBodyStatic *>(actor) )
+	{
+		g_level->_field.ProcessObject(ph, false);
+		actor->MoveTo(vec2d(x,y));
+		g_level->_field.ProcessObject(ph, true);
+	}
+	else actor->MoveTo(vec2d(x,y));
+	return 1;
+}
 
 // local x,y = position("object name")
 int luaT_position(lua_State *L)
@@ -1034,6 +1062,25 @@ int luaT_equip(lua_State *L)
 	return 0;
 }
 
+#if 0
+int luaT_PlaySound(lua_State *L)
+{
+	int n = lua_gettop(L);     // get number of arguments
+	if( 2 != n )
+		return luaL_error(L, "wrong number of arguments: 2 expected, got %d", n);
+
+	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
+	const char *filename = luaL_checkstring(L, 2);
+
+	if( filename[0] )
+	{
+		LoadOggVorbis(true, SND_User1, filename);
+		PLAY(SND_User1,actor->GetPos());
+	}
+	return 0;
+}
+#endif
+
 // ai_attack(player, x, y)
 int luaT_ai_march(lua_State *L)
 {
@@ -1064,6 +1111,20 @@ int luaT_ai_attack(lua_State *L)
 	GC_RigidBodyStatic *what = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
 
 	lua_pushboolean(L, who->Attack(what));
+	return 1;
+}
+
+int luaT_ai_stop(lua_State *L)
+{
+	int n = lua_gettop(L);
+	if( 1 != n )
+	{
+		return luaL_error(L, "1 argument expected; got %d", n);
+	}
+
+	GC_PlayerAI *ai = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	ai->Stop();
+
 	return 1;
 }
 
@@ -1213,6 +1274,7 @@ lua_State* script_open(void)
 	lua_register(L, "ai_march", luaT_ai_march);
 	lua_register(L, "ai_attack",luaT_ai_attack);
 	lua_register(L, "ai_pickup",luaT_ai_pickup);
+	lua_register(L, "ai_stop",  luaT_ai_stop);
 
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
@@ -1221,7 +1283,8 @@ lua_State* script_open(void)
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
 	lua_register(L, "freeze",   luaT_freeze);
-
+//	lua_register(L, "play_sound",   luaT_PlaySound);
+	lua_register(L, "setposition", luaT_setposition);
 
 	//
 	// init the command queue
