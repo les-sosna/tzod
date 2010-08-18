@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ogg">
+      <UniqueIdentifier>{5a7f0fe5-48e7-4cdb-afb2-6f31c0786678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vorbis">
+      <UniqueIdentifier>{05cad557-7dc6-4ae2-9170-3a88e4e189b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\oggvorbis\ogg\bitwise.c">
+      <Filter>ogg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\ogg\framing.c">
+      <Filter>ogg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\analysis.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\bitrate.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\block.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\codebook.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\envelope.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\floor0.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\floor1.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\info.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\lookup.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\lpc.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\lsp.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\mapping0.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\mdct.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\psy.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\registry.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\res0.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\sharedbook.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\smallft.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\synthesis.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\vorbisfile.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\oggvorbis\vorbis\window.c">
+      <Filter>vorbis</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

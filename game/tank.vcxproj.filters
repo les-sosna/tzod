@@ -1,0 +1,676 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="misc">
+      <UniqueIdentifier>{519ebc69-9b0a-4228-9aee-7aa09075b2be}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{47b87497-fb12-44a6-8424-2249995c60ea}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{2a2529b4-d31c-4791-99f0-379316ea58aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{4f99556d-5abb-4c19-9e56-6cba5643cc35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video">
+      <UniqueIdentifier>{0ad3dc9a-ec68-4175-99f1-63ff741c376b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file system">
+      <UniqueIdentifier>{ca8fc704-3678-4478-8c5d-9ba46555570e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gc">
+      <UniqueIdentifier>{c890813b-cf37-4226-a7eb-4ea2de62adf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{7ebe957d-179f-4974-9a06-20aa1c645f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="network">
+      <UniqueIdentifier>{aa49e65d-5c87-40bc-b0d7-61c4629312a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{018c9ee1-dfb9-41ac-82b6-92a99c1dd093}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sound">
+      <UniqueIdentifier>{4e0adbfb-dea2-423e-bb61-99241a34e17e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\tank\constants.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\DefaultCamera.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\directx.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\Dsutil.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\functions.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\globals.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\InputManager.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\KeyMapper.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\Level.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\Macros.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\md5.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ObjectListener.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\res\resource.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\script.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\SoundTemplates.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\stdafx.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\config\Config.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\config\ConfigBase.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\config\ConfigCache.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\config\Language.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Application.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\BitCounter.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\ComPtr.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\debug.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Delegate.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Grid.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\JobManager.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\MemoryManager.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\MyMath.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Profiler.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\PtrList.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Rotator.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\SafePtr.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\singleton.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\Timer.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\core\types.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\video\ImageLoader.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\video\RenderBase.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\video\RenderDirect3D.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\video\RenderOpenGL.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\video\TextureManager.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\fs\FileSystem.h">
+      <Filter>file system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\fs\MapFile.h">
+      <Filter>file system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\fs\SaveFile.h">
+      <Filter>file system</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\2dSprite.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Actor.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\ai.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Camera.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\crate.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\GameClasses.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\indicators.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Light.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\MessageBox.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\notify.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Object.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\particles.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\pickup.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Player.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\projectiles.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\RigidBody.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\RigidBodyDinamic.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Service.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Sound.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Trigger.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Turrets.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\UserObjects.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Vehicle.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\WeakPtr.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\gc\Weapons.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Base.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Button.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Combo.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Console.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\ConsoleBuffer.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\DataSourceAdapters.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Dialog.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Edit.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_campaign.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_desktop.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_editor.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_getfilename.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_mainmenu.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_maplist.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_network.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_scoretable.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_settings.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\gui_widgets.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\GuiManager.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Interface.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\List.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\ListBase.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\MousePointer.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Scroll.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Text.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ui\Window.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\ClientFunctions.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\CommonTypes.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\ControlPacket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\HttpClient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\init.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\LobbyClient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\Peer.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\ServerFunctions.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\Socket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\TankClient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\TankServer.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\network\Variant.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\sound\MusicPlayer.h">
+      <Filter>sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\sound\sfx.h">
+      <Filter>sound</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\tank\DefaultCamera.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\directx.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\Dsutil.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\functions.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\globals.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\InputManager.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\KeyMapper.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\Level.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\Main.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\Md5.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\script.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\stdafx.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\config\Config.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\config\ConfigBase.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\config\Language.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\core\Application.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\core\Profiler.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\core\Rotator.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\core\SafePtr.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\core\Timer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\video\ImageLoader.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\video\RenderDirect3D.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\video\RenderOpenGL.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\video\TextureManager.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\fs\FileSystem.cpp">
+      <Filter>file system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\fs\MapFile.cpp">
+      <Filter>file system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\fs\SaveFile.cpp">
+      <Filter>file system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\2dSprite.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Actor.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\ai.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Camera.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\crate.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\GameClasses.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\indicators.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Light.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\MessageBox.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Object.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\particles.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\pickup.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Player.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\projectiles.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\RigidBody.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\RigidBodyDynamic.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Service.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Sound.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Trigger.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Turrets.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\UserObjects.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Vehicle.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\gc\Weapons.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Button.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Combo.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Console.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\ConsoleBuffer.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Dialog.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Edit.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_campaign.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_desktop.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_editor.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_getfilename.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_mainmenu.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_maplist.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_network.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_scoretable.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_settings.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\gui_widgets.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\GuiManager.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Interface.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\List.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\ListBase.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\MousePointer.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Scroll.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Text.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ui\Window.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\CommonTypes.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\ControlPacket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\HttpClient.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\init.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\LobbyClient.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\Peer.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\Socket.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\TankClient.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\TankServer.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\network\Variant.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\sound\MusicPlayer.cpp">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\sound\sfx.cpp">
+      <Filter>sound</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\tank\res\icon.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\tank\res\rt_manif.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="data\lang.cfg">
+      <Filter>config</Filter>
+    </None>
+    <None Include="data\scripts\autocomplete.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\func.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\init.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\names.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\textures.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\vehicles.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="data\scripts\weapons.lua">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="bugs.txt" />
+    <None Include="History.txt" />
+    <None Include="Readme.txt" />
+    <None Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\tank\res\tank.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
