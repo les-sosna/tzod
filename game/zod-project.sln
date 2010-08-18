@@ -1,17 +1,12 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank", "tank.vcproj", "{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
-	ProjectSection(ProjectDependencies) = postProject
-		{69802413-3739-43E0-96C9-709713A35B34} = {69802413-3739-43E0-96C9-709713A35B34}
-		{2E00FA2D-FB50-449E-BCB8-8E0DAF584772} = {2E00FA2D-FB50-449E-BCB8-8E0DAF584772}
-		{7E7DCD27-D75C-44C3-A135-312FB3A235C6} = {7E7DCD27-D75C-44C3-A135-312FB3A235C6}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tank", "tank.vcxproj", "{C0359F7D-73F9-42F5-93D1-9CCC0284EA54}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "lua.vcproj", "{69802413-3739-43E0-96C9-709713A35B34}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "lua.vcxproj", "{69802413-3739-43E0-96C9-709713A35B34}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oggvorbis", "oggvorbis.vcproj", "{7E7DCD27-D75C-44C3-A135-312FB3A235C6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oggvorbis", "oggvorbis.vcxproj", "{7E7DCD27-D75C-44C3-A135-312FB3A235C6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcxproj", "{2E00FA2D-FB50-449E-BCB8-8E0DAF584772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
