@@ -71,11 +71,11 @@ public:
 		float x, y;
 		switch( index )
 		{
+		default: assert(false);
 		case 0: x =  _length / 2; y =  _width / 2; break;
 		case 1: x = -_length / 2; y =  _width / 2; break;
 		case 2: x = -_length / 2; y = -_width / 2; break;
 		case 3: x =  _length / 2; y = -_width / 2; break;
-		default: assert(false);
 		}
 		return vec2d(
 			GetPos().x + x * GetDirection().x - y * GetDirection().y,
