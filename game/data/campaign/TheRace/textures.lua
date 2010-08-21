@@ -1,0 +1,120 @@
+
+
+return {
+--------------------------------------
+{
+   file="campaign/TheRace/textures/forward.tga",
+   content={
+     ["user/f"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/menu.tga",
+   content={
+     ["user/menu"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/mover.tga",
+   content={
+     ["user/r"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/finish.tga",
+   content={
+     ["user/finish"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/checkpoint.tga",
+   content={
+     ["user/point"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/gorizontal.tga",
+   content={
+     ["user/point2"]={},
+   }
+},
+{
+   file="campaign/TheRace/textures/red.tga",
+   content={
+     ["user/red"]={left=24, top=4, right=42, bottom=60},
+   }
+},
+{
+   file="campaign/TheRace/textures/green.tga",
+   content={
+     ["user/green"]={left=24, top=4, right=42, bottom=60},
+   }
+},
+{
+   file="campaign/TheRace/textures/yellow.tga",
+   content={
+     ["user/yellow"]={left=24, top=4, right=42, bottom=60},
+   }
+},
+{
+   file="campaign/TheRace/textures/disable.tga",
+   content={
+     ["user/disable"]={left=24, top=4, right=42, bottom=60},
+   }
+},
+{
+    file="campaign/TheRace/textures/skins/car_blue.tga",
+    content={ 
+      ["skin/car_blue"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/car_red.tga",
+    content={ 
+      ["skin/car_red"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/f1.tga",
+    content={ 
+      ["skin/f1"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/f1_b.tga",
+    content={ 
+      ["skin/f1_b"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/f1_blue.tga",
+    content={ 
+      ["skin/f1_blue"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/police.tga",
+    content={ 
+      ["skin/police"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/skins/zil.tga",
+    content={ 
+      ["skin/zil"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/menu.tga",
+    content={ 
+      ["user/menu"]={},
+	}
+},
+{
+    file="campaign/TheRace/textures/gen.tga",
+    content={ 
+      ["user/gen"]={},
+	}
+},
+--------------------------------------
+}
