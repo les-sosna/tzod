@@ -48,7 +48,7 @@ struct VehicleClass
 class GC_VehicleBase : public GC_RigidBodyDynamic
 {
 public:
-	GC_VehicleBase();
+	GC_VehicleBase(float x, float y);
 	GC_VehicleBase(FromFile);
 	virtual ~GC_VehicleBase();
 
@@ -76,6 +76,22 @@ class GC_Vehicle : public GC_VehicleBase
 
 	SafePtr<GC_Weapon>   _weapon;
 	SafePtr<GC_Player>   _player;
+	string_t _playername;
+	string_t _skinname;
+
+protected:
+	class MyPropertySet : public GC_VehicleBase::MyPropertySet
+	{
+		typedef GC_VehicleBase::MyPropertySet BASE;
+		ObjectProperty _propSkin;
+		ObjectProperty _propPlayer;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
 
 protected:
 	SafePtr<GC_VehicleVisualDummy> _visual;
@@ -90,6 +106,7 @@ public:
 	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
 
 	void SetPlayer(const SafePtr<GC_Player> &player);
+	void DeleteDamage();
 
 public:
 	GC_Vehicle(float x, float y);
@@ -100,6 +117,9 @@ public:
 	void SetSkin(const string_t &skin);
 	void SetState(const VehicleState &vs);
 	void SetPredictedState(const VehicleState &vs);
+//--------------------------------------------------------
+	virtual void MapExchange(MapFile &f);
+//--------------------------------------------------------
 	const VehicleState& GetPredictedState() const { return _statePredicted; }
 	GC_VehicleVisualDummy* GetVisual() const { return GetRawPtr(_visual); }
 
@@ -151,14 +171,13 @@ public:
 	virtual ~GC_VehicleVisualDummy();
 
 	void SetMoveSound(enumSoundTemplate s);
-
+	void ShutUp();
 	// GC_RigidBodyStatic
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual float GetDefaultHealth() const { return 1; }
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
-
 	// GC_2dSprite
-	virtual void Draw() const;
+	//virtual void Draw() const;
 
 	// GC_Object
 	virtual void Kill();
@@ -202,12 +221,32 @@ class GC_Tank_Light : public GC_Vehicle
 {
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
+	/*string_t _playername;
+	string_t _skinname;
+
+protected:
+	float _time_smoke;
+	class MyPropertySet : public GC_Vehicle::MyPropertySet
+	{
+		typedef GC_Vehicle::MyPropertySet BASE;
+		ObjectProperty _propSkin;
+		ObjectProperty _propPlayer;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();*/
+
 public:
 	GC_Tank_Light(float x, float y);
 	GC_Tank_Light(FromFile);
-
+	//virtual void MapExchange(MapFile &f);
+	//virtual void Serialize(SaveFile &f);
 	virtual float GetDefaultHealth() const { return 100; }
 	virtual void OnDestroy();
+	virtual void Draw() const;
 };
 
 // end of file

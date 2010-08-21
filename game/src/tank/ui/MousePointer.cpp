@@ -18,6 +18,8 @@ MouseCursor::MouseCursor(LayoutManager* manager, const char *texture)
   : Window(NULL, manager)
 {
 	SetTexture(texture, true);
+	SetDrawBorder(false);
+
 	_text = Text::Create(this, GetWidth(), GetHeight(), "", alignTextLT);
 	_timeShow = 0;
 	_timeAnim = 0;
@@ -61,7 +63,7 @@ void MouseCursor::OnTimeStep(float dt)
 
 	if( GetVisible() )
 		SetFrame( abs((int) GetFrameCount()-1 - int((_timeAnim * ANIMATION_FPS / 3)) % ((int) GetFrameCount() * 2 - 2)) );
-
+//	else SetFrame(-1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@ public:
 	virtual void OnDestroy();
 
 	virtual float GetDefaultHealth() const { return 50; }
-	virtual unsigned char GetPassability() const { return 0; }
+	virtual unsigned char GetPassability() const { return 1; }
 };
 
 

@@ -27,6 +27,7 @@ class NewGameDlg : public Dialog
 	DefaultListBox  *_players;
 	DefaultListBox  *_bots;
 	CheckBox  *_nightMode;
+	CheckBox  *_unlimmapMode;
 	Edit      *_gameSpeed;
 	Edit      *_fragLimit;
 	Edit      *_timeLimit;

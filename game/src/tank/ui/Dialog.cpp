@@ -4,7 +4,7 @@
 
 #include "Dialog.h"
 #include "GuiManager.h"
-
+#include "gui_desktop.h"
 
 namespace UI
 {
@@ -33,6 +33,9 @@ void Dialog::SetEasyMove(bool enable)
 
 void Dialog::Close(int result)
 {
+	UI::Window *in = g_gui->GetDesktop();
+	UI::Desktop *tmp2 = static_cast<UI::Desktop *>(in);
+	if (this==tmp2->_main) tmp2->_main=NULL;
 	if( eventClose )
 		eventClose(result);
 	Destroy();

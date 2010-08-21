@@ -43,7 +43,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 	vec2d _external_impulse;
 	float _external_torque;
 
-
+protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;

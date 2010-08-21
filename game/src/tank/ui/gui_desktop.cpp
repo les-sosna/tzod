@@ -116,7 +116,7 @@ const UI::string_t& Desktop::MyConsoleHistory::GetItem(size_t index) const
 }
 
 Desktop::Desktop(LayoutManager* manager)
-  : Window(NULL, manager)
+  : Window(NULL, manager), _main(NULL)
 {
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
@@ -196,6 +196,10 @@ void Desktop::ShowConsole(bool show)
 void Desktop::OnCloseChild(int result)
 {
 	SetDrawBackground(false);
+	if( g_level->GetEditorMode()  )
+	{
+		GetManager()->SetFocusWnd(_editor);
+	}
 }
 
 MessageArea* Desktop::GetMsgArea() const
@@ -228,34 +232,50 @@ bool Desktop::OnRawChar(int c)
 	case VK_ESCAPE:
 		if( _con->Contains(GetManager()->GetFocusWnd()) )
 		{
-			_con->SetVisible(false);
+			_con->SetVisible(false);	
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this);
+
+			ShowMenu();
+			/*if (!_main)
+			{
+			_main = new MainMenuDlg(this);
 			SetDrawBackground(true);
-			dlg->eventClose = std::tr1::bind(&Desktop::OnCloseChild, this, _1);
+			_main->eventClose = std::tr1::bind(&Desktop::OnCloseChild, this, _1);
+			}
+			else
+			{
+				_main->OnRawChar(VK_ESCAPE);
+			}*/
 		}
 		break;
 
 	case VK_F2:
+		if((!GetManager()->GetFocusWnd()) || (GetManager()->GetFocusWnd() == GetEditor()))
+		{
 		dlg = new NewGameDlg(this);
 		SetDrawBackground(true);
 		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
+		}
 		break;
 
 	case VK_F12:
+		if((!GetManager()->GetFocusWnd()) || (GetManager()->GetFocusWnd() == GetEditor()))
+		{
 		dlg = new SettingsDlg(this);
 		SetDrawBackground(true);
 		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
+		}
 		break;
 
 	case VK_F5:
 		g_level->SetEditorMode(!g_level->GetEditorMode());
+		GetEditor()->_mbutton=0;
 		break;
 
 	case VK_F8:
-		if( g_level->GetEditorMode() )
+		if(g_level->GetEditorMode() && GetManager()->GetFocusWnd() == GetEditor())
 		{
 			dlg = new MapSettingsDlg(this);
 			SetDrawBackground(true);
@@ -268,6 +288,34 @@ bool Desktop::OnRawChar(int c)
 	}
 
 	return true;
+}
+
+void Desktop::ReBuildMenu()
+{
+	if (_main != NULL)
+	{
+	_main->OnRawChar(VK_ESCAPE);}
+	_main = new MainMenuDlg(this);
+	SetDrawBackground(true);
+	_main->eventClose = std::tr1::bind(&Desktop::OnCloseChild, this, _1);
+	
+}
+
+void Desktop::ShowMenu()
+{	
+	if (_main != NULL)
+	{
+		if (_main->GetVisible() == true)
+		{
+			_main->OnRawChar(VK_ESCAPE);
+		}
+	}
+	else
+	{
+	_main = new MainMenuDlg(this);
+	SetDrawBackground(true);
+	_main->eventClose = std::tr1::bind(&Desktop::OnCloseChild, this, _1);
+	}
 }
 
 bool Desktop::OnFocus(bool focus)

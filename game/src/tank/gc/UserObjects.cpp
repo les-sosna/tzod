@@ -9,10 +9,13 @@
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"
+#include "Sound.h"
 
+#include "particles.h"
+#include "config/Config.h"
+#include "functions.h"
 #include "video/TextureManager.h"
 
-///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
@@ -56,7 +59,7 @@ void GC_UserObject::MapExchange(MapFile &f)
 	GC_RigidBodyStatic::MapExchange(f);
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
-	
+
 	if( f.loading() )
 	{
 		SetTexture(_textureName.c_str());
@@ -223,11 +226,11 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
 	for( size_t i = 1; i < names.size(); ++i )
 	{
 		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
-		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
-		{
+		//if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
+		//{
 			// only allow using textures which are less than half of cell
 			_propTexture.AddItem(names[i]);
-		}
+		//}
 	}
 	_propLayer.SetIntRange(0, Z_COUNT-1);
 	_propAnimate.SetFloatRange(0, 100);

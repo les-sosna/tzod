@@ -78,6 +78,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_FLOAT(  cl_timelimit,         7 ) // minutes
 	VAR_INT(    cl_fraglimit,        21 )
 	VAR_BOOL(   cl_nightmode,     false )
+	VAR_BOOL(   cl_unlimmap,     false )
 	VAR_STR(    cl_server,  "localhost" )
 	VAR_FLOAT(  cl_latency,           0 )
 	VAR_FLOAT(  cl_boost,             1 )

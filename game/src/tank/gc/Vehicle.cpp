@@ -19,6 +19,7 @@
 #include "player.h"
 #include "turrets.h"
 #include "Weapons.h"
+#include "ai.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -26,6 +27,7 @@
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
+#include "fs/MapFile.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +37,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_VehicleVisualDummy)
 }
 
 GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
-  : GC_VehicleBase()
+	: GC_VehicleBase(parent->GetPos().x,parent->GetPos().y)
   , _time_smoke(0)
   , _trackDensity(8)
   , _trackPathL(0)
@@ -43,8 +45,6 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
   , _parent(parent)
 {
 	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS, true);
-	SetZ(Z_VEHICLES);
-	SetShadow(true);
 
 	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent);
 
@@ -116,19 +116,19 @@ void GC_VehicleVisualDummy::Serialize(SaveFile &f)
 	f.Serialize(_parent);
 }
 
-void GC_VehicleVisualDummy::Draw() const
+//void GC_VehicleVisualDummy::Draw() const
+//{
+	//GC_VehicleBase::Draw();
+//}
+//пустым танкам шуметь не положено
+void GC_VehicleVisualDummy::ShutUp()
 {
-	GC_VehicleBase::Draw();
-
-	if( g_conf.g_shownames.Get() && _parent->GetOwner() )
+	if( _moveSound)
 	{
-		const vec2d &pos = GetPosPredicted();
-		static TextureCache f("font_small");
-		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
-			f.GetTexture(), 0x7f7f7f7f, _parent->GetOwner()->GetNick(), alignTextCT);
+		_moveSound->Kill();
+		//ZeroMemory(&_moveSound, sizeof(_moveSound));
 	}
 }
-
 void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 {
 	static const TextureCache track("cat_track");
@@ -212,7 +212,7 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - _parent->GetHealth() / (_parent->GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
+			(new GC_Particle(_parent->GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
 		}
 	}
 
@@ -241,7 +241,7 @@ void GC_VehicleVisualDummy::UpdateLight()
 
 void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
 {
-	if( g_conf.g_showdamage.Get() )
+	if( g_conf.g_showdamage.Get() && _parent->GetOwner() )
 	{
 		if( _damLabel )
 		{
@@ -261,21 +261,25 @@ void GC_VehicleVisualDummy::OnDamLabelDisappear(GC_Object *sender, void *param)
 	assert(_damLabel);
 	_damLabel = NULL;
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_VehicleBase::GC_VehicleBase()
-  : GC_RigidBodyDynamic()
+GC_VehicleBase::GC_VehicleBase(float x, float y) : GC_RigidBodyDynamic()
   , _enginePower(0)
   , _rotatePower(0)
   , _maxRotSpeed(0)
   , _maxLinSpeed(0)
 {
+	MoveTo(vec2d(x, y));
+	//MoveTo(vec2d(x, y));
+	//SetZ(Z_VEHICLES);
+	//SetTexture("skin/red");
+	//AlignToTexture();
 }
 
 GC_VehicleBase::GC_VehicleBase(FromFile)
   : GC_RigidBodyDynamic(FromFile())
 {
+
 }
 
 GC_VehicleBase::~GC_VehicleBase()
@@ -284,10 +288,10 @@ GC_VehicleBase::~GC_VehicleBase()
 
 void GC_VehicleBase::SetClass(const VehicleClass &vc)
 {
-	for( int i = 0; i < 4; i++ )
-	{
+	//for( int i = 0; i < 4; i++ )
+	//{
 		SetSize(vc.width, vc.length);
-	}
+	//}
 
 	_inv_m  = 1.0f / vc.m;
 	_inv_i  = 1.0f / vc.i;
@@ -363,7 +367,7 @@ void GC_VehicleBase::ApplyState(const VehicleState &vs)
 ///////////////////////////////////////////////////////////////////////////////
 
 GC_Vehicle::GC_Vehicle(float x, float y)
-  : GC_VehicleBase()
+  : GC_VehicleBase(x,y)
   , _memberOf(this)
 {
 	ZeroMemory(&_stateReal, sizeof(VehicleState));
@@ -373,6 +377,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 	_visual = WrapRawPtr(new GC_VehicleVisualDummy(this));
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetZ(Z_VEHICLES);
 #ifdef _DEBUG
 	SetZ(Z_VEHICLES);
 #endif
@@ -421,6 +426,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 
 void GC_Vehicle::SetPlayer(const SafePtr<GC_Player> &player)
 {
+	if (player != NULL)
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
 
@@ -436,6 +442,7 @@ void GC_Vehicle::Serialize(SaveFile &f)
 	f.Serialize(_player);
 	f.Serialize(_weapon);
 	f.Serialize(_visual);
+	f.Serialize(_skinname);
 }
 
 void GC_Vehicle::Kill()
@@ -528,7 +535,8 @@ void GC_Vehicle::SetSkin(const string_t &skin)
 {
 	string_t tmp = "skin/";
 	tmp += skin;
-	_visual->SetTexture(tmp.c_str());
+	SetTexture(tmp.c_str());
+	_skinname=skin;
 }
 
 void GC_Vehicle::ResetClass()
@@ -575,6 +583,11 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	{
 		return false;
 	}
+	if(from){
+
+	if (GC_Actor *actor = dynamic_cast<GC_Actor *>(from->GetVehicle())) 
+		TDFV(actor);
+	} else TDFV(0);
 	SetHealthCur(GetHealth() - dd.damage);
 	{
 		SafePtr<GC_Object> refHolder(this); // this may be killed during script execution
@@ -700,10 +713,236 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
 		GetPos().y < 0 || GetPos().y > g_level->_sy )
 	{
-		if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
+		if (g_conf.cl_unlimmap.Get()) 
+		{
+			short teleported;
+			if (GetPos().x > g_level->_sx+20)
+			{MoveTo(vec2d(-19,GetPos().y)); teleported=1;}
+			else if (GetPos().y > g_level->_sy+20)
+			{MoveTo(vec2d(GetPos().x,-19)); teleported=2;}
+			else if (GetPos().x+20 < 0)
+			{MoveTo(vec2d(g_level->_sx+19,GetPos().y)); teleported=3;}
+			else if (GetPos().y+20 < 0) 
+			{MoveTo(vec2d(GetPos().x,g_level->_sy+19)); teleported=4;}
+			if (teleported)
+			{
+			if( g_render->GetWidth() < int(g_level->_sx) && g_render->GetHeight() < int(g_level->_sy) )
+			{
+			FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
+				{
+					if( !pCamera->GetPlayer() ) continue;
+					if( this == pCamera->GetPlayer()->GetVehicle() )
+					{
+						if (teleported==4)
+						pCamera->MoveTo(vec2d(GetPos().x,GetPos().y-g_render->GetHeight()));
+						else if (teleported==3)
+						pCamera->MoveTo(vec2d(GetPos().x-g_render->GetWidth(),GetPos().y));
+						else if (teleported==2)
+						pCamera->MoveTo(vec2d(GetPos().x,GetPos().y+g_render->GetHeight()));
+						else if (teleported==1)
+						pCamera->MoveTo(vec2d(GetPos().x+g_render->GetWidth(),GetPos().y));
+						return;
+					}
+				}
+			}
+			}
+		}
+		else if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
 	}
 }
 
+void GC_Vehicle::MapExchange(MapFile &f)
+{
+	GC_RigidBodyDynamic::MapExchange(f);
+	MAP_EXCHANGE_STRING(skin, _skinname, "");
+	if (GetOwner())
+	{
+		MAP_EXCHANGE_STRING(playername, _playername, GetOwner()->GetName());
+	}
+	else
+	MAP_EXCHANGE_STRING(playername, _playername, "");
+	/*if( f.loading() )
+	{
+		SetSkin(_skinname.c_str());
+	}*/
+}
+
+PropertySet* GC_Vehicle::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Vehicle::MyPropertySet::MyPropertySet(GC_Object *object)
+  : BASE(object)
+  , _propPlayer( ObjectProperty::TYPE_STRING, "playername") 
+  , _propSkin( ObjectProperty::TYPE_MULTISTRING, "skin" )
+{
+	/*std::vector<string_t> names;
+	g_texman->GetTextureNames(names, NULL, false);
+	for( size_t i = 1; i < names.size(); ++i )
+	{
+		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
+		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
+		{
+			_propSkin.AddItem(names[i]);
+		}
+	}*/
+	std::vector<string_t> skin_names;
+	g_texman->GetTextureNames(skin_names, "skin/", true);
+	for( size_t i = 0; i < skin_names.size(); ++i )
+	{
+		_propSkin.AddItem( skin_names[i]);
+	}
+}
+
+int GC_Vehicle::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 2;
+}
+
+ObjectProperty* GC_Vehicle::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	case 0: return &_propPlayer;
+	case 1: return &_propSkin;
+	}
+
+	assert(false);
+	return NULL;
+}
+void GC_Vehicle::DeleteDamage()
+{
+	GC_IndicatorBar *st = st->GC_IndicatorBar::FindIndicator(this,LOCATION_TOP);
+	if (st != NULL) st->Kill();
+}
+
+void GC_Vehicle::MyPropertySet::MyExchange(bool applyToObject)
+{
+	BASE::MyExchange(applyToObject);
+
+	GC_Vehicle *tmp = static_cast<GC_Vehicle *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_skinname = _propSkin.GetListValue(_propSkin.GetCurrentIndex());
+		tmp->SetSkin(_propSkin.GetListValue(_propSkin.GetCurrentIndex()));
+
+		bool changed;
+		FOREACH( g_level->GetList(LIST_players), GC_Player, pPlayer )
+		{
+			const char *pname = _propPlayer.GetStringValue().c_str();
+			if (pname != NULL && pPlayer->GetName()!= NULL && (strcmp(pPlayer->GetName(),pname)==0))
+			{
+			changed=true;
+			GC_PlayerAI *bot;
+				if (pPlayer->GetVehicle())
+				{
+				GC_Vehicle *old=pPlayer->GetVehicle();
+				pPlayer->Unsubscribed();
+				if (old != tmp && !old->IsKilled())
+						if (old->GetOwner())
+						{	
+							if( old->GetWeapon()) //разоружаем свой старый танк , если в нем что то было
+								//хотя если найти причину креша то можно и не разоружать, а лишь удалять прицел
+								{
+									
+								old->GetWeapon()->SetRespawn(true);
+								old->GetWeapon()->Detach();
+								}			
+							old->DeleteDamage();
+							old->SetPlayer(NULL);
+							old->_playername="";
+							old->SetEvents(GC_FLAG_OBJECT_EVENTS_ALL);
+						}
+				}
+				if (tmp->GetOwner()) //значит  в том танке в который мы хотим пересесть кто то уже есть :(
+				{
+					GC_Player * pl = tmp->GetOwner();
+					pl->Unsubscribed();
+					tmp->DeleteDamage();
+					tmp->SetPlayer(NULL);
+					pl->SetVehicle(NULL);
+				}
+				tmp->SetPlayer(WrapRawPtr(pPlayer));				
+				if (bot = dynamic_cast<GC_PlayerAI *>(pPlayer)) ///чтобы бот мог двигать дальше если активный О_о
+					if (!bot->IsKilled() && bot->GetVehicle())
+						bot->OnDie();
+				pPlayer->SetVehicle(WrapRawPtr(tmp));
+				pPlayer->SetSkin(_propSkin.GetListValue(_propSkin.GetCurrentIndex()));
+				pPlayer->Subscribed();
+
+			//	tmp->GetVisual()->ShutUp();
+				tmp->GetVisual()->SetMoveSound(SND_TankMove);
+				tmp->ResetClass();
+				if (bot) if (!bot->IsKilled() && bot->GetVehicle()) bot->OnRespawn();
+			}
+			
+		}
+		if (changed==true)
+		tmp->_playername = tmp->GetOwner()->GetName();
+		else //значт мы тупо обнулили переменную \ либо неправильно указали игрока
+			{
+				if (!tmp->IsKilled())
+				{
+				//обнуляем игрока
+				if (tmp->GetOwner())
+				{
+				GC_Player * pl = tmp->GetOwner();
+				pl->Unsubscribed();
+				tmp->DeleteDamage();					
+				if( tmp->GetWeapon())
+					{									
+					tmp->GetWeapon()->SetRespawn(true);
+					tmp->GetWeapon()->Detach();
+					}
+				if (GC_PlayerAI *bot = dynamic_cast<GC_PlayerAI *>(pl)) 
+				{
+					bot->OnDie();
+					VehicleState vs;
+					ZeroMemory(&vs, sizeof(VehicleState));
+					tmp->SetState(vs);
+					tmp->SetPredictedState(vs);
+					//tmp->ApplyState(vs);
+
+				}
+				//tmp->GetVisual()->ShutUp();
+				//tmp->GetVisual()->SetMoveSound(SND_TankMove);
+				tmp->ResetClass();
+				tmp->SetPlayer(NULL);
+				tmp->SetEvents(GC_FLAG_OBJECT_EVENTS_ALL);
+				pl->SetVehicle(NULL);
+				tmp->GetVisual()->ShutUp();
+				}
+				}
+				tmp->_playername = "";
+
+			}
+	}
+	else
+	{			
+		const char *name;
+		if (tmp->GetOwner())
+		name= tmp->GetOwner()->GetName();
+		else
+		name = tmp->_playername.c_str();
+
+		_propPlayer.SetStringValue( name ? name : "");
+		for( size_t i = 0; i < _propSkin.GetListSize(); ++i )
+		{
+			if( tmp->_skinname == _propSkin.GetListValue(i) )
+			{
+				_propSkin.SetCurrentIndex(i);
+
+				break;
+			}				
+
+		}
+	}
+}
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
@@ -717,10 +956,26 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 {
 //	_MaxBackSpeed = 150;
 //	_MaxForvSpeed = 200;
-
-	_visual->SetMoveSound(SND_TankMove);
+	//_skinname = "skin/red";
+	//_playername="";
+	//_visual->SetMoveSound(SND_TankMove);
+	//
+	//_visual->SetZ(Z_VEHICLES);
+	//SetZ(Z_VEHICLES);
+	//_visual->Draw();
+	SetShadow(true);
 	SetSkin("red");
+	//SetTexture(_skinname.c_str());
+	//SetTexture("skin/red");
 	SetSize(37, 37.5f);
+	//
+	
+	
+	//AlignToTexture();
+
+	
+	//_percussion = 1;
+	//_fragility  = 1;
 
 	_inv_m  = 1 /   1.0f;
 	_inv_i  = 1 / 700.0f;
@@ -734,7 +989,7 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 	_Mw = 0;
 
 	SetMaxHP(400);
-
+	
 }
 
 GC_Tank_Light::GC_Tank_Light(FromFile)
@@ -791,4 +1046,15 @@ void GC_Tank_Light::OnDestroy()
 	GC_Vehicle::OnDestroy();
 }
 
+void GC_Tank_Light::Draw() const
+{
+	GC_Vehicle::Draw();
+	if( g_conf.g_shownames.Get() && GetOwner())
+	{
+		const vec2d &pos = GetPos();
+		static TextureCache f("font_small");
+		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
+			f.GetTexture(), 0x7f7f7f7f, GetOwner()->GetNick(), alignTextCT);
+	}
+}
 // end of file

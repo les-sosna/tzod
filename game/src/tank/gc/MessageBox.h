@@ -52,4 +52,46 @@ private:
 	void OnSelect(int n);
 };
 
+////меню компаний
+class GC_Menu : public GC_Service
+{
+	DECLARE_SELF_REGISTRATION(GC_Menu);
+
+public:
+	GC_Menu();
+	GC_Menu(FromFile);
+	virtual ~GC_Menu();
+	virtual void Serialize(SaveFile &f);
+	virtual void MapExchange(MapFile &f);
+
+protected:
+	class MyPropertySet : public GC_Service::MyPropertySet
+	{
+		typedef GC_Service::MyPropertySet BASE;
+		ObjectProperty _propOnSelect;
+		ObjectProperty _propTitle;
+		ObjectProperty _propNames;
+		ObjectProperty _propOpen;
+
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
+
+private:
+	std::string _title;
+	std::string _names;
+	std::string _scriptOnSelect;
+	int _open;
+
+public:
+	std::string  GetTitleName()  const { return _title; }
+	std::string GetNames()  const { return _names; }
+	std::string GetScript()  const { return _scriptOnSelect; }
+	void OnSelect(int n);
+};
+
 // end of file

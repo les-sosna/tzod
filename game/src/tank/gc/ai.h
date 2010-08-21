@@ -14,6 +14,7 @@ struct AIWEAPSETTINGS;
 class GC_Actor;
 class GC_RigidBodyStatic;
 class GC_Pickup;
+class GC_Crate;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -85,6 +86,8 @@ protected:
 	struct TargetDesc
 	{
 		GC_Vehicle *target;
+		GC_Crate *targetBox;
+		bool bIsObject;
         bool bIsVisible;
 	};
 
@@ -112,6 +115,7 @@ protected:
 	void LockTarget(const SafePtr<GC_RigidBodyStatic> &target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
+	AIPRIORITY GetTargetRateBox(GC_Crate *targetBox);
 
 	bool FindTarget(AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
 	bool FindItem(AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
@@ -169,6 +173,7 @@ public:
 	bool March(float x, float y);
 	bool Attack(GC_RigidBodyStatic *target);
 	bool Pickup(GC_Pickup *p);
+	void DoDefaultStats();
 	void Stop();
 
 protected:

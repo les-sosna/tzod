@@ -1062,7 +1062,7 @@ int luaT_equip(lua_State *L)
 	return 0;
 }
 
-#if 0
+
 int luaT_PlaySound(lua_State *L)
 {
 	int n = lua_gettop(L);     // get number of arguments
@@ -1079,7 +1079,6 @@ int luaT_PlaySound(lua_State *L)
 	}
 	return 0;
 }
-#endif
 
 // ai_attack(player, x, y)
 int luaT_ai_march(lua_State *L)
@@ -1203,8 +1202,8 @@ lua_State* script_open(void)
 		{"", luaopen_base},
 		{LUA_LOADLIBNAME, luaopen_package},
 		{LUA_TABLIBNAME, luaopen_table},
-//		{LUA_IOLIBNAME, luaopen_io},
-//		{LUA_OSLIBNAME, luaopen_os},
+		{LUA_IOLIBNAME, luaopen_io},
+		{LUA_OSLIBNAME, luaopen_os},
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
 #ifdef _DEBUG
@@ -1283,7 +1282,7 @@ lua_State* script_open(void)
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
 	lua_register(L, "freeze",   luaT_freeze);
-//	lua_register(L, "play_sound",   luaT_PlaySound);
+	lua_register(L, "play_sound",   luaT_PlaySound);
 	lua_register(L, "setposition", luaT_setposition);
 
 	//

@@ -8,6 +8,7 @@
 
 #include "core/JobManager.h"
 #include "core/Debug.h"
+#include "config/Config.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
@@ -20,6 +21,7 @@
 #include "Pickup.h"
 #include "Player.h"
 #include "Weapons.h"
+#include "crate.h"
 
 #include "Camera.h"
 
@@ -247,7 +249,11 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	GetVehicle()->TimeStepFixed(dt);
 	if( GetVehicle() ) // vehicle might be killed in its time step
 	{
-		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: cat tracks
+		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: cat tracks	
+		if (g_conf.sv_nightmode.Get()) vs._bLight = true;
+		else vs._bLight = false;
+		GetVehicle()->SetPredictedState(vs);
+		GetVehicle()->GetVisual()->TimeStepFixed(dt);
 	}
 }
 
@@ -583,6 +589,10 @@ void GC_PlayerAI::ClearPath()
 	_path.clear();
 	_attackList.clear();
 }
+void GC_PlayerAI::DoDefaultStats()
+{
+
+}
 
 void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
 {
@@ -630,6 +640,21 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 	}
 }
 
+AIPRIORITY GC_PlayerAI::GetTargetRateBox(GC_Crate *targetBox)
+{
+	assert(targetBox);
+	assert(GetVehicle());
+	assert(GetVehicle()->GetWeapon());
+
+	AIPRIORITY p = AIP_NORMAL;
+
+	p += AIP_NORMAL * (GetVehicle()->GetHealth() / GetVehicle()->GetHealthMax());
+	p -= AIP_NORMAL * (targetBox->GetHealth() / targetBox->GetHealthMax());
+
+	return p;
+}
+
+
 // evaluate the rate of attacking of the given target
 AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 {
@@ -658,6 +683,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
 	GC_Vehicle *pOptTarget = NULL;
+	GC_RigidBodyStatic *pOptTargetBox = NULL;
 
 	std::vector<TargetDesc> targets;
 
@@ -665,7 +691,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	// check targets
 	//
 
-	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, object )
+	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, object ) //для каждого транспортного средства
 	{
 		if( !object->GetOwner() ||
 			(0 != object->GetOwner()->GetTeam() && object->GetOwner()->GetTeam() == GetTeam()) )
@@ -673,10 +699,10 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 			continue;
 		}
 
-		if( !object->IsKilled() && object != GetVehicle() )
+		if( !object->IsKilled() && object != GetVehicle() ) //если чел не убит и это не мы
 		{
 			if( (GetVehicle()->GetPos() - object->GetPos()).sqr() <
-				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
+				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) ) //если в поле зрения
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
 					g_level->TraceNearest(g_level->grid_rigid_s, GetVehicle(),
@@ -685,34 +711,78 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 				TargetDesc td;
 				td.target = object;
 				td.bIsVisible = (NULL == pObstacle || pObstacle == object);
-
+				td.bIsObject=0;
+				//заполняем общюю таблицу для дальнейшей обработки
 				targets.push_back(td);
 			}
 		}
 	}
 
-	for( size_t i = 0; i < targets.size(); ++i )
+
+		FOREACH( g_level->GetList(LIST_objects), GC_Object, object) //для каждого динамического объекта
+	{
+		if (GC_Crate *it = dynamic_cast<GC_Crate *>(object) )
+		{
+		if( !object->IsKilled()) //если чел не убит и это не мы
+		{
+			if( (GetVehicle()->GetPos() - it->GetPos()).sqr() <
+				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) ) //если в поле зрения
+			{
+				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
+					g_level->TraceNearest(g_level->grid_rigid_s, GetVehicle(),
+					GetVehicle()->GetPos(), it->GetPos() - GetVehicle()->GetPos()) );
+
+				TargetDesc td;
+				td.targetBox = it;
+				td.bIsObject=1;
+				td.bIsVisible = (NULL == pObstacle || pObstacle == it);
+				targets.push_back(td);
+			}
+		}
+		}
+	}
+
+
+
+	for( size_t i = 0; i < targets.size(); ++i ) //находим самого близкого / ближний дин. объект
 	{
 		float l;
+		if (targets[i].bIsObject==1){
+				if( targets[i].bIsVisible )
+			l = (targets[i].targetBox->GetPos() - GetVehicle()->GetPos()).len() / CELL_SIZE;
+		else
+			l = CreatePath( targets[i].targetBox->GetPos().x,
+			                targets[i].targetBox->GetPos().y, AI_MAX_DEPTH-40, true, ws );
+		
+		}
+		else
+		{
 		if( targets[i].bIsVisible )
 			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).len() / CELL_SIZE;
 		else
 			l = CreatePath( targets[i].target->GetPos().x,
 			                targets[i].target->GetPos().y, AI_MAX_DEPTH, true, ws );
-
+		}
         if( l >= 0 )
 		{
-			AIPRIORITY p = GetTargetRate(targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
+			AIPRIORITY p;
+			if (targets[i].bIsObject==1)
+			p= GetTargetRateBox(targets[i].targetBox) - AIP_NORMAL * l / AI_MAX_DEPTH;
+			else
+			p = GetTargetRate(targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
 
 			if( p > optimal )
 			{
 				optimal = p;
-				pOptTarget = targets[i].target;
+				if (targets[i].bIsObject==1)
+				pOptTargetBox = targets[i].targetBox;
+				else pOptTarget = targets[i].target;
 			}
 		}
 	}
-
+	if (pOptTarget)
 	info.object   = WrapRawPtr(pOptTarget);
+	else info.object   = WrapRawPtr(pOptTargetBox);
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
@@ -1025,7 +1095,7 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 	GC_Vehicle *veh = NULL;
 
 	ProcessAction(ws);
-
+	
 	switch( _aiState_l2 )
 	{
 	case L2_PICKUP:
@@ -1254,6 +1324,9 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 			if( o )
 			{
+				if (GC_Crate *it = dynamic_cast<GC_Crate *>(o) )
+				{
+				} else {
 				if( 1 == i && (hit - currentPos).len() < GetVehicle()->GetRadius() )
 				{
 					_backTime = 0.5f;
@@ -1265,6 +1338,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 					min_d = d;
 					min_hit = hit;
 					min_norm = norm;
+				}
 				}
 			}
 		}

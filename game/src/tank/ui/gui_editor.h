@@ -135,13 +135,14 @@ class EditorLayout : public Window
 	GC_Object *_selectedObject;
 	bool _isObjectNew;
 	bool _click;
-	int  _mbutton;
+	
 
 
 	void OnKillSelected(GC_Object *sender, void *param);
 	void OnMoveSelected(GC_Object *sender, void *param);
 
 public:
+	int  _mbutton;
 	EditorLayout(Window *parent);
 	virtual ~EditorLayout();
 

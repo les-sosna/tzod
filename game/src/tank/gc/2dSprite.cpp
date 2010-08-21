@@ -180,7 +180,7 @@ void GC_2dSprite::SetFrame(int frame)
 
 void GC_2dSprite::Draw() const
 {
-	vec2d pos = GetPosPredicted();
+	vec2d pos = GetPos();
 
 	if( !g_conf.sv_nightmode.Get() && CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW) )
 	{

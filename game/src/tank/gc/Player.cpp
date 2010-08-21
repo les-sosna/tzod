@@ -133,6 +133,8 @@ void GC_Player::SetNick(const string_t &nick)
 void GC_Player::SetClass(const string_t &c)
 {
 	_class = c;
+	if (_vehicle != NULL)
+	_vehicle->ResetClass();
 }
 
 void GC_Player::SetTeam(int team)
@@ -144,6 +146,13 @@ void GC_Player::UpdateSkin()
 {
 	if( _vehicle )
 		_vehicle->SetSkin(_skin);
+}
+
+void GC_Player::SetVehicle(const SafePtr<GC_Vehicle> &car)
+{
+	_vehicle = car;
+	if (car != NULL && car->GetName() != NULL)
+	_vehname=car->GetName();
 }
 
 void GC_Player::SetScore(int score)
@@ -243,7 +252,7 @@ void GC_Player::TimeStepFixed(float dt)
 			{
 				_vehicle->SetName(_vehname.c_str());
 			}
-
+			_vehicle->GetVisual()->SetMoveSound(SND_TankMove);
 			_vehicle->SetDirection(pBestPoint->GetDirection());
 			_vehicle->GetVisual()->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetPlayer(WrapRawPtr(this));
@@ -272,6 +281,26 @@ void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
 	if( !_scriptOnDie.empty() )
 	{
 		script_exec(g_env.L, _scriptOnDie.c_str());
+	}
+}
+
+void GC_Player::Unsubscribed()
+{
+	//PulseNotify(NOTIFY_OBJECT_KILL);
+	if (_vehicle)
+	{
+	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
+	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
+	}
+	//_vehicle = NULL;
+}
+
+void GC_Player::Subscribed()
+{
+	if (_vehicle)
+	{
+	_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
+	_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	}
 }
 

@@ -10,6 +10,7 @@
 #include "gui_getfilename.h"
 #include "gui_campaign.h"
 #include "gui.h"
+//#include "gc/MessageBox.h"
 
 #include "GuiManager.h"
 
@@ -30,7 +31,7 @@
 #include "Macros.h"
 #include "script.h"
 #include "functions.h"
-
+#include "gc/Service.h"
 
 namespace UI
 {
@@ -43,12 +44,58 @@ MainMenuDlg::MainMenuDlg(Window *parent)
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
 {
+
 	PauseGame(true);
-
+	bool m;
 	SetDrawBorder(false);
-	SetTexture("gui_splash", true);
-	OnParentSize(parent->GetWidth(), parent->GetHeight());
+	std::string titlescreen="gui_splash";
+		FOREACH( g_level->GetList(LIST_services), GC_Service, PotencialMenu )
+		{
+			if( GC_Menu *menu = dynamic_cast<GC_Menu *>(PotencialMenu) )
+			{	
+			if (!menu->IsKilled())
+			{
+				m=true;
+				_AddOnButtons=menu;
+				_pstate=PS_NONE;
+				_ptype=PT_NONE;
+				if (menu->GetTitleName().c_str() != NULL && menu->GetTitleName().c_str() != "")
+				titlescreen=menu->GetTitleName();
+				std::string s = menu->GetNames(), s1;
+				 std::list<std::string> arr;
+					for (int i = 0; i < (int)s.length(); i++)
+					if (s[i] == '|')
+						{
+							if (s1.length() > 0)
+							{
+								arr.push_back(s1);
+								s1 = "";
+							}
+						}
+						else
+							s1 += s[i];
+					if (s1.length() > 0) arr.push_back(s1);
+				float item=0;
 
+				for( std::list<std::string>::iterator i = arr.begin(); i != arr.end(); i++)
+				{		
+				ButtonBase *t = Button::Create(this,(*i).c_str(), item*100 , -25);
+				switch ((int)item)
+				{
+				case 0: t->eventClick.bind(&MainMenuDlg::OnCompny1, this); break;
+				case 1:	t->eventClick.bind(&MainMenuDlg::OnCompny2, this); break;
+				case 2:	t->eventClick.bind(&MainMenuDlg::OnCompny3, this); break;
+				case 3:	t->eventClick.bind(&MainMenuDlg::OnCompny4, this); break;
+				case 4:	t->eventClick.bind(&MainMenuDlg::OnCompny5, this); break;
+				case 5:	t->eventClick.bind(&MainMenuDlg::OnCompny6, this); break;
+				}
+				++item;
+				}
+			}
+			}
+		}
+	SetTexture(titlescreen.c_str(), true);
+	OnParentSize(parent->GetWidth(), parent->GetHeight());
 	Button::Create(this, g_lang.single_player_btn.Get(), 0, GetHeight())->eventClick.bind(&MainMenuDlg::OnSinglePlayer, this);
 	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())/*->eventClick.bind(&MainMenuDlg::OnMultiPlayer, this)*/->SetEnabled(false);
 	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick.bind(&MainMenuDlg::OnEditor, this);
@@ -68,12 +115,12 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	_panel->Move(0, -_panelFrame->GetHeight());
 	_panelTitle = NULL;
 
-	if( !g_level->IsEmpty() && GT_EDITOR == g_level->_gameType )
+	if( !g_level->IsEmpty() && GT_EDITOR == g_level->_gameType && m!=true )
 	{
 		SwitchPanel(PT_EDITOR);
 	}
 
-	if( !g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType )
+	if( !g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && m!=true )
 	{
 		SwitchPanel(PT_SINGLEPLAYER);
 	}
@@ -88,7 +135,32 @@ void MainMenuDlg::OnSinglePlayer()
 {
 	SwitchPanel(PT_SINGLEPLAYER);
 }
-
+///кнопки для компании
+void MainMenuDlg::OnCompny1()
+{
+	_AddOnButtons->OnSelect(1);
+}
+void MainMenuDlg::OnCompny2()
+{
+	_AddOnButtons->OnSelect(2);
+}
+void MainMenuDlg::OnCompny3()
+{
+	_AddOnButtons->OnSelect(3);
+}
+void MainMenuDlg::OnCompny4()
+{
+	_AddOnButtons->OnSelect(4);
+}
+void MainMenuDlg::OnCompny5()
+{
+	_AddOnButtons->OnSelect(5);
+}
+void MainMenuDlg::OnCompny6()
+{
+	_AddOnButtons->OnSelect(6);
+}
+//end
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);

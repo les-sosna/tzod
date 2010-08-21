@@ -21,17 +21,20 @@ LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory)
   , _hotTrackWnd(NULL)
   , _captureWnd(NULL)
   , _desktop(NULL)
+  , _cursor(NULL)
   , _isAppActive(false)
 #ifndef NDEBUG
   , _dbgFocusIsChanging(false)
 #endif
 {
 	_desktop.Set(pDesktopFactory->Create(this));
+	_cursor.Set(new UI::MouseCursor(this, "cursor"));
 }
 
 LayoutManager::~LayoutManager()
 {
 	_desktop->Destroy();
+	_cursor->Destroy();
 	assert(_topmost.empty());
 }
 
@@ -455,6 +458,9 @@ void LayoutManager::Render() const
 			(*it)->Draw(dc, x, y);
 		}
 	}
+
+	if( _cursor->GetVisible() )
+		_cursor->Draw(dc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

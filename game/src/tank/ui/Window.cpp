@@ -186,7 +186,7 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 	//           left     top      right             bottom
 	FRECT dst = {sx + _x, sy + _y, sx + _x + _width, sy + _y + _height};
 
-	if( -1 != _texture )
+	if( -1 != _texture  && -1 != GetFrame())
 	{
 		if( _drawBackground )
 		{

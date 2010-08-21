@@ -57,6 +57,7 @@ protected:
 	virtual void OnDie();
 
 public:
+	void SetVehicle(const SafePtr<GC_Vehicle> &car);
 	GC_Vehicle* GetVehicle() const { return GetRawPtr(_vehicle); }
 
 	void SetSkin(const string_t &skin);
@@ -82,7 +83,8 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 	virtual void MapExchange(MapFile &f);
-
+	virtual void Unsubscribed();
+	virtual void Subscribed();
 	void UpdateSkin();
 
 	virtual unsigned short GetNetworkID() const = 0;

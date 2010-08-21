@@ -193,7 +193,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	GC_2dSprite *sprite = object;
 	if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(object) )
 	{
-		sprite = veh->GetVisual();
+		sprite = veh;
 	}
 	sprite->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition);
 	OnUpdatePosition(sprite, NULL);

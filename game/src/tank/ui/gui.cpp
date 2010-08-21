@@ -77,6 +77,8 @@ NewGameDlg::NewGameDlg(Window *parent)
 		_nightMode = CheckBox::Create(this, x3, y, g_lang.night_mode.Get());
 		_nightMode->SetCheck( g_conf.cl_nightmode.Get() );
 
+		_unlimmapMode = CheckBox::Create(this, x3, y+=20, g_lang.unlimmap_mode.Get());
+		_unlimmapMode->SetCheck( g_conf.cl_unlimmap.Get() );
 
 		Text::Create(this, x3, y+=30, g_lang.game_speed.Get(), alignTextLT);
 		_gameSpeed = Edit::Create(this, x3+20, y+=15, 80);
@@ -350,6 +352,7 @@ void NewGameDlg::OnOK()
 	g_conf.cl_fraglimit.SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
 	g_conf.cl_timelimit.SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
 	g_conf.cl_nightmode.Set( _nightMode->GetCheck() );
+	g_conf.cl_unlimmap.Set( _unlimmapMode->GetCheck() );
 
 	g_conf.sv_speed.SetInt( g_conf.cl_speed.GetInt() );
 	g_conf.sv_fraglimit.SetInt( g_conf.cl_fraglimit.GetInt() );
@@ -451,7 +454,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	float y = 56;
 
 	_skinPreview = Window::Create(this);
-	_skinPreview->Move(300, y);
+	_skinPreview->Move(330, y+24);
 	_skinPreview->SetTexture(NULL, false);
 
 
@@ -628,7 +631,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	float y = 56;
 
 	_skinPreview = Window::Create(this);
-	_skinPreview->Move(300, y);
+	_skinPreview->Move(330, y+24);
 	_skinPreview->SetTexture(NULL, false);
 
 
@@ -640,7 +643,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_name = Edit::Create(this, x2, y-=1, 200);
 	lua_getglobal(g_env.L, "random_name");   // push function
 	lua_call(g_env.L, 0, 1);                 // random default nick
-	_name->SetText(_info.nick.Get().empty() ? lua_tostring(g_env.L, -1) : _info.nick.Get());
+	_name->SetText(lua_tostring(g_env.L, -1));
 	lua_pop(g_env.L, 1);                     // pop result
 	GetManager()->SetFocusWnd(_name);
 
@@ -803,7 +806,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 {
 	SetTexture("ui/window", false);
 	SetDrawBorder(true);
-	BringToBack();
+	//BringToBack();
 
 	_text = Text::Create(this, 10, 10, text, alignTextLT);
 

@@ -123,18 +123,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiler|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\lua\src\liolib.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiler|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\lua\src\liolib.c" />
     <ClCompile Include="src\lua\src\lmathlib.c" />
     <ClCompile Include="src\lua\src\loadlib.c" />
-    <ClCompile Include="src\lua\src\loslib.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiler|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\lua\src\loslib.c" />
     <ClCompile Include="src\lua\src\lstrlib.c" />
     <ClCompile Include="src\lua\src\ltablib.c" />
     <ClCompile Include="src\lua\src\print.c">

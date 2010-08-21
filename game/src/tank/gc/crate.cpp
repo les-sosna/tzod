@@ -31,6 +31,7 @@ GC_Crate::GC_Crate(float x, float y)
 	_inv_i = _inv_m*12.0f / (GetSpriteWidth()*GetSpriteWidth()+GetSpriteHeight()*GetSpriteHeight());
 
 	SetHealth(30, 30);
+	g_level->_field.ProcessObject(this, true);
 }
 
 GC_Crate::GC_Crate(FromFile)
@@ -44,6 +45,7 @@ GC_Crate::~GC_Crate()
 
 void GC_Crate::OnDestroy()
 {
+	g_level->_field.ProcessObject(this, false);
 	PLAY(SND_WallDestroy, GetPos());
 
 	if( g_conf.g_particles.Get() )
@@ -57,6 +59,7 @@ void GC_Crate::OnDestroy()
 	}
 
 	GC_RigidBodyDynamic::OnDestroy();
+	g_level->_field.ProcessObject(this, true);
 }
 
 

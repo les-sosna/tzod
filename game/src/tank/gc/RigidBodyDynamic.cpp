@@ -9,7 +9,8 @@
 #include "fs/MapFile.h"
 
 #include "level.h"
-
+#include "crate.h"
+#include "UserObjects.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -230,7 +231,15 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 {
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);
-
+	bool cr=false;
+	if (dynamic_cast<GC_Crate *>(this)) 
+	{
+		if (/*dx != this->GetPos() && da != this->GetDirection() &&*/ !this->IsKilled())
+		{
+		cr=true;
+		g_level->_field.ProcessObject(this,false);
+		}
+	}
 	MoveTo(GetPos() + dx);
 	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
 	dirTmp.Normalize();
@@ -295,6 +304,11 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		else
 			_av = __min(0, _av + _Nw * dt);
 	}
+
+	if( cr ) 
+	{
+		g_level->_field.ProcessObject(this, true);
+	}
 	assert(!_isnan(_av));
 	assert(_finite(_av));
 
@@ -313,7 +327,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	c.total_tp = 0;
 	c.obj1_d   = this;
 
-	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
+	vec2d myHalfSize(GetHalfLength(),GetHalfWidth());
 
 	for( ; rit != receive.end(); ++rit )
 	{

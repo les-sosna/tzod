@@ -4,6 +4,7 @@
 
 #include "Base.h"
 #include "Dialog.h"
+#include "gc/MessageBox.h"
 
 namespace UI
 {
@@ -40,7 +41,14 @@ class MainMenuDlg : public Dialog
 	void OnSettings();
 	void OnExit();
 
-
+//-------------------------------
+	void OnCompny1();
+	void OnCompny2();
+	void OnCompny3();
+	void OnCompny4();
+	void OnCompny5();
+	void OnCompny6();
+//-------------------------------
 	enum PanelType
 	{
 		PT_NONE,
@@ -61,7 +69,7 @@ class MainMenuDlg : public Dialog
 	Text      *_panelTitle;
 	PanelType  _ptype;
 	PanelState _pstate;
-
+	GC_Menu *_AddOnButtons;
 	GetFileNameDlg *_fileDlg;
 
 	std::list<DelegateAdapter1<string_t> >  _campaigns;

@@ -73,16 +73,21 @@ class Desktop
 	virtual void OnEditorModeChanged(bool editorMode);
 
 public:
+	Dialog  *_main;
 	Desktop(LayoutManager* manager);
 	virtual ~Desktop();
 
 	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 	void ShowConsole(bool show);
+	void ReBuildMenu();
+	void ShowMenu();
 
 	void OnCloseChild(int result);
 
 	MessageArea* GetMsgArea() const;
+	EditorLayout* GetEditor() const { return _editor;  }
+	
 
 protected:
 	virtual bool OnRawChar(int c);

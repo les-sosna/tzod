@@ -157,7 +157,7 @@ enum enumZOrder
 //-----------------------------------------------------------------------------
 // compatibility
 
-#define TXT_VERSION      "Tank: Zone of Death (1.52.0)"
+#define TXT_VERSION      "Tank: Zone of Death (1.52.4+) Unofficial release"
 #define TXT_WNDCLASS     "TankMainWindow"
 
 // this value is used to check files compatibility

@@ -18,7 +18,7 @@ public:
 
 	static const int _resultOK     = 0;
 	static const int _resultCancel = 1;
-
+	virtual bool OnRawChar(int c);
 	std::tr1::function<void(int)> eventClose;
 
 protected:
@@ -30,7 +30,7 @@ protected:
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
 
-	virtual bool OnRawChar(int c);
+	
 	virtual bool OnFocus(bool focus);
 
 private:

@@ -51,6 +51,7 @@ enum enumSoundTemplate
 	SND_Impact1,
 	SND_Impact2,
 	SND_Slide1,
+	SND_User1,
 
 	//--------------------------
 	SND_COUNT, // sound count

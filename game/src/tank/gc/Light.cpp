@@ -284,13 +284,15 @@ PropertySet* GC_Spotlight::NewPropertySet()
 GC_Spotlight::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
+  , _propDir(ObjectProperty::TYPE_FLOAT, "dir")
 {
 	_propActive.SetIntRange(0, 1);
+	_propDir.SetFloatRange(0, PI2);
 }
 
 int GC_Spotlight::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
@@ -301,6 +303,7 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propActive;
+	case 1: return &_propDir;
 	}
 
 	assert(false);
@@ -314,12 +317,16 @@ void GC_Spotlight::MyPropertySet::MyExchange(bool applyToObject)
 	GC_Spotlight *tmp = static_cast<GC_Spotlight *>(GetObject());
 
 	if( applyToObject )
-	{
+	{	
 		tmp->_light->SetActive(0 != _propActive.GetIntValue());
+		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
+		tmp->_light->SetLightDirection(vec2d(_propDir.GetFloatValue()));
+		tmp->_light->MoveTo(tmp->GetPos() + vec2d(_propDir.GetFloatValue()) * 7);
 	}
 	else
 	{
 		_propActive.SetIntValue(tmp->_light->IsActive() ? 1 : 0);
+		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
 

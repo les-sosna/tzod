@@ -64,7 +64,7 @@ private:
 	WindowWeakPtr _focusWnd;
 	WindowWeakPtr _hotTrackWnd;
 	WindowWeakPtr _captureWnd;
-
+	WindowWeakPtr _cursor;
 	WindowWeakPtr _desktop;
 
 	bool _isAppActive;

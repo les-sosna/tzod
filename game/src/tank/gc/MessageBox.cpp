@@ -5,7 +5,7 @@
 #include "MessageBox.h"
 #include "Level.h"
 #include "script.h"
-
+#include "ui/gui_desktop.h"
 #include "ui/gui.h"
 #include "ui/GuiManager.h"
 
@@ -199,5 +199,140 @@ void GC_MessageBox::MyPropertySet::MyExchange(bool applyToObject)
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_SELF_REGISTRATION(GC_Menu)
+{
+	ED_SERVICE("menu", "obj_service_menu");
+	return true;
+}
+
+GC_Menu::GC_Menu() : _open(0),
+	_title("gui_splash")
+{
+}
+
+GC_Menu::GC_Menu(FromFile)
+{
+}
+
+GC_Menu::~GC_Menu()
+{
+}
+
+void GC_Menu::Serialize(SaveFile &f)
+{
+	GC_Service::Serialize(f);
+	f.Serialize(_scriptOnSelect);
+	f.Serialize(_title);
+	f.Serialize(_names);
+	f.Serialize(_open);
+}
+
+void GC_Menu::MapExchange(MapFile &f)
+{
+	GC_Service::MapExchange(f);
+	MAP_EXCHANGE_STRING(on_select, _scriptOnSelect, "");
+	MAP_EXCHANGE_STRING(title, _title, "gui_splash");
+	MAP_EXCHANGE_STRING(names, _names, "");
+	MAP_EXCHANGE_INT(open, _open, 0);
+}
+
+void GC_Menu::OnSelect(int n)
+{
+	std::stringstream buf;
+	buf << "return function(self,n)";
+	buf << _scriptOnSelect;
+	buf << "\nend";
+
+	if( luaL_loadstring(g_env.L, buf.str().c_str()) )
+	{
+		GetConsole().Printf(1, "syntax error %s", lua_tostring(g_env.L, -1));
+		lua_pop(g_env.L, 1); // pop the error message from the stack
+	}
+	else
+	{
+		if( lua_pcall(g_env.L, 0, 1, 0) )
+		{
+			GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+			lua_pop(g_env.L, 1); // pop the error message from the stack
+		}
+		else
+		{
+			SafePtr<GC_Object> refHolder(this);
+			luaT_pushobject(g_env.L, this);
+			lua_pushinteger(g_env.L, n);
+			if( lua_pcall(g_env.L, 2, 0, 0) )
+			{
+				GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message from the stack
+			}
+		}
+	}
+}
+
+PropertySet* GC_Menu::NewPropertySet()
+{
+	return new MyPropertySet(this);
+}
+
+GC_Menu::MyPropertySet::MyPropertySet(GC_Object *object)
+  : BASE(object)
+  , _propOnSelect(ObjectProperty::TYPE_STRING, "on_select")
+  , _propTitle(ObjectProperty::TYPE_STRING, "title")
+  , _propNames(ObjectProperty::TYPE_STRING, "names")
+  , _propOpen(ObjectProperty::TYPE_INTEGER, "open")
+{
+	_propOpen.SetIntRange(0, 1);
+}
+
+int GC_Menu::MyPropertySet::GetCount() const
+{
+	return BASE::GetCount() + 4;
+}
+
+ObjectProperty* GC_Menu::MyPropertySet::GetProperty(int index)
+{
+	if( index < BASE::GetCount() )
+		return BASE::GetProperty(index);
+
+	switch( index - BASE::GetCount() )
+	{
+	default: assert(false);
+	case 0: return &_propOnSelect;
+	case 1: return &_propTitle;
+	case 2: return &_propNames;
+	case 3: return &_propOpen;
+	}
+}
+
+void GC_Menu::MyPropertySet::MyExchange(bool applyToObject)
+{
+	BASE::MyExchange(applyToObject);
+
+	GC_Menu *tmp = static_cast<GC_Menu *>(GetObject());
+
+	if( applyToObject )
+	{
+		tmp->_scriptOnSelect = _propOnSelect.GetStringValue();
+		tmp->_names = _propNames.GetStringValue();
+		tmp->_title =  _propTitle.GetStringValue();		
+		UI::Window *in = g_gui->GetDesktop();
+		UI::Desktop *tmp2 = static_cast<UI::Desktop *>(in);
+		tmp->_open = (0 != _propOpen.GetIntValue());
+		if (tmp->_open != 0)
+		{
+			tmp2->ShowMenu();
+			tmp->_open=0;
+		}
+	}
+	else
+	{
+		_propOnSelect.SetStringValue(tmp->_scriptOnSelect);
+		_propTitle.SetStringValue(tmp->_title);
+		_propNames.SetStringValue(tmp->_names);
+		_propOpen.SetIntValue(0 != tmp->_open);
+	}
+}
 
 // end of file

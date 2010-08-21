@@ -98,9 +98,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
-//	case WM_SETCURSOR:
-//		SetCursor(NULL);
-//		break;
+	case WM_SETCURSOR:
+		SetCursor(NULL);
+		break;
 
 	case WM_LBUTTONDOWN:
 		if( hWnd != GetCapture() ) SetCapture(hWnd);
