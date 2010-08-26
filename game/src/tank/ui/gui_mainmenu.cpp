@@ -46,7 +46,7 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 {
 
 	PauseGame(true);
-	bool m;
+	bool m=false;
 	SetDrawBorder(false);
 	std::string titlescreen="gui_splash";
 		FOREACH( g_level->GetList(LIST_services), GC_Service, PotencialMenu )

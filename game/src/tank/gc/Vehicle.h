@@ -78,6 +78,7 @@ class GC_Vehicle : public GC_VehicleBase
 	SafePtr<GC_Player>   _player;
 	string_t _playername;
 	string_t _skinname;
+	string_t  _class;
 
 protected:
 	class MyPropertySet : public GC_VehicleBase::MyPropertySet
@@ -85,6 +86,8 @@ protected:
 		typedef GC_VehicleBase::MyPropertySet BASE;
 		ObjectProperty _propSkin;
 		ObjectProperty _propPlayer;
+		ObjectProperty _propClass;
+
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -100,6 +103,7 @@ public:
 	VehicleState _stateReal;
 	VehicleState _statePredicted;
 
+	const string_t& GetClass() const { return _class; }
 	float GetMaxSpeed() const;
 	float GetMaxBrakingLength() const;
 
@@ -221,29 +225,9 @@ class GC_Tank_Light : public GC_Vehicle
 {
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
-	/*string_t _playername;
-	string_t _skinname;
-
-protected:
-	float _time_smoke;
-	class MyPropertySet : public GC_Vehicle::MyPropertySet
-	{
-		typedef GC_Vehicle::MyPropertySet BASE;
-		ObjectProperty _propSkin;
-		ObjectProperty _propPlayer;
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
-	};
-	virtual PropertySet* NewPropertySet();*/
-
 public:
 	GC_Tank_Light(float x, float y);
 	GC_Tank_Light(FromFile);
-	//virtual void MapExchange(MapFile &f);
-	//virtual void Serialize(SaveFile &f);
 	virtual float GetDefaultHealth() const { return 100; }
 	virtual void OnDestroy();
 	virtual void Draw() const;

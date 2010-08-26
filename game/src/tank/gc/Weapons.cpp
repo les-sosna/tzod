@@ -267,6 +267,12 @@ void GC_Weapon::TimeStepFixed(float dt)
 	if( GetCarrier() )
 	{
 		ProcessRotate(dt);
+		if  (!GetCarrier()->GetOwner()) //если нет владельца, гасим прицел
+		{
+			if( _crosshair->GetVisible())
+				_crosshair->SetVisible(false);
+			_rotatorWeap.rotate_to( 0.0f );
+		} 
 		if( _crosshair && _fixmeChAnimate )
 		{
 			_crosshair->MoveTo(GetPosPredicted() + GetDirection() * CH_DISTANCE_NORMAL);
