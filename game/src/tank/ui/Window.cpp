@@ -236,21 +236,26 @@ void Window::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 void Window::Move(float x, float y)
 {
-	_x = x;
-	_y = y;
-	OnMove(x, y);
+	if( _x != x || _y != y )
+	{
+		_x = x;
+		_y = y;
+		OnMove(x, y);
+	}
 }
 
 void Window::Resize(float width, float height)
 {
 	NoDestroyHelper(this);
-
-	_width  = width;
-	_height = height;
-	OnSize(width, height);
-	for( Window *w = _firstChild; w; w = w->_nextSibling )
+	if( _width != width || _height != height )
 	{
-		w->OnParentSize(width, height);
+		_width  = width;
+		_height = height;
+		OnSize(width, height);
+		for( Window *w = _firstChild; w; w = w->_nextSibling )
+		{
+			w->OnParentSize(width, height);
+		}
 	}
 }
 
