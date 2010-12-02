@@ -16,9 +16,9 @@ AppBase::~AppBase()
 
 void AppBase::InitNetwork()
 {
-	if( !_netHelper )
+	if( !_netHelper.get() )
 	{
-		_netHelper = WrapRawPtr(new NetworkInitHelper());
+		_netHelper.reset(new NetworkInitHelper());
 	}
 }
 

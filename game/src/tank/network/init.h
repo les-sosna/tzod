@@ -2,11 +2,11 @@
 
 #pragma once
 
-class NetworkInitHelper : public RefCounted
+class NetworkInitHelper
 {
 public:
 	NetworkInitHelper();
-	virtual ~NetworkInitHelper();
+	~NetworkInitHelper();
 };
 
 // end of file
