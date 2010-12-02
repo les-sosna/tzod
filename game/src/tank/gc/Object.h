@@ -184,13 +184,8 @@ public:
 
 // engine events
 #define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000004
-#define GC_FLAG_OBJECT_EVENTS_TS_FLOATING     0x00000008
 
-#define GC_FLAG_OBJECT_EVENTS_ALL           \
-    (GC_FLAG_OBJECT_EVENTS_TS_FIXED|        \
-    GC_FLAG_OBJECT_EVENTS_TS_FLOATING)
-
-#define GC_FLAG_OBJECT_                       0x00000010
+#define GC_FLAG_OBJECT_                       0x00000008
 
 
 enum GlobalListID
@@ -212,13 +207,6 @@ enum GlobalListID
 
 
 typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
-
-template <NOTIFYPROC pMemFn, NotifyType type>
-class SubscribeHelper
-{
-	SafePtr<GC_Object> _s;
-public:
-};
 
 class GC_Object
 {
@@ -283,7 +271,6 @@ private:
 	int             _refCount;          // = 1 at the construction time
 
 	ObjectList::iterator _itPosFixed;      // position in the Level::ts_fixed
-	ObjectList::iterator _itPosFloating;   // position in the Level::ts_floating
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;

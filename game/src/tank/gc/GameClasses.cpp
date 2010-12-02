@@ -562,7 +562,7 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
 	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
 
 	MoveTo(_victim->GetPos());
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED /*| GC_FLAG_OBJECT_EVENTS_TS_FLOATING*/ );
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
@@ -687,7 +687,7 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const string_t &text, const char *fo
 	_y0 = pos.y;
 	MoveTo( vec2d(__min(x_max, __max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
 
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 void GC_Text_ToolTip::Serialize(SaveFile &f)

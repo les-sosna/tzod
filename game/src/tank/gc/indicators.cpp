@@ -295,7 +295,7 @@ GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
   , _phase(frand(PI2))
 {
 	SetTexture("indicator_damage");
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(Z_VEHICLE_LABEL);
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }

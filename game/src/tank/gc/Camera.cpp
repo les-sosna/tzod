@@ -43,7 +43,7 @@ GC_Camera::GC_Camera(const SafePtr<GC_Player> &player)
 		_rotatorAngle =  -_player->GetVehicle()->GetVisual()->GetDirection().Angle() + PI/2;
 		MoveTo( _player->GetVehicle()->GetPosPredicted() );
 	}
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 	_player->Subscribe(NOTIFY_PLAYER_SETCONTROLLER, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 

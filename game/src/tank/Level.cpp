@@ -1069,6 +1069,8 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		{
 			assert(!(*it)->IsKilled());
 			(*it)->TimeStepFixed(dt);
+			if( *it )
+				(*it)->TimeStepFloat(dt);
 		}
 		GC_RigidBodyDynamic::ProcessResponse(dt);
 		_safeMode = true;
@@ -1234,21 +1236,6 @@ void Level::TimeStep(float dt)
 			filter = 0;
 		}
 	}
-
-
-	if( !_frozen )
-	{
-		_safeMode = false;
-		ObjectList::safe_iterator it = ts_floating.safe_begin();
-		while( it != ts_floating.end() )
-		{
-			assert(!(*it)->IsKilled());
-			(*it)->TimeStepFloat(dt);
-			++it;
-		}
-		_safeMode = true;
-	}
-
 
 
 #if 0

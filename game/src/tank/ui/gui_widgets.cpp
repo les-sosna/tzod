@@ -62,10 +62,9 @@ void FpsCounter::OnTimeStep(float dt)
 			-1
 		);
 
-		wsprintf(s1, "; obj:%d\nevents: %4dfix %4dfloat",
+		wsprintf(s1, "; obj:%d\ntimestep: %4d",
 			g_level->GetList(LIST_objects).size(), 
-			g_level->ts_fixed.size(),
-			g_level->ts_floating.size()
+			g_level->ts_fixed.size()
 		);
 		strcat(s, s1);
 

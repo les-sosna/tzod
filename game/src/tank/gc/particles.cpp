@@ -26,7 +26,7 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0)
 	SetTexture(tex);
 	SetZ(Z_PARTICLE);
 	MoveTo(x0);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
@@ -84,7 +84,7 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 	SetDirection(orient);
 
 	MoveTo(pos);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Particle::GC_Particle(FromFile)

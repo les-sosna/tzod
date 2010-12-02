@@ -35,7 +35,7 @@ GC_Pickup::GC_Pickup(float x, float y)
 	AddContext(&g_level->grid_pickup);
 
 	SetShadow(true);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING | GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(Z_FREE_ITEM);
 
 	SetAutoSwitch(true);
@@ -167,7 +167,7 @@ float GC_Pickup::GetRespawnTime() const
 
 void GC_Pickup::SetBlinking(bool blink)
 {
-	assert(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FLOATING));
+	assert(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED));
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 

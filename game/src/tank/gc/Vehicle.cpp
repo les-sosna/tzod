@@ -68,7 +68,7 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
 	_light2->SetAspect(0.4f);
 
 	// time step fixed is called by player
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FLOATING /*| GC_FLAG_OBJECT_EVENTS_TS_FIXED*/);
+//	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 
 	MoveTo(_parent->GetPos());
 	UpdateLight();

@@ -207,7 +207,6 @@ public:
 	Grid<ObjectList>  grid_water;
 	Grid<ObjectList>  grid_pickup;
 
-	ObjectList     ts_floating;
 	ObjectList     ts_fixed;
 
 	// graphics
