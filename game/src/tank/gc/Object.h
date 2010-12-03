@@ -20,20 +20,20 @@ typedef PtrList<GC_Object> ObjectList;
 
 #define DECLARE_POOLED_ALLOCATION(cls)          \
 private:                                        \
-    static MemoryManager<cls> __memoryManager;  \
+    static MemoryPool<cls> __pool;              \
 public:                                         \
     void* operator new(size_t count)            \
     {                                           \
-        assert(sizeof(cls) == count);          \
-        return __memoryManager.Alloc();         \
+        assert(sizeof(cls) == count);           \
+        return __pool.Alloc();                  \
     }                                           \
     void operator delete(void *ptr)             \
     {                                           \
-        __memoryManager.Free((cls*) ptr);       \
+        __pool.Free((cls*) ptr);                \
     }
 
 #define IMPLEMENT_POOLED_ALLOCATION(cls)        \
-    MemoryManager<cls> cls::__memoryManager;
+    MemoryPool<cls> cls::__pool;
 
 
 

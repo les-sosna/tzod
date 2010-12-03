@@ -10,87 +10,6 @@ template
 	class T,
 	size_t block_size = 128
 >
-class MemoryManager1
-{
-	union BlankObject
-	{
-		BlankObject *pNext;
-		char object[sizeof(T)];
-	};
-
-	std::vector<BlankObject *> _memoryBlocks;
-	BlankObject *_freeBlock;
-
-#ifndef NDEBUG
-	size_t _allocatedCount;
-	size_t _allocatedPeak;
-#endif
-
-	void Grow()
-	{
-		BlankObject *begin = (BlankObject *) malloc(sizeof(BlankObject) * block_size);
-		BlankObject *end = begin + block_size;
-		_memoryBlocks.push_back(begin);
-
-		// link together newly allocated blanks
-		do {
-			begin->pNext = begin+1;
-		} while( ++begin != end );
-
-		(--end)->pNext = _freeBlock;
-		_freeBlock = _memoryBlocks.back();
-	}
-
-public:
-	MemoryManager1()
-	  : _freeBlock(NULL)
-#ifndef NDEBUG
-	  , _allocatedCount(0)
-	  , _allocatedPeak(0)
-#endif
-	{
-	}
-
-	~MemoryManager1()
-	{
-		for( size_t i = 0; i < _memoryBlocks.size(); i++ )
-			::free(_memoryBlocks[i]);
-
-#ifndef NDEBUG
-		assert(0 == _allocatedCount);
-	//	TRACE("MemoryManager<%s>: peak allocation is %u", typeid(T).name(), _allocatedPeak);
-#endif
-	}
-
-	T* Alloc(void)
-	{
-#ifndef NDEBUG
-		if( ++_allocatedCount > _allocatedPeak )
-			_allocatedPeak = _allocatedCount;
-#endif
-
-		if( !_freeBlock ) Grow();
-		BlankObject* tmp = _freeBlock;
-		_freeBlock = _freeBlock->pNext;
-		return (T*) tmp;
-	}
-
-	void Free(T* p)
-	{
-		assert(_allocatedCount--);
-		((BlankObject*) p)->pNext = _freeBlock;
-		_freeBlock = (BlankObject*) p;
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-
-template
-<
-	class T,
-	size_t block_size = 128
->
 class MemoryPool
 {
 	struct BlankObject
@@ -220,7 +139,7 @@ public:
 #endif
 	}
 
-	T* Alloc()
+	void* Alloc()
 	{
 #ifndef NDEBUG
 		if( ++_allocatedCount > _allocatedPeak )
@@ -294,8 +213,6 @@ public:
 	}
 };
 
-
-#define MemoryManager	MemoryPool
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

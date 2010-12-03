@@ -15,10 +15,10 @@ class PtrList
 		Node *prev, *next;
 	};
 
-	static MemoryManager<Node> nodeAllocator;
+	static MemoryPool<Node> nodeAllocator;
 
 	size_t _size;
-	Node *_begin, *_end;
+	mutable Node _begin, _end;
 
 	static void FreeNode(Node *node)
 	{
@@ -27,7 +27,7 @@ class PtrList
 		nodeAllocator.Free(node);
 	}
 
-	PtrList(const PtrList &src); // no copy
+	PtrList(const PtrList &); // no copy
 
 public:
 
@@ -207,48 +207,46 @@ public:
 
 	PtrList(void)
 	  : _size(0)
-	  , _begin(nodeAllocator.Alloc())
-	  , _end(nodeAllocator.Alloc())
 	{
-		_begin->ptr       = (T*) -1;     // not NULL but invalid pointer
-		_begin->ref_count = 0;
-		_begin->next      = _end;
-		_begin->prev      = NULL;
-		_end->ptr         = (T*) -1;     // not NULL but invalid pointer
-		_end->ref_count   = 0;
-		_end->prev        = _begin;
-		_end->next        = NULL;
+		_begin.ptr       = (T*) -1;     // not NULL but invalid pointer
+		_begin.ref_count = 0;
+		_begin.next      = &_end;
+		_begin.prev      = NULL;
+		_end.ptr         = (T*) -1;     // not NULL but invalid pointer
+		_end.ref_count   = 0;
+		_end.prev        = &_begin;
+		_end.next        = NULL;
 	}
 
 	~PtrList(void)
 	{
 		Node *tmp;
-		while( _begin )
+		while( _begin.next != &_end )
 		{
-			tmp = _begin;
-			_begin = _begin->next;
+			tmp = _begin.next;
+			_begin.next = _begin.next->next;
 			nodeAllocator.Free(tmp);
 		}
 	}
 
 	void push_front(T *ptr)
 	{
-		Node *tmp = nodeAllocator.Alloc();
+		Node *tmp = (Node *) nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
 		tmp->ref_count  = 0;
-		tmp->prev       = _begin;
-		tmp->next       = _begin->next;
+		tmp->prev       = &_begin;
+		tmp->next       = _begin.next;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
 	}
 
 	void push_back(T *ptr)
 	{
-		Node *tmp = nodeAllocator.Alloc();
+		Node *tmp = (Node *) nodeAllocator.Alloc();
 		tmp->ptr        = ptr;
 		tmp->ref_count  = 0;
-		tmp->prev       = _end->prev;
-		tmp->next       = _end;
+		tmp->prev       = _end.prev;
+		tmp->next       = &_end;
 		tmp->prev->next = tmp->next->prev = tmp;
 		++_size;
 	}
@@ -257,8 +255,8 @@ public:
 	{
 		assert(0 < _size);
 		assert(0 == where._node->ref_count);  // use safe_erase to handle this
-		assert(where._node != _begin);
-		assert(where._node != _end);
+		assert(where._node != &_begin);
+		assert(where._node != &_end);
 		T *ptr = where._node->ptr;
 		FreeNode(where._node);
 		--_size;
@@ -276,36 +274,36 @@ public:
 		--_size;
 	}
 
-	__inline iterator      begin() const { return iterator(_begin->next); }
-	__inline base_iterator end()   const { return base_iterator(_end); }
+	__inline iterator      begin() const { return iterator(_begin.next); }
+	__inline base_iterator end()   const { return base_iterator(&_end); }
 
-	safe_iterator safe_begin() const { return safe_iterator(_begin->next); }
+	safe_iterator safe_begin() const { return safe_iterator(_begin.next); }
 
-	reverse_iterator rbegin() const { return reverse_iterator(_end->prev); }
-	base_iterator    rend()   const { return base_iterator(_begin); }
+	reverse_iterator rbegin() const { return reverse_iterator(_end.prev); }
+	base_iterator    rend()   const { return base_iterator(&_begin); }
 
 	bool empty() const
 	{
-		return _begin->next == _end;
+		return _begin.next == &_end;
 	}
 
 	T* front() const
 	{
 		assert(!empty());
-		return _begin->next->ptr;
+		return _begin.next->ptr;
 	}
 
 	T* back()  const
 	{
 		assert(!empty());
-		return _end->prev->ptr;
+		return _end.prev->ptr;
 	}
 
 	size_t size() const { return _size; } // FIXME
 };
 
 template <class T>
-MemoryManager<typename PtrList<T>::Node>
+MemoryPool<typename PtrList<T>::Node>
 	PtrList<T>::nodeAllocator;
 
 ///////////////////////////////////////////////////////////////////////////////
