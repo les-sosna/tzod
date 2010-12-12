@@ -147,7 +147,7 @@ void TankServer::OnListenerEvent()
 	//
 
 	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
-	PeerServer &cl = *GetRawPtr(_clients.back());
+	PeerServer &cl = *_clients.back();
 
 	cl.RegisterHandler(SV_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankServer::SvTextMessage, this));
 	cl.RegisterHandler(SV_POST_CONTROL, VariantTypeId<ControlPacket>(), CreateDelegate(&TankServer::SvControl, this));

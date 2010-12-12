@@ -58,20 +58,10 @@ GC_Projectile::GC_Projectile(FromFile)
 
 GC_Projectile::~GC_Projectile()
 {
-}
-
-void GC_Projectile::Kill()
-{
-	_owner  = NULL;
-	_ignore = NULL;
-	if( _light )
+	if( _light && _light->GetTimeout() <= 0 )
 	{
-		if( _light->GetTimeout() > 0 )
-			_light = NULL;
-		else
-			SAFE_KILL(_light);
+		SAFE_KILL(_light);
 	}
-	GC_2dSprite::Kill();
 }
 
 void GC_Projectile::Serialize(SaveFile &f)
@@ -121,7 +111,6 @@ float GC_Projectile::FilterDamage(float damage, GC_RigidBodyStatic *object)
 
 void GC_Projectile::ApplyHitDamage(GC_RigidBodyStatic *target, const vec2d &hitPoint)
 {
-	assert(!target->IsKilled());
 	if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(target) )
 	{
 		dyn->ApplyImpulse(GetDirection() * _hitImpulse, hitPoint);
@@ -129,7 +118,7 @@ void GC_Projectile::ApplyHitDamage(GC_RigidBodyStatic *target, const vec2d &hitP
 	float damage = FilterDamage(_hitDamage, target);
 	if( damage >= 0 )
 	{
-		target->TakeDamage(damage, hitPoint, GetRawPtr(_owner));
+		target->TakeDamage(damage, hitPoint, _owner);
 	}
 	else
 	{
@@ -171,16 +160,14 @@ void GC_Projectile::TimeStepFixed(float dt)
 			assert(!_isnan(relativeDepth) && _finite(relativeDepth));
 			assert(relativeDepth >= 0);
 
-			AddRef();
+			ObjPtr<GC_Projectile> watch(this);
 			bool stop = OnHit(it->obj, enter, it->normal, relativeDepth);
 			if( stop )
 			{
-				if( !IsKilled() )
+				if( watch )
 					_ignore = NULL;
-				Release();
 				return;
 			}
-			Release();
 		}
 	}
 
@@ -211,7 +198,7 @@ void GC_Projectile::SetHitImpulse(float impulse)
 // inline
 GC_RigidBodyStatic* GC_Projectile::GetIgnore() const
 {
-	return _ignore && !_ignore->IsKilled() ? GetRawPtr(_ignore) : NULL;
+	return _ignore;
 }
 
 
@@ -239,7 +226,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore,
 
 		FOREACH( g_level->GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 		{
-			if( veh->IsKilled() || GetOwner() == veh->GetOwner() )
+			if( GetOwner() == veh->GetOwner() )
 				continue;
 
 			if( veh != g_level->TraceNearest(g_level->grid_rigid_s, GetIgnore(), GetPos(), veh->GetPos() - GetPos()) )
@@ -269,7 +256,7 @@ GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore,
 		// select only if less than 20 degrees
 		if( nearest_cosinus > 0.94f )
 		{
-			_target = WrapRawPtr(pNearestTarget);
+			_target = pNearestTarget;
 		}
 	}
 
@@ -283,12 +270,6 @@ GC_Rocket::GC_Rocket(FromFile)
 
 GC_Rocket::~GC_Rocket()
 {
-}
-
-void GC_Rocket::Kill()
-{
-	FreeTarget();
-	GC_Projectile::Kill();
 }
 
 void GC_Rocket::Serialize(SaveFile &f)
@@ -321,9 +302,9 @@ void GC_Rocket::TimeStepFixed(float dt)
 
 	if( _target )
 	{
-		if( _target->IsKilled() || WEAP_RL_HOMING_TIME < _timeHomming )
+		if( WEAP_RL_HOMING_TIME < _timeHomming )
 		{
-			FreeTarget();
+			_target = NULL;
 		}
 		else
 		{
@@ -350,11 +331,6 @@ void GC_Rocket::TimeStepFixed(float dt)
 	}
 
 	GC_Projectile::TimeStepFixed(dt);
-}
-
-void GC_Rocket::FreeTarget()
-{
-	_target = NULL;
 }
 
 /////////////////////////////////////////////////////////////
@@ -534,7 +510,7 @@ bool GC_PlazmaClod::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 	static TextureCache tex1("particle_green");
 	static TextureCache tex2("explosion_plazma");
 
-	if( GetAdvanced() && !object->IsKilled() )
+	if( GetAdvanced() )
 	{
 		new GC_HealthDaemon(object, GetOwner(), 15.0f, 2.0f);
 	}
@@ -605,7 +581,7 @@ void GC_BfgCore::FindTarget()
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 	{
-		if( veh->IsKilled() || GetOwner() == veh->GetOwner() ) continue;
+		if( GetOwner() == veh->GetOwner() ) continue;
 
 		// check target visibility
 		if( veh != g_level->TraceNearest(g_level->grid_rigid_s,
@@ -625,12 +601,6 @@ void GC_BfgCore::FindTarget()
 	// accept only if the angle is less than 30 degrees
 	if( nearest_cosinus > 0.87f )
 		_target = pNearestTarget;
-}
-
-void GC_BfgCore::Kill()
-{
-	_target = NULL;
-	GC_Projectile::Kill();
 }
 
 void GC_BfgCore::Serialize(SaveFile &f)
@@ -689,19 +659,16 @@ void GC_BfgCore::TimeStepFixed(float dt)
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 	{
-		if( !veh->IsKilled() )
-		{
-			const float R = WEAP_BFG_RADIUS;
-			float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
-				(fabs(veh->_lv.len()) / SPEED_BFGCORE * 10 + 0.5f);
+		const float R = WEAP_BFG_RADIUS;
+		float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
+			(fabs(veh->_lv.len()) / SPEED_BFGCORE * 10 + 0.5f);
 
-			if( damage > 0 && !(GetAdvanced() && GetOwner() == veh->GetOwner()) )
-			{
-				vec2d delta(GetPos() - veh->GetPos());
-				delta.Normalize();
-				vec2d d = delta + g_level->net_vrand(1.0f);
-				veh->TakeDamage(damage * DAMAGE_BFGCORE * dt, veh->GetPos() + d, GetOwner());
-			}
+		if( damage > 0 && !(GetAdvanced() && GetOwner() == veh->GetOwner()) )
+		{
+			vec2d delta(GetPos() - veh->GetPos());
+			delta.Normalize();
+			vec2d d = delta + g_level->net_vrand(1.0f);
+			veh->TakeDamage(damage * DAMAGE_BFGCORE * dt, veh->GetPos() + d, GetOwner());
 		}
 	}
 
@@ -709,31 +676,24 @@ void GC_BfgCore::TimeStepFixed(float dt)
 
 	if( _target )
 	{
-		if( _target->IsKilled() )
+		vec2d target;
+		g_level->CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
+
+		vec2d a = target - GetPos();
+
+		vec2d p = a - GetDirection();
+		vec2d dv = p - GetDirection() * (GetDirection() * p);
+
+		float ldv = dv.len();
+		if( ldv > 0 )
 		{
-			_target = NULL;
-		}
-		else
-		{
-			vec2d target;
-			g_level->CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
+			dv /= (ldv * _velocity);
+			dv *= (3.0f * fabs(_target->_lv.len()) / WEAP_BFG_TARGET_SPEED + GetAdvanced() ? 1 : 0) * WEAP_BFG_HOMMING_FACTOR;
 
-			vec2d a = target - GetPos();
-
-			vec2d p = a - GetDirection();
-			vec2d dv = p - GetDirection() * (GetDirection() * p);
-
-			float ldv = dv.len();
-			if( ldv > 0 )
-			{
-				dv /= (ldv * _velocity);
-				dv *= (3.0f * fabs(_target->_lv.len()) / WEAP_BFG_TARGET_SPEED + GetAdvanced() ? 1 : 0) * WEAP_BFG_HOMMING_FACTOR;
-
-				vec2d dir(GetDirection());
-				dir += dv * dt;
-				dir.Normalize();
-				SetDirection(dir);
-			}
+			vec2d dir(GetDirection());
+			dir += dv * dt;
+			dir.Normalize();
+			SetDirection(dir);
 		}
 	}
 
@@ -787,8 +747,6 @@ void GC_FireSpark::Draw() const
 
 bool GC_FireSpark::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
-	assert(!object->IsKilled());
-
 	vec2d nn(norm.y, -norm.x);
 
 	if( GetDirection() * nn < (g_level->net_frand(0.6f) - 0.3f) )
@@ -857,7 +815,6 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 
 float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
 {
-	assert(!object->IsKilled());
 	if( GetAdvanced() && GetOwner() != object->GetOwner() )
 	{
 		return CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER) ? -damage : 0;
@@ -882,7 +839,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	{
 		FOREACH_SAFE(**it1, GC_RigidBodyStatic, object)
 		{
-			if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
+			if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 			{
 				continue;
 			}
@@ -916,13 +873,13 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	}
 	else
 	{
-		SafePtr<GC_FireSpark> refHolder;
+		ObjPtr<GC_FireSpark> watch;
 
 		// this moves the particle by velocity*dt
 		GC_Projectile::TimeStepFixed(dt);
 
 		// correct particle's position as if it was affected by air friction
-		if( !IsKilled() )
+		if( watch )
 		{
 			const float a = 1.5;
 			float e = exp(-a * dt);
@@ -1036,7 +993,7 @@ GC_GaussRay::GC_GaussRay(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ign
 
 	SAFE_KILL(_light);
 
-	_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
+	_light = new GC_Light(GC_Light::LIGHT_DIRECT);
 	_light->SetRadius(64);
 	_light->SetLength(0);
 	_light->SetIntensity(1.5f);
@@ -1056,6 +1013,8 @@ GC_GaussRay::GC_GaussRay(FromFile)
 
 GC_GaussRay::~GC_GaussRay()
 {
+	if( _light ) // _light can be killed during level cleanup
+		_light->SetTimeout(0.4f);
 }
 
 void GC_GaussRay::SpawnTrailParticle(const vec2d &pos)
@@ -1106,13 +1065,6 @@ bool GC_GaussRay::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2
 		return true;
 	}
 	return false; // don't stop
-}
-
-void GC_GaussRay::Kill()
-{
-	if( _light && !_light->IsKilled() ) // _light can be killed during level cleanup
-		_light->SetTimeout(0.4f);
-	GC_Projectile::Kill();
 }
 
 /////////////////////////////////////////////////////////////
@@ -1234,7 +1186,6 @@ void GC_Disk::SpawnTrailParticle(const vec2d &pos)
 
 float GC_Disk::FilterDamage(float damage, GC_RigidBodyStatic *object)
 {
-	assert(!object->IsKilled());
 	if( GetAdvanced() && GetOwner() == object->GetOwner() )
 	{
 		return damage / 3; // one third of damage to owner

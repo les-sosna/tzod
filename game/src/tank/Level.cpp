@@ -69,7 +69,6 @@ void FieldCell::UpdateProperties()
 void FieldCell::AddObject(GC_RigidBodyStatic *object)
 {
 	assert(object);
-	assert(!object->IsKilled());
 	assert(_objCount < 255);
 
 #ifdef _DEBUG
@@ -339,8 +338,7 @@ void Level::Clear()
 
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
-		if( !obj->IsKilled() )
-			obj->Kill();
+		obj->Kill();
 	}
 
 	// reset info
@@ -494,8 +492,7 @@ void Level::Unserialize(const char *fileName)
 		// read objects contents in the same order as pointers
 		for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 		{
-			if( !(*it)->IsKilled() ) // workaround to avoid dead garbage
-				(*it)->Serialize(f);
+			(*it)->Serialize(f);
 		}
 
 
@@ -566,14 +563,14 @@ void Level::Unserialize(const char *fileName)
 		lua_pushlightuserdata(g_env.L, &f);
 		lua_pushcclosure(g_env.L, &ReadHelper::restore_ptr, 1);
 		lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
-		if( lua_cpcall(g_env.L, &ReadHelper::read_user, GetRawPtr(stream)) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_user, stream) )
 		{
 			std::string err = "[pluto read user] ";
 			err += lua_tostring(g_env.L, -1);
 			lua_pop(g_env.L, 1);
 			throw std::runtime_error(err);
 		}
-		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, GetRawPtr(stream)) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, stream) )
 		{
 			std::string err = "[pluto read queue] ";
 			err += lua_tostring(g_env.L, -1);
@@ -632,12 +629,9 @@ void Level::Serialize(const char *fileName)
 	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 	{
 		GC_Object *object(*it);
-		if( !object->IsKilled() )
-		{
-			ObjectType type = object->GetType();
-			stream->Write(&type, sizeof(type));
-			f.RegPointer(object);
-		}
+		ObjectType type = object->GetType();
+		stream->Write(&type, sizeof(type));
+		f.RegPointer(object);
 	}
 	ObjectType terminator(INVALID_OBJECT_TYPE);
 	f.Serialize(terminator);
@@ -650,10 +644,7 @@ void Level::Serialize(const char *fileName)
 	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 	{
 		GC_Object *object = *it;
-		if( !object->IsKilled() )
-		{
-			object->Serialize(f);
-		}
+		object->Serialize(f);
 	}
 
 
@@ -799,7 +790,6 @@ void Level::Export(const SafePtr<FS::Stream> &s)
 	// objects
 	FOREACH( GetList(LIST_objects), GC_Object, object )
 	{
-		if( object->IsKilled() ) continue;
 		if( IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(GetTypeName(object->GetType()));
@@ -1067,7 +1057,6 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 		_safeMode = false;
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{
-			assert(!(*it)->IsKilled());
 			(*it)->TimeStepFixed(dt);
 			if( *it )
 				(*it)->TimeStepFloat(dt);
@@ -1238,18 +1227,6 @@ void Level::TimeStep(float dt)
 	}
 
 
-#if 0
-#ifdef _DEBUG
-	// check for dead objects
-	OBJECT_LIST::safe_iterator it = GetList(LIST_objects).safe_begin();
-	while( GetList(LIST_objects).end() != it )
-	{
-		assert(!(*it)->IsKilled());
-		++it;
-	}
-#endif
-#endif
-
 	if( g_conf.sv_timelimit.GetInt() && g_conf.sv_timelimit.GetInt() * 60 <= _time )
 	{
 		HitLimit();
@@ -1418,7 +1395,6 @@ void Level::RenderInternal(const FRECT &world) const
 
 		FOREACH( GetList(LIST_lights), GC_Light, pLight )
 		{
-			assert(!pLight->IsKilled());
 			if( pLight->IsActive() &&
 				pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
 				pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
@@ -1456,9 +1432,7 @@ void Level::RenderInternal(const FRECT &world) const
 			// FIXME: using of global g_level
 			FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
 			{
-				assert(!object->IsKilled());
 				object->Draw();
-				assert(!object->IsKilled());
 			}
 		}
 
@@ -1466,9 +1440,7 @@ void Level::RenderInternal(const FRECT &world) const
 		// FIXME: using of global g_level
 		FOREACH( g_level->z_globals[z], GC_2dSprite, object )
 		{
-			assert(!object->IsKilled());
 			object->Draw();
-			assert(!object->IsKilled());
 		}
 	}
 }
@@ -1510,7 +1482,6 @@ void Level::OnChangeNightMode()
 {
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
-		assert(!pLight->IsKilled());
 		pLight->Update();
 	}
 }

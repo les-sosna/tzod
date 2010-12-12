@@ -187,7 +187,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 
 	_location = location;
 
-	_object = /*WrapRawPtr*/(object);
+	_object = object;
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_IndicatorBar::OnParentKill);
 
 	GC_2dSprite *sprite = object;
@@ -215,12 +215,6 @@ void GC_IndicatorBar::Serialize(SaveFile &f)
 	f.Serialize(_object);
 }
 
-void GC_IndicatorBar::Kill()
-{
-	_object = NULL;
-	GC_2dSprite::Kill();
-}
-
 GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION location)
 {
 	FOREACH( g_level->GetList(LIST_indicators), GC_IndicatorBar, object )
@@ -236,8 +230,8 @@ void GC_IndicatorBar::Draw() const
 {
 	assert(_object);
 
-	float val     = *((float *) ((char*) GetRawPtr(_object) + _dwValue_offset));
-	float max_val = *((float *) ((char*) GetRawPtr(_object) + _dwValueMax_offset));
+	float val     = *((float *) ((char*) (GC_Object *) _object + _dwValue_offset));
+	float max_val = *((float *) ((char*) (GC_Object *) _object + _dwValueMax_offset));
 
 	if( max_val > 0 )
 	{

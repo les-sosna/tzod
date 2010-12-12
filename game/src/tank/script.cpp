@@ -36,12 +36,10 @@
 
 void luaT_pushobject(lua_State *L, GC_Object *obj)
 {
-	GC_Object **ppObj = (GC_Object **) lua_newuserdata(L, sizeof(obj));
+	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_newuserdata(L, sizeof(ObjPtr<GC_Object>));
 	luaL_getmetatable(L, "object");
 	lua_setmetatable(L, -2);
-	*ppObj = obj;
-	if( *ppObj )
-		(*ppObj)->AddRef();
+	new (ppObj) ObjPtr<GC_Object>(obj);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,21 +48,14 @@ void luaT_pushobject(lua_State *L, GC_Object *obj)
 static int luaT_objfinalizer(lua_State *L)
 {
 	assert(1 == lua_gettop(L));
-	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, 1);
-	if( *ppObj )
-		(*ppObj)->Release();
+	((ObjPtr<GC_Object> *) lua_touserdata(L, 1))->~ObjPtr();
 	return 0;
 }
 
 static int luaT_objpersist(lua_State *L)
 {
 	assert(3 == lua_gettop(L));
-	GC_Object **ppObj = (GC_Object **) lua_touserdata(L, 1);
-	if( *ppObj && (*ppObj)->IsKilled() )
-	{
-		(*ppObj)->Release();
-		(*ppObj) = NULL;
-	}
+	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_touserdata(L, 1);
 	SaveFile *f = (SaveFile *) lua_touserdata(L, 3);
 	assert(f);
 
@@ -76,7 +67,7 @@ static int luaT_objpersist(lua_State *L)
 	lua_call(L, 0, 1);
 
 	lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
-	lua_pushlightuserdata(L, (void *) (*ppObj ? f->GetPointerId(*ppObj) : 0));
+	lua_pushlightuserdata(L, (void *) f->GetPointerId(*ppObj));
 	lua_call(L, 2, 1);
 	return 1;
 }
@@ -108,13 +99,13 @@ static int luaT_objnextprop(lua_State *L)
 {
 	lua_settop(L, 2);
 
-	GC_Object *obj = *reinterpret_cast<GC_Object **>(luaL_checkudata(L, 1, "object"));
-	if( !obj || obj->IsKilled() )
+	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) luaL_checkudata(L, 1, "object");
+	if( !*ppObj )
 	{
 		luaL_argerror(L, 1, "reference to dead object");
 	}
 
-	SafePtr<PropertySet> properties = obj->GetProperties();
+	SafePtr<PropertySet> properties = (*ppObj)->GetProperties();
 	assert(properties);
 
 	if( lua_isnil(L, 2) )
@@ -163,7 +154,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 	// resolve by reference
 	//
 
-	if( GC_Object **ppObj = (GC_Object **) lua_touserdata(L, n) )
+	if( ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_touserdata(L, n) )
 	{
 //		luaL_checkudata(L, n, "object");
 		if( lua_getmetatable(L, n) )
@@ -175,7 +166,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 			}
 			lua_pop(L, 2); // pop both tables
 
-			if( !*ppObj || (*ppObj)->IsKilled() )
+			if( !*ppObj )
 			{
 				luaL_argerror(L, n, "reference to dead object");
 			}
@@ -198,7 +189,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 	}
 
 	GC_Object *obj = g_level->FindObject(name);
-	if( !obj || obj->IsKilled() )
+	if( !obj )
 	{
 		luaL_error(L, "object with name '%s' does not exist", name);
 	}
@@ -209,8 +200,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 template<class T>
 static T* luaT_checkobjectT(lua_State *L, int n) throw()
 {
-	GC_Object *obj = luaT_checkobject(L, n);
-	T *result = dynamic_cast<T *>(obj);
+	T *result = dynamic_cast<T *>(luaT_checkobject(L, n));
 	if( !result )
 	{
 		luaL_argerror(L, n, "incompatible object type");

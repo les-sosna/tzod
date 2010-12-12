@@ -48,12 +48,12 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
 
 	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent);
 
-	_light_ambient = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
+	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
 
-	_light1 = WrapRawPtr(new GC_Light(GC_Light::LIGHT_SPOT));
-	_light2 = WrapRawPtr(new GC_Light(GC_Light::LIGHT_SPOT));
+	_light1 = new GC_Light(GC_Light::LIGHT_SPOT);
+	_light2 = new GC_Light(GC_Light::LIGHT_SPOT);
 
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
@@ -81,23 +81,17 @@ GC_VehicleVisualDummy::GC_VehicleVisualDummy(FromFile)
 
 GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
 {
+	SAFE_KILL(_damLabel);
+	SAFE_KILL(_moveSound);
+	SAFE_KILL(_light_ambient);
+	SAFE_KILL(_light1);
+	SAFE_KILL(_light2);
 }
 
 bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
 	assert(false);
 	return false;
-}
-
-void GC_VehicleVisualDummy::Kill()
-{
-	SAFE_KILL(_damLabel);
-	SAFE_KILL(_moveSound);
-	SAFE_KILL(_light_ambient);
-	SAFE_KILL(_light1);
-	SAFE_KILL(_light2);
-	_parent = NULL;
-	GC_VehicleBase::Kill();
 }
 
 void GC_VehicleVisualDummy::Serialize(SaveFile &f)
@@ -153,7 +147,6 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 
 	// move
 	GC_VehicleBase::TimeStepFixed( dt );
-	assert(!IsKilled());
 
 	ApplyState(_parent->GetPredictedState());
 
@@ -205,7 +198,6 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 	//
 	if( _parent->GetHealth() < (_parent->GetHealthMax() * 0.4f) )
 	{
-		assert(!_parent->IsKilled());
 		assert(_parent->GetHealth() > 0);
 		                    //    +-{ particles per second }
 		_time_smoke += dt;  //    |
@@ -222,7 +214,7 @@ void GC_VehicleVisualDummy::TimeStepFloat(float dt)
 
 void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
 {
-	_moveSound = WrapRawPtr(new GC_Sound(s, SMODE_LOOP, GetPos()));
+	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
 }
 
 void GC_VehicleVisualDummy::UpdateLight()
@@ -244,22 +236,10 @@ void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
 	if( g_conf.g_showdamage.Get() )
 	{
 		if( _damLabel )
-		{
 			_damLabel->Reset();
-		}
 		else
-		{
-			_damLabel = WrapRawPtr(new GC_DamLabel(this));
-			_damLabel->Subscribe(NOTIFY_OBJECT_KILL, this, 
-				(NOTIFYPROC) &GC_VehicleVisualDummy::OnDamLabelDisappear);
-		}
+			_damLabel = new GC_DamLabel(this);
 	}
-}
-
-void GC_VehicleVisualDummy::OnDamLabelDisappear(GC_Object *sender, void *param)
-{
-	assert(_damLabel);
-	_damLabel = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -370,7 +350,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 
 	MoveTo(vec2d(x, y));
 
-	_visual = WrapRawPtr(new GC_VehicleVisualDummy(this));
+	_visual = new GC_VehicleVisualDummy(this);
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 #ifdef _DEBUG
@@ -419,7 +399,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	return result;
 }
 
-void GC_Vehicle::SetPlayer(const SafePtr<GC_Player> &player)
+void GC_Vehicle::SetPlayer(GC_Player *player)
 {
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
@@ -471,7 +451,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			}
 
 			assert(!_weapon);
-			_weapon = WrapRawPtr(w);
+			_weapon = w;
 
 			//
 			// update class
@@ -507,7 +487,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 		else
 		{
 			assert(_weapon);
-//			Unsubscribe( GetRawPtr(_weapon) );
+//			Unsubscribe(_weapon);
 			_weapon = NULL;
 			ResetClass();
 		}
@@ -563,8 +543,6 @@ void GC_Vehicle::ResetClass()
 
 bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
-	assert(!IsKilled());
-
 	DamageDesc dd;
 	dd.damage = damage;
 	dd.hit    = hit;
@@ -577,9 +555,9 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	}
 	SetHealthCur(GetHealth() - dd.damage);
 	{
-		SafePtr<GC_Object> refHolder(this); // this may be killed during script execution
+		ObjPtr<GC_Object> watch(this); // this may be killed during script execution
 		TDFV(from ? from->GetVehicle() : NULL);
-		if( IsKilled() )
+		if( !watch )
 		{
 			// TODO: score
 			return true;
@@ -654,9 +632,9 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 		}
 
 		{
-			SafePtr<GC_Object> refHolder(this);
+			ObjPtr<GC_Object> watch(this);
 			OnDestroy();
-			Kill();
+			if( watch ) Kill();
 		}
 
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(msg);
@@ -678,16 +656,17 @@ void GC_Vehicle::Draw() const
 
 void GC_Vehicle::TimeStepFixed(float dt)
 {
+	ObjPtr<GC_Vehicle> watch(this);
 	// move...
 	GC_VehicleBase::TimeStepFixed( dt );
-	if( IsKilled() ) return;
+	if( !watch ) return;
 
 
 	// fire...
 	if( _weapon && _stateReal._bState_Fire )
 	{
 		_weapon->Fire();
-		if( IsKilled() ) return;
+		if( !watch ) return;
 	}
 
 
@@ -702,6 +681,11 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	{
 		if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
 	}
+}
+
+bool GC_Vehicle::Ignore(GC_RigidBodyStatic *test) const
+{
+	return _visual == test;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

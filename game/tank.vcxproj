@@ -239,7 +239,6 @@
     <ClInclude Include="src\tank\gc\Turrets.h" />
     <ClInclude Include="src\tank\gc\UserObjects.h" />
     <ClInclude Include="src\tank\gc\Vehicle.h" />
-    <ClInclude Include="src\tank\gc\WeakPtr.h" />
     <ClInclude Include="src\tank\gc\Weapons.h" />
     <ClInclude Include="src\tank\ui\Base.h" />
     <ClInclude Include="src\tank\ui\Button.h" />

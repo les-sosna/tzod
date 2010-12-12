@@ -45,7 +45,7 @@ File::~File()
 
 SafePtr<FileSystem> FileSystem::Create(const string_t &nodeName)
 {
-	return WrapRawPtr(new FileSystem(nodeName));
+	return new FileSystem(nodeName);
 }
 
 FileSystem::FileSystem(const string_t &nodeName)
@@ -83,7 +83,7 @@ bool FileSystem::MountTo(FileSystem *parent)
 
 	// mount
 	_parent = parent;
-	_parent->_children[_nodeName] = WrapRawPtr(this);
+	_parent->_children[_nodeName] = this;
 
 	return true;
 }
@@ -135,7 +135,7 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create,
 		++offset;
 
 	if( path.length() == offset )
-		return WrapRawPtr(this); // path consists of delimiters only
+		return this; // path consists of delimiters only
 
 	string_t::size_type p = path.find(DELIMITER, offset);
 
@@ -212,7 +212,7 @@ OSFileSystem::OSFile::~OSFile()
 SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
 {
 	assert(!_mapped && !_streamed);
-	SafePtr<MemMap> result(new OSMemMap(WrapRawPtr(this), _file.h));
+	SafePtr<MemMap> result(new OSMemMap(this, _file.h));
 	_mapped = true;
 	return result;
 }
@@ -221,7 +221,7 @@ SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
 {
 	assert(!_mapped && !_streamed);
 	_streamed = true;
-	SafePtr<Stream> result(new OSStream(WrapRawPtr(this), _file.h));
+	SafePtr<Stream> result(new OSStream(this, _file.h));
 	return result;
 }
 
@@ -391,7 +391,7 @@ void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, const string_t &nodeName)
 {
-	return WrapRawPtr(new OSFileSystem(rootDirectory, nodeName));
+	return new OSFileSystem(rootDirectory, nodeName);
 }
 
 OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeName)
@@ -489,7 +489,7 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName, FileMode mode)
 {
 	// combine with the root path
-	return WrapRawPtr(new OSFile(_rootDirectory + TEXT('\\') + fileName, mode));
+	return new OSFile(_rootDirectory + TEXT('\\') + fileName, mode);
 }
 
 SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)

@@ -20,8 +20,12 @@ void SaveFile::RegPointer(GC_Object *ptr)
 
 size_t SaveFile::GetPointerId(GC_Object *ptr) const
 {
-	assert(_ptrToIndex.count(ptr));
-	return _ptrToIndex.find(ptr)->second;
+	if( ptr )
+	{
+		assert(_ptrToIndex.count(ptr));
+		return _ptrToIndex.find(ptr)->second;
+	}
+	return 0;
 }
 
 GC_Object* SaveFile::RestorePointer(size_t id) const

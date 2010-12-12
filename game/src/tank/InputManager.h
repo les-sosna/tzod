@@ -5,7 +5,7 @@
 #include "core/SafePtr.h"
 #include "core/ComPtr.h"
 
-class InputManager: public RefCounted
+class InputManager
 {
 public:
 	InputManager(HWND hWnd);

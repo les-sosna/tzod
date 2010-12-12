@@ -25,7 +25,7 @@ public:
 		return _load;
 	}
 
-	FS::Stream* GetStream() const { return GetRawPtr(_stream); }
+	FS::Stream* GetStream() const { return _stream; }
 
 	void Serialize(string_t &str);
 
@@ -76,7 +76,7 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 			GC_Object *raw = RestorePointer(id);
 			if( !dynamic_cast<T*>(raw) )
 				throw std::runtime_error("ERROR: invalid object pointer");
-			ptr = WrapRawPtr(static_cast<T*>(raw));
+			ptr = static_cast<T*>(raw);
 		}
 		else
 		{
@@ -85,14 +85,7 @@ void SaveFile::Serialize(SafePtr<T> &ptr)
 	}
 	else
 	{
-		if( !ptr || ptr->IsKilled() )
-		{
-			id = 0;
-		}
-		else
-		{
-			id = GetPointerId(GetRawPtr(ptr));
-		}
+		id = GetPointerId(ptr);
 		Serialize(id);
 	}
 }

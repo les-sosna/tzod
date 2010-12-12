@@ -35,7 +35,7 @@ private:
 	enumLightType _type;
 	vec2d  _lightDirection;
 
-	SafePtr<GC_2dSprite> _lampSprite;
+	ObjPtr<GC_2dSprite> _lampSprite;
 
 	static const int SINTABLE_SIZE = 32;
 	static const int SINTABLE_MASK = 0x1f;
@@ -107,7 +107,6 @@ public:
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);
 
 	virtual void TimeStepFixed(float dt);
@@ -122,7 +121,7 @@ public:
 class GC_Spotlight : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
-	SafePtr<GC_Light> _light;
+	ObjPtr<GC_Light> _light;
 
 
 protected:
@@ -145,7 +144,6 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);
 
 	virtual void EditorAction();

@@ -37,14 +37,8 @@ GC_MessageBox::GC_MessageBox(FromFile)
 
 GC_MessageBox::~GC_MessageBox()
 {
-	assert(!_msgbox.Get());
-}
-
-void GC_MessageBox::Kill()
-{
 	if( _msgbox.Get() )
 		_msgbox->Destroy();
-	GC_Service::Kill();
 }
 
 void GC_MessageBox::Serialize(SaveFile &f)
@@ -104,7 +98,7 @@ void GC_MessageBox::OnSelect(int n)
 		}
 		else
 		{
-			SafePtr<GC_Object> refHolder(this);
+			ObjPtr<GC_Object> whatch(this);
 			luaT_pushobject(g_env.L, this);
 			lua_pushinteger(g_env.L, n);
 			if( lua_pcall(g_env.L, 2, 0, 0) )
@@ -112,7 +106,7 @@ void GC_MessageBox::OnSelect(int n)
 				GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
 				lua_pop(g_env.L, 1); // pop the error message from the stack
 			}
-			else if( !IsKilled() && _autoClose )
+			else if( whatch && _autoClose )
 			{
 				Kill();
 			}

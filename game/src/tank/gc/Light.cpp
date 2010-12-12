@@ -52,6 +52,7 @@ GC_Light::GC_Light(FromFile)
 
 GC_Light::~GC_Light()
 {
+	SAFE_KILL(_lampSprite);
 }
 
 void GC_Light::Serialize(SaveFile &f)
@@ -157,12 +158,6 @@ void GC_Light::Shine() const
 	}
 }
 
-void GC_Light::Kill()
-{
-	SAFE_KILL(_lampSprite);
-	GC_Actor::Kill();
-}
-
 void GC_Light::MoveTo(const vec2d &pos)
 {
 	_lampSprite->MoveTo(pos);
@@ -227,18 +222,13 @@ GC_Spotlight::GC_Spotlight(float x, float y)
 
 GC_Spotlight::~GC_Spotlight()
 {
+	SAFE_KILL(_light);
 }
 
 void GC_Spotlight::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
 	f.Serialize(_light);
-}
-
-void GC_Spotlight::Kill()
-{
-	SAFE_KILL(_light);
-	GC_2dSprite::Kill();
 }
 
 void GC_Spotlight::MoveTo(const vec2d &pos)

@@ -1,7 +1,7 @@
 // Vehicle.h
 
 #pragma once
-
+#include "Object.h"
 #include "RigidBodyDinamic.h"
 #include "network/ControlPacket.h"
 
@@ -74,11 +74,11 @@ class GC_Vehicle : public GC_VehicleBase
 {
 	MemberOfGlobalList<LIST_vehicles> _memberOf;
 
-	SafePtr<GC_Weapon>   _weapon;
-	SafePtr<GC_Player>   _player;
+	ObjPtr<GC_Weapon>   _weapon;
+	ObjPtr<GC_Player>   _player;
 
 protected:
-	SafePtr<GC_VehicleVisualDummy> _visual;
+	ObjPtr<GC_VehicleVisualDummy> _visual;
 
 public:
 	VehicleState _stateReal;
@@ -87,9 +87,9 @@ public:
 	float GetMaxSpeed() const;
 	float GetMaxBrakingLength() const;
 
-	GC_Weapon* GetWeapon() const { return GetRawPtr(_weapon); }
+	GC_Weapon* GetWeapon() const { return _weapon; }
 
-	void SetPlayer(const SafePtr<GC_Player> &player);
+	void SetPlayer(GC_Player *player);
 
 public:
 	GC_Vehicle(float x, float y);
@@ -101,12 +101,12 @@ public:
 	void SetState(const VehicleState &vs);
 	void SetPredictedState(const VehicleState &vs);
 	const VehicleState& GetPredictedState() const { return _statePredicted; }
-	GC_VehicleVisualDummy* GetVisual() const { return GetRawPtr(_visual); }
+	GC_VehicleVisualDummy* GetVisual() const { return _visual; }
 
 	// GC_RigidBodyStatic
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
-	virtual GC_Player* GetOwner() const { return GetRawPtr(_player); }
+	virtual GC_Player* GetOwner() const { return _player; }
 
 	// GC_Actor
 	virtual const vec2d& GetPosPredicted() const;
@@ -132,7 +132,7 @@ public:
 #endif
 
 protected:
-	virtual bool Ignore(GC_RigidBodyStatic *test) const { return _visual == test; }
+	virtual bool Ignore(GC_RigidBodyStatic *test) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,6 @@ public:
 	virtual void Draw() const;
 
 	// GC_Object
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 	virtual void TimeStepFloat(float dt);
@@ -177,13 +176,13 @@ protected:
 	virtual bool Ignore(GC_RigidBodyStatic *test) const { return _parent == test; }
 
 protected:
-	SafePtr<GC_Vehicle>  _parent;
-	SafePtr<GC_Sound>    _moveSound;
-	SafePtr<GC_DamLabel> _damLabel;
+	ObjPtr<GC_Vehicle>  _parent;
+	ObjPtr<GC_Sound>    _moveSound;
+	ObjPtr<GC_DamLabel> _damLabel;
 
-	SafePtr<GC_Light>    _light_ambient;
-	SafePtr<GC_Light>    _light1;
-	SafePtr<GC_Light>    _light2;
+	ObjPtr<GC_Light>    _light_ambient;
+	ObjPtr<GC_Light>    _light1;
+	ObjPtr<GC_Light>    _light2;
 
 	float _trackDensity;
 	float _trackPathL;
@@ -193,7 +192,6 @@ protected:
 	void UpdateLight();
 
 	void OnDamageParent(GC_Object *sender, void *param);
-	void OnDamLabelDisappear(GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////

@@ -41,7 +41,7 @@ static void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector
 	cb.tell_func  = tell_func;
 
 	OggVorbis_File vf;
-	if( int result = ov_open_callbacks(GetRawPtr(s), &vf, NULL, 0, cb) )
+	if( int result = ov_open_callbacks(s, &vf, NULL, 0, cb) )
 	{
 		switch( result )
 		{

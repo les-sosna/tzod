@@ -341,10 +341,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 				c.t.x =  c.n.y;
 				c.t.y = -c.n.x;
 				c.obj2_s = object;
-				c.obj2_d = dynamic_cast<GC_RigidBodyDynamic*>(object);
-
-				c.obj1_d->AddRef();
-				c.obj2_s->AddRef();
+				c.obj2_d = PtrDynCast<GC_RigidBodyDynamic>(object);
 
 				_contacts.push_back(c);
 			}
@@ -391,7 +388,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 	{
 		for( ContactList::iterator it = _contacts.begin(); it != _contacts.end(); ++it )
 		{
-			if( it->obj1_d->IsKilled() || it->obj2_s->IsKilled() ) continue;
+			if( !it->obj1_d || !it->obj2_s ) continue;
 
 			float a;
 			if( it->obj2_d )
@@ -401,7 +398,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 			if( a >= 0 )
 			{
-				a = __max(0.01f * (float) (i>>2), a);
+				a = std::max(0.01f * (float) (i>>2), a);
 				it->total_np += a;
 
 				float nd = it->total_np/60;
@@ -411,22 +408,24 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 				if( nd > 3 && o1 && o2 )
 				{
+					GC_Player *owner1 = it->obj1_d->GetOwner(); // store pointer to owner since obj1 may die
 					if( it->obj2_d )
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, it->obj2_d->GetOwner());
-						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, it->obj1_d->GetOwner());
+						GC_Player *owner2 = it->obj2_d->GetOwner();
+						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
+						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, owner1);
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, it->obj1_d->GetOwner());
-						it->obj2_s->TakeDamage(a/60 * it->obj1_d->_percussion, it->o, it->obj1_d->GetOwner());
+						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, owner1);
+						it->obj2_s->TakeDamage(a/60 * it->obj1_d->_percussion, it->o, owner1);
 					}
 				}
 
-				if( it->obj1_d->IsKilled() || it->obj2_s->IsKilled() )
+				if( !it->obj1_d || !it->obj2_s )
 					a *= 0.1f;
 
-				// phantom may not affect real objects but it may affect other fhantoms
+				// phantom may not affect real objects but it may affect other phantoms
 				vec2d delta_p = it->n * (a + it->depth);
 
 				if( !o1 && !o2 || o2 )
@@ -477,9 +476,6 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 		{
 			PLAY(SND_Slide1, it->o);
 		}
-
-		it->obj1_d->Release();
-		it->obj2_s->Release();
 	}
 
 	_contacts.clear();

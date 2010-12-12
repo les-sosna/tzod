@@ -75,7 +75,7 @@ LobbyClient::~LobbyClient()
 void LobbyClient::ResetHttp()
 {
 	// recreate http client to cancel any current requests
-	_http = WrapRawPtr(new HttpClient());
+	_http = new HttpClient();
 	_http->eventResult.bind(&LobbyClient::OnHttpResult, this);
 }
 

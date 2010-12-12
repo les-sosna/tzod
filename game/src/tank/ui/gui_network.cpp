@@ -161,7 +161,7 @@ void CreateServerDlg::OnOK()
 			return;
 		}
 		g_conf.sv_lobby.Set(_lobbyList->GetData()->GetItemText(_lobbyList->GetCurSel(), 0));
-		announcer = WrapRawPtr(new LobbyClient());
+		announcer = new LobbyClient();
 		announcer->SetLobbyUrl(g_conf.sv_lobby.Get());
 	}
 
@@ -635,7 +635,6 @@ void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
 	{
 		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
 		assert(player);
-		assert(!player->IsKilled());
 		assert(0 != player->GetNetworkID());
 
 		if( player->GetNetworkID() == id )

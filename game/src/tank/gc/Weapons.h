@@ -37,8 +37,8 @@ protected:
 	vec2d _directionReal;
 
 protected:
-	SafePtr<GC_2dSprite> _fireEffect;
-	SafePtr<GC_Light>    _fireLight;
+	ObjPtr<GC_2dSprite> _fireEffect;
+	ObjPtr<GC_Light>    _fireLight;
 	vec2d _fePos;
 	vec2d _feOrient;
 	float _feTime;
@@ -60,8 +60,8 @@ public:
 	float    _angleReal;          // note that sprite rotation is predicted angle
 	Rotator  _rotatorWeap;
 
-	SafePtr<GC_Sound>     _rotateSound;
-	SafePtr<GC_2dSprite>  _crosshair;
+	ObjPtr<GC_Sound>     _rotateSound;
+	ObjPtr<GC_2dSprite>  _crosshair;
 	bool _fixmeChAnimate;
 
 public:
@@ -147,7 +147,6 @@ public:
 	GC_Weap_AutoCannon(float x, float y);
 	GC_Weap_AutoCannon(FromFile);
 	virtual ~GC_Weap_AutoCannon();
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
@@ -219,8 +218,8 @@ class GC_Weap_Ram : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ram);
 
 private:
-	SafePtr<GC_Sound> _engineSound;
-	SafePtr<GC_Light> _engineLight;
+	ObjPtr<GC_Sound> _engineSound;
+	ObjPtr<GC_Light> _engineLight;
 
 protected:
 	virtual void OnUpdateView();
@@ -243,7 +242,6 @@ public:
 	GC_Weap_Ram(float x, float y);
 	GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();
@@ -280,7 +278,7 @@ class GC_Weap_Ripper : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
-	SafePtr<GC_2dSprite> _diskSprite;
+	ObjPtr<GC_2dSprite> _diskSprite;
 	void UpdateDisk();
 
 public:
@@ -304,13 +302,13 @@ class GC_Weap_Minigun : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Minigun);
 
 private:
-	SafePtr<GC_Sound> _sound;
+	ObjPtr<GC_Sound> _sound;
 	float _timeRotate; // for firing animation
 	float _timeFire;
 	float _timeShot;
 	bool _bFire;
 
-	SafePtr<GC_2dSprite> _crosshairLeft;
+	ObjPtr<GC_2dSprite> _crosshairLeft;
 
 public:
 	virtual void Attach(GC_Actor *actor);
@@ -319,7 +317,6 @@ public:
 	GC_Weap_Minigun(float x, float y);
 	GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
-	virtual void Kill();
 
 	virtual void SetCrosshair();
 
@@ -336,7 +333,7 @@ class GC_Weap_Zippo : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Zippo);
 
 private:
-	SafePtr<GC_Sound> _sound;
+	ObjPtr<GC_Sound> _sound;
 	float _timeFire;
 	float _timeShot;
 	float _timeBurn;
@@ -349,7 +346,6 @@ public:
 	GC_Weap_Zippo(float x, float y);
 	GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Fire();

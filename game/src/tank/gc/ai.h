@@ -19,7 +19,7 @@ class GC_Pickup;
 
 struct AIITEMINFO
 {
-	SafePtr<GC_Actor> object;
+	ObjPtr<GC_Actor> object;
 	AIPRIORITY priority;
 };
 
@@ -29,7 +29,7 @@ class GC_PlayerAI : public GC_Player
 
 	static JobManager<GC_PlayerAI> _jobManager;
 
-	typedef std::list<SafePtr<GC_RigidBodyStatic> > AttackListType;
+	typedef std::list<ObjPtr<GC_RigidBodyStatic> > AttackListType;
 
 protected:
 	class MyPropertySet : public GC_Player::MyPropertySet
@@ -105,11 +105,11 @@ protected:
 	} _aiState_l1;
 
 protected:
-	SafePtr<GC_Pickup>          _pickupCurrent;
-	SafePtr<GC_RigidBodyStatic> _target;  // current target
+	ObjPtr<GC_Pickup>          _pickupCurrent;
+	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
-	void LockTarget(const SafePtr<GC_RigidBodyStatic> &target);
+	void LockTarget(GC_RigidBodyStatic *target);
 	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 

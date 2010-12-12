@@ -37,6 +37,7 @@ GC_UserObject::GC_UserObject(FromFile)
 
 GC_UserObject::~GC_UserObject()
 {
+	g_level->_field.ProcessObject(this, false);
 }
 
 void GC_UserObject::Serialize(SaveFile &f)

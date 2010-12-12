@@ -100,7 +100,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	TRACE("cl: connecting to %s", inet_ntoa(addr.sin_addr));
 	ClTextMessage(NULL, -1, Variant(g_lang.net_msg_connecting.Get()));
 
-	_peer = WrapRawPtr(new Peer(s));
+	_peer = new Peer(s);
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
 
 	_peer->RegisterHandler(CL_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankClient::ClTextMessage, this));

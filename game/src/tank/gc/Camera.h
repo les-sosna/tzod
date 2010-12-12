@@ -24,17 +24,18 @@ private:
 
 	RECT    _viewport;
 	float   _zoom;
-	SafePtr<GC_Player>  _player;
+	ObjPtr<GC_Player>  _player;
 
 public:
-	explicit GC_Camera(const SafePtr<GC_Player> &player);
+	explicit GC_Camera(GC_Player *player);
 	GC_Camera(FromFile);
+	virtual ~GC_Camera();
 
 	float GetAngle() const { return _rotatorAngle; }
 	void GetWorld(FRECT &outWorld) const;
 	void GetScreen(RECT &vp) const;
 	float GetZoom() const { return _zoom; }
-	const SafePtr<GC_Player>& GetPlayer() const { assert(_player); return _player; }
+	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
 	static void UpdateLayout();
 	static bool GetWorldMousePos(vec2d &pos);
@@ -42,13 +43,12 @@ public:
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
-	// overrides
-	virtual void Kill();
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFloat(float dt);
-
 	// message handlers
 	void OnDetach(GC_Object *sender, void *param);
+
+	// GC_Object
+	virtual void Serialize(SaveFile &f);
+	virtual void TimeStepFloat(float dt);
 };
 
 // end of file

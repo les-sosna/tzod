@@ -52,6 +52,11 @@ GC_Wood::GC_Wood(FromFile)
 {
 }
 
+GC_Wood::~GC_Wood()
+{
+	UpdateTile(false);
+}
+
 void GC_Wood::UpdateTile(bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
@@ -89,19 +94,13 @@ void GC_Wood::UpdateTile(bool flag)
 	}
 }
 
-void GC_Wood::Kill()
-{
-	UpdateTile(false);
-	GC_2dSprite::Kill();
-}
-
 void GC_Wood::Serialize(SaveFile &f)
 {
 	GC_2dSprite::Serialize(f);
 
 	f.Serialize(_tile);
 
-	if( !IsKilled() && f.loading() )
+	if( f.loading() )
 		AddContext(&g_level->grid_wood);
 }
 
@@ -170,14 +169,7 @@ GC_Explosion::GC_Explosion(FromFile)
 
 GC_Explosion::~GC_Explosion()
 {
-	assert(!_owner);
-}
-
-void GC_Explosion::Kill()
-{
-	_owner = NULL;
 	SAFE_KILL(_light);
-	GC_2dSprite::Kill();
 }
 
 void GC_Explosion::Serialize(SaveFile &f)
@@ -322,7 +314,6 @@ void GC_Explosion::Boom(float radius, float damage)
 			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
 			++cdit;
 
-			if( pDamObject->IsKilled() ) continue;
 			if( GC_Wall_Concrete::GetTypeStatic() == pDamObject->GetType() )
 			{
 				node.x = int(pDamObject->GetPos().x / CELL_SIZE);
@@ -341,7 +332,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	{
 		FOREACH_SAFE(**it, GC_RigidBodyStatic, pDamObject)
 		{
-			if( pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_OBJECT_KILLED) )
+			if( pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 			{
 				continue;
 			}
@@ -379,7 +370,7 @@ void GC_Explosion::Boom(float radius, float damage)
 					}
 					if( !pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
 					{
-						pDamObject->TakeDamage( dam, GetPos(), GetRawPtr(_owner) );
+						pDamObject->TakeDamage(dam, GetPos(), _owner);
 					}
 				}
 			}
@@ -556,7 +547,6 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
   , _owner(owner)
 {
 	assert(victim);
-	assert(!victim->IsKilled());
 
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
 	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
@@ -572,13 +562,6 @@ GC_HealthDaemon::GC_HealthDaemon(FromFile)
 
 GC_HealthDaemon::~GC_HealthDaemon()
 {
-}
-
-void GC_HealthDaemon::Kill()
-{
-	_victim = NULL;
-	_owner  = NULL;
-	GC_2dSprite::Kill();
 }
 
 void GC_HealthDaemon::Serialize(SaveFile &f)
@@ -604,7 +587,7 @@ void GC_HealthDaemon::TimeStepFixed(float dt)
 		dt += _time;
 		bKill = true;
 	}
-	if( !_victim->TakeDamage(dt * _damage, _victim->GetPos(), GetRawPtr(_owner)) && bKill )
+	if( !_victim->TakeDamage(dt * _damage, _victim->GetPos(), _owner) && bKill )
 		Kill(); // victim has died
 }
 

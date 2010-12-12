@@ -51,11 +51,11 @@ GC_Pickup::GC_Pickup(FromFile)
 
 GC_Pickup::~GC_Pickup()
 {
+	SAFE_KILL(_label);
 }
 
 void GC_Pickup::Kill()
 {
-	SAFE_KILL(_label);
 	if( Disappear() )
 	{
 		return; // the object has been already killed
@@ -75,7 +75,7 @@ void GC_Pickup::Serialize(SaveFile &f)
 	f.Serialize(_scriptOnPickup);
 	f.Serialize(_label);
 
-	if( !IsKilled() && f.loading() )
+	if( f.loading() )
 		AddContext(&g_level->grid_pickup);
 }
 
@@ -85,13 +85,10 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 	{
-		if( !veh->IsKilled() )
+		if( (GetPos() - veh->GetPos()).sqr() < r_sq )
 		{
-			if( (GetPos() - veh->GetPos()).sqr() < r_sq )
-			{
-				if( GetAutoSwitch() || veh->_stateReal._bState_AllowDrop )
-					return veh;
-			}
+			if( GetAutoSwitch() || veh->_stateReal._bState_AllowDrop )
+				return veh;
 		}
 	}
 
@@ -135,14 +132,11 @@ void GC_Pickup::Respawn()
 
 bool GC_Pickup::Disappear()
 {
+	ObjPtr<GC_Pickup> watch(this);
 	if( GetCarrier() )
-	{
 		Detach();
-	}
-	if( !GetVisible() )
-	{
-		return IsKilled();
-	}
+	if( !watch )
+		return true;
 	SetVisible(false);
 	PulseNotify(NOTIFY_PICKUP_DISAPPEAR);
 	if( _label )
@@ -191,14 +185,16 @@ void GC_Pickup::TimeStepFixed(float dt)
 		{
 			if( GC_Actor *actor = FindNewOwner() )
 			{
-				SafePtr<GC_Object> refHolder(this); // item can be killed inside attach function
+			//	ObjPtr<GC_Object> watch(this);
+				// item can be killed inside attach function so create copy
+				string_t scriptOnPickup(_scriptOnPickup);
 				Attach(actor);
 
-				if( !_scriptOnPickup.empty() )
+				if( !scriptOnPickup.empty() )
 				{
 					std::stringstream buf;
 					buf << "return function(who)";
-					buf << _scriptOnPickup;
+					buf << scriptOnPickup;
 					buf << "\nend";
 
 					if( luaL_loadstring(g_env.L, buf.str().c_str()) )
@@ -547,12 +543,7 @@ GC_pu_Shock::GC_pu_Shock(FromFile)
 
 GC_pu_Shock::~GC_pu_Shock()
 {
-}
-
-void GC_pu_Shock::Kill()
-{
 	SAFE_KILL(_light);
-	GC_Pickup::Kill();
 }
 
 void GC_pu_Shock::Serialize(SaveFile &f)
@@ -604,7 +595,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
 	GC_Vehicle *pNearTarget = NULL;
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pTargetObj )
 	{
-		if( !pTargetObj->IsKilled() && pTargetObj != ignore )
+		if( pTargetObj != ignore )
 		{
 			// distance to the object
 			dist = (GetPos() - pTargetObj->GetPos()).len();
@@ -645,7 +636,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 
 					_targetPosPredicted = pNearTarget->GetPosPredicted();
 
-					_light = WrapRawPtr(new GC_Light(GC_Light::LIGHT_DIRECT));
+					_light = new GC_Light(GC_Light::LIGHT_DIRECT);
 					_light->MoveTo(GetPos());
 					_light->SetRadius(100);
 
@@ -768,7 +759,7 @@ void GC_pu_Booster::Attach(GC_Actor* actor)
 
 	PLAY(SND_B_Start, GetPos());
 	assert(NULL == _sound);
-	_sound = WrapRawPtr(new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this));
+	_sound = new GC_Sound_link(SND_B_Loop, SMODE_LOOP, this);
 
 	SetTexture("booster");
 	SetShadow(false);
@@ -807,7 +798,6 @@ void GC_pu_Booster::TimeStepFixed(float dt)
 	GC_Pickup::TimeStepFixed(dt);
 	if( GetCarrier() )
 	{
-		assert(!GetCarrier()->IsKilled());
 		if( GetTimeAttached() > BOOSTER_TIME )
 		{
 			PLAY(SND_B_End, GetPos());

@@ -5,7 +5,6 @@
 /////////////////////////////////////////////////////////////
 
 //  -- notes --
-// do not allow implicit conversion to T*
 // do not allow implicit conversion from T*
 // do not define any member functions except the constructors/destructor. use friend functions instead
 // do not define operator bool
@@ -14,13 +13,6 @@
 template<class T>
 class SafePtr
 {
-	class IfNotEmpty
-	{
-		void operator delete (void*) {} // it's private so we can't call delete ptr
-	};
-
-	struct InitFromNullHelper {};
-
 	T *_ptr;
 
 public:
@@ -32,12 +24,7 @@ public:
 	  : _ptr(NULL)
 	{
 	}
-	SafePtr(const InitFromNullHelper *f) // to allow implicit construction from NULL
-	  : _ptr(NULL)
-	{
-		assert(NULL == f);
-	}
-	explicit SafePtr(T *f)
+	SafePtr(T *f)
 	  : _ptr(f)
 	{
 		if( _ptr )
@@ -55,7 +42,7 @@ public:
 	}
 	template<class U>
 	SafePtr(const SafePtr<U> &f) // initialize from any compatible type of safe pointer
-	  : _ptr(GetRawPtr(f))
+	  : _ptr(f)
 	{
 		if( _ptr )
 		{
@@ -63,16 +50,11 @@ public:
 		}
 	}
 
-	inline friend SafePtr WrapRawPtr(T *p)
-	{
-		return SafePtr(p);
-	}
-
 	template<class U>
 	inline friend SafePtr<U> SafePtrCast(const SafePtr &src)
 	{
 		assert(!src._ptr || dynamic_cast<U*>(src._ptr));
-		return WrapRawPtr(static_cast<U*>(src._ptr));
+		return static_cast<U*>(src._ptr);
 	}
 
 
@@ -123,13 +105,13 @@ public:
 	{
 		if( p )
 		{
-			GetRawPtr(p)->AddRef();
+			p.operator U*()->AddRef();
 		}
 		if( _ptr )
 		{
 			_ptr->Release();
 		}
-		_ptr = GetRawPtr(p); // access private _ptr of another SafePtr
+		_ptr = p;
 		return *this;
 	}
 
@@ -160,9 +142,9 @@ public:
 	//
 	// Direct access access to _ptr
 	//
-	inline friend T* GetRawPtr(const SafePtr &r)
+	inline operator T* () const
 	{
-		return r._ptr;
+		return _ptr;
 	}
 	inline friend void SetRawPtr(SafePtr &r, T *p)
 	{
@@ -173,11 +155,7 @@ public:
 	//
 	// Equality and Inequality
 	//
-	operator const IfNotEmpty* () const // to allow if(ptr), if(!ptr)
-	{
-		return reinterpret_cast<const IfNotEmpty*>(_ptr);
-	}
-	template<class U>
+/*	template<class U>
 	inline friend bool operator==(const SafePtr &l, const U *r)
 	{
 		return l._ptr == r;
@@ -200,13 +178,13 @@ public:
 	template<class U> // for comparing safe pointers of different types
 	bool operator==(const SafePtr<U> &r) const
 	{
-		return _ptr == GetRawPtr(r);
+		return _ptr == r;
 	}
 	template<class U> // for comparing safe pointers of different types
 	bool operator!=(const SafePtr<U> &r) const
 	{
-		return _ptr != GetRawPtr(r);
-	}
+		return _ptr != r;
+	}*/
 };
 
 template<> SafePtr<void>::~SafePtr() {} // to allow instantiation of SafePtr<void>

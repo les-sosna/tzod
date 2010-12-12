@@ -269,7 +269,7 @@ void PropertySet::Exchange(bool applyToObject)
 
 GC_Object::GC_Object()
   : _memberOf(this)
-  , _refCount(1)
+//  , _refCount(1)
   , _flags(0)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
@@ -278,7 +278,6 @@ GC_Object::GC_Object()
 
 GC_Object::GC_Object(FromFile)
   : _memberOf(this)
-  , _refCount(1)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
   , _flags(0) // to clear GC_FLAG_OBJECT_KILLED & GC_FLAG_OBJECT_NAMED for proper handling of bad save files
@@ -287,9 +286,7 @@ GC_Object::GC_Object(FromFile)
 
 GC_Object::~GC_Object()
 {
-	assert(0 == _refCount);
 	assert(0 == _notifyProtectCount);
-	assert(IsKilled());
 	SetName(NULL);
 	while( _firstNotify )
 	{
@@ -297,21 +294,18 @@ GC_Object::~GC_Object()
 		_firstNotify = n->next;
 		delete n;
 	}
-	assert(g_level->_garbage.erase(this) == 1);
+//	assert(g_level->_garbage.erase(this) == 1);
 }
 
 void GC_Object::Kill()
 {
-	assert(!IsKilled());
-	assert(g_level->_garbage.insert(this).second);
+//	assert(g_level->_garbage.insert(this).second);
 
 	PulseNotify(NOTIFY_OBJECT_KILL);
 
-	SetFlags(GC_FLAG_OBJECT_KILLED, true);
-	SetName(NULL);
 	SetEvents(0);
 
-	Release();
+	delete this;
 }
 
 IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
@@ -328,10 +322,10 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 void GC_Object::Serialize(SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
-	assert(!f.loading() || !IsKilled());
+	assert(!f.loading());
 
 	f.Serialize(_flags);
-	SetFlags(GC_FLAG_OBJECT_KILLED, false); // workaround for proper handling of bad save files
+//	SetFlags(GC_FLAG_OBJECT_KILLED, false); // workaround for proper handling of bad save files
 
 
 	//
@@ -414,23 +408,6 @@ GC_Object* GC_Object::Create(ObjectType type)
 	return it->second();
 }
 
-int GC_Object::AddRef()
-{
-	return ++_refCount;
-}
-
-int GC_Object::Release()
-{
-	assert(_refCount > 0);
-	if( 0 == (--_refCount) )
-	{
-		assert(IsKilled());
-		delete this;
-		return 0;
-	}
-	return _refCount;
-}
-
 void GC_Object::SetEvents(DWORD dwEvents)
 {
 	// remove from the TIMESTEP_FIXED list
@@ -443,7 +420,6 @@ void GC_Object::SetEvents(DWORD dwEvents)
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-		assert(!IsKilled());
 		g_level->ts_fixed.push_front(this);
 		_itPosFixed = g_level->ts_fixed.begin();
 	}
@@ -497,19 +473,18 @@ void GC_Object::SetName(const char *name)
 
 void GC_Object::Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
 {
-	assert(!IsKilled());
-	assert(subscriber && !subscriber->IsKilled());
+	assert(subscriber);
 	assert(handler);
 	//--------------------------------------------------
 	_firstNotify = new Notify(_firstNotify);
 	_firstNotify->type        = type;
-	_firstNotify->subscriber  = WrapRawPtr(subscriber);
+	_firstNotify->subscriber  = subscriber;
 	_firstNotify->handler     = handler;
 }
 
 void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
 {
-	assert(subscriber && !subscriber->IsKilled());
+	assert(subscriber);
 	for( Notify *prev = NULL, *n = _firstNotify; n; n = n->next )
 	{
 		if( type == n->type && subscriber == n->subscriber && handler == n->handler )
@@ -537,7 +512,7 @@ void GC_Object::PulseNotify(NotifyType type, void *param)
 	{
 		if( type == n->type && !n->IsRemoved() )
 		{
-			(GetRawPtr(n->subscriber)->*n->handler)(this, param);
+			((n->subscriber)->*n->handler)(this, param);
 		}
 	}
 	--_notifyProtectCount;

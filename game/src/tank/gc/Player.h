@@ -28,7 +28,7 @@ class GC_Player : public GC_Service
 	string_t  _scriptOnDie;
 	string_t  _scriptOnRespawn;
 
-	SafePtr<GC_Vehicle> _vehicle;
+	ObjPtr<GC_Vehicle> _vehicle;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -57,7 +57,7 @@ protected:
 	virtual void OnDie();
 
 public:
-	GC_Vehicle* GetVehicle() const { return GetRawPtr(_vehicle); }
+	GC_Vehicle* GetVehicle() const { return _vehicle; }
 
 	void SetSkin(const string_t &skin);
 	const string_t& GetSkin() const { return _skin; }

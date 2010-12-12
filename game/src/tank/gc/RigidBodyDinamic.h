@@ -16,9 +16,9 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
 	struct Contact
 	{
-		GC_RigidBodyDynamic *obj1_d;
+		ObjPtr<GC_RigidBodyDynamic> obj1_d;
+		ObjPtr<GC_RigidBodyStatic>  obj2_s;
 		GC_RigidBodyDynamic *obj2_d;
-		GC_RigidBodyStatic  *obj2_s;
 		vec2d o,n,t; // origin, normal, tangent
 		float total_np, total_tp;
 		float depth;

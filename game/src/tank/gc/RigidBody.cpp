@@ -36,6 +36,10 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
 {
 }
 
+GC_RigidBodyStatic::~GC_RigidBodyStatic()
+{
+}
+
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
@@ -299,7 +303,7 @@ void GC_RigidBodyStatic::TDFV(GC_Actor *from)
 {
 	if( !_scriptOnDamage.empty() )
 	{
-		if( from && !from->IsKilled() )
+		if( from )
 		{
 			std::stringstream buf;
 			buf << "return function(who)";
@@ -338,8 +342,6 @@ void GC_RigidBodyStatic::TDFV(GC_Actor *from)
 
 bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 {
-	assert(!IsKilled());
-
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
 		return true;
@@ -349,18 +351,14 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *f
 	{
 		SetHealthCur(GetHealth() - damage);
 
-		{
-			SafePtr<GC_Object> refHolder(this);
-			TDFV(from ? from->GetVehicle() : NULL);
-			if( IsKilled() )
-			{
-				return true;
-			}
-		}
+		ObjPtr<GC_Object> whatch(this);
+		TDFV(from ? from->GetVehicle() : NULL);
+
+		if( !whatch )
+			return true;
 
 		if( GetHealth() <= 0 )
 		{
-			SafePtr<GC_Object> refHolder(this);
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
 			OnDestroy();
 			Kill();
@@ -409,18 +407,11 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 	f.Serialize(_width);
 	f.Serialize(_length);
 
-	if( !IsKilled() && f.loading() && GetPassability() > 0 )
+	if( f.loading() && GetPassability() > 0 )
 		g_level->_field.ProcessObject(this, true);
 
-	if( !IsKilled() && f.loading() )
+	if( f.loading() )
 		AddContext(&g_level->grid_rigid_s);
-}
-
-void GC_RigidBodyStatic::Kill()
-{
-	if( GetPassability() > 0 )
-		g_level->_field.ProcessObject(this, false);
-	GC_2dSprite::Kill();
 }
 
 
@@ -514,6 +505,8 @@ GC_Wall::GC_Wall(FromFile)
 
 GC_Wall::~GC_Wall()
 {
+	SetCorner(0);
+	g_level->_field.ProcessObject(this, false);
 }
 
 static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
@@ -813,12 +806,6 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 }
 
-void GC_Wall::Kill()
-{
-	SetCorner(0);
-	GC_RigidBodyStatic::Kill();
-}
-
 void GC_Wall::MapExchange(MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(f);
@@ -838,7 +825,7 @@ void GC_Wall::Serialize(SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(f);
 
-	if( !IsKilled() && f.loading() )
+	if( f.loading() )
 	{
 		AddContext(&g_level->grid_walls);
 		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
@@ -1133,7 +1120,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
 
 	SetFrame(rand() % GetFrameCount());
 
-	g_level->_field.ProcessObject(this, true);
+	g_level->_field.ProcessObject(this, true); // removed by parent's destructor
 }
 
 bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
@@ -1199,6 +1186,8 @@ GC_Water::GC_Water(FromFile)
 
 GC_Water::~GC_Water()
 {
+	g_level->_field.ProcessObject(this, false);
+    UpdateTile(false);
 }
 
 void GC_Water::UpdateTile(bool flag)
@@ -1238,19 +1227,13 @@ void GC_Water::UpdateTile(bool flag)
 	}
 }
 
-void GC_Water::Kill()
-{
-    UpdateTile(false);
-	GC_RigidBodyStatic::Kill();
-}
-
 void GC_Water::Serialize(SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(f);
 
 	f.Serialize(_tile);
 
-	if( !IsKilled() && f.loading() )
+	if( f.loading() )
 		AddContext(&g_level->grid_water);
 }
 

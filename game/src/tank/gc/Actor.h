@@ -49,7 +49,6 @@ public:
 	GC_Actor(FromFile);
 	virtual ~GC_Actor();
 
-	virtual void Kill();
 	virtual void MoveTo(const vec2d &pos);
 
 	virtual void OnPickup(GC_Pickup *pickup, bool attached); // called by the pickup

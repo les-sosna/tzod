@@ -111,7 +111,7 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 	SetZ(Z_ATTACHED_ITEM);
 
-	_rotateSound = WrapRawPtr(new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos()));
+	_rotateSound = new GC_Sound(SND_TowerRotate, SMODE_STOP, GetPos());
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	SetVisible(true);
@@ -133,11 +133,11 @@ void GC_Weapon::Attach(GC_Actor *actor)
 
 	PLAY(SND_w_Pickup, GetPos());
 
-	_fireEffect = WrapRawPtr(new GC_2dSprite());
+	_fireEffect = new GC_2dSprite();
 	_fireEffect->SetZ(Z_EXPLODE);
 	_fireEffect->SetVisible(false);
 
-	_fireLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
+	_fireLight = new GC_Light(GC_Light::LIGHT_POINT);
 	_fireLight->SetActive(false);
 }
 
@@ -173,7 +173,7 @@ void GC_Weapon::ProcessRotate(float dt)
 		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
 			_rotatorWeap.stop();
 	}
-	_rotatorWeap.setup_sound(GetRawPtr(_rotateSound));
+	_rotatorWeap.setup_sound(_rotateSound);
 
 	vec2d a(_angleReal);
 	_directionReal = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), a);
@@ -208,7 +208,7 @@ void GC_Weapon::ProcessRotate(float dt)
 
 void GC_Weapon::SetCrosshair()
 {
-	_crosshair = WrapRawPtr(new GC_2dSprite());
+	_crosshair = new GC_2dSprite();
 	_crosshair->SetTexture("indicator_crosshair1");
 	_crosshair->SetZ(Z_VEHICLE_LABEL);
 }
@@ -635,11 +635,6 @@ void GC_Weap_AutoCannon::TimeStepFixed(float dt)
 	GC_Weapon::TimeStepFixed(dt);
 }
 
-void GC_Weap_AutoCannon::Kill()
-{
-	GC_Weapon::Kill();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
@@ -917,9 +912,9 @@ void GC_Weap_Ram::Attach(GC_Actor *actor)
 {
 	GC_Weapon::Attach(actor);
 
-	_engineSound = WrapRawPtr(new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos()));
+	_engineSound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
 
-	_engineLight = WrapRawPtr(new GC_Light(GC_Light::LIGHT_POINT));
+	_engineLight = new GC_Light(GC_Light::LIGHT_POINT);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
 	_engineLight->SetActive(false);
@@ -968,6 +963,7 @@ GC_Weap_Ram::GC_Weap_Ram(FromFile)
 
 GC_Weap_Ram::~GC_Weap_Ram()
 {
+	SAFE_KILL(_engineSound);
 }
 
 void GC_Weap_Ram::OnUpdateView()
@@ -987,12 +983,6 @@ void GC_Weap_Ram::Serialize(SaveFile &f)
 	f.Serialize(_fuel_recuperation_rate);
 	f.Serialize(_engineSound);
 	f.Serialize(_engineLight);
-}
-
-void GC_Weap_Ram::Kill()
-{
-	SAFE_KILL(_engineSound);
-	GC_Weapon::Kill();
 }
 
 void GC_Weap_Ram::Fire()
@@ -1245,7 +1235,7 @@ void GC_Weap_Ripper::Attach(GC_Actor *actor)
 	GC_Weapon::Attach(actor);
 
 	_timeReload = 0.5f;
-	_diskSprite = WrapRawPtr(new GC_2dSprite());
+	_diskSprite = new GC_2dSprite();
 	_diskSprite->SetTexture("projectile_disk");
 	_diskSprite->SetZ(Z_PROJECTILE);
 	UpdateDisk();
@@ -1348,6 +1338,8 @@ GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
 
 GC_Weap_Minigun::~GC_Weap_Minigun()
 {
+	SAFE_KILL(_crosshairLeft);
+	SAFE_KILL(_sound);
 }
 
 void GC_Weap_Minigun::Attach(GC_Actor *actor)
@@ -1359,7 +1351,7 @@ void GC_Weap_Minigun::Attach(GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = WrapRawPtr(new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos()));
+	_sound = new GC_Sound(SND_MinigunFire, SMODE_STOP, GetPos());
 	_bFire = false;
 
 	_fireEffect->SetTexture("minigun_fire");
@@ -1403,11 +1395,11 @@ void GC_Weap_Minigun::Detach()
 
 void GC_Weap_Minigun::SetCrosshair()
 {
-	_crosshair = WrapRawPtr(new GC_2dSprite());
+	_crosshair = new GC_2dSprite();
 	_crosshair->SetTexture("indicator_crosshair2");
 	_crosshair->SetZ(Z_VEHICLE_LABEL);
 
-	_crosshairLeft = WrapRawPtr(new GC_2dSprite());
+	_crosshairLeft = new GC_2dSprite();
 	_crosshairLeft->SetTexture("indicator_crosshair2");
 	_crosshairLeft->SetZ(Z_VEHICLE_LABEL);
 
@@ -1424,14 +1416,6 @@ void GC_Weap_Minigun::Serialize(SaveFile &f)
 	f.Serialize(_timeShot);
 	f.Serialize(_crosshairLeft);
 	f.Serialize(_sound);
-}
-
-void GC_Weap_Minigun::Kill()
-{
-	SAFE_KILL(_crosshairLeft);
-	SAFE_KILL(_sound);
-
-	GC_Weapon::Kill();
 }
 
 void GC_Weap_Minigun::Fire()
@@ -1542,6 +1526,7 @@ GC_Weap_Zippo::GC_Weap_Zippo(FromFile)
 
 GC_Weap_Zippo::~GC_Weap_Zippo()
 {
+	SAFE_KILL(_sound);
 }
 
 void GC_Weap_Zippo::Attach(GC_Actor *actor)
@@ -1552,7 +1537,7 @@ void GC_Weap_Zippo::Attach(GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = WrapRawPtr(new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos()));
+	_sound = new GC_Sound(SND_RamEngine, SMODE_STOP, GetPos());
 	_bFire = false;
 }
 
@@ -1571,12 +1556,6 @@ void GC_Weap_Zippo::Serialize(SaveFile &f)
 	f.Serialize(_timeShot);
 	f.Serialize(_timeBurn);
 	f.Serialize(_sound);
-}
-
-void GC_Weap_Zippo::Kill()
-{
-	SAFE_KILL(_sound);
-	GC_Weapon::Kill();
 }
 
 void GC_Weap_Zippo::Fire()

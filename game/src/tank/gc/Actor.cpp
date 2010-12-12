@@ -25,13 +25,7 @@ GC_Actor::GC_Actor(FromFile)
 
 GC_Actor::~GC_Actor()
 {
-}
-
-void GC_Actor::Kill()
-{
-	if( !IsKilled() )
-		LeaveAllContexts();
-	GC_Object::Kill();
+	LeaveAllContexts();
 }
 
 void GC_Actor::Serialize(SaveFile &f)
@@ -79,7 +73,6 @@ void GC_Actor::LeaveContext(Context &context)
 
 void GC_Actor::EnterAllContexts(const Location &l)
 {
-	assert(!IsKilled());
 	_location = l;
 	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
 	{
@@ -89,17 +82,13 @@ void GC_Actor::EnterAllContexts(const Location &l)
 
 void GC_Actor::EnterContext(Context &context, const Location &l)
 {
-	assert(!IsKilled());
 	assert(!context.iterator);
-
 	context.grids->element(l.x, l.y).push_back(this);
 	context.iterator = context.grids->element(l.x, l.y).rbegin();
 }
 
 void GC_Actor::AddContext(Grid<ObjectList> *pGridSet)
 {
-	assert(!IsKilled());
-
 	Context context;
 	context.grids = pGridSet;
 

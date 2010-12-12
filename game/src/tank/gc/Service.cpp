@@ -28,13 +28,8 @@ GC_Service::GC_Service(FromFile)
 
 GC_Service::~GC_Service()
 {
-}
-
-void GC_Service::Kill()
-{
 	if( g_level->_serviceListener )
 		g_level->_serviceListener->OnKill(this);
-	GC_Object::Kill();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

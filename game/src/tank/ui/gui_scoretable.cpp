@@ -39,7 +39,6 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 	std::vector<GC_Player*> players;
 	FOREACH( g_level->GetList(LIST_players), GC_Player, player )
 	{
-		if( player->IsKilled() ) continue;
 		players.push_back(player);
 	}
 

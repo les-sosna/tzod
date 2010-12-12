@@ -2,11 +2,9 @@
 
 #pragma once
 
-#include "core/SafePtr.h"
-
 class NetworkInitHelper;
 
-class AppBase : public RefCounted
+class AppBase
 {
 public:
 	AppBase();

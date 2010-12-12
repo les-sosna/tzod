@@ -48,9 +48,7 @@ public:
 
 private:
 	Timer timer;
-	SafePtr<InputManager> _inputMgr;
-
-//	SafePtr<FileSystem>   _fs;
+	std::auto_ptr<InputManager> _inputMgr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -419,7 +417,7 @@ bool ZodApp::Pre()
 #endif
 
 
-	_inputMgr = WrapRawPtr(new InputManager(g_env.hMainWnd));
+	_inputMgr.reset(new InputManager(g_env.hMainWnd));
 
 
 	//
@@ -532,7 +530,7 @@ void ZodApp::Post()
 	SAFE_DELETE(g_texman);
 
 	// release input devices
-	_inputMgr = NULL;
+	_inputMgr.reset();
 
 #ifndef NOSOUND
 	FreeDirectSound();

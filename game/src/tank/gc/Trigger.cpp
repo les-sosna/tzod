@@ -29,7 +29,7 @@ GC_Trigger::GC_Trigger(float x, float y)
 	MoveTo(vec2d(x, y));
 	SetZ(Z_WOOD);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-	SetFlags(GC_FLAG_TRIGGER_ACTIVE|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
+	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 
 GC_Trigger::GC_Trigger(FromFile)
@@ -41,11 +41,20 @@ GC_Trigger::~GC_Trigger()
 {
 }
 
-bool GC_Trigger::GetVisible(const GC_Vehicle *v)
+bool GC_Trigger::GetVisible(const GC_Vehicle *v) const
 {
 	GC_RigidBodyStatic *object = g_level->TraceNearest(
 		g_level->grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
 	return object == v;
+}
+
+bool GC_Trigger::Test(const GC_Vehicle *v) const
+{
+	assert(v);
+	float rr = (GetPos() - v->GetPos()).sqr();
+	float r = (_radius + _radiusDelta) * CELL_SIZE;
+	return rr <= r*r && (!CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
+		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(_veh));
 }
 
 void GC_Trigger::Serialize(SaveFile &f)
@@ -56,8 +65,8 @@ void GC_Trigger::Serialize(SaveFile &f)
 	f.Serialize(_radiusDelta);
 	f.Serialize(_onEnter);
 	f.Serialize(_onLeave);
-	f.Serialize(_veh);
 	f.Serialize(_team);
+	f.Serialize(_veh);
 }
 
 void GC_Trigger::MapExchange(MapFile &f)
@@ -66,7 +75,7 @@ void GC_Trigger::MapExchange(MapFile &f)
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
-	int active = CheckFlags(GC_FLAG_TRIGGER_ACTIVE);
+	int active = CheckFlags(GC_FLAG_TRIGGER_ENABLED);
 
 	MAP_EXCHANGE_INT(active, active, 1);
 	MAP_EXCHANGE_INT(only_visible, onlyVisible, 0);
@@ -81,44 +90,54 @@ void GC_Trigger::MapExchange(MapFile &f)
 	{
 		SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE, 0!=onlyVisible);
 		SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN, 0!=onlyHuman);
-		SetFlags(GC_FLAG_TRIGGER_ACTIVE, 0!=active);
+		SetFlags(GC_FLAG_TRIGGER_ENABLED, 0!=active);
 	}
 }
 
 void GC_Trigger::TimeStepFixed(float dt)
 {
-	if( !_veh && CheckFlags(GC_FLAG_TRIGGER_ACTIVE) )
+	if( CheckFlags(GC_FLAG_TRIGGER_ACTIVATED) )
 	{
+		if( !_veh || !Test(_veh) || !CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
+		{
+			_veh = NULL;
+			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, false);
+			script_exec(g_env.L, _onLeave.c_str());
+		}
+	}
+	else if( CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
+	{
+		assert(!_veh);
+
 		// find nearest vehicle
 		float rr_min = _radius * _radius * CELL_SIZE * CELL_SIZE;
 		FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
-			if( !veh->IsKilled() )
+			if( !veh->GetOwner() 
+				|| CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
+					&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner()) )
 			{
-				if( !veh->GetOwner() 
-					|| CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
-						&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner()) )
+				continue;
+			}
+			if( _team && veh->GetOwner()->GetTeam() != _team )
+			{
+				continue;
+			}
+			float rr = (GetPos() - veh->GetPos()).sqr();
+			if( rr < rr_min )
+			{
+				if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->GetRadius() * veh->GetRadius() )
 				{
-					continue;
+					if( !GetVisible(veh) ) continue; // vehicle is invisible. skipping
 				}
-				if( _team && veh->GetOwner()->GetTeam() != _team )
-				{
-					continue;
-				}
-				float rr = (GetPos() - veh->GetPos()).sqr();
-				if( rr < rr_min )
-				{
-					if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->GetRadius() * veh->GetRadius() )
-					{
-						if( !GetVisible(veh) ) continue; // vehicle is invisible. skipping
-					}
-					rr_min = rr;
-					_veh = WrapRawPtr(veh);
-				}
+				rr_min = rr;
+				_veh = veh;
 			}
 		}
 		if( _veh )
 		{
+			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, true);
+
 			std::stringstream buf;
 			buf << "return function(self,who)";
 			buf << _onEnter;
@@ -139,7 +158,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 				else
 				{
 					luaT_pushobject(g_env.L, this);
-					luaT_pushobject(g_env.L, GetRawPtr(_veh));
+					luaT_pushobject(g_env.L, _veh);
 					if( lua_pcall(g_env.L, 2, 0, 0) )
 					{
 						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
@@ -147,25 +166,6 @@ void GC_Trigger::TimeStepFixed(float dt)
 					}
 				}
 			}
-		}
-	}
-	else if( _veh )
-	{
-		if( _veh->IsKilled() )
-		{
-			script_exec(g_env.L, _onLeave.c_str());
-			_veh = NULL;
-			return;
-		}
-
-		float rr = (GetPos() - _veh->GetPos()).sqr();
-		float r = (_radius + _radiusDelta) * CELL_SIZE;
-		if( rr > r*r || CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
-			&& rr > _veh->GetRadius() * _veh->GetRadius() && !GetVisible(GetRawPtr(_veh)) )
-		{
-			script_exec(g_env.L, _onLeave.c_str());
-			_veh = NULL;
-			return;
 		}
 	}
 }
@@ -183,6 +183,7 @@ PropertySet* GC_Trigger::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
 GC_Trigger::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
@@ -239,7 +240,7 @@ void GC_Trigger::MyPropertySet::MyExchange(bool applyToObject)
 	{
 		tmp->SetFlags(GC_FLAG_TRIGGER_ONLYHUMAN, 0!=_propOnlyHuman.GetIntValue());
 		tmp->SetFlags(GC_FLAG_TRIGGER_ONLYVISIBLE, 0!=_propOnlyVisible.GetIntValue());
-		tmp->SetFlags(GC_FLAG_TRIGGER_ACTIVE, 0!=_propActive.GetIntValue());
+		tmp->SetFlags(GC_FLAG_TRIGGER_ENABLED, 0!=_propActive.GetIntValue());
 		tmp->_team = _propTeam.GetIntValue();
 		tmp->_radius = _propRadius.GetFloatValue();
 		tmp->_radiusDelta = _propRadiusDelta.GetFloatValue();
@@ -250,7 +251,7 @@ void GC_Trigger::MyPropertySet::MyExchange(bool applyToObject)
 	{
 		_propOnlyHuman.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) ? 1 : 0);
 		_propOnlyVisible.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) ? 1 : 0);
-		_propActive.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ACTIVE) ? 1 : 0);
+		_propActive.SetIntValue(tmp->CheckFlags(GC_FLAG_TRIGGER_ENABLED) ? 1 : 0);
 		_propTeam.SetIntValue(tmp->_team);
 		_propRadius.SetFloatValue(tmp->_radius);
 		_propRadiusDelta.SetFloatValue(tmp->_radiusDelta);

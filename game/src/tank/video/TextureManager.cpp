@@ -73,7 +73,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 		SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
-		if( !g_render->TexCreate(td.id, GetRawPtr(image)) )
+		if( !g_render->TexCreate(td.id, image) )
 		{
 			throw std::exception("error in render device");
 		}
@@ -131,7 +131,7 @@ void TextureManager::CreateChecker()
 
 	SafePtr<CheckerImage> c(new CheckerImage());
 
-	if( !g_render->TexCreate(td.id, GetRawPtr(c) ) )
+	if( !g_render->TexCreate(td.id, c) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);

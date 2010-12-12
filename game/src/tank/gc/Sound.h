@@ -40,7 +40,6 @@ public:
 	GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 	void KillWhenFinished();
@@ -66,12 +65,11 @@ class GC_Sound_link : public GC_Sound
 	DECLARE_SELF_REGISTRATION(GC_Sound_link);
 
 protected:
-	SafePtr<GC_Actor> _object;
+	ObjPtr<GC_Actor> _object;
 
 public:
 	GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object);
 	GC_Sound_link(FromFile);
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 

@@ -23,15 +23,15 @@ class GC_Projectile : public GC_2dSprite
 {
 	MemberOfGlobalList<LIST_projectiles> _memberOf;
 
-	SafePtr<GC_RigidBodyStatic> _ignore;
-	SafePtr<GC_Player> _owner;
+	ObjPtr<GC_RigidBodyStatic> _ignore;
+	ObjPtr<GC_Player> _owner;
 
 protected:
-	SafePtr<GC_Light>  _light;
+	ObjPtr<GC_Light>  _light;
 
 	float _velocity;
 	inline GC_RigidBodyStatic* GetIgnore() const;
-	GC_Player* GetOwner() const { return GetRawPtr(_owner); }
+	GC_Player* GetOwner() const { return _owner; }
 
 private:
 
@@ -69,9 +69,7 @@ public:
 		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
 	}
 
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
-
 	virtual void TimeStepFixed(float dt);
 
 #ifdef NETWORK_DEBUG
@@ -93,18 +91,14 @@ class GC_Rocket : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Rocket);
 
 private:
-	SafePtr<GC_RigidBodyDynamic> _target;
+	ObjPtr<GC_RigidBodyDynamic> _target;
 	float _timeHomming;
-
-protected:
-	void FreeTarget();
 
 public:
 	GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Rocket(FromFile);
 	virtual ~GC_Rocket();
 
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
@@ -168,7 +162,7 @@ class GC_BfgCore : public GC_Projectile
 {
 	DECLARE_SELF_REGISTRATION(GC_BfgCore);
 private:
-	SafePtr<GC_RigidBodyDynamic> _target;
+	ObjPtr<GC_RigidBodyDynamic> _target;
 	float _time;
 	void FindTarget();
 
@@ -176,8 +170,6 @@ public:
 	GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_BfgCore(FromFile);
 	virtual ~GC_BfgCore();
-
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 
@@ -253,7 +245,6 @@ public:
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(const vec2d &pos);
-	virtual void Kill();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

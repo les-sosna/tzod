@@ -78,7 +78,7 @@ class GC_IndicatorBar : public GC_2dSprite
 	void OnUpdatePosition(GC_Object *sender, void *param);
 
 protected:
-	SafePtr<GC_2dSprite> _object;
+	ObjPtr<GC_2dSprite> _object;
 
 	DWORD _dwValue_offset;
 	DWORD _dwValueMax_offset;
@@ -93,7 +93,6 @@ public:
 	virtual void Draw() const;
 
 	// GC_Object
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 public:

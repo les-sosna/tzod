@@ -8,6 +8,7 @@
 template
 <
 	class T,
+	size_t extra_bytes = 0,
 	size_t block_size = 128
 >
 class MemoryPool
@@ -17,7 +18,7 @@ class MemoryPool
 		union
 		{
 			BlankObject *_next;
-			char _data[sizeof(T)];
+			char _data[sizeof(T) + extra_bytes];
 		};
 		struct Block *_block;
 	};
@@ -74,7 +75,7 @@ class MemoryPool
 			assert(this == p->_block);
 			assert(_used > 0);
 #ifndef NDEBUG
-			memset(p, 0xdb, sizeof(T));
+			memset(p, 0xdb, sizeof(T) + extra_bytes);
 #endif
 			p->_next = _free;
 			_free = p;

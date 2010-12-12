@@ -14,7 +14,6 @@ public:
 	GC_MessageBox(FromFile);
 	virtual ~GC_MessageBox();
 
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 	virtual void MapExchange(MapFile &f);
 

@@ -197,7 +197,6 @@ void GC_Player::TimeStepFixed(float dt)
 				float dist = -1;
 				FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pVeh )
 				{
-					if( pVeh->IsKilled() ) continue;
 					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
 					if( d < dist || dist < 0 ) dist = d;
 				}
@@ -233,7 +232,7 @@ void GC_Player::TimeStepFixed(float dt)
 			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick, "font_default");
 
 
-			_vehicle = /*WrapRawPtr*/(new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y));
+			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
 			GC_Object* found = g_level->FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -246,7 +245,7 @@ void GC_Player::TimeStepFixed(float dt)
 
 			_vehicle->SetDirection(pBestPoint->GetDirection());
 			_vehicle->GetVisual()->SetDirection(pBestPoint->GetDirection());
-			_vehicle->SetPlayer(WrapRawPtr(this));
+			_vehicle->SetPlayer(this);
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
@@ -442,7 +441,7 @@ GC_PlayerLocal::GC_PlayerLocal()
   : _lastLightKeyState(false)
   , _lastLightsState(true)
 {
-	new GC_Camera(WrapRawPtr(this));
+	new GC_Camera(this);
 	SelectFreeProfile();
 }
 
@@ -467,15 +466,12 @@ void GC_PlayerLocal::SelectFreeProfile()
 		bool in_use = false;
 		FOREACH(g_level->GetList(LIST_players), GC_Player, player)
 		{
-			if( !player->IsKilled() )
+			if( GC_PlayerLocal *p = dynamic_cast<GC_PlayerLocal *>(player) )
 			{
-				if( GC_PlayerLocal *p = dynamic_cast<GC_PlayerLocal *>(player) )
+				if( p->GetProfile() == tmp[i] )
 				{
-					if( p->GetProfile() == tmp[i] )
-					{
-						in_use = true;
-						break;
-					}
+					in_use = true;
+					break;
 				}
 			}
 		}

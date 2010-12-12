@@ -163,7 +163,6 @@ enumZOrder GC_2dSprite::GetZ() const
 
 void GC_2dSprite::SetVisible(bool bShow)
 {
-	assert(!bShow || !IsKilled()); // we should now show killed objects
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;

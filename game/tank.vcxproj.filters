@@ -239,9 +239,6 @@
     <ClInclude Include="src\tank\gc\Vehicle.h">
       <Filter>gc</Filter>
     </ClInclude>
-    <ClInclude Include="src\tank\gc\WeakPtr.h">
-      <Filter>gc</Filter>
-    </ClInclude>
     <ClInclude Include="src\tank\gc\Weapons.h">
       <Filter>gc</Filter>
     </ClInclude>

@@ -43,8 +43,8 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	SafePtr<GC_HideLabel>  _label;
-	SafePtr<GC_Actor>      _pickupCarrier;
+	ObjPtr<GC_HideLabel>  _label;
+	ObjPtr<GC_Actor>      _pickupCarrier;
 
 	string_t  _scriptOnPickup;   // on_pickup(who)
 	float     _radius;
@@ -67,7 +67,7 @@ protected:
 public:
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
-	GC_Actor* GetCarrier() const { return GetRawPtr(_pickupCarrier); }
+	GC_Actor* GetCarrier() const { return _pickupCarrier; }
 
 	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;
@@ -189,7 +189,7 @@ class GC_pu_Shock : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 
 private:
-	SafePtr<GC_Light> _light;
+	ObjPtr<GC_Light> _light;
 	vec2d _targetPosPredicted;
 
 	GC_Vehicle *FindNearVehicle(const GC_RigidBodyStatic *ignore);
@@ -198,7 +198,6 @@ public:
 	GC_pu_Shock(float x, float y);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 
@@ -218,7 +217,7 @@ class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
 
-	SafePtr<GC_Sound> _sound;
+	ObjPtr<GC_Sound> _sound;
 
 public:
 	GC_pu_Booster(float x, float y);

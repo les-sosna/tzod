@@ -44,14 +44,14 @@ protected:
 public:
 	GC_RigidBodyStatic();
 	GC_RigidBodyStatic(FromFile);
+	virtual ~GC_RigidBodyStatic();
 
 	virtual GC_Player* GetOwner() const { return NULL; }
 
 	// GC_Object
-	virtual void Kill();
-
 	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(SaveFile &f);
+
 	virtual unsigned char GetPassability() const = 0;
 
 	float GetRadius() const { return _radius; }
@@ -183,8 +183,6 @@ public:
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
-	virtual void Kill();
-
 	virtual float GetDefaultHealth() const { return 50; }
 
 	virtual void Serialize(SaveFile &f);
@@ -245,7 +243,6 @@ public:
 
 	void SetTile(char nTile, bool value);
 
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 
 	virtual void Draw() const;

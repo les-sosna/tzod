@@ -24,7 +24,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-GC_Camera::GC_Camera(const SafePtr<GC_Player> &player)
+GC_Camera::GC_Camera(GC_Player *player)
   : GC_Actor()
   , _memberOf(this)
   , _rotator(_rotatorAngle)
@@ -60,6 +60,11 @@ GC_Camera::GC_Camera(FromFile)
   , _memberOf(this)
   , _rotator(_rotatorAngle)
 {
+}
+
+GC_Camera::~GC_Camera()
+{
+	UpdateLayout();
 }
 
 void GC_Camera::TimeStepFloat(float dt)
@@ -132,11 +137,8 @@ void GC_Camera::UpdateLayout()
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		if( !pCamera->IsKilled() )
-		{
-			any = pCamera;
-			++camCount;
-		}
+		any = pCamera;
+		++camCount;
 	}
 
 	RECT viewports[MAX_HUMANS];
@@ -187,11 +189,8 @@ void GC_Camera::UpdateLayout()
 		float  zoom  = camCount > 2 ? 0.5f : 1.0f;
 		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 		{
-			if( !pCamera->IsKilled() )
-			{
-				pCamera->_viewport = viewports[count++];
-				pCamera->_zoom     = zoom;
-			}
+			pCamera->_viewport = viewports[count++];
+			pCamera->_zoom     = zoom;
 		}
 	}
 }
@@ -211,7 +210,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 	{
 		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 		{
-			if( !pCamera->IsKilled() && PtInRect(&pCamera->_viewport, ptinscr) )
+			if( PtInRect(&pCamera->_viewport, ptinscr) )
 			{
 				FRECT w;
 				pCamera->GetWorld(w);
@@ -245,13 +244,6 @@ void GC_Camera::Serialize(SaveFile &f)
 
 	_rotator.Serialize(f);
 	if( f.loading() ) UpdateLayout();
-}
-
-void GC_Camera::Kill()
-{
-	_player = NULL;
-	GC_Actor::Kill();
-	UpdateLayout();
 }
 
 void GC_Camera::OnDetach(GC_Object *sender, void *param)

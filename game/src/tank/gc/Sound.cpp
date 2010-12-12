@@ -69,30 +69,18 @@ GC_Sound::GC_Sound(FromFile)
 GC_Sound::~GC_Sound()
 {
 #if !defined NOSOUND
-	assert(!_soundBuffer);
-	assert(SMODE_STOP == _mode);
-#endif
-}
-
-void GC_Sound::Kill()
-{
-#if !defined NOSOUND
 	if( _soundBuffer )
 	{
 		SetMode(SMODE_STOP);
 		_soundBuffer.Release();
 	}
+	assert(SMODE_STOP == _mode);
 #endif
-
-	GC_Actor::Kill();
 }
 
 void GC_Sound::SetMode(enumSoundMode mode)
 {
-	assert(!IsKilled());
-
 #ifndef NOSOUND
-
 	if( !g_soundManager ) return;
 	if( mode == _mode ) return;
 
@@ -193,8 +181,7 @@ void GC_Sound::Pause(bool pause)
 {
 #if !defined NOSOUND
 	assert(SMODE_PLAY != _mode);
-	if( !IsKilled() )
-		SetMode(pause ? SMODE_STOP : SMODE_LOOP);
+	SetMode(pause ? SMODE_STOP : SMODE_LOOP);
 #endif
 }
 
@@ -299,8 +286,6 @@ void GC_Sound::Freeze(bool freeze)
 	if( !g_soundManager ) return;
 
 	_freezed = freeze;
-	if( IsKilled() )
-		return;
 
 	if( freeze )
 	{
@@ -345,12 +330,6 @@ GC_Sound_link::GC_Sound_link(FromFile)
 {
 }
 
-void GC_Sound_link::Kill()
-{
-	_object = NULL;
-	GC_Sound::Kill();
-}
-
 void GC_Sound_link::Serialize(SaveFile &f)
 {
 	GC_Sound::Serialize(f);
@@ -359,9 +338,7 @@ void GC_Sound_link::Serialize(SaveFile &f)
 
 void GC_Sound_link::TimeStepFixed(float dt)
 {
-	assert(_object);
-
-	if( _object->IsKilled() )
+	if( !_object )
 		Kill();
 	else
 		MoveTo(_object->GetPos());

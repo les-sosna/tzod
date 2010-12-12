@@ -41,8 +41,8 @@ GC_Turret::GC_Turret(float x, float y, const char *tex)
 	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = WrapRawPtr(new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos()));
-	_weaponSprite = WrapRawPtr(new GC_2dSprite());
+	_rotateSound = new GC_Sound(SND_TuretRotate, SMODE_STOP, GetPos());
+	_weaponSprite = new GC_2dSprite();
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(Z_FREE_ITEM);
 
@@ -59,6 +59,13 @@ GC_Turret::GC_Turret(FromFile)
 
 GC_Turret::~GC_Turret()
 {
+	SAFE_KILL(_rotateSound);
+	SAFE_KILL(_weaponSprite);
+
+	if( TS_WAITING == _state || TS_HIDDEN == _state )
+	{
+		_jobManager.UnregisterMember(this);
+	}
 }
 
 void GC_Turret::Serialize(SaveFile &f)
@@ -82,20 +89,6 @@ void GC_Turret::Serialize(SaveFile &f)
 	}
 }
 
-void GC_Turret::Kill()
-{
-	SAFE_KILL(_rotateSound);
-	SAFE_KILL(_weaponSprite);
-	_target = NULL;
-
-	if( TS_WAITING == _state || TS_HIDDEN == _state )
-	{
-		_jobManager.UnregisterMember(this);
-	}
-
-	GC_RigidBodyStatic::Kill();
-}
-
 GC_Vehicle* GC_Turret::EnumTargets()
 {
 	float min_dist = _sight*_sight;
@@ -106,32 +99,26 @@ GC_Vehicle* GC_Turret::EnumTargets()
 
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
-		if( !pDamObj->GetOwner() )
-		{
-			continue;
-		}
-		if( pDamObj->GetOwner()->GetTeam() && pDamObj->GetOwner()->GetTeam() == _team )
+		if( !pDamObj->GetOwner() ||
+			pDamObj->GetOwner()->GetTeam() && pDamObj->GetOwner()->GetTeam() == _team )
 		{
 			continue;
 		}
 
-		if( !pDamObj->IsKilled() )
-		{
-			dist = (GetPos().x - pDamObj->GetPos().x)*(GetPos().x - pDamObj->GetPos().x)
-				 + (GetPos().y - pDamObj->GetPos().y)*(GetPos().y - pDamObj->GetPos().y);
+		dist = (GetPos().x - pDamObj->GetPos().x)*(GetPos().x - pDamObj->GetPos().x)
+				+ (GetPos().y - pDamObj->GetPos().y)*(GetPos().y - pDamObj->GetPos().y);
 
-			if( dist < min_dist && IsTargetVisible(pDamObj, &pObstacle) )
-			{
-				target = pDamObj;
-				min_dist = dist;
-			}
+		if( dist < min_dist && IsTargetVisible(pDamObj, &pObstacle) )
+		{
+			target = pDamObj;
+			min_dist = dist;
 		}
 	}
 
 	return target;
 }
 
-void GC_Turret::SelectTarget(const SafePtr<GC_Vehicle> &target)
+void GC_Turret::SelectTarget(GC_Vehicle *target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
@@ -185,20 +172,20 @@ void GC_Turret::TimeStepFixed(float dt)
 		if( _jobManager.TakeJob(this) )
 		{
 			if( GC_Vehicle *target = EnumTargets() )
-				SelectTarget(WrapRawPtr(target));
+				SelectTarget(target);
 		}
 		break;
 	case TS_ATACKING:
 	{
 		GC_RigidBodyStatic *pObstacle = NULL;
-		if( !_target->IsKilled() )
+		if( _target )
 		{
-			if( IsTargetVisible(GetRawPtr(_target), &pObstacle) )
+			if( IsTargetVisible(_target, &pObstacle) )
 			{
 				float RotSpeed = 0;
 
 				vec2d fake;
-				CalcOutstrip(GetRawPtr(_target), fake);
+				CalcOutstrip(_target, fake);
 
 				float ang2 = ( fake - GetPos() ).Angle();
 
@@ -223,7 +210,7 @@ void GC_Turret::TimeStepFixed(float dt)
 		assert(false);
 	}  // end switch (_state)
 
-	_rotator.setup_sound(GetRawPtr(_rotateSound));
+	_rotator.setup_sound(_rotateSound);
 }
 
 void GC_Turret::EditorAction()
@@ -337,6 +324,11 @@ GC_TurretRocket::GC_TurretRocket(FromFile)
 {
 }
 
+GC_TurretRocket::~GC_TurretRocket()
+{
+	g_level->_field.ProcessObject(this, false);
+}
+
 void GC_TurretRocket::Serialize(SaveFile &f)
 {
 	GC_Turret::Serialize(f);
@@ -391,6 +383,7 @@ GC_TurretCannon::GC_TurretCannon(FromFile)
 
 GC_TurretCannon::~GC_TurretCannon()
 {
+	g_level->_field.ProcessObject(this, false);
 }
 
 void GC_TurretCannon::Serialize(SaveFile &f)
@@ -529,12 +522,12 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 	{
 		GC_RigidBodyStatic *pObstacle = NULL;
 
-		if( !_target->IsKilled() )
+		if( _target )
 		{
-			if( IsTargetVisible(GetRawPtr(_target), &pObstacle) )
+			if( IsTargetVisible(_target, &pObstacle) )
 			{
 				vec2d fake;
-				CalcOutstrip(GetRawPtr(_target), fake);
+				CalcOutstrip(_target, fake);
 
 				float ang2 = ( fake - GetPos() ).Angle();
 
@@ -570,7 +563,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 		//	if( _jobManager.TakeJob(this) )
 			{
 				if( GC_Vehicle *target = EnumTargets() )
-					SelectTarget(WrapRawPtr(target));
+					SelectTarget(target);
 			}
 		}
 		break;
@@ -627,7 +620,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 		assert(0);
 	} // end switch (_state);
 
-	_rotator.setup_sound(GetRawPtr(_rotateSound));
+	_rotator.setup_sound(_rotateSound);
 }
 
 void GC_TurretBunker::EditorAction()
@@ -672,22 +665,18 @@ GC_TurretMinigun::GC_TurretMinigun(FromFile)
 {
 }
 
+GC_TurretMinigun::~GC_TurretMinigun()
+{
+	SAFE_KILL(_fireSound);
+	g_level->_field.ProcessObject(this, false);
+}
+
 void GC_TurretMinigun::Serialize(SaveFile &f)
 {
 	GC_TurretBunker::Serialize(f);
 	f.Serialize(_firing);
 	f.Serialize(_time);
 	f.Serialize(_fireSound);
-}
-
-void GC_TurretMinigun::Kill()
-{
-	SAFE_KILL(_fireSound);
-	GC_TurretBunker::Kill();
-}
-
-GC_TurretMinigun::~GC_TurretMinigun()
-{
 }
 
 void GC_TurretMinigun::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)
@@ -708,7 +697,7 @@ void GC_TurretMinigun::TimeStepFixed(float dt)
 
 	if( _firing )
 	{
-		ASSERT_TYPE(GetRawPtr(_fireSound), GC_Sound);
+		ASSERT_TYPE(_fireSound, GC_Sound);
 		_fireSound->Pause(false);
 
 		_time += dt;
@@ -725,7 +714,7 @@ void GC_TurretMinigun::TimeStepFixed(float dt)
 	}
 	else
 	{
-		ASSERT_TYPE(GetRawPtr(_fireSound), GC_Sound);
+		ASSERT_TYPE(_fireSound, GC_Sound);
 		_fireSound->Pause(true);
 	}
 }
@@ -761,6 +750,11 @@ GC_TurretGauss::GC_TurretGauss(FromFile)
 {
 }
 
+GC_TurretGauss::~GC_TurretGauss()
+{
+	g_level->_field.ProcessObject(this, false);
+}
+
 void GC_TurretGauss::TargetLost()
 {
 	_shotCount = 0;
@@ -773,10 +767,6 @@ void GC_TurretGauss::Serialize(SaveFile &f)
 	GC_TurretBunker::Serialize(f);
 	f.Serialize(_shotCount);
 	f.Serialize(_time);
-}
-
-GC_TurretGauss::~GC_TurretGauss()
-{
 }
 
 void GC_TurretGauss::CalcOutstrip(const GC_Vehicle *target, vec2d &fake)

@@ -20,20 +20,31 @@ typedef PtrList<GC_Object> ObjectList;
 
 #define DECLARE_POOLED_ALLOCATION(cls)          \
 private:                                        \
-    static MemoryPool<cls> __pool;              \
+    static MemoryPool<cls, sizeof(int)> __pool; \
+	static void __fin(void *allocated)          \
+	{                                           \
+		__pool.Free(allocated);                 \
+	}                                           \
 public:                                         \
     void* operator new(size_t count)            \
     {                                           \
         assert(sizeof(cls) == count);           \
-        return __pool.Alloc();                  \
+		void *ptr = __pool.Alloc();             \
+		*(unsigned int*) ptr = 0x80000000;      \
+        return (unsigned int*) ptr + 1;         \
     }                                           \
-    void operator delete(void *ptr)             \
+    void operator delete(void *p)               \
     {                                           \
-        __pool.Free((cls*) ptr);                \
+		unsigned int&cnt(*((unsigned int*)p-1));\
+		cnt &= 0x7fffffff;                      \
+		if( !cnt )                              \
+			__pool.Free((unsigned int*) p - 1); \
+		else                                    \
+			*(ObjFinalizerProc*) p = __fin;     \
     }
 
 #define IMPLEMENT_POOLED_ALLOCATION(cls)        \
-    MemoryPool<cls> cls::__pool;
+    MemoryPool<cls, sizeof(int)> cls::__pool;
 
 
 
@@ -179,13 +190,12 @@ public:
 // object flags
 
 // general
-#define GC_FLAG_OBJECT_KILLED                 0x00000001 // FIXME: this flag should not be serialized
-#define GC_FLAG_OBJECT_NAMED                  0x00000002
+#define GC_FLAG_OBJECT_NAMED                  0x00000001
 
 // engine events
-#define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000004
+#define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000002
 
-#define GC_FLAG_OBJECT_                       0x00000008
+#define GC_FLAG_OBJECT_                       0x00000004
 
 
 enum GlobalListID
@@ -208,6 +218,76 @@ enum GlobalListID
 
 typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
 
+///////////////////////////////////////////////////////////////////////////////
+
+typedef void (*ObjFinalizerProc) (void *);
+
+template <class T>
+class ObjPtr
+{
+	unsigned int *_ptr;
+public:
+	ObjPtr() : _ptr(NULL) {}
+	ObjPtr(T *f)
+		: _ptr((unsigned int *) f)
+	{
+		if( _ptr ) ++_ptr[-1];
+	}
+	ObjPtr(const ObjPtr &f) // overwrite default copy constructor
+		: _ptr(f._ptr)
+	{
+		if( _ptr ) ++_ptr[-1];
+	}
+
+	~ObjPtr()
+	{
+		if( _ptr && 0 == --_ptr[-1] )
+			(*(ObjFinalizerProc*) _ptr)(_ptr - 1);
+	}
+
+	const ObjPtr& operator = (T *p)
+	{
+		if( p )
+			++*((unsigned int *) p - 1);
+		if( _ptr && 0 == --_ptr[-1] )
+			(*(ObjFinalizerProc*) _ptr)(_ptr - 1);
+		_ptr = (unsigned int *) p;
+		return *this;
+	}
+
+	operator T* () const
+	{
+		return (_ptr && (_ptr[-1] & 0x80000000)) ? (T *) _ptr : NULL;
+	}
+
+	T* operator -> () const
+	{
+		assert(_ptr && (_ptr[-1] & 0x80000000));
+		return (T *) _ptr;
+	}
+
+	template<class U>
+	friend U* PtrDynCast(T *src)
+	{
+		assert(!src || ObjPtr<T>(src));
+		return dynamic_cast<U*>(src);
+	}
+
+	template<class U>
+	friend U* PtrDynCast(const ObjPtr &src)
+	{
+		return dynamic_cast<U*>(src.operator T*());
+	}
+
+	template<class U>
+	friend U* PtrCast(const ObjPtr &src)
+	{
+		assert(!src || PtrDynCast<U>(src));
+		return static_cast<U*>(src.operator T*());
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
 class GC_Object
 {
 	GC_Object(const GC_Object&); // no copy
@@ -250,12 +330,12 @@ private:
 		DECLARE_POOLED_ALLOCATION(Notify);
 
 		Notify *next;
-		SafePtr<GC_Object>   subscriber;
+		ObjPtr<GC_Object>   subscriber;
 		NOTIFYPROC           handler;
 		NotifyType           type;
 		bool IsRemoved() const
 		{
-			return !subscriber || subscriber->IsKilled();
+			return !subscriber;
 		}
 		void Serialize(SaveFile &f);
 		explicit Notify(Notify *nxt) : next(nxt) {}
@@ -268,7 +348,6 @@ private:
 
 private:
 	DWORD           _flags;             // define various object properties
-	int             _refCount;          // = 1 at the construction time
 
 	ObjectList::iterator _itPosFixed;      // position in the Level::ts_fixed
 
@@ -296,8 +375,6 @@ public:
 	//
 
 public:
-	bool IsKilled() const { return CheckFlags(GC_FLAG_OBJECT_KILLED); }
-
 
 
 	//
@@ -316,9 +393,6 @@ protected:
 	void PulseNotify(NotifyType type, void *param = NULL);
 
 public:
-	int  AddRef();
-	int  Release();
-
 	void SetEvents(DWORD dwEvents);
 
 	const char* GetName() const;

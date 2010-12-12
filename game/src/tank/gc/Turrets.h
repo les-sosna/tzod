@@ -31,9 +31,9 @@ class GC_Turret : public GC_RigidBodyStatic
 protected:
 	static JobManager<GC_Turret> _jobManager;
 
-	SafePtr<GC_Sound>       _rotateSound;
-	SafePtr<GC_Vehicle>     _target;
-	SafePtr<GC_2dSprite>    _weaponSprite;
+	ObjPtr<GC_Sound>       _rotateSound;
+	ObjPtr<GC_Vehicle>     _target;
+	ObjPtr<GC_2dSprite>    _weaponSprite;
 
 	enum enumTuretState
 	{
@@ -61,7 +61,7 @@ protected:
 	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 	virtual void TargetLost();
 	GC_Vehicle* EnumTargets();
-	void SelectTarget(const SafePtr<GC_Vehicle> &target);
+	void SelectTarget(GC_Vehicle *target);
 
 	// editor functions
 	virtual void EditorAction();
@@ -72,9 +72,7 @@ public:
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 
-	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
-
 
 	virtual void MoveTo(const vec2d &pos);
 	virtual void OnDestroy();
@@ -95,6 +93,7 @@ private:
 public:
 	GC_TurretRocket(float x, float y);
 	GC_TurretRocket(FromFile);
+	virtual ~GC_TurretRocket();
 
 	virtual float GetDefaultHealth() const { return 500; }
 	virtual void Serialize(SaveFile &f);
@@ -176,7 +175,7 @@ class GC_TurretMinigun : public GC_TurretBunker
 	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);
 
 private:
-	SafePtr<GC_Sound> _fireSound;
+	ObjPtr<GC_Sound> _fireSound;
 	float _time;
 	bool  _firing;
 
@@ -184,7 +183,6 @@ public:
 	GC_TurretMinigun(float x, float y);
 	GC_TurretMinigun(FromFile);
 	virtual ~GC_TurretMinigun();
-	virtual void Kill();
 
 	virtual float GetDefaultHealth() const { return 250; }
 	virtual void Serialize(SaveFile &f);

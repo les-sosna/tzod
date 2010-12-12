@@ -54,8 +54,8 @@ protected:
 
 	bool _boomOK;
 
-	SafePtr<GC_Player>  _owner;
-	SafePtr<GC_Light>   _light;
+	ObjPtr<GC_Player>  _owner;
+	ObjPtr<GC_Light>   _light;
 
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
 
@@ -75,8 +75,7 @@ public:
 
 	void Boom(float radius, float damage);
 
-	// overrides
-	virtual void Kill();
+	// GC_Object
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
 };
@@ -112,16 +111,14 @@ private:
 	float _time;
 	float _damage; //  hp per sec
 
-	SafePtr<GC_RigidBodyStatic> _victim;
-	SafePtr<GC_Player> _owner;
+	ObjPtr<GC_RigidBodyStatic> _victim;
+	ObjPtr<GC_Player> _owner;
 
 public:
 	GC_HealthDaemon(GC_RigidBodyStatic *victim, GC_Player *owner,
 		            float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
-
-	virtual void Kill();
 
 	virtual void Serialize(SaveFile &f);
 
@@ -158,14 +155,15 @@ protected:
 public:
 	GC_Wood(float xPos, float yPos);
 	GC_Wood(FromFile);
+	virtual ~GC_Wood();
 
-	virtual void Kill();
-	virtual void Serialize(SaveFile &f);
+	void SetTile(char nTile, bool value);
 
+	// GC_2dSprite
 	virtual void Draw() const;
 
-public:
-	void SetTile(char nTile, bool value);
+	// GC_Object
+	virtual void Serialize(SaveFile &f);
 };
 
 /////////////////////////////////////////////////////////////

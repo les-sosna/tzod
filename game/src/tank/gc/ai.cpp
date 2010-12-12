@@ -141,16 +141,16 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	ZeroMemory(&vs, sizeof(VehicleState));
 
 	// clean the attack list
-	struct helper{ static bool whether(const SafePtr<GC_RigidBodyStatic> &arg)
+	struct helper{ static bool whether(const ObjPtr<GC_RigidBodyStatic> &arg)
 	{
-		return arg->IsKilled();
+		return !arg;
 	}};
 	_attackList.remove_if(&helper::whether);
 
 
 	if( _pickupCurrent )
 	{
-		if( _pickupCurrent->IsKilled() || !_pickupCurrent->GetVisible() )
+		if( !_pickupCurrent->GetVisible() )
 		{
 			_pickupCurrent = NULL;
 		}
@@ -174,7 +174,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 	// select a _currentOffset to reduce shooting accuracy
 	const float acc_speed = 0.4f; // angular velocity of a fake target
-	if( dynamic_cast<GC_Vehicle *>(GetRawPtr(_target)) )
+	if( PtrDynCast<GC_Vehicle>(_target) )
 	{
 		float len = fabsf(_desiredOffset - _currentOffset);
 		if( acc_speed*dt >= len )
@@ -188,8 +188,8 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 			if( _level > 2 )
 			{
 				d = d_array[_level] *
-					fabsf(static_cast<GC_Vehicle*>(GetRawPtr(_target))->_lv.len()) /
-						static_cast<GC_Vehicle*>(GetRawPtr(_target))->GetMaxSpeed();
+					fabs(PtrCast<GC_Vehicle>(_target)->_lv.len()) /
+						PtrCast<GC_Vehicle>(_target)->GetMaxSpeed();
 			}
 
 			_desiredOffset = (d > 0) ? (g_level->net_frand(d) - d * 0.5f) : 0;
@@ -407,7 +407,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 							continue;
 						}
 					}
-					_attackList.push_front(WrapRawPtr(object));
+					_attackList.push_front(object);
 				}
 
 				cell = cell->_prevCell;
@@ -673,7 +673,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 			continue;
 		}
 
-		if( !object->IsKilled() && object != GetVehicle() )
+		if( object != GetVehicle() )
 		{
 			if( (GetVehicle()->GetPos() - object->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
@@ -712,7 +712,7 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		}
 	}
 
-	info.object   = WrapRawPtr(pOptTarget);
+	info.object   = pOptTarget;
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
@@ -736,7 +736,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		for(; it != (*i)->end(); ++it )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) *it;
-			if( pItem->GetCarrier() || !pItem->GetVisible() || pItem->IsKilled() ) 
+			if( pItem->GetCarrier() || !pItem->GetVisible() ) 
 			{
 				continue;
 			}
@@ -756,13 +756,12 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	if( !applicants.empty() )
 	{
 		GC_Pickup *items[2] = {
-			GetRawPtr(_pickupCurrent),
+			_pickupCurrent,
 			applicants[g_level->net_rand() % applicants.size()]
 		};
 		for( int i = 0; i < 2; ++i )
 		{
 			if( NULL == items[i] ) continue;
-			assert(!items[i]->IsKilled());
 			assert(items[i]->GetVisible());
 			if( items[i]->GetCarrier() ) continue;
 			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true, ws);
@@ -787,7 +786,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 		}
 	}
 
-	info.object   = WrapRawPtr(pOptItem);
+	info.object   = pOptItem;
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;
@@ -899,7 +898,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	AIITEMINFO ii_target;
 	if( FindTarget(ii_target, ws) )
 	{
-		LockTarget(SafePtrCast<GC_RigidBodyStatic>(ii_target.object));
+		LockTarget(PtrCast<GC_RigidBodyStatic>(ii_target.object));
 
 		if( ii_target.priority > ii_item.priority )
 		{
@@ -913,7 +912,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 		}
 		else
 		{
-			Pickup(GetRawPtr(SafePtrCast<GC_Pickup>(ii_item.object)));
+			Pickup(PtrCast<GC_Pickup>(ii_item.object));
 		}
 	}
 	else
@@ -930,7 +929,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 				{
 					SmoothPath();
 				}
-				_pickupCurrent = SafePtrCast<GC_Pickup>(ii_item.object);
+				_pickupCurrent = PtrCast<GC_Pickup>(ii_item.object);
 			}
 			SetL2(L2_PICKUP);
 			SetL1(L1_NONE);
@@ -966,7 +965,7 @@ bool GC_PlayerAI::Attack(GC_RigidBodyStatic *target)
 	{
 		if( target )
 		{
-			LockTarget(WrapRawPtr(target));
+			LockTarget(target);
 		}
 		else
 		{
@@ -992,7 +991,7 @@ bool GC_PlayerAI::Pickup(GC_Pickup *p)
 			if( CreatePath(p->GetPos().x, p->GetPos().y, AI_MAX_DEPTH, false, &ws) > 0 )
 			{
 				SmoothPath();
-				_pickupCurrent = WrapRawPtr(p);
+				_pickupCurrent = p;
 				SetL2(L2_PICKUP);
 				SetL1(L1_NONE);
 				return true;
@@ -1167,7 +1166,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	// check if the primary target is still alive
-	if( _target && _target->IsKilled() )
+	if( _target /*&& _target->IsKilled()*/ )
 	{
 		FreeTarget(); // free killed target
 		ClearPath();
@@ -1184,12 +1183,12 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	// attack the primary target if possible
 	//
-	if( _target && IsTargetVisible(GetRawPtr(_target)))
+	if( _target && IsTargetVisible(_target))
 	{
 		assert(GetVehicle()->GetWeapon());
 
 		vec2d fake = _target->GetPos();
-		GC_Vehicle *enemy = dynamic_cast<GC_Vehicle *>(GetRawPtr(_target));
+		GC_Vehicle *enemy = PtrDynCast<GC_Vehicle>(_target);
 		if( ws->bNeedOutstrip && _level > 1 && enemy )
 		{
 			CalcOutstrip(enemy, ws->fProjectileSpeed, fake);
@@ -1214,10 +1213,10 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	// attack secondary targets of possible
 	//
-	else if( !_attackList.empty() && IsTargetVisible(GetRawPtr(_attackList.front())) )
+	else if( !_attackList.empty() && IsTargetVisible(_attackList.front()) )
 	{
 		assert(GetVehicle()->GetWeapon());
-		GC_RigidBodyStatic *target = GetRawPtr(_attackList.front());
+		GC_RigidBodyStatic *target = _attackList.front();
 
 		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
 		TowerTo(pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
@@ -1351,7 +1350,7 @@ void GC_PlayerAI::OnDie()
 	_jobManager.UnregisterMember(this);
 }
 
-void GC_PlayerAI::LockTarget(const SafePtr<GC_RigidBodyStatic> &target)
+void GC_PlayerAI::LockTarget(GC_RigidBodyStatic *target)
 {
 	assert(target);
 	assert(GetVehicle());

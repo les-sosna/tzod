@@ -561,7 +561,7 @@ void Level::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 				for( ObjectList::iterator it = tmp_list.begin(); it != tmp_list.end(); ++it )
 				{
 					GC_RigidBodyStatic *object = static_cast<GC_RigidBodyStatic *>(*it);
-					if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_RBSTATIC_TRACE0|GC_FLAG_OBJECT_KILLED) )
+					if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_RBSTATIC_TRACE0) )
 					{
 						continue;
 					}
