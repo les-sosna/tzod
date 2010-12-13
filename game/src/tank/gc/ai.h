@@ -109,8 +109,6 @@ protected:
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
 	bool IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
-	void LockTarget(GC_RigidBodyStatic *target);
-	void FreeTarget();
 	AIPRIORITY GetTargetRate(GC_Vehicle *target);
 
 	bool FindTarget(AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found

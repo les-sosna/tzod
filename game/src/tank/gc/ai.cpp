@@ -898,7 +898,8 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	AIITEMINFO ii_target;
 	if( FindTarget(ii_target, ws) )
 	{
-		LockTarget(PtrCast<GC_RigidBodyStatic>(ii_target.object));
+		assert(GetVehicle() && GetVehicle()->GetWeapon());
+		_target = PtrCast<GC_RigidBodyStatic>(ii_target.object);
 
 		if( ii_target.priority > ii_item.priority )
 		{
@@ -917,7 +918,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	}
 	else
 	{
-		FreeTarget();
+		_target = NULL;
 
 		if( ii_item.priority > AIP_NOTREQUIRED )
 		{
@@ -963,14 +964,7 @@ bool GC_PlayerAI::Attack(GC_RigidBodyStatic *target)
 {
 	if( GetVehicle() && GetVehicle()->GetWeapon() )
 	{
-		if( target )
-		{
-			LockTarget(target);
-		}
-		else
-		{
-			FreeTarget();
-		}
+		_target = target;
 		return true;
 	}
 	return false;
@@ -1007,7 +1001,7 @@ bool GC_PlayerAI::Pickup(GC_Pickup *p)
 
 void GC_PlayerAI::Stop()
 {
-	FreeTarget();
+	_target = NULL;
 	ClearPath();
 }
 
@@ -1166,16 +1160,16 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	// check if the primary target is still alive
-	if( _target /*&& _target->IsKilled()*/ )
-	{
-		FreeTarget(); // free killed target
-		ClearPath();
-	}
+//	if( !_target && IsAttacking() )
+//	{
+//		FreeTarget(); // free killed target
+//		ClearPath();
+//	}
 
 	if( !GetVehicle()->GetWeapon() )
 	{
 		// no targets if no weapon
-		FreeTarget();
+		_target = NULL;
 		_attackList.clear();
 	}
 
@@ -1344,28 +1338,10 @@ void GC_PlayerAI::OnRespawn()
 void GC_PlayerAI::OnDie()
 {
 	_pickupCurrent = NULL;
+	_target = NULL;
 	ClearPath();
-	FreeTarget();
 
 	_jobManager.UnregisterMember(this);
-}
-
-void GC_PlayerAI::LockTarget(GC_RigidBodyStatic *target)
-{
-	assert(target);
-	assert(GetVehicle());
-	assert(GetVehicle()->GetWeapon());
-
-	if( target != _target )
-	{
-		FreeTarget();
-		_target = target;
-	}
-}
-
-void GC_PlayerAI::FreeTarget()
-{
-	_target = NULL;
 }
 
 ////////////////////////////////////////////
