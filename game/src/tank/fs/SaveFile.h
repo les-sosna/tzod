@@ -3,8 +3,7 @@
 #pragma once
 
 #include "FileSystem.h"
-
-class GC_Object;
+#include "gc/Object.h"
 
 class SaveFile
 {
@@ -33,7 +32,7 @@ public:
 	void Serialize(T &value);
 
 	template<class T>
-	void Serialize(SafePtr<T> &ptr);
+	void Serialize(ObjPtr<T> &ptr);
 
 	template<class T>
 	void SerializeArray(T *p, size_t count);
@@ -46,7 +45,7 @@ private:
 	template<class T>
 	void Serialize(const T &);
 	template<class T>
-	void Serialize(const SafePtr<T> &);
+	void Serialize(const ObjPtr<T> &);
 	template<class T>
 	void Serialize(T *) {assert(!"you are not allowed to serialize raw pointers");}
 };
@@ -58,6 +57,7 @@ void SaveFile::Serialize(T &obj)
 {
 	assert(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
 	assert(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
+	assert(NULL == strstr(typeid(obj).raw_name(), "ObjPtr"));
 	if( loading() )
 		_stream->Read(&obj, sizeof(T));
 	else
@@ -65,7 +65,7 @@ void SaveFile::Serialize(T &obj)
 }
 
 template<class T>
-void SaveFile::Serialize(SafePtr<T> &ptr)
+void SaveFile::Serialize(ObjPtr<T> &ptr)
 {
 	DWORD_PTR id;
 	if( loading() )
@@ -95,6 +95,7 @@ void SaveFile::SerializeArray(T *p, size_t count)
 {
 	assert(0 != strcmp(typeid(T).raw_name(), typeid(string_t).raw_name()));
 	assert(NULL == strstr(typeid(T).raw_name(), "SafePtr"));
+	assert(NULL == strstr(typeid(T).raw_name(), "RawPtr"));
 	if( loading() )
 		_stream->Read(p, sizeof(T) * count);
 	else

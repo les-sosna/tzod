@@ -322,10 +322,8 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 void GC_Object::Serialize(SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
-	assert(!f.loading());
 
 	f.Serialize(_flags);
-//	SetFlags(GC_FLAG_OBJECT_KILLED, false); // workaround for proper handling of bad save files
 
 
 	//

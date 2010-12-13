@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "core/SafePtr.h"
 #include "core/ComPtr.h"
 
 class InputManager
