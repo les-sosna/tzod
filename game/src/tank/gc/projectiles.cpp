@@ -60,7 +60,7 @@ GC_Projectile::~GC_Projectile()
 {
 	if( _light && _light->GetTimeout() <= 0 )
 	{
-		SAFE_KILL(_light);
+		_light->Kill();
 	}
 }
 
