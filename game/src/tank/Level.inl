@@ -1,5 +1,7 @@
 // Level.inl - inline functions for Level.h
 
+#include "gc/RigidBody.h"
+
 
 template<class SelectorType>
 void Level::RayTrace(Grid<ObjectList> &list, SelectorType &s) const

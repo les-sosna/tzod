@@ -4,7 +4,6 @@
 
 #include "ObjectListener.h"
 #include "gc/Object.h" // FIXME!
-#include "gc/RigidBody.h"
 
 #include "network/ControlPacket.h"
 
