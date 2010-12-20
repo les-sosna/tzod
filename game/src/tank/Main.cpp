@@ -98,7 +98,8 @@ static void OnPrintScreen()
 static void TimeStep(float dt)
 {
 	assert(g_level);
-	g_level->TimeStep(dt);
+	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
+	g_level->Simulate(dt);
 	if( g_gui ) g_gui->TimeStep(dt);
 }
 

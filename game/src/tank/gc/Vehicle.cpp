@@ -10,6 +10,8 @@
 
 #include "fs/SaveFile.h"
 
+#include "TypeSystem.h"
+
 #include "GameClasses.h"
 #include "Camera.h"
 #include "particles.h"
@@ -463,7 +465,7 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
 			lua_getglobal(L, "getvclass");
 			lua_pushstring(L, GetOwner()->GetClass().c_str());  // cls arg
-			lua_pushstring(L, g_level->GetTypeName(_weapon->GetType()));  // weap arg
+			lua_pushstring(L, RTTypes::Inst().GetTypeName(_weapon->GetType()));  // weap arg
 			if( lua_pcall(L, 2, 1, 0) )
 			{
 				// print error message

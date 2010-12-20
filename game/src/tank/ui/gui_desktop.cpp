@@ -20,7 +20,6 @@
 
 #include "network/TankClient.h"
 
-#include "Level.h"
 #include "script.h"
 
 namespace UI

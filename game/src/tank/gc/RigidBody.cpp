@@ -3,6 +3,8 @@
 #include "stdafx.h"
 
 #include "RigidBody.h"
+#include "TypeSystem.h"
+
 
 #include "level.h"
 #include "functions.h"

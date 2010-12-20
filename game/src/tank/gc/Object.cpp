@@ -4,6 +4,8 @@
 #include "stdafx.h"
 
 #include "Object.h"
+#include "TypeSystem.h"
+
 #include "level.h"
 
 #include "config/Config.h"
@@ -156,7 +158,7 @@ PropertySet::PropertySet(GC_Object *object)
 
 const char* PropertySet::GetTypeName() const
 {
-	return Level::GetTypeName(_object->GetType());
+	return RTTypes::Inst().GetTypeName(_object->GetType());
 }
 
 void PropertySet::LoadFromConfig()

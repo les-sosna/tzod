@@ -5,6 +5,7 @@
 #include "level.h"
 #include "macros.h"
 
+#include "gc/TypeSystem.h"
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/pickup.h"
@@ -767,18 +768,18 @@ int luaT_actor(lua_State *L)
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
 
-	ObjectType type = Level::GetTypeByName(name);
+	ObjectType type = RTTypes::Inst().GetTypeByName(name);
 	if( INVALID_OBJECT_TYPE == type )
 	{
 		return luaL_error(L, "unknown type '%s'", name);
 	}
 
-	if( Level::GetTypeInfo(type).service )
+	if( RTTypes::Inst().GetTypeInfo(type).service )
 	{
 		return luaL_error(L, "type '%s' is a service", name);
 	}
 
-	GC_Object *obj = g_level->CreateObject(type, x, y);
+	GC_Object *obj = RTTypes::Inst().CreateObject(type, x, y);
 
 
 	if( 4 == n )
@@ -812,18 +813,18 @@ int luaT_service(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
 
-	ObjectType type = Level::GetTypeByName(name);
+	ObjectType type = RTTypes::Inst().GetTypeByName(name);
 	if( INVALID_OBJECT_TYPE == type )
 	{
 		return luaL_error(L, "unknown type '%s'", name);
 	}
 
-	if( !Level::GetTypeInfo(type).service )
+	if( !RTTypes::Inst().GetTypeInfo(type).service )
 	{
 		return luaL_error(L, "type '%s' is not a service", name);
 	}
 
-	GC_Object *obj = g_level->CreateObject(type, 0, 0);
+	GC_Object *obj = RTTypes::Inst().CreateObject(type, 0, 0);
 
 
 	if( 2 == n )
@@ -959,7 +960,7 @@ int luaT_objtype(lua_State *L)
 	}
 
 	GC_Object *obj = luaT_checkobject(L, 1);
-	lua_pushstring(L, Level::GetTypeName(obj->GetType()));
+	lua_pushstring(L, RTTypes::Inst().GetTypeName(obj->GetType()));
 	return 1;
 }
 
@@ -991,7 +992,7 @@ int luaT_pget(lua_State *L)
 	}
 
 	return luaL_error(L, "object of type '%s' has no property '%s'", 
-		Level::GetTypeName(obj->GetType()), prop);
+		RTTypes::Inst().GetTypeName(obj->GetType()), prop);
 }
 
 
@@ -1015,7 +1016,7 @@ int luaT_pset(lua_State *L)
 	if( !pset_helper(properties, L) )
 	{
 		return luaL_error(L, "object of type '%s' has no property '%s'", 
-			Level::GetTypeName(obj->GetType()), prop);
+			RTTypes::Inst().GetTypeName(obj->GetType()), prop);
 	}
 
 	properties->Exchange(true);
@@ -1289,10 +1290,10 @@ lua_State* script_open(void)
 	//
 
 	lua_newtable(L);
-	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		lua_newtable(L);
-		lua_setfield(L, -2, Level::GetTypeInfoByIndex(i).name);
+		lua_setfield(L, -2, RTTypes::Inst().GetTypeInfoByIndex(i).name);
 	}
 	lua_setglobal(L, "gc"); // set global and pop one element from stack
 

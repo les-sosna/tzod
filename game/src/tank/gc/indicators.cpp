@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "indicators.h"
 #include "Vehicle.h"
+#include "TypeSystem.h"
 
 #include "level.h"
 #include "macros.h"

@@ -2,6 +2,14 @@
 
 #include "stdafx.h"
 
+#include "Player.h"
+#include "GameClasses.h"
+#include "Camera.h"
+#include "Vehicle.h"
+#include "Sound.h"
+#include "particles.h"
+#include "TypeSystem.h"
+
 #include "core/Debug.h"
 
 #include "fs/MapFile.h"
@@ -17,12 +25,6 @@
 #include "Macros.h"
 #include "Level.h"
 
-#include "Player.h"
-#include "GameClasses.h"
-#include "Camera.h"
-#include "Vehicle.h"
-#include "Sound.h"
-#include "particles.h"
 
 /////////////////////////////////////////////////////////////
 

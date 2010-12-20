@@ -4,16 +4,17 @@
 
 #pragma once
 
-#include "Level.h"    // FIXME!
 #include "Player.h"
 
 // forward declarations
 template<class> class JobManager;
 struct VehicleState;
 struct AIWEAPSETTINGS;
+class FieldCell;
 class GC_Actor;
 class GC_RigidBodyStatic;
 class GC_Pickup;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

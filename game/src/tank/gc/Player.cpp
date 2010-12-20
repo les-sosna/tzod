@@ -3,6 +3,8 @@
 #include "stdafx.h"
 
 #include "Player.h"
+#include "TypeSystem.h"
+
 
 #include "script.h"
 #include "macros.h"

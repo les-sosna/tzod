@@ -4,6 +4,8 @@
 #include "Trigger.h"
 #include "Vehicle.h"
 #include "ai.h"
+#include "TypeSystem.h"
+
 
 #include "level.h"
 #include "Macros.h"

@@ -103,6 +103,8 @@ public:
 
 /////////////////////////////////////////////////////////////
 
+class GC_RigidBodyStatic;
+
 class GC_HealthDaemon : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);

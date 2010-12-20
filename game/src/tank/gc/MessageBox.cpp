@@ -3,7 +3,8 @@
 #include "stdafx.h"
 
 #include "MessageBox.h"
-#include "Level.h"
+#include "TypeSystem.h"
+
 #include "script.h"
 
 #include "ui/gui.h"

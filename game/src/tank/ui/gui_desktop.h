@@ -4,7 +4,7 @@
 
 #include "Window.h"
 #include "Console.h"
-#include "Level.h"
+#include "Level.h"// for EditorModeListenerHelper
 
 namespace UI
 {

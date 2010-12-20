@@ -14,6 +14,7 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
+#include "gc/TypeSystem.h"
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"
@@ -331,7 +332,7 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 	switch( sub )
 	{
 	case 0:
-		return g_lang->GetRoot()->GetStr(g_level->GetTypeInfo(s->GetType()).desc, "")->Get();
+		return g_lang->GetRoot()->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc, "")->Get();
 	case 1:
 		name = s->GetName();
 		_nameCache = name ? name : "";
@@ -390,12 +391,12 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 
 	_combo = DefaultComboBox::Create(this);
 	_combo->Move(_margins, _margins);
-	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
-		if( Level::GetTypeInfoByIndex(i).service )
+		if( RTTypes::Inst().GetTypeInfoByIndex(i).service )
 		{
-			const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), Level::GetTypeByIndex(i));
+			const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
+			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), RTTypes::Inst().GetTypeByIndex(i));
 		}
 	}
 	_combo->GetData()->Sort();
@@ -444,7 +445,7 @@ void ServiceEditor::OnCreateService()
 	if( -1 != _combo->GetCurSel() )
 	{
 		ObjectType type = (ObjectType) _combo->GetData()->GetItemData(_combo->GetCurSel());
-		GC_Object *service = g_level->CreateObject(type, 0, 0);
+		GC_Object *service = RTTypes::Inst().CreateObject(type, 0, 0);
 		GetEditorLayout()->SelectNone();
 		GetEditorLayout()->Select(service, true);
 	}
@@ -516,11 +517,11 @@ EditorLayout::EditorLayout(Window *parent)
 
 	_typeList = DefaultComboBox::Create(this);
 	_typeList->Resize(256);
-	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
-		if( Level::GetTypeInfoByIndex(i).service ) continue;
-		const char *desc0 = Level::GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), Level::GetTypeByIndex(i));
+		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
+		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
+		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), RTTypes::Inst().GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
 	List *ls = _typeList->GetList();
@@ -644,8 +645,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
 
-		float align = Level::GetTypeInfo(type).align;
-		float offset = Level::GetTypeInfo(type).offset;
+		float align = RTTypes::Inst().GetTypeInfo(type).align;
+		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
 
 		vec2d pt;
 		pt.x = __min(g_level->_sx - align, __max(align - offset, mouse.x));
@@ -656,7 +657,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		int layer = -1;
 		if( g_conf.ed_uselayers.Get() )
 		{
-			layer = Level::GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
+			layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
 		}
 
 		if( GC_Object *object = g_level->PickEdObject(mouse, layer) )
@@ -693,7 +694,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			if( 1 == button )
 			{
 				// create object
-				GC_Object *object = g_level->CreateObject(type, pt.x, pt.y);
+				GC_Object *object = RTTypes::Inst().CreateObject(type, pt.x, pt.y);
 				SafePtr<PropertySet> properties = object->GetProperties();
 
 				// set default properties if Ctrl key is not pressed
@@ -785,7 +786,7 @@ void EditorLayout::OnChangeObjectType(int index)
 	g_conf.ed_object.SetInt(index);
 
 	std::ostringstream buf;
-	buf << g_lang.layer.Get() << Level::GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
+	buf << g_lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(buf.str());
 }
 

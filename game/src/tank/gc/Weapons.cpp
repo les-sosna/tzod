@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "Weapons.h"
-
 #include "Vehicle.h"
 #include "RigidBodyDinamic.h"
 #include "Sound.h"
@@ -12,6 +11,8 @@
 #include "Indicators.h"
 #include "Projectiles.h"
 #include "Particles.h"
+#include "TypeSystem.h"
+
 
 #include "Macros.h"
 #include "Level.h"

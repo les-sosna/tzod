@@ -38,6 +38,7 @@
 #include "gc/Player.h"
 #include "gc/Sound.h"
 #include "gc/Camera.h"
+#include "gc/TypeSystem.h"
 
 //#ifdef _DEBUG
 #include "gc/ai.h"
@@ -405,7 +406,7 @@ bool Level::init_import_and_edit(const char *mapName)
 
 	try
 	{
-		Import(g_fs->Open(mapName)->QueryStream(), false);
+		Import(g_fs->Open(mapName)->QueryStream());
 	}
 	catch( const std::exception &e )
 	{
@@ -427,7 +428,13 @@ void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
 	_seed       = seed;
 
 	SetEditorMode(false);
-	Import(s, true);
+	Import(s);
+
+	if( !script_exec(g_env.L, _infoOnInit.c_str()) )
+	{
+		Clear();
+		throw std::runtime_error("init script error");
+	}
 }
 
 Level::~Level()
@@ -609,7 +616,7 @@ void Level::Serialize(const char *fileName)
 	SaveFile f(stream, false);
 
 	SaveHeader sh = {0};
-	strcpy(sh.theme, _infoTheme.c_str());
+	strcpy_s(sh.theme, _infoTheme.c_str());
 	sh.dwVersion    = VERSION;
 	sh.dwGameType   = _gameType;
 	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
@@ -643,8 +650,7 @@ void Level::Serialize(const char *fileName)
 
 	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 	{
-		GC_Object *object = *it;
-		object->Serialize(f);
+		(*it)->Serialize(f);
 	}
 
 
@@ -713,7 +719,7 @@ void Level::Serialize(const char *fileName)
 	PauseGame(false);
 }
 
-void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)
+void Level::Import(const SafePtr<FS::Stream> &s)
 {
 	assert(IsEmpty());
 	assert(IsSafeMode());
@@ -744,18 +750,13 @@ void Level::Import(const SafePtr<FS::Stream> &s, bool execInitScript)
 		float y = 0;
 		file.getObjectAttribute("x", x);
 		file.getObjectAttribute("y", y);
-		name2type::iterator it = get_n2t().find(file.GetCurrentClassName());
-		if( get_n2t().end() == it ) continue;
-		GC_Object *object = get_t2i()[it->second].Create(x, y);
+		ObjectType t = RTTypes::Inst().GetTypeByName(file.GetCurrentClassName());
+		if( INVALID_OBJECT_TYPE == t )
+			continue;
+		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(x, y);
 		object->MapExchange(file);
 	}
 	GC_Camera::UpdateLayout();
-
-	if( execInitScript && !script_exec(g_env.L, _infoOnInit.c_str()) )
-	{
-		Clear();
-		throw std::runtime_error("init script error");
-	}
 }
 
 void Level::Export(const SafePtr<FS::Stream> &s)
@@ -790,9 +791,9 @@ void Level::Export(const SafePtr<FS::Stream> &s)
 	// objects
 	FOREACH( GetList(LIST_objects), GC_Object, object )
 	{
-		if( IsRegistered(object->GetType()) )
+		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
-			file.BeginObject(GetTypeName(object->GetType()));
+			file.BeginObject(RTTypes::Inst().GetTypeName(object->GetType()));
 			object->MapExchange(file);
 			file.WriteCurrentObject();
 		}
@@ -827,12 +828,6 @@ void Level::SetEditorMode(bool editorModeEnable)
 	}
 }
 
-GC_Object* Level::CreateObject(ObjectType type, float x, float y)
-{
-	assert(IsRegistered(type));
-	return get_t2i()[type].Create(x, y);
-}
-
 GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
@@ -853,10 +848,10 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 
 				if( PtInFRect(frect, pt) )
 				{
-					for( int i = 0; i < GetTypeCount(); ++i )
+					for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 					{
-						if( object->GetType() == GetTypeByIndex(i)
-						    && (-1 == layer || GetTypeInfoByIndex(i).layer == layer) )
+						if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+						    && (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
 						{
 							return object;
 						}
@@ -1101,14 +1096,12 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 #endif
 }
 
-void Level::TimeStep(float dt)
+void Level::Simulate(float dt)
 {
 	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->KillWhenFinished();
 	}
-
-	_defaultCamera.HandleMovement(_sx, _sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 	if( IsGamePaused() )
 	{
@@ -1290,6 +1283,16 @@ void Level::Render() const
 {
 	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (GetEditorMode() ? 0.5f : 0) : 1);
 
+#ifdef _DEBUG
+	FOREACH( GetList(LIST_players), GC_Player, p )
+	{
+		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
+		{
+			pp->debug_draw();
+		}
+	}
+#endif
+
 	if( GetEditorMode() || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera
@@ -1356,26 +1359,11 @@ void Level::Render() const
 		}
 	}
 
-
 #ifdef _DEBUG
-	FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-	{
-		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
-		{
-			pp->debug_draw();
-		}
-	}
+	if( !GetAsyncKeyState(VK_BACK) )
 #endif
-
-	if( !_dbgLineBuffer.empty() )
 	{
-		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
-#ifdef _DEBUG
-		if( !GetAsyncKeyState(VK_BACK) )
-#endif
-		{
-			_dbgLineBuffer.clear();
-		}
+		_dbgLineBuffer.clear();
 	}
 }
 
@@ -1442,6 +1430,11 @@ void Level::RenderInternal(const FRECT &world) const
 		{
 			object->Draw();
 		}
+	}
+
+	if( !_dbgLineBuffer.empty() )
+	{
+		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
 	}
 }
 

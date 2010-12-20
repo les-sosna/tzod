@@ -3,15 +3,6 @@
 #include "stdafx.h"
 
 #include "pickup.h"
-
-#include "macros.h"
-#include "Level.h"
-#include "functions.h"
-#include "script.h"
-
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
-
 #include "GameClasses.h"
 #include "indicators.h"
 #include "vehicle.h"
@@ -20,6 +11,17 @@
 #include "particles.h"
 
 #include "Weapons.h"
+
+
+#include "macros.h"
+#include "Level.h"
+#include "TypeSystem.h"
+#include "functions.h"
+#include "script.h"
+
+#include "fs/SaveFile.h"
+#include "fs/MapFile.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

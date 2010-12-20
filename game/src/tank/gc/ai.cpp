@@ -5,6 +5,13 @@
 #include "stdafx.h"
 
 #include "ai.h"
+#include "Vehicle.h"
+#include "Turrets.h"
+#include "Pickup.h"
+#include "Player.h"
+#include "Weapons.h"
+#include "TypeSystem.h"
+#include "Camera.h"
 
 #include "core/JobManager.h"
 #include "core/Debug.h"
@@ -14,14 +21,7 @@
 
 #include "Macros.h"
 #include "Functions.h"
-
-#include "Vehicle.h"
-#include "Turrets.h"
-#include "Pickup.h"
-#include "Player.h"
-#include "Weapons.h"
-
-#include "Camera.h"
+#include "Level.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation
@@ -795,10 +795,10 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 void GC_PlayerAI::SelectFavoriteWeapon()
 {
 	int wcount = 0;
-	for( int i = 0; i < Level::GetTypeCount(); ++i )
+	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
-		ObjectType type = Level::GetTypeByIndex(i);
-		const char *name = Level::GetTypeName(type);
+		ObjectType type = RTTypes::Inst().GetTypeByIndex(i);
+		const char *name = RTTypes::Inst().GetTypeName(type);
 		if( name == strstr(name, "weap_") )
 		{
 			if( 0 == g_level->net_rand() % ++wcount )

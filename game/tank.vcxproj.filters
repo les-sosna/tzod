@@ -365,6 +365,9 @@
     <ClInclude Include="src\tank\sound\sfx.h">
       <Filter>sound</Filter>
     </ClInclude>
+    <ClInclude Include="src\tank\gc\TypeSystem.h">
+      <Filter>gc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\tank\DefaultCamera.cpp">
@@ -628,6 +631,9 @@
     <ClCompile Include="src\tank\sound\sfx.cpp">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="src\tank\gc\TypeSystem.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\tank\res\icon.ico">
@@ -664,6 +670,9 @@
     <None Include="History.txt" />
     <None Include="Readme.txt" />
     <None Include="todo.txt" />
+    <None Include="src\tank\Level.inl">
+      <Filter>misc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\tank\res\tank.rc">

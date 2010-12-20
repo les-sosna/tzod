@@ -177,6 +177,7 @@
     <ClInclude Include="src\tank\directx.h" />
     <ClInclude Include="src\tank\Dsutil.h" />
     <ClInclude Include="src\tank\functions.h" />
+    <ClInclude Include="src\tank\gc\TypeSystem.h" />
     <ClInclude Include="src\tank\globals.h" />
     <ClInclude Include="src\tank\InputManager.h" />
     <ClInclude Include="src\tank\KeyMapper.h" />
@@ -287,6 +288,7 @@
     <ClCompile Include="src\tank\directx.cpp" />
     <ClCompile Include="src\tank\Dsutil.cpp" />
     <ClCompile Include="src\tank\functions.cpp" />
+    <ClCompile Include="src\tank\gc\TypeSystem.cpp" />
     <ClCompile Include="src\tank\globals.cpp" />
     <ClCompile Include="src\tank\InputManager.cpp" />
     <ClCompile Include="src\tank\KeyMapper.cpp" />
@@ -387,6 +389,7 @@
     <ClCompile Include="src\tank\sound\sfx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\tank\Level.inl" />
     <None Include="src\tank\res\icon.ico" />
     <None Include="src\tank\res\rt_manif.bin" />
     <None Include="data\lang.cfg" />
