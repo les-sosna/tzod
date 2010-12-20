@@ -5,7 +5,6 @@
 #include "level.h"
 #include "macros.h"
 
-#include "gc/TypeSystem.h"
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/pickup.h"

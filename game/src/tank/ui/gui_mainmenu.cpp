@@ -409,7 +409,7 @@ void MainMenuDlg::CreatePanel()
 		Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick.bind(&MainMenuDlg::OnLoadGame, this);
 		btn = Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
 		btn->eventClick.bind(&MainMenuDlg::OnSaveGame, this);
-		btn->SetEnabled(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && !g_client);
+		btn->SetEnabled(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && g_client->IsLocal());
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang.network_title.Get());

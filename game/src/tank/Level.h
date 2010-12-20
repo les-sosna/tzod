@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "LevelInterfaces.h"
 #include "ObjectListener.h"
 #include "gc/Object.h" // FIXME!
 
@@ -133,6 +134,9 @@ public:
 class GC_Object;
 class GC_2dSprite;
 
+struct PlayerDescEx;
+struct BotDesc;
+
 
 //////////////////////
 
@@ -149,6 +153,7 @@ protected:
 };
 
 class Level
+	: public ILevelController
 {
 	friend class GC_Object;
 
@@ -255,15 +260,11 @@ public:
 	void RemoveEditorModeListener(IEditorModeListener *ls);
 
 	void Resize(int X, int Y);
-	void Clear();
-
 	void HitLimit();
 
 
 	bool init_emptymap(int X, int Y);
 	bool init_import_and_edit(const char *mapName);
-
-	void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
 
 
 public:
@@ -372,6 +373,15 @@ public:
 	{} // do nothing in release mode
 #endif
 		;
+
+
+	// ILevelController
+	virtual void Clear();
+	virtual void SetPlayerInfo(unsigned short id, const PlayerDesc &pd, bool isLocal);
+	virtual void PlayerQuit(unsigned short id);
+	virtual void AddBot(const BotDesc &bd);
+	virtual void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

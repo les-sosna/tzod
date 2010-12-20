@@ -38,7 +38,6 @@
 #include "gc/Player.h"
 #include "gc/Sound.h"
 #include "gc/Camera.h"
-#include "gc/TypeSystem.h"
 
 //#ifdef _DEBUG
 #include "gc/ai.h"
@@ -489,11 +488,17 @@ void Level::Unserialize(const char *fileName)
 		{
 			ObjectType type;
 			f.Serialize(type);
-			if( INVALID_OBJECT_TYPE == type )
-			{
+			if( INVALID_OBJECT_TYPE == type ) // end of list signal
 				break;
+			if( GC_Object *obj = RTTypes::Inst().CreateFromFile(type) )
+			{
+				f.RegPointer(obj);
 			}
-			f.RegPointer(GC_Object::Create(type));
+			else
+			{
+				TRACE("ERROR: unknown object type - %u", type);
+				throw std::runtime_error("Load error: unknown object type");
+			}
 		}
 
 		// read objects contents in the same order as pointers
@@ -1531,6 +1536,84 @@ float Level::AbstractClient::GetBoost() const
 		return g_client->GetBoost();
 	}
 	return g_conf.cl_boost.GetFloat();
+}
+
+void Level::SetPlayerInfo(unsigned short id, const PlayerDesc &pd, bool isLocal)
+{
+	GC_Player *player = NULL;
+
+
+	//
+	// find existing player or create new one
+	//
+
+	FOREACH(g_level->GetList(LIST_players), GC_Player, p)
+	{
+		if( p->GetNetworkID() == id )
+		{
+			player = p;
+			break;
+		}
+	}
+
+	if( !player )
+	{
+		if( isLocal )
+		{
+			player = new GC_PlayerLocal();
+			const string_t &profile = g_conf.cl_playerinfo.profile.Get();
+			if( profile.empty() )
+			{
+				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
+			}
+			else
+			{
+				static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
+			}
+		}
+		else
+		{
+			player = new GC_PlayerRemote(id);
+		}
+	}
+
+	player->SetClass(pd.cls);
+	player->SetNick(pd.nick);
+	player->SetSkin(pd.skin);
+	player->SetTeam(pd.team);
+	player->UpdateSkin();
+}
+
+void Level::PlayerQuit(unsigned short id)
+{
+	ObjectList::iterator it = GetList(LIST_players).begin();
+	while( it != GetList(LIST_players).end() )
+	{
+		if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
+		{
+			if( p->GetNetworkID() == id )
+			{
+				if( g_gui )
+				{
+					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
+				}
+				p->Kill();
+				break;
+			}
+		}
+		++it;
+	}
+}
+
+void Level::AddBot(const BotDesc &bd)
+{
+	GC_PlayerAI *ai = new GC_PlayerAI();
+	ai->SetClass(bd.pd.cls);
+	ai->SetNick(bd.pd.nick);
+	ai->SetSkin(bd.pd.skin);
+	ai->SetTeam(bd.pd.team);
+	ai->SetLevel(std::max(0U, std::min(AI_MAX_LEVEL, bd.level)));
+	ai->UpdateSkin();
 }
 
 

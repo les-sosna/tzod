@@ -3,6 +3,7 @@
 #pragma once
 
 #include "notify.h"
+#include "TypeSystem.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -55,33 +56,33 @@ public:                                         \
     DECLARE_POOLED_ALLOCATION(cls)              \
     private:                                    \
         typedef cls __ThisClass;                \
-        static ObjectType __thisType;           \
+        static ObjectType _sType;               \
         static bool __registered;               \
         static bool __SelfRegister();           \
     public:                                     \
         static ObjectType GetTypeStatic()       \
         {                                       \
-            return __thisType;                  \
+            return _sType;                      \
         }                                       \
         virtual ObjectType GetType()            \
         {                                       \
-            return __thisType;                  \
+            return _sType;                      \
         }                                       \
     private:
 
 
-#define IMPLEMENT_SELF_REGISTRATION(cls)                      \
-    IMPLEMENT_POOLED_ALLOCATION(cls)                          \
-    ObjectType cls::__thisType = __RegisterType<cls>(#cls);   \
-    bool cls::__registered = cls::__SelfRegister();           \
+#define IMPLEMENT_SELF_REGISTRATION(cls)                           \
+    IMPLEMENT_POOLED_ALLOCATION(cls)                               \
+	ObjectType cls::_sType = RTTypes::Inst().RegType<cls>(#cls);   \
+    bool cls::__registered = cls::__SelfRegister();                \
     bool cls::__SelfRegister()
 
 
 // for template classes (experimental)
 #define IMPLEMENT_SELF_REGISTRATION_T(cls)                 \
     template<class T>                                      \
-    ObjectType cls<T>::__thisType = (cls<T>::__registered, \
-        __RegisterType<cls<T> >(typeid(cls<T>).name()));   \
+    ObjectType cls<T>::_sType = (cls<T>::__registered,     \
+        RTTypes::Inst().__RegisterType<cls<T> >(typeid(cls<T>).name()));   \
     template<class T>                                      \
     bool cls<T>::__registered = cls<T>::__SelfRegister();  \
     template<class T>                                      \
@@ -407,54 +408,10 @@ public:
 	//
 
 public:
-	static GC_Object* Create(ObjectType type);
 	virtual void Serialize(SaveFile &f);
 
 protected:
-	struct FromFile {};
 	GC_Object(FromFile);
-
-private:
-	typedef GC_Object* (*LPFROMFILEPROC) (void);
-	typedef std::map<ObjectType, LPFROMFILEPROC> __FromFileMap;
-	static __FromFileMap& __GetFromFileMap()
-	{
-		static __FromFileMap ffm;
-		return ffm;
-	}
-	template<class T> static GC_Object* __FromFileProc(void)
-	{
-		return new T(FromFile());
-	}
-	template<class T> static void __RegisterForSerialization(ObjectType type)
-	{
-		assert(__GetFromFileMap().end() == __GetFromFileMap().find(type));
-		LPFROMFILEPROC pf = __FromFileProc<T>;
-		__GetFromFileMap()[type] = pf;
-	}
-
-
-	//
-	// RTTI support
-	//
-
-private:
-	typedef std::map<string_t, size_t> __TypeMap;
-	static __TypeMap& __GetTypeMap()
-	{
-		static __TypeMap tm;
-		return tm;
-	}
-
-protected:
-	template<class T>
-	static ObjectType __RegisterType(const char *name)
-	{
-		size_t index = __GetTypeMap().size();
-		__GetTypeMap()[name] = index;
-		__RegisterForSerialization<T>((ObjectType) index);
-		return (ObjectType) index;
-	}
 
 public:
 	virtual ObjectType GetType() = 0;

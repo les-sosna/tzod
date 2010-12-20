@@ -14,7 +14,6 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
-#include "gc/TypeSystem.h"
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"

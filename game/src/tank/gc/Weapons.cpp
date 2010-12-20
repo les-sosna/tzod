@@ -11,8 +11,6 @@
 #include "Indicators.h"
 #include "Projectiles.h"
 #include "Particles.h"
-#include "TypeSystem.h"
-
 
 #include "Macros.h"
 #include "Level.h"

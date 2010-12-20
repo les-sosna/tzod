@@ -10,7 +10,6 @@
 #include "Pickup.h"
 #include "Player.h"
 #include "Weapons.h"
-#include "TypeSystem.h"
 #include "Camera.h"
 
 #include "core/JobManager.h"

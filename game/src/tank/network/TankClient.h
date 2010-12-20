@@ -16,6 +16,7 @@ struct NetworkStats
 	size_t  bytesPending;
 };
 
+struct ILevelController;
 struct ControlPacket;
 struct PlayerDesc;
 struct BotDesc;
@@ -42,11 +43,14 @@ public:
 private:
 	unsigned short _clientId;
 	NetworkStats _stats;
+	ILevelController *_levelController;
+	bool _isLocal;
 
 public:
-	TankClient(void);
-	~TankClient(void);
+	TankClient(bool isLocal, ILevelController *levelController);
+	~TankClient();
 
+	bool IsLocal() const { return true; } // TODO: FIXME
 	unsigned short GetId() const { return _clientId; }
 	float GetBoost() const { return _boost; }
 

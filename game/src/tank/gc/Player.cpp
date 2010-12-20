@@ -3,8 +3,6 @@
 #include "stdafx.h"
 
 #include "Player.h"
-#include "TypeSystem.h"
-
 
 #include "script.h"
 #include "macros.h"
@@ -510,7 +508,6 @@ void GC_PlayerLocal::MapExchange(MapFile &f)
 
 unsigned short GC_PlayerLocal::GetNetworkID() const
 {
-	assert(g_client);
 	return g_client->GetId();
 }
 
@@ -817,7 +814,6 @@ void GC_PlayerRemote::Serialize(SaveFile &f)
 void GC_PlayerRemote::TimeStepFixed(float dt)
 {
 	GC_PlayerHuman::TimeStepFixed( dt );
-	assert(g_client);
 	if( GetVehicle() )
 	{
 		GetVehicle()->SetState(_ctrlState);

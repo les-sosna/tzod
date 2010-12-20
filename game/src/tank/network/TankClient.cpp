@@ -25,16 +25,19 @@
 
 #include "Macros.h"
 #include "functions.h"
+#include "LevelInterfaces.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankClient::TankClient(void)
+TankClient::TankClient(bool isLocal, ILevelController *levelController)
   : _frame(0)
   , _clientId(0)
   , _boost(1)
   , _gameStarted(false)
   , _latency(1)
   , _hasCtrl(false)
+  , _levelController(levelController)
+  , _isLocal(isLocal)
 {
 	ZeroMemory(&_stats, sizeof(NetworkStats));
 }
@@ -241,16 +244,14 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 			return;
 		}
 
-		g_level->Clear();
-		g_level->init_newdm(f->QueryStream(), gi.seed);
+		_levelController->Clear();
+		_levelController->init_newdm(f->QueryStream(), gi.seed);
 	}
 	catch( const std::exception &e )
 	{
 		ClErrorMessage(NULL, -1, Variant(std::string(e.what())));
 		return;
 	}
-
-//	g_level->PauseLocal(true); // paused until game is started
 
 	g_conf.cl_map.Set(gi.cMapName);
 	g_conf.ui_showmsg.Set(true);
@@ -281,9 +282,6 @@ void TankClient::ClStartGame(Peer *from, int task, const Variant &arg)
 	assert(!_gameStarted);
 	_gameStarted = true;
 
-
-//	g_level->PauseLocal(false);
-
 	if( eventStartGame )
 	{
 		INVOKE(eventStartGame) ();
@@ -295,49 +293,7 @@ void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 	assert(!_gameStarted);
 
 	const PlayerDescEx &pde = arg.Value<PlayerDescEx>();
-
-	GC_Player *player = NULL;
-
-
-	//
-	// find existing player or create new one
-	//
-
-	FOREACH(g_level->GetList(LIST_players), GC_Player, p)
-	{
-		if( p->GetNetworkID() == pde.id )
-		{
-			player = p;
-			break;
-		}
-	}
-
-	if( !player )
-	{
-		if( GetId() == pde.id )
-		{
-			player = new GC_PlayerLocal();
-			const string_t &profile = g_conf.cl_playerinfo.profile.Get();
-			if( profile.empty() )
-			{
-				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
-			}
-			else
-			{
-				static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
-			}
-		}
-		else
-		{
-			player = new GC_PlayerRemote(pde.id);
-		}
-	}
-
-	player->SetClass(pde.pd.cls);
-	player->SetNick(pde.pd.nick);
-	player->SetSkin(pde.pd.skin);
-	player->SetTeam(pde.pd.team);
-	player->UpdateSkin();
+	_levelController->SetPlayerInfo(pde.id, pde.pd, GetId() == pde.id);
 
 	if( eventPlayersUpdate )
 	{
@@ -372,24 +328,7 @@ void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 {
 	unsigned short id = arg.Value<unsigned short>();
-
-	ObjectList::iterator it = g_level->GetList(LIST_players).begin();
-	while( it != g_level->GetList(LIST_players).end() )
-	{
-		if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
-		{
-			if( p->GetNetworkID() == id )
-			{
-				if( g_gui )
-				{
-					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
-				}
-				p->Kill();
-				break;
-			}
-		}
-		++it;
-	}
+	_levelController->PlayerQuit(id);
 
 	if( eventPlayersUpdate )
 	{
@@ -400,14 +339,7 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 {
 	const BotDesc &bd = arg.Value<BotDesc>();
-	GC_PlayerAI *ai = new GC_PlayerAI();
-
-	ai->SetClass(bd.pd.cls);
-	ai->SetNick(bd.pd.nick);
-	ai->SetSkin(bd.pd.skin);
-	ai->SetTeam(bd.pd.team);
-	ai->SetLevel(std::max(0U, std::min(AI_MAX_LEVEL, bd.level)));
-	ai->UpdateSkin();
+	_levelController->AddBot(bd);
 
 	if( eventPlayersUpdate )
 	{
@@ -418,7 +350,6 @@ void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 void TankClient::ClControl(Peer *from, int task, const Variant &arg)
 {
 	assert(_gameStarted);
-	assert(g_level);
 	assert(!_hasCtrl);
 
 	_ctrl = arg.Value<ControlPacketVector>();

@@ -287,7 +287,7 @@ void ConnectDlg::OnOK()
 
 	assert(g_level->IsEmpty());
 	assert(NULL == g_client);
-	g_client = new TankClient();
+	g_client = new TankClient(false, g_level);
 	g_client->eventConnected.bind(&ConnectDlg::OnConnected, this);
 	g_client->eventErrorMessage.bind(&ConnectDlg::OnError, this);
 	g_client->eventTextMessage.bind(&ConnectDlg::OnMessage, this);
@@ -472,7 +472,6 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   , _btnOK(NULL)
   , _btnProfile(NULL)
 {
-	assert(g_client);
 	g_client->eventErrorMessage.bind(&WaitingForPlayersDlg::OnError, this);
 	g_client->eventTextMessage.bind(&WaitingForPlayersDlg::OnMessage, this);
 	g_client->eventPlayerReady.bind(&WaitingForPlayersDlg::OnPlayerReady, this);

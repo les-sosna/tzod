@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "Object.h"
-#include "TypeSystem.h"
 
 #include "level.h"
 
@@ -389,23 +388,6 @@ void GC_Object::Serialize(SaveFile &f)
 				n->Serialize(f);
 		}
 	}
-}
-
-GC_Object* GC_Object::Create(ObjectType type)
-{
-	if( INVALID_OBJECT_TYPE == type )
-	{
-		return NULL;
-	}
-
-	__FromFileMap::const_iterator it = __GetFromFileMap().find(type);
-	if( __GetFromFileMap().end() == it )
-	{
-		TRACE("ERROR: unknown object type - %u", type);
-		throw std::runtime_error("Load error: unknown object type");
-	}
-
-	return it->second();
 }
 
 void GC_Object::SetEvents(DWORD dwEvents)

@@ -4,7 +4,6 @@
 #include "crate.h"
 #include "particles.h"
 #include "Sound.h"
-#include "TypeSystem.h"
 
 #include "config/Config.h"
 #include "functions.h"

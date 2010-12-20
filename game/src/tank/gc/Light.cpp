@@ -3,8 +3,6 @@
 #include "stdafx.h"
 
 #include "light.h"
-#include "TypeSystem.h"
-
 
 #include "level.h"
 #include "macros.h"

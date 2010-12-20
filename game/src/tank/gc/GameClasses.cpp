@@ -8,7 +8,6 @@
 #include "Vehicle.h"
 #include "Sound.h"
 #include "particles.h"
-#include "TypeSystem.h"
 
 #include "core/Debug.h"
 

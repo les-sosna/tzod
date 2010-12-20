@@ -2,8 +2,6 @@
 
 #include "stdafx.h"
 #include "Turrets.h"
-#include "TypeSystem.h"
-
 
 #include "macros.h"
 #include "level.h"

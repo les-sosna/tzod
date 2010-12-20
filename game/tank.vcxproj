@@ -182,6 +182,7 @@
     <ClInclude Include="src\tank\InputManager.h" />
     <ClInclude Include="src\tank\KeyMapper.h" />
     <ClInclude Include="src\tank\Level.h" />
+    <ClInclude Include="src\tank\LevelInterfaces.h" />
     <ClInclude Include="src\tank\Macros.h" />
     <ClInclude Include="src\tank\md5.h" />
     <ClInclude Include="src\tank\ObjectListener.h" />

@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "MessageBox.h"
-#include "TypeSystem.h"
 
 #include "script.h"
 

@@ -368,6 +368,9 @@
     <ClInclude Include="src\tank\gc\TypeSystem.h">
       <Filter>gc</Filter>
     </ClInclude>
+    <ClInclude Include="src\tank\LevelInterfaces.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\tank\DefaultCamera.cpp">

@@ -3,22 +3,13 @@
 #pragma once
 
 class GC_Object;
+struct FromFile {};
 
 class RTTypes
 {
-public:
-	static RTTypes& Inst()
-	{
-		if( !_theInstance )
-			_theInstance = new RTTypes();
-		return *_theInstance;
-	}
-
-	typedef GC_Object* (*CreateProc) (float, float);
-
 	struct EdItem
 	{
-		CreateProc    Create;
+		GC_Object* (*Create) (float, float);
 		int           layer;
 		float         align;
 		float         offset;
@@ -28,28 +19,80 @@ public:
 		const char*   desc;
 	};
 
-	template<class T>
-	static GC_Object* CreateActor(float x, float y)
-	{
-		return new T(x, y);
-	}
-
-	template<class T>
-	static GC_Object* CreateService(float x, float y)
-	{
-		return new T();
-	}
-
-	GC_Object* CreateObject(ObjectType type, float x, float y)
-	{
-		assert(IsRegistered(type));
-		return GetTypeInfo(type).Create(x, y);
-	}
-
 	typedef std::map<ObjectType, EdItem> type2item;
 	typedef std::map<string_t, ObjectType> name2type;
 	typedef std::vector<ObjectType> index2type;
+	typedef std::map<ObjectType, GC_Object* (*) ()> FromFileMap;
 
+	template<class T> static GC_Object* ActorCtor(float x, float y)   { return new T(x, y); }
+	template<class T> static GC_Object* ServiceCtor(float x, float y) { return new T(); }
+	template<class T> static GC_Object* FromFileCtor() { return new T(::FromFile()); }
+
+public:
+	// access to singleton instance
+	static RTTypes& Inst()
+	{
+		if( !_theInstance )
+			_theInstance = new RTTypes();
+		return *_theInstance;
+	}
+
+
+	//
+	// type registration
+	//
+
+	template<class T>
+	void RegisterActor( const char *name, const char *desc, int layer, float width,
+	                    float height, float align, float offset )
+	{
+		assert( !IsRegistered(T::GetTypeStatic()) );
+		assert( 0 == _n2t.count(name) );
+		EdItem ei;
+		ei.desc    = desc;  // index in localization table
+		ei.name    = name;
+		ei.layer   = layer;
+		ei.size    = vec2d(width, height);
+		ei.align   = align;
+		ei.offset  = offset;
+		ei.service = false;
+		ei.Create  = ActorCtor<T>;
+		_t2i[T::GetTypeStatic()] = ei;
+		_n2t[name] = T::GetTypeStatic();
+		_i2t.push_back(T::GetTypeStatic());
+	}
+	template<class T>
+	void RegisterService( const char *name, const char *desc )
+	{
+		assert( !IsRegistered(T::GetTypeStatic()) );
+		assert( 0 == _n2t.count(name) );
+		EdItem ei = {0};
+		ei.desc    = desc;
+		ei.name    = name;
+		ei.service = true;
+		ei.Create  = ServiceCtor<T>;
+		_t2i[T::GetTypeStatic()] = ei;
+		_n2t[name] = T::GetTypeStatic();
+		_i2t.push_back(T::GetTypeStatic());
+	}
+
+	template<class T>
+	ObjectType RegType(const char *name)
+	{
+		// common
+		assert(!_types.count(name));
+		ObjectType type = (ObjectType) _types.size();
+		_types.insert(name);
+		// for serialization
+		assert(!_ffm.count(type));
+		_ffm[type] = FromFileCtor<T>;
+		return type;
+	}
+
+
+	//
+	// access type info
+	//
 
 	int GetTypeCount()
 	{
@@ -77,52 +120,32 @@ public:
 		assert(IsRegistered(type));
 		return _t2i[type].name;
 	}
-	template<class T>
-	void RegisterActor( const char *name, const char *desc, int layer, float width,
-	                    float height, float align, float offset )
-	{
-		assert( !IsRegistered(T::GetTypeStatic()) );
-		assert( 0 == _n2t.count(name) );
-		EdItem ei;
-		ei.desc    = desc;  // index in localization table
-		ei.name    = name;
-		ei.layer   = layer;
-		ei.size    = vec2d(width, height);
-		ei.align   = align;
-		ei.offset  = offset;
-		ei.service = false;
-		ei.Create  = CreateActor<T>;
-		_t2i[T::GetTypeStatic()] = ei;
-		_n2t[name] = T::GetTypeStatic();
-		_i2t.push_back(T::GetTypeStatic());
-	}
-	template<class T>
-	void RegisterService( const char *name, const char *desc )
-	{
-		assert( !IsRegistered(T::GetTypeStatic()) );
-		assert( 0 == _n2t.count(name) );
-		EdItem ei = {0};
-		ei.desc    = desc;
-		ei.name    = name;
-		ei.service = true;
-		ei.Create  = CreateService<T>;
-		_t2i[T::GetTypeStatic()] = ei;
-		_n2t[name] = T::GetTypeStatic();
-		_i2t.push_back(T::GetTypeStatic());
-	}
 	bool IsRegistered(ObjectType type)
 	{
 		return _t2i.find(type) != _t2i.end();
 	}
 
 
+	//
+	// object creation
+	//
+
+	GC_Object* CreateFromFile(ObjectType type); // for serialization
+	GC_Object* CreateObject(ObjectType type, float x, float y); // for editor
+
+
 private:
-	static RTTypes *_theInstance;
+	// for editor
 	type2item _t2i;
 	name2type _n2t;
 	index2type _i2t; // sort by desc
-
+	// for serialization
+	FromFileMap _ffm;
+	// common
+	std::set<string_t> _types;
+	// use as singleton only
 	RTTypes() {};
+	static RTTypes *_theInstance;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

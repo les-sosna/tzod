@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "UserObjects.h"
-#include "TypeSystem.h"
 
 #include "GameClasses.h"
 

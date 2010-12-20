@@ -302,7 +302,7 @@ void Desktop::OnCommand(const string_t &cmd)
 
 	string_t exec;
 
-	if( g_client )
+	if( !g_client->IsLocal() )
 	{
 		if( cmd[0] == '/' )
 		{
@@ -366,7 +366,7 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 		result = cmd.substr(0, pos) + insert + cmd.substr(pos);
 		pos += insert.length();
 
-		if( g_client && !result.empty() && result[0] != '/' )
+		if( !g_client->IsLocal() && !result.empty() && result[0] != '/' )
 		{
 			result = string_t("/") + result;
 			++pos;

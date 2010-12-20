@@ -10,8 +10,6 @@
 
 #include "fs/SaveFile.h"
 
-#include "TypeSystem.h"
-
 #include "GameClasses.h"
 #include "Camera.h"
 #include "particles.h"

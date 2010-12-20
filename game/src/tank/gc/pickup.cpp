@@ -15,7 +15,6 @@
 
 #include "macros.h"
 #include "Level.h"
-#include "TypeSystem.h"
 #include "functions.h"
 #include "script.h"
 
