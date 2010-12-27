@@ -31,13 +31,13 @@ public:                                         \
     {                                           \
         assert(sizeof(cls) == count);           \
 		void *ptr = __pool.Alloc();             \
-		*(unsigned int*) ptr = (-1 >> 1) + 1;   \
+		*(unsigned int*) ptr = 0x80000000;      \
         return (unsigned int*) ptr + 1;         \
     }                                           \
     void operator delete(void *p)               \
     {                                           \
 		unsigned int&cnt(*((unsigned int*)p-1));\
-		cnt &= -1 >> 1;                         \
+		cnt &= 0x7fffffff;                      \
 		if( !cnt )                              \
 			__pool.Free((unsigned int*) p - 1); \
 		else                                    \
