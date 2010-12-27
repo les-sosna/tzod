@@ -15,7 +15,7 @@
 #include "DataSourceAdapters.h"
 
 #include "functions.h"
-#include "level.h"
+#include "LevelInterfaces.h"
 #include "macros.h"
 #include "script.h"
 
@@ -37,8 +37,9 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent)
+NewGameDlg::NewGameDlg(Window *parent, ILevelController *ctrl)
   : Dialog(parent, 770, 550)
+  , _level(ctrl)
 {
 	PauseGame(true);
 
@@ -357,11 +358,10 @@ void NewGameDlg::OnOK()
 	g_conf.sv_nightmode.Set( g_conf.cl_nightmode.Get() );
 
 	script_exec(g_env.L, "reset()");
-	assert(g_level->IsEmpty());
 
 	try
 	{
-		g_level->init_newdm(g_fs->Open(path)->QueryStream(), rand());
+		_level->init_newdm(g_fs->Open(path)->QueryStream(), rand());
 	}
 	catch( const std::exception &e )
 	{

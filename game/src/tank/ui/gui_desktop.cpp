@@ -238,7 +238,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case VK_F2:
-		dlg = new NewGameDlg(this);
+		dlg = new NewGameDlg(this, g_level);
 		SetDrawBackground(true);
 		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
 		break;

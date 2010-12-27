@@ -212,6 +212,11 @@ public:
 			delete block;
 		}
 	}
+
+	DWORD GetAllocID(void *p) const
+	{
+		return 0;
+	}
 };
 
 

@@ -31,17 +31,21 @@ public:                                         \
     {                                           \
         assert(sizeof(cls) == count);           \
 		void *ptr = __pool.Alloc();             \
-		*(unsigned int*) ptr = 0x80000000;      \
+		*(unsigned int*) ptr = (-1 >> 1) + 1;   \
         return (unsigned int*) ptr + 1;         \
     }                                           \
     void operator delete(void *p)               \
     {                                           \
 		unsigned int&cnt(*((unsigned int*)p-1));\
-		cnt &= 0x7fffffff;                      \
+		cnt &= -1 >> 1;                         \
 		if( !cnt )                              \
 			__pool.Free((unsigned int*) p - 1); \
 		else                                    \
 			*(ObjFinalizerProc*) p = __fin;     \
+    }                                           \
+	virtual DWORD GetID() const                 \
+    {                                           \
+		return __pool.GetAllocID((unsigned int *) this - 1); \
     }
 
 #define IMPLEMENT_POOLED_ALLOCATION(cls)        \

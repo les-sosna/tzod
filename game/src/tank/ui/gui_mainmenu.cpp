@@ -92,7 +92,7 @@ void MainMenuDlg::OnSinglePlayer()
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent());
+	NewGameDlg *dlg = new NewGameDlg(GetParent(), g_level);
 	dlg->eventClose = std::tr1::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 
