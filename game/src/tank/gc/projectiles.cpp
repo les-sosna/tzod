@@ -657,7 +657,7 @@ void GC_BfgCore::TimeStepFixed(float dt)
 		FindTarget();
 	}
 
-	FOREACH( g_level->GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
+	FOREACH_SAFE( g_level->GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 	{
 		const float R = WEAP_BFG_RADIUS;
 		float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *

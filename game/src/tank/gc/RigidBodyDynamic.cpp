@@ -408,17 +408,19 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 
 				if( nd > 3 && o1 && o2 )
 				{
-					GC_Player *owner1 = it->obj1_d->GetOwner(); // store pointer to owner since obj1 may die
+					// store some data since obj1 may die
+					GC_Player *owner1 = it->obj1_d->GetOwner();
+					float percussion1 = it->obj1_d->_percussion;
 					if( it->obj2_d )
 					{
 						GC_Player *owner2 = it->obj2_d->GetOwner();
 						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
-						it->obj2_d->TakeDamage(a/60 * it->obj1_d->_percussion * it->obj2_d->_fragility, it->o, owner1);
+						it->obj2_d->TakeDamage(a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
 					}
 					else
 					{
 						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, owner1);
-						it->obj2_s->TakeDamage(a/60 * it->obj1_d->_percussion, it->o, owner1);
+						it->obj2_s->TakeDamage(a/60 * percussion1, it->o, owner1);
 					}
 				}
 
@@ -428,10 +430,10 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				// phantom may not affect real objects but it may affect other phantoms
 				vec2d delta_p = it->n * (a + it->depth);
 
-				if( !o1 && !o2 || o2 )
+				if( it->obj1_d && (!o1 && !o2 || o2) )
 					it->obj1_d->impulse(it->o, delta_p);
 
-				if( it->obj2_d && (!o1 && !o2 || o1) ) 
+				if( it->obj2_s && it->obj2_d && (!o1 && !o2 || o1) ) 
 					it->obj2_d->impulse(it->o, -delta_p);
 
 
