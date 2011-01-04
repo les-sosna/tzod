@@ -183,7 +183,6 @@ void CreateServerDlg::OnOK()
 	strcpy(gi.cMapName, fn.c_str());
 	strcpy(gi.cServerName, "ZOD Server");
 
-	assert(NULL == g_server);
 	try
 	{
 		SafePtr<FS::MemMap> m = g_fs->Open(path)->QueryMap();
@@ -193,7 +192,8 @@ void CreateServerDlg::OnOK()
 		MD5Final(&md5);
 		memcpy(gi.mapVer, md5.digest, 16);
 
-		g_server = new TankServer(gi, announcer);
+		assert(false);
+	//	g_server = new TankServer(gi, announcer); // integrate into client instead
 	}
 	catch( const std::exception &e )
 	{
@@ -204,7 +204,20 @@ void CreateServerDlg::OnOK()
 
 //	g_conf.sv_latency.SetInt(1);
 
-	(new ConnectDlg(GetParent(), "localhost"))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
+//	assert(false); // dont connect; integrate server into client instead
+//	(new ConnectDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
+
+//	PauseGame(true);
+
+
+	script_exec(g_env.L, "reset()");
+
+	assert(g_level->IsEmpty());
+	assert(!g_client);
+	g_client = new TankClient(false, g_level);
+
+	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
+
 	SetVisible(false);
 }
 
@@ -234,9 +247,8 @@ void CreateServerDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
+ConnectDlg::ConnectDlg(Window *parent, const string_t &defaultName)
   : Dialog(parent, 512, 384)
-  , _auto(NULL != autoConnect)
 {
 	PauseGame(true);
 
@@ -246,7 +258,7 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 
 	Text::Create(this, 20, 65, g_lang.net_connect_address.Get(), alignTextLT);
 	_name = Edit::Create(this, 25, 80, 300);
-	_name->SetText(g_conf.cl_server.Get());
+	_name->SetText(defaultName);
 
 
 	Text::Create(this, 20, 105, g_lang.net_connect_status.Get(), alignTextLT);
@@ -260,14 +272,6 @@ ConnectDlg::ConnectDlg(Window *parent, const char *autoConnect)
 	Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick.bind(&ConnectDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
-
-
-	if( _auto )
-	{
-		assert(g_level->IsEmpty());
-		_name->SetText(autoConnect);
-		OnOK();
-	}
 }
 
 ConnectDlg::~ConnectDlg()
@@ -282,8 +286,7 @@ void ConnectDlg::OnOK()
 	_btnOK->SetEnabled(false);
 	_name->SetEnabled(false);
 
-	if( !_auto )
-		script_exec(g_env.L, "reset()");
+	script_exec(g_env.L, "reset()");
 
 	assert(g_level->IsEmpty());
 	assert(NULL == g_client);
@@ -296,22 +299,12 @@ void ConnectDlg::OnOK()
 
 void ConnectDlg::OnCancel()
 {
-	if( g_server )
-	{
-		g_level->Clear();
-		SAFE_DELETE(g_client);
-		SAFE_DELETE(g_server);
-	}
-
 	Close(_resultCancel);
 }
 
 void ConnectDlg::OnConnected()
 {
-	if( !_auto )
-	{
-		g_conf.cl_server.Set(_name->GetText());
-	}
+	g_conf.cl_server.Set(_name->GetText());
 	(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
 	Close(-1); // close with any code except ok and cancel
 }
@@ -320,13 +313,9 @@ void ConnectDlg::OnError(const std::string &msg)
 {
 	_status->GetData()->AddItem(msg);
 	g_level->Clear();
-	if( !g_server )
-	{
-		_btnOK->SetEnabled(true);
-		_name->SetEnabled(true);
-	}
+	_btnOK->SetEnabled(true);
+	_name->SetEnabled(true);
 	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
 }
 
 void ConnectDlg::OnMessage(const std::string &msg)
@@ -399,7 +388,8 @@ void InternetDlg::OnConnect()
 	if( -1 != _servers->GetCurSel() )
 	{
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
-		(new ConnectDlg(GetParent(), addr.c_str()))->eventClose = std::tr1::bind(&InternetDlg::OnCloseChild, this, _1);
+		ConnectDlg *dlg = new ConnectDlg(GetParent(), addr);
+		dlg->eventClose = std::tr1::bind(&InternetDlg::OnCloseChild, this, _1);
 		SetVisible(false);
 	}
 }
@@ -590,7 +580,6 @@ void WaitingForPlayersDlg::OnCancel()
 {
 	g_level->Clear();
 	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
 
 	Close(_resultCancel);
 }
@@ -624,7 +613,7 @@ void WaitingForPlayersDlg::OnMessage(const std::string &msg)
 	_buf->WriteLine(0, msg);
 }
 
-void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
+void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 {
 	assert(g_level);
 	int count = g_level->GetList(LIST_players).size();
@@ -634,9 +623,8 @@ void WaitingForPlayersDlg::OnPlayerReady(unsigned short id, bool ready)
 	{
 		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
 		assert(player);
-		assert(0 != player->GetNetworkID());
 
-		if( player->GetNetworkID() == id )
+		if( g_level->GetList(LIST_players).IndexOf(player) == idx )
 		{
 			_players->GetData()->SetItemText(index, 3, ready ? g_lang.net_chatroom_player_ready.Get() : "");
 			return;

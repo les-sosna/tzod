@@ -507,9 +507,6 @@ void ZodApp::Idle()
 
 void ZodApp::Post()
 {
-//	SAFE_DELETE(g_client);
-//	SAFE_DELETE(g_server);
-
 	if( g_level ) g_level->Clear();
 
 

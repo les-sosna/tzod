@@ -16,7 +16,6 @@ CSound          *g_pSounds[SND_COUNT];
 AppBase     *g_app;
 IRender     *g_render;
 UI::LayoutManager  *g_gui;
-TankServer  *g_server;
 TankClient  *g_client;
 
 TextureManager *g_texman;

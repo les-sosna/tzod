@@ -227,7 +227,6 @@ static int luaT_reset(lua_State *L)
 
 	g_level->Clear();
 	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
 
 
 	//
@@ -339,7 +338,6 @@ static int luaT_load(lua_State *L)
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 
 	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
 	g_level->Clear();
 
 	try
@@ -394,7 +392,6 @@ static int luaT_import(lua_State *L)
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
 	SAFE_DELETE(g_client);
-	SAFE_DELETE(g_server);
 	g_level->Clear();
 
 	if( !g_level->init_import_and_edit(filename) )

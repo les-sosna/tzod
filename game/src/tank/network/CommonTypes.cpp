@@ -18,7 +18,7 @@ VARIANT_IMPLEMENT_TYPE(PlayerDesc)
 
 VARIANT_IMPLEMENT_TYPE(PlayerDescEx)
 {
-	return s & value.pd & value.id;
+	return s & value.pd & value.idx;
 }
 
 VARIANT_IMPLEMENT_TYPE(BotDesc)

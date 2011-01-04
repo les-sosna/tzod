@@ -12,8 +12,9 @@ namespace FS
 struct ILevelController
 {
 	virtual void Clear() = 0;
-	virtual void SetPlayerInfo(unsigned short id, const PlayerDesc &pd, bool isLocal) = 0;
-	virtual void PlayerQuit(unsigned short id) = 0;
+	virtual void SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd) = 0;
+	virtual void PlayerQuit(size_t playerIndex) = 0;
+	virtual void AddHuman(const PlayerDesc &pd, bool isLocal) = 0;
 	virtual void AddBot(const BotDesc &bd) = 0;
 	virtual void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed) = 0;
 };

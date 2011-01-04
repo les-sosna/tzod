@@ -171,7 +171,6 @@ public:
 	void Stop();
 
 protected:
-	virtual unsigned short GetNetworkID() const { return 0; }
 	virtual void TimeStepFixed(float dt);
 };
 

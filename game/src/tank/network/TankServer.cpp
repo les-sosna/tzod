@@ -11,19 +11,20 @@
 #include "TankServer.h"
 #include "ServerFunctions.h"
 #include "ClientFunctions.h"
+#include "Level.h"
 
 #include "LobbyClient.h"
 
 #include "functions.h"
+
+#include "gc/Player.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 PeerServer::PeerServer(SOCKET s_)
   : Peer(s_)
   , ctrlValid(false)
-  , ready(false)
   , descValid(false)
-  , id(-1)
   , svlatency(0)
   , clboost(1)
 {
@@ -32,8 +33,7 @@ PeerServer::PeerServer(SOCKET s_)
 ///////////////////////////////////////////////////////////////////////////////
 
 TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer)
-  : _nextFreeId(0x1000)
-  , _connectedCount(0)
+  : _connectedCount(0)
   , _frameReadyCount(0)
   , _gameInfo(info)
   , _announcer(announcer)
@@ -149,22 +149,17 @@ void TankServer::OnListenerEvent()
 	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
 	PeerServer &cl = *_clients.back();
 
-	cl.RegisterHandler(SV_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankServer::SvTextMessage, this));
-	cl.RegisterHandler(SV_POST_CONTROL, VariantTypeId<ControlPacket>(), CreateDelegate(&TankServer::SvControl, this));
-	cl.RegisterHandler(SV_POST_PLAYERREADY, VariantTypeId<bool>(), CreateDelegate(&TankServer::SvPlayerReady, this));
-	cl.RegisterHandler(SV_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankServer::SvAddBot, this));
-	cl.RegisterHandler(SV_POST_PLAYERINFO, VariantTypeId<PlayerDesc>(), CreateDelegate(&TankServer::SvPlayerInfo, this));
+	cl.RegisterHandler<std::string>(SV_POST_TEXTMESSAGE, CreateDelegate(&TankServer::SvTextMessage, this));
+	cl.RegisterHandler<ControlPacket>(SV_POST_CONTROL, CreateDelegate(&TankServer::SvControl, this));
+	cl.RegisterHandler<bool>(SV_POST_PLAYERREADY, CreateDelegate(&TankServer::SvPlayerReady, this));
+	cl.RegisterHandler<BotDesc>(SV_POST_ADDBOT, CreateDelegate(&TankServer::SvAddBot, this));
+	cl.RegisterHandler<PlayerDesc>(SV_POST_PLAYERINFO, CreateDelegate(&TankServer::SvPlayerInfo, this));
 
 	cl.descValid = false;
-	cl.ready = false;
-	cl.id = ++_nextFreeId;
 	cl.eventDisconnect.bind(&TankServer::OnDisconnect, this);
 
 	// send server info
 	cl.Post(CL_POST_GAMEINFO, Variant(_gameInfo));
-
-	// send new client ID
-	cl.Post(CL_POST_SETID, Variant(cl.id));
 }
 
 void TankServer::BroadcastTextMessage(const std::string &msg)
@@ -185,15 +180,6 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 
 	if( who->descValid )
 	{
-		for( std::vector<PostType>::iterator it = _players.begin(); it != _players.end(); ++it )
-		{
-			if( CL_POST_PLAYERINFO == it->first && it->second.Value<PlayerDescEx>().id == who->id )
-			{
-				_players.erase(it);
-				break;
-			}
-		}
-
 		who->descValid = false;
 		--_connectedCount;
 		if( who->ctrlValid )
@@ -201,10 +187,10 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 			--_frameReadyCount;
 		}
 
-		Variant arg(who->id);
+		Variant arg(g_level->GetList(LIST_players).IndexOf(&*who->player));
 		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{
-			if( who->id != (*it)->id )
+			if( who->player != (*it)->player )
 			{
 				(*it)->Post(CL_POST_PLAYERQUIT, arg);
 			}
@@ -373,20 +359,16 @@ void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 {
 	PeerServer *who = static_cast<PeerServer *>(from);
 
-	PlayerReady reply = { who->id,  arg.Value<bool>() };
+	PlayerReady reply = { g_level->GetList(LIST_players).IndexOf(who->player), arg.Value<bool>() };
 
 	bool bAllPlayersReady = true;
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		if( (*it)->id == who->id )
-		{
-			(*it)->ready = arg.Value<bool>();
-		}
-		if( !(*it)->ready )
+		(*it)->Post(CL_POST_PLAYER_READY, Variant(reply));
+		if( !(*it)->player->GetReady() )
 		{
 			bAllPlayersReady = false;
 		}
-		(*it)->Post(CL_POST_PLAYER_READY, Variant(reply));
 	}
 
 	if( bAllPlayersReady )
@@ -406,12 +388,10 @@ void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 
 void TankServer::SvAddBot(Peer *from, int task, const Variant &arg)
 {
-	PostType post(CL_POST_ADDBOT, arg);
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 	{
-		(*it)->Post(post.first, post.second);
+		(*it)->Post(CL_POST_ADDBOT, arg);
 	}
-	_players.push_back(post);
 }
 
 void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
@@ -422,51 +402,23 @@ void TankServer::SvPlayerInfo(Peer *from, int task, const Variant &arg)
 
 	if( !who->descValid )
 	{
-		//
-		// tell newly connected player about other players
-		//
-
-		for( size_t i = 0; i < _players.size(); ++i )
-		{
-			who->Post(_players[i].first, _players[i].second);
-		}
-
+		// TODO: tell newly connected player about other players
+		assert(false);
+//		for( size_t i = 0; i < _players.size(); ++i )
+//		{
+//			who->Post(_players[i].first, _players[i].second);
+//		}
 		who->descValid = true;
 		++_connectedCount;
-
-
-		//
-		// tell other players about newly connected player
-		//
-
-		PlayerDescEx pde;
-		pde.pd = who->desc;
-		pde.id = who->id;
-		PostType post(CL_POST_PLAYERINFO, Variant(pde));
-		_players.push_back(post);
-		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-		{
-			(*it)->Post(post.first, post.second);
-		}
 	}
-	else
-	{
-		for( size_t i = 0; i < _players.size(); ++i )
-		{
-			if( CL_POST_PLAYERINFO == _players[i].first && 
-			    who->id == _players[i].second.Value<PlayerDescEx>().id )
-			{
-				// update info in player list
-				_players[i].second.Value<PlayerDescEx>().pd = who->desc;
 
-				// send changed info to other players
-				for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-				{
-					(*it)->Post(CL_POST_PLAYERINFO, _players[i].second);
-				}
-				break;
-			}
-		}
+	// broadcast to other players
+	PlayerDescEx pde;
+	pde.pd = who->desc;
+	pde.idx = g_level->GetList(LIST_players).IndexOf(who->player);
+	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
+	{
+		(*it)->Post(CL_POST_PLAYERINFO, Variant(pde));
 	}
 }
 

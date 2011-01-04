@@ -74,12 +74,6 @@ void FpsCounter::OnTimeStep(float dt)
 #endif
 
 
-		if( g_server )
-		{
-			strcat(s, "\nsv - ");
-			strcat(s, g_server->GetStats().c_str());
-		}
-
 		// network statistics
 		if( g_client )
 		{

@@ -41,7 +41,6 @@ public:
 	int _latency;
 
 private:
-	unsigned short _clientId;
 	NetworkStats _stats;
 	ILevelController *_levelController;
 	bool _isLocal;
@@ -51,11 +50,9 @@ public:
 	~TankClient();
 
 	bool IsLocal() const { return true; } // TODO: FIXME
-	unsigned short GetId() const { return _clientId; }
 	float GetBoost() const { return _boost; }
 
 	void Connect(const string_t &hostaddr);
-	void ShutDown();
 
 	void SendPlayerReady(bool ready);
 	void SendAddBot(const BotDesc &bot);
@@ -70,7 +67,7 @@ public:
 
 	Delegate<void()> eventPlayersUpdate;
 	Delegate<void()> eventStartGame;
-	Delegate<void(unsigned short, bool)> eventPlayerReady;
+	Delegate<void(size_t, bool)> eventPlayerReady;
 	Delegate<void(const std::string&)> eventTextMessage;
 	Delegate<void(const std::string&)> eventErrorMessage;
 	Delegate<void()> eventConnected;
@@ -81,11 +78,11 @@ private:
 	void ClTextMessage(Peer *from, int task, const Variant &arg);
 	void ClErrorMessage(Peer *from, int task, const Variant &arg);
 	void ClGameInfo(Peer *from, int task, const Variant &arg);
-	void ClSetId(Peer *from, int task, const Variant &arg);
 	void ClPlayerQuit(Peer *from, int task, const Variant &arg);
 	void ClControl(Peer *from, int task, const Variant &arg);
 	void ClPlayerReady(Peer *from, int task, const Variant &arg);
 	void ClStartGame(Peer *from, int task, const Variant &arg);
+	void ClAddHuman(Peer *from, int task, const Variant &arg);
 	void ClAddBot(Peer *from, int task, const Variant &arg);
 	void ClSetPlayerInfo(Peer *from, int task, const Variant &arg);
 	void ClSetBoost(Peer *from, int task, const Variant &arg);

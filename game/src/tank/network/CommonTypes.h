@@ -49,7 +49,7 @@ VARIANT_DECLARE_TYPE(BotDesc);
 struct PlayerDescEx
 {
 	PlayerDesc pd;
-	unsigned short id;
+	unsigned short idx;
 };
 
 VARIANT_DECLARE_TYPE(PlayerDescEx);
@@ -58,7 +58,7 @@ VARIANT_DECLARE_TYPE(PlayerDescEx);
 
 struct PlayerReady
 {
-	unsigned short id;
+	unsigned short playerIdx;
 	bool ready;
 };
 

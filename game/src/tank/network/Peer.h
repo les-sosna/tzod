@@ -39,7 +39,13 @@ public:
 	void Reply(const Variant &result, int taskId);
 
 	typedef Delegate<void(Peer *from, int taskId, const Variant &arg)> HandlerProc;
-	void RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler);
+	template <class ArgType>
+	void RegisterHandler(int func, HandlerProc handler)
+	{
+		assert(0 == _handlers.count(func));
+		_handlers[func].argType = VariantTypeId<ArgType>();
+		_handlers[func].handler = handler;
+	}
 
 	void Pause();
 	void Resume();

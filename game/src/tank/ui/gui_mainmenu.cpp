@@ -207,7 +207,7 @@ void MainMenuDlg::OnHost()
 void MainMenuDlg::OnJoin()
 {
 	SetVisible(false);
-	ConnectDlg *dlg = new ConnectDlg(GetParent(), NULL);
+	ConnectDlg *dlg = new ConnectDlg(GetParent(), g_conf.cl_server.Get());
 	dlg->eventClose = std::tr1::bind(&MainMenuDlg::OnCloseChild, this, _1);
 }
 

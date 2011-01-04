@@ -410,6 +410,7 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 ///////////////////////////////////////////////////////////////////////////////
 
 GC_PlayerHuman::GC_PlayerHuman()
+	: _ready(false)
 {
 	ZeroMemory(&_ctrlState, sizeof(_ctrlState));
 }
@@ -427,6 +428,12 @@ GC_PlayerHuman::~GC_PlayerHuman()
 void GC_PlayerHuman::SetControllerState(const VehicleState &vs)
 {
 	_ctrlState = vs;
+}
+
+void GC_PlayerHuman::Serialize(SaveFile &f)
+{
+	GC_Player::Serialize(f);
+	f.Serialize(_ready);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -504,11 +511,6 @@ void GC_PlayerLocal::MapExchange(MapFile &f)
 		SetProfile(_profile);
 		_lastLightKeyState = false;
 	}
-}
-
-unsigned short GC_PlayerLocal::GetNetworkID() const
-{
-	return g_client->GetId();
 }
 
 void GC_PlayerLocal::TimeStepFixed(float dt)
@@ -790,25 +792,17 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerRemote)
 	return true;
 }
 
-GC_PlayerRemote::GC_PlayerRemote(unsigned short id)
+GC_PlayerRemote::GC_PlayerRemote()
 {
-	_networkId = id;
 }
 
 GC_PlayerRemote::GC_PlayerRemote(FromFile)
   : GC_PlayerHuman(FromFile())
-  , _networkId(-1)
 {
 }
 
 GC_PlayerRemote::~GC_PlayerRemote()
 {
-}
-
-void GC_PlayerRemote::Serialize(SaveFile &f)
-{
-	GC_PlayerHuman::Serialize(f);
-	f.Serialize(_networkId);
 }
 
 void GC_PlayerRemote::TimeStepFixed(float dt)

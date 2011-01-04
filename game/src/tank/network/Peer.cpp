@@ -64,13 +64,6 @@ void Peer::Post(int func, const Variant &arg)
 	}
 }
 
-void Peer::RegisterHandler(int func, Variant::TypeId argType, HandlerProc handler)
-{
-	assert(0 == _handlers.count(func));
-	_handlers[func].argType = argType;
-	_handlers[func].handler = handler;
-}
-
 void Peer::OnSocketEvent()
 {
 	assert(INVALID_SOCKET != _socket);

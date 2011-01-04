@@ -8,11 +8,15 @@
 
 #include "core/BitCounter.h"
 
+#include "gc/Object.h" // for ObjPtr
+
+class GC_PlayerHuman;
+
 
 class PeerServer : public Peer
 {
 public:
-	unsigned short      id;
+	ObjPtr<GC_PlayerHuman> player;
 	ControlPacket       ctrl;
 	PlayerDesc          desc;
 	int                 svlatency;
@@ -20,7 +24,6 @@ public:
 	BitCounter<128>     leading;
 	bool                descValid;
 	bool                ctrlValid;
-	bool                ready;
 
 	PeerServer(SOCKET s_);
 };
@@ -33,13 +36,8 @@ class TankServer
 {
 	GameInfo _gameInfo;
 
-	unsigned short _nextFreeId;
-
 	typedef std::list<SafePtr<PeerServer> >  PeerList;
 	PeerList _clients;
-
-	typedef std::pair<int, Variant> PostType;
-	std::vector<PostType> _players; // including bots
 
 	int _connectedCount;
 	int _frameReadyCount;     // how much clients have ctrl data in buffer
@@ -70,7 +68,7 @@ class TankServer
 
 public:
 	TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer);
-	~TankServer(void);
+	~TankServer();
 
 	std::string GetStats() const;
 };

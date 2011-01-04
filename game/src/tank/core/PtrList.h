@@ -299,7 +299,25 @@ public:
 		return _end.prev->ptr;
 	}
 
-	size_t size() const { return _size; } // FIXME
+	size_t size() const { return _size; }
+
+
+	size_t IndexOf(T *p)
+	{
+		size_t currentIdx = 0;
+		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
+			if( *it == p )
+				return currentIdx;
+		return -1;
+	}
+	T* GetByIndex(size_t index)
+	{
+		size_t currentIdx = 0;
+		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
+			if( currentIdx == index )
+				return *it;
+		return NULL;
+	}
 };
 
 template <class T>

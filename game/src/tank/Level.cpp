@@ -1538,71 +1538,79 @@ float Level::AbstractClient::GetBoost() const
 	return g_conf.cl_boost.GetFloat();
 }
 
-void Level::SetPlayerInfo(unsigned short id, const PlayerDesc &pd, bool isLocal)
+void Level::SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd)
 {
 	GC_Player *player = NULL;
 
 
 	//
-	// find existing player or create new one
+	// find existing player
 	//
 
-	FOREACH(g_level->GetList(LIST_players), GC_Player, p)
+	if( playerIndex < GetList(LIST_players).size() )
 	{
-		if( p->GetNetworkID() == id )
+		FOREACH(GetList(LIST_players), GC_Player, p)
 		{
-			player = p;
-			break;
-		}
-	}
-
-	if( !player )
-	{
-		if( isLocal )
-		{
-			player = new GC_PlayerLocal();
-			const string_t &profile = g_conf.cl_playerinfo.profile.Get();
-			if( profile.empty() )
+			if( 0 == playerIndex-- )
 			{
-				static_cast<GC_PlayerLocal *>(player)->SelectFreeProfile();
-			}
-			else
-			{
-				static_cast<GC_PlayerLocal *>(player)->SetProfile(profile);
-			}
-		}
-		else
-		{
-			player = new GC_PlayerRemote(id);
-		}
-	}
-
-	player->SetClass(pd.cls);
-	player->SetNick(pd.nick);
-	player->SetSkin(pd.skin);
-	player->SetTeam(pd.team);
-	player->UpdateSkin();
-}
-
-void Level::PlayerQuit(unsigned short id)
-{
-	ObjectList::iterator it = GetList(LIST_players).begin();
-	while( it != GetList(LIST_players).end() )
-	{
-		if( GC_PlayerRemote *p = dynamic_cast<GC_PlayerRemote*>(*it) )
-		{
-			if( p->GetNetworkID() == id )
-			{
-				if( g_gui )
-				{
-					static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
-				}
-				p->Kill();
+				player = p;
 				break;
 			}
 		}
-		++it;
+		assert(player);
 	}
+
+	if( player )
+	{
+		player->SetClass(pd.cls);
+		player->SetNick(pd.nick);
+		player->SetSkin(pd.skin);
+		player->SetTeam(pd.team);
+		player->UpdateSkin();
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void Level::PlayerQuit(size_t playerIndex)
+{
+	size_t index = 0;
+	FOREACH(GetList(LIST_players), GC_Player, p)
+	{
+		if( playerIndex == index++ )
+		{
+			if( g_gui )
+			{
+				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
+			}
+			p->Kill();
+			break;
+		}
+	}
+}
+
+void Level::AddHuman(const PlayerDesc &pd, bool isLocal)
+{
+	if( isLocal )
+	{
+		GC_PlayerLocal *player = new GC_PlayerLocal();
+		const string_t &profile = g_conf.cl_playerinfo.profile.Get();
+		if( profile.empty() )
+		{
+			player->SelectFreeProfile();
+		}
+		else
+		{
+			player->SetProfile(profile);
+		}
+	}
+	else
+	{
+		new GC_PlayerRemote();
+	}
+	SetPlayerInfo(GetList(LIST_players).size() - 1, pd);
 }
 
 void Level::AddBot(const BotDesc &bd)

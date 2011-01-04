@@ -31,7 +31,6 @@
 
 TankClient::TankClient(bool isLocal, ILevelController *levelController)
   : _frame(0)
-  , _clientId(0)
   , _boost(1)
   , _gameStarted(false)
   , _latency(1)
@@ -44,7 +43,11 @@ TankClient::TankClient(bool isLocal, ILevelController *levelController)
 
 TankClient::~TankClient(void)
 {
-	ShutDown();
+	if( _peer )
+	{
+		_peer->Close();
+		_peer = NULL;
+	}
 }
 
 void TankClient::Connect(const string_t &hostaddr)
@@ -105,17 +108,17 @@ void TankClient::Connect(const string_t &hostaddr)
 	_peer = new Peer(s);
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
 
-	_peer->RegisterHandler(CL_POST_TEXTMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankClient::ClTextMessage, this));
-	_peer->RegisterHandler(CL_POST_ERRORMESSAGE, VariantTypeId<std::string>(), CreateDelegate(&TankClient::ClErrorMessage, this));
-	_peer->RegisterHandler(CL_POST_GAMEINFO, VariantTypeId<GameInfo>(), CreateDelegate(&TankClient::ClGameInfo, this));
-	_peer->RegisterHandler(CL_POST_SETID, VariantTypeId<unsigned short>(), CreateDelegate(&TankClient::ClSetId, this));
-	_peer->RegisterHandler(CL_POST_PLAYERQUIT, VariantTypeId<unsigned short>(), CreateDelegate(&TankClient::ClPlayerQuit, this));
-	_peer->RegisterHandler(CL_POST_CONTROL, VariantTypeId<ControlPacketVector>(), CreateDelegate(&TankClient::ClControl, this));
-	_peer->RegisterHandler(CL_POST_PLAYER_READY, VariantTypeId<PlayerReady>(), CreateDelegate(&TankClient::ClPlayerReady, this));
-	_peer->RegisterHandler(CL_POST_STARTGAME, VariantTypeId<bool>(), CreateDelegate(&TankClient::ClStartGame, this));
-	_peer->RegisterHandler(CL_POST_ADDBOT, VariantTypeId<BotDesc>(), CreateDelegate(&TankClient::ClAddBot, this));
-	_peer->RegisterHandler(CL_POST_PLAYERINFO, VariantTypeId<PlayerDescEx>(), CreateDelegate(&TankClient::ClSetPlayerInfo, this));
-	_peer->RegisterHandler(CL_POST_SETBOOST, VariantTypeId<float>(), CreateDelegate(&TankClient::ClSetBoost, this));
+	_peer->RegisterHandler<std::string>(CL_POST_TEXTMESSAGE, CreateDelegate(&TankClient::ClTextMessage, this));
+	_peer->RegisterHandler<std::string>(CL_POST_ERRORMESSAGE, CreateDelegate(&TankClient::ClErrorMessage, this));
+	_peer->RegisterHandler<GameInfo>(CL_POST_GAMEINFO, CreateDelegate(&TankClient::ClGameInfo, this));
+	_peer->RegisterHandler<unsigned short>(CL_POST_PLAYERQUIT, CreateDelegate(&TankClient::ClPlayerQuit, this));
+	_peer->RegisterHandler<ControlPacketVector>(CL_POST_CONTROL, CreateDelegate(&TankClient::ClControl, this));
+	_peer->RegisterHandler<PlayerReady>(CL_POST_PLAYER_READY, CreateDelegate(&TankClient::ClPlayerReady, this));
+	_peer->RegisterHandler<bool>(CL_POST_STARTGAME, CreateDelegate(&TankClient::ClStartGame, this));
+	_peer->RegisterHandler<PlayerDesc>(CL_POST_ADDHUMAN, CreateDelegate(&TankClient::ClAddHuman, this));
+	_peer->RegisterHandler<BotDesc>(CL_POST_ADDBOT, CreateDelegate(&TankClient::ClAddBot, this));
+	_peer->RegisterHandler<PlayerDescEx>(CL_POST_PLAYERINFO, CreateDelegate(&TankClient::ClSetPlayerInfo, this));
+	_peer->RegisterHandler<float>(CL_POST_SETBOOST, CreateDelegate(&TankClient::ClSetBoost, this));
 
 	if( int err = _peer->Connect(&addr) )
 	{
@@ -134,15 +137,6 @@ void TankClient::OnDisconnect(Peer *peer, int err)
 	else
 	{
 		ClTextMessage(peer, -1, arg);
-	}
-}
-
-void TankClient::ShutDown()
-{
-	if( _peer )
-	{
-		_peer->Close();
-		_peer = NULL;
 	}
 }
 
@@ -262,18 +256,12 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	}
 }
 
-void TankClient::ClSetId(Peer *from, int task, const Variant &arg)
-{
-	assert(!_gameStarted);
-	_clientId = arg.Value<unsigned short>();
-}
-
 void TankClient::ClPlayerReady(Peer *from, int task, const Variant &arg)
 {
 	assert(!_gameStarted);
 	if( eventPlayerReady )
 	{
-		INVOKE(eventPlayerReady) (arg.Value<PlayerReady>().id, arg.Value<PlayerReady>().ready);
+		INVOKE(eventPlayerReady) (arg.Value<PlayerReady>().playerIdx, arg.Value<PlayerReady>().ready);
 	}
 }
 
@@ -293,7 +281,7 @@ void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 	assert(!_gameStarted);
 
 	const PlayerDescEx &pde = arg.Value<PlayerDescEx>();
-	_levelController->SetPlayerInfo(pde.id, pde.pd, GetId() == pde.id);
+	_levelController->SetPlayerInfo(pde.idx, pde.pd);
 
 	if( eventPlayersUpdate )
 	{
@@ -327,8 +315,8 @@ void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 {
-	unsigned short id = arg.Value<unsigned short>();
-	_levelController->PlayerQuit(id);
+	unsigned short idx = arg.Value<unsigned short>();
+	_levelController->PlayerQuit(idx);
 
 	if( eventPlayersUpdate )
 	{
@@ -336,15 +324,18 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 	}
 }
 
+void TankClient::ClAddHuman(Peer *from, int task, const Variant &arg)
+{
+	_levelController->AddHuman(arg.Value<PlayerDesc>(), false);
+	if( eventPlayersUpdate )
+		INVOKE(eventPlayersUpdate) ();
+}
+
 void TankClient::ClAddBot(Peer *from, int task, const Variant &arg)
 {
-	const BotDesc &bd = arg.Value<BotDesc>();
-	_levelController->AddBot(bd);
-
+	_levelController->AddBot(arg.Value<BotDesc>());
 	if( eventPlayersUpdate )
-	{
 		INVOKE(eventPlayersUpdate) ();
-	}
 }
 
 void TankClient::ClControl(Peer *from, int task, const Variant &arg)

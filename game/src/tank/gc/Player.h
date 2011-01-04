@@ -85,8 +85,6 @@ public:
 
 	void UpdateSkin();
 
-	virtual unsigned short GetNetworkID() const = 0;
-
 	virtual void TimeStepFixed(float dt);
 
 private:
@@ -100,11 +98,18 @@ class GC_PlayerHuman : public GC_Player
 {
 protected:
 	VehicleState _ctrlState;
+	bool _ready;
 public:
 	GC_PlayerHuman();
 	GC_PlayerHuman(FromFile);
 	virtual ~GC_PlayerHuman() = 0;
+
 	void SetControllerState(const VehicleState &vs);
+
+	bool GetReady() const { return _ready; }
+	void SetReady(bool ready) { _ready = ready; }
+
+	virtual void Serialize(SaveFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -167,8 +172,6 @@ public:
 	void SelectFreeProfile();
 	void ReadControllerStateAndStepPredicted(VehicleState &vs, float dt);
 
-	virtual unsigned short GetNetworkID() const;
-
 	virtual void TimeStepFixed(float dt);
 	virtual void Serialize(SaveFile &f);
 	virtual void MapExchange(MapFile &f);
@@ -182,17 +185,13 @@ public:
 class GC_PlayerRemote : public GC_PlayerHuman
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerRemote);
-	unsigned short _networkId;
 
 public:
-	GC_PlayerRemote(unsigned short id);
+	GC_PlayerRemote();
 	GC_PlayerRemote(FromFile);
 	virtual ~GC_PlayerRemote();
 
-	virtual unsigned short GetNetworkID() const { return _networkId; }
-
 	virtual void TimeStepFixed(float dt);
-	virtual void Serialize(SaveFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

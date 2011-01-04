@@ -51,10 +51,9 @@ class ConnectDlg : public Dialog
 	DefaultListBox *_status;
 	Button *_btnOK;
 	Edit   *_name;
-	bool    _auto;
 
 public:
-	ConnectDlg(Window *parent, const char *autoConnect);
+	ConnectDlg(Window *parent, const string_t &defaultName);
 	virtual ~ConnectDlg();
 
 protected:
@@ -129,7 +128,7 @@ protected:
 	// client event handlers
 	void OnError(const std::string &msg);
 	void OnMessage(const std::string &msg);
-	void OnPlayerReady(unsigned short id, bool ready);
+	void OnPlayerReady(size_t idx, bool ready);
 	void OnPlayersUpdate();
 	void OnStartGame();
 };
