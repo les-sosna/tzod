@@ -11,7 +11,7 @@
 
 bool PauseGame(bool pause)
 {
-	if( g_level )
+	if( g_level.get() )
 	{
 		bool pausedBefore = g_level->IsGamePaused();
 		g_env.pause = pause ? g_env.pause + 1 : g_env.pause - 1;

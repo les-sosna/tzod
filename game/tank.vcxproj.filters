@@ -371,6 +371,15 @@
     <ClInclude Include="src\tank\LevelInterfaces.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="src\tank\SinglePlayer.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\ClientBase.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank\BackgroundIntro.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\tank\DefaultCamera.cpp">
@@ -636,6 +645,15 @@
     </ClCompile>
     <ClCompile Include="src\tank\gc\TypeSystem.cpp">
       <Filter>gc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\SinglePlayer.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\ClientBase.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\BackgroundIntro.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,7 +20,7 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
   , _curSel(-1)
 {
 	_text = TextButton::Create(this, 0, 1, string_t(), "font_small");
-	_text->eventClick.bind(&ComboBox::DropList, this);
+	_text->eventClick = std::bind(&ComboBox::DropList, this);
 
 	_list = List::Create(this, dataSource, 0, 0, 1, 1);
 	_list->SetTexture("ui/combo_list", false);
@@ -31,7 +31,7 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
 	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
 
 	_btn = ImageButton::Create(this, 0, 0, "ui/scroll_down");
-	_btn->eventClick.bind(&ComboBox::DropList, this);
+	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 
 	_text->BringToFront();
 	_text->SetDrawShadow(false);

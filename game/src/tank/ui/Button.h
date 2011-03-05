@@ -24,10 +24,10 @@ public:
 	ButtonBase(Window *parent);
 	virtual ~ButtonBase() = 0 {}
 
-	Delegate<void(void)> eventClick;
-	Delegate<void(float, float)> eventMouseDown;
-	Delegate<void(float, float)> eventMouseUp;
-	Delegate<void(float, float)> eventMouseMove;
+	std::function<void(void)> eventClick;
+	std::function<void(float, float)> eventMouseDown;
+	std::function<void(float, float)> eventMouseUp;
+	std::function<void(float, float)> eventMouseMove;
 
 	State GetState() const { return _state; }
 

@@ -23,12 +23,12 @@ ScrollBarBase::ScrollBarBase(Window *parent)
 	_btnUpLeft     = ImageButton::Create(this, 0, 0, NULL);
 	_btnDownRight  = ImageButton::Create(this, 0, 0, NULL);
 
-	_btnUpLeft->eventClick.bind(&ScrollBarBase::OnUpLeft, this);
-	_btnDownRight->eventClick.bind(&ScrollBarBase::OnDownRight, this);
+	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
+	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);
 
-	_btnBox->eventMouseUp.bind(&ScrollBarBase::OnBoxMouseUp, this);
-	_btnBox->eventMouseDown.bind(&ScrollBarBase::OnBoxMouseDown, this);
-	_btnBox->eventMouseMove.bind(&ScrollBarBase::OnBoxMouseMove, this);
+	_btnBox->eventMouseUp = std::bind(&ScrollBarBase::OnBoxMouseUp, this, _1, _2);
+	_btnBox->eventMouseDown = std::bind(&ScrollBarBase::OnBoxMouseDown, this, _1, _2);
+	_btnBox->eventMouseMove = std::bind(&ScrollBarBase::OnBoxMouseMove, this, _1, _2);
 	_btnBox->SetDrawBorder(true);
 
 	SetDrawBorder(true);

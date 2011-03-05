@@ -50,12 +50,12 @@ SettingsDlg::SettingsDlg(Window *parent)
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
-	Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick.bind(&SettingsDlg::OnAddProfile, this);
+	Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	_editProfile = Button::Create(this, g_lang.settings_profile_edit.Get(), 40, 216);
-	_editProfile->eventClick.bind(&SettingsDlg::OnEditProfile, this);
+	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled( false );
 	_deleteProfile = Button::Create(this, g_lang.settings_profile_delete.Get(), 40, 248);
-	_deleteProfile->eventClick.bind(&SettingsDlg::OnDeleteProfile, this);
+	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled( false );
 
 
@@ -111,8 +111,8 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// OK & Cancel
 	//
 
-	Button::Create(this, g_lang.common_ok.Get(), 304, 256)->eventClick.bind(&SettingsDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 408, 256)->eventClick.bind(&SettingsDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 304, 256)->eventClick = std::bind(&SettingsDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 
 
 	_profiles->SetCurSel(0, true);
@@ -273,8 +273,8 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_arcadeStyleChkBox = CheckBox::Create(this, 276, 345, g_lang.profile_arcade_style.Get());
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 
-	Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick.bind(&ControlProfileDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick.bind(&ControlProfileDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_actions);
 }
@@ -398,7 +398,6 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
   : Dialog(parent, 512, 512)
 {
 	SetEasyMove(true);
-	assert(g_level);
 
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.map_title.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -444,8 +443,8 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	//
 	// OK & Cancel
 	//
-	Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick.bind(&MapSettingsDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick.bind(&MapSettingsDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()

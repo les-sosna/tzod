@@ -13,7 +13,6 @@
 #include "DefaultCamera.h"
 
 #include "core/debug.h"
-#include "core/Profiler.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -42,14 +41,6 @@
 //#ifdef _DEBUG
 #include "gc/ai.h"
 //#endif
-
-static CounterBase counterSteps("Steps", "Steps");
-static CounterBase counterDrops("Drops", "Frame drops");
-static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
-static CounterBase counterDt("dt", "dt, ms");
-static CounterBase counterBytesPending("BytesPending", "bytes pending");
-static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
-static CounterBase counterBytesSent("BytesSent", "Bytes sent");
 
 ////////////////////////////////////////////////////////////
 
@@ -259,13 +250,10 @@ EditorModeListenerHelper::~EditorModeListenerHelper()
 // don't create game objects in the constructor
 Level::Level()
   : _modeEditor(false)
-  , _steps(0)
   , _time(0)
-  , _timeBuffer(0)
   , _limitHit(false)
   , _frozen(false)
   , _safeMode(true)
-  , _ctrlSentCount(0)
   , _locationsX(0)
   , _locationsY(0)
   , _sx(0)
@@ -350,9 +338,7 @@ void Level::Clear()
 	_infoOnInit.clear();
 
 	// reset variables
-	_ctrlSentCount = 0;
 	_time = 0;
-	_timeBuffer = 0;
 	_limitHit = false;
 	_frozen = false;
 	_gameType = -1;
@@ -365,8 +351,6 @@ void Level::Clear()
 		_dump = NULL;
 	}
 #endif
-
-	_abstractClient.Reset();
 }
 
 void Level::HitLimit()
@@ -1031,11 +1015,7 @@ void Level::DrawBackground(size_t tex) const
 
 void Level::Step(const ControlPacketVector &ctrl, float dt)
 {
-	++_steps;
-
-	_time          += dt;
-	_ctrlSentCount -= 1;
-	_timeBuffer    -= dt;
+	_time += dt;
 
 	if( !_frozen )
 	{
@@ -1067,177 +1047,45 @@ void Level::Step(const ControlPacketVector &ctrl, float dt)
 
 	RunCmdQueue(dt);
 
-
-	//
-	// detect sync lost error
-	//
-
-#ifdef NETWORK_DEBUG
-	if( g_client )
-	{
-		if( !_dump )
-		{
-			char fn[MAX_PATH];
-			sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
-			_dump = fopen(fn, "w");
-			assert(_dump);
-		}
-		++_frame;
-		fprintf(_dump, "\n### frame %04d ###\n", _frame);
-
-		DWORD dwCheckSum = 0;
-		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
-		{
-			if( DWORD cs = (*it)->checksum() )
-			{
-				dwCheckSum = dwCheckSum ^ cs ^ 0xD202EF8D;
-				dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
-				fprintf(_dump, "0x%08x -> local 0x%08x, global 0x%08x  (%s)\n", (*it), cs, dwCheckSum, typeid(**it).name());
-			}
-		}
-		_checksum = dwCheckSum;
-		fflush(_dump);
-	}
-#endif
-}
-
-void Level::Simulate(float dt)
-{
-	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
-	{
-		pSound->KillWhenFinished();
-	}
-
-	if( IsGamePaused() )
-	{
-		return;
-	}
-
-
-	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
-	assert(dt >= 0);
-	assert(!GetEditorMode());
-
-
-	//
-	// apply dt filter
-	//
-
-	if( g_conf.cl_dtwindow.GetInt() > 1 )
-	{
-		_dt.push_back(dt);
-		while( (signed) _dt.size() > g_conf.cl_dtwindow.GetInt() )
-		{
-			_dt.pop_front();
-		}
-
-		dt = 0;
-		for( std::deque<float>::const_iterator it = _dt.begin(); it != _dt.end(); ++it )
-		{
-			dt += (*it);
-		}
-		dt /= (float) _dt.size();
-	}
-
-	float dt_fixed = g_client ? 1.0f / g_conf.sv_fps.GetFloat() : dt;
-
-	int ctrlSent = 0;
-	while( !_frozen && _ctrlSentCount <= g_conf.cl_latency.GetInt() )
-	{
-		//
-		// read controller state for local players
-		//
-		std::vector<VehicleState> ctrl;
-		FOREACH( GetList(LIST_players), GC_Player, p )
-		{
-			if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
-			{
-				VehicleState vs;
-				pl->ReadControllerStateAndStepPredicted(vs, dt_fixed);
-				ctrl.push_back(vs);
-			}
-		}
-
-
-		//
-		// send ctrl
-		//
-		_abstractClient.Send(ctrl
-#ifdef NETWORK_DEBUG
-			, _checksum, _frame
-#endif
-		);
-		++_ctrlSentCount;
-		++ctrlSent;
-	}
-
-
-	_timeBuffer += dt * _abstractClient.GetBoost();//g_conf.cl_boost.GetFloat();
-	float bufmax = (g_conf.cl_latency.GetFloat()*0+1 + 1) / g_conf.sv_fps.GetFloat();
-	counterDrops.Push(_timeBuffer - bufmax);
-
-	if( _timeBuffer > bufmax )
-	{
-		_timeBuffer = bufmax;//0;
-	}
-
-	counterTimeBuffer.Push(_timeBuffer);
-	counterDt.Push(dt);
-
-	NetworkStats stats = {0};
-	if( g_client ) g_client->GetStatistics(&stats);
-	counterBytesPending.Push((float) stats.bytesPending);
-
-	static int filter = 0;
-
-	assert(_ctrlSentCount > 0);
-	if( _timeBuffer + dt_fixed / 2 > 0 )
-	{
-		do
-		{
-			ControlPacketVector cpv;
-			if( _abstractClient.Recv(cpv) )
-			{
-				Step(cpv, dt_fixed);
-			}
-			else
-			{
-				++filter;
-				if( filter > 100 )
-				{
-				//	g_conf.cl_latency.SetInt(std::min(g_conf.cl_latency.GetInt() + 1, g_conf.sv_fps.GetInt()));
-					filter = 0;
-				}
-				break;
-			}
-		} while( _timeBuffer > 0 && _ctrlSentCount > 0 );
-	}
-
-	if( g_client ) g_client->GetStatistics(&stats);
-	if( stats.bytesPending && _timeBuffer <= 0 )
-	{
-		++filter;
-		if( filter > 100 )
-		{
-		//	g_conf.cl_latency.SetInt(std::max(0, g_conf.cl_latency.GetInt() - 1));
-			filter = 0;
-		}
-	}
-
-
 	if( g_conf.sv_timelimit.GetInt() && g_conf.sv_timelimit.GetInt() * 60 <= _time )
 	{
 		HitLimit();
 	}
 
-	counterSteps.Push((float) _steps);
-	counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
-	_steps = 0;
-
-	if( g_client )
+	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
 	{
-		counterBytesSent.Push((float) g_client->_peer->GetSentRecent());
+		pSound->KillWhenFinished();
 	}
+
+
+	//
+	// sync lost error detection
+	//
+
+#ifdef NETWORK_DEBUG
+	if( !_dump )
+	{
+		char fn[MAX_PATH];
+		sprintf_s(fn, "network_dump_%u_%u.txt", GetTickCount(), GetCurrentProcessId());
+		_dump = fopen(fn, "w");
+		assert(_dump);
+	}
+	++_frame;
+	fprintf(_dump, "\n### frame %04d ###\n", _frame);
+
+	DWORD dwCheckSum = 0;
+	for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
+	{
+		if( DWORD cs = (*it)->checksum() )
+		{
+			dwCheckSum = dwCheckSum ^ cs ^ 0xD202EF8D;
+			dwCheckSum = (dwCheckSum >> 1) | ((dwCheckSum & 0x00000001) << 31);
+			fprintf(_dump, "0x%08x -> local 0x%08x, global 0x%08x  (%s)\n", (*it), cs, dwCheckSum, typeid(**it).name());
+		}
+	}
+	_checksum = dwCheckSum;
+	fflush(_dump);
+#endif
 }
 
 void Level::RunCmdQueue(float dt)
@@ -1456,10 +1304,9 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 
 bool Level::IsGamePaused() const
 { 
-	return g_env.pause > 0 /*&& !g_client*/ && _gameType != GT_INTRO 
+	return g_env.pause > 0 && _gameType != GT_INTRO 
 		|| _limitHit 
-		|| _modeEditor
-		|| g_client && !g_client->_gameStarted;
+		|| _modeEditor;
 }
 
 GC_Object* Level::FindObject(const string_t &name) const
@@ -1485,58 +1332,6 @@ void Level::OnChangeNightMode()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void Level::AbstractClient::Send(std::vector<VehicleState> &ctrl
-#ifdef NETWORK_DEBUG
-		  , DWORD cs, int frame
-#endif
-		  )
-{
-	if( g_client )
-	{
-		assert(1 == ctrl.size());
-		ControlPacket cp;
-		cp.fromvs(ctrl[0]);
-#ifdef NETWORK_DEBUG
-		cp.checksum = cs;
-		cp.frame = frame;
-#endif
-		g_client->SendControl(cp);
-	}
-	else
-	{
-		_cpv.push_back(ControlPacketVector());
-		_cpv.back().resize(ctrl.size());
-		for( size_t i = 0; i < ctrl.size(); ++i )
-		{
-			_cpv.back()[i].fromvs(ctrl[i]);
-		}
-	}
-}
-
-bool Level::AbstractClient::Recv(ControlPacketVector &result)
-{
-	if( g_client )
-	{
-		return g_client->RecvControl(result);
-	}
-	if( !_cpv.empty() )
-	{
-		result.swap(_cpv.front());
-		_cpv.pop_front();
-		return true;
-	}
-	return false;
-}
-
-float Level::AbstractClient::GetBoost() const
-{
-	if( g_client )
-	{
-		return g_client->GetBoost();
-	}
-	return g_conf.cl_boost.GetFloat();
-}
 
 void Level::SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd)
 {

@@ -29,16 +29,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankClient::TankClient(bool isLocal, ILevelController *levelController)
-  : _frame(0)
-  , _boost(1)
+TankClient::TankClient(ILevelController *levelController)
+  : _boost(1)
   , _gameStarted(false)
   , _latency(1)
   , _hasCtrl(false)
   , _levelController(levelController)
-  , _isLocal(isLocal)
 {
-	ZeroMemory(&_stats, sizeof(NetworkStats));
+//	ZeroMemory(&_stats, sizeof(NetworkStats));
 }
 
 TankClient::~TankClient(void)
@@ -147,30 +145,11 @@ void TankClient::SendTextMessage(const std::string &msg)
 
 void TankClient::SendControl(const ControlPacket &cp)
 {
-	assert(_gameStarted);
-
-	//if( g_conf.sv_latency.GetInt() < _latency && _latency > 1 )
-	//{
-	//	--_latency;
-	//	TRACE("cl: packet skipped");
-	//	return;     // skip packet
-	//}
-
 	_peer->Post(SV_POST_CONTROL, Variant(cp));
-	_frame++;
-
-
-	//if( g_conf.sv_latency.GetInt() > _latency )
-	//{
-	//	++_latency;
-	//	SendControl(cp); // duplicate packet
-	//	TRACE("cl: packet duplicated");
-	//}
 }
 
 void TankClient::SendPlayerReady(bool ready)
 {
-	assert(!_gameStarted);
 	_peer->Post(SV_POST_PLAYERREADY, Variant(ready));
 }
 
@@ -183,7 +162,7 @@ void TankClient::SendPlayerInfo(const PlayerDesc &pd)
 {
 	_peer->Post(SV_POST_PLAYERINFO, Variant(pd));
 }
-
+/*
 void TankClient::GetStatistics(NetworkStats *pStats)
 {
 	pStats->bytesSent = _peer->GetTrafficOut();
@@ -195,7 +174,7 @@ void TankClient::GetStatistics(NetworkStats *pStats)
 	}
 
 //	memcpy(pStats, &_stats, sizeof(NetworkStats));
-}
+}*/
 
 void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 {

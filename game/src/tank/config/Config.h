@@ -62,7 +62,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	// server settings
 	VAR_STR(    sv_name,   "ZOD server" )
 	VAR_INT(    sv_port,           1945 )
-	VAR_FLOAT(  sv_fps,              30 )
+	VAR_FLOAT(  sv_fps,              60 )
 	VAR_FLOAT(  sv_latency,           0 )
 	VAR_FLOAT(  sv_sensitivity,       1 )
 	VAR_FLOAT(  sv_speed,           100 )  HELPSTRING("percent")
@@ -80,7 +80,6 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_BOOL(   cl_nightmode,     false )
 	VAR_STR(    cl_server,  "localhost" )
 	VAR_FLOAT(  cl_latency,           0 )
-	VAR_FLOAT(  cl_boost,             1 )
 	VAR_FLOAT(  cl_dtwindow,          2 )
 	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 

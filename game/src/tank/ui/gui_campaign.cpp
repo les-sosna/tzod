@@ -45,8 +45,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	}
 	_files->GetData()->Sort();
 
-	Button::Create(this, g_lang.campaign_ok.Get(), 290, 360)->eventClick.bind(&NewCampaignDlg::OnOK, this);
-	Button::Create(this, g_lang.campaign_cancel.Get(), 400, 360)->eventClick.bind(&NewCampaignDlg::OnCancel, this);
+	Button::Create(this, g_lang.campaign_ok.Get(), 290, 360)->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
+	Button::Create(this, g_lang.campaign_cancel.Get(), 400, 360)->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()

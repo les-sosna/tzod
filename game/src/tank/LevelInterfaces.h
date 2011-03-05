@@ -11,6 +11,9 @@ namespace FS
 
 struct ILevelController
 {
+	virtual DWORD GetChecksum() const = 0;
+	virtual DWORD GetFrame() const = 0;
+
 	virtual void Clear() = 0;
 	virtual void SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd) = 0;
 	virtual void PlayerQuit(size_t playerIndex) = 0;
@@ -20,5 +23,10 @@ struct ILevelController
 };
 
 
+//class ClientBase;
+//struct IClientFactory
+//{
+//	ClientBase* CreateClient
+//};
 
 // end of file

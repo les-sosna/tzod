@@ -34,8 +34,6 @@ void ScoreTable::OnParentSize(float width, float height)
 
 void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	assert(g_level);
-
 	std::vector<GC_Player*> players;
 	FOREACH( g_level->GetList(LIST_players), GC_Player, player )
 	{

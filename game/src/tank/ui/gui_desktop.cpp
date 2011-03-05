@@ -179,7 +179,7 @@ void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 void Desktop::OnEditorModeChanged(bool editorMode)
 {
-	assert(!editorMode || g_level);
+	assert(!editorMode);
 	_editor->SetVisible(editorMode);
 	if( editorMode && !_con->GetVisible() )
 	{
@@ -238,7 +238,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case VK_F2:
-		dlg = new NewGameDlg(this, g_level);
+		dlg = new NewGameDlg(this, g_level.get());
 		SetDrawBackground(true);
 		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
 		break;
@@ -310,7 +310,7 @@ void Desktop::OnCommand(const string_t &cmd)
 		}
 		else
 		{
-			g_client->SendTextMessage(cmd);
+			dynamic_cast<TankClient*>(g_client)->SendTextMessage(cmd);
 			return;
 		}
 	}

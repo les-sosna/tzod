@@ -39,7 +39,7 @@ bool ButtonBase::OnMouseMove(float x, float y)
 		SetState(stateHottrack);
 	}
 	if( eventMouseMove )
-		INVOKE(eventMouseMove) (x, y);
+		eventMouseMove(x, y);
 	return true;
 }
 
@@ -50,7 +50,7 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 		GetManager()->SetCapture(this);
 		SetState(statePushed);
 		if( eventMouseDown )
-			INVOKE(eventMouseDown) (x, y);
+			eventMouseDown(x, y);
 		return true;
 	}
 	return false;
@@ -64,12 +64,12 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 		bool click = (GetState() == statePushed);
 		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
-			INVOKE(eventMouseUp) (x, y); // handler may destroy this object
+			eventMouseUp(x, y);          // handler may destroy this object
 		if( click && wwp.Get() )
 		{
 			OnClick();                   // handler may destroy this object
 			if( eventClick && wwp.Get() )
-				INVOKE(eventClick) ();   // handler may destroy this object
+				eventClick();            // handler may destroy this object
 		}
 		if( wwp.Get() && GetEnabled() )  // handler may disable this button
 			SetState(stateHottrack);

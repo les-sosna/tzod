@@ -7,6 +7,7 @@
 #include "Level.h"
 #include "directx.h"
 #include "InputManager.h"
+#include "BackgroundIntro.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -16,23 +17,32 @@
 #include "core/debug.h"
 #include "core/Application.h"
 #include "core/Timer.h"
+#include "core/Profiler.h"
 
 #include "video/TextureManager.h"
 #include "video/RenderOpenGL.h"
 #include "video/RenderDirect3D.h"
 
 #include "network/Variant.h"
+#include "network/TankClient.h"
 
 #include "ui/Interface.h"
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 
 #include "gc/Sound.h"
+#include "gc/Player.h"
 
 #include "fs/FileSystem.h"
 
 #include "res/resource.h"
 
+///////////////////////////////////////////////////////////////////////////////
+
+static CounterBase counterDrops("Drops", "Frame drops");
+static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
+static CounterBase counterDt("dt", "dt, ms");
+static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +57,11 @@ public:
 	virtual void Post();
 
 private:
-	Timer timer;
+	std::deque<float> _dt;
+	Timer _timer;
+	float _timeBuffer;
+	int  _ctrlSentCount;
+
 	std::auto_ptr<InputManager> _inputMgr;
 };
 
@@ -95,19 +109,9 @@ static void OnPrintScreen()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void TimeStep(float dt)
-{
-	assert(g_level);
-	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
-	g_level->Simulate(dt);
-	if( g_gui ) g_gui->TimeStep(dt);
-}
-
 static void RenderFrame(bool thumbnail)
 {
-	assert(g_level);
 	assert(g_render);
-
 	g_render->Begin();
 
 	if( g_gui )
@@ -244,6 +248,8 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 
 ///////////////////////////////////////////////////////////////////////////////
 ZodApp::ZodApp()
+	: _timeBuffer(0)
+	, _ctrlSentCount(0)
 {
 	assert(!g_app);
 	g_app = this;
@@ -385,7 +391,7 @@ bool ZodApp::Pre()
 	UpdateWindow(g_env.hMainWnd);
 
 
-	timer.SetMaxDt(MAX_DT);
+	_timer.SetMaxDt(MAX_DT);
 
 	// init render
 	assert(g_render);
@@ -411,7 +417,7 @@ bool ZodApp::Pre()
 	catch( const std::exception &e )
 	{
 		std::ostringstream ss;
-		ss << "DirectSound init: " << e.what();
+		ss << "DirectSound init failed: " << e.what();
 		MessageBox(g_env.hMainWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR|MB_OK);
 		return false;
 	}
@@ -449,7 +455,7 @@ bool ZodApp::Pre()
 	}
 
 	// init world
-	g_level = new Level();
+	g_level.reset(new Level());
 
 
 	//
@@ -482,7 +488,13 @@ bool ZodApp::Pre()
 
 	g_level->_gameType = GT_INTRO;
 
-	timer.Start();
+
+	// init client. TODO: move to startup script
+	assert(!g_client);
+	g_client = new IntroClient();
+
+
+	_timer.Start();
 
 	return true;
 }
@@ -491,7 +503,114 @@ void ZodApp::Idle()
 {
 	_inputMgr->InquireInputDevices();
 
-	TimeStep(timer.GetDt());
+	// estimate current frame time
+	float dt = _timer.GetDt();
+	if( g_conf.cl_dtwindow.GetInt() > 1 )
+	{
+		// apply dt filter
+		_dt.push_back(dt);
+		while( (signed) _dt.size() > g_conf.cl_dtwindow.GetInt() )
+			_dt.pop_front();
+		dt = 0;
+		for( std::deque<float>::const_iterator it = _dt.begin(); it != _dt.end(); ++it )
+			dt += (*it);
+		dt /= (float) _dt.size();
+	}
+	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
+
+
+
+
+	if( !g_level->IsGamePaused() )
+	{
+		assert(dt >= 0);
+
+		float dt_fixed = 1.0f / g_conf.sv_fps.GetFloat();
+
+		int ctrlSent = 0;
+		while( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
+		{
+			//
+			// read controller state for local players
+			//
+			std::vector<VehicleState> ctrl;
+			FOREACH( g_level->GetList(LIST_players), GC_Player, p )
+			{
+				if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
+				{
+					VehicleState vs;
+					pl->ReadControllerStateAndStepPredicted(vs, dt_fixed);
+					ctrl.push_back(vs);
+				}
+			}
+
+
+			//
+			// send ctrl
+			//
+
+			ControlPacket cp;
+			if( ctrl.size() > 0 )
+				cp.fromvs(ctrl[0]);
+	#ifdef NETWORK_DEBUG
+			cp.checksum = g_level->GetChecksum();
+			cp.frame = g_level->GetFrame();
+	#endif
+			g_client->SendControl(cp);
+
+			++_ctrlSentCount;
+			++ctrlSent;
+		}
+
+
+
+		_timeBuffer += dt;
+		float bufmax = (g_conf.cl_latency.GetFloat()*0+1 + 1) / g_conf.sv_fps.GetFloat();
+		counterDrops.Push(_timeBuffer - bufmax);
+
+		if( _timeBuffer > bufmax )
+		{
+			_timeBuffer = bufmax;//0;
+		}
+
+		counterTimeBuffer.Push(_timeBuffer);
+		counterDt.Push(dt);
+
+		assert(_ctrlSentCount > 0);
+		if( _timeBuffer + dt_fixed / 2 > 0 )
+		{
+			do
+			{
+				ControlPacketVector cpv;
+				if( g_client->RecvControl(cpv) )
+				{
+					g_level->Step(cpv, dt_fixed);
+					_timeBuffer -= dt_fixed;
+					_ctrlSentCount -= 1;
+
+				}
+				else
+				{
+					break;
+				}
+			} while( _timeBuffer > 0 && _ctrlSentCount > 0 );
+		}
+
+
+		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
+	}
+
+
+
+
+
+
+	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
+
+	if( g_gui )
+		g_gui->TimeStep(dt);
+
+
 	RenderFrame(false);
 
 	if( g_music )
@@ -507,7 +626,8 @@ void ZodApp::Idle()
 
 void ZodApp::Post()
 {
-	if( g_level ) g_level->Clear();
+//	if( g_level.get() )
+		g_level->Clear();
 
 
 	TRACE("Shutting down GUI subsystem");
@@ -521,8 +641,7 @@ void ZodApp::Post()
 		g_env.L = NULL;
 	}
 
-	// destroy level
-	SAFE_DELETE(g_level);
+	g_level.reset();
 
 	if( g_texman ) g_texman->UnloadAllTextures();
 	SAFE_DELETE(g_texman);

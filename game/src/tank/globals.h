@@ -11,8 +11,7 @@ class CSound;
 class MusicPlayer;
 class Level;
 class ConsoleBuffer;
-class TankServer;
-class TankClient;
+class ClientBase;
 class AppBase;
 
 namespace UI
@@ -38,10 +37,10 @@ extern IRender         *g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
 extern UI::LayoutManager  *g_gui;
-extern Level           *g_level;
-extern TankClient      *g_client;
 extern AppBase         *g_app;
+extern ClientBase      *g_client;
 
+extern std::auto_ptr<Level>     g_level;
 extern SafePtr<MusicPlayer>     g_music;
 extern SafePtr<FS::FileSystem>  g_fs;
 

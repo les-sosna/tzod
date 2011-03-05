@@ -46,8 +46,8 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_fileName = Edit::Create(this, 20, 385, 472);
 	_fileName->eventChange.bind(&GetFileNameDlg::OnChangeName, this);
 
-	Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick.bind(&GetFileNameDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick.bind(&GetFileNameDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_fileName);
 }

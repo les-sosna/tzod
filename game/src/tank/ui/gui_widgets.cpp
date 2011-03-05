@@ -75,13 +75,13 @@ void FpsCounter::OnTimeStep(float dt)
 
 
 		// network statistics
-		if( g_client )
+/*		if( g_client )
 		{
-			NetworkStats ns;
-			g_client->GetStatistics(&ns);
-			sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f", 
-				ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, g_level->_timeBuffer);
-			strcat(s, s1);
+		//	NetworkStats ns;
+		//	g_client->GetStatistics(&ns);
+		//	sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f", 
+		//		ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, g_level->_timeBuffer);
+		//	strcat(s, s1);
 
 
 			if( _dts_net.empty() )
@@ -100,7 +100,7 @@ void FpsCounter::OnTimeStep(float dt)
 				}
 				avr /= (float) _dts_net.size();
 			}
-		}
+		}*/
 
 		SetText(s);
 	}

@@ -16,11 +16,11 @@ CSound          *g_pSounds[SND_COUNT];
 AppBase     *g_app;
 IRender     *g_render;
 UI::LayoutManager  *g_gui;
-TankClient  *g_client;
 
 TextureManager *g_texman;
+ClientBase     *g_client;
 
-Level          *g_level;
+std::auto_ptr<Level>     g_level;
 SafePtr<MusicPlayer>     g_music;
 SafePtr<FS::FileSystem>  g_fs;
 

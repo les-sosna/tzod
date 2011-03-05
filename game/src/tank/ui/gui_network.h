@@ -4,6 +4,7 @@
 
 #include "Base.h"
 #include "Dialog.h"
+#include "ClientBase.h"
 
 // forward declarations
 class LobbyClient;
@@ -45,12 +46,15 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ConnectDlg : public Dialog
+class ConnectDlg
+	: public Dialog
+	, private IClientCallback
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox *_status;
 	Button *_btnOK;
 	Edit   *_name;
+	std::auto_ptr<Subscribtion> _clientSubscribtion;
 
 public:
 	ConnectDlg(Window *parent, const string_t &defaultName);
@@ -60,9 +64,12 @@ protected:
 	void OnOK();
 	void OnCancel();
 
-	void OnConnected();
-	void OnError(const std::string &msg);
-	void OnMessage(const std::string &msg);
+private:
+	// IClientCallback
+	virtual void OnConnected();
+	virtual void OnErrorMessage(const std::string &msg);
+	virtual void OnTextMessage(const std::string &msg);
+	virtual void OnClientDestroy();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,7 +105,9 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class WaitingForPlayersDlg : public Dialog
+class WaitingForPlayersDlg
+	: public Dialog
+	, private IClientCallback
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox *_players;
@@ -107,6 +116,7 @@ class WaitingForPlayersDlg : public Dialog
 	Button         *_btnOK;
 	Button         *_btnProfile;
 	std::auto_ptr<UI::ConsoleBuffer>  _buf;
+	std::auto_ptr<Subscribtion> _clientSubscribtion;
 
 	static const size_t _maxPings = 5;
 	std::vector<DWORD> _pings;
@@ -125,12 +135,14 @@ protected:
 	void OnCancel();
 	void OnSendMessage(const string_t &msg);
 
-	// client event handlers
-	void OnError(const std::string &msg);
-	void OnMessage(const std::string &msg);
-	void OnPlayerReady(size_t idx, bool ready);
-	void OnPlayersUpdate();
-	void OnStartGame();
+private:
+	// IClientCallback
+	virtual void OnErrorMessage(const std::string &msg);
+	virtual void OnTextMessage(const std::string &msg);
+	virtual void OnPlayerReady(size_t playerIdx, bool ready);
+	virtual void OnPlayersUpdate();
+	virtual void OnStartGame();
+	virtual void OnClientDestroy();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -172,6 +172,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\tank\BackgroundIntro.h" />
+    <ClInclude Include="src\tank\ClientBase.h" />
     <ClInclude Include="src\tank\constants.h" />
     <ClInclude Include="src\tank\DefaultCamera.h" />
     <ClInclude Include="src\tank\directx.h" />
@@ -188,6 +190,7 @@
     <ClInclude Include="src\tank\ObjectListener.h" />
     <ClInclude Include="src\tank\res\resource.h" />
     <ClInclude Include="src\tank\script.h" />
+    <ClInclude Include="src\tank\SinglePlayer.h" />
     <ClInclude Include="src\tank\SoundTemplates.h" />
     <ClInclude Include="src\tank\stdafx.h" />
     <ClInclude Include="src\tank\config\Config.h" />
@@ -285,6 +288,8 @@
     <ClInclude Include="src\tank\sound\sfx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\tank\BackgroundIntro.cpp" />
+    <ClCompile Include="src\tank\ClientBase.cpp" />
     <ClCompile Include="src\tank\DefaultCamera.cpp" />
     <ClCompile Include="src\tank\directx.cpp" />
     <ClCompile Include="src\tank\Dsutil.cpp" />
@@ -304,6 +309,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\tank\script.cpp" />
+    <ClCompile Include="src\tank\SinglePlayer.cpp" />
     <ClCompile Include="src\tank\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiler|Win32'">Create</PrecompiledHeader>

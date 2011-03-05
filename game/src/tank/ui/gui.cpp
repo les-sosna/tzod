@@ -132,34 +132,34 @@ NewGameDlg::NewGameDlg(Window *parent, ILevelController *ctrl)
 
 
 		btn = Button::Create(this, g_lang.human_player_add.Get(), x3, 256);
-		btn->eventClick.bind(&NewGameDlg::OnAddPlayer, this);
+		btn->eventClick = std::bind(&NewGameDlg::OnAddPlayer, this);
 
 		_removePlayer = Button::Create(this, g_lang.human_player_remove.Get(), x3, 286);
-		_removePlayer->eventClick.bind(&NewGameDlg::OnRemovePlayer, this);
+		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->SetEnabled(false);
 
 		_changePlayer = Button::Create(this, g_lang.human_player_modify.Get(), x3, 316);
-		_changePlayer->eventClick.bind(&NewGameDlg::OnEditPlayer, this);
+		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->SetEnabled(false);
 
 		btn = Button::Create(this, g_lang.AI_player_add.Get(), x3, 384);
-		btn->eventClick.bind(&NewGameDlg::OnAddBot, this);
+		btn->eventClick = std::bind(&NewGameDlg::OnAddBot, this);
 
 		_removeBot = Button::Create(this, g_lang.AI_player_remove.Get(), x3, 414);
-		_removeBot->eventClick.bind(&NewGameDlg::OnRemoveBot, this);
+		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->SetEnabled(false);
 
 		_changeBot = Button::Create(this, g_lang.AI_player_modify.Get(), x3, 444);
-		_changeBot->eventClick.bind(&NewGameDlg::OnEditBot, this);
+		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
 		_changeBot->SetEnabled(false);
 
 
 
 		btn = Button::Create(this, g_lang.dm_ok.Get(), 544, 510);
-		btn->eventClick.bind(&NewGameDlg::OnOK, this);
+		btn->eventClick = std::bind(&NewGameDlg::OnOK, this);
 
 		btn = Button::Create(this, g_lang.dm_cancel.Get(), 656, 510);
-		btn->eventClick.bind(&NewGameDlg::OnCancel, this);
+		btn->eventClick = std::bind(&NewGameDlg::OnCancel, this);
 	}
 
 	// call this after creation of buttons
@@ -361,6 +361,7 @@ void NewGameDlg::OnOK()
 
 	try
 	{
+	//	g_client
 		_level->init_newdm(g_fs->Open(path)->QueryStream(), rand());
 	}
 	catch( const std::exception &e )
@@ -573,8 +574,8 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick.bind(&EditPlayerDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick.bind(&EditPlayerDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&EditPlayerDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&EditPlayerDlg::OnCancel, this);
 }
 
 void EditPlayerDlg::OnOK()
@@ -748,8 +749,8 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	// create buttons
 	//
 
-	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick.bind(&EditBotDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick.bind(&EditBotDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&EditBotDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&EditBotDlg::OnCancel, this);
 }
 
 void EditBotDlg::OnOK()
@@ -808,7 +809,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	_text = Text::Create(this, 10, 10, text, alignTextLT);
 
 	_button1 = Button::Create(this, btn1, 0, _text->GetHeight() + 20);
-	_button1->eventClick.bind(&ScriptMessageBox::OnButton1, this);
+	_button1->eventClick = std::bind(&ScriptMessageBox::OnButton1, this);
 
 	int nbtn = 1 + !btn2.empty() + !(btn3.empty() || btn2.empty());
 
@@ -827,7 +828,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	if( !btn2.empty() )
 	{
 		_button2 = Button::Create(this, btn2, _button1->GetX() - 10 - bw, by);
-		_button2->eventClick.bind(&ScriptMessageBox::OnButton2, this);
+		_button2->eventClick = std::bind(&ScriptMessageBox::OnButton2, this);
 
 	}
 	else
@@ -838,7 +839,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	if( !btn2.empty() && !btn3.empty() )
 	{
 		_button3 = Button::Create(this, btn3, _button2->GetX() - 10 - bw, by);
-		_button3->eventClick.bind(&ScriptMessageBox::OnButton3, this);
+		_button3->eventClick = std::bind(&ScriptMessageBox::OnButton3, this);
 	}
 	else
 	{

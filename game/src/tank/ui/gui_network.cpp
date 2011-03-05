@@ -124,15 +124,15 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		}
 		_lobbyList->GetList()->AlignHeightToContent(128);
 
-		_lobbyEnable->eventClick.bind(&CreateServerDlg::OnLobbyEnable, this);
+		_lobbyEnable->eventClick = std::bind(&CreateServerDlg::OnLobbyEnable, this);
 	}
 
 	Button *btn;
 	btn = Button::Create(this, g_lang.net_server_ok.Get(), 544, 410);
-	btn->eventClick.bind(&CreateServerDlg::OnOK, this);
+	btn->eventClick = std::bind(&CreateServerDlg::OnOK, this);
 
 	btn = Button::Create(this, g_lang.net_server_cancel.Get(), 656, 410);
-	btn->eventClick.bind(&CreateServerDlg::OnCancel, this);
+	btn->eventClick = std::bind(&CreateServerDlg::OnCancel, this);
 }
 
 CreateServerDlg::~CreateServerDlg()
@@ -213,8 +213,7 @@ void CreateServerDlg::OnOK()
 	script_exec(g_env.L, "reset()");
 
 	assert(g_level->IsEmpty());
-	assert(!g_client);
-	g_client = new TankClient(false, g_level);
+	g_client = new TankClient(g_level.get());
 
 	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
 
@@ -267,9 +266,9 @@ ConnectDlg::ConnectDlg(Window *parent, const string_t &defaultName)
 	_status->Resize(400, 180);
 
 	_btnOK = Button::Create(this, g_lang.net_connect_ok.Get(), 312, 350);
-	_btnOK->eventClick.bind(&ConnectDlg::OnOK, this);
+	_btnOK->eventClick = std::bind(&ConnectDlg::OnOK, this);
 
-	Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick.bind(&ConnectDlg::OnCancel, this);
+	Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
 }
@@ -289,12 +288,9 @@ void ConnectDlg::OnOK()
 	script_exec(g_env.L, "reset()");
 
 	assert(g_level->IsEmpty());
-	assert(NULL == g_client);
-	g_client = new TankClient(false, g_level);
-	g_client->eventConnected.bind(&ConnectDlg::OnConnected, this);
-	g_client->eventErrorMessage.bind(&ConnectDlg::OnError, this);
-	g_client->eventTextMessage.bind(&ConnectDlg::OnMessage, this);
-	g_client->Connect(_name->GetText());
+	TankClient *cl = new TankClient(g_level.get());
+	_clientSubscribtion = cl->AddListener(this);
+	cl->Connect(_name->GetText());
 }
 
 void ConnectDlg::OnCancel()
@@ -309,18 +305,23 @@ void ConnectDlg::OnConnected()
 	Close(-1); // close with any code except ok and cancel
 }
 
-void ConnectDlg::OnError(const std::string &msg)
+void ConnectDlg::OnErrorMessage(const std::string &msg)
 {
 	_status->GetData()->AddItem(msg);
 	g_level->Clear();
+	SAFE_DELETE(g_client);
 	_btnOK->SetEnabled(true);
 	_name->SetEnabled(true);
-	SAFE_DELETE(g_client);
 }
 
-void ConnectDlg::OnMessage(const std::string &msg)
+void ConnectDlg::OnTextMessage(const std::string &msg)
 {
 	_status->GetData()->AddItem(msg);
+}
+
+void ConnectDlg::OnClientDestroy()
+{
+	_clientSubscribtion.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -353,13 +354,13 @@ InternetDlg::InternetDlg(Window *parent)
 
 
 	_btnRefresh = Button::Create(this, g_lang.net_internet_refresh.Get(), 25, 320);
-	_btnRefresh->eventClick.bind(&InternetDlg::OnRefresh, this);
+	_btnRefresh->eventClick = std::bind(&InternetDlg::OnRefresh, this);
 
 	_btnConnect = Button::Create(this, g_lang.net_internet_connect.Get(), 175, 320);
-	_btnConnect->eventClick.bind(&InternetDlg::OnConnect, this);
+	_btnConnect->eventClick = std::bind(&InternetDlg::OnConnect, this);
 	_btnConnect->SetEnabled(false);
 
-	Button::Create(this, g_lang.net_internet_cancel.Get(), 325, 320)->eventClick.bind(&InternetDlg::OnCancel, this);
+	Button::Create(this, g_lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_name);
 
@@ -461,14 +462,8 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   , _chat(NULL)
   , _btnOK(NULL)
   , _btnProfile(NULL)
+  , _clientSubscribtion(g_client->AddListener(this))
 {
-	g_client->eventErrorMessage.bind(&WaitingForPlayersDlg::OnError, this);
-	g_client->eventTextMessage.bind(&WaitingForPlayersDlg::OnMessage, this);
-	g_client->eventPlayerReady.bind(&WaitingForPlayersDlg::OnPlayerReady, this);
-	g_client->eventPlayersUpdate.bind(&WaitingForPlayersDlg::OnPlayersUpdate, this);
-	g_client->eventStartGame.bind(&WaitingForPlayersDlg::OnStartGame, this);
-
-
 	//
 	// create controls
 	//
@@ -485,7 +480,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_players->SetTabPos(3, 400);
 
 	_btnProfile = Button::Create(this, g_lang.net_chatroom_my_profile.Get(), 560, 65);
-	_btnProfile->eventClick.bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
+	_btnProfile->eventClick = std::bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
 	Text::Create(this, 20, 150, g_lang.net_chatroom_bots.Get(), alignTextLT);
 	_bots = DefaultListBox::Create(this);
@@ -495,7 +490,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
 
-	Button::Create(this, g_lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick.bind(&WaitingForPlayersDlg::OnAddBotClick, this);
+	Button::Create(this, g_lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 
 
 	Text::Create(this, 20, 285, g_lang.net_chatroom_chat_window.Get(), alignTextLT);
@@ -507,17 +502,17 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 
 	_btnOK = Button::Create(this, g_lang.net_chatroom_ready_button.Get(), 560, 450);
-	_btnOK->eventClick.bind(&WaitingForPlayersDlg::OnOK, this);
+	_btnOK->eventClick = std::bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->SetEnabled(false);
 
-	Button::Create(this, g_lang.common_cancel.Get(), 560, 480)->eventClick.bind(&WaitingForPlayersDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 560, 480)->eventClick = std::bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	//
 	// send player info
 	//
 
-	g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
+	dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 
 	// send ping request
 //	DWORD t = timeGetTime();
@@ -526,14 +521,6 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 
 WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
-	if( g_client )
-	{
-		g_client->eventErrorMessage.clear();
-		g_client->eventTextMessage.clear();
-		g_client->eventPlayerReady.clear();
-		g_client->eventPlayersUpdate.clear();
-		g_client->eventStartGame.clear();
-	}
 }
 
 void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
@@ -543,7 +530,7 @@ void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
 
 	if( _resultOK == result )
 	{
-		g_client->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
+		dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 	}
 }
 
@@ -567,13 +554,13 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 		BotDesc bd;
 		bd.pd = GetPlayerDescFromConf(g_conf.ui_netbotinfo);
 		bd.level = g_conf.ui_netbotinfo.level.GetInt();
-		g_client->SendAddBot(bd);
+		dynamic_cast<TankClient*>(g_client)->SendAddBot(bd);
 	}
 }
 
 void WaitingForPlayersDlg::OnOK()
 {
-	g_client->SendPlayerReady(true);
+	dynamic_cast<TankClient*>(g_client)->SendPlayerReady(true);
 }
 
 void WaitingForPlayersDlg::OnCancel()
@@ -595,12 +582,12 @@ void WaitingForPlayersDlg::OnSendMessage(const string_t &msg)
 //		}
 //		else
 		{
-			g_client->SendTextMessage(msg);
+			dynamic_cast<TankClient*>(g_client)->SendTextMessage(msg);
 		}
 	}
 }
 
-void WaitingForPlayersDlg::OnError(const std::string &msg)
+void WaitingForPlayersDlg::OnErrorMessage(const std::string &msg)
 {
 	_players->GetData()->DeleteAllItems();
 	_bots->GetData()->DeleteAllItems();
@@ -608,14 +595,13 @@ void WaitingForPlayersDlg::OnError(const std::string &msg)
 	_buf->WriteLine(0, msg);
 }
 
-void WaitingForPlayersDlg::OnMessage(const std::string &msg)
+void WaitingForPlayersDlg::OnTextMessage(const std::string &msg)
 {
 	_buf->WriteLine(0, msg);
 }
 
 void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 {
-	assert(g_level);
 	int count = g_level->GetList(LIST_players).size();
 	assert(_players->GetData()->GetItemCount() <= count); // count includes bots
 
@@ -678,6 +664,11 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 void WaitingForPlayersDlg::OnStartGame()
 {
 	Close(_resultOK);
+}
+
+void WaitingForPlayersDlg::OnClientDestroy()
+{
+	_clientSubscribtion.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

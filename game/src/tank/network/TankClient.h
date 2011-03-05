@@ -5,31 +5,30 @@
 
 #include "Socket.h"
 #include "ControlPacket.h"
-
+#include "ClientBase.h"
 
 /////////////////////////////////////////////////////////
 
-struct NetworkStats
-{
-	size_t  bytesSent;
-	size_t  bytesRecv;
-	size_t  bytesPending;
-};
+//struct NetworkStats
+//{
+//	size_t  bytesSent;
+//	size_t  bytesRecv;
+//	size_t  bytesPending;
+//};
 
-struct ILevelController;
 struct ControlPacket;
 struct PlayerDesc;
 struct BotDesc;
+struct ILevelController;
 
 class Peer;
 class Variant;
 
 
-class TankClient
+class TankClient : public ClientBase
 {
 public:
 	SafePtr<Peer> _peer;
-	int _frame;
 	ControlPacketVector _ctrl;
 	float _boost;
 	bool _hasCtrl;
@@ -41,16 +40,12 @@ public:
 	int _latency;
 
 private:
-	NetworkStats _stats;
+//	NetworkStats _stats;
 	ILevelController *_levelController;
-	bool _isLocal;
 
 public:
-	TankClient(bool isLocal, ILevelController *levelController);
+	TankClient(ILevelController *levelController);
 	~TankClient();
-
-	bool IsLocal() const { return true; } // TODO: FIXME
-	float GetBoost() const { return _boost; }
 
 	void Connect(const string_t &hostaddr);
 
@@ -58,10 +53,8 @@ public:
 	void SendAddBot(const BotDesc &bot);
 	void SendPlayerInfo(const PlayerDesc &pd);
 	void SendTextMessage(const std::string &msg);
-	void SendControl(const ControlPacket &cp); // this function terminates current frame and starts next
-	bool RecvControl(ControlPacketVector &result);
 
-	void GetStatistics(NetworkStats *pStats);
+//	void GetStatistics(NetworkStats *pStats);
 
 
 
@@ -72,6 +65,10 @@ public:
 	Delegate<void(const std::string&)> eventErrorMessage;
 	Delegate<void()> eventConnected;
 
+	// IClient
+	virtual bool IsLocal() const { return false; }
+	virtual void SendControl(const ControlPacket &cp);
+	virtual bool RecvControl(ControlPacketVector &result);
 
 private:
 	// remote functions

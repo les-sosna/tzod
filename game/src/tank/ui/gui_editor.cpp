@@ -44,8 +44,8 @@ NewMapDlg::NewMapDlg(Window *parent)
 	_height = Edit::Create(this, 60, 130, 80);
 	_height->SetInt(g_conf.ed_height.GetInt());
 
-	Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick.bind(&NewMapDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick.bind(&NewMapDlg::OnCancel, this);
+	Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
+	Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 
 	GetManager()->SetFocusWnd(_width);
 }
@@ -386,7 +386,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 	_list->eventChangeCurSel.bind(&ServiceEditor::OnSelectService, this);
 
 	_btnCreate = Button::Create(this, g_lang.service_create.Get(), 0, 0);
-	_btnCreate->eventClick.bind(&ServiceEditor::OnCreateService, this);
+	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
 
 	_combo = DefaultComboBox::Create(this);
 	_combo->Move(_margins, _margins);
@@ -798,7 +798,6 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
-		assert(g_level);
 		const DefaultCamera &cam = g_level->_defaultCamera;
 
 		FRECT rt;

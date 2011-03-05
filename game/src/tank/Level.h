@@ -19,7 +19,7 @@ namespace FS
 {
 	class Stream;
 }
-
+class ClientBase;
 class GC_RigidBodyStatic;
 
 class Field;
@@ -238,17 +238,12 @@ public:
 
 /////////////////////////////////////
 public:
-	std::deque<float> _dt;
-
-	int _steps;
 	float _time;
-	float _timeBuffer;
 
 	void Step(const ControlPacketVector &ctrl, float dt);
 
 	Field _field;
 
-	int  _ctrlSentCount;
 	bool  _safeMode;
 
 /////////////////////////////////////////////////////
@@ -280,7 +275,6 @@ public:
 	void Freeze(bool freeze) { _frozen = freeze; }
 
 	void RunCmdQueue(float dt);
-	void Simulate(float dt);
 	void Render() const;
 	bool IsSafeMode() const { return _safeMode; }
 	bool IsGamePaused() const;
@@ -298,23 +292,6 @@ public:
 
 
 	void RenderInternal(const FRECT &world) const;
-
-
-	class AbstractClient
-	{
-		std::deque<ControlPacketVector> _cpv;
-	public:
-		void Reset() {_cpv.clear();}
-		bool Recv(ControlPacketVector &result);
-		void Send(std::vector<VehicleState> &ctrl
-#ifdef NETWORK_DEBUG
-		          , DWORD cs, int frame
-#endif
-		         );
-		float GetBoost() const;
-	} _abstractClient;
-
-
 
 
 	//
@@ -383,6 +360,8 @@ public:
 	virtual void AddBot(const BotDesc &bd);
 	virtual void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
 
+	virtual DWORD GetChecksum() const { return _checksum; }
+	virtual DWORD GetFrame() const { return _frame; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
