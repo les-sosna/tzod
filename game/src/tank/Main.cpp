@@ -523,45 +523,9 @@ void ZodApp::Idle()
 
 		float dt_fixed = 1.0f / g_conf.sv_fps.GetFloat();
 
-		int ctrlSent = 0;
-		while( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
-		{
-			//
-			// read controller state for local players
-			//
-			std::vector<VehicleState> ctrl;
-			FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-			{
-				if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
-				{
-					VehicleState vs;
-					pl->ReadControllerStateAndStepPredicted(vs, dt_fixed);
-					ctrl.push_back(vs);
-				}
-			}
-
-
-			//
-			// send ctrl
-			//
-
-			ControlPacket cp;
-			if( ctrl.size() > 0 )
-				cp.fromvs(ctrl[0]);
-	#ifdef NETWORK_DEBUG
-			cp.checksum = g_level->GetChecksum();
-			cp.frame = g_level->GetFrame();
-	#endif
-			g_client->SendControl(cp);
-
-			++_ctrlSentCount;
-			++ctrlSent;
-		}
-
-
 
 		_timeBuffer += dt;
-		float bufmax = (g_conf.cl_latency.GetFloat()*0+1 + 1) / g_conf.sv_fps.GetFloat();
+		float bufmax = (g_conf.cl_latency.GetFloat() + 1) / g_conf.sv_fps.GetFloat();
 		counterDrops.Push(_timeBuffer - bufmax);
 
 		if( _timeBuffer > bufmax )
@@ -572,24 +536,59 @@ void ZodApp::Idle()
 		counterTimeBuffer.Push(_timeBuffer);
 		counterDt.Push(dt);
 
-		assert(_ctrlSentCount > 0);
+		int ctrlSent = 0;
 		if( _timeBuffer + dt_fixed / 2 > 0 )
 		{
+			bool actionTaken;
 			do
 			{
-				ControlPacketVector cpv;
-				if( g_client->RecvControl(cpv) )
-				{
-					g_level->Step(cpv, dt_fixed);
-					_timeBuffer -= dt_fixed;
-					_ctrlSentCount -= 1;
+				actionTaken = false;
 
-				}
-				else
+				if( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
 				{
-					break;
+					//
+					// read controller state for local players
+					//
+					std::vector<VehicleState> ctrl;
+					FOREACH( g_level->GetList(LIST_players), GC_Player, p )
+					{
+						if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
+						{
+							VehicleState vs;
+							pl->ReadControllerStateAndStepPredicted(vs, dt_fixed);
+							ctrl.push_back(vs);
+						}
+					}
+
+
+					//
+					// send ctrl
+					//
+
+					ControlPacket cp;
+					if( ctrl.size() > 0 )
+						cp.fromvs(ctrl[0]);
+			#ifdef NETWORK_DEBUG
+					cp.checksum = g_level->GetChecksum();
+					cp.frame = g_level->GetFrame();
+			#endif
+					g_client->SendControl(cp);
+
+					++_ctrlSentCount;
+					++ctrlSent;
+
+					actionTaken = true;
 				}
-			} while( _timeBuffer > 0 && _ctrlSentCount > 0 );
+
+				ControlPacketVector cpv;
+				if( _ctrlSentCount > 0 && g_client->RecvControl(cpv) )
+				{
+					_ctrlSentCount -= 1;
+					_timeBuffer -= dt_fixed;
+					g_level->Step(cpv, dt_fixed);
+					actionTaken = true;
+				}
+			} while( _timeBuffer > 0 && actionTaken );
 		}
 
 

@@ -1262,7 +1262,6 @@ void Level::RenderInternal(const FRECT &world) const
 			}
 		}
 
-		// loop over globals
 		FOREACH( z_globals[z], GC_2dSprite, object )
 		{
 			object->Draw();

@@ -3,13 +3,13 @@
 #include "stdafx.h"
 #include "SinglePlayer.h"
 #include "config/Config.h"
-#include "globals.h"
-#include "Level.h"
+#include "LevelInterfaces.h"
 
 SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, FS::Stream *stream, unsigned long seed)
 	: ClientBase(levelController)
 {
-	g_level->init_newdm(stream, seed);
+	levelController->Clear();
+	levelController->init_newdm(stream, seed);
 }
 
 bool SinglePlayerClient::SupportEditor() const
