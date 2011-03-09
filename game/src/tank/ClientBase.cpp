@@ -3,8 +3,10 @@
 #include "stdafx.h"
 #include "ClientBase.h"
 #include "globals.h"
+#include "LevelInterfaces.h"
 
-ClientBase::ClientBase()
+ClientBase::ClientBase(ILevelController *level)
+	: m_level(level)
 {
 	assert(!g_client);
 	g_client = this;
@@ -12,6 +14,7 @@ ClientBase::ClientBase()
 
 ClientBase::~ClientBase()
 {
+	m_level->Clear();
 	assert(_clientListeners.empty());
 	assert(this == g_client);
 	g_client = NULL;

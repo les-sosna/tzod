@@ -30,7 +30,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 TankClient::TankClient(ILevelController *levelController)
-  : _boost(1)
+  : ClientBase(levelController)
+  , _boost(1)
   , _gameStarted(false)
   , _latency(1)
   , _hasCtrl(false)

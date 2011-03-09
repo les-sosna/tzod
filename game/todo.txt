@@ -26,10 +26,3 @@ layers
 6: trigger
 7: wood, user_sprite
 
-portable object id:
- - since world is sumulated simultaniously on all clients we could use allocation ID to identify object on other client
- - allocation ID is kind of persistent pointer that can be serialized or passed via network
- - allocation id is composed of two parts: block index and offset within block so no extra memory cost
- - in our memory model an allocation unit has pointer to parent block. use this info to calculate an object id
- - security. one can pass bad id to chash client so we need validation mechanism
-

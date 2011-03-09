@@ -259,7 +259,6 @@ Level::Level()
   , _sx(0)
   , _sy(0)
   , _seed(1)
-  , _gameType(-1)
   , _serviceListener(NULL)
   , _texBack(g_texman->FindSprite("background"))
   , _texGrid(g_texman->FindSprite("grid"))
@@ -341,7 +340,6 @@ void Level::Clear()
 	_time = 0;
 	_limitHit = false;
 	_frozen = false;
-	_gameType = -1;
 #ifdef NETWORK_DEBUG
 	_checksum = 0;
 	_frame = 0;
@@ -368,8 +366,6 @@ bool Level::init_emptymap(int X, int Y)
 
 	Resize(X, Y);
 
-	_gameType   = GT_EDITOR;
-
 	_ThemeManager::Inst().ApplyTheme(0);
 
 	SetEditorMode(true);
@@ -384,7 +380,6 @@ bool Level::init_import_and_edit(const char *mapName)
 	assert(IsSafeMode());
 	assert(IsEmpty());
 
-	_gameType = GT_EDITOR;
 	g_conf.sv_nightmode.Set(false);
 
 	try
@@ -402,12 +397,11 @@ bool Level::init_import_and_edit(const char *mapName)
 	return true;
 }
 
-void Level::init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed)
+void Level::init_newdm(FS::Stream *s, unsigned long seed)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
 
-	_gameType   = GT_DEATHMATCH;
 	_seed       = seed;
 
 	SetEditorMode(false);
@@ -456,8 +450,6 @@ void Level::Unserialize(const char *fileName)
 
 		if( VERSION != sh.dwVersion )
 			throw std::runtime_error("invalid version");
-
-		_gameType = sh.dwGameType;
 
 		g_conf.sv_timelimit.SetFloat(sh.timelimit);
 		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
@@ -607,7 +599,6 @@ void Level::Serialize(const char *fileName)
 	SaveHeader sh = {0};
 	strcpy_s(sh.theme, _infoTheme.c_str());
 	sh.dwVersion    = VERSION;
-	sh.dwGameType   = _gameType;
 	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
 	sh.timelimit    = g_conf.sv_timelimit.GetFloat();
 	sh.nightmode    = g_conf.sv_nightmode.Get();
@@ -799,11 +790,6 @@ void Level::PauseSound(bool pause)
 
 void Level::SetEditorMode(bool editorModeEnable)
 {
-	if( GT_INTRO == _gameType )
-	{
-		return;
-	}
-
 	if( !_modeEditor ^ !editorModeEnable )
 	{
 		bool paused = IsGamePaused();
@@ -1270,16 +1256,14 @@ void Level::RenderInternal(const FRECT &world) const
 		for( int x = xmin; x <= xmax; ++x )
 		for( int y = ymin; y <= ymax; ++y )
 		{
-			// FIXME: using of global g_level
-			FOREACH(g_level->z_grids[z].element(x,y), GC_2dSprite, object)
+			FOREACH(z_grids[z].element(x,y), GC_2dSprite, object)
 			{
 				object->Draw();
 			}
 		}
 
 		// loop over globals
-		// FIXME: using of global g_level
-		FOREACH( g_level->z_globals[z], GC_2dSprite, object )
+		FOREACH( z_globals[z], GC_2dSprite, object )
 		{
 			object->Draw();
 		}
@@ -1304,7 +1288,7 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 
 bool Level::IsGamePaused() const
 { 
-	return g_env.pause > 0 && _gameType != GT_INTRO 
+	return g_env.pause > 0
 		|| _limitHit 
 		|| _modeEditor;
 }

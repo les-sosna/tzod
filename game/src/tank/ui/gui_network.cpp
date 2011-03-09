@@ -213,7 +213,7 @@ void CreateServerDlg::OnOK()
 	script_exec(g_env.L, "reset()");
 
 	assert(g_level->IsEmpty());
-	g_client = new TankClient(g_level.get());
+	new TankClient(g_level.get());
 
 	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
 
@@ -308,7 +308,6 @@ void ConnectDlg::OnConnected()
 void ConnectDlg::OnErrorMessage(const std::string &msg)
 {
 	_status->GetData()->AddItem(msg);
-	g_level->Clear();
 	SAFE_DELETE(g_client);
 	_btnOK->SetEnabled(true);
 	_name->SetEnabled(true);
@@ -565,7 +564,6 @@ void WaitingForPlayersDlg::OnOK()
 
 void WaitingForPlayersDlg::OnCancel()
 {
-	g_level->Clear();
 	SAFE_DELETE(g_client);
 
 	Close(_resultCancel);

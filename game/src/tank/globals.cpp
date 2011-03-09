@@ -5,6 +5,7 @@
 
 #include "fs/FileSystem.h"
 #include "sound/MusicPlayer.h"
+#include "Level.h"
 
 MD5 g_md5;
 

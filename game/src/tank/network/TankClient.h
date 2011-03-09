@@ -66,6 +66,8 @@ public:
 	Delegate<void()> eventConnected;
 
 	// IClient
+	virtual bool SupportEditor() const { return false; }
+	virtual bool SupportSave() const { return false; }
 	virtual bool IsLocal() const { return false; }
 	virtual void SendControl(const ControlPacket &cp);
 	virtual bool RecvControl(ControlPacketVector &result);

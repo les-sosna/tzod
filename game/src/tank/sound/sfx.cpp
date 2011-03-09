@@ -104,7 +104,7 @@ static void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector
 			}
 		}
 	}
-	catch(...)
+	catch( const std::exception& )
 	{
 		ov_clear(&vf);
 		throw;

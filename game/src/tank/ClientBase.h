@@ -21,19 +21,24 @@ public:
 	virtual ~Subscribtion() = 0 {}
 };
 
+struct ILevelController;
+
 class ClientBase
 {
 public:
-	ClientBase();
+	explicit ClientBase(ILevelController *level);
 	virtual ~ClientBase() = 0;
 
 	std::auto_ptr<Subscribtion> AddListener(IClientCallback *ls);
 
+	virtual bool SupportEditor() const = 0;
+	virtual bool SupportSave() const = 0;
 	virtual bool IsLocal() const = 0;
 	virtual void SendControl(const ControlPacket &cp) = 0; // this function terminates current frame and starts next one
 	virtual bool RecvControl(ControlPacketVector &result) = 0;
 
 private:
+	ILevelController *m_level;
 	std::set<IClientCallback*> _clientListeners;
 	class MySubscribtion : public Subscribtion
 	{

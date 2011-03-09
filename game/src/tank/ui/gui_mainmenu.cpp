@@ -67,16 +67,6 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 	_panel->SetDrawBorder(false);
 	_panel->Move(0, -_panelFrame->GetHeight());
 	_panelTitle = NULL;
-
-	if( !g_level->IsEmpty() && GT_EDITOR == g_level->_gameType )
-	{
-		SwitchPanel(PT_EDITOR);
-	}
-
-	if( !g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType )
-	{
-		SwitchPanel(PT_SINGLEPLAYER);
-	}
 }
 
 MainMenuDlg::~MainMenuDlg()
@@ -407,7 +397,7 @@ void MainMenuDlg::CreatePanel()
 		Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnLoadGame, this);
 		btn = Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnSaveGame, this);
-		btn->SetEnabled(!g_level->IsEmpty() && GT_DEATHMATCH == g_level->_gameType && g_client->IsLocal());
+		btn->SetEnabled(g_client && g_client->SupportSave());
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang.network_title.Get());
@@ -422,10 +412,10 @@ void MainMenuDlg::CreatePanel()
 		Button::Create(_panel, g_lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
 		btn = Button::Create(_panel, g_lang.editor_save_map.Get(), 200, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnExportMap, this);
-		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
+		btn->SetEnabled(g_client && g_client->SupportEditor());
 		btn = Button::Create(_panel, g_lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
-		btn->SetEnabled(!g_level->IsEmpty() && GT_EDITOR == g_level->_gameType);
+		btn->SetEnabled(g_client && g_client->SupportEditor());
 		break;
 	default:
 		assert(false);

@@ -18,6 +18,7 @@
 #include "LevelInterfaces.h"
 #include "macros.h"
 #include "script.h"
+#include "SinglePlayer.h"
 
 #include "video/TextureManager.h"
 
@@ -361,8 +362,7 @@ void NewGameDlg::OnOK()
 
 	try
 	{
-	//	g_client
-		_level->init_newdm(g_fs->Open(path)->QueryStream(), rand());
+		new SinglePlayerClient(_level, g_fs->Open(path)->QueryStream(), rand());
 	}
 	catch( const std::exception &e )
 	{

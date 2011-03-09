@@ -173,17 +173,6 @@ enum enumZOrder
 #define MAX_DT           0.05f
 #define MAX_DT_FIXED     0.02f
 
-//-----------------------------------------------------------------------------
-// Game types
-
-// editor mode
-// the timelimit and fraglimit settings are not functional in this mode
-#define GT_EDITOR        0
-
-#define GT_DEATHMATCH    1
-
-// main menu intro
-#define GT_INTRO         2
 
 //-----------------------------------------------------------------------------
 // file paths

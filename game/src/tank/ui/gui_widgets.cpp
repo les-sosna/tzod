@@ -130,7 +130,7 @@ void TimeElapsed::OnTimeStep(float dt)
 	if( !g_level->IsEmpty() )
 	{
 		char text[16];
-		int time = int(g_level->_time);
+		int time = (int) g_level->GetTime();
 
 		if( time % 60 < 10 )
 			wsprintf(text, "%d:0%d", time / 60, time % 60);

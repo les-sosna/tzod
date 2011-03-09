@@ -164,7 +164,6 @@ class Level
 	struct SaveHeader
 	{
 		DWORD dwVersion;
-		DWORD dwGameType;
 		bool  nightmode;
 		float timelimit;
 		int   fraglimit;
@@ -220,8 +219,6 @@ public:
 
 	int _locationsX;
 	int _locationsY;
-
-	DWORD    _gameType;
 
 	string_t _infoAuthor;
 	string_t _infoEmail;
@@ -358,7 +355,9 @@ public:
 	virtual void PlayerQuit(size_t playerIndex);
 	virtual void AddHuman(const PlayerDesc &pd, bool isLocal);
 	virtual void AddBot(const BotDesc &bd);
-	virtual void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed);
+	virtual void init_newdm(FS::Stream *s, unsigned long seed);
+
+	virtual float GetTime() const { return _time; }
 
 	virtual DWORD GetChecksum() const { return _checksum; }
 	virtual DWORD GetFrame() const { return _frame; }

@@ -3,6 +3,24 @@
 #include "stdafx.h"
 #include "SinglePlayer.h"
 #include "config/Config.h"
+#include "globals.h"
+#include "Level.h"
+
+SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, FS::Stream *stream, unsigned long seed)
+	: ClientBase(levelController)
+{
+	g_level->init_newdm(stream, seed);
+}
+
+bool SinglePlayerClient::SupportEditor() const
+{
+	return true;
+}
+
+bool SinglePlayerClient::SupportSave() const
+{
+	return true;
+}
 
 bool SinglePlayerClient::IsLocal() const
 {

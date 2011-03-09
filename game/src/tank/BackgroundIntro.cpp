@@ -3,6 +3,20 @@
 #include "stdafx.h"
 #include "BackgroundIntro.h"
 
+IntroClient::IntroClient(ILevelController *levelController)
+	: ClientBase(levelController)
+{
+}
+
+bool IntroClient::SupportEditor() const
+{
+	return false;
+}
+
+bool IntroClient::SupportSave() const
+{
+	return false;
+}
 
 bool IntroClient::IsLocal() const
 {

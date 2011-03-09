@@ -11,6 +11,8 @@ namespace FS
 
 struct ILevelController
 {
+	virtual float GetTime() const = 0;
+
 	virtual DWORD GetChecksum() const = 0;
 	virtual DWORD GetFrame() const = 0;
 
@@ -19,7 +21,7 @@ struct ILevelController
 	virtual void PlayerQuit(size_t playerIndex) = 0;
 	virtual void AddHuman(const PlayerDesc &pd, bool isLocal) = 0;
 	virtual void AddBot(const BotDesc &bd) = 0;
-	virtual void init_newdm(const SafePtr<FS::Stream> &s, unsigned long seed) = 0;
+	virtual void init_newdm(FS::Stream *s, unsigned long seed) = 0;
 };
 
 

@@ -486,13 +486,9 @@ bool ZodApp::Pre()
 		MessageBox(g_env.hMainWnd, "startup script error", TXT_VERSION, MB_ICONERROR);
 	}
 
-	g_level->_gameType = GT_INTRO;
-
 
 	// init client. TODO: move to startup script
-	assert(!g_client);
-	g_client = new IntroClient();
-
+	new IntroClient(g_level.get());
 
 	_timer.Start();
 
@@ -599,10 +595,7 @@ void ZodApp::Idle()
 
 		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
 	}
-
-
-
-
+	
 
 
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
@@ -626,9 +619,7 @@ void ZodApp::Idle()
 
 void ZodApp::Post()
 {
-//	if( g_level.get() )
-		g_level->Clear();
-
+	SAFE_DELETE(g_client);
 
 	TRACE("Shutting down GUI subsystem");
 	SAFE_DELETE(g_gui);
