@@ -4,6 +4,9 @@
 #include "ClientBase.h"
 #include "globals.h"
 #include "LevelInterfaces.h"
+#include "ui/gui_desktop.h"
+#include "ui/GuiManager.h"
+#include "script.h"
 
 ClientBase::ClientBase(ILevelController *level)
 	: m_level(level)
@@ -14,10 +17,16 @@ ClientBase::ClientBase(ILevelController *level)
 
 ClientBase::~ClientBase()
 {
-	m_level->Clear();
 	assert(_clientListeners.empty());
 	assert(this == g_client);
 	g_client = NULL;
+	// remove all game objects
+	m_level->Clear();
+	// clear message area
+	if( g_gui )
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
+	// cancel any pending commands
+	ClearCommandQueue(g_env.L);
 }
 
 std::auto_ptr<Subscribtion> ClientBase::AddListener(IClientCallback *ls)

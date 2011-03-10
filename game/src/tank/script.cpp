@@ -4,6 +4,7 @@
 #include "script.h"
 #include "level.h"
 #include "macros.h"
+#include "BackgroundIntro.h"
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
@@ -40,6 +41,15 @@ void luaT_pushobject(lua_State *L, GC_Object *obj)
 	luaL_getmetatable(L, "object");
 	lua_setmetatable(L, -2);
 	new (ppObj) ObjPtr<GC_Object>(obj);
+}
+
+void ClearCommandQueue(lua_State *L)
+{
+	lua_getglobal(L, "pushcmd");
+	 assert(LUA_TFUNCTION == lua_type(L, -1));
+	 lua_newtable(L);
+	  lua_setupvalue(L, -2, 1); // pops result of lua_newtable
+	 lua_pop(L, 1);  // pop result of lua_getglobal
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -220,30 +230,31 @@ static int luaT_quit(lua_State *L)
 	return 0;
 }
 
-static int luaT_reset(lua_State *L)
+static int luaT_game(lua_State *L)
 {
+	int n = lua_gettop(L);
+	if( 1 != n )
+		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
-	SAFE_DELETE(g_client);
+	const char *clientType = luaL_checkstring(L, 1);
 
+	// TODO: delete client after all checks
+	SAFE_DELETE(g_client); // it will clear level, message area, command queue
 
-	//
-	// clear the queue
-	//
-
-	lua_getglobal(L, "pushcmd");
-	assert(LUA_TFUNCTION == lua_type(L, -1));
-	lua_newtable(L);
-	lua_setupvalue(L, -2, 1); // pops result of lua_newtable
-	lua_pop(L, 1);  // pop result of lua_getglobal
-
-
-	//
-	// clear message area
-	//
-
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
+	if( *clientType )
+	{
+		if( !strcmp("intro", clientType) )
+		{
+			new IntroClient(g_level.get());
+		}
+		else
+		{
+			return luaL_error(L, "unknown client type: %s", clientType);
+		}
+	}
 
 	return 0;
 }
@@ -280,15 +291,17 @@ static int luaT_freeze(lua_State *L)
 static int luaT_loadmap(lua_State *L)
 {
 	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
+	if( 1 != n && 2 != n )
+		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
+	bool merge = n > 1 ? luaL_checktype(L, 2, LUA_TBOOLEAN),(0!=lua_toboolean(L, 2)) : false;
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
 
-	g_level->Clear();
+	if( !merge )
+		g_level->Clear();
 
 	try
 	{
@@ -315,7 +328,6 @@ static int luaT_newmap(lua_State *L)
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
 
-	g_level->Clear();
 	if( !g_level->init_emptymap(x, y) )
 	{
 		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
@@ -1263,7 +1275,7 @@ lua_State* script_open(void)
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
 
-	lua_register(L, "reset",    luaT_reset);
+	lua_register(L, "game",     luaT_game);
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
 	lua_register(L, "freeze",   luaT_freeze);

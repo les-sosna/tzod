@@ -13,6 +13,8 @@ require "names"         -- fill the random_names array
 ---------------------------------------------------------------------
 -- load one of two intro maps
 
+game "intro"
+
 conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
 conf.sv_speed = 100;
@@ -26,7 +28,7 @@ else
   loadmap("maps/intro02.map")
 end
 
-for _,s in pairs{"red","yellow","blue","FBI Tank","neutral"} do
+for _,s in ipairs{"red","yellow","blue","FBI Tank","neutral"} do
   service("ai", {skin=s})
 end
 

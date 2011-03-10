@@ -69,6 +69,8 @@ class Desktop
 	FpsCounter   *_fps;
 	TimeElapsed  *_time;
 
+	size_t _font;
+
 	// IEditorModeListener
 	virtual void OnEditorModeChanged(bool editorMode);
 

@@ -287,6 +287,8 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( msg_server_quit, "Server quit" )
 	VAR_STR( msg_player_quit, "Player quit" )
 
+	VAR_STR( msg_no_game_started, "No game started" )
+
 REFLECTION_END()
 
 extern LangCache g_lang;

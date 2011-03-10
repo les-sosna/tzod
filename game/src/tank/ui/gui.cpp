@@ -358,7 +358,7 @@ void NewGameDlg::OnOK()
 	g_conf.sv_timelimit.SetInt( g_conf.cl_timelimit.GetInt() );
 	g_conf.sv_nightmode.Set( g_conf.cl_nightmode.Get() );
 
-	script_exec(g_env.L, "reset()");
+	SAFE_DELETE(g_client);
 
 	try
 	{
@@ -367,7 +367,7 @@ void NewGameDlg::OnOK()
 	catch( const std::exception &e )
 	{
 		TRACE("could not load map - %s", e.what());
-		script_exec(g_env.L, "reset()");
+		SAFE_DELETE(g_client);
 		return;
 	}
 

@@ -362,15 +362,10 @@ void Level::HitLimit()
 bool Level::init_emptymap(int X, int Y)
 {
 	assert(IsSafeMode());
-	assert(IsEmpty());
 
+	Clear();
 	Resize(X, Y);
-
 	_ThemeManager::Inst().ApplyTheme(0);
-
-	SetEditorMode(true);
-
-	g_conf.sv_nightmode.Set(false);
 
 	return true;
 }

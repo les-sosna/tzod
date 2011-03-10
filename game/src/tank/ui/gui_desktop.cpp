@@ -16,6 +16,7 @@
 #include "video/TextureManager.h"
 
 #include "config/Config.h"
+#include "config/Language.h"
 #include "core/Profiler.h"
 
 #include "network/TankClient.h"
@@ -116,6 +117,7 @@ const UI::string_t& Desktop::MyConsoleHistory::GetItem(size_t index) const
 
 Desktop::Desktop(LayoutManager* manager)
   : Window(NULL, manager)
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
 {
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
@@ -173,13 +175,16 @@ void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	g_level->Render();
 	g_render->SetMode(RM_INTERFACE);
-
+	if( !g_client )
+	{
+		dc->DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
+			0xffffffff, g_lang.msg_no_game_started.Get(), alignTextCC);
+	}
 	Window::DrawChildren(dc, sx, sy);
 }
 
 void Desktop::OnEditorModeChanged(bool editorMode)
 {
-	assert(!editorMode);
 	_editor->SetVisible(editorMode);
 	if( editorMode && !_con->GetVisible() )
 	{
@@ -302,7 +307,7 @@ void Desktop::OnCommand(const string_t &cmd)
 
 	string_t exec;
 
-	if( !g_client->IsLocal() )
+	if( g_client && !g_client->IsLocal() )
 	{
 		if( cmd[0] == '/' )
 		{
@@ -366,7 +371,7 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 		result = cmd.substr(0, pos) + insert + cmd.substr(pos);
 		pos += insert.length();
 
-		if( !g_client->IsLocal() && !result.empty() && result[0] != '/' )
+		if( g_client && !g_client->IsLocal() && !result.empty() && result[0] != '/' )
 		{
 			result = string_t("/") + result;
 			++pos;

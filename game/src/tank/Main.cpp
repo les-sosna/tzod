@@ -215,7 +215,10 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
                       LPSTR, // lpCmdLine
                       int // nCmdShow
 ){
-#if 0 // memory leaks detection
+	srand( GetTickCount() );
+	Variant::Init();
+
+#ifdef _DEBUG // memory leaks detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 	GetConsole().SetLog(new ConsoleLog("log.txt"));
@@ -263,9 +266,6 @@ ZodApp::~ZodApp()
 
 bool ZodApp::Pre()
 {
-	srand( GetTickCount() );
-	Variant::Init();
-
 	// print UNIX-style date and time
 	time_t ltime;
 	char timebuf[26];
@@ -486,10 +486,6 @@ bool ZodApp::Pre()
 		MessageBox(g_env.hMainWnd, "startup script error", TXT_VERSION, MB_ICONERROR);
 	}
 
-
-	// init client. TODO: move to startup script
-	new IntroClient(g_level.get());
-
 	_timer.Start();
 
 	return true;
@@ -513,8 +509,6 @@ void ZodApp::Idle()
 		dt /= (float) _dt.size();
 	}
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
-
-
 
 
 	if( !g_level->IsGamePaused() )
@@ -544,7 +538,7 @@ void ZodApp::Idle()
 			{
 				actionTaken = false;
 
-				if( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
+				if( g_client && _ctrlSentCount <= g_conf.cl_latency.GetInt() )
 				{
 					//
 					// read controller state for local players
@@ -581,7 +575,7 @@ void ZodApp::Idle()
 				}
 
 				ControlPacketVector cpv;
-				if( _ctrlSentCount > 0 && g_client->RecvControl(cpv) )
+				if( g_client && _ctrlSentCount > 0 && g_client->RecvControl(cpv) )
 				{
 					_ctrlSentCount -= 1;
 					_timeBuffer -= dt_fixed;

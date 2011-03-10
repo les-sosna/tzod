@@ -161,7 +161,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 	assert(_fileDlg);
 	if( _resultOK == result )
 	{
-		script_exec(g_env.L, "reset()");
+		SAFE_DELETE(g_client);
 
 		string_t tmp = DIR_SAVE;
 		tmp += "/";
@@ -258,7 +258,7 @@ void MainMenuDlg::OnImportMapSelect(int result)
 	assert(_fileDlg);
 	if( _resultOK == result )
 	{
-		script_exec(g_env.L, "reset()");
+		SAFE_DELETE(g_client);
 
 		string_t tmp = DIR_MAPS;
 		tmp += "/";

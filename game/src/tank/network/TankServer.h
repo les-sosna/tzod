@@ -40,7 +40,7 @@ class TankServer
 	PeerList _clients;
 
 	int _connectedCount;
-	int _frameReadyCount;     // how much clients have ctrl data in buffer
+	int _frameReadyCount;     // how many clients have ctrl data in buffer
 
 
 	Socket _socketListen;

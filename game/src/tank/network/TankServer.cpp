@@ -52,26 +52,18 @@ TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announc
 	addr.sin_family      = AF_INET;
 
 	if( bind(_socketListen, (sockaddr *) &addr, sizeof(sockaddr_in)) )
-	{
 		throw std::runtime_error(std::string("[sv] Unable to bind socket - ") + StrFromErr(WSAGetLastError()));
-	}
 
 	if( listen(_socketListen, SOMAXCONN) )
-	{
 		throw std::runtime_error(std::string("[sv] Listen call failed - ") + StrFromErr(WSAGetLastError()));
-	}
 
 	if( _socketListen.SetEvents(FD_ACCEPT) )
-	{
 		throw std::runtime_error(std::string("[sv] Unable to select event - ") + StrFromErr(WSAGetLastError()));
-	}
 
 	_socketListen.SetCallback(CreateDelegate(&TankServer::OnListenerEvent, this));
 
 	if( _announcer )
-	{
 		_announcer->AnnounceHost(g_conf.sv_port.GetInt());
-	}
 
 	TRACE("Server is online!");
 }
@@ -86,9 +78,7 @@ TankServer::~TankServer(void)
 	//
 
 	if( _announcer )
-	{
 		_announcer->Cancel();
-	}
 
 
 	//
@@ -96,9 +86,7 @@ TankServer::~TankServer(void)
 	//
 
 	if( INVALID_SOCKET != _socketListen )
-	{
 		_socketListen.Close();
-	}
 
 
 	//
@@ -106,9 +94,7 @@ TankServer::~TankServer(void)
 	//
 
 	for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
-	{
 		(*it)->Close();
-	}
 
 
 	TRACE("sv: Server destroyed");
@@ -183,23 +169,17 @@ void TankServer::OnDisconnect(Peer *who_, int err)
 		who->descValid = false;
 		--_connectedCount;
 		if( who->ctrlValid )
-		{
 			--_frameReadyCount;
-		}
 
 		Variant arg(g_level->GetList(LIST_players).IndexOf(&*who->player));
 		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{
 			if( who->player != (*it)->player )
-			{
 				(*it)->Post(CL_POST_PLAYERQUIT, arg);
-			}
 		}
 
 		if( _frameReadyCount == _connectedCount )
-		{
 			SendFrame();
-		}
 	}
 
 	who->Close();
@@ -347,9 +327,7 @@ void TankServer::SvControl(Peer *from, int task, const Variant &arg)
 			for( PeerList::const_iterator it = _clients.begin(); it != _clients.end(); ++it )
 			{
 				if( (*it)->descValid )
-				{
 					(*it)->clboost /= sum / (float) _connectedCount;
-				}
 			}
 		}
 	}
@@ -366,18 +344,14 @@ void TankServer::SvPlayerReady(Peer *from, int task, const Variant &arg)
 	{
 		(*it)->Post(CL_POST_PLAYER_READY, Variant(reply));
 		if( !(*it)->player->GetReady() )
-		{
 			bAllPlayersReady = false;
-		}
 	}
 
 	if( bAllPlayersReady )
 	{
 		_socketListen.Close();
 		if( _announcer )
-		{
 			_announcer->Cancel();
-		}
 		BroadcastTextMessage(g_lang.net_msg_starting_game.Get());
 		for( PeerList::iterator it = _clients.begin(); it != _clients.end(); ++it )
 		{

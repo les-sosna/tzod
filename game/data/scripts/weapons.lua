@@ -18,21 +18,18 @@ end
 -------------------------------------------------------------------------------
 
 function gc.weap_autocannon.attach(veh)
---  message("Установлено орудие: автоматическая пушка")
   adjust_health(veh, 80)
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_cannon.attach(veh)
---  message("Установлено орудие: тяжелая пушка")
   adjust_health(veh, 125)
 end
 
 -------------------------------------------------------------------------------
 
 function gc.weap_plazma.attach(veh)
---  message("Установлено орудие: плазменная пушка")
   adjust_health(veh, 100)
 end
 
@@ -70,6 +67,8 @@ function gc.weap_minigun.attach(veh)
   veh.mass = veh.mass * 0.7
   adjust_health(veh, 65)
 end
+
+-------------------------------------------------------------------------------
 
 function gc.weap_zippo.attach(veh)
   adjust_health(veh, 130)

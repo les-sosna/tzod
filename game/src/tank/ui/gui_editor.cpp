@@ -25,6 +25,8 @@
 #include "Macros.h"
 #include "script.h"
 #include "DefaultCamera.h"
+#include "ClientBase.h"
+
 
 namespace UI
 {
@@ -52,9 +54,12 @@ NewMapDlg::NewMapDlg(Window *parent)
 
 void NewMapDlg::OnOK()
 {
+	SAFE_DELETE(g_client);
+	g_conf.sv_nightmode.Set(false);
 	g_conf.ed_width.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
 	g_conf.ed_height.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
-	script_exec(g_env.L, "reset(); newmap(conf.ed_width, conf.ed_height)");
+	script_exec(g_env.L, "newmap(conf.ed_width, conf.ed_height)");
+	g_level->SetEditorMode(true);
 	Close(_resultOK);
 }
 

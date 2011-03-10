@@ -165,7 +165,7 @@ void CreateServerDlg::OnOK()
 		announcer->SetLobbyUrl(g_conf.sv_lobby.Get());
 	}
 
-	script_exec(g_env.L, "reset()");
+	SAFE_DELETE(g_client);
 
 
 	string_t path = DIR_MAPS;
@@ -210,7 +210,7 @@ void CreateServerDlg::OnOK()
 //	PauseGame(true);
 
 
-	script_exec(g_env.L, "reset()");
+	SAFE_DELETE(g_client);
 
 	assert(g_level->IsEmpty());
 	new TankClient(g_level.get());
@@ -285,7 +285,7 @@ void ConnectDlg::OnOK()
 	_btnOK->SetEnabled(false);
 	_name->SetEnabled(false);
 
-	script_exec(g_env.L, "reset()");
+	SAFE_DELETE(g_client);
 
 	assert(g_level->IsEmpty());
 	TankClient *cl = new TankClient(g_level.get());
