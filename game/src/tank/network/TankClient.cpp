@@ -261,7 +261,7 @@ void TankClient::ClSetPlayerInfo(Peer *from, int task, const Variant &arg)
 	assert(!_gameStarted);
 
 	const PlayerDescEx &pde = arg.Value<PlayerDescEx>();
-	_levelController->SetPlayerInfo(pde.idx, pde.pd);
+	_levelController->SetPlayerInfo(_level->GetPlayerByIndex(pde.idx), pde.pd);
 
 	if( eventPlayersUpdate )
 	{
@@ -296,7 +296,7 @@ void TankClient::ClErrorMessage(Peer *from, int task, const Variant &arg)
 void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 {
 	unsigned short idx = arg.Value<unsigned short>();
-	_levelController->PlayerQuit(idx);
+	_levelController->PlayerQuit(_level->GetPlayerByIndex(idx));
 
 	if( eventPlayersUpdate )
 	{
@@ -306,7 +306,7 @@ void TankClient::ClPlayerQuit(Peer *from, int task, const Variant &arg)
 
 void TankClient::ClAddHuman(Peer *from, int task, const Variant &arg)
 {
-	_levelController->AddHuman(arg.Value<PlayerDesc>(), false);
+	_levelController->AddHuman(arg.Value<PlayerDesc>());
 	if( eventPlayersUpdate )
 		INVOKE(eventPlayersUpdate) ();
 }
@@ -346,6 +346,11 @@ bool TankClient::RecvControl(ControlPacketVector &result)
 		return true;
 	}
 	return false;
+}
+
+const char* TankClient::GetActiveProfile() const
+{
+    return NULL;
 }
 
 

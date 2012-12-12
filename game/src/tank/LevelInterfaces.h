@@ -9,6 +9,11 @@ namespace FS
 	class Stream;
 }
 
+struct PlayerHandle
+{
+	virtual size_t GetIndex() const = 0;
+};
+
 struct ILevelController
 {
 	virtual float GetTime() const = 0;
@@ -17,9 +22,10 @@ struct ILevelController
 	virtual DWORD GetFrame() const = 0;
 
 	virtual void Clear() = 0;
-	virtual void SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd) = 0;
-	virtual void PlayerQuit(size_t playerIndex) = 0;
-	virtual void AddHuman(const PlayerDesc &pd, bool isLocal) = 0;
+	virtual PlayerHandle* GetPlayerByIndex(size_t playerIndex) = 0;
+	virtual void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd) = 0;
+	virtual void PlayerQuit(PlayerHandle *p) = 0;
+	virtual PlayerHandle* AddHuman(const PlayerDesc &pd) = 0;
 	virtual void AddBot(const BotDesc &bd) = 0;
 	virtual void init_newdm(FS::Stream *s, unsigned long seed) = 0;
 };

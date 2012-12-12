@@ -36,7 +36,7 @@ bool PtInFRect(const FRECT &rect, const vec2d &pt)
 		rect.top <= pt.y && pt.y < rect.bottom;
 }
 
-void RectToFRect(LPFRECT lpfrt, LPRECT lprt)
+void RectToFRect(FRECT *lpfrt, RECT *lprt)
 {
 	lpfrt->left   = (float) lprt->left;
 	lpfrt->top    = (float) lprt->top;
@@ -44,7 +44,7 @@ void RectToFRect(LPFRECT lpfrt, LPRECT lprt)
 	lpfrt->bottom = (float) lprt->bottom;
 }
 
-void FRectToRect(LPRECT lprt, LPFRECT lpfrt)
+void FRectToRect(RECT *lprt, FRECT *lpfrt)
 {
 	lprt->left   = (LONG) lpfrt->left;
 	lprt->top    = (LONG) lpfrt->top;
@@ -52,7 +52,7 @@ void FRectToRect(LPRECT lprt, LPFRECT lpfrt)
 	lprt->bottom = (LONG) lpfrt->bottom;
 }
 
-void OffsetFRect(LPFRECT lpfrt, float x, float y)
+void OffsetFRect(FRECT *lpfrt, float x, float y)
 {
 	lpfrt->left   += x;
 	lpfrt->top    += y;
@@ -60,7 +60,7 @@ void OffsetFRect(LPFRECT lpfrt, float x, float y)
 	lpfrt->bottom += y;
 }
 
-void OffsetFRect(LPFRECT lpfrt, const vec2d &x)
+void OffsetFRect(FRECT *lpfrt, const vec2d &x)
 {
 	lpfrt->left   += x.x;
 	lpfrt->top    += x.y;

@@ -1311,79 +1311,42 @@ void Level::OnChangeNightMode()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Level::SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd)
+PlayerHandle* Level::GetPlayerByIndex(size_t playerIndex)
 {
 	GC_Player *player = NULL;
-
-
-	//
-	// find existing player
-	//
-
-	if( playerIndex < GetList(LIST_players).size() )
-	{
-		FOREACH(GetList(LIST_players), GC_Player, p)
-		{
-			if( 0 == playerIndex-- )
-			{
-				player = p;
-				break;
-			}
-		}
-		assert(player);
-	}
-
-	if( player )
-	{
-		player->SetClass(pd.cls);
-		player->SetNick(pd.nick);
-		player->SetSkin(pd.skin);
-		player->SetTeam(pd.team);
-		player->UpdateSkin();
-	}
-	else
-	{
-		assert(false);
-	}
-}
-
-void Level::PlayerQuit(size_t playerIndex)
-{
-	size_t index = 0;
 	FOREACH(GetList(LIST_players), GC_Player, p)
 	{
-		if( playerIndex == index++ )
+		if( 0 == playerIndex-- )
 		{
-			if( g_gui )
-			{
-				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
-			}
-			p->Kill();
+			player = p;
 			break;
 		}
 	}
+	return player;
 }
 
-void Level::AddHuman(const PlayerDesc &pd, bool isLocal)
+void Level::SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd)
 {
-	if( isLocal )
-	{
-		GC_PlayerLocal *player = new GC_PlayerLocal();
-		const string_t &profile = g_conf.cl_playerinfo.profile.Get();
-		if( profile.empty() )
-		{
-			player->SelectFreeProfile();
-		}
-		else
-		{
-			player->SetProfile(profile);
-		}
-	}
-	else
-	{
-		new GC_PlayerRemote();
-	}
-	SetPlayerInfo(GetList(LIST_players).size() - 1, pd);
+	GC_Player *player = static_cast<GC_Player *>(p);
+	player->SetClass(pd.cls);
+	player->SetNick(pd.nick);
+	player->SetSkin(pd.skin);
+	player->SetTeam(pd.team);
+	player->UpdateSkin();
+}
+
+void Level::PlayerQuit(PlayerHandle *p)
+{
+	if( g_gui )
+		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
+	static_cast<GC_Player*>(p)->Kill();
+}
+
+PlayerHandle* Level::AddHuman(const PlayerDesc &pd)
+{
+	GC_PlayerLocal *player = new GC_PlayerLocal();
+	SetPlayerInfo(player, pd);
+	return player;
 }
 
 void Level::AddBot(const BotDesc &bd)

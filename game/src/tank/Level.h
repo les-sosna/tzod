@@ -351,9 +351,10 @@ public:
 
 	// ILevelController
 	virtual void Clear();
-	virtual void SetPlayerInfo(size_t playerIndex, const PlayerDesc &pd);
-	virtual void PlayerQuit(size_t playerIndex);
-	virtual void AddHuman(const PlayerDesc &pd, bool isLocal);
+	virtual PlayerHandle* GetPlayerByIndex(size_t playerIndex);
+	virtual void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd);
+	virtual void PlayerQuit(PlayerHandle *p);
+	virtual PlayerHandle* AddHuman(const PlayerDesc &pd);
 	virtual void AddBot(const BotDesc &bd);
 	virtual void init_newdm(FS::Stream *s, unsigned long seed);
 

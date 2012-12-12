@@ -33,5 +33,10 @@ bool IntroClient::RecvControl(ControlPacketVector &result)
 	return true;
 }
 
+const char* IntroClient::GetActiveProfile() const
+{
+    return NULL;
+}
+
 
 // end of file

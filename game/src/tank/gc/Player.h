@@ -4,6 +4,8 @@
 
 #include "Service.h"
 #include "network/ControlPacket.h"
+#include "LevelInterfaces.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -13,7 +15,9 @@ class GC_Vehicle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Player : public GC_Service
+class GC_Player
+	: public GC_Service
+	, public PlayerHandle
 {
 	MemberOfGlobalList<LIST_players> _memberOf;
 
@@ -78,13 +82,15 @@ public:
 	GC_Player();
 	GC_Player(FromFile);
 	virtual ~GC_Player();
-	virtual void Kill();
-
-	virtual void Serialize(SaveFile &f);
-	virtual void MapExchange(MapFile &f);
-
 	void UpdateSkin();
 
+	// PlayerHandle
+	virtual size_t GetIndex() const;
+
+	// GC_Object
+	virtual void Kill();
+	virtual void Serialize(SaveFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void TimeStepFixed(float dt);
 
 private:
@@ -114,82 +120,19 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_PlayerLocal : public GC_PlayerHuman
+class GC_PlayerLocal
+	: public GC_PlayerHuman
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
-	string_t _profile;
 	std::deque<VehicleState> _stateHistory;
-
-
-	//
-	// cached values from the profile
-	//
-
-	int _keyForward;
-	int _keyBack;
-	int _keyLeft;
-	int _keyRight;
-	int _keyFire;
-	int _keyLight;
-	int _keyTowerLeft;
-	int _keyTowerRight;
-	int _keyTowerCenter;
-	int _keyPickup;
-	bool _aimToMouse;
-	bool _moveToMouse;
-	bool _arcadeStyle;
-
-
-	//
-	// controller state
-	//
-
-	mutable bool _lastLightKeyState;
-	mutable bool _lastLightsState;
-
-protected:
-	class MyPropertySet : public GC_Player::MyPropertySet
-	{
-		typedef GC_Player::MyPropertySet BASE;
-
-		ObjectProperty _propProfile;
-
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
-	};
-	virtual PropertySet* NewPropertySet();
-
 
 public:
 	GC_PlayerLocal();
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
 
-	void SelectFreeProfile();
-	void ReadControllerStateAndStepPredicted(VehicleState &vs, float dt);
-
-	virtual void TimeStepFixed(float dt);
-	virtual void Serialize(SaveFile &f);
-	virtual void MapExchange(MapFile &f);
-
-	void SetProfile(const string_t &name);
-	const string_t& GetProfile() const;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_PlayerRemote : public GC_PlayerHuman
-{
-	DECLARE_SELF_REGISTRATION(GC_PlayerRemote);
-
-public:
-	GC_PlayerRemote();
-	GC_PlayerRemote(FromFile);
-	virtual ~GC_PlayerRemote();
+	void StepPredicted(VehicleState &vs, float dt);
 
 	virtual void TimeStepFixed(float dt);
 };

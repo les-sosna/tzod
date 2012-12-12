@@ -5,10 +5,10 @@
 //-------------------------------------------------------
 
 bool PtInFRect(const FRECT &rect, const vec2d &pt);
-void RectToFRect(LPFRECT lpfrt, const LPRECT lprt);
-void FRectToRect(LPRECT  lprt,  const LPFRECT lpfrt);
-void OffsetFRect(LPFRECT lpfrt, float x, float y);
-void OffsetFRect(LPFRECT lpfrt, const vec2d &x);
+void RectToFRect(FRECT *lpfrt, const RECT *lprt);
+void FRectToRect(RECT  *lprt,  const FRECT *lpfrt);
+void OffsetFRect(FRECT *lpfrt, float x, float y);
+void OffsetFRect(FRECT *lpfrt, const vec2d &x);
 
 // generates a pseudo random number in range [0, max)
 float frand(float max);

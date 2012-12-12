@@ -8,8 +8,9 @@
 #include "ui/GuiManager.h"
 #include "script.h"
 
+
 ClientBase::ClientBase(ILevelController *level)
-	: m_level(level)
+	: _level(level)
 {
 	assert(!g_client);
 	g_client = this;
@@ -21,7 +22,7 @@ ClientBase::~ClientBase()
 	assert(this == g_client);
 	g_client = NULL;
 	// remove all game objects
-	m_level->Clear();
+	_level->Clear();
 	// clear message area
 	if( g_gui )
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();

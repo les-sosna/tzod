@@ -15,6 +15,7 @@ public:
 	virtual bool IsLocal() const;
 	virtual void SendControl(const ControlPacket &cp);
 	virtual bool RecvControl(ControlPacketVector &result);
+    virtual const char* GetActiveProfile() const;
 };
 
 

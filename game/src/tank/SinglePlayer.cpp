@@ -38,6 +38,13 @@ bool SinglePlayerClient::RecvControl(ControlPacketVector &result)
 	return true;
 }
 
+const char* SinglePlayerClient::GetActiveProfile() const
+{
+    if( g_conf.dm_players.GetSize() )
+        return ConfPlayerLocal(g_conf.dm_players.GetTable(0)).profile.Get().c_str();
+    return NULL;
+}
+
 
 
 // end of file

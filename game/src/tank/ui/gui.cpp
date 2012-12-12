@@ -32,6 +32,8 @@
 #include "gc/Player.h"
 #include "gc/ai.h"
 
+#include "network/CommonTypes.h"
+
 
 namespace UI
 {
@@ -377,23 +379,32 @@ void NewGameDlg::OnOK()
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
-		GC_PlayerLocal *player = new GC_PlayerLocal();
-		player->SetTeam(p.team.GetInt());
-		player->SetSkin(p.skin.Get());
-		player->SetClass(p.platform_class.Get());
-		player->SetNick(p.nick.Get());
-		player->SetProfile(p.profile.Get());
+		PlayerDesc pd;
+		pd.cls = p.platform_class.Get();
+		pd.nick = p.nick.Get();
+		pd.skin = p.skin.Get();
+		pd.team = p.team.GetInt();
+		PlayerHandle *handle = _level->AddHuman(pd);
+//		g_client
+
+		//GC_PlayerLocal *player = new GC_PlayerLocal();
+		//player->SetTeam(p.team.GetInt());
+		//player->SetSkin(p.skin.Get());
+		//player->SetClass(p.platform_class.Get());
+		//player->SetNick(p.nick.Get());
+		//player->SetProfile(p.profile.Get());
 	}
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-		GC_PlayerAI *bot = new GC_PlayerAI();
-		bot->SetTeam(p.team.GetInt());
-		bot->SetSkin(p.skin.Get());
-		bot->SetClass(p.platform_class.Get());
-		bot->SetNick(p.nick.Get());
-		bot->SetLevel(p.level.GetInt());
+		BotDesc bd;
+		bd.pd.cls = p.platform_class.Get();
+		bd.pd.nick = p.nick.Get();
+		bd.pd.skin = p.skin.Get();
+		bd.pd.team = p.team.GetInt();
+		bd.level = p.level.GetInt();
+		_level->AddBot(bd);
 	}
 
 	Close(_resultOK);

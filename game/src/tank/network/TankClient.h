@@ -71,6 +71,7 @@ public:
 	virtual bool IsLocal() const { return false; }
 	virtual void SendControl(const ControlPacket &cp);
 	virtual bool RecvControl(ControlPacketVector &result);
+    virtual const char* GetActiveProfile() const;
 
 private:
 	// remote functions

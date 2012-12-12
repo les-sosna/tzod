@@ -60,7 +60,7 @@ private:
 	std::deque<float> _dt;
 	Timer _timer;
 	float _timeBuffer;
-	int  _ctrlSentCount;
+//	int  _ctrlSentCount;
 
 	std::auto_ptr<InputManager> _inputMgr;
 };
@@ -242,9 +242,17 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 
 	memcpy(&g_md5, md5.digest, 16);
 
-
-	ZodApp app;
-	return app.Run();
+	try
+	{
+		ZodApp app;
+		return app.Run();
+	}
+	catch( const std::exception &e )
+	{
+//        GetConsole.Format(SEVERITY_ERROR) << e.what();
+		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
+        return 1;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -252,7 +260,7 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 ///////////////////////////////////////////////////////////////////////////////
 ZodApp::ZodApp()
 	: _timeBuffer(0)
-	, _ctrlSentCount(0)
+//	, _ctrlSentCount(0)
 {
 	assert(!g_app);
 	g_app = this;
@@ -533,12 +541,12 @@ void ZodApp::Idle()
 		int ctrlSent = 0;
 		if( _timeBuffer + dt_fixed / 2 > 0 )
 		{
-			bool actionTaken;
+//			bool actionTaken;
 			do
 			{
-				actionTaken = false;
+//				actionTaken = false;
 
-				if( g_client && _ctrlSentCount <= g_conf.cl_latency.GetInt() )
+				if( g_client /*&& _ctrlSentCount <= g_conf.cl_latency.GetInt()*/ )
 				{
 					//
 					// read controller state for local players
@@ -549,7 +557,11 @@ void ZodApp::Idle()
 						if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
 						{
 							VehicleState vs;
-							pl->ReadControllerStateAndStepPredicted(vs, dt_fixed);
+                            if( const char *profile = g_client->GetActiveProfile() )
+                            {
+                                _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
+                            }
+                            pl->StepPredicted(vs, dt_fixed);
 							ctrl.push_back(vs);
 						}
 					}
@@ -568,27 +580,26 @@ void ZodApp::Idle()
 			#endif
 					g_client->SendControl(cp);
 
-					++_ctrlSentCount;
+//					++_ctrlSentCount;
 					++ctrlSent;
 
-					actionTaken = true;
+//					actionTaken = true;
 				}
 
 				ControlPacketVector cpv;
-				if( g_client && _ctrlSentCount > 0 && g_client->RecvControl(cpv) )
+				if( g_client /*&& _ctrlSentCount > 0*/ && g_client->RecvControl(cpv) )
 				{
-					_ctrlSentCount -= 1;
+//					_ctrlSentCount -= 1;
 					_timeBuffer -= dt_fixed;
 					g_level->Step(cpv, dt_fixed);
-					actionTaken = true;
+//					actionTaken = true;
 				}
-			} while( _timeBuffer > 0 && actionTaken );
+			} while( _timeBuffer > 0 /*&& actionTaken*/ );
 		}
-
 
 		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
 	}
-	
+
 
 
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());

@@ -27,7 +27,7 @@ static int seek_func(void *datasource, ogg_int64_t offset, int whence)
 static long tell_func(void *datasource)
 {
 	FS::Stream *s = (FS::Stream *) datasource;
-	return s->Seek(0, SEEK_CUR);
+	return static_cast<long>(s->Seek(0, SEEK_CUR));
 }
 
 static void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector<char> *data)
@@ -71,7 +71,7 @@ static void ogg_load_vorbis(const char *filename, WAVEFORMATEX *pwf, std::vector
 		pwf->wBitsPerSample   = 16;
 		pwf->cbSize           = 0;
 
-		size_t size = ov_pcm_total(&vf, -1) * pwf->nBlockAlign;
+		size_t size = static_cast<size_t>(ov_pcm_total(&vf, -1) * pwf->nBlockAlign);
 		data->resize(size);
 
 		int    bitstream = 0;

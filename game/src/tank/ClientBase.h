@@ -3,6 +3,9 @@
 #pragma once
 
 #include "network/ControlPacket.h" // fixme: path
+#include "gc/Object.h" // for ObjPtr
+#include "Controller.h"
+
 
 struct IClientCallback
 {
@@ -22,6 +25,7 @@ public:
 };
 
 struct ILevelController;
+struct PlayerHandle;
 
 class ClientBase
 {
@@ -36,9 +40,11 @@ public:
 	virtual bool IsLocal() const = 0;
 	virtual void SendControl(const ControlPacket &cp) = 0; // this function terminates current frame and starts next one
 	virtual bool RecvControl(ControlPacketVector &result) = 0;
+    virtual const char* GetActiveProfile() const = 0;
 
+protected:
+	ILevelController *_level;
 private:
-	ILevelController *m_level;
 	std::set<IClientCallback*> _clientListeners;
 	class MySubscribtion : public Subscribtion
 	{

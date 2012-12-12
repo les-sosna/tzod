@@ -380,6 +380,9 @@
     <ClInclude Include="src\tank\BackgroundIntro.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="src\tank\Controller.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\tank\DefaultCamera.cpp">
@@ -653,6 +656,9 @@
       <Filter>misc</Filter>
     </ClCompile>
     <ClCompile Include="src\tank\BackgroundIntro.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank\Controller.cpp">
       <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>

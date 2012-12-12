@@ -175,6 +175,7 @@
     <ClInclude Include="src\tank\BackgroundIntro.h" />
     <ClInclude Include="src\tank\ClientBase.h" />
     <ClInclude Include="src\tank\constants.h" />
+    <ClInclude Include="src\tank\Controller.h" />
     <ClInclude Include="src\tank\DefaultCamera.h" />
     <ClInclude Include="src\tank\directx.h" />
     <ClInclude Include="src\tank\Dsutil.h" />
@@ -290,6 +291,7 @@
   <ItemGroup>
     <ClCompile Include="src\tank\BackgroundIntro.cpp" />
     <ClCompile Include="src\tank\ClientBase.cpp" />
+    <ClCompile Include="src\tank\Controller.cpp" />
     <ClCompile Include="src\tank\DefaultCamera.cpp" />
     <ClCompile Include="src\tank\directx.cpp" />
     <ClCompile Include="src\tank\Dsutil.cpp" />

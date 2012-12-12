@@ -1,12 +1,14 @@
 // types.h
 
-typedef struct FRECT
+#pragma once
+
+struct FRECT
 {
 	float left;
 	float top;
 	float right;
 	float bottom;
-} FRECT, *LPFRECT;
+};
 
 struct SpriteColor
 {

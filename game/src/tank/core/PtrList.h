@@ -302,7 +302,7 @@ public:
 	size_t size() const { return _size; }
 
 
-	size_t IndexOf(T *p)
+	size_t IndexOf(const T *p) const
 	{
 		size_t currentIdx = 0;
 		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
@@ -310,7 +310,7 @@ public:
 				return currentIdx;
 		return -1;
 	}
-	T* GetByIndex(size_t index)
+	T* GetByIndex(size_t index) const
 	{
 		size_t currentIdx = 0;
 		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
