@@ -12,6 +12,11 @@ SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, FS::St
 	levelController->init_newdm(stream, seed);
 }
 
+bool SinglePlayerClient::SupportPause() const
+{
+	return true;
+}
+
 bool SinglePlayerClient::SupportEditor() const
 {
 	return true;

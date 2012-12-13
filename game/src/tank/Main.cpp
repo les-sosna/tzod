@@ -109,7 +109,7 @@ static void OnPrintScreen()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void RenderFrame(bool thumbnail)
+static void RenderFrame()
 {
 	assert(g_render);
 	g_render->Begin();
@@ -249,9 +249,9 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 	}
 	catch( const std::exception &e )
 	{
-//        GetConsole.Format(SEVERITY_ERROR) << e.what();
+		GetConsole().Format(SEVERITY_ERROR) << e.what();
 		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
-        return 1;
+		return 1;
 	}
 }
 
@@ -519,7 +519,7 @@ void ZodApp::Idle()
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 
 
-	if( !g_level->IsGamePaused() )
+	if( g_client && (!g_level->IsGamePaused() || !g_client->SupportPause()) )
 	{
 		assert(dt >= 0);
 
@@ -546,7 +546,7 @@ void ZodApp::Idle()
 			{
 //				actionTaken = false;
 
-				if( g_client /*&& _ctrlSentCount <= g_conf.cl_latency.GetInt()*/ )
+			//	if( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
 				{
 					//
 					// read controller state for local players
@@ -587,7 +587,7 @@ void ZodApp::Idle()
 				}
 
 				ControlPacketVector cpv;
-				if( g_client /*&& _ctrlSentCount > 0*/ && g_client->RecvControl(cpv) )
+				if( /*_ctrlSentCount > 0 && */g_client->RecvControl(cpv) )
 				{
 //					_ctrlSentCount -= 1;
 					_timeBuffer -= dt_fixed;
@@ -598,7 +598,7 @@ void ZodApp::Idle()
 		}
 
 		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
-	}
+	} // if( !g_level->IsGamePaused() )
 
 
 
@@ -608,7 +608,7 @@ void ZodApp::Idle()
 		g_gui->TimeStep(dt);
 
 
-	RenderFrame(false);
+	RenderFrame();
 
 	if( g_music )
 	{

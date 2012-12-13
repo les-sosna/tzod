@@ -140,12 +140,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	ZeroMemory(&vs, sizeof(VehicleState));
 
 	// clean the attack list
-	struct helper{ static bool whether(const ObjPtr<GC_RigidBodyStatic> &arg)
-	{
-		return !arg;
-	}};
-	_attackList.remove_if(&helper::whether);
-
+	_attackList.remove_if( [](const ObjPtr<GC_RigidBodyStatic> &arg) -> bool { return !arg; } );
 
 	if( _pickupCurrent )
 	{

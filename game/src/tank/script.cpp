@@ -468,7 +468,13 @@ static int luaT_music(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( filename[0] )
+	if( !g_soundManager )
+	{
+		TRACE("WARNING: Sound unavailable");
+	}
+
+
+	if( filename[0] && g_soundManager )
 	{
 		try
 		{

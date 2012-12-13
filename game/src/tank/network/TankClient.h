@@ -66,6 +66,7 @@ public:
 	Delegate<void()> eventConnected;
 
 	// IClient
+	virtual bool SupportPause() const { return false; }
 	virtual bool SupportEditor() const { return false; }
 	virtual bool SupportSave() const { return false; }
 	virtual bool IsLocal() const { return false; }

@@ -15,6 +15,7 @@ class SinglePlayerClient : public ClientBase
 public:
 	SinglePlayerClient(ILevelController *levelController, FS::Stream *stream, unsigned long seed);
 
+	virtual bool SupportPause() const;
 	virtual bool SupportEditor() const;
 	virtual bool SupportSave() const;
 	virtual bool IsLocal() const;

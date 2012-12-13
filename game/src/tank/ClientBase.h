@@ -35,6 +35,7 @@ public:
 
 	std::unique_ptr<Subscribtion> AddListener(IClientCallback *ls);
 
+	virtual bool SupportPause() const = 0;
 	virtual bool SupportEditor() const = 0;
 	virtual bool SupportSave() const = 0;
 	virtual bool IsLocal() const = 0;

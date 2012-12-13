@@ -110,7 +110,7 @@ HRESULT InputManager::InquireInputDevices()
 void InputManager::ReadControllerState(const char *profile, const GC_Vehicle *vehicle, VehicleState &vs)
 {
     auto it = _controllers.find(profile);
-    if( _controllers.end() != it )
+    if( vehicle && _controllers.end() != it )
     {
         it->second.ReadControllerState(vehicle, vs);
     }

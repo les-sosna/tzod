@@ -10,6 +10,7 @@ class IntroClient : public ClientBase
 public:
 	explicit IntroClient(ILevelController *levelController);
 
+	virtual bool SupportPause() const;
 	virtual bool SupportEditor() const;
 	virtual bool SupportSave() const;
 	virtual bool IsLocal() const;

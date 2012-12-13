@@ -8,6 +8,11 @@ IntroClient::IntroClient(ILevelController *levelController)
 {
 }
 
+bool IntroClient::SupportPause() const
+{
+	return false;
+}
+
 bool IntroClient::SupportEditor() const
 {
 	return false;
