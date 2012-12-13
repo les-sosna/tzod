@@ -16,7 +16,7 @@ AppBase::~AppBase()
 
 void AppBase::InitNetwork()
 {
-	if( !_netHelper.get() )
+	if( !_netHelper )
 	{
 		_netHelper.reset(new NetworkInitHelper());
 	}

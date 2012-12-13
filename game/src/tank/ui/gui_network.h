@@ -54,7 +54,7 @@ class ConnectDlg
 	DefaultListBox *_status;
 	Button *_btnOK;
 	Edit   *_name;
-	std::auto_ptr<Subscribtion> _clientSubscribtion;
+	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 public:
 	ConnectDlg(Window *parent, const string_t &defaultName);
@@ -115,8 +115,8 @@ class WaitingForPlayersDlg
 	Console        *_chat;
 	Button         *_btnOK;
 	Button         *_btnProfile;
-	std::auto_ptr<UI::ConsoleBuffer>  _buf;
-	std::auto_ptr<Subscribtion> _clientSubscribtion;
+	std::unique_ptr<UI::ConsoleBuffer>  _buf;
+	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 	static const size_t _maxPings = 5;
 	std::vector<DWORD> _pings;

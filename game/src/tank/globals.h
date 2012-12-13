@@ -40,7 +40,7 @@ extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
 extern ClientBase      *g_client;
 
-extern std::auto_ptr<Level>     g_level;
+extern std::unique_ptr<Level>     g_level;
 extern SafePtr<MusicPlayer>     g_music;
 extern SafePtr<FS::FileSystem>  g_fs;
 

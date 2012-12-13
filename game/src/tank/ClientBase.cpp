@@ -30,9 +30,9 @@ ClientBase::~ClientBase()
 	ClearCommandQueue(g_env.L);
 }
 
-std::auto_ptr<Subscribtion> ClientBase::AddListener(IClientCallback *ls)
+std::unique_ptr<Subscribtion> ClientBase::AddListener(IClientCallback *ls)
 {
-	return std::auto_ptr<Subscribtion>(new MySubscribtion(this, ls));
+	return std::unique_ptr<Subscribtion>(new MySubscribtion(this, ls));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

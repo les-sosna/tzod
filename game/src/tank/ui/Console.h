@@ -51,8 +51,8 @@ public:
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);
 	void SetEcho(bool echo);
-	std::tr1::function<void(const string_t &)> eventOnSendCommand;
-	std::tr1::function<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
+	std::function<void(const string_t &)> eventOnSendCommand;
+	std::function<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual bool OnChar(int c);

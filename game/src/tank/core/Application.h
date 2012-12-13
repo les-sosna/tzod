@@ -25,7 +25,7 @@ public:
 private:
 	std::vector<HANDLE> _handles;
 	std::vector<Delegate<void()> > _callbacks;
-	std::auto_ptr<NetworkInitHelper> _netHelper;
+	std::unique_ptr<NetworkInitHelper> _netHelper;
 };
 
 // end of file

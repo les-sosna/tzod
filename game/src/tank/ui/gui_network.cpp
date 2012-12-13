@@ -205,7 +205,7 @@ void CreateServerDlg::OnOK()
 //	g_conf.sv_latency.SetInt(1);
 
 //	assert(false); // dont connect; integrate server into client instead
-//	(new ConnectDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
+//	(new ConnectDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, _1);
 
 //	PauseGame(true);
 
@@ -215,7 +215,7 @@ void CreateServerDlg::OnOK()
 	assert(g_level->IsEmpty());
 	new TankClient(g_level.get());
 
-	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::tr1::bind(&CreateServerDlg::OnCloseChild, this, _1);
+	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, _1);
 
 	SetVisible(false);
 }
@@ -389,7 +389,7 @@ void InternetDlg::OnConnect()
 	{
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
 		ConnectDlg *dlg = new ConnectDlg(GetParent(), addr);
-		dlg->eventClose = std::tr1::bind(&InternetDlg::OnCloseChild, this, _1);
+		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, _1);
 		SetVisible(false);
 	}
 }
@@ -497,7 +497,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_chat = Console::Create(this, 20, 300, 512, 200, _buf.get());
 	_chat->SetTexture("ui/list", false);
 	_chat->SetEcho(false);
-	_chat->eventOnSendCommand = std::tr1::bind(&WaitingForPlayersDlg::OnSendMessage, this, _1);
+	_chat->eventOnSendCommand = std::bind(&WaitingForPlayersDlg::OnSendMessage, this, _1);
 
 
 	_btnOK = Button::Create(this, g_lang.net_chatroom_ready_button.Get(), 560, 450);
@@ -538,7 +538,7 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 	_btnProfile->SetEnabled(false);
 	_btnOK->SetEnabled(false);
 	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo->GetRoot());
-	dlg->eventClose = std::tr1::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, _1);
+	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, _1);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()

@@ -68,7 +68,7 @@
 #endif
 
 #include <functional>
-using namespace std::tr1::placeholders; // _1, _2, etc.
+using namespace std::placeholders; // _1, _2, etc.
 
 
 #include <cmath>

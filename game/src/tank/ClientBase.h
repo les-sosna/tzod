@@ -33,7 +33,7 @@ public:
 	explicit ClientBase(ILevelController *level);
 	virtual ~ClientBase() = 0;
 
-	std::auto_ptr<Subscribtion> AddListener(IClientCallback *ls);
+	std::unique_ptr<Subscribtion> AddListener(IClientCallback *ls);
 
 	virtual bool SupportEditor() const = 0;
 	virtual bool SupportSave() const = 0;

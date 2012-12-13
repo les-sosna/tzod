@@ -21,7 +21,7 @@ UI::LayoutManager  *g_gui;
 TextureManager *g_texman;
 ClientBase     *g_client;
 
-std::auto_ptr<Level>     g_level;
+std::unique_ptr<Level>     g_level;
 SafePtr<MusicPlayer>     g_music;
 SafePtr<FS::FileSystem>  g_fs;
 

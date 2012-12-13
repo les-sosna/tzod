@@ -136,7 +136,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	(new ControlProfileDlg(this, NULL))->eventClose = std::tr1::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
+	(new ControlProfileDlg(this, NULL))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
 }
 
 void SettingsDlg::OnEditProfile()
@@ -144,7 +144,7 @@ void SettingsDlg::OnEditProfile()
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
 	(new ControlProfileDlg(this, _profiles->GetData()->GetItemText(i, 0).c_str()))
-		->eventClose = std::tr1::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
+		->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
 }
 
 void SettingsDlg::OnDeleteProfile()

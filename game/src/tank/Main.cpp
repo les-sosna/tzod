@@ -62,7 +62,7 @@ private:
 	float _timeBuffer;
 //	int  _ctrlSentCount;
 
-	std::auto_ptr<InputManager> _inputMgr;
+	std::unique_ptr<InputManager> _inputMgr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

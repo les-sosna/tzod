@@ -535,7 +535,7 @@ EditorLayout::EditorLayout(Window *parent)
 	_typeList->SetCurSel(g_conf.ed_object.GetInt());
 
 	assert(!g_conf.ed_uselayers.eventChange);
-	g_conf.ed_uselayers.eventChange = std::tr1::bind(&EditorLayout::OnChangeUseLayers, this);
+	g_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 }
 
