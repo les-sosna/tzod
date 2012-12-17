@@ -92,7 +92,6 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	// game
 	VAR_BOOL(  g_shownames,         true )
 	VAR_BOOL(  g_showdamage,       false )
-	VAR_BOOL(  g_particles,         true )
 	VAR_BOOL(  g_rotcamera,        false )
 	VAR_FLOAT( g_rotcamera_a,      10.0f )
 	VAR_FLOAT( g_rotcamera_s,      10.0f )
@@ -124,6 +123,8 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(   dbg_sleep_rand,         0 )
 
 	// other
+	VAR_STR(   dm_player1,    "Arrows")
+	VAR_STR(   dm_player2,    "WASD")
 	VAR_TABLE( dm_profiles,       InitProfiles ) // ConfControllerProfile
 	VAR_ARRAY( dm_players,                NULL )
 	VAR_ARRAY( dm_bots,                   NULL )

@@ -155,7 +155,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 	// caterpillar tracks
 	//
 
-	if( g_conf.g_particles.Get() && CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
+	if( CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
 	{
 		vec2d tmp(GetDirection().y, -GetDirection().x);
 		vec2d trackL_new = GetPos() + tmp*15;

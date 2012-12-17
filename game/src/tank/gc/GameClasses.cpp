@@ -430,25 +430,22 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_Player *owner)
 	SetTexture("explosion_o");
 	MoveTo( pos );
 
-	if( g_conf.g_particles.Get() )
+	for(int n = 0; n < 28; ++n)
 	{
-		for(int n = 0; n < 28; ++n)
-		{
-			//ring
-			float ang = frand(PI2);
-			new GC_Particle(pos, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
+		//ring
+		float ang = frand(PI2);
+		new GC_Particle(pos, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
 
-			//smoke
-			ang = frand(PI2);
-			float d = frand(64.0f) - 32.0f;
+		//smoke
+		ang = frand(PI2);
+		float d = frand(64.0f) - 32.0f;
 
-			(new GC_Particle(GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
-				->_time = frand(1.0f);
-		}
-		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
-		p->SetZ(Z_WATER);
-		p->SetFade(true);
+		(new GC_Particle(GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
+			->_time = frand(1.0f);
 	}
+	GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
+	p->SetZ(Z_WATER);
+	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
 	_light->MoveTo(GetPos());
@@ -490,36 +487,33 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_Player *owner)
 	SetTexture("explosion_big");
 	MoveTo( pos );
 
-	if( g_conf.g_particles.Get() )
+	for( int n = 0; n < 80; ++n )
 	{
-		for( int n = 0; n < 80; ++n )
+		//ring
+		for( int i = 0; i < 2; ++i )
 		{
-			//ring
-			for( int i = 0; i < 2; ++i )
-			{
-				new GC_Particle(GetPos() + vrand(frand(20.0f)),
-					vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
-			}
-
-			vec2d a;
-
-			//dust
-			a = vrand(frand(40.0f));
-			new GC_Particle(GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
-
-			// sparkles
-			a = vrand(1);
-			new GC_Particle(GetPos() + a * frand(40.0f), a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
-
-			//smoke
-			a = vrand(frand(48.0f));
-			(new GC_Particle(GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
+			new GC_Particle(GetPos() + vrand(frand(20.0f)),
+				vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
 		}
 
-		GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
-		p->SetZ(Z_WATER);
-		p->SetFade(true);
+		vec2d a;
+
+		//dust
+		a = vrand(frand(40.0f));
+		new GC_Particle(GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
+
+		// sparkles
+		a = vrand(1);
+		new GC_Particle(GetPos() + a * frand(40.0f), a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
+
+		//smoke
+		a = vrand(frand(48.0f));
+		(new GC_Particle(GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
 	}
+
+	GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
+	p->SetZ(Z_WATER);
+	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
 	_light->MoveTo(GetPos());

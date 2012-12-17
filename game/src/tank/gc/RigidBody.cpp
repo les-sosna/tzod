@@ -869,16 +869,13 @@ void GC_Wall::OnDestroy()
 
 	PLAY(SND_WallDestroy, GetPos());
 
-	if( g_conf.g_particles.Get() )
+	for( int n = 0; n < 5; ++n )
 	{
-		for( int n = 0; n < 5; ++n )
-		{
-			(new GC_Brick_Fragment_01( GetPos() + vrand(GetRadius()),
-				vec2d(frand(100.0f) - 50, -frand(100.0f))
-			))->SetShadow(true);
-		}
-		new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+		(new GC_Brick_Fragment_01( GetPos() + vrand(GetRadius()),
+			vec2d(frand(100.0f) - 50, -frand(100.0f))
+		))->SetShadow(true);
 	}
+	new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 
 	GC_RigidBodyStatic::OnDestroy();
 }
@@ -888,7 +885,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) && GetHealthMax() > 0 )
 	{
 		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
-		if( g_conf.g_particles.Get() && damage >= DAMAGE_BULLET )
+		if( damage >= DAMAGE_BULLET )
 		{
 			vec2d v = hit - GetPos();
 			if( fabsf(v.x) > fabsf(v.y) )

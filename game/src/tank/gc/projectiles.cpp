@@ -800,13 +800,10 @@ void GC_FireSpark::SpawnTrailParticle(const vec2d &pos)
 {
 	static TextureCache tex("projectile_fire");
 	
-	if( g_conf.g_particles.Get() )
-	{
-		GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), 
-			GetDirection() * (_velocity/3) + vrand(10.0f), tex, 0.1f + frand(0.3f), vrand(1), GetRadius());
-		p->SetFade(true);
-		p->SetAutoRotate(_rotation);
-	}
+	GC_Particle *p = new GC_ParticleScaled(pos + vrand(3), 
+		GetDirection() * (_velocity/3) + vrand(10.0f), tex, 0.1f + frand(0.3f), vrand(1), GetRadius());
+	p->SetFade(true);
+	p->SetAutoRotate(_rotation);
 
 	// random walk
 	vec2d tmp = GetDirection() + vec2d(GetDirection().y, -GetDirection().x) * (g_level->net_frand(0.06f) - 0.03f);

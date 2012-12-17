@@ -4,6 +4,7 @@
 
 #include "ui/Base.h"
 #include "ui/Dialog.h"
+#include "ui/ListBase.h"
 #include "config/Config.h"
 
 namespace UI
@@ -12,12 +13,14 @@ namespace UI
 
 class SettingsDlg : public Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
-	DefaultListBox *_profiles;
+	ListDataSourceDefault _profilesDataSource;
+
+	ComboBox  *_player1;
+	ComboBox  *_player2;
+	List      *_profiles;
 	Button    *_editProfile;
 	Button    *_deleteProfile;
 
-	CheckBox  *_particles;
 	CheckBox  *_showFps;
 	CheckBox  *_showTime;
 	CheckBox  *_showDamage;

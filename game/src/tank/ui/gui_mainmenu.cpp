@@ -334,7 +334,7 @@ void MainMenuDlg::OnExit()
 
 void MainMenuDlg::OnParentSize(float width, float height)
 {
-	Move( (width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f - 64 );
+	Move( (width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f );
 }
 
 void MainMenuDlg::OnCloseChild(int result)

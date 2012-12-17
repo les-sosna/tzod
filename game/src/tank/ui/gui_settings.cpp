@@ -43,10 +43,26 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// profiles
 	//
 
-	Text::Create(this, 24, 48, g_lang.settings_profiles.Get(), alignTextLT);
-	_profiles = DefaultListBox::Create(this);
-	_profiles->Move(24, 64);
-	_profiles->Resize(128, 104);
+	float x = 24;
+	float y = 48;
+
+	y += Text::Create(this, x, y, g_lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
+	_player1 = ComboBox::Create(this, &_profilesDataSource);
+	_player1->Move(x, y);
+	_player1->Resize(128);
+	_player1->GetList()->Resize(128, 52);
+	y += _player1->GetHeight() + 5;
+
+	y += Text::Create(this, 24, y, g_lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
+	_player2 = ComboBox::Create(this, &_profilesDataSource);
+	_player2->Move(x, y);
+	_player2->Resize(128);
+	_player2->GetList()->Resize(128, 52);
+	y += _player2->GetHeight() + 5;
+
+	y += Text::Create(this, x, y, g_lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
+	_profiles = List::Create(this, &_profilesDataSource, x, y, 128, 52);
+	y += _profiles->GetHeight() + 5;
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
@@ -63,8 +79,8 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// other settings
 	//
 
-	float x = 200;
-	float y = 48;
+	x = 200;
+	y = 48;
 
 	_showFps = CheckBox::Create(this, x, y, g_lang.settings_show_fps.Get());
 	_showFps->SetCheck(g_conf.ui_showfps.Get());
@@ -73,10 +89,6 @@ SettingsDlg::SettingsDlg(Window *parent)
 	_showTime = CheckBox::Create(this, x, y, g_lang.settings_show_time.Get());
 	_showTime->SetCheck(g_conf.ui_showtime.Get());
 	y += _showTime->GetHeight();
-
-	_particles = CheckBox::Create(this, x, y, g_lang.settings_show_particles.Get());
-	_particles->SetCheck(g_conf.g_particles.Get());
-	y += _particles->GetHeight();
 
 	_showDamage = CheckBox::Create(this, x, y, g_lang.settings_show_damage.Get());
 	_showDamage->SetCheck(g_conf.g_showdamage.Get());
@@ -143,7 +155,7 @@ void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	(new ControlProfileDlg(this, _profiles->GetData()->GetItemText(i, 0).c_str()))
+	(new ControlProfileDlg(this, _profilesDataSource.GetItemText(i, 0).c_str()))
 		->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
 }
 
@@ -151,12 +163,12 @@ void SettingsDlg::OnDeleteProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	if( g_conf.cl_playerinfo.profile.Get() == _profiles->GetData()->GetItemText(i, 0) )
+	if( g_conf.cl_playerinfo.profile.Get() == _profilesDataSource.GetItemText(i, 0) )
 	{
 		// profile that is being deleted is used in network settings
 		g_conf.cl_playerinfo.profile.Set("");
 	}
-	g_conf.dm_profiles.Remove(_profiles->GetData()->GetItemText(i, 0));
+	g_conf.dm_profiles.Remove(_profilesDataSource.GetItemText(i, 0));
 	UpdateProfilesList();
 }
 
@@ -170,7 +182,6 @@ void SettingsDlg::OnOK()
 {
 	g_conf.ui_showfps.Set(_showFps->GetCheck());
 	g_conf.ui_showtime.Set(_showTime->GetCheck());
-	g_conf.g_particles.Set(_particles->GetCheck());
 	g_conf.g_showdamage.Set(_showDamage->GetCheck());
 	g_conf.g_shownames.Set(_showNames->GetCheck());
 	g_conf.r_askformode.Set(_askDisplaySettings->GetCheck());
@@ -190,12 +201,12 @@ void SettingsDlg::UpdateProfilesList()
 	int sel = _profiles->GetCurSel();
 	std::vector<string_t> profiles;
 	g_conf.dm_profiles.GetKeyList(profiles);
-	_profiles->GetData()->DeleteAllItems();
+	_profilesDataSource.DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = _profiles->GetData()->AddItem(profiles[i]);
+		int index = _profilesDataSource.AddItem(profiles[i]);
 	}
-	_profiles->SetCurSel(__min(_profiles->GetData()->GetItemCount() - 1, sel));
+	_profiles->SetCurSel(__min(_profilesDataSource.GetItemCount() - 1, sel));
 }
 
 void SettingsDlg::OnProfileEditorClosed(int code)
