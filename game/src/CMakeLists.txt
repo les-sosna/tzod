@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 2.8)
+project(tzod)
+add_subdirectory(lua)
+add_subdirectory(pluto)
+add_subdirectory(zlib)

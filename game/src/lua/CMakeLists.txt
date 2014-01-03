@@ -1,0 +1,33 @@
+cmake_minimum_required (VERSION 2.8)
+project(Lua)
+add_library(lua
+	src/lapi.c
+	src/ldo.c
+	src/llex.c
+	src/loslib.c
+	src/ltablib.c
+	src/lzio.c
+	src/lauxlib.c
+	src/ldump.c
+	src/lmathlib.c
+	src/lparser.c
+	src/ltm.c
+	src/lbaselib.c
+	src/lfunc.c
+	src/lmem.c
+	src/lstate.c
+	src/lcode.c
+	src/lgc.c
+	src/loadlib.c
+	src/lstring.c
+	src/ldblib.c
+	src/linit.c
+	src/lobject.c
+	src/lstrlib.c
+	src/lundump.c
+	src/ldebug.c
+	src/liolib.c
+	src/lopcodes.c
+	src/ltable.c
+	src/lvm.c
+)
