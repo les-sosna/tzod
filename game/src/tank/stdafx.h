@@ -2,14 +2,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define _WIN32_WINDOWS  0x0410 // windows 98
-
 #define _CRT_SECURE_NO_WARNINGS
-
 #define _CRT_RAND_S  
-
 #define VC_EXTRALEAN
-//#define WIN32_LEAN_AND_MEAN
-
 
 #pragma warning (disable: 4355) // 'this' : used in base member initializer list
 
@@ -44,33 +39,28 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef _WIN32
+// direct x
+# define DIRECTINPUT_VERSION 0x0800
+# include <dinput.h>
+# include "dsutil.h"
 // memory leaks detection
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
-
-#include <winsock2.h>
-#include <windows.h>
-#include <commctrl.h>
-#include <stdio.h>
-#include <assert.h>
-#include <fcntl.h>
-#include <io.h>
-
-#include <time.h>
-
-
-// c++ libraries
-
-#ifndef _DEBUG
-#define _SECURE_SCL 0  // disable checked iterators
+# define _CRTDBG_MAP_ALLOC
+# include <stdlib.h>
+# include <crtdbg.h>
+# include <winsock2.h>
+# include <windows.h>
+# include <commctrl.h>
+# include <io.h>
 #endif
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <time.h>
+
+// c++
+#include <cassert>
 #include <functional>
-using namespace std::placeholders; // _1, _2, etc.
-
-
 #include <cmath>
 #include <list>
 #include <queue>
@@ -82,31 +72,13 @@ using namespace std::placeholders; // _1, _2, etc.
 #include <sstream>
 #include <algorithm>
 #include <limits>
-
 #include <ios>
 
-///////////////
-// direct x
-
-#define DIRECTINPUT_VERSION 0x0800
-#include <dinput.h>
-
-#include "dsutil.h"
-
-///////////////
 // ogg/vorbis
-
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-
-///////////////
 // lua
-
-#ifdef _DEBUG
-#define LUA_USE_APICHECK
-#endif
-
 extern "C"
 {
 #include <lua.h>
@@ -114,32 +86,22 @@ extern "C"
 #include <lauxlib.h>
 }
 
-
-///////////////
 // zlib
-
 #include <zlib.h>
 
 
-///////////////////
-// other stuff
 #include "ui/ConsoleBuffer.h"
 UI::ConsoleBuffer& GetConsole();
 
 
 #include "core/types.h"
-
 #include "core/MyMath.h"
-
 #include "core/MemoryManager.h"
 #include "core/singleton.h"
 #include "core/PtrList.h"
 #include "core/SafePtr.h"
-
 #include "core/Grid.h"
-
 #include "core/Delegate.h"
-
 
 #include "constants.h"
 #include "globals.h"
