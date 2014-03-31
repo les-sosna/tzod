@@ -3,14 +3,14 @@
 #include "stdafx.h"
 #include "ControlPacket.h"
 
-VARIANT_IMPLEMENT_TYPE(ControlPacket) RAW;
-VARIANT_IMPLEMENT_TYPE(ControlPacketVector) STD_VECTOR;
+//VARIANT_IMPLEMENT_TYPE(ControlPacket) RAW;
+//VARIANT_IMPLEMENT_TYPE(ControlPacketVector) STD_VECTOR;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 ControlPacket::ControlPacket()
 {
-	ZeroMemory(this, sizeof(*this));
+	memset(this, 0, sizeof(*this));
 }
 
 void ControlPacket::fromvs(const VehicleState &vs)
@@ -51,7 +51,7 @@ void ControlPacket::fromvs(const VehicleState &vs)
 
 void ControlPacket::tovs(VehicleState &vs) const
 {
-	ZeroMemory(&vs, sizeof(VehicleState));
+	memset(&vs, 0, sizeof(VehicleState));
 
 	vs._bState_MoveForward = (0 != (wControlState & STATE_MOVEFORWARD));
 	vs._bState_MoveBack    = (0 != (wControlState & STATE_MOVEBACK));

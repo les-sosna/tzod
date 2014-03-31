@@ -54,10 +54,10 @@ NewMapDlg::NewMapDlg(Window *parent)
 
 void NewMapDlg::OnOK()
 {
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 	g_conf.sv_nightmode.Set(false);
-	g_conf.ed_width.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _width->GetInt())) );
-	g_conf.ed_height.SetInt( __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, _height->GetInt())) );
+	g_conf.ed_width.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _width->GetInt())));
+	g_conf.ed_height.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _height->GetInt())));
 	script_exec(g_env.L, "newmap(conf.ed_width, conf.ed_height)");
 	g_level->SetEditorMode(true);
 	Close(_resultOK);
@@ -124,7 +124,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				{
 					GetConsole().Printf(1, "WARNING: value %s out of range [%d, %d]",
 						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
-					n = __max(prop->GetIntMin(), __min(prop->GetIntMax(), n));
+					n = std::max(prop->GetIntMin(), std::min(prop->GetIntMax(), n));
 				}
 				prop->SetIntValue(n);
 				break;
@@ -136,7 +136,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				{
 					GetConsole().Printf(1, "WARNING: value %s out of range [%g, %g]",
 						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
-					f = __max(prop->GetFloatMin(), __min(prop->GetFloatMax(), f));
+					f = std::max(prop->GetFloatMin(), std::min(prop->GetFloatMax(), f));
 				}
 				prop->SetFloatValue(f);
 				break;
@@ -261,16 +261,16 @@ bool PropertyList::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		DoExchange(true);
 		_ps->SaveToConfig();
 		break;
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		g_conf.ed_showproperties.Set(false);
 		SetVisible(false);
 		break;
 	default:
-		return __super::OnRawChar(c);
+		return Dialog::OnRawChar(c);
 	}
 	return true;
 }
@@ -318,7 +318,7 @@ int ServiceListDataSource::GetSubItemCount(int index) const
 	return 2;
 }
 
-ULONG_PTR ServiceListDataSource::GetItemData(int index) const
+size_t ServiceListDataSource::GetItemData(int index) const
 {
 	ObjectList::iterator it = g_level->GetList(LIST_services).begin();
 	for( int i = 0; i < index; ++i )
@@ -326,10 +326,10 @@ ULONG_PTR ServiceListDataSource::GetItemData(int index) const
 		++it;
 		assert(g_level->GetList(LIST_services).end() != it);
 	}
-	return (ULONG_PTR) *it;
+	return (size_t) *it;
 }
 
-const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
+const std::string& ServiceListDataSource::GetItemText(int index, int sub) const
 {
 	GC_Object *s = (GC_Object *) GetItemData(index);
 	const char *name;
@@ -347,7 +347,7 @@ const string_t& ServiceListDataSource::GetItemText(int index, int sub) const
 	return _nameCache;
 }
 
-int ServiceListDataSource::FindItem(const string_t &text) const
+int ServiceListDataSource::FindItem(const std::string &text) const
 {
 	return -1;
 }
@@ -429,7 +429,7 @@ void ServiceEditor::OnChangeSelectionGlobal(GC_Object *obj)
 	{
 		for( int i = 0; i < _list->GetData()->GetItemCount(); ++i )
 		{
-			if( _list->GetData()->GetItemData(i) == (ULONG_PTR) obj )
+			if( _list->GetData()->GetItemData(i) == (size_t) obj )
 			{
 				_list->SetCurSel(i, true);
 				break;
@@ -483,13 +483,13 @@ bool ServiceEditor::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case 'S':
-	case VK_ESCAPE:
+	case GLFW_KEY_S:
+	case GLFW_KEY_ESCAPE:
 		g_conf.ed_showservices.Set(false);
 		SetVisible(false);
 		break;
 	default:
-		return __super::OnRawChar(c);
+		return Dialog::OnRawChar(c);
 	}
 	return true;
 }
@@ -499,9 +499,9 @@ bool ServiceEditor::OnRawChar(int c)
 
 EditorLayout::EditorLayout(Window *parent)
   : Window(parent)
-  , _selectedObject(NULL)
-  , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
   , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
+  , _selectedObject(NULL)
   , _isObjectNew(false)
   , _click(true)
   , _mbutton(0)
@@ -601,11 +601,11 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 {
 	if( z > 0 )
 	{
-		_typeList->SetCurSel( __max(0, _typeList->GetCurSel() - 1) );
+		_typeList->SetCurSel( std::max(0, _typeList->GetCurSel() - 1) );
 	}
 	if( z < 0 )
 	{
-		_typeList->SetCurSel( __min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
+		_typeList->SetCurSel( std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
 	}
 	return true;
 }
@@ -653,8 +653,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
 
 		vec2d pt;
-		pt.x = __min(g_level->_sx - align, __max(align - offset, mouse.x));
-		pt.y = __min(g_level->_sy - align, __max(align - offset, mouse.y));
+		pt.x = std::min(g_level->_sx - align, std::max(align - offset, mouse.x));
+		pt.y = std::min(g_level->_sy - align, std::max(align - offset, mouse.y));
 		pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
 		pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
@@ -702,7 +702,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 				SafePtr<PropertySet> properties = object->GetProperties();
 
 				// set default properties if Ctrl key is not pressed
-				if( 0 == (GetAsyncKeyState(VK_CONTROL) & 0x8000) )
+				if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+                    glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS )
 				{
 					properties->LoadFromConfig();
 					properties->Exchange(true);
@@ -727,18 +728,18 @@ bool EditorLayout::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		if( _selectedObject )
 		{
 			_propList->SetVisible(true);
 			g_conf.ed_showproperties.Set(true);
 		}
 		break;
-	case 'S':
+	case GLFW_KEY_S:
 		_serviceList->SetVisible(!_serviceList->GetVisible());
 		g_conf.ed_showservices.Set(_serviceList->GetVisible());
 		break;
-	case VK_DELETE:
+	case GLFW_KEY_DELETE:
 		if( _selectedObject )
 		{
 			GC_Object *o = _selectedObject;
@@ -746,16 +747,16 @@ bool EditorLayout::OnRawChar(int c)
 			o->Kill();
 		}
 		break;
-	case VK_F1:
+	case GLFW_KEY_F1:
 		_help->SetVisible(!_help->GetVisible());
 		break;
-	case VK_F9:
+	case GLFW_KEY_F9:
 		g_conf.ed_uselayers.Set(!g_conf.ed_uselayers.Get());
 		break;
-	case 'G':
+	case GLFW_KEY_G:
 		g_conf.ed_drawgrid.Set(!g_conf.ed_drawgrid.Get());
 		break;
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		if( _selectedObject )
 		{
 			Select(_selectedObject, false);

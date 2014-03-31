@@ -9,7 +9,7 @@
 #include "Weapons.h"
 
 #include "functions.h"
-#include "macros.h"
+#include "Macros.h"
 
 #include "video/RenderBase.h" // FIXME
 
@@ -35,7 +35,7 @@ GC_Camera::GC_Camera(GC_Player *player)
 	_rotator.reset(0.0f, 0.0f,
 		g_conf.g_rotcamera_m.GetFloat(),
 		g_conf.g_rotcamera_a.GetFloat(),
-		__max(0.001f, g_conf.g_rotcamera_s.GetFloat()));
+		std::max(0.001f, g_conf.g_rotcamera_s.GetFloat()));
 
 	MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );
 	if( _player->GetVehicle() )
@@ -78,8 +78,8 @@ void GC_Camera::TimeStepFloat(float dt)
 
 		mu += _player->GetVehicle()->GetVisual()->_lv.len() / 100;
 
-		int dx = (int) __max(0, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
-		int dy = (int) __max(0, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
+		int dx = (int) std::max(.0f, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
+		int dy = (int) std::max(.0f, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
 
 		vec2d r = _player->GetVehicle()->GetPosPredicted() + _player->GetVehicle()->GetVisual()->_lv / mu;
 
@@ -95,10 +95,10 @@ void GC_Camera::TimeStepFloat(float dt)
 		_target.x = r.x + (float) dx;
 		_target.y = r.y + (float) dy;
 
-		_target.x = __max(_target.x, (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
-		_target.x = __min(_target.x, g_level->_sx - (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
-		_target.y = __max(_target.y, (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
-		_target.y = __min(_target.y, g_level->_sy - (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
+		_target.x = std::max(_target.x, (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
+		_target.x = std::min(_target.x, g_level->_sx - (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
+		_target.y = std::max(_target.y, (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
+		_target.y = std::min(_target.y, g_level->_sy - (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
 	}
 
 	if( _time_shake > 0 )
@@ -125,7 +125,7 @@ void GC_Camera::GetWorld(FRECT &outWorld) const
 	outWorld.bottom = outWorld.top + (float) HEIGHT(_viewport) / _zoom;
 }
 
-void GC_Camera::GetScreen(RECT &vp) const
+void GC_Camera::GetScreen(Rect &vp) const
 {
 	vp = _viewport;
 }
@@ -141,11 +141,11 @@ void GC_Camera::UpdateLayout()
 		++camCount;
 	}
 
-	RECT viewports[MAX_HUMANS];
+	Rect viewports[MAX_HUMANS];
 
 	if( g_render->GetWidth() >= int(g_level->_sx) && g_render->GetHeight() >= int(g_level->_sy) )
 	{
-		SetRect(&viewports[0],
+		viewports[0] = CRect(
 			(g_render->GetWidth() - int(g_level->_sx)) / 2,
 			(g_render->GetHeight() - int(g_level->_sy)) / 2,
 			(g_render->GetWidth() + int(g_level->_sx)) / 2,
@@ -164,22 +164,22 @@ void GC_Camera::UpdateLayout()
 		switch( camCount )
 		{
 		case 1:
-			SetRect(&viewports[0], 0, 0, w, h );
+			viewports[0] = CRect(0, 0, w, h);
 			break;
 		case 2:
-			SetRect(&viewports[0], 0, 0, w/2 - 1, h );
-			SetRect(&viewports[1], w/2 + 1, 0, w, h );
+			viewports[0] = CRect(0, 0, w/2 - 1, h);
+			viewports[1] = CRect(w/2 + 1, 0, w, h);
 			break;
 		case 3:
-			SetRect(&viewports[0], 0, 0, w/2 - 1, h/2 - 1 );
-			SetRect(&viewports[1], w/2 + 1, 0, w, h/2 - 1 );
-			SetRect(&viewports[2], w/4, h/2 + 1, w*3/4, h );
+			viewports[0] = CRect(0, 0, w/2 - 1, h/2 - 1);
+			viewports[1] = CRect(w/2 + 1, 0, w, h/2 - 1);
+			viewports[2] = CRect(w/4, h/2 + 1, w*3/4, h);
 			break;
 		case 4:
-			SetRect(&viewports[0], 0, 0, w/2 - 1, h/2 - 1 );
-			SetRect(&viewports[1], w/2 + 1, 0, w, h/2 - 1 );
-			SetRect(&viewports[2], 0, h/2 + 1, w/2 - 1, h );
-			SetRect(&viewports[3], w/2 + 1, h/2 + 1, w, h );
+			viewports[0] = CRect(0, 0, w/2 - 1, h/2 - 1);
+			viewports[1] = CRect(w/2 + 1, 0, w, h/2 - 1);
+			viewports[2] = CRect(0, h/2 + 1, w/2 - 1, h);
+			viewports[3] = CRect(w/2 + 1, h/2 + 1, w, h);
 			break;
 		default:
 			assert(false);
@@ -197,7 +197,9 @@ void GC_Camera::UpdateLayout()
 
 bool GC_Camera::GetWorldMousePos(vec2d &pos)
 {
-	POINT ptinscr = { g_env.envInputs.mouse_x, g_env.envInputs.mouse_y };
+    double mouse_x = 0, mouse_y = 0;
+    glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
+	Point ptinscr = { (int) mouse_x, (int) mouse_y };
 
 	if( g_level->GetEditorMode() || g_level->GetList(LIST_cameras).empty() )
 	{
@@ -210,7 +212,7 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos)
 	{
 		FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 		{
-			if( PtInRect(&pCamera->_viewport, ptinscr) )
+			if( PtInRect(pCamera->_viewport, ptinscr) )
 			{
 				FRECT w;
 				pCamera->GetWorld(w);
@@ -228,7 +230,7 @@ void GC_Camera::Shake(float level)
 	assert(_player);
 	if( 0 == _time_shake )
 		_time_seed = frand(1000.0f);
-	_time_shake = __min(_time_shake + 0.5f * level, PLAYER_RESPAWN_DELAY / 2);
+	_time_shake = std::min(_time_shake + 0.5f * level, PLAYER_RESPAWN_DELAY / 2);
 }
 
 void GC_Camera::Serialize(SaveFile &f)

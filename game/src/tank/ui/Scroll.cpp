@@ -11,13 +11,13 @@ namespace UI
 // scrollbar class implementation
 
 ScrollBarBase::ScrollBarBase(Window *parent)
-  : Window(parent)
-  , _showButtons(true)
-  , _pos(0)
-  , _lineSize(0.1f)
-  , _pageSize(0)
-  , _documentSize(1.0f)
-  , _tmpBoxPos(-1)
+    : Window(parent)
+    , _tmpBoxPos(-1)
+    , _pos(0)
+    , _lineSize(0.1f)
+    , _pageSize(0)
+    , _documentSize(1.0f)
+    , _showButtons(true)
 {
 	_btnBox        = ImageButton::Create(this, 0, 0, NULL);
 	_btnUpLeft     = ImageButton::Create(this, 0, 0, NULL);
@@ -26,9 +26,9 @@ ScrollBarBase::ScrollBarBase(Window *parent)
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
 	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);
 
-	_btnBox->eventMouseUp = std::bind(&ScrollBarBase::OnBoxMouseUp, this, _1, _2);
-	_btnBox->eventMouseDown = std::bind(&ScrollBarBase::OnBoxMouseDown, this, _1, _2);
-	_btnBox->eventMouseMove = std::bind(&ScrollBarBase::OnBoxMouseMove, this, _1, _2);
+	_btnBox->eventMouseUp = std::bind(&ScrollBarBase::OnBoxMouseUp, this, std::placeholders::_1, std::placeholders::_2);
+	_btnBox->eventMouseDown = std::bind(&ScrollBarBase::OnBoxMouseDown, this, std::placeholders::_1, std::placeholders::_2);
+	_btnBox->eventMouseMove = std::bind(&ScrollBarBase::OnBoxMouseMove, this, std::placeholders::_1, std::placeholders::_2);
 	_btnBox->SetDrawBorder(true);
 
 	SetDrawBorder(true);
@@ -50,7 +50,7 @@ bool ScrollBarBase::GetShowButtons() const
 
 void ScrollBarBase::SetPos(float pos)
 {
-	_pos = __max(0, __min(_documentSize - _pageSize, pos));
+	_pos = std::max(.0f, std::min(_documentSize - _pageSize, pos));
 }
 
 float ScrollBarBase::GetPos() const

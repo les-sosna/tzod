@@ -221,7 +221,7 @@ void TankServer::SendFrame()
 		{
 			TRACE("sv: sync error detected at frame %u!", cp.frame);
 			char buf[256];
-			wsprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
+			sprintf(buf, "sync error at frame %u: 0x%x 0x%x", cp.frame, ib.first->second, cp.checksum);
 			MessageBox(g_env.hMainWnd, buf, TXT_VERSION, MB_ICONERROR);
 			ExitProcess(-1);
 		}

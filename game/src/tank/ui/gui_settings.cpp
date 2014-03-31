@@ -1,6 +1,9 @@
 // gui_settings.cpp
 
 #include "stdafx.h"
+
+#include "gc/Object.h"
+
 #include "gui_settings.h"
 #include "GuiManager.h"
 
@@ -148,7 +151,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	(new ControlProfileDlg(this, NULL))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
+	(new ControlProfileDlg(this, NULL))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
 }
 
 void SettingsDlg::OnEditProfile()
@@ -156,7 +159,7 @@ void SettingsDlg::OnEditProfile()
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
 	(new ControlProfileDlg(this, _profilesDataSource.GetItemText(i, 0).c_str()))
-		->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, _1);
+		->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
 }
 
 void SettingsDlg::OnDeleteProfile()
@@ -199,14 +202,14 @@ void SettingsDlg::OnCancel()
 void SettingsDlg::UpdateProfilesList()
 {
 	int sel = _profiles->GetCurSel();
-	std::vector<string_t> profiles;
+	std::vector<std::string> profiles;
 	g_conf.dm_profiles.GetKeyList(profiles);
 	_profilesDataSource.DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
-		int index = _profilesDataSource.AddItem(profiles[i]);
+		_profilesDataSource.AddItem(profiles[i]);
 	}
-	_profiles->SetCurSel(__min(_profilesDataSource.GetItemCount() - 1, sel));
+	_profiles->SetCurSel(std::min(_profilesDataSource.GetItemCount() - 1, sel));
 }
 
 void SettingsDlg::OnProfileEditorClosed(int code)
@@ -245,8 +248,8 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
   , _profile(g_conf.dm_profiles.GetTable(_nameOrig))
   , _time(0)
   , _activeIndex(-1)
-  , _skipNextKey(false)
   , _createNewProfile(!profileName)
+  , _skipNextKey(false)
 {
 	SetEasyMove(true);
 
@@ -304,7 +307,7 @@ void ControlProfileDlg::OnSelectAction(int index)
 	SetTimeStep(true);
 }
 
-void ControlProfileDlg::AddAction(ConfVarString &var, const string_t &display)
+void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
 {
 	ConfVarTable::KeyListType names;
 	_profile->GetRoot()->GetKeyList(names);
@@ -356,27 +359,26 @@ void ControlProfileDlg::OnTimeStep(float dt)
 	_time += dt;
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
 
-	for( int k = 0; k < sizeof(g_env.envInputs._keys) / sizeof(g_env.envInputs._keys[0]); ++k )
-	{
-		if( g_env.envInputs.IsKeyPressed(k) )
-		{
-			if( _skipNextKey )
-			{
-				return;
-			}
-			if( DIK_ESCAPE != k )
-			{
-				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(k));
-			}
-			else
-			{
-				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
-					_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
-			}
-//			g_pKeyboard->SetCooperativeLevel(g_env.hMainWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-			SetTimeStep(false);
-		}
-	}
+//	for( int k = 0; k < sizeof(g_env.envInputs._keys) / sizeof(g_env.envInputs._keys[0]); ++k )
+//	{
+//		if( g_env.envInputs.IsKeyPressed(k) )
+//		{
+//			if( _skipNextKey )
+//			{
+//				return;
+//			}
+//			if( DIK_ESCAPE != k )
+//			{
+//				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(k));
+//			}
+//			else
+//			{
+//				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
+//					_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
+//			}
+//			SetTimeStep(false);
+//		}
+//	}
 
 	_skipNextKey = false;
 }
@@ -385,7 +387,7 @@ bool ControlProfileDlg::OnRawChar(int c)
 {
 	switch( c )
 	{
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		if( GetManager()->GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
 		{
 			OnSelectAction(_actions->GetCurSel());
@@ -395,10 +397,10 @@ bool ControlProfileDlg::OnRawChar(int c)
 			OnOK();
 		}
 		break;
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		break;
 	default:
-		return __super::OnRawChar(c);
+		return Dialog::OnRawChar(c);
 	}
 	return true;
 }

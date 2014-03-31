@@ -49,7 +49,7 @@ TankClient::~TankClient(void)
 	}
 }
 
-void TankClient::Connect(const string_t &hostaddr)
+void TankClient::Connect(const std::string &hostaddr)
 {
 	g_app->InitNetwork();
 
@@ -59,7 +59,7 @@ void TankClient::Connect(const string_t &hostaddr)
 	//
 
 	std::istringstream buf(hostaddr);
-	string_t sv;
+	std::string sv;
 	std::getline(buf, sv, ':');
 
 	unsigned short port = g_conf.sv_port.GetInt();

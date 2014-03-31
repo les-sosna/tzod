@@ -22,8 +22,8 @@ struct DamageDesc
 
 class GC_RigidBodyStatic : public GC_2dSprite
 {
-	string_t _scriptOnDestroy;  // on_destroy()
-	string_t _scriptOnDamage;   // on_damage()
+	std::string _scriptOnDestroy;  // on_destroy()
+	std::string _scriptOnDamage;   // on_damage()
 
 protected:
 	class MyPropertySet : public GC_2dSprite::MyPropertySet

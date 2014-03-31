@@ -1,8 +1,7 @@
 // ControlPacket.h
 
 #pragma once
-
-#include "Variant.h"
+#include <cstdint>
 
 // forward declarations
 struct VehicleState
@@ -39,7 +38,7 @@ struct VehicleState
 			bool _bExplicitTower     : 1;
 			bool _reserved           : 1;
 		};
-		BYTE flags;
+		uint8_t flags;
 	};
 };
 
@@ -66,12 +65,12 @@ const unsigned int MODE_BODY_HINT_CCW  = 0x8000;
 #pragma pack(2)
 struct ControlPacket
 {
-	WORD  wControlState;
-	unsigned short weap;  // angle, if explicit
-	unsigned short body;  // angle, if explicit
+	uint16_t wControlState;
+	uint16_t weap;  // angle, if explicit
+	uint16_t body;  // angle, if explicit
 #ifdef NETWORK_DEBUG
-	DWORD checksum;
-	unsigned int frame;
+	uint32_t checksum;
+	uint32_t frame;
 #endif
 	//--------------------------
 	ControlPacket();
@@ -83,7 +82,8 @@ struct ControlPacket
 
 typedef std::vector<ControlPacket> ControlPacketVector;
 
-VARIANT_DECLARE_TYPE(ControlPacket);
-VARIANT_DECLARE_TYPE(ControlPacketVector);
+//#include "Variant.h"
+//VARIANT_DECLARE_TYPE(ControlPacket);
+//VARIANT_DECLARE_TYPE(ControlPacketVector);
 
 // end of file

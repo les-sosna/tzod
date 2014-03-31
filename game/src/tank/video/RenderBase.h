@@ -6,10 +6,10 @@
 
 struct DisplayMode
 {
-    UINT Width;
-    UINT Height;
-    UINT RefreshRate;
-    UINT BitsPerPixel;
+    unsigned int Width;
+    unsigned int Height;
+    unsigned int RefreshRate;
+    unsigned int BitsPerPixel;
 };
 
 struct MyLine
@@ -65,20 +65,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-interface IRender
+struct IRender
 {
-	// return TRUE if ok
-	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen) = 0;
-	virtual void Release() = 0;
+    virtual ~IRender() {}
+	virtual void OnResizeWnd(Point size) = 0;
 
-	virtual bool getDisplayMode(int index, DisplayMode *pMode) const = 0;
-	virtual int  getModeCount() const  = 0;
-
-	virtual void OnResizeWnd() = 0;
-
-	virtual void SetScissor(const RECT *rect) = 0;
-	virtual void SetViewport(const RECT *rect) = 0;
-	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle) = 0;
+	virtual void SetScissor(const Rect *rect) = 0;
+	virtual void SetViewport(const Rect *rect) = 0;
+	virtual void Camera(const Rect *vp, float x, float y, float scale, float angle) = 0;
 
     virtual int  GetWidth() const = 0;
     virtual int  GetHeight() const = 0;
@@ -92,7 +86,7 @@ interface IRender
 
 	virtual void SetAmbient(float ambient) = 0;
 
-	virtual bool TakeScreenshot(TCHAR *fileName) = 0;
+	virtual bool TakeScreenshot(char *fileName) = 0;
 
 
 	//

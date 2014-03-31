@@ -149,7 +149,7 @@ private:
  *    +-----+
  *   3   2   1
 **/
-	BYTE _tile;
+	unsigned char _tile;
 
 protected:
 	void UpdateTile(bool flag);
@@ -175,20 +175,20 @@ class GC_Text : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Text);
 
 public:
-	GC_Text(int x, int y, const string_t &text, enumAlignText align = alignTextLT);
+	GC_Text(int x, int y, const std::string &text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
 
 	void SetFont(const char *fontname);
-	void SetText(const string_t &text);
+	void SetText(const std::string &text);
 	void SetAlign(enumAlignText align);
-	const string_t& GetText() const { return _text; }
+	const std::string& GetText() const { return _text; }
 
 	virtual void Serialize(SaveFile &f);
 	virtual void Draw() const;
 
 private:
 	enumAlignText       _align;
-	string_t            _text;
+	std::string            _text;
 };
 
 /////////////////////////////////////////////////////////////
@@ -202,7 +202,7 @@ private:
 	float  _y0;
 
 public:
-	GC_Text_ToolTip(vec2d pos, const string_t &text, const char *font);
+	GC_Text_ToolTip(vec2d pos, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
 	virtual void Serialize(SaveFile &f);

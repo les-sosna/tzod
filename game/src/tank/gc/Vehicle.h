@@ -16,7 +16,7 @@ class GC_Light;
 
 struct VehicleClass
 {
-	string_t displayName;
+	std::string displayName;
 
 	float health;
 	float percussion;
@@ -97,7 +97,7 @@ public:
 	virtual ~GC_Vehicle();
 
 	void ResetClass();
-	void SetSkin(const string_t &skin);
+	void SetSkin(const std::string &skin);
 	void SetState(const VehicleState &vs);
 	void SetPredictedState(const VehicleState &vs);
 	const VehicleState& GetPredictedState() const { return _statePredicted; }
@@ -113,7 +113,7 @@ public:
 	virtual void OnPickup(GC_Pickup *pickup, bool attached);
 
 	// GC_2dSprite
-#ifdef _DEBUG
+#ifndef NDEBUG
 	virtual void Draw() const;
 #endif
 

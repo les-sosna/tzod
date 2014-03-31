@@ -11,8 +11,8 @@
 
 // Rotator changes the value of the referenced variable
 Rotator::Rotator(float &angle)
-  : _rCurrent(angle)
-  , _velocity_current(0)
+  : _velocity_current(0)
+  , _rCurrent(angle)
 {
 }
 
@@ -48,7 +48,7 @@ void Rotator::setl(float limit, float current, float stop)
 
 void Rotator::rotate_to(float new_target)
 {
-	assert(!_isnan(new_target) && _finite(new_target));
+	assert(!isnan(new_target) && isfinite(new_target));
 	assert(_accel_current > 0);
 	assert(_accel_stop > 0);
 
@@ -227,6 +227,9 @@ bool Rotator::process_dt(float dt)
 	case RS_GETTING_ANGLE:
 		OnGettingAngle(dt);
 		break;
+    case RS_STOPPED:
+        // no action required
+        break;
 	} // end switch (_state)
 
 
@@ -303,7 +306,7 @@ void Rotator::OnGettingAngle(float dt)
 	// as - breaking factor
 	// ac - acceleration factor
 
-	if( xt > xc && vc >= 0 || xt < xc && vc <= 0 )
+	if( (xt > xc && vc >= 0) || (xt < xc && vc <= 0) )
 	{
 		// current speed has the right sign or equals to zero,
 		// so breaking is not needed here

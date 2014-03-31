@@ -115,7 +115,7 @@ void GC_Wood::Draw() const
 
 	if( !g_level->GetEditorMode() )
 	{
-		for( char i = 0; i < 8; ++i )
+		for( int i = 0; i < 8; ++i )
 		{
 			if( 0 == (_tile & (1 << i)) )
 			{
@@ -149,6 +149,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 
 GC_Explosion::GC_Explosion(GC_Player *owner)
   : GC_2dSprite()
+  , _boomOK(false)
   , _owner(owner)
   , _light(new GC_Light(GC_Light::LIGHT_POINT))
   , _time(0)
@@ -156,7 +157,6 @@ GC_Explosion::GC_Explosion(GC_Player *owner)
   , _time_boom(0)
   , _damage(1)
   , _radius(32)
-  , _boomOK(false)
 {
 	SetZ(Z_EXPLODE);
 	SetDirection(vrand(1));
@@ -360,7 +360,7 @@ void GC_Explosion::Boom(float radius, float damage)
 
 				if( d >= 0 )
 				{
-					float dam = __max(0, damage * (1 - d / radius));
+					float dam = std::max(0.0f, damage * (1 - d / radius));
 					assert(dam >= 0);
 					if( GC_RigidBodyDynamic *dyn = dynamic_cast<GC_RigidBodyDynamic *>(pDamObject) )
 					{
@@ -604,7 +604,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(int xPos, int yPos, const string_t &text, enumAlignText align)
+GC_Text::GC_Text(int xPos, int yPos, const std::string &text, enumAlignText align)
   : GC_2dSprite()
 {
 	SetFont("font_default");
@@ -614,7 +614,7 @@ GC_Text::GC_Text(int xPos, int yPos, const string_t &text, enumAlignText align)
 	MoveTo( vec2d((float)xPos, (float)yPos) );
 }
 
-void GC_Text::SetText(const string_t &text)
+void GC_Text::SetText(const std::string &text)
 {
 	_text = text;
 }
@@ -649,7 +649,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const string_t &text, const char *font)
+GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const std::string &text, const char *font)
   : GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;
@@ -663,7 +663,7 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const string_t &text, const char *fo
 	float x_max = g_level->_sx - x_min;
 
 	_y0 = pos.y;
-	MoveTo( vec2d(__min(x_max, __max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
+	MoveTo( vec2d(std::min(x_max, std::max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
 
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }

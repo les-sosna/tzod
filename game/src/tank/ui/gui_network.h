@@ -6,9 +6,6 @@
 #include "Dialog.h"
 #include "ClientBase.h"
 
-// forward declarations
-class LobbyClient;
-
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +54,7 @@ class ConnectDlg
 	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 public:
-	ConnectDlg(Window *parent, const string_t &defaultName);
+	ConnectDlg(Window *parent, const std::string &defaultName);
 	virtual ~ConnectDlg();
 
 protected:
@@ -74,6 +71,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//class LobbyClient;
 class InternetDlg : public Dialog
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
@@ -100,7 +98,7 @@ protected:
 
 	void Error(const char *msg);
 
-	SafePtr<LobbyClient> _client;
+//	SafePtr<LobbyClient> _client;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,7 +117,7 @@ class WaitingForPlayersDlg
 	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 	static const size_t _maxPings = 5;
-	std::vector<DWORD> _pings;
+	std::vector<unsigned int> _pings;
 
 public:
 	WaitingForPlayersDlg(Window *parent);
@@ -133,7 +131,7 @@ protected:
 	void OnAddBotClose(int result);
 	void OnOK();
 	void OnCancel();
-	void OnSendMessage(const string_t &msg);
+	void OnSendMessage(const std::string &msg);
 
 private:
 	// IClientCallback

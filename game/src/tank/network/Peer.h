@@ -3,8 +3,10 @@
 #pragma once
 
 
-#include "Socket.h"
+//#include "Socket.h"
 #include "Variant.h"
+
+#include <boost/asio.hpp>
 
 /*
 struct
@@ -21,7 +23,7 @@ struct
 class Peer : public RefCounted
 {
 public:
-	Peer(SOCKET s);
+	Peer(boost::asio::ip::tcp::socket s);
 	virtual ~Peer();
 
 	void Close();
@@ -55,7 +57,7 @@ private:
 	void ProcessInput();
 	bool TrySend();
 
-	Socket _socket;
+	boost::asio::ip::tcp::socket _socket;
 
 	DataStream _in;
 	DataStream _out;

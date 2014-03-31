@@ -12,15 +12,11 @@
 ClientBase::ClientBase(ILevelController *level)
 	: _level(level)
 {
-	assert(!g_client);
-	g_client = this;
 }
 
 ClientBase::~ClientBase()
 {
 	assert(_clientListeners.empty());
-	assert(this == g_client);
-	g_client = NULL;
 	// remove all game objects
 	_level->Clear();
 	// clear message area

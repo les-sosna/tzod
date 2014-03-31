@@ -6,19 +6,20 @@
 #include "Window.h"
 
 #include <deque>
+#include <string>
 
 namespace UI
 {
-	// forward declarations
-	class ConsoleBuffer;
+
+class ConsoleBuffer;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-interface IConsoleHistory
+struct IConsoleHistory
 {
-	virtual void Enter(const string_t &str) = 0;
+	virtual void Enter(const std::string &str) = 0;
 	virtual size_t GetItemCount() const = 0;
-	virtual const string_t& GetItem(size_t index) const = 0;
+	virtual const std::string& GetItem(size_t index) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,13 +29,13 @@ class ConsoleHistoryDefault : public IConsoleHistory
 public:
 	ConsoleHistoryDefault(size_t maxSize);
 
-	virtual void Enter(const string_t &str);
+	virtual void Enter(const std::string &str);
 	virtual size_t GetItemCount() const;
-	virtual const string_t& GetItem(size_t index) const;
+	virtual const std::string& GetItem(size_t index) const;
 
 private:
 	size_t _maxSize;
-	std::deque<string_t> _buf;
+	std::deque<std::string> _buf;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,8 +52,8 @@ public:
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);
 	void SetEcho(bool echo);
-	std::function<void(const string_t &)> eventOnSendCommand;
-	std::function<bool(const string_t &, int &, string_t &)> eventOnRequestCompleteCommand;
+	std::function<void(const std::string &)> eventOnSendCommand;
+	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
 
 protected:
 	virtual bool OnChar(int c);

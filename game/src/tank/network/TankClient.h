@@ -3,7 +3,7 @@
 #pragma once
 
 
-#include "Socket.h"
+//#include "Socket.h"
 #include "ControlPacket.h"
 #include "ClientBase.h"
 
@@ -47,7 +47,7 @@ public:
 	TankClient(ILevelController *levelController);
 	~TankClient();
 
-	void Connect(const string_t &hostaddr);
+	void Connect(const std::string &hostaddr);
 
 	void SendPlayerReady(bool ready);
 	void SendAddBot(const BotDesc &bot);

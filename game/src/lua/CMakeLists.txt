@@ -4,7 +4,7 @@ add_library(lua
 	src/lapi.c
 	src/ldo.c
 	src/llex.c
-	src/loslib.c
+#	src/loslib.c
 	src/ltablib.c
 	src/lzio.c
 	src/lauxlib.c

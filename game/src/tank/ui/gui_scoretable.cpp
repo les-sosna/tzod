@@ -63,10 +63,10 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - g_level->_time);
 		if( timeleft > 0 )
 		{
-			wsprintf(text, g_lang.score_time_left_xx.Get().c_str(), timeleft / 60, timeleft % 60);
+			sprintf(text, g_lang.score_time_left_xx.Get().c_str(), timeleft / 60, timeleft % 60);
 		}
 		else
-			wsprintf(text, g_lang.score_time_limit_hit.Get().c_str());
+			sprintf(text, "%s", g_lang.score_time_limit_hit.Get().c_str());
 		dc->DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text);
 	}
 
@@ -74,9 +74,9 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 	{
 		int scoreleft = g_conf.sv_fraglimit.GetInt() - max_score;
 		if( scoreleft > 0 )
-			wsprintf(text, g_lang.score_frags_left_x.Get().c_str(), scoreleft);
+			sprintf(text, g_lang.score_frags_left_x.Get().c_str(), scoreleft);
 		else
-			wsprintf(text, g_lang.score_frag_limit_hit.Get().c_str());
+			sprintf(text, "%s", g_lang.score_frag_limit_hit.Get().c_str());
 		dc->DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text);
 	}
 
@@ -87,10 +87,10 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 		{
 			dc->DrawBitmapText(sx + SCORE_POS_NAME, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, players[i]->GetNick());
 
-			wsprintf(text, "%d", i + 1);
+			sprintf(text, "%d", (int) (i + 1));
 			dc->DrawBitmapText(sx + SCORE_POS_NUMBER, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text);
 
-			wsprintf(text, "%d", players[i]->GetScore());
+			sprintf(text, "%d", players[i]->GetScore());
 			dc->DrawBitmapText(sx + GetWidth() - SCORE_POS_SCORE, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text, alignTextRT);
 		}
 		else
@@ -103,7 +103,7 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 
 void ScoreTable::OnTimeStep(float dt)
 {
-	bool tab = g_env.envInputs.IsKeyPressed(DIK_TAB);
+	bool tab = glfwGetKey(g_appWindow, GLFW_KEY_TAB);
 	SetVisible(!g_level->IsEmpty() && !g_level->GetEditorMode() && (tab || g_level->_limitHit));
 }
 

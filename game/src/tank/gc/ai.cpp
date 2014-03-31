@@ -51,14 +51,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
 }
 
 GC_PlayerAI::GC_PlayerAI()
-  : _isActive(true)
+  : _arrivalPoint(0,0)
   , _desiredOffset(0)
   , _currentOffset(0)
-  , _arrivalPoint(0,0)
+  , _favoriteWeaponType(INVALID_OBJECT_TYPE)
   , _level(2)
   , _backTime(0)
   , _stickTime(0)
-  , _favoriteWeaponType(INVALID_OBJECT_TYPE)
+  , _isActive(true)
 {
 	SetL2(L2_PATH_SELECT);
 	SetL1(L1_NONE);
@@ -137,7 +137,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 
 
 	VehicleState vs;
-	ZeroMemory(&vs, sizeof(VehicleState));
+	memset(&vs, 0, sizeof(VehicleState));
 
 	// clean the attack list
 	_attackList.remove_if( [](const ObjPtr<GC_RigidBodyStatic> &arg) -> bool { return !arg; } );
@@ -420,8 +420,6 @@ void GC_PlayerAI::SmoothPath()
 	if( _path.size() < 4 ) 
 		return;
 
-	int init_size = _path.size();
-
 	vec2d vn[4];
 	std::list<PathNode>::iterator it[4], tmp;
 
@@ -580,8 +578,8 @@ void GC_PlayerAI::ClearPath()
 
 void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
 {
-	assert(!_isnan(x.x) && !_isnan(x.y));
-	assert(_finite(x.x) && _finite(x.y));
+	assert(!isnan(x.x) && !isnan(x.y));
+	assert(isfinite(x.x) && isfinite(x.y));
 	assert(GetVehicle());
 
 	vec2d tmp = x - GetVehicle()->GetPos();
@@ -611,7 +609,7 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
 		pState->_fTowerAngle = Vec2dSubDirection(tmp, GetVehicle()->GetDirection()).Angle() - GetVehicle()->GetSpinup();
-		assert(!_isnan(pState->_fTowerAngle) && _finite(pState->_fTowerAngle));
+		assert(!isnan(pState->_fTowerAngle) && isfinite(pState->_fTowerAngle));
 	}
 	else
 	{
@@ -648,7 +646,8 @@ AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
 // return TRUE if a target was found
 bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
-	if( !GetVehicle()->GetWeapon() ) return FALSE;
+	if( !GetVehicle()->GetWeapon() )
+        return false;
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
 	GC_Vehicle *pOptTarget = NULL;
@@ -822,8 +821,8 @@ void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 
 		fake.x = GetVehicle()->GetPos().x + fx * c - y * s;
 		fake.y = GetVehicle()->GetPos().y + fx * s + y * c;
-		fake.x = __max(0, __min(g_level->_sx, fake.x));
-		fake.y = __max(0, __min(g_level->_sy, fake.y));
+		fake.x = std::max(.0f, std::min(g_level->_sx, fake.x));
+		fake.y = std::max(.0f, std::min(g_level->_sy, fake.y));
 	}
 	else
 	{
@@ -1007,10 +1006,6 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 		return;
 	}
 	
-
-	GC_Pickup  *pItem = NULL;
-	GC_Vehicle *veh = NULL;
-
 	ProcessAction(ws);
 
 	switch( _aiState_l2 )
@@ -1029,8 +1024,8 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 		{
 			vec2d t = GetVehicle()->GetPos()
 				+ g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
-			float x = __min(__max(0, t.x), g_level->_sx);
-			float y = __min(__max(0, t.y), g_level->_sy);
+			float x = std::min(std::max(.0f, t.x), g_level->_sx);
+			float y = std::min(std::max(.0f, t.y), g_level->_sy);
 
 			if( CreatePath(x, y, AI_MAX_DEPTH, false, ws) > 0 )
 			{
@@ -1056,17 +1051,17 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 
 	vec2d brake = GetVehicle()->GetBrakingLength();
-	float brake_len = brake.len();
+//	float brake_len = brake.len();
 	float brakeSqr = brake.sqr();
 
 	vec2d currentDir = GetVehicle()->GetDirection();
 	vec2d currentPos = GetVehicle()->GetPos();
-	vec2d predictedPos = GetVehicle()->GetPos() + brake;
+//	vec2d predictedPos = GetVehicle()->GetPos() + brake;
 
 	if( !_path.empty() )
 	{
 		vec2d predictedProj;
-		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, NULL);
+//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, NULL);
 
 		vec2d currentProj;
 		float offset;
@@ -1084,7 +1079,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 			d -= it->coord;
 			offset -= d.len();
 		}
-		offset += __min((currentPos - currentProj).len(), desiredProjOffsetLen);
+		offset += std::min((currentPos - currentProj).len(), desiredProjOffsetLen);
 		for(;;)
 		{
 			vec2d d = it->coord;
@@ -1384,7 +1379,7 @@ void GC_PlayerAI::debug_draw()
 
 		Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 		char s[20];
-		wsprintf(s, "%d", count);
+		sprintf(s, "%d", count);
 		DrawText(hdc, s, -1, &rect, DT_SINGLELINE|DT_CENTER|DT_VCENTER|DT_NOCLIP);
 		++count;
 	}

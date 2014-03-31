@@ -5,13 +5,13 @@
 struct CounterInfo
 {
 	std::string id;
-	string_t title;
+	std::string title;
 };
 
 class CounterBase
 {
 public:
-	CounterBase(const std::string &id, const string_t &title);
+	CounterBase(const std::string &id, const std::string &title);
 	void Push(float value);
 
 	static size_t GetMarkerCountStatic();

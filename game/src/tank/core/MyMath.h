@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cmath>
+#include <cassert>
 
 #define PI    3.141593f
 #define PI2   6.283185f
@@ -148,6 +149,35 @@ public:
 	}
 };
 
+struct Rect
+{
+	int left;
+	int top;
+	int right;
+	int bottom;
+};
+
+struct Point
+{
+    int x, y;
+};
+
+class CRect : public Rect
+{
+public:
+    CRect(int l, int t, int r, int b)
+    {
+        left = l;
+        top = t;
+        right = r;
+        bottom = b;
+    }
+};
+
+inline int WIDTH(const Rect &rect) { return rect.right - rect.left; }
+inline int HEIGHT(const Rect &rect) { return rect.bottom - rect.top; }
+
+
 inline vec2d Vec2dAddDirection(const vec2d &a, const vec2d &b)
 {
 	assert(abs(a.sqr() - 1) < 1e-5);
@@ -171,6 +201,63 @@ inline float Vec2dDot(const vec2d &a, const vec2d &b)
 {
 	return a.x*b.x + a.y*b.y;
 }
+
+inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
+{
+	return rect.left <= pt.x && pt.x < rect.right &&
+		rect.top <= pt.y && pt.y < rect.bottom;
+}
+
+inline bool PtInRect(const Rect &rect, const Point &pt)
+{
+    return rect.left <= pt.x && pt.x < rect.right &&
+        rect.top <= pt.y && pt.y < rect.bottom;
+}
+
+inline void RectToFRect(FRECT *lpfrt, const Rect *lprt)
+{
+	lpfrt->left   = (float) lprt->left;
+	lpfrt->top    = (float) lprt->top;
+	lpfrt->right  = (float) lprt->right;
+	lpfrt->bottom = (float) lprt->bottom;
+}
+
+inline void FRectToRect(Rect *lprt, const FRECT *lpfrt)
+{
+	lprt->left   = (int) lpfrt->left;
+	lprt->top    = (int) lpfrt->top;
+	lprt->right  = (int) lpfrt->right;
+	lprt->bottom = (int) lpfrt->bottom;
+}
+
+inline void OffsetFRect(FRECT *lpfrt, float x, float y)
+{
+	lpfrt->left   += x;
+	lpfrt->top    += y;
+	lpfrt->right  += x;
+	lpfrt->bottom += y;
+}
+
+inline void OffsetFRect(FRECT *lpfrt, const vec2d &x)
+{
+	lpfrt->left   += x.x;
+	lpfrt->top    += x.y;
+	lpfrt->right  += x.x;
+	lpfrt->bottom += x.y;
+}
+
+// generates a pseudo random number in range [0, max)
+inline float frand(float max)
+{
+	return (float) rand() / RAND_MAX * max;
+}
+
+// generates a pseudo random vector of the specified length
+inline vec2d vrand(float len)
+{
+	return vec2d(frand(PI2)) * len;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

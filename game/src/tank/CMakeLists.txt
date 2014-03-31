@@ -1,18 +1,27 @@
 cmake_minimum_required (VERSION 2.8)
 project(Tank)
+find_package(Boost 1.55 COMPONENTS system REQUIRED)
+find_package(OpenAL)
+include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${Lua_SOURCE_DIR}/src)
 include_directories(${Zlib_SOURCE_DIR})
 include_directories(${OggVorbis_SOURCE_DIR}/include)
-add_executable(tank
+include_directories(${Pluto_SOURCE_DIR})
+include_directories(${GLFW_SOURCE_DIR}/include)
+include_directories(.)
+set(CMAKE_CXX_FLAGS "-std=c++11")
+add_definitions(-DNOSOUND)
+link_libraries(${glfw_LIBRARIES})
+add_executable(tank MACOSX_BUNDLE
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp
 	DefaultCamera.cpp
-	directx.cpp
-	Dsutil.cpp
+#	directx.cpp
+#	Dsutil.cpp
 	functions.cpp
 	globals.cpp
-	InputManager.cpp
+#	InputManager.cpp
 	KeyMapper.cpp
 	Level.cpp
 	Main.cpp
@@ -28,7 +37,7 @@ add_executable(tank
 	core/SafePtr.cpp
 	core/Timer.cpp
 	video/ImageLoader.cpp
-	video/RenderDirect3D.cpp
+#	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp
 	video/TextureManager.cpp
 	fs/FileSystem.cpp
@@ -76,24 +85,24 @@ add_executable(tank
 	ui/gui_settings.cpp
 	ui/gui_widgets.cpp
 	ui/GuiManager.cpp
-	ui/Interface.cpp
+#	ui/Interface.cpp
 	ui/List.cpp
 	ui/ListBase.cpp
 	ui/MousePointer.cpp
 	ui/Scroll.cpp
 	ui/Text.cpp
 	ui/Window.cpp
-	network/CommonTypes.cpp
+#	network/CommonTypes.cpp
 	network/ControlPacket.cpp
-	network/HttpClient.cpp
-	network/init.cpp
-	network/LobbyClient.cpp
-	network/Peer.cpp
-	network/Socket.cpp
-	network/TankClient.cpp
-	network/TankServer.cpp
-	network/Variant.cpp
-	sound/MusicPlayer.cpp
-	sound/sfx.cpp
+#	network/HttpClient.cpp
+#	network/init.cpp
+#	network/LobbyClient.cpp
+#	network/Peer.cpp
+#	network/Socket.cpp
+#	network/TankClient.cpp
+#	network/TankServer.cpp
+#	network/Variant.cpp
+#	sound/MusicPlayer.cpp
+#	sound/sfx.cpp
 )
-target_link_libraries(tank lua pluto zlib)
+target_link_libraries(tank lua pluto zlib glfw ${GLFW_LIBRARIES} ${Boost_LIBRARIES})

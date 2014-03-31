@@ -13,53 +13,46 @@
 //////////////////////////////////////////////////////////////////////
 
 Timer::Timer()
+    : _stopCount(1) // timer is stopped initially
 {
-	_qpf_time_max_dt.QuadPart = MAXLONGLONG;
-	_stopCount = 1; // timer is stopped initially
-
-	LARGE_INTEGER  f;
-	QueryPerformanceFrequency(&f);
-	_qpf_frequency = (double) f.QuadPart;
-
-	QueryPerformanceCounter(&_qpf_time_last_dt);
-	_qpf_time_pause = _qpf_time_last_dt;
+	_time_max_dt = clock::duration::max();
+	_time_last_dt = clock::now();
+	_time_pause = _time_last_dt;
 }
 
 float Timer::GetDt()
 {
-	LARGE_INTEGER  time;
+    std::chrono::duration<float> fseconds;
 
 	if( _stopCount )
 	{
-		time.QuadPart = _qpf_time_pause.QuadPart - _qpf_time_last_dt.QuadPart;
-		_qpf_time_last_dt.QuadPart = _qpf_time_pause.QuadPart;
+		fseconds = _time_pause - _time_last_dt;
+		_time_last_dt = _time_pause;
 	}
 	else
 	{
-		LARGE_INTEGER current;
-		QueryPerformanceCounter(&current);
-
-		time.QuadPart = current.QuadPart - _qpf_time_last_dt.QuadPart;
-		_qpf_time_last_dt.QuadPart = current.QuadPart;
+		auto current = clock::now();
+		fseconds = current - _time_last_dt;
+		_time_last_dt = current;
 	}
 
-	if( time.QuadPart > _qpf_time_max_dt.QuadPart )
-		time = _qpf_time_max_dt;
+	if( fseconds > _time_max_dt )
+		fseconds = _time_max_dt;
 
-	return (float)( (double) time.QuadPart / _qpf_frequency );
+    return fseconds.count();
 }
 
 
 void Timer::SetMaxDt(float dt)
 {
-	_qpf_time_max_dt.QuadPart = (LONGLONG) ((double) dt * _qpf_frequency);
+	_time_max_dt = std::chrono::duration<float>(dt);
 }
 
 void Timer::Stop()
 {
 	if( !_stopCount )
 	{
-		QueryPerformanceCounter(&_qpf_time_pause);
+		_time_pause = clock::now();
 	}
 
 	_stopCount++;
@@ -74,9 +67,7 @@ void Timer::Start()
 
 	if( !_stopCount )
 	{
-		LARGE_INTEGER current;
-		QueryPerformanceCounter(&current);
-		_qpf_time_last_dt.QuadPart += current.QuadPart - _qpf_time_pause.QuadPart;
+		_time_last_dt += clock::now() - _time_pause;
 	}
 }
 

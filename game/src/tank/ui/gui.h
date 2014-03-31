@@ -81,7 +81,7 @@ class EditPlayerDlg : public Dialog
 	DefaultComboBox *_classes;
 	DefaultComboBox *_teams;
 
-	std::vector<std::pair<string_t, string_t> > _classNames;
+	std::vector<std::pair<std::string, std::string> > _classNames;
 
 	ConfPlayerLocal _info;
 
@@ -108,7 +108,7 @@ class EditBotDlg : public Dialog
 	DefaultComboBox *_teams;
 	DefaultComboBox *_levels;
 
-	std::vector<std::pair<string_t, string_t> > _classNames;
+	std::vector<std::pair<std::string, std::string> > _classNames;
 
 	ConfPlayerAI _info;
 
@@ -139,11 +139,11 @@ class ScriptMessageBox : public Window
 
 public:
 	ScriptMessageBox(Window *parent,
-		const string_t &title,
-		const string_t &text,
-		const string_t &btn1,
-		const string_t &btn2,
-		const string_t &btn3
+		const std::string &title,
+		const std::string &text,
+		const std::string &btn1,
+		const std::string &btn2,
+		const std::string &btn3
 	);
 	Delegate<void(int)> eventSelect;
 };

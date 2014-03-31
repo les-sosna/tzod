@@ -18,9 +18,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // ObjectProperty class implementation
 
-ObjectProperty::ObjectProperty(PropertyType type, const string_t &name)
-  : _type(type)
-  , _name(name)
+ObjectProperty::ObjectProperty(PropertyType type, const std::string &name)
+  : _name(name)
+  , _type(type)
   , _value_index(0)
   , _int_min(0)
   , _int_max(0)
@@ -32,7 +32,7 @@ ObjectProperty::PropertyType ObjectProperty::GetType(void) const
 	return _type;
 }
 
-const string_t& ObjectProperty::GetName(void) const
+const std::string& ObjectProperty::GetName(void) const
 {
 	return _name;
 }
@@ -103,25 +103,25 @@ void ObjectProperty::SetFloatRange(float min, float max)
 	_float_max = max;
 }
 
-void ObjectProperty::SetStringValue(const string_t &str)
+void ObjectProperty::SetStringValue(const std::string &str)
 {
 	assert(TYPE_STRING == _type);
 	_str_value = str;
 }
 
-const string_t& ObjectProperty::GetStringValue(void) const
+const std::string& ObjectProperty::GetStringValue(void) const
 {
 	assert( TYPE_STRING == _type );
 	return _str_value;
 }
 
-void ObjectProperty::AddItem(const string_t &str)
+void ObjectProperty::AddItem(const std::string &str)
 {
 	assert(TYPE_MULTISTRING == _type);
 	_value_set.push_back(str);
 }
 
-const string_t& ObjectProperty::GetListValue(size_t index) const
+const std::string& ObjectProperty::GetListValue(size_t index) const
 {
 	assert(TYPE_MULTISTRING == _type);
 	assert(index < _value_set.size());
@@ -169,25 +169,21 @@ void PropertySet::LoadFromConfig()
 		switch( prop->GetType() )
 		{
 		case ObjectProperty::TYPE_INTEGER:
-			prop->SetIntValue(
-				__min(prop->GetIntMax(), __max(prop->GetIntMin(),
-					op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt()
-			)));
+            prop->SetIntValue(std::min(prop->GetIntMax(),
+                                       std::max(prop->GetIntMin(),
+                                                op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt())));
 			break;
 		case ObjectProperty::TYPE_FLOAT:
-			prop->SetFloatValue(
-				__min(prop->GetFloatMax(), __max(prop->GetFloatMin(),
-					op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat()
-			)));
+            prop->SetFloatValue(std::min(prop->GetFloatMax(),
+                                         std::max(prop->GetFloatMin(),
+                                                  op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat())));
 			break;
 		case ObjectProperty::TYPE_STRING:
 			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
-			prop->SetCurrentIndex(
-				__min((int) prop->GetListSize() - 1, __max(0,
-					op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt()
-			)));
+            prop->SetCurrentIndex(std::min((int) prop->GetListSize() - 1,
+                                           std::max(0, op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt())));
 			break;
 		default:
 			assert(false);
@@ -270,7 +266,6 @@ void PropertySet::Exchange(bool applyToObject)
 
 GC_Object::GC_Object()
   : _memberOf(this)
-//  , _refCount(1)
   , _flags(0)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
@@ -279,9 +274,9 @@ GC_Object::GC_Object()
 
 GC_Object::GC_Object(FromFile)
   : _memberOf(this)
+  , _flags(0) // to clear GC_FLAG_OBJECT_KILLED & GC_FLAG_OBJECT_NAMED for proper handling of bad save files
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
-  , _flags(0) // to clear GC_FLAG_OBJECT_KILLED & GC_FLAG_OBJECT_NAMED for proper handling of bad save files
 {
 }
 
@@ -309,7 +304,7 @@ void GC_Object::Kill()
 	delete this;
 }
 
-IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
+//IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
 
 void GC_Object::Notify::Serialize(SaveFile &f)
 {
@@ -317,7 +312,7 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 	f.Serialize(subscriber);
 
 	// we are not allowed to serialize raw pointers so we use a small hack :)
-	f.Serialize(reinterpret_cast<DWORD_PTR&>(handler));
+	f.Serialize(reinterpret_cast<size_t&>(handler));
 }
 
 void GC_Object::Serialize(SaveFile &f)
@@ -335,7 +330,7 @@ void GC_Object::Serialize(SaveFile &f)
 	{
 		if( f.loading() )
 		{
-			string_t name;
+			std::string name;
 			f.Serialize(name);
 
 			assert( 0 == g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
@@ -345,7 +340,7 @@ void GC_Object::Serialize(SaveFile &f)
 		}
 		else
 		{
-			string_t name = GetName();
+			std::string name = GetName();
 			f.Serialize(name);
 		}
 	}
@@ -357,7 +352,7 @@ void GC_Object::Serialize(SaveFile &f)
 
 	if( f.loading() )
 	{
-		DWORD tmp = _flags & GC_FLAG_OBJECT_EVENTS_TS_FIXED;
+		unsigned int tmp = _flags & GC_FLAG_OBJECT_EVENTS_TS_FIXED;
 		SetFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED, false);
 		SetEvents(tmp);
 	}
@@ -369,7 +364,7 @@ void GC_Object::Serialize(SaveFile &f)
 
 	size_t count = 0;
 	if( const Notify *n = _firstNotify )
-		do { count += !n->IsRemoved(); } while( n = n->next );
+		do { count += !n->IsRemoved(); } while( (n = n->next) );
 	f.Serialize(count);
 	if( f.loading() )
 	{
@@ -390,7 +385,7 @@ void GC_Object::Serialize(SaveFile &f)
 	}
 }
 
-void GC_Object::SetEvents(DWORD dwEvents)
+void GC_Object::SetEvents(unsigned int dwEvents)
 {
 	// remove from the TIMESTEP_FIXED list
 	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
@@ -430,7 +425,7 @@ void GC_Object::SetName(const char *name)
 		//
 
 		assert(g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this));
-		const string_t &oldName = g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
+		const std::string &oldName = g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
 		assert(g_level->_nameToObjectMap.count(oldName));
 		g_level->_nameToObjectMap.erase(oldName);
 		g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].erase(this); // this invalidates oldName ref
@@ -544,7 +539,7 @@ PropertySet* GC_Object::NewPropertySet()
 
 void GC_Object::MapExchange(MapFile &f)
 {
-	string_t tmp_name;
+	std::string tmp_name;
 	const char *name = GetName();
 	tmp_name = name ? name : "";
 	MAP_EXCHANGE_STRING(name, tmp_name, "");

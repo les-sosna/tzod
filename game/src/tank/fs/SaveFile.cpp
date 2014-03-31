@@ -35,15 +35,15 @@ GC_Object* SaveFile::RestorePointer(size_t id) const
 	return _indexToPtr[id];
 }
 
-void SaveFile::Serialize(string_t &str)
+void SaveFile::Serialize(std::string &str)
 {
-	string_t::size_type len = str.length();
+	std::string::size_type len = str.length();
 	Serialize(len);
 	if( len )
 	{
 		if( loading() )
 		{
-			std::vector<string_t::value_type> buffer(len);
+			std::vector<std::string::value_type> buffer(len);
 			SerializeArray(&*buffer.begin(), len);
 			str.resize(0);
 			str.reserve(len);
@@ -51,7 +51,7 @@ void SaveFile::Serialize(string_t &str)
 		}
 		else
 		{
-			SerializeArray(const_cast<string_t::value_type*>(str.data()), len);
+			SerializeArray(const_cast<std::string::value_type*>(str.data()), len);
 		}
 	}
 }

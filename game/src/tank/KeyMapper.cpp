@@ -6,26 +6,26 @@
 
 class KeyMapper
 {
-	std::map<string_t, int> _name2code;
-	std::map<int, string_t> _code2name;
+	std::map<std::string, int> _name2code;
+	std::map<int, std::string> _code2name;
 
 	void Pair(const char *name, int code);
 
 public:
 	KeyMapper();
 
-	inline string_t GetName(int code) const;
-	inline int GetCode(const string_t &name) const;
+	inline std::string GetName(int code) const;
+	inline int GetCode(const std::string &name) const;
 };
 
 static KeyMapper s_keyMapper;
 
-string_t GetKeyName(int code)
+std::string GetKeyName(int code)
 {
 	return s_keyMapper.GetName(code);
 }
 
-int GetKeyCode(const string_t &name)
+int GetKeyCode(const std::string &name)
 {
 	return s_keyMapper.GetCode(name);
 }
@@ -169,27 +169,27 @@ void KeyMapper::Pair(const char *name, int code)
 	_name2code[name] = code;
 }
 
-string_t KeyMapper::GetName(int code) const
+std::string KeyMapper::GetName(int code) const
 {
-	std::map<int, string_t>::const_iterator it = _code2name.find(code);
+	std::map<int, std::string>::const_iterator it = _code2name.find(code);
 	if( _code2name.end() == it )
 	{
 		char buf[8];
-		wsprintf(buf, "#%03d", code);
+		sprintf(buf, "#%03d", code);
 		return buf;
 	}
 
 	return it->second;
 }
 
-int KeyMapper::GetCode(const string_t &name) const
+int KeyMapper::GetCode(const std::string &name) const
 {
 	if( '#' == name[0] )
 	{
-		return atoi(name.c_str() + 1);
+        return atoi(name.c_str() + 1);
 	}
 
-	std::map<string_t, int>::const_iterator it = _name2code.find(name);
+	std::map<std::string, int>::const_iterator it = _name2code.find(name);
 	if( _name2code.end() != it )
 	{
 		return it->second;

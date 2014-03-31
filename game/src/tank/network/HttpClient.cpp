@@ -32,7 +32,6 @@ static int ParseHttpReply(std::string &resultBody, HttpClient::Param &resultHead
 	const int stateDelim1        = 3;  // [ ] -> goto stateDelim1; else goto stateValue
 	const int stateValue         = 4;  // '\n' -> goto stateBegin; else accumulate
 	const int stateBody          = 5;  // accumulate
-	const int stateEnd           = 6;
 
 	int status = 0;
 	std::string httpver, reason;

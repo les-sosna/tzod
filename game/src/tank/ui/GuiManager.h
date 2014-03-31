@@ -6,32 +6,40 @@
 
 namespace UI
 {
-	// forward declarations
-	class LayoutManager;
+// forward declarations
+class LayoutManager;
 
-	struct IWindowFactory
-	{
-		virtual Window* Create(LayoutManager *pManager) = 0;
-	};
+struct IWindowFactory
+{
+    virtual Window* Create(LayoutManager *pManager) = 0;
+};
 
-///////////////////////////////////////////////////////////////////////////////
+enum Msg
+{
+    MSGKEYUP,
+    MSGKEYDOWN,
+    MSGCHAR,
+	MSGLBUTTONDOWN,
+	MSGRBUTTONDOWN,
+	MSGMBUTTONDOWN,
+	MSGLBUTTONUP,
+	MSGRBUTTONUP,
+	MSGMBUTTONUP,
+	MSGMOUSEMOVE,
+	MSGMOUSEWHEEL,
+};
 
 class LayoutManager
 {
 public:
-	LayoutManager(IWindowFactory *pDesktopFactory);
+	LayoutManager(IWindowFactory &&desktopFactory);
 	~LayoutManager();
-
-	//using DrawingContext::AttachRender;
-	//using DrawingContext::DetachRender;
 
 	void TimeStep(float dt);
 	void Render() const;
 
-	// TODO: should it handle WM_SIZE message instead of exposing SetCanvasSize?
-	bool ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	bool ProcessMouse(float x, float y, float z, UINT msg);
-	bool ProcessKeys(UINT msg, int c);
+	bool ProcessMouse(float x, float y, float z, Msg msg);
+	bool ProcessKeys(Msg msg, int c);
 
 	TextureManager* GetTextureManager();
 	Window* GetDesktop() const;
@@ -53,7 +61,7 @@ private:
 	void TimeStepUnregister(PtrList<Window>::iterator it);
 
 private:
-	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, UINT msg);
+	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
 
 	PtrList<Window> _timestep;
 	PtrList<Window> _topmost;

@@ -1,6 +1,7 @@
 // Variant.h
 
 #pragma once
+#include <boost/asio.hpp>
 
 #define VARIANT_DEBUG
 
@@ -17,8 +18,8 @@ public:
 	bool EntityProbe() const;
 	bool IsEmpty() const;
 
-	int Send(SOCKET s, size_t *outSent = NULL);
-	int Recv(SOCKET s);
+	int Send(boost::asio::ip::tcp::socket s, size_t *outSent = NULL);
+	int Recv(boost::asio::ip::tcp::socket s);
 
 	size_t GetTraffic() const;
 	size_t GetPending() const { return _buffer.size(); }
@@ -114,8 +115,8 @@ public:
 	Variant();
 	template<class T>
 	explicit Variant(const T &val)
-	  : _type(VariantTypeId<T>())
-	  , _data(_types[VariantTypeId<T>()].ctor(&val))
+	  : _data(_types[VariantTypeId<T>()].ctor(&val))
+      , _type(VariantTypeId<T>())
 	{
 	}
 

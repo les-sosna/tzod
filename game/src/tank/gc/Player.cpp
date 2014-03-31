@@ -5,13 +5,13 @@
 #include "Player.h"
 
 #include "script.h"
-#include "macros.h"
+#include "Macros.h"
 #include "level.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
-#include "network/TankClient.h"
+//#include "network/TankClient.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -56,7 +56,7 @@ GC_Player::GC_Player()
 	// !! avoid using net_rand in constructor since it may cause sync error
 
 	// select first available class
-	int count = 0;
+//	int count = 0;
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
@@ -122,18 +122,18 @@ void GC_Player::Kill()
 	GC_Service::Kill();
 }
 
-void GC_Player::SetSkin(const string_t &skin)
+void GC_Player::SetSkin(const std::string &skin)
 {
 	_skin = skin;
 	UpdateSkin();
 }
 
-void GC_Player::SetNick(const string_t &nick)
+void GC_Player::SetNick(const std::string &nick)
 {
 	_nick = nick;
 }
 
-void GC_Player::SetClass(const string_t &c)
+void GC_Player::SetClass(const std::string &c)
 {
 	_class = c;
 }
@@ -222,7 +222,7 @@ void GC_Player::TimeStepFixed(float dt)
 			if( !pBestPoint && points.empty() )
 			{
 				char buf[64];
-				wsprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
+				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
 				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(buf);
 				return;
 			}
@@ -297,9 +297,9 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propNick(      ObjectProperty::TYPE_STRING,      "nick"    )
   , _propClass(     ObjectProperty::TYPE_MULTISTRING, "class"   )
   , _propSkin(      ObjectProperty::TYPE_MULTISTRING, "skin"    )
-  , _propVehName(   ObjectProperty::TYPE_STRING,      "vehname" )
   , _propOnDie(     ObjectProperty::TYPE_STRING,      "on_die"      )
   , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn"  )
+  , _propVehName(   ObjectProperty::TYPE_STRING,      "vehname" )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS);
 	_propScore.SetIntRange(INT_MIN, INT_MAX);
@@ -312,7 +312,7 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 	}
 	lua_pop(g_env.L, 1); // pop classes table
 
-	std::vector<string_t> skin_names;
+	std::vector<std::string> skin_names;
 	g_texman->GetTextureNames(skin_names, "skin/", true);
 	for( size_t i = 0; i < skin_names.size(); ++i )
 	{
@@ -415,13 +415,13 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 GC_PlayerHuman::GC_PlayerHuman()
 	: _ready(false)
 {
-	ZeroMemory(&_ctrlState, sizeof(_ctrlState));
+	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_PlayerHuman::GC_PlayerHuman(FromFile)
   : GC_Player(FromFile())
 {
-	ZeroMemory(&_ctrlState, sizeof(_ctrlState));
+	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_PlayerHuman::~GC_PlayerHuman()

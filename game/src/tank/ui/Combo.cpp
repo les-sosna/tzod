@@ -19,7 +19,7 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
   : Window(parent)
   , _curSel(-1)
 {
-	_text = TextButton::Create(this, 0, 1, string_t(), "font_small");
+	_text = TextButton::Create(this, 0, 1, std::string(), "font_small");
 	_text->eventClick = std::bind(&ComboBox::DropList, this);
 
 	_list = List::Create(this, dataSource, 0, 0, 1, 1);
@@ -123,14 +123,14 @@ bool ComboBox::OnRawChar(int c)
 {
 	switch( c )
 	{
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		if( _list->GetVisible() )
 		{
 			GetManager()->SetFocusWnd(this);
 			return true;
 		}
 		break;
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		if( _list->GetVisible() )
 		{
 			if( -1 != _list->GetCurSel() )
@@ -140,7 +140,7 @@ bool ComboBox::OnRawChar(int c)
 			}
 		}
 		break;
-	case VK_DOWN:
+	case GLFW_KEY_DOWN:
 		if( !_list->GetVisible() )
 			DropList();
 		return true;

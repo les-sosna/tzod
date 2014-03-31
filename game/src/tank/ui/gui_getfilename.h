@@ -15,7 +15,7 @@ class GetFileNameDlg : public Dialog
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox *_files;
 	Edit *_fileName;
-	string_t _ext;
+	std::string _ext;
 	SafePtr<FS::FileSystem> _folder;
 
 	bool _changing;
@@ -23,16 +23,16 @@ class GetFileNameDlg : public Dialog
 public:
 	struct Params
 	{
-		string_t title;
-		string_t extension;
+		std::string title;
+		std::string extension;
 		SafePtr<FS::FileSystem> folder;
 	};
 
 	GetFileNameDlg(Window *parent, const Params &param);
 	virtual ~GetFileNameDlg();
 
-	string_t GetFileName() const;
-	string_t GetFileTitle() const;
+	std::string GetFileName() const;
+	std::string GetFileTitle() const;
 
 protected:
 	void OnSelect(int index);

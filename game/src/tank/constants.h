@@ -2,6 +2,10 @@
 
 #pragma once
 
+
+#define SEVERITY_ERROR 1
+
+
 //-----------------------------------------------------------------------------
 // z-layers
 enum enumZOrder

@@ -35,13 +35,13 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
 
-	std::set<string_t> files;
+	std::set<std::string> files;
 	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
-	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		string_t tmp = *it;
+		std::string tmp = *it;
 		tmp.erase(it->length() - 4); // cut out the file extension
-		int index = _files->GetData()->AddItem(tmp);
+		_files->GetData()->AddItem(tmp);
 	}
 	_files->GetData()->Sort();
 
@@ -63,7 +63,7 @@ void NewCampaignDlg::OnOK()
 
 	g_conf.ui_showmsg.Set(true);
 
-	const string_t& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
+	const std::string& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
 	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
 	{
 		static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);

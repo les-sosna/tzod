@@ -2,16 +2,15 @@
 
 #pragma once
 
-// forward declarations
-struct IRender;
+#include <memory>
 
+struct IRender;
 class TextureManager;
 class CSoundManager;
 class CSound;
-class MusicPlayer;
 class Level;
 class ConsoleBuffer;
-class ClientBase;
+//class ClientBase;
 class AppBase;
 
 namespace UI
@@ -33,52 +32,37 @@ struct ENVIRONMENT;
 
 extern CSound *g_pSounds[SND_COUNT];
 
-extern IRender         *g_render;
+extern std::unique_ptr<IRender> g_render;
 extern TextureManager  *g_texman;
 extern CSoundManager   *g_soundManager;
 extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
-extern ClientBase      *g_client;
+//extern ClientBase      *g_client;
 
 extern std::unique_ptr<Level>     g_level;
+#ifndef NOSOUND
+class MusicPlayer;
 extern SafePtr<MusicPlayer>     g_music;
+#endif
 extern SafePtr<FS::FileSystem>  g_fs;
+
+struct GLFWwindow;
+extern GLFWwindow *g_appWindow;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct InputState
-{
-	bool  _keys[300];
-	int   mouse_x;
-	int   mouse_y;
-	int   mouse_wheel;
-	bool  bLButtonState;
-	bool  bRButtonState;
-	bool  bMButtonState;
-	bool IsKeyPressed(int code)
-	{
-		if( code > 0 && code < sizeof(_keys) / sizeof(_keys[0]) )
-		{
-			return _keys[code];
-		}
-		return false;
-	}
-};
 
+struct lua_State;
 
 struct ENVIRONMENT
 {
-	InputState envInputs;
-
-	lua_State *L;            // handle to the script engine
+	lua_State *L;
 
 	int       pause;
 
 	int       nNeedCursor;   // number of systems which need the mouse cursor to be visible
 	bool      minimized;     // indicates that the main app window is minimized
-
-	HWND      hMainWnd;      // handle to main application window
 };
 
 extern ENVIRONMENT g_env;

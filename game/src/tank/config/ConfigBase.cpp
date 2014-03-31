@@ -307,7 +307,7 @@ void ConfVarBool::Push(lua_State *L) const
 ConfVarString::ConfVarString()
 {
 	_type = typeString;
-	_val.asString = new string_t();
+	_val.asString = new std::string();
 }
 
 ConfVarString::~ConfVarString()
@@ -322,13 +322,13 @@ const char* ConfVarString::GetTypeName() const
 	return "string";
 }
 
-const string_t& ConfVarString::Get() const
+const std::string& ConfVarString::Get() const
 {
 	assert(typeString == _type);
 	return *_val.asString;
 }
 
-void ConfVarString::Set(const string_t &value)
+void ConfVarString::Set(const std::string &value)
 {
 	assert(typeString == _type);
 	*_val.asString = value;
@@ -464,7 +464,7 @@ ConfVarBool* ConfVarArray::SetBool(size_t index, bool value)
 	return v;
 }
 
-ConfVarString* ConfVarArray::GetStr(size_t index, const string_t &def)
+ConfVarString* ConfVarArray::GetStr(size_t index, const std::string &def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(index, ConfVar::typeString);
 	if( !p.second )
@@ -472,7 +472,7 @@ ConfVarString* ConfVarArray::GetStr(size_t index, const string_t &def)
 	return p.first->AsStr();
 }
 
-ConfVarString* ConfVarArray::SetStr(size_t index, const string_t &value)
+ConfVarString* ConfVarArray::SetStr(size_t index, const std::string &value)
 {
 	ConfVarString *v = GetVar(index, ConfVar::typeString).first->AsStr();
 	v->Set(value);
@@ -623,7 +623,7 @@ void ConfVarArray::Push(lua_State *L) const
 ConfVarTable::ConfVarTable()
 {
 	_type = typeTable;
-	_val.asTable = new std::map<string_t, ConfVar*>();
+	_val.asTable = new std::map<std::string, ConfVar*>();
 }
 
 ConfVarTable::~ConfVarTable()
@@ -637,7 +637,7 @@ ConfVarTable::~ConfVarTable()
 void ConfVarTable::ClearInternal()
 {
 	assert(typeTable == _type);
-	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
+	for( std::map<std::string, ConfVar*>::iterator it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
 		delete it->second;
 	}
@@ -649,9 +649,9 @@ const char* ConfVarTable::GetTypeName() const
 	return "table";
 }
 
-ConfVar* ConfVarTable::Find(const string_t &name)  // returns NULL if variable not found
+ConfVar* ConfVarTable::Find(const std::string &name)  // returns NULL if variable not found
 {
-	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
+	std::map<std::string, ConfVar*>::iterator it = _val.asTable->find(name);
 	return _val.asTable->end() != it ? it->second : NULL;
 }
 
@@ -660,28 +660,28 @@ size_t ConfVarTable::GetSize() const
 	return _val.asTable->size();
 }
 
-void ConfVarTable::GetKeyList(std::vector<string_t> &out) const
+void ConfVarTable::GetKeyList(std::vector<std::string> &out) const
 {
 	out.clear();
-	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin();
+	for( std::map<std::string, ConfVar*>::const_iterator it = _val.asTable->begin();
 		_val.asTable->end() != it; ++it )
 	{
 		out.push_back(it->first);
 	}
 }
 
-std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Type type)
+std::pair<ConfVar*, bool> ConfVarTable::GetVar(const std::string &name, ConfVar::Type type)
 {
 	std::pair<ConfVar*, bool> result(nullptr, true);
 
 	assert(ConfVar::typeNil != type);
-	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
+	std::map<std::string, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() == it )
 	{
 		// create new item
 		assert( !_frozen );
 		result.first = new ConfVar();
-		std::pair<string_t, ConfVar*> pair(name, result.first);
+		std::pair<std::string, ConfVar*> pair(name, result.first);
 		_val.asTable->insert(pair);
 		FireValueUpdate(this);
 	}
@@ -703,7 +703,7 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(const string_t &name, ConfVar::Ty
 	return result;
 }
 
-ConfVarNumber* ConfVarTable::GetNum(const string_t &name, float def)
+ConfVarNumber* ConfVarTable::GetNum(const std::string &name, float def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
@@ -711,14 +711,14 @@ ConfVarNumber* ConfVarTable::GetNum(const string_t &name, float def)
 	return p.first->AsNum();
 }
 
-ConfVarNumber* ConfVarTable::SetNum(const string_t &name, float value)
+ConfVarNumber* ConfVarTable::SetNum(const std::string &name, float value)
 {
 	ConfVarNumber *v = GetVar(name, ConfVar::typeNumber).first->AsNum();
 	v->SetFloat(value);
 	return v;
 }
 
-ConfVarNumber* ConfVarTable::GetNum(const string_t &name, int def)
+ConfVarNumber* ConfVarTable::GetNum(const std::string &name, int def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
@@ -726,14 +726,14 @@ ConfVarNumber* ConfVarTable::GetNum(const string_t &name, int def)
 	return p.first->AsNum();
 }
 
-ConfVarNumber* ConfVarTable::SetNum(const string_t &name, int value)
+ConfVarNumber* ConfVarTable::SetNum(const std::string &name, int value)
 {
 	ConfVarNumber *v = GetVar(name, ConfVar::typeNumber).first->AsNum();
 	v->SetInt(value);
 	return v;
 }
 
-ConfVarBool* ConfVarTable::GetBool(const string_t &name, bool def)
+ConfVarBool* ConfVarTable::GetBool(const std::string &name, bool def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeBoolean);
 	if( !p.second )
@@ -741,14 +741,14 @@ ConfVarBool* ConfVarTable::GetBool(const string_t &name, bool def)
 	return p.first->AsBool();
 }
 
-ConfVarBool* ConfVarTable::SetBool(const string_t &name, bool value)
+ConfVarBool* ConfVarTable::SetBool(const std::string &name, bool value)
 {
 	ConfVarBool *v = GetVar(name, ConfVar::typeBoolean).first->AsBool();
 	v->Set(value);
 	return v;
 }
 
-ConfVarString* ConfVarTable::GetStr(const string_t &name, const string_t &def)
+ConfVarString* ConfVarTable::GetStr(const std::string &name, const std::string &def)
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeString);
 	if( !p.second )
@@ -756,14 +756,14 @@ ConfVarString* ConfVarTable::GetStr(const string_t &name, const string_t &def)
 	return p.first->AsStr();
 }
 
-ConfVarString* ConfVarTable::SetStr(const string_t &name, const string_t &value)
+ConfVarString* ConfVarTable::SetStr(const std::string &name, const std::string &value)
 {
 	ConfVarString *v = GetVar(name, ConfVar::typeString).first->AsStr();
 	v->Set(value);
 	return v;
 }
 
-ConfVarArray* ConfVarTable::GetArray(const string_t &name, void (*init)(ConfVarArray*))
+ConfVarArray* ConfVarTable::GetArray(const std::string &name, void (*init)(ConfVarArray*))
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeArray);
 	if( !p.second && init )
@@ -771,7 +771,7 @@ ConfVarArray* ConfVarTable::GetArray(const string_t &name, void (*init)(ConfVarA
 	return p.first->AsArray();
 }
 
-ConfVarTable* ConfVarTable::GetTable(const string_t &name, void (*init)(ConfVarTable*))
+ConfVarTable* ConfVarTable::GetTable(const std::string &name, void (*init)(ConfVarTable*))
 {
 	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeTable);
 	if( !p.second && init )
@@ -791,7 +791,7 @@ bool ConfVarTable::Remove(ConfVar * const value)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );
-	for( std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
+	for( std::map<std::string, ConfVar*>::iterator it = _val.asTable->begin();
 		_val.asTable->end() != it; ++it )
 	{
 		if( value == it->second )
@@ -805,11 +805,11 @@ bool ConfVarTable::Remove(ConfVar * const value)
 	return false;
 }
 
-bool ConfVarTable::Remove(const string_t &name)
+bool ConfVarTable::Remove(const std::string &name)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );
-	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(name);
+	std::map<std::string, ConfVar*>::iterator it = _val.asTable->find(name);
 	if( _val.asTable->end() != it )
 	{
 		_val.asTable->erase(it);
@@ -819,12 +819,12 @@ bool ConfVarTable::Remove(const string_t &name)
 	return false;
 }
 
-bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
+bool ConfVarTable::Rename(ConfVar * const value, const std::string &newName)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );
 
-	std::map<string_t, ConfVar*>::iterator it = _val.asTable->begin();
+	std::map<std::string, ConfVar*>::iterator it = _val.asTable->begin();
 	for( ;_val.asTable->end() != it; ++it )
 	{
 		if( value == it->second )
@@ -854,12 +854,12 @@ bool ConfVarTable::Rename(ConfVar * const value, const string_t &newName)
 	return true;
 }
 
-bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
+bool ConfVarTable::Rename(const std::string &oldName, const std::string &newName)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );
 
-	std::map<string_t, ConfVar*>::iterator it = _val.asTable->find(oldName);
+	std::map<std::string, ConfVar*>::iterator it = _val.asTable->find(oldName);
 	if( _val.asTable->end() == it )
 	{
 		return false; // old name not found
@@ -884,9 +884,9 @@ bool ConfVarTable::Rename(const string_t &oldName, const string_t &newName)
 
 bool ConfVarTable::Write(FILE *file, int indent) const
 {
-	if( indent ) fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (string_t(" -- ") + GetHelpString()).c_str());
+	if( indent ) fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (std::string(" -- ") + GetHelpString()).c_str());
 
-	for( std::map<string_t, ConfVar*>::const_iterator it = _val.asTable->begin();
+	for( std::map<std::string, ConfVar*>::const_iterator it = _val.asTable->begin();
 	     _val.asTable->end() != it; ++it )
 	{
 		for( int i = 0; i < indent; ++i )
@@ -993,8 +993,7 @@ bool ConfVarTable::Assign(lua_State *L)
 
 bool ConfVarTable::Save(const char *filename) const
 {
-	FILE *file = NULL;
-	errno_t err = fopen_s(&file, filename, "w");
+	FILE *file = fopen(filename, "w");
 	if( !file )
 	{
 		return false;
@@ -1128,6 +1127,8 @@ static int luaT_setconfarray(lua_State *L)
 		return luaL_error(L, "attempt to modify conf_array");
 	case ConfVar::typeTable:
 		return luaL_error(L, "attempt to modify conf_table");
+    case ConfVar::typeNil:
+        break;
 	}
 
 	return 0;
@@ -1162,6 +1163,8 @@ static int luaT_setconftable(lua_State *L)
 		case ConfVar::typeTable:
 			luaL_checktype(L, 3, LUA_TTABLE);
 			return luaL_error(L, "attempt to modify conf_table");
+        case ConfVar::typeNil:
+            break;
 		}
 	}
 	else
@@ -1194,7 +1197,7 @@ int ConfVarTable::luaT_conftablenext(lua_State *L)
 	}
 
 	const char *key = luaL_checkstring(L, 2);
-	std::map<string_t, ConfVar*>::const_iterator it = v->_val.asTable->find(key);
+	std::map<std::string, ConfVar*>::const_iterator it = v->_val.asTable->find(key);
 	if( v->_val.asTable->end() == it )
 	{
 		return luaL_error(L, "invalid key to 'next'");

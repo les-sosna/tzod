@@ -28,8 +28,8 @@ public:
 	ConfVar();
 	virtual ~ConfVar();
 
-	void SetHelpString(const string_t &str) { _help = str; }
-	const string_t& GetHelpString() const { return _help; }
+	void SetHelpString(const std::string &str) { _help = str; }
+	const std::string& GetHelpString() const { return _help; }
 
 	void SetType(Type type);
 	Type GetType() const { return _type; }
@@ -57,20 +57,20 @@ public:
 protected:
 	void FireValueUpdate(ConfVar *pVar);
 
-	typedef std::map<string_t, ConfVar*> TableType;
+	typedef std::map<std::string, ConfVar*> TableType;
 
 	union Value
 	{
 		double                        asNumber;
 		bool                           asBool;
-		string_t                      *asString;
+		std::string                      *asString;
 		std::deque<ConfVar*>          *asArray;
 		TableType                     *asTable;
 	};
 
 	Type  _type;
 	Value _val;
-	string_t _help;
+	std::string _help;
 	bool _frozen;    // frozen value can not change its type and also its content in case of table
 };
 
@@ -120,8 +120,8 @@ public:
 	virtual ~ConfVarString();
 
 
-	const string_t& Get() const;
-	void Set(const string_t &value);
+	const std::string& Get() const;
+	void Set(const std::string &value);
 
 	// ConfVar
 	virtual const char* GetTypeName() const;
@@ -142,12 +142,12 @@ public:
 	ConfVarNumber* GetNum(size_t index, float def);
 	ConfVarNumber* GetNum(size_t index, int   def = 0);
 	ConfVarBool*  GetBool(size_t index, bool  def = false);
-	ConfVarString* GetStr(size_t index, const string_t &def);
+	ConfVarString* GetStr(size_t index, const std::string &def);
 
 	ConfVarNumber* SetNum(size_t index, float value);
 	ConfVarNumber* SetNum(size_t index, int   value);
 	ConfVarBool*  SetBool(size_t index, bool  value);
-	ConfVarString* SetStr(size_t index, const string_t &value);
+	ConfVarString* SetStr(size_t index, const std::string &value);
 
 	ConfVarArray* GetArray(size_t index);
 	ConfVarTable* GetTable(size_t index);
@@ -176,33 +176,33 @@ public:
 	ConfVarTable();
 	virtual ~ConfVarTable();
 
-	ConfVar* Find(const string_t &name); // returns NULL if variable not found
+	ConfVar* Find(const std::string &name); // returns NULL if variable not found
 	size_t GetSize() const;
 
-	typedef std::vector<string_t> KeyListType;
+	typedef std::vector<std::string> KeyListType;
 	void GetKeyList(KeyListType &out) const;
 
 	// bool part contains true if value with the specified type was found
-	std::pair<ConfVar*, bool> GetVar(const string_t &name, ConfVar::Type type);
+	std::pair<ConfVar*, bool> GetVar(const std::string &name, ConfVar::Type type);
 
-	ConfVarNumber* GetNum(const string_t &name, float def);
-	ConfVarNumber* GetNum(const string_t &name, int   def = 0);
-	ConfVarBool*  GetBool(const string_t &name, bool  def = false);
-	ConfVarString* GetStr(const string_t &name, const string_t &def);
+	ConfVarNumber* GetNum(const std::string &name, float def);
+	ConfVarNumber* GetNum(const std::string &name, int   def = 0);
+	ConfVarBool*  GetBool(const std::string &name, bool  def = false);
+	ConfVarString* GetStr(const std::string &name, const std::string &def);
 
-	ConfVarNumber* SetNum(const string_t &name, float value);
-	ConfVarNumber* SetNum(const string_t &name, int   value);
-	ConfVarBool*  SetBool(const string_t &name, bool  value);
-	ConfVarString* SetStr(const string_t &name, const string_t &value);
+	ConfVarNumber* SetNum(const std::string &name, float value);
+	ConfVarNumber* SetNum(const std::string &name, int   value);
+	ConfVarBool*  SetBool(const std::string &name, bool  value);
+	ConfVarString* SetStr(const std::string &name, const std::string &value);
 
-	ConfVarArray* GetArray(const string_t &name, void (*init)(ConfVarArray*) = NULL);
-	ConfVarTable* GetTable(const string_t &name, void (*init)(ConfVarTable*) = NULL);
+	ConfVarArray* GetArray(const std::string &name, void (*init)(ConfVarArray*) = NULL);
+	ConfVarTable* GetTable(const std::string &name, void (*init)(ConfVarTable*) = NULL);
 
 	void Clear();
 	bool Remove(ConfVar * const value);
-	bool Remove(const string_t &name);
-	bool Rename(ConfVar * const value, const string_t &newName);
-	bool Rename(const string_t &oldName, const string_t &newName);
+	bool Remove(const std::string &name);
+	bool Rename(ConfVar * const value, const std::string &newName);
+	bool Rename(const std::string &oldName, const std::string &newName);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);

@@ -13,6 +13,8 @@ template
 >
 class MemoryPool
 {
+    struct Block;
+    
 	struct BlankObject
 	{
 		union
@@ -24,7 +26,7 @@ class MemoryPool
 			};
 			char _data[sizeof(T) + extra_bytes];
 		};
-		struct Block *_block;
+		Block *_block;
 #ifndef NDEBUG
 		bool _dbgBusy;
 #endif
@@ -48,9 +50,9 @@ class MemoryPool
 		  , _used(0)
 		  , _thisBlockIdx(idx)
 		{
-#			ifndef NDEBUG
-				memset(_blanks, 0xdb, sizeof(_blanks));
-#			endif
+#ifndef NDEBUG
+            memset(_blanks, 0xdb, sizeof(_blanks));
+#endif
 
 			// link together empty object blanks
 			BlankObject *tmp(_blanks);
@@ -61,16 +63,16 @@ class MemoryPool
 				tmp->_block = this;
 				tmp->_next = tmp + 1;
 				tmp->_next->_prev = tmp;
-#				ifndef NDEBUG
-					tmp->_dbgBusy = false;
-#				endif
+#ifndef NDEBUG
+                tmp->_dbgBusy = false;
+#endif
 				++tmp;
 			}
 			end->_block = this;
 			end->_next = NULL;
-#			ifndef NDEBUG
-				end->_dbgBusy = false;
-#			endif
+#ifndef NDEBUG
+            end->_dbgBusy = false;
+#endif
 		}
 
 		~Block()
@@ -78,7 +80,7 @@ class MemoryPool
 			assert(!_used);
 		}
 
-		BlankObject* Alloc(DWORD id = 0)
+		BlankObject* Alloc(unsigned int id = 0)
 		{
 			assert(_firstFreeBlank);
 			assert(!_firstFreeBlank->_prev);
@@ -86,10 +88,10 @@ class MemoryPool
 			if( !id )
 			{
 				BlankObject *tmp = _firstFreeBlank;
-#				ifndef NDEBUG
-					assert(!tmp->_dbgBusy);
-					tmp->_dbgBusy = true;
-#				endif
+#ifndef NDEBUG
+                assert(!tmp->_dbgBusy);
+                tmp->_dbgBusy = true;
+#endif
 				_firstFreeBlank = _firstFreeBlank->_next;
 				if( _firstFreeBlank ) 
 					_firstFreeBlank->_prev = NULL;
@@ -106,11 +108,11 @@ class MemoryPool
 		{
 			assert(this == p->_block);
 			assert(_used > 0);
-#			ifndef NDEBUG
-				memset(p, 0xdb, sizeof(T) + extra_bytes);
-				assert(p->_dbgBusy);
-				p->_dbgBusy = false;
-#			endif
+#ifndef NDEBUG
+            memset(p, 0xdb, sizeof(T) + extra_bytes);
+            assert(p->_dbgBusy);
+            p->_dbgBusy = false;
+#endif
 			if( _firstFreeBlank )
 				_firstFreeBlank->_prev = p;
 			p->_next = _firstFreeBlank;
@@ -149,10 +151,10 @@ public:
 	  , _blockCount(1)
 	  , _firstEmptyIdx(0)
 	  , _freeBlock(NULL)
-#		ifndef NDEBUG
+#ifndef NDEBUG
 	  , _allocatedCount(0)
 	  , _allocatedPeak(0)
-#		endif
+#endif
 	{
 		if( !_blocks )
 			throw std::bad_alloc();
@@ -162,21 +164,21 @@ public:
 
 	~MemoryPool()
 	{
-#		ifndef NDEBUG
-			assert(0 == _allocatedCount);
-			for( size_t i = 0; i < _blockCount; ++i )
-				assert(!_blocks[i]._block);
-			printf("MemoryPool<%s>: peak allocation is %u\n", typeid(T).name(), _allocatedPeak);
-#		endif
+#ifndef NDEBUG
+        assert(0 == _allocatedCount);
+        for( size_t i = 0; i < _blockCount; ++i )
+            assert(!_blocks[i]._block);
+        printf("MemoryPool<%s>: peak allocation is %zu\n", typeid(T).name(), _allocatedPeak);
+#endif
 		free(_blocks);
 	}
 
 	void* Alloc()
 	{
-#		ifndef NDEBUG
-			if( ++_allocatedCount > _allocatedPeak )
-				_allocatedPeak = _allocatedCount;
-#		endif
+#ifndef NDEBUG
+        if( ++_allocatedCount > _allocatedPeak )
+            _allocatedPeak = _allocatedCount;
+#endif
 
 		if( !_freeBlock )
 		{
@@ -201,9 +203,9 @@ public:
 
 			assert(!_blocks[tmp]._block);
 			_blocks[tmp]._block = _freeBlock;
-#			ifndef NDEBUG
-				_blocks[tmp]._nextEmptyIdx = -1;
-#			endif
+#ifndef NDEBUG
+            _blocks[tmp]._nextEmptyIdx = -1;
+#endif
 		}
 
 		BlankObject *result = _freeBlock->Alloc();
@@ -264,7 +266,7 @@ public:
 		}
 	}
 
-	DWORD GetAllocID(void *p) const
+	unsigned int GetAllocID(void *p) const
 	{
 		return 0;
 	}

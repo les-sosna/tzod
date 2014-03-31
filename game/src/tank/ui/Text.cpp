@@ -9,7 +9,7 @@
 namespace UI
 {
 
-Text* Text::Create(Window *parent, float x, float y, const string_t &text, enumAlignText align)
+Text* Text::Create(Window *parent, float x, float y, const std::string &text, enumAlignText align)
 {
 	Text *t = new Text(parent);
 	t->Move(x, y);
@@ -79,7 +79,7 @@ void Text::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		dc->DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText(), _align);
 	}
 	dc->DrawBitmapText(sx, sy, _fontTexture, _fontColor, GetText(), _align);
-	__super::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc, sx, sy);
 }
 
 void Text::OnTextChange()

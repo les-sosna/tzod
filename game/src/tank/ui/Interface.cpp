@@ -4,7 +4,7 @@
 #include "stdafx.h"
 
 #include "interface.h"
-#include "macros.h"
+#include "Macros.h"
 #include "functions.h"
 
 #include "level.h"
@@ -240,7 +240,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 		{
 			char buf[256];
 			if( it->first.Width < 800 || it->first.Height < 600 ) continue;
-			wsprintf(buf, "%4d x %4d", it->first.Width, it->first.Height);
+			sprintf(buf, "%4d x %4d", it->first.Width, it->first.Height);
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RESOLUTION, CB_ADDSTRING, 0, (LPARAM) buf);
@@ -271,7 +271,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 		{
 			char buf[256];
 			if( it->first.BitsPerPixel < 16 ) continue;
-			wsprintf(buf, "%d bit", it->first.BitsPerPixel);
+			sprintf(buf, "%d bit", it->first.BitsPerPixel);
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_BPP, CB_ADDSTRING, 0, (LPARAM) buf);
@@ -297,7 +297,7 @@ void uiDisplaySettings(HWND hDlg, BOOL bSaveAndValidate)
 		for( ModeMap::iterator it = screen_rate.begin(); it != screen_rate.end(); ++it )
 		{
 			char buf[256];
-			wsprintf(buf, "%d Hz", it->first.RefreshRate);
+			sprintf(buf, "%d Hz", it->first.RefreshRate);
 			if( i )
 			{
 				int index = SendDlgItemMessage(hDlg, IDC_RATE, CB_ADDSTRING, 0, (LPARAM) buf);

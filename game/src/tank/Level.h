@@ -4,7 +4,7 @@
 
 #include "LevelInterfaces.h"
 #include "ObjectListener.h"
-#include "gc/Object.h" // FIXME!
+//#include "gc/Object.h" // FIXME!
 
 #include "network/ControlPacket.h"
 
@@ -58,7 +58,7 @@ public:
 	{
 		int dx = abs(x - GetX());
 		int dy = abs(y - GetY());
-		float pathAfter = (float) __max(dx, dy) + (float) __min(dx, dy) * 0.4142f;
+		float pathAfter = (float) std::max(dx, dy) + (float) std::min(dx, dy) * 0.4142f;
 		_before = before;
 		_total = before + pathAfter;
 	}
@@ -152,28 +152,47 @@ protected:
 	~EditorModeListenerHelper();
 };
 
+enum GlobalListID
+{
+	LIST_objects,
+	LIST_services,
+	LIST_respawns,
+	LIST_projectiles,
+	LIST_players,
+	LIST_sounds,
+	LIST_indicators,
+	LIST_vehicles,
+	LIST_pickups,
+	LIST_lights,
+	LIST_cameras,
+	//------------------
+	GLOBAL_LIST_COUNT
+};
+
+#define MAX_THEME_NAME  128
+
 class Level
 	: public ILevelController
 {
 	friend class GC_Object;
 
-	std::map<const GC_Object*, string_t>  _objectToStringMaps[32];
-	std::map<string_t, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
+	std::map<const GC_Object*, std::string>  _objectToStringMaps[32];
+	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
 
 
 	struct SaveHeader
 	{
-		DWORD dwVersion;
+		uint32_t dwVersion;
 		bool  nightmode;
 		float timelimit;
 		int   fraglimit;
 		float time;
 		int   width;
 		int   height;
-		char  theme[MAX_PATH];
+		char  theme[MAX_THEME_NAME];
 	};
 
-	ObjectList _objectLists[GLOBAL_LIST_COUNT];
+	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 	std::set<IEditorModeListener*> _editorModeListeners;
 	bool    _modeEditor;
 
@@ -184,25 +203,25 @@ public:
 #endif
 
 #ifdef NETWORK_DEBUG
-	DWORD _checksum;
+	uint32_t _checksum;
 	int _frame;
 	FILE *_dump;
 #endif
 
-	ObjectList& GetList(GlobalListID id) { return _objectLists[id]; }
-	const ObjectList& GetList(GlobalListID id) const { return _objectLists[id]; }
+	PtrList<GC_Object>& GetList(GlobalListID id) { return _objectLists[id]; }
+	const PtrList<GC_Object>& GetList(GlobalListID id) const { return _objectLists[id]; }
 
-	Grid<ObjectList>  grid_rigid_s;
-	Grid<ObjectList>  grid_walls;
-	Grid<ObjectList>  grid_wood;
-	Grid<ObjectList>  grid_water;
-	Grid<ObjectList>  grid_pickup;
+	Grid<PtrList<GC_Object>>  grid_rigid_s;
+	Grid<PtrList<GC_Object>>  grid_walls;
+	Grid<PtrList<GC_Object>>  grid_wood;
+	Grid<PtrList<GC_Object>>  grid_water;
+	Grid<PtrList<GC_Object>>  grid_pickup;
 
-	ObjectList     ts_fixed;
+	PtrList<GC_Object>     ts_fixed;
 
 	// graphics
-	ObjectList        z_globals[Z_COUNT];
-	Grid<ObjectList>  z_grids[Z_COUNT];
+	PtrList<GC_Object>        z_globals[Z_COUNT];
+	Grid<PtrList<GC_Object>>  z_grids[Z_COUNT];
 
 	ObjectListener *_serviceListener;
 	DefaultCamera _defaultCamera;
@@ -220,12 +239,12 @@ public:
 	int _locationsX;
 	int _locationsY;
 
-	string_t _infoAuthor;
-	string_t _infoEmail;
-	string_t _infoUrl;
-	string_t _infoDesc;
-	string_t _infoTheme;
-	string_t _infoOnInit;
+	std::string _infoAuthor;
+	std::string _infoEmail;
+	std::string _infoUrl;
+	std::string _infoDesc;
+	std::string _infoTheme;
+	std::string _infoOnInit;
 
 
 /////////////////////////////////////////////////////
@@ -275,7 +294,7 @@ public:
 	void Render() const;
 	bool IsSafeMode() const { return _safeMode; }
 	bool IsGamePaused() const;
-	GC_Object* FindObject(const string_t &name) const;
+	GC_Object* FindObject(const std::string &name) const;
 
 	int   net_rand();
 	float net_frand(float max);
@@ -304,20 +323,20 @@ public:
 		float exit;
 	};
 
-	GC_RigidBodyStatic* TraceNearest( Grid<ObjectList> &list,
+	GC_RigidBodyStatic* TraceNearest( Grid<PtrList<GC_Object>> &list,
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // origin
 	                             const vec2d &a,       // direction and length
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
 
-	void TraceAll( Grid<ObjectList> &list,
+	void TraceAll( Grid<PtrList<GC_Object>> &list,
 	               const vec2d &x0,      // origin
 	               const vec2d &a,       // direction and length
 	               std::vector<CollisionPoint> &result) const;
 
 	template<class SelectorType>
-	void RayTrace(Grid<ObjectList> &list, SelectorType &s) const;
+	void RayTrace(Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
 
 
 	//
@@ -360,14 +379,16 @@ public:
 
 	virtual float GetTime() const { return _time; }
 
-	virtual DWORD GetChecksum() const { return _checksum; }
-	virtual DWORD GetFrame() const { return _frame; }
+#ifdef NETWORK_DEBUG
+	virtual uint32_t GetChecksum() const { return _checksum; }
+	virtual unsigned int GetFrame() const { return _frame; }
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 // inline functions definition
-#include "Level.inl"
+//#include "Level.inl"
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

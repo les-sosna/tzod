@@ -7,7 +7,8 @@
 
 
 #include "Level.h"
-#include "macros.h"
+#include "Level.inl"
+#include "Macros.h"
 #include "functions.h"
 #include "script.h"
 #include "DefaultCamera.h"
@@ -17,8 +18,8 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "network/TankClient.h"
-#include "network/TankServer.h"
+//#include "network/TankClient.h"
+//#include "network/TankServer.h"
 
 #include "video/RenderBase.h"
 #include "video/TextureManager.h" // for ThemeManager
@@ -175,10 +176,10 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 
 	assert(r >= 0);
 
-	int xmin = __max(0,       int(p.x - r + 0.5f));
-	int xmax = __min(_cx - 1, int(p.x + r + 0.5f));
-	int ymin = __max(0,       int(p.y - r + 0.5f));
-	int ymax = __min(_cy - 1, int(p.y + r + 0.5f));
+	int xmin = std::max(0,       int(p.x - r + 0.5f));
+	int xmax = std::min(_cx - 1, int(p.x + r + 0.5f));
+	int ymin = std::max(0,       int(p.y - r + 0.5f));
+	int ymax = std::min(_cy - 1, int(p.y + r + 0.5f));
 
 	for( int x = xmin; x <= xmax; x++ )
 	for( int y = ymin; y <= ymax; y++ )
@@ -250,23 +251,23 @@ EditorModeListenerHelper::~EditorModeListenerHelper()
 // don't create game objects in the constructor
 Level::Level()
   : _modeEditor(false)
-  , _time(0)
-  , _limitHit(false)
-  , _frozen(false)
-  , _safeMode(true)
-  , _locationsX(0)
-  , _locationsY(0)
-  , _sx(0)
-  , _sy(0)
-  , _seed(1)
-  , _serviceListener(NULL)
-  , _texBack(g_texman->FindSprite("background"))
-  , _texGrid(g_texman->FindSprite("grid"))
 #ifdef NETWORK_DEBUG
   , _checksum(0)
   , _frame(0)
   , _dump(NULL)
 #endif
+  , _serviceListener(NULL)
+  , _texBack(g_texman->FindSprite("background"))
+  , _texGrid(g_texman->FindSprite("grid"))
+  , _frozen(false)
+  , _limitHit(false)
+  , _sx(0)
+  , _sy(0)
+  , _locationsX(0)
+  , _locationsY(0)
+  , _seed(1)
+  , _time(0)
+  , _safeMode(true)
 {
 	TRACE("Constructing the level");
 
@@ -437,7 +438,6 @@ void Level::Unserialize(const char *fileName)
 	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeRead)->QueryStream());
 	SaveFile f(stream, true);
 
-	bool result = true;
 	try
 	{
 		SaveHeader sh;
@@ -586,13 +586,13 @@ void Level::Serialize(const char *fileName)
 
 	PauseGame(true); // FIXME: exception safety
 
-	TRACE("Saving game to file '%s'...", fileName);
+	TRACE("Saving game to file '%S'...", fileName);
 
 	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeWrite)->QueryStream());
 	SaveFile f(stream, false);
 
 	SaveHeader sh = {0};
-	strcpy_s(sh.theme, _infoTheme.c_str());
+	strcpy(sh.theme, _infoTheme.c_str());
 	sh.dwVersion    = VERSION;
 	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
 	sh.timelimit    = g_conf.sv_timelimit.GetFloat();
@@ -790,7 +790,7 @@ void Level::SetEditorMode(bool editorModeEnable)
 		bool paused = IsGamePaused();
 		_modeEditor = editorModeEnable;
 		std::for_each(_editorModeListeners.begin(), _editorModeListeners.end(),
-			std::bind2nd(std::mem_fun1(&IEditorModeListener::OnEditorModeChanged), _modeEditor));
+			std::bind2nd(std::mem_fun(&IEditorModeListener::OnEditorModeChanged), _modeEditor));
 		if( !paused ^ !IsGamePaused() )
 		{
 			PauseSound(IsGamePaused());
@@ -1160,7 +1160,7 @@ void Level::Render() const
 			FRECT world;
 			singleCamera->GetWorld(world);
 
-			RECT screen;
+			Rect screen;
 			singleCamera->GetScreen(screen);
 
 			g_render->Camera(&screen,
@@ -1179,7 +1179,7 @@ void Level::Render() const
 				FRECT world;
 				pCamera->GetWorld(world);
 
-				RECT screen;
+				Rect screen;
 				pCamera->GetScreen(screen);
 
 				g_render->Camera(&screen,
@@ -1241,10 +1241,10 @@ void Level::RenderInternal(const FRECT &world) const
 		DrawBackground(_texGrid);
 
 
-	int xmin = __max(0, int(world.left / LOCATION_SIZE));
-	int ymin = __max(0, int(world.top / LOCATION_SIZE));
-	int xmax = __min(_locationsX - 1, int(world.right / LOCATION_SIZE));
-	int ymax = __min(_locationsY - 1, int(world.bottom / LOCATION_SIZE) + 1);
+	int xmin = std::max(0, int(world.left / LOCATION_SIZE));
+	int ymin = std::max(0, int(world.top / LOCATION_SIZE));
+	int xmax = std::min(_locationsX - 1, int(world.right / LOCATION_SIZE));
+	int ymax = std::min(_locationsY - 1, int(world.bottom / LOCATION_SIZE) + 1);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{
@@ -1269,7 +1269,7 @@ void Level::RenderInternal(const FRECT &world) const
 	}
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 {
 	_dbgLineBuffer.push_back(MyLine());
@@ -1287,9 +1287,9 @@ bool Level::IsGamePaused() const
 		|| _modeEditor;
 }
 
-GC_Object* Level::FindObject(const string_t &name) const
+GC_Object* Level::FindObject(const std::string &name) const
 {
-	std::map<string_t, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
+	std::map<std::string, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
 	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;
 }
 

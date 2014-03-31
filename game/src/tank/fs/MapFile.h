@@ -59,7 +59,7 @@ class MapFile
 #ifdef __INTEL_COMPILER
 # pragma warning(disable: 1899)
 #endif
-	enum enumChunkTypes
+	enum enumChunkTypes : uint32_t
 	{
 		CHUNK_HEADER_OPEN  = SIGNATURE('hdr{'),
 		CHUNK_ATTRIB       = SIGNATURE('attr'),
@@ -67,33 +67,29 @@ class MapFile
 		CHUNK_OBJDEF       = SIGNATURE('dfn:'),
 		CHUNK_OBJECT       = SIGNATURE('obj:'),
 		CHUNK_TEXTURE      = SIGNATURE('tex:'),
-		//------------------
-		CHUNK_FORCE32BIT   = 0x7fffffff
 	};
 #pragma warning(pop)
 
-	enum enumDataTypes
+	enum enumDataTypes : uint32_t
 	{
 		DATATYPE_INT    = 1,
 		DATATYPE_FLOAT  = 2,
 		DATATYPE_STRING = 3,  // max length is 0xffff
 		DATATYPE_RAW    = 4,  // max length is 0xffffffff
-		//------------------
-		DATATYPE_FORCE32BIT = 0x7fffffff
 	};
 
 
 	struct ChunkHeader
 	{
 		enumChunkTypes chunkType;
-		size_t         chunkSize;
+		uint32_t       chunkSize;
 	};
 
 	struct AttributeSet
 	{
-		std::map<string_t, int>      attrs_int;
-		std::map<string_t, float>    attrs_float;
-		std::map<string_t, string_t> attrs_str;
+		std::map<std::string, int>      attrs_int;
+		std::map<std::string, float>    attrs_float;
+		std::map<std::string, std::string> attrs_str;
 
 		void clear()
 		{
@@ -110,7 +106,7 @@ class MapFile
 		{
 		public:
 			enumDataTypes type;
-			string_t   name;
+			std::string   name;
 			Property() {}
 			Property(const Property &x)
 			{
@@ -123,7 +119,7 @@ class MapFile
 			}
 		};
 
-		string_t           _className;
+		std::string           _className;
 		std::vector<Property> _propertyset;
 
 		ObjectDefinition() {}
@@ -153,26 +149,26 @@ private:
 	AttributeSet _mapAttrs;
 
 	std::vector<ObjectDefinition> _managed_classes;
-	std::map<string_t, size_t> _name_to_index; // map classname to index in _managed_classes
+	std::map<std::string, size_t> _name_to_index; // map classname to index in _managed_classes
 
 	AttributeSet _obj_attrs;
-	size_t  _obj_type; // index in _managed_classes
+	int  _obj_type; // index in _managed_classes
 
-	std::map<string_t, AttributeSet> _defaults;
+	std::map<std::string, AttributeSet> _defaults;
 
 
-	void _read_chunk_header(ChunkHeader &chdr);
+	bool _read_chunk_header(ChunkHeader &chdr);
 	void _skip_block(size_t size);
 
 	void WriteHeader();
 
 	void WriteInt(int value);
 	void WriteFloat(float value);
-	void WriteString(const string_t &value);
+	void WriteString(const std::string &value);
 
 	void ReadInt(int &value);
 	void ReadFloat(float &value);
-	void ReadString(string_t &value);
+	void ReadString(std::string &value);
 
 public:
 	MapFile(const SafePtr<FS::Stream> &file, bool write);
@@ -182,38 +178,38 @@ public:
 
 
 	bool NextObject();
-	const string_t& GetCurrentClassName() const;
+	const std::string& GetCurrentClassName() const;
 
 
 	void BeginObject(const char *classname);
 	void WriteCurrentObject();
 
 
-	bool getMapAttribute(const string_t &name, int &value) const;
-	bool getMapAttribute(const string_t &name, float &value) const;
-	bool getMapAttribute(const string_t &name, string_t &value) const;
+	bool getMapAttribute(const std::string &name, int &value) const;
+	bool getMapAttribute(const std::string &name, float &value) const;
+	bool getMapAttribute(const std::string &name, std::string &value) const;
 
-	void setMapAttribute(const string_t &name, int value);
-	void setMapAttribute(const string_t &name, float value);
-	void setMapAttribute(const string_t &name, const string_t &value);
+	void setMapAttribute(const std::string &name, int value);
+	void setMapAttribute(const std::string &name, float value);
+	void setMapAttribute(const std::string &name, const std::string &value);
 
 
-	bool getObjectAttribute(const string_t &name, int &value) const;
-	bool getObjectAttribute(const string_t &name, float &value) const;
-	bool getObjectAttribute(const string_t &name, string_t &value) const;
+	bool getObjectAttribute(const std::string &name, int &value) const;
+	bool getObjectAttribute(const std::string &name, float &value) const;
+	bool getObjectAttribute(const std::string &name, std::string &value) const;
 
-	void setObjectAttribute(const string_t &name, int value);
-	void setObjectAttribute(const string_t &name, float value);
-	void setObjectAttribute(const string_t &name, const string_t &value);
+	void setObjectAttribute(const std::string &name, int value);
+	void setObjectAttribute(const std::string &name, float value);
+	void setObjectAttribute(const std::string &name, const std::string &value);
 
 	void setObjectDefault(const char *cls, const char *attr, int value);
 	void setObjectDefault(const char *cls, const char *attr, float value);
-	void setObjectDefault(const char *cls, const char *attr, const string_t &value);
+	void setObjectDefault(const char *cls, const char *attr, const std::string &value);
 
 	template<class T>
 	void Exchange(const char *name, T *value, T defaultValue)
 	{
-		assert(value)
+		assert(value);
 		if( loading() )
 		{
 			if( !getObjectAttribute(name, *value) )

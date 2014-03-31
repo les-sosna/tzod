@@ -1,9 +1,9 @@
 // LevelInterfaces.h
 
 #pragma once
+#include <cstdint>
+#include <string>
 
-struct PlayerDesc;
-struct BotDesc;
 namespace FS
 {
 	class Stream;
@@ -14,13 +14,30 @@ struct PlayerHandle
 	virtual size_t GetIndex() const = 0;
 };
 
+struct PlayerDesc
+{
+	std::string nick;
+	std::string skin;
+	std::string cls;
+	unsigned int team;
+};
+
+struct BotDesc
+{
+	PlayerDesc pd;
+	unsigned int level;
+};
+
+
 struct ILevelController
 {
 	virtual float GetTime() const = 0;
 
-	virtual DWORD GetChecksum() const = 0;
-	virtual DWORD GetFrame() const = 0;
-
+#ifdef NETWORK_DEBUG
+	virtual uint32_t GetChecksum() const = 0;
+	virtual unsigned int GetFrame() const = 0;
+#endif
+    
 	virtual void Clear() = 0;
 	virtual PlayerHandle* GetPlayerByIndex(size_t playerIndex) = 0;
 	virtual void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd) = 0;

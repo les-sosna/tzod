@@ -5,7 +5,7 @@
 #include "Vehicle.h"
 
 #include "level.h"
-#include "macros.h"
+#include "Macros.h"
 #include "functions.h"
 
 #include "fs/MapFile.h"
@@ -49,7 +49,7 @@ void GC_SpawnPoint::Draw() const
 {
 	if( g_level->GetEditorMode() )
 	{
-		__super::Draw();
+		GC_2dSprite::Draw();
 
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
@@ -160,7 +160,7 @@ void GC_HideLabel::Draw() const
 {
 	if( g_level->GetEditorMode() )
 	{
-		__super::Draw();
+		GC_2dSprite::Draw();
 	}
 }
 
@@ -182,8 +182,8 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 
 	SetTexture(texture);
 
-	_dwValueMax_offset = (DWORD) pValueMax - (DWORD) object;
-	_dwValue_offset    = (DWORD) pValue    - (DWORD) object;
+	_dwValueMax_offset = (size_t) pValueMax - (size_t) object;
+	_dwValue_offset    = (size_t) pValue    - (size_t) object;
 
 	_location = location;
 
@@ -259,11 +259,10 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 	switch( _location )
 	{
 	case LOCATION_TOP:
-		MoveTo( vec2d(pos.x, __max(top - GetSpriteHeight(), 0)) );
+        MoveTo( vec2d(pos.x, std::max(top - GetSpriteHeight(), .0f)) );
 		break;
 	case LOCATION_BOTTOM:
-		MoveTo( vec2d(pos.x, __min(top + sprite->GetSpriteHeight() + GetSpriteHeight(),
-			g_level->_sy - GetSpriteHeight()*2)) );
+        MoveTo( vec2d(pos.x, std::min(top + sprite->GetSpriteHeight() + GetSpriteHeight(), g_level->_sy - GetSpriteHeight()*2)) );
 		break;
 	default:
 		assert(false);
@@ -284,9 +283,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 
 GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
   : GC_2dSprite()
+  , _phase(frand(PI2))
   , _time(0)
   , _time_life(0.4f)
-  , _phase(frand(PI2))
 {
 	SetTexture("indicator_damage");
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);

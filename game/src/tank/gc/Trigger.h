@@ -43,8 +43,8 @@ class GC_Trigger : public GC_2dSprite
 	float    _radius;
 	float    _radiusDelta;
 	int      _team;
-	string_t _onEnter;
-	string_t _onLeave;
+	std::string _onEnter;
+	std::string _onLeave;
 
 	ObjPtr<GC_Vehicle> _veh;
 

@@ -108,7 +108,7 @@ void ButtonBase::OnEnabledChange(bool enable, bool inherited)
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
 
-Button* Button::Create(Window *parent, const string_t &text, float x, float y, float w, float h)
+Button* Button::Create(Window *parent, const std::string &text, float x, float y, float w, float h)
 {
 	Button *res = new Button(parent);
 	res->Move(x, y);
@@ -161,14 +161,14 @@ void Button::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 	dc->DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
 
-	__super::DrawChildren(dc, sx, sy);
+	ButtonBase::DrawChildren(dc, sx, sy);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // text button class implementation
 
-TextButton* TextButton::Create(Window *parent, float x, float y, const string_t &text, const char *font)
+TextButton* TextButton::Create(Window *parent, float x, float y, const std::string &text, const char *font)
 {
 	TextButton *res = new TextButton(parent);
 	res->Move(x, y);
@@ -232,7 +232,7 @@ void TextButton::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 		dc->DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText());
 	}
 	dc->DrawBitmapText(sx, sy, _fontTexture, colors[GetState()], GetText());
-	__super::DrawChildren(dc, sx, sy);
+	ButtonBase::DrawChildren(dc, sx, sy);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ void ImageButton::OnChangeState(State state)
 ///////////////////////////////////////////////////////////////////////////////
 // CheckBox class implementation
 
-CheckBox* CheckBox::Create(Window *parent, float x, float y, const string_t &text)
+CheckBox* CheckBox::Create(Window *parent, float x, float y, const std::string &text)
 {
 	CheckBox *res = new CheckBox(parent);
 	res->Move(x, y);
@@ -269,10 +269,10 @@ CheckBox* CheckBox::Create(Window *parent, float x, float y, const string_t &tex
 
 CheckBox::CheckBox(Window *parent)
   : ButtonBase(parent)
-  , _boxTexture(GetManager()->GetTextureManager()->FindSprite("ui/checkbox"))
   , _fontTexture(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _isChecked(false)
+  , _boxTexture(GetManager()->GetTextureManager()->FindSprite("ui/checkbox"))
   , _drawShadow(true)
+  , _isChecked(false)
 {
 	SetTexture(NULL, false);
 	AlignSizeToContent();
@@ -332,7 +332,7 @@ void CheckBox::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	}
 	dc->DrawBitmapText(sx + bw, sy + (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
 
-	__super::DrawChildren(dc, sx, sy);
+	ButtonBase::DrawChildren(dc, sx, sy);
 }
 
 

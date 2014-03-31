@@ -80,8 +80,8 @@ class GC_IndicatorBar : public GC_2dSprite
 protected:
 	ObjPtr<GC_2dSprite> _object;
 
-	DWORD _dwValue_offset;
-	DWORD _dwValueMax_offset;
+	size_t _dwValue_offset;
+	size_t _dwValueMax_offset;
 
 	LOCATION _location;
 

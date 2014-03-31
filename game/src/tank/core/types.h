@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 struct FRECT
 {
 	float left;
@@ -13,15 +15,15 @@ struct FRECT
 struct SpriteColor
 {
 	union {
-		BYTE   rgba[4];
-		DWORD  dwColor;
+		unsigned char rgba[4];
+		uint32_t color;
 		struct {
-			BYTE r,g,b,a;
+			unsigned char r,g,b,a;
 		};
 	};
 
 	SpriteColor() {}
-	SpriteColor(DWORD c) : dwColor(c) {}
+	SpriteColor(uint32_t c) : color(c) {}
 };
 
 typedef int ObjectType;
@@ -32,10 +34,6 @@ enum enumAlignText {
 	alignTextLC = 3, alignTextCC = 4, alignTextRC = 5,
 	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
-
-typedef std::string            string_t;
-typedef std::ostringstream     ostrstream_t;
-typedef std::istringstream     istrstream_t;
 
 typedef float AIPRIORITY;
 

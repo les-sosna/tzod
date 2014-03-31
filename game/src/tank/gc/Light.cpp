@@ -5,7 +5,7 @@
 #include "light.h"
 
 #include "level.h"
-#include "macros.h"
+#include "Macros.h"
 
 #include "config/Config.h"
 
@@ -31,14 +31,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 
 GC_Light::GC_Light(enumLightType type)
   : _memberOf(this)
-  , _lampSprite(new GC_2dSprite())
   , _timeout(0)
   , _aspect(1)
   , _offset(0)
   , _radius(200)
+  , _intensity(1)
   , _type(type)
   , _lightDirection(1, 0)
-  , _intensity(1)
+  , _lampSprite(new GC_2dSprite())
 {
 	SetActive(true);
 	Update();
@@ -83,8 +83,8 @@ void GC_Light::Shine() const
 	float x,y;
 
 	SpriteColor color;
-	color.dwColor = 0x00000000;
-	color.a = (BYTE) __max(0, __min(255, int(255.0f * _intensity)));
+	color.color = 0x00000000;
+	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * _intensity)));
 
 	switch( _type )
 	{
@@ -97,7 +97,7 @@ void GC_Light::Shine() const
 		{
 			v[i+1].x = GetPos().x + _radius * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
 			v[i+1].y = GetPos().y + _radius * _sintable[i<<1];
-			v[i+1].color.dwColor = 0x00000000;
+			v[i+1].color.color = 0x00000000;
 		}
 		break;
 	case LIGHT_SPOT:
@@ -111,7 +111,7 @@ void GC_Light::Shine() const
 			y = _radius * _sintable[i] * _aspect;
 			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
 			v[i+1].y = GetPos().y + y*_lightDirection.x + x*_lightDirection.y;
-			v[i+1].color.dwColor = 0x00000000;
+			v[i+1].color.color = 0x00000000;
 		}
 		break;
 	case LIGHT_DIRECT:
@@ -125,10 +125,10 @@ void GC_Light::Shine() const
 			x = _offset * _sintable[i<<1];
 			v[i+1].x = GetPos().x - x*_lightDirection.x - y*_lightDirection.y;
 			v[i+1].y = GetPos().y - x*_lightDirection.y + y*_lightDirection.x;
-			v[i+1].color.dwColor = 0x00000000;
+			v[i+1].color.color = 0x00000000;
 		}
 
-		v[(SINTABLE_SIZE>>2)+2].color.dwColor = 0x00000000;
+		v[(SINTABLE_SIZE>>2)+2].color.color = 0x00000000;
 		v[(SINTABLE_SIZE>>2)+2].x = GetPos().x + _radius * _lightDirection.x + _offset*_lightDirection.y;
 		v[(SINTABLE_SIZE>>2)+2].y = GetPos().y + _radius * _lightDirection.y - _offset*_lightDirection.x;
 
@@ -136,7 +136,7 @@ void GC_Light::Shine() const
 		v[(SINTABLE_SIZE>>2)+3].x = GetPos().x + _radius * _lightDirection.x;
 		v[(SINTABLE_SIZE>>2)+3].y = GetPos().y + _radius * _lightDirection.y;
 
-		v[(SINTABLE_SIZE>>2)+4].color.dwColor = 0x00000000;
+		v[(SINTABLE_SIZE>>2)+4].color.color = 0x00000000;
 		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * _lightDirection.x - _offset*_lightDirection.y;
 		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * _lightDirection.y + _offset*_lightDirection.x;
 
@@ -150,7 +150,7 @@ void GC_Light::Shine() const
 			x = _offset * _sintable[i<<1] + _radius;
 			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
 			v[i+1].y = GetPos().y + x*_lightDirection.y + y*_lightDirection.x;
-			v[i+1].color.dwColor = 0x00000000;
+			v[i+1].color.color = 0x00000000;
 		}
 		break;
 	default:

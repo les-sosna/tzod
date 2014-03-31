@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Actor.h"
-#include "core/ComPtr.h"
+//#include "core/ComPtr.h"
 
 /////////////////////////////////////////////////////////////
 
@@ -22,12 +22,14 @@ class GC_Sound : public GC_Actor
 	MemberOfGlobalList<LIST_sounds> _memberOf;
 
 private:
-	ComPtr<IDirectSoundBuffer> _soundBuffer;
 	enumSoundTemplate   _soundTemplate;
+#ifdef _WIN32
+	ComPtr<IDirectSoundBuffer> _soundBuffer;
 	DWORD _dwNormalFrequency;
 	DWORD _dwCurrentFrequency;
 	DWORD _dwPosition;
-
+#endif
+    
 protected:
 	bool          _freezed;
 	enumSoundMode _mode;
@@ -85,7 +87,7 @@ public:
 #if !defined NOSOUND
 #define PLAY(s, pos)  (new GC_Sound((s), SMODE_PLAY, (pos)))
 #else
-#define PLAY // no sound
+#define PLAY(s, pos) // no sound
 #endif
 
 // end of file

@@ -46,7 +46,7 @@ private:
 	ObjPtr<GC_HideLabel>  _label;
 	ObjPtr<GC_Actor>      _pickupCarrier;
 
-	string_t  _scriptOnPickup;   // on_pickup(who)
+	std::string  _scriptOnPickup;   // on_pickup(who)
 	float     _radius;
 	float  _timeAttached;
 	float  _timeAnimation;

@@ -1,6 +1,7 @@
 // TypeSystem.h
 
 #pragma once
+#include <string>
 
 class GC_Object;
 struct FromFile {};
@@ -20,7 +21,7 @@ class RTTypes
 	};
 
 	typedef std::map<ObjectType, EdItem> type2item;
-	typedef std::map<string_t, ObjectType> name2type;
+	typedef std::map<std::string, ObjectType> name2type;
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object* (*) ()> FromFileMap;
 
@@ -110,7 +111,7 @@ public:
 	{
 		return _i2t[typeIndex];
 	}
-	ObjectType GetTypeByName(const string_t &name)
+	ObjectType GetTypeByName(const std::string &name)
 	{
 		name2type::const_iterator it = _n2t.find(name);
 		return _n2t.end() != it ? it->second : INVALID_OBJECT_TYPE;
@@ -142,7 +143,7 @@ private:
 	// for serialization
 	FromFileMap _ffm;
 	// common
-	std::set<string_t> _types;
+	std::set<std::string> _types;
 	// use as singleton only
 	RTTypes() {};
 	static RTTypes *_theInstance;

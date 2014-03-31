@@ -14,7 +14,7 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory) 
+LayoutManager::LayoutManager(IWindowFactory &&desktopFactory)
   : _captureCountSystem(0)
   , _captureCount(0)
   , _focusWnd(NULL)
@@ -26,7 +26,7 @@ LayoutManager::LayoutManager(IWindowFactory *pDesktopFactory)
   , _dbgFocusIsChanging(false)
 #endif
 {
-	_desktop.Set(pDesktopFactory->Create(this));
+	_desktop.Set(desktopFactory.Create(this));
 }
 
 LayoutManager::~LayoutManager()
@@ -256,7 +256,7 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z, UINT msg)
+bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg)
 {
 	bool bMouseInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
 
@@ -293,17 +293,19 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 		bool msgProcessed = false;
 		switch( msg )
 		{
-			case WM_LBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 1);  break;
-			case WM_RBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 2);  break;
-			case WM_MBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 3);  break;
+			case MSGLBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 1);  break;
+			case MSGRBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 2);  break;
+			case MSGMBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 3);  break;
 
-			case WM_LBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 1);    break;
-			case WM_RBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 2);    break;
-			case WM_MBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 3);    break;
+			case MSGLBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 1);    break;
+			case MSGRBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 2);    break;
+			case MSGMBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 3);    break;
 
-			case WM_MOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
+			case MSGMOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
 
-			case WM_MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
+			case MSGMOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
+            default:
+                assert(false);
 		}
 		// if window did not process the message, it should not destroy it self
 		assert(msgProcessed || wp.Get());
@@ -312,10 +314,12 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 		{
 			switch( msg )
 			{
-			case WM_LBUTTONDOWN:
-			case WM_RBUTTONDOWN:
-			case WM_MBUTTONDOWN:
+			case MSGLBUTTONDOWN:
+			case MSGRBUTTONDOWN:
+			case MSGMBUTTONDOWN:
 				SetFocusWnd(wnd); // may destroy wnd
+            default:
+                break;
 			}
 
 			if( wp.Get() && wnd != _hotTrackWnd.Get() )
@@ -336,7 +340,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 	return false;
 }
 
-bool LayoutManager::ProcessMouse(float x, float y, float z, UINT msg)
+bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 {
 	if( _captureWnd.Get() )
 	{
@@ -383,13 +387,13 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, UINT msg)
 	return false;
 }
 
-bool LayoutManager::ProcessKeys(UINT msg, int c)
+bool LayoutManager::ProcessKeys(Msg msg, int c)
 {
 	switch( msg )
 	{
-	case WM_KEYUP:
+	case MSGKEYUP:
 		break;
-	case WM_KEYDOWN:
+	case MSGKEYDOWN:
 		if( Window *wnd = GetFocusWnd() )
 		{
 			while( wnd )
@@ -406,7 +410,7 @@ bool LayoutManager::ProcessKeys(UINT msg, int c)
 			GetDesktop()->OnRawChar(c);
 		}
 		break;
-	case WM_CHAR:
+	case MSGCHAR:
 		if( Window *wnd = GetFocusWnd() )
 		{
 			while( wnd )

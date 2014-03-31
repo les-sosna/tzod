@@ -59,14 +59,14 @@ List* List::Create(Window *parent, ListDataSource* dataSource, float x, float y,
 }
 
 List::List(Window *parent, ListDataSource* dataSource)
-  : Window(parent)
-  , _callbacks(this)
-  , _curSel(-1)
-  , _hotItem(-1)
-  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
-  , _data(dataSource)
-  , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
+    : Window(parent)
+    , _callbacks(this)
+    , _data(dataSource)
+    , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
+    , _curSel(-1)
+    , _hotItem(-1)
+    , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+    , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
 {
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
@@ -158,7 +158,7 @@ void List::SetScrollPos(float line)
 
 void List::AlignHeightToContent(float maxHeight)
 {
-	Resize(GetWidth(), __min(maxHeight, GetItemHeight() * (float) _data->GetItemCount()));
+	Resize(GetWidth(), std::min(maxHeight, GetItemHeight() * (float) _data->GetItemCount()));
 }
 
 void List::OnSize(float width, float height)
@@ -207,23 +207,23 @@ bool List::OnRawChar(int c)
 {
 	switch( c )
 	{
-	case VK_UP:
-		SetCurSel(__max(0, GetCurSel() - 1), true);
+	case GLFW_KEY_UP:
+        SetCurSel(std::max(0, GetCurSel() - 1), true);
 		break;
-	case VK_DOWN:
-		SetCurSel(__min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+	case GLFW_KEY_DOWN:
+        SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
 		break;
-	case VK_HOME:
+	case GLFW_KEY_HOME:
 		SetCurSel(0, true);
 		break;
-	case VK_END:
+	case GLFW_KEY_END:
 		SetCurSel(_data->GetItemCount() - 1, true);
 		break;
-	case VK_PRIOR: // page up
-		SetCurSel(__max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
+	case GLFW_KEY_PAGE_UP:
+        SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
 		break;
-	case VK_NEXT:  // page down
-		SetCurSel(__min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
+	case GLFW_KEY_PAGE_DOWN:
+        SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
 		break;
 	default:
 		return false;
@@ -245,7 +245,7 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	int i_max = i_min + (int) GetNumLinesVisible() + 1;
 	int maxtab = (int) _tabs.size() - 1;
 
-	RECT clip;
+	Rect clip;
 	clip.left   = (int) sx;
 	clip.top    = (int) sy;
 	clip.right  = (int) (sx + _scrollBar->GetX());

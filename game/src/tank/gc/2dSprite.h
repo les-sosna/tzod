@@ -69,7 +69,7 @@ public:
 
 	inline void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
 	inline void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
-	inline void SetColor(BYTE r, BYTE g, BYTE b) { _color.r=r; _color.g=g; _color.b=b; }
+	inline void SetColor(unsigned char r, unsigned char g, unsigned char b) { _color.r=r; _color.g=g; _color.b=b; }
 
 	inline const vec2d& GetDirection() const { return _direction; }
 	inline void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }

@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "script.h"
 #include "level.h"
-#include "macros.h"
+#include "Macros.h"
 #include "BackgroundIntro.h"
 
 #include "gc/GameClasses.h"
@@ -19,16 +19,18 @@
 #include "fs/FileSystem.h"
 #include "fs/SaveFile.h"
 
+#ifndef NOSOUND
 #include "sound/MusicPlayer.h"
 #include "sound/sfx.h"
 #include "gc/Sound.h"
+#endif
 
 #include "core/debug.h"
 
 #include "video/TextureManager.h"
 
-#include "network/TankClient.h"
-#include "network/TankServer.h"
+//#include "network/TankClient.h"
+//#include "network/TankServer.h"
 
 #include "functions.h"
 
@@ -226,7 +228,7 @@ static int luaT_quit(lua_State *L)
 {
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
-	DestroyWindow(g_env.hMainWnd);
+	glfwSetWindowShouldClose(g_appWindow, 1);
 	return 0;
 }
 
@@ -242,7 +244,7 @@ static int luaT_game(lua_State *L)
 	const char *clientType = luaL_checkstring(L, 1);
 
 	// TODO: delete client after all checks
-	SAFE_DELETE(g_client); // it will clear level, message area, command queue
+//	SAFE_DELETE(g_client); // it will clear level, message area, command queue
 
 	if( *clientType )
 	{
@@ -322,8 +324,8 @@ static int luaT_newmap(lua_State *L)
 	if( 2 != n )
 		return luaL_error(L, "wrong number of arguments: 2 expected, got %d", n);
 
-	int x = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
-	int y = __max(LEVEL_MINSIZE, __min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
+	int x = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
+	int y = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
@@ -348,7 +350,7 @@ static int luaT_load(lua_State *L)
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	try
 	{
@@ -401,7 +403,7 @@ static int luaT_import(lua_State *L)
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	if( !g_level->init_import_and_edit(filename) )
 	{
@@ -466,14 +468,14 @@ static int luaT_music(lua_State *L)
 	if( 1 != n )
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
+#ifndef NOSOUND
 	const char *filename = luaL_checkstring(L, 1);
 
 	if( !g_soundManager )
 	{
 		TRACE("WARNING: Sound unavailable");
 	}
-
-
+    
 	if( filename[0] && g_soundManager )
 	{
 		try
@@ -495,8 +497,9 @@ static int luaT_music(lua_State *L)
 			TRACE("WARNING: Could not load music file '%s' - %s", filename, e.what())
 		}
 	}
-
 	g_music = NULL;
+#endif
+
 	lua_pushboolean(L, false);
 	return 1;
 }
@@ -548,15 +551,6 @@ static int get_numeric(lua_State *L, const char *field, float &refval)
 	refval = (float) lua_tonumber(L, -1);
 	lua_pop(L, 1); // pop result of getfield
 	return 0;
-}
-
-static void safe_tostr(lua_State *L, char *dst, size_t bufsize)
-{
-	size_t len;
-	const char *str = lua_tolstring(L, -1, &len);
-	len = __min(bufsize - 1, len);
-	memcpy(dst, str, len);
-	dst[len] = 0;
 }
 
 // convert vehicle class
@@ -929,8 +923,7 @@ int luaT_setposition(lua_State *L)
 	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
-	bool d=false;
-	if( GC_Vehicle *ph = dynamic_cast<GC_Vehicle *>(actor)	)
+	if( dynamic_cast<GC_Vehicle *>(actor)	)
 	{
 		actor->MoveTo(vec2d(x,y));
 	}
@@ -940,7 +933,10 @@ int luaT_setposition(lua_State *L)
 		actor->MoveTo(vec2d(x,y));
 		g_level->_field.ProcessObject(ph, true);
 	}
-	else actor->MoveTo(vec2d(x,y));
+	else
+    {
+        actor->MoveTo(vec2d(x,y));
+    }
 	return 1;
 }
 

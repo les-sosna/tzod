@@ -37,16 +37,6 @@ namespace UI
 	template <class DataSourceType, class ListType>
 	class ListAdapter;
 
-#ifdef UNICODE
-	typedef std::wstring string_t;
-	typedef std::wostringstream ostrstream_t;
-	typedef std::wistringstream istrstream_t;
-#else
-	typedef std::string string_t;
-	typedef std::ostringstream ostrstream_t;
-	typedef std::istringstream istrstream_t;
-#endif
-
 } // end of namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////

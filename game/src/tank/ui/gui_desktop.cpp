@@ -19,7 +19,7 @@
 #include "config/Language.h"
 #include "core/Profiler.h"
 
-#include "network/TankClient.h"
+//#include "network/TankClient.h"
 
 #include "script.h"
 
@@ -75,7 +75,7 @@ void MessageArea::DrawChildren(const DrawingContext *dc, float sx, float sy) con
 	}
 }
 
-void MessageArea::WriteLine(const string_t &text)
+void MessageArea::WriteLine(const std::string &text)
 {
 	GetConsole().WriteLine(0, text);
 
@@ -96,7 +96,7 @@ void MessageArea::Clear()
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void Desktop::MyConsoleHistory::Enter(const UI::string_t &str)
+void Desktop::MyConsoleHistory::Enter(const std::string &str)
 {
 	g_conf.con_history.PushBack(ConfVar::typeString)->AsStr()->Set(str);
 	while( (signed) g_conf.con_history.GetSize() > g_conf.con_maxhistory.GetInt() )
@@ -110,7 +110,7 @@ size_t Desktop::MyConsoleHistory::GetItemCount() const
 	return g_conf.con_history.GetSize();
 }
 
-const UI::string_t& Desktop::MyConsoleHistory::GetItem(size_t index) const
+const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 {
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
@@ -126,8 +126,8 @@ Desktop::Desktop(LayoutManager* manager)
 	_editor->SetVisible(false);
 
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
-	_con->eventOnSendCommand = std::bind( &Desktop::OnCommand, this, _1 );
-	_con->eventOnRequestCompleteCommand = std::bind( &Desktop::OnCompleteCommand, this, _1, _2, _3 );
+	_con->eventOnSendCommand = std::bind( &Desktop::OnCommand, this, std::placeholders::_1 );
+	_con->eventOnRequestCompleteCommand = std::bind( &Desktop::OnCompleteCommand, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 	_con->SetVisible(false);
 	_con->SetTopMost(true);
 	SpriteColor colors[] = {0xffffffff, 0xffff7fff};
@@ -162,7 +162,7 @@ Desktop::Desktop(LayoutManager* manager)
 		}
 	}
 
-	OnRawChar(VK_ESCAPE); // to invoke main menu dialog
+	OnRawChar(GLFW_KEY_ESCAPE); // to invoke main menu dialog
 }
 
 Desktop::~Desktop()
@@ -175,11 +175,11 @@ void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	g_level->Render();
 	g_render->SetMode(RM_INTERFACE);
-	if( !g_client )
-	{
-		dc->DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
-			0xffffffff, g_lang.msg_no_game_started.Get(), alignTextCC);
-	}
+//	if( !g_client )
+//	{
+//		dc->DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
+//			0xffffffff, g_lang.msg_no_game_started.Get(), alignTextCC);
+//	}
 	Window::DrawChildren(dc, sx, sy);
 }
 
@@ -213,11 +213,11 @@ bool Desktop::OnRawChar(int c)
 
 	switch( c )
 	{
-//	case VK_TAB:
+//	case GLFW_KEY_TAB:
 //		_score->SetVisible(!_score->GetVisible());
 //		break;
 
-	case VK_OEM_3: // '~'
+	case GLFW_KEY_GRAVE_ACCENT: // '~'
 		if( _con->GetVisible() )
 		{
 			_con->SetVisible(false);
@@ -229,7 +229,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		break;
 
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		if( _con->Contains(GetManager()->GetFocusWnd()) )
 		{
 			_con->SetVisible(false);
@@ -238,32 +238,32 @@ bool Desktop::OnRawChar(int c)
 		{
 			dlg = new MainMenuDlg(this);
 			SetDrawBackground(true);
-			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, _1);
+			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 		}
 		break;
 
-	case VK_F2:
+	case GLFW_KEY_F2:
 		dlg = new NewGameDlg(this, g_level.get());
 		SetDrawBackground(true);
-		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
+        dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 		break;
 
-	case VK_F12:
+	case GLFW_KEY_F12:
 		dlg = new SettingsDlg(this);
 		SetDrawBackground(true);
-		dlg->eventClose = bind(&Desktop::OnCloseChild, this, _1);
+        dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 		break;
 
-	case VK_F5:
+	case GLFW_KEY_F5:
 		g_level->SetEditorMode(!g_level->GetEditorMode());
 		break;
 
-	case VK_F8:
+	case GLFW_KEY_F8:
 		if( g_level->GetEditorMode() )
 		{
 			dlg = new MapSettingsDlg(this);
 			SetDrawBackground(true);
-			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, _1);
+			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 		}
 		break;
 
@@ -298,38 +298,31 @@ void Desktop::OnChangeShowTime()
 	_fps->SetVisible(g_conf.ui_showfps.Get());
 }
 
-void Desktop::OnCommand(const string_t &cmd)
+void Desktop::OnCommand(const std::string &cmd)
 {
 	if( cmd.empty() )
 	{
 		return;
 	}
 
-	string_t exec;
+	std::string exec;
 
-	if( g_client && !g_client->IsLocal() )
-	{
-		if( cmd[0] == '/' )
-		{
-			exec = cmd.substr(1); // cut off the first symbol and execute cmd
-		}
-		else
-		{
-			dynamic_cast<TankClient*>(g_client)->SendTextMessage(cmd);
-			return;
-		}
-	}
-	else
-	{
-		exec = cmd;
-	}
+    if( cmd[0] == '/' )
+    {
+        exec = cmd.substr(1); // cut off the first symbol and execute cmd
+    }
+    else
+    {
+//        dynamic_cast<TankClient*>(g_client)->SendTextMessage(cmd);
+        return;
+    }
 
 
 	if( luaL_loadstring(g_env.L, exec.c_str()) )
 	{
 		lua_pop(g_env.L, 1);
 
-		string_t tmp = "print(";
+		std::string tmp = "print(";
 		tmp += exec;
 		tmp += ")";
 
@@ -347,7 +340,7 @@ void Desktop::OnCommand(const string_t &cmd)
 	script_exec(g_env.L, exec.c_str());
 }
 
-bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
+bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &result)
 {
 	assert(pos >= 0);
 	lua_getglobal(g_env.L, "autocomplete");
@@ -358,7 +351,6 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 		return false;
 	}
 	lua_pushlstring(g_env.L, cmd.substr(0, pos).c_str(), pos);
-	HRESULT hr = S_OK;
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
 		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
@@ -366,14 +358,14 @@ bool Desktop::OnCompleteCommand(const string_t &cmd, int &pos, string_t &result)
 	else
 	{
 		const char *str = lua_tostring(g_env.L, -1);
-		string_t insert = str ? str : "";
+		std::string insert = str ? str : "";
 
 		result = cmd.substr(0, pos) + insert + cmd.substr(pos);
 		pos += insert.length();
 
-		if( g_client && !g_client->IsLocal() && !result.empty() && result[0] != '/' )
+		if( !result.empty() && result[0] != '/' )
 		{
-			result = string_t("/") + result;
+			result = std::string("/") + result;
 			++pos;
 		}
 	}

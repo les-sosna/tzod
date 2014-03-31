@@ -84,8 +84,8 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 
 	// sound
-	VAR_INT( s_volume,      DSBVOLUME_MAX )
-	VAR_INT( s_musicvolume, DSBVOLUME_MAX )
+	VAR_INT( s_volume,      10000 )
+	VAR_INT( s_musicvolume, 10000 )
 	VAR_INT( s_maxchanels,             16 )
 	VAR_INT( s_buffer,               1000 )
 

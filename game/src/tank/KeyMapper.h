@@ -2,7 +2,7 @@
 
 #pragma once
 
-string_t GetKeyName(int code);
-int GetKeyCode(const string_t &name);
+std::string GetKeyName(int code);
+int GetKeyCode(const std::string &name);
 
 // end of file

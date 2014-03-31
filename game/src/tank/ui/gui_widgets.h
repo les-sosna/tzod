@@ -43,7 +43,7 @@ public:
 	Oscilloscope(Window *parent, float x, float y);
 	void Push(float value);
 	void SetRange(float rmin, float rmax);
-	void SetTitle(const string_t &title);
+	void SetTitle(const std::string &title);
 	void SetGridStep(float stepX, float stepY);
 
 	void AutoGrid();
@@ -55,7 +55,7 @@ protected:
 private:
 	size_t _barTexture;
 	size_t _titleFont;
-	string_t _title;
+	std::string _title;
 	std::deque<float> _data;
 	float _rangeMin;
 	float _rangeMax;

@@ -57,10 +57,10 @@ void Level::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 					vec2d hitNorm;
 					if( object->CollideWithLine(s.GetCenter(), s.GetDirection(), hitNorm, hitEnter, hitExit) )
 					{
-						assert(!_isnan(hitEnter) && _finite(hitEnter));
-						assert(!_isnan(hitExit) && _finite(hitExit));
-						assert(!_isnan(hitNorm.x) && _finite(hitNorm.x));
-						assert(!_isnan(hitNorm.y) && _finite(hitNorm.y));
+						assert(!isnan(hitEnter) && isfinite(hitEnter));
+						assert(!isnan(hitExit) && isfinite(hitExit));
+						assert(!isnan(hitNorm.x) && isfinite(hitNorm.x));
+						assert(!isnan(hitNorm.y) && isfinite(hitNorm.y));
 #ifndef NDEBUG
 						for( int i = 0; i < 4; ++i )
 						{

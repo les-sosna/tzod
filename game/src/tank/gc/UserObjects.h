@@ -8,7 +8,7 @@ class GC_UserObject : public GC_RigidBodyStatic
 {
 	DECLARE_SELF_REGISTRATION(GC_UserObject);
 
-	string_t _textureName;
+	std::string _textureName;
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -43,7 +43,7 @@ class GC_Decoration : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
-	string_t _textureName;
+	std::string _textureName;
 	float _frameRate;
 	float _time;
 

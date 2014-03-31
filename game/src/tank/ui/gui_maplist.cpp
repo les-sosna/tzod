@@ -17,18 +17,18 @@ namespace UI
 
 ListDataSourceMaps::ListDataSourceMaps()
 {
-	std::set<string_t> files;
-	g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles(files, TEXT("*.map"));
-	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+	std::set<std::string> files;
+	g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles(files, "*.map");
+	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		string_t tmp = DIR_MAPS;
+		std::string tmp = DIR_MAPS;
 		tmp += "/";
 		tmp += *it;
 
 		try
 		{
 			MapFile file(g_fs->Open(tmp)->QueryStream(), false);
-			string_t tmp2 = *it;
+			std::string tmp2 = *it;
 			tmp2.erase(it->length() - 4); // cut out the file extension
 			int index = AddItem(tmp2);
 
@@ -36,7 +36,7 @@ ListDataSourceMaps::ListDataSourceMaps()
 			int h = 0, w = 0;
 			file.getMapAttribute("width", w);
 			file.getMapAttribute("height", h);
-			wsprintf(size, "%3d*%d", w, h);
+			sprintf(size, "%3d*%d", w, h);
 			SetItemText(index, 1, size);
 
 			if( file.getMapAttribute("theme", tmp) )

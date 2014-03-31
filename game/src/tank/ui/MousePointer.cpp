@@ -30,8 +30,11 @@ void MouseCursor::OnTimeStep(float dt)
 	_timeAnim += dt;
 	_timeShow += dt;
 
-	int newx = g_env.envInputs.mouse_x;
-	int newy = g_env.envInputs.mouse_y;
+    double mouse_x = 0, mouse_y = 0;
+    glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
+
+	int newx = (int) mouse_x;
+	int newy = (int) mouse_y;
 
 	if( int(GetX()) != newx || int(GetY()) != newy )
 	{
@@ -42,7 +45,7 @@ void MouseCursor::OnTimeStep(float dt)
 //	if( g_env.nNeedCursor || _timeShow < 1 )
 //		SetOpacity1i(255);
 //	else
-//		SetOpacity1i(255 - __min(255, int((_timeShow - 1) * 255)));
+//		SetOpacity1i(255 - std::min(255, int((_timeShow - 1) * 255)));
 
 	SetVisible( g_env.nNeedCursor > 0 || _timeShow < 2 );
 

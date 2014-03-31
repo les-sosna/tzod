@@ -8,47 +8,12 @@ namespace FS {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MemMap::MemMap(const SafePtr<File> &parent)
-  : _file(parent)
-{
-}
-
-MemMap::~MemMap()
-{
-	_file->Unmap();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Stream::Stream(const SafePtr<File> &parent)
-  : _file(parent)
-{
-}
-
-Stream::~Stream()
-{
-	_file->Unstream();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// IFile implementation
-
-File::File()
-{
-}
-
-File::~File()
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-SafePtr<FileSystem> FileSystem::Create(const string_t &nodeName)
+SafePtr<FileSystem> FileSystem::Create(const std::string &nodeName)
 {
 	return new FileSystem(nodeName);
 }
 
-FileSystem::FileSystem(const string_t &nodeName)
+FileSystem::FileSystem(const std::string &nodeName)
   : _nodeName(nodeName)
   , _parent(NULL)
 {
@@ -61,19 +26,19 @@ FileSystem::~FileSystem(void)
 		_children.begin()->second->Unmount();
 }
 
-const string_t FileSystem::GetFullPath(void) const
+const std::string FileSystem::GetFullPath(void) const
 {
-	string_t fullPath = GetNodeName();
+	std::string fullPath = GetNodeName();
 	for( const FileSystem *fs = GetParent(); fs; fs = fs->GetParent() )
 	{
-		fullPath = fs->GetNodeName() + DELIMITER + fullPath;
+		fullPath = fs->GetNodeName() + '/' + fullPath;
 	}
 	return fullPath;
 }
 
 bool FileSystem::MountTo(FileSystem *parent)
 {
-	assert(!GetNodeName().empty() && GetNodeName() != TEXT("/"));
+	assert(!GetNodeName().empty() && GetNodeName() != "/");
 	assert(!_parent); // may be is already mounted somewhere? only one parent is allowed
 
 	// check if node with the same name is already exists
@@ -104,43 +69,43 @@ bool FileSystem::IsValid() const
 	return _parent ? _parent->IsValid() : true;
 }
 
-SafePtr<File> FileSystem::Open(const string_t &fileName, FileMode mode)
+SafePtr<File> FileSystem::Open(const std::string &fileName, FileMode mode)
 {
-	string_t::size_type pd = fileName.rfind(DELIMITER);
-	if( string_t::npos != pd ) // was a path delimiter found?
+	std::string::size_type pd = fileName.rfind('/');
+	if( std::string::npos != pd ) // was a path delimiter found?
 	{
 		return GetFileSystem(fileName.substr(0, pd + 1))->RawOpen(fileName.substr(pd + 1), mode);
 	}
 	return RawOpen(fileName, mode);
 }
 
-void FileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
+void FileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
 	// base file system can't contain any files
 }
 
-SafePtr<File> FileSystem::RawOpen(const string_t &fileName, FileMode mode)
+SafePtr<File> FileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	throw std::runtime_error("Base file system can't contain any files");
 	return NULL;
 }
 
-SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
+SafePtr<FileSystem> FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
 
 	// skip delimiters at the beginning
-	string_t::size_type offset = 0;
-	while( offset < path.length() && path[offset] == DELIMITER )
+	std::string::size_type offset = 0;
+	while( offset < path.length() && path[offset] == '/' )
 		++offset;
 
 	if( path.length() == offset )
 		return this; // path consists of delimiters only
 
-	string_t::size_type p = path.find(DELIMITER, offset);
+	std::string::size_type p = path.find('/', offset);
 
 	StrToFileSystemMap::const_iterator it = _children.find(
-		path.substr(offset, string_t::npos != p ? p - offset : p));
+		path.substr(offset, std::string::npos != p ? p - offset : p));
 	if( _children.end() == it )
 	{
 		if( nothrow )
@@ -149,15 +114,15 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const string_t &path, bool create,
 			throw std::runtime_error("node not found in base file system");
 	}
 
-	if( string_t::npos != p )
+	if( std::string::npos != p )
 		return it->second->GetFileSystem(path.substr(p), create, nothrow);
 
 	return it->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
+#ifdef _WIN32
+OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
   : _mode(mode)
   , _mapped(false)
   , _streamed(false)
@@ -165,8 +130,8 @@ OSFileSystem::OSFile::OSFile(const string_t &fileName, FileMode mode)
 	assert(_mode);
 
 	// replace all '/' by '\'
-	string_t tmp = fileName;
-	for( string_t::iterator it = tmp.begin(); tmp.end() != it; ++it )
+	std::string tmp = fileName;
+	for( std::string::iterator it = tmp.begin(); tmp.end() != it; ++it )
 	{
 		if( DELIMITER == *it )
 		{
@@ -240,38 +205,28 @@ void OSFileSystem::OSFile::Unstream()
 ///////////////////////////////////////////////////////////////////////////////
 
 OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<File> &parent, HANDLE hFile)
-  : Stream(parent)
+  : _file(parent)
   , _hFile(hFile)
 {
 	Seek(0, SEEK_SET);
 }
 
-bool OSFileSystem::OSFile::OSStream::IsEof()
+OSFileSystem::OSFile::OSStream::~OSStream()
 {
-	unsigned long position = SetFilePointer(_hFile, 0, NULL, FILE_CURRENT);
-	unsigned long size = GetFileSize(_hFile, NULL);
-	if( INVALID_FILE_SIZE == position || INVALID_FILE_SIZE == size )
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
-	return position >= size;
+    _file->Unstream();
 }
-
-unsigned long OSFileSystem::OSFile::OSStream::Read(void *dst, unsigned long blockSize, unsigned long numBlocks)
+    
+ErrorCode OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
 {
 	DWORD bytesRead;
-	if( !ReadFile(_hFile, dst, blockSize*numBlocks, &bytesRead, NULL) )
+	if( !ReadFile(_hFile, dst, blockSize, &bytesRead, NULL) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
-	if( bytesRead % blockSize )
-	{
-		throw std::runtime_error(StrFromErr(ERROR_HANDLE_EOF));
-	}
-	return bytesRead / blockSize;
+	return bytesRead;
 }
 
-void OSFileSystem::OSFile::OSStream::Write(const void *src, unsigned long byteCount)
+void OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 {
 	DWORD written;
 	BOOL result = WriteFile(_hFile, src, byteCount, &written, NULL);
@@ -281,7 +236,7 @@ void OSFileSystem::OSFile::OSStream::Write(const void *src, unsigned long byteCo
 	}
 }
 
-unsigned long long OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+void OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
 	DWORD dwMoveMethod;
 	switch( origin )
@@ -302,20 +257,10 @@ unsigned long long OSFileSystem::OSFile::OSStream::Seek(long long amount, unsign
 	return result.QuadPart;
 }
 
-unsigned long long OSFileSystem::OSFile::OSStream::GetSize()
-{
-	LARGE_INTEGER result;
-	if( !GetFileSizeEx(_hFile, &result) )
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
-	return result.QuadPart;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<File> &parent, HANDLE hFile)
-  : MemMap(parent)
+OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent, HANDLE hFile)
+  : _file(parent)
   , _hFile(hFile)
   , _data(NULL)
   , _size(0)
@@ -329,6 +274,7 @@ OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 	{
 		UnmapViewOfFile(_data);
 	}
+	_file->Unmap();
 }
 
 void OSFileSystem::OSFile::OSMemMap::SetupMapping()
@@ -389,23 +335,23 @@ void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SafePtr<OSFileSystem> OSFileSystem::Create(const string_t &rootDirectory, const string_t &nodeName)
+SafePtr<OSFileSystem> OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
 {
 	return new OSFileSystem(rootDirectory, nodeName);
 }
 
-OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeName)
+OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
   : FileSystem(nodeName)
 {
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
-	std::vector<TCHAR> curDir(len);
+	std::vector<char> curDir(len);
 	GetCurrentDirectory(len, &curDir[0]);
 
 	if( SetCurrentDirectory(rootDirectory.c_str()) )
 	{
 		DWORD tmpLen = GetCurrentDirectory(0, NULL);
-		std::vector<TCHAR> tmp(tmpLen);
+		std::vector<char> tmp(tmpLen);
 		GetCurrentDirectory(tmpLen, &tmp[0]);
 		_rootDirectory = &tmp[0];
 
@@ -421,11 +367,11 @@ OSFileSystem::OSFileSystem(const string_t &rootDirectory, const string_t &nodeNa
 	}
 }
 
-OSFileSystem::OSFileSystem(OSFileSystem *parent, const string_t &nodeName)
+OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
   : FileSystem(nodeName)
 {
 	assert(parent);
-	assert(string_t::npos == nodeName.find(DELIMITER));
+	assert(std::string::npos == nodeName.find(DELIMITER));
 
 	MountTo(parent);
 	_rootDirectory = parent->_rootDirectory + TEXT('\\') + nodeName;
@@ -440,11 +386,11 @@ bool OSFileSystem::IsValid() const
 	return true;
 }
 
-void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
+void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
-	std::vector<TCHAR> buf(len);
+	std::vector<char> buf(len);
 	GetCurrentDirectory(len, &buf[0]);
 
 	if( !SetCurrentDirectory(_rootDirectory.c_str()) )
@@ -486,13 +432,13 @@ void OSFileSystem::EnumAllFiles(std::set<string_t> &files, const string_t &mask)
 	}
 }
 
-SafePtr<File> OSFileSystem::RawOpen(const string_t &fileName, FileMode mode)
+SafePtr<File> OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	// combine with the root path
 	return new OSFile(_rootDirectory + TEXT('\\') + fileName, mode);
 }
 
-SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool create, bool nothrow)
+SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	if( SafePtr<FileSystem> tmp = __super::GetFileSystem(path, create, true) )
 	{
@@ -502,14 +448,14 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool creat
 	assert(!path.empty());
 
 	// skip delimiters at the beginning
-	string_t::size_type offset = 0;
+	std::string::size_type offset = 0;
 	while( offset < path.length() && path[offset] == DELIMITER )
 		++offset;
 	assert(path.length() > offset);
 
-	string_t::size_type p = path.find(DELIMITER, offset);
-	string_t dirName = path.substr(offset, string_t::npos != p ? p - offset : p);
-	string_t tmpDir = _rootDirectory + TEXT('\\') + dirName;
+	std::string::size_type p = path.find(DELIMITER, offset);
+	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+	std::string tmpDir = _rootDirectory + TEXT('\\') + dirName;
 
 	// try to find directory
 	WIN32_FIND_DATA fd = {0};
@@ -543,7 +489,7 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool creat
 	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 	{
 		SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
-		if( string_t::npos != p )
+		if( std::string::npos != p )
 			return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
 		return child; // last path node was processed
 	}
@@ -553,8 +499,252 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const string_t &path, bool creat
 	return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace FS
-///////////////////////////////////////////////////////////////////////////////
-// end of file
+// ----------------------------------------------------------------
+#else // POSIX
+#include <unistd.h>
+#include <dirent.h>
+#include <fnmatch.h>
+#include <sys/stat.h>
 
+OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
+    : _mode(mode)
+    , _mapped(false)
+    , _streamed(false)
+{
+    int nMode = ((_mode & ModeWrite) ? 1:0) + ((_mode & ModeRead) ? 2:0);
+    assert(nMode);
+    static const char *modes[] = {"", "wb", "rb", "rb+"};
+    _file.f = fopen(fileName.c_str(), modes[nMode]);
+    if( !_file.f )
+        throw std::runtime_error("open file");
+}
+
+OSFileSystem::OSFile::~OSFile()
+{
+}
+
+SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
+{
+    assert(!_mapped && !_streamed);
+    SafePtr<MemMap> result(new OSMemMap(this));
+    _mapped = true;
+    return result;
+}
+
+SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
+{
+    assert(!_mapped && !_streamed);
+    _streamed = true;
+    return SafePtr<Stream>(new OSStream(this));
+}
+
+void OSFileSystem::OSFile::Unmap()
+{
+    assert(_mapped && !_streamed);
+    _mapped = false;
+}
+
+void OSFileSystem::OSFile::Unstream()
+{
+    assert(_streamed && !_mapped);
+    _streamed = false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<OSFile> &parent)
+    : _file(parent)
+{
+    Seek(0, SEEK_SET);
+}
+
+OSFileSystem::OSFile::OSStream::~OSStream()
+{
+    _file->Unstream();
+}
+
+ErrorCode OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
+{
+    if( 1 == fread(dst, size, 1, _file->_file.f) )
+        return EC_OK;
+    return feof(_file->_file.f) ? EC_EOF : EC_ERROR;
+}
+
+void OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
+{   
+    if( 1 != fwrite(src, size, 1, _file->_file.f) )
+    {
+        throw std::runtime_error("file could not be written");
+    }
+}
+
+void OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+{
+    fseek(_file->_file.f, amount, origin);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent)
+    : _file(parent)
+{
+    if( fseek(_file->_file.f, 0, SEEK_END) )
+        throw std::runtime_error("get file size");
+    long int size = ftell(_file->_file.f);
+    rewind(_file->_file.f);
+    if( size < 0 )
+        throw std::runtime_error("get file size");
+    if( size > 0 )
+    {
+        _data.resize(size);
+        if( 1 != fread(&_data[0], size, 1, _file->_file.f) )
+            throw std::runtime_error("read file");
+    }
+}
+
+OSFileSystem::OSFile::OSMemMap::~OSMemMap()
+{
+    fseek(_file->_file.f, 0, SEEK_SET);
+    fwrite(&_data[0], _data.size(), 1, _file->_file.f);
+    _file->Unmap();
+}
+
+char* OSFileSystem::OSFile::OSMemMap::GetData()
+{
+    return _data.empty() ? nullptr : &_data[0];
+}
+
+unsigned long OSFileSystem::OSFile::OSMemMap::GetSize() const
+{
+    return _data.size();
+}
+
+void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
+{
+    _data.resize(size);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SafePtr<OSFileSystem> OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
+{
+    return new OSFileSystem(rootDirectory, nodeName);
+}
+
+OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
+    : FileSystem(nodeName)
+    , _rootDirectory(rootDirectory)
+{
+}
+
+OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
+    : FileSystem(nodeName)
+{
+    assert(parent);
+    assert(std::string::npos == nodeName.find('/'));
+    
+    MountTo(parent);
+    _rootDirectory = parent->_rootDirectory + '/' + nodeName;
+}
+
+OSFileSystem::~OSFileSystem(void)
+{
+}
+
+bool OSFileSystem::IsValid() const
+{
+    return true;
+}
+
+void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+{
+    if( DIR *dir = opendir(_rootDirectory.c_str()) )
+    {
+        try
+        {
+            files.clear();
+            while( const dirent *e = readdir(dir) )
+            {
+                if( (DT_REG == e->d_type || DT_LNK == e->d_type) && !fnmatch(mask.c_str(), e->d_name, 0) )
+                {
+                    files.insert(e->d_name);
+                }
+            }
+        }
+        catch(const std::exception&)
+        {
+            closedir(dir);
+            throw;
+        }
+        closedir(dir);
+    }
+    else
+    {
+        throw std::runtime_error("open directory");
+    }
+}
+
+SafePtr<File> OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
+{
+    return new OSFile(_rootDirectory + '/' + fileName, mode);
+}
+
+SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+{
+    if( SafePtr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true) )
+    {
+        return tmp;
+    }
+    
+    assert(!path.empty());
+    
+    // skip delimiters at the beginning
+    std::string::size_type offset = 0;
+    while( offset < path.length() && path[offset] == '/' )
+        ++offset;
+    assert(path.length() > offset);
+    
+    std::string::size_type p = path.find('/', offset);
+    std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+    std::string tmpDir = _rootDirectory + '/' + dirName;
+    
+    struct stat s;
+    if( stat(tmpDir.c_str(), &s) )
+    {
+        if( create )
+        {
+            if( mkdir(tmpDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) )
+            {
+                if( nothrow )
+                    return NULL;
+                else
+                    throw std::runtime_error("could not create directory");
+            }
+        }
+        else
+        {
+            if( nothrow )
+                return NULL;
+            else
+                throw std::runtime_error("directory not found");
+        }
+    }
+    else if( !S_ISDIR(s.st_mode) )
+    {
+        if( nothrow )
+            return NULL;
+        else
+            throw std::runtime_error("not a directory");
+    }
+    
+    // at this point the directory was either found or created
+    SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
+    if( std::string::npos != p )
+        return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
+    return child; // last path node was processed
+}
+
+#endif // _WIN32
+
+} // end of namespace FS
+// end of file

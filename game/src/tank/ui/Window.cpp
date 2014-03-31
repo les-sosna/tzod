@@ -20,33 +20,33 @@ Window* Window::Create(Window *parent)
 ///////////////////////////////////////////////////////////////////////////////
 // Window class implementation
 
-#ifndef DEBUG
+#ifdef NDEBUG
 #define NoDestroyHelper
 #endif
 
 Window::Window(Window *parent, LayoutManager *manager)
-  : _x(0)
-  , _y(0)
-  , _width(0)
-  , _height(0)
-  , _backColor(0xffffffff)
-  , _borderColor(0xffffffff)
-  , _frame(0)
-  , _manager(parent ? parent->GetManager() : manager)
-  , _parent(parent)
-  , _firstChild(NULL)
-  , _lastChild(NULL)
-  , _nextSibling(NULL)
-  , _isVisible(true)
-  , _isEnabled(true)
-  , _isTopMost(false)
-  , _isTimeStep(false)
-  , _drawBorder(true)
-  , _drawBackground(true)
-  , _clipChildren(false)
-  , _texture(-1)
-  , _resident(new Resident(this))
-#ifdef DEBUG
+    : _resident(new Resident(this))
+    , _manager(parent ? parent->GetManager() : manager)
+    , _parent(parent)
+    , _firstChild(NULL)
+    , _lastChild(NULL)
+    , _nextSibling(NULL)
+    , _x(0)
+    , _y(0)
+    , _width(0)
+    , _height(0)
+    , _backColor(0xffffffff)
+    , _borderColor(0xffffffff)
+    , _texture(-1)
+    , _frame(0)
+    , _isVisible(true)
+    , _isEnabled(true)
+    , _isTopMost(false)
+    , _isTimeStep(false)
+    , _drawBorder(true)
+    , _drawBackground(true)
+    , _clipChildren(false)
+#ifndef NDEBUG
   , _debugNoDestroy(0)
 #endif
 {
@@ -99,11 +99,9 @@ Window::~Window()
 
 void Window::Destroy()
 {
-#ifdef DEBUG
 	assert(!_debugNoDestroy);
-#endif
 	{
-		NoDestroyHelper(this);
+		NoDestroyHelper donotdestroyme(this);
 
 		// this removes focus and mouse hover if any.
 		// the window don't yet suspect that it's being destroyed
@@ -180,7 +178,7 @@ unsigned int Window::GetFrameCount() const
 
 void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 {
-	NoDestroyHelper(this);
+	NoDestroyHelper donotdestroyme(this);
 	assert(_isVisible);
 
 	//           left     top      right             bottom
@@ -204,7 +202,7 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 
 	if( _clipChildren )
 	{
-		RECT clip;
+		Rect clip;
 		clip.left   = (int) dst.left;
 		clip.top    = (int) dst.top;
 		clip.right  = (int) dst.right;
@@ -222,7 +220,7 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 
 void Window::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	NoDestroyHelper(this);
+	NoDestroyHelper donotdestroyme(this);
 
 	for( Window *w = _firstChild; w; w = w->_nextSibling )
 	{
@@ -246,7 +244,7 @@ void Window::Move(float x, float y)
 
 void Window::Resize(float width, float height)
 {
-	NoDestroyHelper(this);
+	NoDestroyHelper donotdestroyme(this);
 	if( _width != width || _height != height )
 	{
 		_width  = width;
@@ -280,7 +278,7 @@ void Window::SetTimeStep(bool enable)
 
 void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 {
-	NoDestroyHelper(this);
+	NoDestroyHelper donotdestroyme(this);
 	if( enable )
 	{
 		// enable children last
@@ -306,7 +304,7 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 
 void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 {
-	NoDestroyHelper(this);
+	NoDestroyHelper donotdestroyme(this);
 	if( visible )
 	{
 		// show children last
@@ -442,12 +440,12 @@ void Window::BringToBack()
 }
 
 
-const string_t& Window::GetText() const
+const std::string& Window::GetText() const
 {
 	return _text;
 }
 
-void Window::SetText(const string_t &text)
+void Window::SetText(const std::string &text)
 {
 	_text.assign(text);
 	OnTextChange();

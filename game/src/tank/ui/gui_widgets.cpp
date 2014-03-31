@@ -9,8 +9,8 @@
 
 #include "Level.h"
 
-#include "network/TankClient.h"
-#include "network/TankServer.h"
+//#include "network/TankClient.h"
+//#include "network/TankServer.h"
 
 namespace UI
 {
@@ -55,21 +55,21 @@ void FpsCounter::OnTimeStep(float dt)
 		char s [1024];
 		char s1[256];
 
-		wsprintf(s, "fps:%04d-%04d-%04d; wnd:%03d",
+		sprintf(s, "fps:%04d-%04d-%04d; wnd:%03d",
 			int(1.0f / max + 0.5f), 
 			int(1.0f / avr + 0.5f), 
 			int(1.0f / min + 0.5f),
 			-1
 		);
 
-		wsprintf(s1, "; obj:%d\ntimestep: %4d",
-			g_level->GetList(LIST_objects).size(), 
-			g_level->ts_fixed.size()
+		sprintf(s1, "; obj:%u\ntimestep: %4u",
+			(unsigned int) g_level->GetList(LIST_objects).size(),
+			(unsigned int) g_level->ts_fixed.size()
 		);
 		strcat(s, s1);
 
 #ifndef NDEBUG
-		wsprintf(s1, "; %4dgarbage", g_level->_garbage.size());
+		sprintf(s1, "; %4ugarbage", (unsigned int) g_level->_garbage.size());
 		strcat(s, s1);
 #endif
 
@@ -133,9 +133,9 @@ void TimeElapsed::OnTimeStep(float dt)
 		int time = (int) g_level->GetTime();
 
 		if( time % 60 < 10 )
-			wsprintf(text, "%d:0%d", time / 60, time % 60);
+			sprintf(text, "%d:0%d", time / 60, time % 60);
 		else
-			wsprintf(text, "%d:%d", time / 60, time % 60);
+			sprintf(text, "%d:%d", time / 60, time % 60);
 
 		SetText(text);
 	}
@@ -182,7 +182,7 @@ void Oscilloscope::SetRange(float rmin, float rmax)
 	_rangeMax = rmax;
 }
 
-void Oscilloscope::SetTitle(const string_t &title)
+void Oscilloscope::SetTitle(const std::string &title)
 {
 	_title = title;
 }
@@ -287,7 +287,7 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 			float y = (float) i * _gridStepY;
 			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
 			char buf[64];
-			sprintf_s(buf, "%.3g", y);
+			sprintf(buf, "%.3g", y);
 			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
 			dc->DrawBitmapText(sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
 		}

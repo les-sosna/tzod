@@ -3,8 +3,8 @@
 #include "stdafx.h"
 #include "Vehicle.h"
 
-#include "level.h"
-#include "macros.h"
+#include "Level.h"
+#include "Macros.h"
 #include "functions.h"
 #include "script.h"
 
@@ -36,11 +36,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_VehicleVisualDummy)
 
 GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
   : GC_VehicleBase()
-  , _time_smoke(0)
+  , _parent(parent)
   , _trackDensity(8)
   , _trackPathL(0)
   , _trackPathR(0)
-  , _parent(parent)
+  , _time_smoke(0)
 {
 	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS, true);
 	SetZ(Z_VEHICLES);
@@ -131,8 +131,8 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 	{
 		_moveSound->MoveTo(GetPos());
 		float v = _lv.len() / _parent->GetMaxSpeed();
-		_moveSound->SetSpeed (__min(1, 0.5f + 0.5f * v));
-		_moveSound->SetVolume(__min(1, 0.9f + 0.1f * v));
+		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
+		_moveSound->SetVolume(std::min(1.0f, 0.9f + 0.1f * v));
 	}
 
 
@@ -346,7 +346,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
   : GC_VehicleBase()
   , _memberOf(this)
 {
-	ZeroMemory(&_stateReal, sizeof(VehicleState));
+	memset(&_stateReal, 0, sizeof(VehicleState));
 
 	MoveTo(vec2d(x, y));
 
@@ -370,7 +370,7 @@ GC_Vehicle::~GC_Vehicle()
 
 float GC_Vehicle::GetMaxSpeed() const
 {
-	return __min((_enginePower - _Nx) / _Mx, _maxLinSpeed);
+	return std::min((_enginePower - _Nx) / _Mx, _maxLinSpeed);
 }
 
 float GC_Vehicle::GetMaxBrakingLength() const
@@ -504,9 +504,9 @@ void GC_Vehicle::SetPredictedState(const VehicleState &vs)
 	_statePredicted = vs;
 }
 
-void GC_Vehicle::SetSkin(const string_t &skin)
+void GC_Vehicle::SetSkin(const std::string &skin)
 {
-	string_t tmp = "skin/";
+	std::string tmp = "skin/";
 	tmp += skin;
 	_visual->SetTexture(tmp.c_str());
 }
@@ -578,7 +578,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	{
 		char msg[256] = {0};
 		char score[8];
-		char *font = NULL;
+		const char *font = NULL;
 
 		if( from )
 		{
@@ -587,7 +587,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 				// killed it self
 				GetOwner()->SetScore(GetOwner()->GetScore() - 1);
 				font = "font_digits_red";
-				wsprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
+				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
 			}
 			else if( GetOwner() )
 			{
@@ -597,7 +597,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 					// 'from' killed his friend
 					from->SetScore(from->GetScore() - 1);
 					font = "font_digits_red";
-					wsprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
+					sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
 						dd.from->GetNick().c_str(),
 						GetOwner()->GetNick().c_str());
 				}
@@ -606,7 +606,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 					// 'from' killed his enemy
 					from->SetScore(from->GetScore() + 1);
 					font = "font_digits_green";
-					wsprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
+					sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
 						from->GetNick().c_str(), GetOwner()->GetNick().c_str());
 				}
 			}
@@ -619,15 +619,15 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 
 			if( from->GetVehicle() )
 			{
-				wsprintf(score, "%d", from->GetScore());
+				sprintf(score, "%d", from->GetScore());
 				new GC_Text_ToolTip(from->GetVehicle()->GetPos(), score, font);
 			}
 		}
 		else if( GetOwner() )
 		{
-			wsprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
+			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
 			GetOwner()->SetScore(GetOwner()->GetScore() - 1);
-			wsprintf(score, "%d", GetOwner()->GetScore());
+			sprintf(score, "%d", GetOwner()->GetScore());
 			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
 		}
 

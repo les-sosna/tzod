@@ -4,7 +4,7 @@
 
 #include "RenderBase.h"
 
-IRender* renderCreateOpenGL();
+std::unique_ptr<IRender> RenderCreateOpenGL();
 
 
 // end of file

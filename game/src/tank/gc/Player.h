@@ -25,12 +25,12 @@ class GC_Player
 
 	int       _team;
 	int       _score;
-	string_t  _nick;
-	string_t  _class;
-	string_t  _skin;
-	string_t  _vehname;
-	string_t  _scriptOnDie;
-	string_t  _scriptOnRespawn;
+	std::string  _nick;
+	std::string  _class;
+	std::string  _skin;
+	std::string  _vehname;
+	std::string  _scriptOnDie;
+	std::string  _scriptOnRespawn;
 
 	ObjPtr<GC_Vehicle> _vehicle;
 
@@ -63,14 +63,14 @@ protected:
 public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 
-	void SetSkin(const string_t &skin);
-	const string_t& GetSkin() const { return _skin; }
+	void SetSkin(const std::string &skin);
+	const std::string& GetSkin() const { return _skin; }
 
-	void SetNick(const string_t &nick);
-	const string_t& GetNick() const { return _nick; }
+	void SetNick(const std::string &nick);
+	const std::string& GetNick() const { return _nick; }
 
-	void SetClass(const string_t &c);
-	const string_t& GetClass() const { return _class; }
+	void SetClass(const std::string &c);
+	const std::string& GetClass() const { return _class; }
 
 	void SetTeam(int team);
 	int GetTeam() const { return _team; }

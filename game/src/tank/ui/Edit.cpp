@@ -44,14 +44,14 @@ int Edit::GetTextLength() const
 
 void Edit::SetInt(int value)
 {
-	ostrstream_t tmp;
+	std::ostringstream tmp;
 	tmp << value;
 	SetText(tmp.str());
 }
 
 int Edit::GetInt() const
 {
-	istrstream_t tmp(GetText());
+    std::istringstream tmp(GetText());
 	int result = 0;
 	tmp >> result;
 	return result;
@@ -59,14 +59,14 @@ int Edit::GetInt() const
 
 void Edit::SetFloat(float value)
 {
-	ostrstream_t tmp;
+	std::ostringstream tmp;
 	tmp << value;
 	SetText(tmp.str());
 }
 
 float Edit::GetFloat() const
 {
-	istrstream_t tmp(GetText());
+    std::istringstream tmp(GetText());
 	float result = 0;
 	tmp >> result;
 	return result;
@@ -153,10 +153,10 @@ void Edit::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 bool Edit::OnChar(int c)
 {
-	if( isprint((unsigned char) c) && VK_TAB != c )
+	if( isprint((unsigned char) c) && GLFW_KEY_TAB != c )
 	{
 		int start = GetSelMin();
-		SetText(GetText().substr(0, start) + (string_t::value_type) c + GetText().substr(GetSelMax()));
+		SetText(GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
 		SetSel(start + 1, start + 1);
 		return true;
 	}
@@ -165,38 +165,41 @@ bool Edit::OnChar(int c)
 
 bool Edit::OnRawChar(int c)
 {
+    bool shift = glfwGetKey(g_appWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+    bool control = glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+        glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
 	int tmp;
-
 	switch(c)
 	{
-	case VK_INSERT:
-		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+	case GLFW_KEY_INSERT:
+        if( shift )
 		{
 			Paste();
 			return true;
 		}
-		else if( GetAsyncKeyState(VK_CONTROL) & 0x8000 )
+		else if( control )
 		{
 			Copy();
 			return true;
 		}
 		break;
 	case 'V':
-		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 )
+		if( control )
 		{
 			Paste();
 			return true;
 		}
 		break;
 	case 'C':
-		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 )
+		if( control )
 		{
 			Copy();
 			return true;
 		}
 		break;
 	case 'X':
-		if( 0 != GetSelLength() && (GetAsyncKeyState(VK_CONTROL) & 0x8000) )
+		if( 0 != GetSelLength() && control )
 		{
 			Copy();
 			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
@@ -204,7 +207,7 @@ bool Edit::OnRawChar(int c)
 			return true;
 		}
 		break;
-	case VK_DELETE:
+	case GLFW_KEY_DELETE:
 		if( 0 == GetSelLength() && GetSelEnd() < GetTextLength() )
 		{
 			SetText(GetText().substr(0, GetSelStart())
@@ -212,7 +215,7 @@ bool Edit::OnRawChar(int c)
 		}
 		else
 		{
-			if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+			if( shift )
 			{
 				Copy();
 			}
@@ -220,7 +223,7 @@ bool Edit::OnRawChar(int c)
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
-	case VK_BACK:
+	case GLFW_KEY_BACKSPACE:
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if( 0 == GetSelLength() && GetSelStart() > 0 )
 		{
@@ -233,8 +236,8 @@ bool Edit::OnRawChar(int c)
 		}
 		SetSel(tmp, tmp);
 		return true;
-	case VK_LEFT:
-		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+	case GLFW_KEY_LEFT:
+		if( shift )
 		{
 			tmp = std::max(0, GetSelEnd() - 1);
 			SetSel(GetSelStart(), tmp);
@@ -245,8 +248,8 @@ bool Edit::OnRawChar(int c)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case VK_RIGHT:
-		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+	case GLFW_KEY_RIGHT:
+		if( shift )
 		{
 			tmp = std::min(GetTextLength(), GetSelEnd() + 1);
 			SetSel(GetSelStart(), tmp);
@@ -257,8 +260,8 @@ bool Edit::OnRawChar(int c)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case VK_HOME:
-		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+	case GLFW_KEY_HOME:
+		if( shift )
 		{
 			SetSel(GetSelStart(), 0);
 		}
@@ -267,8 +270,8 @@ bool Edit::OnRawChar(int c)
 			SetSel(0, 0);
 		}
 		return true;
-	case VK_END:
-		if( GetAsyncKeyState(VK_SHIFT) & 0x8000 )
+	case GLFW_KEY_END:
+		if( shift )
 		{
 			SetSel(GetSelStart(), -1);
 		}
@@ -277,7 +280,7 @@ bool Edit::OnRawChar(int c)
 			SetSel(-1, -1);
 		}
 		return true;
-	case VK_SPACE:
+	case GLFW_KEY_SPACE:
 		return true;
 	}
 	return false;
@@ -352,20 +355,18 @@ void Edit::OnTimeStep(float dt)
 
 void Edit::Paste()
 {
-	if( OpenClipboard(NULL) )
+ //   glfwGetClipboardString(<#GLFWwindow *window#>);
+    
+/*	if( OpenClipboard(NULL) )
 	{
-#ifdef _UNICODE
 		if( HANDLE hData = GetClipboardData(CF_UNICODETEXT) )
-#else
-		if( HANDLE hData = GetClipboardData(CF_OEMTEXT) )
-#endif
 		{
 			if( const char *data = (const char *) GlobalLock(hData) )
 			{
-				string_t data1(data);
+				std::string data1(data);
 				GlobalUnlock(hData);
 
-				ostrstream_t buf;
+				std::wostringstream buf;
 				buf << GetText().substr(0, GetSelMin());
 				buf << data1;
 				buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
@@ -386,12 +387,12 @@ void Edit::Paste()
 	else
 	{
 //		TRACE(_T("Failed to open clipboard: %d"), GetLastError());
-	}
+	}*/
 }
 
 void Edit::Copy() const
 {
-	string_t str = GetText().substr(GetSelMin(), GetSelLength());
+/*	std::string str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
 		if( OpenClipboard(NULL) )
@@ -399,7 +400,7 @@ void Edit::Copy() const
 			if( EmptyClipboard() )
 			{
 				// Allocate a global memory object for the text.
-				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(string_t::value_type));
+				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(std::string::value_type));
 				if( NULL == hData )
 				{
 //					TRACE(_T("Failed to allocate memory: %d"), GetLastError());
@@ -409,15 +410,11 @@ void Edit::Copy() const
 
 				// Lock the handle and copy the text to the buffer.
 				char *data = (char *) GlobalLock(hData);
-				memcpy(data, str.c_str(), (str.length() + 1) * sizeof(string_t::value_type));
+				memcpy(data, str.c_str(), (str.length() + 1) * sizeof(std::string::value_type));
 				GlobalUnlock(hData);
 
 				// Place the handle on the clipboard.
-#ifdef UNICODE
 				if( !SetClipboardData(CF_UNICODETEXT, hData) )
-#else
-				if( !SetClipboardData(CF_OEMTEXT, hData) )
-#endif
 				{
 //					TRACE(_T("Failed to set clipboard data: %d"), GetLastError());
 				}
@@ -432,7 +429,7 @@ void Edit::Copy() const
 		{
 //			TRACE(_T("Failed to open clipboard: %d"), GetLastError());
 		}
-	}
+	}*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////

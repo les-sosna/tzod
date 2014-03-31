@@ -25,7 +25,7 @@ private:
 	struct Line
 	{
 		float time;
-		string_t str;
+		std::string str;
 	};
 	typedef std::deque<Line> LineList;
 	LineList _lines;
@@ -35,7 +35,7 @@ public:
 	MessageArea(Window *parent, float x, float y);
 	~MessageArea();
 
-	void WriteLine(const string_t &text);
+	void WriteLine(const std::string &text);
 	void Clear();
 
 	virtual void OnTimeStep(float dt);
@@ -54,9 +54,9 @@ class Desktop
 	class MyConsoleHistory : public UI::IConsoleHistory
 	{
 	public:
-		virtual void Enter(const UI::string_t &str);
+		virtual void Enter(const std::string &str);
 		virtual size_t GetItemCount() const;
-		virtual const UI::string_t& GetItem(size_t index) const;
+		virtual const std::string& GetItem(size_t index) const;
 	};
 
 	MyConsoleHistory  _history;
@@ -95,8 +95,8 @@ private:
 	void OnChangeShowFps();
 	void OnChangeShowTime();
 
-	void OnCommand(const string_t &cmd);
-	bool OnCompleteCommand(const string_t &cmd, int &pos, string_t &result);
+	void OnCommand(const std::string &cmd);
+	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
 };
 
 

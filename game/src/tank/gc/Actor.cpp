@@ -14,7 +14,7 @@
 GC_Actor::GC_Actor()
   : GC_Object()
 {
-	ZeroMemory(&_location, sizeof(Location));
+	memset(&_location, 0, sizeof(Location));
 	MoveTo(vec2d(0, 0));
 }
 
@@ -38,8 +38,8 @@ void GC_Actor::Serialize(SaveFile &f)
 void GC_Actor::MoveTo(const vec2d &pos)
 {
 	Location loc;
-	loc.x = __min(g_level->_locationsX-1, __max(0, int(pos.x / LOCATION_SIZE)));
-	loc.y = __min(g_level->_locationsY-1, __max(0, int(pos.y / LOCATION_SIZE)));
+	loc.x = std::min(g_level->_locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
+	loc.y = std::min(g_level->_locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
 
 	_pos = pos;
 

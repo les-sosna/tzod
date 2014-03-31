@@ -33,7 +33,7 @@ void CounterBase::SetMarkerCallbackStatic(size_t idx, const Delegate<void(float)
 	GetRegisteredCountersStatic()[idx].ptr->_callback = cb;
 }
 
-CounterBase::CounterBase(const std::string &id, const string_t &title)
+CounterBase::CounterBase(const std::string &id, const std::string &title)
 {
 	CounterInfo ci;
 	ci.id = id;

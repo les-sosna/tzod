@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <set>
+#include <cassert>
+
 /////////////////////////////////////////////////////////////
 
 //  -- notes --
@@ -127,7 +130,7 @@ public:
 		void Release();
 	};
 #pragma warning( pop )
-	NoAddRefRelease* operator -> () const
+	T* operator -> () const
 	{
 		assert(_ptr);
 		return static_cast<NoAddRefRelease *>(_ptr);
@@ -187,7 +190,7 @@ public:
 	}*/
 };
 
-template<> SafePtr<void>::~SafePtr() {} // to allow instantiation of SafePtr<void>
+template<> inline SafePtr<void>::~SafePtr() {} // to allow instantiation of SafePtr<void>
 
 
 //

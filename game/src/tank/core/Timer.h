@@ -4,16 +4,16 @@
 
 #pragma once
 
+#include <chrono>
+
 class Timer
 {
-protected:
-	// qpf
-	double        _qpf_frequency;
-	LARGE_INTEGER _qpf_time_pause;
-	LARGE_INTEGER _qpf_time_last_dt;
-	LARGE_INTEGER _qpf_time_max_dt;
+    typedef std::chrono::high_resolution_clock clock;
+    clock::time_point _time_pause;
+    clock::time_point _time_last_dt;
+    std::chrono::duration<float> _time_max_dt;
 
-	LONG _stopCount;
+	int _stopCount;
 
 public:
 	Timer();  // initially stopped

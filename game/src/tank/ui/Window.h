@@ -54,7 +54,7 @@ class Window
 	// attributes
 	//
 
-	string_t     _text;
+	std::string     _text;
 
 	SpriteColor  _backColor;
 	SpriteColor  _borderColor;
@@ -72,12 +72,12 @@ class Window
 		bool _clipChildren   : 1;
 	};
 
-#ifdef DEBUG
-	unsigned int _debugNoDestroy;
+#ifndef NDEBUG
+	mutable unsigned int _debugNoDestroy;
 	class NoDestroyHelper
 	{
 	public:
-		NoDestroyHelper(Window *wnd) : _var(wnd->_debugNoDestroy) { ++_var; }
+		NoDestroyHelper(const Window *wnd) : _var(wnd->_debugNoDestroy) { ++_var; }
 		~NoDestroyHelper() { --_var; }
 	private:
 		unsigned int &_var;
@@ -142,8 +142,8 @@ public:
 	void BringToFront();
 	void BringToBack();
 
-	const string_t& GetText() const;
-	void SetText(const string_t &text);
+	const std::string& GetText() const;
+	void SetText(const std::string &text);
 
 
 	//

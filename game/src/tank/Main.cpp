@@ -3,16 +3,18 @@
 #include "stdafx.h"
 
 #include "script.h"
-#include "macros.h"
+#include "Macros.h"
 #include "Level.h"
 #include "directx.h"
-#include "InputManager.h"
+//#include "InputManager.h"
 #include "BackgroundIntro.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
 
+#ifndef NOSOUND
 #include "sound/MusicPlayer.h"
+#endif
 
 #include "core/debug.h"
 #include "core/Application.h"
@@ -23,10 +25,10 @@
 #include "video/RenderOpenGL.h"
 #include "video/RenderDirect3D.h"
 
-#include "network/Variant.h"
-#include "network/TankClient.h"
+//#include "network/Variant.h"
+//#include "network/TankClient.h"
 
-#include "ui/Interface.h"
+//#include "ui/Interface.h"
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 
@@ -59,10 +61,10 @@ public:
 private:
 	std::deque<float> _dt;
 	Timer _timer;
-	float _timeBuffer;
+//	float _timeBuffer;
 //	int  _ctrlSentCount;
 
-	std::unique_ptr<InputManager> _inputMgr;
+//	std::unique_ptr<InputManager> _inputMgr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ private:
 static void OnPrintScreen()
 {
 	PLAY(SND_Screenshot, vec2d(0, 0));
-
+/*
 	// generate a file name
 
 	CreateDirectory(DIR_SCREENSHOTS, NULL);
@@ -80,7 +82,7 @@ static void OnPrintScreen()
 	char name[MAX_PATH];
 	for(;;)
 	{
-		wsprintf(name, "screenshot%04d.tga", n);
+		sprintf(name, "screenshot%04d.tga", n);
 
 		WIN32_FIND_DATA fd = {0};
 		HANDLE h = FindFirstFile(name, &fd);
@@ -104,10 +106,15 @@ static void OnPrintScreen()
 		TRACE("Screenshot '%s'", name);
 	}
 
-	SetCurrentDirectory("..");
+	SetCurrentDirectory(".."); */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static bool IsKeyPressed(int key)
+{
+    return GLFW_PRESS == glfwGetKey(g_appWindow, key);
+}
 
 static void RenderFrame()
 {
@@ -128,10 +135,10 @@ static void RenderFrame()
 
 
 	// check if print screen key is pressed
-	static char _oldRQ = 0;
-	if( g_env.envInputs.IsKeyPressed(DIK_SYSRQ) && !_oldRQ )
+	static char _oldPS = 0;
+	if( IsKeyPressed(GLFW_KEY_PRINT_SCREEN) && !_oldPS )
 		OnPrintScreen();
-	_oldRQ = g_env.envInputs.IsKeyPressed(DIK_SYSRQ);
+	_oldPS = IsKeyPressed(GLFW_KEY_PRINT_SCREEN);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,32 +155,6 @@ namespace
 	};
 }
 
-static HWND CreateMainWnd(HINSTANCE hInstance)
-{
-	WNDCLASS wc = {0};
-
-	//
-	// register class
-	//
-	wc.lpszClassName = TXT_WNDCLASS;
-	wc.lpfnWndProc   = WndProc;
-	wc.style         = CS_VREDRAW | CS_HREDRAW;
-	wc.hInstance     = hInstance;
-	wc.hIcon         = LoadIcon(hInstance, (LPCTSTR) IDI_BIG);
-	wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-	wc.hbrBackground = NULL;
-	RegisterClass(&wc);
-
-
-	HWND h = CreateWindowEx( 0, TXT_WNDCLASS, TXT_VERSION,
-	                       WS_POPUP|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_MAXIMIZEBOX|WS_SYSMENU,
-	                       CW_USEDEFAULT, CW_USEDEFAULT, // position
-	                       CW_USEDEFAULT, CW_USEDEFAULT, // size
-	                       NULL, NULL, hInstance, NULL );
-	TRACE("Created main app window");
-
-	return h;
-}
 
 namespace
 {
@@ -187,14 +168,14 @@ namespace
 			: _file(fopen(filename, "w"))
 		{
 		}
-		~ConsoleLog()
+		virtual ~ConsoleLog()
 		{
 			if( _file )
 				fclose(_file);
 		}
 
 		// IConsoleLog
-		virtual void WriteLine(int severity, const string_t &str)
+		virtual void WriteLine(int severity, const std::string &str) override final
 		{
 			if( _file )
 			{
@@ -202,28 +183,33 @@ namespace
 				fputs("\n", _file);
 				fflush(_file);
 			}
+            puts(str.c_str());
 		}
-		virtual void Release()
+		virtual void Release() override final
 		{
 			delete this;
 		}
 	};
 }
 
+#ifdef _WIN32
 int APIENTRY WinMain( HINSTANCE, // hInstance
                       HINSTANCE, // hPrevInstance
                       LPSTR, // lpCmdLine
-                      int // nCmdShow
-){
-	srand( GetTickCount() );
-	Variant::Init();
+                      int) // nCmdShow
+#else
+int main(int, const char**)
+#endif
+{
+	srand(time(nullptr));
+//	Variant::Init();
 
-#ifdef _DEBUG // memory leaks detection
+#if defined(_DEBUG) && defined(_WIN32) // memory leaks detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 	GetConsole().SetLog(new ConsoleLog("log.txt"));
-
-	TCHAR buf[MAX_PATH];
+/*
+	char buf[MAX_PATH];
 	GetModuleFileName(NULL, buf, MAX_PATH);
 
 	HANDLE hFile = CreateFile(buf, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
@@ -241,7 +227,7 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 	CloseHandle(hFile);
 
 	memcpy(&g_md5, md5.digest, 16);
-
+*/
 	try
 	{
 		ZodApp app;
@@ -249,8 +235,10 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 	}
 	catch( const std::exception &e )
 	{
-		GetConsole().Format(SEVERITY_ERROR) << e.what();
+		GetConsole().Format(SEVERITY_ERROR) << "runtime error:\n" << e.what();
+#ifdef _WIN32
 		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
+#endif
 		return 1;
 	}
 }
@@ -259,7 +247,7 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 
 ///////////////////////////////////////////////////////////////////////////////
 ZodApp::ZodApp()
-	: _timeBuffer(0)
+//	: _timeBuffer(0)
 //	, _ctrlSentCount(0)
 {
 	assert(!g_app);
@@ -276,19 +264,14 @@ bool ZodApp::Pre()
 {
 	// print UNIX-style date and time
 	time_t ltime;
-	char timebuf[26];
 	time(&ltime);
-	ctime_s(timebuf, 26, &ltime);
-	TRACE("ZOD Engine started at %s", timebuf);
+	TRACE("ZOD Engine started at %s", ctime(&ltime));
 	TRACE("----------------------------------------------");
 	TRACE("%s", TXT_VERSION);
 
 
 	g_env.pause = 0;
 
-
-	// create main app window
-	g_env.hMainWnd = CreateMainWnd(GetModuleHandle(NULL));
 
 
 	//
@@ -311,15 +294,7 @@ bool ZodApp::Pre()
 
 			if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
 			{
-				int result = MessageBox(g_env.hMainWnd,
-					"Failed to load config file. See log for details. Default settings will be used.",
-					TXT_VERSION,
-					MB_ICONERROR | MB_OKCANCEL);
-
-				if( IDOK != result )
-				{
-					return false;
-				}
+                GetConsole().Format(SEVERITY_ERROR) << "Failed to load config file.";
 			}
 		}
 
@@ -339,16 +314,6 @@ bool ZodApp::Pre()
 		if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
 		{
 			TRACE("couldn't load language file " FILE_CONFIG);
-
-			int result = MessageBox(g_env.hMainWnd,
-				"Failed to load language file. See log for details. Continue with default (English) language?",
-				TXT_VERSION,
-				MB_ICONERROR | MB_OKCANCEL);
-
-			if( IDOK != result )
-			{
-				return false;
-			}
 		}
 	}
 	catch( const std::exception &e )
@@ -364,54 +329,24 @@ bool ZodApp::Pre()
 
 	GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 
-
-	//
-	// init common controls
-	//
-
-	TRACE("windows common controls initialization");
-	INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), /*ICC_STANDARD_CLASSES*/ };
-	if( !InitCommonControlsEx(&iccex) )
-	{
-//		return false;
-	}
-
-
-	//
-	// show graphics mode selection dialog
-	//
-	if( g_conf.r_askformode.Get()
-		&& IDOK != DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DISPLAY), NULL, dlgDisplaySettings) )
-	{
-		g_fs = NULL; // free the file system
-		return false;
-	}
-	else
-	{
-		g_render = g_conf.r_render.GetInt() ? renderCreateDirect3D() : renderCreateOpenGL();
-	}
-
-
-	//
-	// show main app window
-	//
-	ShowWindow(g_env.hMainWnd, SW_SHOW);
-	UpdateWindow(g_env.hMainWnd);
-
-
 	_timer.SetMaxDt(MAX_DT);
 
 	// init render
-	assert(g_render);
-	DisplayMode dm;
-	dm.Width         = g_conf.r_width.GetInt();
-	dm.Height        = g_conf.r_height.GetInt();
-	dm.RefreshRate   = g_conf.r_freq.GetInt();
-	dm.BitsPerPixel  = g_conf.r_bpp.GetInt();
-	if( !g_render->Init(g_env.hMainWnd, &dm, g_conf.r_fullscreen.Get()) )
-	{
-		return false;
-	}
+    GLFWwindow *wnd = glfwCreateWindow(g_conf.r_width.GetInt(),
+                                       g_conf.r_height.GetInt(),
+                                       TXT_VERSION,
+                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
+                                       nullptr);
+    if( !wnd )
+    {
+        return false;
+    }
+    glfwMakeContextCurrent(wnd);
+    g_render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+    int width;
+    int height;
+    glfwGetFramebufferSize(wnd, &width, &height);
+	g_render->OnResizeWnd(Point{width, height});
 
 #if !defined NOSOUND
 	// init sound
@@ -426,13 +361,14 @@ bool ZodApp::Pre()
 	{
 		std::ostringstream ss;
 		ss << "DirectSound init failed: " << e.what();
+        TRACE("%s", ss.str().c_str());
 		MessageBox(g_env.hMainWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR|MB_OK);
 		return false;
 	}
 #endif
 
 
-	_inputMgr.reset(new InputManager(g_env.hMainWnd));
+//	_inputMgr.reset(new InputManager(g_env.hMainWnd));
 
 
 	//
@@ -446,12 +382,10 @@ bool ZodApp::Pre()
 		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
 		{
 			TRACE("WARNING: no textures loaded");
-			MessageBox(g_env.hMainWnd, "There are no textures loaded", TXT_VERSION, MB_ICONERROR);
 		}
 		if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
 		{
 			TRACE("WARNING: no skins found");
-			MessageBox(g_env.hMainWnd, "There are no skins found", TXT_VERSION, MB_ICONERROR);
 		}
 	}
 	catch( const std::exception &e )
@@ -482,8 +416,7 @@ bool ZodApp::Pre()
 
 	// init GUI
 	TRACE("GUI subsystem initialization");
-	g_gui = new UI::LayoutManager(&DesktopFactory());
-	g_render->OnResizeWnd();
+	g_gui = new UI::LayoutManager(DesktopFactory());
 	g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
 
 
@@ -491,7 +424,6 @@ bool ZodApp::Pre()
 	if( !script_exec_file(g_env.L, FILE_STARTUP) )
 	{
 		TRACE("ERROR: in startup script");
-		MessageBox(g_env.hMainWnd, "startup script error", TXT_VERSION, MB_ICONERROR);
 	}
 
 	_timer.Start();
@@ -501,7 +433,7 @@ bool ZodApp::Pre()
 
 void ZodApp::Idle()
 {
-	_inputMgr->InquireInputDevices();
+//	_inputMgr->InquireInputDevices();
 
 	// estimate current frame time
 	float dt = _timer.GetDt();
@@ -518,7 +450,7 @@ void ZodApp::Idle()
 	}
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 
-
+#if 0
 	if( g_client && (!g_level->IsGamePaused() || !g_client->SupportPause()) )
 	{
 		assert(dt >= 0);
@@ -559,7 +491,7 @@ void ZodApp::Idle()
 							VehicleState vs;
                             if( const char *profile = g_client->GetActiveProfile() )
                             {
-                                _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
+//                                _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
                             }
                             pl->StepPredicted(vs, dt_fixed);
 							ctrl.push_back(vs);
@@ -599,7 +531,7 @@ void ZodApp::Idle()
 
 		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
 	} // if( !g_level->IsGamePaused() )
-
+#endif
 
 
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
@@ -610,22 +542,25 @@ void ZodApp::Idle()
 
 	RenderFrame();
 
+#ifndef NOSOUND
 	if( g_music )
 	{
 		g_music->HandleBufferFilling();
 	}
+#endif
 
 	if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
 	{
-		Sleep(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(
+            std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
 	}
 }
 
 void ZodApp::Post()
 {
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
-	TRACE("Shutting down GUI subsystem");
+	TRACE("Shutting down the GUI subsystem");
 	SAFE_DELETE(g_gui);
 
 	// script engine cleanup
@@ -642,16 +577,15 @@ void ZodApp::Post()
 	SAFE_DELETE(g_texman);
 
 	// release input devices
-	_inputMgr.reset();
+//	_inputMgr.reset();
 
 #ifndef NOSOUND
 	FreeDirectSound();
 #endif
-	TRACE("Shutting down the renderer");
 	if( g_render )
 	{
-		g_render->Release();
-		g_render = NULL;
+        TRACE("Shutting down the renderer");
+		g_render.reset();
 	}
 
 
@@ -660,7 +594,7 @@ void ZodApp::Post()
 	TRACE("Saving config to '" FILE_CONFIG "'");
 	if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
 	{
-		MessageBox(NULL, "Failed to save config file", TXT_VERSION, MB_ICONERROR);
+        TRACE("Failed to save config file");
 	}
 
 	// clean up the file system

@@ -77,34 +77,34 @@ public:
 
 		iterator& operator++ ()  // prefix increment
 		{
-			assert(_node && _node->next);
-			_node = _node->next;
+			assert(this->_node && this->_node->next);
+			this->_node = this->_node->next;
 			return (*this);
 		}
 		iterator operator++ (int)  // postfix increment
 		{
-			assert(_node && _node->next);
-			iterator tmp(_node);
-			_node = _node->next;
+			assert(this->_node && this->_node->next);
+			iterator tmp(this->_node);
+			this->_node = this->_node->next;
 			return tmp;
 		}
 		iterator& operator-- ()  // prefix decrement
 		{
-			assert(_node && _node->prev);
-			_node = _node->prev;
+			assert(this->_node && this->_node->prev);
+			this->_node = this->_node->prev;
 			return (*this);
 		}
 		iterator operator-- (int)  // postfix decrement
 		{
-			assert(_node && _node->prev);
-			iterator tmp(_node);
-			_node = _node->prev;
+			assert(this->_node && this->_node->prev);
+			iterator tmp(this->_node);
+			this->_node = this->_node->prev;
 			return tmp;
 		}
 		void operator = (const NullHelper *arg) // to allow iter=NULL
 		{
 			assert(NULL == arg);
-			_node = NULL;
+			this->_node = NULL;
 		}
 	};
 
@@ -112,54 +112,54 @@ public:
 	class safe_iterator : public base_iterator  // increments node's reference counter
 	{
 	public:
-		safe_iterator() : _node(NULL) {}
 		explicit safe_iterator(Node *p)
 		  : base_iterator(p)
 		{
-			++_node->ref_count;
+			++this->_node->ref_count;
 		}
 		~safe_iterator()
 		{
-			if( _node && 0 == (--_node->ref_count) && NULL == _node->ptr )
-				FreeNode(_node);
+			if( this->_node && 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
+				FreeNode(this->_node);
 		}
 
 		safe_iterator& operator++ ()  // prefix increment
 		{
-			assert(_node && _node->next);
-			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
+			assert(this->_node && this->_node->next);
+			if( 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
 			{
-				_node = _node->next;
-				FreeNode(_node->prev);
+				this->_node = this->_node->next;
+				FreeNode(this->_node->prev);
 			}
 			else
 			{
-				_node = _node->next;
+				this->_node = this->_node->next;
 			}
-			++_node->ref_count;
+			++this->_node->ref_count;
 			return (*this);
 		}
 		safe_iterator& operator-- ()  // prefix decrement
 		{
-			assert(_node && _node->prev);
-			if( 0 == (--_node->ref_count) && NULL == _node->ptr )
+			assert(this->_node && this->_node->prev);
+			if( 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
 			{
-				_node = _node->prev;
-				FreeNode(_node->next);
+				this->_node = this->_node->prev;
+				FreeNode(this->_node->next);
 			}
 			else
 			{
-				_node = _node->prev;
+				this->_node = this->_node->prev;
 			}
-			++_node->ref_count;
+			++this->_node->ref_count;
 			return (*this);
 		}
 		safe_iterator& operator= (const base_iterator& src)
 		{
-			if( _node && 0 == --_node->ref_count && !_node->ptr )
-				FreeNode(_node);
-			_node = src._node;
-			if( _node ) _node->ref_count++;
+			if( this->_node && 0 == --this->_node->ref_count && !this->_node->ptr )
+				FreeNode(this->_node);
+			this->_node = src._node;
+			if( this->_node )
+				this->_node->ref_count++;
 			return (*this);
 		}
 	};
@@ -172,28 +172,28 @@ public:
 
 		reverse_iterator& operator++ ()  // prefix increment
 		{
-			assert(_node && _node->prev);
-			_node = _node->prev;
+			assert(this->_node && this->_node->prev);
+			this->_node = this->_node->prev;
 			return (*this);
 		}
 		reverse_iterator operator++ (int)  // postfix increment
 		{
-			assert(_node && _node->prev);
-			reverse_iterator tmp(_node);
-			_node = _node->prev;
+			assert(this->_node && this->_node->prev);
+			reverse_iterator tmp(this->_node);
+			this->_node = this->_node->prev;
 			return tmp;
 		}
 		reverse_iterator& operator-- ()  // prefix decrement
 		{
-			assert(_node && _node->next);
-			_node = _node->next;
+			assert(this->_node && this->_node->next);
+			this->_node = this->_node->next;
 			return (*this);
 		}
 		reverse_iterator operator-- (int)  // postfix decrement
 		{
-			assert(_node && _node->next);
-			reverse_iterator tmp(_node);
-			_node = _node->next;
+			assert(this->_node && this->_node->next);
+			reverse_iterator tmp(this->_node);
+			this->_node = this->_node->next;
 			return tmp;
 		}
 
@@ -257,7 +257,6 @@ public:
 		assert(0 == where._node->ref_count);  // use safe_erase to handle this
 		assert(where._node != &_begin);
 		assert(where._node != &_end);
-		T *ptr = where._node->ptr;
 		FreeNode(where._node);
 		--_size;
 	}
@@ -266,7 +265,6 @@ public:
 	{
 		assert(0 < _size);
 		assert(0 <= where._node->ref_count);
-		T *ptr = where._node->ptr;
 		if( where._node->ref_count )
 			where._node->ptr = 0;
 		else
@@ -274,8 +272,8 @@ public:
 		--_size;
 	}
 
-	__inline iterator      begin() const { return iterator(_begin.next); }
-	__inline base_iterator end()   const { return base_iterator(&_end); }
+    iterator      begin() const { return iterator(_begin.next); }
+	base_iterator end()   const { return base_iterator(&_end); }
 
 	safe_iterator safe_begin() const { return safe_iterator(_begin.next); }
 

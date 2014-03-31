@@ -22,7 +22,6 @@ public:
 	};
 
 	ButtonBase(Window *parent);
-	virtual ~ButtonBase() = 0 {}
 
 	std::function<void(void)> eventClick;
 	std::function<void(float, float)> eventMouseDown;
@@ -52,7 +51,7 @@ private:
 class Button : public ButtonBase
 {
 public:
-	static Button* Create(Window *parent, const string_t &text, float x, float y, float w=-1, float h=-1);
+	static Button* Create(Window *parent, const std::string &text, float x, float y, float w=-1, float h=-1);
 
 protected:
 	Button(Window *parent);
@@ -68,7 +67,7 @@ private:
 class TextButton : public ButtonBase
 {
 public:
-	static TextButton* Create(Window *parent, float x, float y, const string_t &text, const char *font);
+	static TextButton* Create(Window *parent, float x, float y, const std::string &text, const char *font);
 
 	void SetFont(const char *fontName);
 
@@ -106,7 +105,7 @@ protected:
 class CheckBox : public ButtonBase
 {
 public:
-	static CheckBox* Create(Window *parent, float x, float y, const string_t &text);
+	static CheckBox* Create(Window *parent, float x, float y, const std::string &text);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }

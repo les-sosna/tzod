@@ -33,20 +33,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 
 GC_2dSprite::GC_2dSprite()
   : GC_Actor()
-  , _zOrderPrefered(Z_NONE)
-  , _zOrderCurrent(Z_NONE)
   , _direction(1, 0)
   , _color(0xffffffff)
   , _texId(0)
   , _frame(0)
+  , _zOrderCurrent(Z_NONE)
+  , _zOrderPrefered(Z_NONE)
 {
 	SetFlags(GC_FLAG_2DSPRITE_VISIBLE|GC_FLAG_2DSPRITE_INGRIDSET, true);
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
   : GC_Actor(FromFile())
-  , _zOrderCurrent(Z_NONE) // for proper handling of bad save files
   , _texId(0) // for proper handling of bad save files
+  , _zOrderCurrent(Z_NONE) // for proper handling of bad save files
 {
 }
 

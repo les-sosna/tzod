@@ -74,7 +74,7 @@ GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propTexture( ObjectProperty::TYPE_MULTISTRING, "texture" )
 {
-	std::vector<string_t> names;
+	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{
@@ -220,7 +220,7 @@ GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propFrame(ObjectProperty::TYPE_INTEGER, "frame")
   , _propRotation(ObjectProperty::TYPE_FLOAT, "rotation")
 {
-	std::vector<string_t> names;
+	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, NULL, false);
 	for( size_t i = 1; i < names.size(); ++i )
 	{

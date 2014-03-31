@@ -148,8 +148,8 @@ public:
 	float _delta_angle;  // shooting accuracy control
 
 public:
-	float _time_wait;
 	float _time_wait_max;
+	float _time_wait;
 
 	float _time_wake;    // 0 - hidden
 	float _time_wake_max;

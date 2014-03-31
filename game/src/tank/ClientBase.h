@@ -21,7 +21,7 @@ struct IClientCallback
 class Subscribtion
 {
 public:
-	virtual ~Subscribtion() = 0 {}
+	virtual ~Subscribtion() {}
 };
 
 struct ILevelController;

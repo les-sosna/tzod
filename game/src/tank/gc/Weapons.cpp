@@ -70,14 +70,14 @@ void GC_Weapon::MyPropertySet::MyExchange(bool applyToObject)
 
 GC_Weapon::GC_Weapon(float x, float y)
   : GC_Pickup(x, y)
-  , _rotatorWeap(_angleReal)
-  , _advanced(false)
-  , _feTime(1.0f)
-  , _feOrient(1,0)
   , _fePos(0,0)
+  , _feOrient(1,0)
+  , _feTime(1.0f)
+  , _advanced(false)
   , _time(0)
   , _timeStay(15.0f)
   , _timeReload(0)
+  , _rotatorWeap(_angleReal)
   , _fixmeChAnimate(true)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
@@ -103,7 +103,6 @@ AIPRIORITY GC_Weapon::GetPriority(GC_Vehicle *veh)
 void GC_Weapon::Attach(GC_Actor *actor)
 {
 	assert(dynamic_cast<GC_Vehicle*>(actor));
-	GC_Vehicle *veh = static_cast<GC_Vehicle*>(actor);
 
 	GC_Pickup::Attach(actor);
 
@@ -426,7 +425,7 @@ void GC_Weap_RocketLauncher::Fire()
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_ROCKET;
 	pSettings->fAttackRadius_max  = 600.0f;
@@ -605,7 +604,7 @@ void GC_Weap_AutoCannon::Fire()
 
 void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.1f);
 	pSettings->fProjectileSpeed   = SPEED_ACBULLET;
 	pSettings->fAttackRadius_max  = 500;
@@ -713,7 +712,7 @@ void GC_Weap_Cannon::Fire()
 
 void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.1f);
 	pSettings->fProjectileSpeed   = SPEED_TANKBULLET;
 	pSettings->fAttackRadius_max  = 500;
@@ -801,7 +800,7 @@ void GC_Weap_Plazma::Fire()
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_PLAZMA;
 	pSettings->fAttackRadius_max  = 300;
@@ -869,7 +868,7 @@ void GC_Weap_Gauss::Fire()
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = FALSE;
+	pSettings->bNeedOutstrip      = false;
 	pSettings->fMaxAttackAngleCos = cos(0.01f);
 	pSettings->fProjectileSpeed   = 0;
 	pSettings->fAttackRadius_max  = 800;
@@ -926,8 +925,7 @@ void GC_Weap_Ram::Attach(GC_Actor *actor)
 	_firingCounter = 0;
 	_bReady = true;
 
-	GC_IndicatorBar *pIndicator = new GC_IndicatorBar("indicator_fuel", this,
-		(float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM);
+	new GC_IndicatorBar("indicator_fuel", this, (float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM);
 
 //return;
 //	veh->SetMaxHP(350);
@@ -999,7 +997,7 @@ void GC_Weap_Ram::Fire()
 
 void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = FALSE;
+	pSettings->bNeedOutstrip      = false;
 	pSettings->fMaxAttackAngleCos = cos(0.3f);
 	pSettings->fProjectileSpeed   = 0;
 	pSettings->fAttackRadius_max  = 100;
@@ -1068,12 +1066,8 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 			_engineSound->Pause(false);
 			_engineSound->MoveTo(GetPos());
 
-			_fuel = __max(0, _fuel - _fuel_consumption_rate * dt);
+			_fuel = std::max(.0f, _fuel - _fuel_consumption_rate * dt);
 			if( 0 == _fuel ) _bReady = false;
-
-			GC_RigidBodyDynamic *veh = static_cast<GC_RigidBodyDynamic *>(GetCarrier());
-
-			vec2d v = veh->_lv;
 
 			// the primary jet
 			{
@@ -1106,7 +1100,7 @@ void GC_Weap_Ram::TimeStepFixed(float dt)
 		else
 		{
 			_engineSound->Pause(true);
-			_fuel   = __min(_fuel_max, _fuel + _fuel_recuperation_rate * dt);
+			_fuel   = std::min(_fuel_max, _fuel + _fuel_recuperation_rate * dt);
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 
@@ -1195,7 +1189,7 @@ void GC_Weap_BFG::Fire()
 
 void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.01f);
 	pSettings->fProjectileSpeed   = SPEED_BFGCORE;
 	pSettings->fAttackRadius_max  = 600;
@@ -1293,7 +1287,7 @@ void GC_Weap_Ripper::Fire()
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.2f);
 	pSettings->fProjectileSpeed   = SPEED_DISK;
 	pSettings->fAttackRadius_max  = 700;
@@ -1426,7 +1420,7 @@ void GC_Weap_Minigun::Fire()
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.3f);
 	pSettings->fProjectileSpeed   = SPEED_BULLET;
 	pSettings->fAttackRadius_max  = 200;
@@ -1477,12 +1471,12 @@ void GC_Weap_Minigun::TimeStepFixed(float dt)
 				tmp->TimeStepFixed(_timeShot);
 			}
 
-			_timeFire = __min(_timeFire + dt * 2, WEAP_MG_TIME_RELAX);
+			_timeFire = std::min(_timeFire + dt * 2, WEAP_MG_TIME_RELAX);
 		}
 		else
 		{
 			_sound->Pause(true);
-			_timeFire = __max(_timeFire - dt, 0);
+			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 
 		vec2d delta(_timeFire * 0.1f / WEAP_MG_TIME_RELAX);
@@ -1512,8 +1506,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 
 GC_Weap_Zippo::GC_Weap_Zippo(float x, float y)
   : GC_Weapon(x, y)
-  , _bFire(false)
   , _timeBurn(0)
+  , _bFire(false)
 {
 	SetTexture("weap_zippo");
 }
@@ -1565,7 +1559,7 @@ void GC_Weap_Zippo::Fire()
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 {
-	pSettings->bNeedOutstrip      = TRUE;
+	pSettings->bNeedOutstrip      = true;
 	pSettings->fMaxAttackAngleCos = cos(0.5f);
 	pSettings->fProjectileSpeed   = SPEED_FIRE;
 	pSettings->fAttackRadius_max  = 300;
@@ -1583,7 +1577,7 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 		if( _bFire )
 		{
 			_timeShot += dt;
-			_timeFire = __min(_timeFire + dt, WEAP_ZIPPO_TIME_RELAX);
+			_timeFire = std::min(_timeFire + dt, WEAP_ZIPPO_TIME_RELAX);
 
 			_sound->MoveTo(GetPos());
 			_sound->Pause(false);
@@ -1608,7 +1602,7 @@ void GC_Weap_Zippo::TimeStepFixed(float dt)
 		else
 		{
 			_sound->Pause(true);
-			_timeFire = __max(_timeFire - dt, 0);
+			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 	}
 

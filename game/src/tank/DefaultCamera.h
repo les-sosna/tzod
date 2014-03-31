@@ -16,8 +16,8 @@ private:
 	float _zoom;
 	float _dt;
 	vec2d _pos;
-	DWORD _dwTimeX;
-	DWORD _dwTimeY;
+	unsigned int _dwTimeX;
+	unsigned int _dwTimeY;
 };
 
 // end of file

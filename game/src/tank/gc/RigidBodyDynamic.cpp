@@ -262,15 +262,15 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	vec2d dev(_lv * GetDirection(), _lv * dir_y);
 
 	if( vx > 0 )
-		vx = __max(0, vx - _Nx * dt * dev.x);
+		vx = std::max(.0f, vx - _Nx * dt * dev.x);
 	else
-		vx = __min(0, vx - _Nx * dt * dev.x);
+		vx = std::min(.0f, vx - _Nx * dt * dev.x);
 	vx *= expf(-_Mx * dt);
 
 	if( vy > 0 )
-		vy = __max(0, vy - _Ny * dt * dev.y);
+		vy = std::max(.0f, vy - _Ny * dt * dev.y);
 	else
-		vy = __min(0, vy - _Ny * dt * dev.y);
+		vy = std::min(.0f, vy - _Ny * dt * dev.y);
 	vy *= expf(-_My * dt);
 
 	_lv = GetDirection() * vx + dir_y * vy;
@@ -284,19 +284,19 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		float e = expf(-_Mw * dt);
 		float nm = _Nw / _Mw * (e - 1);
 		if( _av > 0 )
-			_av = __max(0, _av * e + nm);
+			_av = std::max(.0f, _av * e + nm);
 		else
-			_av = __min(0, _av * e - nm);
+			_av = std::min(.0f, _av * e - nm);
 	}
 	else
 	{
 		if( _av > 0 )
-			_av = __max(0, _av - _Nw * dt);
+			_av = std::max(.0f, _av - _Nw * dt);
 		else
-			_av = __min(0, _av + _Nw * dt);
+			_av = std::min(.0f, _av + _Nw * dt);
 	}
-	assert(!_isnan(_av));
-	assert(_finite(_av));
+	assert(!isnan(_av));
+	assert(isfinite(_av));
 
 	//------------------------------------
 	// collisions
@@ -430,10 +430,10 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				// phantom may not affect real objects but it may affect other phantoms
 				vec2d delta_p = it->n * (a + it->depth);
 
-				if( it->obj1_d && (!o1 && !o2 || o2) )
+				if( it->obj1_d && ((!o1 && !o2) || o2) )
 					it->obj1_d->impulse(it->o, delta_p);
 
-				if( it->obj2_s && it->obj2_d && (!o1 && !o2 || o1) ) 
+				if( it->obj2_s && it->obj2_d && ((!o1 && !o2) || o1) ) 
 					it->obj2_d->impulse(it->o, -delta_p);
 
 
@@ -452,7 +452,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				float signb = maxb > 0 ? 1.0f : -1.0f;
 				if( (maxb = fabsf(maxb)) > 0 )
 				{
-					float b = __min(maxb, a*N);
+					float b = std::min(maxb, a*N);
 					it->total_tp += b;
 					delta_p = it->t * b * signb;
 					it->obj1_d->impulse(it->o,  delta_p);
@@ -487,13 +487,13 @@ void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 {
 	_lv += impulse * _inv_m;
 	_av += ((origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x) * _inv_i;
-	assert(!_isnan(_av) && _finite(_av));
+	assert(!isnan(_av) && isfinite(_av));
 }
 
 void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
 {
 	_external_momentum += momentum;
-	assert(!_isnan(_external_momentum) && _finite(_external_momentum));
+	assert(!isnan(_external_momentum) && isfinite(_external_momentum));
 }
 
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
@@ -511,7 +511,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse, const vec2d &origin
 {
 	_external_impulse += impulse;
 	_external_torque  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
-	assert(!_isnan(_external_torque) && _finite(_external_torque));
+	assert(!isnan(_external_torque) && isfinite(_external_torque));
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
@@ -522,7 +522,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
 void GC_RigidBodyDynamic::ApplyTorque(float torque)
 {
 	_external_torque  += torque;
-	assert(!_isnan(_external_torque) && _finite(_external_torque));
+	assert(!isnan(_external_torque) && isfinite(_external_torque));
 }
 
 float GC_RigidBodyDynamic::Energy() const

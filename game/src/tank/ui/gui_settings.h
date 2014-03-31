@@ -64,7 +64,7 @@ class ControlProfileDlg : public Dialog
 	CheckBox     *_aimToMouseChkBox;
 	CheckBox     *_moveToMouseChkBox;
 	CheckBox     *_arcadeStyleChkBox;
-	string_t      _nameOrig;
+	std::string      _nameOrig;
 	ConfControllerProfile _profile;
 
 	float _time;
@@ -79,7 +79,7 @@ public:
 	~ControlProfileDlg();
 
 protected:
-	void AddAction(ConfVarString &var, const string_t &display);
+	void AddAction(ConfVarString &var, const std::string &display);
 
 	void OnOK();
 	void OnCancel();

@@ -26,7 +26,7 @@ public:
 
 	FS::Stream* GetStream() const { return _stream; }
 
-	void Serialize(string_t &str);
+	void Serialize(std::string &str);
 
 	template<class T>
 	void Serialize(T &value);
@@ -55,9 +55,10 @@ private:
 template<class T>
 void SaveFile::Serialize(T &obj)
 {
-	assert(0 != strcmp(typeid(obj).raw_name(), typeid(string_t).raw_name()));
-	assert(NULL == strstr(typeid(obj).raw_name(), "SafePtr"));
-	assert(NULL == strstr(typeid(obj).raw_name(), "ObjPtr"));
+	assert(typeid(obj) != typeid(std::string));
+	assert(typeid(obj) != typeid(std::string));
+	assert(!strstr(typeid(obj).name(), "SafePtr"));
+	assert(!strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
 		_stream->Read(&obj, sizeof(T));
 	else
@@ -67,7 +68,7 @@ void SaveFile::Serialize(T &obj)
 template<class T>
 void SaveFile::Serialize(ObjPtr<T> &ptr)
 {
-	DWORD_PTR id;
+	size_t id;
 	if( loading() )
 	{
 		Serialize(id);
@@ -93,9 +94,10 @@ void SaveFile::Serialize(ObjPtr<T> &ptr)
 template<class T>
 void SaveFile::SerializeArray(T *p, size_t count)
 {
-	assert(0 != strcmp(typeid(T).raw_name(), typeid(string_t).raw_name()));
-	assert(NULL == strstr(typeid(T).raw_name(), "SafePtr"));
-	assert(NULL == strstr(typeid(T).raw_name(), "RawPtr"));
+	assert(typeid(T) != typeid(std::string));
+	assert(typeid(T) != typeid(std::string));
+	assert(!strstr(typeid(T).name(), "SafePtr"));
+	assert(!strstr(typeid(T).name(), "RawPtr"));
 	if( loading() )
 		_stream->Read(p, sizeof(T) * count);
 	else

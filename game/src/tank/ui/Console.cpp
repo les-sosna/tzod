@@ -20,7 +20,7 @@ ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
 {
 }
 
-void ConsoleHistoryDefault::Enter(const string_t &str)
+void ConsoleHistoryDefault::Enter(const std::string &str)
 {
 	_buf.push_back(str);
 	if( _buf.size() > _maxSize )
@@ -34,7 +34,7 @@ size_t ConsoleHistoryDefault::GetItemCount() const
 	return _buf.size();
 }
 
-const string_t& ConsoleHistoryDefault::GetItem(size_t index) const
+const std::string& ConsoleHistoryDefault::GetItem(size_t index) const
 {
 	return _buf[index];
 }
@@ -52,10 +52,10 @@ Console* Console::Create(Window *parent, float x, float y, float w, float h, Con
 
 Console::Console(Window *parent)
   : Window(parent)
+  , _cmdIndex(0)
+  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
   , _buf(NULL)
   , _history(NULL)
-  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _cmdIndex(0)
   , _echo(true)
   , _autoScroll(true)
 {
@@ -104,13 +104,14 @@ bool Console::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case VK_UP:
-		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
-		{
-			_scroll->SetPos(_scroll->GetPos() - 1);
-			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
-		}
-		else if( _history )
+	case GLFW_KEY_UP:
+//		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
+//		{
+//			_scroll->SetPos(_scroll->GetPos() - 1);
+//			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
+//		}
+//		else
+        if( _history )
 		{
 			_cmdIndex = std::min(_cmdIndex, _history->GetItemCount());
 			if( _cmdIndex > 0 )
@@ -120,13 +121,14 @@ bool Console::OnRawChar(int c)
 			}
 		}
 		break;
-	case VK_DOWN:
-		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
-		{
-			_scroll->SetPos(_scroll->GetPos() + 1);
-			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
-		}
-		else if( _history )
+	case GLFW_KEY_DOWN:
+//		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
+//		{
+//			_scroll->SetPos(_scroll->GetPos() + 1);
+//			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
+//		}
+//		else
+        if( _history )
 		{
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
@@ -135,17 +137,17 @@ bool Console::OnRawChar(int c)
 			}
 			else
 			{
-				_input->SetText(string_t());
+				_input->SetText(std::string());
 				_cmdIndex = _history->GetItemCount();
 			}
 		}
 		break;
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 	{
-		const string_t &cmd = _input->GetText();
+		const std::string &cmd = _input->GetText();
 		if( cmd.empty() )
 		{
-			_buf->WriteLine(0, string_t(">"));
+			_buf->WriteLine(0, std::string(">"));
 		}
 		else
 		{
@@ -164,33 +166,33 @@ bool Console::OnRawChar(int c)
 			}
 			if( eventOnSendCommand )
 				eventOnSendCommand(cmd.c_str());
-			_input->SetText(string_t());
+			_input->SetText(std::string());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());
 		_autoScroll = true;
 		break;
 	}
-	case VK_PRIOR:
+	case GLFW_KEY_PAGE_UP:
 		_scroll->SetPos(_scroll->GetPos() - _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-	case VK_NEXT:
+	case GLFW_KEY_PAGE_DOWN:
 		_scroll->SetPos(_scroll->GetPos() + _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-//	case VK_HOME:
+//	case GLFW_KEY_HOME:
 //		break;
-//	case VK_END:
+//	case GLFW_KEY_END:
 //		break;
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		if( _input->GetText().empty() )
 			return false;
-		_input->SetText(string_t());
+		_input->SetText(std::string());
 		break;
-	case VK_TAB:
+	case GLFW_KEY_TAB:
 		if( eventOnRequestCompleteCommand )
 		{
-			string_t result;
+			std::string result;
 			int pos = _input->GetSelEnd();
 			if( eventOnRequestCompleteCommand(_input->GetText(), pos, result) )
 			{

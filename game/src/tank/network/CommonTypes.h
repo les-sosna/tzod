@@ -5,13 +5,14 @@
 #include "Variant.h"
 
 #define MAX_SRVNAME 16
+#define MAX_MAPNAME 256
 
 struct GameInfo
 {
 	char exeVer[16];
 	char mapVer[16];
 	unsigned long seed;
-	char  cMapName[MAX_PATH];
+	char  cMapName[MAX_MAPNAME];
 	char  cServerName[MAX_SRVNAME];
 	short server_fps;
 	//	short latency;
@@ -21,27 +22,7 @@ struct GameInfo
 };
 
 VARIANT_DECLARE_TYPE(GameInfo);
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct PlayerDesc
-{
-	std::string nick;
-	std::string skin;
-	std::string cls;
-	unsigned int team;
-};
-
 VARIANT_DECLARE_TYPE(PlayerDesc);
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct BotDesc
-{
-	PlayerDesc pd;
-	unsigned int level;
-};
-
 VARIANT_DECLARE_TYPE(BotDesc);
 
 ///////////////////////////////////////////////////////////////////////////////

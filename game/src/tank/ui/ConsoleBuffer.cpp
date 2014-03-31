@@ -23,64 +23,22 @@ ConsoleBuffer::StreamHelper& ConsoleBuffer::StreamHelper::operator << (char *sz)
 	return *this;
 }
 
-ConsoleBuffer::StreamHelper& ConsoleBuffer::StreamHelper::operator << (const wchar_t *sz)
-{
-#ifdef _UNICODE
-	m_buf << (sz ? sz : L"<null>");
-#else
-	if( sz )
-	{
-		char buf[4096];
-		size_t converted;
-		wcstombs_s(&converted, buf, sz, _TRUNCATE);
-		m_buf << buf;
-	}
-	else
-	{
-		m_buf << "<null>";
-	}
-#endif
-	return *this;
-}
-
-ConsoleBuffer::StreamHelper& ConsoleBuffer::StreamHelper::operator << (wchar_t *sz)
-{
-#ifdef _UNICODE
-	m_buf << (sz ? sz : L"<null>");
-#else
-	if( sz )
-	{
-		char buf[4096];
-		size_t converted;
-		wcstombs_s(&converted, buf, sz, _TRUNCATE);
-		m_buf << buf;
-	}
-	else
-	{
-		m_buf << "<null>";
-	}
-#endif
-	return *this;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
-  : _buffer(maxLines * lineLength + maxLines, 0)
-  , _times(maxLines, 0)
-  , _sev(maxLines, 0)
+  : _log(NULL)
+  , _buffer(maxLines * lineLength + maxLines, 0)
+  , _times(maxLines)
+  , _sev(maxLines)
   , _currentPos(0)
   , _currentLine(0)
   , _currentCount(1)
-  , _lineLength(lineLength)
-  , _lineCount(maxLines)
 #ifdef _DEBUG
   ,_locked(0)
 #endif
-  , _log(NULL)
+    , _lineLength(lineLength)
+    , _lineCount(maxLines)
 {
-	InitializeCriticalSection(&_cs);
 }
 
 ConsoleBuffer::~ConsoleBuffer()
@@ -90,7 +48,6 @@ ConsoleBuffer::~ConsoleBuffer()
 	{
 		_log->Release();
 	}
-	DeleteCriticalSection(&_cs);
 }
 
 void ConsoleBuffer::SetLog(IConsoleLog *pLog)
@@ -110,20 +67,20 @@ size_t ConsoleBuffer::GetLineCount() const
 	return result;
 }
 
-const TCHAR* ConsoleBuffer::GetLine(size_t index) const
+const char* ConsoleBuffer::GetLine(size_t index) const
 {
 	Lock();
 	assert(index < _currentCount);
-	const TCHAR *result = GET_LINE((_lineCount + index + _currentLine - _currentCount) % _lineCount);
+	const char *result = GET_LINE((_lineCount + index + _currentLine - _currentCount) % _lineCount);
 	Unlock();
 	return result;
 }
 
-DWORD ConsoleBuffer::GetTimeStamp(size_t index) const
+ConsoleBuffer::ClockType::time_point ConsoleBuffer::GetTimeStamp(size_t index) const
 {
 	Lock();
 	assert(index < _currentCount);
-	DWORD result = _times[(_lineCount + index + _currentLine - _currentCount) % _lineCount];
+	ClockType::time_point result = _times[(_lineCount + index + _currentLine - _currentCount) % _lineCount];
 	Unlock();
 	return result;
 }
@@ -137,19 +94,19 @@ unsigned int ConsoleBuffer::GetSeverity(size_t index) const
 	return result;
 }
 
-void ConsoleBuffer::WriteLine(int severity, const string_t &s)
+void ConsoleBuffer::WriteLine(int severity, const std::string &s)
 {
 	Lock();
 
-	const TCHAR *src = s.c_str();
-	DWORD time = GetTickCount();
+	const char *src = s.c_str();
+	ClockType::time_point time = ClockType::now();
 
 	if( _log )
 	{
 		_log->WriteLine(severity, s);
 	}
 
-	TCHAR *dst = GET_LINE(_currentLine);
+	char *dst = GET_LINE(_currentLine);
 
 	while( *src )
 	{
@@ -197,10 +154,9 @@ void ConsoleBuffer::Printf(int severity, const char *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	int size = _vscprintf(fmt, args) + 1; // check how much space is needed
 
-	std::vector<char> buf(size);
-	vsprintf(&buf[0], fmt, args);
+	char buf[4096];
+	vsnprintf(&buf[0], 4096, fmt, args);
 	va_end(args);
 
 	WriteLine(severity, &buf[0]);
@@ -208,19 +164,19 @@ void ConsoleBuffer::Printf(int severity, const char *fmt, ...)
 
 void ConsoleBuffer::Lock() const
 {
-	EnterCriticalSection(&_cs);
-#ifdef _DEBUG
+    _cs.lock();
+#ifndef NDEBUG
 	++_locked;
 #endif
 }
 
 void ConsoleBuffer::Unlock() const
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	assert(_locked);
 	--_locked;
 #endif
-	LeaveCriticalSection(&_cs);
+	_cs.unlock();
 }
 
 

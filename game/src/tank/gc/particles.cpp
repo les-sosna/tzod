@@ -16,10 +16,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0)
   : GC_2dSprite()
-  , _velocity(v0)
   , _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
+  , _velocity(v0)
 {
 	static TextureCache tex("particle_brick");
 
@@ -70,11 +70,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : GC_2dSprite()
-  , _rotationSpeed(0)
   , _time(0)
   , _timeLife(lifeTime)
-  , _velocity(v)
+  , _rotationSpeed(0)
   , _rotationPhase(0)
+  , _velocity(v)
 {
 	assert(_timeLife > 0);
 

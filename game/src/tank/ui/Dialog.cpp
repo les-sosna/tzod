@@ -14,9 +14,9 @@ namespace UI
 
 Dialog::Dialog(Window *parent, float width, float height, bool modal)
   : Window(/*modal ? new Substrate(parent) :*/ parent)
-  , _easyMove(false)
   , _mouseX(0)
   , _mouseY(0)
+  , _easyMove(false)
 {
 	SetTexture("ui/window", false);
 	Resize(width, height);
@@ -85,7 +85,7 @@ bool Dialog::OnRawChar(int c)
 {
 	switch( c )
 	{
-	case VK_UP:
+	case GLFW_KEY_UP:
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to previous siblings
@@ -96,7 +96,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case VK_DOWN:
+	case GLFW_KEY_DOWN:
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to next siblings
@@ -107,7 +107,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case VK_TAB:
+	case GLFW_KEY_TAB:
 		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
 		{
 			// try to pass focus to next siblings ...
@@ -126,7 +126,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case VK_ESCAPE:
+	case GLFW_KEY_ESCAPE:
 		Close(_resultCancel);
 		break;
 	default:

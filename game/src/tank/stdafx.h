@@ -39,6 +39,27 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
+
+#include "core/types.h"
+#include "core/MyMath.h"
+#include "core/MemoryManager.h"
+#include "core/singleton.h"
+#include "core/PtrList.h"
+#include "core/SafePtr.h"
+#include "core/Grid.h"
+#include "core/Delegate.h"
+
+#include "constants.h"
+#include "globals.h"
+
+#include "md5.h"
+
+#include <GLFW/glfw3.h>
+
 #ifdef _WIN32
 // direct x
 # define DIRECTINPUT_VERSION 0x0800
@@ -72,11 +93,17 @@
 #include <sstream>
 #include <algorithm>
 #include <limits>
+#include <cfloat>
 #include <ios>
+#include <chrono>
+#include <memory>
+#include <thread>
 
 // ogg/vorbis
+#ifndef NOSOUND
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
+#endif
 
 // lua
 extern "C"
@@ -89,24 +116,6 @@ extern "C"
 // zlib
 #include <zlib.h>
 
-
-#include "ui/ConsoleBuffer.h"
-UI::ConsoleBuffer& GetConsole();
-
-
-#include "core/types.h"
-#include "core/MyMath.h"
-#include "core/MemoryManager.h"
-#include "core/singleton.h"
-#include "core/PtrList.h"
-#include "core/SafePtr.h"
-#include "core/Grid.h"
-#include "core/Delegate.h"
-
-#include "constants.h"
-#include "globals.h"
-
-#include "md5.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////

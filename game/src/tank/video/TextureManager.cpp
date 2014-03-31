@@ -60,7 +60,7 @@ void TextureManager::UnloadAllTextures()
 	_logicalTextures.clear();
 }
 
-void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName)
+void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName)
 {
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
@@ -75,7 +75,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const string_t &fil
 		TexDesc td;
 		if( !g_render->TexCreate(td.id, image) )
 		{
-			throw std::exception("error in render device");
+			throw std::runtime_error("error in render device");
 		}
 
 		td.width     = image->GetWidth();
@@ -187,7 +187,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const string_t &packageName, const SafePtr<FS::MemMap> &file)
+int TextureManager::LoadPackage(const std::string &packageName, const SafePtr<FS::MemMap> &file)
 {
 	TRACE("Loading texture package '%s'", packageName.c_str());
 
@@ -303,7 +303,7 @@ int TextureManager::LoadPackage(const string_t &packageName, const SafePtr<FS::M
 						{
 							td->refCount++;
 							//---------------------------------------------
-							std::map<string_t, size_t>::iterator it =
+							std::map<std::string, size_t>::iterator it =
 								_mapName_to_Index.find(texname);
 
 							if( _mapName_to_Index.end() != it )
@@ -354,19 +354,19 @@ int TextureManager::LoadPackage(const string_t &packageName, const SafePtr<FS::M
 	return _logicalTextures.size();
 }
 
-int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPrefix)
+int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix)
 {
 	int count = 0;
 
 	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
 
-	std::set<string_t> files;
-	dir->EnumAllFiles(files, TEXT("*.tga"));
+	std::set<std::string> files;
+	dir->EnumAllFiles(files, "*.tga");
 
-	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
 		TexDescIterator td;
-		string_t f = dirName + TEXT("/") + *it;
+		std::string f = dirName + '/' + *it;
 		try
 		{
 			LoadTexture(td, f);
@@ -377,7 +377,7 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 			continue;
 		}
 
-		string_t texName = texPrefix + *it;
+		std::string texName = texPrefix + *it;
 		texName.erase(texName.length() - 4); // cut out the file extension
 
 		LogicalTexture tex;
@@ -407,9 +407,9 @@ int TextureManager::LoadDirectory(const string_t &dirName, const string_t &texPr
 	return count;
 }
 
-size_t TextureManager::FindSprite(const string_t &name) const
+size_t TextureManager::FindSprite(const std::string &name) const
 {
-	std::map<string_t, size_t>::const_iterator it = _mapName_to_Index.find(name);
+	std::map<std::string, size_t>::const_iterator it = _mapName_to_Index.find(name);
 	if( _mapName_to_Index.end() != it )
 		return it->second;
 
@@ -424,13 +424,13 @@ bool TextureManager::IsValidTexture(size_t index) const
 	return index < _logicalTextures.size();
 }
 
-void TextureManager::GetTextureNames(std::vector<string_t> &names,
+void TextureManager::GetTextureNames(std::vector<std::string> &names,
                                      const char *prefix, bool noPrefixReturn) const
 {
 	size_t trimLength = (prefix && noPrefixReturn) ? strlen(prefix) : 0;
 
 	names.clear();
-	std::map<string_t, size_t>::const_iterator it = _mapName_to_Index.begin();
+	std::map<std::string, size_t>::const_iterator it = _mapName_to_Index.begin();
 	for(; it != _mapName_to_Index.end(); ++it )
 	{
 		if( prefix && 0 != it->first.find(prefix) )
@@ -644,7 +644,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 }
 
-void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const string_t &str, enumAlignText align) const
+void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align) const
 {
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
@@ -655,7 +655,7 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	if( align )
 	{
 		size_t count = 0;
-		for( const string_t::value_type *tmp = str.c_str(); *tmp; )
+		for( const std::string::value_type *tmp = str.c_str(); *tmp; )
 		{
 			++count;
 			++tmp;
@@ -678,7 +678,7 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	float x0 = sx - floorf(dx[align] * (lt.pxFrameWidth - 1) * (float) maxline / 2);
 	float y0 = sy - floorf(dy[align] * lt.pxFrameHeight * (float) lines.size() / 2);
 
-	for( const string_t::value_type *tmp = str.c_str(); *tmp; ++tmp )
+	for( const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
 	{
 		if( '\n' == *tmp )
 		{
@@ -876,7 +876,7 @@ void TextureManager::SetCanvasSize(unsigned int width, unsigned int height)
 	_viewport.bottom = height;
 }
 
-void TextureManager::PushClippingRect(const RECT &rect) const
+void TextureManager::PushClippingRect(const Rect &rect) const
 {
 	if( _clipStack.empty() )
 	{
@@ -885,7 +885,7 @@ void TextureManager::PushClippingRect(const RECT &rect) const
 	}
 	else
 	{
-		RECT tmp = _clipStack.top();
+		Rect tmp = _clipStack.top();
 		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
 		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
 		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
@@ -915,9 +915,9 @@ void TextureManager::PopClippingRect() const
 ThemeManager::ThemeManager()
 {
 	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);
-	std::set<string_t> files;
-	dir->EnumAllFiles(files, TEXT("*.lua"));
-	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+	std::set<std::string> files;
+	dir->EnumAllFiles(files, "*.lua");
+	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
 		ThemeDesc td;
 		td.fileName = *it;
@@ -935,7 +935,7 @@ size_t ThemeManager::GetThemeCount()
 	return _themes.size() + 1;
 }
 
-size_t ThemeManager::FindTheme(const string_t &name)
+size_t ThemeManager::FindTheme(const std::string &name)
 {
 	for( size_t i = 0; i < _themes.size(); i++ )
 	{
@@ -947,7 +947,7 @@ size_t ThemeManager::FindTheme(const string_t &name)
 	return 0;
 }
 
-string_t ThemeManager::GetThemeName(size_t index)
+std::string ThemeManager::GetThemeName(size_t index)
 {
 	if( 0 == index )
 		return "<standard>";

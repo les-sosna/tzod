@@ -11,7 +11,7 @@ namespace UI
 class Text : public Window
 {
 public:
-	static Text* Create(Window *parent, float x, float y, const string_t &text, enumAlignText align);
+	static Text* Create(Window *parent, float x, float y, const std::string &text, enumAlignText align);
 
 	void SetDrawShadow(bool drawShadow);
 	bool GetDrawShadow() const;

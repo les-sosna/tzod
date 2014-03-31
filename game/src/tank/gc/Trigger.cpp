@@ -21,9 +21,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 
 GC_Trigger::GC_Trigger(float x, float y)
   : GC_2dSprite()
-  , _team(0)
   , _radius(1)
   , _radiusDelta(0)
+  , _team(0)
 {
 	SetTexture("editor_trigger");
 	MoveTo(vec2d(x, y));
@@ -114,8 +114,8 @@ void GC_Trigger::TimeStepFixed(float dt)
 		FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
 			if( !veh->GetOwner() 
-				|| CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
-					&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner()) )
+				|| (CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
+					&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner())) )
 			{
 				continue;
 			}
@@ -174,7 +174,7 @@ void GC_Trigger::Draw() const
 {
 	if( g_level->GetEditorMode() )
 	{
-		__super::Draw();
+		GC_2dSprite::Draw();
 	}
 }
 
@@ -191,8 +191,8 @@ GC_Trigger::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propTeam(ObjectProperty::TYPE_INTEGER, "team")
   , _propRadius(ObjectProperty::TYPE_FLOAT, "radius")
   , _propRadiusDelta(ObjectProperty::TYPE_FLOAT, "radius_delta")
-  , _propOnlyHuman(ObjectProperty::TYPE_INTEGER, "only_human")
   , _propOnlyVisible(ObjectProperty::TYPE_INTEGER, "only_visible")
+  , _propOnlyHuman(ObjectProperty::TYPE_INTEGER, "only_human")
   , _propOnEnter(ObjectProperty::TYPE_STRING, "on_enter")
   , _propOnLeave(ObjectProperty::TYPE_STRING, "on_leave")
 {

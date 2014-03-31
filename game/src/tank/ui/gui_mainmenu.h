@@ -64,7 +64,7 @@ class MainMenuDlg : public Dialog
 
 	GetFileNameDlg *_fileDlg;
 
-	std::list<DelegateAdapter1<string_t> >  _campaigns;
+	std::list<DelegateAdapter1<std::string> >  _campaigns;
 
 public:
 	MainMenuDlg(Window *parent);

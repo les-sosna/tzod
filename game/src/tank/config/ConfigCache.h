@@ -98,7 +98,7 @@ namespace config_detail
  #define VAR_REFLECTION( var, type )             type var;
 
 #define REFLECTION_END()  };
-#endif CONFIG_CACHE_PASS_ONE_INCLUDED
+#endif //CONFIG_CACHE_PASS_ONE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////
 #elif CONFIG_CACHE_PASS == 2

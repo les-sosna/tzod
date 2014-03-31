@@ -16,7 +16,7 @@
 #include "Combo.h"
 #include "DataSourceAdapters.h"
 
-#include "Interface.h"
+//#include "Interface.h"
 #include "functions.h"
 #include "Level.h"
 #include "Macros.h"
@@ -27,9 +27,9 @@
 
 #include "core/debug.h"
 
-#include "network/TankServer.h"
-#include "network/TankClient.h"
-#include "network/LobbyClient.h"
+//#include "network/TankServer.h"
+//#include "network/TankClient.h"
+//#include "network/LobbyClient.h"
 
 #include "gc/Player.h"
 #include "gc/ai.h"
@@ -115,7 +115,7 @@ CreateServerDlg::CreateServerDlg(Window *parent)
 		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 		for( size_t i = 0; i < g_conf.lobby_servers.GetSize(); ++i )
 		{
-			const string_t &lobbyAddr = g_conf.lobby_servers.GetStr(i, "")->Get();
+			const std::string &lobbyAddr = g_conf.lobby_servers.GetStr(i, "")->Get();
 			_lobbyList->GetData()->AddItem(lobbyAddr);
 			if( !i || g_conf.sv_lobby.Get() == lobbyAddr )
 			{
@@ -141,7 +141,7 @@ CreateServerDlg::~CreateServerDlg()
 
 void CreateServerDlg::OnOK()
 {
-	string_t fn;
+	std::string fn;
 	int index = _maps->GetCurSel();
 	if( -1 != index )
 	{
@@ -152,7 +152,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-	SafePtr<LobbyClient> announcer;
+//	SafePtr<LobbyClient> announcer;
 	g_conf.sv_use_lobby.Set(_lobbyEnable->GetCheck());
 	if( _lobbyEnable->GetCheck() )
 	{
@@ -161,27 +161,27 @@ void CreateServerDlg::OnOK()
 			return;
 		}
 		g_conf.sv_lobby.Set(_lobbyList->GetData()->GetItemText(_lobbyList->GetCurSel(), 0));
-		announcer = new LobbyClient();
-		announcer->SetLobbyUrl(g_conf.sv_lobby.Get());
+//		announcer = new LobbyClient();
+//		announcer->SetLobbyUrl(g_conf.sv_lobby.Get());
 	}
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 
-	string_t path = DIR_MAPS;
-	path += "\\";
+	std::string path = DIR_MAPS;
+	path += "/";
 	path += fn + ".map";
 
-	GameInfo gi = {0};
-	memcpy(gi.exeVer, g_md5.bytes, 16);
-	gi.seed       = rand();
-	gi.fraglimit  = __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
-	gi.timelimit  = __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt()));
-	gi.server_fps = __max(MIN_NETWORKSPEED, __min(MAX_NETWORKSPEED, _svFps->GetInt()));
-	gi.nightmode  = _nightMode->GetCheck();
-
-	strcpy(gi.cMapName, fn.c_str());
-	strcpy(gi.cServerName, "ZOD Server");
+//	GameInfo gi;
+//    memset(&gi, 0, sizeof(gi));
+//	memcpy(gi.exeVer, g_md5.bytes, 16);
+//	gi.seed       = rand();
+//	gi.fraglimit  = std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
+//	gi.timelimit  = std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetInt()));
+//	gi.server_fps = std::max(MIN_NETWORKSPEED, std::min(MAX_NETWORKSPEED, _svFps->GetInt()));
+//	gi.nightmode  = _nightMode->GetCheck();
+//	strcpy(gi.cMapName, fn.c_str());
+//	strcpy(gi.cServerName, "ZOD Server");
 
 	try
 	{
@@ -190,7 +190,7 @@ void CreateServerDlg::OnOK()
 		MD5Init(&md5);
 		MD5Update(&md5, m->GetData(), m->GetSize());
 		MD5Final(&md5);
-		memcpy(gi.mapVer, md5.digest, 16);
+//		memcpy(gi.mapVer, md5.digest, 16);
 
 		assert(false);
 	//	g_server = new TankServer(gi, announcer); // integrate into client instead
@@ -198,7 +198,7 @@ void CreateServerDlg::OnOK()
 	catch( const std::exception &e )
 	{
 		TRACE("%s", e.what());
-		MessageBox(g_env.hMainWnd, g_lang.net_server_error.Get().c_str(), TXT_VERSION, MB_OK|MB_ICONERROR);
+//		MessageBox(g_env.hMainWnd, g_lang.net_server_error.Get().c_str(), TXT_VERSION, MB_OK|MB_ICONERROR);
 		return;
 	}
 
@@ -210,12 +210,12 @@ void CreateServerDlg::OnOK()
 //	PauseGame(true);
 
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	assert(g_level->IsEmpty());
-	new TankClient(g_level.get());
+//	new TankClient(g_level.get());
 
-	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, _1);
+	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1);
 
 	SetVisible(false);
 }
@@ -246,7 +246,7 @@ void CreateServerDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConnectDlg::ConnectDlg(Window *parent, const string_t &defaultName)
+ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName)
   : Dialog(parent, 512, 384)
 {
 	PauseGame(true);
@@ -285,12 +285,12 @@ void ConnectDlg::OnOK()
 	_btnOK->SetEnabled(false);
 	_name->SetEnabled(false);
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	assert(g_level->IsEmpty());
-	TankClient *cl = new TankClient(g_level.get());
-	_clientSubscribtion = cl->AddListener(this);
-	cl->Connect(_name->GetText());
+//	TankClient *cl = new TankClient(g_level.get());
+//	_clientSubscribtion = cl->AddListener(this);
+//	cl->Connect(_name->GetText());
 }
 
 void ConnectDlg::OnCancel()
@@ -308,7 +308,7 @@ void ConnectDlg::OnConnected()
 void ConnectDlg::OnErrorMessage(const std::string &msg)
 {
 	_status->GetData()->AddItem(msg);
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 	_btnOK->SetEnabled(true);
 	_name->SetEnabled(true);
 }
@@ -327,10 +327,10 @@ void ConnectDlg::OnClientDestroy()
 
 InternetDlg::InternetDlg(Window *parent)
   : Dialog(parent, 450, 384)
-  , _client(new LobbyClient())
+//  , _client(new LobbyClient())
 {
-	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
-	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
+//	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
+//	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
 
 	PauseGame(true);
 
@@ -379,8 +379,8 @@ void InternetDlg::OnRefresh()
 	_btnRefresh->SetEnabled(false);
 	_name->SetEnabled(false);
 
-	_client->SetLobbyUrl(_name->GetText());
-	_client->RequestServerList();
+//	_client->SetLobbyUrl(_name->GetText());
+//	_client->RequestServerList();
 }
 
 void InternetDlg::OnConnect()
@@ -389,7 +389,7 @@ void InternetDlg::OnConnect()
 	{
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
 		ConnectDlg *dlg = new ConnectDlg(GetParent(), addr);
-		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, _1);
+		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, std::placeholders::_1);
 		SetVisible(false);
 	}
 }
@@ -455,13 +455,13 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   : Dialog(parent, 680, 512)
-  , _buf(new UI::ConsoleBuffer(80, 500))
   , _players(NULL)
   , _bots(NULL)
   , _chat(NULL)
   , _btnOK(NULL)
   , _btnProfile(NULL)
-  , _clientSubscribtion(g_client->AddListener(this))
+  , _buf(new UI::ConsoleBuffer(80, 500))
+//  , _clientSubscribtion(g_client->AddListener(this))
 {
 	//
 	// create controls
@@ -497,7 +497,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	_chat = Console::Create(this, 20, 300, 512, 200, _buf.get());
 	_chat->SetTexture("ui/list", false);
 	_chat->SetEcho(false);
-	_chat->eventOnSendCommand = std::bind(&WaitingForPlayersDlg::OnSendMessage, this, _1);
+	_chat->eventOnSendCommand = std::bind(&WaitingForPlayersDlg::OnSendMessage, this, std::placeholders::_1);
 
 
 	_btnOK = Button::Create(this, g_lang.net_chatroom_ready_button.Get(), 560, 450);
@@ -511,7 +511,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
 	// send player info
 	//
 
-	dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
+//	dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 
 	// send ping request
 //	DWORD t = timeGetTime();
@@ -529,7 +529,7 @@ void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
 
 	if( _resultOK == result )
 	{
-		dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
+//		dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(g_conf.cl_playerinfo));
 	}
 }
 
@@ -538,12 +538,12 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 	_btnProfile->SetEnabled(false);
 	_btnOK->SetEnabled(false);
 	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo->GetRoot());
-	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, _1);
+	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, std::placeholders::_1);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()
 {
-	(new EditBotDlg(this, g_conf.ui_netbotinfo->GetRoot()))->eventClose = bind(&WaitingForPlayersDlg::OnAddBotClose, this, _1);
+	(new EditBotDlg(this, g_conf.ui_netbotinfo->GetRoot()))->eventClose = std::bind(&WaitingForPlayersDlg::OnAddBotClose, this, std::placeholders::_1);
 }
 
 void WaitingForPlayersDlg::OnAddBotClose(int result)
@@ -553,23 +553,23 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 		BotDesc bd;
 		bd.pd = GetPlayerDescFromConf(g_conf.ui_netbotinfo);
 		bd.level = g_conf.ui_netbotinfo.level.GetInt();
-		dynamic_cast<TankClient*>(g_client)->SendAddBot(bd);
+//		dynamic_cast<TankClient*>(g_client)->SendAddBot(bd);
 	}
 }
 
 void WaitingForPlayersDlg::OnOK()
 {
-	dynamic_cast<TankClient*>(g_client)->SendPlayerReady(true);
+//	dynamic_cast<TankClient*>(g_client)->SendPlayerReady(true);
 }
 
 void WaitingForPlayersDlg::OnCancel()
 {
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	Close(_resultCancel);
 }
 
-void WaitingForPlayersDlg::OnSendMessage(const string_t &msg)
+void WaitingForPlayersDlg::OnSendMessage(const std::string &msg)
 {
 	if( !msg.empty() )
 	{
@@ -580,7 +580,7 @@ void WaitingForPlayersDlg::OnSendMessage(const string_t &msg)
 //		}
 //		else
 		{
-			dynamic_cast<TankClient*>(g_client)->SendTextMessage(msg);
+//			dynamic_cast<TankClient*>(g_client)->SendTextMessage(msg);
 		}
 	}
 }
@@ -619,8 +619,6 @@ void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 
 void WaitingForPlayersDlg::OnPlayersUpdate()
 {
-	size_t count = g_level->GetList(LIST_players).size();
-
 	// TODO: implement via the ListDataSource interface
 	_players->GetData()->DeleteAllItems();
 	_bots->GetData()->DeleteAllItems();
@@ -643,7 +641,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 		}
 		else
 		{
-			int index = _players->GetData()->AddItem(player->GetNick(), (UINT_PTR) player);
+			int index = _players->GetData()->AddItem(player->GetNick(), (size_t) player);
 			_players->GetData()->SetItemText(index, 1, player->GetSkin());
 
 			std::ostringstream tmp;

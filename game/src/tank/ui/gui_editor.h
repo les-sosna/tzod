@@ -69,9 +69,9 @@ public:
 	virtual void RemoveListener(ListDataSourceListener *listener);
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
-	virtual ULONG_PTR GetItemData(int index) const;
-	virtual const string_t& GetItemText(int index, int sub) const;
-	virtual int FindItem(const string_t &text) const;
+	virtual size_t GetItemData(int index) const;
+	virtual const std::string& GetItemText(int index, int sub) const;
+	virtual int FindItem(const std::string &text) const;
 
 	// ObjectListener implementation
 	virtual void OnCreate(GC_Object *obj);
@@ -82,7 +82,7 @@ public:
 	~ServiceListDataSource();
 
 private:
-	mutable string_t _nameCache;
+	mutable std::string _nameCache;
 	ListDataSourceListener *_listener;
 };
 

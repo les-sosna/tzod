@@ -43,10 +43,10 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
-	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
-	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
-	assert(!_isnan(lineDirection.x) && _finite(lineDirection.x));
-	assert(!_isnan(lineDirection.y) && _finite(lineDirection.y));
+	assert(!isnan(lineCenter.x) && isfinite(lineCenter.x));
+	assert(!isnan(lineCenter.y) && isfinite(lineCenter.y));
+	assert(!isnan(lineDirection.x) && isfinite(lineDirection.x));
+	assert(!isnan(lineDirection.y) && isfinite(lineDirection.y));
 
 	float lineProjL = Vec2dDot(lineDirection, GetDirection());
 	float lineProjW = Vec2dCross(lineDirection, GetDirection());
@@ -112,12 +112,12 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
                                          vec2d &outWhere, vec2d &outNormal, float &outDepth)
 {
-	assert(!_isnan(rectHalfSize.x) && _finite(rectHalfSize.x));
-	assert(!_isnan(rectHalfSize.y) && _finite(rectHalfSize.y));
-	assert(!_isnan(rectCenter.x) && _finite(rectCenter.x));
-	assert(!_isnan(rectCenter.y) && _finite(rectCenter.y));
-	assert(!_isnan(rectDirection.x) && _finite(rectDirection.x));
-	assert(!_isnan(rectDirection.y) && _finite(rectDirection.y));
+	assert(!isnan(rectHalfSize.x) && isfinite(rectHalfSize.x));
+	assert(!isnan(rectHalfSize.y) && isfinite(rectHalfSize.y));
+	assert(!isnan(rectCenter.x) && isfinite(rectCenter.x));
+	assert(!isnan(rectCenter.y) && isfinite(rectCenter.y));
+	assert(!isnan(rectDirection.x) && isfinite(rectDirection.x));
+	assert(!isnan(rectDirection.y) && isfinite(rectDirection.y));
 
 	vec2d delta = GetPos() - rectCenter;
 	float depth[4];
@@ -391,7 +391,7 @@ void GC_RigidBodyStatic::MapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
-		_health = __min(_health, _health_max);
+		_health = std::min(_health, _health_max);
 	}
 }
 
@@ -463,8 +463,8 @@ void GC_RigidBodyStatic::MyPropertySet::MyExchange(bool applyToObject)
 	{
 		tmp->_scriptOnDestroy = _propOnDestroy.GetStringValue();
 		tmp->_scriptOnDamage  = _propOnDamage.GetStringValue();
-		tmp->SetHealth( __min(_propMaxHealth.GetFloatValue(), _propHealth.GetFloatValue()),
-		                _propMaxHealth.GetFloatValue() );
+		tmp->SetHealth(std::min(_propMaxHealth.GetFloatValue(), _propHealth.GetFloatValue()),
+                       _propMaxHealth.GetFloatValue());
 	}
 	else
 	{
@@ -513,10 +513,10 @@ static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*
 
 bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
-	assert(!_isnan(lineCenter.x) && _finite(lineCenter.x));
-	assert(!_isnan(lineCenter.y) && _finite(lineCenter.y));
-	assert(!_isnan(lineDirection.x) && _finite(lineDirection.x));
-	assert(!_isnan(lineDirection.y) && _finite(lineDirection.y));
+	assert(!isnan(lineCenter.x) && isfinite(lineCenter.x));
+	assert(!isnan(lineCenter.y) && isfinite(lineCenter.y));
+	assert(!isnan(lineDirection.x) && isfinite(lineDirection.x));
+	assert(!isnan(lineDirection.y) && isfinite(lineDirection.y));
 
 	unsigned int corner = GetCorner();
 	if( corner )
@@ -609,18 +609,18 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 	}
 	else
 	{
-		return __super::CollideWithLine(lineCenter, lineDirection, outEnterNormal, outEnter, outExit);
+		return GC_RigidBodyStatic::CollideWithLine(lineCenter, lineDirection, outEnterNormal, outEnter, outExit);
 	}
 }
 
 bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth)
 {
-	assert(!_isnan(rectHalfSize.x) && _finite(rectHalfSize.x));
-	assert(!_isnan(rectHalfSize.y) && _finite(rectHalfSize.y));
-	assert(!_isnan(rectCenter.x) && _finite(rectCenter.x));
-	assert(!_isnan(rectCenter.y) && _finite(rectCenter.y));
-	assert(!_isnan(rectDirection.x) && _finite(rectDirection.x));
-	assert(!_isnan(rectDirection.y) && _finite(rectDirection.y));
+	assert(!isnan(rectHalfSize.x) && isfinite(rectHalfSize.x));
+	assert(!isnan(rectHalfSize.y) && isfinite(rectHalfSize.y));
+	assert(!isnan(rectCenter.x) && isfinite(rectCenter.x));
+	assert(!isnan(rectCenter.y) && isfinite(rectCenter.y));
+	assert(!isnan(rectDirection.x) && isfinite(rectDirection.x));
+	assert(!isnan(rectDirection.y) && isfinite(rectDirection.y));
 
 	unsigned int corner = GetCorner();
 	if( corner )
@@ -802,7 +802,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 	else
 	{
-		return __super::CollideWithRect(rectHalfSize, rectCenter, rectDirection, outWhere, outNormal, outDepth);
+		return GC_RigidBodyStatic::CollideWithRect(rectHalfSize, rectCenter, rectDirection, outWhere, outNormal, outDepth);
 	}
 }
 
@@ -831,8 +831,8 @@ void GC_Wall::Serialize(SaveFile &f)
 		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 		{
 			vec2d p = GetPos() / CELL_SIZE;
-			int x;
-			int y;
+			int x = 0;
+			int y = 0;
 			switch( GetCorner() )
 			{
 			case 0:
@@ -910,7 +910,7 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 {
 	assert(index < 5);
-	static const DWORD flags[] = {
+	static const unsigned int flags[] = {
 		0,
 		GC_FLAG_WALL_CORNER_1,
 		GC_FLAG_WALL_CORNER_2,
@@ -921,8 +921,8 @@ void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 	vec2d p = GetPos() / CELL_SIZE;
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
-		int x;
-		int y;
+		int x = 0;
+		int y = 0;
 		switch( GetCorner() )
 		{
 		case 0:
@@ -955,8 +955,8 @@ void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
-		int x;
-		int y;
+		int x = 0;
+		int y = 0;
 		switch( GetCorner() )
 		{
 		case 0:

@@ -3,8 +3,8 @@
 #include "stdafx.h"
 #include "Turrets.h"
 
-#include "macros.h"
-#include "level.h"
+#include "Macros.h"
+#include "Level.h"
 #include "functions.h"
 
 #include "core/JobManager.h"
@@ -27,10 +27,10 @@ JobManager<GC_Turret> GC_Turret::_jobManager;
 
 GC_Turret::GC_Turret(float x, float y, const char *tex)
   : GC_RigidBodyStatic()
-  , _rotator(_dir)
   , _team(0)
-  , _sight(TURET_SIGHT_RADIUS)
   , _initialDir(0)
+  , _sight(TURET_SIGHT_RADIUS)
+  , _rotator(_dir)
 {
 	SetZ(Z_WALLS);
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
@@ -100,7 +100,7 @@ GC_Vehicle* GC_Turret::EnumTargets()
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
 		if( !pDamObj->GetOwner() ||
-			pDamObj->GetOwner()->GetTeam() && pDamObj->GetOwner()->GetTeam() == _team )
+			(pDamObj->GetOwner()->GetTeam() && pDamObj->GetOwner()->GetTeam() == _team) )
 		{
 			continue;
 		}
@@ -182,8 +182,6 @@ void GC_Turret::TimeStepFixed(float dt)
 		{
 			if( IsTargetVisible(_target, &pObstacle) )
 			{
-				float RotSpeed = 0;
-
 				vec2d fake;
 				CalcOutstrip(_target, fake);
 
@@ -194,7 +192,7 @@ void GC_Turret::TimeStepFixed(float dt)
 				float d1 = fabsf(ang2-_dir);
 				float d2 = _dir < ang2 ? _dir-ang2+PI2 : ang2-_dir+PI2;
 
-				if( __min(d1, d2) < (PI / 36.0) )
+				if( std::min(d1, d2) < (PI / 36.0) )
 				{
 					Fire();
 				}
@@ -240,7 +238,7 @@ void GC_Turret::MapExchange(MapFile &f)
 
 void GC_Turret::Draw() const
 {
-	__super::Draw();
+	GC_RigidBodyStatic::Draw();
 	if( g_level->GetEditorMode() )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
@@ -443,8 +441,8 @@ GC_TurretBunker::GC_TurretBunker(float x, float y, const char *tex)
   , _time(0)
   , _time_wait_max(1.0f)
   , _time_wait(_time_wait_max)
-  , _time_wake_max(0.5f)
   , _time_wake(0)  // hidden
+  , _time_wake_max(0.5f)
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
 	_weaponSprite->SetVisible(false);
@@ -536,7 +534,7 @@ void GC_TurretBunker::TimeStepFixed(float dt)
 				float d1 = fabsf(ang2-_dir);
 				float d2 = _dir < ang2 ? _dir-ang2+PI2 : ang2-_dir+PI2;
 
-				if( __min(d1, d2) <= _delta_angle ) Fire();
+				if( std::min(d1, d2) <= _delta_angle ) Fire();
 			}
 			else
 			{

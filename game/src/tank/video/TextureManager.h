@@ -35,11 +35,11 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	int LoadPackage(const string_t &packageName, const SafePtr<FS::MemMap> &file);
-	int LoadDirectory(const string_t &dirName, const string_t &texPrefix);
+	int LoadPackage(const std::string &packageName, const SafePtr<FS::MemMap> &file);
+	int LoadDirectory(const std::string &dirName, const std::string &texPrefix);
 	void UnloadAllTextures();
 
-	size_t FindSprite(const string_t &name) const;
+	size_t FindSprite(const std::string &name) const;
 	const LogicalTexture& Get(size_t texIndex) const { return _logicalTextures[texIndex]; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
@@ -47,20 +47,20 @@ public:
 
 	bool IsValidTexture(size_t index) const;
 
-	void GetTextureNames(std::vector<string_t> &names, const char *prefix, bool noPrefixReturn) const;
+	void GetTextureNames(std::vector<std::string> &names, const char *prefix, bool noPrefixReturn) const;
 
 	float GetCharHeight(size_t fontTexture) const;
 
 	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
 	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
-	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const string_t &str, enumAlignText align = alignTextLT) const;
+	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir) const;
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir) const;
 	void DrawIndicator(size_t tex, float x, float y, float value) const;
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase) const;
 
 	void SetCanvasSize(unsigned int width, unsigned int height);
-	void PushClippingRect(const RECT &rect) const;
+	void PushClippingRect(const Rect &rect) const;
 	void PopClippingRect() const;
 
 private:
@@ -74,19 +74,19 @@ private:
 	typedef std::list<TexDesc>       TexDescList;
 	typedef TexDescList::iterator    TexDescIterator;
 
-	typedef std::map<string_t, TexDescIterator>    FileToTexDescMap;
+	typedef std::map<std::string, TexDescIterator>    FileToTexDescMap;
 	typedef std::map<DEV_TEXTURE, TexDescIterator> DevToTexDescMap;
 
 	FileToTexDescMap _mapFile_to_TexDescIter;
 	DevToTexDescMap  _mapDevTex_to_TexDescIter;
 	TexDescList      _textures;
-	std::map<string_t, size_t>   _mapName_to_Index;// index in _logicalTextures
+	std::map<std::string, size_t>   _mapName_to_Index;// index in _logicalTextures
 	std::vector<LogicalTexture>  _logicalTextures;
 
-	RECT _viewport;
-	mutable std::stack<RECT> _clipStack;
+	Rect _viewport;
+	mutable std::stack<Rect> _clipStack;
 
-	void LoadTexture(TexDescIterator &itTexDesc, const string_t &fileName);
+	void LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName);
 	void Unload(TexDescIterator what);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
@@ -102,7 +102,7 @@ class ThemeManager
 {
 	struct ThemeDesc
 	{
-		string_t fileName;
+		std::string fileName;
 		SafePtr<FS::MemMap> file;
 	};
 
@@ -113,8 +113,8 @@ public:
 	~ThemeManager();
 
 	size_t GetThemeCount();
-	size_t FindTheme(const string_t &name);
-	string_t GetThemeName(size_t index);
+	size_t FindTheme(const std::string &name);
+	std::string GetThemeName(size_t index);
 
     bool ApplyTheme(size_t index);
 };

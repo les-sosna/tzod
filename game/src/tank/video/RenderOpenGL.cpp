@@ -4,7 +4,6 @@
 #include "RenderOpenGL.h"
 #include "core/debug.h"
 
-#include <gl/gl.h>
 
 
 #define VERTEX_ARRAY_SIZE   1024
@@ -29,22 +28,17 @@ class RenderOpenGL : public IRender
 
 	struct _asyncinfo
 	{
-		HANDLE file;
+//		HANDLE file;
 		_header h;
 		void *data;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 
-	HWND   _hWnd;
-	SIZE   _sizeWindow;
-	RECT   _rtViewport;
-	BOOL   _bDisplayChanged;
+	Point  _sizeWindow;
+	Rect   _rtViewport;
 
-	HGLRC  _hRC;
-	HDC    _hDC;
 	GLuint _curtex;
-
 	float  _ambient;
 
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
@@ -58,26 +52,18 @@ class RenderOpenGL : public IRender
 
 public:
 	RenderOpenGL();
+	virtual ~RenderOpenGL() override;
 
 private:
+	static void _ss_thread(_asyncinfo *lpInfo);
 
-	static DWORD WINAPI _ss_thread(_asyncinfo *lpInfo);
-
-	void _cleanup();
 	void Flush();
 
+	virtual void OnResizeWnd(Point size);
 
-	virtual bool Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen);
-	virtual void Release();
-
-	virtual int  getModeCount() const;
-	virtual bool getDisplayMode(int index, DisplayMode *pMode) const;
-
-	virtual void OnResizeWnd();
-
-	virtual void SetViewport(const RECT *rect);
-	virtual void SetScissor(const RECT *rect);
-	virtual void Camera(const RECT *vp, float x, float y, float scale, float angle);
+	virtual void SetViewport(const Rect *rect);
+	virtual void SetScissor(const Rect *rect);
+	virtual void Camera(const Rect *vp, float x, float y, float scale, float angle);
 
 	virtual int  GetWidth() const;
 	virtual int  GetHeight() const;
@@ -89,7 +75,7 @@ private:
 	virtual void End(void);
 	virtual void SetMode (const RenderMode mode);
 
-	virtual bool TakeScreenshot(TCHAR *fileName);
+	virtual bool TakeScreenshot(char *fileName);
 	virtual void SetAmbient(float ambient);
 
 
@@ -110,218 +96,31 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderOpenGL::RenderOpenGL()
+    : _sizeWindow{0, 0}
+    , _curtex(-1)
+    , _vaSize(0)
+    , _iaSize(0)
 {
-	_bDisplayChanged = FALSE;
-	_hWnd   = NULL;
-	_hRC    = NULL;
-	_hDC    = NULL;
-	_curtex = -1;
-	_vaSize = _iaSize = 0;
-
-	ZeroMemory(_IndexArray, sizeof(GLushort) * INDEX_ARRAY_SIZE);
-	ZeroMemory(_VertexArray, sizeof(MyVertex) * VERTEX_ARRAY_SIZE);
+	memset(_IndexArray, 0, sizeof(GLushort) * INDEX_ARRAY_SIZE);
+	memset(_VertexArray, 0, sizeof(MyVertex) * VERTEX_ARRAY_SIZE);
 }
 
-void RenderOpenGL::Release()
+RenderOpenGL::~RenderOpenGL()
 {
-	_cleanup();
-	delete this;
 }
 
-void RenderOpenGL::_cleanup()
+void RenderOpenGL::OnResizeWnd(Point size)
 {
-	wglMakeCurrent(NULL, NULL);
-	if( _hRC )
-	{
-		wglDeleteContext(_hRC);
-		_hRC = NULL;
-	}
-
-	_vaSize = _iaSize = 0;
-
-	ReleaseDC(_hWnd, _hDC);
-	_hWnd = NULL;
-	_hDC  = NULL;
-
-	if( _bDisplayChanged )
-	{
-		ChangeDisplaySettings(NULL, 0);
-		_bDisplayChanged = FALSE;
-	}
+	_sizeWindow = size;;
+    SetViewport(NULL);
 }
 
-int RenderOpenGL::getModeCount() const
-{
-	int count = 0;
-	DEVMODE  dmode = { sizeof(DEVMODE) };
-	while( EnumDisplaySettings(NULL, count, &dmode) )
-	{
-		++count;
-	}
-	return count;
-}
-
-bool RenderOpenGL::getDisplayMode(int index, DisplayMode *pMode) const
-{
-	DEVMODE dmode = { sizeof(DEVMODE) };
-	if( BOOL res = EnumDisplaySettings(NULL, index, &dmode) )
-	{
-        pMode->Width        = dmode.dmPelsWidth;
-		pMode->Height       = dmode.dmPelsHeight;
-		pMode->BitsPerPixel = dmode.dmBitsPerPel;
-		pMode->RefreshRate  = dmode.dmDisplayFrequency;
-		return FALSE != res;
-	}
-	return false;
-}
-
-bool RenderOpenGL::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
-{
-	TRACE("OpenGL initialization...");
-	if( bFullScreen )
-	{
-		DEVMODE dm = {0};
-		dm.dmSize             = sizeof(DEVMODE);
-		dm.dmBitsPerPel       = pMode->BitsPerPixel;
-		dm.dmPelsWidth        = pMode->Width;
-		dm.dmPelsHeight       = pMode->Height;
-		dm.dmDisplayFrequency = pMode->RefreshRate;
-		dm.dmFields           = DM_BITSPERPEL | DM_PELSWIDTH |
-		                        DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-
-		if( DISP_CHANGE_SUCCESSFUL != ChangeDisplaySettings(&dm, CDS_FULLSCREEN) )
-		{
-			ChangeDisplaySettings(NULL, 0);
-			return false;
-		}
-
-		_bDisplayChanged = TRUE;
-	}
-	else
-	{
-		DWORD dwStyle = GetWindowLong( hWnd, GWL_STYLE );
-		dwStyle &= ~WS_POPUP;
-		dwStyle |= WS_OVERLAPPED | WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX;
-		SetWindowLong( hWnd, GWL_STYLE, dwStyle );
-
-		//  Make sure our window does not hang outside of the work area
-	//	SystemParametersInfo( SPI_GETWORKAREA, 0, &rcWork, 0 );
-	//	GetWindowRect( hWnd, &rc );
-	//	if( rc.left < rcWork.left ) rc.left = rcWork.left;
-	//	if( rc.top  < rcWork.top )  rc.top  = rcWork.top;
-	//	SetWindowPos( hWnd, NULL, rc.left, rc.top, 0, 0,
-	//				SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
-	}
-
-	// Set window size
-	RECT rc;
-	SetRect( &rc, 0, 0, pMode->Width, pMode->Height );
-	AdjustWindowRectEx( &rc, GetWindowLong(hWnd, GWL_STYLE),
-		GetMenu(hWnd) != NULL, GetWindowLong(hWnd, GWL_EXSTYLE) );
-	SetWindowPos( hWnd, NULL, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
-		SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
-	SetWindowPos( hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
-		SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE );
-
-
-	_hWnd = hWnd;
-	_hDC  = GetDC(hWnd);
-
-	OnResizeWnd();
-
-
-	bool result = true;
-
-	try
-	{
-		PIXELFORMATDESCRIPTOR pfd ;
-		ZeroMemory(&pfd, sizeof(PIXELFORMATDESCRIPTOR));
-		pfd.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
-		pfd.nVersion   = 1;
-		pfd.dwFlags    = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL |
-			PFD_DRAW_TO_WINDOW | PFD_GENERIC_ACCELERATED;
-		pfd.iPixelType = PFD_TYPE_RGBA;
-
-		pfd.cColorBits = GetDeviceCaps(_hDC, BITSPIXEL);
-		switch( pfd.cColorBits )
-		{
-		case 32:
-			pfd.cRedBits   = 8;
-			pfd.cGreenBits = 8;
-			pfd.cBlueBits  = 8;
-			pfd.cAlphaBits = 8;
-			break;
-		default:
-			throw std::runtime_error("32 bit Display required");
-		}
-
-
-		pfd.iLayerType = PFD_MAIN_PLANE;
-
-		int nPixelFormat = ChoosePixelFormat(_hDC, &pfd);
-		if( 0 == nPixelFormat )
-			throw std::runtime_error("ChoosePixelFormat failed");
-
-		if( !SetPixelFormat(_hDC, nPixelFormat, &pfd) )
-			throw std::runtime_error("SetPixelFormat Failed");
-
-		if( !(_hRC = wglCreateContext(_hDC)) )
-			throw std::runtime_error("wglCreateContext Failed");
-
-		if( !wglMakeCurrent(_hDC, _hRC) )
-			throw std::runtime_error("wglMakeCurrent Failed");
-
-		glEnable(GL_BLEND);
-
-		glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
-		glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
-		glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
-
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-	}
-	catch(const std::exception &e)
-	{
-		TRACE(" OpenGL init error: %s", e.what());
-		result = false;
-		_cleanup();
-	}
-
-
-	//
-	// enable/disable vsync
-	//
-	typedef BOOL (APIENTRY * wglSwapIntervalEXT_Func)(int);
-	wglSwapIntervalEXT_Func wglSwapIntervalEXT =
-		wglSwapIntervalEXT_Func(wglGetProcAddress("wglSwapIntervalEXT"));
-	if(wglSwapIntervalEXT) wglSwapIntervalEXT(0); // 1 - to enable
-
-	SetViewport(NULL);
-
-	return result;
-}
-
-void RenderOpenGL::OnResizeWnd()
-{
-	if( _hWnd )
-	{
-		RECT rt;
-		GetClientRect(_hWnd, &rt);
-		_sizeWindow.cx = rt.right - rt.left;
-		_sizeWindow.cy = rt.bottom - rt.top;
-
-		if( _hRC )
-			SetViewport(NULL);
-	}
-}
-
-void RenderOpenGL::SetScissor(const RECT *rect)
+void RenderOpenGL::SetScissor(const Rect *rect)
 {
 	Flush();
 	if( rect )
 	{
-		glScissor(rect->left, _sizeWindow.cy - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
+		glScissor(rect->left, _sizeWindow.y - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
 		glEnable(GL_SCISSOR_TEST);
 	}
 	else
@@ -330,7 +129,7 @@ void RenderOpenGL::SetScissor(const RECT *rect)
 	}
 }
 
-void RenderOpenGL::SetViewport(const RECT *rect)
+void RenderOpenGL::SetViewport(const Rect *rect)
 {
 	Flush();
 
@@ -342,7 +141,7 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 			(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
 		glViewport(
 			rect->left,                       // X
-			_sizeWindow.cy - rect->bottom,    // Y
+			_sizeWindow.y - rect->bottom,     // Y
 			rect->right - rect->left,         // width
 			rect->bottom - rect->top          // height
 			);
@@ -350,16 +149,16 @@ void RenderOpenGL::SetViewport(const RECT *rect)
 	}
 	else
 	{
-		glOrtho(0, (GLdouble) _sizeWindow.cx, (GLdouble) _sizeWindow.cy, 0, -1, 1);
-		glViewport(0, 0, _sizeWindow.cx, _sizeWindow.cy);
+		glOrtho(0, (GLdouble) _sizeWindow.x, (GLdouble) _sizeWindow.y, 0, -1, 1);
+		glViewport(0, 0, _sizeWindow.x, _sizeWindow.y);
 		_rtViewport.left   = 0;
 		_rtViewport.top    = 0;
-		_rtViewport.right  = _sizeWindow.cx;
-		_rtViewport.bottom = _sizeWindow.cy;
+		_rtViewport.right  = _sizeWindow.x;
+		_rtViewport.bottom = _sizeWindow.y;
 	}
 }
 
-void RenderOpenGL::Camera(const RECT *vp, float x, float y, float scale, float angle)
+void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale, float angle)
 {
 	RenderOpenGL::SetViewport(vp);
 
@@ -374,12 +173,12 @@ void RenderOpenGL::Camera(const RECT *vp, float x, float y, float scale, float a
 
 int RenderOpenGL::GetWidth() const
 {
-	return _sizeWindow.cx;
+	return _sizeWindow.x;
 }
 
 int RenderOpenGL::GetHeight() const
 {
-	return _sizeWindow.cy;
+	return _sizeWindow.y;
 }
 
 int RenderOpenGL::GetViewportWidth() const
@@ -394,6 +193,16 @@ int RenderOpenGL::GetViewportHeight() const
 
 void RenderOpenGL::Begin()
 {
+    glEnable(GL_BLEND);
+    
+    glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
+    glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
+    glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
+    
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
 	glClearColor(0, 0, 0, _ambient);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -402,9 +211,6 @@ void RenderOpenGL::Begin()
 void RenderOpenGL::End()
 {
 	Flush();
-
-	glFlush();
-	SwapBuffers(_hDC);
 }
 
 void RenderOpenGL::SetMode(const RenderMode mode)
@@ -558,65 +364,64 @@ void RenderOpenGL::SetAmbient(float ambient)
 	_ambient = ambient;
 }
 
-DWORD WINAPI RenderOpenGL::_ss_thread(_asyncinfo *lpInfo)
+void RenderOpenGL::_ss_thread(_asyncinfo *lpInfo)
 {
-	DWORD tmp;
-	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, NULL);
-	WriteFile(lpInfo->file, lpInfo->data,
-		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, NULL);
+//	DWORD tmp;
+//	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, NULL);
+//	WriteFile(lpInfo->file, lpInfo->data,
+//		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, NULL);
 	free(lpInfo->data);
-	CloseHandle(lpInfo->file);
+//	CloseHandle(lpInfo->file);
 	delete lpInfo;
-	return 0;
 }
 
-bool RenderOpenGL::TakeScreenshot(TCHAR *fileName)
+bool RenderOpenGL::TakeScreenshot(char *fileName)
 {
 	_asyncinfo *ai = new _asyncinfo;
-	ZeroMemory(ai, sizeof(_asyncinfo));
+	memset(ai, 0, sizeof(_asyncinfo));
 
-	ai->file = CreateFile(
-						fileName,
-						GENERIC_WRITE,
-						0,
-						NULL,
-						CREATE_ALWAYS,
-						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-						NULL);
-	if( ai->file == INVALID_HANDLE_VALUE )
-	{
-		delete ai;
-		return false;
-	}
+//	ai->file = CreateFile(
+//						fileName,
+//						GENERIC_WRITE,
+//						0,
+//						NULL,
+//						CREATE_ALWAYS,
+//						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
+//						NULL);
+//	if( ai->file == INVALID_HANDLE_VALUE )
+//	{
+//		delete ai;
+//		return false;
+//	}
 
 
 	ai->h.DataType  = 2;  // uncompresssed
-	ai->h.width     = (short) _sizeWindow.cx;
-	ai->h.height    = (short) _sizeWindow.cy;
+	ai->h.width     = (short) _sizeWindow.x;
+	ai->h.height    = (short) _sizeWindow.y;
 	ai->h.BitPerPel = 24;
 
 	ai->data = malloc(ai->h.width * ai->h.height * (ai->h.BitPerPel / 8));
 
 	if( !ai->data )
 	{
-		CloseHandle(ai->file);
+//		CloseHandle(ai->file);
 		delete ai;
 		return false;
 	}
 
-	glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
+//	glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
 
-	DWORD id;
-	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
+//	DWORD id;
+//	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
 
 	return true;
 }
 
 //-----------------------------------------------------------------------------
 
-IRender* renderCreateOpenGL()
+std::unique_ptr<IRender> RenderCreateOpenGL()
 {
-	return new RenderOpenGL();
+	return std::unique_ptr<IRender>(new RenderOpenGL());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

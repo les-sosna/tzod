@@ -16,7 +16,7 @@
 
 #include "functions.h"
 #include "LevelInterfaces.h"
-#include "macros.h"
+#include "Macros.h"
 #include "script.h"
 #include "SinglePlayer.h"
 
@@ -192,17 +192,17 @@ void NewGameDlg::RefreshPlayersList()
 		int team = p.team.GetInt();
 		if( 0 != team )
 		{
-			wsprintf(s, "%d", team);
+			sprintf(s, "%d", team);
 		}
 		else
 		{
-			wsprintf(s, g_lang.team_none.Get().c_str());
+			sprintf(s, "%s", g_lang.team_none.Get().c_str());
 		}
 
 		_players->GetData()->SetItemText(index, 3, s);
 	}
 
-	_players->SetCurSel(__min(selected, _players->GetData()->GetItemCount()-1));
+	_players->SetCurSel(std::min(selected, _players->GetData()->GetItemCount()-1));
 }
 
 void NewGameDlg::RefreshBotsList()
@@ -222,29 +222,29 @@ void NewGameDlg::RefreshBotsList()
 		int team = p.team.GetInt();
 		if( 0 != team )
 		{
-			wsprintf(s, "%d", team);
+			sprintf(s, "%d", team);
 		}
 		else
 		{
-			wsprintf(s, g_lang.team_none.Get().c_str());
+			sprintf(s, "%s", g_lang.team_none.Get().c_str());
 		}
 
 		_bots->GetData()->SetItemText(index, 3, s);
 	}
 
-	_bots->SetCurSel(__min(selected, _bots->GetData()->GetItemCount() - 1));
+	_bots->SetCurSel(std::min(selected, _bots->GetData()->GetItemCount() - 1));
 }
 
 void NewGameDlg::OnAddPlayer()
 {
-	std::vector<string_t> skinNames;
+	std::vector<std::string> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_players.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditPlayerDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, _1);
+	(new EditPlayerDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1);
 }
 
 void NewGameDlg::OnAddPlayerClose(int result)
@@ -273,7 +273,7 @@ void NewGameDlg::OnEditPlayer()
 	assert(-1 != index);
 
 	(new EditPlayerDlg(this, g_conf.dm_players.GetAt(index)->AsTable()))
-		->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, _1);
+		->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1);
 }
 
 void NewGameDlg::OnEditPlayerClose(int result)
@@ -286,14 +286,14 @@ void NewGameDlg::OnEditPlayerClose(int result)
 
 void NewGameDlg::OnAddBot()
 {
-	std::vector<string_t> skinNames;
+	std::vector<std::string> skinNames;
 	g_texman->GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_bots.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditBotDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, _1);
+	(new EditBotDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1);
 }
 
 void NewGameDlg::OnAddBotClose(int result)
@@ -322,7 +322,7 @@ void NewGameDlg::OnEditBot()
 	assert(-1 != index);
 
 	(new EditBotDlg(this, g_conf.dm_bots.GetAt(index)->AsTable()))
-		->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, _1);
+		->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1);
 }
 
 void NewGameDlg::OnEditBotClose(int result)
@@ -335,7 +335,7 @@ void NewGameDlg::OnEditBotClose(int result)
 
 void NewGameDlg::OnOK()
 {
-	string_t fn;
+	std::string fn;
 	int index = _maps->GetCurSel();
 	if( -1 != index )
 	{
@@ -346,13 +346,13 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-	string_t path = DIR_MAPS;
+	std::string path = DIR_MAPS;
 	path += "\\";
 	path += fn + ".map";
 
-	g_conf.cl_speed.SetInt( __max(MIN_GAMESPEED, __min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
-	g_conf.cl_fraglimit.SetInt( __max(0, __min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
-	g_conf.cl_timelimit.SetInt( __max(0, __min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
+	g_conf.cl_speed.SetInt( std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
+	g_conf.cl_fraglimit.SetInt( std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
+	g_conf.cl_timelimit.SetInt( std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetInt())) );
 	g_conf.cl_nightmode.Set( _nightMode->GetCheck() );
 
 	g_conf.sv_speed.SetInt( g_conf.cl_speed.GetInt() );
@@ -360,7 +360,7 @@ void NewGameDlg::OnOK()
 	g_conf.sv_timelimit.SetInt( g_conf.cl_timelimit.GetInt() );
 	g_conf.sv_nightmode.Set( g_conf.cl_nightmode.Get() );
 
-	SAFE_DELETE(g_client);
+//	SAFE_DELETE(g_client);
 
 	try
 	{
@@ -369,7 +369,7 @@ void NewGameDlg::OnOK()
 	catch( const std::exception &e )
 	{
 		TRACE("could not load map - %s", e.what());
-		SAFE_DELETE(g_client);
+//		SAFE_DELETE(g_client);
 		return;
 	}
 
@@ -384,7 +384,7 @@ void NewGameDlg::OnOK()
 		pd.nick = p.nick.Get();
 		pd.skin = p.skin.Get();
 		pd.team = p.team.GetInt();
-		PlayerHandle *handle = _level->AddHuman(pd);
+		/*PlayerHandle *handle =*/ _level->AddHuman(pd);
 //		g_client
 
 		//GC_PlayerLocal *player = new GC_PlayerLocal();
@@ -431,17 +431,17 @@ bool NewGameDlg::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		if( GetManager()->GetFocusWnd() == _players && -1 != _players->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
 		break;
-	case VK_INSERT:
+	case GLFW_KEY_INSERT:
 		OnAddPlayer();
 		break;
 	default:
-		return __super::OnRawChar(c);
+		return Dialog::OnRawChar(c);
 	}
 	return true;
 }
@@ -485,7 +485,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
 	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
-	std::vector<string_t> names;
+	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
@@ -511,7 +511,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
 
-	std::pair<string_t, string_t> val;
+	std::pair<std::string, std::string> val;
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
@@ -540,7 +540,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
+		sprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info.team.GetInt() )
 		{
@@ -563,7 +563,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_profiles = DefaultComboBox::Create(this);
 	_profiles->Move(x2, y -= 1);
 	_profiles->Resize(200);
-	std::vector<string_t> profiles;
+	std::vector<std::string> profiles;
 	g_conf.dm_profiles.GetKeyList(profiles);
 
 	for( size_t i = 0; i < profiles.size(); ++i )
@@ -665,7 +665,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
 	_skins->eventChangeCurSel.bind( &EditBotDlg::OnChangeSkin, this );
-	std::vector<string_t> names;
+	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
@@ -691,7 +691,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
 
-	std::pair<string_t, string_t> val;
+	std::pair<std::string, std::string> val;
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
@@ -718,7 +718,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		char buf[8];
-		wsprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
+		sprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
 		int index = _teams->GetData()->AddItem(buf);
 		if( i == _info.team.GetInt() )
 		{
@@ -806,11 +806,11 @@ void ScriptMessageBox::OnButton3()
 }
 
 ScriptMessageBox::ScriptMessageBox( Window *parent,
-                                    const string_t &title,
-                                    const string_t &text,
-                                    const string_t &btn1,
-                                    const string_t &btn2,
-                                    const string_t &btn3)
+                                    const std::string &title,
+                                    const std::string &text,
+                                    const std::string &btn1,
+                                    const std::string &btn2,
+                                    const std::string &btn3)
   : Window(parent)
 {
 	SetTexture("ui/window", false);
@@ -826,7 +826,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 
 	float by = _text->GetHeight() + 20;
 	float bw = _button1->GetWidth();
-	float w = __max(_text->GetWidth() + 10, (bw + 10) * (float) nbtn) + 10;
+	float w = std::max(_text->GetWidth() + 10, (bw + 10) * (float) nbtn) + 10;
 	float h = by + _button1->GetHeight() + 10;
 
 

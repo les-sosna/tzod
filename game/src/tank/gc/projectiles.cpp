@@ -4,8 +4,8 @@
 #include "stdafx.h"
 #include "projectiles.h"
 
-#include "level.h"
-#include "macros.h"
+#include "Level.h"
+#include "Macros.h"
 #include "functions.h"
 
 #include "fs/SaveFile.h"
@@ -25,14 +25,14 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *ignore, GC_Player *owner, bool 
                              const vec2d &pos, const vec2d &v, const char *texture)
   : GC_2dSprite()
   , _memberOf(this)
-  , _light(new GC_Light(GC_Light::LIGHT_POINT))
-  , _owner(owner)
   , _ignore(ignore)
+  , _owner(owner)
+  , _light(new GC_Light(GC_Light::LIGHT_POINT))
+  , _velocity(v.len())
   , _hitDamage(0)
+  , _hitImpulse(0)
   , _trailDensity(10.0f)
   , _trailPath(0.0f)
-  , _velocity(v.len())
-  , _hitImpulse(0)
 {
 	SetZ(Z_PROJECTILE);
 	SetShadow(true);
@@ -157,7 +157,7 @@ void GC_Projectile::TimeStepFixed(float dt)
 			float depth = it->exit - it->enter;
 			float relativeDepth = depth > std::numeric_limits<float>::epsilon() ?
 				(std::min(.5f, it->exit) - std::max(-.5f, it->enter)) / depth : 1;
-			assert(!_isnan(relativeDepth) && _finite(relativeDepth));
+			assert(!isnan(relativeDepth) && isfinite(relativeDepth));
 			assert(relativeDepth >= 0);
 
 			ObjPtr<GC_Projectile> watch(this);
@@ -210,7 +210,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Rocket)
 }
 
 GC_Rocket::GC_Rocket(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_rocket")
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_rocket")
   , _timeHomming(0.0f)
 {
 	SetTrailDensity(1.5f);
@@ -418,7 +418,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TankBullet)
 }
 
 GC_TankBullet::GC_TankBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_cannon")
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_cannon")
 {
 	SetTrailDensity(5.0f);
 	SetHitDamage(DAMAGE_TANKBULLET);
@@ -443,8 +443,8 @@ bool GC_TankBullet::OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const ve
 
 	if( GetAdvanced() )
 	{
-		(new GC_Boom_Big( vec2d(__max(0, __min(g_level->_sx - 1, hit.x + norm.x)),
-								__max(0, __min(g_level->_sy - 1, hit.y + norm.y))),
+		(new GC_Boom_Big( vec2d(std::max(.0f, std::min(g_level->_sx - 1, hit.x + norm.x)),
+								std::max(.0f, std::min(g_level->_sy - 1, hit.y + norm.y))),
 						  GetOwner() ))->_time_boom = 0.05f;
 	}
 	else
@@ -488,7 +488,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlazmaClod)
 }
 
 GC_PlazmaClod::GC_PlazmaClod(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_plazma")
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_plazma")
 {
 	SetHitDamage(DAMAGE_PLAZMA);
 	SetTrailDensity(4.0f);
@@ -552,7 +552,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_BfgCore)
 }
 
 GC_BfgCore::GC_BfgCore(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_bfg")
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_bfg")
   , _time(0)
 {
 	PLAY(SND_BfgFire, GetPos());
@@ -709,7 +709,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_FireSpark)
 }
 
 GC_FireSpark::GC_FireSpark(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_fire" )
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_fire" )
   , _time(0)
   , _timeLife(1)
   , _rotation(frand(10) - 5)
@@ -851,7 +851,7 @@ void GC_FireSpark::TimeStepFixed(float dt)
 				{
 					if( healOwner )
 					{
-						object->SetHealthCur(__min(object->GetHealth() + damage, object->GetHealthMax()));
+						object->SetHealthCur(std::min(object->GetHealth() + damage, object->GetHealthMax()));
 					}
 				}
 				else
@@ -905,7 +905,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ACBullet)
 }
 
 GC_ACBullet::GC_ACBullet(const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(ignore, owner, advanced, TRUE, x, v, "projectile_ac")
+  : GC_Projectile(ignore, owner, advanced, true, x, v, "projectile_ac")
 {
 	SetHitDamage(DAMAGE_ACBULLET);
 	SetHitImpulse(20);

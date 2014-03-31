@@ -10,6 +10,16 @@
 #include "Level.h"
 #include "KeyMapper.h"
 
+static bool IsKeyPressed(int key)
+{
+    return GLFW_PRESS == glfwGetKey(g_appWindow, key);
+}
+
+static bool IsMousePressed(int button)
+{
+    return GLFW_PRESS == glfwGetMouseButton(g_appWindow, button);
+}
+
 
 Controller::Controller()
   : _lastLightKeyState(false)
@@ -69,7 +79,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	//
 	// lights
 	//
-	bool tmp = g_env.envInputs.IsKeyPressed(_keyLight);
+	bool tmp = IsKeyPressed(_keyLight);
 	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
 	{
 		PLAY(SND_LightSwitch, vehicle->GetPos());
@@ -82,14 +92,14 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	//
 	// pickup
 	//
-	vs._bState_AllowDrop = g_env.envInputs.IsKeyPressed(_keyPickup)
-		|| ( g_env.envInputs.IsKeyPressed(_keyForward) && g_env.envInputs.IsKeyPressed(_keyBack)  )
-		|| ( g_env.envInputs.IsKeyPressed(_keyLeft)    && g_env.envInputs.IsKeyPressed(_keyRight) );
+	vs._bState_AllowDrop = IsKeyPressed(_keyPickup)
+		|| ( IsKeyPressed(_keyForward) && IsKeyPressed(_keyBack)  )
+		|| ( IsKeyPressed(_keyLeft)    && IsKeyPressed(_keyRight) );
 
 	//
 	// fire
 	//
-	vs._bState_Fire = g_env.envInputs.IsKeyPressed(_keyFire);
+	vs._bState_Fire = IsKeyPressed(_keyFire);
 
 
 	//
@@ -98,10 +108,10 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	if( _arcadeStyle )
 	{
 		vec2d tmp(0, 0);
-		if( g_env.envInputs.IsKeyPressed(_keyForward) ) tmp.y -= 1;
-		if( g_env.envInputs.IsKeyPressed(_keyBack)    ) tmp.y += 1;
-		if( g_env.envInputs.IsKeyPressed(_keyLeft)    ) tmp.x -= 1;
-		if( g_env.envInputs.IsKeyPressed(_keyRight)   ) tmp.x += 1;
+		if( IsKeyPressed(_keyForward) ) tmp.y -= 1;
+		if( IsKeyPressed(_keyBack)    ) tmp.y += 1;
+		if( IsKeyPressed(_keyLeft)    ) tmp.x -= 1;
+		if( IsKeyPressed(_keyRight)   ) tmp.x += 1;
 		tmp.Normalize();
 
 		bool move = tmp.x || tmp.y;
@@ -118,19 +128,19 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	}
 	else
 	{
-		vs._bState_MoveForward = g_env.envInputs.IsKeyPressed(_keyForward);
-		vs._bState_MoveBack    = g_env.envInputs.IsKeyPressed(_keyBack   );
-		vs._bState_RotateLeft  = g_env.envInputs.IsKeyPressed(_keyLeft   );
-		vs._bState_RotateRight = g_env.envInputs.IsKeyPressed(_keyRight  );
+		vs._bState_MoveForward = IsKeyPressed(_keyForward);
+		vs._bState_MoveBack    = IsKeyPressed(_keyBack   );
+		vs._bState_RotateLeft  = IsKeyPressed(_keyLeft   );
+		vs._bState_RotateRight = IsKeyPressed(_keyRight  );
 	}
 
 	if( _moveToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
-		vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bMButtonState;
+		vs._bState_Fire = vs._bState_Fire || IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+		vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
 
 		vec2d pt;
-		if( g_env.envInputs.bRButtonState && GC_Camera::GetWorldMousePos(pt) )
+		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && GC_Camera::GetWorldMousePos(pt) )
 		{
 			vec2d tmp = pt - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -157,10 +167,10 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	//
 	if( _aimToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || g_env.envInputs.bLButtonState;
+		vs._bState_Fire = vs._bState_Fire || IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
 		if( !_moveToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || g_env.envInputs.bRButtonState;
+			vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT);
 		}
 
 		vec2d pt;
@@ -173,10 +183,10 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 	}
 	else
 	{
-		vs._bState_TowerLeft   = g_env.envInputs.IsKeyPressed(_keyTowerLeft);
-		vs._bState_TowerRight  = g_env.envInputs.IsKeyPressed(_keyTowerRight);
-		vs._bState_TowerCenter = g_env.envInputs.IsKeyPressed(_keyTowerCenter)
-			|| g_env.envInputs.IsKeyPressed(_keyTowerLeft) && g_env.envInputs.IsKeyPressed(_keyTowerRight);
+		vs._bState_TowerLeft   = IsKeyPressed(_keyTowerLeft);
+		vs._bState_TowerRight  = IsKeyPressed(_keyTowerRight);
+		vs._bState_TowerCenter = IsKeyPressed(_keyTowerCenter)
+			|| (IsKeyPressed(_keyTowerLeft) && IsKeyPressed(_keyTowerRight));
 		if( vs._bState_TowerCenter )
 		{
 			vs._bState_TowerLeft  = false;

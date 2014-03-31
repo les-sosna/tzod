@@ -13,7 +13,7 @@
 #include "Weapons.h"
 
 
-#include "macros.h"
+#include "Macros.h"
 #include "Level.h"
 #include "functions.h"
 #include "script.h"
@@ -28,9 +28,9 @@ GC_Pickup::GC_Pickup(float x, float y)
   : _memberOf(this)
   , _label(new GC_HideLabel(x, y))
   , _radius(25.0)
-  , _timeRespawn(0)
-  , _timeAnimation(0)
   , _timeAttached(0)
+  , _timeAnimation(0)
+  , _timeRespawn(0)
 {
 	MoveTo(vec2d(x, y));
 	AddContext(&g_level->grid_pickup);
@@ -188,7 +188,7 @@ void GC_Pickup::TimeStepFixed(float dt)
 			{
 			//	ObjPtr<GC_Object> watch(this);
 				// item can be killed inside attach function so create copy
-				string_t scriptOnPickup(_scriptOnPickup);
+				std::string scriptOnPickup(_scriptOnPickup);
 				Attach(actor);
 
 				if( !scriptOnPickup.empty() )
@@ -237,7 +237,7 @@ void GC_Pickup::Draw() const
 {
 	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || g_level->GetEditorMode() )
 	{
-		__super::Draw();
+		GC_2dSprite::Draw();
 	}
 }
 
@@ -482,7 +482,7 @@ void GC_pu_Shield::TimeStepFloat(float dt)
 	GC_Pickup::TimeStepFloat(dt);
 	if( GetCarrier() )
 	{
-		_timeHit = __max(0, _timeHit - dt);
+		_timeHit = std::max(.0f, _timeHit - dt);
 		SetFrame( int((GetTimeAnimation() * ANIMATION_FPS)) % (GetFrameCount()) );
 	}
 }

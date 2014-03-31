@@ -3,8 +3,8 @@
 #include "stdafx.h"
 #include "Sound.h"
 
-#include "level.h"
-#include "macros.h"
+#include "Level.h"
+#include "Macros.h"
 
 #include "video/RenderBase.h"
 

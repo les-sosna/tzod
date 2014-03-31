@@ -22,7 +22,7 @@ private:
 
 	Rotator _rotator;
 
-	RECT    _viewport;
+	Rect    _viewport;
 	float   _zoom;
 	ObjPtr<GC_Player>  _player;
 
@@ -33,7 +33,7 @@ public:
 
 	float GetAngle() const { return _rotatorAngle; }
 	void GetWorld(FRECT &outWorld) const;
-	void GetScreen(RECT &vp) const;
+	void GetScreen(Rect &vp) const;
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 

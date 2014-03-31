@@ -25,7 +25,7 @@ public:
 	bool                descValid;
 	bool                ctrlValid;
 
-	PeerServer(SOCKET s_);
+	PeerServer(boost::asio::ip::tcp::socket s_);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ class TankServer
 	int _frameReadyCount;     // how many clients have ctrl data in buffer
 
 
-	Socket _socketListen;
+	boost::asio::ip::tcp::socket _socketListen;
 
 	SafePtr<LobbyClient> _announcer;
 

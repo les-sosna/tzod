@@ -40,11 +40,11 @@ protected:
 private:
 	UI::WindowWeakPtr _msgbox;
 
-	string_t _title;
-	string_t _text;
-	string_t _option1;
-	string_t _option2;
-	string_t _option3;
+	std::string _title;
+	std::string _text;
+	std::string _option1;
+	std::string _option2;
+	std::string _option3;
 	std::string _scriptOnSelect;
 	int _autoClose;
 

@@ -4,6 +4,7 @@
 
 #include "notify.h"
 #include "TypeSystem.h"
+#include "../Level.h" // FIXME: path
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -43,7 +44,7 @@ public:                                         \
 		else                                    \
 			*(ObjFinalizerProc*) p = __fin;     \
     }                                           \
-	virtual DWORD GetID() const                 \
+	virtual int GetID() const                 \
     {                                           \
 		return __pool.GetAllocID((unsigned int *) this - 1); \
     }
@@ -107,10 +108,10 @@ public:
 	};
 
 private:
-	string_t               _name;
+	std::string               _name;
 	PropertyType           _type;
-	string_t               _str_value;
-	std::vector<string_t>  _value_set;
+	std::string               _str_value;
+	std::vector<std::string>  _value_set;
 	union {
 		size_t             _value_index;
 		int                _int_value;
@@ -126,9 +127,9 @@ private:
 	};
 
 public:
-	ObjectProperty(PropertyType type, const string_t &name);
+	ObjectProperty(PropertyType type, const std::string &name);
 
-	const string_t& GetName(void) const;
+	const std::string& GetName(void) const;
 	PropertyType GetType(void) const;
 
 
@@ -154,18 +155,18 @@ public:
 	//
 	// TYPE_STRING
 	//
-	void SetStringValue(const string_t &str);
-	const string_t& GetStringValue(void) const;
+	void SetStringValue(const std::string &str);
+	const std::string& GetStringValue(void) const;
 
 
 	//
 	// TYPE_MULTISTRING
 	//
-	void   AddItem(const string_t &str);
+	void   AddItem(const std::string &str);
 	size_t GetCurrentIndex(void) const;
 	void   SetCurrentIndex(size_t index);
 	size_t GetListSize(void) const;
-	const string_t& GetListValue(size_t index) const;
+	const std::string& GetListValue(size_t index) const;
 };
 
 class PropertySet : public RefCounted
@@ -201,24 +202,6 @@ public:
 #define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000002
 
 #define GC_FLAG_OBJECT_                       0x00000004
-
-
-enum GlobalListID
-{
-	LIST_objects,
-	LIST_services,
-	LIST_respawns,
-	LIST_projectiles,
-	LIST_players,
-	LIST_sounds,
-	LIST_indicators,
-	LIST_vehicles,
-	LIST_pickups,
-	LIST_lights,
-	LIST_cameras,
-	//------------------
-	GLOBAL_LIST_COUNT
-};
 
 
 typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
@@ -270,27 +253,28 @@ public:
 		assert(*this);
 		return _ptr;
 	}
-
-	template<class U>
-	friend U* PtrDynCast(T *src)
-	{
-		assert(!src || ObjPtr<T>(src));
-		return dynamic_cast<U*>(src);
-	}
-
-	template<class U>
-	friend U* PtrDynCast(const ObjPtr &src)
-	{
-		return dynamic_cast<U*>(src.operator T*());
-	}
-
-	template<class U>
-	friend U* PtrCast(const ObjPtr &src)
-	{
-		assert(!src || PtrDynCast<U>(src));
-		return static_cast<U*>(src.operator T*());
-	}
 };
+
+template<class U, class T>
+inline U* PtrDynCast(T *src)
+{
+	assert(!src || ObjPtr<T>(src));
+	return dynamic_cast<U*>(src);
+}
+
+template<class U, class T>
+inline U* PtrDynCast(const ObjPtr<T> &src)
+{
+	return dynamic_cast<U*>(src.operator T*());
+}
+
+template<class U, class T>
+inline U* PtrCast(const ObjPtr<T> &src)
+{
+	assert(!src || PtrDynCast<U>(src));
+	return static_cast<U*>(src.operator T*());
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 class GC_Object
@@ -332,7 +316,7 @@ private:
 
 	struct Notify
 	{
-		DECLARE_POOLED_ALLOCATION(Notify);
+//		DECLARE_POOLED_ALLOCATION(Notify);
 
 		Notify *next;
 		ObjPtr<GC_Object>   subscriber;
@@ -352,7 +336,7 @@ private:
 	//
 
 private:
-	DWORD           _flags;             // define various object properties
+	unsigned int           _flags;             // define various object properties
 
 	ObjectList::iterator _itPosFixed;      // position in the Level::ts_fixed
 
@@ -360,16 +344,16 @@ private:
 	int  _notifyProtectCount;
 
 public:
-	void SetFlags(DWORD flags, bool value)
+	void SetFlags(unsigned int flags, bool value)
 	{
 		_flags = value ? (_flags|flags) : (_flags & ~flags);
 	}
-	DWORD GetFlags() const
+	unsigned int GetFlags() const
 	{
 		return _flags;
 	}
 	// return true if one of the flags is set
-	bool CheckFlags(DWORD flags) const
+	bool CheckFlags(unsigned int flags) const
 	{
 		return 0 != (_flags & flags);
 	}
@@ -398,7 +382,7 @@ protected:
 	void PulseNotify(NotifyType type, void *param = NULL);
 
 public:
-	void SetEvents(DWORD dwEvents);
+	void SetEvents(unsigned int events);
 
 	const char* GetName() const;
 	void SetName(const char *name);
@@ -451,7 +435,7 @@ public:
 
 #ifdef NETWORK_DEBUG
 public:
-	virtual DWORD checksum(void) const
+	virtual uint32_t checksum(void) const
 	{
 		return 0;
 	}

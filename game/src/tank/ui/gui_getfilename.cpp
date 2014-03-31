@@ -31,13 +31,13 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files = DefaultListBox::Create(this);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
-	std::set<string_t> files;
+	std::set<std::string> files;
 	_folder->EnumAllFiles(files, "*." + _ext);
-	for( std::set<string_t>::iterator it = files.begin(); it != files.end(); ++it )
+	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		string_t tmp = *it;
+		std::string tmp = *it;
 		tmp.erase(it->length() - _ext.length() - 1); // cut out the file extension
-		int index = _files->GetData()->AddItem(tmp);
+		_files->GetData()->AddItem(tmp);
 	}
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);
@@ -56,12 +56,12 @@ GetFileNameDlg::~GetFileNameDlg()
 {
 }
 
-string_t GetFileNameDlg::GetFileName() const
+std::string GetFileNameDlg::GetFileName() const
 {
 	return _fileName->GetText() + "." + _ext;
 }
 
-string_t GetFileNameDlg::GetFileTitle() const
+std::string GetFileNameDlg::GetFileTitle() const
 {
 	return _fileName->GetText();
 }
@@ -76,10 +76,10 @@ void GetFileNameDlg::OnChangeName()
 {
 	_changing = true;
 	size_t match = 0;
-	string_t txt = _fileName->GetText();
+	std::string txt = _fileName->GetText();
 	for( int i = 0; i < _files->GetData()->GetItemCount(); ++i )
 	{
-		string_t fn = _files->GetData()->GetItemText(i, 0);
+		std::string fn = _files->GetData()->GetItemText(i, 0);
 		size_t n = 0;
 		while( n < fn.length() && n < txt.length() )
 		{
@@ -99,15 +99,15 @@ bool GetFileNameDlg::OnRawChar(int c)
 {
 	switch( c )
 	{
-	//case VK_UP:
-	//case VK_DOWN:
+	//case GLFW_KEY_UP:
+	//case GLFW_KEY_DOWN:
 	//	static_cast<Window *>(_files)->OnRawChar(c);
 	//	break;
-	case VK_RETURN:
+	case GLFW_KEY_ENTER:
 		OnOK();
 		break;
 	default:
-		return __super::OnRawChar(c);
+		return Dialog::OnRawChar(c);
 	}
 	return true;
 }

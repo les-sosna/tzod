@@ -93,10 +93,10 @@ HRESULT InputManager::InquireInputDevices()
 
 	g_env.envInputs.mouse_x += dims2.lX;
 	g_env.envInputs.mouse_y += dims2.lY;
-	g_env.envInputs.mouse_x = __max(0,
-		__min(g_render->GetWidth() - 1, g_env.envInputs.mouse_x));
-	g_env.envInputs.mouse_y = __max(0,
-		__min(g_render->GetHeight() - 1, g_env.envInputs.mouse_y));
+	g_env.envInputs.mouse_x = std::max(0,
+		std::min(g_render->GetWidth() - 1, g_env.envInputs.mouse_x));
+	g_env.envInputs.mouse_y = std::max(0,
+		std::min(g_render->GetHeight() - 1, g_env.envInputs.mouse_y));
 
 
 	g_env.envInputs.bLButtonState = (dims2.rgbButtons[0] & 0x80) != 0;
