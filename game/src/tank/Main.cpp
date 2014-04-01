@@ -332,20 +332,10 @@ bool ZodApp::Pre()
 	_timer.SetMaxDt(MAX_DT);
 
 	// init render
-    GLFWwindow *wnd = glfwCreateWindow(g_conf.r_width.GetInt(),
-                                       g_conf.r_height.GetInt(),
-                                       TXT_VERSION,
-                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
-                                       nullptr);
-    if( !wnd )
-    {
-        return false;
-    }
-    glfwMakeContextCurrent(wnd);
     g_render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
     int width;
     int height;
-    glfwGetFramebufferSize(wnd, &width, &height);
+    glfwGetFramebufferSize(g_appWindow, &width, &height);
 	g_render->OnResizeWnd(Point{width, height});
 
 #if !defined NOSOUND

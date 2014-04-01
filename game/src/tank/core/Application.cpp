@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "Application.h"
+#include "config/Config.h"
 
 
 AppBase::AppBase()
@@ -17,10 +18,14 @@ AppBase::~AppBase()
 
 int AppBase::Run()
 {
+    g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
+                                   g_conf.r_height.GetInt(),
+                                   TXT_VERSION,
+                                   /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
+                                   nullptr);
+    glfwMakeContextCurrent(g_appWindow);
 	if( Pre() )
 	{
-        g_appWindow = glfwCreateWindow(800, 600, "hello tzod", nullptr, nullptr);
-        glfwMakeContextCurrent(g_appWindow);
 		for(;;)
 		{
             glfwSwapBuffers(g_appWindow);
@@ -30,9 +35,9 @@ int AppBase::Run()
                 break;
             Idle();
         }
-        glfwDestroyWindow(g_appWindow);
-        g_appWindow = nullptr;
 	}
+    glfwDestroyWindow(g_appWindow);
+    g_appWindow = nullptr;
 	Post();
 	return -1;
 }
