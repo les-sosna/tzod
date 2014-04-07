@@ -1,8 +1,7 @@
 // KeyMapper.cpp
 
-#include "stdafx.h"
-
 #include "KeyMapper.h"
+#include <map>
 
 class KeyMapper
 {

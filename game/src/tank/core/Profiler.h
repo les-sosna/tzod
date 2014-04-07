@@ -2,6 +2,11 @@
 
 #pragma once
 
+#include "core/Delegate.h"
+#include <string>
+#include <vector>
+
+
 struct CounterInfo
 {
 	std::string id;

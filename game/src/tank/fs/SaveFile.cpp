@@ -1,8 +1,6 @@
 // SaveFile.cpp
 
-#include "stdafx.h"
 #include "SaveFile.h"
-
 #include "gc/Object.h"
 
 SaveFile::SaveFile(const SafePtr<FS::Stream> &s, bool loading)

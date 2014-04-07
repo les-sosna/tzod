@@ -1,6 +1,6 @@
 // GuiManager.cpp
 
-#include "stdafx.h"
+#include "globals.h"
 #include "GuiManager.h"
 
 #include "MousePointer.h"

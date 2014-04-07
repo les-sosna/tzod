@@ -1,7 +1,5 @@
 // gui_network.cpp
 
-#include "stdafx.h"
-
 #include "gui.h"
 #include "gui_network.h"
 #include "gui_maplist.h"
@@ -35,6 +33,8 @@
 #include "gc/ai.h"
 
 #include "fs/FileSystem.h"
+
+#include "md5.h"
 
 
 namespace UI

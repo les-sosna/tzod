@@ -1,5 +1,7 @@
 // SoundTemplates.h
 
+#pragma once
+
 enum enumSoundTemplate
 {
 	SND_BoomStandard,

@@ -1,6 +1,5 @@
 // BackgroundIntro.cpp
 
-#include "stdafx.h"
 #include "BackgroundIntro.h"
 
 IntroClient::IntroClient(ILevelController *levelController)
@@ -32,7 +31,7 @@ void IntroClient::SendControl(const ControlPacket &cp)
 {
 }
 
-bool IntroClient::RecvControl(ControlPacketVector &result)
+bool IntroClient::RecvControl(std::vector<ControlPacket> &result)
 {
 	result.clear();
 	return true;

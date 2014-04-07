@@ -12,6 +12,15 @@
 
 #include "DefaultCamera.h"
 
+#include "constants.h"
+
+#include <core/PtrList.h>
+#include <core/Grid.h>
+
+#include <algorithm>
+#include <map>
+#include <vector>
+
 
 #pragma region path finding stuff
 
@@ -256,7 +265,7 @@ public:
 public:
 	float _time;
 
-	void Step(const ControlPacketVector &ctrl, float dt);
+	void Step(const std::vector<ControlPacket> &ctrl, float dt);
 
 	Field _field;
 

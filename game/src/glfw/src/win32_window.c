@@ -784,7 +784,7 @@ static ATOM registerWindowClass(void)
     wc.lpszClassName = _GLFW_WNDCLASSNAME;
 
     // Load user-provided icon if available
-    wc.hIcon = LoadIcon(GetModuleHandle(NULL), "GLFW_ICON");
+    wc.hIcon = LoadIconW(GetModuleHandle(NULL), L"GLFW_ICON");
     if (!wc.hIcon)
     {
         // No user-provided icon found, load default icon

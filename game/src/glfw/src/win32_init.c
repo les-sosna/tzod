@@ -63,7 +63,7 @@ static GLboolean initLibraries(void)
 #ifndef _GLFW_NO_DLOAD_WINMM
     // winmm.dll (for joystick and timer support)
 
-    _glfw.win32.winmm.instance = LoadLibrary("winmm.dll");
+    _glfw.win32.winmm.instance = LoadLibraryW(L"winmm.dll");
     if (!_glfw.win32.winmm.instance)
         return GL_FALSE;
 
@@ -85,14 +85,14 @@ static GLboolean initLibraries(void)
     }
 #endif // _GLFW_NO_DLOAD_WINMM
 
-    _glfw.win32.user32.instance = LoadLibrary("user32.dll");
+    _glfw.win32.user32.instance = LoadLibraryW(L"user32.dll");
     if (_glfw.win32.user32.instance)
     {
         _glfw.win32.user32.SetProcessDPIAware = (SETPROCESSDPIAWARE_T)
             GetProcAddress(_glfw.win32.user32.instance, "SetProcessDPIAware");
     }
 
-    _glfw.win32.dwmapi.instance = LoadLibrary("dwmapi.dll");
+    _glfw.win32.dwmapi.instance = LoadLibraryW(L"dwmapi.dll");
     if (_glfw.win32.dwmapi.instance)
     {
         _glfw.win32.dwmapi.DwmIsCompositionEnabled = (DWMISCOMPOSITIONENABLED_T)
@@ -225,7 +225,7 @@ void _glfwPlatformTerminate(void)
 {
     if (_glfw.win32.classAtom)
     {
-        UnregisterClass(_GLFW_WNDCLASSNAME, GetModuleHandle(NULL));
+        UnregisterClassW(_GLFW_WNDCLASSNAME, GetModuleHandle(NULL));
         _glfw.win32.classAtom = 0;
     }
 

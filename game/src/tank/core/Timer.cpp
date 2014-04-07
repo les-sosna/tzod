@@ -1,16 +1,14 @@
 // Timer.cpp: implementation of the Timer class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#include "stdafx.h"
 
 #include "Timer.h"
 #include "Debug.h"
 #include "Application.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+#include <cassert>
+
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
 
 Timer::Timer()
     : _stopCount(1) // timer is stopped initially

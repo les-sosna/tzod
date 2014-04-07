@@ -1,14 +1,11 @@
 // Vehicle.cpp
 
-#include "stdafx.h"
 #include "Vehicle.h"
 
 #include "Level.h"
 #include "Macros.h"
 #include "functions.h"
 #include "script.h"
-
-#include "fs/SaveFile.h"
 
 #include "GameClasses.h"
 #include "Camera.h"
@@ -23,9 +20,22 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "fs/SaveFile.h"
+
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
+#include <ui/ConsoleBuffer.h>
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+UI::ConsoleBuffer& GetConsole();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

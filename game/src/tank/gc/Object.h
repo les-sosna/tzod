@@ -2,9 +2,11 @@
 
 #pragma once
 
+#include "globals.h"
 #include "notify.h"
 #include "TypeSystem.h"
 #include "../Level.h" // FIXME: path
+#include "core/Delegate.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations

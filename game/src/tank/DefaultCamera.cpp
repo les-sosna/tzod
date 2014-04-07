@@ -1,8 +1,14 @@
 // DefaultCamera.cpp
 
-#include "stdafx.h"
 #include "DefaultCamera.h"
 #include "globals.h"
+#include "constants.h"
+
+#include <chrono>
+#include <algorithm>
+
+#include <GLFW/glfw3.h>
+
 
 static unsigned int GetMilliseconds()
 {

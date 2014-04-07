@@ -1,9 +1,10 @@
 // SinglePlayer.cpp
 
-#include "stdafx.h"
 #include "SinglePlayer.h"
-#include "config/Config.h"
 #include "LevelInterfaces.h"
+#include "config/Config.h"
+
+#include <vector>
 
 SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, FS::Stream *stream, unsigned long seed)
 	: ClientBase(levelController)
@@ -37,7 +38,7 @@ void SinglePlayerClient::SendControl(const ControlPacket &cp)
 	_cp = cp;
 }
 
-bool SinglePlayerClient::RecvControl(ControlPacketVector &result)
+bool SinglePlayerClient::RecvControl(std::vector<ControlPacket> &result)
 {
 	result.assign(1, _cp);
 	return true;

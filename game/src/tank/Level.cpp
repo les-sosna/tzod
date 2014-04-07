@@ -1,11 +1,6 @@
 // Level.cpp
 ////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
-
-#include "pluto.h"
-
-
 #include "Level.h"
 #include "Level.inl"
 #include "Macros.h"
@@ -43,7 +38,19 @@
 #include "gc/ai.h"
 //#endif
 
-////////////////////////////////////////////////////////////
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+#include <pluto.h>
+
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
+#include <GLFW/glfw3.h>
+
 
 unsigned long FieldCell::_sessionId;
 
@@ -418,8 +425,8 @@ Level::~Level()
 	Clear();
 
 	// unregister config handlers
-	g_conf.s_volume.eventChange = NULL;
-	g_conf.sv_nightmode.eventChange = NULL;
+	g_conf.s_volume.eventChange = nullptr;
+	g_conf.sv_nightmode.eventChange = nullptr;
 
 	assert(IsEmpty() && _garbage.empty());
 	assert(!g_env.nNeedCursor);
@@ -994,13 +1001,13 @@ void Level::DrawBackground(size_t tex) const
 	v[3].y = _sy;
 }
 
-void Level::Step(const ControlPacketVector &ctrl, float dt)
+void Level::Step(const std::vector<ControlPacket> &ctrl, float dt)
 {
 	_time += dt;
 
 	if( !_frozen )
 	{
-		ControlPacketVector::const_iterator ctrlIt = ctrl.begin();
+		auto ctrlIt = ctrl.begin();
 		FOREACH( GetList(LIST_players), GC_Player, p )
 		{
 			if( GC_PlayerHuman *ph = dynamic_cast<GC_PlayerHuman *>(p) )
@@ -1194,7 +1201,7 @@ void Level::Render() const
 	}
 
 #ifdef _DEBUG
-	if( !GetAsyncKeyState(VK_BACK) )
+	if (glfwGetKey(g_appWindow, GLFW_KEY_BACKSPACE) != GLFW_PRESS)
 #endif
 	{
 		_dbgLineBuffer.clear();

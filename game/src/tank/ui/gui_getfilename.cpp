@@ -1,6 +1,5 @@
 // gui_getfilename.cpp
 
-#include "stdafx.h"
 #include "gui_getfilename.h"
 
 #include "Text.h"
@@ -12,8 +11,9 @@
 #include "GuiManager.h"
 
 #include "config/Language.h"
-
 #include "fs/FileSystem.h"
+
+#include <GLFW/glfw3.h>
 
 namespace UI
 {

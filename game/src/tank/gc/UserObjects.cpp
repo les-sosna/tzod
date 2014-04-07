@@ -1,12 +1,8 @@
 // UserObjects.cpp
 
-#include "stdafx.h"
-
 #include "UserObjects.h"
-
 #include "GameClasses.h"
-
-#include "level.h"
+#include "Level.h"
 
 #include "fs/MapFile.h"
 #include "fs/SaveFile.h"

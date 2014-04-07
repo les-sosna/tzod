@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "core/SafePtr.h"
+
 #include <memory>
 
 struct IRender;

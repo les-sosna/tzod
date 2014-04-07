@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Player.h"
+#include <list>
 
 // forward declarations
 template<class> class JobManager;

@@ -4,9 +4,11 @@
 
 #include "Window.h"
 
+class TextureManager;
+
 namespace UI
 {
-// forward declarations
+
 class LayoutManager;
 
 struct IWindowFactory

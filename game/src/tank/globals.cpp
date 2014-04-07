@@ -1,10 +1,9 @@
 // globals.cpp
 
-#include "stdafx.h"
 #include "globals.h"
-
-#include "fs/FileSystem.h"
 #include "Level.h"
+#include "ui/ConsoleBuffer.h"
+#include "fs/FileSystem.h"
 
 MD5 g_md5;
 

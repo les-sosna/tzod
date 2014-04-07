@@ -4,6 +4,8 @@
 
 #include "RenderBase.h"
 
+#include <vector>
+
 class TgaImage : public Image
 {
 	unsigned long _height;

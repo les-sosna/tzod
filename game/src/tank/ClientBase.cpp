@@ -1,6 +1,5 @@
 // ClientBase.cpp
 
-#include "stdafx.h"
 #include "ClientBase.h"
 #include "globals.h"
 #include "LevelInterfaces.h"

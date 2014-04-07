@@ -1,8 +1,10 @@
 // ConsoleBuffer.cpp
 
-#include "stdafx.h"
 #include "ConsoleBuffer.h"
 
+#include <cassert>
+#include <algorithm>
+#include <cstdarg>
 
 #define GET_LINE(x) (&_buffer[(_lineLength + 1) * (x)])
 

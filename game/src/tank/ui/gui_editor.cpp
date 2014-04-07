@@ -1,7 +1,5 @@
 // gui_editor.cpp
 
-#include "stdafx.h"
-
 #include "gui_editor.h"
 #include "GuiManager.h"
 
@@ -14,6 +12,12 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
+#include "Level.h"
+#include "Macros.h"
+#include "script.h"
+#include "DefaultCamera.h"
+#include "ClientBase.h"
+
 #include "gc/Object.h"
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"
@@ -21,11 +25,10 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "Level.h"
-#include "Macros.h"
-#include "script.h"
-#include "DefaultCamera.h"
-#include "ClientBase.h"
+#include <GLFW/glfw3.h>
+
+#include <ui/ConsoleBuffer.h>
+UI::ConsoleBuffer& GetConsole();
 
 
 namespace UI
@@ -541,7 +544,7 @@ EditorLayout::EditorLayout(Window *parent)
 
 EditorLayout::~EditorLayout()
 {
-	g_conf.ed_uselayers.eventChange = NULL;
+	g_conf.ed_uselayers.eventChange = nullptr;
 }
 
 void EditorLayout::OnKillSelected(GC_Object *sender, void *param)

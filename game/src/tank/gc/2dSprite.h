@@ -5,6 +5,7 @@
 
 #include "Actor.h"
 #include "video/TextureManager.h" // TODO: try to remove
+#include "globals.h"
 
 /////////////////////////////////////////////////
 

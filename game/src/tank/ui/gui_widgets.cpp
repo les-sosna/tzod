@@ -1,6 +1,6 @@
 // gui_widgets.cpp
 
-#include "stdafx.h"
+#include "globals.h"
 
 #include "gui_widgets.h"
 

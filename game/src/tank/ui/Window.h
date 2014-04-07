@@ -3,9 +3,11 @@
 #pragma once
 
 #include "Base.h"
-
 #include "core/PtrList.h"
 #include "core/Delegate.h"
+#include "core/types.h"
+
+#include <cassert>
 
 class DrawingContext;
 

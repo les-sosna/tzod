@@ -1,7 +1,5 @@
 // light.cpp
 
-#include "stdafx.h"
-
 #include "light.h"
 
 #include "level.h"

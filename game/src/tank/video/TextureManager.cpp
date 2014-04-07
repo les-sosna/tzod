@@ -1,16 +1,19 @@
 // TextureManager.cpp
 
-#include "stdafx.h"
-
 #include "TextureManager.h"
 #include "RenderBase.h"
 #include "ImageLoader.h"
 
 #include "core/debug.h"
-
 #include "gc/2dSprite.h"
-
 #include "fs/FileSystem.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

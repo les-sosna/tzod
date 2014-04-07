@@ -1,14 +1,12 @@
 // gui_maplist.cpp
 
-#include "stdafx.h"
-
+#include "globals.h"
+#include "constants.h"
 #include "gui_maplist.h"
 
 #include "fs/FileSystem.h"
 #include "fs/MapFile.h"
-
 #include "config/Config.h"
-
 #include "core/debug.h"
 
 namespace UI

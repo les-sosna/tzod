@@ -1,10 +1,7 @@
 // Rotator.cpp: implementation of the Rotator class.
 
-#include "stdafx.h"
 #include "rotator.h"
-
 #include "fs/SaveFile.h"
-
 #include "gc/sound.h"
 
 //////////////////////////////////////////////////////////////////////

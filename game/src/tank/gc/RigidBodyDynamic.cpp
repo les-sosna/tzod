@@ -1,14 +1,12 @@
 // RigidBodyDynamic.cpp
 
-#include "stdafx.h"
 #include "RigidBodyDinamic.h"
 #include "Projectiles.h"
 #include "Sound.h"
+#include "Level.h"
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
-
-#include "level.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////

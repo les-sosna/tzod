@@ -4,6 +4,7 @@
 
 #include "network/ControlPacket.h"
 #include "ClientBase.h"
+#include <vector>
 
 namespace FS
 {
@@ -20,7 +21,7 @@ public:
 	virtual bool SupportSave() const;
 	virtual bool IsLocal() const;
 	virtual void SendControl(const ControlPacket &cp);
-	virtual bool RecvControl(ControlPacketVector &result);
+	virtual bool RecvControl(std::vector<ControlPacket> &result);
     const char* GetActiveProfile() const;
 
 private:

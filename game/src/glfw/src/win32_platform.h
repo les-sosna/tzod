@@ -116,7 +116,7 @@ typedef HRESULT (WINAPI * DWMISCOMPOSITIONENABLED_T)(BOOL*);
 
 // We use versioned window class names in order not to cause conflicts
 // between applications using different versions of GLFW
-#define _GLFW_WNDCLASSNAME "GLFW30"
+#define _GLFW_WNDCLASSNAME L"GLFW30"
 
 #define _GLFW_RECREATION_NOT_NEEDED 0
 #define _GLFW_RECREATION_REQUIRED   1

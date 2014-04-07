@@ -140,7 +140,7 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
         display.cb = sizeof(DISPLAY_DEVICE);
 
         EnumDisplayDevices(adapter.DeviceName, 0, &display, 0);
-        dc = CreateDC("DISPLAY", display.DeviceString, NULL, NULL);
+        dc = CreateDCW(L"DISPLAY", display.DeviceString, NULL, NULL);
 
         if (adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
             primaryIndex = found;

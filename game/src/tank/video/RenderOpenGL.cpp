@@ -1,10 +1,9 @@
 // RenderOpenGL.cpp
 
-#include "stdafx.h"
 #include "RenderOpenGL.h"
 #include "core/debug.h"
 
-
+#include <GLFW/glfw3.h>
 
 #define VERTEX_ARRAY_SIZE   1024
 #define  INDEX_ARRAY_SIZE   2048
@@ -96,7 +95,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderOpenGL::RenderOpenGL()
-    : _sizeWindow{0, 0}
+    : _sizeWindow()
     , _curtex(-1)
     , _vaSize(0)
     , _iaSize(0)

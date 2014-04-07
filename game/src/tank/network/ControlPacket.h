@@ -80,7 +80,7 @@ struct ControlPacket
 };
 #pragma pack(pop)
 
-typedef std::vector<ControlPacket> ControlPacketVector;
+//typedef std::vector<ControlPacket> ControlPacketVector;
 
 //#include "Variant.h"
 //VARIANT_DECLARE_TYPE(ControlPacket);

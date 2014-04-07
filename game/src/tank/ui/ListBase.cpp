@@ -1,7 +1,9 @@
 // ListBase.cpp
 
-#include "stdafx.h"
 #include "ListBase.h"
+
+#include <cassert>
+#include <algorithm>
 
 namespace UI
 {

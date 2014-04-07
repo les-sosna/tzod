@@ -1,6 +1,5 @@
 // Sound.cpp
 
-#include "stdafx.h"
 #include "Sound.h"
 
 #include "Level.h"

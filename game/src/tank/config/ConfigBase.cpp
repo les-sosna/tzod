@@ -1,9 +1,17 @@
 // ConfigBase.cpp
 
-#include "stdafx.h"
 #include "ConfigBase.h"
-
+#include "ui/ConsoleBuffer.h"
 #include "fs/FileSystem.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -6,6 +6,7 @@
 #include "network/ControlPacket.h"
 #include "LevelInterfaces.h"
 
+#include <deque>
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations

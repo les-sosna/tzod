@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <cassert>
+
 ///////////////////////////////////////////////////////////////////////////////
 // simple delegate implementation
 // it don't support virtual functions!
@@ -23,8 +25,8 @@ class Delegate
 
 public:
 	Delegate()
-	  : _inst(NULL)
-	  , _func(NULL)
+	  : _inst(nullptr)
+	  , _func(nullptr)
 	{
 	}
 
@@ -51,13 +53,13 @@ public:
 
 	void clear()
 	{
-		_inst = NULL;
-		_func = NULL;
+		_inst = nullptr;
+		_func = nullptr;
 	}
 
 	operator bool () const
 	{
-		return NULL != _inst;
+		return nullptr != _inst;
 	}
 };
 

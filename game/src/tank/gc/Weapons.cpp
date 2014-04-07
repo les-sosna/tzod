@@ -1,7 +1,5 @@
 // Weapons.cpp
 
-#include "stdafx.h"
-
 #include "Weapons.h"
 #include "Vehicle.h"
 #include "RigidBodyDinamic.h"

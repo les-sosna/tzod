@@ -1,10 +1,7 @@
 // particles.cpp
 
-#include "stdafx.h"
 #include "particles.h"
-
 #include "functions.h"
-
 #include "fs/SaveFile.h"
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "core/SafePtr.h" // for RefCounted
+#include "core/MyMath.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 struct DisplayMode

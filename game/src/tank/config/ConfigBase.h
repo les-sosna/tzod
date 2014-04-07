@@ -2,6 +2,12 @@
 
 #pragma once
 
+#include <string>
+#include <functional>
+#include <map>
+#include <deque>
+#include <vector>
+
 // forward declarations
 class ConfVar;
 class ConfVarNumber;
@@ -61,9 +67,9 @@ protected:
 
 	union Value
 	{
-		double                        asNumber;
+		double                         asNumber;
 		bool                           asBool;
-		std::string                      *asString;
+		std::string                   *asString;
 		std::deque<ConfVar*>          *asArray;
 		TableType                     *asTable;
 	};

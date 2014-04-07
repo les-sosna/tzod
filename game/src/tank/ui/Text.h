@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Window.h"
+#include "core/types.h"
 
 namespace UI
 {

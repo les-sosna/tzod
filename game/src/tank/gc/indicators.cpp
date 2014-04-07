@@ -1,6 +1,5 @@
 // indicators.cpp
 
-#include "stdafx.h"
 #include "indicators.h"
 #include "Vehicle.h"
 

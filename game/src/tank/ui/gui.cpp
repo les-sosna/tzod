@@ -1,7 +1,5 @@
 // gui.cpp
 
-#include "stdafx.h"
-
 #include "gui.h"
 #include "gui_maplist.h"
 
@@ -34,6 +32,14 @@
 
 #include "network/CommonTypes.h"
 
+#include <GLFW/glfw3.h>
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 namespace UI
 {

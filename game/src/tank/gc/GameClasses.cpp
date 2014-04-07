@@ -1,7 +1,5 @@
 //GameClasses.cpp
 
-#include "stdafx.h"
-
 #include "Player.h"
 #include "GameClasses.h"
 #include "Camera.h"

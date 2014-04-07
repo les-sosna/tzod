@@ -2,7 +2,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "Macros.h"
+#include "Functions.h"
+#include "Level.h"
 
 #include "ai.h"
 #include "Vehicle.h"
@@ -18,9 +20,7 @@
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
 
-#include "Macros.h"
-#include "Functions.h"
-#include "Level.h"
+#include <queue>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Catmull-Rom interpolation

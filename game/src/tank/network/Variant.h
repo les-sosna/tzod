@@ -1,6 +1,8 @@
 // Variant.h
 
 #pragma once
+
+#include <zlib.h>
 #include <boost/asio.hpp>
 
 #define VARIANT_DEBUG

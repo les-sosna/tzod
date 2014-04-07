@@ -1,8 +1,6 @@
 // Profiler.cpp
 
-#include "stdafx.h"
 #include "Profiler.h"
-
 
 std::vector<CounterBase::CounterInfoEx>& CounterBase::GetRegisteredCountersStatic()
 {

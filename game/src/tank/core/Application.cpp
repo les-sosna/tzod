@@ -1,9 +1,11 @@
 // Application.cpp
 
-#include "stdafx.h"
+#include "globals.h"
+#include "constants.h"
 #include "Application.h"
 #include "config/Config.h"
 
+#include <GLFW/glfw3.h>
 
 AppBase::AppBase()
 {

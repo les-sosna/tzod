@@ -7,6 +7,8 @@
 
 #include <deque>
 #include <string>
+#include <functional>
+#include <vector>
 
 namespace UI
 {

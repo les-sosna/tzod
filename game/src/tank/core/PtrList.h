@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <core/MemoryManager.h>
+
 ///////////////////////////////////
 
 template <class T>

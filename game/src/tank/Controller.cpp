@@ -1,6 +1,5 @@
 // Controller.cpp
 
-#include "stdafx.h"
 #include "Controller.h"
 #include "config/Config.h"
 #include "network/ControlPacket.h" // for VehicleState
@@ -9,6 +8,11 @@
 #include "gc/Vehicle.h"
 #include "Level.h"
 #include "KeyMapper.h"
+#include <GLFW/glfw3.h>
+
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
 
 static bool IsKeyPressed(int key)
 {

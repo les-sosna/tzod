@@ -1,8 +1,12 @@
 // Player.cpp
 
-#include "stdafx.h"
-
+#include "GameClasses.h"
+#include "Camera.h"
+#include "vehicle.h"
+#include "indicators.h"
+#include "particles.h"
 #include "Player.h"
+#include "Sound.h"
 
 #include "script.h"
 #include "Macros.h"
@@ -25,12 +29,13 @@
 #include "ui/gui.h"
 
 
-#include "GameClasses.h"
-#include "Camera.h"
-#include "vehicle.h"
-#include "indicators.h"
-#include "particles.h"
-#include "Sound.h"
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 

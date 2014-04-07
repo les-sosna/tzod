@@ -1,7 +1,7 @@
 // Main.cpp
 
-#include "stdafx.h"
 
+#include "globals.h"
 #include "script.h"
 #include "Macros.h"
 #include "Level.h"
@@ -16,11 +16,6 @@
 #include "sound/MusicPlayer.h"
 #endif
 
-#include "core/debug.h"
-#include "core/Application.h"
-#include "core/Timer.h"
-#include "core/Profiler.h"
-
 #include "video/TextureManager.h"
 #include "video/RenderOpenGL.h"
 #include "video/RenderDirect3D.h"
@@ -31,13 +26,27 @@
 //#include "ui/Interface.h"
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
+#include "ui/ConsoleBuffer.h"
 
 #include "gc/Sound.h"
 #include "gc/Player.h"
 
-#include "fs/FileSystem.h"
+#include "fs/FileSystemImpl.h"
+
+#include "core/debug.h"
+#include "core/Application.h"
+#include "core/Timer.h"
+#include "core/Profiler.h"
 
 #include "res/resource.h"
+
+
+#include <GLFW/glfw3.h>
+
+#include <thread>
+
+
+UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -193,6 +202,9 @@ namespace
 }
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <windef.h>
 int APIENTRY WinMain( HINSTANCE, // hInstance
                       HINSTANCE, // hPrevInstance
                       LPSTR, // lpCmdLine

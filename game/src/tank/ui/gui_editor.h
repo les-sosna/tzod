@@ -6,6 +6,7 @@
 #include "ui/Dialog.h"
 #include "ui/List.h"
 #include "ObjectListener.h"
+#include "core/SafePtr.h"
 
 // forward declarations
 class GC_Object;

@@ -1,7 +1,10 @@
 cmake_minimum_required (VERSION 2.8)
 project(Tank)
-find_package(Boost 1.55 COMPONENTS system REQUIRED)
-find_package(OpenAL)
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package(Boost 1.55 REQUIRED COMPONENTS system)
+#find_package(OpenAL)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${Lua_SOURCE_DIR}/src)
 include_directories(${Zlib_SOURCE_DIR})
@@ -9,10 +12,13 @@ include_directories(${OggVorbis_SOURCE_DIR}/include)
 include_directories(${Pluto_SOURCE_DIR})
 include_directories(${GLFW_SOURCE_DIR}/include)
 include_directories(.)
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 /EHsc")
 add_definitions(-DNOSOUND)
+add_definitions(-DNOMINMAX) # win32 specific
 link_libraries(${glfw_LIBRARIES})
-add_executable(tank MACOSX_BUNDLE
+link_directories(${Boost_LIBRARY_DIR})
+add_executable(tank WIN32
+#add_executable(tank MACOSX_BUNDLE
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp
@@ -40,7 +46,7 @@ add_executable(tank MACOSX_BUNDLE
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp
 	video/TextureManager.cpp
-	fs/FileSystem.cpp
+	fs/FileSystemImpl.cpp
 	fs/MapFile.cpp
 	fs/SaveFile.cpp
 	gc/TypeSystem.cpp

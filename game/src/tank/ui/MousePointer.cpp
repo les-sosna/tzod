@@ -1,18 +1,15 @@
 // MousePointer.cpp
 
-#include "stdafx.h"
 #include "MousePointer.h"
 #include "Text.h"
 
-#include "gc/Camera.h"
 #include "Level.h"
+#include "gc/Camera.h"
+
+#include <GLFW/glfw3.h>
 
 namespace UI
 {
-;
-
-///////////////////////////////////////////////////////////////////////////////
-// MouseCursor class implementation
 
 MouseCursor::MouseCursor(LayoutManager* manager, const char *texture)
   : Window(NULL, manager)

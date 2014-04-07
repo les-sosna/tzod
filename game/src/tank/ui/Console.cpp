@@ -1,7 +1,5 @@
 // Console.cpp
 
-#include "stdafx.h"
-
 #include "Console.h"
 #include "Edit.h"
 #include "Scroll.h"
@@ -10,6 +8,9 @@
 #include "video/TextureManager.h"
 #include "GuiManager.h"
 
+#include <GLFW/glfw3.h>
+
+#include <algorithm>
 
 namespace UI
 {

@@ -3,6 +3,9 @@
 #pragma once
 
 
+#include "ui/ConsoleBuffer.h"
+UI::ConsoleBuffer& GetConsole();
+
 //#ifdef _DEBUG
 #define TRACE(fmt, ...) GetConsole().Printf(0, fmt, ##__VA_ARGS__);
 //#else

@@ -1,6 +1,5 @@
 // Config.cpp
 
-#include "stdafx.h"
 #include "ConfigBase.h"
 
 // first time include it to define the structure

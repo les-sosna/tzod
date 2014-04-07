@@ -1,12 +1,8 @@
 // Window.cpp
 
-#include "stdafx.h"
-
 #include "Window.h"
 #include "GuiManager.h"
-
 #include "video/TextureManager.h"
-
 
 namespace UI
 {

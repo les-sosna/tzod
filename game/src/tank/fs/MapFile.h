@@ -2,6 +2,14 @@
 
 #pragma once
 
+#include <core/SafePtr.h>
+
+#include <map>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <cstdint>
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define MAP_EXCHANGE_FLOAT(name, value, def_val)            \

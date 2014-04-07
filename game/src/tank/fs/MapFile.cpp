@@ -1,6 +1,5 @@
 // MapFile.cpp
 
-#include "stdafx.h"
 #include "MapFile.h"
 #include "FileSystem.h"
 

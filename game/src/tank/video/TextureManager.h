@@ -3,6 +3,12 @@
 #pragma once
 
 #include "RenderBase.h"
+#include "core/singleton.h"
+
+#include <stack>
+#include <list>
+#include <map>
+#include <vector>
 
 namespace FS
 {

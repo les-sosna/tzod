@@ -1,6 +1,5 @@
 // crate.cpp
 
-#include "stdafx.h"
 #include "crate.h"
 #include "particles.h"
 #include "Sound.h"

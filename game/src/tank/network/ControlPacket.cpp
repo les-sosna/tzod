@@ -1,7 +1,8 @@
 // ControlPacket.cpp
 
-#include "stdafx.h"
 #include "ControlPacket.h"
+#include "core/MyMath.h"
+#include <cstring>
 
 //VARIANT_IMPLEMENT_TYPE(ControlPacket) RAW;
 //VARIANT_IMPLEMENT_TYPE(ControlPacketVector) STD_VECTOR;

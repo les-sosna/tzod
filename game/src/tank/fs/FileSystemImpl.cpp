@@ -1,32 +1,42 @@
-// FileSystem.cpp
+// FileSystemImpl.cpp
 
-#include "stdafx.h"
-#include "FileSystem.h"
+#include "FileSystemImpl.h"
 #include "functions.h"
 
-namespace FS {
+#include <vector>
+
+
+static std::string StrFromErr(DWORD dwMessageId)
+{
+	LPVOID lpMsgBuf = NULL;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, dwMessageId, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+	std::string result((LPCTSTR)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	return result;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SafePtr<FileSystem> FileSystem::Create(const std::string &nodeName)
+SafePtr<FS::FileSystem> FS::FileSystem::Create(const std::string &nodeName)
 {
 	return new FileSystem(nodeName);
 }
 
-FileSystem::FileSystem(const std::string &nodeName)
+FS::FileSystem::FileSystem(const std::string &nodeName)
   : _nodeName(nodeName)
   , _parent(NULL)
 {
 }
 
-FileSystem::~FileSystem(void)
+FS::FileSystem::~FileSystem(void)
 {
 	// unmount all children
 	while( !_children.empty() )
 		_children.begin()->second->Unmount();
 }
 
-const std::string FileSystem::GetFullPath(void) const
+const std::string FS::FileSystem::GetFullPath(void) const
 {
 	std::string fullPath = GetNodeName();
 	for( const FileSystem *fs = GetParent(); fs; fs = fs->GetParent() )
@@ -36,7 +46,7 @@ const std::string FileSystem::GetFullPath(void) const
 	return fullPath;
 }
 
-bool FileSystem::MountTo(FileSystem *parent)
+bool FS::FileSystem::MountTo(FileSystem *parent)
 {
 	assert(!GetNodeName().empty() && GetNodeName() != "/");
 	assert(!_parent); // may be is already mounted somewhere? only one parent is allowed
@@ -53,7 +63,7 @@ bool FileSystem::MountTo(FileSystem *parent)
 	return true;
 }
 
-void FileSystem::Unmount()
+void FS::FileSystem::Unmount()
 {
 	assert(_parent); // not mounted?
 	assert(_parent->GetFileSystem(GetNodeName(), false, true) == this);
@@ -64,12 +74,12 @@ void FileSystem::Unmount()
 	Release();
 }
 
-bool FileSystem::IsValid() const
+bool FS::FileSystem::IsValid() const
 {
 	return _parent ? _parent->IsValid() : true;
 }
 
-SafePtr<File> FileSystem::Open(const std::string &fileName, FileMode mode)
+SafePtr<FS::File> FS::FileSystem::Open(const std::string &fileName, FileMode mode)
 {
 	std::string::size_type pd = fileName.rfind('/');
 	if( std::string::npos != pd ) // was a path delimiter found?
@@ -79,18 +89,18 @@ SafePtr<File> FileSystem::Open(const std::string &fileName, FileMode mode)
 	return RawOpen(fileName, mode);
 }
 
-void FileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+void FS::FileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
 	// base file system can't contain any files
 }
 
-SafePtr<File> FileSystem::RawOpen(const std::string &fileName, FileMode mode)
+SafePtr<FS::File> FS::FileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	throw std::runtime_error("Base file system can't contain any files");
 	return NULL;
 }
 
-SafePtr<FileSystem> FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+SafePtr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
 
@@ -122,7 +132,10 @@ SafePtr<FileSystem> FileSystem::GetFileSystem(const std::string &path, bool crea
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef _WIN32
-OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
+
+#include <Windows.h>
+
+FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
   : _mode(mode)
   , _mapped(false)
   , _streamed(false)
@@ -133,9 +146,9 @@ OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
 	std::string tmp = fileName;
 	for( std::string::iterator it = tmp.begin(); tmp.end() != it; ++it )
 	{
-		if( DELIMITER == *it )
+		if( '/' == *it )
 		{
-			*it = TEXT('\\');
+			*it = '\\';
 		}
 	}
 
@@ -170,11 +183,11 @@ OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
 	}
 }
 
-OSFileSystem::OSFile::~OSFile()
+FS::OSFileSystem::OSFile::~OSFile()
 {
 }
 
-SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
+SafePtr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
 {
 	assert(!_mapped && !_streamed);
 	SafePtr<MemMap> result(new OSMemMap(this, _file.h));
@@ -182,7 +195,7 @@ SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
 	return result;
 }
 
-SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
+SafePtr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
 {
 	assert(!_mapped && !_streamed);
 	_streamed = true;
@@ -190,13 +203,13 @@ SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
 	return result;
 }
 
-void OSFileSystem::OSFile::Unmap()
+void FS::OSFileSystem::OSFile::Unmap()
 {
 	assert(_mapped && !_streamed);
 	_mapped = false;
 }
 
-void OSFileSystem::OSFile::Unstream()
+void FS::OSFileSystem::OSFile::Unstream()
 {
 	assert(_streamed && !_mapped);
 	_streamed = false;
@@ -204,39 +217,39 @@ void OSFileSystem::OSFile::Unstream()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<File> &parent, HANDLE hFile)
+FS::OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<OSFile> &parent, HANDLE hFile)
   : _file(parent)
   , _hFile(hFile)
 {
 	Seek(0, SEEK_SET);
 }
 
-OSFileSystem::OSFile::OSStream::~OSStream()
+FS::OSFileSystem::OSFile::OSStream::~OSStream()
 {
     _file->Unstream();
 }
     
-ErrorCode OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
+FS::ErrorCode FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
 {
 	DWORD bytesRead;
-	if( !ReadFile(_hFile, dst, blockSize, &bytesRead, NULL) )
+	if( !ReadFile(_hFile, dst, size, &bytesRead, NULL) )
 	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
+		return EC_ERROR;
 	}
-	return bytesRead;
+	return bytesRead == size ? EC_OK : EC_EOF;
 }
 
-void OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
+void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 {
 	DWORD written;
-	BOOL result = WriteFile(_hFile, src, byteCount, &written, NULL);
-	if( !result || written != byteCount )
+	BOOL result = WriteFile(_hFile, src, size, &written, NULL);
+	if( !result || written != size )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
-void OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
 	DWORD dwMoveMethod;
 	switch( origin )
@@ -254,12 +267,11 @@ void OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
-	return result.QuadPart;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent, HANDLE hFile)
+FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent, HANDLE hFile)
   : _file(parent)
   , _hFile(hFile)
   , _data(NULL)
@@ -268,7 +280,7 @@ OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent, HANDLE h
 	SetupMapping();
 }
 
-OSFileSystem::OSFile::OSMemMap::~OSMemMap()
+FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 {
 	if( _data )
 	{
@@ -277,7 +289,7 @@ OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 	_file->Unmap();
 }
 
-void OSFileSystem::OSFile::OSMemMap::SetupMapping()
+void FS::OSFileSystem::OSFile::OSMemMap::SetupMapping()
 {
 	_size = GetFileSize(_hFile, NULL);
 	if( INVALID_FILE_SIZE == _size )
@@ -298,17 +310,17 @@ void OSFileSystem::OSFile::OSMemMap::SetupMapping()
 	}
 }
 
-char* OSFileSystem::OSFile::OSMemMap::GetData()
+char* FS::OSFileSystem::OSFile::OSMemMap::GetData()
 {
 	return (char *) _data;
 }
 
-unsigned long OSFileSystem::OSFile::OSMemMap::GetSize() const
+unsigned long FS::OSFileSystem::OSFile::OSMemMap::GetSize() const
 {
 	return _size;
 }
 
-void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
+void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 {
 	BOOL bUnmapped = UnmapViewOfFile(_data);
 	_data = NULL;
@@ -335,12 +347,12 @@ void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SafePtr<OSFileSystem> OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
+SafePtr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
 {
 	return new OSFileSystem(rootDirectory, nodeName);
 }
 
-OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
+FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
   : FileSystem(nodeName)
 {
 	// remember current directory to restore it later
@@ -367,26 +379,26 @@ OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &
 	}
 }
 
-OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
+FS::OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
   : FileSystem(nodeName)
 {
 	assert(parent);
-	assert(std::string::npos == nodeName.find(DELIMITER));
+	assert(std::string::npos == nodeName.find('/'));
 
 	MountTo(parent);
 	_rootDirectory = parent->_rootDirectory + TEXT('\\') + nodeName;
 }
 
-OSFileSystem::~OSFileSystem(void)
+FS::OSFileSystem::~OSFileSystem(void)
 {
 }
 
-bool OSFileSystem::IsValid() const
+bool FS::OSFileSystem::IsValid() const
 {
 	return true;
 }
 
-void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
 	// remember current directory to restore it later
 	DWORD len = GetCurrentDirectory(0, NULL);
@@ -432,15 +444,15 @@ void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string 
 	}
 }
 
-SafePtr<File> OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
+SafePtr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	// combine with the root path
 	return new OSFile(_rootDirectory + TEXT('\\') + fileName, mode);
 }
 
-SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+SafePtr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
-	if( SafePtr<FileSystem> tmp = __super::GetFileSystem(path, create, true) )
+	if (SafePtr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true))
 	{
 		return tmp;
 	}
@@ -449,11 +461,11 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool cr
 
 	// skip delimiters at the beginning
 	std::string::size_type offset = 0;
-	while( offset < path.length() && path[offset] == DELIMITER )
+	while( offset < path.length() && path[offset] == '/' )
 		++offset;
 	assert(path.length() > offset);
 
-	std::string::size_type p = path.find(DELIMITER, offset);
+	std::string::size_type p = path.find('/', offset);
 	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
 	std::string tmpDir = _rootDirectory + TEXT('\\') + dirName;
 
@@ -506,7 +518,7 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool cr
 #include <fnmatch.h>
 #include <sys/stat.h>
 
-OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
+FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
     : _mode(mode)
     , _mapped(false)
     , _streamed(false)
@@ -519,11 +531,11 @@ OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
         throw std::runtime_error("open file");
 }
 
-OSFileSystem::OSFile::~OSFile()
+FS::OSFileSystem::OSFile::~OSFile()
 {
 }
 
-SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
+SafePtr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
 {
     assert(!_mapped && !_streamed);
     SafePtr<MemMap> result(new OSMemMap(this));
@@ -531,20 +543,20 @@ SafePtr<MemMap> OSFileSystem::OSFile::QueryMap()
     return result;
 }
 
-SafePtr<Stream> OSFileSystem::OSFile::QueryStream()
+SafePtr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
 {
     assert(!_mapped && !_streamed);
     _streamed = true;
     return SafePtr<Stream>(new OSStream(this));
 }
 
-void OSFileSystem::OSFile::Unmap()
+void FS::OSFileSystem::OSFile::Unmap()
 {
     assert(_mapped && !_streamed);
     _mapped = false;
 }
 
-void OSFileSystem::OSFile::Unstream()
+void FS::OSFileSystem::OSFile::Unstream()
 {
     assert(_streamed && !_mapped);
     _streamed = false;
@@ -552,25 +564,25 @@ void OSFileSystem::OSFile::Unstream()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<OSFile> &parent)
+FS::OSFileSystem::OSFile::OSStream::OSStream(const SafePtr<OSFile> &parent)
     : _file(parent)
 {
     Seek(0, SEEK_SET);
 }
 
-OSFileSystem::OSFile::OSStream::~OSStream()
+FS::OSFileSystem::OSFile::OSStream::~OSStream()
 {
     _file->Unstream();
 }
 
-ErrorCode OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
+FS::ErrorCode FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
 {
     if( 1 == fread(dst, size, 1, _file->_file.f) )
         return EC_OK;
     return feof(_file->_file.f) ? EC_EOF : EC_ERROR;
 }
 
-void OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
+void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 {   
     if( 1 != fwrite(src, size, 1, _file->_file.f) )
     {
@@ -578,14 +590,14 @@ void OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
     }
 }
 
-void OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
     fseek(_file->_file.f, amount, origin);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent)
+FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent)
     : _file(parent)
 {
     if( fseek(_file->_file.f, 0, SEEK_END) )
@@ -602,42 +614,42 @@ OSFileSystem::OSFile::OSMemMap::OSMemMap(const SafePtr<OSFile> &parent)
     }
 }
 
-OSFileSystem::OSFile::OSMemMap::~OSMemMap()
+FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 {
     fseek(_file->_file.f, 0, SEEK_SET);
     fwrite(&_data[0], _data.size(), 1, _file->_file.f);
     _file->Unmap();
 }
 
-char* OSFileSystem::OSFile::OSMemMap::GetData()
+char* FS::OSFileSystem::OSFile::OSMemMap::GetData()
 {
     return _data.empty() ? nullptr : &_data[0];
 }
 
-unsigned long OSFileSystem::OSFile::OSMemMap::GetSize() const
+unsigned long FS::OSFileSystem::OSFile::OSMemMap::GetSize() const
 {
     return _data.size();
 }
 
-void OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
+void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 {
     _data.resize(size);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SafePtr<OSFileSystem> OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
+SafePtr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
 {
     return new OSFileSystem(rootDirectory, nodeName);
 }
 
-OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
+FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
     : FileSystem(nodeName)
     , _rootDirectory(rootDirectory)
 {
 }
 
-OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
+FS::OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
     : FileSystem(nodeName)
 {
     assert(parent);
@@ -647,16 +659,16 @@ OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
     _rootDirectory = parent->_rootDirectory + '/' + nodeName;
 }
 
-OSFileSystem::~OSFileSystem(void)
+FS::OSFileSystem::~OSFileSystem(void)
 {
 }
 
-bool OSFileSystem::IsValid() const
+bool FS::OSFileSystem::IsValid() const
 {
     return true;
 }
 
-void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
     if( DIR *dir = opendir(_rootDirectory.c_str()) )
     {
@@ -684,12 +696,12 @@ void OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string 
     }
 }
 
-SafePtr<File> OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
+SafePtr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
     return new OSFile(_rootDirectory + '/' + fileName, mode);
 }
 
-SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+SafePtr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
     if( SafePtr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true) )
     {
@@ -746,5 +758,4 @@ SafePtr<FileSystem> OSFileSystem::GetFileSystem(const std::string &path, bool cr
 
 #endif // _WIN32
 
-} // end of namespace FS
 // end of file

@@ -1,21 +1,22 @@
 // Camera.cpp
 
-#include "stdafx.h"
-
 #include "Camera.h"
 #include "Level.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "Weapons.h"
-
 #include "functions.h"
 #include "Macros.h"
 
+#include "config/Config.h"
+#include "fs/SaveFile.h"
+#include "ui/ConsoleBuffer.h"
 #include "video/RenderBase.h" // FIXME
 
-#include "fs/SaveFile.h"
+#include <GLFW/glfw3.h>
 
-#include "config/Config.h"
+UI::ConsoleBuffer& GetConsole();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

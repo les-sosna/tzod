@@ -1,7 +1,6 @@
 // gui_desktop.cpp
 
-#include "stdafx.h"
-
+#include "globals.h"
 #include "gui_widgets.h"
 #include "gui_desktop.h"
 #include "gui_editor.h"
@@ -22,6 +21,21 @@
 //#include "network/TankClient.h"
 
 #include "script.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+
+#include <ui/ConsoleBuffer.h>
+UI::ConsoleBuffer& GetConsole();
+
+
+#include <GLFW/glfw3.h>
+
 
 namespace UI
 {
@@ -167,8 +181,8 @@ Desktop::Desktop(LayoutManager* manager)
 
 Desktop::~Desktop()
 {
-	g_conf.ui_showfps.eventChange = NULL;
-	g_conf.ui_showtime.eventChange = NULL;
+	g_conf.ui_showfps.eventChange = nullptr;
+	g_conf.ui_showtime.eventChange = nullptr;
 }
 
 void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const

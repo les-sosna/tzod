@@ -1,7 +1,6 @@
 // Service.cpp
 
-#include "stdafx.h"
-
+#include "globals.h"
 #include "Service.h"
 #include "Level.h"
 

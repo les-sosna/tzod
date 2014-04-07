@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "core/MyMath.h"
+
 class DefaultCamera
 {
 public:

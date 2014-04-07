@@ -1,7 +1,11 @@
 // TypeSystem.h
 
 #pragma once
+#include "core/MyMath.h"
 #include <string>
+#include <map>
+#include <set>
+#include <vector>
 
 class GC_Object;
 struct FromFile {};

@@ -1,12 +1,14 @@
 // List.cpp
 
-#include "stdafx.h"
-
 #include "List.h"
 #include "Scroll.h"
 #include "GuiManager.h"
 
 #include "video/TextureManager.h"
+
+#include <GLFW/glfw3.h>
+
+#include <algorithm>
 
 namespace UI
 {

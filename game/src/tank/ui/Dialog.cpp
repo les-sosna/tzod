@@ -1,10 +1,9 @@
 // Dialog.cpp
 
-#include "stdafx.h"
-
 #include "Dialog.h"
 #include "GuiManager.h"
 
+#include <GLFW/glfw3.h>
 
 namespace UI
 {

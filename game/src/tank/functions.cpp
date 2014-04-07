@@ -1,11 +1,9 @@
 // functions.cpp
 
-#include "stdafx.h"
-
+#include "globals.h"
+#include "Level.h"
 #include "core/MyMath.h"
 #include "fs/MapFile.h"
-
-#include "Level.h"
 
 bool PauseGame(bool pause)
 {
@@ -59,17 +57,6 @@ uint32_t CalcCRC32(const void *data, size_t size)
 
     return crc;
 }
-/*
-std::string StrFromErr(DWORD dwMessageId)
-{
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, dwMessageId, 0, (LPTSTR) &lpMsgBuf, 0, NULL);
-	std::string result((LPCTSTR) lpMsgBuf);
-	LocalFree(lpMsgBuf);
-	return result;
-}*/
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

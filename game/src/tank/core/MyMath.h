@@ -1,8 +1,10 @@
 // MyMath.h
 #pragma once
 
+#include <core/types.h>
 #include <cmath>
 #include <cassert>
+#include <cstdlib>
 
 #define PI    3.141593f
 #define PI2   6.283185f

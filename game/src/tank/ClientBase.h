@@ -6,6 +6,7 @@
 #include "gc/Object.h" // for ObjPtr
 #include "Controller.h"
 
+#include <memory>
 
 struct IClientCallback
 {
@@ -40,7 +41,7 @@ public:
 	virtual bool SupportSave() const = 0;
 	virtual bool IsLocal() const = 0;
 	virtual void SendControl(const ControlPacket &cp) = 0; // this function terminates current frame and starts next one
-	virtual bool RecvControl(ControlPacketVector &result) = 0;
+	virtual bool RecvControl(std::vector<ControlPacket> &result) = 0;
     virtual const char* GetActiveProfile() const = 0;
 
 protected:

@@ -1,10 +1,10 @@
 // script.cpp
 
-#include "stdafx.h"
 #include "script.h"
 #include "level.h"
 #include "Macros.h"
 #include "BackgroundIntro.h"
+#include "functions.h"
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
@@ -12,6 +12,7 @@
 #include "gc/ai.h"
 #include "gc/Weapons.h" // for ugly workaround
 
+#include "ui/ConsoleBuffer.h"
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
@@ -32,7 +33,17 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "functions.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+#include <GLFW/glfw3.h>
+
+UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 // aux

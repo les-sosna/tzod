@@ -2,9 +2,8 @@
 
 #pragma once
 
-///////////////////////////////////////////////////////////////////////////////
-// script functions
-
+struct lua_State;
+class GC_Object;
 
 lua_State* script_open(void);
 void       script_close(lua_State *L);
@@ -17,5 +16,4 @@ int luaT_ConvertVehicleClass(lua_State *L);
 void luaT_pushobject(lua_State *L, class GC_Object *obj);
 void ClearCommandQueue(lua_State *L);
 
-///////////////////////////////////////////////////////////////////////////////
 // end of file

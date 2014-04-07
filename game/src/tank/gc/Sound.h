@@ -5,6 +5,8 @@
 #include "Actor.h"
 //#include "core/ComPtr.h"
 
+#include <SoundTemplates.h>
+
 /////////////////////////////////////////////////////////////
 
 enum enumSoundMode
@@ -23,7 +25,7 @@ class GC_Sound : public GC_Actor
 
 private:
 	enumSoundTemplate   _soundTemplate;
-#ifdef _WIN32
+#ifndef NOSOUND
 	ComPtr<IDirectSoundBuffer> _soundBuffer;
 	DWORD _dwNormalFrequency;
 	DWORD _dwCurrentFrequency;

@@ -3,7 +3,9 @@
 #pragma once
 
 #include "ui/Text.h"
-
+#include <list>
+#include <string>
+#include <queue>
 
 namespace UI
 {

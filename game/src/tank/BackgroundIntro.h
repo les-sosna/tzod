@@ -15,7 +15,7 @@ public:
 	virtual bool SupportSave() const;
 	virtual bool IsLocal() const;
 	virtual void SendControl(const ControlPacket &cp);
-	virtual bool RecvControl(ControlPacketVector &result);
+	virtual bool RecvControl(std::vector<ControlPacket> &result);
     virtual const char* GetActiveProfile() const;
 };
 

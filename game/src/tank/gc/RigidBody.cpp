@@ -1,8 +1,10 @@
 // RigidBody.cpp
 
-#include "stdafx.h"
-
 #include "RigidBody.h"
+#include "Sound.h"
+#include "Particles.h"
+#include "Player.h"
+#include "Vehicle.h"
 
 #include "level.h"
 #include "functions.h"
@@ -12,10 +14,16 @@
 #include "fs/SaveFile.h"
 #include "config/Config.h"
 
-#include "Sound.h"
-#include "Particles.h"
-#include "Player.h"
-#include "Vehicle.h"
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+#include <ui/ConsoleBuffer.h>
+UI::ConsoleBuffer& GetConsole();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

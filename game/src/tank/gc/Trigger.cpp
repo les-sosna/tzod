@@ -1,6 +1,5 @@
 // Trigger.cpp
 
-#include "stdafx.h"
 #include "Trigger.h"
 #include "Vehicle.h"
 #include "ai.h"
@@ -11,6 +10,17 @@
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+#include <ui/ConsoleBuffer.h>
+UI::ConsoleBuffer& GetConsole();
+
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {

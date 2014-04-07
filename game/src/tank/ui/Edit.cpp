@@ -1,11 +1,14 @@
 // Edit.cpp
 
-#include "stdafx.h"
-
+#include "globals.h"
 #include "Edit.h"
 #include "GuiManager.h"
 
 #include "video/TextureManager.h"
+
+#include <algorithm>
+
+#include <GLFW/glfw3.h>
 
 namespace UI
 {

@@ -4,6 +4,7 @@
 
 #include "Base.h"
 #include "Dialog.h"
+#include "constants.h"
 
 #include "config/Config.h"
 

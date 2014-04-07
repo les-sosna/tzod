@@ -1,6 +1,5 @@
 // Turrets.h
 
-#include "stdafx.h"
 #include "Turrets.h"
 
 #include "Macros.h"

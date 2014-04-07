@@ -1,7 +1,5 @@
 // 2dSprite.cpp
 
-#include "stdafx.h"
-
 #include "2dSprite.h"
 #include "Level.h"
 

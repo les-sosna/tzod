@@ -1,8 +1,9 @@
 // Scroll.cpp
 
-#include "stdafx.h"
 #include "Scroll.h"
 #include "Button.h"
+
+#include <algorithm>
 
 namespace UI
 {

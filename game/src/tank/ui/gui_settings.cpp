@@ -1,7 +1,5 @@
 // gui_settings.cpp
 
-#include "stdafx.h"
-
 #include "gc/Object.h"
 
 #include "gui_settings.h"
@@ -25,6 +23,8 @@
 
 #include "functions.h"
 #include "Macros.h"
+
+#include <GLFW/glfw3.h>
 
 
 namespace UI

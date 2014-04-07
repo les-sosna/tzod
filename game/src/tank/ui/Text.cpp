@@ -1,6 +1,5 @@
 // Text.cpp
 
-#include "stdafx.h"
 #include "Text.h"
 
 #include "GuiManager.h"

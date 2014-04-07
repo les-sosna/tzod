@@ -4,7 +4,14 @@
 
 #include "Base.h"
 #include "Dialog.h"
+#include "core/SafePtr.h"
 
+#include <string>
+
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {

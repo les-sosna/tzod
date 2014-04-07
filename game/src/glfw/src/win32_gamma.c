@@ -43,7 +43,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
     display.cb = sizeof(DISPLAY_DEVICE);
     EnumDisplayDevices(monitor->win32.name, 0, &display, 0);
 
-    dc = CreateDC("DISPLAY", display.DeviceString, NULL, NULL);
+    dc = CreateDCW(L"DISPLAY", display.DeviceString, NULL, NULL);
     GetDeviceGammaRamp(dc, values);
     DeleteDC(dc);
 
@@ -75,7 +75,7 @@ void _glfwPlatformSetGammaRamp(_GLFWmonitor* monitor, const GLFWgammaramp* ramp)
     display.cb = sizeof(DISPLAY_DEVICE);
     EnumDisplayDevices(monitor->win32.name, 0, &display, 0);
 
-    dc = CreateDC("DISPLAY", display.DeviceString, NULL, NULL);
+    dc = CreateDCW(L"DISPLAY", display.DeviceString, NULL, NULL);
     SetDeviceGammaRamp(dc, values);
     DeleteDC(dc);
 }

@@ -1,18 +1,17 @@
 // gui_scoretable.cpp
 
-#include "stdafx.h"
 #include "GuiManager.h"
 #include "gui_scoretable.h"
 
+#include "Level.h"
+#include "Macros.h"
+
 #include "video/TextureManager.h"
-
 #include "gc/Player.h"
-
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "Level.h"
-#include "Macros.h"
+#include <GLFW/glfw3.h>
 
 namespace UI
 {

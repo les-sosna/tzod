@@ -1,7 +1,5 @@
 // pickup.cpp
 
-#include "stdafx.h"
-
 #include "pickup.h"
 #include "GameClasses.h"
 #include "indicators.h"
@@ -9,10 +7,7 @@
 #include "Player.h"
 #include "Sound.h"
 #include "particles.h"
-
 #include "Weapons.h"
-
-
 #include "Macros.h"
 #include "Level.h"
 #include "functions.h"
@@ -20,6 +15,16 @@
 
 #include "fs/SaveFile.h"
 #include "fs/MapFile.h"
+#include "ui/ConsoleBuffer.h"
+
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+UI::ConsoleBuffer& GetConsole();
 
 
 ///////////////////////////////////////////////////////////////////////////////

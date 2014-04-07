@@ -3,6 +3,9 @@
 
 #include "ConfigBase.h"
 
+#include <cassert>
+
+
 #if CONFIG_CACHE_PASS == 1
 
 // pass one may be included several times as part of different headers so we need guard here

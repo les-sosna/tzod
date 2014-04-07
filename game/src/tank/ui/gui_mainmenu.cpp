@@ -1,7 +1,5 @@
 // gui_mainmenu.cpp
 
-#include "stdafx.h"
-
 #include "gui_mainmenu.h"
 #include "gui_desktop.h"
 #include "gui_network.h"
@@ -16,13 +14,6 @@
 #include "Button.h"
 #include "Text.h"
 
-#include "fs/FileSystem.h"
-
-#include "core/debug.h"
-
-#include "config/Config.h"
-#include "config/Language.h"
-
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
@@ -30,6 +21,14 @@
 #include "Macros.h"
 #include "script.h"
 #include "functions.h"
+
+#include "fs/FileSystem.h"
+#include "core/debug.h"
+#include "config/Config.h"
+#include "config/Language.h"
+
+
+#include <GLFW/glfw3.h>
 
 
 namespace UI
