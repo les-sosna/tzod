@@ -6,16 +6,6 @@
 #include <vector>
 
 
-static std::string StrFromErr(DWORD dwMessageId)
-{
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, dwMessageId, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-	std::string result((LPCTSTR)lpMsgBuf);
-	LocalFree(lpMsgBuf);
-	return result;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SafePtr<FS::FileSystem> FS::FileSystem::Create(const std::string &nodeName)
@@ -134,6 +124,16 @@ SafePtr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, b
 #ifdef _WIN32
 
 #include <Windows.h>
+
+static std::string StrFromErr(DWORD dwMessageId)
+{
+	LPVOID lpMsgBuf = NULL;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                  NULL, dwMessageId, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+	std::string result((LPCTSTR)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	return result;
+}
 
 FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
   : _mode(mode)

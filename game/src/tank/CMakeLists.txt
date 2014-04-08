@@ -12,13 +12,12 @@ include_directories(${OggVorbis_SOURCE_DIR}/include)
 include_directories(${Pluto_SOURCE_DIR})
 include_directories(${GLFW_SOURCE_DIR}/include)
 include_directories(.)
-set(CMAKE_CXX_FLAGS "-std=c++11 /EHsc")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DNOSOUND)
 add_definitions(-DNOMINMAX) # win32 specific
 link_libraries(${glfw_LIBRARIES})
 link_directories(${Boost_LIBRARY_DIR})
-add_executable(tank WIN32
-#add_executable(tank MACOSX_BUNDLE
+set(tank_SOURCES
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp
@@ -111,4 +110,8 @@ add_executable(tank WIN32
 #	sound/MusicPlayer.cpp
 #	sound/sfx.cpp
 )
+
+#add_executable(tank WIN32 ${tank_SOURCES})
+add_executable(tank MACOSX_BUNDLE ${tank_SOURCES})
+
 target_link_libraries(tank lua pluto zlib glfw ${GLFW_LIBRARIES} ${Boost_LIBRARIES})

@@ -2,6 +2,7 @@
 
 #include "KeyMapper.h"
 #include <map>
+#include <cstdlib>
 
 class KeyMapper
 {

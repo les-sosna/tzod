@@ -4,6 +4,7 @@
 
 #include <core/SafePtr.h>
 #include <map>
+#include <string>
 
 namespace FS {
 

@@ -4,6 +4,7 @@
 #include "Button.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace UI
 {
@@ -213,7 +214,7 @@ void ScrollBarVertical::SetPos(float pos)
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(_btnBox->GetWidth(),
 		std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureHeight()));
-	_btnBox->Move(_btnBox->GetX(), floorf(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
+	_btnBox->Move(_btnBox->GetX(), floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
 		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f));
 }
 
@@ -253,7 +254,7 @@ void ScrollBarHorizontal::SetPos(float pos)
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureWidth()),
 		_btnBox->GetHeight());
-	_btnBox->Move(floorf(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
+	_btnBox->Move(floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
 		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());
 }
 

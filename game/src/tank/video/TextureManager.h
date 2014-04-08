@@ -9,6 +9,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <string>
 
 namespace FS
 {
