@@ -391,7 +391,7 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, const std::str
 const std::string& MapFile::GetCurrentClassName() const
 {
 	assert(!_modeWrite);
-	assert(_obj_type >= 0 && _obj_type < _managed_classes.size());
+	assert(_obj_type >= 0 && _obj_type < (int) _managed_classes.size());
     return _managed_classes[_obj_type]._className;
 }
 
@@ -499,7 +499,7 @@ bool MapFile::NextObject()
 				_obj_attrs.clear();
 
 				ReadInt(_obj_type);
-				if( _obj_type < 0 || _obj_type >= _managed_classes.size() )
+				if( _obj_type < 0 || _obj_type >= (int) _managed_classes.size() )
 					throw std::runtime_error("invalid class");
 
 				const std::vector<ObjectDefinition::Property> &ps =

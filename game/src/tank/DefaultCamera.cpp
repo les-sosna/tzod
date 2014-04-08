@@ -12,7 +12,8 @@
 
 static unsigned int GetMilliseconds()
 {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+	using namespace std::chrono;
+	return duration_cast<duration<unsigned int, std::milli>>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
 static bool IsKeyPressed(int key)

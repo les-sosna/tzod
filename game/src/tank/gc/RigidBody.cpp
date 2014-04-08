@@ -239,7 +239,7 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 		vec2d(-xx + yy, -yx - xy)
 	};
 	unsigned int idx;
-	float mindot = 1e30;
+	float mindot = FLT_MAX;
 	for( unsigned int i = 0; i < 4; ++i )
 	{
 		float dot = sign*Vec2dDot(outNormal, v[i]);
@@ -253,7 +253,7 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 	if( projL_abs < 1e-3 || projW_abs < 1e-3 )
 	{
 		// for edge-edge collision find second closest point
-		mindot = 1e30;
+		mindot = FLT_MAX;
 		unsigned int idx2;
 		for( unsigned int i = 0; i < 4; ++i )
 		{
@@ -770,7 +770,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 		}
 
 		unsigned int idx;
-		float mindot = 1e30;
+		float mindot = FLT_MAX;
 		for( unsigned int i = 0; i < vcount; ++i )
 		{
 			float dot = sign*Vec2dDot(outNormal, v[i]);
@@ -784,7 +784,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 		if( projLd_abs < 1e-3 || projWd_abs < 1e-3 || projL_abs < 1e-3 || projW_abs < 1e-3 )
 		{
 			// for edge-edge collision find second closest point
-			mindot = 1e30;
+			mindot = FLT_MAX;
 			unsigned int idx2;
 			for( unsigned int i = 0; i < vcount; ++i )
 			{

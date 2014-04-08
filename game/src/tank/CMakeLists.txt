@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DNOSOUND)
 add_definitions(-DNOMINMAX) # win32 specific
 #link_libraries(${glfw_LIBRARIES})
-#link_directories(${Boost_LIBRARY_DIR})
+link_directories(${Boost_LIBRARY_DIR})
 set(tank_SOURCES
 	BackgroundIntro.cpp
 	ClientBase.cpp

@@ -213,12 +213,12 @@ void Oscilloscope::AutoGrid()
 		float dy = range / count;
 		if( dy < 1 )
 		{
-			float p = pow(10, -floor(log10(dy)));
+			float p = pow(10.0f, -floor(log10(dy)));
 			_gridStepY = ceil(dy * p) / p;
 		}
 		else if ( dy > 1 )
 		{
-			float p = pow(10, floor(log10(dy)));
+			float p = pow(10.0f, floor(log10(dy)));
 			_gridStepY = ceil(dy / p) * p;
 		}
 		else
