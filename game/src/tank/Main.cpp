@@ -34,7 +34,6 @@
 #include "fs/FileSystemImpl.h"
 
 #include "core/debug.h"
-#include "core/Application.h"
 #include "core/Timer.h"
 #include "core/Profiler.h"
 
@@ -57,21 +56,25 @@ static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ZodApp : public AppBase
+struct GlfwInitHelper
 {
-public:
-	ZodApp();
-	virtual ~ZodApp();
-
-	virtual bool Pre();
-	virtual void Idle();
-	virtual void Post();
-
-private:
-	Timer _timer;
-
-//	std::unique_ptr<InputManager> _inputMgr;
+    GlfwInitHelper()
+    {
+        if( !glfwInit() )
+            throw std::runtime_error("Failed to initialize OpenGL");
+    }
+    ~GlfwInitHelper()
+    {
+        glfwTerminate();
+    }
 };
+
+
+
+static bool Pre();
+static void Idle(float dt);
+static void Post();
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -159,11 +162,7 @@ namespace
 			return new UI::Desktop(manager);
 		}
 	};
-}
 
-
-namespace
-{
 	class ConsoleLog : public UI::IConsoleLog
 	{
 		FILE *_file;
@@ -198,6 +197,53 @@ namespace
 	};
 }
 
+
+static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
+{
+    if( g_gui )
+	{
+        UI::Msg msg;
+        switch (button)
+        {
+            case GLFW_MOUSE_BUTTON_LEFT:
+                msg = (GLFW_RELEASE == action) ? UI::MSGLBUTTONUP : UI::MSGLBUTTONDOWN;
+                break;
+            case GLFW_MOUSE_BUTTON_RIGHT:
+                msg = (GLFW_RELEASE == action) ? UI::MSGRBUTTONUP : UI::MSGRBUTTONDOWN;
+                break;
+            case GLFW_MOUSE_BUTTON_MIDDLE:
+                msg = (GLFW_RELEASE == action) ? UI::MSGMBUTTONUP : UI::MSGMBUTTONDOWN;
+                break;
+            default:
+                return;
+        }
+        double xpos = 0;
+        double ypos = 0;
+        glfwGetCursorPos(window, &xpos, &ypos);
+		g_gui->ProcessMouse((float) xpos, (float) ypos, 0, msg);
+	}
+}
+
+static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
+{
+    if( g_gui )
+	{
+		g_gui->ProcessMouse((float) xpos, (float) ypos, 0, UI::MSGMOUSEMOVE);
+	}
+}
+
+static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
+{
+    if( g_gui )
+	{
+        double xpos = 0;
+        double ypos = 0;
+        glfwGetCursorPos(window, &xpos, &ypos);
+		g_gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
+	}
+}
+
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -217,30 +263,118 @@ int main(int, const char**)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 	GetConsole().SetLog(new ConsoleLog("log.txt"));
-/*
-	char buf[MAX_PATH];
-	GetModuleFileName(NULL, buf, MAX_PATH);
 
-	HANDLE hFile = CreateFile(buf, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
-	HANDLE hMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-	void *data = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
-	DWORD size = GetFileSize(hFile, NULL);
-
-	MD5_CTX md5;
-	MD5Init(&md5);
-	MD5Update(&md5, (const char *) data, size);
-	MD5Final(&md5);
-
-	UnmapViewOfFile(data);
-	CloseHandle(hMap);
-	CloseHandle(hFile);
-
-	memcpy(&g_md5, md5.digest, 16);
-*/
 	try
 	{
-		ZodApp app;
-		return app.Run();
+        GlfwInitHelper __gih;
+        
+        g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
+                                       g_conf.r_height.GetInt(),
+                                       TXT_VERSION,
+                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
+                                       nullptr);
+        glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
+        glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
+        glfwSetScrollCallback(g_appWindow, OnScroll);
+        glfwMakeContextCurrent(g_appWindow);
+        
+        
+        TRACE("%s", TXT_VERSION);
+        
+        TRACE("Mounting file system...");
+        g_fs = FS::OSFileSystem::Create("data");
+        
+        // load config
+        try
+        {
+            // workaround - check if file exists
+            if( FILE *f = fopen(FILE_CONFIG, "r") )
+            {
+                fclose(f);
+                
+                if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
+                {
+                    GetConsole().Format(SEVERITY_ERROR) << "Failed to load config file.";
+                }
+            }
+            
+        }
+        catch( std::exception &e )
+        {
+            TRACE("Could not load config file: %s", e.what());
+        }
+        
+        TRACE("Localization init...");
+        try
+        {
+            if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
+            {
+                TRACE("couldn't load language file " FILE_CONFIG);
+            }
+        }
+        catch( const std::exception &e )
+        {
+            TRACE("could not load localization file: %s", e.what());
+        }
+        setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
+        
+        
+        GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
+        
+        // init render
+        g_render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+        int width;
+        int height;
+        glfwGetFramebufferSize(g_appWindow, &width, &height);
+        g_render->OnResizeWnd(Point{width, height});
+        
+#if !defined NOSOUND
+        InitDirectSound(g_env.hMainWnd, true));
+#endif
+        
+        
+        //InputManager _inputMgr(g_env.hMainWnd);
+        
+        
+        g_texman = new TextureManager;
+        g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
+        if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
+            TRACE("WARNING: no textures loaded");
+        if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
+            TRACE("WARNING: no skins found");
+        
+        // init world
+        g_level.reset(new Level());
+        
+        // init scripting system
+        TRACE("scripting subsystem initialization");
+        g_env.L = script_open();
+        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
+        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
+        
+        TRACE("GUI subsystem initialization");
+        g_gui = new UI::LayoutManager(DesktopFactory());
+        g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+        
+        TRACE("Running startup script '%s'", FILE_STARTUP);
+        if( !script_exec_file(g_env.L, FILE_STARTUP) )
+            TRACE("ERROR: in startup script");
+        
+        Timer timer;
+        timer.SetMaxDt(MAX_DT);
+        timer.Start();
+        for(;;)
+        {
+            glfwPollEvents();
+            if (glfwWindowShouldClose(g_appWindow))
+                break;
+            Idle(timer.GetDt());
+            glfwSwapBuffers(g_appWindow);
+        }
+
+        Post();
+        glfwDestroyWindow(g_appWindow);
+        g_appWindow = nullptr;
 	}
 	catch( const std::exception &e )
 	{
@@ -254,187 +388,11 @@ int main(int, const char**)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-ZodApp::ZodApp()
-//	: _timeBuffer(0)
-//	, _ctrlSentCount(0)
-{
-	assert(!g_app);
-	g_app = this;
-}
 
-ZodApp::~ZodApp()
-{
-	assert(this == g_app);
-	g_app = NULL;
-}
-
-bool ZodApp::Pre()
-{
-	// print UNIX-style date and time
-	time_t ltime;
-	time(&ltime);
-	TRACE("ZOD Engine started at %s", ctime(&ltime));
-	TRACE("----------------------------------------------");
-	TRACE("%s", TXT_VERSION);
-
-
-	g_env.pause = 0;
-
-
-
-	//
-	// init file system
-	//
-	TRACE("Mounting file system...");
-	g_fs = FS::OSFileSystem::Create("data");
-
-
-	//
-	// init config system
-	//
-
-	try
-	{
-		// workaround - check if file exists
-		if( FILE *f = fopen(FILE_CONFIG, "r") )
-		{
-			fclose(f);
-
-			if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
-			{
-                GetConsole().Format(SEVERITY_ERROR) << "Failed to load config file.";
-			}
-		}
-
-	}
-	catch( std::exception &e )
-	{
-		TRACE("Could not load config file: %s", e.what());
-	}
-
-
-	//
-	// init localization
-	//
-	TRACE("Localization init...");
-	try
-	{
-		if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
-		{
-			TRACE("couldn't load language file " FILE_CONFIG);
-		}
-	}
-	catch( const std::exception &e )
-	{
-		TRACE("could not load localization file: %s", e.what());
-	}
-	setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
-
-
-	// set up the environment
-	g_env.nNeedCursor  = 0;
-	g_env.minimized    = false;
-
-	GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
-
-	_timer.SetMaxDt(MAX_DT);
-
-	// init render
-    g_render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
-    int width;
-    int height;
-    glfwGetFramebufferSize(g_appWindow, &width, &height);
-	g_render->OnResizeWnd(Point{width, height});
-
-#if !defined NOSOUND
-	// init sound
-	try
-	{
-		if( FAILED(InitDirectSound(g_env.hMainWnd, true)) )
-		{
-			MessageBox(g_env.hMainWnd, "Direct Sound init error", TXT_VERSION, MB_ICONERROR|MB_OK);
-		}
-	}
-	catch( const std::exception &e )
-	{
-		std::ostringstream ss;
-		ss << "DirectSound init failed: " << e.what();
-        TRACE("%s", ss.str().c_str());
-		MessageBox(g_env.hMainWnd, ss.str().c_str(), TXT_VERSION, MB_ICONERROR|MB_OK);
-		return false;
-	}
-#endif
-
-
-//	_inputMgr.reset(new InputManager(g_env.hMainWnd));
-
-
-	//
-	// init texture manager
-	//
-
-	g_texman = new TextureManager;
-	g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
-	try
-	{
-		if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
-		{
-			TRACE("WARNING: no textures loaded");
-		}
-		if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
-		{
-			TRACE("WARNING: no skins found");
-		}
-	}
-	catch( const std::exception &e )
-	{
-		GetConsole().WriteLine(1, e.what());
-		delete g_texman;
-		g_texman = NULL;
-		return false;
-	}
-
-	// init world
-	g_level.reset(new Level());
-
-
-	//
-	// init scripting system
-	//
-
-	TRACE("scripting subsystem initialization");
-	if( NULL == (g_env.L = script_open()) )
-	{
-		TRACE(" ->FAILED");
-		return false;
-	}
-	g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
-	g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-
-
-	// init GUI
-	TRACE("GUI subsystem initialization");
-	g_gui = new UI::LayoutManager(DesktopFactory());
-	g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
-
-
-	TRACE("Running startup script '%s'", FILE_STARTUP);
-	if( !script_exec_file(g_env.L, FILE_STARTUP) )
-	{
-		TRACE("ERROR: in startup script");
-	}
-
-	_timer.Start();
-
-	return true;
-}
-
-void ZodApp::Idle()
+void Idle(float dt)
 {
 //	_inputMgr->InquireInputDevices();
 
-	float dt = _timer.GetDt();
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 
 
@@ -505,7 +463,7 @@ void ZodApp::Idle()
 	}
 }
 
-void ZodApp::Post()
+void Post()
 {
 //	SAFE_DELETE(g_client);
 
@@ -520,11 +478,15 @@ void ZodApp::Post()
 		g_env.L = NULL;
 	}
 
+    TRACE("Shutting down the world");
     g_level->Clear();
 	g_level.reset();
 
-	if( g_texman ) g_texman->UnloadAllTextures();
-	SAFE_DELETE(g_texman);
+	if( g_texman )
+    {
+        delete g_texman;
+        g_texman = NULL;
+    }
 
 	// release input devices
 //	_inputMgr.reset();
@@ -537,8 +499,6 @@ void ZodApp::Post()
         TRACE("Shutting down the renderer");
 		g_render.reset();
 	}
-
-
 
 	// config
 	TRACE("Saving config to '" FILE_CONFIG "'");

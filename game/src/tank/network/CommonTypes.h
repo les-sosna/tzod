@@ -9,7 +9,6 @@
 
 struct GameInfo
 {
-	char exeVer[16];
 	char mapVer[16];
 	unsigned long seed;
 	char  cMapName[MAX_MAPNAME];

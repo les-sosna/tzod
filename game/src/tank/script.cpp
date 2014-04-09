@@ -1202,7 +1202,8 @@ int luaT_pushcmd(lua_State *L)
 lua_State* script_open(void)
 {
 	lua_State *L = luaL_newstate();
-
+    if (!L)
+        throw std::bad_alloc();
 
 	//
 	// open std libs

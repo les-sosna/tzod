@@ -42,7 +42,6 @@ set(tank_SOURCES
 	config/Config.cpp
 	config/ConfigBase.cpp
 	config/Language.cpp
-	core/Application.cpp
 	core/Profiler.cpp
 	core/Rotator.cpp
 	core/SafePtr.cpp

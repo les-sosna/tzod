@@ -5,14 +5,11 @@
 #include "ui/ConsoleBuffer.h"
 #include "fs/FileSystem.h"
 
-MD5 g_md5;
-
 ENVIRONMENT g_env;
 
 CSoundManager   *g_soundManager;
 CSound          *g_pSounds[SND_COUNT];
 
-AppBase     *g_app;
 std::unique_ptr<IRender> g_render;
 UI::LayoutManager  *g_gui;
 

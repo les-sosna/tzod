@@ -2,7 +2,6 @@
 
 #include "Timer.h"
 #include "Debug.h"
-#include "Application.h"
 
 #include <cassert>
 

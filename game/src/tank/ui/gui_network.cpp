@@ -174,7 +174,6 @@ void CreateServerDlg::OnOK()
 
 //	GameInfo gi;
 //    memset(&gi, 0, sizeof(gi));
-//	memcpy(gi.exeVer, g_md5.bytes, 16);
 //	gi.seed       = rand();
 //	gi.fraglimit  = std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetInt()));
 //	gi.timelimit  = std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetInt()));
