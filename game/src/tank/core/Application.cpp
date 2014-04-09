@@ -38,10 +38,10 @@ int AppBase::Run()
             Idle();
         }
 	}
+	Post();
     glfwDestroyWindow(g_appWindow);
     g_appWindow = nullptr;
-	Post();
-	return -1;
+	return 0;
 }
 
 // end of file

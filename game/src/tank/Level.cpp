@@ -422,8 +422,6 @@ Level::~Level()
 	assert(IsSafeMode());
 	TRACE("Destroying the level");
 
-	Clear();
-
 	// unregister config handlers
 	g_conf.s_volume.eventChange = nullptr;
 	g_conf.sv_nightmode.eventChange = nullptr;

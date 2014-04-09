@@ -573,6 +573,7 @@ void ZodApp::Post()
 		g_env.L = NULL;
 	}
 
+    g_level->Clear();
 	g_level.reset();
 
 	if( g_texman ) g_texman->UnloadAllTextures();
