@@ -17,7 +17,9 @@ Window* Window::Create(Window *parent)
 // Window class implementation
 
 #ifdef NDEBUG
-#define NoDestroyHelper
+#define AssertNoDestroy(x)  ((void) 0)
+#else
+#define AssertNoDestroy(x) NoDestroyHelper __dontdestroyme(x)
 #endif
 
 Window::Window(Window *parent, LayoutManager *manager)
@@ -97,16 +99,16 @@ void Window::Destroy()
 {
 	assert(!_debugNoDestroy);
 	{
-		NoDestroyHelper donotdestroyme(this);
+		AssertNoDestroy(this);
 
 		// this removes focus and mouse hover if any.
 		// the window don't yet suspect that it's being destroyed
 		GetManager()->ResetWindow(this);
 
 		// do not call virtual functions after children got destroyed!
-		while( GetFirstChild() )
+		while( Window *c = GetFirstChild() )
 		{
-			GetFirstChild()->Destroy();
+			c->Destroy();
 		}
 
 		if( _isTopMost )
@@ -174,7 +176,7 @@ unsigned int Window::GetFrameCount() const
 
 void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 {
-	NoDestroyHelper donotdestroyme(this);
+	AssertNoDestroy(this);
 	assert(_isVisible);
 
 	//           left     top      right             bottom
@@ -216,7 +218,7 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 
 void Window::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	NoDestroyHelper donotdestroyme(this);
+	AssertNoDestroy(this);
 
 	for( Window *w = _firstChild; w; w = w->_nextSibling )
 	{
@@ -240,7 +242,7 @@ void Window::Move(float x, float y)
 
 void Window::Resize(float width, float height)
 {
-	NoDestroyHelper donotdestroyme(this);
+	AssertNoDestroy(this);
 	if( _width != width || _height != height )
 	{
 		_width  = width;
@@ -274,7 +276,7 @@ void Window::SetTimeStep(bool enable)
 
 void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 {
-	NoDestroyHelper donotdestroyme(this);
+	AssertNoDestroy(this);
 	if( enable )
 	{
 		// enable children last
@@ -300,7 +302,7 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 
 void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 {
-	NoDestroyHelper donotdestroyme(this);
+	AssertNoDestroy(this);
 	if( visible )
 	{
 		// show children last

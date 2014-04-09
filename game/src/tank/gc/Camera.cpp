@@ -133,12 +133,10 @@ void GC_Camera::GetScreen(Rect &vp) const
 
 void GC_Camera::UpdateLayout()
 {
-	GC_Camera *any = NULL;
 	size_t camCount = 0;
 
 	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		any = pCamera;
 		++camCount;
 	}
 

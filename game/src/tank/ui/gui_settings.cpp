@@ -65,7 +65,6 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 	y += Text::Create(this, x, y, g_lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
 	_profiles = List::Create(this, &_profilesDataSource, x, y, 128, 52);
-	y += _profiles->GetHeight() + 5;
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
 
