@@ -92,7 +92,7 @@ private:
 	size_t _lineLength; // including terminating '\0'
 	size_t _lineCount;  // maximum number of lines in the buffer
     
-	mutable std::mutex _cs;
+	mutable std::recursive_mutex _cs;
 #ifndef NDEBUG
 	mutable int  _locked;
 #endif

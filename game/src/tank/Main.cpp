@@ -243,6 +243,23 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	}
 }
 
+static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if( g_gui )
+	{
+        g_gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
+    }
+}
+
+static void OnChar(GLFWwindow *window, unsigned int codepoint)
+{
+    if( g_gui && (codepoint < 57344 || codepoint > 63743) ) // ignore Private Use Area characters
+	{
+        g_gui->ProcessKeys(UI::MSGCHAR, codepoint);
+    }
+}
+
+
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -276,6 +293,8 @@ int main(int, const char**)
         glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
         glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
         glfwSetScrollCallback(g_appWindow, OnScroll);
+        glfwSetKeyCallback(g_appWindow, OnKey);
+        glfwSetCharCallback(g_appWindow, OnChar);
         glfwMakeContextCurrent(g_appWindow);
         
         
