@@ -68,10 +68,7 @@ public:
 	virtual void Post();
 
 private:
-	std::deque<float> _dt;
 	Timer _timer;
-//	float _timeBuffer;
-//	int  _ctrlSentCount;
 
 //	std::unique_ptr<InputManager> _inputMgr;
 };
@@ -437,103 +434,53 @@ void ZodApp::Idle()
 {
 //	_inputMgr->InquireInputDevices();
 
-	// estimate current frame time
 	float dt = _timer.GetDt();
-	if( g_conf.cl_dtwindow.GetInt() > 1 )
-	{
-		// apply dt filter
-		_dt.push_back(dt);
-		while( (signed) _dt.size() > g_conf.cl_dtwindow.GetInt() )
-			_dt.pop_front();
-		dt = 0;
-		for( std::deque<float>::const_iterator it = _dt.begin(); it != _dt.end(); ++it )
-			dt += (*it);
-		dt /= (float) _dt.size();
-	}
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
 
-#if 0
-	if( g_client && (!g_level->IsGamePaused() || !g_client->SupportPause()) )
+
+//	if( g_client && (!g_level->IsGamePaused() || !g_client->SupportPause()) )
 	{
 		assert(dt >= 0);
 
-		float dt_fixed = 1.0f / g_conf.sv_fps.GetFloat();
-
-
-		_timeBuffer += dt;
-		float bufmax = (g_conf.cl_latency.GetFloat() + 1) / g_conf.sv_fps.GetFloat();
-		counterDrops.Push(_timeBuffer - bufmax);
-
-		if( _timeBuffer > bufmax )
-		{
-			_timeBuffer = bufmax;//0;
-		}
-
-		counterTimeBuffer.Push(_timeBuffer);
 		counterDt.Push(dt);
 
-		int ctrlSent = 0;
-		if( _timeBuffer + dt_fixed / 2 > 0 )
-		{
-//			bool actionTaken;
-			do
-			{
-//				actionTaken = false;
-
-			//	if( _ctrlSentCount <= g_conf.cl_latency.GetInt() )
-				{
-					//
-					// read controller state for local players
-					//
-					std::vector<VehicleState> ctrl;
-					FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-					{
-						if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
-						{
-							VehicleState vs;
-                            if( const char *profile = g_client->GetActiveProfile() )
-                            {
-//                                _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
-                            }
-                            pl->StepPredicted(vs, dt_fixed);
-							ctrl.push_back(vs);
-						}
-					}
+        //
+        // read controller state for local players
+        //
+        std::vector<VehicleState> ctrl;
+        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
+        {
+            if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
+            {
+                VehicleState vs;
+                memset(&vs, 0, sizeof(VehicleState));
+//                if( const char *profile = g_client->GetActiveProfile() )
+//                {
+//                   _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
+//                }
+                pl->StepPredicted(vs, dt);
+                ctrl.push_back(vs);
+            }
+        }
 
 
-					//
-					// send ctrl
-					//
+        //
+        // send ctrl
+        //
 
-					ControlPacket cp;
-					if( ctrl.size() > 0 )
-						cp.fromvs(ctrl[0]);
-			#ifdef NETWORK_DEBUG
-					cp.checksum = g_level->GetChecksum();
-					cp.frame = g_level->GetFrame();
-			#endif
-					g_client->SendControl(cp);
-
-//					++_ctrlSentCount;
-					++ctrlSent;
-
-//					actionTaken = true;
-				}
-
-				ControlPacketVector cpv;
-				if( /*_ctrlSentCount > 0 && */g_client->RecvControl(cpv) )
-				{
-//					_ctrlSentCount -= 1;
-					_timeBuffer -= dt_fixed;
-					g_level->Step(cpv, dt_fixed);
-//					actionTaken = true;
-				}
-			} while( _timeBuffer > 0 /*&& actionTaken*/ );
-		}
-
-		counterCtrlSent.Push((float) ctrlSent/*g_conf.cl_latency.GetFloat()*/);
-	} // if( !g_level->IsGamePaused() )
+        ControlPacket cp;
+        if( ctrl.size() > 0 )
+            cp.fromvs(ctrl[0]);
+#ifdef NETWORK_DEBUG
+        cp.checksum = g_level->GetChecksum();
+        cp.frame = g_level->GetFrame();
 #endif
+
+        std::vector<ControlPacket> cpv;
+   //     cpv.push_back(cp);
+        g_level->Step(cpv, dt);
+	}
+
 
 
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());

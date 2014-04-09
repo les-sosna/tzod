@@ -80,7 +80,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_BOOL(   cl_nightmode,     false )
 	VAR_STR(    cl_server,  "localhost" )
 	VAR_FLOAT(  cl_latency,           0 )
-	VAR_FLOAT(  cl_dtwindow,          2 )
+//	VAR_FLOAT(  cl_dtwindow,          2 )
 	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 
 	// sound
