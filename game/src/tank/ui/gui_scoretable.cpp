@@ -102,7 +102,7 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 
 void ScoreTable::OnTimeStep(float dt)
 {
-	bool tab = glfwGetKey(g_appWindow, GLFW_KEY_TAB);
+	bool tab = GLFW_PRESS == glfwGetKey(g_appWindow, GLFW_KEY_TAB);
 	SetVisible(!g_level->IsEmpty() && !g_level->GetEditorMode() && (tab || g_level->_limitHit));
 }
 
