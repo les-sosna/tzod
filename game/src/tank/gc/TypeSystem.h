@@ -37,9 +37,8 @@ public:
 	// access to singleton instance
 	static RTTypes& Inst()
 	{
-		if( !_theInstance )
-			_theInstance = new RTTypes();
-		return *_theInstance;
+		static RTTypes theInstance;
+		return theInstance;
 	}
 
 
@@ -150,7 +149,6 @@ private:
 	std::set<std::string> _types;
 	// use as singleton only
 	RTTypes() {};
-	static RTTypes *_theInstance;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
