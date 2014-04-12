@@ -124,33 +124,41 @@ SafePtr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, b
 #ifdef _WIN32
 
 #include <Windows.h>
+#include <utf8.h>
+#include <algorithm>
 
-static std::string StrFromErr(DWORD dwMessageId)
+static std::wstring s2w(const std::string s)
 {
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                  NULL, dwMessageId, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-	std::string result((LPCTSTR)lpMsgBuf);
-	LocalFree(lpMsgBuf);
-	return result;
+	std::wstring w;
+	utf8::utf8to16(s.begin(), s.end(), std::back_inserter(w));
+	return std::move(w);
 }
 
-FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
+static std::string w2s(const std::wstring w)
+{
+	std::string s;
+	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
+	return std::move(s);
+}
+static std::string StrFromErr(DWORD dwMessageId)
+{
+	LPWSTR msgBuf = NULL;
+	DWORD msgSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                   NULL, dwMessageId, 0, (LPWSTR) &msgBuf, 0, NULL);
+	std::string result;
+	utf8::utf16to8(msgBuf, msgBuf + msgSize, std::back_inserter(result));
+	LocalFree(msgBuf);
+	return std::move(result);
+}
+
+FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
   : _mode(mode)
   , _mapped(false)
   , _streamed(false)
 {
 	assert(_mode);
 
-	// replace all '/' by '\'
-	std::string tmp = fileName;
-	for( std::string::iterator it = tmp.begin(); tmp.end() != it; ++it )
-	{
-		if( '/' == *it )
-		{
-			*it = '\\';
-		}
-	}
+	std::replace(fileName.begin(), fileName.end(), L'/', L'\\');
 
 	DWORD dwDesiredAccess = 0;
 	DWORD dwShareMode = FILE_SHARE_READ;
@@ -169,7 +177,7 @@ FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
 		dwCreationDisposition = (_mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
 	}
 
-	_file.h = ::CreateFile(tmp.c_str(), // lpFileName
+	_file.h = ::CreateFileW(fileName.c_str(), // lpFileName
 	    dwDesiredAccess,
 	    dwShareMode,
 	    NULL,                           // lpSecurityAttributes
@@ -349,34 +357,25 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 SafePtr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
 {
-	return new OSFileSystem(rootDirectory, nodeName);
-}
-
-FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
-  : FileSystem(nodeName)
-{
-	// remember current directory to restore it later
-	DWORD len = GetCurrentDirectory(0, NULL);
-	std::vector<char> curDir(len);
-	GetCurrentDirectory(len, &curDir[0]);
-
-	if( SetCurrentDirectory(rootDirectory.c_str()) )
+	// convert to absolute path
+	std::wstring tmpRel = s2w(rootDirectory);
+	if (DWORD len = GetFullPathNameW(tmpRel.c_str(), 0, NULL, NULL))
 	{
-		DWORD tmpLen = GetCurrentDirectory(0, NULL);
-		std::vector<char> tmp(tmpLen);
-		GetCurrentDirectory(tmpLen, &tmp[0]);
-		_rootDirectory = &tmp[0];
-
-		// restore last current directory
-		if( !SetCurrentDirectory(&curDir[0]) )
+		std::wstring tmpFull(len, L'\0');
+		if (DWORD len2 = GetFullPathNameW(tmpRel.c_str(), len, &tmpFull[0], NULL))
 		{
-			throw std::runtime_error(StrFromErr(GetLastError()));
+			tmpFull.resize(len2); // truncate terminating \0
+			return new OSFileSystem(std::move(tmpFull), nodeName);
 		}
 	}
-	else
-	{
-		// error: nodeName doesn't exists or something nasty happened
-	}
+	throw std::runtime_error(StrFromErr(GetLastError()));
+	return NULL;
+}
+
+FS::OSFileSystem::OSFileSystem(std::wstring &&rootDirectory, const std::string &nodeName)
+  : FileSystem(nodeName)
+  , _rootDirectory(std::move(rootDirectory))
+{
 }
 
 FS::OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
@@ -386,7 +385,7 @@ FS::OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName
 	assert(std::string::npos == nodeName.find('/'));
 
 	MountTo(parent);
-	_rootDirectory = parent->_rootDirectory + TEXT('\\') + nodeName;
+	_rootDirectory = parent->_rootDirectory + L'\\' + s2w(nodeName);
 }
 
 FS::OSFileSystem::~OSFileSystem(void)
@@ -400,54 +399,38 @@ bool FS::OSFileSystem::IsValid() const
 
 void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
 {
-	// remember current directory to restore it later
-	DWORD len = GetCurrentDirectory(0, NULL);
-	std::vector<char> buf(len);
-	GetCurrentDirectory(len, &buf[0]);
+	// query = _rootDirectory + '\\' + mask
+	std::wstring query = _rootDirectory + L'\\';
+	utf8::utf8to16(mask.begin(), mask.end(), std::back_inserter(query));
 
-	if( !SetCurrentDirectory(_rootDirectory.c_str()) )
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
+	files.clear();
 
-	WIN32_FIND_DATA fd;
-	HANDLE hSearch = FindFirstFile(mask.c_str(), &fd);
+	WIN32_FIND_DATAW fd;
+	HANDLE hSearch = FindFirstFileW(query.c_str(), &fd);
 	if( INVALID_HANDLE_VALUE == hSearch )
 	{
 		if( ERROR_FILE_NOT_FOUND == GetLastError() )
 		{
-			// restore last current directory
-			if( !SetCurrentDirectory(&buf[0]) )
-			{
-				throw std::runtime_error(StrFromErr(GetLastError()));
-			}
 			return; // nothing matches
 		}
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
-	files.clear();
 	do
 	{
 		if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		{
-			files.insert( fd.cFileName );
+			files.insert(w2s(fd.cFileName));
 		}
 	}
-	while( FindNextFile(hSearch, &fd) );
+	while( FindNextFileW(hSearch, &fd) );
 	FindClose(hSearch);
-
-	// restore last current directory
-	if( !SetCurrentDirectory(&buf[0]) )
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
 }
 
 SafePtr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	// combine with the root path
-	return new OSFile(_rootDirectory + TEXT('\\') + fileName, mode);
+	return new OSFile(_rootDirectory + L'\\' + s2w(fileName), mode);
 }
 
 SafePtr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
@@ -460,55 +443,64 @@ SafePtr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path,
 	assert(!path.empty());
 
 	// skip delimiters at the beginning
-	std::string::size_type offset = 0;
-	while( offset < path.length() && path[offset] == '/' )
-		++offset;
-	assert(path.length() > offset);
+	std::string::size_type offset = path.find_first_not_of('/');
+	assert(std::string::npos != offset);
 
 	std::string::size_type p = path.find('/', offset);
 	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-	std::string tmpDir = _rootDirectory + TEXT('\\') + dirName;
+
+	// tmpDir = _rootDirectory + '\\' + dirName
+	std::wstring tmpDir = _rootDirectory + L"\\";
+	utf8::utf8to16(dirName.begin(), dirName.end(), std::back_inserter(tmpDir));
 
 	// try to find directory
-	WIN32_FIND_DATA fd = {0};
-	HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
+	WIN32_FIND_DATAW fd = {0};
+	HANDLE search = FindFirstFileW(tmpDir.c_str(), &fd);
 	FindClose(search);
 
 	if( INVALID_HANDLE_VALUE == search )
 	{
-		if( create && CreateDirectory(tmpDir.c_str(), NULL) )
+		if( create )
 		{
-			// try to find again
-			HANDLE search = FindFirstFile(tmpDir.c_str(), &fd);
-			FindClose(search);
-			if( INVALID_HANDLE_VALUE == search )
+			if (!CreateDirectoryW(tmpDir.c_str(), NULL))
 			{
+				// creation failed
 				if( nothrow )
 					return NULL;
 				else
-					throw std::runtime_error("could not create directory");
+					throw std::runtime_error(StrFromErr(GetLastError()));
+			}
+			else
+			{
+				// try searching again to get attributes
+				HANDLE search2 = FindFirstFileW(tmpDir.c_str(), &fd);
+				FindClose(search2);
+				if (INVALID_HANDLE_VALUE == search2)
+				{
+					if (nothrow)
+						return NULL;
+					else
+						throw std::runtime_error(StrFromErr(GetLastError()));
+				}
 			}
 		}
 		else
 		{
+			// directory not found
 			if( nothrow )
 				return NULL;
 			else
-				throw std::runtime_error("could not create or find directory");
+				throw std::runtime_error(StrFromErr(GetLastError()));
 		}
 	}
 
-	if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
-	{
-		SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
-		if( std::string::npos != p )
-			return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
-		return child; // last path node was processed
-	}
-
-	if( !nothrow )
+	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
-	return NULL;
+
+	SafePtr<FileSystem> child(new OSFileSystem(this, dirName));
+	if( std::string::npos != p )
+		return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
+	return child; // last path node was processed
 }
 
 // ----------------------------------------------------------------

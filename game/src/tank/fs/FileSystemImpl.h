@@ -35,7 +35,7 @@ class OSFileSystem : public FileSystem
 	class OSFile : public File
 	{
 	public:
-		OSFile(const std::string &fileName, FileMode mode);
+		OSFile(std::wstring &&fileName, FileMode mode);
 		virtual ~OSFile();
 
 		// File
@@ -86,12 +86,12 @@ class OSFileSystem : public FileSystem
 		bool _streamed;
 	};
 
-	std::string  _rootDirectory;
+	std::wstring  _rootDirectory;
 
 private:
 	// private constructors for internal use by GetFileSystem() and Create()
 	OSFileSystem(OSFileSystem *parent, const std::string &nodeName);
-	OSFileSystem(const std::string &rootDirectory, const std::string &nodeName = std::string());
+	OSFileSystem(std::wstring &&rootDirectory, const std::string &nodeName = std::string());
 
 protected:
 	virtual ~OSFileSystem(); // protected destructor. delete via Release() only

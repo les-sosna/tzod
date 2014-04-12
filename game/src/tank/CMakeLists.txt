@@ -9,6 +9,7 @@ find_package(Boost 1.55 REQUIRED COMPONENTS system)
 #find_package(OpenAL)
 
 include_directories(
+	${Utf8cpp_SOURCE_DIR}
 	${Boost_INCLUDE_DIRS}
 	${Lua_SOURCE_DIR}/src
 	${Zlib_SOURCE_DIR}
