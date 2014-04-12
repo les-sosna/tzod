@@ -259,7 +259,7 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
     }
 }
 
-
+//static long xxx = _CrtSetBreakAlloc(12649);
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -403,6 +403,7 @@ int main(int, const char**)
 #endif
 		return 1;
 	}
+	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
