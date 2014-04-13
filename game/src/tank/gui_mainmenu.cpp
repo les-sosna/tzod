@@ -250,15 +250,13 @@ void MainMenuDlg::OnImportMapSelect(int result)
 	assert(_fileDlg);
 	if( _resultOK == result )
 	{
-//		SAFE_DELETE(g_client);
+        std::ostringstream cmd;
+        cmd << "import \"";
+		cmd << DIR_MAPS << "/" << _fileDlg->GetFileName();  // FIXME: potential script injection!
+        cmd << "\"";
 
-		std::string tmp = DIR_MAPS;
-		tmp += "/";
-		tmp += _fileDlg->GetFileName();
-
-		if( !g_level->init_import_and_edit(tmp.c_str()) )
+		if( !script_exec(g_env.L, cmd.str().c_str()) )
 		{
-			GetConsole().Printf(1, "couldn't import map '%s'", tmp.c_str());
 			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
 		}
 	}

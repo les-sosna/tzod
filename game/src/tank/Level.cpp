@@ -357,6 +357,7 @@ void Level::Clear()
 		_dump = NULL;
 	}
 #endif
+    assert(IsEmpty());
 }
 
 void Level::HitLimit()
@@ -365,56 +366,6 @@ void Level::HitLimit()
 //	PauseLocal(true);
 	_limitHit = true;
 	PLAY(SND_Limit, vec2d(0,0));
-}
-
-bool Level::init_emptymap(int X, int Y)
-{
-	assert(IsSafeMode());
-
-	Clear();
-	Resize(X, Y);
-	_ThemeManager::Inst().ApplyTheme(0);
-
-	return true;
-}
-
-bool Level::init_import_and_edit(const char *mapName)
-{
-	assert(IsSafeMode());
-	assert(IsEmpty());
-
-	g_conf.sv_nightmode.Set(false);
-
-	try
-	{
-		Import(g_fs->Open(mapName)->QueryStream());
-	}
-	catch( const std::exception &e )
-	{
-		GetConsole().WriteLine(1, e.what());
-		return false;
-	}
-
-	SetEditorMode(true);
-
-	return true;
-}
-
-void Level::init_newdm(std::shared_ptr<FS::Stream> s, unsigned long seed)
-{
-	assert(IsSafeMode());
-	assert(IsEmpty());
-
-	_seed       = seed;
-
-	SetEditorMode(false);
-	Import(s);
-
-	if( !script_exec(g_env.L, _infoOnInit.c_str()) )
-	{
-		Clear();
-		throw std::runtime_error("init script error");
-	}
 }
 
 Level::~Level()
@@ -736,7 +687,6 @@ void Level::Import(std::shared_ptr<FS::Stream> s)
 
 void Level::Export(std::shared_ptr<FS::Stream> s)
 {
-	assert(!IsEmpty());
 	assert(IsSafeMode());
 
 	MapFile file(s, true);
@@ -1358,6 +1308,11 @@ void Level::AddBot(const BotDesc &bd)
 	ai->SetTeam(bd.pd.team);
 	ai->SetLevel(std::max(0U, std::min(AI_MAX_LEVEL, bd.level)));
 	ai->UpdateSkin();
+}
+
+void Level::Seed(unsigned long seed)
+{
+    _seed = seed;
 }
 
 

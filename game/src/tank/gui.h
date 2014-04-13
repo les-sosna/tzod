@@ -9,7 +9,7 @@
 
 // forward declarations
 class ConfVarTable;
-struct ILevelController;
+class Level;
 
 namespace UI
 {
@@ -44,11 +44,11 @@ class NewGameDlg : public Dialog
 	Button    *_removeBot;
 	Button    *_changeBot;
 
-	ILevelController *_level;
+	Level *_level;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, ILevelController *ctrl);
+	NewGameDlg(Window *parent, Level *level);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

@@ -12,7 +12,6 @@
 #include "Combo.h"
 #include "DataSourceAdapters.h"
 
-#include "LevelInterfaces.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "Pause.h"
@@ -46,9 +45,9 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, ILevelController *ctrl)
+NewGameDlg::NewGameDlg(Window *parent, Level *level)
   : Dialog(parent, 770, 550)
-  , _level(ctrl)
+  , _level(level)
 {
 	PauseGame(true);
 

@@ -25,13 +25,12 @@ public:
 	virtual ~Subscribtion() {}
 };
 
-struct ILevelController;
 struct PlayerHandle;
 
 class ClientBase
 {
 public:
-	explicit ClientBase(ILevelController *level);
+	explicit ClientBase(Level *level);
 	virtual ~ClientBase() = 0;
 
 	std::unique_ptr<Subscribtion> AddListener(IClientCallback *ls);
@@ -45,7 +44,7 @@ public:
     virtual const char* GetActiveProfile() const = 0;
 
 protected:
-	ILevelController *_level;
+	Level *_level;
 private:
 	std::set<IClientCallback*> _clientListeners;
 	class MySubscribtion : public Subscribtion

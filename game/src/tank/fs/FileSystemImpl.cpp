@@ -427,6 +427,8 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
 
 // ----------------------------------------------------------------
 #else // POSIX
+#include <cerrno>
+
 #include <unistd.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -442,7 +444,7 @@ FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
     static const char *modes[] = {"", "wb", "rb", "rb+"};
     _file.f = fopen(fileName.c_str(), modes[nMode]);
     if( !_file.f )
-        throw std::runtime_error("open file");
+        throw std::runtime_error(std::string("could not open file: ") + strerror(errno));
 }
 
 FS::OSFileSystem::OSFile::~OSFile()

@@ -4,7 +4,6 @@
 
 #include "Service.h"
 #include "network/ControlPacket.h"
-#include "LevelInterfaces.h"
 
 #include <deque>
 

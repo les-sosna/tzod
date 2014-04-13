@@ -393,7 +393,7 @@ int main(int, const char**)
 	}
 	catch( const std::exception &e )
 	{
-		GetConsole().Format(SEVERITY_ERROR) << "runtime error:\n" << e.what();
+		GetConsole().Format(SEVERITY_ERROR) << "Error:\n" << e.what();
 #ifdef _WIN32
 		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
 #endif

@@ -1,16 +1,24 @@
 // SinglePlayer.cpp
 
 #include "SinglePlayer.h"
-#include "LevelInterfaces.h"
+#include "script.h"
 #include "config/Config.h"
 
 #include <vector>
 
-SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, std::shared_ptr<FS::Stream> stream, unsigned long seed)
-	: ClientBase(levelController)
+SinglePlayerClient::SinglePlayerClient(Level *level, std::shared_ptr<FS::Stream> stream, unsigned long seed)
+	: ClientBase(level)
 {
-	levelController->Clear();
-	levelController->init_newdm(stream, seed);
+	level->Clear();
+	level->Seed(seed);
+	level->SetEditorMode(false);
+	level->Import(stream);
+	if( !script_exec(g_env.L, level->_infoOnInit.c_str()) )
+	{
+		level->Clear();
+		throw std::runtime_error("init script error");
+	}
+    
 }
 
 bool SinglePlayerClient::SupportPause() const

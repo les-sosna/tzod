@@ -2,17 +2,13 @@
 
 #pragma once
 
-#include "LevelInterfaces.h"
+#include "constants.h"
 #include "ObjectListener.h"
-//#include "gc/Object.h" // FIXME!
+#include "DefaultCamera.h"
 
 #include "network/ControlPacket.h"
 
 #include "video/RenderBase.h"
-
-#include "DefaultCamera.h"
-
-#include "constants.h"
 
 #include <core/PtrList.h>
 #include <core/Grid.h>
@@ -20,6 +16,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -144,10 +141,30 @@ class GC_Object;
 class GC_2dSprite;
 
 struct PlayerDescEx;
-struct BotDesc;
 
+namespace FS
+{
+	class Stream;
+}
 
-//////////////////////
+struct PlayerHandle
+{
+	virtual size_t GetIndex() const = 0;
+};
+
+struct PlayerDesc
+{
+	std::string nick;
+	std::string skin;
+	std::string cls;
+	unsigned int team;
+};
+
+struct BotDesc
+{
+	PlayerDesc pd;
+	unsigned int level;
+};
 
 struct IEditorModeListener
 {
@@ -181,7 +198,6 @@ enum GlobalListID
 #define MAX_THEME_NAME  128
 
 class Level
-	: public ILevelController
 {
 	friend class GC_Object;
 
@@ -282,11 +298,6 @@ public:
 	void Resize(int X, int Y);
 	void HitLimit();
 
-
-	bool init_emptymap(int X, int Y);
-	bool init_import_and_edit(const char *mapName);
-
-
 public:
 	bool IsEmpty() const;
 
@@ -377,20 +388,19 @@ public:
 		;
 
 
-	// ILevelController
-	virtual void Clear();
-	virtual PlayerHandle* GetPlayerByIndex(size_t playerIndex);
-	virtual void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd);
-	virtual void PlayerQuit(PlayerHandle *p);
-	virtual PlayerHandle* AddHuman(const PlayerDesc &pd);
-	virtual void AddBot(const BotDesc &bd);
-	virtual void init_newdm(std::shared_ptr<FS::Stream> s, unsigned long seed);
+	void Clear();
+	PlayerHandle* GetPlayerByIndex(size_t playerIndex);
+	void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd);
+	void PlayerQuit(PlayerHandle *p);
+	PlayerHandle* AddHuman(const PlayerDesc &pd);
+	void AddBot(const BotDesc &bd);
+    void Seed(unsigned long seed);
 
-	virtual float GetTime() const { return _time; }
+	float GetTime() const { return _time; }
 
 #ifdef NETWORK_DEBUG
-	virtual uint32_t GetChecksum() const { return _checksum; }
-	virtual unsigned int GetFrame() const { return _frame; }
+    uint32_t GetChecksum() const { return _checksum; }
+    unsigned int GetFrame() const { return _frame; }
 #endif
 };
 

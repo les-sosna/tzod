@@ -304,21 +304,26 @@ static int luaT_freeze(lua_State *L)
 static int luaT_loadmap(lua_State *L)
 {
 	int n = lua_gettop(L);
-	if( 1 != n && 2 != n )
+	if( 1 != n )
 		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-	bool merge = n > 1 ? luaL_checktype(L, 2, LUA_TBOOLEAN),(0!=lua_toboolean(L, 2)) : false;
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
 
-	if( !merge )
-		g_level->Clear();
-
 	try
 	{
-		g_level->init_newdm(g_fs->Open(filename)->QueryStream(), rand());
+        g_level->Clear();
+        g_level->Seed(rand());
+        g_level->SetEditorMode(false);
+        g_level->Import(g_fs->Open(filename)->QueryStream());
+        
+        if( !script_exec(g_env.L, g_level->_infoOnInit.c_str()) )
+        {
+            g_level->Clear();
+            throw std::runtime_error("init script error");
+        }
 	}
 	catch( const std::exception &e )
 	{
@@ -340,11 +345,10 @@ static int luaT_newmap(lua_State *L)
 
 	if( !g_level->IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
-
-	if( !g_level->init_emptymap(x, y) )
-	{
-		return luaL_error(L, "couldn't create an empty map with the size %dx%d", x, y);
-	}
+    
+	g_level->Clear();
+	g_level->Resize(x, y);
+	_ThemeManager::Inst().ApplyTheme(0);
 
 	return 0;
 }
@@ -415,10 +419,18 @@ static int luaT_import(lua_State *L)
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
 //	SAFE_DELETE(g_client);
-
-	if( !g_level->init_import_and_edit(filename) )
+    
+	try
 	{
-		return luaL_error(L, "couldn't import map '%s'", filename);
+        g_level->Clear();
+		g_level->Import(g_fs->Open(filename)->QueryStream());
+        g_level->SetEditorMode(true);
+        g_conf.sv_nightmode.Set(false);
+	}
+	catch( const std::exception &e )
+	{
+		GetConsole().WriteLine(1, e.what());
+        return luaL_error(L, "couldn't import map '%s'", filename);
 	}
 
 	return 0;

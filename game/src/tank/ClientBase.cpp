@@ -1,15 +1,15 @@
 // ClientBase.cpp
 
 #include "ClientBase.h"
+
 #include "globals.h"
-#include "LevelInterfaces.h"
 #include "gui_desktop.h"
 #include "script.h"
 
-#include <GuiManager.h>
+#include <GuiManager.h> // FIXME
 
 
-ClientBase::ClientBase(ILevelController *level)
+ClientBase::ClientBase(Level *level)
 	: _level(level)
 {
 }

@@ -2,7 +2,7 @@
 
 #include "BackgroundIntro.h"
 
-IntroClient::IntroClient(ILevelController *levelController)
+IntroClient::IntroClient(Level *levelController)
 	: ClientBase(levelController)
 {
 }

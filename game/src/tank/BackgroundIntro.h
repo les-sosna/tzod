@@ -8,7 +8,7 @@
 class IntroClient : public ClientBase
 {
 public:
-	explicit IntroClient(ILevelController *levelController);
+	explicit IntroClient(Level *levelController);
 
 	virtual bool SupportPause() const;
 	virtual bool SupportEditor() const;

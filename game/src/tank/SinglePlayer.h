@@ -14,7 +14,7 @@ namespace FS
 class SinglePlayerClient : public ClientBase
 {
 public:
-	SinglePlayerClient(ILevelController *levelController, std::shared_ptr<FS::Stream> stream, unsigned long seed);
+	SinglePlayerClient(Level *level, std::shared_ptr<FS::Stream> stream, unsigned long seed);
 
 	virtual bool SupportPause() const;
 	virtual bool SupportEditor() const;
