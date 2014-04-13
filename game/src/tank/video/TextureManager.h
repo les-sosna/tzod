@@ -4,7 +4,6 @@
 
 #include "RenderBase.h"
 #include "core/singleton.h"
-#include "core/types.h"
 
 #include <stack>
 #include <list>
@@ -36,6 +35,12 @@ struct LogicalTexture
 	int   yframes;
 
 	std::vector<FRECT> uvFrames;
+};
+
+enum enumAlignText {
+	alignTextLT = 0, alignTextCT = 1, alignTextRT = 2,
+	alignTextLC = 3, alignTextCC = 4, alignTextRC = 5,
+	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
 
 class TextureManager

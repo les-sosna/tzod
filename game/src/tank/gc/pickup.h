@@ -5,6 +5,9 @@
 #include "2dSprite.h"
 #include "core/rotator.h"
 
+
+typedef float AIPRIORITY;
+
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
 

@@ -2,9 +2,6 @@
 
 #pragma once
 
-#include "core/types.h"
-//#include "network/ControlPacket.h"
-
 struct VehicleState;
 class GC_Vehicle;
 

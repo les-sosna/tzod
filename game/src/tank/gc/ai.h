@@ -19,6 +19,8 @@ class GC_Pickup;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef float AIPRIORITY;
+
 struct AIITEMINFO
 {
 	ObjPtr<GC_Actor> object;

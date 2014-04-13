@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Window.h"
-#include "core/types.h"
+#include "video/TextureManager.h"
 
 namespace UI
 {

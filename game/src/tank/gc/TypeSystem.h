@@ -2,7 +2,6 @@
 
 #pragma once
 #include "core/MyMath.h"
-#include "core/types.h"
 #include <string>
 #include <map>
 #include <set>
@@ -10,6 +9,9 @@
 
 class GC_Object;
 struct FromFile {};
+
+typedef int ObjectType;
+#define INVALID_OBJECT_TYPE (-1)
 
 class RTTypes
 {
