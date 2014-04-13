@@ -32,6 +32,7 @@ set(tank_SOURCES
 	DefaultCamera.cpp
 #	directx.cpp
 #	Dsutil.cpp
+	Field.cpp
 	globals.cpp
 	gui.cpp
 	gui_campaign.cpp

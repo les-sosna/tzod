@@ -3,17 +3,15 @@
 #pragma once
 
 #include "constants.h"
+#include "Field.h"
 #include "ObjectListener.h"
 #include "DefaultCamera.h"
 
 #include "network/ControlPacket.h"
-
 #include "video/RenderBase.h"
-
 #include <core/PtrList.h>
 #include <core/Grid.h>
 
-#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
@@ -21,125 +19,14 @@
 #include <memory>
 
 
-#pragma region path finding stuff
-
 namespace FS
 {
 	class Stream;
 }
 class ClientBase;
 class GC_RigidBodyStatic;
-
-class Field;
-class FieldCell
-{
-public:
-	static unsigned long _sessionId;
-	short _x, _y;
-	unsigned long _mySession;
-	//-----------------------------
-	GC_RigidBodyStatic **_ppObjects;
-	unsigned char _objCount;
-	unsigned char _prop;             // 0 - free, 1 - could be broken, 0xFF - impassable
-	//-----------------------------
-	void UpdateProperties();
-	FieldCell()
-	{
-		_ppObjects   = NULL;
-		_objCount    = 0;
-		_prop        = 0;     // free
-		_mySession   = 0xffffffff;
-	}
-public:
-
-	const FieldCell *_prevCell;
-
-	inline int GetObjectsCount() const { return _objCount; }
-	inline GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
-
-	inline bool IsChecked() const { return _mySession == _sessionId; }
-	inline void Check()           { _mySession = _sessionId;         }
-
-	inline void UpdatePath(float before, short x, short y)
-	{
-		int dx = abs(x - GetX());
-		int dy = abs(y - GetY());
-		float pathAfter = (float) std::max(dx, dy) + (float) std::min(dx, dy) * 0.4142f;
-		_before = before;
-		_total = before + pathAfter;
-	}
-
-	void AddObject(GC_RigidBodyStatic *object);
-	void RemoveObject(GC_RigidBodyStatic *object);
-
-	inline short GetX()               const { return _x;    }
-	inline short GetY()               const { return _y;    }
-	inline unsigned char Properties() const { return _prop; }
-
-	inline float Total() const { return _total; }
-	inline float Before() const { return _before; }
-
-private:
-	float _before;          // path cost to this node
-	float _total;           // total path cost estimate
-
-	FieldCell(const FieldCell &other); // no copy
-	FieldCell& operator = (const FieldCell &other);
-};
-
-class RefFieldCell
-{
-	FieldCell *_cell;
-public:
-	RefFieldCell(FieldCell &cell) { _cell = &cell; }
-	operator FieldCell& () const { return *_cell; }
-	bool operator > (const RefFieldCell &cell) const
-	{
-		return _cell->Total() > cell._cell->Total();
-	}
-};
-
-
-class Field
-{
-	FieldCell _edgeCell;
-	FieldCell **_cells;
-	int _cx;
-	int _cy;
-
-	void Clear();
-
-public:
-	static void NewSession() { ++FieldCell::_sessionId; }
-
-	Field();
-	~Field();
-
-	void Resize(int cx, int cy);
-	void ProcessObject(GC_RigidBodyStatic *object, bool add);
-	int GetX() const { return _cx; }
-	int GetY() const { return _cy; }
-
-
-#ifdef _DEBUG
-	FieldCell& operator() (int x, int y);
-	void Dump();
-#else
-	inline FieldCell& operator() (int x, int y)
-	{
-		return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;
-	}
-#endif
-
-};
-
-#pragma endregion
-
-///////////////////////////////////////////////////////////////////////////////
-
 class GC_Object;
 class GC_2dSprite;
-
 struct PlayerDescEx;
 
 namespace FS
