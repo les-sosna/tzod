@@ -31,14 +31,14 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files = DefaultListBox::Create(this);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
-	std::set<std::string> files;
 	if( _folder )
-		_folder->EnumAllFiles(files, "*." + _ext);
-	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
-		std::string tmp = *it;
-		tmp.erase(it->length() - _ext.length() - 1); // cut out the file extension
-		_files->GetData()->AddItem(tmp);
+		auto files = _folder->EnumAllFiles("*." + _ext);
+		for( auto it = files.begin(); it != files.end(); ++it )
+		{
+			it->erase(it->length() - _ext.length() - 1); // cut out the file extension
+			_files->GetData()->AddItem(*it);
+		}
 	}
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel.bind(&GetFileNameDlg::OnSelect, this);

@@ -3,8 +3,6 @@
 #include "FileSystemImpl.h"
 #include "functions.h"
 
-#include <vector>
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -79,9 +77,10 @@ SafePtr<FS::File> FS::FileSystem::Open(const std::string &fileName, FileMode mod
 	return RawOpen(fileName, mode);
 }
 
-void FS::FileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+std::vector<std::string> FS::FileSystem::EnumAllFiles(const std::string &mask)
 {
 	// base file system can't contain any files
+	return std::vector<std::string>();
 }
 
 SafePtr<FS::File> FS::FileSystem::RawOpen(const std::string &fileName, FileMode mode)
@@ -397,13 +396,11 @@ bool FS::OSFileSystem::IsValid() const
 	return true;
 }
 
-void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
 {
 	// query = _rootDirectory + '\\' + mask
 	std::wstring query = _rootDirectory + L'\\';
 	utf8::utf8to16(mask.begin(), mask.end(), std::back_inserter(query));
-
-	files.clear();
 
 	WIN32_FIND_DATAW fd;
 	HANDLE hSearch = FindFirstFileW(query.c_str(), &fd);
@@ -411,20 +408,22 @@ void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::str
 	{
 		if( ERROR_FILE_NOT_FOUND == GetLastError() )
 		{
-			return; // nothing matches
+			return std::vector<std::string>(); // nothing matches
 		}
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
+	std::vector<std::string> files;
 	do
 	{
 		if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		{
-			files.insert(w2s(fd.cFileName));
+			files.push_back(w2s(fd.cFileName));
 		}
 	}
 	while( FindNextFileW(hSearch, &fd) );
 	FindClose(hSearch);
+	return std::move(files);
 }
 
 SafePtr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
@@ -660,18 +659,18 @@ bool FS::OSFileSystem::IsValid() const
     return true;
 }
 
-void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::string &mask)
+std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
 {
+	std::vector<std::string> files;
     if( DIR *dir = opendir(_rootDirectory.c_str()) )
     {
         try
         {
-            files.clear();
             while( const dirent *e = readdir(dir) )
             {
                 if( (DT_REG == e->d_type || DT_LNK == e->d_type) && !fnmatch(mask.c_str(), e->d_name, 0) )
                 {
-                    files.insert(e->d_name);
+                    files.push_back(e->d_name);
                 }
             }
         }
@@ -686,6 +685,7 @@ void FS::OSFileSystem::EnumAllFiles(std::set<std::string> &files, const std::str
     {
         throw std::runtime_error("open directory");
     }
+	return std::move(files);
 }
 
 SafePtr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)

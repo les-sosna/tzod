@@ -360,13 +360,9 @@ int TextureManager::LoadPackage(const std::string &packageName, const SafePtr<FS
 int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix)
 {
 	int count = 0;
-
 	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
-
-	std::set<std::string> files;
-	dir->EnumAllFiles(files, "*.tga");
-
-	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
+	auto files = dir->EnumAllFiles("*.tga");
+	for( auto it = files.begin(); it != files.end(); ++it )
 	{
 		TexDescIterator td;
 		std::string f = dirName + '/' + *it;
@@ -918,12 +914,11 @@ void TextureManager::PopClippingRect() const
 ThemeManager::ThemeManager()
 {
 	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);
-	std::set<std::string> files;
-	dir->EnumAllFiles(files, "*.lua");
-	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
+	auto files = dir->EnumAllFiles("*.lua");
+	for( auto it = files.begin(); it != files.end(); ++it )
 	{
 		ThemeDesc td;
-		td.fileName = *it;
+		td.fileName = std::move(*it);
 		td.file = dir->Open(td.fileName)->QueryMap();
 		_themes.push_back(td);
 	}

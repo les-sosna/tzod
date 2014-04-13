@@ -35,13 +35,11 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
 
-	std::set<std::string> files;
-	g_fs->GetFileSystem("campaign")->EnumAllFiles(files, "*.lua");
-	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
+	auto files = g_fs->GetFileSystem("campaign")->EnumAllFiles("*.lua");
+	for( auto it = files.begin(); it != files.end(); ++it )
 	{
-		std::string tmp = *it;
-		tmp.erase(it->length() - 4); // cut out the file extension
-		_files->GetData()->AddItem(tmp);
+		it->erase(it->length() - 4); // cut out the file extension
+		_files->GetData()->AddItem(*it);
 	}
 	_files->GetData()->Sort();
 

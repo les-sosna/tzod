@@ -5,6 +5,7 @@
 #include <core/SafePtr.h>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace FS {
 
@@ -85,7 +86,7 @@ public:
 	virtual SafePtr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
 
 	virtual bool IsValid() const;
-	virtual void EnumAllFiles(std::set<std::string> &files, const std::string &mask);
+	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
 	SafePtr<File> Open(const std::string &path, FileMode mode = ModeRead);
 
 	static SafePtr<FileSystem> Create(const std::string &nodeName = std::string());

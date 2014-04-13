@@ -15,9 +15,8 @@ namespace UI
 
 ListDataSourceMaps::ListDataSourceMaps()
 {
-	std::set<std::string> files;
-	g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles(files, "*.map");
-	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
+	auto files = g_fs->GetFileSystem(DIR_MAPS)->EnumAllFiles("*.map");
+	for( auto it = files.begin(); it != files.end(); ++it )
 	{
 		std::string tmp = DIR_MAPS;
 		tmp += "/";

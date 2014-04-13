@@ -4,8 +4,6 @@
 
 #include "FileSystem.h"
 
-#include <string>
-#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 #if _WIN32
@@ -100,7 +98,7 @@ protected:
 public:
 	virtual SafePtr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
 	virtual bool IsValid() const;
-	virtual void EnumAllFiles(std::set<std::string> &files, const std::string &mask);
+	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
 
 	static SafePtr<OSFileSystem> Create(const std::string &rootDirectory, const std::string &nodeName = std::string());
 };
@@ -188,7 +186,7 @@ protected:
 public:
     virtual SafePtr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
     virtual bool IsValid() const;
-    virtual void EnumAllFiles(std::set<std::string> &files, const std::string &mask);
+	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
     
     static SafePtr<OSFileSystem> Create(const std::string &rootDirectory, const std::string &nodeName = std::string());
 };
