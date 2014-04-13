@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Dialog.h"
 #include "constants.h"
 
@@ -17,7 +16,15 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 // forward declarations
+class Button;
+class CheckBox;
+class ComboBox;
+class Edit;
+class List;
 class ListDataSourceMaps;
+class ListDataSourceDefault;
+class Text;
+template<class, class> class ListAdapter;
 
 class NewGameDlg : public Dialog
 {
@@ -146,7 +153,7 @@ public:
 		const std::string &btn2,
 		const std::string &btn3
 	);
-	Delegate<void(int)> eventSelect;
+	std::function<void(int)> eventSelect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -2,17 +2,22 @@
 
 #pragma once
 
-#include "core/SafePtr.h" // for RefCounted
 #include "core/MyMath.h"
 
-///////////////////////////////////////////////////////////////////////////////
+#include <cstdint>
 
-struct DisplayMode
+struct SpriteColor
 {
-    unsigned int Width;
-    unsigned int Height;
-    unsigned int RefreshRate;
-    unsigned int BitsPerPixel;
+	union {
+		unsigned char rgba[4];
+		uint32_t color;
+		struct {
+			unsigned char r, g, b, a;
+		};
+	};
+
+	SpriteColor() {}
+	SpriteColor(uint32_t c) : color(c) {}
 };
 
 struct MyLine
@@ -57,9 +62,10 @@ struct MyVertex
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Image : public RefCounted
+class Image
 {
 public:
+	virtual ~Image() {}
 	virtual const void* GetData() const = 0;
 	virtual unsigned long GetBpp() const = 0;
 	virtual unsigned long GetWidth() const = 0;
@@ -96,7 +102,7 @@ struct IRender
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, Image *img) = 0;
+	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img) = 0;
 	virtual void TexFree(DEV_TEXTURE tex) = 0;
 
 
@@ -108,7 +114,6 @@ struct IRender
 	virtual MyVertex* DrawFan(size_t nEdges) = 0;
 
 	virtual void DrawLines(const MyLine *lines, size_t count) = 0;
-
 };
 
 

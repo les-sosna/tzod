@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Dialog.h"
 #include "core/SafePtr.h"
 
@@ -16,7 +15,10 @@ namespace FS
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
+class ListDataSourceDefault;
+class List;
+class Edit;
+template<class, class> class ListAdapter;
 
 class GetFileNameDlg : public Dialog
 {

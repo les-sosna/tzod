@@ -26,6 +26,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <sstream>
 
 namespace UI
 {
@@ -66,7 +67,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 	y += Text::Create(this, x, y, g_lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
 	_profiles = List::Create(this, &_profilesDataSource, x, y, 128, 52);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
-	_profiles->eventChangeCurSel.bind(&SettingsDlg::OnSelectProfile, this);
+	_profiles->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
 	Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	_editProfile = Button::Create(this, g_lang.settings_profile_edit.Get(), 40, 216);
@@ -109,7 +110,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
 	_volumeSfx->SetPos(expf(g_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
-	_volumeSfx->eventScroll.bind(&SettingsDlg::OnVolumeSfx, this);
+	_volumeSfx->eventScroll = std::bind(&SettingsDlg::OnVolumeSfx, this, std::placeholders::_1);
 	_initialVolumeSfx = g_conf.s_volume.GetInt();
 
 	Text::Create(this, x + 50, y += 20, g_lang.settings_music_volume.Get(), alignTextRT);
@@ -117,7 +118,7 @@ SettingsDlg::SettingsDlg(Window *parent)
 	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
 	_volumeMusic->SetPos(expf(g_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);
-	_volumeMusic->eventScroll.bind(&SettingsDlg::OnVolumeMusic, this);
+	_volumeMusic->eventScroll = std::bind(&SettingsDlg::OnVolumeMusic, this, std::placeholders::_1);
 	_initialVolumeMusic = g_conf.s_musicvolume.GetInt();
 
 
@@ -263,7 +264,7 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	_actions->Resize(400, 250);
 	_actions->SetTabPos(0, 2);
 	_actions->SetTabPos(1, 200);
-	_actions->eventClickItem.bind(&ControlProfileDlg::OnSelectAction, this);
+	_actions->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
 
 	AddAction(_profile.key_forward      , g_lang.action_move_forward.Get()  );
 	AddAction(_profile.key_back         , g_lang.action_move_backward.Get() );

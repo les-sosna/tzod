@@ -2,12 +2,11 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
-
 
 namespace UI
 {
+class Text;
 
 ///////////////////////////////////////////////////////////////////////////////
 

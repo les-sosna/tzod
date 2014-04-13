@@ -2,14 +2,19 @@
 
 #pragma once
 
-#include "ui/Base.h"
-#include "ui/Dialog.h"
-#include "ui/ListBase.h"
 #include "config/Config.h"
+#include <Dialog.h>
+#include <ListBase.h>
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
+class Button;
+class CheckBox;
+class ComboBox;
+class Edit;
+class List;
+class ScrollBarHorizontal;
+template<class, class> class ListAdapter;
 
 class SettingsDlg : public Dialog
 {

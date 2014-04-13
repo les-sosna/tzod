@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Dialog.h"
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
+class ListDataSourceDefault;
+class List;
+template <class, class> class ListAdapter;
 
 class NewCampaignDlg : public Dialog
 {

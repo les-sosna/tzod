@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "ui/Base.h"
-#include "ui/Dialog.h"
-#include "ui/List.h"
 #include "ObjectListener.h"
 #include "core/SafePtr.h"
+
+#include <Dialog.h>
+#include <List.h>
 
 // forward declarations
 class GC_Object;
@@ -14,7 +14,11 @@ class PropertySet;
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
+template <class, class> class ListAdapter;
+class ComboBox;
+class Button;
+class Edit;
+class Text;
 
 class NewMapDlg : public Dialog
 {
@@ -149,7 +153,7 @@ public:
 	void Select(GC_Object *object, bool bSelect);
 	void SelectNone();
 
-	Delegate<void(GC_Object*)> eventOnChangeSelection;
+	std::function<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
 	void DrawChildren(const DrawingContext *dc, float sx, float sy) const;

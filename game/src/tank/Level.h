@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <vector>
 #include <memory>
 
@@ -36,11 +37,9 @@ class Field;
 class FieldCell
 {
 public:
-	static unsigned long _sessionId;    // идентификатор текущей сессии
-	//-----------------------------
-	short _x, _y;                       // координаты клетки
-	//-----------------------------
-	unsigned long _mySession;        // сессия, в которой данная клетка была проверена
+	static unsigned long _sessionId;
+	short _x, _y;
+	unsigned long _mySession;
 	//-----------------------------
 	GC_RigidBodyStatic **_ppObjects;
 	unsigned char _objCount;

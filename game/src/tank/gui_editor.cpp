@@ -92,7 +92,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
 
 	_scrollBar = ScrollBarVertical::Create(this, 0, 0, h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
-	_scrollBar->eventScroll.bind(&PropertyList::OnScroll, this);
+	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
 //	_scrollBar->SetLimit(100);
 
 	Resize(w, h);
@@ -391,7 +391,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 	_list = ServiceListBox::Create(this);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
-	_list->eventChangeCurSel.bind(&ServiceEditor::OnSelectService, this);
+	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
 
 	_btnCreate = Button::Create(this, g_lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
@@ -417,13 +417,13 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
 	SetEasyMove(true);
 
 	assert(!GetEditorLayout()->eventOnChangeSelection);
-	GetEditorLayout()->eventOnChangeSelection.bind(&ServiceEditor::OnChangeSelectionGlobal, this);
+	GetEditorLayout()->eventOnChangeSelection = std::bind(&ServiceEditor::OnChangeSelectionGlobal, this, std::placeholders::_1);
 }
 
 ServiceEditor::~ServiceEditor()
 {
 	assert(GetEditorLayout()->eventOnChangeSelection);
-	GetEditorLayout()->eventOnChangeSelection.clear();
+	GetEditorLayout()->eventOnChangeSelection = nullptr;
 }
 
 void ServiceEditor::OnChangeSelectionGlobal(GC_Object *obj)
@@ -534,7 +534,7 @@ EditorLayout::EditorLayout(Window *parent)
 	List *ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
-	_typeList->eventChangeCurSel.bind(&EditorLayout::OnChangeObjectType, this);
+	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
 	_typeList->SetCurSel(g_conf.ed_object.GetInt());
 
 	assert(!g_conf.ed_uselayers.eventChange);
@@ -589,7 +589,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 	}
 
 	if( eventOnChangeSelection )
-		INVOKE(eventOnChangeSelection)(_selectedObject);
+		eventOnChangeSelection(_selectedObject);
 }
 
 void EditorLayout::SelectNone()

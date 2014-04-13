@@ -187,7 +187,7 @@ void GC_MessageBox::MyPropertySet::MyExchange(bool applyToObject)
 
 		UI::ScriptMessageBox *mb = new UI::ScriptMessageBox(g_gui->GetDesktop(), 
 			tmp->_title, tmp->_text, tmp->_option1, tmp->_option2, tmp->_option3);
-		mb->eventSelect.bind(&GC_MessageBox::OnSelect, tmp);
+		mb->eventSelect = std::bind(&GC_MessageBox::OnSelect, tmp, std::placeholders::_1);
 		tmp->_msgbox.Set(mb);
 	}
 	else

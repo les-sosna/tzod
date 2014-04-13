@@ -1,7 +1,6 @@
 // MyMath.h
 #pragma once
 
-#include <core/types.h>
 #include <cmath>
 #include <cassert>
 #include <cstdlib>
@@ -11,6 +10,13 @@
 #define PI4   0.785398f
 
 /////////////////////////////////////////////////////////////////////////////
+struct FRECT
+{
+	float left;
+	float top;
+	float right;
+	float bottom;
+};
 
 class vec2d
 {

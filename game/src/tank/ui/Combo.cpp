@@ -26,9 +26,9 @@ ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
 	_list->SetTexture("ui/combo_list", false);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
-	_list->eventClickItem.bind(&ComboBox::OnClickItem, this);
-	_list->eventChangeCurSel.bind(&ComboBox::OnChangeSelection, this);
-	_list->eventLostFocus.bind(&ComboBox::OnListLostFocus, this);
+	_list->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
+	_list->eventChangeCurSel = std::bind(&ComboBox::OnChangeSelection, this, std::placeholders::_1);
+	_list->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 
 	_btn = ImageButton::Create(this, 0, 0, "ui/scroll_down");
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
@@ -51,7 +51,7 @@ void ComboBox::SetCurSel(int index)
 	_curSel = index;
 	_list->SetCurSel(index);
 	if( eventChangeCurSel )
-		INVOKE(eventChangeCurSel) (index);
+		eventChangeCurSel(index);
 }
 
 int ComboBox::GetCurSel() const
@@ -94,7 +94,7 @@ void ComboBox::OnClickItem(int index)
 		GetManager()->SetFocusWnd(this);
 
 		if( eventChangeCurSel )
-			INVOKE(eventChangeCurSel) (index);
+			eventChangeCurSel(index);
 	}
 }
 

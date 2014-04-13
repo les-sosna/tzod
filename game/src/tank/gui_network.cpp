@@ -346,7 +346,7 @@ InternetDlg::InternetDlg(Window *parent)
 	_servers = DefaultListBox::Create(this);
 	_servers->Move(25, 120);
 	_servers->Resize(400, 180);
-	_servers->eventChangeCurSel.bind(&InternetDlg::OnSelectServer, this);
+	_servers->eventChangeCurSel = std::bind(&InternetDlg::OnSelectServer, this, std::placeholders::_1);
 	_status = Text::Create(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
 

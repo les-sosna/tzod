@@ -2,12 +2,17 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
 
+#include <functional>
 
 namespace UI
 {
+
+struct ListDataSource;
+class List;
+class TextButton;
+class ButtonBase;
 
 class ComboBox : public Window
 {
@@ -27,7 +32,7 @@ public:
 	List* GetList() const;
 	void DropList();
 
-	Delegate<void(int)> eventChangeCurSel;
+	std::function<void(int)> eventChangeCurSel;
 
 protected:
 	ComboBox(Window *parent, ListDataSource *dataSource);

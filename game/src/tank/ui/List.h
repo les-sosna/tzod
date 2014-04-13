@@ -2,12 +2,16 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
 #include "ListBase.h"
 
+#include <functional>
+
 namespace UI
 {
+
+class ScrollBarVertical;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // multi-column ListBox control
@@ -33,8 +37,8 @@ public:
 	void SetTabPos(int index, float pos);
 
 	// list events
-	Delegate<void(int)> eventChangeCurSel;
-	Delegate<void(int)> eventClickItem;
+	std::function<void(int)> eventChangeCurSel;
+	std::function<void(int)> eventClickItem;
 
 protected:
 	List(Window *parent, ListDataSource* dataSource);

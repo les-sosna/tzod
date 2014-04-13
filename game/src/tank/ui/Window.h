@@ -2,12 +2,11 @@
 
 #pragma once
 
-#include "Base.h"
+#include "video/RenderBase.h"
 #include "core/PtrList.h"
-#include "core/Delegate.h"
-#include "core/types.h"
 
 #include <cassert>
+#include <functional>
 
 class DrawingContext;
 
@@ -175,7 +174,7 @@ public:
 	//
 	// Events
 	//
-	Delegate<void(void)> eventLostFocus;
+	std::function<void(void)> eventLostFocus;
 
 
 	//

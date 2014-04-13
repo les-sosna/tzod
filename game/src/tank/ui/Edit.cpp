@@ -6,9 +6,10 @@
 
 #include "video/TextureManager.h"
 
-#include <algorithm>
-
 #include <GLFW/glfw3.h>
+
+#include <algorithm>
+#include <sstream>
 
 namespace UI
 {
@@ -348,7 +349,7 @@ void Edit::OnTextChange()
 {
 	SetSel(_selStart, _selEnd);
 	if( eventChange )
-		INVOKE(eventChange) ();
+		eventChange();
 }
 
 void Edit::OnTimeStep(float dt)

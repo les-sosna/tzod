@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
 
 namespace UI
 {
+
+class ImageButton;
 
 class ScrollBarBase : public Window
 {
@@ -31,7 +32,7 @@ public:
 
 	void SetElementTextures(const char *slider, const char *upleft, const char *downright);
 
-	Delegate<void(float)> eventScroll;
+	std::function<void(float)> eventScroll;
 
 protected:
 	ScrollBarBase(Window *parent);

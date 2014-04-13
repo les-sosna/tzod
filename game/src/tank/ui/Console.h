@@ -2,18 +2,19 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
 
 #include <deque>
-#include <string>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace UI
 {
 
 class ConsoleBuffer;
+class ScrollBarVertical;
+class Edit;
 
 ///////////////////////////////////////////////////////////////////////////////
 

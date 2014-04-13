@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Window.h"
-
 
 namespace UI
 {
@@ -44,7 +42,7 @@ public:
 	void Paste();
 	void Copy() const;
 
-	Delegate<void()> eventChange;
+	std::function<void()> eventChange;
 
 protected:
 	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;

@@ -74,10 +74,10 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 	else
 	{
 		std::shared_ptr<FS::MemMap> file = g_fs->Open(fileName)->QueryMap();
-		SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
+		std::unique_ptr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
-		if( !g_render->TexCreate(td.id, image) )
+		if( !g_render->TexCreate(td.id, *image) )
 		{
 			throw std::runtime_error("error in render device");
 		}
@@ -133,17 +133,15 @@ void TextureManager::CreateChecker()
 	// create device texture
 	//
 
-	SafePtr<CheckerImage> c(new CheckerImage());
-
+	CheckerImage c;
 	if( !g_render->TexCreate(td.id, c) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);
 		return;
 	}
-
-	td.width     = c->GetWidth();
-	td.height    = c->GetHeight();
+	td.width     = c.GetWidth();
+	td.height    = c.GetHeight();
 	td.refCount  = 0;
 
 	_textures.push_front(td);

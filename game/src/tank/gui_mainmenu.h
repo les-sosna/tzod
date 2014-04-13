@@ -2,18 +2,16 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Dialog.h"
 
 #include <list>
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 // forward declarations
 class GetFileNameDlg;
-
+class Text;
 
 class MainMenuDlg : public Dialog
 {
@@ -65,8 +63,6 @@ class MainMenuDlg : public Dialog
 	PanelState _pstate;
 
 	GetFileNameDlg *_fileDlg;
-
-	std::list<DelegateAdapter1<std::string> >  _campaigns;
 
 public:
 	MainMenuDlg(Window *parent);

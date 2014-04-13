@@ -2,16 +2,22 @@
 
 #pragma once
 
-#include "Base.h"
 #include "Dialog.h"
 #include "ClientBase.h"
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
-
 // forward declarations
+class List;
 class ListDataSourceMaps;
+class ListDataSourceDefault;
+class Edit;
+class ComboBox;
+class CheckBox;
+class Button;
+class Console;
+class ConsoleBuffer;
+template <class, class> class ListAdapter;
 
 class CreateServerDlg : public Dialog
 {

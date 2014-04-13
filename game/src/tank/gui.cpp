@@ -118,7 +118,7 @@ NewGameDlg::NewGameDlg(Window *parent, ILevelController *ctrl)
 	_players->SetTabPos(1, 192); // skin
 	_players->SetTabPos(2, 256); // class
 	_players->SetTabPos(3, 320); // team
-	_players->eventChangeCurSel.bind(&NewGameDlg::OnSelectPlayer, this);
+	_players->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
 
 
 	Text::Create(this, 16, 368, g_lang.AI_player_list.Get(), alignTextLT);
@@ -129,7 +129,7 @@ NewGameDlg::NewGameDlg(Window *parent, ILevelController *ctrl)
 	_bots->SetTabPos(1, 192); // skin
 	_bots->SetTabPos(2, 256); // class
 	_bots->SetTabPos(3, 320); // team
-	_bots->eventChangeCurSel.bind(&NewGameDlg::OnSelectBot, this);
+	_bots->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
 
 
 	//
@@ -488,7 +488,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_skins = DefaultComboBox::Create(this);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
-	_skins->eventChangeCurSel.bind( &EditPlayerDlg::OnChangeSkin, this );
+	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
@@ -668,7 +668,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_skins = DefaultComboBox::Create(this);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
-	_skins->eventChangeCurSel.bind( &EditBotDlg::OnChangeSkin, this );
+	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
 	g_texman->GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
@@ -796,17 +796,17 @@ void EditBotDlg::OnChangeSkin(int index)
 
 void ScriptMessageBox::OnButton1()
 {
-	INVOKE(eventSelect) (1);
+	eventSelect(1);
 }
 
 void ScriptMessageBox::OnButton2()
 {
-	INVOKE(eventSelect) (2);
+	eventSelect(2);
 }
 
 void ScriptMessageBox::OnButton3()
 {
-	INVOKE(eventSelect) (3);
+	eventSelect(3);
 }
 
 ScriptMessageBox::ScriptMessageBox( Window *parent,

@@ -131,21 +131,21 @@ void ScrollBarBase::OnBoxMouseMove(float x, float y)
 	pos /= GetScrollPaneLength() - Select(_btnBox->GetWidth(), _btnBox->GetHeight());
 	SetPos(pos * (_documentSize - _pageSize));
 	if( eventScroll )
-		INVOKE(eventScroll) (GetPos());
+		eventScroll(GetPos());
 }
 
 void ScrollBarBase::OnUpLeft()
 {
 	SetPos(GetPos() - _lineSize);
 	if( eventScroll )
-		INVOKE(eventScroll) (GetPos());
+		eventScroll(GetPos());
 }
 
 void ScrollBarBase::OnDownRight()
 {
 	SetPos(GetPos() + _lineSize);
 	if( eventScroll )
-		INVOKE(eventScroll) (GetPos());
+		eventScroll(GetPos());
 }
 
 void ScrollBarBase::OnLimitsChanged()

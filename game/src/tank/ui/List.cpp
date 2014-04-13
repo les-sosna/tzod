@@ -127,9 +127,7 @@ void List::SetCurSel(int sel, bool scroll)
 		}
 
 		if( eventChangeCurSel )
-		{
-			INVOKE(eventChangeCurSel) (sel);
-		}
+			eventChangeCurSel(sel);
 	}
 }
 
@@ -189,7 +187,7 @@ bool List::OnMouseDown(float x, float y, int button)
 		int index = HitTest(y);
 		SetCurSel(index, false);
 		if( -1 != index && eventClickItem )
-			INVOKE(eventClickItem) (index);
+			eventClickItem(index);
 	}
 	return true;
 }

@@ -4,6 +4,7 @@
 
 #include "RenderBase.h"
 #include "core/singleton.h"
+#include "core/types.h"
 
 #include <stack>
 #include <list>

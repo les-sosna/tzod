@@ -2,6 +2,7 @@
 
 #pragma once
 #include "core/MyMath.h"
+#include "core/types.h"
 #include <string>
 #include <map>
 #include <set>

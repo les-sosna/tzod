@@ -62,7 +62,7 @@ Console::Console(Window *parent)
 {
 	_input = Edit::Create(this, 0, 0, 0);
 	_scroll = ScrollBarVertical::Create(this, 0, 0, 0);
-	_scroll->eventScroll.bind(&Console::OnScroll, this);
+	_scroll->eventScroll = std::bind(&Console::OnScroll, this, std::placeholders::_1);
 	SetTexture("ui/console", false);
 	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround

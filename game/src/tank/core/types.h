@@ -2,29 +2,6 @@
 
 #pragma once
 
-#include <cstdint>
-
-struct FRECT
-{
-	float left;
-	float top;
-	float right;
-	float bottom;
-};
-
-struct SpriteColor
-{
-	union {
-		unsigned char rgba[4];
-		uint32_t color;
-		struct {
-			unsigned char r,g,b,a;
-		};
-	};
-
-	SpriteColor() {}
-	SpriteColor(uint32_t c) : color(c) {}
-};
 
 typedef int ObjectType;
 #define INVALID_OBJECT_TYPE (-1)

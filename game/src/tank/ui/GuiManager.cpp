@@ -128,7 +128,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 		{
 			oldFocusWnd->OnFocus(false); // _focusWnd may be destroyed here
 			if( oldFocusWnd.Get() && oldFocusWnd->eventLostFocus )
-				INVOKE(oldFocusWnd->eventLostFocus) ();
+				oldFocusWnd->eventLostFocus();
 		}
 	}
 	return NULL != _focusWnd.Get();
