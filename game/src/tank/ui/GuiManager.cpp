@@ -3,8 +3,6 @@
 #include "globals.h"
 #include "GuiManager.h"
 
-#include "MousePointer.h"
-
 #include "video/RenderBase.h"
 #include "video/TextureManager.h"
 

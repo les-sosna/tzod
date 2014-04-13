@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <functional>
+#include <string>
 
 class DrawingContext;
 

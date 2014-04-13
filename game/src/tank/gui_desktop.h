@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Window.h"
-#include "Console.h"
 #include "Level.h"// for EditorModeListenerHelper
+#include <Window.h>
+#include <Console.h>
 
 namespace UI
 {

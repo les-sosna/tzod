@@ -1,11 +1,13 @@
 // MemoryManager.h
-///////////////////////////////////////////
 
 #pragma once
 
 #include <cassert>
-
-///////////////////////////////////////////////////////////////////
+#include <new>
+#include <typeinfo>
+#ifndef NDEBUG
+#include <cstdio>  // for printf
+#endif
 
 template
 <
