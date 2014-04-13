@@ -4,13 +4,12 @@
 
 #include "Macros.h"
 #include "Level.h"
-#include "functions.h"
 
 #include "core/JobManager.h"
 #include "core/debug.h"
 
-#include "fs/MapFile.h"
-#include "fs/SaveFile.h"
+#include "MapFile.h"
+#include "SaveFile.h"
 
 #include "GameClasses.h"
 #include "sound.h"

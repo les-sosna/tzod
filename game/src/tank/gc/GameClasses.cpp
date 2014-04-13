@@ -1,26 +1,21 @@
 //GameClasses.cpp
 
-#include "Player.h"
 #include "GameClasses.h"
+
 #include "Camera.h"
-#include "Vehicle.h"
-#include "Sound.h"
+#include "Level.h"
+#include "Macros.h"
+#include "MapFile.h"
 #include "particles.h"
+#include "Player.h"
+#include "SaveFile.h"
+#include "Sound.h"
+#include "Vehicle.h"
 
 #include "core/Debug.h"
-
-#include "fs/MapFile.h"
-#include "fs/SaveFile.h"
-
 #include "ui/GuiManager.h"
-
 #include "video/RenderBase.h"
-
 #include "config/Config.h"
-
-#include "functions.h"
-#include "Macros.h"
-#include "Level.h"
 
 
 /////////////////////////////////////////////////////////////

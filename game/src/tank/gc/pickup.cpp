@@ -1,20 +1,20 @@
 // pickup.cpp
 
 #include "pickup.h"
+
 #include "GameClasses.h"
 #include "indicators.h"
-#include "vehicle.h"
-#include "Player.h"
-#include "Sound.h"
-#include "particles.h"
-#include "Weapons.h"
-#include "Macros.h"
 #include "Level.h"
-#include "functions.h"
+#include "Macros.h"
+#include "MapFile.h"
+#include "particles.h"
+#include "Player.h"
+#include "SaveFile.h"
 #include "script.h"
+#include "Sound.h"
+#include "vehicle.h"
+#include "Weapons.h"
 
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
 #include "ui/ConsoleBuffer.h"
 
 extern "C"

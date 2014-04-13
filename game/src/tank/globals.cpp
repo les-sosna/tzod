@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "Level.h"
 #include "ui/ConsoleBuffer.h"
-#include "fs/FileSystem.h"
+#include <FileSystem.h>
 
 ENVIRONMENT g_env;
 

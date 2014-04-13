@@ -1,15 +1,14 @@
 // Trigger.cpp
 
 #include "Trigger.h"
-#include "Vehicle.h"
+
 #include "ai.h"
-
-#include "level.h"
+#include "Level.h"
 #include "Macros.h"
+#include "MapFile.h"
+#include "SaveFile.h"
 #include "script.h"
-
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
+#include "Vehicle.h"
 
 extern "C"
 {

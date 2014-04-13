@@ -3,20 +3,17 @@
 
 #include "projectiles.h"
 
-#include "Level.h"
-#include "Macros.h"
-#include "functions.h"
-
-#include "fs/SaveFile.h"
-
-#include "config/Config.h"
-
 #include "GameClasses.h"
-#include "light.h"
-#include "sound.h"
+#include "Level.h"
+#include "Light.h"
+#include "Macros.h"
 #include "particles.h"
 #include "Player.h"
 #include "RigidBodyDinamic.h"
+#include "sound.h"
+#include "SaveFile.h"
+
+#include "config/Config.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -1,15 +1,15 @@
 // Camera.cpp
 
 #include "Camera.h"
+
 #include "Level.h"
+#include "Macros.h"
 #include "Player.h"
+#include "SaveFile.h"
 #include "Vehicle.h"
 #include "Weapons.h"
-#include "functions.h"
-#include "Macros.h"
 
 #include "config/Config.h"
-#include "fs/SaveFile.h"
 #include "ui/ConsoleBuffer.h"
 #include "video/RenderBase.h" // FIXME
 

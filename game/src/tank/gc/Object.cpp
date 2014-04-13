@@ -4,12 +4,12 @@
 #include "Object.h"
 
 #include "globals.h"
-#include "level.h"
+#include "Level.h"
+#include "MapFile.h"
+#include "SaveFile.h"
 
 #include "config/Config.h"
 #include "core/debug.h"
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////

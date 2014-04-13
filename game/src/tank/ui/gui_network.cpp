@@ -15,9 +15,9 @@
 #include "DataSourceAdapters.h"
 
 //#include "Interface.h"
-#include "functions.h"
 #include "Level.h"
 #include "Macros.h"
+#include "Pause.h"
 #include "script.h"
 
 #include "config/Config.h"
@@ -32,10 +32,10 @@
 #include "gc/Player.h"
 #include "gc/ai.h"
 
-#include "fs/FileSystem.h"
-
 #include "md5.h"
 
+
+#include <FileSystem.h>
 
 namespace UI
 {

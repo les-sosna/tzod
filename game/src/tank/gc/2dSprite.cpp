@@ -1,9 +1,9 @@
 // 2dSprite.cpp
 
 #include "2dSprite.h"
-#include "Level.h"
 
-#include "fs/SaveFile.h"
+#include "Level.h"
+#include "SaveFile.h"
 
 #include "video/TextureManager.h"
 #include "video/RenderBase.h"

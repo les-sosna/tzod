@@ -11,8 +11,8 @@
 #include "GuiManager.h"
 
 #include "config/Language.h"
-#include "fs/FileSystem.h"
 
+#include <FileSystem.h>
 #include <GLFW/glfw3.h>
 
 namespace UI

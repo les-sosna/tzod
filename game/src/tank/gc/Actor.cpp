@@ -1,10 +1,11 @@
 // Actor.cpp
 
+#include "Actor.h"
+
 #include "globals.h"
 #include "Level.h"
-#include "Actor.h"
-#include "fs/MapFile.h"
-#include "fs/SaveFile.h"
+#include "MapFile.h"
+#include "SaveFile.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

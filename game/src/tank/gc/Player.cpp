@@ -1,19 +1,19 @@
 // Player.cpp
 
-#include "GameClasses.h"
-#include "Camera.h"
-#include "vehicle.h"
-#include "indicators.h"
-#include "particles.h"
 #include "Player.h"
-#include "Sound.h"
 
-#include "script.h"
+#include "Camera.h"
+#include "GameClasses.h"
+#include "indicators.h"
+#include "Level.h"
 #include "Macros.h"
-#include "level.h"
+#include "MapFile.h"
+#include "particles.h"
+#include "SaveFile.h"
+#include "Sound.h"
+#include "script.h"
+#include "vehicle.h"
 
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
 
 //#include "network/TankClient.h"
 

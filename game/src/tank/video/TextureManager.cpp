@@ -6,7 +6,8 @@
 
 #include "core/debug.h"
 #include "gc/2dSprite.h"
-#include "fs/FileSystem.h"
+
+#include <FileSystem.h>
 
 extern "C"
 {

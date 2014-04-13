@@ -4,7 +4,6 @@
 
 #include "Level.h"
 #include "Macros.h"
-#include "functions.h"
 #include "script.h"
 
 #include "GameClasses.h"
@@ -20,7 +19,7 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "fs/SaveFile.h"
+#include "SaveFile.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"

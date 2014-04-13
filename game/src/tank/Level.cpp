@@ -3,10 +3,12 @@
 
 #include "Level.h"
 #include "Level.inl"
-#include "Macros.h"
-#include "functions.h"
-#include "script.h"
+
 #include "DefaultCamera.h"
+#include "Macros.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "script.h"
 
 #include "core/debug.h"
 
@@ -18,10 +20,6 @@
 
 #include "video/RenderBase.h"
 #include "video/TextureManager.h" // for ThemeManager
-
-#include "fs/FileSystem.h"
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
 
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
@@ -37,6 +35,9 @@
 //#ifdef _DEBUG
 #include "gc/ai.h"
 //#endif
+
+#include <FileSystem.h>
+
 
 extern "C"
 {
@@ -589,8 +590,6 @@ void Level::Serialize(const char *fileName)
 {
 	assert(IsSafeMode());
 
-	PauseGame(true); // FIXME: exception safety
-
 	TRACE("Saving game to file '%S'...", fileName);
 
 	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeWrite)->QueryStream();
@@ -694,9 +693,6 @@ void Level::Serialize(const char *fileName)
 		throw std::runtime_error(err);
 	}
 	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
-
-
-	PauseGame(false);
 }
 
 void Level::Import(std::shared_ptr<FS::Stream> s)

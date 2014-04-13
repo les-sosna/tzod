@@ -20,8 +20,8 @@
 
 #include "KeyMapper.h"
 #include "Level.h"
+#include "Pause.h"
 
-#include "functions.h"
 #include "Macros.h"
 
 #include <GLFW/glfw3.h>

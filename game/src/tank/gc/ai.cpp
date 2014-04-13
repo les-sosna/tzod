@@ -2,23 +2,21 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "Macros.h"
-#include "Functions.h"
-#include "Level.h"
-
 #include "ai.h"
-#include "Vehicle.h"
-#include "Turrets.h"
+
+#include "Camera.h"
+#include "Level.h"
+#include "Macros.h"
+#include "MapFile.h"
 #include "Pickup.h"
 #include "Player.h"
+#include "SaveFile.h"
+#include "Turrets.h"
+#include "Vehicle.h"
 #include "Weapons.h"
-#include "Camera.h"
 
 #include "core/JobManager.h"
 #include "core/Debug.h"
-
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
 
 #include <queue>
 

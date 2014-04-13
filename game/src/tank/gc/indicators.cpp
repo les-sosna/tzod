@@ -1,14 +1,12 @@
 // indicators.cpp
 
 #include "indicators.h"
-#include "Vehicle.h"
 
-#include "level.h"
+#include "Level.h"
 #include "Macros.h"
-#include "functions.h"
-
-#include "fs/MapFile.h"
-#include "fs/SaveFile.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "Vehicle.h"
 
 #include "core/debug.h"
 

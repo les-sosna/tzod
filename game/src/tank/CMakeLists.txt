@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 project(Tank)
 
+add_subdirectory(fs)
+
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
@@ -9,21 +11,18 @@ find_package(Boost 1.55 REQUIRED COMPONENTS system)
 #find_package(OpenAL)
 
 include_directories(
-	${Utf8cpp_SOURCE_DIR}
+	.
+	${FileSystem_SOURCE_DIR}
+	
+	# 3rd party
 	${Boost_INCLUDE_DIRS}
 	${Lua_SOURCE_DIR}/src
 	${Zlib_SOURCE_DIR}
 	${OggVorbis_SOURCE_DIR}/include
 	${Pluto_SOURCE_DIR}
 	${GLFW_SOURCE_DIR}/include
-	.
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-add_definitions(-DNOSOUND)
-add_definitions(-DNOMINMAX) # win32 specific
-#link_libraries(${glfw_LIBRARIES})
-link_directories(${Boost_LIBRARY_DIR})
 set(tank_SOURCES
 	BackgroundIntro.cpp
 	ClientBase.cpp
@@ -31,13 +30,15 @@ set(tank_SOURCES
 	DefaultCamera.cpp
 #	directx.cpp
 #	Dsutil.cpp
-	functions.cpp
 	globals.cpp
 #	InputManager.cpp
 	KeyMapper.cpp
 	Level.cpp
 	Main.cpp
+	MapFile.cpp
 	Md5.c
+	Pause.cpp
+	SaveFile.cpp
 	script.cpp
 	SinglePlayer.cpp
 	config/Config.cpp
@@ -51,9 +52,6 @@ set(tank_SOURCES
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp
 	video/TextureManager.cpp
-	fs/FileSystemImpl.cpp
-	fs/MapFile.cpp
-	fs/SaveFile.cpp
 	gc/TypeSystem.cpp
 	gc/2dSprite.cpp
 	gc/Actor.cpp
@@ -117,12 +115,25 @@ set(tank_SOURCES
 #	sound/sfx.cpp
 )
 
+add_definitions(-DNOSOUND)
+link_directories(${Boost_LIBRARY_DIR})
+
 if(WIN32)
+	add_definitions(-DNOMINMAX)
 	add_executable(tank WIN32 ${tank_SOURCES})
 elseif(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	add_executable(tank MACOSX_BUNDLE ${tank_SOURCES})
 else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tank lua pluto zlib glfw ${GLFW_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(tank 
+	libFileSystem
+	lua
+	pluto
+	zlib
+	glfw
+	${GLFW_LIBRARIES}
+	${Boost_LIBRARIES}
+)

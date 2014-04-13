@@ -1,6 +1,7 @@
 // gui_campaign.cpp
 
 #include "globals.h"
+#include "Pause.h"
 #include "gui_campaign.h"
 #include "gui_desktop.h"
 
@@ -11,13 +12,12 @@
 
 #include "GuiManager.h"
 
-#include "functions.h"
 #include "script.h"
 
-#include "fs/FileSystem.h"
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include <FileSystem.h>
 
 namespace UI
 {

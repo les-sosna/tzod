@@ -1,18 +1,16 @@
 // light.cpp
 
-#include "light.h"
+#include "Light.h"
 
-#include "level.h"
+#include "Level.h"
 #include "Macros.h"
-
-#include "config/Config.h"
-
-#include "video/RenderBase.h"
-
-#include "fs/SaveFile.h"
-#include "fs/MapFile.h"
+#include "MapFile.h"
+#include "SaveFile.h"
 
 #include "core/debug.h"
+#include "config/Config.h"
+#include "video/RenderBase.h"
+
 
 /////////////////////////////////////////////////////////
 

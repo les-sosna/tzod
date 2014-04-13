@@ -2,7 +2,8 @@
 
 #include "ConfigBase.h"
 #include "ui/ConsoleBuffer.h"
-#include "fs/FileSystem.h"
+
+#include <FileSystem.h>
 
 extern "C"
 {

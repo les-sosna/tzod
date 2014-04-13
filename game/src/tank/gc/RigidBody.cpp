@@ -1,17 +1,17 @@
 // RigidBody.cpp
 
 #include "RigidBody.h"
+
+#include "Level.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "script.h"
 #include "Sound.h"
 #include "Particles.h"
 #include "Player.h"
 #include "Vehicle.h"
 
-#include "level.h"
-#include "functions.h"
-#include "script.h"
 
-#include "fs/MapFile.h"
-#include "fs/SaveFile.h"
 #include "config/Config.h"
 
 extern "C"

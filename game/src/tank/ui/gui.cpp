@@ -12,9 +12,10 @@
 #include "Combo.h"
 #include "DataSourceAdapters.h"
 
-#include "functions.h"
 #include "LevelInterfaces.h"
 #include "Macros.h"
+#include "MapFile.h"
+#include "Pause.h"
 #include "script.h"
 #include "SinglePlayer.h"
 
@@ -25,13 +26,12 @@
 
 #include "core/debug.h"
 
-#include "fs/FileSystem.h"
-#include "fs/MapFile.h"
 #include "gc/Player.h"
 #include "gc/ai.h"
 
 #include "network/CommonTypes.h"
 
+#include <FileSystem.h>
 #include <GLFW/glfw3.h>
 
 extern "C"

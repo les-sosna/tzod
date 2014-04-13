@@ -19,15 +19,14 @@
 
 #include "Level.h"
 #include "Macros.h"
+#include "Pause.h"
 #include "script.h"
-#include "functions.h"
 
-#include "fs/FileSystem.h"
+#include <FileSystem.h>
 #include "core/debug.h"
 #include "config/Config.h"
+
 #include "config/Language.h"
-
-
 #include <GLFW/glfw3.h>
 
 

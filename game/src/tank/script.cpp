@@ -1,10 +1,12 @@
 // script.cpp
 
 #include "script.h"
+
+#include "BackgroundIntro.h"
 #include "level.h"
 #include "Macros.h"
-#include "BackgroundIntro.h"
-#include "functions.h"
+#include "Pause.h"
+#include "SaveFile.h"
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
@@ -16,9 +18,6 @@
 #include "ui/GuiManager.h"
 #include "ui/gui_desktop.h"
 #include "ui/gui.h"
-
-#include "fs/FileSystem.h"
-#include "fs/SaveFile.h"
 
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
@@ -33,6 +32,7 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
+#include <FileSystem.h>
 
 extern "C"
 {

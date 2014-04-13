@@ -5,7 +5,6 @@
 #include "Sound.h"
 
 #include "config/Config.h"
-#include "functions.h"
 
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)
