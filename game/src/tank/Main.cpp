@@ -70,8 +70,6 @@ struct GlfwInitHelper
 };
 
 
-
-static bool Pre();
 static void Idle(float dt);
 static void Post();
 

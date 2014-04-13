@@ -453,7 +453,7 @@ FS::OSFileSystem::OSFile::~OSFile()
 std::shared_ptr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
 {
     assert(!_mapped && !_streamed);
-	std::shared_ptr<MemMap> result = std::make_shared<OSMemMap>(this);
+	std::shared_ptr<MemMap> result = std::make_shared<OSMemMap>(shared_from_this());
     _mapped = true;
     return result;
 }
@@ -462,7 +462,7 @@ std::shared_ptr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
 {
     assert(!_mapped && !_streamed);
     _streamed = true;
-    return std::make_shared<OSStream>(this);
+    return std::make_shared<OSStream>(shared_from_this());
 }
 
 void FS::OSFileSystem::OSFile::Unmap()
@@ -531,8 +531,11 @@ FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
 
 FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 {
-    fseek(_file->_file.f, 0, SEEK_SET);
-    fwrite(&_data[0], _data.size(), 1, _file->_file.f);
+    if (!_data.empty())
+    {
+        fseek(_file->_file.f, 0, SEEK_SET);
+        fwrite(&_data[0], _data.size(), 1, _file->_file.f);
+    }
     _file->Unmap();
 }
 
@@ -553,34 +556,13 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory, const std::string &nodeName)
+std::shared_ptr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory)
 {
-    return new OSFileSystem(rootDirectory, nodeName);
+    return std::make_shared<OSFileSystem>(rootDirectory);
 }
-
-FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory, const std::string &nodeName)
-    : FileSystem(nodeName)
-    , _rootDirectory(rootDirectory)
+FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
+    : _rootDirectory(rootDirectory)
 {
-}
-
-FS::OSFileSystem::OSFileSystem(OSFileSystem *parent, const std::string &nodeName)
-    : FileSystem(nodeName)
-{
-    assert(parent);
-    assert(std::string::npos == nodeName.find('/'));
-    
-    MountTo(parent);
-    _rootDirectory = parent->_rootDirectory + '/' + nodeName;
-}
-
-FS::OSFileSystem::~OSFileSystem(void)
-{
-}
-
-bool FS::OSFileSystem::IsValid() const
-{
-    return true;
 }
 
 std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
@@ -627,10 +609,8 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
     assert(!path.empty());
     
     // skip delimiters at the beginning
-    std::string::size_type offset = 0;
-    while( offset < path.length() && path[offset] == '/' )
-        ++offset;
-    assert(path.length() > offset);
+    std::string::size_type offset = path.find_first_not_of('/');
+    assert(std::string::npos != offset);
     
     std::string::size_type p = path.find('/', offset);
     std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
@@ -666,7 +646,8 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
     }
     
     // at this point the directory was either found or created
-	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(this, dirName);
+	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(_rootDirectory + '/' + dirName);
+    Mount(dirName, child);
     if( std::string::npos != p )
         return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
     return child; // last path node was processed

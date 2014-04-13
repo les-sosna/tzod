@@ -118,7 +118,9 @@ class OSFileSystem : public FileSystem
         AutoHandle& operator = (const AutoHandle&);
     };
     
-    class OSFile : public File
+    class OSFile
+        : public File
+        , public std::enable_shared_from_this<OSFile>
     {
     public:
         OSFile(const std::string &fileName, FileMode mode);
@@ -134,7 +136,7 @@ class OSFileSystem : public FileSystem
         class OSMemMap : public MemMap
         {
         public:
-            OSMemMap(const std::shared_ptr<OSFile> &parent);
+            OSMemMap(std::shared_ptr<OSFile> parent);
             virtual ~OSMemMap();
             
             virtual char* GetData();
@@ -150,7 +152,7 @@ class OSFileSystem : public FileSystem
         class OSStream : public Stream
         {
         public:
-            OSStream(const std::shared_ptr<OSFile> &parent);
+            OSStream(std::shared_ptr<OSFile> parent);
             virtual ~OSStream();
             
             virtual ErrorCode Read(void *dst, size_t size);
@@ -170,20 +172,15 @@ class OSFileSystem : public FileSystem
     
     std::string  _rootDirectory;
     
-private:
-    // private constructors for internal use by GetFileSystem() and Create()
-    OSFileSystem(OSFileSystem *parent, const std::string &nodeName);
-    OSFileSystem(const std::string &rootDirectory, const std::string &nodeName = std::string());
-    
 protected:
-    virtual ~OSFileSystem(); // protected destructor. delete via Release() only
     virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode);
     
 public:
+    OSFileSystem(const std::string &rootDirectory);
     virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
 	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
     
-    static std::shared_ptr<OSFileSystem> Create(const std::string &rootDirectory, const std::string &nodeName = std::string());
+    static std::shared_ptr<OSFileSystem> Create(const std::string &rootDirectory);
 };
 } // end of namespace FS
 #endif

@@ -21,8 +21,8 @@ namespace UI
 
 GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
-  , _changing(false)
   , _folder(param.folder)
+  , _changing(false)
 {
 	Text *t = Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
 	t->SetFont("font_default");

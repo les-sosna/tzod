@@ -21,6 +21,8 @@ extern "C"
 #include <lauxlib.h>
 }
 
+#include <cfloat>
+
 #include <ui/ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
