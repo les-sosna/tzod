@@ -3,7 +3,9 @@
 #include "script.h"
 
 #include "BackgroundIntro.h"
-#include "level.h"
+#include "gui.h"
+#include "gui_desktop.h"
+#include "Level.h"
 #include "Macros.h"
 #include "Pause.h"
 #include "SaveFile.h"
@@ -14,10 +16,6 @@
 #include "gc/ai.h"
 #include "gc/Weapons.h" // for ugly workaround
 
-#include "ui/ConsoleBuffer.h"
-#include "ui/GuiManager.h"
-#include "ui/gui_desktop.h"
-#include "ui/gui.h"
 
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
@@ -32,7 +30,9 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
+#include <ConsoleBuffer.h>
 #include <FileSystem.h>
+#include <GuiManager.h>
 
 extern "C"
 {

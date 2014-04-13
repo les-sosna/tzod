@@ -3,9 +3,10 @@
 #include "ClientBase.h"
 #include "globals.h"
 #include "LevelInterfaces.h"
-#include "ui/gui_desktop.h"
-#include "ui/GuiManager.h"
+#include "gui_desktop.h"
 #include "script.h"
+
+#include <GuiManager.h>
 
 
 ClientBase::ClientBase(ILevelController *level)

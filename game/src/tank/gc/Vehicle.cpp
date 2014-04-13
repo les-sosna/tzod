@@ -19,12 +19,13 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "gui.h"
+#include "gui_desktop.h"
 #include "SaveFile.h"
 
-#include "ui/GuiManager.h"
-#include "ui/gui_desktop.h"
-#include "ui/gui.h"
-#include <ui/ConsoleBuffer.h>
+
+#include <ConsoleBuffer.h>
+#include <GuiManager.h>
 
 extern "C"
 {

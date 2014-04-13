@@ -3,7 +3,6 @@
 #include "Button.h"
 #include "GuiManager.h"
 #include "video/TextureManager.h"
-#include "ui/GuiManager.h"
 #include <algorithm>
 
 namespace UI

@@ -3,13 +3,13 @@
 #include "MessageBox.h"
 
 #include "globals.h"
+#include "gui.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
 
-#include "ui/ConsoleBuffer.h"
-#include "ui/gui.h"
-#include "ui/GuiManager.h"
+#include <ConsoleBuffer.h>
+#include <GuiManager.h>
 
 extern "C"
 {

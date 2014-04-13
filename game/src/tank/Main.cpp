@@ -2,6 +2,7 @@
 
 
 #include "globals.h"
+#include "gui_desktop.h"
 #include "script.h"
 #include "Macros.h"
 #include "Level.h"
@@ -23,10 +24,6 @@
 //#include "network/Variant.h"
 //#include "network/TankClient.h"
 
-//#include "ui/Interface.h"
-#include "ui/GuiManager.h"
-#include "ui/gui_desktop.h"
-#include "ui/ConsoleBuffer.h"
 
 #include "gc/Sound.h"
 #include "gc/Player.h"
@@ -39,7 +36,8 @@
 
 #include "res/resource.h"
 
-
+#include <ConsoleBuffer.h>
+#include <GuiManager.h>
 #include <GLFW/glfw3.h>
 
 #include <thread>

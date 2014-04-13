@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-#include "ui/ConsoleBuffer.h"
+#include <ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
 

@@ -10,11 +10,10 @@
 #include "Weapons.h"
 
 #include "config/Config.h"
-#include "ui/ConsoleBuffer.h"
 #include "video/RenderBase.h" // FIXME
 
 #include <GLFW/glfw3.h>
-
+#include <ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
 

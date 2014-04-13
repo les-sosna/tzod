@@ -1,8 +1,8 @@
 // ConfigBase.cpp
 
 #include "ConfigBase.h"
-#include "ui/ConsoleBuffer.h"
 
+#include <ConsoleBuffer.h>
 #include <FileSystem.h>
 
 extern "C"

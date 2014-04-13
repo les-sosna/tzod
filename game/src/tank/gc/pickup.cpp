@@ -15,7 +15,7 @@
 #include "vehicle.h"
 #include "Weapons.h"
 
-#include "ui/ConsoleBuffer.h"
+#include <ConsoleBuffer.h>
 
 extern "C"
 {

@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project(Tank)
 
 add_subdirectory(fs)
+add_subdirectory(ui)
 
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
@@ -13,6 +14,7 @@ find_package(Boost 1.55 REQUIRED COMPONENTS system)
 include_directories(
 	.
 	${FileSystem_SOURCE_DIR}
+	${UI_SOURCE_DIR}
 	
 	# 3rd party
 	${Boost_INCLUDE_DIRS}
@@ -31,12 +33,24 @@ set(tank_SOURCES
 #	directx.cpp
 #	Dsutil.cpp
 	globals.cpp
+	gui.cpp
+	gui_campaign.cpp
+	gui_desktop.cpp
+	gui_editor.cpp
+	gui_getfilename.cpp
+	gui_mainmenu.cpp
+	gui_maplist.cpp
+	gui_network.cpp
+	gui_scoretable.cpp
+	gui_settings.cpp
+	gui_widgets.cpp
 #	InputManager.cpp
 	KeyMapper.cpp
 	Level.cpp
 	Main.cpp
 	MapFile.cpp
 	Md5.c
+	MousePointer.cpp
 	Pause.cpp
 	SaveFile.cpp
 	script.cpp
@@ -76,31 +90,6 @@ set(tank_SOURCES
 	gc/UserObjects.cpp
 	gc/Vehicle.cpp
 	gc/Weapons.cpp
-	ui/Button.cpp
-	ui/Combo.cpp
-	ui/Console.cpp
-	ui/ConsoleBuffer.cpp
-	ui/Dialog.cpp
-	ui/Edit.cpp
-	ui/gui.cpp
-	ui/gui_campaign.cpp
-	ui/gui_desktop.cpp
-	ui/gui_editor.cpp
-	ui/gui_getfilename.cpp
-	ui/gui_mainmenu.cpp
-	ui/gui_maplist.cpp
-	ui/gui_network.cpp
-	ui/gui_scoretable.cpp
-	ui/gui_settings.cpp
-	ui/gui_widgets.cpp
-	ui/GuiManager.cpp
-#	ui/Interface.cpp
-	ui/List.cpp
-	ui/ListBase.cpp
-	ui/MousePointer.cpp
-	ui/Scroll.cpp
-	ui/Text.cpp
-	ui/Window.cpp
 #	network/CommonTypes.cpp
 	network/ControlPacket.cpp
 #	network/HttpClient.cpp
@@ -130,6 +119,7 @@ endif()
 
 target_link_libraries(tank 
 	libFileSystem
+	libUI
 	lua
 	pluto
 	zlib

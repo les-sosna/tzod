@@ -14,6 +14,8 @@
 #include "script.h"
 #include "vehicle.h"
 
+#include "gui.h"
+#include "gui_desktop.h"
 
 //#include "network/TankClient.h"
 
@@ -24,10 +26,7 @@
 
 #include "core/debug.h"
 
-#include "ui/GuiManager.h"
-#include "ui/gui_desktop.h"
-#include "ui/gui.h"
-
+#include <GuiManager.h>
 
 extern "C"
 {
@@ -35,7 +34,6 @@ extern "C"
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 

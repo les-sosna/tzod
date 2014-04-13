@@ -8,9 +8,9 @@
 #include "gc/Vehicle.h"
 #include "Level.h"
 #include "KeyMapper.h"
-#include <GLFW/glfw3.h>
 
-#include "ui/ConsoleBuffer.h"
+#include <GLFW/glfw3.h>
+#include <ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
 

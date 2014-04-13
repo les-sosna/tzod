@@ -5,6 +5,9 @@
 #include "Level.inl"
 
 #include "DefaultCamera.h"
+#include "gui.h"
+#include "gui_desktop.h"
+#include "gui_widgets.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -21,11 +24,6 @@
 #include "video/RenderBase.h"
 #include "video/TextureManager.h" // for ThemeManager
 
-#include "ui/GuiManager.h"
-#include "ui/gui_desktop.h"
-#include "ui/gui.h"
-#include "ui/gui_widgets.h"
-
 #include "gc/GameClasses.h"
 #include "gc/RigidBodyDinamic.h"
 #include "gc/Player.h"
@@ -37,6 +35,7 @@
 //#endif
 
 #include <FileSystem.h>
+#include <GuiManager.h>
 
 
 extern "C"

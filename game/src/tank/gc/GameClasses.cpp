@@ -13,7 +13,6 @@
 #include "Vehicle.h"
 
 #include "core/Debug.h"
-#include "ui/GuiManager.h"
 #include "video/RenderBase.h"
 #include "config/Config.h"
 
