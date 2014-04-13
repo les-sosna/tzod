@@ -22,17 +22,18 @@ namespace UI
 GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
   , _changing(false)
+  , _folder(param.folder)
 {
 	Text *t = Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
 	t->SetFont("font_default");
 
-	_folder = param.folder;
 	_ext = param.extension;
 	_files = DefaultListBox::Create(this);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
 	std::set<std::string> files;
-	_folder->EnumAllFiles(files, "*." + _ext);
+	if( _folder )
+		_folder->EnumAllFiles(files, "*." + _ext);
 	for( std::set<std::string>::iterator it = files.begin(); it != files.end(); ++it )
 	{
 		std::string tmp = *it;

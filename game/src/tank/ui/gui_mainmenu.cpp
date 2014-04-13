@@ -139,15 +139,8 @@ void MainMenuDlg::OnLoadGame()
 {
 	GetFileNameDlg::Params param;
 	param.title = g_lang.get_file_name_load_game.Get();
-	param.folder = g_fs->GetFileSystem(DIR_SAVE);
+	param.folder = g_fs->GetFileSystem(DIR_SAVE, false, true);
 	param.extension = "sav";
-
-	if( !param.folder )
-	{
-		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
-		TRACE("ERROR: Could not open directory '%s'", DIR_SAVE);
-		return;
-	}
 
 	SetVisible(false);
 	assert(NULL == _fileDlg);
