@@ -46,7 +46,7 @@ extern std::unique_ptr<Level>     g_level;
 class MusicPlayer;
 extern SafePtr<MusicPlayer>     g_music;
 #endif
-extern SafePtr<FS::FileSystem>  g_fs;
+extern std::shared_ptr<FS::FileSystem>  g_fs;
 
 struct GLFWwindow;
 extern GLFWwindow *g_appWindow;

@@ -3,6 +3,8 @@
 #include "MapFile.h"
 #include "FileSystem.h"
 
+#include <cassert>
+
 //////////////////////////////////////////////////////////
 
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
@@ -27,7 +29,7 @@ void MapFile::_skip_block(size_t size)
 
 //////////////////////////////////////////////////////////
 
-MapFile::MapFile(const SafePtr<FS::Stream> &file, bool write)
+MapFile::MapFile(std::shared_ptr<FS::Stream> file, bool write)
   : _file(file)
   , _modeWrite(write)
   , _headerWritten(false)

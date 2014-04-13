@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <core/SafePtr.h>
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace FS {
 
@@ -24,7 +24,7 @@ enum ErrorCode
 
 class File;
 
-class MemMap : public RefCounted
+class MemMap
 {
 public:
 	virtual char* GetData() = 0;
@@ -35,7 +35,7 @@ protected:
 	virtual ~MemMap() {}
 };
 
-class Stream : public RefCounted
+class Stream
 {
 public:
 	virtual ErrorCode Read(void *dst, size_t size) = 0;
@@ -46,11 +46,11 @@ protected:
 	virtual ~Stream() {}
 };
 
-class File : public RefCounted
+class File
 {
 public:
-	virtual SafePtr<MemMap> QueryMap() = 0;
-	virtual SafePtr<Stream> QueryStream() = 0;
+	virtual std::shared_ptr<MemMap> QueryMap() = 0;
+	virtual std::shared_ptr<Stream> QueryStream() = 0;
 
 protected:
 	virtual ~File() {} // delete only via Release
@@ -58,38 +58,18 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class FileSystem : public RefCounted
+class FileSystem
 {
-	typedef std::map<std::string, SafePtr<FileSystem> > StrToFileSystemMap;
-
-	StrToFileSystemMap _children;
-	std::string       _nodeName;
-	FileSystem*        _parent;  // 'unsafe' pointer allows to avoid cyclic references
-	                             // it is set to NULL when the parent is destroyed
-
-protected:
-	FileSystem(const std::string &nodeName);
-	virtual ~FileSystem(void); // delete only via Release
-
-	// open a file that strictly belongs to this file system
-	virtual SafePtr<File> RawOpen(const std::string &fileName, FileMode mode);
-
 public:
-	const std::string GetFullPath(void) const;
-	const std::string& GetNodeName(void) const { return _nodeName; }
-
-	FileSystem* GetParent(void) const { return _parent; }
-
-	virtual bool MountTo(FileSystem *parent);
-	virtual void Unmount(); // object can become destroyed after that
-
-	virtual SafePtr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
-
-	virtual bool IsValid() const;
+	virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
 	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
-	SafePtr<File> Open(const std::string &path, FileMode mode = ModeRead);
+	std::shared_ptr<File> Open(const std::string &path, FileMode mode = ModeRead);
+	void Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs);
 
-	static SafePtr<FileSystem> Create(const std::string &nodeName = std::string());
+private:
+	std::map<std::string, std::shared_ptr<FileSystem>> _children;
+	// open a file that strictly belongs to this file system
+	virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode);
 };
 
 } // end of namespace FS

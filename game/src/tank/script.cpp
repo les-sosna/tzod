@@ -1368,7 +1368,7 @@ bool script_exec_file(lua_State *L, const char *filename)
 
 	try
 	{
-		SafePtr<FS::MemMap> f = g_fs->Open(filename)->QueryMap();
+		std::shared_ptr<FS::MemMap> f = g_fs->Open(filename)->QueryMap();
 		if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
 		{
 			throw std::runtime_error(lua_tostring(L, -1));

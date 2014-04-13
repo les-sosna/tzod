@@ -21,7 +21,7 @@ std::unique_ptr<Level>   g_level;
 #include "sound/MusicPlayer.h"
 SafePtr<MusicPlayer>     g_music;
 #endif
-SafePtr<FS::FileSystem>  g_fs;
+std::shared_ptr<FS::FileSystem>  g_fs;
 
 GLFWwindow *g_appWindow;
 

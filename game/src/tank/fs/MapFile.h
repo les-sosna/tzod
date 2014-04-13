@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include <core/SafePtr.h>
-
+#include <cstdint>
 #include <map>
+#include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <cstdint>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -149,7 +148,7 @@ class MapFile
 private:
 	std::ostringstream _buffer;
 
-	SafePtr<FS::Stream> _file;
+	std::shared_ptr<FS::Stream> _file;
 	bool   _modeWrite;
 	bool   _headerWritten;
 	bool   _isNewClass;
@@ -179,7 +178,7 @@ private:
 	void ReadString(std::string &value);
 
 public:
-	MapFile(const SafePtr<FS::Stream> &file, bool write);
+	MapFile(std::shared_ptr<FS::Stream> file, bool write);
 	~MapFile();
 
 	bool loading() const;

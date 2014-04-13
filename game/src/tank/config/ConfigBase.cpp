@@ -11,6 +11,8 @@ extern "C"
 #include <lauxlib.h>
 }
 
+#include <cassert>
+
 UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -13,18 +13,18 @@ class SaveFile
 	PtrToIndex _ptrToIndex;
 	IndexToPtr _indexToPtr;
 
-	SafePtr<FS::Stream> _stream;
+	std::shared_ptr<FS::Stream> _stream;
 	bool _load;
 
 public:
-	SaveFile(const SafePtr<FS::Stream> &s, bool loading);
+	SaveFile(std::shared_ptr<FS::Stream> s, bool loading);
 
 	bool loading() const
 	{
 		return _load;
 	}
 
-	FS::Stream* GetStream() const { return _stream; }
+	const std::shared_ptr<FS::Stream>& GetStream() const { return _stream; }
 
 	void Serialize(std::string &str);
 

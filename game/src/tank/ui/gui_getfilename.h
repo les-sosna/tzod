@@ -7,6 +7,7 @@
 #include "core/SafePtr.h"
 
 #include <string>
+#include <memory>
 
 namespace FS
 {
@@ -23,7 +24,7 @@ class GetFileNameDlg : public Dialog
 	DefaultListBox *_files;
 	Edit *_fileName;
 	std::string _ext;
-	SafePtr<FS::FileSystem> _folder;
+	std::shared_ptr<FS::FileSystem> _folder;
 
 	bool _changing;
 
@@ -32,7 +33,7 @@ public:
 	{
 		std::string title;
 		std::string extension;
-		SafePtr<FS::FileSystem> folder;
+		std::shared_ptr<FS::FileSystem> folder;
 	};
 
 	GetFileNameDlg(Window *parent, const Params &param);

@@ -184,7 +184,7 @@ void CreateServerDlg::OnOK()
 
 	try
 	{
-		SafePtr<FS::MemMap> m = g_fs->Open(path)->QueryMap();
+		std::shared_ptr<FS::MemMap> m = g_fs->Open(path)->QueryMap();
 		MD5_CTX md5;
 		MD5Init(&md5);
 		MD5Update(&md5, m->GetData(), m->GetSize());

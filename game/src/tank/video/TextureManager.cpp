@@ -72,7 +72,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 	}
 	else
 	{
-		SafePtr<FS::MemMap> file = g_fs->Open(fileName)->QueryMap();
+		std::shared_ptr<FS::MemMap> file = g_fs->Open(fileName)->QueryMap();
 		SafePtr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
@@ -190,7 +190,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const std::string &packageName, const SafePtr<FS::MemMap> &file)
+int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file)
 {
 	TRACE("Loading texture package '%s'", packageName.c_str());
 
@@ -360,7 +360,7 @@ int TextureManager::LoadPackage(const std::string &packageName, const SafePtr<FS
 int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix)
 {
 	int count = 0;
-	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
+	std::shared_ptr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
@@ -913,7 +913,7 @@ void TextureManager::PopClippingRect() const
 
 ThemeManager::ThemeManager()
 {
-	SafePtr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);
+	std::shared_ptr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);
 	auto files = dir->EnumAllFiles("*.lua");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{

@@ -2,6 +2,7 @@
 
 #pragma once
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace FS
@@ -44,7 +45,7 @@ struct ILevelController
 	virtual void PlayerQuit(PlayerHandle *p) = 0;
 	virtual PlayerHandle* AddHuman(const PlayerDesc &pd) = 0;
 	virtual void AddBot(const BotDesc &bd) = 0;
-	virtual void init_newdm(FS::Stream *s, unsigned long seed) = 0;
+	virtual void init_newdm(std::shared_ptr<FS::Stream> s, unsigned long seed) = 0;
 };
 
 

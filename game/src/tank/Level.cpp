@@ -400,7 +400,7 @@ bool Level::init_import_and_edit(const char *mapName)
 	return true;
 }
 
-void Level::init_newdm(FS::Stream *s, unsigned long seed)
+void Level::init_newdm(std::shared_ptr<FS::Stream> s, unsigned long seed)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
@@ -440,7 +440,7 @@ void Level::Unserialize(const char *fileName)
 
 	SetEditorMode(false);
 
-	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeRead)->QueryStream());
+	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeRead)->QueryStream();
 	SaveFile f(stream, true);
 
 	try
@@ -551,14 +551,14 @@ void Level::Unserialize(const char *fileName)
 		lua_pushlightuserdata(g_env.L, &f);
 		lua_pushcclosure(g_env.L, &ReadHelper::restore_ptr, 1);
 		lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
-		if( lua_cpcall(g_env.L, &ReadHelper::read_user, stream) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_user, stream.get()) )
 		{
 			std::string err = "[pluto read user] ";
 			err += lua_tostring(g_env.L, -1);
 			lua_pop(g_env.L, 1);
 			throw std::runtime_error(err);
 		}
-		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, stream) )
+		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, stream.get()) )
 		{
 			std::string err = "[pluto read queue] ";
 			err += lua_tostring(g_env.L, -1);
@@ -593,7 +593,7 @@ void Level::Serialize(const char *fileName)
 
 	TRACE("Saving game to file '%S'...", fileName);
 
-	SafePtr<FS::Stream> stream(g_fs->Open(fileName, FS::ModeWrite)->QueryStream());
+	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeWrite)->QueryStream();
 	SaveFile f(stream, false);
 
 	SaveHeader sh = {0};
@@ -699,7 +699,7 @@ void Level::Serialize(const char *fileName)
 	PauseGame(false);
 }
 
-void Level::Import(const SafePtr<FS::Stream> &s)
+void Level::Import(std::shared_ptr<FS::Stream> s)
 {
 	assert(IsEmpty());
 	assert(IsSafeMode());
@@ -739,7 +739,7 @@ void Level::Import(const SafePtr<FS::Stream> &s)
 	GC_Camera::UpdateLayout();
 }
 
-void Level::Export(const SafePtr<FS::Stream> &s)
+void Level::Export(std::shared_ptr<FS::Stream> s)
 {
 	assert(!IsEmpty());
 	assert(IsSafeMode());

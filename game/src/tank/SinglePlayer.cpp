@@ -6,7 +6,7 @@
 
 #include <vector>
 
-SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, FS::Stream *stream, unsigned long seed)
+SinglePlayerClient::SinglePlayerClient(ILevelController *levelController, std::shared_ptr<FS::Stream> stream, unsigned long seed)
 	: ClientBase(levelController)
 {
 	levelController->Clear();

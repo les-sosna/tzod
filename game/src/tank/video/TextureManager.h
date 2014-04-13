@@ -8,6 +8,7 @@
 #include <stack>
 #include <list>
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -42,7 +43,7 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	int LoadPackage(const std::string &packageName, const SafePtr<FS::MemMap> &file);
+	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file);
 	int LoadDirectory(const std::string &dirName, const std::string &texPrefix);
 	void UnloadAllTextures();
 
@@ -110,7 +111,7 @@ class ThemeManager
 	struct ThemeDesc
 	{
 		std::string fileName;
-		SafePtr<FS::MemMap> file;
+		std::shared_ptr<FS::MemMap> file;
 	};
 
 	std::vector<ThemeDesc> _themes;

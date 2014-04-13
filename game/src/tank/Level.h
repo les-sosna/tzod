@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <memory>
 
 
 #pragma region path finding stuff
@@ -293,8 +294,8 @@ public:
 	void Unserialize(const char *fileName);
 	void Serialize(const char *fileName);
 
-	void Export(const SafePtr<FS::Stream> &file);
-	void Import(const SafePtr<FS::Stream> &file);
+	void Export(std::shared_ptr<FS::Stream> file);
+	void Import(std::shared_ptr<FS::Stream> file);
 
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
@@ -384,7 +385,7 @@ public:
 	virtual void PlayerQuit(PlayerHandle *p);
 	virtual PlayerHandle* AddHuman(const PlayerDesc &pd);
 	virtual void AddBot(const BotDesc &bd);
-	virtual void init_newdm(FS::Stream *s, unsigned long seed);
+	virtual void init_newdm(std::shared_ptr<FS::Stream> s, unsigned long seed);
 
 	virtual float GetTime() const { return _time; }
 
