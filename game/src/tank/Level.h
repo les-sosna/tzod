@@ -53,18 +53,6 @@ struct BotDesc
 	unsigned int level;
 };
 
-struct IEditorModeListener
-{
-	virtual void OnEditorModeChanged(bool editorMode) = 0;
-};
-
-class EditorModeListenerHelper: private IEditorModeListener
-{
-protected:
-	EditorModeListenerHelper();
-	~EditorModeListenerHelper();
-};
-
 enum GlobalListID
 {
 	LIST_objects,
@@ -91,7 +79,6 @@ class Level
 	std::map<const GC_Object*, std::string>  _objectToStringMaps[32];
 	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
 
-
 	struct SaveHeader
 	{
 		uint32_t dwVersion;
@@ -105,7 +92,6 @@ class Level
 	};
 
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
-	std::set<IEditorModeListener*> _editorModeListeners;
 	bool    _modeEditor;
 
 public:
@@ -177,10 +163,6 @@ public:
 /////////////////////////////////////////////////////
 	Level();
 	~Level();
-
-
-	void AddEditorModeListener(IEditorModeListener *ls);
-	void RemoveEditorModeListener(IEditorModeListener *ls);
 
 	void Resize(int X, int Y);
 	void HitLimit();

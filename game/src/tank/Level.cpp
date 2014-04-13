@@ -53,18 +53,6 @@ UI::ConsoleBuffer& GetConsole();
 
 ////////////////////////////////////////////////////////////
 
-EditorModeListenerHelper::EditorModeListenerHelper()
-{
-	g_level->AddEditorModeListener(this);
-}
-
-EditorModeListenerHelper::~EditorModeListenerHelper()
-{
-	g_level->RemoveEditorModeListener(this);
-}
-
-////////////////////////////////////////////////////////////
-
 // don't create game objects in the constructor
 Level::Level()
   : _modeEditor(false)
@@ -91,18 +79,6 @@ Level::Level()
 	// register config handlers
 	g_conf.s_volume.eventChange = std::bind(&Level::OnChangeSoundVolume, this);
 	g_conf.sv_nightmode.eventChange = std::bind(&Level::OnChangeNightMode, this);
-}
-
-void Level::AddEditorModeListener(IEditorModeListener *ls)
-{
-	assert(!_editorModeListeners.count(ls));
-	_editorModeListeners.insert(ls);
-}
-
-void Level::RemoveEditorModeListener(IEditorModeListener *ls)
-{
-	assert(_editorModeListeners.count(ls));
-	_editorModeListeners.erase(ls);
 }
 
 bool Level::IsEmpty() const
@@ -189,7 +165,6 @@ Level::~Level()
 
 	assert(IsEmpty() && _garbage.empty());
 	assert(!g_env.nNeedCursor);
-	assert(_editorModeListeners.empty());
 }
 
 void Level::Unserialize(const char *fileName)
@@ -549,8 +524,6 @@ void Level::SetEditorMode(bool editorModeEnable)
 	{
 		bool paused = IsGamePaused();
 		_modeEditor = editorModeEnable;
-		std::for_each(_editorModeListeners.begin(), _editorModeListeners.end(),
-			std::bind2nd(std::mem_fun(&IEditorModeListener::OnEditorModeChanged), _modeEditor));
 		if( !paused ^ !IsGamePaused() )
 		{
 			PauseSound(IsGamePaused());

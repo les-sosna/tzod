@@ -49,7 +49,6 @@ private:
 
 class Desktop
 	: public Window
-	, private EditorModeListenerHelper
 {
 	class MyConsoleHistory : public UI::IConsoleHistory
 	{
