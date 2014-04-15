@@ -11,7 +11,6 @@ SinglePlayerClient::SinglePlayerClient(Level *level, std::shared_ptr<FS::Stream>
 {
 	level->Clear();
 	level->Seed(seed);
-	level->SetEditorMode(false);
 	level->Import(stream);
 	if( !script_exec(g_env.L, level->_infoOnInit.c_str()) )
 	{

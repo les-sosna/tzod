@@ -69,7 +69,7 @@ public:
 	GC_ParticleScaled(FromFile);
 
 	virtual void Serialize(SaveFile &f);
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 };
 
 // end of file

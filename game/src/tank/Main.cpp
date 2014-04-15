@@ -49,7 +49,6 @@ UI::ConsoleBuffer& GetConsole();
 
 static CounterBase counterDrops("Drops", "Frame drops");
 static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
-static CounterBase counterDt("dt", "dt, ms");
 static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,39 +113,11 @@ static void OnPrintScreen()
 	SetCurrentDirectory(".."); */
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 static bool IsKeyPressed(int key)
 {
     return GLFW_PRESS == glfwGetKey(g_appWindow, key);
 }
 
-static void RenderFrame()
-{
-	assert(g_render);
-	g_render->Begin();
-
-	if( g_gui )
-	{
-		// level is rendered as part of gui
-		g_gui->Render();
-	}
-	else
-	{
-		g_level->Render();
-	}
-
-	g_render->End(); // display new frame
-
-
-	// check if print screen key is pressed
-	static char _oldPS = 0;
-	if( IsKeyPressed(GLFW_KEY_PRINT_SCREEN) && !_oldPS )
-		OnPrintScreen();
-	_oldPS = IsKeyPressed(GLFW_KEY_PRINT_SCREEN);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -230,26 +201,23 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 
 static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
-    if( g_gui )
-	{
-        double xpos = 0;
-        double ypos = 0;
-        glfwGetCursorPos(window, &xpos, &ypos);
-		g_gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
-	}
+    double xpos = 0;
+    double ypos = 0;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    g_gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
 }
 
 static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-    if( g_gui )
-	{
-        g_gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
-    }
+    g_gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
+    if( GLFW_KEY_PRINT_SCREEN == key && GLFW_PRESS == action )
+		OnPrintScreen();
+
 }
 
 static void OnChar(GLFWwindow *window, unsigned int codepoint)
 {
-    if( g_gui && (codepoint < 57344 || codepoint > 63743) ) // ignore Private Use Area characters
+    if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
 	{
         g_gui->ProcessKeys(UI::MSGCHAR, codepoint);
     }
@@ -358,14 +326,14 @@ int main(int, const char**)
         if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
             TRACE("WARNING: no skins found");
         
-        // init world
-        g_level.reset(new Level());
-        
         // init scripting system
         TRACE("scripting subsystem initialization");
         g_env.L = script_open();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
+        
+        // init world
+        g_level.reset(new Level());
         
         TRACE("GUI subsystem initialization");
         g_gui = new UI::LayoutManager(DesktopFactory());
@@ -409,61 +377,15 @@ void Idle(float dt)
 {
 //	_inputMgr->InquireInputDevices();
 
-	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
-
-
-//	if( g_client && (!g_level->IsGamePaused() || !g_client->SupportPause()) )
-	{
-		assert(dt >= 0);
-
-		counterDt.Push(dt);
-
-        //
-        // read controller state for local players
-        //
-        std::vector<VehicleState> ctrl;
-        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-        {
-            if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
-            {
-                VehicleState vs;
-                memset(&vs, 0, sizeof(VehicleState));
-//                if( const char *profile = g_client->GetActiveProfile() )
-//                {
-//                   _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
-//                }
-                pl->StepPredicted(vs, dt);
-                ctrl.push_back(vs);
-            }
-        }
-
-
-        //
-        // send ctrl
-        //
-
-        ControlPacket cp;
-        if( ctrl.size() > 0 )
-            cp.fromvs(ctrl[0]);
-#ifdef NETWORK_DEBUG
-        cp.checksum = g_level->GetChecksum();
-        cp.frame = g_level->GetFrame();
-#endif
-
-        std::vector<ControlPacket> cpv;
-   //     cpv.push_back(cp);
-        g_level->Step(cpv, dt);
-	}
-
-
-
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
-	if( g_gui )
-		g_gui->TimeStep(dt);
-
-
-	RenderFrame();
+    g_gui->TimeStep(dt);
+    
+	assert(g_render);
+	g_render->Begin();
+    g_gui->Render();
+	g_render->End();
+    
 
 #ifndef NOSOUND
 	if( g_music )
@@ -486,17 +408,13 @@ void Post()
 	TRACE("Shutting down the GUI subsystem");
 	SAFE_DELETE(g_gui);
 
-	// script engine cleanup
-	if( g_env.L )
-	{
-		TRACE("Shutting down the scripting subsystem");
-		script_close(g_env.L);
-		g_env.L = NULL;
-	}
-
     TRACE("Shutting down the world");
     g_level->Clear();
 	g_level.reset();
+    
+    TRACE("Shutting down the scripting subsystem");
+    script_close(g_env.L);
+    g_env.L = NULL;
 
 	if( g_texman )
     {

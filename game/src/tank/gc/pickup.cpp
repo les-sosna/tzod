@@ -238,11 +238,11 @@ void GC_Pickup::TimeStepFixed(float dt)
 	GC_2dSprite::TimeStepFixed(dt);
 }
 
-void GC_Pickup::Draw() const
+void GC_Pickup::Draw(bool editorMode) const
 {
-	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || g_level->GetEditorMode() )
+	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || editorMode )
 	{
-		GC_2dSprite::Draw();
+		GC_2dSprite::Draw(editorMode);
 	}
 }
 
@@ -674,11 +674,11 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 	}
 }
 
-void GC_pu_Shock::Draw() const
+void GC_pu_Shock::Draw(bool editorMode) const
 {
 	if( GetGridSet() )
 	{
-		GC_Pickup::Draw();
+		GC_Pickup::Draw(editorMode);
 	}
 	else
 	{

@@ -1,28 +1,27 @@
 // gui_settings.cpp
 
-#include "gc/Object.h"
-
 #include "gui_settings.h"
-#include "GuiManager.h"
 
-#include "Text.h"
-#include "List.h"
-#include "Button.h"
-#include "Scroll.h"
-#include "Edit.h"
-#include "Combo.h"
-#include "DataSourceAdapters.h"
+#include "KeyMapper.h"
+#include "Level.h"
+#include "Macros.h"
+
+#include "gc/Object.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
 
 #include "video/TextureManager.h"
 
-#include "KeyMapper.h"
-#include "Level.h"
-#include "Pause.h"
-
-#include "Macros.h"
+// ui
+#include <Text.h>
+#include <List.h>
+#include <Button.h>
+#include <Scroll.h>
+#include <Edit.h>
+#include <Combo.h>
+#include <DataSourceAdapters.h>
+#include <GuiManager.h>
 
 #include <GLFW/glfw3.h>
 
@@ -35,8 +34,6 @@ namespace UI
 SettingsDlg::SettingsDlg(Window *parent)
   : Dialog(parent, 512, 296)
 {
-	PauseGame(true);
-
 	SetEasyMove(true);
 
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.settings_title.Get(), alignTextCT);
@@ -136,7 +133,6 @@ SettingsDlg::SettingsDlg(Window *parent)
 
 SettingsDlg::~SettingsDlg()
 {
-	PauseGame(false);
 }
 
 void SettingsDlg::OnVolumeSfx(float pos)

@@ -162,7 +162,7 @@ public:
 	void SetTile(char nTile, bool value);
 
 	// GC_2dSprite
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
 	virtual void Serialize(SaveFile &f);
@@ -184,7 +184,7 @@ public:
 	const std::string& GetText() const { return _text; }
 
 	virtual void Serialize(SaveFile &f);
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 private:
 	enumAlignText       _align;

@@ -179,11 +179,11 @@ void GC_Trigger::TimeStepFixed(float dt)
 	}
 }
 
-void GC_Trigger::Draw() const
+void GC_Trigger::Draw(bool editorMode) const
 {
-	if( g_level->GetEditorMode() )
+	if( editorMode )
 	{
-		GC_2dSprite::Draw();
+		GC_2dSprite::Draw(editorMode);
 	}
 }
 

@@ -38,7 +38,7 @@ public:
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
 	static void UpdateLayout();
-	static bool GetWorldMousePos(vec2d &pos);
+	static bool GetWorldMousePos(vec2d &pos, bool editorMode);
 
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }

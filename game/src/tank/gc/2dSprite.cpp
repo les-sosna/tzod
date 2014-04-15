@@ -175,7 +175,7 @@ void GC_2dSprite::SetFrame(int frame)
 	_frame = frame;
 }
 
-void GC_2dSprite::Draw() const
+void GC_2dSprite::Draw(bool editorMode) const
 {
 	vec2d pos = GetPosPredicted();
 

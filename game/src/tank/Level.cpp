@@ -115,7 +115,6 @@ void Level::Resize(int X, int Y)
 void Level::Clear()
 {
 	assert(IsSafeMode());
-	SetEditorMode(false);
 
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
@@ -173,8 +172,6 @@ void Level::Unserialize(const char *fileName)
 	assert(IsEmpty());
 
 	TRACE("Loading saved game from file '%s'...", fileName);
-
-	SetEditorMode(false);
 
 	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeRead)->QueryStream();
 	SaveFile f(stream, true);
@@ -518,19 +515,6 @@ void Level::PauseSound(bool pause)
 	}
 }
 
-void Level::SetEditorMode(bool editorModeEnable)
-{
-	if( !_modeEditor ^ !editorModeEnable )
-	{
-		bool paused = IsGamePaused();
-		_modeEditor = editorModeEnable;
-		if( !paused ^ !IsGamePaused() )
-		{
-			PauseSound(IsGamePaused());
-		}
-	}
-}
-
 GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
@@ -846,9 +830,9 @@ void Level::RunCmdQueue(float dt)
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 }
 
-void Level::Render() const
+void Level::Render(bool editorMode) const
 {
-	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (GetEditorMode() ? 0.5f : 0) : 1);
+	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
 
 #ifdef _DEBUG
 	FOREACH( GetList(LIST_players), GC_Player, p )
@@ -860,7 +844,7 @@ void Level::Render() const
 	}
 #endif
 
-	if( GetEditorMode() || GetList(LIST_cameras).empty() )
+	if( editorMode || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera
 		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
@@ -871,7 +855,7 @@ void Level::Render() const
 		world.right = world.left + (float) g_render->GetWidth() / _defaultCamera.GetZoom();
 		world.bottom = world.top + (float) g_render->GetHeight() / _defaultCamera.GetZoom();
 
-		RenderInternal(world);
+		RenderInternal(world, editorMode);
 	}
 	else
 	{
@@ -902,7 +886,7 @@ void Level::Render() const
 				singleCamera->GetZoom(),
 				g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
 
-			RenderInternal(world);
+			RenderInternal(world, editorMode);
 		}
 		else
 		{
@@ -921,7 +905,7 @@ void Level::Render() const
 					pCamera->GetZoom(),
 					g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
 
-				RenderInternal(world);
+				RenderInternal(world, editorMode);
 			}
 		}
 	}
@@ -934,7 +918,7 @@ void Level::Render() const
 	}
 }
 
-void Level::RenderInternal(const FRECT &world) const
+void Level::RenderInternal(const FRECT &world, bool editorMode) const
 {
 	//
 	// draw lights to alpha channel
@@ -970,7 +954,7 @@ void Level::RenderInternal(const FRECT &world) const
 
 	// background texture
 	DrawBackground(_texBack);
-	if( GetEditorMode() && g_conf.ed_drawgrid.Get() )
+	if( editorMode && g_conf.ed_drawgrid.Get() )
 		DrawBackground(_texGrid);
 
 
@@ -986,13 +970,13 @@ void Level::RenderInternal(const FRECT &world) const
 		{
 			FOREACH(z_grids[z].element(x,y), GC_2dSprite, object)
 			{
-				object->Draw();
+				object->Draw(editorMode);
 			}
 		}
 
 		FOREACH( z_globals[z], GC_2dSprite, object )
 		{
-			object->Draw();
+			object->Draw(editorMode);
 		}
 	}
 
@@ -1012,13 +996,6 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 	line.color = color;
 }
 #endif
-
-bool Level::IsGamePaused() const
-{ 
-	return g_env.pause > 0
-		|| _limitHit 
-		|| _modeEditor;
-}
 
 GC_Object* Level::FindObject(const std::string &name) const
 {

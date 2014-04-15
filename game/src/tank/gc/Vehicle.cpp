@@ -120,9 +120,9 @@ void GC_VehicleVisualDummy::Serialize(SaveFile &f)
 	f.Serialize(_parent);
 }
 
-void GC_VehicleVisualDummy::Draw() const
+void GC_VehicleVisualDummy::Draw(bool editorMode) const
 {
-	GC_VehicleBase::Draw();
+	GC_VehicleBase::Draw(editorMode);
 
 	if( g_conf.g_shownames.Get() && _parent->GetOwner() )
 	{
@@ -137,7 +137,7 @@ void GC_VehicleVisualDummy::TimeStepFixed(float dt)
 {
 	static const TextureCache track("cat_track");
 
-	if( _moveSound && !(g_level->GetEditorMode() || g_level->_limitHit) )
+	if( _moveSound )
 	{
 		_moveSound->MoveTo(GetPos());
 		float v = _lv.len() / _parent->GetMaxSpeed();
@@ -654,7 +654,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 }
 
 #ifndef NDEBUG
-void GC_Vehicle::Draw() const
+void GC_Vehicle::Draw(bool editorMode) const
 {
 //	GC_VehicleBase::Draw();
 	for( int i = 0; i < 4; ++i )

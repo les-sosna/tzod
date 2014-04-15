@@ -159,7 +159,7 @@ void GC_ParticleScaled::Serialize(SaveFile &f)
 	f.Serialize(_size);
 }
 
-void GC_ParticleScaled::Draw() const
+void GC_ParticleScaled::Draw(bool editorMode) const
 {
 	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), 
 		GetPos().x, GetPos().y, _size, _size, GetDirection());

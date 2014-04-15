@@ -7,7 +7,6 @@
 #include "gui_desktop.h"
 #include "Level.h"
 #include "Macros.h"
-#include "Pause.h"
 #include "SaveFile.h"
 
 #include "gc/GameClasses.h"
@@ -281,7 +280,8 @@ static int luaT_pause(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-	PauseGame( 0 != lua_toboolean(L, 1) );
+//	PauseGame( 0 != lua_toboolean(L, 1) );
+    GetConsole().WriteLine(0, "pause - function is unavailable in this version");
 
 	return 0;
 }
@@ -316,7 +316,6 @@ static int luaT_loadmap(lua_State *L)
 	{
         g_level->Clear();
         g_level->Seed(rand());
-        g_level->SetEditorMode(false);
         g_level->Import(g_fs->Open(filename)->QueryStream());
         
         if( !script_exec(g_env.L, g_level->_infoOnInit.c_str()) )
@@ -424,7 +423,6 @@ static int luaT_import(lua_State *L)
 	{
         g_level->Clear();
 		g_level->Import(g_fs->Open(filename)->QueryStream());
-        g_level->SetEditorMode(true);
         g_conf.sv_nightmode.Set(false);
 	}
 	catch( const std::exception &e )

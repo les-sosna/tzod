@@ -40,7 +40,7 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 	virtual void EditorAction();
 	virtual void MapExchange(MapFile &f);
 };
@@ -55,7 +55,7 @@ public:
 	GC_HideLabel(float x, float y);
 	GC_HideLabel(FromFile);
 
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ public:
 	GC_IndicatorBar(FromFile);
 
 	// GC_2dSprite
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
 	virtual void Serialize(SaveFile &f);

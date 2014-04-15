@@ -1244,7 +1244,7 @@ void GC_Water::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_water);
 }
 
-void GC_Water::Draw() const
+void GC_Water::Draw(bool editorMode) const
 {
 	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };

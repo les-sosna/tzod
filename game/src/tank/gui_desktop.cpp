@@ -37,6 +37,9 @@ UI::ConsoleBuffer& GetConsole();
 #include <GLFW/glfw3.h>
 
 
+static CounterBase counterDt("dt", "dt, ms");
+
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,6 +135,7 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 Desktop::Desktop(LayoutManager* manager)
   : Window(NULL, manager)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
+  , _nModalPopups(0)
 {
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
@@ -177,6 +181,7 @@ Desktop::Desktop(LayoutManager* manager)
 	}
 
 	OnRawChar(GLFW_KEY_ESCAPE); // to invoke main menu dialog
+    SetTimeStep(true);
 }
 
 Desktop::~Desktop()
@@ -184,10 +189,58 @@ Desktop::~Desktop()
 	g_conf.ui_showfps.eventChange = nullptr;
 	g_conf.ui_showtime.eventChange = nullptr;
 }
+    
+void Desktop::OnTimeStep(float dt)
+{
+	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
+    
+//	if( g_client && (!IsGamePaused() || !g_client->SupportPause()) )
+	{
+		assert(dt >= 0);
+        
+		counterDt.Push(dt);
+        
+        //
+        // read controller state for local players
+        //
+        std::vector<VehicleState> ctrl;
+//        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
+//        {
+//            if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
+//            {
+//                VehicleState vs;
+//                memset(&vs, 0, sizeof(VehicleState));
+//                //                if( const char *profile = g_client->GetActiveProfile() )
+//                //                {
+//                //                   _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
+//                //                }
+//                pl->StepPredicted(vs, dt);
+//                ctrl.push_back(vs);
+//            }
+//        }
+        
+        
+        //
+        // send ctrl
+        //
+        
+        ControlPacket cp;
+        if( ctrl.size() > 0 )
+            cp.fromvs(ctrl[0]);
+#ifdef NETWORK_DEBUG
+        cp.checksum = g_level->GetChecksum();
+        cp.frame = g_level->GetFrame();
+#endif
+        
+        std::vector<ControlPacket> cpv;
+//        cpv.push_back(cp);
+        g_level->Step(cpv, dt);
+	}
+}
 
 void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	g_level->Render();
+	g_level->Render(_editor->GetVisible());
 	g_render->SetMode(RM_INTERFACE);
 //	if( !g_client )
 //	{
@@ -197,13 +250,19 @@ void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	Window::DrawChildren(dc, sx, sy);
 }
 
-void Desktop::OnEditorModeChanged(bool editorMode)
+void Desktop::SetEditorMode(bool editorMode)
 {
 	_editor->SetVisible(editorMode);
+    g_level->PauseSound(IsGamePaused());
 	if( editorMode && !_con->GetVisible() )
 	{
 		GetManager()->SetFocusWnd(_editor);
 	}
+}
+    
+bool Desktop::IsGamePaused() const
+{
+    return _nModalPopups > 0 || g_level->_limitHit || _editor->GetVisible();
 }
 
 void Desktop::ShowConsole(bool show)
@@ -214,6 +273,8 @@ void Desktop::ShowConsole(bool show)
 void Desktop::OnCloseChild(int result)
 {
 	SetDrawBackground(false);
+    _nModalPopups--;
+    g_level->PauseSound(IsGamePaused());
 }
 
 MessageArea* Desktop::GetMsgArea() const
@@ -253,6 +314,7 @@ bool Desktop::OnRawChar(int c)
 			dlg = new MainMenuDlg(this);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+            _nModalPopups++;
 		}
 		break;
 
@@ -260,24 +322,28 @@ bool Desktop::OnRawChar(int c)
 		dlg = new NewGameDlg(this, g_level.get());
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+        _nModalPopups++;
 		break;
 
 	case GLFW_KEY_F12:
 		dlg = new SettingsDlg(this);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+        _nModalPopups++;
 		break;
 
 	case GLFW_KEY_F5:
-		g_level->SetEditorMode(!g_level->GetEditorMode());
+        if (0 == _nModalPopups)
+            SetEditorMode(!_editor->GetVisible());
 		break;
 
 	case GLFW_KEY_F8:
-		if( g_level->GetEditorMode() )
+		if( _editor->GetVisible() ) // TODO: move to editor layout
 		{
 			dlg = new MapSettingsDlg(this);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+            _nModalPopups++;
 		}
 		break;
 

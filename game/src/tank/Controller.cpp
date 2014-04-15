@@ -144,7 +144,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 		vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
 
 		vec2d pt;
-		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && GC_Camera::GetWorldMousePos(pt) )
+		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && GC_Camera::GetWorldMousePos(pt, false) )
 		{
 			vec2d tmp = pt - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -178,7 +178,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 		}
 
 		vec2d pt;
-		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(pt) )
+		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(pt, false) )
 		{
 			float a = (pt - vehicle->GetPos()).Angle();
 			vs._bExplicitTower = true;

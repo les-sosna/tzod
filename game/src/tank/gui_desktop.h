@@ -69,14 +69,17 @@ class Desktop
 	TimeElapsed  *_time;
 
 	size_t _font;
+    
+    int _nModalPopups;
 
-	// IEditorModeListener
-	virtual void OnEditorModeChanged(bool editorMode);
+    void SetEditorMode(bool editorMode);
+    bool IsGamePaused() const;
 
 public:
 	Desktop(LayoutManager* manager);
 	virtual ~Desktop();
 
+    virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
 
 	void ShowConsole(bool show);

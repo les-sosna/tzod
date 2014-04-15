@@ -19,7 +19,6 @@
 
 #include "Level.h"
 #include "Macros.h"
-#include "Pause.h"
 #include "script.h"
 
 #include <FileSystem.h>
@@ -41,8 +40,6 @@ MainMenuDlg::MainMenuDlg(Window *parent)
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
 {
-	PauseGame(true);
-
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
@@ -69,7 +66,6 @@ MainMenuDlg::MainMenuDlg(Window *parent)
 
 MainMenuDlg::~MainMenuDlg()
 {
-	PauseGame(false);
 }
 
 void MainMenuDlg::OnSinglePlayer()

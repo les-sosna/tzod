@@ -180,9 +180,8 @@ public:
 	void Freeze(bool freeze) { _frozen = freeze; }
 
 	void RunCmdQueue(float dt);
-	void Render() const;
+	void Render(bool editorMode) const;
 	bool IsSafeMode() const { return _safeMode; }
-	bool IsGamePaused() const;
 	GC_Object* FindObject(const std::string &name) const;
 
 	int   net_rand();
@@ -196,7 +195,7 @@ public:
                        vec2d &out_fake );  // out: fake target position
 
 
-	void RenderInternal(const FRECT &world) const;
+	void RenderInternal(const FRECT &world, bool editorMode) const;
 
 
 	//
@@ -232,8 +231,6 @@ public:
 	// editor
 	//
 
-	bool GetEditorMode() const { return _modeEditor; }
-	void SetEditorMode(bool editorModeEnable);
 	GC_2dSprite* PickEdObject(const vec2d &pt, int layer);
 
 

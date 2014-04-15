@@ -114,7 +114,7 @@ public:
 
 	// GC_2dSprite
 #ifndef NDEBUG
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 #endif
 
 	// GC_Object
@@ -158,7 +158,7 @@ public:
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
 
 	// GC_2dSprite
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
 	virtual void Serialize(SaveFile &f);

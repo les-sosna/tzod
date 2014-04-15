@@ -1,7 +1,6 @@
 // gui_campaign.cpp
 
 #include "globals.h"
-#include "Pause.h"
 #include "gui_campaign.h"
 #include "gui_desktop.h"
 
@@ -26,8 +25,6 @@ namespace UI
 NewCampaignDlg::NewCampaignDlg(Window *parent)
   : Dialog(parent, 512, 400)
 {
-	PauseGame(true);
-
 	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang.campaign_title.Get(), alignTextCT);
 	t->SetFont("font_default");
 
@@ -49,7 +46,6 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 
 NewCampaignDlg::~NewCampaignDlg()
 {
-	PauseGame(false);
 }
 
 void NewCampaignDlg::OnOK()

@@ -113,7 +113,7 @@ public:
 	virtual ~GC_2dSprite();
 
 	virtual void Serialize(SaveFile &f);
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

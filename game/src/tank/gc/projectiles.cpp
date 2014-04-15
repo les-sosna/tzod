@@ -734,7 +734,7 @@ void GC_FireSpark::Serialize(SaveFile &f)
 	f.Serialize(_rotation);
 }
 
-void GC_FireSpark::Draw() const
+void GC_FireSpark::Draw(bool editorMode) const
 {
 	vec2d pos = GetPosPredicted();
 	float r = GetRadius();

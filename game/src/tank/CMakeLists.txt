@@ -52,7 +52,6 @@ set(tank_SOURCES
 	MapFile.cpp
 	Md5.c
 	MousePointer.cpp
-	Pause.cpp
 	SaveFile.cpp
 	script.cpp
 	SinglePlayer.cpp

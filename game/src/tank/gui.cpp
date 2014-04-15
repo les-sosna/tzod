@@ -14,7 +14,6 @@
 
 #include "Macros.h"
 #include "MapFile.h"
-#include "Pause.h"
 #include "script.h"
 #include "SinglePlayer.h"
 
@@ -49,8 +48,6 @@ NewGameDlg::NewGameDlg(Window *parent, Level *level)
   : Dialog(parent, 770, 550)
   , _level(level)
 {
-	PauseGame(true);
-
 	_newPlayer = false;
 
 	float x1 = 16;
@@ -177,7 +174,6 @@ NewGameDlg::NewGameDlg(Window *parent, Level *level)
 
 NewGameDlg::~NewGameDlg()
 {
-	PauseGame(false);
 }
 
 void NewGameDlg::RefreshPlayersList()

@@ -42,11 +42,11 @@ void GC_SpawnPoint::Serialize(SaveFile &f)
 	f.Serialize(_team);
 }
 
-void GC_SpawnPoint::Draw() const
+void GC_SpawnPoint::Draw(bool editorMode) const
 {
-	if( g_level->GetEditorMode() )
+	if( editorMode )
 	{
-		GC_2dSprite::Draw();
+		GC_2dSprite::Draw(editorMode);
 
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
@@ -153,11 +153,11 @@ GC_HideLabel::GC_HideLabel(FromFile)
 {
 }
 
-void GC_HideLabel::Draw() const
+void GC_HideLabel::Draw(bool editorMode) const
 {
-	if( g_level->GetEditorMode() )
+	if( editorMode )
 	{
-		GC_2dSprite::Draw();
+		GC_2dSprite::Draw(editorMode);
 	}
 }
 
@@ -223,7 +223,7 @@ GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION loc
 	return NULL;
 }
 
-void GC_IndicatorBar::Draw() const
+void GC_IndicatorBar::Draw(bool editorMode) const
 {
 	assert(_object);
 

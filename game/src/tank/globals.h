@@ -60,9 +60,6 @@ struct lua_State;
 struct ENVIRONMENT
 {
 	lua_State *L;
-
-	int       pause;
-
 	int       nNeedCursor;   // number of systems which need the mouse cursor to be visible
 	bool      minimized;     // indicates that the main app window is minimized
 };

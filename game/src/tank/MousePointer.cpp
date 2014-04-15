@@ -47,7 +47,9 @@ void MouseCursor::OnTimeStep(float dt)
 	SetVisible( g_env.nNeedCursor > 0 || _timeShow < 2 );
 
 	vec2d ptCurPos;
-	if( GetVisible() && g_level->GetEditorMode() && GC_Camera::GetWorldMousePos(ptCurPos) )
+	if( GetVisible() &&
+    //    g_level->GetEditorMode() &&
+        GC_Camera::GetWorldMousePos(ptCurPos, true) )
 	{
 		char str[32];
 		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);

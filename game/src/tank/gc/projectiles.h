@@ -201,7 +201,7 @@ public:
 	virtual ~GC_FireSpark();
 
 	virtual void Serialize(SaveFile &f);
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 	virtual bool OnHit(GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(const vec2d &pos);

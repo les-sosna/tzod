@@ -78,7 +78,7 @@ public:
 	virtual void OnDestroy();
 
 	virtual void TimeStepFixed(float dt);
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 };
 
 /////////////////////////////////////////////////////////////

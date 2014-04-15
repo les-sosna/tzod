@@ -62,7 +62,6 @@ void NewMapDlg::OnOK()
 	g_conf.ed_width.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _width->GetInt())));
 	g_conf.ed_height.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _height->GetInt())));
 	script_exec(g_env.L, "newmap(conf.ed_width, conf.ed_height)");
-	g_level->SetEditorMode(true);
 	Close(_resultOK);
 }
 
@@ -647,7 +646,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(mouse) )
+	if( GC_Camera::GetWorldMousePos(mouse, true) )
 	{
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
@@ -822,7 +821,7 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(mouse) )
+	if( GC_Camera::GetWorldMousePos(mouse, true) )
 	{
 		std::stringstream buf;
 		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);

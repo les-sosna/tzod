@@ -193,13 +193,13 @@ void GC_Camera::UpdateLayout()
 	}
 }
 
-bool GC_Camera::GetWorldMousePos(vec2d &pos)
+bool GC_Camera::GetWorldMousePos(vec2d &pos, bool editorMode)
 {
     double mouse_x = 0, mouse_y = 0;
     glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
 	Point ptinscr = { (int) mouse_x, (int) mouse_y };
 
-	if( g_level->GetEditorMode() || g_level->GetList(LIST_cameras).empty() )
+	if( editorMode || g_level->GetList(LIST_cameras).empty() )
 	{
 		// use default camera
 		pos.x = float(ptinscr.x) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosX();

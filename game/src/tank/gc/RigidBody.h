@@ -245,7 +245,7 @@ public:
 
 	virtual void Serialize(SaveFile &f);
 
-	virtual void Draw() const;
+	virtual void Draw(bool editorMode) const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }

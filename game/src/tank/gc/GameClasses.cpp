@@ -97,7 +97,7 @@ void GC_Wood::Serialize(SaveFile &f)
 		AddContext(&g_level->grid_wood);
 }
 
-void GC_Wood::Draw() const
+void GC_Wood::Draw(bool editorMode) const
 {
 	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
@@ -105,7 +105,7 @@ void GC_Wood::Draw() const
 
 	vec2d pos = GetPosPredicted();
 
-	if( !g_level->GetEditorMode() )
+	if( !editorMode )
 	{
 		for( int i = 0; i < 8; ++i )
 		{
@@ -628,7 +628,7 @@ void GC_Text::Serialize(SaveFile &f)
 	f.Serialize(_align);
 }
 
-void GC_Text::Draw() const
+void GC_Text::Draw(bool editorMode) const
 {
 	vec2d pos = GetPosPredicted();
 	g_texman->DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);

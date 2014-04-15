@@ -17,7 +17,6 @@
 //#include "Interface.h"
 #include "Level.h"
 #include "Macros.h"
-#include "Pause.h"
 #include "script.h"
 
 #include "config/Config.h"
@@ -248,8 +247,6 @@ void CreateServerDlg::OnCloseChild(int result)
 ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName)
   : Dialog(parent, 512, 384)
 {
-	PauseGame(true);
-
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_connect_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
@@ -274,7 +271,6 @@ ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName)
 
 ConnectDlg::~ConnectDlg()
 {
-	PauseGame(false);
 }
 
 void ConnectDlg::OnOK()
@@ -331,8 +327,6 @@ InternetDlg::InternetDlg(Window *parent)
 //	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
 //	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
 
-	PauseGame(true);
-
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_internet_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
@@ -367,7 +361,6 @@ InternetDlg::InternetDlg(Window *parent)
 
 InternetDlg::~InternetDlg()
 {
-	PauseGame(false);
 }
 
 void InternetDlg::OnRefresh()
