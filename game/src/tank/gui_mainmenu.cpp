@@ -1,6 +1,8 @@
 // gui_mainmenu.cpp
 
 #include "gui_mainmenu.h"
+
+#include "globals.h"
 #include "gui_desktop.h"
 #include "gui_network.h"
 #include "gui_settings.h"

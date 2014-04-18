@@ -1,7 +1,8 @@
 // Service.cpp
 
-#include "globals.h"
 #include "Service.h"
+#include "globals.h"
+#include "GlobalListHelper.inl"
 #include "Level.h"
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,7 @@
 
 #include "Sound.h"
 
+#include "GlobalListHelper.inl"
 #include "Level.h"
 #include "Macros.h"
 #include "SaveFile.h"

@@ -2,6 +2,7 @@
 
 #include "pickup.h"
 
+#include "GlobalListHelper.inl"
 #include "GameClasses.h"
 #include "indicators.h"
 #include "Level.h"

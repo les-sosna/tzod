@@ -1,7 +1,10 @@
 // SinglePlayer.cpp
 
 #include "SinglePlayer.h"
+
+#include "globals.h"
 #include "script.h"
+#include "Level.h"
 #include "config/Config.h"
 
 #include <vector>

@@ -17,7 +17,6 @@ class GC_Vehicle;
 
 class GC_Player
 	: public GC_Service
-	, public PlayerHandle
 {
 	MemberOfGlobalList<LIST_players> _memberOf;
 
@@ -84,8 +83,7 @@ public:
 	virtual ~GC_Player();
 	void UpdateSkin();
 
-	// PlayerHandle
-	virtual size_t GetIndex() const;
+    size_t GetIndex() const;
 
 	// GC_Object
 	virtual void Kill();

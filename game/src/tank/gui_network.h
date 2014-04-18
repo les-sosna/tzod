@@ -8,6 +8,7 @@
 namespace UI
 {
 // forward declarations
+class Text;
 class List;
 class ListDataSourceMaps;
 class ListDataSourceDefault;

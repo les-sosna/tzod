@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Variant.h"
+#include "Level.h"
 
 #define MAX_SRVNAME 16
 #define MAX_MAPNAME 256

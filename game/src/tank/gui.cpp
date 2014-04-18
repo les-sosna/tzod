@@ -1,6 +1,8 @@
 // gui.cpp
 
 #include "gui.h"
+
+#include "globals.h"
 #include "gui_maplist.h"
 
 #include "GuiManager.h"

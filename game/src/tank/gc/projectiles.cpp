@@ -3,6 +3,7 @@
 
 #include "projectiles.h"
 
+#include "GlobalListHelper.inl"
 #include "GameClasses.h"
 #include "Level.h"
 #include "Light.h"

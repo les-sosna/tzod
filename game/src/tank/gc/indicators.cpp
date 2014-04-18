@@ -2,6 +2,7 @@
 
 #include "indicators.h"
 
+#include "GlobalListHelper.inl"
 #include "Level.h"
 #include "Macros.h"
 #include "MapFile.h"

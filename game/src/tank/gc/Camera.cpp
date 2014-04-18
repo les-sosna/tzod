@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 
+#include "GlobalListHelper.inl"
 #include "Level.h"
 #include "Macros.h"
 #include "Player.h"
@@ -12,7 +13,7 @@
 #include "config/Config.h"
 #include "video/RenderBase.h" // FIXME
 
-#include <GLFW/glfw3.h>
+// ui
 #include <ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
@@ -193,17 +194,15 @@ void GC_Camera::UpdateLayout()
 	}
 }
 
-bool GC_Camera::GetWorldMousePos(vec2d &pos, bool editorMode)
+bool GC_Camera::GetWorldMousePos(const vec2d &screenPos, vec2d &outWorldPos, bool editorMode)
 {
-    double mouse_x = 0, mouse_y = 0;
-    glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
-	Point ptinscr = { (int) mouse_x, (int) mouse_y };
+	Point ptinscr = { (int) screenPos.x, (int) screenPos.y };
 
 	if( editorMode || g_level->GetList(LIST_cameras).empty() )
 	{
 		// use default camera
-		pos.x = float(ptinscr.x) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosX();
-		pos.y = float(ptinscr.y) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosY();
+		outWorldPos.x = float(ptinscr.x) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosX();
+		outWorldPos.y = float(ptinscr.y) / g_level->_defaultCamera.GetZoom() + g_level->_defaultCamera.GetPosY();
 		return true;
 	}
 	else
@@ -214,8 +213,8 @@ bool GC_Camera::GetWorldMousePos(vec2d &pos, bool editorMode)
 			{
 				FRECT w;
 				pCamera->GetWorld(w);
-				pos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
-				pos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
+				outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
+				outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
 				return true;
 			}
 		}

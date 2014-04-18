@@ -646,7 +646,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(mouse, true) )
+	if( GC_Camera::GetWorldMousePos(vec2d(x, y), mouse, true) )
 	{
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
@@ -821,7 +821,7 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(mouse, true) )
+	if( GC_Camera::GetWorldMousePos(g_gui->GetMousePos(), mouse, true) )
 	{
 		std::stringstream buf;
 		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);

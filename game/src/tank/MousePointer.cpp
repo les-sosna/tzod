@@ -1,6 +1,8 @@
 // MousePointer.cpp
 
 #include "MousePointer.h"
+
+#include "globals.h"
 #include "Text.h"
 
 #include "Level.h"
@@ -49,7 +51,7 @@ void MouseCursor::OnTimeStep(float dt)
 	vec2d ptCurPos;
 	if( GetVisible() &&
     //    g_level->GetEditorMode() &&
-        GC_Camera::GetWorldMousePos(ptCurPos, true) )
+        GC_Camera::GetWorldMousePos(vec2d((float) mouse_x, (float) mouse_y), ptCurPos, true) )
 	{
 		char str[32];
 		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);

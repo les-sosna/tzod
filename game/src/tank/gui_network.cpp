@@ -1,7 +1,9 @@
 // gui_network.cpp
 
-#include "gui.h"
 #include "gui_network.h"
+
+#include "globals.h"
+#include "gui.h"
 #include "gui_maplist.h"
 
 #include "GuiManager.h"

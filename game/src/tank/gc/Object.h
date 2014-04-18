@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "globals.h"
+#include "GlobalListHelper.h"
 #include "notify.h"
 #include "TypeSystem.h"
-#include "../Level.h" // FIXME: path
 #include "core/Delegate.h"
+#include "core/SafePtr.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // forward declarations
@@ -296,22 +296,6 @@ protected:
 		assert(v == (1 << MultiplyDeBruijnBitPosition[(v * 0x077CB531U) >> 27]));
 		return MultiplyDeBruijnBitPosition[(v * 0x077CB531U) >> 27];
 	}
-
-	template<GlobalListID listId>
-	class MemberOfGlobalList
-	{
-		ObjectList::iterator  _pos;
-	public:
-		MemberOfGlobalList(GC_Object *obj)
-		{
-			g_level->GetList(listId).push_back(obj);
-			_pos = g_level->GetList(listId).rbegin();
-		}
-		~MemberOfGlobalList()
-		{
-			g_level->GetList(listId).safe_erase(_pos);
-		}
-	};
 
 private:
 	MemberOfGlobalList<LIST_objects> _memberOf;

@@ -2,6 +2,7 @@
 
 #include "Player.h"
 
+#include "GlobalListHelper.inl"
 #include "Camera.h"
 #include "GameClasses.h"
 #include "indicators.h"

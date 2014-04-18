@@ -7,6 +7,7 @@
 #include "ObjectListener.h"
 #include "DefaultCamera.h"
 
+#include "gc/GlobalListHelper.h"
 #include "network/ControlPacket.h"
 #include "video/RenderBase.h"
 #include <core/PtrList.h>
@@ -26,6 +27,7 @@ namespace FS
 class ClientBase;
 class GC_RigidBodyStatic;
 class GC_Object;
+class GC_Player;
 class GC_2dSprite;
 struct PlayerDescEx;
 
@@ -33,11 +35,6 @@ namespace FS
 {
 	class Stream;
 }
-
-struct PlayerHandle
-{
-	virtual size_t GetIndex() const = 0;
-};
 
 struct PlayerDesc
 {
@@ -53,22 +50,6 @@ struct BotDesc
 	unsigned int level;
 };
 
-enum GlobalListID
-{
-	LIST_objects,
-	LIST_services,
-	LIST_respawns,
-	LIST_projectiles,
-	LIST_players,
-	LIST_sounds,
-	LIST_indicators,
-	LIST_vehicles,
-	LIST_pickups,
-	LIST_lights,
-	LIST_cameras,
-	//------------------
-	GLOBAL_LIST_COUNT
-};
 
 #define MAX_THEME_NAME  128
 
@@ -255,10 +236,10 @@ public:
 
 
 	void Clear();
-	PlayerHandle* GetPlayerByIndex(size_t playerIndex);
-	void SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd);
-	void PlayerQuit(PlayerHandle *p);
-	PlayerHandle* AddHuman(const PlayerDesc &pd);
+	GC_Player* GetPlayerByIndex(size_t playerIndex);
+	void SetPlayerInfo(GC_Player *p, const PlayerDesc &pd);
+	void PlayerQuit(GC_Player *p);
+	GC_Player* AddHuman(const PlayerDesc &pd);
 	void AddBot(const BotDesc &bd);
     void Seed(unsigned long seed);
 

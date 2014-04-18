@@ -1,7 +1,9 @@
 // gui_scoretable.cpp
 
-#include "GuiManager.h"
 #include "gui_scoretable.h"
+
+#include "globals.h"
+#include "GuiManager.h"
 
 #include "Level.h"
 #include "Macros.h"

@@ -54,7 +54,8 @@ public:
 //	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 
 	bool IsMainWindowActive() const { return _isAppActive; }
-
+    vec2d GetMousePos() const { return _lastMousePos; }
+    
 private:
 	friend class Window;
 	void AddTopMost(Window* wnd, bool add);
@@ -62,7 +63,6 @@ private:
 	PtrList<Window>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(PtrList<Window>::iterator it);
 
-private:
 	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
 
 	PtrList<Window> _timestep;
@@ -76,6 +76,8 @@ private:
 	WindowWeakPtr _captureWnd;
 
 	WindowWeakPtr _desktop;
+    
+    vec2d _lastMousePos;
 
 	bool _isAppActive;
 #ifndef NDEBUG

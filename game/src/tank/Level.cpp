@@ -1021,7 +1021,7 @@ void Level::OnChangeNightMode()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PlayerHandle* Level::GetPlayerByIndex(size_t playerIndex)
+GC_Player* Level::GetPlayerByIndex(size_t playerIndex)
 {
 	GC_Player *player = NULL;
 	FOREACH(GetList(LIST_players), GC_Player, p)
@@ -1035,7 +1035,7 @@ PlayerHandle* Level::GetPlayerByIndex(size_t playerIndex)
 	return player;
 }
 
-void Level::SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd)
+void Level::SetPlayerInfo(GC_Player *p, const PlayerDesc &pd)
 {
 	GC_Player *player = static_cast<GC_Player *>(p);
 	player->SetClass(pd.cls);
@@ -1045,14 +1045,14 @@ void Level::SetPlayerInfo(PlayerHandle *p, const PlayerDesc &pd)
 	player->UpdateSkin();
 }
 
-void Level::PlayerQuit(PlayerHandle *p)
+void Level::PlayerQuit(GC_Player *p)
 {
 	if( g_gui )
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
 	static_cast<GC_Player*>(p)->Kill();
 }
 
-PlayerHandle* Level::AddHuman(const PlayerDesc &pd)
+GC_Player* Level::AddHuman(const PlayerDesc &pd)
 {
 	GC_PlayerLocal *player = new GC_PlayerLocal();
 	SetPlayerInfo(player, pd);

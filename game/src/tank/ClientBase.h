@@ -8,6 +8,8 @@
 
 #include <memory>
 
+class Level;
+
 struct IClientCallback
 {
 	virtual void OnPlayersUpdate() {};

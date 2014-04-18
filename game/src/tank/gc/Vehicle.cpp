@@ -2,6 +2,7 @@
 
 #include "Vehicle.h"
 
+#include "GlobalListHelper.inl"
 #include "Level.h"
 #include "Macros.h"
 #include "script.h"

@@ -2,6 +2,7 @@
 
 #include "gui_settings.h"
 
+#include "globals.h"
 #include "KeyMapper.h"
 #include "Level.h"
 #include "Macros.h"
