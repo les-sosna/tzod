@@ -359,81 +359,24 @@ void Edit::OnTimeStep(float dt)
 
 void Edit::Paste()
 {
- //   glfwGetClipboardString(<#GLFWwindow *window#>);
-    
-/*	if( OpenClipboard(NULL) )
-	{
-		if( HANDLE hData = GetClipboardData(CF_UNICODETEXT) )
-		{
-			if( const char *data = (const char *) GlobalLock(hData) )
-			{
-				std::string data1(data);
-				GlobalUnlock(hData);
-
-				std::wostringstream buf;
-				buf << GetText().substr(0, GetSelMin());
-				buf << data1;
-				buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
-				SetText(buf.str());
-				SetSel(GetSelMin() + data1.length(), GetSelMin() + data1.length());
-			}
-			else
-			{
-//				TRACE(_T("Failed to lock data: %d"), GetLastError());
-			}
-		}
-		else
-		{
-//			TRACE(_T("Failed to get clipboard data: %d"), GetLastError());
-		}
-		CloseClipboard();
-	}
-	else
-	{
-//		TRACE(_T("Failed to open clipboard: %d"), GetLastError());
-	}*/
+    if( const char *data = glfwGetClipboardString(g_appWindow) )
+    {
+        std::ostringstream buf;
+        buf << GetText().substr(0, GetSelMin());
+        buf << data;
+        buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
+        SetText(buf.str());
+        SetSel(GetSelMin() + strlen(data), GetSelMin() + strlen(data));
+    }
 }
 
 void Edit::Copy() const
 {
-/*	std::string str = GetText().substr(GetSelMin(), GetSelLength());
+	std::string str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
-		if( OpenClipboard(NULL) )
-		{
-			if( EmptyClipboard() )
-			{
-				// Allocate a global memory object for the text.
-				HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(std::string::value_type));
-				if( NULL == hData )
-				{
-//					TRACE(_T("Failed to allocate memory: %d"), GetLastError());
-					CloseClipboard();
-					return;
-				}
-
-				// Lock the handle and copy the text to the buffer.
-				char *data = (char *) GlobalLock(hData);
-				memcpy(data, str.c_str(), (str.length() + 1) * sizeof(std::string::value_type));
-				GlobalUnlock(hData);
-
-				// Place the handle on the clipboard.
-				if( !SetClipboardData(CF_UNICODETEXT, hData) )
-				{
-//					TRACE(_T("Failed to set clipboard data: %d"), GetLastError());
-				}
-			}
-			else
-			{
-//				TRACE(_T("Failed to empty clipboard: %d"), GetLastError());
-			}
-			CloseClipboard();
-		}
-		else
-		{
-//			TRACE(_T("Failed to open clipboard: %d"), GetLastError());
-		}
-	}*/
+        glfwSetClipboardString(g_appWindow, str.c_str());
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
