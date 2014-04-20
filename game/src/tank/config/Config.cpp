@@ -33,7 +33,6 @@ static void InitProfiles(ConfVarTable *profiles)
 static void InitLobbyList(ConfVarArray *lobby_servers)
 {
 	lobby_servers->PushBack(ConfVar::typeString)->AsStr()->Set("tzod.fatal.ru/lobby");
-	lobby_servers->PushBack(ConfVar::typeString)->AsStr()->Set("tankz.ru/lobby");
 }
 
 
