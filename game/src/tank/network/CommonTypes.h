@@ -23,7 +23,6 @@ struct GameInfo
 
 VARIANT_DECLARE_TYPE(GameInfo);
 VARIANT_DECLARE_TYPE(PlayerDesc);
-VARIANT_DECLARE_TYPE(BotDesc);
 
 ///////////////////////////////////////////////////////////////////////////////
 

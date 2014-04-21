@@ -7,7 +7,6 @@
 #include "Macros.h"
 #include "Level.h"
 #include "directx.h"
-//#include "InputManager.h"
 #include "BackgroundIntro.h"
 
 #include "config/Config.h"
@@ -315,10 +314,6 @@ int main(int, const char**)
         InitDirectSound(g_env.hMainWnd, true));
 #endif
         
-        
-        //InputManager _inputMgr(g_env.hMainWnd);
-        
-        
         g_texman = new TextureManager;
         g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
         if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
@@ -375,8 +370,6 @@ int main(int, const char**)
 
 void Idle(float dt)
 {
-//	_inputMgr->InquireInputDevices();
-
 	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
     g_gui->TimeStep(dt);

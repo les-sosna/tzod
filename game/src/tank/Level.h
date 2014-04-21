@@ -29,7 +29,6 @@ class GC_RigidBodyStatic;
 class GC_Object;
 class GC_Player;
 class GC_2dSprite;
-struct PlayerDescEx;
 
 namespace FS
 {
@@ -42,12 +41,6 @@ struct PlayerDesc
 	std::string skin;
 	std::string cls;
 	unsigned int team;
-};
-
-struct BotDesc
-{
-	PlayerDesc pd;
-	unsigned int level;
 };
 
 
@@ -240,7 +233,6 @@ public:
 	void SetPlayerInfo(GC_Player *p, const PlayerDesc &pd);
 	void PlayerQuit(GC_Player *p);
 	GC_Player* AddHuman(const PlayerDesc &pd);
-	void AddBot(const BotDesc &bd);
     void Seed(unsigned long seed);
 
 	float GetTime() const { return _time; }

@@ -6,19 +6,10 @@
 #include "gui.h"
 #include "gui_maplist.h"
 
-#include "GuiManager.h"
-
-#include "Text.h"
-#include "Edit.h"
-#include "Button.h"
-#include "Console.h"
-#include "ConsoleBuffer.h"
-#include "Combo.h"
-#include "DataSourceAdapters.h"
-
 //#include "Interface.h"
 #include "Level.h"
 #include "Macros.h"
+#include "md5.h"
 #include "script.h"
 
 #include "config/Config.h"
@@ -31,10 +22,15 @@
 //#include "network/LobbyClient.h"
 
 #include "gc/Player.h"
-#include "gc/ai.h"
 
-#include "md5.h"
-
+#include <Button.h>
+#include <Edit.h>
+#include <Combo.h>
+#include <Console.h>
+#include <ConsoleBuffer.h>
+#include <DataSourceAdapters.h>
+#include <GuiManager.h>
+#include <Text.h>
 
 #include <FileSystem.h>
 
@@ -544,9 +540,9 @@ void WaitingForPlayersDlg::OnAddBotClose(int result)
 {
 	if( _resultOK == result )
 	{
-		BotDesc bd;
-		bd.pd = GetPlayerDescFromConf(g_conf.ui_netbotinfo);
-		bd.level = g_conf.ui_netbotinfo.level.GetInt();
+//		BotDesc bd;
+//		bd.pd = GetPlayerDescFromConf(g_conf.ui_netbotinfo);
+//		bd.level = g_conf.ui_netbotinfo.level.GetInt();
 //		dynamic_cast<TankClient*>(g_client)->SendAddBot(bd);
 	}
 }
@@ -618,20 +614,20 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 	_bots->GetData()->DeleteAllItems();
 	FOREACH(g_level->GetList(LIST_players), GC_Player, player)
 	{
-		if( GC_PlayerAI *ai = dynamic_cast<GC_PlayerAI *>(player) )
+		if( !player->GetIsHuman() )
 		{
 			// nick & skin
-			int index = _bots->GetData()->AddItem(ai->GetNick());
-			_bots->GetData()->SetItemText(index, 1, ai->GetSkin());
+			int index = _bots->GetData()->AddItem(player->GetNick());
+			_bots->GetData()->SetItemText(index, 1, player->GetSkin());
 
 			// team
 			std::ostringstream tmp;
-			tmp << g_lang.net_chatroom_team.Get() << ai->GetTeam();
+			tmp << g_lang.net_chatroom_team.Get() << player->GetTeam();
 			_bots->GetData()->SetItemText(index, 2, tmp.str());
 
 			// level
-			assert(ai->GetLevel() <= AI_MAX_LEVEL);
-			_bots->GetData()->SetItemText(index, 3, g_lang->GetRoot()->GetStr(EditBotDlg::levels[ai->GetLevel()], "")->Get());
+		//	assert(player->GetLevel() <= AI_MAX_LEVEL);
+		//	_bots->GetData()->SetItemText(index, 3, g_lang->GetRoot()->GetStr(EditBotDlg::levels[player->GetLevel()], "")->Get());
 		}
 		else
 		{

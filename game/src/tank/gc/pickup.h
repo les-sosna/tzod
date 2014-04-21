@@ -50,7 +50,7 @@ private:
 	ObjPtr<GC_Actor>      _pickupCarrier;
 
 	std::string  _scriptOnPickup;   // on_pickup(who)
-	float     _radius;
+	float  _radius;
 	float  _timeAttached;
 	float  _timeAnimation;
 	float  _timeRespawn;
@@ -96,7 +96,7 @@ public:
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// if 0 then item considered useless and will not be taken
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh) { return AIP_NORMAL; }
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const { return AIP_NORMAL; }
 
 	// default implementation searches for the nearest vehicle
 	virtual GC_Actor* FindNewOwner() const;
@@ -135,7 +135,7 @@ public:
 	GC_pu_Health(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 
 	virtual void Attach(GC_Actor *actor);
 	virtual GC_Actor* FindNewOwner() const;
@@ -152,7 +152,7 @@ public:
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 
 	virtual void Attach(GC_Actor *actor);
 };
@@ -173,7 +173,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 
 	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
@@ -195,7 +195,7 @@ private:
 	ObjPtr<GC_Light> _light;
 	vec2d _targetPosPredicted;
 
-	GC_Vehicle *FindNearVehicle(const GC_RigidBodyStatic *ignore);
+	GC_Vehicle *FindNearVehicle(const GC_RigidBodyStatic *ignore) const;
 
 public:
 	GC_pu_Shock(float x, float y);
@@ -205,7 +205,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 
 	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();
@@ -230,7 +230,7 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(SaveFile &f);
 
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 
 	virtual void Attach(GC_Actor *actor);
 	virtual void Detach();

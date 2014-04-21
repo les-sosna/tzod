@@ -30,12 +30,10 @@
 #include "gc/Sound.h"
 #include "gc/Camera.h"
 
-//#ifdef _DEBUG
-#include "gc/ai.h"
-//#endif
-
 #include <FileSystem.h>
+
 #include <GuiManager.h>
+#include <ConsoleBuffer.h>
 
 
 extern "C"
@@ -46,10 +44,9 @@ extern "C"
 }
 #include <pluto.h>
 
-#include "ui/ConsoleBuffer.h"
-UI::ConsoleBuffer& GetConsole();
-
 #include <GLFW/glfw3.h>
+
+UI::ConsoleBuffer& GetConsole();
 
 ////////////////////////////////////////////////////////////
 
@@ -1057,17 +1054,6 @@ GC_Player* Level::AddHuman(const PlayerDesc &pd)
 	GC_PlayerLocal *player = new GC_PlayerLocal();
 	SetPlayerInfo(player, pd);
 	return player;
-}
-
-void Level::AddBot(const BotDesc &bd)
-{
-	GC_PlayerAI *ai = new GC_PlayerAI();
-	ai->SetClass(bd.pd.cls);
-	ai->SetNick(bd.pd.nick);
-	ai->SetSkin(bd.pd.skin);
-	ai->SetTeam(bd.pd.team);
-	ai->SetLevel(std::max(0U, std::min(AI_MAX_LEVEL, bd.level)));
-	ai->UpdateSkin();
 }
 
 void Level::Seed(unsigned long seed)

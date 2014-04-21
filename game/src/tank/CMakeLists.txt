@@ -26,6 +26,7 @@ include_directories(
 )
 
 set(tank_SOURCES
+	ai.cpp
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp
@@ -45,7 +46,7 @@ set(tank_SOURCES
 	gui_scoretable.cpp
 	gui_settings.cpp
 	gui_widgets.cpp
-#	InputManager.cpp
+	InputManager.cpp
 	KeyMapper.cpp
 	Level.cpp
 	Main.cpp
@@ -54,7 +55,6 @@ set(tank_SOURCES
 	MousePointer.cpp
 	SaveFile.cpp
 	script.cpp
-	SinglePlayer.cpp
 	config/Config.cpp
 	config/ConfigBase.cpp
 	config/Language.cpp
@@ -69,7 +69,6 @@ set(tank_SOURCES
 	gc/TypeSystem.cpp
 	gc/2dSprite.cpp
 	gc/Actor.cpp
-	gc/ai.cpp
 	gc/Camera.cpp
 	gc/crate.cpp
 	gc/GameClasses.cpp

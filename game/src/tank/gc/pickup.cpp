@@ -336,10 +336,10 @@ GC_pu_Health::GC_pu_Health(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Health::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Health::GetPriority(const GC_Vehicle &veh) const
 {
-	if( veh->GetHealth() < veh->GetHealthMax() )
-		return AIP_HEALTH * (veh->GetHealth() / veh->GetHealthMax());
+	if( veh.GetHealth() < veh.GetHealthMax() )
+		return AIP_HEALTH * (veh.GetHealth() / veh.GetHealthMax());
 
 	return AIP_NOTREQUIRED;
 }
@@ -387,7 +387,7 @@ GC_pu_Mine::GC_pu_Mine(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Mine::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Mine::GetPriority(const GC_Vehicle &veh) const
 {
 	return AIP_NOTREQUIRED;
 }
@@ -424,7 +424,7 @@ GC_pu_Shield::GC_pu_Shield(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Shield::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Shield::GetPriority(const GC_Vehicle &veh) const
 {
 	return AIP_SHIELD;
 }
@@ -560,12 +560,12 @@ void GC_pu_Shock::Serialize(SaveFile &f)
 	f.Serialize(_targetPosPredicted);
 }
 
-AIPRIORITY GC_pu_Shock::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Shock::GetPriority(const GC_Vehicle &veh) const
 {
-	GC_Vehicle *tmp = FindNearVehicle(veh);
+	GC_Vehicle *tmp = FindNearVehicle(&veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
 
-	if( tmp->GetOwner()->GetTeam() == veh->GetOwner()->GetTeam() && 0 != tmp->GetOwner()->GetTeam() )
+	if( tmp->GetOwner()->GetTeam() == veh.GetOwner()->GetTeam() && 0 != tmp->GetOwner()->GetTeam() )
 	{
 		return AIP_NOTREQUIRED;
 	}
@@ -590,7 +590,7 @@ void GC_pu_Shock::Detach()
 	SAFE_KILL(_light);
 }
 
-GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore)
+GC_Vehicle* GC_pu_Shock::FindNearVehicle(const GC_RigidBodyStatic *ignore) const
 {
 	//
 	// find the nearest enemy
@@ -721,14 +721,14 @@ void GC_pu_Booster::Serialize(SaveFile &f)
 	f.Serialize(_sound);
 }
 
-AIPRIORITY GC_pu_Booster::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_pu_Booster::GetPriority(const GC_Vehicle &veh) const
 {
-	if( !veh->GetWeapon() )
+	if( !veh.GetWeapon() )
 	{
 		return AIP_NOTREQUIRED;
 	}
 
-	return veh->GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
+	return veh.GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
 void GC_pu_Booster::Attach(GC_Actor* actor)

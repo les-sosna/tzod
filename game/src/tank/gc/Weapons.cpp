@@ -83,11 +83,11 @@ GC_Weapon::GC_Weapon(float x, float y)
 	SetAutoSwitch(false);
 }
 
-AIPRIORITY GC_Weapon::GetPriority(GC_Vehicle *veh)
+AIPRIORITY GC_Weapon::GetPriority(const GC_Vehicle &veh) const
 {
-	if( veh->GetWeapon() )
+	if( veh.GetWeapon() )
 	{
-		if( veh->GetWeapon()->_advanced )
+		if( veh.GetWeapon()->_advanced )
 			return AIP_NOTREQUIRED;
 
 		if( _advanced )

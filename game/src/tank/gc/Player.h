@@ -7,13 +7,14 @@
 
 #include <deque>
 
-///////////////////////////////////////////////////////////////////////////////
-// forward declarations
 
 struct VehicleState;
 class GC_Vehicle;
 
-///////////////////////////////////////////////////////////////////////////////
+
+#define GC_FLAG_PLAYER_ISHUMAN     (GC_FLAG_SERVICE_ << 0)
+#define GC_FLAG_PLAYER_            (GC_FLAG_SERVICE_ << 1)
+
 
 class GC_Player
 	: public GC_Service
@@ -76,6 +77,9 @@ public:
 
 	void SetScore(int score);
 	int GetScore() const { return _score; }
+
+    void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
+    bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
 
 public:
 	GC_Player();

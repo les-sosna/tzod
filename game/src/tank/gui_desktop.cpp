@@ -8,19 +8,22 @@
 #include "gui_mainmenu.h"
 #include "gui_scoretable.h"
 #include "gui.h"
-#include "Console.h"
-#include "ConsoleBuffer.h"
 
-#include "GuiManager.h"
 #include "video/TextureManager.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
 #include "core/Profiler.h"
+#include "gc/Player.h"
 
 //#include "network/TankClient.h"
 
 #include "script.h"
+#include "Macros.h"
+
+#include <Console.h>
+#include <ConsoleBuffer.h>
+#include <GuiManager.h>
 
 extern "C"
 {
@@ -30,7 +33,6 @@ extern "C"
 }
 
 
-#include <ui/ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
 
@@ -204,20 +206,21 @@ void Desktop::OnTimeStep(float dt)
         // read controller state for local players
         //
         std::vector<VehicleState> ctrl;
-//        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-//        {
-//            if( GC_PlayerLocal *pl = dynamic_cast<GC_PlayerLocal *>(p) )
-//            {
-//                VehicleState vs;
-//                memset(&vs, 0, sizeof(VehicleState));
-//                //                if( const char *profile = g_client->GetActiveProfile() )
-//                //                {
-//                //                   _inputMgr->ReadControllerState(profile, pl->GetVehicle(), vs);
-//                //                }
-//                pl->StepPredicted(vs, dt);
-//                ctrl.push_back(vs);
-//            }
-//        }
+        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
+        {
+            VehicleState vs;
+            if (p->GetIsHuman())
+            {
+                
+            }
+            memset(&vs, 0, sizeof(VehicleState));
+            if( const char *profile = "qqq"/*g_client->GetActiveProfile()*/ )
+            {
+                _inputMgr.ReadControllerState(profile, p->GetVehicle(), vs);
+            }
+//            pl->StepPredicted(vs, dt);
+//            ctrl.push_back(vs);
+        }
         
         
         //

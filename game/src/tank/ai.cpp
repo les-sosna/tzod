@@ -1,19 +1,18 @@
-// ai.cpp: implementation of the GC_PlayerAI class.
-//
-//////////////////////////////////////////////////////////////////////
+// ai.cpp
 
 #include "ai.h"
 
-#include "Camera.h"
 #include "Level.h"
 #include "Macros.h"
 #include "MapFile.h"
-#include "Pickup.h"
-#include "Player.h"
 #include "SaveFile.h"
-#include "Turrets.h"
-#include "Vehicle.h"
-#include "Weapons.h"
+
+#include "gc/Pickup.h"
+#include "gc/Player.h"
+#include "gc/Turrets.h"
+#include "gc/Vehicle.h"
+#include "gc/Weapons.h"
+#include "gc/Camera.h"
 
 #include "core/JobManager.h"
 #include "core/Debug.h"
@@ -40,15 +39,10 @@ static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
+//JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
 
-IMPLEMENT_SELF_REGISTRATION(GC_PlayerAI)
-{
-	ED_SERVICE("ai", "obj_service_player_ai");
-	return true;
-}
 
-GC_PlayerAI::GC_PlayerAI()
+AIController::AIController()
   : _arrivalPoint(0,0)
   , _desiredOffset(0)
   , _currentOffset(0)
@@ -62,19 +56,16 @@ GC_PlayerAI::GC_PlayerAI()
 	SetL1(L1_NONE);
 }
 
-GC_PlayerAI::GC_PlayerAI(FromFile)
-  : GC_Player(FromFile())
+AIController::AIController(FromFile)
 {
 }
 
-GC_PlayerAI::~GC_PlayerAI()
+AIController::~AIController()
 {
 }
 
-void GC_PlayerAI::Serialize(SaveFile &f)
+void AIController::Serialize(SaveFile &f)
 {
-	GC_Player::Serialize(f);
-
 	f.Serialize(_level);
 	f.Serialize(_aiState_l1);
 	f.Serialize(_aiState_l2);
@@ -98,10 +89,10 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 			f.Serialize(_attackList.back());
 		}
 
-		if( GetVehicle() )
-		{
-			_jobManager.RegisterMember(this);
-		}
+//		if( GetVehicle() )
+//		{
+//			_jobManager.RegisterMember(this);
+//		}
 	}
 	else
 	{
@@ -114,18 +105,9 @@ void GC_PlayerAI::Serialize(SaveFile &f)
 	}
 }
 
-void GC_PlayerAI::MapExchange(MapFile &f)
+void AIController::ReadControllerState(float dt, const GC_Vehicle &vehicle, VehicleState &vs)
 {
-	GC_Player::MapExchange(f);
-	MAP_EXCHANGE_INT(level, _level, 0);
-	MAP_EXCHANGE_INT(active, _isActive, true);
-}
-
-void GC_PlayerAI::TimeStepFixed(float dt)
-{
-	GC_Player::TimeStepFixed(dt);
-
-	if( !GetVehicle() )
+	if( vehicle.GetOwner() )
 	{
 		return;
 	}
@@ -134,7 +116,6 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 //	GC_Camera::GetWorldMousePos(_arrivalPoint);
 
 
-	VehicleState vs;
 	memset(&vs, 0, sizeof(VehicleState));
 
 	// clean the attack list
@@ -146,7 +127,7 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 		{
 			_pickupCurrent = NULL;
 		}
-		else if( (_pickupCurrent->GetPos() - GetVehicle()->GetPos()).sqr() <
+		else if( (_pickupCurrent->GetPos() - vehicle.GetPos()).sqr() <
 		          _pickupCurrent->GetRadius() * _pickupCurrent->GetRadius() )
 		{
 			vs._bState_AllowDrop = true;
@@ -154,14 +135,13 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	}
 
 	AIWEAPSETTINGS weapSettings;
-	if( GetVehicle()->GetWeapon() )
-		GetVehicle()->GetWeapon()->SetupAI(&weapSettings);
+	if( vehicle.GetWeapon() )
+		vehicle.GetWeapon()->SetupAI(&weapSettings);
 
-//	return;
 
 	// take decision
-	if( _jobManager.TakeJob(this) )
-		SelectState(&weapSettings);
+//	if( _jobManager.TakeJob(this) )
+        SelectState(vehicle, vehicle.GetWeapon() ? &weapSettings : nullptr);
 
 
 	// select a _currentOffset to reduce shooting accuracy
@@ -198,12 +178,11 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	}
 
 	// realize the decision
-	DoState(&vs, &weapSettings);
+	DoState(vehicle, &vs, &weapSettings);
 	
 	_backTime -= dt;
 
-	if( (vs._bState_MoveForward || vs._bState_MoveBack) &&
-	    GetVehicle()->_lv.len() < GetVehicle()->GetMaxSpeed() * 0.1f )
+	if( (vs._bState_MoveForward || vs._bState_MoveBack) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f )
 	{
 		_stickTime += dt;
 		if( _stickTime > 0.6f )
@@ -233,29 +212,17 @@ void GC_PlayerAI::TimeStepFixed(float dt)
 	default:
 		vs._bLight = false;
 	}
-
-	// send state to the vehicle
-	GetVehicle()->SetState(vs);
-	GetVehicle()->TimeStepFixed(dt);
-	if( GetVehicle() ) // vehicle might be killed in its time step
-	{
-		GetVehicle()->GetVisual()->Sync(GetVehicle()); // FIXME: cat tracks
-	}
 }
 
-bool GC_PlayerAI::CheckCell(const FieldCell &cell) const
+// check the cell's passability taking into account current weapon settings
+static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 {
-	if( (0xFF != cell.Properties() && GetVehicle()->GetWeapon()) ||
-		(0 == cell.Properties() && !GetVehicle()->GetWeapon()) )
-	{
-		return true;
-	}
-	return false;
+	return (0xFF != cell.Properties() && hasWeapon) || (0 == cell.Properties() && !hasWeapon);
 }
 
-float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
+float AIController::CreatePath(vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
-	if( dst_x < 0 || dst_x >= g_level->_sx || dst_y < 0 || dst_y >= g_level->_sy )
+	if( to.x < 0 || to.x >= g_level->_sx || to.y < 0 || to.y >= g_level->_sy )
 	{
 		return -1;
 	}
@@ -267,14 +234,14 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		RefFieldCell, std::vector<RefFieldCell>, std::greater<RefFieldCell>
 	> open;
 
-	int start_x = GRID_ALIGN(int(GetVehicle()->GetPos().x), CELL_SIZE);
-	int start_y = GRID_ALIGN(int(GetVehicle()->GetPos().y), CELL_SIZE);
-	int end_x = GRID_ALIGN(int(dst_x), CELL_SIZE);
-	int end_y = GRID_ALIGN(int(dst_y), CELL_SIZE);
+	int start_x = GRID_ALIGN(int(from.x), CELL_SIZE);
+	int start_y = GRID_ALIGN(int(from.y), CELL_SIZE);
+	int end_x = GRID_ALIGN(int(to.x), CELL_SIZE);
+	int end_y = GRID_ALIGN(int(to.y), CELL_SIZE);
 
 	FieldCell &start = field(start_x, start_y);
 
-	if( !CheckCell(start) ) return -1;
+	if( !CheckCell(start, !!ws) ) return -1;
 
 	start.Check();
 	start.UpdatePath(0, end_x, end_y);
@@ -313,16 +280,16 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 		{
 			if( i > 3 ) // check diagonal passability
 			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]],
-			                     cn.GetY() + per_y[check_diag[(i-4)*2  ]])) ||
+			                     cn.GetY() + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
 			    !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]],
-			                     cn.GetY() + per_y[check_diag[(i-4)*2+1]])) )
+			                     cn.GetY() + per_y[check_diag[(i-4)*2+1]]), !!ws) )
 			{
 				continue;
 			}
 
 
 			FieldCell &next = field(cn.GetX() + per_x[i], cn.GetY() + per_y[i]);
-			if( CheckCell(next) )
+			if( CheckCell(next, !!ws) )
 			{
 				// increase path cost when travel through the walls
 				float dist_mult = 1;
@@ -370,7 +337,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 			PathNode node;
 
-			node.coord.x = dst_x; node.coord.y = dst_y;
+			node.coord = to;
 			_path.push_front(node);
 
 			cell = cell->_prevCell;
@@ -382,7 +349,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 
 				for( int i = 0; i < cell->GetObjectsCount(); ++i )
 				{
-					assert(GetVehicle()->GetWeapon());
+					assert(ws);
 					assert(cell->Properties() > 0);
 
 					GC_RigidBodyStatic *object = cell->GetObject(i);
@@ -391,10 +358,10 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 					// this piece of code protects friendly turrets.
 					//  (could be implemented better)
 					//
-					if( GetTeam() && _level > 0 )
+					if( team && _level > 0 )
 					{
 						GC_Turret *pIsTurret = dynamic_cast<GC_Turret*>(object);
-						if( pIsTurret && (pIsTurret->_team == GetTeam()) )
+						if( pIsTurret && (pIsTurret->_team == team) )
 						{
 							continue;
 						}
@@ -413,7 +380,7 @@ float GC_PlayerAI::CreatePath(float dst_x, float dst_y, float max_depth, bool bT
 	return -1;
 }
 
-void GC_PlayerAI::SmoothPath()
+void AIController::SmoothPath()
 {
 	if( _path.size() < 4 ) 
 		return;
@@ -477,7 +444,7 @@ void GC_PlayerAI::SmoothPath()
 	}
 }
 
-std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(
+std::list<AIController::PathNode>::const_iterator AIController::FindNearPathNode(
 	const vec2d &pos, vec2d *projection, float *offset) const
 {
 	assert(!_path.empty());
@@ -568,22 +535,21 @@ std::list<GC_PlayerAI::PathNode>::const_iterator GC_PlayerAI::FindNearPathNode(
 	return result;
 }
 
-void GC_PlayerAI::ClearPath()
+void AIController::ClearPath()
 {
 	_path.clear();
 	_attackList.clear();
 }
 
-void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
+static void RotateTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
 {
 	assert(!isnan(x.x) && !isnan(x.y));
 	assert(isfinite(x.x) && isfinite(x.y));
-	assert(GetVehicle());
 
-	vec2d tmp = x - GetVehicle()->GetPos();
+	vec2d tmp = x - vehicle.GetPos();
 	tmp.Normalize();
 
-	float cosDiff = tmp * GetVehicle()->GetDirection();
+	float cosDiff = tmp * vehicle.GetDirection();
 	float minDiff = std::cos(MIN_PATH_ANGLE);
 
 	pState->_bState_MoveForward = cosDiff > minDiff && bForv;
@@ -593,20 +559,19 @@ void GC_PlayerAI::RotateTo(VehicleState *pState, const vec2d &x, bool bForv, boo
 	pState->_fBodyAngle = tmp.Angle();
 }
 
-void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws)
+void AIController::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws)
 {
-	assert(GetVehicle());
-	assert(GetVehicle()->GetWeapon());
+	assert(vehicle.GetWeapon());
 
-	vec2d tmp = x - GetVehicle()->GetPos();
+	vec2d tmp = x - vehicle.GetPos();
 	if( tmp.x && tmp.y )
 	{
 		tmp.Normalize();
 		tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
-		float cosDiff = tmp * GetVehicle()->GetWeapon()->GetDirectionReal();
+		float cosDiff = tmp * vehicle.GetWeapon()->GetDirectionReal();
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
-		pState->_fTowerAngle = Vec2dSubDirection(tmp, GetVehicle()->GetDirection()).Angle() - GetVehicle()->GetSpinup();
+		pState->_fTowerAngle = Vec2dSubDirection(tmp, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
 		assert(!isnan(pState->_fTowerAngle) && isfinite(pState->_fTowerAngle));
 	}
 	else
@@ -621,30 +586,28 @@ void GC_PlayerAI::TowerTo(VehicleState *pState, const vec2d &x, bool bFire, cons
 }
 
 // evaluate the rate of attacking of the given target
-AIPRIORITY GC_PlayerAI::GetTargetRate(GC_Vehicle *target)
+AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target)
 {
-	assert(target);
-	assert(GetVehicle());
-	assert(GetVehicle()->GetWeapon());
+	assert(vehicle.GetWeapon());
 
-	if( !target->GetOwner() ||
-		(0 != target->GetOwner()->GetTeam() && target->GetOwner()->GetTeam() == GetTeam()) )
+	if( !target.GetOwner() ||
+		(0 != target.GetOwner()->GetTeam() && target.GetOwner()->GetTeam() == vehicle.GetOwner()->GetTeam()) )
 	{
 		return AIP_NOTREQUIRED; // don't attack friends and playerless vehicles
 	}
 
 	AIPRIORITY p = AIP_NORMAL;
 
-	p += AIP_NORMAL * (GetVehicle()->GetHealth() / GetVehicle()->GetHealthMax());
-	p -= AIP_NORMAL * (target->GetHealth() / target->GetHealthMax());
+	p += AIP_NORMAL * (vehicle.GetHealth() / vehicle.GetHealthMax());
+	p -= AIP_NORMAL * (target.GetHealth() / target.GetHealthMax());
 
 	return p;
 }
 
-// return TRUE if a target was found
-bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
+// return true if a target was found
+bool AIController::FindTarget(const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
-	if( !GetVehicle()->GetWeapon() )
+	if( !vehicle.GetWeapon() )
         return false;
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
@@ -659,19 +622,19 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, object )
 	{
 		if( !object->GetOwner() ||
-			(0 != object->GetOwner()->GetTeam() && object->GetOwner()->GetTeam() == GetTeam()) )
+			(0 != object->GetOwner()->GetTeam() && object->GetOwner()->GetTeam() == vehicle.GetOwner()->GetTeam()) )
 		{
 			continue;
 		}
 
-		if( object != GetVehicle() )
+		if( object != &vehicle )
 		{
-			if( (GetVehicle()->GetPos() - object->GetPos()).sqr() <
+			if( (vehicle.GetPos() - object->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
-					g_level->TraceNearest(g_level->grid_rigid_s, GetVehicle(),
-					GetVehicle()->GetPos(), object->GetPos() - GetVehicle()->GetPos()) );
+					g_level->TraceNearest(g_level->grid_rigid_s, &vehicle,
+					vehicle.GetPos(), object->GetPos() - vehicle.GetPos()) );
 
 				TargetDesc td;
 				td.target = object;
@@ -686,14 +649,14 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	{
 		float l;
 		if( targets[i].bIsVisible )
-			l = (targets[i].target->GetPos() - GetVehicle()->GetPos()).len() / CELL_SIZE;
+			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / CELL_SIZE;
 		else
-			l = CreatePath( targets[i].target->GetPos().x,
-			                targets[i].target->GetPos().y, AI_MAX_DEPTH, true, ws );
+			l = CreatePath(vehicle.GetPos(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 
         if( l >= 0 )
 		{
-			AIPRIORITY p = GetTargetRate(targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
+            assert(targets[i].target);
+			AIPRIORITY p = GetTargetRate(vehicle, *targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
 
 			if( p > optimal )
 			{
@@ -709,16 +672,16 @@ bool GC_PlayerAI::FindTarget(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	return optimal > AIP_NOTREQUIRED;
 }
 
-bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
+bool AIController::FindItem(const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	std::vector<GC_Pickup *> applicants;
 
 	PtrList<ObjectList> receive;
 	FRECT rt = {
-		(GetVehicle()->GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(GetVehicle()->GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(GetVehicle()->GetPos().x + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(GetVehicle()->GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
+		(vehicle.GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(vehicle.GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(vehicle.GetPos().x + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
+		(vehicle.GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
 
 	g_level->grid_pickup.OverlapRect(receive, rt);
 	for( PtrList<ObjectList>::iterator i = receive.begin(); i != receive.end(); ++i )
@@ -732,7 +695,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 				continue;
 			}
 
-			if( (GetVehicle()->GetPos() - pItem->GetPos()).sqr() <
+			if( (vehicle.GetPos() - pItem->GetPos()).sqr() <
 				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
 			{
 				applicants.push_back(pItem);
@@ -755,15 +718,15 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 			if( NULL == items[i] ) continue;
 			assert(items[i]->GetVisible());
 			if( items[i]->GetCarrier() ) continue;
-			float l = CreatePath(items[i]->GetPos().x, items[i]->GetPos().y, AI_MAX_DEPTH, true, ws);
+			float l = CreatePath(vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )
 			{
-				AIPRIORITY p = items[i]->GetPriority(GetVehicle()) - AIP_NORMAL * l / AI_MAX_DEPTH;
+				AIPRIORITY p = items[i]->GetPriority(vehicle) - AIP_NORMAL * l / AI_MAX_DEPTH;
 				if( items[i]->GetType() == _favoriteWeaponType )
 				{
-					if( GetVehicle()->GetWeapon()
-						&& _favoriteWeaponType != GetVehicle()->GetWeapon()->GetType()
-						&& !GetVehicle()->GetWeapon()->GetAdvanced() )
+					if( vehicle.GetWeapon()
+						&& _favoriteWeaponType != vehicle.GetWeapon()->GetType()
+						&& !vehicle.GetWeapon()->GetAdvanced() )
 					{
 						p += AIP_WEAPON_FAVORITE;
 					}
@@ -783,7 +746,7 @@ bool GC_PlayerAI::FindItem(/*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 	return optimal > AIP_NOTREQUIRED;
 }
 
-void GC_PlayerAI::SelectFavoriteWeapon()
+void AIController::SelectFavoriteWeapon()
 {
 	int wcount = 0;
 	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
@@ -801,7 +764,7 @@ void GC_PlayerAI::SelectFavoriteWeapon()
 }
 
 // calculates the position of a fake target for more accurate shooting
-void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
+void AIController::CalcOutstrip(vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake)
 {
 	ASSERT_TYPE(target, GC_Vehicle);
 	float Vt = target->_lv.len();
@@ -810,25 +773,25 @@ void GC_PlayerAI::CalcOutstrip(GC_Vehicle *target, float Vp, vec2d &fake)
 		float c = target->GetDirection().x;
 		float s = target->GetDirection().y;
 
-		float x = (target->GetPos().x - GetVehicle()->GetPos().x) * c +
-		          (target->GetPos().y - GetVehicle()->GetPos().y) * s;
-		float y = (target->GetPos().y - GetVehicle()->GetPos().y) * c -
-		          (target->GetPos().x - GetVehicle()->GetPos().x) * s;
+		float x = (target->GetPos().x - origin.x) * c +
+		          (target->GetPos().y - origin.y) * s;
+		float y = (target->GetPos().y - origin.y) * c -
+		          (target->GetPos().x - origin.x) * s;
 
 		float fx = x + Vt * (x * Vt + sqrt(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
 
-		fake.x = GetVehicle()->GetPos().x + fx * c - y * s;
-		fake.y = GetVehicle()->GetPos().y + fx * s + y * c;
+		fake.x = origin.x + fx * c - y * s;
+		fake.y = origin.y + fx * s + y * c;
 		fake.x = std::max(.0f, std::min(g_level->_sx, fake.x));
 		fake.y = std::max(.0f, std::min(g_level->_sy, fake.y));
 	}
 	else
 	{
-		fake = GetVehicle()->GetPos();
+		fake = origin;
 	}
 }
 
-void GC_PlayerAI::SetL1(aiState_l1 new_state)
+void AIController::SetL1(aiState_l1 new_state)
 {
 #ifdef _DEBUG
 	if( _aiState_l1 == new_state )
@@ -854,7 +817,7 @@ void GC_PlayerAI::SetL1(aiState_l1 new_state)
 	_aiState_l1 = new_state;
 }
 
-void GC_PlayerAI::SetL2(aiState_l2 new_state)
+void AIController::SetL2(aiState_l2 new_state)
 {
 #ifdef _DEBUG
 	if( _aiState_l2 == new_state )
@@ -881,20 +844,20 @@ void GC_PlayerAI::SetL2(aiState_l2 new_state)
 	_aiState_l2 = new_state;
 }
 
-void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
+void AIController::ProcessAction(const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
 	AIITEMINFO ii_item;
-	FindItem(ii_item, ws);
+	FindItem(vehicle, ii_item, ws);
 
 	AIITEMINFO ii_target;
-	if( FindTarget(ii_target, ws) )
+	if( FindTarget(vehicle, ii_target, ws) )
 	{
-		assert(GetVehicle() && GetVehicle()->GetWeapon());
+		assert(vehicle.GetWeapon());
 		_target = PtrCast<GC_RigidBodyStatic>(ii_target.object);
 
 		if( ii_target.priority > ii_item.priority )
 		{
-			if( CreatePath(_target->GetPos().x, _target->GetPos().y, AI_MAX_DEPTH, false, ws) > 0 )
+			if( CreatePath(vehicle.GetPos(), _target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 			{
 				SmoothPath();
 			}
@@ -904,7 +867,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 		}
 		else
 		{
-			Pickup(PtrCast<GC_Pickup>(ii_item.object));
+			Pickup(vehicle, PtrCast<GC_Pickup>(ii_item.object));
 		}
 	}
 	else
@@ -916,7 +879,7 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if( CreatePath(ii_item.object->GetPos().x, ii_item.object->GetPos().y,
+				if( CreatePath(vehicle.GetPos(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(),
 				               AI_MAX_DEPTH, false, ws) > 0 )
 				{
 					SmoothPath();
@@ -934,26 +897,23 @@ void GC_PlayerAI::ProcessAction(const AIWEAPSETTINGS *ws)
 	}
 }
 
-bool GC_PlayerAI::March(float x, float y)
+bool AIController::March(const GC_Vehicle &vehicle, float x, float y)
 {
-	if( GetVehicle() )
-	{
-		AIWEAPSETTINGS ws;
-		if( GetVehicle()->GetWeapon() )
-			GetVehicle()->GetWeapon()->SetupAI(&ws);
-		if( CreatePath(x, y, AI_MAX_DEPTH, false, &ws) > 0 )
-		{
-			SmoothPath();
-			SetL1(L1_NONE);
-			return true;
-		}
-	}
+    AIWEAPSETTINGS ws;
+    if( vehicle.GetWeapon() )
+        vehicle.GetWeapon()->SetupAI(&ws);
+    if( CreatePath(vehicle.GetPos(), vec2d(x, y), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
+    {
+        SmoothPath();
+        SetL1(L1_NONE);
+        return true;
+    }
 	return false;
 }
 
-bool GC_PlayerAI::Attack(GC_RigidBodyStatic *target)
+bool AIController::Attack(const GC_Vehicle &vehicle, GC_RigidBodyStatic *target)
 {
-	if( GetVehicle() && GetVehicle()->GetWeapon() )
+	if( vehicle.GetWeapon() )
 	{
 		_target = target;
 		return true;
@@ -962,49 +922,45 @@ bool GC_PlayerAI::Attack(GC_RigidBodyStatic *target)
 }
 
 
-bool GC_PlayerAI::Pickup(GC_Pickup *p)
+bool AIController::Pickup(const GC_Vehicle &vehicle, GC_Pickup *p)
 {
 	assert(p);
-	if( GetVehicle() )
-	{
-		if( _pickupCurrent != p )
-		{
-			AIWEAPSETTINGS ws;
-			if( GetVehicle()->GetWeapon() )
-				GetVehicle()->GetWeapon()->SetupAI(&ws);
+    if( _pickupCurrent != p )
+    {
+        AIWEAPSETTINGS ws;
+        if( vehicle.GetWeapon() )
+            vehicle.GetWeapon()->SetupAI(&ws);
 
-			if( CreatePath(p->GetPos().x, p->GetPos().y, AI_MAX_DEPTH, false, &ws) > 0 )
-			{
-				SmoothPath();
-				_pickupCurrent = p;
-				SetL2(L2_PICKUP);
-				SetL1(L1_NONE);
-				return true;
-			}
-		}
-		else
-		{
-			return true;
-		}
-	}
+        if( CreatePath(vehicle.GetPos(), p->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
+        {
+            SmoothPath();
+            _pickupCurrent = p;
+            SetL2(L2_PICKUP);
+            SetL1(L1_NONE);
+            return true;
+        }
+    }
+    else
+    {
+        return true;
+    }
 	return false;
 }
 
-void GC_PlayerAI::Stop()
+void AIController::Stop()
 {
 	_target = NULL;
 	ClearPath();
 }
 
-void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
+void AIController::SelectState(const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
-	assert(GetVehicle());
 	if( !_isActive )
 	{
 		return;
 	}
 	
-	ProcessAction(ws);
+	ProcessAction(vehicle, ws);
 
 	switch( _aiState_l2 )
 	{
@@ -1020,12 +976,12 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 		assert(NULL == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = GetVehicle()->GetPos()
+			vec2d t = vehicle.GetPos()
 				+ g_level->net_vrand(sqrtf(g_level->net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
 			float x = std::min(std::max(.0f, t.x), g_level->_sx);
 			float y = std::min(std::max(.0f, t.y), g_level->_sy);
 
-			if( CreatePath(x, y, AI_MAX_DEPTH, false, ws) > 0 )
+			if( CreatePath(vehicle.GetPos(), vec2d(x, y), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 			{
 				SmoothPath();
 				SetL1(L1_NONE);
@@ -1037,23 +993,23 @@ void GC_PlayerAI::SelectState(const AIWEAPSETTINGS *ws)
 	}
 }
 
-void GC_PlayerAI::SetActive(bool active)
+void AIController::SetActive(bool active)
 {
 	_isActive = active;
 }
 
-void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
+void AIController::DoState(const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 {
 	if( L1_NONE != _aiState_l1 )
 		return;
 
 
-	vec2d brake = GetVehicle()->GetBrakingLength();
+	vec2d brake = vehicle.GetBrakingLength();
 //	float brake_len = brake.len();
 	float brakeSqr = brake.sqr();
 
-	vec2d currentDir = GetVehicle()->GetDirection();
-	vec2d currentPos = GetVehicle()->GetPos();
+	vec2d currentDir = vehicle.GetDirection();
+	vec2d currentPos = vehicle.GetPos();
 //	vec2d predictedPos = GetVehicle()->GetPos() + brake;
 
 	if( !_path.empty() )
@@ -1066,7 +1022,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 //		GC_Camera::GetWorldMousePos(currentPos);
 		std::list<PathNode>::const_iterator currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
 
-		float desiredProjOffsetLen = GetVehicle()->GetMaxBrakingLength() * 2;//(1 + GetVehicle()->_lv.len() / GetVehicle()->GetMaxSpeed());
+		float desiredProjOffsetLen = vehicle.GetMaxBrakingLength() * 2;//(1 + vehicle._lv.len() / vehicle.GetMaxSpeed());
 		vec2d desiredProjOffset;
 
 		std::list<PathNode>::const_iterator it = currentNodeIt;
@@ -1153,7 +1109,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 //		ClearPath();
 //	}
 
-	if( !GetVehicle()->GetWeapon() )
+	if( !vehicle.GetWeapon() )
 	{
 		// no targets if no weapon
 		_target = NULL;
@@ -1164,19 +1120,19 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	// attack the primary target if possible
 	//
-	if( _target && IsTargetVisible(_target))
+	if( _target && IsTargetVisible(vehicle, _target))
 	{
-		assert(GetVehicle()->GetWeapon());
+		assert(vehicle.GetWeapon());
 
 		vec2d fake = _target->GetPos();
 		GC_Vehicle *enemy = PtrDynCast<GC_Vehicle>(_target);
 		if( ws->bNeedOutstrip && _level > 1 && enemy )
 		{
-			CalcOutstrip(enemy, ws->fProjectileSpeed, fake);
+			CalcOutstrip(vehicle.GetPos(), enemy, ws->fProjectileSpeed, fake);
 		}
 
-		float len = (_target->GetPos() - GetVehicle()->GetPos()).len();
-		TowerTo(pVehState, fake, len > ws->fAttackRadius_crit, ws);
+		float len = (_target->GetPos() - vehicle.GetPos()).len();
+		TowerTo(vehicle, pVehState, fake, len > ws->fAttackRadius_crit, ws);
 
 		vec2d d = _target->GetPos() - currentPos;
 		float d_len = d.len();
@@ -1194,13 +1150,13 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//
 	// attack secondary targets of possible
 	//
-	else if( !_attackList.empty() && IsTargetVisible(_attackList.front()) )
+	else if( !_attackList.empty() && IsTargetVisible(vehicle, _attackList.front()) )
 	{
-		assert(GetVehicle()->GetWeapon());
+		assert(vehicle.GetWeapon());
 		GC_RigidBodyStatic *target = _attackList.front();
 
-		float len = (target->GetPos() - GetVehicle()->GetPos()).len();
-		TowerTo(pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
+		float len = (target->GetPos() - vehicle.GetPos()).len();
+		TowerTo(vehicle, pVehState, target->GetPos(), len > ws->fAttackRadius_crit, ws);
 	}
 
 
@@ -1217,15 +1173,15 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 		vec2d min_hit, min_norm;
 		for( int i = 0; i < 3; ++i )
 		{
-			vec2d tmp = Vec2dAddDirection(GetVehicle()->GetDirection(), vec2d(angle[i]));
+			vec2d tmp = Vec2dAddDirection(vehicle.GetDirection(), vec2d(angle[i]));
 
-			vec2d x0 = GetVehicle()->GetPos() + tmp * GetVehicle()->GetRadius();
+			vec2d x0 = vehicle.GetPos() + tmp * vehicle.GetRadius();
 			vec2d a  = brake * len[i];
 
 			vec2d hit, norm;
 			GC_Object *o = g_level->TraceNearest(
 				g_level->grid_rigid_s, 
-				GetVehicle(), 
+				&vehicle,
 				x0,
 				a,
 				&hit,
@@ -1234,7 +1190,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 
 			if( o )
 			{
-				if( 1 == i && (hit - currentPos).len() < GetVehicle()->GetRadius() )
+				if( 1 == i && (hit - currentPos).len() < vehicle.GetRadius() )
 				{
 					_backTime = 0.5f;
 				}
@@ -1255,12 +1211,12 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 			min_norm = (min_norm - hit_dir * (min_norm * hit_dir)).Normalize() + min_norm;
 			min_norm.Normalize();
 			min_norm *= 1.4142f;// sqrt(2)
-			_arrivalPoint = min_hit + min_norm * GetVehicle()->GetRadius();
+			_arrivalPoint = min_hit + min_norm * vehicle.GetRadius();
 			g_level->DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
 		}
 	}
 
-	g_level->DbgLine(GetVehicle()->GetPos(), _arrivalPoint, 0x0000ffff);
+	g_level->DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
 
 
 	//
@@ -1272,7 +1228,7 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	{
 		if( _backTime <= 0 )
 		{
-			RotateTo(pVehState, _arrivalPoint, dst > brakeSqr, false);
+			RotateTo(vehicle, pVehState, _arrivalPoint, dst > brakeSqr, false);
 		}
 		else
 		{
@@ -1290,51 +1246,53 @@ void GC_PlayerAI::DoState(VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 	//}
 }
 
-bool GC_PlayerAI::IsTargetVisible(GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
+bool AIController::IsTargetVisible(const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
 {
-	assert(GetVehicle()->GetWeapon());
+	assert(vehicle.GetWeapon());
 
-	if( GC_Weap_Gauss::GetTypeStatic() == GetVehicle()->GetWeapon()->GetType() )  // FIXME!
+	if( GC_Weap_Gauss::GetTypeStatic() == vehicle.GetWeapon()->GetType() )  // FIXME!
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->TraceNearest(
 		g_level->grid_rigid_s,
-		GetVehicle(),
-		GetVehicle()->GetPos(),
-		target->GetPos() - GetVehicle()->GetPos() );
+		&vehicle,
+		vehicle.GetPos(),
+		target->GetPos() - vehicle.GetPos() );
 
 	if( object && object != target )
 	{
-		if( ppObstacle ) *ppObstacle = object;
+		if( ppObstacle )
+            *ppObstacle = object;
 		return false;
 	}
 	else
 	{
-		if( ppObstacle ) *ppObstacle = NULL;
+		if( ppObstacle )
+            *ppObstacle = NULL;
 		return true;
 	}
 }
 
-void GC_PlayerAI::OnRespawn()
+void AIController::OnRespawn(const GC_Vehicle &vehicle)
 {
-	_arrivalPoint = GetVehicle()->GetPos();
-	_jobManager.RegisterMember(this);
+	_arrivalPoint = vehicle.GetPos();
+//	_jobManager.RegisterMember(this);
 	SelectFavoriteWeapon();
 }
 
-void GC_PlayerAI::OnDie()
+void AIController::OnDie()
 {
 	_pickupCurrent = NULL;
 	_target = NULL;
 	ClearPath();
 
-	_jobManager.UnregisterMember(this);
+//	_jobManager.UnregisterMember(this);
 }
 
 ////////////////////////////////////////////
 // debug graphics
 
-void GC_PlayerAI::debug_draw()
+void AIController::debug_draw()
 {
 	if( !_path.empty() )
 	{
@@ -1382,59 +1340,7 @@ void GC_PlayerAI::debug_draw()
 		++count;
 	}
 */
-
 }
-
-PropertySet* GC_PlayerAI::NewPropertySet()
-{
-	return new MyPropertySet(this);
-}
-
-GC_PlayerAI::MyPropertySet::MyPropertySet(GC_Object *object)
-  : BASE(object)
-  , _propLevel( ObjectProperty::TYPE_INTEGER, "level" )
-  , _propActive( ObjectProperty::TYPE_INTEGER, "active" )
-{
-	_propLevel.SetIntRange(0, AI_MAX_LEVEL);
-	_propActive.SetIntRange(0, 1);
-}
-
-int GC_PlayerAI::MyPropertySet::GetCount() const
-{
-	return BASE::GetCount() + 2;
-}
-
-ObjectProperty* GC_PlayerAI::MyPropertySet::GetProperty(int index)
-{
-	if( index < BASE::GetCount() )
-		return BASE::GetProperty(index);
-
-	switch( index - BASE::GetCount() )
-	{
-	default: assert(false);
-	case 0: return &_propLevel;
-	case 1: return &_propActive;
-	}
-}
-
-void GC_PlayerAI::MyPropertySet::MyExchange(bool applyToObject)
-{
-	BASE::MyExchange(applyToObject);
-
-	GC_PlayerAI *tmp = static_cast<GC_PlayerAI *>(GetObject());
-
-	if( applyToObject )
-	{
-		tmp->SetLevel( _propLevel.GetIntValue() );
-		tmp->SetActive( 0 != _propActive.GetIntValue() );
-	}
-	else
-	{
-		_propLevel.SetIntValue(tmp->_level);
-		_propActive.SetIntValue(tmp->GetActive());
-	}
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

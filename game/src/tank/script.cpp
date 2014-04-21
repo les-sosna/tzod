@@ -12,7 +12,7 @@
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/pickup.h"
-#include "gc/ai.h"
+#include "gc/Player.h"
 #include "gc/Weapons.h" // for ugly workaround
 
 
@@ -1109,11 +1109,12 @@ int luaT_ai_march(lua_State *L)
 		return luaL_error(L, "3 arguments expected; got %d", n);
 	}
 
-	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
 
-	lua_pushboolean(L, who->March(x, y));
+//	lua_pushboolean(L, who->March(x, y));
+    return luaL_error(L, "not implemented");
 	return 1;
 }
 
@@ -1126,10 +1127,11 @@ int luaT_ai_attack(lua_State *L)
 		return luaL_error(L, "2 argument expected; got %d", n);
 	}
 
-	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
 	GC_RigidBodyStatic *what = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
 
-	lua_pushboolean(L, who->Attack(what));
+//	lua_pushboolean(L, who->Attack(what));
+    return luaL_error(L, "not implemented");
 	return 1;
 }
 
@@ -1141,8 +1143,9 @@ int luaT_ai_stop(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	GC_PlayerAI *ai = luaT_checkobjectT<GC_PlayerAI>(L, 1);
-	ai->Stop();
+	GC_Player *ai = luaT_checkobjectT<GC_Player>(L, 1);
+//	ai->Stop();
+    return luaL_error(L, "not implemented");
 
 	return 1;
 }
@@ -1156,10 +1159,11 @@ int luaT_ai_pickup(lua_State *L)
 		return luaL_error(L, "2 argument expected; got %d", n);
 	}
 
-	GC_PlayerAI *who = luaT_checkobjectT<GC_PlayerAI>(L, 1);
+	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
 	GC_Pickup *what = luaT_checkobjectT<GC_Pickup>(L, 2);
 
-	lua_pushboolean(L, who->Pickup(what));
+//	lua_pushboolean(L, who->Pickup(what));
+    return luaL_error(L, "not implemented");
 	return 1;
 }
 

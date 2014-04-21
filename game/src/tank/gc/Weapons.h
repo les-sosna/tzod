@@ -73,7 +73,7 @@ public:
 	virtual void Serialize(SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 6.0f; }
-	virtual AIPRIORITY GetPriority(GC_Vehicle *veh);
+	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
 	virtual void Attach(GC_Actor *actor);

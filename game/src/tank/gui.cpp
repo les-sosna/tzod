@@ -4,20 +4,9 @@
 
 #include "globals.h"
 #include "gui_maplist.h"
-
-#include "GuiManager.h"
-
-#include "Button.h"
-#include "List.h"
-#include "Text.h"
-#include "Edit.h"
-#include "Combo.h"
-#include "DataSourceAdapters.h"
-
 #include "Macros.h"
 #include "MapFile.h"
 #include "script.h"
-#include "SinglePlayer.h"
 
 #include "video/TextureManager.h"
 
@@ -27,9 +16,18 @@
 #include "core/debug.h"
 
 #include "gc/Player.h"
-#include "gc/ai.h"
 
 #include "network/CommonTypes.h"
+
+// ui
+#include <Button.h>
+#include <List.h>
+#include <Text.h>
+#include <Edit.h>
+#include <Combo.h>
+#include <DataSourceAdapters.h>
+#include <GuiManager.h>
+
 
 #include <FileSystem.h>
 #include <GLFW/glfw3.h>
@@ -365,7 +363,14 @@ void NewGameDlg::OnOK()
 
 	try
 	{
-		new SinglePlayerClient(_level, g_fs->Open(path)->QueryStream(), rand());
+        g_level->Clear();
+        g_level->Seed(rand());
+        g_level->Import(g_fs->Open(path)->QueryStream());
+        if( !script_exec(g_env.L, g_level->_infoOnInit.c_str()) )
+        {
+            g_level->Clear();
+            throw std::runtime_error("init script error");
+        }
 	}
 	catch( const std::exception &e )
 	{
@@ -399,13 +404,14 @@ void NewGameDlg::OnOK()
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-		BotDesc bd;
-		bd.pd.cls = p.platform_class.Get();
-		bd.pd.nick = p.nick.Get();
-		bd.pd.skin = p.skin.Get();
-		bd.pd.team = p.team.GetInt();
-		bd.level = p.level.GetInt();
-		_level->AddBot(bd);
+        GC_Player *ai = new GC_Player();
+        ai->SetClass(p.platform_class.Get());
+        ai->SetNick(p.nick.Get());
+        ai->SetSkin(p.skin.Get());
+        ai->SetTeam(p.team.GetInt());
+//        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
+        ai->UpdateSkin();
+        
 	}
 
 	Close(_resultOK);

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Level.h"// for EditorModeListenerHelper
+#include "InputManager.h"
 #include <Window.h>
 #include <Console.h>
 
@@ -59,6 +60,7 @@ class Desktop
 	};
 
 	MyConsoleHistory  _history;
+    InputManager _inputMgr;
 
 	EditorLayout *_editor;
 	Console      *_con;

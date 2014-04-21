@@ -2,13 +2,14 @@
 
 #include "Trigger.h"
 
-#include "ai.h"
+#include "Player.h"
+#include "Vehicle.h"
+
 #include "Level.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
-#include "Vehicle.h"
 
 extern "C"
 {
@@ -122,9 +123,9 @@ void GC_Trigger::TimeStepFixed(float dt)
 		float rr_min = _radius * _radius * CELL_SIZE * CELL_SIZE;
 		FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
-			if( !veh->GetOwner() 
+			if( !veh->GetOwner()
 				|| (CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
-					&& dynamic_cast<GC_PlayerAI*>(veh->GetOwner())) )
+					&& !veh->GetOwner()->GetIsHuman()) )
 			{
 				continue;
 			}
