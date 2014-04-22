@@ -1022,28 +1022,11 @@ GC_Player* Level::GetPlayerByIndex(size_t playerIndex)
 	return player;
 }
 
-void Level::SetPlayerInfo(GC_Player *p, const PlayerDesc &pd)
-{
-	GC_Player *player = static_cast<GC_Player *>(p);
-	player->SetClass(pd.cls);
-	player->SetNick(pd.nick);
-	player->SetSkin(pd.skin);
-	player->SetTeam(pd.team);
-	player->UpdateSkin();
-}
-
 void Level::PlayerQuit(GC_Player *p)
 {
 	if( g_gui )
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
 	static_cast<GC_Player*>(p)->Kill();
-}
-
-GC_Player* Level::AddHuman(const PlayerDesc &pd)
-{
-	GC_PlayerLocal *player = new GC_PlayerLocal();
-	SetPlayerInfo(player, pd);
-	return player;
 }
 
 void Level::Seed(unsigned long seed)

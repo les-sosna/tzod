@@ -6,6 +6,8 @@
 
 #include <list>
 
+class InputManager;
+
 namespace UI
 {
 
@@ -56,6 +58,7 @@ class MainMenuDlg : public Dialog
 		PS_DISAPPEARING,
 	};
 
+    InputManager &_inputMgr;
 	Window    *_panel;
 	Window    *_panelFrame;
 	Text      *_panelTitle;
@@ -65,7 +68,7 @@ class MainMenuDlg : public Dialog
 	GetFileNameDlg *_fileDlg;
 
 public:
-	MainMenuDlg(Window *parent);
+	MainMenuDlg(Window *parent, InputManager &inputMgr);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

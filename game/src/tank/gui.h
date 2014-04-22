@@ -7,15 +7,14 @@
 
 #include "config/Config.h"
 
-// forward declarations
 class ConfVarTable;
+class InputManager;
 class Level;
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
-// forward declarations
+// ui forward declarations
 class Button;
 class CheckBox;
 class ComboBox;
@@ -26,7 +25,7 @@ class ListDataSourceDefault;
 class Text;
 template<class, class> class ListAdapter;
 
-class NewGameDlg : public Dialog
+class NewGameDlg : public UI::Dialog
 {
 	typedef ListAdapter<ListDataSourceMaps, List> MapList;
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
@@ -44,11 +43,12 @@ class NewGameDlg : public Dialog
 	Button    *_removeBot;
 	Button    *_changeBot;
 
-	Level *_level;
+	Level &_level;
+    InputManager &_inputMgr;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, Level *level);
+	NewGameDlg(Window *parent, Level &level, InputManager &inputMgr);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

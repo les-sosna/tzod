@@ -44,9 +44,10 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, Level *level)
+NewGameDlg::NewGameDlg(Window *parent, Level &level, InputManager &inputMgr)
   : Dialog(parent, 770, 550)
   , _level(level)
+  , _inputMgr(inputMgr)
 {
 	_newPlayer = false;
 
@@ -385,21 +386,14 @@ void NewGameDlg::OnOK()
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
-		PlayerDesc pd;
-		pd.cls = p.platform_class.Get();
-		pd.nick = p.nick.Get();
-		pd.skin = p.skin.Get();
-		pd.team = p.team.GetInt();
-		/*PlayerHandle *handle =*/ _level->AddHuman(pd);
-//		g_client
-
-		//GC_PlayerLocal *player = new GC_PlayerLocal();
-		//player->SetTeam(p.team.GetInt());
-		//player->SetSkin(p.skin.Get());
-		//player->SetClass(p.platform_class.Get());
-		//player->SetNick(p.nick.Get());
-		//player->SetProfile(p.profile.Get());
-	}
+        
+        GC_PlayerLocal *player = new GC_PlayerLocal();
+        player->SetClass(p.platform_class.Get());
+        player->SetNick(p.nick.Get());
+        player->SetSkin(p.skin.Get());
+        player->SetTeam(p.team.GetInt());
+        player->UpdateSkin();
+    }
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{

@@ -314,7 +314,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this);
+			dlg = new MainMenuDlg(this, _inputMgr);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;
@@ -322,7 +322,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case GLFW_KEY_F2:
-		dlg = new NewGameDlg(this, g_level.get());
+		dlg = new NewGameDlg(this, *g_level, _inputMgr);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;

@@ -35,8 +35,9 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent)
+MainMenuDlg::MainMenuDlg(Window *parent, InputManager &inputMgr)
   : Dialog(parent, 1, 1)
+  , _inputMgr(inputMgr)
   , _panel(NULL)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
@@ -78,7 +79,7 @@ void MainMenuDlg::OnSinglePlayer()
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent(), g_level.get());
+	NewGameDlg *dlg = new NewGameDlg(GetParent(), *g_level, _inputMgr);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 

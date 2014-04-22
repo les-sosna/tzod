@@ -230,9 +230,7 @@ public:
 
 	void Clear();
 	GC_Player* GetPlayerByIndex(size_t playerIndex);
-	void SetPlayerInfo(GC_Player *p, const PlayerDesc &pd);
 	void PlayerQuit(GC_Player *p);
-	GC_Player* AddHuman(const PlayerDesc &pd);
     void Seed(unsigned long seed);
 
 	float GetTime() const { return _time; }
