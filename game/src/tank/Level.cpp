@@ -831,16 +831,6 @@ void Level::Render(bool editorMode) const
 {
 	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
 
-#ifdef _DEBUG
-	FOREACH( GetList(LIST_players), GC_Player, p )
-	{
-		if( GC_PlayerAI *pp = dynamic_cast<GC_PlayerAI *>(p) )
-		{
-			pp->debug_draw();
-		}
-	}
-#endif
-
 	if( editorMode || GetList(LIST_cameras).empty() )
 	{
 		// render from default camera

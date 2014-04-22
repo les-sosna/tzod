@@ -2,6 +2,7 @@
 
 #include "Field.h"
 #include "gc/RigidBody.h"
+#include "core/debug.h"
 #include <cassert>
 
 unsigned long FieldCell::_sessionId;
