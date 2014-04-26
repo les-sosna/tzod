@@ -25,15 +25,17 @@ void InputManager::ReadControllerState()
         if( GC_Vehicle *vehicle = pcpair.first->GetVehicle() )
         {
             VehicleState vs;
-            pcpair.second->ReadControllerState(vehicle, vs);
+            pcpair.second.second->ReadControllerState(vehicle, vs);
             vehicle->SetControllerState(vs);
         }
     }
 }
 
-void InputManager::AssignController(GC_Player *player, std::unique_ptr<Controller> &&ctrl)
+void InputManager::AssignController(GC_Player *player, std::string profile)
 {
-    _controllers[player] = std::move(ctrl);
+    std::unique_ptr<Controller> ctrl(new Controller());
+    ctrl->SetProfile(profile.c_str());
+    _controllers[player] = std::make_pair(std::move(profile), std::move(ctrl));
 }
 
 void InputManager::FreeController(GC_Player *player)
@@ -43,13 +45,9 @@ void InputManager::FreeController(GC_Player *player)
 
 void InputManager::OnProfilesChange()
 {
-    _controllers.clear();
-
-    ConfVarTable::KeyListType keys;
-    g_conf.dm_profiles.GetKeyList(keys);
-    for( auto it = keys.begin(); it != keys.end(); ++it )
+    for (auto &pcpair: _controllers)
     {
-//        _controllers[*it].SetProfile(it->c_str());
+        pcpair.second.second->SetProfile(pcpair.second.first.c_str());
     }
 }
 
