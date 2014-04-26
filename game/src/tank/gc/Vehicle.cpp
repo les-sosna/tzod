@@ -196,10 +196,6 @@ void GC_Vehicle::Serialize(SaveFile &f)
 
 void GC_Vehicle::ApplyState(const VehicleState &vs)
 {
-	//
-	// adjust speed
-	//
-
 	if( vs._bState_MoveForward )
 	{
 		ApplyForce(GetDirection() * _enginePower);
@@ -262,9 +258,6 @@ void GC_Vehicle::SetPlayer(GC_Player *player)
 {
 	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
-
-	// time step fixed will be called by player
-	SetEvents(0);
 }
 
 void GC_Vehicle::Kill()
@@ -533,9 +526,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
     
     
 	// move
-	GC_RigidBodyDynamic::TimeStepFixed( dt );
-    
 	ApplyState(_state);
+	GC_RigidBodyDynamic::TimeStepFixed( dt );
     
     
 	//
@@ -582,10 +574,6 @@ void GC_Vehicle::TimeStepFixed(float dt)
 		_weapon->Fire();
 		if( !watch ) return;
 	}
-
-
-	ApplyState(_state);
-
 
 	//
 	// die if out of level bounds
