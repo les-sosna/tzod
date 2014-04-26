@@ -10,7 +10,6 @@ enum GlobalListID
 	LIST_objects,
 	LIST_services,
 	LIST_respawns,
-	LIST_projectiles,
 	LIST_players,
 	LIST_sounds,
 	LIST_indicators,

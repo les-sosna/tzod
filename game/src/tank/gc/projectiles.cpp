@@ -21,7 +21,6 @@
 GC_Projectile::GC_Projectile(GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail,
                              const vec2d &pos, const vec2d &v, const char *texture)
   : GC_2dSprite()
-  , _memberOf(this)
   , _ignore(ignore)
   , _owner(owner)
   , _light(new GC_Light(GC_Light::LIGHT_POINT))
@@ -49,7 +48,6 @@ GC_Projectile::GC_Projectile(GC_RigidBodyStatic *ignore, GC_Player *owner, bool 
 
 GC_Projectile::GC_Projectile(FromFile)
   : GC_2dSprite(FromFile())
-  , _memberOf(this)
 {
 }
 

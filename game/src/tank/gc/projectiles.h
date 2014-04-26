@@ -21,8 +21,6 @@ class GC_Player;
 
 class GC_Projectile : public GC_2dSprite
 {
-	MemberOfGlobalList<LIST_projectiles> _memberOf;
-
 	ObjPtr<GC_RigidBodyStatic> _ignore;
 	ObjPtr<GC_Player> _owner;
 
