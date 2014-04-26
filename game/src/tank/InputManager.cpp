@@ -1,7 +1,10 @@
 // InputManager.cpp
 
 #include "InputManager.h"
+#include "Controller.h"
 #include "config/Config.h"
+#include "gc/Player.h"
+#include "gc/Vehicle.h"
 
 InputManager::InputManager()
 {
@@ -12,15 +15,30 @@ InputManager::InputManager()
 InputManager::~InputManager()
 {
     g_conf.dm_profiles.eventChange = nullptr;
+    assert(_controllers.empty());
 }
 
-void InputManager::ReadControllerState(const char *profile, const GC_Vehicle *vehicle, VehicleState &vs)
+void InputManager::ReadControllerState()
 {
-    auto it = _controllers.find(profile);
-    if( vehicle && _controllers.end() != it )
+    for (auto &pcpair: _controllers)
     {
-        it->second.ReadControllerState(vehicle, vs);
+        if( GC_Vehicle *vehicle = pcpair.first->GetVehicle() )
+        {
+            VehicleState vs;
+            pcpair.second->ReadControllerState(vehicle, vs);
+            pcpair.first->SetControllerState(vs);
+        }
     }
+}
+
+void InputManager::AssignController(GC_Player *player, std::unique_ptr<Controller> &&ctrl)
+{
+    _controllers[player] = std::move(ctrl);
+}
+
+void InputManager::FreeController(GC_Player *player)
+{
+    _controllers.erase(player);
 }
 
 void InputManager::OnProfilesChange()
@@ -31,7 +49,7 @@ void InputManager::OnProfilesChange()
     g_conf.dm_profiles.GetKeyList(keys);
     for( auto it = keys.begin(); it != keys.end(); ++it )
     {
-        _controllers[*it].SetProfile(it->c_str());
+//        _controllers[*it].SetProfile(it->c_str());
     }
 }
 

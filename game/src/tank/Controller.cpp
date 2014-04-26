@@ -26,24 +26,22 @@ static bool IsMousePressed(int button)
 
 
 Controller::Controller()
-  : _lastLightKeyState(false)
+  : _keyForward(0)
+  , _keyBack(0)
+  , _keyLeft(0)
+  , _keyRight(0)
+  , _keyFire(0)
+  , _keyLight(0)
+  , _keyTowerLeft(0)
+  , _keyTowerRight(0)
+  , _keyTowerCenter(0)
+  , _keyPickup(0)
+  , _aimToMouse(false)
+  , _moveToMouse(false)
+  , _arcadeStyle(false)
+  , _lastLightKeyState(false)
   , _lastLightsState(true)
 {
-	_keyForward     = 0;
-	_keyBack        = 0;
-	_keyLeft        = 0;
-	_keyRight       = 0;
-	_keyFire        = 0;
-	_keyLight       = 0;
-	_keyTowerLeft   = 0;
-	_keyTowerRight  = 0;
-	_keyTowerCenter = 0;
-	_keyPickup      = 0;
-
-	_lastLightsState  = true;
-	_aimToMouse       = false;
-	_moveToMouse      = false;
-	_arcadeStyle      = false;
 }
 
 void Controller::SetProfile(const char *profile)

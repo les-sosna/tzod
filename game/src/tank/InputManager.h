@@ -2,21 +2,26 @@
 
 #pragma once
 
-#include "Controller.h"
-
 #include <map>
+#include <memory>
 #include <string>
+
+class GC_Player;
+class Controller;
 
 class InputManager
 {
 public:
 	InputManager();
     ~InputManager();
+    
+    void AssignController(GC_Player *player, std::unique_ptr<Controller> &&ctrl);
+    void FreeController(GC_Player *player);
 
-    void ReadControllerState(const char *profile, const GC_Vehicle *vehicle, VehicleState &vs);
+    void ReadControllerState();
 
 private:
-	std::map<std::string, Controller> _controllers;
+	std::map<GC_Player *, std::unique_ptr<Controller>> _controllers;
 	void OnProfilesChange();
 };
 

@@ -123,8 +123,8 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(   dbg_sleep_rand,         0 )
 
 	// other
-	VAR_STR(   dm_player1,    "Arrows")
-	VAR_STR(   dm_player2,    "WASD")
+	VAR_STR(   dm_player1,      "Arrows" )
+	VAR_STR(   dm_player2,        "WASD" )
 	VAR_TABLE( dm_profiles,       InitProfiles ) // ConfControllerProfile
 	VAR_ARRAY( dm_players,                NULL )
 	VAR_ARRAY( dm_bots,                   NULL )

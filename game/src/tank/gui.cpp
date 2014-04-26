@@ -2,8 +2,10 @@
 
 #include "gui.h"
 
+#include "Controller.h"
 #include "globals.h"
 #include "gui_maplist.h"
+#include "InputManager.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "script.h"
@@ -393,6 +395,10 @@ void NewGameDlg::OnOK()
         player->SetSkin(p.skin.Get());
         player->SetTeam(p.team.GetInt());
         player->UpdateSkin();
+        
+        std::unique_ptr<Controller> ctrl(new Controller());
+        ctrl->SetProfile(p.profile.Get().c_str());
+        _inputMgr.AssignController(player, std::move(ctrl));
     }
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )

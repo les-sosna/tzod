@@ -199,45 +199,10 @@ void Desktop::OnTimeStep(float dt)
 //	if( g_client && (!IsGamePaused() || !g_client->SupportPause()) )
 	{
 		assert(dt >= 0);
-        
 		counterDt.Push(dt);
         
-        //
-        // read controller state for local players
-        //
-        std::vector<VehicleState> ctrl;
-        FOREACH( g_level->GetList(LIST_players), GC_Player, p )
-        {
-            VehicleState vs;
-            if (p->GetIsHuman())
-            {
-                
-            }
-            memset(&vs, 0, sizeof(VehicleState));
-            if( const char *profile = "qqq"/*g_client->GetActiveProfile()*/ )
-            {
-                _inputMgr.ReadControllerState(profile, p->GetVehicle(), vs);
-            }
-//            pl->StepPredicted(vs, dt);
-//            ctrl.push_back(vs);
-        }
-        
-        
-        //
-        // send ctrl
-        //
-        
-        ControlPacket cp;
-        if( ctrl.size() > 0 )
-            cp.fromvs(ctrl[0]);
-#ifdef NETWORK_DEBUG
-        cp.checksum = g_level->GetChecksum();
-        cp.frame = g_level->GetFrame();
-#endif
-        
-        std::vector<ControlPacket> cpv;
-//        cpv.push_back(cp);
-        g_level->Step(cpv, dt);
+        _inputMgr.ReadControllerState();
+        g_level->Step(dt);
 	}
 }
 

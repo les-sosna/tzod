@@ -33,6 +33,9 @@ class GC_Player
 	std::string  _scriptOnRespawn;
 
 	ObjPtr<GC_Vehicle> _vehicle;
+    
+protected:
+	VehicleState _ctrlState;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -62,6 +65,7 @@ protected:
 
 public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
+	void SetControllerState(const VehicleState &vs);
 
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skin; }
@@ -102,28 +106,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_PlayerHuman : public GC_Player
-{
-protected:
-	VehicleState _ctrlState;
-	bool _ready;
-public:
-	GC_PlayerHuman();
-	GC_PlayerHuman(FromFile);
-	virtual ~GC_PlayerHuman() = 0;
-
-	void SetControllerState(const VehicleState &vs);
-
-	bool GetReady() const { return _ready; }
-	void SetReady(bool ready) { _ready = ready; }
-
-	virtual void Serialize(SaveFile &f);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class GC_PlayerLocal
-	: public GC_PlayerHuman
+	: public GC_Player
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 

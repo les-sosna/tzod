@@ -128,7 +128,7 @@ public:
 public:
 	float _time;
 
-	void Step(const std::vector<ControlPacket> &ctrl, float dt);
+	void Step(float dt);
 
 	Field _field;
 

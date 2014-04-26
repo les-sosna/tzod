@@ -708,27 +708,12 @@ void Level::DrawBackground(size_t tex) const
 	v[3].y = _sy;
 }
 
-void Level::Step(const std::vector<ControlPacket> &ctrl, float dt)
+void Level::Step(float dt)
 {
 	_time += dt;
 
 	if( !_frozen )
 	{
-		auto ctrlIt = ctrl.begin();
-		FOREACH( GetList(LIST_players), GC_Player, p )
-		{
-			if( GC_PlayerHuman *ph = dynamic_cast<GC_PlayerHuman *>(p) )
-			{
-				VehicleState vs;
-				ctrlIt->tovs(vs);
-				ph->SetControllerState(vs);
-
-				++ctrlIt;
-			}
-		}
-		assert(ctrlIt == ctrl.end());
-
-
 		_safeMode = false;
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{

@@ -73,12 +73,15 @@ GC_Player::GC_Player()
 
 	// select the default red skin
 	SetSkin("red");
+
+	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_Player::GC_Player(FromFile)
   : GC_Service(FromFile())
   , _memberOf(this)
 {
+	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_Player::~GC_Player()
@@ -88,6 +91,11 @@ GC_Player::~GC_Player()
 size_t GC_Player::GetIndex() const
 {
 	return g_level->GetList(LIST_players).IndexOf(this);
+}
+
+void GC_Player::SetControllerState(const VehicleState &vs)
+{
+	_ctrlState = vs;
 }
 
 void GC_Player::Serialize(SaveFile &f)
@@ -416,35 +424,6 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_PlayerHuman::GC_PlayerHuman()
-	: _ready(false)
-{
-	memset(&_ctrlState, 0, sizeof(_ctrlState));
-}
-
-GC_PlayerHuman::GC_PlayerHuman(FromFile)
-  : GC_Player(FromFile())
-{
-	memset(&_ctrlState, 0, sizeof(_ctrlState));
-}
-
-GC_PlayerHuman::~GC_PlayerHuman()
-{
-}
-
-void GC_PlayerHuman::SetControllerState(const VehicleState &vs)
-{
-	_ctrlState = vs;
-}
-
-void GC_PlayerHuman::Serialize(SaveFile &f)
-{
-	GC_Player::Serialize(f);
-	f.Serialize(_ready);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 {
 	ED_SERVICE("player_local", "obj_service_player_local");
@@ -457,7 +436,7 @@ GC_PlayerLocal::GC_PlayerLocal()
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)
-  : GC_PlayerHuman(FromFile())
+  : GC_Player(FromFile())
 {
 }
 
@@ -467,7 +446,7 @@ GC_PlayerLocal::~GC_PlayerLocal()
 
 void GC_PlayerLocal::TimeStepFixed(float dt)
 {
-	GC_PlayerHuman::TimeStepFixed( dt );
+	GC_Player::TimeStepFixed( dt );
 
 	assert(!_stateHistory.empty());
 	_stateHistory.pop_front();
