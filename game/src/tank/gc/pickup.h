@@ -110,9 +110,6 @@ protected:
 	void OnOwnerMove(GC_Object *sender, void *param);
 	void OnOwnerKill(GC_Object *sender, void *param);
 
-public:
-	virtual const vec2d& GetPosPredicted() const { return GetCarrier() ? GetCarrier()->GetPosPredicted() : GetPos(); }
-
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{

@@ -73,15 +73,12 @@ GC_Player::GC_Player()
 
 	// select the default red skin
 	SetSkin("red");
-
-	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_Player::GC_Player(FromFile)
   : GC_Service(FromFile())
   , _memberOf(this)
 {
-	memset(&_ctrlState, 0, sizeof(_ctrlState));
 }
 
 GC_Player::~GC_Player()
@@ -91,11 +88,6 @@ GC_Player::~GC_Player()
 size_t GC_Player::GetIndex() const
 {
 	return g_level->GetList(LIST_players).IndexOf(this);
-}
-
-void GC_Player::SetControllerState(const VehicleState &vs)
-{
-	_ctrlState = vs;
 }
 
 void GC_Player::Serialize(SaveFile &f)
@@ -259,7 +251,7 @@ void GC_Player::TimeStepFixed(float dt)
 			}
 
 			_vehicle->SetDirection(pBestPoint->GetDirection());
-			_vehicle->GetVisual()->SetDirection(pBestPoint->GetDirection());
+			_vehicle->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetPlayer(this);
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -442,53 +434,6 @@ GC_PlayerLocal::GC_PlayerLocal(FromFile)
 
 GC_PlayerLocal::~GC_PlayerLocal()
 {
-}
-
-void GC_PlayerLocal::TimeStepFixed(float dt)
-{
-	GC_Player::TimeStepFixed( dt );
-
-	assert(!_stateHistory.empty());
-	_stateHistory.pop_front();
-
-	if( GetVehicle() )
-	{
-		GetVehicle()->SetState(_ctrlState);
-		GetVehicle()->TimeStepFixed(dt); // vehicle may die here
-	}
-
-	if( GetVehicle() )
-	{
-		GC_RigidBodyDynamic::PushState();
-		GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, false);
-		GetVehicle()->GetVisual()->Sync(GetVehicle());
-		for( std::deque<VehicleState>::const_iterator it = _stateHistory.begin(); it != _stateHistory.end(); ++it )
-		{
-			GetVehicle()->SetPredictedState(*it);
-			GetVehicle()->GetVisual()->TimeStepFixed(dt);
-			GC_RigidBodyDynamic::ProcessResponse(dt);
-		}
-		GetVehicle()->GetVisual()->SetFlags(GC_FLAG_VEHICLEDUMMY_TRACKS, true);
-		GC_RigidBodyDynamic::PopState();
-	}
-}
-
-void GC_PlayerLocal::StepPredicted(VehicleState &vs, float dt)
-{
-	VehicleState vs1;
-	ControlPacket cp;
-	cp.fromvs(vs);
-	cp.tovs(vs1);
-	_stateHistory.push_back(vs1);
-
-	if( GetVehicle() )
-	{
-		GC_RigidBodyDynamic::PushState();
-		GetVehicle()->SetPredictedState(vs1);
-		GetVehicle()->GetVisual()->TimeStepFixed(dt);
-		GC_RigidBodyDynamic::ProcessResponse(dt);
-		GC_RigidBodyDynamic::PopState();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

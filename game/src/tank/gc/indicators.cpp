@@ -187,14 +187,8 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 
 	_object = object;
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_IndicatorBar::OnParentKill);
-
-	GC_2dSprite *sprite = object;
-	if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle *>(object) )
-	{
-		sprite = veh->GetVisual();
-	}
-	sprite->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition);
-	OnUpdatePosition(sprite, NULL);
+	_object->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition);
+	OnUpdatePosition(object, NULL);
 }
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
@@ -238,7 +232,7 @@ void GC_IndicatorBar::Draw(bool editorMode) const
 		if( CheckFlags(GC_FLAG_INDICATOR_INVERSE) )
 			val = max_val - val;
 
-		vec2d pos = GetPosPredicted();
+		vec2d pos = GetPos();
 		g_texman->DrawIndicator(GetTexture(), pos.x, pos.y, val / max_val);
 	}
 }
@@ -249,7 +243,7 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 	ASSERT_TYPE(sender, GC_2dSprite);
 	GC_2dSprite *sprite = static_cast<GC_2dSprite *>(sender);
 
-	vec2d pos = sprite->GetPosPredicted();
+	vec2d pos = sprite->GetPos();
 	FRECT rt;
 	sprite->GetLocalRect(rt);
 	float top = pos.y + rt.top;
@@ -279,7 +273,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-GC_DamLabel::GC_DamLabel(GC_VehicleVisualDummy *veh)
+GC_DamLabel::GC_DamLabel(GC_Vehicle *veh)
   : GC_2dSprite()
   , _phase(frand(PI2))
   , _time(0)

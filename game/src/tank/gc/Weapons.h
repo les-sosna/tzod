@@ -34,8 +34,6 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 
-	vec2d _directionReal;
-
 protected:
 	ObjPtr<GC_2dSprite> _fireEffect;
 	ObjPtr<GC_Light>    _fireLight;
@@ -49,15 +47,13 @@ public:
 	inline  bool GetAdvanced()              { return _advanced;     }
 
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
-	const vec2d& GetDirectionReal() const { return _directionReal; }
-
 
 public:
 	float _time;
 	float _timeStay;
 	float _timeReload;
 
-	float    _angleReal;          // note that sprite rotation is predicted angle
+	float    _angle;
 	Rotator  _rotatorWeap;
 
 	ObjPtr<GC_Sound>     _rotateSound;

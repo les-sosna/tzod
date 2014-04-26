@@ -102,8 +102,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_VehicleVisualDummy;
-
 class GC_DamLabel : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_DamLabel);
@@ -114,12 +112,11 @@ private:
 	float _time_life;
 
 public:
-	GC_DamLabel(GC_VehicleVisualDummy *parent);
+	GC_DamLabel(GC_Vehicle *parent);
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
 
 	virtual void Serialize(SaveFile &f);
-
 	virtual void TimeStepFloat(float dt);
 
 	void Reset();

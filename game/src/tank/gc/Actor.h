@@ -45,7 +45,6 @@ protected:
 
 public:
 	const vec2d& GetPos() const { return _pos; }
-	virtual const vec2d& GetPosPredicted() const { return _pos; }
 
 	GC_Actor();
 	GC_Actor(FromFile);

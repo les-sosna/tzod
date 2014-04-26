@@ -737,7 +737,7 @@ void GC_FireSpark::Serialize(SaveFile &f)
 
 void GC_FireSpark::Draw(bool editorMode) const
 {
-	vec2d pos = GetPosPredicted();
+	vec2d pos = GetPos();
 	float r = GetRadius();
 	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
 }
@@ -833,11 +833,6 @@ void GC_FireSpark::TimeStepFixed(float dt)
 	{
 		FOREACH_SAFE(**it1, GC_RigidBodyStatic, object)
 		{
-			if( object->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
-			{
-				continue;
-			}
-
 			vec2d dist = GetPos() - object->GetPos();
 			float destLen = dist.len();
 

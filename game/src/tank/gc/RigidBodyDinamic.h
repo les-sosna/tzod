@@ -79,8 +79,6 @@ public:
 	static void PopState();
 
 	float Energy() const;
-	void Sync(GC_RigidBodyDynamic *src);
-
 
 	float _av;      // angular velocity
 	vec2d _lv;      // linear velocity
@@ -142,11 +140,6 @@ public:
 		return GC_RigidBodyStatic::checksum() ^ cs;
 	}
 #endif
-
-
-protected:
-	virtual bool Ignore(GC_RigidBodyStatic *test) const { return false; }
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@ void InputManager::ReadControllerState()
         {
             VehicleState vs;
             pcpair.second->ReadControllerState(vehicle, vs);
-            pcpair.first->SetControllerState(vs);
+            vehicle->SetControllerState(vs);
         }
     }
 }

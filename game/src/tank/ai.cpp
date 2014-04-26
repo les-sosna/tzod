@@ -568,7 +568,7 @@ void AIController::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, cons
 	{
 		tmp.Normalize();
 		tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
-		float cosDiff = tmp * vehicle.GetWeapon()->GetDirectionReal();
+		float cosDiff = tmp * vehicle.GetWeapon()->GetDirection();
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
 		pState->_fTowerAngle = Vec2dSubDirection(tmp, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();

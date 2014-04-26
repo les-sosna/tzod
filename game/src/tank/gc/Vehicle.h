@@ -45,12 +45,17 @@ struct VehicleClass
 #define GC_FLAG_VEHICLEBASE_          (GC_FLAG_RBDYMAMIC_ << 0)
 
 
-class GC_VehicleBase : public GC_RigidBodyDynamic
+class GC_Vehicle : public GC_RigidBodyDynamic
 {
+	MemberOfGlobalList<LIST_vehicles> _memberOf;
+
+	ObjPtr<GC_Weapon>   _weapon;
+	ObjPtr<GC_Player>   _player;
+
 public:
-	GC_VehicleBase();
-	GC_VehicleBase(FromFile);
-	virtual ~GC_VehicleBase();
+	GC_Vehicle(float x, float y);
+	GC_Vehicle(FromFile);
+	virtual ~GC_Vehicle();
 
 	void SetClass(const VehicleClass &vc); // apply vehicle class
 	void SetMaxHP(float hp);
@@ -60,48 +65,40 @@ public:
 	float _maxRotSpeed;
 	float _maxLinSpeed;
 
-	// GC_Object
-	virtual void Serialize(SaveFile &f);
-
 protected:
 	void ApplyState(const VehicleState &vs);
-};
 
-// forward declaration
-class GC_VehicleVisualDummy;
-
-class GC_Vehicle : public GC_VehicleBase
-{
-	MemberOfGlobalList<LIST_vehicles> _memberOf;
-
-	ObjPtr<GC_Weapon>   _weapon;
-	ObjPtr<GC_Player>   _player;
-
-protected:
-	ObjPtr<GC_VehicleVisualDummy> _visual;
 
 public:
-	VehicleState _stateReal;
-	VehicleState _statePredicted;
+	VehicleState _state;
 
 	float GetMaxSpeed() const;
 	float GetMaxBrakingLength() const;
+
+	void SetMoveSound(enumSoundTemplate s);
 
 	GC_Weapon* GetWeapon() const { return _weapon; }
 
 	void SetPlayer(GC_Player *player);
 
 public:
-	GC_Vehicle(float x, float y);
-	GC_Vehicle(FromFile);
-	virtual ~GC_Vehicle();
+	ObjPtr<GC_Sound>    _moveSound;
+	ObjPtr<GC_DamLabel> _damLabel;
+    
+	ObjPtr<GC_Light>    _light_ambient;
+	ObjPtr<GC_Light>    _light1;
+	ObjPtr<GC_Light>    _light2;
+    
+	float _trackDensity;
+	float _trackPathL;
+	float _trackPathR;
+	float _time_smoke;
+    
+	void UpdateLight();
 
 	void ResetClass();
 	void SetSkin(const std::string &skin);
-	void SetState(const VehicleState &vs);
-	void SetPredictedState(const VehicleState &vs);
-	const VehicleState& GetPredictedState() const { return _statePredicted; }
-	GC_VehicleVisualDummy* GetVisual() const { return _visual; }
+	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
 	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
@@ -109,18 +106,16 @@ public:
 	virtual GC_Player* GetOwner() const { return _player; }
 
 	// GC_Actor
-	virtual const vec2d& GetPosPredicted() const;
 	virtual void OnPickup(GC_Pickup *pickup, bool attached);
 
 	// GC_2dSprite
-#ifndef NDEBUG
 	virtual void Draw(bool editorMode) const;
-#endif
 
 	// GC_Object
 	virtual void Kill();
 	virtual void Serialize(SaveFile &f);
 	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFloat(float dt);
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const
@@ -130,68 +125,6 @@ public:
 		return GC_RigidBodyDynamic::checksum() ^ cs;
 	}
 #endif
-
-protected:
-	virtual bool Ignore(GC_RigidBodyStatic *test) const;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-#define GC_FLAG_VEHICLEDUMMY_TRACKS      (GC_FLAG_VEHICLEBASE_ << 0)
-#define GC_FLAG_VEHICLEDUMMY_            (GC_FLAG_VEHICLEBASE_ << 1)
-
-
-class GC_VehicleVisualDummy : public GC_VehicleBase
-{
-	DECLARE_SELF_REGISTRATION(GC_VehicleVisualDummy);
-
-public:
-	GC_VehicleVisualDummy(GC_Vehicle *parent);
-	GC_VehicleVisualDummy(FromFile);
-	virtual ~GC_VehicleVisualDummy();
-
-	void SetMoveSound(enumSoundTemplate s);
-
-	// GC_RigidBodyStatic
-	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
-	virtual float GetDefaultHealth() const { return 1; }
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
-
-	// GC_2dSprite
-	virtual void Draw(bool editorMode) const;
-
-	// GC_Object
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFixed(float dt);
-	virtual void TimeStepFloat(float dt);
-#ifdef NETWORK_DEBUG
-public:
-	virtual DWORD checksum(void) const
-	{
-		return 0;
-	}
-#endif
-
-protected:
-	virtual bool Ignore(GC_RigidBodyStatic *test) const { return _parent == test; }
-
-protected:
-	ObjPtr<GC_Vehicle>  _parent;
-	ObjPtr<GC_Sound>    _moveSound;
-	ObjPtr<GC_DamLabel> _damLabel;
-
-	ObjPtr<GC_Light>    _light_ambient;
-	ObjPtr<GC_Light>    _light1;
-	ObjPtr<GC_Light>    _light2;
-
-	float _trackDensity;
-	float _trackPathL;
-	float _trackPathR;
-	float _time_smoke;
-
-	void UpdateLight();
-
-	void OnDamageParent(GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////

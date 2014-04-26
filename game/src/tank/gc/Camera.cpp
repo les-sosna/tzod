@@ -41,8 +41,8 @@ GC_Camera::GC_Camera(GC_Player *player)
 	MoveTo( vec2d(g_level->_sx / 2, g_level->_sy / 2) );
 	if( _player->GetVehicle() )
 	{
-		_rotatorAngle =  -_player->GetVehicle()->GetVisual()->GetDirection().Angle() + PI/2;
-		MoveTo( _player->GetVehicle()->GetPosPredicted() );
+		_rotatorAngle =  -_player->GetVehicle()->GetDirection().Angle() + PI/2;
+		MoveTo( _player->GetVehicle()->GetPos() );
 	}
 	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
@@ -75,14 +75,14 @@ void GC_Camera::TimeStepFloat(float dt)
 	_rotator.process_dt(dt);
 	if( _player->GetVehicle() )
 	{
-		_rotator.rotate_to(-_player->GetVehicle()->GetVisual()->GetDirection().Angle() - PI/2);
+		_rotator.rotate_to(-_player->GetVehicle()->GetDirection().Angle() - PI/2);
 
-		mu += _player->GetVehicle()->GetVisual()->_lv.len() / 100;
+		mu += _player->GetVehicle()->_lv.len() / 100;
 
 		int dx = (int) std::max(.0f, ((float) WIDTH(_viewport) / _zoom  - g_level->_sx) / 2);
 		int dy = (int) std::max(.0f, ((float) HEIGHT(_viewport) / _zoom - g_level->_sy) / 2);
 
-		vec2d r = _player->GetVehicle()->GetPosPredicted() + _player->GetVehicle()->GetVisual()->_lv / mu;
+		vec2d r = _player->GetVehicle()->GetPos() + _player->GetVehicle()->_lv / mu;
 
 		if( _player->GetVehicle()->GetWeapon() )
 		{
@@ -90,7 +90,7 @@ void GC_Camera::TimeStepFloat(float dt)
 		}
 		else
 		{
-			r += _player->GetVehicle()->GetVisual()->GetDirection() * 130.0f;
+			r += _player->GetVehicle()->GetDirection() * 130.0f;
 		}
 
 		_target.x = r.x + (float) dx;

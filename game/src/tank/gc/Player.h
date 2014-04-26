@@ -8,7 +8,6 @@
 #include <deque>
 
 
-struct VehicleState;
 class GC_Vehicle;
 
 
@@ -33,9 +32,6 @@ class GC_Player
 	std::string  _scriptOnRespawn;
 
 	ObjPtr<GC_Vehicle> _vehicle;
-    
-protected:
-	VehicleState _ctrlState;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -65,7 +61,6 @@ protected:
 
 public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
-	void SetControllerState(const VehicleState &vs);
 
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skin; }
@@ -111,16 +106,10 @@ class GC_PlayerLocal
 {
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
-	std::deque<VehicleState> _stateHistory;
-
 public:
 	GC_PlayerLocal();
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
-
-	void StepPredicted(VehicleState &vs, float dt);
-
-	virtual void TimeStepFixed(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

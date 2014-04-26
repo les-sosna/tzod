@@ -318,7 +318,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 		for( ; it != (*rit)->end(); ++it )
 		{
 			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it);
-			if( this == object || Ignore(object) )
+			if( this == object )
 			{
 				continue;
 			}
@@ -399,11 +399,7 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				it->total_np += a;
 
 				float nd = it->total_np/60;
-
-				bool o1 = !it->obj1_d->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM);
-				bool o2 = !it->obj2_s->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM);
-
-				if( nd > 3 && o1 && o2 )
+				if( nd > 3 )
 				{
 					// store some data since obj1 may die
 					GC_Player *owner1 = it->obj1_d->GetOwner();
@@ -424,13 +420,10 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 				if( !it->obj1_d || !it->obj2_s )
 					a *= 0.1f;
 
-				// phantom may not affect real objects but it may affect other phantoms
 				vec2d delta_p = it->n * (a + it->depth);
-
-				if( it->obj1_d && ((!o1 && !o2) || o2) )
+				if( it->obj1_d )
 					it->obj1_d->impulse(it->o, delta_p);
-
-				if( it->obj2_s && it->obj2_d && ((!o1 && !o2) || o1) ) 
+				if( it->obj2_s && it->obj2_d )
 					it->obj2_d->impulse(it->o, -delta_p);
 
 
@@ -528,31 +521,6 @@ float GC_RigidBodyDynamic::Energy() const
 	if( _inv_i != 0 ) e  = _av*_av / _inv_i;
 	if( _inv_m != 0 ) e += _lv.sqr() / _inv_m;
 	return e;
-}
-
-void GC_RigidBodyDynamic::Sync(GC_RigidBodyDynamic *src)
-{
-//	GC_RigidBodyStatic::Sync(src);
-
-	MoveTo(src->GetPos());
-	SetDirection(src->GetDirection());
-
-	_av = src->_av;
-	_lv = src->_lv;
-//	_inv_m = _inv_m;
-//	_inv_i = _inv_i;
-	_Nx = src->_Nx;
-	_Ny = src->_Ny;
-	_Nw = src->_Nw;
-	_Mx = src->_Mx;
-	_My = src->_My;
-	_Mw = src->_Mw;
-	_percussion = 0;//src->_percussion;
-	_fragility = 0;//src->_fragility;
-	_external_force = src->_external_force;
-	_external_momentum = src->_external_momentum;
-	_external_impulse = src->_external_impulse;
-	_external_torque = src->_external_torque;
 }
 
 // end of file

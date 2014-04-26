@@ -1250,7 +1250,7 @@ void GC_Water::Draw(bool editorMode) const
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
 	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
 
-	vec2d pos = GetPosPredicted();
+	vec2d pos = GetPos();
 
 	for( int i = 0; i < 8; ++i )
 	{

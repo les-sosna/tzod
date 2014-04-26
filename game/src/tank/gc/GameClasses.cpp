@@ -103,7 +103,7 @@ void GC_Wood::Draw(bool editorMode) const
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
 	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
 
-	vec2d pos = GetPosPredicted();
+	vec2d pos = GetPos();
 
 	if( !editorMode )
 	{
@@ -325,11 +325,6 @@ void GC_Explosion::Boom(float radius, float damage)
 	{
 		FOREACH_SAFE(**it, GC_RigidBodyStatic, pDamObject)
 		{
-			if( pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
-			{
-				continue;
-			}
-
 			vec2d dir = pDamObject->GetPos() - GetPos();
 			float d = dir.len();
 
@@ -361,10 +356,7 @@ void GC_Explosion::Boom(float radius, float damage)
 							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
 					}
-					if( !pDamObject->CheckFlags(GC_FLAG_RBSTATIC_PHANTOM) )
-					{
-						pDamObject->TakeDamage(dam, GetPos(), _owner);
-					}
+                    pDamObject->TakeDamage(dam, GetPos(), _owner);
 				}
 			}
 		}
@@ -630,7 +622,7 @@ void GC_Text::Serialize(SaveFile &f)
 
 void GC_Text::Draw(bool editorMode) const
 {
-	vec2d pos = GetPosPredicted();
+	vec2d pos = GetPos();
 	g_texman->DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
 }
 

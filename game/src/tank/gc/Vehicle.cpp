@@ -40,57 +40,95 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_VehicleVisualDummy)
+void GC_Vehicle::TimeStepFloat(float dt)
 {
-	return true;
+	static const TextureCache smoke("particle_smoke");
+
+	//
+	// spawn damage smoke
+	//
+	if( GetHealth() < (GetHealthMax() * 0.4f) )
+	{
+		assert(GetHealth() > 0);
+		                    //    +-{ particles per second }
+		_time_smoke += dt;  //    |
+		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
+		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
+		{
+			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
+		}
+	}
+
+
+	GC_RigidBodyDynamic::TimeStepFloat(dt);
 }
 
-GC_VehicleVisualDummy::GC_VehicleVisualDummy(GC_Vehicle *parent)
-  : GC_VehicleBase()
-  , _parent(parent)
+void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
+{
+	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
+}
+
+void GC_Vehicle::UpdateLight()
+{
+	static const vec2d delta1(0.6f);
+	static const vec2d delta2(-0.6f);
+	_light1->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
+	_light1->SetLightDirection(GetDirection());
+	_light1->SetActive(_state._bLight);
+	_light2->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
+	_light2->SetLightDirection(GetDirection());
+	_light2->SetActive(_state._bLight);
+	_light_ambient->MoveTo(GetPos());
+	_light_ambient->SetActive(_state._bLight);
+}
+
+GC_Vehicle::GC_Vehicle(float x, float y)
+  : GC_RigidBodyDynamic()
+  , _memberOf(this)
+  , _enginePower(0)
+  , _rotatePower(0)
+  , _maxRotSpeed(0)
+  , _maxLinSpeed(0)
   , _trackDensity(8)
   , _trackPathL(0)
   , _trackPathR(0)
   , _time_smoke(0)
 {
-	SetFlags(GC_FLAG_RBSTATIC_PHANTOM|GC_FLAG_VEHICLEDUMMY_TRACKS, true);
+	memset(&_state, 0, sizeof(VehicleState));
+	MoveTo(vec2d(x, y));
+	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(Z_VEHICLES);
 	SetShadow(true);
-
-	_parent->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_VehicleVisualDummy::OnDamageParent);
-
+    
 	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
-
+    
 	_light1 = new GC_Light(GC_Light::LIGHT_SPOT);
 	_light2 = new GC_Light(GC_Light::LIGHT_SPOT);
-
+    
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
-
+    
 	_light1->SetIntensity(0.9f);
 	_light2->SetIntensity(0.9f);
-
+    
 	_light1->SetOffset(290);
 	_light2->SetOffset(290);
-
+    
 	_light1->SetAspect(0.4f);
 	_light2->SetAspect(0.4f);
 
-	// time step fixed is called by player
-//	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-
-	MoveTo(_parent->GetPos());
 	UpdateLight();
 }
 
-GC_VehicleVisualDummy::GC_VehicleVisualDummy(FromFile)
-  : GC_VehicleBase(FromFile())
+GC_Vehicle::GC_Vehicle(FromFile)
+  : GC_RigidBodyDynamic(FromFile())
+  , _memberOf(this)
 {
 }
 
-GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
+GC_Vehicle::~GC_Vehicle()
 {
 	SAFE_KILL(_damLabel);
 	SAFE_KILL(_moveSound);
@@ -99,181 +137,7 @@ GC_VehicleVisualDummy::~GC_VehicleVisualDummy()
 	SAFE_KILL(_light2);
 }
 
-bool GC_VehicleVisualDummy::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
-{
-	assert(false);
-	return false;
-}
-
-void GC_VehicleVisualDummy::Serialize(SaveFile &f)
-{
-	GC_VehicleBase::Serialize(f);
-
-	f.Serialize(_time_smoke);
-	f.Serialize(_trackDensity);
-	f.Serialize(_trackPathL);
-	f.Serialize(_trackPathR);
-	f.Serialize(_damLabel);
-	f.Serialize(_light_ambient);
-	f.Serialize(_light1);
-	f.Serialize(_light2);
-	f.Serialize(_moveSound);
-	f.Serialize(_parent);
-}
-
-void GC_VehicleVisualDummy::Draw(bool editorMode) const
-{
-	GC_VehicleBase::Draw(editorMode);
-
-	if( g_conf.g_shownames.Get() && _parent->GetOwner() )
-	{
-		const vec2d &pos = GetPosPredicted();
-		static TextureCache f("font_small");
-		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
-			f.GetTexture(), 0x7f7f7f7f, _parent->GetOwner()->GetNick(), alignTextCT);
-	}
-}
-
-void GC_VehicleVisualDummy::TimeStepFixed(float dt)
-{
-	static const TextureCache track("cat_track");
-
-	if( _moveSound )
-	{
-		_moveSound->MoveTo(GetPos());
-		float v = _lv.len() / _parent->GetMaxSpeed();
-		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
-		_moveSound->SetVolume(std::min(1.0f, 0.9f + 0.1f * v));
-	}
-
-
-	//
-	// remember position
-	//
-
-	vec2d trackTmp(GetDirection().y, -GetDirection().x);
-	vec2d trackL = GetPos() + trackTmp*15;
-	vec2d trackR = GetPos() - trackTmp*15;
-
-
-	// move
-	GC_VehicleBase::TimeStepFixed( dt );
-
-	ApplyState(_parent->GetPredictedState());
-
-
-	//
-	// caterpillar tracks
-	//
-
-	if( CheckFlags(GC_FLAG_VEHICLEDUMMY_TRACKS) )
-	{
-		vec2d tmp(GetDirection().y, -GetDirection().x);
-		vec2d trackL_new = GetPos() + tmp*15;
-		vec2d trackR_new = GetPos() - tmp*15;
-
-		vec2d e = trackL_new - trackL;
-		float len = e.len();
-		e /= len;
-		while( _trackPathL < len )
-		{
-			GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
-			p->SetZ(Z_WATER);
-			p->SetFade(true);
-			_trackPathL += _trackDensity;
-		}
-		_trackPathL -= len;
-
-		e   = trackR_new - trackR;
-		len = e.len();
-		e  /= len;
-		while( _trackPathR < len )
-		{
-			GC_Particle *p = new GC_Particle(trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
-			p->SetZ(Z_WATER);
-			p->SetFade(true);
-			_trackPathR += _trackDensity;
-		}
-		_trackPathR -= len;
-	}
-
-	UpdateLight();
-}
-
-void GC_VehicleVisualDummy::TimeStepFloat(float dt)
-{
-	static const TextureCache smoke("particle_smoke");
-
-	//
-	// spawn damage smoke
-	//
-	if( _parent->GetHealth() < (_parent->GetHealthMax() * 0.4f) )
-	{
-		assert(_parent->GetHealth() > 0);
-		                    //    +-{ particles per second }
-		_time_smoke += dt;  //    |
-		float smoke_dt = 1.0f / (60.0f * (1.0f - _parent->GetHealth() / (_parent->GetHealthMax() * 0.5f)));
-		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
-		{
-			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
-		}
-	}
-
-
-	GC_VehicleBase::TimeStepFloat(dt);
-}
-
-void GC_VehicleVisualDummy::SetMoveSound(enumSoundTemplate s)
-{
-	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
-}
-
-void GC_VehicleVisualDummy::UpdateLight()
-{
-	static const vec2d delta1(0.6f);
-	static const vec2d delta2(-0.6f);
-	_light1->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
-	_light1->SetLightDirection(GetDirection());
-	_light1->SetActive(_parent->GetPredictedState()._bLight);
-	_light2->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
-	_light2->SetLightDirection(GetDirection());
-	_light2->SetActive(_parent->GetPredictedState()._bLight);
-	_light_ambient->MoveTo(GetPos());
-	_light_ambient->SetActive(_parent->GetPredictedState()._bLight);
-}
-
-void GC_VehicleVisualDummy::OnDamageParent(GC_Object *sender, void *param)
-{
-	if( g_conf.g_showdamage.Get() )
-	{
-		if( _damLabel )
-			_damLabel->Reset();
-		else
-			_damLabel = new GC_DamLabel(this);
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-GC_VehicleBase::GC_VehicleBase()
-  : GC_RigidBodyDynamic()
-  , _enginePower(0)
-  , _rotatePower(0)
-  , _maxRotSpeed(0)
-  , _maxLinSpeed(0)
-{
-}
-
-GC_VehicleBase::GC_VehicleBase(FromFile)
-  : GC_RigidBodyDynamic(FromFile())
-{
-}
-
-GC_VehicleBase::~GC_VehicleBase()
-{
-}
-
-void GC_VehicleBase::SetClass(const VehicleClass &vc)
+void GC_Vehicle::SetClass(const VehicleClass &vc)
 {
 	for( int i = 0; i < 4; i++ )
 	{
@@ -303,12 +167,12 @@ void GC_VehicleBase::SetClass(const VehicleClass &vc)
 	SetMaxHP(vc.health);
 }
 
-void GC_VehicleBase::SetMaxHP(float hp)
+void GC_Vehicle::SetMaxHP(float hp)
 {
 	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
 }
 
-void GC_VehicleBase::Serialize(SaveFile &f)
+void GC_Vehicle::Serialize(SaveFile &f)
 {
 	GC_RigidBodyDynamic::Serialize(f);
 
@@ -316,9 +180,21 @@ void GC_VehicleBase::Serialize(SaveFile &f)
 	f.Serialize(_rotatePower);
 	f.Serialize(_maxRotSpeed);
 	f.Serialize(_maxLinSpeed);
+	f.Serialize(_state);
+	f.Serialize(_player);
+	f.Serialize(_weapon);
+	f.Serialize(_time_smoke);
+	f.Serialize(_trackDensity);
+	f.Serialize(_trackPathL);
+	f.Serialize(_trackPathR);
+	f.Serialize(_damLabel);
+	f.Serialize(_light_ambient);
+	f.Serialize(_light1);
+	f.Serialize(_light2);
+	f.Serialize(_moveSound);
 }
 
-void GC_VehicleBase::ApplyState(const VehicleState &vs)
+void GC_Vehicle::ApplyState(const VehicleState &vs)
 {
 	//
 	// adjust speed
@@ -349,34 +225,6 @@ void GC_VehicleBase::ApplyState(const VehicleState &vs)
 		else if( vs._bState_RotateRight && _av < _maxRotSpeed )
 			ApplyMomentum(  _rotatePower / _inv_i );
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-GC_Vehicle::GC_Vehicle(float x, float y)
-  : GC_VehicleBase()
-  , _memberOf(this)
-{
-	memset(&_stateReal, 0, sizeof(VehicleState));
-
-	MoveTo(vec2d(x, y));
-
-	_visual = new GC_VehicleVisualDummy(this);
-
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-#ifdef _DEBUG
-	SetZ(Z_VEHICLES);
-#endif
-}
-
-GC_Vehicle::GC_Vehicle(FromFile)
-  : GC_VehicleBase(FromFile())
-  , _memberOf(this)
-{
-}
-
-GC_Vehicle::~GC_Vehicle()
-{
 }
 
 float GC_Vehicle::GetMaxSpeed() const
@@ -419,20 +267,8 @@ void GC_Vehicle::SetPlayer(GC_Player *player)
 	SetEvents(0);
 }
 
-void GC_Vehicle::Serialize(SaveFile &f)
-{
-	GC_VehicleBase::Serialize(f);
-	f.Serialize(_stateReal);
-	f.Serialize(_statePredicted);
-	f.Serialize(_player);
-	f.Serialize(_weapon);
-	f.Serialize(_visual);
-}
-
 void GC_Vehicle::Kill()
 {
-	SAFE_KILL(_visual);
-
 	if( _weapon )
 	{
 		_weapon->SetRespawn(true);
@@ -441,17 +277,12 @@ void GC_Vehicle::Kill()
 
 	_player = NULL;
 
-	GC_VehicleBase::Kill();
-}
-
-const vec2d& GC_Vehicle::GetPosPredicted() const
-{
-	return _visual->GetPos();
+	GC_RigidBodyDynamic::Kill();
 }
 
 void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 {
-	GC_VehicleBase::OnPickup(pickup, attached);
+	GC_RigidBodyDynamic::OnPickup(pickup, attached);
 	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
 	{
 		if( attached )
@@ -493,7 +324,6 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 			}
 
 			SetClass(vc);
-			_visual->SetClass(vc);
 		}
 		else
 		{
@@ -505,21 +335,16 @@ void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
 	}
 }
 
-void GC_Vehicle::SetState(const VehicleState &vs)
+void GC_Vehicle::SetControllerState(const VehicleState &vs)
 {
-	_stateReal = vs;
-}
-
-void GC_Vehicle::SetPredictedState(const VehicleState &vs)
-{
-	_statePredicted = vs;
+	_state = vs;
 }
 
 void GC_Vehicle::SetSkin(const std::string &skin)
 {
 	std::string tmp = "skin/";
 	tmp += skin;
-	_visual->SetTexture(tmp.c_str());
+	SetTexture(tmp.c_str());
 }
 
 void GC_Vehicle::ResetClass()
@@ -548,8 +373,6 @@ void GC_Vehicle::ResetClass()
 	}
 
 	SetClass(vc);
-	if( _visual )
-		_visual->SetClass(vc);
 }
 
 bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
@@ -564,6 +387,15 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	{
 		return false;
 	}
+    
+	if( g_conf.g_showdamage.Get() )
+	{
+		if( _damLabel )
+			_damLabel->Reset();
+		else
+			_damLabel = new GC_DamLabel(this);
+	}
+    
 	SetHealthCur(GetHealth() - dd.damage);
 	{
 		ObjPtr<GC_Object> watch(this); // this may be killed during script execution
@@ -654,34 +486,105 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 	return false;
 }
 
-#ifndef NDEBUG
 void GC_Vehicle::Draw(bool editorMode) const
 {
-//	GC_VehicleBase::Draw();
+	GC_RigidBodyDynamic::Draw(editorMode);
+    
+	if( g_conf.g_shownames.Get() && GetOwner() )
+	{
+		const vec2d &pos = GetPos();
+		static TextureCache f("font_small");
+		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
+                                 f.GetTexture(), 0x7f7f7f7f, GetOwner()->GetNick(), alignTextCT);
+	}
+
+#ifndef NDEBUG
 	for( int i = 0; i < 4; ++i )
 	{
 		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
 	}
-}
 #endif // NDEBUG
+}
 
 void GC_Vehicle::TimeStepFixed(float dt)
 {
 	ObjPtr<GC_Vehicle> watch(this);
+
 	// move...
-	GC_VehicleBase::TimeStepFixed( dt );
-	if( !watch ) return;
+
+	static const TextureCache track("cat_track");
+    
+	if( _moveSound )
+	{
+		_moveSound->MoveTo(GetPos());
+		float v = _lv.len() / GetMaxSpeed();
+		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
+		_moveSound->SetVolume(std::min(1.0f, 0.9f + 0.1f * v));
+	}
+    
+    
+	//
+	// remember position
+	//
+    
+	vec2d trackTmp(GetDirection().y, -GetDirection().x);
+	vec2d trackL = GetPos() + trackTmp*15;
+	vec2d trackR = GetPos() - trackTmp*15;
+    
+    
+	// move
+	GC_RigidBodyDynamic::TimeStepFixed( dt );
+    
+	ApplyState(_state);
+    
+    
+	//
+	// caterpillar tracks
+	//
+    
+    vec2d tmp(GetDirection().y, -GetDirection().x);
+    vec2d trackL_new = GetPos() + tmp*15;
+    vec2d trackR_new = GetPos() - tmp*15;
+    
+    vec2d e = trackL_new - trackL;
+    float len = e.len();
+    e /= len;
+    while( _trackPathL < len )
+    {
+        GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
+        p->SetZ(Z_WATER);
+        p->SetFade(true);
+        _trackPathL += _trackDensity;
+    }
+    _trackPathL -= len;
+    
+    e   = trackR_new - trackR;
+    len = e.len();
+    e  /= len;
+    while( _trackPathR < len )
+    {
+        GC_Particle *p = new GC_Particle(trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
+        p->SetZ(Z_WATER);
+        p->SetFade(true);
+        _trackPathR += _trackDensity;
+    }
+    _trackPathR -= len;
+    
+	UpdateLight();
+    
+    
+    if( !watch ) return;
 
 
 	// fire...
-	if( _weapon && _stateReal._bState_Fire )
+	if( _weapon && _state._bState_Fire )
 	{
 		_weapon->Fire();
 		if( !watch ) return;
 	}
 
 
-	ApplyState(_stateReal);
+	ApplyState(_state);
 
 
 	//
@@ -692,11 +595,6 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	{
 		if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
 	}
-}
-
-bool GC_Vehicle::Ignore(GC_RigidBodyStatic *test) const
-{
-	return _visual == test;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -713,7 +611,7 @@ GC_Tank_Light::GC_Tank_Light(float x, float y)
 //	_MaxBackSpeed = 150;
 //	_MaxForvSpeed = 200;
 
-	_visual->SetMoveSound(SND_TankMove);
+	SetMoveSound(SND_TankMove);
 	SetSkin("red");
 	SetSize(37, 37.5f);
 

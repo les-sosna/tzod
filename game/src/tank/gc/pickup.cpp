@@ -94,7 +94,7 @@ GC_Actor* GC_Pickup::FindNewOwner() const
 	{
 		if( (GetPos() - veh->GetPos()).sqr() < r_sq )
 		{
-			if( GetAutoSwitch() || veh->_stateReal._bState_AllowDrop )
+			if( GetAutoSwitch() || veh->_state._bState_AllowDrop )
 				return veh;
 		}
 	}
@@ -359,7 +359,7 @@ GC_Actor* GC_pu_Health::FindNewOwner() const
 {
 	GC_Vehicle *vehicle = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
 
-	if( vehicle && !vehicle->_stateReal._bState_AllowDrop &&
+	if( vehicle && !vehicle->_state._bState_AllowDrop &&
 		vehicle->GetHealth() >= vehicle->GetHealthMax() )
 			return NULL;
 
@@ -641,7 +641,7 @@ void GC_pu_Shock::TimeStepFixed(float dt)
 					SetGridSet(false);
 					SetZ(Z_FREE_ITEM);
 
-					_targetPosPredicted = pNearTarget->GetPosPredicted();
+					_targetPosPredicted = pNearTarget->GetPos();
 
 					_light = new GC_Light(GC_Light::LIGHT_DIRECT);
 					_light->MoveTo(GetPos());
@@ -686,7 +686,7 @@ void GC_pu_Shock::Draw(bool editorMode) const
 		static TextureCache t("lightning");
 		SpriteColor c;
 		c.r = c.g = c.b = c.a = int((1.0f - ((GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
-		const vec2d &pos = GetPosPredicted();
+		const vec2d &pos = GetPos();
 		g_texman->DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPosPredicted.x, _targetPosPredicted.y, frand(1));
 	}
 }
@@ -786,7 +786,7 @@ void GC_pu_Booster::Detach()
 GC_Actor* GC_pu_Booster::FindNewOwner() const
 {
 	GC_Vehicle *veh = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner());
-	if( veh && !veh->_stateReal._bState_AllowDrop && !veh->GetWeapon() )
+	if( veh && !veh->_state._bState_AllowDrop && !veh->GetWeapon() )
 		return NULL;
 	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
 }
