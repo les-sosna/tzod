@@ -64,7 +64,7 @@ void Level::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 #ifndef NDEBUG
 						for( int i = 0; i < 4; ++i )
 						{
-							g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+							DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 						}
 #endif
 						if( s.Select(object, hitNorm, hitEnter, hitExit) )
