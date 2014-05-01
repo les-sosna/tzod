@@ -4,7 +4,6 @@
 #include "Object.h"
 
 #include "GlobalListHelper.inl"
-#include "globals.h"
 #include "Level.h"
 #include "MapFile.h"
 #include "SaveFile.h"

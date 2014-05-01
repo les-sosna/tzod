@@ -2,7 +2,6 @@
 
 #include "Actor.h"
 
-#include "globals.h"
 #include "Level.h"
 #include "MapFile.h"
 #include "SaveFile.h"
