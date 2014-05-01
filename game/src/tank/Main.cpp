@@ -66,7 +66,7 @@ struct GlfwInitHelper
 };
 
 
-static void Idle(float dt);
+static void Idle(Level &world, float dt);
 static void Post();
 
 
@@ -112,20 +112,19 @@ static void OnPrintScreen()
 	SetCurrentDirectory(".."); */
 }
 
-static bool IsKeyPressed(int key)
-{
-    return GLFW_PRESS == glfwGetKey(g_appWindow, key);
-}
-
 
 namespace
 {
 	class DesktopFactory : public UI::IWindowFactory
 	{
+        Level &_world;
 	public:
+        DesktopFactory(Level &world)
+            : _world(world)
+        {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager);
+			return new UI::Desktop(manager, _world);
 		}
 	};
 
@@ -331,7 +330,7 @@ int main(int, const char**)
         g_level.reset(new Level());
         
         TRACE("GUI subsystem initialization");
-        g_gui = new UI::LayoutManager(DesktopFactory());
+        g_gui = new UI::LayoutManager(DesktopFactory(*g_level));
         g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
@@ -346,7 +345,7 @@ int main(int, const char**)
             glfwPollEvents();
             if (glfwWindowShouldClose(g_appWindow))
                 break;
-            Idle(timer.GetDt());
+            Idle(*g_level, timer.GetDt());
             glfwSwapBuffers(g_appWindow);
         }
 
@@ -368,9 +367,9 @@ int main(int, const char**)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void Idle(float dt)
+void Idle(Level &world, float dt)
 {
-	g_level->_defaultCamera.HandleMovement(g_level->_sx, g_level->_sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
+	world._defaultCamera.HandleMovement(world._sx, world._sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 
     g_gui->TimeStep(dt);
     

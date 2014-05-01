@@ -13,10 +13,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 	return true;
 }
 
-GC_Crate::GC_Crate(float x, float y)
+GC_Crate::GC_Crate(Level &world, float x, float y)
+  : GC_RigidBodyDynamic(world)
 {
-	MoveTo(vec2d(x, y));
-	SetZ(Z_WALLS);
+	MoveTo(world, vec2d(x, y));
+	SetZ(world, Z_WALLS);
 	SetTexture("crate01");
 	AlignToTexture();
 
@@ -39,18 +40,18 @@ GC_Crate::~GC_Crate()
 {
 }
 
-void GC_Crate::OnDestroy()
+void GC_Crate::OnDestroy(Level &world)
 {
 	PLAY(SND_WallDestroy, GetPos());
 
 	for( int n = 0; n < 5; ++n )
 	{
-		(new GC_Brick_Fragment_01( GetPos() + vrand(GetRadius()),
+		(new GC_Brick_Fragment_01(world, GetPos() + vrand(GetRadius()),
 			vec2d(frand(100.0f) - 50, -frand(100.0f))
 			))->SetShadow(true);
 	}
 
-	GC_RigidBodyDynamic::OnDestroy();
+	GC_RigidBodyDynamic::OnDestroy(world);
 }
 
 

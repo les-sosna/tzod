@@ -38,8 +38,9 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-CreateServerDlg::CreateServerDlg(Window *parent)
+CreateServerDlg::CreateServerDlg(Window *parent, Level &world)
   : Dialog(parent, 770, 450)
+  , _world(world)
 {
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_server_title.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -208,10 +209,11 @@ void CreateServerDlg::OnOK()
 
 //	SAFE_DELETE(g_client);
 
-	assert(g_level->IsEmpty());
-//	new TankClient(g_level.get());
+	assert(_world.IsEmpty());
+//	new TankClient(_world);
 
-	(new WaitingForPlayersDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1);
+	(new WaitingForPlayersDlg(GetParent(), _world))->eventClose =
+        std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1);
 
 	SetVisible(false);
 }
@@ -242,8 +244,9 @@ void CreateServerDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName)
+ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName, Level &world)
   : Dialog(parent, 512, 384)
+  , _world(world)
 {
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_connect_title.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -280,8 +283,8 @@ void ConnectDlg::OnOK()
 
 //	SAFE_DELETE(g_client);
 
-	assert(g_level->IsEmpty());
-//	TankClient *cl = new TankClient(g_level.get());
+	assert(_world.IsEmpty());
+//	TankClient *cl = new TankClient(_world);
 //	_clientSubscribtion = cl->AddListener(this);
 //	cl->Connect(_name->GetText());
 }
@@ -294,7 +297,7 @@ void ConnectDlg::OnCancel()
 void ConnectDlg::OnConnected()
 {
 	g_conf.cl_server.Set(_name->GetText());
-	(new WaitingForPlayersDlg(GetParent()))->eventClose = eventClose;
+	(new WaitingForPlayersDlg(GetParent(), _world))->eventClose = eventClose;
 	Close(-1); // close with any code except ok and cancel
 }
 
@@ -318,8 +321,9 @@ void ConnectDlg::OnClientDestroy()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-InternetDlg::InternetDlg(Window *parent)
+InternetDlg::InternetDlg(Window *parent, Level &world)
   : Dialog(parent, 450, 384)
+  , _world(world)
 //  , _client(new LobbyClient())
 {
 //	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
@@ -378,7 +382,7 @@ void InternetDlg::OnConnect()
 	if( -1 != _servers->GetCurSel() )
 	{
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
-		ConnectDlg *dlg = new ConnectDlg(GetParent(), addr);
+		ConnectDlg *dlg = new ConnectDlg(GetParent(), addr, _world);
 		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, std::placeholders::_1);
 		SetVisible(false);
 	}
@@ -443,7 +447,7 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 	return result;
 }
 
-WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
+WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, Level &world)
   : Dialog(parent, 680, 512)
   , _players(NULL)
   , _bots(NULL)
@@ -451,6 +455,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent)
   , _btnOK(NULL)
   , _btnProfile(NULL)
   , _buf(new UI::ConsoleBuffer(80, 500))
+  , _world(world)
 //  , _clientSubscribtion(g_client->AddListener(this))
 {
 	//
@@ -590,7 +595,7 @@ void WaitingForPlayersDlg::OnTextMessage(const std::string &msg)
 
 void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 {
-	int count = g_level->GetList(LIST_players).size();
+	int count = _world.GetList(LIST_players).size();
 	assert(_players->GetData()->GetItemCount() <= count); // count includes bots
 
 	for( int index = 0; index < count; ++index )
@@ -598,7 +603,7 @@ void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
 		assert(player);
 
-		if( g_level->GetList(LIST_players).IndexOf(player) == idx )
+		if( _world.GetList(LIST_players).IndexOf(player) == idx )
 		{
 			_players->GetData()->SetItemText(index, 3, ready ? g_lang.net_chatroom_player_ready.Get() : "");
 			return;
@@ -612,7 +617,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 	// TODO: implement via the ListDataSource interface
 	_players->GetData()->DeleteAllItems();
 	_bots->GetData()->DeleteAllItems();
-	FOREACH(g_level->GetList(LIST_players), GC_Player, player)
+	FOREACH(_world.GetList(LIST_players), GC_Player, player)
 	{
 		if( !player->GetIsHuman() )
 		{

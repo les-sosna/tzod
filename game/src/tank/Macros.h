@@ -4,8 +4,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
-#define SAFE_KILL(p)         { if(p) (p)->Kill(); (p)=NULL; }
+#define SAFE_DELETE(p)       { if(p) { delete (p); (p)=NULL; } }
+#define SAFE_KILL(w, p)      { if(p) (p)->Kill(w); (p)=NULL; }
 
 ///////////////////////////////////////////////////////////////////////////////
 

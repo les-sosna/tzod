@@ -24,7 +24,7 @@ MouseCursor::MouseCursor(LayoutManager* manager, const char *texture)
 	SetTimeStep(true);
 }
 
-void MouseCursor::OnTimeStep(float dt)
+void MouseCursor::OnTimeStep(Level &world, float dt)
 {
 	_timeAnim += dt;
 	_timeShow += dt;
@@ -50,8 +50,8 @@ void MouseCursor::OnTimeStep(float dt)
 
 	vec2d ptCurPos;
 	if( GetVisible() &&
-    //    g_level->GetEditorMode() &&
-        GC_Camera::GetWorldMousePos(vec2d((float) mouse_x, (float) mouse_y), ptCurPos, true) )
+    //    GetEditorMode() &&
+        GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), ptCurPos, true) )
 	{
 		char str[32];
 		sprintf(str, "%d,%d", int(ptCurPos.x) / CELL_SIZE + 1, int(ptCurPos.y) / CELL_SIZE + 1);

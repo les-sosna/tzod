@@ -24,7 +24,7 @@ class GC_Turret : public GC_RigidBodyStatic
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
@@ -56,28 +56,29 @@ public:
 	Rotator  _rotator;
 
 protected:
-	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake) = 0;
-	virtual void Fire() = 0;
-	bool IsTargetVisible(GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
+	virtual void CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake) = 0;
+	virtual void Fire(Level &world) = 0;
+	bool IsTargetVisible(Level &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 	virtual void TargetLost();
-	GC_Vehicle* EnumTargets();
+	GC_Vehicle* EnumTargets(Level &world);
 	void SelectTarget(GC_Vehicle *target);
 
 	// editor functions
-	virtual void EditorAction();
-	virtual void MapExchange(MapFile &f);
+	virtual void EditorAction(Level &world);
+	virtual void MapExchange(Level &world, MapFile &f);
 
 public:
-	GC_Turret(float x, float y, const char *tex);
+	GC_Turret(Level &world, float x, float y, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 
-	virtual void Serialize(SaveFile &f);
+    virtual void Kill(Level &world);
+	virtual void Serialize(Level &world, SaveFile &f);
 
-	virtual void MoveTo(const vec2d &pos);
-	virtual void OnDestroy();
+	virtual void MoveTo(Level &world, const vec2d &pos);
+	virtual void OnDestroy(Level &world);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 	virtual void Draw(bool editorMode) const;
 };
 
@@ -91,19 +92,19 @@ private:
 	float _timeReload;
 
 public:
-	GC_TurretRocket(float x, float y);
+	GC_TurretRocket(Level &world, float x, float y);
 	GC_TurretRocket(FromFile);
 	virtual ~GC_TurretRocket();
 
 	virtual float GetDefaultHealth() const { return 500; }
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
-	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire();
+	virtual void CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake);
+	virtual void Fire(Level &world);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -118,19 +119,19 @@ private:
 	float _time_smoke_dt;
 
 public:
-	GC_TurretCannon(float x, float y);
+	GC_TurretCannon(Level &world, float x, float y);
 	GC_TurretCannon(FromFile);
 	~GC_TurretCannon();
 
 	virtual float GetDefaultHealth() const { return 600; }
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
-	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire();
+	virtual void CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake);
+	virtual void Fire(Level &world);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -155,17 +156,17 @@ public:
 	float _time_wake_max;
 
 public:
-	GC_TurretBunker(float x, float y, const char *tex);
+	GC_TurretBunker(Level &world, float x, float y, const char *tex);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
 
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
 
-	virtual void TimeStepFixed(float dt);
-	virtual void EditorAction();
-	virtual void MapExchange(MapFile &f);
+	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void EditorAction(Level &world);
+	virtual void MapExchange(Level &world, MapFile &f);
 };
 
 /////////////////////////////////////////////////////////////
@@ -180,19 +181,21 @@ private:
 	bool  _firing;
 
 public:
-	GC_TurretMinigun(float x, float y);
+	GC_TurretMinigun(Level &world, float x, float y);
 	GC_TurretMinigun(FromFile);
 	virtual ~GC_TurretMinigun();
 
 	virtual float GetDefaultHealth() const { return 250; }
-	virtual void Serialize(SaveFile &f);
+    
+    virtual void Kill(Level &world);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
-	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire();
+	virtual void CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake);
+	virtual void Fire(Level &world);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -206,7 +209,7 @@ private:
 	int     _shotCount;
 
 public:
-	GC_TurretGauss(float x, float y);
+	GC_TurretGauss(Level &world, float x, float y);
 	GC_TurretGauss(FromFile);
 	virtual ~GC_TurretGauss();
 
@@ -215,12 +218,12 @@ public:
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual float GetDefaultHealth() const { return 250; }
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
-	virtual void CalcOutstrip(const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire();
+	virtual void CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake);
+	virtual void Fire(Level &world);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

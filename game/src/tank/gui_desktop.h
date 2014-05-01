@@ -73,12 +73,14 @@ class Desktop
 	size_t _font;
     
     int _nModalPopups;
+    
+    Level &_world;
 
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager);
+	Desktop(LayoutManager* manager, Level &_world);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

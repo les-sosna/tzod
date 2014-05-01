@@ -46,9 +46,9 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, Level &level, InputManager &inputMgr)
+NewGameDlg::NewGameDlg(Window *parent, Level &world, InputManager &inputMgr)
   : Dialog(parent, 770, 550)
-  , _level(level)
+  , _world(world)
   , _inputMgr(inputMgr)
 {
 	_newPlayer = false;
@@ -366,12 +366,12 @@ void NewGameDlg::OnOK()
 
 	try
 	{
-        g_level->Clear();
-        g_level->Seed(rand());
-        g_level->Import(g_fs->Open(path)->QueryStream());
-        if( !script_exec(g_env.L, g_level->_infoOnInit.c_str()) )
+        _world.Clear();
+        _world.Seed(rand());
+        _world.Import(g_fs->Open(path)->QueryStream());
+        if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
         {
-            g_level->Clear();
+            _world.Clear();
             throw std::runtime_error("init script error");
         }
 	}
@@ -389,7 +389,7 @@ void NewGameDlg::OnOK()
 	{
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
         
-        GC_PlayerLocal *player = new GC_PlayerLocal();
+        GC_PlayerLocal *player = new GC_PlayerLocal(_world);
         player->SetClass(p.platform_class.Get());
         player->SetNick(p.nick.Get());
         player->SetSkin(p.skin.Get());
@@ -402,7 +402,7 @@ void NewGameDlg::OnOK()
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-        GC_Player *ai = new GC_Player();
+        GC_Player *ai = new GC_Player(_world);
         ai->SetClass(p.platform_class.Get());
         ai->SetNick(p.nick.Get());
         ai->SetSkin(p.skin.Get());

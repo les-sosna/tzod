@@ -21,13 +21,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 	return true;
 }
 
-GC_SpawnPoint::GC_SpawnPoint(float x, float y)
-  : GC_2dSprite()
+GC_SpawnPoint::GC_SpawnPoint(Level &world, float x, float y)
+  : GC_2dSprite(world)
   , _memberOf(this)
 {
 	SetTexture("editor_respawn");
-	SetZ(Z_EDITOR);
-	MoveTo(vec2d(x, y));
+	SetZ(world, Z_EDITOR);
+	MoveTo(world, vec2d(x, y));
 	_team = 0;
 }
 
@@ -37,9 +37,9 @@ GC_SpawnPoint::GC_SpawnPoint(FromFile)
 {
 }
 
-void GC_SpawnPoint::Serialize(SaveFile &f)
+void GC_SpawnPoint::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_team);
 }
 
@@ -56,7 +56,7 @@ void GC_SpawnPoint::Draw(bool editorMode) const
 	}
 }
 
-void GC_SpawnPoint::EditorAction()
+void GC_SpawnPoint::EditorAction(Level &world)
 {
 	float rotation = GetDirection().Angle();
 	rotation += PI/3;
@@ -64,9 +64,9 @@ void GC_SpawnPoint::EditorAction()
 	SetDirection(vec2d(rotation));
 }
 
-void GC_SpawnPoint::MapExchange(MapFile &f)
+void GC_SpawnPoint::MapExchange(Level &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(world, f);
 
 	float dir = GetDirection().Angle();
 
@@ -116,9 +116,9 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_SpawnPoint::MyPropertySet::MyExchange(bool applyToObject)
+void GC_SpawnPoint::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_SpawnPoint *tmp = static_cast<GC_SpawnPoint *>(GetObject());
 
@@ -141,12 +141,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 	return true;
 }
 
-GC_HideLabel::GC_HideLabel(float x, float y)
-  : GC_2dSprite()
+GC_HideLabel::GC_HideLabel(Level &world, float x, float y)
+  : GC_2dSprite(world)
 {
-	SetZ(Z_EDITOR);
+	SetZ(world, Z_EDITOR);
 	SetTexture("editor_item");
-	MoveTo(vec2d(x, y));
+	MoveTo(world, vec2d(x, y));
 }
 
 GC_HideLabel::GC_HideLabel(FromFile)
@@ -169,14 +169,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 	return true;
 }
 
-GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
+GC_IndicatorBar::GC_IndicatorBar(Level &world, const char *texture, GC_2dSprite *object,
                                  float *pValue, float *pValueMax, LOCATION location)
-  : GC_2dSprite()
+  : GC_2dSprite(world)
   , _memberOf(this)
 {
-	assert(NULL == FindIndicator(object, location));
+	assert(NULL == FindIndicator(world, object, location));
 
-	SetZ(Z_VEHICLE_LABEL);
+	SetZ(world, Z_VEHICLE_LABEL);
 
 	SetTexture(texture);
 
@@ -188,7 +188,7 @@ GC_IndicatorBar::GC_IndicatorBar(const char *texture, GC_2dSprite *object,
 	_object = object;
 	_object->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_IndicatorBar::OnParentKill);
 	_object->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_IndicatorBar::OnUpdatePosition);
-	OnUpdatePosition(object, NULL);
+	OnUpdatePosition(world, object, NULL);
 }
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
@@ -197,9 +197,9 @@ GC_IndicatorBar::GC_IndicatorBar(FromFile)
 {
 }
 
-void GC_IndicatorBar::Serialize(SaveFile &f)
+void GC_IndicatorBar::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_dwValueMax_offset);
 	f.Serialize(_dwValue_offset);
@@ -207,9 +207,9 @@ void GC_IndicatorBar::Serialize(SaveFile &f)
 	f.Serialize(_object);
 }
 
-GC_IndicatorBar* GC_IndicatorBar::FindIndicator(GC_2dSprite* pFind, LOCATION location)
+GC_IndicatorBar* GC_IndicatorBar::FindIndicator(Level &world, GC_2dSprite* pFind, LOCATION location)
 {
-	FOREACH( g_level->GetList(LIST_indicators), GC_IndicatorBar, object )
+	FOREACH( world.GetList(LIST_indicators), GC_IndicatorBar, object )
 	{
 		if( pFind == object->_object && location == object->_location )
 			return object;
@@ -238,7 +238,7 @@ void GC_IndicatorBar::Draw(bool editorMode) const
 }
 
 
-void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
+void GC_IndicatorBar::OnUpdatePosition(Level &world, GC_Object *sender, void *param)
 {
 	ASSERT_TYPE(sender, GC_2dSprite);
 	GC_2dSprite *sprite = static_cast<GC_2dSprite *>(sender);
@@ -251,19 +251,19 @@ void GC_IndicatorBar::OnUpdatePosition(GC_Object *sender, void *param)
 	switch( _location )
 	{
 	case LOCATION_TOP:
-        MoveTo( vec2d(pos.x, std::max(top - GetSpriteHeight(), .0f)) );
+        MoveTo(world, vec2d(pos.x, std::max(top - GetSpriteHeight(), .0f)));
 		break;
 	case LOCATION_BOTTOM:
-        MoveTo( vec2d(pos.x, std::min(top + sprite->GetSpriteHeight() + GetSpriteHeight(), g_level->_sy - GetSpriteHeight()*2)) );
+        MoveTo(world, vec2d(pos.x, std::min(top + sprite->GetSpriteHeight() + GetSpriteHeight(), world._sy - GetSpriteHeight()*2)));
 		break;
 	default:
 		assert(false);
 	}
 }
 
-void GC_IndicatorBar::OnParentKill(GC_Object *sender, void *param)
+void GC_IndicatorBar::OnParentKill(Level &world, GC_Object *sender, void *param)
 {
-	Kill();
+	Kill(world);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,15 +273,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-GC_DamLabel::GC_DamLabel(GC_Vehicle *veh)
-  : GC_2dSprite()
+GC_DamLabel::GC_DamLabel(Level &world, GC_Vehicle *veh)
+  : GC_2dSprite(world)
   , _phase(frand(PI2))
   , _time(0)
   , _time_life(0.4f)
 {
 	SetTexture("indicator_damage");
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-	SetZ(Z_VEHICLE_LABEL);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetZ(world, Z_VEHICLE_LABEL);
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }
 
@@ -294,25 +294,25 @@ GC_DamLabel::~GC_DamLabel()
 {
 }
 
-void GC_DamLabel::Serialize(SaveFile &f)
+void GC_DamLabel::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_phase);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
 }
 
-void GC_DamLabel::TimeStepFloat(float dt)
+void GC_DamLabel::TimeStepFloat(Level &world, float dt)
 {
-	GC_2dSprite::TimeStepFloat(dt);
+	GC_2dSprite::TimeStepFloat(world, dt);
 
 	_time += dt;
 	SetDirection(vec2d(_phase + _time * 2.0f));
 
 	if( _time >= _time_life )
 	{
-		Kill();
+		Kill(world);
 	}
 	else
 	{
@@ -325,9 +325,9 @@ void GC_DamLabel::Reset()
 	_time_life = _time + 0.4f;
 }
 
-void GC_DamLabel::OnVehicleMove(GC_Object *sender, void *param)
+void GC_DamLabel::OnVehicleMove(Level &world, GC_Object *sender, void *param)
 {
-	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
+	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
 }
 
 // end of file

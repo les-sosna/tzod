@@ -32,8 +32,9 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent)
+SettingsDlg::SettingsDlg(Window *parent, Level &world)
   : Dialog(parent, 512, 296)
+  , _world(world)
 {
 	SetEasyMove(true);
 
@@ -216,9 +217,9 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 		UpdateProfilesList();
 		GetManager()->SetFocusWnd(_profiles);
 
-		FOREACH(g_level->GetList(LIST_players), GC_Object, player)
+		FOREACH(_world.GetList(LIST_players), GC_Object, player)
 		{
-			player->GetProperties()->Exchange(true);
+			player->GetProperties(_world)->Exchange(_world, true);
 		}
 	}
 }
@@ -404,8 +405,9 @@ bool ControlProfileDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MapSettingsDlg::MapSettingsDlg(Window *parent)
+MapSettingsDlg::MapSettingsDlg(Window *parent, Level &world)
   : Dialog(parent, 512, 512)
+  , _world(world)
 {
 	SetEasyMove(true);
 
@@ -420,23 +422,23 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 
 	Text::Create(this, x1, y += 20, g_lang.map_author.Get(), alignTextLT);
 	_author = Edit::Create(this, x2, y += 15, 256);
-	_author->SetText(g_level->_infoAuthor);
+	_author->SetText(world._infoAuthor);
 
 	Text::Create(this, x1, y += 20, g_lang.map_email.Get(), alignTextLT);
 	_email = Edit::Create(this, x2, y += 15, 256);
-	_email->SetText(g_level->_infoEmail);
+	_email->SetText(world._infoEmail);
 
 	Text::Create(this, x1, y += 20, g_lang.map_url.Get(), alignTextLT);
 	_url = Edit::Create(this, x2, y += 15, 256);
-	_url->SetText(g_level->_infoUrl);
+	_url->SetText(world._infoUrl);
 
 	Text::Create(this, x1, y += 20, g_lang.map_desc.Get(), alignTextLT);
 	_desc = Edit::Create(this, x2, y += 15, 256);
-	_desc->SetText(g_level->_infoDesc);
+	_desc->SetText(world._infoDesc);
 
 	Text::Create(this, x1, y += 20, g_lang.map_init_script.Get(), alignTextLT);
 	_onInit = Edit::Create(this, x2, y += 15, 256);
-	_onInit->SetText(g_level->_infoOnInit);
+	_onInit->SetText(world._infoOnInit);
 
 	Text::Create(this, x1, y += 20, g_lang.map_theme.Get(), alignTextLT);
 	_theme = DefaultComboBox::Create(this);
@@ -446,7 +448,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent)
 	{
 		_theme->GetData()->AddItem(_ThemeManager::Inst().GetThemeName(i));
 	}
-	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(g_level->_infoTheme));
+	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(world._infoTheme));
 	_theme->GetList()->AlignHeightToContent();
 
 
@@ -463,20 +465,20 @@ MapSettingsDlg::~MapSettingsDlg()
 
 void MapSettingsDlg::OnOK()
 {
-	g_level->_infoAuthor = _author->GetText();
-	g_level->_infoEmail = _email->GetText();
-	g_level->_infoUrl = _url->GetText();
-	g_level->_infoDesc = _desc->GetText();
-	g_level->_infoOnInit = _onInit->GetText();
+	_world._infoAuthor = _author->GetText();
+	_world._infoEmail = _email->GetText();
+	_world._infoUrl = _url->GetText();
+	_world._infoDesc = _desc->GetText();
+	_world._infoOnInit = _onInit->GetText();
 
 	int i = _theme->GetCurSel();
 	if( 0 != i )
 	{
-		g_level->_infoTheme = _theme->GetData()->GetItemText(i, 0);
+		_world._infoTheme = _theme->GetData()->GetItemText(i, 0);
 	}
 	else
 	{
-		g_level->_infoTheme.clear();
+		_world._infoTheme.clear();
 	}
 	if( !_ThemeManager::Inst().ApplyTheme(i) )
 	{

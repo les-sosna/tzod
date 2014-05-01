@@ -11,7 +11,7 @@
 
 #include "gc/GameClasses.h"
 #include "gc/vehicle.h"
-#include "gc/pickup.h"
+#include "gc/Pickup.h"
 #include "gc/Player.h"
 #include "gc/Weapons.h" // for ugly workaround
 
@@ -116,6 +116,17 @@ static void pushprop(lua_State *L, ObjectProperty *p)
 	}
 }
 
+static Level& getworld(lua_State *L)
+{
+    lua_getfield(L, LUA_REGISTRYINDEX, "WORLD");
+    Level *world = (Level *) lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    if (!world) {
+        luaL_error(L, "world is not initialized");
+    }
+    return *world;
+}
+
 // generic __next support for object properties
 static int luaT_objnextprop(lua_State *L)
 {
@@ -124,10 +135,11 @@ static int luaT_objnextprop(lua_State *L)
 	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) luaL_checkudata(L, 1, "object");
 	if( !*ppObj )
 	{
-		luaL_argerror(L, 1, "reference to dead object");
+		luaL_argerror(L, 1, "reference to a dead object");
 	}
 
-	SafePtr<PropertySet> properties = (*ppObj)->GetProperties();
+    Level &world = getworld(L);
+	SafePtr<PropertySet> properties = (*ppObj)->GetProperties(world);
 	assert(properties);
 
 	if( lua_isnil(L, 2) )
@@ -210,7 +222,8 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 		luaL_typerror(L, n, "object or name");
 	}
 
-	GC_Object *obj = g_level->FindObject(name);
+    Level &world = getworld(L);
+	GC_Object *obj = world.FindObject(name);
 	if( !obj )
 	{
 		luaL_error(L, "object with name '%s' does not exist", name);
@@ -236,7 +249,8 @@ static T* luaT_checkobjectT(lua_State *L, int n) throw()
 // exit to the system
 static int luaT_quit(lua_State *L)
 {
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
 	glfwSetWindowShouldClose(g_appWindow, 1);
 	return 0;
@@ -248,7 +262,8 @@ static int luaT_game(lua_State *L)
 	if( 1 != n )
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
 	const char *clientType = luaL_checkstring(L, 1);
@@ -260,7 +275,7 @@ static int luaT_game(lua_State *L)
 	{
 		if( !strcmp("intro", clientType) )
 		{
-			new IntroClient(g_level.get());
+			new IntroClient(&world);
 		}
 		else
 		{
@@ -294,7 +309,7 @@ static int luaT_freeze(lua_State *L)
 
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
 
-//	g_level->Freeze( 0 != lua_toboolean(L, 1) );
+//	world.Freeze( 0 != lua_toboolean(L, 1) );
 	GetConsole().WriteLine(0, "freeze - function is unavailable in this version");
 
 	return 0;
@@ -308,19 +323,20 @@ static int luaT_loadmap(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
 
 	try
 	{
-        g_level->Clear();
-        g_level->Seed(rand());
-        g_level->Import(g_fs->Open(filename)->QueryStream());
+        Level &world = getworld(L);
+        world.Clear();
+        world.Seed(rand());
+        world.Import(g_fs->Open(filename)->QueryStream());
         
-        if( !script_exec(g_env.L, g_level->_infoOnInit.c_str()) )
+        if( !script_exec(g_env.L, world._infoOnInit.c_str()) )
         {
-            g_level->Clear();
+            world.Clear();
             throw std::runtime_error("init script error");
         }
 	}
@@ -341,12 +357,12 @@ static int luaT_newmap(lua_State *L)
 
 	int x = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
 	int y = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
-
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
     
-	g_level->Clear();
-	g_level->Resize(x, y);
+	world.Clear();
+	world.Resize(x, y);
 	_ThemeManager::Inst().ApplyTheme(0);
 
 	return 0;
@@ -360,15 +376,16 @@ static int luaT_load(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 
 //	SAFE_DELETE(g_client);
 
 	try
 	{
-		g_level->Unserialize(filename);
+        Level &world = getworld(L);
+		world.Unserialize(filename);
 	}
 	catch( const std::exception &e )
 	{
@@ -387,20 +404,21 @@ static int luaT_save(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
-	g_level->PauseSound(true);
+	world.PauseSound(true);
 	try
 	{
-		g_level->Serialize(filename);
+		world.Serialize(filename);
 	}
 	catch( const std::exception &e )
 	{
-		g_level->PauseSound(false);
+		world.PauseSound(false);
 		return luaL_error(L, "couldn't save game to '%s' - %s", filename, e.what());
 	}
-	g_level->PauseSound(false);
+	world.PauseSound(false);
 	GetConsole().Printf(0, "game saved: '%s'", filename);
 	return 0;
 }
@@ -414,15 +432,16 @@ static int luaT_import(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
 //	SAFE_DELETE(g_client);
     
 	try
 	{
-        g_level->Clear();
-		g_level->Import(g_fs->Open(filename)->QueryStream());
+        world.Clear();
+		world.Import(g_fs->Open(filename)->QueryStream());
         g_conf.sv_nightmode.Set(false);
 	}
 	catch( const std::exception &e )
@@ -443,12 +462,13 @@ static int luaT_export(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_level->IsSafeMode() )
+    Level &world = getworld(L);
+	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
 
 	try
 	{
-		g_level->Export(g_fs->Open(filename, FS::ModeWrite)->QueryStream());
+		world.Export(g_fs->Open(filename, FS::ModeWrite)->QueryStream());
 	}
 	catch( const std::exception &e )
 	{
@@ -805,14 +825,15 @@ int luaT_actor(lua_State *L)
 		return luaL_error(L, "type '%s' is a service", name);
 	}
 
-	GC_Object *obj = RTTypes::Inst().CreateObject(type, x, y);
+    Level &world = getworld(L);
+	GC_Object *obj = RTTypes::Inst().CreateObject(world, type, x, y);
 
 
 	if( 4 == n )
 	{
 		luaL_checktype(L, 4, LUA_TTABLE);
 
-		SafePtr<PropertySet> properties = obj->GetProperties();
+		SafePtr<PropertySet> properties = obj->GetProperties(world);
 		assert(properties);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
@@ -821,7 +842,7 @@ int luaT_actor(lua_State *L)
 			pset_helper(properties, L);
 		}
 
-		properties->Exchange(true);
+		properties->Exchange(world, true);
 	}
 
 	luaT_pushobject(L, obj);
@@ -850,14 +871,15 @@ int luaT_service(lua_State *L)
 		return luaL_error(L, "type '%s' is not a service", name);
 	}
 
-	GC_Object *obj = RTTypes::Inst().CreateObject(type, 0, 0);
+    Level &world = getworld(L);
+	GC_Object *obj = RTTypes::Inst().CreateObject(world, type, 0, 0);
 
 
 	if( 2 == n )
 	{
 		luaL_checktype(L, 2, LUA_TTABLE);
 
-		SafePtr<PropertySet> properties = obj->GetProperties();
+		SafePtr<PropertySet> properties = obj->GetProperties(world);
 		assert(properties);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
@@ -866,7 +888,7 @@ int luaT_service(lua_State *L)
 			pset_helper(properties, L);
 		}
 
-		properties->Exchange(true);
+		properties->Exchange(world, true);
 	}
 
 	luaT_pushobject(L, obj);
@@ -899,7 +921,8 @@ int luaT_damage(lua_State *L)
 	float hp = (float) luaL_checknumber(L, 1);
 	GC_RigidBodyStatic *rbs = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
 
-	rbs->TakeDamage(hp, rbs->GetPos(), NULL);
+    Level &world = getworld(L);
+	rbs->TakeDamage(world, hp, rbs->GetPos(), NULL);
 
 	return 0;
 }
@@ -913,7 +936,8 @@ int luaT_kill(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	luaT_checkobject(L, 1)->Kill();
+    Level &world = getworld(L);
+	luaT_checkobject(L, 1)->Kill(world);
 	return 0;
 }
 
@@ -928,7 +952,8 @@ int luaT_exists(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-	lua_pushboolean(L, NULL != g_level->FindObject(name));
+    Level &world = getworld(L);
+	lua_pushboolean(L, NULL != world.FindObject(name));
 	return 1;
 }
 
@@ -944,19 +969,20 @@ int luaT_setposition(lua_State *L)
 	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
+    Level &world = getworld(L);
 	if( dynamic_cast<GC_Vehicle *>(actor)	)
 	{
-		actor->MoveTo(vec2d(x,y));
+		actor->MoveTo(world, vec2d(x,y));
 	}
 	else if( GC_RigidBodyStatic *ph = dynamic_cast<GC_RigidBodyStatic *>(actor) )
 	{
-		g_level->_field.ProcessObject(ph, false);
-		actor->MoveTo(vec2d(x,y));
-		g_level->_field.ProcessObject(ph, true);
+		world._field.ProcessObject(ph, false);
+		actor->MoveTo(world, vec2d(x,y));
+		world._field.ProcessObject(ph, true);
 	}
 	else
     {
-        actor->MoveTo(vec2d(x,y));
+        actor->MoveTo(world, vec2d(x,y));
     }
 	return 1;
 }
@@ -1006,7 +1032,8 @@ int luaT_pget(lua_State *L)
 	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
 
-	SafePtr<PropertySet> properties = obj->GetProperties();
+    Level &world = getworld(L);
+	SafePtr<PropertySet> properties = obj->GetProperties(world);
 	assert(properties);
 
 	for( int i = 0; i < properties->GetCount(); ++i )
@@ -1037,7 +1064,8 @@ int luaT_pset(lua_State *L)
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
 
-	SafePtr<PropertySet> properties = obj->GetProperties();
+    Level &world = getworld(L);
+	SafePtr<PropertySet> properties = obj->GetProperties(world);
 	assert(properties);
 
 	// prop name at -2; prop value at -1
@@ -1047,7 +1075,7 @@ int luaT_pset(lua_State *L)
 			RTTypes::Inst().GetTypeName(obj->GetType()), prop);
 	}
 
-	properties->Exchange(true);
+	properties->Exchange(world, true);
 	return 0;
 }
 
@@ -1062,19 +1090,19 @@ int luaT_equip(lua_State *L)
 
 	GC_Vehicle *target = luaT_checkobjectT<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = luaT_checkobjectT<GC_Pickup>(L, 2);
-
+    Level &world = getworld(L);
 	if( pickup->GetCarrier() != target )
 	{
 		if( pickup->GetCarrier() )
-			pickup->Detach();
+			pickup->Detach(world);
 		// FIXME: ugly workaround
 		if( dynamic_cast<GC_pu_Booster*>(pickup) )
 		{
-			pickup->Attach(target->GetWeapon());
+			pickup->Attach(world, target->GetWeapon());
 		}
 		else
 		{
-			pickup->Attach(target);
+			pickup->Attach(world, target);
 		}
 	}
 

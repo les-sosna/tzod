@@ -42,12 +42,12 @@ private:
 	static float _sintable[SINTABLE_SIZE];
 
 public:
-	GC_Light(enumLightType type);
+	GC_Light(Level &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();
 
-	virtual void Serialize(SaveFile &f);
-	virtual void MapExchange(MapFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
 
 	void SetIntensity(float i)
 	{
@@ -101,19 +101,19 @@ public:
 	}
 
 
-	void  SetTimeout(float t);
+	void  SetTimeout(Level &world, float t);
 	float GetTimeout() const { return _timeout; }
 
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
-	void SetActive(bool activate);
+	void SetActive(Level &world, bool activate);
 
-	virtual void MoveTo(const vec2d &pos);
-
-	virtual void TimeStepFixed(float dt);
+	virtual void MoveTo(Level &world, const vec2d &pos) override;
+	virtual void TimeStepFixed(Level &world, float dt) override;
+    virtual void Kill(Level &world) override;
 
 public:
 	virtual void Shine() const;
-	virtual void Update(); // handles changing day/night
+	virtual void Update(Level &world); // handles changing day/night
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,21 +133,22 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Spotlight(float x, float y);
+	GC_Spotlight(Level &world, float x, float y);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
-	virtual void MoveTo(const vec2d &pos);
+	virtual void MoveTo(Level &world, const vec2d &pos) override;
 
-	virtual void EditorAction();
-	virtual void MapExchange(MapFile &f);
+	virtual void EditorAction(Level &world);
+	virtual void MapExchange(Level &world, MapFile &f);
+    virtual void Kill(Level &world) override;
 };
 
 

@@ -19,9 +19,10 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-ScoreTable::ScoreTable(Window *parent)
+ScoreTable::ScoreTable(Window *parent, Level &world)
   : Window(parent)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
+  , _world(world)
 {
 	SetTexture("scoretbl", true);
 	SetDrawBorder(false);
@@ -36,7 +37,7 @@ void ScoreTable::OnParentSize(float width, float height)
 void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
 	std::vector<GC_Player*> players;
-	FOREACH( g_level->GetList(LIST_players), GC_Player, player )
+	FOREACH( _world.GetList(LIST_players), GC_Player, player )
 	{
 		players.push_back(player);
 	}
@@ -61,7 +62,7 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 	char text[256];
 	if( g_conf.sv_timelimit.GetFloat() )
 	{
-		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - g_level->_time);
+		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - _world._time);
 		if( timeleft > 0 )
 		{
 			sprintf(text, g_lang.score_time_left_xx.Get().c_str(), timeleft / 60, timeleft % 60);
@@ -105,9 +106,9 @@ void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 void ScoreTable::OnTimeStep(float dt)
 {
 	bool tab = GLFW_PRESS == glfwGetKey(g_appWindow, GLFW_KEY_TAB);
-	SetVisible(!g_level->IsEmpty() &&
-          //     !g_level->GetEditorMode() &&
-               (tab || g_level->_limitHit));
+	SetVisible(!_world.IsEmpty() &&
+          //     !world.GetEditorMode() &&
+               (tab || _world._limitHit));
 }
 
 

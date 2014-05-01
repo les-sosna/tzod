@@ -10,8 +10,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 	return true;
 }
 
-GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0)
-  : GC_2dSprite()
+GC_Brick_Fragment_01::GC_Brick_Fragment_01(Level &world, const vec2d &x0, const vec2d &v0)
+  : GC_2dSprite(world)
   , _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
@@ -20,9 +20,9 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(const vec2d &x0, const vec2d &v0)
 	static TextureCache tex("particle_brick");
 
 	SetTexture(tex);
-	SetZ(Z_PARTICLE);
-	MoveTo(x0);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetZ(world, Z_PARTICLE);
+	MoveTo(world, x0);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
@@ -30,29 +30,29 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
 {
 }
 
-void GC_Brick_Fragment_01::Serialize(SaveFile &f)
+void GC_Brick_Fragment_01::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_startFrame);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_velocity);
 }
 
-void GC_Brick_Fragment_01::TimeStepFloat(float dt)
+void GC_Brick_Fragment_01::TimeStepFloat(Level &world, float dt)
 {
 	_time += dt;
 
 	if( _time >= _timeLife * 0.5f )
 	{
-		Kill();
+		Kill(world);
 		return;
 	}
 
 	SetFrame(int((float)_startFrame + (float)(GetFrameCount() - 1) *
 		_time / _timeLife)%(GetFrameCount() - 1) );
 
-	MoveTo( GetPos() + _velocity * dt );
+	MoveTo(world, GetPos() + _velocity * dt);
 	_velocity += vec2d(0, 300.0f) * dt;
 }
 
@@ -63,9 +63,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &texture,
+GC_Particle::GC_Particle(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
-  : GC_2dSprite()
+  : GC_2dSprite(world)
   , _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
@@ -74,13 +74,13 @@ GC_Particle::GC_Particle(const vec2d &pos, const vec2d &v, const TextureCache &t
 {
 	assert(_timeLife > 0);
 
-	SetZ(Z_PARTICLE);
+	SetZ(world, Z_PARTICLE);
 
 	SetTexture(texture);
 	SetDirection(orient);
 
-	MoveTo(pos);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	MoveTo(world, pos);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Particle::GC_Particle(FromFile)
@@ -88,9 +88,9 @@ GC_Particle::GC_Particle(FromFile)
 {
 }
 
-void GC_Particle::Serialize(SaveFile &f)
+void GC_Particle::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
@@ -98,14 +98,14 @@ void GC_Particle::Serialize(SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_Particle::TimeStepFloat(float dt)
+void GC_Particle::TimeStepFloat(Level &world, float dt)
 {
 	assert(_timeLife > 0);
 	_time += dt;
 
 	if( _time >= _timeLife )
 	{
-		Kill();
+		Kill(world);
 		return;
 	}
 
@@ -117,7 +117,7 @@ void GC_Particle::TimeStepFloat(float dt)
 	if( _rotationSpeed )
 		SetDirection(vec2d(_rotationPhase + _rotationSpeed * _time));
 
-	MoveTo( GetPos() + _velocity * dt );
+	MoveTo(world, GetPos() + _velocity * dt);
 }
 
 void GC_Particle::SetFade(bool fade)
@@ -141,9 +141,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 	return true;
 }
 
-GC_ParticleScaled::GC_ParticleScaled(const vec2d &pos, const vec2d &v, const TextureCache &texture, 
+GC_ParticleScaled::GC_ParticleScaled(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
                                      float lifeTime, const vec2d &orient, float size)
-  : GC_Particle(pos, v, texture, lifeTime, orient)
+  : GC_Particle(world, pos, v, texture, lifeTime, orient)
   , _size(size)
 {
 }
@@ -153,9 +153,9 @@ GC_ParticleScaled::GC_ParticleScaled(FromFile)
 {
 }
 
-void GC_ParticleScaled::Serialize(SaveFile &f)
+void GC_ParticleScaled::Serialize(Level &world, SaveFile &f)
 {
-	GC_Particle::Serialize(f);
+	GC_Particle::Serialize(world, f);
 	f.Serialize(_size);
 }
 

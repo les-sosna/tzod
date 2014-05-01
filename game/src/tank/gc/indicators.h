@@ -29,20 +29,20 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 
 public:
-	GC_SpawnPoint(float x, float y);
+	GC_SpawnPoint(Level &world, float x, float y);
 	GC_SpawnPoint(FromFile);
 
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 	virtual void Draw(bool editorMode) const;
-	virtual void EditorAction();
-	virtual void MapExchange(MapFile &f);
+	virtual void EditorAction(Level &world);
+	virtual void MapExchange(Level &world, MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ class GC_HideLabel : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_HideLabel);
 
 public:
-	GC_HideLabel(float x, float y);
+	GC_HideLabel(Level &world, float x, float y);
 	GC_HideLabel(FromFile);
 
 	virtual void Draw(bool editorMode) const;
@@ -74,8 +74,8 @@ class GC_IndicatorBar : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
 	MemberOfGlobalList<LIST_indicators> _memberOf;
 
-	void OnParentKill(GC_Object *sender, void *param);
-	void OnUpdatePosition(GC_Object *sender, void *param);
+	void OnParentKill(Level &world, GC_Object *sender, void *param);
+	void OnUpdatePosition(Level &world, GC_Object *sender, void *param);
 
 protected:
 	ObjPtr<GC_2dSprite> _object;
@@ -86,18 +86,18 @@ protected:
 	LOCATION _location;
 
 public:
-	GC_IndicatorBar(const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
+	GC_IndicatorBar(Level &world, const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 
 	// GC_2dSprite
 	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 public:
 	void SetInverse(bool bInverse) { SetFlags(GC_FLAG_INDICATOR_INVERSE, bInverse); }
-	static GC_IndicatorBar *FindIndicator(GC_2dSprite* object, LOCATION location);
+	static GC_IndicatorBar *FindIndicator(Level &world, GC_2dSprite* object, LOCATION location);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,16 +112,16 @@ private:
 	float _time_life;
 
 public:
-	GC_DamLabel(GC_Vehicle *parent);
+	GC_DamLabel(Level &world, GC_Vehicle *parent);
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
 
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFloat(float dt);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void TimeStepFloat(Level &world, float dt);
 
 	void Reset();
 
-	void OnVehicleMove(GC_Object *sender, void *param);
+	void OnVehicleMove(Level &world, GC_Object *sender, void *param);
 };
 
 

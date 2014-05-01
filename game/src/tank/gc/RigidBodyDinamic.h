@@ -59,7 +59,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 
 public:
@@ -67,14 +67,14 @@ public:
 	vec2d GetBrakingLength() const;
 
 public:
-	GC_RigidBodyDynamic();
+	GC_RigidBodyDynamic(Level &world);
 	GC_RigidBodyDynamic(FromFile);
 
 	virtual PropertySet* NewPropertySet();
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFixed(float dt);
-	static void ProcessResponse(float dt);
+	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void TimeStepFixed(Level &world, float dt);
+	static void ProcessResponse(Level &world, float dt);
 	static void PushState();
 	static void PopState();
 

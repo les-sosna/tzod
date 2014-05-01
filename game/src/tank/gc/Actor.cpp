@@ -9,11 +9,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Actor::GC_Actor()
+GC_Actor::GC_Actor(Level &world)
   : GC_Object()
 {
 	memset(&_location, 0, sizeof(Location));
-	MoveTo(vec2d(0, 0));
+	MoveTo(world, vec2d(0, 0));
 }
 
 GC_Actor::GC_Actor(FromFile)
@@ -26,18 +26,18 @@ GC_Actor::~GC_Actor()
 	LeaveAllContexts();
 }
 
-void GC_Actor::Serialize(SaveFile &f)
+void GC_Actor::Serialize(Level &world, SaveFile &f)
 {
-	GC_Object::Serialize(f);
+	GC_Object::Serialize(world, f);
 	f.Serialize(_location);
 	f.Serialize(_pos);
 }
 
-void GC_Actor::MoveTo(const vec2d &pos)
+void GC_Actor::MoveTo(Level &world, const vec2d &pos)
 {
 	Location loc;
-	loc.x = std::min(g_level->_locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
-	loc.y = std::min(g_level->_locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
+	loc.x = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
+	loc.y = std::min(world._locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
 
 	_pos = pos;
 
@@ -47,10 +47,10 @@ void GC_Actor::MoveTo(const vec2d &pos)
 		EnterAllContexts(loc);
 	}
 
-	PulseNotify(NOTIFY_ACTOR_MOVE);
+	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
-void GC_Actor::OnPickup(GC_Pickup *pickup, bool attached)
+void GC_Actor::OnPickup(Level &world, GC_Pickup *pickup, bool attached)
 {
 }
 
@@ -110,9 +110,9 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 	assert(false);
 }
 
-void GC_Actor::MapExchange(MapFile &f)
+void GC_Actor::MapExchange(Level &world, MapFile &f)
 {
-	GC_Object::MapExchange(f);
+	GC_Object::MapExchange(world, f);
 
 	if( !f.loading() )
 	{

@@ -4,7 +4,7 @@
 
 #include "Level.h"
 #include "MapFile.h"
-#include "Projectiles.h"
+#include "projectiles.h"
 #include "SaveFile.h"
 #include "Sound.h"
 
@@ -57,9 +57,9 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyDynamic::MyPropertySet::MyExchange(bool applyToObject)
+void GC_RigidBodyDynamic::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_RigidBodyDynamic *tmp = static_cast<GC_RigidBodyDynamic *>(GetObject());
 	if( applyToObject )
@@ -92,8 +92,8 @@ GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic()
-  : GC_RigidBodyStatic()
+GC_RigidBodyDynamic::GC_RigidBodyDynamic(Level &world)
+  : GC_RigidBodyStatic(world)
 {
 	_lv.Zero();
 	_av     = 0;
@@ -118,8 +118,9 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic()
 	_external_torque = 0;
 
 
-	if( _glob_parity ) SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	if( _glob_parity )
+        SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)
@@ -132,9 +133,9 @@ PropertySet* GC_RigidBodyDynamic::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_RigidBodyDynamic::MapExchange(MapFile &f)
+void GC_RigidBodyDynamic::MapExchange(Level &world, MapFile &f)
 {
-	GC_RigidBodyStatic::MapExchange(f);
+	GC_RigidBodyStatic::MapExchange(world, f);
 
 	float rotTmp = GetDirection().Angle();
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);
@@ -151,9 +152,9 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 	}
 }
 
-void GC_RigidBodyDynamic::Serialize(SaveFile &f)
+void GC_RigidBodyDynamic::Serialize(Level &world, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(f);
+	GC_RigidBodyStatic::Serialize(world, f);
 
 	f.Serialize(_av);
 	f.Serialize(_lv);
@@ -223,12 +224,12 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 	return GetDirection() * result; // FIXME: add y coordinate
 }
 
-void GC_RigidBodyDynamic::TimeStepFixed(float dt)
+void GC_RigidBodyDynamic::TimeStepFixed(Level &world, float dt)
 {
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);
 
-	MoveTo(GetPos() + dx);
+	MoveTo(world, GetPos() + dx);
 	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
 	dirTmp.Normalize();
 	SetDirection(dirTmp);
@@ -299,8 +300,8 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 	// collisions
 
 	PtrList<ObjectList> receive;
-	g_level->grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
-	g_level->grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	world.grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
 	PtrList<ObjectList>::iterator rit = receive.begin();
 
@@ -330,9 +331,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(float dt)
 #ifndef NDEBUG
 				for( int i = 0; i < 4; ++i )
 				{
-					g_level->DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+					world.DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
 				}
-				g_level->DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
+				world.DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
 #endif
 
 				c.t.x =  c.n.y;
@@ -379,7 +380,7 @@ void GC_RigidBodyDynamic::PopState()
 	_contactsStack.pop();
 }
 
-void GC_RigidBodyDynamic::ProcessResponse(float dt)
+void GC_RigidBodyDynamic::ProcessResponse(Level &world, float dt)
 {
 	for( int i = 0; i < 128; i++ )
 	{
@@ -407,13 +408,13 @@ void GC_RigidBodyDynamic::ProcessResponse(float dt)
 					if( it->obj2_d )
 					{
 						GC_Player *owner2 = it->obj2_d->GetOwner();
-						it->obj1_d->TakeDamage(a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
-						it->obj2_d->TakeDamage(a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
+						it->obj1_d->TakeDamage(world, a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
+						it->obj2_d->TakeDamage(world, a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(a/60 * it->obj1_d->_fragility, it->o, owner1);
-						it->obj2_s->TakeDamage(a/60 * percussion1, it->o, owner1);
+						it->obj1_d->TakeDamage(world, a/60 * it->obj1_d->_fragility, it->o, owner1);
+						it->obj2_s->TakeDamage(world, a/60 * percussion1, it->o, owner1);
 					}
 				}
 

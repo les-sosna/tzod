@@ -29,15 +29,15 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_RigidBodyStatic::GC_RigidBodyStatic()
-  : GC_2dSprite()
+GC_RigidBodyStatic::GC_RigidBodyStatic(Level &world)
+  : GC_2dSprite(world)
   , _health(1)
   , _health_max(1)
   , _radius(0)
   , _width(0)
   , _length(0)
 {
-	AddContext(&g_level->grid_rigid_s);
+	AddContext(&world.grid_rigid_s);
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
@@ -300,9 +300,9 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 	_health_max = hp;
 }
 
-void GC_RigidBodyStatic::OnDestroy()
+void GC_RigidBodyStatic::OnDestroy(Level &world)
 {
-	PulseNotify(NOTIFY_RIGIDBODY_DESTROY);
+	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
 	if( !_scriptOnDestroy.empty() )
 	{
 		script_exec(g_env.L, _scriptOnDestroy.c_str());
@@ -350,7 +350,7 @@ void GC_RigidBodyStatic::TDFV(GC_Actor *from)
 	}
 }
 
-bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
+bool GC_RigidBodyStatic::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
@@ -370,8 +370,8 @@ bool GC_RigidBodyStatic::TakeDamage(float damage, const vec2d &hit, GC_Player *f
 		if( GetHealth() <= 0 )
 		{
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
-			OnDestroy();
-			Kill();
+			OnDestroy(world);
+			Kill(world);
 			return true;
 		}
 	}
@@ -390,9 +390,9 @@ void GC_RigidBodyStatic::SetSize(float width, float length)
 	_radius = sqrt(width*width + length*length) / 2;
 }
 
-void GC_RigidBodyStatic::MapExchange(MapFile &f)
+void GC_RigidBodyStatic::MapExchange(Level &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(world, f);
 
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
@@ -405,9 +405,9 @@ void GC_RigidBodyStatic::MapExchange(MapFile &f)
 	}
 }
 
-void GC_RigidBodyStatic::Serialize(SaveFile &f)
+void GC_RigidBodyStatic::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_scriptOnDestroy);
 	f.Serialize(_scriptOnDamage);
@@ -418,10 +418,10 @@ void GC_RigidBodyStatic::Serialize(SaveFile &f)
 	f.Serialize(_length);
 
 	if( f.loading() && GetPassability() > 0 )
-		g_level->_field.ProcessObject(this, true);
+		world._field.ProcessObject(this, true);
 
 	if( f.loading() )
-		AddContext(&g_level->grid_rigid_s);
+		AddContext(&world.grid_rigid_s);
 }
 
 
@@ -463,9 +463,9 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyStatic::MyPropertySet::MyExchange(bool applyToObject)
+void GC_RigidBodyStatic::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_RigidBodyStatic *tmp = static_cast<GC_RigidBodyStatic *>(GetObject());
 
@@ -493,19 +493,19 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
-GC_Wall::GC_Wall(float xPos, float yPos)
-  : GC_RigidBodyStatic()
+GC_Wall::GC_Wall(Level &world, float xPos, float yPos)
+  : GC_RigidBodyStatic(world)
 {
-	AddContext(&g_level->grid_walls);
-	SetZ(Z_WALLS);
+	AddContext(&world.grid_walls);
+	SetZ(world, Z_WALLS);
 	SetHealth(50, 50);
 
 	SetTexture("brick_wall");
 
 	AlignToTexture();
-	MoveTo( vec2d(xPos, yPos) );
+	MoveTo(world, vec2d(xPos, yPos));
 
-	g_level->_field.ProcessObject(this, true);
+	world._field.ProcessObject(this, true);
 }
 
 GC_Wall::GC_Wall(FromFile)
@@ -515,7 +515,7 @@ GC_Wall::GC_Wall(FromFile)
 
 GC_Wall::~GC_Wall()
 {
-	SetCorner(0);
+	SetCorner(*g_level, 0);
 	g_level->_field.ProcessObject(this, false);
 }
 
@@ -816,9 +816,9 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 }
 
-void GC_Wall::MapExchange(MapFile &f)
+void GC_Wall::MapExchange(Level &world, MapFile &f)
 {
-	GC_RigidBodyStatic::MapExchange(f);
+	GC_RigidBodyStatic::MapExchange(world, f);
 	int corner = GetCorner();
 	int style = GetStyle();
 	MAP_EXCHANGE_INT(corner, corner, 0);
@@ -826,18 +826,18 @@ void GC_Wall::MapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
-		SetCorner(corner % 5);
+		SetCorner(world, corner % 5);
 		SetStyle(style % 4);
 	}
 }
 
-void GC_Wall::Serialize(SaveFile &f)
+void GC_Wall::Serialize(Level &world, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(f);
+	GC_RigidBodyStatic::Serialize(world, f);
 
 	if( f.loading() )
 	{
-		AddContext(&g_level->grid_walls);
+		AddContext(&world.grid_walls);
 		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 		{
 			vec2d p = GetPos() / CELL_SIZE;
@@ -864,16 +864,16 @@ void GC_Wall::Serialize(SaveFile &f)
 				y = int(p.y);
 				break;
 			}
-			g_level->_field(x, y).RemoveObject(this);
-			if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
+			world._field(x, y).RemoveObject(this);
+			if( 0 == x || 0 == y || world._field.GetX() - 1 == x || world._field.GetX() - 1 == y )
 			{
-				g_level->_field(x, y)._prop = 0xFF;
+				world._field(x, y)._prop = 0xFF;
 			}
 		}
 	}
 }
 
-void GC_Wall::OnDestroy()
+void GC_Wall::OnDestroy(Level &world)
 {
 	static const TextureCache tex("particle_smoke");
 
@@ -881,18 +881,18 @@ void GC_Wall::OnDestroy()
 
 	for( int n = 0; n < 5; ++n )
 	{
-		(new GC_Brick_Fragment_01( GetPos() + vrand(GetRadius()),
+		(new GC_Brick_Fragment_01(world, GetPos() + vrand(GetRadius()),
 			vec2d(frand(100.0f) - 50, -frand(100.0f))
 		))->SetShadow(true);
 	}
-	new GC_Particle(GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+	new GC_Particle(world, GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
 
-	GC_RigidBodyStatic::OnDestroy();
+	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
 {
-	if( !GC_RigidBodyStatic::TakeDamage(damage, hit, from) && GetHealthMax() > 0 )
+	if( !GC_RigidBodyStatic::TakeDamage(world, damage, hit, from) && GetHealthMax() > 0 )
 	{
 		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
 		if( damage >= DAMAGE_BULLET )
@@ -910,14 +910,14 @@ bool GC_Wall::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 			}
 			v += vrand(25);
 
-			(new GC_Brick_Fragment_01(hit, v))->SetShadow(true);
+			(new GC_Brick_Fragment_01(world, hit, v))->SetShadow(true);
 		}
 		return false;
 	}
 	return true;
 }
 
-void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
+void GC_Wall::SetCorner(Level &world, unsigned int index) // 0 means normal view
 {
 	assert(index < 5);
 	static const unsigned int flags[] = {
@@ -954,7 +954,7 @@ void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 			y = int(p.y);
 			break;
 		}
-		g_level->_field(x, y).AddObject(this);
+		world._field(x, y).AddObject(this);
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
@@ -988,10 +988,10 @@ void GC_Wall::SetCorner(unsigned int index) // 0 means normal view
 			y = int(p.y);
 			break;
 		}
-		g_level->_field(x, y).RemoveObject(this);
-		if( 0 == x || 0 == y || g_level->_field.GetX() - 1 == x || g_level->_field.GetX() - 1 == y )
+		world._field(x, y).RemoveObject(this);
+		if( 0 == x || 0 == y || world._field.GetX() - 1 == x || world._field.GetX() - 1 == y )
 		{
-			g_level->_field(x, y)._prop = 0xFF;
+			world._field(x, y)._prop = 0xFF;
 		}
 	}
 }
@@ -1050,10 +1050,10 @@ const char* GC_Wall::GetCornerTexture(int i)
 	return tex[i];
 }
 
-void GC_Wall::EditorAction()
+void GC_Wall::EditorAction(Level &world)
 {
-	GC_2dSprite::EditorAction();
-	SetCorner((GetCorner() + 1) % 5);
+	GC_2dSprite::EditorAction(world);
+	SetCorner(world, (GetCorner() + 1) % 5);
 }
 
 
@@ -1091,15 +1091,15 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Wall::MyPropertySet::MyExchange(bool applyToObject)
+void GC_Wall::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_Wall *tmp = static_cast<GC_Wall *>(GetObject());
 
 	if( applyToObject )
 	{
-		tmp->SetCorner(_propCorner.GetIntValue());
+		tmp->SetCorner(world, _propCorner.GetIntValue());
 		tmp->SetStyle(_propStyle.GetIntValue());
 	}
 	else
@@ -1117,20 +1117,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 	return true;
 }
 
-GC_Wall_Concrete::GC_Wall_Concrete(float xPos, float yPos)
-  : GC_Wall(xPos, yPos)
+GC_Wall_Concrete::GC_Wall_Concrete(Level &world, float xPos, float yPos)
+  : GC_Wall(world, xPos, yPos)
 {
-	g_level->_field.ProcessObject(this, false);
+	world._field.ProcessObject(this, false);
 
 	SetTexture("concrete_wall");
 	AlignToTexture();
 
 	SetFrame(rand() % GetFrameCount());
 
-	g_level->_field.ProcessObject(this, true); // removed by parent's destructor
+	world._field.ProcessObject(this, true); // removed by parent's destructor
 }
 
-bool GC_Wall_Concrete::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall_Concrete::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( damage >= DAMAGE_BULLET )
 	{
@@ -1165,25 +1165,25 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
-GC_Water::GC_Water(float xPos, float yPos)
-  : GC_RigidBodyStatic()
+GC_Water::GC_Water(Level &world, float xPos, float yPos)
+  : GC_RigidBodyStatic(world)
   , _tile(0)
 {
-	AddContext( &g_level->grid_water );
+	AddContext( &world.grid_water );
 
-	SetZ(Z_WATER);
+	SetZ(world, Z_WATER);
 
 	SetTexture("water");
 	AlignToTexture();
 
-	MoveTo( vec2d(xPos, yPos) );
+	MoveTo(world, vec2d(xPos, yPos));
 	SetFrame(4);
 
-	UpdateTile(true);
+	UpdateTile(world, true);
 
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 
-	g_level->_field.ProcessObject(this, true);
+	world._field.ProcessObject(this, true);
 }
 
 GC_Water::GC_Water(FromFile)
@@ -1194,10 +1194,10 @@ GC_Water::GC_Water(FromFile)
 GC_Water::~GC_Water()
 {
 	g_level->_field.ProcessObject(this, false);
-    UpdateTile(false);
+    UpdateTile(*g_level, false);
 }
 
-void GC_Water::UpdateTile(bool flag)
+void GC_Water::UpdateTile(Level &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
@@ -1210,7 +1210,7 @@ void GC_Water::UpdateTile(bool flag)
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
 	PtrList<ObjectList> receive;
-	g_level->grid_water.OverlapRect(receive, frect);
+	world.grid_water.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
 	PtrList<ObjectList>::iterator rit = receive.begin();
 	for( ; rit != receive.end(); ++rit )
@@ -1234,14 +1234,14 @@ void GC_Water::UpdateTile(bool flag)
 	}
 }
 
-void GC_Water::Serialize(SaveFile &f)
+void GC_Water::Serialize(Level &world, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(f);
+	GC_RigidBodyStatic::Serialize(world, f);
 
 	f.Serialize(_tile);
 
 	if( f.loading() )
-		AddContext(&g_level->grid_water);
+		AddContext(&world.grid_water);
 }
 
 void GC_Water::Draw(bool editorMode) const
@@ -1272,7 +1272,7 @@ void GC_Water::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-bool GC_Water::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
+bool GC_Water::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	return false;
 }

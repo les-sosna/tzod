@@ -12,12 +12,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Service)
 	return true;
 }
 
-GC_Service::GC_Service()
+GC_Service::GC_Service(Level &world)
   : GC_Object()
   , _memberOf(this)
 {
-	if( g_level->_serviceListener )
-		g_level->_serviceListener->OnCreate(this);
+	if( world._serviceListener )
+		world._serviceListener->OnCreate(this);
 }
 
 GC_Service::GC_Service(FromFile)

@@ -13,7 +13,7 @@ class GC_Service : public GC_Object
 	MemberOfGlobalList<LIST_services> _memberOf;
 
 public:
-	GC_Service();
+	GC_Service(Level &world);
 	GC_Service(FromFile);
 	virtual ~GC_Service();
 };

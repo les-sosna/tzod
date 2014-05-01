@@ -6,15 +6,11 @@
 #include "core/Grid.h"
 #include <list>
 
-///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_ACTOR_          GC_FLAG_OBJECT_
 
-///////////////////////////////////////////////////////////////////////////////
-
-// forward declarations
 class GC_Pickup;
-
+class Level;
 
 class GC_Actor : public GC_Object
 {
@@ -37,8 +33,8 @@ class GC_Actor : public GC_Object
 	void LeaveContext(Context &context);
 
 protected:
-	virtual void Serialize(SaveFile &f);
-	virtual void MapExchange(MapFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
 
 	void AddContext(Grid<ObjectList> *pGridSet);
 	void RemoveContext(Grid<ObjectList> *pGridSet);
@@ -46,13 +42,13 @@ protected:
 public:
 	const vec2d& GetPos() const { return _pos; }
 
-	GC_Actor();
+	GC_Actor(Level &world);
 	GC_Actor(FromFile);
 	virtual ~GC_Actor();
 
-	virtual void MoveTo(const vec2d &pos);
+	virtual void MoveTo(Level &world, const vec2d &pos);
 
-	virtual void OnPickup(GC_Pickup *pickup, bool attached); // called by the pickup
+	virtual void OnPickup(Level &world, GC_Pickup *pickup, bool attached); // called by the pickup
 };
 
 ///////////////////////////////////////////////////////////////////////////////

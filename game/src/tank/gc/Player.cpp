@@ -38,18 +38,14 @@ extern "C"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_Player::GC_Player()
-  : GC_Service()
+GC_Player::GC_Player(Level &world)
+  : GC_Service(world)
   , _memberOf(this)
+  , _timeRespawn(PLAYER_RESPAWN_DELAY)
+  , _team(0)
+  , _score(0)
 {
-	_timeRespawn = PLAYER_RESPAWN_DELAY;
-
-	_team  = 0;
-	_score = 0;
-
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-
-
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 
 	// select nick from the random_names table
 	lua_getglobal(g_env.L, "random_name");     // push function
@@ -64,7 +60,7 @@ GC_Player::GC_Player()
 	lua_getglobal(g_env.L, "classes");
 	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
 	{
-	//	if( 0 == g_level->net_rand() % ++count )
+	//	if( 0 == world.net_rand() % ++count )
 		{
 			SetClass(lua_tostring(g_env.L, -2));  // get vehicle class
 		}
@@ -85,14 +81,9 @@ GC_Player::~GC_Player()
 {
 }
 
-size_t GC_Player::GetIndex() const
+void GC_Player::Serialize(Level &world, SaveFile &f)
 {
-	return g_level->GetList(LIST_players).IndexOf(this);
-}
-
-void GC_Player::Serialize(SaveFile &f)
-{
-	GC_Service::Serialize(f);
+	GC_Service::Serialize(world, f);
 
 	f.Serialize(_scriptOnDie);
 	f.Serialize(_scriptOnRespawn);
@@ -106,9 +97,9 @@ void GC_Player::Serialize(SaveFile &f)
 	f.Serialize(_vehicle);
 }
 
-void GC_Player::MapExchange(MapFile &f)
+void GC_Player::MapExchange(Level &world, MapFile &f)
 {
-	GC_Service::MapExchange(f);
+	GC_Service::MapExchange(world, f);
 	MAP_EXCHANGE_STRING(on_die, _scriptOnDie, "");
 	MAP_EXCHANGE_STRING(on_respawn, _scriptOnRespawn, "");
 	MAP_EXCHANGE_STRING(vehname, _vehname, "");
@@ -119,11 +110,11 @@ void GC_Player::MapExchange(MapFile &f)
 	MAP_EXCHANGE_INT(team, _team, 0);
 }
 
-void GC_Player::Kill()
+void GC_Player::Kill(Level &world)
 {
 	if( _vehicle )
-		_vehicle->Kill(); // the reference is released in the OnVehicleKill()
-	GC_Service::Kill();
+		_vehicle->Kill(world); // the reference is released in the OnVehicleKill()
+	GC_Service::Kill(world);
 }
 
 void GC_Player::SetSkin(const std::string &skin)
@@ -153,14 +144,14 @@ void GC_Player::UpdateSkin()
 		_vehicle->SetSkin(_skin);
 }
 
-void GC_Player::SetScore(int score)
+void GC_Player::SetScore(Level &world, int score)
 {
 	_score = score;
 	if( g_conf.sv_fraglimit.GetInt() )
 	{
 		if( _score >= g_conf.sv_fraglimit.GetInt() )
 		{
-			g_level->HitLimit();
+			world.HitLimit();
 		}
 	}
 }
@@ -173,9 +164,9 @@ void GC_Player::OnDie()
 {
 }
 
-void GC_Player::TimeStepFixed(float dt)
+void GC_Player::TimeStepFixed(Level &world, float dt)
 {
-	GC_Service::TimeStepFixed( dt );
+	GC_Service::TimeStepFixed(world, dt);
 
 	if( !GetVehicle() )
 	{
@@ -195,14 +186,14 @@ void GC_Player::TimeStepFixed(float dt)
 			GC_SpawnPoint *pBestPoint = NULL;
 			float max_dist = -1;
 
-			FOREACH( g_level->GetList(LIST_respawns), GC_SpawnPoint, object )
+			FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
 			{
 				pSpawnPoint = (GC_SpawnPoint*) object;
 				if( pSpawnPoint->_team && (pSpawnPoint->_team != _team) )
 					continue;
 
 				float dist = -1;
-				FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, pVeh )
+				FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
 				{
 					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
 					if( d < dist || dist < 0 ) dist = d;
@@ -233,26 +224,26 @@ void GC_Player::TimeStepFixed(float dt)
 
 			if( !points.empty() )
 			{
-				pBestPoint = points[g_level->net_rand() % points.size()];
+				pBestPoint = points[world.net_rand() % points.size()];
 			}
 
-			new GC_Text_ToolTip(pBestPoint->GetPos(), _nick, "font_default");
+			new GC_Text_ToolTip(world, pBestPoint->GetPos(), _nick, "font_default");
 
 
-			_vehicle = new GC_Tank_Light(pBestPoint->GetPos().x, pBestPoint->GetPos().y);
-			GC_Object* found = g_level->FindObject(_vehname);
+			_vehicle = new GC_Tank_Light(world, pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
 				GetConsole().Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
 			}
 			else
 			{
-				_vehicle->SetName(_vehname.c_str());
+				_vehicle->SetName(world, _vehname.c_str());
 			}
 
 			_vehicle->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetDirection(pBestPoint->GetDirection());
-			_vehicle->SetPlayer(this);
+			_vehicle->SetPlayer(world, this);
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
@@ -269,7 +260,7 @@ void GC_Player::TimeStepFixed(float dt)
 	}
 }
 
-void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
+void GC_Player::OnVehicleDestroy(Level &world, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -281,7 +272,7 @@ void GC_Player::OnVehicleDestroy(GC_Object *sender, void *param)
 	}
 }
 
-void GC_Player::OnVehicleKill(GC_Object *sender, void *param)
+void GC_Player::OnVehicleKill(Level &world, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -350,16 +341,16 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
+void GC_Player::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_Player *tmp = static_cast<GC_Player *>(GetObject());
 
 	if( applyToObject )
 	{
 		tmp->SetTeam( _propTeam.GetIntValue() );
-		tmp->SetScore( _propScore.GetIntValue() );
+		tmp->SetScore( world, _propScore.GetIntValue() );
 		tmp->SetNick( _propNick.GetStringValue() );
 		tmp->SetClass( _propClass.GetListValue(_propClass.GetCurrentIndex()) );
 		tmp->SetSkin( _propSkin.GetListValue(_propSkin.GetCurrentIndex()) );
@@ -369,14 +360,14 @@ void GC_Player::MyPropertySet::MyExchange(bool applyToObject)
 		if( tmp->GetVehicle() )
 		{
 			const char *name = _propVehName.GetStringValue().c_str();
-			GC_Object* found = g_level->FindObject(name);
+			GC_Object* found = world.FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
 				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists", name);
 			}
 			else
 			{
-				tmp->GetVehicle()->SetName(name);
+				tmp->GetVehicle()->SetName(world, name);
 				tmp->_vehname = name;
 			}
 		}
@@ -422,9 +413,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 	return true;
 }
 
-GC_PlayerLocal::GC_PlayerLocal()
+GC_PlayerLocal::GC_PlayerLocal(Level &world)
+  : GC_Player(world)
 {
-	new GC_Camera(this);
+	new GC_Camera(world, this);
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)

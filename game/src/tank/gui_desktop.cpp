@@ -134,15 +134,16 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
-Desktop::Desktop(LayoutManager* manager)
+Desktop::Desktop(LayoutManager* manager, Level &world)
   : Window(NULL, manager)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
   , _nModalPopups(0)
+  , _world(world)
 {
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
 
-	_editor = new EditorLayout(this);
+	_editor = new EditorLayout(this, _world);
 	_editor->SetVisible(false);
 
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
@@ -154,15 +155,15 @@ Desktop::Desktop(LayoutManager* manager)
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
 
-	_score = new ScoreTable(this);
+	_score = new ScoreTable(this, _world);
 	_score->SetVisible(false);
 
 
-	_fps = new FpsCounter(this, 0, 0, alignTextLB);
+	_fps = new FpsCounter(this, 0, 0, alignTextLB, _world);
 	g_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
 
-	_time = new TimeElapsed(this, 0, 0, alignTextRB);
+	_time = new TimeElapsed(this, 0, 0, alignTextRB, _world);
 	g_conf.ui_showtime.eventChange = std::bind(&Desktop::OnChangeShowTime, this);
 	OnChangeShowTime();
 
@@ -201,14 +202,14 @@ void Desktop::OnTimeStep(float dt)
 		assert(dt >= 0);
 		counterDt.Push(dt);
         
-        _inputMgr.ReadControllerState();
-        g_level->Step(dt);
+        _inputMgr.ReadControllerState(_world);
+        _world.Step(dt);
 	}
 }
 
 void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 {
-	g_level->Render(_editor->GetVisible());
+	_world.Render(_editor->GetVisible());
 	g_render->SetMode(RM_INTERFACE);
 //	if( !g_client )
 //	{
@@ -221,7 +222,7 @@ void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 void Desktop::SetEditorMode(bool editorMode)
 {
 	_editor->SetVisible(editorMode);
-    g_level->PauseSound(IsGamePaused());
+    _world.PauseSound(IsGamePaused());
 	if( editorMode && !_con->GetVisible() )
 	{
 		GetManager()->SetFocusWnd(_editor);
@@ -230,7 +231,7 @@ void Desktop::SetEditorMode(bool editorMode)
     
 bool Desktop::IsGamePaused() const
 {
-    return _nModalPopups > 0 || g_level->_limitHit || _editor->GetVisible();
+    return _nModalPopups > 0 || _world._limitHit || _editor->GetVisible();
 }
 
 void Desktop::ShowConsole(bool show)
@@ -242,7 +243,7 @@ void Desktop::OnCloseChild(int result)
 {
 	SetDrawBackground(false);
     _nModalPopups--;
-    g_level->PauseSound(IsGamePaused());
+    _world.PauseSound(IsGamePaused());
 }
 
 MessageArea* Desktop::GetMsgArea() const
@@ -279,7 +280,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this, _inputMgr);
+			dlg = new MainMenuDlg(this, _world, _inputMgr);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;
@@ -287,14 +288,14 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case GLFW_KEY_F2:
-		dlg = new NewGameDlg(this, *g_level, _inputMgr);
+		dlg = new NewGameDlg(this, _world, _inputMgr);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;
 		break;
 
 	case GLFW_KEY_F12:
-		dlg = new SettingsDlg(this);
+		dlg = new SettingsDlg(this, _world);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;
@@ -308,7 +309,7 @@ bool Desktop::OnRawChar(int c)
 	case GLFW_KEY_F8:
 		if( _editor->GetVisible() ) // TODO: move to editor layout
 		{
-			dlg = new MapSettingsDlg(this);
+			dlg = new MapSettingsDlg(this, _world);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;

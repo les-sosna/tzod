@@ -15,6 +15,7 @@ class MapFile;
 class SaveFile;
 
 class GC_Object;
+class Level;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -179,7 +180,7 @@ class PropertySet : public RefCounted
 
 protected:
 	GC_Object* GetObject() const;
-	virtual void MyExchange(bool applyToObject);
+	virtual void MyExchange(Level &world, bool applyToObject);
 
 public:
 	PropertySet(GC_Object *object);
@@ -187,9 +188,7 @@ public:
 	const char* GetTypeName() const;
 	void LoadFromConfig();
 	void SaveToConfig();
-	void Exchange(bool applyToObject);
-
-	Delegate<void(bool)> eventExchange;
+	void Exchange(Level &world, bool applyToObject);
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
@@ -207,7 +206,7 @@ public:
 #define GC_FLAG_OBJECT_                       0x00000004
 
 
-typedef void (GC_Object::*NOTIFYPROC) (GC_Object *sender, void *param);
+typedef void (GC_Object::*NOTIFYPROC) (Level &world, GC_Object *sender, void *param);
 
 ///////////////////////////////////////////////////////////////////////////////
 class GC_Object
@@ -243,7 +242,7 @@ private:
 		{
 			return !subscriber;
 		}
-		void Serialize(SaveFile &f);
+		void Serialize(Level &world, SaveFile &f);
 		explicit Notify(Notify *nxt) : next(nxt) {}
 	};
 
@@ -296,13 +295,13 @@ public:
 	//
 
 protected:
-	void PulseNotify(NotifyType type, void *param = NULL);
+	void PulseNotify(Level &world, NotifyType type, void *param = NULL);
 
 public:
-	void SetEvents(unsigned int events);
+	void SetEvents(Level &world, unsigned int events);
 
-	const char* GetName() const;
-	void SetName(const char *name);
+	const char* GetName(Level &world) const;
+	void SetName(Level &world, const char *name);
 
 	void Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
 	void Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
@@ -313,7 +312,7 @@ public:
 	//
 
 public:
-	virtual void Serialize(SaveFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
 protected:
 	GC_Object(FromFile);
@@ -330,20 +329,20 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	SafePtr<PropertySet> GetProperties();
+	SafePtr<PropertySet> GetProperties(Level &world);
 
 	//
 	// overrides
 	//
 
 public:
-	virtual void Kill();
+	virtual void Kill(Level &world);
 
-	virtual void TimeStepFixed(float dt);
-	virtual void TimeStepFloat(float dt);
-	virtual void EditorAction();
+	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void EditorAction(Level &world);
 
-	virtual void MapExchange(MapFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
 
 
 	//

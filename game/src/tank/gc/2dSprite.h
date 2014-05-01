@@ -90,8 +90,8 @@ private:
 	ObjectList::iterator _globalZPos; // position in the onscreen or z_globals list
 
 private:
-	void UpdateCurrentZ();
-	void SetZ_current(enumZOrder z);
+	void UpdateCurrentZ(Level &world);
+	void SetZ_current(Level &world, enumZOrder z);
 	enumZOrder _zOrderCurrent;
 	enumZOrder _zOrderPrefered;
 
@@ -100,20 +100,21 @@ public:
 	inline float GetSpriteHeight() const { return g_texman->Get(_texId).pxFrameHeight; }
 
 public:
-	void SetGridSet(bool bGridSet);
+	void SetGridSet(Level &world, bool bGridSet);
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET); }
-	void SetZ(enumZOrder z);
+	void SetZ(Level &world, enumZOrder z);
 	enumZOrder GetZ() const;
 
-	void SetVisible(bool bShow);
+	void SetVisible(Level &world, bool bShow);
 	inline bool GetVisible() const  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
 
 public:
-	GC_2dSprite();
+	GC_2dSprite(Level &world);
 	GC_2dSprite(FromFile);
 	virtual ~GC_2dSprite();
 
-	virtual void Serialize(SaveFile &f);
+    virtual void Kill(Level &world);
+	virtual void Serialize(Level &world, SaveFile &f);
 	virtual void Draw(bool editorMode) const;
 };
 

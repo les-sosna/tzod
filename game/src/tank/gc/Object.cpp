@@ -230,33 +230,31 @@ ObjectProperty* PropertySet::GetProperty(int index)
 	return &_propName;
 }
 
-void PropertySet::MyExchange(bool applyToObject)
+void PropertySet::MyExchange(Level &world, bool applyToObject)
 {
 	if( applyToObject )
 	{
 		const char *name = _propName.GetStringValue().c_str();
-		GC_Object* found = g_level->FindObject(name);
+		GC_Object* found = world.FindObject(name);
 		if( found && GetObject() != found )
 		{
 			GetConsole().Format(1) << "object with name \"" << name << "\" already exists";
 		}
 		else
 		{
-			GetObject()->SetName(name);
+			GetObject()->SetName(world, name);
 		}
 	}
 	else
 	{
-		const char *name = GetObject()->GetName();
+		const char *name = GetObject()->GetName(world);
 		_propName.SetStringValue(name ? name : "");
 	}
 }
 
-void PropertySet::Exchange(bool applyToObject)
+void PropertySet::Exchange(Level &world, bool applyToObject)
 {
-	MyExchange(applyToObject);
-	if( eventExchange )
-		INVOKE(eventExchange)(applyToObject);
+	MyExchange(world, applyToObject);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -281,30 +279,28 @@ GC_Object::GC_Object(FromFile)
 GC_Object::~GC_Object()
 {
 	assert(0 == _notifyProtectCount);
-	SetName(NULL);
 	while( _firstNotify )
 	{
 		Notify *n = _firstNotify;
 		_firstNotify = n->next;
 		delete n;
 	}
-//	assert(g_level->_garbage.erase(this) == 1);
+//	assert(world._garbage.erase(this) == 1);
 }
 
-void GC_Object::Kill()
+void GC_Object::Kill(Level &world)
 {
-//	assert(g_level->_garbage.insert(this).second);
+//	assert(world._garbage.insert(this).second);
 
-	PulseNotify(NOTIFY_OBJECT_KILL);
-
-	SetEvents(0);
-
+	PulseNotify(world, NOTIFY_OBJECT_KILL);
+	SetEvents(world, 0);
+	SetName(world, NULL);
 	delete this;
 }
 
 //IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
 
-void GC_Object::Notify::Serialize(SaveFile &f)
+void GC_Object::Notify::Serialize(Level &world, SaveFile &f)
 {
 	f.Serialize(type);
 	f.Serialize(subscriber);
@@ -313,7 +309,7 @@ void GC_Object::Notify::Serialize(SaveFile &f)
 	f.Serialize(reinterpret_cast<size_t&>(handler));
 }
 
-void GC_Object::Serialize(SaveFile &f)
+void GC_Object::Serialize(Level &world, SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
 
@@ -331,14 +327,14 @@ void GC_Object::Serialize(SaveFile &f)
 			std::string name;
 			f.Serialize(name);
 
-			assert( 0 == g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
-			assert( 0 == g_level->_nameToObjectMap.count(name) );
-			g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
-			g_level->_nameToObjectMap[name] = this;
+			assert( 0 == world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+			assert( 0 == world._nameToObjectMap.count(name) );
+			world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
+			world._nameToObjectMap[name] = this;
 		}
 		else
 		{
-			std::string name = GetName();
+			std::string name = GetName(world);
 			f.Serialize(name);
 		}
 	}
@@ -352,7 +348,7 @@ void GC_Object::Serialize(SaveFile &f)
 	{
 		unsigned int tmp = _flags & GC_FLAG_OBJECT_EVENTS_TS_FIXED;
 		SetFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED, false);
-		SetEvents(tmp);
+		SetEvents(world, tmp);
 	}
 
 
@@ -370,7 +366,7 @@ void GC_Object::Serialize(SaveFile &f)
 		for( size_t i = 0; i < count; i++ )
 		{
 			_firstNotify = new Notify(_firstNotify);
-			_firstNotify->Serialize(f);
+			_firstNotify->Serialize(world, f);
 		}
 	}
 	else
@@ -378,25 +374,25 @@ void GC_Object::Serialize(SaveFile &f)
 		for( Notify *n = _firstNotify; n; n = n->next )
 		{
 			if( !n->IsRemoved() )
-				n->Serialize(f);
+				n->Serialize(world, f);
 		}
 	}
 }
 
-void GC_Object::SetEvents(unsigned int dwEvents)
+void GC_Object::SetEvents(Level &world, unsigned int dwEvents)
 {
 	// remove from the TIMESTEP_FIXED list
 	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 		0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-        g_level->ts_fixed.safe_erase(_itPosFixed);
+        world.ts_fixed.safe_erase(_itPosFixed);
 	}
 	// add to the TIMESTEP_FIXED list
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-		g_level->ts_fixed.push_front(this);
-		_itPosFixed = g_level->ts_fixed.begin();
+		world.ts_fixed.push_front(this);
+		_itPosFixed = world.ts_fixed.begin();
 	}
 
 	//-------------------------
@@ -404,17 +400,17 @@ void GC_Object::SetEvents(unsigned int dwEvents)
 	SetFlags(dwEvents, true);
 }
 
-const char* GC_Object::GetName() const
+const char* GC_Object::GetName(Level &world) const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		assert( g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
-		return g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this].c_str();
+		assert( world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+		return world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this].c_str();
 	}
 	return NULL;
 }
 
-void GC_Object::SetName(const char *name)
+void GC_Object::SetName(Level &world, const char *name)
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -422,11 +418,11 @@ void GC_Object::SetName(const char *name)
 		// remove old name
 		//
 
-		assert(g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this));
-		const std::string &oldName = g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
-		assert(g_level->_nameToObjectMap.count(oldName));
-		g_level->_nameToObjectMap.erase(oldName);
-		g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].erase(this); // this invalidates oldName ref
+		assert(world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this));
+		const std::string &oldName = world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
+		assert(world._nameToObjectMap.count(oldName));
+		world._nameToObjectMap.erase(oldName);
+		world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
 	}
 
@@ -436,11 +432,11 @@ void GC_Object::SetName(const char *name)
 		// set new name
 		//
 
-		assert( 0 == g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
-		assert( 0 == g_level->_nameToObjectMap.count(name) );
+		assert( 0 == world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+		assert( 0 == world._nameToObjectMap.count(name) );
 
-		g_level->_objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
-		g_level->_nameToObjectMap[name] = this;
+		world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
+		world._nameToObjectMap[name] = this;
 
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);
 	}
@@ -480,14 +476,14 @@ void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC h
 	assert(!"subscription not found");
 }
 
-void GC_Object::PulseNotify(NotifyType type, void *param)
+void GC_Object::PulseNotify(Level &world, NotifyType type, void *param)
 {
 	++_notifyProtectCount;
 	for( Notify *n = _firstNotify; n; n = n->next )
 	{
 		if( type == n->type && !n->IsRemoved() )
 		{
-			((n->subscriber)->*n->handler)(this, param);
+			((n->subscriber)->*n->handler)(world, this, param);
 		}
 	}
 	--_notifyProtectCount;
@@ -511,22 +507,22 @@ void GC_Object::PulseNotify(NotifyType type, void *param)
 	}
 }
 
-void GC_Object::TimeStepFixed(float dt)
+void GC_Object::TimeStepFixed(Level &world, float dt)
 {
 }
 
-void GC_Object::TimeStepFloat(float dt)
+void GC_Object::TimeStepFloat(Level &world, float dt)
 {
 }
 
-void GC_Object::EditorAction()
+void GC_Object::EditorAction(Level &world)
 {
 }
 
-SafePtr<PropertySet> GC_Object::GetProperties()
+SafePtr<PropertySet> GC_Object::GetProperties(Level &world)
 {
 	SafePtr<PropertySet> ps(NewPropertySet());
-	ps->Exchange(false); // fill property set with data from object
+	ps->Exchange(world, false); // fill property set with data from object
 	return ps;
 }
 
@@ -535,16 +531,16 @@ PropertySet* GC_Object::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_Object::MapExchange(MapFile &f)
+void GC_Object::MapExchange(Level &world, MapFile &f)
 {
 	std::string tmp_name;
-	const char *name = GetName();
+	const char *name = GetName(world);
 	tmp_name = name ? name : "";
 	MAP_EXCHANGE_STRING(name, tmp_name, "");
 
 	if( f.loading() )
 	{
-		SetName(tmp_name.c_str());
+		SetName(world, tmp_name.c_str());
 	}
 }
 

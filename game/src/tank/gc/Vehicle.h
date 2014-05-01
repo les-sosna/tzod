@@ -53,7 +53,7 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 	ObjPtr<GC_Player>   _player;
 
 public:
-	GC_Vehicle(float x, float y);
+	GC_Vehicle(Level &world, float x, float y);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();
 
@@ -75,11 +75,11 @@ public:
 	float GetMaxSpeed() const;
 	float GetMaxBrakingLength() const;
 
-	void SetMoveSound(enumSoundTemplate s);
+	void SetMoveSound(Level &world, enumSoundTemplate s);
 
 	GC_Weapon* GetWeapon() const { return _weapon; }
 
-	void SetPlayer(GC_Player *player);
+	void SetPlayer(Level &world, GC_Player *player);
 
 public:
 	ObjPtr<GC_Sound>    _moveSound;
@@ -94,28 +94,28 @@ public:
 	float _trackPathR;
 	float _time_smoke;
     
-	void UpdateLight();
+	void UpdateLight(Level &world);
 
 	void ResetClass();
 	void SetSkin(const std::string &skin);
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-	virtual bool TakeDamage(float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return _player; }
 
 	// GC_Actor
-	virtual void OnPickup(GC_Pickup *pickup, bool attached);
+	virtual void OnPickup(Level &world, GC_Pickup *pickup, bool attached);
 
 	// GC_2dSprite
 	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
-	virtual void Kill();
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFixed(float dt);
-	virtual void TimeStepFloat(float dt);
+	virtual void Kill(Level &world);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFloat(Level &world, float dt);
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const
@@ -134,11 +134,11 @@ class GC_Tank_Light : public GC_Vehicle
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
 public:
-	GC_Tank_Light(float x, float y);
+	GC_Tank_Light(Level &world, float x, float y);
 	GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }
-	virtual void OnDestroy();
+	virtual void OnDestroy(Level &world) override;
 };
 
 // end of file

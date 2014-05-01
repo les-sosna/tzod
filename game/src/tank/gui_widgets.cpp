@@ -18,11 +18,12 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // FPS counter implementation
 
-FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align)
+FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, Level &world)
   : Text(parent)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)
+  , _world(world)
 {
 	SetTimeStep(true);
 	Move(x, y);
@@ -64,13 +65,13 @@ void FpsCounter::OnTimeStep(float dt)
 		);
 
 		sprintf(s1, "; obj:%u\ntimestep: %4u",
-			(unsigned int) g_level->GetList(LIST_objects).size(),
-			(unsigned int) g_level->ts_fixed.size()
+			(unsigned int) _world.GetList(LIST_objects).size(),
+			(unsigned int) _world.ts_fixed.size()
 		);
 		strcat(s, s1);
 
 #ifndef NDEBUG
-		sprintf(s1, "; %4ugarbage", (unsigned int) g_level->_garbage.size());
+		sprintf(s1, "; %4ugarbage", (unsigned int) _world._garbage.size());
 		strcat(s, s1);
 #endif
 
@@ -81,7 +82,7 @@ void FpsCounter::OnTimeStep(float dt)
 		//	NetworkStats ns;
 		//	g_client->GetStatistics(&ns);
 		//	sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f", 
-		//		ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, g_level->_timeBuffer);
+		//		ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, world._timeBuffer);
 		//	strcat(s, s1);
 
 
@@ -113,8 +114,9 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align)
+TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, Level &world)
   : Text(parent)
+  , _world(world)
 {
 	SetTimeStep(true);
 	Move(x, y);
@@ -128,10 +130,10 @@ void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
 
 void TimeElapsed::OnTimeStep(float dt)
 {
-	if( !g_level->IsEmpty() )
+	if( !_world.IsEmpty() )
 	{
 		char text[16];
-		int time = (int) g_level->GetTime();
+		int time = (int) _world.GetTime();
 
 		if( time % 60 < 10 )
 			sprintf(text, "%d:0%d", time / 60, time % 60);

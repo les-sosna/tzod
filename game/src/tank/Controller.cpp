@@ -73,7 +73,7 @@ void Controller::SetProfile(const char *profile)
     }
 }
 
-void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs)
+void Controller::ReadControllerState(Level &world, const GC_Vehicle *vehicle, VehicleState &vs)
 {
 	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));
@@ -119,7 +119,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 		bool move = tmp.x || tmp.y;
 		bool sameDirection = tmp * vehicle->GetDirection() > cos(PI/4);
 
-		bool bBack = move && !sameDirection && NULL != g_level->TraceNearest(g_level->grid_rigid_s, vehicle, 
+		bool bBack = move && !sameDirection && NULL != world.TraceNearest(world.grid_rigid_s, vehicle, 
 			vehicle->GetPos(), vehicle->GetDirection() * vehicle->GetRadius());
 		bool bForv = move && !bBack;
 
@@ -146,7 +146,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 
 		vec2d pt;
 		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) &&
-            GC_Camera::GetWorldMousePos(vec2d((float) mouse_x, (float) mouse_y), pt, false) )
+            GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt, false) )
 		{
 			vec2d tmp = pt - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -180,7 +180,7 @@ void Controller::ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs
 		}
 
 		vec2d pt;
-		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(vec2d((float) mouse_x, (float) mouse_y), pt, false) )
+		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt, false) )
 		{
 			float a = (pt - vehicle->GetPos()).Angle();
 			vs._bExplicitTower = true;

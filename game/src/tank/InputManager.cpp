@@ -18,14 +18,14 @@ InputManager::~InputManager()
     assert(_controllers.empty());
 }
 
-void InputManager::ReadControllerState()
+void InputManager::ReadControllerState(Level &world)
 {
     for (auto &pcpair: _controllers)
     {
         if( GC_Vehicle *vehicle = pcpair.first->GetVehicle() )
         {
             VehicleState vs;
-            pcpair.second.second->ReadControllerState(vehicle, vs);
+            pcpair.second.second->ReadControllerState(world, vehicle, vs);
             vehicle->SetControllerState(vs);
         }
     }

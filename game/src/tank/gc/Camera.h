@@ -27,7 +27,7 @@ private:
 	ObjPtr<GC_Player>  _player;
 
 public:
-	explicit GC_Camera(GC_Player *player);
+    GC_Camera(Level &world, GC_Player *player);
 	GC_Camera(FromFile);
 	virtual ~GC_Camera();
 
@@ -37,18 +37,19 @@ public:
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
-	static void UpdateLayout();
-	static bool GetWorldMousePos(const vec2d &screenPos, vec2d &outWorldPos, bool editorMode);
+	static void UpdateLayout(Level &world);
+	static bool GetWorldMousePos(Level &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode);
 
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
 	// message handlers
-	void OnDetach(GC_Object *sender, void *param);
+	void OnDetach(Level &world, GC_Object *sender, void *param);
 
 	// GC_Object
-	virtual void Serialize(SaveFile &f);
-	virtual void TimeStepFloat(float dt);
+    virtual void Kill(Level &world);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void TimeStepFloat(Level &world, float dt);
 };
 
 // end of file

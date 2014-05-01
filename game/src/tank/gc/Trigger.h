@@ -35,7 +35,7 @@ class GC_Trigger : public GC_2dSprite
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 
 	virtual PropertySet* NewPropertySet();
@@ -48,18 +48,18 @@ class GC_Trigger : public GC_2dSprite
 
 	ObjPtr<GC_Vehicle> _veh;
 
-	bool GetVisible(const GC_Vehicle *v) const;
-	bool Test(const GC_Vehicle *v) const;
+	bool GetVisible(Level &world, const GC_Vehicle *v) const;
+	bool Test(Level &world, const GC_Vehicle *v) const;
 
 public:
-	GC_Trigger(float x, float y);
+	GC_Trigger(Level &world, float x, float y);
 	GC_Trigger(FromFile);
 	~GC_Trigger();
 
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(SaveFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 	virtual void Draw(bool editorMode) const;
 };
 

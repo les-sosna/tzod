@@ -25,19 +25,19 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
-GC_Wood::GC_Wood(float xPos, float yPos)
-  : GC_2dSprite()
+GC_Wood::GC_Wood(Level &world, float xPos, float yPos)
+  : GC_2dSprite(world)
 {
-	AddContext( &g_level->grid_wood );
+	AddContext( &world.grid_wood );
 
-	SetZ(Z_WOOD);
+	SetZ(world, Z_WOOD);
 
 	SetTexture("wood");
-	MoveTo( vec2d(xPos, yPos) );
+	MoveTo(world, vec2d(xPos, yPos));
 	SetFrame(4);
 
 	_tile = 0;
-	UpdateTile(true);
+	UpdateTile(world, true);
 }
 
 GC_Wood::GC_Wood(FromFile)
@@ -47,10 +47,15 @@ GC_Wood::GC_Wood(FromFile)
 
 GC_Wood::~GC_Wood()
 {
-	UpdateTile(false);
 }
 
-void GC_Wood::UpdateTile(bool flag)
+void GC_Wood::Kill(Level &world)
+{
+    UpdateTile(world, false);
+    GC_2dSprite::Kill(world);
+}
+
+void GC_Wood::UpdateTile(Level &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
@@ -63,7 +68,7 @@ void GC_Wood::UpdateTile(bool flag)
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
 	PtrList<ObjectList> receive;
-	g_level->grid_wood.OverlapRect(receive, frect);
+	world.grid_wood.OverlapRect(receive, frect);
 	///////////////////////////////////////////////////
 	PtrList<ObjectList>::iterator rit = receive.begin();
 	for( ; rit != receive.end(); ++rit )
@@ -87,14 +92,14 @@ void GC_Wood::UpdateTile(bool flag)
 	}
 }
 
-void GC_Wood::Serialize(SaveFile &f)
+void GC_Wood::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_tile);
 
 	if( f.loading() )
-		AddContext(&g_level->grid_wood);
+		AddContext(&world.grid_wood);
 }
 
 void GC_Wood::Draw(bool editorMode) const
@@ -139,20 +144,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(GC_Player *owner)
-  : GC_2dSprite()
+GC_Explosion::GC_Explosion(Level &world, GC_Player *owner)
+  : GC_2dSprite(world)
   , _boomOK(false)
   , _owner(owner)
-  , _light(new GC_Light(GC_Light::LIGHT_POINT))
+  , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
   , _time(0)
   , _time_life(0.5f)
   , _time_boom(0)
   , _damage(1)
   , _radius(32)
 {
-	SetZ(Z_EXPLODE);
+	SetZ(world, Z_EXPLODE);
 	SetDirection(vrand(1));
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Explosion::GC_Explosion(FromFile)
@@ -162,12 +167,11 @@ GC_Explosion::GC_Explosion(FromFile)
 
 GC_Explosion::~GC_Explosion()
 {
-	SAFE_KILL(_light);
 }
 
-void GC_Explosion::Serialize(SaveFile &f)
+void GC_Explosion::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_boomOK);
 	f.Serialize(_damage);
 	f.Serialize(_radius);
@@ -262,9 +266,9 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 	return -1;
 }
 
-void GC_Explosion::Boom(float radius, float damage)
+void GC_Explosion::Boom(Level &world, float radius, float damage)
 {
-	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
+	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->GetPlayer() ) continue;
 		if( pCamera->GetPlayer()->GetVehicle() )
@@ -293,7 +297,7 @@ void GC_Explosion::Boom(float radius, float damage)
 	rt.top    /= LOCATION_SIZE;
 	rt.right  /= LOCATION_SIZE;
 	rt.bottom /= LOCATION_SIZE;
-	g_level->grid_rigid_s.OverlapRect(receive, rt);
+	world.grid_rigid_s.OverlapRect(receive, rt);
 
 	//
 	// prepare the field for tracing
@@ -330,8 +334,8 @@ void GC_Explosion::Boom(float radius, float damage)
 
 			if( d <= radius)
 			{
-				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) g_level->TraceNearest(
-					g_level->grid_rigid_s, NULL, GetPos(), dir);
+				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) world.TraceNearest(
+					world.grid_rigid_s, NULL, GetPos(), dir);
 
 				if( object && object != pDamObject )
 				{
@@ -356,7 +360,7 @@ void GC_Explosion::Boom(float radius, float damage)
 							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
 					}
-                    pDamObject->TakeDamage(dam, GetPos(), _owner);
+                    pDamObject->TakeDamage(world, dam, GetPos(), _owner);
 				}
 			}
 		}
@@ -366,22 +370,22 @@ void GC_Explosion::Boom(float radius, float damage)
 	_boomOK = true;
 }
 
-void GC_Explosion::TimeStepFixed(float dt)
+void GC_Explosion::TimeStepFixed(Level &world, float dt)
 {
-	GC_2dSprite::TimeStepFixed(dt);
+	GC_2dSprite::TimeStepFixed(world, dt);
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )
-		Boom(_radius, _damage);
+		Boom(world, _radius, _damage);
 
 	if( _time >= _time_life )
 	{
 		if( _time >= _time_life * 1.5f )
 		{
-			Kill();
+			Kill(world);
 			return;
 		}
-		SetVisible(false);
+		SetVisible(world, false);
 	}
 	else
 	{
@@ -391,6 +395,12 @@ void GC_Explosion::TimeStepFixed(float dt)
 	_light->SetIntensity(1.0f - powf(_time / (_time_life * 1.5f - _time_boom), 6));
 }
 
+void GC_Explosion::Kill(Level &world)
+{
+	SAFE_KILL(world, _light);
+    GC_2dSprite::Kill(world);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
@@ -398,8 +408,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_Player *owner)
-  : GC_Explosion(owner)
+GC_Boom_Standard::GC_Boom_Standard(Level &world, const vec2d &pos, GC_Player *owner)
+  : GC_Explosion(world, owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
@@ -412,27 +422,27 @@ GC_Boom_Standard::GC_Boom_Standard(const vec2d &pos, GC_Player *owner)
 	_time_boom = 0.03f;
 
 	SetTexture("explosion_o");
-	MoveTo( pos );
+	MoveTo( world, pos);
 
 	for(int n = 0; n < 28; ++n)
 	{
 		//ring
 		float ang = frand(PI2);
-		new GC_Particle(pos, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
+		new GC_Particle(world, pos, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
 
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 
-		(new GC_Particle(GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
+		(new GC_Particle(world, GetPos() + vec2d(ang) * d, SPEED_SMOKE, tex2, 1.5f))
 			->_time = frand(1.0f);
 	}
-	GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
-	p->SetZ(Z_WATER);
+	GC_Particle *p = new GC_Particle(world, GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
+	p->SetZ(world, Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
-	_light->MoveTo(GetPos());
+	_light->MoveTo(world, GetPos());
 
 	PLAY(SND_BoomStandard, GetPos());
 }
@@ -453,8 +463,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_Player *owner)
-  : GC_Explosion(owner)
+GC_Boom_Big::GC_Boom_Big(Level &world, const vec2d &pos, GC_Player *owner)
+  : GC_Explosion(world, owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_2");
@@ -469,14 +479,14 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_Player *owner)
 	_time_boom = 0.10f;
 
 	SetTexture("explosion_big");
-	MoveTo( pos );
+	MoveTo(world, pos);
 
 	for( int n = 0; n < 80; ++n )
 	{
 		//ring
 		for( int i = 0; i < 2; ++i )
 		{
-			new GC_Particle(GetPos() + vrand(frand(20.0f)),
+			new GC_Particle(world, GetPos() + vrand(frand(20.0f)),
 				vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
 		}
 
@@ -484,23 +494,23 @@ GC_Boom_Big::GC_Boom_Big(const vec2d &pos, GC_Player *owner)
 
 		//dust
 		a = vrand(frand(40.0f));
-		new GC_Particle(GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
+		new GC_Particle(world, GetPos() + a, a * 2, tex2, frand(0.5f) + 0.25f);
 
 		// sparkles
 		a = vrand(1);
-		new GC_Particle(GetPos() + a * frand(40.0f), a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
+		new GC_Particle(world, GetPos() + a * frand(40.0f), a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
 
 		//smoke
 		a = vrand(frand(48.0f));
-		(new GC_Particle(GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
+		(new GC_Particle(world, GetPos() + a, SPEED_SMOKE + a * 0.5f, tex5, 1.5f))->_time = frand(1.0f);
 	}
 
-	GC_Particle *p = new GC_Particle(GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
-	p->SetZ(Z_WATER);
+	GC_Particle *p = new GC_Particle(world, GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
+	p->SetZ(world, Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
-	_light->MoveTo(GetPos());
+	_light->MoveTo(world, GetPos());
 
 	PLAY(SND_BoomBig, GetPos());
 }
@@ -517,10 +527,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim, 
+GC_HealthDaemon::GC_HealthDaemon(Level &world,
+                                 GC_RigidBodyStatic *victim,
                                  GC_Player *owner,
                                  float damage, float time)
-  : _time(time)
+  : GC_2dSprite(world)
+  , _time(time)
   , _damage(damage)
   , _victim(victim)
   , _owner(owner)
@@ -530,8 +542,8 @@ GC_HealthDaemon::GC_HealthDaemon(GC_RigidBodyStatic *victim,
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
 	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
 
-	MoveTo(_victim->GetPos());
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	MoveTo(world, _victim->GetPos());
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
@@ -543,9 +555,9 @@ GC_HealthDaemon::~GC_HealthDaemon()
 {
 }
 
-void GC_HealthDaemon::Serialize(SaveFile &f)
+void GC_HealthDaemon::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_time);
 	f.Serialize(_damage);
@@ -553,11 +565,11 @@ void GC_HealthDaemon::Serialize(SaveFile &f)
 	f.Serialize(_owner);
 }
 
-void GC_HealthDaemon::TimeStepFloat(float dt)
+void GC_HealthDaemon::TimeStepFloat(Level &world, float dt)
 {
 }
 
-void GC_HealthDaemon::TimeStepFixed(float dt)
+void GC_HealthDaemon::TimeStepFixed(Level &world, float dt)
 {
 	_time -= dt;
 	bool bKill = false;
@@ -566,18 +578,18 @@ void GC_HealthDaemon::TimeStepFixed(float dt)
 		dt += _time;
 		bKill = true;
 	}
-	if( !_victim->TakeDamage(dt * _damage, _victim->GetPos(), _owner) && bKill )
-		Kill(); // victim has died
+	if( !_victim->TakeDamage(world, dt * _damage, _victim->GetPos(), _owner) && bKill )
+		Kill(world); // victim has died
 }
 
-void GC_HealthDaemon::OnVictimMove(GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimMove(Level &world, GC_Object *sender, void *param)
 {
-	MoveTo(static_cast<GC_Actor*>(sender)->GetPos());
+	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
 }
 
-void GC_HealthDaemon::OnVictimKill(GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimKill(Level &world, GC_Object *sender, void *param)
 {
-	Kill();
+	Kill(world);
 }
 
 /////////////////////////////////////////////////////////////
@@ -588,14 +600,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(int xPos, int yPos, const std::string &text, enumAlignText align)
-  : GC_2dSprite()
+GC_Text::GC_Text(Level &world, int xPos, int yPos, const std::string &text, enumAlignText align)
+  : GC_2dSprite(world)
 {
 	SetFont("font_default");
 	SetText(text);
 	SetAlign(align);
 
-	MoveTo( vec2d((float)xPos, (float)yPos) );
+	MoveTo(world, vec2d((float)xPos, (float)yPos));
 }
 
 void GC_Text::SetText(const std::string &text)
@@ -613,9 +625,9 @@ void GC_Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-void GC_Text::Serialize(SaveFile &f)
+void GC_Text::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_text);
 	f.Serialize(_align);
 }
@@ -633,37 +645,40 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, const std::string &text, const char *font)
-  : GC_Text(int(pos.x), int(pos.y), text, alignTextCC)
+GC_Text_ToolTip::GC_Text_ToolTip(Level &world, vec2d pos, const std::string &text, const char *font)
+  : GC_Text(world, int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;
 
-	SetZ(Z_PARTICLE);
+	SetZ(world, Z_PARTICLE);
 
 	SetText(text);
 	SetFont(font);
 
 	float x_min = (float) (GetSpriteWidth() / 2);
-	float x_max = g_level->_sx - x_min;
+	float x_max = world._sx - x_min;
 
 	_y0 = pos.y;
-	MoveTo( vec2d(std::min(x_max, std::max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y) );
+	MoveTo(world, vec2d(std::min(x_max, std::max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y));
 
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-void GC_Text_ToolTip::Serialize(SaveFile &f)
+void GC_Text_ToolTip::Serialize(Level &world, SaveFile &f)
 {
-	GC_Text::Serialize(f);
+	GC_Text::Serialize(world, f);
 	f.Serialize(_time);
 	f.Serialize(_y0);
 }
 
-void GC_Text_ToolTip::TimeStepFloat(float dt)
+void GC_Text_ToolTip::TimeStepFloat(Level &world, float dt)
 {
 	_time += dt;
-	MoveTo(vec2d(GetPos().x, _y0 - _time * 20.0f));
-	if( _time > 1.2f ) Kill();
+	MoveTo(world, vec2d(GetPos().x, _y0 - _time * 20.0f));
+	if( _time > 1.2f )
+    {
+        Kill(world);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

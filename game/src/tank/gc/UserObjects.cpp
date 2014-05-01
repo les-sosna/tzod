@@ -17,14 +17,15 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 	return true;
 }
 
-GC_UserObject::GC_UserObject(float x, float y)
+GC_UserObject::GC_UserObject(Level &world, float x, float y)
+  : GC_RigidBodyStatic(world)
 {
 	_textureName = "turret_platform";
-	SetZ(Z_WALLS);
-	MoveTo(vec2d(x, y));
+	SetZ(world, Z_WALLS);
+	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 	AlignToTexture();
-	g_level->_field.ProcessObject(this, true);
+	world._field.ProcessObject(this, true);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
@@ -37,21 +38,21 @@ GC_UserObject::~GC_UserObject()
 	g_level->_field.ProcessObject(this, false);
 }
 
-void GC_UserObject::Serialize(SaveFile &f)
+void GC_UserObject::Serialize(Level &world, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(f);
+	GC_RigidBodyStatic::Serialize(world, f);
 	f.Serialize(_textureName);
 }
 
-void GC_UserObject::OnDestroy()
+void GC_UserObject::OnDestroy(Level &world)
 {
-	new GC_Boom_Big(GetPos(), NULL);
-	GC_RigidBodyStatic::OnDestroy();
+	new GC_Boom_Big(world, GetPos(), NULL);
+	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-void GC_UserObject::MapExchange(MapFile &f)
+void GC_UserObject::MapExchange(Level &world, MapFile &f)
 {
-	GC_RigidBodyStatic::MapExchange(f);
+	GC_RigidBodyStatic::MapExchange(world, f);
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 	
@@ -102,19 +103,19 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_UserObject::MyPropertySet::MyExchange(bool applyToObject)
+void GC_UserObject::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_UserObject *tmp = static_cast<GC_UserObject *>(GetObject());
 
 	if( applyToObject )
 	{
-		g_level->_field.ProcessObject(tmp, false);
+		world._field.ProcessObject(tmp, false);
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->AlignToTexture();
-		g_level->_field.ProcessObject(tmp, true);
+		world._field.ProcessObject(tmp, true);
 	}
 	else
 	{
@@ -137,13 +138,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 	return true;
 }
 
-GC_Decoration::GC_Decoration(float x, float y)
-  : _textureName("turret_platform")
+GC_Decoration::GC_Decoration(Level &world, float x, float y)
+  : GC_2dSprite(world)
+  , _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
 {
-	SetZ(Z_EDITOR);
-	MoveTo(vec2d(x, y));
+	SetZ(world, Z_EDITOR);
+	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 }
 
@@ -156,17 +158,17 @@ GC_Decoration::~GC_Decoration()
 {
 }
 
-void GC_Decoration::Serialize(SaveFile &f)
+void GC_Decoration::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
 }
 
-void GC_Decoration::MapExchange(MapFile &f)
+void GC_Decoration::MapExchange(Level &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(world, f);
 
 	int z = GetZ();
 	int frame = GetCurrentFrame();
@@ -182,17 +184,17 @@ void GC_Decoration::MapExchange(MapFile &f)
 	{
 		SetTexture(_textureName.c_str());
 		SetFrame(frame % GetFrameCount());
-		SetZ((enumZOrder) z);
+		SetZ(world, (enumZOrder) z);
 		SetDirection(vec2d(rot));
 		if( _frameRate > 0 )
 		{
-			SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+			SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 		}
 		_time = 0;
 	}
 }
 
-void GC_Decoration::TimeStepFixed(float dt)
+void GC_Decoration::TimeStepFixed(Level &world, float dt)
 {
 	assert(_frameRate > 0);
 	_time += dt;
@@ -256,9 +258,9 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
+void GC_Decoration::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_Decoration *tmp = static_cast<GC_Decoration *>(GetObject());
 
@@ -266,11 +268,11 @@ void GC_Decoration::MyPropertySet::MyExchange(bool applyToObject)
 	{
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
-		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
+		tmp->SetZ(world, (enumZOrder) _propLayer.GetIntValue());
 		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
-		tmp->SetEvents(tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
+		tmp->SetEvents(world, tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}
 	else
 	{

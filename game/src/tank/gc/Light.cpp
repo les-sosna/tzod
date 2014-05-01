@@ -26,8 +26,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
-GC_Light::GC_Light(enumLightType type)
-  : _memberOf(this)
+GC_Light::GC_Light(Level &world, enumLightType type)
+  : GC_Actor(world)
+  , _memberOf(this)
   , _timeout(0)
   , _aspect(1)
   , _offset(0)
@@ -35,10 +36,10 @@ GC_Light::GC_Light(enumLightType type)
   , _intensity(1)
   , _type(type)
   , _lightDirection(1, 0)
-  , _lampSprite(new GC_2dSprite())
+  , _lampSprite(new GC_2dSprite(world))
 {
-	SetActive(true);
-	Update();
+	SetActive(world, true);
+	Update(world);
 }
 
 GC_Light::GC_Light(FromFile)
@@ -49,12 +50,11 @@ GC_Light::GC_Light(FromFile)
 
 GC_Light::~GC_Light()
 {
-	SAFE_KILL(_lampSprite);
 }
 
-void GC_Light::Serialize(SaveFile &f)
+void GC_Light::Serialize(Level &world, SaveFile &f)
 {
-	GC_Actor::Serialize(f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
@@ -66,9 +66,9 @@ void GC_Light::Serialize(SaveFile &f)
 	f.Serialize(_lampSprite);
 }
 
-void GC_Light::MapExchange(MapFile &f)
+void GC_Light::MapExchange(Level &world, MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_Actor::MapExchange(world, f);
 }
 
 void GC_Light::Shine() const
@@ -155,39 +155,46 @@ void GC_Light::Shine() const
 	}
 }
 
-void GC_Light::MoveTo(const vec2d &pos)
+void GC_Light::MoveTo(Level &world, const vec2d &pos)
 {
-	_lampSprite->MoveTo(pos);
-	GC_Actor::MoveTo(pos);
+	_lampSprite->MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Light::SetTimeout(float t)
+void GC_Light::SetTimeout(Level &world, float t)
 {
 	assert(t > 0);
 	_timeout = t;
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-void GC_Light::TimeStepFixed(float dt)
+void GC_Light::TimeStepFixed(Level &world, float dt)
 {
 	assert(_timeout > 0);
 	_intensity = _intensity * (_timeout - dt) / _timeout;
 	_timeout -= dt;
-	if( _timeout <= 0 ) Kill();
+	if( _timeout <= 0 )
+        Kill(world);
 }
 
-void GC_Light::SetActive(bool activate)
+void GC_Light::Kill(Level &world)
+{
+	SAFE_KILL(world, _lampSprite);
+    GC_Actor::Kill(world);
+}
+
+void GC_Light::SetActive(Level &world, bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
-	_lampSprite->SetVisible(activate);
+	_lampSprite->SetVisible(world, activate);
 }
 
-void GC_Light::Update()
+void GC_Light::Update(Level &world)
 {
 	if( LIGHT_SPOT == _type )
 	{
 		_lampSprite->SetTexture("shine");
-		_lampSprite->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
+		_lampSprite->SetZ(world, g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
 	}
 }
 
@@ -204,49 +211,55 @@ GC_Spotlight::GC_Spotlight(FromFile)
 {
 }
 
-GC_Spotlight::GC_Spotlight(float x, float y)
-  : _light(new GC_Light(GC_Light::LIGHT_SPOT))
+GC_Spotlight::GC_Spotlight(Level &world, float x, float y)
+  : GC_2dSprite(world)
+  , _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
 {
 	_light->SetRadius(200);
 	_light->SetIntensity(1.0f);
 	_light->SetOffset(170);
 	_light->SetAspect(0.5f);
 
-	MoveTo(vec2d(x, y));
+	MoveTo(world, vec2d(x, y));
 	SetTexture("spotlight");
-	SetZ(Z_PROJECTILE);
+	SetZ(world, Z_PROJECTILE);
 }
 
 GC_Spotlight::~GC_Spotlight()
 {
-	SAFE_KILL(_light);
 }
 
-void GC_Spotlight::Serialize(SaveFile &f)
+void GC_Spotlight::Kill(Level &world)
 {
-	GC_2dSprite::Serialize(f);
+	SAFE_KILL(world, _light);
+    GC_2dSprite::Kill(world);
+}
+
+void GC_Spotlight::Serialize(Level &world, SaveFile &f)
+{
+	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_light);
 }
 
-void GC_Spotlight::MoveTo(const vec2d &pos)
+void GC_Spotlight::MoveTo(Level &world, const vec2d &pos)
 {
-	_light->MoveTo(pos + GetDirection() * 7);
-	GC_2dSprite::MoveTo(pos);
+	_light->MoveTo(world, pos + GetDirection() * 7);
+	GC_2dSprite::MoveTo(world, pos);
 }
 
-void GC_Spotlight::EditorAction()
+void GC_Spotlight::EditorAction(Level &world)
 {
 	static vec2d delta(PI2 / 16);
 	vec2d dir = Vec2dAddDirection(GetDirection(), delta);
 	dir.Normalize();
 	SetDirection(dir);
 	_light->SetLightDirection(dir);
-	_light->MoveTo(GetPos() + dir * 7);
+	_light->MoveTo(world, GetPos() + dir * 7);
 }
 
-void GC_Spotlight::MapExchange(MapFile &f)
+void GC_Spotlight::MapExchange(Level &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(world, f);
 
 	float dir = GetDirection().Angle();
 	int active = _light->IsActive();
@@ -258,8 +271,8 @@ void GC_Spotlight::MapExchange(MapFile &f)
 	{
 		SetDirection(vec2d(dir));
 		_light->SetLightDirection(GetDirection());
-		_light->MoveTo(GetPos() + GetDirection() * 7);
-		_light->SetActive(0 != active);
+		_light->MoveTo(world, GetPos() + GetDirection() * 7);
+		_light->SetActive(world, 0 != active);
 	}
 }
 
@@ -294,15 +307,15 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Spotlight::MyPropertySet::MyExchange(bool applyToObject)
+void GC_Spotlight::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_Spotlight *tmp = static_cast<GC_Spotlight *>(GetObject());
 
 	if( applyToObject )
 	{
-		tmp->_light->SetActive(0 != _propActive.GetIntValue());
+		tmp->_light->SetActive(world, 0 != _propActive.GetIntValue());
 	}
 	else
 	{

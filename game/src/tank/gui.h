@@ -43,12 +43,12 @@ class NewGameDlg : public UI::Dialog
 	Button    *_removeBot;
 	Button    *_changeBot;
 
-	Level &_level;
+	Level &_world;
     InputManager &_inputMgr;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, Level &level, InputManager &inputMgr);
+	NewGameDlg(Window *parent, Level &world, InputManager &inputMgr);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

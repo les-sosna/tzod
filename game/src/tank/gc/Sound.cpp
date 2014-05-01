@@ -22,8 +22,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 	return true;
 }
 
-GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
-  : GC_Actor()
+GC_Sound::GC_Sound(Level &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
+  : GC_Actor(world)
   , _memberOf(this)
   , _soundTemplate(sound)
   , _freezed(false)
@@ -53,7 +53,7 @@ GC_Sound::GC_Sound(enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos
 	_mode = SMODE_UNKNOWN;
 	SetMode(mode);
 
-	if( g_level->GetEditorMode() )
+	if( world.GetEditorMode() )
 		Freeze(true);
 #endif
 }
@@ -89,7 +89,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		assert(SMODE_UNKNOWN == _mode);
 		if( _countActive == _countMax )
 		{
-			FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+			FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
 			{
 				if( SMODE_PLAY == pSound->_mode )
 				{
@@ -100,7 +100,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 			if( _countActive == _countMax )
 			{
-				FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+				FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{
@@ -149,7 +149,7 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 			if( _countActive < _countMax && 0 < _countWaiting )
 			{
-				FOREACH( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+				FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_WAIT == pSound->_mode )
 					{
@@ -215,18 +215,18 @@ void GC_Sound::SetSpeed(float speed)
 #endif
 }
 
-void GC_Sound::MoveTo(const vec2d &pos)
+void GC_Sound::MoveTo(Level &world, const vec2d &pos)
 {
-	GC_Actor::MoveTo(pos);
+	GC_Actor::MoveTo(world, pos);
 #if !defined NOSOUND
 //	if( g_soundManager )
 //		_soundBuffer->SetPan(int(pos.x - g_env.camera_x - g_render->GetWidth() / 2));
 #endif
 }
 
-void GC_Sound::Serialize(SaveFile &f)
+void GC_Sound::Serialize(Level &world, SaveFile &f)
 {
-	GC_Actor::Serialize(f);
+	GC_Actor::Serialize(world, f);
 
 #if !defined NOSOUND
 	assert(f.loading() || _freezed);  // freeze it before saving!
@@ -314,8 +314,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
-GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
-   : GC_Sound(sound, mode, object->GetPos())
+GC_Sound_link::GC_Sound_link(Level &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
+   : GC_Sound(world, sound, mode, object->GetPos())
    , _object(object)
 {
 	///////////////////////
@@ -329,20 +329,20 @@ GC_Sound_link::GC_Sound_link(FromFile)
 {
 }
 
-void GC_Sound_link::Serialize(SaveFile &f)
+void GC_Sound_link::Serialize(Level &world, SaveFile &f)
 {
-	GC_Sound::Serialize(f);
+	GC_Sound::Serialize(world, f);
 	f.Serialize(_object);
 }
 
-void GC_Sound_link::TimeStepFixed(float dt)
+void GC_Sound_link::TimeStepFixed(Level &world, float dt)
 {
 	if( !_object )
-		Kill();
+		Kill(world);
 	else
-		MoveTo(_object->GetPos());
+		MoveTo(world, _object->GetPos());
 
-	GC_Sound::TimeStepFixed(dt);
+	GC_Sound::TimeStepFixed(world, dt);
 }
 
 

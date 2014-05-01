@@ -4,13 +4,14 @@
 
 struct VehicleState;
 class GC_Vehicle;
+class Level;
 
 class Controller
 {
 public:
 	Controller();
     void SetProfile(const char *profile);
-	void ReadControllerState(const GC_Vehicle *vehicle, VehicleState &vs);
+	void ReadControllerState(Level &world, const GC_Vehicle *vehicle, VehicleState &vs);
 
 
 private:

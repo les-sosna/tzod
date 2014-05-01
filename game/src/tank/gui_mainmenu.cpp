@@ -35,13 +35,14 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent, InputManager &inputMgr)
+MainMenuDlg::MainMenuDlg(Window *parent, Level &world, InputManager &inputMgr)
   : Dialog(parent, 1, 1)
   , _inputMgr(inputMgr)
   , _panel(NULL)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
+  , _world(world)
 {
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
@@ -79,7 +80,7 @@ void MainMenuDlg::OnSinglePlayer()
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent(), *g_level, _inputMgr);
+	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -120,7 +121,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		tmp += _fileDlg->GetFileName();
 		try
 		{
-			g_level->Serialize(tmp.c_str());
+			_world.Serialize(tmp.c_str());
 			GetConsole().Printf(0, "game saved: '%s'", tmp.c_str());
 		}
 		catch( const std::exception &e )
@@ -159,7 +160,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 
 		try
 		{
-			g_level->Unserialize(tmp.c_str());
+			_world.Unserialize(tmp.c_str());
 		}
 		catch( const std::exception &e )
 		{
@@ -179,21 +180,21 @@ void MainMenuDlg::OnMultiPlayer()
 void MainMenuDlg::OnHost()
 {
 	SetVisible(false);
-	CreateServerDlg *dlg = new CreateServerDlg(GetParent());
+	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnJoin()
 {
 	SetVisible(false);
-	ConnectDlg *dlg = new ConnectDlg(GetParent(), g_conf.cl_server.Get());
+	ConnectDlg *dlg = new ConnectDlg(GetParent(), g_conf.cl_server.Get(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnInternet()
 {
 	SetVisible(false);
-	InternetDlg *dlg = new InternetDlg(GetParent());
+	InternetDlg *dlg = new InternetDlg(GetParent(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -220,7 +221,7 @@ void MainMenuDlg::OnNewMap()
 void MainMenuDlg::OnMapSettings()
 {
 	SetVisible(false);
-	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent());
+	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -294,7 +295,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 		try
 		{
-			g_level->Export(g_fs->Open(tmp, FS::ModeWrite)->QueryStream());
+			_world.Export(g_fs->Open(tmp, FS::ModeWrite)->QueryStream());
 		}
 		catch( const std::exception &e )
 		{
@@ -312,7 +313,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 void MainMenuDlg::OnSettings()
 {
 	SetVisible(false);
-	SettingsDlg *dlg = new SettingsDlg(GetParent());
+	SettingsDlg *dlg = new SettingsDlg(GetParent(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 

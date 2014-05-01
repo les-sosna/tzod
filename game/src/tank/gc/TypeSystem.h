@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 
+class Level;
 class GC_Object;
 struct FromFile {};
 
@@ -17,7 +18,7 @@ class RTTypes
 {
 	struct EdItem
 	{
-		GC_Object* (*Create) (float, float);
+		GC_Object* (*Create) (Level &, float, float);
 		int           layer;
 		float         align;
 		float         offset;
@@ -32,8 +33,8 @@ class RTTypes
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object* (*) ()> FromFileMap;
 
-	template<class T> static GC_Object* ActorCtor(float x, float y)   { return new T(x, y); }
-	template<class T> static GC_Object* ServiceCtor(float x, float y) { return new T(); }
+	template<class T> static GC_Object* ActorCtor(Level &world, float x, float y)   { return new T(world, x, y); }
+	template<class T> static GC_Object* ServiceCtor(Level &world, float x, float y) { return new T(world); }
 	template<class T> static GC_Object* FromFileCtor() { return new T(::FromFile()); }
 
 public:
@@ -138,7 +139,7 @@ public:
 	//
 
 	GC_Object* CreateFromFile(ObjectType type); // for serialization
-	GC_Object* CreateObject(ObjectType type, float x, float y); // for editor
+	GC_Object* CreateObject(Level &world, ObjectType type, float x, float y); // for editor
 
 
 private:

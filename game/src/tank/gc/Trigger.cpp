@@ -29,16 +29,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 }
 
 
-GC_Trigger::GC_Trigger(float x, float y)
-  : GC_2dSprite()
+GC_Trigger::GC_Trigger(Level &world, float x, float y)
+  : GC_2dSprite(world)
   , _radius(1)
   , _radiusDelta(0)
   , _team(0)
 {
 	SetTexture("editor_trigger");
-	MoveTo(vec2d(x, y));
-	SetZ(Z_WOOD);
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	MoveTo(world, vec2d(x, y));
+	SetZ(world, Z_WOOD);
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 
@@ -51,25 +51,25 @@ GC_Trigger::~GC_Trigger()
 {
 }
 
-bool GC_Trigger::GetVisible(const GC_Vehicle *v) const
+bool GC_Trigger::GetVisible(Level &world, const GC_Vehicle *v) const
 {
-	GC_RigidBodyStatic *object = g_level->TraceNearest(
-		g_level->grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
+	GC_RigidBodyStatic *object = world.TraceNearest(
+		world.grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
 	return object == v;
 }
 
-bool GC_Trigger::Test(const GC_Vehicle *v) const
+bool GC_Trigger::Test(Level &world, const GC_Vehicle *v) const
 {
 	assert(v);
 	float rr = (GetPos() - v->GetPos()).sqr();
 	float r = (_radius + _radiusDelta) * CELL_SIZE;
 	return rr <= r*r && (!CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
-		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(_veh));
+		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(world, _veh));
 }
 
-void GC_Trigger::Serialize(SaveFile &f)
+void GC_Trigger::Serialize(Level &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_radius);
 	f.Serialize(_radiusDelta);
@@ -79,9 +79,9 @@ void GC_Trigger::Serialize(SaveFile &f)
 	f.Serialize(_veh);
 }
 
-void GC_Trigger::MapExchange(MapFile &f)
+void GC_Trigger::MapExchange(Level &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(f);
+	GC_2dSprite::MapExchange(world, f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);
@@ -104,11 +104,11 @@ void GC_Trigger::MapExchange(MapFile &f)
 	}
 }
 
-void GC_Trigger::TimeStepFixed(float dt)
+void GC_Trigger::TimeStepFixed(Level &world, float dt)
 {
 	if( CheckFlags(GC_FLAG_TRIGGER_ACTIVATED) )
 	{
-		if( !_veh || !Test(_veh) || !CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
+		if( !_veh || !Test(world, _veh) || !CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
 		{
 			_veh = NULL;
 			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, false);
@@ -121,7 +121,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 
 		// find nearest vehicle
 		float rr_min = _radius * _radius * CELL_SIZE * CELL_SIZE;
-		FOREACH( g_level->GetList(LIST_vehicles), GC_Vehicle, veh )
+		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
 			if( !veh->GetOwner()
 				|| (CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
@@ -138,7 +138,7 @@ void GC_Trigger::TimeStepFixed(float dt)
 			{
 				if( CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) && rr > veh->GetRadius() * veh->GetRadius() )
 				{
-					if( !GetVisible(veh) ) continue; // vehicle is invisible. skipping
+					if( !GetVisible(world, veh) ) continue; // vehicle is invisible. skipping
 				}
 				rr_min = rr;
 				_veh = veh;
@@ -240,9 +240,9 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Trigger::MyPropertySet::MyExchange(bool applyToObject)
+void GC_Trigger::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_Trigger *tmp = static_cast<GC_Trigger *>(GetObject());
 

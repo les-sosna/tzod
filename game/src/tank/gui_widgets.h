@@ -7,6 +7,8 @@
 #include <string>
 #include <queue>
 
+class Level;
+
 namespace UI
 {
 
@@ -17,9 +19,10 @@ class FpsCounter : public Text
 	int _nSprites;
 	int _nLights;
 	int _nBatches;
+    Level &_world;
 
 public:
-	FpsCounter(Window *parent, float x, float y, enumAlignText align);
+	FpsCounter(Window *parent, float x, float y, enumAlignText align, Level &world);
 
 protected:
 	void OnVisibleChange(bool visible, bool inherited);
@@ -30,8 +33,9 @@ protected:
 
 class TimeElapsed : public Text
 {
+    Level &_world;
 public:
-	TimeElapsed(Window *parent, float x, float y, enumAlignText align);
+	TimeElapsed(Window *parent, float x, float y, enumAlignText align, Level &world);
 protected:
 	void OnVisibleChange(bool visible, bool inherited);
 	void OnTimeStep(float dt);

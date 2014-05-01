@@ -115,7 +115,7 @@ void Level::Clear()
 
 	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
 	{
-		obj->Kill();
+		obj->Kill(*this);
 	}
 
 	// reset info
@@ -210,7 +210,7 @@ void Level::Unserialize(const char *fileName)
 		// read objects contents in the same order as pointers
 		for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 		{
-			(*it)->Serialize(f);
+			(*it)->Serialize(*this, f);
 		}
 
 
@@ -306,7 +306,7 @@ void Level::Unserialize(const char *fileName)
 			pPlayer->UpdateSkin();
 		}
 
-		GC_Camera::UpdateLayout();
+		GC_Camera::UpdateLayout(*this);
 	}
 	catch( const std::runtime_error& )
 	{
@@ -358,7 +358,7 @@ void Level::Serialize(const char *fileName)
 
 	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
 	{
-		(*it)->Serialize(f);
+		(*it)->Serialize(*this, f);
 	}
 
 
@@ -458,10 +458,10 @@ void Level::Import(std::shared_ptr<FS::Stream> s)
 		ObjectType t = RTTypes::Inst().GetTypeByName(file.GetCurrentClassName());
 		if( INVALID_OBJECT_TYPE == t )
 			continue;
-		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(x, y);
-		object->MapExchange(file);
+		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(*this, x, y);
+		object->MapExchange(*this, file);
 	}
-	GC_Camera::UpdateLayout();
+	GC_Camera::UpdateLayout(*this);
 }
 
 void Level::Export(std::shared_ptr<FS::Stream> s)
@@ -498,7 +498,7 @@ void Level::Export(std::shared_ptr<FS::Stream> s)
 		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(RTTypes::Inst().GetTypeName(object->GetType()));
-			object->MapExchange(file);
+			object->MapExchange(*this, file);
 			file.WriteCurrentObject();
 		}
 	}
@@ -717,11 +717,11 @@ void Level::Step(float dt)
 		_safeMode = false;
 		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
 		{
-			(*it)->TimeStepFixed(dt);
+			(*it)->TimeStepFixed(*this, dt);
 			if( *it )
-				(*it)->TimeStepFloat(dt);
+				(*it)->TimeStepFloat(*this, dt);
 		}
-		GC_RigidBodyDynamic::ProcessResponse(dt);
+		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
 		_safeMode = true;
 	}
 
@@ -987,7 +987,7 @@ void Level::OnChangeNightMode()
 {
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
-		pLight->Update();
+		pLight->Update(*this);
 	}
 }
 
@@ -1011,7 +1011,7 @@ void Level::PlayerQuit(GC_Player *p)
 {
 	if( g_gui )
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
-	static_cast<GC_Player*>(p)->Kill();
+	static_cast<GC_Player*>(p)->Kill(*this);
 }
 
 void Level::Seed(unsigned long seed)

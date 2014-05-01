@@ -29,8 +29,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 	return true;
 }
 
-GC_2dSprite::GC_2dSprite()
-  : GC_Actor()
+GC_2dSprite::GC_2dSprite(Level &world)
+  : GC_Actor(world)
   , _direction(1, 0)
   , _color(0xffffffff)
   , _texId(0)
@@ -50,12 +50,17 @@ GC_2dSprite::GC_2dSprite(FromFile)
 
 GC_2dSprite::~GC_2dSprite()
 {
-	SetZ_current(Z_NONE);
 }
 
-void GC_2dSprite::Serialize(SaveFile &f)
+void GC_2dSprite::Kill(Level &world)
 {
-	GC_Actor::Serialize(f);
+    SetZ_current(world, Z_NONE);
+    GC_Actor::Kill(world);
+}
+
+void GC_2dSprite::Serialize(Level &world, SaveFile &f)
+{
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_color);
 	f.Serialize(_frame);
@@ -67,7 +72,7 @@ void GC_2dSprite::Serialize(SaveFile &f)
 	assert(g_texman->IsValidTexture(_texId));
 
 	if( f.loading() )
-		UpdateCurrentZ();
+		UpdateCurrentZ(world);
 }
 
 void GC_2dSprite::SetTexture(const char *name)
@@ -90,7 +95,7 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 	SetFrame(0);
 }
 
-void GC_2dSprite::SetZ_current(enumZOrder z)
+void GC_2dSprite::SetZ_current(Level &world, enumZOrder z)
 {
 	assert(0 <= z && Z_COUNT > z || Z_NONE == z);
 	if( _zOrderCurrent == z ) return;
@@ -103,9 +108,9 @@ void GC_2dSprite::SetZ_current(enumZOrder z)
 	if( Z_NONE != _zOrderCurrent )
 	{
 		if( CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET) )
-			RemoveContext(&g_level->z_grids[_zOrderCurrent]);
+			RemoveContext(&world.z_grids[_zOrderCurrent]);
 		else
-			g_level->z_globals[_zOrderCurrent].erase(_globalZPos);
+			world.z_globals[_zOrderCurrent].erase(_globalZPos);
 	}
 
 	//
@@ -113,34 +118,34 @@ void GC_2dSprite::SetZ_current(enumZOrder z)
 	//
 
 	_zOrderCurrent = z;
-	UpdateCurrentZ();
+	UpdateCurrentZ(world);
 }
 
-void GC_2dSprite::SetGridSet(bool bGridSet)
+void GC_2dSprite::SetGridSet(Level &world, bool bGridSet)
 {
 	enumZOrder current = _zOrderCurrent;
-	SetZ_current(Z_NONE);
+	SetZ_current(world, Z_NONE);
 	SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, bGridSet);
-	SetZ_current(current);
+	SetZ_current(world, current);
 }
 
-void GC_2dSprite::UpdateCurrentZ()
+void GC_2dSprite::UpdateCurrentZ(Level &world)
 {
 	if( Z_NONE == _zOrderCurrent )
 		return;
 
 	if( CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET) )
 	{
-		AddContext( &g_level->z_grids[_zOrderCurrent] );
+		AddContext( &world.z_grids[_zOrderCurrent] );
 	}
 	else
 	{
-		g_level->z_globals[_zOrderCurrent].push_front(this);
-		_globalZPos = g_level->z_globals[_zOrderCurrent].begin();
+		world.z_globals[_zOrderCurrent].push_front(this);
+		_globalZPos = world.z_globals[_zOrderCurrent].begin();
 	}
 }
 
-void GC_2dSprite::SetZ(enumZOrder z)
+void GC_2dSprite::SetZ(Level &world, enumZOrder z)
 {
 	assert(z < Z_COUNT || z == Z_NONE);
 	if( _zOrderPrefered == z )
@@ -150,7 +155,7 @@ void GC_2dSprite::SetZ(enumZOrder z)
 	_zOrderPrefered = z;
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) )
 	{
-		SetZ_current(z);
+		SetZ_current(world, z);
 	}
 }
 
@@ -159,14 +164,14 @@ enumZOrder GC_2dSprite::GetZ() const
 	return _zOrderPrefered;
 }
 
-void GC_2dSprite::SetVisible(bool bShow)
+void GC_2dSprite::SetVisible(Level &world, bool bShow)
 {
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{
 		return;
 	}
 	SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow);
-	SetZ_current(bShow ? _zOrderPrefered : Z_NONE);
+	SetZ_current(world, bShow ? _zOrderPrefered : Z_NONE);
 }
 
 void GC_2dSprite::SetFrame(int frame)

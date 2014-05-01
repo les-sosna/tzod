@@ -29,18 +29,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_MessageBox)
 	return true;
 }
 
-GC_MessageBox::GC_MessageBox()
-  : _msgbox(NULL)
+GC_MessageBox::GC_MessageBox(Level &world)
+  : GC_Service(world)
+  , _msgbox(NULL)
   , _option1("OK")
   , _autoClose(1)
 {
 	SafePtr<PropertySet> ps(NewPropertySet());
-	ps->Exchange(false);
-	ps->Exchange(true);
+	ps->Exchange(world, false);
+	ps->Exchange(world, true);
 }
 
 GC_MessageBox::GC_MessageBox(FromFile)
-  : _msgbox(NULL)
+  : GC_Service(FromFile())
+  , _msgbox(NULL)
 {
 }
 
@@ -50,9 +52,9 @@ GC_MessageBox::~GC_MessageBox()
 		_msgbox->Destroy();
 }
 
-void GC_MessageBox::Serialize(SaveFile &f)
+void GC_MessageBox::Serialize(Level &world, SaveFile &f)
 {
-	GC_Service::Serialize(f);
+	GC_Service::Serialize(world, f);
 	f.Serialize(_title);
 	f.Serialize(_text);
 	f.Serialize(_option1);
@@ -63,14 +65,14 @@ void GC_MessageBox::Serialize(SaveFile &f)
 	if( f.loading() )
 	{
 		SafePtr<PropertySet> ps(NewPropertySet());
-		ps->Exchange(false);
-		ps->Exchange(true);
+		ps->Exchange(world, false);
+		ps->Exchange(world, true);
 	}
 }
 
-void GC_MessageBox::MapExchange(MapFile &f)
+void GC_MessageBox::MapExchange(Level &world, MapFile &f)
 {
-	GC_Service::MapExchange(f);
+	GC_Service::MapExchange(world, f);
 	MAP_EXCHANGE_STRING(title, _title, "");
 	MAP_EXCHANGE_STRING(text, _text, "");
 	MAP_EXCHANGE_STRING(option1, _option1, "");
@@ -81,8 +83,8 @@ void GC_MessageBox::MapExchange(MapFile &f)
 	if( f.loading() )
 	{
 		SafePtr<PropertySet> ps(NewPropertySet());
-		ps->Exchange(false);
-		ps->Exchange(true);
+		ps->Exchange(world, false);
+		ps->Exchange(world, true);
 	}
 }
 
@@ -117,7 +119,7 @@ void GC_MessageBox::OnSelect(int n)
 			}
 			else if( whatch && _autoClose )
 			{
-				Kill();
+				Kill(*g_level);
 			}
 		}
 	}
@@ -164,9 +166,9 @@ ObjectProperty* GC_MessageBox::MyPropertySet::GetProperty(int index)
 	}
 }
 
-void GC_MessageBox::MyPropertySet::MyExchange(bool applyToObject)
+void GC_MessageBox::MyPropertySet::MyExchange(Level &world, bool applyToObject)
 {
-	BASE::MyExchange(applyToObject);
+	BASE::MyExchange(world, applyToObject);
 
 	GC_MessageBox *tmp = static_cast<GC_MessageBox *>(GetObject());
 

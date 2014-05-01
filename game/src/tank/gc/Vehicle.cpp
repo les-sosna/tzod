@@ -10,7 +10,7 @@
 #include "GameClasses.h"
 #include "Camera.h"
 #include "particles.h"
-#include "pickup.h"
+#include "Pickup.h"
 #include "indicators.h"
 #include "sound.h"
 #include "player.h"
@@ -40,7 +40,7 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GC_Vehicle::TimeStepFloat(float dt)
+void GC_Vehicle::TimeStepFloat(Level &world, float dt)
 {
 	static const TextureCache smoke("particle_smoke");
 
@@ -55,35 +55,35 @@ void GC_Vehicle::TimeStepFloat(float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			(new GC_Particle(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
+			(new GC_Particle(world, GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
 		}
 	}
 
 
-	GC_RigidBodyDynamic::TimeStepFloat(dt);
+	GC_RigidBodyDynamic::TimeStepFloat(world, dt);
 }
 
-void GC_Vehicle::SetMoveSound(enumSoundTemplate s)
+void GC_Vehicle::SetMoveSound(Level &world, enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(s, SMODE_LOOP, GetPos());
+	_moveSound = new GC_Sound(world, s, SMODE_LOOP, GetPos());
 }
 
-void GC_Vehicle::UpdateLight()
+void GC_Vehicle::UpdateLight(Level &world)
 {
 	static const vec2d delta1(0.6f);
 	static const vec2d delta2(-0.6f);
-	_light1->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
+	_light1->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
 	_light1->SetLightDirection(GetDirection());
-	_light1->SetActive(_state._bLight);
-	_light2->MoveTo(GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
+	_light1->SetActive(world, _state._bLight);
+	_light2->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
 	_light2->SetLightDirection(GetDirection());
-	_light2->SetActive(_state._bLight);
-	_light_ambient->MoveTo(GetPos());
-	_light_ambient->SetActive(_state._bLight);
+	_light2->SetActive(world, _state._bLight);
+	_light_ambient->MoveTo(world, GetPos());
+	_light_ambient->SetActive(world, _state._bLight);
 }
 
-GC_Vehicle::GC_Vehicle(float x, float y)
-  : GC_RigidBodyDynamic()
+GC_Vehicle::GC_Vehicle(Level &world, float x, float y)
+  : GC_RigidBodyDynamic(world)
   , _memberOf(this)
   , _enginePower(0)
   , _rotatePower(0)
@@ -95,17 +95,17 @@ GC_Vehicle::GC_Vehicle(float x, float y)
   , _time_smoke(0)
 {
 	memset(&_state, 0, sizeof(VehicleState));
-	MoveTo(vec2d(x, y));
-	SetEvents(GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-	SetZ(Z_VEHICLES);
+	MoveTo(world, vec2d(x, y));
+	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+	SetZ(world, Z_VEHICLES);
 	SetShadow(true);
     
-	_light_ambient = new GC_Light(GC_Light::LIGHT_POINT);
+	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
     
-	_light1 = new GC_Light(GC_Light::LIGHT_SPOT);
-	_light2 = new GC_Light(GC_Light::LIGHT_SPOT);
+	_light1 = new GC_Light(world, GC_Light::LIGHT_SPOT);
+	_light2 = new GC_Light(world, GC_Light::LIGHT_SPOT);
     
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
@@ -119,7 +119,7 @@ GC_Vehicle::GC_Vehicle(float x, float y)
 	_light1->SetAspect(0.4f);
 	_light2->SetAspect(0.4f);
 
-	UpdateLight();
+	UpdateLight(world);
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
@@ -130,11 +130,6 @@ GC_Vehicle::GC_Vehicle(FromFile)
 
 GC_Vehicle::~GC_Vehicle()
 {
-	SAFE_KILL(_damLabel);
-	SAFE_KILL(_moveSound);
-	SAFE_KILL(_light_ambient);
-	SAFE_KILL(_light1);
-	SAFE_KILL(_light2);
 }
 
 void GC_Vehicle::SetClass(const VehicleClass &vc)
@@ -172,9 +167,9 @@ void GC_Vehicle::SetMaxHP(float hp)
 	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
 }
 
-void GC_Vehicle::Serialize(SaveFile &f)
+void GC_Vehicle::Serialize(Level &world, SaveFile &f)
 {
-	GC_RigidBodyDynamic::Serialize(f);
+	GC_RigidBodyDynamic::Serialize(world, f);
 
 	f.Serialize(_enginePower);
 	f.Serialize(_rotatePower);
@@ -254,35 +249,41 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	return result;
 }
 
-void GC_Vehicle::SetPlayer(GC_Player *player)
+void GC_Vehicle::SetPlayer(Level &world, GC_Player *player)
 {
-	new GC_IndicatorBar("indicator_health", this, &_health, &_health_max, LOCATION_TOP);
+	new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
 }
 
-void GC_Vehicle::Kill()
+void GC_Vehicle::Kill(Level &world)
 {
+	SAFE_KILL(world, _damLabel);
+	SAFE_KILL(world, _moveSound);
+	SAFE_KILL(world, _light_ambient);
+	SAFE_KILL(world, _light1);
+	SAFE_KILL(world, _light2);
+
 	if( _weapon )
 	{
 		_weapon->SetRespawn(true);
-		_weapon->Detach();
+		_weapon->Detach(world);
 	}
 
 	_player = NULL;
 
-	GC_RigidBodyDynamic::Kill();
+	GC_RigidBodyDynamic::Kill(world);
 }
 
-void GC_Vehicle::OnPickup(GC_Pickup *pickup, bool attached)
+void GC_Vehicle::OnPickup(Level &world, GC_Pickup *pickup, bool attached)
 {
-	GC_RigidBodyDynamic::OnPickup(pickup, attached);
+	GC_RigidBodyDynamic::OnPickup(world, pickup, attached);
 	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
 	{
 		if( attached )
 		{
 			if( _weapon )
 			{
-				_weapon->Disappear(); // this will detach weapon and call OnPickup(attached=false)
+				_weapon->Disappear(world); // this will detach weapon and call OnPickup(attached=false)
 			}
 
 			assert(!_weapon);
@@ -368,14 +369,14 @@ void GC_Vehicle::ResetClass()
 	SetClass(vc);
 }
 
-bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
+bool GC_Vehicle::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	DamageDesc dd;
 	dd.damage = damage;
 	dd.hit    = hit;
 	dd.from   = from;
 
-	PulseNotify(NOTIFY_DAMAGE_FILTER, &dd);
+	PulseNotify(world, NOTIFY_DAMAGE_FILTER, &dd);
 	if( 0 == dd.damage )
 	{
 		return false;
@@ -386,7 +387,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 		if( _damLabel )
 			_damLabel->Reset();
 		else
-			_damLabel = new GC_DamLabel(this);
+			_damLabel = new GC_DamLabel(world, this);
 	}
     
 	SetHealthCur(GetHealth() - dd.damage);
@@ -400,7 +401,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 		}
 	}
 
-	FOREACH( g_level->GetList(LIST_cameras), GC_Camera, pCamera )
+	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
 	{
 		if( !pCamera->GetPlayer() ) continue;
 		if( this == pCamera->GetPlayer()->GetVehicle() )
@@ -421,7 +422,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 			if( from == GetOwner() )
 			{
 				// killed it self
-				GetOwner()->SetScore(GetOwner()->GetScore() - 1);
+				GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 				font = "font_digits_red";
 				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
 			}
@@ -431,7 +432,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 					from->GetTeam() == GetOwner()->GetTeam() )
 				{
 					// 'from' killed his friend
-					from->SetScore(from->GetScore() - 1);
+					from->SetScore(world, from->GetScore() - 1);
 					font = "font_digits_red";
 					sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
 						dd.from->GetNick().c_str(),
@@ -440,7 +441,7 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 				else
 				{
 					// 'from' killed his enemy
-					from->SetScore(from->GetScore() + 1);
+					from->SetScore(world, from->GetScore() + 1);
 					font = "font_digits_green";
 					sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
 						from->GetNick().c_str(), GetOwner()->GetNick().c_str());
@@ -449,28 +450,28 @@ bool GC_Vehicle::TakeDamage(float damage, const vec2d &hit, GC_Player *from)
 			else
 			{
 				// this tank does not have player service. score up the killer
-				from->SetScore(from->GetScore() + 1);
+				from->SetScore(world, from->GetScore() + 1);
 				font = "font_digits_green";
 			}
 
 			if( from->GetVehicle() )
 			{
 				sprintf(score, "%d", from->GetScore());
-				new GC_Text_ToolTip(from->GetVehicle()->GetPos(), score, font);
+				new GC_Text_ToolTip(world, from->GetVehicle()->GetPos(), score, font);
 			}
 		}
 		else if( GetOwner() )
 		{
 			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
-			GetOwner()->SetScore(GetOwner()->GetScore() - 1);
+			GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 			sprintf(score, "%d", GetOwner()->GetScore());
-			new GC_Text_ToolTip(GetPos(), score, "font_digits_red");
+			new GC_Text_ToolTip(world, GetPos(), score, "font_digits_red");
 		}
 
 		{
 			ObjPtr<GC_Object> watch(this);
-			OnDestroy();
-			if( watch ) Kill();
+			OnDestroy(world);
+			if( watch ) Kill(world);
 		}
 
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(msg);
@@ -492,14 +493,14 @@ void GC_Vehicle::Draw(bool editorMode) const
 	}
 
 #ifndef NDEBUG
-	for( int i = 0; i < 4; ++i )
-	{
-		g_level->DbgLine(GetVertex(i), GetVertex((i+1)&3));
-	}
+//	for( int i = 0; i < 4; ++i )
+//	{
+//		world.DbgLine(GetVertex(i), GetVertex((i+1)&3));
+//	}
 #endif // NDEBUG
 }
 
-void GC_Vehicle::TimeStepFixed(float dt)
+void GC_Vehicle::TimeStepFixed(Level &world, float dt)
 {
 	ObjPtr<GC_Vehicle> watch(this);
 
@@ -509,7 +510,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
     
 	if( _moveSound )
 	{
-		_moveSound->MoveTo(GetPos());
+		_moveSound->MoveTo(world, GetPos());
 		float v = _lv.len() / GetMaxSpeed();
 		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
 		_moveSound->SetVolume(std::min(1.0f, 0.9f + 0.1f * v));
@@ -527,7 +528,7 @@ void GC_Vehicle::TimeStepFixed(float dt)
     
 	// move
 	ApplyState(_state);
-	GC_RigidBodyDynamic::TimeStepFixed( dt );
+	GC_RigidBodyDynamic::TimeStepFixed(world, dt);
     
     
 	//
@@ -543,8 +544,8 @@ void GC_Vehicle::TimeStepFixed(float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        GC_Particle *p = new GC_Particle(trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
-        p->SetZ(Z_WATER);
+        GC_Particle *p = new GC_Particle(world, trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
+        p->SetZ(world, Z_WATER);
         p->SetFade(true);
         _trackPathL += _trackDensity;
     }
@@ -555,14 +556,14 @@ void GC_Vehicle::TimeStepFixed(float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        GC_Particle *p = new GC_Particle(trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
-        p->SetZ(Z_WATER);
+        GC_Particle *p = new GC_Particle(world, trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
+        p->SetZ(world, Z_WATER);
         p->SetFade(true);
         _trackPathR += _trackDensity;
     }
     _trackPathR -= len;
     
-	UpdateLight();
+	UpdateLight(world);
     
     
     if( !watch ) return;
@@ -571,17 +572,20 @@ void GC_Vehicle::TimeStepFixed(float dt)
 	// fire...
 	if( _weapon && _state._bState_Fire )
 	{
-		_weapon->Fire();
+		_weapon->Fire(world);
 		if( !watch ) return;
 	}
 
 	//
 	// die if out of level bounds
 	//
-	if( GetPos().x < 0 || GetPos().x > g_level->_sx ||
-		GetPos().y < 0 || GetPos().y > g_level->_sy )
+	if( GetPos().x < 0 || GetPos().x > world._sx ||
+		GetPos().y < 0 || GetPos().y > world._sy )
 	{
-		if( !TakeDamage(GetHealth(), GetPos(), GetOwner()) ) Kill();
+		if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
+        {
+            Kill(world);
+        }
 	}
 }
 
@@ -593,13 +597,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 	return true;
 }
 
-GC_Tank_Light::GC_Tank_Light(float x, float y)
-  : GC_Vehicle(x, y)
+GC_Tank_Light::GC_Tank_Light(Level &world, float x, float y)
+  : GC_Vehicle(world, x, y)
 {
 //	_MaxBackSpeed = 150;
 //	_MaxForvSpeed = 200;
 
-	SetMoveSound(SND_TankMove);
+	SetMoveSound(world, SND_TankMove);
 	SetSkin("red");
 	SetSize(37, 37.5f);
 
@@ -666,10 +670,10 @@ void GC_Tank_Light::SetDefaults()
 }
 */
 
-void GC_Tank_Light::OnDestroy()
+void GC_Tank_Light::OnDestroy(Level &world)
 {
-	new GC_Boom_Big(GetPos(), NULL);
-	GC_Vehicle::OnDestroy();
+	new GC_Boom_Big(world, GetPos(), NULL);
+	GC_Vehicle::OnDestroy(world);
 }
 
 // end of file

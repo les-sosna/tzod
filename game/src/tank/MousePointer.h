@@ -4,6 +4,8 @@
 
 #include <Window.h>
 
+class Level;
+
 namespace UI
 {
 class Text;
@@ -20,7 +22,7 @@ public:
 	MouseCursor(LayoutManager* manager, const char *texture);
 
 protected:
-	void OnTimeStep(float dt);
+	void OnTimeStep(Level &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

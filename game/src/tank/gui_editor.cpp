@@ -83,8 +83,9 @@ PropertyList::Container::Container(Window *parent)
 //	return GetParent()->OnRawChar(c); // pass messages through
 //}
 
-PropertyList::PropertyList(Window *parent, float x, float y, float w, float h)
+PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, Level &world)
   : Dialog(parent, w, h, false)
+  , _world(world)
 {
 	Move(x, y);
 	_psheet = new Container(this);
@@ -156,7 +157,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				assert(false);
 			}
 		}
-		_ps->Exchange(true);
+		_ps->Exchange(_world, true);
 	}
 
 
@@ -170,7 +171,7 @@ void PropertyList::DoExchange(bool applyToObject)
 	if( _ps )
 	{
 		y += 5;
-		_ps->Exchange(false);
+		_ps->Exchange(_world, false);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
@@ -286,17 +287,18 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceListDataSource::ServiceListDataSource()
+ServiceListDataSource::ServiceListDataSource(Level &world)
   : _listener(NULL)
+  , _world(world)
 {
-	assert(!g_level->_serviceListener);
-	g_level->_serviceListener = this;
+	assert(!_world._serviceListener);
+	_world._serviceListener = this;
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
-	assert(this == g_level->_serviceListener);
-	g_level->_serviceListener = NULL;
+	assert(this == _world._serviceListener);
+	_world._serviceListener = NULL;
 }
 
 void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
@@ -312,7 +314,7 @@ void ServiceListDataSource::RemoveListener(ListDataSourceListener *listener)
 
 int ServiceListDataSource::GetItemCount() const
 {
-	return g_level->GetList(LIST_services).size();
+	return _world.GetList(LIST_services).size();
 }
 
 int ServiceListDataSource::GetSubItemCount(int index) const
@@ -322,11 +324,11 @@ int ServiceListDataSource::GetSubItemCount(int index) const
 
 size_t ServiceListDataSource::GetItemData(int index) const
 {
-	ObjectList::iterator it = g_level->GetList(LIST_services).begin();
+	ObjectList::iterator it = _world.GetList(LIST_services).begin();
 	for( int i = 0; i < index; ++i )
 	{
 		++it;
-		assert(g_level->GetList(LIST_services).end() != it);
+		assert(_world.GetList(LIST_services).end() != it);
 	}
 	return (size_t) *it;
 }
@@ -340,7 +342,7 @@ const std::string& ServiceListDataSource::GetItemText(int index, int sub) const
 	case 0:
 		return g_lang->GetRoot()->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc, "")->Get();
 	case 1:
-		name = s->GetName();
+		name = s->GetName(_world);
 		_nameCache = name ? name : "";
 		return _nameCache;
 	}
@@ -361,7 +363,7 @@ void ServiceListDataSource::OnCreate(GC_Object *obj)
 
 void ServiceListDataSource::OnKill(GC_Object *obj)
 {
-	ObjectList &list = g_level->GetList(LIST_services);
+	ObjectList &list = _world.GetList(LIST_services);
 	int found = -1;
 	int idx = 0;
 	for( ObjectList::iterator it = list.begin(); it != list.end(); ++it )
@@ -380,14 +382,16 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h)
+ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, Level &world)
   : Dialog(parent, h, w, false)
+  , _listData(world)
   , _margins(5)
+  , _world(world)
 {
 	_labelService = Text::Create(this, _margins, _margins, g_lang.service_type.Get(), alignTextLT);
 	_labelName = Text::Create(this, w/2, _margins, g_lang.service_name.Get(), alignTextLT);
 
-	_list = ServiceListBox::Create(this);
+	_list = List::Create(this, &_listData, 0, 0, 0, 0);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
@@ -451,7 +455,7 @@ void ServiceEditor::OnCreateService()
 	if( -1 != _combo->GetCurSel() )
 	{
 		ObjectType type = (ObjectType) _combo->GetData()->GetItemData(_combo->GetCurSel());
-		GC_Object *service = RTTypes::Inst().CreateObject(type, 0, 0);
+		GC_Object *service = RTTypes::Inst().CreateObject(_world, type, 0, 0);
 		GetEditorLayout()->SelectNone();
 		GetEditorLayout()->Select(service, true);
 	}
@@ -499,7 +503,7 @@ bool ServiceEditor::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditorLayout::EditorLayout(Window *parent)
+EditorLayout::EditorLayout(Window *parent, Level &world)
   : Window(parent)
   , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
   , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
@@ -507,16 +511,17 @@ EditorLayout::EditorLayout(Window *parent)
   , _isObjectNew(false)
   , _click(true)
   , _mbutton(0)
+  , _world(world)
 {
 	SetTexture(NULL, false);
 
 	_help = Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
-	_propList = new PropertyList(this, 5, 5, 512, 256);
+	_propList = new PropertyList(this, 5, 5, 512, 256, _world);
 	_propList->SetVisible(false);
 
-	_serviceList = new ServiceEditor(this, 5, 300, 512, 256);
+	_serviceList = new ServiceEditor(this, 5, 300, 512, 256, _world);
 	_serviceList->SetVisible(g_conf.ed_showservices.Get());
 
 	_layerDisp = Text::Create(this, 0, 0, "", alignTextRT);
@@ -546,12 +551,12 @@ EditorLayout::~EditorLayout()
 	g_conf.ed_uselayers.eventChange = nullptr;
 }
 
-void EditorLayout::OnKillSelected(GC_Object *sender, void *param)
+void EditorLayout::OnKillSelected(Level &world, GC_Object *sender, void *param)
 {
 	Select(sender, false);
 }
 
-void EditorLayout::OnMoveSelected(GC_Object *sender, void *param)
+void EditorLayout::OnMoveSelected(Level &world, GC_Object *sender, void *param)
 {
 	assert(_selectedObject == sender);
 }
@@ -570,7 +575,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			}
 
 			_selectedObject = object;
-			_propList->ConnectTo(_selectedObject->GetProperties());
+			_propList->ConnectTo(_selectedObject->GetProperties(_world));
 			if( g_conf.ed_showproperties.Get() )
 			{
 				_propList->SetVisible(true);
@@ -646,7 +651,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(vec2d(x, y), mouse, true) )
+	if( GC_Camera::GetWorldMousePos(_world, vec2d(x, y), mouse, true) )
 	{
 		ObjectType type = static_cast<ObjectType>(
 			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
@@ -655,8 +660,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
 
 		vec2d pt;
-		pt.x = std::min(g_level->_sx - align, std::max(align - offset, mouse.x));
-		pt.y = std::min(g_level->_sy - align, std::max(align - offset, mouse.y));
+		pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
+		pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
 		pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
 		pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
@@ -666,18 +671,18 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
 		}
 
-		if( GC_Object *object = g_level->PickEdObject(mouse, layer) )
+		if( GC_Object *object = _world.PickEdObject(mouse, layer) )
 		{
 			if( 1 == button )
 			{
 				if( _click && _selectedObject == object )
 				{
-					object->EditorAction();
+					object->EditorAction(_world);
 					_propList->DoExchange(false);
 					if( _isObjectNew )
 					{
 						// save properties for new object
-						object->GetProperties()->SaveToConfig();
+						object->GetProperties(_world)->SaveToConfig();
 					}
 				}
 				else
@@ -692,7 +697,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 				{
 					Select(object, false);
 				}
-				object->Kill();
+				object->Kill(_world);
 			}
 		}
 		else
@@ -700,15 +705,15 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			if( 1 == button )
 			{
 				// create object
-				GC_Object *object = RTTypes::Inst().CreateObject(type, pt.x, pt.y);
-				SafePtr<PropertySet> properties = object->GetProperties();
+				GC_Object *object = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
+				SafePtr<PropertySet> properties = object->GetProperties(_world);
 
 				// set default properties if Ctrl key is not pressed
 				if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
                     glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS )
 				{
 					properties->LoadFromConfig();
-					properties->Exchange(true);
+					properties->Exchange(_world, true);
 				}
 
 				Select(object, true);
@@ -746,7 +751,7 @@ bool EditorLayout::OnRawChar(int c)
 		{
 			GC_Object *o = _selectedObject;
 			Select(_selectedObject, false);
-			o->Kill();
+			o->Kill(_world);
 		}
 		break;
 	case GLFW_KEY_F1:
@@ -806,7 +811,7 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
-		const DefaultCamera &cam = g_level->_defaultCamera;
+		const DefaultCamera &cam = _world._defaultCamera;
 
 		FRECT rt;
 		s->GetGlobalRect(rt);
@@ -821,7 +826,7 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(g_gui->GetMousePos(), mouse, true) )
+	if( GC_Camera::GetWorldMousePos(_world, g_gui->GetMousePos(), mouse, true) )
 	{
 		std::stringstream buf;
 		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);

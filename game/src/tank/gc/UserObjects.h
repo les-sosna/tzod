@@ -19,22 +19,22 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_UserObject(float x, float y);
+	GC_UserObject(Level &world, float x, float y);
 	GC_UserObject(FromFile);
 	virtual ~GC_UserObject();
 
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }
 
-	virtual void Serialize(SaveFile &f);
-	virtual void OnDestroy();
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void OnDestroy(Level &world);
 
-	virtual void MapExchange(MapFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,19 +60,19 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(bool applyToObject);
+		virtual void MyExchange(Level &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Decoration(float x, float y);
+	GC_Decoration(Level &world, float x, float y);
 	GC_Decoration(FromFile);
 	virtual ~GC_Decoration();
 
-	virtual void Serialize(SaveFile &f);
-	virtual void MapExchange(MapFile &f);
+	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void MapExchange(Level &world, MapFile &f);
 
-	virtual void TimeStepFixed(float dt);
+	virtual void TimeStepFixed(Level &world, float dt);
 };
 
 
