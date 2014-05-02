@@ -20,14 +20,9 @@ PropertySet::PropertySet(GC_Object *object)
 {
 }
 
-const char* PropertySet::GetTypeName() const
-{
-	return RTTypes::Inst().GetTypeName(_object->GetType());
-}
-
 void PropertySet::LoadFromConfig()
 {
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(GetTypeName());
+	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(_object->GetType()));
 	for( int i = 0; i < GetCount(); ++i )
 	{
 		ObjectProperty *prop = GetProperty(i);
@@ -58,7 +53,7 @@ void PropertySet::LoadFromConfig()
 
 void PropertySet::SaveToConfig()
 {
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(GetTypeName());
+	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(_object->GetType()));
 	for( int i = 0; i < GetCount(); ++i )
 	{
 		ObjectProperty *prop = GetProperty(i);

@@ -105,13 +105,12 @@ class PropertySet : public RefCounted
 	ObjectProperty   _propName;
 
 protected:
-	GC_Object* GetObject() const;
 	virtual void MyExchange(Level &world, bool applyToObject);
 
 public:
 	PropertySet(GC_Object *object);
 
-	const char* GetTypeName() const;
+	GC_Object* GetObject() const;
 	void LoadFromConfig();
 	void SaveToConfig();
 	void Exchange(Level &world, bool applyToObject);
