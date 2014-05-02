@@ -76,6 +76,7 @@ set(tank_SOURCES
 	gc/Light.cpp
 	gc/MessageBox.cpp
 	gc/Object.cpp
+	gc/ObjectProperty.cpp
 	gc/particles.cpp
 	gc/pickup.cpp
 	gc/Player.cpp
