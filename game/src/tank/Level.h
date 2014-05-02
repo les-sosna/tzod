@@ -50,7 +50,7 @@ class Level
 {
 	friend class GC_Object;
 
-	std::map<const GC_Object*, std::string>  _objectToStringMaps[32];
+	std::map<const GC_Object*, std::string>  _objectToStringMap;
 	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
 
 	struct SaveHeader

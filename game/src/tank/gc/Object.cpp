@@ -194,9 +194,9 @@ void GC_Object::Serialize(Level &world, SaveFile &f)
 			std::string name;
 			f.Serialize(name);
 
-			assert( 0 == world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+			assert( 0 == world._objectToStringMap.count(this) );
 			assert( 0 == world._nameToObjectMap.count(name) );
-			world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
+			world._objectToStringMap[this] = name;
 			world._nameToObjectMap[name] = this;
 		}
 		else
@@ -271,8 +271,8 @@ const char* GC_Object::GetName(Level &world) const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		assert( world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
-		return world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this].c_str();
+		assert( world._objectToStringMap.count(this) );
+		return world._objectToStringMap[this].c_str();
 	}
 	return NULL;
 }
@@ -285,11 +285,11 @@ void GC_Object::SetName(Level &world, const char *name)
 		// remove old name
 		//
 
-		assert(world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this));
-		const std::string &oldName = world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this];
+		assert(world._objectToStringMap.count(this));
+		const std::string &oldName = world._objectToStringMap[this];
 		assert(world._nameToObjectMap.count(oldName));
 		world._nameToObjectMap.erase(oldName);
-		world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].erase(this); // this invalidates oldName ref
+		world._objectToStringMap.erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
 	}
 
@@ -299,10 +299,10 @@ void GC_Object::SetName(Level &world, const char *name)
 		// set new name
 		//
 
-		assert( 0 == world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)].count(this) );
+		assert( 0 == world._objectToStringMap.count(this) );
 		assert( 0 == world._nameToObjectMap.count(name) );
 
-		world._objectToStringMaps[FastLog2(GC_FLAG_OBJECT_NAMED)][this] = name;
+		world._objectToStringMap[this] = name;
 		world._nameToObjectMap[name] = this;
 
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);
