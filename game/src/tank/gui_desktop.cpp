@@ -15,6 +15,7 @@
 #include "config/Language.h"
 #include "core/Profiler.h"
 #include "gc/Player.h"
+#include "World.h"
 
 //#include "network/TankClient.h"
 
@@ -134,7 +135,7 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
-Desktop::Desktop(LayoutManager* manager, Level &world)
+Desktop::Desktop(LayoutManager* manager, World &world)
   : Window(NULL, manager)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
   , _nModalPopups(0)

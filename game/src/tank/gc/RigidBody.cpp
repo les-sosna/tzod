@@ -2,7 +2,7 @@
 
 #include "RigidBody.h"
 
-#include "Level.h"
+#include "World.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
@@ -29,7 +29,7 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_RigidBodyStatic::GC_RigidBodyStatic(Level &world)
+GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
   : GC_2dSprite(world)
   , _health(1)
   , _health_max(1)
@@ -300,7 +300,7 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 	_health_max = hp;
 }
 
-void GC_RigidBodyStatic::OnDestroy(Level &world)
+void GC_RigidBodyStatic::OnDestroy(World &world)
 {
 	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
 	if( !_scriptOnDestroy.empty() )
@@ -350,7 +350,7 @@ void GC_RigidBodyStatic::TDFV(GC_Actor *from)
 	}
 }
 
-bool GC_RigidBodyStatic::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
@@ -390,7 +390,7 @@ void GC_RigidBodyStatic::SetSize(float width, float length)
 	_radius = sqrt(width*width + length*length) / 2;
 }
 
-void GC_RigidBodyStatic::MapExchange(Level &world, MapFile &f)
+void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);
 
@@ -405,7 +405,7 @@ void GC_RigidBodyStatic::MapExchange(Level &world, MapFile &f)
 	}
 }
 
-void GC_RigidBodyStatic::Serialize(Level &world, SaveFile &f)
+void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 
@@ -463,7 +463,7 @@ ObjectProperty* GC_RigidBodyStatic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyStatic::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_RigidBodyStatic::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -493,7 +493,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
-GC_Wall::GC_Wall(Level &world, float xPos, float yPos)
+GC_Wall::GC_Wall(World &world, float xPos, float yPos)
   : GC_RigidBodyStatic(world)
 {
 	AddContext(&world.grid_walls);
@@ -816,7 +816,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 }
 
-void GC_Wall::MapExchange(Level &world, MapFile &f)
+void GC_Wall::MapExchange(World &world, MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(world, f);
 	int corner = GetCorner();
@@ -831,7 +831,7 @@ void GC_Wall::MapExchange(Level &world, MapFile &f)
 	}
 }
 
-void GC_Wall::Serialize(Level &world, SaveFile &f)
+void GC_Wall::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 
@@ -873,7 +873,7 @@ void GC_Wall::Serialize(Level &world, SaveFile &f)
 	}
 }
 
-void GC_Wall::OnDestroy(Level &world)
+void GC_Wall::OnDestroy(World &world)
 {
 	static const TextureCache tex("particle_smoke");
 
@@ -890,7 +890,7 @@ void GC_Wall::OnDestroy(Level &world)
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-bool GC_Wall::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( !GC_RigidBodyStatic::TakeDamage(world, damage, hit, from) && GetHealthMax() > 0 )
 	{
@@ -917,7 +917,7 @@ bool GC_Wall::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player
 	return true;
 }
 
-void GC_Wall::SetCorner(Level &world, unsigned int index) // 0 means normal view
+void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 {
 	assert(index < 5);
 	static const unsigned int flags[] = {
@@ -1050,7 +1050,7 @@ const char* GC_Wall::GetCornerTexture(int i)
 	return tex[i];
 }
 
-void GC_Wall::EditorAction(Level &world)
+void GC_Wall::EditorAction(World &world)
 {
 	GC_2dSprite::EditorAction(world);
 	SetCorner(world, (GetCorner() + 1) % 5);
@@ -1091,7 +1091,7 @@ ObjectProperty* GC_Wall::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Wall::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Wall::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -1117,7 +1117,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 	return true;
 }
 
-GC_Wall_Concrete::GC_Wall_Concrete(Level &world, float xPos, float yPos)
+GC_Wall_Concrete::GC_Wall_Concrete(World &world, float xPos, float yPos)
   : GC_Wall(world, xPos, yPos)
 {
 	world._field.ProcessObject(this, false);
@@ -1130,7 +1130,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(Level &world, float xPos, float yPos)
 	world._field.ProcessObject(this, true); // removed by parent's destructor
 }
 
-bool GC_Wall_Concrete::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( damage >= DAMAGE_BULLET )
 	{
@@ -1165,7 +1165,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
-GC_Water::GC_Water(Level &world, float xPos, float yPos)
+GC_Water::GC_Water(World &world, float xPos, float yPos)
   : GC_RigidBodyStatic(world)
   , _tile(0)
 {
@@ -1197,7 +1197,7 @@ GC_Water::~GC_Water()
     UpdateTile(*g_level, false);
 }
 
-void GC_Water::UpdateTile(Level &world, bool flag)
+void GC_Water::UpdateTile(World &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
@@ -1234,7 +1234,7 @@ void GC_Water::UpdateTile(Level &world, bool flag)
 	}
 }
 
-void GC_Water::Serialize(Level &world, SaveFile &f)
+void GC_Water::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 
@@ -1272,7 +1272,7 @@ void GC_Water::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-bool GC_Water::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Water::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	return false;
 }

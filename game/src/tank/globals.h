@@ -6,7 +6,7 @@
 
 struct IRender;
 class TextureManager;
-class Level;
+class World;
 class ConsoleBuffer;
 //class ClientBase;
 class AppBase;
@@ -37,7 +37,7 @@ extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
 
-extern std::unique_ptr<Level>     g_level;
+extern std::unique_ptr<World>     g_level;
 #ifndef NOSOUND
 class MusicPlayer;
 extern std::unique_ptr<MusicPlayer>     g_music;

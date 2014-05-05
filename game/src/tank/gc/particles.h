@@ -19,12 +19,12 @@ private:
 	vec2d _velocity;
 
 public:
-	GC_Brick_Fragment_01(Level &world, const vec2d &x0, const vec2d &v0);
+	GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,16 +44,16 @@ public:
 	vec2d _velocity;
 
 public:
-	GC_Particle(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
+	GC_Particle(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
 		float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 
 	void SetFade(bool fade);
 	void SetAutoRotate(float speed);
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,10 +65,10 @@ class GC_ParticleScaled : public GC_Particle
 	float _size;
 
 public:
-	GC_ParticleScaled(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient, float size);
+	GC_ParticleScaled(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient, float size);
 	GC_ParticleScaled(FromFile);
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(bool editorMode) const;
 };
 

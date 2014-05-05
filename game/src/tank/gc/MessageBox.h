@@ -10,12 +10,12 @@ class GC_MessageBox : public GC_Service
 	DECLARE_SELF_REGISTRATION(GC_MessageBox);
 
 public:
-	GC_MessageBox(Level &world);
+	GC_MessageBox(World &world);
 	GC_MessageBox(FromFile);
 	virtual ~GC_MessageBox();
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -33,7 +33,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 

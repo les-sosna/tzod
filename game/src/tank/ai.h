@@ -18,7 +18,7 @@ class GC_Pickup;
 class GC_Player;
 class GC_Vehicle;
 class SaveFile;
-class Level;
+class World;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ class AIController
 	//  bTest        - if true then path cost is evaluated only; current path remains unchanged
 	// Return: path cost or -1 if path was not found
 	//-------------------------------------------------------------------------
-	float CreatePath(Level &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
+	float CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
 
 
 	// clears the current path and the attack list
@@ -95,13 +95,13 @@ protected:
 	ObjPtr<GC_Pickup>          _pickupCurrent;
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
-	bool IsTargetVisible(Level &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
+	bool IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
 	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
-	bool FindTarget(Level &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
-	bool FindItem(Level &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
+	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
+	bool FindItem(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
 
-	void SelectFavoriteWeapon(Level &world);
+	void SelectFavoriteWeapon(World &world);
 
 	// for aim jitter
 	float _desiredOffset;
@@ -121,15 +121,15 @@ protected:
 
 	// calculates the position of a fake target for more accurate shooting
 	// Vp - projectile speed
-	void CalcOutstrip(Level &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake);
+	void CalcOutstrip(World &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake);
 
-	void ProcessAction(Level &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
+	void ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 
 	void SetL1(aiState_l1 new_state);
 	void SetL2(aiState_l2 new_state);
 
-	void SelectState(Level &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
-	void DoState(Level &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws);
+	void SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
+	void DoState(World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	void SetActive(bool active);
 	bool GetActive() const { return _isActive; }
@@ -141,20 +141,20 @@ public:
 	AIController(FromFile);
 	virtual ~AIController();
 
-    void OnRespawn(Level &world, const GC_Vehicle &vehicle);
+    void OnRespawn(World &world, const GC_Vehicle &vehicle);
     void OnDie();
 
-	void debug_draw(Level &world);
+	void debug_draw(World &world);
 
 	void SetLevel(int level) { _level = level; }
 	int  GetLevel() const { return _level; }
 
-	bool March(Level &world, const GC_Vehicle &vehicle, float x, float y);
-	bool Attack(Level &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
-	bool Pickup(Level &world, const GC_Vehicle &vehicle, GC_Pickup *p);
+	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
+	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
+	bool Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p);
 	void Stop();
 
-    void ReadControllerState(Level &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs);
+    void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

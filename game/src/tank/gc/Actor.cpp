@@ -2,13 +2,13 @@
 
 #include "Actor.h"
 
-#include "Level.h"
+#include "World.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Actor::GC_Actor(Level &world)
+GC_Actor::GC_Actor(World &world)
   : GC_Object()
 {
 	memset(&_location, 0, sizeof(Location));
@@ -25,14 +25,14 @@ GC_Actor::~GC_Actor()
 	LeaveAllContexts();
 }
 
-void GC_Actor::Serialize(Level &world, SaveFile &f)
+void GC_Actor::Serialize(World &world, SaveFile &f)
 {
 	GC_Object::Serialize(world, f);
 	f.Serialize(_location);
 	f.Serialize(_pos);
 }
 
-void GC_Actor::MoveTo(Level &world, const vec2d &pos)
+void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
 	Location loc;
 	loc.x = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
@@ -49,7 +49,7 @@ void GC_Actor::MoveTo(Level &world, const vec2d &pos)
 	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
-void GC_Actor::OnPickup(Level &world, GC_Pickup *pickup, bool attached)
+void GC_Actor::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 {
 }
 
@@ -109,7 +109,7 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 	assert(false);
 }
 
-void GC_Actor::MapExchange(Level &world, MapFile &f)
+void GC_Actor::MapExchange(World &world, MapFile &f)
 {
 	GC_Object::MapExchange(world, f);
 

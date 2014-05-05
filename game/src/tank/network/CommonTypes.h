@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Variant.h"
-#include "Level.h"
 
 #define MAX_SRVNAME 16
 #define MAX_MAPNAME 256
@@ -22,17 +21,17 @@ struct GameInfo
 };
 
 VARIANT_DECLARE_TYPE(GameInfo);
-VARIANT_DECLARE_TYPE(PlayerDesc);
+//VARIANT_DECLARE_TYPE(PlayerDesc);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct PlayerDescEx
-{
-	PlayerDesc pd;
-	unsigned short idx;
-};
-
-VARIANT_DECLARE_TYPE(PlayerDescEx);
+//struct PlayerDescEx
+//{
+//	PlayerDesc pd;
+//	unsigned short idx;
+//};
+//
+//VARIANT_DECLARE_TYPE(PlayerDescEx);
 
 ///////////////////////////////////////////////////////////////////////////////
 

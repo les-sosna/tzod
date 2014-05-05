@@ -7,7 +7,7 @@
 #include <list>
 
 class InputManager;
-class Level;
+class World;
 
 namespace UI
 {
@@ -67,10 +67,10 @@ class MainMenuDlg : public Dialog
 	PanelState _pstate;
 
 	GetFileNameDlg *_fileDlg;
-    Level &_world;
+    World &_world;
 
 public:
-	MainMenuDlg(Window *parent, Level &world, InputManager &inputMgr);
+	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

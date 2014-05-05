@@ -1,10 +1,10 @@
-// Level.inl - inline functions for Level.h
+// World.inl - inline functions for World.h
 
 #include "gc/RigidBody.h"
 
 
 template<class SelectorType>
-void Level::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
+void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 {
 	//
 	// overlap line

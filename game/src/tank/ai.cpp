@@ -2,7 +2,7 @@
 
 #include "ai.h"
 
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -105,7 +105,7 @@ void AIController::Serialize(SaveFile &f)
 	}
 }
 
-void AIController::ReadControllerState(Level &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs)
+void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs)
 {
 	if( vehicle.GetOwner() )
 	{
@@ -220,7 +220,7 @@ static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 	return (0xFF != cell.Properties() && hasWeapon) || (0 == cell.Properties() && !hasWeapon);
 }
 
-float AIController::CreatePath(Level &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
+float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
 	if( to.x < 0 || to.x >= world._sx || to.y < 0 || to.y >= world._sy )
 	{
@@ -605,7 +605,7 @@ AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &ta
 }
 
 // return true if a target was found
-bool AIController::FindTarget(Level &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
+bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	if( !vehicle.GetWeapon() )
         return false;
@@ -672,7 +672,7 @@ bool AIController::FindTarget(Level &world, const GC_Vehicle &vehicle, /*out*/ A
 	return optimal > AIP_NOTREQUIRED;
 }
 
-bool AIController::FindItem(Level &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
+bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	std::vector<GC_Pickup *> applicants;
 
@@ -746,7 +746,7 @@ bool AIController::FindItem(Level &world, const GC_Vehicle &vehicle, /*out*/ AII
 	return optimal > AIP_NOTREQUIRED;
 }
 
-void AIController::SelectFavoriteWeapon(Level &world)
+void AIController::SelectFavoriteWeapon(World &world)
 {
 	int wcount = 0;
 	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
@@ -764,7 +764,7 @@ void AIController::SelectFavoriteWeapon(Level &world)
 }
 
 // calculates the position of a fake target for more accurate shooting
-void AIController::CalcOutstrip(Level &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake)
+void AIController::CalcOutstrip(World &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake)
 {
 	ASSERT_TYPE(target, GC_Vehicle);
 	float Vt = target->_lv.len();
@@ -844,7 +844,7 @@ void AIController::SetL2(aiState_l2 new_state)
 	_aiState_l2 = new_state;
 }
 
-void AIController::ProcessAction(Level &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
+void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
 	AIITEMINFO ii_item;
 	FindItem(world, vehicle, ii_item, ws);
@@ -897,7 +897,7 @@ void AIController::ProcessAction(Level &world, const GC_Vehicle &vehicle, const 
 	}
 }
 
-bool AIController::March(Level &world, const GC_Vehicle &vehicle, float x, float y)
+bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float y)
 {
     AIWEAPSETTINGS ws;
     if( vehicle.GetWeapon() )
@@ -911,7 +911,7 @@ bool AIController::March(Level &world, const GC_Vehicle &vehicle, float x, float
 	return false;
 }
 
-bool AIController::Attack(Level &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target)
+bool AIController::Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target)
 {
 	if( vehicle.GetWeapon() )
 	{
@@ -922,7 +922,7 @@ bool AIController::Attack(Level &world, const GC_Vehicle &vehicle, GC_RigidBodyS
 }
 
 
-bool AIController::Pickup(Level &world, const GC_Vehicle &vehicle, GC_Pickup *p)
+bool AIController::Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p)
 {
 	assert(p);
     if( _pickupCurrent != p )
@@ -953,7 +953,7 @@ void AIController::Stop()
 	ClearPath();
 }
 
-void AIController::SelectState(Level &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
+void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
 	if( !_isActive )
 	{
@@ -998,7 +998,7 @@ void AIController::SetActive(bool active)
 	_isActive = active;
 }
 
-void AIController::DoState(Level &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws)
+void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws)
 {
 	if( L1_NONE != _aiState_l1 )
 		return;
@@ -1246,7 +1246,7 @@ void AIController::DoState(Level &world, const GC_Vehicle &vehicle, VehicleState
 	//}
 }
 
-bool AIController::IsTargetVisible(Level &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
+bool AIController::IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)
 {
 	assert(vehicle.GetWeapon());
 
@@ -1273,7 +1273,7 @@ bool AIController::IsTargetVisible(Level &world, const GC_Vehicle &vehicle, GC_R
 	}
 }
 
-void AIController::OnRespawn(Level &world, const GC_Vehicle &vehicle)
+void AIController::OnRespawn(World &world, const GC_Vehicle &vehicle)
 {
 	_arrivalPoint = vehicle.GetPos();
 //	_jobManager.RegisterMember(this);
@@ -1292,7 +1292,7 @@ void AIController::OnDie()
 ////////////////////////////////////////////
 // debug graphics
 
-void AIController::debug_draw(Level &world)
+void AIController::debug_draw(World &world)
 {
 	if( !_path.empty() )
 	{

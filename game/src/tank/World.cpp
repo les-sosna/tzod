@@ -1,8 +1,8 @@
-// Level.cpp
+// World.cpp
 ////////////////////////////////////////////////////////////
 
-#include "Level.h"
-#include "Level.inl"
+#include "World.h"
+#include "World.inl"
 
 #include "DefaultCamera.h"
 #include "gui.h"
@@ -51,7 +51,7 @@ UI::ConsoleBuffer& GetConsole();
 ////////////////////////////////////////////////////////////
 
 // don't create game objects in the constructor
-Level::Level()
+World::World()
   : _modeEditor(false)
 #ifdef NETWORK_DEBUG
   , _checksum(0)
@@ -74,16 +74,16 @@ Level::Level()
 	TRACE("Constructing the level");
 
 	// register config handlers
-	g_conf.s_volume.eventChange = std::bind(&Level::OnChangeSoundVolume, this);
-	g_conf.sv_nightmode.eventChange = std::bind(&Level::OnChangeNightMode, this);
+	g_conf.s_volume.eventChange = std::bind(&World::OnChangeSoundVolume, this);
+	g_conf.sv_nightmode.eventChange = std::bind(&World::OnChangeNightMode, this);
 }
 
-bool Level::IsEmpty() const
+bool World::IsEmpty() const
 {
 	return GetList(LIST_objects).empty();
 }
 
-void Level::Resize(int X, int Y)
+void World::Resize(int X, int Y)
 {
 	assert(IsEmpty());
 
@@ -109,7 +109,7 @@ void Level::Resize(int X, int Y)
 	_field.Resize(X + 1, Y + 1);
 }
 
-void Level::Clear()
+void World::Clear()
 {
 	assert(IsSafeMode());
 
@@ -142,16 +142,16 @@ void Level::Clear()
     assert(IsEmpty());
 }
 
-void Level::HitLimit()
+void World::HitLimit()
 {
 	assert(!_limitHit);
 //	PauseLocal(true);
 	_limitHit = true;
-    Level &world = *this;
+    World &world = *this;
 	PLAY(SND_Limit, vec2d(0,0));
 }
 
-Level::~Level()
+World::~World()
 {
 	assert(IsSafeMode());
 	TRACE("Destroying the level");
@@ -164,7 +164,7 @@ Level::~Level()
 	assert(!g_env.nNeedCursor);
 }
 
-void Level::Unserialize(const char *fileName)
+void World::Unserialize(const char *fileName)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
@@ -316,7 +316,7 @@ void Level::Unserialize(const char *fileName)
 	}
 }
 
-void Level::Serialize(const char *fileName)
+void World::Serialize(const char *fileName)
 {
 	assert(IsSafeMode());
 
@@ -425,7 +425,7 @@ void Level::Serialize(const char *fileName)
 	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
 }
 
-void Level::Import(std::shared_ptr<FS::Stream> s)
+void World::Import(std::shared_ptr<FS::Stream> s)
 {
 	assert(IsEmpty());
 	assert(IsSafeMode());
@@ -465,7 +465,7 @@ void Level::Import(std::shared_ptr<FS::Stream> s)
 	GC_Camera::UpdateLayout(*this);
 }
 
-void Level::Export(std::shared_ptr<FS::Stream> s)
+void World::Export(std::shared_ptr<FS::Stream> s)
 {
 	assert(IsSafeMode());
 
@@ -505,7 +505,7 @@ void Level::Export(std::shared_ptr<FS::Stream> s)
 	}
 }
 
-void Level::PauseSound(bool pause)
+void World::PauseSound(bool pause)
 {
 	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
@@ -513,7 +513,7 @@ void Level::PauseSound(bool pause)
 	}
 }
 
-GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
+GC_2dSprite* World::PickEdObject(const vec2d &pt, int layer)
 {
 	for( int i = Z_COUNT; i--; )
 	{
@@ -549,22 +549,22 @@ GC_2dSprite* Level::PickEdObject(const vec2d &pt, int layer)
 	return NULL;
 }
 
-int Level::net_rand()
+int World::net_rand()
 {
 	return ((_seed = _seed * 214013L + 2531011L) >> 16) & RAND_MAX;
 }
 
-float Level::net_frand(float max)
+float World::net_frand(float max)
 {
 	return (float) net_rand() / (float) RAND_MAX * max;
 }
 
-vec2d Level::net_vrand(float len)
+vec2d World::net_vrand(float len)
 {
 	return vec2d(net_frand(PI2)) * len;
 }
 
-bool Level::CalcOutstrip( const vec2d &fp, // fire point
+bool World::CalcOutstrip( const vec2d &fp, // fire point
                           float vp,        // speed of the projectile
                           const vec2d &tx, // target position
                           const vec2d &tv, // target velocity
@@ -592,7 +592,7 @@ bool Level::CalcOutstrip( const vec2d &fp, // fire point
 	return true;
 }
 
-GC_RigidBodyStatic* Level::TraceNearest( Grid<ObjectList> &list,
+GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
                                          const GC_RigidBodyStatic* ignore,
                                          const vec2d &x0,      // origin
                                          const vec2d &a,       // direction with length
@@ -647,7 +647,7 @@ GC_RigidBodyStatic* Level::TraceNearest( Grid<ObjectList> &list,
 	return selector.result;
 }
 
-void Level::TraceAll( Grid<ObjectList> &list,
+void World::TraceAll( Grid<ObjectList> &list,
                       const vec2d &x0,      // origin
                       const vec2d &a,       // direction with length
                       std::vector<CollisionPoint> &result) const
@@ -683,7 +683,7 @@ void Level::TraceAll( Grid<ObjectList> &list,
 	RayTrace(list, selector);
 }
 
-void Level::DrawBackground(size_t tex) const
+void World::DrawBackground(size_t tex) const
 {
 	const LogicalTexture &lt = g_texman->Get(tex);
 	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
@@ -709,7 +709,7 @@ void Level::DrawBackground(size_t tex) const
 	v[3].y = _sy;
 }
 
-void Level::Step(float dt)
+void World::Step(float dt)
 {
 	_time += dt;
 
@@ -769,7 +769,7 @@ void Level::Step(float dt)
 #endif
 }
 
-void Level::RunCmdQueue(float dt)
+void World::RunCmdQueue(float dt)
 {
 	assert(_safeMode);
 
@@ -813,7 +813,7 @@ void Level::RunCmdQueue(float dt)
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 }
 
-void Level::Render(bool editorMode) const
+void World::Render(bool editorMode) const
 {
 	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
 
@@ -891,7 +891,7 @@ void Level::Render(bool editorMode) const
 	}
 }
 
-void Level::RenderInternal(const FRECT &world, bool editorMode) const
+void World::RenderInternal(const FRECT &world, bool editorMode) const
 {
 	//
 	// draw lights to alpha channel
@@ -960,7 +960,7 @@ void Level::RenderInternal(const FRECT &world, bool editorMode) const
 }
 
 #ifndef NDEBUG
-void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
+void World::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 {
 	_dbgLineBuffer.push_back(MyLine());
 	MyLine &line = _dbgLineBuffer.back();
@@ -970,13 +970,13 @@ void Level::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
 }
 #endif
 
-GC_Object* Level::FindObject(const std::string &name) const
+GC_Object* World::FindObject(const std::string &name) const
 {
 	std::map<std::string, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
 	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;
 }
 
-void Level::OnChangeSoundVolume()
+void World::OnChangeSoundVolume()
 {
 	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
@@ -984,7 +984,7 @@ void Level::OnChangeSoundVolume()
 	}
 }
 
-void Level::OnChangeNightMode()
+void World::OnChangeNightMode()
 {
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
@@ -994,7 +994,7 @@ void Level::OnChangeNightMode()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Player* Level::GetPlayerByIndex(size_t playerIndex)
+GC_Player* World::GetPlayerByIndex(size_t playerIndex)
 {
 	GC_Player *player = NULL;
 	FOREACH(GetList(LIST_players), GC_Player, p)
@@ -1008,14 +1008,14 @@ GC_Player* Level::GetPlayerByIndex(size_t playerIndex)
 	return player;
 }
 
-void Level::PlayerQuit(GC_Player *p)
+void World::PlayerQuit(GC_Player *p)
 {
 	if( g_gui )
 		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
 	static_cast<GC_Player*>(p)->Kill(*this);
 }
 
-void Level::Seed(unsigned long seed)
+void World::Seed(unsigned long seed)
 {
     _seed = seed;
 }

@@ -3,7 +3,7 @@
 #include "Camera.h"
 
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "Player.h"
 #include "SaveFile.h"
@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-GC_Camera::GC_Camera(Level &world, GC_Player *player)
+GC_Camera::GC_Camera(World &world, GC_Player *player)
   : GC_Actor(world)
   , _memberOf(this)
   , _rotator(_rotatorAngle)
@@ -70,13 +70,13 @@ GC_Camera::~GC_Camera()
 {
 }
 
-void GC_Camera::Kill(Level &world)
+void GC_Camera::Kill(World &world)
 {
     UpdateLayout(world);
     GC_Actor::Kill(world);
 }
 
-void GC_Camera::MoveTo(Level &world, const vec2d &pos)
+void GC_Camera::MoveTo(World &world, const vec2d &pos)
 {
 #ifndef NOSOUND
     alListener3f(AL_POSITION, GetPos().x, GetPos().y, 500.0f);
@@ -84,7 +84,7 @@ void GC_Camera::MoveTo(Level &world, const vec2d &pos)
     GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Camera::TimeStepFloat(Level &world, float dt)
+void GC_Camera::TimeStepFloat(World &world, float dt)
 {
 	float mu = 3;
 
@@ -147,7 +147,7 @@ void GC_Camera::GetScreen(Rect &vp) const
 	vp = _viewport;
 }
 
-void GC_Camera::UpdateLayout(Level &world)
+void GC_Camera::UpdateLayout(World &world)
 {
 	size_t camCount = 0;
 
@@ -210,7 +210,7 @@ void GC_Camera::UpdateLayout(Level &world)
 	}
 }
 
-bool GC_Camera::GetWorldMousePos(Level &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode)
+bool GC_Camera::GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode)
 {
 	Point ptinscr = { (int) screenPos.x, (int) screenPos.y };
 
@@ -246,7 +246,7 @@ void GC_Camera::Shake(float level)
 	_time_shake = std::min(_time_shake + 0.5f * level, PLAYER_RESPAWN_DELAY / 2);
 }
 
-void GC_Camera::Serialize(Level &world, SaveFile &f)
+void GC_Camera::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
@@ -264,7 +264,7 @@ void GC_Camera::Serialize(Level &world, SaveFile &f)
     }
 }
 
-void GC_Camera::OnDetach(Level &world, GC_Object *sender, void *param)
+void GC_Camera::OnDetach(World &world, GC_Object *sender, void *param)
 {
 	Kill(world);
 }

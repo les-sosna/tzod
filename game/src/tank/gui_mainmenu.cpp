@@ -19,7 +19,7 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "script.h"
 
@@ -35,7 +35,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent, Level &world, InputManager &inputMgr)
+MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr)
   : Dialog(parent, 1, 1)
   , _inputMgr(inputMgr)
   , _panel(NULL)

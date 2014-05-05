@@ -1,4 +1,4 @@
-// Level.h
+// World.h
 
 #pragma once
 
@@ -46,7 +46,7 @@ struct PlayerDesc
 
 #define MAX_THEME_NAME  128
 
-class Level
+class World
 {
 	friend class GC_Object;
 
@@ -135,8 +135,8 @@ public:
 	bool  _safeMode;
 
 /////////////////////////////////////////////////////
-	Level();
-	~Level();
+	World();
+	~World();
 
 	void Resize(int X, int Y);
 	void HitLimit();
@@ -244,7 +244,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 // inline functions definition
-//#include "Level.inl"
+//#include "World.inl"
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

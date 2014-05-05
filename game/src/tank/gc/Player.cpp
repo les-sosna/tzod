@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "GameClasses.h"
 #include "indicators.h"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "particles.h"
@@ -38,7 +38,7 @@ extern "C"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_Player::GC_Player(Level &world)
+GC_Player::GC_Player(World &world)
   : GC_Service(world)
   , _memberOf(this)
   , _timeRespawn(PLAYER_RESPAWN_DELAY)
@@ -81,7 +81,7 @@ GC_Player::~GC_Player()
 {
 }
 
-void GC_Player::Serialize(Level &world, SaveFile &f)
+void GC_Player::Serialize(World &world, SaveFile &f)
 {
 	GC_Service::Serialize(world, f);
 
@@ -97,7 +97,7 @@ void GC_Player::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_vehicle);
 }
 
-void GC_Player::MapExchange(Level &world, MapFile &f)
+void GC_Player::MapExchange(World &world, MapFile &f)
 {
 	GC_Service::MapExchange(world, f);
 	MAP_EXCHANGE_STRING(on_die, _scriptOnDie, "");
@@ -110,7 +110,7 @@ void GC_Player::MapExchange(Level &world, MapFile &f)
 	MAP_EXCHANGE_INT(team, _team, 0);
 }
 
-void GC_Player::Kill(Level &world)
+void GC_Player::Kill(World &world)
 {
 	if( _vehicle )
 		_vehicle->Kill(world); // the reference is released in the OnVehicleKill()
@@ -144,7 +144,7 @@ void GC_Player::UpdateSkin()
 		_vehicle->SetSkin(_skin);
 }
 
-void GC_Player::SetScore(Level &world, int score)
+void GC_Player::SetScore(World &world, int score)
 {
 	_score = score;
 	if( g_conf.sv_fraglimit.GetInt() )
@@ -164,7 +164,7 @@ void GC_Player::OnDie()
 {
 }
 
-void GC_Player::TimeStepFixed(Level &world, float dt)
+void GC_Player::TimeStepFixed(World &world, float dt)
 {
 	GC_Service::TimeStepFixed(world, dt);
 
@@ -260,7 +260,7 @@ void GC_Player::TimeStepFixed(Level &world, float dt)
 	}
 }
 
-void GC_Player::OnVehicleDestroy(Level &world, GC_Object *sender, void *param)
+void GC_Player::OnVehicleDestroy(World &world, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -272,7 +272,7 @@ void GC_Player::OnVehicleDestroy(Level &world, GC_Object *sender, void *param)
 	}
 }
 
-void GC_Player::OnVehicleKill(Level &world, GC_Object *sender, void *param)
+void GC_Player::OnVehicleKill(World &world, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -341,7 +341,7 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Player::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -413,7 +413,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 	return true;
 }
 
-GC_PlayerLocal::GC_PlayerLocal(Level &world)
+GC_PlayerLocal::GC_PlayerLocal(World &world)
   : GC_Player(world)
 {
 	new GC_Camera(world, this);

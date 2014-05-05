@@ -40,13 +40,13 @@ public:
 	float _volume;  // 0 - min;  1 - max
 
 public:
-	GC_Sound(Level &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
+	GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	void KillWhenFinished(Level &world);
-	virtual void MoveTo(Level &world, const vec2d &pos) override;
+	void KillWhenFinished(World &world);
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	void Pause(bool pause);
 	void Freeze(bool freeze);
@@ -71,10 +71,10 @@ protected:
 	ObjPtr<GC_Actor> _object;
 
 public:
-	GC_Sound_link(Level &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object);
+	GC_Sound_link(World &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object);
 	GC_Sound_link(FromFile);
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void TimeStepFixed(World &world, float dt);
 
 public:
 	bool CheckObject(const GC_Object *object) const

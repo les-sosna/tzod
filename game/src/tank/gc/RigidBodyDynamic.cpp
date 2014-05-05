@@ -2,7 +2,7 @@
 
 #include "RigidBodyDinamic.h"
 
-#include "Level.h"
+#include "World.h"
 #include "MapFile.h"
 #include "projectiles.h"
 #include "SaveFile.h"
@@ -57,7 +57,7 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_RigidBodyDynamic::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_RigidBodyDynamic::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -92,7 +92,7 @@ GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic(Level &world)
+GC_RigidBodyDynamic::GC_RigidBodyDynamic(World &world)
   : GC_RigidBodyStatic(world)
 {
 	_lv.Zero();
@@ -133,7 +133,7 @@ PropertySet* GC_RigidBodyDynamic::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_RigidBodyDynamic::MapExchange(Level &world, MapFile &f)
+void GC_RigidBodyDynamic::MapExchange(World &world, MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(world, f);
 
@@ -152,7 +152,7 @@ void GC_RigidBodyDynamic::MapExchange(Level &world, MapFile &f)
 	}
 }
 
-void GC_RigidBodyDynamic::Serialize(Level &world, SaveFile &f)
+void GC_RigidBodyDynamic::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 
@@ -224,7 +224,7 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 	return GetDirection() * result; // FIXME: add y coordinate
 }
 
-void GC_RigidBodyDynamic::TimeStepFixed(Level &world, float dt)
+void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 {
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);
@@ -380,7 +380,7 @@ void GC_RigidBodyDynamic::PopState()
 	_contactsStack.pop();
 }
 
-void GC_RigidBodyDynamic::ProcessResponse(Level &world, float dt)
+void GC_RigidBodyDynamic::ProcessResponse(World &world, float dt)
 {
 	for( int i = 0; i < 128; i++ )
 	{

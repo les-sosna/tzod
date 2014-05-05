@@ -36,20 +36,20 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_RigidBodyStatic(Level &world);
+	GC_RigidBodyStatic(World &world);
 	GC_RigidBodyStatic(FromFile);
 	virtual ~GC_RigidBodyStatic();
 
 	virtual GC_Player* GetOwner() const { return NULL; }
 
 	// GC_Object
-	virtual void MapExchange(Level &world, MapFile &f);
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const = 0;
 
@@ -99,10 +99,10 @@ public:
 	float GetHealthMax() const { return _health_max; }
 
 	virtual float GetDefaultHealth() const = 0;
-	virtual void  OnDestroy(Level &world);
+	virtual void  OnDestroy(World &world);
 
 	// return true if object has been killed
-	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 	virtual void TDFV(GC_Actor *from);
 
 	//
@@ -151,7 +151,7 @@ class GC_Wall : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_Wall);
 
 private:
-	void SetCorner(Level &world, unsigned int index); // 01
+	void SetCorner(World &world, unsigned int index); // 01
 	unsigned int GetCorner(void) const; // 32
 
 	void SetStyle(int style); // 0-3
@@ -170,12 +170,12 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Wall(Level &world, float xPos, float yPos);
+	GC_Wall(World &world, float xPos, float yPos);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
 
@@ -184,15 +184,15 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
-	virtual void OnDestroy(Level &world);
-	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual void OnDestroy(World &world);
+	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 
-	virtual void EditorAction(Level &world);
+	virtual void EditorAction(World &world);
 };
 
 /////////////////////////////////////////////////////////////
@@ -205,11 +205,11 @@ protected:
 	virtual const char *GetCornerTexture(int i);
 
 public:
-	GC_Wall_Concrete(Level &world, float xPos, float yPos);
+	GC_Wall_Concrete(World &world, float xPos, float yPos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
-	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 };
 
 /////////////////////////////////////////////////////////////
@@ -233,22 +233,22 @@ private:
 	int _tile;
 
 protected:
-	void UpdateTile(Level &world, bool flag);
+	void UpdateTile(World &world, bool flag);
 
 public:
-	GC_Water(Level &world, float xPos, float yPos);
+	GC_Water(World &world, float xPos, float yPos);
 	GC_Water(FromFile);
 	~GC_Water();
 
 	void SetTile(char nTile, bool value);
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void Draw(bool editorMode) const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }
-	virtual bool TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

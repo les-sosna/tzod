@@ -6,7 +6,7 @@
 #include "gc/Camera.h"
 #include "gc/Sound.h"
 #include "gc/Vehicle.h"
-#include "Level.h"
+#include "World.h"
 #include "KeyMapper.h"
 
 #include <GLFW/glfw3.h>
@@ -73,7 +73,7 @@ void Controller::SetProfile(const char *profile)
     }
 }
 
-void Controller::ReadControllerState(Level &world, const GC_Vehicle *vehicle, VehicleState &vs)
+void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, VehicleState &vs)
 {
 	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));

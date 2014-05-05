@@ -4,9 +4,9 @@
 
 struct lua_State;
 class GC_Object;
-class Level;
+class World;
 
-lua_State* script_open(Level &world);
+lua_State* script_open(World &world);
 void       script_close(lua_State *L);
 
 bool script_exec(lua_State *L, const char *string);

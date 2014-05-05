@@ -4,7 +4,7 @@
 
 #include "globals.h"
 #include "KeyMapper.h"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 
 #include "gc/Object.h"
@@ -32,7 +32,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent, Level &world)
+SettingsDlg::SettingsDlg(Window *parent, World &world)
   : Dialog(parent, 512, 296)
   , _world(world)
 {
@@ -405,7 +405,7 @@ bool ControlProfileDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MapSettingsDlg::MapSettingsDlg(Window *parent, Level &world)
+MapSettingsDlg::MapSettingsDlg(Window *parent, World &world)
   : Dialog(parent, 512, 512)
   , _world(world)
 {

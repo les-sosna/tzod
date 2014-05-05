@@ -8,7 +8,7 @@
 
 #include <memory>
 
-class Level;
+class World;
 
 struct IClientCallback
 {
@@ -32,7 +32,7 @@ struct PlayerHandle;
 class ClientBase
 {
 public:
-	explicit ClientBase(Level *level);
+	explicit ClientBase(World *level);
 	virtual ~ClientBase() = 0;
 
 	std::unique_ptr<Subscribtion> AddListener(IClientCallback *ls);
@@ -46,7 +46,7 @@ public:
     virtual const char* GetActiveProfile() const = 0;
 
 protected:
-	Level *_level;
+	World *_level;
 private:
 	std::set<IClientCallback*> _clientListeners;
 	class MySubscribtion : public Subscribtion

@@ -3,7 +3,7 @@
 #include "Service.h"
 #include "globals.h"
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +12,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Service)
 	return true;
 }
 
-GC_Service::GC_Service(Level &world)
+GC_Service::GC_Service(World &world)
   : GC_Object()
   , _memberOf(this)
 {

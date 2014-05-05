@@ -5,7 +5,7 @@
 #include "BackgroundIntro.h"
 #include "gui.h"
 #include "gui_desktop.h"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "SaveFile.h"
 
@@ -116,10 +116,10 @@ static void pushprop(lua_State *L, ObjectProperty *p)
 	}
 }
 
-static Level& getworld(lua_State *L)
+static World& getworld(lua_State *L)
 {
     lua_getfield(L, LUA_REGISTRYINDEX, "WORLD");
-    Level *world = (Level *) lua_touserdata(L, -1);
+    World *world = (World *) lua_touserdata(L, -1);
     lua_pop(L, 1);
     if (!world) {
         luaL_error(L, "world is not initialized");
@@ -138,7 +138,7 @@ static int luaT_objnextprop(lua_State *L)
 		luaL_argerror(L, 1, "reference to a dead object");
 	}
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	SafePtr<PropertySet> properties = (*ppObj)->GetProperties(world);
 	assert(properties);
 
@@ -222,7 +222,7 @@ static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
 		luaL_typerror(L, n, "object or name");
 	}
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	GC_Object *obj = world.FindObject(name);
 	if( !obj )
 	{
@@ -249,7 +249,7 @@ static T* luaT_checkobjectT(lua_State *L, int n) throw()
 // exit to the system
 static int luaT_quit(lua_State *L)
 {
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
 	glfwSetWindowShouldClose(g_appWindow, 1);
@@ -262,7 +262,7 @@ static int luaT_game(lua_State *L)
 	if( 1 != n )
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
 
@@ -323,13 +323,13 @@ static int luaT_loadmap(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
 
 	try
 	{
-        Level &world = getworld(L);
+        World &world = getworld(L);
         world.Clear();
         world.Seed(rand());
         world.Import(g_fs->Open(filename)->QueryStream());
@@ -357,7 +357,7 @@ static int luaT_newmap(lua_State *L)
 
 	int x = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
 	int y = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
     
@@ -376,7 +376,7 @@ static int luaT_load(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 
@@ -384,7 +384,7 @@ static int luaT_load(lua_State *L)
 
 	try
 	{
-        Level &world = getworld(L);
+        World &world = getworld(L);
 		world.Unserialize(filename);
 	}
 	catch( const std::exception &e )
@@ -404,7 +404,7 @@ static int luaT_save(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
@@ -432,7 +432,7 @@ static int luaT_import(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
@@ -462,7 +462,7 @@ static int luaT_export(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
 
@@ -820,7 +820,7 @@ int luaT_actor(lua_State *L)
 		return luaL_error(L, "type '%s' is a service", name);
 	}
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	GC_Object *obj = RTTypes::Inst().CreateObject(world, type, x, y);
 
 
@@ -866,7 +866,7 @@ int luaT_service(lua_State *L)
 		return luaL_error(L, "type '%s' is not a service", name);
 	}
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	GC_Object *obj = RTTypes::Inst().CreateObject(world, type, 0, 0);
 
 
@@ -916,7 +916,7 @@ int luaT_damage(lua_State *L)
 	float hp = (float) luaL_checknumber(L, 1);
 	GC_RigidBodyStatic *rbs = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	rbs->TakeDamage(world, hp, rbs->GetPos(), NULL);
 
 	return 0;
@@ -931,7 +931,7 @@ int luaT_kill(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	luaT_checkobject(L, 1)->Kill(world);
 	return 0;
 }
@@ -947,7 +947,7 @@ int luaT_exists(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	lua_pushboolean(L, NULL != world.FindObject(name));
 	return 1;
 }
@@ -964,7 +964,7 @@ int luaT_setposition(lua_State *L)
 	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( dynamic_cast<GC_Vehicle *>(actor)	)
 	{
 		actor->MoveTo(world, vec2d(x,y));
@@ -1027,7 +1027,7 @@ int luaT_pget(lua_State *L)
 	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	SafePtr<PropertySet> properties = obj->GetProperties(world);
 	assert(properties);
 
@@ -1059,7 +1059,7 @@ int luaT_pset(lua_State *L)
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
 
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	SafePtr<PropertySet> properties = obj->GetProperties(world);
 	assert(properties);
 
@@ -1085,7 +1085,7 @@ int luaT_equip(lua_State *L)
 
 	GC_Vehicle *target = luaT_checkobjectT<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = luaT_checkobjectT<GC_Pickup>(L, 2);
-    Level &world = getworld(L);
+    World &world = getworld(L);
 	if( pickup->GetCarrier() != target )
 	{
 		if( pickup->GetCarrier() )
@@ -1236,7 +1236,7 @@ int luaT_pushcmd(lua_State *L)
 ///////////////////////////////////////////////////////////////////////////////
 // api
 
-lua_State* script_open(Level &world)
+lua_State* script_open(World &world)
 {
 	lua_State *L = luaL_newstate();
     if (!L)

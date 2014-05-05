@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "GuiManager.h"
 
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 
 #include "video/TextureManager.h"
@@ -19,7 +19,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-ScoreTable::ScoreTable(Window *parent, Level &world)
+ScoreTable::ScoreTable(Window *parent, World &world)
   : Window(parent)
   , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
   , _world(world)

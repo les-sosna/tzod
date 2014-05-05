@@ -5,7 +5,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -29,7 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 }
 
 
-GC_Trigger::GC_Trigger(Level &world, float x, float y)
+GC_Trigger::GC_Trigger(World &world, float x, float y)
   : GC_2dSprite(world)
   , _radius(1)
   , _radiusDelta(0)
@@ -51,14 +51,14 @@ GC_Trigger::~GC_Trigger()
 {
 }
 
-bool GC_Trigger::GetVisible(Level &world, const GC_Vehicle *v) const
+bool GC_Trigger::GetVisible(World &world, const GC_Vehicle *v) const
 {
 	GC_RigidBodyStatic *object = world.TraceNearest(
 		world.grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
 	return object == v;
 }
 
-bool GC_Trigger::Test(Level &world, const GC_Vehicle *v) const
+bool GC_Trigger::Test(World &world, const GC_Vehicle *v) const
 {
 	assert(v);
 	float rr = (GetPos() - v->GetPos()).sqr();
@@ -67,7 +67,7 @@ bool GC_Trigger::Test(Level &world, const GC_Vehicle *v) const
 		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(world, _veh));
 }
 
-void GC_Trigger::Serialize(Level &world, SaveFile &f)
+void GC_Trigger::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 
@@ -79,7 +79,7 @@ void GC_Trigger::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_veh);
 }
 
-void GC_Trigger::MapExchange(Level &world, MapFile &f)
+void GC_Trigger::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);
 
@@ -104,7 +104,7 @@ void GC_Trigger::MapExchange(Level &world, MapFile &f)
 	}
 }
 
-void GC_Trigger::TimeStepFixed(Level &world, float dt)
+void GC_Trigger::TimeStepFixed(World &world, float dt)
 {
 	if( CheckFlags(GC_FLAG_TRIGGER_ACTIVATED) )
 	{
@@ -240,7 +240,7 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Trigger::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Trigger::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 

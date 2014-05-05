@@ -9,7 +9,7 @@
 #include <List.h>
 
 // forward declarations
-class Level;
+class World;
 class GC_Object;
 class PropertySet;
 
@@ -50,10 +50,10 @@ class PropertyList : public Dialog
 
 	SafePtr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
-    Level &_world;
+    World &_world;
 
 public:
-	PropertyList(Window *parent, float x, float y, float w, float h, Level &world);
+	PropertyList(Window *parent, float x, float y, float w, float h, World &world);
 	void ConnectTo(const SafePtr<PropertySet> &ps);
 	void DoExchange(bool applyToObject);
 
@@ -85,13 +85,13 @@ public:
 	virtual void OnKill(GC_Object *obj);
 
 public:
-	ServiceListDataSource(Level &world);
+	ServiceListDataSource(World &world);
 	~ServiceListDataSource();
 
 private:
 	mutable std::string _nameCache;
 	ListDataSourceListener *_listener;
-    Level &_world;
+    World &_world;
 };
 
 // forward declaration
@@ -109,10 +109,10 @@ class ServiceEditor : public Dialog
 	Button *_btnCreate;
 
 	float _margins;
-    Level &_world;
+    World &_world;
 
 public:
-	ServiceEditor(Window *parent, float x, float y, float w, float h, Level &world);
+	ServiceEditor(Window *parent, float x, float y, float w, float h, World &world);
 	virtual ~ServiceEditor();
 
 protected:
@@ -145,14 +145,14 @@ class EditorLayout : public Window
 	bool _isObjectNew;
 	bool _click;
 	int  _mbutton;
-    Level &_world;
+    World &_world;
 
 
-	void OnKillSelected(Level &world, GC_Object *sender, void *param);
-	void OnMoveSelected(Level &world, GC_Object *sender, void *param);
+	void OnKillSelected(World &world, GC_Object *sender, void *param);
+	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(Window *parent, Level &world);
+	EditorLayout(Window *parent, World &world);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);

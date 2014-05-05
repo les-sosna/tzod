@@ -7,7 +7,7 @@
 #include "gui_maplist.h"
 
 //#include "Interface.h"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "md5.h"
 #include "script.h"
@@ -38,7 +38,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-CreateServerDlg::CreateServerDlg(Window *parent, Level &world)
+CreateServerDlg::CreateServerDlg(Window *parent, World &world)
   : Dialog(parent, 770, 450)
   , _world(world)
 {
@@ -244,7 +244,7 @@ void CreateServerDlg::OnCloseChild(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName, Level &world)
+ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName, World &world)
   : Dialog(parent, 512, 384)
   , _world(world)
 {
@@ -321,7 +321,7 @@ void ConnectDlg::OnClientDestroy()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-InternetDlg::InternetDlg(Window *parent, Level &world)
+InternetDlg::InternetDlg(Window *parent, World &world)
   : Dialog(parent, 450, 384)
   , _world(world)
 //  , _client(new LobbyClient())
@@ -447,7 +447,7 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 	return result;
 }
 
-WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, Level &world)
+WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, World &world)
   : Dialog(parent, 680, 512)
   , _players(NULL)
   , _bots(NULL)

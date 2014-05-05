@@ -3,7 +3,7 @@
 #include "GameClasses.h"
 
 #include "Camera.h"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "particles.h"
@@ -25,7 +25,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
-GC_Wood::GC_Wood(Level &world, float xPos, float yPos)
+GC_Wood::GC_Wood(World &world, float xPos, float yPos)
   : GC_2dSprite(world)
 {
 	AddContext( &world.grid_wood );
@@ -49,13 +49,13 @@ GC_Wood::~GC_Wood()
 {
 }
 
-void GC_Wood::Kill(Level &world)
+void GC_Wood::Kill(World &world)
 {
     UpdateTile(world, false);
     GC_2dSprite::Kill(world);
 }
 
-void GC_Wood::UpdateTile(Level &world, bool flag)
+void GC_Wood::UpdateTile(World &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
@@ -92,7 +92,7 @@ void GC_Wood::UpdateTile(Level &world, bool flag)
 	}
 }
 
-void GC_Wood::Serialize(Level &world, SaveFile &f)
+void GC_Wood::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 
@@ -144,7 +144,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(Level &world, GC_Player *owner)
+GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
   : GC_2dSprite(world)
   , _boomOK(false)
   , _owner(owner)
@@ -169,7 +169,7 @@ GC_Explosion::~GC_Explosion()
 {
 }
 
-void GC_Explosion::Serialize(Level &world, SaveFile &f)
+void GC_Explosion::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_boomOK);
@@ -266,7 +266,7 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 	return -1;
 }
 
-void GC_Explosion::Boom(Level &world, float radius, float damage)
+void GC_Explosion::Boom(World &world, float radius, float damage)
 {
 	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
 	{
@@ -370,7 +370,7 @@ void GC_Explosion::Boom(Level &world, float radius, float damage)
 	_boomOK = true;
 }
 
-void GC_Explosion::TimeStepFixed(Level &world, float dt)
+void GC_Explosion::TimeStepFixed(World &world, float dt)
 {
 	GC_2dSprite::TimeStepFixed(world, dt);
 
@@ -395,7 +395,7 @@ void GC_Explosion::TimeStepFixed(Level &world, float dt)
 	_light->SetIntensity(1.0f - powf(_time / (_time_life * 1.5f - _time_boom), 6));
 }
 
-void GC_Explosion::Kill(Level &world)
+void GC_Explosion::Kill(World &world)
 {
 	SAFE_KILL(world, _light);
     GC_2dSprite::Kill(world);
@@ -408,7 +408,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
 	return true;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(Level &world, const vec2d &pos, GC_Player *owner)
+GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *owner)
   : GC_Explosion(world, owner)
 {
 	static const TextureCache tex1("particle_1");
@@ -463,7 +463,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
 	return true;
 }
 
-GC_Boom_Big::GC_Boom_Big(Level &world, const vec2d &pos, GC_Player *owner)
+GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
   : GC_Explosion(world, owner)
 {
 	static const TextureCache tex1("particle_1");
@@ -527,7 +527,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-GC_HealthDaemon::GC_HealthDaemon(Level &world,
+GC_HealthDaemon::GC_HealthDaemon(World &world,
                                  GC_RigidBodyStatic *victim,
                                  GC_Player *owner,
                                  float damage, float time)
@@ -555,7 +555,7 @@ GC_HealthDaemon::~GC_HealthDaemon()
 {
 }
 
-void GC_HealthDaemon::Serialize(Level &world, SaveFile &f)
+void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 
@@ -565,11 +565,11 @@ void GC_HealthDaemon::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_owner);
 }
 
-void GC_HealthDaemon::TimeStepFloat(Level &world, float dt)
+void GC_HealthDaemon::TimeStepFloat(World &world, float dt)
 {
 }
 
-void GC_HealthDaemon::TimeStepFixed(Level &world, float dt)
+void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
 {
 	_time -= dt;
 	bool bKill = false;
@@ -582,12 +582,12 @@ void GC_HealthDaemon::TimeStepFixed(Level &world, float dt)
 		Kill(world); // victim has died
 }
 
-void GC_HealthDaemon::OnVictimMove(Level &world, GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimMove(World &world, GC_Object *sender, void *param)
 {
 	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
 }
 
-void GC_HealthDaemon::OnVictimKill(Level &world, GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
 {
 	Kill(world);
 }
@@ -600,7 +600,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(Level &world, int xPos, int yPos, const std::string &text, enumAlignText align)
+GC_Text::GC_Text(World &world, int xPos, int yPos, const std::string &text, enumAlignText align)
   : GC_2dSprite(world)
 {
 	SetFont("font_default");
@@ -625,7 +625,7 @@ void GC_Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-void GC_Text::Serialize(Level &world, SaveFile &f)
+void GC_Text::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_text);
@@ -645,7 +645,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-GC_Text_ToolTip::GC_Text_ToolTip(Level &world, vec2d pos, const std::string &text, const char *font)
+GC_Text_ToolTip::GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font)
   : GC_Text(world, int(pos.x), int(pos.y), text, alignTextCC)
 {
 	_time = 0;
@@ -664,14 +664,14 @@ GC_Text_ToolTip::GC_Text_ToolTip(Level &world, vec2d pos, const std::string &tex
 	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-void GC_Text_ToolTip::Serialize(Level &world, SaveFile &f)
+void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
 {
 	GC_Text::Serialize(world, f);
 	f.Serialize(_time);
 	f.Serialize(_y0);
 }
 
-void GC_Text_ToolTip::TimeStepFloat(Level &world, float dt)
+void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
 {
 	_time += dt;
 	MoveTo(world, vec2d(GetPos().x, _y0 - _time * 20.0f));

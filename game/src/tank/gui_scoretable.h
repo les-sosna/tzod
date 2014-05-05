@@ -4,7 +4,7 @@
 
 #include "Window.h"
 
-class Level;
+class World;
 
 namespace UI
 {
@@ -13,7 +13,7 @@ namespace UI
 class ScoreTable : public Window
 {
 public:
-	ScoreTable(Window *parent, Level &world);
+	ScoreTable(Window *parent, World &world);
 
 protected:
 	virtual void OnTimeStep(float dt);
@@ -22,7 +22,7 @@ protected:
 
 private:
 	size_t _font;
-    Level &_world;
+    World &_world;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

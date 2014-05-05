@@ -15,7 +15,7 @@ class MapFile;
 class SaveFile;
 
 class GC_Object;
-class Level;
+class World;
 
 typedef PtrList<GC_Object> ObjectList;
 
@@ -105,7 +105,7 @@ class PropertySet : public RefCounted
 	ObjectProperty   _propName;
 
 protected:
-	virtual void MyExchange(Level &world, bool applyToObject);
+	virtual void MyExchange(World &world, bool applyToObject);
 
 public:
 	PropertySet(GC_Object *object);
@@ -113,7 +113,7 @@ public:
 	GC_Object* GetObject() const;
 	void LoadFromConfig();
 	void SaveToConfig();
-	void Exchange(Level &world, bool applyToObject);
+	void Exchange(World &world, bool applyToObject);
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
@@ -131,7 +131,7 @@ public:
 #define GC_FLAG_OBJECT_                       0x00000004
 
 
-typedef void (GC_Object::*NOTIFYPROC) (Level &world, GC_Object *sender, void *param);
+typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);
 
 ///////////////////////////////////////////////////////////////////////////////
 class GC_Object
@@ -154,7 +154,7 @@ private:
 		{
 			return !subscriber;
 		}
-		void Serialize(Level &world, SaveFile &f);
+		void Serialize(World &world, SaveFile &f);
 		explicit Notify(Notify *nxt) : next(nxt) {}
 	};
 
@@ -166,7 +166,7 @@ private:
 private:
 	unsigned int           _flags;             // define various object properties
 
-	ObjectList::iterator _itPosFixed;      // position in the Level::ts_fixed
+	ObjectList::iterator _itPosFixed;      // position in the World::ts_fixed
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;
@@ -207,13 +207,13 @@ public:
 	//
 
 protected:
-	void PulseNotify(Level &world, NotifyType type, void *param = NULL);
+	void PulseNotify(World &world, NotifyType type, void *param = NULL);
 
 public:
-	void SetEvents(Level &world, unsigned int events);
+	void SetEvents(World &world, unsigned int events);
 
-	const char* GetName(Level &world) const;
-	void SetName(Level &world, const char *name);
+	const char* GetName(World &world) const;
+	void SetName(World &world, const char *name);
 
 	void Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
 	void Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
@@ -224,7 +224,7 @@ public:
 	//
 
 public:
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
 protected:
 	GC_Object(FromFile);
@@ -241,20 +241,20 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	SafePtr<PropertySet> GetProperties(Level &world);
+	SafePtr<PropertySet> GetProperties(World &world);
 
 	//
 	// overrides
 	//
 
 public:
-	virtual void Kill(Level &world);
+	virtual void Kill(World &world);
 
-	virtual void TimeStepFixed(Level &world, float dt);
-	virtual void TimeStepFloat(Level &world, float dt);
-	virtual void EditorAction(Level &world);
+	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
+	virtual void EditorAction(World &world);
 
-	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
 
 
 	//

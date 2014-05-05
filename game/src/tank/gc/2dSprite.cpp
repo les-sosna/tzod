@@ -2,7 +2,7 @@
 
 #include "2dSprite.h"
 
-#include "Level.h"
+#include "World.h"
 #include "SaveFile.h"
 
 #include "video/TextureManager.h"
@@ -29,7 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 	return true;
 }
 
-GC_2dSprite::GC_2dSprite(Level &world)
+GC_2dSprite::GC_2dSprite(World &world)
   : GC_Actor(world)
   , _direction(1, 0)
   , _color(0xffffffff)
@@ -52,13 +52,13 @@ GC_2dSprite::~GC_2dSprite()
 {
 }
 
-void GC_2dSprite::Kill(Level &world)
+void GC_2dSprite::Kill(World &world)
 {
     SetZ_current(world, Z_NONE);
     GC_Actor::Kill(world);
 }
 
-void GC_2dSprite::Serialize(Level &world, SaveFile &f)
+void GC_2dSprite::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
@@ -95,7 +95,7 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 	SetFrame(0);
 }
 
-void GC_2dSprite::SetZ_current(Level &world, enumZOrder z)
+void GC_2dSprite::SetZ_current(World &world, enumZOrder z)
 {
 	assert(0 <= z && Z_COUNT > z || Z_NONE == z);
 	if( _zOrderCurrent == z ) return;
@@ -121,7 +121,7 @@ void GC_2dSprite::SetZ_current(Level &world, enumZOrder z)
 	UpdateCurrentZ(world);
 }
 
-void GC_2dSprite::SetGridSet(Level &world, bool bGridSet)
+void GC_2dSprite::SetGridSet(World &world, bool bGridSet)
 {
 	enumZOrder current = _zOrderCurrent;
 	SetZ_current(world, Z_NONE);
@@ -129,7 +129,7 @@ void GC_2dSprite::SetGridSet(Level &world, bool bGridSet)
 	SetZ_current(world, current);
 }
 
-void GC_2dSprite::UpdateCurrentZ(Level &world)
+void GC_2dSprite::UpdateCurrentZ(World &world)
 {
 	if( Z_NONE == _zOrderCurrent )
 		return;
@@ -145,7 +145,7 @@ void GC_2dSprite::UpdateCurrentZ(Level &world)
 	}
 }
 
-void GC_2dSprite::SetZ(Level &world, enumZOrder z)
+void GC_2dSprite::SetZ(World &world, enumZOrder z)
 {
 	assert(z < Z_COUNT || z == Z_NONE);
 	if( _zOrderPrefered == z )
@@ -164,7 +164,7 @@ enumZOrder GC_2dSprite::GetZ() const
 	return _zOrderPrefered;
 }
 
-void GC_2dSprite::SetVisible(Level &world, bool bShow)
+void GC_2dSprite::SetVisible(World &world, bool bShow)
 {
 	if( CheckFlags(GC_FLAG_2DSPRITE_VISIBLE) == bShow )
 	{

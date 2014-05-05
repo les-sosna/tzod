@@ -18,6 +18,7 @@
 #include "core/debug.h"
 
 #include "gc/Player.h"
+#include "World.h"
 
 #include "network/CommonTypes.h"
 
@@ -46,7 +47,7 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, Level &world, InputManager &inputMgr)
+NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr)
   : Dialog(parent, 770, 550)
   , _world(world)
   , _inputMgr(inputMgr)

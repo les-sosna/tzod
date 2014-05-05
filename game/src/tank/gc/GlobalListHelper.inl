@@ -2,7 +2,7 @@
 
 #include "GlobalListHelper.h"
 #include "globals.h"
-#include "../Level.h"
+#include "../World.h"
 
 template<GlobalListID listId>
 MemberOfGlobalList<listId>::MemberOfGlobalList(GC_Object *obj)

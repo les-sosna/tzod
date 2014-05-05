@@ -5,11 +5,12 @@
 #include "globals.h"
 #include "gui_desktop.h"
 #include "script.h"
+#include "World.h"
 
 #include <GuiManager.h> // FIXME
 
 
-ClientBase::ClientBase(Level *level)
+ClientBase::ClientBase(World *level)
 	: _level(level)
 {
 }

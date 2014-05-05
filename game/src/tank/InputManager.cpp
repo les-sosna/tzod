@@ -18,7 +18,7 @@ InputManager::~InputManager()
     assert(_controllers.empty());
 }
 
-void InputManager::ReadControllerState(Level &world)
+void InputManager::ReadControllerState(World &world)
 {
     for (auto &pcpair: _controllers)
     {

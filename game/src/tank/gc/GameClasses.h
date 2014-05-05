@@ -65,7 +65,7 @@ public:
 	float _time_boom;
 
 public:
-	GC_Explosion(Level &world, GC_Player *owner);
+	GC_Explosion(World &world, GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 
@@ -73,12 +73,12 @@ public:
 	float _damage;
 	float _radius;
 
-	void Boom(Level &world, float radius, float damage);
+	void Boom(World &world, float radius, float damage);
 
 	// GC_Object
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void TimeStepFixed(Level &world, float dt);
-    virtual void Kill(Level &world) override;
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void TimeStepFixed(World &world, float dt);
+    virtual void Kill(World &world) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ class GC_Boom_Standard : public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Standard);
 public:
-	GC_Boom_Standard(Level &world, const vec2d &pos, GC_Player *owner);
+	GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *owner);
 	GC_Boom_Standard(FromFile);
 	virtual ~GC_Boom_Standard();
 };
@@ -98,7 +98,7 @@ class GC_Boom_Big :  public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
 public:
-	GC_Boom_Big(Level &world, const vec2d &pos, GC_Player *owner);
+	GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner);
 	GC_Boom_Big(FromFile);
 };
 
@@ -118,18 +118,18 @@ private:
 	ObjPtr<GC_Player> _owner;
 
 public:
-	GC_HealthDaemon(Level &world, GC_RigidBodyStatic *victim, GC_Player *owner,
+	GC_HealthDaemon(World &world, GC_RigidBodyStatic *victim, GC_Player *owner,
 		            float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void TimeStepFloat(Level &world, float dt);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 
-	void OnVictimMove(Level &world, GC_Object *sender, void *param);
-	void OnVictimKill(Level &world, GC_Object *sender, void *param);
+	void OnVictimMove(World &world, GC_Object *sender, void *param);
+	void OnVictimKill(World &world, GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////
@@ -153,10 +153,10 @@ private:
 	unsigned char _tile;
 
 protected:
-	void UpdateTile(Level &world, bool flag);
+	void UpdateTile(World &world, bool flag);
 
 public:
-	GC_Wood(Level &world, float xPos, float yPos);
+	GC_Wood(World &world, float xPos, float yPos);
 	GC_Wood(FromFile);
 	virtual ~GC_Wood();
 
@@ -166,8 +166,8 @@ public:
 	virtual void Draw(bool editorMode) const;
 
 	// GC_Object
-    virtual void Kill(Level &world);
-	virtual void Serialize(Level &world, SaveFile &f);
+    virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
 };
 
 /////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ class GC_Text : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Text);
 
 public:
-	GC_Text(Level &world, int x, int y, const std::string &text, enumAlignText align = alignTextLT);
+	GC_Text(World &world, int x, int y, const std::string &text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
 
 	void SetFont(const char *fontname);
@@ -185,7 +185,7 @@ public:
 	void SetAlign(enumAlignText align);
 	const std::string& GetText() const { return _text; }
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(bool editorMode) const;
 
 private:
@@ -204,11 +204,11 @@ private:
 	float  _y0;
 
 public:
-	GC_Text_ToolTip(Level &world, vec2d pos, const std::string &text, const char *font);
+	GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

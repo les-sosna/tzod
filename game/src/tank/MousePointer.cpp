@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "Text.h"
 
-#include "Level.h"
+#include "World.h"
 #include "gc/Camera.h"
 
 #include <GLFW/glfw3.h>
@@ -24,7 +24,7 @@ MouseCursor::MouseCursor(LayoutManager* manager, const char *texture)
 	SetTimeStep(true);
 }
 
-void MouseCursor::OnTimeStep(Level &world, float dt)
+void MouseCursor::OnTimeStep(World &world, float dt)
 {
 	_timeAnim += dt;
 	_timeShow += dt;

@@ -12,7 +12,7 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "script.h"
 #include "DefaultCamera.h"
@@ -83,7 +83,7 @@ PropertyList::Container::Container(Window *parent)
 //	return GetParent()->OnRawChar(c); // pass messages through
 //}
 
-PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, Level &world)
+PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, World &world)
   : Dialog(parent, w, h, false)
   , _world(world)
 {
@@ -287,7 +287,7 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceListDataSource::ServiceListDataSource(Level &world)
+ServiceListDataSource::ServiceListDataSource(World &world)
   : _listener(NULL)
   , _world(world)
 {
@@ -382,7 +382,7 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, Level &world)
+ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, World &world)
   : Dialog(parent, h, w, false)
   , _listData(world)
   , _margins(5)
@@ -503,7 +503,7 @@ bool ServiceEditor::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditorLayout::EditorLayout(Window *parent, Level &world)
+EditorLayout::EditorLayout(Window *parent, World &world)
   : Window(parent)
   , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
   , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
@@ -551,12 +551,12 @@ EditorLayout::~EditorLayout()
 	g_conf.ed_uselayers.eventChange = nullptr;
 }
 
-void EditorLayout::OnKillSelected(Level &world, GC_Object *sender, void *param)
+void EditorLayout::OnKillSelected(World &world, GC_Object *sender, void *param)
 {
 	Select(sender, false);
 }
 
-void EditorLayout::OnMoveSelected(Level &world, GC_Object *sender, void *param)
+void EditorLayout::OnMoveSelected(World &world, GC_Object *sender, void *param)
 {
 	assert(_selectedObject == sender);
 }

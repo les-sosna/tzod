@@ -3,7 +3,7 @@
 #include "globals.h"
 
 #include "gui_widgets.h"
-#include "Level.h"
+#include "World.h"
 
 #include "video/TextureManager.h"
 
@@ -18,7 +18,7 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // FPS counter implementation
 
-FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, Level &world)
+FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, World &world)
   : Text(parent)
   , _nSprites(0)
   , _nLights(0)
@@ -114,7 +114,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, Level &world)
+TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
   : Text(parent)
   , _world(world)
 {

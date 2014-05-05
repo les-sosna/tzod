@@ -3,7 +3,7 @@
 #include "Turrets.h"
 
 #include "Macros.h"
-#include "Level.h"
+#include "World.h"
 
 #include "core/JobManager.h"
 #include "core/debug.h"
@@ -23,7 +23,7 @@
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(Level &world, float x, float y, const char *tex)
+GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
   : GC_RigidBodyStatic(world)
   , _team(0)
   , _initialDir(0)
@@ -63,14 +63,14 @@ GC_Turret::~GC_Turret()
 	}
 }
 
-void GC_Turret::Kill(Level &world)
+void GC_Turret::Kill(World &world)
 {
 	SAFE_KILL(world, _rotateSound);
 	SAFE_KILL(world, _weaponSprite);
     GC_RigidBodyStatic::Kill(world);
 }
 
-void GC_Turret::Serialize(Level &world, SaveFile &f)
+void GC_Turret::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 
@@ -91,7 +91,7 @@ void GC_Turret::Serialize(Level &world, SaveFile &f)
 	}
 }
 
-GC_Vehicle* GC_Turret::EnumTargets(Level &world)
+GC_Vehicle* GC_Turret::EnumTargets(World &world)
 {
 	float min_dist = _sight*_sight;
 	float dist;
@@ -120,7 +120,7 @@ GC_Vehicle* GC_Turret::EnumTargets(Level &world)
 	return target;
 }
 
-void GC_Turret::SelectTarget(Level &world, GC_Vehicle *target)
+void GC_Turret::SelectTarget(World &world, GC_Vehicle *target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
@@ -135,7 +135,7 @@ void GC_Turret::TargetLost()
 	_state  = TS_WAITING;
 }
 
-bool GC_Turret::IsTargetVisible(Level &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle)
+bool GC_Turret::IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle)
 {
 	GC_RigidBodyStatic *object = world.TraceNearest(
 		world.grid_rigid_s, this, GetPos(), target->GetPos() - GetPos());
@@ -150,20 +150,20 @@ bool GC_Turret::IsTargetVisible(Level &world, GC_Vehicle* target, GC_RigidBodySt
 	return true;
 }
 
-void GC_Turret::MoveTo(Level &world, const vec2d &pos)
+void GC_Turret::MoveTo(World &world, const vec2d &pos)
 {
 	_rotateSound->MoveTo(world, pos);
 	_weaponSprite->MoveTo(world, pos);
 	GC_RigidBodyStatic::MoveTo(world, pos);
 }
 
-void GC_Turret::OnDestroy(Level &world)
+void GC_Turret::OnDestroy(World &world)
 {
 	new GC_Boom_Big(world, GetPos(), NULL);
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-void GC_Turret::TimeStepFixed(Level &world, float dt)
+void GC_Turret::TimeStepFixed(World &world, float dt)
 {
 	_rotator.process_dt(dt);
 	_weaponSprite->SetDirection(vec2d(_dir));
@@ -213,7 +213,7 @@ void GC_Turret::TimeStepFixed(Level &world, float dt)
 	_rotator.setup_sound(_rotateSound);
 }
 
-void GC_Turret::EditorAction(Level &world)
+void GC_Turret::EditorAction(World &world)
 {
 	_dir += PI2 / 16;
 	_dir = fmod(_dir, PI2);
@@ -221,7 +221,7 @@ void GC_Turret::EditorAction(Level &world)
 	_weaponSprite->SetDirection(vec2d(_dir));
 }
 
-void GC_Turret::MapExchange(Level &world, MapFile &f)
+void GC_Turret::MapExchange(World &world, MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(world, f);
 
@@ -284,7 +284,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Turret::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Turret::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -310,7 +310,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 	return true;
 }
 
-GC_TurretRocket::GC_TurretRocket(Level &world, float x, float y)
+GC_TurretRocket::GC_TurretRocket(World &world, float x, float y)
   : GC_Turret(world, x, y, "turret_platform")
   , _timeReload(0)
 {
@@ -329,18 +329,18 @@ GC_TurretRocket::~GC_TurretRocket()
 	g_level->_field.ProcessObject(this, false);
 }
 
-void GC_TurretRocket::Serialize(Level &world, SaveFile &f)
+void GC_TurretRocket::Serialize(World &world, SaveFile &f)
 {
 	GC_Turret::Serialize(world, f);
 	f.Serialize(_timeReload);
 }
 
-void GC_TurretRocket::CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake)
+void GC_TurretRocket::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake)
 {
 	world.CalcOutstrip(GetPos(), SPEED_ROCKET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretRocket::Fire(Level &world)
+void GC_TurretRocket::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
@@ -351,7 +351,7 @@ void GC_TurretRocket::Fire(Level &world)
 	}
 }
 
-void GC_TurretRocket::TimeStepFixed(Level &world, float dt)
+void GC_TurretRocket::TimeStepFixed(World &world, float dt)
 {
 	GC_Turret::TimeStepFixed(world, dt);
 	_timeReload -= dt;
@@ -365,7 +365,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 	return true;
 }
 
-GC_TurretCannon::GC_TurretCannon(Level &world, float x, float y)
+GC_TurretCannon::GC_TurretCannon(World &world, float x, float y)
   : GC_Turret(world, x, y, "turret_platform")
   , _timeReload(0)
   , _time_smoke(0)
@@ -386,7 +386,7 @@ GC_TurretCannon::~GC_TurretCannon()
 	g_level->_field.ProcessObject(this, false);
 }
 
-void GC_TurretCannon::Serialize(Level &world, SaveFile &f)
+void GC_TurretCannon::Serialize(World &world, SaveFile &f)
 {
 	GC_Turret::Serialize(world, f);
 	/////////////////////////////////////
@@ -395,12 +395,12 @@ void GC_TurretCannon::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_time_smoke_dt);
 }
 
-void GC_TurretCannon::CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake)
+void GC_TurretCannon::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake)
 {
 	world.CalcOutstrip(GetPos(), SPEED_TANKBULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretCannon::Fire(Level &world)
+void GC_TurretCannon::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
@@ -417,7 +417,7 @@ void GC_TurretCannon::Fire(Level &world)
 	}
 }
 
-void GC_TurretCannon::TimeStepFixed(Level &world, float dt)
+void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 {
 	static const TextureCache tex("particle_smoke");
 
@@ -438,7 +438,7 @@ void GC_TurretCannon::TimeStepFixed(Level &world, float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-GC_TurretBunker::GC_TurretBunker(Level &world, float x, float y, const char *tex)
+GC_TurretBunker::GC_TurretBunker(World &world, float x, float y, const char *tex)
   : GC_Turret(world, x, y, tex)
   , _time(0)
   , _time_wait_max(1.0f)
@@ -456,7 +456,7 @@ GC_TurretBunker::GC_TurretBunker(FromFile)
 {
 }
 
-void GC_TurretBunker::Serialize(Level &world, SaveFile &f)
+void GC_TurretBunker::Serialize(World &world, SaveFile &f)
 {
 	GC_Turret::Serialize(world, f);
 	/////////////////////////////////////
@@ -468,7 +468,7 @@ void GC_TurretBunker::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_time_wake_max);
 }
 
-void GC_TurretBunker::MapExchange(Level &world, MapFile &f)
+void GC_TurretBunker::MapExchange(World &world, MapFile &f)
 {
 	GC_Turret::MapExchange(world, f);
 	if( f.loading() )
@@ -481,7 +481,7 @@ GC_TurretBunker::~GC_TurretBunker()
 {
 }
 
-void GC_TurretBunker::WakeUp(Level &world)
+void GC_TurretBunker::WakeUp(World &world)
 {
 	_jobManager.UnregisterMember(this);
 	_state = TS_WAKING_UP;
@@ -494,7 +494,7 @@ void GC_TurretBunker::WakeDown()
 	_jobManager.UnregisterMember(this);
 }
 
-bool GC_TurretBunker::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_TurretBunker::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( _state != TS_HIDDEN )
 	{
@@ -511,7 +511,7 @@ bool GC_TurretBunker::TakeDamage(Level &world, float damage, const vec2d &hit, G
 	return false;
 }
 
-void GC_TurretBunker::TimeStepFixed(Level &world, float dt)
+void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 {
 	_rotator.process_dt(dt);
 	_weaponSprite->SetDirection(vec2d(_dir));
@@ -627,7 +627,7 @@ void GC_TurretBunker::TimeStepFixed(Level &world, float dt)
 	_rotator.setup_sound(_rotateSound);
 }
 
-void GC_TurretBunker::EditorAction(Level &world)
+void GC_TurretBunker::EditorAction(World &world)
 {
 	_initialDir += PI / 2;
 	_initialDir = fmod(_initialDir, PI2);
@@ -644,7 +644,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 	return true;
 }
 
-GC_TurretMinigun::GC_TurretMinigun(Level &world, float x, float y)
+GC_TurretMinigun::GC_TurretMinigun(World &world, float x, float y)
   : GC_TurretBunker(world, x, y, "turret_mg_wake")
   , _fireSound(new GC_Sound(world, SND_MinigunFire, SMODE_STOP, GetPos()))
 {
@@ -674,13 +674,13 @@ GC_TurretMinigun::~GC_TurretMinigun()
 	g_level->_field.ProcessObject(this, false);
 }
 
-void GC_TurretMinigun::Kill(Level &world)
+void GC_TurretMinigun::Kill(World &world)
 {
 	SAFE_KILL(world, _fireSound);
     GC_TurretBunker::Kill(world);
 }
 
-void GC_TurretMinigun::Serialize(Level &world, SaveFile &f)
+void GC_TurretMinigun::Serialize(World &world, SaveFile &f)
 {
 	GC_TurretBunker::Serialize(world, f);
 	f.Serialize(_firing);
@@ -688,17 +688,17 @@ void GC_TurretMinigun::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_fireSound);
 }
 
-void GC_TurretMinigun::CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake)
+void GC_TurretMinigun::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake)
 {
 	world.CalcOutstrip(GetPos(), SPEED_BULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretMinigun::Fire(Level &world)
+void GC_TurretMinigun::Fire(World &world)
 {
 	_firing = true;
 }
 
-void GC_TurretMinigun::TimeStepFixed(Level &world, float dt)
+void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
 {
 	static const TextureCache tex("particle_1");
 
@@ -739,7 +739,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 	return true;
 }
 
-GC_TurretGauss::GC_TurretGauss(Level &world, float x, float y)
+GC_TurretGauss::GC_TurretGauss(World &world, float x, float y)
   : GC_TurretBunker(world, x, y, "turret_gauss_wake")
 {
 	_delta_angle = 0.03f; // shooting accuracy
@@ -774,19 +774,19 @@ void GC_TurretGauss::TargetLost()
 	GC_TurretBunker::TargetLost();
 }
 
-void GC_TurretGauss::Serialize(Level &world, SaveFile &f)
+void GC_TurretGauss::Serialize(World &world, SaveFile &f)
 {
 	GC_TurretBunker::Serialize(world, f);
 	f.Serialize(_shotCount);
 	f.Serialize(_time);
 }
 
-void GC_TurretGauss::CalcOutstrip(Level &world, const GC_Vehicle *target, vec2d &fake)
+void GC_TurretGauss::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake)
 {
 	world.CalcOutstrip(GetPos(), SPEED_GAUSS, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretGauss::Fire(Level &world)
+void GC_TurretGauss::Fire(World &world)
 {
 	if( 0 == _shotCount )
 	{
@@ -810,7 +810,7 @@ void GC_TurretGauss::Fire(Level &world)
 	}
 }
 
-void GC_TurretGauss::TimeStepFixed(Level &world, float dt)
+void GC_TurretGauss::TimeStepFixed(World &world, float dt)
 {
 	GC_TurretBunker::TimeStepFixed(world, dt);
 	_time += dt;

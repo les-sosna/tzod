@@ -13,7 +13,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 	return true;
 }
 
-GC_Crate::GC_Crate(Level &world, float x, float y)
+GC_Crate::GC_Crate(World &world, float x, float y)
   : GC_RigidBodyDynamic(world)
 {
 	MoveTo(world, vec2d(x, y));
@@ -40,7 +40,7 @@ GC_Crate::~GC_Crate()
 {
 }
 
-void GC_Crate::OnDestroy(Level &world)
+void GC_Crate::OnDestroy(World &world)
 {
 	PLAY(SND_WallDestroy, GetPos());
 

@@ -5,7 +5,7 @@
 #include "Dialog.h"
 #include "ClientBase.h"
 
-class Level;
+class World;
 
 namespace UI
 {
@@ -38,10 +38,10 @@ class CreateServerDlg : public Dialog
 	DefaultComboBox *_lobbyList;
 	CheckBox  *_lobbyEnable;
 	Button    *_lobbyAdd;
-    Level &_world;
+    World &_world;
 
 public:
-	CreateServerDlg(Window *parent, Level &world);
+	CreateServerDlg(Window *parent, World &world);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -62,10 +62,10 @@ class ConnectDlg
 	Button *_btnOK;
 	Edit   *_name;
 	std::unique_ptr<Subscribtion> _clientSubscribtion;
-    Level &_world;
+    World &_world;
 
 public:
-	ConnectDlg(Window *parent, const std::string &defaultName, Level &world);
+	ConnectDlg(Window *parent, const std::string &defaultName, World &world);
 	virtual ~ConnectDlg();
 
 protected:
@@ -91,10 +91,10 @@ class InternetDlg : public Dialog
 	Button *_btnConnect;
 	Edit   *_name;
 	Text   *_status;
-    Level &_world;
+    World &_world;
 
 public:
-	InternetDlg(Window *parent, Level &world);
+	InternetDlg(Window *parent, World &world);
 	virtual ~InternetDlg();
 
 protected:
@@ -130,10 +130,10 @@ class WaitingForPlayersDlg
 
 	static const size_t _maxPings = 5;
 	std::vector<unsigned int> _pings;
-    Level &_world;
+    World &_world;
 
 public:
-	WaitingForPlayersDlg(Window *parent, Level &world);
+	WaitingForPlayersDlg(Window *parent, World &world);
 	virtual ~WaitingForPlayersDlg();
 
 protected:

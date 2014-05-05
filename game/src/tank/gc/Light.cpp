@@ -3,7 +3,7 @@
 #include "Light.h"
 
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -26,7 +26,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
-GC_Light::GC_Light(Level &world, enumLightType type)
+GC_Light::GC_Light(World &world, enumLightType type)
   : GC_Actor(world)
   , _memberOf(this)
   , _timeout(0)
@@ -52,7 +52,7 @@ GC_Light::~GC_Light()
 {
 }
 
-void GC_Light::Serialize(Level &world, SaveFile &f)
+void GC_Light::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
@@ -66,7 +66,7 @@ void GC_Light::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_lampSprite);
 }
 
-void GC_Light::MapExchange(Level &world, MapFile &f)
+void GC_Light::MapExchange(World &world, MapFile &f)
 {
 	GC_Actor::MapExchange(world, f);
 }
@@ -155,20 +155,20 @@ void GC_Light::Shine() const
 	}
 }
 
-void GC_Light::MoveTo(Level &world, const vec2d &pos)
+void GC_Light::MoveTo(World &world, const vec2d &pos)
 {
 	_lampSprite->MoveTo(world, pos);
 	GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Light::SetTimeout(Level &world, float t)
+void GC_Light::SetTimeout(World &world, float t)
 {
 	assert(t > 0);
 	_timeout = t;
 	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
-void GC_Light::TimeStepFixed(Level &world, float dt)
+void GC_Light::TimeStepFixed(World &world, float dt)
 {
 	assert(_timeout > 0);
 	_intensity = _intensity * (_timeout - dt) / _timeout;
@@ -177,19 +177,19 @@ void GC_Light::TimeStepFixed(Level &world, float dt)
         Kill(world);
 }
 
-void GC_Light::Kill(Level &world)
+void GC_Light::Kill(World &world)
 {
 	SAFE_KILL(world, _lampSprite);
     GC_Actor::Kill(world);
 }
 
-void GC_Light::SetActive(Level &world, bool activate)
+void GC_Light::SetActive(World &world, bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
 	_lampSprite->SetVisible(world, activate);
 }
 
-void GC_Light::Update(Level &world)
+void GC_Light::Update(World &world)
 {
 	if( LIGHT_SPOT == _type )
 	{
@@ -211,7 +211,7 @@ GC_Spotlight::GC_Spotlight(FromFile)
 {
 }
 
-GC_Spotlight::GC_Spotlight(Level &world, float x, float y)
+GC_Spotlight::GC_Spotlight(World &world, float x, float y)
   : GC_2dSprite(world)
   , _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
 {
@@ -229,25 +229,25 @@ GC_Spotlight::~GC_Spotlight()
 {
 }
 
-void GC_Spotlight::Kill(Level &world)
+void GC_Spotlight::Kill(World &world)
 {
 	SAFE_KILL(world, _light);
     GC_2dSprite::Kill(world);
 }
 
-void GC_Spotlight::Serialize(Level &world, SaveFile &f)
+void GC_Spotlight::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_light);
 }
 
-void GC_Spotlight::MoveTo(Level &world, const vec2d &pos)
+void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
 {
 	_light->MoveTo(world, pos + GetDirection() * 7);
 	GC_2dSprite::MoveTo(world, pos);
 }
 
-void GC_Spotlight::EditorAction(Level &world)
+void GC_Spotlight::EditorAction(World &world)
 {
 	static vec2d delta(PI2 / 16);
 	vec2d dir = Vec2dAddDirection(GetDirection(), delta);
@@ -257,7 +257,7 @@ void GC_Spotlight::EditorAction(Level &world)
 	_light->MoveTo(world, GetPos() + dir * 7);
 }
 
-void GC_Spotlight::MapExchange(Level &world, MapFile &f)
+void GC_Spotlight::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);
 
@@ -307,7 +307,7 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Spotlight::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 

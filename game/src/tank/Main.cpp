@@ -4,7 +4,7 @@
 #include "gui_desktop.h"
 #include "script.h"
 #include "Macros.h"
-#include "Level.h"
+#include "World.h"
 #include "BackgroundIntro.h"
 
 #include "config/Config.h"
@@ -65,7 +65,7 @@ struct GlfwInitHelper
 };
 
 
-static void Idle(Level &world, float dt);
+static void Idle(World &world, float dt);
 static void Post();
 
 
@@ -117,9 +117,9 @@ namespace
 {
 	class DesktopFactory : public UI::IWindowFactory
 	{
-        Level &_world;
+        World &_world;
 	public:
-        DesktopFactory(Level &world)
+        DesktopFactory(World &world)
             : _world(world)
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
@@ -321,7 +321,7 @@ int main(int, const char**)
             TRACE("WARNING: no skins found");
         
         // init world
-        g_level.reset(new Level());
+        g_level.reset(new World());
         
         TRACE("scripting subsystem initialization");
         g_env.L = script_open(*g_level);
@@ -366,7 +366,7 @@ int main(int, const char**)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void Idle(Level &world, float dt)
+void Idle(World &world, float dt)
 {
 	world._defaultCamera.HandleMovement(world._sx, world._sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
 

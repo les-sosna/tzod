@@ -51,7 +51,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
@@ -74,27 +74,27 @@ public:
 	void SetTeam(int team);
 	int GetTeam() const { return _team; }
 
-	void SetScore(Level &world, int score);
+	void SetScore(World &world, int score);
 	int GetScore() const { return _score; }
 
     void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
     bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
 
 public:
-	GC_Player(Level &world);
+	GC_Player(World &world);
 	GC_Player(FromFile);
 	virtual ~GC_Player();
 	void UpdateSkin();
 
 	// GC_Object
-	virtual void Kill(Level &world);
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void MapExchange(Level &world, MapFile &f);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
+	virtual void TimeStepFixed(World &world, float dt);
 
 private:
-	void OnVehicleDestroy(Level &world, GC_Object *sender, void *param);
-	void OnVehicleKill(Level &world, GC_Object *sender, void *param);
+	void OnVehicleDestroy(World &world, GC_Object *sender, void *param);
+	void OnVehicleKill(World &world, GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ class GC_PlayerLocal
 	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
 
 public:
-	GC_PlayerLocal(Level &world);
+	GC_PlayerLocal(World &world);
 	GC_PlayerLocal(FromFile);
 	virtual ~GC_PlayerLocal();
 };

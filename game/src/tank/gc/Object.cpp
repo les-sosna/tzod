@@ -4,7 +4,7 @@
 #include "Object.h"
 
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 
@@ -92,7 +92,7 @@ ObjectProperty* PropertySet::GetProperty(int index)
 	return &_propName;
 }
 
-void PropertySet::MyExchange(Level &world, bool applyToObject)
+void PropertySet::MyExchange(World &world, bool applyToObject)
 {
 	if( applyToObject )
 	{
@@ -114,7 +114,7 @@ void PropertySet::MyExchange(Level &world, bool applyToObject)
 	}
 }
 
-void PropertySet::Exchange(Level &world, bool applyToObject)
+void PropertySet::Exchange(World &world, bool applyToObject)
 {
 	MyExchange(world, applyToObject);
 }
@@ -150,7 +150,7 @@ GC_Object::~GC_Object()
 //	assert(world._garbage.erase(this) == 1);
 }
 
-void GC_Object::Kill(Level &world)
+void GC_Object::Kill(World &world)
 {
 //	assert(world._garbage.insert(this).second);
 
@@ -162,7 +162,7 @@ void GC_Object::Kill(Level &world)
 
 //IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
 
-void GC_Object::Notify::Serialize(Level &world, SaveFile &f)
+void GC_Object::Notify::Serialize(World &world, SaveFile &f)
 {
 	f.Serialize(type);
 	f.Serialize(subscriber);
@@ -171,7 +171,7 @@ void GC_Object::Notify::Serialize(Level &world, SaveFile &f)
 	f.Serialize(reinterpret_cast<size_t&>(handler));
 }
 
-void GC_Object::Serialize(Level &world, SaveFile &f)
+void GC_Object::Serialize(World &world, SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
 
@@ -241,7 +241,7 @@ void GC_Object::Serialize(Level &world, SaveFile &f)
 	}
 }
 
-void GC_Object::SetEvents(Level &world, unsigned int dwEvents)
+void GC_Object::SetEvents(World &world, unsigned int dwEvents)
 {
 	// remove from the TIMESTEP_FIXED list
 	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
@@ -262,7 +262,7 @@ void GC_Object::SetEvents(Level &world, unsigned int dwEvents)
 	SetFlags(dwEvents, true);
 }
 
-const char* GC_Object::GetName(Level &world) const
+const char* GC_Object::GetName(World &world) const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -272,7 +272,7 @@ const char* GC_Object::GetName(Level &world) const
 	return NULL;
 }
 
-void GC_Object::SetName(Level &world, const char *name)
+void GC_Object::SetName(World &world, const char *name)
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -338,7 +338,7 @@ void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC h
 	assert(!"subscription not found");
 }
 
-void GC_Object::PulseNotify(Level &world, NotifyType type, void *param)
+void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
 {
 	++_notifyProtectCount;
 	for( Notify *n = _firstNotify; n; n = n->next )
@@ -369,19 +369,19 @@ void GC_Object::PulseNotify(Level &world, NotifyType type, void *param)
 	}
 }
 
-void GC_Object::TimeStepFixed(Level &world, float dt)
+void GC_Object::TimeStepFixed(World &world, float dt)
 {
 }
 
-void GC_Object::TimeStepFloat(Level &world, float dt)
+void GC_Object::TimeStepFloat(World &world, float dt)
 {
 }
 
-void GC_Object::EditorAction(Level &world)
+void GC_Object::EditorAction(World &world)
 {
 }
 
-SafePtr<PropertySet> GC_Object::GetProperties(Level &world)
+SafePtr<PropertySet> GC_Object::GetProperties(World &world)
 {
 	SafePtr<PropertySet> ps(NewPropertySet());
 	ps->Exchange(world, false); // fill property set with data from object
@@ -393,7 +393,7 @@ PropertySet* GC_Object::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_Object::MapExchange(Level &world, MapFile &f)
+void GC_Object::MapExchange(World &world, MapFile &f)
 {
 	std::string tmp_name;
 	const char *name = GetName(world);

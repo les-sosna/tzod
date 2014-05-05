@@ -47,7 +47,7 @@ set(tank_SOURCES
 	gui_widgets.cpp
 	InputManager.cpp
 	KeyMapper.cpp
-	Level.cpp
+	World.cpp
 	Main.cpp
 	MapFile.cpp
 	Md5.c

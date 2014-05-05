@@ -2,7 +2,7 @@
 
 #include "UserObjects.h"
 #include "GameClasses.h"
-#include "Level.h"
+#include "World.h"
 
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -17,7 +17,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 	return true;
 }
 
-GC_UserObject::GC_UserObject(Level &world, float x, float y)
+GC_UserObject::GC_UserObject(World &world, float x, float y)
   : GC_RigidBodyStatic(world)
 {
 	_textureName = "turret_platform";
@@ -38,19 +38,19 @@ GC_UserObject::~GC_UserObject()
 	g_level->_field.ProcessObject(this, false);
 }
 
-void GC_UserObject::Serialize(Level &world, SaveFile &f)
+void GC_UserObject::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 	f.Serialize(_textureName);
 }
 
-void GC_UserObject::OnDestroy(Level &world)
+void GC_UserObject::OnDestroy(World &world)
 {
 	new GC_Boom_Big(world, GetPos(), NULL);
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-void GC_UserObject::MapExchange(Level &world, MapFile &f)
+void GC_UserObject::MapExchange(World &world, MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(world, f);
 
@@ -103,7 +103,7 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_UserObject::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
@@ -138,7 +138,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 	return true;
 }
 
-GC_Decoration::GC_Decoration(Level &world, float x, float y)
+GC_Decoration::GC_Decoration(World &world, float x, float y)
   : GC_2dSprite(world)
   , _textureName("turret_platform")
   , _frameRate(0)
@@ -158,7 +158,7 @@ GC_Decoration::~GC_Decoration()
 {
 }
 
-void GC_Decoration::Serialize(Level &world, SaveFile &f)
+void GC_Decoration::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_textureName);
@@ -166,7 +166,7 @@ void GC_Decoration::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_time);
 }
 
-void GC_Decoration::MapExchange(Level &world, MapFile &f)
+void GC_Decoration::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);
 
@@ -194,7 +194,7 @@ void GC_Decoration::MapExchange(Level &world, MapFile &f)
 	}
 }
 
-void GC_Decoration::TimeStepFixed(Level &world, float dt)
+void GC_Decoration::TimeStepFixed(World &world, float dt)
 {
 	assert(_frameRate > 0);
 	_time += dt;
@@ -258,7 +258,7 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	return NULL;
 }
 
-void GC_Decoration::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 

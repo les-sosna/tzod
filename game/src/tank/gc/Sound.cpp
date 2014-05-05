@@ -4,7 +4,7 @@
 
 #include "globals.h"
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "SaveFile.h"
 
@@ -24,7 +24,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 	return true;
 }
 
-GC_Sound::GC_Sound(Level &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
+GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
   : GC_Actor(world)
   , _memberOf(this)
   , _soundTemplate(sound)
@@ -222,7 +222,7 @@ void GC_Sound::SetSpeed(float speed)
 #endif
 }
 
-void GC_Sound::MoveTo(Level &world, const vec2d &pos)
+void GC_Sound::MoveTo(World &world, const vec2d &pos)
 {
 	GC_Actor::MoveTo(world, pos);
 #if !defined NOSOUND
@@ -230,7 +230,7 @@ void GC_Sound::MoveTo(Level &world, const vec2d &pos)
 #endif
 }
 
-void GC_Sound::Serialize(Level &world, SaveFile &f)
+void GC_Sound::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
@@ -283,7 +283,7 @@ void GC_Sound::Serialize(Level &world, SaveFile &f)
 #endif
 }
 
-void GC_Sound::KillWhenFinished(Level &world)
+void GC_Sound::KillWhenFinished(World &world)
 {
 #if !defined NOSOUND
 	if( SMODE_UNKNOWN == _mode || _freezed ) return;
@@ -320,7 +320,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
-GC_Sound_link::GC_Sound_link(Level &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
+GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
    : GC_Sound(world, sound, mode, object->GetPos())
    , _object(object)
 {
@@ -332,13 +332,13 @@ GC_Sound_link::GC_Sound_link(FromFile)
 {
 }
 
-void GC_Sound_link::Serialize(Level &world, SaveFile &f)
+void GC_Sound_link::Serialize(World &world, SaveFile &f)
 {
 	GC_Sound::Serialize(world, f);
 	f.Serialize(_object);
 }
 
-void GC_Sound_link::TimeStepFixed(Level &world, float dt)
+void GC_Sound_link::TimeStepFixed(World &world, float dt)
 {
 	if( !_object )
 		Kill(world);

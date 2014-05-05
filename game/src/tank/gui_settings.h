@@ -6,7 +6,7 @@
 #include <Dialog.h>
 #include <ListBase.h>
 
-class Level;
+class World;
 
 namespace UI
 {
@@ -40,10 +40,10 @@ class SettingsDlg : public Dialog
 	ScrollBarHorizontal *_volumeMusic;
 	int _initialVolumeMusic;
 
-    Level &_world;
+    World &_world;
 
 public:
-	SettingsDlg(Window *parent, Level &world);
+	SettingsDlg(Window *parent, World &world);
 	virtual ~SettingsDlg();
 
 protected:
@@ -107,10 +107,10 @@ class MapSettingsDlg : public Dialog
 	Edit *_url;
 	Edit *_desc;
 	Edit *_onInit;
-    Level &_world;
+    World &_world;
 
 public:
-	MapSettingsDlg(Window *parent, Level &world);
+	MapSettingsDlg(Window *parent, World &world);
 	~MapSettingsDlg();
 
 	void OnOK();

@@ -42,12 +42,12 @@ private:
 	static float _sintable[SINTABLE_SIZE];
 
 public:
-	GC_Light(Level &world, enumLightType type);
+	GC_Light(World &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void MapExchange(Level &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
 
 	void SetIntensity(float i)
 	{
@@ -101,19 +101,19 @@ public:
 	}
 
 
-	void  SetTimeout(Level &world, float t);
+	void  SetTimeout(World &world, float t);
 	float GetTimeout() const { return _timeout; }
 
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
-	void SetActive(Level &world, bool activate);
+	void SetActive(World &world, bool activate);
 
-	virtual void MoveTo(Level &world, const vec2d &pos) override;
-	virtual void TimeStepFixed(Level &world, float dt) override;
-    virtual void Kill(Level &world) override;
+	virtual void MoveTo(World &world, const vec2d &pos) override;
+	virtual void TimeStepFixed(World &world, float dt) override;
+    virtual void Kill(World &world) override;
 
 public:
 	virtual void Shine() const;
-	virtual void Update(Level &world); // handles changing day/night
+	virtual void Update(World &world); // handles changing day/night
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,22 +133,22 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Spotlight(Level &world, float x, float y);
+	GC_Spotlight(World &world, float x, float y);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void MoveTo(Level &world, const vec2d &pos) override;
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 
-	virtual void EditorAction(Level &world);
-	virtual void MapExchange(Level &world, MapFile &f);
-    virtual void Kill(Level &world) override;
+	virtual void EditorAction(World &world);
+	virtual void MapExchange(World &world, MapFile &f);
+    virtual void Kill(World &world) override;
 };
 
 

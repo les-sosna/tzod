@@ -30,7 +30,7 @@ protected:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(Level &world, bool applyToObject);
+		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
 
@@ -43,7 +43,7 @@ protected:
 	bool _advanced; // weapon has booster attached
 
 public:
-	virtual void SetAdvanced(Level &world, bool advanced) { _advanced = advanced; }
+	virtual void SetAdvanced(World &world, bool advanced) { _advanced = advanced; }
 	inline  bool GetAdvanced()              { return _advanced;     }
 
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
@@ -61,30 +61,30 @@ public:
 	bool _fixmeChAnimate;
 
 public:
-	GC_Weapon(Level &world, float x, float y);
+	GC_Weapon(World &world, float x, float y);
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
-	virtual void Kill(Level &world);
+	virtual void Kill(World &world);
 
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 6.0f; }
 	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
-	void ProcessRotate(Level &world, float dt);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
+	void ProcessRotate(World &world, float dt);
 
-	virtual void SetCrosshair(Level &world);
+	virtual void SetCrosshair(World &world);
 
-	virtual void Fire(Level &world) = 0;
+	virtual void Fire(World &world) = 0;
 
-	virtual void TimeStepFixed(Level &world, float dt);
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
 
 private:
-	virtual void OnUpdateView(Level &world) {};
+	virtual void OnUpdateView(World &world) {};
 
 #ifdef NETWORK_DEBUG
 /*	virtual DWORD checksum(void) const
@@ -110,16 +110,16 @@ public:
 	bool _firing;
 	bool _reloaded;
 
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_RocketLauncher(Level &world, float x, float y);
+	GC_Weap_RocketLauncher(World &world, float x, float y);
 	GC_Weap_RocketLauncher(FromFile);
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ class GC_Weap_AutoCannon : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_AutoCannon);
 
 public:
-	virtual void SetAdvanced(Level &world, bool advanced);
+	virtual void SetAdvanced(World &world, bool advanced);
 
 public:
 	float _time_shot;
@@ -137,17 +137,17 @@ public:
 	int _nshots;
 	bool _firing;
 
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_AutoCannon(Level &world, float x, float y);
+	GC_Weap_AutoCannon(World &world, float x, float y);
 	GC_Weap_AutoCannon(FromFile);
 	virtual ~GC_Weap_AutoCannon();
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,16 +161,16 @@ private:
 	float _time_smoke_dt;
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
+	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Cannon(Level &world, float x, float y);
+	GC_Weap_Cannon(World &world, float x, float y);
 	GC_Weap_Cannon(FromFile);
 	virtual ~GC_Weap_Cannon();
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,13 +180,13 @@ class GC_Weap_Plazma : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Plazma);
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
+	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Plazma(Level &world, float x, float y);
+	GC_Weap_Plazma(World &world, float x, float y);
 	GC_Weap_Plazma(FromFile);
 	virtual ~GC_Weap_Plazma();
 
-	virtual void Fire(Level &world);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
 
@@ -197,13 +197,13 @@ class GC_Weap_Gauss : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Gauss);
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
+	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Gauss(Level &world, float x, float y);
+	GC_Weap_Gauss(World &world, float x, float y);
 	GC_Weap_Gauss(FromFile);
 	virtual ~GC_Weap_Gauss();
 
-	virtual void Fire(Level &world);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
 
@@ -218,7 +218,7 @@ private:
 	ObjPtr<GC_Light> _engineLight;
 
 protected:
-	virtual void OnUpdateView(Level &world);
+	virtual void OnUpdateView(World &world);
 
 public:
 	float _fuel;
@@ -229,22 +229,22 @@ public:
 	bool _bReady;
 
 public:
-	virtual void SetAdvanced(Level &world, bool advanced);
+	virtual void SetAdvanced(World &world, bool advanced);
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_Ram(Level &world, float x, float y);
+	GC_Weap_Ram(World &world, float x, float y);
 	GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
 
-    virtual void Kill(Level &world);
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+    virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -257,16 +257,16 @@ private:
 	float _time_ready;
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
+	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_BFG(Level &world, float x, float y);
+	GC_Weap_BFG(World &world, float x, float y);
 	GC_Weap_BFG(FromFile);
 	virtual ~GC_Weap_BFG();
 
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -276,20 +276,20 @@ class GC_Weap_Ripper : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
 	ObjPtr<GC_2dSprite> _diskSprite;
-	void UpdateDisk(Level &world);
+	void UpdateDisk(World &world);
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_Ripper(Level &world, float x, float y);
+	GC_Weap_Ripper(World &world, float x, float y);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
-	virtual void Serialize(Level &world, SaveFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void Fire(Level &world);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFloat(Level &world, float dt);
+	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -308,19 +308,19 @@ private:
 	ObjPtr<GC_2dSprite> _crosshairLeft;
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_Minigun(Level &world, float x, float y);
+	GC_Weap_Minigun(World &world, float x, float y);
 	GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
 
-	virtual void SetCrosshair(Level &world);
-    virtual void Kill(Level &world);
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+	virtual void SetCrosshair(World &world);
+    virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,18 +337,18 @@ private:
 	bool _bFire;
 
 public:
-	virtual void Attach(Level &world, GC_Actor *actor);
-	virtual void Detach(Level &world);
+	virtual void Attach(World &world, GC_Actor *actor);
+	virtual void Detach(World &world);
 
-	GC_Weap_Zippo(Level &world, float x, float y);
+	GC_Weap_Zippo(World &world, float x, float y);
 	GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
 
-    virtual void Kill(Level &world);
-	virtual void Serialize(Level &world, SaveFile &f);
-	virtual void Fire(Level &world);
+    virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(Level &world, float dt);
+	virtual void TimeStepFixed(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

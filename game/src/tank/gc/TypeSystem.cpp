@@ -10,7 +10,7 @@ GC_Object* RTTypes::CreateFromFile(ObjectType type)
 	return it->second();
 }
 
-GC_Object* RTTypes::CreateObject(Level &world, ObjectType type, float x, float y)
+GC_Object* RTTypes::CreateObject(World &world, ObjectType type, float x, float y)
 {
 	assert(IsRegistered(type));
 	return GetTypeInfo(type).Create(world, x, y);

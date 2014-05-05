@@ -10,7 +10,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 	return true;
 }
 
-GC_Brick_Fragment_01::GC_Brick_Fragment_01(Level &world, const vec2d &x0, const vec2d &v0)
+GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0)
   : GC_2dSprite(world)
   , _startFrame(rand())
   , _time(0)
@@ -30,7 +30,7 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
 {
 }
 
-void GC_Brick_Fragment_01::Serialize(Level &world, SaveFile &f)
+void GC_Brick_Fragment_01::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_startFrame);
@@ -39,7 +39,7 @@ void GC_Brick_Fragment_01::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_Brick_Fragment_01::TimeStepFloat(Level &world, float dt)
+void GC_Brick_Fragment_01::TimeStepFloat(World &world, float dt)
 {
 	_time += dt;
 
@@ -63,7 +63,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-GC_Particle::GC_Particle(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
+GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : GC_2dSprite(world)
   , _time(0)
@@ -88,7 +88,7 @@ GC_Particle::GC_Particle(FromFile)
 {
 }
 
-void GC_Particle::Serialize(Level &world, SaveFile &f)
+void GC_Particle::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_time);
@@ -98,7 +98,7 @@ void GC_Particle::Serialize(Level &world, SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_Particle::TimeStepFloat(Level &world, float dt)
+void GC_Particle::TimeStepFloat(World &world, float dt)
 {
 	assert(_timeLife > 0);
 	_time += dt;
@@ -141,7 +141,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 	return true;
 }
 
-GC_ParticleScaled::GC_ParticleScaled(Level &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
+GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
                                      float lifeTime, const vec2d &orient, float size)
   : GC_Particle(world, pos, v, texture, lifeTime, orient)
   , _size(size)
@@ -153,7 +153,7 @@ GC_ParticleScaled::GC_ParticleScaled(FromFile)
 {
 }
 
-void GC_ParticleScaled::Serialize(Level &world, SaveFile &f)
+void GC_ParticleScaled::Serialize(World &world, SaveFile &f)
 {
 	GC_Particle::Serialize(world, f);
 	f.Serialize(_size);

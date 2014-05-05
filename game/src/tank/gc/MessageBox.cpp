@@ -29,7 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_MessageBox)
 	return true;
 }
 
-GC_MessageBox::GC_MessageBox(Level &world)
+GC_MessageBox::GC_MessageBox(World &world)
   : GC_Service(world)
   , _msgbox(NULL)
   , _option1("OK")
@@ -52,7 +52,7 @@ GC_MessageBox::~GC_MessageBox()
 		_msgbox->Destroy();
 }
 
-void GC_MessageBox::Serialize(Level &world, SaveFile &f)
+void GC_MessageBox::Serialize(World &world, SaveFile &f)
 {
 	GC_Service::Serialize(world, f);
 	f.Serialize(_title);
@@ -70,7 +70,7 @@ void GC_MessageBox::Serialize(Level &world, SaveFile &f)
 	}
 }
 
-void GC_MessageBox::MapExchange(Level &world, MapFile &f)
+void GC_MessageBox::MapExchange(World &world, MapFile &f)
 {
 	GC_Service::MapExchange(world, f);
 	MAP_EXCHANGE_STRING(title, _title, "");
@@ -166,7 +166,7 @@ ObjectProperty* GC_MessageBox::MyPropertySet::GetProperty(int index)
 	}
 }
 
-void GC_MessageBox::MyPropertySet::MyExchange(Level &world, bool applyToObject)
+void GC_MessageBox::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 

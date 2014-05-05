@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Level.h"// for EditorModeListenerHelper
 #include "InputManager.h"
 #include <Window.h>
 #include <Console.h>
@@ -74,13 +73,13 @@ class Desktop
     
     int _nModalPopups;
     
-    Level &_world;
+    World &_world;
 
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager, Level &_world);
+	Desktop(LayoutManager* manager, World &_world);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

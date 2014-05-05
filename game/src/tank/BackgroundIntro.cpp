@@ -2,7 +2,7 @@
 
 #include "BackgroundIntro.h"
 
-IntroClient::IntroClient(Level *levelController)
+IntroClient::IntroClient(World *levelController)
 	: ClientBase(levelController)
 {
 }

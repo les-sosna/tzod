@@ -3,7 +3,7 @@
 #include "Vehicle.h"
 
 #include "GlobalListHelper.inl"
-#include "Level.h"
+#include "World.h"
 #include "Macros.h"
 #include "script.h"
 
@@ -40,7 +40,7 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GC_Vehicle::TimeStepFloat(Level &world, float dt)
+void GC_Vehicle::TimeStepFloat(World &world, float dt)
 {
 	static const TextureCache smoke("particle_smoke");
 
@@ -63,12 +63,12 @@ void GC_Vehicle::TimeStepFloat(Level &world, float dt)
 	GC_RigidBodyDynamic::TimeStepFloat(world, dt);
 }
 
-void GC_Vehicle::SetMoveSound(Level &world, enumSoundTemplate s)
+void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
 	_moveSound = new GC_Sound(world, s, SMODE_LOOP, GetPos());
 }
 
-void GC_Vehicle::UpdateLight(Level &world)
+void GC_Vehicle::UpdateLight(World &world)
 {
 	static const vec2d delta1(0.6f);
 	static const vec2d delta2(-0.6f);
@@ -82,7 +82,7 @@ void GC_Vehicle::UpdateLight(Level &world)
 	_light_ambient->SetActive(world, _state._bLight);
 }
 
-GC_Vehicle::GC_Vehicle(Level &world, float x, float y)
+GC_Vehicle::GC_Vehicle(World &world, float x, float y)
   : GC_RigidBodyDynamic(world)
   , _memberOf(this)
   , _enginePower(0)
@@ -167,7 +167,7 @@ void GC_Vehicle::SetMaxHP(float hp)
 	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
 }
 
-void GC_Vehicle::Serialize(Level &world, SaveFile &f)
+void GC_Vehicle::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyDynamic::Serialize(world, f);
 
@@ -249,13 +249,13 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	return result;
 }
 
-void GC_Vehicle::SetPlayer(Level &world, GC_Player *player)
+void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 {
 	new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP);
 	_player = player;
 }
 
-void GC_Vehicle::Kill(Level &world)
+void GC_Vehicle::Kill(World &world)
 {
 	SAFE_KILL(world, _damLabel);
 	SAFE_KILL(world, _moveSound);
@@ -274,7 +274,7 @@ void GC_Vehicle::Kill(Level &world)
 	GC_RigidBodyDynamic::Kill(world);
 }
 
-void GC_Vehicle::OnPickup(Level &world, GC_Pickup *pickup, bool attached)
+void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 {
 	GC_RigidBodyDynamic::OnPickup(world, pickup, attached);
 	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
@@ -369,7 +369,7 @@ void GC_Vehicle::ResetClass()
 	SetClass(vc);
 }
 
-bool GC_Vehicle::TakeDamage(Level &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	DamageDesc dd;
 	dd.damage = damage;
@@ -500,7 +500,7 @@ void GC_Vehicle::Draw(bool editorMode) const
 #endif // NDEBUG
 }
 
-void GC_Vehicle::TimeStepFixed(Level &world, float dt)
+void GC_Vehicle::TimeStepFixed(World &world, float dt)
 {
 	ObjPtr<GC_Vehicle> watch(this);
 
@@ -597,7 +597,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 	return true;
 }
 
-GC_Tank_Light::GC_Tank_Light(Level &world, float x, float y)
+GC_Tank_Light::GC_Tank_Light(World &world, float x, float y)
   : GC_Vehicle(world, x, y)
 {
 //	_MaxBackSpeed = 150;
@@ -670,7 +670,7 @@ void GC_Tank_Light::SetDefaults()
 }
 */
 
-void GC_Tank_Light::OnDestroy(Level &world)
+void GC_Tank_Light::OnDestroy(World &world)
 {
 	new GC_Boom_Big(world, GetPos(), NULL);
 	GC_Vehicle::OnDestroy(world);
