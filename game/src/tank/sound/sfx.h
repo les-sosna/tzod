@@ -1,7 +1,8 @@
 // sfx.h
 
-//  throws std::runtime_error
-void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename);
-
+#ifndef NOSOUND
+bool InitSound(bool init);
+void FreeSound();
+#endif
 
 // end of file

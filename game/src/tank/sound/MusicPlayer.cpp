@@ -1,23 +1,41 @@
 // MusicPlayer.cpp
 
-#include "stdafx.h"
 #include "MusicPlayer.h"
 
 #include "Macros.h"
 
-#include "fs/FileSystem.h"
 #include "config/Config.h"
+#include <fs/FileSystem.h>
 
+static void ThrowIfALError()
+{
+    ALenum e = alGetError();
+    if (AL_NO_ERROR != e)
+    {
+        const ALchar *msg = alGetString(e);
+        throw std::runtime_error(msg ? msg : "Unknown OpenAL error");
+    }
+}
+
+static void LogALError()
+{
+    ALenum e = alGetError();
+    if (AL_NO_ERROR != e)
+    {
+        const ALchar *msg = alGetString(e);
+        printf("%s\n", msg ? msg : "Unknown OpenAL error");
+    }
+}
 
 
 MusicPlayer::MusicPlayer()
-  : _looping(true)
-  , _playbackDone(false)
-  , _firstHalfPlaying(true)
-  , _bufHalfSize(0)
+  : _playing(false)
 {
 	memset(&_vorbisFile, 0, sizeof(OggVorbis_File));
-	memset(&_state, 0, sizeof(State));
+    alGenBuffers(_buffers.size(), _buffers.data());
+    ThrowIfALError();
+    alGenSources(1, &_source);
+    ThrowIfALError();
 	g_conf.s_musicvolume.eventChange = std::bind(&MusicPlayer::OnChangeVolume, this);
 }
 
@@ -25,96 +43,58 @@ MusicPlayer::~MusicPlayer()
 {
 	g_conf.s_musicvolume.eventChange = NULL;
 	Cleanup();
+    alDeleteSources(1, &_source);
+    LogALError();
+    alDeleteBuffers(_buffers.size(), _buffers.data());
+    LogALError();
 }
 
 void MusicPlayer::OnChangeVolume()
 {
-	if( _buffer )
-	{
-		_buffer->SetVolume(DSBVOLUME_MIN + int((float) (g_conf.s_musicvolume.GetInt() - DSBVOLUME_MIN)));
-	}
+//	if( _buffer )
+//	{
+//		_buffer->SetVolume(DSBVOLUME_MIN + int((float) (g_conf.s_musicvolume.GetInt() - DSBVOLUME_MIN)));
+//	}
 }
 
 void MusicPlayer::Cleanup()
 {
-	_buffer.Release();
-	_bufHalfSize = 0;
 	ov_clear(&_vorbisFile);
-	_state.file = NULL;
-	_state.ptr = 0;
+    _state.file.reset();
+    _state.ptr = 0;
 }
 
-bool MusicPlayer::Fill(bool firstHalf)
+void MusicPlayer::FillAndQueue(ALuint bufName)
 {
-	LPVOID firstSegment;
-	DWORD  firstSegmentSize = 0;
-	LPVOID secondSegment;
-	DWORD  secondSegmentSize = 0;
+    char buf[16384];
+    
+	unsigned int nBytesRead  = 0;
+	int nBitStream           = 0; // used to specify logical bitstream 0
 
-	if( FAILED(_buffer->Lock((firstHalf ? 0 : _bufHalfSize), _bufHalfSize,
-	                         &firstSegment, &firstSegmentSize, &secondSegment, &secondSegmentSize, 0)) )
+	while( nBytesRead < sizeof(buf) )
 	{
-		return false;
-	}
-
-	assert(firstSegmentSize == _bufHalfSize);
-	
-
-	//
-	// decode OGG file into buffer
-	//
-
-	unsigned int nBytesReadSoFar  = 0; // keep track of how many bytes we have read so far
-	long nBytesReadThisTime       = 1; // keep track of how many bytes we read per ov_read invokation (1 to ensure that while loop is entered below)
-	int nBitStream                = 0; // used to specify logical bitstream 0
-
-	// decode vorbis file into buffer half (continue as long as the buffer hasn't been filled with something (=sound/silence)
-	while( nBytesReadSoFar < _bufHalfSize )
-	{
-		nBytesReadThisTime = ov_read(
+		long count = ov_read(
 			&_vorbisFile,
-			(char*) firstSegment + nBytesReadSoFar, // where to put the decoded data
-			_bufHalfSize - nBytesReadSoFar,         // how much data to read
-			0,                                      // 0 specifies little endian decoding mode
-			2,                                      // 2 specifies 16-bit samples
-			1,                                      // 1 specifies signed data
+			buf + nBytesRead,           // where to put the decoded data
+			sizeof(buf) - nBytesRead,   // how much data to read
+			0,                          // 0 specifies little endian decoding mode
+			2,                          // 2 specifies 16-bit samples
+			1,                          // 1 specifies signed data
 			&nBitStream
 		);
 
-		//new position corresponds to the amount of data we just read
-		nBytesReadSoFar += nBytesReadThisTime;
+		nBytesRead += count;
 
-
-		//
-		// do special processing if we have reached end of the OGG file
-		//
-
-		if( 0 == nBytesReadThisTime )
-		{
-			// if looping we fill start of OGG, otherwise fill with silence
-			if( _looping )
-			{
-				// seek back to beginning of file
-				ov_time_seek(&_vorbisFile, 0);
-			}
-			else
-			{
-				// fill with silence
-				for( unsigned int i = nBytesReadSoFar; i < _bufHalfSize; i++)
-				{
-					// silence = 0 in 16 bit sampled data (which OGG always is)
-					*((char*) firstSegment + i) = 0;
-				}
-
-				// signal that playback is over and exit the reader loop
-				_playbackDone = true;
-				nBytesReadSoFar = _bufHalfSize;
-			}
-		}
+        // seek back to the beginning if we reached the end of file
+		if( 0 == count )
+            ov_pcm_seek(&_vorbisFile, 0);
 	}
 
-	_buffer->Unlock(firstSegment, firstSegmentSize, secondSegment, secondSegmentSize);
-	return true;
+    const vorbis_info *vi = ov_info(&_vorbisFile, -1);
+    alBufferData(bufName, vi->channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, buf, sizeof(buf), vi->rate);
+    ThrowIfALError();
+    alSourceQueueBuffers(_source, 1, &bufName);
+    ThrowIfALError();
 }
 
 size_t MusicPlayer::read_func(void *ptr, size_t size, size_t nmemb, void *datasource)
@@ -149,7 +129,7 @@ long MusicPlayer::tell_func(void *datasource)
 	return ((State *) datasource)->ptr;
 }
 
-bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
+bool MusicPlayer::Load(std::shared_ptr<FS::MemMap> file)
 {
 	Cleanup();
 
@@ -165,82 +145,53 @@ bool MusicPlayer::Load(SafePtr<FS::MemMap> file)
 	
 	if( (ov_open_callbacks(&_state, &_vorbisFile, NULL, 0, cb)) != 0 )
 	{
+        Cleanup();
 		return false;
 	}
-
 
 	// get info
 	vorbis_info *vorbisInfo = ov_info(&_vorbisFile, -1);
+    if (vorbisInfo->channels != 1 && vorbisInfo->channels != 2)
+    {
+        Cleanup();
+        return false;
+    }
 
-
-	//
-	// setup buffer
-	//
-
-	WAVEFORMATEX wf = {0};
-	wf.wFormatTag       = 1;   // always 1 in OGG
-	wf.nChannels        = vorbisInfo->channels;
-	wf.nSamplesPerSec   = vorbisInfo->rate;
-	wf.nAvgBytesPerSec  = wf.nSamplesPerSec * wf.nChannels * 2;
-	wf.nBlockAlign      = 2 * wf.nChannels;
-	wf.wBitsPerSample   = 16;  // always 16 in OGG
-	wf.cbSize           = 0;   // no extra info
-
-	_bufHalfSize = std::min(10000, std::max(100, g_conf.s_buffer.GetInt())) * wf.nAvgBytesPerSec / 2000;
-
-	DSBUFFERDESC desc = {0};
-	desc.dwSize         = sizeof(DSBUFFERDESC);
-	desc.lpwfxFormat    = &wf;
-	desc.dwBufferBytes  = _bufHalfSize * 2;
-	desc.dwFlags        = DSBCAPS_CTRLVOLUME;
-
-	//pointer to old interface, used to obtain pointer to new interface
-	ComPtr<IDirectSoundBuffer> pTempBuffer;	
-	if( FAILED(g_soundManager->GetDirectSound()->CreateSoundBuffer(&desc, &pTempBuffer, NULL)) )
-	{
-		_bufHalfSize = 0;
-		return false;
-	}
-
-	//query for updated interface
-	if( FAILED(pTempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&_buffer)))
-	{
-		_bufHalfSize = 0;
-		return false;
-	}
-	
 	OnChangeVolume();
 
-	Fill(true); // Fill first half of buffer with initial data
-	_firstHalfPlaying = false;
+    for (ALuint name: _buffers)
+        FillAndQueue(name);
 
 	return true;
 }
 
-void MusicPlayer::Play(bool looping)
+void MusicPlayer::Play()
 {
-	_buffer->Play(0, 0, DSBPLAY_LOOPING);
+    _playing = true;
+    alSourcePlay(_source);
+    LogALError();
 }
 
 void MusicPlayer::HandleBufferFilling()
 {
-	if( _buffer )
-	{
-		DWORD pos;
-		if( SUCCEEDED(_buffer->GetCurrentPosition(&pos, NULL)) )
-		{
-			if( pos > _bufHalfSize && _firstHalfPlaying )
-			{
-				Fill(true); // fill first half
-				_firstHalfPlaying = false;
-			}
-			else if( pos <= _bufHalfSize && !_firstHalfPlaying )
-			{
-				Fill(false); // fill second half
-				_firstHalfPlaying = true;
-			}
-		}
-	}
+    if (_playing)
+    {
+        ALint value = 0;
+        alGetSourcei(_source, AL_BUFFERS_PROCESSED, &value);
+        if( value > 0 )
+        {
+            ALuint buffer = AL_NONE;
+            alSourceUnqueueBuffers(_source, 1, &buffer);
+            if (AL_NONE != buffer)
+            {
+                FillAndQueue(buffer);
+                // restart if it previously run out of buffers
+                alGetSourcei(_source, AL_SOURCE_STATE, &value);
+                if( AL_PLAYING != value )
+                    alSourcePlay(_source);
+            }
+        }
+    }
 }
 
 // end of file

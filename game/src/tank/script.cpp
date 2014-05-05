@@ -512,19 +512,14 @@ static int luaT_music(lua_State *L)
 #ifndef NOSOUND
 	const char *filename = luaL_checkstring(L, 1);
 
-	if( !g_soundManager )
-	{
-		TRACE("WARNING: Sound unavailable");
-	}
-    
-	if( filename[0] && g_soundManager )
+	if( filename[0] )
 	{
 		try
 		{
-			g_music = SafePtr<MusicPlayer>(new MusicPlayer());
+			g_music.reset(new MusicPlayer());
 			if( g_music->Load(g_fs->GetFileSystem(DIR_MUSIC)->Open(filename)->QueryMap()) )
 			{
-				g_music->Play(true);
+				g_music->Play();
 				lua_pushboolean(L, true);
 				return 1;
 			}
@@ -1241,7 +1236,7 @@ int luaT_pushcmd(lua_State *L)
 ///////////////////////////////////////////////////////////////////////////////
 // api
 
-lua_State* script_open(void)
+lua_State* script_open(Level &world)
 {
 	lua_State *L = luaL_newstate();
     if (!L)
@@ -1271,6 +1266,14 @@ lua_State* script_open(void)
 		lua_pushstring(L, lib->name);
 		lua_call(L, 1, 0);
 	}
+    
+    
+    //
+    // set world
+    //
+    
+    lua_pushlightuserdata(L, &world);
+    lua_setfield(L, LUA_REGISTRYINDEX, "WORLD");
 
 
 	//

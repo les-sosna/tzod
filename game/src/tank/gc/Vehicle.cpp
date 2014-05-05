@@ -12,7 +12,7 @@
 #include "particles.h"
 #include "Pickup.h"
 #include "indicators.h"
-#include "sound.h"
+#include "Sound.h"
 #include "player.h"
 #include "turrets.h"
 #include "Weapons.h"

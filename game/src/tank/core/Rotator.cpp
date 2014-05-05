@@ -2,7 +2,7 @@
 
 #include "Rotator.h"
 #include "SaveFile.h"
-#include "gc/sound.h"
+#include "gc/Sound.h"
 
 //////////////////////////////////////////////////////////////////////
 

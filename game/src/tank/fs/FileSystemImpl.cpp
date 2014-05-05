@@ -491,11 +491,12 @@ FS::OSFileSystem::OSFile::OSStream::~OSStream()
     _file->Unstream();
 }
 
-FS::ErrorCode FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
+size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
-    if( 1 == fread(dst, size, 1, _file->_file.f) )
-        return EC_OK;
-    return feof(_file->_file.f) ? EC_EOF : EC_ERROR;
+    size_t result = fread(dst, size, count, _file->_file.f);
+    if( count != result && ferror(_file->_file.f) )
+        throw std::runtime_error("read file");
+    return result;
 }
 
 void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
@@ -509,6 +510,11 @@ void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
     fseek(_file->_file.f, amount, origin);
+}
+
+long long FS::OSFileSystem::OSFile::OSStream::Tell() const
+{
+    return ftell(_file->_file.f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

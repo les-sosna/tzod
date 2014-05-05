@@ -2,14 +2,10 @@
 
 #pragma once
 
-#include "core/SafePtr.h"
-
 #include <memory>
 
 struct IRender;
 class TextureManager;
-class CSoundManager;
-class CSound;
 class Level;
 class ConsoleBuffer;
 //class ClientBase;
@@ -32,11 +28,11 @@ struct ENVIRONMENT;
 
 // ------------------------
 
-extern CSound *g_pSounds[SND_COUNT];
+//#include <al.h> - ALuint
+extern unsigned int g_sounds[SND_COUNT];
 
 extern std::unique_ptr<IRender> g_render;
 extern TextureManager  *g_texman;
-extern CSoundManager   *g_soundManager;
 extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
@@ -44,7 +40,7 @@ extern AppBase         *g_app;
 extern std::unique_ptr<Level>     g_level;
 #ifndef NOSOUND
 class MusicPlayer;
-extern SafePtr<MusicPlayer>     g_music;
+extern std::unique_ptr<MusicPlayer>     g_music;
 #endif
 extern std::shared_ptr<FS::FileSystem>  g_fs;
 

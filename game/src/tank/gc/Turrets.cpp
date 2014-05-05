@@ -12,7 +12,7 @@
 #include "SaveFile.h"
 
 #include "GameClasses.h"
-#include "sound.h"
+#include "Sound.h"
 #include "indicators.h"
 #include "vehicle.h"
 #include "player.h"
@@ -120,11 +120,11 @@ GC_Vehicle* GC_Turret::EnumTargets(Level &world)
 	return target;
 }
 
-void GC_Turret::SelectTarget(GC_Vehicle *target)
+void GC_Turret::SelectTarget(Level &world, GC_Vehicle *target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
-	_state   = TS_ATACKING;
+	_state  = TS_ATACKING;
 	PLAY(SND_TargetLock, GetPos());
 }
 
@@ -174,7 +174,7 @@ void GC_Turret::TimeStepFixed(Level &world, float dt)
 		if( _jobManager.TakeJob(this) )
 		{
 			if( GC_Vehicle *target = EnumTargets(world) )
-				SelectTarget(target);
+				SelectTarget(world, target);
 		}
 		break;
 	case TS_ATACKING:
@@ -481,7 +481,7 @@ GC_TurretBunker::~GC_TurretBunker()
 {
 }
 
-void GC_TurretBunker::WakeUp()
+void GC_TurretBunker::WakeUp(Level &world)
 {
 	_jobManager.UnregisterMember(this);
 	_state = TS_WAKING_UP;
@@ -566,7 +566,7 @@ void GC_TurretBunker::TimeStepFixed(Level &world, float dt)
 		//	if( _jobManager.TakeJob(this) )
 			{
 				if( GC_Vehicle *target = EnumTargets(world) )
-					SelectTarget(target);
+					SelectTarget(world, target);
 			}
 		}
 		break;
@@ -574,7 +574,8 @@ void GC_TurretBunker::TimeStepFixed(Level &world, float dt)
 	case TS_HIDDEN:
 		if( _jobManager.TakeJob(this) )
 		{
-			if( EnumTargets(world) ) WakeUp();
+			if( EnumTargets(world) )
+                WakeUp(world);
 		}
 		break;
 

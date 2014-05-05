@@ -9,7 +9,7 @@ set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.55 REQUIRED COMPONENTS system)
 
-#find_package(OpenAL)
+find_package(OpenAL)
 
 include_directories(
 	.
@@ -17,6 +17,7 @@ include_directories(
 	${UI_SOURCE_DIR}
 	
 	# 3rd party
+	${OPENAL_INCLUDE_DIR}
 	${Boost_INCLUDE_DIRS}
 	${Lua_SOURCE_DIR}/src
 	${Zlib_SOURCE_DIR}
@@ -31,8 +32,6 @@ set(tank_SOURCES
 	ClientBase.cpp
 	Controller.cpp
 	DefaultCamera.cpp
-#	directx.cpp
-#	Dsutil.cpp
 	Field.cpp
 	globals.cpp
 	gui.cpp
@@ -100,11 +99,15 @@ set(tank_SOURCES
 #	network/TankClient.cpp
 #	network/TankServer.cpp
 #	network/Variant.cpp
-#	sound/MusicPlayer.cpp
-#	sound/sfx.cpp
+	sound/MusicPlayer.cpp
+	sound/sfx.cpp
 )
 
-add_definitions(-DNOSOUND)
+if(${OPENAL_FOUND})
+else()
+	add_definitions(-DNOSOUND)
+endif()
+
 link_directories(${Boost_LIBRARY_DIR})
 
 if(WIN32)
@@ -124,6 +127,8 @@ target_link_libraries(tank
 	pluto
 	zlib
 	glfw
+	oggvorbis
 	${GLFW_LIBRARIES}
 	${Boost_LIBRARIES}
+	${OPENAL_LIBRARY}
 )

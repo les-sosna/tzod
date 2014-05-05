@@ -17,6 +17,9 @@
 #include <ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
+#ifndef NOSOUND
+#include <al.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +74,14 @@ void GC_Camera::Kill(Level &world)
 {
     UpdateLayout(world);
     GC_Actor::Kill(world);
+}
+
+void GC_Camera::MoveTo(Level &world, const vec2d &pos)
+{
+#ifndef NOSOUND
+    alListener3f(AL_POSITION, GetPos().x, GetPos().y, 500.0f);
+#endif
+    GC_Actor::MoveTo(world, pos);
 }
 
 void GC_Camera::TimeStepFloat(Level &world, float dt)

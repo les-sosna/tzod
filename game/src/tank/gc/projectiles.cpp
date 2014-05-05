@@ -11,7 +11,7 @@
 #include "particles.h"
 #include "Player.h"
 #include "RigidBodyDinamic.h"
-#include "sound.h"
+#include "Sound.h"
 #include "SaveFile.h"
 
 #include "config/Config.h"

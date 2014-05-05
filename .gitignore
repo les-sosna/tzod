@@ -1,2 +1,10 @@
 log.txt
 config.cfg
+game/data/sounds/explosions/*.ogg
+game/data/sounds/interface/*.ogg
+game/data/sounds/misc/*.ogg
+game/data/sounds/pickup/*.ogg
+game/data/sounds/projectiles/*.ogg
+game/data/sounds/turrets/*.ogg
+game/data/sounds/vehicle/*.ogg
+

@@ -14,13 +14,6 @@ enum FileMode
 	ModeRead = 0x01,
 	ModeWrite = 0x02,
 };
-    
-enum ErrorCode
-{
-    EC_OK, 
-    EC_EOF,
-    EC_ERROR,
-};
 
 class File;
 
@@ -38,9 +31,10 @@ protected:
 class Stream
 {
 public:
-	virtual ErrorCode Read(void *dst, size_t size) = 0;
+	virtual size_t Read(void *dst, size_t size, size_t count) = 0;
 	virtual void Write(const void *src, size_t size) = 0;
 	virtual void Seek(long long amount, unsigned int origin) = 0;
+    virtual long long Tell() const = 0;
 
 protected:
 	virtual ~Stream() {}

@@ -1,12 +1,10 @@
 // Main.cpp
 
-
 #include "globals.h"
 #include "gui_desktop.h"
 #include "script.h"
 #include "Macros.h"
 #include "Level.h"
-#include "directx.h"
 #include "BackgroundIntro.h"
 
 #include "config/Config.h"
@@ -14,6 +12,7 @@
 
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
+#include "sound/sfx.h"
 #endif
 
 #include "video/TextureManager.h"
@@ -74,7 +73,8 @@ static void Post();
 
 static void OnPrintScreen()
 {
-	PLAY(SND_Screenshot, vec2d(0, 0));
+//	PLAY(SND_Screenshot, vec2d(0, 0));
+    
 /*
 	// generate a file name
 
@@ -310,7 +310,7 @@ int main(int, const char**)
         g_render->OnResizeWnd(Point{width, height});
         
 #if !defined NOSOUND
-        InitDirectSound(g_env.hMainWnd, true));
+        InitSound(true);
 #endif
         
         g_texman = new TextureManager;
@@ -320,14 +320,13 @@ int main(int, const char**)
         if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
             TRACE("WARNING: no skins found");
         
-        // init scripting system
-        TRACE("scripting subsystem initialization");
-        g_env.L = script_open();
-        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
-        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-        
         // init world
         g_level.reset(new Level());
+        
+        TRACE("scripting subsystem initialization");
+        g_env.L = script_open(*g_level);
+        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
+        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         TRACE("GUI subsystem initialization");
         g_gui = new UI::LayoutManager(DesktopFactory(*g_level));
@@ -418,7 +417,7 @@ void Post()
 //	_inputMgr.reset();
 
 #ifndef NOSOUND
-	FreeDirectSound();
+	FreeSound();
 #endif
 	if( g_render )
 	{

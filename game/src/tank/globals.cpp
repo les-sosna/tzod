@@ -7,8 +7,7 @@
 
 ENVIRONMENT g_env;
 
-CSoundManager   *g_soundManager;
-CSound          *g_pSounds[SND_COUNT];
+unsigned int     g_sounds[SND_COUNT];
 
 std::unique_ptr<IRender> g_render;
 UI::LayoutManager  *g_gui;
@@ -19,7 +18,7 @@ TextureManager *g_texman;
 std::unique_ptr<Level>   g_level;
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
-SafePtr<MusicPlayer>     g_music;
+std::unique_ptr<MusicPlayer>     g_music;
 #endif
 std::shared_ptr<FS::FileSystem>  g_fs;
 

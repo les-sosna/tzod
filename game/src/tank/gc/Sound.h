@@ -3,19 +3,21 @@
 #pragma once
 
 #include "Actor.h"
-//#include "core/ComPtr.h"
 
 #include <SoundTemplates.h>
+#ifndef NOSOUND
+#include <al.h>
+#endif
 
 /////////////////////////////////////////////////////////////
 
 enum enumSoundMode
 {
-	SMODE_UNKNOWN = 0,
-	SMODE_PLAY,  // the GC_Soung object will be destroyed at the end
-	SMODE_LOOP,
-	SMODE_STOP,  // pause with the resource releasing
-	SMODE_WAIT,  // forced pause
+    SMODE_UNKNOWN = 0,
+    SMODE_PLAY,  // the GC_Soung object will be destroyed at the end
+    SMODE_LOOP,
+    SMODE_STOP,  // pause with the resource releasing
+    SMODE_WAIT,  // forced pause
 };
 
 class GC_Sound : public GC_Actor
@@ -23,18 +25,15 @@ class GC_Sound : public GC_Actor
 	DECLARE_SELF_REGISTRATION(GC_Sound);
 	MemberOfGlobalList<LIST_sounds> _memberOf;
 
-private:
 	enumSoundTemplate   _soundTemplate;
 #ifndef NOSOUND
-	ComPtr<IDirectSoundBuffer> _soundBuffer;
-	DWORD _dwNormalFrequency;
-	DWORD _dwCurrentFrequency;
-	DWORD _dwPosition;
+    ALuint _source;
 #endif
     
 protected:
 	bool          _freezed;
 	enumSoundMode _mode;
+    float _speed;
 	void SetMode(enumSoundMode mode);
 
 public:
@@ -46,7 +45,7 @@ public:
 	virtual ~GC_Sound();
 	virtual void Serialize(Level &world, SaveFile &f);
 
-	void KillWhenFinished();
+	void KillWhenFinished(Level &world);
 	virtual void MoveTo(Level &world, const vec2d &pos) override;
 
 	void Pause(bool pause);
@@ -87,7 +86,7 @@ public:
 /////////////////////////////////////////////////////////////
 
 #if !defined NOSOUND
-#define PLAY(s, pos)  (new GC_Sound((s), SMODE_PLAY, (pos)))
+#define PLAY(s, pos)  (new GC_Sound(world, (s), SMODE_PLAY, (pos)))
 #else
 #define PLAY(s, pos) ((void) 0) // no sound
 #endif

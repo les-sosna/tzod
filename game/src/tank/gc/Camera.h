@@ -45,6 +45,9 @@ public:
 
 	// message handlers
 	void OnDetach(Level &world, GC_Object *sender, void *param);
+    
+    // GC_Actor
+    virtual void MoveTo(Level &world, const vec2d &pos);
 
 	// GC_Object
     virtual void Kill(Level &world);

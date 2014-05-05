@@ -10,15 +10,7 @@
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
 {
 	assert(!_modeWrite);
-    switch (_file->Read(&chdr, sizeof(ChunkHeader)))
-    {
-        case FS::EC_OK:
-            return true;
-        case FS::EC_EOF:
-            return false;
-        default:
-            throw std::runtime_error("file read error");
-    }
+    return 1 == _file->Read(&chdr, sizeof(ChunkHeader), 1);
 }
 
 void MapFile::_skip_block(size_t size)
@@ -207,7 +199,7 @@ void MapFile::ReadInt(int &value)
 {
 	assert(!_modeWrite);
     int32_t tmp;
-	if( FS::EC_OK != _file->Read(&tmp, 4) )
+	if( 1 != _file->Read(&tmp, 4, 1) )
         throw std::runtime_error("unexpected end of file");
     value = tmp;
 }
@@ -216,7 +208,7 @@ void MapFile::ReadFloat(float &value)
 {
     static_assert(sizeof(value) == 4, "size of float is not 4");
 	assert(!_modeWrite);
-	if( FS::EC_OK != _file->Read(&value, 4) )
+	if( 1 != _file->Read(&value, 4, 1) )
         throw std::runtime_error("unexpected end of file");
 }
 
@@ -224,11 +216,11 @@ void MapFile::ReadString(std::string &value)
 {
 	assert(!_modeWrite);
 	uint16_t len;
-	if( FS::EC_OK != _file->Read(&len, 2) )
+	if( 1 != _file->Read(&len, 2, 1) )
         throw std::runtime_error("unexpected end of file");
     value.resize(len);
 	if( len )
-        if( FS::EC_OK != _file->Read(&value[0], len) )
+        if( 1 != _file->Read(&value[0], len, 1) )
             throw std::runtime_error("unexpected end of file");
 }
 

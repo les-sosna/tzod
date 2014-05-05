@@ -61,7 +61,7 @@ protected:
 	bool IsTargetVisible(Level &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 	virtual void TargetLost();
 	GC_Vehicle* EnumTargets(Level &world);
-	void SelectTarget(GC_Vehicle *target);
+	void SelectTarget(Level &world, GC_Vehicle *target);
 
 	// editor functions
 	virtual void EditorAction(Level &world);
@@ -142,7 +142,7 @@ private:
 	float _time;
 
 protected:
-	void WakeUp();
+	void WakeUp(Level &world);
 	void WakeDown();
 
 public:

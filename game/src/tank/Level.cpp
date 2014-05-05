@@ -147,6 +147,7 @@ void Level::HitLimit()
 	assert(!_limitHit);
 //	PauseLocal(true);
 	_limitHit = true;
+    Level &world = *this;
 	PLAY(SND_Limit, vec2d(0,0));
 }
 
@@ -176,7 +177,8 @@ void Level::Unserialize(const char *fileName)
 	try
 	{
 		SaveHeader sh;
-		stream->Read(&sh, sizeof(SaveHeader));
+		if( 1 != stream->Read(&sh, sizeof(SaveHeader), 1) )
+            throw std::runtime_error("unexpected end of file");
 
 		if( VERSION != sh.dwVersion )
 			throw std::runtime_error("invalid version");
@@ -225,13 +227,12 @@ void Level::Unserialize(const char *fileName)
 				static char buf[1];
 				try
 				{
-					reinterpret_cast<FS::Stream*>(data)->Read(buf, sizeof(buf));
-					*sz = sizeof(buf);
+					*sz = reinterpret_cast<FS::Stream*>(data)->Read(buf, 1, sizeof(buf));
 				}
 				catch( const std::exception &e )
 				{
 					*sz = 0;
-					luaL_error(L, "[file read] %s", e.what());
+					luaL_error(L, "deserialize error - %s", e.what());
 				}
 				return buf;
 			}
@@ -734,7 +735,7 @@ void Level::Step(float dt)
 
 	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
 	{
-		pSound->KillWhenFinished();
+		pSound->KillWhenFinished(*this);
 	}
 
 

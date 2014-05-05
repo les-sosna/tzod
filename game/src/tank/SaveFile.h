@@ -60,9 +60,14 @@ void SaveFile::Serialize(T &obj)
 	assert(!strstr(typeid(obj).name(), "SafePtr"));
 	assert(!strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
-		_stream->Read(&obj, sizeof(T));
+    {
+		if( 1 != _stream->Read(&obj, sizeof(T), 1) )
+            throw std::runtime_error("unexpected end of file");
+    }
 	else
+    {
 		_stream->Write(&obj, sizeof(T));
+    }
 }
 
 template<class T>
@@ -99,9 +104,14 @@ void SaveFile::SerializeArray(T *p, size_t count)
 	assert(!strstr(typeid(T).name(), "SafePtr"));
 	assert(!strstr(typeid(T).name(), "RawPtr"));
 	if( loading() )
-		_stream->Read(p, sizeof(T) * count);
+    {
+		if( 1 != _stream->Read(p, sizeof(T) * count, 1) )
+            throw std::runtime_error("unexpected end of file");
+    }
 	else
+    {
 		_stream->Write(p, sizeof(T) * count);
+    }
 }
 
 // end of file
