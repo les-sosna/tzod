@@ -63,11 +63,13 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Kill(World &world)
 {
-	SAFE_KILL(world, _label);
-	if( Disappear(world) )
+	ObjPtr<GC_HideLabel> label = _label;
+	if( Disappear(world) ) // relies on _label
 	{
+		SAFE_KILL(world, label);
 		return; // the object has been already killed
 	}
+	SAFE_KILL(world, label);
 	GC_2dSprite::Kill(world);
 }
 
