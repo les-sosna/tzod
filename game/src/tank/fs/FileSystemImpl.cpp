@@ -177,14 +177,18 @@ FS::OSFileSystem::OSFile::OSStream::~OSStream()
     _file->Unstream();
 }
     
-FS::ErrorCode FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size)
+size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
 	DWORD bytesRead;
-	if( !ReadFile(_hFile, dst, size, &bytesRead, NULL) )
+	if( !ReadFile(_hFile, dst, size * count, &bytesRead, NULL) )
 	{
-		return EC_ERROR;
+		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
-	return bytesRead == size ? EC_OK : EC_EOF;
+	if( bytesRead % size )
+	{
+		throw std::runtime_error("unexpected end of file");
+	}
+	return bytesRead / size;
 }
 
 void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
@@ -215,6 +219,14 @@ void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int ori
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
+}
+
+long long FS::OSFileSystem::OSFile::OSStream::Tell() const
+{
+	LARGE_INTEGER zero = { 0 };
+	LARGE_INTEGER current = { 0 };
+	SetFilePointerEx(_hFile, zero, &current, FILE_CURRENT);
+	return current.QuadPart;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

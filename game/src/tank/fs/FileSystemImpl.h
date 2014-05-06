@@ -70,9 +70,10 @@ class OSFileSystem : public FileSystem
 			OSStream(std::shared_ptr<OSFile> parent, HANDLE hFile);
 			virtual ~OSStream();
 
-			virtual ErrorCode Read(void *dst, size_t size);
+			virtual size_t Read(void *dst, size_t size, size_t count);
 			virtual void Write(const void *src, size_t size);
 			virtual void Seek(long long amount, unsigned int origin);
+			virtual long long Tell() const;
 
 		private:
 			std::shared_ptr<OSFile> _file;

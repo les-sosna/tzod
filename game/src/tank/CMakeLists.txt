@@ -11,13 +11,12 @@ find_package(Boost 1.55 REQUIRED COMPONENTS system)
 
 find_package(OpenAL)
 
-include_directories(
+set(tank_INCLUDE_DIRS
 	.
 	${FileSystem_SOURCE_DIR}
 	${UI_SOURCE_DIR}
 	
 	# 3rd party
-	${OPENAL_INCLUDE_DIR}
 	${Boost_INCLUDE_DIRS}
 	${Lua_SOURCE_DIR}/src
 	${Zlib_SOURCE_DIR}
@@ -99,14 +98,29 @@ set(tank_SOURCES
 #	network/TankClient.cpp
 #	network/TankServer.cpp
 #	network/Variant.cpp
-	sound/MusicPlayer.cpp
-	sound/sfx.cpp
+)
+
+set(tank_LIBRARIES
+	libFileSystem
+	libUI
+	lua
+	pluto
+	zlib
+	glfw
+	oggvorbis
+	${GLFW_LIBRARIES}
+	${Boost_LIBRARIES}
 )
 
 if(${OPENAL_FOUND})
+	list(APPEND tank_LIBRARIES ${OPENAL_LIBRARY})
+	list(APPEND tank_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
+	list(APPEND tank_SOURCES sound/MusicPlayer.cpp sound/sfx.cpp)
 else()
 	add_definitions(-DNOSOUND)
 endif()
+
+include_directories(${tank_INCLUDE_DIRS})
 
 link_directories(${Boost_LIBRARY_DIR})
 
@@ -120,15 +134,4 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tank 
-	libFileSystem
-	libUI
-	lua
-	pluto
-	zlib
-	glfw
-	oggvorbis
-	${GLFW_LIBRARIES}
-	${Boost_LIBRARIES}
-	${OPENAL_LIBRARY}
-)
+target_link_libraries(tank ${tank_LIBRARIES})
