@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Actor.h"
-#include "core/Rotator.h"
+#include "Rotator.h"
 
 // forward declarations
 class GC_Player;

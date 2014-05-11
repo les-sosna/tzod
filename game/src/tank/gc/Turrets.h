@@ -2,16 +2,12 @@
 
 #pragma once
 
-#include "core/Rotator.h"
+#include "Rotator.h"
 #include "RigidBody.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// forward declarations
 
 template<class T> class JobManager;
 class GC_Vehicle;
-
-///////////////////////////////////////////////////////////////////////////////
 
 class GC_Turret : public GC_RigidBodyStatic
 {

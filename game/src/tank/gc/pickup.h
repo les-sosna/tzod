@@ -3,7 +3,7 @@
 #pragma once
 
 #include "2dSprite.h"
-#include "core/rotator.h"
+#include "Rotator.h"
 
 
 typedef float AIPRIORITY;

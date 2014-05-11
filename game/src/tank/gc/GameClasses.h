@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "core/Rotator.h"
+#include "Rotator.h"
 
 #include "Service.h"
 #include "2dSprite.h"

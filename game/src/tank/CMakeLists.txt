@@ -57,7 +57,6 @@ set(tank_SOURCES
 	config/ConfigBase.cpp
 	config/Language.cpp
 	core/Profiler.cpp
-	core/Rotator.cpp
 	core/SafePtr.cpp
 	core/Timer.cpp
 	video/ImageLoader.cpp
@@ -81,6 +80,7 @@ set(tank_SOURCES
 	gc/projectiles.cpp
 	gc/RigidBody.cpp
 	gc/RigidBodyDynamic.cpp
+	gc/Rotator.cpp
 	gc/Service.cpp
 	gc/Sound.cpp
 	gc/Trigger.cpp
