@@ -66,7 +66,6 @@ struct GlfwInitHelper
 
 
 static void Idle(World &world, float dt);
-static void Post();
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,8 +244,10 @@ int main(int, const char**)
 
 	try
 	{
+        TRACE("%s", TXT_VERSION);
+
+        TRACE("Create GL context");
         GlfwInitHelper __gih;
-        
         g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
                                        g_conf.r_height.GetInt(),
                                        TXT_VERSION,
@@ -258,11 +259,9 @@ int main(int, const char**)
         glfwSetKeyCallback(g_appWindow, OnKey);
         glfwSetCharCallback(g_appWindow, OnChar);
         glfwMakeContextCurrent(g_appWindow);
-        
-        
-        TRACE("%s", TXT_VERSION);
-        
-        TRACE("Mounting file system...");
+
+
+        TRACE("Mount file system");
         g_fs = FS::OSFileSystem::Create("data");
         
         // load config
@@ -319,17 +318,18 @@ int main(int, const char**)
             TRACE("WARNING: no textures loaded");
         if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
             TRACE("WARNING: no skins found");
-        
-        // init world
-        g_level.reset(new World());
-        
+
+        { // FIXME: remove explicit world scope
+        World world;
+        g_level = &world;
+
         TRACE("scripting subsystem initialization");
-        g_env.L = script_open(*g_level);
+        g_env.L = script_open(world);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         TRACE("GUI subsystem initialization");
-        g_gui = new UI::LayoutManager(DesktopFactory(*g_level));
+        g_gui = new UI::LayoutManager(DesktopFactory(world));
         g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
@@ -344,13 +344,56 @@ int main(int, const char**)
             glfwPollEvents();
             if (glfwWindowShouldClose(g_appWindow))
                 break;
-            Idle(*g_level, timer.GetDt());
+            Idle(world, timer.GetDt());
             glfwSwapBuffers(g_appWindow);
         }
+        
+        
+        //
+        // Shutdown
+        //
+        
+        TRACE("Shutting down the GUI subsystem");
+        SAFE_DELETE(g_gui);
+        
+        TRACE("Shutting down the world");
+        world.Clear();
+        g_level = nullptr;
+        } // FIXME: remove explicit world scope
+        
+        TRACE("Shutting down the scripting subsystem");
+        script_close(g_env.L);
+        g_env.L = NULL;
+        
+        if( g_texman )
+        {
+            delete g_texman;
+            g_texman = NULL;
+        }
+        
+#ifndef NOSOUND
+        FreeSound();
+#endif
+        if( g_render )
+        {
+            TRACE("Shutting down the renderer");
+            g_render.reset();
+        }
+        
+        TRACE("Saving config to '" FILE_CONFIG "'");
+        if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
+        {
+            TRACE("Failed to save config file");
+        }
+        
+        TRACE("Unmounting the file system");
+        g_fs = NULL;
 
-        Post();
+        TRACE("Destroying gl context");
         glfwDestroyWindow(g_appWindow);
         g_appWindow = nullptr;
+        
+        TRACE("Exit.");
 	}
 	catch( const std::exception &e )
 	{
@@ -391,54 +434,6 @@ void Idle(World &world, float dt)
             std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
 	}
 }
-
-void Post()
-{
-//	SAFE_DELETE(g_client);
-
-	TRACE("Shutting down the GUI subsystem");
-	SAFE_DELETE(g_gui);
-
-    TRACE("Shutting down the world");
-    g_level->Clear();
-	g_level.reset();
-    
-    TRACE("Shutting down the scripting subsystem");
-    script_close(g_env.L);
-    g_env.L = NULL;
-
-	if( g_texman )
-    {
-        delete g_texman;
-        g_texman = NULL;
-    }
-
-	// release input devices
-//	_inputMgr.reset();
-
-#ifndef NOSOUND
-	FreeSound();
-#endif
-	if( g_render )
-	{
-        TRACE("Shutting down the renderer");
-		g_render.reset();
-	}
-
-	// config
-	TRACE("Saving config to '" FILE_CONFIG "'");
-	if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
-	{
-        TRACE("Failed to save config file");
-	}
-
-	// clean up the file system
-	TRACE("Unmounting the file system");
-	g_fs = NULL;
-
-	TRACE("Exit.");
-}
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

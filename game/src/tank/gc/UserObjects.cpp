@@ -35,7 +35,12 @@ GC_UserObject::GC_UserObject(FromFile)
 
 GC_UserObject::~GC_UserObject()
 {
-	g_level->_field.ProcessObject(this, false);
+}
+
+void GC_UserObject::Kill(World &world)
+{
+	world._field.ProcessObject(this, false);
+    GC_RigidBodyStatic::Kill(world);
 }
 
 void GC_UserObject::Serialize(World &world, SaveFile &f)

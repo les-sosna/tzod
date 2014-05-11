@@ -28,7 +28,6 @@ struct ENVIRONMENT;
 
 // ------------------------
 
-//#include <al.h> - ALuint
 extern unsigned int g_sounds[SND_COUNT];
 
 extern std::unique_ptr<IRender> g_render;
@@ -37,7 +36,7 @@ extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
 
-extern std::unique_ptr<World>     g_level;
+extern World     *g_level;
 #ifndef NOSOUND
 class MusicPlayer;
 extern std::unique_ptr<MusicPlayer>     g_music;

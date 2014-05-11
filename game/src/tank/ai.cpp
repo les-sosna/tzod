@@ -721,7 +721,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 			float l = CreatePath(world, vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )
 			{
-				AIPRIORITY p = items[i]->GetPriority(vehicle) - AIP_NORMAL * l / AI_MAX_DEPTH;
+				AIPRIORITY p = items[i]->GetPriority(world, vehicle) - AIP_NORMAL * l / AI_MAX_DEPTH;
 				if( items[i]->GetType() == _favoriteWeaponType )
 				{
 					if( vehicle.GetWeapon()

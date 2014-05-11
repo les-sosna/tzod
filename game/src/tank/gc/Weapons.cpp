@@ -83,7 +83,7 @@ GC_Weapon::GC_Weapon(World &world, float x, float y)
 	SetAutoSwitch(false);
 }
 
-AIPRIORITY GC_Weapon::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( veh.GetWeapon() )
 	{
@@ -170,7 +170,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
 			_rotatorWeap.stop();
 	}
-	_rotatorWeap.setup_sound(_rotateSound);
+	_rotatorWeap.SetupSound(world, _rotateSound);
 
 	vec2d a(_angle);
 	vec2d direction = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), a);
@@ -1065,7 +1065,7 @@ void GC_Weap_Ram::TimeStepFixed(World &world, float dt)
 
 		if( _firingCounter )
 		{
-			_engineSound->Pause(false);
+			_engineSound->Pause(world, false);
 			_engineSound->MoveTo(world, GetPos());
 
 			_fuel = std::max(.0f, _fuel - _fuel_consumption_rate * dt);
@@ -1101,7 +1101,7 @@ void GC_Weap_Ram::TimeStepFixed(World &world, float dt)
 		}
 		else
 		{
-			_engineSound->Pause(true);
+			_engineSound->Pause(world, true);
 			_fuel   = std::min(_fuel_max, _fuel + _fuel_recuperation_rate * dt);
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
@@ -1451,7 +1451,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 			SetTexture((fmod(_timeRotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
 
 			_sound->MoveTo(world, GetPos());
-			_sound->Pause(false);
+			_sound->Pause(world, false);
 			_bFire = false;
 
 			for(; _timeShot > 0; _timeShot -= _advanced ? 0.02f : 0.04f)
@@ -1482,7 +1482,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 		}
 		else
 		{
-			_sound->Pause(true);
+			_sound->Pause(world, true);
 			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 
@@ -1592,7 +1592,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 			_timeFire = std::min(_timeFire + dt, WEAP_ZIPPO_TIME_RELAX);
 
 			_sound->MoveTo(world, GetPos());
-			_sound->Pause(false);
+			_sound->Pause(world, false);
 			_bFire = false;
 
 
@@ -1613,7 +1613,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 		}
 		else
 		{
-			_sound->Pause(true);
+			_sound->Pause(world, true);
 			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 	}

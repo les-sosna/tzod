@@ -448,15 +448,15 @@ void Rotator::ga_t3(float t, float as)
 
 //-------------------------------------------------------------------
 
-void Rotator::setup_sound(GC_Sound *pSound)
+void Rotator::SetupSound(World &world, GC_Sound *pSound)
 {
 	if( RS_STOPPED == _state )
 	{
-		pSound->Pause(true);
+		pSound->Pause(world, true);
 	}
 	else
 	{
-		pSound->Pause(false);
+		pSound->Pause(world, false);
 
 		pSound->SetSpeed(0.5f + 0.5f * fabsf(_velocity_current) / _velocity_limit);
 		pSound->SetVolume(0.9f + 0.1f * fabsf(_velocity_current) / _velocity_limit);

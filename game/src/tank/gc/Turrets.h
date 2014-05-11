@@ -97,6 +97,8 @@ public:
 	virtual ~GC_TurretRocket();
 
 	virtual float GetDefaultHealth() const { return 500; }
+    
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
@@ -124,6 +126,8 @@ public:
 	~GC_TurretCannon();
 
 	virtual float GetDefaultHealth() const { return 600; }
+    
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
@@ -218,6 +222,8 @@ public:
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual float GetDefaultHealth() const { return 250; }
+    
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);

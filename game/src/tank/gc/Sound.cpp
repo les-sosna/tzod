@@ -52,7 +52,7 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, co
 		SetSpeed(1.0f);
 	}
 
-	SetMode(mode);
+	SetMode(world, mode);
 
 //	if( world.GetEditorMode() )
 //		Freeze(true);
@@ -68,17 +68,22 @@ GC_Sound::GC_Sound(FromFile)
 
 GC_Sound::~GC_Sound()
 {
+}
+
+void GC_Sound::Kill(World &world)
+{
 #if !defined NOSOUND
 	if( SMODE_UNKNOWN != _mode )
 	{
-		SetMode(SMODE_STOP);
+		SetMode(world, SMODE_STOP);
         alDeleteSources(1, &_source);
         _mode = SMODE_UNKNOWN;
 	}
 #endif
+    GC_Actor::Kill(world);
 }
 
-void GC_Sound::SetMode(enumSoundMode mode)
+void GC_Sound::SetMode(World &world, enumSoundMode mode)
 {
     assert(SMODE_UNKNOWN != mode);
 #ifndef NOSOUND
@@ -90,22 +95,22 @@ void GC_Sound::SetMode(enumSoundMode mode)
 		assert(SMODE_STOP == _mode);
 		if( _countActive == _countMax )
 		{
-			FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+			FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
 			{
 				if( SMODE_PLAY == pSound->_mode )
 				{
-					pSound->Kill(*g_level);
+					pSound->Kill(world);
 					break;
 				}
 			}
 
 			if( _countActive == _countMax )
 			{
-				FOREACH_R( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+				FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{
-						pSound->SetMode(SMODE_WAIT);
+						pSound->SetMode(world, SMODE_WAIT);
 						break;
 					}
 				}
@@ -154,11 +159,11 @@ void GC_Sound::SetMode(enumSoundMode mode)
 
 			if( _countActive < _countMax && 0 < _countWaiting )
 			{
-				FOREACH( g_level->GetList(LIST_sounds), GC_Sound, pSound )
+				FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_WAIT == pSound->_mode )
 					{
-						pSound->SetMode(SMODE_LOOP);
+						pSound->SetMode(world, SMODE_LOOP);
 						break;
 					}
 				}
@@ -181,11 +186,11 @@ void GC_Sound::SetMode(enumSoundMode mode)
 #endif
 }
 
-void GC_Sound::Pause(bool pause)
+void GC_Sound::Pause(World &world, bool pause)
 {
 #if !defined NOSOUND
 	assert(SMODE_PLAY != _mode);
-	SetMode(pause ? SMODE_STOP : SMODE_LOOP);
+	SetMode(world, pause ? SMODE_STOP : SMODE_LOOP);
 #endif
 }
 

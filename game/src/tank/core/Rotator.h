@@ -25,6 +25,7 @@ enum RotatorState
 
 class GC_Sound;
 class SaveFile;
+class World;
 
 class Rotator
 {
@@ -71,7 +72,7 @@ public:
 	void stop();
 
 	// sets up the volume and the playing speed
-	void setup_sound(GC_Sound *pSound);
+	void SetupSound(World &world, GC_Sound *pSound);
 
 	// load/store the rotator state
 	void Serialize(SaveFile &f);

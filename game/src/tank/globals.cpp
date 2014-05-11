@@ -15,7 +15,7 @@ UI::LayoutManager  *g_gui;
 TextureManager *g_texman;
 //ClientBase     *g_client;
 
-std::unique_ptr<World>   g_level;
+World   *g_level;
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
 std::unique_ptr<MusicPlayer>     g_music;

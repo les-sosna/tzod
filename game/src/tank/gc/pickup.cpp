@@ -339,7 +339,7 @@ GC_pu_Health::GC_pu_Health(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Health::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_pu_Health::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( veh.GetHealth() < veh.GetHealthMax() )
 		return AIP_HEALTH * (veh.GetHealth() / veh.GetHealthMax());
@@ -390,7 +390,7 @@ GC_pu_Mine::GC_pu_Mine(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Mine::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_pu_Mine::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	return AIP_NOTREQUIRED;
 }
@@ -427,7 +427,7 @@ GC_pu_Shield::GC_pu_Shield(FromFile)
 {
 }
 
-AIPRIORITY GC_pu_Shield::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_pu_Shield::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	return AIP_SHIELD;
 }
@@ -568,7 +568,7 @@ void GC_pu_Shock::Serialize(World &world, SaveFile &f)
 	f.Serialize(_targetPosPredicted);
 }
 
-AIPRIORITY GC_pu_Shock::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_pu_Shock::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	GC_Vehicle *tmp = FindNearVehicle(*g_level, &veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
@@ -729,7 +729,7 @@ void GC_pu_Booster::Serialize(World &world, SaveFile &f)
 	f.Serialize(_sound);
 }
 
-AIPRIORITY GC_pu_Booster::GetPriority(const GC_Vehicle &veh) const
+AIPRIORITY GC_pu_Booster::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( !veh.GetWeapon() )
 	{

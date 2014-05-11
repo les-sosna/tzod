@@ -31,6 +31,7 @@ public:
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }
 
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void OnDestroy(World &world);
 

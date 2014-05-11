@@ -210,7 +210,7 @@ void GC_Turret::TimeStepFixed(World &world, float dt)
 		assert(false);
 	}  // end switch (_state)
 
-	_rotator.setup_sound(_rotateSound);
+	_rotator.SetupSound(world, _rotateSound);
 }
 
 void GC_Turret::EditorAction(World &world)
@@ -326,7 +326,12 @@ GC_TurretRocket::GC_TurretRocket(FromFile)
 
 GC_TurretRocket::~GC_TurretRocket()
 {
-	g_level->_field.ProcessObject(this, false);
+}
+
+void GC_TurretRocket::Kill(World &world)
+{
+	world._field.ProcessObject(this, false);
+    GC_Turret::Kill(world);
 }
 
 void GC_TurretRocket::Serialize(World &world, SaveFile &f)
@@ -383,13 +388,17 @@ GC_TurretCannon::GC_TurretCannon(FromFile)
 
 GC_TurretCannon::~GC_TurretCannon()
 {
-	g_level->_field.ProcessObject(this, false);
+}
+
+void GC_TurretCannon::Kill(World &world)
+{
+	world._field.ProcessObject(this, false);
+    GC_Turret::Kill(world);
 }
 
 void GC_TurretCannon::Serialize(World &world, SaveFile &f)
 {
 	GC_Turret::Serialize(world, f);
-	/////////////////////////////////////
 	f.Serialize(_timeReload);
 	f.Serialize(_time_smoke);
 	f.Serialize(_time_smoke_dt);
@@ -624,7 +633,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		assert(0);
 	} // end switch (_state);
 
-	_rotator.setup_sound(_rotateSound);
+	_rotator.SetupSound(world, _rotateSound);
 }
 
 void GC_TurretBunker::EditorAction(World &world)
@@ -671,12 +680,12 @@ GC_TurretMinigun::GC_TurretMinigun(FromFile)
 
 GC_TurretMinigun::~GC_TurretMinigun()
 {
-	g_level->_field.ProcessObject(this, false);
 }
 
 void GC_TurretMinigun::Kill(World &world)
 {
 	SAFE_KILL(world, _fireSound);
+	world._field.ProcessObject(this, false);
     GC_TurretBunker::Kill(world);
 }
 
@@ -708,7 +717,7 @@ void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
 	{
 #ifndef NOSOUND
 		ASSERT_TYPE(_fireSound, GC_Sound);
-		_fireSound->Pause(false);
+		_fireSound->Pause(world, false);
 #endif
 		_time += dt;
 
@@ -726,7 +735,7 @@ void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
 	else
 	{
 		ASSERT_TYPE(_fireSound, GC_Sound);
-		_fireSound->Pause(true);
+		_fireSound->Pause(world, true);
 	}
 #endif
 }
@@ -764,7 +773,12 @@ GC_TurretGauss::GC_TurretGauss(FromFile)
 
 GC_TurretGauss::~GC_TurretGauss()
 {
-	g_level->_field.ProcessObject(this, false);
+}
+
+void GC_TurretGauss::Kill(World &world)
+{
+	world._field.ProcessObject(this, false);
+    GC_TurretBunker::Kill(world);
 }
 
 void GC_TurretGauss::TargetLost()

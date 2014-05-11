@@ -34,7 +34,7 @@ protected:
 	bool          _freezed;
 	enumSoundMode _mode;
     float _speed;
-	void SetMode(enumSoundMode mode);
+	void SetMode(World &world, enumSoundMode mode);
 
 public:
 	float _volume;  // 0 - min;  1 - max
@@ -43,12 +43,13 @@ public:
 	GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	void KillWhenFinished(World &world);
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
-	void Pause(bool pause);
+	void Pause(World &world, bool pause);
 	void Freeze(bool freeze);
 
 	void SetSpeed(float speed);

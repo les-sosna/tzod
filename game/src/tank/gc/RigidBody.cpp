@@ -515,8 +515,13 @@ GC_Wall::GC_Wall(FromFile)
 
 GC_Wall::~GC_Wall()
 {
-	SetCorner(*g_level, 0);
-	g_level->_field.ProcessObject(this, false);
+}
+
+void GC_Wall::Kill(World &world)
+{
+	SetCorner(world, 0);
+	world._field.ProcessObject(this, false);
+    GC_RigidBodyStatic::Kill(world);
 }
 
 static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
@@ -1193,8 +1198,13 @@ GC_Water::GC_Water(FromFile)
 
 GC_Water::~GC_Water()
 {
-	g_level->_field.ProcessObject(this, false);
-    UpdateTile(*g_level, false);
+}
+
+void GC_Water::Kill(World &world)
+{
+	world._field.ProcessObject(this, false);
+    UpdateTile(world, false);
+    GC_RigidBodyStatic::Kill(world);
 }
 
 void GC_Water::UpdateTile(World &world, bool flag)

@@ -184,6 +184,7 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
@@ -242,6 +243,7 @@ public:
 
 	void SetTile(char nTile, bool value);
 
+    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void Draw(bool editorMode) const;

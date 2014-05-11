@@ -96,7 +96,7 @@ public:
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// if 0 then item considered useless and will not be taken
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const { return AIP_NORMAL; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
 
 	// default implementation searches for the nearest vehicle
 	virtual GC_Actor* FindNewOwner(World &world) const;
@@ -132,7 +132,7 @@ public:
 	GC_pu_Health(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual GC_Actor* FindNewOwner(World &world) const;
@@ -149,7 +149,7 @@ public:
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
 	virtual void Attach(World &world, GC_Actor *actor);
 };
@@ -170,7 +170,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
@@ -203,7 +203,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
@@ -228,7 +228,7 @@ public:
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual AIPRIORITY GetPriority(const GC_Vehicle &veh) const;
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
