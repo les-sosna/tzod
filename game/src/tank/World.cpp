@@ -48,17 +48,24 @@ extern "C"
 
 UI::ConsoleBuffer& GetConsole();
 
-////////////////////////////////////////////////////////////
+#define MAX_THEME_NAME  128
+
+struct SaveHeader
+{
+    uint32_t dwVersion;
+    bool  nightmode;
+    float timelimit;
+    int   fraglimit;
+    float time;
+    int   width;
+    int   height;
+    char  theme[MAX_THEME_NAME];
+};
+
 
 // don't create game objects in the constructor
 World::World()
-  : _modeEditor(false)
-#ifdef NETWORK_DEBUG
-  , _checksum(0)
-  , _frame(0)
-  , _dump(NULL)
-#endif
-  , _serviceListener(NULL)
+  : _serviceListener(NULL)
   , _texBack(g_texman->FindSprite("background"))
   , _texGrid(g_texman->FindSprite("grid"))
   , _frozen(false)
@@ -70,8 +77,13 @@ World::World()
   , _seed(1)
   , _time(0)
   , _safeMode(true)
+#ifdef NETWORK_DEBUG
+  , _checksum(0)
+  , _frame(0)
+  , _dump(NULL)
+#endif
 {
-	TRACE("Constructing the level");
+	TRACE("Constructing the world");
 
 	// register config handlers
 	g_conf.s_volume.eventChange = std::bind(&World::OnChangeSoundVolume, this);
@@ -154,7 +166,7 @@ void World::HitLimit()
 World::~World()
 {
 	assert(IsSafeMode());
-	TRACE("Destroying the level");
+	TRACE("Destroying the world");
 
 	// unregister config handlers
 	g_conf.s_volume.eventChange = nullptr;

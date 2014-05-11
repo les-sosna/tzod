@@ -434,8 +434,15 @@ void InternetDlg::OnCloseChild(int result)
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
+
+struct PlayerDesc
+{
+    std::string nick;
+    std::string skin;
+    std::string cls;
+    unsigned int team;
+};
 
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 {

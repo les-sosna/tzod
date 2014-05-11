@@ -30,21 +30,6 @@ class GC_Object;
 class GC_Player;
 class GC_2dSprite;
 
-namespace FS
-{
-	class Stream;
-}
-
-struct PlayerDesc
-{
-	std::string nick;
-	std::string skin;
-	std::string cls;
-	unsigned int team;
-};
-
-
-#define MAX_THEME_NAME  128
 
 class World
 {
@@ -53,20 +38,7 @@ class World
 	std::map<const GC_Object*, std::string>  _objectToStringMap;
 	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
 
-	struct SaveHeader
-	{
-		uint32_t dwVersion;
-		bool  nightmode;
-		float timelimit;
-		int   fraglimit;
-		float time;
-		int   width;
-		int   height;
-		char  theme[MAX_THEME_NAME];
-	};
-
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
-	bool    _modeEditor;
 
 public:
 
@@ -89,9 +61,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_water;
 	Grid<PtrList<GC_Object>>  grid_pickup;
 
-	PtrList<GC_Object>     ts_fixed;
-
-	// graphics
+	PtrList<GC_Object>        ts_fixed;
 	PtrList<GC_Object>        z_globals[Z_COUNT];
 	Grid<PtrList<GC_Object>>  z_grids[Z_COUNT];
 
@@ -137,11 +107,10 @@ public:
 /////////////////////////////////////////////////////
 	World();
 	~World();
-
+    
 	void Resize(int X, int Y);
 	void HitLimit();
 
-public:
 	bool IsEmpty() const;
 
 	void Unserialize(const char *fileName);
@@ -241,10 +210,4 @@ public:
 #endif
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-// inline functions definition
-//#include "World.inl"
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file
