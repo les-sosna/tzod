@@ -3,11 +3,11 @@
 #pragma once
 
 #include "video/RenderBase.h"
-#include "core/PtrList.h"
 
 #include <cassert>
 #include <functional>
 #include <string>
+#include <list>
 
 class DrawingContext;
 
@@ -39,7 +39,7 @@ class Window
 	Window* _nextSibling;
 
 
-	PtrList<Window>::iterator _timeStepReg;
+    std::list<Window*>::iterator _timeStepReg;
 
 
 	//

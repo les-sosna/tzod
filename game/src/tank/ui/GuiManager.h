@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Window.h"
+#include <list>
 
 class TextureManager;
 
@@ -60,13 +61,16 @@ private:
 	friend class Window;
 	void AddTopMost(Window* wnd, bool add);
 	void ResetWindow(Window* wnd);
-	PtrList<Window>::iterator TimeStepRegister(Window* wnd);
-	void TimeStepUnregister(PtrList<Window>::iterator it);
+    std::list<Window*>::iterator TimeStepRegister(Window* wnd);
+	void TimeStepUnregister(std::list<Window*>::iterator it);
 
 	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
 
-	PtrList<Window> _timestep;
-	PtrList<Window> _topmost;
+    std::list<Window*> _topmost;
+    std::list<Window*> _timestep;
+    std::list<Window*>::iterator _tsCurrent;
+    bool _tsDeleteCurrent;
+    
 
 	unsigned int _captureCountSystem;
 	unsigned int _captureCount;

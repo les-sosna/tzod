@@ -13,7 +13,9 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 LayoutManager::LayoutManager(IWindowFactory &&desktopFactory)
-  : _captureCountSystem(0)
+  : _tsCurrent(_timestep.end())
+  , _tsDeleteCurrent(false)
+  , _captureCountSystem(0)
   , _captureCount(0)
   , _focusWnd(NULL)
   , _hotTrackWnd(NULL)
@@ -79,7 +81,7 @@ void LayoutManager::AddTopMost(Window* wnd, bool add)
 	}
 	else
 	{
-		for( PtrList<Window>::iterator it = _topmost.begin(); _topmost.end() != it; ++it )
+		for( auto it = _topmost.begin(); _topmost.end() != it; ++it )
 		{
 			if( *it == wnd )
 			{
@@ -236,22 +238,41 @@ void LayoutManager::ResetWindow(Window* wnd)
 	}
 }
 
-PtrList<Window>::iterator LayoutManager::TimeStepRegister(Window* wnd)
+std::list<Window*>::iterator LayoutManager::TimeStepRegister(Window* wnd)
 {
 	_timestep.push_front(wnd);
 	return _timestep.begin();
 }
 
-void LayoutManager::TimeStepUnregister(PtrList<Window>::iterator it)
+void LayoutManager::TimeStepUnregister(std::list<Window*>::iterator it)
 {
-	_timestep.safe_erase(it);
+    if( _tsCurrent == it )
+    {
+        assert(!_tsDeleteCurrent);
+        _tsDeleteCurrent = true;
+    }
+    else
+    {
+        _timestep.erase(it);
+    }
 }
 
 void LayoutManager::TimeStep(float dt)
 {
-	for( PtrList<Window>::safe_iterator it = _timestep.safe_begin(); it != _timestep.end(); ++it )
+    assert(_tsCurrent == _timestep.end());
+    assert(!_tsDeleteCurrent);
+	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
-		(*it)->OnTimeStep(dt);
+		(*_tsCurrent)->OnTimeStep(dt);
+        if (_tsDeleteCurrent)
+        {
+            _tsDeleteCurrent = false;
+            _tsCurrent = _timestep.erase(_tsCurrent);
+        }
+        else
+        {
+            ++_tsCurrent;
+        }
 	}
 }
 
@@ -359,7 +380,7 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 	else
 	{
 		// first try to pass messages to one of topmost windows
-		for( PtrList<Window>::reverse_iterator it = _topmost.rbegin(); _topmost.rend() != it; ++it )
+		for( auto it = _topmost.rbegin(); _topmost.rend() != it; ++it )
 		{
 			// do not dispatch messages to disabled or invisible window
 			if( (*it)->GetEnabled() && (*it)->GetVisible() )
@@ -446,19 +467,19 @@ void LayoutManager::Render() const
 		_desktop->Draw(dc);
 
 	// draw top-most windows
-	for( PtrList<Window>::iterator it = _topmost.begin(); _topmost.end() != it; ++it )
+	for( const Window *w: _topmost )
 	{
-		if( (*it)->GetVisible() )
+		if( w->GetVisible() )
 		{
 			float x = _desktop->GetX();
 			float y = _desktop->GetY();
-			for( Window *wnd = (*it)->GetParent(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
+			for( Window *wnd = w->GetParent(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
 			{
 				assert(wnd);
 				x += wnd->GetX();
 				y += wnd->GetY();
 			}
-			(*it)->Draw(dc, x, y);
+			w->Draw(dc, x, y);
 		}
 	}
 }
