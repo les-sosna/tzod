@@ -1,36 +1,36 @@
 // Main.cpp
 
-#include "globals.h"
-#include "gui_desktop.h"
-#include "script.h"
-#include "Macros.h"
-#include "World.h"
-#include "BackgroundIntro.h"
+#include <globals.h>
+#include <gui_desktop.h>
+#include <script.h>
+#include <Macros.h>
+#include <World.h>
+#include <BackgroundIntro.h>
 
-#include "config/Config.h"
-#include "config/Language.h"
+#include <config/Config.h>
+#include <config/Language.h>
 
 #ifndef NOSOUND
-#include "sound/MusicPlayer.h"
-#include "sound/sfx.h"
+#include <sound/MusicPlayer.h>
+#include <sound/sfx.h>
 #endif
 
-#include "video/TextureManager.h"
-#include "video/RenderOpenGL.h"
-#include "video/RenderDirect3D.h"
+#include <video/TextureManager.h>
+#include <video/RenderOpenGL.h>
+//#include <video/RenderDirect3D.h>
 
-//#include "network/Variant.h"
-//#include "network/TankClient.h"
+//#include <network/Variant.h>
+//#include <network/TankClient.h>
 
 
-#include "gc/Sound.h"
-#include "gc/Player.h"
+#include <gc/Sound.h>
+#include <gc/Player.h>
 
-#include "fs/FileSystemImpl.h"
+#include <fs/FileSystemImpl.h>
 
-#include "core/debug.h"
-#include "core/Timer.h"
-#include "core/Profiler.h"
+#include <core/debug.h>
+#include <core/Timer.h>
+#include <core/Profiler.h>
 
 #include "res/resource.h"
 

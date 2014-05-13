@@ -3,7 +3,6 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-#include <al.h>
 #include <array>
 #include <memory>
 
@@ -22,12 +21,12 @@ class MusicPlayer
 	};
 	State _state;
 	OggVorbis_File _vorbisFile;
-    std::array<ALuint, 3> _buffers;
-    ALuint _source;
+    std::array<unsigned int, 3> _buffers;
+    unsigned int _source;
     bool _playing;
 
 	void Cleanup();
-	void FillAndQueue(ALuint bufName);
+	void FillAndQueue(unsigned int bufName);
 
 	static size_t read_func  (void *ptr, size_t size, size_t nmemb, void *datasource);
 	static int    seek_func  (void *datasource, ogg_int64_t offset, int whence);

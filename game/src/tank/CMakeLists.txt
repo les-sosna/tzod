@@ -47,7 +47,6 @@ set(tank_SOURCES
 	InputManager.cpp
 	KeyMapper.cpp
 	World.cpp
-	Main.cpp
 	MapFile.cpp
 	Md5.c
 	MousePointer.cpp
@@ -121,17 +120,6 @@ else()
 endif()
 
 include_directories(${tank_INCLUDE_DIRS})
-
 link_directories(${Boost_LIBRARY_DIR})
-
-if(WIN32)
-	add_definitions(-DNOMINMAX)
-	add_executable(tank WIN32 ${tank_SOURCES})
-elseif(APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	add_executable(tank MACOSX_BUNDLE ${tank_SOURCES})
-else()
-	message(FATAL_ERROR "Unknown platform")
-endif()
-
+add_library(tank ${tank_SOURCES})
 target_link_libraries(tank ${tank_LIBRARIES})

@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.8)
 project(tzod)
+
+if(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
@@ -11,5 +16,8 @@ add_subdirectory(pluto)
 add_subdirectory(zlib)
 add_subdirectory(oggvorbis)
 add_subdirectory(utfcpp)
-add_subdirectory(gtest)
 add_subdirectory(tank)
+add_subdirectory(tzodmain)
+
+add_subdirectory(gtest)
+add_subdirectory(tank_tests)

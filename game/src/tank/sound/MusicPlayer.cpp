@@ -6,6 +6,8 @@
 
 #include "config/Config.h"
 #include <fs/FileSystem.h>
+#include <al.h>
+
 
 static void ThrowIfALError()
 {

@@ -12,6 +12,9 @@
 #include "video/RenderBase.h"
 #include "config/Config.h"
 
+#ifndef NOSOUND
+#include <al.h>
+#endif
 
 /////////////////////////////////////////////////////////////
 

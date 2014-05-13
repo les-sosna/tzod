@@ -5,9 +5,6 @@
 #include "Actor.h"
 
 #include <SoundTemplates.h>
-#ifndef NOSOUND
-#include <al.h>
-#endif
 
 /////////////////////////////////////////////////////////////
 
@@ -27,7 +24,7 @@ class GC_Sound : public GC_Actor
 
 	enumSoundTemplate   _soundTemplate;
 #ifndef NOSOUND
-    ALuint _source;
+    unsigned int _source;
 #endif
     
 protected:
