@@ -404,6 +404,7 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 	if( lua_pcall(g_env.L, 1, 1, 0) )
 	{
 		GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+        lua_pop(g_env.L, 1); // pop error message
 	}
 	else
 	{
