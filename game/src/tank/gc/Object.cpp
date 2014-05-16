@@ -160,7 +160,7 @@ void GC_Object::Kill(World &world)
 	delete this;
 }
 
-//IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
+IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
 
 void GC_Object::Notify::Serialize(World &world, SaveFile &f)
 {

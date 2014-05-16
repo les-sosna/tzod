@@ -277,5 +277,36 @@ public:
 };
 
 
+#define DECLARE_POOLED_ALLOCATION(cls)          \
+private:                                        \
+    static MemoryPool<cls, sizeof(int)> __pool; \
+	static void __fin(void *allocated)          \
+	{                                           \
+		__pool.Free(allocated);                 \
+	}                                           \
+public:                                         \
+    void* operator new(size_t count)            \
+    {                                           \
+        assert(sizeof(cls) == count);           \
+		void *ptr = __pool.Alloc();             \
+		*(unsigned int*) ptr = 0x80000000;      \
+        return (unsigned int*) ptr + 1;         \
+    }                                           \
+    void operator delete(void *p)               \
+    {                                           \
+		unsigned int&cnt(*((unsigned int*)p-1));\
+		cnt &= 0x7fffffff;                      \
+		if( !cnt )                              \
+			__pool.Free((unsigned int*) p - 1); \
+		else                                    \
+			*(ObjFinalizerProc*) p = __fin;     \
+    }
+
+#define IMPLEMENT_POOLED_ALLOCATION(cls)        \
+    MemoryPool<cls, sizeof(int)> cls::__pool;
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

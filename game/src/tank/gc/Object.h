@@ -7,8 +7,8 @@
 #include "ObjPtr.h"
 #include "ObjectProperty.h"
 #include "TypeSystem.h"
-#include "core/Delegate.h"
 #include "core/SafePtr.h"
+#include "core/MemoryManager.h"
 
 
 class MapFile;
@@ -19,45 +19,6 @@ class World;
 
 typedef PtrList<GC_Object> ObjectList;
 
-/////////////////////////////////////////
-// memory management
-
-#define DECLARE_POOLED_ALLOCATION(cls)          \
-private:                                        \
-    static MemoryPool<cls, sizeof(int)> __pool; \
-	static void __fin(void *allocated)          \
-	{                                           \
-		__pool.Free(allocated);                 \
-	}                                           \
-public:                                         \
-    void* operator new(size_t count)            \
-    {                                           \
-        assert(sizeof(cls) == count);           \
-		void *ptr = __pool.Alloc();             \
-		*(unsigned int*) ptr = 0x80000000;      \
-        return (unsigned int*) ptr + 1;         \
-    }                                           \
-    void operator delete(void *p)               \
-    {                                           \
-		unsigned int&cnt(*((unsigned int*)p-1));\
-		cnt &= 0x7fffffff;                      \
-		if( !cnt )                              \
-			__pool.Free((unsigned int*) p - 1); \
-		else                                    \
-			*(ObjFinalizerProc*) p = __fin;     \
-    }                                           \
-	virtual int GetID() const                 \
-    {                                           \
-		return __pool.GetAllocID((unsigned int *) this - 1); \
-    }
-
-#define IMPLEMENT_POOLED_ALLOCATION(cls)        \
-    MemoryPool<cls, sizeof(int)> cls::__pool;
-
-
-
-/////////////////////////////////////////
-// rtti and serialization
 
 #define DECLARE_SELF_REGISTRATION(cls)          \
     DECLARE_POOLED_ALLOCATION(cls)              \
@@ -83,20 +44,6 @@ public:                                         \
 	ObjectType cls::_sType = RTTypes::Inst().RegType<cls>(#cls);   \
     bool cls::__registered = cls::__SelfRegister();                \
     bool cls::__SelfRegister()
-
-
-// for template classes (experimental)
-#define IMPLEMENT_SELF_REGISTRATION_T(cls)                 \
-    template<class T>                                      \
-    ObjectType cls<T>::_sType = (cls<T>::__registered,     \
-        RTTypes::Inst().__RegisterType<cls<T> >(typeid(cls<T>).name()));   \
-    template<class T>                                      \
-    bool cls<T>::__registered = cls<T>::__SelfRegister();  \
-    template<class T>                                      \
-    bool cls<T>::__SelfRegister()
-
-
-///////////////////////////////////////////////////////////
 
 
 class PropertySet : public RefCounted
@@ -144,7 +91,7 @@ private:
 
 	struct Notify
 	{
-//		DECLARE_POOLED_ALLOCATION(Notify);
+		DECLARE_POOLED_ALLOCATION(Notify);
 
 		Notify *next;
 		ObjPtr<GC_Object>   subscriber;
