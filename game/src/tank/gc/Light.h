@@ -129,6 +129,7 @@ protected:
 	{
 		typedef GC_2dSprite::MyPropertySet BASE;
 		ObjectProperty _propActive;
+		ObjectProperty _propDir;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -146,7 +147,6 @@ public:
 
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
-	virtual void EditorAction(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
     virtual void Kill(World &world) override;
 };

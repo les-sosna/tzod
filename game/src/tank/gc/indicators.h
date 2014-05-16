@@ -41,7 +41,6 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void Draw(bool editorMode) const;
-	virtual void EditorAction(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
 };
 

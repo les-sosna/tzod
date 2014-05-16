@@ -252,7 +252,6 @@ public:
 
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
-	virtual void EditorAction(World &world);
 
 	virtual void MapExchange(World &world, MapFile &f);
 

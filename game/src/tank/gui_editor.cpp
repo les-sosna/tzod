@@ -30,6 +30,12 @@
 #include <ui/ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
+extern "C"
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 namespace UI
 {
@@ -539,7 +545,7 @@ EditorLayout::EditorLayout(Window *parent, World &world)
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
-	_typeList->SetCurSel(g_conf.ed_object.GetInt());
+	_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount() - 1, std::max(0, g_conf.ed_object.GetInt())));
 
 	assert(!g_conf.ed_uselayers.eventChange);
 	g_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
@@ -677,7 +683,33 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			{
 				if( _click && _selectedObject == object )
 				{
-					object->EditorAction(_world);
+                    auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
+
+                    lua_getglobal(g_env.L, "editor_actions");
+                    if( lua_isnil(g_env.L, -1) )
+                    {
+                        GetConsole().WriteLine(1, "There was no editor module loaded");
+                    }
+                    else
+                    {
+                        lua_getfield(g_env.L, -1, selTypeInfo.name);
+                        if (lua_isnil(g_env.L, -1))
+                        {
+                            // no action available for this object
+                            lua_pop(g_env.L, 1);
+                        }
+                        else
+                        {
+                            luaT_pushobject(g_env.L, object);
+                            if( lua_pcall(g_env.L, 1, 0, 0) )
+                            {
+                                GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+                                lua_pop(g_env.L, 1); // pop error message
+                            }
+                        }
+                    }
+                    lua_pop(g_env.L, 1); // pop editor_actions
+                    
 					_propList->DoExchange(false);
 					if( _isObjectNew )
 					{

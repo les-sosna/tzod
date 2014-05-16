@@ -1055,13 +1055,6 @@ const char* GC_Wall::GetCornerTexture(int i)
 	return tex[i];
 }
 
-void GC_Wall::EditorAction(World &world)
-{
-	GC_2dSprite::EditorAction(world);
-	SetCorner(world, (GetCorner() + 1) % 5);
-}
-
-
 PropertySet* GC_Wall::NewPropertySet()
 {
 	return new MyPropertySet(this);

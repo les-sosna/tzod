@@ -377,10 +377,6 @@ void GC_Object::TimeStepFloat(World &world, float dt)
 {
 }
 
-void GC_Object::EditorAction(World &world)
-{
-}
-
 SafePtr<PropertySet> GC_Object::GetProperties(World &world)
 {
 	SafePtr<PropertySet> ps(NewPropertySet());

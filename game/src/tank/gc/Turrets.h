@@ -16,6 +16,7 @@ class GC_Turret : public GC_RigidBodyStatic
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propTeam;
 		ObjectProperty _propSight;
+        ObjectProperty _propDir;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -59,14 +60,14 @@ protected:
 	GC_Vehicle* EnumTargets(World &world);
 	void SelectTarget(World &world, GC_Vehicle *target);
 
-	// editor functions
-	virtual void EditorAction(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
 
 public:
 	GC_Turret(World &world, float x, float y, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
+    
+    virtual void SetInitialDir(float initialDir);
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -159,13 +160,14 @@ public:
 	GC_TurretBunker(World &world, float x, float y, const char *tex);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
+    
+    virtual void SetInitialDir(float initialDir);
 
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void EditorAction(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
 };
 

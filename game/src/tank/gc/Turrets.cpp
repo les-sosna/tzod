@@ -213,10 +213,9 @@ void GC_Turret::TimeStepFixed(World &world, float dt)
 	_rotator.SetupSound(world, _rotateSound);
 }
 
-void GC_Turret::EditorAction(World &world)
+void GC_Turret::SetInitialDir(float initialDir)
 {
-	_dir += PI2 / 16;
-	_dir = fmod(_dir, PI2);
+	_dir = initialDir;
 	_initialDir = _dir;
 	_weaponSprite->SetDirection(vec2d(_dir));
 }
@@ -259,14 +258,16 @@ GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propTeam(  ObjectProperty::TYPE_INTEGER, "team"  )
   , _propSight( ObjectProperty::TYPE_INTEGER, "sight" )
+  , _propDir(   ObjectProperty::TYPE_FLOAT,   "dir" )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
 	_propSight.SetIntRange(0, 100);
+    _propDir.SetFloatRange(0, PI2);
 }
 
 int GC_Turret::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 2;
+	return BASE::GetCount() + 3;
 }
 
 ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
@@ -278,6 +279,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	{
 		case 0: return &_propTeam;
 		case 1: return &_propSight;
+        case 2: return &_propDir;
 	}
 
 	assert(false);
@@ -294,11 +296,13 @@ void GC_Turret::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	{
 		tmp->_team  = _propTeam.GetIntValue();
 		tmp->_sight = (float) (_propSight.GetIntValue() * CELL_SIZE);
+        tmp->SetInitialDir(_propDir.GetFloatValue());
 	}
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
 		_propSight.SetIntValue(int(tmp->_sight / CELL_SIZE + 0.5f));
+        _propDir.SetFloatValue(tmp->_initialDir);
 	}
 }
 
@@ -636,10 +640,9 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 	_rotator.SetupSound(world, _rotateSound);
 }
 
-void GC_TurretBunker::EditorAction(World &world)
+void GC_TurretBunker::SetInitialDir(float initialDir)
 {
-	_initialDir += PI / 2;
-	_initialDir = fmod(_initialDir, PI2);
+	_initialDir = initialDir;
 	_dir = _initialDir;
 	SetDirection(vec2d(_initialDir));
 	_weaponSprite->SetDirection(GetDirection());

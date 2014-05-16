@@ -56,14 +56,6 @@ void GC_SpawnPoint::Draw(bool editorMode) const
 	}
 }
 
-void GC_SpawnPoint::EditorAction(World &world)
-{
-	float rotation = GetDirection().Angle();
-	rotation += PI/3;
-	rotation -= fmod(rotation, PI/4);
-	SetDirection(vec2d(rotation));
-}
-
 void GC_SpawnPoint::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);

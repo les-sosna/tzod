@@ -247,16 +247,6 @@ void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
 	GC_2dSprite::MoveTo(world, pos);
 }
 
-void GC_Spotlight::EditorAction(World &world)
-{
-	static vec2d delta(PI2 / 16);
-	vec2d dir = Vec2dAddDirection(GetDirection(), delta);
-	dir.Normalize();
-	SetDirection(dir);
-	_light->SetLightDirection(dir);
-	_light->MoveTo(world, GetPos() + dir * 7);
-}
-
 void GC_Spotlight::MapExchange(World &world, MapFile &f)
 {
 	GC_2dSprite::MapExchange(world, f);
@@ -284,13 +274,15 @@ PropertySet* GC_Spotlight::NewPropertySet()
 GC_Spotlight::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
   , _propActive( ObjectProperty::TYPE_INTEGER, "active"  )
+  , _propDir( ObjectProperty::TYPE_FLOAT, "dir" )
 {
 	_propActive.SetIntRange(0, 1);
+	_propDir.SetFloatRange(0, PI2);
 }
 
 int GC_Spotlight::MyPropertySet::GetCount() const
 {
-	return BASE::GetCount() + 1;
+	return BASE::GetCount() + 2;
 }
 
 ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
@@ -301,6 +293,7 @@ ObjectProperty* GC_Spotlight::MyPropertySet::GetProperty(int index)
 	switch( index - BASE::GetCount() )
 	{
 	case 0: return &_propActive;
+    case 1: return &_propDir;
 	}
 
 	assert(false);
@@ -316,10 +309,14 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_light->SetActive(world, 0 != _propActive.GetIntValue());
+		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
+		tmp->_light->SetLightDirection(tmp->GetDirection());
+		tmp->_light->MoveTo(world, tmp->GetPos() + tmp->GetDirection() * 7);
 	}
 	else
 	{
 		_propActive.SetIntValue(tmp->_light->IsActive() ? 1 : 0);
+		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
 

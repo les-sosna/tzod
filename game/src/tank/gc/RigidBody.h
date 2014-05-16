@@ -192,8 +192,6 @@ public:
 
 	virtual void OnDestroy(World &world);
 	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
-
-	virtual void EditorAction(World &world);
 };
 
 /////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@ require "func"          -- define some usefull functions
 require "vehicles"      -- register vehicle classes
 require "weapons"       -- set up parameters of weapons
 require "names"         -- fill the random_names array
+require "editor"        -- define editor actions
 
 ---------------------------------------------------------------------
 -- load one of two intro maps
