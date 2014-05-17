@@ -525,42 +525,6 @@ void World::PauseSound(bool pause)
 	}
 }
 
-GC_2dSprite* World::PickEdObject(const vec2d &pt, int layer)
-{
-	for( int i = Z_COUNT; i--; )
-	{
-		PtrList<ObjectList> receive;
-		z_grids[i].OverlapPoint(receive, pt / LOCATION_SIZE);
-
-		PtrList<ObjectList>::iterator rit = receive.begin();
-		for( ; rit != receive.end(); rit++ )
-		{
-			ObjectList::iterator it = (*rit)->begin();
-			for( ; it != (*rit)->end(); ++it )
-			{
-				GC_2dSprite *object = static_cast<GC_2dSprite*>(*it);
-
-				FRECT frect;
-				object->GetGlobalRect(frect);
-
-				if( PtInFRect(frect, pt) )
-				{
-					for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
-					{
-						if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
-						    && (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
-						{
-							return object;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return NULL;
-}
-
 int World::net_rand()
 {
 	return ((_seed = _seed * 214013L + 2531011L) >> 16) & RAND_MAX;

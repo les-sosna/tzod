@@ -171,13 +171,6 @@ public:
 
 
 	//
-	// editor
-	//
-
-	GC_2dSprite* PickEdObject(const vec2d &pt, int layer);
-
-
-	//
 	// config callback handlers
 	//
 
