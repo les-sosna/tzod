@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 template <class T>
 class Grid
@@ -49,7 +50,7 @@ public:
 
 	///////////////////////////////////////////////////////////////////////////
 
-	void OverlapRect(PtrList<T> &receive, const FRECT &rect)
+	void OverlapRect(std::vector<T*> &receive, const FRECT &rect)
 	{
 		int xmin = std::max(0, (int) floorf(rect.left - 0.5f));
 		int ymin = std::max(0, (int) floorf(rect.top  - 0.5f));
@@ -65,7 +66,7 @@ public:
 		}
 	}
 
-	void OverlapPoint(PtrList<T> &receive, const vec2d &pt)
+	void OverlapPoint(std::vector<T*> &receive, const vec2d &pt)
 	{
 		int xmin = std::min(std::max((int) floorf(pt.x - 0.5f), 0), _cx-1);
 		int ymin = std::min(std::max((int) floorf(pt.y - 0.5f), 0), _cy-1);

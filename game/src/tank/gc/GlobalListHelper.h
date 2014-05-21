@@ -24,7 +24,7 @@ enum GlobalListID
 
 #define DECLARE_MEMBER_OF(list)                         \
     private:                                            \
-        PtrList<GC_Object>::iterator _pos##list;        \
+        PtrList<GC_Object>::id_type _pos##list;         \
     public:                                             \
         virtual void Register(World &world);            \
         virtual void Unregister(World &world)
@@ -33,12 +33,11 @@ enum GlobalListID
     void cls::Register(World &world)                    \
     {                                                   \
         base::Register(world);                          \
-        world.GetList(list).push_back(this);            \
-        _pos##list = world.GetList(list).rbegin();      \
+        _pos##list = world.GetList(list).insert(this);  \
     }                                                   \
     void cls::Unregister(World &world)                  \
     {                                                   \
-        world.GetList(list).safe_erase(_pos##list);     \
+        world.GetList(list).erase(_pos##list);          \
         base::Unregister(world);                        \
     }
 

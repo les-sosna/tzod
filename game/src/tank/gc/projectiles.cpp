@@ -665,7 +665,8 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 		FindTarget(world);
 	}
 
-	FOREACH_SAFE( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
+    // TODO: safe
+	FOREACH( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 	{
 		const float R = WEAP_BFG_RADIUS;
 		float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
@@ -835,15 +836,15 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 
 	R *= 1.5; // for damage calculation
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
 	const bool healOwner = CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER);
 
-	PtrList<ObjectList>::iterator it1 = receive.begin();
-	for( ; it1 != receive.end(); ++it1 )
+	for( auto it1 = receive.begin(); it1 != receive.end(); ++it1 )
 	{
-		FOREACH_SAFE(**it1, GC_RigidBodyStatic, object)
+        // TODO: safe
+		FOREACH(**it1, GC_RigidBodyStatic, object)
 		{
 			vec2d dist = GetPos() - object->GetPos();
 			float destLen = dist.len();

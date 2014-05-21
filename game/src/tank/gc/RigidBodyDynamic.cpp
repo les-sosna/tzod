@@ -299,11 +299,9 @@ void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 	//------------------------------------
 	// collisions
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 	world.grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
-
-	PtrList<ObjectList>::iterator rit = receive.begin();
 
 	Contact c;
 	c.depth = 0;
@@ -313,18 +311,16 @@ void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 
 	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
 
-	for( ; rit != receive.end(); ++rit )
+	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-		ObjectList::iterator it = (*rit)->begin();
-		for( ; it != (*rit)->end(); ++it )
+        ObjectList *ls = *rit;
+		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) (*it);
+			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) ls->at(it);
 			if( this == object )
 			{
 				continue;
 			}
-
-//			if( object->parity() != _glob_parity )
 
 			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
 			{

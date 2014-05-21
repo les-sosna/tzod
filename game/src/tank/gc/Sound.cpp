@@ -95,7 +95,8 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 		assert(SMODE_STOP == _mode);
 		if( _countActive == _countMax )
 		{
-			FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
+            // FIXME: reverse
+			FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 			{
 				if( SMODE_PLAY == pSound->_mode )
 				{
@@ -106,7 +107,8 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 
 			if( _countActive == _countMax )
 			{
-				FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
+                // FIXME: reverse
+				FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{

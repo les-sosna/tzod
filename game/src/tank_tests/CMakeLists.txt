@@ -11,6 +11,6 @@ add_executable(tank_tests
 )
 
 target_link_libraries(tank_tests
-	tank
+#	tank
 	gtest_main
 )

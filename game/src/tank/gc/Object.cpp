@@ -124,12 +124,11 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 // custom IMPLEMENT_MEMBER_OF for base class
 void GC_Object::Register(World &world)
 {
-    world.GetList(LIST_objects).push_back(this);
-    _posLIST_objects = world.GetList(LIST_objects).rbegin();
+    _posLIST_objects = world.GetList(LIST_objects).insert(this);
 }
 void GC_Object::Unregister(World &world)
 {
-    world.GetList(LIST_objects).safe_erase(_posLIST_objects);
+    world.GetList(LIST_objects).erase(_posLIST_objects);
 }
 
 
@@ -250,17 +249,16 @@ void GC_Object::SetEvents(World &world, unsigned int dwEvents)
 	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 		0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-        world.ts_fixed.safe_erase(_itPosFixed);
+        // TODO: safe
+        world.ts_fixed.erase(_itPosFixed);
 	}
 	// add to the TIMESTEP_FIXED list
 	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
 			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
 	{
-		world.ts_fixed.push_front(this);
-		_itPosFixed = world.ts_fixed.begin();
+		_itPosFixed = world.ts_fixed.insert(this);
 	}
 
-	//-------------------------
 	SetFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED, false);
 	SetFlags(dwEvents, true);
 }

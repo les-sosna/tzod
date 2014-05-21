@@ -605,17 +605,17 @@ void WaitingForPlayersDlg::OnPlayerReady(size_t idx, bool ready)
 	int count = _world.GetList(LIST_players).size();
 	assert(_players->GetData()->GetItemCount() <= count); // count includes bots
 
-	for( int index = 0; index < count; ++index )
-	{
-		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
-		assert(player);
-
-		if( _world.GetList(LIST_players).IndexOf(player) == idx )
-		{
-			_players->GetData()->SetItemText(index, 3, ready ? g_lang.net_chatroom_player_ready.Get() : "");
-			return;
-		}
-	}
+//	for( int index = 0; index < count; ++index )
+//	{
+//		GC_Player *player = (GC_Player *) _players->GetData()->GetItemData(index);
+//		assert(player);
+//
+//		if( _world.GetList(LIST_players).IndexOf(player) == idx )
+//		{
+//			_players->GetData()->SetItemText(index, 3, ready ? g_lang.net_chatroom_player_ready.Get() : "");
+//			return;
+//		}
+//	}
 	assert(false);
 }
 

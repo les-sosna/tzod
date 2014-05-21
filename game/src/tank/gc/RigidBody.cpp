@@ -1204,7 +1204,7 @@ void GC_Water::UpdateTile(World &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
-	///////////////////////////////////////////////////
+
 	FRECT frect;
 	GetGlobalRect(frect);
 	frect.left   = frect.left / LOCATION_SIZE - 0.5f;
@@ -1212,16 +1212,15 @@ void GC_Water::UpdateTile(World &world, bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	world.grid_water.OverlapRect(receive, frect);
-	///////////////////////////////////////////////////
-	PtrList<ObjectList>::iterator rit = receive.begin();
-	for( ; rit != receive.end(); ++rit )
+
+	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-		ObjectList::iterator it = (*rit)->begin();
-		for( ; it != (*rit)->end(); ++it )
+        ObjectList *ls = *rit;
+		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			GC_Water *object = (GC_Water *) (*it);
+			GC_Water *object = (GC_Water *) ls->at(it);
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;

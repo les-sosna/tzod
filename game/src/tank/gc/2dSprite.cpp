@@ -140,8 +140,7 @@ void GC_2dSprite::UpdateCurrentZ(World &world)
 	}
 	else
 	{
-		world.z_globals[_zOrderCurrent].push_front(this);
-		_globalZPos = world.z_globals[_zOrderCurrent].begin();
+		_globalZPos = world.z_globals[_zOrderCurrent].insert(this);
 	}
 }
 

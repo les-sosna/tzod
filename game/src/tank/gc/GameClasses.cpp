@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 GC_Wood::GC_Wood(World &world, float xPos, float yPos)
   : GC_2dSprite(world)
 {
-	AddContext( &world.grid_wood );
+	AddContext(&world.grid_wood);
 
 	SetZ(world, Z_WOOD);
 
@@ -59,7 +59,7 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 {
 	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
-	///////////////////////////////////////////////////
+
 	FRECT frect;
 	GetGlobalRect(frect);
 	frect.left   = frect.left / LOCATION_SIZE - 0.5f;
@@ -67,16 +67,15 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	world.grid_wood.OverlapRect(receive, frect);
-	///////////////////////////////////////////////////
-	PtrList<ObjectList>::iterator rit = receive.begin();
-	for( ; rit != receive.end(); ++rit )
+
+	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-		ObjectList::iterator it = (*rit)->begin();
-		for( ; it != (*rit)->end(); ++it )
+        ObjectList *ls = *rit;
+		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			GC_Wood *object = static_cast<GC_Wood *>(*it);
+			GC_Wood *object = static_cast<GC_Wood *>(ls->at(it));
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
@@ -292,7 +291,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	//
 	// get a list of locations which are affected by the explosion
 	//
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
 	rt.left   /= LOCATION_SIZE;
 	rt.top    /= LOCATION_SIZE;
@@ -303,14 +302,13 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	//
 	// prepare the field for tracing
 	//
-	PtrList<ObjectList>::iterator it = receive.begin();
-	for( ; it != receive.end(); ++it )
+	for( auto it = receive.begin(); it != receive.end(); ++it )
 	{
-		ObjectList::iterator cdit = (*it)->begin();
+		ObjectList::id_type cdit = (*it)->begin();
 		while( (*it)->end() != cdit )
 		{
-			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*cdit);
-			++cdit;
+			GC_RigidBodyStatic *pDamObject = (GC_RigidBodyStatic *) (*it)->at(cdit);
+			cdit = (*it)->next(cdit);
 
 			if( GC_Wall_Concrete::GetTypeStatic() == pDamObject->GetType() )
 			{
@@ -326,9 +324,10 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	//
 
 	bool bNeedClean = false;
-	for( it = receive.begin(); it != receive.end(); ++it )
+	for( auto it = receive.begin(); it != receive.end(); ++it )
 	{
-		FOREACH_SAFE(**it, GC_RigidBodyStatic, pDamObject)
+        // TODO: safe
+		FOREACH(**it, GC_RigidBodyStatic, pDamObject)
 		{
 			vec2d dir = pDamObject->GetPos() - GetPos();
 			float d = dir.len();

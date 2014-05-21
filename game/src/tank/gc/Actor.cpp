@@ -61,9 +61,7 @@ void GC_Actor::LeaveAllContexts()
 
 void GC_Actor::LeaveContext(Context &context)
 {
-	assert(context.iterator);
-	context.grids->element(_location.x,_location.y).safe_erase(context.iterator);
-	context.iterator = NULL;
+	context.grids->element(_location.x,_location.y).erase(context.iterator);
 }
 
 void GC_Actor::EnterAllContexts(const Location &l)
@@ -77,9 +75,7 @@ void GC_Actor::EnterAllContexts(const Location &l)
 
 void GC_Actor::EnterContext(Context &context, const Location &l)
 {
-	assert(!context.iterator);
-	context.grids->element(l.x, l.y).push_back(this);
-	context.iterator = context.grids->element(l.x, l.y).rbegin();
+	context.iterator = context.grids->element(l.x, l.y).insert(this);
 }
 
 void GC_Actor::AddContext(Grid<ObjectList> *pGridSet)
@@ -97,8 +93,7 @@ void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
 	{
 		if( it->grids == pGridSet )
 		{
-			if( it->iterator )
-				LeaveContext(*it);
+            LeaveContext(*it);
 			_contexts.erase(it);
 			return;
 		}

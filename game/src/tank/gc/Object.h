@@ -111,7 +111,7 @@ private:
 private:
 	unsigned int           _flags;             // define various object properties
 
-	ObjectList::iterator _itPosFixed;      // position in the World::ts_fixed
+	ObjectList::id_type _itPosFixed;      // position in the World::ts_fixed
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;
