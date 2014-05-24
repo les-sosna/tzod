@@ -277,6 +277,13 @@ public:
 };
 
 
+#ifdef NDEBUG
+#define _DBG_FILL_FREE_PATTERN
+#else
+#define _DBG_FILL_FREE_PATTERN(p, sz) memset(p, 0xfe, sz)
+#endif
+
+
 #define DECLARE_POOLED_ALLOCATION(cls)          \
 private:                                        \
     static MemoryPool<cls, sizeof(int)> __pool; \
@@ -294,6 +301,7 @@ public:                                         \
     }                                           \
     void operator delete(void *p)               \
     {                                           \
+        _DBG_FILL_FREE_PATTERN(p, sizeof(cls)); \
 		unsigned int&cnt(*((unsigned int*)p-1));\
 		cnt &= 0x7fffffff;                      \
 		if( !cnt )                              \
