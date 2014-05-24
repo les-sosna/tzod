@@ -2,7 +2,6 @@
 
 #include "Pickup.h"
 
-#include "GlobalListHelper.inl"
 #include "GameClasses.h"
 #include "indicators.h"
 #include "World.h"
@@ -28,17 +27,18 @@ extern "C"
 UI::ConsoleBuffer& GetConsole();
 
 
-///////////////////////////////////////////////////////////////////////////////
+IMPLEMENT_MEMBER_OF(GC_Pickup, LIST_pickups);
 
 GC_Pickup::GC_Pickup(World &world, float x, float y)
   : GC_2dSprite(world)
-  , _memberOf(this)
   , _label(new GC_HideLabel(world, x, y))
   , _radius(25.0)
   , _timeAttached(0)
   , _timeAnimation(0)
   , _timeRespawn(0)
 {
+    _label->Register(world);
+    
 	MoveTo(world, vec2d(x, y));
 	AddContext(&world.grid_pickup);
 
@@ -53,7 +53,6 @@ GC_Pickup::GC_Pickup(World &world, float x, float y)
 
 GC_Pickup::GC_Pickup(FromFile)
   : GC_2dSprite(FromFile())
-  , _memberOf(this)
 {
 }
 
@@ -63,13 +62,8 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Kill(World &world)
 {
-	ObjPtr<GC_HideLabel> label = _label;
-	if( Disappear(world) ) // relies on _label
-	{
-		SAFE_KILL(world, label);
-		return; // the object has been already killed
-	}
-	SAFE_KILL(world, label);
+	Disappear(world);
+	SAFE_KILL(world, _label);
 	GC_2dSprite::Kill(world);
 }
 
@@ -136,27 +130,19 @@ void GC_Pickup::Respawn(World &world)
 	for( int n = 0; n < 50; ++n )
 	{
 		vec2d a(PI2 * (float) n / 50);
-		new GC_Particle(world, GetPos() + a * 25, a * 25, tex1, frand(0.5f) + 0.1f);
+		(new GC_Particle(world, GetPos() + a * 25, a * 25, tex1, frand(0.5f) + 0.1f))->Register(world);
 	}
 }
 
-bool GC_Pickup::Disappear(World &world)
+void GC_Pickup::Disappear(World &world)
 {
-	ObjPtr<GC_Pickup> watch(this);
 	if( GetCarrier() )
 		Detach(world);
-	if( !watch )
-		return true;
-	SetVisible(world, false);
-	PulseNotify(world, NOTIFY_PICKUP_DISAPPEAR);
-	if( _label )
-	{
-		MoveTo(world, _label->GetPos());
-		_timeAttached = 0;
-		return false;
-	}
-	Kill(world);
-	return true;
+    SetVisible(world, false);
+    PulseNotify(world, NOTIFY_PICKUP_DISAPPEAR);
+    _timeAttached = 0;
+    if( _label )
+        MoveTo(world, _label->GetPos());
 }
 
 void GC_Pickup::SetRespawnTime(float respawnTime)
@@ -400,7 +386,7 @@ void GC_pu_Mine::Attach(World &world, GC_Actor *actor)
 //	GC_Pickup::Attach(actor);
 
 //	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
-	new GC_Boom_Standard(world, GetPos(), NULL);
+	(new GC_Boom_Standard(world, GetPos(), NULL))->Register(world);
 	Kill(world);
 }
 
@@ -514,8 +500,8 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 		vec2d v   = ((GC_Vehicle *) sender)->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			new GC_Particle(world, pos + dir * 26.0f + p * (float) (i<<1), v, tex, frand(0.4f)+0.1f);
-			new GC_Particle(world, pos + dir * 26.0f - p * (float) (i<<1), v, tex, frand(0.4f)+0.1f);
+			(new GC_Particle(world, pos + dir * 26.0f + p * (float) (i<<1), v, tex, frand(0.4f)+0.1f))->Register(world);
+			(new GC_Particle(world, pos + dir * 26.0f - p * (float) (i<<1), v, tex, frand(0.4f)+0.1f))->Register(world);
 		}
 	}
 	pdd->damage *= 0.25;
@@ -570,7 +556,7 @@ void GC_pu_Shock::Serialize(World &world, SaveFile &f)
 
 AIPRIORITY GC_pu_Shock::GetPriority(World &world, const GC_Vehicle &veh) const
 {
-	GC_Vehicle *tmp = FindNearVehicle(*g_level, &veh);
+	GC_Vehicle *tmp = FindNearVehicle(world, &veh);
 	if( !tmp ) return AIP_NOTREQUIRED;
 
 	if( tmp->GetOwner()->GetTeam() == veh.GetOwner()->GetTeam() && 0 != tmp->GetOwner()->GetTeam() )
@@ -652,6 +638,7 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 					_targetPosPredicted = pNearTarget->GetPos();
 
 					_light = new GC_Light(world, GC_Light::LIGHT_DIRECT);
+                    _light->Register(world);
 					_light->MoveTo(world, GetPos());
 					_light->SetRadius(100);
 
@@ -774,7 +761,9 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 
 	PLAY(SND_B_Start, GetPos());
 	assert(NULL == _sound);
-	_sound = new GC_Sound_link(world, SND_B_Loop, SMODE_LOOP, this);
+	_sound = new GC_Sound_link(world, SND_B_Loop, this);
+    _sound->Register(world);
+    _sound->SetMode(world, SMODE_LOOP);
 
 	SetTexture("booster");
 	SetShadow(false);

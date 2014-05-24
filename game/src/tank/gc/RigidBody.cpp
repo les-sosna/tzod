@@ -888,9 +888,9 @@ void GC_Wall::OnDestroy(World &world)
 	{
 		(new GC_Brick_Fragment_01(world, GetPos() + vrand(GetRadius()),
 			vec2d(frand(100.0f) - 50, -frand(100.0f))
-		))->SetShadow(true);
+		))->Register(world);
 	}
-	new GC_Particle(world, GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+	(new GC_Particle(world, GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f))->Register(world);
 
 	GC_RigidBodyStatic::OnDestroy(world);
 }
@@ -915,7 +915,7 @@ bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player
 			}
 			v += vrand(25);
 
-			(new GC_Brick_Fragment_01(world, hit, v))->SetShadow(true);
+			(new GC_Brick_Fragment_01(world, hit, v))->Register(world);
 		}
 		return false;
 	}

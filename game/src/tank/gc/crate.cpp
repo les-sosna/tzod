@@ -48,7 +48,7 @@ void GC_Crate::OnDestroy(World &world)
 	{
 		(new GC_Brick_Fragment_01(world, GetPos() + vrand(GetRadius()),
 			vec2d(frand(100.0f) - 50, -frand(100.0f))
-			))->SetShadow(true);
+			))->Register(world);
 	}
 
 	GC_RigidBodyDynamic::OnDestroy(world);

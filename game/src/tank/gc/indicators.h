@@ -14,7 +14,7 @@ class GC_Vehicle;
 class GC_SpawnPoint : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
-	MemberOfGlobalList<LIST_respawns> _memberOf;
+    typedef GC_2dSprite base;
 
 public:
 	int   _team;    // 0 - no team
@@ -35,6 +35,7 @@ protected:
 
 
 public:
+    DECLARE_MEMBER_OF(LIST_respawns);
 	GC_SpawnPoint(World &world, float x, float y);
 	GC_SpawnPoint(FromFile);
 
@@ -71,7 +72,7 @@ enum LOCATION
 class GC_IndicatorBar : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
-	MemberOfGlobalList<LIST_indicators> _memberOf;
+    typedef GC_2dSprite base;
 
 	void OnParentKill(World &world, GC_Object *sender, void *param);
 	void OnUpdatePosition(World &world, GC_Object *sender, void *param);
@@ -85,6 +86,7 @@ protected:
 	LOCATION _location;
 
 public:
+    DECLARE_MEMBER_OF(LIST_indicators);
 	GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 

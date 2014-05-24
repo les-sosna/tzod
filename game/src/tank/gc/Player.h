@@ -18,8 +18,9 @@ class GC_Vehicle;
 class GC_Player
 	: public GC_Service
 {
-	MemberOfGlobalList<LIST_players> _memberOf;
-
+    DECLARE_SELF_REGISTRATION(GC_Player);
+    typedef GC_Service base;
+    
 	float     _timeRespawn;
 
 	int       _team;
@@ -60,6 +61,8 @@ protected:
 	virtual void OnDie();
 
 public:
+    DECLARE_MEMBER_OF(LIST_players);
+    
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 
 	void SetSkin(const std::string &skin);

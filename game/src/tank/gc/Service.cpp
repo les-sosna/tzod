@@ -1,36 +1,24 @@
 // Service.cpp
 
 #include "Service.h"
-#include "globals.h"
-#include "GlobalListHelper.inl"
 #include "World.h"
 
-///////////////////////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_Service)
+// custom IMPLEMENT_MEMBER_OF for service
+void GC_Service::Register(World &world)
 {
-	return true;
-}
-
-GC_Service::GC_Service(World &world)
-  : GC_Object()
-  , _memberOf(this)
-{
+    base::Register(world);
+    world.GetList(LIST_services).push_back(this);
+    _posLIST_services = world.GetList(LIST_services).rbegin();
 	if( world._serviceListener )
 		world._serviceListener->OnCreate(this);
 }
 
-GC_Service::GC_Service(FromFile)
-  : GC_Object(FromFile())
-  , _memberOf(this)
+void GC_Service::Unregister(World &world)
 {
+	if( world._serviceListener )
+		world._serviceListener->OnKill(this);
+    world.GetList(LIST_services).safe_erase(_posLIST_services);
+    base::Unregister(world);
 }
 
-GC_Service::~GC_Service()
-{
-	if( g_level->_serviceListener )
-		g_level->_serviceListener->OnKill(this);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file

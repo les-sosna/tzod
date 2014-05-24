@@ -2,7 +2,6 @@
 
 #include "Light.h"
 
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
@@ -26,9 +25,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Light, LIST_lights);
+
 GC_Light::GC_Light(World &world, enumLightType type)
   : GC_Actor(world)
-  , _memberOf(this)
   , _timeout(0)
   , _aspect(1)
   , _offset(0)
@@ -38,13 +38,13 @@ GC_Light::GC_Light(World &world, enumLightType type)
   , _lightDirection(1, 0)
   , _lampSprite(new GC_2dSprite(world))
 {
+    _lampSprite->Register(world);
 	SetActive(world, true);
 	Update(world);
 }
 
 GC_Light::GC_Light(FromFile)
   : GC_Actor(FromFile())
-  , _memberOf(this)
 {
 }
 
@@ -215,6 +215,7 @@ GC_Spotlight::GC_Spotlight(World &world, float x, float y)
   : GC_2dSprite(world)
   , _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
 {
+    _light->Register(world);
 	_light->SetRadius(200);
 	_light->SetIntensity(1.0f);
 	_light->SetOffset(170);

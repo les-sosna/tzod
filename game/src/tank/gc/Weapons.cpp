@@ -108,7 +108,9 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 	SetZ(world, Z_ATTACHED_ITEM);
 
-	_rotateSound = new GC_Sound(world, SND_TowerRotate, SMODE_STOP, GetPos());
+	_rotateSound = new GC_Sound(world, SND_TowerRotate, GetPos());
+    _rotateSound->Register(world);
+    _rotateSound->SetMode(world, SMODE_STOP);
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	SetVisible(world, true);
@@ -131,10 +133,12 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	PLAY(SND_w_Pickup, GetPos());
 
 	_fireEffect = new GC_2dSprite(world);
+    _fireEffect->Register(world);
 	_fireEffect->SetZ(world, Z_EXPLODE);
 	_fireEffect->SetVisible(world, false);
 
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
+    _fireLight->Register(world);
 	_fireLight->SetActive(world, false);
 }
 
@@ -205,6 +209,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 void GC_Weapon::SetCrosshair(World &world)
 {
 	_crosshair = new GC_2dSprite(world);
+    _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair1");
 	_crosshair->SetZ(world, Z_VEHICLE_LABEL);
 }
@@ -370,9 +375,9 @@ void GC_Weap_RocketLauncher::Fire(World &world)
 			float ax = dir.x * 15.0f + dy * dir.y;
 			float ay = dir.y * 15.0f - dy * dir.x;
 
-			new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
-			              Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-			              GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+			(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+			               Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
+			               GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 			_time   = 0;
 			_nshots = 0;
@@ -401,9 +406,9 @@ void GC_Weap_RocketLauncher::Fire(World &world)
 				float ax = dir.x * 15.0f + dy * dir.y;
 				float ay = dir.y * 15.0f - dy * dir.x;
 
-				new GC_Rocket( world, GetCarrier()->GetPos() + vec2d(ax, ay),
+				(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 				               Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-				               GetCarrier(), GetCarrier()->GetOwner(), _advanced );
+				               GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 				_time = 0;
 				_fireEffect->SetVisible(world, true);
@@ -484,6 +489,7 @@ void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 
 	GC_IndicatorBar *pIndicator = new GC_IndicatorBar(world, "indicator_ammo", this,
 		(float *) &_nshots, (float *) &_nshots_total, LOCATION_BOTTOM);
+    pIndicator->Register(world);
 	pIndicator->SetInverse(true);
 
 	_fireEffect->SetTexture("particle_fire3");
@@ -556,9 +562,9 @@ void GC_Weap_AutoCannon::Fire(World &world)
 					float ax = dir.x * 17.0f - dy * dir.y;
 					float ay = dir.y * 17.0f + dy * dir.x;
 
-					new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
-									dir * SPEED_ACBULLET,
-									GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+					(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+									 dir * SPEED_ACBULLET,
+									 GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 				}
 
 				_time = 0;
@@ -579,15 +585,17 @@ void GC_Weap_AutoCannon::Fire(World &world)
 				if( _nshots == _nshots_total )
 				{
 					_firing = false;
-					new GC_Sound_link(world, SND_AC_Reload, SMODE_PLAY, this);
+					auto sound = new GC_Sound_link(world, SND_AC_Reload, this);
+                    sound->Register(world);
+                    sound->SetMode(world, SMODE_PLAY);
 				}
 
 				float ax = dir.x * 17.0f - dy * dir.y;
 				float ay = dir.y * 17.0f + dy * dir.x;
 
-				new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
-								Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
-								GetCarrier(), GetCarrier()->GetOwner(), _advanced );
+				(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+								 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
+								 GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 				_time = 0;
 				_fePos.Set(17.0f, -dy);
@@ -692,8 +700,8 @@ void GC_Weap_Cannon::Fire(World &world)
 		GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
 		const vec2d &dir = GetDirection();
 
-		new GC_TankBullet(world, GetPos() + dir * 17.0f,
-			dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), _advanced);
+		(new GC_TankBullet(world, GetPos() + dir * 17.0f,
+			dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), _advanced))->Register(world);
 
 		if( !_advanced )
 		{
@@ -732,7 +740,7 @@ void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
 			vec2d a = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), vec2d(_angle));
-			new GC_Particle(world, GetPos() + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
+			(new GC_Particle(world, GetPos() + a * 26.0f, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f))->Register(world);
 		}
 	}
 }
@@ -787,9 +795,9 @@ void GC_Weap_Plazma::Fire(World &world)
 	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirection();
-		new GC_PlazmaClod(world, GetPos() + a * 15.0f,
+		(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
 			a * SPEED_PLAZMA + world.net_vrand(20),
-			GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+			GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 		_time = 0;
 		_fireEffect->SetVisible(world, true);
 	}
@@ -855,8 +863,8 @@ void GC_Weap_Gauss::Fire(World &world)
 	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &dir = GetDirection();
-		new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
-			dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), _advanced );
+		(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
+			dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 		_time = 0;
 		_fireEffect->SetVisible(world, true);
@@ -907,9 +915,11 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
 
-	_engineSound = new GC_Sound(world, SND_RamEngine, SMODE_STOP, GetPos());
-
+	_engineSound = new GC_Sound(world, SND_RamEngine, GetPos());
+    _engineSound->Register(world);
+    _engineSound->SetMode(world, SMODE_STOP);
 	_engineLight = new GC_Light(world, GC_Light::LIGHT_POINT);
+    _engineLight->Register(world);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
 	_engineLight->SetActive(world, false);
@@ -922,7 +932,7 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 	_firingCounter = 0;
 	_bReady = true;
 
-	new GC_IndicatorBar(world, "indicator_fuel", this, (float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM);
+	(new GC_IndicatorBar(world, "indicator_fuel", this, (float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM))->Register(world);
 
 //return;
 //	veh->SetMaxHP(350);
@@ -1029,7 +1039,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
-				new GC_Particle(world, emitter + dx, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
+				(new GC_Particle(world, emitter + dx, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time))->Register(world);
 			}
 		}
 
@@ -1044,7 +1054,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
-				new GC_Particle(world, emitter + dx, v - a * frand(600.0f) - dx / time, tex3, time);
+				(new GC_Particle(world, emitter + dx, v - a * frand(600.0f) - dx / time, tex3, time))->Register(world);
 			}
 		}
 	}
@@ -1181,8 +1191,8 @@ void GC_Weap_BFG::Fire(World &world)
 		if( _time_ready >= 0.7f || _advanced )
 		{
 			const vec2d &a = GetDirection();
-			new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
-				GetCarrier(), GetCarrier()->GetOwner(), _advanced );
+			(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
+				GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 			_time_ready = 0;
 			_time = 0;
 		}
@@ -1231,6 +1241,7 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 
 	_timeReload = 0.5f;
 	_diskSprite = new GC_2dSprite(world);
+    _diskSprite->Register(world);
 	_diskSprite->SetTexture("projectile_disk");
 	_diskSprite->SetZ(world, Z_PROJECTILE);
 	UpdateDisk(world);
@@ -1280,8 +1291,8 @@ void GC_Weap_Ripper::Fire(World &world)
 	if( GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirection();
-		new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-			GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+		(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
+			GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 		PLAY(SND_DiskFire, GetPos());
 		_time = 0;
 	}
@@ -1351,7 +1362,9 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = new GC_Sound(world, SND_MinigunFire, SMODE_STOP, GetPos());
+	_sound = new GC_Sound(world, SND_MinigunFire, GetPos());
+    _sound->Register(world);
+    _sound->SetMode(world, SMODE_STOP);
 	_bFire = false;
 
 	_fireEffect->SetTexture("minigun_fire");
@@ -1396,10 +1409,12 @@ void GC_Weap_Minigun::Detach(World &world)
 void GC_Weap_Minigun::SetCrosshair(World &world)
 {
 	_crosshair = new GC_2dSprite(world);
+    _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair2");
 	_crosshair->SetZ(world, Z_VEHICLE_LABEL);
 
 	_crosshairLeft = new GC_2dSprite(world);
+    _crosshairLeft->Register(world);
 	_crosshairLeft->SetTexture("indicator_crosshair2");
 	_crosshairLeft->SetZ(world, Z_VEHICLE_LABEL);
 
@@ -1474,7 +1489,8 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 					}
 				}
 
-				GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), _advanced );
+				GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+                tmp->Register(world);
 				tmp->TimeStepFixed(world, _timeShot);
 			}
 
@@ -1542,7 +1558,9 @@ void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
 	_timeFire   = 0;
 	_timeShot   = 0;
 
-	_sound = new GC_Sound(world, SND_RamEngine, SMODE_STOP, GetPos());
+	_sound = new GC_Sound(world, SND_RamEngine, GetPos());
+    _sound->Register(world);
+    _sound->SetMode(world, SMODE_STOP);
 	_bFire = false;
 }
 
@@ -1605,6 +1623,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 
 				GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
 					vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), _advanced);
+                tmp->Register(world);
 				tmp->TimeStepFixed(world, _timeShot);
 				tmp->SetLifeTime(_timeFire);
 				tmp->SetHealOwner(_advanced);
@@ -1625,6 +1644,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 		{
 			GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + world.net_vrand(33),
 				SPEED_SMOKE/2, GetCarrier(), GetCarrier() ? GetCarrier()->GetOwner() : NULL, true);
+            tmp->Register(world);
 			tmp->SetLifeTime(0.3f);
 			tmp->TimeStepFixed(world, _timeBurn);
 			_timeBurn -= 0.01f;

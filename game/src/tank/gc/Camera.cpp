@@ -2,7 +2,6 @@
 
 #include "Camera.h"
 
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "Macros.h"
 #include "Player.h"
@@ -28,9 +27,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Camera, LIST_cameras);
+
 GC_Camera::GC_Camera(World &world, GC_Player *player)
   : GC_Actor(world)
-  , _memberOf(this)
   , _rotator(_rotatorAngle)
   , _player(player)
 {
@@ -49,19 +49,15 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 	}
 	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
-	_player->Subscribe(NOTIFY_PLAYER_SETCONTROLLER, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 
 	_target     = GetPos();
 	_time_shake = 0;
 	_time_seed  = frand(1000);
 	_zoom       = 1.0f;
-
-	UpdateLayout(world);
 }
 
 GC_Camera::GC_Camera(FromFile)
   : GC_Actor(FromFile())
-  , _memberOf(this)
   , _rotator(_rotatorAngle)
 {
 }

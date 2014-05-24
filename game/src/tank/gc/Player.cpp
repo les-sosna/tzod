@@ -2,7 +2,6 @@
 
 #include "Player.h"
 
-#include "GlobalListHelper.inl"
 #include "Camera.h"
 #include "GameClasses.h"
 #include "indicators.h"
@@ -36,12 +35,15 @@ extern "C"
 #include <lauxlib.h>
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+IMPLEMENT_SELF_REGISTRATION(GC_Player)
+{
+    return true;
+}
+
+IMPLEMENT_MEMBER_OF(GC_Player, LIST_players);
 
 GC_Player::GC_Player(World &world)
-  : GC_Service(world)
-  , _memberOf(this)
-  , _timeRespawn(PLAYER_RESPAWN_DELAY)
+  : _timeRespawn(PLAYER_RESPAWN_DELAY)
   , _team(0)
   , _score(0)
 {
@@ -72,8 +74,6 @@ GC_Player::GC_Player(World &world)
 }
 
 GC_Player::GC_Player(FromFile)
-  : GC_Service(FromFile())
-  , _memberOf(this)
 {
 }
 
@@ -227,10 +227,11 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 				pBestPoint = points[world.net_rand() % points.size()];
 			}
 
-			new GC_Text_ToolTip(world, pBestPoint->GetPos(), _nick, "font_default");
+			(new GC_Text_ToolTip(world, pBestPoint->GetPos(), _nick, "font_default"))->Register(world);
 
 
 			_vehicle = new GC_Tank_Light(world, pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+            _vehicle->Register(world);
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -416,7 +417,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
 GC_PlayerLocal::GC_PlayerLocal(World &world)
   : GC_Player(world)
 {
-	new GC_Camera(world, this);
+	(new GC_Camera(world, this))->Register(world);
+    GC_Camera::UpdateLayout(world);
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)

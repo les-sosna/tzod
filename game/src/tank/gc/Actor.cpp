@@ -9,14 +9,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 GC_Actor::GC_Actor(World &world)
-  : GC_Object()
 {
 	memset(&_location, 0, sizeof(Location));
 	MoveTo(world, vec2d(0, 0));
 }
 
 GC_Actor::GC_Actor(FromFile)
-  : GC_Object(FromFile())
 {
 }
 

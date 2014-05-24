@@ -12,7 +12,7 @@ class GC_Player;
 class GC_Camera : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Camera);
-	MemberOfGlobalList<LIST_cameras> _memberOf;
+    typedef GC_Actor base;
 
 private:
 	vec2d  _target;
@@ -27,6 +27,8 @@ private:
 	ObjPtr<GC_Player>  _player;
 
 public:
+    DECLARE_MEMBER_OF(LIST_cameras);
+    
     GC_Camera(World &world, GC_Player *player);
 	GC_Camera(FromFile);
 	virtual ~GC_Camera();

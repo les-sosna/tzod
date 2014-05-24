@@ -87,8 +87,6 @@ class GC_Object
 	GC_Object& operator = (const GC_Object&) = delete;
 
 private:
-	MemberOfGlobalList<LIST_objects> _memberOf;
-
 	struct Notify
 	{
 		DECLARE_POOLED_ALLOCATION(Notify);
@@ -139,7 +137,7 @@ public:
 	//
 
 public:
-
+    DECLARE_MEMBER_OF(LIST_objects);
 
 	//
 	// construction/destruction
@@ -172,9 +170,6 @@ public:
 
 public:
 	virtual void Serialize(World &world, SaveFile &f);
-
-protected:
-	GC_Object(FromFile);
 
 public:
 	virtual ObjectType GetType() = 0;

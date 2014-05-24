@@ -39,14 +39,17 @@ GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
 	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = new GC_Sound(world, SND_TuretRotate, SMODE_STOP, GetPos());
+	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
+    _rotateSound->Register(world);
+    _rotateSound->SetMode(world, SMODE_STOP);
 	_weaponSprite = new GC_2dSprite(world);
+    _weaponSprite->Register(world);
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(world, Z_FREE_ITEM);
 
 	MoveTo(world, vec2d(x, y)); // this also moves _rotateSound and _weaponSprite
 
-	new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP);
+	(new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP))->Register(world);
 }
 
 GC_Turret::GC_Turret(FromFile)
@@ -159,7 +162,7 @@ void GC_Turret::MoveTo(World &world, const vec2d &pos)
 
 void GC_Turret::OnDestroy(World &world)
 {
-	new GC_Boom_Big(world, GetPos(), NULL);
+	(new GC_Boom_Big(world, GetPos(), NULL))->Register(world);
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 
@@ -354,8 +357,9 @@ void GC_TurretRocket::Fire(World &world)
 	if( _timeReload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true))
-			->SetHitDamage(world.net_frand(10.0f));
+		auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
+        r->Register(world);
+        r->SetHitDamage(world.net_frand(10.0f));
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
 }
@@ -418,13 +422,14 @@ void GC_TurretCannon::Fire(World &world)
 	if( _timeReload <= 0 )
 	{
 		vec2d a(_dir);
-		(new GC_TankBullet(world,
-			GetPos() + a * 31.9f,
-			a * SPEED_TANKBULLET + world.net_vrand(40),
-			this,
-			NULL,
-			false )
-		)->SetHitDamage(world.net_frand(10.0f) + 5.0f);
+		auto bullet = new GC_TankBullet(world,
+                                        GetPos() + a * 31.9f,
+                                        a * SPEED_TANKBULLET + world.net_vrand(40),
+                                        this,
+                                        NULL,
+                                        false);
+        bullet->Register(world);
+		bullet->SetHitDamage(world.net_frand(10.0f) + 5.0f);
 		_timeReload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}
@@ -443,8 +448,8 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			new GC_Particle(world, GetPos() + vec2d(_dir) * 33.0f,
-				SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f);
+			(new GC_Particle(world, GetPos() + vec2d(_dir) * 33.0f,
+				SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f))->Register(world);
 		}
 	}
 }
@@ -658,8 +663,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 
 GC_TurretMinigun::GC_TurretMinigun(World &world, float x, float y)
   : GC_TurretBunker(world, x, y, "turret_mg_wake")
-  , _fireSound(new GC_Sound(world, SND_MinigunFire, SMODE_STOP, GetPos()))
+  , _fireSound(new GC_Sound(world, SND_MinigunFire, GetPos()))
 {
+    _fireSound->Register(world);
+    _fireSound->SetMode(world, SMODE_STOP);
+    
 	_delta_angle = 0.5f; // shooting accuracy
 	_rotator.reset(0, 0, 6.0f, 21.0f, 36.0f);
 
@@ -723,15 +731,13 @@ void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
 		_fireSound->Pause(world, false);
 #endif
 		_time += dt;
-
 		for( ; _time > 0; _time -= 0.04f )
 		{
 			float ang = _dir + world.net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
-			new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false );
-			new GC_Particle(world, GetPos() + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
+			(new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false))->Register(world);
+			(new GC_Particle(world, GetPos() + a * 31.9f, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f))->Register(world);
 		}
-
 		_firing = false;
 	}
 #ifndef NOSOUND
@@ -815,9 +821,9 @@ void GC_TurretGauss::Fire(World &world)
 		float dy = _shotCount == 0 ? -7.0f : 7.0f;
 		float c = cosf(_dir), s = sinf(_dir);
 
-		new GC_GaussRay(world, vec2d(GetPos().x + c * 20.0f - dy * s,
-		                      GetPos().y + s * 20.0f + dy * c),
-		                vec2d(c, s) * SPEED_GAUSS, this, NULL, false );
+		(new GC_GaussRay(world, vec2d(GetPos().x + c * 20.0f - dy * s,
+                         GetPos().y + s * 20.0f + dy * c),
+		                 vec2d(c, s) * SPEED_GAUSS, this, NULL, false))->Register(world);
 
 		if( ++_shotCount == 2 )
 		{

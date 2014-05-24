@@ -31,11 +31,28 @@ class RTTypes
 	typedef std::map<ObjectType, EdItem> type2item;
 	typedef std::map<std::string, ObjectType> name2type;
 	typedef std::vector<ObjectType> index2type;
-	typedef std::map<ObjectType, GC_Object* (*) ()> FromFileMap;
+	typedef std::map<ObjectType, GC_Object* (*) (World&)> FromFileMap;
 
-	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)   { return new T(world, x, y); }
-	template<class T> static GC_Object* ServiceCtor(World &world, float x, float y) { return new T(world); }
-	template<class T> static GC_Object* FromFileCtor() { return new T(::FromFile()); }
+	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)
+    {
+        T *obj = new T(world, x, y);
+        obj->Register(world);
+        return obj;
+    }
+    
+	template<class T> static GC_Object* ServiceCtor(World &world, float x, float y)
+    {
+        T *obj = new T(world);
+        obj->Register(world);
+        return obj;
+    }
+    
+	template<class T> static GC_Object* FromFileCtor(World &world)
+    {
+        T *obj = new T(::FromFile());
+        obj->Register(world);
+        return obj;
+    }
 
 public:
 	// access to singleton instance
@@ -138,7 +155,7 @@ public:
 	// object creation
 	//
 
-	GC_Object* CreateFromFile(ObjectType type); // for serialization
+	GC_Object* CreateFromFile(World &world, ObjectType type); // for serialization
 	GC_Object* CreateObject(World &world, ObjectType type, float x, float y); // for editor
 
 

@@ -16,7 +16,7 @@
 class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-	MemberOfGlobalList<LIST_lights> _memberOf;
+    typedef GC_Actor base;
 
 public:
 	enum enumLightType
@@ -42,6 +42,7 @@ private:
 	static float _sintable[SINTABLE_SIZE];
 
 public:
+    DECLARE_MEMBER_OF(LIST_lights);
 	GC_Light(World &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();

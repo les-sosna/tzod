@@ -27,8 +27,8 @@ class GC_RigidBodyStatic;
 
 class GC_Pickup : public GC_2dSprite
 {
-	MemberOfGlobalList<LIST_pickups> _memberOf;
-
+    typedef GC_2dSprite base;
+    
 protected:
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
@@ -68,6 +68,7 @@ protected:
 	virtual void Serialize(World &world, SaveFile &f);
 
 public:
+    DECLARE_MEMBER_OF(LIST_pickups);
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
 	GC_Actor* GetCarrier() const { return _pickupCarrier; }
@@ -84,8 +85,7 @@ public:
 	float GetTimeAnimation() const { return _timeAnimation; }
 	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
 
-	// hide or kill depending on _respawn; return true if object is killed
-	virtual bool Disappear(World &world);
+    void Disappear(World &world);
 
 public:
 	GC_Pickup(World &world, float x, float y);

@@ -20,7 +20,7 @@ enum enumSoundMode
 class GC_Sound : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound);
-	MemberOfGlobalList<LIST_sounds> _memberOf;
+    typedef GC_Actor base;
 
 	enumSoundTemplate   _soundTemplate;
 #ifndef NOSOUND
@@ -31,13 +31,13 @@ protected:
 	bool          _freezed;
 	enumSoundMode _mode;
     float _speed;
-	void SetMode(World &world, enumSoundMode mode);
 
 public:
 	float _volume;  // 0 - min;  1 - max
 
 public:
-	GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos);
+    DECLARE_MEMBER_OF(LIST_sounds);
+	GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
     virtual void Kill(World &world);
@@ -46,6 +46,7 @@ public:
 	void KillWhenFinished(World &world);
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
+	void SetMode(World &world, enumSoundMode mode);
 	void Pause(World &world, bool pause);
 	void Freeze(bool freeze);
 
@@ -69,7 +70,7 @@ protected:
 	ObjPtr<GC_Actor> _object;
 
 public:
-	GC_Sound_link(World &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object);
+	GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object);
 	GC_Sound_link(FromFile);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
@@ -84,7 +85,12 @@ public:
 /////////////////////////////////////////////////////////////
 
 #if !defined NOSOUND
-#define PLAY(s, pos)  (new GC_Sound(world, (s), SMODE_PLAY, (pos)))
+#define PLAY(s, pos)                                            \
+do {                                                            \
+    auto obj = new GC_Sound(world, (s), (pos));                 \
+    obj->Register(world);                                       \
+    obj->SetMode(world, SMODE_PLAY);                            \
+} while(0)
 #else
 #define PLAY(s, pos) ((void) 0) // no sound
 #endif

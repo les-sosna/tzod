@@ -23,6 +23,7 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const 
 	SetZ(world, Z_PARTICLE);
 	MoveTo(world, x0);
 	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+    SetShadow(true);
 }
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)

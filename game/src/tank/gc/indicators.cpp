@@ -2,7 +2,6 @@
 
 #include "indicators.h"
 
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
@@ -21,9 +20,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_SpawnPoint, LIST_respawns);
+
 GC_SpawnPoint::GC_SpawnPoint(World &world, float x, float y)
   : GC_2dSprite(world)
-  , _memberOf(this)
 {
 	SetTexture("editor_respawn");
 	SetZ(world, Z_EDITOR);
@@ -33,7 +33,6 @@ GC_SpawnPoint::GC_SpawnPoint(World &world, float x, float y)
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
   : GC_2dSprite(FromFile())
-  , _memberOf(this)
 {
 }
 
@@ -161,10 +160,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_IndicatorBar, LIST_indicators);
+
 GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object,
                                  float *pValue, float *pValueMax, LOCATION location)
   : GC_2dSprite(world)
-  , _memberOf(this)
 {
 	assert(NULL == FindIndicator(world, object, location));
 
@@ -185,7 +185,6 @@ GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite 
 
 GC_IndicatorBar::GC_IndicatorBar(FromFile)
   : GC_2dSprite(FromFile())
-  , _memberOf(this)
 {
 }
 

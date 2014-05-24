@@ -210,7 +210,7 @@ void World::Unserialize(const char *fileName)
 			f.Serialize(type);
 			if( INVALID_OBJECT_TYPE == type ) // end of list signal
 				break;
-			if( GC_Object *obj = RTTypes::Inst().CreateFromFile(type) )
+			if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
 			{
 				f.RegPointer(obj);
 			}

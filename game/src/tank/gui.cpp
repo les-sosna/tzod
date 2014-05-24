@@ -391,6 +391,7 @@ void NewGameDlg::OnOK()
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
         
         GC_PlayerLocal *player = new GC_PlayerLocal(_world);
+        player->Register(_world);
         player->SetClass(p.platform_class.Get());
         player->SetNick(p.nick.Get());
         player->SetSkin(p.skin.Get());
@@ -404,6 +405,7 @@ void NewGameDlg::OnOK()
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
         GC_Player *ai = new GC_Player(_world);
+        ai->Register(_world);
         ai->SetClass(p.platform_class.Get());
         ai->SetNick(p.nick.Get());
         ai->SetSkin(p.skin.Get());

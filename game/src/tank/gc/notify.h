@@ -17,9 +17,6 @@ enum NotifyType
 	// Rigid body
 	NOTIFY_RIGIDBODY_DESTROY,
 
-	// GC_Player
-	NOTIFY_PLAYER_SETCONTROLLER,
-
 	// GC_Vehicle
 	NOTIFY_DAMAGE_FILTER,
 };

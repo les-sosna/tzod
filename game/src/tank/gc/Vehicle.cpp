@@ -2,7 +2,6 @@
 
 #include "Vehicle.h"
 
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "Macros.h"
 #include "script.h"
@@ -55,7 +54,9 @@ void GC_Vehicle::TimeStepFloat(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			(new GC_Particle(world, GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f))->_time = frand(1.0f);
+			auto p = new GC_Particle(world, GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, smoke, 1.5f);
+            p->Register(world);
+            p->_time = frand(1.0f);
 		}
 	}
 
@@ -65,7 +66,9 @@ void GC_Vehicle::TimeStepFloat(World &world, float dt)
 
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(world, s, SMODE_LOOP, GetPos());
+	_moveSound = new GC_Sound(world, s, GetPos());
+    _moveSound->Register(world);
+    _moveSound->SetMode(world, SMODE_LOOP);
 }
 
 void GC_Vehicle::UpdateLight(World &world)
@@ -82,9 +85,10 @@ void GC_Vehicle::UpdateLight(World &world)
 	_light_ambient->SetActive(world, _state._bLight);
 }
 
+IMPLEMENT_MEMBER_OF(GC_Vehicle, LIST_vehicles);
+
 GC_Vehicle::GC_Vehicle(World &world, float x, float y)
   : GC_RigidBodyDynamic(world)
-  , _memberOf(this)
   , _enginePower(0)
   , _rotatePower(0)
   , _maxRotSpeed(0)
@@ -101,11 +105,14 @@ GC_Vehicle::GC_Vehicle(World &world, float x, float y)
 	SetShadow(true);
     
 	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
+    _light_ambient->Register(world);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
     
 	_light1 = new GC_Light(world, GC_Light::LIGHT_SPOT);
+    _light1->Register(world);
 	_light2 = new GC_Light(world, GC_Light::LIGHT_SPOT);
+    _light2->Register(world);
     
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
@@ -124,7 +131,6 @@ GC_Vehicle::GC_Vehicle(World &world, float x, float y)
 
 GC_Vehicle::GC_Vehicle(FromFile)
   : GC_RigidBodyDynamic(FromFile())
-  , _memberOf(this)
 {
 }
 
@@ -251,7 +257,7 @@ float GC_Vehicle::GetMaxBrakingLength() const
 
 void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 {
-	new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP);
+	(new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP))->Register(world);
 	_player = player;
 }
 
@@ -385,9 +391,14 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 	if( g_conf.g_showdamage.Get() )
 	{
 		if( _damLabel )
+        {
 			_damLabel->Reset();
+        }
 		else
+        {
 			_damLabel = new GC_DamLabel(world, this);
+            _damLabel->Register(world);
+        }
 	}
     
 	SetHealthCur(GetHealth() - dd.damage);
@@ -457,7 +468,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			if( from->GetVehicle() )
 			{
 				sprintf(score, "%d", from->GetScore());
-				new GC_Text_ToolTip(world, from->GetVehicle()->GetPos(), score, font);
+				(new GC_Text_ToolTip(world, from->GetVehicle()->GetPos(), score, font))->Register(world);
 			}
 		}
 		else if( GetOwner() )
@@ -465,7 +476,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
 			GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 			sprintf(score, "%d", GetOwner()->GetScore());
-			new GC_Text_ToolTip(world, GetPos(), score, "font_digits_red");
+			(new GC_Text_ToolTip(world, GetPos(), score, "font_digits_red"))->Register(world);
 		}
 
 		{
@@ -545,6 +556,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     while( _trackPathL < len )
     {
         GC_Particle *p = new GC_Particle(world, trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
+        p->Register(world);
         p->SetZ(world, Z_WATER);
         p->SetFade(true);
         _trackPathL += _trackDensity;
@@ -557,6 +569,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     while( _trackPathR < len )
     {
         GC_Particle *p = new GC_Particle(world, trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
+        p->Register(world);
         p->SetZ(world, Z_WATER);
         p->SetFade(true);
         _trackPathR += _trackDensity;
@@ -672,7 +685,7 @@ void GC_Tank_Light::SetDefaults()
 
 void GC_Tank_Light::OnDestroy(World &world)
 {
-	new GC_Boom_Big(world, GetPos(), NULL);
+	(new GC_Boom_Big(world, GetPos(), NULL))->Register(world);
 	GC_Vehicle::OnDestroy(world);
 }
 

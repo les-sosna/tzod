@@ -3,7 +3,6 @@
 
 #include "Object.h"
 
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -122,17 +121,20 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 ///////////////////////////////////////////////////////////////////////////////
 // GC_Object class implementation
 
-GC_Object::GC_Object()
-  : _memberOf(this)
-  , _flags(0)
-  , _firstNotify(NULL)
-  , _notifyProtectCount(0)
+// custom IMPLEMENT_MEMBER_OF for base class
+void GC_Object::Register(World &world)
 {
+    world.GetList(LIST_objects).push_back(this);
+    _posLIST_objects = world.GetList(LIST_objects).rbegin();
+}
+void GC_Object::Unregister(World &world)
+{
+    world.GetList(LIST_objects).safe_erase(_posLIST_objects);
 }
 
-GC_Object::GC_Object(FromFile)
-  : _memberOf(this)
-  , _flags(0) // to clear GC_FLAG_OBJECT_KILLED & GC_FLAG_OBJECT_NAMED for proper handling of bad save files
+
+GC_Object::GC_Object()
+  : _flags(0)
   , _firstNotify(NULL)
   , _notifyProtectCount(0)
 {
@@ -157,6 +159,7 @@ void GC_Object::Kill(World &world)
 	PulseNotify(world, NOTIFY_OBJECT_KILL);
 	SetEvents(world, 0);
 	SetName(world, NULL);
+    Unregister(world);
 	delete this;
 }
 

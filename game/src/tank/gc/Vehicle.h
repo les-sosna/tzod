@@ -47,12 +47,13 @@ struct VehicleClass
 
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
-	MemberOfGlobalList<LIST_vehicles> _memberOf;
-
+    typedef GC_RigidBodyDynamic base;
+    
 	ObjPtr<GC_Weapon>   _weapon;
 	ObjPtr<GC_Player>   _player;
 
 public:
+    DECLARE_MEMBER_OF(LIST_vehicles);
 	GC_Vehicle(World &world, float x, float y);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();

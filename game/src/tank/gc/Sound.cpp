@@ -3,7 +3,6 @@
 #include "Sound.h"
 
 #include "globals.h"
-#include "GlobalListHelper.inl"
 #include "World.h"
 #include "Macros.h"
 #include "SaveFile.h"
@@ -27,9 +26,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 	return true;
 }
 
-GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, const vec2d &pos)
+IMPLEMENT_MEMBER_OF(GC_Sound, LIST_sounds);
+
+GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
   : GC_Actor(world)
-  , _memberOf(this)
   , _soundTemplate(sound)
 #ifndef NOSOUND
   , _source(0U)
@@ -55,8 +55,6 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, co
 		SetSpeed(1.0f);
 	}
 
-	SetMode(world, mode);
-
 //	if( world.GetEditorMode() )
 //		Freeze(true);
 #endif
@@ -64,7 +62,6 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, enumSoundMode mode, co
 
 GC_Sound::GC_Sound(FromFile)
   : GC_Actor(FromFile())
-  , _memberOf(this)
   , _mode(SMODE_UNKNOWN)
 {
 }
@@ -328,8 +325,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
-GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, enumSoundMode mode, GC_Actor *object)
-   : GC_Sound(world, sound, mode, object->GetPos())
+GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
+   : GC_Sound(world, sound, object->GetPos())
    , _object(object)
 {
 	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);

@@ -32,6 +32,7 @@ public:
 class GC_2dSprite : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_2dSprite);
+    typedef GC_Actor base;
 
 private:
 	vec2d _direction;
