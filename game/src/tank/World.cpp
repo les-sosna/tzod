@@ -125,11 +125,11 @@ void World::Clear()
 {
 	assert(IsSafeMode());
 
-    // TODO: safe
-	FOREACH(GetList(LIST_objects), GC_Object, obj)
-	{
-		obj->Kill(*this);
-	}
+    ObjectList &ls = GetList(LIST_objects);
+    while( !ls.empty() )
+    {
+        ls.at(ls.begin())->Kill(*this);
+    }
 
 	// reset info
 	_infoAuthor.clear();
