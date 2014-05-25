@@ -165,7 +165,9 @@ void GC_Light::SetTimeout(World &world, float t)
 {
 	assert(t > 0);
 	_timeout = t;
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+    
+    // TODO: dynamic fade
+//	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 void GC_Light::TimeStepFixed(World &world, float dt)

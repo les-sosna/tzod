@@ -15,6 +15,8 @@
 
 #include "config/Config.h"
 
+IMPLEMENT_MEMBER_OF(GC_Projectile, LIST_timestep);
+
 GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail,
                              const vec2d &pos, const vec2d &v, const char *texture)
   : GC_2dSprite(world)
@@ -41,8 +43,6 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 	vec2d dir(v);
 	dir.Normalize();
 	SetDirection(dir);
-
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Projectile::GC_Projectile(FromFile)

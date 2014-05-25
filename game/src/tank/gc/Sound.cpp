@@ -327,11 +327,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Sound_link, LIST_timestep);
+
 GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
    : GC_Sound(world, sound, object->GetPos())
    , _object(object)
 {
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Sound_link::GC_Sound_link(FromFile)

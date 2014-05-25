@@ -36,7 +36,7 @@ public:
 	float _volume;  // 0 - min;  1 - max
 
 public:
-    DECLARE_MEMBER_OF(LIST_sounds);
+    DECLARE_MEMBER_OF();
 	GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
@@ -65,11 +65,13 @@ public:
 class GC_Sound_link : public GC_Sound
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound_link);
+    typedef GC_Sound base;
 
 protected:
 	ObjPtr<GC_Actor> _object;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object);
 	GC_Sound_link(FromFile);
 	virtual void Serialize(World &world, SaveFile &f);

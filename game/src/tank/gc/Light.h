@@ -42,7 +42,7 @@ private:
 	static float _sintable[SINTABLE_SIZE];
 
 public:
-    DECLARE_MEMBER_OF(LIST_lights);
+    DECLARE_MEMBER_OF();
 	GC_Light(World &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();

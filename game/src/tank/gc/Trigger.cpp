@@ -28,6 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Trigger, LIST_timestep);
 
 GC_Trigger::GC_Trigger(World &world, float x, float y)
   : GC_2dSprite(world)
@@ -38,7 +39,6 @@ GC_Trigger::GC_Trigger(World &world, float x, float y)
 	SetTexture("editor_trigger");
 	MoveTo(world, vec2d(x, y));
 	SetZ(world, Z_WOOD);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 

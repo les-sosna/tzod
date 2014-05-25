@@ -88,6 +88,8 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(World &world, bool applyToOb
 
 ///////////////////////////////////////////////////////////////////////////////
 
+IMPLEMENT_MEMBER_OF(GC_RigidBodyDynamic, LIST_timestep);
+
 GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
@@ -120,7 +122,6 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic(World &world)
 
 	if( _glob_parity )
         SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)

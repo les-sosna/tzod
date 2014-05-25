@@ -100,7 +100,6 @@ GC_Vehicle::GC_Vehicle(World &world, float x, float y)
 {
 	memset(&_state, 0, sizeof(VehicleState));
 	MoveTo(world, vec2d(x, y));
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(world, Z_VEHICLES);
 	SetShadow(true);
     

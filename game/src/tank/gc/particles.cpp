@@ -2,6 +2,7 @@
 
 #include "particles.h"
 #include "SaveFile.h"
+#include "World.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -9,6 +10,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 {
 	return true;
 }
+
+IMPLEMENT_MEMBER_OF(GC_Brick_Fragment_01, LIST_timestep);
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0)
   : GC_2dSprite(world)
@@ -22,7 +25,6 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const 
 	SetTexture(tex);
 	SetZ(world, Z_PARTICLE);
 	MoveTo(world, x0);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
     SetShadow(true);
 }
 
@@ -64,6 +66,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Particle, LIST_timestep);
+
 GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : GC_2dSprite(world)
@@ -81,7 +85,6 @@ GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const T
 	SetDirection(orient);
 
 	MoveTo(world, pos);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Particle::GC_Particle(FromFile)

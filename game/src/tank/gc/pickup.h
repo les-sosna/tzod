@@ -68,7 +68,7 @@ protected:
 	virtual void Serialize(World &world, SaveFile &f);
 
 public:
-    DECLARE_MEMBER_OF(LIST_pickups);
+    DECLARE_MEMBER_OF();
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
 	GC_Actor* GetCarrier() const { return _pickupCarrier; }

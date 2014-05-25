@@ -61,7 +61,6 @@ public:
 	Grid<PtrList<GC_Object>>  grid_water;
 	Grid<PtrList<GC_Object>>  grid_pickup;
 
-	PtrList<GC_Object>        ts_fixed;
 	PtrList<GC_Object>        z_globals[Z_COUNT];
 	Grid<PtrList<GC_Object>>  z_grids[Z_COUNT];
 

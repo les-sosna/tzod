@@ -693,12 +693,13 @@ void World::Step(float dt)
 	if( !_frozen )
 	{
 		_safeMode = false;
-        // TODO: safe
-		for( auto it = ts_fixed.begin(); it != ts_fixed.end(); it = ts_fixed.next(it) )
-		{
-            ts_fixed.at(it)->TimeStepFixed(*this, dt);
-			ts_fixed.at(it)->TimeStepFloat(*this, dt);
-		}
+        ObjectList &ls = GetList(LIST_timestep);
+        ls.for_each([=](ObjectList::id_type id, GC_Object *o){
+            ObjPtr<GC_Object> watch(o);
+            o->TimeStepFixed(*this, dt);
+            if (watch)
+                o->TimeStepFloat(*this, dt);
+        });
 		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
 		_safeMode = true;
 	}
@@ -710,11 +711,9 @@ void World::Step(float dt)
 		HitLimit();
 	}
 
-    // TODO: safe
-	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
-	{
-		pSound->KillWhenFinished(*this);
-	}
+	GetList(LIST_sounds).for_each([=](ObjectList::id_type id, GC_Object *o) {
+		static_cast<GC_Sound *>(o)->KillWhenFinished(*this);
+	});
 
 
 	//

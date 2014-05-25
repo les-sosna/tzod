@@ -61,7 +61,7 @@ protected:
 	virtual void OnDie();
 
 public:
-    DECLARE_MEMBER_OF(LIST_players);
+    DECLARE_MEMBER_OF();
     
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 

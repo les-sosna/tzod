@@ -35,7 +35,7 @@ protected:
 
 
 public:
-    DECLARE_MEMBER_OF(LIST_respawns);
+    DECLARE_MEMBER_OF();
 	GC_SpawnPoint(World &world, float x, float y);
 	GC_SpawnPoint(FromFile);
 
@@ -86,7 +86,7 @@ protected:
 	LOCATION _location;
 
 public:
-    DECLARE_MEMBER_OF(LIST_indicators);
+    DECLARE_MEMBER_OF();
 	GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
 	GC_IndicatorBar(FromFile);
 
@@ -106,6 +106,7 @@ public:
 class GC_DamLabel : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_DamLabel);
+    typedef GC_2dSprite base;
 
 private:
 	float _phase;
@@ -113,6 +114,7 @@ private:
 	float _time_life;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_DamLabel(World &world, GC_Vehicle *parent);
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
