@@ -665,9 +665,9 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 		FindTarget(world);
 	}
 
-    // TODO: safe
-	FOREACH( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
+	world.GetList(LIST_vehicles).for_each([&](ObjectList::id_type, GC_Object *o)
 	{
+        auto veh = static_cast<GC_RigidBodyDynamic*>(o);
 		const float R = WEAP_BFG_RADIUS;
 		float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
 			(fabs(veh->_lv.len()) / SPEED_BFGCORE * 10 + 0.5f);
@@ -679,7 +679,7 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 			vec2d d = delta + world.net_vrand(1.0f);
 			veh->TakeDamage(world, damage * DAMAGE_BFGCORE * dt, veh->GetPos() + d, GetOwner());
 		}
-	}
+	});
 
 	//------------------------------------------
 
@@ -843,9 +843,9 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 
 	for( auto it1 = receive.begin(); it1 != receive.end(); ++it1 )
 	{
-        // TODO: safe
-		FOREACH(**it1, GC_RigidBodyStatic, object)
+		(*it1)->for_each([&](ObjectList::id_type, GC_Object *o)
 		{
+            auto object = static_cast<GC_RigidBodyStatic*>(o);
 			vec2d dist = GetPos() - object->GetPos();
 			float destLen = dist.len();
 
@@ -865,7 +865,7 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 					object->TakeDamage(world, damage, object->GetPos() + d, GetOwner());
 				}
 			}
-		}
+		});
 	}
 
 	_time += dt;
