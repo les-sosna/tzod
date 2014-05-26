@@ -31,7 +31,7 @@ ScoreTable::ScoreTable(Window *parent, World &world)
 
 void ScoreTable::OnParentSize(float width, float height)
 {
-	Move((width - GetWidth()) * 0.5f, (height - GetHeight()) * 0.5f);
+	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight()) / 2));
 }
 
 void ScoreTable::DrawChildren(const DrawingContext *dc, float sx, float sy) const

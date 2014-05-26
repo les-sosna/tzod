@@ -848,7 +848,6 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	{
 		_button2 = Button::Create(this, btn2, _button1->GetX() - 10 - bw, by);
 		_button2->eventClick = std::bind(&ScriptMessageBox::OnButton2, this);
-
 	}
 	else
 	{

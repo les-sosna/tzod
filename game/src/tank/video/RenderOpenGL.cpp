@@ -111,7 +111,8 @@ RenderOpenGL::~RenderOpenGL()
 void RenderOpenGL::OnResizeWnd(Point size)
 {
 	_sizeWindow = size;;
-    SetViewport(NULL);
+    SetViewport(nullptr);
+    SetScissor(nullptr);
 }
 
 void RenderOpenGL::SetScissor(const Rect *rect)
