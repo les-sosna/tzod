@@ -9,7 +9,8 @@
 // flags
 
 #define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
 
 ///////////////////////////////////////////////////////////////////////////////
 

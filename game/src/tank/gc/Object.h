@@ -134,12 +134,10 @@ public:
 public:
     DECLARE_MEMBER_OF();
 
-	//
-	// construction/destruction
-	//
-
 	GC_Object();
 	virtual ~GC_Object();
+    
+    ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 
 	//
