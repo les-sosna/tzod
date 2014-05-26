@@ -676,7 +676,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 {
 	std::vector<GC_Pickup *> applicants;
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	FRECT rt = {
 		(vehicle.GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
 		(vehicle.GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
@@ -684,12 +684,12 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 		(vehicle.GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
 
 	world.grid_pickup.OverlapRect(receive, rt);
-	for( PtrList<ObjectList>::iterator i = receive.begin(); i != receive.end(); ++i )
+	for( auto i = receive.begin(); i != receive.end(); ++i )
 	{
-		ObjectList::iterator it = (*i)->begin();
-		for(; it != (*i)->end(); ++it )
+        ObjectList *ls = *i;
+		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			GC_Pickup *pItem = (GC_Pickup *) *it;
+			GC_Pickup *pItem = (GC_Pickup *) ls->at(it);
 			if( pItem->GetCarrier() || !pItem->GetVisible() ) 
 			{
 				continue;

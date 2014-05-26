@@ -11,6 +11,8 @@ class GC_Vehicle;
 
 class GC_Turret : public GC_RigidBodyStatic
 {
+    typedef GC_RigidBodyStatic base;
+    
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
@@ -63,6 +65,7 @@ protected:
 	virtual void MapExchange(World &world, MapFile &f);
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Turret(World &world, float x, float y, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();

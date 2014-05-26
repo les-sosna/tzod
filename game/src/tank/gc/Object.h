@@ -69,13 +69,8 @@ public:
 ////////////////////////////////////////////////////////////
 // object flags
 
-// general
 #define GC_FLAG_OBJECT_NAMED                  0x00000001
-
-// engine events
-#define GC_FLAG_OBJECT_EVENTS_TS_FIXED        0x00000002
-
-#define GC_FLAG_OBJECT_                       0x00000004
+#define GC_FLAG_OBJECT_                       0x00000002
 
 
 typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);
@@ -111,7 +106,7 @@ private:
 private:
 	unsigned int           _flags;             // define various object properties
 
-	ObjectList::iterator _itPosFixed;      // position in the World::ts_fixed
+    ObjectList::id_type _posLIST_objects;
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;
@@ -137,14 +132,12 @@ public:
 	//
 
 public:
-    DECLARE_MEMBER_OF(LIST_objects);
-
-	//
-	// construction/destruction
-	//
+    DECLARE_MEMBER_OF();
 
 	GC_Object();
 	virtual ~GC_Object();
+    
+    ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 
 	//
@@ -155,8 +148,6 @@ protected:
 	void PulseNotify(World &world, NotifyType type, void *param = NULL);
 
 public:
-	void SetEvents(World &world, unsigned int events);
-
 	const char* GetName(World &world) const;
 	void SetName(World &world, const char *name);
 

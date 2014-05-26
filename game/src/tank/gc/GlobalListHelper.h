@@ -8,6 +8,7 @@ class GC_Object;
 enum GlobalListID
 {
 	LIST_objects,
+    LIST_timestep,
 	LIST_services,
 	LIST_respawns,
 	LIST_players,
@@ -22,23 +23,35 @@ enum GlobalListID
 };
 
 
-#define DECLARE_MEMBER_OF(list)                         \
-    private:                                            \
-        PtrList<GC_Object>::iterator _pos##list;        \
-    public:                                             \
-        virtual void Register(World &world);            \
-        virtual void Unregister(World &world)
+#define DECLARE_MEMBER_OF()                                             \
+    virtual PtrList<GC_Object>::id_type Register(World &world);         \
+    virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos)
 
-#define IMPLEMENT_MEMBER_OF(cls, list)                  \
-    void cls::Register(World &world)                    \
-    {                                                   \
-        base::Register(world);                          \
-        world.GetList(list).push_back(this);            \
-        _pos##list = world.GetList(list).rbegin();      \
-    }                                                   \
-    void cls::Unregister(World &world)                  \
-    {                                                   \
-        world.GetList(list).safe_erase(_pos##list);     \
-        base::Unregister(world);                        \
+#define IMPLEMENT_MEMBER_OF(cls, list)                                  \
+    PtrList<GC_Object>::id_type cls::Register(World &world)             \
+    {                                                                   \
+        auto pos = base::Register(world);                               \
+        world.GetList(list).insert(this, pos);                          \
+        return pos;                                                     \
+    }                                                                   \
+    void cls::Unregister(World &world, PtrList<GC_Object>::id_type pos) \
+    {                                                                   \
+        world.GetList(list).erase(pos);                                 \
+        base::Unregister(world, pos);                                   \
+    }
+
+#define IMPLEMENT_MEMBER_OF2(cls, list1, list2)                         \
+    PtrList<GC_Object>::id_type cls::Register(World &world)             \
+    {                                                                   \
+        auto pos = base::Register(world);                               \
+        world.GetList(list1).insert(this, pos);                         \
+        world.GetList(list2).insert(this, pos);                         \
+        return pos;                                                     \
+    }                                                                   \
+    void cls::Unregister(World &world, PtrList<GC_Object>::id_type pos) \
+    {                                                                   \
+        world.GetList(list2).erase(pos);                                \
+        world.GetList(list1).erase(pos);                                \
+        base::Unregister(world, pos);                                   \
     }
 

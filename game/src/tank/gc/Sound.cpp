@@ -95,7 +95,8 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 		assert(SMODE_STOP == _mode);
 		if( _countActive == _countMax )
 		{
-			FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
+            // FIXME: reverse
+			FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 			{
 				if( SMODE_PLAY == pSound->_mode )
 				{
@@ -106,7 +107,8 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 
 			if( _countActive == _countMax )
 			{
-				FOREACH_R( world.GetList(LIST_sounds), GC_Sound, pSound )
+                // FIXME: reverse
+				FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
 				{
 					if( SMODE_LOOP == pSound->_mode )
 					{
@@ -325,11 +327,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_Sound_link, LIST_timestep);
+
 GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
    : GC_Sound(world, sound, object->GetPos())
    , _object(object)
 {
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Sound_link::GC_Sound_link(FromFile)

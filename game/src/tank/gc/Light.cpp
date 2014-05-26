@@ -64,6 +64,9 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 	f.Serialize(_timeout);
 	f.Serialize(_type);
 	f.Serialize(_lampSprite);
+    
+    if (f.loading() && CheckFlags(GC_FLAG_LIGHT_FADE))
+        world.GetList(LIST_timestep).insert(this, GetId());
 }
 
 void GC_Light::MapExchange(World &world, MapFile &f)
@@ -165,7 +168,8 @@ void GC_Light::SetTimeout(World &world, float t)
 {
 	assert(t > 0);
 	_timeout = t;
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+    SetFlags(GC_FLAG_LIGHT_FADE, true);
+    world.GetList(LIST_timestep).insert(this, GetId());
 }
 
 void GC_Light::TimeStepFixed(World &world, float dt)
@@ -180,6 +184,8 @@ void GC_Light::TimeStepFixed(World &world, float dt)
 void GC_Light::Kill(World &world)
 {
 	SAFE_KILL(world, _lampSprite);
+    if( CheckFlags(GC_FLAG_LIGHT_FADE) )
+        world.GetList(LIST_timestep).erase(GetId());
     GC_Actor::Kill(world);
 }
 

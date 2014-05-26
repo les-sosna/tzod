@@ -18,6 +18,7 @@ class GC_Vehicle;
 class GC_Trigger : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
+    typedef GC_2dSprite base;
 
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
 	{
@@ -52,6 +53,7 @@ class GC_Trigger : public GC_2dSprite
 	bool Test(World &world, const GC_Vehicle *v) const;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Trigger(World &world, float x, float y);
 	GC_Trigger(FromFile);
 	~GC_Trigger();

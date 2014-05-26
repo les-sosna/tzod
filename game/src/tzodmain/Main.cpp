@@ -23,6 +23,7 @@
 //#include <network/TankClient.h>
 
 
+#include <gc/Camera.h>
 #include <gc/Sound.h>
 #include <gc/Player.h>
 
@@ -220,6 +221,16 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
     }
 }
 
+static void OnFramebufferSize(GLFWwindow *window, int width, int height)
+{
+    g_render->OnResizeWnd(Point{width, height});
+    g_texman->SetCanvasSize(width, width);
+    g_gui->GetDesktop()->Resize(width, height);
+    if (g_level)
+        GC_Camera::UpdateLayout(*g_level);
+}
+
+
 //static long xxx = _CrtSetBreakAlloc(12649);
 
 #ifdef _WIN32
@@ -258,6 +269,7 @@ int main(int, const char**)
         glfwSetScrollCallback(g_appWindow, OnScroll);
         glfwSetKeyCallback(g_appWindow, OnKey);
         glfwSetCharCallback(g_appWindow, OnChar);
+        glfwSetFramebufferSizeCallback(g_appWindow, OnFramebufferSize);
         glfwMakeContextCurrent(g_appWindow);
 
 

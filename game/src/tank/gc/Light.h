@@ -9,7 +9,8 @@
 // flags
 
 #define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,7 @@ private:
 	static float _sintable[SINTABLE_SIZE];
 
 public:
-    DECLARE_MEMBER_OF(LIST_lights);
+    DECLARE_MEMBER_OF();
 	GC_Light(World &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();

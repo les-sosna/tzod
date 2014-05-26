@@ -27,7 +27,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Camera, LIST_cameras);
+IMPLEMENT_MEMBER_OF2(GC_Camera, LIST_cameras, LIST_timestep);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
   : GC_Actor(world)
@@ -47,7 +47,6 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 		_rotatorAngle =  -_player->GetVehicle()->GetDirection().Angle() + PI/2;
 		MoveTo(world, _player->GetVehicle()->GetPos());
 	}
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 
 	_target     = GetPos();

@@ -125,10 +125,11 @@ void World::Clear()
 {
 	assert(IsSafeMode());
 
-	FOREACH_SAFE(GetList(LIST_objects), GC_Object, obj)
-	{
-		obj->Kill(*this);
-	}
+    ObjectList &ls = GetList(LIST_objects);
+    while( !ls.empty() )
+    {
+        ls.at(ls.begin())->Kill(*this);
+    }
 
 	// reset info
 	_infoAuthor.clear();
@@ -222,9 +223,9 @@ void World::Unserialize(const char *fileName)
 		}
 
 		// read objects contents in the same order as pointers
-		for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+		for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
 		{
-			(*it)->Serialize(*this, f);
+            GetList(LIST_objects).at(it)->Serialize(*this, f);
 		}
 
 
@@ -353,10 +354,10 @@ void World::Serialize(const char *fileName)
 	//
 	// pointers to game objects
 	//
-
-	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+    ObjectList &objects = GetList(LIST_objects);
+	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
-		GC_Object *object(*it);
+		GC_Object *object = objects.at(it);
 		ObjectType type = object->GetType();
 		stream->Write(&type, sizeof(type));
 		f.RegPointer(object);
@@ -369,9 +370,9 @@ void World::Serialize(const char *fileName)
 	// write objects contents in the same order as pointers
 	//
 
-	for( ObjectList::iterator it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); ++it )
+	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
-		(*it)->Serialize(*this, f);
+        objects.at(it)->Serialize(*this, f);
 	}
 
 
@@ -692,12 +693,13 @@ void World::Step(float dt)
 	if( !_frozen )
 	{
 		_safeMode = false;
-		for( ObjectList::safe_iterator it = ts_fixed.safe_begin(); it != ts_fixed.end(); ++it )
-		{
-			(*it)->TimeStepFixed(*this, dt);
-			if( *it )
-				(*it)->TimeStepFloat(*this, dt);
-		}
+        ObjectList &ls = GetList(LIST_timestep);
+        ls.for_each([=](ObjectList::id_type id, GC_Object *o){
+            ObjPtr<GC_Object> watch(o);
+            o->TimeStepFixed(*this, dt);
+            if (watch)
+                o->TimeStepFloat(*this, dt);
+        });
 		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
 		_safeMode = true;
 	}
@@ -709,10 +711,9 @@ void World::Step(float dt)
 		HitLimit();
 	}
 
-	FOREACH_SAFE( GetList(LIST_sounds), GC_Sound, pSound )
-	{
-		pSound->KillWhenFinished(*this);
-	}
+	GetList(LIST_sounds).for_each([=](ObjectList::id_type id, GC_Object *o) {
+		static_cast<GC_Sound *>(o)->KillWhenFinished(*this);
+	});
 
 
 	//

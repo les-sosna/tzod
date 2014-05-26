@@ -53,7 +53,7 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 	ObjPtr<GC_Player>   _player;
 
 public:
-    DECLARE_MEMBER_OF(LIST_vehicles);
+    DECLARE_MEMBER_OF();
 	GC_Vehicle(World &world, float x, float y);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();

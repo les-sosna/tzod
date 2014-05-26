@@ -40,15 +40,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
     return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Player, LIST_players);
+IMPLEMENT_MEMBER_OF2(GC_Player, LIST_players, LIST_timestep);
 
 GC_Player::GC_Player(World &world)
   : _timeRespawn(PLAYER_RESPAWN_DELAY)
   , _team(0)
   , _score(0)
 {
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
-
 	// select nick from the random_names table
 	lua_getglobal(g_env.L, "random_name");     // push function
 	lua_call(g_env.L, 0, 1);                   // call it

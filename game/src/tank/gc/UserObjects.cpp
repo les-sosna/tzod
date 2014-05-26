@@ -193,7 +193,8 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 		SetDirection(vec2d(rot));
 		if( _frameRate > 0 )
 		{
-			SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
+            // TODO: animation
+//			SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 		}
 		_time = 0;
 	}
@@ -277,7 +278,9 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
-		tmp->SetEvents(world, tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
+        
+        // TODO: animation
+//		tmp->SetEvents(world, tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}
 	else
 	{

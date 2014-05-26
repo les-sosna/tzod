@@ -66,7 +66,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 		sprintf(s1, "; obj:%u\ntimestep: %4u",
 			(unsigned int) _world.GetList(LIST_objects).size(),
-			(unsigned int) _world.ts_fixed.size()
+			(unsigned int) _world.GetList(LIST_timestep).size()
 		);
 		strcat(s, s1);
 

@@ -9,6 +9,7 @@
 class GC_Brick_Fragment_01 : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Brick_Fragment_01);
+    typedef GC_2dSprite base;
 
 private:
 	int _startFrame;
@@ -19,6 +20,7 @@ private:
 	vec2d _velocity;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
@@ -35,6 +37,7 @@ public:
 class GC_Particle : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
+    typedef GC_2dSprite base;
 
 public:
 	float _time;
@@ -44,6 +47,7 @@ public:
 	vec2d _velocity;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Particle(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
 		float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);

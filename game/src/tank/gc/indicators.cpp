@@ -264,6 +264,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_DamLabel, LIST_timestep);
+
 GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
   : GC_2dSprite(world)
   , _phase(frand(PI2))
@@ -271,7 +273,6 @@ GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
   , _time_life(0.4f)
 {
 	SetTexture("indicator_damage");
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(world, Z_VEHICLE_LABEL);
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }

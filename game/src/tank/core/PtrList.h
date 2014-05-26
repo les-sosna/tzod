@@ -1,328 +1,173 @@
 // PtrList.h
-///////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include <core/MemoryManager.h>
-
-///////////////////////////////////
+#include <vector>
+#include <cassert>
 
 template <class T>
 class PtrList
 {
-	struct Node
-	{
-		T *ptr;
-		int ref_count;       // count of safe iterators which use this node
-		Node *prev, *next;
-	};
-
-	static MemoryPool<Node> nodeAllocator;
-
-	size_t _size;
-	mutable Node _begin, _end;
-
-	static void FreeNode(Node *node)
-	{
-		node->prev->next = node->next;
-		node->next->prev = node->prev;
-		nodeAllocator.Free(node);
-	}
-
-	PtrList(const PtrList &); // no copy
-
 public:
-
-	/////////////////////////////////////////////
-	// iterators
-
-	class base_iterator
-	{
-		friend class PtrList;
-
-	protected:
-		Node *_node;
-		class IfHelper
-		{
-			void operator delete (void*) {} // it's private so we can't call delete ptr
-		};
-
-	public:
-		base_iterator() : _node(NULL) {}
-		explicit base_iterator(Node *p) : _node(p) {}
-
-		T* operator * () const
-		{
-			return _node->ptr;
-		}
-		bool operator != (const base_iterator& it) const
-		{
-			return _node != it._node;
-		}
-		bool operator == (const base_iterator& it) const
-		{
-			return _node == it._node;
-		}
-		operator const IfHelper* () const // to allow if(iter), if(!iter)
-		{
-			return reinterpret_cast<const IfHelper*>(_node);
-		}
-	};
-
-	class iterator : public base_iterator
-	{
-		struct NullHelper {};
-
-	public:
-		iterator() {}
-		explicit iterator(Node *p) : base_iterator(p) {}
-
-		iterator& operator++ ()  // prefix increment
-		{
-			assert(this->_node && this->_node->next);
-			this->_node = this->_node->next;
-			return (*this);
-		}
-		iterator operator++ (int)  // postfix increment
-		{
-			assert(this->_node && this->_node->next);
-			iterator tmp(this->_node);
-			this->_node = this->_node->next;
-			return tmp;
-		}
-		iterator& operator-- ()  // prefix decrement
-		{
-			assert(this->_node && this->_node->prev);
-			this->_node = this->_node->prev;
-			return (*this);
-		}
-		iterator operator-- (int)  // postfix decrement
-		{
-			assert(this->_node && this->_node->prev);
-			iterator tmp(this->_node);
-			this->_node = this->_node->prev;
-			return tmp;
-		}
-		void operator = (const NullHelper *arg) // to allow iter=NULL
-		{
-			assert(NULL == arg);
-			this->_node = NULL;
-		}
-	};
-
-
-	class safe_iterator : public base_iterator  // increments node's reference counter
-	{
-	public:
-		explicit safe_iterator(Node *p)
-		  : base_iterator(p)
-		{
-			++this->_node->ref_count;
-		}
-		~safe_iterator()
-		{
-			if( this->_node && 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
-				FreeNode(this->_node);
-		}
-
-		safe_iterator& operator++ ()  // prefix increment
-		{
-			assert(this->_node && this->_node->next);
-			if( 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
-			{
-				this->_node = this->_node->next;
-				FreeNode(this->_node->prev);
-			}
-			else
-			{
-				this->_node = this->_node->next;
-			}
-			++this->_node->ref_count;
-			return (*this);
-		}
-		safe_iterator& operator-- ()  // prefix decrement
-		{
-			assert(this->_node && this->_node->prev);
-			if( 0 == (--this->_node->ref_count) && NULL == this->_node->ptr )
-			{
-				this->_node = this->_node->prev;
-				FreeNode(this->_node->next);
-			}
-			else
-			{
-				this->_node = this->_node->prev;
-			}
-			++this->_node->ref_count;
-			return (*this);
-		}
-		safe_iterator& operator= (const base_iterator& src)
-		{
-			if( this->_node && 0 == --this->_node->ref_count && !this->_node->ptr )
-				FreeNode(this->_node);
-			this->_node = src._node;
-			if( this->_node )
-				this->_node->ref_count++;
-			return (*this);
-		}
-	};
-
-	class reverse_iterator : public base_iterator
-	{
-	public:
-		reverse_iterator() {}
-		explicit reverse_iterator(Node *p) : base_iterator(p) {}
-
-		reverse_iterator& operator++ ()  // prefix increment
-		{
-			assert(this->_node && this->_node->prev);
-			this->_node = this->_node->prev;
-			return (*this);
-		}
-		reverse_iterator operator++ (int)  // postfix increment
-		{
-			assert(this->_node && this->_node->prev);
-			reverse_iterator tmp(this->_node);
-			this->_node = this->_node->prev;
-			return tmp;
-		}
-		reverse_iterator& operator-- ()  // prefix decrement
-		{
-			assert(this->_node && this->_node->next);
-			this->_node = this->_node->next;
-			return (*this);
-		}
-		reverse_iterator operator-- (int)  // postfix decrement
-		{
-			assert(this->_node && this->_node->next);
-			reverse_iterator tmp(this->_node);
-			this->_node = this->_node->next;
-			return tmp;
-		}
-
-		operator iterator& ()
-		{
-			return *reinterpret_cast<iterator*>(this);
-		}
-	};
-
-	/////////////////////////////////////////////
+    struct id_type
+    {
+        id_type() : _id(-1) {}
+        bool operator==(id_type other) const { return _id == other._id; }
+        bool operator!=(id_type other) const { return _id != other._id; }
+        bool operator<(id_type other) const { return _id < other._id; }
+        
+    private:
+        friend class PtrList<T>;
+        id_type(int id) : _id(id) {}
+        int _id;
+    };
 
 	PtrList(void)
 	  : _size(0)
+      , _dataTail(-1)
+      , _freeTail(-1)
+      , _eraseIt(false)
+	{}
+    
+    T* at(id_type id) const
+    {
+        assert(id._id >= 0 && id._id < _data.size());
+        assert(InvalidPtr() != _data[id._id].ptr);
+        return _data[id._id].ptr;
+    }
+
+    id_type begin() const { return _dataTail; }
+	id_type end()   const { return -1; }
+
+	void erase(const id_type id)
 	{
-		_begin.ptr       = (T*) -1;     // not NULL but invalid pointer
-		_begin.ref_count = 0;
-		_begin.next      = &_end;
-		_begin.prev      = NULL;
-		_end.ptr         = (T*) -1;     // not NULL but invalid pointer
-		_end.ref_count   = 0;
-		_end.prev        = &_begin;
-		_end.next        = NULL;
-	}
-
-	~PtrList(void)
-	{
-		Node *tmp;
-		while( _begin.next != &_end )
-		{
-			tmp = _begin.next;
-			_begin.next = _begin.next->next;
-			nodeAllocator.Free(tmp);
-		}
-	}
-
-	void push_front(T *ptr)
-	{
-		Node *tmp = (Node *) nodeAllocator.Alloc();
-		tmp->ptr        = ptr;
-		tmp->ref_count  = 0;
-		tmp->prev       = &_begin;
-		tmp->next       = _begin.next;
-		tmp->prev->next = tmp->next->prev = tmp;
-		++_size;
-	}
-
-	void push_back(T *ptr)
-	{
-		Node *tmp = (Node *) nodeAllocator.Alloc();
-		tmp->ptr        = ptr;
-		tmp->ref_count  = 0;
-		tmp->prev       = _end.prev;
-		tmp->next       = &_end;
-		tmp->prev->next = tmp->next->prev = tmp;
-		++_size;
-	}
-
-	void erase(base_iterator &where)
-	{
-		assert(0 < _size);
-		assert(0 == where._node->ref_count);  // use safe_erase to handle this
-		assert(where._node != &_begin);
-		assert(where._node != &_end);
-		FreeNode(where._node);
-		--_size;
-	}
-
-	void safe_erase(base_iterator &where)
-	{
-		assert(0 < _size);
-		assert(0 <= where._node->ref_count);
-		if( where._node->ref_count )
-			where._node->ptr = 0;
-		else
-			FreeNode(where._node);
-		--_size;
-	}
-
-    iterator      begin() const { return iterator(_begin.next); }
-	base_iterator end()   const { return base_iterator(&_end); }
-
-	safe_iterator safe_begin() const { return safe_iterator(_begin.next); }
-
-	reverse_iterator rbegin() const { return reverse_iterator(_end.prev); }
-	base_iterator    rend()   const { return base_iterator(&_begin); }
-
-	bool empty() const
-	{
-		return _begin.next == &_end;
-	}
-
-	T* front() const
-	{
-		assert(!empty());
-		return _begin.next->ptr;
-	}
-
-	T* back()  const
-	{
-		assert(!empty());
-		return _end.prev->ptr;
-	}
+        assert(id._id >= 0 && id._id < _data.size());
+        assert(InvalidPtr() != _data[id._id].ptr);
+        if (id != _it)
+        {
+            FreeNode(id._id);
+        }
+        else
+        {
+            assert(!_eraseIt);
+            _eraseIt = true;
+        }
+    }
+    
+	bool empty() const { return !_size; }
+    
+    template<class F>
+    void for_each(F && f)
+    {
+        assert(!_dbgInLoop);
+        assert(_dbgInLoop = true);
+        assert(!_eraseIt);
+        for( _it = begin(); _it != end(); )
+        {
+            f(_it, at(_it));
+            id_type n = next(_it);
+            if( _eraseIt )
+            {
+                FreeNode(_it._id);
+                _eraseIt = false;
+            }
+            _it = n;
+        }
+        assert(!(_dbgInLoop = false));
+    }
+    
+    id_type insert(T *p)
+    {
+        id_type where = -1 != _freeTail ? _freeTail : (int) _data.size();
+        insert(p, where);
+        return where;
+    }
+    
+    void insert(T *p, id_type where)
+    {
+        assert(InvalidPtr() != p);
+        assert(where._id >= 0);
+        
+        // allocate new free nodes and put them to free list at tail
+        int numIds = (int) _data.size();
+        if (where._id >= numIds)
+        {
+            _data.resize(where._id + 1);
+            if (-1 != _freeTail)
+                _data[_freeTail].next = numIds;
+            for (int i = numIds; i <= where._id; ++i)
+            {
+                assert(_data[i].ptr = InvalidPtr());
+                _data[i].prev = (i == numIds) ? _freeTail : (i-1);
+                _data[i].next = (i == where._id) ? -1 : (i+1);
+            }
+            _freeTail = where._id;
+        }
+        
+        // move node from free to data
+        assert(InvalidPtr() == _data[where._id].ptr);
+        _data[where._id].ptr = p;
+        MoveNode(where._id, _freeTail, _dataTail);
+        ++_size;
+    }
+    
+    id_type next(id_type id) const
+    {
+        assert(id._id >= 0 && id._id < _data.size());
+        assert(InvalidPtr() != _data[id._id].ptr);
+        return _data[id._id].prev;
+    }
 
 	size_t size() const { return _size; }
 
-
-	size_t IndexOf(const T *p) const
+private:
+	struct Node
 	{
-		size_t currentIdx = 0;
-		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
-			if( *it == p )
-				return currentIdx;
-		return -1;
-	}
-	T* GetByIndex(size_t index) const
-	{
-		size_t currentIdx = 0;
-		for( iterator it = begin(); it != end(); ++it, ++currentIdx )
-			if( currentIdx == index )
-				return *it;
-		return NULL;
-	}
+		T *ptr;
+		int prev;
+        int next;
+	};
+    
+    std::vector<Node> _data;
+    
+	size_t _size;
+	int _dataTail;
+    int _freeTail;
+    id_type _it;
+    bool _eraseIt;
+#ifndef NDEBUG
+    bool _dbgInLoop = false;
+#endif
+    
+    T* InvalidPtr() const { return (T*) this; }
+    
+    void MoveNode(const int nodeId, int &tailFrom, int &tailTo)
+    {
+        Node &node = _data[nodeId];
+        // remove from
+        if (-1 != node.next)
+            _data[node.next].prev = node.prev;
+        if (-1 != node.prev)
+            _data[node.prev].next = node.next;
+        if (tailFrom == nodeId)
+            tailFrom = node.prev;
+        // append to
+        node.prev = tailTo;
+        node.next = -1;
+        if (-1 != tailTo)
+            _data[tailTo].next = nodeId;
+        tailTo = nodeId;
+    }
+    
+    void FreeNode(const int nodeId)
+    {
+        // remove node from data list
+        assert(InvalidPtr() != _data[nodeId].ptr);
+        assert(_data[nodeId].ptr = InvalidPtr());
+        assert(_size > 0);
+        --_size;
+        MoveNode(nodeId, _dataTail, _freeTail);
+    }
 };
 
-template <class T>
-MemoryPool<typename PtrList<T>::Node>
-	PtrList<T>::nodeAllocator;
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file

@@ -88,7 +88,7 @@ public:
 
 
 private:
-	ObjectList::iterator _globalZPos; // position in the onscreen or z_globals list
+	ObjectList::id_type _globalZPos; // position in the onscreen or z_globals list
 
 private:
 	void UpdateCurrentZ(World &world);

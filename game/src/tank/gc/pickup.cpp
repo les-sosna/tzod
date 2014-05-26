@@ -27,7 +27,7 @@ extern "C"
 UI::ConsoleBuffer& GetConsole();
 
 
-IMPLEMENT_MEMBER_OF(GC_Pickup, LIST_pickups);
+IMPLEMENT_MEMBER_OF2(GC_Pickup, LIST_pickups, LIST_timestep);
 
 GC_Pickup::GC_Pickup(World &world, float x, float y)
   : GC_2dSprite(world)
@@ -43,7 +43,6 @@ GC_Pickup::GC_Pickup(World &world, float x, float y)
 	AddContext(&world.grid_pickup);
 
 	SetShadow(true);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetZ(world, Z_FREE_ITEM);
 
 	SetAutoSwitch(true);
@@ -157,7 +156,6 @@ float GC_Pickup::GetRespawnTime() const
 
 void GC_Pickup::SetBlinking(bool blink)
 {
-	assert(CheckFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED));
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 

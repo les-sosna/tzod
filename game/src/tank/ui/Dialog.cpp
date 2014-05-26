@@ -19,7 +19,7 @@ Dialog::Dialog(Window *parent, float width, float height, bool modal)
 {
 	SetTexture("ui/window", false);
 	Resize(width, height);
-	Move((parent->GetWidth() - GetWidth()) * 0.5f, (parent->GetHeight() - GetHeight()) * 0.5f);
+    Move(std::floor((parent->GetWidth() - GetWidth()) / 2), std::floor((parent->GetHeight() - GetHeight()) / 2));
 	SetDrawBorder(true);
 	SetDrawBackground(true);
 	GetManager()->SetFocusWnd(this);

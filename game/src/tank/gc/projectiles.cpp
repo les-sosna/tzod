@@ -15,6 +15,8 @@
 
 #include "config/Config.h"
 
+IMPLEMENT_MEMBER_OF(GC_Projectile, LIST_timestep);
+
 GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail,
                              const vec2d &pos, const vec2d &v, const char *texture)
   : GC_2dSprite(world)
@@ -41,8 +43,6 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 	vec2d dir(v);
 	dir.Normalize();
 	SetDirection(dir);
-
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 }
 
 GC_Projectile::GC_Projectile(FromFile)
@@ -665,8 +665,9 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 		FindTarget(world);
 	}
 
-	FOREACH_SAFE( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
+	world.GetList(LIST_vehicles).for_each([&](ObjectList::id_type, GC_Object *o)
 	{
+        auto veh = static_cast<GC_RigidBodyDynamic*>(o);
 		const float R = WEAP_BFG_RADIUS;
 		float damage = (1 - (GetPos() - veh->GetPos()).len() / R) *
 			(fabs(veh->_lv.len()) / SPEED_BFGCORE * 10 + 0.5f);
@@ -678,7 +679,7 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 			vec2d d = delta + world.net_vrand(1.0f);
 			veh->TakeDamage(world, damage * DAMAGE_BFGCORE * dt, veh->GetPos() + d, GetOwner());
 		}
-	}
+	});
 
 	//------------------------------------------
 
@@ -835,16 +836,16 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 
 	R *= 1.5; // for damage calculation
 
-	PtrList<ObjectList> receive;
+    std::vector<ObjectList*> receive;
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
 	const bool healOwner = CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER);
 
-	PtrList<ObjectList>::iterator it1 = receive.begin();
-	for( ; it1 != receive.end(); ++it1 )
+	for( auto it1 = receive.begin(); it1 != receive.end(); ++it1 )
 	{
-		FOREACH_SAFE(**it1, GC_RigidBodyStatic, object)
+		(*it1)->for_each([&](ObjectList::id_type, GC_Object *o)
 		{
+            auto object = static_cast<GC_RigidBodyStatic*>(o);
 			vec2d dist = GetPos() - object->GetPos();
 			float destLen = dist.len();
 
@@ -864,7 +865,7 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 					object->TakeDamage(world, damage, object->GetPos() + d, GetOwner());
 				}
 			}
-		}
+		});
 	}
 
 	_time += dt;

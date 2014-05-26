@@ -14,6 +14,8 @@
 
 class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
+    typedef GC_RigidBodyStatic base;
+    
 	struct Contact
 	{
 		ObjPtr<GC_RigidBodyDynamic> obj1_d;
@@ -67,6 +69,7 @@ public:
 	vec2d GetBrakingLength() const;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_RigidBodyDynamic(World &world);
 	GC_RigidBodyDynamic(FromFile);
 

@@ -122,14 +122,14 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 // GC_Object class implementation
 
 // custom IMPLEMENT_MEMBER_OF for base class
-void GC_Object::Register(World &world)
+ObjectList::id_type GC_Object::Register(World &world)
 {
-    world.GetList(LIST_objects).push_back(this);
-    _posLIST_objects = world.GetList(LIST_objects).rbegin();
+    _posLIST_objects = world.GetList(LIST_objects).insert(this);
+    return _posLIST_objects;
 }
-void GC_Object::Unregister(World &world)
+void GC_Object::Unregister(World &world, ObjectList::id_type pos)
 {
-    world.GetList(LIST_objects).safe_erase(_posLIST_objects);
+    world.GetList(LIST_objects).erase(pos);
 }
 
 
@@ -157,9 +157,8 @@ void GC_Object::Kill(World &world)
 //	assert(world._garbage.insert(this).second);
 
 	PulseNotify(world, NOTIFY_OBJECT_KILL);
-	SetEvents(world, 0);
 	SetName(world, NULL);
-    Unregister(world);
+    Unregister(world, _posLIST_objects);
 	delete this;
 }
 
@@ -206,18 +205,6 @@ void GC_Object::Serialize(World &world, SaveFile &f)
 
 
 	//
-	// events
-	//
-
-	if( f.loading() )
-	{
-		unsigned int tmp = _flags & GC_FLAG_OBJECT_EVENTS_TS_FIXED;
-		SetFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED, false);
-		SetEvents(world, tmp);
-	}
-
-
-	//
 	// notifications
 	//
 
@@ -242,27 +229,6 @@ void GC_Object::Serialize(World &world, SaveFile &f)
 				n->Serialize(world, f);
 		}
 	}
-}
-
-void GC_Object::SetEvents(World &world, unsigned int dwEvents)
-{
-	// remove from the TIMESTEP_FIXED list
-	if( 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
-		0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
-	{
-        world.ts_fixed.safe_erase(_itPosFixed);
-	}
-	// add to the TIMESTEP_FIXED list
-	else if( 0 != (GC_FLAG_OBJECT_EVENTS_TS_FIXED & dwEvents) &&
-			 0 == (GC_FLAG_OBJECT_EVENTS_TS_FIXED & _flags) )
-	{
-		world.ts_fixed.push_front(this);
-		_itPosFixed = world.ts_fixed.begin();
-	}
-
-	//-------------------------
-	SetFlags(GC_FLAG_OBJECT_EVENTS_TS_FIXED, false);
-	SetFlags(dwEvents, true);
 }
 
 const char* GC_Object::GetName(World &world) const

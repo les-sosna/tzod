@@ -330,13 +330,13 @@ int ServiceListDataSource::GetSubItemCount(int index) const
 
 size_t ServiceListDataSource::GetItemData(int index) const
 {
-	ObjectList::iterator it = _world.GetList(LIST_services).begin();
+	auto it = _world.GetList(LIST_services).begin();
 	for( int i = 0; i < index; ++i )
 	{
-		++it;
+		it = _world.GetList(LIST_services).next(it);
 		assert(_world.GetList(LIST_services).end() != it);
 	}
-	return (size_t) *it;
+	return (size_t) _world.GetList(LIST_services).at(it);
 }
 
 const std::string& ServiceListDataSource::GetItemText(int index, int sub) const
@@ -372,9 +372,9 @@ void ServiceListDataSource::OnKill(GC_Object *obj)
 	ObjectList &list = _world.GetList(LIST_services);
 	int found = -1;
 	int idx = 0;
-	for( ObjectList::iterator it = list.begin(); it != list.end(); ++it )
+	for( auto it = list.begin(); it != list.end(); it = list.next(it) )
 	{
-		if( *it == obj )
+		if( list.at(it) == obj )
 		{
 			found = idx;
 			break;
@@ -513,15 +513,14 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 {
     for( int i = Z_COUNT; i--; )
     {
-        PtrList<ObjectList> receive;
+        std::vector<ObjectList*> receive;
         world.z_grids[i].OverlapPoint(receive, pt / LOCATION_SIZE);
-        PtrList<ObjectList>::iterator rit = receive.begin();
-        for( ; rit != receive.end(); rit++ )
+        for( auto rit = receive.begin(); rit != receive.end(); ++rit )
         {
-            ObjectList::iterator it = (*rit)->begin();
-            for( ; it != (*rit)->end(); ++it )
+            ObjectList *ls = *rit;
+            for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
             {
-                GC_2dSprite *object = static_cast<GC_2dSprite*>(*it);
+                GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
                 
                 FRECT frect;
                 object->GetGlobalRect(frect);

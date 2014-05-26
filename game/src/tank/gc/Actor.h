@@ -17,7 +17,7 @@ class GC_Actor : public GC_Object
 	struct Context
 	{
 		Grid<ObjectList> *grids;
-		ObjectList::iterator iterator;
+		ObjectList::id_type iterator;
 	};
 
 	typedef std::list<Context>::iterator CONTEXTS_ITERATOR;

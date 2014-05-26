@@ -19,7 +19,7 @@
 #include "projectiles.h"
 #include "particles.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+IMPLEMENT_MEMBER_OF(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
@@ -31,7 +31,6 @@ GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
   , _rotator(_dir)
 {
 	SetZ(world, Z_WALLS);
-	SetEvents(world, GC_FLAG_OBJECT_EVENTS_TS_FIXED);
 	SetTexture(tex);
 	AlignToTexture();
 

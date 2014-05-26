@@ -15,6 +15,7 @@ class GC_Player;
 class GC_Explosion : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Explosion);
+    typedef GC_2dSprite base;
 protected:
 
 	struct FieldNode
@@ -65,6 +66,7 @@ public:
 	float _time_boom;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Explosion(World &world, GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
@@ -109,6 +111,7 @@ class GC_RigidBodyStatic;
 class GC_HealthDaemon : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
+    typedef GC_2dSprite base;
 
 private:
 	float _time;
@@ -118,6 +121,7 @@ private:
 	ObjPtr<GC_Player> _owner;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_HealthDaemon(World &world, GC_RigidBodyStatic *victim, GC_Player *owner,
 		            float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
@@ -198,12 +202,14 @@ private:
 class GC_Text_ToolTip : public GC_Text
 {
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
+    typedef GC_Text base;
 
 private:
 	float  _time;
 	float  _y0;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
