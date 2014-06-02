@@ -43,7 +43,7 @@ GC_Pickup::GC_Pickup(World &world, float x, float y)
 	AddContext(&world.grid_pickup);
 
 	SetShadow(true);
-	SetZ(world, Z_FREE_ITEM);
+	SetZ(Z_FREE_ITEM);
 
 	SetAutoSwitch(true);
 	SetRespawn(false);
@@ -112,7 +112,7 @@ void GC_Pickup::Attach(World &world, GC_Actor *actor)
 void GC_Pickup::Detach(World &world)
 {
 	assert(_pickupCarrier);
-	SetZ(world, Z_FREE_ITEM);
+	SetZ(Z_FREE_ITEM);
 	_pickupCarrier->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
 	_pickupCarrier->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
 	_pickupCarrier->OnPickup(world, this, false);
@@ -428,7 +428,7 @@ void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 
 	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
-	SetZ(world, Z_PARTICLE);
+	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
 
@@ -521,6 +521,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 	return true;
 }
 
+IMPLEMENT_MEMBER_OF(GC_pu_Shock, LIST_gsprites);
+
 GC_pu_Shock::GC_pu_Shock(World &world, float x, float y)
   : GC_Pickup(world, x, y)
   , _targetPosPredicted(0, 0)
@@ -578,7 +580,7 @@ void GC_pu_Shock::Detach(World &world)
 {
 	GC_Pickup::Detach(world);
 	SetTexture("pu_shock");
-	SetGridSet(world, true);
+	SetGridSet(true);
 	SAFE_KILL(world, _light);
 }
 
@@ -630,8 +632,8 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 				GC_RigidBodyStatic *carrier = static_cast<GC_RigidBodyStatic *>(GetCarrier());
 				if( GC_Vehicle *pNearTarget = FindNearVehicle(world, carrier) )
 				{
-					SetGridSet(world, false);
-					SetZ(world, Z_FREE_ITEM);
+					SetGridSet(false);
+					SetZ(Z_FREE_ITEM);
 
 					_targetPosPredicted = pNearTarget->GetPos();
 

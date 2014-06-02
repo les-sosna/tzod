@@ -100,7 +100,7 @@ GC_Vehicle::GC_Vehicle(World &world, float x, float y)
 {
 	memset(&_state, 0, sizeof(VehicleState));
 	MoveTo(world, vec2d(x, y));
-	SetZ(world, Z_VEHICLES);
+	SetZ(Z_VEHICLES);
 	SetShadow(true);
     
 	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
@@ -556,7 +556,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     {
         GC_Particle *p = new GC_Particle(world, trackL + e * _trackPathL, vec2d(0,0), track, 12, e);
         p->Register(world);
-        p->SetZ(world, Z_WATER);
+        p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathL += _trackDensity;
     }
@@ -569,7 +569,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     {
         GC_Particle *p = new GC_Particle(world, trackR + e * _trackPathR, vec2d(0, 0), track, 12, e);
         p->Register(world);
-        p->SetZ(world, Z_WATER);
+        p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathR += _trackDensity;
     }

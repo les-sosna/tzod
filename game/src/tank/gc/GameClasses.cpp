@@ -30,7 +30,7 @@ GC_Wood::GC_Wood(World &world, float xPos, float yPos)
 {
 	AddContext(&world.grid_wood);
 
-	SetZ(world, Z_WOOD);
+	SetZ(Z_WOOD);
 
 	SetTexture("wood");
 	MoveTo(world, vec2d(xPos, yPos));
@@ -157,7 +157,7 @@ GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
   , _radius(32)
 {
     _light->Register(world);
-	SetZ(world, Z_EXPLODE);
+	SetZ(Z_EXPLODE);
 	SetDirection(vrand(1));
 }
 
@@ -441,7 +441,7 @@ GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *ow
 	}
 	GC_Particle *p = new GC_Particle(world, GetPos(), vec2d(0,0), tex3, 8.0f, vrand(1));
     p->Register(world);
-	p->SetZ(world, Z_WATER);
+	p->SetZ(Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
@@ -512,7 +512,7 @@ GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
 
 	GC_Particle *p = new GC_Particle(world, GetPos(), vec2d(0,0), tex6, 20.0f, vrand(1));
     p->Register(world);
-	p->SetZ(world, Z_WATER);
+	p->SetZ(Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
@@ -656,10 +656,9 @@ IMPLEMENT_MEMBER_OF(GC_Text_ToolTip, LIST_timestep);
 
 GC_Text_ToolTip::GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font)
   : GC_Text(world, int(pos.x), int(pos.y), text, alignTextCC)
+  , _time(0)
 {
-	_time = 0;
-
-	SetZ(world, Z_PARTICLE);
+	SetZ(Z_PARTICLE);
 
 	SetText(text);
 	SetFont(font);

@@ -187,6 +187,7 @@ protected:
 class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
+    typedef GC_Pickup base;
 
 private:
 	ObjPtr<GC_Light> _light;
@@ -195,6 +196,7 @@ private:
 	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
 
 public:
+    DECLARE_MEMBER_OF();
 	GC_pu_Shock(World &world, float x, float y);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();

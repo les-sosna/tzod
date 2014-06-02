@@ -88,22 +88,16 @@ public:
 
 
 private:
-	ObjectList::id_type _globalZPos; // position in the onscreen or z_globals list
-
-private:
-	void UpdateCurrentZ(World &world);
-	void SetZ_current(World &world, enumZOrder z);
-	enumZOrder _zOrderCurrent;
-	enumZOrder _zOrderPrefered;
+	enumZOrder _zOrder;
 
 public:
 	inline float GetSpriteWidth() const { return g_texman->Get(_texId).pxFrameWidth; }
 	inline float GetSpriteHeight() const { return g_texman->Get(_texId).pxFrameHeight; }
 
 public:
-	void SetGridSet(World &world, bool bGridSet);
+	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, bGridSet); }
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET); }
-	void SetZ(World &world, enumZOrder z);
+	void SetZ(enumZOrder z);
 	enumZOrder GetZ() const;
 
 	void SetVisible(World &world, bool bShow);
@@ -114,7 +108,6 @@ public:
 	GC_2dSprite(FromFile);
 	virtual ~GC_2dSprite();
 
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(bool editorMode) const;
 };

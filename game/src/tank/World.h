@@ -60,9 +60,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_wood;
 	Grid<PtrList<GC_Object>>  grid_water;
 	Grid<PtrList<GC_Object>>  grid_pickup;
-
-	PtrList<GC_Object>        z_globals[Z_COUNT];
-	Grid<PtrList<GC_Object>>  z_grids[Z_COUNT];
+    Grid<PtrList<GC_Object>>  grid_sprites;
 
 	ObjectListener *_serviceListener;
 	DefaultCamera _defaultCamera;

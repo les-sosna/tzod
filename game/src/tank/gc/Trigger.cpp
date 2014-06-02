@@ -38,7 +38,7 @@ GC_Trigger::GC_Trigger(World &world, float x, float y)
 {
 	SetTexture("editor_trigger");
 	MoveTo(world, vec2d(x, y));
-	SetZ(world, Z_WOOD);
+	SetZ(Z_WOOD);
 	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 

@@ -109,14 +109,12 @@ void World::Resize(int X, int Y)
 	_sx          = (float) X * CELL_SIZE;
 	_sy          = (float) Y * CELL_SIZE;
 
-	for( int i = 0; i < Z_COUNT; i++ )
-		z_grids[i].resize(_locationsX, _locationsY);
-
 	grid_rigid_s.resize(_locationsX, _locationsY);
 	grid_walls.resize(_locationsX, _locationsY);
 	grid_wood.resize(_locationsX, _locationsY);
 	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
+	grid_sprites.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
 }
@@ -913,23 +911,30 @@ void World::RenderInternal(const FRECT &world, bool editorMode) const
 	int xmax = std::min(_locationsX - 1, int(world.right / LOCATION_SIZE));
 	int ymax = std::min(_locationsY - 1, int(world.bottom / LOCATION_SIZE) + 1);
 
-	for( int z = 0; z < Z_COUNT; ++z )
-	{
-		for( int x = xmin; x <= xmax; ++x )
-		for( int y = ymin; y <= ymax; ++y )
-		{
-			FOREACH(z_grids[z].element(x,y), GC_2dSprite, object)
-			{
-				object->Draw(editorMode);
-			}
-		}
+    static std::vector<GC_2dSprite*> zLayers[Z_COUNT];
+    for( int x = xmin; x <= xmax; ++x )
+    for( int y = ymin; y <= ymax; ++y )
+    {
+        FOREACH(grid_sprites.element(x,y), GC_2dSprite, object)
+        {
+            if( Z_NONE != object->GetZ() && object->GetGridSet() )
+                zLayers[object->GetZ()].push_back(object);
+        }
+    }
 
-		FOREACH( z_globals[z], GC_2dSprite, object )
-		{
-			object->Draw(editorMode);
-		}
-	}
+    FOREACH( GetList(LIST_gsprites), GC_2dSprite, object )
+    {
+        if( Z_NONE != object->GetZ() && !object->GetGridSet() )
+            zLayers[object->GetZ()].push_back(object);
+    }
 
+    for( int z = 0; z < Z_COUNT; ++z )
+    {
+        for( GC_2dSprite *sprite: zLayers[z] )
+            sprite->Draw(editorMode);
+        zLayers[z].clear();
+    }
+    
 	if( !_dbgLineBuffer.empty() )
 	{
 		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
@@ -965,7 +970,7 @@ void World::OnChangeNightMode()
 {
 	FOREACH( GetList(LIST_lights), GC_Light, pLight )
 	{
-		pLight->Update(*this);
+		pLight->Update();
 	}
 }
 

@@ -31,7 +31,7 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 {
     _light->Register(world);
     
-	SetZ(world, Z_PROJECTILE);
+	SetZ(Z_PROJECTILE);
 	SetShadow(true);
 
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
@@ -1007,7 +1007,7 @@ GC_GaussRay::GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidB
 	_light->MoveTo(world, GetPos());
 
 	SetShadow(false);
-	SetZ(world, Z_NONE);
+	SetZ(Z_NONE);
 }
 
 GC_GaussRay::GC_GaussRay(FromFile)
@@ -1042,7 +1042,7 @@ void GC_GaussRay::SpawnTrailParticle(World &world, const vec2d &pos)
 
 	GC_Particle *p = new GC_Particle(world, pos, vec2d(0,0), *t, 0.2f, GetDirection());
     p->Register(world);
-	p->SetZ(world, Z_GAUSS_RAY);
+	p->SetZ(Z_GAUSS_RAY);
 	p->SetFade(true);
 
 	_light->SetLength(_light->GetLength() + GetTrailDensity());

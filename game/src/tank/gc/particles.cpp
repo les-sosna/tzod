@@ -23,7 +23,7 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const 
 	static TextureCache tex("particle_brick");
 
 	SetTexture(tex);
-	SetZ(world, Z_PARTICLE);
+	SetZ(Z_PARTICLE);
 	MoveTo(world, x0);
     SetShadow(true);
 }
@@ -79,7 +79,7 @@ GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const T
 {
 	assert(_timeLife > 0);
 
-	SetZ(world, Z_PARTICLE);
+	SetZ(Z_PARTICLE);
 
 	SetTexture(texture);
 	SetDirection(orient);

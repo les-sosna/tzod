@@ -115,7 +115,7 @@ public:
 
 public:
 	virtual void Shine() const;
-	virtual void Update(World &world); // handles changing day/night
+	virtual void Update(); // handles changing day/night
 };
 
 ///////////////////////////////////////////////////////////////////////////////

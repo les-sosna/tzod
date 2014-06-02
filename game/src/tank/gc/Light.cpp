@@ -40,7 +40,7 @@ GC_Light::GC_Light(World &world, enumLightType type)
 {
     _lampSprite->Register(world);
 	SetActive(world, true);
-	Update(world);
+	Update();
 }
 
 GC_Light::GC_Light(FromFile)
@@ -195,12 +195,12 @@ void GC_Light::SetActive(World &world, bool activate)
 	_lampSprite->SetVisible(world, activate);
 }
 
-void GC_Light::Update(World &world)
+void GC_Light::Update()
 {
 	if( LIGHT_SPOT == _type )
 	{
 		_lampSprite->SetTexture("shine");
-		_lampSprite->SetZ(world, g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
+		_lampSprite->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
 	}
 }
 
@@ -229,7 +229,7 @@ GC_Spotlight::GC_Spotlight(World &world, float x, float y)
 
 	MoveTo(world, vec2d(x, y));
 	SetTexture("spotlight");
-	SetZ(world, Z_PROJECTILE);
+	SetZ(Z_PROJECTILE);
 }
 
 GC_Spotlight::~GC_Spotlight()

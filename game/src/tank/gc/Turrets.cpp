@@ -30,7 +30,7 @@ GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
   , _sight(TURET_SIGHT_RADIUS)
   , _rotator(_dir)
 {
-	SetZ(world, Z_WALLS);
+	SetZ(Z_WALLS);
 	SetTexture(tex);
 	AlignToTexture();
 
@@ -44,7 +44,7 @@ GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
 	_weaponSprite = new GC_2dSprite(world);
     _weaponSprite->Register(world);
 	_weaponSprite->SetShadow(true);
-	_weaponSprite->SetZ(world, Z_FREE_ITEM);
+	_weaponSprite->SetZ(Z_FREE_ITEM);
 
 	MoveTo(world, vec2d(x, y)); // this also moves _rotateSound and _weaponSprite
 

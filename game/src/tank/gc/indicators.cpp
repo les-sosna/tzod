@@ -26,7 +26,7 @@ GC_SpawnPoint::GC_SpawnPoint(World &world, float x, float y)
   : GC_2dSprite(world)
 {
 	SetTexture("editor_respawn");
-	SetZ(world, Z_EDITOR);
+	SetZ(Z_EDITOR);
 	MoveTo(world, vec2d(x, y));
 	_team = 0;
 }
@@ -135,7 +135,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 GC_HideLabel::GC_HideLabel(World &world, float x, float y)
   : GC_2dSprite(world)
 {
-	SetZ(world, Z_EDITOR);
+	SetZ(Z_EDITOR);
 	SetTexture("editor_item");
 	MoveTo(world, vec2d(x, y));
 }
@@ -168,7 +168,7 @@ GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite 
 {
 	assert(NULL == FindIndicator(world, object, location));
 
-	SetZ(world, Z_VEHICLE_LABEL);
+	SetZ(Z_VEHICLE_LABEL);
 
 	SetTexture(texture);
 
@@ -273,7 +273,7 @@ GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
   , _time_life(0.4f)
 {
 	SetTexture("indicator_damage");
-	SetZ(world, Z_VEHICLE_LABEL);
+	SetZ(Z_VEHICLE_LABEL);
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }
 

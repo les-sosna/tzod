@@ -511,34 +511,42 @@ bool ServiceEditor::OnRawChar(int c)
 
 static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 {
-    for( int i = Z_COUNT; i--; )
+    GC_2dSprite* zLayers[Z_COUNT];
+    memset(zLayers, 0, sizeof(zLayers));
+    
+    std::vector<ObjectList*> receive;
+    world.grid_sprites.OverlapPoint(receive, pt / LOCATION_SIZE);
+    for( auto rit = receive.begin(); rit != receive.end(); ++rit )
     {
-        std::vector<ObjectList*> receive;
-        world.z_grids[i].OverlapPoint(receive, pt / LOCATION_SIZE);
-        for( auto rit = receive.begin(); rit != receive.end(); ++rit )
+        ObjectList *ls = *rit;
+        for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
         {
-            ObjectList *ls = *rit;
-            for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+            GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
+            
+            FRECT frect;
+            object->GetGlobalRect(frect);
+            
+            if( PtInFRect(frect, pt) )
             {
-                GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
-                
-                FRECT frect;
-                object->GetGlobalRect(frect);
-                
-                if( PtInFRect(frect, pt) )
+                for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
                 {
-                    for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+                    if( Z_NONE != object->GetZ()
+                        && object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+                        && (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
                     {
-                        if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
-                           && (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
-                        {
-                            return object;
-                        }
+                        zLayers[object->GetZ()] = object;
                     }
                 }
             }
         }
     }
+
+    for( int z = Z_COUNT; z--; )
+    {
+        if (zLayers[z])
+            return zLayers[z];
+    }
+    
     return NULL;
 }
 

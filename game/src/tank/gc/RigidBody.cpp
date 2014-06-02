@@ -497,7 +497,7 @@ GC_Wall::GC_Wall(World &world, float xPos, float yPos)
   : GC_RigidBodyStatic(world)
 {
 	AddContext(&world.grid_walls);
-	SetZ(world, Z_WALLS);
+	SetZ(Z_WALLS);
 	SetHealth(50, 50);
 
 	SetTexture("brick_wall");
@@ -1169,7 +1169,7 @@ GC_Water::GC_Water(World &world, float xPos, float yPos)
 {
 	AddContext( &world.grid_water );
 
-	SetZ(world, Z_WATER);
+	SetZ(Z_WATER);
 
 	SetTexture("water");
 	AlignToTexture();

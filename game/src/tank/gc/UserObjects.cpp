@@ -21,7 +21,7 @@ GC_UserObject::GC_UserObject(World &world, float x, float y)
   : GC_RigidBodyStatic(world)
 {
 	_textureName = "turret_platform";
-	SetZ(world, Z_WALLS);
+	SetZ(Z_WALLS);
 	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 	AlignToTexture();
@@ -149,7 +149,7 @@ GC_Decoration::GC_Decoration(World &world, float x, float y)
   , _frameRate(0)
   , _time(0)
 {
-	SetZ(world, Z_EDITOR);
+	SetZ(Z_EDITOR);
 	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 }
@@ -189,7 +189,7 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 	{
 		SetTexture(_textureName.c_str());
 		SetFrame(frame % GetFrameCount());
-		SetZ(world, (enumZOrder) z);
+		SetZ((enumZOrder) z);
 		SetDirection(vec2d(rot));
 		if( _frameRate > 0 )
 		{
@@ -274,7 +274,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	{
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
-		tmp->SetZ(world, (enumZOrder) _propLayer.GetIntValue());
+		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();

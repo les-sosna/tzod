@@ -17,7 +17,7 @@ GC_Crate::GC_Crate(World &world, float x, float y)
   : GC_RigidBodyDynamic(world)
 {
 	MoveTo(world, vec2d(x, y));
-	SetZ(world, Z_WALLS);
+	SetZ(Z_WALLS);
 	SetTexture("crate01");
 	AlignToTexture();
 
