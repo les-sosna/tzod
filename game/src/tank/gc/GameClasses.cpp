@@ -615,14 +615,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 	return true;
 }
 
-GC_Text::GC_Text(World &world, int xPos, int yPos, const std::string &text, enumAlignText align)
+GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
   : GC_2dSprite(world)
 {
 	SetFont("font_default");
 	SetText(text);
 	SetAlign(align);
-
-	MoveTo(world, vec2d((float)xPos, (float)yPos));
 }
 
 void GC_Text::SetText(const std::string &text)
@@ -662,37 +660,34 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 
 IMPLEMENT_MEMBER_OF(GC_Text_ToolTip, LIST_timestep);
 
-GC_Text_ToolTip::GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font)
-  : GC_Text(world, int(pos.x), int(pos.y), text, alignTextCC)
+GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, const char *font)
+  : GC_Text(world, text, alignTextCC)
   , _time(0)
 {
 	SetZ(Z_PARTICLE);
-
 	SetText(text);
 	SetFont(font);
-
-	float x_min = (float) (GetSpriteWidth() / 2);
-	float x_max = world._sx - x_min;
-
-	_y0 = pos.y;
-	MoveTo(world, vec2d(std::min(x_max, std::max(x_min, GetPos().x)) - (GetSpriteWidth() / 2), GetPos().y));
 }
 
 void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
 {
 	GC_Text::Serialize(world, f);
 	f.Serialize(_time);
-	f.Serialize(_y0);
 }
 
 void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
 {
 	_time += dt;
-	MoveTo(world, vec2d(GetPos().x, _y0 - _time * 20.0f));
 	if( _time > 1.2f )
     {
         Kill(world);
     }
+}
+
+void GC_Text_ToolTip::Draw(bool editorMode) const
+{
+	vec2d pos = GetPos();
+	g_texman->DrawBitmapText(pos.x, pos.y - _time * 20.0f, GetTexture(), GetColor(), _text, _align);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -187,7 +187,7 @@ class GC_Text : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_Text);
 
 public:
-	GC_Text(World &world, int x, int y, const std::string &text, enumAlignText align = alignTextLT);
+	GC_Text(World &world, const std::string &text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
 
 	void SetFont(const char *fontname);
@@ -198,9 +198,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(bool editorMode) const;
 
-private:
+protected:
 	enumAlignText       _align;
-	std::string            _text;
+	std::string         _text;
 };
 
 /////////////////////////////////////////////////////////////
@@ -210,15 +210,14 @@ class GC_Text_ToolTip : public GC_Text
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
     typedef GC_Text base;
 
-private:
 	float  _time;
-	float  _y0;
 
 public:
     DECLARE_MEMBER_OF();
-	GC_Text_ToolTip(World &world, vec2d pos, const std::string &text, const char *font);
+	GC_Text_ToolTip(World &world, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
+    virtual void Draw(bool editorMode) const;
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
 };
