@@ -28,8 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 IMPLEMENT_MEMBER_OF(GC_Light, LIST_lights);
 
 GC_Light::GC_Light(World &world, enumLightType type)
-  : GC_Actor(world)
-  , _timeout(0)
+  : _timeout(0)
   , _aspect(1)
   , _offset(0)
   , _radius(200)
@@ -44,7 +43,6 @@ GC_Light::GC_Light(World &world, enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile)
-  : GC_Actor(FromFile())
 {
 }
 

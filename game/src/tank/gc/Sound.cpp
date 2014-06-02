@@ -29,8 +29,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 IMPLEMENT_MEMBER_OF(GC_Sound, LIST_sounds);
 
 GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
-  : GC_Actor(world)
-  , _soundTemplate(sound)
+  : _soundTemplate(sound)
 #ifndef NOSOUND
   , _source(0U)
 #endif
@@ -61,8 +60,7 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
 }
 
 GC_Sound::GC_Sound(FromFile)
-  : GC_Actor(FromFile())
-  , _mode(SMODE_UNKNOWN)
+  : _mode(SMODE_UNKNOWN)
 {
 }
 

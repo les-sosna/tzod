@@ -42,8 +42,7 @@ protected:
 public:
 	const vec2d& GetPos() const { return _pos; }
 
-	GC_Actor(World &world);
-	GC_Actor(FromFile);
+	GC_Actor();
 	virtual ~GC_Actor();
 
 	virtual void MoveTo(World &world, const vec2d &pos);

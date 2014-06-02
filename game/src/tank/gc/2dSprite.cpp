@@ -30,8 +30,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 }
 
 GC_2dSprite::GC_2dSprite(World &world)
-  : GC_Actor(world)
-  , _direction(1, 0)
+  : _direction(1, 0)
   , _color(0xffffffff)
   , _texId(0)
   , _frame(0)
@@ -42,8 +41,7 @@ GC_2dSprite::GC_2dSprite(World &world)
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
-  : GC_Actor(FromFile())
-  , _texId(0) // for proper handling of bad save files
+  : _texId(0) // for proper handling of bad save files
   , _zOrder(Z_NONE) // for proper handling of bad save files
 {
 }

@@ -30,8 +30,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 IMPLEMENT_MEMBER_OF2(GC_Camera, LIST_cameras, LIST_timestep);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
-  : GC_Actor(world)
-  , _rotator(_rotatorAngle)
+  : _rotator(_rotatorAngle)
   , _player(player)
 {
 	assert(_player);
@@ -56,8 +55,7 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 }
 
 GC_Camera::GC_Camera(FromFile)
-  : GC_Actor(FromFile())
-  , _rotator(_rotatorAngle)
+  : _rotator(_rotatorAngle)
 {
 }
 
