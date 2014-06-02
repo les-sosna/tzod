@@ -917,14 +917,14 @@ void World::RenderInternal(const FRECT &world, bool editorMode) const
     {
         FOREACH(grid_sprites.element(x,y), GC_2dSprite, object)
         {
-            if( Z_NONE != object->GetZ() && object->GetGridSet() )
+            if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
                 zLayers[object->GetZ()].push_back(object);
         }
     }
 
     FOREACH( GetList(LIST_gsprites), GC_2dSprite, object )
     {
-        if( Z_NONE != object->GetZ() && !object->GetGridSet() )
+        if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
             zLayers[object->GetZ()].push_back(object);
     }
 
