@@ -68,7 +68,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 
 IMPLEMENT_MEMBER_OF(GC_Particle, LIST_timestep);
 
-GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
+GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : GC_2dSprite(world)
   , _time(0)
@@ -83,8 +83,6 @@ GC_Particle::GC_Particle(World &world, const vec2d &pos, const vec2d &v, const T
 
 	SetTexture(texture);
 	SetDirection(orient);
-
-	MoveTo(world, pos);
 }
 
 GC_Particle::GC_Particle(FromFile)
@@ -145,9 +143,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 	return true;
 }
 
-GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &pos, const vec2d &v, const TextureCache &texture,
+GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture,
                                      float lifeTime, const vec2d &orient, float size)
-  : GC_Particle(world, pos, v, texture, lifeTime, orient)
+  : GC_Particle(world, v, texture, lifeTime, orient)
   , _size(size)
 {
 }

@@ -910,7 +910,9 @@ void GC_Wall::OnDestroy(World &world)
 			vec2d(frand(100.0f) - 50, -frand(100.0f))
 		))->Register(world);
 	}
-	(new GC_Particle(world, GetPos(), SPEED_SMOKE, tex, frand(0.2f) + 0.3f))->Register(world);
+	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+    p->Register(world);
+    p->MoveTo(world, GetPos());
 
 	GC_RigidBodyStatic::OnDestroy(world);
 }

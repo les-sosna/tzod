@@ -128,7 +128,9 @@ void GC_Pickup::Respawn(World &world)
 	for( int n = 0; n < 50; ++n )
 	{
 		vec2d a(PI2 * (float) n / 50);
-		(new GC_Particle(world, GetPos() + a * 25, a * 25, tex1, frand(0.5f) + 0.1f))->Register(world);
+		auto p = new GC_Particle(world, a * 25, tex1, frand(0.5f) + 0.1f);
+        p->Register(world);
+        p->MoveTo(world, GetPos() + a * 25);
 	}
 }
 
@@ -507,8 +509,12 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 		vec2d v   = ((GC_Vehicle *) sender)->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			(new GC_Particle(world, pos + dir * 26.0f + p * (float) (i<<1), v, tex, frand(0.4f)+0.1f))->Register(world);
-			(new GC_Particle(world, pos + dir * 26.0f - p * (float) (i<<1), v, tex, frand(0.4f)+0.1f))->Register(world);
+			auto p1 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+            p1->Register(world);
+            p1->MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
+			auto p2 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+            p2->Register(world);
+            p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}
 	}
 	pdd->damage *= 0.25;
