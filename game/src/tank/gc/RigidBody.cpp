@@ -906,9 +906,9 @@ void GC_Wall::OnDestroy(World &world)
 
 	for( int n = 0; n < 5; ++n )
 	{
-		(new GC_Brick_Fragment_01(world, GetPos() + vrand(GetRadius()),
-			vec2d(frand(100.0f) - 50, -frand(100.0f))
-		))->Register(world);
+		auto p = new GC_Brick_Fragment_01(world, vec2d(frand(100.0f) - 50, -frand(100.0f)));
+        p->Register(world);
+        p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
 	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
     p->Register(world);
@@ -937,7 +937,9 @@ bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player
 			}
 			v += vrand(25);
 
-			(new GC_Brick_Fragment_01(world, hit, v))->Register(world);
+			auto p = new GC_Brick_Fragment_01(world, v);
+            p->Register(world);
+            p->MoveTo(world, hit);
 		}
 		return false;
 	}

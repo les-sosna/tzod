@@ -21,7 +21,7 @@ private:
 
 public:
     DECLARE_MEMBER_OF();
-	GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0);
+	GC_Brick_Fragment_01(World &world, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);

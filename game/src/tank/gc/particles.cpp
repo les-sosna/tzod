@@ -13,7 +13,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 
 IMPLEMENT_MEMBER_OF(GC_Brick_Fragment_01, LIST_timestep);
 
-GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const vec2d &v0)
+GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
   : GC_2dSprite(world)
   , _startFrame(rand())
   , _time(0)
@@ -24,7 +24,6 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &x0, const 
 
 	SetTexture(tex);
 	SetZ(Z_PARTICLE);
-	MoveTo(world, x0);
     SetShadow(true);
 }
 
