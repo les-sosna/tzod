@@ -63,6 +63,9 @@ void GC_2dSprite::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zOrder);
 
 	assert(g_texman->IsValidTexture(_texId));
+    
+    if( f.loading() )
+		AddContext(&world.grid_sprites);
 }
 
 void GC_2dSprite::SetTexture(const char *name)
