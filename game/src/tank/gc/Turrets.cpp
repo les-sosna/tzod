@@ -23,7 +23,7 @@ IMPLEMENT_MEMBER_OF(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
+GC_Turret::GC_Turret(World &world, const char *tex)
   : GC_RigidBodyStatic(world)
   , _team(0)
   , _initialDir(0)
@@ -45,8 +45,6 @@ GC_Turret::GC_Turret(World &world, float x, float y, const char *tex)
     _weaponSprite->Register(world);
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(Z_FREE_ITEM);
-
-	MoveTo(world, vec2d(x, y)); // this also moves _rotateSound and _weaponSprite
 
 	(new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP))->Register(world);
 }
@@ -316,12 +314,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 	return true;
 }
 
-GC_TurretRocket::GC_TurretRocket(World &world, float x, float y)
-  : GC_Turret(world, x, y, "turret_platform")
+GC_TurretRocket::GC_TurretRocket(World &world)
+  : GC_Turret(world, "turret_platform")
   , _timeReload(0)
 {
 	_weaponSprite->SetTexture("turret_rocket");
-	world._field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -332,12 +329,6 @@ GC_TurretRocket::GC_TurretRocket(FromFile)
 
 GC_TurretRocket::~GC_TurretRocket()
 {
-}
-
-void GC_TurretRocket::Kill(World &world)
-{
-	world._field.ProcessObject(this, false);
-    GC_Turret::Kill(world);
 }
 
 void GC_TurretRocket::Serialize(World &world, SaveFile &f)
@@ -377,14 +368,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 	return true;
 }
 
-GC_TurretCannon::GC_TurretCannon(World &world, float x, float y)
-  : GC_Turret(world, x, y, "turret_platform")
+GC_TurretCannon::GC_TurretCannon(World &world)
+  : GC_Turret(world, "turret_platform")
   , _timeReload(0)
   , _time_smoke(0)
   , _time_smoke_dt(0)
 {
 	_weaponSprite->SetTexture("turret_cannon");
-	world._field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -395,12 +385,6 @@ GC_TurretCannon::GC_TurretCannon(FromFile)
 
 GC_TurretCannon::~GC_TurretCannon()
 {
-}
-
-void GC_TurretCannon::Kill(World &world)
-{
-	world._field.ProcessObject(this, false);
-    GC_Turret::Kill(world);
 }
 
 void GC_TurretCannon::Serialize(World &world, SaveFile &f)
@@ -455,8 +439,8 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-GC_TurretBunker::GC_TurretBunker(World &world, float x, float y, const char *tex)
-  : GC_Turret(world, x, y, tex)
+GC_TurretBunker::GC_TurretBunker(World &world, const char *tex)
+  : GC_Turret(world, tex)
   , _time(0)
   , _time_wait_max(1.0f)
   , _time_wait(_time_wait_max)
@@ -660,8 +644,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 	return true;
 }
 
-GC_TurretMinigun::GC_TurretMinigun(World &world, float x, float y)
-  : GC_TurretBunker(world, x, y, "turret_mg_wake")
+GC_TurretMinigun::GC_TurretMinigun(World &world)
+  : GC_TurretBunker(world, "turret_mg_wake")
   , _fireSound(new GC_Sound(world, SND_MinigunFire, GetPos()))
 {
     _fireSound->Register(world);
@@ -679,7 +663,6 @@ GC_TurretMinigun::GC_TurretMinigun(World &world, float x, float y)
 
 	_weaponSprite->SetTexture("turret_mg");
 
-	world._field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -695,7 +678,6 @@ GC_TurretMinigun::~GC_TurretMinigun()
 void GC_TurretMinigun::Kill(World &world)
 {
 	SAFE_KILL(world, _fireSound);
-	world._field.ProcessObject(this, false);
     GC_TurretBunker::Kill(world);
 }
 
@@ -756,8 +738,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 	return true;
 }
 
-GC_TurretGauss::GC_TurretGauss(World &world, float x, float y)
-  : GC_TurretBunker(world, x, y, "turret_gauss_wake")
+GC_TurretGauss::GC_TurretGauss(World &world)
+  : GC_TurretBunker(world, "turret_gauss_wake")
 {
 	_delta_angle = 0.03f; // shooting accuracy
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);
@@ -770,7 +752,6 @@ GC_TurretGauss::GC_TurretGauss(World &world, float x, float y)
 
 	_weaponSprite->SetTexture("turret_gauss");
 
-	world._field.ProcessObject(this, true);
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -781,12 +762,6 @@ GC_TurretGauss::GC_TurretGauss(FromFile)
 
 GC_TurretGauss::~GC_TurretGauss()
 {
-}
-
-void GC_TurretGauss::Kill(World &world)
-{
-	world._field.ProcessObject(this, false);
-    GC_TurretBunker::Kill(world);
 }
 
 void GC_TurretGauss::TargetLost()

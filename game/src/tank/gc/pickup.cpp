@@ -29,17 +29,16 @@ UI::ConsoleBuffer& GetConsole();
 
 IMPLEMENT_MEMBER_OF2(GC_Pickup, LIST_pickups, LIST_timestep);
 
-GC_Pickup::GC_Pickup(World &world, float x, float y)
+GC_Pickup::GC_Pickup(World &world)
   : GC_2dSprite(world)
-  , _label(new GC_HideLabel(world, x, y))
+  , _label(new GC_HideLabel(world))
   , _radius(25.0)
   , _timeAttached(0)
   , _timeAnimation(0)
   , _timeRespawn(0)
 {
     _label->Register(world);
-    
-	MoveTo(world, vec2d(x, y));
+
 	AddContext(&world.grid_pickup);
 
 	SetShadow(true);
@@ -157,6 +156,16 @@ float GC_Pickup::GetRespawnTime() const
 void GC_Pickup::SetBlinking(bool blink)
 {
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
+}
+
+void GC_Pickup::MoveTo(World &world, const vec2d &pos)
+{
+    if (!CheckFlags(GC_FLAG_PICKUP_KNOWNPOS))
+    {
+        _label->MoveTo(world, pos);
+        SetFlags(GC_FLAG_PICKUP_KNOWNPOS, true);
+    }
+    GC_2dSprite::MoveTo(world, pos);
 }
 
 void GC_Pickup::TimeStepFloat(World &world, float dt)
@@ -311,8 +320,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 	return true;
 }
 
-GC_pu_Health::GC_pu_Health(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_pu_Health::GC_pu_Health(World &world)
+  : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("pu_health");
@@ -361,8 +370,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 	return true;
 }
 
-GC_pu_Mine::GC_pu_Mine(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_pu_Mine::GC_pu_Mine(World &world)
+  : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("item_mine");
@@ -396,8 +405,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 	return true;
 }
 
-GC_pu_Shield::GC_pu_Shield(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_pu_Shield::GC_pu_Shield(World &world)
+  : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("pu_inv");
@@ -523,8 +532,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 
 IMPLEMENT_MEMBER_OF(GC_pu_Shock, LIST_gsprites);
 
-GC_pu_Shock::GC_pu_Shock(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_pu_Shock::GC_pu_Shock(World &world)
+  : GC_Pickup(world)
   , _targetPosPredicted(0, 0)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
@@ -694,8 +703,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 	return true;
 }
 
-GC_pu_Booster::GC_pu_Booster(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_pu_Booster::GC_pu_Booster(World &world)
+  : GC_Pickup(world)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetTexture("pu_booster");

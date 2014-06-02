@@ -138,6 +138,9 @@ public:
 
 /////////////////////////////////////////////////////////////
 
+#define GC_FLAG_WOOD_INTILE                 (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_WOOD_                       (GC_FLAG_2DSPRITE_ << 1)
+
 class GC_Wood : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
@@ -160,11 +163,14 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
-	GC_Wood(World &world, float xPos, float yPos);
+	GC_Wood(World &world);
 	GC_Wood(FromFile);
 	virtual ~GC_Wood();
 
 	void SetTile(char nTile, bool value);
+    
+    // GC_Actor
+    virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_2dSprite
 	virtual void Draw(bool editorMode) const;

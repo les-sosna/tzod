@@ -7,8 +7,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_2DSPRITE_ << 0) // penetration of projectiles
-#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_2DSPRITE_ << 1) // object has been destroyed
-#define GC_FLAG_RBSTATIC_           (GC_FLAG_2DSPRITE_ << 2)
+#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_RBSTATIC_INFIELD    (GC_FLAG_2DSPRITE_ << 2)
+#define GC_FLAG_RBSTATIC_           (GC_FLAG_2DSPRITE_ << 3)
 
 class GC_Player;
 
@@ -46,8 +47,12 @@ public:
 	virtual ~GC_RigidBodyStatic();
 
 	virtual GC_Player* GetOwner() const { return NULL; }
+    
+    // GC_Actor
+    virtual void MoveTo(World &world, const vec2d &pos);
 
 	// GC_Object
+    virtual void Kill(World &world) override;
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 
@@ -62,9 +67,6 @@ public:
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
-#ifdef NDEBUG
-	__declspec(deprecated("Using this function is not recomended for Release build"))
-#endif
 	vec2d GetVertex(int index) const
 	{
 		float x, y;
@@ -127,7 +129,6 @@ public:
 		return GC_2dSprite::checksum() ^ cs;
 	}
 #endif
-
 };
 
 /////////////////////////////////////////////////////////////
@@ -175,7 +176,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Wall(World &world, float xPos, float yPos);
+	GC_Wall(World &world);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
 
@@ -204,7 +205,7 @@ protected:
 	virtual const char *GetCornerTexture(int i);
 
 public:
-	GC_Wall_Concrete(World &world, float xPos, float yPos);
+	GC_Wall_Concrete(World &world);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
@@ -212,6 +213,9 @@ public:
 };
 
 /////////////////////////////////////////////////////////////
+
+#define GC_FLAG_WATER_INTILE        (GC_FLAG_RBSTATIC_ << 0)
+#define GC_FLAG_WATER_              (GC_FLAG_RBSTATIC_ << 1)
 
 class GC_Water : public GC_RigidBodyStatic
 {
@@ -235,12 +239,13 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
-	GC_Water(World &world, float xPos, float yPos);
+	GC_Water(World &world);
 	GC_Water(FromFile);
 	~GC_Water();
 
 	void SetTile(char nTile, bool value);
 
+    virtual void MoveTo(World &world, const vec2d &pos) override;
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 

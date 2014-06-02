@@ -25,7 +25,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
-GC_Wood::GC_Wood(World &world, float xPos, float yPos)
+GC_Wood::GC_Wood(World &world)
   : GC_2dSprite(world)
 {
 	AddContext(&world.grid_wood);
@@ -33,11 +33,9 @@ GC_Wood::GC_Wood(World &world, float xPos, float yPos)
 	SetZ(Z_WOOD);
 
 	SetTexture("wood");
-	MoveTo(world, vec2d(xPos, yPos));
 	SetFrame(4);
 
 	_tile = 0;
-	UpdateTile(world, true);
 }
 
 GC_Wood::GC_Wood(FromFile)
@@ -51,7 +49,8 @@ GC_Wood::~GC_Wood()
 
 void GC_Wood::Kill(World &world)
 {
-    UpdateTile(world, false);
+    if( CheckFlags(GC_FLAG_WOOD_INTILE) )
+        UpdateTile(world, false);
     GC_2dSprite::Kill(world);
 }
 
@@ -134,6 +133,15 @@ void GC_Wood::SetTile(char nTile, bool value)
 		_tile |=  (1 << nTile);
 	else
 		_tile &= ~(1 << nTile);
+}
+
+void GC_Wood::MoveTo(World &world, const vec2d &pos)
+{
+    if (CheckFlags(GC_FLAG_WOOD_INTILE))
+        UpdateTile(world, false);
+    GC_2dSprite::MoveTo(world, pos);
+    UpdateTile(world, true);
+    SetFlags(GC_FLAG_WOOD_INTILE, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

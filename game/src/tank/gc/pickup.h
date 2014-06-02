@@ -23,7 +23,8 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_BLINK             (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 1)
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 2)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 3)
+#define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_2DSPRITE_ << 3)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 4)
 
 class GC_Pickup : public GC_2dSprite
 {
@@ -88,7 +89,7 @@ public:
     void Disappear(World &world);
 
 public:
-	GC_Pickup(World &world, float x, float y);
+	GC_Pickup(World &world);
 	GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
 
@@ -105,6 +106,8 @@ public:
 	virtual void Detach(World &world);
 
 	virtual float GetDefaultRespawnTime() const = 0;
+
+    virtual void MoveTo(World &world, const vec2d &pos) override;
 
 protected:
 	void OnOwnerMove(World &world, GC_Object *sender, void *param);
@@ -128,7 +131,7 @@ class GC_pu_Health : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Health);
 
 public:
-	GC_pu_Health(World &world, float x, float y);
+	GC_pu_Health(World &world);
 	GC_pu_Health(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
@@ -145,7 +148,7 @@ class GC_pu_Mine : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Mine);
 
 public:
-	GC_pu_Mine(World &world, float x, float y);
+	GC_pu_Mine(World &world);
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
@@ -164,7 +167,7 @@ private:
 	float _timeHit;
 
 public:
-	GC_pu_Shield(World &world, float x, float y);
+	GC_pu_Shield(World &world);
 	GC_pu_Shield(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
@@ -197,7 +200,7 @@ private:
 
 public:
     DECLARE_MEMBER_OF();
-	GC_pu_Shock(World &world, float x, float y);
+	GC_pu_Shock(World &world);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
 
@@ -223,7 +226,7 @@ class GC_pu_Booster : public GC_Pickup
 	ObjPtr<GC_Sound> _sound;
 
 public:
-	GC_pu_Booster(World &world, float x, float y);
+	GC_pu_Booster(World &world);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
 

@@ -67,8 +67,8 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 }
 
 
-GC_Weapon::GC_Weapon(World &world, float x, float y)
-  : GC_Pickup(world, x, y)
+GC_Weapon::GC_Weapon(World &world)
+  : GC_Pickup(world)
   , _fePos(0,0)
   , _feOrient(1,0)
   , _feTime(1.0f)
@@ -338,8 +338,8 @@ void GC_Weap_RocketLauncher::Detach(World &world)
 	GC_Weapon::Detach(world);
 }
 
-GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(World &world)
+  : GC_Weapon(world)
   , _firing(false)
 {
 	_feTime = 0.1f;
@@ -460,8 +460,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 	return true;
 }
 
-GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
+  : GC_Weapon(world)
 {
 	_feTime = 0.2f;
 	SetTexture("weap_ac");
@@ -646,8 +646,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 	return true;
 }
 
-GC_Weap_Cannon::GC_Weap_Cannon(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Cannon::GC_Weap_Cannon(World &world)
+  : GC_Weapon(world)
 {
 	_fePos.Set(21, 0);
 	_feTime = 0.2f;
@@ -753,8 +753,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 	return true;
 }
 
-GC_Weap_Plazma::GC_Weap_Plazma(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Plazma::GC_Weap_Plazma(World &world)
+  : GC_Weapon(world)
 {
 	SetTexture("weap_plazma");
 	_fePos.Set(0, 0);
@@ -822,8 +822,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 	return true;
 }
 
-GC_Weap_Gauss::GC_Weap_Gauss(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Gauss::GC_Weap_Gauss(World &world)
+  : GC_Weapon(world)
 {
 	SetTexture("weap_gauss");
 	_feTime = 0.15f;
@@ -890,8 +890,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 	return true;
 }
 
-GC_Weap_Ram::GC_Weap_Ram(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Ram::GC_Weap_Ram(World &world)
+  : GC_Weapon(world)
   , _firingCounter(0)
 {
 	SetTexture("weap_ram");
@@ -1135,8 +1135,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 	return true;
 }
 
-GC_Weap_BFG::GC_Weap_BFG(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_BFG::GC_Weap_BFG(World &world)
+  : GC_Weapon(world)
 {
 	SetTexture("weap_bfg");
 }
@@ -1265,8 +1265,8 @@ void GC_Weap_Ripper::Detach(World &world)
 	GC_Weapon::Detach(world);
 }
 
-GC_Weap_Ripper::GC_Weap_Ripper(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Ripper::GC_Weap_Ripper(World &world)
+  : GC_Weapon(world)
 {
 	SetTexture("weap_ripper");
 }
@@ -1326,8 +1326,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 	return true;
 }
 
-GC_Weap_Minigun::GC_Weap_Minigun(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Minigun::GC_Weap_Minigun(World &world)
+  : GC_Weapon(world)
   , _bFire(false)
 {
 	SetTexture("weap_mg1");
@@ -1527,8 +1527,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 	return true;
 }
 
-GC_Weap_Zippo::GC_Weap_Zippo(World &world, float x, float y)
-  : GC_Weapon(world, x, y)
+GC_Weap_Zippo::GC_Weap_Zippo(World &world)
+  : GC_Weapon(world)
   , _timeBurn(0)
   , _bFire(false)
 {

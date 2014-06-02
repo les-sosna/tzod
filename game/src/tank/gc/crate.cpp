@@ -13,10 +13,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 	return true;
 }
 
-GC_Crate::GC_Crate(World &world, float x, float y)
+GC_Crate::GC_Crate(World &world)
   : GC_RigidBodyDynamic(world)
 {
-	MoveTo(world, vec2d(x, y));
 	SetZ(Z_WALLS);
 	SetTexture("crate01");
 	AlignToTexture();

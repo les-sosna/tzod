@@ -217,7 +217,7 @@ GC_Spotlight::GC_Spotlight(FromFile)
 {
 }
 
-GC_Spotlight::GC_Spotlight(World &world, float x, float y)
+GC_Spotlight::GC_Spotlight(World &world)
   : GC_2dSprite(world)
   , _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
 {
@@ -227,7 +227,6 @@ GC_Spotlight::GC_Spotlight(World &world, float x, float y)
 	_light->SetOffset(170);
 	_light->SetAspect(0.5f);
 
-	MoveTo(world, vec2d(x, y));
 	SetTexture("spotlight");
 	SetZ(Z_PROJECTILE);
 }

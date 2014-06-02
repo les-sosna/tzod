@@ -61,7 +61,7 @@ public:
 	bool _fixmeChAnimate;
 
 public:
-	GC_Weapon(World &world, float x, float y);
+	GC_Weapon(World &world);
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	virtual void Kill(World &world);
@@ -113,7 +113,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_RocketLauncher(World &world, float x, float y);
+	GC_Weap_RocketLauncher(World &world);
 	GC_Weap_RocketLauncher(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
@@ -140,7 +140,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_AutoCannon(World &world, float x, float y);
+	GC_Weap_AutoCannon(World &world);
 	GC_Weap_AutoCannon(FromFile);
 	virtual ~GC_Weap_AutoCannon();
 
@@ -163,7 +163,7 @@ private:
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Cannon(World &world, float x, float y);
+	GC_Weap_Cannon(World &world);
 	GC_Weap_Cannon(FromFile);
 	virtual ~GC_Weap_Cannon();
 
@@ -182,7 +182,7 @@ class GC_Weap_Plazma : public GC_Weapon
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Plazma(World &world, float x, float y);
+	GC_Weap_Plazma(World &world);
 	GC_Weap_Plazma(FromFile);
 	virtual ~GC_Weap_Plazma();
 
@@ -199,7 +199,7 @@ class GC_Weap_Gauss : public GC_Weapon
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_Gauss(World &world, float x, float y);
+	GC_Weap_Gauss(World &world);
 	GC_Weap_Gauss(FromFile);
 	virtual ~GC_Weap_Gauss();
 
@@ -235,7 +235,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_Ram(World &world, float x, float y);
+	GC_Weap_Ram(World &world);
 	GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
 
@@ -259,7 +259,7 @@ private:
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 
-	GC_Weap_BFG(World &world, float x, float y);
+	GC_Weap_BFG(World &world);
 	GC_Weap_BFG(FromFile);
 	virtual ~GC_Weap_BFG();
 
@@ -282,7 +282,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_Ripper(World &world, float x, float y);
+	GC_Weap_Ripper(World &world);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
 	virtual void Serialize(World &world, SaveFile &f);
@@ -311,7 +311,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_Minigun(World &world, float x, float y);
+	GC_Weap_Minigun(World &world);
 	GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
 
@@ -340,7 +340,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	GC_Weap_Zippo(World &world, float x, float y);
+	GC_Weap_Zippo(World &world);
 	GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
 

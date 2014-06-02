@@ -36,7 +36,7 @@ protected:
 
 public:
     DECLARE_MEMBER_OF();
-	GC_SpawnPoint(World &world, float x, float y);
+	GC_SpawnPoint(World &world);
 	GC_SpawnPoint(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
@@ -52,7 +52,7 @@ class GC_HideLabel : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_HideLabel);
 
 public:
-	GC_HideLabel(World &world, float x, float y);
+	GC_HideLabel(World &world);
 	GC_HideLabel(FromFile);
 
 	virtual void Draw(bool editorMode) const;

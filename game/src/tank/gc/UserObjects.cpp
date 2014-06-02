@@ -17,15 +17,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 	return true;
 }
 
-GC_UserObject::GC_UserObject(World &world, float x, float y)
+GC_UserObject::GC_UserObject(World &world)
   : GC_RigidBodyStatic(world)
 {
 	_textureName = "turret_platform";
 	SetZ(Z_WALLS);
-	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 	AlignToTexture();
-	world._field.ProcessObject(this, true);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
@@ -35,12 +33,6 @@ GC_UserObject::GC_UserObject(FromFile)
 
 GC_UserObject::~GC_UserObject()
 {
-}
-
-void GC_UserObject::Kill(World &world)
-{
-	world._field.ProcessObject(this, false);
-    GC_RigidBodyStatic::Kill(world);
 }
 
 void GC_UserObject::Serialize(World &world, SaveFile &f)
@@ -116,11 +108,13 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-		world._field.ProcessObject(tmp, false);
+        if (tmp->CheckFlags(GC_FLAG_RBSTATIC_INFIELD))
+            world._field.ProcessObject(tmp, false);
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->AlignToTexture();
 		world._field.ProcessObject(tmp, true);
+        tmp->SetFlags(GC_FLAG_RBSTATIC_INFIELD, true);
 	}
 	else
 	{
@@ -143,14 +137,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 	return true;
 }
 
-GC_Decoration::GC_Decoration(World &world, float x, float y)
+GC_Decoration::GC_Decoration(World &world)
   : GC_2dSprite(world)
   , _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
 {
 	SetZ(Z_EDITOR);
-	MoveTo(world, vec2d(x, y));
 	SetTexture(_textureName.c_str());
 }
 

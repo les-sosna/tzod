@@ -24,14 +24,13 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_UserObject(World &world, float x, float y);
+	GC_UserObject(World &world);
 	GC_UserObject(FromFile);
 	virtual ~GC_UserObject();
 
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }
 
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void OnDestroy(World &world);
 
@@ -66,7 +65,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Decoration(World &world, float x, float y);
+	GC_Decoration(World &world);
 	GC_Decoration(FromFile);
 	virtual ~GC_Decoration();
 

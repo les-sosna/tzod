@@ -54,7 +54,7 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 
 public:
     DECLARE_MEMBER_OF();
-	GC_Vehicle(World &world, float x, float y);
+	GC_Vehicle(World &world);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();
 
@@ -135,7 +135,7 @@ class GC_Tank_Light : public GC_Vehicle
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
 public:
-	GC_Tank_Light(World &world, float x, float y);
+	GC_Tank_Light(World &world);
 	GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }

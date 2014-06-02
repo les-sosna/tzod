@@ -8,7 +8,7 @@ class GC_Crate : public GC_RigidBodyDynamic
 	DECLARE_SELF_REGISTRATION(GC_Crate);
 
 public:
-	GC_Crate(World &world, float x, float y);
+	GC_Crate(World &world);
 	GC_Crate(FromFile);
 	~GC_Crate();
 

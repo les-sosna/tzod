@@ -54,7 +54,7 @@ class GC_Trigger : public GC_2dSprite
 
 public:
     DECLARE_MEMBER_OF();
-	GC_Trigger(World &world, float x, float y);
+	GC_Trigger(World &world);
 	GC_Trigger(FromFile);
 	~GC_Trigger();
 

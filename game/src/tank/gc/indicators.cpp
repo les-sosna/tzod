@@ -22,13 +22,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 
 IMPLEMENT_MEMBER_OF(GC_SpawnPoint, LIST_respawns);
 
-GC_SpawnPoint::GC_SpawnPoint(World &world, float x, float y)
+GC_SpawnPoint::GC_SpawnPoint(World &world)
   : GC_2dSprite(world)
+  , _team(0)
 {
 	SetTexture("editor_respawn");
 	SetZ(Z_EDITOR);
-	MoveTo(world, vec2d(x, y));
-	_team = 0;
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
@@ -132,12 +131,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 	return true;
 }
 
-GC_HideLabel::GC_HideLabel(World &world, float x, float y)
+GC_HideLabel::GC_HideLabel(World &world)
   : GC_2dSprite(world)
 {
 	SetZ(Z_EDITOR);
 	SetTexture("editor_item");
-	MoveTo(world, vec2d(x, y));
 }
 
 GC_HideLabel::GC_HideLabel(FromFile)

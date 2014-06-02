@@ -87,7 +87,7 @@ void GC_Vehicle::UpdateLight(World &world)
 
 IMPLEMENT_MEMBER_OF(GC_Vehicle, LIST_vehicles);
 
-GC_Vehicle::GC_Vehicle(World &world, float x, float y)
+GC_Vehicle::GC_Vehicle(World &world)
   : GC_RigidBodyDynamic(world)
   , _enginePower(0)
   , _rotatePower(0)
@@ -99,7 +99,6 @@ GC_Vehicle::GC_Vehicle(World &world, float x, float y)
   , _time_smoke(0)
 {
 	memset(&_state, 0, sizeof(VehicleState));
-	MoveTo(world, vec2d(x, y));
 	SetZ(Z_VEHICLES);
 	SetShadow(true);
     
@@ -609,8 +608,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 	return true;
 }
 
-GC_Tank_Light::GC_Tank_Light(World &world, float x, float y)
-  : GC_Vehicle(world, x, y)
+GC_Tank_Light::GC_Tank_Light(World &world)
+  : GC_Vehicle(world)
 {
 //	_MaxBackSpeed = 150;
 //	_MaxForvSpeed = 200;

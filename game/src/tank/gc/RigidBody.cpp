@@ -50,6 +50,30 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 {
 }
 
+void GC_RigidBodyStatic::Kill(World &world)
+{
+    if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
+		world._field.ProcessObject(this, false);
+    GC_2dSprite::Kill(world);
+}
+
+void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
+{
+    if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
+    {
+		world._field.ProcessObject(this, false);
+        SetFlags(GC_FLAG_RBSTATIC_INFIELD, false);
+    }
+    
+    GC_2dSprite::MoveTo(world, pos);
+
+    if( GetPassability() > 0 )
+    {
+		world._field.ProcessObject(this, true);
+        SetFlags(GC_FLAG_RBSTATIC_INFIELD, true);
+    }
+}
+
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
@@ -493,7 +517,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
-GC_Wall::GC_Wall(World &world, float xPos, float yPos)
+GC_Wall::GC_Wall(World &world)
   : GC_RigidBodyStatic(world)
 {
 	AddContext(&world.grid_walls);
@@ -503,9 +527,6 @@ GC_Wall::GC_Wall(World &world, float xPos, float yPos)
 	SetTexture("brick_wall");
 
 	AlignToTexture();
-	MoveTo(world, vec2d(xPos, yPos));
-
-	world._field.ProcessObject(this, true);
 }
 
 GC_Wall::GC_Wall(FromFile)
@@ -520,7 +541,6 @@ GC_Wall::~GC_Wall()
 void GC_Wall::Kill(World &world)
 {
 	SetCorner(world, 0);
-	world._field.ProcessObject(this, false);
     GC_RigidBodyStatic::Kill(world);
 }
 
@@ -1115,17 +1135,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 	return true;
 }
 
-GC_Wall_Concrete::GC_Wall_Concrete(World &world, float xPos, float yPos)
-  : GC_Wall(world, xPos, yPos)
+GC_Wall_Concrete::GC_Wall_Concrete(World &world)
+  : GC_Wall(world)
 {
-	world._field.ProcessObject(this, false);
-
 	SetTexture("concrete_wall");
 	AlignToTexture();
-
 	SetFrame(rand() % GetFrameCount());
-
-	world._field.ProcessObject(this, true); // removed by parent's destructor
 }
 
 bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
@@ -1163,7 +1178,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
-GC_Water::GC_Water(World &world, float xPos, float yPos)
+GC_Water::GC_Water(World &world)
   : GC_RigidBodyStatic(world)
   , _tile(0)
 {
@@ -1173,15 +1188,9 @@ GC_Water::GC_Water(World &world, float xPos, float yPos)
 
 	SetTexture("water");
 	AlignToTexture();
-
-	MoveTo(world, vec2d(xPos, yPos));
 	SetFrame(4);
 
-	UpdateTile(world, true);
-
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
-
-	world._field.ProcessObject(this, true);
 }
 
 GC_Water::GC_Water(FromFile)
@@ -1193,10 +1202,19 @@ GC_Water::~GC_Water()
 {
 }
 
+void GC_Water::MoveTo(World &world, const vec2d &pos)
+{
+    if( CheckFlags(GC_FLAG_WATER_INTILE) )
+        UpdateTile(world, false);
+    GC_RigidBodyStatic::MoveTo(world, pos);
+    UpdateTile(world, true);
+    SetFlags(GC_FLAG_WATER_INTILE, true);
+}
+
 void GC_Water::Kill(World &world)
 {
-	world._field.ProcessObject(this, false);
-    UpdateTile(world, false);
+    if( CheckFlags(GC_FLAG_WATER_INTILE) )
+        UpdateTile(world, false);
     GC_RigidBodyStatic::Kill(world);
 }
 

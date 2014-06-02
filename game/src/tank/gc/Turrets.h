@@ -66,7 +66,7 @@ protected:
 
 public:
     DECLARE_MEMBER_OF();
-	GC_Turret(World &world, float x, float y, const char *tex);
+	GC_Turret(World &world, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
     
@@ -92,13 +92,12 @@ private:
 	float _timeReload;
 
 public:
-	GC_TurretRocket(World &world, float x, float y);
+	GC_TurretRocket(World &world);
 	GC_TurretRocket(FromFile);
 	virtual ~GC_TurretRocket();
 
 	virtual float GetDefaultHealth() const { return 500; }
     
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
@@ -121,13 +120,12 @@ private:
 	float _time_smoke_dt;
 
 public:
-	GC_TurretCannon(World &world, float x, float y);
+	GC_TurretCannon(World &world);
 	GC_TurretCannon(FromFile);
 	~GC_TurretCannon();
 
 	virtual float GetDefaultHealth() const { return 600; }
     
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
@@ -160,7 +158,7 @@ public:
 	float _time_wake_max;
 
 public:
-	GC_TurretBunker(World &world, float x, float y, const char *tex);
+	GC_TurretBunker(World &world, const char *tex);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
     
@@ -186,7 +184,7 @@ private:
 	bool  _firing;
 
 public:
-	GC_TurretMinigun(World &world, float x, float y);
+	GC_TurretMinigun(World &world);
 	GC_TurretMinigun(FromFile);
 	virtual ~GC_TurretMinigun();
 
@@ -214,7 +212,7 @@ private:
 	int     _shotCount;
 
 public:
-	GC_TurretGauss(World &world, float x, float y);
+	GC_TurretGauss(World &world);
 	GC_TurretGauss(FromFile);
 	virtual ~GC_TurretGauss();
 
@@ -224,7 +222,6 @@ public:
 
 	virtual float GetDefaultHealth() const { return 250; }
     
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);

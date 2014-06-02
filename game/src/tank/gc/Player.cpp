@@ -228,8 +228,9 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			(new GC_Text_ToolTip(world, pBestPoint->GetPos(), _nick, "font_default"))->Register(world);
 
 
-			_vehicle = new GC_Tank_Light(world, pBestPoint->GetPos().x, pBestPoint->GetPos().y);
+			_vehicle = new GC_Tank_Light(world);
             _vehicle->Register(world);
+            _vehicle->MoveTo(world, pBestPoint->GetPos());
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{

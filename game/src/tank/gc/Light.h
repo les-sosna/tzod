@@ -141,7 +141,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Spotlight(World &world, float x, float y);
+	GC_Spotlight(World &world);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 

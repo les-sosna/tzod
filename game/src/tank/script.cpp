@@ -965,20 +965,7 @@ int luaT_setposition(lua_State *L)
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
     World &world = getworld(L);
-	if( dynamic_cast<GC_Vehicle *>(actor)	)
-	{
-		actor->MoveTo(world, vec2d(x,y));
-	}
-	else if( GC_RigidBodyStatic *ph = dynamic_cast<GC_RigidBodyStatic *>(actor) )
-	{
-		world._field.ProcessObject(ph, false);
-		actor->MoveTo(world, vec2d(x,y));
-		world._field.ProcessObject(ph, true);
-	}
-	else
-    {
-        actor->MoveTo(world, vec2d(x,y));
-    }
+    actor->MoveTo(world, vec2d(x,y));
 	return 1;
 }
 
