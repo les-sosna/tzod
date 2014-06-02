@@ -122,10 +122,11 @@ private:
 
 public:
     DECLARE_MEMBER_OF();
-	GC_HealthDaemon(World &world, GC_RigidBodyStatic *victim, GC_Player *owner,
-		            float damagePerSecond, float time);
+	GC_HealthDaemon(World &world, GC_Player *owner, float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
+    
+    void SetVictim(World &world, GC_RigidBodyStatic *victim);
 
 	virtual void Serialize(World &world, SaveFile &f);
 

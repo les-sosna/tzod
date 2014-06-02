@@ -518,7 +518,9 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 
 	if( GetAdvanced() )
 	{
-		(new GC_HealthDaemon(world, object, GetOwner(), 15.0f, 2.0f))->Register(world);
+		auto daemon = new GC_HealthDaemon(world, GetOwner(), 15.0f, 2.0f);
+        daemon->Register(world);
+        daemon->SetVictim(world, object);
 	}
 
 	float a = norm.Angle();
@@ -785,7 +787,9 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	if( GetAdvanced() && GetOwner() != object->GetOwner()
 		&& (world.net_rand()&1) && CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
 	{
-		(new GC_HealthDaemon(world, object, GetOwner(), 10.0f, 3.0f))->Register(world);
+		auto daemon = new GC_HealthDaemon(world, GetOwner(), 10.0f, 3.0f);
+        daemon->Register(world);
+        daemon->SetVictim(world, object);
 	}
 
 	ApplyHitDamage(world, object, hit);

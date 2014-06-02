@@ -544,21 +544,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 IMPLEMENT_MEMBER_OF(GC_HealthDaemon, LIST_timestep);
 
 GC_HealthDaemon::GC_HealthDaemon(World &world,
-                                 GC_RigidBodyStatic *victim,
                                  GC_Player *owner,
                                  float damage, float time)
   : GC_2dSprite(world)
   , _time(time)
   , _damage(damage)
-  , _victim(victim)
+  , _victim(nullptr)
   , _owner(owner)
 {
-	assert(victim);
-
-	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
-	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
-
-	MoveTo(world, _victim->GetPos());
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
@@ -568,6 +561,17 @@ GC_HealthDaemon::GC_HealthDaemon(FromFile)
 
 GC_HealthDaemon::~GC_HealthDaemon()
 {
+}
+
+void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
+{
+	assert(!_victim && victim);
+    
+    _victim = victim;
+	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
+	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
+    
+	MoveTo(world, _victim->GetPos());
 }
 
 void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
