@@ -51,8 +51,7 @@ void GC_Brick_Fragment_01::TimeStepFloat(World &world, float dt)
 		return;
 	}
 
-	SetFrame(int((float)_startFrame + (float)(GetFrameCount() - 1) *
-		_time / _timeLife)%(GetFrameCount() - 1) );
+	SetFrame((_startFrame + int(_time * ANIMATION_FPS)) % (GetFrameCount() - 1));
 
 	MoveTo(world, GetPos() + _velocity * dt);
 	_velocity += vec2d(0, 300.0f) * dt;

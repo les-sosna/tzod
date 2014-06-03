@@ -106,7 +106,7 @@ enum enumZOrder
 
 
 // default animation speed
-#define ANIMATION_FPS        25.0f  // fps
+#define ANIMATION_FPS        30.0f  // fps
 
 
 // distance to the crosshair
