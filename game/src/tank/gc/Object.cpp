@@ -121,7 +121,7 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 ///////////////////////////////////////////////////////////////////////////////
 // GC_Object class implementation
 
-// custom IMPLEMENT_MEMBER_OF for base class
+// custom IMPLEMENT_1LIST_MEMBER for base class
 ObjectList::id_type GC_Object::Register(World &world)
 {
     _posLIST_objects = world.GetList(LIST_objects).insert(this);

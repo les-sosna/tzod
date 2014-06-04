@@ -40,7 +40,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
     return true;
 }
 
-IMPLEMENT_MEMBER_OF2(GC_Player, LIST_players, LIST_timestep);
+IMPLEMENT_2LIST_MEMBER(GC_Player, LIST_players, LIST_timestep);
 
 GC_Player::GC_Player(World &world)
   : _timeRespawn(PLAYER_RESPAWN_DELAY)

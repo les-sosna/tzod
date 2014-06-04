@@ -8,93 +8,42 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GC_Actor::GC_Actor()
-{
-	memset(&_location, 0, sizeof(Location));
-}
-
-GC_Actor::~GC_Actor()
-{
-	LeaveAllContexts();
-}
-
 void GC_Actor::Serialize(World &world, SaveFile &f)
 {
 	GC_Object::Serialize(world, f);
-	f.Serialize(_location);
+	f.Serialize(_locationX);
+	f.Serialize(_locationY);
 	f.Serialize(_pos);
+    
+    if (f.loading() && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS))
+        EnterContexts(world);
 }
 
 void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
-	Location loc;
-	loc.x = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
-	loc.y = std::min(world._locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
-
 	_pos = pos;
+    
+	int locX = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
+	int locY = std::min(world._locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
+    
+    bool locationChanged = _locationX != locX || _locationY != locY;
 
-	if( 0 != memcmp(&loc, &_location, sizeof(Location)) )
-	{
-		LeaveAllContexts();
-		EnterAllContexts(loc);
-	}
+	if( locationChanged && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
+        LeaveContexts(world);
+
+    if( locationChanged || !CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
+    {
+        _locationX = locX;
+        _locationY = locY;
+        EnterContexts(world);
+        SetFlags(GC_FLAG_ACTOR_KNOWNPOS, true);
+ 	}
 
 	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
 void GC_Actor::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 {
-}
-
-void GC_Actor::LeaveAllContexts()
-{
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-	{
-		LeaveContext(*it);
-	}
-}
-
-void GC_Actor::LeaveContext(Context &context)
-{
-	context.grids->element(_location.x,_location.y).erase(context.iterator);
-}
-
-void GC_Actor::EnterAllContexts(const Location &l)
-{
-	_location = l;
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-	{
-		EnterContext(*it, _location);
-	}
-}
-
-void GC_Actor::EnterContext(Context &context, const Location &l)
-{
-	context.iterator = context.grids->element(l.x, l.y).insert(this);
-}
-
-void GC_Actor::AddContext(Grid<ObjectList> *pGridSet)
-{
-	Context context;
-	context.grids = pGridSet;
-
-	_contexts.push_front(context);
-	EnterContext(_contexts.front(), _location);
-}
-
-void GC_Actor::RemoveContext(Grid<ObjectList> *pGridSet)
-{
-	for( CONTEXTS_ITERATOR it = _contexts.begin(); it != _contexts.end(); ++it )
-	{
-		if( it->grids == pGridSet )
-		{
-            LeaveContext(*it);
-			_contexts.erase(it);
-			return;
-		}
-	}
-	// context not found
-	assert(false);
 }
 
 void GC_Actor::MapExchange(World &world, MapFile &f)
@@ -108,6 +57,13 @@ void GC_Actor::MapExchange(World &world, MapFile &f)
 		MAP_EXCHANGE_FLOAT(x, _pos.x, 0);
 		MAP_EXCHANGE_FLOAT(y, _pos.y, 0);
 	}
+}
+
+void GC_Actor::Kill(World &world)
+{
+    if( CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
+        LeaveContexts(world);
+    GC_Object::Kill(world);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

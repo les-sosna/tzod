@@ -26,8 +26,7 @@ extern "C"
 #include <ui/ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
-
-///////////////////////////////////////////////////////////////////////////////
+IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
   : GC_2dSprite(world)
@@ -37,7 +36,6 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
   , _width(0)
   , _length(0)
 {
-	AddContext(&world.grid_rigid_s);
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
@@ -443,9 +441,6 @@ void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 
 	if( f.loading() && GetPassability() > 0 )
 		world._field.ProcessObject(this, true);
-
-	if( f.loading() )
-		AddContext(&world.grid_rigid_s);
 }
 
 
@@ -517,10 +512,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
+IMPLEMENT_GRID_MEMBER(GC_Wall, grid_walls);
+
 GC_Wall::GC_Wall(World &world)
   : GC_RigidBodyStatic(world)
 {
-	AddContext(&world.grid_walls);
 	SetZ(Z_WALLS);
 	SetHealth(50, 50);
 
@@ -862,7 +858,6 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 
 	if( f.loading() )
 	{
-		AddContext(&world.grid_walls);
 		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 		{
 			vec2d p = GetPos() / CELL_SIZE;
@@ -1182,12 +1177,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
+IMPLEMENT_GRID_MEMBER(GC_Water, grid_water);
+
 GC_Water::GC_Water(World &world)
   : GC_RigidBodyStatic(world)
   , _tile(0)
 {
-	AddContext( &world.grid_water );
-
 	SetZ(Z_WATER);
 
 	SetTexture("water");
@@ -1263,9 +1258,6 @@ void GC_Water::Serialize(World &world, SaveFile &f)
 	GC_RigidBodyStatic::Serialize(world, f);
 
 	f.Serialize(_tile);
-
-	if( f.loading() )
-		AddContext(&world.grid_water);
 }
 
 void GC_Water::Draw(bool editorMode) const

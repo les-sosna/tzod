@@ -52,7 +52,7 @@ protected:
 	void ApplyHitDamage(World &world, GC_RigidBodyStatic *target, const vec2d &hitPoint);
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced,
 		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
 	GC_Projectile(FromFile);

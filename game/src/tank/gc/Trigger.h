@@ -53,7 +53,7 @@ class GC_Trigger : public GC_2dSprite
 	bool Test(World &world, const GC_Vehicle *v) const;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Trigger(World &world);
 	GC_Trigger(FromFile);
 	~GC_Trigger();

@@ -25,7 +25,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Light, LIST_lights);
+IMPLEMENT_1LIST_MEMBER(GC_Light, LIST_lights);
 
 GC_Light::GC_Light(World &world, enumLightType type)
   : _timeout(0)

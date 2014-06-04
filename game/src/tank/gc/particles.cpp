@@ -11,7 +11,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Brick_Fragment_01, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Brick_Fragment_01, LIST_timestep);
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
   : GC_2dSprite(world)
@@ -64,7 +64,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Particle, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
 GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)

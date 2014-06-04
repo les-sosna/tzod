@@ -27,7 +27,8 @@ extern "C"
 UI::ConsoleBuffer& GetConsole();
 
 
-IMPLEMENT_MEMBER_OF2(GC_Pickup, LIST_pickups, LIST_timestep);
+IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
+IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
 GC_Pickup::GC_Pickup(World &world)
   : GC_2dSprite(world)
@@ -38,8 +39,6 @@ GC_Pickup::GC_Pickup(World &world)
   , _timeRespawn(0)
 {
     _label->Register(world);
-
-	AddContext(&world.grid_pickup);
 
 	SetShadow(true);
 	SetZ(Z_FREE_ITEM);
@@ -76,9 +75,6 @@ void GC_Pickup::Serialize(World &world, SaveFile &f)
 	f.Serialize(_radius);
 	f.Serialize(_scriptOnPickup);
 	f.Serialize(_label);
-
-	if( f.loading() )
-		AddContext(&world.grid_pickup);
 }
 
 GC_Actor* GC_Pickup::FindNewOwner(World &world) const
@@ -536,7 +532,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_pu_Shock, LIST_gsprites);
+IMPLEMENT_1LIST_MEMBER(GC_pu_Shock, LIST_gsprites);
 
 GC_pu_Shock::GC_pu_Shock(World &world)
   : GC_Pickup(world)

@@ -86,7 +86,7 @@ void GC_Vehicle::UpdateLight(World &world)
 	_light_ambient->SetActive(world, _state._bLight);
 }
 
-IMPLEMENT_MEMBER_OF(GC_Vehicle, LIST_vehicles);
+IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
 GC_Vehicle::GC_Vehicle(World &world)
   : GC_RigidBodyDynamic(world)

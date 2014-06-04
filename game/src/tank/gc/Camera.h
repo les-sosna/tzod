@@ -27,7 +27,7 @@ private:
 	ObjPtr<GC_Player>  _player;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
     
     GC_Camera(World &world, GC_Player *player);
 	GC_Camera(FromFile);

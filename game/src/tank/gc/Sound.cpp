@@ -26,7 +26,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Sound, LIST_sounds);
+IMPLEMENT_1LIST_MEMBER(GC_Sound, LIST_sounds);
 
 GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
   : _soundTemplate(sound)
@@ -325,7 +325,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Sound_link, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Sound_link, LIST_timestep);
 
 GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
    : GC_Sound(world, sound, object->GetPos())

@@ -66,7 +66,7 @@ public:
 	float _time_boom;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Explosion(World &world, GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
@@ -121,7 +121,7 @@ private:
 	ObjPtr<GC_Player> _owner;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_HealthDaemon(World &world, GC_Player *owner, float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
@@ -145,6 +145,7 @@ public:
 class GC_Wood : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
+    typedef GC_2dSprite base;
 private:
 
 /**
@@ -164,6 +165,8 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
+    DECLARE_GRID_MEMBER();
+    
 	GC_Wood(World &world);
 	GC_Wood(FromFile);
 	virtual ~GC_Wood();
@@ -214,7 +217,7 @@ class GC_Text_ToolTip : public GC_Text
 	float  _time;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Text_ToolTip(World &world, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 

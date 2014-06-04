@@ -65,7 +65,7 @@ protected:
 	virtual void MapExchange(World &world, MapFile &f);
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Turret(World &world, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();

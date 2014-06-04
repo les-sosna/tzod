@@ -69,7 +69,7 @@ public:
 	vec2d GetBrakingLength() const;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_RigidBodyDynamic(World &world);
 	GC_RigidBodyDynamic(FromFile);
 

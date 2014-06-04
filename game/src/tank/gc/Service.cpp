@@ -3,7 +3,7 @@
 #include "Service.h"
 #include "World.h"
 
-// custom IMPLEMENT_MEMBER_OF for service
+// custom IMPLEMENT_1LIST_MEMBER for service
 PtrList<GC_Object>::id_type GC_Service::Register(World &world)
 {
     PtrList<GC_Object>::id_type pos = base::Register(world);

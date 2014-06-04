@@ -10,7 +10,7 @@ class GC_Service : public GC_Object
     typedef GC_Object base;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 };
 
 // end of file

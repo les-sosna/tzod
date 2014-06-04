@@ -88,7 +88,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(World &world, bool applyToOb
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_MEMBER_OF(GC_RigidBodyDynamic, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_RigidBodyDynamic, LIST_timestep);
 
 GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;

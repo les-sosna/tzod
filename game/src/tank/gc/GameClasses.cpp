@@ -25,11 +25,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
+IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
+
 GC_Wood::GC_Wood(World &world)
   : GC_2dSprite(world)
 {
-	AddContext(&world.grid_wood);
-
 	SetZ(Z_WOOD);
 
 	SetTexture("wood");
@@ -95,9 +95,6 @@ void GC_Wood::Serialize(World &world, SaveFile &f)
 	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_tile);
-
-	if( f.loading() )
-		AddContext(&world.grid_wood);
 }
 
 void GC_Wood::Draw(bool editorMode) const
@@ -151,7 +148,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Explosion, LIST_timestep)
+IMPLEMENT_1LIST_MEMBER(GC_Explosion, LIST_timestep)
 
 GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
   : GC_2dSprite(world)
@@ -552,7 +549,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_HealthDaemon, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
 
 GC_HealthDaemon::GC_HealthDaemon(World &world,
                                  GC_Player *owner,
@@ -673,7 +670,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Text_ToolTip, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
 
 GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, const char *font)
   : GC_Text(world, text, alignTextCC)

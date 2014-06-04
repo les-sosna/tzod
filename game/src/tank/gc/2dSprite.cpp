@@ -29,6 +29,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 	return true;
 }
 
+IMPLEMENT_GRID_MEMBER(GC_2dSprite, grid_sprites)
+
 GC_2dSprite::GC_2dSprite(World &world)
   : _direction(1, 0)
   , _color(0xffffffff)
@@ -37,7 +39,6 @@ GC_2dSprite::GC_2dSprite(World &world)
   , _zOrder(Z_NONE)
 {
 	SetFlags(GC_FLAG_2DSPRITE_VISIBLE|GC_FLAG_2DSPRITE_INGRIDSET, true);
-    AddContext(&world.grid_sprites);
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
@@ -61,9 +62,6 @@ void GC_2dSprite::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zOrder);
 
 	assert(g_texman->IsValidTexture(_texId));
-    
-    if( f.loading() )
-		AddContext(&world.grid_sprites);
 }
 
 void GC_2dSprite::SetTexture(const char *name)

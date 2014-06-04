@@ -24,11 +24,11 @@ enum GlobalListID
 };
 
 
-#define DECLARE_MEMBER_OF()                                             \
+#define DECLARE_LIST_MEMBER()                                           \
     virtual PtrList<GC_Object>::id_type Register(World &world);         \
     virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos)
 
-#define IMPLEMENT_MEMBER_OF(cls, list)                                  \
+#define IMPLEMENT_1LIST_MEMBER(cls, list)                               \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \
     {                                                                   \
         auto pos = base::Register(world);                               \
@@ -41,7 +41,7 @@ enum GlobalListID
         base::Unregister(world, pos);                                   \
     }
 
-#define IMPLEMENT_MEMBER_OF2(cls, list1, list2)                         \
+#define IMPLEMENT_2LIST_MEMBER(cls, list1, list2)                       \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \
     {                                                                   \
         auto pos = base::Register(world);                               \

@@ -22,6 +22,8 @@ struct DamageDesc
 
 class GC_RigidBodyStatic : public GC_2dSprite
 {
+    typedef GC_2dSprite base;
+    
 	std::string _scriptOnDestroy;  // on_destroy()
 	std::string _scriptOnDamage;   // on_damage()
 
@@ -42,6 +44,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
+    DECLARE_GRID_MEMBER();
 	GC_RigidBodyStatic(World &world);
 	GC_RigidBodyStatic(FromFile);
 	virtual ~GC_RigidBodyStatic();
@@ -150,6 +153,7 @@ public:
 class GC_Wall : public GC_RigidBodyStatic
 {
 	DECLARE_SELF_REGISTRATION(GC_Wall);
+    typedef GC_RigidBodyStatic base;
 
 private:
 	void SetCorner(World &world, unsigned int index); // 01
@@ -176,6 +180,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
+    DECLARE_GRID_MEMBER();
 	GC_Wall(World &world);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
@@ -220,7 +225,7 @@ public:
 class GC_Water : public GC_RigidBodyStatic
 {
 	DECLARE_SELF_REGISTRATION(GC_Water);
-private:
+    typedef GC_RigidBodyStatic base;
 
 /**
  *   tile bits
@@ -239,6 +244,7 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
+    DECLARE_GRID_MEMBER();
 	GC_Water(World &world);
 	GC_Water(FromFile);
 	~GC_Water();

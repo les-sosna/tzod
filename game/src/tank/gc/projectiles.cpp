@@ -15,7 +15,7 @@
 
 #include "config/Config.h"
 
-IMPLEMENT_MEMBER_OF(GC_Projectile, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 
 GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail,
                              const vec2d &pos, const vec2d &v, const char *texture)

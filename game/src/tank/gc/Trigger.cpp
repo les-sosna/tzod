@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_Trigger, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Trigger, LIST_timestep);
 
 GC_Trigger::GC_Trigger(World &world)
   : GC_2dSprite(world)

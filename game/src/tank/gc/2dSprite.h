@@ -86,7 +86,6 @@ public:
 		return CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW);
 	}
 
-
 private:
 	enumZOrder _zOrder;
 
@@ -104,6 +103,8 @@ public:
 	inline bool GetVisible() const  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
 
 public:
+    DECLARE_GRID_MEMBER();
+    
 	GC_2dSprite(World &world);
 	GC_2dSprite(FromFile);
 	virtual ~GC_2dSprite();

@@ -27,7 +27,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF2(GC_Camera, LIST_cameras, LIST_timestep);
+IMPLEMENT_2LIST_MEMBER(GC_Camera, LIST_cameras, LIST_timestep);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
   : _rotator(_rotatorAngle)

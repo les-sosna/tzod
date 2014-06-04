@@ -19,7 +19,7 @@
 #include "projectiles.h"
 #include "particles.h"
 
-IMPLEMENT_MEMBER_OF(GC_Turret, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 

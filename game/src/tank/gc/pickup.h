@@ -69,7 +69,8 @@ protected:
 	virtual void Serialize(World &world, SaveFile &f);
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
+    DECLARE_GRID_MEMBER();
 	void  SetRadius(float r)   { _radius = r;              }
 	float GetRadius()    const { return _radius;           }
 	GC_Actor* GetCarrier() const { return _pickupCarrier; }
@@ -199,7 +200,7 @@ private:
 	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_pu_Shock(World &world);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();

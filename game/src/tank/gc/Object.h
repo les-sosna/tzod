@@ -132,7 +132,7 @@ public:
 	//
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 
 	GC_Object();
 	virtual ~GC_Object();

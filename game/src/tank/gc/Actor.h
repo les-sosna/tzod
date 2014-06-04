@@ -7,49 +7,60 @@
 #include <list>
 
 
-#define GC_FLAG_ACTOR_          GC_FLAG_OBJECT_
+#define GC_FLAG_ACTOR_KNOWNPOS      (GC_FLAG_OBJECT_ << 0)
+#define GC_FLAG_ACTOR_              (GC_FLAG_OBJECT_ << 1)
+
 
 class GC_Pickup;
 class World;
 
 class GC_Actor : public GC_Object
 {
-	struct Context
-	{
-		Grid<ObjectList> *grids;
-		ObjectList::id_type iterator;
-	};
-
-	typedef std::list<Context>::iterator CONTEXTS_ITERATOR;
-
-	std::list<Context> _contexts;    // contexts this object belongs to
-	Location           _location;    // location on all contexts.
-
 	vec2d _pos;
-
-	void LeaveAllContexts();
-	void EnterAllContexts(const Location &l);
-	void EnterContext(Context &context, const Location &l);
-	void LeaveContext(Context &context);
 
 protected:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
-
-	void AddContext(Grid<ObjectList> *pGridSet);
-	void RemoveContext(Grid<ObjectList> *pGridSet);
+    
+	int _locationX;
+	int _locationY;
+    virtual void EnterContexts(World &) {}
+    virtual void LeaveContexts(World &) {}
 
 public:
 	const vec2d& GetPos() const { return _pos; }
 
-	GC_Actor();
-	virtual ~GC_Actor();
-
 	virtual void MoveTo(World &world, const vec2d &pos);
-
-	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached); // called by the pickup
+	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached); // called by a pickup
+    
+    virtual void Kill(World &world);
 };
 
-///////////////////////////////////////////////////////////////////////////////
+
+#define DECLARE_GRID_MEMBER()                                               \
+    virtual void EnterContexts(World &world) override;                      \
+    virtual void LeaveContexts(World &world) override;
+
+#define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \
+    void cls::EnterContexts(World &world)                                   \
+    {                                                                       \
+        base::EnterContexts(world);                                         \
+        world.grid.element(_locationX, _locationY).insert(this);            \
+    }                                                                       \
+    void cls::LeaveContexts(World &world)                                   \
+    {                                                                       \
+        auto &cell = world.grid.element(_locationX,_locationY);             \
+        for (auto id = cell.begin(); id != cell.end(); id = cell.next(id))  \
+        {                                                                   \
+            if (cell.at(id) == this)                                        \
+            {                                                               \
+                cell.erase(id);                                             \
+                base::LeaveContexts(world);                                 \
+                return;                                                     \
+            }                                                               \
+        }                                                                   \
+        assert(false);                                                      \
+    }
+
 // end of file
 

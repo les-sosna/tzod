@@ -20,7 +20,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_SpawnPoint, LIST_respawns);
+IMPLEMENT_1LIST_MEMBER(GC_SpawnPoint, LIST_respawns);
 
 GC_SpawnPoint::GC_SpawnPoint(World &world)
   : GC_2dSprite(world)
@@ -158,7 +158,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_IndicatorBar)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_IndicatorBar, LIST_indicators);
+IMPLEMENT_1LIST_MEMBER(GC_IndicatorBar, LIST_indicators);
 
 GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object,
                                  float *pValue, float *pValueMax, LOCATION location)
@@ -262,7 +262,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 	return true;
 }
 
-IMPLEMENT_MEMBER_OF(GC_DamLabel, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_DamLabel, LIST_timestep);
 
 GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
   : GC_2dSprite(world)

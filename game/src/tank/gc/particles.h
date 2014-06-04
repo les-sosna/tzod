@@ -20,7 +20,7 @@ private:
 	vec2d _velocity;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Brick_Fragment_01(World &world, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
@@ -47,7 +47,7 @@ public:
 	vec2d _velocity;
 
 public:
-    DECLARE_MEMBER_OF();
+    DECLARE_LIST_MEMBER();
 	GC_Particle(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 
