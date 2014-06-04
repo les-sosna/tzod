@@ -603,12 +603,12 @@ EditorLayout::~EditorLayout()
 	g_conf.ed_uselayers.eventChange = nullptr;
 }
 
-void EditorLayout::OnKillSelected(World &world, GC_Object *sender, void *param)
+void EditorLayout::OnKillSelected(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	Select(sender, false);
 }
 
-void EditorLayout::OnMoveSelected(World &world, GC_Object *sender, void *param)
+void EditorLayout::OnMoveSelected(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	assert(_selectedObject == sender);
 }

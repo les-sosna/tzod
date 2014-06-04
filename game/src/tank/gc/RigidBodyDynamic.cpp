@@ -153,9 +153,9 @@ void GC_RigidBodyDynamic::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_RigidBodyDynamic::Serialize(World &world, SaveFile &f)
+void GC_RigidBodyDynamic::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(world, f);
+	GC_RigidBodyStatic::Serialize(world, id, f);
 
 	f.Serialize(_av);
 	f.Serialize(_lv);
@@ -225,12 +225,12 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 	return GetDirection() * result; // FIXME: add y coordinate
 }
 
-void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
+void GC_RigidBodyDynamic::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);
 
-	MoveTo(world, GetPos() + dx);
+	MoveTo(world, id, GetPos() + dx);
 	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
 	dirTmp.Normalize();
 	SetDirection(dirTmp);
@@ -300,7 +300,7 @@ void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 	//------------------------------------
 	// collisions
 
-    std::vector<ObjectList*> receive;
+    std::vector<std::vector<ObjectList::id_type>*> receive;
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 	world.grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
@@ -312,12 +312,12 @@ void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 
 	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
 
-	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
+	for( auto idlist: receive )
 	{
-        ObjectList *ls = *rit;
-		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+        ObjectList &objects = world.GetList(LIST_objects);
+		for( auto idOther: *idlist )
 		{
-			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) ls->at(it);
+			GC_RigidBodyStatic *object = static_cast<GC_RigidBodyStatic *>(objects.at(idOther));
 			if( this == object )
 			{
 				continue;
@@ -405,13 +405,13 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world, float dt)
 					if( it->obj2_d )
 					{
 						GC_Player *owner2 = it->obj2_d->GetOwner();
-						it->obj1_d->TakeDamage(world, a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
-						it->obj2_d->TakeDamage(world, a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
+						it->obj1_d->TakeDamage(world, world.GetId(it->obj1_d), a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
+						it->obj2_d->TakeDamage(world, world.GetId(it->obj2_d), a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(world, a/60 * it->obj1_d->_fragility, it->o, owner1);
-						it->obj2_s->TakeDamage(world, a/60 * percussion1, it->o, owner1);
+						it->obj1_d->TakeDamage(world, world.GetId(it->obj1_d), a/60 * it->obj1_d->_fragility, it->o, owner1);
+						it->obj2_s->TakeDamage(world, world.GetId(it->obj2_s), a/60 * percussion1, it->o, owner1);
 					}
 				}
 

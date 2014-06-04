@@ -19,7 +19,7 @@ class GC_Actor : public GC_Object
 	vec2d _pos;
 
 protected:
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
     
 	int _locationX;

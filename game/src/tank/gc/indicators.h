@@ -39,7 +39,7 @@ public:
 	GC_SpawnPoint(World &world);
 	GC_SpawnPoint(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	virtual void MapExchange(World &world, MapFile &f);
@@ -74,8 +74,8 @@ class GC_IndicatorBar : public GC_2dSprite
 	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
     typedef GC_2dSprite base;
 
-	void OnParentKill(World &world, GC_Object *sender, void *param);
-	void OnUpdatePosition(World &world, GC_Object *sender, void *param);
+	void OnParentKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
+	void OnUpdatePosition(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 
 protected:
 	ObjPtr<GC_2dSprite> _object;
@@ -94,7 +94,7 @@ public:
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 public:
 	void SetInverse(bool bInverse) { SetFlags(GC_FLAG_INDICATOR_INVERSE, bInverse); }
@@ -119,12 +119,12 @@ public:
 	GC_DamLabel(FromFile);
 	virtual ~GC_DamLabel();
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 
 	void Reset();
 
-	void OnVehicleMove(World &world, GC_Object *sender, void *param);
+	void OnVehicleMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 };
 
 

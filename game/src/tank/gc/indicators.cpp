@@ -35,9 +35,9 @@ GC_SpawnPoint::GC_SpawnPoint(FromFile)
 {
 }
 
-void GC_SpawnPoint::Serialize(World &world, SaveFile &f)
+void GC_SpawnPoint::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_team);
 }
 
@@ -186,9 +186,9 @@ GC_IndicatorBar::GC_IndicatorBar(FromFile)
 {
 }
 
-void GC_IndicatorBar::Serialize(World &world, SaveFile &f)
+void GC_IndicatorBar::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_dwValueMax_offset);
 	f.Serialize(_dwValue_offset);
@@ -227,7 +227,7 @@ void GC_IndicatorBar::Draw(DrawingContext &dc, bool editorMode) const
 }
 
 
-void GC_IndicatorBar::OnUpdatePosition(World &world, GC_Object *sender, void *param)
+void GC_IndicatorBar::OnUpdatePosition(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	ASSERT_TYPE(sender, GC_2dSprite);
 	GC_2dSprite *sprite = static_cast<GC_2dSprite *>(sender);
@@ -250,9 +250,9 @@ void GC_IndicatorBar::OnUpdatePosition(World &world, GC_Object *sender, void *pa
 	}
 }
 
-void GC_IndicatorBar::OnParentKill(World &world, GC_Object *sender, void *param)
+void GC_IndicatorBar::OnParentKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
-	Kill(world);
+	Kill(world, id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -284,25 +284,25 @@ GC_DamLabel::~GC_DamLabel()
 {
 }
 
-void GC_DamLabel::Serialize(World &world, SaveFile &f)
+void GC_DamLabel::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_phase);
 	f.Serialize(_time);
 	f.Serialize(_time_life);
 }
 
-void GC_DamLabel::TimeStepFloat(World &world, float dt)
+void GC_DamLabel::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
-	GC_2dSprite::TimeStepFloat(world, dt);
+	GC_2dSprite::TimeStepFloat(world, id, dt);
 
 	_time += dt;
 	SetDirection(vec2d(_phase + _time * 2.0f));
 
 	if( _time >= _time_life )
 	{
-		Kill(world);
+		Kill(world, id);
 	}
 	else
 	{
@@ -315,7 +315,7 @@ void GC_DamLabel::Reset()
 	_time_life = _time + 0.4f;
 }
 
-void GC_DamLabel::OnVehicleMove(World &world, GC_Object *sender, void *param)
+void GC_DamLabel::OnVehicleMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
 }

@@ -48,7 +48,7 @@ public:
 	GC_Light(FromFile);
 	virtual ~GC_Light();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
 	void SetIntensity(float i)
@@ -103,15 +103,15 @@ public:
 	}
 
 
-	void  SetTimeout(World &world, float t);
+	void  SetTimeout(World &world, ObjectList::id_type id, float t);
 	float GetTimeout() const { return _timeout; }
 
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(World &world, bool activate);
 
-	virtual void MoveTo(World &world, const vec2d &pos) override;
-	virtual void TimeStepFixed(World &world, float dt) override;
-    virtual void Kill(World &world) override;
+	virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt) override;
+    virtual void Kill(World &world, ObjectList::id_type id) override;
 
 public:
 	virtual void Shine(IRender &render) const;
@@ -141,16 +141,16 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Spotlight(World &world);
+    GC_Spotlight(World &world);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+	virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
 
 	virtual void MapExchange(World &world, MapFile &f);
-    virtual void Kill(World &world) override;
+    virtual void Kill(World &world, ObjectList::id_type id) override;
 };
 
 

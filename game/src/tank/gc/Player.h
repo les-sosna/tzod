@@ -84,14 +84,14 @@ public:
 	void UpdateSkin();
 
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 
 private:
-	void OnVehicleDestroy(World &world, GC_Object *sender, void *param);
-	void OnVehicleKill(World &world, GC_Object *sender, void *param);
+	void OnVehicleDestroy(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
+	void OnVehicleKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -117,7 +117,7 @@ void World::Clear()
     ObjectList &ls = GetList(LIST_objects);
     while( !ls.empty() )
     {
-        ls.at(ls.begin())->Kill(*this);
+        ls.at(ls.begin())->Kill(*this, ls.begin());
     }
 
 	// reset info
@@ -193,6 +193,15 @@ void World::RemoveListener(ObjectType type, ObjectListener &ls)
 	}
 }
 
+ObjectList::id_type World::GetId(GC_Object *o)
+{
+    ObjectList &ls = GetList(LIST_objects);
+    for( auto it = ls.begin(); it != ls.end(); it = ls.next(it) )
+        if (ls.at(it) == o)
+            return it;
+    return ls.end();
+}
+
 void World::Unserialize(const char *fileName)
 {
 	assert(IsSafeMode());
@@ -241,7 +250,7 @@ void World::Unserialize(const char *fileName)
 		// read objects contents in the same order as pointers
 		for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
 		{
-            GetList(LIST_objects).at(it)->Serialize(*this, f);
+            GetList(LIST_objects).at(it)->Serialize(*this, it, f);
 		}
 
 
@@ -386,7 +395,7 @@ void World::Serialize(const char *fileName)
 
 	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
-        objects.at(it)->Serialize(*this, f);
+        objects.at(it)->Serialize(*this, it, f);
 	}
 
 
@@ -582,7 +591,7 @@ bool World::CalcOutstrip( const vec2d &fp, // fire point
 	return true;
 }
 
-GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
+GC_RigidBodyStatic* World::TraceNearest( Grid<std::vector<id_type>> &list,
                                          const GC_RigidBodyStatic* ignore,
                                          const vec2d &x0,      // origin
                                          const vec2d &a,       // direction with length
@@ -637,7 +646,7 @@ GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
 	return selector.result;
 }
 
-void World::TraceAll( Grid<ObjectList> &list,
+void World::TraceAll( Grid<std::vector<id_type>> &list,
                       const vec2d &x0,      // origin
                       const vec2d &a,       // direction with length
                       std::vector<CollisionPoint> &result) const
@@ -683,9 +692,9 @@ void World::Step(float dt)
         ObjectList &ls = GetList(LIST_timestep);
         ls.for_each([=](ObjectList::id_type id, GC_Object *o){
             ObjPtr<GC_Object> watch(o);
-            o->TimeStepFixed(*this, dt);
+            o->TimeStepFixed(*this, id, dt);
             if (watch)
-                o->TimeStepFloat(*this, dt);
+                o->TimeStepFloat(*this, id, dt);
         });
 		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
 		_safeMode = true;
@@ -700,7 +709,7 @@ void World::Step(float dt)
 	}
 
 	GetList(LIST_sounds).for_each([=](ObjectList::id_type id, GC_Object *o) {
-		static_cast<GC_Sound *>(o)->KillWhenFinished(*this);
+		static_cast<GC_Sound *>(o)->KillWhenFinished(*this, id);
 	});
 
 

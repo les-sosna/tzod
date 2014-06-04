@@ -37,14 +37,14 @@ public:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos);
+	GC_Sound(World &world, enumSoundTemplate sound);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	void KillWhenFinished(World &world);
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+	void KillWhenFinished(World &world, ObjectList::id_type id);
+	virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
 
 	void SetMode(World &world, enumSoundMode mode);
 	void Pause(World &world, bool pause);
@@ -74,8 +74,8 @@ public:
     DECLARE_LIST_MEMBER();
 	GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object);
 	GC_Sound_link(FromFile);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 
 public:
 	bool CheckObject(const GC_Object *object) const
@@ -89,8 +89,9 @@ public:
 #if !defined NOSOUND
 #define PLAY(s, pos)                                            \
 do {                                                            \
-    auto obj = new GC_Sound(world, (s), (pos));                 \
-    obj->Register(world);                                       \
+    auto obj = new GC_Sound(world, (s));                        \
+    auto id = obj->Register(world);                             \
+    obj->MoveTo(world, id, (pos));                              \
     obj->SetMode(world, SMODE_PLAY);                            \
 } while(0)
 #else

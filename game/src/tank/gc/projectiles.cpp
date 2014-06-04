@@ -54,18 +54,18 @@ GC_Projectile::~GC_Projectile()
 {
 }
 
-void GC_Projectile::Kill(World &world)
+void GC_Projectile::Kill(World &world, ObjectList::id_type id)
 {
 	if( _light && _light->GetTimeout() <= 0 )
 	{
-		_light->Kill(world);
+		_light->Kill(world, id);
 	}
-    GC_2dSprite::Kill(world);
+    GC_2dSprite::Kill(world, id);
 }
 
-void GC_Projectile::Serialize(World &world, SaveFile &f)
+void GC_Projectile::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_hitDamage);
 	f.Serialize(_hitImpulse);
@@ -99,8 +99,8 @@ void GC_Projectile::MoveTo(World &world, const vec2d &pos, bool trail)
 		_trailPath = world.net_frand(_trailDensity);
 	}
 
-	_light->MoveTo(world, pos);
-	GC_2dSprite::MoveTo(world, pos);
+	_light->MoveTo(world, world.GetId(_light), pos);
+	GC_2dSprite::MoveTo(world, id, pos);
 }
 
 float GC_Projectile::FilterDamage(float damage, GC_RigidBodyStatic *object)
@@ -126,9 +126,9 @@ void GC_Projectile::ApplyHitDamage(World &world, GC_RigidBodyStatic *target, con
 	}
 }
 
-void GC_Projectile::TimeStepFixed(World &world, float dt)
+void GC_Projectile::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_2dSprite::TimeStepFixed(world, id, dt);
 
 	vec2d dx = GetDirection() * (_velocity * dt);
 	std::vector<World::CollisionPoint> obstacles;
@@ -174,7 +174,7 @@ void GC_Projectile::TimeStepFixed(World &world, float dt)
 	if( GetPos().x < 0 || GetPos().x > world._sx ||
 		GetPos().y < 0 || GetPos().y > world._sy )
 	{
-		Kill(world);
+		Kill(world, id);
 	}
 }
 
@@ -273,9 +273,9 @@ GC_Rocket::~GC_Rocket()
 {
 }
 
-void GC_Rocket::Serialize(World &world, SaveFile &f)
+void GC_Rocket::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Projectile::Serialize(world, f);
+	GC_Projectile::Serialize(world, id, f);
 	f.Serialize(_timeHomming);
 	f.Serialize(_target);
 }
@@ -286,7 +286,7 @@ bool GC_Rocket::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
     b->Register(world);
     b->_damage = DAMAGE_ROCKET_AK47;
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -300,7 +300,7 @@ void GC_Rocket::SpawnTrailParticle(World &world, const vec2d &pos)
     p->MoveTo(world, pos - GetDirection() * 8.0f);
 }
 
-void GC_Rocket::TimeStepFixed(World &world, float dt)
+void GC_Rocket::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	_timeHomming += dt;
 
@@ -334,7 +334,7 @@ void GC_Rocket::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Projectile::TimeStepFixed(world, dt);
+	GC_Projectile::TimeStepFixed(world, id, dt);
 }
 
 /////////////////////////////////////////////////////////////
@@ -365,9 +365,9 @@ GC_Bullet::~GC_Bullet()
 {
 }
 
-void GC_Bullet::Serialize(World &world, SaveFile &f)
+void GC_Bullet::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Projectile::Serialize(world, f);
+	GC_Projectile::Serialize(world, id, f);
 	f.Serialize(_trailEnable);
 }
 
@@ -397,7 +397,7 @@ bool GC_Bullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
 	pLight->SetTimeout(world, 0.3f);
 
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -484,7 +484,7 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	}
 
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -558,7 +558,7 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	PLAY(SND_PlazmaHit, hit);
 
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -629,9 +629,9 @@ void GC_BfgCore::FindTarget(World &world)
 		_target = pNearestTarget;
 }
 
-void GC_BfgCore::Serialize(World &world, SaveFile &f)
+void GC_BfgCore::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Projectile::Serialize(world, f);
+	GC_Projectile::Serialize(world, id, f);
 	f.Serialize(_time);
 	f.Serialize(_target);
 }
@@ -666,7 +666,7 @@ bool GC_BfgCore::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hi
 	PLAY(SND_BfgFlash, hit);
 
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -679,7 +679,7 @@ void GC_BfgCore::SpawnTrailParticle(World &world, const vec2d &pos)
     p->MoveTo(world, pos + dx);
 }
 
-void GC_BfgCore::TimeStepFixed(World &world, float dt)
+void GC_BfgCore::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	_time += dt;
 	if( _time * ANIMATION_FPS >= 1 )
@@ -730,7 +730,7 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Projectile::TimeStepFixed(world, dt);
+	GC_Projectile::TimeStepFixed(world, id, dt);
 }
 
 
@@ -763,9 +763,9 @@ GC_FireSpark::~GC_FireSpark()
 {
 }
 
-void GC_FireSpark::Serialize(World &world, SaveFile &f)
+void GC_FireSpark::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Projectile::Serialize(world, f);
+	GC_Projectile::Serialize(world, id, f);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotation);
@@ -821,7 +821,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 		if( tmp->GetOwner() != GetOwner() )
 		{
 			ApplyHitDamage(world, tmp, hit);
-			Kill(world);
+			Kill(world, id);
 		}
 	}
 	else
@@ -855,7 +855,7 @@ float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
 	return damage;
 }
 
-void GC_FireSpark::TimeStepFixed(World &world, float dt)
+void GC_FireSpark::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	float R = GetRadius();
 	_light->SetRadius(3*R);
@@ -897,14 +897,14 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 	_time += dt;
 	if( _time > _timeLife )
 	{
-		Kill(world);
+		Kill(world, id);
 	}
 	else
 	{
 		ObjPtr<GC_FireSpark> watch;
 
 		// this moves the particle by velocity*dt
-		GC_Projectile::TimeStepFixed(world, dt);
+		GC_Projectile::TimeStepFixed(world, id, dt);
 
 		// correct particle's position as if it was affected by air friction
 		if( watch )
@@ -996,7 +996,7 @@ bool GC_ACBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 	pLight->SetTimeout(world, 0.1f);
 
 	ApplyHitDamage(world, object, hit);
-	Kill(world);
+	Kill(world, id);
 	return true;
 }
 
@@ -1049,11 +1049,11 @@ GC_GaussRay::~GC_GaussRay()
 {
 }
 
-void GC_GaussRay::Kill(World &world)
+void GC_GaussRay::Kill(World &world, ObjectList::id_type id)
 {
 	if( _light ) // _light can be killed during level cleanup
 		_light->SetTimeout(world, 0.4f);
-    GC_Projectile::Kill(world);
+    GC_Projectile::Kill(world, id);
 }
 
 void GC_GaussRay::SpawnTrailParticle(World &world, const vec2d &pos)
@@ -1106,7 +1106,7 @@ bool GC_GaussRay::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 	if( GetHitDamage() <= 0 )
 	{
 		MoveTo(world, hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL)); // workaround to see trail at last step
-		Kill(world);
+		Kill(world, id);
 		return true;
 	}
 	return false; // don't stop
@@ -1189,7 +1189,7 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 		pLight->SetTimeout(world, 0.2f);
 
 		PLAY(SND_BoomBullet, hit);
-		Kill(world);
+		Kill(world, id);
 		return true;
 	}
 

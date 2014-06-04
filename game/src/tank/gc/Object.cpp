@@ -124,8 +124,7 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 // custom IMPLEMENT_1LIST_MEMBER for base class
 ObjectList::id_type GC_Object::Register(World &world)
 {
-    _posLIST_objects = world.GetList(LIST_objects).insert(this);
-    return _posLIST_objects;
+    return world.GetList(LIST_objects).insert(this);
 }
 void GC_Object::Unregister(World &world, ObjectList::id_type pos)
 {
@@ -152,13 +151,13 @@ GC_Object::~GC_Object()
 //	assert(world._garbage.erase(this) == 1);
 }
 
-void GC_Object::Kill(World &world)
+void GC_Object::Kill(World &world, ObjectList::id_type id)
 {
 //	assert(world._garbage.insert(this).second);
 
 	PulseNotify(world, NOTIFY_OBJECT_KILL);
 	SetName(world, NULL);
-    Unregister(world, _posLIST_objects);
+    Unregister(world, id);
 	delete this;
 }
 
@@ -173,7 +172,7 @@ void GC_Object::Notify::Serialize(World &world, SaveFile &f)
 	f.Serialize(reinterpret_cast<size_t&>(handler));
 }
 
-void GC_Object::Serialize(World &world, SaveFile &f)
+void GC_Object::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
 	assert(0 == _notifyProtectCount);
 
@@ -314,7 +313,7 @@ void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
 	{
 		if( type == n->type && !n->IsRemoved() )
 		{
-			((n->subscriber)->*n->handler)(world, this, param);
+			((n->subscriber)->*n->handler)(world, world.GetId(n->subscriber), this, param);
 		}
 	}
 	--_notifyProtectCount;
@@ -338,11 +337,11 @@ void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
 	}
 }
 
-void GC_Object::TimeStepFixed(World &world, float dt)
+void GC_Object::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 }
 
-void GC_Object::TimeStepFloat(World &world, float dt)
+void GC_Object::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 }
 

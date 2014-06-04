@@ -52,12 +52,12 @@ public:
 	virtual GC_Player* GetOwner() const { return NULL; }
     
     // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos);
+    virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos);
 
 	// GC_Object
-    virtual void Kill(World &world) override;
+    virtual void Kill(World &world, ObjectList::id_type id) override;
 	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual unsigned char GetPassability() const = 0;
 
@@ -107,7 +107,7 @@ public:
 	virtual void  OnDestroy(World &world);
 
 	// return true if object has been killed
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 	virtual void TDFV(GC_Actor *from);
 
 	//
@@ -190,14 +190,14 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void OnDestroy(World &world);
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 };
 
 /////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ public:
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 };
 
 /////////////////////////////////////////////////////////////
@@ -251,15 +251,15 @@ public:
 
 	void SetTile(char nTile, bool value);
 
-    virtual void MoveTo(World &world, const vec2d &pos) override;
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

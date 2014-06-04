@@ -153,8 +153,8 @@ class EditorLayout : public Window
     WorldView &_worldView;
 
 
-	void OnKillSelected(World &world, GC_Object *sender, void *param);
-	void OnMoveSelected(World &world, GC_Object *sender, void *param);
+	void OnKillSelected(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
+	void OnMoveSelected(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 
 public:
 	EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera);

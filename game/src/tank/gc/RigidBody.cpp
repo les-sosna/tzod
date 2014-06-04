@@ -48,14 +48,14 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 {
 }
 
-void GC_RigidBodyStatic::Kill(World &world)
+void GC_RigidBodyStatic::Kill(World &world, ObjectList::id_type id)
 {
     if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
 		world._field.ProcessObject(this, false);
-    GC_2dSprite::Kill(world);
+    GC_2dSprite::Kill(world, id);
 }
 
-void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
+void GC_RigidBodyStatic::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
     if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
     {
@@ -63,7 +63,7 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
         SetFlags(GC_FLAG_RBSTATIC_INFIELD, false);
     }
     
-    GC_2dSprite::MoveTo(world, pos);
+    GC_2dSprite::MoveTo(world, id, pos);
 
     if( GetPassability() > 0 )
     {
@@ -372,7 +372,7 @@ void GC_RigidBodyStatic::TDFV(GC_Actor *from)
 	}
 }
 
-bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_RigidBodyStatic::TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
@@ -393,7 +393,7 @@ bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 		{
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
 			OnDestroy(world);
-			Kill(world);
+			Kill(world, id);
 			return true;
 		}
 	}
@@ -427,9 +427,9 @@ void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
+void GC_RigidBodyStatic::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_scriptOnDestroy);
 	f.Serialize(_scriptOnDamage);
@@ -534,10 +534,10 @@ GC_Wall::~GC_Wall()
 {
 }
 
-void GC_Wall::Kill(World &world)
+void GC_Wall::Kill(World &world, ObjectList::id_type id)
 {
 	SetCorner(world, 0);
-    GC_RigidBodyStatic::Kill(world);
+    GC_RigidBodyStatic::Kill(world, id);
 }
 
 static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
@@ -852,9 +852,9 @@ void GC_Wall::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Wall::Serialize(World &world, SaveFile &f)
+void GC_Wall::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(world, f);
+	GC_RigidBodyStatic::Serialize(world, id, f);
 
 	if( f.loading() )
 	{
@@ -912,9 +912,9 @@ void GC_Wall::OnDestroy(World &world)
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 
-bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall::TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from)
 {
-	if( !GC_RigidBodyStatic::TakeDamage(world, damage, hit, from) && GetHealthMax() > 0 )
+	if( !GC_RigidBodyStatic::TakeDamage(world, id, damage, hit, from) && GetHealthMax() > 0 )
 	{
 		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
 		if( damage >= DAMAGE_BULLET )
@@ -1142,7 +1142,7 @@ GC_Wall_Concrete::GC_Wall_Concrete(World &world)
 	SetFrame(rand() % GetFrameCount());
 }
 
-bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Wall_Concrete::TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( damage >= DAMAGE_BULLET )
 	{
@@ -1201,20 +1201,20 @@ GC_Water::~GC_Water()
 {
 }
 
-void GC_Water::MoveTo(World &world, const vec2d &pos)
+void GC_Water::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
     if( CheckFlags(GC_FLAG_WATER_INTILE) )
         UpdateTile(world, false);
-    GC_RigidBodyStatic::MoveTo(world, pos);
+    GC_RigidBodyStatic::MoveTo(world, id, pos);
     UpdateTile(world, true);
     SetFlags(GC_FLAG_WATER_INTILE, true);
 }
 
-void GC_Water::Kill(World &world)
+void GC_Water::Kill(World &world, ObjectList::id_type id)
 {
     if( CheckFlags(GC_FLAG_WATER_INTILE) )
         UpdateTile(world, false);
-    GC_RigidBodyStatic::Kill(world);
+    GC_RigidBodyStatic::Kill(world, id);
 }
 
 void GC_Water::UpdateTile(World &world, bool flag)
@@ -1229,15 +1229,15 @@ void GC_Water::UpdateTile(World &world, bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-    std::vector<ObjectList*> receive;
+    std::vector<std::vector<ObjectList::id_type>*> receive;
 	world.grid_water.OverlapRect(receive, frect);
 
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-        ObjectList *ls = *rit;
-		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+        ObjectList &ls = world.GetList(LIST_objects);
+		for( auto id: **rit )
 		{
-			GC_Water *object = (GC_Water *) ls->at(it);
+			GC_Water *object = static_cast<GC_Water *>(ls.at(id));
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
@@ -1253,10 +1253,9 @@ void GC_Water::UpdateTile(World &world, bool flag)
 	}
 }
 
-void GC_Water::Serialize(World &world, SaveFile &f)
+void GC_Water::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(world, f);
-
+	GC_RigidBodyStatic::Serialize(world, id, f);
 	f.Serialize(_tile);
 }
 
@@ -1288,7 +1287,7 @@ void GC_Water::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-bool GC_Water::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Water::TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from)
 {
 	return false;
 }

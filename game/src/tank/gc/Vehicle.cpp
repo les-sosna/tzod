@@ -40,7 +40,7 @@ UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GC_Vehicle::TimeStepFloat(World &world, float dt)
+void GC_Vehicle::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	static const TextureCache smoke("particle_smoke");
 
@@ -63,7 +63,7 @@ void GC_Vehicle::TimeStepFloat(World &world, float dt)
 	}
 
 
-	GC_RigidBodyDynamic::TimeStepFloat(world, dt);
+	GC_RigidBodyDynamic::TimeStepFloat(world, id, dt);
 }
 
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
@@ -173,9 +173,9 @@ void GC_Vehicle::SetMaxHP(float hp)
 	SetHealth(hp * GetHealth() / GetHealthMax(), hp);
 }
 
-void GC_Vehicle::Serialize(World &world, SaveFile &f)
+void GC_Vehicle::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_RigidBodyDynamic::Serialize(world, f);
+	GC_RigidBodyDynamic::Serialize(world, id, f);
 
 	f.Serialize(_enginePower);
 	f.Serialize(_rotatePower);
@@ -261,7 +261,7 @@ void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 	_player = player;
 }
 
-void GC_Vehicle::Kill(World &world)
+void GC_Vehicle::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _damLabel);
 	SAFE_KILL(world, _moveSound);
@@ -277,7 +277,7 @@ void GC_Vehicle::Kill(World &world)
 
 	_player = NULL;
 
-	GC_RigidBodyDynamic::Kill(world);
+	GC_RigidBodyDynamic::Kill(world, id);
 }
 
 void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
@@ -375,7 +375,7 @@ void GC_Vehicle::ResetClass()
 	SetClass(vc);
 }
 
-bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+bool GC_Vehicle::TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from)
 {
 	DamageDesc dd;
 	dd.damage = damage;
@@ -486,7 +486,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 		{
 			ObjPtr<GC_Object> watch(this);
 			OnDestroy(world);
-			if( watch ) Kill(world);
+			if( watch ) Kill(world, id);
 		}
 
         if (world._messageListener)
@@ -517,7 +517,7 @@ void GC_Vehicle::Draw(DrawingContext &dc, bool editorMode) const
 #endif // NDEBUG
 }
 
-void GC_Vehicle::TimeStepFixed(World &world, float dt)
+void GC_Vehicle::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	ObjPtr<GC_Vehicle> watch(this);
 
@@ -545,7 +545,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     
 	// move
 	ApplyState(_state);
-	GC_RigidBodyDynamic::TimeStepFixed(world, dt);
+	GC_RigidBodyDynamic::TimeStepFixed(world, id, dt);
     
     
 	//
@@ -605,7 +605,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
 	{
 		if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
         {
-            Kill(world);
+            Kill(world, id);
         }
 	}
 }

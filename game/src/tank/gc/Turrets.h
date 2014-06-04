@@ -72,13 +72,13 @@ public:
     
     virtual void SetInitialDir(float initialDir);
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual void MoveTo(World &world, const vec2d &pos);
+	virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos);
 	virtual void OnDestroy(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
@@ -98,14 +98,14 @@ public:
 
 	virtual float GetDefaultHealth() const { return 500; }
     
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -126,14 +126,14 @@ public:
 
 	virtual float GetDefaultHealth() const { return 600; }
     
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -164,11 +164,11 @@ public:
     
     virtual void SetInitialDir(float initialDir);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 	virtual void MapExchange(World &world, MapFile &f);
 };
 
@@ -190,15 +190,15 @@ public:
 
 	virtual float GetDefaultHealth() const { return 250; }
     
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual unsigned char GetPassability() const { return 1; }
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -222,12 +222,12 @@ public:
 
 	virtual float GetDefaultHealth() const { return 250; }
     
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

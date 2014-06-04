@@ -51,13 +51,16 @@ public:
 
 	PtrList<GC_Object>& GetList(GlobalListID id) { return _objectLists[id]; }
 	const PtrList<GC_Object>& GetList(GlobalListID id) const { return _objectLists[id]; }
+    PtrList<GC_Object>::id_type GetId(GC_Object *o); // TODO: it is a temporary workaround
+    
+    typedef PtrList<GC_Object>::id_type id_type;
 
-	Grid<PtrList<GC_Object>>  grid_rigid_s;
-	Grid<PtrList<GC_Object>>  grid_walls;
-	Grid<PtrList<GC_Object>>  grid_wood;
-	Grid<PtrList<GC_Object>>  grid_water;
-	Grid<PtrList<GC_Object>>  grid_pickup;
-    Grid<PtrList<GC_Object>>  grid_sprites;
+	Grid<std::vector<id_type>>  grid_rigid_s;
+	Grid<std::vector<id_type>>  grid_walls;
+	Grid<std::vector<id_type>>  grid_wood;
+	Grid<std::vector<id_type>>  grid_water;
+	Grid<std::vector<id_type>>  grid_pickup;
+    Grid<std::vector<id_type>>  grid_sprites;
 
 	ObjectListener *_serviceListener;
     MessageListener *_messageListener;
@@ -143,20 +146,20 @@ public:
 		float exit;
 	};
 
-	GC_RigidBodyStatic* TraceNearest( Grid<PtrList<GC_Object>> &list,
+	GC_RigidBodyStatic* TraceNearest( Grid<std::vector<id_type>> &list,
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // origin
 	                             const vec2d &a,       // direction and length
 	                             vec2d *ht   = NULL,
 	                             vec2d *norm = NULL) const;
 
-	void TraceAll( Grid<PtrList<GC_Object>> &list,
+	void TraceAll( Grid<std::vector<id_type>> &list,
 	               const vec2d &x0,      // origin
 	               const vec2d &a,       // direction and length
 	               std::vector<CollisionPoint> &result) const;
 
 	template<class SelectorType>
-	void RayTrace(Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
+	void RayTrace(Grid<std::vector<id_type>> &list, SelectorType &s) const;
 
 
 	//

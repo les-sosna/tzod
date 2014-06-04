@@ -64,9 +64,9 @@ public:
 	GC_Weapon(World &world);
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
-	virtual void Kill(World &world);
+	virtual void Kill(World &world, ObjectList::id_type id);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 6.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
@@ -80,8 +80,8 @@ public:
 
 	virtual void Fire(World &world) = 0;
 
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 
 private:
 	virtual void OnUpdateView(World &world) {};
@@ -116,10 +116,10 @@ public:
 	GC_Weap_RocketLauncher(World &world);
 	GC_Weap_RocketLauncher(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,10 +144,10 @@ public:
 	GC_Weap_AutoCannon(FromFile);
 	virtual ~GC_Weap_AutoCannon();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -167,10 +167,10 @@ public:
 	GC_Weap_Cannon(FromFile);
 	virtual ~GC_Weap_Cannon();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,12 +239,12 @@ public:
 	GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,10 +263,10 @@ public:
 	GC_Weap_BFG(FromFile);
 	virtual ~GC_Weap_BFG();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -285,11 +285,11 @@ public:
 	GC_Weap_Ripper(World &world);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -316,11 +316,11 @@ public:
 	virtual ~GC_Weap_Minigun();
 
 	virtual void SetCrosshair(World &world);
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -344,11 +344,11 @@ public:
 	GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Fire(World &world);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

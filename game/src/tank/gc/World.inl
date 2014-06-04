@@ -4,7 +4,7 @@
 
 
 template<class SelectorType>
-void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
+void World::RayTrace(Grid<std::vector<id_type>> &list, SelectorType &s) const
 {
 	//
 	// overlap line
@@ -31,6 +31,8 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 	const float tx = p - delta.y * (float) stepx;
 	const float ty = p + delta.x * (float) stepy;
 
+    const ObjectList &ls = GetList(LIST_objects);
+    
 	for( int i = 0; i < 4; i++ )
 	{
 		int cx = halfBeginX + jitX[i];
@@ -44,10 +46,10 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 			// check current cell
 			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
 			{
-				const ObjectList &tmp_list = list.element(cx, cy);
-				for( ObjectList::id_type it = tmp_list.begin(); it != tmp_list.end(); it = tmp_list.next(it) )
+				auto &tmp_list = list.element(cx, cy);
+				for( auto id: tmp_list )
 				{
-					GC_RigidBodyStatic *object = static_cast<GC_RigidBodyStatic *>(tmp_list.at(it));
+					GC_RigidBodyStatic *object = static_cast<GC_RigidBodyStatic *>(ls.at(id));
 					if( object->CheckFlags(GC_FLAG_RBSTATIC_TRACE0) )
 					{
 						continue;

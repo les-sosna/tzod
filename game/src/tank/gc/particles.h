@@ -24,9 +24,9 @@ public:
 	GC_Brick_Fragment_01(World &world, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,9 +54,9 @@ public:
 	void SetFade(bool fade);
 	void SetAutoRotate(float speed);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ public:
 	GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient, float size);
 	GC_ParticleScaled(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 

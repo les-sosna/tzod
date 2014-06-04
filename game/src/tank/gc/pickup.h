@@ -59,14 +59,14 @@ private:
 protected:
 	virtual void Respawn(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
-	virtual void Kill(World &world);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
+	virtual void Kill(World &world, ObjectList::id_type id);
 
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 public:
     DECLARE_LIST_MEMBER();
@@ -108,11 +108,11 @@ public:
 
 	virtual float GetDefaultRespawnTime() const = 0;
 
-    virtual void MoveTo(World &world, const vec2d &pos) override;
+    virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
 
 protected:
-	void OnOwnerMove(World &world, GC_Object *sender, void *param);
-	void OnOwnerKill(World &world, GC_Object *sender, void *param);
+	void OnOwnerMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
+	void OnOwnerKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
@@ -171,7 +171,7 @@ public:
 	GC_pu_Shield(World &world);
 	GC_pu_Shield(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
@@ -179,11 +179,11 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 
 protected:
-	void OnOwnerDamage(World &world, GC_Object *sender, void *param);
+	void OnOwnerDamage(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -205,8 +205,8 @@ public:
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 15.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
@@ -214,7 +214,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
@@ -232,7 +232,7 @@ public:
 	virtual ~GC_pu_Booster();
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
@@ -241,10 +241,10 @@ public:
 
 	virtual GC_Actor* FindNewOwner(World &world) const;
 
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 
-	void OnWeaponDisappear(World &world, GC_Object *sender, void *param);
+	void OnWeaponDisappear(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 };
 
 

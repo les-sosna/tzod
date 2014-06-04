@@ -57,16 +57,16 @@ GC_Pickup::~GC_Pickup()
 {
 }
 
-void GC_Pickup::Kill(World &world)
+void GC_Pickup::Kill(World &world, ObjectList::id_type id)
 {
 	Disappear(world);
 	SAFE_KILL(world, _label);
-	GC_2dSprite::Kill(world);
+	GC_2dSprite::Kill(world, id);
 }
 
-void GC_Pickup::Serialize(World &world, SaveFile &f)
+void GC_Pickup::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_pickupCarrier);
 	f.Serialize(_timeAttached);
@@ -156,27 +156,27 @@ void GC_Pickup::SetBlinking(bool blink)
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 
-void GC_Pickup::MoveTo(World &world, const vec2d &pos)
+void GC_Pickup::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
     if (!CheckFlags(GC_FLAG_PICKUP_KNOWNPOS))
     {
-        _label->MoveTo(world, pos);
+        _label->MoveTo(world, world.GetId(_label), pos);
         SetFlags(GC_FLAG_PICKUP_KNOWNPOS, true);
     }
-    GC_2dSprite::MoveTo(world, pos);
+    GC_2dSprite::MoveTo(world, id, pos);
 }
 
-void GC_Pickup::TimeStepFloat(World &world, float dt)
+void GC_Pickup::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	_timeAnimation += dt;
 
 	if( !GetCarrier() && GetVisible() )
 		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
 
-	GC_2dSprite::TimeStepFloat(world, dt);
+	GC_2dSprite::TimeStepFloat(world, id, dt);
 }
 
-void GC_Pickup::TimeStepFixed(World &world, float dt)
+void GC_Pickup::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	_timeAttached += dt;
 
@@ -230,7 +230,7 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_2dSprite::TimeStepFixed(world, id, dt);
 }
 
 void GC_Pickup::Draw(DrawingContext &dc, bool editorMode) const
@@ -248,14 +248,14 @@ void GC_Pickup::MapExchange(World &world, MapFile &f)
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }
 
-void GC_Pickup::OnOwnerMove(World &world, GC_Object *sender, void *param)
+void GC_Pickup::OnOwnerMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	assert(GetCarrier());
 	assert(GetCarrier() == sender);
 	MoveTo(world, GetCarrier()->GetPos());
 }
 
-void GC_Pickup::OnOwnerKill(World &world, GC_Object *sender, void *param)
+void GC_Pickup::OnOwnerKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	Disappear(world);
 }
@@ -392,7 +392,7 @@ void GC_pu_Mine::Attach(World &world, GC_Actor *actor)
 
 //	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
 	(new GC_Boom_Standard(world, GetPos(), NULL))->Register(world);
-	Kill(world);
+	Kill(world, id);
 }
 
 /////////////////////////////////////////////////////////////
@@ -454,9 +454,9 @@ void GC_pu_Shield::Detach(World &world)
 	GC_Pickup::Detach(world);
 }
 
-void GC_pu_Shield::TimeStepFixed(World &world, float dt)
+void GC_pu_Shield::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStepFixed(world, id, dt);
 
 	if( GetCarrier() )
 	{
@@ -477,9 +477,9 @@ void GC_pu_Shield::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_pu_Shield::TimeStepFloat(World &world, float dt)
+void GC_pu_Shield::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFloat(world, dt);
+	GC_Pickup::TimeStepFloat(world, id, dt);
 	if( GetCarrier() )
 	{
 		_timeHit = std::max(.0f, _timeHit - dt);
@@ -487,7 +487,7 @@ void GC_pu_Shield::TimeStepFloat(World &world, float dt)
 	}
 }
 
-void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
+void GC_pu_Shield::OnOwnerDamage(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	static TextureCache tex("particle_3");
 
@@ -516,9 +516,9 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 	pdd->damage *= 0.25;
 }
 
-void GC_pu_Shield::Serialize(World &world, SaveFile &f)
+void GC_pu_Shield::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Pickup::Serialize(world, f);
+	GC_Pickup::Serialize(world, id, f);
 	f.Serialize(_timeHit);
 }
 
@@ -552,15 +552,15 @@ GC_pu_Shock::~GC_pu_Shock()
 {
 }
 
-void GC_pu_Shock::Kill(World &world)
+void GC_pu_Shock::Kill(World &world, ObjectList::id_type id)
 {
     SAFE_KILL(world, _light);
-    GC_Pickup::Kill(world);
+    GC_Pickup::Kill(world, id);
 }
 
-void GC_pu_Shock::Serialize(World &world, SaveFile &f)
+void GC_pu_Shock::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Pickup::Serialize(world, f);
+	GC_Pickup::Serialize(world, id, f);
 	f.Serialize(_light);
 	f.Serialize(_targetPosPredicted);
 }
@@ -630,9 +630,9 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 	return pNearTarget;
 }
 
-void GC_pu_Shock::TimeStepFixed(World &world, float dt)
+void GC_pu_Shock::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStepFixed(world, id, dt);
 
 	if( GetCarrier() )
 	{
@@ -721,9 +721,9 @@ GC_pu_Booster::~GC_pu_Booster()
 {
 }
 
-void GC_pu_Booster::Serialize(World &world, SaveFile &f)
+void GC_pu_Booster::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Pickup::Serialize(world, f);
+	GC_Pickup::Serialize(world, id, f);
 	f.Serialize(_sound);
 }
 
@@ -799,18 +799,18 @@ GC_Actor* GC_pu_Booster::FindNewOwner(World &world) const
 	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
 }
 
-void GC_pu_Booster::TimeStepFloat(World &world, float dt)
+void GC_pu_Booster::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFloat(world, dt);
+	GC_Pickup::TimeStepFloat(world, id, dt);
 	if( GetCarrier() )
 	{
 		SetDirection(vec2d(GetTimeAnimation() * 50));
 	}
 }
 
-void GC_pu_Booster::TimeStepFixed(World &world, float dt)
+void GC_pu_Booster::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStepFixed(world, id, dt);
 	if( GetCarrier() )
 	{
 		if( GetTimeAttached() > BOOSTER_TIME )
@@ -821,7 +821,7 @@ void GC_pu_Booster::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_pu_Booster::OnWeaponDisappear(World &world, GC_Object *sender, void *param)
+void GC_pu_Booster::OnWeaponDisappear(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	assert(GetCarrier());
 	Disappear(world);

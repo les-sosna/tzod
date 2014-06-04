@@ -977,7 +977,7 @@ int luaT_kill(lua_State *L)
 	}
 
     World &world = getworld(L);
-	luaT_checkobject(L, 1)->Kill(world);
+	luaT_checkobject(L, 1)->Kill(world, id);
 	return 0;
 }
 

@@ -7,6 +7,7 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
+#include "World.h"
 
 #include <ConsoleBuffer.h>
 #include <GuiManager.h>
@@ -50,9 +51,9 @@ GC_MessageBox::~GC_MessageBox()
 		_msgbox->Destroy();
 }
 
-void GC_MessageBox::Serialize(World &world, SaveFile &f)
+void GC_MessageBox::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Service::Serialize(world, f);
+	GC_Service::Serialize(world, id, f);
 	f.Serialize(_title);
 	f.Serialize(_text);
 	f.Serialize(_option1);

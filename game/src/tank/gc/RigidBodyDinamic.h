@@ -75,8 +75,8 @@ public:
 
 	virtual PropertySet* NewPropertySet();
 	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 	static void ProcessResponse(World &world, float dt);
 	static void PushState();
 	static void PopState();

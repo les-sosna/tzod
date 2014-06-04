@@ -69,9 +69,9 @@ public:
 		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
 	}
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 
 #ifdef NETWORK_DEBUG
 public:
@@ -100,12 +100,12 @@ public:
 	GC_Rocket(FromFile);
 	virtual ~GC_Rocket();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ public:
 	GC_Bullet(FromFile);
 	virtual ~GC_Bullet();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 };
@@ -172,12 +172,12 @@ public:
 	GC_BfgCore(FromFile);
 	virtual ~GC_BfgCore();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -201,14 +201,14 @@ public:
 	GC_FireSpark(FromFile);
 	virtual ~GC_FireSpark();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 
 	void SetHealOwner(bool heal);
 	void SetLifeTime(float t);
@@ -244,7 +244,7 @@ public:
 	GC_GaussRay(FromFile);
 	virtual ~GC_GaussRay();
     
-    virtual void Kill(World &world);
+    virtual void Kill(World &world, ObjectList::id_type id);
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 };

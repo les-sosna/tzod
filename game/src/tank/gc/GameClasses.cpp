@@ -47,11 +47,11 @@ GC_Wood::~GC_Wood()
 {
 }
 
-void GC_Wood::Kill(World &world)
+void GC_Wood::Kill(World &world, ObjectList::id_type id)
 {
     if( CheckFlags(GC_FLAG_WOOD_INTILE) )
         UpdateTile(world, false);
-    GC_2dSprite::Kill(world);
+    GC_2dSprite::Kill(world, id);
 }
 
 void GC_Wood::UpdateTile(World &world, bool flag)
@@ -66,15 +66,15 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
 	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
 
-    std::vector<ObjectList*> receive;
+    std::vector<std::vector<ObjectList::id_type>*> receive;
 	world.grid_wood.OverlapRect(receive, frect);
 
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-        ObjectList *ls = *rit;
-		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+        ObjectList ls = world.GetList(LIST_objects);
+		for( auto otherId: **rit )
 		{
-			GC_Wood *object = static_cast<GC_Wood *>(ls->at(it));
+			GC_Wood *object = static_cast<GC_Wood *>(ls.at(otherId));
 			if( this == object ) continue;
 
 			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
@@ -90,9 +90,9 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 	}
 }
 
-void GC_Wood::Serialize(World &world, SaveFile &f)
+void GC_Wood::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_tile);
 }
@@ -175,9 +175,9 @@ GC_Explosion::~GC_Explosion()
 {
 }
 
-void GC_Explosion::Serialize(World &world, SaveFile &f)
+void GC_Explosion::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_boomOK);
 	f.Serialize(_damage);
 	f.Serialize(_radius);
@@ -332,7 +332,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	bool bNeedClean = false;
 	for( auto it = receive.begin(); it != receive.end(); ++it )
 	{
-        (*it)->for_each([&](ObjectList::id_type, GC_Object *o)
+        (*it)->for_each([&](ObjectList::id_type id, GC_Object *o)
 		{
             auto pDamObject = static_cast<GC_RigidBodyStatic*>(o);
 			vec2d dir = pDamObject->GetPos() - GetPos();
@@ -366,7 +366,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
 					}
-                    pDamObject->TakeDamage(world, dam, GetPos(), _owner);
+                    pDamObject->TakeDamage(world, id, dam, GetPos(), _owner);
 				}
 			}
 		});
@@ -376,9 +376,9 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	_boomOK = true;
 }
 
-void GC_Explosion::TimeStepFixed(World &world, float dt)
+void GC_Explosion::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_2dSprite::TimeStepFixed(world, id, dt);
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )
@@ -388,7 +388,7 @@ void GC_Explosion::TimeStepFixed(World &world, float dt)
 	{
 		if( _time >= _time_life * 1.5f )
 		{
-			Kill(world);
+			Kill(world, id);
 			return;
 		}
 		SetVisible(world, false);
@@ -401,10 +401,10 @@ void GC_Explosion::TimeStepFixed(World &world, float dt)
 	_light->SetIntensity(1.0f - powf(_time / (_time_life * 1.5f - _time_boom), 6));
 }
 
-void GC_Explosion::Kill(World &world)
+void GC_Explosion::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _light);
-    GC_2dSprite::Kill(world);
+    GC_2dSprite::Kill(world, id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -571,7 +571,7 @@ GC_HealthDaemon::~GC_HealthDaemon()
 {
 }
 
-void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
+void GC_HealthDaemon::SetVictim(World &world, ObjectList::id_type id, GC_RigidBodyStatic *victim)
 {
 	assert(!_victim && victim);
     
@@ -579,12 +579,12 @@ void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
 	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
     
-	MoveTo(world, _victim->GetPos());
+	MoveTo(world, id, _victim->GetPos());
 }
 
-void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
+void GC_HealthDaemon::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_time);
 	f.Serialize(_damage);
@@ -592,11 +592,11 @@ void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_owner);
 }
 
-void GC_HealthDaemon::TimeStepFloat(World &world, float dt)
+void GC_HealthDaemon::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 }
 
-void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
+void GC_HealthDaemon::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	_time -= dt;
 	bool bKill = false;
@@ -605,18 +605,18 @@ void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
 		dt += _time;
 		bKill = true;
 	}
-	if( !_victim->TakeDamage(world, dt * _damage, _victim->GetPos(), _owner) && bKill )
-		Kill(world); // victim has died
+	if( !_victim->TakeDamage(world, world.GetId(_victim), dt * _damage, _victim->GetPos(), _owner) && bKill )
+		Kill(world, id); // victim has died
 }
 
-void GC_HealthDaemon::OnVictimMove(World &world, GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
-	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
+	MoveTo(world, id, static_cast<GC_Actor*>(sender)->GetPos());
 }
 
-void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
+void GC_HealthDaemon::OnVictimKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
-	Kill(world);
+	Kill(world, id);
 }
 
 /////////////////////////////////////////////////////////////
@@ -650,9 +650,9 @@ void GC_Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-void GC_Text::Serialize(World &world, SaveFile &f)
+void GC_Text::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_text);
 	f.Serialize(_align);
 }
@@ -681,18 +681,18 @@ GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, const ch
 	SetFont(font);
 }
 
-void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
+void GC_Text_ToolTip::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Text::Serialize(world, f);
+	GC_Text::Serialize(world, id, f);
 	f.Serialize(_time);
 }
 
-void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
+void GC_Text_ToolTip::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	_time += dt;
 	if( _time > 1.2f )
     {
-        Kill(world);
+        Kill(world, id);
     }
 }
 

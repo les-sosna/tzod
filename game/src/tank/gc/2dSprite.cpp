@@ -51,9 +51,9 @@ GC_2dSprite::~GC_2dSprite()
 {
 }
 
-void GC_2dSprite::Serialize(World &world, SaveFile &f)
+void GC_2dSprite::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_Actor::Serialize(world, id, f);
 
 	f.Serialize(_color);
 	f.Serialize(_frame);
@@ -91,11 +91,6 @@ void GC_2dSprite::SetZ(enumZOrder z)
 enumZOrder GC_2dSprite::GetZ() const
 {
 	return _zOrder;
-}
-
-void GC_2dSprite::SetVisible(World &world, bool bShow)
-{
-	SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow);
 }
 
 void GC_2dSprite::SetFrame(int frame)

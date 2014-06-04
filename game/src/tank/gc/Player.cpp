@@ -80,9 +80,9 @@ GC_Player::~GC_Player()
 {
 }
 
-void GC_Player::Serialize(World &world, SaveFile &f)
+void GC_Player::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Service::Serialize(world, f);
+	GC_Service::Serialize(world, id, f);
 
 	f.Serialize(_scriptOnDie);
 	f.Serialize(_scriptOnRespawn);
@@ -109,13 +109,13 @@ void GC_Player::MapExchange(World &world, MapFile &f)
 	MAP_EXCHANGE_INT(team, _team, 0);
 }
 
-void GC_Player::Kill(World &world)
+void GC_Player::Kill(World &world, ObjectList::id_type id)
 {
 	for( auto ls: world._playerListeners )
 		ls->OnKill(this);
 	if( _vehicle )
-		_vehicle->Kill(world); // the reference is released in the OnVehicleKill()
-	GC_Service::Kill(world);
+		_vehicle->Kill(world, id); // the reference is released in the OnVehicleKill()
+	GC_Service::Kill(world, id);
 }
 
 void GC_Player::SetSkin(const std::string &skin)
@@ -165,9 +165,9 @@ void GC_Player::OnDie()
 {
 }
 
-void GC_Player::TimeStepFixed(World &world, float dt)
+void GC_Player::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Service::TimeStepFixed(world, dt);
+	GC_Service::TimeStepFixed(world, id, dt);
 
 	if( !GetVehicle() )
 	{
@@ -229,12 +229,10 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			}
 
             auto text = new GC_Text_ToolTip(world, _nick, "font_default");
-			text->Register(world);
-            text->MoveTo(world, pBestPoint->GetPos());
+            text->MoveTo(world, text->Register(world), pBestPoint->GetPos());
 
 			_vehicle = new GC_Tank_Light(world);
-            _vehicle->Register(world);
-            _vehicle->MoveTo(world, pBestPoint->GetPos());
+            _vehicle->MoveTo(world, _vehicle->Register(world), pBestPoint->GetPos());
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -264,7 +262,7 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_Player::OnVehicleDestroy(World &world, GC_Object *sender, void *param)
+void GC_Player::OnVehicleDestroy(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
@@ -276,7 +274,7 @@ void GC_Player::OnVehicleDestroy(World &world, GC_Object *sender, void *param)
 	}
 }
 
-void GC_Player::OnVehicleKill(World &world, GC_Object *sender, void *param)
+void GC_Player::OnVehicleKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);

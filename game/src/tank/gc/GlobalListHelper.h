@@ -56,3 +56,19 @@ enum GlobalListID
         base::Unregister(world, pos);                                   \
     }
 
+#define IMPLEMENT_MEMBER_OF2G(cls, list1, list2, grid)                  \
+    PtrList<GC_Object>::id_type cls::Register(World &world)             \
+    {                                                                   \
+        auto pos = base::Register(world);                               \
+        world.GetList(list1).insert(this, pos);                         \
+        world.GetList(list2).insert(this, pos);                         \
+        AddContext(pos, world.grid);                                    \
+        return pos;                                                     \
+    }                                                                   \
+    void cls::Unregister(World &world, PtrList<GC_Object>::id_type pos) \
+    {                                                                   \
+        world.GetList(list2).erase(pos);                                \
+        world.GetList(list1).erase(pos);                                \
+        base::Unregister(world, pos);                                   \
+    }
+

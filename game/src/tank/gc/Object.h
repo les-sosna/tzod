@@ -73,7 +73,7 @@ public:
 #define GC_FLAG_OBJECT_                       0x00000002
 
 
-typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);
+typedef void (GC_Object::*NOTIFYPROC) (World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 
 ///////////////////////////////////////////////////////////////////////////////
 class GC_Object
@@ -106,7 +106,7 @@ private:
 private:
 	unsigned int           _flags;             // define various object properties
 
-    ObjectList::id_type _posLIST_objects;
+//    ObjectList::id_type _posLIST_objects;
 
 	Notify *_firstNotify;
 	int  _notifyProtectCount;
@@ -137,7 +137,7 @@ public:
 	GC_Object();
 	virtual ~GC_Object();
     
-    ObjectList::id_type GetId() const { return _posLIST_objects; }
+//    ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 
 	//
@@ -160,7 +160,7 @@ public:
 	//
 
 public:
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
 public:
 	virtual ObjectType GetType() = 0;
@@ -181,10 +181,10 @@ public:
 	//
 
 public:
-	virtual void Kill(World &world);
+	virtual void Kill(World &world, ObjectList::id_type id);
 
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 
 	virtual void MapExchange(World &world, MapFile &f);
 

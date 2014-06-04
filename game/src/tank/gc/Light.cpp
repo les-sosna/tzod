@@ -11,9 +11,6 @@
 #include "config/Config.h"
 #include "video/RenderBase.h"
 
-
-/////////////////////////////////////////////////////////
-
 float GC_Light::_sintable[SINTABLE_SIZE];
 
 IMPLEMENT_SELF_REGISTRATION(GC_Light)
@@ -50,9 +47,9 @@ GC_Light::~GC_Light()
 {
 }
 
-void GC_Light::Serialize(World &world, SaveFile &f)
+void GC_Light::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_Actor::Serialize(world, id, f);
 
 	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
@@ -64,7 +61,7 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 	f.Serialize(_lampSprite);
     
     if (f.loading() && CheckFlags(GC_FLAG_LIGHT_FADE))
-        world.GetList(LIST_timestep).insert(this, GetId());
+        world.GetList(LIST_timestep).insert(this, id);
 }
 
 void GC_Light::MapExchange(World &world, MapFile &f)
@@ -156,41 +153,41 @@ void GC_Light::Shine(IRender &render) const
 	}
 }
 
-void GC_Light::MoveTo(World &world, const vec2d &pos)
+void GC_Light::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
-	_lampSprite->MoveTo(world, pos);
-	GC_Actor::MoveTo(world, pos);
+	_lampSprite->MoveTo(world, world.GetId(_lampSprite), pos);
+	GC_Actor::MoveTo(world, id, pos);
 }
 
-void GC_Light::SetTimeout(World &world, float t)
+void GC_Light::SetTimeout(World &world, ObjectList::id_type id, float t)
 {
 	assert(t > 0);
 	_timeout = t;
     SetFlags(GC_FLAG_LIGHT_FADE, true);
-    world.GetList(LIST_timestep).insert(this, GetId());
+    world.GetList(LIST_timestep).insert(this, id);
 }
 
-void GC_Light::TimeStepFixed(World &world, float dt)
+void GC_Light::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	assert(_timeout > 0);
 	_intensity = _intensity * (_timeout - dt) / _timeout;
 	_timeout -= dt;
 	if( _timeout <= 0 )
-        Kill(world);
+        Kill(world, id);
 }
 
-void GC_Light::Kill(World &world)
+void GC_Light::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _lampSprite);
     if( CheckFlags(GC_FLAG_LIGHT_FADE) )
-        world.GetList(LIST_timestep).erase(GetId());
-    GC_Actor::Kill(world);
+        world.GetList(LIST_timestep).erase(id);
+    GC_Actor::Kill(world, id);
 }
 
 void GC_Light::SetActive(World &world, bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
-	_lampSprite->SetVisible(world, activate);
+	_lampSprite->SetVisible(activate);
 }
 
 void GC_Light::Update()
@@ -233,22 +230,22 @@ GC_Spotlight::~GC_Spotlight()
 {
 }
 
-void GC_Spotlight::Kill(World &world)
+void GC_Spotlight::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _light);
-    GC_2dSprite::Kill(world);
+    GC_2dSprite::Kill(world, id);
 }
 
-void GC_Spotlight::Serialize(World &world, SaveFile &f)
+void GC_Spotlight::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_light);
 }
 
-void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
+void GC_Spotlight::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
-	_light->MoveTo(world, pos + GetDirection() * 7);
-	GC_2dSprite::MoveTo(world, pos);
+	_light->MoveTo(world, world.GetId(_light), pos + GetDirection() * 7);
+	GC_2dSprite::MoveTo(world, id, pos);
 }
 
 void GC_Spotlight::MapExchange(World &world, MapFile &f)
@@ -265,7 +262,7 @@ void GC_Spotlight::MapExchange(World &world, MapFile &f)
 	{
 		SetDirection(vec2d(dir));
 		_light->SetLightDirection(GetDirection());
-		_light->MoveTo(world, GetPos() + GetDirection() * 7);
+		_light->MoveTo(world, world.GetId(_light), GetPos() + GetDirection() * 7);
 		_light->SetActive(world, 0 != active);
 	}
 }
@@ -315,7 +312,7 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		tmp->_light->SetActive(world, 0 != _propActive.GetIntValue());
 		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
 		tmp->_light->SetLightDirection(tmp->GetDirection());
-		tmp->_light->MoveTo(world, tmp->GetPos() + tmp->GetDirection() * 7);
+		tmp->_light->MoveTo(world, world.GetId(tmp->_light), tmp->GetPos() + tmp->GetDirection() * 7);
 	}
 	else
 	{

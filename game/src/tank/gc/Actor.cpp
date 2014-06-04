@@ -9,9 +9,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GC_Actor::Serialize(World &world, SaveFile &f)
+void GC_Actor::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Object::Serialize(world, f);
+	GC_Object::Serialize(world, id, f);
 	f.Serialize(_locationX);
 	f.Serialize(_locationY);
 	f.Serialize(_pos);
@@ -20,7 +20,7 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
         EnterContexts(world);
 }
 
-void GC_Actor::MoveTo(World &world, const vec2d &pos)
+void GC_Actor::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
 	_pos = pos;
     

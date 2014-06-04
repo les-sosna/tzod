@@ -14,7 +14,7 @@ public:
 	GC_MessageBox(FromFile);
 	virtual ~GC_MessageBox();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
 protected:

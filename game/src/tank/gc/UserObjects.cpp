@@ -35,9 +35,9 @@ GC_UserObject::~GC_UserObject()
 {
 }
 
-void GC_UserObject::Serialize(World &world, SaveFile &f)
+void GC_UserObject::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_RigidBodyStatic::Serialize(world, f);
+	GC_RigidBodyStatic::Serialize(world, id, f);
 	f.Serialize(_textureName);
 }
 
@@ -156,9 +156,9 @@ GC_Decoration::~GC_Decoration()
 {
 }
 
-void GC_Decoration::Serialize(World &world, SaveFile &f)
+void GC_Decoration::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
@@ -193,7 +193,7 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Decoration::TimeStepFixed(World &world, float dt)
+void GC_Decoration::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	assert(_frameRate > 0);
 	_time += dt;

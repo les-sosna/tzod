@@ -36,8 +36,8 @@ class RTTypes
 	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)
     {
         T *obj = new T(world);
-        obj->Register(world);
-        obj->MoveTo(world, vec2d(x, y));
+        auto id = obj->Register(world);
+        obj->MoveTo(world, id, vec2d(x, y));
         return obj;
     }
     

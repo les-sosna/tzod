@@ -43,14 +43,14 @@ public:
 	float GetShake() const { return _time_shake; }
 
 	// message handlers
-	void OnDetach(World &world, GC_Object *sender, void *param);
+	void OnDetach(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
     
     // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos);
+    virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos);
 
 	// GC_Object
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 };
 
 // end of file

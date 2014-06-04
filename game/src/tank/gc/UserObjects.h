@@ -31,7 +31,7 @@ public:
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void OnDestroy(World &world);
 
 	virtual void MapExchange(World &world, MapFile &f);
@@ -69,10 +69,10 @@ public:
 	GC_Decoration(FromFile);
 	virtual ~GC_Decoration();
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 };
 
 

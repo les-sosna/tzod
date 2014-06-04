@@ -66,9 +66,9 @@ bool GC_Trigger::Test(World &world, const GC_Vehicle *v) const
 		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(world, _veh));
 }
 
-void GC_Trigger::Serialize(World &world, SaveFile &f)
+void GC_Trigger::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 
 	f.Serialize(_radius);
 	f.Serialize(_radiusDelta);
@@ -103,7 +103,7 @@ void GC_Trigger::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Trigger::TimeStepFixed(World &world, float dt)
+void GC_Trigger::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	if( CheckFlags(GC_FLAG_TRIGGER_ACTIVATED) )
 	{

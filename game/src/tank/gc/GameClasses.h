@@ -78,9 +78,9 @@ public:
 	void Boom(World &world, float radius, float damage);
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
-    virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+    virtual void Kill(World &world, ObjectList::id_type id) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -126,15 +126,15 @@ public:
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
     
-    void SetVictim(World &world, GC_RigidBodyStatic *victim);
+    void SetVictim(World &world, ObjectList::id_type id, GC_RigidBodyStatic *victim);
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 
-	virtual void TimeStepFloat(World &world, float dt);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
 
-	void OnVictimMove(World &world, GC_Object *sender, void *param);
-	void OnVictimKill(World &world, GC_Object *sender, void *param);
+	void OnVictimMove(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
+	void OnVictimKill(World &world, ObjectList::id_type id, GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////
@@ -174,14 +174,14 @@ public:
 	void SetTile(char nTile, bool value);
     
     // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos) override;
+    virtual void MoveTo(World &world, ObjectList::id_type id, const vec2d &pos) override;
 
 	// GC_2dSprite
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 };
 
 /////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ public:
 	void SetAlign(enumAlignText align);
 	const std::string& GetText() const { return _text; }
 
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 protected:
@@ -222,8 +222,8 @@ public:
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
     virtual void Draw(DrawingContext &dc, bool editorMode) const;
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -32,22 +32,22 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
 {
 }
 
-void GC_Brick_Fragment_01::Serialize(World &world, SaveFile &f)
+void GC_Brick_Fragment_01::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_startFrame);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_velocity);
 }
 
-void GC_Brick_Fragment_01::TimeStepFloat(World &world, float dt)
+void GC_Brick_Fragment_01::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	_time += dt;
 
 	if( _time >= _timeLife * 0.5f )
 	{
-		Kill(world);
+		Kill(world, id);
 		return;
 	}
 
@@ -88,9 +88,9 @@ GC_Particle::GC_Particle(FromFile)
 {
 }
 
-void GC_Particle::Serialize(World &world, SaveFile &f)
+void GC_Particle::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_2dSprite::Serialize(world, id, f);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
@@ -98,14 +98,14 @@ void GC_Particle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_Particle::TimeStepFloat(World &world, float dt)
+void GC_Particle::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	assert(_timeLife > 0);
 	_time += dt;
 
 	if( _time >= _timeLife )
 	{
-		Kill(world);
+		Kill(world, id);
 		return;
 	}
 
@@ -153,9 +153,9 @@ GC_ParticleScaled::GC_ParticleScaled(FromFile)
 {
 }
 
-void GC_ParticleScaled::Serialize(World &world, SaveFile &f)
+void GC_ParticleScaled::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Particle::Serialize(world, f);
+	GC_Particle::Serialize(world, id, f);
 	f.Serialize(_size);
 }
 

@@ -224,9 +224,9 @@ GC_Weapon::~GC_Weapon()
 {
 }
 
-void GC_Weapon::Serialize(World &world, SaveFile &f)
+void GC_Weapon::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Pickup::Serialize(world, f);
+	GC_Pickup::Serialize(world, id, f);
 
 	_rotatorWeap.Serialize(f);
 
@@ -245,7 +245,7 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_fixmeChAnimate);
 }
 
-void GC_Weapon::Kill(World &world)
+void GC_Weapon::Kill(World &world, ObjectList::id_type id)
 {
 	if( GetCarrier() )
 	{
@@ -255,12 +255,12 @@ void GC_Weapon::Kill(World &world)
 	assert(!_rotateSound);
 	assert(!_fireEffect);
 
-	GC_Pickup::Kill(world);
+	GC_Pickup::Kill(world, id);
 }
 
-void GC_Weapon::TimeStepFixed(World &world, float dt)
+void GC_Weapon::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStepFixed(world, id, dt);
 
 	_time += dt;
 
@@ -287,9 +287,9 @@ void GC_Weapon::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_Weapon::TimeStepFloat(World &world, float dt)
+void GC_Weapon::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Pickup::TimeStepFloat(world, dt);
+	GC_Pickup::TimeStepFloat(world, id, dt);
 	if( !GetCarrier() && !GetRespawn() )
 	{
 		SetDirection(vec2d(GetTimeAnimation()));
@@ -351,9 +351,9 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
 {
 }
 
-void GC_Weap_RocketLauncher::Serialize(World &world, SaveFile &f)
+void GC_Weap_RocketLauncher::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	f.Serialize(_firing);
 	f.Serialize(_reloaded);
 	f.Serialize(_nshots);
@@ -436,7 +436,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 1.2f : 3.5f;
 }
 
-void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
+void GC_Weap_RocketLauncher::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	if( GetCarrier() )
 	{
@@ -449,7 +449,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -510,16 +510,18 @@ void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 void GC_Weap_AutoCannon::Detach(World &world)
 {
 	GC_IndicatorBar *indicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( indicator ) indicator->Kill(world);
+	if( indicator ) indicator->Kill(world, world.GetId(indicator));
 
 	// kill the reload sound
-	FOREACH( world.GetList(LIST_sounds), GC_Sound, object )
+    ObjectList &ls = world.GetList(LIST_sounds);
+	for( auto it = ls.begin(); it != ls.end(); it = ls.next(it) )
 	{
+        auto object = static_cast<GC_Sound*>(ls.at(it));
 		if( GC_Sound_link::GetTypeStatic() == object->GetType() )
 		{
 			if( ((GC_Sound_link *) object)->CheckObject(this) )
 			{
-				object->Kill(world);
+				object->Kill(world, it);
 				break;
 			}
 		}
@@ -537,9 +539,9 @@ GC_Weap_AutoCannon::~GC_Weap_AutoCannon()
 {
 }
 
-void GC_Weap_AutoCannon::Serialize(World &world, SaveFile &f)
+void GC_Weap_AutoCannon::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	f.Serialize(_firing);
 	f.Serialize(_nshots);
 	f.Serialize(_nshots_total);
@@ -618,7 +620,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 3.3f : 13.0f;
 }
 
-void GC_Weap_AutoCannon::TimeStepFixed(World &world, float dt)
+void GC_Weap_AutoCannon::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	if( GetCarrier() )
 	{
@@ -635,7 +637,7 @@ void GC_Weap_AutoCannon::TimeStepFixed(World &world, float dt)
 		_firing |= _advanced;
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -686,9 +688,9 @@ GC_Weap_Cannon::~GC_Weap_Cannon()
 {
 }
 
-void GC_Weap_Cannon::Serialize(World &world, SaveFile &f)
+void GC_Weap_Cannon::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	f.Serialize(_time_smoke);
 	f.Serialize(_time_smoke_dt);
 }
@@ -726,11 +728,11 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.0f : 8.0f;
 }
 
-void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
+void GC_Weap_Cannon::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	static const TextureCache tex("particle_smoke");
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 
 	if( GetCarrier() && _time_smoke > 0 )
 	{
@@ -954,7 +956,7 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 void GC_Weap_Ram::Detach(World &world)
 {
 	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->Kill(world);
+	if( pIndicator ) pIndicator->Kill(world, world.GetId(pIndicator));
 
 	SAFE_KILL(world, _engineSound);
 	SAFE_KILL(world, _engineLight);
@@ -971,10 +973,10 @@ GC_Weap_Ram::~GC_Weap_Ram()
 {
 }
 
-void GC_Weap_Ram::Kill(World &world)
+void GC_Weap_Ram::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _engineSound);
-    GC_Weapon::Kill(world);
+    GC_Weapon::Kill(world, id);
 }
 
 void GC_Weap_Ram::OnUpdateView(World &world)
@@ -982,9 +984,9 @@ void GC_Weap_Ram::OnUpdateView(World &world)
 	_engineLight->MoveTo(world, GetPos() - GetDirection() * 20);
 }
 
-void GC_Weap_Ram::Serialize(World &world, SaveFile &f)
+void GC_Weap_Ram::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	/////////////////////////////////////
 	f.Serialize(_firingCounter);
 	f.Serialize(_bReady);
@@ -1020,7 +1022,7 @@ void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.5f : 6.0f;
 }
 
-void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
+void GC_Weap_Ram::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
 	static const TextureCache tex1("particle_fire2");
 	static const TextureCache tex2("particle_yellow");
@@ -1065,12 +1067,12 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFloat(world, dt);
+	GC_Weapon::TimeStepFloat(world, id, dt);
 }
 
-void GC_Weap_Ram::TimeStepFixed(World &world, float dt)
+void GC_Weap_Ram::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 
 	if( GetCarrier() )
 	{
@@ -1176,9 +1178,9 @@ GC_Weap_BFG::~GC_Weap_BFG()
 {
 }
 
-void GC_Weap_BFG::Serialize(World &world, SaveFile &f)
+void GC_Weap_BFG::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	f.Serialize(_time_ready);
 }
 
@@ -1216,9 +1218,9 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 13.0f : 20.0f;
 }
 
-void GC_Weap_BFG::TimeStepFixed(World &world, float dt)
+void GC_Weap_BFG::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
@@ -1286,9 +1288,9 @@ GC_Weap_Ripper::~GC_Weap_Ripper()
 {
 }
 
-void GC_Weap_Ripper::Serialize(World &world, SaveFile &f)
+void GC_Weap_Ripper::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 	f.Serialize(_diskSprite);
 }
 
@@ -1315,9 +1317,9 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.2f : 40.0f;
 }
 
-void GC_Weap_Ripper::TimeStepFloat(World &world, float dt)
+void GC_Weap_Ripper::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 {
-	GC_Weapon::TimeStepFloat(world, dt);
+	GC_Weapon::TimeStepFloat(world, id, dt);
 	if( _diskSprite )
 	{
 		UpdateDisk(world);
@@ -1352,11 +1354,11 @@ GC_Weap_Minigun::~GC_Weap_Minigun()
 {
 }
 
-void GC_Weap_Minigun::Kill(World &world)
+void GC_Weap_Minigun::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _crosshairLeft);
 	SAFE_KILL(world, _sound);
-    GC_Weapon::Kill(world);
+    GC_Weapon::Kill(world, id);
 }
 
 void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
@@ -1427,9 +1429,9 @@ void GC_Weap_Minigun::SetCrosshair(World &world)
 	_fixmeChAnimate = false;
 }
 
-void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
+void GC_Weap_Minigun::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 
 	f.Serialize(_bFire);
 	f.Serialize(_timeFire);
@@ -1457,7 +1459,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
 }
 
-void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
+void GC_Weap_Minigun::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	static const TextureCache tex("particle_1");
 
@@ -1521,7 +1523,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 }
 
 
@@ -1550,10 +1552,10 @@ GC_Weap_Zippo::~GC_Weap_Zippo()
 {
 }
 
-void GC_Weap_Zippo::Kill(World &world)
+void GC_Weap_Zippo::Kill(World &world, ObjectList::id_type id)
 {
 	SAFE_KILL(world, _sound);
-    GC_Weapon::Kill(world);
+    GC_Weapon::Kill(world, id);
 }
 
 void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
@@ -1576,9 +1578,9 @@ void GC_Weap_Zippo::Detach(World &world)
 	GC_Weapon::Detach(world);
 }
 
-void GC_Weap_Zippo::Serialize(World &world, SaveFile &f)
+void GC_Weap_Zippo::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_Weapon::Serialize(world, id, f);
 
 	f.Serialize(_bFire);
 	f.Serialize(_timeFire);
@@ -1604,7 +1606,7 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
 }
 
-void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
+void GC_Weap_Zippo::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
 
@@ -1657,7 +1659,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStepFixed(world, id, dt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

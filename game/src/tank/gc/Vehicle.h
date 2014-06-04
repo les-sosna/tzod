@@ -97,7 +97,7 @@ public:
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	virtual bool TakeDamage(World &world, ObjectList::id_type id, float damage, const vec2d &hit, GC_Player *from);
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return _player; }
 
@@ -108,10 +108,10 @@ public:
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void Kill(World &world, ObjectList::id_type id);
+	virtual void Serialize(World &world, ObjectList::id_type id, SaveFile &f);
+	virtual void TimeStepFixed(World &world, ObjectList::id_type id, float dt);
+	virtual void TimeStepFloat(World &world, ObjectList::id_type id, float dt);
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const

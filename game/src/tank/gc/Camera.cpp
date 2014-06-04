@@ -40,15 +40,17 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 		g_conf.g_rotcamera_a.GetFloat(),
 		std::max(0.001f, g_conf.g_rotcamera_s.GetFloat()));
 
-	MoveTo(world, vec2d(world._sx / 2, world._sy / 2));
-	if( _player->GetVehicle() )
+	if( GC_Vehicle *vehicle = _player->GetVehicle() )
 	{
-		_rotatorAngle =  -_player->GetVehicle()->GetDirection().Angle() + PI/2;
-		MoveTo(world, _player->GetVehicle()->GetPos());
+		_rotatorAngle = PI/2 - vehicle->GetDirection().Angle();
+		_target = vehicle->GetPos();
 	}
+    else
+    {
+        _target = vec2d(world._sx / 2, world._sy / 2);
+    }
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 
-	_target     = GetPos();
 	_time_shake = 0;
 	_time_seed  = frand(1000);
 	_zoom       = 1.0f;
@@ -63,17 +65,17 @@ GC_Camera::~GC_Camera()
 {
 }
 
-void GC_Camera::Kill(World &world)
+void GC_Camera::Kill(World &world, ObjectList::id_type id)
 {
-    GC_Actor::Kill(world);
+    GC_Actor::Kill(world, id);
 }
 
-void GC_Camera::MoveTo(World &world, const vec2d &pos)
+void GC_Camera::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
 #ifndef NOSOUND
     alListener3f(AL_POSITION, GetPos().x, GetPos().y, 500.0f);
 #endif
-    GC_Actor::MoveTo(world, pos);
+    GC_Actor::MoveTo(world, id, pos);
 }
 
 void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
@@ -117,7 +119,7 @@ void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 			_time_shake = 0;
 	}
 
-	MoveTo(world, _target + (GetPos() - _target) * expf(-dt * mu));
+	MoveTo(world, id, _target + (GetPos() - _target) * expf(-dt * mu));
 }
 
 void GC_Camera::GetWorld(FRECT &outWorld, const Rect &screen) const
@@ -143,9 +145,9 @@ void GC_Camera::Shake(float level)
 	_time_shake = std::min(_time_shake + 0.5f * level, PLAYER_RESPAWN_DELAY / 2);
 }
 
-void GC_Camera::Serialize(World &world, SaveFile &f)
+void GC_Camera::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_Actor::Serialize(world, id, f);
 
 	f.Serialize(_rotatorAngle);
 	f.Serialize(_target);
@@ -157,9 +159,9 @@ void GC_Camera::Serialize(World &world, SaveFile &f)
 	_rotator.Serialize(f);
 }
 
-void GC_Camera::OnDetach(World &world, GC_Object *sender, void *param)
+void GC_Camera::OnDetach(World &world, ObjectList::id_type id, GC_Object *sender, void *param)
 {
-	Kill(world);
+	Kill(world, id);
 }
 
 // end of file

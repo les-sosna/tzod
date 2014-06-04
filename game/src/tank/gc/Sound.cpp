@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 
 IMPLEMENT_1LIST_MEMBER(GC_Sound, LIST_sounds);
 
-GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
+GC_Sound::GC_Sound(World &world, enumSoundTemplate sound)
   : _soundTemplate(sound)
 #ifndef NOSOUND
   , _source(0U)
@@ -45,8 +45,6 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
         alSourcei(_source, AL_REFERENCE_DISTANCE, 70);
         _mode = SMODE_STOP;
     }
-
-	MoveTo(world, pos);
 
 	SetVolume(1.0f);
 	if( 100 != g_conf.sv_speed.GetInt() )
@@ -68,7 +66,7 @@ GC_Sound::~GC_Sound()
 {
 }
 
-void GC_Sound::Kill(World &world)
+void GC_Sound::Kill(World &world, ObjectList::id_type id)
 {
 #if !defined NOSOUND
 	if( SMODE_UNKNOWN != _mode )
@@ -78,7 +76,7 @@ void GC_Sound::Kill(World &world)
         _mode = SMODE_UNKNOWN;
 	}
 #endif
-    GC_Actor::Kill(world);
+    GC_Actor::Kill(world, id);
 }
 
 void GC_Sound::SetMode(World &world, enumSoundMode mode)
@@ -94,11 +92,13 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 		if( _countActive == _countMax )
 		{
             // FIXME: reverse
-			FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
+            ObjectList &ls = world.GetList(LIST_sounds);
+			for( auto it = ls.begin(); it != ls.end(); it = ls.next(it) )
 			{
+                auto pSound = static_cast<GC_Sound*>(ls.at(it));
 				if( SMODE_PLAY == pSound->_mode )
 				{
-					pSound->Kill(world);
+					pSound->Kill(world, it);
 					break;
 				}
 			}
@@ -106,8 +106,9 @@ void GC_Sound::SetMode(World &world, enumSoundMode mode)
 			if( _countActive == _countMax )
 			{
                 // FIXME: reverse
-				FOREACH( world.GetList(LIST_sounds), GC_Sound, pSound )
-				{
+				for( auto it = ls.begin(); it != ls.end(); it = ls.next(it) )
+                {
+                    auto pSound = static_cast<GC_Sound*>(ls.at(it));
 					if( SMODE_LOOP == pSound->_mode )
 					{
 						pSound->SetMode(world, SMODE_WAIT);
@@ -227,17 +228,17 @@ void GC_Sound::SetSpeed(float speed)
 #endif
 }
 
-void GC_Sound::MoveTo(World &world, const vec2d &pos)
+void GC_Sound::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
-	GC_Actor::MoveTo(world, pos);
+	GC_Actor::MoveTo(world, id, pos);
 #if !defined NOSOUND
     alSource3f(_source, AL_POSITION, GetPos().x, GetPos().y, 0.0f);
 #endif
 }
 
-void GC_Sound::Serialize(World &world, SaveFile &f)
+void GC_Sound::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_Actor::Serialize(world, id, f);
 
 #if !defined NOSOUND
 	assert(f.loading() || _freezed);  // freeze it before saving!
@@ -288,7 +289,7 @@ void GC_Sound::Serialize(World &world, SaveFile &f)
 #endif
 }
 
-void GC_Sound::KillWhenFinished(World &world)
+void GC_Sound::KillWhenFinished(World &world, ObjectList::id_type id)
 {
 #if !defined NOSOUND
 	if( SMODE_UNKNOWN == _mode || _freezed ) return;
@@ -298,7 +299,7 @@ void GC_Sound::KillWhenFinished(World &world)
         ALint state = 0;
         alGetSourcei(_source, AL_SOURCE_STATE, &state);
         if( state != AL_PLAYING )
-			Kill(world);
+			Kill(world, id);
 	}
 #endif
 }
@@ -338,20 +339,20 @@ GC_Sound_link::GC_Sound_link(FromFile)
 {
 }
 
-void GC_Sound_link::Serialize(World &world, SaveFile &f)
+void GC_Sound_link::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 {
-	GC_Sound::Serialize(world, f);
+	GC_Sound::Serialize(world, id, f);
 	f.Serialize(_object);
 }
 
-void GC_Sound_link::TimeStepFixed(World &world, float dt)
+void GC_Sound_link::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 {
 	if( !_object )
-		Kill(world);
+		Kill(world, id);
 	else
 		MoveTo(world, _object->GetPos());
 
-	GC_Sound::TimeStepFixed(world, dt);
+	GC_Sound::TimeStepFixed(world, id, dt);
 }
 
 
