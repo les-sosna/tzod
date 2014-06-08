@@ -31,7 +31,6 @@ set(tank_SOURCES
 	ClientBase.cpp
 	Controller.cpp
 	DefaultCamera.cpp
-	Field.cpp
 	globals.cpp
 	gui.cpp
 	gui_campaign.cpp
@@ -61,11 +60,11 @@ set(tank_SOURCES
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp
 	video/TextureManager.cpp
-	gc/TypeSystem.cpp
 	gc/2dSprite.cpp
 	gc/Actor.cpp
 	gc/Camera.cpp
 	gc/crate.cpp
+	gc/Field.cpp
 	gc/GameClasses.cpp
 	gc/indicators.cpp
 	gc/Light.cpp
@@ -83,6 +82,7 @@ set(tank_SOURCES
 	gc/Sound.cpp
 	gc/Trigger.cpp
 	gc/Turrets.cpp
+	gc/TypeSystem.cpp
 	gc/UserObjects.cpp
 	gc/Vehicle.cpp
 	gc/Weapons.cpp

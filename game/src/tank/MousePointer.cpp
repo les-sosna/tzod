@@ -2,6 +2,7 @@
 
 #include "MousePointer.h"
 
+#include "constants.h"
 #include "globals.h"
 #include "Text.h"
 
