@@ -14,7 +14,6 @@ IRender *g_render;
 TextureManager *g_texman;
 //ClientBase     *g_client;
 
-World   *g_level;
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
 std::unique_ptr<MusicPlayer>     g_music;

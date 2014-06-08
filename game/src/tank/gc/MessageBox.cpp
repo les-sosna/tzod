@@ -117,7 +117,8 @@ void GC_MessageBox::OnSelect(int n)
 			}
 			else if( whatch && _autoClose )
 			{
-				Kill(*g_level);
+// FIXME:
+//				Kill(*g_level);
 			}
 		}
 	}

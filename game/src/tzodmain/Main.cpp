@@ -337,7 +337,6 @@ int main(int, const char**)
 
         { // FIXME: remove explicit world scope
         World world;
-        g_level = &world;
 
         TRACE("scripting subsystem initialization");
         g_env.L = script_open(world);
@@ -398,7 +397,6 @@ int main(int, const char**)
         
         TRACE("Shutting down the world");
         world.Clear();
-        g_level = nullptr;
         } // FIXME: remove explicit world scope
         
         TRACE("Shutting down the scripting subsystem");
