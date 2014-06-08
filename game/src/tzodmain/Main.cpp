@@ -346,7 +346,7 @@ int main(int, const char**)
         
         { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui((DesktopFactory(world)));
+        UI::LayoutManager gui(*g_texman, DesktopFactory(world));
         glfwSetWindowUserPointer(g_appWindow, &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         

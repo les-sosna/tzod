@@ -35,7 +35,7 @@ enum Msg
 class LayoutManager
 {
 public:
-	LayoutManager(IWindowFactory &&desktopFactory);
+	LayoutManager(TextureManager &texman, IWindowFactory &&desktopFactory);
 	~LayoutManager();
 
 	void TimeStep(float dt);
@@ -44,7 +44,7 @@ public:
 	bool ProcessMouse(float x, float y, float z, Msg msg);
 	bool ProcessKeys(Msg msg, int c);
 
-	TextureManager& GetTextureManager() const;
+	TextureManager& GetTextureManager() const { return _texman; }
 	Window* GetDesktop() const;
 
 	Window* GetCapture() const;
@@ -66,6 +66,7 @@ private:
 
 	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
 
+    TextureManager &_texman;
     std::list<Window*> _topmost;
     std::list<Window*> _timestep;
     std::list<Window*>::iterator _tsCurrent;

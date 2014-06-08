@@ -17,6 +17,7 @@ private:
 	void RenderInternal(World &world, const FRECT &view, bool editorMode) const;
     
     IRender &_render;
+    TextureManager &_texman;
 	size_t _texBack;
 	size_t _texGrid;
 	void DrawBackground(float sizeX, float sizeY, size_t tex) const;

@@ -12,8 +12,9 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LayoutManager::LayoutManager(IWindowFactory &&desktopFactory)
-  : _tsCurrent(_timestep.end())
+LayoutManager::LayoutManager(TextureManager &texman, IWindowFactory &&desktopFactory)
+  : _texman(texman)
+  , _tsCurrent(_timestep.end())
   , _tsDeleteCurrent(false)
   , _captureCountSystem(0)
   , _captureCount(0)
@@ -141,10 +142,6 @@ Window* LayoutManager::GetFocusWnd() const
 	return _focusWnd.Get();
 }
 
-TextureManager& LayoutManager::GetTextureManager() const
-{
-	return *g_texman;
-}
 /*
 bool LayoutManager::ResetFocus(Window* wnd)
 {

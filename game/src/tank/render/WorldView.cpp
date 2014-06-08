@@ -8,6 +8,7 @@
 
 WorldView::WorldView(IRender &render, TextureManager &texman)
     : _render(render)
+    , _texman(texman)
     , _texBack(texman.FindSprite("background"))
     , _texGrid(texman.FindSprite("grid"))
 {
@@ -156,7 +157,7 @@ void WorldView::RenderInternal(World &world, const FRECT &view, bool editorMode)
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( GC_2dSprite *sprite: zLayers[z] )
-            sprite->Draw(static_cast<DrawingContext&>(*g_texman), editorMode);
+            sprite->Draw(static_cast<DrawingContext&>(_texman), editorMode);
         zLayers[z].clear();
     }
     
@@ -179,7 +180,7 @@ void WorldView::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) con
 
 void WorldView::DrawBackground(float sizeX, float sizeY, size_t tex) const
 {
-	const LogicalTexture &lt = g_texman->Get(tex);
+	const LogicalTexture &lt = _texman.Get(tex);
 	MyVertex *v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = 0xffffffff;
 	v[0].u = 0;
