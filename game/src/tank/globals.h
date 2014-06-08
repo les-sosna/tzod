@@ -11,11 +11,6 @@ class ConsoleBuffer;
 //class ClientBase;
 class AppBase;
 
-namespace UI
-{
-	class LayoutManager;
-}
-
 namespace FS
 {
 	class FileSystem;
@@ -30,9 +25,8 @@ struct ENVIRONMENT;
 
 extern unsigned int g_sounds[SND_COUNT];
 
-extern std::unique_ptr<IRender> g_render;
+extern IRender *g_render;
 extern TextureManager  *g_texman;
-extern UI::LayoutManager  *g_gui;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
 

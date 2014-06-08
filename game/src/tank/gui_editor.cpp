@@ -900,7 +900,7 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(_world, g_gui->GetMousePos(), mouse, true) )
+	if( GC_Camera::GetWorldMousePos(_world, GetManager()->GetMousePos(), mouse, true) )
 	{
 		std::stringstream buf;
 		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);

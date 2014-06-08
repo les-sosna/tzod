@@ -216,7 +216,7 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			{
 				char buf[64];
 				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-				static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(buf);
+                GetConsole().WriteLine(1, buf);
 				return;
 			}
 
@@ -418,7 +418,7 @@ GC_PlayerLocal::GC_PlayerLocal(World &world)
   : GC_Player(world)
 {
 	(new GC_Camera(world, this))->Register(world);
-    GC_Camera::UpdateLayout(world);
+    GC_Camera::UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)

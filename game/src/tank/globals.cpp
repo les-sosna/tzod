@@ -9,8 +9,7 @@ ENVIRONMENT g_env;
 
 unsigned int     g_sounds[SND_COUNT];
 
-std::unique_ptr<IRender> g_render;
-UI::LayoutManager  *g_gui;
+IRender *g_render;
 
 TextureManager *g_texman;
 //ClientBase     *g_client;

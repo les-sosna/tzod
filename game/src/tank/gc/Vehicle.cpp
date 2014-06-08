@@ -3,6 +3,7 @@
 #include "Vehicle.h"
 
 #include "World.h"
+#include "WorldEvents.h"
 #include "Macros.h"
 #include "script.h"
 
@@ -431,7 +432,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 		{
 			if( from == GetOwner() )
 			{
-				// killed it self
+				// killed him self
 				GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 				font = "font_digits_red";
 				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
@@ -488,7 +489,9 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			if( watch ) Kill(world);
 		}
 
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(msg);
+        if (world._messageListener)
+            world._messageListener->OnGameMessage(msg);
+
 		return true;
 	}
 	return false;

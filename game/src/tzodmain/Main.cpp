@@ -23,7 +23,6 @@
 //#include <network/TankClient.h>
 
 
-#include <gc/Camera.h>
 #include <gc/Sound.h>
 #include <gc/Player.h>
 
@@ -64,9 +63,6 @@ struct GlfwInitHelper
         glfwTerminate();
     }
 };
-
-
-static void Idle(World &world, float dt);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,7 +161,7 @@ namespace
 
 static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 {
-    if( g_gui )
+    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
         UI::Msg msg;
         switch (button)
@@ -185,49 +181,56 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
         double xpos = 0;
         double ypos = 0;
         glfwGetCursorPos(window, &xpos, &ypos);
-		g_gui->ProcessMouse((float) xpos, (float) ypos, 0, msg);
+		gui->ProcessMouse((float) xpos, (float) ypos, 0, msg);
 	}
 }
 
 static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
-    if( g_gui )
+    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		g_gui->ProcessMouse((float) xpos, (float) ypos, 0, UI::MSGMOUSEMOVE);
+		gui->ProcessMouse((float) xpos, (float) ypos, 0, UI::MSGMOUSEMOVE);
 	}
 }
 
 static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
-    double xpos = 0;
-    double ypos = 0;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    g_gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
+    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+    {
+        double xpos = 0;
+        double ypos = 0;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
+    }
 }
 
 static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-    g_gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
-    if( GLFW_KEY_PRINT_SCREEN == key && GLFW_PRESS == action )
-		OnPrintScreen();
-
+    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+    {
+        gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
+        if( GLFW_KEY_PRINT_SCREEN == key && GLFW_PRESS == action )
+            OnPrintScreen();
+    }
 }
 
 static void OnChar(GLFWwindow *window, unsigned int codepoint)
 {
-    if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
-	{
-        g_gui->ProcessKeys(UI::MSGCHAR, codepoint);
+    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+    {
+        if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
+        {
+            gui->ProcessKeys(UI::MSGCHAR, codepoint);
+        }
     }
 }
 
 static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
+    auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
+    gui->GetDesktop()->Resize(width, height);
     g_render->OnResizeWnd(Point{width, height});
     g_texman->SetCanvasSize(width, width);
-    g_gui->GetDesktop()->Resize(width, height);
-    if (g_level)
-        GC_Camera::UpdateLayout(*g_level);
 }
 
 
@@ -256,22 +259,6 @@ int main(int, const char**)
 	try
 	{
         TRACE("%s", TXT_VERSION);
-
-        TRACE("Create GL context");
-        GlfwInitHelper __gih;
-        g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
-                                       g_conf.r_height.GetInt(),
-                                       TXT_VERSION,
-                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
-                                       nullptr);
-        glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
-        glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
-        glfwSetScrollCallback(g_appWindow, OnScroll);
-        glfwSetKeyCallback(g_appWindow, OnKey);
-        glfwSetCharCallback(g_appWindow, OnChar);
-        glfwSetFramebufferSizeCallback(g_appWindow, OnFramebufferSize);
-        glfwMakeContextCurrent(g_appWindow);
-
 
         TRACE("Mount file system");
         g_fs = FS::OSFileSystem::Create("data");
@@ -313,19 +300,37 @@ int main(int, const char**)
         
         GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
         
-        // init render
-        g_render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+        
+        TRACE("Create GL context");
+        GlfwInitHelper __gih;
+        g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
+                                       g_conf.r_height.GetInt(),
+                                       TXT_VERSION,
+                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
+                                       nullptr);
+        glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
+        glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
+        glfwSetScrollCallback(g_appWindow, OnScroll);
+        glfwSetKeyCallback(g_appWindow, OnKey);
+        glfwSetCharCallback(g_appWindow, OnChar);
+        glfwSetFramebufferSizeCallback(g_appWindow, OnFramebufferSize);
+        glfwMakeContextCurrent(g_appWindow);
+        
+        
+        { // TODO: remove explicit render scope
+        std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+        g_render = render.get();
         int width;
         int height;
         glfwGetFramebufferSize(g_appWindow, &width, &height);
-        g_render->OnResizeWnd(Point{width, height});
+        render->OnResizeWnd(Point{width, height});
         
 #if !defined NOSOUND
         InitSound(true);
 #endif
         
-        g_texman = new TextureManager;
-        g_texman->SetCanvasSize(g_render->GetWidth(), g_render->GetHeight());
+        g_texman = new TextureManager(*render);
+        g_texman->SetCanvasSize(width, height);
         if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
             TRACE("WARNING: no textures loaded");
         if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
@@ -340,9 +345,11 @@ int main(int, const char**)
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
+        { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
-        g_gui = new UI::LayoutManager(DesktopFactory(world));
-        g_gui->GetDesktop()->Resize((float) g_render->GetWidth(), (float) g_render->GetHeight());
+        UI::LayoutManager gui((DesktopFactory(world)));
+        glfwSetWindowUserPointer(g_appWindow, &gui);
+        gui.GetDesktop()->Resize((float) width, (float) height);
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
         if( !script_exec_file(g_env.L, FILE_STARTUP) )
@@ -353,10 +360,32 @@ int main(int, const char**)
         timer.Start();
         for(;;)
         {
+            if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(
+                                                                      std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
+            }
+            
             glfwPollEvents();
             if (glfwWindowShouldClose(g_appWindow))
                 break;
-            Idle(world, timer.GetDt());
+            
+            world._defaultCamera.HandleMovement(world._sx, world._sy, (float) render->GetWidth(), (float) render->GetHeight());
+            
+            gui.TimeStep(timer.GetDt());
+            
+            render->Begin();
+            gui.Render();
+            render->End();
+            
+            
+#ifndef NOSOUND
+            if( g_music )
+            {
+                g_music->HandleBufferFilling();
+            }
+#endif
+            
             glfwSwapBuffers(g_appWindow);
         }
         
@@ -366,7 +395,7 @@ int main(int, const char**)
         //
         
         TRACE("Shutting down the GUI subsystem");
-        SAFE_DELETE(g_gui);
+        } // FIXME: remove explicit gui scope
         
         TRACE("Shutting down the world");
         world.Clear();
@@ -386,11 +415,14 @@ int main(int, const char**)
 #ifndef NOSOUND
         FreeSound();
 #endif
-        if( g_render )
-        {
-            TRACE("Shutting down the renderer");
-            g_render.reset();
-        }
+            
+        g_render = nullptr;
+        TRACE("Shutting down the renderer");
+        } // TODO: remove explicit render scope
+        
+        TRACE("Destroying gl context");
+        glfwDestroyWindow(g_appWindow);
+        g_appWindow = nullptr;
         
         TRACE("Saving config to '" FILE_CONFIG "'");
         if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
@@ -399,12 +431,8 @@ int main(int, const char**)
         }
         
         TRACE("Unmounting the file system");
-        g_fs = NULL;
+        g_fs.reset();
 
-        TRACE("Destroying gl context");
-        glfwDestroyWindow(g_appWindow);
-        g_appWindow = nullptr;
-        
         TRACE("Exit.");
 	}
 	catch( const std::exception &e )
@@ -418,35 +446,4 @@ int main(int, const char**)
 	return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-
-void Idle(World &world, float dt)
-{
-	world._defaultCamera.HandleMovement(world._sx, world._sy, (float) g_render->GetWidth(), (float) g_render->GetHeight());
-
-    g_gui->TimeStep(dt);
-    
-	assert(g_render);
-	g_render->Begin();
-    g_gui->Render();
-	g_render->End();
-    
-
-#ifndef NOSOUND
-	if( g_music )
-	{
-		g_music->HandleBufferFilling();
-	}
-#endif
-
-	if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
-	{
-        std::this_thread::sleep_for(std::chrono::milliseconds(
-            std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
-	}
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file

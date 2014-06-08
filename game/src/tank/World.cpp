@@ -1,13 +1,9 @@
 // World.cpp
-////////////////////////////////////////////////////////////
 
 #include "World.h"
 #include "World.inl"
 
 #include "DefaultCamera.h"
-#include "gui.h"
-#include "gui_desktop.h"
-#include "gui_widgets.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -65,7 +61,8 @@ struct SaveHeader
 
 // don't create game objects in the constructor
 World::World()
-  : _serviceListener(NULL)
+  : _serviceListener(nullptr)
+  , _messageListener(nullptr)
   , _texBack(g_texman->FindSprite("background"))
   , _texGrid(g_texman->FindSprite("grid"))
   , _frozen(false)
@@ -318,7 +315,7 @@ void World::Unserialize(const char *fileName)
 			pPlayer->UpdateSkin();
 		}
 
-		GC_Camera::UpdateLayout(*this);
+		GC_Camera::UpdateLayout(*this, g_render->GetWidth(), g_render->GetHeight());
 	}
 	catch( const std::runtime_error& )
 	{
@@ -473,7 +470,7 @@ void World::Import(std::shared_ptr<FS::Stream> s)
 		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(*this, x, y);
 		object->MapExchange(*this, file);
 	}
-	GC_Camera::UpdateLayout(*this);
+	GC_Camera::UpdateLayout(*this, g_render->GetWidth(), g_render->GetHeight());
 }
 
 void World::Export(std::shared_ptr<FS::Stream> s)
@@ -888,7 +885,7 @@ void World::RenderInternal(const FRECT &world, bool editorMode) const
 				pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
 				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 			{
-				pLight->Shine();
+				pLight->Shine(*g_render);
 			}
 		}
 	}
@@ -988,13 +985,6 @@ GC_Player* World::GetPlayerByIndex(size_t playerIndex)
 		}
 	}
 	return player;
-}
-
-void World::PlayerQuit(GC_Player *p)
-{
-	if( g_gui )
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(g_lang.msg_player_quit.Get());
-	static_cast<GC_Player*>(p)->Kill(*this);
 }
 
 void World::Seed(unsigned long seed)

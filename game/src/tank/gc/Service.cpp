@@ -2,6 +2,7 @@
 
 #include "Service.h"
 #include "World.h"
+#include "WorldEvents.h"
 
 // custom IMPLEMENT_1LIST_MEMBER for service
 PtrList<GC_Object>::id_type GC_Service::Register(World &world)

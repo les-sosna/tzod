@@ -3,6 +3,7 @@
 #pragma once
 
 #include "InputManager.h"
+#include "WorldEvents.h"
 #include <Window.h>
 #include <Console.h>
 
@@ -49,6 +50,7 @@ private:
 
 class Desktop
 	: public Window
+    , private MessageListener
 {
 	class MyConsoleHistory : public UI::IConsoleHistory
 	{
@@ -102,6 +104,9 @@ private:
 
 	void OnCommand(const std::string &cmd);
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
+    
+    // MessageListener
+    virtual void OnGameMessage(const char *msg);
 };
 
 

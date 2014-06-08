@@ -10,4 +10,9 @@ struct ObjectListener
 	virtual void OnKill(GC_Object *obj) = 0;
 };
 
+struct MessageListener
+{
+    virtual void OnGameMessage(const char *msg) = 0;
+};
+
 // end of file

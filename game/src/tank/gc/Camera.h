@@ -39,7 +39,7 @@ public:
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
-	static void UpdateLayout(World &world);
+	static void UpdateLayout(World &world, int width, int height);
 	static bool GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode);
 
 	void Shake(float level);

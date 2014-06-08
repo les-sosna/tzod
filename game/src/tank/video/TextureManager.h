@@ -46,7 +46,7 @@ enum enumAlignText {
 class TextureManager
 {
 public:
-	TextureManager();
+	TextureManager(IRender &render);
 	~TextureManager();
 
 	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file);
@@ -78,6 +78,8 @@ public:
 	void PopClippingRect() const;
 
 private:
+    IRender &_render;
+    
 	struct TexDesc
 	{
 		DEV_TEXTURE id;

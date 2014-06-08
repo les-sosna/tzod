@@ -114,7 +114,7 @@ public:
     virtual void Kill(World &world) override;
 
 public:
-	virtual void Shine() const;
+	virtual void Shine(IRender &render) const;
 	virtual void Update(); // handles changing day/night
 };
 

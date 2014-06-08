@@ -14,6 +14,7 @@
 #include "config/Config.h"
 #include "config/Language.h"
 #include "core/Profiler.h"
+#include <gc/Camera.h>
 #include "gc/Player.h"
 #include "World.h"
 
@@ -183,6 +184,9 @@ Desktop::Desktop(LayoutManager* manager, World &world)
 			yy += hh+5;
 		}
 	}
+    
+    assert(!world._messageListener);
+    world._messageListener = this;
 
 	OnRawChar(GLFW_KEY_ESCAPE); // to invoke main menu dialog
     SetTimeStep(true);
@@ -190,6 +194,9 @@ Desktop::Desktop(LayoutManager* manager, World &world)
 
 Desktop::~Desktop()
 {
+    assert(this == _world._messageListener);
+    _world._messageListener = nullptr;
+    
 	g_conf.ui_showfps.eventChange = nullptr;
 	g_conf.ui_showtime.eventChange = nullptr;
 }
@@ -336,6 +343,7 @@ void Desktop::OnSize(float width, float height)
 	_fps->Move(1, GetHeight() - 1);
 	_time->Move( GetWidth() - 1, GetHeight() - 1 );
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
+    GC_Camera::UpdateLayout(_world, width, height);
 }
 
 void Desktop::OnChangeShowFps()
@@ -423,8 +431,12 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 	lua_pop(g_env.L, 1); // pop result or error message
 	return true;
 }
+    
+void Desktop::OnGameMessage(const char *msg)
+{
+    _msg->WriteLine(msg);
+}
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 
 // end of file

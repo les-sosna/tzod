@@ -72,7 +72,7 @@ void GC_Light::MapExchange(World &world, MapFile &f)
 	GC_Actor::MapExchange(world, f);
 }
 
-void GC_Light::Shine() const
+void GC_Light::Shine(IRender &render) const
 {
 	if( !IsActive() ) return;
 //	_FpsCounter::Inst()->OneMoreLight();
@@ -87,7 +87,7 @@ void GC_Light::Shine() const
 	switch( _type )
 	{
 	case LIGHT_POINT:
-		v = g_render->DrawFan(SINTABLE_SIZE>>1);
+		v = render.DrawFan(SINTABLE_SIZE>>1);
 		v[0].color = color;
 		v[0].x = GetPos().x;
 		v[0].y = GetPos().y;
@@ -99,7 +99,7 @@ void GC_Light::Shine() const
 		}
 		break;
 	case LIGHT_SPOT:
-		v = g_render->DrawFan(SINTABLE_SIZE);
+		v = render.DrawFan(SINTABLE_SIZE);
 		v[0].color = color;
 		v[0].x = GetPos().x;
 		v[0].y = GetPos().y;
@@ -113,7 +113,7 @@ void GC_Light::Shine() const
 		}
 		break;
 	case LIGHT_DIRECT:
-		v = g_render->DrawFan((SINTABLE_SIZE>>2)+4);
+		v = render.DrawFan((SINTABLE_SIZE>>2)+4);
 		v[0].color = color;
 		v[0].x = GetPos().x;
 		v[0].y = GetPos().y;
@@ -138,7 +138,7 @@ void GC_Light::Shine() const
 		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * _lightDirection.x - _offset*_lightDirection.y;
 		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * _lightDirection.y + _offset*_lightDirection.x;
 
-		v = g_render->DrawFan((SINTABLE_SIZE>>2)+1);
+		v = render.DrawFan((SINTABLE_SIZE>>2)+1);
 		v[0].color = color;
 		v[0].x = GetPos().x + _radius * _lightDirection.x;
 		v[0].y = GetPos().y + _radius * _lightDirection.y;

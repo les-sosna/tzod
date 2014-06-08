@@ -6,6 +6,7 @@
 #include "gui.h"
 #include "gui_desktop.h"
 #include "World.h"
+#include "WorldEvents.h"
 #include "Macros.h"
 #include "SaveFile.h"
 
@@ -498,7 +499,11 @@ static int luaT_message(lua_State *L)
 		buf << s;
 		lua_pop(L, 1);            // pop result
 	}
-	static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->WriteLine(buf.str());
+    
+    World &world = getworld(L);
+    if (world._messageListener)
+        world._messageListener->OnGameMessage(buf.str().c_str());
+
 	return 0;
 }
 

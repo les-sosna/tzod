@@ -41,7 +41,8 @@ const unsigned char CheckerImage::_bytes[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TextureManager::TextureManager()
+TextureManager::TextureManager(IRender &render)
+    : _render(render)
 {
 	memset(&_viewport, 0, sizeof(_viewport));
 	CreateChecker();
@@ -56,7 +57,7 @@ void TextureManager::UnloadAllTextures()
 {
 	TexDescIterator it = _textures.begin();
 	while( it != _textures.end() )
-		g_render->TexFree((it++)->id);
+		_render.TexFree((it++)->id);
 	_textures.clear();
 	_mapFile_to_TexDescIter.clear();
 	_mapDevTex_to_TexDescIter.clear();
@@ -77,7 +78,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 		std::unique_ptr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
-		if( !g_render->TexCreate(td.id, *image) )
+		if( !_render.TexCreate(td.id, *image) )
 		{
 			throw std::runtime_error("error in render device");
 		}
@@ -95,7 +96,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 
 void TextureManager::Unload(TexDescIterator what)
 {
-	g_render->TexFree(what->id);
+	_render.TexFree(what->id);
 
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.begin();
 	while( _mapFile_to_TexDescIter.end() != it )
@@ -134,7 +135,7 @@ void TextureManager::CreateChecker()
 	//
 
 	CheckerImage c;
-	if( !g_render->TexCreate(td.id, c) )
+	if( !_render.TexCreate(td.id, c) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);
@@ -458,7 +459,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	MyVertex *v;
 
 	// left edge
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop;
@@ -481,7 +482,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// right edge
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop;
@@ -504,7 +505,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// top edge
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -527,7 +528,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// bottom edge
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvBottom;
@@ -550,7 +551,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left top corner
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -573,7 +574,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right top corner
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -596,7 +597,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right bottom corner
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvBottom;
@@ -619,7 +620,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left bottom corner
-	v = g_render->DrawQuad(lt.dev_texture);
+	v = _render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvBottom;
@@ -693,7 +694,7 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		float x = x0 + (float) ((count++) * (lt.pxFrameWidth - 1));
 		float y = y0 + (float) (line * lt.pxFrameHeight);
 
-		MyVertex *v = g_render->DrawQuad(lt.dev_texture);
+		MyVertex *v = _render.DrawQuad(lt.dev_texture);
 
 		v[0].color = color;
 		v[0].u = rt.left;
@@ -726,7 +727,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
+	MyVertex *v = _render.DrawQuad(lt.dev_texture);
 
 	float width = lt.pxFrameWidth;
 	float height = lt.pxFrameHeight;
@@ -765,7 +766,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
+	MyVertex *v = _render.DrawQuad(lt.dev_texture);
 
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
@@ -803,7 +804,7 @@ void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) co
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
 
-	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
+	MyVertex *v = _render.DrawQuad(lt.dev_texture);
 
 	v[0].color = 0xffffffff;
 	v[0].u = rt.left;
@@ -835,7 +836,7 @@ void TextureManager::DrawLine(size_t tex, SpriteColor color,
 {
 	const LogicalTexture &lt = Get(tex);
 
-	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
+	MyVertex *v = _render.DrawQuad(lt.dev_texture);
 
 	float len = sqrtf((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
 	float phase1 = phase + len / lt.pxFrameWidth;
@@ -879,7 +880,7 @@ void TextureManager::PushClippingRect(const Rect &rect) const
 	if( _clipStack.empty() )
 	{
 		_clipStack.push(rect);
-		g_render->SetScissor(&rect);
+		_render.SetScissor(&rect);
 	}
 	else
 	{
@@ -890,7 +891,7 @@ void TextureManager::PushClippingRect(const Rect &rect) const
 		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
 		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
 		_clipStack.push(tmp);
-		g_render->SetScissor(&tmp);
+		_render.SetScissor(&tmp);
 	}
 }
 
@@ -900,11 +901,11 @@ void TextureManager::PopClippingRect() const
 	_clipStack.pop();
 	if( _clipStack.empty() )
 	{
-		g_render->SetScissor(&_viewport);
+		_render.SetScissor(&_viewport);
 	}
 	else
 	{
-		g_render->SetScissor(&_clipStack.top());
+		_render.SetScissor(&_clipStack.top());
 	}
 }
 

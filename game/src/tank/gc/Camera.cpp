@@ -65,7 +65,7 @@ GC_Camera::~GC_Camera()
 
 void GC_Camera::Kill(World &world)
 {
-    UpdateLayout(world);
+    UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
     GC_Actor::Kill(world);
 }
 
@@ -140,7 +140,7 @@ void GC_Camera::GetScreen(Rect &vp) const
 	vp = _viewport;
 }
 
-void GC_Camera::UpdateLayout(World &world)
+void GC_Camera::UpdateLayout(World &world, int width, int height)
 {
 	size_t camCount = 0;
 
@@ -151,13 +151,13 @@ void GC_Camera::UpdateLayout(World &world)
 
 	Rect viewports[MAX_HUMANS];
 
-	if( g_render->GetWidth() >= int(world._sx) && g_render->GetHeight() >= int(world._sy) )
+	if( width >= int(world._sx) && height >= int(world._sy) )
 	{
 		viewports[0] = CRect(
-			(g_render->GetWidth() - int(world._sx)) / 2,
-			(g_render->GetHeight() - int(world._sy)) / 2,
-			(g_render->GetWidth() + int(world._sx)) / 2,
-			(g_render->GetHeight() + int(world._sy)) / 2
+			(width - int(world._sx)) / 2,
+			(height - int(world._sy)) / 2,
+			(width + int(world._sx)) / 2,
+			(height + int(world._sy)) / 2
 		);
 		FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera)
 		{
@@ -166,28 +166,25 @@ void GC_Camera::UpdateLayout(World &world)
 	}
 	else if( camCount )
 	{
-		int w = g_render->GetWidth();
-		int h = g_render->GetHeight();
-
 		switch( camCount )
 		{
 		case 1:
-			viewports[0] = CRect(0, 0, w, h);
+			viewports[0] = CRect(0, 0, width, height);
 			break;
 		case 2:
-			viewports[0] = CRect(0, 0, w/2 - 1, h);
-			viewports[1] = CRect(w/2 + 1, 0, w, h);
+			viewports[0] = CRect(0,           0, width/2 - 1, height);
+			viewports[1] = CRect(width/2 + 1, 0, width,       height);
 			break;
 		case 3:
-			viewports[0] = CRect(0, 0, w/2 - 1, h/2 - 1);
-			viewports[1] = CRect(w/2 + 1, 0, w, h/2 - 1);
-			viewports[2] = CRect(w/4, h/2 + 1, w*3/4, h);
+			viewports[0] = CRect(0,           0,            width/2 - 1, height/2 - 1);
+			viewports[1] = CRect(width/2 + 1, 0,            width,       height/2 - 1);
+			viewports[2] = CRect(width/4,     height/2 + 1, width*3/4,   height);
 			break;
 		case 4:
-			viewports[0] = CRect(0, 0, w/2 - 1, h/2 - 1);
-			viewports[1] = CRect(w/2 + 1, 0, w, h/2 - 1);
-			viewports[2] = CRect(0, h/2 + 1, w/2 - 1, h);
-			viewports[3] = CRect(w/2 + 1, h/2 + 1, w, h);
+			viewports[0] = CRect(0,           0,            width/2 - 1, height/2 - 1);
+			viewports[1] = CRect(width/2 + 1, 0,            width,       height/2 - 1);
+			viewports[2] = CRect(0,           height/2 + 1, width/2 - 1, height);
+			viewports[3] = CRect(width/2 + 1, height/2 + 1, width,       height);
 			break;
 		default:
 			assert(false);
@@ -253,7 +250,7 @@ void GC_Camera::Serialize(World &world, SaveFile &f)
 	_rotator.Serialize(f);
 	if( f.loading() )
     {
-        UpdateLayout(world);
+        UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
     }
 }
 

@@ -3,7 +3,6 @@
 #include "ClientBase.h"
 
 #include "globals.h"
-#include "gui_desktop.h"
 #include "script.h"
 #include "World.h"
 
@@ -20,9 +19,6 @@ ClientBase::~ClientBase()
 	assert(_clientListeners.empty());
 	// remove all game objects
 	_level->Clear();
-	// clear message area
-	if( g_gui )
-		static_cast<UI::Desktop*>(g_gui->GetDesktop())->GetMsgArea()->Clear();
 	// cancel any pending commands
 	ClearCommandQueue(g_env.L);
 }

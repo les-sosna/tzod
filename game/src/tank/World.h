@@ -4,7 +4,6 @@
 
 #include "constants.h"
 #include "Field.h"
-#include "ObjectListener.h"
 #include "DefaultCamera.h"
 
 #include "gc/GlobalListHelper.h"
@@ -30,6 +29,8 @@ class GC_Object;
 class GC_Player;
 class GC_2dSprite;
 
+struct ObjectListener;
+struct MessageListener;
 
 class World
 {
@@ -63,6 +64,7 @@ public:
     Grid<PtrList<GC_Object>>  grid_sprites;
 
 	ObjectListener *_serviceListener;
+    MessageListener *_messageListener;
 	DefaultCamera _defaultCamera;
 
 	size_t _texBack;
@@ -189,7 +191,6 @@ public:
 
 	void Clear();
 	GC_Player* GetPlayerByIndex(size_t playerIndex);
-	void PlayerQuit(GC_Player *p);
     void Seed(unsigned long seed);
 
 	float GetTime() const { return _time; }
