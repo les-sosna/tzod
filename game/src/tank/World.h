@@ -121,7 +121,6 @@ public:
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
 
-	void RunCmdQueue(float dt);
 	void Render(bool editorMode) const;
 	bool IsSafeMode() const { return _safeMode; }
 	GC_Object* FindObject(const std::string &name) const;

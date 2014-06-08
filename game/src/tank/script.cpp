@@ -65,6 +65,46 @@ void ClearCommandQueue(lua_State *L)
 	 lua_pop(L, 1);  // pop result of lua_getglobal
 }
 
+void RunCmdQueue(lua_State *L, float dt)
+{
+	lua_getglobal(L, "pushcmd");
+	assert(LUA_TFUNCTION == lua_type(L, -1));
+	lua_getupvalue(L, -1, 1);
+	int queueidx = lua_gettop(L);
+    
+	for( lua_pushnil(L); lua_next(L, queueidx); lua_pop(L, 1) )
+	{
+		// -2 -> key; -1 -> value(table)
+        
+		lua_rawgeti(L, -1, 2);
+		lua_Number time = lua_tonumber(L, -1) - dt;
+		lua_pop(L, 1);
+        
+		if( time <= 0 )
+		{
+			// call function and remove it from queue
+			lua_rawgeti(L, -1, 1);
+			if( lua_pcall(L, 0, 0, 0) )
+			{
+				GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+				lua_pop(g_env.L, 1); // pop the error message
+			}
+			lua_pushvalue(L, -2); // push copy of the key
+			lua_pushnil(L);
+			lua_settable(L, queueidx);
+		}
+		else
+		{
+			// update time value
+			lua_pushnumber(L, time);
+			lua_rawseti(L, -2, 2);
+		}
+	}
+    
+	assert(lua_gettop(L) == queueidx);
+	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // helper functions
 
@@ -1425,7 +1465,6 @@ bool script_exec_file(lua_State *L, const char *filename)
 
 	return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // end of file

@@ -16,5 +16,6 @@ bool script_exec_file(lua_State *L, const char *filename);
 int luaT_ConvertVehicleClass(lua_State *L);
 void luaT_pushobject(lua_State *L, class GC_Object *obj);
 void ClearCommandQueue(lua_State *L);
+void RunCmdQueue(lua_State *L, float dt);
 
 // end of file
