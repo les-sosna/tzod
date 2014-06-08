@@ -229,7 +229,7 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
     auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
     gui->GetDesktop()->Resize(width, height);
-    gui->GetTextureManager().SetCanvasSize(width, width);
+    gui->GetTextureManager().SetCanvasSize(width, height);
 }
 
 
