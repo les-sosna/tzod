@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "DefaultCamera.h"
 #include "InputManager.h"
 #include "gc/WorldEvents.h"
 #include "render/WorldView.h"
@@ -78,6 +79,7 @@ class Desktop
     
     World &_world;
     WorldView _worldView;
+    DefaultCamera _defaultCamera;
 
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;

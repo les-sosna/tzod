@@ -368,9 +368,7 @@ int main(int, const char**)
             glfwPollEvents();
             if (glfwWindowShouldClose(g_appWindow))
                 break;
-            
-            world._defaultCamera.HandleMovement(world._sx, world._sy, (float) render->GetWidth(), (float) render->GetHeight());
-            
+                        
             gui.TimeStep(timer.GetDt());
             
             render->Begin();

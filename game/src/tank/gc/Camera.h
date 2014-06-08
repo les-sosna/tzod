@@ -40,7 +40,7 @@ public:
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
 	static void UpdateLayout(World &world, int width, int height);
-	static bool GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode);
+	static bool GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos);
 
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }

@@ -12,6 +12,8 @@
 class World;
 class GC_Object;
 class PropertySet;
+class DefaultCamera;
+
 
 namespace UI
 {
@@ -127,11 +129,12 @@ protected:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+    
 class EditorLayout : public Window
 {
 	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
 
+    const DefaultCamera &_defaultCamera;
 	PropertyList *_propList;
 	ServiceEditor    *_serviceList;
 	Text         *_layerDisp;
@@ -152,7 +155,7 @@ class EditorLayout : public Window
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(Window *parent, World &world);
+	EditorLayout(Window *parent, World &world, const DefaultCamera &defaultCamera);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);

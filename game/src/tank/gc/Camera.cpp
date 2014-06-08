@@ -200,30 +200,20 @@ void GC_Camera::UpdateLayout(World &world, int width, int height)
 	}
 }
 
-bool GC_Camera::GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos, bool editorMode)
+bool GC_Camera::GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos)
 {
 	Point ptinscr = { (int) screenPos.x, (int) screenPos.y };
 
-	if( editorMode || world.GetList(LIST_cameras).empty() )
-	{
-		// use default camera
-		outWorldPos.x = float(ptinscr.x) / world._defaultCamera.GetZoom() + world._defaultCamera.GetPosX();
-		outWorldPos.y = float(ptinscr.y) / world._defaultCamera.GetZoom() + world._defaultCamera.GetPosY();
-		return true;
-	}
-	else
-	{
-		FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-		{
-			if( PtInRect(pCamera->_viewport, ptinscr) )
-			{
-				FRECT w;
-				pCamera->GetWorld(w);
-				outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
-				outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
-				return true;
-			}
-		}
+    FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
+    {
+        if( PtInRect(pCamera->_viewport, ptinscr) )
+        {
+            FRECT w;
+            pCamera->GetWorld(w);
+            outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
+            outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
+            return true;
+        }
 	}
 	return false;
 }

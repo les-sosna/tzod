@@ -14,86 +14,11 @@ WorldView::WorldView(IRender &render, TextureManager &texman)
 {
 }
 
-void WorldView::Render(World &world, bool editorMode) const
+void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 {
+    // FIXME: ambient will take effect starting next frame
 	_render.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
 
-	if( editorMode || world.GetList(LIST_cameras).empty() )
-	{
-		// render from default camera
-		_render.Camera(NULL, world._defaultCamera.GetPosX(), world._defaultCamera.GetPosY(), world._defaultCamera.GetZoom(), 0);
-
-		FRECT viewRect;
-		viewRect.left = world._defaultCamera.GetPosX();
-		viewRect.top = world._defaultCamera.GetPosY();
-		viewRect.right = viewRect.left + (float) _render.GetWidth() / world._defaultCamera.GetZoom();
-		viewRect.bottom = viewRect.top + (float) _render.GetHeight() / world._defaultCamera.GetZoom();
-
-		RenderInternal(world, viewRect, editorMode);
-	}
-	else
-	{
-		if( _render.GetWidth() >= int(world._sx) && _render.GetHeight() >= int(world._sy) )
-		{
-			// render from single camera with maximum shake
-			float max_shake = -1;
-			GC_Camera *singleCamera = NULL;
-			FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-			{
-				if( pCamera->GetShake() > max_shake )
-				{
-					singleCamera = pCamera;
-					max_shake = pCamera->GetShake();
-				}
-			}
-			assert(singleCamera);
-
-			FRECT viewRect;
-			singleCamera->GetWorld(viewRect);
-
-			Rect screen;
-			singleCamera->GetScreen(screen);
-
-			g_render->Camera(&screen,
-				viewRect.left,
-				viewRect.top,
-				singleCamera->GetZoom(),
-				g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
-
-			RenderInternal(world, viewRect, editorMode);
-		}
-		else
-		{
-			// render from each camera
-			FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-			{
-				FRECT viewRect;
-				pCamera->GetWorld(viewRect);
-
-				Rect screen;
-				pCamera->GetScreen(screen);
-
-				g_render->Camera(&screen,
-					viewRect.left,
-					viewRect.top,
-					pCamera->GetZoom(),
-					g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
-
-				RenderInternal(world, viewRect, editorMode);
-			}
-		}
-	}
-
-#ifdef _DEBUG
-	if (glfwGetKey(g_appWindow, GLFW_KEY_BACKSPACE) != GLFW_PRESS)
-#endif
-	{
-		_dbgLineBuffer.clear();
-	}
-}
-
-void WorldView::RenderInternal(World &world, const FRECT &view, bool editorMode) const
-{
 	//
 	// draw lights to alpha channel
 	//
@@ -160,23 +85,7 @@ void WorldView::RenderInternal(World &world, const FRECT &view, bool editorMode)
             sprite->Draw(static_cast<DrawingContext&>(_texman), editorMode);
         zLayers[z].clear();
     }
-    
-	if( !_dbgLineBuffer.empty() )
-	{
-		_render.DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
-	}
 }
-
-#ifndef NDEBUG
-void WorldView::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
-{
-	_dbgLineBuffer.push_back(MyLine());
-	MyLine &line = _dbgLineBuffer.back();
-	line.begin = v1;
-	line.end = v2;
-	line.color = color;
-}
-#endif
 
 void WorldView::DrawBackground(float sizeX, float sizeY, size_t tex) const
 {

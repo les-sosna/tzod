@@ -551,8 +551,9 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 }
 
     
-EditorLayout::EditorLayout(Window *parent, World &world)
+EditorLayout::EditorLayout(Window *parent, World &world, const DefaultCamera &defaultCamera)
   : Window(parent)
+  , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager()->GetTextureManager().FindSprite("font_small"))
   , _selectionRect(GetManager()->GetTextureManager().FindSprite("ui/selection"))
   , _selectedObject(NULL)
@@ -698,103 +699,103 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		return true;
 	}
 
-	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(_world, vec2d(x, y), mouse, true) )
-	{
-		ObjectType type = static_cast<ObjectType>(
-			_typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
+    
+    vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
+                y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
+    
+    ObjectType type = static_cast<ObjectType>(
+        _typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
 
-		float align = RTTypes::Inst().GetTypeInfo(type).align;
-		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
+    float align = RTTypes::Inst().GetTypeInfo(type).align;
+    float offset = RTTypes::Inst().GetTypeInfo(type).offset;
 
-		vec2d pt;
-		pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
-		pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
-		pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
-		pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
+    vec2d pt;
+    pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
+    pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
+    pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
+    pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
-		int layer = -1;
-		if( g_conf.ed_uselayers.Get() )
-		{
-			layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
-		}
+    int layer = -1;
+    if( g_conf.ed_uselayers.Get() )
+    {
+        layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
+    }
 
-		if( GC_Object *object = PickEdObject(_world, mouse, layer) )
-		{
-			if( 1 == button )
-			{
-				if( _click && _selectedObject == object )
-				{
-                    auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
+    if( GC_Object *object = PickEdObject(_world, mouse, layer) )
+    {
+        if( 1 == button )
+        {
+            if( _click && _selectedObject == object )
+            {
+                auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
 
-                    lua_getglobal(g_env.L, "editor_actions");
-                    if( lua_isnil(g_env.L, -1) )
+                lua_getglobal(g_env.L, "editor_actions");
+                if( lua_isnil(g_env.L, -1) )
+                {
+                    GetConsole().WriteLine(1, "There was no editor module loaded");
+                }
+                else
+                {
+                    lua_getfield(g_env.L, -1, selTypeInfo.name);
+                    if (lua_isnil(g_env.L, -1))
                     {
-                        GetConsole().WriteLine(1, "There was no editor module loaded");
+                        // no action available for this object
+                        lua_pop(g_env.L, 1);
                     }
                     else
                     {
-                        lua_getfield(g_env.L, -1, selTypeInfo.name);
-                        if (lua_isnil(g_env.L, -1))
+                        luaT_pushobject(g_env.L, object);
+                        if( lua_pcall(g_env.L, 1, 0, 0) )
                         {
-                            // no action available for this object
-                            lua_pop(g_env.L, 1);
-                        }
-                        else
-                        {
-                            luaT_pushobject(g_env.L, object);
-                            if( lua_pcall(g_env.L, 1, 0, 0) )
-                            {
-                                GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-                                lua_pop(g_env.L, 1); // pop error message
-                            }
+                            GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
+                            lua_pop(g_env.L, 1); // pop error message
                         }
                     }
-                    lua_pop(g_env.L, 1); // pop editor_actions
-                    
-					_propList->DoExchange(false);
-					if( _isObjectNew )
-					{
-						// save properties for new object
-						object->GetProperties(_world)->SaveToConfig();
-					}
-				}
-				else
-				{
-					Select(object, true);
-				}
-			}
+                }
+                lua_pop(g_env.L, 1); // pop editor_actions
+                
+                _propList->DoExchange(false);
+                if( _isObjectNew )
+                {
+                    // save properties for new object
+                    object->GetProperties(_world)->SaveToConfig();
+                }
+            }
+            else
+            {
+                Select(object, true);
+            }
+        }
 
-			if( 2 == button )
-			{
-				if( _selectedObject == object )
-				{
-					Select(object, false);
-				}
-				object->Kill(_world);
-			}
-		}
-		else
-		{
-			if( 1 == button )
-			{
-				// create object
-				GC_Object *object = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
-				SafePtr<PropertySet> properties = object->GetProperties(_world);
+        if( 2 == button )
+        {
+            if( _selectedObject == object )
+            {
+                Select(object, false);
+            }
+            object->Kill(_world);
+        }
+    }
+    else
+    {
+        if( 1 == button )
+        {
+            // create object
+            GC_Object *object = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
+            SafePtr<PropertySet> properties = object->GetProperties(_world);
 
-				// set default properties if Ctrl key is not pressed
-				if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-                    glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS )
-				{
-					properties->LoadFromConfig();
-					properties->Exchange(_world, true);
-				}
+            // set default properties if Ctrl key is not pressed
+            if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+                glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS )
+            {
+                properties->LoadFromConfig();
+                properties->Exchange(_world, true);
+            }
 
-				Select(object, true);
-				_isObjectNew = true;
-			}
-		}
-	}
+            Select(object, true);
+            _isObjectNew = true;
+        }
+    }
 
 	_click = false;
 	return true;
@@ -885,27 +886,24 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
-		const DefaultCamera &cam = _world._defaultCamera;
-
 		FRECT rt;
 		s->GetGlobalRect(rt);
 
 		FRECT sel = {
-			(rt.left - cam.GetPosX()) * cam.GetZoom(),
-			(rt.top - cam.GetPosY()) * cam.GetZoom(),
-			(rt.left - cam.GetPosX()) * cam.GetZoom() + s->GetSpriteWidth() * cam.GetZoom(),
-			(rt.top - cam.GetPosY()) * cam.GetZoom() + s->GetSpriteHeight() * cam.GetZoom()
+			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom(),
+			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom(),
+			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom() + s->GetSpriteWidth() * _defaultCamera.GetZoom(),
+			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom() + s->GetSpriteHeight() * _defaultCamera.GetZoom()
 		};
 		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
 		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
-	vec2d mouse;
-	if( GC_Camera::GetWorldMousePos(_world, GetManager()->GetMousePos(), mouse, true) )
-	{
-		std::stringstream buf;
-		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-		dc.DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
-	}
+    vec2d mouse(GetManager()->GetMousePos().x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
+                GetManager()->GetMousePos().y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
+
+    std::stringstream buf;
+    buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
+    dc.DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 	
 	Window::DrawChildren(dc, sx, sy);
 }

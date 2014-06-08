@@ -146,7 +146,7 @@ Desktop::Desktop(LayoutManager* manager, World &world)
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
 
-	_editor = new EditorLayout(this, _world);
+	_editor = new EditorLayout(this, _world, _defaultCamera);
 	_editor->SetVisible(false);
 
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
@@ -212,19 +212,78 @@ void Desktop::OnTimeStep(float dt)
 		counterDt.Push(dt);
         
         _inputMgr.ReadControllerState(_world);
+        _defaultCamera.HandleMovement(_world._sx, _world._sy, (float) GetWidth(), (float) GetHeight());
         _world.Step(dt);
 	}
 }
 
 void Desktop::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    _worldView.Render(_world, _editor->GetVisible());
+    if( _editor->GetVisible() || _world.GetList(LIST_cameras).empty() )
+    {
+		FRECT viewRect;
+		viewRect.left = _defaultCamera.GetPosX();
+		viewRect.top = _defaultCamera.GetPosY();
+		viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
+		viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
+        
+		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
+        _worldView.Render(_world, viewRect, _editor->GetVisible());
+    }
+    else
+    {
+		if( GetWidth() >= _world._sx && GetHeight() >= _world._sy )
+		{
+			// render from single camera with maximum shake
+			float max_shake = -1;
+			GC_Camera *singleCamera = NULL;
+			FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
+			{
+				if( pCamera->GetShake() > max_shake )
+				{
+					singleCamera = pCamera;
+					max_shake = pCamera->GetShake();
+				}
+			}
+			assert(singleCamera);
+            
+			FRECT viewRect;
+			singleCamera->GetWorld(viewRect);
+            
+			Rect screen;
+			singleCamera->GetScreen(screen);
+            
+			g_render->Camera(&screen,
+                             viewRect.left,
+                             viewRect.top,
+                             singleCamera->GetZoom(),
+                             g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
+            
+			_worldView.Render(_world, viewRect, false);
+		}
+		else
+		{
+			// render from each camera
+			FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
+			{
+				FRECT viewRect;
+				pCamera->GetWorld(viewRect);
+                
+				Rect screen;
+				pCamera->GetScreen(screen);
+                
+				g_render->Camera(&screen,
+                                 viewRect.left,
+                                 viewRect.top,
+                                 pCamera->GetZoom(),
+                                 g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
+                
+				_worldView.Render(_world, viewRect, false);
+			}
+		}
+    }
+    
 	g_render->SetMode(RM_INTERFACE);
-//	if( !g_client )
-//	{
-//		dc.DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
-//			0xffffffff, g_lang.msg_no_game_started.Get(), alignTextCC);
-//	}
 	Window::DrawChildren(dc, sx, sy);
 }
 

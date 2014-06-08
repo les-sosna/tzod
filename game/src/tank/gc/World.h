@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Field.h"
-#include "DefaultCamera.h"
 
 #include "GlobalListHelper.h"
 #include "network/ControlPacket.h"
@@ -63,7 +62,6 @@ public:
 
 	ObjectListener *_serviceListener;
     MessageListener *_messageListener;
-	DefaultCamera _defaultCamera;
 
 /////////////////////////////////////
 //settings

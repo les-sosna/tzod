@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "core/MyMath.h"
+
 #include <algorithm>
 #include <cassert>
 #include <vector>

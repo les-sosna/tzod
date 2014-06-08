@@ -146,7 +146,7 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, Ve
 
 		vec2d pt;
 		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) &&
-            GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt, false) )
+            GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt) )
 		{
 			vec2d tmp = pt - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -180,7 +180,7 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, Ve
 		}
 
 		vec2d pt;
-		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt, false) )
+		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt) )
 		{
 			float a = (pt - vehicle->GetPos()).Angle();
 			vs._bExplicitTower = true;
