@@ -67,7 +67,7 @@ protected:
 	virtual bool OnMouseMove(float x, float y);
 
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual void OnSize(float width, float height);
 	virtual bool OnFocus(bool focus);
 

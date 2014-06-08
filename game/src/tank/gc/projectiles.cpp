@@ -771,11 +771,11 @@ void GC_FireSpark::Serialize(World &world, SaveFile &f)
 	f.Serialize(_rotation);
 }
 
-void GC_FireSpark::Draw(bool editorMode) const
+void GC_FireSpark::Draw(DrawingContext &dc, bool editorMode) const
 {
 	vec2d pos = GetPos();
 	float r = GetRadius();
-	g_texman->DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
+	dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
 }
 
 bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)

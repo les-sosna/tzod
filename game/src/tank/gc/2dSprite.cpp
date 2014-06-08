@@ -60,8 +60,6 @@ void GC_2dSprite::Serialize(World &world, SaveFile &f)
 	f.Serialize(_direction);
 	f.Serialize(_texId);
 	f.Serialize(_zOrder);
-
-	assert(g_texman->IsValidTexture(_texId));
 }
 
 void GC_2dSprite::SetTexture(const char *name)
@@ -106,7 +104,7 @@ void GC_2dSprite::SetFrame(int frame)
 	_frame = frame;
 }
 
-void GC_2dSprite::Draw(bool editorMode) const
+void GC_2dSprite::Draw(DrawingContext &dc, bool editorMode) const
 {
 	vec2d pos = GetPos();
 
@@ -114,10 +112,10 @@ void GC_2dSprite::Draw(bool editorMode) const
 	{
 		SpriteColor tmp_color = 0x00000000;
 		tmp_color.a = _color.a >> 2;
-		g_texman->DrawSprite(_texId, _frame, tmp_color, pos.x + 4, pos.y + 4, _direction);
+		dc.DrawSprite(_texId, _frame, tmp_color, pos.x + 4, pos.y + 4, _direction);
 	}
 
-	g_texman->DrawSprite(_texId, _frame, _color, pos.x, pos.y, _direction);
+	dc.DrawSprite(_texId, _frame, _color, pos.x, pos.y, _direction);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

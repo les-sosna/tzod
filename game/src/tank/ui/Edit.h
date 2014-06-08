@@ -45,7 +45,7 @@ public:
 	std::function<void()> eventChange;
 
 protected:
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual bool OnChar(int c);
 	virtual bool OnRawChar(int c);
 	virtual bool OnMouseDown(float x, float y, int button);

@@ -182,8 +182,8 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(const DrawingContext *dc, float sx = 0, float sy = 0) const;
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void Draw(DrawingContext &dc, float sx = 0, float sy = 0) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 private:
 

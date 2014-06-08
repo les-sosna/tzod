@@ -122,7 +122,7 @@ Button* Button::Create(Window *parent, const std::string &text, float x, float y
 
 Button::Button(Window *parent)
   : ButtonBase(parent)
-  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
 {
 	SetTexture("ui/button", true);
 	SetDrawBorder(false);
@@ -134,7 +134,7 @@ void Button::OnChangeState(State state)
 	SetFrame(state);
 }
 
-void Button::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void Button::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	float x = GetWidth() / 2;
 	float y = GetHeight() / 2;
@@ -158,7 +158,7 @@ void Button::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		assert(false);
 	}
 
-	dc->DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
+	dc.DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
 
 	ButtonBase::DrawChildren(dc, sx, sy);
 }
@@ -189,8 +189,8 @@ void TextButton::AlignSizeToContent()
 {
 	if( -1 != _fontTexture )
 	{
-		float w = GetManager()->GetTextureManager()->GetFrameWidth(_fontTexture, 0);
-		float h = GetManager()->GetTextureManager()->GetFrameHeight(_fontTexture, 0);
+		float w = GetManager()->GetTextureManager().GetFrameWidth(_fontTexture, 0);
+		float h = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
 		Resize((w - 1) * (float) GetText().length(), h + 1);
 	}
 }
@@ -207,7 +207,7 @@ bool TextButton::GetDrawShadow() const
 
 void TextButton::SetFont(const char *fontName)
 {
-	_fontTexture = GetManager()->GetTextureManager()->FindSprite(fontName);
+	_fontTexture = GetManager()->GetTextureManager().FindSprite(fontName);
 	AlignSizeToContent();
 }
 
@@ -216,7 +216,7 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void TextButton::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	// grep 'enum State'
 	SpriteColor colors[] = 
@@ -228,9 +228,9 @@ void TextButton::DrawChildren(const DrawingContext *dc, float sx, float sy) cons
 	};
 	if( _drawShadow && stateDisabled != GetState() )
 	{
-		dc->DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText());
+		dc.DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc->DrawBitmapText(sx, sy, _fontTexture, colors[GetState()], GetText());
+	dc.DrawBitmapText(sx, sy, _fontTexture, colors[GetState()], GetText());
 	ButtonBase::DrawChildren(dc, sx, sy);
 }
 
@@ -268,8 +268,8 @@ CheckBox* CheckBox::Create(Window *parent, float x, float y, const std::string &
 
 CheckBox::CheckBox(Window *parent)
   : ButtonBase(parent)
-  , _fontTexture(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _boxTexture(GetManager()->GetTextureManager()->FindSprite("ui/checkbox"))
+  , _fontTexture(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _boxTexture(GetManager()->GetTextureManager().FindSprite("ui/checkbox"))
   , _drawShadow(true)
   , _isChecked(false)
 {
@@ -279,11 +279,11 @@ CheckBox::CheckBox(Window *parent)
 
 void CheckBox::AlignSizeToContent()
 {
-	TextureManager *dc = GetManager()->GetTextureManager();
-	float th = dc->GetFrameHeight(_fontTexture, 0);
-	float tw = dc->GetFrameWidth(_fontTexture, 0);
-	float bh = dc->GetFrameHeight(_boxTexture, GetFrame());
-	float bw = dc->GetFrameWidth(_boxTexture, GetFrame());
+	const TextureManager &tm = GetManager()->GetTextureManager();
+	float th = tm.GetFrameHeight(_fontTexture, 0);
+	float tw = tm.GetFrameWidth(_fontTexture, 0);
+	float bh = tm.GetFrameHeight(_boxTexture, GetFrame());
+	float bw = tm.GetFrameWidth(_boxTexture, GetFrame());
 	Resize(bw + (tw - 1) * (float) GetText().length(), std::max(th + 1, bh));
 }
 
@@ -308,14 +308,14 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void CheckBox::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float bh = dc->GetFrameHeight(_boxTexture, GetFrame());
-	float bw = dc->GetFrameWidth(_boxTexture, GetFrame());
-	float th = dc->GetFrameHeight(_fontTexture, 0);
+	float bh = dc.GetFrameHeight(_boxTexture, GetFrame());
+	float bw = dc.GetFrameWidth(_boxTexture, GetFrame());
+	float th = dc.GetFrameHeight(_fontTexture, 0);
 
 	FRECT box = {sx, sy + (GetHeight() - bh) / 2, sx + bw, sy + (GetHeight() - bh) / 2 + bh};
-	dc->DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
+	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
 	SpriteColor colors[] = 
@@ -327,9 +327,9 @@ void CheckBox::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	};
 	if( _drawShadow && stateDisabled != GetState() )
 	{
-		dc->DrawBitmapText(sx + bw + 1, sy + (GetHeight() - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
+		dc.DrawBitmapText(sx + bw + 1, sy + (GetHeight() - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc->DrawBitmapText(sx + bw, sy + (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
+	dc.DrawBitmapText(sx + bw, sy + (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
 
 	ButtonBase::DrawChildren(dc, sx, sy);
 }

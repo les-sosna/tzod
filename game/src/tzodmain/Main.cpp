@@ -229,8 +229,7 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
     auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
     gui->GetDesktop()->Resize(width, height);
-    g_render->OnResizeWnd(Point{width, height});
-    g_texman->SetCanvasSize(width, width);
+    gui->GetTextureManager().SetCanvasSize(width, width);
 }
 
 
@@ -323,7 +322,7 @@ int main(int, const char**)
         int width;
         int height;
         glfwGetFramebufferSize(g_appWindow, &width, &height);
-        render->OnResizeWnd(Point{width, height});
+        render->OnResizeWnd(width, height);
         
 #if !defined NOSOUND
         InitSound(true);

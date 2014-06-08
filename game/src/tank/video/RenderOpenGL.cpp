@@ -58,7 +58,7 @@ private:
 
 	void Flush();
 
-	virtual void OnResizeWnd(Point size);
+	virtual void OnResizeWnd(unsigned int width, unsigned int height);
 
 	virtual void SetViewport(const Rect *rect);
 	virtual void SetScissor(const Rect *rect);
@@ -108,9 +108,10 @@ RenderOpenGL::~RenderOpenGL()
 {
 }
 
-void RenderOpenGL::OnResizeWnd(Point size)
+void RenderOpenGL::OnResizeWnd(unsigned int width, unsigned int height)
 {
-	_sizeWindow = size;;
+	_sizeWindow.x = (int) width;
+    _sizeWindow.y = (int) height;
     SetViewport(nullptr);
     SetScissor(nullptr);
 }

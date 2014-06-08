@@ -97,7 +97,7 @@ void GC_Wood::Serialize(World &world, SaveFile &f)
 	f.Serialize(_tile);
 }
 
-void GC_Wood::Draw(bool editorMode) const
+void GC_Wood::Draw(DrawingContext &dc, bool editorMode) const
 {
 	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
@@ -111,14 +111,14 @@ void GC_Wood::Draw(bool editorMode) const
 		{
 			if( 0 == (_tile & (1 << i)) )
 			{
-				g_texman->DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
+				dc.DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
 			}
 		}
-		g_texman->DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
+		dc.DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
 	}
 	else
 	{
-		g_texman->DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, GetDirection());
+		dc.DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, GetDirection());
 	}
 }
 
@@ -657,10 +657,10 @@ void GC_Text::Serialize(World &world, SaveFile &f)
 	f.Serialize(_align);
 }
 
-void GC_Text::Draw(bool editorMode) const
+void GC_Text::Draw(DrawingContext &dc, bool editorMode) const
 {
 	vec2d pos = GetPos();
-	g_texman->DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
+	dc.DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
 }
 
 /////////////////////////////////////////////////////////////
@@ -696,10 +696,10 @@ void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
     }
 }
 
-void GC_Text_ToolTip::Draw(bool editorMode) const
+void GC_Text_ToolTip::Draw(DrawingContext &dc, bool editorMode) const
 {
 	vec2d pos = GetPos();
-	g_texman->DrawBitmapText(pos.x, pos.y - _time * 20.0f, GetTexture(), GetColor(), _text, _align);
+	dc.DrawBitmapText(pos.x, pos.y - _time * 20.0f, GetTexture(), GetColor(), _text, _align);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

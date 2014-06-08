@@ -233,11 +233,11 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 	GC_2dSprite::TimeStepFixed(world, dt);
 }
 
-void GC_Pickup::Draw(bool editorMode) const
+void GC_Pickup::Draw(DrawingContext &dc, bool editorMode) const
 {
 	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || editorMode )
 	{
-		GC_2dSprite::Draw(editorMode);
+		GC_2dSprite::Draw(dc, editorMode);
 	}
 }
 
@@ -681,11 +681,11 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_pu_Shock::Draw(bool editorMode) const
+void GC_pu_Shock::Draw(DrawingContext &dc, bool editorMode) const
 {
 	if( GetGridSet() )
 	{
-		GC_Pickup::Draw(editorMode);
+		GC_Pickup::Draw(dc, editorMode);
 	}
 	else
 	{
@@ -693,7 +693,7 @@ void GC_pu_Shock::Draw(bool editorMode) const
 		SpriteColor c;
 		c.r = c.g = c.b = c.a = int((1.0f - ((GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
 		const vec2d &pos = GetPos();
-		g_texman->DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPosPredicted.x, _targetPosPredicted.y, frand(1));
+		dc.DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPosPredicted.x, _targetPosPredicted.y, frand(1));
 	}
 }
 

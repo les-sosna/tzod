@@ -145,19 +145,19 @@ bool Window::Contains(const Window *other) const
 
 float Window::GetTextureWidth() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager()->GetFrameWidth(_texture, _frame) : 1;
+	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameWidth(_texture, _frame) : 1;
 }
 
 float Window::GetTextureHeight() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager()->GetFrameHeight(_texture, _frame) : 1;
+	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameHeight(_texture, _frame) : 1;
 }
 
 void Window::SetTexture(const char *tex, bool fitSize)
 {
 	if( tex )
 	{
-		_texture = GetManager()->GetTextureManager()->FindSprite(tex);
+		_texture = GetManager()->GetTextureManager().FindSprite(tex);
 		if( fitSize )
 		{
 			Resize(GetTextureWidth(), GetTextureHeight());
@@ -171,10 +171,10 @@ void Window::SetTexture(const char *tex, bool fitSize)
 
 unsigned int Window::GetFrameCount() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager()->GetFrameCount(_texture) : 0;
+	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(const DrawingContext *dc, float sx, float sy) const
+void Window::Draw(DrawingContext &dc, float sx, float sy) const
 {
 	AssertNoDestroy(this);
 	assert(_isVisible);
@@ -186,11 +186,11 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 	{
 		if( _drawBackground )
 		{
-			dc->DrawSprite(&dst, _texture, _backColor, _frame);
+			dc.DrawSprite(&dst, _texture, _backColor, _frame);
 		}
 		if( _drawBorder )
 		{
-			 dc->DrawBorder(&dst, _texture, _borderColor, _frame);
+			 dc.DrawBorder(&dst, _texture, _borderColor, _frame);
 		}
 	}
 
@@ -205,18 +205,18 @@ void Window::Draw(const DrawingContext *dc, float sx, float sy) const
 		clip.top    = (int) dst.top;
 		clip.right  = (int) dst.right;
 		clip.bottom = (int) dst.bottom;
-		dc->PushClippingRect(clip);
+		dc.PushClippingRect(clip);
 	}
 
 	DrawChildren(dc, sx + _x, sy + _y);
 
 	if( _clipChildren )
 	{
-		dc->PopClippingRect();
+		dc.PopClippingRect();
 	}
 }
 
-void Window::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void Window::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	AssertNoDestroy(this);
 

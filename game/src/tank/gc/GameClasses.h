@@ -177,7 +177,7 @@ public:
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_2dSprite
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
     virtual void Kill(World &world);
@@ -200,7 +200,7 @@ public:
 	const std::string& GetText() const { return _text; }
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 protected:
 	enumAlignText       _align;
@@ -221,7 +221,7 @@ public:
 	GC_Text_ToolTip(World &world, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
-    virtual void Draw(bool editorMode) const;
+    virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
 };

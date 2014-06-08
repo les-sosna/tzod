@@ -443,12 +443,56 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 	return Get(fontTexture).pxFrameHeight;
 }
 
-void TextureManager::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
+void TextureManager::SetCanvasSize(unsigned int width, unsigned int height)
+{
+	_viewport.right = width;
+	_viewport.bottom = height;
+    _render.OnResizeWnd(width, height);
+}
+
+void TextureManager::PushClippingRect(const Rect &rect) const
+{
+	if( _clipStack.empty() )
+	{
+		_clipStack.push(rect);
+		_render.SetScissor(&rect);
+	}
+	else
+	{
+		Rect tmp = _clipStack.top();
+		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
+		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
+		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
+		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
+		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
+		_clipStack.push(tmp);
+		_render.SetScissor(&tmp);
+	}
+}
+
+void TextureManager::PopClippingRect() const
+{
+	assert(!_clipStack.empty());
+	_clipStack.pop();
+	if( _clipStack.empty() )
+	{
+		_render.SetScissor(&_viewport);
+	}
+	else
+	{
+		_render.SetScissor(&_clipStack.top());
+	}
+}
+
+////////////////////////////////////////////////////////////////////
+
+
+void DrawingContext::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	DrawSprite(sprite, frame, color, dst->left, dst->top, dst->right - dst->left, dst->bottom - dst->top, vec2d(1,0));
 }
 
-void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const
+void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	const LogicalTexture &lt = Get(sprite);
 
@@ -643,7 +687,7 @@ void TextureManager::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 }
 
-void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align) const
+void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
 {
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
@@ -722,7 +766,7 @@ void TextureManager::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	}
 }
 
-void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir) const
+void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
@@ -761,7 +805,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
-void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir) const
+void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
@@ -796,7 +840,7 @@ void TextureManager::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
-void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) const
+void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[0];
@@ -831,8 +875,8 @@ void TextureManager::DrawIndicator(size_t tex, float x, float y, float value) co
 	v[3].y = y - py + lt.pxFrameHeight;
 }
 
-void TextureManager::DrawLine(size_t tex, SpriteColor color,
-                              float x0, float y0, float x1, float y1, float phase) const
+void DrawingContext::DrawLine(size_t tex, SpriteColor color,
+                              float x0, float y0, float x1, float y1, float phase)
 {
 	const LogicalTexture &lt = Get(tex);
 
@@ -867,46 +911,6 @@ void TextureManager::DrawLine(size_t tex, SpriteColor color,
 	v[3].v = 1;
 	v[3].x = x0 - py * s;
 	v[3].y = y0 + py * c;
-}
-
-void TextureManager::SetCanvasSize(unsigned int width, unsigned int height)
-{
-	_viewport.right = width;
-	_viewport.bottom = height;
-}
-
-void TextureManager::PushClippingRect(const Rect &rect) const
-{
-	if( _clipStack.empty() )
-	{
-		_clipStack.push(rect);
-		_render.SetScissor(&rect);
-	}
-	else
-	{
-		Rect tmp = _clipStack.top();
-		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
-		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
-		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
-		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
-		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
-		_clipStack.push(tmp);
-		_render.SetScissor(&tmp);
-	}
-}
-
-void TextureManager::PopClippingRect() const
-{
-	assert(!_clipStack.empty());
-	_clipStack.pop();
-	if( _clipStack.empty() )
-	{
-		_render.SetScissor(&_viewport);
-	}
-	else
-	{
-		_render.SetScissor(&_clipStack.top());
-	}
 }
 
 ////////////////////////////////////////////////////////////////////

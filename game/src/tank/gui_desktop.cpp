@@ -50,7 +50,7 @@ namespace UI
 
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent)
-  , _fontTexture(g_texman->FindSprite("font_small"))
+  , _fontTexture(GetManager()->GetTextureManager().FindSprite("font_small"))
 {
 	Move(x, y);
 }
@@ -73,14 +73,14 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void MessageArea::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	if( _lines.empty() || !g_conf.ui_showmsg.Get() )
 	{
 		return;
 	}
 
-	float h = g_texman->GetCharHeight(_fontTexture);
+	float h = GetManager()->GetTextureManager().GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{
@@ -91,7 +91,7 @@ void MessageArea::DrawChildren(const DrawingContext *dc, float sx, float sy) con
 		c.b = cc;
 		c.a = cc;
 
-		dc->DrawBitmapText(sx, sy + y, _fontTexture, c, it->str);
+		dc.DrawBitmapText(sx, sy + y, _fontTexture, c, it->str);
 		y -= h;
 	}
 }
@@ -138,7 +138,7 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 
 Desktop::Desktop(LayoutManager* manager, World &world)
   : Window(NULL, manager)
-  , _font(GetManager()->GetTextureManager()->FindSprite("font_default"))
+  , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
 {
@@ -215,13 +215,13 @@ void Desktop::OnTimeStep(float dt)
 	}
 }
 
-void Desktop::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void Desktop::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	_world.Render(_editor->GetVisible());
 	g_render->SetMode(RM_INTERFACE);
 //	if( !g_client )
 //	{
-//		dc->DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
+//		dc.DrawBitmapText(sx + GetWidth()/2, sy + GetHeight()/2, _font,
 //			0xffffffff, g_lang.msg_no_game_started.Get(), alignTextCC);
 //	}
 	Window::DrawChildren(dc, sx, sy);

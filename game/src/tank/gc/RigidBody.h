@@ -255,7 +255,7 @@ public:
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }

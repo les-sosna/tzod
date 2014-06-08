@@ -62,7 +62,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
 // end of file

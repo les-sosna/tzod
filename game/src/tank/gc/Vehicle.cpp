@@ -497,16 +497,16 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 	return false;
 }
 
-void GC_Vehicle::Draw(bool editorMode) const
+void GC_Vehicle::Draw(DrawingContext &dc, bool editorMode) const
 {
-	GC_RigidBodyDynamic::Draw(editorMode);
+	GC_RigidBodyDynamic::Draw(dc, editorMode);
     
 	if( g_conf.g_shownames.Get() && GetOwner() )
 	{
 		const vec2d &pos = GetPos();
 		static TextureCache f("font_small");
-		g_texman->DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
-                                 f.GetTexture(), 0x7f7f7f7f, GetOwner()->GetNick(), alignTextCT);
+		dc.DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
+                          f.GetTexture(), 0x7f7f7f7f, GetOwner()->GetNick(), alignTextCT);
 	}
 
 #ifndef NDEBUG

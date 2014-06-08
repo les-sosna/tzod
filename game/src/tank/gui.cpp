@@ -243,7 +243,7 @@ void NewGameDlg::RefreshBotsList()
 void NewGameDlg::OnAddPlayer()
 {
 	std::vector<std::string> skinNames;
-	g_texman->GetTextureNames(skinNames, "skin/", true);
+	GetManager()->GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_players.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
@@ -292,7 +292,7 @@ void NewGameDlg::OnEditPlayerClose(int result)
 void NewGameDlg::OnAddBot()
 {
 	std::vector<std::string> skinNames;
-	g_texman->GetTextureNames(skinNames, "skin/", true);
+	GetManager()->GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_bots.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
@@ -494,7 +494,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	g_texman->GetTextureNames(names, "skin/", true);
+	GetManager()->GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);
@@ -674,7 +674,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	g_texman->GetTextureNames(names, "skin/", true);
+	GetManager()->GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);

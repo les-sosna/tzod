@@ -41,16 +41,16 @@ void GC_SpawnPoint::Serialize(World &world, SaveFile &f)
 	f.Serialize(_team);
 }
 
-void GC_SpawnPoint::Draw(bool editorMode) const
+void GC_SpawnPoint::Draw(DrawingContext &dc, bool editorMode) const
 {
 	if( editorMode )
 	{
-		GC_2dSprite::Draw(editorMode);
+		GC_2dSprite::Draw(dc, editorMode);
 
 		static const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
 		static size_t font = g_texman->FindSprite("font_default");
-		g_texman->DrawBitmapText(GetPos().x, GetPos().y, font, 0xffffffff, teams[_team], alignTextCC);
+		dc.DrawBitmapText(GetPos().x, GetPos().y, font, 0xffffffff, teams[_team], alignTextCC);
 	}
 }
 
@@ -143,11 +143,11 @@ GC_HideLabel::GC_HideLabel(FromFile)
 {
 }
 
-void GC_HideLabel::Draw(bool editorMode) const
+void GC_HideLabel::Draw(DrawingContext &dc, bool editorMode) const
 {
 	if( editorMode )
 	{
-		GC_2dSprite::Draw(editorMode);
+		GC_2dSprite::Draw(dc, editorMode);
 	}
 }
 
@@ -207,7 +207,7 @@ GC_IndicatorBar* GC_IndicatorBar::FindIndicator(World &world, GC_2dSprite* pFind
 	return NULL;
 }
 
-void GC_IndicatorBar::Draw(bool editorMode) const
+void GC_IndicatorBar::Draw(DrawingContext &dc, bool editorMode) const
 {
 	assert(_object);
 
@@ -222,7 +222,7 @@ void GC_IndicatorBar::Draw(bool editorMode) const
 			val = max_val - val;
 
 		vec2d pos = GetPos();
-		g_texman->DrawIndicator(GetTexture(), pos.x, pos.y, val / max_val);
+		dc.DrawIndicator(GetTexture(), pos.x, pos.y, val / max_val);
 	}
 }
 

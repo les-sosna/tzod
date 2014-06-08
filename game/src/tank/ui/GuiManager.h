@@ -44,7 +44,7 @@ public:
 	bool ProcessMouse(float x, float y, float z, Msg msg);
 	bool ProcessKeys(Msg msg, int c);
 
-	TextureManager* GetTextureManager();
+	TextureManager& GetTextureManager() const;
 	Window* GetDesktop() const;
 
 	Window* GetCapture() const;

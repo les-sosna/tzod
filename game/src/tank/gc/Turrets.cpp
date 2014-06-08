@@ -237,15 +237,15 @@ void GC_Turret::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Turret::Draw(bool editorMode) const
+void GC_Turret::Draw(DrawingContext &dc, bool editorMode) const
 {
-	GC_RigidBodyStatic::Draw(editorMode);
+	GC_RigidBodyStatic::Draw(dc, editorMode);
 	if( editorMode )
 	{
 		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
 		assert(_team >= 0 && _team < MAX_TEAMS);
 		static size_t font = g_texman->FindSprite("font_default");
-		g_texman->DrawBitmapText(GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, font, 0xffffffff, teams[_team], alignTextLT);
+		dc.DrawBitmapText(GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, font, 0xffffffff, teams[_team], alignTextLT);
 	}
 }
 

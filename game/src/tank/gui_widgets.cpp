@@ -152,8 +152,8 @@ void TimeElapsed::OnTimeStep(float dt)
 
 Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   : Window(parent)
-  , _barTexture(g_texman->FindSprite("ui/bar"))
-  , _titleFont(g_texman->FindSprite("font_small"))
+  , _barTexture(GetManager()->GetTextureManager().FindSprite("ui/bar"))
+  , _titleFont(GetManager()->GetTextureManager().FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
   , _gridStepX(1)
@@ -211,7 +211,7 @@ void Oscilloscope::AutoGrid()
 	float range = valMax - valMin;
 	if( range != 0 )
 	{
-		float cheight = g_texman->GetCharHeight(_titleFont);
+		float cheight = GetManager()->GetTextureManager().GetCharHeight(_titleFont);
 		float count = floor((GetHeight() - cheight) / cheight / 2);
 		float dy = range / count;
 		if( dy < 1 )
@@ -265,9 +265,9 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void Oscilloscope::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float labelOffset = g_texman->GetCharHeight(_titleFont) / 2;
+	float labelOffset = GetManager()->GetTextureManager().GetCharHeight(_titleFont) / 2;
 	sy += labelOffset;
 
 	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);
@@ -277,7 +277,7 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		g_texman->DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, vec2d(1,0));
+		dc.DrawSprite(_barTexture, 0, 0x44444444, (float) i * _scale + dx, center, 2, _data[i] * scale, vec2d(1,0));
 	}
 
 	// grid
@@ -288,19 +288,19 @@ void Oscilloscope::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			g_texman->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
+			dc.DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
 			char buf[64];
 			sprintf(buf, "%.3g", y);
 			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
-			dc->DrawBitmapText(sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
+			dc.DrawBitmapText(sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
 		}
 	}
 	else
 	{
-		dc->DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, vec2d(1,0));
+		dc.DrawSprite(_barTexture, 0, 0x44444444, sx, sy - _rangeMax * scale, GetWidth(), -1, vec2d(1,0));
 	}
 
-	dc->DrawBitmapText(sx, sy - labelOffset, _titleFont, 0x77777777, _title);
+	dc.DrawBitmapText(sx, sy - labelOffset, _titleFont, 0x77777777, _title);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

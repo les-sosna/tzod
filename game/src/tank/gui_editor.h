@@ -161,7 +161,7 @@ public:
 	std::function<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
-	void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 	bool OnMouseWheel(float x, float y, float z);
 	bool OnMouseDown(float x, float y, int button);

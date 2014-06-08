@@ -141,9 +141,9 @@ Window* LayoutManager::GetFocusWnd() const
 	return _focusWnd.Get();
 }
 
-TextureManager* LayoutManager::GetTextureManager()
+TextureManager& LayoutManager::GetTextureManager() const
 {
-	return g_texman;
+	return *g_texman;
 }
 /*
 bool LayoutManager::ResetFocus(Window* wnd)
@@ -460,7 +460,7 @@ bool LayoutManager::ProcessKeys(Msg msg, int c)
 void LayoutManager::Render() const
 {
 	g_render->SetMode(RM_INTERFACE);
-	const DrawingContext *dc = static_cast<const DrawingContext*>(const_cast<LayoutManager*>(this)->GetTextureManager());
+    auto &dc = static_cast<DrawingContext &>(GetTextureManager());
 
 	// draw desktop and all its children
 	if( _desktop->GetVisible() )

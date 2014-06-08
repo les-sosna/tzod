@@ -18,7 +18,7 @@ public:
 protected:
 	virtual void OnTimeStep(float dt);
 	virtual void OnParentSize(float width, float height);
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 private:
 	size_t _font;

@@ -68,7 +68,7 @@ protected:
 	virtual bool OnRawChar(int c);
 	virtual bool OnFocus(bool focus);
 
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 private:
 	List(const List &); // no copy

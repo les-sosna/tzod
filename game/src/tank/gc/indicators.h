@@ -41,7 +41,7 @@ public:
 
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	virtual void MapExchange(World &world, MapFile &f);
 };
 
@@ -55,7 +55,7 @@ public:
 	GC_HideLabel(World &world);
 	GC_HideLabel(FromFile);
 
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ public:
 	GC_IndicatorBar(FromFile);
 
 	// GC_2dSprite
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);

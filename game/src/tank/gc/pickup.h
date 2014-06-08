@@ -63,7 +63,7 @@ protected:
 	virtual void TimeStepFloat(World &world, float dt);
 	virtual void Kill(World &world);
 
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -215,7 +215,7 @@ public:
 	virtual void Detach(World &world);
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

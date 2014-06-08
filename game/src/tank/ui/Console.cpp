@@ -54,7 +54,7 @@ Console* Console::Create(Window *parent, float x, float y, float w, float h, Con
 Console::Console(Window *parent)
   : Window(parent)
   , _cmdIndex(0)
-  , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
+  , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
   , _buf(NULL)
   , _history(NULL)
   , _echo(true)
@@ -240,13 +240,13 @@ void Console::OnTimeStep(float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	if( _buf )
 	{
 		_buf->Lock();
 
-		float h = dc->GetFrameHeight(_font, 0);
+		float h = dc.GetFrameHeight(_font, 0);
 		size_t visibleLineCount = size_t(_input->GetY() / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;
@@ -258,7 +258,7 @@ void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		{
 			unsigned int sev = _buf->GetSeverity(line);
 			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-			dc->DrawBitmapText(sx + 4, y, _font, color, _buf->GetLine(line));
+			dc.DrawBitmapText(sx + 4, y, _font, color, _buf->GetLine(line));
 			y += h;
 		}
 
@@ -267,7 +267,7 @@ void Console::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 		if( _autoScroll )
 		{
 			// FIXME: magic number
-			dc->DrawBitmapText(sx + _scroll->GetX() - 2, sy + _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
+			dc.DrawBitmapText(sx + _scroll->GetX() - 2, sy + _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
 		}
 	}
 	Window::DrawChildren(dc, sx, sy);
@@ -279,7 +279,7 @@ void Console::OnSize(float width, float height)
 	_input->Resize(width, _input->GetHeight());
 	_scroll->Move(width - _scroll->GetWidth(), 0);
 	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
-	_scroll->SetPageSize(_input->GetY() / GetManager()->GetTextureManager()->GetFrameHeight(_font, 0));
+	_scroll->SetPageSize(_input->GetY() / GetManager()->GetTextureManager().GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 

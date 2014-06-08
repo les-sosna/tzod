@@ -65,19 +65,11 @@ public:
 
 	float GetCharHeight(size_t fontTexture) const;
 
-	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
-	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame) const;
-	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT) const;
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir) const;
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir) const;
-	void DrawIndicator(size_t tex, float x, float y, float value) const;
-	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase) const;
-
 	void SetCanvasSize(unsigned int width, unsigned int height);
 	void PushClippingRect(const Rect &rect) const;
 	void PopClippingRect() const;
 
-private:
+protected:
     IRender &_render;
     
 	struct TexDesc
@@ -110,6 +102,14 @@ private:
 
 class DrawingContext : public TextureManager
 {
+public:
+	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
+	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
+	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT);
+	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir);
+	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir);
+	void DrawIndicator(size_t tex, float x, float y, float value);
+	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase);
 };
 
 /////////////////////////////////////////////////////////////

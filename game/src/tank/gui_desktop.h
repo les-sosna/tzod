@@ -40,7 +40,7 @@ public:
 	void Clear();
 
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 private:
 	void OnToggleVisible();
@@ -85,7 +85,7 @@ public:
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(const DrawingContext *dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 	void ShowConsole(bool show);
 

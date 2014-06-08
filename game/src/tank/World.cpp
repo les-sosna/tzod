@@ -928,7 +928,7 @@ void World::RenderInternal(const FRECT &world, bool editorMode) const
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( GC_2dSprite *sprite: zLayers[z] )
-            sprite->Draw(editorMode);
+            sprite->Draw(static_cast<DrawingContext&>(*g_texman), editorMode);
         zLayers[z].clear();
     }
     

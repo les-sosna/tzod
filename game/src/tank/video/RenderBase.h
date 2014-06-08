@@ -77,7 +77,7 @@ public:
 struct IRender
 {
     virtual ~IRender() {}
-	virtual void OnResizeWnd(Point size) = 0;
+	virtual void OnResizeWnd(unsigned int width, unsigned int height) = 0;
 
 	virtual void SetScissor(const Rect *rect) = 0;
 	virtual void SetViewport(const Rect *rect) = 0;

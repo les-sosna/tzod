@@ -553,8 +553,8 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
     
 EditorLayout::EditorLayout(Window *parent, World &world)
   : Window(parent)
-  , _fontSmall(GetManager()->GetTextureManager()->FindSprite("font_small"))
-  , _selectionRect(GetManager()->GetTextureManager()->FindSprite("ui/selection"))
+  , _fontSmall(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _selectionRect(GetManager()->GetTextureManager().FindSprite("ui/selection"))
   , _selectedObject(NULL)
   , _isObjectNew(false)
   , _click(true)
@@ -881,7 +881,7 @@ void EditorLayout::OnChangeUseLayers()
 	_layerDisp->SetVisible(g_conf.ed_uselayers.Get());
 }
 
-void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
@@ -896,15 +896,15 @@ void EditorLayout::DrawChildren(const DrawingContext *dc, float sx, float sy) co
 			(rt.left - cam.GetPosX()) * cam.GetZoom() + s->GetSpriteWidth() * cam.GetZoom(),
 			(rt.top - cam.GetPosY()) * cam.GetZoom() + s->GetSpriteHeight() * cam.GetZoom()
 		};
-		dc->DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
-		dc->DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
+		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
+		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
 	vec2d mouse;
 	if( GC_Camera::GetWorldMousePos(_world, GetManager()->GetMousePos(), mouse, true) )
 	{
 		std::stringstream buf;
 		buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-		dc->DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+		dc.DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 	}
 	
 	Window::DrawChildren(dc, sx, sy);

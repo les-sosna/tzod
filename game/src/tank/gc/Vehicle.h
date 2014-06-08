@@ -110,7 +110,7 @@ public:
 	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached);
 
 	// GC_2dSprite
-	virtual void Draw(bool editorMode) const;
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
 	virtual void Kill(World &world);

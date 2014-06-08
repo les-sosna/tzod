@@ -67,8 +67,8 @@ List::List(Window *parent, ListDataSource* dataSource)
     , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
     , _curSel(-1)
     , _hotItem(-1)
-    , _font(GetManager()->GetTextureManager()->FindSprite("font_small"))
-    , _selection(GetManager()->GetTextureManager()->FindSprite("ui/listsel"))
+    , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
+    , _selection(GetManager()->GetTextureManager().FindSprite("ui/listsel"))
 {
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
@@ -99,7 +99,7 @@ void List::SetTabPos(int index, float pos)
 
 float List::GetItemHeight() const
 {
-	return GetManager()->GetTextureManager()->GetFrameHeight(_font, 0);
+	return GetManager()->GetTextureManager().GetFrameHeight(_font, 0);
 }
 
 int List::GetCurSel() const
@@ -236,7 +236,7 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
+void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	Window::DrawChildren(dc, sx, sy);
 
@@ -250,7 +250,7 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 	clip.top    = (int) sy;
 	clip.right  = (int) (sx + _scrollBar->GetX());
 	clip.bottom = (int) (sy + GetHeight());
-	dc->PushClippingRect(clip);
+	dc.PushClippingRect(clip);
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
@@ -267,13 +267,13 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 				if( this == GetManager()->GetFocusWnd() )
 				{
 					c = 0xff000000; // selected focused;
-					dc->DrawSprite(&sel, _selection, 0xffffffff, 0);
+					dc.DrawSprite(&sel, _selection, 0xffffffff, 0);
 				}
 				else
 				{
 					c = 0xffffffff; // selected unfocused;
 				}
-				dc->DrawBorder(&sel, _selection, 0xffffffff, 0);
+				dc.DrawBorder(&sel, _selection, 0xffffffff, 0);
 			}
 			else if( _hotItem == i )
 			{
@@ -287,11 +287,11 @@ void List::DrawChildren(const DrawingContext *dc, float sx, float sy) const
 
 		for( int k = _data->GetSubItemCount(i); k--; )
 		{
-			dc->DrawBitmapText(sx + _tabs[std::min(k, maxtab)], sy + y, _font, c, _data->GetItemText(i, k));
+			dc.DrawBitmapText(sx + _tabs[std::min(k, maxtab)], sy + y, _font, c, _data->GetItemText(i, k));
 		}
 	}
 
-	dc->PopClippingRect();
+	dc.PopClippingRect();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
