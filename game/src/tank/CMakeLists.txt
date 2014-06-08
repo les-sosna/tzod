@@ -47,7 +47,6 @@ set(tank_SOURCES
 	KeyMapper.cpp
 	MapFile.cpp
 	Md5.c
-	MousePointer.cpp
 	SaveFile.cpp
 	script.cpp
 	config/Config.cpp
