@@ -56,10 +56,6 @@ set(tank_SOURCES
 	core/Profiler.cpp
 	core/SafePtr.cpp
 	core/Timer.cpp
-	video/ImageLoader.cpp
-#	video/RenderDirect3D.cpp
-	video/RenderOpenGL.cpp
-	video/TextureManager.cpp
 	gc/2dSprite.cpp
 	gc/Actor.cpp
 	gc/Camera.cpp
@@ -97,6 +93,11 @@ set(tank_SOURCES
 #	network/TankClient.cpp
 #	network/TankServer.cpp
 #	network/Variant.cpp
+	render/WorldView.cpp
+	video/ImageLoader.cpp
+#	video/RenderDirect3D.cpp
+	video/RenderOpenGL.cpp
+	video/TextureManager.cpp
 )
 
 set(tank_LIBRARIES

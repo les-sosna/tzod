@@ -326,11 +326,11 @@ void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
 			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
 			{
 #ifndef NDEBUG
-				for( int i = 0; i < 4; ++i )
-				{
-					world.DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
-				}
-				world.DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
+//				for( int i = 0; i < 4; ++i )
+//				{
+//					DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+//				}
+//				DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
 #endif
 
 				c.t.x =  c.n.y;

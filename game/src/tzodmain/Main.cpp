@@ -1,5 +1,6 @@
 // Main.cpp
 
+#include <constants.h>
 #include <globals.h>
 #include <gui_desktop.h>
 #include <script.h>

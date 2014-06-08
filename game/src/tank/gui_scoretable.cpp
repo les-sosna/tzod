@@ -2,9 +2,8 @@
 
 #include "gui_scoretable.h"
 
+#include "constants.h"
 #include "globals.h"
-#include "GuiManager.h"
-
 #include "Macros.h"
 
 #include "video/TextureManager.h"
@@ -13,6 +12,7 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include <GuiManager.h>
 #include <GLFW/glfw3.h>
 
 namespace UI

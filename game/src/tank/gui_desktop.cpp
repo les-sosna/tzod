@@ -141,6 +141,7 @@ Desktop::Desktop(LayoutManager* manager, World &world)
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
+  , _worldView(*g_render, GetManager()->GetTextureManager())
 {
 	SetTexture("ui/window", false);
 	_msg = new MessageArea(this, 100, 100);
@@ -217,7 +218,7 @@ void Desktop::OnTimeStep(float dt)
 
 void Desktop::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	_world.Render(_editor->GetVisible());
+    _worldView.Render(_world, _editor->GetVisible());
 	g_render->SetMode(RM_INTERFACE);
 //	if( !g_client )
 //	{

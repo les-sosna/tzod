@@ -1,8 +1,9 @@
 // Actor.cpp
 
 #include "Actor.h"
-
 #include "World.h"
+
+#include "constants.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 

@@ -17,9 +17,6 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "video/RenderBase.h"
-#include "video/TextureManager.h" // for ThemeManager
-
 #include "GameClasses.h"
 #include "RigidBodyDinamic.h"
 #include "Player.h"
@@ -63,8 +60,6 @@ struct SaveHeader
 World::World()
   : _serviceListener(nullptr)
   , _messageListener(nullptr)
-  , _texBack(g_texman->FindSprite("background"))
-  , _texGrid(g_texman->FindSprite("grid"))
   , _frozen(false)
   , _limitHit(false)
   , _sx(0)
@@ -571,7 +566,7 @@ GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
                                          vec2d *ht,
                                          vec2d *norm) const
 {
-	DbgLine(x0, x0 + a);
+//	DbgLine(x0, x0 + a);
 
 	struct SelectNearest
 	{
@@ -655,32 +650,6 @@ void World::TraceAll( Grid<ObjectList> &list,
 	RayTrace(list, selector);
 }
 
-void World::DrawBackground(size_t tex) const
-{
-	const LogicalTexture &lt = g_texman->Get(tex);
-	MyVertex *v = g_render->DrawQuad(lt.dev_texture);
-	v[0].color = 0xffffffff;
-	v[0].u = 0;
-	v[0].v = 0;
-	v[0].x = 0;
-	v[0].y = 0;
-	v[1].color = 0xffffffff;
-	v[1].u = _sx / lt.pxFrameWidth;
-	v[1].v = 0;
-	v[1].x = _sx;
-	v[1].y = 0;
-	v[2].color = 0xffffffff;
-	v[2].u = _sx / lt.pxFrameWidth;
-	v[2].v = _sy / lt.pxFrameHeight;
-	v[2].x = _sx;
-	v[2].y = _sy;
-	v[3].color = 0xffffffff;
-	v[3].u = 0;
-	v[3].v = _sy / lt.pxFrameHeight;
-	v[3].x = 0;
-	v[3].y = _sy;
-}
-
 void World::Step(float dt)
 {
 	_time += dt;
@@ -741,170 +710,6 @@ void World::Step(float dt)
 	fflush(_dump);
 #endif
 }
-
-void World::Render(bool editorMode) const
-{
-	g_render->SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
-
-	if( editorMode || GetList(LIST_cameras).empty() )
-	{
-		// render from default camera
-		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
-
-		FRECT world;
-		world.left = _defaultCamera.GetPosX();
-		world.top = _defaultCamera.GetPosY();
-		world.right = world.left + (float) g_render->GetWidth() / _defaultCamera.GetZoom();
-		world.bottom = world.top + (float) g_render->GetHeight() / _defaultCamera.GetZoom();
-
-		RenderInternal(world, editorMode);
-	}
-	else
-	{
-		if( g_render->GetWidth() >= int(_sx) && g_render->GetHeight() >= int(_sy) )
-		{
-			// render from single camera with maximum shake
-			float max_shake = -1;
-			GC_Camera *singleCamera = NULL;
-			FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
-			{
-				if( pCamera->GetShake() > max_shake )
-				{
-					singleCamera = pCamera;
-					max_shake = pCamera->GetShake();
-				}
-			}
-			assert(singleCamera);
-
-			FRECT world;
-			singleCamera->GetWorld(world);
-
-			Rect screen;
-			singleCamera->GetScreen(screen);
-
-			g_render->Camera(&screen,
-				world.left,
-				world.top,
-				singleCamera->GetZoom(),
-				g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
-
-			RenderInternal(world, editorMode);
-		}
-		else
-		{
-			// render from each camera
-			FOREACH( GetList(LIST_cameras), GC_Camera, pCamera )
-			{
-				FRECT world;
-				pCamera->GetWorld(world);
-
-				Rect screen;
-				pCamera->GetScreen(screen);
-
-				g_render->Camera(&screen,
-					world.left,
-					world.top,
-					pCamera->GetZoom(),
-					g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
-
-				RenderInternal(world, editorMode);
-			}
-		}
-	}
-
-#ifdef _DEBUG
-	if (glfwGetKey(g_appWindow, GLFW_KEY_BACKSPACE) != GLFW_PRESS)
-#endif
-	{
-		_dbgLineBuffer.clear();
-	}
-}
-
-void World::RenderInternal(const FRECT &world, bool editorMode) const
-{
-	//
-	// draw lights to alpha channel
-	//
-
-	g_render->SetMode(RM_LIGHT);
-	if( g_conf.sv_nightmode.Get() )
-	{
-		float xmin = std::max(0.0f, world.left);
-		float ymin = std::max(0.0f, world.top);
-		float xmax = std::min(_sx, world.right);
-		float ymax = std::min(_sy, world.bottom);
-
-		FOREACH( GetList(LIST_lights), GC_Light, pLight )
-		{
-			if( pLight->IsActive() &&
-				pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
-				pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
-				pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
-				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
-			{
-				pLight->Shine(*g_render);
-			}
-		}
-	}
-
-
-	//
-	// draw world to rgb
-	//
-
-	g_render->SetMode(RM_WORLD);
-
-	// background texture
-	DrawBackground(_texBack);
-	if( editorMode && g_conf.ed_drawgrid.Get() )
-		DrawBackground(_texGrid);
-
-
-	int xmin = std::max(0, int(world.left / LOCATION_SIZE));
-	int ymin = std::max(0, int(world.top / LOCATION_SIZE));
-	int xmax = std::min(_locationsX - 1, int(world.right / LOCATION_SIZE));
-	int ymax = std::min(_locationsY - 1, int(world.bottom / LOCATION_SIZE) + 1);
-
-    static std::vector<GC_2dSprite*> zLayers[Z_COUNT];
-    for( int x = xmin; x <= xmax; ++x )
-    for( int y = ymin; y <= ymax; ++y )
-    {
-        FOREACH(grid_sprites.element(x,y), GC_2dSprite, object)
-        {
-            if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
-                zLayers[object->GetZ()].push_back(object);
-        }
-    }
-
-    FOREACH( GetList(LIST_gsprites), GC_2dSprite, object )
-    {
-        if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
-            zLayers[object->GetZ()].push_back(object);
-    }
-
-    for( int z = 0; z < Z_COUNT; ++z )
-    {
-        for( GC_2dSprite *sprite: zLayers[z] )
-            sprite->Draw(static_cast<DrawingContext&>(*g_texman), editorMode);
-        zLayers[z].clear();
-    }
-    
-	if( !_dbgLineBuffer.empty() )
-	{
-		g_render->DrawLines(&*_dbgLineBuffer.begin(), _dbgLineBuffer.size());
-	}
-}
-
-#ifndef NDEBUG
-void World::DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color) const
-{
-	_dbgLineBuffer.push_back(MyLine());
-	MyLine &line = _dbgLineBuffer.back();
-	line.begin = v1;
-	line.end = v2;
-	line.color = color;
-}
-#endif
 
 GC_Object* World::FindObject(const std::string &name) const
 {

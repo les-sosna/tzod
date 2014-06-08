@@ -1212,11 +1212,11 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 			min_norm.Normalize();
 			min_norm *= 1.4142f;// sqrt(2)
 			_arrivalPoint = min_hit + min_norm * vehicle.GetRadius();
-			world.DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
+//			DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
 		}
 	}
 
-	world.DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
+//	DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
 
 
 	//
@@ -1302,9 +1302,9 @@ void AIController::debug_draw(World &world)
 		std::list<PathNode>::iterator it = _path.begin();
 		for(;;)
 		{
-			vec2d v = it->coord;
+//			vec2d v = it->coord;
 			if( ++it == _path.end() ) break;
-			world.DbgLine(v, it->coord, 0xffffffff);
+//			DbgLine(v, it->coord, 0xffffffff);
 		}
 	}
 /*

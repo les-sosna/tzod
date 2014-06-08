@@ -2,13 +2,11 @@
 
 #pragma once
 
-#include "constants.h"
 #include "Field.h"
 #include "DefaultCamera.h"
 
 #include "GlobalListHelper.h"
 #include "network/ControlPacket.h"
-#include "video/RenderBase.h"
 #include <core/PtrList.h>
 #include <core/Grid.h>
 
@@ -67,10 +65,6 @@ public:
     MessageListener *_messageListener;
 	DefaultCamera _defaultCamera;
 
-	size_t _texBack;
-	size_t _texGrid;
-	void DrawBackground(size_t tex) const;
-
 /////////////////////////////////////
 //settings
 	bool    _frozen;
@@ -121,7 +115,6 @@ public:
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
 
-	void Render(bool editorMode) const;
 	bool IsSafeMode() const { return _safeMode; }
 	GC_Object* FindObject(const std::string &name) const;
 
@@ -134,9 +127,6 @@ public:
                        const vec2d &tx,    // target position
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
-
-
-	void RenderInternal(const FRECT &world, bool editorMode) const;
 
 
 	//
@@ -176,18 +166,7 @@ protected:
 	void OnChangeSoundVolume();
 	void OnChangeNightMode();
 
-	//
-	// debugging routines
-	//
 public:
-	mutable std::vector<MyLine> _dbgLineBuffer;
-	void DbgLine(const vec2d &v1, const vec2d &v2, SpriteColor color = 0x00ff00ff) const
-#ifdef NDEBUG
-	{} // do nothing in release mode
-#endif
-		;
-
-
 	void Clear();
 	GC_Player* GetPlayerByIndex(size_t playerIndex);
     void Seed(unsigned long seed);

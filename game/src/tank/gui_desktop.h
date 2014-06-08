@@ -4,6 +4,7 @@
 
 #include "InputManager.h"
 #include "gc/WorldEvents.h"
+#include "render/WorldView.h"
 #include <Window.h>
 #include <Console.h>
 
@@ -76,6 +77,7 @@ class Desktop
     int _nModalPopups;
     
     World &_world;
+    WorldView _worldView;
 
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;

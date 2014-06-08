@@ -62,10 +62,10 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 						assert(!isnan(hitNorm.x) && isfinite(hitNorm.x));
 						assert(!isnan(hitNorm.y) && isfinite(hitNorm.y));
 #ifndef NDEBUG
-						for( int i = 0; i < 4; ++i )
-						{
-							DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
-						}
+//						for( int i = 0; i < 4; ++i )
+//						{
+//							DbgLine(object->GetVertex(i), object->GetVertex((i+1)&3));
+//						}
 #endif
 						if( s.Select(object, hitNorm, hitEnter, hitExit) )
 						{
