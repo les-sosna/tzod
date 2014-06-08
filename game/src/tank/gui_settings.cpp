@@ -4,10 +4,10 @@
 
 #include "globals.h"
 #include "KeyMapper.h"
-#include "World.h"
 #include "Macros.h"
 
 #include "gc/Object.h"
+#include "gc/World.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

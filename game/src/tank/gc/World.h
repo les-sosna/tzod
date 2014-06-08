@@ -6,7 +6,7 @@
 #include "Field.h"
 #include "DefaultCamera.h"
 
-#include "gc/GlobalListHelper.h"
+#include "GlobalListHelper.h"
 #include "network/ControlPacket.h"
 #include "video/RenderBase.h"
 #include <core/PtrList.h>

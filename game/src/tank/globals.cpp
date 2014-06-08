@@ -1,7 +1,6 @@
 // globals.cpp
 
 #include "globals.h"
-#include "World.h"
 #include <ConsoleBuffer.h>
 #include <FileSystem.h>
 

@@ -19,7 +19,7 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "World.h"
+#include "gc/World.h"
 #include "Macros.h"
 #include "script.h"
 

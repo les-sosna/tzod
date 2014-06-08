@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "WorldEvents.h"
+#include "gc/WorldEvents.h"
 #include "core/SafePtr.h"
 
 #include <Dialog.h>

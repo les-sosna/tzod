@@ -18,7 +18,7 @@
 #include "core/debug.h"
 
 #include "gc/Player.h"
-#include "World.h"
+#include "gc/World.h"
 
 #include "network/CommonTypes.h"
 

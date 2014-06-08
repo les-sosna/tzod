@@ -20,11 +20,11 @@
 #include "video/RenderBase.h"
 #include "video/TextureManager.h" // for ThemeManager
 
-#include "gc/GameClasses.h"
-#include "gc/RigidBodyDinamic.h"
-#include "gc/Player.h"
-#include "gc/Sound.h"
-#include "gc/Camera.h"
+#include "GameClasses.h"
+#include "RigidBodyDinamic.h"
+#include "Player.h"
+#include "Sound.h"
+#include "Camera.h"
 
 #include <FileSystem.h>
 

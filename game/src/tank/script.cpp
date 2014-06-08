@@ -5,8 +5,6 @@
 #include "BackgroundIntro.h"
 #include "gui.h"
 #include "gui_desktop.h"
-#include "World.h"
-#include "WorldEvents.h"
 #include "Macros.h"
 #include "SaveFile.h"
 
@@ -15,6 +13,8 @@
 #include "gc/Pickup.h"
 #include "gc/Player.h"
 #include "gc/Weapons.h" // for ugly workaround
+#include "gc/World.h"
+#include "gc/WorldEvents.h"
 
 
 #ifndef NOSOUND

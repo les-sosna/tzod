@@ -4,7 +4,7 @@
 
 #include "globals.h"
 #include "script.h"
-#include "World.h"
+#include "gc/World.h"
 
 #include <GuiManager.h> // FIXME
 

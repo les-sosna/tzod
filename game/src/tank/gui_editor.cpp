@@ -12,15 +12,15 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
-#include "World.h"
 #include "Macros.h"
 #include "script.h"
 #include "DefaultCamera.h"
 #include "ClientBase.h"
 
-#include "gc/Object.h"
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"
+#include "gc/Object.h"
+#include "gc/World.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

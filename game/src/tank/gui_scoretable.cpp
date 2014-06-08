@@ -5,11 +5,11 @@
 #include "globals.h"
 #include "GuiManager.h"
 
-#include "World.h"
 #include "Macros.h"
 
 #include "video/TextureManager.h"
 #include "gc/Player.h"
+#include "gc/World.h"
 #include "config/Config.h"
 #include "config/Language.h"
 

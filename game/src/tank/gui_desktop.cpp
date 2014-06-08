@@ -14,9 +14,9 @@
 #include "config/Config.h"
 #include "config/Language.h"
 #include "core/Profiler.h"
-#include <gc/Camera.h>
+#include "gc/Camera.h"
 #include "gc/Player.h"
-#include "World.h"
+#include "gc/World.h"
 
 //#include "network/TankClient.h"
 

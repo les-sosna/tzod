@@ -3,7 +3,7 @@
 #include "globals.h"
 
 #include "gui_widgets.h"
-#include "World.h"
+#include "gc/World.h"
 
 #include "video/TextureManager.h"
 

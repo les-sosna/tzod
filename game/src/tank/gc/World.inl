@@ -1,6 +1,6 @@
 // World.inl - inline functions for World.h
 
-#include "gc/RigidBody.h"
+#include "RigidBody.h"
 
 
 template<class SelectorType>

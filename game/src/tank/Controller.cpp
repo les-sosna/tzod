@@ -6,7 +6,7 @@
 #include "gc/Camera.h"
 #include "gc/Sound.h"
 #include "gc/Vehicle.h"
-#include "World.h"
+#include "gc/World.h"
 #include "KeyMapper.h"
 
 #include <GLFW/glfw3.h>

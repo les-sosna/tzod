@@ -3,7 +3,7 @@
 #pragma once
 
 #include "InputManager.h"
-#include "WorldEvents.h"
+#include "gc/WorldEvents.h"
 #include <Window.h>
 #include <Console.h>
 

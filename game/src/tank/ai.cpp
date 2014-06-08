@@ -2,17 +2,17 @@
 
 #include "ai.h"
 
-#include "World.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 
+#include "gc/Camera.h"
 #include "gc/Pickup.h"
 #include "gc/Player.h"
 #include "gc/Turrets.h"
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
-#include "gc/Camera.h"
+#include "gc/World.h"
 
 #include "core/JobManager.h"
 #include "core/Debug.h"

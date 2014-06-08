@@ -46,7 +46,6 @@ set(tank_SOURCES
 	gui_widgets.cpp
 	InputManager.cpp
 	KeyMapper.cpp
-	World.cpp
 	MapFile.cpp
 	Md5.c
 	MousePointer.cpp
@@ -87,6 +86,7 @@ set(tank_SOURCES
 	gc/UserObjects.cpp
 	gc/Vehicle.cpp
 	gc/Weapons.cpp
+	gc/World.cpp
 #	network/CommonTypes.cpp
 	network/ControlPacket.cpp
 #	network/HttpClient.cpp

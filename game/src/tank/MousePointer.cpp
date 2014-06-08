@@ -5,8 +5,8 @@
 #include "globals.h"
 #include "Text.h"
 
-#include "World.h"
 #include "gc/Camera.h"
+#include "gc/World.h"
 
 #include <GLFW/glfw3.h>
 
