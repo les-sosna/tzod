@@ -39,6 +39,7 @@ set(tank_SOURCES
 	gui_getfilename.cpp
 	gui_mainmenu.cpp
 	gui_maplist.cpp
+	gui_messagearea.cpp
 	gui_network.cpp
 	gui_scoretable.cpp
 	gui_settings.cpp

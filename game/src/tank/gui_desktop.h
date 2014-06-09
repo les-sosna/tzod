@@ -11,44 +11,15 @@
 
 namespace UI
 {
-	class EditorLayout;
-	class Console;
-	class ScoreTable;
+    
+class EditorLayout;
+class Console;
+class ScoreTable;
+class FpsCounter;
+class TimeElapsed;
+class Oscilloscope;
+class MessageArea;
 
-	// widgets
-	class FpsCounter;
-	class TimeElapsed;
-	class Oscilloscope;
-
-///////////////////////////////////////////////////////////////////////////////
-
-class MessageArea : public Window
-{
-private:
-	struct Line
-	{
-		float time;
-		std::string str;
-	};
-	typedef std::deque<Line> LineList;
-	LineList _lines;
-	size_t _fontTexture;
-
-public:
-	MessageArea(Window *parent, float x, float y);
-	~MessageArea();
-
-	void WriteLine(const std::string &text);
-	void Clear();
-
-	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
-
-private:
-	void OnToggleVisible();
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 class Desktop
 	: public Window
