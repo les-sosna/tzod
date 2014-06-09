@@ -78,7 +78,6 @@ class ControlProfileDlg : public Dialog
 	float _time;
 	int   _activeIndex;
 	bool  _createNewProfile;
-	bool  _skipNextKey;
 
 	void OnSelectAction(int index);
 

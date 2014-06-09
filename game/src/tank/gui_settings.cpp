@@ -247,7 +247,6 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
   , _time(0)
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
-  , _skipNextKey(false)
 {
 	SetEasyMove(true);
 
@@ -300,9 +299,8 @@ void ControlProfileDlg::OnSelectAction(int index)
 	_actions->GetData()->SetItemText(index, 1, "...");
 	_time = 0;
 	_activeIndex = index;
-//	g_pKeyboard->SetCooperativeLevel( g_env.hMainWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	_skipNextKey = true;
 	SetTimeStep(true);
+	GetManager()->SetFocusWnd(this);
 }
 
 void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
@@ -356,49 +354,44 @@ void ControlProfileDlg::OnTimeStep(float dt)
 {
 	_time += dt;
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
-
-//	for( int k = 0; k < sizeof(g_env.envInputs._keys) / sizeof(g_env.envInputs._keys[0]); ++k )
-//	{
-//		if( g_env.envInputs.IsKeyPressed(k) )
-//		{
-//			if( _skipNextKey )
-//			{
-//				return;
-//			}
-//			if( DIK_ESCAPE != k )
-//			{
-//				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(k));
-//			}
-//			else
-//			{
-//				_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(GetKeyCode(
-//					_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get())) );
-//			}
-//			SetTimeStep(false);
-//		}
-//	}
-
-	_skipNextKey = false;
 }
 
 bool ControlProfileDlg::OnRawChar(int c)
 {
-	switch( c )
+	if (-1 != _activeIndex)
 	{
-	case GLFW_KEY_ENTER:
-		if( GetManager()->GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
+		if (GLFW_KEY_ESCAPE == c)
 		{
-			OnSelectAction(_actions->GetCurSel());
+			int oldKeyCode = GetKeyCode(_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get());
+			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(oldKeyCode));
 		}
 		else
 		{
-			OnOK();
+			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(c));
 		}
-		break;
-	case GLFW_KEY_ESCAPE:
-		break;
-	default:
-		return Dialog::OnRawChar(c);
+		SetTimeStep(false);
+		_activeIndex = -1;
+		GetManager()->SetFocusWnd(_actions);
+	}
+	else
+	{
+		switch( c )
+		{
+		case GLFW_KEY_ENTER:
+			if( GetManager()->GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
+			{
+				OnSelectAction(_actions->GetCurSel());
+			}
+			else
+			{
+				OnOK();
+			}
+			break;
+		case GLFW_KEY_ESCAPE:
+			break;
+		default:
+			return Dialog::OnRawChar(c);
+		}
 	}
 	return true;
 }
