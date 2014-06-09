@@ -73,7 +73,7 @@ void Controller::SetProfile(const char *profile)
     }
 }
 
-void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, VehicleState &vs)
+void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs)
 {
 	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));
@@ -136,19 +136,14 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, Ve
 		vs._bState_RotateRight = IsKeyPressed(_keyRight  );
 	}
 
-    double mouse_x = 0, mouse_y = 0;
-    glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
-
 	if( _moveToMouse )
 	{
 		vs._bState_Fire = vs._bState_Fire || IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
 		vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
 
-		vec2d pt;
-		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) &&
-            GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt) )
+		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && mouse )
 		{
-			vec2d tmp = pt - vehicle->GetPos() - vehicle->GetBrakingLength();
+			vec2d tmp = *mouse - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
 			{
 				if( tmp * vehicle->GetDirection() < 0 )
@@ -179,10 +174,9 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, Ve
 			vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT);
 		}
 
-		vec2d pt;
-		if( vehicle->GetWeapon() && GC_Camera::GetWorldMousePos(world, vec2d((float) mouse_x, (float) mouse_y), pt) )
+		if( vehicle->GetWeapon() && mouse )
 		{
-			float a = (pt - vehicle->GetPos()).Angle();
+			float a = (*mouse - vehicle->GetPos()).Angle();
 			vs._bExplicitTower = true;
 			vs._fTowerAngle = a - vehicle->GetDirection().Angle() - vehicle->GetSpinup();
 		}

@@ -4,10 +4,13 @@
 #include "DefaultCamera.h"
 #include "globals.h"
 #include "InputManager.h"
+#include "Controller.h"
 #include "Macros.h"
 #include "config/Config.h"
 #include "gc/World.h"
 #include "gc/Camera.h"
+#include "gc/Player.h"
+#include "gc/Vehicle.h"
 #include "render/WorldView.h"
 
 #include <GuiManager.h>
@@ -121,11 +124,8 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 
 void UI::GameLayout::OnTimeStep(float dt)
 {
-	if( !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd() )
-	{
-		_inputMgr.ReadControllerState(_world);
-	}
-	
+	bool handleUserInput = !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd();
+
 	size_t camIndex = 0;
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
@@ -133,6 +133,27 @@ void UI::GameLayout::OnTimeStep(float dt)
 		Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
 										Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
 		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(screen), (float) HEIGHT(screen)));
+		if (handleUserInput)
+		{
+			GC_Player *player = pCamera->GetPlayer();
+			if( GC_Vehicle *vehicle = player->GetVehicle() )
+			{
+				VehicleState vs;
+				bool mouseInViewport = false;
+				vec2d pt = GetManager()->GetMousePos();
+				if( PtInRect(screen, Point{(int) pt.x, (int) pt.y}) )
+				{
+					FRECT w;
+					pCamera->GetWorld(w, screen);
+					pt.x = w.left + (pt.x - (float) screen.left) / pCamera->GetZoom();
+					pt.y = w.top + (pt.y - (float) screen.top) / pCamera->GetZoom();
+					mouseInViewport = true;
+				}
+				Controller &controller = _inputMgr.GetController(player);
+				controller.ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
+				vehicle->SetControllerState(vs);
+			}
+		}
 		++camIndex;
 	}
 }

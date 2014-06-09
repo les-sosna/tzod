@@ -5,13 +5,14 @@
 struct VehicleState;
 class GC_Vehicle;
 class World;
+class vec2d;
 
 class Controller
 {
 public:
 	Controller();
     void SetProfile(const char *profile);
-	void ReadControllerState(World &world, const GC_Vehicle *vehicle, VehicleState &vs);
+	void ReadControllerState(World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs);
 
 
 private:

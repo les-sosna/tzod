@@ -135,24 +135,6 @@ void GC_Camera::GetWorld(FRECT &outWorld, const Rect &screen) const
 	outWorld.bottom = outWorld.top + (float) HEIGHT(screen) / _zoom;
 }
 
-bool GC_Camera::GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos)
-{
-	Point ptinscr = { (int) screenPos.x, (int) screenPos.y };
-
-//    FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-//    {
-//        if( PtInRect(pCamera->_viewport, ptinscr) )
-//        {
-//            FRECT w;
-//            pCamera->GetWorld(w);
-//            outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
-//            outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
-//            return true;
-//        }
-//	}
-	return false;
-}
-
 void GC_Camera::Shake(float level)
 {
 	assert(_player);

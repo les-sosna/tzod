@@ -18,17 +18,10 @@ InputManager::~InputManager()
     assert(_controllers.empty());
 }
 
-void InputManager::ReadControllerState(World &world)
+Controller& InputManager::GetController(GC_Player *player) const
 {
-    for (auto &pcpair: _controllers)
-    {
-        if( GC_Vehicle *vehicle = pcpair.first->GetVehicle() )
-        {
-            VehicleState vs;
-            pcpair.second.second->ReadControllerState(world, vehicle, vs);
-            vehicle->SetControllerState(vs);
-        }
-    }
+	assert(_controllers.count(player));
+	return *_controllers.find(player)->second.second;
 }
 
 void InputManager::AssignController(GC_Player *player, std::string profile)

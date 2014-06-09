@@ -112,10 +112,6 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		return;
 	}
 
-
-//	GC_Camera::GetWorldMousePos(_arrivalPoint);
-
-
 	memset(&vs, 0, sizeof(VehicleState));
 
 	// clean the attack list
@@ -1019,7 +1015,6 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 
 		vec2d currentProj;
 		float offset;
-//		GC_Camera::GetWorldMousePos(currentPos);
 		std::list<PathNode>::const_iterator currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
 
 		float desiredProjOffsetLen = vehicle.GetMaxBrakingLength() * 2;//(1 + vehicle._lv.len() / vehicle.GetMaxSpeed());
@@ -1074,10 +1069,6 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 
 	}
 
-
-//	GC_Camera::GetWorldMousePos(_arrivalPoint);
-
-	
 
 /*
 	while( !_path.empty() )

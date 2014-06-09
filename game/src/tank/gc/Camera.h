@@ -39,8 +39,6 @@ public:
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
-	static bool GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos);
-
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
