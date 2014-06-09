@@ -161,7 +161,8 @@ void RenderOpenGL::SetViewport(const Rect *rect)
 
 void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale, float angle)
 {
-	RenderOpenGL::SetViewport(vp);
+	SetViewport(vp);
+	SetScissor(vp);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
