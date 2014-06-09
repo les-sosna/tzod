@@ -31,18 +31,6 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class TimeElapsed : public Text
-{
-    World &_world;
-public:
-	TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world);
-protected:
-	void OnVisibleChange(bool visible, bool inherited);
-	void OnTimeStep(float dt);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class Oscilloscope : public Window
 {
 public:

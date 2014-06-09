@@ -36,6 +36,7 @@ set(tank_SOURCES
 	gui_campaign.cpp
 	gui_desktop.cpp
 	gui_editor.cpp
+	gui_game.cpp
 	gui_getfilename.cpp
 	gui_mainmenu.cpp
 	gui_maplist.cpp

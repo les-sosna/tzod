@@ -10,6 +10,7 @@
 
 // forward declarations
 class World;
+class WorldView;
 class GC_Object;
 class PropertySet;
 class DefaultCamera;
@@ -149,13 +150,14 @@ class EditorLayout : public Window
 	bool _click;
 	int  _mbutton;
     World &_world;
+    WorldView &_worldView;
 
 
 	void OnKillSelected(World &world, GC_Object *sender, void *param);
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(Window *parent, World &world, const DefaultCamera &defaultCamera);
+	EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);

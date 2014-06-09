@@ -25,6 +25,8 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "render/WorldView.h"
+
 #include <GLFW/glfw3.h>
 
 #include <ui/ConsoleBuffer.h>
@@ -551,7 +553,7 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 }
 
     
-EditorLayout::EditorLayout(Window *parent, World &world, const DefaultCamera &defaultCamera)
+EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera)
   : Window(parent)
   , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager()->GetTextureManager().FindSprite("font_small"))
@@ -561,6 +563,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, const DefaultCamera &de
   , _click(true)
   , _mbutton(0)
   , _world(world)
+  , _worldView(worldView)
 {
 	SetTexture(NULL, false);
 
@@ -884,6 +887,17 @@ void EditorLayout::OnChangeUseLayers()
 
 void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
+    FRECT viewRect;
+    viewRect.left = _defaultCamera.GetPosX();
+    viewRect.top = _defaultCamera.GetPosY();
+    viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
+    viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
+    
+    g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
+    _worldView.Render(_world, viewRect, true);
+    
+	g_render->SetMode(RM_INTERFACE);
+    
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
 		FRECT rt;

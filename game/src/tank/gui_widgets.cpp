@@ -114,42 +114,6 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
-  : Text(parent)
-  , _world(world)
-{
-	SetTimeStep(true);
-	Move(x, y);
-	SetAlign(align);
-}
-
-void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
-{
-	SetTimeStep(visible);
-}
-
-void TimeElapsed::OnTimeStep(float dt)
-{
-	if( !_world.IsEmpty() )
-	{
-		char text[16];
-		int time = (int) _world.GetTime();
-
-		if( time % 60 < 10 )
-			sprintf(text, "%d:0%d", time / 60, time % 60);
-		else
-			sprintf(text, "%d:%d", time / 60, time % 60);
-
-		SetText(text);
-	}
-	else
-	{
-		SetText("--:--");
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   : Window(parent)
   , _barTexture(GetManager()->GetTextureManager().FindSprite("ui/bar"))
