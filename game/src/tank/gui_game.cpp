@@ -3,11 +3,14 @@
 #include "gui_scoretable.h"
 #include "DefaultCamera.h"
 #include "globals.h"
+#include "InputManager.h"
 #include "Macros.h"
 #include "config/Config.h"
 #include "gc/World.h"
 #include "gc/Camera.h"
 #include "render/WorldView.h"
+
+#include <GuiManager.h>
     
 
 UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
@@ -46,10 +49,11 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UI::GameLayout::GameLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera)
+UI::GameLayout::GameLayout(Window *parent, World &world, WorldView &worldView, InputManager &inputMgr, const DefaultCamera &defaultCamera)
     : Window(parent)
     , _world(world)
     , _worldView(worldView)
+	, _inputMgr(inputMgr)
     , _defaultCamera(defaultCamera)
 {
 	_msg = new MessageArea(this, 100, 100);
@@ -117,6 +121,11 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 
 void UI::GameLayout::OnTimeStep(float dt)
 {
+	if( !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd() )
+	{
+		_inputMgr.ReadControllerState(_world);
+	}
+	
 	size_t camIndex = 0;
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )

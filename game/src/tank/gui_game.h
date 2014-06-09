@@ -7,6 +7,7 @@
 
 class World;
 class WorldView;
+class InputManager;
 class DefaultCamera;
 
 namespace UI
@@ -30,13 +31,14 @@ class GameLayout
     , private MessageListener
 {
 public:
-    GameLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera);
+    GameLayout(Window *parent, World &world, WorldView &worldView, InputManager &inputMgr, const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
     
     // Window
 	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual void OnSize(float width, float height);
+	virtual bool OnFocus(bool focus) { return true; }
 
 private:
 	void OnChangeShowTime();
@@ -48,6 +50,7 @@ private:
 
     World &_world;
     WorldView &_worldView;
+	InputManager &_inputMgr;
     const DefaultCamera &_defaultCamera;
 };
 
