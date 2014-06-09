@@ -418,7 +418,6 @@ GC_PlayerLocal::GC_PlayerLocal(World &world)
   : GC_Player(world)
 {
 	(new GC_Camera(world, this))->Register(world);
-    GC_Camera::UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
 }
 
 GC_PlayerLocal::GC_PlayerLocal(FromFile)

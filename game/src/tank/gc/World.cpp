@@ -21,7 +21,6 @@
 #include "RigidBodyDinamic.h"
 #include "Player.h"
 #include "Sound.h"
-#include "Camera.h"
 
 #include <FileSystem.h>
 
@@ -309,8 +308,6 @@ void World::Unserialize(const char *fileName)
 		{
 			pPlayer->UpdateSkin();
 		}
-
-		GC_Camera::UpdateLayout(*this, g_render->GetWidth(), g_render->GetHeight());
 	}
 	catch( const std::runtime_error& )
 	{
@@ -465,7 +462,6 @@ void World::Import(std::shared_ptr<FS::Stream> s)
 		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(*this, x, y);
 		object->MapExchange(*this, file);
 	}
-	GC_Camera::UpdateLayout(*this, g_render->GetWidth(), g_render->GetHeight());
 }
 
 void World::Export(std::shared_ptr<FS::Stream> s)

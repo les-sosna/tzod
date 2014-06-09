@@ -9,7 +9,6 @@
 #define PI2   6.283185f
 #define PI4   0.785398f
 
-/////////////////////////////////////////////////////////////////////////////
 struct FRECT
 {
 	float left;
@@ -17,6 +16,10 @@ struct FRECT
 	float right;
 	float bottom;
 };
+
+inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
+inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
+
 
 class vec2d
 {

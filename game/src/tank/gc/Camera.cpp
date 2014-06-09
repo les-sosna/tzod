@@ -27,7 +27,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 	return true;
 }
 
-IMPLEMENT_2LIST_MEMBER(GC_Camera, LIST_cameras, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Camera, LIST_cameras);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
   : _rotator(_rotatorAngle)
@@ -65,7 +65,6 @@ GC_Camera::~GC_Camera()
 
 void GC_Camera::Kill(World &world)
 {
-    UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
     GC_Actor::Kill(world);
 }
 
@@ -77,7 +76,7 @@ void GC_Camera::MoveTo(World &world, const vec2d &pos)
     GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Camera::TimeStepFloat(World &world, float dt)
+void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 {
 	float mu = 3;
 
@@ -88,8 +87,8 @@ void GC_Camera::TimeStepFloat(World &world, float dt)
 
 		mu += _player->GetVehicle()->_lv.len() / 100;
 
-		int dx = (int) std::max(.0f, ((float) WIDTH(_viewport) / _zoom  - world._sx) / 2);
-		int dy = (int) std::max(.0f, ((float) HEIGHT(_viewport) / _zoom - world._sy) / 2);
+		int dx = (int) std::max(.0f, (viewSize.x / _zoom - world._sx) / 2);
+		int dy = (int) std::max(.0f, (viewSize.y / _zoom - world._sy) / 2);
 
 		vec2d r = _player->GetVehicle()->GetPos() + _player->GetVehicle()->_lv / mu;
 
@@ -105,22 +104,23 @@ void GC_Camera::TimeStepFloat(World &world, float dt)
 		_target.x = r.x + (float) dx;
 		_target.y = r.y + (float) dy;
 
-		_target.x = std::max(_target.x, (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
-		_target.x = std::min(_target.x, world._sx - (float) WIDTH(_viewport) / _zoom * 0.5f + dx);
-		_target.y = std::max(_target.y, (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
-		_target.y = std::min(_target.y, world._sy - (float) HEIGHT(_viewport) / _zoom * 0.5f + dy);
+		_target.x = std::max(_target.x, viewSize.x / _zoom * 0.5f + dx);
+		_target.x = std::min(_target.x, world._sx - viewSize.x / _zoom * 0.5f + dx);
+		_target.y = std::max(_target.y, viewSize.y / _zoom * 0.5f + dy);
+		_target.y = std::min(_target.y, world._sy - viewSize.y / _zoom * 0.5f + dy);
 	}
 
 	if( _time_shake > 0 )
 	{
 		_time_shake -= dt;
-		if( _time_shake < 0 ) _time_shake = 0;
+		if( _time_shake < 0 )
+			_time_shake = 0;
 	}
 
 	MoveTo(world, _target + (GetPos() - _target) * expf(-dt * mu));
 }
 
-void GC_Camera::GetWorld(FRECT &outWorld) const
+void GC_Camera::GetWorld(FRECT &outWorld, const Rect &screen) const
 {
 	vec2d shake(0, 0);
 	if( _time_shake > 0 )
@@ -129,92 +129,27 @@ void GC_Camera::GetWorld(FRECT &outWorld) const
 		shake *= _time_shake * CELL_SIZE * 0.1f;
 	}
 
-	outWorld.left   = floor((GetPos().x + shake.x - (float)  WIDTH(_viewport) / _zoom * 0.5f) * _zoom) / _zoom;
-	outWorld.top    = floor((GetPos().y + shake.y - (float) HEIGHT(_viewport) / _zoom * 0.5f) * _zoom) / _zoom;
-	outWorld.right  = outWorld.left + (float)  WIDTH(_viewport) / _zoom;
-	outWorld.bottom = outWorld.top + (float) HEIGHT(_viewport) / _zoom;
-}
-
-void GC_Camera::GetScreen(Rect &vp) const
-{
-	vp = _viewport;
-}
-
-void GC_Camera::UpdateLayout(World &world, int width, int height)
-{
-	size_t camCount = 0;
-
-	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-	{
-		++camCount;
-	}
-
-	Rect viewports[MAX_HUMANS];
-
-	if( width >= int(world._sx) && height >= int(world._sy) )
-	{
-		viewports[0] = CRect(
-			(width - int(world._sx)) / 2,
-			(height - int(world._sy)) / 2,
-			(width + int(world._sx)) / 2,
-			(height + int(world._sy)) / 2
-		);
-		FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera)
-		{
-			pCamera->_viewport = viewports[0];
-		}
-	}
-	else if( camCount )
-	{
-		switch( camCount )
-		{
-		case 1:
-			viewports[0] = CRect(0, 0, width, height);
-			break;
-		case 2:
-			viewports[0] = CRect(0,           0, width/2 - 1, height);
-			viewports[1] = CRect(width/2 + 1, 0, width,       height);
-			break;
-		case 3:
-			viewports[0] = CRect(0,           0,            width/2 - 1, height/2 - 1);
-			viewports[1] = CRect(width/2 + 1, 0,            width,       height/2 - 1);
-			viewports[2] = CRect(width/4,     height/2 + 1, width*3/4,   height);
-			break;
-		case 4:
-			viewports[0] = CRect(0,           0,            width/2 - 1, height/2 - 1);
-			viewports[1] = CRect(width/2 + 1, 0,            width,       height/2 - 1);
-			viewports[2] = CRect(0,           height/2 + 1, width/2 - 1, height);
-			viewports[3] = CRect(width/2 + 1, height/2 + 1, width,       height);
-			break;
-		default:
-			assert(false);
-		}
-
-		size_t count = 0;
-		float  zoom  = camCount > 2 ? 0.5f : 1.0f;
-		FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-		{
-			pCamera->_viewport = viewports[count++];
-			pCamera->_zoom     = zoom;
-		}
-	}
+	outWorld.left   = floor((GetPos().x + shake.x - (float)  WIDTH(screen) / _zoom * 0.5f) * _zoom) / _zoom;
+	outWorld.top    = floor((GetPos().y + shake.y - (float) HEIGHT(screen) / _zoom * 0.5f) * _zoom) / _zoom;
+	outWorld.right  = outWorld.left + (float)  WIDTH(screen) / _zoom;
+	outWorld.bottom = outWorld.top + (float) HEIGHT(screen) / _zoom;
 }
 
 bool GC_Camera::GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos)
 {
 	Point ptinscr = { (int) screenPos.x, (int) screenPos.y };
 
-    FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-    {
-        if( PtInRect(pCamera->_viewport, ptinscr) )
-        {
-            FRECT w;
-            pCamera->GetWorld(w);
-            outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
-            outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
-            return true;
-        }
-	}
+//    FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
+//    {
+//        if( PtInRect(pCamera->_viewport, ptinscr) )
+//        {
+//            FRECT w;
+//            pCamera->GetWorld(w);
+//            outWorldPos.x = w.left + (float) (ptinscr.x - pCamera->_viewport.left) / pCamera->_zoom;
+//            outWorldPos.y = w.top + (float) (ptinscr.y - pCamera->_viewport.top) / pCamera->_zoom;
+//            return true;
+//        }
+//	}
 	return false;
 }
 
@@ -238,10 +173,6 @@ void GC_Camera::Serialize(World &world, SaveFile &f)
 	f.Serialize(_player);
 
 	_rotator.Serialize(f);
-	if( f.loading() )
-    {
-        UpdateLayout(world, g_render->GetWidth(), g_render->GetHeight());
-    }
 }
 
 void GC_Camera::OnDetach(World &world, GC_Object *sender, void *param)

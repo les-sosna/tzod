@@ -63,6 +63,8 @@ UI::GameLayout::GameLayout(Window *parent, World &world, WorldView &worldView, c
 
     assert(!world._messageListener);
     world._messageListener = this;
+	
+	SetTimeStep(true);
 }
     
 UI::GameLayout::~GameLayout()
@@ -71,21 +73,64 @@ UI::GameLayout::~GameLayout()
     _world._messageListener = nullptr;
 	g_conf.ui_showtime.eventChange = nullptr;
 }
+
+
+static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t camIndex)
+{
+    assert(camCount > 0 && camCount <= 4);
+    assert(camIndex < camCount);
     
+	if( ssize.x >= wsize.x && ssize.y >= wsize.y )
+	{
+		return CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
+                     (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
+	}
+
+    Rect viewports[4];
+
+    switch( camCount )
+    {
+        case 1:
+            viewports[0] = CRect(0,             0,             ssize.x,       ssize.y);
+            break;
+        case 2:
+            viewports[0] = CRect(0,             0,             ssize.x/2 - 1, ssize.y);
+            viewports[1] = CRect(ssize.x/2 + 1, 0,             ssize.x,       ssize.y);
+            break;
+        case 3:
+            viewports[0] = CRect(0,             0,             ssize.x/2 - 1, ssize.y/2 - 1);
+            viewports[1] = CRect(ssize.x/2 + 1, 0,             ssize.x,       ssize.y/2 - 1);
+            viewports[2] = CRect(ssize.x/4,     ssize.y/2 + 1, ssize.x*3/4,   ssize.y);
+            break;
+        case 4:
+            viewports[0] = CRect(0,             0,             ssize.x/2 - 1, ssize.y/2 - 1);
+            viewports[1] = CRect(ssize.x/2 + 1, 0,             ssize.x,       ssize.y/2 - 1);
+            viewports[2] = CRect(0,             ssize.y/2 + 1, ssize.x/2 - 1, ssize.y);
+            viewports[3] = CRect(ssize.x/2 + 1, ssize.y/2 + 1, ssize.x,       ssize.y);
+            break;
+        default:
+            assert(false);
+    }
+    
+    return viewports[camIndex];
+}
+
+void UI::GameLayout::OnTimeStep(float dt)
+{
+	size_t camIndex = 0;
+	size_t camCount = _world.GetList(LIST_cameras).size();
+	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
+	{
+		Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
+										Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
+		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(screen), (float) HEIGHT(screen)));
+		++camIndex;
+	}
+}
+
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    if( _world.GetList(LIST_cameras).empty() )
-    {
-		FRECT viewRect;
-		viewRect.left = _defaultCamera.GetPosX();
-		viewRect.top = _defaultCamera.GetPosY();
-		viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
-		viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
-        
-		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
-        _worldView.Render(_world, viewRect, false);
-    }
-    else
+    if( size_t camCount = _world.GetList(LIST_cameras).size() )
     {
         if( GetWidth() >= _world._sx && GetHeight() >= _world._sy )
         {
@@ -102,11 +147,11 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
             }
             assert(singleCamera);
             
+            Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
+                                            Point{(int) _world._sx, (int) _world._sy}, camCount, 0);
+
             FRECT viewRect;
-            singleCamera->GetWorld(viewRect);
-            
-            Rect screen;
-            singleCamera->GetScreen(screen);
+            singleCamera->GetWorld(viewRect, screen);
             
             g_render->Camera(&screen,
                              viewRect.left,
@@ -119,14 +164,15 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
         else
         {
             // render from each camera
+			size_t camIndex = 0;
             FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
             {
-                FRECT viewRect;
-                pCamera->GetWorld(viewRect);
-                
-                Rect screen;
-                pCamera->GetScreen(screen);
-                
+				Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
+												Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
+
+				FRECT viewRect;
+                pCamera->GetWorld(viewRect, screen);
+
                 g_render->Camera(&screen,
                                  viewRect.left,
                                  viewRect.top,
@@ -134,8 +180,22 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
                                  g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
                 
                 _worldView.Render(_world, viewRect, false);
+				
+				++camIndex;
             }
         }
+    }
+    else
+    {
+        // render from default camera
+		FRECT viewRect;
+		viewRect.left = _defaultCamera.GetPosX();
+		viewRect.top = _defaultCamera.GetPosY();
+		viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
+		viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
+        
+		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
+        _worldView.Render(_world, viewRect, false);
     }
 	g_render->SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
@@ -143,9 +203,8 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     
 void UI::GameLayout::OnSize(float width, float height)
 {
-	_time->Move( GetWidth() - 1, GetHeight() - 1 );
+	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
-    GC_Camera::UpdateLayout(_world, width, height);
 }
 
 void UI::GameLayout::OnChangeShowTime()

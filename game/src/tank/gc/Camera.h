@@ -22,7 +22,6 @@ private:
 
 	Rotator _rotator;
 
-	Rect    _viewport;
 	float   _zoom;
 	ObjPtr<GC_Player>  _player;
 
@@ -33,13 +32,13 @@ public:
 	GC_Camera(FromFile);
 	virtual ~GC_Camera();
 
+	void CameraTimeStep(World &world, float dt, vec2d viewSize);
+
 	float GetAngle() const { return _rotatorAngle; }
-	void GetWorld(FRECT &outWorld) const;
-	void GetScreen(Rect &vp) const;
+	void GetWorld(FRECT &outWorld, const Rect &screen) const;
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 
-	static void UpdateLayout(World &world, int width, int height);
 	static bool GetWorldMousePos(World &world, const vec2d &screenPos, vec2d &outWorldPos);
 
 	void Shake(float level);
@@ -54,7 +53,6 @@ public:
 	// GC_Object
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
 };
 
 // end of file

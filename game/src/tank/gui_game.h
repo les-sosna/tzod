@@ -34,6 +34,7 @@ public:
     virtual ~GameLayout();
     
     // Window
+	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual void OnSize(float width, float height);
 
