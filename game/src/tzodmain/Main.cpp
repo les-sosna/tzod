@@ -361,8 +361,7 @@ int main(int, const char**)
         {
             if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(
-                                                                      std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
+                std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
             }
             
             glfwPollEvents();
