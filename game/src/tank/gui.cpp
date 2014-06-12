@@ -396,7 +396,6 @@ void NewGameDlg::OnOK()
         player->SetNick(p.nick.Get());
         player->SetSkin(p.skin.Get());
         player->SetTeam(p.team.GetInt());
-        player->UpdateSkin();
         
         _inputMgr.AssignController(player, p.profile.Get());
     }
