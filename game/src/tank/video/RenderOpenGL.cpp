@@ -222,6 +222,9 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 	switch( mode )
 	{
 	case RM_LIGHT:
+		glClearColor(0, 0, 0, _ambient);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
