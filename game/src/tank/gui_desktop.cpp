@@ -64,19 +64,20 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
-Desktop::Desktop(LayoutManager* manager, World &world)
+Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldController)
   : Window(NULL, manager)
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
   , _worldView(*g_render, GetManager()->GetTextureManager())
+  , _worldController(worldController)
 {
 	SetTexture("ui/window", false);
 
 	_editor = new EditorLayout(this, _world, _worldView, _defaultCamera);
 	_editor->SetVisible(false);
     
-	_game = new GameLayout(this, _world, _worldView, _inputMgr, _defaultCamera);
+	_game = new GameLayout(this, _world, _worldView, _worldController, _inputMgr, _defaultCamera);
 
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
 	_con->eventOnSendCommand = std::bind( &Desktop::OnCommand, this, std::placeholders::_1 );
@@ -127,7 +128,6 @@ void Desktop::OnTimeStep(float dt)
 		counterDt.Push(dt);
         
         _defaultCamera.HandleMovement(_world._sx, _world._sy, (float) GetWidth(), (float) GetHeight());
-        _world.Step(dt);
 	}
 }
 

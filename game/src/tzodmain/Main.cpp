@@ -6,6 +6,7 @@
 #include <script.h>
 #include <Macros.h>
 #include <BackgroundIntro.h>
+#include <WorldController.h>
 
 #include <config/Config.h>
 #include <config/Language.h>
@@ -115,13 +116,15 @@ namespace
 	class DesktopFactory : public UI::IWindowFactory
 	{
         World &_world;
+		WorldController &_worldController;
 	public:
-        DesktopFactory(World &world)
+        DesktopFactory(World &world, WorldController &worldController)
             : _world(world)
+			, _worldController(worldController)
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world);
+			return new UI::Desktop(manager, _world, _worldController);
 		}
 	};
 
@@ -338,6 +341,7 @@ int main(int, const char**)
 
         { // FIXME: remove explicit world scope
         World world;
+		WorldController worldController(world);
 
         TRACE("scripting subsystem initialization");
         g_env.L = script_open(world);
@@ -346,7 +350,7 @@ int main(int, const char**)
         
         { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui(*g_texman, DesktopFactory(world));
+        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController));
         glfwSetWindowUserPointer(g_appWindow, &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -367,8 +371,10 @@ int main(int, const char**)
             glfwPollEvents();
             if (glfwWindowShouldClose(g_appWindow))
                 break;
-                        
-            gui.TimeStep(timer.GetDt());
+			
+			float dt = timer.GetDt();
+            gui.TimeStep(dt); // also sends controller state to WorldController
+			world.Step(dt);
             
             render->Begin();
             gui.Render();

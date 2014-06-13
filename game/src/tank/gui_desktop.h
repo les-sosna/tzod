@@ -8,6 +8,8 @@
 #include <Window.h>
 #include <Console.h>
 
+class WorldController;
+
 namespace UI
 {
     
@@ -43,13 +45,14 @@ class Desktop
     
     World &_world;
     WorldView _worldView;
+	WorldController &_worldController;
     DefaultCamera _defaultCamera;
 
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager, World &_world);
+	Desktop(LayoutManager* manager, World &_world, WorldController &worldController);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

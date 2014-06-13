@@ -7,6 +7,7 @@
 
 class World;
 class WorldView;
+class WorldController;
 class InputManager;
 class DefaultCamera;
 
@@ -31,7 +32,12 @@ class GameLayout
     , private MessageListener
 {
 public:
-    GameLayout(Window *parent, World &world, WorldView &worldView, InputManager &inputMgr, const DefaultCamera &defaultCamera);
+    GameLayout(Window *parent,
+			   World &world,
+			   WorldView &worldView,
+			   WorldController &worldController,
+			   InputManager &inputMgr,
+			   const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
     
     // Window
@@ -50,6 +56,7 @@ private:
 
     World &_world;
     WorldView &_worldView;
+	WorldController &_worldController;
 	InputManager &_inputMgr;
     const DefaultCamera &_defaultCamera;
 };

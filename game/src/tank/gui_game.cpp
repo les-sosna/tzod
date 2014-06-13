@@ -6,6 +6,7 @@
 #include "InputManager.h"
 #include "Controller.h"
 #include "Macros.h"
+#include "WorldController.h"
 #include "config/Config.h"
 #include "gc/World.h"
 #include "gc/Camera.h"
@@ -52,10 +53,16 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UI::GameLayout::GameLayout(Window *parent, World &world, WorldView &worldView, InputManager &inputMgr, const DefaultCamera &defaultCamera)
+UI::GameLayout::GameLayout(Window *parent,
+						   World &world,
+						   WorldView &worldView,
+						   WorldController &worldController,
+						   InputManager &inputMgr,
+						   const DefaultCamera &defaultCamera)
     : Window(parent)
     , _world(world)
     , _worldView(worldView)
+	, _worldController(worldController)
 	, _inputMgr(inputMgr)
     , _defaultCamera(defaultCamera)
 {
@@ -124,8 +131,9 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 
 void UI::GameLayout::OnTimeStep(float dt)
 {
-	bool handleUserInput = !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd();
-
+	bool readUserInput = !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd();
+	WorldController::ControllerStateMap controlStates;
+	
 	size_t camIndex = 0;
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
@@ -133,12 +141,11 @@ void UI::GameLayout::OnTimeStep(float dt)
 		Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
 										Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
 		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(screen), (float) HEIGHT(screen)));
-		if (handleUserInput)
+		if (readUserInput)
 		{
 			GC_Player *player = pCamera->GetPlayer();
 			if( GC_Vehicle *vehicle = player->GetVehicle() )
 			{
-				VehicleState vs;
 				bool mouseInViewport = false;
 				vec2d pt = GetManager()->GetMousePos();
 				if( PtInRect(screen, Point{(int) pt.x, (int) pt.y}) )
@@ -149,13 +156,17 @@ void UI::GameLayout::OnTimeStep(float dt)
 					pt.y = w.top + (pt.y - (float) screen.top) / pCamera->GetZoom();
 					mouseInViewport = true;
 				}
+				VehicleState vs;
 				Controller &controller = _inputMgr.GetController(player);
 				controller.ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
-				vehicle->SetControllerState(vs);
+				controlStates.insert(std::make_pair(player->GetId(), vs));
 			}
 		}
 		++camIndex;
 	}
+	
+	if (readUserInput)
+		_worldController.SendControllerStates(std::move(controlStates));
 }
 
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const

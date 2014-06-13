@@ -51,6 +51,7 @@ set(tank_SOURCES
 	Md5.c
 	SaveFile.cpp
 	script.cpp
+	WorldController.cpp
 	config/Config.cpp
 	config/ConfigBase.cpp
 	config/Language.cpp
@@ -85,7 +86,7 @@ set(tank_SOURCES
 	gc/Weapons.cpp
 	gc/World.cpp
 #	network/CommonTypes.cpp
-	network/ControlPacket.cpp
+#	network/ControlPacket.cpp
 #	network/HttpClient.cpp
 #	network/init.cpp
 #	network/LobbyClient.cpp
