@@ -1,11 +1,6 @@
-// Vehicle.h
-
 #pragma once
-#include "Object.h"
 #include "RigidBodyDinamic.h"
-#include "network/ControlPacket.h"
-
-/////////////////////////////////////////////////////////////
+#include "VehicleState.h"
 
 class GC_Player;
 class GC_Weapon;

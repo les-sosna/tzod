@@ -2,6 +2,7 @@
 
 #include "ControlPacket.h"
 #include "core/MyMath.h"
+#include "gc/VehicleState.h"
 #include <cstring>
 
 //VARIANT_IMPLEMENT_TYPE(ControlPacket) RAW;
