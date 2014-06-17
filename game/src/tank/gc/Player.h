@@ -1,19 +1,13 @@
 // Player.h
 
 #pragma once
-
 #include "Service.h"
-#include "network/ControlPacket.h"
-
 #include <deque>
-
 
 class GC_Vehicle;
 
-
 #define GC_FLAG_PLAYER_ISHUMAN     (GC_FLAG_SERVICE_ << 0)
 #define GC_FLAG_PLAYER_            (GC_FLAG_SERVICE_ << 1)
-
 
 class GC_Player
 	: public GC_Service

@@ -2,7 +2,7 @@
 
 #include "Controller.h"
 #include "config/Config.h"
-#include "network/ControlPacket.h" // for VehicleState
+#include "gc/VehicleState.h"
 #include "gc/Camera.h"
 #include "gc/Sound.h"
 #include "gc/Vehicle.h"

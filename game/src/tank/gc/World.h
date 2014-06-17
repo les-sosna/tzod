@@ -5,7 +5,6 @@
 #include "Field.h"
 
 #include "GlobalListHelper.h"
-#include "network/ControlPacket.h"
 #include <core/PtrList.h>
 #include <core/Grid.h>
 
