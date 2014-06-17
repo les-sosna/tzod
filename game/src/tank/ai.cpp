@@ -107,11 +107,6 @@ void AIController::Serialize(SaveFile &f)
 
 void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs)
 {
-	if( vehicle.GetOwner() )
-	{
-		return;
-	}
-
 	memset(&vs, 0, sizeof(VehicleState));
 
 	// clean the attack list

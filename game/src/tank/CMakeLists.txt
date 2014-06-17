@@ -27,6 +27,7 @@ set(tank_INCLUDE_DIRS
 
 set(tank_SOURCES
 	ai.cpp
+	AIManager.cpp
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp

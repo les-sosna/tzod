@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "gui_maplist.h"
 #include "InputManager.h"
+#include "AIManager.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "script.h"
@@ -47,10 +48,11 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr)
+NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr)
   : Dialog(parent, 770, 550)
   , _world(world)
   , _inputMgr(inputMgr)
+  , _aiMgr(aiMgr)
 {
 	_newPlayer = false;
 
@@ -403,14 +405,15 @@ void NewGameDlg::OnOK()
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-        GC_Player *ai = new GC_Player(_world);
-        ai->Register(_world);
-        ai->SetClass(p.platform_class.Get());
-        ai->SetNick(p.nick.Get());
-        ai->SetSkin(p.skin.Get());
-        ai->SetTeam(p.team.GetInt());
+        GC_Player *player = new GC_Player(_world);
+        player->Register(_world);
+        player->SetClass(p.platform_class.Get());
+        player->SetNick(p.nick.Get());
+        player->SetSkin(p.skin.Get());
+        player->SetTeam(p.team.GetInt());
+		
+		_aiMgr.AssignAI(player, "123");
 //        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
-        ai->UpdateSkin();
         
 	}
 

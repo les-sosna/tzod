@@ -9,6 +9,7 @@
 #include <Console.h>
 
 class WorldController;
+class AIManager;
 
 namespace UI
 {
@@ -33,6 +34,7 @@ class Desktop
 
 	MyConsoleHistory  _history;
     InputManager _inputMgr;
+	AIManager &_aiMgr;
 
 	EditorLayout *_editor;
     GameLayout   *_game;
@@ -52,7 +54,7 @@ class Desktop
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager, World &_world, WorldController &worldController);
+	Desktop(LayoutManager* manager, World &_world, WorldController &worldController, AIManager &aiMgr);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

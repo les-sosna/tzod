@@ -1,5 +1,6 @@
 // Main.cpp
 
+#include <AIManager.h>
 #include <constants.h>
 #include <globals.h>
 #include <gui_desktop.h>
@@ -117,14 +118,16 @@ namespace
 	{
         World &_world;
 		WorldController &_worldController;
+		AIManager &_aiMgr;
 	public:
-        DesktopFactory(World &world, WorldController &worldController)
+        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr)
             : _world(world)
 			, _worldController(worldController)
+			, _aiMgr(aiMgr)
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world, _worldController);
+			return new UI::Desktop(manager, _world, _worldController, _aiMgr);
 		}
 	};
 
@@ -342,6 +345,7 @@ int main(int, const char**)
         { // FIXME: remove explicit world scope
         World world;
 		WorldController worldController(world);
+		AIManager aiManager;
 
         TRACE("scripting subsystem initialization");
         g_env.L = script_open(world);
@@ -350,7 +354,7 @@ int main(int, const char**)
         
         { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController));
+        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager));
         glfwSetWindowUserPointer(g_appWindow, &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -373,6 +377,7 @@ int main(int, const char**)
                 break;
 			
 			float dt = timer.GetDt();
+			worldController.SendControllerStates(aiManager.ComputeAIState(world, dt));
             gui.TimeStep(dt); // also sends controller state to WorldController
 			world.Step(dt);
             

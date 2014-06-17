@@ -64,8 +64,9 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
-Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldController)
+Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldController, AIManager &aiMgr)
   : Window(NULL, manager)
+  , _aiMgr(aiMgr)
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
@@ -184,7 +185,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this, _world, _inputMgr);
+			dlg = new MainMenuDlg(this, _world, _inputMgr, _aiMgr);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;
@@ -192,7 +193,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case GLFW_KEY_F2:
-		dlg = new NewGameDlg(this, _world, _inputMgr);
+		dlg = new NewGameDlg(this, _world, _inputMgr, _aiMgr);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;

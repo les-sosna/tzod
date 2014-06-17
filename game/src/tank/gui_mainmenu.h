@@ -6,6 +6,7 @@
 
 #include <list>
 
+class AIManager;
 class InputManager;
 class World;
 
@@ -60,6 +61,7 @@ class MainMenuDlg : public Dialog
 	};
 
     InputManager &_inputMgr;
+	AIManager &_aiMgr;
 	Window    *_panel;
 	Window    *_panelFrame;
 	Text      *_panelTitle;
@@ -70,7 +72,7 @@ class MainMenuDlg : public Dialog
     World &_world;
 
 public:
-	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr);
+	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

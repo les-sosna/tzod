@@ -159,7 +159,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 				VehicleState vs;
 				Controller &controller = _inputMgr.GetController(player);
 				controller.ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
-				controlStates.insert(std::make_pair(player->GetId(), vs));
+				controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 			}
 		}
 		++camIndex;
