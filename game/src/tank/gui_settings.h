@@ -62,8 +62,6 @@ protected:
 	void OnProfileEditorClosed(int code);
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
 class ControlProfileDlg : public Dialog
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
@@ -95,28 +93,4 @@ protected:
 	bool OnRawChar(int c);
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class MapSettingsDlg : public Dialog
-{
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
-	DefaultComboBox *_theme;
-	Edit *_author;
-	Edit *_email;
-	Edit *_url;
-	Edit *_desc;
-	Edit *_onInit;
-    World &_world;
-
-public:
-	MapSettingsDlg(Window *parent, World &world);
-	~MapSettingsDlg();
-
-	void OnOK();
-	void OnCancel();
-};
-
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file
