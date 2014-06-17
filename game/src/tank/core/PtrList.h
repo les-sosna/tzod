@@ -31,7 +31,7 @@ public:
     
     T* at(id_type id) const
     {
-        assert(id._id >= 0 && id._id < _data.size());
+        assert(id._id >= 0 && id._id < (int) _data.size());
         assert(InvalidPtr() != _data[id._id].ptr);
         return _data[id._id].ptr;
     }
@@ -41,7 +41,7 @@ public:
 
 	void erase(const id_type id)
 	{
-        assert(id._id >= 0 && id._id < _data.size());
+        assert(id._id >= 0 && id._id < (int) _data.size());
         assert(InvalidPtr() != _data[id._id].ptr);
         if (id != _it)
         {
@@ -113,7 +113,7 @@ public:
     
     id_type next(id_type id) const
     {
-        assert(id._id >= 0 && id._id < _data.size());
+        assert(id._id >= 0 && id._id < (int) _data.size());
         assert(InvalidPtr() != _data[id._id].ptr);
         return _data[id._id].prev;
     }

@@ -5,6 +5,9 @@
 
 #include <GuiManager.h>
 #include <ConsoleBuffer.h>
+
+#include <algorithm>
+
 UI::ConsoleBuffer& GetConsole();
 
 
