@@ -312,7 +312,7 @@ int main(int, const char**)
         g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
                                        g_conf.r_height.GetInt(),
                                        TXT_VERSION,
-                                       /*g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() :*/ nullptr,
+                                       g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() : nullptr,
                                        nullptr);
         glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
         glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
@@ -384,7 +384,6 @@ int main(int, const char**)
             render->Begin();
             gui.Render();
             render->End();
-            
             
 #ifndef NOSOUND
             if( g_music )
