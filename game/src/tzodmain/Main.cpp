@@ -67,6 +67,14 @@ struct GlfwInitHelper
     }
 };
 
+struct GlfwWindowDeleter
+{
+    void operator()(GLFWwindow *window)
+    {
+        glfwDestroyWindow(window);
+    }
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -305,34 +313,37 @@ int main(int, const char**)
         
         
         GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
-        
-        
+
+		{ // TODO: remove explicit appWindow scope
         TRACE("Create GL context");
         GlfwInitHelper __gih;
 		const GLFWvidmode *videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        g_appWindow = glfwCreateWindow(g_conf.r_fullscreen.Get() ? videoMode->width : g_conf.r_width.GetInt(),
-                                       g_conf.r_fullscreen.Get() ? videoMode->height : g_conf.r_height.GetInt(),
-                                       TXT_VERSION,
-                                       g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() : nullptr,
-                                       nullptr);
-		if (!g_appWindow)
+		std::unique_ptr<GLFWwindow, GlfwWindowDeleter> appWindow;
+		appWindow.reset(glfwCreateWindow(g_conf.r_fullscreen.Get() ? videoMode->width : g_conf.r_width.GetInt(),
+										 g_conf.r_fullscreen.Get() ? videoMode->height : g_conf.r_height.GetInt(),
+										 TXT_VERSION,
+										 g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() : nullptr,
+										 nullptr));
+		if (!appWindow)
 			throw std::runtime_error("Failed to create GLFW window");
+		
+        glfwSetMouseButtonCallback(appWindow.get(), OnMouseButton);
+        glfwSetCursorPosCallback(appWindow.get(), OnCursorPos);
+        glfwSetScrollCallback(appWindow.get(), OnScroll);
+        glfwSetKeyCallback(appWindow.get(), OnKey);
+        glfwSetCharCallback(appWindow.get(), OnChar);
+        glfwSetFramebufferSizeCallback(appWindow.get(), OnFramebufferSize);
+        glfwMakeContextCurrent(appWindow.get());
+        
+		g_appWindow = appWindow.get();
 
-        glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
-        glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
-        glfwSetScrollCallback(g_appWindow, OnScroll);
-        glfwSetKeyCallback(g_appWindow, OnKey);
-        glfwSetCharCallback(g_appWindow, OnChar);
-        glfwSetFramebufferSizeCallback(g_appWindow, OnFramebufferSize);
-        glfwMakeContextCurrent(g_appWindow);
-        
-        
+
         { // TODO: remove explicit render scope
         std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
         g_render = render.get();
         int width;
         int height;
-        glfwGetFramebufferSize(g_appWindow, &width, &height);
+        glfwGetFramebufferSize(appWindow.get(), &width, &height);
         render->OnResizeWnd(width, height);
         
 #if !defined NOSOUND
@@ -359,7 +370,7 @@ int main(int, const char**)
         { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
         UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager));
-        glfwSetWindowUserPointer(g_appWindow, &gui);
+        glfwSetWindowUserPointer(appWindow.get(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
@@ -377,7 +388,7 @@ int main(int, const char**)
             }
             
             glfwPollEvents();
-            if (glfwWindowShouldClose(g_appWindow))
+            if (glfwWindowShouldClose(appWindow.get()))
                 break;
 			
 			float dt = timer.GetDt();
@@ -396,7 +407,7 @@ int main(int, const char**)
             }
 #endif
             
-            glfwSwapBuffers(g_appWindow);
+            glfwSwapBuffers(appWindow.get());
         }
         
         
@@ -430,8 +441,8 @@ int main(int, const char**)
         } // TODO: remove explicit render scope
         
         TRACE("Destroying gl context");
-        glfwDestroyWindow(g_appWindow);
         g_appWindow = nullptr;
+		} // TODO: remove explicit appWindow scope
         
         TRACE("Saving config to '" FILE_CONFIG "'");
         if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
