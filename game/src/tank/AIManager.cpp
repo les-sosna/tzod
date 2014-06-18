@@ -2,14 +2,17 @@
 #include "ai.h"
 #include "gc/Player.h"
 #include "gc/Vehicle.h"
+#include "gc/World.h"
 
-AIManager::AIManager()
+AIManager::AIManager(World &world)
+	: _world(world)
 {
+	_world.AddListener(GC_Player::GetTypeStatic(), *this);
 }
 
 AIManager::~AIManager()
 {
-	assert(_aiControllers.empty());
+	_world.RemoveListener(GC_Player::GetTypeStatic(), *this);
 }
 
 void AIManager::AssignAI(GC_Player *player, std::string profile)
@@ -38,3 +41,13 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 	}
 	return std::move(result);
 }
+
+void AIManager::OnCreate(GC_Object *obj)
+{
+}
+
+void AIManager::OnKill(GC_Object *obj)
+{
+	_aiControllers.erase(static_cast<GC_Player *>(obj));
+}
+

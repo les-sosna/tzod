@@ -345,7 +345,7 @@ int main(int, const char**)
         { // FIXME: remove explicit world scope
         World world;
 		WorldController worldController(world);
-		AIManager aiManager;
+		AIManager aiManager(world);
 
         TRACE("scripting subsystem initialization");
         g_env.L = script_open(world);

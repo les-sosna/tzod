@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "gc/WorldEvents.h"
+
 #include <map>
 #include <memory>
 #include <string>
@@ -11,18 +13,23 @@ class Controller;
 class World;
 
 class InputManager
+	: private ObjectListener
 {
 public:
-	InputManager();
+	InputManager(World &world);
     ~InputManager();
     
     void AssignController(GC_Player *player, std::string profile);
-    void FreeController(GC_Player *player);
 	Controller& GetController(GC_Player *player) const;
 
 private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<Controller>>> _controllers;
 	void OnProfilesChange();
+	World &_world;
+	
+	// ObjectListener
+	virtual void OnCreate(GC_Object *obj) override;
+	virtual void OnKill(GC_Object *obj) override;
 };
 
 // end of file

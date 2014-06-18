@@ -66,6 +66,7 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 
 Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldController, AIManager &aiMgr)
   : Window(NULL, manager)
+  , _inputMgr(world)
   , _aiMgr(aiMgr)
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)

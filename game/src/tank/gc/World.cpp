@@ -166,6 +166,33 @@ World::~World()
 	assert(!g_env.nNeedCursor);
 }
 
+void World::AddListener(ObjectType type, ObjectListener &ls)
+{
+	if (GC_Player::GetTypeStatic() == type)
+	{
+		_playerListeners.push_back(&ls);
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void World::RemoveListener(ObjectType type, ObjectListener &ls)
+{
+	if (GC_Player::GetTypeStatic() == type)
+	{
+		auto it = std::find(_playerListeners.begin(), _playerListeners.end(), &ls);
+		assert(_playerListeners.end() != it);
+		*it = _playerListeners.back();
+		_playerListeners.pop_back();
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
 void World::Unserialize(const char *fileName)
 {
 	assert(IsSafeMode());

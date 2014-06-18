@@ -5,9 +5,12 @@
 #include "config/Config.h"
 #include "gc/Player.h"
 #include "gc/Vehicle.h"
+#include "gc/World.h"
 
-InputManager::InputManager()
+InputManager::InputManager(World &world)
+	: _world(world)
 {
+	_world.AddListener(GC_Player::GetTypeStatic(), *this);
     g_conf.dm_profiles.eventChange = std::bind(&InputManager::OnProfilesChange, this);
     OnProfilesChange();
 }
@@ -15,7 +18,7 @@ InputManager::InputManager()
 InputManager::~InputManager()
 {
     g_conf.dm_profiles.eventChange = nullptr;
-    assert(_controllers.empty());
+	_world.RemoveListener(GC_Player::GetTypeStatic(), *this);
 }
 
 Controller& InputManager::GetController(GC_Player *player) const
@@ -31,11 +34,6 @@ void InputManager::AssignController(GC_Player *player, std::string profile)
     _controllers[player] = std::make_pair(std::move(profile), std::move(ctrl));
 }
 
-void InputManager::FreeController(GC_Player *player)
-{
-    _controllers.erase(player);
-}
-
 void InputManager::OnProfilesChange()
 {
     for (auto &pcpair: _controllers)
@@ -43,5 +41,15 @@ void InputManager::OnProfilesChange()
         pcpair.second.second->SetProfile(pcpair.second.first.c_str());
     }
 }
+
+void InputManager::OnCreate(GC_Object *obj)
+{
+}
+
+void InputManager::OnKill(GC_Object *obj)
+{
+	_controllers.erase(static_cast<GC_Player *>(obj));
+}
+
 
 // end of file

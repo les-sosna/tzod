@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Field.h"
-
+#include "TypeSystem.h"
 #include "GlobalListHelper.h"
 #include <core/PtrList.h>
 #include <core/Grid.h>
@@ -61,6 +61,7 @@ public:
 
 	ObjectListener *_serviceListener;
     MessageListener *_messageListener;
+	std::vector<ObjectListener *> _playerListeners;
 
 /////////////////////////////////////
 //settings
@@ -97,6 +98,9 @@ public:
 /////////////////////////////////////////////////////
 	World();
 	~World();
+	
+	void AddListener(ObjectType type, ObjectListener &ls);
+	void RemoveListener(ObjectType type, ObjectListener &ls);
     
 	void Resize(int X, int Y);
 	void HitLimit();
