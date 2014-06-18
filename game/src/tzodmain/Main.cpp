@@ -309,11 +309,15 @@ int main(int, const char**)
         
         TRACE("Create GL context");
         GlfwInitHelper __gih;
-        g_appWindow = glfwCreateWindow(g_conf.r_width.GetInt(),
-                                       g_conf.r_height.GetInt(),
+		const GLFWvidmode *videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        g_appWindow = glfwCreateWindow(g_conf.r_fullscreen.Get() ? videoMode->width : g_conf.r_width.GetInt(),
+                                       g_conf.r_fullscreen.Get() ? videoMode->height : g_conf.r_height.GetInt(),
                                        TXT_VERSION,
                                        g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() : nullptr,
                                        nullptr);
+		if (!g_appWindow)
+			throw std::runtime_error("Failed to create GLFW window");
+
         glfwSetMouseButtonCallback(g_appWindow, OnMouseButton);
         glfwSetCursorPosCallback(g_appWindow, OnCursorPos);
         glfwSetScrollCallback(g_appWindow, OnScroll);
