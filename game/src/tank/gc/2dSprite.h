@@ -99,8 +99,8 @@ public:
 	void SetZ(enumZOrder z);
 	enumZOrder GetZ() const;
 
-	void SetVisible(World &world, bool bShow);
-	inline bool GetVisible() const  { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
+	void SetVisible(bool bShow) { SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow); }
+	bool GetVisible() const { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
 
 public:
     DECLARE_GRID_MEMBER();

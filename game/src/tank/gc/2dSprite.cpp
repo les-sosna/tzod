@@ -93,11 +93,6 @@ enumZOrder GC_2dSprite::GetZ() const
 	return _zOrder;
 }
 
-void GC_2dSprite::SetVisible(World &world, bool bShow)
-{
-	SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow);
-}
-
 void GC_2dSprite::SetFrame(int frame)
 {
 	assert(0 <= frame && frame < GetFrameCount());

@@ -117,7 +117,7 @@ void GC_Pickup::Detach(World &world)
 void GC_Pickup::Respawn(World &world)
 {
 	SetRespawn(false);
-	SetVisible(world, true);
+	SetVisible(true);
 	PLAY(SND_puRespawn, GetPos());
 
 	static const TextureCache tex1("particle_1");
@@ -134,7 +134,7 @@ void GC_Pickup::Disappear(World &world)
 {
 	if( GetCarrier() )
 		Detach(world);
-    SetVisible(world, false);
+    SetVisible(false);
     PulseNotify(world, NOTIFY_PICKUP_DISAPPEAR);
     _timeAttached = 0;
     if( _label )

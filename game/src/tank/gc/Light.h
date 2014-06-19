@@ -107,7 +107,7 @@ public:
 	float GetTimeout() const { return _timeout; }
 
 	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
-	void SetActive(World &world, bool activate);
+	void SetActive(bool activate);
 
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 	virtual void TimeStepFixed(World &world, float dt) override;

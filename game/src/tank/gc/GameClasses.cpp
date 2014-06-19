@@ -391,7 +391,7 @@ void GC_Explosion::TimeStepFixed(World &world, float dt)
 			Kill(world);
 			return;
 		}
-		SetVisible(world, false);
+		SetVisible(false);
 	}
 	else
 	{

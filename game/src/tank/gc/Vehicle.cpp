@@ -79,12 +79,12 @@ void GC_Vehicle::UpdateLight(World &world)
 	static const vec2d delta2(-0.6f);
 	_light1->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
 	_light1->SetLightDirection(GetDirection());
-	_light1->SetActive(world, _state._bLight);
+	_light1->SetActive(_state._bLight);
 	_light2->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
 	_light2->SetLightDirection(GetDirection());
-	_light2->SetActive(world, _state._bLight);
+	_light2->SetActive(_state._bLight);
 	_light_ambient->MoveTo(world, GetPos());
-	_light_ambient->SetActive(world, _state._bLight);
+	_light_ambient->SetActive(_state._bLight);
 }
 
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
@@ -125,8 +125,6 @@ GC_Vehicle::GC_Vehicle(World &world)
     
 	_light1->SetAspect(0.4f);
 	_light2->SetAspect(0.4f);
-
-	UpdateLight(world);
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)

@@ -449,7 +449,7 @@ GC_TurretBunker::GC_TurretBunker(World &world, const char *tex)
   , _time_wake_max(0.5f)
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
-	_weaponSprite->SetVisible(world, false);
+	_weaponSprite->SetVisible(false);
 	_state = TS_HIDDEN; // base class member
 }
 
@@ -588,7 +588,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 			_time_wake = _time_wake_max;
 			_state = TS_WAITING;
 			_jobManager.RegisterMember(this);
-			_weaponSprite->SetVisible(world, true);
+			_weaponSprite->SetVisible(true);
 			SetFrame(GetFrameCount() - 1);
 		}
 		else
@@ -619,7 +619,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		{
 			PLAY(SND_TuretWakeDown, GetPos());
 			_state = TS_WAKING_DOWN;
-			_weaponSprite->SetVisible(world, false);
+			_weaponSprite->SetVisible(false);
 		}
 		break;
 	default:

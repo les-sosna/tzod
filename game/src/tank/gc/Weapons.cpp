@@ -113,7 +113,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
     _rotateSound->SetMode(world, SMODE_STOP);
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
-	SetVisible(world, true);
+	SetVisible(true);
 	SetBlinking(false);
 
 	SetCrosshair(world);
@@ -121,11 +121,11 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	{
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
 		{
-			_crosshair->SetVisible(world, NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
+			_crosshair->SetVisible(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
 		}
 		else
 		{
-			_crosshair->SetVisible(world, false);
+			_crosshair->SetVisible(false);
 		}
 	}
 
@@ -135,11 +135,11 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	_fireEffect = new GC_2dSprite(world);
     _fireEffect->Register(world);
 	_fireEffect->SetZ(Z_EXPLODE);
-	_fireEffect->SetVisible(world, false);
+	_fireEffect->SetVisible(false);
 
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
     _fireLight->Register(world);
-	_fireLight->SetActive(world, false);
+	_fireLight->SetActive(false);
 }
 
 void GC_Weapon::Detach(World &world)
@@ -193,13 +193,13 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 			_fireEffect->MoveTo(world, GetPos() + vec2d(_fePos * direction, _fePos.x*direction.y - _fePos.y*direction.x));
 			_fireLight->MoveTo(world, _fireEffect->GetPos());
 			_fireLight->SetIntensity(op);
-			_fireLight->SetActive(world, true);
+			_fireLight->SetActive(true);
 		}
 		else
 		{
 			_fireEffect->SetFrame(0);
-			_fireEffect->SetVisible(world, false);
-			_fireLight->SetActive(world, false);
+			_fireEffect->SetVisible(false);
+			_fireLight->SetActive(false);
 		}
 	}
 
@@ -383,7 +383,7 @@ void GC_Weap_RocketLauncher::Fire(World &world)
 			_nshots = 0;
 			_firing = false;
 
-			_fireEffect->SetVisible(world, true);
+			_fireEffect->SetVisible(true);
 		}
 	}
 	else
@@ -411,7 +411,7 @@ void GC_Weap_RocketLauncher::Fire(World &world)
 				               GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 				_time = 0;
-				_fireEffect->SetVisible(world, true);
+				_fireEffect->SetVisible(true);
 			}
 		}
 
@@ -470,7 +470,7 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
 void GC_Weap_AutoCannon::SetAdvanced(World &world, bool advanced)
 {
 	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->SetVisible(world, !advanced);
+	if( pIndicator ) pIndicator->SetVisible(!advanced);
 	if( _fireEffect ) _fireEffect->SetTexture(advanced ? "particle_fire4" : "particle_fire3");
 	GC_Weapon::SetAdvanced(world, advanced);
 }
@@ -569,7 +569,7 @@ void GC_Weap_AutoCannon::Fire(World &world)
 
 				_time = 0;
 				_fePos.Set(17.0f, 0);
-				_fireEffect->SetVisible(world, true);
+				_fireEffect->SetVisible(true);
 
 				PLAY(SND_ACShoot, GetPos());
 			}
@@ -599,7 +599,7 @@ void GC_Weap_AutoCannon::Fire(World &world)
 
 				_time = 0;
 				_fePos.Set(17.0f, -dy);
-				_fireEffect->SetVisible(world, true);
+				_fireEffect->SetVisible(true);
 
 				PLAY(SND_ACShoot, GetPos());
 			}
@@ -711,7 +711,7 @@ void GC_Weap_Cannon::Fire(World &world)
 		_time       = 0;
 		_time_smoke = 0.3f;
 
-		_fireEffect->SetVisible(world, true);
+		_fireEffect->SetVisible(true);
 	}
 }
 
@@ -801,7 +801,7 @@ void GC_Weap_Plazma::Fire(World &world)
 			a * SPEED_PLAZMA + world.net_vrand(20),
 			GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 		_time = 0;
-		_fireEffect->SetVisible(world, true);
+		_fireEffect->SetVisible(true);
 	}
 }
 
@@ -869,7 +869,7 @@ void GC_Weap_Gauss::Fire(World &world)
 			dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 		_time = 0;
-		_fireEffect->SetVisible(world, true);
+		_fireEffect->SetVisible(true);
 	}
 }
 
@@ -902,7 +902,7 @@ GC_Weap_Ram::GC_Weap_Ram(World &world)
 void GC_Weap_Ram::SetAdvanced(World &world, bool advanced)
 {
 	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->SetVisible(world, !advanced);
+	if( pIndicator ) pIndicator->SetVisible(!advanced);
 
 	if( GetCarrier() )
 	{
@@ -924,7 +924,7 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
     _engineLight->Register(world);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
-	_engineLight->SetActive(world, false);
+	_engineLight->SetActive(false);
 
 
 	_fuel_max  = _fuel = 1.0f;
@@ -1122,7 +1122,7 @@ void GC_Weap_Ram::TimeStepFixed(World &world, float dt)
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 
-		_engineLight->SetActive(world, _firingCounter > 0);
+		_engineLight->SetActive(_firingCounter > 0);
 		if( _firingCounter ) --_firingCounter;
 	}
 	else
@@ -1236,7 +1236,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 
 void GC_Weap_Ripper::UpdateDisk(World &world)
 {
-	_diskSprite->SetVisible(world, _time > _timeReload);
+	_diskSprite->SetVisible(_time > _timeReload);
 	_diskSprite->MoveTo(world, GetPos() - GetDirection() * 8);
 	_diskSprite->SetDirection(vec2d(GetTimeAnimation() * 10));
 }
@@ -1380,11 +1380,11 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 	{
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
 		{
-			_crosshairLeft->SetVisible(world, NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
+			_crosshairLeft->SetVisible(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
 		}
 		else
 		{
-			_crosshairLeft->SetVisible(world, false);
+			_crosshairLeft->SetVisible(false);
 		}
 	}
 
@@ -1479,7 +1479,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 			{
 				_time = frand(_feTime);
 				_feOrient = vrand(1);
-				_fireEffect->SetVisible(world, true);
+				_fireEffect->SetVisible(true);
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
