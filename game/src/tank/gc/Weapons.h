@@ -4,7 +4,26 @@
 
 #include "Pickup.h"
 
-///////////////////////////////////////////////////////////////////////////////
+
+class GC_FireWeapEffect : public GC_2dSprite
+{
+	DECLARE_SELF_REGISTRATION(GC_FireWeapEffect);
+public:
+	GC_FireWeapEffect() {}
+	GC_FireWeapEffect(FromFile) : GC_2dSprite(FromFile()) {}
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
+};
+
+class GC_Crosshair : public GC_2dSprite
+{
+	DECLARE_SELF_REGISTRATION(GC_Crosshair);
+public:
+	GC_Crosshair() {}
+	GC_Crosshair(FromFile) : GC_2dSprite(FromFile()) {}
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
+};
 
 struct AIWEAPSETTINGS
 {
@@ -16,7 +35,6 @@ struct AIWEAPSETTINGS
 	float fDistanceMultipler;  // applies when traveling through brick walls
 	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
-
 
 class GC_Weapon : public GC_Pickup
 {
@@ -35,7 +53,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 protected:
-	ObjPtr<GC_2dSprite> _fireEffect;
+	ObjPtr<GC_FireWeapEffect> _fireEffect;
 	ObjPtr<GC_Light>    _fireLight;
 	vec2d _fePos;
 	vec2d _feOrient;
@@ -56,8 +74,8 @@ public:
 	float    _angle;
 	Rotator  _rotatorWeap;
 
-	ObjPtr<GC_Sound>     _rotateSound;
-	ObjPtr<GC_2dSprite>  _crosshair;
+	ObjPtr<GC_Sound>      _rotateSound;
+	ObjPtr<GC_Crosshair>  _crosshair;
 	bool _fixmeChAnimate;
 
 public:
@@ -83,6 +101,9 @@ public:
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_ATTACHED_ITEM : GC_Pickup::GetZ(); }
+	
 private:
 	virtual void OnUpdateView(World &world) {};
 
@@ -271,11 +292,21 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class GC_DiskSprite : public GC_2dSprite
+{
+	DECLARE_SELF_REGISTRATION(GC_DiskSprite);
+public:
+	GC_DiskSprite() {}
+	GC_DiskSprite(FromFile) : GC_2dSprite(FromFile()) {}
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
+};
+
 class GC_Weap_Ripper : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
-	ObjPtr<GC_2dSprite> _diskSprite;
+	ObjPtr<GC_DiskSprite> _diskSprite;
 	void UpdateDisk(World &world);
 
 public:
@@ -305,7 +336,7 @@ private:
 	float _timeShot;
 	bool _bFire;
 
-	ObjPtr<GC_2dSprite> _crosshairLeft;
+	ObjPtr<GC_Crosshair> _crosshairLeft;
 
 public:
 	virtual void Attach(World &world, GC_Actor *actor);

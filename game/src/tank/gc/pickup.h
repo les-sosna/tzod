@@ -108,6 +108,9 @@ public:
 
 	virtual float GetDefaultRespawnTime() const = 0;
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_FREE_ITEM; }
+
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
 protected:
@@ -178,6 +181,9 @@ public:
 
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
+
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_PARTICLE : GC_Pickup::GetZ(); }
 
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);

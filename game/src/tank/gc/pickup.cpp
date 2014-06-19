@@ -40,7 +40,6 @@ GC_Pickup::GC_Pickup(World &world)
     _label->Register(world);
 
 	SetShadow(true);
-	SetZ(Z_FREE_ITEM);
 
 	SetAutoSwitch(true);
 	SetRespawn(false);
@@ -106,7 +105,6 @@ void GC_Pickup::Attach(World &world, GC_Actor *actor)
 void GC_Pickup::Detach(World &world)
 {
 	assert(_pickupCarrier);
-	SetZ(Z_FREE_ITEM);
 	_pickupCarrier->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
 	_pickupCarrier->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
 	_pickupCarrier->OnPickup(world, this, false);
@@ -123,7 +121,7 @@ void GC_Pickup::Respawn(World &world)
 	for( int n = 0; n < 50; ++n )
 	{
 		vec2d a(PI2 * (float) n / 50);
-		auto p = new GC_Particle(world, a * 25, tex1, frand(0.5f) + 0.1f);
+		auto p = new GC_Particle(world, Z_PARTICLE, a * 25, tex1, frand(0.5f) + 0.1f);
         p->Register(world);
         p->MoveTo(world, GetPos() + a * 25);
 	}
@@ -434,7 +432,6 @@ void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 
 	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
-	SetZ(Z_PARTICLE);
 	SetTexture("shield");
 	SetShadow(false);
 
@@ -504,10 +501,10 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 		vec2d v   = ((GC_Vehicle *) sender)->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			auto p1 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+			auto p1 = new GC_Particle(world, Z_PARTICLE, v, tex, frand(0.4f)+0.1f);
             p1->Register(world);
             p1->MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
-			auto p2 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+			auto p2 = new GC_Particle(world, Z_PARTICLE, v, tex, frand(0.4f)+0.1f);
             p2->Register(world);
             p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}
@@ -643,7 +640,6 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 				if( GC_Vehicle *pNearTarget = FindNearVehicle(world, carrier) )
 				{
 					SetGridSet(false);
-					SetZ(Z_FREE_ITEM);
 
 					_targetPosPredicted = pNearTarget->GetPos();
 

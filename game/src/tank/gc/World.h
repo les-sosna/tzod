@@ -158,14 +158,8 @@ public:
 	template<class SelectorType>
 	void RayTrace(Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
 
-
-	//
-	// config callback handlers
-	//
-
 protected:
 	void OnChangeSoundVolume();
-	void OnChangeNightMode();
 
 public:
 	void Clear();

@@ -24,8 +24,10 @@ public:
 	GC_Brick_Fragment_01(World &world, const vec2d &v0);
 	GC_Brick_Fragment_01(FromFile);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
+	
 	virtual void Serialize(World &world, SaveFile &f);
-
 	virtual void TimeStepFloat(World &world, float dt);
 };
 
@@ -45,17 +47,21 @@ public:
 	float _rotationSpeed;
 	float _rotationPhase;
 	vec2d _velocity;
+	enumZOrder _zOrder;
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Particle(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
+	GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 
 	void SetFade(bool fade);
 	void SetAutoRotate(float speed);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return _zOrder; }
+	
+	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-
 	virtual void TimeStepFloat(World &world, float dt);
 };
 

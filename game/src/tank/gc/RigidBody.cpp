@@ -516,7 +516,6 @@ IMPLEMENT_GRID_MEMBER(GC_Wall, grid_walls);
 GC_Wall::GC_Wall(World &world)
   : GC_RigidBodyStatic(world)
 {
-	SetZ(Z_WALLS);
 	SetHealth(50, 50);
 
 	SetTexture("brick_wall");
@@ -904,7 +903,7 @@ void GC_Wall::OnDestroy(World &world)
         p->Register(world);
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
-	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+	auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
     p->Register(world);
     p->MoveTo(world, GetPos());
 
@@ -1182,8 +1181,6 @@ GC_Water::GC_Water(World &world)
   : GC_RigidBodyStatic(world)
   , _tile(0)
 {
-	SetZ(Z_WATER);
-
 	SetTexture("water");
 	AlignToTexture();
 	SetFrame(4);

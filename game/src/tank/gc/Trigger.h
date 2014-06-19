@@ -58,11 +58,13 @@ public:
 	GC_Trigger(FromFile);
 	~GC_Trigger();
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WOOD; }
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
+
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
-
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
 // end of file

@@ -26,7 +26,6 @@ GC_SpawnPoint::GC_SpawnPoint(World &world)
   : _team(0)
 {
 	SetTexture("editor_respawn");
-	SetZ(Z_EDITOR);
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
@@ -132,7 +131,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 
 GC_HideLabel::GC_HideLabel(World &world)
 {
-	SetZ(Z_EDITOR);
 	SetTexture("editor_item");
 }
 
@@ -162,8 +160,6 @@ GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite 
                                  float *pValue, float *pValueMax, LOCATION location)
 {
 	assert(NULL == FindIndicator(world, object, location));
-
-	SetZ(Z_VEHICLE_LABEL);
 
 	SetTexture(texture);
 
@@ -267,7 +263,6 @@ GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
   , _time_life(0.4f)
 {
 	SetTexture("indicator_damage");
-	SetZ(Z_VEHICLE_LABEL);
 	veh->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_DamLabel::OnVehicleMove);
 }
 

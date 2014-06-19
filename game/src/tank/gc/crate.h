@@ -16,6 +16,9 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 	virtual unsigned char GetPassability() const { return 0; }
+
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WALLS; }
 };
 
 

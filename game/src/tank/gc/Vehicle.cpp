@@ -55,7 +55,7 @@ void GC_Vehicle::TimeStepFloat(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE, smoke, 1.5f);
+			auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE, smoke, 1.5f);
             p->Register(world);
             p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
             p->_time = frand(1.0f);
@@ -101,7 +101,6 @@ GC_Vehicle::GC_Vehicle(World &world)
   , _time_smoke(0)
 {
 	memset(&_state, 0, sizeof(VehicleState));
-	SetZ(Z_VEHICLES);
 	SetShadow(true);
     
 	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
@@ -559,10 +558,9 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        GC_Particle *p = new GC_Particle(world, vec2d(0,0), track, 12, e);
+        GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0,0), track, 12, e);
         p->Register(world);
         p->MoveTo(world, trackL + e * _trackPathL);
-        p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathL += _trackDensity;
     }
@@ -573,10 +571,9 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        GC_Particle *p = new GC_Particle(world, vec2d(0, 0), track, 12, e);
+        GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0, 0), track, 12, e);
         p->Register(world);
         p->MoveTo(world, trackR + e * _trackPathR);
-        p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathR += _trackDensity;
     }

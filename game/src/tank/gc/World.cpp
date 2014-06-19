@@ -78,7 +78,6 @@ World::World()
 
 	// register config handlers
 	g_conf.s_volume.eventChange = std::bind(&World::OnChangeSoundVolume, this);
-	g_conf.sv_nightmode.eventChange = std::bind(&World::OnChangeNightMode, this);
 }
 
 bool World::IsEmpty() const
@@ -745,14 +744,6 @@ void World::OnChangeSoundVolume()
 	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
 	{
 		pSound->UpdateVolume();
-	}
-}
-
-void World::OnChangeNightMode()
-{
-	FOREACH( GetList(LIST_lights), GC_Light, pLight )
-	{
-		pLight->Update();
 	}
 }
 

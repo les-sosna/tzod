@@ -17,6 +17,17 @@
 
 #include <cfloat>
 
+
+IMPLEMENT_SELF_REGISTRATION(GC_FireWeapEffect)
+{
+	return true;
+}
+
+IMPLEMENT_SELF_REGISTRATION(GC_Crosshair)
+{
+	return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -105,9 +116,6 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 	GC_Pickup::Attach(world, actor);
 
-
-	SetZ(Z_ATTACHED_ITEM);
-
 	_rotateSound = new GC_Sound(world, SND_TowerRotate, GetPos());
     _rotateSound->Register(world);
     _rotateSound->SetMode(world, SMODE_STOP);
@@ -132,9 +140,8 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 	PLAY(SND_w_Pickup, GetPos());
 
-	_fireEffect = new GC_2dSprite();
+	_fireEffect = new GC_FireWeapEffect();
     _fireEffect->Register(world);
-	_fireEffect->SetZ(Z_EXPLODE);
 	_fireEffect->SetVisible(false);
 
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
@@ -208,10 +215,9 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 
 void GC_Weapon::SetCrosshair(World &world)
 {
-	_crosshair = new GC_2dSprite();
+	_crosshair = new GC_Crosshair();
     _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair1");
-	_crosshair->SetZ(Z_VEHICLE_LABEL);
 }
 
 GC_Weapon::GC_Weapon(FromFile)
@@ -740,7 +746,7 @@ void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
 			vec2d a = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), vec2d(_angle));
-			auto p = new GC_Particle(world, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
+			auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
             p->Register(world);
             p->MoveTo(world, GetPos() + a * 26.0f);
 		}
@@ -1041,7 +1047,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
+				auto p = new GC_Particle(world, Z_PARTICLE, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
@@ -1058,7 +1064,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, tex3, time);
+				auto p = new GC_Particle(world, Z_PARTICLE, v - a * frand(600.0f) - dx / time, tex3, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
@@ -1228,6 +1234,11 @@ void GC_Weap_BFG::TimeStepFixed(World &world, float dt)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+IMPLEMENT_SELF_REGISTRATION(GC_DiskSprite)
+{
+	return true;
+}
+
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
 	ED_ITEM( "weap_ripper", "obj_weap_ripper", 4 );
@@ -1246,10 +1257,9 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 	GC_Weapon::Attach(world, actor);
 
 	_timeReload = 0.5f;
-	_diskSprite = new GC_2dSprite();
+	_diskSprite = new GC_DiskSprite();
     _diskSprite->Register(world);
 	_diskSprite->SetTexture("projectile_disk");
-	_diskSprite->SetZ(Z_PROJECTILE);
 	UpdateDisk(world);
 
 //return;
@@ -1414,15 +1424,13 @@ void GC_Weap_Minigun::Detach(World &world)
 
 void GC_Weap_Minigun::SetCrosshair(World &world)
 {
-	_crosshair = new GC_2dSprite();
+	_crosshair = new GC_Crosshair();
     _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair2");
-	_crosshair->SetZ(Z_VEHICLE_LABEL);
 
-	_crosshairLeft = new GC_2dSprite();
+	_crosshairLeft = new GC_Crosshair();
     _crosshairLeft->Register(world);
 	_crosshairLeft->SetTexture("indicator_crosshair2");
-	_crosshairLeft->SetZ(Z_VEHICLE_LABEL);
 
 	_fixmeChAnimate = false;
 }

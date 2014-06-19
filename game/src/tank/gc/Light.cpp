@@ -12,6 +12,16 @@
 #include "video/RenderBase.h"
 
 
+IMPLEMENT_SELF_REGISTRATION(GC_LampSprite)
+{
+	return true;
+}
+
+enumZOrder GC_LampSprite::GetZ() const
+{
+	return (GetTexture() && g_conf.sv_nightmode.Get()) ? Z_PARTICLE : Z_NONE;
+}
+
 /////////////////////////////////////////////////////////
 
 float GC_Light::_sintable[SINTABLE_SIZE];
@@ -35,11 +45,15 @@ GC_Light::GC_Light(World &world, enumLightType type)
   , _intensity(1)
   , _type(type)
   , _lightDirection(1, 0)
-  , _lampSprite(new GC_2dSprite())
+  , _lampSprite(new GC_LampSprite())
 {
     _lampSprite->Register(world);
 	SetActive(true);
-	Update();
+
+	if( LIGHT_SPOT == _type )
+	{
+		_lampSprite->SetTexture("shine");
+	}
 }
 
 GC_Light::GC_Light(FromFile)
@@ -193,15 +207,6 @@ void GC_Light::SetActive(bool activate)
 	_lampSprite->SetVisible(activate);
 }
 
-void GC_Light::Update()
-{
-	if( LIGHT_SPOT == _type )
-	{
-		_lampSprite->SetTexture("shine");
-		_lampSprite->SetZ(g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE);
-	}
-}
-
 /////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
@@ -225,7 +230,6 @@ GC_Spotlight::GC_Spotlight(World &world)
 	_light->SetAspect(0.5f);
 
 	SetTexture("spotlight");
-	SetZ(Z_PROJECTILE);
 }
 
 GC_Spotlight::~GC_Spotlight()

@@ -9,6 +9,7 @@ class GC_UserObject : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_UserObject);
 
 	std::string _textureName;
+	enumZOrder _zOrder;
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -28,6 +29,8 @@ public:
 	GC_UserObject(FromFile);
 	virtual ~GC_UserObject();
 
+	void SetZ(enumZOrder z);
+
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }
 
@@ -46,6 +49,7 @@ class GC_Decoration : public GC_2dSprite
 	std::string _textureName;
 	float _frameRate;
 	float _time;
+	enumZOrder _zOrder;	
 
 protected:
 	class MyPropertySet : public GC_2dSprite::MyPropertySet
@@ -68,6 +72,8 @@ public:
 	GC_Decoration(World &world);
 	GC_Decoration(FromFile);
 	virtual ~GC_Decoration();
+
+	void SetZ(enumZOrder z);
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);

@@ -39,9 +39,11 @@ public:
 	GC_SpawnPoint(World &world);
 	GC_SpawnPoint(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
-
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_EDITOR; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
+
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 };
 
@@ -55,6 +57,8 @@ public:
 	GC_HideLabel(World &world);
 	GC_HideLabel(FromFile);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_EDITOR; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
@@ -91,6 +95,7 @@ public:
 	GC_IndicatorBar(FromFile);
 
 	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
@@ -125,6 +130,9 @@ public:
 	void Reset();
 
 	void OnVehicleMove(World &world, GC_Object *sender, void *param);
+	
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
 };
 
 

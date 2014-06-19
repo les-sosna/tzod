@@ -5,14 +5,22 @@
 #include "Object.h"
 #include "2dSprite.h"
 
+
+class GC_LampSprite : public GC_2dSprite
+{
+	DECLARE_SELF_REGISTRATION(GC_LampSprite);
+public:
+	GC_LampSprite() {}
+	GC_LampSprite(FromFile) : GC_2dSprite(FromFile()) {}
+	
+	virtual enumZOrder GetZ() const;
+};
+
 ///////////////////////////////////////////////////////////
-// flags
 
 #define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
 #define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
-
-///////////////////////////////////////////////////////////////////////////////
 
 class GC_Light : public GC_Actor
 {
@@ -36,7 +44,7 @@ private:
 	enumLightType _type;
 	vec2d  _lightDirection;
 
-	ObjPtr<GC_2dSprite> _lampSprite;
+	ObjPtr<GC_LampSprite> _lampSprite;
 
 	static const int SINTABLE_SIZE = 32;
 	static const int SINTABLE_MASK = 0x1f;
@@ -115,7 +123,6 @@ public:
 
 public:
 	virtual void Shine(IRender &render) const;
-	virtual void Update(); // handles changing day/night
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,6 +151,9 @@ public:
 	GC_Spotlight(World &world);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
+	
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
 
 	virtual void Serialize(World &world, SaveFile &f);
 

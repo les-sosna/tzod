@@ -19,9 +19,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 
 GC_UserObject::GC_UserObject(World &world)
   : GC_RigidBodyStatic(world)
+  , _zOrder(Z_WALLS)
 {
 	_textureName = "turret_platform";
-	SetZ(Z_WALLS);
 	SetTexture(_textureName.c_str());
 	AlignToTexture();
 }
@@ -35,10 +35,17 @@ GC_UserObject::~GC_UserObject()
 {
 }
 
+void GC_UserObject::SetZ(enumZOrder z)
+{
+	assert(z < Z_COUNT || z == Z_NONE);
+	_zOrder = z;
+}
+
 void GC_UserObject::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 	f.Serialize(_textureName);
+	f.Serialize(_zOrder);
 }
 
 void GC_UserObject::OnDestroy(World &world)
@@ -141,8 +148,8 @@ GC_Decoration::GC_Decoration(World &world)
   : _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
+  , _zOrder(Z_EDITOR)
 {
-	SetZ(Z_EDITOR);
 	SetTexture(_textureName.c_str());
 }
 
@@ -155,12 +162,19 @@ GC_Decoration::~GC_Decoration()
 {
 }
 
+void GC_Decoration::SetZ(enumZOrder z)
+{
+	assert(z < Z_COUNT || z == Z_NONE);
+	_zOrder = z;
+}
+
 void GC_Decoration::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
+	f.Serialize(_zOrder);
 }
 
 void GC_Decoration::MapExchange(World &world, MapFile &f)

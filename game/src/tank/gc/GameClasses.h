@@ -77,6 +77,9 @@ public:
 
 	void Boom(World &world, float radius, float damage);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
+
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
@@ -177,6 +180,7 @@ public:
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WOOD; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
@@ -221,7 +225,10 @@ public:
 	GC_Text_ToolTip(World &world, const std::string &text, const char *font);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
     virtual void Draw(DrawingContext &dc, bool editorMode) const;
+
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
 };

@@ -23,7 +23,6 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
 	static TextureCache tex("particle_brick");
 
 	SetTexture(tex);
-	SetZ(Z_PARTICLE);
     SetShadow(true);
 }
 
@@ -66,17 +65,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 
 IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
-GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
+GC_Particle::GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
   , _rotationPhase(0)
   , _velocity(v)
+  , _zOrder(zOrder)
 {
 	assert(_timeLife > 0);
-
-	SetZ(Z_PARTICLE);
 
 	SetTexture(texture);
 	SetDirection(orient);
@@ -84,6 +82,7 @@ GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &textu
 
 GC_Particle::GC_Particle(FromFile)
   : GC_2dSprite(FromFile())
+  , _zOrder(Z_NONE)
 {
 }
 
@@ -95,6 +94,7 @@ void GC_Particle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_rotationSpeed);
 	f.Serialize(_rotationPhase);
 	f.Serialize(_velocity);
+	f.Serialize(_zOrder);
 }
 
 void GC_Particle::TimeStepFloat(World &world, float dt)
@@ -142,7 +142,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 
 GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture,
                                      float lifeTime, const vec2d &orient, float size)
-  : GC_Particle(world, v, texture, lifeTime, orient)
+  : GC_Particle(world, Z_PARTICLE, v, texture, lifeTime, orient)
   , _size(size)
 {
 }

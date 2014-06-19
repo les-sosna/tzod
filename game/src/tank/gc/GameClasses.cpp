@@ -29,8 +29,6 @@ IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
 
 GC_Wood::GC_Wood(World &world)
 {
-	SetZ(Z_WOOD);
-
 	SetTexture("wood");
 	SetFrame(4);
 
@@ -160,7 +158,6 @@ GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
   , _radius(32)
 {
     _light->Register(world);
-	SetZ(Z_EXPLODE);
 	SetDirection(vrand(1));
 }
 
@@ -432,7 +429,7 @@ GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *ow
 	{
 		//ring
 		float ang = frand(PI2);
-		auto p = new GC_Particle(world, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
+		auto p = new GC_Particle(world, Z_PARTICLE, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
         p->Register(world);
         p->MoveTo(world, pos);
 
@@ -440,15 +437,14 @@ GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *ow
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 
-		auto p1 = new GC_Particle(world, SPEED_SMOKE, tex2, 1.5f);
+		auto p1 = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE, tex2, 1.5f);
         p1->Register(world);
         p1->MoveTo(world, GetPos() + vec2d(ang) * d);
         p1->_time = frand(1.0f);
 	}
-	GC_Particle *p = new GC_Particle(world, vec2d(0,0), tex3, 8.0f, vrand(1));
+	GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0,0), tex3, 8.0f, vrand(1));
     p->Register(world);
     p->MoveTo(world, GetPos());
-	p->SetZ(Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
@@ -496,7 +492,7 @@ GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
 		//ring
 		for( int i = 0; i < 2; ++i )
 		{
-			auto p = new GC_Particle(world, vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
+			auto p = new GC_Particle(world, Z_PARTICLE, vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
             p->Register(world);
             p->MoveTo(world, GetPos() + vrand(frand(20.0f)));
 		}
@@ -505,28 +501,27 @@ GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
 
 		//dust
 		a = vrand(frand(40.0f));
-		auto p = new GC_Particle(world, a * 2, tex2, frand(0.5f) + 0.25f);
+		auto p = new GC_Particle(world, Z_PARTICLE, a * 2, tex2, frand(0.5f) + 0.25f);
         p->Register(world);
         p->MoveTo(world, GetPos() + a);
 
 		// sparkles
 		a = vrand(1);
-		auto p1 = new GC_Particle(world, a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
+		auto p1 = new GC_Particle(world, Z_PARTICLE, a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
         p1->Register(world);
         p1->MoveTo(world, GetPos() + a * frand(40.0f));
 
 		//smoke
 		a = vrand(frand(48.0f));
-		auto p2 = new GC_Particle(world, SPEED_SMOKE + a * 0.5f, tex5, 1.5f);
+		auto p2 = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE + a * 0.5f, tex5, 1.5f);
         p2->Register(world);
         p2->MoveTo(world, GetPos() + a);
         p2->_time = frand(1.0f);
 	}
 
-	GC_Particle *p = new GC_Particle(world, vec2d(0,0), tex6, 20.0f, vrand(1));
+	GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0,0), tex6, 20.0f, vrand(1));
     p->Register(world);
     p->MoveTo(world, GetPos());
-	p->SetZ(Z_WATER);
 	p->SetFade(true);
 
 	_light->SetRadius(_radius * 5);
@@ -672,7 +667,6 @@ GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, const ch
   : GC_Text(world, text, alignTextCC)
   , _time(0)
 {
-	SetZ(Z_PARTICLE);
 	SetText(text);
 	SetFont(font);
 }

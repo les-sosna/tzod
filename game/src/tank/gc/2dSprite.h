@@ -36,19 +36,16 @@ class GC_2dSprite : public GC_Actor
 
 private:
 	vec2d _direction;
-
 	SpriteColor  _color;
 	size_t _texId;
-
-private:
 	unsigned int _frame;
 
 public:
-	inline size_t GetTexture() const { return _texId; }
-	inline SpriteColor GetColor() const { return _color; }
-	inline int   GetFrameCount()   const { return g_texman->Get(_texId).uvFrames.size(); }
-	inline int   GetCurrentFrame() const { return _frame; }
-	inline void  GetGlobalRect(FRECT &rect) const
+	size_t GetTexture() const { return _texId; }
+	SpriteColor GetColor() const { return _color; }
+	int   GetFrameCount()   const { return g_texman->Get(_texId).uvFrames.size(); }
+	int   GetCurrentFrame() const { return _frame; }
+	void  GetGlobalRect(FRECT &rect) const
 	{
 		const LogicalTexture &lt = g_texman->Get(_texId);
 		rect.left   = GetPos().x - lt.pxFrameWidth * lt.uvPivot.x;
@@ -56,7 +53,7 @@ public:
 		rect.right  = rect.left + lt.pxFrameWidth;
 		rect.bottom = rect.top  + lt.pxFrameHeight;
 	}
-	inline void  GetLocalRect(FRECT &rect) const
+	void GetLocalRect(FRECT &rect) const
 	{
 		const LogicalTexture &lt = g_texman->Get(_texId);
 		rect.left   = -lt.uvPivot.x * lt.pxFrameWidth;
@@ -70,34 +67,23 @@ public:
 
 	void SetFrame(int nFrame);
 
-	inline void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
-	inline void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
-	inline void SetColor(unsigned char r, unsigned char g, unsigned char b) { _color.r=r; _color.g=g; _color.b=b; }
+	void SetOpacity(float x) { SetOpacity1i( int(x * 255.0f) ); }
+	void SetOpacity1i(int x) { _color.r = _color.g = _color.b = _color.a = x & 0xff; }
+	void SetColor(unsigned char r, unsigned char g, unsigned char b) { _color.r=r; _color.g=g; _color.b=b; }
 
-	inline const vec2d& GetDirection() const { return _direction; }
-	inline void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }
+	const vec2d& GetDirection() const { return _direction; }
+	void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }
 
-	inline void SetShadow(bool bEnable)
-	{
-		SetFlags(GC_FLAG_2DSPRITE_DROPSHADOW, bEnable);
-	}
-	inline bool GetShadow() const
-	{
-		return CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW);
-	}
-
-private:
-	enumZOrder _zOrder;
+	void SetShadow(bool bEnable) { SetFlags(GC_FLAG_2DSPRITE_DROPSHADOW, bEnable); }
+	bool GetShadow() const { return CheckFlags(GC_FLAG_2DSPRITE_DROPSHADOW); }
 
 public:
-	inline float GetSpriteWidth() const { return g_texman->Get(_texId).pxFrameWidth; }
-	inline float GetSpriteHeight() const { return g_texman->Get(_texId).pxFrameHeight; }
+	float GetSpriteWidth() const { return g_texman->Get(_texId).pxFrameWidth; }
+	float GetSpriteHeight() const { return g_texman->Get(_texId).pxFrameHeight; }
 
 public:
 	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, bGridSet); }
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET); }
-	void SetZ(enumZOrder z);
-	enumZOrder GetZ() const;
 
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow); }
 	bool GetVisible() const { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
@@ -109,6 +95,8 @@ public:
 	GC_2dSprite(FromFile);
 	virtual ~GC_2dSprite();
 
+	virtual enumZOrder GetZ() const { return Z_NONE; }
+	
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };

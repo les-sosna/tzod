@@ -69,6 +69,9 @@ public:
 		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
 	}
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
+
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
@@ -244,9 +247,13 @@ public:
 	GC_GaussRay(FromFile);
 	virtual ~GC_GaussRay();
     
-    virtual void Kill(World &world);
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
+
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_NONE; }
+
+    virtual void Kill(World &world);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

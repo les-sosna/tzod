@@ -36,14 +36,12 @@ GC_2dSprite::GC_2dSprite()
   , _color(0xffffffff)
   , _texId(0)
   , _frame(0)
-  , _zOrder(Z_NONE)
 {
 	SetFlags(GC_FLAG_2DSPRITE_VISIBLE|GC_FLAG_2DSPRITE_INGRIDSET, true);
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
   : _texId(0) // for proper handling of bad save files
-  , _zOrder(Z_NONE) // for proper handling of bad save files
 {
 }
 
@@ -59,7 +57,6 @@ void GC_2dSprite::Serialize(World &world, SaveFile &f)
 	f.Serialize(_frame);
 	f.Serialize(_direction);
 	f.Serialize(_texId);
-	f.Serialize(_zOrder);
 }
 
 void GC_2dSprite::SetTexture(const char *name)
@@ -80,17 +77,6 @@ void GC_2dSprite::SetTexture(const TextureCache &tc)
 {
 	_texId  = tc.texture;
 	SetFrame(0);
-}
-
-void GC_2dSprite::SetZ(enumZOrder z)
-{
-	assert(z < Z_COUNT || z == Z_NONE);
-	_zOrder = z;
-}
-
-enumZOrder GC_2dSprite::GetZ() const
-{
-	return _zOrder;
 }
 
 void GC_2dSprite::SetFrame(int frame)

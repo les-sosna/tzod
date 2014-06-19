@@ -36,7 +36,6 @@ GC_Trigger::GC_Trigger(World &world)
   , _team(0)
 {
 	SetTexture("editor_trigger");
-	SetZ(Z_WOOD);
 	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 

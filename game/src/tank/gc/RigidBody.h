@@ -190,6 +190,9 @@ public:
 
 	virtual float GetDefaultHealth() const { return 50; }
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WALLS; }
+
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
@@ -255,6 +258,8 @@ public:
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WATER; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
