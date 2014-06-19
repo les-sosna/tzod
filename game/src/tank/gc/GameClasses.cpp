@@ -132,11 +132,11 @@ void GC_Wood::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-void GC_Wood::MoveTo(World &world, const vec2d &pos)
+void GC_Wood::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
 {
     if (CheckFlags(GC_FLAG_WOOD_INTILE))
         UpdateTile(world, false);
-    GC_2dSprite::MoveTo(world, pos);
+    GC_2dSprite::MoveTo(world, id, pos);
     UpdateTile(world, true);
     SetFlags(GC_FLAG_WOOD_INTILE, true);
 }
@@ -391,7 +391,7 @@ void GC_Explosion::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 			Kill(world, id);
 			return;
 		}
-		SetVisible(world, false);
+		SetVisible(false);
 	}
 	else
 	{

@@ -902,12 +902,12 @@ void GC_Wall::OnDestroy(World &world)
 	for( int n = 0; n < 5; ++n )
 	{
 		auto p = new GC_Brick_Fragment_01(world, vec2d(frand(100.0f) - 50, -frand(100.0f)));
-        p->Register(world);
-        p->MoveTo(world, GetPos() + vrand(GetRadius()));
+        auto pid = p->Register(world);
+        p->MoveTo(world, pid, GetPos() + vrand(GetRadius()));
 	}
 	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
-    p->Register(world);
-    p->MoveTo(world, GetPos());
+    auto pid = p->Register(world);
+    p->MoveTo(world, pid, GetPos());
 
 	GC_RigidBodyStatic::OnDestroy(world);
 }
@@ -933,8 +933,8 @@ bool GC_Wall::TakeDamage(World &world, ObjectList::id_type id, float damage, con
 			v += vrand(25);
 
 			auto p = new GC_Brick_Fragment_01(world, v);
-            p->Register(world);
-            p->MoveTo(world, hit);
+            auto pid = p->Register(world);
+            p->MoveTo(world, pid, hit);
 		}
 		return false;
 	}

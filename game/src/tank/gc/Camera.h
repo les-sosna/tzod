@@ -32,7 +32,7 @@ public:
 	GC_Camera(FromFile);
 	virtual ~GC_Camera();
 
-	void CameraTimeStep(World &world, float dt, vec2d viewSize);
+	void CameraTimeStep(World &world, ObjectList::id_type id, float dt, vec2d viewSize);
 
 	float GetAngle() const { return _rotatorAngle; }
 	void GetWorld(FRECT &outWorld, const Rect &screen) const;

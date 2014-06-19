@@ -38,8 +38,9 @@ GC_Turret::GC_Turret(World &world, const char *tex)
 	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
-    _rotateSound->Register(world);
+	_rotateSound = new GC_Sound(world, SND_TuretRotate);
+    auto sid = _rotateSound->Register(world);
+	_rotateSound->MoveTo(world, sid, GetPos());
     _rotateSound->SetMode(world, SMODE_STOP);
 	_weaponSprite = new GC_2dSprite(world);
     _weaponSprite->Register(world);

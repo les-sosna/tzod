@@ -36,7 +36,7 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 		{
 			VehicleState vs;
 			ai.second.second->ReadControllerState(world, dt, *vehicle, vs);
-			result.insert(std::make_pair(vehicle->GetId(), vs));
+			result.insert(std::make_pair(world.GetId(vehicle), vs));
 		}
 	}
 	return std::move(result);

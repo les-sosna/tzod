@@ -270,7 +270,7 @@ void GC_Sound::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
         }
 
 
-		MoveTo(world, GetPos()); // update pan
+		MoveTo(world, id, GetPos()); // update pan
 		UpdateVolume();
 
 		switch (_mode)
@@ -329,7 +329,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 IMPLEMENT_1LIST_MEMBER(GC_Sound_link, LIST_timestep);
 
 GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
-   : GC_Sound(world, sound, object->GetPos())
+   : GC_Sound(world, sound)
    , _object(object)
 {
 }
@@ -350,7 +350,7 @@ void GC_Sound_link::TimeStepFixed(World &world, ObjectList::id_type id, float dt
 	if( !_object )
 		Kill(world, id);
 	else
-		MoveTo(world, _object->GetPos());
+		MoveTo(world, id, _object->GetPos());
 
 	GC_Sound::TimeStepFixed(world, id, dt);
 }

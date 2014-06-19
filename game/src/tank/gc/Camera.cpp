@@ -78,7 +78,7 @@ void GC_Camera::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
     GC_Actor::MoveTo(world, id, pos);
 }
 
-void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
+void GC_Camera::CameraTimeStep(World &world, ObjectList::id_type id, float dt, vec2d viewSize)
 {
 	float mu = 3;
 

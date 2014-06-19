@@ -17,7 +17,7 @@ void GC_Actor::Serialize(World &world, ObjectList::id_type id, SaveFile &f)
 	f.Serialize(_pos);
     
     if (f.loading() && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS))
-        EnterContexts(world);
+        EnterContexts(world, id);
 }
 
 void GC_Actor::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
@@ -30,13 +30,13 @@ void GC_Actor::MoveTo(World &world, ObjectList::id_type id, const vec2d &pos)
     bool locationChanged = _locationX != locX || _locationY != locY;
 
 	if( locationChanged && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
-        LeaveContexts(world);
+        LeaveContexts(world, id);
 
     if( locationChanged || !CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
     {
         _locationX = locX;
         _locationY = locY;
-        EnterContexts(world);
+        EnterContexts(world, id);
         SetFlags(GC_FLAG_ACTOR_KNOWNPOS, true);
  	}
 
@@ -60,11 +60,11 @@ void GC_Actor::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Actor::Kill(World &world)
+void GC_Actor::Kill(World &world, ObjectList::id_type id)
 {
     if( CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
-        LeaveContexts(world);
-    GC_Object::Kill(world);
+        LeaveContexts(world, id);
+    GC_Object::Kill(world, id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ GC_Light::GC_Light(World &world, enumLightType type)
   , _lampSprite(new GC_2dSprite(world))
 {
     _lampSprite->Register(world);
-	SetActive(world, true);
+	SetActive(true);
 	Update();
 }
 
@@ -184,7 +184,7 @@ void GC_Light::Kill(World &world, ObjectList::id_type id)
     GC_Actor::Kill(world, id);
 }
 
-void GC_Light::SetActive(World &world, bool activate)
+void GC_Light::SetActive(bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
 	_lampSprite->SetVisible(activate);
@@ -263,7 +263,7 @@ void GC_Spotlight::MapExchange(World &world, MapFile &f)
 		SetDirection(vec2d(dir));
 		_light->SetLightDirection(GetDirection());
 		_light->MoveTo(world, world.GetId(_light), GetPos() + GetDirection() * 7);
-		_light->SetActive(world, 0 != active);
+		_light->SetActive(0 != active);
 	}
 }
 
@@ -309,7 +309,7 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_light->SetActive(world, 0 != _propActive.GetIntValue());
+		tmp->_light->SetActive(0 != _propActive.GetIntValue());
 		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
 		tmp->_light->SetLightDirection(tmp->GetDirection());
 		tmp->_light->MoveTo(world, world.GetId(tmp->_light), tmp->GetPos() + tmp->GetDirection() * 7);

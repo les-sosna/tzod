@@ -56,8 +56,8 @@ void GC_Vehicle::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
 			auto p = new GC_Particle(world, SPEED_SMOKE, smoke, 1.5f);
-            p->Register(world);
-            p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
+            auto pid = p->Register(world);
+            p->MoveTo(world, pid, GetPos() + vrand(frand(24.0f)));
             p->_time = frand(1.0f);
 		}
 	}
@@ -68,8 +68,9 @@ void GC_Vehicle::TimeStepFloat(World &world, ObjectList::id_type id, float dt)
 
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(world, s, GetPos());
-    _moveSound->Register(world);
+	_moveSound = new GC_Sound(world, s);
+    auto sid = _moveSound->Register(world);
+	_moveSound->MoveTo(world, sid, GetPos());
     _moveSound->SetMode(world, SMODE_LOOP);
 }
 
@@ -562,8 +563,8 @@ void GC_Vehicle::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
     while( _trackPathL < len )
     {
         GC_Particle *p = new GC_Particle(world, vec2d(0,0), track, 12, e);
-        p->Register(world);
-        p->MoveTo(world, trackL + e * _trackPathL);
+        auto pid = p->Register(world);
+        p->MoveTo(world, pid, trackL + e * _trackPathL);
         p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathL += _trackDensity;
@@ -576,8 +577,8 @@ void GC_Vehicle::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
     while( _trackPathR < len )
     {
         GC_Particle *p = new GC_Particle(world, vec2d(0, 0), track, 12, e);
-        p->Register(world);
-        p->MoveTo(world, trackR + e * _trackPathR);
+        auto pid = p->Register(world);
+        p->MoveTo(world, pid, trackR + e * _trackPathR);
         p->SetZ(Z_WATER);
         p->SetFade(true);
         _trackPathR += _trackDensity;
@@ -603,7 +604,7 @@ void GC_Vehicle::TimeStepFixed(World &world, ObjectList::id_type id, float dt)
 	if( GetPos().x < 0 || GetPos().x > world._sx ||
 		GetPos().y < 0 || GetPos().y > world._sy )
 	{
-		if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
+		if( !TakeDamage(world, id, GetHealth(), GetPos(), GetOwner()) )
         {
             Kill(world, id);
         }
