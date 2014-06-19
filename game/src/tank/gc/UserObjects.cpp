@@ -138,8 +138,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 }
 
 GC_Decoration::GC_Decoration(World &world)
-  : GC_2dSprite(world)
-  , _textureName("turret_platform")
+  : _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
 {

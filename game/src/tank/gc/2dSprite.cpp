@@ -31,7 +31,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 
 IMPLEMENT_GRID_MEMBER(GC_2dSprite, grid_sprites)
 
-GC_2dSprite::GC_2dSprite(World &world)
+GC_2dSprite::GC_2dSprite()
   : _direction(1, 0)
   , _color(0xffffffff)
   , _texId(0)

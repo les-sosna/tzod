@@ -23,8 +23,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 IMPLEMENT_1LIST_MEMBER(GC_SpawnPoint, LIST_respawns);
 
 GC_SpawnPoint::GC_SpawnPoint(World &world)
-  : GC_2dSprite(world)
-  , _team(0)
+  : _team(0)
 {
 	SetTexture("editor_respawn");
 	SetZ(Z_EDITOR);
@@ -132,7 +131,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 }
 
 GC_HideLabel::GC_HideLabel(World &world)
-  : GC_2dSprite(world)
 {
 	SetZ(Z_EDITOR);
 	SetTexture("editor_item");
@@ -162,7 +160,6 @@ IMPLEMENT_1LIST_MEMBER(GC_IndicatorBar, LIST_indicators);
 
 GC_IndicatorBar::GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object,
                                  float *pValue, float *pValueMax, LOCATION location)
-  : GC_2dSprite(world)
 {
 	assert(NULL == FindIndicator(world, object, location));
 
@@ -265,8 +262,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_DamLabel)
 IMPLEMENT_1LIST_MEMBER(GC_DamLabel, LIST_timestep);
 
 GC_DamLabel::GC_DamLabel(World &world, GC_Vehicle *veh)
-  : GC_2dSprite(world)
-  , _phase(frand(PI2))
+  : _phase(frand(PI2))
   , _time(0)
   , _time_life(0.4f)
 {

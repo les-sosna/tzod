@@ -31,8 +31,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 IMPLEMENT_1LIST_MEMBER(GC_Trigger, LIST_timestep);
 
 GC_Trigger::GC_Trigger(World &world)
-  : GC_2dSprite(world)
-  , _radius(1)
+  : _radius(1)
   , _radiusDelta(0)
   , _team(0)
 {

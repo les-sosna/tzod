@@ -132,7 +132,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 	PLAY(SND_w_Pickup, GetPos());
 
-	_fireEffect = new GC_2dSprite(world);
+	_fireEffect = new GC_2dSprite();
     _fireEffect->Register(world);
 	_fireEffect->SetZ(Z_EXPLODE);
 	_fireEffect->SetVisible(false);
@@ -208,7 +208,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 
 void GC_Weapon::SetCrosshair(World &world)
 {
-	_crosshair = new GC_2dSprite(world);
+	_crosshair = new GC_2dSprite();
     _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair1");
 	_crosshair->SetZ(Z_VEHICLE_LABEL);
@@ -1246,7 +1246,7 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 	GC_Weapon::Attach(world, actor);
 
 	_timeReload = 0.5f;
-	_diskSprite = new GC_2dSprite(world);
+	_diskSprite = new GC_2dSprite();
     _diskSprite->Register(world);
 	_diskSprite->SetTexture("projectile_disk");
 	_diskSprite->SetZ(Z_PROJECTILE);
@@ -1414,12 +1414,12 @@ void GC_Weap_Minigun::Detach(World &world)
 
 void GC_Weap_Minigun::SetCrosshair(World &world)
 {
-	_crosshair = new GC_2dSprite(world);
+	_crosshair = new GC_2dSprite();
     _crosshair->Register(world);
 	_crosshair->SetTexture("indicator_crosshair2");
 	_crosshair->SetZ(Z_VEHICLE_LABEL);
 
-	_crosshairLeft = new GC_2dSprite(world);
+	_crosshairLeft = new GC_2dSprite();
     _crosshairLeft->Register(world);
 	_crosshairLeft->SetTexture("indicator_crosshair2");
 	_crosshairLeft->SetZ(Z_VEHICLE_LABEL);

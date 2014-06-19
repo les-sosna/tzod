@@ -14,7 +14,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
 IMPLEMENT_1LIST_MEMBER(GC_Brick_Fragment_01, LIST_timestep);
 
 GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
-  : GC_2dSprite(world)
+  : GC_2dSprite()
   , _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
@@ -68,8 +68,7 @@ IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
 GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
-  : GC_2dSprite(world)
-  , _time(0)
+  : _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
   , _rotationPhase(0)

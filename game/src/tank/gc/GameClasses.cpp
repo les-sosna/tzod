@@ -28,7 +28,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
 
 GC_Wood::GC_Wood(World &world)
-  : GC_2dSprite(world)
 {
 	SetZ(Z_WOOD);
 
@@ -151,8 +150,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 IMPLEMENT_1LIST_MEMBER(GC_Explosion, LIST_timestep)
 
 GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
-  : GC_2dSprite(world)
-  , _boomOK(false)
+  : _boomOK(false)
   , _owner(owner)
   , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
   , _time(0)
@@ -554,8 +552,7 @@ IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
 GC_HealthDaemon::GC_HealthDaemon(World &world,
                                  GC_Player *owner,
                                  float damage, float time)
-  : GC_2dSprite(world)
-  , _time(time)
+  : _time(time)
   , _damage(damage)
   , _victim(nullptr)
   , _owner(owner)
@@ -628,7 +625,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text)
 }
 
 GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
-  : GC_2dSprite(world)
 {
 	SetFont("font_default");
 	SetText(text);

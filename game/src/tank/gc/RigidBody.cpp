@@ -29,8 +29,7 @@ UI::ConsoleBuffer& GetConsole();
 IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
-  : GC_2dSprite(world)
-  , _health(1)
+  : _health(1)
   , _health_max(1)
   , _radius(0)
   , _width(0)

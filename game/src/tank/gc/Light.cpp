@@ -35,7 +35,7 @@ GC_Light::GC_Light(World &world, enumLightType type)
   , _intensity(1)
   , _type(type)
   , _lightDirection(1, 0)
-  , _lampSprite(new GC_2dSprite(world))
+  , _lampSprite(new GC_2dSprite())
 {
     _lampSprite->Register(world);
 	SetActive(true);
@@ -216,8 +216,7 @@ GC_Spotlight::GC_Spotlight(FromFile)
 }
 
 GC_Spotlight::GC_Spotlight(World &world)
-  : GC_2dSprite(world)
-  , _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
+  : _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
 {
     _light->Register(world);
 	_light->SetRadius(200);

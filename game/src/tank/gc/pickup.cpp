@@ -31,8 +31,7 @@ IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
 IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
 GC_Pickup::GC_Pickup(World &world)
-  : GC_2dSprite(world)
-  , _label(new GC_HideLabel(world))
+  : _label(new GC_HideLabel(world))
   , _radius(25.0)
   , _timeAttached(0)
   , _timeAnimation(0)

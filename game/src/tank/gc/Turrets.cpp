@@ -41,7 +41,7 @@ GC_Turret::GC_Turret(World &world, const char *tex)
 	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
     _rotateSound->Register(world);
     _rotateSound->SetMode(world, SMODE_STOP);
-	_weaponSprite = new GC_2dSprite(world);
+	_weaponSprite = new GC_2dSprite();
     _weaponSprite->Register(world);
 	_weaponSprite->SetShadow(true);
 	_weaponSprite->SetZ(Z_FREE_ITEM);

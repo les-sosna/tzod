@@ -105,7 +105,7 @@ public:
 public:
     DECLARE_GRID_MEMBER();
     
-	GC_2dSprite(World &world);
+	GC_2dSprite();
 	GC_2dSprite(FromFile);
 	virtual ~GC_2dSprite();
 
