@@ -97,6 +97,7 @@ set(tank_SOURCES
 #	network/TankServer.cpp
 #	network/Variant.cpp
 	render/WorldView.cpp
+	render/rLight.cpp
 	video/ImageLoader.cpp
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp

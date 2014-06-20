@@ -1,4 +1,5 @@
 #include "WorldView.h"
+#include "rLight.h"
 #include "Macros.h"
 #include "config/Config.h"
 #include "gc/Camera.h"
@@ -33,13 +34,14 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 
 		FOREACH( world.GetList(LIST_lights), GC_Light, pLight )
 		{
-			if( pLight->IsActive() &&
+			if( pLight->GetActive() &&
 				pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
 				pLight->GetPos().x - pLight->GetRenderRadius() < xmax &&
 				pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
 				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 			{
-				pLight->Shine(*g_render);
+			//	_FpsCounter::Inst()->OneMoreLight();
+				DrawLight(*g_render, *pLight);
 			}
 		}
 	}

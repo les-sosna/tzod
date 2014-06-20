@@ -24,14 +24,8 @@ enumZOrder GC_LampSprite::GetZ() const
 
 /////////////////////////////////////////////////////////
 
-float GC_Light::_sintable[SINTABLE_SIZE];
-
 IMPLEMENT_SELF_REGISTRATION(GC_Light)
 {
-	for( int i = 0; i < SINTABLE_SIZE; ++i )
-	{
-		_sintable[i] = sinf((float) i / SINTABLE_SIZE * PI2);
-	}
 	return true;
 }
 
@@ -84,90 +78,6 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 void GC_Light::MapExchange(World &world, MapFile &f)
 {
 	GC_Actor::MapExchange(world, f);
-}
-
-void GC_Light::Shine(IRender &render) const
-{
-	if( !IsActive() ) return;
-//	_FpsCounter::Inst()->OneMoreLight();
-
-	MyVertex *v;
-	float x,y;
-
-	SpriteColor color;
-	color.color = 0x00000000;
-	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * _intensity)));
-
-	switch( _type )
-	{
-	case LIGHT_POINT:
-		v = render.DrawFan(SINTABLE_SIZE>>1);
-		v[0].color = color;
-		v[0].x = GetPos().x;
-		v[0].y = GetPos().y;
-		for( int i = 0; i < SINTABLE_SIZE>>1; i++ )
-		{
-			v[i+1].x = GetPos().x + _radius * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
-			v[i+1].y = GetPos().y + _radius * _sintable[i<<1];
-			v[i+1].color.color = 0x00000000;
-		}
-		break;
-	case LIGHT_SPOT:
-		v = render.DrawFan(SINTABLE_SIZE);
-		v[0].color = color;
-		v[0].x = GetPos().x;
-		v[0].y = GetPos().y;
-		for( int i = 0; i < SINTABLE_SIZE; i++ )
-		{
-			x = _offset + _radius * _sintable[i+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
-			y = _radius * _sintable[i] * _aspect;
-			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
-			v[i+1].y = GetPos().y + y*_lightDirection.x + x*_lightDirection.y;
-			v[i+1].color.color = 0x00000000;
-		}
-		break;
-	case LIGHT_DIRECT:
-		v = render.DrawFan((SINTABLE_SIZE>>2)+4);
-		v[0].color = color;
-		v[0].x = GetPos().x;
-		v[0].y = GetPos().y;
-		for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
-		{
-			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
-			x = _offset * _sintable[i<<1];
-			v[i+1].x = GetPos().x - x*_lightDirection.x - y*_lightDirection.y;
-			v[i+1].y = GetPos().y - x*_lightDirection.y + y*_lightDirection.x;
-			v[i+1].color.color = 0x00000000;
-		}
-
-		v[(SINTABLE_SIZE>>2)+2].color.color = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+2].x = GetPos().x + _radius * _lightDirection.x + _offset*_lightDirection.y;
-		v[(SINTABLE_SIZE>>2)+2].y = GetPos().y + _radius * _lightDirection.y - _offset*_lightDirection.x;
-
-		v[(SINTABLE_SIZE>>2)+3].color = color;
-		v[(SINTABLE_SIZE>>2)+3].x = GetPos().x + _radius * _lightDirection.x;
-		v[(SINTABLE_SIZE>>2)+3].y = GetPos().y + _radius * _lightDirection.y;
-
-		v[(SINTABLE_SIZE>>2)+4].color.color = 0x00000000;
-		v[(SINTABLE_SIZE>>2)+4].x = GetPos().x + _radius * _lightDirection.x - _offset*_lightDirection.y;
-		v[(SINTABLE_SIZE>>2)+4].y = GetPos().y + _radius * _lightDirection.y + _offset*_lightDirection.x;
-
-		v = render.DrawFan((SINTABLE_SIZE>>2)+1);
-		v[0].color = color;
-		v[0].x = GetPos().x + _radius * _lightDirection.x;
-		v[0].y = GetPos().y + _radius * _lightDirection.y;
-		for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
-		{
-			y = _offset * _sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
-			x = _offset * _sintable[i<<1] + _radius;
-			v[i+1].x = GetPos().x + x*_lightDirection.x - y*_lightDirection.y;
-			v[i+1].y = GetPos().y + x*_lightDirection.y + y*_lightDirection.x;
-			v[i+1].color.color = 0x00000000;
-		}
-		break;
-	default:
-		assert(false);
-	}
 }
 
 void GC_Light::MoveTo(World &world, const vec2d &pos)
@@ -259,7 +169,7 @@ void GC_Spotlight::MapExchange(World &world, MapFile &f)
 	GC_2dSprite::MapExchange(world, f);
 
 	float dir = GetDirection().Angle();
-	int active = _light->IsActive();
+	int active = _light->GetActive();
 
 	MAP_EXCHANGE_INT(active, active, 1);
 	MAP_EXCHANGE_FLOAT(dir, dir, 0);
@@ -322,7 +232,7 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	}
 	else
 	{
-		_propActive.SetIntValue(tmp->_light->IsActive() ? 1 : 0);
+		_propActive.SetIntValue(tmp->_light->GetActive() ? 1 : 0);
 		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }

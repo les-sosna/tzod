@@ -46,27 +46,20 @@ private:
 
 	ObjPtr<GC_LampSprite> _lampSprite;
 
-	static const int SINTABLE_SIZE = 32;
-	static const int SINTABLE_MASK = 0x1f;
-	static float _sintable[SINTABLE_SIZE];
-
 public:
     DECLARE_LIST_MEMBER();
 	GC_Light(World &world, enumLightType type);
 	GC_Light(FromFile);
 	virtual ~GC_Light();
+	
+	enumLightType GetLightType() const { return _type; }
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
-
-	void SetIntensity(float i)
-	{
-		_intensity = i;
-	}
-	void SetAspect(float a)
-	{
-		_aspect = a;
-	}
+	void SetIntensity(float i) { _intensity = i; }
+	float GetIntensity() const { return _intensity; }
+	
+	void SetAspect(float a) { _aspect = a; }
+	float GetAspect() const { return _aspect; }
+	
 	void SetRadius(float r)
 	{
 		if( LIGHT_DIRECT == _type )
@@ -74,14 +67,17 @@ public:
 		else
 			_radius = r;
 	}
-	void SetLightDirection(const vec2d &d)
-	{
-		_lightDirection = d;
-	}
+	void SetLightDirection(const vec2d &d) { _lightDirection = d; }
+	vec2d GetLightDirection() const { return _lightDirection; }
 	void SetOffset(float o)
 	{
 		assert(LIGHT_DIRECT != _type);
 		_offset = o;
+	}
+	float GetOffset() const
+	{
+		assert(LIGHT_DIRECT != _type);
+		return _offset;
 	}
 	void SetLength(float l)
 	{
@@ -114,15 +110,14 @@ public:
 	void  SetTimeout(World &world, float t);
 	float GetTimeout() const { return _timeout; }
 
-	bool IsActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
+	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 	virtual void TimeStepFixed(World &world, float dt) override;
     virtual void Kill(World &world) override;
-
-public:
-	virtual void Shine(IRender &render) const;
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(World &world, MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
