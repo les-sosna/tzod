@@ -88,8 +88,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( obj_weap_ripper, "Weapon: Ripper" )
 	VAR_STR( obj_weap_minigun, "Weapon: Minigun" )
 	VAR_STR( obj_weap_zippo, "Weapon: Flamethrower" )
-	VAR_STR( obj_service_player_ai, "Service: AI player" )
-	VAR_STR( obj_service_player_local, "Service: Local player" )
+	VAR_STR( obj_service_player, "Service: Player" )
 	VAR_STR( obj_service_msgbox, "Service: Message box" )
 
 

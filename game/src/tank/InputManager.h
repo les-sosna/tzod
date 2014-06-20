@@ -20,7 +20,7 @@ public:
     ~InputManager();
     
     void AssignController(GC_Player *player, std::string profile);
-	Controller& GetController(GC_Player *player) const;
+	Controller* GetController(GC_Player *player) const;
 
 private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<Controller>>> _controllers;

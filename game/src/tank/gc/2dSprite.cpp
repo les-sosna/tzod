@@ -10,7 +10,6 @@
 
 #include "config/Config.h"
 
-///////////////////////////////////////////////////////////////////////////////
 
 TextureCache::TextureCache(const char *name)
 {
@@ -22,7 +21,6 @@ TextureCache::TextureCache(const char *name)
 }
 
 /////////////////////////////////////////////////////////////
-//class GC_2dSprite
 
 IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
 {

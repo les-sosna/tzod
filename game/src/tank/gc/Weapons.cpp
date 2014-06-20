@@ -129,7 +129,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	{
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
 		{
-			_crosshair->SetVisible(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
+			_crosshair->SetVisible(NULL != dynamic_cast<GC_Player*>(veh->GetOwner()));
 		}
 		else
 		{
@@ -1390,7 +1390,7 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 	{
 		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
 		{
-			_crosshairLeft->SetVisible(NULL != dynamic_cast<GC_PlayerLocal*>(veh->GetOwner()));
+			_crosshairLeft->SetVisible(NULL != dynamic_cast<GC_Player*>(veh->GetOwner()));
 		}
 		else
 		{

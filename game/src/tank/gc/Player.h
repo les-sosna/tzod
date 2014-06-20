@@ -1,5 +1,3 @@
-// Player.h
-
 #pragma once
 #include "Service.h"
 #include <deque>
@@ -93,19 +91,3 @@ private:
 	void OnVehicleDestroy(World &world, GC_Object *sender, void *param);
 	void OnVehicleKill(World &world, GC_Object *sender, void *param);
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_PlayerLocal
-	: public GC_Player
-{
-	DECLARE_SELF_REGISTRATION(GC_PlayerLocal);
-
-public:
-	GC_PlayerLocal(World &world);
-	GC_PlayerLocal(FromFile);
-	virtual ~GC_PlayerLocal();
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

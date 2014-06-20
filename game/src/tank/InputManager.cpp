@@ -21,10 +21,10 @@ InputManager::~InputManager()
 	_world.RemoveListener(GC_Player::GetTypeStatic(), *this);
 }
 
-Controller& InputManager::GetController(GC_Player *player) const
+Controller* InputManager::GetController(GC_Player *player) const
 {
-	assert(_controllers.count(player));
-	return *_controllers.find(player)->second.second;
+	auto it = _controllers.find(player);
+	return _controllers.end() != it ? it->second.second.get() : nullptr;
 }
 
 void InputManager::AssignController(GC_Player *player, std::string profile)

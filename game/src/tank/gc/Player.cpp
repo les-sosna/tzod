@@ -1,8 +1,5 @@
-// Player.cpp
-
 #include "Player.h"
 
-#include "Camera.h"
 #include "GameClasses.h"
 #include "indicators.h"
 #include "World.h"
@@ -38,6 +35,7 @@ extern "C"
 
 IMPLEMENT_SELF_REGISTRATION(GC_Player)
 {
+	ED_SERVICE("player", "obj_service_player");
     return true;
 }
 
@@ -408,29 +406,3 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		}
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_PlayerLocal)
-{
-	ED_SERVICE("player_local", "obj_service_player_local");
-	return true;
-}
-
-GC_PlayerLocal::GC_PlayerLocal(World &world)
-  : GC_Player(world)
-{
-	(new GC_Camera(world, this))->Register(world);
-}
-
-GC_PlayerLocal::GC_PlayerLocal(FromFile)
-  : GC_Player(FromFile())
-{
-}
-
-GC_PlayerLocal::~GC_PlayerLocal()
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

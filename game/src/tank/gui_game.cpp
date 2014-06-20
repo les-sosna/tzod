@@ -156,10 +156,12 @@ void UI::GameLayout::OnTimeStep(float dt)
 					pt.y = w.top + (pt.y - (float) screen.top) / pCamera->GetZoom();
 					mouseInViewport = true;
 				}
-				VehicleState vs;
-				Controller &controller = _inputMgr.GetController(player);
-				controller.ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
-				controlStates.insert(std::make_pair(vehicle->GetId(), vs));
+				if( Controller *controller = _inputMgr.GetController(player) )
+				{
+					VehicleState vs;
+					controller->ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
+					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
+				}
 			}
 		}
 		++camIndex;
