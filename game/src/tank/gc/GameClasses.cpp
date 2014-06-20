@@ -612,7 +612,6 @@ void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
 }
 
 /////////////////////////////////////////////////////////////
-//class GC_Text - text drawing
 
 IMPLEMENT_SELF_REGISTRATION(GC_Text)
 {

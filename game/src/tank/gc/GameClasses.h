@@ -99,7 +99,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Boom_Big :  public GC_Explosion
+class GC_Boom_Big : public GC_Explosion
 {
 	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
 public:
