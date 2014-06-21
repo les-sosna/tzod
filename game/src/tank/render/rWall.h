@@ -1,6 +1,5 @@
 #pragma once
 #include "ObjectView.h"
-#include "constants.h" // FIXME: enumZOrder
 
 #include <stddef.h>
 
@@ -12,7 +11,8 @@ public:
 	R_Wall(TextureManager &tm, const char *tex);
 	
 	// ObjectView
-	virtual void Draw(const GC_Actor &actor, DrawingContext &dc, bool editorMode) const override;
+	virtual enumZOrder GetZ(const GC_Actor &actor) const { return Z_WALLS; }
+	virtual void Draw(const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
 	enum {WALL, LT, RT, RB, LB};

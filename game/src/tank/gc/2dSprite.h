@@ -7,6 +7,7 @@
 #include "video/TextureManager.h" // TODO: try to remove
 #include "globals.h"
 #include "constants.h"
+#include "render/ObjectView.h"
 
 /////////////////////////////////////////////////
 

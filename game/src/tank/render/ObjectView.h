@@ -1,8 +1,30 @@
 #pragma once
 class DrawingContext;
 class GC_Actor;
+
+enum enumZOrder
+{
+	Z_EDITOR,           // editor labels
+	Z_WATER,            // water
+	Z_GAUSS_RAY,        // gauss ray
+	Z_WALLS,            // walls
+	Z_FREE_ITEM,        // not picked up item
+	Z_VEHICLES,         // vehicles
+	Z_ATTACHED_ITEM,    // picked up items (weapon etc.)
+	Z_PROJECTILE,       // flying projectiles
+	Z_EXPLODE,          // explosions
+	Z_VEHICLE_LABEL,    // vehicle labels (the crosshair, the health bar, etc.)
+	Z_PARTICLE,         // particles, smoke
+	Z_WOOD,             // wood
+	//------------------//
+	Z_COUNT,            // total number of z-layers
+	//------------------//
+	Z_NONE = 0x7FFFFFFF // not drawn
+};
+
 struct ObjectView
 {
-	virtual void Draw(const GC_Actor &actor, DrawingContext &dc, bool editorMode) const = 0;
+	virtual enumZOrder GetZ(const GC_Actor &actor) const = 0;
+	virtual void Draw(const GC_Actor &actor, DrawingContext &dc) const = 0;
 	virtual ~ObjectView() {}
 };

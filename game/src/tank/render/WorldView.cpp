@@ -1,5 +1,6 @@
 #include "WorldView.h"
 #include "rLight.h"
+#include "rSprite.h"
 #include "rWall.h"
 #include "Macros.h"
 #include "config/Config.h"
@@ -9,6 +10,7 @@
 #include "video/RenderBase.h"
 
 #include "gc/RigidBody.h"
+#include "gc/Crate.h"
 
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
@@ -18,6 +20,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 {
 	AddView<GC_Wall, R_Wall>(tm, "brick");
 	AddView<GC_Wall_Concrete, R_Wall>(tm, "concrete");
+	AddView<GC_Crate, R_Sprite>(tm, "crate01", Z_WALLS);
 }
 
 WorldView::~WorldView()
@@ -81,15 +84,35 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
     {
         FOREACH(world.grid_sprites.element(x,y), GC_2dSprite, object)
         {
-            if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
-                zLayers[object->GetZ()].push_back(object);
+			if( ObjectView *view = GetView(*object) )
+			{
+				enumZOrder z = view->GetZ(*object);
+				if( Z_NONE != z && object->GetGridSet() )
+					zLayers[z].push_back(object);
+			}
+			else
+			{
+				// TODO: remove fallback to old render
+				if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
+					zLayers[object->GetZ()].push_back(object);
+			}
         }
     }
 
     FOREACH( world.GetList(LIST_gsprites), GC_2dSprite, object )
     {
-        if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
-            zLayers[object->GetZ()].push_back(object);
+		if( ObjectView *view = GetView(*object) )
+		{
+			enumZOrder z = view->GetZ(*object);
+			if( Z_NONE != z && !object->GetGridSet() )
+				zLayers[z].push_back(object);
+		}
+		else
+		{
+			// TODO: remove fallback to old render
+			if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
+				zLayers[object->GetZ()].push_back(object);
+		}
     }
 
 	DrawingContext &dc = static_cast<DrawingContext&>(_tm);
@@ -98,7 +121,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
         for( GC_2dSprite *sprite: zLayers[z] )
 		{
 			if( ObjectView *view = GetView(*sprite) )
-				view->Draw(*sprite, dc, editorMode);
+				view->Draw(*sprite, dc);
 			else
 				// TODO: remove fallback to old render
 				sprite->Draw(dc, editorMode);
