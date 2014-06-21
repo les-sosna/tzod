@@ -394,7 +394,7 @@ int main(int, const char**)
 			float dt = timer.GetDt();
 			worldController.SendControllerStates(aiManager.ComputeAIState(world, dt));
             gui.TimeStep(dt); // also sends controller state to WorldController
-			world.Step(dt);
+			world.Step(dt * g_conf.sv_speed.GetFloat() / 100);
             
             render->Begin();
             gui.Render();
