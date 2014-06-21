@@ -155,13 +155,6 @@ class GC_Wall : public GC_RigidBodyStatic
 	DECLARE_SELF_REGISTRATION(GC_Wall);
     typedef GC_RigidBodyStatic base;
 
-private:
-	void SetCorner(World &world, unsigned int index); // 01
-	unsigned int GetCorner(void) const; // 32
-
-	void SetStyle(int style); // 0-3
-	int GetStyle() const;
-
 protected:
 	virtual const char *GetCornerTexture(int i);
 
@@ -184,6 +177,13 @@ public:
 	GC_Wall(World &world);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
+	
+	void SetCorner(World &world, unsigned int index); // 01
+	unsigned int GetCorner(void) const; // 32
+	
+	void SetStyle(int style); // 0-3
+	int GetStyle() const;
+	
 
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);

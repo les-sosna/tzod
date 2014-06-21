@@ -32,7 +32,7 @@ typedef PtrList<GC_Object> ObjectList;
         {                                       \
             return _sType;                      \
         }                                       \
-        virtual ObjectType GetType()            \
+        virtual ObjectType GetType() const      \
         {                                       \
             return _sType;                      \
         }                                       \
@@ -163,7 +163,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 public:
-	virtual ObjectType GetType() = 0;
+	virtual ObjectType GetType() const = 0;
 
 
 	//

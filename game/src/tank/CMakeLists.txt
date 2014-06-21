@@ -98,6 +98,8 @@ set(tank_SOURCES
 #	network/Variant.cpp
 	render/WorldView.cpp
 	render/rLight.cpp
+	render/rWall.cpp
+	render/Terrain.cpp
 	video/ImageLoader.cpp
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp

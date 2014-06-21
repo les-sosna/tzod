@@ -1,5 +1,6 @@
 #include "WorldView.h"
 #include "rLight.h"
+#include "rWall.h"
 #include "Macros.h"
 #include "config/Config.h"
 #include "gc/Camera.h"
@@ -7,12 +8,26 @@
 #include "gc/World.h"
 #include "video/RenderBase.h"
 
-WorldView::WorldView(IRender &render, TextureManager &texman)
+#include "gc/RigidBody.h"
+
+
+WorldView::WorldView(IRender &render, TextureManager &tm)
     : _render(render)
-    , _texman(texman)
-    , _texBack(texman.FindSprite("background"))
-    , _texGrid(texman.FindSprite("grid"))
+    , _tm(tm)
+	, _terrain(tm)
 {
+	AddView<GC_Wall, R_Wall>(tm, "brick");
+	AddView<GC_Wall_Concrete, R_Wall>(tm, "concrete");
+}
+
+WorldView::~WorldView()
+{
+}
+
+ObjectView* WorldView::GetView(const GC_Actor &actor) const
+{
+	ObjectType type = actor.GetType();
+	return type < _type2view.size() ? _type2view[type].get() : nullptr;
 }
 
 void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
@@ -53,11 +68,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 
 	_render.SetMode(RM_WORLD);
 
-	// background texture
-	DrawBackground(world._sx, world._sy, _texBack);
-	if( editorMode && g_conf.ed_drawgrid.Get() )
-		DrawBackground(world._sx, world._sy, _texGrid);
-
+	_terrain.Draw(_render, world._sx, world._sy, editorMode);
 
 	int xmin = std::max(0, int(view.left / LOCATION_SIZE));
 	int ymin = std::max(0, int(view.top / LOCATION_SIZE));
@@ -81,37 +92,17 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
             zLayers[object->GetZ()].push_back(object);
     }
 
+	DrawingContext &dc = static_cast<DrawingContext&>(_tm);
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( GC_2dSprite *sprite: zLayers[z] )
-            sprite->Draw(static_cast<DrawingContext&>(_texman), editorMode);
+		{
+			if( ObjectView *view = GetView(*sprite) )
+				view->Draw(*sprite, dc, editorMode);
+			else
+				// TODO: remove fallback to old render
+				sprite->Draw(dc, editorMode);
+		}
         zLayers[z].clear();
     }
 }
-
-void WorldView::DrawBackground(float sizeX, float sizeY, size_t tex) const
-{
-	const LogicalTexture &lt = _texman.Get(tex);
-	MyVertex *v = _render.DrawQuad(lt.dev_texture);
-	v[0].color = 0xffffffff;
-	v[0].u = 0;
-	v[0].v = 0;
-	v[0].x = 0;
-	v[0].y = 0;
-	v[1].color = 0xffffffff;
-	v[1].u = sizeX / lt.pxFrameWidth;
-	v[1].v = 0;
-	v[1].x = sizeX;
-	v[1].y = 0;
-	v[2].color = 0xffffffff;
-	v[2].u = sizeX / lt.pxFrameWidth;
-	v[2].v = sizeY / lt.pxFrameHeight;
-	v[2].x = sizeX;
-	v[2].y = sizeY;
-	v[3].color = 0xffffffff;
-	v[3].u = 0;
-	v[3].v = sizeY / lt.pxFrameHeight;
-	v[3].x = 0;
-	v[3].y = sizeY;
-}
-
