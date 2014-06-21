@@ -60,6 +60,7 @@ public:
 	float _rotatePower;
 	float _maxRotSpeed;
 	float _maxLinSpeed;
+	std::string _skinTextureName;
 
 protected:
 	void ApplyState(const VehicleState &vs);
@@ -94,6 +95,7 @@ public:
 
 	void ResetClass();
 	void SetSkin(const std::string &skin);
+	const std::string& GetSkin() const { return _skinTextureName; }
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic

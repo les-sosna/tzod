@@ -140,7 +140,7 @@ void GC_Player::SetTeam(int team)
 void GC_Player::UpdateSkin()
 {
 	if( _vehicle )
-		_vehicle->SetSkin(_skin);
+		_vehicle->SetSkin(std::string("skin/") + _skin);
 }
 
 void GC_Player::SetScore(World &world, int score)
