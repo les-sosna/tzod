@@ -11,6 +11,7 @@
 
 #include "gc/RigidBody.h"
 #include "gc/Crate.h"
+#include "gc/projectiles.h"
 
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
@@ -21,6 +22,14 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Wall, R_Wall>(tm, "brick");
 	AddView<GC_Wall_Concrete, R_Wall>(tm, "concrete");
 	AddView<GC_Crate, R_Sprite>(tm, "crate01", Z_WALLS);
+	AddView<GC_TankBullet, R_Sprite>(tm, "projectile_cannon", Z_PROJECTILE);
+	AddView<GC_Rocket, R_Sprite>(tm, "projectile_rocket", Z_PROJECTILE);
+//	AddView<GC_Bullet, R_Sprite>(tm, "projectile_bullet", Z_PROJECTILE);
+	AddView<GC_PlazmaClod, R_Sprite>(tm, "projectile_plazma", Z_PROJECTILE);
+// TODO:	AddView<GC_BfgCore, xxx>(tm, "projectile_bfg", Z_PROJECTILE);
+// TODO:	AddView<GC_FireSpark, xxx>(tm, "projectile_fire", Z_PROJECTILE);
+	AddView<GC_ACBullet, R_Sprite>(tm, "projectile_ac", Z_PROJECTILE);
+	AddView<GC_Disk, R_Sprite>(tm, "projectile_disk", Z_PROJECTILE);
 }
 
 WorldView::~WorldView()
