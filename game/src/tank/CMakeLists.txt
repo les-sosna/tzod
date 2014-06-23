@@ -103,6 +103,7 @@ set(tank_SOURCES
 	render/rTurret.cpp
 	render/rVehicle.cpp
 	render/rWall.cpp
+	render/rWeapon.cpp
 	render/Terrain.cpp
 	video/ImageLoader.cpp
 #	video/RenderDirect3D.cpp

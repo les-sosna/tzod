@@ -5,6 +5,7 @@
 #include "rTurret.h"
 #include "rVehicle.h"
 #include "rWall.h"
+#include "rWeapon.h"
 #include "Macros.h"
 #include "config/Config.h"
 #include "gc/Camera.h"
@@ -18,6 +19,7 @@
 #include "gc/projectiles.h"
 #include "gc/Turrets.h"
 #include "gc/Vehicle.h"
+#include "gc/Weapons.h"
 
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
@@ -49,6 +51,17 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_TurretRocket, R_Turret>(tm, "turret_platform", "turret_rocket");
 	AddView<GC_TurretMinigun, R_Turret>(tm, "turret_mg_wake", "turret_mg");
 	AddView<GC_TurretGauss, R_Turret>(tm, "turret_gauss_wake", "turret_gauss");
+	
+	AddView<GC_Weap_RocketLauncher, R_Weapon>(tm, "weap_ak47");
+	AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
+	AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
+	AddView<GC_Weap_Plazma, R_Weapon>(tm, "weap_plazma");
+	AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");
+	AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
+	AddView<GC_Weap_BFG, R_Weapon>(tm, "weap_bfg");
+	AddView<GC_Weap_Ripper, R_Weapon>(tm, "weap_ripper");
+	AddView<GC_Weap_Minigun, R_Weapon>(tm, "weap_mg1");   // weap_mg2
+	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
 }
 
 WorldView::~WorldView()
