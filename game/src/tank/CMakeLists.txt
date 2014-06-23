@@ -100,6 +100,7 @@ set(tank_SOURCES
 	render/rLight.cpp
 	render/rSprite.cpp
 	render/rText.cpp
+	render/rTurret.cpp
 	render/rVehicle.cpp
 	render/rWall.cpp
 	render/Terrain.cpp

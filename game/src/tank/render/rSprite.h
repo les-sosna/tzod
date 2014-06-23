@@ -18,4 +18,3 @@ private:
 	size_t _texId;
 	enumZOrder _z;
 };
-

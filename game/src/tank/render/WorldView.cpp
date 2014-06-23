@@ -2,6 +2,7 @@
 #include "rLight.h"
 #include "rSprite.h"
 #include "rText.h"
+#include "rTurret.h"
 #include "rVehicle.h"
 #include "rWall.h"
 #include "Macros.h"
@@ -15,6 +16,7 @@
 #include "gc/Crate.h"
 #include "gc/GameClasses.h"
 #include "gc/projectiles.h"
+#include "gc/Turrets.h"
 #include "gc/Vehicle.h"
 
 
@@ -42,6 +44,11 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Tank_Light, R_Vehicle>(tm);
 	
 	AddView<GC_Text_ToolTip, R_Text>(tm);
+	
+	AddView<GC_TurretCannon, R_Turret>(tm, "turret_platform", "turret_cannon");
+	AddView<GC_TurretRocket, R_Turret>(tm, "turret_platform", "turret_rocket");
+	AddView<GC_TurretMinigun, R_Turret>(tm, "turret_mg_wake", "turret_mg");
+	AddView<GC_TurretGauss, R_Turret>(tm, "turret_gauss_wake", "turret_gauss");
 }
 
 WorldView::~WorldView()

@@ -15,7 +15,7 @@ public:
 	GC_WeaponSprite() {}
 	GC_WeaponSprite(FromFile) : GC_2dSprite(FromFile()) {}
 	
-	virtual enumZOrder GetZ() const { return Z_FREE_ITEM; }
+	virtual enumZOrder GetZ() const { return Z_NONE; /* Z_FREE_ITEM; */ }
 };
 
 class GC_Turret : public GC_RigidBodyStatic
@@ -78,6 +78,9 @@ public:
 	GC_Turret(World &world, const char *tex);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
+	
+	float GetWeaponDir() const { return _dir; }
+	virtual float GetReadyState() const { return 1; }
     
     virtual void SetInitialDir(float initialDir);
 
@@ -172,6 +175,8 @@ public:
 	GC_TurretBunker(World &world, const char *tex);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
+	
+	virtual float GetReadyState() const { return _time_wake / _time_wake_max; }
     
     virtual void SetInitialDir(float initialDir);
 
