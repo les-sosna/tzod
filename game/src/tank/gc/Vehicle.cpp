@@ -422,7 +422,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 	{
 		char msg[256] = {0};
 		char score[8];
-		const char *font = NULL;
+		GC_Text::Style style = GC_Text::DEFAULT;
 
 		if( from )
 		{
@@ -430,7 +430,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			{
 				// killed him self
 				GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
-				font = "font_digits_red";
+				style = GC_Text::SCORE_MINUS;
 				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
 			}
 			else if( GetOwner() )
@@ -440,7 +440,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 				{
 					// 'from' killed his friend
 					from->SetScore(world, from->GetScore() - 1);
-					font = "font_digits_red";
+					style = GC_Text::SCORE_MINUS;
 					sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
 						dd.from->GetNick().c_str(),
 						GetOwner()->GetNick().c_str());
@@ -449,7 +449,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 				{
 					// 'from' killed his enemy
 					from->SetScore(world, from->GetScore() + 1);
-					font = "font_digits_green";
+					style = GC_Text::SCORE_PLUS;
 					sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
 						from->GetNick().c_str(), GetOwner()->GetNick().c_str());
 				}
@@ -458,13 +458,13 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			{
 				// this tank does not have player service. score up the killer
 				from->SetScore(world, from->GetScore() + 1);
-				font = "font_digits_green";
+				style = GC_Text::SCORE_PLUS;
 			}
 
 			if( from->GetVehicle() )
 			{
 				sprintf(score, "%d", from->GetScore());
-				auto text = new GC_Text_ToolTip(world, score, font);
+				auto text = new GC_Text_ToolTip(world, score, style);
                 text->Register(world);
                 text->MoveTo(world, from->GetVehicle()->GetPos());
 			}
@@ -474,7 +474,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
 			GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 			sprintf(score, "%d", GetOwner()->GetScore());
-			auto text = new GC_Text_ToolTip(world, score, "font_digits_red");
+			auto text = new GC_Text_ToolTip(world, score, GC_Text::SCORE_MINUS);
             text->Register(world);
             text->MoveTo(world, GetPos());
 		}

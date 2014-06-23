@@ -192,21 +192,29 @@ public:
 
 class GC_Text : public GC_2dSprite
 {
-	DECLARE_SELF_REGISTRATION(GC_Text);
-
 public:
+	enum Style
+	{
+		DEFAULT,
+		SCORE_PLUS,
+		SCORE_MINUS,
+	};
+	
 	GC_Text(World &world, const std::string &text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
-
-	void SetFont(const char *fontname);
-	void SetText(const std::string &text);
-	void SetAlign(enumAlignText align);
+	
+	void SetText(std::string text) { _text = std::move(text); }
+	void SetAlign(enumAlignText align) { _align = align; }
+	void SetStyle(Style style) { _style = style; }
+	Style GetStyle() const { return _style; }
+	enumAlignText GetAlign() const { return _align; }
 	const std::string& GetText() const { return _text; }
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 protected:
+	Style               _style;
 	enumAlignText       _align;
 	std::string         _text;
 };
@@ -222,7 +230,7 @@ class GC_Text_ToolTip : public GC_Text
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Text_ToolTip(World &world, const std::string &text, const char *font);
+	GC_Text_ToolTip(World &world, const std::string &text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
 
 	// GC_2dSprite

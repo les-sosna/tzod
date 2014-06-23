@@ -613,31 +613,12 @@ void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
 
 /////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Text)
-{
-	return true;
-}
-
 GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
+	: _style(DEFAULT)
+    , _align(align)
+	, _text(text)
 {
-	SetFont("font_default");
-	SetText(text);
-	SetAlign(align);
-}
-
-void GC_Text::SetText(const std::string &text)
-{
-	_text = text;
-}
-
-void GC_Text::SetFont(const char *fontname)
-{
-	SetTexture(fontname);
-}
-
-void GC_Text::SetAlign(enumAlignText align)
-{
-	_align = align;
+	SetTexture("font_default");
 }
 
 void GC_Text::Serialize(World &world, SaveFile &f)
@@ -645,6 +626,7 @@ void GC_Text::Serialize(World &world, SaveFile &f)
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_text);
 	f.Serialize(_align);
+	f.Serialize(_style);
 }
 
 void GC_Text::Draw(DrawingContext &dc, bool editorMode) const
@@ -662,12 +644,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 
 IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
 
-GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, const char *font)
+GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, Style style)
   : GC_Text(world, text, alignTextCC)
   , _time(0)
 {
 	SetText(text);
-	SetFont(font);
+	SetStyle(style);
 }
 
 void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
@@ -678,6 +660,7 @@ void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
 
 void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
 {
+	MoveTo(world, GetPos() + vec2d(0, -20.0f) * dt);
 	_time += dt;
 	if( _time > 1.2f )
     {
@@ -688,7 +671,7 @@ void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
 void GC_Text_ToolTip::Draw(DrawingContext &dc, bool editorMode) const
 {
 	vec2d pos = GetPos();
-	dc.DrawBitmapText(pos.x, pos.y - _time * 20.0f, GetTexture(), GetColor(), _text, _align);
+	dc.DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

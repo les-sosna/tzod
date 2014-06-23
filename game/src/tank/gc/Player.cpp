@@ -226,7 +226,7 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 				pBestPoint = points[world.net_rand() % points.size()];
 			}
 
-            auto text = new GC_Text_ToolTip(world, _nick, "font_default");
+            auto text = new GC_Text_ToolTip(world, _nick, GC_Text::DEFAULT);
 			text->Register(world);
             text->MoveTo(world, pBestPoint->GetPos());
 

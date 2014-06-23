@@ -1,6 +1,7 @@
 #include "WorldView.h"
 #include "rLight.h"
 #include "rSprite.h"
+#include "rText.h"
 #include "rVehicle.h"
 #include "rWall.h"
 #include "Macros.h"
@@ -12,6 +13,7 @@
 
 #include "gc/RigidBody.h"
 #include "gc/Crate.h"
+#include "gc/GameClasses.h"
 #include "gc/projectiles.h"
 #include "gc/Vehicle.h"
 
@@ -38,6 +40,8 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Spotlight, R_Sprite>(tm, "spotlight", Z_PROJECTILE);
 	
 	AddView<GC_Tank_Light, R_Vehicle>(tm);
+	
+	AddView<GC_Text_ToolTip, R_Text>(tm);
 }
 
 WorldView::~WorldView()

@@ -99,6 +99,7 @@ set(tank_SOURCES
 	render/WorldView.cpp
 	render/rLight.cpp
 	render/rSprite.cpp
+	render/rText.cpp
 	render/rVehicle.cpp
 	render/rWall.cpp
 	render/Terrain.cpp
