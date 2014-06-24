@@ -60,7 +60,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
 	AddView<GC_Weap_BFG, R_Weapon>(tm, "weap_bfg");
 	AddView<GC_Weap_Ripper, R_Weapon>(tm, "weap_ripper");
-	AddView<GC_Weap_Minigun, R_Weapon>(tm, "weap_mg1");   // weap_mg2
+	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
 }
 
@@ -162,7 +162,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
         for( GC_2dSprite *sprite: zLayers[z] )
 		{
 			if( ObjectView *view = GetView(*sprite) )
-				view->Draw(*sprite, dc);
+				view->Draw(world, *sprite, dc);
 			else
 				// TODO: remove fallback to old render
 				sprite->Draw(dc, editorMode);

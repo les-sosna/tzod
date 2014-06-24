@@ -8,7 +8,7 @@ R_Sprite::R_Sprite(TextureManager &tm, const char *tex, enumZOrder z)
 {
 }
 	
-void R_Sprite::Draw(const GC_Actor &actor, DrawingContext &dc) const
+void R_Sprite::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_2dSprite*>(&actor));
 	auto &sprite = static_cast<const GC_2dSprite&>(actor);

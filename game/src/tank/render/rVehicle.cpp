@@ -10,7 +10,7 @@ R_Vehicle::R_Vehicle(TextureManager &tm)
 {
 }
 	
-void R_Vehicle::Draw(const GC_Actor &actor, DrawingContext &dc) const
+void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_Vehicle*>(&actor));
 	auto &vehicle = static_cast<const GC_Vehicle&>(actor);

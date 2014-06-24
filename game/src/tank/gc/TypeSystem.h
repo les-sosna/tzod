@@ -11,8 +11,8 @@ class World;
 class GC_Object;
 struct FromFile {};
 
-typedef int ObjectType;
-#define INVALID_OBJECT_TYPE (-1)
+typedef unsigned int ObjectType;
+#define INVALID_OBJECT_TYPE ((unsigned int) -1)
 
 class RTTypes
 {

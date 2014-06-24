@@ -1,6 +1,7 @@
 #pragma once
 class DrawingContext;
 class GC_Actor;
+class World;
 
 enum enumZOrder
 {
@@ -25,6 +26,6 @@ enum enumZOrder
 struct ObjectView
 {
 	virtual enumZOrder GetZ(const GC_Actor &actor) const = 0;
-	virtual void Draw(const GC_Actor &actor, DrawingContext &dc) const = 0;
+	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const = 0;
 	virtual ~ObjectView() {}
 };

@@ -96,7 +96,7 @@ public:
 
 	virtual void SetCrosshair(World &world);
 
-	virtual void Fire(World &world) = 0;
+	virtual void Fire(World &world, bool fire) = 0;
 
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
@@ -125,12 +125,6 @@ class GC_Weap_RocketLauncher : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_RocketLauncher);
 
 public:
-	float _time_shot;
-	int _nshots_total;
-	int _nshots;
-	bool _firing;
-	bool _reloaded;
-
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
@@ -138,9 +132,17 @@ public:
 	GC_Weap_RocketLauncher(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
+
+private:
+	void Shoot(World &world);
+	float _time_shot;
+	int _nshots_total;
+	int _nshots;
+	bool _firing;
+	bool _reloaded;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -166,7 +168,7 @@ public:
 	virtual ~GC_Weap_AutoCannon();
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
 };
@@ -189,7 +191,7 @@ public:
 	virtual ~GC_Weap_Cannon();
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
 };
@@ -207,7 +209,7 @@ public:
 	GC_Weap_Plazma(FromFile);
 	virtual ~GC_Weap_Plazma();
 
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
 
@@ -224,7 +226,7 @@ public:
 	GC_Weap_Gauss(FromFile);
 	virtual ~GC_Weap_Gauss();
 
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 };
 
@@ -262,7 +264,7 @@ public:
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
@@ -274,9 +276,6 @@ class GC_Weap_BFG : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_BFG);
 
-private:
-	float _time_ready;
-
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 
@@ -285,9 +284,13 @@ public:
 	virtual ~GC_Weap_BFG();
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
+
+private:
+	void Shoot(World &world);
+	float _time_ready;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,7 +321,7 @@ public:
 	virtual ~GC_Weap_Ripper();
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFloat(World &world, float dt);
 };
@@ -346,10 +349,12 @@ public:
 	GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
 
+	bool GetFire() const { return _bFire; }
+
 	virtual void SetCrosshair(World &world);
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
 };
@@ -377,7 +382,7 @@ public:
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Fire(World &world);
+	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void TimeStepFixed(World &world, float dt);
 };

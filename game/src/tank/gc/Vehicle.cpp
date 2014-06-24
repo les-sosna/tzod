@@ -585,9 +585,9 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
 
 
 	// fire...
-	if( _weapon && _state._bState_Fire )
+	if( _weapon )
 	{
-		_weapon->Fire(world);
+		_weapon->Fire(world, _state._bState_Fire);
 		if( !watch ) return;
 	}
 

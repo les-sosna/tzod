@@ -13,7 +13,7 @@ R_Wall::R_Wall(TextureManager &tm, const char *tex)
 	_texId[LB] = tm.FindSprite(std::string(tex) + "_lb");
 }
 
-void R_Wall::Draw(const GC_Actor &actor, DrawingContext &dc) const
+void R_Wall::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_Wall*>(&actor));
 	auto &wall = static_cast<const GC_Wall&>(actor);

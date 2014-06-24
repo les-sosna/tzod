@@ -243,7 +243,7 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
 static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
     auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
-    gui->GetDesktop()->Resize(width, height);
+    gui->GetDesktop()->Resize((float) width, (float) height);
     gui->GetTextureManager().SetCanvasSize(width, height);
 }
 
@@ -262,7 +262,7 @@ int APIENTRY WinMain( HINSTANCE, // hInstance
 int main(int, const char**)
 #endif
 {
-	srand(time(nullptr));
+	srand((unsigned int) time(nullptr));
 //	Variant::Init();
 
 #if defined(_DEBUG) && defined(_WIN32) // memory leaks detection

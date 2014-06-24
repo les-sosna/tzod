@@ -9,7 +9,7 @@ R_Text::R_Text(TextureManager &tm)
 {
 }
 
-void R_Text::Draw(const GC_Actor &actor, DrawingContext &dc) const
+void R_Text::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_Text*>(&actor));
 	auto &text = static_cast<const GC_Text&>(actor);

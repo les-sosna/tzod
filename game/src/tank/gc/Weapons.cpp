@@ -151,6 +151,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 void GC_Weapon::Detach(World &world)
 {
+	Fire(world, false);
 	SAFE_KILL(world, _rotateSound);
 	SAFE_KILL(world, _crosshair);
 	SAFE_KILL(world, _fireEffect);
@@ -367,7 +368,13 @@ void GC_Weap_RocketLauncher::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time_shot);
 }
 
-void GC_Weap_RocketLauncher::Fire(World &world)
+void GC_Weap_RocketLauncher::Fire(World &world, bool fire)
+{
+	if (fire)
+		Shoot(world);
+}
+
+void GC_Weap_RocketLauncher::Shoot(World &world)
 {
 	assert(GetCarrier());
 	const vec2d &dir = GetDirection();
@@ -447,7 +454,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
 	if( GetCarrier() )
 	{
 		if( _firing )
-			Fire(world);
+			Shoot(world);
 		else if( _time >= _timeReload && !_reloaded )
 		{
 			_reloaded = true;
@@ -552,9 +559,9 @@ void GC_Weap_AutoCannon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time_shot);
 }
 
-void GC_Weap_AutoCannon::Fire(World &world)
+void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 {
-	if( _firing && GetCarrier() )
+	if( fire && _firing && GetCarrier() )
 	{
 		const vec2d &dir = GetDirection();
 		if( _advanced )
@@ -699,9 +706,9 @@ void GC_Weap_Cannon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time_smoke_dt);
 }
 
-void GC_Weap_Cannon::Fire(World &world)
+void GC_Weap_Cannon::Fire(World &world, bool fire)
 {
-	if( GetCarrier() && _time >= _timeReload )
+	if( fire && GetCarrier() && _time >= _timeReload )
 	{
 		GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
 		const vec2d &dir = GetDirection();
@@ -798,9 +805,9 @@ void GC_Weap_Plazma::Attach(World &world, GC_Actor *actor)
 //	veh->_MaxBackSpeed = 160;
 }
 
-void GC_Weap_Plazma::Fire(World &world)
+void GC_Weap_Plazma::Fire(World &world, bool fire)
 {
-	if( GetCarrier() && _time >= _timeReload )
+	if( fire && GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirection();
 		(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
@@ -866,9 +873,9 @@ GC_Weap_Gauss::~GC_Weap_Gauss()
 {
 }
 
-void GC_Weap_Gauss::Fire(World &world)
+void GC_Weap_Gauss::Fire(World &world, bool fire)
 {
-	if( GetCarrier() && _time >= _timeReload )
+	if( fire && GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &dir = GetDirection();
 		(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
@@ -1002,10 +1009,10 @@ void GC_Weap_Ram::Serialize(World &world, SaveFile &f)
 	f.Serialize(_engineLight);
 }
 
-void GC_Weap_Ram::Fire(World &world)
+void GC_Weap_Ram::Fire(World &world, bool fire)
 {
 	assert(GetCarrier());
-	if( _bReady )
+	if( fire && _bReady )
 	{
 		_firingCounter = 2;
 		if( GC_RigidBodyDynamic *owner = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier()) )
@@ -1188,7 +1195,13 @@ void GC_Weap_BFG::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time_ready);
 }
 
-void GC_Weap_BFG::Fire(World &world)
+void GC_Weap_BFG::Fire(World &world, bool fire)
+{
+	if (fire)
+		Shoot(world);
+}
+
+void GC_Weap_BFG::Shoot(World &world)
 {
 	assert(GetCarrier());
 
@@ -1228,7 +1241,7 @@ void GC_Weap_BFG::TimeStepFixed(World &world, float dt)
 	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
-		Fire(world);
+		Shoot(world);
 	}
 }
 
@@ -1302,9 +1315,9 @@ void GC_Weap_Ripper::Serialize(World &world, SaveFile &f)
 	f.Serialize(_diskSprite);
 }
 
-void GC_Weap_Ripper::Fire(World &world)
+void GC_Weap_Ripper::Fire(World &world, bool fire)
 {
-	if( GetCarrier() && _time >= _timeReload )
+	if( fire && GetCarrier() && _time >= _timeReload )
 	{
 		const vec2d &a = GetDirection();
 		(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
@@ -1447,11 +1460,11 @@ void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
 	f.Serialize(_sound);
 }
 
-void GC_Weap_Minigun::Fire(World &world)
+void GC_Weap_Minigun::Fire(World &world, bool fire)
 {
 	assert(GetCarrier());
 	if( GetCarrier() )
-		_bFire = true;
+		_bFire = fire;
 }
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -1481,7 +1494,6 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);
-			_bFire = false;
 
 			for(; _timeShot > 0; _timeShot -= _advanced ? 0.02f : 0.04f)
 			{
@@ -1595,10 +1607,10 @@ void GC_Weap_Zippo::Serialize(World &world, SaveFile &f)
 	f.Serialize(_sound);
 }
 
-void GC_Weap_Zippo::Fire(World &world)
+void GC_Weap_Zippo::Fire(World &world, bool fire)
 {
 	assert(GetCarrier());
-	_bFire = true;
+	_bFire = fire;
 }
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -1625,8 +1637,6 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);
-			_bFire = false;
-
 
 			vec2d vvel = veh ? veh->_lv : vec2d(0,0);
 

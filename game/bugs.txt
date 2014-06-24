@@ -1,9 +1,5 @@
 list of known bugs
 
-bots' night lights
-
-bots' tracks
-
 bots and ram
 
 unable to select tank in editor
