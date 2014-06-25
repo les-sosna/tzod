@@ -3,6 +3,7 @@
 #pragma once
 
 #include "2dSprite.h"
+#include "NeighborAware.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -226,6 +227,7 @@ public:
 #define GC_FLAG_WATER_              (GC_FLAG_RBSTATIC_ << 1)
 
 class GC_Water : public GC_RigidBodyStatic
+               , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Water);
     typedef GC_RigidBodyStatic base;
@@ -261,6 +263,9 @@ public:
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_WATER; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
+
+	// GI_NeighborAware
+	virtual int GetNeighbors() const override { return _tile; }
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }

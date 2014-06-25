@@ -7,6 +7,7 @@
 #include "Service.h"
 #include "2dSprite.h"
 #include "Light.h"
+#include "NeighborAware.h"
 
 /////////////////////////////////////////////////////////////
 
@@ -146,6 +147,7 @@ public:
 #define GC_FLAG_WOOD_                       (GC_FLAG_2DSPRITE_ << 1)
 
 class GC_Wood : public GC_2dSprite
+              , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
     typedef GC_2dSprite base;
@@ -162,7 +164,7 @@ private:
  *    +-----+
  *   3   2   1
 **/
-	unsigned char _tile;
+	int _tile;
 
 protected:
 	void UpdateTile(World &world, bool flag);
@@ -182,6 +184,9 @@ public:
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_WOOD; }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
+	
+	// GI_NeighborAware
+	virtual int GetNeighbors() const override { return _tile; }
 
 	// GC_Object
     virtual void Kill(World &world);

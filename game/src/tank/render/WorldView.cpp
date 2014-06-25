@@ -2,6 +2,7 @@
 #include "rLight.h"
 #include "rSprite.h"
 #include "rText.h"
+#include "rTile.h"
 #include "rTurret.h"
 #include "rVehicle.h"
 #include "rWall.h"
@@ -62,6 +63,9 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Ripper, R_WeaponRipper>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
+	
+	AddView<GC_Wood, R_Tile>(tm, "wood", Z_WOOD);
+	AddView<GC_Water, R_Tile>(tm, "water", Z_WATER);
 }
 
 WorldView::~WorldView()
