@@ -56,3 +56,27 @@ void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, DrawingCon
 	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }
 
+
+R_WeaponRipper::R_WeaponRipper(TextureManager &tm)
+	: _texBody(tm.FindSprite("weap_ripper"))
+	, _texDisk(tm.FindSprite("projectile_disk"))
+{
+}
+
+void R_WeaponRipper::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+{
+	assert(dynamic_cast<const GC_Weap_Ripper*>(&actor));
+	auto &ripper = static_cast<const GC_Weap_Ripper&>(actor);
+
+	vec2d pos = ripper.GetPos();
+	vec2d dir = ripper.GetDirection();
+	DrawWeaponShadow(dc, _texBody, ripper);
+	dc.DrawSprite(_texBody, 0, 0xffffffff, pos.x, pos.y, dir);
+	if (ripper.IsReady())
+	{
+		vec2d diskPos = pos - dir * 8;
+		vec2d diskDir = vec2d(world.GetTime() * 10);
+		dc.DrawSprite(_texDisk, 0, 0xffffffff, diskPos.x, diskPos.y, diskDir);
+	}
+}
+

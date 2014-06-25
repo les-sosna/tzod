@@ -59,7 +59,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");
 	AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
 	AddView<GC_Weap_BFG, R_Weapon>(tm, "weap_bfg");
-	AddView<GC_Weap_Ripper, R_Weapon>(tm, "weap_ripper");
+	AddView<GC_Weap_Ripper, R_WeaponRipper>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
 }

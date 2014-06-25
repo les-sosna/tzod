@@ -302,7 +302,7 @@ public:
 	GC_DiskSprite() {}
 	GC_DiskSprite(FromFile) : GC_2dSprite(FromFile()) {}
 	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
+	virtual enumZOrder GetZ() const { return Z_NONE; /* Z_PROJECTILE; */ }
 };
 
 class GC_Weap_Ripper : public GC_Weapon
@@ -319,10 +319,13 @@ public:
 	GC_Weap_Ripper(World &world);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
-	virtual void Serialize(World &world, SaveFile &f);
-
+	
+	bool IsReady() const { return GetCarrier() && _time > _timeReload; }
+	
 	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
+	
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
 };
 

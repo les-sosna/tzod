@@ -36,3 +36,16 @@ private:
 	size_t _texId1;
 	size_t _texId2;
 };
+
+class R_WeaponRipper : public R_WeaponBase
+{
+public:
+	R_WeaponRipper(TextureManager &tm);
+	
+	// ObjectView
+	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	
+private:
+	size_t _texBody;
+	size_t _texDisk;
+};
