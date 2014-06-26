@@ -9,7 +9,7 @@ class R_WeaponBase : public ObjectView
 {
 public:
 	// ObjectView
-	virtual enumZOrder GetZ(const GC_Actor &actor) const;
+	virtual enumZOrder GetZ(const GC_Actor &actor) const override;
 };
 
 class R_Weapon : public R_WeaponBase
