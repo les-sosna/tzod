@@ -2,7 +2,6 @@
 
 #include "ai.h"
 
-#include "Macros.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 
@@ -13,6 +12,7 @@
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
+#include "gc/Macros.h"
 
 #include "core/JobManager.h"
 #include "core/Debug.h"

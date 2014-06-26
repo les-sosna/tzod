@@ -5,7 +5,6 @@
 #include <globals.h>
 #include <gui_desktop.h>
 #include <script.h>
-#include <Macros.h>
 #include <BackgroundIntro.h>
 #include <WorldController.h>
 
@@ -28,6 +27,7 @@
 #include <gc/Sound.h>
 #include <gc/Player.h>
 #include <gc/World.h>
+#include <gc/Macros.h>
 
 #include <fs/FileSystemImpl.h>
 

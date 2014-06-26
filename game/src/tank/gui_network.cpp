@@ -7,7 +7,6 @@
 #include "gui_maplist.h"
 
 //#include "Interface.h"
-#include "Macros.h"
 #include "md5.h"
 #include "script.h"
 
@@ -22,6 +21,7 @@
 
 #include "gc/Player.h"
 #include "gc/World.h"
+#include "gc/Macros.h"
 
 #include <Button.h>
 #include <Edit.h>

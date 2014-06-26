@@ -5,7 +5,6 @@
 #include "BackgroundIntro.h"
 #include "gui.h"
 #include "gui_desktop.h"
-#include "Macros.h"
 #include "SaveFile.h"
 
 #include "gc/GameClasses.h"
@@ -15,7 +14,7 @@
 #include "gc/Weapons.h" // for ugly workaround
 #include "gc/World.h"
 #include "gc/WorldEvents.h"
-
+#include "gc/Macros.h"
 
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"

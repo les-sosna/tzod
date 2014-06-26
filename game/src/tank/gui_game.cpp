@@ -5,13 +5,13 @@
 #include "globals.h"
 #include "InputManager.h"
 #include "Controller.h"
-#include "Macros.h"
 #include "WorldController.h"
 #include "config/Config.h"
 #include "gc/World.h"
 #include "gc/Camera.h"
 #include "gc/Player.h"
 #include "gc/Vehicle.h"
+#include "gc/Macros.h"
 #include "render/WorldView.h"
 
 #include <GuiManager.h>

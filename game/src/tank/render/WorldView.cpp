@@ -7,7 +7,6 @@
 #include "rVehicle.h"
 #include "rWall.h"
 #include "rWeapon.h"
-#include "Macros.h"
 #include "config/Config.h"
 #include "gc/Camera.h"
 #include "gc/Light.h"
@@ -21,6 +20,7 @@
 #include "gc/Turrets.h"
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
+#include "gc/Macros.h"
 
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
@@ -104,7 +104,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 			{
 			//	_FpsCounter::Inst()->OneMoreLight();
-				DrawLight(*g_render, *pLight);
+				DrawLight(_render, *pLight);
 			}
 		}
 	}

@@ -4,11 +4,11 @@
 
 #include "constants.h"
 #include "globals.h"
-#include "Macros.h"
 
 #include "video/TextureManager.h"
 #include "gc/Player.h"
 #include "gc/World.h"
+#include "gc/Macros.h"
 #include "config/Config.h"
 #include "config/Language.h"
 

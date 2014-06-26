@@ -7,7 +7,6 @@
 #include "gui_maplist.h"
 #include "InputManager.h"
 #include "AIManager.h"
-#include "Macros.h"
 #include "MapFile.h"
 #include "script.h"
 
@@ -21,6 +20,7 @@
 #include "gc/Camera.h"
 #include "gc/Player.h"
 #include "gc/World.h"
+#include "gc/Macros.h"
 
 #include "network/CommonTypes.h"
 
