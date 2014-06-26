@@ -49,7 +49,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 
 	bool  bMove     = false;
 	unsigned int dwCurTime = GetMilliseconds();
-	unsigned int dt        = _dt;
+	unsigned int dt        = (unsigned int) _dt;
     
     double mouse_x = 0, mouse_y = 0;
     glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
