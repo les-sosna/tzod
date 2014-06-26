@@ -66,6 +66,13 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Ripper, R_WeaponRipper>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
+
+//	AddView<GC_pu_Health, R_AnimatedSprite>(tm, "pu_health", Z_FREE_ITEM, ANIMATION_FPS);
+	AddView<GC_pu_Mine, R_Sprite>(tm, "item_mine", Z_FREE_ITEM);
+//	AddView<GC_pu_Shield, xxx>(tm);
+//	AddView<GC_pu_Shock, xxx>(tm);
+//	AddView<GC_pu_Booster, xxx>(tm);
+
 	
 	AddView<GC_Wood, R_Tile>(tm, "wood", Z_WOOD);
 	AddView<GC_Water, R_Tile>(tm, "water", Z_WATER);
