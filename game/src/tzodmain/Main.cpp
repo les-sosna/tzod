@@ -334,6 +334,7 @@ int main(int, const char**)
         glfwSetCharCallback(appWindow.get(), OnChar);
         glfwSetFramebufferSizeCallback(appWindow.get(), OnFramebufferSize);
         glfwMakeContextCurrent(appWindow.get());
+        glfwSwapInterval(1);
         
 		g_appWindow = appWindow.get();
 
