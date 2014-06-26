@@ -17,7 +17,16 @@ enumZOrder R_WeaponBase::GetZ(const GC_Actor &actor) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
-	return weapon.GetCarrier() ? Z_ATTACHED_ITEM : Z_FREE_ITEM;
+	if( weapon.GetCarrier() )
+	{
+		return Z_ATTACHED_ITEM;
+	}
+	else
+	{
+		bool blinking = weapon.GetRespawn() && (weapon._time > weapon._timeStay - 3.0f);
+		bool visible = weapon.GetVisible() && (!blinking || fmod(weapon._time, 0.16f) > 0.08f); // or editorMode
+		return visible ? Z_FREE_ITEM : Z_NONE;
+	}
 }
 
 
