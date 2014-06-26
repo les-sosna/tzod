@@ -45,7 +45,6 @@ public:
 	float _time;
 	float _timeLife;
 	float _rotationSpeed;
-	float _rotationPhase;
 	vec2d _velocity;
 	enumZOrder _zOrder;
 

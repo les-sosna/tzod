@@ -70,7 +70,6 @@ GC_Particle::GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const 
   : _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
-  , _rotationPhase(0)
   , _velocity(v)
   , _zOrder(zOrder)
 {
@@ -92,7 +91,6 @@ void GC_Particle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
-	f.Serialize(_rotationPhase);
 	f.Serialize(_velocity);
 	f.Serialize(_zOrder);
 }
@@ -114,7 +112,7 @@ void GC_Particle::TimeStepFloat(World &world, float dt)
 		SetOpacity(1.0f - _time / _timeLife);
 
 	if( _rotationSpeed )
-		SetDirection(vec2d(_rotationPhase + _rotationSpeed * _time));
+		SetDirection(vec2d(_rotationSpeed * _time));
 
 	MoveTo(world, GetPos() + _velocity * dt);
 }
