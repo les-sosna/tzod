@@ -9,7 +9,6 @@ class GC_Explosion : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Explosion);
     typedef GC_2dSprite base;
-protected:
 	
 	struct FieldNode
 	{
@@ -52,8 +51,10 @@ protected:
 	ObjPtr<GC_Light>   _light;
 	
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
+	void Boom(World &world, float radius, float damage);
 	
-public:
+	float _damage;
+	float _radius;
 	float _time;
 	float _time_life;
 	float _time_boom;
@@ -64,14 +65,16 @@ public:
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 	
-	
-	float _damage;
-	float _radius;
-	
-	void Boom(World &world, float radius, float damage);
-	
+	void SetRadius(float radius);
+	void SetDamage(float damage) { _damage = damage; }
+	void SetBoomTimeout(float t) { _time_boom = t; }
+	void SetLifeTime(float t) { _time_life = t; }
+		
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
+	
+	// GC_Actor
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
@@ -79,23 +82,5 @@ public:
     virtual void Kill(World &world) override;
 };
 
-/////////////////////////////////////////////////////////////
-
-class GC_Boom_Standard : public GC_Explosion
-{
-	DECLARE_SELF_REGISTRATION(GC_Boom_Standard);
-public:
-	GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *owner);
-	GC_Boom_Standard(FromFile);
-	virtual ~GC_Boom_Standard();
-};
-
-/////////////////////////////////////////////////////////////
-
-class GC_Boom_Big : public GC_Explosion
-{
-	DECLARE_SELF_REGISTRATION(GC_Boom_Big);
-public:
-	GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner);
-	GC_Boom_Big(FromFile);
-};
+GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *owner);
+GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner);

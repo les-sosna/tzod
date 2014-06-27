@@ -50,7 +50,7 @@ void GC_UserObject::Serialize(World &world, SaveFile &f)
 
 void GC_UserObject::OnDestroy(World &world)
 {
-	(new GC_Boom_Big(world, GetPos(), NULL))->Register(world);
+	MakeExplosionBig(world, GetPos(), nullptr);
 	GC_RigidBodyStatic::OnDestroy(world);
 }
 

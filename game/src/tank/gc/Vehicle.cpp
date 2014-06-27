@@ -689,7 +689,7 @@ void GC_Tank_Light::SetDefaults()
 
 void GC_Tank_Light::OnDestroy(World &world)
 {
-	(new GC_Boom_Big(world, GetPos(), NULL))->Register(world);
+	MakeExplosionBig(world, GetPos(), nullptr);
 	GC_Vehicle::OnDestroy(world);
 }
 

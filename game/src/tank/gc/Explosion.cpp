@@ -22,11 +22,11 @@ GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
   : _boomOK(false)
   , _owner(owner)
   , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
+  , _damage(1)
+  , _radius(32)
   , _time(0)
   , _time_life(0.5f)
   , _time_boom(0)
-  , _damage(1)
-  , _radius(32)
 {
     _light->Register(world);
 	SetDirection(vrand(1));
@@ -39,6 +39,12 @@ GC_Explosion::GC_Explosion(FromFile)
 
 GC_Explosion::~GC_Explosion()
 {
+}
+
+void GC_Explosion::SetRadius(float radius)
+{
+	_radius = radius;
+	_light->SetRadius(radius * 5);
 }
 
 void GC_Explosion::Serialize(World &world, SaveFile &f)
@@ -102,9 +108,9 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 		{
 			if( i > 3 )
 			if( !field[coord(node->x + per_x[check_diag[(i-4)*2  ]],
-				             node->y + per_y[check_diag[(i-4)*2  ]])].open &&
-				!field[coord(node->x + per_x[check_diag[(i-4)*2+1]],
-				             node->y + per_y[check_diag[(i-4)*2+1]])].open )
+			                 node->y + per_y[check_diag[(i-4)*2  ]])].open &&
+			    !field[coord(node->x + per_x[check_diag[(i-4)*2+1]],
+			                 node->y + per_y[check_diag[(i-4)*2+1]])].open )
 			{
 				continue;
 			}
@@ -242,6 +248,12 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	_boomOK = true;
 }
 
+void GC_Explosion::MoveTo(World &world, const vec2d &pos)
+{
+	_light->MoveTo(world, pos);
+	GC_2dSprite::MoveTo(world, pos);
+}
+
 void GC_Explosion::TimeStepFixed(World &world, float dt)
 {
 	GC_2dSprite::TimeStepFixed(world, dt);
@@ -275,27 +287,21 @@ void GC_Explosion::Kill(World &world)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Boom_Standard)
-{
-	return true;
-}
-
-GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *owner)
-  : GC_Explosion(world, owner)
+GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
 	static const TextureCache tex3("smallblast");
-
-	_radius = 70;
-	_damage    = 150;
-
-	_time_life = 0.32f;
-	_time_boom = 0.03f;
-
-	SetTexture("explosion_o");
-	MoveTo( world, pos);
-
+	
+	auto e = new GC_Explosion(world, owner);
+	e->Register(world);
+	e->MoveTo(world, pos);
+	e->SetTexture("explosion_o");
+	e->SetRadius(70);
+	e->SetDamage(150);
+	e->SetLifeTime(0.32f);
+	e->SetBoomTimeout(0.03f);
+	
 	for(int n = 0; n < 28; ++n)
 	{
 		//ring
@@ -303,61 +309,43 @@ GC_Boom_Standard::GC_Boom_Standard(World &world, const vec2d &pos, GC_Player *ow
 		auto p = new GC_Particle(world, Z_PARTICLE, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
         p->Register(world);
         p->MoveTo(world, pos);
-
+		
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
-
+		
 		auto p1 = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE, tex2, 1.5f);
         p1->Register(world);
-        p1->MoveTo(world, GetPos() + vec2d(ang) * d);
+        p1->MoveTo(world, pos + vec2d(ang) * d);
         p1->_time = frand(1.0f);
 	}
 	GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0,0), tex3, 8.0f, vrand(1));
     p->Register(world);
-    p->MoveTo(world, GetPos());
+    p->MoveTo(world, pos);
 	p->SetFade(true);
-
-	_light->SetRadius(_radius * 5);
-	_light->MoveTo(world, GetPos());
-
-	PLAY(SND_BoomStandard, GetPos());
+	
+	PLAY(SND_BoomStandard, pos);
+	
+	return *e;
 }
 
-GC_Boom_Standard::GC_Boom_Standard(FromFile)
-  : GC_Explosion(FromFile())
-{
-}
-
-GC_Boom_Standard::~GC_Boom_Standard()
-{
-}
-
-/////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_Boom_Big)
-{
-	return true;
-}
-
-GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
-  : GC_Explosion(world, owner)
+GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 {
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_2");
 	static const TextureCache tex4("particle_trace");
 	static const TextureCache tex5("particle_smoke");
 	static const TextureCache tex6("bigblast");
-
-	_radius = 128;
-	_damage    = 90;
-
-	_time_life = 0.72f;
-	_time_boom = 0.10f;
-
-	SetTexture("explosion_big");
-	MoveTo(world, pos);
-
+	
+	auto e = new GC_Explosion(world, owner);
+	e->Register(world);
+	e->MoveTo(world, pos);
+	e->SetTexture("explosion_big");
+	e->SetRadius(128);
+	e->SetDamage(90);
+	e->SetLifeTime(0.72f);
+	e->SetBoomTimeout(0.10f);
+	
 	for( int n = 0; n < 80; ++n )
 	{
 		//ring
@@ -365,7 +353,7 @@ GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
 		{
 			auto p = new GC_Particle(world, Z_PARTICLE, vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
             p->Register(world);
-            p->MoveTo(world, GetPos() + vrand(frand(20.0f)));
+            p->MoveTo(world, pos + vrand(frand(20.0f)));
 		}
 
 		vec2d a;
@@ -374,34 +362,28 @@ GC_Boom_Big::GC_Boom_Big(World &world, const vec2d &pos, GC_Player *owner)
 		a = vrand(frand(40.0f));
 		auto p = new GC_Particle(world, Z_PARTICLE, a * 2, tex2, frand(0.5f) + 0.25f);
         p->Register(world);
-        p->MoveTo(world, GetPos() + a);
+        p->MoveTo(world, pos + a);
 
 		// sparkles
 		a = vrand(1);
 		auto p1 = new GC_Particle(world, Z_PARTICLE, a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
         p1->Register(world);
-        p1->MoveTo(world, GetPos() + a * frand(40.0f));
+        p1->MoveTo(world, pos + a * frand(40.0f));
 
 		//smoke
 		a = vrand(frand(48.0f));
 		auto p2 = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE + a * 0.5f, tex5, 1.5f);
         p2->Register(world);
-        p2->MoveTo(world, GetPos() + a);
+        p2->MoveTo(world, pos + a);
         p2->_time = frand(1.0f);
 	}
 
 	GC_Particle *p = new GC_Particle(world, Z_WATER, vec2d(0,0), tex6, 20.0f, vrand(1));
     p->Register(world);
-    p->MoveTo(world, GetPos());
+    p->MoveTo(world, pos);
 	p->SetFade(true);
 
-	_light->SetRadius(_radius * 5);
-	_light->MoveTo(world, GetPos());
+	PLAY(SND_BoomBig, pos);
 
-	PLAY(SND_BoomBig, GetPos());
-}
-
-GC_Boom_Big::GC_Boom_Big(FromFile)
-  : GC_Explosion(FromFile())
-{
+	return *e;
 }

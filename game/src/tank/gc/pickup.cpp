@@ -386,10 +386,7 @@ AIPRIORITY GC_pu_Mine::GetPriority(World &world, const GC_Vehicle &veh) const
 
 void GC_pu_Mine::Attach(World &world, GC_Actor *actor)
 {
-//	GC_Pickup::Attach(actor);
-
-//	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
-	(new GC_Boom_Standard(world, GetPos(), NULL))->Register(world);
+	MakeExplosionStandard(world, GetPos(), nullptr);
 	Kill(world);
 }
 
