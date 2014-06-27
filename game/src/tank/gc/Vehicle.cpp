@@ -621,7 +621,7 @@ GC_Tank_Light::GC_Tank_Light(World &world)
 //	_MaxForvSpeed = 200;
 
 	SetMoveSound(world, SND_TankMove);
-	SetSkin("red");
+	SetSkin("skin/red");
 	SetSize(37, 37.5f);
 
 	_inv_m  = 1 /   1.0f;
