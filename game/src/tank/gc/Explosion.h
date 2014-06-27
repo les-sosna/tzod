@@ -1,14 +1,15 @@
 #pragma once
 
-#include "2dSprite.h"
+#include "Actor.h"
+#include "constants.h"
 
 class GC_Player;
 class GC_Light;
 
-class GC_Explosion : public GC_2dSprite
+class GC_Explosion : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Explosion);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 	
 	struct FieldNode
 	{
@@ -61,18 +62,14 @@ class GC_Explosion : public GC_2dSprite
 	
 public:
     DECLARE_LIST_MEMBER();
-	GC_Explosion(World &world, GC_Player *owner);
+	GC_Explosion(World &world, GC_Player *owner, float duration);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 	
 	void SetRadius(float radius);
 	void SetDamage(float damage) { _damage = damage; }
 	void SetBoomTimeout(float t) { _time_boom = t; }
-	void SetLifeTime(float t) { _time_life = t; }
-		
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
-	
+
 	// GC_Actor
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 	

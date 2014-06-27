@@ -18,22 +18,20 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 
 IMPLEMENT_1LIST_MEMBER(GC_Explosion, LIST_timestep)
 
-GC_Explosion::GC_Explosion(World &world, GC_Player *owner)
+GC_Explosion::GC_Explosion(World &world, GC_Player *owner, float duration)
   : _boomOK(false)
   , _owner(owner)
   , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
   , _damage(1)
   , _radius(32)
   , _time(0)
-  , _time_life(0.5f)
+  , _time_life(duration)
   , _time_boom(0)
 {
     _light->Register(world);
-	SetDirection(vrand(1));
 }
 
 GC_Explosion::GC_Explosion(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -49,7 +47,7 @@ void GC_Explosion::SetRadius(float radius)
 
 void GC_Explosion::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_boomOK);
 	f.Serialize(_damage);
 	f.Serialize(_radius);
@@ -251,12 +249,12 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 void GC_Explosion::MoveTo(World &world, const vec2d &pos)
 {
 	_light->MoveTo(world, pos);
-	GC_2dSprite::MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 }
 
 void GC_Explosion::TimeStepFixed(World &world, float dt)
 {
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_Actor::TimeStepFixed(world, dt);
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )
@@ -269,11 +267,6 @@ void GC_Explosion::TimeStepFixed(World &world, float dt)
 			Kill(world);
 			return;
 		}
-		SetVisible(false);
-	}
-	else
-	{
-		SetFrame(int((float)GetFrameCount() * _time / _time_life));
 	}
 
 	_light->SetIntensity(1.0f - powf(_time / (_time_life * 1.5f - _time_boom), 6));
@@ -282,7 +275,7 @@ void GC_Explosion::TimeStepFixed(World &world, float dt)
 void GC_Explosion::Kill(World &world)
 {
 	SAFE_KILL(world, _light);
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,14 +285,19 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 	static const TextureCache tex1("particle_1");
 	static const TextureCache tex2("particle_smoke");
 	static const TextureCache tex3("smallblast");
+	static const TextureCache main("explosion_o");
 	
-	auto e = new GC_Explosion(world, owner);
+	float duration = 0.32f;
+	
+	auto clip = new GC_Particle(world, Z_EXPLODE, vec2d(0,0), main, duration, vrand(1));
+	clip->Register(world);
+	clip->MoveTo(world, pos);
+	
+	auto e = new GC_Explosion(world, owner, duration);
 	e->Register(world);
 	e->MoveTo(world, pos);
-	e->SetTexture("explosion_o");
 	e->SetRadius(70);
 	e->SetDamage(150);
-	e->SetLifeTime(0.32f);
 	e->SetBoomTimeout(0.03f);
 	
 	for(int n = 0; n < 28; ++n)
@@ -336,14 +334,19 @@ GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 	static const TextureCache tex4("particle_trace");
 	static const TextureCache tex5("particle_smoke");
 	static const TextureCache tex6("bigblast");
+	static const TextureCache main("explosion_big");
 	
-	auto e = new GC_Explosion(world, owner);
+	float duration = 0.72f;
+	
+	auto clip = new GC_Particle(world, Z_EXPLODE, vec2d(0,0), main, duration, vrand(1));
+	clip->Register(world);
+	clip->MoveTo(world, pos);
+
+	auto e = new GC_Explosion(world, owner, duration);
 	e->Register(world);
 	e->MoveTo(world, pos);
-	e->SetTexture("explosion_big");
 	e->SetRadius(128);
 	e->SetDamage(90);
-	e->SetLifeTime(0.72f);
 	e->SetBoomTimeout(0.10f);
 	
 	for( int n = 0; n < 80; ++n )
