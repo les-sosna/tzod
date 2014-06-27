@@ -2,8 +2,6 @@
 
 #include "MusicPlayer.h"
 
-#include "Macros.h"
-
 #include "config/Config.h"
 #include <fs/FileSystem.h>
 #include <al.h>
