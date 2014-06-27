@@ -2,9 +2,9 @@
 
 #include "Pickup.h"
 
-#include "GameClasses.h"
+#include "Explosion.h"
 #include "indicators.h"
-#include "World.h"
+#include "Light.h"
 #include "Macros.h"
 #include "MapFile.h"
 #include "particles.h"
@@ -14,6 +14,7 @@
 #include "Sound.h"
 #include "vehicle.h"
 #include "Weapons.h"
+#include "World.h"
 
 #include <ConsoleBuffer.h>
 

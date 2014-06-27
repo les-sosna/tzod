@@ -1,7 +1,7 @@
 // UserObjects.cpp
 
 #include "UserObjects.h"
-#include "GameClasses.h"
+#include "Explosion.h"
 #include "World.h"
 
 #include "MapFile.h"

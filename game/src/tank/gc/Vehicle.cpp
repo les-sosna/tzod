@@ -9,9 +9,11 @@
 
 #include "GameClasses.h"
 #include "Camera.h"
+#include "Explosion.h"
 #include "particles.h"
 #include "Pickup.h"
 #include "indicators.h"
+#include "Light.h"
 #include "Sound.h"
 #include "player.h"
 #include "turrets.h"

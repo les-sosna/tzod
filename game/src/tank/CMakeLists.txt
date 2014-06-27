@@ -63,6 +63,7 @@ set(tank_SOURCES
 	gc/Actor.cpp
 	gc/Camera.cpp
 	gc/crate.cpp
+	gc/Explosion.cpp
 	gc/Field.cpp
 	gc/GameClasses.cpp
 	gc/indicators.cpp

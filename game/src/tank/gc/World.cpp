@@ -3,8 +3,11 @@
 #include "World.h"
 #include "World.inl"
 
-#include "DefaultCamera.h"
+#include "RigidBodyDinamic.h"
+#include "Player.h"
+#include "Sound.h"
 #include "Macros.h"
+
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
@@ -17,16 +20,7 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "GameClasses.h"
-#include "RigidBodyDinamic.h"
-#include "Player.h"
-#include "Sound.h"
-
 #include <FileSystem.h>
-
-#include <GuiManager.h>
-#include <ConsoleBuffer.h>
-
 
 extern "C"
 {
@@ -38,7 +32,6 @@ extern "C"
 
 #include <GLFW/glfw3.h>
 
-UI::ConsoleBuffer& GetConsole();
 
 #define MAX_THEME_NAME  128
 

@@ -3,6 +3,7 @@
 
 #include "projectiles.h"
 
+#include "Explosion.h"
 #include "GameClasses.h"
 #include "World.h"
 #include "Light.h"

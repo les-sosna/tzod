@@ -7,7 +7,6 @@
 #include "gui_desktop.h"
 #include "SaveFile.h"
 
-#include "gc/GameClasses.h"
 #include "gc/vehicle.h"
 #include "gc/Pickup.h"
 #include "gc/Player.h"

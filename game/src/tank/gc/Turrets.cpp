@@ -1,23 +1,21 @@
 // Turrets.h
 
 #include "Turrets.h"
-
-#include "Macros.h"
-#include "World.h"
-
-#include "core/JobManager.h"
-#include "core/debug.h"
-
-#include "MapFile.h"
-#include "SaveFile.h"
-
-#include "GameClasses.h"
+#include "Explosion.h"
 #include "Sound.h"
 #include "indicators.h"
 #include "vehicle.h"
 #include "player.h"
 #include "projectiles.h"
 #include "particles.h"
+#include "Macros.h"
+#include "World.h"
+
+#include "MapFile.h"
+#include "SaveFile.h"
+
+#include "core/JobManager.h"
+#include "core/debug.h"
 
 
 IMPLEMENT_SELF_REGISTRATION(GC_WeaponSprite)
