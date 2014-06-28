@@ -95,7 +95,7 @@ public:
 	GC_IndicatorBar(FromFile);
 
 	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
+	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_VEHICLE_LABEL;*/ }
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object

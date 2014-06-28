@@ -24,7 +24,7 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 	if( g_conf.g_shownames.Get() && vehicle.GetOwner() )
 	{
 		dc.DrawBitmapText(floorf(pos.x), floorf(pos.y) + floorf(_tm.GetFrameHeight(texId, 0) / 2),
-                          _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
+                          _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCB);
 	}
 	
 #ifndef NDEBUG
