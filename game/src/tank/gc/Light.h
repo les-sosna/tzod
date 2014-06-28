@@ -18,14 +18,14 @@ public:
 
 ///////////////////////////////////////////////////////////
 
-#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_2DSPRITE_ << 0)
+#define GC_FLAG_LIGHT_FADE          (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_LIGHT_              (GC_FLAG_2DSPRITE_ << 2)
 
-class GC_Light : public GC_Actor
+class GC_Light : public GC_2dSprite
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-    typedef GC_Actor base;
+    typedef GC_2dSprite base;
 
 public:
 	enum enumLightType

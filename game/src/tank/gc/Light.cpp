@@ -19,7 +19,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_LampSprite)
 
 enumZOrder GC_LampSprite::GetZ() const
 {
-	return (GetTexture() && g_conf.sv_nightmode.Get()) ? Z_PARTICLE : Z_NONE;
+	return Z_NONE; //(GetTexture() && g_conf.sv_nightmode.Get()) ? Z_PARTICLE : Z_NONE;
 }
 
 /////////////////////////////////////////////////////////
@@ -51,6 +51,7 @@ GC_Light::GC_Light(World &world, enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile)
+	: GC_2dSprite(FromFile())
 {
 }
 
@@ -60,7 +61,7 @@ GC_Light::~GC_Light()
 
 void GC_Light::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_2dSprite::Serialize(world, f);
 
 	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
@@ -77,13 +78,13 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 
 void GC_Light::MapExchange(World &world, MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_2dSprite::MapExchange(world, f);
 }
 
 void GC_Light::MoveTo(World &world, const vec2d &pos)
 {
 	_lampSprite->MoveTo(world, pos);
-	GC_Actor::MoveTo(world, pos);
+	GC_2dSprite::MoveTo(world, pos);
 }
 
 void GC_Light::SetTimeout(World &world, float t)
@@ -108,7 +109,7 @@ void GC_Light::Kill(World &world)
 	SAFE_KILL(world, _lampSprite);
     if( CheckFlags(GC_FLAG_LIGHT_FADE) )
         world.GetList(LIST_timestep).erase(GetId());
-    GC_Actor::Kill(world);
+    GC_2dSprite::Kill(world);
 }
 
 void GC_Light::SetActive(bool activate)

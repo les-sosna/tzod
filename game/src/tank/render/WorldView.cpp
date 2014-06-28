@@ -47,6 +47,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Disk, R_Sprite>(tm, "projectile_disk", Z_PROJECTILE);
 	
 	AddView<GC_Spotlight, R_Sprite>(tm, "spotlight", Z_PROJECTILE);
+	AddView<GC_Light, R_Light>(tm);
 	
 	AddView<GC_Tank_Light, R_Vehicle>(tm);
 	AddView<GC_Tank_Light, R_HealthIndicator>(tm);
