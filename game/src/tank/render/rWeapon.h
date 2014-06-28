@@ -37,15 +37,15 @@ private:
 	size_t _texId2;
 };
 
-class R_WeaponRipper : public R_WeaponBase
+class R_RipperDisk : public ObjectView
 {
 public:
-	R_WeaponRipper(TextureManager &tm);
+	R_RipperDisk(TextureManager &tm);
 	
 	// ObjectView
+	virtual enumZOrder GetZ(const GC_Actor &actor) const override { return Z_PROJECTILE; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
-	size_t _texBody;
-	size_t _texDisk;
+	size_t _texId;
 };
