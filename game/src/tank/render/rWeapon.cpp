@@ -83,3 +83,43 @@ void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContex
 	}
 }
 
+
+R_Crosshair::R_Crosshair(TextureManager &tm)
+	: _texId(tm.FindSprite("indicator_crosshair1"))
+{
+}
+
+void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+{
+	assert(dynamic_cast<const GC_Weapon*>(&actor));
+	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	if (weapon.GetCarrier())
+	{
+		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
+		vec2d dir = vec2d(world.GetTime() * 5);
+		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	}	
+}
+
+
+R_Crosshair2::R_Crosshair2(TextureManager &tm)
+	: _texId(tm.FindSprite("indicator_crosshair2"))
+{
+}
+
+void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+{
+	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
+	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
+	if (minigun.GetCarrier())
+	{
+		vec2d delta(minigun.GetFireTime() * 0.1f / WEAP_MG_TIME_RELAX);
+		vec2d dir1 = Vec2dAddDirection(minigun.GetDirection(), delta);
+		vec2d dir2 = Vec2dSubDirection(minigun.GetDirection(), delta);
+		vec2d pos1 = minigun.GetPos() + dir1 * 150.0f;
+		vec2d pos2 = minigun.GetPos() + dir2 * 150.0f;
+		dc.DrawSprite(_texId, 0, 0xffffffff, pos1.x, pos1.y, dir1);
+		dc.DrawSprite(_texId, 0, 0xffffffff, pos2.x, pos2.y, dir2);
+	}
+}
+

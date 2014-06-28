@@ -49,3 +49,29 @@ public:
 private:
 	size_t _texId;
 };
+
+class R_Crosshair : public ObjectView
+{
+public:
+	R_Crosshair(TextureManager &tm);
+	
+	// ObjectView
+	virtual enumZOrder GetZ(const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
+	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	
+private:
+	size_t _texId;
+};
+
+class R_Crosshair2 : public ObjectView
+{
+public:
+	R_Crosshair2(TextureManager &tm);
+	
+	// ObjectView
+	virtual enumZOrder GetZ(const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
+	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	
+private:
+	size_t _texId;
+};

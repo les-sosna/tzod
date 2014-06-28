@@ -22,7 +22,7 @@ public:
 	GC_Crosshair() {}
 	GC_Crosshair(FromFile) : GC_2dSprite(FromFile()) {}
 	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
+	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_VEHICLE_LABEL;*/ }
 };
 
 struct AIWEAPSETTINGS
@@ -353,6 +353,7 @@ public:
 	virtual ~GC_Weap_Minigun();
 
 	bool GetFire() const { return _bFire; }
+	float GetFireTime() const { return _timeFire; }
 
 	virtual void SetCrosshair(World &world);
     virtual void Kill(World &world);

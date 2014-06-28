@@ -63,18 +63,28 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_TurretGauss, R_HealthIndicator>(tm);
 	
 	AddView<GC_Weap_RocketLauncher, R_Weapon>(tm, "weap_ak47");
+	AddView<GC_Weap_RocketLauncher, R_Crosshair>(tm);
 	AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
+	AddView<GC_Weap_AutoCannon, R_Crosshair>(tm);
 	AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);
 	AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
+	AddView<GC_Weap_Cannon, R_Crosshair>(tm);
 	AddView<GC_Weap_Plazma, R_Weapon>(tm, "weap_plazma");
+	AddView<GC_Weap_Plazma, R_Crosshair>(tm);
 	AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");
+	AddView<GC_Weap_Gauss, R_Crosshair>(tm);
 	AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
+	AddView<GC_Weap_Ram, R_Crosshair>(tm);
 	AddView<GC_Weap_Ram, R_FuelIndicator>(tm);
 	AddView<GC_Weap_BFG, R_Weapon>(tm, "weap_bfg");
+	AddView<GC_Weap_BFG, R_Crosshair>(tm);
 	AddView<GC_Weap_Ripper, R_Weapon>(tm, "weap_ripper");
+	AddView<GC_Weap_Ripper, R_Crosshair>(tm);
 	AddView<GC_Weap_Ripper, R_RipperDisk>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
+	AddView<GC_Weap_Minigun, R_Crosshair2>(tm);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
+	AddView<GC_Weap_Zippo, R_Crosshair>(tm);
 
 //	AddView<GC_pu_Health, R_AnimatedSprite>(tm, "pu_health", Z_FREE_ITEM, ANIMATION_FPS);
 	AddView<GC_pu_Mine, R_Sprite>(tm, "item_mine", Z_FREE_ITEM);
