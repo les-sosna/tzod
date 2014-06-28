@@ -1,5 +1,6 @@
 #include "WorldView.h"
 #include "rAnimatedSprite.h"
+#include "rIndicator.h"
 #include "rLight.h"
 #include "rSprite.h"
 #include "rText.h"
@@ -48,13 +49,18 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Spotlight, R_Sprite>(tm, "spotlight", Z_PROJECTILE);
 	
 	AddView<GC_Tank_Light, R_Vehicle>(tm);
+	AddView<GC_Tank_Light, R_HealthIndicator>(tm);
 	
 	AddView<GC_Text_ToolTip, R_Text>(tm);
 	
 	AddView<GC_TurretCannon, R_Turret>(tm, "turret_platform", "turret_cannon");
+	AddView<GC_TurretCannon, R_HealthIndicator>(tm);
 	AddView<GC_TurretRocket, R_Turret>(tm, "turret_platform", "turret_rocket");
+	AddView<GC_TurretRocket, R_HealthIndicator>(tm);
 	AddView<GC_TurretMinigun, R_Turret>(tm, "turret_mg_wake", "turret_mg");
+	AddView<GC_TurretMinigun, R_HealthIndicator>(tm);
 	AddView<GC_TurretGauss, R_Turret>(tm, "turret_gauss_wake", "turret_gauss");
+	AddView<GC_TurretGauss, R_HealthIndicator>(tm);
 	
 	AddView<GC_Weap_RocketLauncher, R_Weapon>(tm, "weap_ak47");
 	AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
@@ -82,10 +88,10 @@ WorldView::~WorldView()
 {
 }
 
-ObjectView* WorldView::GetView(const GC_Actor &actor) const
+const WorldView::ViewCollection* WorldView::GetViews(const GC_Actor &actor) const
 {
 	ObjectType type = actor.GetType();
-	return type < _type2view.size() ? _type2view[type].get() : nullptr;
+	return (type < _type2views.size() && !_type2views[type].empty()) ? &_type2views[type] : nullptr;
 }
 
 void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
@@ -133,53 +139,59 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 	int xmax = std::min(world._locationsX - 1, int(view.right / LOCATION_SIZE));
 	int ymax = std::min(world._locationsY - 1, int(view.bottom / LOCATION_SIZE) + 1);
 
-    static std::vector<GC_2dSprite*> zLayers[Z_COUNT];
+    static std::vector<std::pair<const GC_2dSprite*, const ObjectView*>> zLayers[Z_COUNT];
     for( int x = xmin; x <= xmax; ++x )
     for( int y = ymin; y <= ymax; ++y )
     {
         FOREACH(world.grid_sprites.element(x,y), GC_2dSprite, object)
         {
-			if( ObjectView *view = GetView(*object) )
+			if( const ViewCollection *viewCollection = GetViews(*object) )
 			{
-				enumZOrder z = view->GetZ(*object);
-				if( Z_NONE != z && object->GetGridSet() )
-					zLayers[z].push_back(object);
+				for( auto &view: *viewCollection )
+				{
+					enumZOrder z = view->GetZ(*object);
+					if( Z_NONE != z && object->GetGridSet() )
+						zLayers[z].emplace_back(object, view.get());
+				}
 			}
 			else
 			{
 				// TODO: remove fallback to old render
 				if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
-					zLayers[object->GetZ()].push_back(object);
+					zLayers[object->GetZ()].emplace_back(object, nullptr);
 			}
         }
     }
 
     FOREACH( world.GetList(LIST_gsprites), GC_2dSprite, object )
     {
-		if( ObjectView *view = GetView(*object) )
+		if( const ViewCollection *viewCollection = GetViews(*object) )
 		{
-			enumZOrder z = view->GetZ(*object);
-			if( Z_NONE != z && !object->GetGridSet() )
-				zLayers[z].push_back(object);
+			for( auto &view: *viewCollection )
+			{
+				enumZOrder z = view->GetZ(*object);
+				if( Z_NONE != z && !object->GetGridSet() )
+					zLayers[z].emplace_back(object, view.get());
+			}
 		}
 		else
 		{
 			// TODO: remove fallback to old render
 			if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
-				zLayers[object->GetZ()].push_back(object);
+				zLayers[object->GetZ()].emplace_back(object, nullptr);
 		}
     }
 
 	DrawingContext &dc = static_cast<DrawingContext&>(_tm);
     for( int z = 0; z < Z_COUNT; ++z )
     {
-        for( GC_2dSprite *sprite: zLayers[z] )
+        for( auto &actorWithView: zLayers[z] )
 		{
-			if( ObjectView *view = GetView(*sprite) )
-				view->Draw(world, *sprite, dc);
+			if( actorWithView.second )
+				actorWithView.second->Draw(world, *actorWithView.first, dc);
 			else
 				// TODO: remove fallback to old render
-				sprite->Draw(dc, editorMode);
+				actorWithView.first->Draw(dc, editorMode);
 		}
         zLayers[z].clear();
     }

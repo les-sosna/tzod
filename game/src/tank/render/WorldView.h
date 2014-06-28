@@ -24,14 +24,15 @@ private:
     TextureManager &_tm;
 	Terrain _terrain;
 	
-	std::vector<std::unique_ptr<ObjectView>> _type2view;
+	typedef std::vector<std::unique_ptr<ObjectView>> ViewCollection;
+	std::vector<ViewCollection> _type2views;
 	template <class T, class View, class ...Args>
 	void AddView(Args && ...args)
 	{
 		auto type = T::GetTypeStatic();
-		if (_type2view.size() <= type)
-			_type2view.resize(type + 1);
-		_type2view[type].reset(new View(std::forward<Args>(args)...));
+		if (_type2views.size() <= type)
+			_type2views.resize(type + 1);
+		_type2views[type].emplace_back(new View(std::forward<Args>(args)...));
 	}
-	ObjectView* GetView(const GC_Actor &actor) const;
+	const ViewCollection* GetViews(const GC_Actor &actor) const;
 };

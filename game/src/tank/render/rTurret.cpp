@@ -11,7 +11,7 @@ R_Turret::R_Turret(TextureManager &tm, const char *texPlatform, const char *texW
 
 void R_Turret::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
-	assert(dynamic_cast<const GC_2dSprite*>(&actor));
+	assert(dynamic_cast<const GC_Turret*>(&actor));
 	auto &turret = static_cast<const GC_Turret&>(actor);
 	
 	vec2d pos = turret.GetPos();
