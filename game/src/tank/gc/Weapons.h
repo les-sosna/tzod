@@ -62,7 +62,7 @@ protected:
 
 public:
 	virtual void SetAdvanced(World &world, bool advanced) { _advanced = advanced; }
-	inline  bool GetAdvanced()              { return _advanced;     }
+	bool GetAdvanced() const { return _advanced;     }
 
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 
@@ -82,30 +82,29 @@ public:
 	GC_Weapon(World &world);
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
-	virtual void Kill(World &world);
-
-	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual float GetDefaultRespawnTime() const { return 6.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
-	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
-
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
-	void ProcessRotate(World &world, float dt);
 
 	virtual void SetCrosshair(World &world);
-
 	virtual void Fire(World &world, bool fire) = 0;
+	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
+	// GC_Pickup
+	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	virtual void Attach(World &world, GC_Actor *actor) override;
+	virtual void Detach(World &world) override;
+	
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_ATTACHED_ITEM : GC_Pickup::GetZ(); }
+
+	// GC_Object
+	virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_ATTACHED_ITEM : GC_Pickup::GetZ(); }
-	
 private:
 	virtual void OnUpdateView(World &world) {};
+	void ProcessRotate(World &world, float dt);
 
 #ifdef NETWORK_DEBUG
 /*	virtual DWORD checksum(void) const

@@ -1,16 +1,9 @@
 #pragma once
-#include "ObjectView.h"
+#include "rWeaponBase.h"
 
 #include <stddef.h>
 
 class TextureManager;
-
-class R_WeaponBase : public ObjectView
-{
-public:
-	// ObjectView
-	virtual enumZOrder GetZ(const GC_Actor &actor) const override;
-};
 
 class R_Weapon : public R_WeaponBase
 {
@@ -24,17 +17,18 @@ private:
 	size_t _texId;
 };
 
-class R_WeaponMinigun : public R_WeaponBase
+class R_WeapFireEffect : public ObjectView
 {
 public:
-	R_WeaponMinigun(TextureManager &tm);
+	R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offset);
 	
 	// ObjectView
+	virtual enumZOrder GetZ(const GC_Actor &actor) const override;
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
-	size_t _texId1;
-	size_t _texId2;
+	TextureManager &_tm;
+	size_t _texId;
 };
 
 class R_RipperDisk : public ObjectView
@@ -54,19 +48,6 @@ class R_Crosshair : public ObjectView
 {
 public:
 	R_Crosshair(TextureManager &tm);
-	
-	// ObjectView
-	virtual enumZOrder GetZ(const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
-	
-private:
-	size_t _texId;
-};
-
-class R_Crosshair2 : public ObjectView
-{
-public:
-	R_Crosshair2(TextureManager &tm);
 	
 	// ObjectView
 	virtual enumZOrder GetZ(const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }

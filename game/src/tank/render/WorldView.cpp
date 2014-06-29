@@ -2,6 +2,7 @@
 #include "rAnimatedSprite.h"
 #include "rIndicator.h"
 #include "rLight.h"
+#include "rMinigun.h"
 #include "rSprite.h"
 #include "rText.h"
 #include "rTile.h"
@@ -70,6 +71,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);
 	AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
 	AddView<GC_Weap_Cannon, R_Crosshair>(tm);
+	AddView<GC_Weap_Cannon, R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f);
 	AddView<GC_Weap_Plazma, R_Weapon>(tm, "weap_plazma");
 	AddView<GC_Weap_Plazma, R_Crosshair>(tm);
 	AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");

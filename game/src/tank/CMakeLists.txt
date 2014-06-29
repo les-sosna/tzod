@@ -101,6 +101,7 @@ set(tank_SOURCES
 	render/rAnimatedSprite.cpp
 	render/rIndicator.cpp
 	render/rLight.cpp
+	render/rMinigun.cpp
 	render/rSprite.cpp
 	render/rText.cpp
 	render/rTile.cpp
@@ -108,6 +109,7 @@ set(tank_SOURCES
 	render/rVehicle.cpp
 	render/rWall.cpp
 	render/rWeapon.cpp
+	render/rWeaponBase.cpp
 	render/Terrain.cpp
 	video/ImageLoader.cpp
 #	video/RenderDirect3D.cpp
