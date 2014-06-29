@@ -12,7 +12,7 @@ public:
 	GC_FireWeapEffect() {}
 	GC_FireWeapEffect(FromFile) : GC_2dSprite(FromFile()) {}
 	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
+	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_EXPLODE;*/ }
 };
 
 class GC_Crosshair : public GC_2dSprite
@@ -70,6 +70,7 @@ public:
 	float _time;
 	float _timeStay;
 	float _timeReload;
+	float _lastShotTimestamp;
 
 	float    _angle;
 	Rotator  _rotatorWeap;
@@ -82,6 +83,8 @@ public:
 	GC_Weapon(World &world);
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
+	
+	float GetLastShotTimestamp() const { return _lastShotTimestamp; }
 
 	virtual void SetCrosshair(World &world);
 	virtual void Fire(World &world, bool fire) = 0;

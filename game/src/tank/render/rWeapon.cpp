@@ -20,21 +20,48 @@ void R_Weapon::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 }
 
 
-R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offset)
+R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offset, bool oriented)
 	: _tm(tm)
 	, _texId(tm.FindSprite(tex))
+	, _duration(duration)
+	, _offset(offset)
+	, _oriented(oriented)
 {
 }
 
-enumZOrder R_WeapFireEffect::GetZ(const GC_Actor &actor) const
+enumZOrder R_WeapFireEffect::GetZ(World &world, const GC_Actor &actor) const
 {
-	return Z_EXPLODE;
+	assert(dynamic_cast<const GC_Weapon*>(&actor));
+	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	return (weapon.GetCarrier() && (world.GetTime() - weapon.GetLastShotTimestamp() < _duration)) ? Z_EXPLODE : Z_NONE;
 }
 
 void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	
+	float lastShot = weapon.GetLastShotTimestamp();
+	float advance = (world.GetTime() - lastShot) / _duration;
+	if (advance < 1)
+	{
+		int frame = int(advance * (float) _tm.GetFrameCount(_texId));
+		unsigned char op = (unsigned char) int(255.0f * (1.0f - advance * advance));
+		SpriteColor color = { op, op, op, op };
+		vec2d pos = weapon.GetPos() + weapon.GetDirection() * _offset;
+		vec2d dir;
+		if( _oriented )
+		{
+			dir = weapon.GetDirection();
+		}
+		else
+		{
+			unsigned int hash = reinterpret_cast<unsigned int&>(lastShot);
+			hash ^= (hash >> 16) | (hash << 16);
+			dir = vec2d((float) hash);
+		}
+		dc.DrawSprite(_texId, frame, color, pos.x, pos.y, dir);
+	}
 }
 
 

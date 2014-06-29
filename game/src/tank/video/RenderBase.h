@@ -18,6 +18,9 @@ struct SpriteColor
 
 	SpriteColor() {}
 	SpriteColor(uint32_t c) : color(c) {}
+	SpriteColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+		: rgba{r, g, b, a}
+	{}
 };
 
 struct MyLine

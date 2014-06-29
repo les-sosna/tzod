@@ -10,7 +10,7 @@ void DrawWeaponShadow(DrawingContext &dc, size_t texId, const GC_Weapon &weapon)
 }
 
 
-enumZOrder R_WeaponBase::GetZ(const GC_Actor &actor) const
+enumZOrder R_WeaponBase::GetZ(World &world, const GC_Actor &actor) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);

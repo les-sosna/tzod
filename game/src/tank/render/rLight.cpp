@@ -9,7 +9,7 @@ R_Light::R_Light(TextureManager &tm)
 {
 }
 
-enumZOrder R_Light::GetZ(const GC_Actor &actor) const
+enumZOrder R_Light::GetZ(World &world, const GC_Actor &actor) const
 {
 	assert(dynamic_cast<const GC_Light*>(&actor));
 	auto &light = static_cast<const GC_Light&>(actor);

@@ -87,6 +87,7 @@ GC_Weapon::GC_Weapon(World &world)
   , _time(0)
   , _timeStay(15.0f)
   , _timeReload(0)
+  , _lastShotTimestamp(-FLT_MAX)
   , _rotatorWeap(_angle)
   , _fixmeChAnimate(true)
 {
@@ -397,6 +398,7 @@ void GC_Weap_RocketLauncher::Shoot(World &world)
 			_firing = false;
 
 			_fireEffect->SetVisible(true);
+			_lastShotTimestamp = world.GetTime();
 		}
 	}
 	else
@@ -425,6 +427,7 @@ void GC_Weap_RocketLauncher::Shoot(World &world)
 
 				_time = 0;
 				_fireEffect->SetVisible(true);
+				_lastShotTimestamp = world.GetTime();
 			}
 		}
 
@@ -583,6 +586,7 @@ void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 				_time = 0;
 				_fePos.Set(17.0f, 0);
 				_fireEffect->SetVisible(true);
+				_lastShotTimestamp = world.GetTime();
 
 				PLAY(SND_ACShoot, GetPos());
 			}
@@ -613,6 +617,7 @@ void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 				_time = 0;
 				_fePos.Set(17.0f, -dy);
 				_fireEffect->SetVisible(true);
+				_lastShotTimestamp = world.GetTime();
 
 				PLAY(SND_ACShoot, GetPos());
 			}
@@ -723,6 +728,7 @@ void GC_Weap_Cannon::Fire(World &world, bool fire)
 
 		_time       = 0;
 		_time_smoke = 0.3f;
+		_lastShotTimestamp = world.GetTime();
 
 		_fireEffect->SetVisible(true);
 	}
@@ -815,6 +821,7 @@ void GC_Weap_Plazma::Fire(World &world, bool fire)
 			GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 		_time = 0;
 		_fireEffect->SetVisible(true);
+		_lastShotTimestamp = world.GetTime();
 	}
 }
 
@@ -882,6 +889,7 @@ void GC_Weap_Gauss::Fire(World &world, bool fire)
 			dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 		_time = 0;
+		_lastShotTimestamp = world.GetTime();
 		_fireEffect->SetVisible(true);
 	}
 }
@@ -1499,6 +1507,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 			{
 				_time = frand(_feTime);
 				_feOrient = vrand(1);
+				_lastShotTimestamp = world.GetTime() - frand(_feTime);
 				_fireEffect->SetVisible(true);
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;

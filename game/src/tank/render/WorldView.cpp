@@ -71,11 +71,13 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);
 	AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
 	AddView<GC_Weap_Cannon, R_Crosshair>(tm);
-	AddView<GC_Weap_Cannon, R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f);
+	AddView<GC_Weap_Cannon, R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f, true);
 	AddView<GC_Weap_Plazma, R_Weapon>(tm, "weap_plazma");
 	AddView<GC_Weap_Plazma, R_Crosshair>(tm);
+	AddView<GC_Weap_Plazma, R_WeapFireEffect>(tm, "particle_plazma_fire", 0.2f, 0.0f, true);
 	AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");
 	AddView<GC_Weap_Gauss, R_Crosshair>(tm);
+	AddView<GC_Weap_Gauss, R_WeapFireEffect>(tm, "particle_gaussfire", 0.15f, 0.0f, true);
 	AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
 	AddView<GC_Weap_Ram, R_Crosshair>(tm);
 	AddView<GC_Weap_Ram, R_FuelIndicator>(tm);
@@ -86,6 +88,8 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Ripper, R_RipperDisk>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Minigun, R_Crosshair2>(tm);
+	AddView<GC_Weap_Minigun, R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true);
+	AddView<GC_Weap_Minigun, R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
 	AddView<GC_Weap_Zippo, R_Crosshair>(tm);
 
@@ -165,7 +169,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 			{
 				for( auto &view: *viewCollection )
 				{
-					enumZOrder z = view->GetZ(*object);
+					enumZOrder z = view->GetZ(world, *object);
 					if( Z_NONE != z && object->GetGridSet() )
 						zLayers[z].emplace_back(object, view.get());
 				}
@@ -185,7 +189,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 		{
 			for( auto &view: *viewCollection )
 			{
-				enumZOrder z = view->GetZ(*object);
+				enumZOrder z = view->GetZ(world, *object);
 				if( Z_NONE != z && !object->GetGridSet() )
 					zLayers[z].emplace_back(object, view.get());
 			}
