@@ -48,6 +48,8 @@ public:
 	int _frame;
 	FILE *_dump;
 #endif
+	
+	static const unsigned int NET_RAND_MAX = 0xffff;
 
 	PtrList<GC_Object>& GetList(GlobalListID id) { return _objectLists[id]; }
 	const PtrList<GC_Object>& GetList(GlobalListID id) const { return _objectLists[id]; }

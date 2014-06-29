@@ -533,12 +533,12 @@ void World::PauseSound(bool pause)
 
 int World::net_rand()
 {
-	return ((_seed = _seed * 214013L + 2531011L) >> 16) & RAND_MAX;
+	return ((_seed = _seed * 214013L + 2531011L) >> 16) & NET_RAND_MAX;
 }
 
 float World::net_frand(float max)
 {
-	return (float) net_rand() / (float) RAND_MAX * max;
+	return (float) net_rand() / (float) NET_RAND_MAX * max;
 }
 
 vec2d World::net_vrand(float len)
