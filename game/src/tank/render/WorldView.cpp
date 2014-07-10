@@ -3,6 +3,7 @@
 #include "rIndicator.h"
 #include "rLight.h"
 #include "rMinigun.h"
+#include "rPredicate.h"
 #include "rSprite.h"
 #include "rText.h"
 #include "rTile.h"
@@ -26,6 +27,17 @@
 #include "gc/Macros.h"
 
 #include "constants.h" // TODO: ANIMATION_FPS
+
+static bool IsWeaponAdvanced(World &world, const GC_Actor &actor)
+{
+	assert(dynamic_cast<const GC_Weapon&>(actor));
+	return static_cast<const GC_Weapon&>(actor).GetAdvanced();
+}
+static bool IsWeaponNormal(World &world, const GC_Actor &actor)
+{
+	assert(dynamic_cast<const GC_Weapon&>(actor));
+	return !static_cast<const GC_Weapon&>(actor).GetAdvanced();
+}
 
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
@@ -69,6 +81,8 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_RocketLauncher, R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true);
 	AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
 	AddView<GC_Weap_AutoCannon, R_Crosshair>(tm);
+	AddView<GC_Weap_AutoCannon, R_Predicate<R_WeapFireEffect>>(IsWeaponAdvanced, tm, "particle_fire4", 0.135f, 17.0f, true);
+	AddView<GC_Weap_AutoCannon, R_Predicate<R_WeapFireEffect>>(IsWeaponNormal, tm, "particle_fire3", 0.135f, 17.0f, true);
 	AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);
 	AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
 	AddView<GC_Weap_Cannon, R_Crosshair>(tm);
@@ -89,7 +103,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	AddView<GC_Weap_Ripper, R_RipperDisk>(tm);
 	AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
 	AddView<GC_Weap_Minigun, R_Crosshair2>(tm);
-	AddView<GC_Weap_Minigun, R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true);
+	AddView<GC_Weap_Minigun, R_Predicate<R_WeapFireEffect>>(IsWeaponAdvanced, tm, "particle_fire3", 0.1f, 17.0f, true);
 	AddView<GC_Weap_Minigun, R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false);
 	AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
 	AddView<GC_Weap_Zippo, R_Crosshair>(tm);
