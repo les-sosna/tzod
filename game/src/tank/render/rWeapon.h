@@ -20,7 +20,7 @@ private:
 class R_WeapFireEffect : public ObjectView
 {
 public:
-	R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offset, bool oriented);
+	R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offsetX, bool oriented);
 	
 	// ObjectView
 	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const override;
@@ -30,7 +30,7 @@ private:
 	TextureManager &_tm;
 	size_t _texId;
 	float _duration;
-	float _offset;
+	float _offsetX;
 	bool _oriented;
 };
 

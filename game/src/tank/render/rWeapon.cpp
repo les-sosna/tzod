@@ -20,11 +20,11 @@ void R_Weapon::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 }
 
 
-R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offset, bool oriented)
+R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offsetX, bool oriented)
 	: _tm(tm)
 	, _texId(tm.FindSprite(tex))
 	, _duration(duration)
-	, _offset(offset)
+	, _offsetX(offsetX)
 	, _oriented(oriented)
 {
 }
@@ -48,7 +48,8 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 		int frame = int(advance * (float) _tm.GetFrameCount(_texId));
 		unsigned char op = (unsigned char) int(255.0f * (1.0f - advance * advance));
 		SpriteColor color = { op, op, op, op };
-		vec2d pos = weapon.GetPos() + weapon.GetDirection() * _offset;
+		vec2d pos = weapon.GetPos() + weapon.GetDirection() * _offsetX;
+		pos += Vec2dAddDirection(weapon.GetDirection(), vec2d(0, -1)) * weapon.GetFirePointOffset();
 		vec2d dir;
 		if( _oriented )
 		{

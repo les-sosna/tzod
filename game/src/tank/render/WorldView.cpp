@@ -66,6 +66,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	
 	AddView<GC_Weap_RocketLauncher, R_Weapon>(tm, "weap_ak47");
 	AddView<GC_Weap_RocketLauncher, R_Crosshair>(tm);
+	AddView<GC_Weap_RocketLauncher, R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true);
 	AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
 	AddView<GC_Weap_AutoCannon, R_Crosshair>(tm);
 	AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);

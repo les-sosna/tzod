@@ -85,6 +85,7 @@ public:
 	virtual ~GC_Weapon();
 	
 	float GetLastShotTimestamp() const { return _lastShotTimestamp; }
+	float GetFirePointOffset() const { return _fePos.y; }
 
 	virtual void SetCrosshair(World &world);
 	virtual void Fire(World &world, bool fire) = 0;
