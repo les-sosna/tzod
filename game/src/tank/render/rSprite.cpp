@@ -2,9 +2,8 @@
 #include "gc/2dSprite.h"
 #include "video/TextureManager.h"
 
-R_Sprite::R_Sprite(TextureManager &tm, const char *tex, enumZOrder z)
+R_Sprite::R_Sprite(TextureManager &tm, const char *tex)
 	: _texId(tm.FindSprite(tex))
-	, _z(z)
 {
 }
 	

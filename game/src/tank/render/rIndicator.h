@@ -5,13 +5,10 @@
 
 class TextureManager;
 
-class R_HealthIndicator : public ObjectView
+class R_HealthIndicator : public ObjectRFunc
 {
 public:
 	R_HealthIndicator(TextureManager &tm);
-	
-	// ObjectView
-	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
@@ -19,13 +16,10 @@ private:
 	size_t _texId;
 };
 
-class R_AmmoIndicator : public ObjectView
+class R_AmmoIndicator : public ObjectRFunc
 {
 public:
 	R_AmmoIndicator(TextureManager &tm);
-	
-	// ObjectView
-	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
@@ -33,13 +27,10 @@ private:
 	size_t _texId;
 };
 
-class R_FuelIndicator : public ObjectView
+class R_FuelIndicator : public ObjectRFunc
 {
 public:
 	R_FuelIndicator(TextureManager &tm);
-	
-	// ObjectView
-	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:

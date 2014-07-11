@@ -7,9 +7,8 @@ static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
 static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
 
-R_Tile::R_Tile(TextureManager &tm, const char *tex, enumZOrder z)
+R_Tile::R_Tile(TextureManager &tm, const char *tex)
 	: _texId(tm.FindSprite(tex))
-	, _z(z)
 {
 	assert(9 == tm.GetFrameCount(_texId));
 }

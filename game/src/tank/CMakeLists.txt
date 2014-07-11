@@ -98,6 +98,7 @@ set(tank_SOURCES
 #	network/TankServer.cpp
 #	network/Variant.cpp
 	render/WorldView.cpp
+	render/ObjectViewsSelector.cpp
 	render/rAnimatedSprite.cpp
 	render/rIndicator.cpp
 	render/rLight.cpp

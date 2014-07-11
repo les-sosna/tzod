@@ -1,30 +1,24 @@
 #pragma once
 #include "ObjectView.h"
-
 #include <functional>
 
-template <class RenderType>
-class R_Predicate : public ObjectView
+template <class ZFuncType>
+class Z_Predicate : public ObjectZFunc
 {
 public:
 	template <class F, class ...Args>
-	R_Predicate(F && cond, Args && ...args)
+	Z_Predicate(F && cond, Args && ...args)
 		: _condition(std::forward<F>(cond))
-		, _render(std::forward<Args>(args)...)
+		, _zfunc(std::forward<Args>(args)...)
 	{
 	}
 	
-	// ObjectView
-	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override
 	{
-		return _condition(world, actor) ? _render.GetZ(world, actor) : Z_NONE;
-	}
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override
-	{
-		_render.Draw(world, actor, dc);
+		return _condition(world, actor) ? _zfunc.GetZ(world, actor) : Z_NONE;
 	}
 	
 private:
 	std::function<bool(const World &, const GC_Actor &)> _condition;
-	RenderType _render;
+	ZFuncType _zfunc;
 };

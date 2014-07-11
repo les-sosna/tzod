@@ -11,6 +11,7 @@
 #include "rVehicle.h"
 #include "rWall.h"
 #include "rWeapon.h"
+#include "rWeaponBase.h"
 #include "config/Config.h"
 #include "gc/Camera.h"
 #include "gc/Light.h"
@@ -31,12 +32,6 @@
 #include "constants.h" // TODO: ANIMATION_FPS
 
 
-const ObjectViewsSelector::ViewCollection* ObjectViewsSelector::GetViews(const GC_Actor &actor) const
-{
-	ObjectType type = actor.GetType();
-	return (type < _type2views.size() && !_type2views[type].empty()) ? &_type2views[type] : nullptr;
-}
-
 
 static bool IsWeaponAdvanced(const World &world, const GC_Actor &actor)
 {
@@ -49,87 +44,93 @@ static bool IsWeaponNormal(const World &world, const GC_Actor &actor)
 	return !static_cast<const GC_Weapon&>(actor).GetAdvanced();
 }
 
+template <class T, class ...Args>
+static std::unique_ptr<T> Make(Args && ...args)
+{
+	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+
 
 WorldView::WorldView(IRender &render, TextureManager &tm)
     : _render(render)
     , _tm(tm)
 	, _terrain(tm)
 {
-	_gameViews.AddView<GC_Wall, R_Wall>(tm, "brick");
-	_gameViews.AddView<GC_Wall_Concrete, R_Wall>(tm, "concrete");
+	_gameViews.AddView<GC_Wall>(Make<Z_Const>(Z_WALLS), Make<R_Wall>(tm, "brick"));
+	_gameViews.AddView<GC_Wall_Concrete>(Make<Z_Const>(Z_WALLS), Make<R_Wall>(tm, "concrete"));
 	
-	_gameViews.AddView<GC_Crate, R_Sprite>(tm, "crate01", Z_WALLS);
+	_gameViews.AddView<GC_Crate>(Make<Z_Const>(Z_WALLS), Make<R_Sprite>(tm, "crate01"));
 	
-	_gameViews.AddView<GC_TankBullet, R_Sprite>(tm, "projectile_cannon", Z_PROJECTILE);
-	_gameViews.AddView<GC_Rocket, R_Sprite>(tm, "projectile_rocket", Z_PROJECTILE);
-//	_gameViews.AddView<GC_Bullet, R_Sprite>(tm, "projectile_bullet", Z_PROJECTILE);
-	_gameViews.AddView<GC_PlazmaClod, R_Sprite>(tm, "projectile_plazma", Z_PROJECTILE);
-	_gameViews.AddView<GC_BfgCore, R_AnimatedSprite>(tm, "projectile_bfg", Z_PROJECTILE, 10);
-// TODO:	_gameViews.AddView<GC_FireSpark, xxx>(tm, "projectile_fire", Z_PROJECTILE);
-	_gameViews.AddView<GC_ACBullet, R_Sprite>(tm, "projectile_ac", Z_PROJECTILE);
-	_gameViews.AddView<GC_Disk, R_Sprite>(tm, "projectile_disk", Z_PROJECTILE);
+	_gameViews.AddView<GC_TankBullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_cannon"));
+	_gameViews.AddView<GC_Rocket>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_rocket"));
+//	_gameViews.AddView<GC_Bullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_bullet"));
+	_gameViews.AddView<GC_PlazmaClod>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_plazma"));
+	_gameViews.AddView<GC_BfgCore>(Make<Z_Const>(Z_PROJECTILE), Make<R_AnimatedSprite>(tm, "projectile_bfg", 10));
+// TODO:	_gameViews.AddView<GC_FireSpark>(Make<Z_Const>(Z_PROJECTILE), Make<xxx>(tm, "projectile_fire"));
+	_gameViews.AddView<GC_ACBullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_ac"));
+	_gameViews.AddView<GC_Disk>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_disk"));
 	
-	_gameViews.AddView<GC_Spotlight, R_Sprite>(tm, "spotlight", Z_PROJECTILE);
-	_gameViews.AddView<GC_Light, R_Light>(tm);
+	_gameViews.AddView<GC_Spotlight>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "spotlight"));
+	_gameViews.AddView<GC_Light>(Make<Z_Light>(), Make<R_Light>(tm));
 	
-	_gameViews.AddView<GC_Tank_Light, R_Vehicle>(tm);
-	_gameViews.AddView<GC_Tank_Light, R_HealthIndicator>(tm);
+	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLES), Make<R_Vehicle>(tm));
+	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
 	
-	_gameViews.AddView<GC_Text_ToolTip, R_Text>(tm);
+	_gameViews.AddView<GC_Text_ToolTip>(Make<Z_Const>(Z_PARTICLE), Make<R_Text>(tm));
 	
-	_gameViews.AddView<GC_TurretCannon, R_Turret>(tm, "turret_platform", "turret_cannon");
-	_gameViews.AddView<GC_TurretCannon, R_HealthIndicator>(tm);
-	_gameViews.AddView<GC_TurretRocket, R_Turret>(tm, "turret_platform", "turret_rocket");
-	_gameViews.AddView<GC_TurretRocket, R_HealthIndicator>(tm);
-	_gameViews.AddView<GC_TurretMinigun, R_Turret>(tm, "turret_mg_wake", "turret_mg");
-	_gameViews.AddView<GC_TurretMinigun, R_HealthIndicator>(tm);
-	_gameViews.AddView<GC_TurretGauss, R_Turret>(tm, "turret_gauss_wake", "turret_gauss");
-	_gameViews.AddView<GC_TurretGauss, R_HealthIndicator>(tm);
+	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_cannon"));
+	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_rocket"));
+	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_mg_wake", "turret_mg"));
+	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_gauss_wake", "turret_gauss"));
+	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
 	
-	_gameViews.AddView<GC_Weap_RocketLauncher, R_Weapon>(tm, "weap_ak47");
-	_gameViews.AddView<GC_Weap_RocketLauncher, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_RocketLauncher, R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true);
-	_gameViews.AddView<GC_Weap_AutoCannon, R_Weapon>(tm, "weap_ac");
-	_gameViews.AddView<GC_Weap_AutoCannon, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_AutoCannon, R_Predicate<R_WeapFireEffect>>(IsWeaponAdvanced, tm, "particle_fire4", 0.135f, 17.0f, true);
-	_gameViews.AddView<GC_Weap_AutoCannon, R_Predicate<R_WeapFireEffect>>(IsWeaponNormal, tm, "particle_fire3", 0.135f, 17.0f, true);
-	_gameViews.AddView<GC_Weap_AutoCannon, R_AmmoIndicator>(tm);
-	_gameViews.AddView<GC_Weap_Cannon, R_Weapon>(tm, "weap_cannon");
-	_gameViews.AddView<GC_Weap_Cannon, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Cannon, R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f, true);
-	_gameViews.AddView<GC_Weap_Plazma, R_Weapon>(tm, "weap_plazma");
-	_gameViews.AddView<GC_Weap_Plazma, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Plazma, R_WeapFireEffect>(tm, "particle_plazma_fire", 0.2f, 0.0f, true);
-	_gameViews.AddView<GC_Weap_Gauss, R_Weapon>(tm, "weap_gauss");
-	_gameViews.AddView<GC_Weap_Gauss, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Gauss, R_WeapFireEffect>(tm, "particle_gaussfire", 0.15f, 0.0f, true);
-	_gameViews.AddView<GC_Weap_Ram, R_Weapon>(tm, "weap_ram");
-	_gameViews.AddView<GC_Weap_Ram, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Ram, R_FuelIndicator>(tm);
-	_gameViews.AddView<GC_Weap_BFG, R_Weapon>(tm, "weap_bfg");
-	_gameViews.AddView<GC_Weap_BFG, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Ripper, R_Weapon>(tm, "weap_ripper");
-	_gameViews.AddView<GC_Weap_Ripper, R_Crosshair>(tm);
-	_gameViews.AddView<GC_Weap_Ripper, R_RipperDisk>(tm);
-	_gameViews.AddView<GC_Weap_Minigun, R_WeaponMinigun>(tm);
-	_gameViews.AddView<GC_Weap_Minigun, R_Crosshair2>(tm);
-	_gameViews.AddView<GC_Weap_Minigun, R_Predicate<R_WeapFireEffect>>(IsWeaponAdvanced, tm, "particle_fire3", 0.1f, 17.0f, true);
-	_gameViews.AddView<GC_Weap_Minigun, R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false);
-	_gameViews.AddView<GC_Weap_Zippo, R_Weapon>(tm, "weap_zippo");
-	_gameViews.AddView<GC_Weap_Zippo, R_Crosshair>(tm);
+	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ak47"));
+	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_WeapFireEffect>(0.1f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ac"));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponAdvanced, 0.135f), Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponNormal, 0.135f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_AmmoIndicator>(tm));
+	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_cannon"));
+	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_WeapFireEffect>(0.2f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f, true));
+	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_plazma"));
+	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_WeapFireEffect>(0.2f), Make<R_WeapFireEffect>(tm, "particle_plazma_fire", 0.2f, 0.0f, true));
+	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_gauss"));
+	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_WeapFireEffect>(0.15f), Make<R_WeapFireEffect>(tm, "particle_gaussfire", 0.15f, 0.0f, true));
+	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ram"));
+	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_FuelIndicator>(tm));
+	_gameViews.AddView<GC_Weap_BFG>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_bfg"));
+	_gameViews.AddView<GC_Weap_BFG>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Ripper>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ripper"));
+	_gameViews.AddView<GC_Weap_Ripper>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
+	_gameViews.AddView<GC_Weap_Ripper>(Make<Z_Const>(Z_PROJECTILE), Make<R_RipperDisk>(tm));
+	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Weapon>(), Make<R_WeaponMinigun>(tm));
+	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair2>(tm));
+	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponAdvanced, 0.1f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true));
+	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_WeapFireEffect>(0.1f), Make<R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false));
+	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_zippo"));
+	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 
 //	_gameViews.AddView<GC_pu_Health, R_AnimatedSprite>(tm, "pu_health", Z_FREE_ITEM, ANIMATION_FPS);
-	_gameViews.AddView<GC_pu_Mine, R_Sprite>(tm, "item_mine", Z_FREE_ITEM);
+	_gameViews.AddView<GC_pu_Mine>(Make<Z_Const>(Z_FREE_ITEM), Make<R_Sprite>(tm, "item_mine"));
 //	_gameViews.AddView<GC_pu_Shield, xxx>(tm);
 //	_gameViews.AddView<GC_pu_Shock, xxx>(tm);
 //	_gameViews.AddView<GC_pu_Booster, xxx>(tm);
 	
-	_gameViews.AddView<GC_Wood, R_Tile>(tm, "wood", Z_WOOD);
-	_gameViews.AddView<GC_Water, R_Tile>(tm, "water", Z_WATER);
+	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
+	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
 
-	_editorViews.AddView<GC_HideLabel, R_Sprite>(tm, "editor_item", Z_EDITOR);
-	_editorViews.AddView<GC_SpawnPoint, R_Sprite>(tm, "editor_respawn", Z_EDITOR);
-	_editorViews.AddView<GC_Trigger, R_Sprite>(tm, "editor_trigger", Z_WOOD);
+	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
+	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
+	_editorViews.AddView<GC_Trigger>(Make<Z_Const>(Z_WOOD), Make<R_Sprite>(tm, "editor_trigger"));
 }
 
 WorldView::~WorldView()
@@ -181,7 +182,7 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 	int xmax = std::min(world._locationsX - 1, int(view.right / LOCATION_SIZE));
 	int ymax = std::min(world._locationsY - 1, int(view.bottom / LOCATION_SIZE) + 1);
 
-    static std::vector<std::pair<const GC_2dSprite*, const ObjectView*>> zLayers[Z_COUNT];
+    static std::vector<std::pair<const GC_2dSprite*, const ObjectRFunc*>> zLayers[Z_COUNT];
     for( int x = xmin; x <= xmax; ++x )
     for( int y = ymin; y <= ymax; ++y )
     {
@@ -191,9 +192,9 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 			{
 				for( auto &view: *viewCollection )
 				{
-					enumZOrder z = view->GetZ(world, *object);
+					enumZOrder z = view.zfunc->GetZ(world, *object);
 					if( Z_NONE != z && object->GetGridSet() )
-						zLayers[z].emplace_back(object, view.get());
+						zLayers[z].emplace_back(object, view.rfunc.get());
 				}
 			}
 			else
@@ -211,9 +212,9 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 		{
 			for( auto &view: *viewCollection )
 			{
-				enumZOrder z = view->GetZ(world, *object);
+				enumZOrder z = view.zfunc->GetZ(world, *object);
 				if( Z_NONE != z && !object->GetGridSet() )
-					zLayers[z].emplace_back(object, view.get());
+					zLayers[z].emplace_back(object, view.rfunc.get());
 			}
 		}
 		else

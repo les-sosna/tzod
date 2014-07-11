@@ -3,10 +3,9 @@
 #include "gc/World.h"
 #include "video/TextureManager.h"
 
-R_AnimatedSprite::R_AnimatedSprite(TextureManager &tm, const char *tex, enumZOrder z, float frameRate)
+R_AnimatedSprite::R_AnimatedSprite(TextureManager &tm, const char *tex, float frameRate)
 	: _tm(tm)
 	, _texId(tm.FindSprite(tex))
-	, _z(z)
 	, _frameRate(frameRate)
 {
 }
