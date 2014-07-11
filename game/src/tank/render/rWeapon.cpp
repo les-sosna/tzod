@@ -29,7 +29,7 @@ R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float du
 {
 }
 
-enumZOrder R_WeapFireEffect::GetZ(World &world, const GC_Actor &actor) const
+enumZOrder R_WeapFireEffect::GetZ(const World &world, const GC_Actor &actor) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);

@@ -11,7 +11,7 @@ public:
 	R_Wall(TextureManager &tm, const char *tex);
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const { return Z_WALLS; }
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return Z_WALLS; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:

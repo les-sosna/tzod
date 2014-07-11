@@ -11,7 +11,7 @@ public:
 	R_Tile(TextureManager &tm, const char *tex, enumZOrder z);
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const { return _z; }
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return _z; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:

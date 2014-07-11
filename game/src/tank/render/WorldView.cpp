@@ -28,12 +28,12 @@
 
 #include "constants.h" // TODO: ANIMATION_FPS
 
-static bool IsWeaponAdvanced(World &world, const GC_Actor &actor)
+static bool IsWeaponAdvanced(const World &world, const GC_Actor &actor)
 {
 	assert(dynamic_cast<const GC_Weapon&>(actor));
 	return static_cast<const GC_Weapon&>(actor).GetAdvanced();
 }
-static bool IsWeaponNormal(World &world, const GC_Actor &actor)
+static bool IsWeaponNormal(const World &world, const GC_Actor &actor)
 {
 	assert(dynamic_cast<const GC_Weapon&>(actor));
 	return !static_cast<const GC_Weapon&>(actor).GetAdvanced();

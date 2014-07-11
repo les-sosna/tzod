@@ -23,7 +23,7 @@ public:
 	R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offsetX, bool oriented);
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const override;
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override;
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
@@ -40,7 +40,7 @@ public:
 	R_RipperDisk(TextureManager &tm);
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const override { return Z_PROJECTILE; }
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override { return Z_PROJECTILE; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
@@ -53,7 +53,7 @@ public:
 	R_Crosshair(TextureManager &tm);
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const { return Z_VEHICLE_LABEL; }
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:

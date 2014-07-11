@@ -12,5 +12,5 @@ class R_WeaponBase : public ObjectView
 {
 public:
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const override;
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override;
 };

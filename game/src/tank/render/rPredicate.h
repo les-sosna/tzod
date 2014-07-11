@@ -15,7 +15,7 @@ public:
 	}
 	
 	// ObjectView
-	virtual enumZOrder GetZ(World &world, const GC_Actor &actor) const
+	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const
 	{
 		return _condition(world, actor) ? _render.GetZ(world, actor) : Z_NONE;
 	}
@@ -25,6 +25,6 @@ public:
 	}
 	
 private:
-	std::function<bool(World &, const GC_Actor &)> _condition;
+	std::function<bool(const World &, const GC_Actor &)> _condition;
 	RenderType _render;
 };
