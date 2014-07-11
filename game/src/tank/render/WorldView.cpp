@@ -64,7 +64,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	_gameViews.AddView<GC_Rocket, R_Sprite>(tm, "projectile_rocket", Z_PROJECTILE);
 //	_gameViews.AddView<GC_Bullet, R_Sprite>(tm, "projectile_bullet", Z_PROJECTILE);
 	_gameViews.AddView<GC_PlazmaClod, R_Sprite>(tm, "projectile_plazma", Z_PROJECTILE);
-	_gameViews.AddView<GC_BfgCore, R_AnimatedSprite>(tm, "projectile_bfg", Z_PROJECTILE, ANIMATION_FPS);
+	_gameViews.AddView<GC_BfgCore, R_AnimatedSprite>(tm, "projectile_bfg", Z_PROJECTILE, 10);
 // TODO:	_gameViews.AddView<GC_FireSpark, xxx>(tm, "projectile_fire", Z_PROJECTILE);
 	_gameViews.AddView<GC_ACBullet, R_Sprite>(tm, "projectile_ac", Z_PROJECTILE);
 	_gameViews.AddView<GC_Disk, R_Sprite>(tm, "projectile_disk", Z_PROJECTILE);
