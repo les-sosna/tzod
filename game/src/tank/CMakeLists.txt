@@ -100,6 +100,7 @@ set(tank_SOURCES
 	render/WorldView.cpp
 	render/ObjectViewsSelector.cpp
 	render/rAnimatedSprite.cpp
+	render/rBrickFragment.cpp
 	render/rIndicator.cpp
 	render/rLight.cpp
 	render/rMinigun.cpp

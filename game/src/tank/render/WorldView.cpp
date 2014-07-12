@@ -1,5 +1,6 @@
 #include "WorldView.h"
 #include "rAnimatedSprite.h"
+#include "rBrickFragment.h"
 #include "rIndicator.h"
 #include "rLight.h"
 #include "rMinigun.h"
@@ -21,7 +22,8 @@
 #include "gc/RigidBody.h"
 #include "gc/Crate.h"
 #include "gc/GameClasses.h"
-#include "gc/Indicators.h"
+#include "gc/indicators.h"
+#include "gc/particles.h"
 #include "gc/projectiles.h"
 #include "gc/Trigger.h"
 #include "gc/Turrets.h"
@@ -140,6 +142,8 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	
 	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
+	
+	_gameViews.AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
 
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
