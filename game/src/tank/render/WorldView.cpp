@@ -38,10 +38,15 @@ static bool IsWeaponAdvanced(const World &world, const GC_Actor &actor)
 	assert(dynamic_cast<const GC_Weapon&>(actor));
 	return static_cast<const GC_Weapon&>(actor).GetAdvanced();
 }
-static bool IsWeaponNormal(const World &world, const GC_Actor &actor)
+static bool IsPickupVisible(const World &world, const GC_Actor &actor)
 {
-	assert(dynamic_cast<const GC_Weapon&>(actor));
-	return !static_cast<const GC_Weapon&>(actor).GetAdvanced();
+	assert(dynamic_cast<const GC_Pickup&>(actor));
+	return static_cast<const GC_Pickup&>(actor).GetVisible();
+}
+static bool IsPickupAttached(const World &world, const GC_Actor &actor)
+{
+	assert(dynamic_cast<const GC_Pickup&>(actor));
+	return nullptr != static_cast<const GC_Pickup&>(actor).GetCarrier();
 }
 
 template <class T, class ...Args>
@@ -93,7 +98,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ac"));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponAdvanced, 0.135f), Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
-	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponNormal, 0.135f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(Not(IsWeaponAdvanced), 0.135f), Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_AmmoIndicator>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_cannon"));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
@@ -119,11 +124,19 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_zippo"));
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 
-//	_gameViews.AddView<GC_pu_Health, R_AnimatedSprite>(tm, "pu_health", Z_FREE_ITEM, ANIMATION_FPS);
+	_gameViews.AddView<GC_pu_Health>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
+									 Make<R_AnimatedSprite>(tm, "pu_health", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Mine>(Make<Z_Const>(Z_FREE_ITEM), Make<R_Sprite>(tm, "item_mine"));
-//	_gameViews.AddView<GC_pu_Shield, xxx>(tm);
-//	_gameViews.AddView<GC_pu_Shock, xxx>(tm);
-//	_gameViews.AddView<GC_pu_Booster, xxx>(tm);
+	_gameViews.AddView<GC_pu_Shield>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_PARTICLE),
+									 Make<R_AnimatedSprite>(tm, "shield", ANIMATION_FPS));
+	_gameViews.AddView<GC_pu_Shield>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
+									 Make<R_AnimatedSprite>(tm, "pu_inv", ANIMATION_FPS));
+	_gameViews.AddView<GC_pu_Shock>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
+									Make<R_AnimatedSprite>(tm, "pu_shock", ANIMATION_FPS));
+	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
+									  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
+	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_FREE_ITEM),
+									  Make<R_Sprite>(tm, "booster"));
 	
 	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
