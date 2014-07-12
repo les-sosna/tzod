@@ -6,9 +6,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Brick_Fragment_01 : public GC_2dSprite
+class GC_BrickFragment : public GC_2dSprite
 {
-	DECLARE_SELF_REGISTRATION(GC_Brick_Fragment_01);
+	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
     typedef GC_2dSprite base;
 
 private:
@@ -21,8 +21,8 @@ private:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Brick_Fragment_01(World &world, const vec2d &v0);
-	GC_Brick_Fragment_01(FromFile);
+	GC_BrickFragment(World &world, const vec2d &v0);
+	GC_BrickFragment(FromFile);
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_PARTICLE; }

@@ -44,7 +44,7 @@ void GC_Crate::OnDestroy(World &world)
 
 	for( int n = 0; n < 5; ++n )
 	{
-		auto p = new GC_Brick_Fragment_01(world, vec2d(frand(100.0f) - 50, -frand(100.0f)));
+		auto p = new GC_BrickFragment(world, vec2d(frand(100.0f) - 50, -frand(100.0f)));
         p->Register(world);
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}

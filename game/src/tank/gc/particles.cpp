@@ -6,14 +6,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_Brick_Fragment_01)
+IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 {
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Brick_Fragment_01, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_BrickFragment, LIST_timestep);
 
-GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
+GC_BrickFragment::GC_BrickFragment(World &world, const vec2d &v0)
   : GC_2dSprite()
   , _startFrame(rand())
   , _time(0)
@@ -26,12 +26,12 @@ GC_Brick_Fragment_01::GC_Brick_Fragment_01(World &world, const vec2d &v0)
     SetShadow(true);
 }
 
-GC_Brick_Fragment_01::GC_Brick_Fragment_01(FromFile)
+GC_BrickFragment::GC_BrickFragment(FromFile)
   : GC_2dSprite(FromFile())
 {
 }
 
-void GC_Brick_Fragment_01::Serialize(World &world, SaveFile &f)
+void GC_BrickFragment::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
 	f.Serialize(_startFrame);
@@ -40,7 +40,7 @@ void GC_Brick_Fragment_01::Serialize(World &world, SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_Brick_Fragment_01::TimeStepFloat(World &world, float dt)
+void GC_BrickFragment::TimeStepFloat(World &world, float dt)
 {
 	_time += dt;
 
