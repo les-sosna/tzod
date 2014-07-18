@@ -197,12 +197,12 @@ private:
 	float _timeLife;
 	float _rotation;
 
-	float GetRadius() const { return (_time + 0.2f) * 50; }
-
 public:
 	GC_FireSpark(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_FireSpark(FromFile);
 	virtual ~GC_FireSpark();
+	
+	float GetRadius() const { return (_time + 0.2f) * 50; }
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;

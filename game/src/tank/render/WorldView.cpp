@@ -1,6 +1,7 @@
 #include "WorldView.h"
 #include "rAnimatedSprite.h"
 #include "rBrickFragment.h"
+#include "rFireSpark.h"
 #include "rIndicator.h"
 #include "rLight.h"
 #include "rMinigun.h"
@@ -73,7 +74,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 //	_gameViews.AddView<GC_Bullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_bullet"));
 	_gameViews.AddView<GC_PlazmaClod>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_plazma"));
 	_gameViews.AddView<GC_BfgCore>(Make<Z_Const>(Z_PROJECTILE), Make<R_AnimatedSprite>(tm, "projectile_bfg", 10));
-// TODO:	_gameViews.AddView<GC_FireSpark>(Make<Z_Const>(Z_PROJECTILE), Make<xxx>(tm, "projectile_fire"));
+	_gameViews.AddView<GC_FireSpark>(Make<Z_Const>(Z_PROJECTILE), Make<R_FireSpark>(tm));
 	_gameViews.AddView<GC_ACBullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_ac"));
 	_gameViews.AddView<GC_Disk>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_disk"));
 	
