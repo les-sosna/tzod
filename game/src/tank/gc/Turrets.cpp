@@ -433,7 +433,7 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f);
+			auto p = new GC_Particle(world, SPEED_SMOKE + vec2d(_dir) * 50, tex, frand(0.3f) + 0.2f);
             p->Register(world);
             p->MoveTo(world, GetPos() + vec2d(_dir) * 33.0f);
 		}
@@ -720,7 +720,7 @@ void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
 			float ang = _dir + world.net_frand(0.1f) - 0.05f;
 			vec2d a(_dir);
 			(new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false))->Register(world);
-			auto p = new GC_Particle(world, Z_PARTICLE, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
+			auto p = new GC_Particle(world, a * (400 + frand(400.0f)), tex, frand(0.06f) + 0.03f);
             p->Register(world);
             p->MoveTo(world, GetPos() + a * 31.9f);
 		}

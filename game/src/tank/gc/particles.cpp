@@ -65,13 +65,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 
 IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
-GC_Particle::GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const TextureCache &texture,
+GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
                          float lifeTime, const vec2d &orient)
   : _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
   , _velocity(v)
-  , _zOrder(zOrder)
 {
 	assert(_timeLife > 0);
 
@@ -81,7 +80,6 @@ GC_Particle::GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const 
 
 GC_Particle::GC_Particle(FromFile)
   : GC_2dSprite(FromFile())
-  , _zOrder(Z_NONE)
 {
 }
 
@@ -92,7 +90,6 @@ void GC_Particle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
 	f.Serialize(_velocity);
-	f.Serialize(_zOrder);
 }
 
 void GC_Particle::TimeStepFloat(World &world, float dt)
@@ -140,7 +137,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
 
 GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture,
                                      float lifeTime, const vec2d &orient, float size)
-  : GC_Particle(world, Z_PARTICLE, v, texture, lifeTime, orient)
+  : GC_Particle(world, v, texture, lifeTime, orient)
   , _size(size)
 {
 }
@@ -160,6 +157,23 @@ void GC_ParticleScaled::Draw(DrawingContext &dc, bool editorMode) const
 {
 	dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), 
 		GetPos().x, GetPos().y, _size, _size, GetDirection());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_SELF_REGISTRATION(GC_ParticleExplosion)
+{
+	return true;
+}
+
+IMPLEMENT_SELF_REGISTRATION(GC_ParticleDecal)
+{
+	return true;
+}
+
+IMPLEMENT_SELF_REGISTRATION(GC_ParticleGauss)
+{
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

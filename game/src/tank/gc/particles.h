@@ -51,12 +51,11 @@ public:
 	float _timeLife;
 	float _rotationSpeed;
 	vec2d _velocity;
-	enumZOrder _zOrder;
 	ParticleType _ptype = PARTICLE_TYPE1;
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
+	GC_Particle(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 	
 	ParticleType GetParticleType() const { return _ptype; }
@@ -68,7 +67,7 @@ public:
 	void SetAutoRotate(float speed);
 
 	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return _zOrder; }
+	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
 	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
@@ -89,6 +88,33 @@ public:
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Draw(DrawingContext &dc, bool editorMode) const;
+};
+
+class GC_ParticleExplosion : public GC_Particle
+{
+	DECLARE_SELF_REGISTRATION(GC_ParticleExplosion);
+public:
+	using GC_Particle::GC_Particle;
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
+};
+
+class GC_ParticleDecal : public GC_Particle
+{
+	DECLARE_SELF_REGISTRATION(GC_ParticleDecal);
+public:
+	using GC_Particle::GC_Particle;
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_WATER; }
+};
+
+class GC_ParticleGauss : public GC_Particle
+{
+	DECLARE_SELF_REGISTRATION(GC_ParticleGauss);
+public:
+	using GC_Particle::GC_Particle;
+	// GC_2dSprite
+	virtual enumZOrder GetZ() const { return Z_GAUSS_RAY; }
 };
 
 // end of file

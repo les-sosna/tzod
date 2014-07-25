@@ -7,7 +7,7 @@
 #include "SaveFile.h"
 #include "script.h"
 #include "Sound.h"
-#include "Particles.h"
+#include "particles.h"
 #include "Player.h"
 #include "Vehicle.h"
 
@@ -903,7 +903,7 @@ void GC_Wall::OnDestroy(World &world)
         p->Register(world);
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
-	auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
     p->Register(world);
     p->MoveTo(world, GetPos());
 

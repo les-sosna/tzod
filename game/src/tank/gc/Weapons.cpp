@@ -8,7 +8,7 @@
 #include "Player.h"
 #include "Indicators.h"
 #include "projectiles.h"
-#include "Particles.h"
+#include "particles.h"
 
 #include "Macros.h"
 #include "World.h"
@@ -759,7 +759,7 @@ void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
 			vec2d a = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), vec2d(_angle));
-			auto p = new GC_Particle(world, Z_PARTICLE, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
+			auto p = new GC_Particle(world, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
             p->Register(world);
             p->MoveTo(world, GetPos() + a * 26.0f);
 		}
@@ -1062,7 +1062,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, Z_PARTICLE, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
+				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
@@ -1079,7 +1079,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, Z_PARTICLE, v - a * frand(600.0f) - dx / time, tex3, time);
+				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, tex3, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
