@@ -38,17 +38,17 @@
 
 static bool IsWeaponAdvanced(const World &world, const GC_Actor &actor)
 {
-	assert(dynamic_cast<const GC_Weapon&>(actor));
+	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	return static_cast<const GC_Weapon&>(actor).GetAdvanced();
 }
 static bool IsPickupVisible(const World &world, const GC_Actor &actor)
 {
-	assert(dynamic_cast<const GC_Pickup&>(actor));
+	assert(dynamic_cast<const GC_Pickup*>(&actor));
 	return static_cast<const GC_Pickup&>(actor).GetVisible();
 }
 static bool IsPickupAttached(const World &world, const GC_Actor &actor)
 {
-	assert(dynamic_cast<const GC_Pickup&>(actor));
+	assert(dynamic_cast<const GC_Pickup*>(&actor));
 	return nullptr != static_cast<const GC_Pickup&>(actor).GetCarrier();
 }
 
