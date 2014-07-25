@@ -57,7 +57,7 @@ public:
 	const LogicalTexture& Get(size_t texIndex) const { return _logicalTextures[texIndex]; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
-	size_t GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].xframes * _logicalTextures[texIndex].yframes; }
+	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].xframes * _logicalTextures[texIndex].yframes; }
 
 	bool IsValidTexture(size_t index) const;
 

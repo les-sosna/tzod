@@ -5,6 +5,7 @@
 #include "rIndicator.h"
 #include "rLight.h"
 #include "rMinigun.h"
+#include "rParticle.h"
 #include "rPredicate.h"
 #include "rSprite.h"
 #include "rText.h"
@@ -145,6 +146,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
 	
 	_gameViews.AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
+//	_gameViews.AddView<GC_Particle>(Make<Z_Const>(Z_PARTICLE), Make<R_Particle>(tm));
 
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));

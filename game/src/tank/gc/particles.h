@@ -33,6 +33,11 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+enum ParticleType
+{
+	PARTICLE_TYPE1,
+};
+
 #define GC_FLAG_PARTICLE_FADE            (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_PARTICLE_                (GC_FLAG_2DSPRITE_ << 1)
 
@@ -47,11 +52,17 @@ public:
 	float _rotationSpeed;
 	vec2d _velocity;
 	enumZOrder _zOrder;
+	ParticleType _ptype = PARTICLE_TYPE1;
 
 public:
     DECLARE_LIST_MEMBER();
 	GC_Particle(World &world, enumZOrder zOrder, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
+	
+	ParticleType GetParticleType() const { return _ptype; }
+	bool GetFade() const { return CheckFlags(GC_FLAG_PARTICLE_FADE); }
+	float GetTime() const { return _time; }
+	float GetLifeTime() const { return _timeLife; }
 
 	void SetFade(bool fade);
 	void SetAutoRotate(float speed);

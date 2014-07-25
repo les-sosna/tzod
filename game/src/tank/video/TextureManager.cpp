@@ -768,6 +768,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
+	assert(frame < GetFrameCount(tex));
 	const LogicalTexture &lt = Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
