@@ -1,6 +1,7 @@
 // Field.cpp
 
 #include "Field.h"
+#include "constants.h"
 #include "gc/RigidBody.h"
 #include "core/debug.h"
 #include <cassert>

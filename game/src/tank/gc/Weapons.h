@@ -5,26 +5,6 @@
 #include "Pickup.h"
 
 
-class GC_FireWeapEffect : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_FireWeapEffect);
-public:
-	GC_FireWeapEffect() {}
-	GC_FireWeapEffect(FromFile) : GC_2dSprite(FromFile()) {}
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_EXPLODE;*/ }
-};
-
-class GC_Crosshair : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_Crosshair);
-public:
-	GC_Crosshair() {}
-	GC_Crosshair(FromFile) : GC_2dSprite(FromFile()) {}
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_VEHICLE_LABEL;*/ }
-};
-
 struct AIWEAPSETTINGS
 {
 	float fMaxAttackAngleCos;
@@ -53,7 +33,6 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 protected:
-	ObjPtr<GC_FireWeapEffect> _fireEffect;
 	ObjPtr<GC_Light>    _fireLight;
 	vec2d _fePos;
 	vec2d _feOrient;
@@ -76,8 +55,6 @@ public:
 	Rotator  _rotatorWeap;
 
 	ObjPtr<GC_Sound>      _rotateSound;
-	ObjPtr<GC_Crosshair>  _crosshair;
-	bool _fixmeChAnimate;
 
 public:
 	GC_Weapon(World &world);
@@ -87,7 +64,6 @@ public:
 	float GetLastShotTimestamp() const { return _lastShotTimestamp; }
 	float GetFirePointOffset() const { return _fePos.y; }
 
-	virtual void SetCrosshair(World &world);
 	virtual void Fire(World &world, bool fire) = 0;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 
@@ -153,9 +129,6 @@ private:
 class GC_Weap_AutoCannon : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_AutoCannon);
-
-public:
-	virtual void SetAdvanced(World &world, bool advanced);
 
 public:
 	float _time_shot;
@@ -298,26 +271,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_DiskSprite : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_DiskSprite);
-public:
-	GC_DiskSprite() {}
-	GC_DiskSprite(FromFile) : GC_2dSprite(FromFile()) {}
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_NONE; /* Z_PROJECTILE; */ }
-};
-
 class GC_Weap_Ripper : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
-	ObjPtr<GC_DiskSprite> _diskSprite;
-	void UpdateDisk(World &world);
-
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
 
 	GC_Weap_Ripper(World &world);
 	GC_Weap_Ripper(FromFile);
@@ -327,9 +286,6 @@ public:
 	
 	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -345,8 +301,6 @@ private:
 	float _timeShot;
 	bool _bFire;
 
-	ObjPtr<GC_Crosshair> _crosshairLeft;
-
 public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
@@ -358,7 +312,6 @@ public:
 	bool GetFire() const { return _bFire; }
 	float GetFireTime() const { return _timeFire; }
 
-	virtual void SetCrosshair(World &world);
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void Fire(World &world, bool fire);

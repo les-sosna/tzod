@@ -4,7 +4,7 @@
 
 #include "2dSprite.h"
 #include "Rotator.h"
-
+#include "constants.h"
 
 typedef float AIPRIORITY;
 
@@ -62,8 +62,6 @@ protected:
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
 	virtual void Kill(World &world);
-
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -223,7 +221,6 @@ public:
 	virtual void Detach(World &world);
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

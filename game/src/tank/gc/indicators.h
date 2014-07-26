@@ -41,7 +41,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_EDITOR; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
@@ -59,81 +58,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_EDITOR; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// flags
-#define GC_FLAG_INDICATOR_INVERSE      (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_INDICATOR_             (GC_FLAG_2DSPRITE_ << 1)
-
-enum LOCATION
-{
-	LOCATION_TOP,
-	LOCATION_BOTTOM,
-};
-
-class GC_IndicatorBar : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_IndicatorBar);
-    typedef GC_2dSprite base;
-
-	void OnParentKill(World &world, GC_Object *sender, void *param);
-	void OnUpdatePosition(World &world, GC_Object *sender, void *param);
-
-protected:
-	ObjPtr<GC_2dSprite> _object;
-
-	size_t _dwValue_offset;
-	size_t _dwValueMax_offset;
-
-	LOCATION _location;
-
-public:
-    DECLARE_LIST_MEMBER();
-	GC_IndicatorBar(World &world, const char *texture, GC_2dSprite *object, float *pValue, float *pValueMax, LOCATION location);
-	GC_IndicatorBar(FromFile);
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_NONE; /*Z_VEHICLE_LABEL;*/ }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
-
-	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-
-public:
-	void SetInverse(bool bInverse) { SetFlags(GC_FLAG_INDICATOR_INVERSE, bInverse); }
-	static GC_IndicatorBar *FindIndicator(World &world, GC_2dSprite* object, LOCATION location);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_DamLabel : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_DamLabel);
-    typedef GC_2dSprite base;
-
-private:
-	float _phase;
-	float _time;
-	float _time_life;
-
-public:
-    DECLARE_LIST_MEMBER();
-	GC_DamLabel(World &world, GC_Vehicle *parent);
-	GC_DamLabel(FromFile);
-	virtual ~GC_DamLabel();
-
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
-
-	void Reset();
-
-	void OnVehicleMove(World &world, GC_Object *sender, void *param);
-	
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_VEHICLE_LABEL; }
-};
-
 
 // end of file

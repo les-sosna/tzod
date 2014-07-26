@@ -12,6 +12,7 @@
 #include "DataSourceAdapters.h"
 #include "ListBase.h"
 
+#include "constants.h"
 #include "script.h"
 #include "DefaultCamera.h"
 #include "ClientBase.h"

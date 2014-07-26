@@ -18,11 +18,6 @@
 #include "core/debug.h"
 
 
-IMPLEMENT_SELF_REGISTRATION(GC_WeaponSprite)
-{
-	return true;
-}
-
 IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
@@ -44,11 +39,6 @@ GC_Turret::GC_Turret(World &world, const char *tex)
 	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
     _rotateSound->Register(world);
     _rotateSound->SetMode(world, SMODE_STOP);
-	_weaponSprite = new GC_WeaponSprite();
-    _weaponSprite->Register(world);
-	_weaponSprite->SetShadow(true);
-
-	(new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP))->Register(world);
 }
 
 GC_Turret::GC_Turret(FromFile)
@@ -68,7 +58,6 @@ GC_Turret::~GC_Turret()
 void GC_Turret::Kill(World &world)
 {
 	SAFE_KILL(world, _rotateSound);
-	SAFE_KILL(world, _weaponSprite);
     GC_RigidBodyStatic::Kill(world);
 }
 
@@ -85,7 +74,6 @@ void GC_Turret::Serialize(World &world, SaveFile &f)
 	f.Serialize(_team);
 	f.Serialize(_rotateSound);
 	f.Serialize(_target);
-	f.Serialize(_weaponSprite);
 
 	if( f.loading() && (TS_WAITING == _state || TS_HIDDEN == _state) )
 	{
@@ -155,7 +143,6 @@ bool GC_Turret::IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodySt
 void GC_Turret::MoveTo(World &world, const vec2d &pos)
 {
 	_rotateSound->MoveTo(world, pos);
-	_weaponSprite->MoveTo(world, pos);
 	GC_RigidBodyStatic::MoveTo(world, pos);
 }
 
@@ -168,7 +155,6 @@ void GC_Turret::OnDestroy(World &world)
 void GC_Turret::TimeStepFixed(World &world, float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetDirection(vec2d(_dir));
 
 	switch( _state )
 	{
@@ -219,7 +205,6 @@ void GC_Turret::SetInitialDir(float initialDir)
 {
 	_dir = initialDir;
 	_initialDir = _dir;
-	_weaponSprite->SetDirection(vec2d(_dir));
 }
 
 void GC_Turret::MapExchange(World &world, MapFile &f)
@@ -235,19 +220,6 @@ void GC_Turret::MapExchange(World &world, MapFile &f)
 		if( _team > MAX_TEAMS-1 )
 			_team = MAX_TEAMS-1;
 		_dir = _initialDir;
-		_weaponSprite->SetDirection(vec2d(_dir));
-	}
-}
-
-void GC_Turret::Draw(DrawingContext &dc, bool editorMode) const
-{
-	GC_RigidBodyStatic::Draw(dc, editorMode);
-	if( editorMode )
-	{
-		const char* teams[MAX_TEAMS] = {"", "1", "2", "3", "4", "5"};
-		assert(_team >= 0 && _team < MAX_TEAMS);
-		static size_t font = g_texman->FindSprite("font_default");
-		dc.DrawBitmapText(GetPos().x - CELL_SIZE, GetPos().y - CELL_SIZE, font, 0xffffffff, teams[_team], alignTextLT);
 	}
 }
 
@@ -320,7 +292,6 @@ GC_TurretRocket::GC_TurretRocket(World &world)
   : GC_Turret(world, "turret_platform")
   , _timeReload(0)
 {
-	_weaponSprite->SetTexture("turret_rocket");
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -376,7 +347,6 @@ GC_TurretCannon::GC_TurretCannon(World &world)
   , _time_smoke(0)
   , _time_smoke_dt(0)
 {
-	_weaponSprite->SetTexture("turret_cannon");
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
 
@@ -449,7 +419,6 @@ GC_TurretBunker::GC_TurretBunker(World &world, const char *tex)
   , _time_wake_max(0.5f)
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
-	_weaponSprite->SetVisible(false);
 	_state = TS_HIDDEN; // base class member
 }
 
@@ -516,7 +485,6 @@ bool GC_TurretBunker::TakeDamage(World &world, float damage, const vec2d &hit, G
 void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 {
 	_rotator.process_dt(dt);
-	_weaponSprite->SetDirection(vec2d(_dir));
 
 	switch( _state )
 	{
@@ -588,12 +556,6 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 			_time_wake = _time_wake_max;
 			_state = TS_WAITING;
 			_jobManager.RegisterMember(this);
-			_weaponSprite->SetVisible(true);
-			SetFrame(GetFrameCount() - 1);
-		}
-		else
-		{
-			SetFrame(int( (float)(GetFrameCount() - 1) * _time_wake / _time_wake_max ));
 		}
 		break;
 
@@ -603,11 +565,8 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		{
 			_time_wake = 0;
 			_state = TS_HIDDEN;
-			SetFrame(0);
 			_jobManager.RegisterMember(this);
 		}
-		else
-			SetFrame(int( (float)(GetFrameCount() - 1) * _time_wake / _time_wake_max ));
 		break;
 
 	case TS_PREPARE_TO_WAKEDOWN:
@@ -619,7 +578,6 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		{
 			PLAY(SND_TuretWakeDown, GetPos());
 			_state = TS_WAKING_DOWN;
-			_weaponSprite->SetVisible(false);
 		}
 		break;
 	default:
@@ -634,7 +592,6 @@ void GC_TurretBunker::SetInitialDir(float initialDir)
 	_initialDir = initialDir;
 	_dir = _initialDir;
 	SetDirection(vec2d(_initialDir));
-	_weaponSprite->SetDirection(GetDirection());
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -661,8 +618,6 @@ GC_TurretMinigun::GC_TurretMinigun(World &world)
 	_time_wait_max = 1.0f;
 	_time_wait     = _time_wait_max;
 	_time_wake_max = 0.5f;
-
-	_weaponSprite->SetTexture("turret_mg");
 
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }
@@ -750,8 +705,6 @@ GC_TurretGauss::GC_TurretGauss(World &world)
 
 	_time_wait_max = 0.10f;
 	_time_wake_max = 0.45f;
-
-	_weaponSprite->SetTexture("turret_gauss");
 
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
 }

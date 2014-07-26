@@ -11,7 +11,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 
-
+#include "constants.h"
 #include "config/Config.h"
 
 extern "C"
@@ -912,7 +912,6 @@ bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player
 {
 	if( !GC_RigidBodyStatic::TakeDamage(world, damage, hit, from) && GetHealthMax() > 0 )
 	{
-		SetFrame((GetFrameCount()-1)-int((float)(GetFrameCount()-1)*GetHealth()/GetHealthMax()));
 		if( damage >= DAMAGE_BULLET )
 		{
 			vec2d v = hit - GetPos();
@@ -1135,7 +1134,6 @@ GC_Wall_Concrete::GC_Wall_Concrete(World &world)
 {
 	SetTexture("concrete_wall");
 	AlignToTexture();
-	SetFrame(rand() % GetFrameCount());
 }
 
 bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
@@ -1181,8 +1179,6 @@ GC_Water::GC_Water(World &world)
 {
 	SetTexture("water");
 	AlignToTexture();
-	SetFrame(4);
-
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 }
 
@@ -1250,26 +1246,7 @@ void GC_Water::UpdateTile(World &world, bool flag)
 void GC_Water::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
-
 	f.Serialize(_tile);
-}
-
-void GC_Water::Draw(DrawingContext &dc, bool editorMode) const
-{
-	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
-	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
-	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
-
-	vec2d pos = GetPos();
-
-	for( int i = 0; i < 8; ++i )
-	{
-		if( 0 == (_tile & (1 << i)) )
-		{
-			dc.DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
-		}
-	}
-	dc.DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
 }
 
 void GC_Water::SetTile(char nTile, bool value)

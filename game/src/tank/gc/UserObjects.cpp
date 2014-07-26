@@ -182,7 +182,7 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 	GC_2dSprite::MapExchange(world, f);
 
 	int z = GetZ();
-	int frame = GetCurrentFrame();
+	int frame = 0;//GetCurrentFrame();
 	float rot = GetDirection().Angle();
 
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
@@ -194,7 +194,7 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 	if( f.loading() )
 	{
 		SetTexture(_textureName.c_str());
-		SetFrame(frame % GetFrameCount());
+//		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
 		SetDirection(vec2d(rot));
 		if( _frameRate > 0 )
@@ -212,7 +212,7 @@ void GC_Decoration::TimeStepFixed(World &world, float dt)
 	_time += dt;
 	if( _time * _frameRate > 1 )
 	{
-		SetFrame((GetCurrentFrame() + int(_time * _frameRate)) % GetFrameCount());
+//		SetFrame((GetCurrentFrame() + int(_time * _frameRate)) % GetFrameCount());
 		_time -= floor(_time * _frameRate) / _frameRate;
 	}
 }
@@ -281,7 +281,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
-		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
+//		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
         
@@ -300,7 +300,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		}
 		_propLayer.SetIntValue(tmp->GetZ());
 		_propRotation.SetFloatValue(tmp->GetDirection().Angle());
-		_propFrame.SetIntValue(tmp->GetCurrentFrame());
+		_propFrame.SetIntValue(0); //tmp->GetCurrentFrame());
 		_propAnimate.SetFloatValue(tmp->_frameRate);
 	}
 }

@@ -10,6 +10,7 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
+#include "constants.h"
 
 extern "C"
 {
@@ -174,14 +175,6 @@ void GC_Trigger::TimeStepFixed(World &world, float dt)
 				}
 			}
 		}
-	}
-}
-
-void GC_Trigger::Draw(DrawingContext &dc, bool editorMode) const
-{
-	if( editorMode )
-	{
-		GC_2dSprite::Draw(dc, editorMode);
 	}
 }
 

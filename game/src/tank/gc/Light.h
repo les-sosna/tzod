@@ -6,18 +6,6 @@
 #include "2dSprite.h"
 
 
-class GC_LampSprite : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_LampSprite);
-public:
-	GC_LampSprite() {}
-	GC_LampSprite(FromFile) : GC_2dSprite(FromFile()) {}
-	
-	virtual enumZOrder GetZ() const;
-};
-
-///////////////////////////////////////////////////////////
-
 #define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_2DSPRITE_ << 0)
 #define GC_FLAG_LIGHT_FADE          (GC_FLAG_2DSPRITE_ << 1)
 #define GC_FLAG_LIGHT_              (GC_FLAG_2DSPRITE_ << 2)
@@ -43,8 +31,6 @@ private:
 	float  _intensity;
 	enumLightType _type;
 	vec2d  _lightDirection;
-
-	ObjPtr<GC_LampSprite> _lampSprite;
 
 public:
     DECLARE_LIST_MEMBER();
@@ -113,11 +99,9 @@ public:
 	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-	virtual void MoveTo(World &world, const vec2d &pos) override;
 	virtual void TimeStepFixed(World &world, float dt) override;
     virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

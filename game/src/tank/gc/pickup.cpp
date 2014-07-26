@@ -39,9 +39,6 @@ GC_Pickup::GC_Pickup(World &world)
   , _timeRespawn(0)
 {
     _label->Register(world);
-
-	SetShadow(true);
-
 	SetAutoSwitch(true);
 	SetRespawn(false);
 	SetBlinking(false);
@@ -166,10 +163,6 @@ void GC_Pickup::MoveTo(World &world, const vec2d &pos)
 void GC_Pickup::TimeStepFloat(World &world, float dt)
 {
 	_timeAnimation += dt;
-
-	if( !GetCarrier() && GetVisible() )
-		SetFrame( int((_timeAnimation * ANIMATION_FPS)) % (GetFrameCount()) );
-
 	GC_2dSprite::TimeStepFloat(world, dt);
 }
 
@@ -228,14 +221,6 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 	}
 
 	GC_2dSprite::TimeStepFixed(world, dt);
-}
-
-void GC_Pickup::Draw(DrawingContext &dc, bool editorMode) const
-{
-	if( !GetBlinking() || fmod(_timeAnimation, 0.16f) > 0.08f || editorMode )
-	{
-		GC_2dSprite::Draw(dc, editorMode);
-	}
 }
 
 void GC_Pickup::MapExchange(World &world, MapFile &f)
@@ -370,7 +355,6 @@ GC_pu_Mine::GC_pu_Mine(World &world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 	SetTexture("item_mine");
-	SetShadow(false);
 }
 
 GC_pu_Mine::GC_pu_Mine(FromFile)
@@ -430,7 +414,6 @@ void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
 	SetTexture("shield");
-	SetShadow(false);
 
 	PLAY(SND_Inv, GetPos());
 }
@@ -440,9 +423,7 @@ void GC_pu_Shield::Detach(World &world)
 	GetCarrier()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
 
 	SetTexture("pu_inv");
-	SetShadow(true);
 	SetBlinking(false);
-	SetOpacity(1);
 
 	GC_Pickup::Detach(world);
 }
@@ -460,8 +441,6 @@ void GC_pu_Shield::TimeStepFixed(World &world, float dt)
 				PLAY(SND_InvEnd, GetPos());
 				SetBlinking(true);
 			}
-			SetOpacity( (PROTECT_TIME - GetTimeAttached()) / 2.0f );
-
 			if( GetTimeAttached() > PROTECT_TIME )
 			{
 				Disappear(world);
@@ -476,7 +455,6 @@ void GC_pu_Shield::TimeStepFloat(World &world, float dt)
 	if( GetCarrier() )
 	{
 		_timeHit = std::max(.0f, _timeHit - dt);
-		SetFrame( int((GetTimeAnimation() * ANIMATION_FPS)) % (GetFrameCount()) );
 	}
 }
 
@@ -669,22 +647,6 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_pu_Shock::Draw(DrawingContext &dc, bool editorMode) const
-{
-	if( GetGridSet() )
-	{
-		GC_Pickup::Draw(dc, editorMode);
-	}
-	else
-	{
-		static TextureCache t("lightning");
-		SpriteColor c;
-		c.r = c.g = c.b = c.a = int((1.0f - ((GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
-		const vec2d &pos = GetPos();
-		dc.DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPos.x, _targetPos.y, frand(1));
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
@@ -765,7 +727,6 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
     _sound->SetMode(world, SMODE_LOOP);
 
 	SetTexture("booster");
-	SetShadow(false);
 }
 
 void GC_pu_Booster::Detach(World &world)
@@ -774,7 +735,6 @@ void GC_pu_Booster::Detach(World &world)
 	static_cast<GC_Weapon*>(GetCarrier())->SetAdvanced(world, false);
 	GetCarrier()->Unsubscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 	SetTexture("pu_booster");
-	SetShadow(true);
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }

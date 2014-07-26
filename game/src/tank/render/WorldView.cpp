@@ -222,12 +222,6 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 						zLayers[z].emplace_back(object, view.rfunc.get());
 				}
 			}
-			else
-			{
-				// TODO: remove fallback to old render
-				if( object->GetVisible() && Z_NONE != object->GetZ() && object->GetGridSet() )
-					zLayers[object->GetZ()].emplace_back(object, nullptr);
-			}
         }
     }
 
@@ -242,25 +236,13 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 					zLayers[z].emplace_back(object, view.rfunc.get());
 			}
 		}
-		else
-		{
-			// TODO: remove fallback to old render
-			if( object->GetVisible() && Z_NONE != object->GetZ() && !object->GetGridSet() )
-				zLayers[object->GetZ()].emplace_back(object, nullptr);
-		}
     }
 
 	DrawingContext &dc = static_cast<DrawingContext&>(_tm);
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( auto &actorWithView: zLayers[z] )
-		{
-			if( actorWithView.second )
-				actorWithView.second->Draw(world, *actorWithView.first, dc);
-			else
-				// TODO: remove fallback to old render
-				actorWithView.first->Draw(dc, editorMode);
-		}
+			actorWithView.second->Draw(world, *actorWithView.first, dc);
         zLayers[z].clear();
     }
 }

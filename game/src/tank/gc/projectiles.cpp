@@ -31,8 +31,6 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 {
     _light->Register(world);
     
-	SetShadow(true);
-
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
 	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
@@ -661,7 +659,6 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 	_time += dt;
 	if( _time * ANIMATION_FPS >= 1 )
 	{
-		SetFrame( (GetCurrentFrame() + 1)  % GetFrameCount() );
 		_time -= 1/ANIMATION_FPS;
 		FindTarget(world);
 	}
@@ -726,7 +723,6 @@ GC_FireSpark::GC_FireSpark(World &world, const vec2d &x, const vec2d &v, GC_Rigi
 {
 	SetHitDamage(DAMAGE_FIRE_HIT);
 	SetTrailDensity(world, 4.5f);
-	SetFrame(rand() % GetFrameCount());
 	_light->SetRadius(0);
 	_light->SetIntensity(0.5f);
 }
@@ -746,13 +742,6 @@ void GC_FireSpark::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotation);
-}
-
-void GC_FireSpark::Draw(DrawingContext &dc, bool editorMode) const
-{
-	vec2d pos = GetPos();
-	float r = GetRadius();
-	dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), pos.x, pos.y, r, r, GetDirection());
 }
 
 bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
@@ -1008,8 +997,6 @@ GC_GaussRay::GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidB
 	d.Normalize();
 	_light->SetLightDirection(d);
 	_light->MoveTo(world, GetPos());
-
-	SetShadow(false);
 }
 
 GC_GaussRay::GC_GaussRay(FromFile)

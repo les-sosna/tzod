@@ -205,7 +205,6 @@ public:
 	float GetRadius() const { return (_time + 0.2f) * 50; }
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);

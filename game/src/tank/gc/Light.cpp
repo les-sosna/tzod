@@ -7,22 +7,11 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
+#include "constants.h"
 #include "core/debug.h"
 #include "config/Config.h"
 #include "video/RenderBase.h"
 
-
-IMPLEMENT_SELF_REGISTRATION(GC_LampSprite)
-{
-	return true;
-}
-
-enumZOrder GC_LampSprite::GetZ() const
-{
-	return Z_NONE; //(GetTexture() && g_conf.sv_nightmode.Get()) ? Z_PARTICLE : Z_NONE;
-}
-
-/////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Light)
 {
@@ -39,15 +28,8 @@ GC_Light::GC_Light(World &world, enumLightType type)
   , _intensity(1)
   , _type(type)
   , _lightDirection(1, 0)
-  , _lampSprite(new GC_LampSprite())
 {
-    _lampSprite->Register(world);
 	SetActive(true);
-
-	if( LIGHT_SPOT == _type )
-	{
-		_lampSprite->SetTexture("shine");
-	}
 }
 
 GC_Light::GC_Light(FromFile)
@@ -70,21 +52,9 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 	f.Serialize(_radius);
 	f.Serialize(_timeout);
 	f.Serialize(_type);
-	f.Serialize(_lampSprite);
     
     if (f.loading() && CheckFlags(GC_FLAG_LIGHT_FADE))
         world.GetList(LIST_timestep).insert(this, GetId());
-}
-
-void GC_Light::MapExchange(World &world, MapFile &f)
-{
-	GC_2dSprite::MapExchange(world, f);
-}
-
-void GC_Light::MoveTo(World &world, const vec2d &pos)
-{
-	_lampSprite->MoveTo(world, pos);
-	GC_2dSprite::MoveTo(world, pos);
 }
 
 void GC_Light::SetTimeout(World &world, float t)
@@ -106,7 +76,6 @@ void GC_Light::TimeStepFixed(World &world, float dt)
 
 void GC_Light::Kill(World &world)
 {
-	SAFE_KILL(world, _lampSprite);
     if( CheckFlags(GC_FLAG_LIGHT_FADE) )
         world.GetList(LIST_timestep).erase(GetId());
     GC_2dSprite::Kill(world);
@@ -115,7 +84,6 @@ void GC_Light::Kill(World &world)
 void GC_Light::SetActive(bool activate)
 {
 	SetFlags(GC_FLAG_LIGHT_ACTIVE, activate);
-	_lampSprite->SetVisible(activate);
 }
 
 /////////////////////////////////////////////////////////////

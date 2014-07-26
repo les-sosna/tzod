@@ -20,10 +20,6 @@ GC_BrickFragment::GC_BrickFragment(World &world, const vec2d &v0)
   , _timeLife(frand(0.5f) + 1.0f)
   , _velocity(v0)
 {
-	static TextureCache tex("particle_brick");
-
-	SetTexture(tex);
-    SetShadow(true);
 }
 
 GC_BrickFragment::GC_BrickFragment(FromFile)
@@ -50,8 +46,6 @@ void GC_BrickFragment::TimeStepFloat(World &world, float dt)
 		return;
 	}
 
-	SetFrame((_startFrame + int(_time * ANIMATION_FPS)) % (GetFrameCount() - 1));
-
 	MoveTo(world, GetPos() + _velocity * dt);
 	_velocity += vec2d(0, 300.0f) * dt;
 }
@@ -64,19 +58,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 }
 
 IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
-
-GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &texture,
-                         float lifeTime, const vec2d &orient)
-  : _time(0)
-  , _timeLife(lifeTime)
-  , _rotationSpeed(0)
-  , _velocity(v)
-{
-	assert(_timeLife > 0);
-
-	SetTexture(texture);
-	SetDirection(orient);
-}
 
 GC_Particle::GC_Particle(World &world, const vec2d &v, ParticleType ptype,
                          float lifeTime, const vec2d &orient)
@@ -117,11 +98,6 @@ void GC_Particle::TimeStepFloat(World &world, float dt)
 		return;
 	}
 
-	SetFrame( int((float)(GetFrameCount() - 1) * _time / _timeLife) );
-
-	if( CheckFlags(GC_FLAG_PARTICLE_FADE) )
-		SetOpacity(1.0f - _time / _timeLife);
-
 	if( _rotationSpeed )
 		SetDirection(vec2d(_rotationSpeed * _time));
 
@@ -131,30 +107,12 @@ void GC_Particle::TimeStepFloat(World &world, float dt)
 void GC_Particle::SetFade(bool fade)
 {
 	SetFlags(GC_FLAG_PARTICLE_FADE, fade);
-	if( fade )
-		SetOpacity(1.0f - _time / _timeLife);
-	else
-		SetOpacity1i(255);
 }
 
 void GC_Particle::SetAutoRotate(float speed)
 {
 	_rotationSpeed = speed;
 }
-
-void GC_Particle::Draw(DrawingContext &dc, bool editorMode) const
-{
-	if( _sizeOverride >= 0 )
-	{
-		dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(),
-					  GetPos().x, GetPos().y, _sizeOverride, _sizeOverride, GetDirection());
-	}
-	else
-	{
-		base::Draw(dc, editorMode);
-	}
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

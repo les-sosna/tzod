@@ -80,7 +80,6 @@ public:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Particle(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(World &world, const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 	
@@ -97,7 +96,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);

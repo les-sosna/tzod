@@ -7,6 +7,7 @@
 #include "RigidBody.h"
 #include "World.h"
 
+#include "constants.h"
 #include "SaveFile.h"
 #include "MapFile.h"
 
@@ -28,8 +29,6 @@ IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
 GC_Wood::GC_Wood(World &world)
 {
 	SetTexture("wood");
-	SetFrame(4);
-
 	_tile = 0;
 }
 
@@ -88,33 +87,7 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 void GC_Wood::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
-
 	f.Serialize(_tile);
-}
-
-void GC_Wood::Draw(DrawingContext &dc, bool editorMode) const
-{
-	static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
-	static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
-	static const int frames[8] = {  5,  8,  7,  6,  3,  0,  1,  2 };
-
-	vec2d pos = GetPos();
-
-	if( !editorMode )
-	{
-		for( int i = 0; i < 8; ++i )
-		{
-			if( 0 == (_tile & (1 << i)) )
-			{
-				dc.DrawSprite(GetTexture(), frames[i], 0xffffffff, pos.x + dx[i], pos.y + dy[i], GetDirection());
-			}
-		}
-		dc.DrawSprite(GetTexture(), 4, 0xffffffff, pos.x, pos.y, GetDirection());
-	}
-	else
-	{
-		dc.DrawSprite(GetTexture(), 4, 0x7f7f7f7f, pos.x, pos.y, GetDirection());
-	}
 }
 
 void GC_Wood::SetTile(char nTile, bool value)
@@ -230,12 +203,6 @@ void GC_Text::Serialize(World &world, SaveFile &f)
 	f.Serialize(_style);
 }
 
-void GC_Text::Draw(DrawingContext &dc, bool editorMode) const
-{
-	vec2d pos = GetPos();
-	dc.DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
-}
-
 /////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
@@ -267,12 +234,6 @@ void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
     {
         Kill(world);
     }
-}
-
-void GC_Text_ToolTip::Draw(DrawingContext &dc, bool editorMode) const
-{
-	vec2d pos = GetPos();
-	dc.DrawBitmapText(pos.x, pos.y, GetTexture(), GetColor(), _text, _align);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

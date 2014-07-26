@@ -80,7 +80,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_WOOD; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	
 	// GI_NeighborAware
 	virtual int GetNeighbors() const override { return _tile; }
@@ -113,7 +112,6 @@ public:
 	const std::string& GetText() const { return _text; }
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 protected:
 	Style               _style;
@@ -137,7 +135,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
-    virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);

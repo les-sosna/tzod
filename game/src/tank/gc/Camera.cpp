@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "Weapons.h"
 
+#include "constants.h"
 #include "config/Config.h"
 #include "video/RenderBase.h" // FIXME
 

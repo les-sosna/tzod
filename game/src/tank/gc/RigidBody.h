@@ -262,7 +262,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_WATER; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GI_NeighborAware
 	virtual int GetNeighbors() const override { return _tile; }

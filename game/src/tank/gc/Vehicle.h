@@ -80,7 +80,6 @@ public:
 
 public:
 	ObjPtr<GC_Sound>    _moveSound;
-	ObjPtr<GC_DamLabel> _damLabel;
     
 	ObjPtr<GC_Light>    _light_ambient;
 	ObjPtr<GC_Light>    _light1;
@@ -108,7 +107,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_VEHICLES; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
 	// GC_Object
 	virtual void Kill(World &world);

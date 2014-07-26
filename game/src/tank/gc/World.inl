@@ -1,7 +1,7 @@
 // World.inl - inline functions for World.h
 
 #include "RigidBody.h"
-
+#include "constants.h"
 
 template<class SelectorType>
 void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const

@@ -916,6 +916,8 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 
 ////////////////////////////////////////////////////////////////////
 
+#include "constants.h"
+
 ThemeManager::ThemeManager()
 {
 	std::shared_ptr<FS::FileSystem> dir = g_fs->GetFileSystem(DIR_THEMES);

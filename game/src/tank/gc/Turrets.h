@@ -8,16 +8,6 @@
 template<class T> class JobManager;
 class GC_Vehicle;
 
-class GC_WeaponSprite : public GC_2dSprite
-{
-	DECLARE_SELF_REGISTRATION(GC_WeaponSprite);
-public:
-	GC_WeaponSprite() {}
-	GC_WeaponSprite(FromFile) : GC_2dSprite(FromFile()) {}
-	
-	virtual enumZOrder GetZ() const { return Z_NONE; /* Z_FREE_ITEM; */ }
-};
-
 class GC_Turret : public GC_RigidBodyStatic
 {
     typedef GC_RigidBodyStatic base;
@@ -41,7 +31,6 @@ protected:
 
 	ObjPtr<GC_Sound>         _rotateSound;
 	ObjPtr<GC_Vehicle>       _target;
-	ObjPtr<GC_WeaponSprite>  _weaponSprite;
 
 	enum enumTuretState
 	{
@@ -89,7 +78,6 @@ public:
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_WALLS; }
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);

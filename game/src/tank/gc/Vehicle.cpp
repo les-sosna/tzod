@@ -101,7 +101,6 @@ GC_Vehicle::GC_Vehicle(World &world)
   , _time_smoke(0)
 {
 	memset(&_state, 0, sizeof(VehicleState));
-	SetShadow(true);
     
 	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
     _light_ambient->Register(world);
@@ -185,7 +184,6 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_trackDensity);
 	f.Serialize(_trackPathL);
 	f.Serialize(_trackPathR);
-	f.Serialize(_damLabel);
 	f.Serialize(_light_ambient);
 	f.Serialize(_light1);
 	f.Serialize(_light2);
@@ -254,13 +252,11 @@ float GC_Vehicle::GetMaxBrakingLength() const
 
 void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 {
-	(new GC_IndicatorBar(world, "indicator_health", this, &_health, &_health_max, LOCATION_TOP))->Register(world);
 	_player = player;
 }
 
 void GC_Vehicle::Kill(World &world)
 {
-	SAFE_KILL(world, _damLabel);
 	SAFE_KILL(world, _moveSound);
 	SAFE_KILL(world, _light_ambient);
 	SAFE_KILL(world, _light1);
@@ -383,20 +379,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 	{
 		return false;
 	}
-    
-	if( g_conf.g_showdamage.Get() )
-	{
-		if( _damLabel )
-        {
-			_damLabel->Reset();
-        }
-		else
-        {
-			_damLabel = new GC_DamLabel(world, this);
-            _damLabel->Register(world);
-        }
-	}
-    
+
 	SetHealthCur(GetHealth() - dd.damage);
 	{
 		ObjPtr<GC_Object> watch(this); // this may be killed during script execution
@@ -491,26 +474,6 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 		return true;
 	}
 	return false;
-}
-
-void GC_Vehicle::Draw(DrawingContext &dc, bool editorMode) const
-{
-	GC_RigidBodyDynamic::Draw(dc, editorMode);
-    
-	if( g_conf.g_shownames.Get() && GetOwner() )
-	{
-		const vec2d &pos = GetPos();
-		static TextureCache f("font_small");
-		dc.DrawBitmapText(floorf(pos.x), floorf(pos.y + GetSpriteHeight()/2),
-                          f.GetTexture(), 0x7f7f7f7f, GetOwner()->GetNick(), alignTextCT);
-	}
-
-#ifndef NDEBUG
-//	for( int i = 0; i < 4; ++i )
-//	{
-//		world.DbgLine(GetVertex(i), GetVertex((i+1)&3));
-//	}
-#endif // NDEBUG
 }
 
 void GC_Vehicle::TimeStepFixed(World &world, float dt)

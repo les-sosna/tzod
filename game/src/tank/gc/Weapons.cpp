@@ -18,19 +18,6 @@
 #include <cfloat>
 
 
-IMPLEMENT_SELF_REGISTRATION(GC_FireWeapEffect)
-{
-	return true;
-}
-
-IMPLEMENT_SELF_REGISTRATION(GC_Crosshair)
-{
-	return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-
 PropertySet* GC_Weapon::NewPropertySet()
 {
 	return new MyPropertySet(this);
@@ -89,7 +76,6 @@ GC_Weapon::GC_Weapon(World &world)
   , _timeReload(0)
   , _lastShotTimestamp(-FLT_MAX)
   , _rotatorWeap(_angle)
-  , _fixmeChAnimate(true)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
@@ -125,25 +111,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	SetVisible(true);
 	SetBlinking(false);
 
-	SetCrosshair(world);
-	if( _crosshair )
-	{
-		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
-		{
-			_crosshair->SetVisible(NULL != dynamic_cast<GC_Player*>(veh->GetOwner()));
-		}
-		else
-		{
-			_crosshair->SetVisible(false);
-		}
-	}
-
-
 	PLAY(SND_w_Pickup, GetPos());
-
-	_fireEffect = new GC_FireWeapEffect();
-    _fireEffect->Register(world);
-	_fireEffect->SetVisible(false);
 
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
     _fireLight->Register(world);
@@ -154,8 +122,6 @@ void GC_Weapon::Detach(World &world)
 {
 	Fire(world, false);
 	SAFE_KILL(world, _rotateSound);
-	SAFE_KILL(world, _crosshair);
-	SAFE_KILL(world, _fireEffect);
 	SAFE_KILL(world, _fireLight);
 
 	_time = 0;
@@ -188,38 +154,21 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 	vec2d a(_angle);
 	vec2d direction = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), a);
 	SetDirection(direction);
-	if( _fireEffect->GetVisible() )
+	if( _fireLight->GetActive() )
 	{
-		int frame = int( _time / _feTime * (float) _fireEffect->GetFrameCount() );
-		if( frame < _fireEffect->GetFrameCount() )
+		if( _time < _feTime )
 		{
 			float op = 1.0f - pow(_time / _feTime, 2);
-
-			_fireEffect->SetFrame(frame);
-			_fireEffect->SetDirection(Vec2dAddDirection(direction, _feOrient));
-			_fireEffect->SetOpacity(op);
-
-			_fireEffect->MoveTo(world, GetPos() + vec2d(_fePos * direction, _fePos.x*direction.y - _fePos.y*direction.x));
-			_fireLight->MoveTo(world, _fireEffect->GetPos());
+			_fireLight->MoveTo(world, GetPos() + vec2d(_fePos * direction, _fePos.x*direction.y - _fePos.y*direction.x));
 			_fireLight->SetIntensity(op);
-			_fireLight->SetActive(true);
 		}
 		else
 		{
-			_fireEffect->SetFrame(0);
-			_fireEffect->SetVisible(false);
 			_fireLight->SetActive(false);
 		}
 	}
 
 	OnUpdateView(world);
-}
-
-void GC_Weapon::SetCrosshair(World &world)
-{
-	_crosshair = new GC_Crosshair();
-    _crosshair->Register(world);
-	_crosshair->SetTexture("indicator_crosshair1");
 }
 
 GC_Weapon::GC_Weapon(FromFile)
@@ -246,23 +195,15 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time);
 	f.Serialize(_timeStay);
 	f.Serialize(_timeReload);
-	f.Serialize(_crosshair);
-	f.Serialize(_fireEffect);
 	f.Serialize(_fireLight);
 	f.Serialize(_rotateSound);
-	f.Serialize(_fixmeChAnimate);
 }
 
 void GC_Weapon::Kill(World &world)
 {
 	if( GetCarrier() )
-	{
 		Detach(world);
-	}
-	assert(!_crosshair);
 	assert(!_rotateSound);
-	assert(!_fireEffect);
-
 	GC_Pickup::Kill(world);
 }
 
@@ -275,11 +216,6 @@ void GC_Weapon::TimeStepFixed(World &world, float dt)
 	if( GetCarrier() )
 	{
 		ProcessRotate(world, dt);
-		if( _crosshair && _fixmeChAnimate )
-		{
-			_crosshair->MoveTo(world, GetPos() + GetDirection() * CH_DISTANCE_NORMAL);
-			_crosshair->SetDirection(vec2d(_time * 5));
-		}
 	}
 	else
 	{
@@ -324,8 +260,6 @@ void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
 	_nshots           = 0;
 	_nshots_total     = 6;
 	_time_shot        = 0.13f;
-
-	_fireEffect->SetTexture("particle_fire3");
 
 //return;
 //	veh->SetMaxHP(85);
@@ -397,7 +331,7 @@ void GC_Weap_RocketLauncher::Shoot(World &world)
 			_nshots = 0;
 			_firing = false;
 
-			_fireEffect->SetVisible(true);
+			_fireLight->SetActive(true);
 			_lastShotTimestamp = world.GetTime();
 		}
 	}
@@ -426,7 +360,7 @@ void GC_Weap_RocketLauncher::Shoot(World &world)
 				               GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 
 				_time = 0;
-				_fireEffect->SetVisible(true);
+				_fireLight->SetActive(true);
 				_lastShotTimestamp = world.GetTime();
 			}
 		}
@@ -483,14 +417,6 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
 	SetTexture("weap_ac");
 }
 
-void GC_Weap_AutoCannon::SetAdvanced(World &world, bool advanced)
-{
-	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->SetVisible(!advanced);
-	if( _fireEffect ) _fireEffect->SetTexture(advanced ? "particle_fire4" : "particle_fire3");
-	GC_Weapon::SetAdvanced(world, advanced);
-}
-
 void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
@@ -502,13 +428,6 @@ void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 	_nshots = 0;
 	_nshots_total = 30;
 	_time_shot = 0.135f;
-
-	GC_IndicatorBar *pIndicator = new GC_IndicatorBar(world, "indicator_ammo", this,
-		(float *) &_nshots, (float *) &_nshots_total, LOCATION_BOTTOM);
-    pIndicator->Register(world);
-	pIndicator->SetInverse(true);
-
-	_fireEffect->SetTexture("particle_fire3");
 
 //return;
 //	veh->SetMaxHP(80);
@@ -525,9 +444,6 @@ void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 
 void GC_Weap_AutoCannon::Detach(World &world)
 {
-	GC_IndicatorBar *indicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( indicator ) indicator->Kill(world);
-
 	// kill the reload sound
 	FOREACH( world.GetList(LIST_sounds), GC_Sound, object )
 	{
@@ -585,7 +501,7 @@ void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 
 				_time = 0;
 				_fePos.Set(17.0f, 0);
-				_fireEffect->SetVisible(true);
+				_fireLight->SetActive(true);
 				_lastShotTimestamp = world.GetTime();
 
 				PLAY(SND_ACShoot, GetPos());
@@ -616,7 +532,7 @@ void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 
 				_time = 0;
 				_fePos.Set(17.0f, -dy);
-				_fireEffect->SetVisible(true);
+				_fireLight->SetActive(true);
 				_lastShotTimestamp = world.GetTime();
 
 				PLAY(SND_ACShoot, GetPos());
@@ -680,8 +596,6 @@ void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
 	_time_smoke_dt = 0;
 	_time_smoke    = 0;
 
-	_fireEffect->SetTexture("particle_fire3");
-
 //return;
 //	veh->SetMaxHP(125);
 
@@ -730,7 +644,7 @@ void GC_Weap_Cannon::Fire(World &world, bool fire)
 		_time_smoke = 0.3f;
 		_lastShotTimestamp = world.GetTime();
 
-		_fireEffect->SetVisible(true);
+		_fireLight->SetActive(true);
 	}
 }
 
@@ -794,7 +708,6 @@ void GC_Weap_Plazma::Attach(World &world, GC_Actor *actor)
 	GC_Weapon::Attach(world, actor);
 
 	_timeReload = 0.3f;
-	_fireEffect->SetTexture("particle_plazma_fire");
 
 //return;
 //	veh->SetMaxHP(100);
@@ -818,7 +731,7 @@ void GC_Weap_Plazma::Fire(World &world, bool fire)
 			a * SPEED_PLAZMA + world.net_vrand(20),
 			GetCarrier(), GetCarrier()->GetOwner(), _advanced))->Register(world);
 		_time = 0;
-		_fireEffect->SetVisible(true);
+		_fireLight->SetActive(true);
 		_lastShotTimestamp = world.GetTime();
 	}
 }
@@ -854,7 +767,6 @@ void GC_Weap_Gauss::Attach(World &world, GC_Actor *actor)
 	GC_Weapon::Attach(world, actor);
 
 	_timeReload = 1.3f;
-	_fireEffect->SetTexture("particle_gaussfire");
 
 //return;
 //	veh->SetMaxHP(70);
@@ -888,7 +800,7 @@ void GC_Weap_Gauss::Fire(World &world, bool fire)
 
 		_time = 0;
 		_lastShotTimestamp = world.GetTime();
-		_fireEffect->SetVisible(true);
+		_fireLight->SetActive(true);
 	}
 }
 
@@ -920,9 +832,6 @@ GC_Weap_Ram::GC_Weap_Ram(World &world)
 
 void GC_Weap_Ram::SetAdvanced(World &world, bool advanced)
 {
-	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->SetVisible(!advanced);
-
 	if( GetCarrier() )
 	{
 		static_cast<GC_Vehicle*>(GetCarrier())->_percussion =
@@ -953,8 +862,6 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 	_firingCounter = 0;
 	_bReady = true;
 
-	(new GC_IndicatorBar(world, "indicator_fuel", this, (float *) &_fuel, (float *) &_fuel_max, LOCATION_BOTTOM))->Register(world);
-
 //return;
 //	veh->SetMaxHP(350);
 
@@ -972,9 +879,6 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 
 void GC_Weap_Ram::Detach(World &world)
 {
-	GC_IndicatorBar *pIndicator = GC_IndicatorBar::FindIndicator(world, this, LOCATION_BOTTOM);
-	if( pIndicator ) pIndicator->Kill(world);
-
 	SAFE_KILL(world, _engineSound);
 	SAFE_KILL(world, _engineLight);
 
@@ -1248,22 +1152,10 @@ void GC_Weap_BFG::TimeStepFixed(World &world, float dt)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_SELF_REGISTRATION(GC_DiskSprite)
-{
-	return true;
-}
-
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
 	ED_ITEM( "weap_ripper", "obj_weap_ripper", 4 );
 	return true;
-}
-
-void GC_Weap_Ripper::UpdateDisk(World &world)
-{
-	_diskSprite->SetVisible(_time > _timeReload);
-	_diskSprite->MoveTo(world, GetPos() - GetDirection() * 8);
-	_diskSprite->SetDirection(vec2d(GetTimeAnimation() * 10));
 }
 
 void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
@@ -1271,10 +1163,6 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 	GC_Weapon::Attach(world, actor);
 
 	_timeReload = 0.5f;
-	_diskSprite = new GC_DiskSprite();
-    _diskSprite->Register(world);
-	_diskSprite->SetTexture("projectile_disk");
-	UpdateDisk(world);
 
 //return;
 //	veh->SetMaxHP(80);
@@ -1287,12 +1175,6 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 
 //	veh->_MaxBackSpeed = 260;
 //	veh->_MaxForvSpeed = 240;
-}
-
-void GC_Weap_Ripper::Detach(World &world)
-{
-	SAFE_KILL(world, _diskSprite);
-	GC_Weapon::Detach(world);
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(World &world)
@@ -1308,12 +1190,6 @@ GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
 
 GC_Weap_Ripper::~GC_Weap_Ripper()
 {
-}
-
-void GC_Weap_Ripper::Serialize(World &world, SaveFile &f)
-{
-	GC_Weapon::Serialize(world, f);
-	f.Serialize(_diskSprite);
 }
 
 void GC_Weap_Ripper::Fire(World &world, bool fire)
@@ -1337,15 +1213,6 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 500;
 	pSettings->fAttackRadius_crit =  60;
 	pSettings->fDistanceMultipler = _advanced ? 2.2f : 40.0f;
-}
-
-void GC_Weap_Ripper::TimeStepFloat(World &world, float dt)
-{
-	GC_Weapon::TimeStepFloat(world, dt);
-	if( _diskSprite )
-	{
-		UpdateDisk(world);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1378,7 +1245,6 @@ GC_Weap_Minigun::~GC_Weap_Minigun()
 
 void GC_Weap_Minigun::Kill(World &world)
 {
-	SAFE_KILL(world, _crosshairLeft);
 	SAFE_KILL(world, _sound);
     GC_Weapon::Kill(world);
 }
@@ -1397,23 +1263,6 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
     _sound->SetMode(world, SMODE_STOP);
 	_bFire = false;
 
-	_fireEffect->SetTexture("minigun_fire");
-
-
-	if( _crosshairLeft )
-	{
-		if( GC_Vehicle *veh = dynamic_cast<GC_Vehicle*>(GetCarrier()) )
-		{
-			_crosshairLeft->SetVisible(NULL != dynamic_cast<GC_Player*>(veh->GetOwner()));
-		}
-		else
-		{
-			_crosshairLeft->SetVisible(false);
-		}
-	}
-
-
-
 //return;
 //	veh->SetMaxHP(65);
 
@@ -1430,23 +1279,8 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 
 void GC_Weap_Minigun::Detach(World &world)
 {
-	SAFE_KILL(world, _crosshairLeft);
 	SAFE_KILL(world, _sound);
-
 	GC_Weapon::Detach(world);
-}
-
-void GC_Weap_Minigun::SetCrosshair(World &world)
-{
-	_crosshair = new GC_Crosshair();
-    _crosshair->Register(world);
-	_crosshair->SetTexture("indicator_crosshair2");
-
-	_crosshairLeft = new GC_Crosshair();
-    _crosshairLeft->Register(world);
-	_crosshairLeft->SetTexture("indicator_crosshair2");
-
-	_fixmeChAnimate = false;
 }
 
 void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
@@ -1457,7 +1291,6 @@ void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
 	f.Serialize(_timeFire);
 	f.Serialize(_timeRotate);
 	f.Serialize(_timeShot);
-	f.Serialize(_crosshairLeft);
 	f.Serialize(_sound);
 }
 
@@ -1499,7 +1332,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 				_time = frand(_feTime);
 				_feOrient = vrand(1);
 				_lastShotTimestamp = world.GetTime() - frand(_feTime);
-				_fireEffect->SetVisible(true);
+				_fireLight->SetActive(true);
 
 				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
 
@@ -1526,18 +1359,6 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 		{
 			_sound->Pause(world, true);
 			_timeFire = std::max(_timeFire - dt, .0f);
-		}
-
-		vec2d delta(_timeFire * 0.1f / WEAP_MG_TIME_RELAX);
-		if( _crosshair )
-		{
-			_crosshair->SetDirection(Vec2dAddDirection(GetDirection(), delta));
-			_crosshair->MoveTo(world, GetPos() + _crosshair->GetDirection() * CH_DISTANCE_THIN);
-		}
-		if( _crosshairLeft )
-		{
-			_crosshairLeft->SetDirection(Vec2dSubDirection(GetDirection(), delta));
-			_crosshairLeft->MoveTo(world, GetPos() + _crosshairLeft->GetDirection() * CH_DISTANCE_THIN);
 		}
 	}
 
