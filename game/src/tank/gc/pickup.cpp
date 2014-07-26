@@ -515,8 +515,6 @@ void GC_pu_Shield::Serialize(World &world, SaveFile &f)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const float SHOCK_TIMEOUT = 1.5f;
-
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 {
 	ED_ITEM( "pu_shock", "obj_shock", 4 );

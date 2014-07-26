@@ -98,7 +98,7 @@
 // operation time
 #define BOOSTER_TIME        20.0f
 #define PROTECT_TIME        20.0f
-
+#define SHOCK_TIMEOUT        1.5f
 
 //-----------------------------------------------------------------------------
 // ai priorities settings

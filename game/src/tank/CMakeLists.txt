@@ -106,6 +106,7 @@ set(tank_SOURCES
 	render/rLight.cpp
 	render/rMinigun.cpp
 	render/rParticle.cpp
+	render/rShock.cpp
 	render/rSprite.cpp
 	render/rText.cpp
 	render/rTile.cpp

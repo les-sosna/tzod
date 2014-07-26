@@ -210,6 +210,8 @@ public:
 	GC_pu_Shock(World &world);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
+	
+	vec2d GetTargetPos() const { return _targetPos; }
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);

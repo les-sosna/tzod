@@ -7,6 +7,7 @@
 #include "rMinigun.h"
 #include "rParticle.h"
 #include "rPredicate.h"
+#include "rShock.h"
 #include "rSprite.h"
 #include "rText.h"
 #include "rTile.h"
@@ -137,6 +138,7 @@ WorldView::WorldView(IRender &render, TextureManager &tm)
 									 Make<R_AnimatedSprite>(tm, "pu_inv", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Shock>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
 									Make<R_AnimatedSprite>(tm, "pu_shock", ANIMATION_FPS));
+	_gameViews.AddView<GC_pu_Shock>(Make<Z_Predicate<Z_Const>>(IsPickupAttached, Z_FREE_ITEM), Make<R_Shock>(tm));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
 									  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_FREE_ITEM),
