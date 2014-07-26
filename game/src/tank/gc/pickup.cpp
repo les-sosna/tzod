@@ -527,7 +527,7 @@ IMPLEMENT_1LIST_MEMBER(GC_pu_Shock, LIST_gsprites);
 
 GC_pu_Shock::GC_pu_Shock(World &world)
   : GC_Pickup(world)
-  , _targetPosPredicted(0, 0)
+  , _targetPos(0, 0)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
@@ -553,7 +553,7 @@ void GC_pu_Shock::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
 	f.Serialize(_light);
-	f.Serialize(_targetPosPredicted);
+	f.Serialize(_targetPos);
 }
 
 AIPRIORITY GC_pu_Shock::GetPriority(World &world, const GC_Vehicle &veh) const
@@ -636,14 +636,14 @@ void GC_pu_Shock::TimeStepFixed(World &world, float dt)
 				{
 					SetGridSet(false);
 
-					_targetPosPredicted = pNearTarget->GetPos();
+					_targetPos = pNearTarget->GetPos();
 
 					_light = new GC_Light(world, GC_Light::LIGHT_DIRECT);
                     _light->Register(world);
 					_light->MoveTo(world, GetPos());
 					_light->SetRadius(100);
 
-					vec2d tmp = _targetPosPredicted - GetPos();
+					vec2d tmp = _targetPos - GetPos();
 					_light->SetLength(tmp.len());
 					_light->SetLightDirection(tmp.Normalize());
 
@@ -683,7 +683,7 @@ void GC_pu_Shock::Draw(DrawingContext &dc, bool editorMode) const
 		SpriteColor c;
 		c.r = c.g = c.b = c.a = int((1.0f - ((GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
 		const vec2d &pos = GetPos();
-		dc.DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPosPredicted.x, _targetPosPredicted.y, frand(1));
+		dc.DrawLine(t.GetTexture(), c, pos.x, pos.y, _targetPos.x, _targetPos.y, frand(1));
 	}
 }
 

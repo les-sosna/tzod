@@ -201,7 +201,7 @@ class GC_pu_Shock : public GC_Pickup
 
 private:
 	ObjPtr<GC_Light> _light;
-	vec2d _targetPosPredicted;
+	vec2d _targetPos;
 
 	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
 
