@@ -747,8 +747,6 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
 {
-	static const TextureCache tex("particle_smoke");
-
 	GC_Weapon::TimeStepFixed(world, dt);
 
 	if( GetCarrier() && _time_smoke > 0 )
@@ -759,7 +757,7 @@ void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
 			vec2d a = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), vec2d(_angle));
-			auto p = new GC_Particle(world, SPEED_SMOKE + a * 50.0f, tex, frand(0.3f) + 0.2f);
+			auto p = new GC_Particle(world, SPEED_SMOKE + a * 50.0f, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
             p->Register(world);
             p->MoveTo(world, GetPos() + a * 26.0f);
 		}
@@ -1043,11 +1041,6 @@ void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 {
-	static const TextureCache tex1("particle_fire2");
-	static const TextureCache tex2("particle_yellow");
-	static const TextureCache tex3("particle_fire");
-
-
 	if( GetCarrier() && _firingCounter )
 	{
 		GC_Vehicle *veh = static_cast<GC_Vehicle *>(GetCarrier());
@@ -1062,7 +1055,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? tex1 : tex2, time);
+				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? PARTICLE_FIRE2 : PARTICLE_YELLOW, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
@@ -1079,7 +1072,7 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, tex3, time);
+				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, PARTICLE_FIRE1, time);
                 p->Register(world);
                 p->MoveTo(world, emitter + dx);
 			}
@@ -1488,8 +1481,6 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 {
-	static const TextureCache tex("particle_1");
-
 	if( GetCarrier() )
 	{
 		GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());

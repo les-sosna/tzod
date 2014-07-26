@@ -2,7 +2,30 @@
 #include "gc/particles.h"
 
 static std::pair<ParticleType, const char*> textures[] = {
+	{ PARTICLE_FIRE1, "particle_fire" },
+	{ PARTICLE_FIRE2, "particle_fire2" },
+	{ PARTICLE_FIRE3, "particle_fire3" },
+	{ PARTICLE_FIRE4, "particle_fire4" },
 	{ PARTICLE_TYPE1, "particle_1" },
+	{ PARTICLE_TYPE2, "particle_2" },
+	{ PARTICLE_TYPE3, "particle_3" },
+	{ PARTICLE_TRACE1, "particle_trace" },
+	{ PARTICLE_TRACE2, "particle_trace2" },
+	{ PARTICLE_SMOKE, "particle_smoke" },
+	{ PARTICLE_EXPLOSION1, "explosion_o" },
+	{ PARTICLE_EXPLOSION2, "explosion_big" },
+	{ PARTICLE_EXPLOSION_G, "explosion_g" },
+	{ PARTICLE_EXPLOSION_E, "explosion_e" },
+	{ PARTICLE_EXPLOSION_S, "explosion_s" },
+	{ PARTICLE_EXPLOSION_P, "explosion_plazma" },
+	{ PARTICLE_BIGBLAST, "bigblast" },
+	{ PARTICLE_SMALLBLAST, "smallblast" },
+	{ PARTICLE_GAUSS1, "particle_gauss1" },
+	{ PARTICLE_GAUSS2, "particle_gauss2" },
+	{ PARTICLE_GAUSS_HIT, "particle_gausshit" },
+	{ PARTICLE_GREEN, "particle_green" },
+	{ PARTICLE_YELLOW, "particle_yellow" },
+	{ PARTICLE_CATTRACK, "cat_track" },
 };
 
 R_Particle::R_Particle(TextureManager &tm)
@@ -27,7 +50,7 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext 
 		float state = particle.GetTime() / particle.GetLifeTime();
 		auto frame = std::min(_tm.GetFrameCount(texId) - 1, (unsigned int) ((float) _tm.GetFrameCount(texId) * state));
 		vec2d pos = particle.GetPos();
-		vec2d dir = particle.GetDirection();
+		vec2d dir = particle.GetRotationSpeed() > 0 ? vec2d(particle.GetRotationSpeed() * particle.GetTime()) : particle.GetDirection();
 		SpriteColor color;
 		if (particle.GetFade())
 		{

@@ -78,6 +78,18 @@ GC_Particle::GC_Particle(World &world, const vec2d &v, const TextureCache &textu
 	SetDirection(orient);
 }
 
+GC_Particle::GC_Particle(World &world, const vec2d &v, ParticleType ptype,
+                         float lifeTime, const vec2d &orient)
+  : _time(0)
+  , _timeLife(lifeTime)
+  , _rotationSpeed(0)
+  , _velocity(v)
+  , _ptype(ptype)
+{
+	assert(_timeLife > 0);
+	SetDirection(orient);
+}
+
 GC_Particle::GC_Particle(FromFile)
   : GC_2dSprite(FromFile())
 {

@@ -282,16 +282,11 @@ void GC_Explosion::Kill(World &world)
 
 GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *owner)
 {
-	static const TextureCache tex1("particle_1");
-	static const TextureCache tex2("particle_smoke");
-	static const TextureCache tex3("smallblast");
-	static const TextureCache main("explosion_o");
-	
 	float duration = 0.32f;
 	
-	auto clip = new GC_ParticleExplosion(world, vec2d(0,0), main, duration, vrand(1));
-	clip->Register(world);
-	clip->MoveTo(world, pos);
+	auto main = new GC_ParticleExplosion(world, vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
+	main->Register(world);
+	main->MoveTo(world, pos);
 	
 	auto e = new GC_Explosion(world, owner, duration);
 	e->Register(world);
@@ -304,7 +299,7 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 	{
 		//ring
 		float ang = frand(PI2);
-		auto p = new GC_Particle(world, vec2d(ang) * 100, tex1, frand(0.5f) + 0.1f);
+		auto p = new GC_Particle(world, vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
         p->Register(world);
         p->MoveTo(world, pos);
 		
@@ -312,12 +307,12 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 		
-		auto p1 = new GC_Particle(world, SPEED_SMOKE, tex2, 1.5f);
+		auto p1 = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
         p1->Register(world);
         p1->MoveTo(world, pos + vec2d(ang) * d);
         p1->_time = frand(1.0f);
 	}
-	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), tex3, 8.0f, vrand(1));
+	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
     p->Register(world);
     p->MoveTo(world, pos);
 	p->SetFade(true);
@@ -329,18 +324,11 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 
 GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 {
-	static const TextureCache tex1("particle_1");
-	static const TextureCache tex2("particle_2");
-	static const TextureCache tex4("particle_trace");
-	static const TextureCache tex5("particle_smoke");
-	static const TextureCache tex6("bigblast");
-	static const TextureCache main("explosion_big");
-	
 	float duration = 0.72f;
 	
-	auto clip = new GC_ParticleExplosion(world, vec2d(0,0), main, duration, vrand(1));
-	clip->Register(world);
-	clip->MoveTo(world, pos);
+	auto main = new GC_ParticleExplosion(world, vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
+	main->Register(world);
+	main->MoveTo(world, pos);
 
 	auto e = new GC_Explosion(world, owner, duration);
 	e->Register(world);
@@ -354,7 +342,7 @@ GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 		//ring
 		for( int i = 0; i < 2; ++i )
 		{
-			auto p = new GC_Particle(world, vrand((200.0f + frand(30.0f)) * 0.9f), tex1, frand(0.6f) + 0.1f);
+			auto p = new GC_Particle(world, vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
             p->Register(world);
             p->MoveTo(world, pos + vrand(frand(20.0f)));
 		}
@@ -363,25 +351,25 @@ GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 
 		//dust
 		a = vrand(frand(40.0f));
-		auto p = new GC_Particle(world, a * 2, tex2, frand(0.5f) + 0.25f);
+		auto p = new GC_Particle(world, a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
         p->Register(world);
         p->MoveTo(world, pos + a);
 
 		// sparkles
 		a = vrand(1);
-		auto p1 = new GC_Particle(world, a * frand(80.0f), tex4, frand(0.3f) + 0.2f, a);
+		auto p1 = new GC_Particle(world, a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
         p1->Register(world);
         p1->MoveTo(world, pos + a * frand(40.0f));
 
 		//smoke
 		a = vrand(frand(48.0f));
-		auto p2 = new GC_Particle(world, SPEED_SMOKE + a * 0.5f, tex5, 1.5f);
+		auto p2 = new GC_Particle(world, SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
         p2->Register(world);
         p2->MoveTo(world, pos + a);
         p2->_time = frand(1.0f);
 	}
 
-	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), tex6, 20.0f, vrand(1));
+	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
     p->Register(world);
     p->MoveTo(world, pos);
 	p->SetFade(true);

@@ -118,11 +118,10 @@ void GC_Pickup::Respawn(World &world)
 	SetVisible(true);
 	PLAY(SND_puRespawn, GetPos());
 
-	static const TextureCache tex1("particle_1");
 	for( int n = 0; n < 50; ++n )
 	{
 		vec2d a(PI2 * (float) n / 50);
-		auto p = new GC_Particle(world, a * 25, tex1, frand(0.5f) + 0.1f);
+		auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
         p->Register(world);
         p->MoveTo(world, GetPos() + a * 25);
 	}
@@ -483,8 +482,6 @@ void GC_pu_Shield::TimeStepFloat(World &world, float dt)
 
 void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 {
-	static TextureCache tex("particle_3");
-
 	DamageDesc *pdd = reinterpret_cast<DamageDesc*>(param);
 	assert(NULL != pdd);
 	if( pdd->damage > 5 || 0 == rand() % 4 || 0 == _timeHit )
@@ -499,10 +496,10 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 		vec2d v   = ((GC_Vehicle *) sender)->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			auto p1 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+			auto p1 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
             p1->Register(world);
             p1->MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
-			auto p2 = new GC_Particle(world, v, tex, frand(0.4f)+0.1f);
+			auto p2 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
             p2->Register(world);
             p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}

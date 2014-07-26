@@ -44,8 +44,6 @@ UI::ConsoleBuffer& GetConsole();
 
 void GC_Vehicle::TimeStepFloat(World &world, float dt)
 {
-	static const TextureCache smoke("particle_smoke");
-
 	//
 	// spawn damage smoke
 	//
@@ -57,7 +55,7 @@ void GC_Vehicle::TimeStepFloat(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE, smoke, 1.5f);
+			auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
             p->Register(world);
             p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
             p->_time = frand(1.0f);
@@ -521,8 +519,6 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
 
 	// move...
 
-	static const TextureCache track("cat_track");
-    
 	if( _moveSound )
 	{
 		_moveSound->MoveTo(world, GetPos());
@@ -559,7 +555,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), track, 12, e);
+        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p->Register(world);
         p->MoveTo(world, trackL + e * _trackPathL);
         p->SetFade(true);
@@ -572,7 +568,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), track, 12, e);
+        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p->Register(world);
         p->MoveTo(world, trackR + e * _trackPathR);
         p->SetFade(true);

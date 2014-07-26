@@ -893,8 +893,6 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 
 void GC_Wall::OnDestroy(World &world)
 {
-	static const TextureCache tex("particle_smoke");
-
 	PLAY(SND_WallDestroy, GetPos());
 
 	for( int n = 0; n < 5; ++n )
@@ -903,7 +901,7 @@ void GC_Wall::OnDestroy(World &world)
         p->Register(world);
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
-	auto p = new GC_Particle(world, SPEED_SMOKE, tex, frand(0.2f) + 0.3f);
+	auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
     p->Register(world);
     p->MoveTo(world, GetPos());
 
