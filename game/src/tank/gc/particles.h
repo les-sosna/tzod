@@ -39,6 +39,7 @@ enum ParticleType
 	PARTICLE_FIRE2,
 	PARTICLE_FIRE3,
 	PARTICLE_FIRE4,
+	PARTICLE_FIRESPARK,
 	PARTICLE_TYPE1,
 	PARTICLE_TYPE2,
 	PARTICLE_TYPE3,
@@ -70,6 +71,7 @@ class GC_Particle : public GC_2dSprite
     typedef GC_2dSprite base;
 
 public:
+	float _sizeOverride = -1;
 	float _time;
 	float _timeLife;
 	float _rotationSpeed;
@@ -87,12 +89,15 @@ public:
 	float GetTime() const { return _time; }
 	float GetLifeTime() const { return _timeLife; }
 	float GetRotationSpeed() const { return _rotationSpeed; }
+	float GetSizeOverride() const { return _sizeOverride; }
 
 	void SetFade(bool fade);
 	void SetAutoRotate(float speed);
+	void SetSizeOverride(float size) { _sizeOverride = size; }
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
+	virtual void Draw(DrawingContext &dc, bool editorMode) const;
 	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
@@ -100,20 +105,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-class GC_ParticleScaled : public GC_Particle
-{
-	DECLARE_SELF_REGISTRATION(GC_ParticleScaled);
-
-	float _size;
-
-public:
-	GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture, float lifeTime, const vec2d &orient, float size);
-	GC_ParticleScaled(FromFile);
-
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void Draw(DrawingContext &dc, bool editorMode) const;
-};
 
 class GC_ParticleExplosion : public GC_Particle
 {

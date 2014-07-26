@@ -6,6 +6,7 @@ static std::pair<ParticleType, const char*> textures[] = {
 	{ PARTICLE_FIRE2, "particle_fire2" },
 	{ PARTICLE_FIRE3, "particle_fire3" },
 	{ PARTICLE_FIRE4, "particle_fire4" },
+	{ PARTICLE_FIRESPARK, "projectile_fire" },
 	{ PARTICLE_TYPE1, "particle_1" },
 	{ PARTICLE_TYPE2, "particle_2" },
 	{ PARTICLE_TYPE3, "particle_3" },
@@ -64,6 +65,10 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext 
 		{
 			color = 0xffffffff;
 		}
-		dc.DrawSprite(texId, frame, color, pos.x, pos.y, dir);
+		float size = particle.GetSizeOverride();
+		if( size < 0 )
+			dc.DrawSprite(texId, frame, color, pos.x, pos.y, dir);
+		else
+			dc.DrawSprite(texId, frame, color, pos.x, pos.y, size, size, dir);
 	}
 }

@@ -98,10 +98,12 @@ GC_Particle::GC_Particle(FromFile)
 void GC_Particle::Serialize(World &world, SaveFile &f)
 {
 	GC_2dSprite::Serialize(world, f);
+	f.Serialize(_sizeOverride);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
 	f.Serialize(_rotationSpeed);
 	f.Serialize(_velocity);
+	f.Serialize(_ptype);
 }
 
 void GC_Particle::TimeStepFloat(World &world, float dt)
@@ -140,36 +142,19 @@ void GC_Particle::SetAutoRotate(float speed)
 	_rotationSpeed = speed;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_ParticleScaled)
+void GC_Particle::Draw(DrawingContext &dc, bool editorMode) const
 {
-	return true;
+	if( _sizeOverride >= 0 )
+	{
+		dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(),
+					  GetPos().x, GetPos().y, _sizeOverride, _sizeOverride, GetDirection());
+	}
+	else
+	{
+		base::Draw(dc, editorMode);
+	}
 }
 
-GC_ParticleScaled::GC_ParticleScaled(World &world, const vec2d &v, const TextureCache &texture,
-                                     float lifeTime, const vec2d &orient, float size)
-  : GC_Particle(world, v, texture, lifeTime, orient)
-  , _size(size)
-{
-}
-
-GC_ParticleScaled::GC_ParticleScaled(FromFile)
-  : GC_Particle(FromFile())
-{
-}
-
-void GC_ParticleScaled::Serialize(World &world, SaveFile &f)
-{
-	GC_Particle::Serialize(world, f);
-	f.Serialize(_size);
-}
-
-void GC_ParticleScaled::Draw(DrawingContext &dc, bool editorMode) const
-{
-	dc.DrawSprite(GetTexture(), GetCurrentFrame(), GetColor(), 
-		GetPos().x, GetPos().y, _size, _size, GetDirection());
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

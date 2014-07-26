@@ -810,13 +810,12 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 
 void GC_FireSpark::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	static TextureCache tex("projectile_fire");
-	
-	GC_Particle *p = new GC_ParticleScaled(world, GetDirection() * (_velocity/3) + vrand(10.0f), tex, 0.1f + frand(0.3f), vrand(1), GetRadius());
+	GC_Particle *p = new GC_Particle(world, GetDirection() * (_velocity/3) + vrand(10.0f), PARTICLE_FIRESPARK, 0.1f + frand(0.3f), vrand(1));
     p->Register(world);
     p->MoveTo(world, pos + vrand(3));
 	p->SetFade(true);
 	p->SetAutoRotate(_rotation);
+	p->SetSizeOverride(GetRadius());
 
 	// random walk
 	vec2d tmp = GetDirection() + vec2d(GetDirection().y, -GetDirection().x) * (world.net_frand(0.06f) - 0.03f);
