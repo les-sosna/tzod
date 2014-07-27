@@ -99,6 +99,7 @@ set(tank_SOURCES
 #	network/Variant.cpp
 	render/WorldView.cpp
 	render/ObjectViewsSelector.cpp
+	render/RenderScheme.cpp
 	render/rAnimatedSprite.cpp
 	render/rBrickFragment.cpp
 	render/rFireSpark.cpp

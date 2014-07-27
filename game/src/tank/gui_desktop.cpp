@@ -71,7 +71,8 @@ Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldCon
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
-  , _worldView(*g_render, GetManager()->GetTextureManager())
+  , _renderScheme(GetManager()->GetTextureManager())
+  , _worldView(*g_render, GetManager()->GetTextureManager(), _renderScheme)
   , _worldController(worldController)
 {
 	SetTexture("ui/window", false);

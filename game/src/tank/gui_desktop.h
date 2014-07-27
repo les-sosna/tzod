@@ -4,6 +4,7 @@
 
 #include "DefaultCamera.h"
 #include "InputManager.h"
+#include "render/RenderScheme.h"
 #include "render/WorldView.h"
 #include <Window.h>
 #include <Console.h>
@@ -46,6 +47,7 @@ class Desktop
     int _nModalPopups;
     
     World &_world;
+	RenderScheme _renderScheme;
     WorldView _worldView;
 	WorldController &_worldController;
     DefaultCamera _defaultCamera;
