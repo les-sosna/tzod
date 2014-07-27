@@ -23,7 +23,7 @@ WorldView::~WorldView()
 {
 }
 
-void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
+void WorldView::Render(DrawingContext &dc, World &world, const FRECT &view, bool editorMode) const
 {
     // FIXME: ambient will take effect starting next frame
 	_render.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
@@ -99,7 +99,6 @@ void WorldView::Render(World &world, const FRECT &view, bool editorMode) const
 		}
     }
 
-	DrawingContext &dc = static_cast<DrawingContext&>(_tm);
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( auto &actorWithView: zLayers[z] )

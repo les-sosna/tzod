@@ -75,7 +75,6 @@ struct GlfwWindowDeleter
     }
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void OnPrintScreen()
@@ -244,7 +243,6 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
     auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
     gui->GetDesktop()->Resize((float) width, (float) height);
-    gui->GetTextureManager().SetCanvasSize(width, height);
 }
 
 
@@ -352,7 +350,6 @@ int main(int, const char**)
 #endif
         
         g_texman = new TextureManager(*render);
-        g_texman->SetCanvasSize(width, height);
         if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
             TRACE("WARNING: no textures loaded");
         if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
@@ -397,8 +394,12 @@ int main(int, const char**)
             gui.TimeStep(dt); // also sends controller state to WorldController
 			world.Step(dt * g_conf.sv_speed.GetFloat() / 100);
             
+			
+			glfwGetFramebufferSize(appWindow.get(), &width, &height);
+			DrawingContext dc(*g_texman, (unsigned int) width, (unsigned int) height);
+			
             render->Begin();
-            gui.Render();
+            gui.Render(dc);
             render->End();
             
 #ifndef NOSOUND

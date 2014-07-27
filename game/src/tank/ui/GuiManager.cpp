@@ -454,10 +454,9 @@ bool LayoutManager::ProcessKeys(Msg msg, int c)
 	return false;
 }
 
-void LayoutManager::Render() const
+void LayoutManager::Render(DrawingContext &dc) const
 {
 	g_render->SetMode(RM_INTERFACE);
-    auto &dc = static_cast<DrawingContext &>(GetTextureManager());
 
 	// draw desktop and all its children
 	if( _desktop->GetVisible() )

@@ -119,7 +119,7 @@ int Edit::GetSelMax() const
 
 void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float w = dc.GetFrameWidth(_font, 0) - 1;
+	float w = GetManager()->GetTextureManager().GetFrameWidth(_font, 0) - 1;
 
 	// selection
 	if( GetSelLength() && GetTimeStep() )
@@ -147,7 +147,7 @@ void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		FRECT rt;
 		rt.left = sx + (GetSelEnd() - (float) _offset) * w;
 		rt.top = sy;
-		rt.right = rt.left + dc.GetFrameWidth(_cursor, 0);
+		rt.right = rt.left + GetManager()->GetTextureManager().GetFrameWidth(_cursor, 0);
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}

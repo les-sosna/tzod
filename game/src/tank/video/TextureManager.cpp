@@ -44,7 +44,6 @@ const unsigned char CheckerImage::_bytes[] = {
 TextureManager::TextureManager(IRender &render)
     : _render(render)
 {
-	memset(&_viewport, 0, sizeof(_viewport));
 	CreateChecker();
 }
 
@@ -443,19 +442,23 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 	return Get(fontTexture).pxFrameHeight;
 }
 
-void TextureManager::SetCanvasSize(unsigned int width, unsigned int height)
+////////////////////////////////////////////////////////////////////
+
+DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
+	: _tm(tm)
 {
+	memset(&_viewport, 0, sizeof(_viewport));
 	_viewport.right = width;
 	_viewport.bottom = height;
-    _render.OnResizeWnd(width, height);
+    _tm.GetRender().OnResizeWnd(width, height);
 }
 
-void TextureManager::PushClippingRect(const Rect &rect) const
+void DrawingContext::PushClippingRect(const Rect &rect)
 {
 	if( _clipStack.empty() )
 	{
 		_clipStack.push(rect);
-		_render.SetScissor(&rect);
+		_tm.GetRender().SetScissor(&rect);
 	}
 	else
 	{
@@ -466,26 +469,23 @@ void TextureManager::PushClippingRect(const Rect &rect) const
 		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
 		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
 		_clipStack.push(tmp);
-		_render.SetScissor(&tmp);
+		_tm.GetRender().SetScissor(&tmp);
 	}
 }
 
-void TextureManager::PopClippingRect() const
+void DrawingContext::PopClippingRect()
 {
 	assert(!_clipStack.empty());
 	_clipStack.pop();
 	if( _clipStack.empty() )
 	{
-		_render.SetScissor(&_viewport);
+		_tm.GetRender().SetScissor(&_viewport);
 	}
 	else
 	{
-		_render.SetScissor(&_clipStack.top());
+		_tm.GetRender().SetScissor(&_clipStack.top());
 	}
 }
-
-////////////////////////////////////////////////////////////////////
-
 
 void DrawingContext::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
@@ -494,16 +494,17 @@ void DrawingContext::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor col
 
 void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	const LogicalTexture &lt = Get(sprite);
+	const LogicalTexture &lt = _tm.Get(sprite);
 
 	const float pxBorderSize  = 2;
 	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
 	const float uvBorderHeight = pxBorderSize * lt.uvFrameHeight / lt.pxFrameHeight;
 
 	MyVertex *v;
+	IRender &render = _tm.GetRender();
 
 	// left edge
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop;
@@ -526,7 +527,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// right edge
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop;
@@ -549,7 +550,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom;
 
 	// top edge
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -572,7 +573,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// bottom edge
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft;
 	v[0].v = lt.uvBottom;
@@ -595,7 +596,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left top corner
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -618,7 +619,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right top corner
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvTop - uvBorderHeight;
@@ -641,7 +642,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->top;
 
 	// right bottom corner
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvRight;
 	v[0].v = lt.uvBottom;
@@ -664,7 +665,7 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	v[3].y = dst->bottom + pxBorderSize;
 
 	// left bottom corner
-	v = _render.DrawQuad(lt.dev_texture);
+	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
 	v[0].u = lt.uvLeft - uvBorderWidth;
 	v[0].v = lt.uvBottom;
@@ -713,7 +714,8 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	}
 
 
-	const LogicalTexture &lt = Get(tex);
+	const LogicalTexture &lt = _tm.Get(tex);
+	IRender &render = _tm.GetRender();
 
 	size_t count = 0;
 	size_t line  = 0;
@@ -738,7 +740,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		float x = x0 + (float) ((count++) * (lt.pxFrameWidth - 1));
 		float y = y0 + (float) (line * lt.pxFrameHeight);
 
-		MyVertex *v = _render.DrawQuad(lt.dev_texture);
+		MyVertex *v = render.DrawQuad(lt.dev_texture);
 
 		v[0].color = color;
 		v[0].u = rt.left;
@@ -768,11 +770,12 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
-	assert(frame < GetFrameCount(tex));
-	const LogicalTexture &lt = Get(tex);
+	assert(frame < _tm.GetFrameCount(tex));
+	const LogicalTexture &lt = _tm.Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
+	IRender &render = _tm.GetRender();
 
-	MyVertex *v = _render.DrawQuad(lt.dev_texture);
+	MyVertex *v = render.DrawQuad(lt.dev_texture);
 
 	float width = lt.pxFrameWidth;
 	float height = lt.pxFrameHeight;
@@ -808,10 +811,11 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
-	const LogicalTexture &lt = Get(tex);
+	const LogicalTexture &lt = _tm.Get(tex);
 	const FRECT &rt = lt.uvFrames[frame];
+	IRender &render = _tm.GetRender();
 
-	MyVertex *v = _render.DrawQuad(lt.dev_texture);
+	MyVertex *v = render.DrawQuad(lt.dev_texture);
 
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
@@ -843,13 +847,14 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
-	const LogicalTexture &lt = Get(tex);
+	const LogicalTexture &lt = _tm.Get(tex);
 	const FRECT &rt = lt.uvFrames[0];
+	IRender &render = _tm.GetRender();
 
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
 
-	MyVertex *v = _render.DrawQuad(lt.dev_texture);
+	MyVertex *v = render.DrawQuad(lt.dev_texture);
 
 	v[0].color = 0xffffffff;
 	v[0].u = rt.left;
@@ -879,9 +884,10 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 void DrawingContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
-	const LogicalTexture &lt = Get(tex);
+	const LogicalTexture &lt = _tm.Get(tex);
+	IRender &render = _tm.GetRender();
 
-	MyVertex *v = _render.DrawQuad(lt.dev_texture);
+	MyVertex *v = render.DrawQuad(lt.dev_texture);
 
 	float len = sqrtf((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
 	float phase1 = phase + len / lt.pxFrameWidth;

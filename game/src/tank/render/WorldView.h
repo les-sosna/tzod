@@ -2,6 +2,7 @@
 
 #include "Terrain.h"
 
+class DrawingContext;
 class TextureManager;
 class RenderScheme;
 class World;
@@ -13,7 +14,7 @@ class WorldView
 public:
     WorldView(IRender &render, TextureManager &tm, RenderScheme &rs);
 	~WorldView();
-	void Render(World &world, const FRECT &view, bool editorMode) const;
+	void Render(DrawingContext &dc, World &world, const FRECT &view, bool editorMode) const;
 
 private:
     IRender &_render;

@@ -895,7 +895,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
     
     g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
-    _worldView.Render(_world, viewRect, true);
+    _worldView.Render(dc, _world, viewRect, true);
     
 	g_render->SetMode(RM_INTERFACE);
     

@@ -202,7 +202,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
                              singleCamera->GetZoom(),
                              g_conf.g_rotcamera.Get() ? singleCamera->GetAngle() : 0);
             
-            _worldView.Render(_world, viewRect, false);
+            _worldView.Render(dc, _world, viewRect, false);
         }
         else
         {
@@ -222,7 +222,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
                                  pCamera->GetZoom(),
                                  g_conf.g_rotcamera.Get() ? pCamera->GetAngle() : 0);
                 
-                _worldView.Render(_world, viewRect, false);
+                _worldView.Render(dc, _world, viewRect, false);
 				
 				++camIndex;
             }
@@ -238,7 +238,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
         
 		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom(), 0);
-        _worldView.Render(_world, viewRect, false);
+        _worldView.Render(dc, _world, viewRect, false);
     }
 	g_render->SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);

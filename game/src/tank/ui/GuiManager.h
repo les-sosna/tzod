@@ -39,7 +39,7 @@ public:
 	~LayoutManager();
 
 	void TimeStep(float dt);
-	void Render() const;
+	void Render(DrawingContext &dc) const;
 
 	bool ProcessMouse(float x, float y, float z, Msg msg);
 	bool ProcessKeys(Msg msg, int c);

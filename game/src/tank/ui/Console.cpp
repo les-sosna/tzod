@@ -246,7 +246,7 @@ void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	{
 		_buf->Lock();
 
-		float h = dc.GetFrameHeight(_font, 0);
+		float h = GetManager()->GetTextureManager().GetFrameHeight(_font, 0);
 		size_t visibleLineCount = size_t(_input->GetY() / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;

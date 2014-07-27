@@ -310,9 +310,9 @@ void CheckBox::OnChangeState(State state)
 
 void CheckBox::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float bh = dc.GetFrameHeight(_boxTexture, GetFrame());
-	float bw = dc.GetFrameWidth(_boxTexture, GetFrame());
-	float th = dc.GetFrameHeight(_fontTexture, 0);
+	float bh = GetManager()->GetTextureManager().GetFrameHeight(_boxTexture, GetFrame());
+	float bw = GetManager()->GetTextureManager().GetFrameWidth(_boxTexture, GetFrame());
+	float th = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
 
 	FRECT box = {sx, sy + (GetHeight() - bh) / 2, sx + bw, sy + (GetHeight() - bh) / 2 + bh};
 	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());

@@ -82,7 +82,7 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text);
 	}
 
-	float h = dc.GetCharHeight(_font);
+	float h = GetManager()->GetTextureManager().GetCharHeight(_font);
 	for( size_t i = 0; i < players.size(); ++i )
 	{
 		if( i < 8 )
