@@ -344,8 +344,6 @@ GC_Bullet::GC_Bullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyS
 	SetHitDamage(advanced ? DAMAGE_BULLET * 2 : DAMAGE_BULLET);
 	SetHitImpulse(5);
 	SetTrailDensity(world, 5.0f);
-
-	SetVisible(false);
 	_light->SetActive(false);
 }
 

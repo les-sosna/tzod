@@ -24,7 +24,8 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 1)
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 2)
 #define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_2DSPRITE_ << 3)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 4)
+#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_2DSPRITE_ << 4)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 5)
 
 class GC_Pickup : public GC_2dSprite
 {
@@ -81,6 +82,9 @@ public:
 
 	void SetAutoSwitch(bool autoSwitch) { SetFlags(GC_FLAG_PICKUP_AUTO, autoSwitch); }
 	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
+
+	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
+	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
 
 	float GetTimeAnimation() const { return _timeAnimation; }
 	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }

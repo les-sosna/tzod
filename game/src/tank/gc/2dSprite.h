@@ -7,9 +7,8 @@
 #include "globals.h"
 #include "render/ObjectView.h"
 
-#define GC_FLAG_2DSPRITE_VISIBLE               (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_2DSPRITE_                      (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_2DSPRITE_                      (GC_FLAG_ACTOR_ << 1)
 
 class GC_2dSprite : public GC_Actor
 {
@@ -20,7 +19,6 @@ class GC_2dSprite : public GC_Actor
 	size_t _texId;
 
 public:
-	size_t GetTexture() const { return _texId; }
 	void  GetGlobalRect(FRECT &rect) const
 	{
 		const LogicalTexture &lt = g_texman->Get(_texId);
@@ -48,9 +46,6 @@ public:
 
 	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, bGridSet); }
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_2DSPRITE_INGRIDSET); }
-
-	void SetVisible(bool bShow) { SetFlags(GC_FLAG_2DSPRITE_VISIBLE, bShow); }
-	bool GetVisible() const { return CheckFlags(GC_FLAG_2DSPRITE_VISIBLE); }
 
 public:
     DECLARE_GRID_MEMBER();

@@ -42,6 +42,7 @@ GC_Pickup::GC_Pickup(World &world)
 	SetAutoSwitch(true);
 	SetRespawn(false);
 	SetBlinking(false);
+	SetVisible(true);
 }
 
 GC_Pickup::GC_Pickup(FromFile)

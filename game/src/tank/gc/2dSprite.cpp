@@ -24,7 +24,7 @@ GC_2dSprite::GC_2dSprite()
   : _direction(1, 0)
   , _texId(0)
 {
-	SetFlags(GC_FLAG_2DSPRITE_VISIBLE|GC_FLAG_2DSPRITE_INGRIDSET, true);
+	SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, true);
 }
 
 GC_2dSprite::GC_2dSprite(FromFile)
