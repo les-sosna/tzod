@@ -38,8 +38,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
-  : GC_2dSprite(FromFile())
-  , _radius(0) // for proper handling of bad save files
+  : _radius(0) // for proper handling of bad save files
 {
 }
 

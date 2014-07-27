@@ -154,7 +154,6 @@ GC_Decoration::GC_Decoration(World &world)
 }
 
 GC_Decoration::GC_Decoration(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 

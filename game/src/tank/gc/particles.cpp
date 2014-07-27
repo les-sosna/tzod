@@ -23,7 +23,6 @@ GC_BrickFragment::GC_BrickFragment(World &world, const vec2d &v0)
 }
 
 GC_BrickFragment::GC_BrickFragment(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -72,7 +71,6 @@ GC_Particle::GC_Particle(World &world, const vec2d &v, ParticleType ptype,
 }
 
 GC_Particle::GC_Particle(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 

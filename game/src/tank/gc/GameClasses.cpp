@@ -33,7 +33,6 @@ GC_Wood::GC_Wood(World &world)
 }
 
 GC_Wood::GC_Wood(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -129,7 +128,6 @@ GC_HealthDaemon::GC_HealthDaemon(World &world,
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -193,6 +191,10 @@ GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
 	, _text(text)
 {
 	SetTexture("font_default");
+}
+
+GC_Text::~GC_Text()
+{
 }
 
 void GC_Text::Serialize(World &world, SaveFile &f)

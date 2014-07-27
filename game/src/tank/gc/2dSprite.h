@@ -12,7 +12,6 @@
 
 class GC_2dSprite : public GC_Actor
 {
-	DECLARE_SELF_REGISTRATION(GC_2dSprite);
     typedef GC_Actor base;
 
 	vec2d _direction;
@@ -51,8 +50,7 @@ public:
     DECLARE_GRID_MEMBER();
     
 	GC_2dSprite();
-	GC_2dSprite(FromFile);
-	virtual ~GC_2dSprite();
+	virtual ~GC_2dSprite() = 0;
 
 	virtual enumZOrder GetZ() const { return Z_NONE; }
 	

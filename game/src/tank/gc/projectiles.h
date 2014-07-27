@@ -54,7 +54,7 @@ protected:
 public:
     DECLARE_LIST_MEMBER();
 	GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced,
-		bool trail, const vec2d &pos, const vec2d &v, const char *texture);
+		bool trail, const vec2d &pos, const vec2d &v);
 	GC_Projectile(FromFile);
 	virtual ~GC_Projectile();
 

@@ -1,22 +1,11 @@
 // 2dSprite.cpp
 
 #include "2dSprite.h"
-
 #include "World.h"
 #include "SaveFile.h"
 
 #include "video/TextureManager.h"
 #include "video/RenderBase.h"
-
-#include "config/Config.h"
-
-
-/////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_2dSprite)
-{
-	return true;
-}
 
 IMPLEMENT_GRID_MEMBER(GC_2dSprite, grid_sprites)
 
@@ -25,11 +14,6 @@ GC_2dSprite::GC_2dSprite()
   , _texId(0)
 {
 	SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, true);
-}
-
-GC_2dSprite::GC_2dSprite(FromFile)
-  : _texId(0) // for proper handling of bad save files
-{
 }
 
 GC_2dSprite::~GC_2dSprite()

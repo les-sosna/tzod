@@ -30,7 +30,6 @@ GC_SpawnPoint::GC_SpawnPoint(World &world)
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -123,7 +122,6 @@ GC_HideLabel::GC_HideLabel(World &world)
 }
 
 GC_HideLabel::GC_HideLabel(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 

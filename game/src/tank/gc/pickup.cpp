@@ -46,7 +46,6 @@ GC_Pickup::GC_Pickup(World &world)
 }
 
 GC_Pickup::GC_Pickup(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 

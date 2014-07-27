@@ -33,7 +33,6 @@ GC_Light::GC_Light(World &world, enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile)
-	: GC_2dSprite(FromFile())
 {
 }
 
@@ -95,7 +94,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 }
 
 GC_Spotlight::GC_Spotlight(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 

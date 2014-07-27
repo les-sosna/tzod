@@ -18,8 +18,8 @@
 
 IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 
-GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail,
-                             const vec2d &pos, const vec2d &v, const char *texture)
+GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner,
+							 bool advanced, bool trail, const vec2d &pos, const vec2d &v)
   : _ignore(ignore)
   , _owner(owner)
   , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
@@ -34,7 +34,6 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
 	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
-	SetTexture(texture);
 	MoveTo(world, pos, false);
 
 	vec2d dir(v);
@@ -43,7 +42,6 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 }
 
 GC_Projectile::GC_Projectile(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
@@ -206,7 +204,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Rocket)
 }
 
 GC_Rocket::GC_Rocket(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_rocket")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
   , _timeHomming(0.0f)
 {
 	SetTrailDensity(world, 1.5f);
@@ -338,7 +336,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Bullet)
 }
 
 GC_Bullet::GC_Bullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, /*"projectile_bullet"*/ NULL)
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
   , _trailEnable(false)
 {
 	SetHitDamage(advanced ? DAMAGE_BULLET * 2 : DAMAGE_BULLET);
@@ -414,7 +412,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TankBullet)
 }
 
 GC_TankBullet::GC_TankBullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_cannon")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
 {
 	SetTrailDensity(world, 5.0f);
 	SetHitDamage(DAMAGE_TANKBULLET);
@@ -486,7 +484,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_PlazmaClod)
 }
 
 GC_PlazmaClod::GC_PlazmaClod(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_plazma")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
 {
 	SetHitDamage(DAMAGE_PLAZMA);
 	SetTrailDensity(world, 4.0f);
@@ -555,7 +553,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_BfgCore)
 }
 
 GC_BfgCore::GC_BfgCore(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_bfg")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
   , _time(0)
 {
 	PLAY(SND_BfgFire, GetPos());
@@ -714,7 +712,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_FireSpark)
 }
 
 GC_FireSpark::GC_FireSpark(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_fire" )
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
   , _time(0)
   , _timeLife(1)
   , _rotation(frand(10) - 5)
@@ -899,7 +897,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_ACBullet)
 }
 
 GC_ACBullet::GC_ACBullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_ac")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
 {
 	SetHitDamage(DAMAGE_ACBULLET);
 	SetHitImpulse(20);
@@ -976,7 +974,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_GaussRay)
 }
 
 GC_GaussRay::GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, NULL)
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
 {
 	SetHitDamage(DAMAGE_GAUSS);
 	SetHitImpulse(100);
@@ -1063,7 +1061,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Disk)
 }
 
 GC_Disk::GC_Disk(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced)
-  : GC_Projectile(world, ignore, owner, advanced, true, x, v, "projectile_disk")
+  : GC_Projectile(world, ignore, owner, advanced, true, x, v)
 {
 	SetHitDamage(world.net_frand(DAMAGE_DISK_MAX - DAMAGE_DISK_MIN) + DAMAGE_DISK_MIN * (advanced ? 2.0f : 1.0f));
 	SetHitImpulse(GetHitDamage() / DAMAGE_DISK_MAX * 20);

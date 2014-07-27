@@ -102,7 +102,8 @@ public:
 	};
 	
 	GC_Text(World &world, const std::string &text, enumAlignText align = alignTextLT);
-	GC_Text(FromFile) : GC_2dSprite(FromFile()) {};
+	GC_Text(FromFile) {}
+	virtual ~GC_Text() = 0;
 	
 	void SetText(std::string text) { _text = std::move(text); }
 	void SetAlign(enumAlignText align) { _align = align; }
@@ -131,7 +132,7 @@ class GC_Text_ToolTip : public GC_Text
 public:
     DECLARE_LIST_MEMBER();
 	GC_Text_ToolTip(World &world, const std::string &text, Style style);
-	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {};
+	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
 	// GC_2dSprite
 	virtual enumZOrder GetZ() const { return Z_PARTICLE; }

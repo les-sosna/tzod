@@ -41,7 +41,6 @@ GC_Trigger::GC_Trigger(World &world)
 }
 
 GC_Trigger::GC_Trigger(FromFile)
-  : GC_2dSprite(FromFile())
 {
 }
 
