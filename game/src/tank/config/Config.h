@@ -92,10 +92,6 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	// game
 	VAR_BOOL(  g_shownames,         true )
 	VAR_BOOL(  g_showdamage,       false )
-	VAR_BOOL(  g_rotcamera,        false )
-	VAR_FLOAT( g_rotcamera_a,      10.0f )
-	VAR_FLOAT( g_rotcamera_s,      10.0f )
-	VAR_FLOAT( g_rotcamera_m,       5.0f )
 
 	// editor
 	VAR_BOOL(  ed_drawgrid,         true )

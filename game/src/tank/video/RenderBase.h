@@ -84,7 +84,7 @@ struct IRender
 
 	virtual void SetScissor(const Rect *rect) = 0;
 	virtual void SetViewport(const Rect *rect) = 0;
-	virtual void Camera(const Rect *vp, float x, float y, float scale, float angle) = 0;
+	virtual void Camera(const Rect *vp, float x, float y, float scale) = 0;
 
     virtual int  GetWidth() const = 0;
     virtual int  GetHeight() const = 0;

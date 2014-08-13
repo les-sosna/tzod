@@ -18,9 +18,6 @@ private:
 	vec2d  _target;
 	float  _time_shake;
 	float  _time_seed;
-	float  _rotatorAngle;
-
-	Rotator _rotator;
 
 	float   _zoom;
 	ObjPtr<GC_Player>  _player;
@@ -34,7 +31,6 @@ public:
 
 	void CameraTimeStep(World &world, float dt, vec2d viewSize);
 
-	float GetAngle() const { return _rotatorAngle; }
 	void GetWorld(FRECT &outWorld, const Rect &screen) const;
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }

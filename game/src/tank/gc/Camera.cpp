@@ -31,20 +31,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 IMPLEMENT_1LIST_MEMBER(GC_Camera, LIST_cameras);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
-  : _rotator(_rotatorAngle)
-  , _player(player)
+  : _player(player)
 {
 	assert(_player);
-
-	_rotator.reset(0.0f, 0.0f,
-		g_conf.g_rotcamera_m.GetFloat(),
-		g_conf.g_rotcamera_a.GetFloat(),
-		std::max(0.001f, g_conf.g_rotcamera_s.GetFloat()));
 
 	MoveTo(world, vec2d(world._sx / 2, world._sy / 2));
 	if( _player->GetVehicle() )
 	{
-		_rotatorAngle =  -_player->GetVehicle()->GetDirection().Angle() + PI/2;
 		MoveTo(world, _player->GetVehicle()->GetPos());
 	}
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
@@ -56,7 +49,6 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 }
 
 GC_Camera::GC_Camera(FromFile)
-  : _rotator(_rotatorAngle)
 {
 }
 
@@ -81,11 +73,8 @@ void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 {
 	float mu = 3;
 
-	_rotator.process_dt(dt);
 	if( _player->GetVehicle() )
 	{
-		_rotator.rotate_to(-_player->GetVehicle()->GetDirection().Angle() - PI/2);
-
 		mu += _player->GetVehicle()->_lv.len() / 100;
 
 		int dx = (int) std::max(.0f, (viewSize.x / _zoom - world._sx) / 2);
@@ -148,14 +137,11 @@ void GC_Camera::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
-	f.Serialize(_rotatorAngle);
 	f.Serialize(_target);
 	f.Serialize(_time_seed);
 	f.Serialize(_time_shake);
 	f.Serialize(_zoom);
 	f.Serialize(_player);
-
-	_rotator.Serialize(f);
 }
 
 void GC_Camera::OnDetach(World &world, GC_Object *sender, void *param)

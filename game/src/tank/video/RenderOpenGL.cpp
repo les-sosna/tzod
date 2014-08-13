@@ -62,7 +62,7 @@ private:
 
 	virtual void SetViewport(const Rect *rect);
 	virtual void SetScissor(const Rect *rect);
-	virtual void Camera(const Rect *vp, float x, float y, float scale, float angle);
+	virtual void Camera(const Rect *vp, float x, float y, float scale);
 
 	virtual int  GetWidth() const;
 	virtual int  GetHeight() const;
@@ -159,18 +159,15 @@ void RenderOpenGL::SetViewport(const Rect *rect)
 	}
 }
 
-void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale, float angle)
+void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale)
 {
 	SetViewport(vp);
 	SetScissor(vp);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef( (GLfloat) GetViewportWidth()/2, (GLfloat) GetViewportHeight()/2, 0 );
-	glRotatef(angle * 180.0f / PI, 0,0,1);
-	glTranslatef( -(GLfloat) GetViewportWidth()/2, -(GLfloat) GetViewportHeight()/2, 0 );
 	glScalef(scale, scale, 1);
-	glTranslatef( -x, -y, 0 );
+	glTranslatef(-x, -y, 0);
 }
 
 int RenderOpenGL::GetWidth() const
@@ -238,7 +235,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 
 	case RM_INTERFACE:
 		SetViewport(NULL);
-		Camera(NULL, 0, 0, 1, 0);
+		Camera(NULL, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
