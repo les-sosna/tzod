@@ -15,11 +15,11 @@ class GC_Camera : public GC_Actor
     typedef GC_Actor base;
 
 private:
-	vec2d  _target;
-	float  _time_shake;
-	float  _time_seed;
+	vec2d _target;
+	float _time_shake;
+	float _time_seed;
 
-	float   _zoom;
+	float _zoom;
 	ObjPtr<GC_Player>  _player;
 
 public:
@@ -31,7 +31,7 @@ public:
 
 	void CameraTimeStep(World &world, float dt, vec2d viewSize);
 
-	void GetWorld(FRECT &outWorld, const Rect &screen) const;
+	vec2d GetCameraPos() const;
 	float GetZoom() const { return _zoom; }
 	GC_Player* GetPlayer() const { assert(_player); return _player; }
 

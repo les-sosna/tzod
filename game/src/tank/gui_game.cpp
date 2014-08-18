@@ -94,12 +94,6 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
     assert(camCount > 0 && camCount <= 4);
     assert(camIndex < camCount);
     
-	if( ssize.x >= wsize.x && ssize.y >= wsize.y )
-	{
-		return CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
-                     (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
-	}
-
     Rect viewports[4];
 
     switch( camCount )
@@ -138,28 +132,29 @@ void UI::GameLayout::OnTimeStep(float dt)
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
-										Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
-		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(screen), (float) HEIGHT(screen)));
+		Rect viewport = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
+		                                  Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
+		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(viewport), (float) HEIGHT(viewport)) / pCamera->GetZoom());
 		if (readUserInput)
 		{
 			GC_Player *player = pCamera->GetPlayer();
 			if( GC_Vehicle *vehicle = player->GetVehicle() )
 			{
 				bool mouseInViewport = false;
-				vec2d pt = GetManager()->GetMousePos();
-				if( PtInRect(screen, Point{(int) pt.x, (int) pt.y}) )
+				vec2d ptWorld(0,0);
+				vec2d ptScreen = GetManager()->GetMousePos();
+				if( PtInRect(viewport, Point{(int) ptScreen.x, (int) ptScreen.y}) )
 				{
-					FRECT w;
-					pCamera->GetWorld(w, screen);
-					pt.x = w.left + (pt.x - (float) screen.left) / pCamera->GetZoom();
-					pt.y = w.top + (pt.y - (float) screen.top) / pCamera->GetZoom();
+					vec2d eye = pCamera->GetCameraPos();
+					float zoom = pCamera->GetZoom();
+					ptWorld.x = eye.x + (ptScreen.x - (viewport.left + viewport.right) / 2) / zoom;
+					ptWorld.y = eye.y + (ptScreen.y - (viewport.bottom + viewport.top) / 2) / zoom;
 					mouseInViewport = true;
 				}
 				if( Controller *controller = _inputMgr.GetController(player) )
 				{
 					VehicleState vs;
-					controller->ReadControllerState(_world, vehicle, mouseInViewport ? &pt : nullptr, vs);
+					controller->ReadControllerState(_world, vehicle, mouseInViewport ? &ptWorld : nullptr, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -175,6 +170,9 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
     if( size_t camCount = _world.GetList(LIST_cameras).size() )
     {
+		Point ssize = {(int) GetWidth(), (int) GetHeight()};
+		Point wsize = {(int) _world._sx, (int) _world._sy};
+		
         if( GetWidth() >= _world._sx && GetHeight() >= _world._sy )
         {
             // render from single camera with maximum shake
@@ -189,19 +187,12 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
                 }
             }
             assert(singleCamera);
-            
-            Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
-                                            Point{(int) _world._sx, (int) _world._sy}, camCount, 0);
 
-            FRECT viewRect;
-            singleCamera->GetWorld(viewRect, screen);
-            
-            g_render->Camera(&screen,
-                             viewRect.left,
-                             viewRect.top,
-                             singleCamera->GetZoom());
-            
-            _worldView.Render(dc, _world, viewRect, false);
+			Rect viewport = CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
+								  (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
+			vec2d eye = singleCamera->GetCameraPos();
+			float zoom = singleCamera->GetZoom();
+            _worldView.Render(dc, _world, viewport, eye, zoom, false);
         }
         else
         {
@@ -209,18 +200,10 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			size_t camIndex = 0;
             FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
             {
-				Rect screen = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
-												Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
-
-				FRECT viewRect;
-                pCamera->GetWorld(viewRect, screen);
-
-                g_render->Camera(&screen,
-                                 viewRect.left,
-                                 viewRect.top,
-                                 pCamera->GetZoom());
-                _worldView.Render(dc, _world, viewRect, false);
-				
+				Rect viewport = GetCameraViewport(ssize, wsize, camCount, camIndex);
+				vec2d eye = pCamera->GetCameraPos();
+				float zoom = pCamera->GetZoom();
+                _worldView.Render(dc, _world, viewport, eye, zoom, false);
 				++camIndex;
             }
         }
@@ -228,14 +211,10 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     else
     {
         // render from default camera
-		FRECT viewRect;
-		viewRect.left = _defaultCamera.GetPosX();
-		viewRect.top = _defaultCamera.GetPosY();
-		viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
-		viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
-        
-		g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom());
-        _worldView.Render(dc, _world, viewRect, false);
+		CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
+		vec2d eye(_defaultCamera.GetPosX() + GetWidth() / 2, _defaultCamera.GetPosY() + GetHeight() / 2);
+		float zoom = _defaultCamera.GetZoom();
+        _worldView.Render(dc, _world, viewport, eye, zoom, false);
     }
 	g_render->SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);

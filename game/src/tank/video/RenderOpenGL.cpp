@@ -167,7 +167,10 @@ void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glScalef(scale, scale, 1);
-	glTranslatef(-x, -y, 0);
+	if (vp)
+		glTranslatef((float) WIDTH(*vp) / 2 / scale - x, (float) HEIGHT(*vp) / 2 / scale - y, 0);
+	else
+		glTranslatef(0, 0, 0);
 }
 
 int RenderOpenGL::GetWidth() const

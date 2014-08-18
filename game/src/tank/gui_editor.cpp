@@ -888,14 +888,10 @@ void EditorLayout::OnChangeUseLayers()
 
 void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    FRECT viewRect;
-    viewRect.left = _defaultCamera.GetPosX();
-    viewRect.top = _defaultCamera.GetPosY();
-    viewRect.right = viewRect.left + (float) GetWidth() / _defaultCamera.GetZoom();
-    viewRect.bottom = viewRect.top + (float) GetHeight() / _defaultCamera.GetZoom();
-    
-    g_render->Camera(NULL, _defaultCamera.GetPosX(), _defaultCamera.GetPosY(), _defaultCamera.GetZoom());
-    _worldView.Render(dc, _world, viewRect, true);
+	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
+	vec2d eye(_defaultCamera.GetPosX() + GetWidth() / 2, _defaultCamera.GetPosY() + GetHeight() / 2);
+	float zoom = _defaultCamera.GetZoom();
+	_worldView.Render(dc, _world, viewport, eye, zoom, true);
     
 	g_render->SetMode(RM_INTERFACE);
     

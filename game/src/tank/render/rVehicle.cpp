@@ -18,8 +18,8 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 	vec2d pos = vehicle.GetPos();
 	vec2d dir = vehicle.GetDirection();
 	size_t texId = _tm.FindSprite(vehicle.GetSkin());
-	dc.DrawSprite(texId, 0, 0x40000000, floorf(pos.x) + 4, floorf(pos.y) + 4, dir);
-	dc.DrawSprite(texId, 0, 0xffffffff, floorf(pos.x), floorf(pos.y), dir);
+	dc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
+	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	
 	if( g_conf.g_shownames.Get() && vehicle.GetOwner() )
 	{

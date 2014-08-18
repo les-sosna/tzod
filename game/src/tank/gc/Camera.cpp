@@ -81,14 +81,15 @@ void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 		int dy = (int) std::max(.0f, (viewSize.y / _zoom - world._sy) / 2);
 
 		vec2d r = _player->GetVehicle()->GetPos() + _player->GetVehicle()->_lv / mu;
+		float directionMultipler = std::min(130.0f, std::min(viewSize.x, viewSize.y) / 3);
 
 		if( _player->GetVehicle()->GetWeapon() )
 		{
-			r += _player->GetVehicle()->GetWeapon()->GetDirection() * 130.0f;
+			r += _player->GetVehicle()->GetWeapon()->GetDirection() * directionMultipler;
 		}
 		else
 		{
-			r += _player->GetVehicle()->GetDirection() * 130.0f;
+			r += _player->GetVehicle()->GetDirection() * directionMultipler;
 		}
 
 		_target.x = r.x + (float) dx;
@@ -110,7 +111,7 @@ void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 	MoveTo(world, _target + (GetPos() - _target) * expf(-dt * mu));
 }
 
-void GC_Camera::GetWorld(FRECT &outWorld, const Rect &screen) const
+vec2d GC_Camera::GetCameraPos() const
 {
 	vec2d shake(0, 0);
 	if( _time_shake > 0 )
@@ -118,11 +119,7 @@ void GC_Camera::GetWorld(FRECT &outWorld, const Rect &screen) const
 		shake.Set(cos((_time_shake + _time_seed)*70.71068f), sin((_time_shake + _time_seed)*86.60254f));
 		shake *= _time_shake * CELL_SIZE * 0.1f;
 	}
-
-	outWorld.left   = floor((GetPos().x + shake.x - (float)  WIDTH(screen) / _zoom * 0.5f) * _zoom) / _zoom;
-	outWorld.top    = floor((GetPos().y + shake.y - (float) HEIGHT(screen) / _zoom * 0.5f) * _zoom) / _zoom;
-	outWorld.right  = outWorld.left + (float)  WIDTH(screen) / _zoom;
-	outWorld.bottom = outWorld.top + (float) HEIGHT(screen) / _zoom;
+	return GetPos() + shake;
 }
 
 void GC_Camera::Shake(float level)

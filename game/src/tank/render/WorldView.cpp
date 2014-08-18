@@ -13,7 +13,6 @@
 
 WorldView::WorldView(IRender &render, TextureManager &tm, RenderScheme &rs)
     : _render(render)
-    , _tm(tm)
     , _renderScheme(rs)
 	, _terrain(tm)
 {
@@ -23,16 +22,22 @@ WorldView::~WorldView()
 {
 }
 
-void WorldView::Render(DrawingContext &dc, World &world, const FRECT &view, bool editorMode) const
+void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, const vec2d &eye, float zoom, bool editorMode) const
 {
-    // FIXME: ambient will take effect starting next frame
-	_render.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
+	_render.Camera(&viewport, eye.x, eye.y, zoom);
+
+	FRECT view;
+	view.left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
+	view.top = floor((eye.y - (float) HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
+	view.right = view.left + (float) WIDTH(viewport) / zoom;
+	view.bottom = view.top + (float) HEIGHT(viewport) / zoom;
 
 	//
 	// draw lights to alpha channel
 	//
 
-	_render.SetMode(RM_LIGHT);
+	_render.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
+	_render.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( g_conf.sv_nightmode.Get() )
 	{
 		float xmin = std::max(0.0f, view.left);
