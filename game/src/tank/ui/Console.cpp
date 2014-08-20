@@ -4,9 +4,10 @@
 #include "Edit.h"
 #include "Scroll.h"
 #include "ConsoleBuffer.h"
+#include "GuiManager.h"
 
 #include "video/TextureManager.h"
-#include "GuiManager.h"
+#include "video/DrawingContext.h"
 
 #include <GLFW/glfw3.h>
 

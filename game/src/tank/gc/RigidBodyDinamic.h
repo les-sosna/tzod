@@ -3,9 +3,7 @@
 #pragma once
 
 #include "RigidBody.h"
-
-
-///////////////////////////////////////////////////////////////////////////////
+#include <stack>
 
 #define GC_FLAG_RBDYMAMIC_ACTIVE    (GC_FLAG_RBSTATIC_ << 0)
 #define GC_FLAG_RBDYMAMIC_PARITY    (GC_FLAG_RBSTATIC_ << 1)

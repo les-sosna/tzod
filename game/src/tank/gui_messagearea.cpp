@@ -2,6 +2,7 @@
 
 #include "config/Config.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 #include <GuiManager.h>
 #include <ConsoleBuffer.h>

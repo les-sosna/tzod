@@ -2,6 +2,7 @@
 #include "gc/Actor.h"
 #include "gc/World.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 #include "constants.h" // FIXME: ANIMATION_FPS
 

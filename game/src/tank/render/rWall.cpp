@@ -2,6 +2,7 @@
 
 #include "gc/RigidBody.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 R_Wall::R_Wall(TextureManager &tm, const char *tex)
 	: _tm(tm)

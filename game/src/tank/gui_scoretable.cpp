@@ -6,6 +6,7 @@
 #include "globals.h"
 
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 #include "gc/Player.h"
 #include "gc/World.h"
 #include "gc/Macros.h"

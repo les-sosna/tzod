@@ -7,7 +7,7 @@
 
 #include "constants.h" // LOCATION_SIZE
 #include "globals.h"
-#include "video/RenderBase.h"
+#include "video/DrawingContext.h"
 #include "config/Config.h"
 
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)

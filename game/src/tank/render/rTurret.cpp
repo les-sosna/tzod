@@ -1,6 +1,7 @@
 #include "rTurret.h"
 #include "gc/Turrets.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 R_Turret::R_Turret(TextureManager &tm, const char *texPlatform, const char *texWeapon)
 	: _tm(tm)

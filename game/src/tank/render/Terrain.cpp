@@ -2,6 +2,7 @@
 #include "config/Config.h"
 #include "video/RenderBase.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 Terrain::Terrain(TextureManager &tm)
 	: _texBack(tm.FindSprite("background"))

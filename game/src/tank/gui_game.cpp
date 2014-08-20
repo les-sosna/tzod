@@ -12,6 +12,7 @@
 #include "gc/Vehicle.h"
 #include "gc/Macros.h"
 #include "render/WorldView.h"
+#include "video/DrawingContext.h"
 
 #include <GuiManager.h>
     

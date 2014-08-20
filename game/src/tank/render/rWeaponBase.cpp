@@ -1,5 +1,6 @@
 #include "rWeaponBase.h"
 #include "gc/Weapons.h"
+#include "video/DrawingContext.h"
 
 void DrawWeaponShadow(DrawingContext &dc, size_t texId, const GC_Weapon &weapon)
 {

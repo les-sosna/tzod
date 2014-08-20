@@ -28,6 +28,9 @@
 
 #include "render/WorldView.h"
 
+#include "video/TextureManager.h"
+#include "video/ThemeManager.h"
+
 #include <GLFW/glfw3.h>
 
 #include <ui/ConsoleBuffer.h>

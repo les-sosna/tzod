@@ -2,6 +2,7 @@
 
 #include "GuiManager.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 namespace UI
 {

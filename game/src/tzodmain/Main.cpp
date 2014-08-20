@@ -16,6 +16,7 @@
 #include <sound/sfx.h>
 #endif
 
+#include "video/DrawingContext.h"
 #include <video/TextureManager.h>
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>

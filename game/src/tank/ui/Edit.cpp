@@ -5,6 +5,7 @@
 #include "GuiManager.h"
 
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 #include <GLFW/glfw3.h>
 

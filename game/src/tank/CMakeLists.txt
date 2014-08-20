@@ -117,10 +117,12 @@ set(tank_SOURCES
 	render/rWeapon.cpp
 	render/rWeaponBase.cpp
 	render/Terrain.cpp
+	video/DrawingContext.cpp
 	video/ImageLoader.cpp
 #	video/RenderDirect3D.cpp
 	video/RenderOpenGL.cpp
 	video/TextureManager.cpp
+	video/ThemeManager.cpp
 )
 
 set(tank_LIBRARIES

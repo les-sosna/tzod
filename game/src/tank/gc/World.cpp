@@ -21,6 +21,8 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
+#include "video/ThemeManager.h"
+
 #include <FileSystem.h>
 
 extern "C"

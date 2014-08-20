@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Actor.h"
-#include "video/TextureManager.h" // TODO: try to remove
 #include "render/ObjectView.h"
 
 #define GC_FLAG_2DSPRITE_INGRIDSET             (GC_FLAG_ACTOR_ << 0)

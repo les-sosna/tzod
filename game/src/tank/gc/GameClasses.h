@@ -4,7 +4,7 @@
 
 #include "2dSprite.h"
 #include "NeighborAware.h"
-
+#include "video/DrawingContext.h"
 
 class GC_RigidBodyStatic;
 class GC_Player;

@@ -3,6 +3,7 @@
 #include "config/Config.h"
 #include "video/RenderBase.h"
 #include "video/TextureManager.h"
+#include "video/DrawingContext.h"
 
 enumZOrder Z_Light::GetZ(const World &world, const GC_Actor &actor) const
 {

@@ -25,6 +25,7 @@
 #include "core/debug.h"
 
 #include "video/TextureManager.h"
+#include "video/ThemeManager.h"
 
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"

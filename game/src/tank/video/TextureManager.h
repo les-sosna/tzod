@@ -3,9 +3,7 @@
 #pragma once
 
 #include "RenderBase.h"
-#include "core/singleton.h"
 
-#include <stack>
 #include <list>
 #include <map>
 #include <memory>
@@ -35,12 +33,6 @@ struct LogicalTexture
 	int   yframes;
 
 	std::vector<FRECT> uvFrames;
-};
-
-enum enumAlignText {
-	alignTextLT = 0, alignTextCT = 1, alignTextRT = 2,
-	alignTextLC = 3, alignTextCC = 4, alignTextRC = 5,
-	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
 
 class TextureManager
@@ -95,62 +87,4 @@ protected:
 	void CreateChecker(); // Create checker texture without name and with index=0
 };
 
-class DrawingContext
-{
-public:
-	DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height);
-	
-	void PushClippingRect(const Rect &rect);
-	void PopClippingRect();
-
-	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
-	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
-	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT);
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir);
-	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir);
-	void DrawIndicator(size_t tex, float x, float y, float value);
-	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase);
-	void DrawBackground(size_t tex, float sizeX, float sizeY) const;
-	
-	void DrawPointLight(float intensity, float radius, vec2d pos);
-	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
-	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
-	
-	void Camera(const Rect &viewport, float x, float y, float scale);
-	void SetAmbient(float ambient);
-	void SetMode(const RenderMode mode);
-
-private:
-	const TextureManager &_tm;
-	std::stack<Rect> _clipStack;
-	Rect _viewport;	
-};
-
-/////////////////////////////////////////////////////////////
-
-class ThemeManager
-{
-	struct ThemeDesc
-	{
-		std::string fileName;
-		std::shared_ptr<FS::MemMap> file;
-	};
-
-	std::vector<ThemeDesc> _themes;
-
-public:
-	ThemeManager();
-	~ThemeManager();
-
-	size_t GetThemeCount();
-	size_t FindTheme(const std::string &name);
-	std::string GetThemeName(size_t index);
-
-    bool ApplyTheme(size_t index);
-};
-
-typedef StaticSingleton<ThemeManager> _ThemeManager;
-
-
-///////////////////////////////////////////////////////////////////////////////
 // end of file
