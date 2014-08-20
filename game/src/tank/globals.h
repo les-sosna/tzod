@@ -24,7 +24,6 @@ struct ENVIRONMENT;
 
 extern unsigned int g_sounds[SND_COUNT];
 
-extern IRender *g_render;
 extern TextureManager  *g_texman;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;

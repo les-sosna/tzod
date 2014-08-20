@@ -337,9 +337,7 @@ int main(int, const char**)
 		g_appWindow = appWindow.get();
 
 
-        { // TODO: remove explicit render scope
         std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
-        g_render = render.get();
         int width;
         int height;
         glfwGetFramebufferSize(appWindow.get(), &width, &height);
@@ -437,10 +435,6 @@ int main(int, const char**)
 #ifndef NOSOUND
         FreeSound();
 #endif
-            
-        g_render = nullptr;
-        TRACE("Shutting down the renderer");
-        } // TODO: remove explicit render scope
         
         TRACE("Destroying gl context");
         g_appWindow = nullptr;

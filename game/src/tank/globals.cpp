@@ -8,8 +8,6 @@ ENVIRONMENT g_env;
 
 unsigned int     g_sounds[SND_COUNT];
 
-IRender *g_render;
-
 TextureManager *g_texman;
 //ClientBase     *g_client;
 

@@ -1298,7 +1298,7 @@ void AIController::debug_draw(World &world)
 	{
 		if( GetVehicle() )
 		{
-			g_render->DrawLine(_target->GetPos(), GetVehicle()->GetPos(), 0xff00ffff);
+			DrawLine(_target->GetPos(), GetVehicle()->GetPos(), 0xff00ffff);
 		}
 	}
 */
