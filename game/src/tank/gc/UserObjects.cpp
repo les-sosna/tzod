@@ -4,6 +4,7 @@
 #include "Explosion.h"
 #include "World.h"
 
+#include "globals.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 

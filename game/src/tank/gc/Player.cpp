@@ -1,19 +1,19 @@
 #include "Player.h"
-
 #include "GameClasses.h"
 #include "indicators.h"
 #include "World.h"
 #include "Macros.h"
-#include "MapFile.h"
 #include "particles.h"
-#include "SaveFile.h"
-#include "Sound.h"
-#include "script.h"
 #include "vehicle.h"
 #include "WorldEvents.h"
 
-#include "gui.h"
-#include "gui_desktop.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "Sound.h"
+#include "script.h"
+
+#include "constants.h"
+#include "globals.h"
 
 //#include "network/TankClient.h"
 

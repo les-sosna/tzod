@@ -3,15 +3,17 @@
 #include "RigidBody.h"
 
 #include "World.h"
-#include "MapFile.h"
-#include "SaveFile.h"
-#include "script.h"
 #include "Sound.h"
 #include "particles.h"
 #include "Player.h"
 #include "Vehicle.h"
 
+#include "globals.h"
 #include "constants.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "script.h"
+
 #include "config/Config.h"
 
 extern "C"

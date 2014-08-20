@@ -13,9 +13,9 @@
 #include "ListBase.h"
 
 #include "constants.h"
+#include "globals.h"
 #include "script.h"
 #include "DefaultCamera.h"
-#include "ClientBase.h"
 
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"

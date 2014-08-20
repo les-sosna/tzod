@@ -8,6 +8,7 @@
 #include "Sound.h"
 #include "Macros.h"
 
+#include "globals.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"

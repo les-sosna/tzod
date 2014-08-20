@@ -6,15 +6,17 @@
 #include "indicators.h"
 #include "Light.h"
 #include "Macros.h"
-#include "MapFile.h"
 #include "particles.h"
 #include "Player.h"
-#include "SaveFile.h"
-#include "script.h"
 #include "Sound.h"
 #include "vehicle.h"
 #include "Weapons.h"
 #include "World.h"
+
+#include "globals.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+#include "script.h"
 
 #include <ConsoleBuffer.h>
 

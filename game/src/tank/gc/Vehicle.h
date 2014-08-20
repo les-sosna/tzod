@@ -1,6 +1,7 @@
 #pragma once
 #include "RigidBodyDinamic.h"
 #include "VehicleState.h"
+#include "SoundTemplates.h"
 
 class GC_Player;
 class GC_Weapon;

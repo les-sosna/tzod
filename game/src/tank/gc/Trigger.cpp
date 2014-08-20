@@ -1,16 +1,16 @@
 // Trigger.cpp
 
 #include "Trigger.h"
-
 #include "Player.h"
 #include "Vehicle.h"
-
 #include "World.h"
 #include "Macros.h"
+
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
 #include "constants.h"
+#include "globals.h"
 
 extern "C"
 {

@@ -1,6 +1,7 @@
 // Controller.cpp
 
 #include "Controller.h"
+#include "globals.h"
 #include "config/Config.h"
 #include "gc/VehicleState.h"
 #include "gc/Camera.h"

@@ -19,12 +19,11 @@
 #include "turrets.h"
 #include "Weapons.h"
 
+#include "globals.h"
+#include "SaveFile.h"
+
 #include "config/Config.h"
 #include "config/Language.h"
-
-#include "gui.h"
-#include "gui_desktop.h"
-#include "SaveFile.h"
 
 
 #include <ConsoleBuffer.h>

@@ -2,6 +2,7 @@
 
 #include "script.h"
 
+#include "globals.h"
 #include "BackgroundIntro.h"
 #include "gui.h"
 #include "gui_desktop.h"
@@ -84,8 +85,8 @@ void RunCmdQueue(lua_State *L, float dt)
 			lua_rawgeti(L, -1, 1);
 			if( lua_pcall(L, 0, 0, 0) )
 			{
-				GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-				lua_pop(g_env.L, 1); // pop the error message
+				GetConsole().WriteLine(1, lua_tostring(L, -1));
+				lua_pop(L, 1); // pop the error message
 			}
 			lua_pushvalue(L, -2); // push copy of the key
 			lua_pushnil(L);
@@ -373,7 +374,7 @@ static int luaT_loadmap(lua_State *L)
         world.Seed(rand());
         world.Import(g_fs->Open(filename)->QueryStream());
         
-        if( !script_exec(g_env.L, world._infoOnInit.c_str()) )
+        if( !script_exec(L, world._infoOnInit.c_str()) )
         {
             world.Clear();
             throw std::runtime_error("init script error");
