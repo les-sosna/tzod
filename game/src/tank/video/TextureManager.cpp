@@ -922,6 +922,33 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 	v[3].y = y0 + py * c;
 }
 
+void DrawingContext::DrawBackground(size_t tex, float sizeX, float sizeY) const
+{
+	const LogicalTexture &lt = _tm.Get(tex);
+	IRender &render = _tm.GetRender();
+	MyVertex *v = render.DrawQuad(lt.dev_texture);
+	v[0].color = 0xffffffff;
+	v[0].u = 0;
+	v[0].v = 0;
+	v[0].x = 0;
+	v[0].y = 0;
+	v[1].color = 0xffffffff;
+	v[1].u = sizeX / lt.pxFrameWidth;
+	v[1].v = 0;
+	v[1].x = sizeX;
+	v[1].y = 0;
+	v[2].color = 0xffffffff;
+	v[2].u = sizeX / lt.pxFrameWidth;
+	v[2].v = sizeY / lt.pxFrameHeight;
+	v[2].x = sizeX;
+	v[2].y = sizeY;
+	v[3].color = 0xffffffff;
+	v[3].u = 0;
+	v[3].v = sizeY / lt.pxFrameHeight;
+	v[3].x = 0;
+	v[3].y = sizeY;
+}
+
 static const int SINTABLE_SIZE = 32;
 static const int SINTABLE_MASK = 0x1f;
 

@@ -79,7 +79,7 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 
 	dc.SetMode(RM_WORLD);
 
-	_terrain.Draw(*g_render, world._sx, world._sy, editorMode);
+	_terrain.Draw(dc, world._sx, world._sy, editorMode);
 
 	int xmin = std::max(0, int(view.left / LOCATION_SIZE));
 	int ymin = std::max(0, int(view.top / LOCATION_SIZE));

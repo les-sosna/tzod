@@ -110,6 +110,7 @@ public:
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir);
 	void DrawIndicator(size_t tex, float x, float y, float value);
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase);
+	void DrawBackground(size_t tex, float sizeX, float sizeY) const;
 	
 	void DrawPointLight(float intensity, float radius, vec2d pos);
 	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
