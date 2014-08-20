@@ -72,7 +72,7 @@ Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldCon
   , _nModalPopups(0)
   , _world(world)
   , _renderScheme(GetManager()->GetTextureManager())
-  , _worldView(*g_render, GetManager()->GetTextureManager(), _renderScheme)
+  , _worldView(GetManager()->GetTextureManager(), _renderScheme)
   , _worldController(worldController)
 {
 	SetTexture("ui/window", false);

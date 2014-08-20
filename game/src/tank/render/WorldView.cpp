@@ -1,8 +1,6 @@
 #include "WorldView.h"
 #include "RenderScheme.h"
 
-#include "rLight.h"
-
 #include "gc/Light.h"
 #include "gc/Macros.h"
 #include "gc/World.h"
@@ -11,9 +9,8 @@
 #include "video/RenderBase.h"
 #include "config/Config.h"
 
-WorldView::WorldView(IRender &render, TextureManager &tm, RenderScheme &rs)
-    : _render(render)
-    , _renderScheme(rs)
+WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
+    : _renderScheme(rs)
 	, _terrain(tm)
 {
 }
@@ -24,7 +21,7 @@ WorldView::~WorldView()
 
 void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, const vec2d &eye, float zoom, bool editorMode) const
 {
-	_render.Camera(&viewport, eye.x, eye.y, zoom);
+	dc.Camera(viewport, eye.x, eye.y, zoom);
 
 	FRECT view;
 	view.left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
@@ -36,8 +33,8 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	// draw lights to alpha channel
 	//
 
-	_render.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
-	_render.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
+	dc.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
+	dc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( g_conf.sv_nightmode.Get() )
 	{
 		float xmin = std::max(0.0f, view.left);
@@ -54,7 +51,22 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 			{
 			//	_FpsCounter::Inst()->OneMoreLight();
-				DrawLight(_render, *pLight);
+				switch (pLight->GetLightType())
+				{
+					case GC_Light::LIGHT_POINT:
+						dc.DrawPointLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos());
+						break;
+					case GC_Light::LIGHT_SPOT:
+						dc.DrawSpotLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos(),
+										 pLight->GetLightDirection(), pLight->GetOffset(), pLight->GetAspect());
+						break;
+					case GC_Light::LIGHT_DIRECT:
+						dc.DrawDirectLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos(),
+										   pLight->GetLightDirection(), pLight->GetLength());
+						break;
+					default:
+						assert(false);
+				}
 			}
 		}
 	}
@@ -64,9 +76,9 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	// draw world to rgb
 	//
 
-	_render.SetMode(RM_WORLD);
+	dc.SetMode(RM_WORLD);
 
-	_terrain.Draw(_render, world._sx, world._sy, editorMode);
+	_terrain.Draw(*g_render, world._sx, world._sy, editorMode);
 
 	int xmin = std::max(0, int(view.left / LOCATION_SIZE));
 	int ymin = std::max(0, int(view.top / LOCATION_SIZE));

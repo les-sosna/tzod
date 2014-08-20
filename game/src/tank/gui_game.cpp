@@ -2,7 +2,6 @@
 #include "gui_messagearea.h"
 #include "gui_scoretable.h"
 #include "DefaultCamera.h"
-#include "globals.h"
 #include "InputManager.h"
 #include "Controller.h"
 #include "WorldController.h"
@@ -216,7 +215,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		float zoom = _defaultCamera.GetZoom();
         _worldView.Render(dc, _world, viewport, eye, zoom, false);
     }
-	g_render->SetMode(RM_INTERFACE);
+	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }
     

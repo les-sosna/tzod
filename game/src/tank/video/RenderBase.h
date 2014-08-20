@@ -89,11 +89,10 @@ struct IRender
     virtual int  GetWidth() const = 0;
     virtual int  GetHeight() const = 0;
 
+	virtual void SetAmbient(float ambient) = 0;
 	virtual void SetMode (const RenderMode mode) = 0;
 	virtual void Begin   (void) = 0;
 	virtual void End     (void) = 0;
-
-	virtual void SetAmbient(float ambient) = 0;
 
 	virtual bool TakeScreenshot(char *fileName) = 0;
 

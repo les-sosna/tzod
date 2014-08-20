@@ -1,16 +1,10 @@
 // GuiManager.cpp
 
-#include "globals.h"
 #include "GuiManager.h"
-
-#include "video/RenderBase.h"
 #include "video/TextureManager.h"
-
 
 namespace UI
 {
-
-///////////////////////////////////////////////////////////////////////////////
 
 LayoutManager::LayoutManager(TextureManager &texman, IWindowFactory &&desktopFactory)
   : _texman(texman)
@@ -456,7 +450,7 @@ bool LayoutManager::ProcessKeys(Msg msg, int c)
 
 void LayoutManager::Render(DrawingContext &dc) const
 {
-	g_render->SetMode(RM_INTERFACE);
+	dc.SetMode(RM_INTERFACE);
 
 	// draw desktop and all its children
 	if( _desktop->GetVisible() )

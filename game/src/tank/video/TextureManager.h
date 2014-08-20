@@ -111,6 +111,14 @@ public:
 	void DrawIndicator(size_t tex, float x, float y, float value);
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase);
 	
+	void DrawPointLight(float intensity, float radius, vec2d pos);
+	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
+	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
+	
+	void Camera(const Rect &viewport, float x, float y, float scale);
+	void SetAmbient(float ambient);
+	void SetMode(const RenderMode mode);
+
 private:
 	const TextureManager &_tm;
 	std::stack<Rect> _clipStack;

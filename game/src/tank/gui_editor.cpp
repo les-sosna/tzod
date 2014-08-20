@@ -893,7 +893,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true);
     
-	g_render->SetMode(RM_INTERFACE);
+	dc.SetMode(RM_INTERFACE);
     
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{

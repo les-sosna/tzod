@@ -920,6 +920,121 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 	v[3].y = y0 + py * c;
 }
 
+static const int SINTABLE_SIZE = 32;
+static const int SINTABLE_MASK = 0x1f;
+
+static float sintable[SINTABLE_SIZE] = {
+	 0.000000f, 0.195090f, 0.382683f, 0.555570f,
+	 0.707106f, 0.831469f, 0.923879f, 0.980785f,
+	 1.000000f, 0.980785f, 0.923879f, 0.831469f,
+	 0.707106f, 0.555570f, 0.382683f, 0.195090f,
+	-0.000000f,-0.195090f,-0.382683f,-0.555570f,
+	-0.707106f,-0.831469f,-0.923879f,-0.980785f,
+	-1.000000f,-0.980785f,-0.923879f,-0.831469f,
+	-0.707106f,-0.555570f,-0.382683f,-0.195090f,
+};
+
+void DrawingContext::DrawPointLight(float intensity, float radius, vec2d pos)
+{
+	SpriteColor color;
+	color.color = 0x00000000;
+	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
+
+	IRender &render = _tm.GetRender();
+	MyVertex *v = render.DrawFan(SINTABLE_SIZE>>1);
+	v[0].color = color;
+	v[0].x = pos.x;
+	v[0].y = pos.y;
+	for( int i = 0; i < SINTABLE_SIZE>>1; i++ )
+	{
+		v[i+1].x = pos.x + radius * sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
+		v[i+1].y = pos.y + radius * sintable[i<<1];
+		v[i+1].color.color = 0x00000000;
+	}
+}
+
+void DrawingContext::DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect)
+{
+	SpriteColor color;
+	color.color = 0x00000000;
+	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
+
+	IRender &render = _tm.GetRender();
+	MyVertex *v = render.DrawFan(SINTABLE_SIZE);
+	v[0].color = color;
+	v[0].x = pos.x;
+	v[0].y = pos.y;
+	for( int i = 0; i < SINTABLE_SIZE; i++ )
+	{
+		float x = offset + radius * sintable[i+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
+		float y =          radius * sintable[i] * aspect;
+		v[i+1].x = pos.x + x*dir.x - y*dir.y;
+		v[i+1].y = pos.y + y*dir.x + x*dir.y;
+		v[i+1].color.color = 0x00000000;
+	}
+}
+
+void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length)
+{
+	SpriteColor color;
+	color.color = 0x00000000;
+	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
+
+	IRender &render = _tm.GetRender();
+	MyVertex *v = render.DrawFan((SINTABLE_SIZE>>2)+4);
+	v[0].color = color;
+	v[0].x = pos.x;
+	v[0].y = pos.y;
+	for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
+	{
+		float x = radius * sintable[i<<1];
+		float y = radius * sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
+		v[i+1].x = pos.x - x*dir.x - y*dir.y;
+		v[i+1].y = pos.y - x*dir.y + y*dir.x;
+		v[i+1].color.color = 0x00000000;
+	}
+	
+	v[(SINTABLE_SIZE>>2)+2].color.color = 0x00000000;
+	v[(SINTABLE_SIZE>>2)+2].x = pos.x + length * dir.x + radius*dir.y;
+	v[(SINTABLE_SIZE>>2)+2].y = pos.y + length * dir.y - radius*dir.x;
+	
+	v[(SINTABLE_SIZE>>2)+3].color = color;
+	v[(SINTABLE_SIZE>>2)+3].x = pos.x + length * dir.x;
+	v[(SINTABLE_SIZE>>2)+3].y = pos.y + length * dir.y;
+	
+	v[(SINTABLE_SIZE>>2)+4].color.color = 0x00000000;
+	v[(SINTABLE_SIZE>>2)+4].x = pos.x + length * dir.x - radius*dir.y;
+	v[(SINTABLE_SIZE>>2)+4].y = pos.y + length * dir.y + radius*dir.x;
+	
+	v = render.DrawFan((SINTABLE_SIZE>>2)+1);
+	v[0].color = color;
+	v[0].x = pos.x + length * dir.x;
+	v[0].y = pos.y + length * dir.y;
+	for( int i = 0; i <= SINTABLE_SIZE>>2; i++ )
+	{
+		float x = radius * sintable[i<<1] + length;
+		float y = radius * sintable[(i<<1)+(SINTABLE_SIZE>>2) & SINTABLE_MASK];
+		v[i+1].x = pos.x + x*dir.x - y*dir.y;
+		v[i+1].y = pos.y + x*dir.y + y*dir.x;
+		v[i+1].color.color = 0x00000000;
+	}
+}
+
+void DrawingContext::Camera(const Rect &viewport, float x, float y, float scale)
+{
+	_tm.GetRender().Camera(&viewport, x, y, scale);
+}
+
+void DrawingContext::SetAmbient(float ambient)
+{
+	_tm.GetRender().SetAmbient(ambient);
+}
+
+void DrawingContext::SetMode(const RenderMode mode)
+{
+	_tm.GetRender().SetMode(mode);
+}
+
 ////////////////////////////////////////////////////////////////////
 
 #include "constants.h"

@@ -8,8 +8,6 @@ class TextureManager;
 struct IRender;
 class GC_Light;
 
-void DrawLight(IRender &render, const GC_Light &light);
-
 class R_Light : public ObjectRFunc
 {
 public:
