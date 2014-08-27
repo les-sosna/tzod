@@ -47,7 +47,7 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext 
 	assert(dynamic_cast<const GC_Particle*>(&actor));
 	const GC_Particle &particle = static_cast<const GC_Particle&>(actor);
 	ParticleType ptype = particle.GetParticleType();
-	if (ptype < _ptype2texId.size() && particle.GetTime() < particle.GetLifeTime())
+	if (ptype < (int) _ptype2texId.size() && particle.GetTime() < particle.GetLifeTime())
 	{
 		size_t texId = _ptype2texId[ptype];
 		float state = particle.GetTime() / particle.GetLifeTime();

@@ -82,13 +82,13 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	//
 	// lights
 	//
-	bool tmp = IsKeyPressed(_keyLight);
-	if( tmp && !_lastLightKeyState && g_conf.sv_nightmode.Get() )
+	bool keyLightPressed = IsKeyPressed(_keyLight);
+	if (keyLightPressed && !_lastLightKeyState && g_conf.sv_nightmode.Get())
 	{
 		PLAY(SND_LightSwitch, vehicle->GetPos());
 		_lastLightsState = !_lastLightsState;
 	}
-	_lastLightKeyState = tmp;
+	_lastLightKeyState = keyLightPressed;
 	vs._bLight = _lastLightsState;
 
 

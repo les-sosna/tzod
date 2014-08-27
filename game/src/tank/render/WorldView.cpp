@@ -24,11 +24,10 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 {
 	dc.Camera(viewport, eye.x, eye.y, zoom);
 
-	FRECT view;
-	view.left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
-	view.top = floor((eye.y - (float) HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
-	view.right = view.left + (float) WIDTH(viewport) / zoom;
-	view.bottom = view.top + (float) HEIGHT(viewport) / zoom;
+	float left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
+	float top = floor((eye.y - (float)HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
+	float right = left + (float)WIDTH(viewport) / zoom;
+	float bottom = top + (float)HEIGHT(viewport) / zoom;
 
 	//
 	// draw lights to alpha channel
@@ -38,10 +37,10 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	dc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( g_conf.sv_nightmode.Get() )
 	{
-		float xmin = std::max(0.0f, view.left);
-		float ymin = std::max(0.0f, view.top);
-		float xmax = std::min(world._sx, view.right);
-		float ymax = std::min(world._sy, view.bottom);
+		float xmin = std::max(0.0f, left);
+		float ymin = std::max(0.0f, top);
+		float xmax = std::min(world._sx, right);
+		float ymax = std::min(world._sy, bottom);
 
 		FOREACH( world.GetList(LIST_lights), GC_Light, pLight )
 		{
@@ -81,10 +80,10 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 
 	_terrain.Draw(dc, world._sx, world._sy, editorMode);
 
-	int xmin = std::max(0, int(view.left / LOCATION_SIZE));
-	int ymin = std::max(0, int(view.top / LOCATION_SIZE));
-	int xmax = std::min(world._locationsX - 1, int(view.right / LOCATION_SIZE));
-	int ymax = std::min(world._locationsY - 1, int(view.bottom / LOCATION_SIZE) + 1);
+	int xmin = std::max(0, int(left / LOCATION_SIZE));
+	int ymin = std::max(0, int(top / LOCATION_SIZE));
+	int xmax = std::min(world._locationsX - 1, int(right / LOCATION_SIZE));
+	int ymax = std::min(world._locationsY - 1, int(bottom / LOCATION_SIZE) + 1);
 
     static std::vector<std::pair<const GC_2dSprite*, const ObjectRFunc*>> zLayers[Z_COUNT];
     for( int x = xmin; x <= xmax; ++x )

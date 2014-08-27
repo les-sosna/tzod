@@ -370,7 +370,6 @@ static int luaT_loadmap(lua_State *L)
 
 	try
 	{
-        World &world = getworld(L);
         world.Clear();
         world.Seed(rand());
         world.Import(g_fs->Open(filename)->QueryStream());
@@ -425,7 +424,6 @@ static int luaT_load(lua_State *L)
 
 	try
 	{
-        World &world = getworld(L);
 		world.Unserialize(filename);
 	}
 	catch( const std::exception &e )

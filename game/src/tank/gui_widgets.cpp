@@ -255,8 +255,8 @@ void Oscilloscope::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			dc.DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
 			char buf[64];
 			sprintf(buf, "%.3g", y);
-			float dx = float(6 * strlen(buf)); // FIXME: calc true char width
-			dc.DrawBitmapText(sx + GetWidth() - dx, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
+			float textWidth = float(6 * strlen(buf)); // FIXME: calc true char width
+			dc.DrawBitmapText(sx + GetWidth() - textWidth, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
 		}
 	}
 	else

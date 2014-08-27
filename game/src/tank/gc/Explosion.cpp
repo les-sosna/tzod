@@ -217,9 +217,9 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 				{
 					if( bNeedClean )
 					{
-						FIELD_TYPE::iterator it = field.begin();
-						while( it != field.end() )
-							(it++)->second.checked = false;
+						FIELD_TYPE::iterator fIt = field.begin();
+						while (fIt != field.end())
+							(fIt++)->second.checked = false;
 					}
 					d = CheckDamage(field, pDamObject->GetPos().x, pDamObject->GetPos().y, radius);
 					bNeedClean = true;

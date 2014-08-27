@@ -445,8 +445,8 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 		float a2 = a + 1.4f;
 		for( int n = 0; n < 9; n++ )
 		{
-			vec2d a(a1 + frand(a2 - a1));
-			auto p = new GC_Particle(world, a * (frand(100.0f) + 50.0f), PARTICLE_TRACE1, frand(0.2f) + 0.05f, a);
+			vec2d v(a1 + frand(a2 - a1));
+			auto p = new GC_Particle(world, v * (frand(100.0f) + 50.0f), PARTICLE_TRACE1, frand(0.2f) + 0.05f, v);
             p->Register(world);
             p->MoveTo(world, hit);
 		}
@@ -515,8 +515,8 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	float a2 = a + 1.5f;
 	for( int n = 0; n < 15; n++ )
 	{
-		vec2d a(a1 + frand(a2 - a1));
-		auto p = new GC_Particle(world, a * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.2f) + 0.05f, a);
+		vec2d v(a1 + frand(a2 - a1));
+		auto p = new GC_Particle(world, v * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.2f) + 0.05f, v);
         p->Register(world);
         p->MoveTo(world, hit);
 	}

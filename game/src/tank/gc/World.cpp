@@ -288,12 +288,12 @@ void World::Unserialize(const char *fileName)
 			{
 				assert(1 == lua_gettop(L));
 				size_t id = (size_t) lua_touserdata(L, 1);
-				SaveFile *f = (SaveFile *) lua_touserdata(L, lua_upvalueindex(1));
-				assert(f);
+				SaveFile *fptr = (SaveFile *) lua_touserdata(L, lua_upvalueindex(1));
+				assert(fptr);
 				GC_Object *obj;
 				try
 				{
-					obj = id ? f->RestorePointer(id) : NULL;
+					obj = id ? fptr->RestorePointer(id) : NULL;
 				}
 				catch( const std::exception &e )
 				{

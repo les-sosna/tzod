@@ -788,8 +788,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
         if( 1 == button )
         {
             // create object
-            GC_Object *object = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
-            SafePtr<PropertySet> properties = object->GetProperties(_world);
+            GC_Object *newobj = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
+			SafePtr<PropertySet> properties = newobj->GetProperties(_world);
 
             // set default properties if Ctrl key is not pressed
             if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
@@ -799,7 +799,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
                 properties->Exchange(_world, true);
             }
 
-            Select(object, true);
+			Select(newobj, true);
             _isObjectNew = true;
         }
     }
