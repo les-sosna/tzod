@@ -7,10 +7,6 @@ ObjectView::ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRF
 	, rfunc(std::move(rf))
 {}
 
-ObjectView::~ObjectView()
-{
-}
-
 const ObjectViewsSelector::ViewCollection* ObjectViewsSelector::GetViews(const GC_Actor &actor) const
 {
 	ObjectType type = actor.GetType();

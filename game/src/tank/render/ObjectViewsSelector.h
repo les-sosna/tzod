@@ -11,7 +11,6 @@ struct ObjectView
 	std::unique_ptr<ObjectRFunc> rfunc;
 	ObjectView(ObjectView &&) = default;
 	ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRFunc> rf);
-	~ObjectView();
 };
 
 class ObjectViewsSelector
