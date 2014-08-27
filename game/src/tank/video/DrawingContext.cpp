@@ -1,5 +1,6 @@
 #include "DrawingContext.h"
 #include "TextureManager.h"
+#include <algorithm>
 
 DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
 	: _tm(tm)

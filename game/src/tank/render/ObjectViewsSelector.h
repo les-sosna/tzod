@@ -1,10 +1,9 @@
 #pragma once
+#include "ObjectView.h"
 #include <memory>
 #include <vector>
 
 class GC_Actor;
-struct ObjectZFunc;
-struct ObjectRFunc;
 
 struct ObjectView
 {
