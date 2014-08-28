@@ -104,31 +104,21 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_ParticleExplosion : public GC_Particle
-{
-	DECLARE_SELF_REGISTRATION(GC_ParticleExplosion);
-public:
-	using GC_Particle::GC_Particle;
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_EXPLODE; }
-};
+#define DECLARE_PARTICLE(clsname, zorder)                                   \
+    class clsname : public GC_Particle                                      \
+    {                                                                       \
+        DECLARE_SELF_REGISTRATION(clsname);                                 \
+    public:                                                                 \
+        clsname(World &world, const vec2d &v, ParticleType ptype,           \
+                float lifeTime, const vec2d &orient = vec2d(1,0))           \
+            : GC_Particle(world, v, ptype, lifeTime, orient)                \
+        {}                                                                  \
+        clsname(FromFile) : GC_Particle(FromFile()) {}                      \
+        virtual enumZOrder GetZ() const { return zorder; }                  \
+    };
 
-class GC_ParticleDecal : public GC_Particle
-{
-	DECLARE_SELF_REGISTRATION(GC_ParticleDecal);
-public:
-	using GC_Particle::GC_Particle;
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WATER; }
-};
-
-class GC_ParticleGauss : public GC_Particle
-{
-	DECLARE_SELF_REGISTRATION(GC_ParticleGauss);
-public:
-	using GC_Particle::GC_Particle;
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_GAUSS_RAY; }
-};
+DECLARE_PARTICLE(GC_ParticleExplosion, Z_EXPLODE);
+DECLARE_PARTICLE(GC_ParticleDecal, Z_WATER);
+DECLARE_PARTICLE(GC_ParticleGauss, Z_GAUSS_RAY);
 
 // end of file

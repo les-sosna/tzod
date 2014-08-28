@@ -9,7 +9,10 @@ struct ObjectView
 {
 	std::unique_ptr<ObjectZFunc> zfunc;
 	std::unique_ptr<ObjectRFunc> rfunc;
-	ObjectView(ObjectView &&) = default;
+    ObjectView(ObjectView &&other)
+        : zfunc(std::move(other.zfunc))
+        , rfunc(std::move(other.rfunc))
+    {}
 	ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRFunc> rf);
 };
 

@@ -12,6 +12,12 @@ include_directories(
 
 link_directories(${Boost_LIBRARY_DIR})
 
+find_package(OpenAL)
+if(${OPENAL_FOUND})
+else()
+	add_definitions(-DNOSOUND)
+endif()
+
 if(WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0501) # Windows XP
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
