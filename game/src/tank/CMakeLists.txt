@@ -147,5 +147,5 @@ endif()
 
 include_directories(${tank_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIR})
-add_library(tank SHARED ${tank_SOURCES})
+add_library(tank ${tank_SOURCES})
 target_link_libraries(tank ${tank_LIBRARIES})
