@@ -169,25 +169,26 @@ void Field::Dump()
 {
 	TRACE("==== Field dump ====");
     
+	std::string buf;
 	for( int y = 0; y < _cy; y++ )
 	{
-		char buf[1024] = {0};
 		for( int x = 0; x < _cx; x++ )
 		{
 			switch( (*this)(x, y).Properties() )
 			{
                 case 0:
-                    strcat(buf, " ");
+                    buf.push_back(' ');
                     break;
                 case 1:
-                    strcat(buf, "-");
+                    buf.push_back('-');
                     break;
                 case 0xFF:
-                    strcat(buf, "#");
+                    buf.push_back('#');
                     break;
 			}
 		}
-		TRACE("%s", buf);
+		TRACE("%s", buf.c_str());
+		buf.clear();
 	}
     
 	TRACE("=== end of dump ====");
