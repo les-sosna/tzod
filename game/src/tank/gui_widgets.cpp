@@ -13,6 +13,9 @@
 
 #include <GuiManager.h>
 
+#include <sstream>
+#include <iomanip>
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,25 +57,15 @@ void FpsCounter::OnTimeStep(float dt)
 		}
 		avr /= (float) _dts.size();
 
-		char s [1024];
-		char s1[256];
-
-		sprintf(s, "fps:%04d-%04d-%04d; wnd:%03d",
-			int(1.0f / max + 0.5f), 
-			int(1.0f / avr + 0.5f), 
-			int(1.0f / min + 0.5f),
-			-1
-		);
-
-		sprintf(s1, "; obj:%u\ntimestep: %4u",
-			(unsigned int) _world.GetList(LIST_objects).size(),
-			(unsigned int) _world.GetList(LIST_timestep).size()
-		);
-		strcat(s, s1);
+		std::ostringstream s;
+		s << std::setfill('0');
+		s << "fps:" << std::setw(3) << int(1.0f / max + 0.5f) << '-' << std::setw(3) << int(1.0f / avr + 0.5f) << '-' << std::setw(3) << int(1.0f / min + 0.5f);
+		s << std::setfill(' ');
+		s << "; obj:" << _world.GetList(LIST_objects).size() << '\n';
+		s << std::setw(4) << _world.GetList(LIST_timestep).size() << "timestep";
 
 #ifndef NDEBUG
-		sprintf(s1, "; %4ugarbage", (unsigned int) _world._garbage.size());
-		strcat(s, s1);
+		s << " " << std::setw(4) << _world._garbage.size() << "garbage";
 #endif
 
 
@@ -104,7 +97,7 @@ void FpsCounter::OnTimeStep(float dt)
 			}
 		}*/
 
-		SetText(s);
+		SetText(s.str());
 	}
 
 	_nSprites = 0;
@@ -253,10 +246,10 @@ void Oscilloscope::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		{
 			float y = (float) i * _gridStepY;
 			dc.DrawSprite(_barTexture, 0, 0x44444444, sx, sy - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
-			char buf[64];
-			sprintf(buf, "%.3g", y);
-			float textWidth = float(6 * strlen(buf)); // FIXME: calc true char width
-			dc.DrawBitmapText(sx + GetWidth() - textWidth, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf);
+			std::ostringstream buf;
+			buf << y;
+			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
+			dc.DrawBitmapText(sx + GetWidth() - textWidth, sy - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
 		}
 	}
 	else
