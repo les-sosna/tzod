@@ -305,7 +305,7 @@ static int luaT_game(lua_State *L)
 
     World &world = getse(L).world;
 	if( !world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'reset' in unsafe mode");
+		return luaL_error(L, "attempt to execute 'game' in unsafe mode");
 
 	const char *clientType = luaL_checkstring(L, 1);
 
@@ -316,7 +316,7 @@ static int luaT_game(lua_State *L)
 	{
 		if( !strcmp("intro", clientType) )
 		{
-			new IntroClient(&world);
+//			new IntroClient(&world);
 		}
 		else
 		{
