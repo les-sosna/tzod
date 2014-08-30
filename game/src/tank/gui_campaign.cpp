@@ -22,8 +22,9 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-NewCampaignDlg::NewCampaignDlg(Window *parent)
+NewCampaignDlg::NewCampaignDlg(Window *parent, FS::FileSystem &fs)
   : Dialog(parent, 512, 400)
+  , _fs(fs)
 {
 	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang.campaign_title.Get(), alignTextCT);
 	t->SetFont("font_default");
@@ -32,7 +33,7 @@ NewCampaignDlg::NewCampaignDlg(Window *parent)
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
 
-	auto files = g_fs->GetFileSystem("campaign")->EnumAllFiles("*.lua");
+	auto files = _fs.GetFileSystem("campaign")->EnumAllFiles("*.lua");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
 		it->erase(it->length() - 4); // cut out the file extension

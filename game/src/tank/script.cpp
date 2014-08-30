@@ -423,7 +423,9 @@ static int luaT_load(lua_State *L)
 
 	try
 	{
-		se.world.Unserialize(filename, se.themeManager, se.textureManager);
+		TRACE("Loading saved game from file '%s'...", filename);
+		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeRead)->QueryStream();
+		se.world.Unserialize(stream, se.themeManager, se.textureManager);
 	}
 	catch( const std::exception &e )
 	{
@@ -449,7 +451,9 @@ static int luaT_save(lua_State *L)
 	se.world.PauseSound(true);
 	try
 	{
-		se.world.Serialize(filename);
+		TRACE("Saving game to file '%S'...", filename);
+		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeWrite)->QueryStream();
+		se.world.Serialize(stream);
 	}
 	catch( const std::exception &e )
 	{
@@ -1231,7 +1235,7 @@ int luaT_loadtheme(lua_State *L)
 	ScriptEnvironment &se = getse(L);
 	try
 	{
-		if( 0 == se.textureManager.LoadPackage(filename, se.fs.Open(filename)->QueryMap()) )
+		if( 0 == se.textureManager.LoadPackage(filename, se.fs.Open(filename)->QueryMap(), se.fs) )
 		{
 			GetConsole().WriteLine(1, "WARNING: there are no textures loaded");
 		}

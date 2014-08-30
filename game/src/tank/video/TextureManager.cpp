@@ -66,7 +66,7 @@ void TextureManager::UnloadAllTextures()
 	_logicalTextures.clear();
 }
 
-void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName)
+void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs)
 {
 	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
@@ -75,7 +75,7 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 	}
 	else
 	{
-		std::shared_ptr<FS::MemMap> file = g_fs->Open(fileName)->QueryMap();
+		std::shared_ptr<FS::MemMap> file = fs.Open(fileName)->QueryMap();
 		std::unique_ptr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
@@ -191,7 +191,7 @@ static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
 	return def;
 }
 
-int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file)
+int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
 {
 	TRACE("Loading texture package '%s'", packageName.c_str());
 
@@ -232,7 +232,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 
 			try
 			{
-				LoadTexture(td, f);
+				LoadTexture(td, f, fs);
 			}
 			catch( const std::exception &e )
 			{
@@ -358,22 +358,22 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 	return _logicalTextures.size();
 }
 
-int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix)
+int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs)
 {
 	int count = 0;
-	std::shared_ptr<FS::FileSystem> dir = g_fs->GetFileSystem(dirName);
+	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
 		TexDescIterator td;
-		std::string f = dirName + '/' + *it;
+		std::string fileName = dirName + '/' + *it;
 		try
 		{
-			LoadTexture(td, f);
+			LoadTexture(td, fileName, fs);
 		}
 		catch( const std::exception &e )
 		{
-			TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
+			TRACE("WARNING: could not load texture '%s' - %s", fileName.c_str(), e.what());
 			continue;
 		}
 

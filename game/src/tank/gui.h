@@ -12,6 +12,10 @@ class InputManager;
 class AIManager;
 class World;
 class ThemeManager;
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {
@@ -49,10 +53,11 @@ class NewGameDlg : public UI::Dialog
     InputManager &_inputMgr;
 	AIManager &_aiMgr;
 	const ThemeManager &_themeManager;
+	FS::FileSystem &_fs;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager);
+	NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager, FS::FileSystem &fs);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

@@ -4,6 +4,11 @@
 
 #include "Dialog.h"
 
+namespace FS
+{
+	class FileSystem;
+}
+
 namespace UI
 {
 class ListDataSourceDefault;
@@ -12,16 +17,17 @@ template <class, class> class ListAdapter;
 
 class NewCampaignDlg : public Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
-	DefaultListBox *_files;
-
 public:
-	NewCampaignDlg(Window *parent);
+	NewCampaignDlg(Window *parent, FS::FileSystem &fs);
 	~NewCampaignDlg();
 
-protected:
+private:
 	void OnOK();
 	void OnCancel();
+
+	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	DefaultListBox *_files;
+	FS::FileSystem &_fs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

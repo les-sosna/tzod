@@ -10,6 +10,10 @@ class AIManager;
 class InputManager;
 class World;
 class ThemeManager;
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {
@@ -72,9 +76,10 @@ class MainMenuDlg : public Dialog
 	GetFileNameDlg *_fileDlg;
     World &_world;
 	ThemeManager &_themeManager;
+	FS::FileSystem &_fs;
 
 public:
-	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager);
+	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

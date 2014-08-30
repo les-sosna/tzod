@@ -10,10 +10,6 @@ class ConsoleBuffer;
 //class ClientBase;
 class AppBase;
 
-namespace FS
-{
-	class FileSystem;
-}
 
 struct GAMEOPTIONS;
 struct ENVIRONMENT;
@@ -27,8 +23,6 @@ extern unsigned int g_sounds[SND_COUNT];
 extern TextureManager  *g_texman;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
-
-extern std::shared_ptr<FS::FileSystem>  g_fs;
 
 struct GLFWwindow;
 extern GLFWwindow *g_appWindow;

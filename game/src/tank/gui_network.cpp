@@ -38,9 +38,10 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-CreateServerDlg::CreateServerDlg(Window *parent, World &world)
+CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs)
   : Dialog(parent, 770, 450)
   , _world(world)
+  , _fs(fs)
 {
 	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_server_title.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -56,7 +57,7 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world)
 
 	Text::Create(this, x1, 46, g_lang.choose_map.Get(), alignTextLT);
 
-	_maps = MapListBox::Create(this);
+	_maps = MapListBox::Create(this, fs);
 	_maps->Move(x1, 62);
 	_maps->Resize(x2 - x1, 300);
 	_maps->SetTabPos(0,   4); // name
@@ -182,7 +183,7 @@ void CreateServerDlg::OnOK()
 
 	try
 	{
-		std::shared_ptr<FS::MemMap> m = g_fs->Open(path)->QueryMap();
+		std::shared_ptr<FS::MemMap> m = _fs.Open(path)->QueryMap();
 		MD5_CTX md5;
 		MD5Init(&md5);
 		MD5Update(&md5, m->GetData(), m->GetSize());

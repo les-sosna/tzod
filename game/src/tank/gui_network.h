@@ -6,6 +6,10 @@
 #include "ClientBase.h"
 
 class World;
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {
@@ -39,9 +43,10 @@ class CreateServerDlg : public Dialog
 	CheckBox  *_lobbyEnable;
 	Button    *_lobbyAdd;
     World &_world;
+	FS::FileSystem &_fs;
 
 public:
-	CreateServerDlg(Window *parent, World &world);
+	CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs);
 	virtual ~CreateServerDlg();
 
 protected:

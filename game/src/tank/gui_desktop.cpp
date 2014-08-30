@@ -64,11 +64,17 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 	return g_conf.con_history.GetStr(index, "")->Get();
 }
 
-Desktop::Desktop(LayoutManager* manager, World &world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager)
+Desktop::Desktop(LayoutManager* manager,
+				 World &world,
+				 WorldController &worldController,
+				 AIManager &aiMgr,
+				 ThemeManager &themeManager,
+				 FS::FileSystem &fs)
   : Window(NULL, manager)
   , _inputMgr(world)
   , _aiMgr(aiMgr)
   , _themeManager(themeManager)
+  , _fs(fs)
   , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
@@ -188,7 +194,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this, _world, _inputMgr, _aiMgr, _themeManager);
+			dlg = new MainMenuDlg(this, _world, _inputMgr, _aiMgr, _themeManager, _fs);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;
@@ -196,7 +202,7 @@ bool Desktop::OnRawChar(int c)
 		break;
 
 	case GLFW_KEY_F2:
-		dlg = new NewGameDlg(this, _world, _inputMgr, _aiMgr, _themeManager);
+		dlg = new NewGameDlg(this, _world, _inputMgr, _aiMgr, _themeManager, _fs);
 		SetDrawBackground(true);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;

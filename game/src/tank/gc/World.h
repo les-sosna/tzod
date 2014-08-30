@@ -112,8 +112,8 @@ public:
 
 	bool IsEmpty() const;
 
-	void Unserialize(const char *fileName, const ThemeManager &themeManager, TextureManager &tm);
-	void Serialize(const char *fileName);
+	void Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &themeManager, TextureManager &tm);
+	void Serialize(std::shared_ptr<FS::Stream> stream);
 
 	void Export(std::shared_ptr<FS::Stream> file);
 	void Import(std::shared_ptr<FS::Stream> file, const ThemeManager &themeManager, TextureManager &tm);

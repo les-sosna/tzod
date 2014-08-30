@@ -13,6 +13,7 @@
 namespace FS
 {
 	class MemMap;
+	class FileSystem;
 }
 
 struct LogicalTexture
@@ -43,8 +44,8 @@ public:
 	
 	IRender& GetRender() const { return _render; }
 
-	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file);
-	int LoadDirectory(const std::string &dirName, const std::string &texPrefix);
+	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs);
+	int LoadDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs);
 	void UnloadAllTextures();
 
 	size_t FindSprite(const std::string &name) const;
@@ -81,7 +82,7 @@ protected:
 	std::map<std::string, size_t>   _mapName_to_Index;// index in _logicalTextures
 	std::vector<LogicalTexture>  _logicalTextures;
 
-	void LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName);
+	void LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs);
 	void Unload(TexDescIterator what);
 
 	void CreateChecker(); // Create checker texture without name and with index=0

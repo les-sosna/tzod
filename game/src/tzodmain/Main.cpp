@@ -129,16 +129,18 @@ namespace
 		WorldController &_worldController;
 		AIManager &_aiMgr;
 		ThemeManager &_themeManager;
+		FS::FileSystem &_fs;
 	public:
-        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager)
+        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs)
             : _world(world)
 			, _worldController(worldController)
 			, _aiMgr(aiMgr)
 			, _themeManager(themeManager)
+			, _fs(fs)
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager);
+			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager, _fs);
 		}
 	};
 
@@ -277,7 +279,7 @@ int main(int, const char**)
         TRACE("%s", TXT_VERSION);
 
         TRACE("Mount file system");
-        g_fs = FS::OSFileSystem::Create("data");
+		std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
         
         // load config
         try
@@ -348,29 +350,29 @@ int main(int, const char**)
         render->OnResizeWnd(width, height);
         
 #if !defined NOSOUND
-        InitSound(true);
+        InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
 #endif
         
         g_texman = new TextureManager(*render);
-        if( g_texman->LoadPackage(FILE_TEXTURES, g_fs->Open(FILE_TEXTURES)->QueryMap()) <= 0 )
+        if( g_texman->LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0 )
             TRACE("WARNING: no textures loaded");
-        if( g_texman->LoadDirectory(DIR_SKINS, "skin/") <= 0 )
+        if( g_texman->LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
             TRACE("WARNING: no skins found");
 
         { // FIXME: remove explicit world scope
         World world;
 		WorldController worldController(world);
 		AIManager aiManager(world);
-		ThemeManager themeManager(g_fs);
+		ThemeManager themeManager(*fs);
 
         TRACE("scripting subsystem initialization");
-		ScriptEnvironment se { world, *g_fs, themeManager, *g_texman, g_appWindow };
+		ScriptEnvironment se { world, *fs, themeManager, *g_texman, g_appWindow };
         g_env.L = script_open(se);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager, themeManager));
+        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs));
         glfwSetWindowUserPointer(appWindow.get(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -449,9 +451,6 @@ int main(int, const char**)
             TRACE("Failed to save config file");
         }
         
-        TRACE("Unmounting the file system");
-        g_fs.reset();
-
         TRACE("Exit.");
 	}
 	catch( const std::exception &e )

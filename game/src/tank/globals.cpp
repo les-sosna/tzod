@@ -11,8 +11,6 @@ unsigned int     g_sounds[SND_COUNT];
 TextureManager *g_texman;
 //ClientBase     *g_client;
 
-std::shared_ptr<FS::FileSystem>  g_fs;
-
 GLFWwindow *g_appWindow;
 
 

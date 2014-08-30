@@ -188,14 +188,11 @@ void World::RemoveListener(ObjectType type, ObjectListener &ls)
 	}
 }
 
-void World::Unserialize(const char *fileName, const ThemeManager &themeManager, TextureManager &tm)
+void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &themeManager, TextureManager &tm)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
 
-	TRACE("Loading saved game from file '%s'...", fileName);
-
-	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeRead)->QueryStream();
 	SaveFile f(stream, true);
 
 	try
@@ -338,13 +335,10 @@ void World::Unserialize(const char *fileName, const ThemeManager &themeManager, 
 	}
 }
 
-void World::Serialize(const char *fileName)
+void World::Serialize(std::shared_ptr<FS::Stream> stream)
 {
 	assert(IsSafeMode());
 
-	TRACE("Saving game to file '%S'...", fileName);
-
-	std::shared_ptr<FS::Stream> stream = g_fs->Open(fileName, FS::ModeWrite)->QueryStream();
 	SaveFile f(stream, false);
 
 	SaveHeader sh = {0};

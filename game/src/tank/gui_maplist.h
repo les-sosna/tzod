@@ -1,21 +1,19 @@
-// gui_maplist.h
-
 #pragma once
-
 #include "List.h"
+
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 class ListDataSourceMaps : public ListDataSourceDefault
 {
 public:
-	ListDataSourceMaps();
+	ListDataSourceMaps(FS::FileSystem &fs);
 };
 
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

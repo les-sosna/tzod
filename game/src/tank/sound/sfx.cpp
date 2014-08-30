@@ -48,10 +48,10 @@ static long tell_func(void *datasource)
 	return static_cast<long>(state->s->Tell());
 }
 
-static void ogg_load_vorbis(const char *filename, FormatDesc *fd, std::vector<char> &data)
+static void ogg_load_vorbis(std::shared_ptr<FS::Stream> stream, FormatDesc *fd, std::vector<char> &data)
 {
     FileState state;
-    state.s = g_fs->Open(filename)->QueryStream();
+    state.s = stream;
 
 	ov_callbacks cb;
 	cb.read_func  = read_func;
@@ -127,7 +127,7 @@ static void ogg_load_vorbis(const char *filename, FormatDesc *fd, std::vector<ch
 	ov_clear(&vf);
 }
 
-static void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filename)
+static void LoadOggVorbis(FS::FileSystem *fs, bool init, enumSoundTemplate sound, const char *filename)
 {
 	if( init )
 	{
@@ -135,7 +135,7 @@ static void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filena
 		{
 			FormatDesc fd;
 			std::vector<char> data;
-			ogg_load_vorbis(filename, &fd, data);
+			ogg_load_vorbis(fs->Open(filename)->QueryStream(), &fd, data);
             
             alGenBuffers(1, &g_sounds[sound]);
             if (AL_NO_ERROR != alGetError())
@@ -162,7 +162,7 @@ static void LoadOggVorbis(bool init, enumSoundTemplate sound, const char *filena
 }
 
 
-bool InitSound(bool init)
+bool InitSound(FS::FileSystem *fs, bool init)
 {
     static ALCdevice *device = nullptr;
     static ALCcontext *context = nullptr;
@@ -197,60 +197,60 @@ bool InitSound(bool init)
     
 	try
 	{
-        LoadOggVorbis(init, SND_BoomStandard,   DIR_SOUND"/explosions/standard.ogg"    );
-        LoadOggVorbis(init, SND_BoomBig,        DIR_SOUND"/explosions/big.ogg"         );
-        LoadOggVorbis(init, SND_WallDestroy,    DIR_SOUND"/explosions/wall.ogg"        );
+        LoadOggVorbis(fs, init, SND_BoomStandard,   "explosions/standard.ogg"    );
+        LoadOggVorbis(fs, init, SND_BoomBig,        "explosions/big.ogg"         );
+        LoadOggVorbis(fs, init, SND_WallDestroy,    "explosions/wall.ogg"        );
         
-        LoadOggVorbis(init, SND_Hit1,           DIR_SOUND"/projectiles/hit1.ogg"       );
-        LoadOggVorbis(init, SND_Hit3,           DIR_SOUND"/projectiles/hit2.ogg"       );
-        LoadOggVorbis(init, SND_Hit5,           DIR_SOUND"/projectiles/hit3.ogg"       );
-        LoadOggVorbis(init, SND_AC_Hit1,        DIR_SOUND"/projectiles/ac_hit_1.ogg"   );
-        LoadOggVorbis(init, SND_AC_Hit2,        DIR_SOUND"/projectiles/ac_hit_2.ogg"   );
-        LoadOggVorbis(init, SND_AC_Hit3,        DIR_SOUND"/projectiles/ac_hit_3.ogg"   );
-        LoadOggVorbis(init, SND_RocketFly,      DIR_SOUND"/projectiles/rocketfly.ogg"  ); //
-        LoadOggVorbis(init, SND_DiskHit,        DIR_SOUND"/projectiles/DiskHit.ogg"    ); //
-        LoadOggVorbis(init, SND_BfgFlash,       DIR_SOUND"/projectiles/bfgflash.ogg"   ); //
-        LoadOggVorbis(init, SND_PlazmaHit,      DIR_SOUND"/projectiles/plazmahit.ogg"  );
-        LoadOggVorbis(init, SND_BoomBullet,     DIR_SOUND"/projectiles/bullet.ogg"     ); //
+        LoadOggVorbis(fs, init, SND_Hit1,           "projectiles/hit1.ogg"       );
+        LoadOggVorbis(fs, init, SND_Hit3,           "projectiles/hit2.ogg"       );
+        LoadOggVorbis(fs, init, SND_Hit5,           "projectiles/hit3.ogg"       );
+        LoadOggVorbis(fs, init, SND_AC_Hit1,        "projectiles/ac_hit_1.ogg"   );
+        LoadOggVorbis(fs, init, SND_AC_Hit2,        "projectiles/ac_hit_2.ogg"   );
+        LoadOggVorbis(fs, init, SND_AC_Hit3,        "projectiles/ac_hit_3.ogg"   );
+        LoadOggVorbis(fs, init, SND_RocketFly,      "projectiles/rocketfly.ogg"  ); //
+        LoadOggVorbis(fs, init, SND_DiskHit,        "projectiles/DiskHit.ogg"    ); //
+        LoadOggVorbis(fs, init, SND_BfgFlash,       "projectiles/bfgflash.ogg"   ); //
+        LoadOggVorbis(fs, init, SND_PlazmaHit,      "projectiles/plazmahit.ogg"  );
+        LoadOggVorbis(fs, init, SND_BoomBullet,     "projectiles/bullet.ogg"     ); //
         
-        LoadOggVorbis(init, SND_TargetLock,     DIR_SOUND"/turrets/activate.ogg"       );
-        LoadOggVorbis(init, SND_TuretRotate,    DIR_SOUND"/turrets/rotate.ogg"         );
-        LoadOggVorbis(init, SND_TuretWakeUp,    DIR_SOUND"/turrets/arming.ogg"         );
-        LoadOggVorbis(init, SND_TuretWakeDown,  DIR_SOUND"/turrets/unarming.ogg"       );
+        LoadOggVorbis(fs, init, SND_TargetLock,     "turrets/activate.ogg"       );
+        LoadOggVorbis(fs, init, SND_TuretRotate,    "turrets/rotate.ogg"         );
+        LoadOggVorbis(fs, init, SND_TuretWakeUp,    "turrets/arming.ogg"         );
+        LoadOggVorbis(fs, init, SND_TuretWakeDown,  "turrets/unarming.ogg"       );
         
-        LoadOggVorbis(init, SND_RocketShoot,    DIR_SOUND"/pickup/rocketshoot.ogg"     ); //
-        LoadOggVorbis(init, SND_Shoot,          DIR_SOUND"/pickup/shoot.ogg"           ); //
-        LoadOggVorbis(init, SND_MinigunFire,    DIR_SOUND"/pickup/MinigunFire.ogg"     );
-        LoadOggVorbis(init, SND_WeapReload,     DIR_SOUND"/pickup/reload.ogg"          );
-        LoadOggVorbis(init, SND_ACShoot,        DIR_SOUND"/pickup/ac_shoot.ogg"        );
-        LoadOggVorbis(init, SND_AC_Reload,      DIR_SOUND"/pickup/ac_reload.ogg"       );
-        LoadOggVorbis(init, SND_Pickup,         DIR_SOUND"/pickup/pickup.ogg"          );
-        LoadOggVorbis(init, SND_B_Start,        DIR_SOUND"/pickup/b_start.ogg"         );
-        LoadOggVorbis(init, SND_B_Loop,         DIR_SOUND"/pickup/b_loop.ogg"          );
-        LoadOggVorbis(init, SND_B_End,          DIR_SOUND"/pickup/b_end.ogg"           );
-        LoadOggVorbis(init, SND_w_Pickup,       DIR_SOUND"/pickup/w_pickup.ogg"        ); //
-        LoadOggVorbis(init, SND_Bolt,           DIR_SOUND"/pickup/boltshoot.ogg"       );
-        LoadOggVorbis(init, SND_DiskFire,       DIR_SOUND"/pickup/ripper.ogg"          ); //
-        LoadOggVorbis(init, SND_puRespawn,      DIR_SOUND"/pickup/puRespawn.ogg"       );
-        LoadOggVorbis(init, SND_TowerRotate,    DIR_SOUND"/pickup/tower_rotate.ogg"    );
-        LoadOggVorbis(init, SND_ShockActivate,  DIR_SOUND"/pickup/shockactivate.ogg"   ); //
-        LoadOggVorbis(init, SND_BfgInit,        DIR_SOUND"/pickup/bfginit.ogg"         );
-        LoadOggVorbis(init, SND_BfgFire,        DIR_SOUND"/pickup/bfgfire.ogg"         );
-        LoadOggVorbis(init, SND_PlazmaFire,     DIR_SOUND"/pickup/plazma1.ogg"         );
-        LoadOggVorbis(init, SND_RamEngine,      DIR_SOUND"/pickup/ram_engine.ogg"      ); //
-        LoadOggVorbis(init, SND_InvEnd,         DIR_SOUND"/pickup/inv_end.ogg"         );
-        LoadOggVorbis(init, SND_Inv,            DIR_SOUND"/pickup/inv.ogg"             );
-        LoadOggVorbis(init, SND_InvHit1,        DIR_SOUND"/pickup/inv_hit1.ogg"        );
-        LoadOggVorbis(init, SND_InvHit2,        DIR_SOUND"/pickup/inv_hit2.ogg"        );
+        LoadOggVorbis(fs, init, SND_RocketShoot,    "pickup/rocketshoot.ogg"     ); //
+        LoadOggVorbis(fs, init, SND_Shoot,          "pickup/shoot.ogg"           ); //
+        LoadOggVorbis(fs, init, SND_MinigunFire,    "pickup/MinigunFire.ogg"     );
+        LoadOggVorbis(fs, init, SND_WeapReload,     "pickup/reload.ogg"          );
+        LoadOggVorbis(fs, init, SND_ACShoot,        "pickup/ac_shoot.ogg"        );
+        LoadOggVorbis(fs, init, SND_AC_Reload,      "pickup/ac_reload.ogg"       );
+        LoadOggVorbis(fs, init, SND_Pickup,         "pickup/pickup.ogg"          );
+        LoadOggVorbis(fs, init, SND_B_Start,        "pickup/b_start.ogg"         );
+        LoadOggVorbis(fs, init, SND_B_Loop,         "pickup/b_loop.ogg"          );
+        LoadOggVorbis(fs, init, SND_B_End,          "pickup/b_end.ogg"           );
+        LoadOggVorbis(fs, init, SND_w_Pickup,       "pickup/w_pickup.ogg"        ); //
+        LoadOggVorbis(fs, init, SND_Bolt,           "pickup/boltshoot.ogg"       );
+        LoadOggVorbis(fs, init, SND_DiskFire,       "pickup/ripper.ogg"          ); //
+        LoadOggVorbis(fs, init, SND_puRespawn,      "pickup/puRespawn.ogg"       );
+        LoadOggVorbis(fs, init, SND_TowerRotate,    "pickup/tower_rotate.ogg"    );
+        LoadOggVorbis(fs, init, SND_ShockActivate,  "pickup/shockactivate.ogg"   ); //
+        LoadOggVorbis(fs, init, SND_BfgInit,        "pickup/bfginit.ogg"         );
+        LoadOggVorbis(fs, init, SND_BfgFire,        "pickup/bfgfire.ogg"         );
+        LoadOggVorbis(fs, init, SND_PlazmaFire,     "pickup/plazma1.ogg"         );
+        LoadOggVorbis(fs, init, SND_RamEngine,      "pickup/ram_engine.ogg"      ); //
+        LoadOggVorbis(fs, init, SND_InvEnd,         "pickup/inv_end.ogg"         );
+        LoadOggVorbis(fs, init, SND_Inv,            "pickup/inv.ogg"             );
+        LoadOggVorbis(fs, init, SND_InvHit1,        "pickup/inv_hit1.ogg"        );
+        LoadOggVorbis(fs, init, SND_InvHit2,        "pickup/inv_hit2.ogg"        );
         
-        LoadOggVorbis(init, SND_Impact1,        DIR_SOUND"/vehicle/impact1.ogg"        );
-        LoadOggVorbis(init, SND_Impact2,        DIR_SOUND"/vehicle/impact2.ogg"        );
-        LoadOggVorbis(init, SND_Slide1,         DIR_SOUND"/vehicle/slide1.ogg"         );
-        LoadOggVorbis(init, SND_TankMove,       DIR_SOUND"/vehicle/tank_move.ogg"      );
+        LoadOggVorbis(fs, init, SND_Impact1,        "vehicle/impact1.ogg"        );
+        LoadOggVorbis(fs, init, SND_Impact2,        "vehicle/impact2.ogg"        );
+        LoadOggVorbis(fs, init, SND_Slide1,         "vehicle/slide1.ogg"         );
+        LoadOggVorbis(fs, init, SND_TankMove,       "vehicle/tank_move.ogg"      );
         
-        LoadOggVorbis(init, SND_Screenshot,     DIR_SOUND"/misc/screenshot.ogg"      ); //
-        LoadOggVorbis(init, SND_Limit,          DIR_SOUND"/misc/limit.ogg"           );
-        LoadOggVorbis(init, SND_LightSwitch,    DIR_SOUND"/misc/light1.ogg"          ); //
+        LoadOggVorbis(fs, init, SND_Screenshot,     "misc/screenshot.ogg"        ); //
+        LoadOggVorbis(fs, init, SND_Limit,          "misc/limit.ogg"             );
+        LoadOggVorbis(fs, init, SND_LightSwitch,    "misc/light1.ogg"            ); //
 	}
 	catch( const std::exception & )
 	{
@@ -263,7 +263,7 @@ bool InitSound(bool init)
 
 void FreeSound()
 {
-	InitSound(false);
+	InitSound(nullptr, false);
 }
 
 // end of file

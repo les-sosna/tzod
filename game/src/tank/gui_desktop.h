@@ -12,6 +12,10 @@
 class WorldController;
 class AIManager;
 class ThemeManager;
+namespace FS
+{
+	class FileSystem;
+}
 
 namespace UI
 {
@@ -38,6 +42,7 @@ class Desktop
     InputManager _inputMgr;
 	AIManager &_aiMgr;
 	ThemeManager &_themeManager;
+	FS::FileSystem &_fs;
 
 	EditorLayout *_editor;
     GameLayout   *_game;
@@ -58,7 +63,12 @@ class Desktop
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager, World &_world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager);
+	Desktop(LayoutManager* manager,
+			World &_world,
+			WorldController &worldController,
+			AIManager &aiMgr,
+			ThemeManager &themeManager,
+			FS::FileSystem &fs);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

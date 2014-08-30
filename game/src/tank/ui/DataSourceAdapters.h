@@ -11,9 +11,10 @@ class ListAdapter
 	, public ListType
 {
 public:
-	static ListAdapter* Create(Window *parent)
+	template <class ...Args>
+	static ListAdapter* Create(Window *parent, Args && ...args)
 	{
-		return new ListAdapter(parent);
+		return new ListAdapter(parent, std::forward<Args>(args)...);
 	}
 
 	DataSourceType* GetData()
@@ -22,8 +23,9 @@ public:
 	}
 
 protected:
-	ListAdapter(Window *parent)
-		: DataSourceType()
+	template <class ...Args>
+	ListAdapter(Window *parent, Args && ...args)
+		: DataSourceType(std::forward<Args>(args)...)
 		, ListType(parent, this)
 	{
 	}

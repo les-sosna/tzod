@@ -4,10 +4,10 @@
 
 #include <fs/FileSystem.h>
 
-ThemeManager::ThemeManager(std::shared_ptr<FS::FileSystem> fs_)
-	: _fs(std::move(fs_))
+ThemeManager::ThemeManager(FS::FileSystem &fs)
+	: _fs(fs)
 {
-	std::shared_ptr<FS::FileSystem> dir = _fs->GetFileSystem(DIR_THEMES);
+	std::shared_ptr<FS::FileSystem> dir = _fs.GetFileSystem(DIR_THEMES);
 	auto files = dir->EnumAllFiles("*.lua");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
@@ -48,10 +48,10 @@ std::string ThemeManager::GetThemeName(size_t index) const
 
 bool ThemeManager::ApplyTheme(size_t index, TextureManager &tm) const
 {
-	bool res = (tm.LoadPackage(FILE_TEXTURES, _fs->Open(FILE_TEXTURES)->QueryMap()) > 0);
+	bool res = (tm.LoadPackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs) > 0);
 	if( index > 0 )
 	{
-		res = res && (tm.LoadPackage(_themes[index-1].fileName, _themes[index-1].file) > 0);
+		res = res && (tm.LoadPackage(_themes[index-1].fileName, _themes[index-1].file, _fs) > 0);
 	}
 	return res;
 }

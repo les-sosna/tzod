@@ -14,7 +14,7 @@ namespace FS
 class ThemeManager
 {
 public:
-	ThemeManager(std::shared_ptr<FS::FileSystem> fs);
+	ThemeManager(FS::FileSystem &fs);
 	~ThemeManager();
 	
 	size_t GetThemeCount() const;
@@ -31,5 +31,5 @@ private:
 	};
 	
 	std::vector<ThemeDesc> _themes;
-	const std::shared_ptr<FS::FileSystem> _fs;
+	FS::FileSystem &_fs;
 };

@@ -35,7 +35,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager)
+MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs)
   : Dialog(parent, 1, 1)
   , _inputMgr(inputMgr)
   , _aiMgr(aiMgr)
@@ -45,6 +45,7 @@ MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, A
   , _fileDlg(NULL)
   , _world(world)
   , _themeManager(themeManager)
+  , _fs(fs)
 {
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
@@ -82,14 +83,14 @@ void MainMenuDlg::OnSinglePlayer()
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr, _aiMgr, _themeManager);
+	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr, _aiMgr, _themeManager, _fs);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnCampaign()
 {
 	SetVisible(false);
-	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent());
+	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent(), _fs);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -97,7 +98,7 @@ void MainMenuDlg::OnSaveGame()
 {
 	GetFileNameDlg::Params param;
 	param.title = g_lang.get_file_name_save_game.Get();
-	param.folder = g_fs->GetFileSystem(DIR_SAVE, true);
+	param.folder = _fs.GetFileSystem(DIR_SAVE, true);
 	param.extension = "sav";
 
 	if( !param.folder )
@@ -123,7 +124,9 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		tmp += _fileDlg->GetFileName();
 		try
 		{
-			_world.Serialize(tmp.c_str());
+			TRACE("Saving game to file '%S'...", tmp.c_str());
+			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeWrite)->QueryStream();
+			_world.Serialize(stream);
 			GetConsole().Printf(0, "game saved: '%s'", tmp.c_str());
 		}
 		catch( const std::exception &e )
@@ -140,7 +143,7 @@ void MainMenuDlg::OnLoadGame()
 {
 	GetFileNameDlg::Params param;
 	param.title = g_lang.get_file_name_load_game.Get();
-	param.folder = g_fs->GetFileSystem(DIR_SAVE, false, true);
+	param.folder = _fs.GetFileSystem(DIR_SAVE, false, true);
 	param.extension = "sav";
 
 	SetVisible(false);
@@ -162,7 +165,9 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 
 		try
 		{
-			_world.Unserialize(tmp.c_str(), _themeManager, GetManager()->GetTextureManager());
+			TRACE("Loading saved game from file '%s'...", tmp.c_str());
+			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
+			_world.Unserialize(stream, _themeManager, GetManager()->GetTextureManager());
 		}
 		catch( const std::exception &e )
 		{
@@ -182,7 +187,7 @@ void MainMenuDlg::OnMultiPlayer()
 void MainMenuDlg::OnHost()
 {
 	SetVisible(false);
-	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world);
+	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world, _fs);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -231,7 +236,7 @@ void MainMenuDlg::OnImportMap()
 {
 	GetFileNameDlg::Params param;
 	param.title = g_lang.get_file_name_load_map.Get();
-	param.folder = g_fs->GetFileSystem(DIR_MAPS);
+	param.folder = _fs.GetFileSystem(DIR_MAPS);
 	param.extension = "map";
 
 	if( !param.folder )
@@ -270,7 +275,7 @@ void MainMenuDlg::OnExportMap()
 {
 	GetFileNameDlg::Params param;
 	param.title = g_lang.get_file_name_save_map.Get();
-	param.folder = g_fs->GetFileSystem(DIR_MAPS, true);
+	param.folder = _fs.GetFileSystem(DIR_MAPS, true);
 	param.extension = "map";
 
 	if( !param.folder )
@@ -297,7 +302,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 		try
 		{
-			_world.Export(g_fs->Open(tmp, FS::ModeWrite)->QueryStream());
+			_world.Export(_fs.Open(tmp, FS::ModeWrite)->QueryStream());
 		}
 		catch( const std::exception &e )
 		{

@@ -47,14 +47,18 @@ extern "C"
 namespace UI
 {
 
-///////////////////////////////////////////////////////////////////////////////
-
-NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager)
+NewGameDlg::NewGameDlg(Window *parent,
+					   World &world,
+					   InputManager &inputMgr,
+					   AIManager &aiMgr,
+					   const ThemeManager &themeManager,
+					   FS::FileSystem &fs)
   : Dialog(parent, 770, 550)
   , _world(world)
   , _inputMgr(inputMgr)
   , _aiMgr(aiMgr)
   , _themeManager(themeManager)
+  , _fs(fs)
 {
 	_newPlayer = false;
 
@@ -69,7 +73,7 @@ NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIM
 
 	Text::Create(this, 16, 16, g_lang.choose_map.Get(), alignTextLT);
 
-	_maps = MapList::Create(this);
+	_maps = MapList::Create(this, fs);
 	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
 	_maps->SetTabPos(0,   4); // name
@@ -373,7 +377,7 @@ void NewGameDlg::OnOK()
 	{
         _world.Clear();
         _world.Seed(rand());
-        _world.Import(g_fs->Open(path)->QueryStream(), _themeManager, GetManager()->GetTextureManager());
+        _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager()->GetTextureManager());
         if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
         {
             _world.Clear();
