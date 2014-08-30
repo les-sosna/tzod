@@ -6,11 +6,9 @@
 
 ENVIRONMENT g_env;
 
-unsigned int     g_sounds[SND_COUNT];
+unsigned int g_sounds[SND_COUNT];
 
 TextureManager *g_texman;
-//ClientBase     *g_client;
-
 
 UI::ConsoleBuffer& GetConsole()
 {

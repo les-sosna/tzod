@@ -21,9 +21,6 @@ struct ENVIRONMENT;
 extern unsigned int g_sounds[SND_COUNT];
 
 extern TextureManager  *g_texman;
-extern AppBase         *g_app;
-//extern ClientBase      *g_client;
-
 
 struct lua_State;
 
