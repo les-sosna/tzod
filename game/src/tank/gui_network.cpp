@@ -65,7 +65,7 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 	_maps->SetTabPos(2, 448); // theme
 	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
-	GetManager()->SetFocusWnd(_maps);
+	GetManager().SetFocusWnd(_maps);
 
 
 	//
@@ -268,7 +268,7 @@ ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName, World &wo
 
 	Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
 
-	GetManager()->SetFocusWnd(_name);
+	GetManager().SetFocusWnd(_name);
 }
 
 ConnectDlg::~ConnectDlg()
@@ -357,7 +357,7 @@ InternetDlg::InternetDlg(Window *parent, World &world)
 
 	Button::Create(this, g_lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
 
-	GetManager()->SetFocusWnd(_name);
+	GetManager().SetFocusWnd(_name);
 
 	OnRefresh();
 }

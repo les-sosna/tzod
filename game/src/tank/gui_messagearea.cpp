@@ -17,7 +17,7 @@ namespace UI
 
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent)
-  , _fontTexture(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
 {
 	Move(x, y);
 }
@@ -43,7 +43,7 @@ void MessageArea::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		return;
 	}
 
-	float h = GetManager()->GetTextureManager().GetCharHeight(_fontTexture);
+	float h = GetManager().GetTextureManager().GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{

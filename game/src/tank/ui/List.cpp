@@ -68,8 +68,8 @@ List::List(Window *parent, ListDataSource* dataSource)
     , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
     , _curSel(-1)
     , _hotItem(-1)
-    , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
-    , _selection(GetManager()->GetTextureManager().FindSprite("ui/listsel"))
+    , _font(GetManager().GetTextureManager().FindSprite("font_small"))
+    , _selection(GetManager().GetTextureManager().FindSprite("ui/listsel"))
 {
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
@@ -100,7 +100,7 @@ void List::SetTabPos(int index, float pos)
 
 float List::GetItemHeight() const
 {
-	return GetManager()->GetTextureManager().GetFrameHeight(_font, 0);
+	return GetManager().GetTextureManager().GetFrameHeight(_font, 0);
 }
 
 int List::GetCurSel() const
@@ -265,7 +265,7 @@ void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			{
 				// selection frame around selected item
 				FRECT sel = {sx + 1, sy + y, sx + GetWidth(), sy + y + GetItemHeight()};
-				if( this == GetManager()->GetFocusWnd() )
+				if( this == GetManager().GetFocusWnd() )
 				{
 					c = 0xff000000; // selected focused;
 					dc.DrawSprite(&sel, _selection, 0xffffffff, 0);

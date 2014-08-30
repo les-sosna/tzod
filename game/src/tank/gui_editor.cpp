@@ -64,7 +64,7 @@ NewMapDlg::NewMapDlg(Window *parent)
 	Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
 	Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 
-	GetManager()->SetFocusWnd(_width);
+	GetManager().SetFocusWnd(_width);
 }
 
 void NewMapDlg::OnOK()
@@ -124,7 +124,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			ObjectProperty *prop = _ps->GetProperty(i);
 			Window         *ctrl = _ctrls[i];
 
-			if( GetManager()->GetFocusWnd() == ctrl )
+			if( GetManager().GetFocusWnd() == ctrl )
 			{
 				focus = i;
 			}
@@ -238,7 +238,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				{
 					edit->SetSel(0, -1);
 				}
-				GetManager()->SetFocusWnd(ctrl);
+				GetManager().SetFocusWnd(ctrl);
 			}
 
 			assert(NULL != ctrl);
@@ -560,8 +560,8 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera)
   : Window(parent)
   , _defaultCamera(defaultCamera)
-  , _fontSmall(GetManager()->GetTextureManager().FindSprite("font_small"))
-  , _selectionRect(GetManager()->GetTextureManager().FindSprite("ui/selection"))
+  , _fontSmall(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _selectionRect(GetManager().GetTextureManager().FindSprite("ui/selection"))
   , _selectedObject(NULL)
   , _isObjectNew(false)
   , _click(true)
@@ -688,7 +688,7 @@ bool EditorLayout::OnMouseUp(float x, float y, int button)
 	{
 		_click = true;
 		_mbutton = 0;
-		GetManager()->SetCapture(NULL);
+		GetManager().SetCapture(NULL);
 	}
 	return true;
 }
@@ -697,7 +697,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 {
 	if( 0 == _mbutton )
 	{
-		GetManager()->SetCapture(this);
+		GetManager().SetCapture(this);
 		_mbutton = button;
 	}
 
@@ -912,8 +912,8 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
 		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
-    vec2d mouse(GetManager()->GetMousePos().x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
-                GetManager()->GetMousePos().y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
+    vec2d mouse(GetManager().GetMousePos().x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
+                GetManager().GetMousePos().y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
 
     std::stringstream buf;
     buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
@@ -1000,7 +1000,7 @@ void MapSettingsDlg::OnOK()
 	{
 		_world._infoTheme.clear();
 	}
-	if( !_themeManager.ApplyTheme(i, GetManager()->GetTextureManager()) )
+	if( !_themeManager.ApplyTheme(i, GetManager().GetTextureManager()) )
 	{
 //		MessageBoxT(g_env.hMainWnd, "Could not apply theme", MB_ICONERROR);
 	}

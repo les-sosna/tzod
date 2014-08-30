@@ -29,7 +29,7 @@ void ButtonBase::SetState(State s)
 
 bool ButtonBase::OnMouseMove(float x, float y)
 {
-	if( GetManager()->GetCapture() == this )
+	if( GetManager().GetCapture() == this )
 	{
 		bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
 		SetState(push ? statePushed : stateNormal);
@@ -47,7 +47,7 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 {
 	if( 1 == button ) // left button only
 	{
-		GetManager()->SetCapture(this);
+		GetManager().SetCapture(this);
 		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(x, y);
@@ -58,9 +58,9 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 
 bool ButtonBase::OnMouseUp(float x, float y, int button)
 {
-	if( GetManager()->GetCapture() == this )
+	if( GetManager().GetCapture() == this )
 	{
-		GetManager()->SetCapture(NULL);
+		GetManager().SetCapture(NULL);
 		bool click = (GetState() == statePushed);
 		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
@@ -123,7 +123,7 @@ Button* Button::Create(Window *parent, const std::string &text, float x, float y
 
 Button::Button(Window *parent)
   : ButtonBase(parent)
-  , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
 {
 	SetTexture("ui/button", true);
 	SetDrawBorder(false);
@@ -190,8 +190,8 @@ void TextButton::AlignSizeToContent()
 {
 	if( -1 != _fontTexture )
 	{
-		float w = GetManager()->GetTextureManager().GetFrameWidth(_fontTexture, 0);
-		float h = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
+		float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
+		float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 		Resize((w - 1) * (float) GetText().length(), h + 1);
 	}
 }
@@ -208,7 +208,7 @@ bool TextButton::GetDrawShadow() const
 
 void TextButton::SetFont(const char *fontName)
 {
-	_fontTexture = GetManager()->GetTextureManager().FindSprite(fontName);
+	_fontTexture = GetManager().GetTextureManager().FindSprite(fontName);
 	AlignSizeToContent();
 }
 
@@ -269,8 +269,8 @@ CheckBox* CheckBox::Create(Window *parent, float x, float y, const std::string &
 
 CheckBox::CheckBox(Window *parent)
   : ButtonBase(parent)
-  , _fontTexture(GetManager()->GetTextureManager().FindSprite("font_small"))
-  , _boxTexture(GetManager()->GetTextureManager().FindSprite("ui/checkbox"))
+  , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _boxTexture(GetManager().GetTextureManager().FindSprite("ui/checkbox"))
   , _drawShadow(true)
   , _isChecked(false)
 {
@@ -280,7 +280,7 @@ CheckBox::CheckBox(Window *parent)
 
 void CheckBox::AlignSizeToContent()
 {
-	const TextureManager &tm = GetManager()->GetTextureManager();
+	const TextureManager &tm = GetManager().GetTextureManager();
 	float th = tm.GetFrameHeight(_fontTexture, 0);
 	float tw = tm.GetFrameWidth(_fontTexture, 0);
 	float bh = tm.GetFrameHeight(_boxTexture, GetFrame());
@@ -311,9 +311,9 @@ void CheckBox::OnChangeState(State state)
 
 void CheckBox::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float bh = GetManager()->GetTextureManager().GetFrameHeight(_boxTexture, GetFrame());
-	float bw = GetManager()->GetTextureManager().GetFrameWidth(_boxTexture, GetFrame());
-	float th = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	float bh = GetManager().GetTextureManager().GetFrameHeight(_boxTexture, GetFrame());
+	float bw = GetManager().GetTextureManager().GetFrameWidth(_boxTexture, GetFrame());
+	float th = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 
 	FRECT box = {sx, sy + (GetHeight() - bh) / 2, sx + bw, sy + (GetHeight() - bh) / 2 + bh};
 	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());

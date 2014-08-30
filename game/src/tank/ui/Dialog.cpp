@@ -22,7 +22,7 @@ Dialog::Dialog(Window *parent, float width, float height, bool modal)
     Move(std::floor((parent->GetWidth() - GetWidth()) / 2), std::floor((parent->GetHeight() - GetHeight()) / 2));
 	SetDrawBorder(true);
 	SetDrawBackground(true);
-	GetManager()->SetFocusWnd(this);
+	GetManager().SetFocusWnd(this);
 }
 
 void Dialog::SetEasyMove(bool enable)
@@ -46,7 +46,7 @@ bool Dialog::OnMouseDown(float x, float y, int button)
 {
 	if( _easyMove && 1 == button )
 	{
-		GetManager()->SetCapture(this);
+		GetManager().SetCapture(this);
 		_mouseX = x;
 		_mouseY = y;
 	}
@@ -56,16 +56,16 @@ bool Dialog::OnMouseUp(float x, float y, int button)
 {
 	if( 1 == button )
 	{
-		if( this == GetManager()->GetCapture() )
+		if( this == GetManager().GetCapture() )
 		{
-			GetManager()->SetCapture(NULL);
+			GetManager().SetCapture(NULL);
 		}
 	}
 	return true;
 }
 bool Dialog::OnMouseMove(float x, float y)
 {
-	if( this == GetManager()->GetCapture() )
+	if( this == GetManager().GetCapture() )
 	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}
@@ -85,35 +85,35 @@ bool Dialog::OnRawChar(int c)
 	switch( c )
 	{
 	case GLFW_KEY_UP:
-		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to previous siblings
-			Window *r = GetManager()->GetFocusWnd()->GetPrevSibling();
+			Window *r = GetManager().GetFocusWnd()->GetPrevSibling();
 			for( ; r; r = r->GetPrevSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;
 	case GLFW_KEY_DOWN:
-		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to next siblings
-			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			Window *r = GetManager().GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;
 	case GLFW_KEY_TAB:
-		if( GetManager()->GetFocusWnd() && this != GetManager()->GetFocusWnd() )
+		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to next siblings ...
-			Window *r = GetManager()->GetFocusWnd()->GetNextSibling();
+			Window *r = GetManager().GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
 
@@ -121,7 +121,7 @@ bool Dialog::OnRawChar(int c)
 			r = GetFirstChild();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager()->SetFocusWnd(r) ) break;
+				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;

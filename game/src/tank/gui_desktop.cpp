@@ -75,11 +75,11 @@ Desktop::Desktop(LayoutManager* manager,
   , _aiMgr(aiMgr)
   , _themeManager(themeManager)
   , _fs(fs)
-  , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
+  , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
-  , _renderScheme(GetManager()->GetTextureManager())
-  , _worldView(GetManager()->GetTextureManager(), _renderScheme)
+  , _renderScheme(GetManager().GetTextureManager())
+  , _worldView(GetManager().GetTextureManager(), _renderScheme)
   , _worldController(worldController)
 {
 	SetTexture("ui/window", false);
@@ -148,7 +148,7 @@ void Desktop::SetEditorMode(bool editorMode)
     _world.PauseSound(IsGamePaused());
 	if( editorMode && !_con->GetVisible() )
 	{
-		GetManager()->SetFocusWnd(_editor);
+		GetManager().SetFocusWnd(_editor);
 	}
 }
     
@@ -183,12 +183,12 @@ bool Desktop::OnRawChar(int c)
 		else
 		{
 			_con->SetVisible(true);
-			GetManager()->SetFocusWnd(_con);
+			GetManager().SetFocusWnd(_con);
 		}
 		break;
 
 	case GLFW_KEY_ESCAPE:
-		if( _con->Contains(GetManager()->GetFocusWnd()) )
+		if( _con->Contains(GetManager().GetFocusWnd()) )
 		{
 			_con->SetVisible(false);
 		}

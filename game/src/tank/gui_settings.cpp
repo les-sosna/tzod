@@ -130,7 +130,7 @@ SettingsDlg::SettingsDlg(Window *parent, World &world)
 
 
 	_profiles->SetCurSel(0, true);
-	GetManager()->SetFocusWnd(_profiles);
+	GetManager().SetFocusWnd(_profiles);
 }
 
 SettingsDlg::~SettingsDlg()
@@ -215,7 +215,7 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 	if( _resultOK == code )
 	{
 		UpdateProfilesList();
-		GetManager()->SetFocusWnd(_profiles);
+		GetManager().SetFocusWnd(_profiles);
 
 		FOREACH(_world.GetList(LIST_players), GC_Object, player)
 		{
@@ -287,7 +287,7 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 
-	GetManager()->SetFocusWnd(_actions);
+	GetManager().SetFocusWnd(_actions);
 }
 
 ControlProfileDlg::~ControlProfileDlg()
@@ -300,7 +300,7 @@ void ControlProfileDlg::OnSelectAction(int index)
 	_time = 0;
 	_activeIndex = index;
 	SetTimeStep(true);
-	GetManager()->SetFocusWnd(this);
+	GetManager().SetFocusWnd(this);
 }
 
 void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
@@ -371,14 +371,14 @@ bool ControlProfileDlg::OnRawChar(int c)
 		}
 		SetTimeStep(false);
 		_activeIndex = -1;
-		GetManager()->SetFocusWnd(_actions);
+		GetManager().SetFocusWnd(_actions);
 	}
 	else
 	{
 		switch( c )
 		{
 		case GLFW_KEY_ENTER:
-			if( GetManager()->GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
+			if( GetManager().GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
 			{
 				OnSelectAction(_actions->GetCurSel());
 			}

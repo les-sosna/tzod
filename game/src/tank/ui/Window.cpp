@@ -25,7 +25,7 @@ Window* Window::Create(Window *parent)
 
 Window::Window(Window *parent, LayoutManager *manager)
     : _resident(new Resident(this))
-    , _manager(parent ? parent->GetManager() : manager)
+    , _manager(parent ? parent->GetManager() : *manager)
     , _parent(parent)
     , _firstChild(NULL)
     , _lastChild(NULL)
@@ -104,7 +104,7 @@ void Window::Destroy()
 
 		// this removes focus and mouse hover if any.
 		// the window don't yet suspect that it's being destroyed
-		GetManager()->ResetWindow(this);
+		GetManager().ResetWindow(this);
 
 		// do not call virtual functions after children got destroyed!
 		while( Window *c = GetFirstChild() )
@@ -113,9 +113,9 @@ void Window::Destroy()
 		}
 
 		if( _isTopMost )
-			GetManager()->AddTopMost(this, false);
+			GetManager().AddTopMost(this, false);
 		if( _isTimeStep )
-			GetManager()->TimeStepUnregister(_timeStepReg);
+			GetManager().TimeStepUnregister(_timeStepReg);
 	}
 
 	// mark window as dead
@@ -146,19 +146,19 @@ bool Window::Contains(const Window *other) const
 
 float Window::GetTextureWidth() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameWidth(_texture, _frame) : 1;
+	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameWidth(_texture, _frame) : 1;
 }
 
 float Window::GetTextureHeight() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameHeight(_texture, _frame) : 1;
+	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameHeight(_texture, _frame) : 1;
 }
 
 void Window::SetTexture(const char *tex, bool fitSize)
 {
 	if( tex )
 	{
-		_texture = GetManager()->GetTextureManager().FindSprite(tex);
+		_texture = GetManager().GetTextureManager().FindSprite(tex);
 		if( fitSize )
 		{
 			Resize(GetTextureWidth(), GetTextureHeight());
@@ -172,7 +172,7 @@ void Window::SetTexture(const char *tex, bool fitSize)
 
 unsigned int Window::GetFrameCount() const
 {
-	return (-1 != _texture) ? GetManager()->GetTextureManager().GetFrameCount(_texture) : 0;
+	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
 void Window::Draw(DrawingContext &dc, float sx, float sy) const
@@ -259,7 +259,7 @@ void Window::Resize(float width, float height)
 void Window::SetTopMost(bool topmost)
 {
 	assert(_isTopMost != topmost);
-	GetManager()->AddTopMost(this, topmost);
+	GetManager().AddTopMost(this, topmost);
 	_isTopMost = topmost;
 }
 
@@ -268,9 +268,9 @@ void Window::SetTimeStep(bool enable)
 	if( enable != _isTimeStep )
 	{
 		if( _isTimeStep )
-			GetManager()->TimeStepUnregister(_timeStepReg);
+			GetManager().TimeStepUnregister(_timeStepReg);
 		else
-			_timeStepReg = GetManager()->TimeStepRegister(this);
+			_timeStepReg = GetManager().TimeStepRegister(this);
 		_isTimeStep = enable;
 	}
 }
@@ -295,7 +295,7 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 		{
 			w->OnEnabledChangeInternal(false, true);
 		}
-		GetManager()->ResetWindow(this);
+		GetManager().ResetWindow(this);
 		if( !inherited ) _isEnabled = false;
 		OnEnabledChange(false, inherited);
 	}
@@ -321,7 +321,7 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 		{
 			w->OnVisibleChangeInternal(false, true);
 		}
-		GetManager()->ResetWindow(this);
+		GetManager().ResetWindow(this);
 		if( !inherited ) _isVisible = false;
 		OnVisibleChange(false, inherited);
 	}

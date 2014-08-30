@@ -22,7 +22,7 @@ namespace UI
 
 ScoreTable::ScoreTable(Window *parent, World &world)
   : Window(parent)
-  , _font(GetManager()->GetTextureManager().FindSprite("font_default"))
+  , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _world(world)
 {
 	SetTexture("scoretbl", true);
@@ -83,7 +83,7 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text);
 	}
 
-	float h = GetManager()->GetTextureManager().GetCharHeight(_font);
+	float h = GetManager().GetTextureManager().GetCharHeight(_font);
 	for( size_t i = 0; i < players.size(); ++i )
 	{
 		if( i < 8 )

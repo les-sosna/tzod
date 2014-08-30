@@ -103,7 +103,7 @@ void MainMenuDlg::OnSaveGame()
 
 	if( !param.folder )
 	{
-		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
 		GetConsole().Printf(1, "Could not open directory '%s'", DIR_SAVE);
 		return;
 	}
@@ -132,7 +132,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		catch( const std::exception &e )
 		{
 			GetConsole().Printf(1, "Couldn't save game to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -167,12 +167,12 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		{
 			TRACE("Loading saved game from file '%s'...", tmp.c_str());
 			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
-			_world.Unserialize(stream, _themeManager, GetManager()->GetTextureManager());
+			_world.Unserialize(stream, _themeManager, GetManager().GetTextureManager());
 		}
 		catch( const std::exception &e )
 		{
 			GetConsole().Printf(1, "Couldn't load game from '%s' - %s", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -241,7 +241,7 @@ void MainMenuDlg::OnImportMap()
 
 	if( !param.folder )
 	{
-		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
 		TRACE("ERROR: Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
@@ -264,7 +264,7 @@ void MainMenuDlg::OnImportMapSelect(int result)
 
 		if( !script_exec(g_env.L, cmd.str().c_str()) )
 		{
-			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 	}
 	_fileDlg = NULL;
@@ -280,7 +280,7 @@ void MainMenuDlg::OnExportMap()
 
 	if( !param.folder )
 	{
-		static_cast<Desktop *>(GetManager()->GetDesktop())->ShowConsole(true);
+		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
 		TRACE("ERROR: Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
@@ -307,7 +307,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 		catch( const std::exception &e )
 		{
 			GetConsole().Printf(1, "Couldn't export map to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager()->GetDesktop())->ShowConsole(true);
+			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 
 		GetConsole().Printf(0, "map exported: '%s'", tmp.c_str());
@@ -343,7 +343,7 @@ void MainMenuDlg::OnCloseChild(int result)
 	else
 	{
 		SetVisible(true);
-		GetManager()->SetFocusWnd(this);
+		GetManager().SetFocusWnd(this);
 	}
 }
 

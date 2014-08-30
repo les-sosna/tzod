@@ -82,7 +82,7 @@ NewGameDlg::NewGameDlg(Window *parent,
 	_maps->SetCurSel(_maps->GetData()->FindItem(g_conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 
-	GetManager()->SetFocusWnd(_maps);
+	GetManager().SetFocusWnd(_maps);
 
 
 	//
@@ -251,7 +251,7 @@ void NewGameDlg::RefreshBotsList()
 void NewGameDlg::OnAddPlayer()
 {
 	std::vector<std::string> skinNames;
-	GetManager()->GetTextureManager().GetTextureNames(skinNames, "skin/", true);
+	GetManager().GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_players.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
@@ -300,7 +300,7 @@ void NewGameDlg::OnEditPlayerClose(int result)
 void NewGameDlg::OnAddBot()
 {
 	std::vector<std::string> skinNames;
-	GetManager()->GetTextureManager().GetTextureNames(skinNames, "skin/", true);
+	GetManager().GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
 	ConfVarTable *p = g_conf.dm_bots.PushBack(ConfVar::typeTable)->AsTable();
 	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
@@ -377,7 +377,7 @@ void NewGameDlg::OnOK()
 	{
         _world.Clear();
         _world.Seed(rand());
-        _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager()->GetTextureManager());
+        _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager().GetTextureManager());
         if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
         {
             _world.Clear();
@@ -452,7 +452,7 @@ bool NewGameDlg::OnRawChar(int c)
 	switch(c)
 	{
 	case GLFW_KEY_ENTER:
-		if( GetManager()->GetFocusWnd() == _players && -1 != _players->GetCurSel() )
+		if( GetManager().GetFocusWnd() == _players && -1 != _players->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
@@ -494,7 +494,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
 	_name->SetText( _info.nick.Get() );
-	GetManager()->SetFocusWnd(_name);
+	GetManager().SetFocusWnd(_name);
 
 
 	//
@@ -506,7 +506,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	GetManager()->GetTextureManager().GetTextureNames(names, "skin/", true);
+	GetManager().GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);
@@ -674,7 +674,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	lua_call(g_env.L, 0, 1);                 // random default nick
 	_name->SetText(_info.nick.Get().empty() ? lua_tostring(g_env.L, -1) : _info.nick.Get());
 	lua_pop(g_env.L, 1);                     // pop result
-	GetManager()->SetFocusWnd(_name);
+	GetManager().SetFocusWnd(_name);
 
 
 	//
@@ -686,7 +686,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	GetManager()->GetTextureManager().GetTextureNames(names, "skin/", true);
+	GetManager().GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);

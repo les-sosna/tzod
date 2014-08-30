@@ -31,15 +31,15 @@ Edit::Edit(Window *parent)
   , _selEnd(-1)
   , _offset(0)
   , _time(0)
-  , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
-  , _cursor(GetManager()->GetTextureManager().FindSprite("ui/editcursor"))
-  , _selection(GetManager()->GetTextureManager().FindSprite("ui/editsel"))
+  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _cursor(GetManager().GetTextureManager().FindSprite("ui/editcursor"))
+  , _selection(GetManager().GetTextureManager().FindSprite("ui/editsel"))
 {
 	SetTexture("ui/edit", true);
 	SetDrawBorder(true);
 	SetClipChildren(true);
 	SetSel(0, 0);
-	Resize(GetWidth(), GetManager()->GetTextureManager().GetCharHeight(_font) + 2);
+	Resize(GetWidth(), GetManager().GetTextureManager().GetCharHeight(_font) + 2);
 }
 
 int Edit::GetTextLength() const
@@ -85,7 +85,7 @@ void Edit::SetSel(int begin, int end)
 	_selEnd   = end <= GetTextLength() ? end : -1;
 	_time     = 0;
 
-	float w = GetManager()->GetTextureManager().GetFrameWidth(_font, 0) - 1;
+	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 	float cpos = GetSelEnd() * w;
 	if( cpos - (float) (_offset * w) > GetWidth() - 10 || cpos - (float) (_offset * w) < 10 )
 	{
@@ -120,7 +120,7 @@ int Edit::GetSelMax() const
 
 void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float w = GetManager()->GetTextureManager().GetFrameWidth(_font, 0) - 1;
+	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 
 	// selection
 	if( GetSelLength() && GetTimeStep() )
@@ -143,12 +143,12 @@ void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	dc.DrawBitmapText(sx + (GetSelMax() - _offset) * w, sy+1, _font, c, GetText().substr(GetSelMax()));
 
 	// cursor
-	if( this == GetManager()->GetFocusWnd() && fmodf(_time, 1.0f) < 0.5f )
+	if( this == GetManager().GetFocusWnd() && fmodf(_time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
 		rt.left = sx + (GetSelEnd() - (float) _offset) * w;
 		rt.top = sy;
-		rt.right = rt.left + GetManager()->GetTextureManager().GetFrameWidth(_cursor, 0);
+		rt.right = rt.left + GetManager().GetTextureManager().GetFrameWidth(_cursor, 0);
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}
@@ -295,8 +295,8 @@ bool Edit::OnMouseDown(float x, float y, int button)
 {
 	if( 1 == button )
 	{
-		GetManager()->SetCapture(this);
-		float w = GetManager()->GetTextureManager().GetFrameWidth(_font, 0) - 1;
+		GetManager().SetCapture(this);
+		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(sel, sel);
 		return true;
@@ -306,9 +306,9 @@ bool Edit::OnMouseDown(float x, float y, int button)
 
 bool Edit::OnMouseMove(float x, float y)
 {
-	if( GetManager()->GetCapture() == this )
+	if( GetManager().GetCapture() == this )
 	{
-		float w = GetManager()->GetTextureManager().GetFrameWidth(_font, 0) - 1;
+		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(GetSelStart(), sel);
 		return true;
@@ -318,9 +318,9 @@ bool Edit::OnMouseMove(float x, float y)
 
 bool Edit::OnMouseUp(float x, float y, int button)
 {
-	if( 1 == button && GetManager()->GetCapture() == this )
+	if( 1 == button && GetManager().GetCapture() == this )
 	{
-		GetManager()->SetCapture(NULL);
+		GetManager().SetCapture(NULL);
 		return true;
 	}
 	return false;

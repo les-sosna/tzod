@@ -125,7 +125,7 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 
 void UI::GameLayout::OnTimeStep(float dt)
 {
-	bool readUserInput = !GetManager()->GetFocusWnd() || this == GetManager()->GetFocusWnd();
+	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
 	
 	size_t camIndex = 0;
@@ -142,7 +142,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 			{
 				bool mouseInViewport = false;
 				vec2d ptWorld(0,0);
-				vec2d ptScreen = GetManager()->GetMousePos();
+				vec2d ptScreen = GetManager().GetMousePos();
 				if( PtInRect(viewport, Point{(int) ptScreen.x, (int) ptScreen.y}) )
 				{
 					vec2d eye = pCamera->GetCameraPos();

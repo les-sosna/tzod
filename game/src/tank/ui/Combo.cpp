@@ -71,14 +71,14 @@ void ComboBox::DropList()
 		_btn->SetTexture("ui/scroll_down", false);
 		_list->SetVisible(false);
 		_list->SetCurSel(GetCurSel());
-		GetManager()->SetFocusWnd(this);
+		GetManager().SetFocusWnd(this);
 	}
 	else
 	{
 		_btn->SetTexture("ui/scroll_up", false);
 		_list->SetVisible(true);
 		_list->SetScrollPos((float) GetCurSel());
-		GetManager()->SetFocusWnd(_list);
+		GetManager().SetFocusWnd(_list);
 	}
 }
 
@@ -91,7 +91,7 @@ void ComboBox::OnClickItem(int index)
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetTexture("ui/scroll_down", false);
-		GetManager()->SetFocusWnd(this);
+		GetManager().SetFocusWnd(this);
 
 		if( eventChangeCurSel )
 			eventChangeCurSel(index);
@@ -126,7 +126,7 @@ bool ComboBox::OnRawChar(int c)
 	case GLFW_KEY_ESCAPE:
 		if( _list->GetVisible() )
 		{
-			GetManager()->SetFocusWnd(this);
+			GetManager().SetFocusWnd(this);
 			return true;
 		}
 		break;

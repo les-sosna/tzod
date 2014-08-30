@@ -116,8 +116,8 @@ void FpsCounter::OnTimeStep(float dt)
 
 Oscilloscope::Oscilloscope(Window *parent, float x, float y)
   : Window(parent)
-  , _barTexture(GetManager()->GetTextureManager().FindSprite("ui/bar"))
-  , _titleFont(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _barTexture(GetManager().GetTextureManager().FindSprite("ui/bar"))
+  , _titleFont(GetManager().GetTextureManager().FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
   , _gridStepX(1)
@@ -175,7 +175,7 @@ void Oscilloscope::AutoGrid()
 	float range = valMax - valMin;
 	if( range != 0 )
 	{
-		float cheight = GetManager()->GetTextureManager().GetCharHeight(_titleFont);
+		float cheight = GetManager().GetTextureManager().GetCharHeight(_titleFont);
 		float count = floor((GetHeight() - cheight) / cheight / 2);
 		float dy = range / count;
 		if( dy < 1 )
@@ -231,7 +231,7 @@ void Oscilloscope::AutoRange()
 
 void Oscilloscope::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float labelOffset = GetManager()->GetTextureManager().GetCharHeight(_titleFont) / 2;
+	float labelOffset = GetManager().GetTextureManager().GetCharHeight(_titleFont) / 2;
 	sy += labelOffset;
 
 	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);

@@ -50,7 +50,7 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
 	Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
-	GetManager()->SetFocusWnd(_fileName);
+	GetManager().SetFocusWnd(_fileName);
 }
 
 GetFileNameDlg::~GetFileNameDlg()

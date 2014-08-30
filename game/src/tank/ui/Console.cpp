@@ -55,7 +55,7 @@ Console* Console::Create(Window *parent, float x, float y, float w, float h, Con
 Console::Console(Window *parent)
   : Window(parent)
   , _cmdIndex(0)
-  , _font(GetManager()->GetTextureManager().FindSprite("font_small"))
+  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
   , _buf(NULL)
   , _history(NULL)
   , _echo(true)
@@ -98,7 +98,7 @@ void Console::SetEcho(bool echo)
 
 bool Console::OnChar(int c)
 {
-	GetManager()->SetFocusWnd(_input);
+	GetManager().SetFocusWnd(_input);
 	return true;
 }
 
@@ -247,7 +247,7 @@ void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	{
 		_buf->Lock();
 
-		float h = GetManager()->GetTextureManager().GetFrameHeight(_font, 0);
+		float h = GetManager().GetTextureManager().GetFrameHeight(_font, 0);
 		size_t visibleLineCount = size_t(_input->GetY() / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;
@@ -280,7 +280,7 @@ void Console::OnSize(float width, float height)
 	_input->Resize(width, _input->GetHeight());
 	_scroll->Move(width - _scroll->GetWidth(), 0);
 	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
-	_scroll->SetPageSize(_input->GetY() / GetManager()->GetTextureManager().GetFrameHeight(_font, 0));
+	_scroll->SetPageSize(_input->GetY() / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 

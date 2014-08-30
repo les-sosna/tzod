@@ -30,7 +30,7 @@ class Window
 	Resident *_resident;
 
 	friend class LayoutManager;
-	LayoutManager *_manager;
+	LayoutManager &_manager;
 
 	Window* _parent;
 	Window* _firstChild;
@@ -107,7 +107,7 @@ public:
 	Window* GetNextSibling() const { return _nextSibling; }
 	Window* GetFirstChild()  const { return _firstChild;  }
 	Window* GetLastChild()   const { return _lastChild;   }
-	LayoutManager* GetManager() const { return _manager;  }
+	LayoutManager& GetManager() const { return _manager;  }
 
 	bool Contains(const Window *other) const;
 

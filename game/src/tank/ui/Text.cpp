@@ -51,9 +51,9 @@ void Text::SetAlign(enumAlignText align)
 
 void Text::SetFont(const char *fontName)
 {
-	_fontTexture = GetManager()->GetTextureManager().FindSprite(fontName);
-	float w = GetManager()->GetTextureManager().GetFrameWidth(_fontTexture, 0);
-	float h = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	_fontTexture = GetManager().GetTextureManager().FindSprite(fontName);
+	float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
+	float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 
@@ -64,12 +64,12 @@ void Text::SetFontColor(SpriteColor color)
 
 float Text::GetCharWidth()
 {
-	return GetManager()->GetTextureManager().GetFrameWidth(_fontTexture, 0) - 1;
+	return GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0) - 1;
 }
 
 float Text::GetCharHeight()
 {
-	return GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	return GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 }
 
 void Text::DrawChildren(DrawingContext &dc, float sx, float sy) const
@@ -103,8 +103,8 @@ void Text::OnTextChange()
 	{
 		_maxline = GetText().size();
 	}
-	float w = GetManager()->GetTextureManager().GetFrameWidth(_fontTexture, 0);
-	float h = GetManager()->GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
+	float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 
