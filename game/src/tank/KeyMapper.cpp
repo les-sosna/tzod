@@ -1,10 +1,10 @@
 // KeyMapper.cpp
 
 #include "KeyMapper.h"
-#include <map>
-#include <cstdlib>
-
 #include <GLFW/glfw3.h>
+#include <map>
+#include <sstream>
+#include <iomanip>
 
 class KeyMapper
 {
@@ -176,9 +176,9 @@ std::string KeyMapper::GetName(int code) const
 	std::map<int, std::string>::const_iterator it = _code2name.find(code);
 	if( _code2name.end() == it )
 	{
-		char buf[8];
-		sprintf(buf, "#%03d", code);
-		return buf;
+		std::ostringstream buf;
+		buf << '#' << std::setfill('0') << std::setw(3) << code;
+		return buf.str();
 	}
 
 	return it->second;
