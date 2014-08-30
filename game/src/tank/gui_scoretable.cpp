@@ -16,6 +16,9 @@
 #include <UIInput.h>
 #include <GLFW/glfw3.h>
 
+#include <sstream>
+#include <iomanip>
+
 namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,27 +63,26 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	}
 
 
-	char text[256];
 	if( g_conf.sv_timelimit.GetFloat() )
 	{
+		std::ostringstream text;
 		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - _world._time);
 		if( timeleft > 0 )
-		{
-			sprintf(text, g_lang.score_time_left_xx.Get().c_str(), timeleft / 60, timeleft % 60);
-		}
+			text << g_lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
-			sprintf(text, "%s", g_lang.score_time_limit_hit.Get().c_str());
-		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text);
+			text << g_lang.score_time_limit_hit.Get();
+		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text.str());
 	}
 
 	if( g_conf.sv_fraglimit.GetInt() )
 	{
+		std::ostringstream text;
 		int scoreleft = g_conf.sv_fraglimit.GetInt() - max_score;
 		if( scoreleft > 0 )
-			sprintf(text, g_lang.score_frags_left_x.Get().c_str(), scoreleft);
+			text << g_lang.score_frags_left.Get() << " " << scoreleft;
 		else
-			sprintf(text, "%s", g_lang.score_frag_limit_hit.Get().c_str());
-		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text);
+			text << g_lang.score_frag_limit_hit.Get();
+		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text.str());
 	}
 
 	float h = GetManager().GetTextureManager().GetCharHeight(_font);
@@ -90,11 +92,12 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		{
 			dc.DrawBitmapText(sx + SCORE_POS_NAME, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, players[i]->GetNick());
 
-			sprintf(text, "%d", (int) (i + 1));
-			dc.DrawBitmapText(sx + SCORE_POS_NUMBER, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text);
-
-			sprintf(text, "%d", players[i]->GetScore());
-			dc.DrawBitmapText(sx + GetWidth() - SCORE_POS_SCORE, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text, alignTextRT);
+			std::ostringstream text;
+			text << (int) (i + 1);
+			dc.DrawBitmapText(sx + SCORE_POS_NUMBER, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str());
+			text.str(std::string());
+			text << players[i]->GetScore();
+			dc.DrawBitmapText(sx + GetWidth() - SCORE_POS_SCORE, sy + SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{

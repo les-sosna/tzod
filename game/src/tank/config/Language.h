@@ -274,8 +274,8 @@ REFLECTION_BEGIN(LangCache)
 	// in game messages
 	//
 
-	VAR_STR( score_time_left_xx, "Time left  %d:%02d" )
-	VAR_STR( score_frags_left_x, "Frags left %d" )
+	VAR_STR( score_time_left,  "Time left " )
+	VAR_STR( score_frags_left, "Frags left" )
 	VAR_STR( score_time_limit_hit, "Time limit hit" )
 	VAR_STR( score_frag_limit_hit, "Frag limit hit" )
 
