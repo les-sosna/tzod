@@ -108,7 +108,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, W
 	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
 //	_scrollBar->SetLimit(100);
 
-	Resize(w, h);
+	OnSize(w, h);
 	SetEasyMove(true);
 	SetClipChildren(true);
 }
