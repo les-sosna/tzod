@@ -166,6 +166,11 @@ void PropertyList::DoExchange(bool applyToObject)
 				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
 				prop->SetCurrentIndex(index);
 				break;
+			case ObjectProperty::TYPE_SKIN:
+				assert( dynamic_cast<ComboBox*>(ctrl) );
+				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
+				prop->SetStringValue(static_cast<ComboBox*>(ctrl)->GetData()->GetItemText(index, 0));
+				break;
 			default:
 				assert(false);
 			}
@@ -216,15 +221,32 @@ void PropertyList::DoExchange(bool applyToObject)
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
+			case ObjectProperty::TYPE_SKIN:
 				typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
 				ctrl = DefaultComboBox::Create(_psheet);
 				ctrl->Move(32, y);
 				static_cast<DefaultComboBox *>(ctrl)->Resize(_psheet->GetWidth() - 64);
-				for( size_t index = 0; index < prop->GetListSize(); ++index )
+				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
-					static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(prop->GetListValue(index));
+					for( size_t index = 0; index < prop->GetListSize(); ++index )
+					{
+						static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(prop->GetListValue(index));
+					}
+					static_cast<DefaultComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
 				}
-				static_cast<DefaultComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
+				else
+				{
+					size_t selected = (size_t) -1;
+					std::vector<std::string> skins;
+					GetManager().GetTextureManager().GetTextureNames(skins, "skin/", true);
+					for( size_t index = 0; index != skins.size(); ++index )
+					{
+						static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(skins[index]);
+						if (skins[index] == prop->GetStringValue())
+							selected = index;
+					}
+					static_cast<DefaultComboBox*>(ctrl)->SetCurSel(selected);
+				}
 				static_cast<DefaultComboBox*>(ctrl)->GetList()->AlignHeightToContent();
 				break;
 			default:

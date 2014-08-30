@@ -88,13 +88,13 @@ void ObjectProperty::SetFloatRange(float min, float max)
 
 void ObjectProperty::SetStringValue(std::string str)
 {
-	assert(TYPE_STRING == _type);
+	assert(TYPE_STRING == _type || TYPE_SKIN == _type);
 	_str_value = std::move(str);
 }
 
 const std::string& ObjectProperty::GetStringValue(void) const
 {
-	assert( TYPE_STRING == _type );
+	assert(TYPE_STRING == _type || TYPE_SKIN == _type);
 	return _str_value;
 }
 

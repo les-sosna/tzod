@@ -20,8 +20,6 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "video/TextureManager.h"
-
 #include "core/debug.h"
 
 #include <GuiManager.h>
@@ -293,9 +291,9 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
   , _propScore(     ObjectProperty::TYPE_INTEGER,     "score"   )
   , _propNick(      ObjectProperty::TYPE_STRING,      "nick"    )
   , _propClass(     ObjectProperty::TYPE_MULTISTRING, "class"   )
-  , _propSkin(      ObjectProperty::TYPE_MULTISTRING, "skin"    )
-  , _propOnDie(     ObjectProperty::TYPE_STRING,      "on_die"      )
-  , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn"  )
+  , _propSkin(      ObjectProperty::TYPE_SKIN,        "skin"    )
+  , _propOnDie(     ObjectProperty::TYPE_STRING,      "on_die"  )
+  , _propOnRespawn( ObjectProperty::TYPE_STRING,      "on_respawn" )
   , _propVehName(   ObjectProperty::TYPE_STRING,      "vehname" )
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS);
@@ -308,13 +306,6 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 		_propClass.AddItem(lua_tostring(g_env.L, -2));
 	}
 	lua_pop(g_env.L, 1); // pop classes table
-
-	std::vector<std::string> skin_names;
-	g_texman->GetTextureNames(skin_names, "skin/", true);
-	for( size_t i = 0; i < skin_names.size(); ++i )
-	{
-		_propSkin.AddItem( skin_names[i]);
-	}
 }
 
 int GC_Player::MyPropertySet::GetCount() const
@@ -351,11 +342,11 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetTeam( _propTeam.GetIntValue() );
-		tmp->SetScore( world, _propScore.GetIntValue() );
-		tmp->SetNick( _propNick.GetStringValue() );
-		tmp->SetClass( _propClass.GetListValue(_propClass.GetCurrentIndex()) );
-		tmp->SetSkin( _propSkin.GetListValue(_propSkin.GetCurrentIndex()) );
+		tmp->SetTeam(_propTeam.GetIntValue());
+		tmp->SetScore(world, _propScore.GetIntValue());
+		tmp->SetNick(_propNick.GetStringValue());
+		tmp->SetClass(_propClass.GetListValue(_propClass.GetCurrentIndex()));
+		tmp->SetSkin(_propSkin.GetStringValue());
 		tmp->_scriptOnDie = _propOnDie.GetStringValue();
 		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
@@ -386,21 +377,13 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		_propScore.SetIntValue(tmp->GetScore());
 		_propNick.SetStringValue(tmp->GetNick());
 		_propVehName.SetStringValue(tmp->_vehname);
+		_propSkin.SetStringValue(tmp->GetSkin());
 
 		for( size_t i = 0; i < _propClass.GetListSize(); ++i )
 		{
 			if( tmp->GetClass() == _propClass.GetListValue(i) )
 			{
 				_propClass.SetCurrentIndex(i);
-				break;
-			}
-		}
-
-		for( size_t i = 0; i < _propSkin.GetListSize(); ++i )
-		{
-			if( tmp->GetSkin() == _propSkin.GetListValue(i) )
-			{
-				_propSkin.SetCurrentIndex(i);
 				break;
 			}
 		}

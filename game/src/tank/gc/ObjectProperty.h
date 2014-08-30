@@ -11,12 +11,13 @@ public:
 		TYPE_INTEGER,
 		TYPE_FLOAT,
 		TYPE_STRING,
+		TYPE_SKIN, // string value
 		TYPE_MULTISTRING,
 	};
 
 private:
 	std::string               _name;
-	PropertyType           _type;
+	PropertyType              _type;
 	std::string               _str_value;
 	std::vector<std::string>  _value_set;
 	union {
@@ -60,7 +61,7 @@ public:
 
 
 	//
-	// TYPE_STRING
+	// TYPE_STRING, TYPE_SKIN
 	//
 	void SetStringValue(std::string str);
 	const std::string& GetStringValue(void) const;

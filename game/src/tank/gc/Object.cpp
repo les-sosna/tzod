@@ -65,6 +65,7 @@ void PropertySet::SaveToConfig()
 			op->SetNum(prop->GetName(), prop->GetFloatValue());
 			break;
 		case ObjectProperty::TYPE_STRING:
+		case ObjectProperty::TYPE_SKIN:
 			op->SetStr(prop->GetName(), prop->GetStringValue());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
