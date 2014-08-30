@@ -11,6 +11,7 @@ class ConfVarTable;
 class InputManager;
 class AIManager;
 class World;
+class ThemeManager;
 
 namespace UI
 {
@@ -47,10 +48,11 @@ class NewGameDlg : public UI::Dialog
 	World &_world;
     InputManager &_inputMgr;
 	AIManager &_aiMgr;
+	const ThemeManager &_themeManager;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr);
+	NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

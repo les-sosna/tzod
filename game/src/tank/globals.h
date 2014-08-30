@@ -28,10 +28,6 @@ extern TextureManager  *g_texman;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
 
-#ifndef NOSOUND
-class MusicPlayer;
-extern std::unique_ptr<MusicPlayer>     g_music;
-#endif
 extern std::shared_ptr<FS::FileSystem>  g_fs;
 
 struct GLFWwindow;

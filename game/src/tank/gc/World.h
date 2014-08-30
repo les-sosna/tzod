@@ -28,6 +28,9 @@ class GC_2dSprite;
 struct ObjectListener;
 struct MessageListener;
 
+class ThemeManager; // todo: remove
+class TextureManager; // todo: remove
+
 class World
 {
 	friend class GC_Object;
@@ -109,11 +112,11 @@ public:
 
 	bool IsEmpty() const;
 
-	void Unserialize(const char *fileName);
+	void Unserialize(const char *fileName, const ThemeManager &themeManager, TextureManager &tm);
 	void Serialize(const char *fileName);
 
 	void Export(std::shared_ptr<FS::Stream> file);
-	void Import(std::shared_ptr<FS::Stream> file);
+	void Import(std::shared_ptr<FS::Stream> file, const ThemeManager &themeManager, TextureManager &tm);
 
 	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }

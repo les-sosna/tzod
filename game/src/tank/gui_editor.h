@@ -14,7 +14,7 @@ class WorldView;
 class GC_Object;
 class PropertySet;
 class DefaultCamera;
-
+class ThemeManager;
 
 namespace UI
 {
@@ -181,7 +181,6 @@ protected:
 	void OnChangeUseLayers();
 };
 
-
 class MapSettingsDlg : public Dialog
 {
 	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
@@ -192,9 +191,10 @@ class MapSettingsDlg : public Dialog
 	Edit *_desc;
 	Edit *_onInit;
     World &_world;
+	const ThemeManager &_themeManager;
 
 public:
-	MapSettingsDlg(Window *parent, World &world);
+	MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager);
 	~MapSettingsDlg();
 
 	void OnOK();

@@ -9,6 +9,7 @@
 class AIManager;
 class InputManager;
 class World;
+class ThemeManager;
 
 namespace UI
 {
@@ -70,9 +71,10 @@ class MainMenuDlg : public Dialog
 
 	GetFileNameDlg *_fileDlg;
     World &_world;
+	ThemeManager &_themeManager;
 
 public:
-	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr);
+	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

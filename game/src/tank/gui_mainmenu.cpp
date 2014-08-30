@@ -35,7 +35,7 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr)
+MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager)
   : Dialog(parent, 1, 1)
   , _inputMgr(inputMgr)
   , _aiMgr(aiMgr)
@@ -44,6 +44,7 @@ MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, A
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
   , _world(world)
+  , _themeManager(themeManager)
 {
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
@@ -81,7 +82,7 @@ void MainMenuDlg::OnSinglePlayer()
 void MainMenuDlg::OnNewGame()
 {
 	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr, _aiMgr);
+	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr, _aiMgr, _themeManager);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -161,7 +162,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 
 		try
 		{
-			_world.Unserialize(tmp.c_str());
+			_world.Unserialize(tmp.c_str(), _themeManager, GetManager()->GetTextureManager());
 		}
 		catch( const std::exception &e )
 		{
@@ -222,7 +223,7 @@ void MainMenuDlg::OnNewMap()
 void MainMenuDlg::OnMapSettings()
 {
 	SetVisible(false);
-	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent(), _world);
+	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent(), _world, _themeManager);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 

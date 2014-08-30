@@ -924,9 +924,10 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-MapSettingsDlg::MapSettingsDlg(Window *parent, World &world)
+MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager)
   : Dialog(parent, 512, 512)
   , _world(world)
+  , _themeManager(themeManager)
 {
 	SetEasyMove(true);
 
@@ -963,11 +964,11 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world)
 	_theme = DefaultComboBox::Create(this);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
-	for( size_t i = 0; i < _ThemeManager::Inst().GetThemeCount(); i++ )
+	for( size_t i = 0; i < _themeManager.GetThemeCount(); i++ )
 	{
-		_theme->GetData()->AddItem(_ThemeManager::Inst().GetThemeName(i));
+		_theme->GetData()->AddItem(_themeManager.GetThemeName(i));
 	}
-	_theme->SetCurSel(_ThemeManager::Inst().FindTheme(world._infoTheme));
+	_theme->SetCurSel(_themeManager.FindTheme(world._infoTheme));
 	_theme->GetList()->AlignHeightToContent();
 
 
@@ -999,7 +1000,7 @@ void MapSettingsDlg::OnOK()
 	{
 		_world._infoTheme.clear();
 	}
-	if( !_ThemeManager::Inst().ApplyTheme(i) )
+	if( !_themeManager.ApplyTheme(i, GetManager()->GetTextureManager()) )
 	{
 //		MessageBoxT(g_env.hMainWnd, "Could not apply theme", MB_ICONERROR);
 	}

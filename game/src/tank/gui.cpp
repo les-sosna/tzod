@@ -49,11 +49,12 @@ namespace UI
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr)
+NewGameDlg::NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager)
   : Dialog(parent, 770, 550)
   , _world(world)
   , _inputMgr(inputMgr)
   , _aiMgr(aiMgr)
+  , _themeManager(themeManager)
 {
 	_newPlayer = false;
 
@@ -372,7 +373,7 @@ void NewGameDlg::OnOK()
 	{
         _world.Clear();
         _world.Seed(rand());
-        _world.Import(g_fs->Open(path)->QueryStream());
+        _world.Import(g_fs->Open(path)->QueryStream(), _themeManager, GetManager()->GetTextureManager());
         if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
         {
             _world.Clear();

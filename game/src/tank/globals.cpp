@@ -11,10 +11,6 @@ unsigned int     g_sounds[SND_COUNT];
 TextureManager *g_texman;
 //ClientBase     *g_client;
 
-#ifndef NOSOUND
-#include "sound/MusicPlayer.h"
-std::unique_ptr<MusicPlayer>     g_music;
-#endif
 std::shared_ptr<FS::FileSystem>  g_fs;
 
 GLFWwindow *g_appWindow;

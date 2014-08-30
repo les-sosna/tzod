@@ -3,10 +3,35 @@
 #pragma once
 
 struct lua_State;
+struct GLFWwindow;
 class GC_Object;
 class World;
+class ThemeManager;
+class TextureManager;
+namespace FS
+{
+	class FileSystem;
+}
 
-lua_State* script_open(World &world);
+#ifndef NOSOUND
+#include "sound/MusicPlayer.h"
+#include <memory>
+#endif
+
+struct ScriptEnvironment
+{
+	World &world;
+	FS::FileSystem &fs;
+	ThemeManager &themeManager;
+	TextureManager &textureManager;
+	GLFWwindow *appWindow;
+	
+#ifndef NOSOUND
+	std::unique_ptr<MusicPlayer> music;
+#endif
+};
+
+lua_State* script_open(ScriptEnvironment &se);
 void       script_close(lua_State *L);
 
 bool script_exec(lua_State *L, const char *string);

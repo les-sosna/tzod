@@ -264,8 +264,6 @@ bool InitSound(bool init)
 void FreeSound()
 {
 	InitSound(false);
-    //	g_music = NULL;
-    //	SAFE_DELETE(g_soundManager);
 }
 
 // end of file

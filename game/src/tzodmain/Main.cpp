@@ -18,6 +18,7 @@
 
 #include "video/DrawingContext.h"
 #include <video/TextureManager.h>
+#include <video/ThemeManager.h>
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>
 
@@ -127,15 +128,17 @@ namespace
         World &_world;
 		WorldController &_worldController;
 		AIManager &_aiMgr;
+		ThemeManager &_themeManager;
 	public:
-        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr)
+        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager)
             : _world(world)
 			, _worldController(worldController)
 			, _aiMgr(aiMgr)
+			, _themeManager(themeManager)
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world, _worldController, _aiMgr);
+			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager);
 		}
 	};
 
@@ -358,15 +361,17 @@ int main(int, const char**)
         World world;
 		WorldController worldController(world);
 		AIManager aiManager(world);
+		ThemeManager themeManager(g_fs);
 
         TRACE("scripting subsystem initialization");
-        g_env.L = script_open(world);
+		ScriptEnvironment se { world, *g_fs, themeManager, *g_texman, g_appWindow };
+        g_env.L = script_open(se);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager));
+        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager, themeManager));
         glfwSetWindowUserPointer(appWindow.get(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -402,9 +407,9 @@ int main(int, const char**)
             render->End();
             
 #ifndef NOSOUND
-            if( g_music )
+            if( se.music )
             {
-                g_music->HandleBufferFilling();
+                se.music->HandleBufferFilling();
             }
 #endif
             
@@ -423,6 +428,7 @@ int main(int, const char**)
         world.Clear();
         } // FIXME: remove explicit world scope
         
+		// FIXME: potential use-after-free as script enviromnent is already gone
         TRACE("Shutting down the scripting subsystem");
         script_close(g_env.L);
         g_env.L = NULL;

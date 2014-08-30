@@ -188,7 +188,7 @@ void World::RemoveListener(ObjectType type, ObjectListener &ls)
 	}
 }
 
-void World::Unserialize(const char *fileName)
+void World::Unserialize(const char *fileName, const ThemeManager &themeManager, TextureManager &tm)
 {
 	assert(IsSafeMode());
 	assert(IsEmpty());
@@ -323,7 +323,7 @@ void World::Unserialize(const char *fileName)
 
 		// apply the theme
 		_infoTheme = sh.theme;
-		_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(sh.theme));
+		themeManager.ApplyTheme(themeManager.FindTheme(sh.theme), tm);
 
 		// update skins
 		FOREACH( GetList(LIST_players), GC_Player, pPlayer )
@@ -447,7 +447,7 @@ void World::Serialize(const char *fileName)
 	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
 }
 
-void World::Import(std::shared_ptr<FS::Stream> s)
+void World::Import(std::shared_ptr<FS::Stream> s, const ThemeManager &themeManager, TextureManager &tm)
 {
 	assert(IsEmpty());
 	assert(IsSafeMode());
@@ -462,7 +462,7 @@ void World::Import(std::shared_ptr<FS::Stream> s)
 	}
 
 	file.getMapAttribute("theme", _infoTheme);
-	_ThemeManager::Inst().ApplyTheme(_ThemeManager::Inst().FindTheme(_infoTheme));
+	themeManager.ApplyTheme(themeManager.FindTheme(_infoTheme), tm);
 
 	file.getMapAttribute("author",   _infoAuthor);
 	file.getMapAttribute("desc",     _infoDesc);

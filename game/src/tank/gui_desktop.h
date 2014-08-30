@@ -11,6 +11,7 @@
 
 class WorldController;
 class AIManager;
+class ThemeManager;
 
 namespace UI
 {
@@ -36,6 +37,7 @@ class Desktop
 	MyConsoleHistory  _history;
     InputManager _inputMgr;
 	AIManager &_aiMgr;
+	ThemeManager &_themeManager;
 
 	EditorLayout *_editor;
     GameLayout   *_game;
@@ -56,7 +58,7 @@ class Desktop
     bool IsGamePaused() const;
 
 public:
-	Desktop(LayoutManager* manager, World &_world, WorldController &worldController, AIManager &aiMgr);
+	Desktop(LayoutManager* manager, World &_world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

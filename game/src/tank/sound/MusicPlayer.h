@@ -1,4 +1,4 @@
-// MusicPlayer.h
+#pragma once
 
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
@@ -45,6 +45,3 @@ public:
 
 	void HandleBufferFilling();
 };
-
-
-// end of file
