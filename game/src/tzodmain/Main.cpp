@@ -369,7 +369,6 @@ int main(int, const char**)
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
-        { // FIXME: remove explicit gui scope
         TRACE("GUI subsystem initialization");
         UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager, themeManager));
         glfwSetWindowUserPointer(appWindow.get(), &gui);
@@ -420,9 +419,6 @@ int main(int, const char**)
         //
         // Shutdown
         //
-        
-        TRACE("Shutting down the GUI subsystem");
-        } // FIXME: remove explicit gui scope
         
         TRACE("Shutting down the world");
         world.Clear();
