@@ -152,6 +152,8 @@ World::~World()
 {
 	assert(IsSafeMode());
 	TRACE("Destroying the world");
+	
+	Clear();
 
 	// unregister config handlers
 	g_conf.s_volume.eventChange = nullptr;

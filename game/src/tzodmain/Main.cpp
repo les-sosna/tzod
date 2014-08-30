@@ -420,7 +420,6 @@ int main(int, const char**)
         if( texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
             TRACE("WARNING: no skins found");
 
-        { // FIXME: remove explicit world scope
         World world;
 		WorldController worldController(world);
 		AIManager aiManager(world);
@@ -492,10 +491,6 @@ int main(int, const char**)
         // Shutdown
         //
         
-        TRACE("Shutting down the world");
-        world.Clear();
-        } // FIXME: remove explicit world scope
-		
 		g_texman = NULL;
 		} // FIXME: remove explicit TextureManager scope
         
