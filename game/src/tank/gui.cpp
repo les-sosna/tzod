@@ -201,18 +201,12 @@ void NewGameDlg::RefreshPlayersList()
 		_players->GetData()->SetItemText(index, 1, p.skin.Get());
 		_players->GetData()->SetItemText(index, 2, p.platform_class.Get());
 
-		char s[16];
-		int team = p.team.GetInt();
-		if( 0 != team )
-		{
-			sprintf(s, "%d", team);
-		}
+		std::ostringstream s;
+		if( int team = p.team.GetInt() )
+			s << team;
 		else
-		{
-			sprintf(s, "%s", g_lang.team_none.Get().c_str());
-		}
-
-		_players->GetData()->SetItemText(index, 3, s);
+			s << g_lang.team_none.Get();
+		_players->GetData()->SetItemText(index, 3, s.str());
 	}
 
 	_players->SetCurSel(std::min(selected, _players->GetData()->GetItemCount()-1));
@@ -231,18 +225,12 @@ void NewGameDlg::RefreshBotsList()
 		_bots->GetData()->SetItemText(index, 1, p.skin.Get());
 		_bots->GetData()->SetItemText(index, 2, p.platform_class.Get());
 
-		char s[16];
-		int team = p.team.GetInt();
-		if( 0 != team )
-		{
-			sprintf(s, "%d", team);
-		}
+		std::ostringstream s;
+		if( int team = p.team.GetInt() )
+			s << team;
 		else
-		{
-			sprintf(s, "%s", g_lang.team_none.Get().c_str());
-		}
-
-		_bots->GetData()->SetItemText(index, 3, s);
+			s << g_lang.team_none.Get();
+		_bots->GetData()->SetItemText(index, 3, s.str());
 	}
 
 	_bots->SetCurSel(std::min(selected, _bots->GetData()->GetItemCount() - 1));
@@ -559,9 +547,12 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
-		char buf[8];
-		sprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
-		int index = _teams->GetData()->AddItem(buf);
+		std::ostringstream s;
+		if( i )
+			s << i;
+		else
+			s << g_lang.team_none.Get();
+		int index = _teams->GetData()->AddItem(s.str());
 		if( i == _info.team.GetInt() )
 		{
 			_teams->SetCurSel(index);
@@ -737,9 +728,12 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_teams->Resize(200);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
-		char buf[8];
-		sprintf(buf, i ? "%u" : g_lang.team_none.Get().c_str(), i);
-		int index = _teams->GetData()->AddItem(buf);
+		std::ostringstream s;
+		if( i )
+			s << i;
+		else
+			s << g_lang.team_none.Get();
+		int index = _teams->GetData()->AddItem(s.str());
 		if( i == _info.team.GetInt() )
 		{
 			_teams->SetCurSel(index);

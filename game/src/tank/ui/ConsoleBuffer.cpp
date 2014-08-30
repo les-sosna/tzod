@@ -158,7 +158,7 @@ void ConsoleBuffer::Printf(int severity, const char *fmt, ...)
 	va_start(args, fmt);
 
 	char buf[4096];
-	vsnprintf(&buf[0], 4096, fmt, args);
+	vsnprintf(buf, 4096, fmt, args);
 	va_end(args);
 
 	WriteLine(severity, &buf[0]);

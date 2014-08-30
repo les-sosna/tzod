@@ -15,7 +15,7 @@
 #include "video/DrawingContext.h"
 
 #include <GuiManager.h>
-    
+#include <sstream>
 
 UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
   : Text(parent)
@@ -35,15 +35,13 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 {
 	if( !_world.IsEmpty() )
 	{
-		char text[16];
+		std::ostringstream text;
 		int time = (int) _world.GetTime();
-
+		text << (time / 60) << ":";
 		if( time % 60 < 10 )
-			sprintf(text, "%d:0%d", time / 60, time % 60);
-		else
-			sprintf(text, "%d:%d", time / 60, time % 60);
-
-		SetText(text);
+			text << "0";
+		text << (time % 60);
+		SetText(text.str());
 	}
 	else
 	{
