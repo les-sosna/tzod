@@ -412,10 +412,12 @@ int main(int, const char**)
         InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
 #endif
         
-        g_texman = new TextureManager(*render);
-        if( g_texman->LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0 )
+		{ // FIXME: remove explicit TextureManager scope
+		TextureManager texman(*render);
+        g_texman = &texman;
+        if( texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0 )
             TRACE("WARNING: no textures loaded");
-        if( g_texman->LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
+        if( texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
             TRACE("WARNING: no skins found");
 
         { // FIXME: remove explicit world scope
@@ -430,7 +432,7 @@ int main(int, const char**)
 			world,
 			*fs,
 			themeManager,
-			*g_texman,
+			texman,
 			std::bind(glfwSetWindowShouldClose, appWindow.get(), 1)
 		};
         g_env.L = script_open(se);
@@ -440,7 +442,7 @@ int main(int, const char**)
         TRACE("GUI subsystem initialization");
 		GlfwInput input(*appWindow);
 		GlfwClipboard clipboard(*appWindow);
-        UI::LayoutManager gui(input, clipboard, *g_texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs, se.exitCommand));
+        UI::LayoutManager gui(input, clipboard, texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs, se.exitCommand));
         glfwSetWindowUserPointer(appWindow.get(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -469,7 +471,7 @@ int main(int, const char**)
             
 			
 			glfwGetFramebufferSize(appWindow.get(), &width, &height);
-			DrawingContext dc(*g_texman, (unsigned int) width, (unsigned int) height);
+			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
 			
             render->Begin();
             gui.Render(dc);
@@ -493,17 +495,15 @@ int main(int, const char**)
         TRACE("Shutting down the world");
         world.Clear();
         } // FIXME: remove explicit world scope
+		
+		g_texman = NULL;
+		} // FIXME: remove explicit TextureManager scope
         
 		// FIXME: potential use-after-free as script enviromnent is already gone
         TRACE("Shutting down the scripting subsystem");
         script_close(g_env.L);
         g_env.L = NULL;
-        
-        if( g_texman )
-        {
-            delete g_texman;
-            g_texman = NULL;
-        }
+
         
 #ifndef NOSOUND
         FreeSound();
