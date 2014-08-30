@@ -41,6 +41,8 @@
 
 #include <ConsoleBuffer.h>
 #include <GuiManager.h>
+#include <UIInput.h>
+#include <Clipboard.h>
 #include <GLFW/glfw3.h>
 
 #include <thread>
@@ -130,17 +132,24 @@ namespace
 		AIManager &_aiMgr;
 		ThemeManager &_themeManager;
 		FS::FileSystem &_fs;
+		std::function<void()> _exitCommand;
 	public:
-        DesktopFactory(World &world, WorldController &worldController, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs)
+        DesktopFactory(World &world,
+					   WorldController &worldController,
+					   AIManager &aiMgr,
+					   ThemeManager &themeManager,
+					   FS::FileSystem &fs,
+					   std::function<void()> exitCommand)
             : _world(world)
 			, _worldController(worldController)
 			, _aiMgr(aiMgr)
 			, _themeManager(themeManager)
 			, _fs(fs)
+			, _exitCommand(std::move(exitCommand))
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager, _fs);
+			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager, _fs, _exitCommand);
 		}
 	};
 
@@ -178,6 +187,59 @@ namespace
 	};
 }
 
+class GlfwInput : public UI::IInput
+{
+public:
+	GlfwInput(GLFWwindow &window)
+		: _window(window)
+	{}
+	
+	// UI::IInput
+	virtual bool IsKeyPressed(int key) const override
+	{
+		return GLFW_PRESS == glfwGetKey(&_window, key);
+	}
+	virtual bool IsMousePressed(int button) const override
+	{
+		return GLFW_PRESS == glfwGetMouseButton(&_window, button);
+	}
+	virtual double GetMouseX() const override
+	{
+		double x, y;
+		glfwGetCursorPos(&_window, &x, &y);
+		return x;
+	}
+	virtual double GetMouseY() const override
+	{
+		double x, y;
+		glfwGetCursorPos(&_window, &x, &y);
+		return y;
+	}
+	
+private:
+	GLFWwindow &_window;
+};
+
+class GlfwClipboard : public UI::IClipboard
+{
+public:
+	GlfwClipboard(GLFWwindow &window)
+		: _window(window)
+	{}
+	
+	// UI::IClipboard
+	virtual const char* GetClipboardText() const override
+	{
+		return glfwGetClipboardString(&_window);
+	}
+	virtual void SetClipboardText(std::string text) override
+	{
+		glfwSetClipboardString(&_window, text.c_str());
+	}
+	
+private:
+	GLFWwindow &_window;
+};
 
 static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 {
@@ -339,9 +401,6 @@ int main(int, const char**)
         glfwSetFramebufferSizeCallback(appWindow.get(), OnFramebufferSize);
         glfwMakeContextCurrent(appWindow.get());
         glfwSwapInterval(1);
-        
-		g_appWindow = appWindow.get();
-
 
         std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
         int width;
@@ -366,13 +425,22 @@ int main(int, const char**)
 		ThemeManager themeManager(*fs);
 
         TRACE("scripting subsystem initialization");
-		ScriptEnvironment se { world, *fs, themeManager, *g_texman, g_appWindow };
+		ScriptEnvironment se
+		{
+			world,
+			*fs,
+			themeManager,
+			*g_texman,
+			std::bind(glfwSetWindowShouldClose, appWindow.get(), 1)
+		};
         g_env.L = script_open(se);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         TRACE("GUI subsystem initialization");
-        UI::LayoutManager gui(*g_texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs));
+		GlfwInput input(*appWindow);
+		GlfwClipboard clipboard(*appWindow);
+        UI::LayoutManager gui(input, clipboard, *g_texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs, se.exitCommand));
         glfwSetWindowUserPointer(appWindow.get(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -442,7 +510,6 @@ int main(int, const char**)
 #endif
         
         TRACE("Destroying gl context");
-        g_appWindow = nullptr;
 		} // TODO: remove explicit appWindow scope
         
         TRACE("Saving config to '" FILE_CONFIG "'");

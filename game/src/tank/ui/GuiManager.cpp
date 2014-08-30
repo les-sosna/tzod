@@ -7,8 +7,10 @@
 namespace UI
 {
 
-LayoutManager::LayoutManager(TextureManager &texman, IWindowFactory &&desktopFactory)
-  : _texman(texman)
+LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman, IWindowFactory &&desktopFactory)
+  : _input(input)
+  , _clipboard(clipboard)
+  , _texman(texman)
   , _tsCurrent(_timestep.end())
   , _tsDeleteCurrent(false)
   , _captureCountSystem(0)

@@ -1,8 +1,9 @@
 // Edit.cpp
 
-#include "globals.h"
 #include "Edit.h"
 #include "GuiManager.h"
+#include "UIInput.h"
+#include "Clipboard.h"
 
 #include "video/TextureManager.h"
 #include "video/DrawingContext.h"
@@ -170,10 +171,10 @@ bool Edit::OnChar(int c)
 
 bool Edit::OnRawChar(int c)
 {
-    bool shift = glfwGetKey(g_appWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-        glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
-    bool control = glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-        glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+    bool shift = GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
+        GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_SHIFT);
+    bool control = GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
+        GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_CONTROL);
 	int tmp;
 	switch(c)
 	{
@@ -360,7 +361,7 @@ void Edit::OnTimeStep(float dt)
 
 void Edit::Paste()
 {
-    if( const char *data = glfwGetClipboardString(g_appWindow) )
+    if( const char *data = GetManager().GetClipboard().GetClipboardText() )
     {
         std::ostringstream buf;
         buf << GetText().substr(0, GetSelMin());
@@ -376,7 +377,7 @@ void Edit::Copy() const
 	std::string str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
-        glfwSetClipboardString(g_appWindow, str.c_str());
+        GetManager().GetClipboard().SetClipboardText(std::move(str));
 	}
 }
 

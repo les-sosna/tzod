@@ -1,12 +1,11 @@
 // DefaultCamera.cpp
 
 #include "DefaultCamera.h"
-#include "globals.h"
 #include "constants.h"
 
 #include <chrono>
 #include <algorithm>
-
+#include <UIInput.h>
 #include <GLFW/glfw3.h>
 
 
@@ -16,12 +15,6 @@ static unsigned int GetMilliseconds()
 	return duration_cast<duration<unsigned int, std::milli>>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
-static bool IsKeyPressed(int key)
-{
-    return GLFW_PRESS == glfwGetKey(g_appWindow, key);
-}
-
-
 DefaultCamera::DefaultCamera()
   : _zoom(1)
   , _dt(50)
@@ -30,20 +23,21 @@ DefaultCamera::DefaultCamera()
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }
 
-void DefaultCamera::HandleMovement(float worldWidth, float worldHeight, 
+void DefaultCamera::HandleMovement(UI::IInput &input,
+								   float worldWidth, float worldHeight,
                                    float screenWidth, float screenHeight)
 {
 	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
 	static int   level    = 4;
     
-	if( !lastIn && IsKeyPressed(GLFW_KEY_PAGE_UP) )
+	if( !lastIn && input.IsKeyPressed(GLFW_KEY_PAGE_UP) )
 		level = std::min(level+1, (int) (sizeof(levels) / sizeof(float)) - 1);
-	lastIn = IsKeyPressed(GLFW_KEY_PAGE_UP);
+	lastIn = input.IsKeyPressed(GLFW_KEY_PAGE_UP);
 
-	if( !LastOut && IsKeyPressed(GLFW_KEY_PAGE_DOWN) )
+	if( !LastOut && input.IsKeyPressed(GLFW_KEY_PAGE_DOWN) )
 		level = std::max(level - 1, 0);
-	LastOut = IsKeyPressed(GLFW_KEY_PAGE_DOWN);
+	LastOut = input.IsKeyPressed(GLFW_KEY_PAGE_DOWN);
 
 	_zoom = levels[level];
 
@@ -51,10 +45,10 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 	unsigned int dwCurTime = GetMilliseconds();
 	unsigned int dt        = (unsigned int) _dt;
     
-    double mouse_x = 0, mouse_y = 0;
-    glfwGetCursorPos(g_appWindow, &mouse_x, &mouse_y);
+    double mouse_x = input.GetMouseX();
+	double mouse_y = input.GetMouseY();
 
-	if( 0 == (int) mouse_x || IsKeyPressed(GLFW_KEY_LEFT) )
+	if( 0 == (int) mouse_x || input.IsKeyPressed(GLFW_KEY_LEFT) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -64,7 +58,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 		}
 	}
 	else
-	if( screenWidth - 1 == (int) mouse_x || IsKeyPressed(GLFW_KEY_RIGHT) )
+	if( screenWidth - 1 == (int) mouse_x || input.IsKeyPressed(GLFW_KEY_RIGHT) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -76,7 +70,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 	else
 		_dwTimeX = GetMilliseconds();
 	//---------------------------------------
-	if( 0 == (int) mouse_y || IsKeyPressed(GLFW_KEY_UP) )
+	if( 0 == (int) mouse_y || input.IsKeyPressed(GLFW_KEY_UP) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -86,7 +80,7 @@ void DefaultCamera::HandleMovement(float worldWidth, float worldHeight,
 		}
 	}
 	else
-	if( screenHeight - 1 == (int) mouse_y || IsKeyPressed(GLFW_KEY_DOWN) )
+	if( screenHeight - 1 == (int) mouse_y || input.IsKeyPressed(GLFW_KEY_DOWN) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <functional>
+
 struct lua_State;
 struct GLFWwindow;
 class GC_Object;
@@ -24,7 +26,7 @@ struct ScriptEnvironment
 	FS::FileSystem &fs;
 	ThemeManager &themeManager;
 	TextureManager &textureManager;
-	GLFWwindow *appWindow;
+	std::function<void()> exitCommand;
 	
 #ifndef NOSOUND
 	std::unique_ptr<MusicPlayer> music;

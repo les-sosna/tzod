@@ -292,7 +292,7 @@ static int luaT_quit(lua_State *L)
 	ScriptEnvironment &se = getse(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
-	glfwSetWindowShouldClose(se.appWindow, 1);
+	se.exitCommand();
 	return 0;
 }
 

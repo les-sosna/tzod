@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Dialog.h"
-
+#include <functional>
 #include <list>
 
 class AIManager;
@@ -47,7 +47,6 @@ class MainMenuDlg : public Dialog
 	void OnExportMapSelect(int result);
 
 	void OnSettings();
-	void OnExit();
 
 
 	enum PanelType
@@ -79,7 +78,13 @@ class MainMenuDlg : public Dialog
 	FS::FileSystem &_fs;
 
 public:
-	MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs);
+	MainMenuDlg(Window *parent,
+				World &world,
+				InputManager &inputMgr,
+				AIManager &aiMgr,
+				ThemeManager &themeManager,
+				FS::FileSystem &fs,
+				std::function<void()> exitCommand);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height);
 	virtual bool OnRawChar(int c);

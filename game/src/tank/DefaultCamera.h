@@ -4,12 +4,17 @@
 
 #include "core/MyMath.h"
 
+namespace UI
+{
+	struct IInput;
+}
+
 class DefaultCamera
 {
 public:
 	DefaultCamera();
 
-	void HandleMovement(float worldWidth, float worldHeight, float screenWidth, float screenHeight);
+	void HandleMovement(UI::IInput &input, float worldWidth, float worldHeight, float screenWidth, float screenHeight);
 	float GetZoom() const { return _zoom; }
 	float GetPosX() const { return _pos.x; }
 	float GetPosY() const { return _pos.y; }

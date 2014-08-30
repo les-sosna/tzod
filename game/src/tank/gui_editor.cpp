@@ -1,16 +1,6 @@
 // gui_editor.cpp
 
 #include "gui_editor.h"
-#include "GuiManager.h"
-
-#include "Text.h"
-#include "Edit.h"
-#include "Combo.h"
-#include "List.h"
-#include "Scroll.h"
-#include "Button.h"
-#include "DataSourceAdapters.h"
-#include "ListBase.h"
 
 #include "constants.h"
 #include "globals.h"
@@ -30,6 +20,17 @@
 
 #include "video/TextureManager.h"
 #include "video/ThemeManager.h"
+
+#include <GuiManager.h>
+#include <Text.h>
+#include <Edit.h>
+#include <Combo.h>
+#include <List.h>
+#include <Scroll.h>
+#include <Button.h>
+#include <DataSourceAdapters.h>
+#include <ListBase.h>
+#include <UIInput.h>
 
 #include <GLFW/glfw3.h>
 
@@ -792,8 +793,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			SafePtr<PropertySet> properties = newobj->GetProperties(_world);
 
             // set default properties if Ctrl key is not pressed
-            if( glfwGetKey(g_appWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-                glfwGetKey(g_appWindow, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS )
+            if( GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
+                GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) )
             {
                 properties->LoadFromConfig();
                 properties->Exchange(_world, true);

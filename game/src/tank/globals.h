@@ -24,12 +24,6 @@ extern TextureManager  *g_texman;
 extern AppBase         *g_app;
 //extern ClientBase      *g_client;
 
-struct GLFWwindow;
-extern GLFWwindow *g_appWindow;
-
-
-///////////////////////////////////////////////////////////////////////////////
-
 
 struct lua_State;
 

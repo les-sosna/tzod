@@ -11,6 +11,8 @@ namespace UI
 {
 
 class LayoutManager;
+struct IInput;
+struct IClipboard;
 
 struct IWindowFactory
 {
@@ -35,7 +37,7 @@ enum Msg
 class LayoutManager
 {
 public:
-	LayoutManager(TextureManager &texman, IWindowFactory &&desktopFactory);
+	LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman, IWindowFactory &&desktopFactory);
 	~LayoutManager();
 
 	void TimeStep(float dt);
@@ -44,6 +46,8 @@ public:
 	bool ProcessMouse(float x, float y, float z, Msg msg);
 	bool ProcessKeys(Msg msg, int c);
 
+	IClipboard &GetClipboard() const { return _clipboard; }
+	IInput& GetInput() const { return _input; }
 	TextureManager& GetTextureManager() const { return _texman; }
 	Window* GetDesktop() const;
 
@@ -66,6 +70,8 @@ private:
 
 	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
 
+	IInput &_input;
+	IClipboard &_clipboard;
     TextureManager &_texman;
     std::list<Window*> _topmost;
     std::list<Window*> _timestep;

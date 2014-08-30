@@ -3,7 +3,6 @@
 #include "gui_scoretable.h"
 
 #include "constants.h"
-#include "globals.h"
 
 #include "video/TextureManager.h"
 #include "video/DrawingContext.h"
@@ -14,6 +13,7 @@
 #include "config/Language.h"
 
 #include <GuiManager.h>
+#include <UIInput.h>
 #include <GLFW/glfw3.h>
 
 namespace UI
@@ -106,7 +106,7 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 
 void ScoreTable::OnTimeStep(float dt)
 {
-	bool tab = GLFW_PRESS == glfwGetKey(g_appWindow, GLFW_KEY_TAB);
+	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
 	SetVisible(!_world.IsEmpty() && (tab || _world._limitHit));
 }
 

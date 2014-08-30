@@ -11,8 +11,6 @@ unsigned int     g_sounds[SND_COUNT];
 TextureManager *g_texman;
 //ClientBase     *g_client;
 
-GLFWwindow *g_appWindow;
-
 
 UI::ConsoleBuffer& GetConsole()
 {

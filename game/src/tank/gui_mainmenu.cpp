@@ -35,7 +35,13 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, ThemeManager &themeManager, FS::FileSystem &fs)
+MainMenuDlg::MainMenuDlg(Window *parent,
+						 World &world,
+						 InputManager &inputMgr,
+						 AIManager &aiMgr,
+						 ThemeManager &themeManager,
+						 FS::FileSystem &fs,
+						 std::function<void()> exitCommand)
   : Dialog(parent, 1, 1)
   , _inputMgr(inputMgr)
   , _aiMgr(aiMgr)
@@ -55,7 +61,7 @@ MainMenuDlg::MainMenuDlg(Window *parent, World &world, InputManager &inputMgr, A
 	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
 	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 	Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
-	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnExit, this);
+	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = std::move(exitCommand);
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);
@@ -322,11 +328,6 @@ void MainMenuDlg::OnSettings()
 	SetVisible(false);
 	SettingsDlg *dlg = new SettingsDlg(GetParent(), _world);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnExit()
-{
-    glfwSetWindowShouldClose(g_appWindow, 1);
 }
 
 void MainMenuDlg::OnParentSize(float width, float height)

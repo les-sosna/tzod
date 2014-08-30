@@ -154,7 +154,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 				if( Controller *controller = _inputMgr.GetController(player) )
 				{
 					VehicleState vs;
-					controller->ReadControllerState(_world, vehicle, mouseInViewport ? &ptWorld : nullptr, vs);
+					controller->ReadControllerState(GetManager().GetInput(), _world, vehicle, mouseInViewport ? &ptWorld : nullptr, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}

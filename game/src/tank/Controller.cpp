@@ -1,7 +1,6 @@
 // Controller.cpp
 
 #include "Controller.h"
-#include "globals.h"
 #include "config/Config.h"
 #include "gc/VehicleState.h"
 #include "gc/Camera.h"
@@ -12,18 +11,8 @@
 
 #include <GLFW/glfw3.h>
 #include <ConsoleBuffer.h>
+#include <UIInput.h>
 UI::ConsoleBuffer& GetConsole();
-
-
-static bool IsKeyPressed(int key)
-{
-    return GLFW_PRESS == glfwGetKey(g_appWindow, key);
-}
-
-static bool IsMousePressed(int button)
-{
-    return GLFW_PRESS == glfwGetMouseButton(g_appWindow, button);
-}
 
 
 Controller::Controller()
@@ -74,7 +63,7 @@ void Controller::SetProfile(const char *profile)
     }
 }
 
-void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs)
+void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs)
 {
 	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));
@@ -82,7 +71,7 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	//
 	// lights
 	//
-	bool keyLightPressed = IsKeyPressed(_keyLight);
+	bool keyLightPressed = input.IsKeyPressed(_keyLight);
 	if (keyLightPressed && !_lastLightKeyState && g_conf.sv_nightmode.Get())
 	{
 		PLAY(SND_LightSwitch, vehicle->GetPos());
@@ -95,14 +84,14 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	//
 	// pickup
 	//
-	vs._bState_AllowDrop = IsKeyPressed(_keyPickup)
-		|| ( IsKeyPressed(_keyForward) && IsKeyPressed(_keyBack)  )
-		|| ( IsKeyPressed(_keyLeft)    && IsKeyPressed(_keyRight) );
+	vs._bState_AllowDrop = input.IsKeyPressed(_keyPickup)
+		|| ( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
+		|| ( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
 
 	//
 	// fire
 	//
-	vs._bState_Fire = IsKeyPressed(_keyFire);
+	vs._bState_Fire = input.IsKeyPressed(_keyFire);
 
 
 	//
@@ -111,10 +100,10 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	if( _arcadeStyle )
 	{
 		vec2d tmp(0, 0);
-		if( IsKeyPressed(_keyForward) ) tmp.y -= 1;
-		if( IsKeyPressed(_keyBack)    ) tmp.y += 1;
-		if( IsKeyPressed(_keyLeft)    ) tmp.x -= 1;
-		if( IsKeyPressed(_keyRight)   ) tmp.x += 1;
+		if( input.IsKeyPressed(_keyForward) ) tmp.y -= 1;
+		if( input.IsKeyPressed(_keyBack)    ) tmp.y += 1;
+		if( input.IsKeyPressed(_keyLeft)    ) tmp.x -= 1;
+		if( input.IsKeyPressed(_keyRight)   ) tmp.x += 1;
 		tmp.Normalize();
 
 		bool move = tmp.x || tmp.y;
@@ -131,18 +120,18 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	}
 	else
 	{
-		vs._bState_MoveForward = IsKeyPressed(_keyForward);
-		vs._bState_MoveBack    = IsKeyPressed(_keyBack   );
-		vs._bState_RotateLeft  = IsKeyPressed(_keyLeft   );
-		vs._bState_RotateRight = IsKeyPressed(_keyRight  );
+		vs._bState_MoveForward = input.IsKeyPressed(_keyForward);
+		vs._bState_MoveBack    = input.IsKeyPressed(_keyBack   );
+		vs._bState_RotateLeft  = input.IsKeyPressed(_keyLeft   );
+		vs._bState_RotateRight = input.IsKeyPressed(_keyRight  );
 	}
 
 	if( _moveToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
-		vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
+		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+		vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
 
-		if( IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && mouse )
+		if( input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && mouse )
 		{
 			vec2d tmp = *mouse - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -169,10 +158,10 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	//
 	if( _aimToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
 		if( !_moveToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT);
+			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT);
 		}
 
 		if( vehicle->GetWeapon() && mouse )
@@ -184,10 +173,10 @@ void Controller::ReadControllerState(World &world, const GC_Vehicle *vehicle, co
 	}
 	else
 	{
-		vs._bState_TowerLeft   = IsKeyPressed(_keyTowerLeft);
-		vs._bState_TowerRight  = IsKeyPressed(_keyTowerRight);
-		vs._bState_TowerCenter = IsKeyPressed(_keyTowerCenter)
-			|| (IsKeyPressed(_keyTowerLeft) && IsKeyPressed(_keyTowerRight));
+		vs._bState_TowerLeft   = input.IsKeyPressed(_keyTowerLeft);
+		vs._bState_TowerRight  = input.IsKeyPressed(_keyTowerRight);
+		vs._bState_TowerCenter = input.IsKeyPressed(_keyTowerCenter)
+			|| (input.IsKeyPressed(_keyTowerLeft) && input.IsKeyPressed(_keyTowerRight));
 		if( vs._bState_TowerCenter )
 		{
 			vs._bState_TowerLeft  = false;

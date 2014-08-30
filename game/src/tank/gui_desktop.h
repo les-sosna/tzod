@@ -8,6 +8,7 @@
 #include "render/WorldView.h"
 #include <Window.h>
 #include <Console.h>
+#include <functional>
 
 class WorldController;
 class AIManager;
@@ -43,6 +44,7 @@ class Desktop
 	AIManager &_aiMgr;
 	ThemeManager &_themeManager;
 	FS::FileSystem &_fs;
+	std::function<void()> _exitCommand;
 
 	EditorLayout *_editor;
     GameLayout   *_game;
@@ -68,7 +70,8 @@ public:
 			WorldController &worldController,
 			AIManager &aiMgr,
 			ThemeManager &themeManager,
-			FS::FileSystem &fs);
+			FS::FileSystem &fs,
+			std::function<void()> exitCommand);
 	virtual ~Desktop();
 
     virtual void OnTimeStep(float dt);

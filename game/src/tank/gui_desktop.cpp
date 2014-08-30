@@ -69,12 +69,14 @@ Desktop::Desktop(LayoutManager* manager,
 				 WorldController &worldController,
 				 AIManager &aiMgr,
 				 ThemeManager &themeManager,
-				 FS::FileSystem &fs)
+				 FS::FileSystem &fs,
+				 std::function<void()> exitCommand)
   : Window(NULL, manager)
   , _inputMgr(world)
   , _aiMgr(aiMgr)
   , _themeManager(themeManager)
   , _fs(fs)
+  , _exitCommand(std::move(exitCommand))
   , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _world(world)
@@ -137,7 +139,7 @@ void Desktop::OnTimeStep(float dt)
 		assert(dt >= 0);
 		counterDt.Push(dt);
         
-        _defaultCamera.HandleMovement(_world._sx, _world._sy, (float) GetWidth(), (float) GetHeight());
+        _defaultCamera.HandleMovement(GetManager().GetInput(), _world._sx, _world._sy, (float) GetWidth(), (float) GetHeight());
 	}
 }
 
@@ -194,7 +196,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		else
 		{
-			dlg = new MainMenuDlg(this, _world, _inputMgr, _aiMgr, _themeManager, _fs);
+			dlg = new MainMenuDlg(this, _world, _inputMgr, _aiMgr, _themeManager, _fs, _exitCommand);
 			SetDrawBackground(true);
 			dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
             _nModalPopups++;
