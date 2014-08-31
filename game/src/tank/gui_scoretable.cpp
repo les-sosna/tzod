@@ -2,8 +2,6 @@
 
 #include "gui_scoretable.h"
 
-#include "constants.h"
-
 #include "video/TextureManager.h"
 #include "video/DrawingContext.h"
 #include "gc/Player.h"
@@ -12,16 +10,24 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+// ui
 #include <GuiManager.h>
-#include <UIInput.h>
-#include <GLFW/glfw3.h>
 
 #include <sstream>
 #include <iomanip>
 
+
+#define SCORE_POS_NUMBER     16
+#define SCORE_POS_NAME       48
+#define SCORE_POS_SCORE      16 // from the right side
+#define SCORE_LIMITS_LEFT    64
+#define SCORE_TIMELIMIT_TOP  16
+#define SCORE_FRAGLIMIT_TOP  36
+#define SCORE_NAMES_TOP      64
+#define SCORE_ROW_HEIGHT     24
+
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 ScoreTable::ScoreTable(Window *parent, World &world)
   : Window(parent)
@@ -30,7 +36,6 @@ ScoreTable::ScoreTable(Window *parent, World &world)
 {
 	SetTexture("scoretbl", true);
 	SetDrawBorder(false);
-	SetTimeStep(true);
 }
 
 void ScoreTable::OnParentSize(float width, float height)
@@ -107,15 +112,4 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	}
 }
 
-void ScoreTable::OnTimeStep(float dt)
-{
-	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
-	SetVisible(!_world.IsEmpty() && (tab || _world._limitHit));
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file
-

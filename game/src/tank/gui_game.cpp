@@ -14,7 +14,13 @@
 #include "render/WorldView.h"
 #include "video/DrawingContext.h"
 
+// ui
 #include <GuiManager.h>
+#include <UIInput.h>
+
+// glfw
+#include <GLFW/glfw3.h>
+
 #include <sstream>
 
 UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
@@ -123,6 +129,10 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 
 void UI::GameLayout::OnTimeStep(float dt)
 {
+	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
+	_score->SetVisible(!_world.IsEmpty() && (tab || _world._limitHit));
+
+	
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
 	

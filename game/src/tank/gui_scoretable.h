@@ -16,7 +16,6 @@ public:
 	ScoreTable(Window *parent, World &world);
 
 protected:
-	virtual void OnTimeStep(float dt);
 	virtual void OnParentSize(float width, float height);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 

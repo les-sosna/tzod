@@ -7,17 +7,6 @@
 
 
 //-----------------------------------------------------------------------------
-// score table settings
-#define SCORE_POS_NUMBER     16
-#define SCORE_POS_NAME       48
-#define SCORE_POS_SCORE      16 // from the right side
-#define SCORE_LIMITS_LEFT    64
-#define SCORE_TIMELIMIT_TOP  16
-#define SCORE_FRAGLIMIT_TOP  36
-#define SCORE_NAMES_TOP      64
-#define SCORE_ROW_HEIGHT     24
-
-//-----------------------------------------------------------------------------
 // world settings
 #define LEVEL_MINSIZE   16
 #define LEVEL_MAXSIZE   512
