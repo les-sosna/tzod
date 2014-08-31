@@ -1,7 +1,6 @@
 // ConsoleBuffer.cpp
 
-#include "ConsoleBuffer.h"
-
+#include <ui/ConsoleBuffer.h>
 #include <cassert>
 #include <algorithm>
 #include <cstdarg>

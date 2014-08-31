@@ -12,14 +12,11 @@
 #include "gc/Vehicle.h"
 #include "gc/Macros.h"
 #include "render/WorldView.h"
-#include "video/DrawingContext.h"
 
-// ui
-#include <GuiManager.h>
-#include <UIInput.h>
-
-// glfw
 #include <GLFW/glfw3.h>
+#include <ui/GuiManager.h>
+#include <ui/UIInput.h>
+#include <video/DrawingContext.h>
 
 #include <sstream>
 

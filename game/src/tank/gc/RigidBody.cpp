@@ -15,6 +15,7 @@
 #include "script.h"
 
 #include "config/Config.h"
+#include "core/Debug.h"
 
 extern "C"
 {
@@ -24,9 +25,6 @@ extern "C"
 }
 
 #include <cfloat>
-
-#include <ui/ConsoleBuffer.h>
-UI::ConsoleBuffer& GetConsole();
 
 IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
 

@@ -5,8 +5,8 @@
 #include "World.h"
 #include "SaveFile.h"
 
-#include "video/TextureManager.h"
-#include "video/RenderBase.h"
+#include <video/TextureManager.h>
+#include <video/RenderBase.h>
 
 IMPLEMENT_GRID_MEMBER(GC_2dSprite, grid_sprites)
 

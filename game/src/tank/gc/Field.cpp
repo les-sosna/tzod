@@ -3,7 +3,7 @@
 #include "Field.h"
 #include "constants.h"
 #include "gc/RigidBody.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 #include <cassert>
 
 unsigned long FieldCell::_sessionId;

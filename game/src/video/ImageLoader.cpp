@@ -1,10 +1,7 @@
 // ImageLoader.cpp
 
-#include "ImageLoader.h"
-
+#include <video/ImageLoader.h>
 #include <algorithm>
-
-///////////////////////////////////////////////////////////////////////////////
 
 TgaImage::TgaImage(const void *data, unsigned long size)
 {

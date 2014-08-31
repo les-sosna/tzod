@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "Dialog.h"
 #include "ClientBase.h"
+#include <ui/Dialog.h>
 
 class World;
 namespace FS

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "core/MyMath.h"
+#include <math/MyMath.h>
 
 namespace UI
 {

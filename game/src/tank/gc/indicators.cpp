@@ -9,7 +9,7 @@
 #include "Vehicle.h"
 
 #include "constants.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////

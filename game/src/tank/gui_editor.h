@@ -5,8 +5,8 @@
 #include "gc/WorldEvents.h"
 #include "core/SafePtr.h"
 
-#include <Dialog.h>
-#include <List.h>
+#include <ui/Dialog.h>
+#include <ui/List.h>
 
 // forward declarations
 class World;

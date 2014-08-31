@@ -8,9 +8,10 @@
 #include "SaveFile.h"
 
 #include "constants.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 #include "config/Config.h"
-#include "video/RenderBase.h"
+
+#include <video/RenderBase.h>
 
 
 IMPLEMENT_SELF_REGISTRATION(GC_Light)

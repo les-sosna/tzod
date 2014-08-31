@@ -6,9 +6,9 @@
 #include "MapFile.h"
 
 #include "config/Config.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
 #include <sstream>
 #include <iomanip>
 

@@ -8,9 +8,8 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
-#include "video/TextureManager.h"
+#include <video/TextureManager.h>
 
-///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {

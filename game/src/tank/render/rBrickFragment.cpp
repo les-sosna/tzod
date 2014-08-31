@@ -1,10 +1,10 @@
 #include "rBrickFragment.h"
+#include "constants.h" // FIXME: ANIMATION_FPS
 #include "gc/Actor.h"
 #include "gc/World.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
-#include "constants.h" // FIXME: ANIMATION_FPS
 
 R_BrickFragment::R_BrickFragment(TextureManager &tm)
 	: _tm(tm)

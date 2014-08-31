@@ -7,9 +7,9 @@
 #include "Macros.h"
 #include "SaveFile.h"
 
-
-#include "video/RenderBase.h"
 #include "config/Config.h"
+
+#include <video/RenderBase.h>
 
 #ifndef NOSOUND
 #include <al.h>

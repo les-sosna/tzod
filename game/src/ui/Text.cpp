@@ -1,10 +1,9 @@
 // Text.cpp
 
-#include "Text.h"
-
-#include "GuiManager.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <ui/Text.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 namespace UI
 {

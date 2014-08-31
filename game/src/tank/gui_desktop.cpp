@@ -9,20 +9,20 @@
 #include "gui_mainmenu.h"
 #include "gui.h"
 
-#include "video/TextureManager.h"
-
 #include "config/Config.h"
 #include "config/Language.h"
 #include "core/Profiler.h"
+#include "core/Debug.h"
 #include "gc/World.h"
 
 //#include "network/TankClient.h"
 
 #include "script.h"
 
-#include <Console.h>
-#include <ConsoleBuffer.h>
-#include <GuiManager.h>
+#include <ui/Console.h>
+#include <ui/ConsoleBuffer.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
 
 extern "C"
 {
@@ -30,9 +30,6 @@ extern "C"
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
-
-UI::ConsoleBuffer& GetConsole();
 
 
 #include <GLFW/glfw3.h>

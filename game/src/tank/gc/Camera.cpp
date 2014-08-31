@@ -1,21 +1,15 @@
 // Camera.cpp
 
 #include "Camera.h"
-
 #include "World.h"
 #include "Macros.h"
 #include "Player.h"
-#include "SaveFile.h"
 #include "Vehicle.h"
 #include "Weapons.h"
 
 #include "constants.h"
+#include "SaveFile.h"
 #include "config/Config.h"
-#include "video/RenderBase.h" // FIXME
-
-// ui
-#include <ConsoleBuffer.h>
-UI::ConsoleBuffer& GetConsole();
 
 #ifndef NOSOUND
 #include <al.h>

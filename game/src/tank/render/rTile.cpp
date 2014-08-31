@@ -1,8 +1,8 @@
 #include "rTile.h"
 #include "gc/2dSprite.h"
 #include "gc/NeighborAware.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };

@@ -1,7 +1,7 @@
 // ControlPacket.cpp
 
 #include "ControlPacket.h"
-#include "core/MyMath.h"
+#include <math/MyMath.h>
 #include "gc/VehicleState.h"
 #include <cstring>
 

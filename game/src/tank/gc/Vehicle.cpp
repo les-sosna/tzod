@@ -24,10 +24,9 @@
 
 #include "config/Config.h"
 #include "config/Language.h"
+#include "core/Debug.h"
 
-
-#include <ConsoleBuffer.h>
-#include <GuiManager.h>
+#include <ui/GuiManager.h>
 
 extern "C"
 {
@@ -36,10 +35,6 @@ extern "C"
 #include <lauxlib.h>
 }
 
-UI::ConsoleBuffer& GetConsole();
-
-
-///////////////////////////////////////////////////////////////////////////////
 
 void GC_Vehicle::TimeStepFloat(World &world, float dt)
 {

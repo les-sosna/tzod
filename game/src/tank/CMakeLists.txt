@@ -1,9 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 project(Tank)
 
-add_subdirectory(fs)
-add_subdirectory(ui)
-
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
@@ -13,8 +10,10 @@ find_package(OpenAL)
 
 set(tank_INCLUDE_DIRS
 	.
-	${FileSystem_SOURCE_DIR}
-	${UI_SOURCE_DIR}
+	${FileSystem_SOURCE_DIR}/include
+	${Math_SOURCE_DIR}/include
+	${UI_SOURCE_DIR}/include
+	${Video_SOURCE_DIR}/include
 	
 	# 3rd party
 	${Boost_INCLUDE_DIRS}
@@ -52,6 +51,7 @@ set(tank_SOURCES
 	Md5.c
 	SaveFile.cpp
 	script.cpp
+	ThemeManager.cpp
 	WorldController.cpp
 	config/Config.cpp
 	config/ConfigBase.cpp
@@ -117,17 +117,11 @@ set(tank_SOURCES
 	render/rWeapon.cpp
 	render/rWeaponBase.cpp
 	render/Terrain.cpp
-	video/DrawingContext.cpp
-	video/ImageLoader.cpp
-#	video/RenderDirect3D.cpp
-	video/RenderOpenGL.cpp
-	video/TextureManager.cpp
-	video/ThemeManager.cpp
 )
 
 set(tank_LIBRARIES
-	libFileSystem
-	libUI
+	filesystem
+	ui
 	lua
 	pluto
 	zlib

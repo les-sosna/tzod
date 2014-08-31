@@ -4,19 +4,17 @@
 #include "gui_campaign.h"
 #include "gui_desktop.h"
 
-#include "List.h"
-#include "Button.h"
-#include "Text.h"
-#include "DataSourceAdapters.h"
-
-#include "GuiManager.h"
-
 #include "script.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
+#include <ui/List.h>
+#include <ui/Button.h>
+#include <ui/Text.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/GuiManager.h>
 
 namespace UI
 {

@@ -2,16 +2,15 @@
 
 #include "gui_scoretable.h"
 
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
 #include "gc/Player.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
 #include "config/Config.h"
 #include "config/Language.h"
 
-// ui
-#include <GuiManager.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 #include <sstream>
 #include <iomanip>

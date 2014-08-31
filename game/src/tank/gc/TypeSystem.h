@@ -1,7 +1,7 @@
 // TypeSystem.h
 
 #pragma once
-#include "core/MyMath.h"
+#include <math/MyMath.h>
 #include <string>
 #include <map>
 #include <set>

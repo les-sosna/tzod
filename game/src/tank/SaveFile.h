@@ -2,8 +2,11 @@
 
 #pragma once
 
-#include "FileSystem.h"
 #include "gc/Object.h"
+#include <fs/FileSystem.h>
+#include <map>
+#include <memory>
+#include <vector>
 
 class SaveFile
 {

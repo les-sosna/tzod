@@ -1,18 +1,17 @@
 // Controller.cpp
 
 #include "Controller.h"
+#include "KeyMapper.h"
 #include "config/Config.h"
+#include "core/Debug.h"
 #include "gc/VehicleState.h"
 #include "gc/Camera.h"
 #include "gc/Sound.h"
 #include "gc/Vehicle.h"
 #include "gc/World.h"
-#include "KeyMapper.h"
 
 #include <GLFW/glfw3.h>
-#include <ConsoleBuffer.h>
-#include <UIInput.h>
-UI::ConsoleBuffer& GetConsole();
+#include <ui/UIInput.h>
 
 
 Controller::Controller()

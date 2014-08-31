@@ -2,8 +2,8 @@
 #include "rWeaponBase.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
-#include "video/DrawingContext.h"
-#include "video/TextureManager.h"
+#include <video/DrawingContext.h>
+#include <video/TextureManager.h>
 
 R_Weapon::R_Weapon(TextureManager &tm, const char *tex)
 	: _texId(tm.FindSprite(tex))

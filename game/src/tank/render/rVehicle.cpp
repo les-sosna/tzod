@@ -2,8 +2,8 @@
 #include "config/Config.h"
 #include "gc/Vehicle.h"
 #include "gc/Player.h"
-#include "video/DrawingContext.h"
-#include "video/TextureManager.h"
+#include <video/DrawingContext.h>
+#include <video/TextureManager.h>
 
 R_Vehicle::R_Vehicle(TextureManager &tm)
 	: _tm(tm)

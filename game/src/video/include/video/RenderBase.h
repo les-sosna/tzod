@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "core/MyMath.h"
-
+#include <math/MyMath.h>
 #include <cstdint>
 
 struct SpriteColor

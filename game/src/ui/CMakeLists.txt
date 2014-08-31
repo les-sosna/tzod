@@ -6,11 +6,13 @@ if(APPLE)
 endif()
 
 include_directories(
-	..
+	include
+	${Math_SOURCE_DIR}/include
+	${Video_SOURCE_DIR}/include
 	${GLFW_SOURCE_DIR}/include
 )
 
-add_library(libUI
+add_library(ui
 	Button.cpp
 	Combo.cpp
 	Console.cpp
@@ -23,4 +25,8 @@ add_library(libUI
 	Scroll.cpp
 	Text.cpp
 	Window.cpp
+)
+
+target_link_libraries(ui 
+	video
 )

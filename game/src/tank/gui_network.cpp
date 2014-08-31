@@ -11,7 +11,7 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "core/debug.h"
+#include "core/Debug.h"
 
 //#include "network/TankServer.h"
 //#include "network/TankClient.h"
@@ -21,16 +21,15 @@
 #include "gc/World.h"
 #include "gc/Macros.h"
 
-#include <Button.h>
-#include <Edit.h>
-#include <Combo.h>
-#include <Console.h>
-#include <ConsoleBuffer.h>
-#include <DataSourceAdapters.h>
-#include <GuiManager.h>
-#include <Text.h>
-
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
+#include <ui/Button.h>
+#include <ui/Edit.h>
+#include <ui/Combo.h>
+#include <ui/Console.h>
+#include <ui/ConsoleBuffer.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/GuiManager.h>
+#include <ui/Text.h>
 
 namespace UI
 {

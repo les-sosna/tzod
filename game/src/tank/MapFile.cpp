@@ -1,8 +1,7 @@
 // MapFile.cpp
 
 #include "MapFile.h"
-#include "FileSystem.h"
-
+#include <fs/FileSystem.h>
 #include <cassert>
 
 //////////////////////////////////////////////////////////

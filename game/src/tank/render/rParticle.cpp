@@ -1,7 +1,7 @@
 #include "rParticle.h"
 #include "gc/particles.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 static std::pair<ParticleType, const char*> textures[] = {
 	{ PARTICLE_FIRE1, "particle_fire" },

@@ -20,9 +20,9 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "core/debug.h"
+#include "core/Debug.h"
 
-#include <GuiManager.h>
+#include <ui/GuiManager.h>
 
 extern "C"
 {

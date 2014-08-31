@@ -1,5 +1,5 @@
-#include "DrawingContext.h"
-#include "TextureManager.h"
+#include <video/DrawingContext.h>
+#include <video/TextureManager.h>
 #include <algorithm>
 
 DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)

@@ -2,12 +2,9 @@
 
 #include "gui_widgets.h"
 #include "gc/World.h"
-
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
-
-#include <GuiManager.h>
-
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 #include <sstream>
 #include <iomanip>
 

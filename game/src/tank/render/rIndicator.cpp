@@ -2,8 +2,8 @@
 #include "gc/RigidBody.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 R_HealthIndicator::R_HealthIndicator(TextureManager &tm)
 	: _tm(tm)

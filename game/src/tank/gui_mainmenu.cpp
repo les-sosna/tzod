@@ -11,11 +11,6 @@
 #include "gui_campaign.h"
 #include "gui.h"
 
-#include "GuiManager.h"
-
-#include "Button.h"
-#include "Text.h"
-
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
@@ -23,13 +18,15 @@
 #include "gc/Macros.h"
 #include "script.h"
 
-#include <FileSystem.h>
-#include "core/debug.h"
+#include "core/Debug.h"
 #include "config/Config.h"
-
 #include "config/Language.h"
-#include <GLFW/glfw3.h>
 
+#include <fs/FileSystem.h>
+#include <GLFW/glfw3.h>
+#include <ui/GuiManager.h>
+#include <ui/Button.h>
+#include <ui/Text.h>
 
 namespace UI
 {

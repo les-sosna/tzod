@@ -1,14 +1,11 @@
 // Combo.cpp
 
-#include "Combo.h"
-#include "Text.h"
-#include "List.h"
-#include "Button.h"
-
-#include "GuiManager.h"
-
+#include <ui/Combo.h>
+#include <ui/Text.h>
+#include <ui/List.h>
+#include <ui/Button.h>
+#include <ui/GuiManager.h>
 #include <GLFW/glfw3.h>
-
 
 namespace UI
 {

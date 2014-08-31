@@ -15,7 +15,7 @@
 #include "SaveFile.h"
 
 #include "core/JobManager.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 
 
 IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);

@@ -1,12 +1,13 @@
 // TextureManager.cpp
 
-#include "TextureManager.h"
-#include "RenderBase.h"
-#include "ImageLoader.h"
+#include <video/TextureManager.h>
+#include <video/RenderBase.h>
+#include <video/ImageLoader.h>
 
-#include "core/debug.h"
+//#include "core/Debug.h"
+#define TRACE(...)
 
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
 
 extern "C"
 {
@@ -196,7 +197,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 
 	if( 0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)) )
 	{
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
+		TRACE("%s", lua_tostring(L, -1));
 		lua_close(L);
 		return 0;
 	}
@@ -411,7 +412,7 @@ size_t TextureManager::FindSprite(const std::string &name) const
 		return it->second;
 
 	// flood the console
-	GetConsole().Printf(1, "texture '%s' not found!", name.c_str());
+	TRACE("texture '%s' not found!", name.c_str());
 
 	return 0; // index of checker texture
 }

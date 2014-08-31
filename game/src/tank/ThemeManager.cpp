@@ -1,8 +1,7 @@
-#include "ThemeManager.h"
-#include "TextureManager.h"
 #include "constants.h"
-
+#include "ThemeManager.h"
 #include <fs/FileSystem.h>
+#include <video/TextureManager.h>
 
 ThemeManager::ThemeManager(FS::FileSystem &fs)
 	: _fs(fs)

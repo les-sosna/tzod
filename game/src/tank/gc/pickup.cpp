@@ -18,7 +18,7 @@
 #include "SaveFile.h"
 #include "script.h"
 
-#include <ConsoleBuffer.h>
+#include "core/Debug.h"
 
 extern "C"
 {
@@ -26,8 +26,6 @@ extern "C"
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
-UI::ConsoleBuffer& GetConsole();
 
 
 IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);

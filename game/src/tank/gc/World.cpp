@@ -12,8 +12,9 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
+#include "ThemeManager.h"
 
-#include "core/debug.h"
+#include "core/Debug.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -21,9 +22,7 @@
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include "video/ThemeManager.h"
-
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
 
 extern "C"
 {

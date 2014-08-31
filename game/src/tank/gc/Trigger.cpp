@@ -12,16 +12,14 @@
 #include "constants.h"
 #include "globals.h"
 
+#include "core/Debug.h"
+
 extern "C"
 {
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
-#include <ui/ConsoleBuffer.h>
-UI::ConsoleBuffer& GetConsole();
-
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {

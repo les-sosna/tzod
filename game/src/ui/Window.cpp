@@ -1,9 +1,9 @@
 // Window.cpp
 
-#include "Window.h"
-#include "GuiManager.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
+#include <ui/Window.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 
 namespace UI
 {

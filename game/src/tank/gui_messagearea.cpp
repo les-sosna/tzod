@@ -1,16 +1,10 @@
 #include "gui_messagearea.h"
-
 #include "config/Config.h"
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
-
-#include <GuiManager.h>
-#include <ConsoleBuffer.h>
-
+#include "core/Debug.h"
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 #include <algorithm>
-
-UI::ConsoleBuffer& GetConsole();
-
 
 namespace UI
 {

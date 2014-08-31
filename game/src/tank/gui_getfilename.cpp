@@ -1,18 +1,15 @@
 // gui_getfilename.cpp
 
 #include "gui_getfilename.h"
-
-#include "Text.h"
-#include "List.h"
-#include "Button.h"
-#include "Edit.h"
-#include "DataSourceAdapters.h"
-
-#include "GuiManager.h"
-
 #include "config/Language.h"
 
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
+#include <ui/Text.h>
+#include <ui/List.h>
+#include <ui/Button.h>
+#include <ui/Edit.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/GuiManager.h>
 #include <GLFW/glfw3.h>
 
 namespace UI

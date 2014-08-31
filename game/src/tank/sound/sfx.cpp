@@ -4,7 +4,7 @@
 
 #include "constants.h"
 #include "globals.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 
 #include <fs/FileSystem.h>
 

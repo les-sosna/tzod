@@ -5,6 +5,7 @@
 #include <globals.h>
 #include <gui_desktop.h>
 #include <script.h>
+#include <ThemeManager.h>
 #include <BackgroundIntro.h>
 #include <WorldController.h>
 
@@ -16,39 +17,31 @@
 #include <sound/sfx.h>
 #endif
 
-#include "video/DrawingContext.h"
-#include <video/TextureManager.h>
-#include <video/ThemeManager.h>
-#include <video/RenderOpenGL.h>
-//#include <video/RenderDirect3D.h>
-
 //#include <network/Variant.h>
 //#include <network/TankClient.h>
-
 
 #include <gc/Sound.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
 
-#include <fs/FileSystemImpl.h>
-
-#include <core/debug.h>
+#include <core/Debug.h>
 #include <core/Timer.h>
 #include <core/Profiler.h>
 
 #include "res/resource.h"
 
-#include <ConsoleBuffer.h>
-#include <GuiManager.h>
-#include <UIInput.h>
-#include <Clipboard.h>
+#include <../FileSystemImpl.h>
 #include <GLFW/glfw3.h>
+#include <ui/GuiManager.h>
+#include <ui/UIInput.h>
+#include <ui/Clipboard.h>
+#include <video/DrawingContext.h>
+#include <video/TextureManager.h>
+#include <video/RenderOpenGL.h>
+//#include <video/RenderDirect3D.h>
 
 #include <thread>
-
-
-UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 

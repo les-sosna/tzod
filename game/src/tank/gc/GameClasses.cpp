@@ -12,11 +12,11 @@
 #include "MapFile.h"
 
 #include "core/Debug.h"
-#include "video/RenderBase.h"
 #include "config/Config.h"
 
+#include <video/RenderBase.h>
 
-/////////////////////////////////////////////////////////////
+
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 {

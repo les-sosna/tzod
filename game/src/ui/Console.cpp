@@ -1,21 +1,17 @@
 // Console.cpp
 
-#include "Console.h"
-#include "Edit.h"
-#include "Scroll.h"
-#include "ConsoleBuffer.h"
-#include "GuiManager.h"
-
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
-
+#include <ui/Console.h>
+#include <ui/Edit.h>
+#include <ui/Scroll.h>
+#include <ui/ConsoleBuffer.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 #include <GLFW/glfw3.h>
-
 #include <algorithm>
 
 namespace UI
 {
-
 
 ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
   : _maxSize(maxSize)

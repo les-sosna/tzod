@@ -3,8 +3,8 @@
 #pragma once
 
 #include "config/Config.h"
-#include <Dialog.h>
-#include <ListBase.h>
+#include <ui/Dialog.h>
+#include <ui/ListBase.h>
 
 class World;
 

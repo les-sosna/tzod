@@ -1,6 +1,6 @@
 #include "rText.h"
 #include "gc/GameClasses.h"
-#include "video/TextureManager.h"
+#include <video/TextureManager.h>
 
 R_Text::R_Text(TextureManager &tm)
 	: _fontDefault(tm.FindSprite("font_default"))

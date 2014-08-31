@@ -1,8 +1,7 @@
 // globals.cpp
 
 #include "globals.h"
-#include <ConsoleBuffer.h>
-#include <FileSystem.h>
+#include <ui/ConsoleBuffer.h>
 
 ENVIRONMENT g_env;
 

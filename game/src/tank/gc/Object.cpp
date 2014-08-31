@@ -8,7 +8,7 @@
 #include "SaveFile.h"
 
 #include "config/Config.h"
-#include "core/debug.h"
+#include "core/Debug.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PropertySet class implementation

@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "globals.h"
 #include "script.h"
+#include "ThemeManager.h"
 #include "DefaultCamera.h"
 
 #include "gc/2dSprite.h"
@@ -15,27 +16,22 @@
 
 #include "config/Config.h"
 #include "config/Language.h"
-
+#include "core/Debug.h"
 #include "render/WorldView.h"
 
-#include "video/TextureManager.h"
-#include "video/ThemeManager.h"
-
-#include <GuiManager.h>
-#include <Text.h>
-#include <Edit.h>
-#include <Combo.h>
-#include <List.h>
-#include <Scroll.h>
-#include <Button.h>
-#include <DataSourceAdapters.h>
-#include <ListBase.h>
-#include <UIInput.h>
+#include <ui/GuiManager.h>
+#include <ui/Text.h>
+#include <ui/Edit.h>
+#include <ui/Combo.h>
+#include <ui/List.h>
+#include <ui/Scroll.h>
+#include <ui/Button.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/ListBase.h>
+#include <ui/UIInput.h>
+#include <video/TextureManager.h>
 
 #include <GLFW/glfw3.h>
-
-#include <ui/ConsoleBuffer.h>
-UI::ConsoleBuffer& GetConsole();
 
 extern "C"
 {

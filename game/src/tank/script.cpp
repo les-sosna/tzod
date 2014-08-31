@@ -6,6 +6,7 @@
 #include "gui.h"
 #include "gui_desktop.h"
 #include "SaveFile.h"
+#include "ThemeManager.h"
 
 #include "gc/vehicle.h"
 #include "gc/Pickup.h"
@@ -21,17 +22,15 @@
 #include "gc/Sound.h"
 #endif
 
-#include "core/debug.h"
-
-#include "video/TextureManager.h"
-#include "video/ThemeManager.h"
+#include "core/Debug.h"
 
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
-#include <ConsoleBuffer.h>
-#include <FileSystem.h>
-#include <GuiManager.h>
+#include <fs/FileSystem.h>
+#include <GLFW/glfw3.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
 
 extern "C"
 {
@@ -40,9 +39,6 @@ extern "C"
 #include <lauxlib.h>
 }
 
-#include <GLFW/glfw3.h>
-
-UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 // aux

@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include "Dialog.h"
 #include "constants.h"
-
 #include "config/Config.h"
+#include <ui/Dialog.h>
 
 class ConfVarTable;
 class InputManager;

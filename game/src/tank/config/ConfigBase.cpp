@@ -1,9 +1,8 @@
 // ConfigBase.cpp
 
 #include "ConfigBase.h"
-
-#include <ConsoleBuffer.h>
-#include <FileSystem.h>
+#include "core/Debug.h"
+#include <fs/FileSystem.h>
 
 extern "C"
 {
@@ -13,8 +12,6 @@ extern "C"
 }
 
 #include <cassert>
-
-UI::ConsoleBuffer& GetConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 

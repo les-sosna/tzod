@@ -10,12 +10,10 @@
 #include "MapFile.h"
 #include "script.h"
 
-#include "video/TextureManager.h"
-
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "core/debug.h"
+#include "core/Debug.h"
 
 #include "gc/Camera.h"
 #include "gc/Player.h"
@@ -24,18 +22,16 @@
 
 #include "network/CommonTypes.h"
 
-// ui
-#include <Button.h>
-#include <List.h>
-#include <Text.h>
-#include <Edit.h>
-#include <Combo.h>
-#include <DataSourceAdapters.h>
-#include <GuiManager.h>
-
-
-#include <FileSystem.h>
+#include <fs/FileSystem.h>
 #include <GLFW/glfw3.h>
+#include <ui/Button.h>
+#include <ui/List.h>
+#include <ui/Text.h>
+#include <ui/Edit.h>
+#include <ui/Combo.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/GuiManager.h>
+#include <video/TextureManager.h>
 
 extern "C"
 {

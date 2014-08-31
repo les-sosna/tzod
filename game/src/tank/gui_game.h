@@ -2,8 +2,8 @@
 
 #include "gc/WorldEvents.h"
 
-#include <Window.h>
-#include <Text.h>
+#include <ui/Window.h>
+#include <ui/Text.h>
 
 class World;
 class WorldView;

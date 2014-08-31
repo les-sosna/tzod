@@ -3,10 +3,10 @@
 #include "DefaultCamera.h"
 #include "constants.h"
 
+#include <ui/UIInput.h>
+#include <GLFW/glfw3.h>
 #include <chrono>
 #include <algorithm>
-#include <UIInput.h>
-#include <GLFW/glfw3.h>
 
 
 static unsigned int GetMilliseconds()

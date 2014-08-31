@@ -1,13 +1,11 @@
 // Edit.cpp
 
-#include "Edit.h"
-#include "GuiManager.h"
-#include "UIInput.h"
-#include "Clipboard.h"
-
-#include "video/TextureManager.h"
-#include "video/DrawingContext.h"
-
+#include <ui/Edit.h>
+#include <ui/GuiManager.h>
+#include <ui/UIInput.h>
+#include <ui/Clipboard.h>
+#include <video/TextureManager.h>
+#include <video/DrawingContext.h>
 #include <GLFW/glfw3.h>
 
 #include <algorithm>

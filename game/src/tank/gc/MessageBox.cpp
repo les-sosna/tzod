@@ -7,9 +7,8 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "script.h"
-
-#include <ConsoleBuffer.h>
-#include <GuiManager.h>
+#include "core/Debug.h"
+#include <ui/GuiManager.h>
 
 extern "C"
 {
@@ -17,11 +16,6 @@ extern "C"
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
-UI::ConsoleBuffer& GetConsole();
-
-
-///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_MessageBox)
 {

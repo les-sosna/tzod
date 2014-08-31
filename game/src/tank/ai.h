@@ -4,7 +4,7 @@
 
 #include "gc/TypeSystem.h"
 #include "gc/ObjPtr.h"
-#include "core/MyMath.h"
+#include <math/MyMath.h>
 #include <list>
 
 // forward declarations

@@ -6,8 +6,8 @@
 #include "InputManager.h"
 #include "render/RenderScheme.h"
 #include "render/WorldView.h"
-#include <Window.h>
-#include <Console.h>
+#include <ui/Window.h>
+#include <ui/Console.h>
 #include <functional>
 
 class WorldController;

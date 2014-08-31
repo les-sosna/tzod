@@ -1,8 +1,7 @@
 // Scroll.cpp
 
-#include "Scroll.h"
-#include "Button.h"
-
+#include <ui/Scroll.h>
+#include <ui/Button.h>
 #include <algorithm>
 #include <cmath>
 

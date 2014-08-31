@@ -3,7 +3,7 @@
 #pragma once
 
 
-#include <ConsoleBuffer.h>
+#include <ui/ConsoleBuffer.h>
 UI::ConsoleBuffer& GetConsole();
 
 //#ifdef _DEBUG

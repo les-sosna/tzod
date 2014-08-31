@@ -6,10 +6,10 @@ if(APPLE)
 endif()
 
 include_directories(
-	# 3rd party
+	include
 	${Utf8cpp_SOURCE_DIR}
 )
 
-add_library(libFileSystem
+add_library(filesystem
 	FileSystemImpl.cpp
 )

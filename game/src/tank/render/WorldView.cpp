@@ -6,9 +6,9 @@
 #include "gc/Light.h"
 #include "gc/Macros.h"
 #include "gc/World.h"
-
-#include "video/DrawingContext.h"
 #include "config/Config.h"
+
+#include <video/DrawingContext.h>
 
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
     : _renderScheme(rs)

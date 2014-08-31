@@ -4,7 +4,10 @@ project(TZodMain CXX)
 
 include_directories(
 	${Tank_SOURCE_DIR}
-	${UI_SOURCE_DIR}
+	${FileSystem_SOURCE_DIR}/include
+	${Math_SOURCE_DIR}/include
+	${UI_SOURCE_DIR}/include
+	${Video_SOURCE_DIR}/include
 
 	${OggVorbis_SOURCE_DIR}/include
 	${GLFW_SOURCE_DIR}/include
@@ -29,4 +32,4 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tzodmain tank)
+target_link_libraries(tzodmain tank video)

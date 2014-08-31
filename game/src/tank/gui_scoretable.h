@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include "Window.h"
+#include <ui/Window.h>
 
 class World;
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 class ScoreTable : public Window
 {
@@ -24,7 +23,5 @@ private:
     World &_world;
 };
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
 // end of file

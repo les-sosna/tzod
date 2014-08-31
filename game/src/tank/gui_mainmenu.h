@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Dialog.h"
+#include <ui/Dialog.h>
 #include <functional>
 #include <list>
 

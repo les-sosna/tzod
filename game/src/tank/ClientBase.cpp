@@ -6,7 +6,7 @@
 #include "script.h"
 #include "gc/World.h"
 
-#include <GuiManager.h> // FIXME
+#include <ui/GuiManager.h> // FIXME
 
 
 ClientBase::ClientBase(World *level)

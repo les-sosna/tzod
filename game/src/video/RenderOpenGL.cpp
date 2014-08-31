@@ -1,8 +1,6 @@
 // RenderOpenGL.cpp
 
-#include "RenderOpenGL.h"
-#include "core/debug.h"
-
+#include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
 
 #define VERTEX_ARRAY_SIZE   1024
