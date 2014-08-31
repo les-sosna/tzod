@@ -2,7 +2,6 @@
 
 #include "gui_settings.h"
 
-#include "globals.h"
 #include "KeyMapper.h"
 
 #include "gc/Object.h"

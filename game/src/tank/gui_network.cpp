@@ -2,11 +2,9 @@
 
 #include "gui_network.h"
 
-#include "globals.h"
 #include "gui.h"
 #include "gui_maplist.h"
 
-//#include "Interface.h"
 #include "md5.h"
 #include "script.h"
 

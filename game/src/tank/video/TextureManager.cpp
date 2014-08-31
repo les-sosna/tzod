@@ -4,10 +4,7 @@
 #include "RenderBase.h"
 #include "ImageLoader.h"
 
-#include "globals.h"
-
 #include "core/debug.h"
-#include "gc/2dSprite.h"
 
 #include <FileSystem.h>
 

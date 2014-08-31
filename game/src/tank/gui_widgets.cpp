@@ -1,15 +1,10 @@
 // gui_widgets.cpp
 
-#include "globals.h"
-
 #include "gui_widgets.h"
 #include "gc/World.h"
 
 #include "video/TextureManager.h"
 #include "video/DrawingContext.h"
-
-//#include "network/TankClient.h"
-//#include "network/TankServer.h"
 
 #include <GuiManager.h>
 

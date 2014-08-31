@@ -929,8 +929,8 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		FRECT sel = {
 			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom(),
 			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom(),
-			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom() + s->GetSpriteWidth() * _defaultCamera.GetZoom(),
-			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom() + s->GetSpriteHeight() * _defaultCamera.GetZoom()
+			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
+			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
 		};
 		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
 		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);

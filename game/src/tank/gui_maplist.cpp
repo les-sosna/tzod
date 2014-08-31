@@ -3,7 +3,6 @@
 #include "gui_maplist.h"
 
 #include "constants.h"
-#include "globals.h"
 #include "MapFile.h"
 
 #include "config/Config.h"

@@ -157,9 +157,6 @@ class GC_Wall : public GC_RigidBodyStatic
     typedef GC_RigidBodyStatic base;
 
 protected:
-	virtual const char *GetCornerTexture(int i);
-
-protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
@@ -209,9 +206,6 @@ public:
 class GC_Wall_Concrete : public GC_Wall
 {
 	DECLARE_SELF_REGISTRATION(GC_Wall_Concrete);
-
-protected:
-	virtual const char *GetCornerTexture(int i);
 
 public:
 	GC_Wall_Concrete(World &world);

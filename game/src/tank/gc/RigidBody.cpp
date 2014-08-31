@@ -518,9 +518,7 @@ GC_Wall::GC_Wall(World &world)
   : GC_RigidBodyStatic(world)
 {
 	SetHealth(50, 50);
-
 	SetTexture("brick_wall");
-
 	AlignToTexture();
 }
 
@@ -980,9 +978,6 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
 	SetFlags(flags[index], true);
 
-	SetTexture(GetCornerTexture(index));
-	AlignToTexture();
-
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
 		int x = 0;
@@ -1055,19 +1050,6 @@ int GC_Wall::GetStyle() const
 		return 3;
 	}
 	return 0;
-}
-
-const char* GC_Wall::GetCornerTexture(int i)
-{
-	assert(i >=0 && i < 5);
-	static const char* tex[] = {
-		"brick_wall",
-		"brick_lt",
-		"brick_rt",
-		"brick_rb",
-		"brick_lb"
-	};
-	return tex[i];
 }
 
 PropertySet* GC_Wall::NewPropertySet()
@@ -1149,19 +1131,6 @@ bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, 
 			PLAY(SND_Hit5, hit);
 	}
 	return false;
-}
-
-const char* GC_Wall_Concrete::GetCornerTexture(int i)
-{
-	assert(i >=0 && i < 5);
-	static const char* tex[] = {
-		"concrete_wall",
-		"concrete_lt",
-		"concrete_rt",
-		"concrete_rb",
-		"concrete_lb"
-	};
-	return tex[i];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
