@@ -42,6 +42,7 @@
 //#include <video/RenderDirect3D.h>
 
 #include <thread>
+#include <numeric>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -442,6 +443,9 @@ int main(int, const char**)
         TRACE("Running startup script '%s'", FILE_STARTUP);
         if( !script_exec_file(g_env.L, FILE_STARTUP) )
             TRACE("ERROR: in startup script");
+
+		std::deque<float> movingAverageWindow;
+		std::deque<float> movingMedianWindow;
         
         Timer timer;
         timer.SetMaxDt(MAX_DT);
@@ -459,8 +463,22 @@ int main(int, const char**)
 			
 			float dt = timer.GetDt();
 			worldController.SendControllerStates(aiManager.ComputeAIState(world, dt));
-            gui.TimeStep(dt); // also sends controller state to WorldController
-			world.Step(dt * g_conf.sv_speed.GetFloat() / 100);
+			gui.TimeStep(dt); // also sends controller state to WorldController
+
+			// moving average
+			movingAverageWindow.push_back(dt);
+			if (movingAverageWindow.size() > 8)
+				movingAverageWindow.pop_front();
+			float mean = std::accumulate(movingAverageWindow.begin(), movingAverageWindow.end(), 0.0f) / (float)movingAverageWindow.size();
+			// moving median of moving average
+			movingMedianWindow.push_back(mean);
+			if (movingMedianWindow.size() > 100)
+				movingMedianWindow.pop_front();
+			float buf[100];
+			std::copy(movingMedianWindow.begin(), movingMedianWindow.end(), buf);
+			std::nth_element(buf, buf + movingMedianWindow.size() / 2, buf + movingMedianWindow.size());
+			float median = buf[movingMedianWindow.size() / 2];
+			world.Step(median * g_conf.sv_speed.GetFloat() / 100);
             
 			
 			glfwGetFramebufferSize(appWindow.get(), &width, &height);
