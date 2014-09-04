@@ -77,6 +77,9 @@ public:
 	virtual ~GC_Decoration();
 
 	void SetZ(enumZOrder z);
+	enumZOrder GetZ() const { return _zOrder; }
+	void SetTextureName(std::string name) { _textureName.swap(name); }
+	const std::string& GetTextureName() const { return _textureName; }
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);

@@ -2,6 +2,7 @@
 
 #include "rAnimatedSprite.h"
 #include "rBrickFragment.h"
+#include "rDecoration.h"
 #include "rFireSpark.h"
 #include "rIndicator.h"
 #include "rLight.h"
@@ -156,6 +157,7 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_ParticleGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
 	
 	_gameViews.AddView<GC_UserObject>(Make<Z_UserObject>(), Make<R_UserObject>(tm));
+	_gameViews.AddView<GC_Decoration>(Make<Z_Decoration>(), Make<R_Decoration>(tm));
 	
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
