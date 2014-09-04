@@ -19,9 +19,8 @@ void R_HealthIndicator::Draw(const World &world, const GC_Actor &actor, DrawingC
 	vec2d pos = rigidBody.GetPos();
 	float val = rigidBody.GetHealth() / rigidBody.GetHealthMax();
 	FRECT rt;
-	rigidBody.GetLocalRect(rt);
-	float top = pos.y + rt.top;
-	dc.DrawIndicator(_texId, pos.x, std::max(top - _tm.GetFrameHeight(_texId, 0), .0f), val);
+	rigidBody.GetGlobalRect(rt);
+	dc.DrawIndicator(_texId, pos.x, std::max(rt.top - _tm.GetFrameHeight(_texId, 0), .0f), val);
 }
 
 
@@ -36,10 +35,9 @@ static void DrawWeaponIndicator(const World &world,
 	{
 		vec2d pos = carrier->GetPos();
 		FRECT rt;
-		carrier->GetLocalRect(rt);
-		float bottom = pos.y + rt.bottom;
+		carrier->GetGlobalRect(rt);
 		float indicatorHeight = tm.GetFrameHeight(texId, 0);
-		dc.DrawIndicator(texId, pos.x, std::min(bottom, world._sy - indicatorHeight*2), value);
+		dc.DrawIndicator(texId, pos.x, std::min(rt.bottom, world._sy - indicatorHeight*2), value);
 	}
 }
 

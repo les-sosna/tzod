@@ -15,7 +15,6 @@ class GC_2dSprite : public GC_Actor
 
 public:
 	void GetGlobalRect(FRECT &rect) const;
-	void GetLocalRect(FRECT &rect) const;
 
 	void SetTexture(const char *name);
 

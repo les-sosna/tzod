@@ -154,7 +154,6 @@ World::~World()
 
 	// unregister config handlers
 	g_conf.s_volume.eventChange = nullptr;
-	g_conf.sv_nightmode.eventChange = nullptr;
 
 	assert(IsEmpty() && _garbage.empty());
 	assert(!g_env.nNeedCursor);

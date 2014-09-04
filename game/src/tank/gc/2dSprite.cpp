@@ -28,15 +28,6 @@ void GC_2dSprite::GetGlobalRect(FRECT &rect) const
 	rect.bottom = rect.top  + lt.pxFrameHeight;
 }
 
-void GC_2dSprite::GetLocalRect(FRECT &rect) const
-{
-	const LogicalTexture &lt = g_texman->Get(_texId);
-	rect.left   = -lt.uvPivot.x * lt.pxFrameWidth;
-	rect.top    = -lt.uvPivot.y * lt.pxFrameHeight;
-	rect.right  = rect.left + lt.pxFrameWidth;
-	rect.bottom = rect.top + lt.pxFrameHeight;
-}
-
 float GC_2dSprite::GetSpriteWidth() const
 {
 	return g_texman->Get(_texId).pxFrameWidth;
