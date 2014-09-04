@@ -112,6 +112,7 @@ set(tank_SOURCES
 	render/rText.cpp
 	render/rTile.cpp
 	render/rTurret.cpp
+	render/rUserObject.cpp
 	render/rVehicle.cpp
 	render/rWall.cpp
 	render/rWeapon.cpp

@@ -30,6 +30,9 @@ public:
 	virtual ~GC_UserObject();
 
 	void SetZ(enumZOrder z);
+	enumZOrder GetZ() const { return _zOrder; }
+	void SetTextureName(std::string name) { _textureName.swap(name); }
+	const std::string& GetTextureName() const { return _textureName; }
 
 	virtual unsigned char GetPassability() const { return 1; }
 	virtual float GetDefaultHealth() const { return 500; }

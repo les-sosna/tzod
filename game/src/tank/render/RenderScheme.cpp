@@ -13,6 +13,7 @@
 #include "rText.h"
 #include "rTile.h"
 #include "rTurret.h"
+#include "rUserObject.h"
 #include "rVehicle.h"
 #include "rWall.h"
 #include "rWeapon.h"
@@ -27,6 +28,7 @@
 #include "gc/RigidBody.h"
 #include "gc/Trigger.h"
 #include "gc/Turrets.h"
+#include "gc/UserObjects.h"
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
@@ -152,6 +154,8 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_ParticleExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
 	_gameViews.AddView<GC_ParticleDecal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
 	_gameViews.AddView<GC_ParticleGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
+	
+	_gameViews.AddView<GC_UserObject>(Make<Z_UserObject>(), Make<R_UserObject>(tm));
 	
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
