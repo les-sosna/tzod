@@ -79,18 +79,18 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_Light>(Make<Z_Light>(), Make<R_Light>(tm));
 	
 	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLES), Make<R_Vehicle>(tm));
-	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, true));
 	
 	_gameViews.AddView<GC_Text_ToolTip>(Make<Z_Const>(Z_PARTICLE), Make<R_Text>(tm));
 	
 	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_cannon"));
-	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_rocket"));
-	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_mg_wake", "turret_mg"));
-	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_gauss_wake", "turret_gauss"));
-	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm));
+	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ak47"));
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));

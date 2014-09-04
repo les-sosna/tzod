@@ -5,9 +5,10 @@
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
-R_HealthIndicator::R_HealthIndicator(TextureManager &tm)
+R_HealthIndicator::R_HealthIndicator(TextureManager &tm, bool dynamic)
 	: _tm(tm)
 	, _texId(tm.FindSprite("indicator_health"))
+	, _dynamic(dynamic)
 {
 }
 
@@ -17,10 +18,9 @@ void R_HealthIndicator::Draw(const World &world, const GC_Actor &actor, DrawingC
 	auto &rigidBody = static_cast<const GC_RigidBodyStatic&>(actor);
 	
 	vec2d pos = rigidBody.GetPos();
+	float radius = _dynamic ? rigidBody.GetRadius() : rigidBody.GetHalfWidth();
 	float val = rigidBody.GetHealth() / rigidBody.GetHealthMax();
-	FRECT rt;
-	rigidBody.GetGlobalRect(rt);
-	dc.DrawIndicator(_texId, pos.x, std::max(rt.top - _tm.GetFrameHeight(_texId, 0), .0f), val);
+	dc.DrawIndicator(_texId, pos.x, std::max(pos.y - radius - _tm.GetFrameHeight(_texId, 0), .0f), val);
 }
 
 
@@ -33,11 +33,11 @@ static void DrawWeaponIndicator(const World &world,
 {
 	if( GC_RigidBodyStatic *carrier = weapon.GetCarrier() )
 	{
+		
 		vec2d pos = carrier->GetPos();
-		FRECT rt;
-		carrier->GetGlobalRect(rt);
+		float radius = carrier->GetRadius();
 		float indicatorHeight = tm.GetFrameHeight(texId, 0);
-		dc.DrawIndicator(texId, pos.x, std::min(rt.bottom, world._sy - indicatorHeight*2), value);
+		dc.DrawIndicator(texId, pos.x, std::min(pos.y + radius, world._sy - indicatorHeight*2), value);
 	}
 }
 

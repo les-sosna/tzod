@@ -18,14 +18,15 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 	
 	vec2d pos = vehicle.GetPos();
 	vec2d dir = vehicle.GetDirection();
+	float radius = vehicle.GetRadius();
 	size_t texId = _tm.FindSprite(vehicle.GetSkin());
 	dc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
 	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	
 	if( g_conf.g_shownames.Get() && vehicle.GetOwner() )
 	{
-		dc.DrawBitmapText(floorf(pos.x), floorf(pos.y) + floorf(_tm.GetFrameHeight(texId, 0) / 2),
-                          _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCB);
+		dc.DrawBitmapText(pos.x, pos.y + radius + 4, // leave space for ammo indicator
+                          _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
 	}
 	
 #ifndef NDEBUG
