@@ -11,10 +11,8 @@
 IMPLEMENT_GRID_MEMBER(GC_2dSprite, grid_sprites)
 
 GC_2dSprite::GC_2dSprite()
-  : _direction(1, 0)
-  , _texId(0)
+  : _texId(0)
 {
-	SetFlags(GC_FLAG_2DSPRITE_INGRIDSET, true);
 }
 
 GC_2dSprite::~GC_2dSprite()
@@ -52,8 +50,6 @@ float GC_2dSprite::GetSpriteHeight() const
 void GC_2dSprite::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
-
-	f.Serialize(_direction);
 	f.Serialize(_texId);
 }
 

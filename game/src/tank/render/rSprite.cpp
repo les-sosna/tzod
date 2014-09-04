@@ -1,5 +1,5 @@
 #include "rSprite.h"
-#include "gc/2dSprite.h"
+#include "gc/Actor.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -10,10 +10,7 @@ R_Sprite::R_Sprite(TextureManager &tm, const char *tex)
 	
 void R_Sprite::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
-	assert(dynamic_cast<const GC_2dSprite*>(&actor));
-	auto &sprite = static_cast<const GC_2dSprite&>(actor);
-	
-	vec2d pos = sprite.GetPos();
-	vec2d dir = sprite.GetDirection();
+	vec2d pos = actor.GetPos();
+	vec2d dir = actor.GetDirection();
 	dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }

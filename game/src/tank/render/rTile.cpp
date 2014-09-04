@@ -1,5 +1,5 @@
 #include "rTile.h"
-#include "gc/2dSprite.h"
+#include "gc/Actor.h"
 #include "gc/NeighborAware.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -16,13 +16,11 @@ R_Tile::R_Tile(TextureManager &tm, const char *tex)
 
 void R_Tile::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
-	assert(dynamic_cast<const GC_2dSprite*>(&actor));
 	assert(dynamic_cast<const GI_NeighborAware*>(&actor));
-	auto &sprite = static_cast<const GC_2dSprite&>(actor);
 	auto &na = dynamic_cast<const GI_NeighborAware&>(actor);
 	
-	vec2d pos = sprite.GetPos();
-	vec2d dir = sprite.GetDirection();
+	vec2d pos = actor.GetPos();
+	vec2d dir = actor.GetDirection();
 	int tile = na.GetNeighbors();
 	
 	for( int i = 0; i < 8; ++i )

@@ -7,7 +7,11 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
-///////////////////////////////////////////////////////////////////////////////
+GC_Actor::GC_Actor()
+	: _direction(1, 0)
+{
+	SetFlags(GC_FLAG_ACTOR_INGRIDSET, true);
+}
 
 void GC_Actor::Serialize(World &world, SaveFile &f)
 {
@@ -15,7 +19,8 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 	f.Serialize(_locationX);
 	f.Serialize(_locationY);
 	f.Serialize(_pos);
-    
+	f.Serialize(_direction);
+
     if (f.loading() && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS))
         EnterContexts(world);
 }
