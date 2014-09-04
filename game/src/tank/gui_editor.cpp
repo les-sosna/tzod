@@ -163,6 +163,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetCurrentIndex(index);
 				break;
 			case ObjectProperty::TYPE_SKIN:
+			case ObjectProperty::TYPE_TEXTURE:
 				assert( dynamic_cast<ComboBox*>(ctrl) );
 				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
 				prop->SetStringValue(static_cast<ComboBox*>(ctrl)->GetData()->GetItemText(index, 0));
@@ -218,6 +219,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 			case ObjectProperty::TYPE_SKIN:
+			case ObjectProperty::TYPE_TEXTURE:
 				typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
 				ctrl = DefaultComboBox::Create(_psheet);
 				ctrl->Move(32, y);
@@ -232,16 +234,21 @@ void PropertyList::DoExchange(bool applyToObject)
 				}
 				else
 				{
-					size_t selected = (size_t) -1;
-					std::vector<std::string> skins;
-					GetManager().GetTextureManager().GetTextureNames(skins, "skin/", true);
-					for( size_t index = 0; index != skins.size(); ++index )
+					std::vector<std::string> names;
+					const char *filter = prop->GetType() == ObjectProperty::TYPE_SKIN ? "skin/" : nullptr;
+					TextureManager &texman = GetManager().GetTextureManager();
+					texman.GetTextureNames(names, filter, true);
+					for( auto &name: names )
 					{
-						static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(skins[index]);
-						if (skins[index] == prop->GetStringValue())
-							selected = index;
+						// only allow using textures which are less than half of a cell
+						const LogicalTexture &lt = texman.Get(texman.FindSprite(name));
+						if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
+						{
+							int index = static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(name);
+							if (name == prop->GetStringValue())
+								static_cast<DefaultComboBox*>(ctrl)->SetCurSel(index);
+						}
 					}
-					static_cast<DefaultComboBox*>(ctrl)->SetCurSel(selected);
 				}
 				static_cast<DefaultComboBox*>(ctrl)->GetList()->AlignHeightToContent();
 				break;

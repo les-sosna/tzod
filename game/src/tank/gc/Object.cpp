@@ -38,6 +38,8 @@ void PropertySet::LoadFromConfig()
                                                   op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat())));
 			break;
 		case ObjectProperty::TYPE_STRING:
+		case ObjectProperty::TYPE_SKIN:
+		case ObjectProperty::TYPE_TEXTURE:
 			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
@@ -66,6 +68,7 @@ void PropertySet::SaveToConfig()
 			break;
 		case ObjectProperty::TYPE_STRING:
 		case ObjectProperty::TYPE_SKIN:
+		case ObjectProperty::TYPE_TEXTURE:
 			op->SetStr(prop->GetName(), prop->GetStringValue());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:

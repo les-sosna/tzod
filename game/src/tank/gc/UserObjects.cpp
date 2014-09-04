@@ -4,12 +4,8 @@
 #include "Explosion.h"
 #include "World.h"
 
-#include "globals.h"
 #include "MapFile.h"
 #include "SaveFile.h"
-
-#include <video/TextureManager.h>
-
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
@@ -73,19 +69,8 @@ PropertySet* GC_UserObject::NewPropertySet()
 
 GC_UserObject::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-  , _propTexture( ObjectProperty::TYPE_MULTISTRING, "texture" )
+  , _propTexture( ObjectProperty::TYPE_TEXTURE, "texture" )
 {
-	std::vector<std::string> names;
-	g_texman->GetTextureNames(names, NULL, false);
-	for( size_t i = 1; i < names.size(); ++i )
-	{
-		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
-		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
-		{
-			// only allow using textures which are less than half of cell
-			_propTexture.AddItem(names[i]);
-		}
-	}
 }
 
 int GC_UserObject::MyPropertySet::GetCount() const
@@ -117,7 +102,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	{
         if (tmp->CheckFlags(GC_FLAG_RBSTATIC_INFIELD))
             world._field.ProcessObject(tmp, false);
-		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
+		tmp->SetTextureName(_propTexture.GetStringValue());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->AlignToTexture();
 		world._field.ProcessObject(tmp, true);
@@ -125,14 +110,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	}
 	else
 	{
-		for( size_t i = 0; i < _propTexture.GetListSize(); ++i )
-		{
-			if( tmp->_textureName == _propTexture.GetListValue(i) )
-			{
-				_propTexture.SetCurrentIndex(i);
-				break;
-			}
-		}
+		_propTexture.SetStringValue(tmp->GetTextureName());
 	}
 }
 
@@ -223,23 +201,12 @@ PropertySet* GC_Decoration::NewPropertySet()
 
 GC_Decoration::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
-  , _propTexture(ObjectProperty::TYPE_MULTISTRING, "texture")
+  , _propTexture(ObjectProperty::TYPE_TEXTURE, "texture")
   , _propLayer(ObjectProperty::TYPE_INTEGER, "layer")
   , _propAnimate(ObjectProperty::TYPE_FLOAT, "animate")
   , _propFrame(ObjectProperty::TYPE_INTEGER, "frame")
   , _propRotation(ObjectProperty::TYPE_FLOAT, "rotation")
 {
-	std::vector<std::string> names;
-	g_texman->GetTextureNames(names, NULL, false);
-	for( size_t i = 1; i < names.size(); ++i )
-	{
-		const LogicalTexture &lt = g_texman->Get(g_texman->FindSprite(names[i]));
-		if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
-		{
-			// only allow using textures which are less than half of cell
-			_propTexture.AddItem(names[i]);
-		}
-	}
 	_propLayer.SetIntRange(0, Z_COUNT-1);
 	_propAnimate.SetFloatRange(0, 100);
 	_propFrame.SetIntRange(0, 1000);
@@ -277,7 +244,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->_textureName = _propTexture.GetListValue(_propTexture.GetCurrentIndex());
+		tmp->SetTextureName(_propTexture.GetStringValue());
 		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 //		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
@@ -289,14 +256,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	}
 	else
 	{
-		for( size_t i = 0; i < _propTexture.GetListSize(); ++i )
-		{
-			if( tmp->_textureName == _propTexture.GetListValue(i) )
-			{
-				_propTexture.SetCurrentIndex(i);
-				break;
-			}
-		}
+		_propTexture.SetStringValue(tmp->GetTextureName());
 		_propLayer.SetIntValue(tmp->GetZ());
 		_propRotation.SetFloatValue(tmp->GetDirection().Angle());
 		_propFrame.SetIntValue(0); //tmp->GetCurrentFrame());

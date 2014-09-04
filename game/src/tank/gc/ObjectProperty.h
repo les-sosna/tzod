@@ -12,6 +12,7 @@ public:
 		TYPE_FLOAT,
 		TYPE_STRING,
 		TYPE_SKIN, // string value
+		TYPE_TEXTURE, // string value
 		TYPE_MULTISTRING,
 	};
 

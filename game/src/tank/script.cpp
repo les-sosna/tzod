@@ -143,6 +143,7 @@ static void pushprop(lua_State *L, ObjectProperty *p)
 		break;
 	case ObjectProperty::TYPE_STRING:
 	case ObjectProperty::TYPE_SKIN:
+	case ObjectProperty::TYPE_TEXTURE:
 		lua_pushstring(L, p->GetStringValue().c_str());
 		break;
 	case ObjectProperty::TYPE_MULTISTRING:
@@ -800,6 +801,7 @@ int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
 	}
 	case ObjectProperty::TYPE_STRING:
 	case ObjectProperty::TYPE_SKIN:
+	case ObjectProperty::TYPE_TEXTURE:
 	{
 		if( LUA_TSTRING != lua_type(L, -1) )
 		{
