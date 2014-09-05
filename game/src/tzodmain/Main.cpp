@@ -374,7 +374,6 @@ int main(int, const char**)
         
         GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 
-		{ // TODO: remove explicit appWindow scope
         TRACE("Create GL context");
         GlfwInitHelper __gih;
 		const GLFWvidmode *videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -514,10 +513,7 @@ int main(int, const char**)
 #ifndef NOSOUND
         FreeSound();
 #endif
-        
-        TRACE("Destroying gl context");
-		} // TODO: remove explicit appWindow scope
-        
+
         TRACE("Saving config to '" FILE_CONFIG "'");
         if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
         {
