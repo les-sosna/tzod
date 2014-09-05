@@ -14,8 +14,6 @@ class GC_2dSprite : public GC_Actor
 	size_t _texId;
 
 public:
-	void GetGlobalRect(FRECT &rect) const;
-
 	void SetTexture(const char *name);
 
 	float GetSpriteWidth() const;

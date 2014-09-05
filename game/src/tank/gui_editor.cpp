@@ -11,6 +11,8 @@
 #include "gc/2dSprite.h"
 #include "gc/Camera.h"
 #include "gc/Object.h"
+#include "gc/pickup.h"
+#include "gc/RigidBody.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
 
@@ -541,6 +543,43 @@ bool ServiceEditor::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool PtInRigidBody(const GC_RigidBodyStatic &rbs, vec2d delta)
+{
+	if (fabs(Vec2dDot(delta, rbs.GetDirection())) > rbs.GetHalfLength())
+		return false;
+	if (fabs(Vec2dCross(delta, rbs.GetDirection())) > rbs.GetHalfWidth())
+		return false;
+	return true;
+}
+
+static bool PtInPickup(const GC_Pickup &pickup, vec2d delta)
+{
+	float r = pickup.GetRadius();
+	if (Vec2dDot(delta, delta) > r*r)
+		return false;
+	return true;
+}
+
+static bool PtInDefaultRadius(vec2d delta)
+{
+	float r = 8;
+	if (Vec2dDot(delta, delta) > r*r)
+		return false;
+	return true;
+}
+
+static bool PtInActor(const GC_Actor &actor, vec2d pt)
+{
+	vec2d delta = pt - actor.GetPos();
+	if (PtInDefaultRadius(delta))
+		return true;
+	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
+		return PtInRigidBody(*rbs, delta);
+	if (auto pickup = dynamic_cast<const GC_Pickup*>(&actor))
+		return PtInPickup(*pickup, delta);
+	return false;
+}
+
 static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
 {
     GC_2dSprite* zLayers[Z_COUNT];
@@ -554,11 +593,7 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
         for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
         {
             GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
-            
-            FRECT frect;
-            object->GetGlobalRect(frect);
-            
-            if( PtInFRect(frect, pt) )
+			if (PtInActor(*object, pt))
             {
                 for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
                 {
@@ -915,6 +950,22 @@ void EditorLayout::OnChangeUseLayers()
 	_layerDisp->SetVisible(g_conf.ed_uselayers.Get());
 }
 
+static FRECT GetSelectionRect(const GC_Actor &actor)
+{
+	float halfSize = 8;
+	if (auto *pickup = dynamic_cast<const GC_Pickup*>(&actor))
+		halfSize = pickup->GetRadius();
+	else if (auto *rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
+		halfSize = rbs->GetRadius();
+	FRECT result = {
+		actor.GetPos().x - halfSize,
+		actor.GetPos().y - halfSize,
+		actor.GetPos().x + halfSize,
+		actor.GetPos().y + halfSize
+	};
+	return result;
+}
+
 void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
@@ -926,8 +977,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     
 	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
 	{
-		FRECT rt;
-		s->GetGlobalRect(rt);
+		FRECT rt = GetSelectionRect(*s);
 
 		FRECT sel = {
 			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom(),
