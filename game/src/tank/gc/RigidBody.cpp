@@ -1181,11 +1181,10 @@ void GC_Water::UpdateTile(World &world, bool flag)
 	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
 
 	FRECT frect;
-	GetGlobalRect(frect);
-	frect.left   = frect.left / LOCATION_SIZE - 0.5f;
-	frect.top    = frect.top  / LOCATION_SIZE - 0.5f;
-	frect.right  = frect.right  / LOCATION_SIZE + 0.5f;
-	frect.bottom = frect.bottom / LOCATION_SIZE + 0.5f;
+	frect.left   = (GetPos().x - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
+	frect.top    = (GetPos().y - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
+	frect.right  = (GetPos().x + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
+	frect.bottom = (GetPos().y + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
 
     std::vector<ObjectList*> receive;
 	world.grid_water.OverlapRect(receive, frect);
