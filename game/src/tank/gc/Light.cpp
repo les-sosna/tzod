@@ -106,8 +106,6 @@ GC_Spotlight::GC_Spotlight(World &world)
 	_light->SetIntensity(1.0f);
 	_light->SetOffset(170);
 	_light->SetAspect(0.5f);
-
-	SetTexture("spotlight");
 }
 
 GC_Spotlight::~GC_Spotlight()

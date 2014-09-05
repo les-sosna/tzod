@@ -10,25 +10,9 @@
 class GC_2dSprite : public GC_Actor
 {
     typedef GC_Actor base;
-
-	size_t _texId;
-
-public:
-	void SetTexture(const char *name);
-
-	float GetSpriteWidth() const;
-	float GetSpriteHeight() const;
-
 public:
     DECLARE_GRID_MEMBER();
-    
-	GC_2dSprite();
-	virtual ~GC_2dSprite() = 0;
-
 	virtual enumZOrder GetZ() const { return Z_NONE; }
-	
-	virtual void Serialize(World &world, SaveFile &f);
 };
 
-///////////////////////////////////////////////////////////////////////////////
 // end of file

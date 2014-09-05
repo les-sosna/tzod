@@ -28,7 +28,6 @@ IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
 
 GC_Wood::GC_Wood(World &world)
 {
-	SetTexture("wood");
 	_tile = 0;
 }
 
@@ -189,7 +188,6 @@ GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
     , _align(align)
 	, _text(text)
 {
-	SetTexture("font_default");
 }
 
 GC_Text::~GC_Text()

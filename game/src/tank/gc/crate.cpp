@@ -17,8 +17,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 GC_Crate::GC_Crate(World &world)
   : GC_RigidBodyDynamic(world)
 {
-	SetTexture("crate01");
-	AlignToTexture();
+	SetSize(CELL_SIZE, CELL_SIZE);
 
 	_Mx = _My = _Mw = 0;
 	_Nx = _Ny = 400;

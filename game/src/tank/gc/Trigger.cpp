@@ -34,7 +34,6 @@ GC_Trigger::GC_Trigger(World &world)
   , _radiusDelta(0)
   , _team(0)
 {
-	SetTexture("editor_trigger");
 	SetFlags(GC_FLAG_TRIGGER_ENABLED|GC_FLAG_TRIGGER_ONLYVISIBLE, true);
 }
 

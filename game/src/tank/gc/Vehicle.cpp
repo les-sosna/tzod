@@ -329,7 +329,6 @@ void GC_Vehicle::SetControllerState(const VehicleState &vs)
 
 void GC_Vehicle::SetSkin(const std::string &skin)
 {
-	SetTexture(skin.c_str());
 	_skinTextureName = skin;
 }
 

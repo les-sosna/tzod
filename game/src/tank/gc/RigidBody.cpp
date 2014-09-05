@@ -398,11 +398,6 @@ bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 	return false;
 }
 
-void GC_RigidBodyStatic::AlignToTexture()
-{
-	SetSize(GetSpriteHeight(), GetSpriteWidth());
-}
-
 void GC_RigidBodyStatic::SetSize(float width, float length)
 {
 	_width = width;
@@ -516,8 +511,7 @@ GC_Wall::GC_Wall(World &world)
   : GC_RigidBodyStatic(world)
 {
 	SetHealth(50, 50);
-	SetTexture("brick_wall");
-	AlignToTexture();
+	SetSize(CELL_SIZE, CELL_SIZE);
 }
 
 GC_Wall::GC_Wall(FromFile)
@@ -1113,8 +1107,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 GC_Wall_Concrete::GC_Wall_Concrete(World &world)
   : GC_Wall(world)
 {
-	SetTexture("concrete_wall");
-	AlignToTexture();
+	SetSize(CELL_SIZE, CELL_SIZE);
 }
 
 bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
@@ -1145,8 +1138,7 @@ GC_Water::GC_Water(World &world)
   : GC_RigidBodyStatic(world)
   , _tile(0)
 {
-	SetTexture("water");
-	AlignToTexture();
+	SetSize(CELL_SIZE, CELL_SIZE);
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 }
 

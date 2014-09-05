@@ -29,8 +29,7 @@ GC_Turret::GC_Turret(World &world, const char *tex)
   , _sight(TURET_SIGHT_RADIUS)
   , _rotator(_dir)
 {
-	SetTexture(tex);
-	AlignToTexture();
+	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 
 	_jobManager.RegisterMember(this);
 	_state = TS_WAITING;

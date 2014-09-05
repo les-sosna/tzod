@@ -26,7 +26,6 @@ IMPLEMENT_1LIST_MEMBER(GC_SpawnPoint, LIST_respawns);
 GC_SpawnPoint::GC_SpawnPoint(World &world)
   : _team(0)
 {
-	SetTexture("editor_respawn");
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
@@ -118,7 +117,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 
 GC_HideLabel::GC_HideLabel(World &world)
 {
-	SetTexture("editor_item");
 }
 
 GC_HideLabel::GC_HideLabel(FromFile)

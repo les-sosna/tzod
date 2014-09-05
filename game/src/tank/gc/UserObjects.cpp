@@ -18,8 +18,7 @@ GC_UserObject::GC_UserObject(World &world)
   , _zOrder(Z_WALLS)
 {
 	_textureName = "turret_platform";
-	SetTexture(_textureName.c_str());
-	AlignToTexture();
+	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
@@ -53,13 +52,7 @@ void GC_UserObject::OnDestroy(World &world)
 void GC_UserObject::MapExchange(World &world, MapFile &f)
 {
 	GC_RigidBodyStatic::MapExchange(world, f);
-
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
-	
-	if( f.loading() )
-	{
-		SetTexture(_textureName.c_str());
-	}
 }
 
 PropertySet* GC_UserObject::NewPropertySet()
@@ -103,8 +96,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
         if (tmp->CheckFlags(GC_FLAG_RBSTATIC_INFIELD))
             world._field.ProcessObject(tmp, false);
 		tmp->SetTextureName(_propTexture.GetStringValue());
-		tmp->SetTexture(tmp->_textureName.c_str());
-		tmp->AlignToTexture();
+//		tmp->AlignToTexture();
 		world._field.ProcessObject(tmp, true);
         tmp->SetFlags(GC_FLAG_RBSTATIC_INFIELD, true);
 	}
@@ -128,7 +120,6 @@ GC_Decoration::GC_Decoration(World &world)
   , _time(0)
   , _zOrder(Z_EDITOR)
 {
-	SetTexture(_textureName.c_str());
 }
 
 GC_Decoration::GC_Decoration(FromFile)
@@ -170,7 +161,6 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 
 	if( f.loading() )
 	{
-		SetTexture(_textureName.c_str());
 //		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
 		SetDirection(vec2d(rot));
@@ -245,7 +235,6 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->SetTextureName(_propTexture.GetStringValue());
-		tmp->SetTexture(tmp->_textureName.c_str());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 //		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));

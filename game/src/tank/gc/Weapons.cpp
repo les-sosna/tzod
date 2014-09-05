@@ -285,7 +285,6 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(World &world)
   , _firing(false)
 {
 	_feTime = 0.1f;
-	SetTexture("weap_ak47");
 }
 
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
@@ -414,7 +413,6 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
   : GC_Weapon(world)
 {
 	_feTime = 0.2f;
-	SetTexture("weap_ac");
 }
 
 void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
@@ -585,7 +583,6 @@ GC_Weap_Cannon::GC_Weap_Cannon(World &world)
 {
 	_fePos.Set(21, 0);
 	_feTime = 0.2f;
-	SetTexture("weap_cannon");
 }
 
 void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
@@ -689,7 +686,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 GC_Weap_Plazma::GC_Weap_Plazma(World &world)
   : GC_Weapon(world)
 {
-	SetTexture("weap_plazma");
 	_fePos.Set(0, 0);
 	_feTime = 0.2f;
 }
@@ -758,7 +754,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 GC_Weap_Gauss::GC_Weap_Gauss(World &world)
   : GC_Weapon(world)
 {
-	SetTexture("weap_gauss");
 	_feTime = 0.15f;
 }
 
@@ -827,7 +822,6 @@ GC_Weap_Ram::GC_Weap_Ram(World &world)
   : GC_Weapon(world)
   , _firingCounter(0)
 {
-	SetTexture("weap_ram");
 }
 
 void GC_Weap_Ram::SetAdvanced(World &world, bool advanced)
@@ -1062,7 +1056,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 GC_Weap_BFG::GC_Weap_BFG(World &world)
   : GC_Weapon(world)
 {
-	SetTexture("weap_bfg");
 }
 
 void GC_Weap_BFG::Attach(World &world, GC_Actor *actor)
@@ -1180,7 +1173,6 @@ void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 GC_Weap_Ripper::GC_Weap_Ripper(World &world)
   : GC_Weapon(world)
 {
-	SetTexture("weap_ripper");
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
@@ -1227,8 +1219,6 @@ GC_Weap_Minigun::GC_Weap_Minigun(World &world)
   : GC_Weapon(world)
   , _bFire(false)
 {
-	SetTexture("weap_mg1");
-
 	_fePos.Set(20, 0);
 	_feTime   = 0.1f;
 	_feOrient = vrand(1);
@@ -1322,8 +1312,6 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 			_timeRotate += dt;
 			_timeShot   += dt;
 
-			SetTexture((fmod(_timeRotate, 0.08f) < 0.04f) ? "weap_mg1":"weap_mg2");
-
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);
 
@@ -1379,7 +1367,6 @@ GC_Weap_Zippo::GC_Weap_Zippo(World &world)
   , _timeBurn(0)
   , _bFire(false)
 {
-	SetTexture("weap_zippo");
 }
 
 GC_Weap_Zippo::GC_Weap_Zippo(FromFile)

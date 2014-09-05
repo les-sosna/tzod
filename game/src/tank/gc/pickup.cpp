@@ -304,7 +304,6 @@ GC_pu_Health::GC_pu_Health(World &world)
   : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
-	SetTexture("pu_health");
 }
 
 GC_pu_Health::GC_pu_Health(FromFile)
@@ -354,7 +353,6 @@ GC_pu_Mine::GC_pu_Mine(World &world)
   : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
-	SetTexture("item_mine");
 }
 
 GC_pu_Mine::GC_pu_Mine(FromFile)
@@ -385,9 +383,7 @@ GC_pu_Shield::GC_pu_Shield(World &world)
   : GC_Pickup(world)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
-	SetTexture("pu_inv");
 	SetAutoSwitch(true);
-
 	_timeHit = 0;
 }
 
@@ -410,21 +406,14 @@ void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 	//}
 
 	GC_Pickup::Attach(world, actor);
-
 	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
-
-	SetTexture("shield");
-
 	PLAY(SND_Inv, GetPos());
 }
 
 void GC_pu_Shield::Detach(World &world)
 {
 	GetCarrier()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
-
-	SetTexture("pu_inv");
 	SetBlinking(false);
-
 	GC_Pickup::Detach(world);
 }
 
@@ -507,7 +496,6 @@ GC_pu_Shock::GC_pu_Shock(World &world)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 	SetAutoSwitch(false);
-	SetTexture("pu_shock");
 }
 
 GC_pu_Shock::GC_pu_Shock(FromFile)
@@ -548,16 +536,13 @@ AIPRIORITY GC_pu_Shock::GetPriority(World &world, const GC_Vehicle &veh) const
 void GC_pu_Shock::Attach(World &world, GC_Actor* actor)
 {
 	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
-
 	GC_Pickup::Attach(world, actor);
 	PLAY(SND_ShockActivate, GetPos());
-	SetTexture("explosion_g");
 }
 
 void GC_pu_Shock::Detach(World &world)
 {
 	GC_Pickup::Detach(world);
-	SetTexture("pu_shock");
 	SetGridSet(true);
 	SAFE_KILL(world, _light);
 }
@@ -659,7 +644,6 @@ GC_pu_Booster::GC_pu_Booster(World &world)
   : GC_Pickup(world)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
-	SetTexture("pu_booster");
 }
 
 GC_pu_Booster::GC_pu_Booster(FromFile)
@@ -725,8 +709,6 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 	_sound = new GC_Sound_link(world, SND_B_Loop, this);
     _sound->Register(world);
     _sound->SetMode(world, SMODE_LOOP);
-
-	SetTexture("booster");
 }
 
 void GC_pu_Booster::Detach(World &world)
@@ -734,7 +716,6 @@ void GC_pu_Booster::Detach(World &world)
 	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
 	static_cast<GC_Weapon*>(GetCarrier())->SetAdvanced(world, false);
 	GetCarrier()->Unsubscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
-	SetTexture("pu_booster");
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }

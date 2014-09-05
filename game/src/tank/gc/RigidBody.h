@@ -63,7 +63,6 @@ public:
 	virtual unsigned char GetPassability() const = 0;
 
 	float GetRadius() const { return _radius; }
-	void AlignToTexture();
 
 	float GetHalfWidth() const { return _width/2; }
 	float GetHalfLength() const { return _length/2; }

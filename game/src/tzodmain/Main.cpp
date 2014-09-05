@@ -408,7 +408,6 @@ int main(int, const char**)
         
 		{ // FIXME: remove explicit TextureManager scope
 		TextureManager texman(*render);
-        g_texman = &texman;
         if( texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0 )
             TRACE("WARNING: no textures loaded");
         if( texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
@@ -507,7 +506,6 @@ int main(int, const char**)
         world.Clear();
         } // FIXME: remove explicit world scope
 		
-		g_texman = NULL;
 		} // FIXME: remove explicit TextureManager scope
         
 		// FIXME: potential use-after-free as script enviromnent is already gone

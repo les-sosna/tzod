@@ -5,7 +5,6 @@
 #include <memory>
 
 struct IRender;
-class TextureManager;
 class ConsoleBuffer;
 //class ClientBase;
 class AppBase;
@@ -19,8 +18,6 @@ struct ENVIRONMENT;
 // ------------------------
 
 extern unsigned int g_sounds[SND_COUNT];
-
-extern TextureManager  *g_texman;
 
 struct lua_State;
 
