@@ -405,19 +405,18 @@ int main(int, const char**)
 #if !defined NOSOUND
         InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
 #endif
-        
-		{ // FIXME: remove explicit TextureManager scope
-		TextureManager texman(*render);
-        if( texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0 )
-            TRACE("WARNING: no textures loaded");
-        if( texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0 )
-            TRACE("WARNING: no skins found");
 
         { // FIXME: remove explicit world scope
         World world;
 		WorldController worldController(world);
 		AIManager aiManager(world);
 		ThemeManager themeManager(*fs);
+
+		TextureManager texman(*render);
+		if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
+			TRACE("WARNING: no textures loaded");
+		if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
+			TRACE("WARNING: no skins found");
 
         TRACE("scripting subsystem initialization");
 		ScriptEnvironment se
@@ -505,8 +504,6 @@ int main(int, const char**)
         TRACE("Shutting down the world");
         world.Clear();
         } // FIXME: remove explicit world scope
-		
-		} // FIXME: remove explicit TextureManager scope
         
 		// FIXME: potential use-after-free as script enviromnent is already gone
         TRACE("Shutting down the scripting subsystem");
