@@ -197,17 +197,11 @@ public:
 	{
 		return GLFW_PRESS == glfwGetMouseButton(&_window, button);
 	}
-	virtual double GetMouseX() const override
+	virtual vec2d GetMousePos() const override
 	{
 		double x, y;
 		glfwGetCursorPos(&_window, &x, &y);
-		return x;
-	}
-	virtual double GetMouseY() const override
-	{
-		double x, y;
-		glfwGetCursorPos(&_window, &x, &y);
-		return y;
+		return vec2d((float) x, (float) y);
 	}
 	
 private:

@@ -16,8 +16,7 @@ public:
 
 	void HandleMovement(UI::IInput &input, float worldWidth, float worldHeight, float screenWidth, float screenHeight);
 	float GetZoom() const { return _zoom; }
-	float GetPosX() const { return _pos.x; }
-	float GetPosY() const { return _pos.y; }
+	vec2d GetPos() const { return _pos; }
 
 private:
 	float _zoom;

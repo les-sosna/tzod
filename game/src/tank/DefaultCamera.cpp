@@ -45,10 +45,9 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	unsigned int dwCurTime = GetMilliseconds();
 	unsigned int dt        = (unsigned int) _dt;
     
-    double mouse_x = input.GetMouseX();
-	double mouse_y = input.GetMouseY();
+    vec2d mouse = input.GetMousePos();
 
-	if( 0 == (int) mouse_x || input.IsKeyPressed(GLFW_KEY_LEFT) )
+	if( 0 == (int) mouse.x || input.IsKeyPressed(GLFW_KEY_LEFT) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -58,7 +57,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 		}
 	}
 	else
-	if( screenWidth - 1 == (int) mouse_x || input.IsKeyPressed(GLFW_KEY_RIGHT) )
+	if( screenWidth - 1 == (int) mouse.x || input.IsKeyPressed(GLFW_KEY_RIGHT) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -70,7 +69,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	else
 		_dwTimeX = GetMilliseconds();
 	//---------------------------------------
-	if( 0 == (int) mouse_y || input.IsKeyPressed(GLFW_KEY_UP) )
+	if( 0 == (int) mouse.y || input.IsKeyPressed(GLFW_KEY_UP) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -80,7 +79,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 		}
 	}
 	else
-	if( screenHeight - 1 == (int) mouse_y || input.IsKeyPressed(GLFW_KEY_DOWN) )
+	if( screenHeight - 1 == (int) mouse.y || input.IsKeyPressed(GLFW_KEY_DOWN) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )

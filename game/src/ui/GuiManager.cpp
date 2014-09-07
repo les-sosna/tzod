@@ -19,7 +19,6 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _hotTrackWnd(NULL)
   , _captureWnd(NULL)
   , _desktop(NULL)
-  , _lastMousePos(0, 0)
   , _isAppActive(false)
 #ifndef NDEBUG
   , _dbgFocusIsChanging(false)
@@ -356,9 +355,6 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 
 bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 {
-    _lastMousePos.x = x;
-    _lastMousePos.y = y;
-    
 	if( _captureWnd.Get() )
 	{
 		// calc relative mouse position and route message to captured window

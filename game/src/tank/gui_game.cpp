@@ -147,7 +147,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 			{
 				bool mouseInViewport = false;
 				vec2d ptWorld(0,0);
-				vec2d ptScreen = GetManager().GetMousePos();
+				vec2d ptScreen = GetManager().GetInput().GetMousePos();
 				if( PtInRect(viewport, Point{(int) ptScreen.x, (int) ptScreen.y}) )
 				{
 					vec2d eye = pCamera->GetCameraPos();
@@ -217,7 +217,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     {
         // render from default camera
 		CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
-		vec2d eye(_defaultCamera.GetPosX() + GetWidth() / 2, _defaultCamera.GetPosY() + GetHeight() / 2);
+		vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 		float zoom = _defaultCamera.GetZoom();
         _worldView.Render(dc, _world, viewport, eye, zoom, false);
     }

@@ -768,8 +768,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 	}
 
     
-    vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
-                y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
+    vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
+                y / _defaultCamera.GetZoom() + _defaultCamera.GetPos().y);
     
     ObjectType type = static_cast<ObjectType>(
         _typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
@@ -969,7 +969,7 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
-	vec2d eye(_defaultCamera.GetPosX() + GetWidth() / 2, _defaultCamera.GetPosY() + GetHeight() / 2);
+	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true);
     
@@ -980,16 +980,15 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		FRECT rt = GetSelectionRect(*s);
 
 		FRECT sel = {
-			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom(),
-			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom(),
-			(rt.left - _defaultCamera.GetPosX()) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
-			(rt.top - _defaultCamera.GetPosY()) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
+			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom(),
+			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom(),
+			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
+			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
 		};
 		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
 		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
 	}
-    vec2d mouse(GetManager().GetMousePos().x / _defaultCamera.GetZoom() + _defaultCamera.GetPosX(),
-                GetManager().GetMousePos().y / _defaultCamera.GetZoom() + _defaultCamera.GetPosY());
+    vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 
     std::stringstream buf;
     buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);

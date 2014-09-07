@@ -59,7 +59,6 @@ public:
 //	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 
 	bool IsMainWindowActive() const { return _isAppActive; }
-    vec2d GetMousePos() const { return _lastMousePos; }
     
 private:
 	friend class Window;
@@ -88,8 +87,6 @@ private:
 
 	WindowWeakPtr _desktop;
     
-    vec2d _lastMousePos;
-
 	bool _isAppActive;
 #ifndef NDEBUG
 	bool _dbgFocusIsChanging;
