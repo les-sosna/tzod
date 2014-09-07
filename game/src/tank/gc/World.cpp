@@ -156,7 +156,6 @@ World::~World()
 	g_conf.s_volume.eventChange = nullptr;
 
 	assert(IsEmpty() && _garbage.empty());
-	assert(!g_env.nNeedCursor);
 }
 
 void World::AddListener(ObjectType type, ObjectListener &ls)
