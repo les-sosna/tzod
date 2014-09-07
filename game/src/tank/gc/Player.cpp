@@ -44,12 +44,6 @@ GC_Player::GC_Player(World &world)
   , _team(0)
   , _score(0)
 {
-	// select nick from the random_names table
-	lua_getglobal(g_env.L, "random_name");     // push function
-	lua_call(g_env.L, 0, 1);                   // call it
-	SetNick(lua_tostring(g_env.L, -1));        // get value
-	lua_pop(g_env.L, 1);                       // pop result
-
 	// !! avoid using net_rand in constructor since it may cause sync error
 
 	// select first available class

@@ -657,10 +657,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	Text::Create(this, x1, y, g_lang.player_nick.Get(), alignTextLT);
 	_name = Edit::Create(this, x2, y-=1, 200);
-	lua_getglobal(g_env.L, "random_name");   // push function
-	lua_call(g_env.L, 0, 1);                 // random default nick
-	_name->SetText(_info.nick.Get().empty() ? lua_tostring(g_env.L, -1) : _info.nick.Get());
-	lua_pop(g_env.L, 1);                     // pop result
+	_name->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
 	GetManager().SetFocusWnd(_name);
 
 

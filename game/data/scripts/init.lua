@@ -8,7 +8,6 @@ require "autocomplete"  -- init autocomplete engine for the console
 require "func"          -- define some usefull functions
 require "vehicles"      -- register vehicle classes
 require "weapons"       -- set up parameters of weapons
-require "names"         -- fill the random_names array
 require "editor"        -- define editor actions
 
 ---------------------------------------------------------------------
