@@ -52,7 +52,7 @@ void DrawingContext::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor col
 
 void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	const LogicalTexture &lt = _tm.Get(sprite);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 
 	const float pxBorderSize  = 2;
 	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
@@ -272,7 +272,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	}
 
 
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 
 	size_t count = 0;
@@ -329,7 +329,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
 	assert(frame < _tm.GetFrameCount(tex));
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 	IRender &render = _tm.GetRender();
 
@@ -369,7 +369,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 	IRender &render = _tm.GetRender();
 
@@ -405,7 +405,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[0];
 	IRender &render = _tm.GetRender();
 
@@ -442,7 +442,7 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 void DrawingContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 
 	MyVertex *v = render.DrawQuad(lt.dev_texture);
@@ -480,7 +480,7 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 
 void DrawingContext::DrawBackground(size_t tex, float sizeX, float sizeY) const
 {
-	const LogicalTexture &lt = _tm.Get(tex);
+	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 	MyVertex *v = render.DrawQuad(lt.dev_texture);
 	v[0].color = 0xffffffff;

@@ -49,12 +49,10 @@ public:
 	void UnloadAllTextures();
 
 	size_t FindSprite(const std::string &name) const;
-	const LogicalTexture& Get(size_t texIndex) const { return _logicalTextures[texIndex]; }
+	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex]; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
 	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].xframes * _logicalTextures[texIndex].yframes; }
-
-	bool IsValidTexture(size_t index) const;
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix, bool noPrefixReturn) const;
 

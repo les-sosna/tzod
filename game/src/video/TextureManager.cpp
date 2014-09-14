@@ -417,11 +417,6 @@ size_t TextureManager::FindSprite(const std::string &name) const
 	return 0; // index of checker texture
 }
 
-bool TextureManager::IsValidTexture(size_t index) const
-{
-	return index < _logicalTextures.size();
-}
-
 void TextureManager::GetTextureNames(std::vector<std::string> &names,
                                      const char *prefix, bool noPrefixReturn) const
 {
@@ -439,7 +434,7 @@ void TextureManager::GetTextureNames(std::vector<std::string> &names,
 
 float TextureManager::GetCharHeight(size_t fontTexture) const
 {
-	return Get(fontTexture).pxFrameHeight;
+	return GetSpriteInfo(fontTexture).pxFrameHeight;
 }
 
 // end of file
