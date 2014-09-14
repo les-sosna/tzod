@@ -102,6 +102,7 @@ set(tank_SOURCES
 	render/RenderScheme.cpp
 	render/rAnimatedSprite.cpp
 	render/rBrickFragment.cpp
+	render/rBooster.cpp
 	render/rDecoration.cpp
 	render/rFireSpark.cpp
 	render/rIndicator.cpp

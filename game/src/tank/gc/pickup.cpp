@@ -728,15 +728,6 @@ GC_Actor* GC_pu_Booster::FindNewOwner(World &world) const
 	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
 }
 
-void GC_pu_Booster::TimeStepFloat(World &world, float dt)
-{
-	GC_Pickup::TimeStepFloat(world, dt);
-	if( GetCarrier() )
-	{
-		SetDirection(vec2d(GetTimeAnimation() * 50));
-	}
-}
-
 void GC_pu_Booster::TimeStepFixed(World &world, float dt)
 {
 	GC_Pickup::TimeStepFixed(world, dt);

@@ -2,6 +2,7 @@
 
 #include "rAnimatedSprite.h"
 #include "rBrickFragment.h"
+#include "rBooster.h"
 #include "rDecoration.h"
 #include "rFireSpark.h"
 #include "rIndicator.h"
@@ -145,7 +146,7 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
 									  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_FREE_ITEM),
-									  Make<R_Sprite>(tm, "booster"));
+									  Make<R_Booster>(tm));
 	
 	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));

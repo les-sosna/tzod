@@ -251,7 +251,6 @@ public:
 	virtual GC_Actor* FindNewOwner(World &world) const;
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
 
 	void OnWeaponDisappear(World &world, GC_Object *sender, void *param);
 };
