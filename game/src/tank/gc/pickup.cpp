@@ -35,7 +35,6 @@ GC_Pickup::GC_Pickup(World &world)
   : _label(new GC_HideLabel(world))
   , _radius(25.0)
   , _timeAttached(0)
-  , _timeAnimation(0)
   , _timeRespawn(0)
 {
     _label->Register(world);
@@ -66,7 +65,6 @@ void GC_Pickup::Serialize(World &world, SaveFile &f)
 
 	f.Serialize(_pickupCarrier);
 	f.Serialize(_timeAttached);
-	f.Serialize(_timeAnimation);
 	f.Serialize(_timeRespawn);
 	f.Serialize(_radius);
 	f.Serialize(_scriptOnPickup);
@@ -158,12 +156,6 @@ void GC_Pickup::MoveTo(World &world, const vec2d &pos)
         SetFlags(GC_FLAG_PICKUP_KNOWNPOS, true);
     }
     GC_2dSprite::MoveTo(world, pos);
-}
-
-void GC_Pickup::TimeStepFloat(World &world, float dt)
-{
-	_timeAnimation += dt;
-	GC_2dSprite::TimeStepFloat(world, dt);
 }
 
 void GC_Pickup::TimeStepFixed(World &world, float dt)
@@ -438,24 +430,13 @@ void GC_pu_Shield::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_pu_Shield::TimeStepFloat(World &world, float dt)
-{
-	GC_Pickup::TimeStepFloat(world, dt);
-	if( GetCarrier() )
-	{
-		_timeHit = std::max(.0f, _timeHit - dt);
-	}
-}
-
 void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 {
 	DamageDesc *pdd = reinterpret_cast<DamageDesc*>(param);
 	assert(NULL != pdd);
-	if( pdd->damage > 5 || 0 == rand() % 4 || 0 == _timeHit )
+	if( pdd->damage > 5 || 0 == rand() % 4 || world.GetTime() - _timeHit > 0.2f )
 	{
 		const vec2d &pos = static_cast<GC_Actor*>(sender)->GetPos();
-
-		_timeHit = 0.2f;
 
 		PLAY(rand() % 2 ? SND_InvHit1 : SND_InvHit2, pos);
 		vec2d dir = (pdd->hit - pos).Normalize();
@@ -472,6 +453,7 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
 		}
 	}
 	pdd->damage *= 0.25;
+	_timeHit = world.GetTime();
 }
 
 void GC_pu_Shield::Serialize(World &world, SaveFile &f)

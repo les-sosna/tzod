@@ -54,14 +54,12 @@ private:
 	std::string  _scriptOnPickup;   // on_pickup(who)
 	float  _radius;
 	float  _timeAttached;
-	float  _timeAnimation;
 	float  _timeRespawn;
 
 protected:
 	virtual void Respawn(World &world);
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
 	virtual void Kill(World &world);
 
 	virtual void MapExchange(World &world, MapFile &f);
@@ -86,7 +84,6 @@ public:
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
 	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
 
-	float GetTimeAnimation() const { return _timeAnimation; }
 	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
 
     void Disappear(World &world);
@@ -188,7 +185,6 @@ public:
 	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_PARTICLE : GC_Pickup::GetZ(); }
 
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
 
 protected:
 	void OnOwnerDamage(World &world, GC_Object *sender, void *param);
