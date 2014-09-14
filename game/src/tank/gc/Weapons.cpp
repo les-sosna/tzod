@@ -231,15 +231,6 @@ void GC_Weapon::TimeStepFixed(World &world, float dt)
 	}
 }
 
-void GC_Weapon::TimeStepFloat(World &world, float dt)
-{
-	GC_Pickup::TimeStepFloat(world, dt);
-	if( !GetCarrier() && !GetRespawn() )
-	{
-		SetDirection(vec2d(GetTimeAnimation()));
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)

@@ -15,9 +15,9 @@ void R_Weapon::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
 
-	DrawWeaponShadow(dc, _texId, weapon);	
+	DrawWeaponShadow(world, weapon, dc, _texId);
 	vec2d pos = weapon.GetPos();
-	vec2d dir = weapon.GetDirection();
+	vec2d dir = GetWeapSpriteDirection(world, weapon);
 	dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }
 

@@ -154,10 +154,6 @@ void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_owner);
 }
 
-void GC_HealthDaemon::TimeStepFloat(World &world, float dt)
-{
-}
-
 void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
 {
 	_time -= dt;

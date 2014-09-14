@@ -80,7 +80,6 @@ public:
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
 
 private:
 	virtual void OnUpdateView(World &world) {};

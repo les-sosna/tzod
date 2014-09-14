@@ -17,9 +17,9 @@ void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, DrawingCon
 	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
 
 	vec2d pos = minigun.GetPos();
-	vec2d dir = minigun.GetDirection();
+	vec2d dir = GetWeapSpriteDirection(world, minigun);
 	size_t texId = minigun.GetFire() ? ((fmod(world._time, 0.1f) < 0.05f) ? _texId1 : _texId2) : _texId2;
-	DrawWeaponShadow(dc, texId, minigun);	
+	DrawWeaponShadow(world, minigun, dc, texId);
 	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }
 

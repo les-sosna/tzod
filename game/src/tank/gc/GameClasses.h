@@ -31,7 +31,6 @@ public:
 
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void TimeStepFloat(World &world, float dt);
 	virtual void TimeStepFixed(World &world, float dt);
 
 	void OnVictimMove(World &world, GC_Object *sender, void *param);
