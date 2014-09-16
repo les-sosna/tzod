@@ -388,9 +388,12 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
 	HANDLE search = FindFirstFileW(tmpDir.c_str(), &fd);
-	FindClose(search);
 
-	if( INVALID_HANDLE_VALUE == search )
+    if (INVALID_HANDLE_VALUE != search)
+    {
+        FindClose(search);
+    }
+    else
 	{
 		if( create )
 		{
