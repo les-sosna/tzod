@@ -34,7 +34,7 @@ GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
 	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
-	MoveTo(world, pos, false);
+	MoveWithTrail(world, pos, false);
 
 	vec2d dir(v);
 	dir.Normalize();
@@ -72,7 +72,7 @@ void GC_Projectile::Serialize(World &world, SaveFile &f)
 	f.Serialize(_ignore);
 }
 
-void GC_Projectile::MoveTo(World &world, const vec2d &pos, bool trail)
+void GC_Projectile::MoveWithTrail(World &world, const vec2d &pos, bool trail)
 {
 	if( trail )
 	{
@@ -165,7 +165,7 @@ void GC_Projectile::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	MoveTo(world, GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
+	MoveWithTrail(world, GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
 	if( GetPos().x < 0 || GetPos().x > world._sx ||
 		GetPos().y < 0 || GetPos().y > world._sy )
 	{
@@ -788,7 +788,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	}
 	else
 	{
-		MoveTo(world, hit + norm, true);
+		MoveWithTrail(world, hit + norm, true);
 	}
 	return true;
 }
@@ -874,7 +874,7 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 			float e = exp(-a * dt);
 			vec2d correcton = GetDirection() * (_velocity * ((1 - e) / a - dt));
 			_velocity *= e;
-			MoveTo(world, GetPos() + correcton, false);
+			MoveWithTrail(world, GetPos() + correcton, false);
 		}
 	}
 }
@@ -1046,7 +1046,7 @@ bool GC_GaussRay::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 	SetHitImpulse(GetHitDamage() / DAMAGE_GAUSS * 100);
 	if( GetHitDamage() <= 0 )
 	{
-		MoveTo(world, hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL)); // workaround to see trail at last step
+		MoveWithTrail(world, hit, CheckFlags(GC_FLAG_PROJECTILE_TRAIL)); // workaround to see trail at last step
 		Kill(world);
 		return true;
 	}
@@ -1083,7 +1083,7 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 	ApplyHitDamage(world, object, hit);
 
 	SetDirection(GetDirection() - norm * 2 * (GetDirection() * norm));
-	MoveTo(world, hit + norm, true);
+	MoveWithTrail(world, hit + norm, true);
 
 	for( int i = 0; i < 11; ++i )
 	{

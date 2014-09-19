@@ -41,7 +41,7 @@ private:
 	float _trailPath;   // each time this value exceeds the _trailDensity, a trail particle is spawned
 
 protected:
-	virtual void MoveTo(World &world, const vec2d &pos, bool trail);
+	void MoveWithTrail(World &world, const vec2d &pos, bool trail);
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) = 0;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) = 0;
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
