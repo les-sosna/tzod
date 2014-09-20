@@ -87,10 +87,6 @@ SettingsDlg::SettingsDlg(Window *parent, World &world)
 	_showTime->SetCheck(g_conf.ui_showtime.Get());
 	y += _showTime->GetHeight();
 
-	_showDamage = CheckBox::Create(this, x, y, g_lang.settings_show_damage.Get());
-	_showDamage->SetCheck(g_conf.g_showdamage.Get());
-	y += _showDamage->GetHeight();
-
 	_showNames = CheckBox::Create(this, x, y, g_lang.settings_show_names.Get());
 	_showNames->SetCheck(g_conf.g_shownames.Get());
 	y += _showNames->GetHeight();
@@ -178,7 +174,6 @@ void SettingsDlg::OnOK()
 {
 	g_conf.ui_showfps.Set(_showFps->GetCheck());
 	g_conf.ui_showtime.Set(_showTime->GetCheck());
-	g_conf.g_showdamage.Set(_showDamage->GetCheck());
 	g_conf.g_shownames.Set(_showNames->GetCheck());
 	g_conf.r_askformode.Set(_askDisplaySettings->GetCheck());
 

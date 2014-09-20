@@ -126,12 +126,6 @@ return {
    }
 },
 {
-   file="textures/indicators/damage.tga",
-   content={
-     indicator_damage={xframes=2},
-   }
-},
-{
    file="textures/projectiles/projectiles.tga",
    content={
      projectile_ac={left=0, top=0, right=4, bottom=4, xpivot=2, ypivot=2},

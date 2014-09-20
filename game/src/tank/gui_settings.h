@@ -30,7 +30,6 @@ class SettingsDlg : public Dialog
 
 	CheckBox  *_showFps;
 	CheckBox  *_showTime;
-	CheckBox  *_showDamage;
 	CheckBox  *_showNames;
 	CheckBox  *_askDisplaySettings;
 

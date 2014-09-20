@@ -91,7 +91,6 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 
 	// game
 	VAR_BOOL(  g_shownames,         true )
-	VAR_BOOL(  g_showdamage,       false )
 
 	// editor
 	VAR_BOOL(  ed_drawgrid,         true )
