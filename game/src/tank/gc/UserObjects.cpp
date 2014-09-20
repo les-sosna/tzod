@@ -138,7 +138,7 @@ void GC_Decoration::SetZ(enumZOrder z)
 
 void GC_Decoration::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
@@ -147,7 +147,7 @@ void GC_Decoration::Serialize(World &world, SaveFile &f)
 
 void GC_Decoration::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 
 	int z = GetZ();
 	int frame = 0;//GetCurrentFrame();

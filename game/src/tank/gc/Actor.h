@@ -26,8 +26,8 @@ protected:
     
 	int _locationX;
 	int _locationY;
-    virtual void EnterContexts(World &) {}
-    virtual void LeaveContexts(World &) {}
+	virtual void EnterContexts(World &);
+	virtual void LeaveContexts(World &);
 
 public:
 	GC_Actor();

@@ -2,14 +2,12 @@
 
 #pragma once
 
-#include "2dSprite.h"
+#include "Actor.h"
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_BrickFragment : public GC_2dSprite
+class GC_BrickFragment : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 
 private:
 	int _startFrame;
@@ -21,12 +19,9 @@ private:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_BrickFragment(World &world, const vec2d &v0);
+	GC_BrickFragment(const vec2d &v0);
 	GC_BrickFragment(FromFile);
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
-	
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
 };
@@ -62,13 +57,13 @@ enum ParticleType
 	PARTICLE_CATTRACK,
 };
 
-#define GC_FLAG_PARTICLE_FADE            (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PARTICLE_                (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_PARTICLE_FADE            (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_PARTICLE_                (GC_FLAG_ACTOR_ << 1)
 
-class GC_Particle : public GC_2dSprite
+class GC_Particle : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 
 public:
 	float _sizeOverride = -1;
@@ -94,9 +89,6 @@ public:
 	void SetAutoRotate(float speed);
 	void SetSizeOverride(float size) { _sizeOverride = size; }
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
-	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);
@@ -104,7 +96,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define DECLARE_PARTICLE(clsname, zorder)                                   \
+#define DECLARE_PARTICLE(clsname)                                           \
     class clsname : public GC_Particle                                      \
     {                                                                       \
         DECLARE_SELF_REGISTRATION(clsname);                                 \
@@ -114,11 +106,10 @@ public:
             : GC_Particle(world, v, ptype, lifeTime, orient)                \
         {}                                                                  \
         clsname(FromFile) : GC_Particle(FromFile()) {}                      \
-        virtual enumZOrder GetZ() const { return zorder; }                  \
     };
 
-DECLARE_PARTICLE(GC_ParticleExplosion, Z_EXPLODE);
-DECLARE_PARTICLE(GC_ParticleDecal, Z_WATER);
-DECLARE_PARTICLE(GC_ParticleGauss, Z_GAUSS_RAY);
+DECLARE_PARTICLE(GC_ParticleExplosion);
+DECLARE_PARTICLE(GC_ParticleDecal);
+DECLARE_PARTICLE(GC_ParticleGauss);
 
 // end of file

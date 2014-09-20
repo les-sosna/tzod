@@ -76,9 +76,7 @@ public:
 	virtual void MoveTo(World &world, const vec2d &pos);
 	virtual void OnDestroy(World &world);
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WALLS; }
-
+	// GC_Object
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);

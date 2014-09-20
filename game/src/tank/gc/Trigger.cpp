@@ -63,7 +63,7 @@ bool GC_Trigger::Test(World &world, const GC_Vehicle *v) const
 
 void GC_Trigger::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_radius);
 	f.Serialize(_radiusDelta);
@@ -75,7 +75,7 @@ void GC_Trigger::Serialize(World &world, SaveFile &f)
 
 void GC_Trigger::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);

@@ -73,9 +73,6 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor) override;
 	virtual void Detach(World &world) override;
 	
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_ATTACHED_ITEM : GC_Pickup::GetZ(); }
-
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);

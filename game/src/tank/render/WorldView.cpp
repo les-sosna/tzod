@@ -85,11 +85,11 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	int xmax = std::min(world._locationsX - 1, int(right / LOCATION_SIZE));
 	int ymax = std::min(world._locationsY - 1, int(bottom / LOCATION_SIZE) + 1);
 
-    static std::vector<std::pair<const GC_2dSprite*, const ObjectRFunc*>> zLayers[Z_COUNT];
+    static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
     for( int x = xmin; x <= xmax; ++x )
     for( int y = ymin; y <= ymax; ++y )
     {
-        FOREACH(world.grid_sprites.element(x,y), GC_2dSprite, object)
+        FOREACH(world.grid_actors.element(x,y), GC_Actor, object)
         {
 			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode) )
 			{
@@ -103,7 +103,7 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
         }
     }
 
-    FOREACH( world.GetList(LIST_gsprites), GC_2dSprite, object )
+    FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
     {
 		if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode) )
 		{

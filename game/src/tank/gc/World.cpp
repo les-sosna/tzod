@@ -99,7 +99,7 @@ void World::Resize(int X, int Y)
 	grid_wood.resize(_locationsX, _locationsY);
 	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
-	grid_sprites.resize(_locationsX, _locationsY);
+	grid_actors.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
 }

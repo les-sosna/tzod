@@ -8,7 +8,6 @@
 #include "ThemeManager.h"
 #include "DefaultCamera.h"
 
-#include "gc/2dSprite.h"
 #include "gc/Camera.h"
 #include "gc/Object.h"
 #include "gc/pickup.h"
@@ -581,19 +580,19 @@ static bool PtInActor(const GC_Actor &actor, vec2d pt)
 	return false;
 }
 
-static GC_2dSprite* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt, int layer)
+static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt, int layer)
 {
-    GC_2dSprite* zLayers[Z_COUNT];
+    GC_Actor* zLayers[Z_COUNT];
     memset(zLayers, 0, sizeof(zLayers));
     
     std::vector<ObjectList*> receive;
-    world.grid_sprites.OverlapPoint(receive, pt / LOCATION_SIZE);
+    world.grid_actors.OverlapPoint(receive, pt / LOCATION_SIZE);
     for( auto rit = receive.begin(); rit != receive.end(); ++rit )
     {
         ObjectList *ls = *rit;
         for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
         {
-            GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
+            auto *object = static_cast<GC_Actor*>(ls->at(it));
 			if (PtInActor(*object, pt))
             {
 				enumZOrder maxZ = Z_NONE;
@@ -987,7 +986,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     
 	dc.SetMode(RM_INTERFACE);
     
-	if( GC_2dSprite *s = dynamic_cast<GC_2dSprite *>(_selectedObject) )
+	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
 		FRECT rt = GetSelectionRect(*s);
 

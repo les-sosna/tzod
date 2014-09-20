@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "2dSprite.h"
+#include "Actor.h"
 #include "Rotator.h"
 #include "constants.h"
 
@@ -20,21 +20,21 @@ class GC_RigidBodyStatic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_2DSPRITE_ << 2)
-#define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_2DSPRITE_ << 3)
-#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_2DSPRITE_ << 4)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_2DSPRITE_ << 5)
+#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 4)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 5)
 
-class GC_Pickup : public GC_2dSprite
+class GC_Pickup : public GC_Actor
 {
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
     
 protected:
-	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
-		typedef GC_2dSprite::MyPropertySet BASE;
+		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 		ObjectProperty _propOnPickup;
 
@@ -107,9 +107,6 @@ public:
 
 	virtual float GetDefaultRespawnTime() const = 0;
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_FREE_ITEM; }
-
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
 protected:
@@ -122,7 +119,7 @@ protected:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
 		         ^ reinterpret_cast<const DWORD&>(GetPos().y)
 		         ^ reinterpret_cast<const DWORD&>(_timeAttached);
-		return GC_2dSprite::checksum() ^ cs;
+		return GC_Actor::checksum() ^ cs;
 	}
 #endif
 };
@@ -173,7 +170,6 @@ public:
 	GC_pu_Shield(World &world);
 	GC_pu_Shield(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
@@ -181,10 +177,8 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return GetCarrier() ? Z_PARTICLE : GC_Pickup::GetZ(); }
-
 	virtual void TimeStepFixed(World &world, float dt);
+	virtual void Serialize(World &world, SaveFile &f);
 
 protected:
 	void OnOwnerDamage(World &world, GC_Object *sender, void *param);

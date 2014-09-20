@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include "2dSprite.h"
+#include "Actor.h"
 #include "NeighborAware.h"
 #include "video/DrawingContext.h"
 
 class GC_RigidBodyStatic;
 class GC_Player;
 
-class GC_HealthDaemon : public GC_2dSprite
+class GC_HealthDaemon : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 
 private:
 	float _time;
@@ -39,14 +39,14 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-#define GC_FLAG_WOOD_INTILE                 (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_WOOD_                       (GC_FLAG_2DSPRITE_ << 1)
+#define GC_FLAG_WOOD_INTILE                 (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_WOOD_                       (GC_FLAG_ACTOR_ << 1)
 
-class GC_Wood : public GC_2dSprite
+class GC_Wood : public GC_Actor
               , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 private:
 
 /**
@@ -77,9 +77,6 @@ public:
     // GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WOOD; }
-	
 	// GI_NeighborAware
 	virtual int GetNeighbors() const override { return _tile; }
 
@@ -90,7 +87,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Text : public GC_2dSprite
+class GC_Text : public GC_Actor
 {
 public:
 	enum Style
@@ -132,9 +129,6 @@ public:
     DECLARE_LIST_MEMBER();
 	GC_Text_ToolTip(World &world, const std::string &text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PARTICLE; }
 
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFloat(World &world, float dt);

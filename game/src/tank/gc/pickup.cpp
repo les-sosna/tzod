@@ -56,12 +56,12 @@ void GC_Pickup::Kill(World &world)
 {
 	Disappear(world);
 	SAFE_KILL(world, _label);
-	GC_2dSprite::Kill(world);
+	GC_Actor::Kill(world);
 }
 
 void GC_Pickup::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_pickupCarrier);
 	f.Serialize(_timeAttached);
@@ -155,7 +155,7 @@ void GC_Pickup::MoveTo(World &world, const vec2d &pos)
         _label->MoveTo(world, pos);
         SetFlags(GC_FLAG_PICKUP_KNOWNPOS, true);
     }
-    GC_2dSprite::MoveTo(world, pos);
+    GC_Actor::MoveTo(world, pos);
 }
 
 void GC_Pickup::TimeStepFixed(World &world, float dt)
@@ -212,12 +212,12 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_Actor::TimeStepFixed(world, dt);
 }
 
 void GC_Pickup::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }

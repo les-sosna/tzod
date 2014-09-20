@@ -59,7 +59,6 @@ set(tank_SOURCES
 	core/Profiler.cpp
 	core/SafePtr.cpp
 	core/Timer.cpp
-	gc/2dSprite.cpp
 	gc/Actor.cpp
 	gc/Camera.cpp
 	gc/crate.cpp

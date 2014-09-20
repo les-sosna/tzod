@@ -43,7 +43,7 @@ GC_Light::~GC_Light()
 
 void GC_Light::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
@@ -78,7 +78,7 @@ void GC_Light::Kill(World &world)
 {
     if( CheckFlags(GC_FLAG_LIGHT_FADE) )
         world.GetList(LIST_timestep).erase(GetId());
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 void GC_Light::SetActive(bool activate)
@@ -115,24 +115,24 @@ GC_Spotlight::~GC_Spotlight()
 void GC_Spotlight::Kill(World &world)
 {
 	SAFE_KILL(world, _light);
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 void GC_Spotlight::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_light);
 }
 
 void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
 {
 	_light->MoveTo(world, pos + GetDirection() * 7);
-	GC_2dSprite::MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 }
 
 void GC_Spotlight::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 
 	float dir = GetDirection().Angle();
 	int active = _light->GetActive();

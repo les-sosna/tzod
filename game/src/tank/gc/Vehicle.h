@@ -106,9 +106,6 @@ public:
 	// GC_Actor
 	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached);
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_VEHICLES; }
-
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);

@@ -50,7 +50,7 @@ void GC_RigidBodyStatic::Kill(World &world)
 {
     if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
 		world._field.ProcessObject(this, false);
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
@@ -61,7 +61,7 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
         SetFlags(GC_FLAG_RBSTATIC_INFIELD, false);
     }
     
-    GC_2dSprite::MoveTo(world, pos);
+    GC_Actor::MoveTo(world, pos);
 
     if( GetPassability() > 0 )
     {
@@ -407,7 +407,7 @@ void GC_RigidBodyStatic::SetSize(float width, float length)
 
 void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
@@ -422,7 +422,7 @@ void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)
 
 void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_scriptOnDestroy);
 	f.Serialize(_scriptOnDamage);
@@ -888,7 +888,7 @@ void GC_Wall::OnDestroy(World &world)
 
 	for( int n = 0; n < 5; ++n )
 	{
-		auto p = new GC_BrickFragment(world, vec2d(frand(100.0f) - 50, -frand(100.0f)));
+		auto p = new GC_BrickFragment(vec2d(frand(100.0f) - 50, -frand(100.0f)));
         p->Register(world);
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
@@ -918,7 +918,7 @@ bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player
 			}
 			v += vrand(25);
 
-			auto p = new GC_BrickFragment(world, v);
+			auto p = new GC_BrickFragment(v);
             p->Register(world);
             p->MoveTo(world, hit);
 		}

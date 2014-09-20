@@ -23,7 +23,6 @@ class ClientBase;
 class GC_RigidBodyStatic;
 class GC_Object;
 class GC_Player;
-class GC_2dSprite;
 
 struct ObjectListener;
 struct MessageListener;
@@ -62,7 +61,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_wood;
 	Grid<PtrList<GC_Object>>  grid_water;
 	Grid<PtrList<GC_Object>>  grid_pickup;
-    Grid<PtrList<GC_Object>>  grid_sprites;
+    Grid<PtrList<GC_Object>>  grid_actors;
 
 	ObjectListener *_serviceListener;
     MessageListener *_messageListener;

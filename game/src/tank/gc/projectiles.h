@@ -2,10 +2,7 @@
 
 #pragma once
 
-#include "2dSprite.h"
-
-///////////////////////////////////////////////////////////////////////////////
-// forward declarations
+#include "Actor.h"
 
 class GC_RigidBodyStatic;
 class GC_RigidBodyDynamic;
@@ -13,15 +10,13 @@ class GC_Light;
 class GC_Vehicle;
 class GC_Player;
 
-///////////////////////////////////////////////////////////////////////////////
+#define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_PROJECTILE_              (GC_FLAG_ACTOR_ << 2)
 
-#define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_PROJECTILE_              (GC_FLAG_2DSPRITE_ << 2)
-
-class GC_Projectile : public GC_2dSprite
+class GC_Projectile : public GC_Actor
 {
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 	ObjPtr<GC_RigidBodyStatic> _ignore;
 	ObjPtr<GC_Player> _owner;
 
@@ -64,13 +59,7 @@ public:
 	void SetHitImpulse(float impulse);
 	float GetHitImpulse() const { return _hitImpulse; }
 
-	bool GetAdvanced() const
-	{
-		return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED);
-	}
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
+	bool GetAdvanced() const { return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED); }
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -83,7 +72,7 @@ public:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x);
 		cs ^= reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_velocity);
-		return GC_2dSprite::checksum() ^ cs;
+		return GC_Actor::checksum() ^ cs;
 	}
 #endif
 };
@@ -248,9 +237,6 @@ public:
     
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_NONE; }
 
     virtual void Kill(World &world);
 };

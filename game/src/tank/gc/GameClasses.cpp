@@ -43,7 +43,7 @@ void GC_Wood::Kill(World &world)
 {
     if( CheckFlags(GC_FLAG_WOOD_INTILE) )
         UpdateTile(world, false);
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 void GC_Wood::UpdateTile(World &world, bool flag)
@@ -83,7 +83,7 @@ void GC_Wood::UpdateTile(World &world, bool flag)
 
 void GC_Wood::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_tile);
 }
 
@@ -101,7 +101,7 @@ void GC_Wood::MoveTo(World &world, const vec2d &pos)
 {
     if (CheckFlags(GC_FLAG_WOOD_INTILE))
         UpdateTile(world, false);
-    GC_2dSprite::MoveTo(world, pos);
+    GC_Actor::MoveTo(world, pos);
     UpdateTile(world, true);
     SetFlags(GC_FLAG_WOOD_INTILE, true);
 }
@@ -146,7 +146,7 @@ void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
 
 void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_time);
 	f.Serialize(_damage);
@@ -192,7 +192,7 @@ GC_Text::~GC_Text()
 
 void GC_Text::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_text);
 	f.Serialize(_align);
 	f.Serialize(_style);

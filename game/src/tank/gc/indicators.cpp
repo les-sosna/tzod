@@ -34,13 +34,13 @@ GC_SpawnPoint::GC_SpawnPoint(FromFile)
 
 void GC_SpawnPoint::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_team);
 }
 
 void GC_SpawnPoint::MapExchange(World &world, MapFile &f)
 {
-	GC_2dSprite::MapExchange(world, f);
+	GC_Actor::MapExchange(world, f);
 
 	float dir = GetDirection().Angle();
 

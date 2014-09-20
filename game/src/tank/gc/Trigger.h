@@ -3,26 +3,26 @@
 #pragma once
 
 
-#include "2dSprite.h"
+#include "Actor.h"
 
-#define GC_FLAG_TRIGGER_ENABLED       (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_TRIGGER_ONLYVISIBLE   (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_TRIGGER_ONLYHUMAN     (GC_FLAG_2DSPRITE_ << 2)
-#define GC_FLAG_TRIGGER_ACTIVATED     (GC_FLAG_2DSPRITE_ << 3)
-#define GC_FLAG_TRIGGER_              (GC_FLAG_2DSPRITE_ << 4)
+#define GC_FLAG_TRIGGER_ENABLED       (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_TRIGGER_ONLYVISIBLE   (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_TRIGGER_ONLYHUMAN     (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_TRIGGER_ACTIVATED     (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_TRIGGER_              (GC_FLAG_ACTOR_ << 4)
 
 // forward declarations
 class GC_Vehicle;
 
 
-class GC_Trigger : public GC_2dSprite
+class GC_Trigger : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 
-	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
-		typedef GC_2dSprite::MyPropertySet BASE;
+		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propTeam;
 		ObjectProperty _propRadius;
@@ -58,9 +58,7 @@ public:
 	GC_Trigger(FromFile);
 	~GC_Trigger();
 
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WOOD; }
-
+	// GC_Object
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);

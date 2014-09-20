@@ -4,7 +4,6 @@
 #include "SaveFile.h"
 #include "World.h"
 
-///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 {
@@ -13,9 +12,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 
 IMPLEMENT_1LIST_MEMBER(GC_BrickFragment, LIST_timestep);
 
-GC_BrickFragment::GC_BrickFragment(World &world, const vec2d &v0)
-  : GC_2dSprite()
-  , _startFrame(rand())
+GC_BrickFragment::GC_BrickFragment(const vec2d &v0)
+  : _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
   , _velocity(v0)
@@ -28,7 +26,7 @@ GC_BrickFragment::GC_BrickFragment(FromFile)
 
 void GC_BrickFragment::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_startFrame);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
@@ -76,7 +74,7 @@ GC_Particle::GC_Particle(FromFile)
 
 void GC_Particle::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 	f.Serialize(_sizeOverride);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);

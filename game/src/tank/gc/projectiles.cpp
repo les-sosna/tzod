@@ -55,12 +55,12 @@ void GC_Projectile::Kill(World &world)
 	{
 		_light->Kill(world);
 	}
-    GC_2dSprite::Kill(world);
+    GC_Actor::Kill(world);
 }
 
 void GC_Projectile::Serialize(World &world, SaveFile &f)
 {
-	GC_2dSprite::Serialize(world, f);
+	GC_Actor::Serialize(world, f);
 
 	f.Serialize(_hitDamage);
 	f.Serialize(_hitImpulse);
@@ -95,7 +95,7 @@ void GC_Projectile::MoveWithTrail(World &world, const vec2d &pos, bool trail)
 	}
 
 	_light->MoveTo(world, pos);
-	GC_2dSprite::MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 }
 
 float GC_Projectile::FilterDamage(float damage, GC_RigidBodyStatic *object)
@@ -123,7 +123,7 @@ void GC_Projectile::ApplyHitDamage(World &world, GC_RigidBodyStatic *target, con
 
 void GC_Projectile::TimeStepFixed(World &world, float dt)
 {
-	GC_2dSprite::TimeStepFixed(world, dt);
+	GC_Actor::TimeStepFixed(world, dt);
 
 	vec2d dx = GetDirection() * (_velocity * dt);
 	std::vector<World::CollisionPoint> obstacles;

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "RigidBody.h"
+#include "render/ObjectView.h"
 
 class GC_UserObject : public GC_RigidBodyStatic
 {
@@ -45,7 +46,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Decoration : public GC_2dSprite
+class GC_Decoration : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
@@ -55,9 +56,9 @@ class GC_Decoration : public GC_2dSprite
 	enumZOrder _zOrder;	
 
 protected:
-	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
-		typedef GC_2dSprite::MyPropertySet BASE;
+		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propTexture;
 		ObjectProperty _propLayer;
 		ObjectProperty _propAnimate;

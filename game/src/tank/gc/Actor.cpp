@@ -7,6 +7,15 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
+// Workaround for IMPLEMENT_GRID_MEMBER macro used in the base class
+namespace base
+{
+	inline static void EnterContexts(World&){}
+	inline static void LeaveContexts(World&){}
+}
+
+IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
+
 GC_Actor::GC_Actor()
 	: _direction(1, 0)
 {

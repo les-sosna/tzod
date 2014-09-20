@@ -2,15 +2,14 @@
 
 #pragma once
 
-#include "2dSprite.h"
+#include "Actor.h"
 #include "NeighborAware.h"
 
-///////////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_2DSPRITE_ << 0) // penetration of projectiles
-#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_RBSTATIC_INFIELD    (GC_FLAG_2DSPRITE_ << 2)
-#define GC_FLAG_RBSTATIC_           (GC_FLAG_2DSPRITE_ << 3)
+#define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_ACTOR_ << 0) // penetration of projectiles
+#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_RBSTATIC_INFIELD    (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_RBSTATIC_           (GC_FLAG_ACTOR_ << 3)
 
 class GC_Player;
 
@@ -21,17 +20,17 @@ struct DamageDesc
 	GC_Player *from;
 };
 
-class GC_RigidBodyStatic : public GC_2dSprite
+class GC_RigidBodyStatic : public GC_Actor
 {
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
     
 	std::string _scriptOnDestroy;  // on_destroy()
 	std::string _scriptOnDamage;   // on_damage()
 
 protected:
-	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
-		typedef GC_2dSprite::MyPropertySet BASE;
+		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propOnDestroy;
 		ObjectProperty _propOnDamage;
 		ObjectProperty _propHealth;
@@ -129,7 +128,7 @@ public:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_health);
 		cs ^= reinterpret_cast<const DWORD&>(_width) ^ reinterpret_cast<const DWORD&>(_length);
-		return GC_2dSprite::checksum() ^ cs;
+		return GC_Actor::checksum() ^ cs;
 	}
 #endif
 };
@@ -186,9 +185,6 @@ public:
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
 	virtual float GetDefaultHealth() const { return 50; }
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WALLS; }
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -252,9 +248,6 @@ public:
     virtual void MoveTo(World &world, const vec2d &pos) override;
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_WATER; }
 
 	// GI_NeighborAware
 	virtual int GetNeighbors() const override { return _tile; }

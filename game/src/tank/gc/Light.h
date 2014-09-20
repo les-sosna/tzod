@@ -2,18 +2,16 @@
 
 #pragma once
 
-#include "Object.h"
-#include "2dSprite.h"
+#include "Actor.h"
 
+#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
 
-#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_2DSPRITE_ << 0)
-#define GC_FLAG_LIGHT_FADE          (GC_FLAG_2DSPRITE_ << 1)
-#define GC_FLAG_LIGHT_              (GC_FLAG_2DSPRITE_ << 2)
-
-class GC_Light : public GC_2dSprite
+class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-    typedef GC_2dSprite base;
+    typedef GC_Actor base;
 
 public:
 	enum enumLightType
@@ -106,16 +104,16 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Spotlight : public GC_2dSprite
+class GC_Spotlight : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
 	ObjPtr<GC_Light> _light;
 
 
 protected:
-	class MyPropertySet : public GC_2dSprite::MyPropertySet
+	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
-		typedef GC_2dSprite::MyPropertySet BASE;
+		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propDir;
 	public:
@@ -130,14 +128,10 @@ public:
 	GC_Spotlight(World &world);
 	GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
-	
-	// GC_2dSprite
-	virtual enumZOrder GetZ() const { return Z_PROJECTILE; }
-
-	virtual void Serialize(World &world, SaveFile &f);
 
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
     virtual void Kill(World &world) override;
 };
