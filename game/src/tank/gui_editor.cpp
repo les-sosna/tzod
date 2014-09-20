@@ -20,6 +20,7 @@
 #include "config/Language.h"
 #include "core/Debug.h"
 #include "render/WorldView.h"
+#include "render/RenderScheme.h"
 
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
@@ -580,7 +581,7 @@ static bool PtInActor(const GC_Actor &actor, vec2d pt)
 	return false;
 }
 
-static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
+static GC_2dSprite* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt, int layer)
 {
     GC_2dSprite* zLayers[Z_COUNT];
     memset(zLayers, 0, sizeof(zLayers));
@@ -595,15 +596,26 @@ static GC_2dSprite* PickEdObject(World &world, const vec2d &pt, int layer)
             GC_2dSprite *object = static_cast<GC_2dSprite*>(ls->at(it));
 			if (PtInActor(*object, pt))
             {
-                for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
-                {
-                    if( Z_NONE != object->GetZ()
-                        && object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
-                        && (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
-                    {
-                        zLayers[object->GetZ()] = object;
-                    }
-                }
+				enumZOrder maxZ = Z_NONE;
+				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*object, true) )
+				{
+					for (auto &view: *views)
+					{
+						maxZ = std::max(maxZ, view.zfunc->GetZ(world, *object));
+					}
+				}
+				
+				if( Z_NONE != maxZ )
+				{
+					for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+					{
+						if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+							&& (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
+						{
+							zLayers[maxZ] = object;
+						}
+					}
+				}
             }
         }
     }
@@ -789,7 +801,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
         layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
     }
 
-    if( GC_Object *object = PickEdObject(_world, mouse, layer) )
+    if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, mouse, layer) )
     {
         if( 1 == button )
         {

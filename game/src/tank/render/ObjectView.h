@@ -20,7 +20,7 @@ enum enumZOrder
 	//------------------//
 	Z_COUNT,            // total number of z-layers
 	//------------------//
-	Z_NONE = 0x7FFFFFFF // not drawn
+	Z_NONE = -1         // not drawn
 };
 
 struct ObjectZFunc

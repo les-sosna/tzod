@@ -15,6 +15,7 @@ public:
     WorldView(TextureManager &tm, RenderScheme &rs);
 	~WorldView();
 	void Render(DrawingContext &dc, World &world, const Rect &viewport, const vec2d &eye, float zoom, bool editorMode) const;
+	RenderScheme &GetRenderScheme() const { return _renderScheme; }
 
 private:
 	RenderScheme &_renderScheme;
