@@ -2,37 +2,15 @@
 
 #include "script.h"
 
-#include "BackgroundIntro.h"
-#include "gui.h"
-#include "gui_desktop.h"
-#include "SaveFile.h"
-#include "ThemeManager.h"
+#include "core/Debug.h"
 
 #include "gc/vehicle.h"
-#include "gc/Pickup.h"
-#include "gc/Player.h"
-#include "gc/Weapons.h" // for ugly workaround
-#include "gc/World.h"
-#include "gc/WorldEvents.h"
-#include "gc/Macros.h"
+
+#include "gclua/lGame.h"
 #include "gclua/lObject.h"
 #include "gclua/lWorld.h"
 
-#ifndef NOSOUND
-#include "sound/MusicPlayer.h"
-#include "sound/sfx.h"
-#include "gc/Sound.h"
-#endif
-
-#include "core/Debug.h"
-
-//#include "network/TankClient.h"
-//#include "network/TankServer.h"
-
 #include <fs/FileSystem.h>
-#include <GLFW/glfw3.h>
-#include <ui/GuiManager.h>
-#include <video/TextureManager.h>
 
 extern "C"
 {
@@ -41,9 +19,6 @@ extern "C"
 #include <lauxlib.h>
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-// aux
 
 void ClearCommandQueue(lua_State *L)
 {
@@ -92,309 +67,6 @@ void RunCmdQueue(lua_State *L, float dt)
     
 	assert(lua_gettop(L) == queueidx);
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// c closures
-
-// exit to the system
-static int luaT_quit(lua_State *L)
-{
-	ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
-	se.exitCommand();
-	return 0;
-}
-
-static int luaT_game(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-    World &world = GetScriptEnvironment(L).world;
-	if( !world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'game' in unsafe mode");
-
-	const char *clientType = luaL_checkstring(L, 1);
-
-	// TODO: delete client after all checks
-//	SAFE_DELETE(g_client); // it will clear level, message area, command queue
-
-	if( *clientType )
-	{
-		if( !strcmp("intro", clientType) )
-		{
-//			new IntroClient(&world);
-		}
-		else
-		{
-			return luaL_error(L, "unknown client type: %s", clientType);
-		}
-	}
-
-	return 0;
-}
-
-// start/stop the timer
-static int luaT_pause(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	luaL_checktype(L, 1, LUA_TBOOLEAN);
-
-//	PauseGame( 0 != lua_toboolean(L, 1) );
-    GetConsole().WriteLine(0, "pause - function is unavailable in this version");
-
-	return 0;
-}
-
-static int luaT_freeze(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	luaL_checktype(L, 1, LUA_TBOOLEAN);
-
-//	world.Freeze( 0 != lua_toboolean(L, 1) );
-	GetConsole().WriteLine(0, "freeze - function is unavailable in this version");
-
-	return 0;
-}
-
-// loadmap( string filename )
-static int luaT_loadmap(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
-
-	try
-	{
-        se.world.Clear();
-        se.world.Seed(rand());
-        se.world.Import(se.fs.Open(filename)->QueryStream(), se.themeManager, se.textureManager);
-        
-        if( !script_exec(L, se.world._infoOnInit.c_str()) )
-        {
-            se.world.Clear();
-            throw std::runtime_error("init script error");
-        }
-	}
-	catch( const std::exception &e )
-	{
-		return luaL_error(L, "couldn't load map '%s' - %s", filename, e.what());
-	}
-
-	return 0;
-}
-
-// newmap(int x_size, int y_size)
-static int luaT_newmap(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-		return luaL_error(L, "wrong number of arguments: 2 expected, got %d", n);
-
-	int x = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
-	int y = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
-	ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
-    
-	se.world.Clear();
-	se.world.Resize(x, y);
-	se.themeManager.ApplyTheme(0, se.textureManager);
-
-	return 0;
-}
-
-// load( string filename )  -- load a saved game
-static int luaT_load(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
-
-//	SAFE_DELETE(g_client);
-
-	try
-	{
-		TRACE("Loading saved game from file '%s'...", filename);
-		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeRead)->QueryStream();
-		se.world.Unserialize(stream, se.themeManager, se.textureManager);
-	}
-	catch( const std::exception &e )
-	{
-		return luaL_error(L, "couldn't load game from '%s' - %s", filename, e.what());
-	}
-
-	return 0;
-}
-
-// save( string filename )  -- save game
-static int luaT_save(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
-
-	se.world.PauseSound(true);
-	try
-	{
-		TRACE("Saving game to file '%S'...", filename);
-		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeWrite)->QueryStream();
-		se.world.Serialize(stream);
-	}
-	catch( const std::exception &e )
-	{
-		se.world.PauseSound(false);
-		return luaL_error(L, "couldn't save game to '%s' - %s", filename, e.what());
-	}
-	se.world.PauseSound(false);
-	GetConsole().Printf(0, "game saved: '%s'", filename);
-	return 0;
-}
-
-// import( string filename )  -- import map
-static int luaT_import(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
-
-//	SAFE_DELETE(g_client);
-    
-	try
-	{
-        se.world.Clear();
-		se.world.Import(se.fs.Open(filename)->QueryStream(), se.themeManager, se.textureManager);
-        g_conf.sv_nightmode.Set(false);
-	}
-	catch( const std::exception &e )
-	{
-		GetConsole().WriteLine(1, e.what());
-        return luaL_error(L, "couldn't import map '%s'", filename);
-	}
-
-	return 0;
-}
-
-// export( string filename )  -- export map
-static int luaT_export(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
-
-	try
-	{
-		se.world.Export(se.fs.Open(filename, FS::ModeWrite)->QueryStream());
-	}
-	catch( const std::exception &e )
-	{
-		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
-	}
-
-	GetConsole().Printf(0, "map exported: '%s'", filename);
-
-	return 0;
-}
-
-// print a message to the MessageArea
-static int luaT_message(lua_State *L)
-{
-	int n = lua_gettop(L);        // number of arguments
-	lua_getglobal(L, "tostring");
-	std::ostringstream buf;
-	for( int i = 1; i <= n; i++ )
-	{
-		const char *s;
-		lua_pushvalue(L, -1);     // function to be called
-		lua_pushvalue(L, i);      // value to print
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);  // get result
-		if( NULL == s )
-			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
-		buf << s;
-		lua_pop(L, 1);            // pop result
-	}
-    
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-    if (se.world._messageListener)
-        se.world._messageListener->OnGameMessage(buf.str().c_str());
-
-	return 0;
-}
-
-// select a soundtraack
-static int luaT_music(lua_State *L)
-{
-	int n = lua_gettop(L);     // get number of arguments
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-#ifndef NOSOUND
-	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( filename[0] )
-	{
-		try
-		{
-			se.music.reset(new MusicPlayer());
-			if( se.music->Load(se.fs.GetFileSystem(DIR_MUSIC)->Open(filename)->QueryMap()) )
-			{
-				se.music->Play();
-				lua_pushboolean(L, true);
-				return 1;
-			}
-			else
-			{
-				TRACE("WARNING: Could not load music file '%s'. Unsupported format?", filename);
-			}
-		}
-		catch( const std::exception &e )
-		{
-			TRACE("WARNING: Could not load music file '%s' - %s", filename, e.what())
-		}
-	}
-	se.music.reset();
-#endif
-
-	lua_pushboolean(L, false);
-	return 1;
 }
 
 static int luaT_print(lua_State *L)
@@ -553,50 +225,6 @@ int luaT_ConvertVehicleClass(lua_State *L)
 	return 0;
 }
 
-#if 0
-int luaT_PlaySound(lua_State *L)
-{
-	int n = lua_gettop(L);     // get number of arguments
-	if( 2 != n )
-		return luaL_error(L, "wrong number of arguments: 2 expected, got %d", n);
-
-	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
-	const char *filename = luaL_checkstring(L, 2);
-
-	if( filename[0] )
-	{
-		LoadOggVorbis(true, SND_User1, filename);
-		PLAY(SND_User1,actor->GetPos());
-	}
-	return 0;
-}
-#endif
-
-
-int luaT_loadtheme(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = GetScriptEnvironment(L);
-	try
-	{
-		if( 0 == se.textureManager.LoadPackage(filename, se.fs.Open(filename)->QueryMap(), se.fs) )
-		{
-			GetConsole().WriteLine(1, "WARNING: there are no textures loaded");
-		}
-	}
-	catch( const std::exception &e )
-	{
-		return luaL_error(L, "could not load theme - %s", e.what());
-	}
-
-	return 0;
-}
 
 int luaT_pushcmd(lua_State *L)
 {
@@ -643,6 +271,7 @@ lua_State* script_open(ScriptEnvironment &se)
 #endif
 		
 		// game libs
+		{"game", luaopen_game},
 		{"object", luaopen_object},
 		{"world", luaopen_world},
 		
@@ -656,38 +285,14 @@ lua_State* script_open(ScriptEnvironment &se)
 		lua_call(L, 1, 0);
 	}
     
-    
-    //
-    // set script environment
-    //
-    
+	// set script environment
     lua_pushlightuserdata(L, &se);
     lua_setfield(L, LUA_REGISTRYINDEX, "ENVIRONMENT");
 
+	// override default print function so it will print to console
+	lua_register(L, "print", luaT_print);
 
-	//
-	// register functions
-	//
-
-	lua_register(L, "loadmap",  luaT_loadmap);
-	lua_register(L, "newmap",   luaT_newmap);
-	lua_register(L, "load",     luaT_load);
-	lua_register(L, "save",     luaT_save);
-	lua_register(L, "import",   luaT_import);
-	lua_register(L, "export",   luaT_export);
-	lua_register(L, "loadtheme",luaT_loadtheme);
-	lua_register(L, "music",    luaT_music);
-	lua_register(L, "message",  luaT_message);
-	lua_register(L, "print",    luaT_print);
-	lua_register(L, "game",     luaT_game);
-	lua_register(L, "quit",     luaT_quit);
-	lua_register(L, "pause",    luaT_pause);
-	lua_register(L, "freeze",   luaT_freeze);
-//	lua_register(L, "play_sound",   luaT_PlaySound);
-
-	//
 	// init the command queue
-	//
 	lua_newtable(L);
 	lua_pushcclosure(L, luaT_pushcmd, 1);
 	lua_setglobal(L, "pushcmd");

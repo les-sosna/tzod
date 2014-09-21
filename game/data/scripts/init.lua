@@ -10,10 +10,12 @@ require "vehicles"      -- register vehicle classes
 require "weapons"       -- set up parameters of weapons
 require "editor"        -- define editor actions
 
+quit = game.quit
+
 ---------------------------------------------------------------------
 -- load one of two intro maps
 
-game "intro"
+game.start("intro")
 
 conf.sv_timelimit = 0;
 conf.sv_fraglimit = 0;
@@ -22,10 +24,10 @@ conf.ui_showmsg = false;
 
 if math.random() > 0.5 then
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("maps/intro.map")
+  game.loadmap("maps/intro.map")
 else
   conf.sv_nightmode = math.random() > 0.5;
-  loadmap("maps/intro02.map")
+  game.loadmap("maps/intro02.map")
 end
 
 for _,s in ipairs{"red","yellow","blue","FBI Tank","neutral"} do
@@ -33,6 +35,5 @@ for _,s in ipairs{"red","yellow","blue","FBI Tank","neutral"} do
 end
 
 pushcmd( function() music "default.ogg" end, 1 )
-
 
 -- end of file
