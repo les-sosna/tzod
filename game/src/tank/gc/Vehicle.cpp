@@ -283,17 +283,17 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 			_weapon = w;
 
 			//
-			// update class
+			// get vehicle class
 			//
 
 			VehicleClass vc;
 
 			lua_State *L = g_env.L;
-			lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
-			lua_getglobal(L, "getvclass");
-			lua_pushstring(L, GetOwner()->GetClass().c_str());  // cls arg
-			lua_pushstring(L, RTTypes::Inst().GetTypeName(_weapon->GetType()));  // weap arg
-			if( lua_pcall(L, 2, 1, 0) )
+			lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
+			
+			lua_getglobal(L, "getvclass");                      // func getvclass
+			lua_pushstring(L, GetOwner()->GetClass().c_str());  // clsname
+			if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
 			{
 				// print error message
 				GetConsole().WriteLine(1, lua_tostring(L, -1));
@@ -301,7 +301,7 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 				return;
 			}
 
-			lua_pushlightuserdata(L, &vc);
+			lua_pushlightuserdata(L, &vc);                      // convert(cls, &vc)
 			if( lua_pcall(L, 2, 0, 0) )
 			{
 				// print error message
@@ -310,6 +310,7 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 				return;
 			}
 
+			_weapon->AdjustVehicleClass(vc);
 			SetClass(vc);
 		}
 		else

@@ -52,7 +52,7 @@ void R_AmmoIndicator::Draw(const World &world, const GC_Actor &actor, DrawingCon
 {
 	assert(dynamic_cast<const GC_Weap_AutoCannon*>(&actor));
 	auto &ac = static_cast<const GC_Weap_AutoCannon&>(actor);
-	float value = 1 - (float) ac._nshots / (float) ac._nshots_total;
+	float value = 1 - (float) ac.GetShots() / (float) ac.GetShotsTotal();
 	DrawWeaponIndicator(world, _tm, dc, _texId, ac, value);
 }
 
@@ -67,5 +67,5 @@ void R_FuelIndicator::Draw(const World &world, const GC_Actor &actor, DrawingCon
 {
 	assert(dynamic_cast<const GC_Weap_Ram*>(&actor));
 	auto &ram = static_cast<const GC_Weap_Ram&>(actor);
-	DrawWeaponIndicator(world, _tm, dc, _texId, ram, ram._fuel / ram._fuel_max);
+	DrawWeaponIndicator(world, _tm, dc, _texId, ram, ram.GetFuel() / ram.GetFuelMax());
 }

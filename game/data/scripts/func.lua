@@ -32,13 +32,7 @@ function tcopy(t, lookup_table)
 end
 
 
--- gets original class and modify it by weapon
-function getvclass(cls, weap)
- if weap then
-  local tmp = tcopy(classes[cls])
-  gc[weap].attach(tmp) -- pass copy of vehicle class desc to the weapon
-  return tmp           -- and return modified class desc
- end
+function getvclass(cls)
  return classes[cls]
 end
 
