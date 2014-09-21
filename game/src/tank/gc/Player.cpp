@@ -236,7 +236,6 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			}
 
 			_vehicle->SetDirection(pBestPoint->GetDirection());
-			_vehicle->SetDirection(pBestPoint->GetDirection());
 			_vehicle->SetPlayer(world, this);
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);

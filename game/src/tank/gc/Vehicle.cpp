@@ -267,6 +267,32 @@ void GC_Vehicle::Kill(World &world)
 	GC_RigidBodyDynamic::Kill(world);
 }
 
+static bool GetVehicleClass(const char *className, VehicleClass &outVehicleClass)
+{
+	lua_State *L = g_env.L;
+	lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
+	
+	lua_getglobal(L, "getvclass");                      // func getvclass
+	lua_pushstring(L, className);                       // clsname
+	if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
+	{
+		// print error message
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false;
+	}
+	
+	lua_pushlightuserdata(L, &outVehicleClass);         // &vc
+	if( lua_pcall(L, 2, 0, 0) )                         // convert(cls, &vc)
+	{
+		// print error message
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false;
+	}
+	return true;
+}
+
 void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 {
 	GC_RigidBodyDynamic::OnPickup(world, pickup, attached);
@@ -282,33 +308,9 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 			assert(!_weapon);
 			_weapon = w;
 
-			//
-			// get vehicle class
-			//
-
 			VehicleClass vc;
-
-			lua_State *L = g_env.L;
-			lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
-			
-			lua_getglobal(L, "getvclass");                      // func getvclass
-			lua_pushstring(L, GetOwner()->GetClass().c_str());  // clsname
-			if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
-			{
-				// print error message
-				GetConsole().WriteLine(1, lua_tostring(L, -1));
-				lua_pop(L, 1);
+			if( !GetVehicleClass(GetOwner()->GetClass().c_str(), vc) )
 				return;
-			}
-
-			lua_pushlightuserdata(L, &vc);                      // convert(cls, &vc)
-			if( lua_pcall(L, 2, 0, 0) )
-			{
-				// print error message
-				GetConsole().WriteLine(1, lua_tostring(L, -1));
-				lua_pop(L, 1);
-				return;
-			}
 
 			_weapon->AdjustVehicleClass(vc);
 			SetClass(vc);
@@ -335,30 +337,9 @@ void GC_Vehicle::SetSkin(const std::string &skin)
 
 void GC_Vehicle::ResetClass()
 {
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, luaT_ConvertVehicleClass); // function to call
-
-	lua_getglobal(L, "getvclass");
-	lua_pushstring(L, GetOwner()->GetClass().c_str()); // cls arg
-	if( lua_pcall(L, 1, 1, 0) )  // call getvclass(clsname)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
 	VehicleClass vc;
-	lua_pushlightuserdata(L, &vc);
-	if( lua_pcall(L, 2, 0, 0) )
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return;
-	}
-
-	SetClass(vc);
+	if( GetVehicleClass(GetOwner()->GetClass().c_str(), vc) )
+		SetClass(vc);
 }
 
 bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
