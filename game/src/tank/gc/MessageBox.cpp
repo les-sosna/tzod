@@ -8,6 +8,7 @@
 #include "SaveFile.h"
 #include "script.h"
 #include "core/Debug.h"
+#include "gclua/lObjUtil.h"
 #include <ui/GuiManager.h>
 
 extern "C"
@@ -28,7 +29,7 @@ GC_MessageBox::GC_MessageBox(World &world)
   , _option1("OK")
   , _autoClose(1)
 {
-	SafePtr<PropertySet> ps(NewPropertySet());
+	std::shared_ptr<PropertySet> ps(NewPropertySet());
 	ps->Exchange(world, false);
 	ps->Exchange(world, true);
 }
@@ -56,7 +57,7 @@ void GC_MessageBox::Serialize(World &world, SaveFile &f)
 	f.Serialize(_autoClose);
 	if( f.loading() )
 	{
-		SafePtr<PropertySet> ps(NewPropertySet());
+		std::shared_ptr<PropertySet> ps(NewPropertySet());
 		ps->Exchange(world, false);
 		ps->Exchange(world, true);
 	}
@@ -74,7 +75,7 @@ void GC_MessageBox::MapExchange(World &world, MapFile &f)
 	MAP_EXCHANGE_INT(auto_close, _autoClose, 1);
 	if( f.loading() )
 	{
-		SafePtr<PropertySet> ps(NewPropertySet());
+		std::shared_ptr<PropertySet> ps(NewPropertySet());
 		ps->Exchange(world, false);
 		ps->Exchange(world, true);
 	}

@@ -28,7 +28,7 @@ class Variant;
 class TankClient : public ClientBase
 {
 public:
-	SafePtr<Peer> _peer;
+	std::shared_ptr<Peer> _peer;
 	ControlPacketVector _ctrl;
 	float _boost;
 	bool _hasCtrl;

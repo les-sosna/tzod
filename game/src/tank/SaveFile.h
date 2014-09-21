@@ -60,7 +60,7 @@ void SaveFile::Serialize(T &obj)
 {
 	assert(typeid(obj) != typeid(std::string));
 	assert(typeid(obj) != typeid(std::string));
-	assert(!strstr(typeid(obj).name(), "SafePtr"));
+	assert(!strstr(typeid(obj).name(), "shared_ptr"));
 	assert(!strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
     {
@@ -104,7 +104,7 @@ void SaveFile::SerializeArray(T *p, size_t count)
 {
 	assert(typeid(T) != typeid(std::string));
 	assert(typeid(T) != typeid(std::string));
-	assert(!strstr(typeid(T).name(), "SafePtr"));
+	assert(!strstr(typeid(T).name(), "shared_ptr"));
 	assert(!strstr(typeid(T).name(), "RawPtr"));
 	if( loading() )
     {

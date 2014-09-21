@@ -1,14 +1,11 @@
 // gui_editor.h
 
 #pragma once
-
 #include "gc/WorldEvents.h"
-#include "core/SafePtr.h"
-
 #include <ui/Dialog.h>
 #include <ui/List.h>
+#include <memory>
 
-// forward declarations
 class World;
 class WorldView;
 class GC_Object;
@@ -51,13 +48,13 @@ class PropertyList : public Dialog
 	Container  *_psheet;
 	ScrollBarVertical  *_scrollBar;
 
-	SafePtr<PropertySet>  _ps;
+	std::shared_ptr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
     World &_world;
 
 public:
 	PropertyList(Window *parent, float x, float y, float w, float h, World &world);
-	void ConnectTo(const SafePtr<PropertySet> &ps);
+	void ConnectTo(std::shared_ptr<PropertySet> ps);
 	void DoExchange(bool applyToObject);
 
 protected:

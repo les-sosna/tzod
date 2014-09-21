@@ -14,6 +14,7 @@
 #include "gc/RigidBody.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
+#include "gclua/lObjUtil.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -280,10 +281,10 @@ void PropertyList::DoExchange(bool applyToObject)
 	OnScroll(_scrollBar->GetPos());
 }
 
-void PropertyList::ConnectTo(const SafePtr<PropertySet> &ps)
+void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps)
 {
 	if( _ps == ps ) return;
-	_ps = ps;
+	_ps = std::move(ps);
 	DoExchange(false);
 }
 
@@ -861,7 +862,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
         {
             // create object
             GC_Object *newobj = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
-			SafePtr<PropertySet> properties = newobj->GetProperties(_world);
+			std::shared_ptr<PropertySet> properties = newobj->GetProperties(_world);
 
             // set default properties if Ctrl key is not pressed
             if( GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||

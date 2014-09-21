@@ -19,6 +19,8 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
+#include "gclua/lObjUtil.h" // TODO: remove
+
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 

@@ -1,8 +1,4 @@
-// gui_getfilename.h
-
 #pragma once
-
-#include "core/SafePtr.h"
 #include <ui/Dialog.h>
 #include <string>
 #include <memory>

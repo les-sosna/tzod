@@ -36,7 +36,7 @@ class TankServer
 {
 	GameInfo _gameInfo;
 
-	typedef std::list<SafePtr<PeerServer> >  PeerList;
+	typedef std::list<std::shared_ptr<PeerServer> >  PeerList;
 	PeerList _clients;
 
 	int _connectedCount;
@@ -45,7 +45,7 @@ class TankServer
 
 	boost::asio::ip::tcp::socket _socketListen;
 
-	SafePtr<LobbyClient> _announcer;
+	std::shared_ptr<LobbyClient> _announcer;
 
 #ifdef NETWORK_DEBUG
 	typedef std::map<unsigned int, DWORD> FrameToCSMap;
@@ -67,7 +67,7 @@ class TankServer
 	void SvPlayerInfo(Peer *from, int task, const Variant &arg);
 
 public:
-	TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer);
+	TankServer(const GameInfo &info, std::shared_ptr<LobbyClient> announcer);
 	~TankServer();
 
 	std::string GetStats() const;

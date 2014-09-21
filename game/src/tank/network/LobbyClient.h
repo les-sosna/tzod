@@ -32,7 +32,7 @@ private:
 	};
 	typedef std::map<std::string, std::string> HttpParam;
 	HttpParam _param;
-	SafePtr<HttpClient> _http;
+	std::shared_ptr<HttpClient> _http;
 	std::string _sessionKey;
 	std::string _lobbyUrl;
 	int _redirectCount;

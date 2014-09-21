@@ -115,7 +115,7 @@ protected:
 
 	void Error(const char *msg);
 
-//	SafePtr<LobbyClient> _client;
+//	std::shared_ptr<LobbyClient> _client;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

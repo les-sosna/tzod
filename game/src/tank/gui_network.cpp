@@ -148,7 +148,7 @@ void CreateServerDlg::OnOK()
 		return;
 	}
 
-//	SafePtr<LobbyClient> announcer;
+//	std::shared_ptr<LobbyClient> announcer;
 	g_conf.sv_use_lobby.Set(_lobbyEnable->GetCheck());
 	if( _lobbyEnable->GetCheck() )
 	{

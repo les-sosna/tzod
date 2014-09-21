@@ -15,6 +15,8 @@
 #include "gc/World.h"
 #include "gc/WorldEvents.h"
 #include "gc/Macros.h"
+#include "gclua/lObject.h"
+#include "gclua/lWorld.h"
 
 #ifndef NOSOUND
 #include "sound/MusicPlayer.h"
@@ -42,14 +44,6 @@ extern "C"
 
 ///////////////////////////////////////////////////////////////////////////////
 // aux
-
-void luaT_pushobject(lua_State *L, GC_Object *obj)
-{
-	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_newuserdata(L, sizeof(ObjPtr<GC_Object>));
-	luaL_getmetatable(L, "object");
-	lua_setmetatable(L, -2);
-	new (ppObj) ObjPtr<GC_Object>(obj);
-}
 
 void ClearCommandQueue(lua_State *L)
 {
@@ -101,193 +95,12 @@ void RunCmdQueue(lua_State *L, float dt)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// helper functions
-
-static int luaT_objfinalizer(lua_State *L)
-{
-	assert(1 == lua_gettop(L));
-	((ObjPtr<GC_Object> *) lua_touserdata(L, 1))->~ObjPtr();
-	return 0;
-}
-
-static int luaT_objpersist(lua_State *L)
-{
-	assert(3 == lua_gettop(L));
-	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_touserdata(L, 1);
-	SaveFile *f = (SaveFile *) lua_touserdata(L, 3);
-	assert(f);
-
-	if( luaL_loadstring(L,
-		"return function(restore_ptr, id) return function() return restore_ptr(id) end end") )
-	{
-		return lua_error(L); // use error message on stack
-	}
-	lua_call(L, 0, 1);
-
-	lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
-	lua_pushlightuserdata(L, (void *) f->GetPointerId(*ppObj));
-	lua_call(L, 2, 1);
-	return 1;
-}
-
-static void pushprop(lua_State *L, ObjectProperty *p)
-{
-	assert(L && p);
-	switch( p->GetType() )
-	{
-	case ObjectProperty::TYPE_INTEGER:
-		lua_pushinteger(L, p->GetIntValue());
-		break;
-	case ObjectProperty::TYPE_FLOAT:
-		lua_pushnumber(L, p->GetFloatValue());
-		break;
-	case ObjectProperty::TYPE_STRING:
-	case ObjectProperty::TYPE_SKIN:
-	case ObjectProperty::TYPE_TEXTURE:
-		lua_pushstring(L, p->GetStringValue().c_str());
-		break;
-	case ObjectProperty::TYPE_MULTISTRING:
-		lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
-		break;
-	default:
-		assert(false);
-	}
-}
-
-static ScriptEnvironment& getse(lua_State *L)
-{
-    lua_getfield(L, LUA_REGISTRYINDEX, "ENVIRONMENT");
-    auto *se = (ScriptEnvironment *) lua_touserdata(L, -1);
-    lua_pop(L, 1);
-    if (!se) {
-        luaL_error(L, "environment is not properly initialized");
-    }
-    return *se;
-}
-
-// generic __next support for object properties
-static int luaT_objnextprop(lua_State *L)
-{
-	lua_settop(L, 2);
-
-	ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) luaL_checkudata(L, 1, "object");
-	if( !*ppObj )
-	{
-		luaL_argerror(L, 1, "reference to a dead object");
-	}
-
-    World &world = getse(L).world;
-	SafePtr<PropertySet> properties = (*ppObj)->GetProperties(world);
-	assert(properties);
-
-	if( lua_isnil(L, 2) )
-	{
-		// begin iteration
-		ObjectProperty *p = properties->GetProperty(0);
-		lua_pushstring(L, p->GetName().c_str()); // key
-		pushprop(L, p); // value
-		return 2;
-	}
-
-	const char *key = luaL_checkstring(L, 2);
-
-	bool found = false;
-	int count = properties->GetCount();
-	for( int i = 0; i < count; ++i )
-	{
-		ObjectProperty *p = properties->GetProperty(i);
-		if( found )
-		{
-			// return next pair
-			lua_pushstring(L, p->GetName().c_str()); // key
-			pushprop(L, p); // value
-			return 2;
-		}
-		else if( p->GetName() == key )
-		{
-			found = true;
-		}
-	}
-
-	if( found )
-	{
-		// end of list
-		lua_pushnil(L);
-		return 1;
-	}
-
-	return luaL_error(L, "invalid key to 'next'");
-}
-
-
-static GC_Object* luaT_checkobject(lua_State *L, int n) throw()
-{
-	//
-	// resolve by reference
-	//
-
-	if( ObjPtr<GC_Object> *ppObj = (ObjPtr<GC_Object> *) lua_touserdata(L, n) )
-	{
-//		luaL_checkudata(L, n, "object");
-		if( lua_getmetatable(L, n) )
-		{
-			luaL_getmetatable(L, "object");
-			if( !lua_rawequal(L, -1, -2) )
-			{
-				luaL_argerror(L, n, "not an object reference");
-			}
-			lua_pop(L, 2); // pop both tables
-
-			if( !*ppObj )
-			{
-				luaL_argerror(L, n, "reference to dead object");
-			}
-			else
-			{
-				return *ppObj;
-			}
-		}
-	}
-
-
-	//
-	// resolve by name
-	//
-
-	const char *name = lua_tostring(L, n);
-	if( !name )
-	{
-		luaL_typerror(L, n, "object or name");
-	}
-
-    World &world = getse(L).world;
-	GC_Object *obj = world.FindObject(name);
-	if( !obj )
-	{
-		luaL_error(L, "object with name '%s' does not exist", name);
-	}
-
-	return obj;
-}
-
-template<class T>
-static T* luaT_checkobjectT(lua_State *L, int n) throw()
-{
-	T *result = dynamic_cast<T *>(luaT_checkobject(L, n));
-	if( !result )
-	{
-		luaL_argerror(L, n, "incompatible object type");
-	}
-	return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // c closures
 
 // exit to the system
 static int luaT_quit(lua_State *L)
 {
-	ScriptEnvironment &se = getse(L);
+	ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'quit' in unsafe mode");
 	se.exitCommand();
@@ -300,7 +113,7 @@ static int luaT_game(lua_State *L)
 	if( 1 != n )
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
-    World &world = getse(L).world;
+    World &world = GetScriptEnvironment(L).world;
 	if( !world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'game' in unsafe mode");
 
@@ -361,7 +174,7 @@ static int luaT_loadmap(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 or 2 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = getse(L);
+	ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'loadmap' in unsafe mode");
 
@@ -394,7 +207,7 @@ static int luaT_newmap(lua_State *L)
 
 	int x = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 1) ));
 	int y = std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, luaL_checkint(L, 2) ));
-	ScriptEnvironment &se = getse(L);
+	ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'newmap' in unsafe mode");
     
@@ -413,7 +226,7 @@ static int luaT_load(lua_State *L)
 		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
 
 	const char *filename = luaL_checkstring(L, 1);
-    ScriptEnvironment &se = getse(L);
+    ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
 
@@ -442,7 +255,7 @@ static int luaT_save(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    ScriptEnvironment &se = getse(L);
+    ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
@@ -472,7 +285,7 @@ static int luaT_import(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    ScriptEnvironment &se = getse(L);
+    ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
 
@@ -502,7 +315,7 @@ static int luaT_export(lua_State *L)
 
 	const char *filename = luaL_checkstring(L, 1);
 
-    ScriptEnvironment &se = getse(L);
+    ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
 
@@ -539,7 +352,7 @@ static int luaT_message(lua_State *L)
 		lua_pop(L, 1);            // pop result
 	}
     
-    ScriptEnvironment &se = getse(L);
+    ScriptEnvironment &se = GetScriptEnvironment(L);
     if (se.world._messageListener)
         se.world._messageListener->OnGameMessage(buf.str().c_str());
 
@@ -555,7 +368,7 @@ static int luaT_music(lua_State *L)
 
 #ifndef NOSOUND
 	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = getse(L);
+	ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( filename[0] )
 	{
 		try
@@ -740,403 +553,6 @@ int luaT_ConvertVehicleClass(lua_State *L)
 	return 0;
 }
 
-
-// prop name at -2; prop value at -1
-// return false if property not found
-int pset_helper(const SafePtr<PropertySet> &properties, lua_State *L)
-{
-	const char *pname = lua_tostring(L, -2);
-
-	ObjectProperty *p = NULL;
-
-	for( int i = 0; i < properties->GetCount(); ++i )
-	{
-		p = properties->GetProperty(i);
-		if( p->GetName() == pname )
-		{
-			break;
-		}
-		p = NULL;
-	}
-
-	if( NULL == p )
-	{
-		return 0;  // property not found
-	}
-
-
-	switch( p->GetType() )
-	{
-	case ObjectProperty::TYPE_INTEGER:
-	{
-		if( LUA_TNUMBER != lua_type(L, -1) )
-		{
-			luaL_error(L, "property '%s' - expected integer value; got %s",
-				pname, lua_typename(L, lua_type(L, -1)));
-		}
-		int v = lua_tointeger(L, -1);
-		if( v < p->GetIntMin() || v > p->GetIntMax() )
-		{
-			return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]",
-				pname, v, p->GetIntMin(), p->GetIntMax());
-		}
-		p->SetIntValue(v);
-		break;
-	}
-	case ObjectProperty::TYPE_FLOAT:
-	{
-		if( LUA_TNUMBER != lua_type(L, -1) )
-		{
-			luaL_error(L, "property '%s' - expected number value; got %s",
-				pname, lua_typename(L, lua_type(L, -1)));
-		}
-		float v = (float) lua_tonumber(L, -1);
-		if( v < p->GetFloatMin() || v > p->GetFloatMax() )
-		{
-			return luaL_error(L, "property '%s' - value %g is out of range [%g, %g]",
-				pname, v, p->GetFloatMin(), p->GetFloatMax());
-		}
-		p->SetFloatValue(v);
-		break;
-	}
-	case ObjectProperty::TYPE_STRING:
-	case ObjectProperty::TYPE_SKIN:
-	case ObjectProperty::TYPE_TEXTURE:
-	{
-		if( LUA_TSTRING != lua_type(L, -1) )
-		{
-			luaL_error(L, "property '%s' - expected string value; got %s",
-				pname, lua_typename(L, lua_type(L, -1)));
-		}
-		p->SetStringValue(lua_tostring(L, -1));
-		break;
-	}
-	case ObjectProperty::TYPE_MULTISTRING:
-	{
-		if( LUA_TSTRING != lua_type(L, -1) )
-		{
-			luaL_error(L, "property '%s' - expected string value; got %s",
-				pname, lua_typename(L, lua_type(L, -1)));
-		}
-		const char *v = lua_tostring(L, -1);
-		bool ok = false;
-		for( size_t i = 0; i < p->GetListSize(); ++i )
-		{
-			if( p->GetListValue(i) == v )
-			{
-				p->SetCurrentIndex(i);
-				ok = true;
-				break;
-			}
-		}
-		if( !ok )
-		{
-			return luaL_error(L, "property '%s' - attempt to set invalid value '%s'", pname, v);
-		}
-		break;
-	}
-	default:
-		assert(false);
-	}
-
-	return 1;
-}
-
-// actor("type name", x, y [, params])
-int luaT_actor(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 3 != n && 4 != n )
-	{
-		return luaL_error(L, "3 or 4 arguments expected; got %d", n);
-	}
-
-	const char *name = luaL_checkstring(L, 1);
-	float x = (float) luaL_checknumber(L, 2);
-	float y = (float) luaL_checknumber(L, 3);
-
-	ObjectType type = RTTypes::Inst().GetTypeByName(name);
-	if( INVALID_OBJECT_TYPE == type )
-	{
-		return luaL_error(L, "unknown type '%s'", name);
-	}
-
-	if( RTTypes::Inst().GetTypeInfo(type).service )
-	{
-		return luaL_error(L, "type '%s' is a service", name);
-	}
-
-    ScriptEnvironment &se = getse(L);
-	GC_Object *obj = RTTypes::Inst().CreateObject(se.world, type, x, y);
-
-
-	if( 4 == n )
-	{
-		luaL_checktype(L, 4, LUA_TTABLE);
-
-		SafePtr<PropertySet> properties = obj->GetProperties(se.world);
-		assert(properties);
-
-		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
-		{
-			// now 'key' is at index -2 and 'value' at index -1
-			pset_helper(properties, L);
-		}
-
-		properties->Exchange(se.world, true);
-	}
-
-	luaT_pushobject(L, obj);
-	return 1;
-}
-
-// service("type name" [, params])
-int luaT_service(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n && 2 != n )
-	{
-		return luaL_error(L, "1 or 2 arguments expected; got %d", n);
-	}
-
-	const char *name = luaL_checkstring(L, 1);
-
-	ObjectType type = RTTypes::Inst().GetTypeByName(name);
-	if( INVALID_OBJECT_TYPE == type )
-	{
-		return luaL_error(L, "unknown type '%s'", name);
-	}
-
-	if( !RTTypes::Inst().GetTypeInfo(type).service )
-	{
-		return luaL_error(L, "type '%s' is not a service", name);
-	}
-
-    ScriptEnvironment &se = getse(L);
-	GC_Object *obj = RTTypes::Inst().CreateObject(se.world, type, 0, 0);
-
-
-	if( 2 == n )
-	{
-		luaL_checktype(L, 2, LUA_TTABLE);
-
-		SafePtr<PropertySet> properties = obj->GetProperties(se.world);
-		assert(properties);
-
-		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
-		{
-			// now 'key' is at index -2 and 'value' at index -1
-			pset_helper(properties, L);
-		}
-
-		properties->Exchange(se.world, true);
-	}
-
-	luaT_pushobject(L, obj);
-	return 1;
-}
-
-// object("object name")
-int luaT_object(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	GC_Object *obj = luaT_checkobject(L, 1);
-	luaT_pushobject(L, obj);
-	return 1;
-}
-
-// damage(hp, "victim")
-int luaT_damage(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-	{
-		return luaL_error(L, "2 arguments expected; got %d", n);
-	}
-
-	float hp = (float) luaL_checknumber(L, 1);
-	GC_RigidBodyStatic *rbs = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
-
-    World &world = getse(L).world;
-	rbs->TakeDamage(world, hp, rbs->GetPos(), NULL);
-
-	return 0;
-}
-
-// kill("object name")
-int luaT_kill(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-    World &world = getse(L).world;
-	luaT_checkobject(L, 1)->Kill(world);
-	return 0;
-}
-
-
-// exists("object name")
-int luaT_exists(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	const char *name = luaL_checkstring(L, 1);
-    World &world = getse(L).world;
-	lua_pushboolean(L, NULL != world.FindObject(name));
-	return 1;
-}
-
-//setposition(name,x,y)
-int luaT_setposition(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 3 != n )
-	{
-		return luaL_error(L, "3 arguments expected; got %d", n);
-	}
-
-	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
-	float x = (float) luaL_checknumber(L, 2);
-	float y = (float) luaL_checknumber(L, 3);
-    ScriptEnvironment &se = getse(L);
-    actor->MoveTo(se.world, vec2d(x,y));
-	return 1;
-}
-
-// local x,y = position("object name")
-int luaT_position(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	GC_Actor *actor = luaT_checkobjectT<GC_Actor>(L, 1);
-	lua_pushnumber(L, actor->GetPos().x);
-	lua_pushnumber(L, actor->GetPos().y);
-
-	return 2;
-}
-
-
-// type("object name")
-int luaT_objtype(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	GC_Object *obj = luaT_checkobject(L, 1);
-	lua_pushstring(L, RTTypes::Inst().GetTypeName(obj->GetType()));
-	return 1;
-}
-
-
-
-// pget("object name", "property name")
-int luaT_pget(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-	{
-		return luaL_error(L, "2 arguments expected; got %d", n);
-	}
-
-	GC_Object *obj = luaT_checkobject(L, 1);
-	const char *prop = luaL_checkstring(L, 2);
-
-    ScriptEnvironment &se = getse(L);
-	SafePtr<PropertySet> properties = obj->GetProperties(se.world);
-	assert(properties);
-
-	for( int i = 0; i < properties->GetCount(); ++i )
-	{
-		ObjectProperty *p = properties->GetProperty(i);
-		if( p->GetName() == prop )
-		{
-			pushprop(L, p);
-			return 1;
-		}
-	}
-
-	return luaL_error(L, "object of type '%s' has no property '%s'", 
-		RTTypes::Inst().GetTypeName(obj->GetType()), prop);
-}
-
-
-// pset("object name", "property name", value)
-int luaT_pset(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 3 != n )
-	{
-		return luaL_error(L, "3 arguments expected; got %d", n);
-	}
-
-	GC_Object *obj = luaT_checkobject(L, 1);
-	const char *prop = luaL_checkstring(L, 2);
-	luaL_checkany(L, 3);  // prop value should be here
-
-    ScriptEnvironment &se = getse(L);
-	SafePtr<PropertySet> properties = obj->GetProperties(se.world);
-	assert(properties);
-
-	// prop name at -2; prop value at -1
-	if( !pset_helper(properties, L) )
-	{
-		return luaL_error(L, "object of type '%s' has no property '%s'", 
-			RTTypes::Inst().GetTypeName(obj->GetType()), prop);
-	}
-
-	properties->Exchange(se.world, true);
-	return 0;
-}
-
-// equip("object name", "pickup name")
-int luaT_equip(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-	{
-		return luaL_error(L, "2 arguments expected; got %d", n);
-	}
-
-	GC_Vehicle *target = luaT_checkobjectT<GC_Vehicle>(L, 1);
-	GC_Pickup *pickup = luaT_checkobjectT<GC_Pickup>(L, 2);
-    ScriptEnvironment &se = getse(L);
-	if( pickup->GetCarrier() != target )
-	{
-		if( pickup->GetCarrier() )
-			pickup->Detach(se.world);
-		// FIXME: ugly workaround
-		if( dynamic_cast<GC_pu_Booster*>(pickup) )
-		{
-			pickup->Attach(se.world, target->GetWeapon());
-		}
-		else
-		{
-			pickup->Attach(se.world, target);
-		}
-	}
-
-	return 0;
-}
-
 #if 0
 int luaT_PlaySound(lua_State *L)
 {
@@ -1156,72 +572,6 @@ int luaT_PlaySound(lua_State *L)
 }
 #endif
 
-// ai_attack(player, x, y)
-int luaT_ai_march(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 3 != n )
-	{
-		return luaL_error(L, "3 arguments expected; got %d", n);
-	}
-
-	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
-	float x = (float) luaL_checknumber(L, 2);
-	float y = (float) luaL_checknumber(L, 3);
-
-//	lua_pushboolean(L, who->March(x, y));
-    return luaL_error(L, "not implemented");
-	return 1;
-}
-
-// ai_attack(player, target)
-int luaT_ai_attack(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-	{
-		return luaL_error(L, "2 argument expected; got %d", n);
-	}
-
-	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
-	GC_RigidBodyStatic *what = luaT_checkobjectT<GC_RigidBodyStatic>(L, 2);
-
-//	lua_pushboolean(L, who->Attack(what));
-    return luaL_error(L, "not implemented");
-	return 1;
-}
-
-int luaT_ai_stop(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-	{
-		return luaL_error(L, "1 argument expected; got %d", n);
-	}
-
-	GC_Player *ai = luaT_checkobjectT<GC_Player>(L, 1);
-//	ai->Stop();
-    return luaL_error(L, "not implemented");
-
-	return 1;
-}
-
-// ai_pickup(player, target)
-int luaT_ai_pickup(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 2 != n )
-	{
-		return luaL_error(L, "2 argument expected; got %d", n);
-	}
-
-	GC_Player *who = luaT_checkobjectT<GC_Player>(L, 1);
-	GC_Pickup *what = luaT_checkobjectT<GC_Pickup>(L, 2);
-
-//	lua_pushboolean(L, who->Pickup(what));
-    return luaL_error(L, "not implemented");
-	return 1;
-}
 
 int luaT_loadtheme(lua_State *L)
 {
@@ -1232,7 +582,7 @@ int luaT_loadtheme(lua_State *L)
 	}
 
 	const char *filename = luaL_checkstring(L, 1);
-	ScriptEnvironment &se = getse(L);
+	ScriptEnvironment &se = GetScriptEnvironment(L);
 	try
 	{
 		if( 0 == se.textureManager.LoadPackage(filename, se.fs.Open(filename)->QueryMap(), se.fs) )
@@ -1276,10 +626,11 @@ lua_State* script_open(ScriptEnvironment &se)
         throw std::bad_alloc();
 
 	//
-	// open std libs
+	// open libs
 	//
 
 	static const luaL_Reg lualibs[] = {
+		// standard Lua libs
 		{"", luaopen_base},
 		{LUA_LOADLIBNAME, luaopen_package},
 		{LUA_TABLIBNAME, luaopen_table},
@@ -1290,6 +641,11 @@ lua_State* script_open(ScriptEnvironment &se)
 #ifdef _DEBUG
 		{LUA_DBLIBNAME, luaopen_debug},
 #endif
+		
+		// game libs
+		{"object", luaopen_object},
+		{"world", luaopen_world},
+		
 		{NULL, NULL}
 	};
 
@@ -1310,29 +666,6 @@ lua_State* script_open(ScriptEnvironment &se)
 
 
 	//
-	// init metatable for object variables
-	//
-
-	luaL_newmetatable(L, "object");
-	 lua_pushstring(L, "__gc");
-	  lua_pushcfunction(L, luaT_objfinalizer);
-	   lua_settable(L, -3);
-	 lua_pushstring(L, "__persist");
-	  lua_pushcfunction(L, luaT_objpersist);
-	   lua_settable(L, -3);
-	 lua_pushstring(L, "__newindex");
-	  lua_pushcfunction(L, luaT_pset);
-	   lua_settable(L, -3);
-	 lua_pushstring(L, "__index");
-	  lua_pushcfunction(L, luaT_pget);
-	   lua_settable(L, -3);
-	 lua_pushstring(L, "__next");
-	  lua_pushcfunction(L, luaT_objnextprop);
-	   lua_settable(L, -3);
-	 lua_pop(L, 1); // pop the metatable
-
-
-	//
 	// register functions
 	//
 
@@ -1344,35 +677,13 @@ lua_State* script_open(ScriptEnvironment &se)
 	lua_register(L, "export",   luaT_export);
 	lua_register(L, "loadtheme",luaT_loadtheme);
 	lua_register(L, "music",    luaT_music);
-
-	lua_register(L, "object",   luaT_object);
-
-	lua_register(L, "actor",    luaT_actor);
-	lua_register(L, "service",  luaT_service);
-
-	lua_register(L, "damage",   luaT_damage);
-	lua_register(L, "kill",     luaT_kill);
-	lua_register(L, "pget",     luaT_pget);
-	lua_register(L, "pset",     luaT_pset);
-	lua_register(L, "equip",    luaT_equip);
-	lua_register(L, "exists",   luaT_exists);
-	lua_register(L, "position", luaT_position);
-	lua_register(L, "objtype",  luaT_objtype);
-
-	lua_register(L, "ai_march", luaT_ai_march);
-	lua_register(L, "ai_attack",luaT_ai_attack);
-	lua_register(L, "ai_pickup",luaT_ai_pickup);
-	lua_register(L, "ai_stop",  luaT_ai_stop);
-
 	lua_register(L, "message",  luaT_message);
 	lua_register(L, "print",    luaT_print);
-
 	lua_register(L, "game",     luaT_game);
 	lua_register(L, "quit",     luaT_quit);
 	lua_register(L, "pause",    luaT_pause);
 	lua_register(L, "freeze",   luaT_freeze);
 //	lua_register(L, "play_sound",   luaT_PlaySound);
-	lua_register(L, "setposition", luaT_setposition);
 
 	//
 	// init the command queue
@@ -1395,21 +706,12 @@ lua_State* script_open(ScriptEnvironment &se)
 	lua_setglobal(L, "gc"); // set global and pop one element from stack
 
 
-	//
-	// create global 'classes' table
-	//
+	lua_newtable(L);
+	lua_setglobal(L, "classes");
 
 	lua_newtable(L);
-	lua_setglobal(L, "classes"); // set global and pop one element from stack
-
-
-	//
-	// create global 'user' table
-	//
-
-	lua_newtable(L);
-	lua_setglobal(L, "user"); // set global and pop one element from stack
-
+	lua_setglobal(L, "user");
+	
 	return L;
 }
 
@@ -1446,7 +748,7 @@ bool script_exec_file(lua_State *L, const char *filename)
 
 	try
 	{
-		ScriptEnvironment &se = getse(L); // fixme: may throw lua_error
+		ScriptEnvironment &se = GetScriptEnvironment(L); // fixme: may throw lua_error
 		std::shared_ptr<FS::MemMap> f = se.fs.Open(filename)->QueryMap();
 		if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
 		{

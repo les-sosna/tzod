@@ -32,7 +32,7 @@ PeerServer::PeerServer(SOCKET s_)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TankServer::TankServer(const GameInfo &info, const SafePtr<LobbyClient> &announcer)
+TankServer::TankServer(const GameInfo &info, std::shared_ptr<LobbyClient> announcer)
   : _connectedCount(0)
   , _frameReadyCount(0)
   , _gameInfo(info)
@@ -132,7 +132,7 @@ void TankServer::OnListenerEvent()
 	// Add new client
 	//
 
-	_clients.push_back(SafePtr<PeerServer>(new PeerServer(s)));
+	_clients.push_back(std::make_shared<PeerServer>(s));
 	PeerServer &cl = *_clients.back();
 
 	cl.RegisterHandler<std::string>(SV_POST_TEXTMESSAGE, CreateDelegate(&TankServer::SvTextMessage, this));

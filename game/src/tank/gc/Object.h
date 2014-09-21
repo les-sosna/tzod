@@ -7,7 +7,6 @@
 #include "ObjPtr.h"
 #include "ObjectProperty.h"
 #include "TypeSystem.h"
-#include "core/SafePtr.h"
 #include "core/MemoryManager.h"
 
 
@@ -46,7 +45,7 @@ typedef PtrList<GC_Object> ObjectList;
     bool cls::__SelfRegister()
 
 
-class PropertySet : public RefCounted
+class PropertySet
 {
 	GC_Object       *_object;
 	ObjectProperty   _propName;
@@ -174,7 +173,7 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	SafePtr<PropertySet> GetProperties(World &world);
+	std::shared_ptr<PropertySet> GetProperties(World &world);
 
 	//
 	// overrides

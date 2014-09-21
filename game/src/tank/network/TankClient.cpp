@@ -201,12 +201,12 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 	try
 	{
-		SafePtr<FS::File> f = g_fs->Open(path);
+		std::shared_ptr<FS::File> f = g_fs->Open(path);
 
 		MD5_CTX md5;
 
 		{
-			SafePtr<FS::MemMap> m = f->QueryMap();
+			std::shared_ptr<FS::MemMap> m = f->QueryMap();
 			MD5Init(&md5);
 			MD5Update(&md5, m->GetData(), m->GetSize());
 			MD5Final(&md5);

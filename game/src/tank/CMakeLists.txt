@@ -58,7 +58,6 @@ set(tank_SOURCES
 	config/ConfigBase.cpp
 	config/Language.cpp
 	core/Profiler.cpp
-	core/SafePtr.cpp
 	core/Timer.cpp
 	gc/Actor.cpp
 	gc/Camera.cpp
@@ -87,6 +86,10 @@ set(tank_SOURCES
 	gc/Vehicle.cpp
 	gc/Weapons.cpp
 	gc/World.cpp
+	gclua/lgcmod.cpp
+	gclua/lObject.cpp
+	gclua/lObjUtil.cpp
+	gclua/lWorld.cpp
 #	network/CommonTypes.cpp
 #	network/ControlPacket.cpp
 #	network/HttpClient.cpp

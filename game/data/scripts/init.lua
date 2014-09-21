@@ -29,7 +29,7 @@ else
 end
 
 for _,s in ipairs{"red","yellow","blue","FBI Tank","neutral"} do
-  service("ai", {skin=s})
+  world.service("ai", {skin=s})
 end
 
 pushcmd( function() music "default.ogg" end, 1 )

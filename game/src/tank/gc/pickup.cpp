@@ -20,6 +20,8 @@
 
 #include "core/Debug.h"
 
+#include "gclua/lObjUtil.h"
+
 extern "C"
 {
 #include <lua.h>

@@ -17,6 +17,8 @@
 #include "config/Config.h"
 #include "core/Debug.h"
 
+#include "gclua/lObjUtil.h" // TODO: remove
+
 extern "C"
 {
 #include <lua.h>
