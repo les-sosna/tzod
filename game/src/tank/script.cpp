@@ -328,33 +328,26 @@ void script_close(lua_State *L)
 
 bool script_exec(lua_State *L, const char *string)
 {
-	assert(L);
-
 	if( luaL_loadstring(L, string) )
 	{
 		GetConsole().Printf(1, "syntax error %s", lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
-
 	if( lua_pcall(L, 0, 0, 0) )
 	{
 		GetConsole().WriteLine(1, lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		return false;
 	}
-
 	return true;
 }
 
-bool script_exec_file(lua_State *L, const char *filename)
+bool script_exec_file(lua_State *L, FS::FileSystem &fs, const char *filename)
 {
-	assert(L);
-
 	try
 	{
-		ScriptEnvironment &se = GetScriptEnvironment(L); // fixme: may throw lua_error
-		std::shared_ptr<FS::MemMap> f = se.fs.Open(filename)->QueryMap();
+		std::shared_ptr<FS::MemMap> f = fs.Open(filename)->QueryMap();
 		if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
 		{
 			std::string msg(lua_tostring(L, -1));
@@ -373,9 +366,7 @@ bool script_exec_file(lua_State *L, const char *filename)
 		GetConsole().WriteLine(1, e.what());
 		return false;
 	}
-
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // end of file

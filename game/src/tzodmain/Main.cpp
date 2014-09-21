@@ -25,6 +25,7 @@
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
+#include <gclua/lgcmod.h>
 
 #include <core/Debug.h>
 #include <core/Timer.h>
@@ -233,7 +234,7 @@ int main(int, const char**)
         gui.GetDesktop()->Resize((float) width, (float) height);
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
-        if( !script_exec_file(g_env.L, FILE_STARTUP) )
+        if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
             TRACE("ERROR: in startup script");
 
 		std::deque<float> movingAverageWindow;

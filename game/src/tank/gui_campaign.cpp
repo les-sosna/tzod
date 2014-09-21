@@ -57,7 +57,7 @@ void NewCampaignDlg::OnOK()
 	g_conf.ui_showmsg.Set(true);
 
 	const std::string& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
-	if( !script_exec_file(g_env.L, ("campaign/" + name + ".lua").c_str()) )
+	if( !script_exec_file(g_env.L, _fs, ("campaign/" + name + ".lua").c_str()) )
 	{
 		static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 	}
