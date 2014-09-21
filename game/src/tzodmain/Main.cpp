@@ -2,6 +2,7 @@
 
 #include <AIManager.h>
 #include <constants.h>
+#include <GlfwPlatform.h>
 #include <globals.h>
 #include <gui_desktop.h>
 #include <script.h>
@@ -51,71 +52,6 @@ static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
 static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 
 ///////////////////////////////////////////////////////////////////////////////
-
-struct GlfwInitHelper
-{
-    GlfwInitHelper()
-    {
-        if( !glfwInit() )
-            throw std::runtime_error("Failed to initialize OpenGL");
-    }
-    ~GlfwInitHelper()
-    {
-        glfwTerminate();
-    }
-};
-
-struct GlfwWindowDeleter
-{
-    void operator()(GLFWwindow *window)
-    {
-        glfwDestroyWindow(window);
-    }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-static void OnPrintScreen()
-{
-//	PLAY(SND_Screenshot, vec2d(0, 0));
-    
-/*
-	// generate a file name
-
-	CreateDirectory(DIR_SCREENSHOTS, NULL);
-	SetCurrentDirectory(DIR_SCREENSHOTS);
-
-	int n = g_conf.r_screenshot.GetInt();
-	char name[MAX_PATH];
-	for(;;)
-	{
-		sprintf(name, "screenshot%04d.tga", n);
-
-		WIN32_FIND_DATA fd = {0};
-		HANDLE h = FindFirstFile(name, &fd);
-
-		if( INVALID_HANDLE_VALUE == h )
-			break;
-
-		FindClose(h);
-		n++;
-	}
-
-	g_conf.r_screenshot.SetInt(n);
-
-	if( !g_render->TakeScreenshot(name) )
-	{
-		GetConsole().WriteLine(1, "screenshot failed");
-//		_MessageArea::Inst()->message("> screen shot error!");
-	}
-	else
-	{
-		TRACE("Screenshot '%s'", name);
-	}
-
-	SetCurrentDirectory(".."); */
-}
-
 
 namespace
 {
@@ -179,126 +115,6 @@ namespace
 			delete this;
 		}
 	};
-}
-
-class GlfwInput : public UI::IInput
-{
-public:
-	GlfwInput(GLFWwindow &window)
-		: _window(window)
-	{}
-	
-	// UI::IInput
-	virtual bool IsKeyPressed(int key) const override
-	{
-		return GLFW_PRESS == glfwGetKey(&_window, key);
-	}
-	virtual bool IsMousePressed(int button) const override
-	{
-		return GLFW_PRESS == glfwGetMouseButton(&_window, button);
-	}
-	virtual vec2d GetMousePos() const override
-	{
-		double x, y;
-		glfwGetCursorPos(&_window, &x, &y);
-		return vec2d((float) x, (float) y);
-	}
-	
-private:
-	GLFWwindow &_window;
-};
-
-class GlfwClipboard : public UI::IClipboard
-{
-public:
-	GlfwClipboard(GLFWwindow &window)
-		: _window(window)
-	{}
-	
-	// UI::IClipboard
-	virtual const char* GetClipboardText() const override
-	{
-		return glfwGetClipboardString(&_window);
-	}
-	virtual void SetClipboardText(std::string text) override
-	{
-		glfwSetClipboardString(&_window, text.c_str());
-	}
-	
-private:
-	GLFWwindow &_window;
-};
-
-static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
-{
-    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
-	{
-        UI::Msg msg;
-        switch (button)
-        {
-            case GLFW_MOUSE_BUTTON_LEFT:
-                msg = (GLFW_RELEASE == action) ? UI::MSGLBUTTONUP : UI::MSGLBUTTONDOWN;
-                break;
-            case GLFW_MOUSE_BUTTON_RIGHT:
-                msg = (GLFW_RELEASE == action) ? UI::MSGRBUTTONUP : UI::MSGRBUTTONDOWN;
-                break;
-            case GLFW_MOUSE_BUTTON_MIDDLE:
-                msg = (GLFW_RELEASE == action) ? UI::MSGMBUTTONUP : UI::MSGMBUTTONDOWN;
-                break;
-            default:
-                return;
-        }
-        double xpos = 0;
-        double ypos = 0;
-        glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessMouse((float) xpos, (float) ypos, 0, msg);
-	}
-}
-
-static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
-{
-    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
-	{
-		gui->ProcessMouse((float) xpos, (float) ypos, 0, UI::MSGMOUSEMOVE);
-	}
-}
-
-static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
-{
-    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
-    {
-        double xpos = 0;
-        double ypos = 0;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
-    }
-}
-
-static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
-    {
-        gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
-        if( GLFW_KEY_PRINT_SCREEN == key && GLFW_PRESS == action )
-            OnPrintScreen();
-    }
-}
-
-static void OnChar(GLFWwindow *window, unsigned int codepoint)
-{
-    if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
-    {
-        if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
-        {
-            gui->ProcessKeys(UI::MSGCHAR, codepoint);
-        }
-    }
-}
-
-static void OnFramebufferSize(GLFWwindow *window, int width, int height)
-{
-    auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window);
-    gui->GetDesktop()->Resize((float) width, (float) height);
 }
 
 
@@ -369,30 +185,15 @@ int main(int, const char**)
         GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 
         TRACE("Create GL context");
-        GlfwInitHelper __gih;
-		const GLFWvidmode *videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		std::unique_ptr<GLFWwindow, GlfwWindowDeleter> appWindow;
-		appWindow.reset(glfwCreateWindow(g_conf.r_fullscreen.Get() ? videoMode->width : g_conf.r_width.GetInt(),
-										 g_conf.r_fullscreen.Get() ? videoMode->height : g_conf.r_height.GetInt(),
-										 TXT_VERSION,
-										 g_conf.r_fullscreen.Get() ? glfwGetPrimaryMonitor() : nullptr,
-										 nullptr));
-		if (!appWindow)
-			throw std::runtime_error("Failed to create GLFW window");
+		GlfwAppWindow appWindow(TXT_VERSION, g_conf.r_fullscreen.Get(), g_conf.r_width.GetInt(), g_conf.r_height.GetInt());
 		
-        glfwSetMouseButtonCallback(appWindow.get(), OnMouseButton);
-        glfwSetCursorPosCallback(appWindow.get(), OnCursorPos);
-        glfwSetScrollCallback(appWindow.get(), OnScroll);
-        glfwSetKeyCallback(appWindow.get(), OnKey);
-        glfwSetCharCallback(appWindow.get(), OnChar);
-        glfwSetFramebufferSizeCallback(appWindow.get(), OnFramebufferSize);
-        glfwMakeContextCurrent(appWindow.get());
+        glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
         glfwSwapInterval(1);
 
         std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
         int width;
         int height;
-        glfwGetFramebufferSize(appWindow.get(), &width, &height);
+        glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
         render->OnResizeWnd(width, height);
         
 #if !defined NOSOUND
@@ -418,17 +219,17 @@ int main(int, const char**)
 			*fs,
 			themeManager,
 			texman,
-			std::bind(glfwSetWindowShouldClose, appWindow.get(), 1)
+			std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1)
 		};
         g_env.L = script_open(se);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
         
         TRACE("GUI subsystem initialization");
-		GlfwInput input(*appWindow);
-		GlfwClipboard clipboard(*appWindow);
+		GlfwInput input(appWindow.GetGlfwWindow());
+		GlfwClipboard clipboard(appWindow.GetGlfwWindow());
         UI::LayoutManager gui(input, clipboard, texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs, se.exitCommand));
-        glfwSetWindowUserPointer(appWindow.get(), &gui);
+        glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
         TRACE("Running startup script '%s'", FILE_STARTUP);
@@ -449,7 +250,7 @@ int main(int, const char**)
             }
             
             glfwPollEvents();
-            if (glfwWindowShouldClose(appWindow.get()))
+            if (glfwWindowShouldClose(&appWindow.GetGlfwWindow()))
                 break;
 			
 			float dt = timer.GetDt();
@@ -472,7 +273,7 @@ int main(int, const char**)
 			world.Step(median * g_conf.sv_speed.GetFloat() / 100);
             
 			
-			glfwGetFramebufferSize(appWindow.get(), &width, &height);
+			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
 			
             render->Begin();
@@ -486,7 +287,7 @@ int main(int, const char**)
             }
 #endif
             
-            glfwSwapBuffers(appWindow.get());
+            glfwSwapBuffers(&appWindow.GetGlfwWindow());
         }
         
         
