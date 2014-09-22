@@ -244,9 +244,43 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	return result;
 }
 
+
+static std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className)
+{
+	lua_State *L = g_env.L;
+	lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
+	
+	lua_getglobal(L, "getvclass");                      // func getvclass
+	lua_pushstring(L, className);                       // clsname
+	if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
+	{
+		// print error message
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return nullptr;
+	}
+	
+	auto vc = std::make_shared<VehicleClass>();
+	lua_pushlightuserdata(L, vc.get());                 // &vc
+	if( lua_pcall(L, 2, 0, 0) )                         // convert(cls, &vc)
+	{
+		// print error message
+		GetConsole().WriteLine(1, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return nullptr;
+	}
+	return std::move(vc);
+}
+
 void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 {
 	_player = player;
+	if( _player )
+	{
+		if( auto vc = GetVehicleClass(_player->GetClass().c_str()) )
+			SetClass(*vc);
+		SetSkin(std::string("skin/") + _player->GetSkin());
+	}
 }
 
 void GC_Vehicle::Kill(World &world)
@@ -267,32 +301,6 @@ void GC_Vehicle::Kill(World &world)
 	GC_RigidBodyDynamic::Kill(world);
 }
 
-static bool GetVehicleClass(const char *className, VehicleClass &outVehicleClass)
-{
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
-	
-	lua_getglobal(L, "getvclass");                      // func getvclass
-	lua_pushstring(L, className);                       // clsname
-	if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return false;
-	}
-	
-	lua_pushlightuserdata(L, &outVehicleClass);         // &vc
-	if( lua_pcall(L, 2, 0, 0) )                         // convert(cls, &vc)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return false;
-	}
-	return true;
-}
-
 void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 {
 	GC_RigidBodyDynamic::OnPickup(world, pickup, attached);
@@ -308,19 +316,20 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 			assert(!_weapon);
 			_weapon = w;
 
-			VehicleClass vc;
-			if( !GetVehicleClass(GetOwner()->GetClass().c_str(), vc) )
-				return;
-
-			_weapon->AdjustVehicleClass(vc);
-			SetClass(vc);
+			if( auto original = GetVehicleClass(GetOwner()->GetClass().c_str()) )
+			{
+				VehicleClass copy = *original;
+				_weapon->AdjustVehicleClass(copy);
+				SetClass(copy);
+			}
 		}
 		else
 		{
 			assert(_weapon);
 //			Unsubscribe(_weapon);
 			_weapon = NULL;
-			ResetClass();
+			if( auto vc = GetVehicleClass(GetOwner()->GetClass().c_str()) )
+				SetClass(*vc);
 		}
 	}
 }
@@ -333,13 +342,6 @@ void GC_Vehicle::SetControllerState(const VehicleState &vs)
 void GC_Vehicle::SetSkin(const std::string &skin)
 {
 	_skinTextureName = skin;
-}
-
-void GC_Vehicle::ResetClass()
-{
-	VehicleClass vc;
-	if( GetVehicleClass(GetOwner()->GetClass().c_str(), vc) )
-		SetClass(vc);
 }
 
 bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)

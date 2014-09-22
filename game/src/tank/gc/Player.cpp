@@ -111,7 +111,8 @@ void GC_Player::Kill(World &world)
 void GC_Player::SetSkin(const std::string &skin)
 {
 	_skin = skin;
-	UpdateSkin();
+	if( _vehicle )
+		_vehicle->SetSkin(std::string("skin/") + _skin);
 }
 
 void GC_Player::SetNick(const std::string &nick)
@@ -127,12 +128,6 @@ void GC_Player::SetClass(const std::string &c)
 void GC_Player::SetTeam(int team)
 {
 	_team = team;
-}
-
-void GC_Player::UpdateSkin()
-{
-	if( _vehicle )
-		_vehicle->SetSkin(std::string("skin/") + _skin);
 }
 
 void GC_Player::SetScore(World &world, int score)
@@ -155,6 +150,47 @@ void GC_Player::OnDie()
 {
 }
 
+static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
+{
+	std::vector<GC_SpawnPoint*> points;
+	
+	GC_SpawnPoint *pBestPoint = NULL;
+	float max_dist = -1;
+	
+	FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
+	{
+		GC_SpawnPoint *pSpawnPoint = (GC_SpawnPoint*) object;
+		if( pSpawnPoint->_team && (pSpawnPoint->_team != team) )
+			continue;
+		
+		float dist = -1;
+		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
+		{
+			float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
+			if( d < dist || dist < 0 ) dist = d;
+		}
+		
+		if( dist > 0 && dist < 4*CELL_SIZE*CELL_SIZE )
+			continue;
+		
+		if( dist < 0 || dist > 400*CELL_SIZE*CELL_SIZE )
+			points.push_back(pSpawnPoint);
+		
+		if( dist > max_dist )
+		{
+			max_dist = dist;
+			pBestPoint = pSpawnPoint;
+		}
+	}
+	
+	if( !points.empty() )
+	{
+		pBestPoint = points[world.net_rand() % points.size()];
+	}
+	
+	return pBestPoint;
+}
+
 void GC_Player::TimeStepFixed(World &world, float dt)
 {
 	GC_Service::TimeStepFixed(world, dt);
@@ -171,51 +207,12 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			assert(!GetVehicle());
 			_timeRespawn = PLAYER_RESPAWN_DELAY;
 
-			std::vector<GC_SpawnPoint*> points;
-			GC_SpawnPoint *pSpawnPoint;
-
-			GC_SpawnPoint *pBestPoint = NULL;
-			float max_dist = -1;
-
-			FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
-			{
-				pSpawnPoint = (GC_SpawnPoint*) object;
-				if( pSpawnPoint->_team && (pSpawnPoint->_team != _team) )
-					continue;
-
-				float dist = -1;
-				FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
-				{
-					float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
-					if( d < dist || dist < 0 ) dist = d;
-				}
-
-				if( dist > 0 && dist < 4*CELL_SIZE*CELL_SIZE )
-				{
-					continue;
-				}
-
-				if( dist < 0 || dist > 400*CELL_SIZE*CELL_SIZE )
-					points.push_back(pSpawnPoint);
-
-				if( dist > max_dist )
-				{
-					max_dist = dist;
-					pBestPoint = pSpawnPoint;
-				}
-			}
-
-			if( !pBestPoint && points.empty() )
-			{
+			GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team);
+			if (!pBestPoint) {
 				char buf[64];
 				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-                GetConsole().WriteLine(1, buf);
+				GetConsole().WriteLine(1, buf);
 				return;
-			}
-
-			if( !points.empty() )
-			{
-				pBestPoint = points[world.net_rand() % points.size()];
 			}
 
             auto text = new GC_Text_ToolTip(world, _nick, GC_Text::DEFAULT);
@@ -224,7 +221,6 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 
 			_vehicle = new GC_Tank_Light(world);
             _vehicle->Register(world);
-            _vehicle->MoveTo(world, pBestPoint->GetPos());
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -234,16 +230,14 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			{
 				_vehicle->SetName(world, _vehname.c_str());
 			}
-
+            _vehicle->MoveTo(world, pBestPoint->GetPos());
 			_vehicle->SetDirection(pBestPoint->GetDirection());
+
 			_vehicle->SetPlayer(world, this);
 
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 
-			_vehicle->ResetClass();
-
-			UpdateSkin();
 			OnRespawn();
 			if( !_scriptOnRespawn.empty() )
 			{

@@ -93,7 +93,6 @@ public:
     
 	void UpdateLight(World &world);
 
-	void ResetClass();
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skinTextureName; }
 	void SetControllerState(const VehicleState &vs);

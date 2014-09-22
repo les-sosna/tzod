@@ -320,12 +320,6 @@ void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &
 		// apply the theme
 		_infoTheme = sh.theme;
 		themeManager.ApplyTheme(themeManager.FindTheme(sh.theme), tm);
-
-		// update skins
-		FOREACH( GetList(LIST_players), GC_Player, pPlayer )
-		{
-			pPlayer->UpdateSkin();
-		}
 	}
 	catch( const std::runtime_error& )
 	{

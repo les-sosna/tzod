@@ -78,7 +78,6 @@ public:
 	GC_Player(World &world);
 	GC_Player(FromFile);
 	virtual ~GC_Player();
-	void UpdateSkin();
 
 	// GC_Object
 	virtual void Kill(World &world);
