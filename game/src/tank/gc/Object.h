@@ -9,6 +9,7 @@
 #include "TypeSystem.h"
 #include "core/MemoryManager.h"
 
+#include <memory>
 
 class MapFile;
 class SaveFile;
