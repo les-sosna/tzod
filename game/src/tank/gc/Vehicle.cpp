@@ -1,6 +1,7 @@
 // Vehicle.cpp
 
 #include "Vehicle.h"
+#include "VehicleClasses.h"
 
 #include "World.h"
 #include "WorldEvents.h"
@@ -19,7 +20,6 @@
 #include "turrets.h"
 #include "Weapons.h"
 
-#include "globals.h"
 #include "SaveFile.h"
 
 #include "config/Config.h"
@@ -27,14 +27,6 @@
 #include "core/Debug.h"
 
 #include <ui/GuiManager.h>
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
-
 
 void GC_Vehicle::TimeStepFloat(World &world, float dt)
 {
@@ -242,34 +234,6 @@ float GC_Vehicle::GetMaxBrakingLength() const
 	}
 
 	return result;
-}
-
-
-static std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className)
-{
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, luaT_ConvertVehicleClass);     // func convert
-	
-	lua_getglobal(L, "getvclass");                      // func getvclass
-	lua_pushstring(L, className);                       // clsname
-	if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return nullptr;
-	}
-	
-	auto vc = std::make_shared<VehicleClass>();
-	lua_pushlightuserdata(L, vc.get());                 // &vc
-	if( lua_pcall(L, 2, 0, 0) )                         // convert(cls, &vc)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return nullptr;
-	}
-	return std::move(vc);
 }
 
 void GC_Vehicle::SetPlayer(World &world, GC_Player *player)

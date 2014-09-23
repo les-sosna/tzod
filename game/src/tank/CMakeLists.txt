@@ -84,6 +84,7 @@ set(tank_SOURCES
 	gc/TypeSystem.cpp
 	gc/UserObjects.cpp
 	gc/Vehicle.cpp
+	gc/VehicleClasses.cpp
 	gc/Weapons.cpp
 	gc/World.cpp
 	gclua/lgcmod.cpp
