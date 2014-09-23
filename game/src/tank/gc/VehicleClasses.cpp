@@ -1,171 +1,75 @@
 #include "VehicleClasses.h"
-#include "globals.h"
-#include "core/Debug.h"
+#include <string.h>
 
-extern "C"
+static const char* s_vehicleClassNames[] =
 {
-#include <lua.h>
-#include <lauxlib.h>
-}
+	"default",
+	"heavy"
+};
 
-
-static int get_array(lua_State *L, float *array, int count)
-{
-	for( int i = 0; i < count; i++ )
+static VehicleClass s_vehicleClasses[] = {
 	{
-		lua_pushinteger(L, i+1); // push key
-		lua_gettable(L, -2);     // pop key, push value
-		if( !lua_isnumber(L, -1) )
-		{
-			return luaL_error(L, "number expected in array");
-		}
-		array[i] = (float) lua_tonumber(L, -1);
-		lua_pop(L, 1); // pop value
-	}
-	return 0;
-}
-
-static int get_numeric(lua_State *L, const char *field, float &refval)
-{
-	lua_getfield(L, 1, field);
-	if( !lua_isnumber(L, -1) )
-		return luaL_error(L, "absent mandatory numeric '%s' field", field);
-	refval = (float) lua_tonumber(L, -1);
-	lua_pop(L, 1); // pop result of getfield
-	return 0;
-}
-
-// convert vehicle class
-static int ConvertVehicleClass(lua_State *L)
-{
-	//
-	//  validate arguments
-	//
-	
-	if( 2 != lua_gettop(L) )
+		"Default",  // displayName
+		
+		400.0f,     // health
+		1.0f,       // percussion
+		1.0f,       // fragility
+		
+		37.5f,      // length
+		37.0f,      // width
+		
+		1.0f,       // m - mass
+		700.0f,     // i - inertia
+		
+		450.0f,     // _Nx - dry friction factor X
+		5000.0f,    // _Ny - dry friction factor Y
+		28.0f,      // _Nw - angular dry friction factor
+		
+		2.0,        // _Mx - viscous friction factor X
+		2.5,        // _My - viscous friction factor Y
+		0,          // _Mw - angular viscous friction factor
+		
+		900.0f,     // enginePower
+		40.0f,      // rotatePower
+		
+		3.4f,       // maxRotSpeed
+		200.0f      // maxLinSpeed
+	},
 	{
-		return luaL_error(L, "two arguments expected");
+		"Heavy",    // displayName
+		
+		600.0f,     // health
+		1.5f,       // percussion
+		0.8f,       // fragility
+		
+		40.0f,      // length
+		40.0f,      // width
+		
+		2.0f,       // m - mass
+		1000.0f,    // i - inertia
+		
+		450.0f,     // _Nx - dry friction factor X
+		5000.0f,    // _Ny - dry friction factor Y
+		27.0f,      // _Nw - angular dry friction factor
+		
+		2.0,        // _Mx - viscous friction factor X
+		2.5,        // _My - viscous friction factor Y
+		9,          // _Mw - angular viscous friction factor
+		
+		1800.0f,    // enginePower
+		48.0f,      // rotatePower
+		
+		3.5f,       // maxRotSpeed
+		180.0f      // maxLinSpeed
 	}
-	luaL_checktype(L, 1, LUA_TTABLE);
-	luaL_checktype(L, 2, LUA_TLIGHTUSERDATA);
-	
-	
-	VehicleClass &vc = *reinterpret_cast<VehicleClass *>(lua_touserdata(L, 2));
-	
-	
-	//
-	// get display name
-	//
-	lua_getfield(L, 1, "display");
-	vc.displayName = lua_isstring(L, -1) ? lua_tostring(L, -1) : "<unnamed>";
-	lua_pop(L, 1); // pop result of lua_getfield
-	
-	
-	
-	//
-	// get bounds
-	//
-	
-	get_numeric(L, "width",   vc.width);
-	get_numeric(L, "length",  vc.length);
-	
-	
-	//
-	// get friction settings
-	//
-	
-	float tmp[3];
-	
-	lua_getfield(L, 1, "dry_fric");
-	if( !lua_istable(L, -1) )
-	{
-		return luaL_error(L, "absent mandatory array field 'dry_fric'");
-	}
-	get_array(L, tmp, 3);
-	lua_pop(L, 1); // pop result of getfield;
-	vc._Nx = tmp[0];
-	vc._Ny = tmp[1];
-	vc._Nw = tmp[2];
-	
-	lua_getfield(L, 1, "vis_fric");
-	if( !lua_istable(L, -1) )
-	{
-		return luaL_error(L, "absent mandatory array field 'vis_fric'");
-	}
-	get_array(L, tmp, 3);
-	lua_pop(L, 1); // pop result of getfield;
-	vc._Mx = tmp[0];
-	vc._My = tmp[1];
-	vc._Mw = tmp[2];
-	
-	
-	//
-	// get power
-	//
-	
-	lua_getfield(L, 1, "power");
-	if( !lua_istable(L, -1) )
-	{
-		return luaL_error(L, "absent mandatory array field 'power'");
-	}
-	get_array(L, tmp, 2);
-	lua_pop(L, 1); // pop result of getfield;
-	vc.enginePower = tmp[0];
-	vc.rotatePower = tmp[1];
-	
-	
-	//
-	// get max speed
-	//
-	
-	lua_getfield(L, 1, "max_speed");
-	if( !lua_istable(L, -1) )
-	{
-		return luaL_error(L, "absent mandatory array field 'max_speed'");
-	}
-	get_array(L, tmp, 2);
-	lua_pop(L, 1); // pop result of getfield;
-	vc.maxLinSpeed = tmp[0];
-	vc.maxRotSpeed = tmp[1];
-	
-	
-	//
-	// get mass, inertia, etc
-	//
-	
-	get_numeric(L, "mass",       vc.m);
-	get_numeric(L, "inertia",    vc.i);
-	get_numeric(L, "health",     vc.health);
-	get_numeric(L, "percussion", vc.percussion);
-	get_numeric(L, "fragility",  vc.fragility);
-	
-	return 0;
-}
-
+};
 
 std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className)
 {
-	lua_State *L = g_env.L;
-	lua_pushcfunction(L, ConvertVehicleClass);     // func convert
-	
-	lua_getglobal(L, "getvclass");                      // func getvclass
-	lua_pushstring(L, className);                       // clsname
-	if( lua_pcall(L, 1, 1, 0) )                         // cls = getvclass(clsname)
+	for (int i = 0; i != sizeof(s_vehicleClasses) / sizeof(s_vehicleClasses[0]); ++i)
 	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return nullptr;
+		if (!strcmp(className, s_vehicleClassNames[i]))
+			return std::make_shared<VehicleClass>(s_vehicleClasses[i]);
 	}
-	
-	auto vc = std::make_shared<VehicleClass>();
-	lua_pushlightuserdata(L, vc.get());                 // &vc
-	if( lua_pcall(L, 2, 0, 0) )                         // convert(cls, &vc)
-	{
-		// print error message
-		GetConsole().WriteLine(1, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return nullptr;
-	}
-	return std::move(vc);
+	return nullptr;
 }
