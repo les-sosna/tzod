@@ -81,8 +81,8 @@ public:
 	virtual int FindItem(const std::string &text) const;
 
 	// ObjectListener implementation
-	virtual void OnCreate(GC_Object *obj);
-	virtual void OnKill(GC_Object *obj);
+	virtual void OnCreate(GC_Object &obj);
+	virtual void OnKill(GC_Object &obj);
 
 public:
 	ServiceListDataSource(World &world);

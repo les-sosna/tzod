@@ -397,19 +397,19 @@ int ServiceListDataSource::FindItem(const std::string &text) const
 	return -1;
 }
 
-void ServiceListDataSource::OnCreate(GC_Object *obj)
+void ServiceListDataSource::OnCreate(GC_Object &obj)
 {
 	_listener->OnAddItem();
 }
 
-void ServiceListDataSource::OnKill(GC_Object *obj)
+void ServiceListDataSource::OnKill(GC_Object &obj)
 {
 	ObjectList &list = _world.GetList(LIST_services);
 	int found = -1;
 	int idx = 0;
 	for( auto it = list.begin(); it != list.end(); it = list.next(it) )
 	{
-		if( list.at(it) == obj )
+		if( list.at(it) == &obj )
 		{
 			found = idx;
 			break;

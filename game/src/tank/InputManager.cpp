@@ -42,13 +42,13 @@ void InputManager::OnProfilesChange()
     }
 }
 
-void InputManager::OnCreate(GC_Object *obj)
+void InputManager::OnCreate(GC_Object &obj)
 {
 }
 
-void InputManager::OnKill(GC_Object *obj)
+void InputManager::OnKill(GC_Object &obj)
 {
-	_controllers.erase(static_cast<GC_Player *>(obj));
+	_controllers.erase(static_cast<GC_Player *>(&obj));
 }
 
 

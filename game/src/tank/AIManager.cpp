@@ -42,12 +42,12 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 	return std::move(result);
 }
 
-void AIManager::OnCreate(GC_Object *obj)
+void AIManager::OnCreate(GC_Object &obj)
 {
 }
 
-void AIManager::OnKill(GC_Object *obj)
+void AIManager::OnKill(GC_Object &obj)
 {
-	_aiControllers.erase(static_cast<GC_Player *>(obj));
+	_aiControllers.erase(static_cast<GC_Player *>(&obj));
 }
 

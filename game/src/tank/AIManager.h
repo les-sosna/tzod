@@ -27,7 +27,7 @@ private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<AIController>>> _aiControllers;
 	World &_world;
 	// ObjectListener
-	virtual void OnCreate(GC_Object *obj) override;
-	virtual void OnKill(GC_Object *obj) override;
+	virtual void OnCreate(GC_Object &obj) override;
+	virtual void OnKill(GC_Object &obj) override;
 };
 

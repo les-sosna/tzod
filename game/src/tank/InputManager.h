@@ -28,8 +28,8 @@ private:
 	World &_world;
 	
 	// ObjectListener
-	virtual void OnCreate(GC_Object *obj) override;
-	virtual void OnKill(GC_Object *obj) override;
+	virtual void OnCreate(GC_Object &obj) override;
+	virtual void OnKill(GC_Object &obj) override;
 };
 
 // end of file
