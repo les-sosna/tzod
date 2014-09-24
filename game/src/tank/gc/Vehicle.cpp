@@ -13,7 +13,6 @@
 #include "Explosion.h"
 #include "particles.h"
 #include "Pickup.h"
-#include "indicators.h"
 #include "Light.h"
 #include "Sound.h"
 #include "player.h"
@@ -22,11 +21,9 @@
 
 #include "SaveFile.h"
 
-#include "config/Config.h"
 #include "config/Language.h"
 #include "core/Debug.h"
 
-#include <ui/GuiManager.h>
 
 void GC_Vehicle::TimeStepFloat(World &world, float dt)
 {
