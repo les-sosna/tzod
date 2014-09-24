@@ -31,10 +31,4 @@ function tcopy(t, lookup_table)
  return copy
 end
 
-
-function getvclass(cls)
- return classes[cls]
-end
-
-
 -- end of file

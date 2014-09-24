@@ -6,7 +6,6 @@ package.path = "data/scripts/?.lua"
 
 require "autocomplete"  -- init autocomplete engine for the console
 require "func"          -- define some usefull functions
-require "vehicles"      -- register vehicle classes
 require "editor"        -- define editor actions
 
 quit = game.quit
