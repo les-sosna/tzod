@@ -57,6 +57,9 @@ public:
 	GC_Trigger(World &world);
 	GC_Trigger(FromFile);
 	~GC_Trigger();
+	
+	const std::string& GetOnEnter() const { return _onEnter; }
+	const std::string& GetOnLeave() const { return _onLeave; }
 
 	// GC_Object
 	virtual void MapExchange(World &world, MapFile &f);

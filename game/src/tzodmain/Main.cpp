@@ -6,6 +6,7 @@
 #include <globals.h>
 #include <gui_desktop.h>
 #include <script.h>
+#include <ScriptHarness.h>
 #include <ThemeManager.h>
 #include <BackgroundIntro.h>
 #include <WorldController.h>
@@ -225,7 +226,9 @@ int main(int, const char**)
         g_env.L = script_open(se);
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-        
+			
+		ScriptHarness scriptHarness(world, g_env.L);
+			
         TRACE("GUI subsystem initialization");
 		GlfwInput input(appWindow.GetGlfwWindow());
 		GlfwClipboard clipboard(appWindow.GetGlfwWindow());

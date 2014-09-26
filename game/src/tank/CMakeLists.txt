@@ -52,6 +52,7 @@ set(tank_SOURCES
 	Md5.c
 	SaveFile.cpp
 	script.cpp
+	ScriptHarness.cpp
 	ThemeManager.cpp
 	WorldController.cpp
 	config/Config.cpp

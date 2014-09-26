@@ -15,6 +15,14 @@ template<> struct ObjectListener<GC_Player> : ObjectListener<GC_Object> {};
 class GC_Service;
 template<> struct ObjectListener<GC_Service> : ObjectListener<GC_Object> {};
 
+class GC_Trigger;
+class GC_Vehicle;
+template<> struct ObjectListener<GC_Trigger>
+{
+	virtual void OnEnter(GC_Trigger &obj, GC_Vehicle &vehicle) = 0;
+	virtual void OnLeave(GC_Trigger &obj) = 0;
+};
+
 
 struct MessageListener
 {

@@ -1,27 +1,14 @@
-// Trigger.cpp
-
 #include "Trigger.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "WorldEvents.h"
 #include "Macros.h"
 
 #include "MapFile.h"
 #include "SaveFile.h"
-#include "script.h"
 #include "constants.h"
-#include "globals.h"
 
-#include "core/Debug.h"
-
-#include "gclua/lObjUtil.h" // TODO: remove
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {
@@ -108,7 +95,8 @@ void GC_Trigger::TimeStepFixed(World &world, float dt)
 		{
 			_veh = NULL;
 			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, false);
-			script_exec(g_env.L, _onLeave.c_str());
+			for( auto ls: world.eGC_Trigger._listeners )
+				ls->OnLeave(*this);
 		}
 	}
 	else if( CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
@@ -143,35 +131,8 @@ void GC_Trigger::TimeStepFixed(World &world, float dt)
 		if( _veh )
 		{
 			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, true);
-
-			std::stringstream buf;
-			buf << "return function(self,who)";
-			buf << _onEnter;
-			buf << "\nend";
-
-			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
-			{
-				GetConsole().Printf(1, "syntax error %s", lua_tostring(g_env.L, -1));
-				lua_pop(g_env.L, 1); // pop the error message from the stack
-			}
-			else
-			{
-				if( lua_pcall(g_env.L, 0, 1, 0) )
-				{
-					GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-					lua_pop(g_env.L, 1); // pop the error message from the stack
-				}
-				else
-				{
-					luaT_pushobject(g_env.L, this);
-					luaT_pushobject(g_env.L, _veh);
-					if( lua_pcall(g_env.L, 2, 0, 0) )
-					{
-						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-						lua_pop(g_env.L, 1); // pop the error message from the stack
-					}
-				}
-			}
+			for( auto ls: world.eGC_Trigger._listeners )
+				ls->OnEnter(*this, *_veh);
 		}
 	}
 }
@@ -257,6 +218,3 @@ void GC_Trigger::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		_propOnLeave.SetStringValue(tmp->_onLeave);
 	}
 }
-
-
-// end of file
