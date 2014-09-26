@@ -2,6 +2,7 @@
 
 #include "Weapons.h"
 #include "Vehicle.h"
+#include "VehicleClasses.h"
 #include "RigidBodyDinamic.h"
 #include "Sound.h"
 #include "Light.h"

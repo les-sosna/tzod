@@ -13,7 +13,7 @@ class Controller;
 class World;
 
 class InputManager
-	: private ObjectListener
+	: private ObjectListener<GC_Player>
 {
 public:
 	InputManager(World &world);
@@ -27,7 +27,7 @@ private:
 	void OnProfilesChange();
 	World &_world;
 	
-	// ObjectListener
+	// ObjectListener<GC_Object>
 	virtual void OnCreate(GC_Object &obj) override;
 	virtual void OnKill(GC_Object &obj) override;
 };

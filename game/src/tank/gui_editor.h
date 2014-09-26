@@ -68,7 +68,7 @@ protected:
 
 class ServiceListDataSource
 	: public ListDataSource
-	, public ObjectListener
+	, public ObjectListener<GC_Service>
 {
 public:
 	// ListDataSource implementation
@@ -80,9 +80,9 @@ public:
 	virtual const std::string& GetItemText(int index, int sub) const;
 	virtual int FindItem(const std::string &text) const;
 
-	// ObjectListener implementation
-	virtual void OnCreate(GC_Object &obj);
-	virtual void OnKill(GC_Object &obj);
+	// ObjectListener<GC_Object>
+	virtual void OnCreate(GC_Object &obj) override;
+	virtual void OnKill(GC_Object &obj) override;
 
 public:
 	ServiceListDataSource(World &world);

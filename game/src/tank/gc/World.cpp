@@ -54,8 +54,7 @@ struct SaveHeader
 
 // don't create game objects in the constructor
 World::World()
-  : _serviceListener(nullptr)
-  , _messageListener(nullptr)
+  : _messageListener(nullptr)
   , _frozen(false)
   , _limitHit(false)
   , _sx(0)
@@ -158,33 +157,6 @@ World::~World()
 	g_conf.s_volume.eventChange = nullptr;
 
 	assert(IsEmpty() && _garbage.empty());
-}
-
-void World::AddListener(ObjectType type, ObjectListener &ls)
-{
-	if (GC_Player::GetTypeStatic() == type)
-	{
-		_playerListeners.push_back(&ls);
-	}
-	else
-	{
-		assert(false);
-	}
-}
-
-void World::RemoveListener(ObjectType type, ObjectListener &ls)
-{
-	if (GC_Player::GetTypeStatic() == type)
-	{
-		auto it = std::find(_playerListeners.begin(), _playerListeners.end(), &ls);
-		assert(_playerListeners.end() != it);
-		*it = _playerListeners.back();
-		_playerListeners.pop_back();
-	}
-	else
-	{
-		assert(false);
-	}
 }
 
 void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &themeManager, TextureManager &tm)

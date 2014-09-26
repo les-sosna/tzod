@@ -12,7 +12,7 @@ class GC_Object;
 class World;
 
 class AIManager
-	: private ObjectListener
+	: private ObjectListener<GC_Player>
 {
 public:
 	AIManager(World &world);
@@ -26,7 +26,7 @@ public:
 private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<AIController>>> _aiControllers;
 	World &_world;
-	// ObjectListener
+	// ObjectListener<GC_Object>
 	virtual void OnCreate(GC_Object &obj) override;
 	virtual void OnKill(GC_Object &obj) override;
 };

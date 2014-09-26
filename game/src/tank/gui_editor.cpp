@@ -332,14 +332,12 @@ ServiceListDataSource::ServiceListDataSource(World &world)
   : _listener(NULL)
   , _world(world)
 {
-	assert(!_world._serviceListener);
-	_world._serviceListener = this;
+	_world.eGC_Service.AddListener(*this);
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
-	assert(this == _world._serviceListener);
-	_world._serviceListener = NULL;
+	_world.eGC_Service.RemoveListener(*this);
 }
 
 void ServiceListDataSource::AddListener(ListDataSourceListener *listener)

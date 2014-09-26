@@ -23,12 +23,38 @@ class ClientBase;
 class GC_RigidBodyStatic;
 class GC_Object;
 class GC_Player;
+class GC_Service;
 
-struct ObjectListener;
 struct MessageListener;
 
 class ThemeManager; // todo: remove
 class TextureManager; // todo: remove
+
+template<class> struct ObjectListener;
+
+template<class T>
+class EventsHub
+{
+public:
+	void AddListener(ObjectListener<T> &ls)
+	{
+		_listeners.push_back(&ls);
+	}
+	
+	void RemoveListener(ObjectListener<T> &ls)
+	{
+		auto it = std::find(_listeners.begin(), _listeners.end(), &ls);
+		assert(_listeners.end() != it);
+		*it = _listeners.back();
+		_listeners.pop_back();
+	}
+
+private:
+	friend T;
+	std::vector<ObjectListener<T>*> _listeners;
+};
+
+#define DECLARE_EVENTS(cls) EventsHub<::cls> e##cls;
 
 class World
 {
@@ -40,6 +66,8 @@ class World
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
 public:
+	DECLARE_EVENTS(GC_Player);
+	DECLARE_EVENTS(GC_Service);
 
 #ifndef NDEBUG
 	std::set<GC_Object*> _garbage;
@@ -63,9 +91,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_pickup;
     Grid<PtrList<GC_Object>>  grid_actors;
 
-	ObjectListener *_serviceListener;
     MessageListener *_messageListener;
-	std::vector<ObjectListener *> _playerListeners;
 
 /////////////////////////////////////
 //settings
@@ -103,9 +129,6 @@ public:
 	World();
 	~World();
 	
-	void AddListener(ObjectType type, ObjectListener &ls);
-	void RemoveListener(ObjectType type, ObjectListener &ls);
-    
 	void Resize(int X, int Y);
 	void HitLimit();
 

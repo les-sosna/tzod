@@ -101,7 +101,7 @@ void GC_Player::MapExchange(World &world, MapFile &f)
 
 void GC_Player::Kill(World &world)
 {
-	for( auto ls: world._playerListeners )
+	for( auto ls: world.eGC_Player._listeners )
 		ls->OnKill(*this);
 	if( _vehicle )
 		_vehicle->Kill(world); // the reference is released in the OnVehicleKill()

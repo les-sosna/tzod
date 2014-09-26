@@ -7,12 +7,12 @@
 AIManager::AIManager(World &world)
 	: _world(world)
 {
-	_world.AddListener(GC_Player::GetTypeStatic(), *this);
+	_world.eGC_Player.AddListener(*this);
 }
 
 AIManager::~AIManager()
 {
-	_world.RemoveListener(GC_Player::GetTypeStatic(), *this);
+	_world.eGC_Player.RemoveListener(*this);
 }
 
 void AIManager::AssignAI(GC_Player *player, std::string profile)
