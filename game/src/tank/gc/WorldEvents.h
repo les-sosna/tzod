@@ -23,6 +23,14 @@ template<> struct ObjectListener<GC_Trigger>
 	virtual void OnLeave(GC_Trigger &obj) = 0;
 };
 
+class GC_Actor;
+class GC_RigidBodyStatic;
+template<> struct ObjectListener<GC_RigidBodyStatic>
+{
+	virtual void OnDestroy(GC_RigidBodyStatic &obj) = 0;
+	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) = 0;
+};
+
 
 struct MessageListener
 {

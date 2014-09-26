@@ -3,28 +3,15 @@
 #include "RigidBody.h"
 
 #include "World.h"
+#include "WorldEvents.h"
 #include "Sound.h"
 #include "particles.h"
 #include "Player.h"
 #include "Vehicle.h"
 
-#include "globals.h"
 #include "constants.h"
 #include "MapFile.h"
 #include "SaveFile.h"
-#include "script.h"
-
-#include "config/Config.h"
-#include "core/Debug.h"
-
-#include "gclua/lObjUtil.h" // TODO: remove
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 #include <cfloat>
 
@@ -325,51 +312,14 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 void GC_RigidBodyStatic::OnDestroy(World &world)
 {
 	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
-	if( !_scriptOnDestroy.empty() )
-	{
-		script_exec(g_env.L, _scriptOnDestroy.c_str());
-	}
+	for( auto ls: world.eGC_RigidBodyStatic._listeners )
+		ls->OnDestroy(*this);
 }
 
-void GC_RigidBodyStatic::TDFV(GC_Actor *from)
+void GC_RigidBodyStatic::TDFV(World &world, GC_Actor *from)
 {
-	if( !_scriptOnDamage.empty() )
-	{
-		if( from )
-		{
-			std::stringstream buf;
-			buf << "return function(who)";
-			buf << _scriptOnDamage;
-			buf << "\nend";
-
-			if( luaL_loadstring(g_env.L, buf.str().c_str()) )
-			{
-				GetConsole().Printf(1, "OnDamage: %s", lua_tostring(g_env.L, -1));
-				lua_pop(g_env.L, 1); // pop the error message from the stack
-			}
-			else
-			{
-				if( lua_pcall(g_env.L, 0, 1, 0) )
-				{
-					GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-					lua_pop(g_env.L, 1); // pop the error message from the stack
-				}
-				else
-				{
-					luaT_pushobject(g_env.L, from);
-					if( lua_pcall(g_env.L, 1, 0, 0) )
-					{
-						GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-						lua_pop(g_env.L, 1); // pop the error message from the stack
-					}
-				}
-			}
-		}
-		else
-		{
-			script_exec(g_env.L, _scriptOnDamage.c_str());
-		}
-	}
+	for( auto ls: world.eGC_RigidBodyStatic._listeners )
+		ls->OnDamage(*this, from);
 }
 
 bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
@@ -383,10 +333,10 @@ bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 	{
 		SetHealthCur(GetHealth() - damage);
 
-		ObjPtr<GC_Object> whatch(this);
-		TDFV(from ? from->GetVehicle() : NULL);
+		ObjPtr<GC_Object> watch(this);
+		TDFV(world, from ? from->GetVehicle() : NULL);
 
-		if( !whatch )
+		if( !watch )
 			return true;
 
 		if( GetHealth() <= 0 )
@@ -405,6 +355,21 @@ void GC_RigidBodyStatic::SetSize(float width, float length)
 	_width = width;
 	_length = length;
 	_radius = sqrt(width*width + length*length) / 2;
+}
+
+vec2d GC_RigidBodyStatic::GetVertex(int index) const
+{
+	float x, y;
+	switch( index )
+	{
+		default: assert(false);
+		case 0: x =  _length / 2; y =  _width / 2; break;
+		case 1: x = -_length / 2; y =  _width / 2; break;
+		case 2: x = -_length / 2; y = -_width / 2; break;
+		case 3: x =  _length / 2; y = -_width / 2; break;
+	}
+	return vec2d(GetPos().x + x * GetDirection().x - y * GetDirection().y,
+				 GetPos().y + x * GetDirection().y + y * GetDirection().x);
 }
 
 void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)

@@ -23,9 +23,47 @@ struct DamageDesc
 class GC_RigidBodyStatic : public GC_Actor
 {
     typedef GC_Actor base;
+
+public:
+    DECLARE_GRID_MEMBER();
+	GC_RigidBodyStatic(World &world);
+	GC_RigidBodyStatic(FromFile);
+	virtual ~GC_RigidBodyStatic();
+	
+	const std::string& GetOnDestroy() const { return _scriptOnDestroy; }
+	const std::string& GetOnDamage() const { return _scriptOnDamage; }
+	
+	void SetHealth(float cur, float max);
+	void SetHealthCur(float hp);
+	void SetHealthMax(float hp);
+	float GetHealth() const { return _health;     }
+	float GetHealthMax() const { return _health_max; }
+	
+	void SetSize(float width, float length);
+	float GetHalfWidth() const { return _width/2; }
+	float GetHalfLength() const { return _length/2; }
+	float GetRadius() const { return _radius; }
+	vec2d GetVertex(int index) const;
+	
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
+	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
+
+	virtual float GetDefaultHealth() const = 0;
+	virtual void  OnDestroy(World &world);
+	
+	// return true if object has been killed
+	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	
+	virtual unsigned char GetPassability() const = 0;
+	virtual GC_Player* GetOwner() const { return NULL; }
     
-	std::string _scriptOnDestroy;  // on_destroy()
-	std::string _scriptOnDamage;   // on_damage()
+    // GC_Actor
+    virtual void MoveTo(World &world, const vec2d &pos);
+
+	// GC_Object
+    virtual void Kill(World &world) override;
+	virtual void MapExchange(World &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -42,84 +80,16 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
+	void TDFV(World &world, GC_Actor *from);
 
-public:
-    DECLARE_GRID_MEMBER();
-	GC_RigidBodyStatic(World &world);
-	GC_RigidBodyStatic(FromFile);
-	virtual ~GC_RigidBodyStatic();
-
-	virtual GC_Player* GetOwner() const { return NULL; }
-    
-    // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos);
-
-	// GC_Object
-    virtual void Kill(World &world) override;
-	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual unsigned char GetPassability() const = 0;
-
-	float GetRadius() const { return _radius; }
-
-	float GetHalfWidth() const { return _width/2; }
-	float GetHalfLength() const { return _length/2; }
-
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
-	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
-
-	vec2d GetVertex(int index) const
-	{
-		float x, y;
-		switch( index )
-		{
-		default: assert(false);
-		case 0: x =  _length / 2; y =  _width / 2; break;
-		case 1: x = -_length / 2; y =  _width / 2; break;
-		case 2: x = -_length / 2; y = -_width / 2; break;
-		case 3: x =  _length / 2; y = -_width / 2; break;
-		}
-		return vec2d(
-			GetPos().x + x * GetDirection().x - y * GetDirection().y,
-			GetPos().y + x * GetDirection().y + y * GetDirection().x
-		);
-	}
-
-
-	//
-	// health
-	//
-
-protected:
+private:
 	float _health;
 	float _health_max;
-
-public:
-	void SetHealth(float cur, float max);
-	void SetHealthCur(float hp);
-	void SetHealthMax(float hp);
-	float GetHealth() const { return _health;     }
-	float GetHealthMax() const { return _health_max; }
-
-	virtual float GetDefaultHealth() const = 0;
-	virtual void  OnDestroy(World &world);
-
-	// return true if object has been killed
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
-	virtual void TDFV(GC_Actor *from);
-
-	//
-	// physics
-	//
-	void SetSize(float width, float length);
-private:
 	float _radius;     // cached radius of bounding sphere
 	float _width;
 	float _length;
-
-
-	//--------------------------------
+	std::string _scriptOnDestroy;  // on_destroy()
+	std::string _scriptOnDamage;   // on_damage()
 
 #ifdef NETWORK_DEBUG
 public:

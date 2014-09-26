@@ -70,6 +70,7 @@ public:
 	DECLARE_EVENTS(GC_Player);
 	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
+	DECLARE_EVENTS(GC_RigidBodyStatic);
 
 #ifndef NDEBUG
 	std::set<GC_Object*> _garbage;

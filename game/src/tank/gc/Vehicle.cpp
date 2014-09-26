@@ -321,7 +321,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 	SetHealthCur(GetHealth() - dd.damage);
 	{
 		ObjPtr<GC_Object> watch(this); // this may be killed during script execution
-		TDFV(from ? from->GetVehicle() : NULL);
+		TDFV(world, from ? from->GetVehicle() : NULL);
 		if( !watch )
 		{
 			// TODO: score
