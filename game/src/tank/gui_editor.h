@@ -25,9 +25,11 @@ class NewMapDlg : public Dialog
 {
 	Edit *_width;
 	Edit *_height;
+	World &_world;
+	const ThemeManager &_themeManager;
 
 public:
-	NewMapDlg(Window *parent);
+	NewMapDlg(Window *parent, World &world, ThemeManager &themeManager);
 
 	void OnOK();
 	void OnCancel();

@@ -47,8 +47,10 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-NewMapDlg::NewMapDlg(Window *parent)
+NewMapDlg::NewMapDlg(Window *parent, World &world, ThemeManager &themeManager)
   : Dialog(parent, 256, 256)
+  , _world(world)
+  , _themeManager(themeManager)
 {
 	Text *header = Text::Create(this, 128, 20, g_lang.newmap_title.Get(), alignTextCT);
 	header->SetFont("font_default");
@@ -73,7 +75,11 @@ void NewMapDlg::OnOK()
 	g_conf.sv_nightmode.Set(false);
 	g_conf.ed_width.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _width->GetInt())));
 	g_conf.ed_height.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _height->GetInt())));
-	script_exec(g_env.L, "newmap(conf.ed_width, conf.ed_height)");
+	
+	_world.Clear();
+	_world.Resize(g_conf.ed_width.GetInt(), g_conf.ed_height.GetInt());
+	_themeManager.ApplyTheme(0, GetManager().GetTextureManager());
+
 	Close(_resultOK);
 }
 

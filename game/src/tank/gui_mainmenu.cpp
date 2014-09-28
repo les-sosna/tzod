@@ -227,7 +227,7 @@ void MainMenuDlg::OnEditor()
 void MainMenuDlg::OnNewMap()
 {
 	SetVisible(false);
-	NewMapDlg *dlg = new NewMapDlg(GetParent());
+	NewMapDlg *dlg = new NewMapDlg(GetParent(), _world, _themeManager);
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
