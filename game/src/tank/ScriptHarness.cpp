@@ -1,6 +1,7 @@
 #include "ScriptHarness.h"
 #include "script.h"
 #include "core/Debug.h"
+#include "gc/Pickup.h"
 #include "gc/Player.h"
 #include "gc/Trigger.h"
 #include "gc/Vehicle.h"
@@ -23,10 +24,12 @@ ScriptHarness::ScriptHarness(World &world, lua_State *L)
 	_world.eGC_Trigger.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_Player.AddListener(*this);
+	_world.eGC_Pickup.AddListener(*this);
 }
 
 ScriptHarness::~ScriptHarness()
 {
+	_world.eGC_Pickup.RemoveListener(*this);
 	_world.eGC_Player.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_Trigger.RemoveListener(*this);
@@ -116,6 +119,41 @@ void ScriptHarness::OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from)
 		else
 		{
 			script_exec(_L, obj.GetOnDamage().c_str());
+		}
+	}
+}
+
+
+void ScriptHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
+{
+	if( !obj.GetOnPickup().empty() )
+	{
+		std::stringstream buf;
+		buf << "return function(who)";
+		buf << obj.GetOnPickup();
+		buf << "\nend";
+		
+		if( luaL_loadstring(_L, buf.str().c_str()) )
+		{
+			GetConsole().Printf(1, "OnPickup: %s", lua_tostring(_L, -1));
+			lua_pop(_L, 1); // pop the error message from the stack
+		}
+		else
+		{
+			if( lua_pcall(_L, 0, 1, 0) )
+			{
+				GetConsole().WriteLine(1, lua_tostring(_L, -1));
+				lua_pop(_L, 1); // pop the error message from the stack
+			}
+			else
+			{
+				luaT_pushobject(_L, &actor);
+				if( lua_pcall(_L, 1, 0, 0) )
+				{
+					GetConsole().WriteLine(1, lua_tostring(_L, -1));
+					lua_pop(_L, 1); // pop the error message from the stack
+				}
+			}
 		}
 	}
 }

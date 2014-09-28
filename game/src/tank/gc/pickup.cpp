@@ -12,22 +12,12 @@
 #include "vehicle.h"
 #include "Weapons.h"
 #include "World.h"
+#include "WorldEvents.h"
 
-#include "globals.h"
 #include "MapFile.h"
 #include "SaveFile.h"
-#include "script.h"
 
 #include "core/Debug.h"
-
-#include "gclua/lObjUtil.h"
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 
 IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
@@ -170,40 +160,13 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 		{
 			if( GC_Actor *actor = FindNewOwner(world) )
 			{
-			//	ObjPtr<GC_Object> watch(this);
-				// item can be killed inside attach function so create copy
-				std::string scriptOnPickup(_scriptOnPickup);
+				ObjPtr<GC_Object> watch(this);
 				Attach(world, actor);
-
-				if( !scriptOnPickup.empty() )
+				// FIXME: pickup event will not fire if object is killed inside Attach function
+				if (watch)
 				{
-					std::stringstream buf;
-					buf << "return function(who)";
-					buf << scriptOnPickup;
-					buf << "\nend";
-
-					if( luaL_loadstring(g_env.L, buf.str().c_str()) )
-					{
-						GetConsole().Printf(1, "OnPickup: %s", lua_tostring(g_env.L, -1));
-						lua_pop(g_env.L, 1); // pop the error message from the stack
-					}
-					else
-					{
-						if( lua_pcall(g_env.L, 0, 1, 0) )
-						{
-							GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-							lua_pop(g_env.L, 1); // pop the error message from the stack
-						}
-						else
-						{
-							luaT_pushobject(g_env.L, actor);
-							if( lua_pcall(g_env.L, 1, 0, 0) )
-							{
-								GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-								lua_pop(g_env.L, 1); // pop the error message from the stack
-							}
-						}
-					}
+					for( auto ls: world.eGC_Pickup._listeners )
+						ls->OnPickup(*this, *actor);
 				}
 			}
 		}

@@ -7,6 +7,7 @@ struct lua_State;
 class ScriptHarness
 	: ObjectListener<GC_Trigger>
 	, ObjectListener<GC_RigidBodyStatic>
+	, ObjectListener<GC_Pickup>
 	, ObjectListener<GC_Player>
 {
 public:
@@ -24,6 +25,9 @@ private:
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) override;
+	
+	// ObjectListener<GC_Pickup>
+	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) override;
 	
 	// ObjectListener<GC_Player>
 	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) override;

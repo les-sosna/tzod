@@ -30,69 +30,36 @@ class GC_RigidBodyStatic;
 class GC_Pickup : public GC_Actor
 {
     typedef GC_Actor base;
-    
-protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
-	{
-		typedef GC_Actor::MyPropertySet BASE;
-		ObjectProperty _propTimeRespawn;
-		ObjectProperty _propOnPickup;
-
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(World &world, bool applyToObject);
-	};
-
-	virtual PropertySet* NewPropertySet();
-
-private:
-	ObjPtr<GC_HideLabel>  _label;
-	ObjPtr<GC_Actor>      _pickupCarrier;
-
-	std::string  _scriptOnPickup;   // on_pickup(who)
-	float  _radius;
-	float  _timeAttached;
-	float  _timeRespawn;
-
-protected:
-	virtual void Respawn(World &world);
-
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void Kill(World &world);
-
-	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
 
 public:
-    DECLARE_LIST_MEMBER();
-    DECLARE_GRID_MEMBER();
-	void  SetRadius(float r)   { _radius = r;              }
-	float GetRadius()    const { return _radius;           }
-	GC_Actor* GetCarrier() const { return _pickupCarrier; }
-
-	void  SetRespawnTime(float respawnTime);
-	float GetRespawnTime() const;
-
-	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
-	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
-
-	void SetAutoSwitch(bool autoSwitch) { SetFlags(GC_FLAG_PICKUP_AUTO, autoSwitch); }
-	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
-
-	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
-	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
-
-	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
-
-    void Disappear(World &world);
-
-public:
+	DECLARE_LIST_MEMBER();
+	DECLARE_GRID_MEMBER();
 	GC_Pickup(World &world);
 	GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
+	
+	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 
+	void  SetRadius(float r) { _radius = r; }
+	float GetRadius() const { return _radius; }
+	GC_Actor* GetCarrier() const { return _pickupCarrier; }
+	
+	void  SetRespawnTime(float respawnTime);
+	float GetRespawnTime() const;
+	
+	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
+	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
+	
+	void SetAutoSwitch(bool autoSwitch) { SetFlags(GC_FLAG_PICKUP_AUTO, autoSwitch); }
+	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
+	
+	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
+	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
+	
+	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
+	
+	void Disappear(World &world);
+	
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
@@ -101,15 +68,48 @@ public:
 
 	// default implementation searches for the nearest vehicle
 	virtual GC_Actor* FindNewOwner(World &world) const;
-
+	
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
-
 	virtual float GetDefaultRespawnTime() const = 0;
 
+	// GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
+	// GC_Object
+	virtual void Kill(World &world);
+	virtual void MapExchange(World &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f);
+	virtual void TimeStepFixed(World &world, float dt);
+	
 protected:
+	virtual void Respawn(World &world);
+
+protected:
+	class MyPropertySet : public GC_Actor::MyPropertySet
+	{
+		typedef GC_Actor::MyPropertySet BASE;
+		ObjectProperty _propTimeRespawn;
+		ObjectProperty _propOnPickup;
+		
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(World &world, bool applyToObject);
+	};
+	
+	virtual PropertySet* NewPropertySet();
+
+private:
+	ObjPtr<GC_HideLabel>  _label;
+	ObjPtr<GC_Actor>      _pickupCarrier;
+	
+	std::string  _scriptOnPickup;   // on_pickup(who)
+	float  _radius;
+	float  _timeAttached;
+	float  _timeRespawn;
+
 	void OnOwnerMove(World &world, GC_Object *sender, void *param);
 	void OnOwnerKill(World &world, GC_Object *sender, void *param);
 

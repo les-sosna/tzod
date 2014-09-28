@@ -9,6 +9,13 @@ template<> struct ObjectListener<GC_Object>
 	virtual void OnKill(GC_Object &obj) = 0;
 };
 
+class GC_Actor;
+class GC_Pickup;
+template<> struct ObjectListener<GC_Pickup> : ObjectListener<GC_Object>
+{
+	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) = 0;
+};
+
 class GC_Player;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Player> : ObjectListener<GC_Object>
