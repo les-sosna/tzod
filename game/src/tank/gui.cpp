@@ -19,6 +19,7 @@
 #include "gc/Player.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
+#include "gc/VehicleClasses.h"
 
 #include "network/CommonTypes.h"
 
@@ -696,12 +697,10 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 	_classes->Resize(200);
 
 	std::pair<std::string, std::string> val;
-	lua_getglobal(g_env.L, "classes");
-	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
+	for( unsigned int i = 0; GetVehicleClassName(i); ++i )
 	{
-		// now 'key' is at index -2 and 'value' at index -1
-		val.first = lua_tostring(g_env.L, -2);
-		val.second = lua_tostring(g_env.L, -2); //lua_tostring(L, -1);
+		val.first = GetVehicleClassName(i);
+		val.second = GetVehicleClassName(i);
 		_classNames.push_back(val);
 
 		int index = _classes->GetData()->AddItem(val.first);

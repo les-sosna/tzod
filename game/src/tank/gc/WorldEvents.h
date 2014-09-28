@@ -10,7 +10,12 @@ template<> struct ObjectListener<GC_Object>
 };
 
 class GC_Player;
-template<> struct ObjectListener<GC_Player> : ObjectListener<GC_Object> {};
+class GC_Vehicle;
+template<> struct ObjectListener<GC_Player> : ObjectListener<GC_Object>
+{
+	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) = 0;
+	virtual void OnDie(GC_Player &obj) = 0;
+};
 
 class GC_Service;
 template<> struct ObjectListener<GC_Service> : ObjectListener<GC_Object> {};

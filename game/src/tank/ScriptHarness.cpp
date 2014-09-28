@@ -1,9 +1,10 @@
 #include "ScriptHarness.h"
 #include "script.h"
 #include "core/Debug.h"
-#include "gc/World.h"
+#include "gc/Player.h"
 #include "gc/Trigger.h"
 #include "gc/Vehicle.h"
+#include "gc/World.h"
 #include "gclua/lObjUtil.h"
 
 extern "C"
@@ -21,10 +22,12 @@ ScriptHarness::ScriptHarness(World &world, lua_State *L)
 {
 	_world.eGC_Trigger.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
+	_world.eGC_Player.AddListener(*this);
 }
 
 ScriptHarness::~ScriptHarness()
 {
+	_world.eGC_Player.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_Trigger.RemoveListener(*this);
 }
@@ -116,3 +119,21 @@ void ScriptHarness::OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from)
 		}
 	}
 }
+
+
+void ScriptHarness::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)
+{
+	if( !obj.GetOnRespawn().empty() )
+	{
+		script_exec(_L, obj.GetOnRespawn().c_str());
+	}
+}
+
+void ScriptHarness::OnDie(GC_Player &obj)
+{
+	if( !obj.GetOnDie().empty() )
+	{
+		script_exec(_L, obj.GetOnDie().c_str());
+	}
+}
+

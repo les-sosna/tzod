@@ -42,6 +42,17 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 	return std::move(result);
 }
 
+void AIManager::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)
+{
+	auto it = _aiControllers.find(&obj);
+	if (_aiControllers.end() != it)
+		it->second.second->OnRespawn(_world, vehicle);
+}
+
+void AIManager::OnDie(GC_Player &obj)
+{
+}
+
 void AIManager::OnCreate(GC_Object &obj)
 {
 }

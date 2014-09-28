@@ -73,3 +73,10 @@ std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className)
 	}
 	return nullptr;
 }
+
+const char* GetVehicleClassName(unsigned int index)
+{
+	if (index < sizeof(s_vehicleClasses) / sizeof(s_vehicleClasses[0]))
+		return s_vehicleClassNames[index];
+	return nullptr;
+}

@@ -27,6 +27,10 @@ private:
 	void OnProfilesChange();
 	World &_world;
 	
+	// ObjectListener<GC_Player>
+	virtual void OnRespawn(GC_Player &, GC_Vehicle &) override {}
+	virtual void OnDie(GC_Player &) override {}
+
 	// ObjectListener<GC_Object>
 	virtual void OnCreate(GC_Object &obj) override;
 	virtual void OnKill(GC_Object &obj) override;

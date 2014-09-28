@@ -4,16 +4,15 @@
 #include "World.h"
 #include "Macros.h"
 #include "particles.h"
-#include "vehicle.h"
+#include "Vehicle.h"
+#include "VehicleClasses.h"
 #include "WorldEvents.h"
 
 #include "MapFile.h"
 #include "SaveFile.h"
 #include "Sound.h"
-#include "script.h"
 
 #include "constants.h"
-#include "globals.h"
 
 //#include "network/TankClient.h"
 
@@ -22,14 +21,6 @@
 
 #include "core/Debug.h"
 
-#include <ui/GuiManager.h>
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 IMPLEMENT_SELF_REGISTRATION(GC_Player)
 {
@@ -44,21 +35,6 @@ GC_Player::GC_Player(World &world)
   , _team(0)
   , _score(0)
 {
-	// !! avoid using net_rand in constructor since it may cause sync error
-
-	// select first available class
-//	int count = 0;
-	lua_getglobal(g_env.L, "classes");
-	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
-	{
-	//	if( 0 == world.net_rand() % ++count )
-		{
-			SetClass(lua_tostring(g_env.L, -2));  // get vehicle class
-		}
-	}
-	lua_pop(g_env.L, 1); // remove classes table
-
-	// select the default red skin
 	SetSkin("red");
 }
 
@@ -140,14 +116,6 @@ void GC_Player::SetScore(World &world, int score)
 			world.HitLimit();
 		}
 	}
-}
-
-void GC_Player::OnRespawn()
-{
-}
-
-void GC_Player::OnDie()
-{
 }
 
 static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
@@ -238,11 +206,8 @@ void GC_Player::TimeStepFixed(World &world, float dt)
 			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 
-			OnRespawn();
-			if( !_scriptOnRespawn.empty() )
-			{
-				script_exec(g_env.L, _scriptOnRespawn.c_str());
-			}
+			for( auto ls: world.eGC_Player._listeners )
+				ls->OnRespawn(*this, *_vehicle);
 		}
 	}
 }
@@ -252,11 +217,8 @@ void GC_Player::OnVehicleDestroy(World &world, GC_Object *sender, void *param)
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 	_vehicle = NULL;
-	OnDie();
-	if( !_scriptOnDie.empty() )
-	{
-		script_exec(g_env.L, _scriptOnDie.c_str());
-	}
+	for( auto ls: world.eGC_Player._listeners )
+		ls->OnDie(*this);
 }
 
 void GC_Player::OnVehicleKill(World &world, GC_Object *sender, void *param)
@@ -264,7 +226,6 @@ void GC_Player::OnVehicleKill(World &world, GC_Object *sender, void *param)
 	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
 	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
 	_vehicle = NULL;
-	OnDie();
 }
 
 PropertySet* GC_Player::NewPropertySet()
@@ -286,13 +247,8 @@ GC_Player::MyPropertySet::MyPropertySet(GC_Object *object)
 	_propTeam.SetIntRange(0, MAX_TEAMS);
 	_propScore.SetIntRange(INT_MIN, INT_MAX);
 
-	lua_getglobal(g_env.L, "classes");
-	for( lua_pushnil(g_env.L); lua_next(g_env.L, -2); lua_pop(g_env.L, 1) )
-	{
-		// now 'key' is at index -2 and 'value' at index -1
-		_propClass.AddItem(lua_tostring(g_env.L, -2));
-	}
-	lua_pop(g_env.L, 1); // pop classes table
+	for (unsigned int i = 0; GetVehicleClassName(i); ++i)
+		_propClass.AddItem(GetVehicleClassName(i));
 }
 
 int GC_Player::MyPropertySet::GetCount() const

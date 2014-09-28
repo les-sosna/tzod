@@ -32,3 +32,4 @@ struct VehicleClass
 };
 
 std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className);
+const char* GetVehicleClassName(unsigned int index);
