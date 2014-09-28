@@ -232,7 +232,7 @@ void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &
 			{
 				void *ud = lua_touserdata(L, 1);
 				lua_settop(L, 0);
-				lua_newtable(g_env.L);       // permanent objects
+				lua_newtable(L);             // permanent objects
 				lua_pushstring(L, "any_id_12345");
 				lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
 				lua_settable(L, -3);
@@ -244,7 +244,7 @@ void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &
 			{
 				void *ud = lua_touserdata(L, 1);
 				lua_settop(L, 0);
-				lua_newtable(g_env.L);       // permanent objects
+				lua_newtable(L);             // permanent objects
 				pluto_unpersist(L, &r, ud);
 				lua_getglobal(L, "pushcmd");
 				assert(LUA_TFUNCTION == lua_type(L, -1));
@@ -366,7 +366,7 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 		{
 			void *ud = lua_touserdata(L, 1);
 			lua_settop(L, 0);
-			lua_newtable(g_env.L);       // permanent objects
+			lua_newtable(L);             // permanent objects
 			lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
 			lua_pushstring(L, "any_id_12345");
 			lua_settable(L, -3);
@@ -378,7 +378,7 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 		{
 			void *ud = lua_touserdata(L, 1);
 			lua_settop(L, 0);
-			lua_newtable(g_env.L);       // permanent objects
+			lua_newtable(L);             // permanent objects
 			lua_getglobal(L, "pushcmd");
 			assert(LUA_TFUNCTION == lua_type(L, -1));
 			lua_getupvalue(L, -1, 1);    // object to persist
