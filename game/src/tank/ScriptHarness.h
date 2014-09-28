@@ -1,8 +1,14 @@
 #pragma once
 #include "gc/WorldEvents.h"
+#include <memory>
 
+class SaveFile;
 class World;
+struct ScriptEnvironment;
 struct lua_State;
+namespace FS {
+	class Stream;
+}
 
 class ScriptHarness
 	: ObjectListener<GC_Trigger>
@@ -11,8 +17,14 @@ class ScriptHarness
 	, ObjectListener<GC_Player>
 {
 public:
-	ScriptHarness(World &world, lua_State *L);
+	ScriptHarness(World &world, ScriptEnvironment &se);
 	~ScriptHarness();
+	lua_State* GetLuaState() { return _L; }
+	
+	void Step(float dt);
+	
+	void Serialize(std::shared_ptr<FS::Stream> stream, SaveFile &f);
+	void Deserialize(std::shared_ptr<FS::Stream> stream, SaveFile &f);
 	
 private:
 	World &_world;

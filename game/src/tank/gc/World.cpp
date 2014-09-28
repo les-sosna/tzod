@@ -8,10 +8,8 @@
 #include "Sound.h"
 #include "Macros.h"
 
-#include "globals.h"
 #include "MapFile.h"
 #include "SaveFile.h"
-#include "script.h"
 #include "ThemeManager.h"
 
 #include "core/Debug.h"
@@ -19,22 +17,11 @@
 #include "config/Config.h"
 #include "config/Language.h"
 
-#include "gclua/lObjUtil.h" // TODO: remove
 
 //#include "network/TankClient.h"
 //#include "network/TankServer.h"
 
 #include <fs/FileSystem.h>
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
-#include <pluto.h>
-
-#include <GLFW/glfw3.h>
 
 
 #define MAX_THEME_NAME  128
@@ -152,6 +139,7 @@ World::~World()
 {
 	assert(IsSafeMode());
 	TRACE("Destroying the world");
+	Clear();
 
 	// unregister config handlers
 	g_conf.s_volume.eventChange = nullptr;
@@ -207,88 +195,6 @@ void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &
             GetList(LIST_objects).at(it)->Serialize(*this, f);
 		}
 
-
-		//
-		// restore lua user environment
-		//
-
-		struct ReadHelper
-		{
-			static const char* r(lua_State *L, void* data, size_t *sz)
-			{
-				static char buf[1];
-				try
-				{
-					*sz = reinterpret_cast<FS::Stream*>(data)->Read(buf, 1, sizeof(buf));
-				}
-				catch( const std::exception &e )
-				{
-					*sz = 0;
-					luaL_error(L, "deserialize error - %s", e.what());
-				}
-				return buf;
-			}
-			static int read_user(lua_State *L)
-			{
-				void *ud = lua_touserdata(L, 1);
-				lua_settop(L, 0);
-				lua_newtable(L);             // permanent objects
-				lua_pushstring(L, "any_id_12345");
-				lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
-				lua_settable(L, -3);
-				pluto_unpersist(L, &r, ud);
-				lua_setglobal(L, "user");    // unpersisted object
-				return 0;
-			}
-			static int read_queue(lua_State *L)
-			{
-				void *ud = lua_touserdata(L, 1);
-				lua_settop(L, 0);
-				lua_newtable(L);             // permanent objects
-				pluto_unpersist(L, &r, ud);
-				lua_getglobal(L, "pushcmd");
-				assert(LUA_TFUNCTION == lua_type(L, -1));
-				lua_pushvalue(L, -2);
-				lua_setupvalue(L, -2, 1);    // unpersisted object
-				return 0;
-			}
-			static int restore_ptr(lua_State *L)
-			{
-				assert(1 == lua_gettop(L));
-				size_t id = (size_t) lua_touserdata(L, 1);
-				SaveFile *fptr = (SaveFile *) lua_touserdata(L, lua_upvalueindex(1));
-				assert(fptr);
-				GC_Object *obj;
-				try
-				{
-					obj = id ? fptr->RestorePointer(id) : NULL;
-				}
-				catch( const std::exception &e )
-				{
-					return luaL_error(L, "%s", e.what());
-				}
-				luaT_pushobject(L, obj);
-				return 1;
-			}
-		};
-		lua_pushlightuserdata(g_env.L, &f);
-		lua_pushcclosure(g_env.L, &ReadHelper::restore_ptr, 1);
-		lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
-		if( lua_cpcall(g_env.L, &ReadHelper::read_user, stream.get()) )
-		{
-			std::string err = "[pluto read user] ";
-			err += lua_tostring(g_env.L, -1);
-			lua_pop(g_env.L, 1);
-			throw std::runtime_error(err);
-		}
-		if( lua_cpcall(g_env.L, &ReadHelper::read_queue, stream.get()) )
-		{
-			std::string err = "[pluto read queue] ";
-			err += lua_tostring(g_env.L, -1);
-			lua_pop(g_env.L, 1);
-			throw std::runtime_error(err);
-		}
-
 		// apply the theme
 		_infoTheme = sh.theme;
 		themeManager.ApplyTheme(themeManager.FindTheme(sh.theme), tm);
@@ -342,68 +248,6 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 	{
         objects.at(it)->Serialize(*this, f);
 	}
-
-
-	//
-	// write lua user environment
-	//
-
-	struct WriteHelper
-	{
-		static int w(lua_State *L, const void* p, size_t sz, void* ud)
-		{
-			try
-			{
-				reinterpret_cast<SaveFile*>(ud)->GetStream()->Write(p, sz);
-			}
-			catch( const std::exception &e )
-			{
-				return luaL_error(L, "[file write] %s", e.what());
-			}
-			return 0;
-		}
-		static int write_user(lua_State *L)
-		{
-			void *ud = lua_touserdata(L, 1);
-			lua_settop(L, 0);
-			lua_newtable(L);             // permanent objects
-			lua_getfield(L, LUA_REGISTRYINDEX, "restore_ptr");
-			lua_pushstring(L, "any_id_12345");
-			lua_settable(L, -3);
-			lua_getglobal(L, "user");    // object to persist
-			pluto_persist(L, &w, ud);
-			return 0;
-		}
-		static int write_queue(lua_State *L)
-		{
-			void *ud = lua_touserdata(L, 1);
-			lua_settop(L, 0);
-			lua_newtable(L);             // permanent objects
-			lua_getglobal(L, "pushcmd");
-			assert(LUA_TFUNCTION == lua_type(L, -1));
-			lua_getupvalue(L, -1, 1);    // object to persist
-			lua_remove(L, -2);
-			pluto_persist(L, &w, ud);
-			return 0;
-		}
-	};
-	lua_newuserdata(g_env.L, 0); // placeholder for restore_ptr
-	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
-	if( lua_cpcall(g_env.L, &WriteHelper::write_user, &f) )
-	{
-		std::string err = "[pluto write user] ";
-		err += lua_tostring(g_env.L, -1);
-		lua_pop(g_env.L, 1);
-		throw std::runtime_error(err);
-	}
-	if( lua_cpcall(g_env.L, &WriteHelper::write_queue, &f) )
-	{
-		std::string err = "[pluto write queue] ";
-		err += lua_tostring(g_env.L, -1);
-		lua_pop(g_env.L, 1);
-		throw std::runtime_error(err);
-	}
-	lua_setfield(g_env.L, LUA_REGISTRYINDEX, "restore_ptr");
 }
 
 void World::Import(std::shared_ptr<FS::Stream> s, const ThemeManager &themeManager, TextureManager &tm)
@@ -646,7 +490,6 @@ void World::Step(float dt)
 	}
 
     assert(_safeMode);
-	RunCmdQueue(g_env.L, dt);
 
 	if( g_conf.sv_timelimit.GetInt() && g_conf.sv_timelimit.GetInt() * 60 <= _time )
 	{

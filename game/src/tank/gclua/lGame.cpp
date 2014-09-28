@@ -104,13 +104,13 @@ static int game_loadmap(lua_State *L)
         se.world.Seed(rand());
         se.world.Import(se.fs.Open(filename)->QueryStream(), se.themeManager, se.textureManager);
 		
+		// TODO: move to ScriptHarness
 		if( luaL_loadstring(L, se.world._infoOnInit.c_str()) )
 		{
 			std::string msg(lua_tostring(L, -1));
 			lua_pop(L, 1); // pop the error message from the stack
 			throw std::runtime_error(std::string("syntax error in map script: ") + msg);
 		}
-		
 		if( lua_pcall(L, 0, 0, 0) )
 		{
 			std::string msg(lua_tostring(L, -1));
@@ -164,6 +164,8 @@ static int game_load(lua_State *L)
 	{
 		TRACE("Loading saved game from file '%s'...", filename);
 		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeRead)->QueryStream();
+		
+		// TODO: do full game context serialization
 		se.world.Unserialize(stream, se.themeManager, se.textureManager);
 	}
 	catch( const std::exception &e )
@@ -192,6 +194,8 @@ static int game_save(lua_State *L)
 	{
 		TRACE("Saving game to file '%S'...", filename);
 		std::shared_ptr<FS::Stream> stream = se.fs.Open(filename, FS::ModeWrite)->QueryStream();
+
+		// TODO: do full game context serialization
 		se.world.Serialize(stream);
 	}
 	catch( const std::exception &e )

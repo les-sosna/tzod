@@ -2,6 +2,7 @@
 
 #include <AIManager.h>
 #include <constants.h>
+#include <GameContext.h>
 #include <GlfwPlatform.h>
 #include <globals.h>
 #include <gui_desktop.h>
@@ -25,14 +26,11 @@
 #include <gc/Sound.h>
 #include <gc/Player.h>
 #include <gc/World.h>
-#include <gc/Macros.h>
 #include <gclua/lgcmod.h>
 
 #include <core/Debug.h>
 #include <core/Timer.h>
 #include <core/Profiler.h>
-
-#include "res/resource.h"
 
 #include <../FileSystemImpl.h>
 #include <GLFW/glfw3.h>
@@ -202,37 +200,37 @@ int main(int, const char**)
         InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
 #endif
 
-        { // FIXME: remove explicit world scope
-        World world;
-		WorldController worldController(world);
-		AIManager aiManager(world);
+        { // FIXME: remove explicit game context scope
 		ThemeManager themeManager(*fs);
-
 		TextureManager texman(*render);
 		if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
 			TRACE("WARNING: no textures loaded");
 		if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
 			TRACE("WARNING: no skins found");
+		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
+		GameContext gameContext(*fs,
+								themeManager,
+								texman,
+								exitCommand);
+		WorldController worldController(gameContext.GetWorld());
+		AIManager aiManager(gameContext.GetWorld());
 
-        TRACE("scripting subsystem initialization");
-		ScriptEnvironment se
-		{
-			world,
-			*fs,
-			themeManager,
-			texman,
-			std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1)
-		};
-        g_env.L = script_open(se);
+        g_env.L = gameContext.GetScriptHarness().GetLuaState();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-			
-		ScriptHarness scriptHarness(world, g_env.L);
 			
         TRACE("GUI subsystem initialization");
 		GlfwInput input(appWindow.GetGlfwWindow());
 		GlfwClipboard clipboard(appWindow.GetGlfwWindow());
-        UI::LayoutManager gui(input, clipboard, texman, DesktopFactory(world, worldController, aiManager, themeManager, *fs, se.exitCommand));
+        UI::LayoutManager gui(input,
+							  clipboard,
+							  texman,
+							  DesktopFactory(gameContext.GetWorld(),
+											 worldController,
+											 aiManager,
+											 themeManager,
+											 *fs,
+											 exitCommand));
         glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
@@ -258,8 +256,8 @@ int main(int, const char**)
                 break;
 			
 			float dt = timer.GetDt();
-			worldController.SendControllerStates(aiManager.ComputeAIState(world, dt));
-			gui.TimeStep(dt); // also sends controller state to WorldController
+			worldController.SendControllerStates(aiManager.ComputeAIState(gameContext.GetWorld(), dt));
+			gui.TimeStep(dt); // this also sends user controller state to WorldController
 
 			// moving average
 			movingAverageWindow.push_back(dt);
@@ -274,7 +272,8 @@ int main(int, const char**)
 			std::copy(movingMedianWindow.begin(), movingMedianWindow.end(), buf);
 			std::nth_element(buf, buf + movingMedianWindow.size() / 2, buf + movingMedianWindow.size());
 			float median = buf[movingMedianWindow.size() / 2];
-			world.Step(median * g_conf.sv_speed.GetFloat() / 100);
+			
+			gameContext.Step(median * g_conf.sv_speed.GetFloat() / 100);
             
 			
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
@@ -283,31 +282,15 @@ int main(int, const char**)
             render->Begin();
             gui.Render(dc);
             render->End();
-            
-#ifndef NOSOUND
-            if( se.music )
-            {
-                se.music->HandleBufferFilling();
-            }
-#endif
-            
+                        
             glfwSwapBuffers(&appWindow.GetGlfwWindow());
         }
         
         
-        //
-        // Shutdown
-        //
-        
-        TRACE("Shutting down the world");
-        world.Clear();
-        } // FIXME: remove explicit world scope
-        
-		// FIXME: potential use-after-free as script enviromnent is already gone
-        TRACE("Shutting down the scripting subsystem");
-        script_close(g_env.L);
-        g_env.L = NULL;
-
+		g_env.L = NULL;
+		TRACE("Shutting down game context");
+        } // FIXME: remove explicit game context scope
+		
         
 #ifndef NOSOUND
         FreeSound();

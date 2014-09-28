@@ -31,6 +31,7 @@ set(tank_SOURCES
 	ClientBase.cpp
 	Controller.cpp
 	DefaultCamera.cpp
+	GameContext.cpp
 	GlfwPlatform.cpp
 	globals.cpp
 	gui.cpp

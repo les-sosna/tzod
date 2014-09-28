@@ -363,6 +363,8 @@ void NewGameDlg::OnOK()
         _world.Clear();
         _world.Seed(rand());
         _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager().GetTextureManager());
+		
+		// TODO: move to ScriptHarness
         if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
         {
             _world.Clear();

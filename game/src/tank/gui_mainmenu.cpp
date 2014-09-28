@@ -129,6 +129,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		{
 			TRACE("Saving game to file '%S'...", tmp.c_str());
 			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeWrite)->QueryStream();
+			// TODO: do full game context serialization
 			_world.Serialize(stream);
 			GetConsole().Printf(0, "game saved: '%s'", tmp.c_str());
 		}
@@ -170,6 +171,8 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 		{
 			TRACE("Loading saved game from file '%s'...", tmp.c_str());
 			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
+
+			// TODO: do full game context serialization
 			_world.Unserialize(stream, _themeManager, GetManager().GetTextureManager());
 		}
 		catch( const std::exception &e )
