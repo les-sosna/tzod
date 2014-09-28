@@ -406,8 +406,7 @@ bool GC_Vehicle::TakeDamage(World &world, float damage, const vec2d &hit, GC_Pla
 			if( watch ) Kill(world);
 		}
 
-        if (world._messageListener)
-            world._messageListener->OnGameMessage(msg);
+		world.GameMessage(msg);
 
 		return true;
 	}

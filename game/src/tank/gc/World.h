@@ -27,8 +27,6 @@ class GC_Player;
 class GC_Trigger;
 class GC_Service;
 
-struct MessageListener;
-
 class ThemeManager; // todo: remove
 class TextureManager; // todo: remove
 
@@ -73,6 +71,7 @@ public:
 	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
 	DECLARE_EVENTS(GC_RigidBodyStatic);
+	DECLARE_EVENTS(World);
 
 #ifndef NDEBUG
 	std::set<GC_Object*> _garbage;
@@ -96,10 +95,8 @@ public:
 	Grid<PtrList<GC_Object>>  grid_pickup;
     Grid<PtrList<GC_Object>>  grid_actors;
 
-    MessageListener *_messageListener;
-
 /////////////////////////////////////
-//settings
+	bool    _gameStarted;
 	bool    _frozen;
 	bool    _limitHit;  // fraglimit or timelimit hit
 	float   _sx, _sy;   // world size
@@ -133,6 +130,8 @@ public:
 /////////////////////////////////////////////////////
 	World();
 	~World();
+	
+	void GameMessage(const char *msg);
 	
 	void Resize(int X, int Y);
 	void HitLimit();

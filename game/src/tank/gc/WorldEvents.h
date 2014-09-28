@@ -43,9 +43,10 @@ template<> struct ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) = 0;
 };
 
-
-struct MessageListener
+class World;
+template<> struct ObjectListener<World>
 {
+	virtual void OnGameStarted() = 0;
     virtual void OnGameMessage(const char *msg) = 0;
 };
 

@@ -32,10 +32,12 @@ ScriptHarness::ScriptHarness(World &world, ScriptEnvironment &se)
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_Player.AddListener(*this);
 	_world.eGC_Pickup.AddListener(*this);
+	_world.eWorld.AddListener(*this);
 }
 
 ScriptHarness::~ScriptHarness()
 {
+	_world.eWorld.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
 	_world.eGC_Player.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
@@ -329,3 +331,11 @@ void ScriptHarness::OnDie(GC_Player &obj)
 	}
 }
 
+
+void ScriptHarness::OnGameStarted()
+{
+	if( !_world._infoOnInit.empty() )
+	{
+		script_exec(_L, _world._infoOnInit.c_str());
+	}
+}

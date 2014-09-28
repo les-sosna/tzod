@@ -3,12 +3,10 @@
 #include "gui.h"
 
 #include "Controller.h"
-#include "globals.h"
 #include "gui_maplist.h"
 #include "InputManager.h"
 #include "AIManager.h"
 #include "MapFile.h"
-#include "script.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -34,12 +32,6 @@
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
 
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 namespace UI
 {
@@ -363,13 +355,6 @@ void NewGameDlg::OnOK()
         _world.Clear();
         _world.Seed(rand());
         _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager().GetTextureManager());
-		
-		// TODO: move to ScriptHarness
-        if( !script_exec(g_env.L, _world._infoOnInit.c_str()) )
-        {
-            _world.Clear();
-            throw std::runtime_error("init script error");
-        }
 	}
 	catch( const std::exception &e )
 	{

@@ -76,16 +76,13 @@ UI::GameLayout::GameLayout(Window *parent,
 	g_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
-    assert(!world._messageListener);
-    world._messageListener = this;
-	
 	SetTimeStep(true);
+	_world.eWorld.AddListener(*this);
 }
     
 UI::GameLayout::~GameLayout()
 {
-    assert(this == _world._messageListener);
-    _world._messageListener = nullptr;
+	_world.eWorld.RemoveListener(*this);
 	g_conf.ui_showtime.eventChange = nullptr;
 }
 

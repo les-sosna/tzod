@@ -103,20 +103,6 @@ static int game_loadmap(lua_State *L)
         se.world.Clear();
         se.world.Seed(rand());
         se.world.Import(se.fs.Open(filename)->QueryStream(), se.themeManager, se.textureManager);
-		
-		// TODO: move to ScriptHarness
-		if( luaL_loadstring(L, se.world._infoOnInit.c_str()) )
-		{
-			std::string msg(lua_tostring(L, -1));
-			lua_pop(L, 1); // pop the error message from the stack
-			throw std::runtime_error(std::string("syntax error in map script: ") + msg);
-		}
-		if( lua_pcall(L, 0, 0, 0) )
-		{
-			std::string msg(lua_tostring(L, -1));
-			lua_pop(L, 1); // pop the error message from the stack
-			throw std::runtime_error(std::string("runtime error in map script: ") + msg);
-		}
 	}
 	catch( const std::exception &e )
 	{
@@ -157,8 +143,6 @@ static int game_load(lua_State *L)
     ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'load' in unsafe mode");
-
-//	SAFE_DELETE(g_client);
 
 	try
 	{
@@ -208,8 +192,8 @@ static int game_save(lua_State *L)
 	return 0;
 }
 
-// import( string filename )  -- import map
-static int game_import(lua_State *L)
+// savemap( string filename )  -- save map
+static int game_savemap(lua_State *L)
 {
 	int n = lua_gettop(L);
 	if( 1 != n )
@@ -219,37 +203,7 @@ static int game_import(lua_State *L)
 
     ScriptEnvironment &se = GetScriptEnvironment(L);
 	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'import' in unsafe mode");
-
-//	SAFE_DELETE(g_client);
-    
-	try
-	{
-        se.world.Clear();
-		se.world.Import(se.fs.Open(filename)->QueryStream(), se.themeManager, se.textureManager);
-        g_conf.sv_nightmode.Set(false);
-	}
-	catch( const std::exception &e )
-	{
-		GetConsole().WriteLine(1, e.what());
-        return luaL_error(L, "couldn't import map '%s'", filename);
-	}
-
-	return 0;
-}
-
-// export( string filename )  -- export map
-static int game_export(lua_State *L)
-{
-	int n = lua_gettop(L);
-	if( 1 != n )
-		return luaL_error(L, "wrong number of arguments: 1 expected, got %d", n);
-
-	const char *filename = luaL_checkstring(L, 1);
-
-    ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( !se.world.IsSafeMode() )
-		return luaL_error(L, "attempt to execute 'export' in unsafe mode");
+		return luaL_error(L, "attempt to execute 'savemap' in unsafe mode");
 
 	try
 	{
@@ -257,10 +211,10 @@ static int game_export(lua_State *L)
 	}
 	catch( const std::exception &e )
 	{
-		return luaL_error(L, "couldn't export map to '%s' - %s", filename, e.what());
+		return luaL_error(L, "couldn't save map to '%s' - %s", filename, e.what());
 	}
 
-	GetConsole().Printf(0, "map exported: '%s'", filename);
+	GetConsole().Printf(0, "map saved: '%s'", filename);
 
 	return 0;
 }
@@ -285,8 +239,7 @@ static int game_message(lua_State *L)
 	}
     
     ScriptEnvironment &se = GetScriptEnvironment(L);
-    if (se.world._messageListener)
-        se.world._messageListener->OnGameMessage(buf.str().c_str());
+	se.world.GameMessage(buf.str().c_str());
 
 	return 0;
 }
@@ -360,11 +313,10 @@ static const luaL_Reg gamelib[] = {
 	{"pause", game_pause},
 	{"freeze", game_freeze},
 	{"loadmap", game_loadmap},
+	{"savemap", game_savemap},
 	{"newmap", game_newmap},
 	{"load", game_load},
 	{"save", game_save},
-	{"import", game_import},
-	{"export", game_export},
 	{"message", game_message},
 	{"music", game_music},
 	{"loadtheme", game_loadtheme},

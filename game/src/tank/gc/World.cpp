@@ -2,6 +2,7 @@
 
 #include "World.h"
 #include "World.inl"
+#include "WorldEvents.h"
 
 #include "RigidBodyDinamic.h"
 #include "Player.h"
@@ -30,6 +31,7 @@ struct SaveHeader
 {
     uint32_t dwVersion;
     bool  nightmode;
+	bool  started;
     float timelimit;
     int   fraglimit;
     float time;
@@ -41,7 +43,7 @@ struct SaveHeader
 
 // don't create game objects in the constructor
 World::World()
-  : _messageListener(nullptr)
+  : _gameStarted(false)
   , _frozen(false)
   , _limitHit(false)
   , _sx(0)
@@ -66,6 +68,12 @@ World::World()
 bool World::IsEmpty() const
 {
 	return GetList(LIST_objects).empty();
+}
+
+void World::GameMessage(const char *msg)
+{
+	for( auto ls: eWorld._listeners )
+		ls->OnGameMessage(msg);
 }
 
 void World::Resize(int X, int Y)
@@ -114,6 +122,7 @@ void World::Clear()
 	_time = 0;
 	_limitHit = false;
 	_frozen = false;
+	_gameStarted = false;
 #ifdef NETWORK_DEBUG
 	_checksum = 0;
 	_frame = 0;
@@ -167,6 +176,7 @@ void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &
 		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
 		g_conf.sv_nightmode.Set(sh.nightmode);
 
+		_gameStarted = sh.started;
 		_time = sh.time;
 		Resize(sh.width, sh.height);
 
@@ -218,6 +228,7 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
 	sh.timelimit    = g_conf.sv_timelimit.GetFloat();
 	sh.nightmode    = g_conf.sv_nightmode.Get();
+	sh.started      = _gameStarted;
 	sh.time         = _time;
 	sh.width        = (int) _sx / CELL_SIZE;
 	sh.height       = (int) _sy / CELL_SIZE;
@@ -473,6 +484,13 @@ void World::TraceAll( Grid<ObjectList> &list,
 
 void World::Step(float dt)
 {
+	if( !_gameStarted )
+	{
+		_gameStarted = true;
+		for( auto ls: eWorld._listeners )
+			ls->OnGameStarted();
+	}
+	
 	_time += dt;
 
 	if( !_frozen )

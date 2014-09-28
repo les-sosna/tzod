@@ -263,15 +263,9 @@ void MainMenuDlg::OnImportMapSelect(int result)
 	assert(_fileDlg);
 	if( _resultOK == result )
 	{
-        std::ostringstream cmd;
-        cmd << "import \"";
-		cmd << DIR_MAPS << "/" << _fileDlg->GetFileName();  // FIXME: potential script injection!
-        cmd << "\"";
-
-		if( !script_exec(g_env.L, cmd.str().c_str()) )
-		{
-			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
-		}
+		_world.Clear();
+		_world.Import(_fs.Open(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName())->QueryStream(),
+					  _themeManager, GetManager().GetTextureManager());
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);

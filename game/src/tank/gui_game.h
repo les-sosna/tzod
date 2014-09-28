@@ -29,7 +29,7 @@ protected:
 
 class GameLayout
     : public Window
-    , private MessageListener
+    , private ObjectListener<World>
 {
 public:
     GameLayout(Window *parent,
@@ -48,7 +48,6 @@ public:
 
 private:
 	void OnChangeShowTime();
-    virtual void OnGameMessage(const char *msg);  // MessageListener
 
 	MessageArea  *_msg;
 	ScoreTable   *_score;
@@ -59,6 +58,10 @@ private:
 	WorldController &_worldController;
 	InputManager &_inputMgr;
     const DefaultCamera &_defaultCamera;
+
+	// ObjectListener<World>
+	virtual void OnGameStarted() {}
+	virtual void OnGameMessage(const char *msg);
 };
 
 

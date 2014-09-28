@@ -15,6 +15,7 @@ class ScriptHarness
 	, ObjectListener<GC_RigidBodyStatic>
 	, ObjectListener<GC_Pickup>
 	, ObjectListener<GC_Player>
+	, ObjectListener<World>
 {
 public:
 	ScriptHarness(World &world, ScriptEnvironment &se);
@@ -48,4 +49,8 @@ private:
 	// ObjectListener<GC_Object>
 	virtual void OnCreate(GC_Object &) override {}
 	virtual void OnKill(GC_Object &) override {}
+
+	// ObjectListener<World>
+	virtual void OnGameStarted() override;
+	virtual void OnGameMessage(const char *) override {}
 };
