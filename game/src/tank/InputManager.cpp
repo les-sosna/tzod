@@ -11,6 +11,7 @@ InputManager::InputManager(World &world)
 	: _world(world)
 {
 	_world.eGC_Player.AddListener(*this);
+	_world.eGC_Object.AddListener(*this);
     g_conf.dm_profiles.eventChange = std::bind(&InputManager::OnProfilesChange, this);
     OnProfilesChange();
 }
@@ -18,6 +19,7 @@ InputManager::InputManager(World &world)
 InputManager::~InputManager()
 {
     g_conf.dm_profiles.eventChange = nullptr;
+	_world.eGC_Object.RemoveListener(*this);
 	_world.eGC_Player.RemoveListener(*this);
 }
 
@@ -42,13 +44,12 @@ void InputManager::OnProfilesChange()
     }
 }
 
-void InputManager::OnCreate(GC_Object &obj)
-{
-}
-
 void InputManager::OnKill(GC_Object &obj)
 {
-	_controllers.erase(static_cast<GC_Player *>(&obj));
+	if (GC_Player::GetTypeStatic() == obj.GetType())
+	{
+		_controllers.erase(static_cast<GC_Player *>(&obj));
+	}
 }
 
 

@@ -52,8 +52,6 @@ set(tank_SOURCES
 	MapFile.cpp
 	Md5.c
 	SaveFile.cpp
-	script.cpp
-	ScriptHarness.cpp
 	SoundHarness.cpp
 	SoundRender.cpp
 	ThemeManager.cpp
@@ -129,6 +127,12 @@ set(tank_SOURCES
 	render/rWeapon.cpp
 	render/rWeaponBase.cpp
 	render/Terrain.cpp
+	script/script.cpp
+	script/ScriptHarness.cpp
+	script/sTrigger.cpp
+	script/sRigidBodyStatic.cpp
+	script/sPickup.cpp
+	script/sPlayer.cpp
 )
 
 set(tank_LIBRARIES

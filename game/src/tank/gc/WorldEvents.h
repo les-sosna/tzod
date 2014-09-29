@@ -11,14 +11,15 @@ template<> struct ObjectListener<GC_Object>
 
 class GC_Actor;
 class GC_Pickup;
-template<> struct ObjectListener<GC_Pickup> : ObjectListener<GC_Object>
+template<> struct ObjectListener<GC_Pickup>
 {
 	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) = 0;
+	virtual void OnRespawn(GC_Pickup &obj) = 0;
 };
 
 class GC_Player;
 class GC_Vehicle;
-template<> struct ObjectListener<GC_Player> : ObjectListener<GC_Object>
+template<> struct ObjectListener<GC_Player>
 {
 	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) = 0;
 	virtual void OnDie(GC_Player &obj) = 0;

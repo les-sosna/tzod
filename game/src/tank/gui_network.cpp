@@ -6,7 +6,6 @@
 #include "gui_maplist.h"
 
 #include "md5.h"
-#include "script.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

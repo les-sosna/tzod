@@ -17,7 +17,7 @@
 
 //#include "network/TankClient.h"
 
-#include "script.h"
+#include "script/script.h"
 
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>

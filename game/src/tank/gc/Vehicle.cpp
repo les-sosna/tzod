@@ -6,7 +6,6 @@
 #include "World.h"
 #include "WorldEvents.h"
 #include "Macros.h"
-#include "script.h"
 
 #include "GameClasses.h"
 #include "Camera.h"

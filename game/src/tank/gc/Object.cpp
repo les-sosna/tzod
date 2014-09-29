@@ -1,9 +1,9 @@
 // Object.cpp
-///////////////////////////////////////////////////////////////////////////////
 
 #include "Object.h"
 
 #include "World.h"
+#include "WorldEvents.h"
 #include "MapFile.h"
 #include "SaveFile.h"
 
@@ -160,6 +160,8 @@ void GC_Object::Kill(World &world)
 {
 //	assert(world._garbage.insert(this).second);
 
+	for( auto ls: world.eGC_Object._listeners )
+		ls->OnKill(*this);
 	PulseNotify(world, NOTIFY_OBJECT_KILL);
 	SetName(world, NULL);
     Unregister(world, _posLIST_objects);

@@ -3,7 +3,7 @@
 #include "ClientBase.h"
 
 #include "globals.h"
-#include "script.h"
+#include "script/script.h"
 #include "gc/World.h"
 
 #include <ui/GuiManager.h> // FIXME

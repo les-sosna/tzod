@@ -69,6 +69,7 @@ class World
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
 public:
+	DECLARE_EVENTS(GC_Object);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_Player);
 	DECLARE_EVENTS(GC_RigidBodyStatic);

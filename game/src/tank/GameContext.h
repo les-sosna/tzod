@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScriptHarness.h"
+#include "script/ScriptHarness.h"
 #include "gc/World.h"
 #include "gclua/lgcmod.h"
 #include <functional>

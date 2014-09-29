@@ -45,7 +45,6 @@ public:
     virtual void MoveTo(World &world, const vec2d &pos);
 
 	// GC_Object
-    virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 };
 

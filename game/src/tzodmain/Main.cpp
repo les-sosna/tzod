@@ -6,8 +6,8 @@
 #include <GlfwPlatform.h>
 #include <globals.h>
 #include <gui_desktop.h>
-#include <script.h>
-#include <ScriptHarness.h>
+#include <script/script.h>
+#include <script/ScriptHarness.h>
 #include <SoundHarness.h>
 #include <ThemeManager.h>
 #include <BackgroundIntro.h>

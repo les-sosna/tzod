@@ -8,10 +8,12 @@ AIManager::AIManager(World &world)
 	: _world(world)
 {
 	_world.eGC_Player.AddListener(*this);
+	_world.eGC_Object.AddListener(*this);
 }
 
 AIManager::~AIManager()
 {
+	_world.eGC_Object.RemoveListener(*this);
 	_world.eGC_Player.RemoveListener(*this);
 }
 
@@ -59,6 +61,9 @@ void AIManager::OnCreate(GC_Object &obj)
 
 void AIManager::OnKill(GC_Object &obj)
 {
-	_aiControllers.erase(static_cast<GC_Player *>(&obj));
+	if (GC_Player::GetTypeStatic() == obj.GetType())
+	{
+		_aiControllers.erase(static_cast<GC_Player *>(&obj));
+	}
 }
 

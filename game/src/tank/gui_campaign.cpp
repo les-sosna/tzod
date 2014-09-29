@@ -4,7 +4,7 @@
 #include "gui_campaign.h"
 #include "gui_desktop.h"
 
-#include "script.h"
+#include "script/script.h"
 
 #include "config/Config.h"
 #include "config/Language.h"

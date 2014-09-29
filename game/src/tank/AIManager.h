@@ -14,6 +14,7 @@ class World;
 
 class AIManager
 	: private ObjectListener<GC_Player>
+	, private ObjectListener<GC_Object>
 {
 public:
 	AIManager(World &world);

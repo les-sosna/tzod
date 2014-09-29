@@ -50,11 +50,6 @@ GC_Camera::~GC_Camera()
 {
 }
 
-void GC_Camera::Kill(World &world)
-{
-    GC_Actor::Kill(world);
-}
-
 void GC_Camera::MoveTo(World &world, const vec2d &pos)
 {
 #ifndef NOSOUND

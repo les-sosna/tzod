@@ -4,7 +4,6 @@
 
 #include "constants.h"
 #include "globals.h"
-#include "script.h"
 #include "ThemeManager.h"
 #include "DefaultCamera.h"
 

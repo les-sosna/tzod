@@ -16,7 +16,7 @@
 
 #include "gc/World.h"
 #include "gc/Macros.h"
-#include "script.h"
+#include "script/script.h"
 
 #include "core/Debug.h"
 #include "config/Config.h"
