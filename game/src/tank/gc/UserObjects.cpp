@@ -14,15 +14,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 }
 
 GC_UserObject::GC_UserObject(World &world)
-  : GC_RigidBodyStatic(world)
-  , _zOrder(Z_WALLS)
+  : _zOrder(Z_WALLS)
+  , _textureName("turret_platform")
 {
-	_textureName = "turret_platform";
 	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
-  : GC_RigidBodyStatic(FromFile())
 {
 }
 

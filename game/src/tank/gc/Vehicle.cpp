@@ -73,8 +73,7 @@ void GC_Vehicle::UpdateLight(World &world)
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
 GC_Vehicle::GC_Vehicle(World &world)
-  : GC_RigidBodyDynamic(world)
-  , _enginePower(0)
+  : _enginePower(0)
   , _rotatePower(0)
   , _maxRotSpeed(0)
   , _maxLinSpeed(0)
@@ -109,7 +108,6 @@ GC_Vehicle::GC_Vehicle(World &world)
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
-  : GC_RigidBodyDynamic(FromFile())
 {
 }
 

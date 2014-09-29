@@ -26,8 +26,7 @@ class GC_RigidBodyStatic : public GC_Actor
 
 public:
     DECLARE_GRID_MEMBER();
-	GC_RigidBodyStatic(World &world);
-	GC_RigidBodyStatic(FromFile);
+	GC_RigidBodyStatic();
 	virtual ~GC_RigidBodyStatic();
 	
 	const std::string& GetOnDestroy() const { return _scriptOnDestroy; }
@@ -174,7 +173,7 @@ class GC_Wall_Concrete : public GC_Wall
 
 public:
 	GC_Wall_Concrete(World &world);
-	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {};
+	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
 	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);

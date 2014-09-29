@@ -68,8 +68,7 @@ public:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_RigidBodyDynamic(World &world);
-	GC_RigidBodyDynamic(FromFile);
+	GC_RigidBodyDynamic();
 
 	virtual PropertySet* NewPropertySet();
 	virtual void MapExchange(World &world, MapFile &f);

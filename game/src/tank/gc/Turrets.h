@@ -64,7 +64,7 @@ protected:
 
 public:
     DECLARE_LIST_MEMBER();
-	GC_Turret(World &world, const char *tex);
+	GC_Turret(World &world);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 	
@@ -158,7 +158,7 @@ public:
 	float _time_wake_max;
 
 public:
-	GC_TurretBunker(World &world, const char *tex);
+	GC_TurretBunker(World &world);
 	GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
 	

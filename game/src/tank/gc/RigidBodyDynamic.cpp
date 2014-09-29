@@ -95,8 +95,7 @@ GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic(World &world)
-  : GC_RigidBodyStatic(world)
+GC_RigidBodyDynamic::GC_RigidBodyDynamic()
 {
 	_lv.Zero();
 	_av     = 0;
@@ -120,14 +119,8 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic(World &world)
 	_external_impulse.Zero();
 	_external_torque = 0;
 
-
 	if( _glob_parity )
         SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
-}
-
-GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)
-  : GC_RigidBodyStatic(FromFile())
-{
 }
 
 PropertySet* GC_RigidBodyDynamic::NewPropertySet()

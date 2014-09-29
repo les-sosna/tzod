@@ -22,9 +22,8 @@ IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(World &world, const char *tex)
-  : GC_RigidBodyStatic(world)
-  , _team(0)
+GC_Turret::GC_Turret(World &world)
+  : _team(0)
   , _initialDir(0)
   , _sight(TURET_SIGHT_RADIUS)
   , _rotator(_dir)
@@ -41,8 +40,7 @@ GC_Turret::GC_Turret(World &world, const char *tex)
 }
 
 GC_Turret::GC_Turret(FromFile)
-  : GC_RigidBodyStatic(FromFile())
-  , _rotator(_dir)
+  : _rotator(_dir)
 {
 }
 
@@ -288,7 +286,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 }
 
 GC_TurretRocket::GC_TurretRocket(World &world)
-  : GC_Turret(world, "turret_platform")
+  : GC_Turret(world)
   , _timeReload(0)
 {
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
@@ -341,7 +339,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 }
 
 GC_TurretCannon::GC_TurretCannon(World &world)
-  : GC_Turret(world, "turret_platform")
+  : GC_Turret(world)
   , _timeReload(0)
   , _time_smoke(0)
   , _time_smoke_dt(0)
@@ -409,8 +407,8 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 
 ////////////////////////////////////////////////////////////////////
 
-GC_TurretBunker::GC_TurretBunker(World &world, const char *tex)
-  : GC_Turret(world, tex)
+GC_TurretBunker::GC_TurretBunker(World &world)
+  : GC_Turret(world)
   , _time(0)
   , _time_wait_max(1.0f)
   , _time_wait(_time_wait_max)
@@ -602,7 +600,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 }
 
 GC_TurretMinigun::GC_TurretMinigun(World &world)
-  : GC_TurretBunker(world, "turret_mg_wake")
+  : GC_TurretBunker(world)
   , _fireSound(new GC_Sound(world, SND_MinigunFire, GetPos()))
 {
     _fireSound->Register(world);
@@ -694,7 +692,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretGauss)
 }
 
 GC_TurretGauss::GC_TurretGauss(World &world)
-  : GC_TurretBunker(world, "turret_gauss_wake")
+  : GC_TurretBunker(world)
 {
 	_delta_angle = 0.03f; // shooting accuracy
 	_rotator.reset(0, 0, 10.0f, 30.0f, 60.0f);

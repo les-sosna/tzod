@@ -9,7 +9,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 }
 
 GC_Crate::GC_Crate(World &world)
-  : GC_RigidBodyDynamic(world)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 
@@ -24,7 +23,6 @@ GC_Crate::GC_Crate(World &world)
 }
 
 GC_Crate::GC_Crate(FromFile)
-  : GC_RigidBodyDynamic(FromFile())
 {
 }
 

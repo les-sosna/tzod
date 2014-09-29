@@ -17,17 +17,12 @@
 
 IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
 
-GC_RigidBodyStatic::GC_RigidBodyStatic(World &world)
+GC_RigidBodyStatic::GC_RigidBodyStatic()
   : _health(1)
   , _health_max(1)
   , _radius(0)
   , _width(0)
   , _length(0)
-{
-}
-
-GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
-  : _radius(0) // for proper handling of bad save files
 {
 }
 
@@ -475,14 +470,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 IMPLEMENT_GRID_MEMBER(GC_Wall, grid_walls);
 
 GC_Wall::GC_Wall(World &world)
-  : GC_RigidBodyStatic(world)
 {
 	SetHealth(50, 50);
 	SetSize(CELL_SIZE, CELL_SIZE);
 }
 
 GC_Wall::GC_Wall(FromFile)
-  : GC_RigidBodyStatic(FromFile())
 {
 }
 
@@ -1102,15 +1095,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 IMPLEMENT_GRID_MEMBER(GC_Water, grid_water);
 
 GC_Water::GC_Water(World &world)
-  : GC_RigidBodyStatic(world)
-  , _tile(0)
+  : _tile(0)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 }
 
 GC_Water::GC_Water(FromFile)
-  : GC_RigidBodyStatic(FromFile())
 {
 }
 
