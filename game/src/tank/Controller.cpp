@@ -6,7 +6,6 @@
 #include "core/Debug.h"
 #include "gc/VehicleState.h"
 #include "gc/Camera.h"
-#include "gc/Sound.h"
 #include "gc/Vehicle.h"
 #include "gc/World.h"
 
@@ -73,7 +72,6 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	bool keyLightPressed = input.IsKeyPressed(_keyLight);
 	if (keyLightPressed && !_lastLightKeyState && g_conf.sv_nightmode.Get())
 	{
-		PLAY(SND_LightSwitch, vehicle->GetPos());
 		_lastLightsState = !_lastLightsState;
 	}
 	_lastLightKeyState = keyLightPressed;

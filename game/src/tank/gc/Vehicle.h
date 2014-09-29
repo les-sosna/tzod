@@ -10,7 +10,8 @@ class GC_Sound;
 class GC_Light;
 struct VehicleClass;
 
-#define GC_FLAG_VEHICLEBASE_          (GC_FLAG_RBDYMAMIC_ << 0)
+#define GC_FLAG_VEHICLE_KNOWNLIGHT     (GC_FLAG_RBDYMAMIC_ << 0)
+#define GC_FLAG_VEHICLE_               (GC_FLAG_RBDYMAMIC_ << 1)
 
 
 class GC_Vehicle : public GC_RigidBodyDynamic
@@ -36,7 +37,7 @@ public:
 	std::string _skinTextureName;
 
 protected:
-	void ApplyState(const VehicleState &vs);
+	void ApplyState(World &world, const VehicleState &vs);
 
 
 public:
@@ -63,8 +64,6 @@ public:
 	float _trackPathR;
 	float _time_smoke;
     
-	void UpdateLight(World &world);
-
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skinTextureName; }
 	void SetControllerState(const VehicleState &vs);

@@ -20,12 +20,13 @@ namespace FS
 	class Stream;
 }
 class ClientBase;
-class GC_RigidBodyStatic;
 class GC_Object;
 class GC_Pickup;
 class GC_Player;
-class GC_Trigger;
+class GC_RigidBodyStatic;
 class GC_Service;
+class GC_Trigger;
+class GC_Vehicle;
 
 class ThemeManager; // todo: remove
 class TextureManager; // todo: remove
@@ -58,6 +59,8 @@ private:
 
 class World
 {
+	World(const World&) = delete;
+	
 	friend class GC_Object;
 
 	std::map<const GC_Object*, std::string>  _objectToStringMap;
@@ -68,9 +71,10 @@ class World
 public:
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_Player);
+	DECLARE_EVENTS(GC_RigidBodyStatic);
 	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
-	DECLARE_EVENTS(GC_RigidBodyStatic);
+	DECLARE_EVENTS(GC_Vehicle);
 	DECLARE_EVENTS(World);
 
 #ifndef NDEBUG

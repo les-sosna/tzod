@@ -43,6 +43,12 @@ template<> struct ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) = 0;
 };
 
+class GC_Vehicle;
+template<> struct ObjectListener<GC_Vehicle>
+{
+	virtual void OnLight(GC_Vehicle &obj) = 0;
+};
+
 class World;
 template<> struct ObjectListener<World>
 {

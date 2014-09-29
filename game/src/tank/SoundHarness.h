@@ -7,6 +7,7 @@ class World;
 
 class SoundHarness
 	: ObjectListener<GC_RigidBodyStatic>
+	, ObjectListener<GC_Vehicle>
 {
 public:
 	SoundHarness(World &world);
@@ -21,6 +22,8 @@ private:
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) override {}
+
+	virtual void OnLight(GC_Vehicle &obj) override;
 
 	// ObjectListener<GC_Object>
 //	virtual void OnCreate(GC_Object &obj) override {}

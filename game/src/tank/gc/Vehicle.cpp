@@ -56,20 +56,6 @@ void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
     _moveSound->SetMode(world, SMODE_LOOP);
 }
 
-void GC_Vehicle::UpdateLight(World &world)
-{
-	static const vec2d delta1(0.6f);
-	static const vec2d delta2(-0.6f);
-	_light1->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
-	_light1->SetLightDirection(GetDirection());
-	_light1->SetActive(_state._bLight);
-	_light2->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
-	_light2->SetLightDirection(GetDirection());
-	_light2->SetActive(_state._bLight);
-	_light_ambient->MoveTo(world, GetPos());
-	_light_ambient->SetActive(_state._bLight);
-}
-
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
 GC_Vehicle::GC_Vehicle(World &world)
@@ -171,7 +157,7 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_moveSound);
 }
 
-void GC_Vehicle::ApplyState(const VehicleState &vs)
+void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 {
 	if( vs._bState_MoveForward )
 	{
@@ -198,6 +184,16 @@ void GC_Vehicle::ApplyState(const VehicleState &vs)
 		else if( vs._bState_RotateRight && _av < _maxRotSpeed )
 			ApplyMomentum(  _rotatePower / _inv_i );
 	}
+	
+	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state._bLight)
+	{
+		for( auto ls: world.eGC_Vehicle._listeners )
+			ls->OnLight(*this);
+	}
+	_light1->SetActive(_state._bLight);
+	_light2->SetActive(_state._bLight);
+	_light_ambient->SetActive(_state._bLight);
+	SetFlags(GC_FLAG_VEHICLE_KNOWNLIGHT, true);
 }
 
 float GC_Vehicle::GetMaxSpeed() const
@@ -436,7 +432,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     
     
 	// move
-	ApplyState(_state);
+	ApplyState(world, _state);
 	GC_RigidBodyDynamic::TimeStepFixed(world, dt);
     
     
@@ -473,9 +469,16 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
         _trackPathR += _trackDensity;
     }
     _trackPathR -= len;
-    
-	UpdateLight(world);
-    
+	
+	// update light position
+	static const vec2d delta1(0.6f);
+	static const vec2d delta2(-0.6f);
+	_light1->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
+	_light1->SetLightDirection(GetDirection());
+	_light2->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
+	_light2->SetLightDirection(GetDirection());
+	_light_ambient->MoveTo(world, GetPos());
+	
     
     if( !watch ) return;
 
