@@ -1,11 +1,6 @@
-// crate.cpp
-
 #include "crate.h"
 #include "particles.h"
-#include "Sound.h"
-
 #include "constants.h"
-
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 {
@@ -39,8 +34,6 @@ GC_Crate::~GC_Crate()
 
 void GC_Crate::OnDestroy(World &world)
 {
-	PLAY(SND_WallDestroy, GetPos());
-
 	for( int n = 0; n < 5; ++n )
 	{
 		auto p = new GC_BrickFragment(vec2d(frand(100.0f) - 50, -frand(100.0f)));
@@ -50,5 +43,3 @@ void GC_Crate::OnDestroy(World &world)
 
 	GC_RigidBodyDynamic::OnDestroy(world);
 }
-
-// end of file

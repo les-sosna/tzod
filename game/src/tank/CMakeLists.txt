@@ -54,6 +54,8 @@ set(tank_SOURCES
 	SaveFile.cpp
 	script.cpp
 	ScriptHarness.cpp
+	SoundHarness.cpp
+	SoundRender.cpp
 	ThemeManager.cpp
 	WorldController.cpp
 	config/Config.cpp

@@ -8,6 +8,7 @@
 #include <gui_desktop.h>
 #include <script.h>
 #include <ScriptHarness.h>
+#include <SoundHarness.h>
 #include <ThemeManager.h>
 #include <BackgroundIntro.h>
 #include <WorldController.h>
@@ -195,12 +196,7 @@ int main(int, const char**)
         int height;
         glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
         render->OnResizeWnd(width, height);
-        
-#if !defined NOSOUND
-        InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
-#endif
-
-        { // FIXME: remove explicit game context scope
+		
 		ThemeManager themeManager(*fs);
 		TextureManager texman(*render);
 		if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
@@ -214,6 +210,12 @@ int main(int, const char**)
 								exitCommand);
 		WorldController worldController(gameContext.GetWorld());
 		AIManager aiManager(gameContext.GetWorld());
+			
+#if !defined NOSOUND
+		InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
+#endif
+		{ // FIXME: remove explicit SoundHarness scope
+		SoundHarness soundHarness(gameContext.GetWorld());
 
         g_env.L = gameContext.GetScriptHarness().GetLuaState();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
@@ -274,7 +276,7 @@ int main(int, const char**)
 			float median = buf[movingMedianWindow.size() / 2];
 			
 			gameContext.Step(median * g_conf.sv_speed.GetFloat() / 100);
-            
+			soundHarness.Step();
 			
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
@@ -289,7 +291,7 @@ int main(int, const char**)
         
 		g_env.L = NULL;
 		TRACE("Shutting down game context");
-        } // FIXME: remove explicit game context scope
+        } // FIXME: remove explicit SoundHarness scope
 		
         
 #ifndef NOSOUND
