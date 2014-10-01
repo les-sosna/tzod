@@ -172,7 +172,7 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 
 GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int height)
 	: _window(glfwCreateWindow(fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->width : width,
-							   fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : width,
+							   fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : height,
 							   title,
 							   fullscreen ? glfwGetPrimaryMonitor() : nullptr,
 							   nullptr))
