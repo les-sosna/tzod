@@ -52,8 +52,6 @@ set(tank_SOURCES
 	MapFile.cpp
 	Md5.c
 	SaveFile.cpp
-	SoundHarness.cpp
-	SoundRender.cpp
 	ThemeManager.cpp
 	WorldController.cpp
 	config/Config.cpp
@@ -150,7 +148,12 @@ set(tank_LIBRARIES
 if(${OPENAL_FOUND})
 	list(APPEND tank_LIBRARIES ${OPENAL_LIBRARY})
 	list(APPEND tank_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-	list(APPEND tank_SOURCES sound/MusicPlayer.cpp sound/sfx.cpp)
+	list(APPEND tank_SOURCES
+		SoundHarness.cpp
+		SoundRender.cpp
+		sound/MusicPlayer.cpp
+		sound/sfx.cpp
+	)
 else()
 	add_definitions(-DNOSOUND)
 endif()

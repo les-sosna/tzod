@@ -8,7 +8,6 @@
 #include <gui_desktop.h>
 #include <script/script.h>
 #include <script/ScriptHarness.h>
-#include <SoundHarness.h>
 #include <ThemeManager.h>
 #include <BackgroundIntro.h>
 #include <WorldController.h>
@@ -17,6 +16,7 @@
 #include <config/Language.h>
 
 #ifndef NOSOUND
+#include <SoundHarness.h>
 #include <sound/MusicPlayer.h>
 #include <sound/sfx.h>
 #endif
@@ -211,11 +211,11 @@ int main(int, const char**)
 		WorldController worldController(gameContext.GetWorld());
 		AIManager aiManager(gameContext.GetWorld());
 			
-#if !defined NOSOUND
+#ifndef NOSOUND
 		InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
-#endif
 		{ // FIXME: remove explicit SoundHarness scope
 		SoundHarness soundHarness(gameContext.GetWorld());
+#endif
 
         g_env.L = gameContext.GetScriptHarness().GetLuaState();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
@@ -276,7 +276,9 @@ int main(int, const char**)
 			float median = buf[movingMedianWindow.size() / 2];
 			
 			gameContext.Step(median * g_conf.sv_speed.GetFloat() / 100);
+#ifndef NOSOUND
 			soundHarness.Step();
+#endif
 			
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
@@ -290,11 +292,10 @@ int main(int, const char**)
         
         
 		g_env.L = NULL;
+#ifndef NOSOUND
 		TRACE("Shutting down game context");
         } // FIXME: remove explicit SoundHarness scope
-		
         
-#ifndef NOSOUND
         FreeSound();
 #endif
 
