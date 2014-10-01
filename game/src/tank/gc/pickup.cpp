@@ -99,21 +99,6 @@ void GC_Pickup::Detach(World &world)
 	_pickupCarrier = NULL;
 }
 
-void GC_Pickup::Respawn(World &world)
-{
-	SetRespawn(false);
-	SetVisible(true);
-	PLAY(SND_puRespawn, GetPos());
-
-	for( int n = 0; n < 50; ++n )
-	{
-		vec2d a(PI2 * (float) n / 50);
-		auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-        p->Register(world);
-        p->MoveTo(world, GetPos() + a * 25);
-	}
-}
-
 void GC_Pickup::Disappear(World &world)
 {
 	if( GetCarrier() )
@@ -173,7 +158,20 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 		else
 		{
 			if( _timeAttached > _timeRespawn )  // FIXME
-				Respawn(world);
+			{
+				SetRespawn(false);
+				SetVisible(true);
+				for( auto ls: world.eGC_Pickup._listeners )
+					ls->OnRespawn(*this);
+				
+				for( int n = 0; n < 50; ++n )
+				{
+					vec2d a(PI2 * (float) n / 50);
+					auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
+					p->Register(world);
+					p->MoveTo(world, GetPos() + a * 25);
+				}
+			}
 		}
 	}
 
@@ -282,7 +280,6 @@ void GC_pu_Health::Attach(World &world, GC_Actor *actor)
 
 	static_cast<GC_RigidBodyStatic*>(actor)->SetHealthCur(
 		static_cast<GC_RigidBodyStatic*>(actor)->GetHealthMax() );
-	PLAY(SND_Pickup, GetPos());
 
 	Disappear(world);
 }
@@ -364,7 +361,6 @@ void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 
 	GC_Pickup::Attach(world, actor);
 	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
-	PLAY(SND_Inv, GetPos());
 }
 
 void GC_pu_Shield::Detach(World &world)
@@ -484,7 +480,6 @@ void GC_pu_Shock::Attach(World &world, GC_Actor* actor)
 {
 	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
 	GC_Pickup::Attach(world, actor);
-	PLAY(SND_ShockActivate, GetPos());
 }
 
 void GC_pu_Shock::Detach(World &world)

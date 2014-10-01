@@ -1,6 +1,7 @@
 #include "SoundHarness.h"
 #include "SoundRender.h"
 #include "gc/crate.h"
+#include "gc/Pickup.h"
 #include "gc/RigidBody.h"
 #include "gc/Vehicle.h"
 #include "gc/World.h"
@@ -9,6 +10,7 @@ SoundHarness::SoundHarness(World &world)
 	: _world(world)
 	, _soundRender(new SoundRender())
 {
+	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_Vehicle.AddListener(*this);
 }
@@ -17,6 +19,7 @@ SoundHarness::~SoundHarness()
 {
 	_world.eGC_Vehicle.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
+	_world.eGC_Pickup.RemoveListener(*this);
 }
 
 void SoundHarness::Step()
@@ -24,13 +27,29 @@ void SoundHarness::Step()
 	_soundRender->Step();
 }
 
+void SoundHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
+{
+	ObjectType type = obj.GetType();
+	if (GC_pu_Health::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_Pickup, obj.GetPos());
+	else if (GC_pu_Shield::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_Inv, obj.GetPos());
+	else if (GC_pu_Shock::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_ShockActivate, obj.GetPos());
+}
+
+void SoundHarness::OnRespawn(GC_Pickup &obj)
+{
+	_soundRender->PlayOnce(SND_puRespawn, obj.GetPos());
+}
+
 void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
 {
 	ObjectType type = obj.GetType();
 	if (GC_Crate::GetTypeStatic() == type)
-	{
 		_soundRender->PlayOnce(SND_WallDestroy, obj.GetPos());
-	}
+	else if (GC_Wall::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_WallDestroy, obj.GetPos());
 }
 
 void SoundHarness::OnLight(GC_Vehicle &obj)

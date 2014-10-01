@@ -83,9 +83,6 @@ public:
 	virtual void TimeStepFixed(World &world, float dt);
 	
 protected:
-	virtual void Respawn(World &world);
-
-protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
 		typedef GC_Actor::MyPropertySet BASE;
