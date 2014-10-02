@@ -16,5 +16,5 @@ private:
 	
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
-	virtual void OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from) override;
+	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) override;
 };

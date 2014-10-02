@@ -1,8 +1,9 @@
 #include "sRigidBodyStatic.h"
 #include "script.h"
 #include "core/Debug.h"
+#include "gc/Player.h"
+#include "gc/RigidBody.h"
 #include "gc/Trigger.h"
-#include "gc/Vehicle.h"
 #include "gc/World.h"
 #include "gclua/lObjUtil.h"
 extern "C"
@@ -32,7 +33,7 @@ void sRigidBodyStatic::OnDestroy(GC_RigidBodyStatic &obj)
 	}
 }
 
-void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, GC_Actor *from)
+void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from)
 {
 	if( !obj.GetOnDamage().empty() )
 	{

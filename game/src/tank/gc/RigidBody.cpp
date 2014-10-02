@@ -323,10 +323,9 @@ void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 	}
 	
 	ObjPtr<GC_Object> watch(this);
-	GC_Vehicle *fromVehicle = from ? from->GetVehicle() : NULL;
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 	{
-		ls->OnDamage(*this, fromVehicle);
+		ls->OnDamage(*this, damage, from);
 		if( !watch )
 			return;
 	}
@@ -1071,15 +1070,6 @@ GC_Wall_Concrete::GC_Wall_Concrete(World &world)
 
 void GC_Wall_Concrete::OnDamage(World &world, DamageDesc &dd)
 {
-	if( dd.damage >= DAMAGE_BULLET )
-	{
-		if( rand() < 256 )
-			PLAY(SND_Hit1, dd.hit);
-		else if( rand() < 256 )
-			PLAY(SND_Hit3, dd.hit);
-		else if( rand() < 256 )
-			PLAY(SND_Hit5, dd.hit);
-	}
 	dd.damage = 0;
 	GC_Wall::OnDamage(world, dd);
 }

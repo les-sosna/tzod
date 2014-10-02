@@ -52,6 +52,22 @@ void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
 		_soundRender->PlayOnce(SND_WallDestroy, obj.GetPos());
 }
 
+void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from)
+{
+	if (GC_Wall_Concrete::GetTypeStatic() == obj.GetType())
+	{
+		if( damage >= DAMAGE_BULLET )
+		{
+			if( rand() < RAND_MAX / 128 )
+				_soundRender->PlayOnce(SND_Hit1, obj.GetPos());
+			else if( rand() < RAND_MAX / 128 )
+				_soundRender->PlayOnce(SND_Hit3, obj.GetPos());
+			else if( rand() < RAND_MAX / 128 )
+				_soundRender->PlayOnce(SND_Hit5, obj.GetPos());
+		}
+	}
+}
+
 void SoundHarness::OnLight(GC_Vehicle &obj)
 {
 	_soundRender->PlayOnce(SND_LightSwitch, obj.GetPos());
