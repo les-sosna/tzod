@@ -74,7 +74,7 @@ public:
     virtual void SetInitialDir(float initialDir);
 
 	virtual void MoveTo(World &world, const vec2d &pos);
-	virtual void OnDestroy(World &world);
+	virtual void OnDestroy(World &world, GC_Player *by);
 
 	// GC_Object
     virtual void Kill(World &world);
@@ -166,12 +166,13 @@ public:
     
     virtual void SetInitialDir(float initialDir);
 
+	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
-
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void MapExchange(World &world, MapFile &f);
+
+protected:
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////

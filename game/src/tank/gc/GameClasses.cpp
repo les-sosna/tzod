@@ -163,8 +163,9 @@ void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
 		dt += _time;
 		bKill = true;
 	}
-	if( !_victim->TakeDamage(world, dt * _damage, _victim->GetPos(), _owner) && bKill )
-		Kill(world); // victim has died
+	_victim->TakeDamage(world, dt * _damage, _victim->GetPos(), _owner);
+	if( _victim && bKill )
+		Kill(world);
 }
 
 void GC_HealthDaemon::OnVictimMove(World &world, GC_Object *sender, void *param)

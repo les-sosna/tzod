@@ -117,7 +117,7 @@ void GC_Projectile::ApplyHitDamage(World &world, GC_RigidBodyStatic *target, con
 	else
 	{
 		// heal
-		target->SetHealthCur(std::min(target->GetHealth() - damage, target->GetHealthMax()));
+		target->SetHealth(std::min(target->GetHealth() - damage, target->GetHealthMax()));
 	}
 }
 
@@ -843,7 +843,7 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 				{
 					if( healOwner )
 					{
-						object->SetHealthCur(std::min(object->GetHealth() + damage, object->GetHealthMax()));
+						object->SetHealth(std::min(object->GetHealth() + damage, object->GetHealthMax()));
 					}
 				}
 				else

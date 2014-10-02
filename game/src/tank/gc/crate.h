@@ -10,7 +10,7 @@ public:
 	GC_Crate(FromFile);
 	~GC_Crate();
 
-	virtual void OnDestroy(World &world);
+	virtual void OnDestroy(World &world, GC_Player *by);
 
 	virtual float GetDefaultHealth() const { return 50; }
 	virtual unsigned char GetPassability() const { return 0; }

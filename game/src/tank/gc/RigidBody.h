@@ -33,7 +33,7 @@ public:
 	const std::string& GetOnDamage() const { return _scriptOnDamage; }
 	
 	void SetHealth(float cur, float max);
-	void SetHealthCur(float hp);
+	void SetHealth(float hp);
 	void SetHealthMax(float hp);
 	float GetHealth() const { return _health;     }
 	float GetHealthMax() const { return _health_max; }
@@ -48,10 +48,9 @@ public:
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 
 	virtual float GetDefaultHealth() const = 0;
-	virtual void  OnDestroy(World &world);
 	
 	// return true if object has been killed
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	void TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 	
 	virtual unsigned char GetPassability() const = 0;
 	virtual GC_Player* GetOwner() const { return NULL; }
@@ -79,6 +78,8 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
+	virtual void OnDestroy(World &world, GC_Player *by);
+	virtual void OnDamage(World &world, DamageDesc &damageDesc);
 	void TDFV(World &world, GC_Actor *from);
 
 private:
@@ -161,8 +162,9 @@ public:
 
 	virtual unsigned char GetPassability() const { return 1; }
 
-	virtual void OnDestroy(World &world);
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+protected:
+	virtual void OnDestroy(World &world, GC_Player *by) override;
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -176,7 +178,9 @@ public:
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	
+protected:
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -223,7 +227,9 @@ public:
 
 	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
 	virtual float GetDefaultHealth() const { return 0; }
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+
+protected:
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -14,8 +14,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 }
 
 GC_UserObject::GC_UserObject(World &world)
-  : _zOrder(Z_WALLS)
-  , _textureName("turret_platform")
+  : _textureName("turret_platform")
+  , _zOrder(Z_WALLS)
 {
 	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 }
@@ -41,10 +41,10 @@ void GC_UserObject::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zOrder);
 }
 
-void GC_UserObject::OnDestroy(World &world)
+void GC_UserObject::OnDestroy(World &world, GC_Player *by)
 {
 	MakeExplosionBig(world, GetPos(), nullptr);
-	GC_RigidBodyStatic::OnDestroy(world);
+	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
 void GC_UserObject::MapExchange(World &world, MapFile &f)

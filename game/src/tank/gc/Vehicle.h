@@ -69,7 +69,6 @@ public:
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-	virtual bool TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return _player; }
 
@@ -81,6 +80,11 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStepFixed(World &world, float dt);
 	virtual void TimeStepFloat(World &world, float dt);
+	
+protected:
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
+	virtual void OnDestroy(World &world, GC_Player *by) override;
+
 #ifdef NETWORK_DEBUG
 public:
 	virtual DWORD checksum(void) const
@@ -103,7 +107,7 @@ public:
 	GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }
-	virtual void OnDestroy(World &world) override;
+	virtual void OnDestroy(World &world, GC_Player *by) override;
 };
 
 // end of file

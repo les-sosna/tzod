@@ -143,10 +143,10 @@ void GC_Turret::MoveTo(World &world, const vec2d &pos)
 	GC_RigidBodyStatic::MoveTo(world, pos);
 }
 
-void GC_Turret::OnDestroy(World &world)
+void GC_Turret::OnDestroy(World &world, GC_Player *by)
 {
 	MakeExplosionBig(world, GetPos(), nullptr);
-	GC_RigidBodyStatic::OnDestroy(world);
+	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
 void GC_Turret::TimeStepFixed(World &world, float dt)
@@ -462,21 +462,19 @@ void GC_TurretBunker::WakeDown()
 	_jobManager.UnregisterMember(this);
 }
 
-bool GC_TurretBunker::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 {
-	if( _state != TS_HIDDEN )
+	if( _state == TS_HIDDEN )
 	{
-		return GC_Turret::TakeDamage(world, damage, hit, from);
+		dd.damage = 0;
+		if( rand() < 128 )
+			PLAY(SND_Hit1, dd.hit);
+		else if( rand() < 128 )
+			PLAY(SND_Hit3, dd.hit);
+		else if( rand() < 128 )
+			PLAY(SND_Hit5, dd.hit);
 	}
-
-	if( rand() < 128 )
-		PLAY(SND_Hit1, hit);
-	else if( rand() < 128 )
-		PLAY(SND_Hit3, hit);
-	else if( rand() < 128 )
-		PLAY(SND_Hit5, hit);
-
-	return false;
+	GC_Turret::OnDamage(world, dd);
 }
 
 void GC_TurretBunker::TimeStepFixed(World &world, float dt)

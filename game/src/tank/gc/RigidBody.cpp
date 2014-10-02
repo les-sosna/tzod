@@ -292,7 +292,7 @@ void GC_RigidBodyStatic::SetHealth(float cur, float max)
 	_health_max = max;
 }
 
-void GC_RigidBodyStatic::SetHealthCur(float hp)
+void GC_RigidBodyStatic::SetHealth(float hp)
 {
 	assert(hp <= _health_max);
 	_health = hp;
@@ -304,11 +304,15 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 	_health_max = hp;
 }
 
-void GC_RigidBodyStatic::OnDestroy(World &world)
+void GC_RigidBodyStatic::OnDestroy(World &world, GC_Player *by)
 {
 	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 		ls->OnDestroy(*this);
+}
+
+void GC_RigidBodyStatic::OnDamage(World &world, DamageDesc &dd)
+{
 }
 
 void GC_RigidBodyStatic::TDFV(World &world, GC_Actor *from)
@@ -317,32 +321,37 @@ void GC_RigidBodyStatic::TDFV(World &world, GC_Actor *from)
 		ls->OnDamage(*this, from);
 }
 
-bool GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
-		return true;
+		return;
 	}
+	
+	DamageDesc dd;
+	dd.damage = damage;
+	dd.hit    = hit;
+	dd.from   = from;
 
-	if( _health_max > 0 )
+	OnDamage(world, dd);
+
+	if( dd.damage > 0 && _health_max > 0 )
 	{
-		SetHealthCur(GetHealth() - damage);
+		SetHealth(GetHealth() - dd.damage);
 
 		ObjPtr<GC_Object> watch(this);
 		TDFV(world, from ? from->GetVehicle() : NULL);
 
 		if( !watch )
-			return true;
+			return;
 
 		if( GetHealth() <= 0 )
 		{
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
-			OnDestroy(world);
+			OnDestroy(world, dd.from);
 			Kill(world);
-			return true;
 		}
 	}
-	return false;
 }
 
 void GC_RigidBodyStatic::SetSize(float width, float length)
@@ -842,7 +851,7 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 	}
 }
 
-void GC_Wall::OnDestroy(World &world)
+void GC_Wall::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
@@ -854,35 +863,31 @@ void GC_Wall::OnDestroy(World &world)
     p->Register(world);
     p->MoveTo(world, GetPos());
 
-	GC_RigidBodyStatic::OnDestroy(world);
+	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
-bool GC_Wall::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 {
-	if( !GC_RigidBodyStatic::TakeDamage(world, damage, hit, from) && GetHealthMax() > 0 )
+	if( dd.damage >= DAMAGE_BULLET && GetHealthMax() > 0 )
 	{
-		if( damage >= DAMAGE_BULLET )
+		vec2d v = dd.hit - GetPos();
+		if( fabsf(v.x) > fabsf(v.y) )
 		{
-			vec2d v = hit - GetPos();
-			if( fabsf(v.x) > fabsf(v.y) )
-			{
-				v.x = v.x > 0 ? 50.0f : -50.0f;
-				v.y = 0;
-			}
-			else
-			{
-				v.x = 0;
-				v.y = v.y > 0 ? 50.0f : -50.0f;
-			}
-			v += vrand(25);
-
-			auto p = new GC_BrickFragment(v);
-            p->Register(world);
-            p->MoveTo(world, hit);
+			v.x = v.x > 0 ? 50.0f : -50.0f;
+			v.y = 0;
 		}
-		return false;
+		else
+		{
+			v.x = 0;
+			v.y = v.y > 0 ? 50.0f : -50.0f;
+		}
+		v += vrand(25);
+
+		auto p = new GC_BrickFragment(v);
+		p->Register(world);
+		p->MoveTo(world, dd.hit);
 	}
-	return true;
+	GC_RigidBodyStatic::OnDamage(world, dd);
 }
 
 void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
@@ -1068,18 +1073,19 @@ GC_Wall_Concrete::GC_Wall_Concrete(World &world)
 	SetSize(CELL_SIZE, CELL_SIZE);
 }
 
-bool GC_Wall_Concrete::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_Wall_Concrete::OnDamage(World &world, DamageDesc &dd)
 {
-	if( damage >= DAMAGE_BULLET )
+	if( dd.damage >= DAMAGE_BULLET )
 	{
 		if( rand() < 256 )
-			PLAY(SND_Hit1, hit);
+			PLAY(SND_Hit1, dd.hit);
 		else if( rand() < 256 )
-			PLAY(SND_Hit3, hit);
+			PLAY(SND_Hit3, dd.hit);
 		else if( rand() < 256 )
-			PLAY(SND_Hit5, hit);
+			PLAY(SND_Hit5, dd.hit);
 	}
-	return false;
+	dd.damage = 0;
+	GC_Wall::OnDamage(world, dd);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1174,10 +1180,9 @@ void GC_Water::SetTile(char nTile, bool value)
 		_tile &= ~(1 << nTile);
 }
 
-bool GC_Water::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_Water::OnDamage(World &world, DamageDesc &dd)
 {
-	return false;
+	dd.damage = 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // end of file

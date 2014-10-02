@@ -278,7 +278,7 @@ void GC_pu_Health::Attach(World &world, GC_Actor *actor)
 {
 	GC_Pickup::Attach(world, actor);
 
-	static_cast<GC_RigidBodyStatic*>(actor)->SetHealthCur(
+	static_cast<GC_RigidBodyStatic*>(actor)->SetHealth(
 		static_cast<GC_RigidBodyStatic*>(actor)->GetHealthMax() );
 
 	Disappear(world);

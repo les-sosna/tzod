@@ -30,7 +30,7 @@ GC_Crate::~GC_Crate()
 {
 }
 
-void GC_Crate::OnDestroy(World &world)
+void GC_Crate::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
@@ -39,5 +39,5 @@ void GC_Crate::OnDestroy(World &world)
         p->MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
 
-	GC_RigidBodyDynamic::OnDestroy(world);
+	GC_RigidBodyDynamic::OnDestroy(world, by);
 }
