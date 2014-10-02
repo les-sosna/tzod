@@ -315,17 +315,20 @@ void GC_RigidBodyStatic::OnDamage(World &world, DamageDesc &dd)
 {
 }
 
-void GC_RigidBodyStatic::TDFV(World &world, GC_Actor *from)
-{
-	for( auto ls: world.eGC_RigidBodyStatic._listeners )
-		ls->OnDamage(*this, from);
-}
-
 void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
 		return;
+	}
+	
+	ObjPtr<GC_Object> watch(this);
+	GC_Vehicle *fromVehicle = from ? from->GetVehicle() : NULL;
+	for( auto ls: world.eGC_RigidBodyStatic._listeners )
+	{
+		ls->OnDamage(*this, fromVehicle);
+		if( !watch )
+			return;
 	}
 	
 	DamageDesc dd;
@@ -338,13 +341,6 @@ void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 	if( dd.damage > 0 && _health_max > 0 )
 	{
 		SetHealth(GetHealth() - dd.damage);
-
-		ObjPtr<GC_Object> watch(this);
-		TDFV(world, from ? from->GetVehicle() : NULL);
-
-		if( !watch )
-			return;
-
 		if( GetHealth() <= 0 )
 		{
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);

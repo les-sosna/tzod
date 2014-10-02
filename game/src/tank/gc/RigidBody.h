@@ -80,7 +80,6 @@ protected:
 	virtual PropertySet* NewPropertySet();
 	virtual void OnDestroy(World &world, GC_Player *by);
 	virtual void OnDamage(World &world, DamageDesc &damageDesc);
-	void TDFV(World &world, GC_Actor *from);
 
 private:
 	float _health;
