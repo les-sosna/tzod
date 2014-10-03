@@ -3,6 +3,7 @@
 #include "gc/crate.h"
 #include "gc/Pickup.h"
 #include "gc/RigidBody.h"
+#include "gc/Turrets.h"
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
@@ -13,6 +14,7 @@ SoundHarness::SoundHarness(World &world)
 {
 	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
+	_world.eGC_Turret.AddListener(*this);
 	_world.eGC_Vehicle.AddListener(*this);
 	_world.eWorld.AddListener(*this);
 }
@@ -21,6 +23,7 @@ SoundHarness::~SoundHarness()
 {
 	_world.eWorld.RemoveListener(*this);
 	_world.eGC_Vehicle.RemoveListener(*this);
+	_world.eGC_Turret.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
 }
@@ -60,9 +63,11 @@ void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
 
 void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from)
 {
-	if (GC_Wall_Concrete::GetTypeStatic() == obj.GetType())
+	if (damage >= DAMAGE_BULLET)
 	{
-		if( damage >= DAMAGE_BULLET )
+		auto turret = dynamic_cast<GC_TurretBunker*>(&obj);
+		if (GC_Wall_Concrete::GetTypeStatic() == obj.GetType() ||
+			(turret && turret->GetState() == TS_HIDDEN))
 		{
 			if( rand() < RAND_MAX / 128 )
 				_soundRender->PlayOnce(SND_Hit1, obj.GetPos());
@@ -73,6 +78,26 @@ void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *fr
 		}
 	}
 }
+
+
+void SoundHarness::OnStateChange(GC_Turret &obj)
+{
+	switch (obj.GetState())
+	{
+		case TS_WAKING_UP:
+			_soundRender->PlayOnce(SND_TuretWakeUp, obj.GetPos());
+			break;
+		case TS_WAKING_DOWN:
+			_soundRender->PlayOnce(SND_TuretWakeDown, obj.GetPos());
+			break;
+		case TS_ATACKING:
+			_soundRender->PlayOnce(SND_TargetLock, obj.GetPos());
+			break;
+		default:
+			break;
+	}
+}
+
 
 void SoundHarness::OnLight(GC_Vehicle &obj)
 {

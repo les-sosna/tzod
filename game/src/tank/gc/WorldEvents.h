@@ -50,6 +50,12 @@ template<> struct ObjectListener<GC_Vehicle>
 	virtual void OnLight(GC_Vehicle &obj) = 0;
 };
 
+class GC_Turret;
+template<> struct ObjectListener<GC_Turret>
+{
+	virtual void OnStateChange(GC_Turret &obj) = 0;
+};
+
 class World;
 template<> struct ObjectListener<World>
 {

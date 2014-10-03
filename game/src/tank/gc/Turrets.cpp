@@ -10,6 +10,7 @@
 #include "particles.h"
 #include "Macros.h"
 #include "World.h"
+#include "WorldEvents.h"
 
 #include "MapFile.h"
 #include "SaveFile.h"
@@ -22,16 +23,16 @@ IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
 
 JobManager<GC_Turret> GC_Turret::_jobManager;
 
-GC_Turret::GC_Turret(World &world)
-  : _team(0)
+GC_Turret::GC_Turret(World &world, TurretState state)
+  : _rotator(_dir)
   , _initialDir(0)
+  , _state(state)
+  , _team(0)
   , _sight(TURET_SIGHT_RADIUS)
-  , _rotator(_dir)
 {
 	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 
 	_jobManager.RegisterMember(this);
-	_state = TS_WAITING;
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
 	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
@@ -111,8 +112,7 @@ void GC_Turret::SelectTarget(World &world, GC_Vehicle *target)
 {
 	_jobManager.UnregisterMember(this);
 	_target = target;
-	_state  = TS_ATACKING;
-	PLAY(SND_TargetLock, GetPos());
+	SetState(world, TS_ATACKING);
 }
 
 void GC_Turret::TargetLost()
@@ -220,6 +220,16 @@ void GC_Turret::MapExchange(World &world, MapFile &f)
 	}
 }
 
+void GC_Turret::SetState(World &world, TurretState state)
+{
+	if (_state != state)
+	{
+		_state = state;
+		for( auto ls: world.eGC_Turret._listeners )
+			ls->OnStateChange(*this);
+	}
+}
+
 PropertySet* GC_Turret::NewPropertySet()
 {
 	return new MyPropertySet(this);
@@ -286,7 +296,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretRocket)
 }
 
 GC_TurretRocket::GC_TurretRocket(World &world)
-  : GC_Turret(world)
+  : GC_Turret(world, TS_WAITING)
   , _timeReload(0)
 {
 	SetHealth(GetDefaultHealth(), GetDefaultHealth());
@@ -316,7 +326,7 @@ void GC_TurretRocket::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
-		vec2d a(_dir);
+		vec2d a(GetWeaponDir());
 		auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
         r->Register(world);
         r->SetHitDamage(world.net_frand(10.0f));
@@ -339,7 +349,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretCannon)
 }
 
 GC_TurretCannon::GC_TurretCannon(World &world)
-  : GC_Turret(world)
+  : GC_Turret(world, TS_WAITING)
   , _timeReload(0)
   , _time_smoke(0)
   , _time_smoke_dt(0)
@@ -373,7 +383,7 @@ void GC_TurretCannon::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
-		vec2d a(_dir);
+		vec2d a(GetWeaponDir());
 		auto bullet = new GC_TankBullet(world,
                                         GetPos() + a * 31.9f,
                                         a * SPEED_TANKBULLET + world.net_vrand(40),
@@ -398,9 +408,9 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE + vec2d(_dir) * 50, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
+			auto p = new GC_Particle(world, SPEED_SMOKE + vec2d(GetWeaponDir()) * 50, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
             p->Register(world);
-            p->MoveTo(world, GetPos() + vec2d(_dir) * 33.0f);
+            p->MoveTo(world, GetPos() + vec2d(GetWeaponDir()) * 33.0f);
 		}
 	}
 }
@@ -408,7 +418,7 @@ void GC_TurretCannon::TimeStepFixed(World &world, float dt)
 ////////////////////////////////////////////////////////////////////
 
 GC_TurretBunker::GC_TurretBunker(World &world)
-  : GC_Turret(world)
+  : GC_Turret(world, TS_HIDDEN)
   , _time(0)
   , _time_wait_max(1.0f)
   , _time_wait(_time_wait_max)
@@ -416,7 +426,6 @@ GC_TurretBunker::GC_TurretBunker(World &world)
   , _time_wake_max(0.5f)
 {
 	_rotator.setl(2.0f, 20.0f, 30.0f);
-	_state = TS_HIDDEN; // base class member
 }
 
 GC_TurretBunker::GC_TurretBunker(FromFile)
@@ -427,7 +436,6 @@ GC_TurretBunker::GC_TurretBunker(FromFile)
 void GC_TurretBunker::Serialize(World &world, SaveFile &f)
 {
 	GC_Turret::Serialize(world, f);
-	/////////////////////////////////////
 	f.Serialize(_delta_angle);
 	f.Serialize(_time);
 	f.Serialize(_time_wait);
@@ -452,27 +460,20 @@ GC_TurretBunker::~GC_TurretBunker()
 void GC_TurretBunker::WakeUp(World &world)
 {
 	_jobManager.UnregisterMember(this);
-	_state = TS_WAKING_UP;
-	PLAY(SND_TuretWakeUp, GetPos());
+	SetState(world, TS_WAKING_UP);
 }
 
-void GC_TurretBunker::WakeDown()
+void GC_TurretBunker::WakeDown(World &world)
 {
-	_state = TS_PREPARE_TO_WAKEDOWN;
+	SetState(world, TS_PREPARE_TO_WAKEDOWN);
 	_jobManager.UnregisterMember(this);
 }
 
 void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 {
-	if( _state == TS_HIDDEN )
+	if( GetState() == TS_HIDDEN )
 	{
 		dd.damage = 0;
-		if( rand() < 128 )
-			PLAY(SND_Hit1, dd.hit);
-		else if( rand() < 128 )
-			PLAY(SND_Hit3, dd.hit);
-		else if( rand() < 128 )
-			PLAY(SND_Hit5, dd.hit);
 	}
 	GC_Turret::OnDamage(world, dd);
 }
@@ -481,7 +482,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 {
 	_rotator.process_dt(dt);
 
-	switch( _state )
+	switch( GetState() )
 	{
 	case TS_ATACKING:
 	{
@@ -524,7 +525,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		if( _time_wait <= 0 )
 		{
 			_time_wait = world.net_frand(_time_wait_max);
-			WakeDown();
+			WakeDown(world);
 		}
 		else
 		{
@@ -549,7 +550,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		if( _time_wake >= _time_wake_max )
 		{
 			_time_wake = _time_wake_max;
-			_state = TS_WAITING;
+			SetState(world, TS_WAITING);
 			_jobManager.RegisterMember(this);
 		}
 		break;
@@ -559,7 +560,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		if( _time_wake <= 0 )
 		{
 			_time_wake = 0;
-			_state = TS_HIDDEN;
+			SetState(world, TS_HIDDEN);
 			_jobManager.RegisterMember(this);
 		}
 		break;
@@ -571,8 +572,7 @@ void GC_TurretBunker::TimeStepFixed(World &world, float dt)
 		}
 		else
 		{
-			PLAY(SND_TuretWakeDown, GetPos());
-			_state = TS_WAKING_DOWN;
+			SetState(world, TS_WAKING_DOWN);
 		}
 		break;
 	default:
@@ -751,7 +751,7 @@ void GC_TurretGauss::Fire(World &world)
 		if( ++_shotCount == 2 )
 		{
 			TargetLost();
-			WakeDown();
+			WakeDown(world);
 		}
 	}
 }

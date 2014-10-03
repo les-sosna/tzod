@@ -26,6 +26,7 @@ class GC_Player;
 class GC_RigidBodyStatic;
 class GC_Service;
 class GC_Trigger;
+class GC_Turret;
 class GC_Vehicle;
 
 class ThemeManager; // todo: remove
@@ -75,6 +76,7 @@ public:
 	DECLARE_EVENTS(GC_RigidBodyStatic);
 	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
+	DECLARE_EVENTS(GC_Turret);
 	DECLARE_EVENTS(GC_Vehicle);
 	DECLARE_EVENTS(World);
 

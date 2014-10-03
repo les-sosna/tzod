@@ -8,49 +8,25 @@
 template<class T> class JobManager;
 class GC_Vehicle;
 
+enum TurretState
+{
+	TS_ATACKING,
+	TS_WAITING,
+	TS_HIDDEN,
+	TS_WAKING_UP,
+	TS_WAKING_DOWN,
+	TS_PREPARE_TO_WAKEDOWN
+};
+
 class GC_Turret : public GC_RigidBodyStatic
 {
     typedef GC_RigidBodyStatic base;
-    
-	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
-	{
-		typedef GC_RigidBodyStatic::MyPropertySet BASE;
-		ObjectProperty _propTeam;
-		ObjectProperty _propSight;
-        ObjectProperty _propDir;
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(World &world, bool applyToObject);
-	};
-	virtual PropertySet* NewPropertySet();
-
+	
 protected:
 	static JobManager<GC_Turret> _jobManager;
 
 	ObjPtr<GC_Sound>         _rotateSound;
 	ObjPtr<GC_Vehicle>       _target;
-
-	enum enumTuretState
-	{
-		TS_ATACKING,
-		TS_WAITING,
-		TS_HIDDEN,
-		TS_WAKING_UP,
-		TS_WAKING_DOWN,
-		TS_PREPARE_TO_WAKEDOWN
-	};
-
-public:
-	enumTuretState _state;
-
-	int      _team;  // 0 - no team
-	float    _initialDir;
-	float    _sight;
-
-	float    _dir; // linked with the rotator
-	Rotator  _rotator;
 
 protected:
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
@@ -60,26 +36,57 @@ protected:
 	GC_Vehicle* EnumTargets(World &world);
 	void SelectTarget(World &world, GC_Vehicle *target);
 
-	virtual void MapExchange(World &world, MapFile &f);
-
 public:
     DECLARE_LIST_MEMBER();
-	GC_Turret(World &world);
+	GC_Turret(World &world, TurretState state);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 	
 	float GetWeaponDir() const { return _dir; }
+	int GetTeam() const { return _team; }
+	TurretState GetState() const { return _state; }
+	
 	virtual float GetReadyState() const { return 1; }
-    
     virtual void SetInitialDir(float initialDir);
 
-	virtual void MoveTo(World &world, const vec2d &pos);
+	// GC_RigidBodyStatic
 	virtual void OnDestroy(World &world, GC_Player *by);
+	
+	// GC_Actor
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+    virtual void Kill(World &world) override;
+	virtual void MapExchange(World &world, MapFile &f);
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStepFixed(World &world, float dt) override;
+	
+protected:
+	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
+	{
+		typedef GC_RigidBodyStatic::MyPropertySet BASE;
+		ObjectProperty _propTeam;
+		ObjectProperty _propSight;
+		ObjectProperty _propDir;
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(World &world, bool applyToObject);
+	};
+	virtual PropertySet* NewPropertySet();
+	
+	void SetState(World &world, TurretState state);
+
+protected:
+	float    _dir; // linked with the rotator
+	Rotator  _rotator;
+	float    _initialDir;
+
+private:
+	TurretState _state;
+	int      _team;  // 0 - no team
+	float    _sight;
 };
 
 /////////////////////////////////////////////////////////////
@@ -145,7 +152,7 @@ private:
 
 protected:
 	void WakeUp(World &world);
-	void WakeDown();
+	void WakeDown(World &world);
 
 public:
 	float _delta_angle;  // shooting accuracy control

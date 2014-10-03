@@ -352,7 +352,7 @@ float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					if( team && _level > 0 )
 					{
 						GC_Turret *pIsTurret = dynamic_cast<GC_Turret*>(object);
-						if( pIsTurret && (pIsTurret->_team == team) )
+						if( pIsTurret && (pIsTurret->GetTeam() == team) )
 						{
 							continue;
 						}
