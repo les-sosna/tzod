@@ -3,12 +3,12 @@
 #include <memory>
 
 class SoundRender;
-class World;
 
 class SoundHarness
 	: ObjectListener<GC_Pickup>
 	, ObjectListener<GC_RigidBodyStatic>
 	, ObjectListener<GC_Vehicle>
+	, ObjectListener<World>
 {
 public:
 	SoundHarness(World &world);
@@ -34,4 +34,9 @@ private:
 	// ObjectListener<GC_Object>
 //	virtual void OnCreate(GC_Object &obj) override {}
 //	virtual void OnKill(GC_Object &obj) override {}
+
+	// ObjectListener<World>
+	virtual void OnGameStarted() override {}
+	virtual void OnGameFinished();
+	virtual void OnGameMessage(const char *msg) override {}
 };

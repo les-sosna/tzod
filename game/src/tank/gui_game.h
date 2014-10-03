@@ -60,7 +60,8 @@ private:
     const DefaultCamera &_defaultCamera;
 
 	// ObjectListener<World>
-	virtual void OnGameStarted() {}
+	virtual void OnGameStarted() override {}
+	virtual void OnGameFinished() override {}
 	virtual void OnGameMessage(const char *msg);
 };
 

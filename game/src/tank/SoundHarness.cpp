@@ -4,6 +4,7 @@
 #include "gc/Pickup.h"
 #include "gc/RigidBody.h"
 #include "gc/Vehicle.h"
+#include "gc/Weapons.h"
 #include "gc/World.h"
 
 SoundHarness::SoundHarness(World &world)
@@ -13,10 +14,12 @@ SoundHarness::SoundHarness(World &world)
 	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_Vehicle.AddListener(*this);
+	_world.eWorld.AddListener(*this);
 }
 
 SoundHarness::~SoundHarness()
 {
+	_world.eWorld.RemoveListener(*this);
 	_world.eGC_Vehicle.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
@@ -36,6 +39,9 @@ void SoundHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
 		_soundRender->PlayOnce(SND_Inv, obj.GetPos());
 	else if (GC_pu_Shock::GetTypeStatic() == type)
 		_soundRender->PlayOnce(SND_ShockActivate, obj.GetPos());
+	else if (dynamic_cast<GC_Weapon*>(&obj))
+		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
+
 }
 
 void SoundHarness::OnRespawn(GC_Pickup &obj)
@@ -72,3 +78,10 @@ void SoundHarness::OnLight(GC_Vehicle &obj)
 {
 	_soundRender->PlayOnce(SND_LightSwitch, obj.GetPos());
 }
+
+void SoundHarness::OnGameFinished()
+{
+	// FIXME: play at no specific position
+	_soundRender->PlayOnce(SND_Limit, vec2d(0,0));
+}
+

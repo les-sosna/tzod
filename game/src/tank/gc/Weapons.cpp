@@ -112,8 +112,6 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 	SetVisible(true);
 	SetBlinking(false);
 
-	PLAY(SND_w_Pickup, GetPos());
-
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
     _fireLight->Register(world);
 	_fireLight->SetActive(false);

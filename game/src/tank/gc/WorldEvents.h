@@ -54,6 +54,7 @@ class World;
 template<> struct ObjectListener<World>
 {
 	virtual void OnGameStarted() = 0;
+	virtual void OnGameFinished() = 0;
     virtual void OnGameMessage(const char *msg) = 0;
 };
 

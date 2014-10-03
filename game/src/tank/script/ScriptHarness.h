@@ -38,5 +38,6 @@ private:
 
 	// ObjectListener<World>
 	virtual void OnGameStarted() override;
+	virtual void OnGameFinished() override {}
 	virtual void OnGameMessage(const char *) override {}
 };

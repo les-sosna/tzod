@@ -140,8 +140,8 @@ void World::HitLimit()
 	assert(!_limitHit);
 //	PauseLocal(true);
 	_limitHit = true;
-    World &world = *this;
-	PLAY(SND_Limit, vec2d(0,0));
+	for( auto ls: eWorld._listeners )
+		ls->OnGameFinished();
 }
 
 World::~World()
