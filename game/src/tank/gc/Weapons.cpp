@@ -250,18 +250,6 @@ void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
 	_nshots           = 0;
 	_nshots_total     = 6;
 	_time_shot        = 0.13f;
-
-//return;
-//	veh->SetMaxHP(85);
-
-//	veh->_ForvAccel = 300;
-//	veh->_BackAccel = 200;
-//	veh->_StopAccel = 500;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 150;
-//	veh->_MaxForvSpeed = 150;
 }
 
 void GC_Weap_RocketLauncher::Detach(World &world)
@@ -397,7 +385,8 @@ void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
 		else if( _time >= _timeReload && !_reloaded )
 		{
 			_reloaded = true;
-			if( !_advanced) PLAY(SND_WeapReload, GetPos());
+			if( !_advanced)
+				PLAY(SND_WeapReload, GetPos());
 		}
 	}
 
@@ -429,18 +418,6 @@ void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 	_nshots = 0;
 	_nshots_total = 30;
 	_time_shot = 0.135f;
-
-//return;
-//	veh->SetMaxHP(80);
-
-//	veh->_ForvAccel = 300;
-//	veh->_BackAccel = 200;
-//	veh->_StopAccel = 500;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxForvSpeed = 240;
-//	veh->_MaxBackSpeed = 160;
 }
 
 void GC_Weap_AutoCannon::Detach(World &world)
@@ -600,18 +577,6 @@ void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
 	_timeReload    = 0.9f;
 	_time_smoke_dt = 0;
 	_time_smoke    = 0;
-
-//return;
-//	veh->SetMaxHP(125);
-
-//	veh->_ForvAccel = 250;
-//	veh->_BackAccel = 150;
-//	veh->_StopAccel = 500;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxForvSpeed = 160;
-//	veh->_MaxBackSpeed = 120;
 }
 
 GC_Weap_Cannon::GC_Weap_Cannon(FromFile)
@@ -715,20 +680,7 @@ GC_Weap_Plazma::~GC_Weap_Plazma()
 void GC_Weap_Plazma::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
-
 	_timeReload = 0.3f;
-
-//return;
-//	veh->SetMaxHP(100);
-
-//	veh->_ForvAccel = 300;
-//	veh->_BackAccel = 200;
-//	veh->_StopAccel = 500;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxForvSpeed = 200;
-//	veh->_MaxBackSpeed = 160;
 }
 
 void GC_Weap_Plazma::AdjustVehicleClass(VehicleClass &vc) const
@@ -783,20 +735,7 @@ void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Gauss::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
-
 	_timeReload = 1.3f;
-
-//return;
-//	veh->SetMaxHP(70);
-
-//	veh->_ForvAccel = 350;
-//	veh->_BackAccel = 250;
-//	veh->_StopAccel = 700;
-
-//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 220;
-//	veh->_MaxForvSpeed = 260;
 }
 
 GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
@@ -878,20 +817,6 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 
 	_firingCounter = 0;
 	_bReady = true;
-
-//return;
-//	veh->SetMaxHP(350);
-
-//	veh->_ForvAccel = 250;
-//	veh->_BackAccel = 250;
-//	veh->_StopAccel = 500;
-
-//	veh->_percussion = _advanced ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 160;
-//	veh->_MaxForvSpeed = 160;
 }
 
 void GC_Weap_Ram::Detach(World &world)
@@ -1095,18 +1020,6 @@ void GC_Weap_BFG::Attach(World &world, GC_Actor *actor)
 
 	_time_ready  = 0;
 	_timeReload = 1.1f;
-
-//return;
-//	veh->SetMaxHP(110);
-
-//	veh->_ForvAccel = 250;
-//	veh->_BackAccel = 200;
-//	veh->_StopAccel = 1000;
-
-//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
-
-//	veh->_MaxForvSpeed = 200;
-//	veh->_MaxBackSpeed = 180;
 }
 
 GC_Weap_BFG::GC_Weap_BFG(FromFile)
@@ -1190,20 +1103,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 void GC_Weap_Ripper::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
-
 	_timeReload = 0.5f;
-
-//return;
-//	veh->SetMaxHP(80);
-
-//	veh->_ForvAccel = 300;
-//	veh->_BackAccel = 200;
-//	veh->_StopAccel = 500;
-
-//	veh->_rotator.setl(3.5f, 10.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 260;
-//	veh->_MaxForvSpeed = 240;
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(World &world)
@@ -1292,19 +1192,6 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
     _sound->Register(world);
     _sound->SetMode(world, SMODE_STOP);
 	_bFire = false;
-
-//return;
-//	veh->SetMaxHP(65);
-
-//	veh->_ForvAccel = 700;
-//	veh->_BackAccel = 600;
-//	veh->_StopAccel = 2000;
-
-//	veh->_rotator.setl(3.5f, 15.0f, 30.0f);
-
-//	veh->_MaxBackSpeed = 300;
-//	veh->_MaxForvSpeed = 350;
-
 }
 
 void GC_Weap_Minigun::Detach(World &world)
