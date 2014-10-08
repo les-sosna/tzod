@@ -48,7 +48,7 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 				for( ObjectList::id_type it = tmp_list.begin(); it != tmp_list.end(); it = tmp_list.next(it) )
 				{
 					GC_RigidBodyStatic *object = static_cast<GC_RigidBodyStatic *>(tmp_list.at(it));
-					if( object->CheckFlags(GC_FLAG_RBSTATIC_TRACE0) )
+					if( object->GetTrace0() )
 					{
 						continue;
 					}

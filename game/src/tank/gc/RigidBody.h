@@ -43,6 +43,7 @@ public:
 	float GetHalfLength() const { return _length/2; }
 	float GetRadius() const { return _radius; }
 	vec2d GetVertex(int index) const;
+	bool GetTrace0() const { return CheckFlags(GC_FLAG_RBSTATIC_TRACE0); }
 	
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
