@@ -917,7 +917,6 @@ GC_Weap_Minigun::GC_Weap_Minigun(World &world)
 {
 	_fePos.Set(20, 0);
 	_feTime   = 0.1f;
-	_feOrient = vrand(1);
 }
 
 GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
@@ -1003,7 +1002,6 @@ void GC_Weap_Minigun::TimeStep(World &world, float dt)
 			for(; _timeShot > 0; _timeShot -= GetAdvanced() ? 0.02f : 0.04f)
 			{
 				_time = frand(_feTime);
-				_feOrient = vrand(1);
 				_lastShotTimestamp = world.GetTime() - frand(_feTime);
 				_fireLight->SetActive(true);
 

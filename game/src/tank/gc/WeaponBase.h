@@ -75,9 +75,8 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 
-	ObjPtr<GC_Light>    _fireLight;
+	ObjPtr<GC_Light> _fireLight;
 	vec2d _fePos;
-	vec2d _feOrient;
 	float _feTime;
 	
 	virtual float GetReloadTime() const { return 0; }

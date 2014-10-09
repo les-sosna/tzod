@@ -62,7 +62,6 @@ GC_Weapon::GC_Weapon(World &world)
   , _time(0)
   , _timeStay(15.0f)
   , _fePos(0,0)
-  , _feOrient(1,0)
   , _feTime(1.0f)
   , _lastShotTimestamp(-FLT_MAX)
   , _rotatorWeap(_angle)
@@ -181,7 +180,6 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	_rotatorWeap.Serialize(f);
 
 	f.Serialize(_angle);
-	f.Serialize(_feOrient);
 	f.Serialize(_fePos);
 	f.Serialize(_feTime);
 	f.Serialize(_time);
