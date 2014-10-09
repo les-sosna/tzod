@@ -24,6 +24,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
+protected:
+	virtual float GetReloadTime() const { return 2.0f; }
+	
 private:
 	void Shoot(World &world);
 	float _time_shot;
@@ -59,6 +62,9 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
+
+protected:
+	virtual float GetReloadTime() const { return 3.7f; }
 	
 private:
 	float _time_shot;
@@ -89,6 +95,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
+protected:
+	virtual float GetReloadTime() const { return 0.9f; }
+
 private:
 	float _time_smoke;
 	float _time_smoke_dt;
@@ -110,8 +119,8 @@ public:
 	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
-	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
+protected:
+	virtual float GetReloadTime() const { return 0.3f; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,9 +138,9 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	
-	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
+
+protected:
+	virtual float GetReloadTime() const { return 1.3f; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,6 +208,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
+protected:
+	virtual float GetReloadTime() const { return 1.1f; }
+	
 private:
 	void Shoot(World &world);
 	float _time_ready;
@@ -214,16 +226,14 @@ public:
 	GC_Weap_Ripper(World &world);
 	GC_Weap_Ripper(FromFile);
 	virtual ~GC_Weap_Ripper();
-	
-	bool IsReady() const { return GetCarrier() && _time > _timeReload; }
-	
+		
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	
-	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
+protected:
+	virtual float GetReloadTime() const { return 0.5f; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -254,6 +264,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
+protected:
+	virtual float GetReloadTime() const { return 0.03f; }
+	
 private:
 	ObjPtr<GC_Sound> _sound;
 	float _timeFire;
@@ -286,6 +299,9 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 	
+protected:
+	virtual float GetReloadTime() const { return 0.02f; }
+
 private:
 	ObjPtr<GC_Sound> _sound;
 	float _timeFire;

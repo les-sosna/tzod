@@ -3,6 +3,7 @@
 #include "Sound.h"
 #include "Vehicle.h"
 #include "Macros.h"
+#include "World.h"
 
 #include "SaveFile.h"
 
@@ -61,10 +62,8 @@ GC_Weapon::GC_Weapon(World &world)
   , _fePos(0,0)
   , _feOrient(1,0)
   , _feTime(1.0f)
-  , _advanced(false)
   , _time(0)
   , _timeStay(15.0f)
-  , _timeReload(0)
   , _lastShotTimestamp(-FLT_MAX)
   , _rotatorWeap(_angle)
 {
@@ -76,16 +75,16 @@ AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( veh.GetWeapon() )
 	{
-		if( veh.GetWeapon()->_advanced )
+		if( veh.GetWeapon()->GetAdvanced() )
 			return AIP_NOTREQUIRED;
 
-		if( _advanced )
+		if( GetAdvanced() )
 			return AIP_WEAPON_ADVANCED;
 		else
 			return AIP_NOTREQUIRED;
 	}
 
-	return AIP_WEAPON_NORMAL + (_advanced ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
+	return AIP_WEAPON_NORMAL + (GetAdvanced() ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
 }
 
 void GC_Weapon::Attach(World &world, GC_Actor *actor)
@@ -170,6 +169,11 @@ GC_Weapon::~GC_Weapon()
 {
 }
 
+bool GC_Weapon::IsReady(const World &world) const
+{
+	return GetCarrier() && world.GetTime() > _lastShotTimestamp + GetReloadTime();
+}
+
 void GC_Weapon::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
@@ -177,13 +181,11 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	_rotatorWeap.Serialize(f);
 
 	f.Serialize(_angle);
-	f.Serialize(_advanced);
 	f.Serialize(_feOrient);
 	f.Serialize(_fePos);
 	f.Serialize(_feTime);
 	f.Serialize(_time);
 	f.Serialize(_timeStay);
-	f.Serialize(_timeReload);
 	f.Serialize(_fireLight);
 	f.Serialize(_rotateSound);
 }
