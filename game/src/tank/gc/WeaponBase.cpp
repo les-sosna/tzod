@@ -52,7 +52,7 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	}
 	else
 	{
-		_propTimeStay.SetIntValue(int(obj->_timeStay * 1000.0f + 0.5f));
+		_propTimeStay.SetIntValue(int(obj->GetStayTime() * 1000.0f + 0.5f));
 	}
 }
 
@@ -60,10 +60,10 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 GC_Weapon::GC_Weapon(World &world)
   : GC_Pickup(world)
   , _time(0)
-  , _timeStay(15.0f)
   , _fePos(0,0)
   , _feTime(1.0f)
   , _lastShotTimestamp(-FLT_MAX)
+  , _timeStay(15.0f)
   , _rotatorWeap(_angle)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
@@ -210,10 +210,8 @@ void GC_Weapon::TimeStep(World &world, float dt)
 	{
 		if( GetRespawn() && GetVisible() )
 		{
-			SetBlinking(_time > _timeStay - 3.0f);
-			if( _time > _timeStay )
+			if( _time > GetStayTime() )
 			{
-				SetBlinking(false);
 				Disappear(world);
 			}
 		}

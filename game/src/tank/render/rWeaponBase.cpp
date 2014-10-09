@@ -29,8 +29,8 @@ enumZOrder Z_Weapon::GetZ(const World &world, const GC_Actor &actor) const
 	}
 	else
 	{
-		bool blinking = weapon.GetRespawn() && (weapon._time > weapon._timeStay - 3.0f);
-		bool visible = weapon.GetVisible() && (!blinking || fmod(weapon._time, 0.16f) > 0.08f); // or editorMode
+		bool blinking = weapon.GetRespawn() && (weapon._time > weapon.GetStayTime() - 3.0f);
+		bool visible = weapon.GetVisible() && (!blinking || fmod(world.GetTime(), 0.16f) > 0.08f); // or editorMode
 		return visible ? Z_FREE_ITEM : Z_NONE;
 	}
 }

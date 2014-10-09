@@ -25,6 +25,7 @@ public:
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
+	float GetStayTime() const { return _timeStay; }
 	bool IsReady(const World &world) const;
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
@@ -59,7 +60,6 @@ public:
 
 	// TODO: move to private
 	float _time;
-	float _timeStay;
 
 protected:
 	class MyPropertySet : public GC_Pickup::MyPropertySet
@@ -84,6 +84,7 @@ protected:
 	// TODO: move to private
 	float _lastShotTimestamp;
 private:
+	float _timeStay;
 	float _angle;
 	Rotator _rotatorWeap;
 	ObjPtr<GC_Sound> _rotateSound;
