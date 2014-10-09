@@ -24,6 +24,7 @@ class GC_Object;
 class GC_Pickup;
 class GC_Player;
 class GC_RigidBodyStatic;
+class GC_RigidBodyDynamic;
 class GC_Service;
 class GC_Trigger;
 class GC_Turret;
@@ -74,6 +75,7 @@ public:
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_Player);
 	DECLARE_EVENTS(GC_RigidBodyStatic);
+	DECLARE_EVENTS(GC_RigidBodyDynamic);
 	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
 	DECLARE_EVENTS(GC_Turret);

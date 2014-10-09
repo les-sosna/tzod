@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math/MyMath.h>
+
 template <class T> struct ObjectListener;
 
 class GC_Object;
@@ -42,6 +44,12 @@ template<> struct ObjectListener<GC_RigidBodyStatic>
 {
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) = 0;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) = 0;
+};
+
+class GC_RigidBodyDynamic;
+template<> struct ObjectListener<GC_RigidBodyDynamic>
+{
+	virtual void OnContact(vec2d pos, float np, float tp) = 0;
 };
 
 class GC_Vehicle;

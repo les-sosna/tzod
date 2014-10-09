@@ -7,6 +7,7 @@ class SoundRender;
 class SoundHarness
 	: ObjectListener<GC_Pickup>
 	, ObjectListener<GC_RigidBodyStatic>
+	, ObjectListener<GC_RigidBodyDynamic>
 	, ObjectListener<GC_Turret>
 	, ObjectListener<GC_Vehicle>
 	, ObjectListener<World>
@@ -28,6 +29,9 @@ private:
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) override;
+	
+	// ObjectListener<GC_RigidBodyDynamic>
+	virtual void OnContact(vec2d pos, float np, float tp) override;
 	
 	// ObjectListener<GC_Turret>
 	virtual void OnStateChange(GC_Turret &obj) override;

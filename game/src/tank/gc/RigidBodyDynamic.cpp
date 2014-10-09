@@ -1,15 +1,12 @@
-// RigidBodyDynamic.cpp
-
 #include "RigidBodyDinamic.h"
-
-#include "World.h"
-#include "MapFile.h"
 #include "projectiles.h"
-#include "SaveFile.h"
-#include "Sound.h"
-#include "constants.h"
+#include "World.h"
+#include "WorldEvents.h"
 
-///////////////////////////////////////////////////////////////////////////////
+#include "constants.h"
+#include "MapFile.h"
+#include "SaveFile.h"
+
 
 GC_RigidBodyDynamic::MyPropertySet::MyPropertySet(GC_Object *object)
   : BASE(object)
@@ -445,21 +442,10 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world, float dt)
 		}
 	}
 
-	for( ContactList::iterator it = _contacts.begin(); it != _contacts.end(); ++it )
+	for( ContactList::const_iterator it = _contacts.begin(); it != _contacts.end(); ++it )
 	{
-		float nd = (it->total_np + it->total_tp)/60;
-
-		if( nd > 3 )
-		{
-			if( nd > 10 )
-				PLAY(SND_Impact2, it->o);
-			else
-				PLAY(SND_Impact1, it->o);
-		}
-		else if( it->total_tp > 10 )
-		{
-			PLAY(SND_Slide1, it->o);
-		}
+		for( auto ls: world.eGC_RigidBodyDynamic._listeners )
+			ls->OnContact(it->o, it->total_np, it->total_tp);
 	}
 
 	_contacts.clear();
@@ -515,4 +501,3 @@ float GC_RigidBodyDynamic::Energy() const
 	return e;
 }
 
-// end of file

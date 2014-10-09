@@ -14,6 +14,7 @@ SoundHarness::SoundHarness(World &world)
 {
 	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
+	_world.eGC_RigidBodyDynamic.AddListener(*this);
 	_world.eGC_Turret.AddListener(*this);
 	_world.eGC_Vehicle.AddListener(*this);
 	_world.eWorld.AddListener(*this);
@@ -24,6 +25,7 @@ SoundHarness::~SoundHarness()
 	_world.eWorld.RemoveListener(*this);
 	_world.eGC_Vehicle.RemoveListener(*this);
 	_world.eGC_Turret.RemoveListener(*this);
+	_world.eGC_RigidBodyDynamic.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
 }
@@ -79,6 +81,22 @@ void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *fr
 	}
 }
 
+void SoundHarness::OnContact(vec2d pos, float np, float tp)
+{
+	float nd = (np + tp)/60;
+
+	if( nd > 3 )
+	{
+		if( nd > 10 )
+			_soundRender->PlayOnce(SND_Impact2, pos);
+		else
+			_soundRender->PlayOnce(SND_Impact1, pos);
+	}
+	else if( tp > 10 )
+	{
+		_soundRender->PlayOnce(SND_Slide1, pos);
+	}
+}
 
 void SoundHarness::OnStateChange(GC_Turret &obj)
 {
