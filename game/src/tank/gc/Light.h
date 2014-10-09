@@ -97,7 +97,7 @@ public:
 	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-	virtual void TimeStepFixed(World &world, float dt) override;
+	virtual void TimeStep(World &world, float dt) override;
     virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f);
 };

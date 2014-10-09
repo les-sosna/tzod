@@ -87,7 +87,7 @@ void GC_Trigger::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Trigger::TimeStepFixed(World &world, float dt)
+void GC_Trigger::TimeStep(World &world, float dt)
 {
 	if( CheckFlags(GC_FLAG_TRIGGER_ACTIVATED) )
 	{

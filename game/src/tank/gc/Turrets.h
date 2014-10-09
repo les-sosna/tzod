@@ -59,7 +59,7 @@ public:
     virtual void Kill(World &world) override;
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f) override;
-	virtual void TimeStepFixed(World &world, float dt) override;
+	virtual void TimeStep(World &world, float dt) override;
 	
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -112,7 +112,7 @@ public:
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ public:
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	virtual void MapExchange(World &world, MapFile &f);
 
 protected:
@@ -208,7 +208,7 @@ public:
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 /////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ public:
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

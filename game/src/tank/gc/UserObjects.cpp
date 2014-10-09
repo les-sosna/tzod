@@ -171,7 +171,7 @@ void GC_Decoration::MapExchange(World &world, MapFile &f)
 	}
 }
 
-void GC_Decoration::TimeStepFixed(World &world, float dt)
+void GC_Decoration::TimeStep(World &world, float dt)
 {
 	assert(_frameRate > 0);
 	_time += dt;

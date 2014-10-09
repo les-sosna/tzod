@@ -31,7 +31,7 @@ public:
 
 	virtual void Serialize(World &world, SaveFile &f);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 	void OnVictimMove(World &world, GC_Object *sender, void *param);
 	void OnVictimKill(World &world, GC_Object *sender, void *param);
@@ -131,7 +131,7 @@ public:
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

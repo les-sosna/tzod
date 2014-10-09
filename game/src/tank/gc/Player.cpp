@@ -157,9 +157,9 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 	return pBestPoint;
 }
 
-void GC_Player::TimeStepFixed(World &world, float dt)
+void GC_Player::TimeStep(World &world, float dt)
 {
-	GC_Service::TimeStepFixed(world, dt);
+	GC_Service::TimeStep(world, dt);
 
 	if( !GetVehicle() )
 	{

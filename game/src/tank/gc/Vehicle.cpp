@@ -23,31 +23,6 @@
 #include "config/Language.h"
 #include "core/Debug.h"
 
-
-void GC_Vehicle::TimeStepFloat(World &world, float dt)
-{
-	//
-	// spawn damage smoke
-	//
-	if( GetHealth() < (GetHealthMax() * 0.4f) )
-	{
-		assert(GetHealth() > 0);
-		                    //    +-{ particles per second }
-		_time_smoke += dt;  //    |
-		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
-		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
-		{
-			auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-            p->Register(world);
-            p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
-            p->_time = frand(1.0f);
-		}
-	}
-
-
-	GC_RigidBodyDynamic::TimeStepFloat(world, dt);
-}
-
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
 	_moveSound = new GC_Sound(world, s, GetPos());
@@ -377,8 +352,24 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 	GC_RigidBodyDynamic::OnDestroy(world, by);
 }
 
-void GC_Vehicle::TimeStepFixed(World &world, float dt)
+void GC_Vehicle::TimeStep(World &world, float dt)
 {
+	// spawn damage smoke
+	if( GetHealth() < (GetHealthMax() * 0.4f) )
+	{
+		assert(GetHealth() > 0);
+		                    //    +-{ particles per second }
+		_time_smoke += dt;  //    |
+		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
+		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
+		{
+			auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
+			p->Register(world);
+			p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
+			p->_time = frand(1.0f);
+		}
+	}
+
 	ObjPtr<GC_Vehicle> watch(this);
 
 	// move...
@@ -403,7 +394,7 @@ void GC_Vehicle::TimeStepFixed(World &world, float dt)
     
 	// move
 	ApplyState(world, _state);
-	GC_RigidBodyDynamic::TimeStepFixed(world, dt);
+	GC_RigidBodyDynamic::TimeStep(world, dt);
     
     
 	//

@@ -219,7 +219,7 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 	return GetDirection() * result; // FIXME: add y coordinate
 }
 
-void GC_RigidBodyDynamic::TimeStepFixed(World &world, float dt)
+void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 {
 	vec2d dx = _lv * dt;
 	vec2d da(_av * dt);

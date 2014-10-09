@@ -63,7 +63,7 @@ public:
 
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 #ifdef NETWORK_DEBUG
 public:
@@ -97,7 +97,7 @@ public:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ public:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth);
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,7 +199,7 @@ public:
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos);
 	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 	void SetHealOwner(bool heal);
 	void SetLifeTime(float t);

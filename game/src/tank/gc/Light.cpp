@@ -65,7 +65,7 @@ void GC_Light::SetTimeout(World &world, float t)
     world.GetList(LIST_timestep).insert(this, GetId());
 }
 
-void GC_Light::TimeStepFixed(World &world, float dt)
+void GC_Light::TimeStep(World &world, float dt)
 {
 	assert(_timeout > 0);
 	_intensity = _intensity * (_timeout - dt) / _timeout;

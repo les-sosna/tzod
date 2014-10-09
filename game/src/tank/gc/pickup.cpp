@@ -135,7 +135,7 @@ void GC_Pickup::MoveTo(World &world, const vec2d &pos)
     GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Pickup::TimeStepFixed(World &world, float dt)
+void GC_Pickup::TimeStep(World &world, float dt)
 {
 	_timeAttached += dt;
 
@@ -175,7 +175,7 @@ void GC_Pickup::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Actor::TimeStepFixed(world, dt);
+	GC_Actor::TimeStep(world, dt);
 }
 
 void GC_Pickup::MapExchange(World &world, MapFile &f)
@@ -370,9 +370,9 @@ void GC_pu_Shield::Detach(World &world)
 	GC_Pickup::Detach(world);
 }
 
-void GC_pu_Shield::TimeStepFixed(World &world, float dt)
+void GC_pu_Shield::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStep(world, dt);
 
 	if( GetCarrier() )
 	{
@@ -524,9 +524,9 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 	return pNearTarget;
 }
 
-void GC_pu_Shock::TimeStepFixed(World &world, float dt)
+void GC_pu_Shock::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStep(world, dt);
 
 	if( GetCarrier() )
 	{
@@ -670,9 +670,9 @@ GC_Actor* GC_pu_Booster::FindNewOwner(World &world) const
 	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
 }
 
-void GC_pu_Booster::TimeStepFixed(World &world, float dt)
+void GC_pu_Booster::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStep(world, dt);
 	if( GetCarrier() )
 	{
 		if( GetTimeAttached() > BOOSTER_TIME )

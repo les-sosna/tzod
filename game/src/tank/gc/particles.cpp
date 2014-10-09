@@ -33,7 +33,7 @@ void GC_BrickFragment::Serialize(World &world, SaveFile &f)
 	f.Serialize(_velocity);
 }
 
-void GC_BrickFragment::TimeStepFloat(World &world, float dt)
+void GC_BrickFragment::TimeStep(World &world, float dt)
 {
 	_time += dt;
 
@@ -83,7 +83,7 @@ void GC_Particle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_ptype);
 }
 
-void GC_Particle::TimeStepFloat(World &world, float dt)
+void GC_Particle::TimeStep(World &world, float dt)
 {
 	assert(_timeLife > 0);
 	_time += dt;

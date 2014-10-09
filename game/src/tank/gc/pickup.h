@@ -80,7 +80,7 @@ public:
 	virtual void Kill(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -174,7 +174,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	virtual void Serialize(World &world, SaveFile &f);
 
 protected:
@@ -211,7 +211,7 @@ public:
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ public:
 
 	virtual GC_Actor* FindNewOwner(World &world) const;
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 	void OnWeaponDisappear(World &world, GC_Object *sender, void *param);
 };

@@ -154,7 +154,7 @@ void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_owner);
 }
 
-void GC_HealthDaemon::TimeStepFixed(World &world, float dt)
+void GC_HealthDaemon::TimeStep(World &world, float dt)
 {
 	_time -= dt;
 	bool bKill = false;
@@ -222,7 +222,7 @@ void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
 	f.Serialize(_time);
 }
 
-void GC_Text_ToolTip::TimeStepFloat(World &world, float dt)
+void GC_Text_ToolTip::TimeStep(World &world, float dt)
 {
 	MoveTo(world, GetPos() + vec2d(0, -20.0f) * dt);
 	_time += dt;

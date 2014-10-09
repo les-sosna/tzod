@@ -75,7 +75,7 @@ public:
 	GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object);
 	GC_Sound_link(FromFile);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 public:
 	bool CheckObject(const GC_Object *object) const

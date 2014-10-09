@@ -75,7 +75,7 @@ public:
 	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
     virtual void Kill(World &world) override;
 };
 

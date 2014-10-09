@@ -498,10 +498,7 @@ void World::Step(float dt)
 		_safeMode = false;
         ObjectList &ls = GetList(LIST_timestep);
         ls.for_each([=](ObjectList::id_type id, GC_Object *o){
-            ObjPtr<GC_Object> watch(o);
-            o->TimeStepFixed(*this, dt);
-            if (watch)
-                o->TimeStepFloat(*this, dt);
+            o->TimeStep(*this, dt);
         });
 		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
 		_safeMode = true;

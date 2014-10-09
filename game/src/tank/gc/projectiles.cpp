@@ -121,9 +121,9 @@ void GC_Projectile::ApplyHitDamage(World &world, GC_RigidBodyStatic *target, con
 	}
 }
 
-void GC_Projectile::TimeStepFixed(World &world, float dt)
+void GC_Projectile::TimeStep(World &world, float dt)
 {
-	GC_Actor::TimeStepFixed(world, dt);
+	GC_Actor::TimeStep(world, dt);
 
 	vec2d dx = GetDirection() * (_velocity * dt);
 	std::vector<World::CollisionPoint> obstacles;
@@ -291,7 +291,7 @@ void GC_Rocket::SpawnTrailParticle(World &world, const vec2d &pos)
     p->MoveTo(world, pos - GetDirection() * 8.0f);
 }
 
-void GC_Rocket::TimeStepFixed(World &world, float dt)
+void GC_Rocket::TimeStep(World &world, float dt)
 {
 	_timeHomming += dt;
 
@@ -325,7 +325,7 @@ void GC_Rocket::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Projectile::TimeStepFixed(world, dt);
+	GC_Projectile::TimeStep(world, dt);
 }
 
 /////////////////////////////////////////////////////////////
@@ -650,7 +650,7 @@ void GC_BfgCore::SpawnTrailParticle(World &world, const vec2d &pos)
     p->MoveTo(world, pos + dx);
 }
 
-void GC_BfgCore::TimeStepFixed(World &world, float dt)
+void GC_BfgCore::TimeStep(World &world, float dt)
 {
 	_time += dt;
 	if( _time * ANIMATION_FPS >= 1 )
@@ -700,7 +700,7 @@ void GC_BfgCore::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Projectile::TimeStepFixed(world, dt);
+	GC_Projectile::TimeStep(world, dt);
 }
 
 
@@ -816,7 +816,7 @@ float GC_FireSpark::FilterDamage(float damage, GC_RigidBodyStatic *object)
 	return damage;
 }
 
-void GC_FireSpark::TimeStepFixed(World &world, float dt)
+void GC_FireSpark::TimeStep(World &world, float dt)
 {
 	float R = GetRadius();
 	_light->SetRadius(3*R);
@@ -865,7 +865,7 @@ void GC_FireSpark::TimeStepFixed(World &world, float dt)
 		ObjPtr<GC_FireSpark> watch;
 
 		// this moves the particle by velocity*dt
-		GC_Projectile::TimeStepFixed(world, dt);
+		GC_Projectile::TimeStep(world, dt);
 
 		// correct particle's position as if it was affected by air friction
 		if( watch )

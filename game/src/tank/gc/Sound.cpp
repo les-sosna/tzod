@@ -344,14 +344,14 @@ void GC_Sound_link::Serialize(World &world, SaveFile &f)
 	f.Serialize(_object);
 }
 
-void GC_Sound_link::TimeStepFixed(World &world, float dt)
+void GC_Sound_link::TimeStep(World &world, float dt)
 {
 	if( !_object )
 		Kill(world);
 	else
 		MoveTo(world, _object->GetPos());
 
-	GC_Sound::TimeStepFixed(world, dt);
+	GC_Sound::TimeStep(world, dt);
 }
 
 

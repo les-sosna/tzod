@@ -78,8 +78,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;

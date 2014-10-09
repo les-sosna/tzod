@@ -149,7 +149,7 @@ void GC_Turret::OnDestroy(World &world, GC_Player *by)
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
-void GC_Turret::TimeStepFixed(World &world, float dt)
+void GC_Turret::TimeStep(World &world, float dt)
 {
 	_rotator.process_dt(dt);
 
@@ -334,9 +334,9 @@ void GC_TurretRocket::Fire(World &world)
 	}
 }
 
-void GC_TurretRocket::TimeStepFixed(World &world, float dt)
+void GC_TurretRocket::TimeStep(World &world, float dt)
 {
-	GC_Turret::TimeStepFixed(world, dt);
+	GC_Turret::TimeStep(world, dt);
 	_timeReload -= dt;
 }
 
@@ -397,9 +397,9 @@ void GC_TurretCannon::Fire(World &world)
 	}
 }
 
-void GC_TurretCannon::TimeStepFixed(World &world, float dt)
+void GC_TurretCannon::TimeStep(World &world, float dt)
 {
-	GC_Turret::TimeStepFixed(world, dt);
+	GC_Turret::TimeStep(world, dt);
 	_timeReload -= dt;
 
 	if( _time_smoke > 0 )
@@ -478,7 +478,7 @@ void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 	GC_Turret::OnDamage(world, dd);
 }
 
-void GC_TurretBunker::TimeStepFixed(World &world, float dt)
+void GC_TurretBunker::TimeStep(World &world, float dt)
 {
 	_rotator.process_dt(dt);
 
@@ -650,9 +650,9 @@ void GC_TurretMinigun::Fire(World &world)
 	_firing = true;
 }
 
-void GC_TurretMinigun::TimeStepFixed(World &world, float dt)
+void GC_TurretMinigun::TimeStep(World &world, float dt)
 {
-	GC_TurretBunker::TimeStepFixed(world, dt);
+	GC_TurretBunker::TimeStep(world, dt);
 
 	if( _firing )
 	{
@@ -756,9 +756,9 @@ void GC_TurretGauss::Fire(World &world)
 	}
 }
 
-void GC_TurretGauss::TimeStepFixed(World &world, float dt)
+void GC_TurretGauss::TimeStep(World &world, float dt)
 {
-	GC_TurretBunker::TimeStepFixed(world, dt);
+	GC_TurretBunker::TimeStep(world, dt);
 	_time += dt;
 }
 

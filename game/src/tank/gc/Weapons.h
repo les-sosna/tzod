@@ -75,7 +75,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	virtual void OnUpdateView(World &world) {};
@@ -113,7 +113,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	void Shoot(World &world);
@@ -149,7 +149,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	
 private:
 	float _time_shot;
@@ -178,7 +178,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	float _time_smoke;
@@ -252,8 +252,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	virtual void OnUpdateView(World &world);
@@ -289,7 +288,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	void Shoot(World &world);
@@ -344,7 +343,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 
 private:
 	ObjPtr<GC_Sound> _sound;
@@ -376,7 +375,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	
 private:
 	ObjPtr<GC_Sound> _sound;

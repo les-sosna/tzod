@@ -252,9 +252,9 @@ void GC_Explosion::MoveTo(World &world, const vec2d &pos)
 	GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Explosion::TimeStepFixed(World &world, float dt)
+void GC_Explosion::TimeStep(World &world, float dt)
 {
-	GC_Actor::TimeStepFixed(world, dt);
+	GC_Actor::TimeStep(world, dt);
 
 	_time += dt;
 	if( _time >= _time_boom && !_boomOK )

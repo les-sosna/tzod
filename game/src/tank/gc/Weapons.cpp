@@ -206,9 +206,9 @@ void GC_Weapon::Kill(World &world)
 	GC_Pickup::Kill(world);
 }
 
-void GC_Weapon::TimeStepFixed(World &world, float dt)
+void GC_Weapon::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStepFixed(world, dt);
+	GC_Pickup::TimeStep(world, dt);
 
 	_time += dt;
 
@@ -376,7 +376,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 1.2f : 3.5f;
 }
 
-void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
+void GC_Weap_RocketLauncher::TimeStep(World &world, float dt)
 {
 	if( GetCarrier() )
 	{
@@ -390,7 +390,7 @@ void GC_Weap_RocketLauncher::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -535,7 +535,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 3.3f : 13.0f;
 }
 
-void GC_Weap_AutoCannon::TimeStepFixed(World &world, float dt)
+void GC_Weap_AutoCannon::TimeStep(World &world, float dt)
 {
 	if( GetCarrier() )
 	{
@@ -552,7 +552,7 @@ void GC_Weap_AutoCannon::TimeStepFixed(World &world, float dt)
 		_firing |= _advanced;
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -634,9 +634,9 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.0f : 8.0f;
 }
 
-void GC_Weap_Cannon::TimeStepFixed(World &world, float dt)
+void GC_Weap_Cannon::TimeStep(World &world, float dt)
 {
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 
 	if( GetCarrier() && _time_smoke > 0 )
 	{
@@ -893,13 +893,15 @@ void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 2.5f : 6.0f;
 }
 
-void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
+void GC_Weap_Ram::TimeStep(World &world, float dt)
 {
+	GC_Weapon::TimeStep(world, dt);
+
 	if( GetCarrier() && _firingCounter )
 	{
 		GC_Vehicle *veh = static_cast<GC_Vehicle *>(GetCarrier());
 		vec2d v = veh->_lv;
-
+		
 		// primary
 		{
 			const vec2d &a = GetDirection();
@@ -910,12 +912,12 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
 				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? PARTICLE_FIRE2 : PARTICLE_YELLOW, time);
-                p->Register(world);
-                p->MoveTo(world, emitter + dx);
+				p->Register(world);
+				p->MoveTo(world, emitter + dx);
 			}
 		}
-
-
+		
+		
 		// secondary
 		for( float l = -1; l < 2; l += 2 )
 		{
@@ -927,19 +929,12 @@ void GC_Weap_Ram::TimeStepFloat(World &world, float dt)
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
 				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, PARTICLE_FIRE1, time);
-                p->Register(world);
-                p->MoveTo(world, emitter + dx);
+				p->Register(world);
+				p->MoveTo(world, emitter + dx);
 			}
 		}
 	}
-
-	GC_Weapon::TimeStepFloat(world, dt);
-}
-
-void GC_Weap_Ram::TimeStepFixed(World &world, float dt)
-{
-	GC_Weapon::TimeStepFixed(world, dt);
-
+	
 	if( GetCarrier() )
 	{
 		assert(_engineSound);
@@ -1082,9 +1077,9 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 13.0f : 20.0f;
 }
 
-void GC_Weap_BFG::TimeStepFixed(World &world, float dt)
+void GC_Weap_BFG::TimeStep(World &world, float dt)
 {
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
@@ -1234,7 +1229,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
 }
 
-void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
+void GC_Weap_Minigun::TimeStep(World &world, float dt)
 {
 	if( GetCarrier() )
 	{
@@ -1269,7 +1264,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 
 				GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), _advanced);
                 tmp->Register(world);
-				tmp->TimeStepFixed(world, _timeShot);
+				tmp->TimeStep(world, _timeShot);
 			}
 
 			_timeFire = std::min(_timeFire + dt * 2, WEAP_MG_TIME_RELAX);
@@ -1281,7 +1276,7 @@ void GC_Weap_Minigun::TimeStepFixed(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 }
 
 
@@ -1368,7 +1363,7 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fDistanceMultipler = _advanced ? 5.0f : 10.0f;
 }
 
-void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
+void GC_Weap_Zippo::TimeStep(World &world, float dt)
 {
 	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
 
@@ -1392,7 +1387,7 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 				GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
 					vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), _advanced);
                 tmp->Register(world);
-				tmp->TimeStepFixed(world, _timeShot);
+				tmp->TimeStep(world, _timeShot);
 				tmp->SetLifeTime(_timeFire);
 				tmp->SetHealOwner(_advanced);
 				tmp->SetSetFire(true);
@@ -1414,12 +1409,12 @@ void GC_Weap_Zippo::TimeStepFixed(World &world, float dt)
 				SPEED_SMOKE/2, GetCarrier(), GetCarrier() ? GetCarrier()->GetOwner() : NULL, true);
             tmp->Register(world);
 			tmp->SetLifeTime(0.3f);
-			tmp->TimeStepFixed(world, _timeBurn);
+			tmp->TimeStep(world, _timeBurn);
 			_timeBurn -= 0.01f;
 		}
 	}
 
-	GC_Weapon::TimeStepFixed(world, dt);
+	GC_Weapon::TimeStep(world, dt);
 }
 
 // end of file

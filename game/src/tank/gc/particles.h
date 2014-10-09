@@ -23,7 +23,7 @@ public:
 	GC_BrickFragment(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

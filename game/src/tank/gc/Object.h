@@ -95,8 +95,7 @@ public:
 	virtual void Kill(World &world);
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStepFixed(World &world, float dt);
-	virtual void TimeStepFloat(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 	virtual ObjectType GetType() const = 0;
 #ifdef NETWORK_DEBUG
 	virtual uint32_t checksum() const { return 0; }

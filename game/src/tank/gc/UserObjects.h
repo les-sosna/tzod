@@ -85,7 +85,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void MapExchange(World &world, MapFile &f);
 
-	virtual void TimeStepFixed(World &world, float dt);
+	virtual void TimeStep(World &world, float dt);
 };
 
 
