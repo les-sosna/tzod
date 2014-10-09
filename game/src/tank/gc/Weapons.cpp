@@ -23,7 +23,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 
 void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 
 	_time       = GetReloadTime();
 
@@ -37,24 +37,24 @@ void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
 void GC_Weap_RocketLauncher::Detach(World &world)
 {
 	_firing = false;
-	GC_Weapon::Detach(world);
+	GC_ProjectileBasedWeapon::Detach(world);
 }
 
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
   , _firing(false)
 {
 	_feTime = 0.1f;
 }
 
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
 void GC_Weap_RocketLauncher::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_firing);
 	f.Serialize(_reloaded);
 	f.Serialize(_nshots);
@@ -172,7 +172,7 @@ void GC_Weap_RocketLauncher::TimeStep(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,14 +184,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 }
 
 GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 	_feTime = 0.2f;
 }
 
 void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 
 	_time       = GetReloadTime();
 
@@ -216,11 +216,11 @@ void GC_Weap_AutoCannon::Detach(World &world)
 		}
 	}
 
-	GC_Weapon::Detach(world);
+	GC_ProjectileBasedWeapon::Detach(world);
 }
 
 GC_Weap_AutoCannon::GC_Weap_AutoCannon(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -230,7 +230,7 @@ GC_Weap_AutoCannon::~GC_Weap_AutoCannon()
 
 void GC_Weap_AutoCannon::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_firing);
 	f.Serialize(_nshots);
 	f.Serialize(_nshots_total);
@@ -333,7 +333,7 @@ void GC_Weap_AutoCannon::TimeStep(World &world, float dt)
 		_firing |= GetAdvanced();
 	}
 
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 }
 
 GC_Weap_Cannon::GC_Weap_Cannon(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 	_fePos.Set(21, 0);
 	_feTime = 0.2f;
@@ -353,14 +353,14 @@ GC_Weap_Cannon::GC_Weap_Cannon(World &world)
 
 void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 
 	_time_smoke_dt = 0;
 	_time_smoke    = 0;
 }
 
 GC_Weap_Cannon::GC_Weap_Cannon(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -370,7 +370,7 @@ GC_Weap_Cannon::~GC_Weap_Cannon()
 
 void GC_Weap_Cannon::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_time_smoke);
 	f.Serialize(_time_smoke_dt);
 }
@@ -416,7 +416,7 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Cannon::TimeStep(World &world, float dt)
 {
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 
 	if( GetCarrier() && _time_smoke > 0 )
 	{
@@ -441,14 +441,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 }
 
 GC_Weap_Plazma::GC_Weap_Plazma(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 	_fePos.Set(0, 0);
 	_feTime = 0.2f;
 }
 
 GC_Weap_Plazma::GC_Weap_Plazma(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -495,7 +495,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 }
 
 GC_Weap_Gauss::GC_Weap_Gauss(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 	_feTime = 0.15f;
 }
@@ -506,7 +506,7 @@ void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 }
 
 GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -772,18 +772,18 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 }
 
 GC_Weap_BFG::GC_Weap_BFG(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 }
 
 void GC_Weap_BFG::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 	_time_ready  = 0;
 }
 
 GC_Weap_BFG::GC_Weap_BFG(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -793,7 +793,7 @@ GC_Weap_BFG::~GC_Weap_BFG()
 
 void GC_Weap_BFG::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_time_ready);
 }
 
@@ -844,7 +844,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_BFG::TimeStep(World &world, float dt)
 {
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
@@ -861,12 +861,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
 {
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -912,7 +912,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 }
 
 GC_Weap_Minigun::GC_Weap_Minigun(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
   , _bFire(false)
 {
 	_fePos.Set(20, 0);
@@ -921,7 +921,7 @@ GC_Weap_Minigun::GC_Weap_Minigun(World &world)
 }
 
 GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -932,12 +932,12 @@ GC_Weap_Minigun::~GC_Weap_Minigun()
 void GC_Weap_Minigun::Kill(World &world)
 {
 	SAFE_KILL(world, _sound);
-    GC_Weapon::Kill(world);
+    GC_ProjectileBasedWeapon::Kill(world);
 }
 
 void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 
 	_timeFire   = 0;
 	_timeShot   = 0;
@@ -951,12 +951,12 @@ void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 void GC_Weap_Minigun::Detach(World &world)
 {
 	SAFE_KILL(world, _sound);
-	GC_Weapon::Detach(world);
+	GC_ProjectileBasedWeapon::Detach(world);
 }
 
 void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 
 	f.Serialize(_bFire);
 	f.Serialize(_timeFire);
@@ -1035,7 +1035,7 @@ void GC_Weap_Minigun::TimeStep(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 
@@ -1048,14 +1048,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 }
 
 GC_Weap_Zippo::GC_Weap_Zippo(World &world)
-  : GC_Weapon(world)
+  : GC_ProjectileBasedWeapon(world)
   , _timeBurn(0)
   , _bFire(false)
 {
 }
 
 GC_Weap_Zippo::GC_Weap_Zippo(FromFile)
-  : GC_Weapon(FromFile())
+  : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
@@ -1066,12 +1066,12 @@ GC_Weap_Zippo::~GC_Weap_Zippo()
 void GC_Weap_Zippo::Kill(World &world)
 {
 	SAFE_KILL(world, _sound);
-    GC_Weapon::Kill(world);
+    GC_ProjectileBasedWeapon::Kill(world);
 }
 
 void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
 {
-	GC_Weapon::Attach(world, actor);
+	GC_ProjectileBasedWeapon::Attach(world, actor);
 
 	_timeFire   = 0;
 	_timeShot   = 0;
@@ -1085,12 +1085,12 @@ void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
 void GC_Weap_Zippo::Detach(World &world)
 {
 	SAFE_KILL(world, _sound);
-	GC_Weapon::Detach(world);
+	GC_ProjectileBasedWeapon::Detach(world);
 }
 
 void GC_Weap_Zippo::Serialize(World &world, SaveFile &f)
 {
-	GC_Weapon::Serialize(world, f);
+	GC_ProjectileBasedWeapon::Serialize(world, f);
 
 	f.Serialize(_bFire);
 	f.Serialize(_timeFire);
@@ -1172,7 +1172,5 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 		}
 	}
 
-	GC_Weapon::TimeStep(world, dt);
+	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
-
-// end of file

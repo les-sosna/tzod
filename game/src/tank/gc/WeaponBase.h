@@ -92,3 +92,12 @@ private:
 	virtual void OnUpdateView(World &world) {};
 	void ProcessRotate(World &world, float dt);
 };
+
+
+class GC_ProjectileBasedWeapon : public GC_Weapon
+{
+public:
+	GC_ProjectileBasedWeapon(World &world);
+	GC_ProjectileBasedWeapon(FromFile);
+	virtual ~GC_ProjectileBasedWeapon();
+};

@@ -3,7 +3,7 @@
 #include "WeaponBase.h"
 
 
-class GC_Weap_RocketLauncher : public GC_Weapon
+class GC_Weap_RocketLauncher : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_RocketLauncher);
 
@@ -38,7 +38,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_AutoCannon : public GC_Weapon
+class GC_Weap_AutoCannon : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_AutoCannon);
 
@@ -75,7 +75,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Cannon : public GC_Weapon
+class GC_Weap_Cannon : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Cannon);
 
@@ -105,7 +105,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Plazma : public GC_Weapon
+class GC_Weap_Plazma : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Plazma);
 
@@ -125,7 +125,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Gauss : public GC_Weapon
+class GC_Weap_Gauss : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Gauss);
 
@@ -187,7 +187,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_BFG : public GC_Weapon
+class GC_Weap_BFG : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_BFG);
 
@@ -218,7 +218,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Ripper : public GC_Weapon
+class GC_Weap_Ripper : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
@@ -238,7 +238,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Minigun : public GC_Weapon
+class GC_Weap_Minigun : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Minigun);
 
@@ -276,7 +276,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Weap_Zippo : public GC_Weapon
+class GC_Weap_Zippo : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Zippo);
 
