@@ -14,8 +14,6 @@
 
 #include "constants.h"
 
-//#include "network/TankClient.h"
-
 #include "config/Config.h"
 #include "config/Language.h"
 

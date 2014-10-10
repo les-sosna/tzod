@@ -9,7 +9,6 @@
 
 #include "constants.h"
 #include "SaveFile.h"
-#include "config/Config.h"
 
 #ifndef NOSOUND
 #include <al.h>

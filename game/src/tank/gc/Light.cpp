@@ -1,17 +1,10 @@
-// light.cpp
-
 #include "Light.h"
-
-#include "World.h"
 #include "Macros.h"
-#include "MapFile.h"
-#include "SaveFile.h"
+#include "World.h"
 
 #include "constants.h"
-#include "core/Debug.h"
-#include "config/Config.h"
-
-#include <video/RenderBase.h>
+#include "MapFile.h"
+#include "SaveFile.h"
 
 
 IMPLEMENT_SELF_REGISTRATION(GC_Light)
@@ -202,6 +195,3 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

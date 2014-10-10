@@ -3,7 +3,6 @@
 #include "World.h"
 #include "World.inl"
 #include "WorldEvents.h"
-
 #include "RigidBodyDinamic.h"
 #include "Player.h"
 #include "Sound.h"
@@ -16,11 +15,6 @@
 #include "core/Debug.h"
 
 #include "config/Config.h"
-#include "config/Language.h"
-
-
-//#include "network/TankClient.h"
-//#include "network/TankServer.h"
 
 #include <fs/FileSystem.h>
 
