@@ -6,7 +6,6 @@
 #include "gc/Light.h"
 #include "gc/Macros.h"
 #include "gc/World.h"
-#include "config/Config.h"
 
 #include <video/DrawingContext.h>
 
@@ -20,7 +19,14 @@ WorldView::~WorldView()
 {
 }
 
-void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, const vec2d &eye, float zoom, bool editorMode) const
+void WorldView::Render(DrawingContext &dc,
+					   World &world,
+					   const Rect &viewport,
+					   const vec2d &eye,
+					   float zoom,
+					   bool editorMode,
+					   bool drawGrid,
+					   bool nightMode) const
 {
 	dc.Camera(viewport, eye.x, eye.y, zoom);
 
@@ -33,9 +39,9 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	// draw lights to alpha channel
 	//
 
-	dc.SetAmbient(g_conf.sv_nightmode.Get() ? (editorMode ? 0.5f : 0) : 1);
+	dc.SetAmbient(nightMode ? (editorMode ? 0.5f : 0) : 1);
 	dc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
-	if( g_conf.sv_nightmode.Get() )
+	if( nightMode )
 	{
 		float xmin = std::max(0.0f, left);
 		float ymin = std::max(0.0f, top);
@@ -72,26 +78,18 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 	}
 
 
-	//
-	// draw world to rgb
-	//
-
-	dc.SetMode(RM_WORLD);
-
-	_terrain.Draw(dc, world._sx, world._sy, editorMode);
+	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
 	int xmin = std::max(0, int(left / LOCATION_SIZE));
 	int ymin = std::max(0, int(top / LOCATION_SIZE));
 	int xmax = std::min(world._locationsX - 1, int(right / LOCATION_SIZE));
 	int ymax = std::min(world._locationsY - 1, int(bottom / LOCATION_SIZE) + 1);
-
-    static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
     for( int x = xmin; x <= xmax; ++x )
     for( int y = ymin; y <= ymax; ++y )
     {
         FOREACH(world.grid_actors.element(x,y), GC_Actor, object)
         {
-			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode) )
+			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
 			{
 				for( auto &view: *viewCollection )
 				{
@@ -105,7 +103,7 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 
     FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
     {
-		if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode) )
+		if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
 		{
 			for( auto &view: *viewCollection )
 			{
@@ -115,7 +113,16 @@ void WorldView::Render(DrawingContext &dc, World &world, const Rect &viewport, c
 			}
 		}
     }
-
+	
+	
+	//
+	// draw world to rgb
+	//
+	
+	dc.SetMode(RM_WORLD);
+	
+	_terrain.Draw(dc, world._sx, world._sy, drawGrid);
+	
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( auto &actorWithView: zLayers[z] )

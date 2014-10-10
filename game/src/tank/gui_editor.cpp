@@ -600,7 +600,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 			if (PtInActor(*object, pt))
             {
 				enumZOrder maxZ = Z_NONE;
-				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*object, true) )
+				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*object, true, false) )
 				{
 					for (auto &view: *views)
 					{
@@ -986,7 +986,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
-	_worldView.Render(dc, _world, viewport, eye, zoom, true);
+	_worldView.Render(dc, _world, viewport, eye, zoom, true, g_conf.ed_drawgrid.Get(), g_conf.sv_nightmode.Get());
     
 	dc.SetMode(RM_INTERFACE);
     

@@ -8,9 +8,10 @@ class RenderScheme
 {
 public:
 	RenderScheme(TextureManager &tm);
-	const ObjectViewsSelector::ViewCollection* GetViews(const GC_Actor &actor, bool editorMode) const;
+	const ObjectViewsSelector::ViewCollection* GetViews(const GC_Actor &actor, bool editorMode, bool nightMode) const;
 	
 private:
 	ObjectViewsSelector _gameViews;
 	ObjectViewsSelector _editorViews;
+	ObjectViewsSelector _nightViews;
 };

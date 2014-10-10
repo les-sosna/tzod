@@ -1,5 +1,4 @@
 #include "Terrain.h"
-#include "config/Config.h"
 #include <video/RenderBase.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -10,9 +9,9 @@ Terrain::Terrain(TextureManager &tm)
 {
 }
 
-void Terrain::Draw(DrawingContext &dc, float sizeX, float sizeY, bool editorMode) const
+void Terrain::Draw(DrawingContext &dc, float sizeX, float sizeY, bool drawGrid) const
 {
 	dc.DrawBackground(_texBack, sizeX, sizeY);
-	if( editorMode && g_conf.ed_drawgrid.Get() )
+	if( drawGrid )
 		dc.DrawBackground(_texGrid, sizeX, sizeY);
 }

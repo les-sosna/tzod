@@ -1,6 +1,5 @@
 #include "rLight.h"
 #include "gc/Light.h"
-#include "config/Config.h"
 #include <video/RenderBase.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -9,8 +8,7 @@ enumZOrder Z_Light::GetZ(const World &world, const GC_Actor &actor) const
 {
 	assert(dynamic_cast<const GC_Light*>(&actor));
 	auto &light = static_cast<const GC_Light&>(actor);
-	return GC_Light::LIGHT_SPOT == light.GetLightType()
-		&& light.GetActive() && g_conf.sv_nightmode.Get() ? Z_PARTICLE : Z_NONE;
+	return GC_Light::LIGHT_SPOT == light.GetLightType() && light.GetActive() ? Z_PARTICLE : Z_NONE;
 }
 	
 R_Light::R_Light(TextureManager &tm)

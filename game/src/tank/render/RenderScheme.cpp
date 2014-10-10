@@ -77,7 +77,6 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_Disk>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_disk"));
 	
 	_gameViews.AddView<GC_Spotlight>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "spotlight"));
-	_gameViews.AddView<GC_Light>(Make<Z_Light>(), Make<R_Light>(tm));
 	
 	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLES), Make<R_Vehicle>(tm));
 	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, true));
@@ -163,13 +162,19 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
 	_editorViews.AddView<GC_Trigger>(Make<Z_Const>(Z_WOOD), Make<R_Sprite>(tm, "editor_trigger"));
+	
+	_nightViews.AddView<GC_Light>(Make<Z_Light>(), Make<R_Light>(tm));
 }
 
-const ObjectViewsSelector::ViewCollection* RenderScheme::GetViews(const GC_Actor &actor, bool editorMode) const
+const ObjectViewsSelector::ViewCollection* RenderScheme::GetViews(const GC_Actor &actor, bool editorMode, bool nightMode) const
 {
 	// In editor mode give priority to _editorViews
-	const ObjectViewsSelector::ViewCollection *viewCollection;
-	viewCollection = editorMode ? _editorViews.GetViews(actor) : nullptr;
-	viewCollection = viewCollection ? viewCollection : _gameViews.GetViews(actor);
+	const ObjectViewsSelector::ViewCollection *viewCollection = nullptr;
+	if (editorMode)
+		viewCollection = _editorViews.GetViews(actor);
+	if (!viewCollection && nightMode)
+		viewCollection = _nightViews.GetViews(actor);
+	if (!viewCollection)
+		viewCollection = _gameViews.GetViews(actor);
 	return viewCollection;
 }

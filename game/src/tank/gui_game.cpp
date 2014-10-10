@@ -194,7 +194,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 								  (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
 			vec2d eye = singleCamera->GetCameraPos();
 			float zoom = singleCamera->GetZoom();
-            _worldView.Render(dc, _world, viewport, eye, zoom, false);
+            _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
         }
         else
         {
@@ -205,7 +205,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 				Rect viewport = GetCameraViewport(ssize, wsize, camCount, camIndex);
 				vec2d eye = pCamera->GetCameraPos();
 				float zoom = pCamera->GetZoom();
-                _worldView.Render(dc, _world, viewport, eye, zoom, false);
+                _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
 				++camIndex;
             }
         }
@@ -216,7 +216,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 		vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 		float zoom = _defaultCamera.GetZoom();
-        _worldView.Render(dc, _world, viewport, eye, zoom, false);
+        _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
     }
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);

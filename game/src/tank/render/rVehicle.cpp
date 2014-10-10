@@ -1,5 +1,4 @@
 #include "rVehicle.h"
-#include "config/Config.h"
 #include "gc/Vehicle.h"
 #include "gc/Player.h"
 #include <video/DrawingContext.h>
@@ -23,7 +22,7 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 	dc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
 	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	
-	if( g_conf.g_shownames.Get() && vehicle.GetOwner() )
+	if( vehicle.GetOwner() )
 	{
 		dc.DrawBitmapText(pos.x, pos.y + radius + 4, // leave space for ammo indicator
                           _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
