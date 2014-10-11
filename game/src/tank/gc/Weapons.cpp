@@ -113,9 +113,10 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 void GC_Weap_RocketLauncher::Shoot1(World &world)
 {
 	assert(GetCarrier());
+	float time = world.GetTime() - GetLastShotTime();
 	if( GetAdvanced() )
 	{
-		if( _time >= _time_shot )
+		if( time >= _time_shot )
 		{
 			Shoot(world);
 		}
@@ -124,16 +125,15 @@ void GC_Weap_RocketLauncher::Shoot1(World &world)
 	{
 		if( _firing )
 		{
-			if( _time >= _time_shot )
+			if( time >= _time_shot )
 			{
 				Shoot(world);
 			}
 		}
 
-		if( _time >= GetReloadTime() )
+		if( time >= GetReloadTime() )
 		{
 			_firing = true;
-			_time   = 0;
 		}
 	}
 	_reloaded = false;
@@ -156,7 +156,7 @@ void GC_Weap_RocketLauncher::TimeStep(World &world, float dt)
 	{
 		if( _firing )
 			Shoot1(world);
-		else if( _time >= GetReloadTime() && !_reloaded )
+		else if( world.GetTime() >= GetLastShotTime() + GetReloadTime() && !_reloaded )
 		{
 			_reloaded = true;
 			if( !GetAdvanced())
@@ -233,7 +233,8 @@ void GC_Weap_AutoCannon::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 {
-	if( fire && _firing && GetCarrier() && _time >= _time_shot )
+	float time = world.GetTime() - GetLastShotTime();
+	if( fire && _firing && GetCarrier() && time >= _time_shot )
 	{
 		Shoot(world);
 	}
@@ -302,11 +303,11 @@ void GC_Weap_AutoCannon::TimeStep(World &world, float dt)
 		if( GetAdvanced() )
 			_nshots  = 0;
 
-		if( _time >= GetReloadTime() && !_firing )
+		float time = world.GetTime() - GetLastShotTime();
+		if( time >= GetReloadTime() && !_firing )
 		{
 			_firing = true;
 			_nshots  = 0;
-			_time    = 0;
 		}
 
 		_firing |= GetAdvanced();
@@ -774,7 +775,8 @@ void GC_Weap_BFG::Shoot1(World &world)
 {
 	assert(GetCarrier());
 
-	if( _time >= GetReloadTime() )
+	float time = world.GetTime() - GetLastShotTime();
+	if( time >= GetReloadTime() )
 	{
 		if( !GetAdvanced() && 0 == _time_ready )
 		{
@@ -958,7 +960,6 @@ void GC_Weap_Minigun::TimeStep(World &world, float dt)
 
 			for(; _timeShot > 0; _timeShot -= GetAdvanced() ? 0.02f : 0.04f)
 			{
-				_time = frand(GetFireEffectTime());
 				_lastShotTime = world.GetTime() - frand(GetFireEffectTime());
 				_fireLight->SetActive(true);
 
@@ -1005,7 +1006,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 GC_Weap_Zippo::GC_Weap_Zippo(World &world)
   : GC_ProjectileBasedWeapon(world)
   , _timeBurn(0)
-  , _bFire(false)
 {
 }
 
@@ -1028,17 +1028,14 @@ void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
 {
 	GC_ProjectileBasedWeapon::Attach(world, actor);
 
-	_timeFire   = 0;
-	_timeShot   = 0;
-
 	_sound = new GC_Sound(world, SND_RamEngine, GetPos());
     _sound->Register(world);
     _sound->SetMode(world, SMODE_STOP);
-	_bFire = false;
 }
 
 void GC_Weap_Zippo::Detach(World &world)
 {
+	_heat = 0;
 	SAFE_KILL(world, _sound);
 	GC_ProjectileBasedWeapon::Detach(world);
 }
@@ -1046,10 +1043,7 @@ void GC_Weap_Zippo::Detach(World &world)
 void GC_Weap_Zippo::Serialize(World &world, SaveFile &f)
 {
 	GC_ProjectileBasedWeapon::Serialize(world, f);
-
-	f.Serialize(_bFire);
-	f.Serialize(_timeFire);
-	f.Serialize(_timeShot);
+	f.Serialize(_heat);
 	f.Serialize(_timeBurn);
 	f.Serialize(_sound);
 }
@@ -1059,14 +1053,24 @@ void GC_Weap_Zippo::AdjustVehicleClass(VehicleClass &vc) const
 	vc.health *= AdjustHealth(130);
 }
 
-void GC_Weap_Zippo::Fire(World &world, bool fire)
-{
-	assert(GetCarrier());
-	_bFire = fire;
-}
-
 void GC_Weap_Zippo::OnShoot(World &world)
 {
+	_heat = std::max(_heat - world.GetTime() + GetLastShotTime(), 0.0f);
+	_heat = std::min(_heat + GetReloadTime() * 2, WEAP_ZIPPO_TIME_RELAX);
+	
+	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
+	
+	vec2d vvel = veh ? veh->_lv : vec2d(0,0);
+	
+	vec2d a(GetDirection());
+	a *= (1 - world.net_frand(0.2f));
+	
+	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
+										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
+	tmp->Register(world);
+	tmp->SetLifeTime(_heat);
+	tmp->SetHealOwner(GetAdvanced());
+	tmp->SetSetFire(true);
 }
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -1082,38 +1086,16 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Zippo::TimeStep(World &world, float dt)
 {
-	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
-
 	if( GetCarrier() )
 	{
-		if( _bFire )
+		if( CheckFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING) )
 		{
-			_timeShot += dt;
-			_timeFire = std::min(_timeFire + dt, WEAP_ZIPPO_TIME_RELAX);
-
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);
-
-			vec2d vvel = veh ? veh->_lv : vec2d(0,0);
-
-			for(; _timeShot > 0; _timeShot -= GetReloadTime() )
-			{
-				vec2d a(GetDirection());
-				a *= (1 - world.net_frand(0.2f));
-
-				GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
-					vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
-                tmp->Register(world);
-				tmp->TimeStep(world, _timeShot);
-				tmp->SetLifeTime(_timeFire);
-				tmp->SetHealOwner(GetAdvanced());
-				tmp->SetSetFire(true);
-			}
 		}
 		else
 		{
 			_sound->Pause(world, true);
-			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 	}
 

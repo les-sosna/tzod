@@ -299,7 +299,6 @@ public:
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 	// GC_Pickup
@@ -318,10 +317,8 @@ protected:
 
 private:
 	ObjPtr<GC_Sound> _sound;
-	float _timeFire;
-	float _timeShot;
 	float _timeBurn;
-	bool _bFire;
+	float _heat = 0;
 };
 
 // end of file

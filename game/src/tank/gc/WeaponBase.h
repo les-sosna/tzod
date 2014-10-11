@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pickup.h"
+#include <cfloat>
 
 struct VehicleClass;
 
@@ -25,7 +26,8 @@ public:
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
-	float GetStayTime() const { return _timeStay; }
+	float GetDetachedTime() const { return _detachedTime; }
+	float GetStayTimeout() const { return _stayTimeout; }
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 	
@@ -55,9 +57,6 @@ public:
 #endif
 
 
-	// TODO: move to private
-	float _time;
-
 protected:
 	class MyPropertySet : public GC_Pickup::MyPropertySet
 	{
@@ -73,7 +72,8 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	float _timeStay;
+	float _detachedTime = -FLT_MAX;
+	float _stayTimeout;
 	float _angle;
 	Rotator _rotatorWeap;
 	ObjPtr<GC_Sound> _rotateSound;
@@ -87,6 +87,7 @@ private:
 #define GC_FLAG_PROJECTILEBASEDWEAPON_FIRING   (GC_FLAG_WEAPON_ << 0)
 #define GC_FLAG_PROJECTILEBASEDWEAPON_         (GC_FLAG_WEAPON_ << 1)
 
+class ResumableObject;
 
 class GC_ProjectileBasedWeapon : public GC_Weapon
 {
@@ -98,6 +99,8 @@ public:
 	bool IsReady(const World &world) const;
 	vec2d GetLastShotPos() const { return _lastShotPos; }
 	float GetLastShotTime() const { return _lastShotTime; }
+	float GetStartTime() const { return _startTime; }
+	float GetStopTime() const { return _stopTime; }
 
 	virtual float GetReloadTime() const = 0;
 	virtual float GetFireEffectTime() const = 0;
@@ -110,6 +113,7 @@ public:
 	virtual void Detach(World &world) override;
 
 	// GC_Object
+	virtual void Resume(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
@@ -121,6 +125,9 @@ protected:
 	float _lastShotTime;
 private:
 	vec2d _lastShotPos;
+	float _startTime;
+	float _stopTime;
+	ResumableObject *_firing;
 
 	virtual void OnUpdateView(World &world) override;
 	virtual void OnShoot(World &world) = 0;

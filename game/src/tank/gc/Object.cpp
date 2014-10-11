@@ -344,6 +344,10 @@ void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
 	}
 }
 
+void GC_Object::Resume(World &world)
+{
+}
+
 void GC_Object::TimeStep(World &world, float dt)
 {
 }

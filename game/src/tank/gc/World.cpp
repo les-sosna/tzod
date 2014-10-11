@@ -476,6 +476,16 @@ void World::TraceAll( Grid<ObjectList> &list,
 	RayTrace(list, selector);
 }
 
+IMPLEMENT_POOLED_ALLOCATION(ResumableObject);
+
+ResumableObject* World::Timeout(GC_Object &obj, float timeout)
+{
+	assert(GetTime() + timeout > GetTime());
+	auto id = new ResumableObject(obj);
+	_resumables.push(Resumable{std::unique_ptr<ResumableObject>(id), GetTime() + timeout});
+	return id;
+}
+
 void World::Step(float dt)
 {
 	if( !_gameStarted )
@@ -485,7 +495,17 @@ void World::Step(float dt)
 			ls->OnGameStarted();
 	}
 	
-	_time += dt;
+	float nextTime = _time + dt;
+	while (!_resumables.empty() && _resumables.top().time < nextTime)
+	{
+		_time = _resumables.top().time;
+		GC_Object *obj = _resumables.top().obj->ptr;
+		_resumables.pop();
+		if (obj)
+			obj->Resume(*this);
+	}
+	
+	_time = nextTime;
 
 	if( !_frozen )
 	{

@@ -5,14 +5,17 @@
 #include "Field.h"
 #include "TypeSystem.h"
 #include "GlobalListHelper.h"
-#include <core/PtrList.h>
+#include "ObjPtr.h"
 #include <core/Grid.h>
+#include <core/PtrList.h>
+#include <core/MemoryManager.h>
 
 #include <map>
+#include <memory>
+#include <queue>
 #include <set>
 #include <string>
 #include <vector>
-#include <memory>
 
 
 namespace FS
@@ -58,6 +61,20 @@ private:
 };
 
 #define DECLARE_EVENTS(cls) EventsHub<::cls> e##cls;
+
+class ResumableObject
+{
+	DECLARE_POOLED_ALLOCATION(ResumableObject);
+public:
+	void Cancel() { ptr = nullptr; }
+	
+private:
+	friend class World;
+	explicit ResumableObject(GC_Object &obj) : ptr(&obj) {}
+	ObjPtr<GC_Object> ptr;
+};
+
+#define SAFE_CANCEL(ro) if(ro) { ro->Cancel(); ro = nullptr; } else (void)0
 
 class World
 {
@@ -198,9 +215,6 @@ public:
 	template<class SelectorType>
 	void RayTrace(Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
 
-protected:
-	void OnChangeSoundVolume();
-
 public:
 	void Clear();
 	GC_Player* GetPlayerByIndex(size_t playerIndex);
@@ -212,6 +226,22 @@ public:
     uint32_t GetChecksum() const { return _checksum; }
     unsigned int GetFrame() const { return _frame; }
 #endif
+	
+	ResumableObject* Timeout(GC_Object &obj, float timeout);
+	
+private:
+	struct Resumable
+	{
+		std::unique_ptr<ResumableObject> obj;
+		float time;
+		bool operator<(const Resumable &other) const
+		{
+			return time < other.time;
+		}
+	};
+	std::priority_queue<Resumable> _resumables;
+
+	void OnChangeSoundVolume();
 };
 
 // end of file

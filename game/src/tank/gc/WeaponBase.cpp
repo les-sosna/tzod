@@ -48,19 +48,18 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	GC_Weapon *obj = static_cast<GC_Weapon*>(GetObject());
 	if( applyToObject )
 	{
-		obj->_timeStay = (float) _propTimeStay.GetIntValue() / 1000.0f;
+		obj->_stayTimeout = (float) _propTimeStay.GetIntValue() / 1000.0f;
 	}
 	else
 	{
-		_propTimeStay.SetIntValue(int(obj->GetStayTime() * 1000.0f + 0.5f));
+		_propTimeStay.SetIntValue(int(obj->GetStayTimeout() * 1000.0f + 0.5f));
 	}
 }
 
 
 GC_Weapon::GC_Weapon(World &world)
   : GC_Pickup(world)
-  , _time(0)
-  , _timeStay(15.0f)
+  , _stayTimeout(15.0f)
   , _rotatorWeap(_angle)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
@@ -100,11 +99,9 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 void GC_Weapon::Detach(World &world)
 {
+	_detachedTime = world.GetTime();
 	Fire(world, false);
 	SAFE_KILL(world, _rotateSound);
-
-	_time = 0;
-
 	GC_Pickup::Detach(world);
 }
 
@@ -154,8 +151,8 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	_rotatorWeap.Serialize(f);
 
 	f.Serialize(_angle);
-	f.Serialize(_time);
-	f.Serialize(_timeStay);
+	f.Serialize(_detachedTime);
+	f.Serialize(_stayTimeout);
 	f.Serialize(_rotateSound);
 }
 
@@ -171,8 +168,6 @@ void GC_Weapon::TimeStep(World &world, float dt)
 {
 	GC_Pickup::TimeStep(world, dt);
 
-	_time += dt;
-
 	if( GetCarrier() )
 	{
 		ProcessRotate(world, dt);
@@ -181,7 +176,7 @@ void GC_Weapon::TimeStep(World &world, float dt)
 	{
 		if( GetRespawn() && GetVisible() )
 		{
-			if( _time > GetStayTime() )
+			if( world.GetTime() >= GetDetachedTime() + GetStayTimeout() )
 			{
 				Disappear(world);
 			}
@@ -195,11 +190,15 @@ GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(World &world)
 	: GC_Weapon(world)
 	, _lastShotTime(-FLT_MAX)
 	, _lastShotPos(0,0)
+	, _startTime(-FLT_MAX)
+	, _stopTime(-FLT_MAX)
+	, _firing(nullptr)
 {
 }
 
 GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(FromFile)
 	: GC_Weapon(FromFile())
+	, _firing(nullptr)
 {
 }
 
@@ -209,22 +208,36 @@ GC_ProjectileBasedWeapon::~GC_ProjectileBasedWeapon()
 
 bool GC_ProjectileBasedWeapon::IsReady(const World &world) const
 {
-	return GetCarrier() && world.GetTime() > _lastShotTime + GetReloadTime();
+	return world.GetTime() > GetLastShotTime() + GetReloadTime();
+}
+
+void GC_ProjectileBasedWeapon::Resume(World &world)
+{
+	if (CheckFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING))
+	{
+		_firing = world.Timeout(*this, GetReloadTime());
+		Shoot(world);
+	}
+	else
+	{
+		_firing = nullptr;
+		_stopTime = world.GetTime();
+	}
 }
 
 void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
 {
 	SetFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING, fire);
-	if( fire && GetCarrier() && world.GetTime() >= GetLastShotTime() + GetReloadTime() )
+	if (fire && !_firing)
 	{
-		Shoot(world);
+		_startTime = world.GetTime();
+		Resume(world);
 	}
 }
 
 void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
-	_time = GetReloadTime();
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
 	_fireLight->Register(world);
 	_fireLight->SetActive(false);
@@ -232,6 +245,9 @@ void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
 
 void GC_ProjectileBasedWeapon::Detach(World &world)
 {
+	_startTime = -FLT_MAX;
+	_stopTime = -FLT_MAX;
+	SAFE_CANCEL(_firing);
 	SAFE_KILL(world, _fireLight);
 	GC_Weapon::Detach(world);
 }
@@ -241,15 +257,17 @@ void GC_ProjectileBasedWeapon::Serialize(World &world, SaveFile &f)
 	GC_Weapon::Serialize(world, f);
 	f.Serialize(_lastShotPos);
 	f.Serialize(_lastShotTime);
+	f.Serialize(_startTime);
+	f.Serialize(_stopTime);
 	f.Serialize(_fireLight);
+	// TODO: f.Serialize(_firing);
 }
 
 void GC_ProjectileBasedWeapon::Shoot(World &world)
 {
-	_time = 0;
-	_lastShotTime = world.GetTime();
-	_fireLight->SetActive(true);
 	OnShoot(world);
+	_fireLight->SetActive(true);
+	_lastShotTime = world.GetTime();
 }
 
 void GC_ProjectileBasedWeapon::OnUpdateView(World &world)
@@ -257,9 +275,10 @@ void GC_ProjectileBasedWeapon::OnUpdateView(World &world)
 	if( _fireLight->GetActive() )
 	{
 		float feTime = GetFireEffectTime();
-		if( _time < feTime )
+		float time = world.GetTime() - GetLastShotTime();
+		if( time < feTime )
 		{
-			float op = 1.0f - pow(_time / feTime, 2);
+			float op = 1.0f - pow(time / feTime, 2);
 			vec2d dir = GetDirection();
 			_fireLight->MoveTo(world, GetPos() + vec2d(_lastShotPos * dir, _lastShotPos.x*dir.y - _lastShotPos.y*dir.x));
 			_fireLight->SetIntensity(op);
