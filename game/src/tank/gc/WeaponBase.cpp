@@ -60,9 +60,6 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 GC_Weapon::GC_Weapon(World &world)
   : GC_Pickup(world)
   , _time(0)
-  , _fePos(0,0)
-  , _feTime(1.0f)
-  , _lastShotTimestamp(-FLT_MAX)
   , _timeStay(15.0f)
   , _rotatorWeap(_angle)
 {
@@ -99,17 +96,12 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 	SetVisible(true);
 	SetBlinking(false);
-
-	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    _fireLight->Register(world);
-	_fireLight->SetActive(false);
 }
 
 void GC_Weapon::Detach(World &world)
 {
 	Fire(world, false);
 	SAFE_KILL(world, _rotateSound);
-	SAFE_KILL(world, _fireLight);
 
 	_time = 0;
 
@@ -141,19 +133,6 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 	vec2d a(_angle);
 	vec2d direction = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), a);
 	SetDirection(direction);
-	if( _fireLight->GetActive() )
-	{
-		if( _time < _feTime )
-		{
-			float op = 1.0f - pow(_time / _feTime, 2);
-			_fireLight->MoveTo(world, GetPos() + vec2d(_fePos * direction, _fePos.x*direction.y - _fePos.y*direction.x));
-			_fireLight->SetIntensity(op);
-		}
-		else
-		{
-			_fireLight->SetActive(false);
-		}
-	}
 
 	OnUpdateView(world);
 }
@@ -168,11 +147,6 @@ GC_Weapon::~GC_Weapon()
 {
 }
 
-bool GC_Weapon::IsReady(const World &world) const
-{
-	return GetCarrier() && world.GetTime() > _lastShotTimestamp + GetReloadTime();
-}
-
 void GC_Weapon::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
@@ -180,11 +154,8 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	_rotatorWeap.Serialize(f);
 
 	f.Serialize(_angle);
-	f.Serialize(_fePos);
-	f.Serialize(_feTime);
 	f.Serialize(_time);
 	f.Serialize(_timeStay);
-	f.Serialize(_fireLight);
 	f.Serialize(_rotateSound);
 }
 
@@ -222,6 +193,8 @@ void GC_Weapon::TimeStep(World &world, float dt)
 
 GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(World &world)
 	: GC_Weapon(world)
+	, _lastShotTime(-FLT_MAX)
+	, _lastShotPos(0,0)
 {
 }
 
@@ -234,17 +207,66 @@ GC_ProjectileBasedWeapon::~GC_ProjectileBasedWeapon()
 {
 }
 
+bool GC_ProjectileBasedWeapon::IsReady(const World &world) const
+{
+	return GetCarrier() && world.GetTime() > _lastShotTime + GetReloadTime();
+}
+
+void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
+{
+	SetFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING, fire);
+	if( fire && GetCarrier() && world.GetTime() >= GetLastShotTime() + GetReloadTime() )
+	{
+		Shoot(world);
+	}
+}
+
 void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
 {
 	GC_Weapon::Attach(world, actor);
 	_time = GetReloadTime();
+	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
+	_fireLight->Register(world);
+	_fireLight->SetActive(false);
 }
 
+void GC_ProjectileBasedWeapon::Detach(World &world)
+{
+	SAFE_KILL(world, _fireLight);
+	GC_Weapon::Detach(world);
+}
+
+void GC_ProjectileBasedWeapon::Serialize(World &world, SaveFile &f)
+{
+	GC_Weapon::Serialize(world, f);
+	f.Serialize(_lastShotPos);
+	f.Serialize(_lastShotTime);
+	f.Serialize(_fireLight);
+}
 
 void GC_ProjectileBasedWeapon::Shoot(World &world)
 {
 	_time = 0;
-	_lastShotTimestamp = world.GetTime();
+	_lastShotTime = world.GetTime();
 	_fireLight->SetActive(true);
 	OnShoot(world);
+}
+
+void GC_ProjectileBasedWeapon::OnUpdateView(World &world)
+{
+	if( _fireLight->GetActive() )
+	{
+		float feTime = GetFireEffectTime();
+		if( _time < feTime )
+		{
+			float op = 1.0f - pow(_time / feTime, 2);
+			vec2d dir = GetDirection();
+			_fireLight->MoveTo(world, GetPos() + vec2d(_lastShotPos * dir, _lastShotPos.x*dir.y - _lastShotPos.y*dir.x));
+			_fireLight->SetIntensity(op);
+		}
+		else
+		{
+			_fireLight->SetActive(false);
+		}
+	}
 }

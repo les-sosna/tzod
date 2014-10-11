@@ -26,6 +26,7 @@ public:
 
 protected:
 	virtual float GetReloadTime() const override { return 2.0f; }
+	virtual float GetFireEffectTime() const override { return 0.1f; }
 	virtual void OnShoot(World &world) override;
 
 private:
@@ -65,6 +66,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual float GetFireEffectTime() const override { return 0.2f; }
 	virtual float GetReloadTime() const { return 3.7f; }
 	virtual void OnShoot(World &world) override;
 
@@ -90,7 +92,6 @@ public:
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 	// GC_Object
@@ -98,6 +99,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual float GetFireEffectTime() const override { return 0.2f; }
 	virtual float GetReloadTime() const { return 0.9f; }
 	virtual void OnShoot(World &world) override;
 
@@ -119,10 +121,10 @@ public:
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 protected:
+	virtual float GetFireEffectTime() const override { return 0.2f; }
 	virtual float GetReloadTime() const { return 0.3f; }
 	virtual void OnShoot(World &world) override;
 };
@@ -140,10 +142,10 @@ public:
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 protected:
+	virtual float GetFireEffectTime() const override { return 0.15f; }
 	virtual float GetReloadTime() const { return 1.3f; }
 	virtual void OnShoot(World &world) override;
 };
@@ -214,6 +216,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 1.1f; }
 	virtual void OnShoot(World &world) override;
 
@@ -235,10 +238,10 @@ public:
 		
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	
 protected:
+	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 0.5f; }
 	virtual void OnShoot(World &world) override;
 };
@@ -272,6 +275,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual float GetFireEffectTime() const override { return 0.1f; }
 	virtual float GetReloadTime() const { return 0.03f; }
 	virtual void OnShoot(World &world) override;
 
@@ -308,6 +312,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 	
 protected:
+	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 0.02f; }
 	virtual void OnShoot(World &world) override;
 

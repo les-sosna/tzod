@@ -26,11 +26,8 @@ public:
 	virtual ~GC_Weapon();
 	
 	float GetStayTime() const { return _timeStay; }
-	bool IsReady(const World &world) const;
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
-	float GetLastShotTimestamp() const { return _lastShotTimestamp; }
-	float GetFirePointOffset() const { return _fePos.y; }
 	
 	virtual void Fire(World &world, bool fire) = 0;
 	virtual void SetAdvanced(World &world, bool advanced) { SetFlags(GC_FLAG_WEAPON_ADVANCED, advanced); }
@@ -75,14 +72,6 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 
-	ObjPtr<GC_Light> _fireLight;
-	vec2d _fePos;
-	float _feTime;
-	
-	virtual float GetReloadTime() const { return 0; }
-
-	// TODO: move to private
-	float _lastShotTimestamp;
 private:
 	float _timeStay;
 	float _angle;
@@ -93,6 +82,11 @@ private:
 	void ProcessRotate(World &world, float dt);
 };
 
+/////////////////////////////////////////////////////////////////////////
+
+#define GC_FLAG_PROJECTILEBASEDWEAPON_FIRING   (GC_FLAG_WEAPON_ << 0)
+#define GC_FLAG_PROJECTILEBASEDWEAPON_         (GC_FLAG_WEAPON_ << 1)
+
 
 class GC_ProjectileBasedWeapon : public GC_Weapon
 {
@@ -100,11 +94,34 @@ public:
 	GC_ProjectileBasedWeapon(World &world);
 	GC_ProjectileBasedWeapon(FromFile);
 	virtual ~GC_ProjectileBasedWeapon();
-	
+
+	bool IsReady(const World &world) const;
+	vec2d GetLastShotPos() const { return _lastShotPos; }
+	float GetLastShotTime() const { return _lastShotTime; }
+
+	virtual float GetReloadTime() const = 0;
+	virtual float GetFireEffectTime() const = 0;
+
+	// GC_Weapon
+	virtual void Fire(World &world, bool fire);
+
 	// GC_Pickup
 	virtual void Attach(World &world, GC_Actor *actor) override;
+	virtual void Detach(World &world) override;
+
+	// GC_Object
+	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	void Shoot(World &world);
+	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
+
+	// TODO: make private
+	ObjPtr<GC_Light> _fireLight;
+	float _lastShotTime;
+private:
+	vec2d _lastShotPos;
+
+	virtual void OnUpdateView(World &world) override;
 	virtual void OnShoot(World &world) = 0;
 };

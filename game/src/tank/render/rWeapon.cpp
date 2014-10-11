@@ -33,10 +33,10 @@ R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float du
 
 void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
 	
-	float lastShot = weapon.GetLastShotTimestamp();
+	float lastShot = weapon.GetLastShotTime();
 	float advance = (world.GetTime() - lastShot) / _duration;
 	if (advance < 1)
 	{
@@ -44,7 +44,7 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 		unsigned char op = (unsigned char) int(255.0f * (1.0f - advance * advance));
 		SpriteColor color = { op, op, op, op };
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * _offsetX;
-		pos += Vec2dAddDirection(weapon.GetDirection(), vec2d(0, -1)) * weapon.GetFirePointOffset();
+		pos += Vec2dAddDirection(weapon.GetDirection(), vec2d(0, -1)) * weapon.GetLastShotPos().y;
 		vec2d dir;
 		if( _oriented )
 		{
@@ -62,9 +62,9 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 
 enumZOrder Z_WeapFireEffect::GetZ(const World &world, const GC_Actor &actor) const
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	auto &weapon = static_cast<const GC_Weapon&>(actor);
-	return (weapon.GetCarrier() && (world.GetTime() - weapon.GetLastShotTimestamp() < _duration)) ? Z_EXPLODE : Z_NONE;
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
+	return (weapon.GetCarrier() && (world.GetTime() - weapon.GetLastShotTime() < _duration)) ? Z_EXPLODE : Z_NONE;
 }
 
 
