@@ -38,10 +38,10 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
 
 	// GC_Pickup
-	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 	virtual void Attach(World &world, GC_Actor *actor) override;
 	virtual void Detach(World &world) override;
+	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 	
 	// GC_Object
 	virtual void Kill(World &world);
@@ -100,4 +100,11 @@ public:
 	GC_ProjectileBasedWeapon(World &world);
 	GC_ProjectileBasedWeapon(FromFile);
 	virtual ~GC_ProjectileBasedWeapon();
+	
+	// GC_Pickup
+	virtual void Attach(World &world, GC_Actor *actor) override;
+
+protected:
+	void Shoot(World &world);
+	virtual void OnShoot(World &world) = 0;
 };

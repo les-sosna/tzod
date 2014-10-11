@@ -234,3 +234,17 @@ GC_ProjectileBasedWeapon::~GC_ProjectileBasedWeapon()
 {
 }
 
+void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
+{
+	GC_Weapon::Attach(world, actor);
+	_time = GetReloadTime();
+}
+
+
+void GC_ProjectileBasedWeapon::Shoot(World &world)
+{
+	_time = 0;
+	_lastShotTimestamp = world.GetTime();
+	_fireLight->SetActive(true);
+	OnShoot(world);
+}

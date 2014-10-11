@@ -25,8 +25,6 @@ void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
 {
 	GC_ProjectileBasedWeapon::Attach(world, actor);
 
-	_time       = GetReloadTime();
-
 	_reloaded         = true;
 	_firing           = false;
 	_nshots           = 0;
@@ -78,10 +76,14 @@ void GC_Weap_RocketLauncher::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_RocketLauncher::Fire(World &world, bool fire)
 {
 	if (fire)
-		Shoot(world);
+		Shoot1(world);
 }
 
-void GC_Weap_RocketLauncher::Shoot(World &world)
+void GC_Weap_RocketLauncher::OnShoot(World &world)
+{
+}
+
+void GC_Weap_RocketLauncher::Shoot1(World &world)
 {
 	assert(GetCarrier());
 	const vec2d &dir = GetDirection();
@@ -163,7 +165,7 @@ void GC_Weap_RocketLauncher::TimeStep(World &world, float dt)
 	if( GetCarrier() )
 	{
 		if( _firing )
-			Shoot(world);
+			Shoot1(world);
 		else if( _time >= GetReloadTime() && !_reloaded )
 		{
 			_reloaded = true;
@@ -192,8 +194,6 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
 void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
 {
 	GC_ProjectileBasedWeapon::Attach(world, actor);
-
-	_time       = GetReloadTime();
 
 	_firing = false;
 	_nshots = 0;
@@ -305,6 +305,10 @@ void GC_Weap_AutoCannon::Fire(World &world, bool fire)
 	}
 }
 
+void GC_Weap_AutoCannon::OnShoot(World &world)
+{
+}
+
 void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = true;
@@ -384,22 +388,23 @@ void GC_Weap_Cannon::Fire(World &world, bool fire)
 {
 	if( fire && GetCarrier() && _time >= GetReloadTime() )
 	{
-		GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
-		const vec2d &dir = GetDirection();
+		Shoot(world);
+	}
+}
 
-		(new GC_TankBullet(world, GetPos() + dir * 17.0f,
-			dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), GetAdvanced()))->Register(world);
+void GC_Weap_Cannon::OnShoot(World &world)
+{
+	_time_smoke = 0.3f;
 
-		if( !GetAdvanced() )
-		{
-			veh->ApplyImpulse( dir * (-80.0f) );
-		}
-
-		_time       = 0;
-		_time_smoke = 0.3f;
-		_lastShotTimestamp = world.GetTime();
-
-		_fireLight->SetActive(true);
+	GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
+	const vec2d &dir = GetDirection();
+	
+	(new GC_TankBullet(world, GetPos() + dir * 17.0f,
+					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), GetAdvanced()))->Register(world);
+	
+	if( !GetAdvanced() )
+	{
+		veh->ApplyImpulse( dir * (-80.0f) );
 	}
 }
 
@@ -465,14 +470,16 @@ void GC_Weap_Plazma::Fire(World &world, bool fire)
 {
 	if( fire && GetCarrier() && _time >= GetReloadTime() )
 	{
-		const vec2d &a = GetDirection();
-		(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
-			a * SPEED_PLAZMA + world.net_vrand(20),
-			GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-		_time = 0;
-		_fireLight->SetActive(true);
-		_lastShotTimestamp = world.GetTime();
+		Shoot(world);
 	}
+}
+
+void GC_Weap_Plazma::OnShoot(World &world)
+{
+	const vec2d &a = GetDirection();
+	(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
+					   a * SPEED_PLAZMA + world.net_vrand(20),
+					   GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 }
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -518,14 +525,15 @@ void GC_Weap_Gauss::Fire(World &world, bool fire)
 {
 	if( fire && GetCarrier() && _time >= GetReloadTime() )
 	{
-		const vec2d &dir = GetDirection();
-		(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
-			dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-
-		_time = 0;
-		_lastShotTimestamp = world.GetTime();
-		_fireLight->SetActive(true);
+		Shoot(world);
 	}
+}
+
+void GC_Weap_Gauss::OnShoot(World &world)
+{
+	const vec2d &dir = GetDirection();
+	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
+					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 }
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -774,6 +782,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 GC_Weap_BFG::GC_Weap_BFG(World &world)
   : GC_ProjectileBasedWeapon(world)
 {
+	_feTime = 0;
 }
 
 void GC_Weap_BFG::Attach(World &world, GC_Actor *actor)
@@ -805,10 +814,17 @@ void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_BFG::Fire(World &world, bool fire)
 {
 	if (fire)
-		Shoot(world);
+		Shoot1(world);
 }
 
-void GC_Weap_BFG::Shoot(World &world)
+void GC_Weap_BFG::OnShoot(World &world)
+{
+	const vec2d &a = GetDirection();
+	(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
+					GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+}
+
+void GC_Weap_BFG::Shoot1(World &world)
 {
 	assert(GetCarrier());
 
@@ -822,11 +838,8 @@ void GC_Weap_BFG::Shoot(World &world)
 
 		if( _time_ready >= 0.7f || GetAdvanced() )
 		{
-			const vec2d &a = GetDirection();
-			(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
-				GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+			Shoot(world);
 			_time_ready = 0;
-			_time = 0;
 		}
 	}
 }
@@ -848,7 +861,7 @@ void GC_Weap_BFG::TimeStep(World &world, float dt)
 	if( GetCarrier() && _time_ready != 0 )
 	{
 		_time_ready += dt;
-		Shoot(world);
+		Shoot1(world);
 	}
 }
 
@@ -863,6 +876,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 GC_Weap_Ripper::GC_Weap_Ripper(World &world)
   : GC_ProjectileBasedWeapon(world)
 {
+	_feTime = 0;
 }
 
 GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
@@ -883,13 +897,16 @@ void GC_Weap_Ripper::Fire(World &world, bool fire)
 {
 	if( fire && GetCarrier() && _time >= GetReloadTime() )
 	{
-		const vec2d &a = GetDirection();
-		(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-			GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-		PLAY(SND_DiskFire, GetPos());
-		_time = 0;
-		_lastShotTimestamp = world.GetTime();
+		Shoot(world);
 	}
+}
+
+void GC_Weap_Ripper::OnShoot(World &world)
+{
+	const vec2d &a = GetDirection();
+	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
+				 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+	PLAY(SND_DiskFire, GetPos());
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -916,7 +933,7 @@ GC_Weap_Minigun::GC_Weap_Minigun(World &world)
   , _bFire(false)
 {
 	_fePos.Set(20, 0);
-	_feTime   = 0.1f;
+	_feTime = 0.1f;
 }
 
 GC_Weap_Minigun::GC_Weap_Minigun(FromFile)
@@ -974,6 +991,10 @@ void GC_Weap_Minigun::Fire(World &world, bool fire)
 	assert(GetCarrier());
 	if( GetCarrier() )
 		_bFire = fire;
+}
+
+void GC_Weap_Minigun::OnShoot(World &world)
+{
 }
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -1106,6 +1127,10 @@ void GC_Weap_Zippo::Fire(World &world, bool fire)
 {
 	assert(GetCarrier());
 	_bFire = fire;
+}
+
+void GC_Weap_Zippo::OnShoot(World &world)
+{
 }
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
