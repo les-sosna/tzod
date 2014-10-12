@@ -50,10 +50,10 @@ R_AmmoIndicator::R_AmmoIndicator(TextureManager &tm)
 
 void R_AmmoIndicator::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
-	assert(dynamic_cast<const GC_Weap_AutoCannon*>(&actor));
-	auto &ac = static_cast<const GC_Weap_AutoCannon&>(actor);
-	float value = 1 - (float) ac.GetNumShots() / (float) ac.GetSeriesLength();
-	DrawWeaponIndicator(world, _tm, dc, _texId, ac, value);
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
+	float value = 1 - (float) weapon.GetNumShots() / (float) weapon.GetSeriesLength();
+	DrawWeaponIndicator(world, _tm, dc, _texId, weapon, value);
 }
 
 

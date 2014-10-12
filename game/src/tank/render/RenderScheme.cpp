@@ -102,7 +102,8 @@ RenderScheme::RenderScheme(TextureManager &tm)
 										   Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(Not(IsWeaponAdvanced), 0.135f),
 										   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
-	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_AmmoIndicator>(tm));
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_Const>>(Not(IsWeaponAdvanced), Z_VEHICLE_LABEL),
+										   Make<R_AmmoIndicator>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_cannon"));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_WeapFireEffect>(0.2f),
