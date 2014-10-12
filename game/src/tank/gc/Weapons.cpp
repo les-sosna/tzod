@@ -869,7 +869,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 
 GC_Weap_Minigun::GC_Weap_Minigun(World &world)
   : GC_ProjectileBasedWeapon(world)
-  , _bFire(false)
 {
 	SetLastShotPos(vec2d(20, 0));
 }
@@ -883,6 +882,11 @@ GC_Weap_Minigun::~GC_Weap_Minigun()
 {
 }
 
+float GC_Weap_Minigun::GetHeat(const World &world) const
+{
+	return std::max(_heat + GetLastShotTime() - world.GetTime(), 0.0f);
+}
+
 void GC_Weap_Minigun::Kill(World &world)
 {
 	SAFE_KILL(world, _sound);
@@ -892,18 +896,14 @@ void GC_Weap_Minigun::Kill(World &world)
 void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
 {
 	GC_ProjectileBasedWeapon::Attach(world, actor);
-
-	_timeFire   = 0;
-	_timeShot   = 0;
-
 	_sound = new GC_Sound(world, SND_MinigunFire, GetPos());
     _sound->Register(world);
     _sound->SetMode(world, SMODE_STOP);
-	_bFire = false;
 }
 
 void GC_Weap_Minigun::Detach(World &world)
 {
+	_heat = 0;
 	SAFE_KILL(world, _sound);
 	GC_ProjectileBasedWeapon::Detach(world);
 }
@@ -911,10 +911,7 @@ void GC_Weap_Minigun::Detach(World &world)
 void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
 {
 	GC_ProjectileBasedWeapon::Serialize(world, f);
-
-	f.Serialize(_bFire);
-	f.Serialize(_timeFire);
-	f.Serialize(_timeShot);
+	f.Serialize(_heat);
 	f.Serialize(_sound);
 }
 
@@ -924,15 +921,27 @@ void GC_Weap_Minigun::AdjustVehicleClass(VehicleClass &vc) const
 	vc.m *= 0.7f;
 }
 
-void GC_Weap_Minigun::Fire(World &world, bool fire)
-{
-	assert(GetCarrier());
-	if( GetCarrier() )
-		_bFire = fire;
-}
-
 void GC_Weap_Minigun::OnShoot(World &world)
 {
+	_heat = std::min(GetHeat(world) + GetReloadTime() * 3, WEAP_MG_TIME_RELAX);
+
+	float da = _heat * 0.07f / WEAP_MG_TIME_RELAX;
+	
+	vec2d a = Vec2dAddDirection(GetDirection(), vec2d(world.net_frand(da * 2.0f) - da));
+	a *= (1 - world.net_frand(0.2f));
+	
+	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
+	if( veh && !GetAdvanced() )
+	{
+		if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _heat - WEAP_MG_TIME_RELAX * 0.2f )
+		{
+			float m = 3000;//veh->_inv_i; // FIXME
+			veh->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
+		}
+	}
+	
+	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
+	tmp->Register(world);
 }
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -950,44 +959,14 @@ void GC_Weap_Minigun::TimeStep(World &world, float dt)
 {
 	if( GetCarrier() )
 	{
-		GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
-		if( _bFire )
+		if( GetFire() )
 		{
-			_timeShot += dt;
-
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);
-
-			for(; _timeShot > 0; _timeShot -= GetAdvanced() ? 0.02f : 0.04f)
-			{
-				_lastShotTime = world.GetTime() - frand(GetFireEffectTime());
-				_fireLight->SetActive(true);
-
-				float da = _timeFire * 0.07f / WEAP_MG_TIME_RELAX;
-
-				vec2d a = Vec2dAddDirection(GetDirection(), vec2d(world.net_frand(da * 2.0f) - da));
-				a *= (1 - world.net_frand(0.2f));
-
-				if( veh && !GetAdvanced() )
-				{
-					if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _timeFire - WEAP_MG_TIME_RELAX * 0.2f )
-					{
-						float m = 3000;//veh->_inv_i; // FIXME
-						veh->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
-					}
-				}
-
-				GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
-                tmp->Register(world);
-				tmp->TimeStep(world, _timeShot);
-			}
-
-			_timeFire = std::min(_timeFire + dt * 2, WEAP_MG_TIME_RELAX);
 		}
 		else
 		{
 			_sound->Pause(world, true);
-			_timeFire = std::max(_timeFire - dt, .0f);
 		}
 	}
 
@@ -1088,7 +1067,7 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 {
 	if( GetCarrier() )
 	{
-		if( CheckFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING) )
+		if( GetFire() )
 		{
 			_sound->MoveTo(world, GetPos());
 			_sound->Pause(world, false);

@@ -66,6 +66,11 @@ GC_Weapon::GC_Weapon(World &world)
 	SetAutoSwitch(false);
 }
 
+void GC_Weapon::Fire(World &world, bool fire)
+{
+	SetFlags(GC_FLAG_WEAPON_FIRING, fire);
+}
+
 AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( veh.GetWeapon() )
@@ -213,7 +218,7 @@ bool GC_ProjectileBasedWeapon::IsReady(const World &world) const
 
 void GC_ProjectileBasedWeapon::Resume(World &world)
 {
-	if (CheckFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING))
+	if (GetFire())
 	{
 		_firing = world.Timeout(*this, GetReloadTime());
 		Shoot(world);
@@ -227,7 +232,7 @@ void GC_ProjectileBasedWeapon::Resume(World &world)
 
 void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
 {
-	SetFlags(GC_FLAG_PROJECTILEBASEDWEAPON_FIRING, fire);
+	GC_Weapon::Fire(world, fire);
 	if (fire && !_firing)
 	{
 		_startTime = world.GetTime();

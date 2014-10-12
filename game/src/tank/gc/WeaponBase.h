@@ -17,7 +17,8 @@ struct AIWEAPSETTINGS
 };
 
 #define GC_FLAG_WEAPON_ADVANCED          (GC_FLAG_PICKUP_ << 0)
-#define GC_FLAG_WEAPON_                  (GC_FLAG_PICKUP_ << 1)
+#define GC_FLAG_WEAPON_FIRING            (GC_FLAG_PICKUP_ << 1)
+#define GC_FLAG_WEAPON_                  (GC_FLAG_PICKUP_ << 2)
 
 class GC_Weapon : public GC_Pickup
 {
@@ -26,12 +27,13 @@ public:
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
+	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	float GetDetachedTime() const { return _detachedTime; }
 	float GetStayTimeout() const { return _stayTimeout; }
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 	
-	virtual void Fire(World &world, bool fire) = 0;
+	virtual void Fire(World &world, bool fire);
 	virtual void SetAdvanced(World &world, bool advanced) { SetFlags(GC_FLAG_WEAPON_ADVANCED, advanced); }
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
@@ -84,8 +86,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_PROJECTILEBASEDWEAPON_FIRING   (GC_FLAG_WEAPON_ << 0)
-#define GC_FLAG_PROJECTILEBASEDWEAPON_         (GC_FLAG_WEAPON_ << 1)
+#define GC_FLAG_PROJECTILEBASEDWEAPON_         (GC_FLAG_WEAPON_ << 0)
 
 class ResumableObject;
 

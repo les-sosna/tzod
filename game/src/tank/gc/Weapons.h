@@ -257,12 +257,10 @@ public:
 	GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
 
-	bool GetFire() const { return _bFire; }
-	float GetFireTime() const { return _timeFire; }
+	float GetHeat(const World &world) const;
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	
 	// GC_Pickup
@@ -276,14 +274,12 @@ public:
 
 protected:
 	virtual float GetFireEffectTime() const override { return 0.1f; }
-	virtual float GetReloadTime() const { return 0.03f; }
+	virtual float GetReloadTime() const { return GetAdvanced() ? 0.02f : 0.04f; }
 	virtual void OnShoot(World &world) override;
 
 private:
 	ObjPtr<GC_Sound> _sound;
-	float _timeFire;
-	float _timeShot;
-	bool _bFire;
+	float _heat = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

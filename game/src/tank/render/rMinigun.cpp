@@ -35,7 +35,7 @@ void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, DrawingContex
 	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
 	if (minigun.GetCarrier())
 	{
-		vec2d delta(minigun.GetFireTime() * 0.1f / WEAP_MG_TIME_RELAX);
+		vec2d delta(minigun.GetHeat(world) * 0.1f / WEAP_MG_TIME_RELAX);
 		vec2d dir1 = Vec2dAddDirection(minigun.GetDirection(), delta);
 		vec2d dir2 = Vec2dSubDirection(minigun.GetDirection(), delta);
 		vec2d pos1 = minigun.GetPos() + dir1 * 150.0f;
