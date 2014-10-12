@@ -254,6 +254,7 @@ void GC_ProjectileBasedWeapon::Detach(World &world)
 {
 	_startTime = -FLT_MAX;
 	_stopTime = -FLT_MAX;
+	ResetSeries();
 	SAFE_CANCEL(_firing);
 	SAFE_KILL(world, _fireLight);
 	GC_Weapon::Detach(world);

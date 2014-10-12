@@ -129,6 +129,12 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 	PLAY(SND_ACShoot, GetPos());
 }
 
+void GC_Weap_AutoCannon::SetAdvanced(World &world, bool advanced)
+{
+	ResetSeries();
+	GC_ProjectileBasedWeapon::SetAdvanced(world, advanced);
+}
+
 void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 {
 	pSettings->bNeedOutstrip      = true;
@@ -556,15 +562,14 @@ void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_BFG::OnShoot(World &world)
 {
-	if (GetNumShots() == 0)
+	if (GetNumShots() || GetAdvanced())
 	{
-		PLAY(SND_BfgInit, GetPos());
+		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
+						GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 	}
 	else
 	{
-		const vec2d &a = GetDirection();
-		(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
-						GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+		PLAY(SND_BfgInit, GetPos());
 	}
 }
 

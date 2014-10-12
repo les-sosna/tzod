@@ -43,12 +43,13 @@ public:
 	
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
-	virtual float GetReloadTime() const override { return 3.7f; }
-	virtual unsigned int GetSeriesLength() const override { return 30; }
+	virtual float GetReloadTime() const override { return GetAdvanced() ? 0.135f : 3.7f; }
+	virtual unsigned int GetSeriesLength() const override { return GetAdvanced() ? 1 : 30; }
 	virtual float GetSeriesReloadTime() const override { return 0.135f; }
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
+	virtual void SetAdvanced(World &world, bool advanced) override;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
@@ -188,7 +189,7 @@ public:
 	virtual bool GetContinuousSeries() const { return true; }
 	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 1.1f; }
-	virtual unsigned int GetSeriesLength() const override { return 2; }
+	virtual unsigned int GetSeriesLength() const override { return GetAdvanced() ? 1 : 2; }
 	virtual float GetSeriesReloadTime() const override { return 0.7f; }
 	
 	// GC_Weapon

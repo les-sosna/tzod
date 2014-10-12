@@ -27,11 +27,11 @@ public:
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
-	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
-	float GetDetachedTime() const { return _detachedTime; }
-	float GetStayTimeout() const { return _stayTimeout; }
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
+	float GetDetachedTime() const { return _detachedTime; }
+	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
+	float GetStayTimeout() const { return _stayTimeout; }
 	
 	virtual void Fire(World &world, bool fire);
 	virtual void SetAdvanced(World &world, bool advanced) { SetFlags(GC_FLAG_WEAPON_ADVANCED, advanced); }
@@ -122,11 +122,11 @@ public:
 
 protected:
 	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
+	void ResetSeries() { _numShots = 0; }
 
-	// TODO: make private
+private:
 	ObjPtr<GC_Light> _fireLight;
 	float _lastShotTime;
-private:
 	vec2d _lastShotPos;
 	unsigned int _numShots;
 	float _startTime;
