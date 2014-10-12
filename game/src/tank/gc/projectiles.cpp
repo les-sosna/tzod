@@ -20,10 +20,10 @@ IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 
 GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner,
 							 bool advanced, bool trail, const vec2d &pos, const vec2d &v)
-  : _ignore(ignore)
-  , _owner(owner)
-  , _light(new GC_Light(world, GC_Light::LIGHT_POINT))
+  : _light(new GC_Light(world, GC_Light::LIGHT_POINT))
   , _velocity(v.len())
+  , _ignore(ignore)
+  , _owner(owner)
   , _hitDamage(0)
   , _hitImpulse(0)
   , _trailDensity(10.0f)
@@ -139,7 +139,7 @@ void GC_Projectile::TimeStep(World &world, float dt)
 			}
 		};
 		std::sort(obstacles.begin(), obstacles.end(), cmp());
-		for( std::vector<World::CollisionPoint>::const_iterator it = obstacles.begin(); obstacles.end() != it; ++it )
+		for( auto it = obstacles.begin(); obstacles.end() != it; ++it )
 		{
 			if( _ignore == it->obj )
 			{
@@ -189,13 +189,6 @@ void GC_Projectile::SetHitImpulse(float impulse)
 	_hitImpulse = impulse;
 }
 
-// inline
-GC_RigidBodyStatic* GC_Projectile::GetIgnore() const
-{
-	return _ignore;
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Rocket)
@@ -232,7 +225,7 @@ GC_Rocket::GC_Rocket(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyS
 			}
 
 			vec2d target;
-			if( !world.CalcOutstrip(GetPos(), _velocity, veh->GetPos(), veh->_lv, target) )
+			if( !world.CalcOutstrip(GetPos(), GetVelocity(), veh->GetPos(), veh->_lv, target) )
 			{
 				// target is moving too fast
 				continue;
@@ -284,7 +277,7 @@ bool GC_Rocket::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
 
 void GC_Rocket::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	auto p = new GC_Particle(world, GetDirection() * (_velocity * 0.3f), _target ? PARTICLE_FIRE2:PARTICLE_FIRE1, frand(0.1f) + 0.02f);
+	auto p = new GC_Particle(world, GetDirection() * (GetVelocity() * 0.3f), _target ? PARTICLE_FIRE2:PARTICLE_FIRE1, frand(0.1f) + 0.02f);
     p->Register(world);
     p->MoveTo(world, pos - GetDirection() * 8.0f);
 }
@@ -302,7 +295,7 @@ void GC_Rocket::TimeStep(World &world, float dt)
 		else
 		{
 			vec2d target;
-			world.CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
+			world.CalcOutstrip(GetPos(), GetVelocity(), _target->GetPos(), _target->_lv, target);
 
 			vec2d a = target - GetPos();
 
@@ -312,7 +305,7 @@ void GC_Rocket::TimeStep(World &world, float dt)
 			float ldv = dv.len();
 			if( ldv > 0 )
 			{
-				dv /= (ldv * _velocity);
+				dv /= (ldv * GetVelocity());
 				dv *= WEAP_RL_HOMING_FACTOR;
 
 				vec2d dir(GetDirection());
@@ -345,10 +338,6 @@ GC_Bullet::GC_Bullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyS
 
 GC_Bullet::GC_Bullet(FromFile)
   : GC_Projectile(FromFile())
-{
-}
-
-GC_Bullet::~GC_Bullet()
 {
 }
 
@@ -423,10 +412,6 @@ GC_TankBullet::GC_TankBullet(FromFile)
 {
 }
 
-GC_TankBullet::~GC_TankBullet()
-{
-}
-
 bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
 	if( GetAdvanced() )
@@ -489,10 +474,6 @@ GC_PlazmaClod::GC_PlazmaClod(World &world, const vec2d &x, const vec2d &v, GC_Ri
 
 GC_PlazmaClod::GC_PlazmaClod(FromFile)
   : GC_Projectile(FromFile())
-{
-}
-
-GC_PlazmaClod::~GC_PlazmaClod()
 {
 }
 
@@ -673,7 +654,7 @@ void GC_BfgCore::TimeStep(World &world, float dt)
 	if( _target )
 	{
 		vec2d target;
-		world.CalcOutstrip(GetPos(), _velocity, _target->GetPos(), _target->_lv, target);
+		world.CalcOutstrip(GetPos(), GetVelocity(), _target->GetPos(), _target->_lv, target);
 
 		vec2d a = target - GetPos();
 
@@ -683,7 +664,7 @@ void GC_BfgCore::TimeStep(World &world, float dt)
 		float ldv = dv.len();
 		if( ldv > 0 )
 		{
-			dv /= (ldv * _velocity);
+			dv /= (ldv * GetVelocity());
 			dv *= (3.0f * fabs(_target->_lv.len()) / WEAP_BFG_TARGET_SPEED + (GetAdvanced() ? 1 : 0)) * WEAP_BFG_HOMMING_FACTOR;
 
 			vec2d dir(GetDirection());
@@ -721,10 +702,6 @@ GC_FireSpark::GC_FireSpark(FromFile)
 {
 }
 
-GC_FireSpark::~GC_FireSpark()
-{
-}
-
 void GC_FireSpark::Serialize(World &world, SaveFile &f)
 {
 	GC_Projectile::Serialize(world, f);
@@ -759,7 +736,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	nn.Normalize();
 
 	SetDirection(nn);
-	_velocity *= 0.9f / (1 + up * 4);
+	SetVelocity(GetVelocity() * 0.9f / (1 + up * 4));
 
 	if( GetAdvanced() && GetOwner() != object->GetOwner()
 		&& (world.net_rand()&1) && CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
@@ -788,7 +765,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 
 void GC_FireSpark::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	GC_Particle *p = new GC_Particle(world, GetDirection() * (_velocity/3) + vrand(10.0f), PARTICLE_FIRESPARK, 0.1f + frand(0.3f), vrand(1));
+	GC_Particle *p = new GC_Particle(world, GetDirection() * (GetVelocity()/3) + vrand(10.0f), PARTICLE_FIRESPARK, 0.1f + frand(0.3f), vrand(1));
     p->Register(world);
     p->MoveTo(world, pos + vrand(3));
 	p->SetFade(true);
@@ -865,8 +842,8 @@ void GC_FireSpark::TimeStep(World &world, float dt)
 		{
 			const float a = 1.5;
 			float e = exp(-a * dt);
-			vec2d correcton = GetDirection() * (_velocity * ((1 - e) / a - dt));
-			_velocity *= e;
+			vec2d correcton = GetDirection() * (GetVelocity() * ((1 - e) / a - dt));
+			SetVelocity(GetVelocity() * e);
 			MoveWithTrail(world, GetPos() + correcton, false);
 		}
 	}
@@ -902,10 +879,6 @@ GC_ACBullet::GC_ACBullet(World &world, const vec2d &x, const vec2d &v, GC_RigidB
 
 GC_ACBullet::GC_ACBullet(FromFile)
   : GC_Projectile(FromFile())
-{
-}
-
-GC_ACBullet::~GC_ACBullet()
 {
 }
 
@@ -991,10 +964,6 @@ GC_GaussRay::GC_GaussRay(FromFile)
 {
 }
 
-GC_GaussRay::~GC_GaussRay()
-{
-}
-
 void GC_GaussRay::Kill(World &world)
 {
 	if( _light ) // _light can be killed during level cleanup
@@ -1062,10 +1031,6 @@ GC_Disk::GC_Disk(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStati
 
 GC_Disk::GC_Disk(FromFile)
   : GC_Projectile(FromFile())
-{
-}
-
-GC_Disk::~GC_Disk()
 {
 }
 
