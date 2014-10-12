@@ -283,14 +283,14 @@ GC_Weap_Gauss::GC_Weap_Gauss(World &world)
 {
 }
 
-void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
-{
-	vc.health *= AdjustHealth(70);
-}
-
 GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
 {
+}
+
+void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
+{
+	vc.health *= AdjustHealth(70);
 }
 
 void GC_Weap_Gauss::OnShoot(World &world)
