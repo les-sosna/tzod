@@ -26,6 +26,7 @@ class ClientBase;
 class GC_Object;
 class GC_Pickup;
 class GC_Player;
+class GC_ProjectileBasedWeapon;
 class GC_RigidBodyStatic;
 class GC_RigidBodyDynamic;
 class GC_Service;
@@ -91,6 +92,7 @@ public:
 	DECLARE_EVENTS(GC_Object);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_Player);
+	DECLARE_EVENTS(GC_ProjectileBasedWeapon);
 	DECLARE_EVENTS(GC_RigidBodyStatic);
 	DECLARE_EVENTS(GC_RigidBodyDynamic);
 	DECLARE_EVENTS(GC_Service);

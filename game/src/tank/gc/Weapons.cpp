@@ -17,7 +17,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 {
-	ED_ITEM("weap_rockets", "obj_weap_rockets", 4 );
+	ED_ITEM("weap_rockets", "obj_weap_rockets", 4);
 	return true;
 }
 
@@ -125,8 +125,6 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 						 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
 						 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 	}
-	
-	PLAY(SND_ACShoot, GetPos());
 }
 
 void GC_Weap_AutoCannon::SetAdvanced(World &world, bool advanced)
@@ -567,10 +565,6 @@ void GC_Weap_BFG::OnShoot(World &world)
 		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
 						GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 	}
-	else
-	{
-		PLAY(SND_BfgInit, GetPos());
-	}
 }
 
 void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -612,7 +606,6 @@ void GC_Weap_Ripper::OnShoot(World &world)
 	const vec2d &a = GetDirection();
 	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
 				 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-	PLAY(SND_DiskFire, GetPos());
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)

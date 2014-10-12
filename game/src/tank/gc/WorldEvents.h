@@ -27,6 +27,12 @@ template<> struct ObjectListener<GC_Player>
 	virtual void OnDie(GC_Player &obj) = 0;
 };
 
+class GC_ProjectileBasedWeapon;
+template<> struct ObjectListener<GC_ProjectileBasedWeapon>
+{
+	virtual void OnShoot(GC_ProjectileBasedWeapon &obj) = 0;
+};
+
 class GC_Service;
 template<> struct ObjectListener<GC_Service> : ObjectListener<GC_Object> {};
 

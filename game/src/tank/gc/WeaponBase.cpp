@@ -4,6 +4,7 @@
 #include "Vehicle.h"
 #include "Macros.h"
 #include "World.h"
+#include "WorldEvents.h"
 
 #include "SaveFile.h"
 
@@ -219,6 +220,8 @@ void GC_ProjectileBasedWeapon::Resume(World &world)
 
 	if (GetFire() || (GetContinuousSeries() && _numShots > 0))
 	{
+		for( auto ls: world.eGC_ProjectileBasedWeapon._listeners )
+			ls->OnShoot(*this);
 		OnShoot(world);
 		++_numShots;
 		_firing = world.Timeout(*this, _numShots < GetSeriesLength() ? GetSeriesReloadTime() : GetReloadTime());

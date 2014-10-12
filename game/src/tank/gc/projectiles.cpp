@@ -255,8 +255,6 @@ GC_Rocket::GC_Rocket(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyS
 			_target = pNearestTarget;
 		}
 	}
-
-	PLAY(SND_RocketShoot, GetPos());
 }
 
 GC_Rocket::GC_Rocket(FromFile)
@@ -418,7 +416,6 @@ GC_TankBullet::GC_TankBullet(World &world, const vec2d &x, const vec2d &v, GC_Ri
 	SetHitDamage(DAMAGE_TANKBULLET);
 	SetHitImpulse(100);
 	_light->SetActive(advanced);
-	PLAY(SND_Shoot, GetPos());
 }
 
 GC_TankBullet::GC_TankBullet(FromFile)
@@ -488,8 +485,6 @@ GC_PlazmaClod::GC_PlazmaClod(World &world, const vec2d &x, const vec2d &v, GC_Ri
 {
 	SetHitDamage(DAMAGE_PLAZMA);
 	SetTrailDensity(world, 4.0f);
-
-	PLAY(SND_PlazmaFire, GetPos());
 }
 
 GC_PlazmaClod::GC_PlazmaClod(FromFile)
@@ -556,8 +551,6 @@ GC_BfgCore::GC_BfgCore(World &world, const vec2d &x, const vec2d &v, GC_RigidBod
   : GC_Projectile(world, ignore, owner, advanced, true, x, v)
   , _time(0)
 {
-	PLAY(SND_BfgFire, GetPos());
-
 	SetTrailDensity(world, 2.5f);
 	SetHitDamage(DAMAGE_BFGCORE);
 
@@ -979,8 +972,6 @@ GC_GaussRay::GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidB
 	SetHitDamage(DAMAGE_GAUSS);
 	SetHitImpulse(100);
 	SetTrailDensity(world, 16.0f);
-
-	PLAY(SND_Bolt, GetPos());
 
 	SAFE_KILL(world, _light);
 

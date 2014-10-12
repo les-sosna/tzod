@@ -327,6 +327,7 @@ void GC_TurretRocket::Fire(World &world)
 	if( _timeReload <= 0 )
 	{
 		vec2d a(GetWeaponDir());
+		PLAY(SND_RocketShoot, GetPos());
 		auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
         r->Register(world);
         r->SetHitDamage(world.net_frand(10.0f));
@@ -383,6 +384,7 @@ void GC_TurretCannon::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
+		PLAY(SND_Shoot, GetPos());
 		vec2d a(GetWeaponDir());
 		auto bullet = new GC_TankBullet(world,
                                         GetPos() + a * 31.9f,
@@ -741,6 +743,8 @@ void GC_TurretGauss::Fire(World &world)
 
 	if( _time >= (float) _shotCount * 0.2f )
 	{
+		PLAY(SND_Bolt, GetPos());
+
 		float dy = _shotCount == 0 ? -7.0f : 7.0f;
 		float c = cosf(_dir), s = sinf(_dir);
 

@@ -8,11 +8,14 @@
 #include "gc/Weapons.h"
 #include "gc/World.h"
 
+#include <unordered_map>
+
 SoundHarness::SoundHarness(World &world)
 	: _world(world)
 	, _soundRender(new SoundRender())
 {
 	_world.eGC_Pickup.AddListener(*this);
+	_world.eGC_ProjectileBasedWeapon.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_RigidBodyDynamic.AddListener(*this);
 	_world.eGC_Turret.AddListener(*this);
@@ -27,6 +30,7 @@ SoundHarness::~SoundHarness()
 	_world.eGC_Turret.RemoveListener(*this);
 	_world.eGC_RigidBodyDynamic.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
+	_world.eGC_ProjectileBasedWeapon.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
 }
 
@@ -52,6 +56,30 @@ void SoundHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
 void SoundHarness::OnRespawn(GC_Pickup &obj)
 {
 	_soundRender->PlayOnce(SND_puRespawn, obj.GetPos());
+}
+
+void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
+{
+	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+		{GC_Weap_AutoCannon::GetTypeStatic(), SND_ACShoot},
+		{GC_Weap_Cannon::GetTypeStatic(), SND_Shoot},
+		{GC_Weap_Gauss::GetTypeStatic(), SND_Bolt},
+		{GC_Weap_Plazma::GetTypeStatic(), SND_PlazmaFire},
+		{GC_Weap_Ripper::GetTypeStatic(), SND_DiskFire},
+		{GC_Weap_RocketLauncher::GetTypeStatic(), SND_RocketShoot},
+	};
+	auto found = sounds.find(obj.GetType());
+	if (sounds.end() != found)
+	{
+		_soundRender->PlayOnce(found->second, obj.GetPos());
+	}
+	else if (GC_Weap_BFG::GetTypeStatic() == obj.GetType())
+	{
+		if( obj.GetNumShots() || obj.GetAdvanced() )
+			_soundRender->PlayOnce(SND_BfgFire, obj.GetPos());
+		else
+			_soundRender->PlayOnce(SND_BfgInit, obj.GetPos());
+	}
 }
 
 void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
