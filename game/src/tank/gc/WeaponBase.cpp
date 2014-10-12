@@ -195,6 +195,7 @@ GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(World &world)
 	: GC_Weapon(world)
 	, _lastShotTime(-FLT_MAX)
 	, _lastShotPos(0,0)
+	, _numShots(0)
 	, _startTime(-FLT_MAX)
 	, _stopTime(-FLT_MAX)
 	, _firing(nullptr)
@@ -211,17 +212,18 @@ GC_ProjectileBasedWeapon::~GC_ProjectileBasedWeapon()
 {
 }
 
-bool GC_ProjectileBasedWeapon::IsReady(const World &world) const
-{
-	return world.GetTime() > GetLastShotTime() + GetReloadTime();
-}
-
 void GC_ProjectileBasedWeapon::Resume(World &world)
 {
-	if (GetFire())
+	if( _numShots >= GetSeriesLength() )
+		_numShots = 0;
+
+	if (GetFire() || (GetContinuousSeries() && _numShots > 0))
 	{
-		_firing = world.Timeout(*this, GetReloadTime());
-		Shoot(world);
+		OnShoot(world);
+		++_numShots;
+		_firing = world.Timeout(*this, _numShots < GetSeriesLength() ? GetSeriesReloadTime() : GetReloadTime());
+		_fireLight->SetActive(true);
+		_lastShotTime = world.GetTime();
 	}
 	else
 	{
@@ -262,17 +264,11 @@ void GC_ProjectileBasedWeapon::Serialize(World &world, SaveFile &f)
 	GC_Weapon::Serialize(world, f);
 	f.Serialize(_lastShotPos);
 	f.Serialize(_lastShotTime);
+	f.Serialize(_numShots);
 	f.Serialize(_startTime);
 	f.Serialize(_stopTime);
 	f.Serialize(_fireLight);
 	// TODO: f.Serialize(_firing);
-}
-
-void GC_ProjectileBasedWeapon::Shoot(World &world)
-{
-	OnShoot(world);
-	_fireLight->SetActive(true);
-	_lastShotTime = world.GetTime();
 }
 
 void GC_ProjectileBasedWeapon::OnUpdateView(World &world)

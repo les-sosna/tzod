@@ -77,7 +77,7 @@ void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContex
 {
 	assert(dynamic_cast<const GC_Weap_Ripper*>(&actor));
 	auto &ripper = static_cast<const GC_Weap_Ripper&>(actor);
-	if (ripper.GetCarrier() && ripper.IsReady(world))
+	if (ripper.GetCarrier() && ripper.GetNumShots() == 0)
 	{
 		vec2d pos = ripper.GetPos() - ripper.GetDirection() * 8;
 		vec2d dir = vec2d(world.GetTime() * 10);

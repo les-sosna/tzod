@@ -97,14 +97,17 @@ public:
 	GC_ProjectileBasedWeapon(FromFile);
 	virtual ~GC_ProjectileBasedWeapon();
 
-	bool IsReady(const World &world) const;
 	vec2d GetLastShotPos() const { return _lastShotPos; }
 	float GetLastShotTime() const { return _lastShotTime; }
+	unsigned int GetNumShots() const { return _numShots; }
 	float GetStartTime() const { return _startTime; }
 	float GetStopTime() const { return _stopTime; }
 
-	virtual float GetReloadTime() const = 0;
+	virtual bool GetContinuousSeries() const { return false; }
 	virtual float GetFireEffectTime() const = 0;
+	virtual float GetReloadTime() const = 0;
+	virtual unsigned int GetSeriesLength() const { return 1; }
+	virtual float GetSeriesReloadTime() const { return 0; }
 
 	// GC_Weapon
 	virtual void Fire(World &world, bool fire);
@@ -118,7 +121,6 @@ public:
 	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
-	void Shoot(World &world);
 	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
 
 	// TODO: make private
@@ -126,6 +128,7 @@ protected:
 	float _lastShotTime;
 private:
 	vec2d _lastShotPos;
+	unsigned int _numShots;
 	float _startTime;
 	float _stopTime;
 	ResumableObject *_firing;

@@ -21,42 +21,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 	return true;
 }
 
-void GC_Weap_RocketLauncher::Attach(World &world, GC_Actor *actor)
-{
-	GC_ProjectileBasedWeapon::Attach(world, actor);
-
-	_reloaded         = true;
-	_firing           = false;
-	_nshots           = 0;
-	_nshots_total     = 6;
-	_time_shot        = 0.13f;
-}
-
-void GC_Weap_RocketLauncher::Detach(World &world)
-{
-	_firing = false;
-	GC_ProjectileBasedWeapon::Detach(world);
-}
-
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(World &world)
   : GC_ProjectileBasedWeapon(world)
-  , _firing(false)
 {
 }
 
 GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
 {
-}
-
-void GC_Weap_RocketLauncher::Serialize(World &world, SaveFile &f)
-{
-	GC_ProjectileBasedWeapon::Serialize(world, f);
-	f.Serialize(_firing);
-	f.Serialize(_reloaded);
-	f.Serialize(_nshots);
-	f.Serialize(_nshots_total);
-	f.Serialize(_time_shot);
 }
 
 static float AdjustHealth(float value)
@@ -72,71 +44,20 @@ void GC_Weap_RocketLauncher::AdjustVehicleClass(VehicleClass &vc) const
 	vc.i *= 1.2;
 }
 
-void GC_Weap_RocketLauncher::Fire(World &world, bool fire)
-{
-	if (fire)
-		Shoot1(world);
-}
-
 void GC_Weap_RocketLauncher::OnShoot(World &world)
 {
-	vec2d dir = GetDirection();
-	
-	float dy;
-	++_nshots;
-	if (GetAdvanced())
-	{
-		dy = (((float)(world.net_rand()%(_nshots_total+1)) - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
-		_nshots = 0;
-		_firing = false;
-	}
-	else
-	{
-		dy = (((float)_nshots - 0.5f) / (float)_nshots_total - 0.5f) * 18.0f;
-		if( _nshots == _nshots_total )
-		{
-			_firing = false;
-			_nshots = 0;
-		}
-	}
+	unsigned int nshots = GetAdvanced() ? world.net_rand() % SERIES_LENGTH : GetNumShots();
+	float dy = (0.5f - (float) nshots / (float) (SERIES_LENGTH - 1)) * 15.0f;
 
 	SetLastShotPos(vec2d(13, dy));
 	
+	vec2d dir = GetDirection();
 	float ax = dir.x * 15.0f + dy * dir.y;
 	float ay = dir.y * 15.0f - dy * dir.x;
 	
 	(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 				   Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
 				   GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-}
-
-void GC_Weap_RocketLauncher::Shoot1(World &world)
-{
-	assert(GetCarrier());
-	float time = world.GetTime() - GetLastShotTime();
-	if( GetAdvanced() )
-	{
-		if( time >= _time_shot )
-		{
-			Shoot(world);
-		}
-	}
-	else
-	{
-		if( _firing )
-		{
-			if( time >= _time_shot )
-			{
-				Shoot(world);
-			}
-		}
-
-		if( time >= GetReloadTime() )
-		{
-			_firing = true;
-		}
-	}
-	_reloaded = false;
 }
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -148,23 +69,6 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 100.0f;
 	pSettings->fAttackRadius_crit =  40.0f;
 	pSettings->fDistanceMultipler = GetAdvanced() ? 1.2f : 3.5f;
-}
-
-void GC_Weap_RocketLauncher::TimeStep(World &world, float dt)
-{
-	if( GetCarrier() )
-	{
-		if( _firing )
-			Shoot1(world);
-		else if( world.GetTime() >= GetLastShotTime() + GetReloadTime() && !_reloaded )
-		{
-			_reloaded = true;
-			if( !GetAdvanced())
-				PLAY(SND_WeapReload, GetPos());
-		}
-	}
-
-	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,64 +84,14 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(World &world)
 {
 }
 
-void GC_Weap_AutoCannon::Attach(World &world, GC_Actor *actor)
-{
-	GC_ProjectileBasedWeapon::Attach(world, actor);
-
-	_firing = false;
-	_nshots = 0;
-	_nshots_total = 30;
-	_time_shot = 0.135f;
-}
-
-void GC_Weap_AutoCannon::Detach(World &world)
-{
-	// kill the reload sound
-	FOREACH( world.GetList(LIST_sounds), GC_Sound, object )
-	{
-		if( GC_Sound_link::GetTypeStatic() == object->GetType() )
-		{
-			if( ((GC_Sound_link *) object)->CheckObject(this) )
-			{
-				object->Kill(world);
-				break;
-			}
-		}
-	}
-
-	GC_ProjectileBasedWeapon::Detach(world);
-}
-
 GC_Weap_AutoCannon::GC_Weap_AutoCannon(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
 {
 }
 
-GC_Weap_AutoCannon::~GC_Weap_AutoCannon()
-{
-}
-
-void GC_Weap_AutoCannon::Serialize(World &world, SaveFile &f)
-{
-	GC_ProjectileBasedWeapon::Serialize(world, f);
-	f.Serialize(_firing);
-	f.Serialize(_nshots);
-	f.Serialize(_nshots_total);
-	f.Serialize(_time_shot);
-}
-
 void GC_Weap_AutoCannon::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(80);
-}
-
-void GC_Weap_AutoCannon::Fire(World &world, bool fire)
-{
-	float time = world.GetTime() - GetLastShotTime();
-	if( fire && _firing && GetCarrier() && time >= _time_shot )
-	{
-		Shoot(world);
-	}
 }
 
 void GC_Weap_AutoCannon::OnShoot(World &world)
@@ -261,18 +115,8 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 	}
 	else
 	{
-		_nshots++;
-		
-		float dy = (_nshots & 1) == 0 ? -9.0f : 9.0f;
+		float dy = (GetNumShots() % 2) == 0 ? -9.0f : 9.0f;
 		SetLastShotPos(vec2d(17.0f, -dy));
-		
-		if( _nshots == _nshots_total )
-		{
-			_firing = false;
-			auto sound = new GC_Sound_link(world, SND_AC_Reload, this);
-			sound->Register(world);
-			sound->SetMode(world, SMODE_PLAY);
-		}
 		
 		float ax = dir.x * 17.0f - dy * dir.y;
 		float ay = dir.y * 17.0f + dy * dir.x;
@@ -294,26 +138,6 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
 	pSettings->fDistanceMultipler = GetAdvanced() ? 3.3f : 13.0f;
-}
-
-void GC_Weap_AutoCannon::TimeStep(World &world, float dt)
-{
-	if( GetCarrier() )
-	{
-		if( GetAdvanced() )
-			_nshots  = 0;
-
-		float time = world.GetTime() - GetLastShotTime();
-		if( time >= GetReloadTime() && !_firing )
-		{
-			_firing = true;
-			_nshots  = 0;
-		}
-
-		_firing |= GetAdvanced();
-	}
-
-	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,10 +164,6 @@ void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
 
 GC_Weap_Cannon::GC_Weap_Cannon(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
-{
-}
-
-GC_Weap_Cannon::~GC_Weap_Cannon()
 {
 }
 
@@ -422,10 +242,6 @@ GC_Weap_Plazma::GC_Weap_Plazma(FromFile)
 {
 }
 
-GC_Weap_Plazma::~GC_Weap_Plazma()
-{
-}
-
 void GC_Weap_Plazma::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(100);
@@ -470,10 +286,6 @@ void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 
 GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
-{
-}
-
-GC_Weap_Gauss::~GC_Weap_Gauss()
 {
 }
 
@@ -732,25 +544,9 @@ GC_Weap_BFG::GC_Weap_BFG(World &world)
 {
 }
 
-void GC_Weap_BFG::Attach(World &world, GC_Actor *actor)
-{
-	GC_ProjectileBasedWeapon::Attach(world, actor);
-	_time_ready  = 0;
-}
-
 GC_Weap_BFG::GC_Weap_BFG(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
 {
-}
-
-GC_Weap_BFG::~GC_Weap_BFG()
-{
-}
-
-void GC_Weap_BFG::Serialize(World &world, SaveFile &f)
-{
-	GC_ProjectileBasedWeapon::Serialize(world, f);
-	f.Serialize(_time_ready);
 }
 
 void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
@@ -758,37 +554,17 @@ void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 	vc.health *= AdjustHealth(110);
 }
 
-void GC_Weap_BFG::Fire(World &world, bool fire)
-{
-	if (fire)
-		Shoot1(world);
-}
-
 void GC_Weap_BFG::OnShoot(World &world)
 {
-	const vec2d &a = GetDirection();
-	(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
-					GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
-}
-
-void GC_Weap_BFG::Shoot1(World &world)
-{
-	assert(GetCarrier());
-
-	float time = world.GetTime() - GetLastShotTime();
-	if( time >= GetReloadTime() )
+	if (GetNumShots() == 0)
 	{
-		if( !GetAdvanced() && 0 == _time_ready )
-		{
-			PLAY(SND_BfgInit, GetPos());
-			_time_ready = FLT_EPSILON;
-		}
-
-		if( _time_ready >= 0.7f || GetAdvanced() )
-		{
-			Shoot(world);
-			_time_ready = 0;
-		}
+		PLAY(SND_BfgInit, GetPos());
+	}
+	else
+	{
+		const vec2d &a = GetDirection();
+		(new GC_BfgCore(world, GetPos() + a * 16.0f, a * SPEED_BFGCORE,
+						GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
 	}
 }
 
@@ -801,16 +577,6 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 200;
 	pSettings->fAttackRadius_crit =   0;
 	pSettings->fDistanceMultipler = GetAdvanced() ? 13.0f : 20.0f;
-}
-
-void GC_Weap_BFG::TimeStep(World &world, float dt)
-{
-	GC_ProjectileBasedWeapon::TimeStep(world, dt);
-	if( GetCarrier() && _time_ready != 0 )
-	{
-		_time_ready += dt;
-		Shoot1(world);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -828,10 +594,6 @@ GC_Weap_Ripper::GC_Weap_Ripper(World &world)
 
 GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
   : GC_ProjectileBasedWeapon(FromFile())
-{
-}
-
-GC_Weap_Ripper::~GC_Weap_Ripper()
 {
 }
 
@@ -972,7 +734,6 @@ void GC_Weap_Minigun::TimeStep(World &world, float dt)
 
 	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 

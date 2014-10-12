@@ -52,7 +52,7 @@ void R_AmmoIndicator::Draw(const World &world, const GC_Actor &actor, DrawingCon
 {
 	assert(dynamic_cast<const GC_Weap_AutoCannon*>(&actor));
 	auto &ac = static_cast<const GC_Weap_AutoCannon&>(actor);
-	float value = 1 - (float) ac.GetShots() / (float) ac.GetShotsTotal();
+	float value = 1 - (float) ac.GetNumShots() / (float) ac.GetSeriesLength();
 	DrawWeaponIndicator(world, _tm, dc, _texId, ac, value);
 }
 
