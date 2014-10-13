@@ -41,7 +41,7 @@ void GC_Weap_RocketLauncher::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(85);
 	vc.m *= 1.16f;
-	vc.i *= 1.2;
+	vc.i *= 1.2f;
 }
 
 void GC_Weap_RocketLauncher::OnShoot(World &world)

@@ -482,7 +482,7 @@ ResumableObject* World::Timeout(GC_Object &obj, float timeout)
 {
 	assert(GetTime() + timeout > GetTime());
 	auto id = new ResumableObject(obj);
-	_resumables.push(Resumable{std::unique_ptr<ResumableObject>(id), GetTime() + timeout});
+	_resumables.emplace(std::unique_ptr<ResumableObject>(id), GetTime() + timeout);
 	return id;
 }
 
