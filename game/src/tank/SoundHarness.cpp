@@ -68,17 +68,25 @@ void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d h
 		{GC_PlazmaClod::GetTypeStatic(), SND_PlazmaHit},
 		{GC_BfgCore::GetTypeStatic(), SND_BfgFlash},
 	};
-	auto found = sounds.find(obj.GetType());
+	ObjectType type = obj.GetType();
+	auto found = sounds.find(type);
 	if (sounds.end() != found)
 	{
 		_soundRender->PlayOnce(found->second, hit);
 	}
-	else if (GC_ACBullet::GetTypeStatic() == obj.GetType())
+	else if (GC_ACBullet::GetTypeStatic() == type)
 	{
 		if( dynamic_cast<GC_Wall_Concrete *>(&target) )
 			_soundRender->PlayOnce((rand() % 2) ? SND_AC_Hit2 : SND_AC_Hit3, hit);
 		else
 			_soundRender->PlayOnce(SND_AC_Hit1, hit);
+	}
+	else if (GC_Disk::GetTypeStatic() == type)
+	{
+		if (static_cast<const GC_Disk&>(obj).GetBounces())
+			_soundRender->PlayOnce(SND_DiskHit, hit);
+		else
+			_soundRender->PlayOnce(SND_BoomBullet, hit);
 	}
 }
 

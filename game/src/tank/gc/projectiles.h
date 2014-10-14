@@ -241,6 +241,8 @@ public:
 	GC_Disk(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Disk(FromFile);
 	
+	unsigned int GetBounces() const { return _bounces; }
+	
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f) override;
 

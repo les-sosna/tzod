@@ -1017,10 +1017,8 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 	dd.damage = (float) (_bounces + 1) * DAMAGE_DISK_FADE;
 	dd.hit = hit;
 	dd.from = GetOwner();
-	
 	if( GetAdvanced() && GetOwner() == object->GetOwner() )
 		dd.damage /= 3; // one third of damage to owner
-
 	ApplyHitDamage(world, *object, dd, GetDirection() * dd.damage / DAMAGE_DISK_MAX * 20);
 
 	SetDirection(GetDirection() - norm * 2 * (GetDirection() * norm));
@@ -1064,14 +1062,12 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 		pLight->SetIntensity(1.5f);
 		pLight->SetTimeout(world, 0.2f);
 
-		PLAY(SND_BoomBullet, hit);
 		Kill(world);
 		return true;
 	}
 	
 	_bounces--;
 
-	PLAY(SND_DiskHit, hit);
 	if( GetAdvanced() )
 	{
 		float a = norm.Angle();
