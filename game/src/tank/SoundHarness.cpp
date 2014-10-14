@@ -3,6 +3,7 @@
 #include "gc/crate.h"
 #include "gc/Pickup.h"
 #include "gc/RigidBody.h"
+#include "gc/projectiles.h"
 #include "gc/Turrets.h"
 #include "gc/Vehicle.h"
 #include "gc/Weapons.h"
@@ -15,6 +16,7 @@ SoundHarness::SoundHarness(World &world)
 	, _soundRender(new SoundRender())
 {
 	_world.eGC_Pickup.AddListener(*this);
+	_world.eGC_Projectile.AddListener(*this);
 	_world.eGC_ProjectileBasedWeapon.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_RigidBodyDynamic.AddListener(*this);
@@ -31,6 +33,7 @@ SoundHarness::~SoundHarness()
 	_world.eGC_RigidBodyDynamic.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 	_world.eGC_ProjectileBasedWeapon.RemoveListener(*this);
+	_world.eGC_Projectile.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
 }
 
@@ -41,21 +44,42 @@ void SoundHarness::Step()
 
 void SoundHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
 {
-	ObjectType type = obj.GetType();
-	if (GC_pu_Health::GetTypeStatic() == type)
-		_soundRender->PlayOnce(SND_Pickup, obj.GetPos());
-	else if (GC_pu_Shield::GetTypeStatic() == type)
-		_soundRender->PlayOnce(SND_Inv, obj.GetPos());
-	else if (GC_pu_Shock::GetTypeStatic() == type)
-		_soundRender->PlayOnce(SND_ShockActivate, obj.GetPos());
+	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+		{GC_pu_Health::GetTypeStatic(), SND_Pickup},
+		{GC_pu_Shield::GetTypeStatic(), SND_Inv},
+		{GC_pu_Shock::GetTypeStatic(), SND_ShockActivate},
+	};
+	auto found = sounds.find(obj.GetType());
+	if (sounds.end() != found)
+		_soundRender->PlayOnce(found->second, obj.GetPos());
 	else if (dynamic_cast<GC_Weapon*>(&obj))
 		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
-
 }
 
 void SoundHarness::OnRespawn(GC_Pickup &obj)
 {
 	_soundRender->PlayOnce(SND_puRespawn, obj.GetPos());
+}
+
+void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit)
+{
+	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+		{GC_TankBullet::GetTypeStatic(), SND_BoomBullet},
+		{GC_PlazmaClod::GetTypeStatic(), SND_PlazmaHit},
+		{GC_BfgCore::GetTypeStatic(), SND_BfgFlash},
+	};
+	auto found = sounds.find(obj.GetType());
+	if (sounds.end() != found)
+	{
+		_soundRender->PlayOnce(found->second, hit);
+	}
+	else if (GC_ACBullet::GetTypeStatic() == obj.GetType())
+	{
+		if( dynamic_cast<GC_Wall_Concrete *>(&target) )
+			_soundRender->PlayOnce((rand() % 2) ? SND_AC_Hit2 : SND_AC_Hit3, hit);
+		else
+			_soundRender->PlayOnce(SND_AC_Hit1, hit);
+	}
 }
 
 void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
@@ -124,6 +148,16 @@ void SoundHarness::OnContact(vec2d pos, float np, float tp)
 	{
 		_soundRender->PlayOnce(SND_Slide1, pos);
 	}
+}
+
+void SoundHarness::OnShoot(GC_Turret &obj)
+{
+	if (GC_TurretCannon::GetTypeStatic() == obj.GetType())
+		_soundRender->PlayOnce(SND_Shoot, obj.GetPos());
+	else if (GC_TurretRocket::GetTypeStatic() == obj.GetType())
+		_soundRender->PlayOnce(SND_RocketShoot, obj.GetPos());
+	else if (GC_TurretGauss::GetTypeStatic() == obj.GetType())
+		_soundRender->PlayOnce(SND_Bolt, obj.GetPos());
 }
 
 void SoundHarness::OnStateChange(GC_Turret &obj)

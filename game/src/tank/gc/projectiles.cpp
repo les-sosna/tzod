@@ -1,17 +1,15 @@
-// projectiles.cpp
-///////////////////////////////////////////////////////////////////////////////
-
 #include "projectiles.h"
-
 #include "Explosion.h"
 #include "GameClasses.h"
-#include "World.h"
 #include "Light.h"
 #include "Macros.h"
 #include "particles.h"
 #include "Player.h"
 #include "RigidBodyDinamic.h"
 #include "Sound.h"
+#include "World.h"
+#include "WorldEvents.h"
+
 #include "SaveFile.h"
 
 #include "config/Config.h"
@@ -153,6 +151,9 @@ void GC_Projectile::TimeStep(World &world, float dt)
 				(std::min(.5f, it->exit) - std::max(-.5f, it->enter)) / depth : 1;
 			assert(!isnan(relativeDepth) && isfinite(relativeDepth));
 			assert(relativeDepth >= 0);
+
+			for( auto ls: world.eGC_Projectile._listeners )
+				ls->OnHit(*this, *it->obj, enter);
 
 			ObjPtr<GC_Projectile> watch(this);
 			bool stop = OnHit(world, it->obj, enter, it->normal, relativeDepth);
@@ -443,7 +444,6 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 		auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_S, 0.3f, vrand(1));
         p->Register(world);
         p->MoveTo(world, hit);
-		PLAY(SND_BoomBullet, hit);
 	}
 
 	ApplyHitDamage(world, object, hit);
@@ -507,7 +507,6 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_P, 0.3f, vrand(1));
     p->Register(world);
     p->MoveTo(world, hit);
-	PLAY(SND_PlazmaHit, hit);
 
 	ApplyHitDamage(world, object, hit);
 	Kill(world);
@@ -609,7 +608,6 @@ bool GC_BfgCore::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hi
 	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_G, 0.3f);
     p->Register(world);
     p->MoveTo(world, hit);
-	PLAY(SND_BfgFlash, hit);
 
 	ApplyHitDamage(world, object, hit);
 	Kill(world);
@@ -884,24 +882,6 @@ GC_ACBullet::GC_ACBullet(FromFile)
 
 bool GC_ACBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
-	if( dynamic_cast<GC_Wall_Concrete *>(object) )
-	{
-		switch (rand() % 2)
-		{
-		case 0:
-			PLAY(SND_AC_Hit2, hit);
-			break;
-		case 1:
-			PLAY(SND_AC_Hit3, hit);
-			break;
-		}
-	}
-	else
-	{
-		PLAY(SND_AC_Hit1, hit);
-	}
-
-
 	float a = norm.Angle();
 	float a1 = a - 1.0f;
 	float a2 = a + 1.0f;

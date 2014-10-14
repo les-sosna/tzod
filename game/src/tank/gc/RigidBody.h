@@ -47,12 +47,11 @@ public:
 	
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
-
-	virtual float GetDefaultHealth() const = 0;
 	
 	// return true if object has been killed
 	void TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
 	
+	virtual float GetDefaultHealth() const = 0;
 	virtual unsigned char GetPassability() const = 0;
 	virtual GC_Player* GetOwner() const { return NULL; }
     

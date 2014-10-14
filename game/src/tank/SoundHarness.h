@@ -6,6 +6,7 @@ class SoundRender;
 
 class SoundHarness
 	: ObjectListener<GC_Pickup>
+	, ObjectListener<GC_Projectile>
 	, ObjectListener<GC_ProjectileBasedWeapon>
 	, ObjectListener<GC_RigidBodyStatic>
 	, ObjectListener<GC_RigidBodyDynamic>
@@ -27,6 +28,9 @@ private:
 	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) override;
 	virtual void OnRespawn(GC_Pickup &obj) override;
 	
+	// ObjectListener<GC_Projectile>
+	virtual void OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit) override;
+	
 	// ObjectListener<GC_ProjectileBasedWeapon>
 	virtual void OnShoot(GC_ProjectileBasedWeapon &obj) override;
 	
@@ -38,6 +42,7 @@ private:
 	virtual void OnContact(vec2d pos, float np, float tp) override;
 	
 	// ObjectListener<GC_Turret>
+	virtual void OnShoot(GC_Turret &obj) override;
 	virtual void OnStateChange(GC_Turret &obj) override;
 
 	// ObjectListener<GC_Vehicle>

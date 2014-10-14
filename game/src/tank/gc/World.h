@@ -26,6 +26,7 @@ class ClientBase;
 class GC_Object;
 class GC_Pickup;
 class GC_Player;
+class GC_Projectile;
 class GC_ProjectileBasedWeapon;
 class GC_RigidBodyStatic;
 class GC_RigidBodyDynamic;
@@ -94,6 +95,7 @@ public:
 	DECLARE_EVENTS(GC_Object);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_Player);
+	DECLARE_EVENTS(GC_Projectile);
 	DECLARE_EVENTS(GC_ProjectileBasedWeapon);
 	DECLARE_EVENTS(GC_RigidBodyStatic);
 	DECLARE_EVENTS(GC_RigidBodyDynamic);
@@ -242,11 +244,11 @@ private:
 		{
 			return time < other.time;
 		}
+		Resumable(std::unique_ptr<ResumableObject> obj_, float time_)
+			: obj(std::move(obj_))
+			, time(time_)
+		{}
 #ifdef _MSC_VER
-        Resumable(std::unique_ptr<ResumableObject> obj_, float time_)
-            : obj(std::move(obj_))
-            , time(time_)
-        {}
         Resumable(Resumable && other)
             : obj(std::move(other.obj))
             , time(other.time)

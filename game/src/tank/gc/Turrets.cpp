@@ -230,6 +230,13 @@ void GC_Turret::SetState(World &world, TurretState state)
 	}
 }
 
+void GC_Turret::Shoot(World &world)
+{
+	for( auto ls: world.eGC_Turret._listeners )
+		ls->OnShoot(*this);
+	OnShoot(world);
+}
+
 PropertySet* GC_Turret::NewPropertySet()
 {
 	return new MyPropertySet(this);
@@ -326,11 +333,7 @@ void GC_TurretRocket::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
-		vec2d a(GetWeaponDir());
-		PLAY(SND_RocketShoot, GetPos());
-		auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
-        r->Register(world);
-        r->SetHitDamage(world.net_frand(10.0f));
+		Shoot(world);
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
 }
@@ -339,6 +342,14 @@ void GC_TurretRocket::TimeStep(World &world, float dt)
 {
 	GC_Turret::TimeStep(world, dt);
 	_timeReload -= dt;
+}
+
+void GC_TurretRocket::OnShoot(World &world)
+{
+	vec2d a(GetWeaponDir());
+	auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
+	r->Register(world);
+	r->SetHitDamage(world.net_frand(10.0f));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,16 +395,7 @@ void GC_TurretCannon::Fire(World &world)
 {
 	if( _timeReload <= 0 )
 	{
-		PLAY(SND_Shoot, GetPos());
-		vec2d a(GetWeaponDir());
-		auto bullet = new GC_TankBullet(world,
-                                        GetPos() + a * 31.9f,
-                                        a * SPEED_TANKBULLET + world.net_vrand(40),
-                                        this,
-                                        NULL,
-                                        false);
-        bullet->Register(world);
-		bullet->SetHitDamage(world.net_frand(10.0f) + 5.0f);
+		Shoot(world);
 		_timeReload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}
@@ -415,6 +417,19 @@ void GC_TurretCannon::TimeStep(World &world, float dt)
             p->MoveTo(world, GetPos() + vec2d(GetWeaponDir()) * 33.0f);
 		}
 	}
+}
+
+void GC_TurretCannon::OnShoot(World &world)
+{
+	vec2d a(GetWeaponDir());
+	auto bullet = new GC_TankBullet(world,
+									GetPos() + a * 31.9f,
+									a * SPEED_TANKBULLET + world.net_vrand(40),
+									this,
+									NULL,
+									false);
+	bullet->Register(world);
+	bullet->SetHitDamage(world.net_frand(10.0f) + 5.0f);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -665,12 +680,7 @@ void GC_TurretMinigun::TimeStep(World &world, float dt)
 		_time += dt;
 		for( ; _time > 0; _time -= 0.04f )
 		{
-			float ang = _dir + world.net_frand(0.1f) - 0.05f;
-			vec2d a(_dir);
-			(new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false))->Register(world);
-			auto p = new GC_Particle(world, a * (400 + frand(400.0f)), PARTICLE_TYPE1, frand(0.06f) + 0.03f);
-            p->Register(world);
-            p->MoveTo(world, GetPos() + a * 31.9f);
+			Shoot(world);
 		}
 		_firing = false;
 	}
@@ -681,6 +691,16 @@ void GC_TurretMinigun::TimeStep(World &world, float dt)
 		_fireSound->Pause(world, true);
 	}
 #endif
+}
+
+void GC_TurretMinigun::OnShoot(World &world)
+{
+	float ang = _dir + world.net_frand(0.1f) - 0.05f;
+	vec2d a(_dir);
+	(new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false))->Register(world);
+	auto p = new GC_Particle(world, a * (400 + frand(400.0f)), PARTICLE_TYPE1, frand(0.06f) + 0.03f);
+	p->Register(world);
+	p->MoveTo(world, GetPos() + a * 31.9f);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -743,15 +763,7 @@ void GC_TurretGauss::Fire(World &world)
 
 	if( _time >= (float) _shotCount * 0.2f )
 	{
-		PLAY(SND_Bolt, GetPos());
-
-		float dy = _shotCount == 0 ? -7.0f : 7.0f;
-		float c = cosf(_dir), s = sinf(_dir);
-
-		(new GC_GaussRay(world, vec2d(GetPos().x + c * 20.0f - dy * s,
-                         GetPos().y + s * 20.0f + dy * c),
-		                 vec2d(c, s) * SPEED_GAUSS, this, NULL, false))->Register(world);
-
+		Shoot(world);
 		if( ++_shotCount == 2 )
 		{
 			TargetLost();
@@ -764,6 +776,16 @@ void GC_TurretGauss::TimeStep(World &world, float dt)
 {
 	GC_TurretBunker::TimeStep(world, dt);
 	_time += dt;
+}
+
+void GC_TurretGauss::OnShoot(World &world)
+{
+	float dy = _shotCount == 0 ? -7.0f : 7.0f;
+	float c = cosf(_dir), s = sinf(_dir);
+	
+	(new GC_GaussRay(world, vec2d(GetPos().x + c * 20.0f - dy * s,
+								  GetPos().y + s * 20.0f + dy * c),
+					 vec2d(c, s) * SPEED_GAUSS, this, NULL, false))->Register(world);
 }
 
 

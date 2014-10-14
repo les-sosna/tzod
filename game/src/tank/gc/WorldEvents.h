@@ -27,6 +27,13 @@ template<> struct ObjectListener<GC_Player>
 	virtual void OnDie(GC_Player &obj) = 0;
 };
 
+class GC_Projectile;
+class GC_RigidBodyStatic;
+template<> struct ObjectListener<GC_Projectile>
+{
+	virtual void OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit) = 0;
+};
+
 class GC_ProjectileBasedWeapon;
 template<> struct ObjectListener<GC_ProjectileBasedWeapon>
 {
@@ -67,6 +74,7 @@ template<> struct ObjectListener<GC_Vehicle>
 class GC_Turret;
 template<> struct ObjectListener<GC_Turret>
 {
+	virtual void OnShoot(GC_Turret &obj) = 0;
 	virtual void OnStateChange(GC_Turret &obj) = 0;
 };
 

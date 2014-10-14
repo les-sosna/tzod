@@ -79,6 +79,8 @@ protected:
 	void SetState(World &world, TurretState state);
 
 protected:
+	void Shoot(World &world);
+	virtual void OnShoot(World &world) = 0;
 	float    _dir; // linked with the rotator
 	Rotator  _rotator;
 	float    _initialDir;
@@ -95,24 +97,28 @@ class GC_TurretRocket : public GC_Turret
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretRocket);
 
-private:
-	float _timeReload;
-
 public:
 	GC_TurretRocket(World &world);
 	GC_TurretRocket(FromFile);
 	virtual ~GC_TurretRocket();
 
-	virtual float GetDefaultHealth() const { return 500; }
-    
-	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual unsigned char GetPassability() const { return 1; }
-
+	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
+	// GC_RigidBodyStatic
+	virtual float GetDefaultHealth() const { return 500; }
+	virtual unsigned char GetPassability() const { return 1; }
+
+	// GC_Object
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
+	
+protected:
+	virtual void OnShoot(World &world) override;
+
+private:
+	float _timeReload;
 };
 
 /////////////////////////////////////////////////////////////
@@ -121,26 +127,30 @@ class GC_TurretCannon : public GC_Turret
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretCannon);
 
-private:
-	float _timeReload;
-	float _time_smoke;
-	float _time_smoke_dt;
-
 public:
 	GC_TurretCannon(World &world);
 	GC_TurretCannon(FromFile);
 	~GC_TurretCannon();
 
-	virtual float GetDefaultHealth() const { return 600; }
-    
-	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual unsigned char GetPassability() const { return 1; }
-
+	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
 
+	// GC_RigidBodyStatic
+	virtual float GetDefaultHealth() const { return 600; }
+	virtual unsigned char GetPassability() const { return 1; }
+
+	// GC_Object
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
+	
+protected:
+	virtual void OnShoot(World &world) override;
+
+private:
+	float _timeReload;
+	float _time_smoke;
+	float _time_smoke_dt;
 };
 
 /////////////////////////////////////////////////////////////
@@ -188,27 +198,31 @@ class GC_TurretMinigun : public GC_TurretBunker
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);
 
-private:
-	ObjPtr<GC_Sound> _fireSound;
-	float _time;
-	bool  _firing;
-
 public:
 	GC_TurretMinigun(World &world);
 	GC_TurretMinigun(FromFile);
 	virtual ~GC_TurretMinigun();
 
-	virtual float GetDefaultHealth() const { return 250; }
-    
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual unsigned char GetPassability() const { return 1; }
-
+	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
-
+	virtual unsigned char GetPassability() const { return 1; }
+	
+	// GC_RigidBodyStatic
+	virtual float GetDefaultHealth() const { return 250; }
+    
+	// GC_Object
+	virtual void Kill(World &world);
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
+
+protected:
+	virtual void OnShoot(World &world) override;
+
+private:
+	ObjPtr<GC_Sound> _fireSound;
+	float _time;
+	bool  _firing;
 };
 
 /////////////////////////////////////////////////////////////
@@ -217,28 +231,28 @@ class GC_TurretGauss : public GC_TurretBunker
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretGauss);
 
-private:
-	float   _time;
-	int     _shotCount;
-
 public:
 	GC_TurretGauss(World &world);
 	GC_TurretGauss(FromFile);
 	virtual ~GC_TurretGauss();
 
-	virtual void TargetLost();
-
-	virtual unsigned char GetPassability() const { return 1; }
-
-	virtual float GetDefaultHealth() const { return 250; }
-    
-	virtual void Serialize(World &world, SaveFile &f);
-
+	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual void Fire(World &world);
+	virtual void TargetLost();
 
+	// GC_RigidBodyStatic
+	virtual float GetDefaultHealth() const { return 250; }
+	virtual unsigned char GetPassability() const { return 1; }
+
+	// GC_Object
+	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-};
 
-///////////////////////////////////////////////////////////////////////////////
-// end of file
+protected:
+	virtual void OnShoot(World &world) override;
+
+private:
+	float   _time;
+	int     _shotCount;
+};
