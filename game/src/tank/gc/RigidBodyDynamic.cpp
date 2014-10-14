@@ -396,13 +396,13 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world, float dt)
 					if( it->obj2_d )
 					{
 						GC_Player *owner2 = it->obj2_d->GetOwner();
-						it->obj1_d->TakeDamage(world, a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2);
-						it->obj2_d->TakeDamage(world, a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1);
+						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2});
+						it->obj2_d->TakeDamage(world, DamageDesc{a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1});
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(world, a/60 * it->obj1_d->_fragility, it->o, owner1);
-						it->obj2_s->TakeDamage(world, a/60 * percussion1, it->o, owner1);
+						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj1_d->_fragility, it->o, owner1});
+						it->obj2_s->TakeDamage(world, DamageDesc{a/60 * percussion1, it->o, owner1});
 					}
 				}
 

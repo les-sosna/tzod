@@ -347,9 +347,7 @@ void GC_TurretRocket::TimeStep(World &world, float dt)
 void GC_TurretRocket::OnShoot(World &world)
 {
 	vec2d a(GetWeaponDir());
-	auto r = new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true);
-	r->Register(world);
-	r->SetHitDamage(world.net_frand(10.0f));
+	(new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true))->Register(world);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -422,14 +420,7 @@ void GC_TurretCannon::TimeStep(World &world, float dt)
 void GC_TurretCannon::OnShoot(World &world)
 {
 	vec2d a(GetWeaponDir());
-	auto bullet = new GC_TankBullet(world,
-									GetPos() + a * 31.9f,
-									a * SPEED_TANKBULLET + world.net_vrand(40),
-									this,
-									NULL,
-									false);
-	bullet->Register(world);
-	bullet->SetHitDamage(world.net_frand(10.0f) + 5.0f);
+	(new GC_TankBullet(world, GetPos() + a * 31.9f, a * SPEED_TANKBULLET + world.net_vrand(40), this, NULL, false))->Register(world);
 }
 
 ////////////////////////////////////////////////////////////////////

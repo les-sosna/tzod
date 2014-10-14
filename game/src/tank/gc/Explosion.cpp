@@ -236,7 +236,11 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 							dyn->ApplyImpulse(dir * (dam / d), dyn->GetPos());
 						}
 					}
-                    pDamObject->TakeDamage(world, dam, GetPos(), _owner);
+					DamageDesc dd;
+					dd.damage = dam;
+					dd.hit = GetPos();
+					dd.from = _owner;
+                    pDamObject->TakeDamage(world, dd);
 				}
 			}
 		});

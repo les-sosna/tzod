@@ -550,11 +550,11 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 					_light->SetLength(tmp.len());
 					_light->SetLightDirection(tmp.Normalize());
 
-					pNearTarget->TakeDamage(world, 1000, pNearTarget->GetPos(), carrier->GetOwner());
+					pNearTarget->TakeDamage(world, DamageDesc{1000, pNearTarget->GetPos(), carrier->GetOwner()});
 				}
 				else
 				{
-					carrier->TakeDamage(world, 1000, GetCarrier()->GetPos(), carrier->GetOwner());
+					carrier->TakeDamage(world, DamageDesc{1000, GetCarrier()->GetPos(), carrier->GetOwner()});
 					Disappear(world);
 				}
 			}

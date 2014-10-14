@@ -489,15 +489,18 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 			_fuel = std::max(.0f, _fuel - _fuel_consumption_rate * dt);
 			if( 0 == _fuel ) _bReady = false;
 
+			DamageDesc dd;
+			dd.from = GetCarrier()->GetOwner();
+
 			// the primary jet
 			{
 				const float lenght = 50.0f;
 				const vec2d &a = GetDirection();
 				vec2d emitter = GetPos() - a * 20.0f;
-				vec2d hit;
-				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetCarrier(), emitter, -a * lenght, &hit) )
+				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetCarrier(), emitter, -a * lenght, &dd.hit) )
 				{
-					object->TakeDamage(world, dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).len() / lenght), hit, GetCarrier()->GetOwner());
+					dd.damage = dt * DAMAGE_RAM_ENGINE * (1.0f - (dd.hit - emitter).len() / lenght);
+					object->TakeDamage(world, dd);
 				}
 			}
 
@@ -507,13 +510,10 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 				const float lenght = 50.0f;
 				vec2d a = Vec2dAddDirection(GetDirection(), vec2d(l * 0.15f));
 				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
-				vec2d hit;
-				GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s,
-					GetCarrier(), emitter + a * 2.0f, -a * lenght, &hit);
-				if( object )
+				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetCarrier(), emitter + a * 2.0f, -a * lenght, &dd.hit) )
 				{
-					object->TakeDamage(world,
-						dt * DAMAGE_RAM_ENGINE * (1.0f - (hit - emitter).len() / lenght), hit, GetCarrier()->GetOwner());
+					dd.damage = dt * DAMAGE_RAM_ENGINE * (1.0f - (dd.hit - emitter).len() / lenght);
+					object->TakeDamage(world, dd);
 				}
 			}
 		}

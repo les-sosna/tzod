@@ -25,13 +25,9 @@ public:
 	virtual ~GC_Projectile();
 
 	bool GetAdvanced() const { return CheckFlags(GC_FLAG_PROJECTILE_ADVANCED); }
-	float GetHitDamage() const { return _hitDamage; }
 	GC_RigidBodyStatic* GetIgnore() const { return _ignore; }
-	float GetHitImpulse() const { return _hitImpulse; }
 	GC_Player* GetOwner() const { return _owner; }
 	float GetVelocity() const { return _velocity; }
-	void SetHitDamage(float damage);
-	void SetHitImpulse(float impulse);
 
 	// GC_Object
     virtual void Kill(World &world);
@@ -48,7 +44,6 @@ public:
 #endif
 
 protected:
-	void ApplyHitDamage(World &world, GC_RigidBodyStatic *target, const vec2d &hitPoint);
 	float GetTrailDensity() { return _trailDensity; }
 	void MoveWithTrail(World &world, const vec2d &pos, bool trail);
 	void SetTrailDensity(World &world, float density);
@@ -56,7 +51,6 @@ protected:
 	
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) = 0;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) = 0;
-	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object);
 
 	// TODO: move to private
 	ObjPtr<GC_Light>  _light;
@@ -64,8 +58,6 @@ private:
 	float _velocity;
 	ObjPtr<GC_RigidBodyStatic> _ignore;
 	ObjPtr<GC_Player> _owner;
-	float _hitDamage;   // negative damage will heal target
-	float _hitImpulse;
 	float _trailDensity;
 	float _trailPath;   // each time this value exceeds the _trailDensity, a trail particle is spawned
 };
@@ -195,7 +187,6 @@ public:
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
-	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object) override;
 
 private:
 	float _time;
@@ -229,11 +220,15 @@ public:
 	GC_GaussRay(FromFile);
 	
 	// GC_Object
-    virtual void Kill(World &world);
+    virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
 	
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
+	
+private:
+	float _damage;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,9 +240,14 @@ class GC_Disk : public GC_Projectile
 public:
 	GC_Disk(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Disk(FromFile);
+	
+	// GC_Object
+	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
-	virtual float FilterDamage(float damage, GC_RigidBodyStatic *object) override;
+	
+private:
+	unsigned int _bounces;
 };

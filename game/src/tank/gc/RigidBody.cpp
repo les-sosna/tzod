@@ -315,7 +315,7 @@ void GC_RigidBodyStatic::OnDamage(World &world, DamageDesc &dd)
 {
 }
 
-void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from)
+void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 {
 	if( CheckFlags(GC_FLAG_RBSTATIC_DESTROYED) )
 	{
@@ -325,16 +325,11 @@ void GC_RigidBodyStatic::TakeDamage(World &world, float damage, const vec2d &hit
 	ObjPtr<GC_Object> watch(this);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 	{
-		ls->OnDamage(*this, damage, from);
+		ls->OnDamage(*this, dd.damage, dd.from);
 		if( !watch )
 			return;
 	}
 	
-	DamageDesc dd;
-	dd.damage = damage;
-	dd.hit    = hit;
-	dd.from   = from;
-
 	OnDamage(world, dd);
 
 	if( dd.damage > 0 && _health_max > 0 )

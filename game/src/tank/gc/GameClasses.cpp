@@ -164,7 +164,11 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 		bKill = true;
 	}
 	ObjPtr<GC_RigidBodyStatic> victimWatch(_victim);
-	_victim->TakeDamage(world, dt * _damage, _victim->GetPos(), _owner);
+	DamageDesc dd;
+	dd.damage = dt * _damage;
+	dd.hit = _victim->GetPos();
+	dd.from = _owner;
+	_victim->TakeDamage(world, dd);
 	if( victimWatch && bKill )
 		Kill(world);
 }

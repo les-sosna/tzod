@@ -214,7 +214,7 @@ static int object_damage(lua_State *L)
 	float hp = (float) luaL_checknumber(L, 2);
 
     World &world = GetScriptEnvironment(L).world;
-	rbs->TakeDamage(world, hp, rbs->GetPos(), NULL);
+	rbs->TakeDamage(world, DamageDesc{hp, rbs->GetPos(), nullptr});
 
 	return 0;
 }

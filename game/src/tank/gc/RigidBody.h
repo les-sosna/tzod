@@ -49,7 +49,7 @@ public:
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
 	
 	// return true if object has been killed
-	void TakeDamage(World &world, float damage, const vec2d &hit, GC_Player *from);
+	void TakeDamage(World &world, DamageDesc dd);
 	
 	virtual float GetDefaultHealth() const = 0;
 	virtual unsigned char GetPassability() const = 0;
