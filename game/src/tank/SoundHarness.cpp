@@ -107,7 +107,7 @@ void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
 	}
 	else if (GC_Weap_BFG::GetTypeStatic() == obj.GetType())
 	{
-		if( obj.GetNumShots() || obj.GetAdvanced() )
+		if( obj.GetNumShots() || obj.GetBooster() )
 			_soundRender->PlayOnce(SND_BfgFire, obj.GetPos());
 		else
 			_soundRender->PlayOnce(SND_BfgInit, obj.GetPos());

@@ -46,7 +46,7 @@ void GC_Weap_RocketLauncher::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_RocketLauncher::OnShoot(World &world)
 {
-	unsigned int nshots = GetAdvanced() ? world.net_rand() % SERIES_LENGTH : GetNumShots();
+	unsigned int nshots = GetBooster() ? world.net_rand() % SERIES_LENGTH : GetNumShots();
 	float dy = (0.5f - (float) nshots / (float) (SERIES_LENGTH - 1)) * 15.0f;
 
 	SetLastShotPos(vec2d(13, dy));
@@ -57,7 +57,7 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 	
 	(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 				   Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-				   GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+				   GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 }
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -68,7 +68,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 600.0f;
 	pSettings->fAttackRadius_min  = 100.0f;
 	pSettings->fAttackRadius_crit =  40.0f;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 1.2f : 3.5f;
+	pSettings->fDistanceMultipler = GetBooster() ? 1.2f : 3.5f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 {
 	vec2d dir = GetDirection();
 	
-	if (GetAdvanced())
+	if (GetBooster())
 	{
 		SetLastShotPos(vec2d(17.0f, 0));
 		for( int t = 0; t < 2; ++t )
@@ -110,7 +110,7 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 			
 			(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 							 dir * SPEED_ACBULLET,
-							 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+							 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 		}
 	}
 	else
@@ -123,14 +123,14 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 		
 		(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 						 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
-						 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+						 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 	}
 }
 
-void GC_Weap_AutoCannon::SetAdvanced(World &world, bool advanced)
+void GC_Weap_AutoCannon::SetBooster(World &world, GC_pu_Booster *booster)
 {
 	ResetSeries();
-	GC_ProjectileBasedWeapon::SetAdvanced(world, advanced);
+	GC_ProjectileBasedWeapon::SetBooster(world, booster);
 }
 
 void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -141,7 +141,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 3.3f : 13.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 3.3f : 13.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,9 +191,9 @@ void GC_Weap_Cannon::OnShoot(World &world)
 	const vec2d &dir = GetDirection();
 	
 	(new GC_TankBullet(world, GetPos() + dir * 17.0f,
-					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), GetAdvanced()))->Register(world);
+					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), GetBooster()))->Register(world);
 	
-	if( !GetAdvanced() )
+	if( !GetBooster() )
 	{
 		veh->ApplyImpulse( dir * (-80.0f) );
 	}
@@ -206,8 +206,8 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fProjectileSpeed   = SPEED_TANKBULLET;
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
-	pSettings->fAttackRadius_crit = GetAdvanced() ? 64.0f : 0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 2.0f : 8.0f;
+	pSettings->fAttackRadius_crit = GetBooster() ? 64.0f : 0;
+	pSettings->fDistanceMultipler = GetBooster() ? 2.0f : 8.0f;
 }
 
 void GC_Weap_Cannon::TimeStep(World &world, float dt)
@@ -256,7 +256,7 @@ void GC_Weap_Plazma::OnShoot(World &world)
 	const vec2d &a = GetDirection();
 	(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
 					   a * SPEED_PLAZMA + world.net_vrand(20),
-					   GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+					   GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 }
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -267,7 +267,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 2.0f : 8.0f;  // fixme
+	pSettings->fDistanceMultipler = GetBooster() ? 2.0f : 8.0f;  // fixme
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +297,7 @@ void GC_Weap_Gauss::OnShoot(World &world)
 {
 	const vec2d &dir = GetDirection();
 	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
-					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 }
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -308,7 +308,7 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 800;
 	pSettings->fAttackRadius_min  = 400;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 4.5f : 9.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 4.5f : 9.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,15 +325,15 @@ GC_Weap_Ram::GC_Weap_Ram(World &world)
 {
 }
 
-void GC_Weap_Ram::SetAdvanced(World &world, bool advanced)
+void GC_Weap_Ram::SetBooster(World &world, GC_pu_Booster *booster)
 {
 	if( GetCarrier() )
 	{
 		static_cast<GC_Vehicle*>(GetCarrier())->_percussion =
-			advanced ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
+			booster ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
 	}
 
-	GC_Weapon::SetAdvanced(world, advanced);
+	GC_Weapon::SetBooster(world, booster);
 }
 
 void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
@@ -429,7 +429,7 @@ void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 100;
 	pSettings->fAttackRadius_min  = 0;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 2.5f : 6.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 2.5f : 6.0f;
 }
 
 void GC_Weap_Ram::TimeStep(World &world, float dt)
@@ -478,7 +478,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 	{
 		assert(_engineSound);
 
-		if( GetAdvanced() )
+		if( GetBooster() )
 			_fuel = _fuel_max;
 
 		if( _firingCounter )
@@ -560,10 +560,10 @@ void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_BFG::OnShoot(World &world)
 {
-	if (GetNumShots() || GetAdvanced())
+	if (GetNumShots() || GetBooster())
 	{
 		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
-						GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+						GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 	}
 }
 
@@ -575,7 +575,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 600;
 	pSettings->fAttackRadius_min  = 200;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 13.0f : 20.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 13.0f : 20.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -605,7 +605,7 @@ void GC_Weap_Ripper::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
 	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-				 GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced()))->Register(world);
+				 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -616,7 +616,7 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 700;
 	pSettings->fAttackRadius_min  = 500;
 	pSettings->fAttackRadius_crit =  60;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 2.2f : 40.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 2.2f : 40.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -691,7 +691,7 @@ void GC_Weap_Minigun::OnShoot(World &world)
 	a *= (1 - world.net_frand(0.2f));
 	
 	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
-	if( veh && !GetAdvanced() )
+	if( veh && !GetBooster() )
 	{
 		if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _heat - WEAP_MG_TIME_RELAX * 0.2f )
 		{
@@ -700,7 +700,7 @@ void GC_Weap_Minigun::OnShoot(World &world)
 		}
 	}
 	
-	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
+	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), GetBooster());
 	tmp->Register(world);
 }
 
@@ -712,7 +712,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 200;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 5.0f : 10.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 5.0f : 10.0f;
 }
 
 void GC_Weap_Minigun::TimeStep(World &world, float dt)
@@ -804,10 +804,10 @@ void GC_Weap_Zippo::OnShoot(World &world)
 	a *= (1 - world.net_frand(0.2f));
 	
 	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
-										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), GetAdvanced());
+										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), GetBooster());
 	tmp->Register(world);
 	tmp->SetLifeTime(_heat);
-	tmp->SetHealOwner(GetAdvanced());
+	tmp->SetHealOwner(GetBooster());
 	tmp->SetSetFire(true);
 }
 
@@ -819,7 +819,7 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =  10;
-	pSettings->fDistanceMultipler = GetAdvanced() ? 5.0f : 10.0f;
+	pSettings->fDistanceMultipler = GetBooster() ? 5.0f : 10.0f;
 }
 
 void GC_Weap_Zippo::TimeStep(World &world, float dt)
@@ -837,7 +837,7 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 		}
 	}
 
-	if( GetAdvanced() )
+	if( GetBooster() )
 	{
 		_timeBurn += dt;
 		while( _timeBurn > 0 )

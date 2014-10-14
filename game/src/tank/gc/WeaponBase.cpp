@@ -76,16 +76,16 @@ AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 {
 	if( veh.GetWeapon() )
 	{
-		if( veh.GetWeapon()->GetAdvanced() )
+		if( veh.GetWeapon()->GetBooster() )
 			return AIP_NOTREQUIRED;
 
-		if( GetAdvanced() )
+		if( GetBooster() )
 			return AIP_WEAPON_ADVANCED;
 		else
 			return AIP_NOTREQUIRED;
 	}
 
-	return AIP_WEAPON_NORMAL + (GetAdvanced() ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
+	return AIP_WEAPON_NORMAL + (GetBooster() ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
 }
 
 void GC_Weapon::Attach(World &world, GC_Actor *actor)
@@ -160,6 +160,7 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_detachedTime);
 	f.Serialize(_stayTimeout);
 	f.Serialize(_rotateSound);
+	f.Serialize(_booster);
 }
 
 void GC_Weapon::Kill(World &world)

@@ -37,10 +37,10 @@
 
 #include "constants.h" // ANIMATION_FPS
 
-static bool IsWeaponAdvanced(const World &world, const GC_Actor &actor)
+static bool HasBooster(const World &world, const GC_Actor &actor)
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	return static_cast<const GC_Weapon&>(actor).GetAdvanced();
+	return nullptr != static_cast<const GC_Weapon&>(actor).GetBooster();
 }
 static bool IsPickupVisible(const World &world, const GC_Actor &actor)
 {
@@ -98,11 +98,11 @@ RenderScheme::RenderScheme(TextureManager &tm)
 											   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ac"));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
-	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponAdvanced, 0.135f),
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(HasBooster, 0.135f),
 										   Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
-	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(Not(IsWeaponAdvanced), 0.135f),
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(Not(HasBooster), 0.135f),
 										   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
-	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_Const>>(Not(IsWeaponAdvanced), Z_VEHICLE_LABEL),
+	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_Const>>(Not(HasBooster), Z_VEHICLE_LABEL),
 										   Make<R_AmmoIndicator>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_cannon"));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
@@ -126,7 +126,7 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_Weap_Ripper>(Make<Z_Const>(Z_PROJECTILE), Make<R_RipperDisk>(tm));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Weapon>(), Make<R_WeaponMinigun>(tm));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair2>(tm));
-	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Predicate<Z_WeapFireEffect>>(IsWeaponAdvanced, 0.1f),
+	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Predicate<Z_WeapFireEffect>>(HasBooster, 0.1f),
 										Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_WeapFireEffect>(0.1f),
 										Make<R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false));

@@ -17,10 +17,10 @@ public:
 	};
 
 	// GC_ProctileBasedWeapon
-	virtual bool GetContinuousSeries() const { return !GetAdvanced(); }
+	virtual bool GetContinuousSeries() const { return !GetBooster(); }
 	virtual float GetFireEffectTime() const override { return 0.1f; }
-	virtual float GetReloadTime() const override { return GetAdvanced() ? 0.13f : 2.0f; }
-	virtual unsigned int GetSeriesLength() const override { return GetAdvanced() ? 1 : SERIES_LENGTH; }
+	virtual float GetReloadTime() const override { return GetBooster() ? 0.13f : 2.0f; }
+	virtual unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : SERIES_LENGTH; }
 	virtual float GetSeriesReloadTime() const override { return 0.13f; }
 	
 	// GC_Weapon
@@ -43,13 +43,13 @@ public:
 	
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
-	virtual float GetReloadTime() const override { return GetAdvanced() ? 0.135f : 3.7f; }
-	virtual unsigned int GetSeriesLength() const override { return GetAdvanced() ? 1 : 30; }
+	virtual float GetReloadTime() const override { return GetBooster() ? 0.135f : 3.7f; }
+	virtual unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : 30; }
 	virtual float GetSeriesReloadTime() const override { return 0.135f; }
 
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
-	virtual void SetAdvanced(World &world, bool advanced) override;
+	virtual void SetBooster(World &world, GC_pu_Booster *booster) override;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
@@ -150,7 +150,7 @@ public:
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void Fire(World &world, bool fire);
-	virtual void SetAdvanced(World &world, bool advanced);
+	virtual void SetBooster(World &world, GC_pu_Booster *booster) override;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 	// GC_Pickup
@@ -189,7 +189,7 @@ public:
 	virtual bool GetContinuousSeries() const { return true; }
 	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 1.1f; }
-	virtual unsigned int GetSeriesLength() const override { return GetAdvanced() ? 1 : 2; }
+	virtual unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : 2; }
 	virtual float GetSeriesReloadTime() const override { return 0.7f; }
 	
 	// GC_Weapon
@@ -237,7 +237,7 @@ public:
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.1f; }
-	virtual float GetReloadTime() const { return GetAdvanced() ? 0.02f : 0.04f; }
+	virtual float GetReloadTime() const { return GetBooster() ? 0.02f : 0.04f; }
 	
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;

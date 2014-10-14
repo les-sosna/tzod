@@ -16,9 +16,8 @@ struct AIWEAPSETTINGS
 	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
 
-#define GC_FLAG_WEAPON_ADVANCED          (GC_FLAG_PICKUP_ << 0)
-#define GC_FLAG_WEAPON_FIRING            (GC_FLAG_PICKUP_ << 1)
-#define GC_FLAG_WEAPON_                  (GC_FLAG_PICKUP_ << 2)
+#define GC_FLAG_WEAPON_FIRING            (GC_FLAG_PICKUP_ << 0)
+#define GC_FLAG_WEAPON_                  (GC_FLAG_PICKUP_ << 1)
 
 class GC_Weapon : public GC_Pickup
 {
@@ -27,14 +26,14 @@ public:
 	GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
-	bool GetAdvanced() const { return CheckFlags(GC_FLAG_WEAPON_ADVANCED); }
+	GC_pu_Booster* GetBooster() const { return _booster; }
 	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 	float GetDetachedTime() const { return _detachedTime; }
 	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	float GetStayTimeout() const { return _stayTimeout; }
 	
 	virtual void Fire(World &world, bool fire);
-	virtual void SetAdvanced(World &world, bool advanced) { SetFlags(GC_FLAG_WEAPON_ADVANCED, advanced); }
+	virtual void SetBooster(World &world, GC_pu_Booster *booster) { _booster = booster; }
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
 
@@ -58,7 +57,6 @@ public:
 	}*/
 #endif
 
-
 protected:
 	class MyPropertySet : public GC_Pickup::MyPropertySet
 	{
@@ -79,6 +77,7 @@ private:
 	float _angle;
 	Rotator _rotatorWeap;
 	ObjPtr<GC_Sound> _rotateSound;
+	ObjPtr<GC_pu_Booster> _booster;
 	
 	virtual void OnUpdateView(World &world) {};
 	void ProcessRotate(World &world, float dt);

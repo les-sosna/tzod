@@ -610,7 +610,7 @@ AIPRIORITY GC_pu_Booster::GetPriority(World &world, const GC_Vehicle &veh) const
 		return AIP_NOTREQUIRED;
 	}
 
-	return veh.GetWeapon()->GetAdvanced() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
+	return veh.GetWeapon()->GetBooster() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
 void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
@@ -626,24 +626,10 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 
 	GC_Pickup::Attach(world, w);
 
-	if( w->GetAdvanced() )
-	{
-		// find existing booster
-		FOREACH( world.GetList(LIST_pickups), GC_Pickup, pickup )
-		{
-			if( pickup->GetType() == GetType() && this != pickup )
-			{
-				assert(dynamic_cast<GC_pu_Booster*>(pickup));
-				if( static_cast<GC_pu_Booster*>(pickup)->GetCarrier() == w )
-				{
-					pickup->Disappear(world); // detach previous booster
-					break;
-				}
-			}
-		}
-	}
+	if( w->GetBooster() )
+		w->GetBooster()->Disappear(world);
 
-	w->SetAdvanced(world, true);
+	w->SetBooster(world, this);
 	w->Subscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 
 	PLAY(SND_B_Start, GetPos());
@@ -656,7 +642,7 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 void GC_pu_Booster::Detach(World &world)
 {
 	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
-	static_cast<GC_Weapon*>(GetCarrier())->SetAdvanced(world, false);
+	static_cast<GC_Weapon*>(GetCarrier())->SetBooster(world, nullptr);
 	GetCarrier()->Unsubscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);

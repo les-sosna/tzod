@@ -717,7 +717,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 				{
 					if( vehicle.GetWeapon()
 						&& _favoriteWeaponType != vehicle.GetWeapon()->GetType()
-						&& !vehicle.GetWeapon()->GetAdvanced() )
+						&& !vehicle.GetWeapon()->GetBooster() )
 					{
 						p += AIP_WEAPON_FAVORITE;
 					}
