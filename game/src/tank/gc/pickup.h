@@ -58,8 +58,6 @@ public:
 	
 	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
 	
-	void Disappear(World &world);
-	
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
@@ -71,6 +69,7 @@ public:
 	
 	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
+	virtual void Disappear(World &world);
 	virtual float GetDefaultRespawnTime() const = 0;
 
 	// GC_Actor

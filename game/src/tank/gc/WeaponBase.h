@@ -40,6 +40,7 @@ public:
 	// GC_Pickup
 	virtual void Attach(World &world, GC_Actor *actor) override;
 	virtual void Detach(World &world) override;
+	virtual void Disappear(World &world) override;
 	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 	

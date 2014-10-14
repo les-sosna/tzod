@@ -111,6 +111,13 @@ void GC_Weapon::Detach(World &world)
 	GC_Pickup::Detach(world);
 }
 
+void GC_Weapon::Disappear(World &world)
+{
+	if (_booster)
+		_booster->Disappear(world); // this will set _booster to nullptr
+	GC_Pickup::Disappear(world);
+}
+
 void GC_Weapon::ProcessRotate(World &world, float dt)
 {
 	assert(GetCarrier());

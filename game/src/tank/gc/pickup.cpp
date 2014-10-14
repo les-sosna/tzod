@@ -1,7 +1,4 @@
-// pickup.cpp
-
 #include "Pickup.h"
-
 #include "Explosion.h"
 #include "indicators.h"
 #include "Light.h"
@@ -104,7 +101,6 @@ void GC_Pickup::Disappear(World &world)
 	if( GetCarrier() )
 		Detach(world);
     SetVisible(false);
-    PulseNotify(world, NOTIFY_PICKUP_DISAPPEAR);
     _timeAttached = 0;
     if( _label )
         MoveTo(world, _label->GetPos());
@@ -630,7 +626,6 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 		w->GetBooster()->Disappear(world);
 
 	w->SetBooster(world, this);
-	w->Subscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 
 	PLAY(SND_B_Start, GetPos());
 	assert(NULL == _sound);
@@ -643,7 +638,6 @@ void GC_pu_Booster::Detach(World &world)
 {
 	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
 	static_cast<GC_Weapon*>(GetCarrier())->SetBooster(world, nullptr);
-	GetCarrier()->Unsubscribe(NOTIFY_PICKUP_DISAPPEAR, this, (NOTIFYPROC) &GC_pu_Booster::OnWeaponDisappear);
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }
@@ -668,12 +662,3 @@ void GC_pu_Booster::TimeStep(World &world, float dt)
 		}
 	}
 }
-
-void GC_pu_Booster::OnWeaponDisappear(World &world, GC_Object *sender, void *param)
-{
-	assert(GetCarrier());
-	Disappear(world);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file
