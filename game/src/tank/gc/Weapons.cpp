@@ -57,7 +57,7 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 	
 	(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 				   Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-				   GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+				   GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -110,7 +110,7 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 			
 			(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 							 dir * SPEED_ACBULLET,
-							 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+							 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 		}
 	}
 	else
@@ -123,7 +123,7 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 		
 		(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
 						 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
-						 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+						 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 	}
 }
 
@@ -191,7 +191,7 @@ void GC_Weap_Cannon::OnShoot(World &world)
 	const vec2d &dir = GetDirection();
 	
 	(new GC_TankBullet(world, GetPos() + dir * 17.0f,
-					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), GetBooster()))->Register(world);
+					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), !!GetBooster()))->Register(world);
 	
 	if( !GetBooster() )
 	{
@@ -256,7 +256,7 @@ void GC_Weap_Plazma::OnShoot(World &world)
 	const vec2d &a = GetDirection();
 	(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
 					   a * SPEED_PLAZMA + world.net_vrand(20),
-					   GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+					   GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -297,7 +297,7 @@ void GC_Weap_Gauss::OnShoot(World &world)
 {
 	const vec2d &dir = GetDirection();
 	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
-					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -563,7 +563,7 @@ void GC_Weap_BFG::OnShoot(World &world)
 	if (GetNumShots())
 	{
 		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
-						GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+						GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 	}
 }
 
@@ -605,7 +605,7 @@ void GC_Weap_Ripper::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
 	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-				 GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);
+				 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -700,7 +700,7 @@ void GC_Weap_Minigun::OnShoot(World &world)
 		}
 	}
 	
-	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), GetBooster());
+	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster());
 	tmp->Register(world);
 }
 
@@ -804,10 +804,10 @@ void GC_Weap_Zippo::OnShoot(World &world)
 	a *= (1 - world.net_frand(0.2f));
 	
 	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
-										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), GetBooster());
+										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster());
 	tmp->Register(world);
 	tmp->SetLifeTime(_heat);
-	tmp->SetHealOwner(GetBooster());
+	tmp->SetHealOwner(!!GetBooster());
 	tmp->SetSetFire(true);
 }
 
