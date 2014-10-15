@@ -205,8 +205,6 @@ GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(World &world)
 	, _lastShotTime(-FLT_MAX)
 	, _lastShotPos(0,0)
 	, _numShots(0)
-	, _startTime(-FLT_MAX)
-	, _stopTime(-FLT_MAX)
 	, _firing(nullptr)
 {
 }
@@ -248,7 +246,6 @@ void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
 	GC_Weapon::Fire(world, fire);
 	if (fire && !_firing)
 	{
-		_startTime = world.GetTime();
 		Resume(world);
 	}
 }
@@ -263,8 +260,6 @@ void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
 
 void GC_ProjectileBasedWeapon::Detach(World &world)
 {
-	_startTime = -FLT_MAX;
-	_stopTime = -FLT_MAX;
 	ResetSeries();
 	SAFE_CANCEL(_firing);
 	SAFE_KILL(world, _fireLight);
@@ -277,8 +272,6 @@ void GC_ProjectileBasedWeapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_lastShotPos);
 	f.Serialize(_lastShotTime);
 	f.Serialize(_numShots);
-	f.Serialize(_startTime);
-	f.Serialize(_stopTime);
 	f.Serialize(_fireLight);
 	// TODO: f.Serialize(_firing);
 }

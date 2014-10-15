@@ -100,8 +100,6 @@ public:
 	vec2d GetLastShotPos() const { return _lastShotPos; }
 	float GetLastShotTime() const { return _lastShotTime; }
 	unsigned int GetNumShots() const { return _numShots; }
-	float GetStartTime() const { return _startTime; }
-	float GetStopTime() const { return _stopTime; }
 
 	virtual bool GetContinuousSeries() const { return false; }
 	virtual float GetFireEffectTime() const = 0;
@@ -129,8 +127,6 @@ private:
 	float _lastShotTime;
 	vec2d _lastShotPos;
 	unsigned int _numShots;
-	float _startTime;
-	float _stopTime;
 	ResumableObject *_firing;
 
 	virtual void OnUpdateView(World &world) override;
