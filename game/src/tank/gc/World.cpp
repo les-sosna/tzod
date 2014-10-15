@@ -480,7 +480,7 @@ IMPLEMENT_POOLED_ALLOCATION(ResumableObject);
 
 ResumableObject* World::Timeout(GC_Object &obj, float timeout)
 {
-	assert(GetTime() + timeout > GetTime());
+	assert(GetTime() + timeout >= GetTime());
 	auto id = new ResumableObject(obj);
 	_resumables.emplace(std::unique_ptr<ResumableObject>(id), GetTime() + timeout);
 	return id;

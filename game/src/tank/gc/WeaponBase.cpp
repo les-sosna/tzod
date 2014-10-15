@@ -219,25 +219,28 @@ GC_ProjectileBasedWeapon::~GC_ProjectileBasedWeapon()
 {
 }
 
-void GC_ProjectileBasedWeapon::Resume(World &world)
+void GC_ProjectileBasedWeapon::Shoot(World &world)
 {
+	SAFE_CANCEL(_firing);
 	if( _numShots >= GetSeriesLength() )
 		_numShots = 0;
+	for( auto ls: world.eGC_ProjectileBasedWeapon._listeners )
+		ls->OnShoot(*this);
+	OnShoot(world);
+	++_numShots;
+	_firing = world.Timeout(*this, _numShots < GetSeriesLength() ? GetSeriesReloadTime() : GetReloadTime());
+	_fireLight->SetActive(true);
+	_lastShotTime = world.GetTime();
+}
 
+void GC_ProjectileBasedWeapon::Resume(World &world)
+{
+	_firing = nullptr;
+	if( _numShots >= GetSeriesLength() )
+		_numShots = 0;
 	if (GetFire() || (GetContinuousSeries() && _numShots > 0))
 	{
-		for( auto ls: world.eGC_ProjectileBasedWeapon._listeners )
-			ls->OnShoot(*this);
-		OnShoot(world);
-		++_numShots;
-		_firing = world.Timeout(*this, _numShots < GetSeriesLength() ? GetSeriesReloadTime() : GetReloadTime());
-		_fireLight->SetActive(true);
-		_lastShotTime = world.GetTime();
-	}
-	else
-	{
-		_firing = nullptr;
-		_stopTime = world.GetTime();
+		Shoot(world);
 	}
 }
 

@@ -100,6 +100,7 @@ public:
 	vec2d GetLastShotPos() const { return _lastShotPos; }
 	float GetLastShotTime() const { return _lastShotTime; }
 	unsigned int GetNumShots() const { return _numShots; }
+	void Shoot(World &world);
 
 	virtual bool GetContinuousSeries() const { return false; }
 	virtual float GetFireEffectTime() const = 0;

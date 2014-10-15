@@ -560,7 +560,7 @@ void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_BFG::OnShoot(World &world)
 {
-	if (GetNumShots() || GetBooster())
+	if (GetNumShots())
 	{
 		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
 						GetCarrier(), GetCarrier()->GetOwner(), GetBooster()))->Register(world);

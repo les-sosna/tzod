@@ -189,8 +189,8 @@ public:
 	virtual bool GetContinuousSeries() const { return true; }
 	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 1.1f; }
-	virtual unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : 2; }
-	virtual float GetSeriesReloadTime() const override { return 0.7f; }
+	virtual unsigned int GetSeriesLength() const override { return 2; }
+	virtual float GetSeriesReloadTime() const override { return GetBooster() ? 0.0f : 0.7f; }
 	
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
