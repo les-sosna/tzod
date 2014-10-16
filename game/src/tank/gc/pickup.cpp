@@ -353,19 +353,23 @@ AIPRIORITY GC_pu_Shield::GetPriority(World &world, const GC_Vehicle &veh) const
 
 void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
 {
-	//if( GC_Object *p = actor->GetSubscriber(GetType()) )
-	//{
-	//	assert(dynamic_cast<GC_pu_Shield*>(p));
-	//	static_cast<GC_Pickup*>(p)->Disappear(world);
-	//}
-
-	GC_Pickup::Attach(world, actor);
-	GetCarrier()->Subscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
+	if (auto vehicle = dynamic_cast<GC_Vehicle*>(actor))
+	{
+		if (vehicle->GetShield())
+			vehicle->GetShield()->Disappear(world);
+		vehicle->SetShield(this);
+		GC_Pickup::Attach(world, actor);
+	}
+	else
+	{
+		Disappear(world);
+	}
 }
 
 void GC_pu_Shield::Detach(World &world)
 {
-	GetCarrier()->Unsubscribe(NOTIFY_DAMAGE_FILTER, this, (NOTIFYPROC) &GC_pu_Shield::OnOwnerDamage);
+	assert(dynamic_cast<GC_Vehicle*>(GetCarrier()));
+	static_cast<GC_Vehicle*>(GetCarrier())->SetShield(nullptr);
 	SetBlinking(false);
 	GC_Pickup::Detach(world);
 }
@@ -391,18 +395,17 @@ void GC_pu_Shield::TimeStep(World &world, float dt)
 	}
 }
 
-void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
+void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 {
-	DamageDesc *pdd = reinterpret_cast<DamageDesc*>(param);
-	assert(NULL != pdd);
-	if( pdd->damage > 5 || 0 == rand() % 4 || world.GetTime() - _timeHit > 0.2f )
+	assert(dynamic_cast<GC_RigidBodyDynamic*>(GetCarrier()));
+	if( dd.damage > 5 || 0 == rand() % 4 || world.GetTime() - _timeHit > 0.2f )
 	{
-		const vec2d &pos = static_cast<GC_Actor*>(sender)->GetPos();
+		const vec2d &pos = GetCarrier()->GetPos();
 
 		PLAY(rand() % 2 ? SND_InvHit1 : SND_InvHit2, pos);
-		vec2d dir = (pdd->hit - pos).Normalize();
+		vec2d dir = (dd.hit - pos).Normalize();
 		vec2d p   = vec2d(dir.y, -dir.x);
-		vec2d v   = ((GC_Vehicle *) sender)->_lv;
+		vec2d v   = static_cast<const GC_RigidBodyDynamic*>(GetCarrier())->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
 			auto p1 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
@@ -413,7 +416,7 @@ void GC_pu_Shield::OnOwnerDamage(World &world, GC_Object *sender, void *param)
             p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}
 	}
-	pdd->damage *= 0.25;
+	dd.damage *= 0.1;
 	_timeHit = world.GetTime();
 }
 

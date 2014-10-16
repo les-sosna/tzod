@@ -8,6 +8,7 @@ class GC_Weapon;
 class GC_DamLabel;
 class GC_Sound;
 class GC_Light;
+class GC_pu_Shield;
 struct VehicleClass;
 
 #define GC_FLAG_VEHICLE_KNOWNLIGHT     (GC_FLAG_RBDYMAMIC_ << 0)
@@ -19,6 +20,7 @@ class GC_Vehicle : public GC_RigidBodyDynamic
     typedef GC_RigidBodyDynamic base;
     
 	ObjPtr<GC_Weapon>   _weapon;
+	ObjPtr<GC_pu_Shield> _shield;
 	ObjPtr<GC_Player>   _player;
 
 public:
@@ -27,8 +29,10 @@ public:
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();
 
+	GC_pu_Shield* GetShield() const { return _shield; }
 	void SetClass(const VehicleClass &vc); // apply vehicle class
 	void SetMaxHP(float hp);
+	void SetShield(GC_pu_Shield *shield) { _shield = shield; }
 
 	float _enginePower;
 	float _rotatePower;

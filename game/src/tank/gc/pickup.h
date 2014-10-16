@@ -155,6 +155,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct DamageDesc;
+
 class GC_pu_Shield : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shield);
@@ -177,7 +179,8 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 
 protected:
-	void OnOwnerDamage(World &world, GC_Object *sender, void *param);
+	friend class GC_Vehicle;
+	void OnOwnerDamage(World &world, DamageDesc &dd);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

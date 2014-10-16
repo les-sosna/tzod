@@ -121,6 +121,7 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_state);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
+	f.Serialize(_shield);
 	f.Serialize(_time_smoke);
 	f.Serialize(_trackDensity);
 	f.Serialize(_trackPathL);
@@ -275,14 +276,14 @@ void GC_Vehicle::SetSkin(const std::string &skin)
 
 void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)
 {
-	PulseNotify(world, NOTIFY_DAMAGE_FILTER, &dd);
+	if (_shield)
+		_shield->OnOwnerDamage(world, dd);
 
-	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
+	FOREACH( world.GetList(LIST_cameras), GC_Camera, camera )
 	{
-		if( !pCamera->GetPlayer() ) continue;
-		if( this == pCamera->GetPlayer()->GetVehicle() )
+		if( camera->GetPlayer() && this == camera->GetPlayer()->GetVehicle() )
 		{
-			pCamera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
+			camera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
 			break;
 		}
 	}

@@ -13,9 +13,6 @@ enum NotifyType
 
 	// Rigid body
 	NOTIFY_RIGIDBODY_DESTROY,
-
-	// GC_Vehicle
-	NOTIFY_DAMAGE_FILTER,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
