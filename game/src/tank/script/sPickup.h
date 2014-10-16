@@ -17,4 +17,5 @@ private:
 	// ObjectListener<GC_Pickup>
 	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) override;
 	virtual void OnRespawn(GC_Pickup &obj) override {}
+	virtual void OnDisappear(GC_Pickup &obj) override {}
 };

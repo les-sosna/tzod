@@ -17,6 +17,7 @@ template<> struct ObjectListener<GC_Pickup>
 {
 	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) = 0;
 	virtual void OnRespawn(GC_Pickup &obj) = 0;
+	virtual void OnDisappear(GC_Pickup &obj) = 0;
 };
 
 class GC_Player;

@@ -172,6 +172,9 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 
 void GC_Weapon::Kill(World &world)
 {
+	if (_booster)
+		_booster->Disappear(world); // this will set _booster to nullptr
+
 	if( GetCarrier() )
 		Detach(world);
 	assert(!_rotateSound);

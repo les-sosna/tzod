@@ -43,7 +43,8 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Kill(World &world)
 {
-	Disappear(world);
+	if (GetCarrier())
+		Detach(world);
 	SAFE_KILL(world, _label);
 	GC_Actor::Kill(world);
 }
@@ -98,6 +99,9 @@ void GC_Pickup::Detach(World &world)
 
 void GC_Pickup::Disappear(World &world)
 {
+	for( auto ls: world.eGC_Pickup._listeners )
+		ls->OnDisappear(*this);
+	
 	if( GetCarrier() )
 		Detach(world);
     SetVisible(false);
@@ -611,27 +615,26 @@ AIPRIORITY GC_pu_Booster::GetPriority(World &world, const GC_Vehicle &veh) const
 
 void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 {
-	GC_Weapon *w = dynamic_cast<GC_Weapon*>(actor);
-
-	if( NULL == w ) // disappear if actor is not a weapon.
+	if( GC_Weapon *w = dynamic_cast<GC_Weapon*>(actor) )
 	{
-		PLAY(SND_B_End, actor->GetPos());
-		Disappear(world);
-		return;
+		GC_Pickup::Attach(world, w);
+		
+		if( w->GetBooster() )
+			w->GetBooster()->Disappear(world);
+		
+		w->SetBooster(world, this);
+		
+		PLAY(SND_B_Start, GetPos());
+		assert(NULL == _sound);
+		_sound = new GC_Sound_link(world, SND_B_Loop, this);
+		_sound->Register(world);
+		_sound->SetMode(world, SMODE_LOOP);
 	}
-
-	GC_Pickup::Attach(world, w);
-
-	if( w->GetBooster() )
-		w->GetBooster()->Disappear(world);
-
-	w->SetBooster(world, this);
-
-	PLAY(SND_B_Start, GetPos());
-	assert(NULL == _sound);
-	_sound = new GC_Sound_link(world, SND_B_Loop, this);
-    _sound->Register(world);
-    _sound->SetMode(world, SMODE_LOOP);
+	else
+	{
+		// disappear if actor is not a weapon.
+		Disappear(world);
+	}
 }
 
 void GC_pu_Booster::Detach(World &world)
@@ -657,7 +660,6 @@ void GC_pu_Booster::TimeStep(World &world, float dt)
 	{
 		if( GetTimeAttached() > BOOSTER_TIME )
 		{
-			PLAY(SND_B_End, GetPos());
 			Disappear(world);
 		}
 	}

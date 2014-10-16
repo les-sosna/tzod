@@ -61,6 +61,14 @@ void SoundHarness::OnRespawn(GC_Pickup &obj)
 	_soundRender->PlayOnce(SND_puRespawn, obj.GetPos());
 }
 
+void SoundHarness::OnDisappear(GC_Pickup &obj)
+{
+	if (GC_pu_Booster::GetTypeStatic() == obj.GetType())
+	{
+		_soundRender->PlayOnce(SND_B_End, obj.GetPos());
+	}
+}
+
 void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit)
 {
 	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
