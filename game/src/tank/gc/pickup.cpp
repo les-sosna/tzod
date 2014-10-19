@@ -22,12 +22,10 @@ IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
 GC_Pickup::GC_Pickup(World &world)
   : _label(new GC_HideLabel(world))
-  , _radius(25.0)
   , _timeAttached(0)
   , _timeRespawn(0)
 {
     _label->Register(world);
-	SetAutoSwitch(true);
 	SetRespawn(false);
 	SetBlinking(false);
 	SetVisible(true);
@@ -43,7 +41,7 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Kill(World &world)
 {
-	if (GetCarrier())
+	if (GetAttached())
 		Detach(world);
 	SAFE_KILL(world, _label);
 	GC_Actor::Kill(world);
@@ -53,48 +51,27 @@ void GC_Pickup::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
-	f.Serialize(_pickupCarrier);
 	f.Serialize(_timeAttached);
 	f.Serialize(_timeRespawn);
-	f.Serialize(_radius);
 	f.Serialize(_scriptOnPickup);
 	f.Serialize(_label);
 }
 
-GC_Actor* GC_Pickup::FindNewOwner(World &world) const
+void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle)
 {
-	float r_sq = GetRadius() * GetRadius();
-
-	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, veh )
-	{
-		if( (GetPos() - veh->GetPos()).sqr() < r_sq )
-		{
-			if( GetAutoSwitch() || veh->_state._bState_AllowDrop )
-				return veh;
-		}
-	}
-
-	return NULL;
-}
-
-void GC_Pickup::Attach(World &world, GC_Actor *actor)
-{
-	assert(!_pickupCarrier);
-	_pickupCarrier = actor;
-	_timeAttached  = 0;
-	MoveTo(world, actor->GetPos());
-	actor->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
-	actor->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
-	actor->OnPickup(world, this, true);
+	assert(!GetAttached());
+	_timeAttached = 0;
+	SetFlags(GC_FLAG_PICKUP_ATTACHED, true);
+	MoveTo(world, vehicle.GetPos());
+	for( auto ls: world.eGC_Pickup._listeners )
+		ls->OnAttach(*this, vehicle);
+	OnAttached(world, vehicle);
 }
 
 void GC_Pickup::Detach(World &world)
 {
-	assert(_pickupCarrier);
-	_pickupCarrier->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Pickup::OnOwnerKill);
-	_pickupCarrier->Unsubscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_Pickup::OnOwnerMove);
-	_pickupCarrier->OnPickup(world, this, false);
-	_pickupCarrier = NULL;
+	assert(GetAttached());
+	SetFlags(GC_FLAG_PICKUP_ATTACHED, false);
 }
 
 void GC_Pickup::Disappear(World &world)
@@ -102,7 +79,7 @@ void GC_Pickup::Disappear(World &world)
 	for( auto ls: world.eGC_Pickup._listeners )
 		ls->OnDisappear(*this);
 	
-	if( GetCarrier() )
+	if( GetAttached() )
 		Detach(world);
     SetVisible(false);
     _timeAttached = 0;
@@ -139,38 +116,21 @@ void GC_Pickup::TimeStep(World &world, float dt)
 {
 	_timeAttached += dt;
 
-	if( !GetCarrier() )
+	if( !GetAttached() && !GetVisible() )
 	{
-		if( GetVisible() )
+		if( _timeAttached > _timeRespawn )  // FIXME
 		{
-			if( GC_Actor *actor = FindNewOwner(world) )
+			SetRespawn(false);
+			SetVisible(true);
+			for( auto ls: world.eGC_Pickup._listeners )
+				ls->OnRespawn(*this);
+			
+			for( int n = 0; n < 50; ++n )
 			{
-				ObjPtr<GC_Object> watch(this);
-				Attach(world, actor);
-				// FIXME: pickup event will not fire if object is killed inside Attach function
-				if (watch)
-				{
-					for( auto ls: world.eGC_Pickup._listeners )
-						ls->OnPickup(*this, *actor);
-				}
-			}
-		}
-		else
-		{
-			if( _timeAttached > _timeRespawn )  // FIXME
-			{
-				SetRespawn(false);
-				SetVisible(true);
-				for( auto ls: world.eGC_Pickup._listeners )
-					ls->OnRespawn(*this);
-				
-				for( int n = 0; n < 50; ++n )
-				{
-					vec2d a(PI2 * (float) n / 50);
-					auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-					p->Register(world);
-					p->MoveTo(world, GetPos() + a * 25);
-				}
+				vec2d a(PI2 * (float) n / 50);
+				auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
+				p->Register(world);
+				p->MoveTo(world, GetPos() + a * 25);
 			}
 		}
 	}
@@ -183,18 +143,6 @@ void GC_Pickup::MapExchange(World &world, MapFile &f)
 	GC_Actor::MapExchange(world, f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
-}
-
-void GC_Pickup::OnOwnerMove(World &world, GC_Object *sender, void *param)
-{
-	assert(GetCarrier());
-	assert(GetCarrier() == sender);
-	MoveTo(world, GetCarrier()->GetPos());
-}
-
-void GC_Pickup::OnOwnerKill(World &world, GC_Object *sender, void *param)
-{
-	Disappear(world);
 }
 
 PropertySet* GC_Pickup::NewPropertySet()
@@ -274,25 +222,15 @@ AIPRIORITY GC_pu_Health::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Health::Attach(World &world, GC_Actor *actor)
+void GC_pu_Health::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_Pickup::Attach(world, actor);
-
-	static_cast<GC_RigidBodyStatic*>(actor)->SetHealth(
-		static_cast<GC_RigidBodyStatic*>(actor)->GetHealthMax() );
-
+	vehicle.SetHealth(vehicle.GetHealthMax());
 	Disappear(world);
 }
 
-GC_Actor* GC_pu_Health::FindNewOwner(World &world) const
+bool GC_pu_Health::GetAutoSwitch(const GC_Vehicle &vehicle) const
 {
-	GC_Vehicle *vehicle = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner(world));
-
-	if( vehicle && !vehicle->_state._bState_AllowDrop &&
-		vehicle->GetHealth() >= vehicle->GetHealthMax() )
-			return NULL;
-
-	return vehicle;
+	return vehicle.GetHealth() < vehicle.GetHealthMax();
 }
 
 /////////////////////////////////////////////////////////////
@@ -306,7 +244,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 GC_pu_Mine::GC_pu_Mine(World &world)
   : GC_Pickup(world)
 {
-	SetRespawnTime( GetDefaultRespawnTime() );
+	SetRespawnTime(GetDefaultRespawnTime());
 }
 
 GC_pu_Mine::GC_pu_Mine(FromFile)
@@ -319,7 +257,7 @@ AIPRIORITY GC_pu_Mine::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_NOTREQUIRED;
 }
 
-void GC_pu_Mine::Attach(World &world, GC_Actor *actor)
+void GC_pu_Mine::OnAttached(World &world, GC_Vehicle &vehicle)
 {
 	MakeExplosionStandard(world, GetPos(), nullptr);
 	Kill(world);
@@ -335,14 +273,17 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 
 GC_pu_Shield::GC_pu_Shield(World &world)
   : GC_Pickup(world)
+  , _timeHit(0)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
-	SetAutoSwitch(true);
-	_timeHit = 0;
 }
 
 GC_pu_Shield::GC_pu_Shield(FromFile)
   : GC_Pickup(FromFile())
+{
+}
+
+GC_pu_Shield::~GC_pu_Shield()
 {
 }
 
@@ -351,25 +292,18 @@ AIPRIORITY GC_pu_Shield::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_SHIELD;
 }
 
-void GC_pu_Shield::Attach(World &world, GC_Actor *actor)
+void GC_pu_Shield::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	if (auto vehicle = dynamic_cast<GC_Vehicle*>(actor))
-	{
-		if (vehicle->GetShield())
-			vehicle->GetShield()->Disappear(world);
-		vehicle->SetShield(this);
-		GC_Pickup::Attach(world, actor);
-	}
-	else
-	{
-		Disappear(world);
-	}
+	_vehicle = &vehicle;
+	if (vehicle.GetShield())
+		vehicle.GetShield()->Disappear(world);
+	vehicle.SetShield(this);
 }
 
 void GC_pu_Shield::Detach(World &world)
 {
-	assert(dynamic_cast<GC_Vehicle*>(GetCarrier()));
-	static_cast<GC_Vehicle*>(GetCarrier())->SetShield(nullptr);
+	assert(_vehicle);
+	_vehicle->SetShield(nullptr);
 	SetBlinking(false);
 	GC_Pickup::Detach(world);
 }
@@ -378,7 +312,7 @@ void GC_pu_Shield::TimeStep(World &world, float dt)
 {
 	GC_Pickup::TimeStep(world, dt);
 
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		if( GetTimeAttached() + 2.0f > PROTECT_TIME )
 		{
@@ -397,15 +331,15 @@ void GC_pu_Shield::TimeStep(World &world, float dt)
 
 void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 {
-	assert(dynamic_cast<GC_RigidBodyDynamic*>(GetCarrier()));
+	assert(_vehicle);
 	if( dd.damage > 5 || 0 == rand() % 4 || world.GetTime() - _timeHit > 0.2f )
 	{
-		const vec2d &pos = GetCarrier()->GetPos();
+		const vec2d &pos = _vehicle->GetPos();
 
 		PLAY(rand() % 2 ? SND_InvHit1 : SND_InvHit2, pos);
 		vec2d dir = (dd.hit - pos).Normalize();
-		vec2d p   = vec2d(dir.y, -dir.x);
-		vec2d v   = static_cast<const GC_RigidBodyDynamic*>(GetCarrier())->_lv;
+		vec2d p = vec2d(dir.y, -dir.x);
+		vec2d v = _vehicle->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
 			auto p1 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
@@ -424,6 +358,7 @@ void GC_pu_Shield::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
 	f.Serialize(_timeHit);
+	f.Serialize(_vehicle);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -441,7 +376,6 @@ GC_pu_Shock::GC_pu_Shock(World &world)
   , _targetPos(0, 0)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
-	SetAutoSwitch(false);
 }
 
 GC_pu_Shock::GC_pu_Shock(FromFile)
@@ -463,6 +397,7 @@ void GC_pu_Shock::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
 	f.Serialize(_light);
+	f.Serialize(_vehicle);
 	f.Serialize(_targetPos);
 }
 
@@ -479,17 +414,17 @@ AIPRIORITY GC_pu_Shock::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_SHOCK;
 }
 
-void GC_pu_Shock::Attach(World &world, GC_Actor* actor)
+void GC_pu_Shock::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	assert(dynamic_cast<GC_RigidBodyStatic*>(actor));
-	GC_Pickup::Attach(world, actor);
+	_vehicle = &vehicle;
 }
 
 void GC_pu_Shock::Detach(World &world)
 {
-	GC_Pickup::Detach(world);
 	SetGridSet(true);
 	SAFE_KILL(world, _light);
+	_vehicle = nullptr;
+	GC_Pickup::Detach(world);
 }
 
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const
@@ -512,8 +447,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 			if( dist < min_dist )
 			{
 				GC_RigidBodyStatic *pObstacle = world.TraceNearest(world.grid_rigid_s,
-					static_cast<GC_RigidBodyStatic*>(GetCarrier()),
-					GetPos(), pTargetObj->GetPos() - GetPos());
+					_vehicle, GetPos(), pTargetObj->GetPos() - GetPos());
 
 				if( pObstacle == pTargetObj )
 				{
@@ -531,14 +465,13 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 {
 	GC_Pickup::TimeStep(world, dt);
 
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		if( GetGridSet() )
 		{
 			if( GetTimeAttached() >= SHOCK_TIMEOUT )
 			{
-				GC_RigidBodyStatic *carrier = static_cast<GC_RigidBodyStatic *>(GetCarrier());
-				if( GC_Vehicle *pNearTarget = FindNearVehicle(world, carrier) )
+				if( GC_Vehicle *pNearTarget = FindNearVehicle(world, _vehicle) )
 				{
 					SetGridSet(false);
 
@@ -553,11 +486,11 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 					_light->SetLength(tmp.len());
 					_light->SetLightDirection(tmp.Normalize());
 
-					pNearTarget->TakeDamage(world, DamageDesc{1000, pNearTarget->GetPos(), carrier->GetOwner()});
+					pNearTarget->TakeDamage(world, DamageDesc{1000, pNearTarget->GetPos(), _vehicle->GetOwner()});
 				}
 				else
 				{
-					carrier->TakeDamage(world, DamageDesc{1000, GetCarrier()->GetPos(), carrier->GetOwner()});
+					_vehicle->TakeDamage(world, DamageDesc{1000, _vehicle->GetPos(), _vehicle->GetOwner()});
 					Disappear(world);
 				}
 			}
@@ -604,6 +537,7 @@ void GC_pu_Booster::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
 	f.Serialize(_sound);
+	f.Serialize(_weapon);
 }
 
 AIPRIORITY GC_pu_Booster::GetPriority(World &world, const GC_Vehicle &veh) const
@@ -616,16 +550,15 @@ AIPRIORITY GC_pu_Booster::GetPriority(World &world, const GC_Vehicle &veh) const
 	return veh.GetWeapon()->GetBooster() ? AIP_BOOSTER_HAVE : AIP_BOOSTER;
 }
 
-void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
+void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	if( GC_Weapon *w = dynamic_cast<GC_Weapon*>(actor) )
+	if( GC_Weapon *w = vehicle.GetWeapon() )
 	{
-		GC_Pickup::Attach(world, w);
-		
 		if( w->GetBooster() )
 			w->GetBooster()->Disappear(world);
 		
-		w->SetBooster(world, this);
+		_weapon = w;
+		_weapon->SetBooster(world, this);
 		
 		PLAY(SND_B_Start, GetPos());
 		assert(NULL == _sound);
@@ -642,24 +575,21 @@ void GC_pu_Booster::Attach(World &world, GC_Actor* actor)
 
 void GC_pu_Booster::Detach(World &world)
 {
-	assert(dynamic_cast<GC_Weapon*>(GetCarrier()));
-	static_cast<GC_Weapon*>(GetCarrier())->SetBooster(world, nullptr);
+	assert(_weapon);
+	_weapon->SetBooster(world, nullptr);
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }
 
-GC_Actor* GC_pu_Booster::FindNewOwner(World &world) const
+bool GC_pu_Booster::GetAutoSwitch(const GC_Vehicle &vehicle) const
 {
-	GC_Vehicle *veh = static_cast<GC_Vehicle *>(GC_Pickup::FindNewOwner(world));
-	if( veh && !veh->_state._bState_AllowDrop && !veh->GetWeapon() )
-		return NULL;
-	return (veh && veh->GetWeapon()) ? veh->GetWeapon() : static_cast<GC_Actor *>(veh);
+	return !!vehicle.GetWeapon();
 }
 
 void GC_pu_Booster::TimeStep(World &world, float dt)
 {
 	GC_Pickup::TimeStep(world, dt);
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		if( GetTimeAttached() > BOOSTER_TIME )
 		{

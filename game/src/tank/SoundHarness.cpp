@@ -42,7 +42,7 @@ void SoundHarness::Step()
 	_soundRender->Step();
 }
 
-void SoundHarness::OnPickup(GC_Pickup &obj, GC_Actor &actor)
+void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
 		{GC_pu_Health::GetTypeStatic(), SND_Pickup},

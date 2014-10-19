@@ -9,7 +9,7 @@
 
 #include "gc/Camera.h"
 #include "gc/Object.h"
-#include "gc/pickup.h"
+#include "gc/Pickup.h"
 #include "gc/RigidBody.h"
 #include "gc/World.h"
 #include "gc/Macros.h"

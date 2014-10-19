@@ -64,7 +64,7 @@ enumZOrder Z_WeapFireEffect::GetZ(const World &world, const GC_Actor &actor) con
 {
 	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
 	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
-	return (weapon.GetCarrier() && (world.GetTime() - weapon.GetLastShotTime() < _duration)) ? Z_EXPLODE : Z_NONE;
+	return (weapon.GetAttached() && (world.GetTime() - weapon.GetLastShotTime() < _duration)) ? Z_EXPLODE : Z_NONE;
 }
 
 
@@ -77,7 +77,7 @@ void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContex
 {
 	assert(dynamic_cast<const GC_Weap_Ripper*>(&actor));
 	auto &ripper = static_cast<const GC_Weap_Ripper&>(actor);
-	if (ripper.GetCarrier() && ripper.GetNumShots() == 0)
+	if (ripper.GetAttached() && ripper.GetNumShots() == 0)
 	{
 		vec2d pos = ripper.GetPos() - ripper.GetDirection() * 8;
 		vec2d dir = vec2d(world.GetTime() * 10);
@@ -95,7 +95,7 @@ void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
-	if (weapon.GetCarrier())
+	if (weapon.GetAttached())
 	{
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
 		vec2d dir = vec2d(world.GetTime() * 5);

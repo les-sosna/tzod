@@ -292,21 +292,12 @@ static int object_equip(lua_State *L)
 	GC_Vehicle *target = checkobject<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = checkobject<GC_Pickup>(L, 2);
     ScriptEnvironment &se = GetScriptEnvironment(L);
-	if( pickup->GetCarrier() != target )
-	{
-		if( pickup->GetCarrier() )
-			pickup->Detach(se.world);
-		// FIXME: ugly workaround
-		if( dynamic_cast<GC_pu_Booster*>(pickup) )
-		{
-			pickup->Attach(se.world, target->GetWeapon());
-		}
-		else
-		{
-			pickup->Attach(se.world, target);
-		}
-	}
-
+	
+	if( pickup->GetAttached() )
+		pickup->Detach(se.world);
+	
+	pickup->Attach(se.world, *target);
+	
 	return 0;
 }
 

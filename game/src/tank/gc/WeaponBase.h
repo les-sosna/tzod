@@ -27,10 +27,10 @@ public:
 	virtual ~GC_Weapon();
 	
 	GC_pu_Booster* GetBooster() const { return _booster; }
-	GC_RigidBodyStatic* GetCarrier() const { return reinterpret_cast<GC_RigidBodyStatic *>(GC_Pickup::GetCarrier()); }
 	float GetDetachedTime() const { return _detachedTime; }
 	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	float GetStayTimeout() const { return _stayTimeout; }
+	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	
 	virtual void Fire(World &world, bool fire);
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) { _booster = booster; }
@@ -38,11 +38,14 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
 
 	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor) override;
 	virtual void Detach(World &world) override;
 	virtual void Disappear(World &world) override;
+	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
 	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	
+	// GC_Actor
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 	
 	// GC_Object
 	virtual void Kill(World &world);
@@ -71,6 +74,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	float _detachedTime = -FLT_MAX;
@@ -79,6 +83,7 @@ private:
 	Rotator _rotatorWeap;
 	ObjPtr<GC_Sound> _rotateSound;
 	ObjPtr<GC_pu_Booster> _booster;
+	ObjPtr<GC_Vehicle> _vehicle;
 	
 	virtual void OnUpdateView(World &world) {};
 	void ProcessRotate(World &world, float dt);
@@ -112,7 +117,6 @@ public:
 	virtual void Fire(World &world, bool fire);
 
 	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor) override;
 	virtual void Detach(World &world) override;
 
 	// GC_Object
@@ -122,6 +126,8 @@ public:
 protected:
 	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
 	void ResetSeries() { _numShots = 0; }
+
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	ObjPtr<GC_Light> _fireLight;

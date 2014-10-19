@@ -681,7 +681,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
 			GC_Pickup *pItem = (GC_Pickup *) ls->at(it);
-			if( pItem->GetCarrier() || !pItem->GetVisible() ) 
+			if( pItem->GetAttached() || !pItem->GetVisible() )
 			{
 				continue;
 			}
@@ -708,7 +708,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 		{
 			if( NULL == items[i] ) continue;
 			assert(items[i]->GetVisible());
-			if( items[i]->GetCarrier() ) continue;
+			if( items[i]->GetAttached() ) continue;
 			float l = CreatePath(world, vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 			if( l >= 0 )
 			{

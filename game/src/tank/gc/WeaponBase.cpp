@@ -64,7 +64,6 @@ GC_Weapon::GC_Weapon(World &world)
   , _rotatorWeap(_angle)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
-	SetAutoSwitch(false);
 }
 
 void GC_Weapon::Fire(World &world, bool fire)
@@ -88,11 +87,13 @@ AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_WEAPON_NORMAL + (GetBooster() ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
 }
 
-void GC_Weapon::Attach(World &world, GC_Actor *actor)
+void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	assert(dynamic_cast<GC_Vehicle*>(actor));
+	if (GC_Weapon *weapon = vehicle.GetWeapon())
+		weapon->Disappear(world);
+	vehicle.SetWeapon(world, this);
 
-	GC_Pickup::Attach(world, actor);
+	_vehicle = &vehicle;
 
 	_rotateSound = new GC_Sound(world, SND_TowerRotate, GetPos());
     _rotateSound->Register(world);
@@ -105,6 +106,7 @@ void GC_Weapon::Attach(World &world, GC_Actor *actor)
 
 void GC_Weapon::Detach(World &world)
 {
+	_vehicle = nullptr;
 	_detachedTime = world.GetTime();
 	Fire(world, false);
 	SAFE_KILL(world, _rotateSound);
@@ -120,9 +122,9 @@ void GC_Weapon::Disappear(World &world)
 
 void GC_Weapon::ProcessRotate(World &world, float dt)
 {
-	assert(GetCarrier());
+	assert(GetAttached());
 	_rotatorWeap.process_dt(dt);
-	const VehicleState &vs = static_cast<const GC_Vehicle*>(GetCarrier())->_state;
+	const VehicleState &vs = GetVehicle()->_state;
 	if( vs._bExplicitTower )
 	{
 		_rotatorWeap.rotate_to( vs._fTowerAngle );
@@ -141,7 +143,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 	_rotatorWeap.SetupSound(world, _rotateSound);
 
 	vec2d a(_angle);
-	vec2d direction = Vec2dAddDirection(static_cast<GC_Vehicle*>(GetCarrier())->GetDirection(), a);
+	vec2d direction = Vec2dAddDirection(GetVehicle()->GetDirection(), a);
 	SetDirection(direction);
 
 	OnUpdateView(world);
@@ -168,14 +170,25 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_stayTimeout);
 	f.Serialize(_rotateSound);
 	f.Serialize(_booster);
+	f.Serialize(_vehicle);
+}
+
+void GC_Weapon::MoveTo(World &world, const vec2d &pos)
+{
+	if (_booster)
+		_booster->MoveTo(world, pos);
+	GC_Pickup::MoveTo(world, pos);
 }
 
 void GC_Weapon::Kill(World &world)
 {
 	if (_booster)
-		_booster->Disappear(world); // this will set _booster to nullptr
+	{
+		_booster->Disappear(world);
+		assert(!_booster);
+	}
 
-	if( GetCarrier() )
+	if( GetAttached() )
 		Detach(world);
 	assert(!_rotateSound);
 	GC_Pickup::Kill(world);
@@ -185,7 +198,7 @@ void GC_Weapon::TimeStep(World &world, float dt)
 {
 	GC_Pickup::TimeStep(world, dt);
 
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		ProcessRotate(world, dt);
 	}
@@ -256,12 +269,12 @@ void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
 	}
 }
 
-void GC_ProjectileBasedWeapon::Attach(World &world, GC_Actor *actor)
+void GC_ProjectileBasedWeapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_Weapon::Attach(world, actor);
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
 	_fireLight->Register(world);
 	_fireLight->SetActive(false);
+	GC_Weapon::OnAttached(world, vehicle);
 }
 
 void GC_ProjectileBasedWeapon::Detach(World &world)

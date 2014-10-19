@@ -225,27 +225,27 @@ void GC_Vehicle::Kill(World &world)
 		_weapon->SetRespawn(true);
 		_weapon->Detach(world);
 	}
+	
+	if (_shield)
+	{
+		_shield->Disappear(world);
+		assert(!_shield);
+	}
 
 	_player = NULL;
 
 	GC_RigidBodyDynamic::Kill(world);
 }
 
-void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
+void GC_Vehicle::SetWeapon(World &world, GC_Weapon *weapon)
 {
-	GC_RigidBodyDynamic::OnPickup(world, pickup, attached);
-	if( GC_Weapon *w = dynamic_cast<GC_Weapon *>(pickup) )
+	if( _weapon != weapon )
 	{
-		if( attached )
+		_weapon = weapon;
+		if( _weapon )
 		{
-			if( _weapon )
-			{
-				_weapon->Disappear(world); // this will detach weapon and call OnPickup(attached=false)
-			}
-
-			assert(!_weapon);
-			_weapon = w;
-
+			_weapon->MoveTo(world, GetPos());
+			_weapon->SetDirection(GetDirection());
 			if( auto original = GetVehicleClass(GetOwner()->GetClass().c_str()) )
 			{
 				VehicleClass copy = *original;
@@ -255,13 +255,19 @@ void GC_Vehicle::OnPickup(World &world, GC_Pickup *pickup, bool attached)
 		}
 		else
 		{
-			assert(_weapon);
-//			Unsubscribe(_weapon);
-			_weapon = NULL;
 			if( auto vc = GetVehicleClass(GetOwner()->GetClass().c_str()) )
 				SetClass(*vc);
 		}
 	}
+}
+
+void GC_Vehicle::MoveTo(World &world, const vec2d &pos)
+{
+	if (_weapon)
+		_weapon->MoveTo(world, pos);
+	if (_shield)
+		_shield->MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 }
 
 void GC_Vehicle::SetControllerState(const VehicleState &vs)
@@ -355,8 +361,28 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 
 void GC_Vehicle::TimeStep(World &world, float dt)
 {
+	std::vector<ObjectList*> receive;
+	world.grid_pickup.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	for( auto &list: receive )
+	{
+		list->for_each([&](ObjectList::id_type, GC_Object *o)
+		{
+			auto &pickup = *static_cast<GC_Pickup *>(o);
+			if (pickup.GetVisible() && !pickup.GetAttached() && (_state._bState_AllowDrop || pickup.GetAutoSwitch(*this)))
+			{
+				float dist2 = (GetPos() - pickup.GetPos()).sqr();
+				float sumRadius = GetRadius() + pickup.GetRadius();
+				if (dist2 < sumRadius*sumRadius)
+				{
+					pickup.Attach(world, *this);
+				}
+			}
+		});
+	}
+	
+	
 	// spawn damage smoke
-	if( GetHealth() < (GetHealthMax() * 0.4f) )
+	if( GetHealth() < GetHealthMax() * 0.4f )
 	{
 		assert(GetHealth() > 0);
 		                    //    +-{ particles per second }

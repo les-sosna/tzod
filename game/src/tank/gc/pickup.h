@@ -25,7 +25,8 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
 #define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_ACTOR_ << 3)
 #define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 4)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 5)
+#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 5)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 6)
 
 class GC_Pickup : public GC_Actor
 {
@@ -38,38 +39,33 @@ public:
 	GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
 	
+	void Attach(World &world, GC_Vehicle &vehicle);
+
 	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 
-	void  SetRadius(float r) { _radius = r; }
-	float GetRadius() const { return _radius; }
-	GC_Actor* GetCarrier() const { return _pickupCarrier; }
+	bool GetAttached() const { return CheckFlags(GC_FLAG_PICKUP_ATTACHED); }
+	float GetRadius() const { return 8.0f; }
 	
-	void  SetRespawnTime(float respawnTime);
 	float GetRespawnTime() const;
+	void  SetRespawnTime(float respawnTime);
 	
-	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
 	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
-	
-	void SetAutoSwitch(bool autoSwitch) { SetFlags(GC_FLAG_PICKUP_AUTO, autoSwitch); }
-	bool GetAutoSwitch() const          { return CheckFlags(GC_FLAG_PICKUP_AUTO);    }
+	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
 	
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
 	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
 	
-	float GetTimeAttached() const { assert(GetCarrier()); return _timeAttached; }
+	float GetTimeAttached() const { assert(GetAttached()); return _timeAttached; }
 	
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
-
-	// default implementation searches for the nearest vehicle
-	virtual GC_Actor* FindNewOwner(World &world) const;
 	
-	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 	virtual void Disappear(World &world);
+	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const { return true; }
 	virtual float GetDefaultRespawnTime() const = 0;
 
 	// GC_Actor
@@ -80,7 +76,16 @@ public:
 	virtual void MapExchange(World &world, MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
+#ifdef NETWORK_DEBUG
+	virtual DWORD checksum(void) const
+	{
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
+		^ reinterpret_cast<const DWORD&>(GetPos().y)
+		^ reinterpret_cast<const DWORD&>(_timeAttached);
+		return GC_Actor::checksum() ^ cs;
+	}
+#endif
+
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
@@ -96,28 +101,15 @@ protected:
 	};
 	
 	virtual PropertySet* NewPropertySet();
-
+	
 private:
 	ObjPtr<GC_HideLabel>  _label;
-	ObjPtr<GC_Actor>      _pickupCarrier;
 	
 	std::string  _scriptOnPickup;   // on_pickup(who)
-	float  _radius;
 	float  _timeAttached;
 	float  _timeRespawn;
-
-	void OnOwnerMove(World &world, GC_Object *sender, void *param);
-	void OnOwnerKill(World &world, GC_Object *sender, void *param);
-
-#ifdef NETWORK_DEBUG
-	virtual DWORD checksum(void) const
-	{
-		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
-		         ^ reinterpret_cast<const DWORD&>(GetPos().y)
-		         ^ reinterpret_cast<const DWORD&>(_timeAttached);
-		return GC_Actor::checksum() ^ cs;
-	}
-#endif
+	
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,11 +122,13 @@ public:
 	GC_pu_Health(World &world);
 	GC_pu_Health(FromFile);
 
-	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
+	// GC_Pickup
+	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
+	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual GC_Actor* FindNewOwner(World &world) const;
+protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,10 +141,11 @@ public:
 	GC_pu_Mine(World &world);
 	GC_pu_Mine(FromFile);
 
-	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
+	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
-	virtual void Attach(World &world, GC_Actor *actor);
+protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,24 +156,27 @@ class GC_pu_Shield : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shield);
 
-private:
-	float _timeHit;
-
 public:
 	GC_pu_Shield(World &world);
 	GC_pu_Shield(FromFile);
+	virtual ~GC_pu_Shield();
 
-
+	// GC_Pickup
+	virtual void Detach(World &world);
 	virtual float GetDefaultRespawnTime() const { return 30.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
 
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
-
-	virtual void TimeStep(World &world, float dt);
+	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
+	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle);
+
+private:
+	float _timeHit;
+	ObjPtr<GC_Vehicle> _vehicle;
+
 	friend class GC_Vehicle;
 	void OnOwnerDamage(World &world, DamageDesc &dd);
 };
@@ -190,12 +188,6 @@ class GC_pu_Shock : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
     typedef GC_Pickup base;
 
-private:
-	ObjPtr<GC_Light> _light;
-	vec2d _targetPos;
-
-	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
-
 public:
     DECLARE_LIST_MEMBER();
 	GC_pu_Shock(World &world);
@@ -204,16 +196,26 @@ public:
 	
 	vec2d GetTargetPos() const { return _targetPos; }
 
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+	// GC_Pickup
+	virtual void Detach(World &world) override;
+	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
+	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
-	virtual float GetDefaultRespawnTime() const { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
+	// GC_Object
+	virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
 
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
+protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
-	virtual void TimeStep(World &world, float dt);
+private:
+	ObjPtr<GC_Light> _light;
+	ObjPtr<GC_Vehicle> _vehicle;
+	vec2d _targetPos;
+	
+	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -222,25 +224,29 @@ class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
 
-	ObjPtr<GC_Sound> _sound;
-
 public:
 	GC_pu_Booster(World &world);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
 
-	virtual float GetDefaultRespawnTime() const { return 30.0f; }
+	// GC_Pickup
+	virtual void Detach(World &world) override;
+	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
+	virtual float GetDefaultRespawnTime() const override { return 30.0f; }
+	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+
+	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
-
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
-
-	virtual GC_Actor* FindNewOwner(World &world) const;
-
 	virtual void TimeStep(World &world, float dt);
+	
+protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+	
+private:
+	ObjPtr<GC_Sound> _sound;
+	ObjPtr<GC_Weapon> _weapon;
 
+	friend class GC_Weapon;
 	void OnWeaponDisappear(World &world, GC_Object *sender, void *param);
 };
 

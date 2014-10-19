@@ -57,10 +57,6 @@ void GC_Actor::MoveTo(World &world, const vec2d &pos)
 	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
-void GC_Actor::OnPickup(World &world, GC_Pickup *pickup, bool attached)
-{
-}
-
 void GC_Actor::MapExchange(World &world, MapFile &f)
 {
 	GC_Object::MapExchange(world, f);

@@ -55,9 +55,9 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 	float ax = dir.x * 15.0f + dy * dir.y;
 	float ay = dir.y * 15.0f - dy * dir.x;
 	
-	(new GC_Rocket(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+	(new GC_Rocket(world, GetPos() + vec2d(ax, ay),
 				   Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-				   GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+				   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -108,9 +108,9 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 			float ax = dir.x * 17.0f - dy * dir.y;
 			float ay = dir.y * 17.0f + dy * dir.x;
 			
-			(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+			(new GC_ACBullet(world, GetPos() + vec2d(ax, ay),
 							 dir * SPEED_ACBULLET,
-							 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+							 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 		}
 	}
 	else
@@ -121,9 +121,9 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 		float ax = dir.x * 17.0f - dy * dir.y;
 		float ay = dir.y * 17.0f + dy * dir.x;
 		
-		(new GC_ACBullet(world, GetCarrier()->GetPos() + vec2d(ax, ay),
+		(new GC_ACBullet(world, GetPos() + vec2d(ax, ay),
 						 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
-						 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+						 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 	}
 }
 
@@ -158,12 +158,11 @@ GC_Weap_Cannon::GC_Weap_Cannon(World &world)
 	SetLastShotPos(vec2d(21, 0));
 }
 
-void GC_Weap_Cannon::Attach(World &world, GC_Actor *actor)
+void GC_Weap_Cannon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_ProjectileBasedWeapon::Attach(world, actor);
-
 	_time_smoke_dt = 0;
 	_time_smoke    = 0;
+	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
 }
 
 GC_Weap_Cannon::GC_Weap_Cannon(FromFile)
@@ -187,15 +186,14 @@ void GC_Weap_Cannon::OnShoot(World &world)
 {
 	_time_smoke = 0.3f;
 
-	GC_Vehicle * const veh = static_cast<GC_Vehicle*>(GetCarrier());
 	const vec2d &dir = GetDirection();
 	
-	(new GC_TankBullet(world, GetPos() + dir * 17.0f,
-					   dir * SPEED_TANKBULLET + world.net_vrand(50), veh, veh->GetOwner(), !!GetBooster()))->Register(world);
+	(new GC_TankBullet(world, GetPos() + dir * 17.0f, dir * SPEED_TANKBULLET + world.net_vrand(50),
+					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 	
 	if( !GetBooster() )
 	{
-		veh->ApplyImpulse( dir * (-80.0f) );
+		GetVehicle()->ApplyImpulse( dir * (-80.0f) );
 	}
 }
 
@@ -214,7 +212,7 @@ void GC_Weap_Cannon::TimeStep(World &world, float dt)
 {
 	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 
-	if( GetCarrier() && _time_smoke > 0 )
+	if( GetAttached() && _time_smoke > 0 )
 	{
 		_time_smoke -= dt;
 		_time_smoke_dt += dt;
@@ -254,9 +252,8 @@ void GC_Weap_Plazma::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Plazma::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
-	(new GC_PlazmaClod(world, GetPos() + a * 15.0f,
-					   a * SPEED_PLAZMA + world.net_vrand(20),
-					   GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+	(new GC_PlazmaClod(world, GetPos() + a * 15.0f, a * SPEED_PLAZMA + world.net_vrand(20),
+					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -296,8 +293,8 @@ void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Gauss::OnShoot(World &world)
 {
 	const vec2d &dir = GetDirection();
-	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x),
-					 dir * SPEED_GAUSS, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x), dir * SPEED_GAUSS,
+					 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -327,19 +324,16 @@ GC_Weap_Ram::GC_Weap_Ram(World &world)
 
 void GC_Weap_Ram::SetBooster(World &world, GC_pu_Booster *booster)
 {
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
-		static_cast<GC_Vehicle*>(GetCarrier())->_percussion =
-			booster ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
+		GetVehicle()->_percussion = booster ? WEAP_RAM_PERCUSSION * 2 : WEAP_RAM_PERCUSSION;
 	}
 
 	GC_Weapon::SetBooster(world, booster);
 }
 
-void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
+void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_Weapon::Attach(world, actor);
-
 	_engineSound = new GC_Sound(world, SND_RamEngine, GetPos());
     _engineSound->Register(world);
     _engineSound->SetMode(world, SMODE_STOP);
@@ -349,13 +343,14 @@ void GC_Weap_Ram::Attach(World &world, GC_Actor *actor)
 	_engineLight->SetRadius(120);
 	_engineLight->SetActive(false);
 
-
 	_fuel_max  = _fuel = 1.0f;
 	_fuel_consumption_rate = 0.2f;
 	_fuel_recuperation_rate  = 0.1f;
 
 	_firingCounter = 0;
 	_bReady = true;
+	
+	GC_Weapon::OnAttached(world, vehicle);
 }
 
 void GC_Weap_Ram::Detach(World &world)
@@ -410,14 +405,11 @@ void GC_Weap_Ram::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_Ram::Fire(World &world, bool fire)
 {
-	assert(GetCarrier());
+	assert(GetAttached());
 	if( fire && _bReady )
 	{
 		_firingCounter = 2;
-		if( GC_RigidBodyDynamic *owner = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier()) )
-		{
-			owner->ApplyForce(GetDirection() * 2000);
-		}
+		GetVehicle()->ApplyForce(GetDirection() * 2000);
 	}
 }
 
@@ -436,10 +428,9 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 {
 	GC_Weapon::TimeStep(world, dt);
 
-	if( GetCarrier() && _firingCounter )
+	if( GetAttached() && _firingCounter )
 	{
-		GC_Vehicle *veh = static_cast<GC_Vehicle *>(GetCarrier());
-		vec2d v = veh->_lv;
+		vec2d v = GetVehicle()->_lv;
 		
 		// primary
 		{
@@ -474,7 +465,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 		}
 	}
 	
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		assert(_engineSound);
 
@@ -490,14 +481,14 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 			if( 0 == _fuel ) _bReady = false;
 
 			DamageDesc dd;
-			dd.from = GetCarrier()->GetOwner();
+			dd.from = GetVehicle()->GetOwner();
 
 			// the primary jet
 			{
 				const float lenght = 50.0f;
 				const vec2d &a = GetDirection();
 				vec2d emitter = GetPos() - a * 20.0f;
-				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetCarrier(), emitter, -a * lenght, &dd.hit) )
+				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetVehicle(), emitter, -a * lenght, &dd.hit) )
 				{
 					dd.damage = dt * DAMAGE_RAM_ENGINE * (1.0f - (dd.hit - emitter).len() / lenght);
 					object->TakeDamage(world, dd);
@@ -510,7 +501,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 				const float lenght = 50.0f;
 				vec2d a = Vec2dAddDirection(GetDirection(), vec2d(l * 0.15f));
 				vec2d emitter = GetPos() - a * 15.0f + vec2d( -a.y, a.x) * l * 17.0f;
-				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetCarrier(), emitter + a * 2.0f, -a * lenght, &dd.hit) )
+				if( GC_RigidBodyStatic *object = world.TraceNearest(world.grid_rigid_s, GetVehicle(), emitter + a * 2.0f, -a * lenght, &dd.hit) )
 				{
 					dd.damage = dt * DAMAGE_RAM_ENGINE * (1.0f - (dd.hit - emitter).len() / lenght);
 					object->TakeDamage(world, dd);
@@ -563,7 +554,7 @@ void GC_Weap_BFG::OnShoot(World &world)
 	if (GetNumShots())
 	{
 		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
-						GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+						GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 	}
 }
 
@@ -605,7 +596,7 @@ void GC_Weap_Ripper::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
 	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-				 GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster()))->Register(world);
+				 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -653,12 +644,12 @@ void GC_Weap_Minigun::Kill(World &world)
     GC_ProjectileBasedWeapon::Kill(world);
 }
 
-void GC_Weap_Minigun::Attach(World &world, GC_Actor *actor)
+void GC_Weap_Minigun::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_ProjectileBasedWeapon::Attach(world, actor);
 	_sound = new GC_Sound(world, SND_MinigunFire, GetPos());
     _sound->Register(world);
     _sound->SetMode(world, SMODE_STOP);
+	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
 }
 
 void GC_Weap_Minigun::Detach(World &world)
@@ -690,17 +681,17 @@ void GC_Weap_Minigun::OnShoot(World &world)
 	vec2d a = Vec2dAddDirection(GetDirection(), vec2d(world.net_frand(da * 2.0f) - da));
 	a *= (1 - world.net_frand(0.2f));
 	
-	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
-	if( veh && !GetBooster() )
+	if( !GetBooster() )
 	{
 		if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _heat - WEAP_MG_TIME_RELAX * 0.2f )
 		{
 			float m = 3000;//veh->_inv_i; // FIXME
-			veh->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
+			GetVehicle()->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
 		}
 	}
 	
-	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster());
+	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET,
+								   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	tmp->Register(world);
 }
 
@@ -717,7 +708,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Minigun::TimeStep(World &world, float dt)
 {
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		if( GetFire() )
 		{
@@ -762,13 +753,12 @@ void GC_Weap_Zippo::Kill(World &world)
     GC_ProjectileBasedWeapon::Kill(world);
 }
 
-void GC_Weap_Zippo::Attach(World &world, GC_Actor *actor)
+void GC_Weap_Zippo::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	GC_ProjectileBasedWeapon::Attach(world, actor);
-
 	_sound = new GC_Sound(world, SND_RamEngine, GetPos());
     _sound->Register(world);
     _sound->SetMode(world, SMODE_STOP);
+	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
 }
 
 void GC_Weap_Zippo::Detach(World &world)
@@ -795,16 +785,14 @@ void GC_Weap_Zippo::OnShoot(World &world)
 {
 	_heat = std::max(_heat - world.GetTime() + GetLastShotTime(), 0.0f);
 	_heat = std::min(_heat + GetReloadTime() * 2, WEAP_ZIPPO_TIME_RELAX);
-	
-	GC_RigidBodyDynamic *veh = dynamic_cast<GC_RigidBodyDynamic *>(GetCarrier());
-	
-	vec2d vvel = veh ? veh->_lv : vec2d(0,0);
+
+	vec2d vvel = GetVehicle()->_lv;
 	
 	vec2d a(GetDirection());
 	a *= (1 - world.net_frand(0.2f));
 	
-	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f,
-										 vvel + a * SPEED_FIRE, GetCarrier(), GetCarrier()->GetOwner(), !!GetBooster());
+	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f, vvel + a * SPEED_FIRE,
+										 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	tmp->Register(world);
 	tmp->SetLifeTime(_heat);
 	tmp->SetHealOwner(!!GetBooster());
@@ -824,7 +812,7 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Zippo::TimeStep(World &world, float dt)
 {
-	if( GetCarrier() )
+	if( GetAttached() )
 	{
 		if( GetFire() )
 		{
@@ -842,8 +830,8 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 		_timeBurn += dt;
 		while( _timeBurn > 0 )
 		{
-			GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + world.net_vrand(33),
-				SPEED_SMOKE/2, GetCarrier(), GetCarrier() ? GetCarrier()->GetOwner() : NULL, true);
+			GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + world.net_vrand(33), SPEED_SMOKE/2,
+												 GetVehicle(), GetVehicle() ? GetVehicle()->GetOwner() : NULL, true);
             tmp->Register(world);
 			tmp->SetLifeTime(0.3f);
 			tmp->TimeStep(world, _timeBurn);

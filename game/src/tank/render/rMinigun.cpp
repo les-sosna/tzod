@@ -33,7 +33,7 @@ void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, DrawingContex
 {
 	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
 	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
-	if (minigun.GetCarrier())
+	if (minigun.GetAttached())
 	{
 		vec2d delta(minigun.GetHeat(world) * 0.1f / WEAP_MG_TIME_RELAX);
 		vec2d dir1 = Vec2dAddDirection(minigun.GetDirection(), delta);

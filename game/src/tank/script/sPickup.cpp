@@ -2,6 +2,7 @@
 #include "script.h"
 #include "core/Debug.h"
 #include "gc/Pickup.h"
+#include "gc/Vehicle.h"
 #include "gc/World.h"
 #include "gclua/lObjUtil.h"
 extern "C"
@@ -23,7 +24,7 @@ sPickup::~sPickup()
 	_world.eGC_Pickup.RemoveListener(*this);
 }
 
-void sPickup::OnPickup(GC_Pickup &obj, GC_Actor &actor)
+void sPickup::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	if( !obj.GetOnPickup().empty() )
 	{
@@ -46,7 +47,7 @@ void sPickup::OnPickup(GC_Pickup &obj, GC_Actor &actor)
 			}
 			else
 			{
-				luaT_pushobject(_L, &actor);
+				luaT_pushobject(_L, &vehicle);
 				if( lua_pcall(_L, 1, 0, 0) )
 				{
 					GetConsole().WriteLine(1, lua_tostring(_L, -1));

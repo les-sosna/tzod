@@ -40,9 +40,7 @@ public:
 	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_ACTOR_INGRIDSET, bGridSet); }
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_ACTOR_INGRIDSET); }
 
-	virtual void MoveTo(World &world, const vec2d &pos);
-	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached); // called by a pickup
-    
+	virtual void MoveTo(World &world, const vec2d &pos);   
     virtual void Kill(World &world);
 };
 

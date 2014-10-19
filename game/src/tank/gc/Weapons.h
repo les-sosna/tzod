@@ -74,14 +74,12 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
-	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
-
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
 protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle);
 	virtual void OnShoot(World &world) override;
 
 private:
@@ -148,19 +146,21 @@ public:
 	float GetFuelMax() const { return _fuel_max; }
 
 	// GC_Weapon
-	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void Fire(World &world, bool fire);
+	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
+	virtual void Fire(World &world, bool fire) override;
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) override;
-	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
+	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
+	virtual void Detach(World &world) override;
 	
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
+
+protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	virtual void OnUpdateView(World &world);
@@ -237,22 +237,22 @@ public:
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.1f; }
-	virtual float GetReloadTime() const { return GetBooster() ? 0.02f : 0.04f; }
+	virtual float GetReloadTime() const override { return GetBooster() ? 0.02f : 0.04f; }
 	
 	// GC_Weapon
-	virtual void AdjustVehicleClass(VehicleClass &vc) const;
-	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
+	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
+	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
 	
 	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
-	virtual void Detach(World &world);
+	virtual void Detach(World &world) override;
 
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
 
 protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 	virtual void OnShoot(World &world) override;
 
 private:
@@ -280,7 +280,6 @@ public:
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 
 	// GC_Pickup
-	virtual void Attach(World &world, GC_Actor *actor);
 	virtual void Detach(World &world);
 
 	// GC_Object
@@ -289,6 +288,7 @@ public:
 	virtual void TimeStep(World &world, float dt);
 	
 protected:
+	virtual void OnAttached(World &world, GC_Vehicle &vehicle);
 	virtual void OnShoot(World &world) override;
 
 private:

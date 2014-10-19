@@ -18,11 +18,7 @@ struct VehicleClass;
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
     typedef GC_RigidBodyDynamic base;
-    
-	ObjPtr<GC_Weapon>   _weapon;
-	ObjPtr<GC_pu_Shield> _shield;
-	ObjPtr<GC_Player>   _player;
-
+	
 public:
     DECLARE_LIST_MEMBER();
 	GC_Vehicle(World &world);
@@ -43,7 +39,6 @@ public:
 protected:
 	void ApplyState(World &world, const VehicleState &vs);
 
-
 public:
 	VehicleState _state;
 
@@ -53,8 +48,8 @@ public:
 	void SetMoveSound(World &world, enumSoundTemplate s);
 
 	GC_Weapon* GetWeapon() const { return _weapon; }
-
 	void SetPlayer(World &world, GC_Player *player);
+	void SetWeapon(World &world, GC_Weapon *weapon);
 
 public:
 	ObjPtr<GC_Sound>    _moveSound;
@@ -75,21 +70,15 @@ public:
 	// GC_RigidBodyStatic
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return _player; }
-
+	
 	// GC_Actor
-	virtual void OnPickup(World &world, GC_Pickup *pickup, bool attached);
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
-protected:
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
-	virtual void OnDestroy(World &world, GC_Player *by) override;
-
 #ifdef NETWORK_DEBUG
-public:
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(_enginePower) ^ reinterpret_cast<const DWORD&>(_rotatePower);
@@ -97,6 +86,16 @@ public:
 		return GC_RigidBodyDynamic::checksum() ^ cs;
 	}
 #endif
+
+protected:
+	virtual void OnDamage(World &world, DamageDesc &dd) override;
+	virtual void OnDestroy(World &world, GC_Player *by) override;
+	
+private:
+	ObjPtr<GC_Weapon> _weapon;
+	ObjPtr<GC_pu_Shield> _shield;
+	ObjPtr<GC_Player> _player;
+
 };
 
 /////////////////////////////////////////////////////////////

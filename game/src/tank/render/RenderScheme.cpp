@@ -50,7 +50,7 @@ static bool IsPickupVisible(const World &world, const GC_Actor &actor)
 static bool IsPickupAttached(const World &world, const GC_Actor &actor)
 {
 	assert(dynamic_cast<const GC_Pickup*>(&actor));
-	return nullptr != static_cast<const GC_Pickup&>(actor).GetCarrier();
+	return static_cast<const GC_Pickup&>(actor).GetAttached();
 }
 
 template <class T, class ...Args>

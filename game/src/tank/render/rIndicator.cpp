@@ -1,5 +1,5 @@
 #include "rIndicator.h"
-#include "gc/RigidBody.h"
+#include "gc/Vehicle.h"
 #include "gc/Weapons.h"
 #include "gc/World.h"
 #include <video/TextureManager.h>
@@ -31,11 +31,10 @@ static void DrawWeaponIndicator(const World &world,
 								const GC_Weapon &weapon,
 								float value)
 {
-	if( GC_RigidBodyStatic *carrier = weapon.GetCarrier() )
+	if( GC_Vehicle *vehicle = weapon.GetVehicle() )
 	{
-		
-		vec2d pos = carrier->GetPos();
-		float radius = carrier->GetRadius();
+		vec2d pos = vehicle->GetPos();
+		float radius = vehicle->GetRadius();
 		float indicatorHeight = tm.GetFrameHeight(texId, 0);
 		dc.DrawIndicator(texId, pos.x, std::min(pos.y + radius, world._sy - indicatorHeight*2), value);
 	}

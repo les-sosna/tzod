@@ -11,11 +11,11 @@ template<> struct ObjectListener<GC_Object>
 	virtual void OnKill(GC_Object &obj) = 0;
 };
 
-class GC_Actor;
 class GC_Pickup;
+class GC_Vehicle;
 template<> struct ObjectListener<GC_Pickup>
 {
-	virtual void OnPickup(GC_Pickup &obj, GC_Actor &actor) = 0;
+	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) = 0;
 	virtual void OnRespawn(GC_Pickup &obj) = 0;
 	virtual void OnDisappear(GC_Pickup &obj) = 0;
 };
