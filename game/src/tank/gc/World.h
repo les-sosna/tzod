@@ -242,7 +242,7 @@ private:
 		float time;
         bool operator<(const Resumable &other) const
 		{
-			return time < other.time;
+			return time > other.time;
 		}
 		Resumable(std::unique_ptr<ResumableObject> obj_, float time_)
 			: obj(std::move(obj_))

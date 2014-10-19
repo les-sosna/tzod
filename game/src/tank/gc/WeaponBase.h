@@ -125,7 +125,7 @@ public:
 
 protected:
 	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
-	void ResetSeries() { _numShots = 0; }
+	void ResetSeries();
 
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 

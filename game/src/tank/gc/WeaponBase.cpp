@@ -269,6 +269,12 @@ void GC_ProjectileBasedWeapon::Fire(World &world, bool fire)
 	}
 }
 
+void GC_ProjectileBasedWeapon::ResetSeries()
+{
+	_numShots = 0;
+	_lastShotTime = -FLT_MAX;
+}
+
 void GC_ProjectileBasedWeapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
 	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
