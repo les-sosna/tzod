@@ -22,6 +22,7 @@ public:
 	};
 
 private:
+	float  _startTime;
 	float  _timeout;
 	float  _aspect;
 	float  _offset;
@@ -90,6 +91,8 @@ public:
 			return _radius;
 	}
 
+	bool GetFade() const { return CheckFlags(GC_FLAG_LIGHT_FADE); }
+	float GetStartTime() const { return _startTime; }
 
 	void  SetTimeout(World &world, float t);
 	float GetTimeout() const { return _timeout; }
@@ -97,8 +100,7 @@ public:
 	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-	virtual void TimeStep(World &world, float dt) override;
-    virtual void Kill(World &world) override;
+	virtual void Resume(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 };
 

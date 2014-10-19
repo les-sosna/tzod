@@ -56,18 +56,23 @@ void WorldView::Render(DrawingContext &dc,
 				pLight->GetPos().y + pLight->GetRenderRadius() > ymin &&
 				pLight->GetPos().y - pLight->GetRenderRadius() < ymax )
 			{
-			//	_FpsCounter::Inst()->OneMoreLight();
+				float intensity = pLight->GetIntensity();
+				if (pLight->GetFade())
+				{
+					float age = (world.GetTime() - pLight->GetStartTime()) / pLight->GetTimeout();
+					intensity *= 1.0f - age;
+				}
 				switch (pLight->GetLightType())
 				{
 					case GC_Light::LIGHT_POINT:
-						dc.DrawPointLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos());
+						dc.DrawPointLight(intensity, pLight->GetRadius(), pLight->GetPos());
 						break;
 					case GC_Light::LIGHT_SPOT:
-						dc.DrawSpotLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos(),
+						dc.DrawSpotLight(intensity, pLight->GetRadius(), pLight->GetPos(),
 										 pLight->GetLightDirection(), pLight->GetOffset(), pLight->GetAspect());
 						break;
 					case GC_Light::LIGHT_DIRECT:
-						dc.DrawDirectLight(pLight->GetIntensity(), pLight->GetRadius(), pLight->GetPos(),
+						dc.DrawDirectLight(intensity, pLight->GetRadius(), pLight->GetPos(),
 										   pLight->GetLightDirection(), pLight->GetLength());
 						break;
 					default:

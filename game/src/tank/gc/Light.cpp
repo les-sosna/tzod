@@ -6,6 +6,7 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
+#include <cfloat>
 
 IMPLEMENT_SELF_REGISTRATION(GC_Light)
 {
@@ -15,7 +16,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 IMPLEMENT_1LIST_MEMBER(GC_Light, LIST_lights);
 
 GC_Light::GC_Light(World &world, enumLightType type)
-  : _timeout(0)
+  : _startTime(-FLT_MAX)
+  , _timeout(0)
   , _aspect(1)
   , _offset(0)
   , _radius(200)
@@ -44,34 +46,23 @@ void GC_Light::Serialize(World &world, SaveFile &f)
 	f.Serialize(_offset);
 	f.Serialize(_radius);
 	f.Serialize(_timeout);
+	f.Serialize(_startTime);
 	f.Serialize(_type);
-    
-    if (f.loading() && CheckFlags(GC_FLAG_LIGHT_FADE))
-        world.GetList(LIST_timestep).insert(this, GetId());
 }
 
 void GC_Light::SetTimeout(World &world, float t)
 {
-	assert(t > 0);
+	assert(t >= 0);
+	assert(!CheckFlags(GC_FLAG_LIGHT_FADE));
+	SetFlags(GC_FLAG_LIGHT_FADE, true);
+	_startTime = world.GetTime();
 	_timeout = t;
-    SetFlags(GC_FLAG_LIGHT_FADE, true);
-    world.GetList(LIST_timestep).insert(this, GetId());
+	world.Timeout(*this, t);
 }
 
-void GC_Light::TimeStep(World &world, float dt)
+void GC_Light::Resume(World &world)
 {
-	assert(_timeout > 0);
-	_intensity = _intensity * (_timeout - dt) / _timeout;
-	_timeout -= dt;
-	if( _timeout <= 0 )
-        Kill(world);
-}
-
-void GC_Light::Kill(World &world)
-{
-    if( CheckFlags(GC_FLAG_LIGHT_FADE) )
-        world.GetList(LIST_timestep).erase(GetId());
-    GC_Actor::Kill(world);
+	Kill(world);
 }
 
 void GC_Light::SetActive(bool activate)
