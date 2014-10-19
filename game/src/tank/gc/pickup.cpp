@@ -560,7 +560,6 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 		_weapon = w;
 		_weapon->SetBooster(world, this);
 		
-		PLAY(SND_B_Start, GetPos());
 		assert(NULL == _sound);
 		_sound = new GC_Sound_link(world, SND_B_Loop, this);
 		_sound->Register(world);

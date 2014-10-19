@@ -44,16 +44,26 @@ void SoundHarness::Step()
 
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
+	ObjectType type = obj.GetType();
 	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
 		{GC_pu_Health::GetTypeStatic(), SND_Pickup},
 		{GC_pu_Shield::GetTypeStatic(), SND_Inv},
 		{GC_pu_Shock::GetTypeStatic(), SND_ShockActivate},
 	};
-	auto found = sounds.find(obj.GetType());
+	auto found = sounds.find(type);
 	if (sounds.end() != found)
+	{
 		_soundRender->PlayOnce(found->second, obj.GetPos());
+	}
+	else if (GC_pu_Booster::GetTypeStatic() == type)
+	{
+		if (vehicle.GetWeapon())
+			_soundRender->PlayOnce(SND_B_Start, obj.GetPos());
+	}
 	else if (dynamic_cast<GC_Weapon*>(&obj))
+	{
 		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
+	}
 }
 
 void SoundHarness::OnRespawn(GC_Pickup &obj)
