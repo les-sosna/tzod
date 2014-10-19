@@ -46,37 +46,26 @@ class GC_Explosion : public GC_Actor
 	
 	typedef std::map<coord, FieldNode> FIELD_TYPE;
 	
-	bool _boomOK;
-	
 	ObjPtr<GC_Player>  _owner;
-	ObjPtr<GC_Light>   _light;
 	
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
 	void Boom(World &world, float radius, float damage);
 	
 	float _damage;
 	float _radius;
-	float _time;
-	float _time_life;
-	float _time_boom;
 	
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Explosion(World &world, GC_Player *owner, float duration);
+	GC_Explosion(GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 	
 	void SetRadius(float radius);
 	void SetDamage(float damage) { _damage = damage; }
-	void SetBoomTimeout(float t) { _time_boom = t; }
-
-	// GC_Actor
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+	void SetTimeout(World &world, float timeout);
 	
 	// GC_Object
+	virtual void Resume(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
-    virtual void Kill(World &world) override;
 };
 
 GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *owner);

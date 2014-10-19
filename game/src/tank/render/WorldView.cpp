@@ -60,7 +60,7 @@ void WorldView::Render(DrawingContext &dc,
 				if (pLight->GetFade())
 				{
 					float age = (world.GetTime() - pLight->GetStartTime()) / pLight->GetTimeout();
-					intensity *= 1.0f - age;
+					intensity *= 1.0f - age*age*age;
 				}
 				switch (pLight->GetLightType())
 				{

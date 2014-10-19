@@ -401,7 +401,7 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	{
 		auto &e = MakeExplosionBig(world, vec2d(std::max(.0f, std::min(world._sx - 1, hit.x + norm.x)),
 		                                        std::max(.0f, std::min(world._sy - 1, hit.y + norm.y))), GetOwner());
-        e.SetBoomTimeout(0.05f);
+        e.SetTimeout(world, 0.05f);
 	}
 	else
 	{
