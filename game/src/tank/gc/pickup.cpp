@@ -575,8 +575,11 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 
 void GC_pu_Booster::Detach(World &world)
 {
-	assert(_weapon);
-	_weapon->SetBooster(world, nullptr);
+	if (_weapon)
+	{
+		_weapon->SetBooster(world, nullptr);
+		_weapon = nullptr;
+	}
 	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }
