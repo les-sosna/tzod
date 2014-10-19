@@ -20,6 +20,15 @@ template<> struct ObjectListener<GC_Pickup>
 	virtual void OnDisappear(GC_Pickup &obj) = 0;
 };
 
+struct DamageDesc;
+class GC_pu_Shield;
+class GC_Vehicle;
+template<> struct ObjectListener<GC_pu_Shield>
+{
+	virtual void OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd) = 0;
+	virtual void OnExpiring(GC_pu_Shield &obj) = 0;
+};
+
 class GC_Player;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Player>

@@ -18,6 +18,7 @@ SoundHarness::SoundHarness(World &world)
 	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_Projectile.AddListener(*this);
 	_world.eGC_ProjectileBasedWeapon.AddListener(*this);
+	_world.eGC_pu_Shield.AddListener(*this);
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_RigidBodyDynamic.AddListener(*this);
 	_world.eGC_Turret.AddListener(*this);
@@ -32,6 +33,7 @@ SoundHarness::~SoundHarness()
 	_world.eGC_Turret.RemoveListener(*this);
 	_world.eGC_RigidBodyDynamic.RemoveListener(*this);
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
+	_world.eGC_pu_Shield.RemoveListener(*this);
 	_world.eGC_ProjectileBasedWeapon.RemoveListener(*this);
 	_world.eGC_Projectile.RemoveListener(*this);
 	_world.eGC_Pickup.RemoveListener(*this);
@@ -130,6 +132,16 @@ void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
 		else if( !obj.GetBooster() )
 			_soundRender->PlayOnce(SND_BfgInit, obj.GetPos());
 	}
+}
+
+void SoundHarness::OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd)
+{
+	_soundRender->PlayOnce(rand() % 2 ? SND_InvHit1 : SND_InvHit2, obj.GetPos());
+}
+
+void SoundHarness::OnExpiring(GC_pu_Shield &obj)
+{
+	_soundRender->PlayOnce(SND_InvEnd, obj.GetPos());
 }
 
 void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)

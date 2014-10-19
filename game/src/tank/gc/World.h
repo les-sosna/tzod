@@ -25,6 +25,7 @@ namespace FS
 class ClientBase;
 class GC_Object;
 class GC_Pickup;
+class GC_pu_Shield;
 class GC_Player;
 class GC_Projectile;
 class GC_ProjectileBasedWeapon;
@@ -94,6 +95,7 @@ class World
 public:
 	DECLARE_EVENTS(GC_Object);
 	DECLARE_EVENTS(GC_Pickup);
+	DECLARE_EVENTS(GC_pu_Shield);
 	DECLARE_EVENTS(GC_Player);
 	DECLARE_EVENTS(GC_Projectile);
 	DECLARE_EVENTS(GC_ProjectileBasedWeapon);

@@ -318,7 +318,8 @@ void GC_pu_Shield::TimeStep(World &world, float dt)
 		{
 			if( !GetBlinking() )
 			{
-				PLAY(SND_InvEnd, GetPos());
+				for( auto ls: world.eGC_pu_Shield._listeners )
+					ls->OnExpiring(*this);
 				SetBlinking(true);
 			}
 			if( GetTimeAttached() > PROTECT_TIME )
@@ -334,9 +335,10 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 	assert(_vehicle);
 	if( dd.damage > 5 || 0 == rand() % 4 || world.GetTime() - _timeHit > 0.2f )
 	{
-		const vec2d &pos = _vehicle->GetPos();
+		for( auto ls: world.eGC_pu_Shield._listeners )
+			ls->OnOwnerDamage(*this, dd);
 
-		PLAY(rand() % 2 ? SND_InvHit1 : SND_InvHit2, pos);
+		const vec2d &pos = _vehicle->GetPos();
 		vec2d dir = (dd.hit - pos).Normalize();
 		vec2d p = vec2d(dir.y, -dir.x);
 		vec2d v = _vehicle->_lv;

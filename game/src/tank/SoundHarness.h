@@ -8,6 +8,7 @@ class SoundHarness
 	: ObjectListener<GC_Pickup>
 	, ObjectListener<GC_Projectile>
 	, ObjectListener<GC_ProjectileBasedWeapon>
+	, ObjectListener<GC_pu_Shield>
 	, ObjectListener<GC_RigidBodyStatic>
 	, ObjectListener<GC_RigidBodyDynamic>
 	, ObjectListener<GC_Turret>
@@ -34,6 +35,10 @@ private:
 	
 	// ObjectListener<GC_ProjectileBasedWeapon>
 	virtual void OnShoot(GC_ProjectileBasedWeapon &obj) override;
+	
+	// ObjectListener<GC_pu_Shield>
+	virtual void OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd) override;
+	virtual void OnExpiring(GC_pu_Shield &obj) override;
 	
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
