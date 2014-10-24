@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 
 IMPLEMENT_1LIST_MEMBER(GC_Sound, LIST_sounds);
 
-GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
+GC_Sound::GC_Sound(enumSoundTemplate sound)
   : _soundTemplate(sound)
 #ifndef NOSOUND
   , _source(0U)
@@ -45,8 +45,6 @@ GC_Sound::GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos)
         alSourcei(_source, AL_REFERENCE_DISTANCE, 70);
         _mode = SMODE_STOP;
     }
-
-	MoveTo(world, pos);
 
 	SetVolume(1.0f);
 	if( 100 != g_conf.sv_speed.GetInt() )
@@ -327,8 +325,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 
 IMPLEMENT_1LIST_MEMBER(GC_Sound_link, LIST_timestep);
 
-GC_Sound_link::GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object)
-   : GC_Sound(world, sound, object->GetPos())
+GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, GC_Actor *object)
+   : GC_Sound(sound)
    , _object(object)
 {
 }

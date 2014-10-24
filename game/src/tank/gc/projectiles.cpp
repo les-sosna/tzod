@@ -18,15 +18,13 @@ IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 
 GC_Projectile::GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner,
 							 bool advanced, bool trail, const vec2d &pos, const vec2d &v)
-  : _light(new GC_Light(world, GC_Light::LIGHT_POINT))
+  : _light(&world.New<GC_Light>(GC_Light::LIGHT_POINT))
   , _velocity(v.len())
   , _ignore(ignore)
   , _owner(owner)
   , _trailDensity(10.0f)
   , _trailPath(0.0f)
 {
-    _light->Register(world);
-    
 	SetFlags(GC_FLAG_PROJECTILE_ADVANCED, advanced);
 	SetFlags(GC_FLAG_PROJECTILE_TRAIL, trail);
 
@@ -182,9 +180,8 @@ GC_Rocket::GC_Rocket(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyS
 {
 	SetTrailDensity(world, 1.5f);
 
-	auto sound = new GC_Sound_link(world, SND_RocketFly, this);
-    sound->Register(world);
-    sound->SetMode(world, SMODE_LOOP);
+	auto &sound = world.New<GC_Sound_link>(SND_RocketFly, this);
+    sound.SetMode(world, SMODE_LOOP);
 
 	// advanced rocket searches for target
 	if( GetAdvanced() )
@@ -262,9 +259,8 @@ bool GC_Rocket::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
 
 void GC_Rocket::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	auto p = new GC_Particle(world, GetDirection() * (GetVelocity() * 0.3f), _target ? PARTICLE_FIRE2:PARTICLE_FIRE1, frand(0.1f) + 0.02f);
-    p->Register(world);
-    p->MoveTo(world, pos - GetDirection() * 8.0f);
+	auto &p = world.New<GC_Particle>(GetDirection() * (GetVelocity() * 0.3f), _target ? PARTICLE_FIRE2:PARTICLE_FIRE1, frand(0.1f) + 0.02f);
+    p.MoveTo(world, pos - GetDirection() * 8.0f);
 }
 
 void GC_Rocket::TimeStep(World &world, float dt)
@@ -338,17 +334,15 @@ bool GC_Bullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
 	for( int i = 0; i < 7; ++i )
 	{
 		vec2d a(a1 + frand(a2 - a1));
-		auto p = new GC_Particle(world, a * (frand(50.0f) + 50.0f), PARTICLE_TRACE1, frand(0.1f) + 0.03f, a);
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(a * (frand(50.0f) + 50.0f), PARTICLE_TRACE1, frand(0.1f) + 0.03f, a);
+        p.MoveTo(world, hit);
 	}
 
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    pLight->Register(world);
-	pLight->MoveTo(world, hit);
-	pLight->SetRadius(50);
-	pLight->SetIntensity(0.5f);
-	pLight->SetTimeout(world, 0.3f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, hit);
+	light.SetRadius(50);
+	light.SetIntensity(0.5f);
+	light.SetTimeout(world, 0.3f);
 
 	DamageDesc dd;
 	dd.damage = GetAdvanced() ? DAMAGE_BULLET * 2 : DAMAGE_BULLET;
@@ -370,9 +364,8 @@ void GC_Bullet::SpawnTrailParticle(World &world, const vec2d &pos)
 
 	if( _trailEnable )
 	{
-		auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_TRACE2, frand(0.01f) + 0.09f, GetDirection());
-        p->Register(world);
-        p->MoveTo(world, pos);
+		auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_TRACE2, frand(0.01f) + 0.09f, GetDirection());
+        p.MoveTo(world, pos);
 	}
 }
 
@@ -411,21 +404,18 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 		for( int n = 0; n < 9; n++ )
 		{
 			vec2d v(a1 + frand(a2 - a1));
-			auto p = new GC_Particle(world, v * (frand(100.0f) + 50.0f), PARTICLE_TRACE1, frand(0.2f) + 0.05f, v);
-            p->Register(world);
-            p->MoveTo(world, hit);
+			auto &p = world.New<GC_Particle>(v * (frand(100.0f) + 50.0f), PARTICLE_TRACE1, frand(0.2f) + 0.05f, v);
+            p.MoveTo(world, hit);
 		}
 
-		GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-        pLight->Register(world);
-		pLight->MoveTo(world, hit);
-		pLight->SetRadius(80);
-		pLight->SetIntensity(1.5f);
-		pLight->SetTimeout(world, 0.3f);
+		auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+		light.MoveTo(world, hit);
+		light.SetRadius(80);
+		light.SetIntensity(1.5f);
+		light.SetTimeout(world, 0.3f);
 
-		auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_S, 0.3f, vrand(1));
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_EXPLOSION_S, 0.3f, vrand(1));
+        p.MoveTo(world, hit);
 	}
 
 	DamageDesc dd;
@@ -440,9 +430,8 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 
 void GC_TankBullet::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	auto p = new GC_Particle(world, vec2d(0,0), GetAdvanced() ? PARTICLE_TRACE1:PARTICLE_TRACE2, frand(0.05f) + 0.05f, GetDirection());
-    p->Register(world);
-    p->MoveTo(world, pos);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), GetAdvanced() ? PARTICLE_TRACE1:PARTICLE_TRACE2, frand(0.05f) + 0.05f, GetDirection());
+    p.MoveTo(world, pos);
 }
 
 /////////////////////////////////////////////////////////////
@@ -467,9 +456,8 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 {
 	if( GetAdvanced() )
 	{
-		auto daemon = new GC_HealthDaemon(world, GetOwner(), 15.0f, 2.0f);
-        daemon->Register(world);
-        daemon->SetVictim(world, object);
+		auto &daemon = world.New<GC_HealthDaemon>(GetOwner(), 15.0f, 2.0f);
+        daemon.SetVictim(world, object);
 	}
 
 	float a = norm.Angle();
@@ -478,21 +466,18 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	for( int n = 0; n < 15; n++ )
 	{
 		vec2d v(a1 + frand(a2 - a1));
-		auto p = new GC_Particle(world, v * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.2f) + 0.05f, v);
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(v * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.2f) + 0.05f, v);
+        p.MoveTo(world, hit);
 	}
 
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    pLight->Register(world);
-	pLight->MoveTo(world, hit);
-	pLight->SetRadius(90);
-	pLight->SetIntensity(1.5f);
-	pLight->SetTimeout(world, 0.4f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, hit);
+	light.SetRadius(90);
+	light.SetIntensity(1.5f);
+	light.SetTimeout(world, 0.4f);
 
-	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_P, 0.3f, vrand(1));
-    p->Register(world);
-    p->MoveTo(world, hit);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_EXPLOSION_P, 0.3f, vrand(1));
+    p.MoveTo(world, hit);
 
 	DamageDesc dd;
 	dd.damage = DAMAGE_PLAZMA;
@@ -506,9 +491,8 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 
 void GC_PlazmaClod::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_GREEN, frand(0.15f) + 0.10f);
-    p->Register(world);
-    p->MoveTo(world, pos);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_GREEN, frand(0.15f) + 0.10f);
+    p.MoveTo(world, pos);
 }
 
 /////////////////////////////////////////////////////////////
@@ -580,22 +564,19 @@ bool GC_BfgCore::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hi
 	for(int n = 0; n < 64; n++)
 	{
 		//ring
-		auto p = new GC_Particle(world, vec2d(a1 + frand(a2 - a1)) * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.3f) + 0.15f);
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(vec2d(a1 + frand(a2 - a1)) * (frand(100.0f) + 50.0f), PARTICLE_GREEN, frand(0.3f) + 0.15f);
+        p.MoveTo(world, hit);
 	}
 
 
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    pLight->Register(world);
-	pLight->MoveTo(world, hit);
-	pLight->SetRadius(WEAP_BFG_RADIUS * 3);
-	pLight->SetIntensity(1.5f);
-	pLight->SetTimeout(world, 0.5f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, hit);
+	light.SetRadius(WEAP_BFG_RADIUS * 3);
+	light.SetIntensity(1.5f);
+	light.SetTimeout(world, 0.5f);
 
-	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_G, 0.3f);
-    p->Register(world);
-    p->MoveTo(world, hit);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_EXPLOSION_G, 0.3f);
+    p.MoveTo(world, hit);
 
 	DamageDesc dd;
 	dd.damage = DAMAGE_BFGCORE;
@@ -610,9 +591,8 @@ bool GC_BfgCore::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hi
 void GC_BfgCore::SpawnTrailParticle(World &world, const vec2d &pos)
 {
 	vec2d dx = vrand(WEAP_BFG_RADIUS) * frand(1.0f);
-	auto p = new GC_Particle(world, vrand(7.0f), PARTICLE_GREEN, 0.7f);
-    p->Register(world);
-    p->MoveTo(world, pos + dx);
+	auto &p = world.New<GC_Particle>(vrand(7.0f), PARTICLE_GREEN, 0.7f);
+    p.MoveTo(world, pos + dx);
 }
 
 void GC_BfgCore::TimeStep(World &world, float dt)
@@ -731,9 +711,8 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	if( GetAdvanced() && GetOwner() != object->GetOwner()
 		&& (world.net_rand()&1) && CheckFlags(GC_FLAG_FIRESPARK_SETFIRE) )
 	{
-		auto daemon = new GC_HealthDaemon(world, GetOwner(), 10.0f, 3.0f);
-        daemon->Register(world);
-        daemon->SetVictim(world, object);
+		auto &daemon = world.New<GC_HealthDaemon>(GetOwner(), 10.0f, 3.0f);
+        daemon.SetVictim(world, object);
 	}
 
 	DamageDesc dd;
@@ -763,12 +742,11 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 
 void GC_FireSpark::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	GC_Particle *p = new GC_Particle(world, GetDirection() * (GetVelocity()/3) + vrand(10.0f), PARTICLE_FIRESPARK, 0.1f + frand(0.3f), vrand(1));
-    p->Register(world);
-    p->MoveTo(world, pos + vrand(3));
-	p->SetFade(true);
-	p->SetAutoRotate(_rotation);
-	p->SetSizeOverride(GetRadius());
+	auto &p = world.New<GC_Particle>(GetDirection() * (GetVelocity()/3) + vrand(10.0f), PARTICLE_FIRESPARK, 0.1f + frand(0.3f), vrand(1));
+    p.MoveTo(world, pos + vrand(3));
+	p.SetFade(true);
+	p.SetAutoRotate(_rotation);
+	p.SetSizeOverride(GetRadius());
 
 	// random walk
 	vec2d tmp = GetDirection() + vec2d(GetDirection().y, -GetDirection().x) * (world.net_frand(0.06f) - 0.03f);
@@ -877,17 +855,15 @@ bool GC_ACBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 	for(int i = 0; i < 12; i++)
 	{
 		vec2d dir(a1 + frand(a2 - a1));
-		auto p = new GC_Particle(world, dir * frand(300.0f), PARTICLE_TRACE1, frand(0.05f) + 0.05f, dir);
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(dir * frand(300.0f), PARTICLE_TRACE1, frand(0.05f) + 0.05f, dir);
+        p.MoveTo(world, hit);
 	}
 
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    pLight->Register(world);
-	pLight->MoveTo(world, hit + norm * 5.0f);
-	pLight->SetRadius(80);
-	pLight->SetIntensity(1.5f);
-	pLight->SetTimeout(world, 0.1f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, hit + norm * 5.0f);
+	light.SetRadius(80);
+	light.SetIntensity(1.5f);
+	light.SetTimeout(world, 0.1f);
 
 	DamageDesc dd;
 	dd.damage = DAMAGE_ACBULLET;
@@ -901,9 +877,8 @@ bool GC_ACBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 
 void GC_ACBullet::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_TRACE2, frand(0.05f) + 0.05f, GetDirection());
-    p->Register(world);
-    p->MoveTo(world, pos);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_TRACE2, frand(0.05f) + 0.05f, GetDirection());
+    p.MoveTo(world, pos);
 }
 
 /////////////////////////////////////////////////////////////
@@ -921,8 +896,7 @@ GC_GaussRay::GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidB
 
 	SAFE_KILL(world, _light);
 
-	_light = new GC_Light(world, GC_Light::LIGHT_DIRECT);
-    _light->Register(world);
+	_light = &world.New<GC_Light>(GC_Light::LIGHT_DIRECT);
 	_light->SetRadius(64);
 	_light->SetLength(0);
 	_light->SetIntensity(1.5f);
@@ -952,20 +926,18 @@ void GC_GaussRay::Serialize(World &world, SaveFile &f)
 
 void GC_GaussRay::SpawnTrailParticle(World &world, const vec2d &pos)
 {
-	GC_Particle *p = new GC_ParticleGauss(world, vec2d(0,0), GetAdvanced() ? PARTICLE_GAUSS2 : PARTICLE_GAUSS1, 0.2f, GetDirection());
-    p->Register(world);
-    p->MoveTo(world, pos);
-	p->SetFade(true);
+	auto &p = world.New<GC_ParticleGauss>(vec2d(0,0), GetAdvanced() ? PARTICLE_GAUSS2 : PARTICLE_GAUSS1, 0.2f, GetDirection());
+    p.MoveTo(world, pos);
+	p.SetFade(true);
 
 	_light->SetLength(_light->GetLength() + GetTrailDensity());
 }
 
 bool GC_GaussRay::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
-	auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_GAUSS_HIT, 0.5f, vec2d(norm.y, -norm.x));
-    p->Register(world);
-    p->MoveTo(world, hit);
-    p->SetFade(true);
+	auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_GAUSS_HIT, 0.5f, vec2d(norm.y, -norm.x));
+    p.MoveTo(world, hit);
+    p.SetFade(true);
 	
 	DamageDesc dd;
 	dd.damage = _damage * relativeDepth;
@@ -1029,9 +1001,8 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 		vec2d v = (norm + vrand(frand(1.0f))) * 100.0f;
 		vec2d vnorm = v;
 		vnorm.Normalize();
-		auto p = new GC_Particle(world, v, PARTICLE_TRACE1, frand(0.2f) + 0.02f, vnorm);
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(v, PARTICLE_TRACE1, frand(0.2f) + 0.02f, vnorm);
+        p.MoveTo(world, hit);
 	}
 
 	if( _bounces == 0 )
@@ -1043,24 +1014,18 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 
 		for( int n = 0; n < 14; ++n )
 		{
-			(new GC_Bullet(world,
-				GetPos(),
-				vec2d(a1 + world.net_frand(a2 - a1)) * (world.net_frand(2000.0f) + 3000.0f),
-				GetIgnore(),
-				GetOwner(),
-				GetAdvanced()))->Register(world);
+			world.New<GC_Bullet>(world, GetPos(), vec2d(a1 + world.net_frand(a2 - a1)) * (world.net_frand(2000.0f) + 3000.0f),
+									   GetIgnore(), GetOwner(), GetAdvanced());
 		}
 
-		auto p = new GC_Particle(world, vec2d(0,0), PARTICLE_EXPLOSION_E, 0.2f, vrand(1));
-        p->Register(world);
-        p->MoveTo(world, hit);
+		auto &p = world.New<GC_Particle>(vec2d(0,0), PARTICLE_EXPLOSION_E, 0.2f, vrand(1));
+        p.MoveTo(world, hit);
 
-		GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-        pLight->Register(world);
-		pLight->MoveTo(world, hit);
-		pLight->SetRadius(100);
-		pLight->SetIntensity(1.5f);
-		pLight->SetTimeout(world, 0.2f);
+		auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+		light.MoveTo(world, hit);
+		light.SetRadius(100);
+		light.SetIntensity(1.5f);
+		light.SetTimeout(world, 0.2f);
 
 		Kill(world);
 		return true;
@@ -1077,21 +1042,20 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 
 		for( int n = 0; n < 11; ++n )
 		{
-			(new GC_Bullet(world,
+			world.New<GC_Bullet>(world,
 				GetPos(),
 				vec2d(a1 + world.net_frand(a2 - a1)) * (world.net_frand(2000.0f) + 3000.0f),
 				GetIgnore(),
 				GetOwner(),
-				true))->Register(world);
+				true);
 		}
 	}
 
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    pLight->Register(world);
-	pLight->MoveTo(world, hit + norm * 5.0f);
-	pLight->SetRadius(70);
-	pLight->SetIntensity(1.5f);
-	pLight->SetTimeout(world, 0.1f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, hit + norm * 5.0f);
+	light.SetRadius(70);
+	light.SetIntensity(1.5f);
+	light.SetTimeout(world, 0.1f);
 
 	return true;
 }
@@ -1104,7 +1068,6 @@ void GC_Disk::SpawnTrailParticle(World &world, const vec2d &pos)
 	vec2d v = (-dx - GetDirection() * (-dx * GetDirection())) / time;
 	vec2d dir(v - GetDirection() * (32.0f / time));
 	dir.Normalize();
-	auto p = new GC_Particle(world, v, PARTICLE_TRACE2, time, dir);
-    p->Register(world);
-    p->MoveTo(world, pos + dx - GetDirection()*4.0f);
+	auto &p = world.New<GC_Particle>(v, PARTICLE_TRACE2, time, dir);
+    p.MoveTo(world, pos + dx - GetDirection()*4.0f);
 }

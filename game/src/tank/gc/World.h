@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Field.h"
-#include "TypeSystem.h"
 #include "GlobalListHelper.h"
 #include "ObjPtr.h"
 #include <core/Grid.h>
@@ -164,6 +163,14 @@ public:
 /////////////////////////////////////////////////////
 	World();
 	~World();
+	
+	template<class T, class ...Args>
+	T& New(Args && ... args)
+	{
+		auto t = new T(std::forward<Args>(args)...);
+		t->Register(*this);
+		return *t;
+	}
 	
 	void GameMessage(const char *msg);
 	

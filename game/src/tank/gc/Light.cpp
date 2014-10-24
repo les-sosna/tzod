@@ -15,7 +15,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 
 IMPLEMENT_1LIST_MEMBER(GC_Light, LIST_lights);
 
-GC_Light::GC_Light(World &world, enumLightType type)
+GC_Light::GC_Light(enumLightType type)
   : _startTime(-FLT_MAX)
   , _timeout(0)
   , _aspect(1)
@@ -83,9 +83,8 @@ GC_Spotlight::GC_Spotlight(FromFile)
 }
 
 GC_Spotlight::GC_Spotlight(World &world)
-  : _light(new GC_Light(world, GC_Light::LIGHT_SPOT))
+  : _light(&world.New<GC_Light>(GC_Light::LIGHT_SPOT))
 {
-    _light->Register(world);
 	_light->SetRadius(200);
 	_light->SetIntensity(1.0f);
 	_light->SetOffset(170);

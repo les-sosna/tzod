@@ -95,8 +95,8 @@ void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 
 	_vehicle = &vehicle;
 
-	_rotateSound = new GC_Sound(world, SND_TowerRotate, GetPos());
-    _rotateSound->Register(world);
+	_rotateSound = &world.New<GC_Sound>(SND_TowerRotate);
+	_rotateSound->MoveTo(world, GetPos());
     _rotateSound->SetMode(world, SMODE_STOP);
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
@@ -277,8 +277,7 @@ void GC_ProjectileBasedWeapon::ResetSeries()
 
 void GC_ProjectileBasedWeapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_fireLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-	_fireLight->Register(world);
+	_fireLight = &world.New<GC_Light>(GC_Light::LIGHT_POINT);
 	_fireLight->SetActive(false);
 	GC_Weapon::OnAttached(world, vehicle);
 }

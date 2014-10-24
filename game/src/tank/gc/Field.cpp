@@ -19,7 +19,7 @@ void FieldCell::UpdateProperties()
 	}
 }
 
-void FieldCell::AddObject(GC_RigidBodyStatic *object)
+void FieldCell::New(GC_RigidBodyStatic *object)
 {
 	assert(object);
 	assert(_objCount < 255);
@@ -147,7 +147,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
         {
             if( add )
             {
-                (*this)(x, y).AddObject(object);
+                (*this)(x, y).New(object);
             }
             else
             {

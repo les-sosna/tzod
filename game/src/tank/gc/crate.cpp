@@ -34,9 +34,8 @@ void GC_Crate::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		auto p = new GC_BrickFragment(vec2d(frand(100.0f) - 50, -frand(100.0f)));
-        p->Register(world);
-        p->MoveTo(world, GetPos() + vrand(GetRadius()));
+		auto &p = world.New<GC_BrickFragment>(vec2d(frand(100.0f) - 50, -frand(100.0f)));
+        p.MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
 
 	GC_RigidBodyDynamic::OnDestroy(world, by);

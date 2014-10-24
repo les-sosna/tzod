@@ -20,6 +20,7 @@ enum TurretState
 
 class GC_Turret : public GC_RigidBodyStatic
 {
+    DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyStatic base;
 	
 protected:
@@ -37,7 +38,6 @@ protected:
 	void SelectTarget(World &world, GC_Vehicle *target);
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_Turret(World &world, TurretState state);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();

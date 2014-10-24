@@ -75,10 +75,9 @@ class GC_Object
 {
 	GC_Object(const GC_Object&) = delete;
 	GC_Object& operator = (const GC_Object&) = delete;
+	DECLARE_LIST_MEMBER();
 
 public:
-    DECLARE_LIST_MEMBER();
-
 	GC_Object();
 	virtual ~GC_Object();
     

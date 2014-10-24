@@ -21,11 +21,10 @@ IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
 IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
 GC_Pickup::GC_Pickup(World &world)
-  : _label(new GC_HideLabel(world))
+  : _label(&world.New<GC_HideLabel>())
   , _timeAttached(0)
   , _timeRespawn(0)
 {
-    _label->Register(world);
 	SetRespawn(false);
 	SetBlinking(false);
 	SetVisible(true);
@@ -128,9 +127,8 @@ void GC_Pickup::TimeStep(World &world, float dt)
 			for( int n = 0; n < 50; ++n )
 			{
 				vec2d a(PI2 * (float) n / 50);
-				auto p = new GC_Particle(world, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-				p->Register(world);
-				p->MoveTo(world, GetPos() + a * 25);
+				auto &p = world.New<GC_Particle>(a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
+				p.MoveTo(world, GetPos() + a * 25);
 			}
 		}
 	}
@@ -344,12 +342,10 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 		vec2d v = _vehicle->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			auto p1 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
-            p1->Register(world);
-            p1->MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
-			auto p2 = new GC_Particle(world, v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
-            p2->Register(world);
-            p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
+			auto &p1 = world.New<GC_Particle>(v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
+            p1.MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
+			auto &p2 = world.New<GC_Particle>(v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
+            p2.MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}
 	}
 	dd.damage *= 0.1f;
@@ -479,8 +475,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 
 					_targetPos = pNearTarget->GetPos();
 
-					_light = new GC_Light(world, GC_Light::LIGHT_DIRECT);
-                    _light->Register(world);
+					_light = &world.New<GC_Light>(GC_Light::LIGHT_DIRECT);
 					_light->MoveTo(world, GetPos());
 					_light->SetRadius(100);
 
@@ -563,8 +558,8 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 		_weapon->SetBooster(world, this);
 		
 		assert(NULL == _sound);
-		_sound = new GC_Sound_link(world, SND_B_Loop, this);
-		_sound->Register(world);
+		_sound = &world.New<GC_Sound_link>(SND_B_Loop, this);
+		_sound->MoveTo(world, GetPos());
 		_sound->SetMode(world, SMODE_LOOP);
 	}
 	else

@@ -56,8 +56,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 
 IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
-GC_Particle::GC_Particle(World &world, const vec2d &v, ParticleType ptype,
-                         float lifeTime, const vec2d &orient)
+GC_Particle::GC_Particle(const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient)
   : _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)

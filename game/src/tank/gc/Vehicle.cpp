@@ -25,8 +25,8 @@
 
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
-	_moveSound = new GC_Sound(world, s, GetPos());
-    _moveSound->Register(world);
+	_moveSound = &world.New<GC_Sound>(s);
+	_moveSound->MoveTo(world, GetPos());
     _moveSound->SetMode(world, SMODE_LOOP);
 }
 
@@ -44,16 +44,13 @@ GC_Vehicle::GC_Vehicle(World &world)
 {
 	memset(&_state, 0, sizeof(VehicleState));
     
-	_light_ambient = new GC_Light(world, GC_Light::LIGHT_POINT);
-    _light_ambient->Register(world);
+	_light_ambient = &world.New<GC_Light>(GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
     
-	_light1 = new GC_Light(world, GC_Light::LIGHT_SPOT);
-    _light1->Register(world);
-	_light2 = new GC_Light(world, GC_Light::LIGHT_SPOT);
-    _light2->Register(world);
-    
+	_light1 = &world.New<GC_Light>(GC_Light::LIGHT_SPOT);
+	_light2 = &world.New<GC_Light>(GC_Light::LIGHT_SPOT);
+	
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
     
@@ -341,9 +338,8 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 		if( by->GetVehicle() )
 		{
 			sprintf(score, "%d", by->GetScore());
-			auto text = new GC_Text_ToolTip(world, score, style);
-			text->Register(world);
-			text->MoveTo(world, by->GetVehicle()->GetPos());
+			auto &text = world.New<GC_Text_ToolTip>(score, style);
+			text.MoveTo(world, by->GetVehicle()->GetPos());
 		}
 	}
 	else if( GetOwner() )
@@ -351,9 +347,8 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 		sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
 		GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 		sprintf(score, "%d", GetOwner()->GetScore());
-		auto text = new GC_Text_ToolTip(world, score, GC_Text::SCORE_MINUS);
-		text->Register(world);
-		text->MoveTo(world, GetPos());
+		auto &text = world.New<GC_Text_ToolTip>(score, GC_Text::SCORE_MINUS);
+		text.MoveTo(world, GetPos());
 	}
 	world.GameMessage(msg);
 	GC_RigidBodyDynamic::OnDestroy(world, by);
@@ -390,10 +385,9 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-			p->Register(world);
-			p->MoveTo(world, GetPos() + vrand(frand(24.0f)));
-			p->_time = frand(1.0f);
+			auto &p = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
+			p.MoveTo(world, GetPos() + vrand(frand(24.0f)));
+			p._time = frand(1.0f);
 		}
 	}
 
@@ -437,10 +431,9 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
-        p->Register(world);
-        p->MoveTo(world, trackL + e * _trackPathL);
-        p->SetFade(true);
+        auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_CATTRACK, 12, e);
+        p.MoveTo(world, trackL + e * _trackPathL);
+        p.SetFade(true);
         _trackPathL += _trackDensity;
     }
     _trackPathL -= len;
@@ -450,10 +443,9 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
-        p->Register(world);
-        p->MoveTo(world, trackR + e * _trackPathR);
-        p->SetFade(true);
+        auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_CATTRACK, 12, e);
+        p.MoveTo(world, trackR + e * _trackPathR);
+        p.SetFade(true);
         _trackPathR += _trackDensity;
     }
     _trackPathR -= len;

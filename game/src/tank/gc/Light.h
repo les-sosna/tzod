@@ -11,6 +11,7 @@
 class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 public:
@@ -32,9 +33,8 @@ private:
 	vec2d  _lightDirection;
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Light(World &world, enumLightType type);
-	GC_Light(FromFile);
+	explicit GC_Light(enumLightType type);
+	explicit GC_Light(FromFile);
 	virtual ~GC_Light();
 	
 	enumLightType GetLightType() const { return _type; }

@@ -28,7 +28,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 
 IMPLEMENT_2LIST_MEMBER(GC_Player, LIST_players, LIST_timestep);
 
-GC_Player::GC_Player(World &world)
+GC_Player::GC_Player()
   : _timeRespawn(PLAYER_RESPAWN_DELAY)
   , _team(0)
   , _score(0)
@@ -179,12 +179,10 @@ void GC_Player::TimeStep(World &world, float dt)
 				return;
 			}
 
-            auto text = new GC_Text_ToolTip(world, _nick, GC_Text::DEFAULT);
-			text->Register(world);
-            text->MoveTo(world, pBestPoint->GetPos());
+            auto &text = world.New<GC_Text_ToolTip>(_nick, GC_Text::DEFAULT);
+            text.MoveTo(world, pBestPoint->GetPos());
 
-			_vehicle = new GC_Tank_Light(world);
-            _vehicle->Register(world);
+			_vehicle = &world.New<GC_Tank_Light>(world);
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{

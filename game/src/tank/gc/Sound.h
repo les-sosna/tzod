@@ -20,6 +20,7 @@ enum enumSoundMode
 class GC_Sound : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 	enumSoundTemplate   _soundTemplate;
@@ -36,8 +37,7 @@ public:
 	float _volume;  // 0 - min;  1 - max
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Sound(World &world, enumSoundTemplate sound, const vec2d &pos);
+	GC_Sound(enumSoundTemplate sound);
 	GC_Sound(FromFile);
 	virtual ~GC_Sound();
     virtual void Kill(World &world);
@@ -65,14 +65,14 @@ public:
 class GC_Sound_link : public GC_Sound
 {
 	DECLARE_SELF_REGISTRATION(GC_Sound_link);
+    DECLARE_LIST_MEMBER();
     typedef GC_Sound base;
 
 protected:
 	ObjPtr<GC_Actor> _object;
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Sound_link(World &world, enumSoundTemplate sound, GC_Actor *object);
+	GC_Sound_link(enumSoundTemplate sound, GC_Actor *object);
 	GC_Sound_link(FromFile);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
@@ -89,9 +89,9 @@ public:
 #if !defined NOSOUND
 #define PLAY(s, pos)                                            \
 do {                                                            \
-    auto obj = new GC_Sound(world, (s), (pos));                 \
-    obj->Register(world);                                       \
-    obj->SetMode(world, SMODE_PLAY);                            \
+    auto &sound = world.New<GC_Sound>(s);                 \
+	sound.MoveTo(world, (pos));                                 \
+    sound.SetMode(world, SMODE_PLAY);                           \
 } while(0)
 #else
 #define PLAY(s, pos) ((void) 0) // no sound

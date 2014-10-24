@@ -55,9 +55,9 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 	float ax = dir.x * 15.0f + dy * dir.y;
 	float ay = dir.y * 15.0f - dy * dir.x;
 	
-	(new GC_Rocket(world, GetPos() + vec2d(ax, ay),
+	world.New<GC_Rocket>(world, GetPos() + vec2d(ax, ay),
 				   Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
-				   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+				   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -108,9 +108,9 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 			float ax = dir.x * 17.0f - dy * dir.y;
 			float ay = dir.y * 17.0f + dy * dir.x;
 			
-			(new GC_ACBullet(world, GetPos() + vec2d(ax, ay),
+			world.New<GC_ACBullet>(world, GetPos() + vec2d(ax, ay),
 							 dir * SPEED_ACBULLET,
-							 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+							 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 		}
 	}
 	else
@@ -121,9 +121,9 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 		float ax = dir.x * 17.0f - dy * dir.y;
 		float ay = dir.y * 17.0f + dy * dir.x;
 		
-		(new GC_ACBullet(world, GetPos() + vec2d(ax, ay),
+		world.New<GC_ACBullet>(world, GetPos() + vec2d(ax, ay),
 						 Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
-						 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+						 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	}
 }
 
@@ -188,8 +188,8 @@ void GC_Weap_Cannon::OnShoot(World &world)
 
 	const vec2d &dir = GetDirection();
 	
-	(new GC_TankBullet(world, GetPos() + dir * 17.0f, dir * SPEED_TANKBULLET + world.net_vrand(50),
-					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+	world.New<GC_TankBullet>(world, GetPos() + dir * 17.0f, dir * SPEED_TANKBULLET + world.net_vrand(50),
+					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	
 	if( !GetBooster() )
 	{
@@ -219,9 +219,8 @@ void GC_Weap_Cannon::TimeStep(World &world, float dt)
 
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE + GetDirection() * 50.0f, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
-            p->Register(world);
-            p->MoveTo(world, GetPos() + GetDirection() * 26.0f);
+			auto &p = world.New<GC_Particle>(SPEED_SMOKE + GetDirection() * 50.0f, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
+            p.MoveTo(world, GetPos() + GetDirection() * 26.0f);
 		}
 	}
 }
@@ -252,8 +251,8 @@ void GC_Weap_Plazma::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Plazma::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
-	(new GC_PlazmaClod(world, GetPos() + a * 15.0f, a * SPEED_PLAZMA + world.net_vrand(20),
-					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+	world.New<GC_PlazmaClod>(world, GetPos() + a * 15.0f, a * SPEED_PLAZMA + world.net_vrand(20),
+					   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -293,8 +292,8 @@ void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Gauss::OnShoot(World &world)
 {
 	const vec2d &dir = GetDirection();
-	(new GC_GaussRay(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x), dir * SPEED_GAUSS,
-					 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+	world.New<GC_GaussRay>(world, vec2d(GetPos().x + dir.x + 5 * dir.y, GetPos().y + dir.y - 5 * dir.x), dir * SPEED_GAUSS,
+					 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -334,11 +333,10 @@ void GC_Weap_Ram::SetBooster(World &world, GC_pu_Booster *booster)
 
 void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_engineSound = new GC_Sound(world, SND_RamEngine, GetPos());
-    _engineSound->Register(world);
+	_engineSound = &world.New<GC_Sound>(SND_RamEngine);
+	_engineSound->MoveTo(world, GetPos());
     _engineSound->SetMode(world, SMODE_STOP);
-	_engineLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-    _engineLight->Register(world);
+	_engineLight = &world.New<GC_Light>(GC_Light::LIGHT_POINT);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
 	_engineLight->SetActive(false);
@@ -441,9 +439,8 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(6.0f) - 3.0f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? PARTICLE_FIRE2 : PARTICLE_YELLOW, time);
-				p->Register(world);
-				p->MoveTo(world, emitter + dx);
+				auto &p = world.New<GC_Particle>(v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? PARTICLE_FIRE2 : PARTICLE_YELLOW, time);
+				p.MoveTo(world, emitter + dx);
 			}
 		}
 		
@@ -458,9 +455,8 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 				float time = frand(0.05f) + 0.02f;
 				float t = frand(2.5f) - 1.25f;
 				vec2d dx(-a.y * t, a.x * t);
-				auto p = new GC_Particle(world, v - a * frand(600.0f) - dx / time, PARTICLE_FIRE1, time);
-				p->Register(world);
-				p->MoveTo(world, emitter + dx);
+				auto &p = world.New<GC_Particle>(v - a * frand(600.0f) - dx / time, PARTICLE_FIRE1, time);
+				p.MoveTo(world, emitter + dx);
 			}
 		}
 	}
@@ -553,8 +549,8 @@ void GC_Weap_BFG::OnShoot(World &world)
 {
 	if (GetNumShots())
 	{
-		(new GC_BfgCore(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
-						GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+		world.New<GC_BfgCore>(world, GetPos() + GetDirection() * 16.0f, GetDirection() * SPEED_BFGCORE,
+						GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	}
 }
 
@@ -595,8 +591,8 @@ void GC_Weap_Ripper::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_Ripper::OnShoot(World &world)
 {
 	const vec2d &a = GetDirection();
-	(new GC_Disk(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
-				 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster()))->Register(world);
+	world.New<GC_Disk>(world, GetPos() - a * 9.0f, a * SPEED_DISK + world.net_vrand(10),
+				 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -646,8 +642,8 @@ void GC_Weap_Minigun::Kill(World &world)
 
 void GC_Weap_Minigun::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_sound = new GC_Sound(world, SND_MinigunFire, GetPos());
-    _sound->Register(world);
+	_sound = &world.New<GC_Sound>(SND_MinigunFire);
+	_sound->MoveTo(world, GetPos());
     _sound->SetMode(world, SMODE_STOP);
 	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
 }
@@ -690,9 +686,8 @@ void GC_Weap_Minigun::OnShoot(World &world)
 		}
 	}
 	
-	GC_Bullet *tmp = new GC_Bullet(world, GetPos() + a * 18.0f, a * SPEED_BULLET,
-								   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
-	tmp->Register(world);
+	world.New<GC_Bullet>(world, GetPos() + a * 18.0f, a * SPEED_BULLET,
+							   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -755,8 +750,8 @@ void GC_Weap_Zippo::Kill(World &world)
 
 void GC_Weap_Zippo::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_sound = new GC_Sound(world, SND_RamEngine, GetPos());
-    _sound->Register(world);
+	_sound = &world.New<GC_Sound>(SND_RamEngine);
+    _sound->MoveTo(world, GetPos());
     _sound->SetMode(world, SMODE_STOP);
 	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
 }
@@ -791,12 +786,11 @@ void GC_Weap_Zippo::OnShoot(World &world)
 	vec2d a(GetDirection());
 	a *= (1 - world.net_frand(0.2f));
 	
-	GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + a * 18.0f, vvel + a * SPEED_FIRE,
-										 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
-	tmp->Register(world);
-	tmp->SetLifeTime(_heat);
-	tmp->SetHealOwner(!!GetBooster());
-	tmp->SetSetFire(true);
+	auto &tmp = world.New<GC_FireSpark>(world, GetPos() + a * 18.0f, vvel + a * SPEED_FIRE,
+											  GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
+	tmp.SetLifeTime(_heat);
+	tmp.SetHealOwner(!!GetBooster());
+	tmp.SetSetFire(true);
 }
 
 void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -830,11 +824,10 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 		_timeBurn += dt;
 		while( _timeBurn > 0 )
 		{
-			GC_FireSpark *tmp = new GC_FireSpark(world, GetPos() + world.net_vrand(33), SPEED_SMOKE/2,
-												 GetVehicle(), GetVehicle() ? GetVehicle()->GetOwner() : NULL, true);
-            tmp->Register(world);
-			tmp->SetLifeTime(0.3f);
-			tmp->TimeStep(world, _timeBurn);
+			auto &tmp = world.New<GC_FireSpark>(world, GetPos() + world.net_vrand(33), SPEED_SMOKE/2,
+													  GetVehicle(), GetVehicle() ? GetVehicle()->GetOwner() : NULL, true);
+			tmp.SetLifeTime(0.3f);
+			tmp.TimeStep(world, _timeBurn);
 			_timeBurn -= 0.01f;
 		}
 	}

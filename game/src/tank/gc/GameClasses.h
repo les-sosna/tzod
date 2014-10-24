@@ -12,6 +12,7 @@ class GC_Player;
 class GC_HealthDaemon : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 private:
@@ -22,8 +23,7 @@ private:
 	ObjPtr<GC_Player> _owner;
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_HealthDaemon(World &world, GC_Player *owner, float damagePerSecond, float time);
+	GC_HealthDaemon(GC_Player *owner, float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
     
@@ -97,7 +97,7 @@ public:
 		SCORE_MINUS,
 	};
 	
-	GC_Text(World &world, const std::string &text, enumAlignText align = alignTextLT);
+	GC_Text(std::string text, enumAlignText align = alignTextLT);
 	GC_Text(FromFile) {}
 	virtual ~GC_Text() = 0;
 	
@@ -121,13 +121,13 @@ protected:
 class GC_Text_ToolTip : public GC_Text
 {
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
+    DECLARE_LIST_MEMBER();
     typedef GC_Text base;
 
 	float  _time;
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Text_ToolTip(World &world, const std::string &text, Style style);
+	GC_Text_ToolTip(std::string text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
 	virtual void Serialize(World &world, SaveFile &f);

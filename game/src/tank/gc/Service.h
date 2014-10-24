@@ -1,5 +1,3 @@
-// Service.h
-
 #pragma once
 #include "Object.h"
 
@@ -7,10 +5,6 @@
 
 class GC_Service : public GC_Object
 {
-    typedef GC_Object base;
-
-public:
     DECLARE_LIST_MEMBER();
+    typedef GC_Object base;
 };
-
-// end of file

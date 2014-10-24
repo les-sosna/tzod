@@ -30,11 +30,11 @@ class GC_RigidBodyStatic;
 
 class GC_Pickup : public GC_Actor
 {
+	DECLARE_LIST_MEMBER();
+	DECLARE_GRID_MEMBER();
     typedef GC_Actor base;
 
 public:
-	DECLARE_LIST_MEMBER();
-	DECLARE_GRID_MEMBER();
 	GC_Pickup(World &world);
 	GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
@@ -186,10 +186,10 @@ private:
 class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
+    DECLARE_LIST_MEMBER();
     typedef GC_Pickup base;
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_pu_Shock(World &world);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();

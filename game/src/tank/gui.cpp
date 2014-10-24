@@ -370,32 +370,29 @@ void NewGameDlg::OnOK()
 	{
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
         
-        GC_Player *player = new GC_Player(_world);
-        player->Register(_world);
-		player->SetIsHuman(true);
-        player->SetClass(p.platform_class.Get());
-        player->SetNick(p.nick.Get());
-        player->SetSkin(p.skin.Get());
-        player->SetTeam(p.team.GetInt());
+        auto &player = _world.New<GC_Player>();
+		player.SetIsHuman(true);
+        player.SetClass(p.platform_class.Get());
+        player.SetNick(p.nick.Get());
+        player.SetSkin(p.skin.Get());
+        player.SetTeam(p.team.GetInt());
 		
-		GC_Camera *camera = new GC_Camera(_world, player);
-		camera->Register(_world);
-        
-        _inputMgr.AssignController(player, p.profile.Get());
+		_world.New<GC_Camera>(_world, &player);
+		
+        _inputMgr.AssignController(&player, p.profile.Get());
     }
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-        GC_Player *player = new GC_Player(_world);
-        player->Register(_world);
-		player->SetIsHuman(false);
-        player->SetClass(p.platform_class.Get());
-        player->SetNick(p.nick.Get());
-        player->SetSkin(p.skin.Get());
-        player->SetTeam(p.team.GetInt());
+        auto &player = _world.New<GC_Player>();
+		player.SetIsHuman(false);
+        player.SetClass(p.platform_class.Get());
+        player.SetNick(p.nick.Get());
+        player.SetSkin(p.skin.Get());
+        player.SetTeam(p.team.GetInt());
 
-		_aiMgr.AssignAI(player, "123");
+		_aiMgr.AssignAI(&player, "123");
 //        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
 	}
 

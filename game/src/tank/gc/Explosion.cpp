@@ -252,109 +252,95 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 {
 	float duration = 0.32f;
 	
-	auto main = new GC_ParticleExplosion(world, vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
-	main->Register(world);
-	main->MoveTo(world, pos);
+	auto &main = world.New<GC_ParticleExplosion>(vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
+	main.MoveTo(world, pos);
 	
-	auto e = new GC_Explosion(owner);
-	e->Register(world);
-	e->MoveTo(world, pos);
-	e->SetRadius(70);
-	e->SetDamage(150);
-	e->SetTimeout(world, 0.03f);
+	auto &e = world.New<GC_Explosion>(owner);
+	e.MoveTo(world, pos);
+	e.SetRadius(70);
+	e.SetDamage(150);
+	e.SetTimeout(world, 0.03f);
 	
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-	pLight->Register(world);
-	pLight->MoveTo(world, pos);
-	pLight->SetRadius(70 * 5);
-	pLight->SetTimeout(world, duration * 1.5f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, pos);
+	light.SetRadius(70 * 5);
+	light.SetTimeout(world, duration * 1.5f);
 	
 	for(int n = 0; n < 28; ++n)
 	{
 		//ring
 		float ang = frand(PI2);
-		auto p = new GC_Particle(world, vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-        p->Register(world);
-        p->MoveTo(world, pos);
+		auto &p = world.New<GC_Particle>(vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
+        p.MoveTo(world, pos);
 		
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 		
-		auto p1 = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-        p1->Register(world);
-        p1->MoveTo(world, pos + vec2d(ang) * d);
-        p1->_time = frand(1.0f);
+		auto &p1 = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
+        p1.MoveTo(world, pos + vec2d(ang) * d);
+        p1._time = frand(1.0f);
 	}
-	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
-    p->Register(world);
-    p->MoveTo(world, pos);
-	p->SetFade(true);
+	auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
+    p.MoveTo(world, pos);
+	p.SetFade(true);
 	
 	PLAY(SND_BoomStandard, pos);
 	
-	return *e;
+	return e;
 }
 
 GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 {
 	float duration = 0.72f;
 	
-	auto main = new GC_ParticleExplosion(world, vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
-	main->Register(world);
-	main->MoveTo(world, pos);
+	auto &main = world.New<GC_ParticleExplosion>(vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
+	main.MoveTo(world, pos);
 
-	auto e = new GC_Explosion(owner);
-	e->Register(world);
-	e->MoveTo(world, pos);
-	e->SetRadius(128);
-	e->SetDamage(90);
-	e->SetTimeout(world, 0.10f);
+	auto &e = world.New<GC_Explosion>(owner);
+	e.MoveTo(world, pos);
+	e.SetRadius(128);
+	e.SetDamage(90);
+	e.SetTimeout(world, 0.10f);
 	
-	GC_Light *pLight = new GC_Light(world, GC_Light::LIGHT_POINT);
-	pLight->Register(world);
-	pLight->MoveTo(world, pos);
-	pLight->SetRadius(128 * 5);
-	pLight->SetTimeout(world, duration * 1.5f);
+	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	light.MoveTo(world, pos);
+	light.SetRadius(128 * 5);
+	light.SetTimeout(world, duration * 1.5f);
 	
 	for( int n = 0; n < 80; ++n )
 	{
 		//ring
 		for( int i = 0; i < 2; ++i )
 		{
-			auto p = new GC_Particle(world, vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
-            p->Register(world);
-            p->MoveTo(world, pos + vrand(frand(20.0f)));
+			auto &p = world.New<GC_Particle>(vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
+            p.MoveTo(world, pos + vrand(frand(20.0f)));
 		}
 
 		vec2d a;
 
 		//dust
 		a = vrand(frand(40.0f));
-		auto p = new GC_Particle(world, a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
-        p->Register(world);
-        p->MoveTo(world, pos + a);
+		auto &p = world.New<GC_Particle>(a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
+        p.MoveTo(world, pos + a);
 
 		// sparkles
 		a = vrand(1);
-		auto p1 = new GC_Particle(world, a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
-        p1->Register(world);
-        p1->MoveTo(world, pos + a * frand(40.0f));
+		auto &p1 = world.New<GC_Particle>(a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
+        p1.MoveTo(world, pos + a * frand(40.0f));
 
 		//smoke
 		a = vrand(frand(48.0f));
-		auto p2 = new GC_Particle(world, SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
-        p2->Register(world);
-        p2->MoveTo(world, pos + a);
-        p2->_time = frand(1.0f);
+		auto &p2 = world.New<GC_Particle>(SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
+        p2.MoveTo(world, pos + a);
+        p2._time = frand(1.0f);
 	}
 
-	GC_Particle *p = new GC_ParticleDecal(world, vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
-    p->Register(world);
-    p->MoveTo(world, pos);
-	p->SetFade(true);
+	auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
+    p.MoveTo(world, pos);
+	p.SetFade(true);
 
 	PLAY(SND_BoomBig, pos);
 
-	return *e;
+	return e;
 }

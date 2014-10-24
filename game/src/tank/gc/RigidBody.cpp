@@ -845,13 +845,11 @@ void GC_Wall::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		auto p = new GC_BrickFragment(vec2d(frand(100.0f) - 50, -frand(100.0f)));
-        p->Register(world);
-        p->MoveTo(world, GetPos() + vrand(GetRadius()));
+		auto &p = world.New<GC_BrickFragment>(vec2d(frand(100.0f) - 50, -frand(100.0f)));
+        p.MoveTo(world, GetPos() + vrand(GetRadius()));
 	}
-	auto p = new GC_Particle(world, SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
-    p->Register(world);
-    p->MoveTo(world, GetPos());
+	auto &p = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
+    p.MoveTo(world, GetPos());
 
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
@@ -873,9 +871,8 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 		}
 		v += vrand(25);
 
-		auto p = new GC_BrickFragment(v);
-		p->Register(world);
-		p->MoveTo(world, dd.hit);
+		auto &p = world.New<GC_BrickFragment>(v);
+		p.MoveTo(world, dd.hit);
 	}
 	GC_RigidBodyStatic::OnDamage(world, dd);
 }
@@ -917,7 +914,7 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 			y = int(p.y);
 			break;
 		}
-		world._field(x, y).AddObject(this);
+		world._field(x, y).New(this);
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);

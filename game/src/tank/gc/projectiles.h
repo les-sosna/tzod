@@ -16,10 +16,10 @@ class GC_Player;
 
 class GC_Projectile : public GC_Actor
 {
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail, const vec2d &pos, const vec2d &v);
 	GC_Projectile(FromFile);
 	virtual ~GC_Projectile();

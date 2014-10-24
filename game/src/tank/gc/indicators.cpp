@@ -115,7 +115,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 	return true;
 }
 
-GC_HideLabel::GC_HideLabel(World &world)
+GC_HideLabel::GC_HideLabel()
 {
 }
 

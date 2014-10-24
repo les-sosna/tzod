@@ -1,13 +1,11 @@
-// TypeSystem.h
-
 #pragma once
+#include "World.h"
 #include <math/MyMath.h>
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
 
-class World;
 class GC_Object;
 struct FromFile {};
 
@@ -35,24 +33,19 @@ class RTTypes
 
 	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)
     {
-        T *obj = new T(world);
-        obj->Register(world);
-        obj->MoveTo(world, vec2d(x, y));
-        return obj;
+        auto &obj = world.New<T>(world);
+        obj.MoveTo(world, vec2d(x, y));
+        return &obj;
     }
     
 	template<class T> static GC_Object* ServiceCtor(World &world, float x, float y)
     {
-        T *obj = new T(world);
-        obj->Register(world);
-        return obj;
+        return &world.New<T>();
     }
     
 	template<class T> static GC_Object* FromFileCtor(World &world)
     {
-        T *obj = new T(::FromFile());
-        obj->Register(world);
-        return obj;
+        return &world.New<T>(::FromFile());
     }
 
 public:

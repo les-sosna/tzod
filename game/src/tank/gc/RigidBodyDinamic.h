@@ -12,6 +12,7 @@
 
 class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
+    DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyStatic base;
     
 	struct Contact
@@ -67,7 +68,6 @@ public:
 	vec2d GetBrakingLength() const;
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_RigidBodyDynamic();
 
 	virtual PropertySet* NewPropertySet();

@@ -10,11 +10,11 @@ class GC_Vehicle;
 class GC_Player : public GC_Service
 {
     DECLARE_SELF_REGISTRATION(GC_Player);
+	DECLARE_LIST_MEMBER();
     typedef GC_Service base;
 	
 public:
-	DECLARE_LIST_MEMBER();
-	GC_Player(World &world);
+	GC_Player();
 	GC_Player(FromFile);
 	virtual ~GC_Player();
 

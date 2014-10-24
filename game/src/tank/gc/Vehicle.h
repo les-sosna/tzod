@@ -17,10 +17,10 @@ struct VehicleClass;
 
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
+    DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyDynamic base;
 	
 public:
-    DECLARE_LIST_MEMBER();
 	GC_Vehicle(World &world);
 	GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();

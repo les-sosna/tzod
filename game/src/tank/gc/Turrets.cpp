@@ -35,8 +35,7 @@ GC_Turret::GC_Turret(World &world, TurretState state)
 	_jobManager.RegisterMember(this);
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 
-	_rotateSound = new GC_Sound(world, SND_TuretRotate, GetPos());
-    _rotateSound->Register(world);
+	_rotateSound = &world.New<GC_Sound>(SND_TuretRotate);
     _rotateSound->SetMode(world, SMODE_STOP);
 }
 
@@ -347,7 +346,7 @@ void GC_TurretRocket::TimeStep(World &world, float dt)
 void GC_TurretRocket::OnShoot(World &world)
 {
 	vec2d a(GetWeaponDir());
-	(new GC_Rocket(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, NULL, true))->Register(world);
+	world.New<GC_Rocket>(world, GetPos() + a * 25.0f, a * SPEED_ROCKET, this, nullptr, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -410,9 +409,8 @@ void GC_TurretCannon::TimeStep(World &world, float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			auto p = new GC_Particle(world, SPEED_SMOKE + vec2d(GetWeaponDir()) * 50, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
-            p->Register(world);
-            p->MoveTo(world, GetPos() + vec2d(GetWeaponDir()) * 33.0f);
+			auto &p = world.New<GC_Particle>(SPEED_SMOKE + vec2d(GetWeaponDir()) * 50, PARTICLE_SMOKE, frand(0.3f) + 0.2f);
+            p.MoveTo(world, GetPos() + vec2d(GetWeaponDir()) * 33.0f);
 		}
 	}
 }
@@ -420,7 +418,7 @@ void GC_TurretCannon::TimeStep(World &world, float dt)
 void GC_TurretCannon::OnShoot(World &world)
 {
 	vec2d a(GetWeaponDir());
-	(new GC_TankBullet(world, GetPos() + a * 31.9f, a * SPEED_TANKBULLET + world.net_vrand(40), this, NULL, false))->Register(world);
+	world.New<GC_TankBullet>(world, GetPos() + a * 31.9f, a * SPEED_TANKBULLET + world.net_vrand(40), this, nullptr, false);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -607,9 +605,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_TurretMinigun)
 
 GC_TurretMinigun::GC_TurretMinigun(World &world)
   : GC_TurretBunker(world)
-  , _fireSound(new GC_Sound(world, SND_MinigunFire, GetPos()))
+  , _fireSound(&world.New<GC_Sound>(SND_MinigunFire))
 {
-    _fireSound->Register(world);
     _fireSound->SetMode(world, SMODE_STOP);
     
 	_delta_angle = 0.5f; // shooting accuracy
@@ -688,10 +685,9 @@ void GC_TurretMinigun::OnShoot(World &world)
 {
 	float ang = _dir + world.net_frand(0.1f) - 0.05f;
 	vec2d a(_dir);
-	(new GC_Bullet(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, NULL, false))->Register(world);
-	auto p = new GC_Particle(world, a * (400 + frand(400.0f)), PARTICLE_TYPE1, frand(0.06f) + 0.03f);
-	p->Register(world);
-	p->MoveTo(world, GetPos() + a * 31.9f);
+	world.New<GC_Bullet>(world, GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, nullptr, false);
+	auto &p = world.New<GC_Particle>(a * (400 + frand(400.0f)), PARTICLE_TYPE1, frand(0.06f) + 0.03f);
+	p.MoveTo(world, GetPos() + a * 31.9f);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -774,9 +770,8 @@ void GC_TurretGauss::OnShoot(World &world)
 	float dy = _shotCount == 0 ? -7.0f : 7.0f;
 	float c = cosf(_dir), s = sinf(_dir);
 	
-	(new GC_GaussRay(world, vec2d(GetPos().x + c * 20.0f - dy * s,
-								  GetPos().y + s * 20.0f + dy * c),
-					 vec2d(c, s) * SPEED_GAUSS, this, NULL, false))->Register(world);
+	world.New<GC_GaussRay>(world, vec2d(GetPos().x + c * 20.0f - dy * s, GetPos().y + s * 20.0f + dy * c),
+								 vec2d(c, s) * SPEED_GAUSS, this, nullptr, false);
 }
 
 

@@ -12,6 +12,7 @@ class GC_Player;
 class GC_Camera : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Camera);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 private:
@@ -22,9 +23,7 @@ private:
 	float _zoom;
 	ObjPtr<GC_Player>  _player;
 
-public:
-    DECLARE_LIST_MEMBER();
-    
+public:    
     GC_Camera(World &world, GC_Player *player);
 	GC_Camera(FromFile);
 	virtual ~GC_Camera();

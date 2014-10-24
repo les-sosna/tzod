@@ -115,9 +115,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 
 IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
 
-GC_HealthDaemon::GC_HealthDaemon(World &world,
-                                 GC_Player *owner,
-                                 float damage, float time)
+GC_HealthDaemon::GC_HealthDaemon(GC_Player *owner, float damage, float time)
   : _time(time)
   , _damage(damage)
   , _victim(nullptr)
@@ -185,10 +183,10 @@ void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
 
 /////////////////////////////////////////////////////////////
 
-GC_Text::GC_Text(World &world, const std::string &text, enumAlignText align)
-	: _style(DEFAULT)
-    , _align(align)
-	, _text(text)
+GC_Text::GC_Text(std::string text, enumAlignText align)
+  : _style(DEFAULT)
+  , _align(align)
+  , _text(std::move(text))
 {
 }
 
@@ -213,8 +211,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 
 IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
 
-GC_Text_ToolTip::GC_Text_ToolTip(World &world, const std::string &text, Style style)
-  : GC_Text(world, text, alignTextCC)
+GC_Text_ToolTip::GC_Text_ToolTip(std::string text, Style style)
+  : GC_Text(std::move(text), alignTextCC)
   , _time(0)
 {
 	SetText(text);

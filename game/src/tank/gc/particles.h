@@ -7,6 +7,7 @@
 class GC_BrickFragment : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 private:
@@ -18,7 +19,6 @@ private:
 	vec2d _velocity;
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_BrickFragment(const vec2d &v0);
 	GC_BrickFragment(FromFile);
 
@@ -63,6 +63,7 @@ enum ParticleType
 class GC_Particle : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 public:
@@ -74,8 +75,7 @@ public:
 	ParticleType _ptype = PARTICLE_TYPE1;
 
 public:
-    DECLARE_LIST_MEMBER();
-	GC_Particle(World &world, const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient = vec2d(1,0));
+	GC_Particle(const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient = vec2d(1,0));
 	GC_Particle(FromFile);
 	
 	ParticleType GetParticleType() const { return _ptype; }
@@ -101,9 +101,9 @@ public:
     {                                                                       \
         DECLARE_SELF_REGISTRATION(clsname);                                 \
     public:                                                                 \
-        clsname(World &world, const vec2d &v, ParticleType ptype,           \
+        clsname(const vec2d &v, ParticleType ptype,                         \
                 float lifeTime, const vec2d &orient = vec2d(1,0))           \
-            : GC_Particle(world, v, ptype, lifeTime, orient)                \
+            : GC_Particle(v, ptype, lifeTime, orient)                       \
         {}                                                                  \
         clsname(FromFile) : GC_Particle(FromFile()) {}                      \
     };

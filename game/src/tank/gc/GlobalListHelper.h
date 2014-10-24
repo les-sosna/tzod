@@ -25,8 +25,11 @@ enum GlobalListID
 
 
 #define DECLARE_LIST_MEMBER()                                           \
+protected:                                                              \
     virtual PtrList<GC_Object>::id_type Register(World &world);         \
-    virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos)
+    virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos); \
+private:                                                                \
+    friend class World
 
 #define IMPLEMENT_1LIST_MEMBER(cls, list)                               \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \

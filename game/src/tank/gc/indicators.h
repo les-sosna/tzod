@@ -9,6 +9,7 @@ class GC_Vehicle;
 class GC_SpawnPoint : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 public:
@@ -30,7 +31,6 @@ protected:
 
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_SpawnPoint(World &world);
 	GC_SpawnPoint(FromFile);
 
@@ -45,7 +45,7 @@ class GC_HideLabel : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HideLabel);
 public:
-	GC_HideLabel(World &world);
+	GC_HideLabel();
 	GC_HideLabel(FromFile);
 };
 

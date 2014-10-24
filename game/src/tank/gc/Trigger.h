@@ -18,6 +18,7 @@ class GC_Vehicle;
 class GC_Trigger : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
+    DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -53,7 +54,6 @@ class GC_Trigger : public GC_Actor
 	bool Test(World &world, const GC_Vehicle *v) const;
 
 public:
-    DECLARE_LIST_MEMBER();
 	GC_Trigger(World &world);
 	GC_Trigger(FromFile);
 	~GC_Trigger();
