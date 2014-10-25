@@ -5,6 +5,7 @@
 #include "Field.h"
 #include "GlobalListHelper.h"
 #include "ObjPtr.h"
+#include "WorldEvents.h"
 #include <core/Grid.h>
 #include <core/PtrList.h>
 #include <core/MemoryManager.h>
@@ -23,17 +24,8 @@ namespace FS
 }
 class ClientBase;
 class GC_Object;
-class GC_Pickup;
-class GC_pu_Shield;
 class GC_Player;
-class GC_Projectile;
-class GC_ProjectileBasedWeapon;
 class GC_RigidBodyStatic;
-class GC_RigidBodyDynamic;
-class GC_Service;
-class GC_Trigger;
-class GC_Turret;
-class GC_Vehicle;
 
 class ThemeManager; // todo: remove
 class TextureManager; // todo: remove
@@ -83,8 +75,11 @@ private:
 class World
 {
 	World(const World&) = delete;
+	World& operator=(const World&) = delete;
 	
 	friend class GC_Object;
+	
+	void OnKill(GC_Object &obj);
 
 	std::map<const GC_Object*, std::string>  _objectToStringMap;
 	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
@@ -92,7 +87,6 @@ class World
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
 public:
-	DECLARE_EVENTS(GC_Object);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_pu_Shield);
 	DECLARE_EVENTS(GC_Player);
@@ -100,7 +94,6 @@ public:
 	DECLARE_EVENTS(GC_ProjectileBasedWeapon);
 	DECLARE_EVENTS(GC_RigidBodyStatic);
 	DECLARE_EVENTS(GC_RigidBodyDynamic);
-	DECLARE_EVENTS(GC_Service);
 	DECLARE_EVENTS(GC_Trigger);
 	DECLARE_EVENTS(GC_Turret);
 	DECLARE_EVENTS(GC_Vehicle);
@@ -169,6 +162,8 @@ public:
 	{
 		auto t = new T(std::forward<Args>(args)...);
 		t->Register(*this);
+		for( auto ls: eWorld._listeners )
+			ls->OnNewObject(*t);
 		return *t;
 	}
 	

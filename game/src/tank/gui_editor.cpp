@@ -10,6 +10,7 @@
 #include "gc/Camera.h"
 #include "gc/Object.h"
 #include "gc/Pickup.h"
+#include "gc/Player.h"
 #include "gc/RigidBody.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
@@ -337,12 +338,12 @@ ServiceListDataSource::ServiceListDataSource(World &world)
   : _listener(NULL)
   , _world(world)
 {
-	_world.eGC_Service.AddListener(*this);
+	_world.eWorld.AddListener(*this);
 }
 
 ServiceListDataSource::~ServiceListDataSource()
 {
-	_world.eGC_Service.RemoveListener(*this);
+	_world.eWorld.RemoveListener(*this);
 }
 
 void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
@@ -400,28 +401,32 @@ int ServiceListDataSource::FindItem(const std::string &text) const
 	return -1;
 }
 
-void ServiceListDataSource::OnCreate(GC_Object &obj)
+void ServiceListDataSource::OnNewObject(GC_Object &obj)
 {
-	_listener->OnAddItem();
+	if (obj.GetType() == GC_Player::GetTypeStatic())
+		_listener->OnAddItem();
 }
 
 void ServiceListDataSource::OnKill(GC_Object &obj)
 {
-	ObjectList &list = _world.GetList(LIST_services);
-	int found = -1;
-	int idx = 0;
-	for( auto it = list.begin(); it != list.end(); it = list.next(it) )
+	if (obj.GetType() == GC_Player::GetTypeStatic())
 	{
-		if( list.at(it) == &obj )
+		ObjectList &list = _world.GetList(LIST_services);
+		int found = -1;
+		int idx = 0;
+		for( auto it = list.begin(); it != list.end(); it = list.next(it) )
 		{
-			found = idx;
-			break;
+			if( list.at(it) == &obj )
+			{
+				found = idx;
+				break;
+			}
+			++idx;
 		}
-		++idx;
-	}
-	assert(-1 != found);
+		assert(-1 != found);
 
-	_listener->OnDeleteItem(found);
+		_listener->OnDeleteItem(found);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

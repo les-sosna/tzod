@@ -8,12 +8,12 @@ AIManager::AIManager(World &world)
 	: _world(world)
 {
 	_world.eGC_Player.AddListener(*this);
-	_world.eGC_Object.AddListener(*this);
+	_world.eWorld.AddListener(*this);
 }
 
 AIManager::~AIManager()
 {
-	_world.eGC_Object.RemoveListener(*this);
+	_world.eWorld.RemoveListener(*this);
 	_world.eGC_Player.RemoveListener(*this);
 }
 
@@ -52,10 +52,6 @@ void AIManager::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)
 }
 
 void AIManager::OnDie(GC_Player &obj)
-{
-}
-
-void AIManager::OnCreate(GC_Object &obj)
 {
 }
 

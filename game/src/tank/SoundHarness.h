@@ -54,12 +54,10 @@ private:
 	// ObjectListener<GC_Vehicle>
 	virtual void OnLight(GC_Vehicle &obj) override;
 
-	// ObjectListener<GC_Object>
-//	virtual void OnCreate(GC_Object &obj) override {}
-//	virtual void OnKill(GC_Object &obj) override {}
-
 	// ObjectListener<World>
 	virtual void OnGameStarted() override {}
 	virtual void OnGameFinished();
 	virtual void OnGameMessage(const char *msg) override {}
+	virtual void OnKill(GC_Object &) override {}
+	virtual void OnNewObject(GC_Object &) override {}
 };

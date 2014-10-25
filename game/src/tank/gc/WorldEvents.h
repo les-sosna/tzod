@@ -4,13 +4,6 @@
 
 template <class T> struct ObjectListener;
 
-class GC_Object;
-template<> struct ObjectListener<GC_Object>
-{
-	virtual void OnCreate(GC_Object &obj) = 0;
-	virtual void OnKill(GC_Object &obj) = 0;
-};
-
 class GC_Pickup;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Pickup>
@@ -50,9 +43,6 @@ template<> struct ObjectListener<GC_ProjectileBasedWeapon>
 	virtual void OnShoot(GC_ProjectileBasedWeapon &obj) = 0;
 };
 
-class GC_Service;
-template<> struct ObjectListener<GC_Service> : ObjectListener<GC_Object> {};
-
 class GC_Trigger;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Trigger>
@@ -88,12 +78,17 @@ template<> struct ObjectListener<GC_Turret>
 	virtual void OnStateChange(GC_Turret &obj) = 0;
 };
 
+class GC_Object;
 class World;
 template<> struct ObjectListener<World>
 {
+	virtual void OnGameMessage(const char *msg) = 0;
+	virtual void OnKill(GC_Object &obj) = 0;
+	virtual void OnNewObject(GC_Object &obj) = 0;
+
+	// TODO: these functions should not be here
 	virtual void OnGameStarted() = 0;
 	virtual void OnGameFinished() = 0;
-    virtual void OnGameMessage(const char *msg) = 0;
 };
 
 // end of file

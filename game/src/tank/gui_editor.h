@@ -70,7 +70,7 @@ protected:
 
 class ServiceListDataSource
 	: public ListDataSource
-	, public ObjectListener<GC_Service>
+	, public ObjectListener<World>
 {
 public:
 	// ListDataSource implementation
@@ -82,8 +82,11 @@ public:
 	virtual const std::string& GetItemText(int index, int sub) const;
 	virtual int FindItem(const std::string &text) const;
 
-	// ObjectListener<GC_Object>
-	virtual void OnCreate(GC_Object &obj) override;
+	// ObjectListener<World>
+	virtual void OnGameStarted() override {}
+	virtual void OnGameFinished() override {}
+	virtual void OnGameMessage(const char *) override {}
+	virtual void OnNewObject(GC_Object &obj) override;
 	virtual void OnKill(GC_Object &obj) override;
 
 public:

@@ -64,6 +64,12 @@ bool World::IsEmpty() const
 	return GetList(LIST_objects).empty();
 }
 
+void World::OnKill(GC_Object &obj)
+{
+	for( auto ls: eWorld._listeners )
+		ls->OnKill(obj);
+}
+
 void World::GameMessage(const char *msg)
 {
 	for( auto ls: eWorld._listeners )

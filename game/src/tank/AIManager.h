@@ -14,7 +14,7 @@ class World;
 
 class AIManager
 	: private ObjectListener<GC_Player>
-	, private ObjectListener<GC_Object>
+	, private ObjectListener<World>
 {
 public:
 	AIManager(World &world);
@@ -33,8 +33,11 @@ private:
 	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) override;
 	virtual void OnDie(GC_Player &obj) override;
 	
-	// ObjectListener<GC_Object>
-	virtual void OnCreate(GC_Object &obj) override;
+	// ObjectListener<World>
+	virtual void OnGameMessage(const char *) override {}
 	virtual void OnKill(GC_Object &obj) override;
+	virtual void OnNewObject(GC_Object &) override {}
+	virtual void OnGameStarted() override {}
+	virtual void OnGameFinished() override {}
 };
 

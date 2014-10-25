@@ -40,4 +40,6 @@ private:
 	virtual void OnGameStarted() override;
 	virtual void OnGameFinished() override {}
 	virtual void OnGameMessage(const char *) override {}
+	virtual void OnKill(GC_Object &) override {}
+	virtual void OnNewObject(GC_Object &) override {}
 };
