@@ -1,5 +1,5 @@
-// JobManager.h
-
+#pragma once
+#include <list>
 
 template <class T>
 class JobManager
@@ -42,6 +42,3 @@ public:
 		return false;
 	}
 };
-
-
-// end of file
