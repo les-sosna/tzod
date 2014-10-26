@@ -352,7 +352,7 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
             p2->MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
 		}
 	}
-	dd.damage *= 0.1;
+	dd.damage *= 0.1f;
 	_timeHit = world.GetTime();
 }
 
