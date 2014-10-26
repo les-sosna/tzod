@@ -47,7 +47,7 @@ public:
 		_total = before + pathAfter;
 	}
     
-	void New(GC_RigidBodyStatic *object);
+	void AddObject(GC_RigidBodyStatic *object);
 	void RemoveObject(GC_RigidBodyStatic *object);
     
     short GetX()               const { return _x;    }

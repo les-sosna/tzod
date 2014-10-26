@@ -914,7 +914,7 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 			y = int(p.y);
 			break;
 		}
-		world._field(x, y).New(this);
+		world._field(x, y).AddObject(this);
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
