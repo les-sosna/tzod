@@ -37,7 +37,6 @@ GC_Vehicle::GC_Vehicle(vec2d pos)
   , _rotatePower(0)
   , _maxRotSpeed(0)
   , _maxLinSpeed(0)
-  , _trackDensity(8)
   , _trackPathL(0)
   , _trackPathR(0)
   , _time_smoke(0)
@@ -126,7 +125,6 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_weapon);
 	f.Serialize(_shield);
 	f.Serialize(_time_smoke);
-	f.Serialize(_trackDensity);
 	f.Serialize(_trackPathL);
 	f.Serialize(_trackPathR);
 	f.Serialize(_light_ambient);
@@ -428,7 +426,9 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     vec2d tmp(GetDirection().y, -GetDirection().x);
     vec2d trackL_new = GetPos() + tmp*15;
     vec2d trackR_new = GetPos() - tmp*15;
-    
+
+	const float trackDensity = 8;
+
     vec2d e = trackL_new - trackL;
     float len = e.len();
     e /= len;
@@ -436,7 +436,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     {
         auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p.SetFade(true);
-        _trackPathL += _trackDensity;
+        _trackPathL += trackDensity;
     }
     _trackPathL -= len;
     
@@ -447,7 +447,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     {
         auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p.SetFade(true);
-        _trackPathR += _trackDensity;
+        _trackPathR += trackDensity;
     }
     _trackPathR -= len;
 	

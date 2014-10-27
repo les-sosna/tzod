@@ -58,7 +58,6 @@ public:
 	ObjPtr<GC_Light>    _light1;
 	ObjPtr<GC_Light>    _light2;
     
-	float _trackDensity;
 	float _trackPathL;
 	float _trackPathR;
 	float _time_smoke;
