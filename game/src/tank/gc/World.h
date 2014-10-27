@@ -6,6 +6,7 @@
 #include "GlobalListHelper.h"
 #include "ObjPtr.h"
 #include "WorldEvents.h"
+#include "MapFile.h"
 #include <core/Grid.h>
 #include <core/PtrList.h>
 #include <core/MemoryManager.h>
@@ -156,12 +157,28 @@ public:
 /////////////////////////////////////////////////////
 	World();
 	~World();
-	
+
 	template<class T, class ...Args>
 	T& New(Args && ... args)
 	{
 		auto t = new T(std::forward<Args>(args)...);
 		t->Register(*this);
+		t->Init(*this);
+		for( auto ls: eWorld._listeners )
+			ls->OnNewObject(*t);
+		return *t;
+	}
+
+	template<class T, class ...Args>
+	T& New(MapFile &file, Args && ... args)
+	{
+		auto t = new T(std::forward<Args>(args)...);
+		t->MapExchange(file);
+		std::string name;
+		if (file.getObjectAttribute("name", name))
+			t->SetName(*this, name.c_str());
+		t->Register(*this);
+		t->Init(*this);
 		for( auto ls: eWorld._listeners )
 			ls->OnNewObject(*t);
 		return *t;

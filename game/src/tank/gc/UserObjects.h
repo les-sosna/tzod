@@ -26,8 +26,8 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_UserObject(World &world);
-	GC_UserObject(FromFile);
+	explicit GC_UserObject(vec2d pos);
+	explicit GC_UserObject(FromFile);
 	virtual ~GC_UserObject();
 
 	void SetZ(enumZOrder z);
@@ -41,7 +41,7 @@ public:
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void OnDestroy(World &world, GC_Player *by);
 
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,8 +73,8 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 public:
-	GC_Decoration(World &world);
-	GC_Decoration(FromFile);
+	explicit GC_Decoration(vec2d pos);
+	explicit GC_Decoration(FromFile);
 	virtual ~GC_Decoration();
 
 	void SetZ(enumZOrder z);
@@ -82,9 +82,9 @@ public:
 	void SetTextureName(std::string name) { _textureName.swap(name); }
 	const std::string& GetTextureName() const { return _textureName; }
 
+	// GC_Object
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
-
 	virtual void TimeStep(World &world, float dt);
 };
 

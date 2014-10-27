@@ -13,14 +13,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 	return true;
 }
 
-GC_UserObject::GC_UserObject(World &world)
-  : _textureName("turret_platform")
+GC_UserObject::GC_UserObject(vec2d pos)
+  : GC_RigidBodyStatic(pos)
+  , _textureName("turret_platform")
   , _zOrder(Z_WALLS)
 {
 	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 
@@ -47,9 +49,9 @@ void GC_UserObject::OnDestroy(World &world, GC_Player *by)
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
-void GC_UserObject::MapExchange(World &world, MapFile &f)
+void GC_UserObject::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::MapExchange(world, f);
+	GC_RigidBodyStatic::MapExchange(f);
 	MAP_EXCHANGE_STRING(texture, _textureName, "");
 }
 
@@ -91,12 +93,10 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-        if (tmp->CheckFlags(GC_FLAG_RBSTATIC_INFIELD))
-            world._field.ProcessObject(tmp, false);
+//		world._field.ProcessObject(tmp, false);
 		tmp->SetTextureName(_propTexture.GetStringValue());
 //		tmp->AlignToTexture();
-		world._field.ProcessObject(tmp, true);
-        tmp->SetFlags(GC_FLAG_RBSTATIC_INFIELD, true);
+//		world._field.ProcessObject(tmp, true);
 	}
 	else
 	{
@@ -112,8 +112,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 	return true;
 }
 
-GC_Decoration::GC_Decoration(World &world)
-  : _textureName("turret_platform")
+GC_Decoration::GC_Decoration(vec2d pos)
+  : GC_Actor(pos)
+  , _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
   , _zOrder(Z_EDITOR)
@@ -121,6 +122,7 @@ GC_Decoration::GC_Decoration(World &world)
 }
 
 GC_Decoration::GC_Decoration(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -143,9 +145,9 @@ void GC_Decoration::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zOrder);
 }
 
-void GC_Decoration::MapExchange(World &world, MapFile &f)
+void GC_Decoration::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 
 	int z = GetZ();
 	int frame = 0;//GetCurrentFrame();

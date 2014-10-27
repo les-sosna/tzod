@@ -15,24 +15,23 @@ class GC_HealthDaemon : public GC_Actor
     DECLARE_LIST_MEMBER();
     typedef GC_Actor base;
 
-private:
-	float _time;
-	float _damage; //  hp per sec
-
-	ObjPtr<GC_RigidBodyStatic> _victim;
-	ObjPtr<GC_Player> _owner;
-
 public:
-	GC_HealthDaemon(GC_Player *owner, float damagePerSecond, float time);
+	GC_HealthDaemon(vec2d pos, GC_Player *owner, float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
     
     void SetVictim(World &world, GC_RigidBodyStatic *victim);
 
 	virtual void Serialize(World &world, SaveFile &f);
-
 	virtual void TimeStep(World &world, float dt);
 
+private:
+	float _time;
+	float _damage; //  hp per sec
+	
+	ObjPtr<GC_RigidBodyStatic> _victim;
+	ObjPtr<GC_Player> _owner;
+	
 	void OnVictimMove(World &world, GC_Object *sender, void *param);
 	void OnVictimKill(World &world, GC_Object *sender, void *param);
 };
@@ -45,6 +44,7 @@ public:
 class GC_Wood : public GC_Actor
               , public GI_NeighborAware
 {
+	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Wood);
     typedef GC_Actor base;
 private:
@@ -66,10 +66,8 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
-    DECLARE_GRID_MEMBER();
-    
-	GC_Wood(World &world);
-	GC_Wood(FromFile);
+	explicit GC_Wood(vec2d pos);
+	explicit GC_Wood(FromFile);
 	virtual ~GC_Wood();
 
 	void SetTile(char nTile, bool value);
@@ -97,8 +95,8 @@ public:
 		SCORE_MINUS,
 	};
 	
-	GC_Text(std::string text, enumAlignText align = alignTextLT);
-	GC_Text(FromFile) {}
+	GC_Text(vec2d pos, std::string text, enumAlignText align = alignTextLT);
+	explicit GC_Text(FromFile) : GC_Actor(FromFile()) {}
 	virtual ~GC_Text() = 0;
 	
 	void SetText(std::string text) { _text = std::move(text); }
@@ -127,7 +125,7 @@ class GC_Text_ToolTip : public GC_Text
 	float  _time;
 
 public:
-	GC_Text_ToolTip(std::string text, Style style);
+	GC_Text_ToolTip(vec2d pos, std::string text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
 	virtual void Serialize(World &world, SaveFile &f);

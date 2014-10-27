@@ -128,6 +128,7 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 // custom IMPLEMENT_1LIST_MEMBER for base class
 ObjectList::id_type GC_Object::Register(World &world)
 {
+	assert(ObjectList::id_type() == _posLIST_objects);
     _posLIST_objects = world.GetList(LIST_objects).insert(this);
     return _posLIST_objects;
 }
@@ -153,12 +154,10 @@ GC_Object::~GC_Object()
 		_firstNotify = n->next;
 		delete n;
 	}
-//	assert(world._garbage.erase(this) == 1);
 }
 
 void GC_Object::Kill(World &world)
 {
-//	assert(world._garbage.insert(this).second);
 	world.OnKill(*this);
 	PulseNotify(world, NOTIFY_OBJECT_KILL);
 	SetName(world, NULL);
@@ -342,6 +341,10 @@ void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
 	}
 }
 
+void GC_Object::Init(World &world)
+{
+}
+
 void GC_Object::Resume(World &world)
 {
 }
@@ -362,17 +365,8 @@ PropertySet* GC_Object::NewPropertySet()
 	return new MyPropertySet(this);
 }
 
-void GC_Object::MapExchange(World &world, MapFile &f)
+void GC_Object::MapExchange(MapFile &f)
 {
-	std::string tmp_name;
-	const char *name = GetName(world);
-	tmp_name = name ? name : "";
-	MAP_EXCHANGE_STRING(name, tmp_name, "");
-
-	if( f.loading() )
-	{
-		SetName(world, tmp_name.c_str());
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

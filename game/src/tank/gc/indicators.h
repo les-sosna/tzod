@@ -31,12 +31,12 @@ protected:
 
 
 public:
-	GC_SpawnPoint(World &world);
-	GC_SpawnPoint(FromFile);
+	explicit GC_SpawnPoint(vec2d pos);
+	explicit GC_SpawnPoint(FromFile);
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ class GC_HideLabel : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HideLabel);
 public:
-	GC_HideLabel();
+	GC_HideLabel(vec2d pos);
 	GC_HideLabel(FromFile);
 };
 

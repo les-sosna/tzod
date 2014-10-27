@@ -288,15 +288,9 @@ void World::Import(std::shared_ptr<FS::Stream> s, const ThemeManager &themeManag
 
 	while( file.NextObject() )
 	{
-		float x = 0;
-		float y = 0;
-		file.getObjectAttribute("x", x);
-		file.getObjectAttribute("y", y);
 		ObjectType t = RTTypes::Inst().GetTypeByName(file.GetCurrentClassName());
-		if( INVALID_OBJECT_TYPE == t )
-			continue;
-		GC_Object *object = RTTypes::Inst().GetTypeInfo(t).Create(*this, x, y);
-		object->MapExchange(*this, file);
+		if( INVALID_OBJECT_TYPE != t )
+			RTTypes::Inst().GetTypeInfo(t).CreateFromMap(*this, file);
 	}
 }
 
@@ -334,7 +328,12 @@ void World::Export(std::shared_ptr<FS::Stream> s)
 		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(RTTypes::Inst().GetTypeName(object->GetType()));
-			object->MapExchange(*this, file);
+			if (const char *optName = object->GetName(*this))
+			{
+				std::string name(optName ? optName : "");
+				file.setObjectAttribute("name", name);
+			}
+			object->MapExchange(file);
 			file.WriteCurrentObject();
 		}
 	}

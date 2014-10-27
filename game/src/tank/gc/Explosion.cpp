@@ -16,14 +16,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Explosion)
 	return true;
 }
 
-GC_Explosion::GC_Explosion(GC_Player *owner)
-  : _owner(owner)
+GC_Explosion::GC_Explosion(vec2d pos, GC_Player *owner)
+  : GC_Actor(pos)
+  , _owner(owner)
   , _damage(1)
   , _radius(32)
 {
 }
 
 GC_Explosion::GC_Explosion(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -252,17 +254,14 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 {
 	float duration = 0.32f;
 	
-	auto &main = world.New<GC_ParticleExplosion>(vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
-	main.MoveTo(world, pos);
+	world.New<GC_ParticleExplosion>(pos, vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
 	
-	auto &e = world.New<GC_Explosion>(owner);
-	e.MoveTo(world, pos);
+	auto &e = world.New<GC_Explosion>(pos, owner);
 	e.SetRadius(70);
 	e.SetDamage(150);
 	e.SetTimeout(world, 0.03f);
 	
-	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
-	light.MoveTo(world, pos);
+	auto &light = world.New<GC_Light>(pos, GC_Light::LIGHT_POINT);
 	light.SetRadius(70 * 5);
 	light.SetTimeout(world, duration * 1.5f);
 	
@@ -270,19 +269,16 @@ GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *o
 	{
 		//ring
 		float ang = frand(PI2);
-		auto &p = world.New<GC_Particle>(vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-        p.MoveTo(world, pos);
+		world.New<GC_Particle>(pos, vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
 		
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 		
-		auto &p1 = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-        p1.MoveTo(world, pos + vec2d(ang) * d);
+		auto &p1 = world.New<GC_Particle>(pos + vec2d(ang) * d, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
         p1._time = frand(1.0f);
 	}
-	auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
-    p.MoveTo(world, pos);
+	auto &p = world.New<GC_ParticleDecal>(pos, vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
 	p.SetFade(true);
 	
 	PLAY(SND_BoomStandard, pos);
@@ -294,17 +290,14 @@ GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 {
 	float duration = 0.72f;
 	
-	auto &main = world.New<GC_ParticleExplosion>(vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
-	main.MoveTo(world, pos);
+	world.New<GC_ParticleExplosion>(pos, vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
 
-	auto &e = world.New<GC_Explosion>(owner);
-	e.MoveTo(world, pos);
+	auto &e = world.New<GC_Explosion>(pos, owner);
 	e.SetRadius(128);
 	e.SetDamage(90);
 	e.SetTimeout(world, 0.10f);
 	
-	auto &light = world.New<GC_Light>(GC_Light::LIGHT_POINT);
-	light.MoveTo(world, pos);
+	auto &light = world.New<GC_Light>(pos, GC_Light::LIGHT_POINT);
 	light.SetRadius(128 * 5);
 	light.SetTimeout(world, duration * 1.5f);
 	
@@ -313,31 +306,26 @@ GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner)
 		//ring
 		for( int i = 0; i < 2; ++i )
 		{
-			auto &p = world.New<GC_Particle>(vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
-            p.MoveTo(world, pos + vrand(frand(20.0f)));
+			world.New<GC_Particle>(pos + vrand(frand(20.0f)), vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
 		}
 
 		vec2d a;
 
 		//dust
 		a = vrand(frand(40.0f));
-		auto &p = world.New<GC_Particle>(a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
-        p.MoveTo(world, pos + a);
+		world.New<GC_Particle>(pos + a, a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
 
 		// sparkles
 		a = vrand(1);
-		auto &p1 = world.New<GC_Particle>(a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
-        p1.MoveTo(world, pos + a * frand(40.0f));
+		world.New<GC_Particle>(pos + a * frand(40.0f), a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
 
 		//smoke
 		a = vrand(frand(48.0f));
-		auto &p2 = world.New<GC_Particle>(SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
-        p2.MoveTo(world, pos + a);
+		auto &p2 = world.New<GC_Particle>(pos + a, SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
         p2._time = frand(1.0f);
 	}
 
-	auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
-    p.MoveTo(world, pos);
+	auto &p = world.New<GC_ParticleDecal>(pos, vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
 	p.SetFade(true);
 
 	PLAY(SND_BoomBig, pos);

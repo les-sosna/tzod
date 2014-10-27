@@ -26,12 +26,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 
 IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
 
-GC_Wood::GC_Wood(World &world)
+GC_Wood::GC_Wood(vec2d pos)
+  : GC_Actor(pos)
+  , _tile(0)
 {
-	_tile = 0;
 }
 
 GC_Wood::GC_Wood(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -115,8 +117,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 
 IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
 
-GC_HealthDaemon::GC_HealthDaemon(GC_Player *owner, float damage, float time)
-  : _time(time)
+GC_HealthDaemon::GC_HealthDaemon(vec2d pos, GC_Player *owner, float damage, float time)
+  : GC_Actor(pos)
+  , _time(time)
   , _damage(damage)
   , _victim(nullptr)
   , _owner(owner)
@@ -124,6 +127,7 @@ GC_HealthDaemon::GC_HealthDaemon(GC_Player *owner, float damage, float time)
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -183,8 +187,9 @@ void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
 
 /////////////////////////////////////////////////////////////
 
-GC_Text::GC_Text(std::string text, enumAlignText align)
-  : _style(DEFAULT)
+GC_Text::GC_Text(vec2d pos, std::string text, enumAlignText align)
+  : GC_Actor(pos)
+  , _style(DEFAULT)
   , _align(align)
   , _text(std::move(text))
 {
@@ -211,8 +216,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 
 IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
 
-GC_Text_ToolTip::GC_Text_ToolTip(std::string text, Style style)
-  : GC_Text(std::move(text), alignTextCC)
+GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, std::string text, Style style)
+  : GC_Text(pos, std::move(text), alignTextCC)
   , _time(0)
 {
 	SetText(text);

@@ -38,7 +38,7 @@ protected:
 	void SelectTarget(World &world, GC_Vehicle *target);
 
 public:
-	GC_Turret(World &world, TurretState state);
+	GC_Turret(vec2d pos, TurretState state);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 	
@@ -50,14 +50,15 @@ public:
     virtual void SetInitialDir(float initialDir);
 
 	// GC_RigidBodyStatic
-	virtual void OnDestroy(World &world, GC_Player *by);
+	virtual void OnDestroy(World &world, GC_Player *by) override;
 	
 	// GC_Actor
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
+	virtual void Init(World &world) override;
     virtual void Kill(World &world) override;
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
 	
@@ -98,8 +99,8 @@ class GC_TurretRocket : public GC_Turret
 	DECLARE_SELF_REGISTRATION(GC_TurretRocket);
 
 public:
-	GC_TurretRocket(World &world);
-	GC_TurretRocket(FromFile);
+	explicit GC_TurretRocket(vec2d pos);
+	explicit GC_TurretRocket(FromFile);
 	virtual ~GC_TurretRocket();
 
 	// GC_Turret
@@ -128,8 +129,8 @@ class GC_TurretCannon : public GC_Turret
 	DECLARE_SELF_REGISTRATION(GC_TurretCannon);
 
 public:
-	GC_TurretCannon(World &world);
-	GC_TurretCannon(FromFile);
+	explicit GC_TurretCannon(vec2d pos);
+	explicit GC_TurretCannon(FromFile);
 	~GC_TurretCannon();
 
 	// GC_Turret
@@ -175,8 +176,8 @@ public:
 	float _time_wake_max;
 
 public:
-	GC_TurretBunker(World &world);
-	GC_TurretBunker(FromFile);
+	explicit GC_TurretBunker(vec2d pos);
+	explicit GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
 	
 	virtual float GetReadyState() const { return _time_wake / _time_wake_max; }
@@ -186,7 +187,7 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
@@ -199,8 +200,8 @@ class GC_TurretMinigun : public GC_TurretBunker
 	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);
 
 public:
-	GC_TurretMinigun(World &world);
-	GC_TurretMinigun(FromFile);
+	explicit GC_TurretMinigun(vec2d pos);
+	explicit GC_TurretMinigun(FromFile);
 	virtual ~GC_TurretMinigun();
 
 	// GC_Turret
@@ -212,6 +213,7 @@ public:
 	virtual float GetDefaultHealth() const { return 250; }
     
 	// GC_Object
+	virtual void Init(World &world);
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
@@ -232,8 +234,8 @@ class GC_TurretGauss : public GC_TurretBunker
 	DECLARE_SELF_REGISTRATION(GC_TurretGauss);
 
 public:
-	GC_TurretGauss(World &world);
-	GC_TurretGauss(FromFile);
+	explicit GC_TurretGauss(vec2d pos);
+	explicit GC_TurretGauss(FromFile);
 	virtual ~GC_TurretGauss();
 
 	// GC_Turret

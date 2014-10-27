@@ -8,8 +8,7 @@
 
 #define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_ACTOR_ << 0) // penetration of projectiles
 #define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_RBSTATIC_INFIELD    (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_RBSTATIC_           (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_RBSTATIC_           (GC_FLAG_ACTOR_ << 2)
 
 class GC_Player;
 
@@ -22,11 +21,12 @@ struct DamageDesc
 
 class GC_RigidBodyStatic : public GC_Actor
 {
+	DECLARE_GRID_MEMBER();
     typedef GC_Actor base;
 
 public:
-    DECLARE_GRID_MEMBER();
-	GC_RigidBodyStatic();
+	explicit GC_RigidBodyStatic(vec2d pos);
+	explicit GC_RigidBodyStatic(FromFile);
 	virtual ~GC_RigidBodyStatic();
 	
 	const std::string& GetOnDestroy() const { return _scriptOnDestroy; }
@@ -59,9 +59,10 @@ public:
     virtual void MoveTo(World &world, const vec2d &pos);
 
 	// GC_Object
+	virtual void Init(World &world) override;
     virtual void Kill(World &world) override;
-	virtual void MapExchange(World &world, MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void MapExchange(MapFile &f) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -120,8 +121,32 @@ public:
 
 class GC_Wall : public GC_RigidBodyStatic
 {
+	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Wall);
     typedef GC_RigidBodyStatic base;
+
+public:
+	explicit GC_Wall(vec2d pos);
+	GC_Wall(FromFile);
+	virtual ~GC_Wall();
+	
+	void SetCorner(World &world, unsigned int index); // 01
+	unsigned int GetCorner(void) const; // 32
+	
+	void SetStyle(int style); // 0-3
+	int GetStyle() const;
+	
+	// GC_RigidBodyStatic
+	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
+	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
+	virtual float GetDefaultHealth() const { return 50; }
+	virtual unsigned char GetPassability() const { return 1; }
+
+	// GC_Object
+	virtual void Init(World &world) override;
+    virtual void Kill(World &world) override;
+	virtual void MapExchange(MapFile &f) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -136,32 +161,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
-
-public:
-    DECLARE_GRID_MEMBER();
-	GC_Wall(World &world);
-	GC_Wall(FromFile);
-	virtual ~GC_Wall();
 	
-	void SetCorner(World &world, unsigned int index); // 01
-	unsigned int GetCorner(void) const; // 32
-	
-	void SetStyle(int style); // 0-3
-	int GetStyle() const;
-	
-
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
-	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
-
-	virtual float GetDefaultHealth() const { return 50; }
-
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
-
-	virtual unsigned char GetPassability() const { return 1; }
-
-protected:
 	virtual void OnDestroy(World &world, GC_Player *by) override;
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
@@ -173,7 +173,7 @@ class GC_Wall_Concrete : public GC_Wall
 	DECLARE_SELF_REGISTRATION(GC_Wall_Concrete);
 
 public:
-	GC_Wall_Concrete(World &world);
+	GC_Wall_Concrete(vec2d pos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
@@ -190,6 +190,7 @@ protected:
 class GC_Water : public GC_RigidBodyStatic
                , public GI_NeighborAware
 {
+	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Water);
     typedef GC_RigidBodyStatic base;
 
@@ -210,8 +211,7 @@ protected:
 	void UpdateTile(World &world, bool flag);
 
 public:
-    DECLARE_GRID_MEMBER();
-	GC_Water(World &world);
+	GC_Water(vec2d pos);
 	GC_Water(FromFile);
 	~GC_Water();
 

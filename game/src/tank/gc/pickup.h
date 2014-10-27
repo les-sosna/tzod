@@ -23,10 +23,9 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_PICKUP_KNOWNPOS          (GC_FLAG_ACTOR_ << 3)
-#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 4)
-#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 5)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 6)
+#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 4)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 5)
 
 class GC_Pickup : public GC_Actor
 {
@@ -35,8 +34,8 @@ class GC_Pickup : public GC_Actor
     typedef GC_Actor base;
 
 public:
-	GC_Pickup(World &world);
-	GC_Pickup(FromFile);
+	explicit GC_Pickup(vec2d pos);
+	explicit GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
 	
 	void Attach(World &world, GC_Vehicle &vehicle);
@@ -68,12 +67,10 @@ public:
 	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const { return true; }
 	virtual float GetDefaultRespawnTime() const = 0;
 
-	// GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos) override;
-
 	// GC_Object
+	virtual void Init(World &world);
 	virtual void Kill(World &world);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 #ifdef NETWORK_DEBUG
@@ -119,7 +116,7 @@ class GC_pu_Health : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Health);
 
 public:
-	GC_pu_Health(World &world);
+	GC_pu_Health(vec2d pos);
 	GC_pu_Health(FromFile);
 
 	// GC_Pickup
@@ -138,7 +135,7 @@ class GC_pu_Mine : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Mine);
 
 public:
-	GC_pu_Mine(World &world);
+	GC_pu_Mine(vec2d pos);
 	GC_pu_Mine(FromFile);
 
 	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
@@ -157,7 +154,7 @@ class GC_pu_Shield : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Shield);
 
 public:
-	GC_pu_Shield(World &world);
+	GC_pu_Shield(vec2d pos);
 	GC_pu_Shield(FromFile);
 	virtual ~GC_pu_Shield();
 
@@ -190,7 +187,7 @@ class GC_pu_Shock : public GC_Pickup
     typedef GC_Pickup base;
 
 public:
-	GC_pu_Shock(World &world);
+	GC_pu_Shock(vec2d pos);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
 	
@@ -225,7 +222,7 @@ class GC_pu_Booster : public GC_Pickup
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
 
 public:
-	GC_pu_Booster(World &world);
+	GC_pu_Booster(vec2d pos);
 	GC_pu_Booster(FromFile);
 	virtual ~GC_pu_Booster();
 

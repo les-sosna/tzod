@@ -8,7 +8,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 	return true;
 }
 
-GC_Crate::GC_Crate(World &world)
+GC_Crate::GC_Crate(vec2d pos)
+  : GC_RigidBodyDynamic(pos)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 
@@ -23,6 +24,7 @@ GC_Crate::GC_Crate(World &world)
 }
 
 GC_Crate::GC_Crate(FromFile)
+  : GC_RigidBodyDynamic(FromFile())
 {
 }
 
@@ -34,8 +36,7 @@ void GC_Crate::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		auto &p = world.New<GC_BrickFragment>(vec2d(frand(100.0f) - 50, -frand(100.0f)));
-        p.MoveTo(world, GetPos() + vrand(GetRadius()));
+		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d(frand(100.0f) - 50, -frand(100.0f)));
 	}
 
 	GC_RigidBodyDynamic::OnDestroy(world, by);

@@ -55,7 +55,7 @@ class GC_Explosion : public GC_Actor
 	float _radius;
 	
 public:
-	GC_Explosion(GC_Player *owner);
+	GC_Explosion(vec2d pos, GC_Player *owner);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 	

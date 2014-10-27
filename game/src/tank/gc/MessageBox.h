@@ -15,7 +15,7 @@ public:
 	virtual ~GC_MessageBox();
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet

@@ -18,8 +18,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 
 IMPLEMENT_1LIST_MEMBER(GC_Trigger, LIST_timestep);
 
-GC_Trigger::GC_Trigger(World &world)
-  : _radius(1)
+GC_Trigger::GC_Trigger(vec2d pos)
+  : GC_Actor(pos)
+  , _radius(1)
   , _radiusDelta(0)
   , _team(0)
 {
@@ -27,6 +28,7 @@ GC_Trigger::GC_Trigger(World &world)
 }
 
 GC_Trigger::GC_Trigger(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -62,9 +64,9 @@ void GC_Trigger::Serialize(World &world, SaveFile &f)
 	f.Serialize(_veh);
 }
 
-void GC_Trigger::MapExchange(World &world, MapFile &f)
+void GC_Trigger::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);

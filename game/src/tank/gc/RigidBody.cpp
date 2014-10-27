@@ -17,8 +17,9 @@
 
 IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
 
-GC_RigidBodyStatic::GC_RigidBodyStatic()
-  : _health(1)
+GC_RigidBodyStatic::GC_RigidBodyStatic(vec2d pos)
+  : GC_Actor(pos)
+  , _health(1)
   , _health_max(1)
   , _radius(0)
   , _width(0)
@@ -26,32 +27,38 @@ GC_RigidBodyStatic::GC_RigidBodyStatic()
 {
 }
 
+GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
+  : GC_Actor(FromFile())
+{
+}
+
 GC_RigidBodyStatic::~GC_RigidBodyStatic()
 {
 }
 
+void GC_RigidBodyStatic::Init(World &world)
+{
+	GC_Actor::Init(world);
+	if( GetPassability() > 0 )
+		world._field.ProcessObject(this, true);
+}
+
 void GC_RigidBodyStatic::Kill(World &world)
 {
-    if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
+	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, false);
     GC_Actor::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
-    if( CheckFlags(GC_FLAG_RBSTATIC_INFIELD) )
-    {
+	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, false);
-        SetFlags(GC_FLAG_RBSTATIC_INFIELD, false);
-    }
-    
+	
     GC_Actor::MoveTo(world, pos);
 
     if( GetPassability() > 0 )
-    {
 		world._field.ProcessObject(this, true);
-        SetFlags(GC_FLAG_RBSTATIC_INFIELD, true);
-    }
 }
 
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
@@ -366,9 +373,9 @@ vec2d GC_RigidBodyStatic::GetVertex(int index) const
 				 GetPos().y + x * GetDirection().y + y * GetDirection().x);
 }
 
-void GC_RigidBodyStatic::MapExchange(World &world, MapFile &f)
+void GC_RigidBodyStatic::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
@@ -468,18 +475,61 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 
 IMPLEMENT_GRID_MEMBER(GC_Wall, grid_walls);
 
-GC_Wall::GC_Wall(World &world)
+GC_Wall::GC_Wall(vec2d pos)
+  : GC_RigidBodyStatic(pos)
 {
 	SetHealth(50, 50);
 	SetSize(CELL_SIZE, CELL_SIZE);
 }
 
 GC_Wall::GC_Wall(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 
 GC_Wall::~GC_Wall()
 {
+}
+
+static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
+{
+	if (corner)
+	{
+		vec2d p = obj.GetPos() / CELL_SIZE;
+		int x, y;
+		switch( corner )
+		{
+			default:
+				assert(false);
+			case 1:
+				x = int(p.x+1);
+				y = int(p.y+1);
+				break;
+			case 2:
+				x = int(p.x);
+				y = int(p.y + 1);
+				break;
+			case 3:
+				x = int(p.x + 1);
+				y = int(p.y);
+				break;
+			case 4:
+				x = int(p.x);
+				y = int(p.y);
+				break;
+		}
+		field(x, y).RemoveObject(&obj);
+		if( 0 == x || 0 == y || field.GetX() - 1 == x || field.GetX() - 1 == y )
+		{
+			field(x, y)._prop = 0xFF;
+		}
+	}
+}
+
+void GC_Wall::Init(World &world)
+{
+	GC_RigidBodyStatic::Init(world); // adds all corners
+	RemoveCorner(world._field, *this, GetCorner());
 }
 
 void GC_Wall::Kill(World &world)
@@ -785,9 +835,22 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 }
 
-void GC_Wall::MapExchange(World &world, MapFile &f)
+static unsigned int FlagsFromCornerIndex(unsigned int corner)
 {
-	GC_RigidBodyStatic::MapExchange(world, f);
+	assert(corner < 5);
+	static const unsigned int flags[] = {
+		0,
+		GC_FLAG_WALL_CORNER_1,
+		GC_FLAG_WALL_CORNER_2,
+		GC_FLAG_WALL_CORNER_3,
+		GC_FLAG_WALL_CORNER_4
+	};
+	return flags[corner];
+}
+
+void GC_Wall::MapExchange(MapFile &f)
+{
+	GC_RigidBodyStatic::MapExchange(f);
 	int corner = GetCorner();
 	int style = GetStyle();
 	MAP_EXCHANGE_INT(corner, corner, 0);
@@ -795,7 +858,7 @@ void GC_Wall::MapExchange(World &world, MapFile &f)
 
 	if( f.loading() )
 	{
-		SetCorner(world, corner % 5);
+		SetFlags(FlagsFromCornerIndex(corner % 5), true);
 		SetStyle(style % 4);
 	}
 }
@@ -806,38 +869,7 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 
 	if( f.loading() )
 	{
-		if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
-		{
-			vec2d p = GetPos() / CELL_SIZE;
-			int x = 0;
-			int y = 0;
-			switch( GetCorner() )
-			{
-			case 0:
-				break;
-			case 1:
-				x = int(p.x+1);
-				y = int(p.y+1);
-				break;
-			case 2:
-				x = int(p.x);
-				y = int(p.y + 1);
-				break;
-			case 3:
-				x = int(p.x + 1);
-				y = int(p.y);
-				break;
-			case 4:
-				x = int(p.x);
-				y = int(p.y);
-				break;
-			}
-			world._field(x, y).RemoveObject(this);
-			if( 0 == x || 0 == y || world._field.GetX() - 1 == x || world._field.GetX() - 1 == y )
-			{
-				world._field(x, y)._prop = 0xFF;
-			}
-		}
+		RemoveCorner(world._field, *this, GetCorner());
 	}
 }
 
@@ -845,11 +877,9 @@ void GC_Wall::OnDestroy(World &world, GC_Player *by)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		auto &p = world.New<GC_BrickFragment>(vec2d(frand(100.0f) - 50, -frand(100.0f)));
-        p.MoveTo(world, GetPos() + vrand(GetRadius()));
+		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d(frand(100.0f) - 50, -frand(100.0f)));
 	}
-	auto &p = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
-    p.MoveTo(world, GetPos());
+	world.New<GC_Particle>(GetPos(), SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
 
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
@@ -871,32 +901,22 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 		}
 		v += vrand(25);
 
-		auto &p = world.New<GC_BrickFragment>(v);
-		p.MoveTo(world, dd.hit);
+		world.New<GC_BrickFragment>(dd.hit, v);
 	}
 	GC_RigidBodyStatic::OnDamage(world, dd);
 }
 
 void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 {
-	assert(index < 5);
-	static const unsigned int flags[] = {
-		0,
-		GC_FLAG_WALL_CORNER_1,
-		GC_FLAG_WALL_CORNER_2,
-		GC_FLAG_WALL_CORNER_3,
-		GC_FLAG_WALL_CORNER_4
-	};
-
+	// restore current corner
 	vec2d p = GetPos() / CELL_SIZE;
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
-		int x = 0;
-		int y = 0;
+		int x, y;
 		switch( GetCorner() )
 		{
-		case 0:
-			break;
+		default:
+			assert(false);
 		case 1:
 			x = int(p.x+1);
 			y = int(p.y+1);
@@ -918,39 +938,8 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
-	SetFlags(flags[index], true);
-
-	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
-	{
-		int x = 0;
-		int y = 0;
-		switch( GetCorner() )
-		{
-		case 0:
-			break;
-		case 1:
-			x = int(p.x+1);
-			y = int(p.y+1);
-			break;
-		case 2:
-			x = int(p.x);
-			y = int(p.y + 1);
-			break;
-		case 3:
-			x = int(p.x + 1);
-			y = int(p.y);
-			break;
-		case 4:
-			x = int(p.x);
-			y = int(p.y);
-			break;
-		}
-		world._field(x, y).RemoveObject(this);
-		if( 0 == x || 0 == y || world._field.GetX() - 1 == x || world._field.GetX() - 1 == y )
-		{
-			world._field(x, y)._prop = 0xFF;
-		}
-	}
+	SetFlags(FlagsFromCornerIndex(index), true);
+	RemoveCorner(world._field, *this, GetCorner());
 }
 
 unsigned int GC_Wall::GetCorner(void) const
@@ -1054,8 +1043,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 	return true;
 }
 
-GC_Wall_Concrete::GC_Wall_Concrete(World &world)
-  : GC_Wall(world)
+GC_Wall_Concrete::GC_Wall_Concrete(vec2d pos)
+  : GC_Wall(pos)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 }
@@ -1076,14 +1065,16 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 
 IMPLEMENT_GRID_MEMBER(GC_Water, grid_water);
 
-GC_Water::GC_Water(World &world)
-  : _tile(0)
+GC_Water::GC_Water(vec2d pos)
+  : GC_RigidBodyStatic(pos)
+  , _tile(0)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 }
 
 GC_Water::GC_Water(FromFile)
+  : GC_RigidBodyStatic(FromFile())
 {
 }
 

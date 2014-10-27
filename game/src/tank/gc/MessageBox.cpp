@@ -63,9 +63,9 @@ void GC_MessageBox::Serialize(World &world, SaveFile &f)
 	}
 }
 
-void GC_MessageBox::MapExchange(World &world, MapFile &f)
+void GC_MessageBox::MapExchange(MapFile &f)
 {
-	GC_Service::MapExchange(world, f);
+	GC_Service::MapExchange(f);
 	MAP_EXCHANGE_STRING(title, _title, "");
 	MAP_EXCHANGE_STRING(text, _text, "");
 	MAP_EXCHANGE_STRING(option1, _option1, "");

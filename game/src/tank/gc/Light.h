@@ -33,7 +33,7 @@ private:
 	vec2d  _lightDirection;
 
 public:
-	explicit GC_Light(enumLightType type);
+	GC_Light(vec2d pos, enumLightType type);
 	explicit GC_Light(FromFile);
 	virtual ~GC_Light();
 	
@@ -106,12 +106,27 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define GC_FLAG_SPOTLIGHT_ACTIVE    (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_SPOTLIGHT_          (GC_FLAG_ACTOR_ << 1)
+
 class GC_Spotlight : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
-	ObjPtr<GC_Light> _light;
 
+public:
+	explicit GC_Spotlight(vec2d pos);
+	explicit GC_Spotlight(FromFile);
+	virtual ~GC_Spotlight();
 
+	// GC_Actor
+	virtual void MoveTo(World &world, const vec2d &pos) override;
+
+	// GC_Object
+	virtual void Init(World &world) override;
+	virtual void Kill(World &world) override;
+	virtual void MapExchange(MapFile &f) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
@@ -126,18 +141,6 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 
-public:
-	GC_Spotlight(World &world);
-	GC_Spotlight(FromFile);
-	virtual ~GC_Spotlight();
-
-	virtual void MoveTo(World &world, const vec2d &pos) override;
-
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
-    virtual void Kill(World &world) override;
+private:
+	ObjPtr<GC_Light> _light;
 };
-
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

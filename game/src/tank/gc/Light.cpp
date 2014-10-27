@@ -15,8 +15,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 
 IMPLEMENT_1LIST_MEMBER(GC_Light, LIST_lights);
 
-GC_Light::GC_Light(enumLightType type)
-  : _startTime(-FLT_MAX)
+GC_Light::GC_Light(vec2d pos, enumLightType type)
+  : GC_Actor(pos)
+  , _startTime(-FLT_MAX)
   , _timeout(0)
   , _aspect(1)
   , _offset(0)
@@ -29,6 +30,7 @@ GC_Light::GC_Light(enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -78,21 +80,31 @@ IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 	return true;
 }
 
-GC_Spotlight::GC_Spotlight(FromFile)
+GC_Spotlight::GC_Spotlight(vec2d pos)
+  : GC_Actor(pos)
 {
+	SetFlags(GC_FLAG_SPOTLIGHT_ACTIVE, true);
 }
 
-GC_Spotlight::GC_Spotlight(World &world)
-  : _light(&world.New<GC_Light>(GC_Light::LIGHT_SPOT))
+GC_Spotlight::GC_Spotlight(FromFile)
+  : GC_Actor(FromFile())
 {
-	_light->SetRadius(200);
-	_light->SetIntensity(1.0f);
-	_light->SetOffset(170);
-	_light->SetAspect(0.5f);
 }
 
 GC_Spotlight::~GC_Spotlight()
 {
+}
+
+void GC_Spotlight::Init(World &world)
+{
+	GC_Actor::Init(world);
+	_light = &world.New<GC_Light>(GetPos() + GetDirection() * 7, GC_Light::LIGHT_SPOT);
+	_light->SetActive(CheckFlags(GC_FLAG_SPOTLIGHT_ACTIVE));
+	_light->SetRadius(200);
+	_light->SetIntensity(1.0f);
+	_light->SetOffset(170);
+	_light->SetAspect(0.5f);
+	_light->SetLightDirection(GetDirection());
 }
 
 void GC_Spotlight::Kill(World &world)
@@ -113,12 +125,12 @@ void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
 	GC_Actor::MoveTo(world, pos);
 }
 
-void GC_Spotlight::MapExchange(World &world, MapFile &f)
+void GC_Spotlight::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 
 	float dir = GetDirection().Angle();
-	int active = _light->GetActive();
+	int active = CheckFlags(GC_FLAG_SPOTLIGHT_ACTIVE) ? 1 : 0;
 
 	MAP_EXCHANGE_INT(active, active, 1);
 	MAP_EXCHANGE_FLOAT(dir, dir, 0);
@@ -126,9 +138,7 @@ void GC_Spotlight::MapExchange(World &world, MapFile &f)
 	if( f.loading() )
 	{
 		SetDirection(vec2d(dir));
-		_light->SetLightDirection(GetDirection());
-		_light->MoveTo(world, GetPos() + GetDirection() * 7);
-		_light->SetActive(0 != active);
+		SetFlags(GC_FLAG_SPOTLIGHT_ACTIVE, !!active);
 	}
 }
 
@@ -175,6 +185,7 @@ void GC_Spotlight::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_light->SetActive(0 != _propActive.GetIntValue());
+		tmp->SetFlags(GC_FLAG_SPOTLIGHT_ACTIVE, 0 != _propActive.GetIntValue());
 		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
 		tmp->_light->SetLightDirection(tmp->GetDirection());
 		tmp->_light->MoveTo(world, tmp->GetPos() + tmp->GetDirection() * 7);

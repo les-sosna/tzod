@@ -6,8 +6,8 @@ class GC_Crate : public GC_RigidBodyDynamic
 	DECLARE_SELF_REGISTRATION(GC_Crate);
 
 public:
-	GC_Crate(World &world);
-	GC_Crate(FromFile);
+	explicit GC_Crate(vec2d pos);
+	explicit GC_Crate(FromFile);
 	~GC_Crate();
 
 	virtual void OnDestroy(World &world, GC_Player *by);

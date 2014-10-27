@@ -12,8 +12,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 
 IMPLEMENT_1LIST_MEMBER(GC_BrickFragment, LIST_timestep);
 
-GC_BrickFragment::GC_BrickFragment(const vec2d &v0)
-  : _startFrame(rand())
+GC_BrickFragment::GC_BrickFragment(vec2d pos, vec2d v0)
+  : GC_Actor(pos)
+  , _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
   , _velocity(v0)
@@ -21,6 +22,7 @@ GC_BrickFragment::GC_BrickFragment(const vec2d &v0)
 }
 
 GC_BrickFragment::GC_BrickFragment(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -56,8 +58,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 
 IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
 
-GC_Particle::GC_Particle(const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient)
-  : _time(0)
+GC_Particle::GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient)
+  : GC_Actor(pos)
+  , _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
   , _velocity(v)
@@ -68,6 +71,7 @@ GC_Particle::GC_Particle(const vec2d &v, ParticleType ptype, float lifeTime, con
 }
 
 GC_Particle::GC_Particle(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 

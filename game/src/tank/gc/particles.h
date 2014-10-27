@@ -19,7 +19,7 @@ private:
 	vec2d _velocity;
 
 public:
-	GC_BrickFragment(const vec2d &v0);
+	GC_BrickFragment(vec2d pos, vec2d v0);
 	GC_BrickFragment(FromFile);
 
 	virtual void Serialize(World &world, SaveFile &f);
@@ -75,7 +75,7 @@ public:
 	ParticleType _ptype = PARTICLE_TYPE1;
 
 public:
-	GC_Particle(const vec2d &v, ParticleType ptype, float lifeTime, const vec2d &orient = vec2d(1,0));
+	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = vec2d(1,0));
 	GC_Particle(FromFile);
 	
 	ParticleType GetParticleType() const { return _ptype; }
@@ -101,9 +101,9 @@ public:
     {                                                                       \
         DECLARE_SELF_REGISTRATION(clsname);                                 \
     public:                                                                 \
-        clsname(const vec2d &v, ParticleType ptype,                         \
-                float lifeTime, const vec2d &orient = vec2d(1,0))           \
-            : GC_Particle(v, ptype, lifeTime, orient)                       \
+        clsname(vec2d pos, vec2d v, ParticleType ptype,                     \
+                float lifeTime, vec2d orient = vec2d(1,0))                  \
+            : GC_Particle(pos, v, ptype, lifeTime, orient)                  \
         {}                                                                  \
         clsname(FromFile) : GC_Particle(FromFile()) {}                      \
     };

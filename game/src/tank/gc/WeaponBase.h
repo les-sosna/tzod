@@ -22,8 +22,8 @@ struct AIWEAPSETTINGS
 class GC_Weapon : public GC_Pickup
 {
 public:
-	GC_Weapon(World &world);
-	GC_Weapon(FromFile);
+	explicit GC_Weapon(vec2d pos);
+	explicit GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
 	
 	GC_pu_Booster* GetBooster() const { return _booster; }
@@ -98,8 +98,8 @@ class ResumableObject;
 class GC_ProjectileBasedWeapon : public GC_Weapon
 {
 public:
-	GC_ProjectileBasedWeapon(World &world);
-	GC_ProjectileBasedWeapon(FromFile);
+	explicit GC_ProjectileBasedWeapon(vec2d pos);
+	explicit GC_ProjectileBasedWeapon(FromFile);
 	virtual ~GC_ProjectileBasedWeapon();
 
 	vec2d GetLastShotPos() const { return _lastShotPos; }

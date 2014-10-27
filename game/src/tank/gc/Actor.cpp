@@ -1,5 +1,3 @@
-// Actor.cpp
-
 #include "Actor.h"
 #include "World.h"
 
@@ -16,10 +14,25 @@ namespace base
 
 IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
 
-GC_Actor::GC_Actor()
-	: _direction(1, 0)
+GC_Actor::GC_Actor(vec2d pos)
+	: _pos(pos)
+	, _direction(1, 0)
 {
 	SetFlags(GC_FLAG_ACTOR_INGRIDSET, true);
+}
+
+void GC_Actor::Init(World &world)
+{
+	GC_Object::Init(world);
+	_locationX = std::min(world._locationsX-1, std::max(0, int(_pos.x / LOCATION_SIZE)));
+	_locationY = std::min(world._locationsY-1, std::max(0, int(_pos.y / LOCATION_SIZE)));
+	EnterContexts(world);
+}
+
+void GC_Actor::Kill(World &world)
+{
+	LeaveContexts(world);
+	GC_Object::Kill(world);
 }
 
 void GC_Actor::Serialize(World &world, SaveFile &f)
@@ -30,7 +43,7 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 	f.Serialize(_pos);
 	f.Serialize(_direction);
 
-    if (f.loading() && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS))
+    if (f.loading())
         EnterContexts(world);
 }
 
@@ -43,23 +56,22 @@ void GC_Actor::MoveTo(World &world, const vec2d &pos)
     
     bool locationChanged = _locationX != locX || _locationY != locY;
 
-	if( locationChanged && CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
+	if( locationChanged )
         LeaveContexts(world);
 
-    if( locationChanged || !CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
+    if( locationChanged )
     {
         _locationX = locX;
         _locationY = locY;
         EnterContexts(world);
-        SetFlags(GC_FLAG_ACTOR_KNOWNPOS, true);
  	}
 
 	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
-void GC_Actor::MapExchange(World &world, MapFile &f)
+void GC_Actor::MapExchange(MapFile &f)
 {
-	GC_Object::MapExchange(world, f);
+	GC_Object::MapExchange(f);
 
 	if( !f.loading() )
 	{
@@ -69,13 +81,3 @@ void GC_Actor::MapExchange(World &world, MapFile &f)
 		MAP_EXCHANGE_FLOAT(y, _pos.y, 0);
 	}
 }
-
-void GC_Actor::Kill(World &world)
-{
-    if( CheckFlags(GC_FLAG_ACTOR_KNOWNPOS) )
-        LeaveContexts(world);
-    GC_Object::Kill(world);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

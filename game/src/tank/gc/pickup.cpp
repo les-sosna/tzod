@@ -20,8 +20,8 @@
 IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
 IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
-GC_Pickup::GC_Pickup(World &world)
-  : _label(&world.New<GC_HideLabel>())
+GC_Pickup::GC_Pickup(vec2d pos)
+  : GC_Actor(pos)
   , _timeAttached(0)
   , _timeRespawn(0)
 {
@@ -31,11 +31,18 @@ GC_Pickup::GC_Pickup(World &world)
 }
 
 GC_Pickup::GC_Pickup(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
 GC_Pickup::~GC_Pickup()
 {
+}
+
+void GC_Pickup::Init(World &world)
+{
+	GC_Actor::Init(world);
+	_label = &world.New<GC_HideLabel>(GetPos());
 }
 
 void GC_Pickup::Kill(World &world)
@@ -101,16 +108,6 @@ void GC_Pickup::SetBlinking(bool blink)
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 
-void GC_Pickup::MoveTo(World &world, const vec2d &pos)
-{
-    if (!CheckFlags(GC_FLAG_PICKUP_KNOWNPOS))
-    {
-        _label->MoveTo(world, pos);
-        SetFlags(GC_FLAG_PICKUP_KNOWNPOS, true);
-    }
-    GC_Actor::MoveTo(world, pos);
-}
-
 void GC_Pickup::TimeStep(World &world, float dt)
 {
 	_timeAttached += dt;
@@ -127,8 +124,7 @@ void GC_Pickup::TimeStep(World &world, float dt)
 			for( int n = 0; n < 50; ++n )
 			{
 				vec2d a(PI2 * (float) n / 50);
-				auto &p = world.New<GC_Particle>(a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-				p.MoveTo(world, GetPos() + a * 25);
+				world.New<GC_Particle>(GetPos() + a * 25, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
 			}
 		}
 	}
@@ -136,9 +132,9 @@ void GC_Pickup::TimeStep(World &world, float dt)
 	GC_Actor::TimeStep(world, dt);
 }
 
-void GC_Pickup::MapExchange(World &world, MapFile &f)
+void GC_Pickup::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }
@@ -201,8 +197,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 	return true;
 }
 
-GC_pu_Health::GC_pu_Health(World &world)
-  : GC_Pickup(world)
+GC_pu_Health::GC_pu_Health(vec2d pos)
+  : GC_Pickup(pos)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
 }
@@ -239,8 +235,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 	return true;
 }
 
-GC_pu_Mine::GC_pu_Mine(World &world)
-  : GC_Pickup(world)
+GC_pu_Mine::GC_pu_Mine(vec2d pos)
+  : GC_Pickup(pos)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 }
@@ -269,8 +265,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 	return true;
 }
 
-GC_pu_Shield::GC_pu_Shield(World &world)
-  : GC_Pickup(world)
+GC_pu_Shield::GC_pu_Shield(vec2d pos)
+  : GC_Pickup(pos)
   , _timeHit(0)
 {
 	SetRespawnTime( GetDefaultRespawnTime() );
@@ -342,10 +338,8 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 		vec2d v = _vehicle->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
-			auto &p1 = world.New<GC_Particle>(v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
-            p1.MoveTo(world, pos + dir * 26.0f + p * (float) (i<<1));
-			auto &p2 = world.New<GC_Particle>(v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
-            p2.MoveTo(world, pos + dir * 26.0f - p * (float) (i<<1));
+			world.New<GC_Particle>(pos + dir * 26.0f + p * (float) (i<<1), v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
+			world.New<GC_Particle>(pos + dir * 26.0f - p * (float) (i<<1), v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
 		}
 	}
 	dd.damage *= 0.1f;
@@ -369,8 +363,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 
 IMPLEMENT_1LIST_MEMBER(GC_pu_Shock, LIST_gsprites);
 
-GC_pu_Shock::GC_pu_Shock(World &world)
-  : GC_Pickup(world)
+GC_pu_Shock::GC_pu_Shock(vec2d pos)
+  : GC_Pickup(pos)
   , _targetPos(0, 0)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
@@ -475,8 +469,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 
 					_targetPos = pNearTarget->GetPos();
 
-					_light = &world.New<GC_Light>(GC_Light::LIGHT_DIRECT);
-					_light->MoveTo(world, GetPos());
+					_light = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_DIRECT);
 					_light->SetRadius(100);
 
 					vec2d tmp = _targetPos - GetPos();
@@ -515,8 +508,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 	return true;
 }
 
-GC_pu_Booster::GC_pu_Booster(World &world)
-  : GC_Pickup(world)
+GC_pu_Booster::GC_pu_Booster(vec2d pos)
+  : GC_Pickup(pos)
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 }
@@ -559,7 +552,6 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 		
 		assert(NULL == _sound);
 		_sound = &world.New<GC_Sound_link>(SND_B_Loop, this);
-		_sound->MoveTo(world, GetPos());
 		_sound->SetMode(world, SMODE_LOOP);
 	}
 	else

@@ -43,7 +43,7 @@ public:
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void TimeStep(World &world, float dt);
 
 protected:

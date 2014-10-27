@@ -54,15 +54,15 @@ class GC_Trigger : public GC_Actor
 	bool Test(World &world, const GC_Vehicle *v) const;
 
 public:
-	GC_Trigger(World &world);
-	GC_Trigger(FromFile);
+	explicit GC_Trigger(vec2d pos);
+	explicit GC_Trigger(FromFile);
 	~GC_Trigger();
 	
 	const std::string& GetOnEnter() const { return _onEnter; }
 	const std::string& GetOnLeave() const { return _onLeave; }
 
 	// GC_Object
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 };

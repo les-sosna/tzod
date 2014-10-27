@@ -25,15 +25,15 @@
 
 void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
 {
-	_moveSound = &world.New<GC_Sound>(s);
-	_moveSound->MoveTo(world, GetPos());
+	_moveSound = &world.New<GC_Sound>(GetPos(), s);
     _moveSound->SetMode(world, SMODE_LOOP);
 }
 
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
-GC_Vehicle::GC_Vehicle(World &world)
-  : _enginePower(0)
+GC_Vehicle::GC_Vehicle(vec2d pos)
+  : GC_RigidBodyDynamic(pos)
+  , _enginePower(0)
   , _rotatePower(0)
   , _maxRotSpeed(0)
   , _maxLinSpeed(0)
@@ -43,33 +43,39 @@ GC_Vehicle::GC_Vehicle(World &world)
   , _time_smoke(0)
 {
 	memset(&_state, 0, sizeof(VehicleState));
-    
-	_light_ambient = &world.New<GC_Light>(GC_Light::LIGHT_POINT);
-	_light_ambient->SetIntensity(0.8f);
-	_light_ambient->SetRadius(150);
-    
-	_light1 = &world.New<GC_Light>(GC_Light::LIGHT_SPOT);
-	_light2 = &world.New<GC_Light>(GC_Light::LIGHT_SPOT);
-	
-	_light1->SetRadius(300);
-	_light2->SetRadius(300);
-    
-	_light1->SetIntensity(0.9f);
-	_light2->SetIntensity(0.9f);
-    
-	_light1->SetOffset(290);
-	_light2->SetOffset(290);
-    
-	_light1->SetAspect(0.4f);
-	_light2->SetAspect(0.4f);
 }
 
 GC_Vehicle::GC_Vehicle(FromFile)
+  : GC_RigidBodyDynamic(FromFile())
 {
 }
 
 GC_Vehicle::~GC_Vehicle()
 {
+}
+
+void GC_Vehicle::Init(World &world)
+{
+	GC_RigidBodyDynamic::Init(world);
+	
+	_light_ambient = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
+	_light_ambient->SetIntensity(0.8f);
+	_light_ambient->SetRadius(150);
+	
+	_light1 = &world.New<GC_Light>(GetLightPos1(), GC_Light::LIGHT_SPOT);
+	_light2 = &world.New<GC_Light>(GetLightPos2(), GC_Light::LIGHT_SPOT);
+	
+	_light1->SetRadius(300);
+	_light2->SetRadius(300);
+	
+	_light1->SetIntensity(0.9f);
+	_light2->SetIntensity(0.9f);
+	
+	_light1->SetOffset(290);
+	_light2->SetOffset(290);
+	
+	_light1->SetAspect(0.4f);
+	_light2->SetAspect(0.4f);
 }
 
 void GC_Vehicle::SetClass(const VehicleClass &vc)
@@ -338,8 +344,7 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 		if( by->GetVehicle() )
 		{
 			sprintf(score, "%d", by->GetScore());
-			auto &text = world.New<GC_Text_ToolTip>(score, style);
-			text.MoveTo(world, by->GetVehicle()->GetPos());
+			world.New<GC_Text_ToolTip>(by->GetVehicle()->GetPos(), score, style);
 		}
 	}
 	else if( GetOwner() )
@@ -347,8 +352,7 @@ void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
 		sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
 		GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
 		sprintf(score, "%d", GetOwner()->GetScore());
-		auto &text = world.New<GC_Text_ToolTip>(score, GC_Text::SCORE_MINUS);
-		text.MoveTo(world, GetPos());
+		world.New<GC_Text_ToolTip>(GetPos(), score, GC_Text::SCORE_MINUS);
 	}
 	world.GameMessage(msg);
 	GC_RigidBodyDynamic::OnDestroy(world, by);
@@ -385,8 +389,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			auto &p = world.New<GC_Particle>(SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-			p.MoveTo(world, GetPos() + vrand(frand(24.0f)));
+			auto &p = world.New<GC_Particle>(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
 			p._time = frand(1.0f);
 		}
 	}
@@ -431,8 +434,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_CATTRACK, 12, e);
-        p.MoveTo(world, trackL + e * _trackPathL);
+        auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p.SetFade(true);
         _trackPathL += _trackDensity;
     }
@@ -443,19 +445,16 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        auto &p = world.New<GC_ParticleDecal>(vec2d(0,0), PARTICLE_CATTRACK, 12, e);
-        p.MoveTo(world, trackR + e * _trackPathR);
+        auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
         p.SetFade(true);
         _trackPathR += _trackDensity;
     }
     _trackPathR -= len;
 	
 	// update light position
-	static const vec2d delta1(0.6f);
-	static const vec2d delta2(-0.6f);
-	_light1->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20 );
+	_light1->MoveTo(world, GetLightPos1());
 	_light1->SetLightDirection(GetDirection());
-	_light2->MoveTo(world, GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20 );
+	_light2->MoveTo(world, GetLightPos2());
 	_light2->SetLightDirection(GetDirection());
 	_light_ambient->MoveTo(world, GetPos());
 	
@@ -483,6 +482,18 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	}
 }
 
+vec2d GC_Vehicle::GetLightPos1() const
+{
+	static const vec2d delta1(0.6f);
+	return GetPos() + Vec2dAddDirection(GetDirection(), delta1) * 20;
+}
+
+vec2d GC_Vehicle::GetLightPos2() const
+{
+	static const vec2d delta2(-0.6f);
+	return GetPos() + Vec2dAddDirection(GetDirection(), delta2) * 20;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
@@ -491,13 +502,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 	return true;
 }
 
-GC_Tank_Light::GC_Tank_Light(World &world)
-  : GC_Vehicle(world)
+GC_Tank_Light::GC_Tank_Light(vec2d pos)
+  : GC_Vehicle(pos)
 {
-//	_MaxBackSpeed = 150;
-//	_MaxForvSpeed = 200;
-
-	SetMoveSound(world, SND_TankMove);
 	SetSkin("skin/red");
 	SetSize(37, 37.5f);
 
@@ -521,48 +528,11 @@ GC_Tank_Light::GC_Tank_Light(FromFile)
 {
 }
 
-/*
-void GC_Tank_Light::SetDefaults()
+void GC_Tank_Light::Init(World &world)
 {
-	SetClass(_player->_class);
-
-	_MaxBackSpeed = 150;
-	_MaxForvSpeed = 200;
-
-
-	return;
-
-	_hsize.Set(25, 25);
-
-	_vertices[0].Set( 18.5f,  18.5f);
-	_vertices[1].Set(-18.5f,  18.5f);
-	_vertices[2].Set(-18.5f, -18.5f);
-	_vertices[3].Set( 18.5f, -18.5f);
-
-	_inv_m  = 1;
-
-	_Nx     = 100;
-	_Ny     = 1000;
-	_Nw     = 50;
-
-	_Mx     = 0.5f;
-	_My     = 2.5f;
-	_Mw     = 1;
-
-	_percussion = 1;
-
-	_enginePower = 100000;
-	_rotatePower = 50000;
-
-	_ForvAccel = 500;
-	_BackAccel = 200;
-	_StopAccel = 500;
-
-//	_rotator.reset(_angle0, _rotator.getv(), 3.5f, 10.0f, 30.0f);
-
-	SetMaxHP(GetDefaultHealth());
+	GC_Vehicle::Init(world);
+	SetMoveSound(world, SND_TankMove);
 }
-*/
 
 void GC_Tank_Light::OnDestroy(World &world, GC_Player *by)
 {

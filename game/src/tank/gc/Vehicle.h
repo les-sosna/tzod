@@ -21,8 +21,8 @@ class GC_Vehicle : public GC_RigidBodyDynamic
     typedef GC_RigidBodyDynamic base;
 	
 public:
-	GC_Vehicle(World &world);
-	GC_Vehicle(FromFile);
+	explicit GC_Vehicle(vec2d pos);
+	explicit GC_Vehicle(FromFile);
 	virtual ~GC_Vehicle();
 
 	GC_pu_Shield* GetShield() const { return _shield; }
@@ -75,6 +75,7 @@ public:
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
+	virtual void Init(World &world);
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
@@ -96,6 +97,8 @@ private:
 	ObjPtr<GC_pu_Shield> _shield;
 	ObjPtr<GC_Player> _player;
 
+	vec2d GetLightPos1() const;
+	vec2d GetLightPos2() const;
 };
 
 /////////////////////////////////////////////////////////////
@@ -105,11 +108,14 @@ class GC_Tank_Light : public GC_Vehicle
 	DECLARE_SELF_REGISTRATION(GC_Tank_Light);
 
 public:
-	GC_Tank_Light(World &world);
-	GC_Tank_Light(FromFile);
+	explicit GC_Tank_Light(vec2d pos);
+	explicit GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }
 	virtual void OnDestroy(World &world, GC_Player *by) override;
+
+	// GC_Object
+	virtual void Init(World &world);
 };
 
 // end of file

@@ -92,7 +92,8 @@ GC_RigidBodyDynamic::ContactList GC_RigidBodyDynamic::_contacts;
 std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack;
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
-GC_RigidBodyDynamic::GC_RigidBodyDynamic()
+GC_RigidBodyDynamic::GC_RigidBodyDynamic(vec2d pos)
+  : GC_RigidBodyStatic(pos)
 {
 	_lv.Zero();
 	_av     = 0;
@@ -120,14 +121,19 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic()
         SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
 }
 
+GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)
+  : GC_RigidBodyStatic(FromFile())
+{
+}
+
 PropertySet* GC_RigidBodyDynamic::NewPropertySet()
 {
 	return new MyPropertySet(this);
 }
 
-void GC_RigidBodyDynamic::MapExchange(World &world, MapFile &f)
+void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 {
-	GC_RigidBodyStatic::MapExchange(world, f);
+	GC_RigidBodyStatic::MapExchange(f);
 
 	float rotTmp = GetDirection().Angle();
 	MAP_EXCHANGE_FLOAT(inv_m, _inv_m, 1);

@@ -28,8 +28,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound)
 
 IMPLEMENT_1LIST_MEMBER(GC_Sound, LIST_sounds);
 
-GC_Sound::GC_Sound(enumSoundTemplate sound)
-  : _soundTemplate(sound)
+GC_Sound::GC_Sound(vec2d pos, enumSoundTemplate sound)
+  : GC_Actor(pos)
+  , _soundTemplate(sound)
 #ifndef NOSOUND
   , _source(0U)
 #endif
@@ -58,7 +59,8 @@ GC_Sound::GC_Sound(enumSoundTemplate sound)
 }
 
 GC_Sound::GC_Sound(FromFile)
-  : _mode(SMODE_UNKNOWN)
+  : GC_Actor(FromFile())
+  , _mode(SMODE_UNKNOWN)
 {
 }
 
@@ -326,7 +328,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Sound_link)
 IMPLEMENT_1LIST_MEMBER(GC_Sound_link, LIST_timestep);
 
 GC_Sound_link::GC_Sound_link(enumSoundTemplate sound, GC_Actor *object)
-   : GC_Sound(sound)
+   : GC_Sound(object->GetPos(), sound)
    , _object(object)
 {
 }

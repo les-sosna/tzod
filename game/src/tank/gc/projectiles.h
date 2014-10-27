@@ -20,7 +20,7 @@ class GC_Projectile : public GC_Actor
     typedef GC_Actor base;
 
 public:
-	GC_Projectile(World &world, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail, const vec2d &pos, const vec2d &v);
+	GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail);
 	GC_Projectile(FromFile);
 	virtual ~GC_Projectile();
 
@@ -28,11 +28,15 @@ public:
 	GC_RigidBodyStatic* GetIgnore() const { return _ignore; }
 	GC_Player* GetOwner() const { return _owner; }
 	float GetVelocity() const { return _velocity; }
+	
+	// GC_Actor
+	virtual void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	virtual void Init(World &world) override;
+    virtual void Kill(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -46,7 +50,7 @@ public:
 protected:
 	float GetTrailDensity() { return _trailDensity; }
 	void MoveWithTrail(World &world, const vec2d &pos, bool trail);
-	void SetTrailDensity(World &world, float density);
+	void SetTrailDensity(float density);
 	void SetVelocity(float v) { _velocity = v; }
 	
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) = 0;
@@ -69,13 +73,16 @@ class GC_Rocket : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Rocket);
 
 public:
-	GC_Rocket(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_Rocket(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Rocket(FromFile);
 	virtual ~GC_Rocket();
+	
+	void SelectTarget(World &world);
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	virtual void Init(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
 	
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
@@ -93,11 +100,12 @@ class GC_Bullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Bullet);
 
 public:
-	GC_Bullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_Bullet(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Bullet(FromFile);
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Init(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
 	
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
@@ -114,8 +122,11 @@ class GC_TankBullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_TankBullet);
 
 public:
-	GC_TankBullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_TankBullet(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_TankBullet(FromFile);
+	
+	// GC_Object
+	virtual void Init(World &world) override;
 
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
@@ -129,7 +140,7 @@ class GC_PlazmaClod : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_PlazmaClod);
 
 public:
-	GC_PlazmaClod(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_PlazmaClod(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_PlazmaClod(FromFile);
 
 protected:
@@ -144,11 +155,12 @@ class GC_BfgCore : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_BfgCore);
 
 public:
-	GC_BfgCore(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_BfgCore(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_BfgCore(FromFile);
 	virtual ~GC_BfgCore();
 
 	// GC_Object
+	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
@@ -172,7 +184,7 @@ class GC_FireSpark : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_FireSpark);
 
 public:
-	GC_FireSpark(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_FireSpark(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_FireSpark(FromFile);
 	
 	float GetRadius() const { return (_time + 0.2f) * 50; }
@@ -181,8 +193,9 @@ public:
 	void SetSetFire(bool setFire) { SetFlags(GC_FLAG_FIRESPARK_SETFIRE, setFire); }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	virtual void Init(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
+	virtual void TimeStep(World &world, float dt) override;
 	
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
@@ -201,8 +214,11 @@ class GC_ACBullet : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_ACBullet);
 
 public:
-	GC_ACBullet(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_ACBullet(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_ACBullet(FromFile);
+	
+	// GC_Object
+	virtual void Init(World &world) override;
 
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
@@ -216,10 +232,11 @@ class GC_GaussRay : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_GaussRay);
 
 public:
-	GC_GaussRay(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_GaussRay(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_GaussRay(FromFile);
 	
 	// GC_Object
+	virtual void Init(World &world) override;
     virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	
@@ -238,12 +255,14 @@ class GC_Disk : public GC_Projectile
 	DECLARE_SELF_REGISTRATION(GC_Disk);
 
 public:
-	GC_Disk(World &world, const vec2d &x, const vec2d &v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
+	GC_Disk(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Disk(FromFile);
 	
 	unsigned int GetBounces() const { return _bounces; }
+	void SetBounces(unsigned int bounces) { _bounces = bounces; }
 	
 	// GC_Object
+	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 
 protected:

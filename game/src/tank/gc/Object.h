@@ -92,7 +92,8 @@ public:
 	void Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
 
 	virtual void Kill(World &world);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
+	virtual void Init(World &world);
 	virtual void Resume(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);

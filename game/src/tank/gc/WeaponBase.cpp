@@ -58,8 +58,8 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 }
 
 
-GC_Weapon::GC_Weapon(World &world)
-  : GC_Pickup(world)
+GC_Weapon::GC_Weapon(vec2d pos)
+  : GC_Pickup(pos)
   , _stayTimeout(15.0f)
   , _rotatorWeap(_angle)
 {
@@ -95,8 +95,7 @@ void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 
 	_vehicle = &vehicle;
 
-	_rotateSound = &world.New<GC_Sound>(SND_TowerRotate);
-	_rotateSound->MoveTo(world, GetPos());
+	_rotateSound = &world.New<GC_Sound>(GetPos(), SND_TowerRotate);
     _rotateSound->SetMode(world, SMODE_STOP);
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
@@ -216,8 +215,8 @@ void GC_Weapon::TimeStep(World &world, float dt)
 
 /////////////////////////////////////////////////////////////////////
 
-GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(World &world)
-	: GC_Weapon(world)
+GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(vec2d pos)
+	: GC_Weapon(pos)
 	, _lastShotTime(-FLT_MAX)
 	, _lastShotPos(0,0)
 	, _numShots(0)
@@ -277,7 +276,7 @@ void GC_ProjectileBasedWeapon::ResetSeries()
 
 void GC_ProjectileBasedWeapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_fireLight = &world.New<GC_Light>(GC_Light::LIGHT_POINT);
+	_fireLight = &world.New<GC_Light>(vec2d(0, 0), GC_Light::LIGHT_POINT);
 	_fireLight->SetActive(false);
 	GC_Weapon::OnAttached(world, vehicle);
 }

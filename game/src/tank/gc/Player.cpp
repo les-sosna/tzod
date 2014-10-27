@@ -60,9 +60,9 @@ void GC_Player::Serialize(World &world, SaveFile &f)
 	f.Serialize(_vehicle);
 }
 
-void GC_Player::MapExchange(World &world, MapFile &f)
+void GC_Player::MapExchange(MapFile &f)
 {
-	GC_Service::MapExchange(world, f);
+	GC_Service::MapExchange(f);
 	MAP_EXCHANGE_STRING(on_die, _scriptOnDie, "");
 	MAP_EXCHANGE_STRING(on_respawn, _scriptOnRespawn, "");
 	MAP_EXCHANGE_STRING(vehname, _vehname, "");
@@ -179,10 +179,9 @@ void GC_Player::TimeStep(World &world, float dt)
 				return;
 			}
 
-            auto &text = world.New<GC_Text_ToolTip>(_nick, GC_Text::DEFAULT);
-            text.MoveTo(world, pBestPoint->GetPos());
+			world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
 
-			_vehicle = &world.New<GC_Tank_Light>(world);
+			_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
 			GC_Object* found = world.FindObject(_vehname);
 			if( found && _vehicle != found )
 			{
@@ -192,7 +191,6 @@ void GC_Player::TimeStep(World &world, float dt)
 			{
 				_vehicle->SetName(world, _vehname.c_str());
 			}
-            _vehicle->MoveTo(world, pBestPoint->GetPos());
 			_vehicle->SetDirection(pBestPoint->GetDirection());
 
 			_vehicle->SetPlayer(world, this);

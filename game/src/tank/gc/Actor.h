@@ -2,14 +2,14 @@
 
 #include "Object.h"
 
-#define GC_FLAG_ACTOR_KNOWNPOS      (GC_FLAG_OBJECT_ << 0)
-#define GC_FLAG_ACTOR_INGRIDSET     (GC_FLAG_OBJECT_ << 1)
-#define GC_FLAG_ACTOR_              (GC_FLAG_OBJECT_ << 2)
+#define GC_FLAG_ACTOR_INGRIDSET     (GC_FLAG_OBJECT_ << 0)
+#define GC_FLAG_ACTOR_              (GC_FLAG_OBJECT_ << 1)
 
 class GC_Actor : public GC_Object
 {
 public:
-	GC_Actor();
+	explicit GC_Actor(vec2d pos);
+	explicit GC_Actor(FromFile) {}
 	
 	const vec2d& GetDirection() const { return _direction; }
 	void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }
@@ -21,8 +21,9 @@ public:
 	virtual void MoveTo(World &world, const vec2d &pos);
 
 	// GC_Object
+	virtual void Init(World &world);
     virtual void Kill(World &world);
-	virtual void MapExchange(World &world, MapFile &f);
+	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 	
 protected:
@@ -38,8 +39,10 @@ private:
 
 
 #define DECLARE_GRID_MEMBER()                                               \
+protected:                                                                  \
     virtual void EnterContexts(World &world) override;                      \
-    virtual void LeaveContexts(World &world) override;
+    virtual void LeaveContexts(World &world) override;                      \
+private:
 
 #define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \
     void cls::EnterContexts(World &world)                                   \

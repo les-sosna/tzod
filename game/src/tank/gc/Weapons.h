@@ -8,8 +8,8 @@ class GC_Weap_RocketLauncher : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_RocketLauncher);
 
 public:
-	GC_Weap_RocketLauncher(World &world);
-	GC_Weap_RocketLauncher(FromFile);
+	explicit GC_Weap_RocketLauncher(vec2d pos);
+	explicit GC_Weap_RocketLauncher(FromFile);
 	
 	enum
 	{
@@ -38,8 +38,8 @@ class GC_Weap_AutoCannon : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_AutoCannon);
 
 public:
-	GC_Weap_AutoCannon(World &world);
-	GC_Weap_AutoCannon(FromFile);
+	explicit GC_Weap_AutoCannon(vec2d pos);
+	explicit GC_Weap_AutoCannon(FromFile);
 	
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
@@ -63,8 +63,8 @@ class GC_Weap_Cannon : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Cannon);
 
 public:
-	GC_Weap_Cannon(World &world);
-	GC_Weap_Cannon(FromFile);
+	explicit GC_Weap_Cannon(vec2d pos);
+	explicit GC_Weap_Cannon(FromFile);
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
@@ -94,8 +94,8 @@ class GC_Weap_Plazma : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Plazma);
 	
 public:
-	GC_Weap_Plazma(World &world);
-	GC_Weap_Plazma(FromFile);
+	explicit GC_Weap_Plazma(vec2d pos);
+	explicit GC_Weap_Plazma(FromFile);
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
@@ -116,8 +116,8 @@ class GC_Weap_Gauss : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Gauss);
 	
 public:
-	GC_Weap_Gauss(World &world);
-	GC_Weap_Gauss(FromFile);
+	explicit GC_Weap_Gauss(vec2d pos);
+	explicit GC_Weap_Gauss(FromFile);
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.15f; }
@@ -138,8 +138,8 @@ class GC_Weap_Ram : public GC_Weapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ram);
 	
 public:
-	GC_Weap_Ram(World &world);
-	GC_Weap_Ram(FromFile);
+	explicit GC_Weap_Ram(vec2d pos);
+	explicit GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
 	
 	float GetFuel() const { return _fuel; }
@@ -163,6 +163,7 @@ protected:
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
+	vec2d GetEngineLightPos() const;
 	virtual void OnUpdateView(World &world);
 	ObjPtr<GC_Sound> _engineSound;
 	ObjPtr<GC_Light> _engineLight;
@@ -182,8 +183,8 @@ class GC_Weap_BFG : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_BFG);
 	
 public:
-	GC_Weap_BFG(World &world);
-	GC_Weap_BFG(FromFile);
+	explicit GC_Weap_BFG(vec2d pos);
+	explicit GC_Weap_BFG(FromFile);
 
 	// GC_ProjectileBasedWeapon
 	virtual bool GetContinuousSeries() const { return true; }
@@ -207,8 +208,8 @@ class GC_Weap_Ripper : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ripper);
 
 public:
-	GC_Weap_Ripper(World &world);
-	GC_Weap_Ripper(FromFile);
+	explicit GC_Weap_Ripper(vec2d pos);
+	explicit GC_Weap_Ripper(FromFile);
 
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const { return 0; }
@@ -229,8 +230,8 @@ class GC_Weap_Minigun : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Minigun);
 
 public:
-	GC_Weap_Minigun(World &world);
-	GC_Weap_Minigun(FromFile);
+	explicit GC_Weap_Minigun(vec2d pos);
+	explicit GC_Weap_Minigun(FromFile);
 	virtual ~GC_Weap_Minigun();
 
 	float GetHeat(const World &world) const;
@@ -267,8 +268,8 @@ class GC_Weap_Zippo : public GC_ProjectileBasedWeapon
 	DECLARE_SELF_REGISTRATION(GC_Weap_Zippo);
 
 public:
-	GC_Weap_Zippo(World &world);
-	GC_Weap_Zippo(FromFile);
+	explicit GC_Weap_Zippo(vec2d pos);
+	explicit GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
 	
 	// GC_ProjectileBasedWeapon

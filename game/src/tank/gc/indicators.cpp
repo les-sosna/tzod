@@ -23,12 +23,14 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 
 IMPLEMENT_1LIST_MEMBER(GC_SpawnPoint, LIST_respawns);
 
-GC_SpawnPoint::GC_SpawnPoint(World &world)
-  : _team(0)
+GC_SpawnPoint::GC_SpawnPoint(vec2d pos)
+  : GC_Actor(pos)
+  , _team(0)
 {
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 
@@ -38,9 +40,9 @@ void GC_SpawnPoint::Serialize(World &world, SaveFile &f)
 	f.Serialize(_team);
 }
 
-void GC_SpawnPoint::MapExchange(World &world, MapFile &f)
+void GC_SpawnPoint::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(world, f);
+	GC_Actor::MapExchange(f);
 
 	float dir = GetDirection().Angle();
 
@@ -115,11 +117,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
 	return true;
 }
 
-GC_HideLabel::GC_HideLabel()
+GC_HideLabel::GC_HideLabel(vec2d pos)
+  : GC_Actor(pos)
 {
 }
 
 GC_HideLabel::GC_HideLabel(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 

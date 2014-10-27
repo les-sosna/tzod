@@ -7,6 +7,7 @@
 #include <vector>
 
 class GC_Object;
+class MapFile;
 struct FromFile {};
 
 typedef unsigned int ObjectType;
@@ -17,6 +18,7 @@ class RTTypes
 	struct EdItem
 	{
 		GC_Object* (*Create) (World &, float, float);
+		GC_Object* (*CreateFromMap) (World &, MapFile &);
 		int           layer;
 		float         align;
 		float         offset;
@@ -31,11 +33,23 @@ class RTTypes
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object* (*) (World&)> FromFileMap;
 
+	template<class T> static GC_Object* ActorFromMapCtor(World &world, MapFile &file)
+	{
+		float x = 0;
+		float y = 0;
+		file.getObjectAttribute("x", x);
+		file.getObjectAttribute("y", y);
+		return &world.New<T>(file, vec2d(x, y));
+	}
+	
+	template<class T> static GC_Object* ServiceFromMapCtor(World &world, MapFile &file)
+	{
+		return &world.New<T>(file);
+	}
+	
 	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)
     {
-        auto &obj = world.New<T>(world);
-        obj.MoveTo(world, vec2d(x, y));
-        return &obj;
+        return &world.New<T>(vec2d(x, y));
     }
     
 	template<class T> static GC_Object* ServiceCtor(World &world, float x, float y)
@@ -76,6 +90,7 @@ public:
 		ei.offset  = offset;
 		ei.service = false;
 		ei.Create  = ActorCtor<T>;
+		ei.CreateFromMap = ActorFromMapCtor<T>;
 		_t2i[T::GetTypeStatic()] = ei;
 		_n2t[name] = T::GetTypeStatic();
 		_i2t.push_back(T::GetTypeStatic());
@@ -90,6 +105,7 @@ public:
 		ei.name    = name;
 		ei.service = true;
 		ei.Create  = ServiceCtor<T>;
+		ei.CreateFromMap = ServiceFromMapCtor<T>;
 		_t2i[T::GetTypeStatic()] = ei;
 		_n2t[name] = T::GetTypeStatic();
 		_i2t.push_back(T::GetTypeStatic());

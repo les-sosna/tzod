@@ -24,15 +24,11 @@ IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 IMPLEMENT_1LIST_MEMBER(GC_Camera, LIST_cameras);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
-  : _player(player)
+  : GC_Actor(player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d(world._sx / 2, world._sy / 2))
+  , _player(player)
 {
 	assert(_player);
 
-	MoveTo(world, vec2d(world._sx / 2, world._sy / 2));
-	if( _player->GetVehicle() )
-	{
-		MoveTo(world, _player->GetVehicle()->GetPos());
-	}
 	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
 
 	_target     = GetPos();
@@ -42,6 +38,7 @@ GC_Camera::GC_Camera(World &world, GC_Player *player)
 }
 
 GC_Camera::GC_Camera(FromFile)
+  : GC_Actor(FromFile())
 {
 }
 

@@ -37,8 +37,8 @@ public:
 	float _volume;  // 0 - min;  1 - max
 
 public:
-	GC_Sound(enumSoundTemplate sound);
-	GC_Sound(FromFile);
+	GC_Sound(vec2d pos, enumSoundTemplate sound);
+	explicit GC_Sound(FromFile);
 	virtual ~GC_Sound();
     virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -89,8 +89,7 @@ public:
 #if !defined NOSOUND
 #define PLAY(s, pos)                                            \
 do {                                                            \
-    auto &sound = world.New<GC_Sound>(s);                 \
-	sound.MoveTo(world, (pos));                                 \
+    auto &sound = world.New<GC_Sound>((pos), s);                \
     sound.SetMode(world, SMODE_PLAY);                           \
 } while(0)
 #else
