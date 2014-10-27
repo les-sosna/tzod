@@ -401,7 +401,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		_moveSound->MoveTo(world, GetPos());
 		float v = _lv.len() / GetMaxSpeed();
 		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
-		_moveSound->SetVolume(std::min(1.0f, 0.9f + 0.1f * v));
+		_moveSound->SetVolume(std::min(1.0f, 0.1f + 0.9f * v));
 	}
     
     

@@ -25,6 +25,7 @@ void SoundRender::PlayOnce(enumSoundTemplate sound, vec2d pos)
 		alSourcei(source, AL_BUFFER, g_sounds[sound]);
 		alSourcei(source, AL_REFERENCE_DISTANCE, 70);
 		alSourcei(source, AL_LOOPING, AL_FALSE);
+		alSource3f(source, AL_POSITION, pos.x, pos.y, 0.0f);
 		alSourcePlay(source);
 	}
 }

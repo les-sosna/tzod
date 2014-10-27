@@ -459,7 +459,7 @@ void Rotator::SetupSound(World &world, GC_Sound *pSound)
 		pSound->Pause(world, false);
 
 		pSound->SetSpeed(0.5f + 0.5f * fabsf(_velocity_current) / _velocity_limit);
-		pSound->SetVolume(0.9f + 0.1f * fabsf(_velocity_current) / _velocity_limit);
+		pSound->SetVolume(fabsf(_velocity_current) / _velocity_limit);
 	}
 }
 

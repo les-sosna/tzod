@@ -176,6 +176,8 @@ void GC_Weapon::MoveTo(World &world, const vec2d &pos)
 {
 	if (_booster)
 		_booster->MoveTo(world, pos);
+	if (_rotateSound)
+		_rotateSound->MoveTo(world, pos);
 	GC_Pickup::MoveTo(world, pos);
 }
 
