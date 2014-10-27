@@ -103,9 +103,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 }
 
 static void OnPrintScreen()
-{
-	//	PLAY(SND_Screenshot, vec2d(0, 0));
-	
+{	
 	/*
 	 // generate a file name
 	 

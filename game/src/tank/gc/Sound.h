@@ -84,16 +84,4 @@ public:
 	}
 };
 
-/////////////////////////////////////////////////////////////
-
-#if !defined NOSOUND
-#define PLAY(s, pos)                                            \
-do {                                                            \
-    auto &sound = world.New<GC_Sound>((pos), s);                \
-    sound.SetMode(world, SMODE_PLAY);                           \
-} while(0)
-#else
-#define PLAY(s, pos) ((void) 0) // no sound
-#endif
-
 // end of file

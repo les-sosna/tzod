@@ -1,6 +1,7 @@
 #include "SoundHarness.h"
 #include "SoundRender.h"
 #include "gc/crate.h"
+#include "gc/Explosion.h"
 #include "gc/Pickup.h"
 #include "gc/RigidBody.h"
 #include "gc/projectiles.h"
@@ -216,7 +217,6 @@ void SoundHarness::OnStateChange(GC_Turret &obj)
 	}
 }
 
-
 void SoundHarness::OnLight(GC_Vehicle &obj)
 {
 	_soundRender->PlayOnce(SND_LightSwitch, obj.GetPos());
@@ -228,3 +228,11 @@ void SoundHarness::OnGameFinished()
 	_soundRender->PlayOnce(SND_Limit, vec2d(0,0));
 }
 
+void SoundHarness::OnNewObject(GC_Object &obj)
+{
+	ObjectType type = obj.GetType();
+	if (GC_ExplosionBig::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_BoomBig, static_cast<const GC_Actor &>(obj).GetPos());
+	else if (GC_ExplosionStandard::GetTypeStatic() == type)
+		_soundRender->PlayOnce(SND_BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
+}

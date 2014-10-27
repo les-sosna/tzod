@@ -59,5 +59,5 @@ private:
 	virtual void OnGameFinished();
 	virtual void OnGameMessage(const char *msg) override {}
 	virtual void OnKill(GC_Object &) override {}
-	virtual void OnNewObject(GC_Object &) override {}
+	virtual void OnNewObject(GC_Object &obj) override;
 };

@@ -4,7 +4,6 @@
 #include "particles.h"
 #include "Player.h"
 #include "RigidBody.h"
-#include "Sound.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "Macros.h"
@@ -300,8 +299,6 @@ void GC_ExplosionBig::Init(World &world)
 	
 	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
 	p.SetFade(true);
-	
-	PLAY(SND_BoomBig, GetPos());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -351,6 +348,4 @@ void GC_ExplosionStandard::Init(World &world)
 	}
 	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
 	p.SetFade(true);
-	
-	PLAY(SND_BoomStandard, GetPos());
 }
