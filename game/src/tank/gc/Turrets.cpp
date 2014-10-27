@@ -150,7 +150,7 @@ void GC_Turret::MoveTo(World &world, const vec2d &pos)
 
 void GC_Turret::OnDestroy(World &world, GC_Player *by)
 {
-	MakeExplosionBig(world, GetPos(), nullptr);
+	world.New<GC_ExplosionBig>(GetPos());
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 

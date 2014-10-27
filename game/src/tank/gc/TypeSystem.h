@@ -39,12 +39,12 @@ class RTTypes
 		float y = 0;
 		file.getObjectAttribute("x", x);
 		file.getObjectAttribute("y", y);
-		return &world.New<T>(file, vec2d(x, y));
+		return &world.RestoreObject<T>(file, vec2d(x, y));
 	}
 	
 	template<class T> static GC_Object* ServiceFromMapCtor(World &world, MapFile &file)
 	{
-		return &world.New<T>(file);
+		return &world.RestoreObject<T>(file);
 	}
 	
 	template<class T> static GC_Object* ActorCtor(World &world, float x, float y)

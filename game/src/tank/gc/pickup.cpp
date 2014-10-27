@@ -253,7 +253,7 @@ AIPRIORITY GC_pu_Mine::GetPriority(World &world, const GC_Vehicle &veh) const
 
 void GC_pu_Mine::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	MakeExplosionStandard(world, GetPos(), nullptr);
+	world.New<GC_ExplosionStandard>(GetPos());
 	Kill(world);
 }
 

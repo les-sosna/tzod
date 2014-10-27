@@ -258,8 +258,9 @@ void GC_Rocket::Serialize(World &world, SaveFile &f)
 
 bool GC_Rocket::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth)
 {
-	auto &e = MakeExplosionStandard(world, hit + norm, GetOwner());
-    e.SetDamage(DAMAGE_ROCKET_AK47);
+	auto &e = world.New<GC_ExplosionStandard>(hit + norm);
+	e.SetDamage(DAMAGE_ROCKET_AK47);
+	e.SetOwner(GetOwner());
 	
 	DamageDesc dd;
 	dd.damage = 0; //world.net_frand(10.0f);
@@ -415,8 +416,9 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 {
 	if( GetAdvanced() )
 	{
-		auto &e = MakeExplosionBig(world, vec2d(std::max(.0f, std::min(world._sx - 1, hit.x + norm.x)),
-		                                        std::max(.0f, std::min(world._sy - 1, hit.y + norm.y))), GetOwner());
+		auto &e = world.New<GC_ExplosionBig>(vec2d(std::max(.0f, std::min(world._sx - 1, hit.x + norm.x)),
+												   std::max(.0f, std::min(world._sy - 1, hit.y + norm.y))));
+		e.SetOwner(GetOwner());
         e.SetTimeout(world, 0.05f);
 	}
 	else

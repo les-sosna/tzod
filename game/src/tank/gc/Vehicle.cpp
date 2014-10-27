@@ -536,7 +536,7 @@ void GC_Tank_Light::Init(World &world)
 
 void GC_Tank_Light::OnDestroy(World &world, GC_Player *by)
 {
-	MakeExplosionBig(world, GetPos(), nullptr);
+	world.New<GC_ExplosionBig>(GetPos());
 	GC_Vehicle::OnDestroy(world, by);
 }
 

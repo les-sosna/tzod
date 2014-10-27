@@ -45,7 +45,7 @@ void GC_UserObject::Serialize(World &world, SaveFile &f)
 
 void GC_UserObject::OnDestroy(World &world, GC_Player *by)
 {
-	MakeExplosionBig(world, GetPos(), nullptr);
+	world.New<GC_ExplosionBig>(GetPos());
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 

@@ -8,9 +8,6 @@ class GC_Light;
 
 class GC_Explosion : public GC_Actor
 {
-	DECLARE_SELF_REGISTRATION(GC_Explosion);
-    typedef GC_Actor base;
-	
 	struct FieldNode
 	{
 		FieldNode *parent;
@@ -46,27 +43,47 @@ class GC_Explosion : public GC_Actor
 	
 	typedef std::map<coord, FieldNode> FIELD_TYPE;
 	
-	ObjPtr<GC_Player>  _owner;
 	
 	float CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance);
 	void Boom(World &world, float radius, float damage);
 	
+	ObjPtr<GC_Player> _owner;
 	float _damage;
 	float _radius;
 	
 public:
-	GC_Explosion(vec2d pos, GC_Player *owner);
+	GC_Explosion(vec2d pos);
 	GC_Explosion(FromFile);
 	virtual ~GC_Explosion();
 	
-	void SetRadius(float radius);
 	void SetDamage(float damage) { _damage = damage; }
+	void SetOwner(GC_Player *owner) { _owner = owner; }
+	void SetRadius(float radius);
 	void SetTimeout(World &world, float timeout);
 	
 	// GC_Object
-	virtual void Resume(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+	virtual void Resume(World &world) override;
+	virtual void Serialize(World &world, SaveFile &f) override;
 };
 
-GC_Explosion& MakeExplosionStandard(World &world, const vec2d &pos, GC_Player *owner);
-GC_Explosion& MakeExplosionBig(World &world, const vec2d &pos, GC_Player *owner);
+class GC_ExplosionBig : public GC_Explosion
+{
+	DECLARE_SELF_REGISTRATION(GC_ExplosionBig);
+public:
+	GC_ExplosionBig(vec2d pos);
+	GC_ExplosionBig(FromFile);
+	
+	// GC_Object
+	virtual void Init(World &world) override;
+};
+
+class GC_ExplosionStandard : public GC_Explosion
+{
+	DECLARE_SELF_REGISTRATION(GC_ExplosionStandard);
+public:
+	GC_ExplosionStandard(vec2d pos);
+	GC_ExplosionStandard(FromFile);
+	
+	// GC_Object
+	virtual void Init(World &world) override;
+};

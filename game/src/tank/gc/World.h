@@ -170,7 +170,7 @@ public:
 	}
 
 	template<class T, class ...Args>
-	T& New(MapFile &file, Args && ... args)
+	T& RestoreObject(MapFile &file, Args && ... args)
 	{
 		auto t = new T(std::forward<Args>(args)...);
 		t->MapExchange(file);
@@ -179,8 +179,6 @@ public:
 			t->SetName(*this, name.c_str());
 		t->Register(*this);
 		t->Init(*this);
-		for( auto ls: eWorld._listeners )
-			ls->OnNewObject(*t);
 		return *t;
 	}
 	
