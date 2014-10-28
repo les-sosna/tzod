@@ -16,6 +16,7 @@ private:
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
+	virtual void OnDetach(GC_Pickup &obj) override {}
 	virtual void OnRespawn(GC_Pickup &obj) override {}
 	virtual void OnDisappear(GC_Pickup &obj) override {}
 };

@@ -1,8 +1,11 @@
 #pragma once
 #include "gc/WorldEvents.h"
 #include <memory>
+#include <unordered_map>
 
 class SoundRender;
+class GC_Weapon;
+struct Sound;
 
 class SoundHarness
 	: ObjectListener<GC_Pickup>
@@ -24,9 +27,11 @@ public:
 private:
 	World &_world;
 	std::unique_ptr<SoundRender> _soundRender;
+	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weapons;
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
+	virtual void OnDetach(GC_Pickup &obj) override;
 	virtual void OnRespawn(GC_Pickup &obj) override;
 	virtual void OnDisappear(GC_Pickup &obj) override;
 

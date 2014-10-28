@@ -77,6 +77,8 @@ void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle)
 void GC_Pickup::Detach(World &world)
 {
 	assert(GetAttached());
+	for( auto ls: world.eGC_Pickup._listeners )
+		ls->OnDetach(*this);
 	SetFlags(GC_FLAG_PICKUP_ATTACHED, false);
 }
 

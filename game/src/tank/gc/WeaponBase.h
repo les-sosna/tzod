@@ -31,6 +31,8 @@ public:
 	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	float GetStayTimeout() const { return _stayTimeout; }
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
+	RotatorState GetRotationState() const { return _rotatorWeap.GetState(); }
+	float GetRotationRate() const { return _rotatorWeap.GetVelocity() / _rotatorWeap.GetMaxVelocity(); }
 	
 	virtual void Fire(World &world, bool fire);
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) { _booster = booster; }
@@ -81,7 +83,6 @@ private:
 	float _stayTimeout;
 	float _angle;
 	Rotator _rotatorWeap;
-	ObjPtr<GC_Sound> _rotateSound;
 	ObjPtr<GC_pu_Booster> _booster;
 	ObjPtr<GC_Vehicle> _vehicle;
 	

@@ -10,7 +10,6 @@
 #include "gc/Weapons.h"
 #include "gc/World.h"
 
-#include <unordered_map>
 
 SoundHarness::SoundHarness(World &world)
 	: _world(world)
@@ -43,6 +42,24 @@ SoundHarness::~SoundHarness()
 void SoundHarness::Step()
 {
 	_soundRender->Step();
+	
+	for (auto &weapState: _weapons)
+	{
+		GC_Weapon &weapon = *weapState.first;
+		Sound &sound = *weapState.second;
+		if (weapon.GetRotationState() != RS_STOPPED)
+		{
+			float absRate = fabsf(weapon.GetRotationRate());
+			sound.SetVolume(absRate);
+			sound.SetPitch(0.5f + 0.5f * absRate);
+			sound.SetPos(weapon.GetPos());
+			sound.SetPlaying(true);
+		}
+		else
+		{
+			sound.SetPlaying(false);
+		}
+	}
 }
 
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
@@ -63,9 +80,19 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 		if (vehicle.GetWeapon())
 			_soundRender->PlayOnce(SND_B_Start, obj.GetPos());
 	}
-	else if (dynamic_cast<GC_Weapon*>(&obj))
+	else if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
 		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
+		_weapons.emplace(weapon, _soundRender->CreateLopped(SND_TowerRotate));
+	}
+}
+
+void SoundHarness::OnDetach(GC_Pickup &obj)
+{
+	if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
+	{
+		assert(_weapons.count(weapon));
+		_weapons.erase(weapon);
 	}
 }
 

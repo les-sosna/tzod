@@ -29,30 +29,13 @@ class World;
 
 class Rotator
 {
-	RotatorState _state;
-
-	float _angle_target;
-	float _velocity_current;
-	float _velocity_limit;
-	float _accel_current;
-	float _accel_stop;
-	float &_rCurrent;
-
-protected:
-	void ga_t3(float t, float as);
-	void ga_t2(float t, float ac, float as, float xt);
-	void ga_t1(float t, float ac, float as, float vl, float xt);
-	void OnGettingAngle(float dt);
-
 public:
 	Rotator(float &angle);
-	virtual ~Rotator();
+	~Rotator();
 
-public:
-	RotatorState GetState() const
-	{
-		return _state;
-	}
+	RotatorState GetState() const { return _state; }
+	float GetVelocity() const { return _velocity_current; }
+	float GetMaxVelocity() const { return _velocity_limit; }
 
 	// setup
 	void reset(float angle, float velocity, float limit, float current, float stop);
@@ -76,6 +59,21 @@ public:
 
 	// load/store the rotator state
 	void Serialize(SaveFile &f);
+
+private:
+	RotatorState _state;
+	
+	float _angle_target;
+	float _velocity_current;
+	float _velocity_limit;
+	float _accel_current;
+	float _accel_stop;
+	float &_rCurrent;
+	
+	void ga_t3(float t, float as);
+	void ga_t2(float t, float ac, float as, float xt);
+	void ga_t1(float t, float ac, float as, float vl, float xt);
+	void OnGettingAngle(float dt);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,5 @@
 #include "WeaponBase.h"
 #include "Light.h"
-#include "Sound.h"
 #include "Vehicle.h"
 #include "Macros.h"
 #include "World.h"
@@ -95,8 +94,6 @@ void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 
 	_vehicle = &vehicle;
 
-	_rotateSound = &world.New<GC_Sound>(GetPos(), SND_TowerRotate);
-    _rotateSound->SetMode(world, SMODE_STOP);
 	_rotatorWeap.reset(0, 0, TOWER_ROT_SPEED, TOWER_ROT_ACCEL, TOWER_ROT_SLOWDOWN);
 
 	SetVisible(true);
@@ -108,7 +105,6 @@ void GC_Weapon::Detach(World &world)
 	_vehicle = nullptr;
 	_detachedTime = world.GetTime();
 	Fire(world, false);
-	SAFE_KILL(world, _rotateSound);
 	GC_Pickup::Detach(world);
 }
 
@@ -139,7 +135,6 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
 			_rotatorWeap.stop();
 	}
-	_rotatorWeap.SetupSound(world, _rotateSound);
 
 	vec2d a(_angle);
 	vec2d direction = Vec2dAddDirection(GetVehicle()->GetDirection(), a);
@@ -167,7 +162,6 @@ void GC_Weapon::Serialize(World &world, SaveFile &f)
 	f.Serialize(_angle);
 	f.Serialize(_detachedTime);
 	f.Serialize(_stayTimeout);
-	f.Serialize(_rotateSound);
 	f.Serialize(_booster);
 	f.Serialize(_vehicle);
 }
@@ -176,8 +170,6 @@ void GC_Weapon::MoveTo(World &world, const vec2d &pos)
 {
 	if (_booster)
 		_booster->MoveTo(world, pos);
-	if (_rotateSound)
-		_rotateSound->MoveTo(world, pos);
 	GC_Pickup::MoveTo(world, pos);
 }
 
@@ -188,10 +180,8 @@ void GC_Weapon::Kill(World &world)
 		_booster->Disappear(world);
 		assert(!_booster);
 	}
-
 	if( GetAttached() )
 		Detach(world);
-	assert(!_rotateSound);
 	GC_Pickup::Kill(world);
 }
 
