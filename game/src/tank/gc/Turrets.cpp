@@ -51,19 +51,6 @@ GC_Turret::~GC_Turret()
 	}
 }
 
-void GC_Turret::Init(World &world)
-{
-	GC_RigidBodyStatic::Init(world);
-	_rotateSound = &world.New<GC_Sound>(GetPos(), SND_TuretRotate);
-	_rotateSound->SetMode(world, SMODE_STOP);
-}
-
-void GC_Turret::Kill(World &world)
-{
-	SAFE_KILL(world, _rotateSound);
-    GC_RigidBodyStatic::Kill(world);
-}
-
 void GC_Turret::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
@@ -75,7 +62,6 @@ void GC_Turret::Serialize(World &world, SaveFile &f)
 	f.Serialize(_sight);
 	f.Serialize(_state);
 	f.Serialize(_team);
-	f.Serialize(_rotateSound);
 	f.Serialize(_target);
 
 	if( f.loading() && (TS_WAITING == _state || TS_HIDDEN == _state) )
@@ -142,23 +128,15 @@ bool GC_Turret::IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodySt
 	return true;
 }
 
-void GC_Turret::MoveTo(World &world, const vec2d &pos)
-{
-	_rotateSound->MoveTo(world, pos);
-	GC_RigidBodyStatic::MoveTo(world, pos);
-}
-
 void GC_Turret::OnDestroy(World &world, GC_Player *by)
 {
 	world.New<GC_ExplosionBig>(GetPos());
 	GC_RigidBodyStatic::OnDestroy(world, by);
 }
 
-void GC_Turret::TimeStep(World &world, float dt)
+void GC_Turret::ProcessState(World &world, float dt)
 {
-	_rotator.process_dt(dt);
-
-	switch( _state )
+	switch( GetState() )
 	{
 	case TS_WAITING:
 		if( _jobManager.TakeJob(this) )
@@ -199,8 +177,20 @@ void GC_Turret::TimeStep(World &world, float dt)
 	default:
 		assert(false);
 	}  // end switch (_state)
+}
 
-	_rotator.SetupSound(world, _rotateSound);
+void GC_Turret::TimeStep(World &world, float dt)
+{
+	RotatorState prevState = _rotator.GetState();
+	_rotator.process_dt(dt);
+	
+	ProcessState(world, dt);
+	
+	if (_rotator.GetState() != prevState)
+	{
+		for( auto ls: world.eGC_Turret._listeners )
+			ls->OnRotationStateChange(*this);
+	}
 }
 
 void GC_Turret::SetInitialDir(float initialDir)
@@ -493,10 +483,8 @@ void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 	GC_Turret::OnDamage(world, dd);
 }
 
-void GC_TurretBunker::TimeStep(World &world, float dt)
+void GC_TurretBunker::ProcessState(World &world, float dt)
 {
-	_rotator.process_dt(dt);
-
 	switch( GetState() )
 	{
 	case TS_ATACKING:
@@ -593,8 +581,6 @@ void GC_TurretBunker::TimeStep(World &world, float dt)
 	default:
 		assert(0);
 	} // end switch (_state);
-
-	_rotator.SetupSound(world, _rotateSound);
 }
 
 void GC_TurretBunker::SetInitialDir(float initialDir)

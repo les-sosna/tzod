@@ -25,11 +25,10 @@ class GC_Turret : public GC_RigidBodyStatic
 	
 protected:
 	static JobManager<GC_Turret> _jobManager;
-
-	ObjPtr<GC_Sound>         _rotateSound;
-	ObjPtr<GC_Vehicle>       _target;
+	ObjPtr<GC_Vehicle> _target;
 
 protected:
+	virtual void ProcessState(World &world, float dt);
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
 	virtual void Fire(World &world) = 0;
 	bool IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
@@ -42,6 +41,8 @@ public:
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 	
+	RotatorState GetRotationState() const { return _rotator.GetState(); }
+	float GetRotationRate() const { return _rotator.GetVelocity() / _rotator.GetMaxVelocity(); }
 	float GetWeaponDir() const { return _dir; }
 	int GetTeam() const { return _team; }
 	TurretState GetState() const { return _state; }
@@ -52,12 +53,7 @@ public:
 	// GC_RigidBodyStatic
 	virtual void OnDestroy(World &world, GC_Player *by) override;
 	
-	// GC_Actor
-	virtual void MoveTo(World &world, const vec2d &pos) override;
-
 	// GC_Object
-	virtual void Init(World &world) override;
-    virtual void Kill(World &world) override;
 	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
@@ -186,10 +182,10 @@ public:
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
 	virtual void MapExchange(MapFile &f);
 
 protected:
+	virtual void ProcessState(World &world, float dt) override;
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 

@@ -77,6 +77,7 @@ template<> struct ObjectListener<GC_Turret>
 {
 	virtual void OnShoot(GC_Turret &obj) = 0;
 	virtual void OnStateChange(GC_Turret &obj) = 0;
+	virtual void OnRotationStateChange(GC_Turret &obj) = 0;
 };
 
 class GC_Object;

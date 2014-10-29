@@ -28,6 +28,7 @@ private:
 	World &_world;
 	std::unique_ptr<SoundRender> _soundRender;
 	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weapons;
+	std::unordered_map<GC_Turret*, std::unique_ptr<Sound>> _turrets;
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
@@ -55,6 +56,7 @@ private:
 	// ObjectListener<GC_Turret>
 	virtual void OnShoot(GC_Turret &obj) override;
 	virtual void OnStateChange(GC_Turret &obj) override;
+	virtual void OnRotationStateChange(GC_Turret &obj) override;
 
 	// ObjectListener<GC_Vehicle>
 	virtual void OnLight(GC_Vehicle &obj) override;

@@ -43,10 +43,10 @@ void SoundHarness::Step()
 {
 	_soundRender->Step();
 	
-	for (auto &weapState: _weapons)
+	for (auto &weapSound: _weapons)
 	{
-		GC_Weapon &weapon = *weapState.first;
-		Sound &sound = *weapState.second;
+		GC_Weapon &weapon = *weapSound.first;
+		Sound &sound = *weapSound.second;
 		if (weapon.GetRotationState() != RS_STOPPED)
 		{
 			float absRate = fabsf(weapon.GetRotationRate());
@@ -59,6 +59,19 @@ void SoundHarness::Step()
 		{
 			sound.SetPlaying(false);
 		}
+	}
+
+	for (auto &turretSound: _turrets)
+	{
+		GC_Turret &turret = *turretSound.first;
+		Sound &sound = *turretSound.second;
+		assert(turret.GetRotationState() != RS_STOPPED);
+	
+		float absRate = fabsf(turret.GetRotationRate());
+		sound.SetVolume(absRate);
+		sound.SetPitch(0.5f + 0.5f * absRate);
+		sound.SetPos(turret.GetPos());
+		sound.SetPlaying(true);
 	}
 }
 
@@ -226,21 +239,36 @@ void SoundHarness::OnShoot(GC_Turret &obj)
 		_soundRender->PlayOnce(SND_Bolt, obj.GetPos());
 }
 
-void SoundHarness::OnStateChange(GC_Turret &obj)
+void SoundHarness::OnStateChange(GC_Turret &turret)
 {
-	switch (obj.GetState())
+	switch (turret.GetState())
 	{
 		case TS_WAKING_UP:
-			_soundRender->PlayOnce(SND_TuretWakeUp, obj.GetPos());
+			_soundRender->PlayOnce(SND_TuretWakeUp, turret.GetPos());
 			break;
 		case TS_WAKING_DOWN:
-			_soundRender->PlayOnce(SND_TuretWakeDown, obj.GetPos());
+			_soundRender->PlayOnce(SND_TuretWakeDown, turret.GetPos());
 			break;
 		case TS_ATACKING:
-			_soundRender->PlayOnce(SND_TargetLock, obj.GetPos());
+			_soundRender->PlayOnce(SND_TargetLock, turret.GetPos());
 			break;
 		default:
 			break;
+	}
+}
+
+void SoundHarness::OnRotationStateChange(GC_Turret &turret)
+{
+	auto existing = _turrets.find(&turret);
+	if (_turrets.end() != existing)
+	{
+		if (turret.GetRotationState() == RS_STOPPED)
+			_turrets.erase(existing);
+	}
+	else
+	{
+		if (turret.GetRotationState() != RS_STOPPED)
+			_turrets.emplace(&turret, _soundRender->CreateLopped(SND_TowerRotate));
 	}
 }
 
