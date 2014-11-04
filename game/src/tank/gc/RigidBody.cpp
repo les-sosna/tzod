@@ -5,7 +5,7 @@
 #include "World.h"
 #include "WorldEvents.h"
 #include "Sound.h"
-#include "particles.h"
+#include "Particles.h"
 #include "Player.h"
 #include "Vehicle.h"
 

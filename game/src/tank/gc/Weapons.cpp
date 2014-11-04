@@ -4,8 +4,8 @@
 #include "RigidBodyDinamic.h"
 #include "Sound.h"
 #include "Light.h"
-#include "projectiles.h"
-#include "particles.h"
+#include "Projectiles.h"
+#include "Particles.h"
 
 #include "Macros.h"
 #include "World.h"

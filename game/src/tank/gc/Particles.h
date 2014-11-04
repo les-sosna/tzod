@@ -1,7 +1,4 @@
-// particles.h
-
 #pragma once
-
 #include "Actor.h"
 
 class GC_BrickFragment : public GC_Actor
@@ -111,5 +108,3 @@ public:
 DECLARE_PARTICLE(GC_ParticleExplosion);
 DECLARE_PARTICLE(GC_ParticleDecal);
 DECLARE_PARTICLE(GC_ParticleGauss);
-
-// end of file

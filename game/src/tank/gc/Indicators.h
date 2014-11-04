@@ -1,5 +1,3 @@
-// indicators.h
-
 #pragma once
 
 #include "Actor.h"
@@ -48,5 +46,3 @@ public:
 	GC_HideLabel(vec2d pos);
 	GC_HideLabel(FromFile);
 };
-
-// end of file

@@ -1,6 +1,4 @@
-// indicators.cpp
-
-#include "indicators.h"
+#include "Indicators.h"
 
 #include "World.h"
 #include "Macros.h"
@@ -126,5 +124,3 @@ GC_HideLabel::GC_HideLabel(FromFile)
   : GC_Actor(FromFile())
 {
 }
-
-// end of file

@@ -1,9 +1,6 @@
-// particles.cpp
-
-#include "particles.h"
+#include "Particles.h"
 #include "SaveFile.h"
 #include "World.h"
-
 
 IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 {
@@ -129,6 +126,3 @@ IMPLEMENT_SELF_REGISTRATION(GC_ParticleGauss)
 {
 	return true;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

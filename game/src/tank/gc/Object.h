@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GlobalListHelper.h"
-#include "notify.h"
+#include "Notify.h"
 #include "ObjPtr.h"
 #include "ObjectProperty.h"
 #include "TypeSystem.h"

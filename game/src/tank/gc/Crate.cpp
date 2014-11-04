@@ -1,5 +1,5 @@
-#include "crate.h"
-#include "particles.h"
+#include "Crate.h"
+#include "Particles.h"
 #include "constants.h"
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)

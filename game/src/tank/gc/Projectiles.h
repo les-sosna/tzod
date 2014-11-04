@@ -1,7 +1,4 @@
-// projectiles.h
-
 #pragma once
-
 #include "Actor.h"
 
 class GC_RigidBodyStatic;

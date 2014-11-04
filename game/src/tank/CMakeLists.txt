@@ -61,19 +61,19 @@ set(tank_SOURCES
 	core/Timer.cpp
 	gc/Actor.cpp
 	gc/Camera.cpp
-	gc/crate.cpp
+	gc/Crate.cpp
 	gc/Explosion.cpp
 	gc/Field.cpp
 	gc/GameClasses.cpp
-	gc/indicators.cpp
+	gc/Indicators.cpp
 	gc/Light.cpp
 #	gc/MessageBox.cpp
 	gc/Object.cpp
 	gc/ObjectProperty.cpp
 	gc/particles.cpp
-	gc/pickup.cpp
+	gc/Pickup.cpp
 	gc/Player.cpp
-	gc/projectiles.cpp
+	gc/Projectiles.cpp
 	gc/RigidBody.cpp
 	gc/RigidBodyDynamic.cpp
 	gc/Rotator.cpp

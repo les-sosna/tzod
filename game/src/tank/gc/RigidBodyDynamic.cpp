@@ -1,5 +1,5 @@
 #include "RigidBodyDinamic.h"
-#include "projectiles.h"
+#include "Projectiles.h"
 #include "World.h"
 #include "WorldEvents.h"
 

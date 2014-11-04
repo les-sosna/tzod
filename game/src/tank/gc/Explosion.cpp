@@ -1,7 +1,7 @@
 #include "Explosion.h"
 #include "Camera.h"
 #include "Light.h"
-#include "particles.h"
+#include "Particles.h"
 #include "Player.h"
 #include "RigidBody.h"
 #include "Vehicle.h"

@@ -1,5 +1,3 @@
-// pickup.h
-
 #pragma once
 
 #include "Actor.h"
@@ -247,6 +245,3 @@ private:
 	void OnWeaponDisappear(World &world, GC_Object *sender, void *param);
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file
