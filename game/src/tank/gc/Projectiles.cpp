@@ -6,7 +6,6 @@
 #include "Particles.h"
 #include "Player.h"
 #include "RigidBodyDinamic.h"
-#include "Sound.h"
 #include "World.h"
 #include "WorldEvents.h"
 
@@ -239,14 +238,6 @@ void GC_Rocket::SelectTarget(World &world)
 	{
 		_target = pNearestTarget;
 	}
-}
-
-void GC_Rocket::Init(World &world)
-{
-	GC_Projectile::Init(world);
-	
-	auto &sound = world.New<GC_Sound_link>(SND_RocketFly, this);
-	sound.SetMode(world, SMODE_LOOP);
 }
 
 void GC_Rocket::Serialize(World &world, SaveFile &f)

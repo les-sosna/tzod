@@ -77,7 +77,6 @@ public:
 	void SelectTarget(World &world);
 
 	// GC_Object
-	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
 	

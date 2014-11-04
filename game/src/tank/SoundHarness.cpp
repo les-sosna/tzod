@@ -48,7 +48,7 @@ void SoundHarness::Step()
 	
 	for (auto &weapSound: _weaponRotate)
 	{
-		GC_Weapon &weapon = *weapSound.first;
+		const GC_Weapon &weapon = *weapSound.first;
 		Sound &sound = *weapSound.second;
 		if (weapon.GetRotationState() != RS_STOPPED)
 		{
@@ -66,7 +66,7 @@ void SoundHarness::Step()
 
 	for (auto &fireSound: _weaponFire)
 	{
-		GC_Weapon &weapon = *fireSound.first;
+		const GC_Weapon &weapon = *fireSound.first;
 		Sound &sound = *fireSound.second;
 		if (weapon.GetFire())
 		{
@@ -81,7 +81,7 @@ void SoundHarness::Step()
 
 	for (auto &turretSound: _turrets)
 	{
-		GC_Turret &turret = *turretSound.first;
+		const GC_Turret &turret = *turretSound.first;
 		Sound &sound = *turretSound.second;
 		assert(turret.GetRotationState() != RS_STOPPED);
 	
@@ -91,6 +91,14 @@ void SoundHarness::Step()
 		sound.SetPos(turret.GetPos());
 		sound.SetPlaying(true);
 	}
+}
+
+static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, enumSoundTemplate st, vec2d pos)
+{
+	std::unique_ptr<Sound> sound = sr.CreateLopped(st);
+	sound->SetPos(pos);
+	sound->SetPlaying(true);
+	return std::move(sound);
 }
 
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
@@ -110,10 +118,7 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	{
 		if (vehicle.GetWeapon())
 		{
-			std::unique_ptr<Sound> sound = _soundRender->CreateLopped(SND_B_Loop);
-			sound->SetPos(obj.GetPos());
-			sound->SetPlaying(true);
-			_attached.emplace(&obj, std::move(sound));
+			_attached.emplace(&obj, CreatePlayingLooped(*_soundRender, SND_B_Loop, obj.GetPos()));
 			_soundRender->PlayOnce(SND_B_Start, obj.GetPos());
 		}
 	}
@@ -315,6 +320,13 @@ void SoundHarness::OnGameFinished()
 	_soundRender->PlayOnce(SND_Limit, vec2d(0,0));
 }
 
+void SoundHarness::OnKill(GC_Object &obj)
+{
+	ObjectType type = obj.GetType();
+	if (GC_Rocket::GetTypeStatic() == type)
+		_attached.erase(static_cast<GC_Rocket*>(&obj));
+}
+
 void SoundHarness::OnNewObject(GC_Object &obj)
 {
 	ObjectType type = obj.GetType();
@@ -322,4 +334,7 @@ void SoundHarness::OnNewObject(GC_Object &obj)
 		_soundRender->PlayOnce(SND_BoomBig, static_cast<const GC_Actor &>(obj).GetPos());
 	else if (GC_ExplosionStandard::GetTypeStatic() == type)
 		_soundRender->PlayOnce(SND_BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
+	else if (GC_Rocket::GetTypeStatic() == type)
+		_attached.emplace(static_cast<GC_Actor*>(&obj),
+						  CreatePlayingLooped(*_soundRender, SND_RocketFly, static_cast<const GC_Actor &>(obj).GetPos()));
 }

@@ -28,10 +28,10 @@ public:
 private:
 	World &_world;
 	std::unique_ptr<SoundRender> _soundRender;
-	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
-	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
-	std::unordered_map<GC_Actor*, std::unique_ptr<Sound>> _attached;
-	std::unordered_map<GC_Turret*, std::unique_ptr<Sound>> _turrets;
+	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
+	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
+	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
+	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turrets;
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
@@ -68,6 +68,6 @@ private:
 	virtual void OnGameStarted() override {}
 	virtual void OnGameFinished();
 	virtual void OnGameMessage(const char *msg) override {}
-	virtual void OnKill(GC_Object &) override {}
+	virtual void OnKill(GC_Object &obj) override;
 	virtual void OnNewObject(GC_Object &obj) override;
 };
