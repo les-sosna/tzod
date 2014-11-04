@@ -714,23 +714,9 @@ GC_Weap_Zippo::~GC_Weap_Zippo()
 {
 }
 
-void GC_Weap_Zippo::Kill(World &world)
-{
-	SAFE_KILL(world, _sound);
-    GC_ProjectileBasedWeapon::Kill(world);
-}
-
-void GC_Weap_Zippo::OnAttached(World &world, GC_Vehicle &vehicle)
-{
-	_sound = &world.New<GC_Sound>(GetPos(), SND_RamEngine);
-    _sound->SetMode(world, SMODE_STOP);
-	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
-}
-
 void GC_Weap_Zippo::Detach(World &world)
 {
 	_heat = 0;
-	SAFE_KILL(world, _sound);
 	GC_ProjectileBasedWeapon::Detach(world);
 }
 
@@ -739,7 +725,6 @@ void GC_Weap_Zippo::Serialize(World &world, SaveFile &f)
 	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_heat);
 	f.Serialize(_timeBurn);
-	f.Serialize(_sound);
 }
 
 void GC_Weap_Zippo::AdjustVehicleClass(VehicleClass &vc) const
@@ -777,19 +762,6 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 
 void GC_Weap_Zippo::TimeStep(World &world, float dt)
 {
-	if( GetAttached() )
-	{
-		if( GetFire() )
-		{
-			_sound->MoveTo(world, GetPos());
-			_sound->Pause(world, false);
-		}
-		else
-		{
-			_sound->Pause(world, true);
-		}
-	}
-
 	if( GetBooster() )
 	{
 		_timeBurn += dt;

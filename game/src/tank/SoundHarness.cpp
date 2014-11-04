@@ -113,9 +113,9 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
 		_weaponRotate.emplace(weapon, _soundRender->CreateLopped(SND_TowerRotate));
 		if (GC_Weap_Minigun::GetTypeStatic() == type)
-		{
 			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_MinigunFire));
-		}
+		else if (GC_Weap_Zippo::GetTypeStatic() == type)
+			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_RamEngine));
 	}
 }
 
