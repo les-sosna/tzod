@@ -148,6 +148,7 @@ public:
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
 	virtual void Fire(World &world, bool fire) override;
+	virtual bool GetFire() const;
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) override;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
@@ -155,7 +156,6 @@ public:
 	virtual void Detach(World &world) override;
 	
 	// GC_Object
-	virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
 
@@ -165,14 +165,12 @@ protected:
 private:
 	vec2d GetEngineLightPos() const;
 	virtual void OnUpdateView(World &world);
-	ObjPtr<GC_Sound> _engineSound;
 	ObjPtr<GC_Light> _engineLight;
 	
 	float _fuel;
 	float _fuel_max;
 	float _fuel_consumption_rate;
 	float _fuel_recuperation_rate;
-	int _firingCounter;
 	bool _bReady;
 };
 

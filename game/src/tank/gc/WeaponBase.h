@@ -28,13 +28,13 @@ public:
 	
 	GC_pu_Booster* GetBooster() const { return _booster; }
 	float GetDetachedTime() const { return _detachedTime; }
-	bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	float GetStayTimeout() const { return _stayTimeout; }
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	RotatorState GetRotationState() const { return _rotatorWeap.GetState(); }
 	float GetRotationRate() const { return _rotatorWeap.GetVelocity() / _rotatorWeap.GetMaxVelocity(); }
 	
 	virtual void Fire(World &world, bool fire);
+	virtual bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) { _booster = booster; }
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) = 0;
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;

@@ -116,6 +116,8 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_MinigunFire));
 		else if (GC_Weap_Zippo::GetTypeStatic() == type)
 			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_RamEngine));
+		else if (GC_Weap_Ram::GetTypeStatic() == type)
+			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_RamEngine));
 	}
 }
 

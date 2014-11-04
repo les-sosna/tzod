@@ -2,7 +2,6 @@
 #include "Vehicle.h"
 #include "VehicleClasses.h"
 #include "RigidBodyDinamic.h"
-#include "Sound.h"
 #include "Light.h"
 #include "Projectiles.h"
 #include "Particles.h"
@@ -320,7 +319,6 @@ IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 
 GC_Weap_Ram::GC_Weap_Ram(vec2d pos)
   : GC_Weapon(pos)
-  , _firingCounter(0)
 {
 }
 
@@ -341,8 +339,6 @@ vec2d GC_Weap_Ram::GetEngineLightPos() const
 
 void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_engineSound = &world.New<GC_Sound>(GetPos(), SND_RamEngine);
-    _engineSound->SetMode(world, SMODE_STOP);
 	_engineLight = &world.New<GC_Light>(GetEngineLightPos(), GC_Light::LIGHT_POINT);
 	_engineLight->SetIntensity(1.0f);
 	_engineLight->SetRadius(120);
@@ -351,8 +347,6 @@ void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 	_fuel_max  = _fuel = 1.0f;
 	_fuel_consumption_rate = 0.2f;
 	_fuel_recuperation_rate  = 0.1f;
-
-	_firingCounter = 0;
 	_bReady = true;
 	
 	GC_Weapon::OnAttached(world, vehicle);
@@ -360,9 +354,7 @@ void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 
 void GC_Weap_Ram::Detach(World &world)
 {
-	SAFE_KILL(world, _engineSound);
 	SAFE_KILL(world, _engineLight);
-
 	GC_Weapon::Detach(world);
 }
 
@@ -375,12 +367,6 @@ GC_Weap_Ram::~GC_Weap_Ram()
 {
 }
 
-void GC_Weap_Ram::Kill(World &world)
-{
-	SAFE_KILL(world, _engineSound);
-    GC_Weapon::Kill(world);
-}
-
 void GC_Weap_Ram::OnUpdateView(World &world)
 {
 	_engineLight->MoveTo(world, GetEngineLightPos());
@@ -389,13 +375,11 @@ void GC_Weap_Ram::OnUpdateView(World &world)
 void GC_Weap_Ram::Serialize(World &world, SaveFile &f)
 {
 	GC_Weapon::Serialize(world, f);
-	f.Serialize(_firingCounter);
 	f.Serialize(_bReady);
 	f.Serialize(_fuel);
 	f.Serialize(_fuel_max);
 	f.Serialize(_fuel_consumption_rate);
 	f.Serialize(_fuel_recuperation_rate);
-	f.Serialize(_engineSound);
 	f.Serialize(_engineLight);
 }
 
@@ -410,12 +394,16 @@ void GC_Weap_Ram::AdjustVehicleClass(VehicleClass &vc) const
 
 void GC_Weap_Ram::Fire(World &world, bool fire)
 {
-	assert(GetAttached());
-	if( fire && _bReady )
+	GC_Weapon::Fire(world, fire);
+	if( GetFire() )
 	{
-		_firingCounter = 2;
 		GetVehicle()->ApplyForce(GetDirection() * 2000);
 	}
+}
+
+bool GC_Weap_Ram::GetFire() const
+{
+	return GC_Weapon::GetFire() && _bReady;
 }
 
 void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
@@ -433,7 +421,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 {
 	GC_Weapon::TimeStep(world, dt);
 
-	if( GetAttached() && _firingCounter )
+	if( GetAttached() && GetFire() )
 	{
 		vec2d v = GetVehicle()->_lv;
 		
@@ -468,18 +456,14 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 	
 	if( GetAttached() )
 	{
-		assert(_engineSound);
-
 		if( GetBooster() )
 			_fuel = _fuel_max;
 
-		if( _firingCounter )
+		if( GetFire() )
 		{
-			_engineSound->Pause(world, false);
-			_engineSound->MoveTo(world, GetPos());
-
 			_fuel = std::max(.0f, _fuel - _fuel_consumption_rate * dt);
-			if( 0 == _fuel ) _bReady = false;
+			if( 0 == _fuel )
+				_bReady = false; // changes GetFire() result
 
 			DamageDesc dd;
 			dd.from = GetVehicle()->GetOwner();
@@ -511,20 +495,12 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 		}
 		else
 		{
-			_engineSound->Pause(world, true);
 			_fuel   = std::min(_fuel_max, _fuel + _fuel_recuperation_rate * dt);
 			_bReady = (_fuel_max < _fuel * 4.0f);
 		}
 
-		_engineLight->SetActive(_firingCounter > 0);
-		if( _firingCounter ) --_firingCounter;
+		_engineLight->SetActive(GetFire());
 	}
-	else
-	{
-		assert(!_engineSound);
-	}
-
-	return;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
