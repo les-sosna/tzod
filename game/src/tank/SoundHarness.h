@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 class SoundRender;
+class GC_Actor;
 class GC_Weapon;
 struct Sound;
 
@@ -29,6 +30,7 @@ private:
 	std::unique_ptr<SoundRender> _soundRender;
 	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
 	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
+	std::unordered_map<GC_Actor*, std::unique_ptr<Sound>> _attached;
 	std::unordered_map<GC_Turret*, std::unique_ptr<Sound>> _turrets;
 	
 	// ObjectListener<GC_Pickup>

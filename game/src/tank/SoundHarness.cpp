@@ -43,6 +43,9 @@ void SoundHarness::Step()
 {
 	_soundRender->Step();
 	
+	for (auto &p: _attached)
+		p.second->SetPos(p.first->GetPos());
+	
 	for (auto &weapSound: _weaponRotate)
 	{
 		GC_Weapon &weapon = *weapSound.first;
@@ -106,7 +109,13 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	else if (GC_pu_Booster::GetTypeStatic() == type)
 	{
 		if (vehicle.GetWeapon())
+		{
+			std::unique_ptr<Sound> sound = _soundRender->CreateLopped(SND_B_Loop);
+			sound->SetPos(obj.GetPos());
+			sound->SetPlaying(true);
+			_attached.emplace(&obj, std::move(sound));
 			_soundRender->PlayOnce(SND_B_Start, obj.GetPos());
+		}
 	}
 	else if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
@@ -129,6 +138,7 @@ void SoundHarness::OnDetach(GC_Pickup &obj)
 		_weaponRotate.erase(weapon);
 		_weaponFire.erase(weapon); // not all weapons have this
 	}
+	_attached.erase(&obj);
 }
 
 void SoundHarness::OnRespawn(GC_Pickup &obj)

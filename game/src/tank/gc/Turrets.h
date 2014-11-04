@@ -191,6 +191,8 @@ protected:
 
 /////////////////////////////////////////////////////////////
 
+class GC_Sound;
+
 class GC_TurretMinigun : public GC_TurretBunker
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);

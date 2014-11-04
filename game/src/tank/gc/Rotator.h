@@ -23,9 +23,7 @@ enum RotatorState
 // Rotator goes from RS_DEACTIVATED and RS_GETTING_ANGLE modes 
 // to the RS_STOPPED mode automatically
 
-class GC_Sound;
 class SaveFile;
-class World;
 
 class Rotator
 {
@@ -53,9 +51,6 @@ public:
 	void rotate_left();
 	void rotate_right();
 	void stop();
-
-	// sets up the volume and the playing speed
-	void SetupSound(World &world, GC_Sound *pSound);
 
 	// load/store the rotator state
 	void Serialize(SaveFile &f);

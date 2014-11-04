@@ -238,7 +238,6 @@ protected:
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 	
 private:
-	ObjPtr<GC_Sound> _sound;
 	ObjPtr<GC_Weapon> _weapon;
 
 	friend class GC_Weapon;

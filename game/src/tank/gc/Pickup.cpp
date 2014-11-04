@@ -528,7 +528,6 @@ GC_pu_Booster::~GC_pu_Booster()
 void GC_pu_Booster::Serialize(World &world, SaveFile &f)
 {
 	GC_Pickup::Serialize(world, f);
-	f.Serialize(_sound);
 	f.Serialize(_weapon);
 }
 
@@ -551,10 +550,6 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 		
 		_weapon = w;
 		_weapon->SetBooster(world, this);
-		
-		assert(NULL == _sound);
-		_sound = &world.New<GC_Sound_link>(SND_B_Loop, this);
-		_sound->SetMode(world, SMODE_LOOP);
 	}
 	else
 	{
@@ -570,7 +565,6 @@ void GC_pu_Booster::Detach(World &world)
 		_weapon->SetBooster(world, nullptr);
 		_weapon = nullptr;
 	}
-	SAFE_KILL(world, _sound);
 	GC_Pickup::Detach(world);
 }
 

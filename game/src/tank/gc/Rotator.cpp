@@ -1,10 +1,5 @@
-// Rotator.cpp: implementation of the Rotator class.
-
 #include "Rotator.h"
 #include "SaveFile.h"
-#include "gc/Sound.h"
-
-//////////////////////////////////////////////////////////////////////
 
 // Rotator changes the value of the referenced variable
 Rotator::Rotator(float &angle)
@@ -16,8 +11,6 @@ Rotator::Rotator(float &angle)
 Rotator::~Rotator()
 {
 }
-
-//-------------------------------------------------------------------
 
 void Rotator::reset(float angle, float velocity, float limit, float current, float stop)
 {
@@ -40,8 +33,6 @@ void Rotator::setl(float limit, float current, float stop)
 	if( _velocity_current >  limit ) _velocity_current =  limit;
 	if( _velocity_current < -limit ) _velocity_current = -limit;
 }
-
-//-------------------------------------------------------------------
 
 void Rotator::rotate_to(float new_target)
 {
@@ -91,8 +82,6 @@ void Rotator::impulse(float dv)
 
 	if( RS_STOPPED == _state ) _state = RS_DEACTIVATED;
 }
-
-//-------------------------------------------------------------------
 
 bool Rotator::process_dt(float dt)
 {
@@ -446,25 +435,6 @@ void Rotator::ga_t3(float t, float as)
 	process_dt(t - t0);
 }
 
-//-------------------------------------------------------------------
-
-void Rotator::SetupSound(World &world, GC_Sound *pSound)
-{
-	if( RS_STOPPED == _state )
-	{
-		pSound->Pause(world, true);
-	}
-	else
-	{
-		pSound->Pause(world, false);
-
-		pSound->SetSpeed(0.5f + 0.5f * fabsf(_velocity_current) / _velocity_limit);
-		pSound->SetVolume(fabsf(_velocity_current) / _velocity_limit);
-	}
-}
-
-//-------------------------------------------------------------------
-
 void Rotator::Serialize(SaveFile &f)
 {
 	f.Serialize(_accel_current);
@@ -474,6 +444,3 @@ void Rotator::Serialize(SaveFile &f)
 	f.Serialize(_velocity_current);
 	f.Serialize(_velocity_limit);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file
