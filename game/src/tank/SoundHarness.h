@@ -27,7 +27,8 @@ public:
 private:
 	World &_world;
 	std::unique_ptr<SoundRender> _soundRender;
-	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weapons;
+	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
+	std::unordered_map<GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
 	std::unordered_map<GC_Turret*, std::unique_ptr<Sound>> _turrets;
 	
 	// ObjectListener<GC_Pickup>

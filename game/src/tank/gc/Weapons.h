@@ -248,16 +248,12 @@ public:
 	virtual void Detach(World &world) override;
 
 	// GC_Object
-	virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
-	virtual void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
 	virtual void OnShoot(World &world) override;
 
 private:
-	ObjPtr<GC_Sound> _sound;
 	float _heat = 0;
 };
 

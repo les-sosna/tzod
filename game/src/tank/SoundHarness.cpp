@@ -43,7 +43,7 @@ void SoundHarness::Step()
 {
 	_soundRender->Step();
 	
-	for (auto &weapSound: _weapons)
+	for (auto &weapSound: _weaponRotate)
 	{
 		GC_Weapon &weapon = *weapSound.first;
 		Sound &sound = *weapSound.second;
@@ -52,6 +52,21 @@ void SoundHarness::Step()
 			float absRate = fabsf(weapon.GetRotationRate());
 			sound.SetVolume(absRate);
 			sound.SetPitch(0.5f + 0.5f * absRate);
+			sound.SetPos(weapon.GetPos());
+			sound.SetPlaying(true);
+		}
+		else
+		{
+			sound.SetPlaying(false);
+		}
+	}
+
+	for (auto &fireSound: _weaponFire)
+	{
+		GC_Weapon &weapon = *fireSound.first;
+		Sound &sound = *fireSound.second;
+		if (weapon.GetFire())
+		{
 			sound.SetPos(weapon.GetPos());
 			sound.SetPlaying(true);
 		}
@@ -96,7 +111,11 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	else if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
 		_soundRender->PlayOnce(SND_w_Pickup, obj.GetPos());
-		_weapons.emplace(weapon, _soundRender->CreateLopped(SND_TowerRotate));
+		_weaponRotate.emplace(weapon, _soundRender->CreateLopped(SND_TowerRotate));
+		if (GC_Weap_Minigun::GetTypeStatic() == type)
+		{
+			_weaponFire.emplace(weapon, _soundRender->CreateLopped(SND_MinigunFire));
+		}
 	}
 }
 
@@ -104,8 +123,9 @@ void SoundHarness::OnDetach(GC_Pickup &obj)
 {
 	if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
-		assert(_weapons.count(weapon));
-		_weapons.erase(weapon);
+		assert(_weaponRotate.count(weapon));
+		_weaponRotate.erase(weapon);
+		_weaponFire.erase(weapon); // not all weapons have this
 	}
 }
 

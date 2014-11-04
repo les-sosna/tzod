@@ -640,23 +640,9 @@ float GC_Weap_Minigun::GetHeat(const World &world) const
 	return std::max(_heat + GetLastShotTime() - world.GetTime(), 0.0f);
 }
 
-void GC_Weap_Minigun::Kill(World &world)
-{
-	SAFE_KILL(world, _sound);
-    GC_ProjectileBasedWeapon::Kill(world);
-}
-
-void GC_Weap_Minigun::OnAttached(World &world, GC_Vehicle &vehicle)
-{
-	_sound = &world.New<GC_Sound>(GetPos(), SND_MinigunFire);
-    _sound->SetMode(world, SMODE_STOP);
-	GC_ProjectileBasedWeapon::OnAttached(world, vehicle);
-}
-
 void GC_Weap_Minigun::Detach(World &world)
 {
 	_heat = 0;
-	SAFE_KILL(world, _sound);
 	GC_ProjectileBasedWeapon::Detach(world);
 }
 
@@ -664,7 +650,6 @@ void GC_Weap_Minigun::Serialize(World &world, SaveFile &f)
 {
 	GC_ProjectileBasedWeapon::Serialize(world, f);
 	f.Serialize(_heat);
-	f.Serialize(_sound);
 }
 
 void GC_Weap_Minigun::AdjustVehicleClass(VehicleClass &vc) const
@@ -704,24 +689,6 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
 	pSettings->fDistanceMultipler = GetBooster() ? 5.0f : 10.0f;
-}
-
-void GC_Weap_Minigun::TimeStep(World &world, float dt)
-{
-	if( GetAttached() )
-	{
-		if( GetFire() )
-		{
-			_sound->MoveTo(world, GetPos());
-			_sound->Pause(world, false);
-		}
-		else
-		{
-			_sound->Pause(world, true);
-		}
-	}
-
-	GC_ProjectileBasedWeapon::TimeStep(world, dt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
