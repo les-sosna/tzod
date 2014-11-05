@@ -1,6 +1,5 @@
 #include "Turrets.h"
 #include "Explosion.h"
-#include "Sound.h"
 #include "Indicators.h"
 #include "Vehicle.h"
 #include "Player.h"
@@ -97,6 +96,16 @@ GC_Vehicle* GC_Turret::EnumTargets(World &world)
 	return target;
 }
 
+void GC_Turret::SetFire(World &world, bool fire)
+{
+	if (CheckFlags(GC_FLAG_TURRET_FIRE) != fire)
+	{
+		SetFlags(GC_FLAG_TURRET_FIRE, fire);
+		for( auto ls: world.eGC_Turret._listeners )
+			ls->OnFireStateChange(*this);
+	}
+}
+
 void GC_Turret::SelectTarget(World &world, GC_Vehicle *target)
 {
 	_jobManager.UnregisterMember(this);
@@ -134,6 +143,7 @@ void GC_Turret::OnDestroy(World &world, GC_Player *by)
 
 void GC_Turret::ProcessState(World &world, float dt)
 {
+	bool fire = false;
 	switch( GetState() )
 	{
 	case TS_WAITING:
@@ -162,7 +172,7 @@ void GC_Turret::ProcessState(World &world, float dt)
 
 				if( std::min(d1, d2) < (PI / 36.0) )
 				{
-					Fire(world);
+					fire = true;
 				}
 			}
 			else
@@ -174,7 +184,9 @@ void GC_Turret::ProcessState(World &world, float dt)
 	} // end case TS_ATACKING
 	default:
 		assert(false);
-	}  // end switch (_state)
+	}  // switch
+	
+	SetFire(world, fire);
 }
 
 void GC_Turret::TimeStep(World &world, float dt)
@@ -195,6 +207,18 @@ void GC_Turret::SetInitialDir(float initialDir)
 {
 	_dir = initialDir;
 	_initialDir = _dir;
+}
+
+void GC_Turret::Kill(World &world)
+{
+	SetFire(world, false);
+	if (_rotator.GetState() != RS_STOPPED)
+	{
+		_rotator.stop(true);
+		for( auto ls: world.eGC_Turret._listeners )
+			ls->OnRotationStateChange(*this);
+	}
+	GC_RigidBodyStatic::Kill(world);
 }
 
 void GC_Turret::MapExchange(MapFile &f)
@@ -322,18 +346,14 @@ void GC_TurretRocket::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d
 	world.CalcOutstrip(GetPos(), SPEED_ROCKET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretRocket::Fire(World &world)
+void GC_TurretRocket::TimeStep(World &world, float dt)
 {
-	if( _timeReload <= 0 )
+	GC_Turret::TimeStep(world, dt);
+	if( GetFire() && _timeReload <= 0 )
 	{
 		Shoot(world);
 		_timeReload = TURET_ROCKET_RELOAD;
 	}
-}
-
-void GC_TurretRocket::TimeStep(World &world, float dt)
-{
-	GC_Turret::TimeStep(world, dt);
 	_timeReload -= dt;
 }
 
@@ -383,19 +403,17 @@ void GC_TurretCannon::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d
 	world.CalcOutstrip(GetPos(), SPEED_TANKBULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretCannon::Fire(World &world)
+void GC_TurretCannon::TimeStep(World &world, float dt)
 {
-	if( _timeReload <= 0 )
+	GC_Turret::TimeStep(world, dt);
+	
+	if( GetFire() && _timeReload <= 0 )
 	{
 		Shoot(world);
 		_timeReload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}
-}
-
-void GC_TurretCannon::TimeStep(World &world, float dt)
-{
-	GC_Turret::TimeStep(world, dt);
+	
 	_timeReload -= dt;
 
 	if( _time_smoke > 0 )
@@ -483,6 +501,8 @@ void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 
 void GC_TurretBunker::ProcessState(World &world, float dt)
 {
+	bool fire = false;
+	
 	switch( GetState() )
 	{
 	case TS_ATACKING:
@@ -505,7 +525,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 
 				if( std::min(d1, d2) <= _delta_angle )
                 {
-                    Fire(world);
+					fire = true;
                 }
 			}
 			else
@@ -578,7 +598,9 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 		break;
 	default:
 		assert(0);
-	} // end switch (_state);
+	} // switch
+	
+	SetFire(world, fire);
 }
 
 void GC_TurretBunker::SetInitialDir(float initialDir)
@@ -603,7 +625,6 @@ GC_TurretMinigun::GC_TurretMinigun(vec2d pos)
 	_rotator.reset(0, 0, 6.0f, 21.0f, 36.0f);
 
 	_time = 0;
-	_firing = false;
 
 	_time_wait_max = 1.0f;
 	_time_wait     = _time_wait_max;
@@ -621,25 +642,10 @@ GC_TurretMinigun::~GC_TurretMinigun()
 {
 }
 
-void GC_TurretMinigun::Init(World &world)
-{
-	_fireSound = &world.New<GC_Sound>(GetPos(), SND_MinigunFire);
-	_fireSound->SetMode(world, SMODE_STOP);
-	GC_TurretBunker::Init(world);
-}
-
-void GC_TurretMinigun::Kill(World &world)
-{
-	SAFE_KILL(world, _fireSound);
-    GC_TurretBunker::Kill(world);
-}
-
 void GC_TurretMinigun::Serialize(World &world, SaveFile &f)
 {
 	GC_TurretBunker::Serialize(world, f);
-	f.Serialize(_firing);
 	f.Serialize(_time);
-	f.Serialize(_fireSound);
 }
 
 void GC_TurretMinigun::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake)
@@ -647,35 +653,17 @@ void GC_TurretMinigun::CalcOutstrip(World &world, const GC_Vehicle *target, vec2
 	world.CalcOutstrip(GetPos(), SPEED_BULLET, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretMinigun::Fire(World &world)
-{
-	_firing = true;
-}
-
 void GC_TurretMinigun::TimeStep(World &world, float dt)
 {
 	GC_TurretBunker::TimeStep(world, dt);
 
-	if( _firing )
+	if( GetFire() )
 	{
-#ifndef NOSOUND
-		ASSERT_TYPE(_fireSound, GC_Sound);
-		_fireSound->Pause(world, false);
-#endif
-		_time += dt;
-		for( ; _time > 0; _time -= 0.04f )
+		for( _time += dt; _time > 0; _time -= 0.04f )
 		{
 			Shoot(world);
 		}
-		_firing = false;
 	}
-#ifndef NOSOUND
-	else
-	{
-		ASSERT_TYPE(_fireSound, GC_Sound);
-		_fireSound->Pause(world, true);
-	}
-#endif
 }
 
 void GC_TurretMinigun::OnShoot(World &world)
@@ -737,27 +725,26 @@ void GC_TurretGauss::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d 
 	world.CalcOutstrip(GetPos(), SPEED_GAUSS, target->GetPos(), target->_lv, fake);
 }
 
-void GC_TurretGauss::Fire(World &world)
-{
-	if( 0 == _shotCount )
-	{
-		_time = 0;
-	}
-
-	if( _time >= (float) _shotCount * 0.2f )
-	{
-		Shoot(world);
-		if( ++_shotCount == 2 )
-		{
-			TargetLost();
-			WakeDown(world);
-		}
-	}
-}
-
 void GC_TurretGauss::TimeStep(World &world, float dt)
 {
 	GC_TurretBunker::TimeStep(world, dt);
+	if (GetFire())
+	{
+		if( 0 == _shotCount )
+		{
+			_time = 0;
+		}
+		
+		if( _time >= (float) _shotCount * 0.2f )
+		{
+			Shoot(world);
+			if( ++_shotCount == 2 )
+			{
+				TargetLost();
+				WakeDown(world);
+			}
+		}
+	}
 	_time += dt;
 }
 

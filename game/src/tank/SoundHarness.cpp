@@ -90,12 +90,27 @@ void SoundHarness::Step()
 		}
 	}
 
-	for (auto &turretSound: _turrets)
+	for (auto &p: _turretFire)
 	{
-		const GC_Turret &turret = *turretSound.first;
-		Sound &sound = *turretSound.second;
+		const GC_Turret &turret = *p.first;
+		Sound &sound = *p.second;
+		
+		if (turret.GetFire())
+		{
+			sound.SetPos(turret.GetPos());
+			sound.SetPlaying(true);
+		}
+		else
+		{
+			sound.SetPlaying(false);
+		}
+	}
+	for (auto &p: _turretRotate)
+	{
+		const GC_Turret &turret = *p.first;
+		Sound &sound = *p.second;
 		assert(turret.GetRotationState() != RS_STOPPED);
-	
+		
 		float absRate = fabsf(turret.GetRotationRate());
 		sound.SetVolume(absRate);
 		sound.SetPitch(0.5f + 0.5f * absRate);
@@ -288,6 +303,19 @@ void SoundHarness::OnShoot(GC_Turret &obj)
 		_soundRender->PlayOnce(SND_Bolt, obj.GetPos());
 }
 
+void SoundHarness::OnFireStateChange(GC_Turret &obj)
+{
+	if (obj.GetFire())
+	{
+		if (GC_TurretMinigun::GetTypeStatic() == obj.GetType())
+			_turretFire.emplace(static_cast<const GC_Turret*>(&obj), _soundRender->CreateLopped(SND_MinigunFire));
+	}
+	else
+	{
+		_turretFire.erase(&obj);
+	}
+}
+
 void SoundHarness::OnStateChange(GC_Turret &turret)
 {
 	switch (turret.GetState())
@@ -308,16 +336,16 @@ void SoundHarness::OnStateChange(GC_Turret &turret)
 
 void SoundHarness::OnRotationStateChange(GC_Turret &turret)
 {
-	auto existing = _turrets.find(&turret);
-	if (_turrets.end() != existing)
+	auto existing = _turretRotate.find(&turret);
+	if (_turretRotate.end() != existing)
 	{
 		if (turret.GetRotationState() == RS_STOPPED)
-			_turrets.erase(existing);
+			_turretRotate.erase(existing);
 	}
 	else
 	{
 		if (turret.GetRotationState() != RS_STOPPED)
-			_turrets.emplace(&turret, _soundRender->CreateLopped(SND_TowerRotate));
+			_turretRotate.emplace(&turret, _soundRender->CreateLopped(SND_TowerRotate));
 	}
 }
 

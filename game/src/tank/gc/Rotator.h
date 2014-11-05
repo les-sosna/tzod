@@ -50,7 +50,7 @@ public:
 	void rotate_to(float angle);
 	void rotate_left();
 	void rotate_right();
-	void stop();
+	void stop(bool immediately);
 
 	// load/store the rotator state
 	void Serialize(SaveFile &f);

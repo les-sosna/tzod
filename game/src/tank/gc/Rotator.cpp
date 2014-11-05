@@ -63,11 +63,14 @@ void Rotator::rotate_right()
 	_state = RS_RIGHT;
 }
 
-void Rotator::stop()
+void Rotator::stop(bool immediately)
 {
 	assert(_accel_stop > 0);
-
-	if( RS_STOPPED != _state )
+	if (immediately)
+	{
+		_state = RS_STOPPED;
+	}
+	else if( RS_STOPPED != _state )
 	{
 		_state = RS_DEACTIVATED;
 	}

@@ -18,6 +18,9 @@ enum TurretState
 	TS_PREPARE_TO_WAKEDOWN
 };
 
+#define GC_FLAG_TURRET_FIRE         (GC_FLAG_RBSTATIC_ << 0)
+#define GC_FLAG_TURRET_             (GC_FLAG_RBSTATIC_ << 1)
+
 class GC_Turret : public GC_RigidBodyStatic
 {
     DECLARE_LIST_MEMBER();
@@ -30,17 +33,18 @@ protected:
 protected:
 	virtual void ProcessState(World &world, float dt);
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
-	virtual void Fire(World &world) = 0;
 	bool IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
 	virtual void TargetLost();
 	GC_Vehicle* EnumTargets(World &world);
 	void SelectTarget(World &world, GC_Vehicle *target);
+	void SetFire(World &world, bool fire);
 
 public:
 	GC_Turret(vec2d pos, TurretState state);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
 	
+	bool GetFire() const { return CheckFlags(GC_FLAG_TURRET_FIRE); }
 	RotatorState GetRotationState() const { return _rotator.GetState(); }
 	float GetRotationRate() const { return _rotator.GetVelocity() / _rotator.GetMaxVelocity(); }
 	float GetWeaponDir() const { return _dir; }
@@ -54,6 +58,7 @@ public:
 	virtual void OnDestroy(World &world, GC_Player *by) override;
 	
 	// GC_Object
+	virtual void Kill(World &world) override;
 	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
@@ -101,7 +106,6 @@ public:
 
 	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire(World &world);
 
 	// GC_RigidBodyStatic
 	virtual float GetDefaultHealth() const { return 500; }
@@ -131,7 +135,6 @@ public:
 
 	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire(World &world);
 
 	// GC_RigidBodyStatic
 	virtual float GetDefaultHealth() const { return 600; }
@@ -191,8 +194,6 @@ protected:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Sound;
-
 class GC_TurretMinigun : public GC_TurretBunker
 {
 	DECLARE_SELF_REGISTRATION(GC_TurretMinigun);
@@ -204,15 +205,12 @@ public:
 
 	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire(World &world);
 	virtual unsigned char GetPassability() const { return 1; }
 	
 	// GC_RigidBodyStatic
 	virtual float GetDefaultHealth() const { return 250; }
     
 	// GC_Object
-	virtual void Init(World &world);
-	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
 
@@ -220,9 +218,7 @@ protected:
 	virtual void OnShoot(World &world) override;
 
 private:
-	ObjPtr<GC_Sound> _fireSound;
 	float _time;
-	bool  _firing;
 };
 
 /////////////////////////////////////////////////////////////
@@ -238,7 +234,6 @@ public:
 
 	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual void Fire(World &world);
 	virtual void TargetLost();
 
 	// GC_RigidBodyStatic

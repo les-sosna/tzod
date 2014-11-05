@@ -28,11 +28,12 @@ public:
 private:
 	World &_world;
 	std::unique_ptr<SoundRender> _soundRender;
-	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
-	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
 	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
-	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turrets;
+	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretFire;
+	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretRotate;
 	std::unordered_map<const GC_Vehicle*, std::unique_ptr<Sound>> _vehicleMove;
+	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
+	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
@@ -61,6 +62,7 @@ private:
 	virtual void OnShoot(GC_Turret &obj) override;
 	virtual void OnStateChange(GC_Turret &obj) override;
 	virtual void OnRotationStateChange(GC_Turret &obj) override;
+	virtual void OnFireStateChange(GC_Turret &obj) override;
 
 	// ObjectListener<GC_Vehicle>
 	virtual void OnLight(GC_Vehicle &obj) override;

@@ -133,7 +133,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 		else if( vs._bState_TowerRight )
 			_rotatorWeap.rotate_right();
 		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
-			_rotatorWeap.stop();
+			_rotatorWeap.stop(false);
 	}
 
 	vec2d a(_angle);
