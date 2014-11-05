@@ -13,7 +13,6 @@
 #include "Particles.h"
 #include "Pickup.h"
 #include "Light.h"
-#include "Sound.h"
 #include "Player.h"
 #include "Turrets.h"
 #include "Weapons.h"
@@ -22,12 +21,6 @@
 
 #include "config/Language.h"
 #include "core/Debug.h"
-
-void GC_Vehicle::SetMoveSound(World &world, enumSoundTemplate s)
-{
-	_moveSound = &world.New<GC_Sound>(GetPos(), s);
-    _moveSound->SetMode(world, SMODE_LOOP);
-}
 
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
@@ -130,7 +123,6 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_light_ambient);
 	f.Serialize(_light1);
 	f.Serialize(_light2);
-	f.Serialize(_moveSound);
 }
 
 void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
@@ -216,7 +208,6 @@ void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 
 void GC_Vehicle::Kill(World &world)
 {
-	SAFE_KILL(world, _moveSound);
 	SAFE_KILL(world, _light_ambient);
 	SAFE_KILL(world, _light1);
 	SAFE_KILL(world, _light2);
@@ -394,17 +385,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 
 	ObjPtr<GC_Vehicle> watch(this);
 
-	// move...
 
-	if( _moveSound )
-	{
-		_moveSound->MoveTo(world, GetPos());
-		float v = _lv.len() / GetMaxSpeed();
-		_moveSound->SetSpeed (std::min(1.0f, 0.5f + 0.5f * v));
-		_moveSound->SetVolume(std::min(1.0f, 0.1f + 0.9f * v));
-	}
-    
-    
 	//
 	// remember position
 	//
@@ -526,12 +507,6 @@ GC_Tank_Light::GC_Tank_Light(vec2d pos)
 GC_Tank_Light::GC_Tank_Light(FromFile)
   : GC_Vehicle(FromFile())
 {
-}
-
-void GC_Tank_Light::Init(World &world)
-{
-	GC_Vehicle::Init(world);
-	SetMoveSound(world, SND_TankMove);
 }
 
 void GC_Tank_Light::OnDestroy(World &world, GC_Player *by)

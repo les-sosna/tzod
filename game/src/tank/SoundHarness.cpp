@@ -39,12 +39,23 @@ SoundHarness::~SoundHarness()
 	_world.eGC_Pickup.RemoveListener(*this);
 }
 
+static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
+{
+	float v = vehicle._lv.len() / vehicle.GetMaxSpeed();
+	sound.SetPitch(std::min(1.0f, 0.5f + 0.5f * v));
+	sound.SetVolume(std::min(1.0f, 0.1f + 0.9f * v));
+	sound.SetPos(vehicle.GetPos());
+}
+
 void SoundHarness::Step()
 {
 	_soundRender->Step();
 	
 	for (auto &p: _attached)
 		p.second->SetPos(p.first->GetPos());
+	
+	for (auto &p: _vehicleMove)
+		SetupVehicleMoveSound(*p.first, *p.second);
 	
 	for (auto &weapSound: _weaponRotate)
 	{
@@ -93,10 +104,11 @@ void SoundHarness::Step()
 	}
 }
 
-static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, enumSoundTemplate st, vec2d pos)
+template <class F>
+static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, enumSoundTemplate st, F &&setup)
 {
 	std::unique_ptr<Sound> sound = sr.CreateLopped(st);
-	sound->SetPos(pos);
+	setup(*sound);
 	sound->SetPlaying(true);
 	return std::move(sound);
 }
@@ -118,7 +130,7 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	{
 		if (vehicle.GetWeapon())
 		{
-			_attached.emplace(&obj, CreatePlayingLooped(*_soundRender, SND_B_Loop, obj.GetPos()));
+			_attached.emplace(&obj, CreatePlayingLooped(*_soundRender, SND_B_Loop, [&](Sound &s){ s.SetPos(obj.GetPos()); }));
 			_soundRender->PlayOnce(SND_B_Start, obj.GetPos());
 		}
 	}
@@ -325,6 +337,8 @@ void SoundHarness::OnKill(GC_Object &obj)
 	ObjectType type = obj.GetType();
 	if (GC_Rocket::GetTypeStatic() == type)
 		_attached.erase(static_cast<GC_Rocket*>(&obj));
+	else if (GC_Tank_Light::GetTypeStatic() == type)
+		_vehicleMove.erase(static_cast<const GC_Vehicle*>(&obj));
 }
 
 void SoundHarness::OnNewObject(GC_Object &obj)
@@ -335,6 +349,11 @@ void SoundHarness::OnNewObject(GC_Object &obj)
 	else if (GC_ExplosionStandard::GetTypeStatic() == type)
 		_soundRender->PlayOnce(SND_BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
 	else if (GC_Rocket::GetTypeStatic() == type)
-		_attached.emplace(static_cast<GC_Actor*>(&obj),
-						  CreatePlayingLooped(*_soundRender, SND_RocketFly, static_cast<const GC_Actor &>(obj).GetPos()));
+		_attached.emplace(static_cast<const GC_Actor*>(&obj),
+			CreatePlayingLooped(*_soundRender, SND_RocketFly,
+								[&](Sound &s){ s.SetPos(static_cast<const GC_Actor &>(obj).GetPos()); }));
+	else if (GC_Tank_Light::GetTypeStatic() == type)
+		_vehicleMove.emplace(static_cast<const GC_Vehicle*>(&obj),
+							 CreatePlayingLooped(*_soundRender, SND_TankMove,
+												 [&](Sound &s){ SetupVehicleMoveSound(static_cast<const GC_Vehicle &>(obj), s); }));
 }

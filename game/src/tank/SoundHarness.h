@@ -32,6 +32,7 @@ private:
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
 	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turrets;
+	std::unordered_map<const GC_Vehicle*, std::unique_ptr<Sound>> _vehicleMove;
 	
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;

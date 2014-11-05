@@ -45,18 +45,14 @@ public:
 	float GetMaxSpeed() const;
 	float GetMaxBrakingLength() const;
 
-	void SetMoveSound(World &world, enumSoundTemplate s);
-
 	GC_Weapon* GetWeapon() const { return _weapon; }
 	void SetPlayer(World &world, GC_Player *player);
 	void SetWeapon(World &world, GC_Weapon *weapon);
 
 public:
-	ObjPtr<GC_Sound>    _moveSound;
-    
-	ObjPtr<GC_Light>    _light_ambient;
-	ObjPtr<GC_Light>    _light1;
-	ObjPtr<GC_Light>    _light2;
+	ObjPtr<GC_Light> _light_ambient;
+	ObjPtr<GC_Light> _light1;
+	ObjPtr<GC_Light> _light2;
     
 	float _trackPathL;
 	float _trackPathR;
@@ -112,9 +108,6 @@ public:
 
 	virtual float GetDefaultHealth() const { return 100; }
 	virtual void OnDestroy(World &world, GC_Player *by) override;
-
-	// GC_Object
-	virtual void Init(World &world);
 };
 
 // end of file
