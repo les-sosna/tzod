@@ -17,7 +17,7 @@
 
 /////////////////////////////////////////////////////////////
 
-int GC_Sound::_countMax;
+int GC_Sound::_countMax = 16;
 int GC_Sound::_countActive  = 0;
 int GC_Sound::_countWaiting = 0;
 

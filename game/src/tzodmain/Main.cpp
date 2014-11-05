@@ -24,7 +24,6 @@
 //#include <network/Variant.h>
 //#include <network/TankClient.h>
 
-#include <gc/Sound.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gclua/lgcmod.h>
@@ -182,8 +181,6 @@ int main(int, const char**)
         }
         setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
         
-        
-        GC_Sound::_countMax = g_conf.s_maxchanels.GetInt();
 
         TRACE("Create GL context");
 		GlfwAppWindow appWindow(TXT_VERSION, g_conf.r_fullscreen.Get(), g_conf.r_width.GetInt(), g_conf.r_height.GetInt());
