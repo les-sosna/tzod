@@ -1,8 +1,6 @@
-// SoundTemplates.h
-
 #pragma once
 
-enum enumSoundTemplate
+enum SoundTemplate
 {
 	SND_BoomStandard,
 	SND_BoomBig,
@@ -54,10 +52,5 @@ enum enumSoundTemplate
 	SND_Impact2,
 	SND_Slide1,
 
-	//--------------------------
-	SND_COUNT, // sound count
-	SND_FORCE_DWORD = 0x7FFFFFFF
+	SND_COUNT,
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

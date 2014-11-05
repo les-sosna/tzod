@@ -1,8 +1,13 @@
 #pragma once
+#include "AudioContext.h"
 #include "SoundTemplates.h"
 #include <math/MyMath.h>
 #include <al.h>
 #include <vector>
+
+namespace FS {
+	class FileSystem;
+}
 
 struct Sound
 {
@@ -16,14 +21,17 @@ struct Sound
 class SoundRender
 {
 public:
-	SoundRender();
+	explicit SoundRender(FS::FileSystem &fs);
 	~SoundRender();
 	
-	std::unique_ptr<Sound> CreateLopped(enumSoundTemplate sound);
+	std::unique_ptr<Sound> CreateLopped(SoundTemplate sound);
 	
-	void PlayOnce(enumSoundTemplate sound, vec2d pos);
+	void PlayOnce(SoundTemplate sound, vec2d pos);
 	void Step();
 	
 private:
+	OALInitHelper _initHelper;
 	std::vector<ALuint> _sources;
+	std::vector<ALuint> _buffers;
+	void LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName);
 };

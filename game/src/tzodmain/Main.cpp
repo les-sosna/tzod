@@ -18,7 +18,6 @@
 #ifndef NOSOUND
 #include <SoundHarness.h>
 #include <sound/MusicPlayer.h>
-#include <sound/sfx.h>
 #endif
 
 //#include <network/Variant.h>
@@ -117,6 +116,16 @@ namespace
 	};
 }
 
+// recursively print exception whats:
+static void print_what(const std::exception& e, std::string prefix = std::string())
+{
+	GetConsole().Format(SEVERITY_ERROR) << prefix << e.what();
+	try {
+		std::rethrow_if_nested(e);
+	} catch (const std::exception& nested) {
+		print_what(nested, prefix + "> ");
+	}
+}
 
 //static long xxx = _CrtSetBreakAlloc(12649);
 
@@ -207,12 +216,7 @@ int main(int, const char**)
 								exitCommand);
 		WorldController worldController(gameContext.GetWorld());
 		AIManager aiManager(gameContext.GetWorld());
-			
-#ifndef NOSOUND
-		InitSound(fs->GetFileSystem(DIR_SOUND).get(), true);
-		{ // FIXME: remove explicit SoundHarness scope
-		SoundHarness soundHarness(gameContext.GetWorld());
-#endif
+		SoundHarness soundHarness(*fs->GetFileSystem(DIR_SOUND), gameContext.GetWorld());
 
         g_env.L = gameContext.GetScriptHarness().GetLuaState();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
@@ -287,14 +291,7 @@ int main(int, const char**)
             glfwSwapBuffers(&appWindow.GetGlfwWindow());
         }
         
-        
 		g_env.L = NULL;
-#ifndef NOSOUND
-		TRACE("Shutting down game context");
-        } // FIXME: remove explicit SoundHarness scope
-        
-        FreeSound();
-#endif
 
         TRACE("Saving config to '" FILE_CONFIG "'");
         if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
@@ -306,7 +303,7 @@ int main(int, const char**)
 	}
 	catch( const std::exception &e )
 	{
-		GetConsole().Format(SEVERITY_ERROR) << "Error:\n" << e.what();
+		print_what(e);
 #ifdef _WIN32
 		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
 #endif

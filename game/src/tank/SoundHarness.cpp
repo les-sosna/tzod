@@ -11,9 +11,9 @@
 #include "gc/World.h"
 
 
-SoundHarness::SoundHarness(World &world)
+SoundHarness::SoundHarness(FS::FileSystem &fs, World &world)
 	: _world(world)
-	, _soundRender(new SoundRender())
+	, _soundRender(new SoundRender(fs))
 {
 	_world.eGC_Pickup.AddListener(*this);
 	_world.eGC_Projectile.AddListener(*this);
@@ -120,7 +120,7 @@ void SoundHarness::Step()
 }
 
 template <class F>
-static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, enumSoundTemplate st, F &&setup)
+static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, SoundTemplate st, F &&setup)
 {
 	std::unique_ptr<Sound> sound = sr.CreateLopped(st);
 	setup(*sound);
@@ -131,7 +131,7 @@ static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, enumSoundTemp
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	ObjectType type = obj.GetType();
-	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
 		{GC_pu_Health::GetTypeStatic(), SND_Pickup},
 		{GC_pu_Shield::GetTypeStatic(), SND_Inv},
 		{GC_pu_Shock::GetTypeStatic(), SND_ShockActivate},
@@ -188,7 +188,7 @@ void SoundHarness::OnDisappear(GC_Pickup &obj)
 
 void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit)
 {
-	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
 		{GC_TankBullet::GetTypeStatic(), SND_BoomBullet},
 		{GC_PlazmaClod::GetTypeStatic(), SND_PlazmaHit},
 		{GC_BfgCore::GetTypeStatic(), SND_BfgFlash},
@@ -217,7 +217,7 @@ void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d h
 
 void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
 {
-	static std::unordered_map<ObjectType, enumSoundTemplate> sounds = {
+	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
 		{GC_Weap_AutoCannon::GetTypeStatic(), SND_ACShoot},
 		{GC_Weap_Cannon::GetTypeStatic(), SND_Shoot},
 		{GC_Weap_Gauss::GetTypeStatic(), SND_Bolt},

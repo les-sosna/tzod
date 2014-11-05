@@ -149,10 +149,10 @@ if(${OPENAL_FOUND})
 	list(APPEND tank_LIBRARIES ${OPENAL_LIBRARY})
 	list(APPEND tank_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
 	list(APPEND tank_SOURCES
+		AudioContext.cpp
 		SoundHarness.cpp
 		SoundRender.cpp
 		sound/MusicPlayer.cpp
-		sound/sfx.cpp
 	)
 else()
 	add_definitions(-DNOSOUND)

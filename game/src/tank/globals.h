@@ -1,9 +1,4 @@
-// globals.h
-
 #pragma once
-
-#include "SoundTemplates.h" // FIXME!
-extern unsigned int g_sounds[SND_COUNT];
 
 struct lua_State;
 struct ENVIRONMENT
