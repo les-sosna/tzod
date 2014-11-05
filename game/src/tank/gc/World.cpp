@@ -5,7 +5,6 @@
 #include "WorldEvents.h"
 #include "RigidBodyDinamic.h"
 #include "Player.h"
-#include "Sound.h"
 #include "Macros.h"
 
 #include "MapFile.h"
@@ -54,9 +53,6 @@ World::World()
 #endif
 {
 	TRACE("Constructing the world");
-
-	// register config handlers
-	g_conf.s_volume.eventChange = std::bind(&World::OnChangeSoundVolume, this);
 }
 
 bool World::IsEmpty() const
@@ -339,14 +335,6 @@ void World::Export(std::shared_ptr<FS::Stream> s)
 	}
 }
 
-void World::PauseSound(bool pause)
-{
-	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
-	{
-		pSound->Freeze(pause);
-	}
-}
-
 int World::net_rand()
 {
 	return ((_seed = _seed * 214013L + 2531011L) >> 16) & NET_RAND_MAX;
@@ -530,10 +518,6 @@ void World::Step(float dt)
 		HitLimit();
 	}
 
-	GetList(LIST_sounds).for_each([=](ObjectList::id_type id, GC_Object *o) {
-		static_cast<GC_Sound *>(o)->KillWhenFinished(*this);
-	});
-
 
 	//
 	// sync lost error detection
@@ -569,14 +553,6 @@ GC_Object* World::FindObject(const std::string &name) const
 {
 	std::map<std::string, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
 	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;
-}
-
-void World::OnChangeSoundVolume()
-{
-	FOREACH( GetList(LIST_sounds), GC_Sound, pSound )
-	{
-		pSound->UpdateVolume();
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

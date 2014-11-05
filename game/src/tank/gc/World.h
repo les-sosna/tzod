@@ -195,7 +195,6 @@ public:
 	void Export(std::shared_ptr<FS::Stream> file);
 	void Import(std::shared_ptr<FS::Stream> file, const ThemeManager &themeManager, TextureManager &tm);
 
-	void PauseSound(bool pause);
 	void Freeze(bool freeze) { _frozen = freeze; }
 
 	bool IsSafeMode() const { return _safeMode; }
@@ -280,8 +279,6 @@ private:
 #endif
     };
 	std::priority_queue<Resumable> _resumables;
-
-	void OnChangeSoundVolume();
 };
 
 // end of file

@@ -1,12 +1,10 @@
 #pragma once
 #include "RigidBodyDinamic.h"
 #include "VehicleState.h"
-#include "SoundTemplates.h"
 
 class GC_Player;
 class GC_Weapon;
 class GC_DamLabel;
-class GC_Sound;
 class GC_Light;
 class GC_pu_Shield;
 struct VehicleClass;

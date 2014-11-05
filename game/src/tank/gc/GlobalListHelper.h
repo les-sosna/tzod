@@ -12,7 +12,6 @@ enum GlobalListID
 	LIST_services,
 	LIST_respawns,
 	LIST_players,
-	LIST_sounds,
 	LIST_indicators,
 	LIST_vehicles,
 	LIST_pickups,

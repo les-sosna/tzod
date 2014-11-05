@@ -173,7 +173,6 @@ static int game_save(lua_State *L)
 	if( !se.world.IsSafeMode() )
 		return luaL_error(L, "attempt to execute 'save' in unsafe mode");
 
-	se.world.PauseSound(true);
 	try
 	{
 		TRACE("Saving game to file '%S'...", filename);
@@ -184,10 +183,8 @@ static int game_save(lua_State *L)
 	}
 	catch( const std::exception &e )
 	{
-		se.world.PauseSound(false);
 		return luaL_error(L, "couldn't save game to '%s' - %s", filename, e.what());
 	}
-	se.world.PauseSound(false);
 	GetConsole().Printf(0, "game saved: '%s'", filename);
 	return 0;
 }

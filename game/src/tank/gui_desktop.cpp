@@ -144,7 +144,6 @@ void Desktop::SetEditorMode(bool editorMode)
 {
 	_editor->SetVisible(editorMode);
     _game->SetVisible(!editorMode);
-    _world.PauseSound(IsGamePaused());
 	if( editorMode && !_con->GetVisible() )
 	{
 		GetManager().SetFocusWnd(_editor);
@@ -163,9 +162,8 @@ void Desktop::ShowConsole(bool show)
 
 void Desktop::OnCloseChild(int result)
 {
-	SetDrawBackground(false);
     _nModalPopups--;
-    _world.PauseSound(IsGamePaused());
+	SetDrawBackground(_nModalPopups > 0);
 }
 
 bool Desktop::OnRawChar(int c)
