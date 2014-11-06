@@ -30,6 +30,7 @@ set(tank_SOURCES
 	BackgroundIntro.cpp
 	ClientBase.cpp
 	Controller.cpp
+	Deathmatch.cpp
 	DefaultCamera.cpp
 	GameContext.cpp
 	GlfwPlatform.cpp

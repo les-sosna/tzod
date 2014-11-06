@@ -55,7 +55,7 @@ public:
     virtual void SetInitialDir(float initialDir);
 
 	// GC_RigidBodyStatic
-	virtual void OnDestroy(World &world, GC_Player *by) override;
+	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
 	
 	// GC_Object
 	virtual void Kill(World &world) override;

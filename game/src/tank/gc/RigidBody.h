@@ -79,7 +79,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
-	virtual void OnDestroy(World &world, GC_Player *by);
+	virtual void OnDestroy(World &world, const DamageDesc &dd);
 	virtual void OnDamage(World &world, DamageDesc &damageDesc);
 
 private:
@@ -162,7 +162,7 @@ protected:
 	};
 	virtual PropertySet* NewPropertySet();
 	
-	virtual void OnDestroy(World &world, GC_Player *by) override;
+	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
 

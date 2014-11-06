@@ -4,8 +4,8 @@ GameContext::GameContext(FS::FileSystem &fs,
 						 ThemeManager &themeManager,
 						 TextureManager &textureManager,
 						 std::function<void()> exitCommand)
-	                   // msvc workaround
-	: _scriptEnvironment(ScriptEnvironment{ _world, fs, themeManager, textureManager, std::move(exitCommand) })
+	: _deathmatch(_world)
+	, _scriptEnvironment(ScriptEnvironment{ _world, fs, themeManager, textureManager, std::move(exitCommand) }) // msvc workaround
 	, _scriptHarness(_world, _scriptEnvironment)
 {
 }

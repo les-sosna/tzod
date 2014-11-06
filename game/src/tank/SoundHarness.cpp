@@ -249,7 +249,7 @@ void SoundHarness::OnExpiring(GC_pu_Shield &obj)
 	_soundRender->PlayOnce(SND_InvEnd, obj.GetPos());
 }
 
-void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
+void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	ObjectType type = obj.GetType();
 	if (GC_Crate::GetTypeStatic() == type)
@@ -258,9 +258,9 @@ void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj)
 		_soundRender->PlayOnce(SND_WallDestroy, obj.GetPos());
 }
 
-void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from)
+void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
-	if (damage >= DAMAGE_BULLET)
+	if (dd.damage >= DAMAGE_BULLET)
 	{
 		auto turret = dynamic_cast<GC_TurretBunker*>(&obj);
 		if (GC_Wall_Concrete::GetTypeStatic() == obj.GetType() ||

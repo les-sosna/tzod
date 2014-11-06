@@ -56,8 +56,8 @@ private:
 	virtual void OnExpiring(GC_pu_Shield &obj) override;
 	
 	// ObjectListener<GC_RigidBodyStatic>
-	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
-	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) override;
+	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
+	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
 	
 	// ObjectListener<GC_RigidBodyDynamic>
 	virtual void OnContact(vec2d pos, float np, float tp) override;

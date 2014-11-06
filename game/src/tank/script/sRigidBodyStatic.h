@@ -15,6 +15,6 @@ private:
 	lua_State *_L;
 	
 	// ObjectListener<GC_RigidBodyStatic>
-	virtual void OnDestroy(GC_RigidBodyStatic &obj) override;
-	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) override;
+	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
+	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
 };

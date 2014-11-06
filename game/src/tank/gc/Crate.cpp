@@ -32,12 +32,12 @@ GC_Crate::~GC_Crate()
 {
 }
 
-void GC_Crate::OnDestroy(World &world, GC_Player *by)
+void GC_Crate::OnDestroy(World &world, const DamageDesc &dd)
 {
 	for( int n = 0; n < 5; ++n )
 	{
 		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d(frand(100.0f) - 50, -frand(100.0f)));
 	}
 
-	GC_RigidBodyDynamic::OnDestroy(world, by);
+	GC_RigidBodyDynamic::OnDestroy(world, dd);
 }

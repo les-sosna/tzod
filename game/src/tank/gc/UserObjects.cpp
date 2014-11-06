@@ -43,10 +43,10 @@ void GC_UserObject::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zOrder);
 }
 
-void GC_UserObject::OnDestroy(World &world, GC_Player *by)
+void GC_UserObject::OnDestroy(World &world, const DamageDesc &dd)
 {
 	world.New<GC_ExplosionBig>(GetPos());
-	GC_RigidBodyStatic::OnDestroy(world, by);
+	GC_RigidBodyStatic::OnDestroy(world, dd);
 }
 
 void GC_UserObject::MapExchange(MapFile &f)

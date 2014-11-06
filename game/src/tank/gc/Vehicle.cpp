@@ -7,20 +7,15 @@
 #include "WorldEvents.h"
 #include "Macros.h"
 
-#include "GameClasses.h"
 #include "Camera.h"
 #include "Explosion.h"
 #include "Particles.h"
 #include "Pickup.h"
 #include "Light.h"
 #include "Player.h"
-#include "Turrets.h"
 #include "Weapons.h"
 
 #include "SaveFile.h"
-
-#include "config/Language.h"
-#include "core/Debug.h"
 
 IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
 
@@ -287,66 +282,6 @@ void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)
 	}
 }
 
-void GC_Vehicle::OnDestroy(World &world, GC_Player *by)
-{
-	char msg[256] = {0};
-	char score[8];
-	GC_Text::Style style = GC_Text::DEFAULT;
-	
-	if( by )
-	{
-		if( by == GetOwner() )
-		{
-			// killed him self
-			GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
-			style = GC_Text::SCORE_MINUS;
-			sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), GetOwner()->GetNick().c_str());
-		}
-		else if( GetOwner() )
-		{
-			if( 0 != GetOwner()->GetTeam() &&
-			   by->GetTeam() == GetOwner()->GetTeam() )
-			{
-				// 'from' killed his friend
-				by->SetScore(world, by->GetScore() - 1);
-				style = GC_Text::SCORE_MINUS;
-				sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
-						by->GetNick().c_str(),
-						GetOwner()->GetNick().c_str());
-			}
-			else
-			{
-				// 'from' killed his enemy
-				by->SetScore(world, by->GetScore() + 1);
-				style = GC_Text::SCORE_PLUS;
-				sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
-						by->GetNick().c_str(), GetOwner()->GetNick().c_str());
-			}
-		}
-		else
-		{
-			// this tank does not have player service. score up the killer
-			by->SetScore(world, by->GetScore() + 1);
-			style = GC_Text::SCORE_PLUS;
-		}
-		
-		if( by->GetVehicle() )
-		{
-			sprintf(score, "%d", by->GetScore());
-			world.New<GC_Text_ToolTip>(by->GetVehicle()->GetPos(), score, style);
-		}
-	}
-	else if( GetOwner() )
-	{
-		sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), GetOwner()->GetNick().c_str());
-		GetOwner()->SetScore(world, GetOwner()->GetScore() - 1);
-		sprintf(score, "%d", GetOwner()->GetScore());
-		world.New<GC_Text_ToolTip>(GetPos(), score, GC_Text::SCORE_MINUS);
-	}
-	world.GameMessage(msg);
-	GC_RigidBodyDynamic::OnDestroy(world, by);
-}
-
 void GC_Vehicle::TimeStep(World &world, float dt)
 {
 	std::vector<ObjectList*> receive;
@@ -509,10 +444,10 @@ GC_Tank_Light::GC_Tank_Light(FromFile)
 {
 }
 
-void GC_Tank_Light::OnDestroy(World &world, GC_Player *by)
+void GC_Tank_Light::OnDestroy(World &world, const DamageDesc &dd)
 {
 	world.New<GC_ExplosionBig>(GetPos());
-	GC_Vehicle::OnDestroy(world, by);
+	GC_Vehicle::OnDestroy(world, dd);
 }
 
 // end of file

@@ -135,10 +135,10 @@ bool GC_Turret::IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodySt
 	return true;
 }
 
-void GC_Turret::OnDestroy(World &world, GC_Player *by)
+void GC_Turret::OnDestroy(World &world, const DamageDesc &dd)
 {
 	world.New<GC_ExplosionBig>(GetPos());
-	GC_RigidBodyStatic::OnDestroy(world, by);
+	GC_RigidBodyStatic::OnDestroy(world, dd);
 }
 
 void GC_Turret::ProcessState(World &world, float dt)

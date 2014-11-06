@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Deathmatch.h"
 #include "script/ScriptHarness.h"
 #include "gc/World.h"
 #include "gclua/lgcmod.h"
@@ -26,6 +26,7 @@ public:
 
 private:
 	World _world;
+	Deathmatch _deathmatch;
 	ScriptEnvironment _scriptEnvironment;
 	ScriptHarness _scriptHarness;
 };

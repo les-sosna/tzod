@@ -25,7 +25,7 @@ sRigidBodyStatic::~sRigidBodyStatic()
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 }
 
-void sRigidBodyStatic::OnDestroy(GC_RigidBodyStatic &obj)
+void sRigidBodyStatic::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	if( !obj.GetOnDestroy().empty() )
 	{
@@ -33,11 +33,11 @@ void sRigidBodyStatic::OnDestroy(GC_RigidBodyStatic &obj)
 	}
 }
 
-void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from)
+void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	if( !obj.GetOnDamage().empty() )
 	{
-		if( from )
+		if( dd.from )
 		{
 			std::stringstream buf;
 			buf << "return function(who)";
@@ -58,7 +58,7 @@ void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player
 				}
 				else
 				{
-					luaT_pushobject(_L, from);
+					luaT_pushobject(_L, dd.from);
 					if( lua_pcall(_L, 1, 0, 0) )
 					{
 						GetConsole().WriteLine(1, lua_tostring(_L, -1));

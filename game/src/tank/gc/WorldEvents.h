@@ -56,8 +56,8 @@ class GC_Player;
 class GC_RigidBodyStatic;
 template<> struct ObjectListener<GC_RigidBodyStatic>
 {
-	virtual void OnDestroy(GC_RigidBodyStatic &obj) = 0;
-	virtual void OnDamage(GC_RigidBodyStatic &obj, float damage, GC_Player *from) = 0;
+	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) = 0;
+	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) = 0;
 };
 
 class GC_RigidBodyDynamic;

@@ -83,7 +83,6 @@ public:
 
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
-	virtual void OnDestroy(World &world, GC_Player *by) override;
 	
 private:
 	ObjPtr<GC_Weapon> _weapon;
@@ -105,7 +104,7 @@ public:
 	explicit GC_Tank_Light(FromFile);
 
 	virtual float GetDefaultHealth() const { return 100; }
-	virtual void OnDestroy(World &world, GC_Player *by) override;
+	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
 };
 
 // end of file

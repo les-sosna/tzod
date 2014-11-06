@@ -39,7 +39,7 @@ public:
 	virtual float GetDefaultHealth() const { return 500; }
 
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void OnDestroy(World &world, GC_Player *by);
+	virtual void OnDestroy(World &world, const DamageDesc &dd);
 
 	virtual void MapExchange(MapFile &f);
 };

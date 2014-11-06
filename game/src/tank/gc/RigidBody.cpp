@@ -310,11 +310,11 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 	_health_max = hp;
 }
 
-void GC_RigidBodyStatic::OnDestroy(World &world, GC_Player *by)
+void GC_RigidBodyStatic::OnDestroy(World &world, const DamageDesc &dd)
 {
 	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
-		ls->OnDestroy(*this);
+		ls->OnDestroy(*this, dd);
 }
 
 void GC_RigidBodyStatic::OnDamage(World &world, DamageDesc &dd)
@@ -331,7 +331,7 @@ void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 	ObjPtr<GC_Object> watch(this);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 	{
-		ls->OnDamage(*this, dd.damage, dd.from);
+		ls->OnDamage(*this, dd);
 		if( !watch )
 			return;
 	}
@@ -344,7 +344,7 @@ void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 		if( GetHealth() <= 0 )
 		{
 			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
-			OnDestroy(world, dd.from);
+			OnDestroy(world, dd);
 			Kill(world);
 		}
 	}
@@ -872,7 +872,7 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 	}
 }
 
-void GC_Wall::OnDestroy(World &world, GC_Player *by)
+void GC_Wall::OnDestroy(World &world, const DamageDesc &dd)
 {
 	for( int n = 0; n < 5; ++n )
 	{
@@ -880,7 +880,7 @@ void GC_Wall::OnDestroy(World &world, GC_Player *by)
 	}
 	world.New<GC_Particle>(GetPos(), SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
 
-	GC_RigidBodyStatic::OnDestroy(world, by);
+	GC_RigidBodyStatic::OnDestroy(world, dd);
 }
 
 void GC_Wall::OnDamage(World &world, DamageDesc &dd)
