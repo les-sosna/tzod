@@ -11,7 +11,6 @@
 
 #include "SaveFile.h"
 
-#include "config/Config.h"
 
 IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 

@@ -2,7 +2,6 @@
 
 #include "GameClasses.h"
 
-#include "Macros.h"
 #include "Player.h"
 #include "RigidBody.h"
 #include "World.h"
@@ -10,12 +9,6 @@
 #include "constants.h"
 #include "SaveFile.h"
 #include "MapFile.h"
-
-#include "core/Debug.h"
-#include "config/Config.h"
-
-#include <video/RenderBase.h>
-
 
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wood)
