@@ -70,7 +70,7 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	if( g_conf.sv_timelimit.GetFloat() )
 	{
 		std::ostringstream text;
-		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - _world._time);
+		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - _world.GetTime());
 		if( timeleft > 0 )
 			text << g_lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else

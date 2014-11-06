@@ -146,7 +146,6 @@ public:
 
 /////////////////////////////////////
 public:
-	float _time;
 
 	void Step(float dt);
 
@@ -279,6 +278,7 @@ private:
 #endif
     };
 	std::priority_queue<Resumable> _resumables;
+	float _time;
 };
 
 // end of file
