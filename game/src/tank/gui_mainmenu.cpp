@@ -172,6 +172,10 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 			TRACE("Loading saved game from file '%s'...", tmp.c_str());
 			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
 
+			_world.Clear();
+			// cancel any pending commands
+			ClearCommandQueue(g_env.L);
+
 			// TODO: do full game context serialization
 			_world.Unserialize(stream, _themeManager, GetManager().GetTextureManager());
 		}
