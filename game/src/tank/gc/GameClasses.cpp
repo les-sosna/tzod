@@ -213,7 +213,6 @@ GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, std::string text, Style style)
   : GC_Text(pos, std::move(text), alignTextCC)
   , _time(0)
 {
-	SetText(text);
 	SetStyle(style);
 }
 
