@@ -45,7 +45,7 @@ class World;
 
 class PropertySet
 {
-	GC_Object       *_object;
+	GC_Object       &_object;
 	ObjectProperty   _propName;
 
 protected:
@@ -54,9 +54,7 @@ protected:
 public:
 	PropertySet(GC_Object *object);
 
-	GC_Object* GetObject() const;
-	void LoadFromConfig();
-	void SaveToConfig();
+	GC_Object* GetObject() const { return &_object; }
 	void Exchange(World &world, bool applyToObject);
 
 	virtual int GetCount() const;

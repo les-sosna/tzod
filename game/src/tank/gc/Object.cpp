@@ -7,86 +7,18 @@
 #include "MapFile.h"
 #include "SaveFile.h"
 
-#include "config/Config.h"
 #include "core/Debug.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// PropertySet class implementation
 
 PropertySet::PropertySet(GC_Object *object)
-  : _object(object),
+  : _object(*object),
   _propName(ObjectProperty::TYPE_STRING, "name")
 {
 }
 
-void PropertySet::LoadFromConfig()
-{
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(_object->GetType()));
-	for( int i = 0; i < GetCount(); ++i )
-	{
-		ObjectProperty *prop = GetProperty(i);
-		switch( prop->GetType() )
-		{
-		case ObjectProperty::TYPE_INTEGER:
-            prop->SetIntValue(std::min(prop->GetIntMax(),
-                                       std::max(prop->GetIntMin(),
-                                                op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt())));
-			break;
-		case ObjectProperty::TYPE_FLOAT:
-            prop->SetFloatValue(std::min(prop->GetFloatMax(),
-                                         std::max(prop->GetFloatMin(),
-                                                  op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat())));
-			break;
-		case ObjectProperty::TYPE_STRING:
-		case ObjectProperty::TYPE_SKIN:
-		case ObjectProperty::TYPE_TEXTURE:
-			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
-			break;
-		case ObjectProperty::TYPE_MULTISTRING:
-            prop->SetCurrentIndex(std::min((int) prop->GetListSize() - 1,
-                                           std::max(0, op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt())));
-			break;
-		default:
-			assert(false);
-		} // end of switch( prop->GetType() )
-	}
-}
-
-void PropertySet::SaveToConfig()
-{
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(_object->GetType()));
-	for( int i = 0; i < GetCount(); ++i )
-	{
-		ObjectProperty *prop = GetProperty(i);
-		switch( prop->GetType() )
-		{
-		case ObjectProperty::TYPE_INTEGER:
-			op->SetNum(prop->GetName(), prop->GetIntValue());
-			break;
-		case ObjectProperty::TYPE_FLOAT:
-			op->SetNum(prop->GetName(), prop->GetFloatValue());
-			break;
-		case ObjectProperty::TYPE_STRING:
-		case ObjectProperty::TYPE_SKIN:
-		case ObjectProperty::TYPE_TEXTURE:
-			op->SetStr(prop->GetName(), prop->GetStringValue());
-			break;
-		case ObjectProperty::TYPE_MULTISTRING:
-			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
-			break;
-		default:
-			assert(false);
-		} // end of switch( prop->GetType() )
-	}}
-
 int PropertySet::GetCount() const
 {
 	return 1;  // name
-}
-
-GC_Object* PropertySet::GetObject() const
-{
-	return _object;
 }
 
 ObjectProperty* PropertySet::GetProperty(int index)

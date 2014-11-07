@@ -87,6 +87,69 @@ void NewMapDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
+	
+///////////////////////////////////////////////////////////////////////////////
+	
+static void LoadFromConfig(PropertySet &ps)
+{
+	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	for( int i = 0; i < ps.GetCount(); ++i )
+	{
+		ObjectProperty *prop = ps.GetProperty(i);
+		switch( prop->GetType() )
+		{
+		case ObjectProperty::TYPE_INTEGER:
+            prop->SetIntValue(std::min(prop->GetIntMax(),
+                                       std::max(prop->GetIntMin(),
+                                                op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt())));
+			break;
+		case ObjectProperty::TYPE_FLOAT:
+            prop->SetFloatValue(std::min(prop->GetFloatMax(),
+                                         std::max(prop->GetFloatMin(),
+                                                  op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat())));
+			break;
+		case ObjectProperty::TYPE_STRING:
+		case ObjectProperty::TYPE_SKIN:
+		case ObjectProperty::TYPE_TEXTURE:
+			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
+			break;
+		case ObjectProperty::TYPE_MULTISTRING:
+            prop->SetCurrentIndex(std::min((int) prop->GetListSize() - 1,
+                                           std::max(0, op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt())));
+			break;
+		default:
+			assert(false);
+		}
+	}
+}
+
+static void SaveToConfig(const PropertySet &ps)
+{
+	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	for( int i = 0; i < ps.GetCount(); ++i )
+	{
+		const ObjectProperty *prop = const_cast<PropertySet&>(ps).GetProperty(i);
+		switch( prop->GetType() )
+		{
+		case ObjectProperty::TYPE_INTEGER:
+			op->SetNum(prop->GetName(), prop->GetIntValue());
+			break;
+		case ObjectProperty::TYPE_FLOAT:
+			op->SetNum(prop->GetName(), prop->GetFloatValue());
+			break;
+		case ObjectProperty::TYPE_STRING:
+		case ObjectProperty::TYPE_SKIN:
+		case ObjectProperty::TYPE_TEXTURE:
+			op->SetStr(prop->GetName(), prop->GetStringValue());
+			break;
+		case ObjectProperty::TYPE_MULTISTRING:
+			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
+			break;
+		default:
+			assert(false);
+		}
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // PropertyList class implementation
@@ -313,7 +376,7 @@ bool PropertyList::OnRawChar(int c)
 	{
 	case GLFW_KEY_ENTER:
 		DoExchange(true);
-		_ps->SaveToConfig();
+		SaveToConfig(*_ps);
 		break;
 	case GLFW_KEY_ESCAPE:
 		g_conf.ed_showproperties.Set(false);
@@ -844,10 +907,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
                 
                 _propList->DoExchange(false);
                 if( _isObjectNew )
-                {
-                    // save properties for new object
-                    object->GetProperties(_world)->SaveToConfig();
-                }
+                    SaveToConfig(*object->GetProperties(_world));
             }
             else
             {
@@ -876,7 +936,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
             if( GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
                 GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) )
             {
-                properties->LoadFromConfig();
+                LoadFromConfig(*properties);
                 properties->Exchange(_world, true);
             }
 
