@@ -55,31 +55,24 @@ void GC_Camera::CameraTimeStep(World &world, float dt, vec2d viewSize)
 {
 	float mu = 3;
 
-	if( _player->GetVehicle() )
+	if( GC_Vehicle *vehicle = _player->GetVehicle() )
 	{
-		mu += _player->GetVehicle()->_lv.len() / 100;
+		mu += vehicle->_lv.len() / 100;
 
 		int dx = (int) std::max(.0f, (viewSize.x / _zoom - world._sx) / 2);
 		int dy = (int) std::max(.0f, (viewSize.y / _zoom - world._sy) / 2);
 
-		vec2d r = _player->GetVehicle()->GetPos() + _player->GetVehicle()->_lv / mu;
+		vec2d r = vehicle->GetPos() + vehicle->_lv / mu;
 		float directionMultipler = std::min(130.0f, std::min(viewSize.x, viewSize.y) / 3);
 
-		if( _player->GetVehicle()->GetWeapon() )
-		{
-			r += _player->GetVehicle()->GetWeapon()->GetDirection() * directionMultipler;
-		}
+		if( GC_Weapon *weapon = vehicle->GetWeapon() )
+			r += weapon->GetDirection() * directionMultipler;
 		else
-		{
-			r += _player->GetVehicle()->GetDirection() * directionMultipler;
-		}
+			r += vehicle->GetDirection() * directionMultipler;
 
-		_target.x = r.x + (float) dx;
-		_target.y = r.y + (float) dy;
-
-		_target.x = std::max(_target.x, viewSize.x / _zoom * 0.5f + dx);
+		_target.x = std::max(r.x + (float) dx, viewSize.x / _zoom * 0.5f + dx);
+		_target.y = std::max(r.y + (float) dy, viewSize.y / _zoom * 0.5f + dy);
 		_target.x = std::min(_target.x, world._sx - viewSize.x / _zoom * 0.5f + dx);
-		_target.y = std::max(_target.y, viewSize.y / _zoom * 0.5f + dy);
 		_target.y = std::min(_target.y, world._sy - viewSize.y / _zoom * 0.5f + dy);
 	}
 
