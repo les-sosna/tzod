@@ -25,16 +25,13 @@ IMPLEMENT_1LIST_MEMBER(GC_Camera, LIST_cameras);
 
 GC_Camera::GC_Camera(World &world, GC_Player *player)
   : GC_Actor(player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d(world._sx / 2, world._sy / 2))
+  , _target(GetPos())
+  , _time_shake(0)
+  , _time_seed(frand(1000))
+  , _zoom(1.0f)
   , _player(player)
 {
-	assert(_player);
-
-	_player->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Camera::OnDetach);
-
-	_target     = GetPos();
-	_time_shake = 0;
-	_time_seed  = frand(1000);
-	_zoom       = 1.0f;
+	player->SetCamera(this);
 }
 
 GC_Camera::GC_Camera(FromFile)
@@ -125,10 +122,3 @@ void GC_Camera::Serialize(World &world, SaveFile &f)
 	f.Serialize(_zoom);
 	f.Serialize(_player);
 }
-
-void GC_Camera::OnDetach(World &world, GC_Object *sender, void *param)
-{
-	Kill(world);
-}
-
-// end of file

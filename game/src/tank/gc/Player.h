@@ -2,6 +2,7 @@
 #include "Service.h"
 #include <deque>
 
+class GC_Camera;
 class GC_Vehicle;
 
 #define GC_FLAG_PLAYER_ISHUMAN     (GC_FLAG_SERVICE_ << 0)
@@ -39,6 +40,8 @@ public:
 	
 	void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
 	bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
+	
+	void SetCamera(GC_Camera *camera) { _camera = camera; }
 
 	// GC_Object
 	virtual void Kill(World &world);
@@ -79,6 +82,7 @@ private:
 	std::string  _scriptOnDie;
 	std::string  _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
+	ObjPtr<GC_Camera> _camera;
 	
 	friend class GC_Vehicle;
 	void OnVehicleDestroy(World &world);

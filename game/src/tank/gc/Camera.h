@@ -37,9 +37,6 @@ public:
 	void Shake(float level);
 	float GetShake() const { return _time_shake; }
 
-	// message handlers
-	void OnDetach(World &world, GC_Object *sender, void *param);
-    
     // GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos);
 

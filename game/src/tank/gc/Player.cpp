@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Camera.h"
 #include "GameClasses.h"
 #include "Indicators.h"
 #include "World.h"
@@ -57,6 +58,7 @@ void GC_Player::Serialize(World &world, SaveFile &f)
 	f.Serialize(_team);
 	f.Serialize(_timeRespawn);
 	f.Serialize(_vehicle);
+	f.Serialize(_camera);
 }
 
 void GC_Player::MapExchange(MapFile &f)
@@ -74,6 +76,8 @@ void GC_Player::MapExchange(MapFile &f)
 
 void GC_Player::Kill(World &world)
 {
+	if (_camera)
+		_camera->Kill(world);
 	if( _vehicle )
 		_vehicle->Kill(world); // the reference is released in the OnVehicleKill()
 	GC_Service::Kill(world);
