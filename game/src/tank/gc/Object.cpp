@@ -1,9 +1,7 @@
-// Object.cpp
-
 #include "Object.h"
-
 #include "World.h"
 #include "WorldEvents.h"
+
 #include "MapFile.h"
 #include "SaveFile.h"
 
@@ -11,8 +9,8 @@
 
 
 PropertySet::PropertySet(GC_Object *object)
-  : _object(*object),
-  _propName(ObjectProperty::TYPE_STRING, "name")
+  : _object(*object)
+  , _propName(ObjectProperty::TYPE_STRING, "name")
 {
 }
 
@@ -55,7 +53,6 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GC_Object class implementation
 
 // custom IMPLEMENT_1LIST_MEMBER for base class
 ObjectList::id_type GC_Object::Register(World &world)
@@ -72,20 +69,11 @@ void GC_Object::Unregister(World &world, ObjectList::id_type pos)
 
 GC_Object::GC_Object()
   : _flags(0)
-  , _firstNotify(NULL)
-  , _notifyProtectCount(0)
 {
 }
 
 GC_Object::~GC_Object()
 {
-	assert(0 == _notifyProtectCount);
-	while( _firstNotify )
-	{
-		Notify *n = _firstNotify;
-		_firstNotify = n->next;
-		delete n;
-	}
 }
 
 void GC_Object::Kill(World &world)
@@ -96,27 +84,9 @@ void GC_Object::Kill(World &world)
 	delete this;
 }
 
-IMPLEMENT_POOLED_ALLOCATION(GC_Object::Notify);
-
-void GC_Object::Notify::Serialize(World &world, SaveFile &f)
-{
-	f.Serialize(type);
-	f.Serialize(subscriber);
-
-	// we are not allowed to serialize raw pointers so we use a small hack :)
-	f.Serialize(reinterpret_cast<size_t&>(handler));
-}
-
 void GC_Object::Serialize(World &world, SaveFile &f)
 {
-	assert(0 == _notifyProtectCount);
-
 	f.Serialize(_flags);
-
-
-	//
-	// name
-	//
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -134,33 +104,6 @@ void GC_Object::Serialize(World &world, SaveFile &f)
 		{
 			std::string name = GetName(world);
 			f.Serialize(name);
-		}
-	}
-
-
-	//
-	// notifications
-	//
-
-	size_t count = 0;
-	if( const Notify *n = _firstNotify )
-		do { count += !n->IsRemoved(); } while( (n = n->next) );
-	f.Serialize(count);
-	if( f.loading() )
-	{
-		assert(NULL == _firstNotify);
-		for( size_t i = 0; i < count; i++ )
-		{
-			_firstNotify = new Notify(_firstNotify);
-			_firstNotify->Serialize(world, f);
-		}
-	}
-	else
-	{
-		for( Notify *n = _firstNotify; n; n = n->next )
-		{
-			if( !n->IsRemoved() )
-				n->Serialize(world, f);
 		}
 	}
 }
@@ -207,71 +150,6 @@ void GC_Object::SetName(World &world, const char *name)
 	}
 }
 
-void GC_Object::Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
-{
-	assert(subscriber);
-	assert(handler);
-	//--------------------------------------------------
-	_firstNotify = new Notify(_firstNotify);
-	_firstNotify->type        = type;
-	_firstNotify->subscriber  = subscriber;
-	_firstNotify->handler     = handler;
-}
-
-void GC_Object::Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler)
-{
-	assert(subscriber);
-	for( Notify *prev = NULL, *n = _firstNotify; n; n = n->next )
-	{
-		if( type == n->type && subscriber == n->subscriber && handler == n->handler )
-		{
-			if( _notifyProtectCount )
-			{
-				n->subscriber = NULL;
-			}
-			else
-			{
-				(prev ? prev->next : _firstNotify) = n->next;
-				delete n;
-			}
-			return;
-		}
-		prev = n;
-	}
-	assert(!"subscription not found");
-}
-
-void GC_Object::PulseNotify(World &world, NotifyType type, void *param)
-{
-	++_notifyProtectCount;
-	for( Notify *n = _firstNotify; n; n = n->next )
-	{
-		if( type == n->type && !n->IsRemoved() )
-		{
-			((n->subscriber)->*n->handler)(world, this, param);
-		}
-	}
-	--_notifyProtectCount;
-	if( 0 == _notifyProtectCount )
-	{
-		for( Notify *prev = NULL, *n = _firstNotify; n; )
-		{
-			if( n->IsRemoved() )
-			{
-				Notify *&pp = prev ? prev->next : _firstNotify;
-				pp = n->next;
-				delete n;
-				n = pp;
-			}
-			else
-			{
-				prev = n;
-				n = n->next;
-			}
-		}
-	}
-}
-
 void GC_Object::Init(World &world)
 {
 }
@@ -299,6 +177,3 @@ PropertySet* GC_Object::NewPropertySet()
 void GC_Object::MapExchange(MapFile &f)
 {
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

@@ -31,8 +31,6 @@ private:
 	
 	ObjPtr<GC_RigidBodyStatic> _victim;
 	ObjPtr<GC_Player> _owner;
-	
-	void OnVictimMove(World &world, GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////

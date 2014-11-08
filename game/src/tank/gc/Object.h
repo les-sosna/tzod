@@ -86,9 +86,6 @@ public:
 
 	std::shared_ptr<PropertySet> GetProperties(World &world);
 
-	void Subscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
-	void Unsubscribe(NotifyType type, GC_Object *subscriber, NOTIFYPROC handler);
-
 	virtual void Kill(World &world);
 	virtual void MapExchange(MapFile &f);
 	virtual void Init(World &world);
@@ -101,7 +98,6 @@ public:
 #endif
 
 protected:
-	void PulseNotify(World &world, NotifyType type, void *param = nullptr);
 	void SetFlags(unsigned int flags, bool value) { _flags = value ? (_flags|flags) : (_flags & ~flags); }
 	unsigned int GetFlags() const { return _flags; }
 	bool CheckFlags(unsigned int flags) const { return 0 != (_flags & flags); }
@@ -110,22 +106,6 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	struct Notify
-	{
-		DECLARE_POOLED_ALLOCATION(Notify);
-		
-		Notify *next;
-		ObjPtr<GC_Object> subscriber;
-		NOTIFYPROC handler;
-		NotifyType type;
-		
-		bool IsRemoved() const { return !subscriber; }
-		void Serialize(World &world, SaveFile &f);
-		explicit Notify(Notify *nxt) : next(nxt) {}
-	};
-	
 	unsigned int _flags;
 	ObjectList::id_type _posLIST_objects;
-	Notify *_firstNotify;
-	int  _notifyProtectCount;
 };

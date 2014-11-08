@@ -65,8 +65,6 @@ void GC_Actor::MoveTo(World &world, const vec2d &pos)
         _locationY = locY;
         EnterContexts(world);
  	}
-
-	PulseNotify(world, NOTIFY_ACTOR_MOVE);
 }
 
 void GC_Actor::MapExchange(MapFile &f)

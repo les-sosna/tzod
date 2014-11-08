@@ -131,10 +131,7 @@ GC_HealthDaemon::~GC_HealthDaemon()
 void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
 {
 	assert(!_victim && victim);
-    
     _victim = victim;
-	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
-    
 	MoveTo(world, _victim->GetPos());
 }
 
@@ -152,6 +149,10 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 {
 	if (_victim)
 	{
+		// FIXME: depending on processing order this object
+		//        may one time step lag behind
+		MoveTo(world, _victim->GetPos());
+		
 		_time -= dt;
 		bool kill = false;
 		if( _time <= 0 )
@@ -171,11 +172,6 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 	{
 		Kill(world);
 	}
-}
-
-void GC_HealthDaemon::OnVictimMove(World &world, GC_Object *sender, void *param)
-{
-	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
 }
 
 /////////////////////////////////////////////////////////////
