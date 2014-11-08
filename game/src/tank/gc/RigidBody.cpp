@@ -312,7 +312,6 @@ void GC_RigidBodyStatic::SetHealthMax(float hp)
 
 void GC_RigidBodyStatic::OnDestroy(World &world, const DamageDesc &dd)
 {
-	PulseNotify(world, NOTIFY_RIGIDBODY_DESTROY);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 		ls->OnDestroy(*this, dd);
 }

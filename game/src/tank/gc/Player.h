@@ -80,6 +80,6 @@ private:
 	std::string  _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
 	
-	void OnVehicleDestroy(World &world, GC_Object *sender, void *param);
-	void OnVehicleKill(World &world, GC_Object *sender, void *param);
+	friend class GC_Vehicle;
+	void OnVehicleDestroy(World &world);
 };

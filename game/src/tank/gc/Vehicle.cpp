@@ -211,6 +211,7 @@ void GC_Vehicle::Kill(World &world)
 	{
 		_weapon->SetRespawn(true);
 		_weapon->Detach(world);
+		assert(!_weapon);
 	}
 	
 	if (_shield)
@@ -218,8 +219,6 @@ void GC_Vehicle::Kill(World &world)
 		_shield->Disappear(world);
 		assert(!_shield);
 	}
-
-	_player = NULL;
 
 	GC_RigidBodyDynamic::Kill(world);
 }
@@ -282,8 +281,17 @@ void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)
 	}
 }
 
+void GC_Vehicle::OnDestroy(World &world, const DamageDesc &dd)
+{
+	if (GetOwner())
+		GetOwner()->OnVehicleDestroy(world);
+
+	GC_RigidBodyDynamic::OnDestroy(world, dd);
+}
+
 void GC_Vehicle::TimeStep(World &world, float dt)
 {
+	// look for pickups
 	std::vector<ObjectList*> receive;
 	world.grid_pickup.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 	for( auto &list: receive )
@@ -302,7 +310,6 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 			}
 		});
 	}
-	
 	
 	// spawn damage smoke
 	if( GetHealth() < GetHealthMax() * 0.4f )

@@ -102,6 +102,8 @@ void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 
 void GC_Weapon::Detach(World &world)
 {
+	assert(_vehicle);
+	_vehicle->SetWeapon(world, nullptr);
 	_vehicle = nullptr;
 	_detachedTime = world.GetTime();
 	Fire(world, false);

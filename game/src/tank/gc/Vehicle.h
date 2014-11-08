@@ -83,6 +83,7 @@ public:
 
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
+	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
 	
 private:
 	ObjPtr<GC_Weapon> _weapon;

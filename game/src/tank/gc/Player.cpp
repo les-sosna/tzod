@@ -163,60 +163,44 @@ void GC_Player::TimeStep(World &world, float dt)
 		_timeRespawn -= dt;
 		if( _timeRespawn <= 0 )
 		{
-			//
-			// Respawn
-			//
-
 			assert(!GetVehicle());
 			_timeRespawn = PLAYER_RESPAWN_DELAY;
 
-			GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team);
-			if (!pBestPoint) {
-				char buf[64];
-				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-				GetConsole().WriteLine(1, buf);
-				return;
-			}
-
-			world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
-
-			_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
-			GC_Object* found = world.FindObject(_vehname);
-			if( found && _vehicle != found )
+			if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
 			{
-				GetConsole().Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
+				world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
+				
+				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
+				GC_Object* found = world.FindObject(_vehname);
+				if( found && _vehicle != found )
+				{
+					GetConsole().Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
+				}
+				else
+				{
+					_vehicle->SetName(world, _vehname.c_str());
+				}
+				_vehicle->SetDirection(pBestPoint->GetDirection());
+				_vehicle->SetPlayer(world, this);
+				
+				for( auto ls: world.eGC_Player._listeners )
+					ls->OnRespawn(*this, *_vehicle);
 			}
 			else
 			{
-				_vehicle->SetName(world, _vehname.c_str());
+				char buf[64];
+				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
+				GetConsole().WriteLine(1, buf);
 			}
-			_vehicle->SetDirection(pBestPoint->GetDirection());
-
-			_vehicle->SetPlayer(world, this);
-
-			_vehicle->Subscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
-			_vehicle->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
-
-			for( auto ls: world.eGC_Player._listeners )
-				ls->OnRespawn(*this, *_vehicle);
 		}
 	}
 }
 
-void GC_Player::OnVehicleDestroy(World &world, GC_Object *sender, void *param)
+void GC_Player::OnVehicleDestroy(World &world)
 {
-	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
-	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
-	_vehicle = NULL;
+	_vehicle = nullptr;
 	for( auto ls: world.eGC_Player._listeners )
 		ls->OnDie(*this);
-}
-
-void GC_Player::OnVehicleKill(World &world, GC_Object *sender, void *param)
-{
-	_vehicle->Unsubscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_Player::OnVehicleKill);
-	_vehicle->Unsubscribe(NOTIFY_RIGIDBODY_DESTROY, this, (NOTIFYPROC) &GC_Player::OnVehicleDestroy);
-	_vehicle = NULL;
 }
 
 PropertySet* GC_Player::NewPropertySet()
