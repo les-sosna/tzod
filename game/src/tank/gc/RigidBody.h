@@ -35,7 +35,7 @@ public:
 	void SetHealth(float cur, float max);
 	void SetHealth(float hp);
 	void SetHealthMax(float hp);
-	float GetHealth() const { return _health;     }
+	float GetHealth() const { return _health; }
 	float GetHealthMax() const { return _health_max; }
 	
 	void SetSize(float width, float length);
@@ -63,6 +63,15 @@ public:
     virtual void Kill(World &world) override;
 	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
+#ifdef NETWORK_DEBUG
+	virtual DWORD checksum(void) const
+	{
+		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
+		cs ^= reinterpret_cast<const DWORD&>(_health);
+		cs ^= reinterpret_cast<const DWORD&>(_width) ^ reinterpret_cast<const DWORD&>(_length);
+		return GC_Actor::checksum() ^ cs;
+	}
+#endif
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -90,17 +99,6 @@ private:
 	float _length;
 	std::string _scriptOnDestroy;  // on_destroy()
 	std::string _scriptOnDamage;   // on_damage()
-
-#ifdef NETWORK_DEBUG
-public:
-	virtual DWORD checksum(void) const
-	{
-		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
-		cs ^= reinterpret_cast<const DWORD&>(_health);
-		cs ^= reinterpret_cast<const DWORD&>(_width) ^ reinterpret_cast<const DWORD&>(_length);
-		return GC_Actor::checksum() ^ cs;
-	}
-#endif
 };
 
 /////////////////////////////////////////////////////////////

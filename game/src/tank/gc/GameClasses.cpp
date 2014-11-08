@@ -134,7 +134,6 @@ void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
     
     _victim = victim;
 	_victim->Subscribe(NOTIFY_ACTOR_MOVE, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimMove);
-	_victim->Subscribe(NOTIFY_OBJECT_KILL, this, (NOTIFYPROC) &GC_HealthDaemon::OnVictimKill);
     
 	MoveTo(world, _victim->GetPos());
 }
@@ -151,31 +150,30 @@ void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 
 void GC_HealthDaemon::TimeStep(World &world, float dt)
 {
-	_time -= dt;
-	bool bKill = false;
-	if( _time <= 0 )
+	if (_victim)
 	{
-		dt += _time;
-		bKill = true;
+		_time -= dt;
+		bool bKill = false;
+		if( _time <= 0 )
+		{
+			dt += _time;
+			bKill = true;
+		}
+		DamageDesc dd;
+		dd.damage = dt * _damage;
+		dd.hit = _victim->GetPos();
+		dd.from = _owner;
+		_victim->TakeDamage(world, dd);
 	}
-	ObjPtr<GC_RigidBodyStatic> victimWatch(_victim);
-	DamageDesc dd;
-	dd.damage = dt * _damage;
-	dd.hit = _victim->GetPos();
-	dd.from = _owner;
-	_victim->TakeDamage(world, dd);
-	if( victimWatch && bKill )
+	else
+	{
 		Kill(world);
+	}
 }
 
 void GC_HealthDaemon::OnVictimMove(World &world, GC_Object *sender, void *param)
 {
 	MoveTo(world, static_cast<GC_Actor*>(sender)->GetPos());
-}
-
-void GC_HealthDaemon::OnVictimKill(World &world, GC_Object *sender, void *param)
-{
-	Kill(world);
 }
 
 /////////////////////////////////////////////////////////////

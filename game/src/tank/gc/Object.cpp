@@ -91,7 +91,6 @@ GC_Object::~GC_Object()
 void GC_Object::Kill(World &world)
 {
 	world.OnKill(*this);
-	PulseNotify(world, NOTIFY_OBJECT_KILL);
 	SetName(world, NULL);
     Unregister(world, _posLIST_objects);
 	delete this;

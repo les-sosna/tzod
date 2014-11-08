@@ -5,9 +5,6 @@
 
 enum NotifyType
 {
-	// GC_Object
-	NOTIFY_OBJECT_KILL,
-
 	// GC_Actor
 	NOTIFY_ACTOR_MOVE,
 };

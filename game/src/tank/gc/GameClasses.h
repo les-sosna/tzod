@@ -33,7 +33,6 @@ private:
 	ObjPtr<GC_Player> _owner;
 	
 	void OnVictimMove(World &world, GC_Object *sender, void *param);
-	void OnVictimKill(World &world, GC_Object *sender, void *param);
 };
 
 /////////////////////////////////////////////////////////////
