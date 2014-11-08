@@ -153,17 +153,19 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 	if (_victim)
 	{
 		_time -= dt;
-		bool bKill = false;
+		bool kill = false;
 		if( _time <= 0 )
 		{
 			dt += _time;
-			bKill = true;
+			kill = true;
 		}
 		DamageDesc dd;
 		dd.damage = dt * _damage;
 		dd.hit = _victim->GetPos();
 		dd.from = _owner;
 		_victim->TakeDamage(world, dd);
+		if (kill)
+			Kill(world);
 	}
 	else
 	{
