@@ -146,9 +146,6 @@ World::~World()
 	TRACE("Destroying the world");
 	Clear();
 
-	// unregister config handlers
-	g_conf.s_volume.eventChange = nullptr;
-
 	assert(IsEmpty() && _garbage.empty());
 }
 
