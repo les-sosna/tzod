@@ -1,12 +1,14 @@
 #include "Deathmatch.h"
+#include "GameEvents.h"
 #include "config/Language.h"
 #include "gc/GameClasses.h"
 #include "gc/Player.h"
 #include "gc/Vehicle.h"
 #include "gc/World.h"
 
-Deathmatch::Deathmatch(World &world)
+Deathmatch::Deathmatch(World &world, GameListener &gameListener)
 	: _world(world)
+	, _gameListener(gameListener)
 {
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 }
@@ -74,6 +76,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			sprintf(score, "%d", vehicle->GetOwner()->GetScore());
 			_world.New<GC_Text_ToolTip>(vehicle->GetPos(), score, GC_Text::SCORE_MINUS);
 		}
-		_world.GameMessage(msg);
+		
+		_gameListener.OnGameMessage(msg);
 	}
 }

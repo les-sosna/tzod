@@ -85,7 +85,6 @@ public:
 	// ObjectListener<World>
 	virtual void OnGameStarted() override {}
 	virtual void OnGameFinished() override {}
-	virtual void OnGameMessage(const char *) override {}
 	virtual void OnNewObject(GC_Object &obj) override;
 	virtual void OnKill(GC_Object &obj) override;
 

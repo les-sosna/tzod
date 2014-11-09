@@ -3,6 +3,7 @@
 #include <functional>
 
 struct lua_State;
+struct GameListener;
 class TextureManager;
 class ThemeManager;
 class World;
@@ -19,6 +20,7 @@ namespace FS
 struct ScriptEnvironment
 {
 	World &world;
+	GameListener &gameListener;
 	FS::FileSystem &fs;
 	ThemeManager &themeManager;
 	TextureManager &textureManager;

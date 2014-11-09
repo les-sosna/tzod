@@ -1,7 +1,4 @@
-// gui_desktop.h
-
 #pragma once
-
 #include "DefaultCamera.h"
 #include "InputManager.h"
 #include "render/RenderScheme.h"
@@ -10,6 +7,7 @@
 #include <ui/Console.h>
 #include <functional>
 
+struct GameEventSource;
 class WorldController;
 class AIManager;
 class ThemeManager;
@@ -66,6 +64,7 @@ class Desktop
 
 public:
 	Desktop(LayoutManager* manager,
+			GameEventSource &gameEventsSource,
 			World &_world,
 			WorldController &worldController,
 			AIManager &aiMgr,
@@ -93,7 +92,4 @@ private:
 };
 
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

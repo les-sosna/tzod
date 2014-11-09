@@ -34,7 +34,6 @@ private:
 	virtual void OnDie(GC_Player &obj) override;
 	
 	// ObjectListener<World>
-	virtual void OnGameMessage(const char *) override {}
 	virtual void OnKill(GC_Object &obj) override;
 	virtual void OnNewObject(GC_Object &) override {}
 	virtual void OnGameStarted() override {}

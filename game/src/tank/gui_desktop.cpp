@@ -62,6 +62,7 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 }
 
 Desktop::Desktop(LayoutManager* manager,
+				 GameEventSource &gameEventSource,
 				 World &world,
 				 WorldController &worldController,
 				 AIManager &aiMgr,
@@ -81,16 +82,18 @@ Desktop::Desktop(LayoutManager* manager,
   , _worldView(GetManager().GetTextureManager(), _renderScheme)
   , _worldController(worldController)
 {
+	using namespace std::placeholders;
+
 	SetTexture("ui/window", false);
 
 	_editor = new EditorLayout(this, _world, _worldView, _defaultCamera);
 	_editor->SetVisible(false);
     
-	_game = new GameLayout(this, _world, _worldView, _worldController, _inputMgr, _defaultCamera);
+	_game = new GameLayout(this, gameEventSource, _world, _worldView, _worldController, _inputMgr, _defaultCamera);
 
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
-	_con->eventOnSendCommand = std::bind( &Desktop::OnCommand, this, std::placeholders::_1 );
-	_con->eventOnRequestCompleteCommand = std::bind( &Desktop::OnCompleteCommand, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
+	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
 	_con->SetVisible(false);
 	_con->SetTopMost(true);
 	SpriteColor colors[] = {0xffffffff, 0xffff7fff};

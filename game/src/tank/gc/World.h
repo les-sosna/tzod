@@ -181,8 +181,6 @@ public:
 		return *t;
 	}
 	
-	void GameMessage(const char *msg);
-	
 	void Resize(int X, int Y);
 	void HitLimit();
 

@@ -1,7 +1,5 @@
 #pragma once
-
-#include "gc/WorldEvents.h"
-
+#include "GameEvents.h"
 #include <ui/Window.h>
 #include <ui/Text.h>
 
@@ -29,10 +27,11 @@ protected:
 
 class GameLayout
     : public Window
-    , private ObjectListener<World>
+	, private GameListener
 {
 public:
     GameLayout(Window *parent,
+			   GameEventSource &gameEventSource,
 			   World &world,
 			   WorldView &worldView,
 			   WorldController &worldController,
@@ -53,18 +52,15 @@ private:
 	ScoreTable   *_score;
 	TimeElapsed  *_time;
 
+	GameEventSource &_gameEventSource;
     World &_world;
     WorldView &_worldView;
 	WorldController &_worldController;
 	InputManager &_inputMgr;
     const DefaultCamera &_defaultCamera;
 
-	// ObjectListener<World>
-	virtual void OnGameStarted() override {}
-	virtual void OnGameFinished() override {}
+	// GameListener
 	virtual void OnGameMessage(const char *msg) override;
-	virtual void OnKill(GC_Object &) override {}
-	virtual void OnNewObject(GC_Object &) override {}
 };
 
 

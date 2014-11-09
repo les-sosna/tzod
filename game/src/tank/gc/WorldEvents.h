@@ -85,7 +85,6 @@ class GC_Object;
 class World;
 template<> struct ObjectListener<World>
 {
-	virtual void OnGameMessage(const char *msg) = 0;
 	virtual void OnKill(GC_Object &obj) = 0;
 	virtual void OnNewObject(GC_Object &obj) = 0;
 

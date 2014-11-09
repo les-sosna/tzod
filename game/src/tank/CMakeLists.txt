@@ -33,6 +33,7 @@ set(tank_SOURCES
 	Deathmatch.cpp
 	DefaultCamera.cpp
 	GameContext.cpp
+	GameEvents.cpp
 	GlfwPlatform.cpp
 	globals.cpp
 	gui.cpp

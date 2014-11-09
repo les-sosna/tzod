@@ -2,6 +2,7 @@
 #include "lgcmod.h"
 
 #include "constants.h"
+#include "GameEvents.h"
 #include "ThemeManager.h"
 #include "config/Config.h"
 #include "gc/World.h"
@@ -236,7 +237,7 @@ static int game_message(lua_State *L)
 	}
     
     ScriptEnvironment &se = GetScriptEnvironment(L);
-	se.world.GameMessage(buf.str().c_str());
+	se.gameListener.OnGameMessage(buf.str().c_str());
 
 	return 0;
 }

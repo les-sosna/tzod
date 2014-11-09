@@ -55,12 +55,14 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 UI::GameLayout::GameLayout(Window *parent,
+						   GameEventSource &gameEventSource,
 						   World &world,
 						   WorldView &worldView,
 						   WorldController &worldController,
 						   InputManager &inputMgr,
 						   const DefaultCamera &defaultCamera)
     : Window(parent)
+	, _gameEventSource(gameEventSource)
     , _world(world)
     , _worldView(worldView)
 	, _worldController(worldController)
@@ -77,12 +79,12 @@ UI::GameLayout::GameLayout(Window *parent,
 	OnChangeShowTime();
 
 	SetTimeStep(true);
-	_world.eWorld.AddListener(*this);
+	_gameEventSource.AddListener(*this);
 }
     
 UI::GameLayout::~GameLayout()
 {
-	_world.eWorld.RemoveListener(*this);
+	_gameEventSource.RemoveListener(*this);
 	g_conf.ui_showtime.eventChange = nullptr;
 }
 

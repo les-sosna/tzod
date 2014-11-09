@@ -66,20 +66,9 @@ void World::OnKill(GC_Object &obj)
 		ls->OnKill(obj);
 }
 
-void World::GameMessage(const char *msg)
-{
-	for( auto ls: eWorld._listeners )
-		ls->OnGameMessage(msg);
-}
-
 void World::Resize(int X, int Y)
 {
 	assert(IsEmpty());
-
-
-	//
-	// Resize
-	//
 
 	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));

@@ -21,8 +21,6 @@ public:
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
 private:
-	void OnToggleVisible();
-
 	struct Line
 	{
 		float time;

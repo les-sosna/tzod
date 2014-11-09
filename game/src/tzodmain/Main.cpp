@@ -57,6 +57,7 @@ namespace
 {
 	class DesktopFactory : public UI::IWindowFactory
 	{
+		GameEventSource &_gameEventSource;
         World &_world;
 		WorldController &_worldController;
 		AIManager &_aiMgr;
@@ -64,13 +65,15 @@ namespace
 		FS::FileSystem &_fs;
 		std::function<void()> _exitCommand;
 	public:
-        DesktopFactory(World &world,
+        DesktopFactory(GameEventSource &gameEventSource,
+					   World &world,
 					   WorldController &worldController,
 					   AIManager &aiMgr,
 					   ThemeManager &themeManager,
 					   FS::FileSystem &fs,
 					   std::function<void()> exitCommand)
-            : _world(world)
+            : _gameEventSource(gameEventSource)
+			, _world(world)
 			, _worldController(worldController)
 			, _aiMgr(aiMgr)
 			, _themeManager(themeManager)
@@ -79,7 +82,7 @@ namespace
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _world, _worldController, _aiMgr, _themeManager, _fs, _exitCommand);
+			return new UI::Desktop(manager, _gameEventSource, _world, _worldController, _aiMgr, _themeManager, _fs, _exitCommand);
 		}
 	};
 
@@ -232,7 +235,8 @@ int main(int, const char**)
         UI::LayoutManager gui(input,
 							  clipboard,
 							  texman,
-							  DesktopFactory(gameContext.GetWorld(),
+							  DesktopFactory(gameContext.GetGameEventsBroadcaster(),
+											 gameContext.GetWorld(),
 											 worldController,
 											 aiManager,
 											 themeManager,
