@@ -41,6 +41,7 @@
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>
 
+#include <exception>
 #include <thread>
 #include <numeric>
 
@@ -120,11 +121,13 @@ namespace
 static void print_what(const std::exception& e, std::string prefix = std::string())
 {
 	GetConsole().Format(SEVERITY_ERROR) << prefix << e.what();
+#ifndef _MSC_VER
 	try {
 		std::rethrow_if_nested(e);
 	} catch (const std::exception& nested) {
 		print_what(nested, prefix + "> ");
 	}
+#endif
 }
 
 //static long xxx = _CrtSetBreakAlloc(12649);
@@ -216,8 +219,9 @@ int main(int, const char**)
 								exitCommand);
 		WorldController worldController(gameContext.GetWorld());
 		AIManager aiManager(gameContext.GetWorld());
+#ifndef NOSOUND
 		SoundHarness soundHarness(*fs->GetFileSystem(DIR_SOUND), gameContext.GetWorld());
-
+#endif
         g_env.L = gameContext.GetScriptHarness().GetLuaState();
         g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
         g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");

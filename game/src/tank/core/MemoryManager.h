@@ -295,9 +295,9 @@ public:                                         \
     void* operator new(size_t count)            \
     {                                           \
         assert(sizeof(cls) == count);           \
-		void *ptr = __pool.Alloc();             \
-		*(unsigned int*) ptr = 0x80000000;      \
-        return (unsigned int*) ptr + 1;         \
+		void *_ptr = __pool.Alloc();            \
+		*(unsigned int*) _ptr = 0x80000000;     \
+        return (unsigned int*) _ptr + 1;        \
     }                                           \
     void operator delete(void *p)               \
     {                                           \

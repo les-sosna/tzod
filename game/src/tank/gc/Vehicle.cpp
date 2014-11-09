@@ -357,7 +357,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e /= len;
     while( _trackPathL < len )
     {
-        auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
+        auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d(0,0), PARTICLE_CATTRACK, 12.0f, e);
         p.SetFade(true);
         _trackPathL += trackDensity;
     }
@@ -368,7 +368,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
     e  /= len;
     while( _trackPathR < len )
     {
-        auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d(0,0), PARTICLE_CATTRACK, 12, e);
+        auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d(0,0), PARTICLE_CATTRACK, 12.0f, e);
         p.SetFade(true);
         _trackPathR += trackDensity;
     }
