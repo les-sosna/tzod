@@ -9,11 +9,6 @@
 
 #include "MapFile.h"
 #include "SaveFile.h"
-#include "ThemeManager.h"
-
-#include "core/Debug.h"
-
-#include "config/Config.h"
 
 #include <fs/FileSystem.h>
 
@@ -35,8 +30,6 @@ World::World(int X, int Y)
   , _dump(NULL)
 #endif
 {
-	TRACE("Constructing the world");
-	
 	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx          = (float) X * CELL_SIZE;
@@ -95,9 +88,7 @@ void World::Clear()
 World::~World()
 {
 	assert(IsSafeMode());
-	TRACE("Destroying the world");
 	Clear();
-
 	assert(GetList(LIST_objects).empty() && _garbage.empty());
 }
 
@@ -118,14 +109,9 @@ void World::Deserialize(SaveFile &f)
 		if( INVALID_OBJECT_TYPE == type ) // end of list signal
 			break;
 		if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
-		{
 			f.RegPointer(obj);
-		}
 		else
-		{
-			TRACE("ERROR: unknown object type - %u", type);
 			throw std::runtime_error("Load error: unknown object type");
-		}
 	}
 
 	// read objects contents in the same order as pointers
