@@ -8,10 +8,6 @@ class GC_Actor;
 class GC_Weapon;
 struct Sound;
 
-namespace FS {
-	class FileSystem;
-}
-
 class SoundHarness
 	: ObjectListener<GC_Pickup>
 	, ObjectListener<GC_Projectile>
@@ -24,14 +20,14 @@ class SoundHarness
 	, ObjectListener<World>
 {
 public:
-	SoundHarness(FS::FileSystem &fs, World &world);
+	SoundHarness(SoundRender &soundRender, World &world);
 	~SoundHarness();
 	
 	void Step();
 	
 private:
 	World &_world;
-	std::unique_ptr<SoundRender> _soundRender;
+	SoundRender &_soundRender;
 	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretFire;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretRotate;

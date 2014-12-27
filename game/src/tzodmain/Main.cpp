@@ -5,6 +5,9 @@
 #include <GameContext.h>
 #include <GlfwPlatform.h>
 #include <gui_desktop.h>
+#ifndef NOSOUND
+#include <SoundView.h>
+#endif
 #include <script/script.h>
 #include <script/ScriptHarness.h>
 #include <ThemeManager.h>
@@ -195,6 +198,9 @@ int main(int, const char**)
 			TRACE("WARNING: no skins found");
 		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
 		AppState appState;
+#ifndef NOSOUND
+		SoundView soundView(appState, *fs->GetFileSystem(DIR_SOUND));
+#endif
 		GlfwInput input(appWindow.GetGlfwWindow());
 		GlfwClipboard clipboard(appWindow.GetGlfwWindow());
         UI::LayoutManager gui(input,
@@ -249,7 +255,10 @@ int main(int, const char**)
 			gui.TimeStep(dt); // this also sends user controller state to WorldController
 			if (GameContextBase *gc = appState.GetGameContext())
 				gc->Step(median * g_conf.sv_speed.GetFloat() / 100);
-			
+#ifndef NOSOUND
+			soundView.Step();
+#endif
+
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
 			

@@ -69,9 +69,6 @@ GameContext::GameContext(FS::FileSystem &fs, DMSettings settings)
 	_gameplay.reset(new Deathmatch(*_world, _gameEventsBroadcaster));
 	_scriptHarness.reset(new ScriptHarness(*_world));
 	_worldController.reset(new WorldController(*_world));
-#ifndef NOSOUND
-	_soundHarness.reset(new SoundHarness(*fs.GetFileSystem(DIR_SOUND), *_world));
-#endif
 }
 
 GameContext::~GameContext()
@@ -81,14 +78,8 @@ GameContext::~GameContext()
 void GameContext::Step(float dt)
 {
 	_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
-	_world->Step(dt);
-	
+	_world->Step(dt);	
 	_scriptHarness->Step(dt);
-#ifndef NOSOUND
-	_soundHarness->Step();
-//	if( _scriptEnvironment.music )
-//		_scriptEnvironment.music->HandleBufferFilling();
-#endif
 }
 
 void GameContext::Serialize(FS::Stream &stream)

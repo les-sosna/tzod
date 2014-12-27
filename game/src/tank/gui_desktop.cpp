@@ -469,7 +469,7 @@ void Desktop::OnGameContextChanging()
 		_editor = nullptr;
 	}
 }
-	
+
 void Desktop::OnGameContextChanged()
 {
 	if (auto *gc = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))

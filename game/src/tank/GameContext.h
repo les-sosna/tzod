@@ -72,7 +72,4 @@ private:
 	std::unique_ptr<WorldController> _worldController;
 	std::unique_ptr<AIManager> _aiManager;
 	std::unique_ptr<InputManager> _inputMgr;
-#ifndef NOSOUND
-	std::unique_ptr<SoundHarness> _soundHarness;
-#endif
 };

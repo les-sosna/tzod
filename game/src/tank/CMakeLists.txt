@@ -154,6 +154,7 @@ if(${OPENAL_FOUND})
 		AudioContext.cpp
 		SoundHarness.cpp
 		SoundRender.cpp
+		SoundView.cpp
 		sound/MusicPlayer.cpp
 	)
 else()
