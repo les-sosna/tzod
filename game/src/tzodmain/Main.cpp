@@ -36,7 +36,6 @@
 
 #include <exception>
 #include <thread>
-#include <numeric>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -218,9 +217,6 @@ int main(int, const char**)
 //        TRACE("Running startup script '%s'", FILE_STARTUP);
 //        if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
 //            TRACE("ERROR: in startup script");
-
-		std::deque<float> movingAverageWindow;
-		std::deque<float> movingMedianWindow;
         
         Timer timer;
         timer.SetMaxDt(MAX_DT);
@@ -238,23 +234,9 @@ int main(int, const char**)
 			
 			float dt = timer.GetDt();
 			
-			// moving average
-			movingAverageWindow.push_back(dt);
-			if (movingAverageWindow.size() > 8)
-				movingAverageWindow.pop_front();
-			float mean = std::accumulate(movingAverageWindow.begin(), movingAverageWindow.end(), 0.0f) / (float)movingAverageWindow.size();
-			// moving median of moving average
-			movingMedianWindow.push_back(mean);
-			if (movingMedianWindow.size() > 100)
-				movingMedianWindow.pop_front();
-			float buf[100];
-			std::copy(movingMedianWindow.begin(), movingMedianWindow.end(), buf);
-			std::nth_element(buf, buf + movingMedianWindow.size() / 2, buf + movingMedianWindow.size());
-			float median = buf[movingMedianWindow.size() / 2];
-			
 			gui.TimeStep(dt); // this also sends user controller state to WorldController
 			if (GameContextBase *gc = appState.GetGameContext())
-				gc->Step(median * g_conf.sv_speed.GetFloat() / 100);
+				gc->Step(dt * g_conf.sv_speed.GetFloat() / 100);
 #ifndef NOSOUND
 			soundView.Step();
 #endif
