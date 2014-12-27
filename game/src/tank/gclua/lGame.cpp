@@ -40,9 +40,6 @@ static int game_start(lua_State *L)
 
 	const char *clientType = luaL_checkstring(L, 1);
 
-	// TODO: delete client after all checks
-//	SAFE_DELETE(g_client); // it will clear level, message area, command queue
-
 	if( *clientType )
 	{
 		if( !strcmp("intro", clientType) )

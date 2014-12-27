@@ -14,7 +14,6 @@
 
 #include "constants.h"
 
-#include "config/Config.h"
 #include "config/Language.h"
 
 #include "core/Debug.h"
@@ -105,16 +104,9 @@ void GC_Player::SetTeam(int team)
 	_team = team;
 }
 
-void GC_Player::SetScore(World &world, int score)
+void GC_Player::SetScore(int score)
 {
 	_score = score;
-	if( g_conf.sv_fraglimit.GetInt() )
-	{
-		if( _score >= g_conf.sv_fraglimit.GetInt() )
-		{
-			world.HitLimit();
-		}
-	}
 }
 
 static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
@@ -265,7 +257,7 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->SetTeam(_propTeam.GetIntValue());
-		tmp->SetScore(world, _propScore.GetIntValue());
+		tmp->SetScore(_propScore.GetIntValue());
 		tmp->SetNick(_propNick.GetStringValue());
 		tmp->SetClass(_propClass.GetListValue(_propClass.GetCurrentIndex()));
 		tmp->SetSkin(_propSkin.GetStringValue());

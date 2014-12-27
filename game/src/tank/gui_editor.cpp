@@ -3,7 +3,6 @@
 #include "gui_editor.h"
 
 #include "constants.h"
-#include "globals.h"
 #include "ThemeManager.h"
 #include "DefaultCamera.h"
 
@@ -47,10 +46,8 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-NewMapDlg::NewMapDlg(Window *parent, World &world, ThemeManager &themeManager)
+NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
-  , _world(world)
-  , _themeManager(themeManager)
 {
 	Text *header = Text::Create(this, 128, 20, g_lang.newmap_title.Get(), alignTextCT);
 	header->SetFont("font_default");
@@ -71,15 +68,9 @@ NewMapDlg::NewMapDlg(Window *parent, World &world, ThemeManager &themeManager)
 
 void NewMapDlg::OnOK()
 {
-//	SAFE_DELETE(g_client);
-	g_conf.sv_nightmode.Set(false);
 	g_conf.ed_width.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _width->GetInt())));
 	g_conf.ed_height.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _height->GetInt())));
 	
-	_world.Clear();
-	_world.Resize(g_conf.ed_width.GetInt(), g_conf.ed_height.GetInt());
-	_themeManager.ApplyTheme(0, GetManager().GetTextureManager());
-
 	Close(_resultOK);
 }
 
@@ -701,7 +692,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 }
 
     
-EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera)
+EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL)
   : Window(parent)
   , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager().GetTextureManager().FindSprite("font_small"))
@@ -712,6 +703,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
   , _mbutton(0)
   , _world(world)
   , _worldView(worldView)
+  , _globL(globL)
 {
 	SetTexture(NULL, false);
 
@@ -880,30 +872,30 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
             {
                 auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
 
-                lua_getglobal(g_env.L, "editor_actions");
-                if( lua_isnil(g_env.L, -1) )
+                lua_getglobal(_globL, "editor_actions");
+                if( lua_isnil(_globL, -1) )
                 {
                     GetConsole().WriteLine(1, "There was no editor module loaded");
                 }
                 else
                 {
-                    lua_getfield(g_env.L, -1, selTypeInfo.name);
-                    if (lua_isnil(g_env.L, -1))
+                    lua_getfield(_globL, -1, selTypeInfo.name);
+                    if (lua_isnil(_globL, -1))
                     {
                         // no action available for this object
-                        lua_pop(g_env.L, 1);
+                        lua_pop(_globL, 1);
                     }
                     else
                     {
-                        luaT_pushobject(g_env.L, object);
-                        if( lua_pcall(g_env.L, 1, 0, 0) )
+                        luaT_pushobject(_globL, object);
+                        if( lua_pcall(_globL, 1, 0, 0) )
                         {
-                            GetConsole().WriteLine(1, lua_tostring(g_env.L, -1));
-                            lua_pop(g_env.L, 1); // pop error message
+                            GetConsole().WriteLine(1, lua_tostring(_globL, -1));
+                            lua_pop(_globL, 1); // pop error message
                         }
                     }
                 }
-                lua_pop(g_env.L, 1); // pop editor_actions
+                lua_pop(_globL, 1); // pop editor_actions
                 
                 _propList->DoExchange(false);
                 if( _isObjectNew )
@@ -980,6 +972,13 @@ bool EditorLayout::OnRawChar(int c)
 	case GLFW_KEY_F1:
 		_help->SetVisible(!_help->GetVisible());
 		break;
+	case GLFW_KEY_F8:
+	//	dlg = new MapSettingsDlg(this, _world);
+	//	SetDrawBackground(true);
+	//	dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+	//	_nModalPopups++;
+		break;
+
 	case GLFW_KEY_F9:
 		g_conf.ed_uselayers.Set(!g_conf.ed_uselayers.Get());
 		break;
@@ -1051,7 +1050,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
-	_worldView.Render(dc, _world, viewport, eye, zoom, true, g_conf.ed_drawgrid.Get(), g_conf.sv_nightmode.Get());
+	_worldView.Render(dc, _world, viewport, eye, zoom, true, g_conf.ed_drawgrid.Get(), _world.GetNightMode());
     
 	dc.SetMode(RM_INTERFACE);
     
@@ -1082,7 +1081,6 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager)
   : Dialog(parent, 512, 512)
   , _world(world)
-  , _themeManager(themeManager)
 {
 	SetEasyMove(true);
 
@@ -1119,11 +1117,11 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 	_theme = DefaultComboBox::Create(this);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
-	for( size_t i = 0; i < _themeManager.GetThemeCount(); i++ )
+	for( size_t i = 0; i < themeManager.GetThemeCount(); i++ )
 	{
-		_theme->GetData()->AddItem(_themeManager.GetThemeName(i));
+		_theme->GetData()->AddItem(themeManager.GetThemeName(i));
 	}
-	_theme->SetCurSel(_themeManager.FindTheme(world._infoTheme));
+	_theme->SetCurSel(themeManager.FindTheme(world._infoTheme));
 	_theme->GetList()->AlignHeightToContent();
 
 
@@ -1154,10 +1152,6 @@ void MapSettingsDlg::OnOK()
 	else
 	{
 		_world._infoTheme.clear();
-	}
-	if( !_themeManager.ApplyTheme(i, GetManager().GetTextureManager()) )
-	{
-//		MessageBoxT(g_env.hMainWnd, "Could not apply theme", MB_ICONERROR);
 	}
 
 	Close(_resultOK);

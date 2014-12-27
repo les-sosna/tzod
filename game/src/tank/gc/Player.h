@@ -35,7 +35,7 @@ public:
 	void SetTeam(int team);
 	int GetTeam() const { return _team; }
 	
-	void SetScore(World &world, int score);
+	void SetScore(int score);
 	int GetScore() const { return _score; }
 	
 	void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }

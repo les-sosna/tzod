@@ -6,8 +6,6 @@
 #include <ui/Dialog.h>
 #include <ui/ListBase.h>
 
-class World;
-
 namespace UI
 {
 class Button;
@@ -39,10 +37,8 @@ class SettingsDlg : public Dialog
 	ScrollBarHorizontal *_volumeMusic;
 	int _initialVolumeMusic;
 
-    World &_world;
-
 public:
-	SettingsDlg(Window *parent, World &world);
+	SettingsDlg(Window *parent);
 	virtual ~SettingsDlg();
 
 protected:

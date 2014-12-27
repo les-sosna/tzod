@@ -27,7 +27,7 @@ ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs)
 
 		try
 		{
-			MapFile file(fs.Open(tmp)->QueryStream(), false);
+			MapFile file(*fs.Open(tmp)->QueryStream(), false);
 			std::string tmp2 = *it;
 			tmp2.erase(it->length() - 4); // cut out the file extension
 			int index = AddItem(tmp2);

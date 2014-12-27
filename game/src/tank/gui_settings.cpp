@@ -27,9 +27,8 @@ namespace UI
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent, World &world)
+SettingsDlg::SettingsDlg(Window *parent)
   : Dialog(parent, 512, 296)
-  , _world(world)
 {
 	SetEasyMove(true);
 
@@ -207,10 +206,6 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 		UpdateProfilesList();
 		GetManager().SetFocusWnd(_profiles);
 
-		FOREACH(_world.GetList(LIST_players), GC_Object, player)
-		{
-			player->GetProperties(_world)->Exchange(_world, true);
-		}
 	}
 }
 

@@ -27,11 +27,11 @@ set(tank_INCLUDE_DIRS
 set(tank_SOURCES
 	ai.cpp
 	AIManager.cpp
-	BackgroundIntro.cpp
-	ClientBase.cpp
+	AppState.cpp
 	Controller.cpp
 	Deathmatch.cpp
 	DefaultCamera.cpp
+	EditorContext.cpp
 	GameContext.cpp
 	GameEvents.cpp
 	GlfwPlatform.cpp
@@ -90,7 +90,7 @@ set(tank_SOURCES
 	gc/Weapons.cpp
 	gc/World.cpp
 	gclua/lgcmod.cpp
-	gclua/lGame.cpp
+#	gclua/lGame.cpp
 	gclua/lObject.cpp
 	gclua/lObjUtil.cpp
 	gclua/lWorld.cpp

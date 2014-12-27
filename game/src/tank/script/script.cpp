@@ -6,7 +6,7 @@
 
 #include "gc/vehicle.h"
 
-#include "gclua/lGame.h"
+//#include "gclua/lGame.h"
 #include "gclua/lObject.h"
 #include "gclua/lWorld.h"
 
@@ -137,7 +137,7 @@ lua_State* script_open(ScriptEnvironment &se)
 #endif
 		
 		// game libs
-		{"game", luaopen_game},
+//		{"game", luaopen_game},
 		{"object", luaopen_object},
 		{"world", luaopen_world},
 		
@@ -184,12 +184,6 @@ lua_State* script_open(ScriptEnvironment &se)
 	lua_setglobal(L, "user");
 	
 	return L;
-}
-
-void script_close(lua_State *L)
-{
-	assert(L);
-	lua_close(L);
 }
 
 bool script_exec(lua_State *L, const char *string)

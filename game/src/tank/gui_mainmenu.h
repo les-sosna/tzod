@@ -1,15 +1,8 @@
-// gui_mainmenu.h
-
 #pragma once
 
-#include <ui/Dialog.h>
+#include <ui/Window.h>
 #include <functional>
-#include <list>
 
-class AIManager;
-class InputManager;
-class World;
-class ThemeManager;
 namespace FS
 {
 	class FileSystem;
@@ -18,15 +11,21 @@ namespace FS
 namespace UI
 {
 
-// forward declarations
 class GetFileNameDlg;
 class Text;
+	
+struct MainMenuCommands
+{
+	std::function<void()> newCampaign;
+	std::function<void()> newDM;
+	std::function<void()> newMap;
+	std::function<void(std::string)> openMap;
+	std::function<void()> exit;
+};
 
-class MainMenuDlg : public Dialog
+class MainMenuDlg : public Window
 {
 	void OnSinglePlayer();
-	void OnNewGame();
-	void OnCampaign();
 	void OnSaveGame();
 	void OnSaveGameSelect(int result);
 	void OnLoadGame();
@@ -39,7 +38,6 @@ class MainMenuDlg : public Dialog
 	void OnNetworkProfile();
 
 	void OnEditor();
-	void OnNewMap();
 	void OnMapSettings();
 	void OnImportMap();
 	void OnImportMapSelect(int result);
@@ -64,30 +62,25 @@ class MainMenuDlg : public Dialog
 		PS_DISAPPEARING,
 	};
 
-    InputManager &_inputMgr;
-	AIManager &_aiMgr;
-	Window    *_panel;
-	Window    *_panelFrame;
-	Text      *_panelTitle;
+	Window    *_panel = nullptr;
+	Window    *_panelFrame = nullptr;
+	Text      *_panelTitle = nullptr;
 	PanelType  _ptype;
 	PanelState _pstate;
 
 	GetFileNameDlg *_fileDlg;
-    World &_world;
-	ThemeManager &_themeManager;
 	FS::FileSystem &_fs;
+	MainMenuCommands _commands;
 
 public:
 	MainMenuDlg(Window *parent,
-				World &world,
-				InputManager &inputMgr,
-				AIManager &aiMgr,
-				ThemeManager &themeManager,
 				FS::FileSystem &fs,
-				std::function<void()> exitCommand);
+				MainMenuCommands commands);
 	virtual ~MainMenuDlg();
-	virtual void OnParentSize(float width, float height);
-	virtual bool OnRawChar(int c);
+	virtual void OnParentSize(float width, float height) override;
+	virtual bool OnRawChar(int c) override;
+	virtual bool OnFocus(bool) override { return true; }
+	
 
 protected:
 	void OnTimeStep(float dt);
@@ -96,8 +89,4 @@ protected:
 	void SwitchPanel(PanelType newtype);
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

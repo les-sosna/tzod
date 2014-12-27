@@ -2,11 +2,7 @@
 
 #include "gui.h"
 
-#include "Controller.h"
 #include "gui_maplist.h"
-#include "InputManager.h"
-#include "AIManager.h"
-#include "MapFile.h"
 
 #include "config/Config.h"
 #include "config/Language.h"
@@ -21,7 +17,6 @@
 
 #include "network/CommonTypes.h"
 
-#include <fs/FileSystem.h>
 #include <GLFW/glfw3.h>
 #include <ui/Button.h>
 #include <ui/List.h>
@@ -37,17 +32,8 @@ namespace UI
 {
 
 NewGameDlg::NewGameDlg(Window *parent,
-					   World &world,
-					   InputManager &inputMgr,
-					   AIManager &aiMgr,
-					   const ThemeManager &themeManager,
 					   FS::FileSystem &fs)
   : Dialog(parent, 770, 550)
-  , _world(world)
-  , _inputMgr(inputMgr)
-  , _aiMgr(aiMgr)
-  , _themeManager(themeManager)
-  , _fs(fs)
 {
 	_newPlayer = false;
 
@@ -348,53 +334,8 @@ void NewGameDlg::OnOK()
 	g_conf.sv_timelimit.SetInt( g_conf.cl_timelimit.GetInt() );
 	g_conf.sv_nightmode.Set( g_conf.cl_nightmode.Get() );
 
-//	SAFE_DELETE(g_client);
-
-	try
-	{
-        _world.Clear();
-        _world.Seed(rand());
-        _world.Import(_fs.Open(path)->QueryStream(), _themeManager, GetManager().GetTextureManager());
-	}
-	catch( const std::exception &e )
-	{
-		TRACE("could not load map - %s", e.what());
-//		SAFE_DELETE(g_client);
-		return;
-	}
-
 	g_conf.cl_map.Set(fn);
 	g_conf.ui_showmsg.Set(true);
-
-	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
-	{
-		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
-        
-        auto &player = _world.New<GC_Player>();
-		player.SetIsHuman(true);
-        player.SetClass(p.platform_class.Get());
-        player.SetNick(p.nick.Get());
-        player.SetSkin(p.skin.Get());
-        player.SetTeam(p.team.GetInt());
-		
-		_world.New<GC_Camera>(_world, &player);
-		
-        _inputMgr.AssignController(&player, p.profile.Get());
-    }
-
-	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
-	{
-		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
-        auto &player = _world.New<GC_Player>();
-		player.SetIsHuman(false);
-        player.SetClass(p.platform_class.Get());
-        player.SetNick(p.nick.Get());
-        player.SetSkin(p.skin.Get());
-        player.SetTeam(p.team.GetInt());
-
-		_aiMgr.AssignAI(&player, "123");
-//        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
-	}
 
 	Close(_resultOK);
 }

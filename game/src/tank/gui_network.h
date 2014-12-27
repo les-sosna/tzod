@@ -1,9 +1,6 @@
-// gui_network.h
-
 #pragma once
-
-#include "ClientBase.h"
 #include <ui/Dialog.h>
+#include <vector>
 
 class World;
 namespace FS
@@ -13,7 +10,6 @@ namespace FS
 
 namespace UI
 {
-// forward declarations
 class Text;
 class List;
 class ListDataSourceMaps;
@@ -60,13 +56,13 @@ protected:
 
 class ConnectDlg
 	: public Dialog
-	, private IClientCallback
+//	, private IClientCallback
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox *_status;
 	Button *_btnOK;
 	Edit   *_name;
-	std::unique_ptr<Subscribtion> _clientSubscribtion;
+//	std::unique_ptr<Subscribtion> _clientSubscribtion;
     World &_world;
 
 public:
@@ -122,7 +118,7 @@ protected:
 
 class WaitingForPlayersDlg
 	: public Dialog
-	, private IClientCallback
+//	, private IClientCallback
 {
 	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
 	DefaultListBox *_players;
@@ -131,7 +127,7 @@ class WaitingForPlayersDlg
 	Button         *_btnOK;
 	Button         *_btnProfile;
 	std::unique_ptr<UI::ConsoleBuffer>  _buf;
-	std::unique_ptr<Subscribtion> _clientSubscribtion;
+//	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 	static const size_t _maxPings = 5;
 	std::vector<unsigned int> _pings;
@@ -161,7 +157,4 @@ private:
 	virtual void OnClientDestroy();
 };
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

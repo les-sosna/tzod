@@ -1,11 +1,11 @@
-// gui_scoretable.cpp
-
 #include "gui_scoretable.h"
+
+#include "GameContext.h"
+#include "Deathmatch.h"
 
 #include "gc/Player.h"
 #include "gc/World.h"
 #include "gc/Macros.h"
-#include "config/Config.h"
 #include "config/Language.h"
 
 #include <ui/GuiManager.h>
@@ -28,10 +28,11 @@
 namespace UI
 {
 
-ScoreTable::ScoreTable(Window *parent, World &world)
+ScoreTable::ScoreTable(Window *parent, World &world, Deathmatch &deathmatch)
   : Window(parent)
   , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _world(world)
+  , _deathmatch(deathmatch)
 {
 	SetTexture("scoretbl", true);
 	SetDrawBorder(false);
@@ -66,22 +67,21 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		max_score = players[0]->GetScore();
 	}
 
-
-	if( g_conf.sv_timelimit.GetFloat() )
+	if( _deathmatch.GetTimeLimit() > 0 )
 	{
 		std::ostringstream text;
-		int timeleft = int(g_conf.sv_timelimit.GetFloat() * 60.0f - _world.GetTime());
+		int timeleft = int(_deathmatch.GetTimeLimit() - _world.GetTime());
 		if( timeleft > 0 )
 			text << g_lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
 			text << g_lang.score_time_limit_hit.Get();
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text.str());
 	}
-
-	if( g_conf.sv_fraglimit.GetInt() )
+	
+	if( _deathmatch.GetFragLimit() > 0 )
 	{
 		std::ostringstream text;
-		int scoreleft = g_conf.sv_fraglimit.GetInt() - max_score;
+		int scoreleft = _deathmatch.GetFragLimit() - max_score;
 		if( scoreleft > 0 )
 			text << g_lang.score_frags_left.Get() << " " << scoreleft;
 		else

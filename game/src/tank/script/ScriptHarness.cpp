@@ -20,9 +20,10 @@ extern "C"
 #include <sstream>
 
 
-ScriptHarness::ScriptHarness(World &world, ScriptEnvironment &se)
-	: _world(world)
-	, _L(script_open(se))
+ScriptHarness::ScriptHarness(World &world)
+	: _se(ScriptEnvironment{world})
+	, _world(world)
+	, _L(script_open(_se))
 	, _sPickup(_world, _L)
 	, _sPlayer(_world, _L)
 	, _sRigidBodyStatic(_world, _L)
@@ -34,7 +35,7 @@ ScriptHarness::ScriptHarness(World &world, ScriptEnvironment &se)
 ScriptHarness::~ScriptHarness()
 {
 	_world.eWorld.RemoveListener(*this);	
-	script_close(_L);
+	lua_close(_L);
 }
 
 void ScriptHarness::Step(float dt)
@@ -42,7 +43,7 @@ void ScriptHarness::Step(float dt)
 	RunCmdQueue(_L, dt);
 }
 
-void ScriptHarness::Serialize(std::shared_ptr<FS::Stream> stream, SaveFile &f)
+void ScriptHarness::Serialize(SaveFile &f)
 {
 	struct WriteHelper
 	{
@@ -50,7 +51,7 @@ void ScriptHarness::Serialize(std::shared_ptr<FS::Stream> stream, SaveFile &f)
 		{
 			try
 			{
-				reinterpret_cast<SaveFile*>(ud)->GetStream()->Write(p, sz);
+				reinterpret_cast<SaveFile*>(ud)->GetStream().Write(p, sz);
 			}
 			catch( const std::exception &e )
 			{
@@ -102,7 +103,7 @@ void ScriptHarness::Serialize(std::shared_ptr<FS::Stream> stream, SaveFile &f)
 	lua_setfield(_L, LUA_REGISTRYINDEX, "restore_ptr");
 }
 
-void ScriptHarness::Deserialize(std::shared_ptr<FS::Stream> stream, SaveFile &f)
+void ScriptHarness::Deserialize(SaveFile &f)
 {
 	struct ReadHelper
 	{
@@ -166,14 +167,14 @@ void ScriptHarness::Deserialize(std::shared_ptr<FS::Stream> stream, SaveFile &f)
 	lua_pushlightuserdata(_L, &f);
 	lua_pushcclosure(_L, &ReadHelper::restore_ptr, 1);
 	lua_setfield(_L, LUA_REGISTRYINDEX, "restore_ptr");
-	if( lua_cpcall(_L, &ReadHelper::read_user, stream.get()) )
+	if( lua_cpcall(_L, &ReadHelper::read_user, &f.GetStream()) )
 	{
 		std::string err = "[pluto read user] ";
 		err += lua_tostring(_L, -1);
 		lua_pop(_L, 1);
 		throw std::runtime_error(err);
 	}
-	if( lua_cpcall(_L, &ReadHelper::read_queue, stream.get()) )
+	if( lua_cpcall(_L, &ReadHelper::read_queue, &f.GetStream()) )
 	{
 		std::string err = "[pluto read queue] ";
 		err += lua_tostring(_L, -1);

@@ -20,7 +20,7 @@ WorldView::~WorldView()
 }
 
 void WorldView::Render(DrawingContext &dc,
-					   World &world,
+					   const World &world,
 					   const Rect &viewport,
 					   const vec2d &eye,
 					   float zoom,
@@ -48,7 +48,7 @@ void WorldView::Render(DrawingContext &dc,
 		float xmax = std::min(world._sx, right);
 		float ymax = std::min(world._sy, bottom);
 
-		FOREACH( world.GetList(LIST_lights), GC_Light, pLight )
+		FOREACH( world.GetList(LIST_lights), const GC_Light, pLight )
 		{
 			if( pLight->GetActive() &&
 				pLight->GetPos().x + pLight->GetRenderRadius() > xmin &&
@@ -92,7 +92,7 @@ void WorldView::Render(DrawingContext &dc,
     for( int x = xmin; x <= xmax; ++x )
     for( int y = ymin; y <= ymax; ++y )
     {
-        FOREACH(world.grid_actors.element(x,y), GC_Actor, object)
+        FOREACH(world.grid_actors.element(x,y), const GC_Actor, object)
         {
 			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
 			{

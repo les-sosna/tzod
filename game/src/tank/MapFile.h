@@ -148,7 +148,7 @@ class MapFile
 private:
 	std::ostringstream _buffer;
 
-	std::shared_ptr<FS::Stream> _file;
+	FS::Stream &_file;
 	bool   _modeWrite;
 	bool   _headerWritten;
 	bool   _isNewClass;
@@ -178,7 +178,7 @@ private:
 	void ReadString(std::string &value);
 
 public:
-	MapFile(std::shared_ptr<FS::Stream> file, bool write);
+	MapFile(FS::Stream &stream, bool write);
 	~MapFile();
 
 	bool loading() const;

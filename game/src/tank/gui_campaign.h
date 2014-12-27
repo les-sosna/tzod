@@ -4,6 +4,7 @@
 
 #include <ui/Dialog.h>
 
+struct lua_State;
 namespace FS
 {
 	class FileSystem;
@@ -20,6 +21,7 @@ class NewCampaignDlg : public Dialog
 public:
 	NewCampaignDlg(Window *parent, FS::FileSystem &fs);
 	~NewCampaignDlg();
+	std::function<void(std::string)> eventCampaignSelected;
 
 private:
 	void OnOK();

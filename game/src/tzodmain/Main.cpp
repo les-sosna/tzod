@@ -1,30 +1,20 @@
 // Main.cpp
 
-#include <AIManager.h>
+#include <AppState.h>
 #include <constants.h>
 #include <GameContext.h>
 #include <GlfwPlatform.h>
-#include <globals.h>
 #include <gui_desktop.h>
 #include <script/script.h>
 #include <script/ScriptHarness.h>
 #include <ThemeManager.h>
-#include <BackgroundIntro.h>
-#include <WorldController.h>
 
 #include <config/Config.h>
 #include <config/Language.h>
 
-#ifndef NOSOUND
-#include <SoundHarness.h>
-#include <sound/MusicPlayer.h>
-#endif
-
 //#include <network/Variant.h>
 //#include <network/TankClient.h>
 
-#include <gc/Player.h>
-#include <gc/World.h>
 #include <gclua/lgcmod.h>
 
 #include <core/Debug.h>
@@ -57,32 +47,20 @@ namespace
 {
 	class DesktopFactory : public UI::IWindowFactory
 	{
-		GameEventSource &_gameEventSource;
-        World &_world;
-		WorldController &_worldController;
-		AIManager &_aiMgr;
-		ThemeManager &_themeManager;
+		AppState &_appState;
 		FS::FileSystem &_fs;
 		std::function<void()> _exitCommand;
 	public:
-        DesktopFactory(GameEventSource &gameEventSource,
-					   World &world,
-					   WorldController &worldController,
-					   AIManager &aiMgr,
-					   ThemeManager &themeManager,
+        DesktopFactory(AppState &appState,
 					   FS::FileSystem &fs,
 					   std::function<void()> exitCommand)
-            : _gameEventSource(gameEventSource)
-			, _world(world)
-			, _worldController(worldController)
-			, _aiMgr(aiMgr)
-			, _themeManager(themeManager)
+            : _appState(appState)
 			, _fs(fs)
 			, _exitCommand(std::move(exitCommand))
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _gameEventSource, _world, _worldController, _aiMgr, _themeManager, _fs, _exitCommand);
+			return new UI::Desktop(manager, _appState, _fs, _exitCommand);
 		}
 	};
 
@@ -216,38 +194,24 @@ int main(int, const char**)
 		if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
 			TRACE("WARNING: no skins found");
 		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
-		GameContext gameContext(*fs,
-								themeManager,
-								texman,
-								exitCommand);
-		WorldController worldController(gameContext.GetWorld());
-		AIManager aiManager(gameContext.GetWorld());
-#ifndef NOSOUND
-		SoundHarness soundHarness(*fs->GetFileSystem(DIR_SOUND), gameContext.GetWorld());
-#endif
-        g_env.L = gameContext.GetScriptHarness().GetLuaState();
-        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
-        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
-			
-        TRACE("GUI subsystem initialization");
+		AppState appState;
 		GlfwInput input(appWindow.GetGlfwWindow());
 		GlfwClipboard clipboard(appWindow.GetGlfwWindow());
         UI::LayoutManager gui(input,
 							  clipboard,
 							  texman,
-							  DesktopFactory(gameContext.GetGameEventsBroadcaster(),
-											 gameContext.GetWorld(),
-											 worldController,
-											 aiManager,
-											 themeManager,
+							  DesktopFactory(appState,
 											 *fs,
 											 exitCommand));
         glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
         gui.GetDesktop()->Resize((float) width, (float) height);
         
-        TRACE("Running startup script '%s'", FILE_STARTUP);
-        if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
-            TRACE("ERROR: in startup script");
+//        g_env.L = gameContext.GetScriptHarness().GetLuaState();
+//        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
+//        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
+//        TRACE("Running startup script '%s'", FILE_STARTUP);
+//        if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
+//            TRACE("ERROR: in startup script");
 
 		std::deque<float> movingAverageWindow;
 		std::deque<float> movingMedianWindow;
@@ -267,9 +231,7 @@ int main(int, const char**)
                 break;
 			
 			float dt = timer.GetDt();
-			worldController.SendControllerStates(aiManager.ComputeAIState(gameContext.GetWorld(), dt));
-			gui.TimeStep(dt); // this also sends user controller state to WorldController
-
+			
 			// moving average
 			movingAverageWindow.push_back(dt);
 			if (movingAverageWindow.size() > 8)
@@ -284,10 +246,9 @@ int main(int, const char**)
 			std::nth_element(buf, buf + movingMedianWindow.size() / 2, buf + movingMedianWindow.size());
 			float median = buf[movingMedianWindow.size() / 2];
 			
-			gameContext.Step(median * g_conf.sv_speed.GetFloat() / 100);
-#ifndef NOSOUND
-			soundHarness.Step();
-#endif
+			gui.TimeStep(dt); // this also sends user controller state to WorldController
+			if (GameContextBase *gc = appState.GetGameContext())
+				gc->Step(median * g_conf.sv_speed.GetFloat() / 100);
 			
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
@@ -299,8 +260,6 @@ int main(int, const char**)
             glfwSwapBuffers(&appWindow.GetGlfwWindow());
         }
         
-		g_env.L = NULL;
-
         TRACE("Saving config to '" FILE_CONFIG "'");
         if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
         {

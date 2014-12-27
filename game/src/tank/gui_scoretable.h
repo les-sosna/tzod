@@ -1,10 +1,9 @@
-// gui_scoretable.h
-
 #pragma once
 
 #include <ui/Window.h>
 
 class World;
+class Deathmatch;
 
 namespace UI
 {
@@ -12,7 +11,7 @@ namespace UI
 class ScoreTable : public Window
 {
 public:
-	ScoreTable(Window *parent, World &world);
+	ScoreTable(Window *parent, World &world, Deathmatch &deathmatch);
 
 protected:
 	virtual void OnParentSize(float width, float height);
@@ -21,7 +20,7 @@ protected:
 private:
 	size_t _font;
     World &_world;
+	Deathmatch &_deathmatch;
 };
 
 } // end of namespace UI
-// end of file

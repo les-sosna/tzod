@@ -1,6 +1,3 @@
-// gui_campaign.cpp
-
-#include "globals.h"
 #include "gui_campaign.h"
 #include "gui_desktop.h"
 
@@ -18,7 +15,6 @@
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
 
 NewCampaignDlg::NewCampaignDlg(Window *parent, FS::FileSystem &fs)
   : Dialog(parent, 512, 400)
@@ -49,30 +45,17 @@ NewCampaignDlg::~NewCampaignDlg()
 
 void NewCampaignDlg::OnOK()
 {
-	if( -1 == _files->GetCurSel() )
+	if( -1 != _files->GetCurSel() )
 	{
-		return;
+		if( eventCampaignSelected )
+			eventCampaignSelected(_files->GetData()->GetItemText(_files->GetCurSel(), 0));
 	}
-
-	g_conf.ui_showmsg.Set(true);
-
-	const std::string& name = _files->GetData()->GetItemText(_files->GetCurSel(), 0);
-	if( !script_exec_file(g_env.L, _fs, ("campaign/" + name + ".lua").c_str()) )
-	{
-		static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
-	}
-
-	Close(_resultOK);
 }
 
 void NewCampaignDlg::OnCancel()
 {
-	Close(_resultCancel);
+	if( eventCampaignSelected )
+		eventCampaignSelected(std::string());
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
-
+} // namespace UI

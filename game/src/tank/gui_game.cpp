@@ -4,6 +4,7 @@
 #include "DefaultCamera.h"
 #include "InputManager.h"
 #include "Controller.h"
+#include "Deathmatch.h"
 #include "WorldController.h"
 #include "config/Config.h"
 #include "gc/World.h"
@@ -36,20 +37,13 @@ void UI::TimeElapsed::OnVisibleChange(bool visible, bool inherited)
 
 void UI::TimeElapsed::OnTimeStep(float dt)
 {
-	if( !_world.IsEmpty() )
-	{
-		std::ostringstream text;
-		int time = (int) _world.GetTime();
-		text << (time / 60) << ":";
-		if( time % 60 < 10 )
-			text << "0";
-		text << (time % 60);
-		SetText(text.str());
-	}
-	else
-	{
-		SetText("--:--");
-	}
+	std::ostringstream text;
+	int time = (int) _world.GetTime();
+	text << (time / 60) << ":";
+	if( time % 60 < 10 )
+		text << "0";
+	text << (time % 60);
+	SetText(text.str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,6 +54,7 @@ UI::GameLayout::GameLayout(Window *parent,
 						   WorldView &worldView,
 						   WorldController &worldController,
 						   InputManager &inputMgr,
+						   Gameplay &gameplay,
 						   const DefaultCamera &defaultCamera)
     : Window(parent)
 	, _gameEventSource(gameEventSource)
@@ -67,11 +62,12 @@ UI::GameLayout::GameLayout(Window *parent,
     , _worldView(worldView)
 	, _worldController(worldController)
 	, _inputMgr(inputMgr)
+	, _gameplay(gameplay)
     , _defaultCamera(defaultCamera)
 {
 	_msg = new MessageArea(this, 100, 100);
     
-	_score = new ScoreTable(this, _world);
+	_score = new ScoreTable(this, _world, dynamic_cast<Deathmatch&>(gameplay));
 	_score->SetVisible(false);
     
 	_time = new TimeElapsed(this, 0, 0, alignTextRB, _world);
@@ -126,7 +122,7 @@ static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t 
 void UI::GameLayout::OnTimeStep(float dt)
 {
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
-	_score->SetVisible(!_world.IsEmpty() && (tab || _world._limitHit));
+	_score->SetVisible(tab || _gameplay.IsGameOver());
 
 	
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
@@ -172,54 +168,54 @@ void UI::GameLayout::OnTimeStep(float dt)
 
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    if( size_t camCount = _world.GetList(LIST_cameras).size() )
-    {
+	if( size_t camCount = _world.GetList(LIST_cameras).size() )
+	{
 		Point ssize = {(int) GetWidth(), (int) GetHeight()};
 		Point wsize = {(int) _world._sx, (int) _world._sy};
 		
-        if( GetWidth() >= _world._sx && GetHeight() >= _world._sy )
-        {
-            // render from single camera with maximum shake
-            float max_shake = -1;
-            GC_Camera *singleCamera = NULL;
-            FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
-            {
-                if( pCamera->GetShake() > max_shake )
-                {
-                    singleCamera = pCamera;
-                    max_shake = pCamera->GetShake();
-                }
-            }
-            assert(singleCamera);
+		if( GetWidth() >= _world._sx && GetHeight() >= _world._sy )
+		{
+			// render from single camera with maximum shake
+			float max_shake = -1;
+			GC_Camera *singleCamera = NULL;
+			FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
+			{
+				if( pCamera->GetShake() > max_shake )
+				{
+					singleCamera = pCamera;
+					max_shake = pCamera->GetShake();
+				}
+			}
+			assert(singleCamera);
 
 			Rect viewport = CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
 								  (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
 			vec2d eye = singleCamera->GetCameraPos();
 			float zoom = singleCamera->GetZoom();
-            _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
-        }
-        else
-        {
-            // render from each camera
+			_worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
+		}
+		else
+		{
+			// render from each camera
 			size_t camIndex = 0;
-            FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
-            {
+			FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
+			{
 				Rect viewport = GetCameraViewport(ssize, wsize, camCount, camIndex);
 				vec2d eye = pCamera->GetCameraPos();
 				float zoom = pCamera->GetZoom();
-                _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
+				_worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
 				++camIndex;
-            }
-        }
-    }
-    else
-    {
-        // render from default camera
+			}
+		}
+	}
+	else
+	{
+		// render from default camera
 		CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 		vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 		float zoom = _defaultCamera.GetZoom();
-        _worldView.Render(dc, _world, viewport, eye, zoom, false, false, g_conf.sv_nightmode.Get());
-    }
+		_worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
+	}
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }

@@ -1,25 +1,16 @@
 // gui_mainmenu.cpp
 
 #include "gui_mainmenu.h"
-
-#include "globals.h"
 #include "gui_desktop.h"
 #include "gui_network.h"
 #include "gui_settings.h"
 #include "gui_editor.h"
 #include "gui_getfilename.h"
-#include "gui_campaign.h"
 #include "gui.h"
 
-//#include "network/TankClient.h"
-//#include "network/TankServer.h"
-
-#include "gc/World.h"
-#include "gc/Macros.h"
 #include "script/script.h"
 
 #include "core/Debug.h"
-#include "config/Config.h"
 #include "config/Language.h"
 
 #include <fs/FileSystem.h>
@@ -33,22 +24,15 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 
 MainMenuDlg::MainMenuDlg(Window *parent,
-						 World &world,
-						 InputManager &inputMgr,
-						 AIManager &aiMgr,
-						 ThemeManager &themeManager,
 						 FS::FileSystem &fs,
-						 std::function<void()> exitCommand)
-  : Dialog(parent, 1, 1)
-  , _inputMgr(inputMgr)
-  , _aiMgr(aiMgr)
+						 MainMenuCommands commands)
+  : Window(parent)
   , _panel(NULL)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
   , _fileDlg(NULL)
-  , _world(world)
-  , _themeManager(themeManager)
   , _fs(fs)
+  , _commands(std::move(commands))
 {
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
@@ -58,7 +42,7 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
 	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 	Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
-	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = std::move(exitCommand);
+	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = _commands.exit;
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);
@@ -81,20 +65,6 @@ MainMenuDlg::~MainMenuDlg()
 void MainMenuDlg::OnSinglePlayer()
 {
 	SwitchPanel(PT_SINGLEPLAYER);
-}
-
-void MainMenuDlg::OnNewGame()
-{
-	SetVisible(false);
-	NewGameDlg *dlg = new NewGameDlg(GetParent(), _world, _inputMgr, _aiMgr, _themeManager, _fs);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnCampaign()
-{
-	SetVisible(false);
-	NewCampaignDlg *dlg = new NewCampaignDlg(GetParent(), _fs);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnSaveGame()
@@ -120,7 +90,7 @@ void MainMenuDlg::OnSaveGame()
 void MainMenuDlg::OnSaveGameSelect(int result)
 {
 	assert(_fileDlg);
-	if( _resultOK == result )
+	if( Dialog::_resultOK == result )
 	{
 		std::string tmp = DIR_SAVE;
 		tmp += "/";
@@ -128,9 +98,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 		try
 		{
 			TRACE("Saving game to file '%S'...", tmp.c_str());
-			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeWrite)->QueryStream();
-			// TODO: do full game context serialization
-			_world.Serialize(stream);
+//			_gameContext.Serialize(*_fs.Open(tmp, FS::ModeWrite)->QueryStream());
 			GetConsole().Printf(0, "game saved: '%s'", tmp.c_str());
 		}
 		catch( const std::exception &e )
@@ -159,10 +127,8 @@ void MainMenuDlg::OnLoadGame()
 void MainMenuDlg::OnLoadGameSelect(int result)
 {
 	assert(_fileDlg);
-	if( _resultOK == result )
+	if( Dialog::_resultOK == result )
 	{
-//		SAFE_DELETE(g_client);
-
 		std::string tmp = DIR_SAVE;
 		tmp += "/";
 		tmp += _fileDlg->GetFileName();
@@ -172,12 +138,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 			TRACE("Loading saved game from file '%s'...", tmp.c_str());
 			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
 
-			_world.Clear();
-			// cancel any pending commands
-			ClearCommandQueue(g_env.L);
-
-			// TODO: do full game context serialization
-			_world.Unserialize(stream, _themeManager, GetManager().GetTextureManager());
+//			_gameContext.Deserialize(*stream);
 		}
 		catch( const std::exception &e )
 		{
@@ -196,23 +157,23 @@ void MainMenuDlg::OnMultiPlayer()
 
 void MainMenuDlg::OnHost()
 {
-	SetVisible(false);
-	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world, _fs);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
+//	SetVisible(false);
+//	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world, _fs);
+//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnJoin()
 {
-	SetVisible(false);
-	ConnectDlg *dlg = new ConnectDlg(GetParent(), g_conf.cl_server.Get(), _world);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
+//	SetVisible(false);
+//	ConnectDlg *dlg = new ConnectDlg(GetParent(), g_conf.cl_server.Get(), _world);
+//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnInternet()
 {
-	SetVisible(false);
-	InternetDlg *dlg = new InternetDlg(GetParent(), _world);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
+//	SetVisible(false);
+//	InternetDlg *dlg = new InternetDlg(GetParent(), _world);
+//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnNetworkProfile()
@@ -228,18 +189,11 @@ void MainMenuDlg::OnEditor()
 	SwitchPanel(PT_EDITOR);
 }
 
-void MainMenuDlg::OnNewMap()
-{
-	SetVisible(false);
-	NewMapDlg *dlg = new NewMapDlg(GetParent(), _world, _themeManager);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
 void MainMenuDlg::OnMapSettings()
 {
-	SetVisible(false);
-	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent(), _world, _themeManager);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
+//	SetVisible(false);
+//	MapSettingsDlg *dlg = new MapSettingsDlg(GetParent(), _gameContext);
+//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
 void MainMenuDlg::OnImportMap()
@@ -265,11 +219,9 @@ void MainMenuDlg::OnImportMap()
 void MainMenuDlg::OnImportMapSelect(int result)
 {
 	assert(_fileDlg);
-	if( _resultOK == result )
+	if( Dialog::_resultOK == result )
 	{
-		_world.Clear();
-		_world.Import(_fs.Open(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName())->QueryStream(),
-					  _themeManager, GetManager().GetTextureManager());
+		_commands.openMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);
@@ -298,7 +250,7 @@ void MainMenuDlg::OnExportMap()
 void MainMenuDlg::OnExportMapSelect(int result)
 {
 	assert(_fileDlg);
-	if( _resultOK == result )
+	if( Dialog::_resultOK == result )
 	{
 		std::string tmp = DIR_MAPS;
 		tmp += "/";
@@ -306,7 +258,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 		try
 		{
-			_world.Export(_fs.Open(tmp, FS::ModeWrite)->QueryStream());
+//			_world.Export(_fs.Open(tmp, FS::ModeWrite)->QueryStream());
 		}
 		catch( const std::exception &e )
 		{
@@ -324,7 +276,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 void MainMenuDlg::OnSettings()
 {
 	SetVisible(false);
-	SettingsDlg *dlg = new SettingsDlg(GetParent(), _world);
+	SettingsDlg *dlg = new SettingsDlg(GetParent());
 	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
 }
 
@@ -337,7 +289,7 @@ void MainMenuDlg::OnCloseChild(int result)
 {
 	if( Dialog::_resultOK == result )
 	{
-		Close(result);
+//		Close(result);
 	}
 	else
 	{
@@ -350,14 +302,17 @@ bool MainMenuDlg::OnRawChar(int c)
 {
 	switch(c)
 	{
-	case GLFW_KEY_F2:
-		OnNewGame();
-		break;
 	case GLFW_KEY_F12:
 		OnSettings();
 		break;
+	case GLFW_KEY_ESCAPE:
+		if (_ptype != PT_NONE)
+			SwitchPanel(PT_NONE);
+		else
+			return false;
+		break;
 	default:
-		return Dialog::OnRawChar(c);
+		return false;
 	}
 	return true;
 }
@@ -388,8 +343,8 @@ void MainMenuDlg::CreatePanel()
 	{
 	case PT_SINGLEPLAYER:
 		_panelTitle->SetText(g_lang.single_player_title.Get());
-		Button::Create(_panel, g_lang.single_player_campaign.Get(), 0, y)->eventClick = std::bind(&MainMenuDlg::OnCampaign, this);
-		Button::Create(_panel, g_lang.single_player_skirmish.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnNewGame, this);
+		Button::Create(_panel, g_lang.single_player_campaign.Get(), 0, y)->eventClick = _commands.newCampaign;
+		Button::Create(_panel, g_lang.single_player_skirmish.Get(), 100, y)->eventClick = _commands.newDM;
 		Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnLoadGame, this);
 		btn = Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnSaveGame, this);
@@ -404,7 +359,7 @@ void MainMenuDlg::CreatePanel()
 		break;
 	case PT_EDITOR:
 		_panelTitle->SetText(g_lang.editor_title.Get());
-		Button::Create(_panel, g_lang.editor_new_map.Get(), 0, y)->eventClick = std::bind(&MainMenuDlg::OnNewMap, this);
+		Button::Create(_panel, g_lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
 		Button::Create(_panel, g_lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
 		btn = Button::Create(_panel, g_lang.editor_save_map.Get(), 200, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnExportMap, this);

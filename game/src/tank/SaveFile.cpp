@@ -3,7 +3,7 @@
 #include "SaveFile.h"
 #include "gc/Object.h"
 
-SaveFile::SaveFile(std::shared_ptr<FS::Stream> s, bool loading)
+SaveFile::SaveFile(FS::Stream &s, bool loading)
   : _stream(s)
   , _load(loading)
 {

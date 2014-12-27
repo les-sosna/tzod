@@ -1,5 +1,6 @@
 #include "Deathmatch.h"
 #include "GameEvents.h"
+#include "SaveFile.h"
 #include "config/Language.h"
 #include "gc/GameClasses.h"
 #include "gc/Player.h"
@@ -9,6 +10,8 @@
 Deathmatch::Deathmatch(World &world, GameListener &gameListener)
 	: _world(world)
 	, _gameListener(gameListener)
+	, _fragLimit(0)
+	, _timeLimit(0)
 {
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 }
@@ -16,6 +19,26 @@ Deathmatch::Deathmatch(World &world, GameListener &gameListener)
 Deathmatch::~Deathmatch()
 {
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
+}
+
+void Deathmatch::Step()
+{
+//	if( IsGameOver() )
+//	{
+//		for( auto ls: eWorld._listeners )
+//			ls->OnGameFinished();	
+//	}
+}
+
+bool Deathmatch::IsGameOver()
+{
+	return _timeLimit > 0 && _timeLimit <= _world.GetTime();
+}
+
+void Deathmatch::Serialize(SaveFile &f)
+{
+	f.Serialize(_fragLimit);
+	f.Serialize(_timeLimit);
 }
 
 void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
@@ -31,7 +54,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			if( dd.from == vehicle->GetOwner() )
 			{
 				// killed him self
-				vehicle->GetOwner()->SetScore(_world, vehicle->GetOwner()->GetScore() - 1);
+				vehicle->GetOwner()->SetScore(vehicle->GetOwner()->GetScore() - 1);
 				style = GC_Text::SCORE_MINUS;
 				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), vehicle->GetOwner()->GetNick().c_str());
 			}
@@ -41,7 +64,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 				   dd.from->GetTeam() == vehicle->GetOwner()->GetTeam() )
 				{
 					// 'from' killed his friend
-					dd.from->SetScore(_world, dd.from->GetScore() - 1);
+					dd.from->SetScore(dd.from->GetScore() - 1);
 					style = GC_Text::SCORE_MINUS;
 					sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
 							dd.from->GetNick().c_str(),
@@ -50,7 +73,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 				else
 				{
 					// 'from' killed his enemy
-					dd.from->SetScore(_world, dd.from->GetScore() + 1);
+					dd.from->SetScore(dd.from->GetScore() + 1);
 					style = GC_Text::SCORE_PLUS;
 					sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
 							dd.from->GetNick().c_str(), vehicle->GetOwner()->GetNick().c_str());
@@ -59,7 +82,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			else
 			{
 				// this tank does not have player service. score up the killer
-				dd.from->SetScore(_world, dd.from->GetScore() + 1);
+				dd.from->SetScore(dd.from->GetScore() + 1);
 				style = GC_Text::SCORE_PLUS;
 			}
 			
@@ -72,7 +95,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 		else if( vehicle->GetOwner() )
 		{
 			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), vehicle->GetOwner()->GetNick().c_str());
-			vehicle->GetOwner()->SetScore(_world, vehicle->GetOwner()->GetScore() - 1);
+			vehicle->GetOwner()->SetScore(vehicle->GetOwner()->GetScore() - 1);
 			sprintf(score, "%d", vehicle->GetOwner()->GetScore());
 			_world.New<GC_Text_ToolTip>(vehicle->GetPos(), score, GC_Text::SCORE_MINUS);
 		}

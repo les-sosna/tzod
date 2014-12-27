@@ -1,5 +1,3 @@
-// gui_widgets.h
-
 #pragma once
 
 #include "ui/Text.h"
@@ -7,7 +5,7 @@
 #include <string>
 #include <queue>
 
-class World;
+class AppState;
 
 namespace UI
 {
@@ -19,17 +17,15 @@ class FpsCounter : public Text
 	int _nSprites;
 	int _nLights;
 	int _nBatches;
-    World &_world;
+    AppState &_appState;
 
 public:
-	FpsCounter(Window *parent, float x, float y, enumAlignText align, World &world);
+	FpsCounter(Window *parent, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
 	void OnVisibleChange(bool visible, bool inherited);
 	void OnTimeStep(float dt);
 };
-
-///////////////////////////////////////////////////////////////////////////////
 
 class Oscilloscope : public Window
 {
@@ -58,8 +54,5 @@ private:
 	float _scale;
 };
 
+} // namespace UI
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

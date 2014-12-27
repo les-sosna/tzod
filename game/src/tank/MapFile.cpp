@@ -9,19 +9,19 @@
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
 {
 	assert(!_modeWrite);
-    return 1 == _file->Read(&chdr, sizeof(ChunkHeader), 1);
+    return 1 == _file.Read(&chdr, sizeof(ChunkHeader), 1);
 }
 
 void MapFile::_skip_block(size_t size)
 {
 	assert(!_modeWrite);
-	_file->Seek(size, SEEK_CUR);
+	_file.Seek(size, SEEK_CUR);
 }
 
 //////////////////////////////////////////////////////////
 
-MapFile::MapFile(std::shared_ptr<FS::Stream> file, bool write)
-  : _file(file)
+MapFile::MapFile(FS::Stream &stream, bool write)
+  : _file(stream)
   , _modeWrite(write)
   , _headerWritten(false)
   , _isNewClass(true)
@@ -122,7 +122,7 @@ void MapFile::WriteHeader()
 
 	ch.chunkType = CHUNK_HEADER_OPEN;
 	ch.chunkSize = 0;
-	_file->Write(&ch, sizeof(ChunkHeader));
+	_file.Write(&ch, sizeof(ChunkHeader));
 
 
 	//
@@ -135,7 +135,7 @@ void MapFile::WriteHeader()
 		it = _mapAttrs.attrs_int.begin(); it != _mapAttrs.attrs_int.end(); ++it )
 	{
 		ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(int);
-		_file->Write(&ch, sizeof(ChunkHeader));
+		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_INT);
 		WriteString(it->first);
 		WriteInt(it->second);
@@ -145,7 +145,7 @@ void MapFile::WriteHeader()
 		it = _mapAttrs.attrs_float.begin(); it != _mapAttrs.attrs_float.end(); ++it )
 	{
 		ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(float);
-		_file->Write(&ch, sizeof(ChunkHeader));
+		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_FLOAT);
 		WriteString(it->first);
 		WriteFloat(it->second);
@@ -155,7 +155,7 @@ void MapFile::WriteHeader()
 		it = _mapAttrs.attrs_str.begin(); it != _mapAttrs.attrs_str.end(); ++it )
 	{
 		ch.chunkSize = it->first.length() + it->second.length() + sizeof(unsigned short) * 2;
-		_file->Write(&ch, sizeof(ChunkHeader));
+		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_STRING);
 		WriteString(it->first);
 		WriteString(it->second);
@@ -168,20 +168,20 @@ void MapFile::WriteHeader()
 
 	ch.chunkType = CHUNK_HEADER_CLOSE;
 	ch.chunkSize = 0;
-	_file->Write(&ch, sizeof(ChunkHeader));
+	_file.Write(&ch, sizeof(ChunkHeader));
 }
 
 void MapFile::WriteInt(int value)
 {
 	assert(_modeWrite);
     uint32_t tmp = value;
-	_file->Write(&tmp, 4);
+	_file.Write(&tmp, 4);
 }
 
 void MapFile::WriteFloat(float value)
 {
 	assert(_modeWrite);
-	_file->Write(&value, sizeof(float));
+	_file.Write(&value, sizeof(float));
 }
 
 void MapFile::WriteString(const std::string &value)
@@ -189,16 +189,16 @@ void MapFile::WriteString(const std::string &value)
 	assert(_modeWrite);
 	assert(value.length() <= 0xffff);
 	uint16_t len = (uint16_t) (value.length() & 0xffff);
-	_file->Write(&len, 2);
+	_file.Write(&len, 2);
     if( len )
-        _file->Write(value.data(), len);
+        _file.Write(value.data(), len);
 }
 
 void MapFile::ReadInt(int &value)
 {
 	assert(!_modeWrite);
     int32_t tmp;
-	if( 1 != _file->Read(&tmp, 4, 1) )
+	if( 1 != _file.Read(&tmp, 4, 1) )
         throw std::runtime_error("unexpected end of file");
     value = tmp;
 }
@@ -207,7 +207,7 @@ void MapFile::ReadFloat(float &value)
 {
     static_assert(sizeof(value) == 4, "size of float is not 4");
 	assert(!_modeWrite);
-	if( 1 != _file->Read(&value, 4, 1) )
+	if( 1 != _file.Read(&value, 4, 1) )
         throw std::runtime_error("unexpected end of file");
 }
 
@@ -215,11 +215,11 @@ void MapFile::ReadString(std::string &value)
 {
 	assert(!_modeWrite);
 	uint16_t len;
-	if( 1 != _file->Read(&len, 2, 1) )
+	if( 1 != _file.Read(&len, 2, 1) )
         throw std::runtime_error("unexpected end of file");
     value.resize(len);
 	if( len )
-        if( 1 != _file->Read(&value[0], len, 1) )
+        if( 1 != _file.Read(&value[0], len, 1) )
             throw std::runtime_error("unexpected end of file");
 }
 
@@ -442,7 +442,7 @@ void MapFile::WriteCurrentObject()
 		const ObjectDefinition &od = _managed_classes.back();
 		ch.chunkType = CHUNK_OBJDEF;
 		ch.chunkSize = od.CalcSize();
-		_file->Write(&ch, sizeof(ChunkHeader));
+		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteString(od._className);
 		WriteInt((int)od._propertyset.size());
 		for( size_t i = 0; i < od._propertyset.size(); i++ )
@@ -459,8 +459,8 @@ void MapFile::WriteCurrentObject()
 	ch.chunkType = CHUNK_OBJECT;
 	ch.chunkSize = str.size();
 	assert(ch.chunkSize > 0);
-	_file->Write(&ch, sizeof(ChunkHeader));
-	_file->Write(str.data(), ch.chunkSize);
+	_file.Write(&ch, sizeof(ChunkHeader));
+	_file.Write(str.data(), ch.chunkSize);
 }
 
 bool MapFile::NextObject()

@@ -10,7 +10,6 @@
 InputManager::InputManager(World &world)
 	: _world(world)
 {
-	_world.eGC_Player.AddListener(*this);
 	_world.eWorld.AddListener(*this);
     g_conf.dm_profiles.eventChange = std::bind(&InputManager::OnProfilesChange, this);
     OnProfilesChange();
@@ -20,7 +19,6 @@ InputManager::~InputManager()
 {
     g_conf.dm_profiles.eventChange = nullptr;
 	_world.eWorld.RemoveListener(*this);
-	_world.eGC_Player.RemoveListener(*this);
 }
 
 Controller* InputManager::GetController(GC_Player *player) const

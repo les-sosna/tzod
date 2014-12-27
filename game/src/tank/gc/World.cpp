@@ -17,28 +17,11 @@
 
 #include <fs/FileSystem.h>
 
-
-#define MAX_THEME_NAME  128
-
-struct SaveHeader
-{
-    uint32_t dwVersion;
-    bool  nightmode;
-	bool  started;
-    float timelimit;
-    int   fraglimit;
-    float time;
-    int   width;
-    int   height;
-    char  theme[MAX_THEME_NAME];
-};
-
-
 // don't create game objects in the constructor
-World::World()
+World::World(int X, int Y)
   : _gameStarted(false)
   , _frozen(false)
-  , _limitHit(false)
+  , _nightMode(false)
   , _sx(0)
   , _sy(0)
   , _locationsX(0)
@@ -53,36 +36,26 @@ World::World()
 #endif
 {
 	TRACE("Constructing the world");
-}
-
-bool World::IsEmpty() const
-{
-	return GetList(LIST_objects).empty();
-}
-
-void World::OnKill(GC_Object &obj)
-{
-	for( auto ls: eWorld._listeners )
-		ls->OnKill(obj);
-}
-
-void World::Resize(int X, int Y)
-{
-	assert(IsEmpty());
-
+	
 	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx          = (float) X * CELL_SIZE;
 	_sy          = (float) Y * CELL_SIZE;
-
+	
 	grid_rigid_s.resize(_locationsX, _locationsY);
 	grid_walls.resize(_locationsX, _locationsY);
 	grid_wood.resize(_locationsX, _locationsY);
 	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
 	grid_actors.resize(_locationsX, _locationsY);
-
+	
 	_field.Resize(X + 1, Y + 1);
+}
+
+void World::OnKill(GC_Object &obj)
+{
+	for( auto ls: eWorld._listeners )
+		ls->OnKill(obj);
 }
 
 void World::Clear()
@@ -105,7 +78,6 @@ void World::Clear()
 
 	// reset variables
 	_time = 0;
-	_limitHit = false;
 	_frozen = false;
 	_gameStarted = false;
 #ifdef NETWORK_DEBUG
@@ -117,16 +89,7 @@ void World::Clear()
 		_dump = NULL;
 	}
 #endif
-    assert(IsEmpty());
-}
-
-void World::HitLimit()
-{
-	assert(!_limitHit);
-//	PauseLocal(true);
-	_limitHit = true;
-	for( auto ls: eWorld._listeners )
-		ls->OnGameFinished();
+    assert(GetList(LIST_objects).empty());
 }
 
 World::~World()
@@ -135,88 +98,46 @@ World::~World()
 	TRACE("Destroying the world");
 	Clear();
 
-	assert(IsEmpty() && _garbage.empty());
+	assert(GetList(LIST_objects).empty() && _garbage.empty());
 }
 
-void World::Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &themeManager, TextureManager &tm)
+void World::Deserialize(SaveFile &f)
 {
 	assert(IsSafeMode());
-	assert(IsEmpty());
+	assert(GetList(LIST_objects).empty());
 
-	SaveFile f(stream, true);
+	f.Serialize(_gameStarted);
+	f.Serialize(_time);
+	f.Serialize(_nightMode);
 
-	try
+	// fill pointers cache
+	for(;;)
 	{
-		SaveHeader sh;
-		if( 1 != stream->Read(&sh, sizeof(SaveHeader), 1) )
-            throw std::runtime_error("unexpected end of file");
-
-		if( VERSION != sh.dwVersion )
-			throw std::runtime_error("invalid version");
-
-		g_conf.sv_timelimit.SetFloat(sh.timelimit);
-		g_conf.sv_fraglimit.SetInt(sh.fraglimit);
-		g_conf.sv_nightmode.Set(sh.nightmode);
-
-		_gameStarted = sh.started;
-		_time = sh.time;
-		Resize(sh.width, sh.height);
-
-
-		// fill pointers cache
-		for(;;)
+		ObjectType type;
+		f.Serialize(type);
+		if( INVALID_OBJECT_TYPE == type ) // end of list signal
+			break;
+		if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
 		{
-			ObjectType type;
-			f.Serialize(type);
-			if( INVALID_OBJECT_TYPE == type ) // end of list signal
-				break;
-			if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
-			{
-				f.RegPointer(obj);
-			}
-			else
-			{
-				TRACE("ERROR: unknown object type - %u", type);
-				throw std::runtime_error("Load error: unknown object type");
-			}
+			f.RegPointer(obj);
 		}
-
-		// read objects contents in the same order as pointers
-		for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
+		else
 		{
-            GetList(LIST_objects).at(it)->Serialize(*this, f);
+			TRACE("ERROR: unknown object type - %u", type);
+			throw std::runtime_error("Load error: unknown object type");
 		}
-
-		// apply the theme
-		_infoTheme = sh.theme;
-		themeManager.ApplyTheme(themeManager.FindTheme(sh.theme), tm);
 	}
-	catch( const std::runtime_error& )
+
+	// read objects contents in the same order as pointers
+	for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
 	{
-		Clear();
-		throw;
+		GetList(LIST_objects).at(it)->Serialize(*this, f);
 	}
 }
 
-void World::Serialize(std::shared_ptr<FS::Stream> stream)
+void World::Serialize(SaveFile &f)
 {
 	assert(IsSafeMode());
-
-	SaveFile f(stream, false);
-
-	SaveHeader sh = {0};
-	strcpy(sh.theme, _infoTheme.c_str());
-	sh.dwVersion    = VERSION;
-	sh.fraglimit    = g_conf.sv_fraglimit.GetInt();
-	sh.timelimit    = g_conf.sv_timelimit.GetFloat();
-	sh.nightmode    = g_conf.sv_nightmode.Get();
-	sh.started      = _gameStarted;
-	sh.time         = _time;
-	sh.width        = (int) _sx / CELL_SIZE;
-	sh.height       = (int) _sy / CELL_SIZE;
-
-	stream->Write(&sh, sizeof(SaveHeader));
-
 
 	//
 	// pointers to game objects
@@ -226,7 +147,7 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 	{
 		GC_Object *object = objects.at(it);
 		ObjectType type = object->GetType();
-		stream->Write(&type, sizeof(type));
+		f.Serialize(type);
 		f.RegPointer(object);
 	}
 	ObjectType terminator(INVALID_OBJECT_TYPE);
@@ -243,30 +164,16 @@ void World::Serialize(std::shared_ptr<FS::Stream> stream)
 	}
 }
 
-void World::Import(std::shared_ptr<FS::Stream> s, const ThemeManager &themeManager, TextureManager &tm)
+void World::Import(MapFile &file)
 {
-	assert(IsEmpty());
+	assert(GetList(LIST_objects).empty());
 	assert(IsSafeMode());
-
-	MapFile file(s, false);
-
-	int width, height;
-	if( !file.getMapAttribute("width", width) ||
-		!file.getMapAttribute("height", height) )
-	{
-		throw std::runtime_error("unknown map size");
-	}
-
-	file.getMapAttribute("theme", _infoTheme);
-	themeManager.ApplyTheme(themeManager.FindTheme(_infoTheme), tm);
 
 	file.getMapAttribute("author",   _infoAuthor);
 	file.getMapAttribute("desc",     _infoDesc);
 	file.getMapAttribute("link-url", _infoUrl);
 	file.getMapAttribute("e-mail",   _infoEmail);
 	file.getMapAttribute("on_init",  _infoOnInit);
-
-	Resize(width, height);
 
 	while( file.NextObject() )
 	{
@@ -276,7 +183,7 @@ void World::Import(std::shared_ptr<FS::Stream> s, const ThemeManager &themeManag
 	}
 }
 
-void World::Export(std::shared_ptr<FS::Stream> s)
+void World::Export(FS::Stream &s)
 {
 	assert(IsSafeMode());
 
@@ -498,11 +405,6 @@ void World::Step(float dt)
 	}
 
     assert(_safeMode);
-
-	if( g_conf.sv_timelimit.GetInt() && g_conf.sv_timelimit.GetInt() * 60 <= _time )
-	{
-		HitLimit();
-	}
 
 
 	//

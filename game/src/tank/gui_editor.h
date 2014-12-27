@@ -12,6 +12,7 @@ class GC_Object;
 class PropertySet;
 class DefaultCamera;
 class ThemeManager;
+struct lua_State;
 
 namespace UI
 {
@@ -25,11 +26,9 @@ class NewMapDlg : public Dialog
 {
 	Edit *_width;
 	Edit *_height;
-	World &_world;
-	const ThemeManager &_themeManager;
 
 public:
-	NewMapDlg(Window *parent, World &world, ThemeManager &themeManager);
+	NewMapDlg(Window *parent);
 
 	void OnOK();
 	void OnCancel();
@@ -152,13 +151,14 @@ class EditorLayout : public Window
 	int  _mbutton;
     World &_world;
     WorldView &_worldView;
+	lua_State *_globL;
 
 
 	void OnKillSelected(World &world, GC_Object *sender, void *param);
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera);
+	EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);
@@ -192,7 +192,6 @@ class MapSettingsDlg : public Dialog
 	Edit *_desc;
 	Edit *_onInit;
     World &_world;
-	const ThemeManager &_themeManager;
 
 public:
 	MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager);

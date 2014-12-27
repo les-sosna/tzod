@@ -13,8 +13,7 @@ class Controller;
 class World;
 
 class InputManager
-	: private ObjectListener<GC_Player>
-	, private ObjectListener<World>
+	: private ObjectListener<World>
 {
 public:
 	InputManager(World &world);
@@ -27,10 +26,6 @@ private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<Controller>>> _controllers;
 	void OnProfilesChange();
 	World &_world;
-
-	// ObjectListener<GC_Player>
-	virtual void OnRespawn(GC_Player &, GC_Vehicle &) override {}
-	virtual void OnDie(GC_Player &) override {}
 
 	// ObjectListener<World>
 	virtual void OnKill(GC_Object &obj) override;

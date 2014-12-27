@@ -5,7 +5,6 @@
 #include "gc/Object.h"
 #include <fs/FileSystem.h>
 #include <map>
-#include <memory>
 #include <vector>
 
 class SaveFile
@@ -16,18 +15,18 @@ class SaveFile
 	PtrToIndex _ptrToIndex;
 	IndexToPtr _indexToPtr;
 
-	std::shared_ptr<FS::Stream> _stream;
+	FS::Stream &_stream;
 	bool _load;
 
 public:
-	SaveFile(std::shared_ptr<FS::Stream> s, bool loading);
+	SaveFile(FS::Stream &s, bool loading);
 
 	bool loading() const
 	{
 		return _load;
 	}
 
-	const std::shared_ptr<FS::Stream>& GetStream() const { return _stream; }
+	FS::Stream& GetStream() const { return _stream; }
 
 	void Serialize(std::string &str);
 
@@ -64,12 +63,12 @@ void SaveFile::Serialize(T &obj)
 	assert(!strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
     {
-		if( 1 != _stream->Read(&obj, sizeof(T), 1) )
+		if( 1 != _stream.Read(&obj, sizeof(T), 1) )
             throw std::runtime_error("unexpected end of file");
     }
 	else
     {
-		_stream->Write(&obj, sizeof(T));
+		_stream.Write(&obj, sizeof(T));
     }
 }
 
@@ -108,12 +107,12 @@ void SaveFile::SerializeArray(T *p, size_t count)
 	assert(!strstr(typeid(T).name(), "RawPtr"));
 	if( loading() )
     {
-		if( 1 != _stream->Read(p, sizeof(T) * count, 1) )
+		if( 1 != _stream.Read(p, sizeof(T) * count, 1) )
             throw std::runtime_error("unexpected end of file");
     }
 	else
     {
-		_stream->Write(p, sizeof(T) * count);
+		_stream.Write(p, sizeof(T) * count);
     }
 }
 

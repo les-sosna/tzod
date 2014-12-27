@@ -23,13 +23,10 @@ namespace FS
 {
 	class Stream;
 }
-class ClientBase;
+class SaveFile;
 class GC_Object;
 class GC_Player;
 class GC_RigidBodyStatic;
-
-class ThemeManager; // todo: remove
-class TextureManager; // todo: remove
 
 template<class> struct ObjectListener;
 
@@ -122,10 +119,9 @@ public:
 	Grid<PtrList<GC_Object>>  grid_pickup;
     Grid<PtrList<GC_Object>>  grid_actors;
 
-/////////////////////////////////////
 	bool    _gameStarted;
 	bool    _frozen;
-	bool    _limitHit;  // fraglimit or timelimit hit
+	bool    _nightMode;
 	float   _sx, _sy;   // world size
 
 	int _locationsX;
@@ -138,24 +134,18 @@ public:
 	std::string _infoTheme;
 	std::string _infoOnInit;
 
-
-/////////////////////////////////////////////////////
-//network
-
 	unsigned long _seed;
 
-/////////////////////////////////////
-public:
-
-	void Step(float dt);
-
 	Field _field;
-
 	bool  _safeMode;
 
-/////////////////////////////////////////////////////
-	World();
+public:
+
+	World(int X, int Y);
 	~World();
+	
+	void Step(float dt);
+
 
 	template<class T, class ...Args>
 	T& New(Args && ... args)
@@ -180,20 +170,16 @@ public:
 		t->Init(*this);
 		return *t;
 	}
-	
-	void Resize(int X, int Y);
-	void HitLimit();
 
-	bool IsEmpty() const;
+	void Deserialize(SaveFile &f);
+	void Serialize(SaveFile &f);
 
-	void Unserialize(std::shared_ptr<FS::Stream> stream, const ThemeManager &themeManager, TextureManager &tm);
-	void Serialize(std::shared_ptr<FS::Stream> stream);
-
-	void Export(std::shared_ptr<FS::Stream> file);
-	void Import(std::shared_ptr<FS::Stream> file, const ThemeManager &themeManager, TextureManager &tm);
+	void Export(FS::Stream &stream);
+	void Import(MapFile &file);
 
 	void Freeze(bool freeze) { _frozen = freeze; }
 
+	bool GetNightMode() const { return _nightMode; }
 	bool IsSafeMode() const { return _safeMode; }
 	GC_Object* FindObject(const std::string &name) const;
 

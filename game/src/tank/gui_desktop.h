@@ -1,4 +1,5 @@
 #pragma once
+#include "AppState.h"
 #include "DefaultCamera.h"
 #include "InputManager.h"
 #include "render/RenderScheme.h"
@@ -6,19 +7,24 @@
 #include <ui/Window.h>
 #include <ui/Console.h>
 #include <functional>
+#include <string>
 
-struct GameEventSource;
-class WorldController;
-class AIManager;
-class ThemeManager;
 namespace FS
 {
 	class FileSystem;
 }
+struct lua_State;
+
+struct LuaStateDeleter
+{
+	void operator()(lua_State *L);
+};
+
 
 namespace UI
 {
-    
+	
+class MainMenuDlg;
 class EditorLayout;
 class GameLayout;
 class Console;
@@ -28,6 +34,7 @@ class Oscilloscope;
 
 class Desktop
 	: public Window
+	, private AppStateListener
 {
 	class MyConsoleHistory : public UI::IConsoleHistory
 	{
@@ -38,37 +45,36 @@ class Desktop
 	};
 
 	MyConsoleHistory  _history;
-    InputManager _inputMgr;
-	AIManager &_aiMgr;
-	ThemeManager &_themeManager;
 	FS::FileSystem &_fs;
 	std::function<void()> _exitCommand;
+	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
 
-	EditorLayout *_editor;
-    GameLayout   *_game;
-	Console      *_con;
-	FpsCounter   *_fps;
+	MainMenuDlg  *_mainMenu = nullptr;
+	EditorLayout *_editor = nullptr;
+    GameLayout   *_game = nullptr;
+	Console      *_con = nullptr;
+	FpsCounter   *_fps = nullptr;
 
 	size_t _font;
     
     int _nModalPopups;
     
-    World &_world;
 	RenderScheme _renderScheme;
     WorldView _worldView;
-	WorldController &_worldController;
     DefaultCamera _defaultCamera;
 
+	void OnNewCampaign();
+	void OnNewDM();
+	void OnNewMap();
+	void OnOpenMap(std::string fileName);
+	bool GetEditorMode() const;
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;
+	void ShowMainMenu(bool show);
 
 public:
 	Desktop(LayoutManager* manager,
-			GameEventSource &gameEventsSource,
-			World &_world,
-			WorldController &worldController,
-			AIManager &aiMgr,
-			ThemeManager &themeManager,
+			AppState &appState,
 			FS::FileSystem &fs,
 			std::function<void()> exitCommand);
 	virtual ~Desktop();
@@ -89,6 +95,10 @@ private:
 
 	void OnCommand(const std::string &cmd);
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
+	
+	// AppStateListener
+	virtual void OnGameContextChanging() override;
+	virtual void OnGameContextChanged() override;
 };
 
 

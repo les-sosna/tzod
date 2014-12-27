@@ -1,5 +1,3 @@
-// gui_network.cpp
-
 #include "gui_network.h"
 
 #include "gui.h"
@@ -72,7 +70,7 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 		float y =  56;
 
 		_nightMode = CheckBox::Create(this, x3, y, g_lang.night_mode.Get());
-		_nightMode->SetCheck( g_conf.cl_nightmode.Get() );
+//		_nightMode->SetCheck( g_conf.cl_nightmode.Get() );
 
 
 		Text::Create(this, x3, y+=30, g_lang.game_speed.Get(), alignTextLT);
@@ -81,11 +79,11 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 
 		Text::Create(this, x3, y+=30, g_lang.frag_limit.Get(), alignTextLT);
 		_fragLimit = Edit::Create(this, x4, y+=15, 80);
-		_fragLimit->SetInt(g_conf.cl_fraglimit.GetInt());
+//		_fragLimit->SetInt(g_conf.cl_fraglimit.GetInt());
 
 		Text::Create(this, x3, y+=30, g_lang.time_limit.Get(), alignTextLT);
 		_timeLimit = Edit::Create(this, x4, y+=15, 80);
-		_timeLimit->SetInt(g_conf.cl_timelimit.GetInt());
+//		_timeLimit->SetInt(g_conf.cl_timelimit.GetInt());
 
 		Text::Create(this, x3+30, y+=30, g_lang.zero_no_limits.Get(), alignTextLT);
 
@@ -206,7 +204,7 @@ void CreateServerDlg::OnOK()
 
 //	SAFE_DELETE(g_client);
 
-	assert(_world.IsEmpty());
+//	assert(_world.IsEmpty());
 //	new TankClient(_world);
 
 	(new WaitingForPlayersDlg(GetParent(), _world))->eventClose =
@@ -280,7 +278,7 @@ void ConnectDlg::OnOK()
 
 //	SAFE_DELETE(g_client);
 
-	assert(_world.IsEmpty());
+//	assert(_world.IsEmpty());
 //	TankClient *cl = new TankClient(_world);
 //	_clientSubscribtion = cl->AddListener(this);
 //	cl->Connect(_name->GetText());
@@ -313,7 +311,7 @@ void ConnectDlg::OnTextMessage(const std::string &msg)
 
 void ConnectDlg::OnClientDestroy()
 {
-	_clientSubscribtion.reset();
+//	_clientSubscribtion.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -432,24 +430,6 @@ void InternetDlg::OnCloseChild(int result)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-struct PlayerDesc
-{
-    std::string nick;
-    std::string skin;
-    std::string cls;
-    unsigned int team;
-};
-
-static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
-{
-	PlayerDesc result;
-	result.nick = p.nick.Get();
-	result.cls = p.platform_class.Get();
-	result.skin = p.skin.Get();
-	result.team = p.team.GetInt();
-	return result;
-}
 
 WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, World &world)
   : Dialog(parent, 680, 512)
@@ -663,10 +643,7 @@ void WaitingForPlayersDlg::OnStartGame()
 
 void WaitingForPlayersDlg::OnClientDestroy()
 {
-	_clientSubscribtion.reset();
+//	_clientSubscribtion.reset();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

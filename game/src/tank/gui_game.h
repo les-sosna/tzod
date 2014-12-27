@@ -8,12 +8,12 @@ class WorldView;
 class WorldController;
 class InputManager;
 class DefaultCamera;
+struct Gameplay;
 
 namespace UI
 {
     class MessageArea;
     class ScoreTable;
-    class TimeElapsed;
 
 class TimeElapsed : public Text
 {
@@ -36,6 +36,7 @@ public:
 			   WorldView &worldView,
 			   WorldController &worldController,
 			   InputManager &inputMgr,
+			   Gameplay &gameplay,
 			   const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
     
@@ -57,6 +58,7 @@ private:
     WorldView &_worldView;
 	WorldController &_worldController;
 	InputManager &_inputMgr;
+	Gameplay &_gameplay;
     const DefaultCamera &_defaultCamera;
 
 	// GameListener

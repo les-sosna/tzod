@@ -10,7 +10,6 @@ namespace FS
 }
 
 lua_State* script_open(ScriptEnvironment &se);
-void       script_close(lua_State *L);
 
 bool script_exec(lua_State *L, const char *string);
 bool script_exec_file(lua_State *L, FS::FileSystem &fs, const char *filename);

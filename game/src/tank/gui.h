@@ -7,10 +7,6 @@
 #include <ui/Dialog.h>
 
 class ConfVarTable;
-class InputManager;
-class AIManager;
-class World;
-class ThemeManager;
 namespace FS
 {
 	class FileSystem;
@@ -48,15 +44,10 @@ class NewGameDlg : public UI::Dialog
 	Button    *_removeBot;
 	Button    *_changeBot;
 
-	World &_world;
-    InputManager &_inputMgr;
-	AIManager &_aiMgr;
-	const ThemeManager &_themeManager;
-	FS::FileSystem &_fs;
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, World &world, InputManager &inputMgr, AIManager &aiMgr, const ThemeManager &themeManager, FS::FileSystem &fs);
+	NewGameDlg(Window *parent, FS::FileSystem &fs);
 	virtual ~NewGameDlg();
 
 	virtual bool OnRawChar(int c);

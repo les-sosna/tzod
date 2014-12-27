@@ -4,6 +4,7 @@
 #include "sRigidBodyStatic.h"
 #include "sTrigger.h"
 #include "gc/WorldEvents.h"
+#include "gclua/lgcmod.h"
 #include <memory>
 
 class SaveFile;
@@ -18,16 +19,17 @@ class ScriptHarness
 	: ObjectListener<World>
 {
 public:
-	ScriptHarness(World &world, ScriptEnvironment &se);
+	explicit ScriptHarness(World &world);
 	~ScriptHarness();
 	lua_State* GetLuaState() { return _L; }
 	
 	void Step(float dt);
 	
-	void Serialize(std::shared_ptr<FS::Stream> stream, SaveFile &f);
-	void Deserialize(std::shared_ptr<FS::Stream> stream, SaveFile &f);
+	void Serialize(SaveFile &f);
+	void Deserialize(SaveFile &f);
 	
 private:
+	ScriptEnvironment _se;
 	World &_world;
 	lua_State *_L;
 	

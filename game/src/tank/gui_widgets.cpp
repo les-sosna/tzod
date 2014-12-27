@@ -1,6 +1,8 @@
 // gui_widgets.cpp
 
 #include "gui_widgets.h"
+#include "AppState.h"
+#include "GameContext.h"
 #include "gc/World.h"
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
@@ -10,15 +12,13 @@
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
-// FPS counter implementation
 
-FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, World &world)
+FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, AppState &appState)
   : Text(parent)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)
-  , _world(world)
+  , _appState(appState)
 {
 	SetTimeStep(true);
 	Move(x, y);
@@ -52,13 +52,16 @@ void FpsCounter::OnTimeStep(float dt)
 		std::ostringstream s;
 		s << std::setfill('0');
 		s << "fps:" << std::setw(3) << int(1.0f / max + 0.5f) << '-' << std::setw(3) << int(1.0f / avr + 0.5f) << '-' << std::setw(3) << int(1.0f / min + 0.5f);
-		s << std::setfill(' ');
-		s << "; obj:" << _world.GetList(LIST_objects).size() << '\n';
-		s << std::setw(4) << _world.GetList(LIST_timestep).size() << "timestep";
-
+		if (GameContextBase *gc = _appState.GetGameContext())
+		{
+			s << std::setfill(' ');
+			s << "; obj:" << gc->GetWorld().GetList(LIST_objects).size() << '\n';
+			s << std::setw(4) << gc->GetWorld().GetList(LIST_timestep).size() << "timestep";
+			
 #ifndef NDEBUG
-		s << " " << std::setw(4) << _world._garbage.size() << "garbage";
+			s << " " << std::setw(4) << gc->GetWorld()._garbage.size() << "garbage";
 #endif
+		}
 
 
 		// network statistics
