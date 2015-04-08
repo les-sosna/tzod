@@ -1,5 +1,5 @@
 #include "rLight.h"
-#include "gc/Light.h"
+#include <gc/Light.h>
 #include <video/RenderBase.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>

@@ -1,5 +1,5 @@
 #include "rParticle.h"
-#include "gc/particles.h"
+#include <gc/Particles.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

@@ -1,11 +1,10 @@
 #include "WorldView.h"
 #include "RenderScheme.h"
 
-#include "constants.h" // LOCATION_SIZE
-
-#include "gc/Light.h"
-#include "gc/Macros.h"
-#include "gc/World.h"
+#include <gc/Light.h>
+#include <gc/Macros.h>
+#include <gc/World.h>
+#include <gc/WorldCfg.h>
 
 #include <video/DrawingContext.h>
 

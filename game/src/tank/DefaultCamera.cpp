@@ -1,8 +1,6 @@
-// DefaultCamera.cpp
-
 #include "DefaultCamera.h"
-#include "constants.h"
 
+#include <gc/WorldCfg.h>
 #include <ui/UIInput.h>
 #include <GLFW/glfw3.h>
 #include <chrono>

@@ -1,15 +1,16 @@
 #include "lObject.h"
 #include "lObjUtil.h"
 #include "lgcmod.h"
-#include "SaveFile.h"
-#include "gc/ObjPtr.h"
-#include "gc/Object.h"
-#include "gc/Pickup.h"
-#include "gc/RigidBody.h"
-#include "gc/Vehicle.h"
-#include "gc/Player.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
+//#include "SaveFile.h"
+#include <gc/ObjPtr.h>
+#include <gc/Object.h>
+#include <gc/Pickup.h>
+#include <gc/RigidBody.h>
+#include <gc/Vehicle.h>
+#include <gc/Player.h>
+#include <gc/TypeSystem.h>
+#include <gc/Weapons.h>
+#include <gc/World.h>
 
 extern "C"
 {
@@ -30,6 +31,8 @@ static int objfinalizer(lua_State *L)
 	return 0;
 }
 
+// TODO: persistence
+/*
 static int objpersist(lua_State *L)
 {
 	assert(3 == lua_gettop(L));
@@ -48,7 +51,7 @@ static int objpersist(lua_State *L)
 	lua_pushlightuserdata(L, (void *) f->GetPointerId(*ppObj));
 	lua_call(L, 2, 1);
 	return 1;
-}
+}*/
 
 static void pushprop(lua_State *L, ObjectProperty *p)
 {
@@ -384,7 +387,7 @@ static const luaL_Reg objectlib[] = {
 
 static const luaL_Reg objectmt[] = {
 	{"__gc", objfinalizer},
-	{"__persist", objpersist},
+//	{"__persist", objpersist},  // TODO: persistence
 	{"__newindex", pset},
 	{"__index", pget},
 	{"__next", objnextprop},

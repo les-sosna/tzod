@@ -3,9 +3,9 @@
 #include "InputManager.h"
 #include "Controller.h"
 #include "config/Config.h"
-#include "gc/Player.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
 
 InputManager::InputManager(World &world)
 	: _world(world)

@@ -1,8 +1,8 @@
 #include "AIManager.h"
 #include "ai.h"
-#include "gc/Player.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
 
 AIManager::AIManager(World &world)
 	: _world(world)

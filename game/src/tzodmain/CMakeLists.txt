@@ -5,6 +5,7 @@ project(TZodMain CXX)
 include_directories(
 	${Tank_SOURCE_DIR}
 	${FileSystem_SOURCE_DIR}/include
+	${GC_SOURCE_DIR}/include
 	${Math_SOURCE_DIR}/include
 	${UI_SOURCE_DIR}/include
 	${Video_SOURCE_DIR}/include

@@ -1,7 +1,8 @@
 #include "lWorld.h"
-#include "gc/Object.h"
-#include "gc/TypeSystem.h"
-#include "gc/World.h"
+#include <gc/Actor.h>
+#include <gc/Service.h>
+#include <gc/TypeSystem.h>
+#include <gc/World.h>
 #include "gclua/lgcmod.h"
 #include "gclua/lObjUtil.h"
 extern "C"
@@ -35,13 +36,13 @@ int world_actor(lua_State *L)
 	}
 
     ScriptEnvironment &se = GetScriptEnvironment(L);
-	GC_Object *obj = RTTypes::Inst().CreateObject(se.world, type, x, y);
+	GC_Actor &obj = RTTypes::Inst().CreateActor(se.world, type, x, y);
 
 
 	if( 4 == n )
 	{
 		luaL_checktype(L, 4, LUA_TTABLE);
-		std::shared_ptr<PropertySet> properties = obj->GetProperties(se.world);
+		std::shared_ptr<PropertySet> properties = obj.GetProperties(se.world);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
 		{
@@ -52,7 +53,7 @@ int world_actor(lua_State *L)
 		properties->Exchange(se.world, true);
 	}
 
-	luaT_pushobject(L, obj);
+	luaT_pushobject(L, &obj);
 	return 1;
 }
 
@@ -79,14 +80,14 @@ int world_service(lua_State *L)
 	}
 
     ScriptEnvironment &se = GetScriptEnvironment(L);
-	GC_Object *obj = RTTypes::Inst().CreateObject(se.world, type, 0, 0);
+	GC_Service &obj = RTTypes::Inst().CreateService(se.world, type);
 
 
 	if( 2 == n )
 	{
 		luaL_checktype(L, 2, LUA_TTABLE);
 
-		std::shared_ptr<PropertySet> properties = obj->GetProperties(se.world);
+		std::shared_ptr<PropertySet> properties = obj.GetProperties(se.world);
 
 		for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
 		{
@@ -97,7 +98,7 @@ int world_service(lua_State *L)
 		properties->Exchange(se.world, true);
 	}
 
-	luaT_pushobject(L, obj);
+	luaT_pushobject(L, &obj);
 	return 1;
 }
 

@@ -1,6 +1,6 @@
 #include "EditorContext.h"
-#include "MapFile.h"
-#include "gc/World.h"
+#include <gc/World.h>
+#include <MapFile.h>
 
 EditorContext::EditorContext(FS::Stream &stream)
 {

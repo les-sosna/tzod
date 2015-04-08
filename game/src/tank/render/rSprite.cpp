@@ -1,5 +1,5 @@
 #include "rSprite.h"
-#include "gc/Actor.h"
+#include <gc/Actor.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

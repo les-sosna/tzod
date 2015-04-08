@@ -1,7 +1,6 @@
 #pragma once
-
-#include "core/PtrList.h"
-#include "gc/VehicleState.h"
+#include <gc/detail/PtrList.h> // fixme: detail
+#include <gc/VehicleState.h>
 #include <map>
 
 class World;

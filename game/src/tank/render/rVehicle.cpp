@@ -1,6 +1,6 @@
 #include "rVehicle.h"
-#include "gc/Vehicle.h"
-#include "gc/Player.h"
+#include <gc/Vehicle.h>
+#include <gc/Player.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 

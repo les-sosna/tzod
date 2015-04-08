@@ -12,7 +12,9 @@ set(tank_INCLUDE_DIRS
 	.
 	${FileSystem_SOURCE_DIR}/include
 	${Math_SOURCE_DIR}/include
+	${GC_SOURCE_DIR}/include
 	${UI_SOURCE_DIR}/include
+	${MapFile_SOURCE_DIR}/include
 	${Video_SOURCE_DIR}/include
 	
 	# 3rd party
@@ -51,9 +53,7 @@ set(tank_SOURCES
 	gui_widgets.cpp
 	InputManager.cpp
 	KeyMapper.cpp
-	MapFile.cpp
 	Md5.c
-	SaveFile.cpp
 	ThemeManager.cpp
 	WorldController.cpp
 	config/Config.cpp
@@ -61,34 +61,6 @@ set(tank_SOURCES
 	config/Language.cpp
 	core/Profiler.cpp
 	core/Timer.cpp
-	gc/Actor.cpp
-	gc/Camera.cpp
-	gc/Crate.cpp
-	gc/Explosion.cpp
-	gc/Field.cpp
-	gc/GameClasses.cpp
-	gc/Indicators.cpp
-	gc/Light.cpp
-#	gc/MessageBox.cpp
-	gc/Object.cpp
-	gc/ObjectProperty.cpp
-	gc/particles.cpp
-	gc/Pickup.cpp
-	gc/Player.cpp
-	gc/Projectiles.cpp
-	gc/RigidBody.cpp
-	gc/RigidBodyDynamic.cpp
-	gc/Rotator.cpp
-	gc/Service.cpp
-	gc/Trigger.cpp
-	gc/Turrets.cpp
-	gc/TypeSystem.cpp
-	gc/UserObjects.cpp
-	gc/Vehicle.cpp
-	gc/VehicleClasses.cpp
-	gc/WeaponBase.cpp
-	gc/Weapons.cpp
-	gc/World.cpp
 	gclua/lgcmod.cpp
 #	gclua/lGame.cpp
 	gclua/lObject.cpp
@@ -137,6 +109,7 @@ set(tank_SOURCES
 
 set(tank_LIBRARIES
 	filesystem
+	gc
 	ui
 	lua
 	pluto

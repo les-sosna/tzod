@@ -4,7 +4,8 @@
 
 #include "core/Debug.h"
 
-#include "gc/vehicle.h"
+#include <gc/TypeSystem.h>
+#include <gc/Vehicle.h>
 
 //#include "gclua/lGame.h"
 #include "gclua/lObject.h"

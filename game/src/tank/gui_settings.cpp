@@ -4,9 +4,9 @@
 
 #include "KeyMapper.h"
 
-#include "gc/Object.h"
-#include "gc/World.h"
-#include "gc/Macros.h"
+#include <gc/Object.h>
+#include <gc/World.h>
+#include <gc/Macros.h>
 
 #include "config/Config.h"
 #include "config/Language.h"

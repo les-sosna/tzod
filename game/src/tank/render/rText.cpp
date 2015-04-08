@@ -1,5 +1,6 @@
 #include "rText.h"
-#include "gc/GameClasses.h"
+#include <gc/GameClasses.h>
+#include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 
 R_Text::R_Text(TextureManager &tm)
@@ -21,5 +22,5 @@ void R_Text::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 		case GC_Text::SCORE_MINUS: font = _fontDigitsRed; break;
 		default: font = _fontDefault;
 	}
-	dc.DrawBitmapText(pos.x, pos.y, font, 0xffffffff, text.GetText(), text.GetAlign());
+	dc.DrawBitmapText(pos.x, pos.y, font, 0xffffffff, text.GetText(), alignTextCC);
 }

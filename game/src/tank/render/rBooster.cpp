@@ -1,6 +1,6 @@
 #include "rBooster.h"
-#include "gc/Actor.h"
-#include "gc/World.h"
+#include <gc/Actor.h>
+#include <gc/World.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

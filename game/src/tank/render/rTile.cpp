@@ -1,6 +1,6 @@
 #include "rTile.h"
-#include "gc/Actor.h"
-#include "gc/NeighborAware.h"
+#include <gc/Actor.h>
+#include <gc/NeighborAware.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

@@ -1,7 +1,7 @@
 #include "rWeapon.h"
 #include "rWeaponBase.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
+#include <gc/Weapons.h>
+#include <gc/World.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 

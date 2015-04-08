@@ -1,5 +1,5 @@
 #include "rUserObject.h"
-#include "gc/UserObjects.h"
+#include <gc/UserObjects.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 

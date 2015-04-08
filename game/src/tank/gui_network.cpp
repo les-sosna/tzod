@@ -14,9 +14,9 @@
 //#include "network/TankClient.h"
 //#include "network/LobbyClient.h"
 
-#include "gc/Player.h"
-#include "gc/World.h"
-#include "gc/Macros.h"
+#include <gc/Player.h>
+#include <gc/World.h>
+#include <gc/Macros.h>
 
 #include <fs/FileSystem.h>
 #include <ui/Button.h>

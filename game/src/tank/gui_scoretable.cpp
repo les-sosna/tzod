@@ -3,9 +3,9 @@
 #include "GameContext.h"
 #include "Deathmatch.h"
 
-#include "gc/Player.h"
-#include "gc/World.h"
-#include "gc/Macros.h"
+#include <gc/Player.h>
+#include <gc/World.h>
+#include <gc/Macros.h>
 #include "config/Language.h"
 
 #include <ui/GuiManager.h>

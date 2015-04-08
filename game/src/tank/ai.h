@@ -1,14 +1,10 @@
-// ai.h
-
 #pragma once
-
-#include "gc/TypeSystem.h"
-#include "gc/ObjPtr.h"
+#include <gc/Object.h>
+#include <gc/ObjPtr.h>
 #include <math/MyMath.h>
 #include <list>
 
-// forward declarations
-template<class> class JobManager;
+//template<class> class JobManager;
 struct VehicleState;
 struct AIWEAPSETTINGS;
 class FieldCell;

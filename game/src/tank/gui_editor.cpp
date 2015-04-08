@@ -6,13 +6,15 @@
 #include "ThemeManager.h"
 #include "DefaultCamera.h"
 
-#include "gc/Camera.h"
-#include "gc/Object.h"
-#include "gc/Pickup.h"
-#include "gc/Player.h"
-#include "gc/RigidBody.h"
-#include "gc/World.h"
-#include "gc/Macros.h"
+#include <gc/Camera.h>
+#include <gc/Object.h>
+#include <gc/Pickup.h>
+#include <gc/Player.h>
+#include <gc/RigidBody.h>
+#include <gc/TypeSystem.h>
+#include <gc/World.h>
+#include <gc/WorldCfg.h>
+#include <gc/Macros.h>
 #include "gclua/lObjUtil.h"
 
 #include "config/Config.h"
@@ -558,9 +560,9 @@ void ServiceEditor::OnCreateService()
 	if( -1 != _combo->GetCurSel() )
 	{
 		ObjectType type = (ObjectType) _combo->GetData()->GetItemData(_combo->GetCurSel());
-		GC_Object *service = RTTypes::Inst().CreateObject(_world, type, 0, 0);
+		GC_Service &service = RTTypes::Inst().CreateService(_world, type);
 		GetEditorLayout()->SelectNone();
-		GetEditorLayout()->Select(service, true);
+		GetEditorLayout()->Select(&service, true);
 	}
 }
 
@@ -921,8 +923,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
         if( 1 == button )
         {
             // create object
-            GC_Object *newobj = RTTypes::Inst().CreateObject(_world, type, pt.x, pt.y);
-			std::shared_ptr<PropertySet> properties = newobj->GetProperties(_world);
+            GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
+			std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
             // set default properties if Ctrl key is not pressed
             if( GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
@@ -932,7 +934,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
                 properties->Exchange(_world, true);
             }
 
-			Select(newobj, true);
+			Select(&newobj, true);
             _isObjectNew = true;
         }
     }

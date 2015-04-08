@@ -1,6 +1,6 @@
-#include "gc/VehicleState.h"
-#include "gc/WorldEvents.h"
-#include "core/PtrList.h"
+#include <gc/VehicleState.h>
+#include <gc/WorldEvents.h>
+#include <gc/detail/PtrList.h>
 
 #include <map>
 #include <memory>

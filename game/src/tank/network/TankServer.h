@@ -8,7 +8,7 @@
 
 #include "core/BitCounter.h"
 
-#include "gc/Object.h" // for ObjPtr
+#include <gc/Object.h> // for ObjPtr
 
 class GC_PlayerHuman;
 

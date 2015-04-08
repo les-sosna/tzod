@@ -1,12 +1,12 @@
-#include "SaveFile.h"
 #include "ScriptHarness.h"
 #include "script.h"
 #include "core/Debug.h"
-#include "gc/Pickup.h"
-#include "gc/Player.h"
-#include "gc/Trigger.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/Pickup.h>
+#include <gc/Player.h>
+#include <gc/Trigger.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
+#include <gc/SaveFile.h>
 #include "gclua/lObjUtil.h"
 
 #include <fs/FileSystem.h>

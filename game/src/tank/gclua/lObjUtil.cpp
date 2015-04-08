@@ -1,6 +1,7 @@
 #include "lObjUtil.h"
 #include "lgcmod.h"
-#include "gc/Object.h"
+#include <gc/Object.h>
+#include <gc/ObjPtr.h>
 extern "C"
 {
 #include <lua.h>

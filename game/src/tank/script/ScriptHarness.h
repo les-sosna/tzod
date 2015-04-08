@@ -3,7 +3,7 @@
 #include "sPlayer.h"
 #include "sRigidBodyStatic.h"
 #include "sTrigger.h"
-#include "gc/WorldEvents.h"
+#include <gc/WorldEvents.h>
 #include "gclua/lgcmod.h"
 #include <memory>
 

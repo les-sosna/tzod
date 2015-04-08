@@ -1,7 +1,7 @@
 // gui_editor.h
 
 #pragma once
-#include "gc/WorldEvents.h"
+#include <gc/WorldEvents.h>
 #include <ui/Dialog.h>
 #include <ui/List.h>
 #include <memory>

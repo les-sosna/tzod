@@ -21,19 +21,19 @@
 #include "rWeapon.h"
 #include "rWeaponBase.h"
 
-#include "gc/Crate.h"
-#include "gc/GameClasses.h"
-#include "gc/indicators.h"
-#include "gc/Light.h"
-#include "gc/particles.h"
-#include "gc/projectiles.h"
-#include "gc/RigidBody.h"
-#include "gc/Trigger.h"
-#include "gc/Turrets.h"
-#include "gc/UserObjects.h"
-#include "gc/Vehicle.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
+#include <gc/Crate.h>
+#include <gc/GameClasses.h>
+#include <gc/indicators.h>
+#include <gc/Light.h>
+#include <gc/Particles.h>
+#include <gc/projectiles.h>
+#include <gc/RigidBody.h>
+#include <gc/Trigger.h>
+#include <gc/Turrets.h>
+#include <gc/UserObjects.h>
+#include <gc/Vehicle.h>
+#include <gc/Weapons.h>
+#include <gc/World.h>
 
 #include "constants.h" // ANIMATION_FPS
 

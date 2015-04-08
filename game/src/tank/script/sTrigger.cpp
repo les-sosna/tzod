@@ -1,9 +1,9 @@
 #include "sTrigger.h"
 #include "script.h"
 #include "core/Debug.h"
-#include "gc/Trigger.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/Trigger.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
 #include "gclua/lObjUtil.h"
 extern "C"
 {

@@ -1,11 +1,11 @@
 #include "Deathmatch.h"
 #include "GameEvents.h"
-#include "SaveFile.h"
 #include "config/Language.h"
-#include "gc/GameClasses.h"
-#include "gc/Player.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/GameClasses.h>
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
+#include <gc/SaveFile.h>
 
 Deathmatch::Deathmatch(World &world, GameListener &gameListener)
 	: _world(world)

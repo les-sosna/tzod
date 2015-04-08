@@ -1,9 +1,9 @@
 #include "sPickup.h"
 #include "script.h"
 #include "core/Debug.h"
-#include "gc/Pickup.h"
-#include "gc/Vehicle.h"
-#include "gc/World.h"
+#include <gc/Pickup.h>
+#include <gc/Vehicle.h>
+#include <gc/World.h>
 #include "gclua/lObjUtil.h"
 extern "C"
 {

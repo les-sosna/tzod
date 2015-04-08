@@ -4,15 +4,17 @@
 #include "constants.h"
 #include "InputManager.h"
 #include "WorldController.h"
-#include "SaveFile.h"
-#include "gc/Camera.h"
-#include "gc/Player.h"
-#include "gc/World.h"
+#include <gc/Camera.h>
+#include <gc/Player.h>
+#include <gc/SaveFile.h>
+#include <gc/World.h>
+#include <gc/WorldCfg.h>
 #ifndef NOSOUND
 #include "SoundHarness.h"
 #include "sound/MusicPlayer.h"
 #endif
 #include <fs/FileSystem.h>
+#include <MapFile.h>
 
 GameContext::GameContext(FS::FileSystem &fs, DMSettings settings)
 {
@@ -38,7 +40,7 @@ GameContext::GameContext(FS::FileSystem &fs, DMSettings settings)
 	
 	_world->Seed(rand());
 	_world->Import(file);
-	
+
 	for( const PlayerDesc &pd: settings.players )
 	{
 		auto &player = _world->New<GC_Player>();

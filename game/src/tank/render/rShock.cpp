@@ -1,5 +1,5 @@
 #include "rShock.h"
-#include "gc/Pickup.h"
+#include <gc/Pickup.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

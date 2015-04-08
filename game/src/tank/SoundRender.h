@@ -23,6 +23,8 @@ class SoundRender
 public:
 	explicit SoundRender(FS::FileSystem &fs);
 	~SoundRender();
+    
+    void SetListenerPos(vec2d pos);
 	
 	std::unique_ptr<Sound> CreateLopped(SoundTemplate sound);
 	

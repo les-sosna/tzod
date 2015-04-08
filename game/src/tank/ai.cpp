@@ -1,26 +1,20 @@
-// ai.cpp
-
 #include "ai.h"
+#include <gc/Camera.h>
+#include <gc/Pickup.h>
+#include <gc/Player.h>
+#include <gc/TypeSystem.h>
+#include <gc/Turrets.h>
+#include <gc/Vehicle.h>
+#include <gc/Weapons.h>
+#include <gc/World.h>
+#include <gc/WorldCfg.h>
+#include <gc/Macros.h>
+#include <gc/SaveFile.h>
 
-#include "MapFile.h"
-#include "SaveFile.h"
-
-#include "gc/Camera.h"
-#include "gc/Pickup.h"
-#include "gc/Player.h"
-#include "gc/Turrets.h"
-#include "gc/Vehicle.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
-#include "gc/Macros.h"
-
-#include "core/JobManager.h"
 #include "core/Debug.h"
 
 #include <queue>
 
-///////////////////////////////////////////////////////////////////////////////
-// Catmull-Rom interpolation
 
 static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const vec2d &p4,
                         vec2d &out, float s )
@@ -29,8 +23,6 @@ static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const
 	float s3 = s2 * s;
 	out = (p1*(2*s2-s3-s) + p2*(3*s3-5*s2+2) + p3*(4*s2-3*s3+s) + p4*(s3-s2)) * 0.5f;
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 #define NODE_RADIUS         32.0f
 #define MIN_PATH_ANGLE       0.8f

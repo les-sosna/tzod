@@ -7,11 +7,11 @@
 #include "Deathmatch.h"
 #include "WorldController.h"
 #include "config/Config.h"
-#include "gc/World.h"
-#include "gc/Camera.h"
-#include "gc/Player.h"
-#include "gc/Vehicle.h"
-#include "gc/Macros.h"
+#include <gc/World.h>
+#include <gc/Camera.h>
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
+#include <gc/Macros.h>
 #include "render/WorldView.h"
 
 #include <GLFW/glfw3.h>

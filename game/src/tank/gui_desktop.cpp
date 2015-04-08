@@ -16,7 +16,7 @@
 #include "config/Language.h"
 #include "core/Profiler.h"
 #include "core/Debug.h"
-#include "gc/World.h"
+#include <gc/World.h>
 
 //#include "network/TankClient.h"
 

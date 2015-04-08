@@ -15,8 +15,8 @@
 #include "ui/gui_desktop.h"
 #include "ui/GuiManager.h"
 
-#include "gc/ai.h"
-#include "gc/Player.h"
+#include <gc/ai.h>
+#include <gc/Player.h>
 
 #include "config/Config.h"
 #include "config/Language.h"

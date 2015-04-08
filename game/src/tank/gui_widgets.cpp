@@ -3,7 +3,7 @@
 #include "gui_widgets.h"
 #include "AppState.h"
 #include "GameContext.h"
-#include "gc/World.h"
+#include <gc/World.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>

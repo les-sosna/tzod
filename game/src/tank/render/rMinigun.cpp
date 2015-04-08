@@ -1,7 +1,8 @@
 #include "rMinigun.h"
 #include "rWeaponBase.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
+#include <gc/Weapons.h>
+#include <gc/WeapCfg.h>
+#include <gc/World.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

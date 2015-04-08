@@ -3,12 +3,13 @@
 #include "gui_maplist.h"
 
 #include "constants.h"
-#include "MapFile.h"
 
 #include "config/Config.h"
 #include "core/Debug.h"
 
 #include <fs/FileSystem.h>
+#include <MapFile.h>
+
 #include <sstream>
 #include <iomanip>
 
@@ -53,10 +54,7 @@ ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs)
 	Sort();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file
 
 
 

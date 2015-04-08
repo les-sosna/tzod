@@ -5,8 +5,8 @@
 #include "GameEvents.h"
 #include "ThemeManager.h"
 #include "config/Config.h"
-#include "gc/World.h"
-#include "gc/WorldEvents.h"
+#include <gc/World.h>
+#include <gc/WorldEvents.h>
 #include "core/Debug.h"
 #include <fs/FileSystem.h>
 #include <video/TextureManager.h>

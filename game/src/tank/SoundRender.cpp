@@ -276,6 +276,11 @@ SoundRender::~SoundRender()
 	}
 }
 
+void SoundRender::SetListenerPos(vec2d pos)
+{
+    alListener3f(AL_POSITION, pos.x, pos.y, 500.0f);
+}
+
 std::unique_ptr<Sound> SoundRender::CreateLopped(SoundTemplate sound)
 {
 	ALuint source = 0;

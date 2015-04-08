@@ -1,6 +1,6 @@
 #include "rWall.h"
 
-#include "gc/RigidBody.h"
+#include <gc/RigidBody.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

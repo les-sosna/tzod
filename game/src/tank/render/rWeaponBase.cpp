@@ -1,6 +1,6 @@
 #include "rWeaponBase.h"
-#include "gc/Weapons.h"
-#include "gc/World.h"
+#include <gc/Weapons.h>
+#include <gc/World.h>
 #include <video/DrawingContext.h>
 
 vec2d GetWeapSpriteDirection(const World &world, const GC_Weapon &weapon)
