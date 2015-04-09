@@ -18,16 +18,6 @@
 #define MAX_LATENCY         10
 #define MIN_LATENCY         1
 
-
-
-// default animation speed
-#define ANIMATION_FPS        30.0f  // fps
-
-
-// distance to the crosshair
-#define CH_DISTANCE_NORMAL  200.0f  // normal
-#define CH_DISTANCE_THIN    150.0f  // for minigun
-
 //-----------------------------------------------------------------------------
 
 #define AI_MAX_LEVEL   4U

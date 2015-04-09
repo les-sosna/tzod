@@ -1,5 +1,5 @@
-#include "ObjectViewsSelector.h"
-#include "ObjectView.h"
+#include "inc/render/ObjectViewsSelector.h"
+#include "inc/render/ObjectView.h"
 #include <gc/Actor.h>
 
 ObjectView::ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRFunc> rf)

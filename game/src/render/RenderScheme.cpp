@@ -1,5 +1,4 @@
-#include "RenderScheme.h"
-
+#include "inc/render/RenderScheme.h"
 #include "rAnimatedSprite.h"
 #include "rBrickFragment.h"
 #include "rBooster.h"
@@ -20,7 +19,7 @@
 #include "rWall.h"
 #include "rWeapon.h"
 #include "rWeaponBase.h"
-
+#include "RenderCfg.h"
 #include <gc/Crate.h>
 #include <gc/GameClasses.h>
 #include <gc/indicators.h>
@@ -34,8 +33,6 @@
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
-
-#include "constants.h" // ANIMATION_FPS
 
 static bool HasBooster(const World &world, const GC_Actor &actor)
 {

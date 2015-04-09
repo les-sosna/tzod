@@ -1,5 +1,5 @@
 #pragma once
-#include "ObjectView.h"
+#include "inc/render/ObjectView.h"
 #include <stddef.h> // size_t
 
 class TextureManager;

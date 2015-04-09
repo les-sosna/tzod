@@ -1,18 +1,17 @@
 #pragma once
-#include "ObjectView.h"
+#include "inc/render/ObjectView.h"
 #include <stddef.h>
 
 class TextureManager;
 
-class R_Wall : public ObjectRFunc
+class R_Text : public ObjectRFunc
 {
 public:
-	R_Wall(TextureManager &tm, const char *tex);
+	R_Text(TextureManager &tm);
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
-	enum {WALL, LT, RT, RB, LB};
-	size_t _texId[5];
-	TextureManager &_tm;
+	size_t _fontDefault;
+	size_t _fontDigitsRed;
+	size_t _fontDigitsGreen;
 };
-

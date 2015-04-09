@@ -6,6 +6,7 @@ include_directories(
 	${Tank_SOURCE_DIR}
 	${FileSystem_SOURCE_DIR}/include
 	${GC_SOURCE_DIR}/include
+	${Render_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/include
 	${UI_SOURCE_DIR}/include
 	${Video_SOURCE_DIR}/include

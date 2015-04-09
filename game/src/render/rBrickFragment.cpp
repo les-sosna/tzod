@@ -1,5 +1,5 @@
 #include "rBrickFragment.h"
-#include "constants.h" // FIXME: ANIMATION_FPS
+#include "RenderCfg.h"
 #include <gc/Actor.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>

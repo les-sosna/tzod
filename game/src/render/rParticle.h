@@ -1,16 +1,17 @@
 #pragma once
-#include "ObjectView.h"
+#include "inc/render/ObjectView.h"
 #include <stddef.h>
+#include <vector>
 
 class TextureManager;
 
-class R_FireSpark : public ObjectRFunc
+class R_Particle : public ObjectRFunc
 {
 public:
-	R_FireSpark(TextureManager &tm);
+	R_Particle(TextureManager &tm);
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 	
 private:
 	TextureManager &_tm;
-	size_t _texId;
+	std::vector<size_t> _ptype2texId;
 };

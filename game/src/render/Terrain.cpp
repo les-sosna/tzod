@@ -1,4 +1,4 @@
-#include "Terrain.h"
+#include "inc/render/Terrain.h"
 #include <video/RenderBase.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>

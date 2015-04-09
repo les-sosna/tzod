@@ -13,6 +13,7 @@ set(tank_INCLUDE_DIRS
 	${FileSystem_SOURCE_DIR}/include
 	${Math_SOURCE_DIR}/include
 	${GC_SOURCE_DIR}/include
+	${Render_SOURCE_DIR}/inc
 	${UI_SOURCE_DIR}/include
 	${MapFile_SOURCE_DIR}/include
 	${Video_SOURCE_DIR}/include
@@ -76,29 +77,6 @@ set(tank_SOURCES
 #	network/TankClient.cpp
 #	network/TankServer.cpp
 #	network/Variant.cpp
-	render/WorldView.cpp
-	render/ObjectViewsSelector.cpp
-	render/RenderScheme.cpp
-	render/rAnimatedSprite.cpp
-	render/rBrickFragment.cpp
-	render/rBooster.cpp
-	render/rDecoration.cpp
-	render/rFireSpark.cpp
-	render/rIndicator.cpp
-	render/rLight.cpp
-	render/rMinigun.cpp
-	render/rParticle.cpp
-	render/rShock.cpp
-	render/rSprite.cpp
-	render/rText.cpp
-	render/rTile.cpp
-	render/rTurret.cpp
-	render/rUserObject.cpp
-	render/rVehicle.cpp
-	render/rWall.cpp
-	render/rWeapon.cpp
-	render/rWeaponBase.cpp
-	render/Terrain.cpp
 	script/script.cpp
 	script/ScriptHarness.cpp
 	script/sTrigger.cpp
@@ -110,6 +88,7 @@ set(tank_SOURCES
 set(tank_LIBRARIES
 	filesystem
 	gc
+	render
 	ui
 	lua
 	pluto

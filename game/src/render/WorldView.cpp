@@ -1,5 +1,5 @@
-#include "WorldView.h"
-#include "RenderScheme.h"
+#include "inc/render/WorldView.h"
+#include "inc/render/RenderScheme.h"
 
 #include <gc/Light.h>
 #include <gc/Macros.h>

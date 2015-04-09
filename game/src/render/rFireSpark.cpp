@@ -1,5 +1,4 @@
 #include "rFireSpark.h"
-#include "constants.h" // FIXME: ANIMATION_FPS
 #include <gc/projectiles.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
