@@ -21,7 +21,7 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 	assert(object);
 	assert(_objCount < 255);
     
-#ifdef _DEBUG
+#ifndef NDEBUG
 	for( int i = 0; i < _objCount; ++i )
 	{
 		assert(object != _ppObjects[i]);
@@ -154,41 +154,3 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
             }
         }
 }
-
-#ifdef _DEBUG
-FieldCell& Field::operator() (int x, int y)
-{
-	assert(NULL != _cells);
-	return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;
-}
-
-void Field::Dump()
-{
-	TRACE("==== Field dump ====");
-    
-	std::string buf;
-	for( int y = 0; y < _cy; y++ )
-	{
-		for( int x = 0; x < _cx; x++ )
-		{
-			switch( (*this)(x, y).Properties() )
-			{
-                case 0:
-                    buf.push_back(' ');
-                    break;
-                case 1:
-                    buf.push_back('-');
-                    break;
-                case 0xFF:
-                    buf.push_back('#');
-                    break;
-			}
-		}
-		TRACE("%s", buf.c_str());
-		buf.clear();
-	}
-    
-	TRACE("=== end of dump ====");
-}
-
-#endif

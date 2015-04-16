@@ -2,6 +2,7 @@
 #include <gc/Particles.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
+#include <algorithm>
 
 static std::pair<ParticleType, const char*> textures[] = {
 	{ PARTICLE_FIRE1, "particle_fire" },

@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES // for M_PI
 #include <gc/detail/Rotator.h>
 #include <gc/SaveFile.h>
 #include <cmath>
@@ -41,8 +42,8 @@ void Rotator::rotate_to(float new_target)
 	assert(_accel_current > 0);
 	assert(_accel_stop > 0);
 
-	new_target = fmodf(new_target, M_PI*2);
-	if( new_target < 0 ) new_target += M_PI*2;
+	new_target = fmodf(new_target, float(M_PI*2));
+	if( new_target < 0 ) new_target += float(M_PI*2);
 
 	if( new_target == _rCurrent && RS_STOPPED == _state ) return;
 
@@ -223,8 +224,8 @@ bool Rotator::process_dt(float dt)
 	} // end switch (_state)
 
 
-	_rCurrent = fmodf(_rCurrent, M_PI*2);
-	if( _rCurrent < 0 ) _rCurrent += M_PI*2;
+	_rCurrent = fmodf(_rCurrent, float(M_PI*2));
+	if( _rCurrent < 0 ) _rCurrent += float(M_PI*2);
 
 	return _rCurrent != old;
 }
@@ -241,8 +242,8 @@ void Rotator::OnGettingAngle(float dt)
 	// choose rotation direction
 	//
 
-	float xt1 = _angle_target - M_PI*2;
-	float xt2 = _angle_target + M_PI*2;
+	float xt1 = _angle_target - float(M_PI*2);
+	float xt2 = _angle_target + float(M_PI*2);
 
 	if( fabsf(xc - xt1) < fabsf(xc - xt2) &&
 		fabsf(xc - xt1) < fabsf(xc - _angle_target) )

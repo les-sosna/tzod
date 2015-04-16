@@ -1,11 +1,7 @@
-// Field.h
-// path finding
-
 #pragma once
 
 #include <algorithm>
 #include <cstdlib>
-
 
 class Field;
 class GC_RigidBodyStatic;
@@ -98,16 +94,8 @@ public:
 	int GetX() const { return _cx; }
 	int GetY() const { return _cy; }
     
-    
-#ifdef _DEBUG
-	FieldCell& operator() (int x, int y);
-	void Dump();
-#else
     FieldCell& operator() (int x, int y)
 	{
 		return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;
 	}
-#endif
 };
-
-// end of file
