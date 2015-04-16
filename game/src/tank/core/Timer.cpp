@@ -1,6 +1,7 @@
 #include "Timer.h"
 #include "Debug.h"
 
+#include <algorithm>
 #include <cassert>
 #include <numeric>
 

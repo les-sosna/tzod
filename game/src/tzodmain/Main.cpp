@@ -34,6 +34,7 @@
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>
 
+#include <algorithm>
 #include <exception>
 #include <thread>
 

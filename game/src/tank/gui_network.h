@@ -1,5 +1,6 @@
 #pragma once
 #include <ui/Dialog.h>
+#include <memory>
 #include <vector>
 
 class World;
