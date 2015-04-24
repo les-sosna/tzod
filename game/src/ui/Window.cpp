@@ -201,7 +201,7 @@ void Window::Draw(DrawingContext &dc, float sx, float sy) const
 
 	if( _clipChildren )
 	{
-		Rect clip;
+		RectRB clip;
 		clip.left   = (int) dst.left;
 		clip.top    = (int) dst.top;
 		clip.right  = (int) dst.right;

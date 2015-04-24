@@ -16,7 +16,7 @@ class DrawingContext
 public:
 	DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height);
 	
-	void PushClippingRect(const Rect &rect);
+	void PushClippingRect(const RectRB &rect);
 	void PopClippingRect();
 
 	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
@@ -32,12 +32,12 @@ public:
 	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
 	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
 	
-	void Camera(const Rect &viewport, float x, float y, float scale);
+	void Camera(const RectRB &viewport, float x, float y, float scale);
 	void SetAmbient(float ambient);
 	void SetMode(const RenderMode mode);
 
 private:
 	const TextureManager &_tm;
-	std::stack<Rect> _clipStack;
-	Rect _viewport;	
+	std::stack<RectRB> _clipStack;
+	RectRB _viewport;	
 };

@@ -85,12 +85,12 @@ UI::GameLayout::~GameLayout()
 }
 
 
-static Rect GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t camIndex)
+static RectRB GetCameraViewport(Point ssize, Point wsize, size_t camCount, size_t camIndex)
 {
     assert(camCount > 0 && camCount <= 4);
     assert(camIndex < camCount);
     
-    Rect viewports[4];
+    RectRB viewports[4];
 
     switch( camCount )
     {
@@ -132,7 +132,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
 	{
-		Rect viewport = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
+		RectRB viewport = GetCameraViewport(Point{(int) GetWidth(), (int) GetHeight()},
 		                                  Point{(int) _world._sx, (int) _world._sy}, camCount, camIndex);
 		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(viewport), (float) HEIGHT(viewport)) / pCamera->GetZoom());
 		if (readUserInput)
@@ -188,7 +188,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			}
 			assert(singleCamera);
 
-			Rect viewport = CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
+			RectRB viewport = CRect((ssize.x - wsize.x) / 2, (ssize.y - wsize.y) / 2,
 								  (ssize.x + wsize.x) / 2, (ssize.y + wsize.y) / 2);
 			vec2d eye = singleCamera->GetCameraPos();
 			float zoom = singleCamera->GetZoom();
@@ -200,7 +200,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			size_t camIndex = 0;
 			FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
 			{
-				Rect viewport = GetCameraViewport(ssize, wsize, camCount, camIndex);
+				RectRB viewport = GetCameraViewport(ssize, wsize, camCount, camIndex);
 				vec2d eye = pCamera->GetCameraPos();
 				float zoom = pCamera->GetZoom();
 				_worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());

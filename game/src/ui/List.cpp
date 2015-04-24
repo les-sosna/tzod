@@ -244,7 +244,7 @@ void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	int i_max = i_min + (int) GetNumLinesVisible() + 1;
 	int maxtab = (int) _tabs.size() - 1;
 
-	Rect clip;
+	RectRB clip;
 	clip.left   = (int) sx;
 	clip.top    = (int) sy;
 	clip.right  = (int) (sx + _scrollBar->GetX());

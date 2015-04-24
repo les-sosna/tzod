@@ -160,7 +160,7 @@ public:
 	}
 };
 
-struct Rect
+struct RectRB
 {
 	int left;
 	int top;
@@ -173,7 +173,7 @@ struct Point
     int x, y;
 };
 
-class CRect : public Rect
+class CRect : public RectRB
 {
 public:
     CRect(int l, int t, int r, int b)
@@ -185,21 +185,21 @@ public:
     }
 };
 
-inline int WIDTH(const Rect &rect) { return rect.right - rect.left; }
-inline int HEIGHT(const Rect &rect) { return rect.bottom - rect.top; }
+inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
+inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
 
 inline vec2d Vec2dAddDirection(const vec2d &a, const vec2d &b)
 {
-	assert(abs(a.sqr() - 1) < 1e-5);
-	assert(abs(b.sqr() - 1) < 1e-5);
+    assert(std::abs(a.sqr() - 1) < 1e-5);
+	assert(std::abs(b.sqr() - 1) < 1e-5);
 	return vec2d(a.x*b.x - a.y*b.y, a.y*b.x + a.x*b.y);
 }
 
 inline vec2d Vec2dSubDirection(const vec2d &a, const vec2d &b)
 {
-	assert(abs(a.sqr() - 1) < 1e-5);
-	assert(abs(b.sqr() - 1) < 1e-5);
+    assert(std::abs(a.sqr() - 1) < 1e-5);
+    assert(std::abs(b.sqr() - 1) < 1e-5);
 	return vec2d(a.x*b.x + a.y*b.y, a.y*b.x - a.x*b.y);
 }
 
@@ -219,13 +219,13 @@ inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
 		rect.top <= pt.y && pt.y < rect.bottom;
 }
 
-inline bool PtInRect(const Rect &rect, const Point &pt)
+inline bool PtInRect(const RectRB &rect, const Point &pt)
 {
     return rect.left <= pt.x && pt.x < rect.right &&
         rect.top <= pt.y && pt.y < rect.bottom;
 }
 
-inline void RectToFRect(FRECT *lpfrt, const Rect *lprt)
+inline void RectToFRect(FRECT *lpfrt, const RectRB *lprt)
 {
 	lpfrt->left   = (float) lprt->left;
 	lpfrt->top    = (float) lprt->top;
@@ -233,7 +233,7 @@ inline void RectToFRect(FRECT *lpfrt, const Rect *lprt)
 	lpfrt->bottom = (float) lprt->bottom;
 }
 
-inline void FRectToRect(Rect *lprt, const FRECT *lpfrt)
+inline void FRectToRect(RectRB *lprt, const FRECT *lpfrt)
 {
 	lprt->left   = (int) lpfrt->left;
 	lprt->top    = (int) lpfrt->top;

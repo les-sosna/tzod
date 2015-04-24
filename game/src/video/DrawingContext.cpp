@@ -11,7 +11,7 @@ DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, uns
     _tm.GetRender().OnResizeWnd(width, height);
 }
 
-void DrawingContext::PushClippingRect(const Rect &rect)
+void DrawingContext::PushClippingRect(const RectRB &rect)
 {
 	if( _clipStack.empty() )
 	{
@@ -20,7 +20,7 @@ void DrawingContext::PushClippingRect(const Rect &rect)
 	}
 	else
 	{
-		Rect tmp = _clipStack.top();
+		RectRB tmp = _clipStack.top();
 		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
 		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
 		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
@@ -605,7 +605,7 @@ void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, v
 	}
 }
 
-void DrawingContext::Camera(const Rect &viewport, float x, float y, float scale)
+void DrawingContext::Camera(const RectRB &viewport, float x, float y, float scale)
 {
 	_tm.GetRender().Camera(&viewport, x, y, scale);
 }

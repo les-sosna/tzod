@@ -84,9 +84,9 @@ struct IRender
     virtual ~IRender() {}
 	virtual void OnResizeWnd(unsigned int width, unsigned int height) = 0;
 
-	virtual void SetScissor(const Rect *rect) = 0;
-	virtual void SetViewport(const Rect *rect) = 0;
-	virtual void Camera(const Rect *vp, float x, float y, float scale) = 0;
+	virtual void SetScissor(const RectRB *rect) = 0;
+	virtual void SetViewport(const RectRB *rect) = 0;
+	virtual void Camera(const RectRB *vp, float x, float y, float scale) = 0;
 
     virtual int  GetWidth() const = 0;
     virtual int  GetHeight() const = 0;

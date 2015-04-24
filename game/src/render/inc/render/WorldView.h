@@ -6,7 +6,7 @@ class DrawingContext;
 class TextureManager;
 class RenderScheme;
 class World;
-struct Rect;
+struct RectRB;
 class vec2d;
 
 class WorldView
@@ -16,7 +16,7 @@ public:
 	~WorldView();
 	void Render(DrawingContext &dc,
 				const World &world,
-				const Rect &viewport,
+				const RectRB &viewport,
 				const vec2d &eye,
 				float zoom,
 				bool editorMode,

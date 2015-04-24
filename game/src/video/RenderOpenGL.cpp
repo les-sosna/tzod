@@ -33,7 +33,7 @@ class RenderOpenGL : public IRender
 	///////////////////////////////////////////////////////////////////////////
 
 	Point  _sizeWindow;
-	Rect   _rtViewport;
+	RectRB   _rtViewport;
 
 	GLuint _curtex;
 	float  _ambient;
@@ -58,9 +58,9 @@ private:
 
 	virtual void OnResizeWnd(unsigned int width, unsigned int height);
 
-	virtual void SetViewport(const Rect *rect);
-	virtual void SetScissor(const Rect *rect);
-	virtual void Camera(const Rect *vp, float x, float y, float scale);
+	virtual void SetViewport(const RectRB *rect);
+	virtual void SetScissor(const RectRB *rect);
+	virtual void Camera(const RectRB *vp, float x, float y, float scale);
 
 	virtual int  GetWidth() const;
 	virtual int  GetHeight() const;
@@ -114,7 +114,7 @@ void RenderOpenGL::OnResizeWnd(unsigned int width, unsigned int height)
     SetScissor(nullptr);
 }
 
-void RenderOpenGL::SetScissor(const Rect *rect)
+void RenderOpenGL::SetScissor(const RectRB *rect)
 {
 	Flush();
 	if( rect )
@@ -128,7 +128,7 @@ void RenderOpenGL::SetScissor(const Rect *rect)
 	}
 }
 
-void RenderOpenGL::SetViewport(const Rect *rect)
+void RenderOpenGL::SetViewport(const RectRB *rect)
 {
 	Flush();
 
@@ -157,7 +157,7 @@ void RenderOpenGL::SetViewport(const Rect *rect)
 	}
 }
 
-void RenderOpenGL::Camera(const Rect *vp, float x, float y, float scale)
+void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
 {
 	SetViewport(vp);
 	SetScissor(vp);

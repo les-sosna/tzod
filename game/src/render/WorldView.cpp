@@ -20,7 +20,7 @@ WorldView::~WorldView()
 
 void WorldView::Render(DrawingContext &dc,
 					   const World &world,
-					   const Rect &viewport,
+					   const RectRB &viewport,
 					   const vec2d &eye,
 					   float zoom,
 					   bool editorMode,
