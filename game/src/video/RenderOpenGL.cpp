@@ -32,7 +32,8 @@ class RenderOpenGL : public IRender
 
 	///////////////////////////////////////////////////////////////////////////
 
-	Point  _sizeWindow;
+    int _windowWidth;
+    int _windowHeight;
 	RectRB   _rtViewport;
 
 	GLuint _curtex;
@@ -93,7 +94,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderOpenGL::RenderOpenGL()
-    : _sizeWindow()
+    : _windowWidth(0)
+    , _windowHeight(0)
     , _curtex(-1)
     , _vaSize(0)
     , _iaSize(0)
@@ -108,8 +110,8 @@ RenderOpenGL::~RenderOpenGL()
 
 void RenderOpenGL::OnResizeWnd(unsigned int width, unsigned int height)
 {
-	_sizeWindow.x = (int) width;
-    _sizeWindow.y = (int) height;
+	_windowWidth = (int) width;
+    _windowHeight = (int) height;
     SetViewport(nullptr);
     SetScissor(nullptr);
 }
@@ -119,7 +121,7 @@ void RenderOpenGL::SetScissor(const RectRB *rect)
 	Flush();
 	if( rect )
 	{
-		glScissor(rect->left, _sizeWindow.y - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
+		glScissor(rect->left, _windowHeight - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
 		glEnable(GL_SCISSOR_TEST);
 	}
 	else
@@ -140,7 +142,7 @@ void RenderOpenGL::SetViewport(const RectRB *rect)
 			(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
 		glViewport(
 			rect->left,                       // X
-			_sizeWindow.y - rect->bottom,     // Y
+			_windowHeight - rect->bottom,     // Y
 			rect->right - rect->left,         // width
 			rect->bottom - rect->top          // height
 			);
@@ -148,12 +150,12 @@ void RenderOpenGL::SetViewport(const RectRB *rect)
 	}
 	else
 	{
-		glOrtho(0, (GLdouble) _sizeWindow.x, (GLdouble) _sizeWindow.y, 0, -1, 1);
-		glViewport(0, 0, _sizeWindow.x, _sizeWindow.y);
+		glOrtho(0, (GLdouble) _windowWidth, (GLdouble) _windowHeight, 0, -1, 1);
+		glViewport(0, 0, _windowWidth, _windowHeight);
 		_rtViewport.left   = 0;
 		_rtViewport.top    = 0;
-		_rtViewport.right  = _sizeWindow.x;
-		_rtViewport.bottom = _sizeWindow.y;
+		_rtViewport.right  = _windowWidth;
+		_rtViewport.bottom = _windowHeight;
 	}
 }
 
@@ -173,12 +175,12 @@ void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
 
 int RenderOpenGL::GetWidth() const
 {
-	return _sizeWindow.x;
+	return _windowWidth;
 }
 
 int RenderOpenGL::GetHeight() const
 {
-	return _sizeWindow.y;
+	return _windowHeight;
 }
 
 int RenderOpenGL::GetViewportWidth() const
@@ -399,8 +401,8 @@ bool RenderOpenGL::TakeScreenshot(char *fileName)
 
 
 	ai->h.DataType  = 2;  // uncompresssed
-	ai->h.width     = (short) _sizeWindow.x;
-	ai->h.height    = (short) _sizeWindow.y;
+	ai->h.width     = (short) _windowWidth;
+	ai->h.height    = (short) _windowHeight;
 	ai->h.BitPerPel = 24;
 
 	ai->data = malloc(ai->h.width * ai->h.height * (ai->h.BitPerPel / 8));
