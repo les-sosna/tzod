@@ -117,7 +117,7 @@ protected:
 
 	// calculates the position of a fake target for more accurate shooting
 	// Vp - projectile speed
-	void CalcOutstrip(World &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake);
+	void CalcOutstrip(World &world, vec2d origin, const GC_Vehicle &target, float Vp, vec2d &fake);
 
 	void ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 

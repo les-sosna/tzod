@@ -10,6 +10,7 @@ find_package(OpenAL)
 
 set(tank_INCLUDE_DIRS
 	.
+	${AI_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/include
 	${Math_SOURCE_DIR}/include
 	${GC_SOURCE_DIR}/include
@@ -28,7 +29,6 @@ set(tank_INCLUDE_DIRS
 )
 
 set(tank_SOURCES
-	ai.cpp
 	AIManager.cpp
 	AppState.cpp
 	Controller.cpp
@@ -86,6 +86,7 @@ set(tank_SOURCES
 )
 
 set(tank_LIBRARIES
+	ai
 	filesystem
 	gc
 	render

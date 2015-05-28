@@ -1,4 +1,4 @@
-#include "ai.h"
+#include "inc/ai/ai.h"
 #include <gc/Camera.h>
 #include <gc/Pickup.h>
 #include <gc/Player.h>
@@ -10,8 +10,6 @@
 #include <gc/WorldCfg.h>
 #include <gc/Macros.h>
 #include <gc/SaveFile.h>
-
-#include "core/Debug.h"
 
 #include <queue>
 
@@ -747,19 +745,18 @@ void AIController::SelectFavoriteWeapon(World &world)
 }
 
 // calculates the position of a fake target for more accurate shooting
-void AIController::CalcOutstrip(World &world, vec2d origin, GC_Vehicle *target, float Vp, vec2d &fake)
+void AIController::CalcOutstrip(World &world, vec2d origin, const GC_Vehicle &target, float Vp, vec2d &fake)
 {
-	ASSERT_TYPE(target, GC_Vehicle);
-	float Vt = target->_lv.len();
+	float Vt = target._lv.len();
 	if( Vt < Vp )
 	{
-		float c = target->GetDirection().x;
-		float s = target->GetDirection().y;
+		float c = target.GetDirection().x;
+		float s = target.GetDirection().y;
 
-		float x = (target->GetPos().x - origin.x) * c +
-		          (target->GetPos().y - origin.y) * s;
-		float y = (target->GetPos().y - origin.y) * c -
-		          (target->GetPos().x - origin.x) * s;
+		float x = (target.GetPos().x - origin.x) * c +
+		          (target.GetPos().y - origin.y) * s;
+		float y = (target.GetPos().y - origin.y) * c -
+		          (target.GetPos().x - origin.x) * s;
 
 		float fx = x + Vt * (x * Vt + sqrt(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
 
@@ -1106,7 +1103,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 		GC_Vehicle *enemy = PtrDynCast<GC_Vehicle>(_target);
 		if( ws->bNeedOutstrip && _level > 1 && enemy )
 		{
-			CalcOutstrip(world, vehicle.GetPos(), enemy, ws->fProjectileSpeed, fake);
+			CalcOutstrip(world, vehicle.GetPos(), *enemy, ws->fProjectileSpeed, fake);
 		}
 
 		float len = (_target->GetPos() - vehicle.GetPos()).len();

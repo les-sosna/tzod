@@ -1,5 +1,5 @@
 #include "AIManager.h"
-#include "ai.h"
+#include <ai/ai.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
