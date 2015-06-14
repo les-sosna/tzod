@@ -8,3 +8,7 @@ game/data/sounds/projectiles/*.ogg
 game/data/sounds/turrets/*.ogg
 game/data/sounds/vehicle/*.ogg
 
+game/iOS/_build
+game/iOS/itzod/itzod.xcodeproj/xcuserdata
+game/iOS/itzod_xcode.xcworkspace/xcuserdata
+game/iOS/itzod_xcode.xcworkspace/xcshareddata

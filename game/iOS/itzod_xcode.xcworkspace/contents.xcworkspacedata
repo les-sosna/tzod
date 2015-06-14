@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:itzod/itzod.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:_build/tzod.xcodeproj">
+   </FileRef>
+</Workspace>

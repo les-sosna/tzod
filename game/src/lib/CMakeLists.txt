@@ -1,14 +1,15 @@
 cmake_minimum_required (VERSION 2.8)
 
-# glfw
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
-set(GLFW_USE_DWM_SWAP_INTERVAL ON CACHE BOOL "Set swap interval even when DWM compositing is enabled")
+if(NOT IOS)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
+	set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
+	set(GLFW_USE_DWM_SWAP_INTERVAL ON CACHE BOOL "Set swap interval even when DWM compositing is enabled")
+	add_subdirectory(glfw)
+endif()
 
 add_subdirectory(gtest)
-add_subdirectory(glfw)
 add_subdirectory(lua)
 add_subdirectory(oggvorbis)
 add_subdirectory(pluto)
