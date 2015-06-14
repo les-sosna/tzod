@@ -37,6 +37,7 @@ set(tank_SOURCES
 	EditorContext.cpp
 	GameContext.cpp
 	GameEvents.cpp
+	GameView.cpp
 	GlfwPlatform.cpp
 	globals.cpp
 	gui.cpp
