@@ -2,6 +2,7 @@
 
 #include <fs/FileSystem.h>
 #include <cassert>
+#include <cstring>
 #include <map>
 #include <string>
 #include <vector>
@@ -65,8 +66,8 @@ void SaveFile::Serialize(T &obj)
 {
 	assert(typeid(obj) != typeid(std::string));
 	assert(typeid(obj) != typeid(std::string));
-	assert(!strstr(typeid(obj).name(), "shared_ptr"));
-	assert(!strstr(typeid(obj).name(), "ObjPtr"));
+    assert(!std::strstr(typeid(obj).name(), "shared_ptr"));
+	assert(!std::strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
     {
 		if( 1 != _stream.Read(&obj, sizeof(T), 1) )

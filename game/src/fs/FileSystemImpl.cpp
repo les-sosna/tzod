@@ -448,6 +448,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
 #include <dirent.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
+#include <string.h>
 
 FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
     : _mode(mode)

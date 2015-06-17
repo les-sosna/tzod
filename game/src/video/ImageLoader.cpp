@@ -1,7 +1,7 @@
-// ImageLoader.cpp
-
 #include <video/ImageLoader.h>
 #include <algorithm>
+#include <cstddef>
+#include <cstring>
 
 TgaImage::TgaImage(const void *data, unsigned long size)
 {
@@ -130,5 +130,3 @@ unsigned long TgaImage::GetHeight() const
 {
 	return _height;
 }
-
-// end of file

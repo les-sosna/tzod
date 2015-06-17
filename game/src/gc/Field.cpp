@@ -33,7 +33,7 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 	if( _ppObjects )
 	{
 		assert(_objCount > 0);
-		memcpy(tmp, _ppObjects, sizeof(GC_RigidBodyStatic*) * _objCount);
+        std::memcpy(tmp, _ppObjects, sizeof(GC_RigidBodyStatic*) * _objCount);
 		delete[] _ppObjects;
 	}
     

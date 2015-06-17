@@ -3,6 +3,7 @@
 #include "SoundTemplates.h"
 #include <math/MyMath.h>
 #include <al.h>
+#include <memory>
 #include <vector>
 
 namespace FS {

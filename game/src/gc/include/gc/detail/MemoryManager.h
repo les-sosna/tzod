@@ -3,10 +3,11 @@
 #pragma once
 
 #include <cassert>
+#include <cstring> // memset
 #include <new>
 #include <typeinfo>
 #ifndef NDEBUG
-#include <cstdio>  // for printf
+#include <cstdio>  // printf
 #endif
 
 template

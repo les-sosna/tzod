@@ -144,7 +144,7 @@ void GC_Projectile::TimeStep(World &world, float dt)
 			float depth = it->exit - it->enter;
 			float relativeDepth = depth > std::numeric_limits<float>::epsilon() ?
 				(std::min(.5f, it->exit) - std::max(-.5f, it->enter)) / depth : 1;
-			assert(!isnan(relativeDepth) && isfinite(relativeDepth));
+            assert(!std::isnan(relativeDepth) && std::isfinite(relativeDepth));
 			assert(relativeDepth >= 0);
 
 			for( auto ls: world.eGC_Projectile._listeners )

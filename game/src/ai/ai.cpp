@@ -524,8 +524,8 @@ void AIController::ClearPath()
 
 static void RotateTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
 {
-	assert(!isnan(x.x) && !isnan(x.y));
-	assert(isfinite(x.x) && isfinite(x.y));
+	assert(!std::isnan(x.x) && !std::isnan(x.y));
+    assert(std::isfinite(x.x) && std::isfinite(x.y));
 
 	vec2d tmp = x - vehicle.GetPos();
 	tmp.Normalize();
@@ -553,7 +553,7 @@ void AIController::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, cons
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
 		pState->_fTowerAngle = Vec2dSubDirection(tmp, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
-		assert(!isnan(pState->_fTowerAngle) && isfinite(pState->_fTowerAngle));
+		assert(!std::isnan(pState->_fTowerAngle) && std::isfinite(pState->_fTowerAngle));
 	}
 	else
 	{
@@ -734,7 +734,7 @@ void AIController::SelectFavoriteWeapon(World &world)
 	{
 		ObjectType type = RTTypes::Inst().GetTypeByIndex(i);
 		const char *name = RTTypes::Inst().GetTypeName(type);
-		if( name == strstr(name, "weap_") )
+		if( name == std::strstr(name, "weap_") )
 		{
 			if( 0 == world.net_rand() % ++wcount )
 			{

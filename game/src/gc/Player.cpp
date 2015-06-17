@@ -13,6 +13,7 @@
 #include <gc/WorldEvents.h>
 #include <gc/SaveFile.h>
 #include <MapFile.h>
+#include <climits>
 
 IMPLEMENT_SELF_REGISTRATION(GC_Player)
 {

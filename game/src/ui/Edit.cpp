@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
+#include <cstring>
 #include <sstream>
 
 namespace UI
@@ -366,7 +367,7 @@ void Edit::Paste()
         buf << data;
         buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
         SetText(buf.str());
-        SetSel(GetSelMin() + strlen(data), GetSelMin() + strlen(data));
+        SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
     }
 }
 

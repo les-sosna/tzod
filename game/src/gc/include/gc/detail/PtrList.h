@@ -1,9 +1,8 @@
-// PtrList.h
-
 #pragma once
 
 #include <vector>
 #include <cassert>
+#include <cstddef>
 
 template <class T>
 class PtrList
@@ -169,5 +168,3 @@ private:
         MoveNode(nodeId, _dataTail, _freeTail);
     }
 };
-
-// end of file

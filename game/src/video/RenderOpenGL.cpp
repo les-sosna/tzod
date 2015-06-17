@@ -1,7 +1,6 @@
-// RenderOpenGL.cpp
-
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
+#include <cstring>
 
 #define VERTEX_ARRAY_SIZE   1024
 #define  INDEX_ARRAY_SIZE   2048
@@ -429,5 +428,3 @@ std::unique_ptr<IRender> RenderCreateOpenGL()
 	return std::unique_ptr<IRender>(new RenderOpenGL());
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// end of file

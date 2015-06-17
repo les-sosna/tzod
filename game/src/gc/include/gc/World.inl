@@ -2,6 +2,7 @@
 
 #include "RigidBody.h"
 #include "WorldCfg.h"
+#include <cmath>
 
 template<class SelectorType>
 void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
@@ -57,10 +58,10 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 					vec2d hitNorm;
 					if( object->CollideWithLine(s.GetCenter(), s.GetDirection(), hitNorm, hitEnter, hitExit) )
 					{
-						assert(!isnan(hitEnter) && isfinite(hitEnter));
-						assert(!isnan(hitExit) && isfinite(hitExit));
-						assert(!isnan(hitNorm.x) && isfinite(hitNorm.x));
-						assert(!isnan(hitNorm.y) && isfinite(hitNorm.y));
+						assert(!std::isnan(hitEnter) && std::isfinite(hitEnter));
+						assert(!std::isnan(hitExit) && std::isfinite(hitExit));
+						assert(!std::isnan(hitNorm.x) && std::isfinite(hitNorm.x));
+						assert(!std::isnan(hitNorm.y) && std::isfinite(hitNorm.y));
 #ifndef NDEBUG
 //						for( int i = 0; i < 4; ++i )
 //						{

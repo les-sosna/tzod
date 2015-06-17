@@ -60,10 +60,10 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
-	assert(!isnan(lineCenter.x) && isfinite(lineCenter.x));
-	assert(!isnan(lineCenter.y) && isfinite(lineCenter.y));
-	assert(!isnan(lineDirection.x) && isfinite(lineDirection.x));
-	assert(!isnan(lineDirection.y) && isfinite(lineDirection.y));
+	assert(!std::isnan(lineCenter.x) && std::isfinite(lineCenter.x));
+	assert(!std::isnan(lineCenter.y) && std::isfinite(lineCenter.y));
+	assert(!std::isnan(lineDirection.x) && std::isfinite(lineDirection.x));
+	assert(!std::isnan(lineDirection.y) && std::isfinite(lineDirection.y));
 
 	float lineProjL = Vec2dDot(lineDirection, GetDirection());
 	float lineProjW = Vec2dCross(lineDirection, GetDirection());
@@ -129,12 +129,12 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
                                          vec2d &outWhere, vec2d &outNormal, float &outDepth)
 {
-	assert(!isnan(rectHalfSize.x) && isfinite(rectHalfSize.x));
-	assert(!isnan(rectHalfSize.y) && isfinite(rectHalfSize.y));
-	assert(!isnan(rectCenter.x) && isfinite(rectCenter.x));
-	assert(!isnan(rectCenter.y) && isfinite(rectCenter.y));
-	assert(!isnan(rectDirection.x) && isfinite(rectDirection.x));
-	assert(!isnan(rectDirection.y) && isfinite(rectDirection.y));
+	assert(!std::isnan(rectHalfSize.x) && std::isfinite(rectHalfSize.x));
+	assert(!std::isnan(rectHalfSize.y) && std::isfinite(rectHalfSize.y));
+	assert(!std::isnan(rectCenter.x) && std::isfinite(rectCenter.x));
+	assert(!std::isnan(rectCenter.y) && std::isfinite(rectCenter.y));
+	assert(!std::isnan(rectDirection.x) && std::isfinite(rectDirection.x));
+	assert(!std::isnan(rectDirection.y) && std::isfinite(rectDirection.y));
 
 	vec2d delta = GetPos() - rectCenter;
 	float depth[4];
@@ -537,10 +537,10 @@ static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*
 
 bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit)
 {
-	assert(!isnan(lineCenter.x) && isfinite(lineCenter.x));
-	assert(!isnan(lineCenter.y) && isfinite(lineCenter.y));
-	assert(!isnan(lineDirection.x) && isfinite(lineDirection.x));
-	assert(!isnan(lineDirection.y) && isfinite(lineDirection.y));
+	assert(!std::isnan(lineCenter.x) && std::isfinite(lineCenter.x));
+	assert(!std::isnan(lineCenter.y) && std::isfinite(lineCenter.y));
+	assert(!std::isnan(lineDirection.x) && std::isfinite(lineDirection.x));
+	assert(!std::isnan(lineDirection.y) && std::isfinite(lineDirection.y));
 
 	unsigned int corner = GetCorner();
 	if( corner )
@@ -639,12 +639,12 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 
 bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth)
 {
-	assert(!isnan(rectHalfSize.x) && isfinite(rectHalfSize.x));
-	assert(!isnan(rectHalfSize.y) && isfinite(rectHalfSize.y));
-	assert(!isnan(rectCenter.x) && isfinite(rectCenter.x));
-	assert(!isnan(rectCenter.y) && isfinite(rectCenter.y));
-	assert(!isnan(rectDirection.x) && isfinite(rectDirection.x));
-	assert(!isnan(rectDirection.y) && isfinite(rectDirection.y));
+	assert(!std::isnan(rectHalfSize.x) && std::isfinite(rectHalfSize.x));
+	assert(!std::isnan(rectHalfSize.y) && std::isfinite(rectHalfSize.y));
+	assert(!std::isnan(rectCenter.x) && std::isfinite(rectCenter.x));
+	assert(!std::isnan(rectCenter.y) && std::isfinite(rectCenter.y));
+	assert(!std::isnan(rectDirection.x) && std::isfinite(rectDirection.x));
+	assert(!std::isnan(rectDirection.y) && std::isfinite(rectDirection.y));
 
 	unsigned int corner = GetCorner();
 	if( corner )
@@ -654,8 +654,8 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 
 		float projL = Vec2dDot(rectDirection, GetDirection());
 		float projW = Vec2dCross(rectDirection, GetDirection());
-		float projL_abs = fabs(projL);
-		float projW_abs = fabs(projW);
+		float projL_abs = std::fabs(projL);
+		float projW_abs = std::fabs(projW);
 
 		//
 		// project rectDirection to this axes

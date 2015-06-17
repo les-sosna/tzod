@@ -2,6 +2,7 @@
 
 #include "RenderBase.h"
 #include <stack>
+#include <string>
 
 class TextureManager;
 

@@ -289,8 +289,8 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 		else
 			_av = std::min(.0f, _av + _Nw * dt);
 	}
-	assert(!isnan(_av));
-	assert(isfinite(_av));
+	assert(!std::isnan(_av));
+	assert(std::isfinite(_av));
 
 	//------------------------------------
 	// collisions
@@ -459,13 +459,13 @@ void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 {
 	_lv += impulse * _inv_m;
 	_av += ((origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x) * _inv_i;
-	assert(!isnan(_av) && isfinite(_av));
+	assert(!std::isnan(_av) && std::isfinite(_av));
 }
 
 void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
 {
 	_external_momentum += momentum;
-	assert(!isnan(_external_momentum) && isfinite(_external_momentum));
+	assert(!std::isnan(_external_momentum) && std::isfinite(_external_momentum));
 }
 
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
@@ -483,7 +483,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse, const vec2d &origin
 {
 	_external_impulse += impulse;
 	_external_torque  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
-	assert(!isnan(_external_torque) && isfinite(_external_torque));
+	assert(!std::isnan(_external_torque) && std::isfinite(_external_torque));
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
@@ -494,7 +494,7 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
 void GC_RigidBodyDynamic::ApplyTorque(float torque)
 {
 	_external_torque  += torque;
-	assert(!isnan(_external_torque) && isfinite(_external_torque));
+	assert(!std::isnan(_external_torque) && std::isfinite(_external_torque));
 }
 
 float GC_RigidBodyDynamic::Energy() const

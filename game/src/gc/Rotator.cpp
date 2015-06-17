@@ -38,7 +38,7 @@ void Rotator::setl(float limit, float current, float stop)
 
 void Rotator::rotate_to(float new_target)
 {
-	assert(!isnan(new_target) && isfinite(new_target));
+	assert(!std::isnan(new_target) && std::isfinite(new_target));
 	assert(_accel_current > 0);
 	assert(_accel_stop > 0);
 

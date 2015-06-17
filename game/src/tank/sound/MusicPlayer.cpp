@@ -1,11 +1,9 @@
-// MusicPlayer.cpp
-
 #include "MusicPlayer.h"
 
 #include "config/Config.h"
 #include <fs/FileSystem.h>
 #include <al.h>
-
+#include <cstring>
 
 static void ThrowIfALError()
 {
@@ -102,7 +100,7 @@ size_t MusicPlayer::read_func(void *ptr, size_t size, size_t nmemb, void *dataso
 	State *s = (State *) datasource;
 	assert(s->ptr <= s->file->GetSize());
 	size_t rd = std::min(s->file->GetSize() - s->ptr, size*nmemb);
-	memcpy(ptr, s->file->GetData() + s->ptr, rd);
+    std::memcpy(ptr, s->file->GetData() + s->ptr, rd);
 	s->ptr += rd;
 	return rd;
 }
@@ -193,5 +191,3 @@ void MusicPlayer::HandleBufferFilling()
         }
     }
 }
-
-// end of file
