@@ -1,6 +1,6 @@
-#include <gc/Field.h>
-#include <gc/RigidBody.h>
-#include <gc/WorldCfg.h>
+#include "inc/gc/Field.h"
+#include "inc/gc/RigidBody.h"
+#include "inc/gc/WorldCfg.h"
 #include <cassert>
 
 unsigned long FieldCell::_sessionId;

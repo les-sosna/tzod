@@ -1,9 +1,9 @@
 // Edit.cpp
 
-#include <ui/Edit.h>
-#include <ui/GuiManager.h>
-#include <ui/UIInput.h>
-#include <ui/Clipboard.h>
+#include "inc/ui/Edit.h"
+#include "inc/ui/GuiManager.h"
+#include "inc/ui/UIInput.h"
+#include "inc/ui/Clipboard.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <GLFW/glfw3.h>

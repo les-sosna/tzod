@@ -6,9 +6,10 @@ if(APPLE)
 endif()
 
 include_directories(
-	include
-	${Math_SOURCE_DIR}/include
-	${Video_SOURCE_DIR}/include
+	${Math_SOURCE_DIR}/inc
+	${Video_SOURCE_DIR}/inc
+
+	# 3rd party
 	${GLFW_SOURCE_DIR}/include
 )
 

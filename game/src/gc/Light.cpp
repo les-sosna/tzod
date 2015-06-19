@@ -1,9 +1,9 @@
 #include "TypeReg.h"
-#include <gc/Light.h>
-#include <gc/Macros.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Light.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 #include <cfloat>
 

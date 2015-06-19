@@ -1,11 +1,11 @@
-#include <gc/WeaponBase.h>
-#include <gc/Light.h>
-#include <gc/Vehicle.h>
-#include <gc/Macros.h>
-#include <gc/World.h>
-#include <gc/WorldEvents.h>
+#include "inc/gc/WeaponBase.h"
+#include "inc/gc/Light.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldEvents.h"
 
-#include <gc/SaveFile.h>
+#include "inc/gc/SaveFile.h"
 
 #include <cfloat>
 

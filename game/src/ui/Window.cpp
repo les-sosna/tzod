@@ -1,7 +1,7 @@
 // Window.cpp
 
-#include <ui/Window.h>
-#include <ui/GuiManager.h>
+#include "inc/ui/Window.h"
+#include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

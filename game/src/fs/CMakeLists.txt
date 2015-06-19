@@ -6,7 +6,6 @@ if(APPLE)
 endif()
 
 include_directories(
-	include
 	${Utf8cpp_SOURCE_DIR}
 )
 

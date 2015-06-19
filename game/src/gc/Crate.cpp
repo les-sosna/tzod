@@ -1,7 +1,7 @@
-#include <gc/Crate.h>
-#include <gc/Particles.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
+#include "inc/gc/Crate.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
 #include "TypeReg.h"
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)

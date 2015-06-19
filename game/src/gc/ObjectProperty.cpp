@@ -1,4 +1,4 @@
-#include <gc/ObjectProperty.h>
+#include "inc/gc/ObjectProperty.h"
 #include <cassert>
 
 ObjectProperty::ObjectProperty(PropertyType type, std::string &&name)

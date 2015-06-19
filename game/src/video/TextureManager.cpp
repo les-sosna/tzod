@@ -1,8 +1,6 @@
-// TextureManager.cpp
-
-#include <video/TextureManager.h>
-#include <video/RenderBase.h>
-#include <video/ImageLoader.h>
+#include "inc/video/TextureManager.h"
+#include "inc/video/RenderBase.h"
+#include "inc/video/ImageLoader.h"
 
 //#include "core/Debug.h"
 #define TRACE(...)

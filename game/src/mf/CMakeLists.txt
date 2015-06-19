@@ -6,8 +6,7 @@ if(APPLE)
 endif()
 
 include_directories(
-	include
-	${FileSystem_SOURCE_DIR}/include
+	${FileSystem_SOURCE_DIR}/inc
 )
 
 add_library(mapfile

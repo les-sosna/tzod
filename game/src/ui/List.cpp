@@ -1,8 +1,8 @@
 // List.cpp
 
-#include <ui/List.h>
-#include <ui/Scroll.h>
-#include <ui/GuiManager.h>
+#include "inc/ui/List.h"
+#include "inc/ui/Scroll.h"
+#include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <GLFW/glfw3.h>

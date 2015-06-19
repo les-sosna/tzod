@@ -1,5 +1,5 @@
-#include <video/DrawingContext.h>
-#include <video/TextureManager.h>
+#include "inc/video/DrawingContext.h"
+#include "inc/video/TextureManager.h"
 #include <algorithm>
 #include <cstring> // memset
 

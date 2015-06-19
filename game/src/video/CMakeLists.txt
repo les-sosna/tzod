@@ -6,10 +6,10 @@ if(APPLE)
 endif()
 
 include_directories(
-	include
-	${FileSystem_SOURCE_DIR}/include
-	${Math_SOURCE_DIR}/include
+	${FileSystem_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
 
+	# 3rd party
 	${GLFW_SOURCE_DIR}/include
 	${Lua_SOURCE_DIR}/src
 )

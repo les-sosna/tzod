@@ -6,9 +6,9 @@ if(APPLE)
 endif()
 
 include_directories(
-	${FileSystem_SOURCE_DIR}/include
-	${GC_SOURCE_DIR}/include
-	${Math_SOURCE_DIR}/include
+	${FileSystem_SOURCE_DIR}/inc
+	${GC_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
 )
 
 add_library(ai

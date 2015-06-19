@@ -1,7 +1,7 @@
-#include <gc/Object.h>
-#include <gc/World.h>
-#include <gc/WorldEvents.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Object.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 PropertySet::PropertySet(GC_Object *object)

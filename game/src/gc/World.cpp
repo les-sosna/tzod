@@ -1,13 +1,13 @@
-#include <gc/World.h>
-#include <gc/World.inl>
-#include <gc/WorldCfg.h>
-#include <gc/WorldEvents.h>
-#include <gc/RigidBodyDinamic.h>
-#include <gc/Player.h>
-#include <gc/Macros.h>
-#include <gc/TypeSystem.h>
+#include "inc/gc/World.h"
+#include "inc/gc/World.inl"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/TypeSystem.h"
 
-#include <gc/SaveFile.h>
+#include "inc/gc/SaveFile.h"
 
 #include <fs/FileSystem.h>
 #include <MapFile.h>

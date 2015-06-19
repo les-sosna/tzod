@@ -1,17 +1,17 @@
 #include "TypeReg.h"
 
-#include <gc/Weapons.h>
-#include <gc/Vehicle.h>
-#include <gc/VehicleClasses.h>
-#include <gc/RigidBodyDinamic.h>
-#include <gc/Light.h>
-#include <gc/Macros.h>
-#include <gc/Projectiles.h>
-#include <gc/Particles.h>
-#include <gc/WeapCfg.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Weapons.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/VehicleClasses.h"
+#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/Light.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/Projectiles.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/WeapCfg.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/SaveFile.h"
 
 #include <MapFile.h>
 

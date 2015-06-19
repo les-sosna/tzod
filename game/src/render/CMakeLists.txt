@@ -6,9 +6,9 @@ if(APPLE)
 endif()
 
 include_directories(
-	${GC_SOURCE_DIR}/include
-	${Math_SOURCE_DIR}/include
-	${Video_SOURCE_DIR}/include
+	${GC_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
+	${Video_SOURCE_DIR}/inc
 )
 
 add_library(render

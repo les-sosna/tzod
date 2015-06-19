@@ -1,7 +1,7 @@
 // Text.cpp
 
-#include <ui/Text.h>
-#include <ui/GuiManager.h>
+#include "inc/ui/Text.h"
+#include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

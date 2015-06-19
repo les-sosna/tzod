@@ -6,10 +6,9 @@ if(APPLE)
 endif()
 
 include_directories(
-	include
-	${FileSystem_SOURCE_DIR}/include
-	${MapFile_SOURCE_DIR}/include
-	${Math_SOURCE_DIR}/include
+	${FileSystem_SOURCE_DIR}/inc
+	${MapFile_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
 )
 
 add_library(gc

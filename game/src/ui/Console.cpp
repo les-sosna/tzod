@@ -1,10 +1,10 @@
 // Console.cpp
 
-#include <ui/Console.h>
-#include <ui/Edit.h>
-#include <ui/Scroll.h>
-#include <ui/ConsoleBuffer.h>
-#include <ui/GuiManager.h>
+#include "inc/ui/Console.h"
+#include "inc/ui/Edit.h"
+#include "inc/ui/Scroll.h"
+#include "inc/ui/ConsoleBuffer.h"
+#include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <GLFW/glfw3.h>

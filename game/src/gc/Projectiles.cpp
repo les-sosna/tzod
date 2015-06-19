@@ -1,16 +1,16 @@
 #include "TypeReg.h"
-#include <gc/Projectiles.h>
-#include <gc/Explosion.h>
-#include <gc/GameClasses.h>
-#include <gc/Light.h>
-#include <gc/Macros.h>
-#include <gc/Particles.h>
-#include <gc/Player.h>
-#include <gc/RigidBodyDinamic.h>
-#include <gc/WeapCfg.h>
-#include <gc/World.h>
-#include <gc/WorldEvents.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Projectiles.h"
+#include "inc/gc/Explosion.h"
+#include "inc/gc/GameClasses.h"
+#include "inc/gc/Light.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/WeapCfg.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/SaveFile.h"
 
 IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
 

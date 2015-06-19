@@ -1,16 +1,16 @@
 #include "TypeReg.h"
-#include <gc/Pickup.h>
-#include <gc/Explosion.h>
-#include <gc/Indicators.h>
-#include <gc/Light.h>
-#include <gc/Macros.h>
-#include <gc/Particles.h>
-#include <gc/Player.h>
-#include <gc/Vehicle.h>
-#include <gc/Weapons.h>
-#include <gc/World.h>
-#include <gc/WorldEvents.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Pickup.h"
+#include "inc/gc/Explosion.h"
+#include "inc/gc/Indicators.h"
+#include "inc/gc/Light.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/Weapons.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 

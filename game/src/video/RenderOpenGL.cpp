@@ -1,4 +1,4 @@
-#include <video/RenderOpenGL.h>
+#include "inc/video/RenderOpenGL.h"
 #include <GLFW/glfw3.h>
 #include <cstring>
 

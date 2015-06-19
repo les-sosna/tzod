@@ -1,13 +1,13 @@
 #include "TypeReg.h"
-#include <gc/Trigger.h>
-#include <gc/Player.h>
-#include <gc/Vehicle.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/WorldEvents.h>
-#include <gc/Macros.h>
+#include "inc/gc/Trigger.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/Macros.h"
 
-#include <gc/SaveFile.h>
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)

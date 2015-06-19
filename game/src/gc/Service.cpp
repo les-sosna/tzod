@@ -1,4 +1,4 @@
-#include <gc/Service.h>
-#include <gc/World.h>
+#include "inc/gc/Service.h"
+#include "inc/gc/World.h"
 
 IMPLEMENT_1LIST_MEMBER(GC_Service, LIST_services);

@@ -1,20 +1,20 @@
 #include "TypeReg.h"
-#include <gc/Turrets.h>
-#include <gc/Explosion.h>
-#include <gc/Indicators.h>
-#include <gc/Vehicle.h>
-#include <gc/Player.h>
-#include <gc/Projectiles.h>
-#include <gc/Particles.h>
-#include <gc/TypeSystem.h>
-#include <gc/Macros.h>
-#include <gc/WeapCfg.h>
-#include <gc/World.h>
-#include <gc/WorldEvents.h>
+#include "inc/gc/Turrets.h"
+#include "inc/gc/Explosion.h"
+#include "inc/gc/Indicators.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Projectiles.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/TypeSystem.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/WeapCfg.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldEvents.h"
 
-#include <gc/SaveFile.h>
+#include "inc/gc/SaveFile.h"
 
-#include <gc/detail/JobManager.h>
+#include "inc/gc/detail/JobManager.h"
 #include <MapFile.h>
 
 

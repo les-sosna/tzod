@@ -1,13 +1,13 @@
 #include "TypeReg.h"
-#include <gc/RigidBody.h>
-#include <gc/Particles.h>
-#include <gc/Player.h>
-#include <gc/Vehicle.h>
-#include <gc/WeapCfg.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/WorldEvents.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/RigidBody.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/WeapCfg.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 #include <cfloat>
 

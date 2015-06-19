@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES // for M_PI
-#include <gc/detail/Rotator.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/detail/Rotator.h"
+#include "inc/gc/SaveFile.h"
 #include <cmath>
 
 // Rotator changes the value of the referenced variable

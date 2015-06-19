@@ -1,8 +1,8 @@
 #include "TypeReg.h"
-#include <gc/UserObjects.h>
-#include <gc/Explosion.h>
-#include <gc/World.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/UserObjects.h"
+#include "inc/gc/Explosion.h"
+#include "inc/gc/World.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)

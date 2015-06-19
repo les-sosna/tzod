@@ -1,6 +1,6 @@
 #pragma once
-#include <gc/RigidBody.h>
-#include <gc/Z.h>
+#include "RigidBody.h"
+#include "Z.h"
 
 class GC_UserObject : public GC_RigidBodyStatic
 {

@@ -1,7 +1,7 @@
 #include "TypeReg.h"
-#include <gc/Particles.h>
-#include <gc/SaveFile.h>
-#include <gc/World.h>
+#include "inc/gc/Particles.h"
+#include "inc/gc/SaveFile.h"
+#include "inc/gc/World.h"
 
 IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 {

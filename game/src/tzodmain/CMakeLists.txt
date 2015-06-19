@@ -4,12 +4,12 @@ project(TZodMain CXX)
 
 include_directories(
 	${Tank_SOURCE_DIR}
-	${FileSystem_SOURCE_DIR}/include
-	${GC_SOURCE_DIR}/include
+	${FileSystem_SOURCE_DIR}/inc
+	${GC_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/include
-	${UI_SOURCE_DIR}/include
-	${Video_SOURCE_DIR}/include
+	${Math_SOURCE_DIR}/inc
+	${UI_SOURCE_DIR}/inc
+	${Video_SOURCE_DIR}/inc
 
 	${OggVorbis_SOURCE_DIR}/include
 	${GLFW_SOURCE_DIR}/include

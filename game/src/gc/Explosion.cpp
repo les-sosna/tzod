@@ -1,14 +1,14 @@
 #include "TypeReg.h"
-#include <gc/Explosion.h>
-#include <gc/Camera.h>
-#include <gc/Light.h>
-#include <gc/Particles.h>
-#include <gc/Player.h>
-#include <gc/RigidBody.h>
-#include <gc/Vehicle.h>
-#include <gc/World.h>
-#include <gc/Macros.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Explosion.h"
+#include "inc/gc/Camera.h"
+#include "inc/gc/Light.h"
+#include "inc/gc/Particles.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/RigidBody.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/World.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/SaveFile.h"
 
 GC_Explosion::GC_Explosion(vec2d pos)
   : GC_Actor(pos)

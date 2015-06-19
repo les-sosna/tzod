@@ -1,4 +1,4 @@
-#include <gc/VehicleClasses.h>
+#include "inc/gc/VehicleClasses.h"
 #include <string.h>
 
 static const char* s_vehicleClassNames[] =

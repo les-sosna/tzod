@@ -1,7 +1,4 @@
-// RenderBase.h
-
 #pragma once
-
 #include <math/MyMath.h>
 #include <cstdint>
 

@@ -1,4 +1,4 @@
-#include <gc/TypeSystem.h>
+#include "inc/gc/TypeSystem.h"
 #include <MapFile.h>
 
 #define IMPLEMENT_SELF_REGISTRATION(cls)                           \

@@ -1,9 +1,9 @@
-#include <gc/RigidBodyDinamic.h>
-#include <gc/Projectiles.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/WorldEvents.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/Projectiles.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/WorldEvents.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 GC_RigidBodyDynamic::MyPropertySet::MyPropertySet(GC_Object *object)

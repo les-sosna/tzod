@@ -1,7 +1,7 @@
-#include <gc/Actor.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Actor.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 // Workaround for IMPLEMENT_GRID_MEMBER macro used in the base class

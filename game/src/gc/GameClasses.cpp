@@ -1,10 +1,10 @@
 #include "TypeReg.h"
-#include <gc/GameClasses.h>
-#include <gc/Player.h>
-#include <gc/RigidBody.h>
-#include <gc/World.h>
-#include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/GameClasses.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/RigidBody.h"
+#include "inc/gc/World.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 

@@ -1,7 +1,7 @@
 // Button.cpp
 
-#include <ui/Button.h>
-#include <ui/GuiManager.h>
+#include "inc/ui/Button.h"
+#include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <algorithm>

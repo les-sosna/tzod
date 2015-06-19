@@ -1,5 +1,5 @@
-#include <gc/TypeSystem.h>
-#include <gc/Object.h>
+#include "inc/gc/TypeSystem.h"
+#include "inc/gc/Object.h"
 
 GC_Object* RTTypes::CreateFromFile(World &world, ObjectType type)
 {

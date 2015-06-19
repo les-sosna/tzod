@@ -1,12 +1,12 @@
 #include "TypeReg.h"
-#include <gc/Camera.h>
-#include <gc/World.h>
-#include <gc/Macros.h>
-#include <gc/Player.h>
-#include <gc/Vehicle.h>
-#include <gc/Weapons.h>
-#include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
+#include "inc/gc/Camera.h"
+#include "inc/gc/World.h"
+#include "inc/gc/Macros.h"
+#include "inc/gc/Player.h"
+#include "inc/gc/Vehicle.h"
+#include "inc/gc/Weapons.h"
+#include "inc/gc/WorldCfg.h"
+#include "inc/gc/SaveFile.h"
 
 IMPLEMENT_SELF_REGISTRATION(GC_Camera)
 {
