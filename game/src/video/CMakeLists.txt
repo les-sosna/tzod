@@ -14,13 +14,23 @@ include_directories(
 	${Lua_SOURCE_DIR}/src
 )
 
-add_library(video
+set(video_SOURCES
 	DrawingContext.cpp
 	ImageLoader.cpp
 #	RenderDirect3D.cpp
-	RenderOpenGL.cpp
 	TextureManager.cpp
 )
+
+if(IOS)
+	list(APPEND video_SOURCES
+		GLESProgram.cpp
+		RenderGLES2.cpp
+	)
+else()
+	list(APPEND video_SOURCES RenderOpenGL.cpp)
+endif()
+
+add_library(video ${video_SOURCES})
 
 target_link_libraries(video 
 	filesystem

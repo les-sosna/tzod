@@ -1,5 +1,10 @@
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
+#include <render/RenderScheme.h>
+#include <render/WorldView.h>
+#include <video/RenderOpenGL.h>
+#include <video/TextureManager.h>
+#include <memory>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -77,6 +82,11 @@ GLfloat gCubeVertexData[216] =
     
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    std::unique_ptr<IRender> _render;
+    std::unique_ptr<TextureManager> _textureManager;
+    std::unique_ptr<RenderScheme> _renderScheme;
+    std::unique_ptr<WorldView> _worldView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -169,6 +179,12 @@ GLfloat gCubeVertexData[216] =
     glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 24, BUFFER_OFFSET(12));
     
     glBindVertexArrayOES(0);
+    
+    
+    _render = RenderCreateOpenGL();
+    _textureManager.reset(new TextureManager(*_render));
+    _renderScheme.reset(new RenderScheme(*_textureManager));
+    _worldView.reset(new WorldView(*_textureManager, *_renderScheme));
 }
 
 - (void)tearDownGL

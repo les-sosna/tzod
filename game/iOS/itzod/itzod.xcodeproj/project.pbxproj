@@ -8,12 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		0713692B1B2D2BB70065FAC7 /* libmapfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0713692A1B2D2BB70065FAC7 /* libmapfile.a */; };
+		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
+		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
 		077AC91E1B2D24FC00E3B120 /* libgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077AC91D1B2D24FC00E3B120 /* libgc.a */; };
+		07CAF7A71B33F4E2008A60CA /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A61B33F4E2008A60CA /* GLKit.framework */; };
+		07CAF7A91B393A3C008A60CA /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A81B393A3C008A60CA /* liblua.a */; };
+		07CAF7AB1B3BA782008A60CA /* libfilesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AA1B3BA782008A60CA /* libfilesystem.a */; };
 		07FAF2751B1C26D900BFDD5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2741B1C26D900BFDD5F /* main.m */; };
 		07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */; };
 		07FAF27A1B1C26DA00BFDD5F /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2791B1C26DA00BFDD5F /* Shader.fsh */; };
 		07FAF27C1B1C26DA00BFDD5F /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */; };
-		07FAF27F1B1C26DA00BFDD5F /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF27E1B1C26DA00BFDD5F /* GameViewController.m */; };
+		07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */; };
 		07FAF2821B1C26DA00BFDD5F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2801B1C26DA00BFDD5F /* Main.storyboard */; };
 		07FAF2841B1C26DA00BFDD5F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2831B1C26DA00BFDD5F /* Images.xcassets */; };
 		07FAF2871B1C26DA00BFDD5F /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2851B1C26DA00BFDD5F /* LaunchScreen.xib */; };
@@ -32,7 +37,12 @@
 
 /* Begin PBXFileReference section */
 		0713692A1B2D2BB70065FAC7 /* libmapfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmapfile.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libmapfile.a"; sourceTree = "<group>"; };
+		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
+		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
 		077AC91D1B2D24FC00E3B120 /* libgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgc.a; path = "../_build/gc/Debug-iphonesimulator/libgc.a"; sourceTree = "<group>"; };
+		07CAF7A61B33F4E2008A60CA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		07CAF7A81B393A3C008A60CA /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liblua.a"; sourceTree = "<group>"; };
+		07CAF7AA1B3BA782008A60CA /* libfilesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfilesystem.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libfilesystem.a"; sourceTree = "<group>"; };
 		07FAF26F1B1C26D900BFDD5F /* itzod.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itzod.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07FAF2731B1C26D900BFDD5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		07FAF2741B1C26D900BFDD5F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -41,7 +51,7 @@
 		07FAF2791B1C26DA00BFDD5F /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
 		07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		07FAF27D1B1C26DA00BFDD5F /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		07FAF27E1B1C26DA00BFDD5F /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
 		07FAF2811B1C26DA00BFDD5F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		07FAF2831B1C26DA00BFDD5F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		07FAF2861B1C26DA00BFDD5F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -55,6 +65,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07CAF7AB1B3BA782008A60CA /* libfilesystem.a in Frameworks */,
+				07CAF7A91B393A3C008A60CA /* liblua.a in Frameworks */,
+				07CAF7A71B33F4E2008A60CA /* GLKit.framework in Frameworks */,
+				07705C581B3289B2008ED733 /* librender.a in Frameworks */,
+				07705C561B328956008ED733 /* libvideo.a in Frameworks */,
 				0713692B1B2D2BB70065FAC7 /* libmapfile.a in Frameworks */,
 				077AC91E1B2D24FC00E3B120 /* libgc.a in Frameworks */,
 			);
@@ -73,6 +88,11 @@
 		07FAF2661B1C26D900BFDD5F = {
 			isa = PBXGroup;
 			children = (
+				07CAF7AA1B3BA782008A60CA /* libfilesystem.a */,
+				07CAF7A81B393A3C008A60CA /* liblua.a */,
+				07CAF7A61B33F4E2008A60CA /* GLKit.framework */,
+				07705C571B3289B2008ED733 /* librender.a */,
+				07705C551B328956008ED733 /* libvideo.a */,
 				0713692A1B2D2BB70065FAC7 /* libmapfile.a */,
 				077AC91D1B2D24FC00E3B120 /* libgc.a */,
 				07FAF2711B1C26D900BFDD5F /* itzod */,
@@ -98,7 +118,7 @@
 				07FAF2791B1C26DA00BFDD5F /* Shader.fsh */,
 				07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */,
 				07FAF27D1B1C26DA00BFDD5F /* GameViewController.h */,
-				07FAF27E1B1C26DA00BFDD5F /* GameViewController.m */,
+				07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */,
 				07FAF2801B1C26DA00BFDD5F /* Main.storyboard */,
 				07FAF2831B1C26DA00BFDD5F /* Images.xcassets */,
 				07FAF2851B1C26DA00BFDD5F /* LaunchScreen.xib */,
@@ -236,7 +256,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */,
-				07FAF27F1B1C26DA00BFDD5F /* GameViewController.m in Sources */,
+				07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */,
 				07FAF2751B1C26D900BFDD5F /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -367,8 +387,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					../../src/gc/include,
-					../../src/math/include,
+					../../src/gc/inc,
+					../../src/math/inc,
+					../../src/video/inc,
+					../../src/render/inc,
+					../../src/fs/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -386,8 +409,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					../../src/gc/include,
-					../../src/math/include,
+					../../src/gc/inc,
+					../../src/math/inc,
+					../../src/video/inc,
+					../../src/render/inc,
+					../../src/fs/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

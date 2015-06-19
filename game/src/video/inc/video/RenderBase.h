@@ -93,8 +93,6 @@ struct IRender
 	virtual void Begin   (void) = 0;
 	virtual void End     (void) = 0;
 
-	virtual bool TakeScreenshot(char *fileName) = 0;
-
 
 	//
 	// texture management
