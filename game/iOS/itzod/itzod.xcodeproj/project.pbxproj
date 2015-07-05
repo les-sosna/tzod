@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		070667411B47C2FF000FAF97 /* data in Resources */ = {isa = PBXBuildFile; fileRef = 070667401B47C2FF000FAF97 /* data */; };
 		0713692B1B2D2BB70065FAC7 /* libmapfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0713692A1B2D2BB70065FAC7 /* libmapfile.a */; };
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
@@ -14,7 +15,9 @@
 		07CAF7A71B33F4E2008A60CA /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A61B33F4E2008A60CA /* GLKit.framework */; };
 		07CAF7A91B393A3C008A60CA /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A81B393A3C008A60CA /* liblua.a */; };
 		07CAF7AB1B3BA782008A60CA /* libfilesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AA1B3BA782008A60CA /* libfilesystem.a */; };
-		07FAF2751B1C26D900BFDD5F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2741B1C26D900BFDD5F /* main.m */; };
+		07CAF7AD1B3BBE04008A60CA /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */; };
+		07CAF7AF1B3BBE71008A60CA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AE1B3BBE71008A60CA /* UIKit.framework */; };
+		07FAF2751B1C26D900BFDD5F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2741B1C26D900BFDD5F /* main.mm */; };
 		07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */; };
 		07FAF27A1B1C26DA00BFDD5F /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2791B1C26DA00BFDD5F /* Shader.fsh */; };
 		07FAF27C1B1C26DA00BFDD5F /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */; };
@@ -36,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		070667401B47C2FF000FAF97 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../../../data; sourceTree = "<group>"; };
 		0713692A1B2D2BB70065FAC7 /* libmapfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmapfile.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libmapfile.a"; sourceTree = "<group>"; };
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
@@ -43,9 +47,11 @@
 		07CAF7A61B33F4E2008A60CA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		07CAF7A81B393A3C008A60CA /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liblua.a"; sourceTree = "<group>"; };
 		07CAF7AA1B3BA782008A60CA /* libfilesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfilesystem.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libfilesystem.a"; sourceTree = "<group>"; };
+		07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		07CAF7AE1B3BBE71008A60CA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		07FAF26F1B1C26D900BFDD5F /* itzod.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itzod.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07FAF2731B1C26D900BFDD5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		07FAF2741B1C26D900BFDD5F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		07FAF2741B1C26D900BFDD5F /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		07FAF2761B1C26D900BFDD5F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		07FAF2791B1C26DA00BFDD5F /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
@@ -65,6 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07CAF7AF1B3BBE71008A60CA /* UIKit.framework in Frameworks */,
+				07CAF7AD1B3BBE04008A60CA /* OpenGLES.framework in Frameworks */,
 				07CAF7AB1B3BA782008A60CA /* libfilesystem.a in Frameworks */,
 				07CAF7A91B393A3C008A60CA /* liblua.a in Frameworks */,
 				07CAF7A71B33F4E2008A60CA /* GLKit.framework in Frameworks */,
@@ -88,6 +96,8 @@
 		07FAF2661B1C26D900BFDD5F = {
 			isa = PBXGroup;
 			children = (
+				07CAF7AE1B3BBE71008A60CA /* UIKit.framework */,
+				07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */,
 				07CAF7AA1B3BA782008A60CA /* libfilesystem.a */,
 				07CAF7A81B393A3C008A60CA /* liblua.a */,
 				07CAF7A61B33F4E2008A60CA /* GLKit.framework */,
@@ -113,6 +123,7 @@
 		07FAF2711B1C26D900BFDD5F /* itzod */ = {
 			isa = PBXGroup;
 			children = (
+				070667401B47C2FF000FAF97 /* data */,
 				07FAF2761B1C26D900BFDD5F /* AppDelegate.h */,
 				07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */,
 				07FAF2791B1C26DA00BFDD5F /* Shader.fsh */,
@@ -131,7 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				07FAF2731B1C26D900BFDD5F /* Info.plist */,
-				07FAF2741B1C26D900BFDD5F /* main.m */,
+				07FAF2741B1C26D900BFDD5F /* main.mm */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -237,6 +248,7 @@
 				07FAF2821B1C26DA00BFDD5F /* Main.storyboard in Resources */,
 				07FAF2841B1C26DA00BFDD5F /* Images.xcassets in Resources */,
 				07FAF27C1B1C26DA00BFDD5F /* Shader.vsh in Resources */,
+				070667411B47C2FF000FAF97 /* data in Resources */,
 				07FAF27A1B1C26DA00BFDD5F /* Shader.fsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,7 +269,7 @@
 			files = (
 				07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */,
 				07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */,
-				07FAF2751B1C26D900BFDD5F /* main.m in Sources */,
+				07FAF2751B1C26D900BFDD5F /* main.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

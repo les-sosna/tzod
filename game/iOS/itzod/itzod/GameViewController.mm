@@ -1,5 +1,7 @@
 #import "GameViewController.h"
+#import "AppDelegate.h"
 #import <OpenGLES/ES2/glext.h>
+#include <fs/FileSystem.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
 #include <video/RenderOpenGL.h>
@@ -154,6 +156,18 @@ GLfloat gCubeVertexData[216] =
     return YES;
 }
 
+#define DIR_SCRIPTS      "scripts"
+#define DIR_MAPS         "maps"
+#define DIR_SKINS        "skins"
+#define DIR_THEMES       "themes"
+#define DIR_MUSIC        "music"
+#define DIR_SOUND        "sounds"
+
+#define FILE_LANGUAGE    "data/lang.cfg"
+#define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
+#define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
+
+
 - (void)setupGL
 {
     [EAGLContext setCurrentContext:self.context];
@@ -180,9 +194,16 @@ GLfloat gCubeVertexData[216] =
     
     glBindVertexArrayOES(0);
     
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     _render = RenderCreateOpenGL();
     _textureManager.reset(new TextureManager(*_render));
+    FS::FileSystem *fs = appDelegate.fs;
+    if (_textureManager->LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
+        NSLog(@"WARNING: no textures loaded");
+    if (_textureManager->LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
+        NSLog(@"WARNING: no skins found");
+
     _renderScheme.reset(new RenderScheme(*_textureManager));
     _worldView.reset(new WorldView(*_textureManager, *_renderScheme));
 }

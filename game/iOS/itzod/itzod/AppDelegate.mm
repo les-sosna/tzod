@@ -1,15 +1,29 @@
 #import "AppDelegate.h"
 #include <gc/World.h>
+#include <../FileSystemImpl.h>
+#include <memory>
 
 @interface AppDelegate ()
+{
+    std::shared_ptr<FS::FileSystem> _fs;
+}
+
 @end
 
 
 @implementation AppDelegate
 
+- (FS::FileSystem*)fs
+{
+    return _fs.get();
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+    NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
+    _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
     World w(100, 100);
     return YES;
 }
