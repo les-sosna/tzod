@@ -1,9 +1,9 @@
 // gui_getfilename.cpp
 
 #include "gui_getfilename.h"
-#include "config/Language.h"
 
 #include <fs/FileSystem.h>
+#include <loc/Language.h>
 #include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/Button.h>

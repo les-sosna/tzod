@@ -1,14 +1,9 @@
-#include "gui_network.h"
-
+#include "Config.h"
+#include "core/Debug.h"
 #include "gui.h"
 #include "gui_maplist.h"
-
+#include "gui_network.h"
 #include "md5.h"
-
-#include "config/Config.h"
-#include "config/Language.h"
-
-#include "core/Debug.h"
 
 //#include "network/TankServer.h"
 //#include "network/TankClient.h"
@@ -17,8 +12,8 @@
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
-
 #include <fs/FileSystem.h>
+#include <loc/Language.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
 #include <ui/Combo.h>

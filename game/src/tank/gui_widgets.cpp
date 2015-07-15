@@ -1,8 +1,8 @@
 // gui_widgets.cpp
 
 #include "gui_widgets.h"
-#include "AppState.h"
-#include "GameContext.h"
+#include <app/AppState.h>
+#include <app/GameContext.h>
 #include <gc/World.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>

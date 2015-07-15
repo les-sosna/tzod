@@ -2,7 +2,7 @@
 
 #include "Controller.h"
 #include "KeyMapper.h"
-#include "config/Config.h"
+#include "Config.h"
 #include "core/Debug.h"
 #include <gc/VehicleState.h>
 #include <gc/Camera.h>

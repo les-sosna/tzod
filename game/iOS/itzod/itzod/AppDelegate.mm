@@ -1,11 +1,12 @@
 #import "AppDelegate.h"
-#include <gc/World.h>
+#include <app/AppState.h>
 #include <../FileSystemImpl.h>
 #include <memory>
 
 @interface AppDelegate ()
 {
     std::shared_ptr<FS::FileSystem> _fs;
+    AppState appState;
 }
 
 @end
@@ -24,7 +25,6 @@
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
-    World w(100, 100);
     return YES;
 }
 

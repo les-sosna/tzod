@@ -1,18 +1,14 @@
 // gui_settings.cpp
 
+#include "Config.h"
 #include "gui_settings.h"
-
 #include "KeyMapper.h"
 
 #include <gc/Object.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
-
-#include "config/Config.h"
-#include "config/Language.h"
-
 #include <video/TextureManager.h>
-#include <GLFW/glfw3.h>
+#include <loc/Language.h>
 #include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/Button.h>
@@ -21,6 +17,8 @@
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
+
+#include <GLFW/glfw3.h>
 #include <sstream>
 
 namespace UI

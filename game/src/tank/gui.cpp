@@ -4,8 +4,8 @@
 
 #include "gui_maplist.h"
 
-#include "config/Config.h"
-#include "config/Language.h"
+#include "Config.h"
+#include <loc/Language.h>
 
 #include "core/Debug.h"
 

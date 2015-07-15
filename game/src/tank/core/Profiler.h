@@ -1,8 +1,6 @@
-// Profiler.h 
-
 #pragma once
 
-#include "core/Delegate.h"
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -21,10 +19,10 @@ public:
 
 	static size_t GetMarkerCountStatic();
 	static const CounterInfo& GetMarkerInfoStatic(size_t idx);
-	static void SetMarkerCallbackStatic(size_t idx, const Delegate<void(float)> &cb);
+	static void SetMarkerCallbackStatic(size_t idx, std::function<void(float)> cb);
 
 private:
-	Delegate<void(float)> _callback;
+    std::function<void(float)> _callback;
 
 	struct CounterInfoEx : public CounterInfo
 	{
@@ -35,5 +33,3 @@ private:
 	static size_t RegisterMarkerStatic(const CounterInfo &info, CounterBase *ptr);
 	static std::vector<CounterInfoEx>& GetRegisteredCountersStatic();
 };
-
-// end of file

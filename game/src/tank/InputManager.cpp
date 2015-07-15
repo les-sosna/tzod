@@ -2,7 +2,7 @@
 
 #include "InputManager.h"
 #include "Controller.h"
-#include "config/Config.h"
+#include "Config.h"
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>

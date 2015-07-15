@@ -1,24 +1,24 @@
+#include "Config.h"
+#include "Controller.h"
+#include "DefaultCamera.h"
+#include "GameView.h"
 #include "gui_game.h"
 #include "gui_messagearea.h"
 #include "gui_scoretable.h"
-#include "DefaultCamera.h"
 #include "InputManager.h"
-#include "Controller.h"
-#include "Deathmatch.h"
-#include "GameView.h"
-#include "WorldController.h"
-#include "config/Config.h"
+
+#include <app/Deathmatch.h>
+#include <app/WorldController.h>
 #include <gc/World.h>
 #include <gc/Camera.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/Macros.h>
-
-#include <GLFW/glfw3.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
 
+#include <GLFW/glfw3.h>
 #include <sstream>
 
 UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
@@ -53,7 +53,6 @@ UI::GameLayout::GameLayout(Window *parent,
 						   World &world,
 						   WorldView &worldView,
 						   WorldController &worldController,
-						   InputManager &inputMgr,
 						   Gameplay &gameplay,
 						   const DefaultCamera &defaultCamera)
     : Window(parent)
@@ -61,9 +60,9 @@ UI::GameLayout::GameLayout(Window *parent,
     , _world(world)
     , _worldView(worldView)
 	, _worldController(worldController)
-	, _inputMgr(inputMgr)
 	, _gameplay(gameplay)
     , _defaultCamera(defaultCamera)
+    , _inputMgr(world)
 {
 	_msg = new MessageArea(this, 100, 100);
     

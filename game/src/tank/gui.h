@@ -3,7 +3,7 @@
 #pragma once
 
 #include "constants.h"
-#include "config/Config.h"
+#include "Config.h"
 #include <ui/Dialog.h>
 
 class ConfVarTable;

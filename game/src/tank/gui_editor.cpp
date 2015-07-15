@@ -2,9 +2,11 @@
 
 #include "gui_editor.h"
 
+#include "Config.h"
 #include "constants.h"
-#include "ThemeManager.h"
+#include "core/Debug.h"
 #include "DefaultCamera.h"
+#include "ThemeManager.h"
 
 #include <gc/Camera.h>
 #include <gc/Object.h>
@@ -15,14 +17,10 @@
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <gc/Macros.h>
-#include "gclua/lObjUtil.h"
-
-#include "config/Config.h"
-#include "config/Language.h"
-#include "core/Debug.h"
-#include "render/WorldView.h"
-#include "render/RenderScheme.h"
-
+#include <gclua/lObjUtil.h>
+#include <loc/Language.h>
+#include <render/WorldView.h>
+#include <render/RenderScheme.h>
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
 #include <ui/Edit.h>

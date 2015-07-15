@@ -9,34 +9,31 @@ find_package(Boost 1.55 REQUIRED COMPONENTS system)
 find_package(OpenAL)
 
 set(tank_INCLUDE_DIRS
-	.
 	${AI_SOURCE_DIR}/inc
+	${App_SOURCE_DIR}/inc
+	${Config_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
-	${Render_SOURCE_DIR}/inc
-	${UI_SOURCE_DIR}/inc
+	${GCLua_SOURCE_DIR}/inc
+	${Loc_SOURCE_DIR}/inc
 	${MapFile_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
+	${Render_SOURCE_DIR}/inc
+	${Script_SOURCE_DIR}/inc
+	${UI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
 	
 	# 3rd party
 	${Boost_INCLUDE_DIRS}
-	${Lua_SOURCE_DIR}/src
-	${Zlib_SOURCE_DIR}
-	${OggVorbis_SOURCE_DIR}/include
-	${Pluto_SOURCE_DIR}
 	${GLFW_SOURCE_DIR}/include
+	${Lua_SOURCE_DIR}/src
+	${Pluto_SOURCE_DIR}
+	${Zlib_SOURCE_DIR}
 )
 
 set(tank_SOURCES
-	AIManager.cpp
-	AppState.cpp
 	Controller.cpp
-	Deathmatch.cpp
 	DefaultCamera.cpp
-	EditorContext.cpp
-	GameContext.cpp
-	GameEvents.cpp
 	GameView.cpp
 	GlfwPlatform.cpp
 	globals.cpp
@@ -57,17 +54,9 @@ set(tank_SOURCES
 	KeyMapper.cpp
 	Md5.c
 	ThemeManager.cpp
-	WorldController.cpp
-	config/Config.cpp
-	config/ConfigBase.cpp
-	config/Language.cpp
+	Config.cpp
 	core/Profiler.cpp
 	core/Timer.cpp
-	gclua/lgcmod.cpp
-#	gclua/lGame.cpp
-	gclua/lObject.cpp
-	gclua/lObjUtil.cpp
-	gclua/lWorld.cpp
 #	network/CommonTypes.cpp
 #	network/ControlPacket.cpp
 #	network/HttpClient.cpp
@@ -78,39 +67,29 @@ set(tank_SOURCES
 #	network/TankClient.cpp
 #	network/TankServer.cpp
 #	network/Variant.cpp
-	script/script.cpp
-	script/ScriptHarness.cpp
-	script/sTrigger.cpp
-	script/sRigidBodyStatic.cpp
-	script/sPickup.cpp
-	script/sPlayer.cpp
 )
 
 set(tank_LIBRARIES
 	ai
+	app
+	config
+	loc
 	filesystem
 	gc
+	gclua
 	render
 	ui
 	lua
 	pluto
 	zlib
 	glfw
-	oggvorbis
 	${GLFW_LIBRARIES}
 	${Boost_LIBRARIES}
 )
 
 if(${OPENAL_FOUND})
-	list(APPEND tank_LIBRARIES ${OPENAL_LIBRARY})
-	list(APPEND tank_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-	list(APPEND tank_SOURCES
-		AudioContext.cpp
-		SoundHarness.cpp
-		SoundRender.cpp
-		SoundView.cpp
-		sound/MusicPlayer.cpp
-	)
+	list(APPEND tank_LIBRARIES audio)
+	list(APPEND tank_INCLUDE_DIRS ${Audio_SOURCE_DIR}/inc)
 else()
 	add_definitions(-DNOSOUND)
 endif()

@@ -1,7 +1,7 @@
 #pragma once
-#include "AppState.h"
 #include "DefaultCamera.h"
 #include "InputManager.h"
+#include <app/AppState.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
 #include <ui/Window.h>

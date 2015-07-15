@@ -3,16 +3,21 @@ project(TZodMain CXX)
 
 
 include_directories(
-	${Tank_SOURCE_DIR}
+	${App_SOURCE_DIR}/inc
+	${Audio_SOURCE_DIR}/inc
+	${Config_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
-	${Render_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
+	${Loc_SOURCE_DIR}/inc
+	${Render_SOURCE_DIR}/inc
+	${Tank_SOURCE_DIR}
 	${UI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
 
-	${OggVorbis_SOURCE_DIR}/include
+	# 3rd party
 	${GLFW_SOURCE_DIR}/include
+	${OggVorbis_SOURCE_DIR}/include
 )
 
 link_directories(${Boost_LIBRARY_DIR})

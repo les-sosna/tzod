@@ -8,16 +8,14 @@
 #include "gui_getfilename.h"
 #include "gui.h"
 
-#include "script/script.h"
-
 #include "core/Debug.h"
-#include "config/Language.h"
 
 #include <fs/FileSystem.h>
-#include <GLFW/glfw3.h>
+#include <loc/Language.h>
 #include <ui/GuiManager.h>
 #include <ui/Button.h>
 #include <ui/Text.h>
+#include <GLFW/glfw3.h>
 
 namespace UI
 {

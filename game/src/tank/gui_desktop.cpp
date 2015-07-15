@@ -9,20 +9,19 @@
 #include "gui_widgets.h"
 #include "gui.h"
 
-#include "EditorContext.h"
-#include "GameContext.h"
+#include <app/EditorContext.h>
+#include <app/GameContext.h>
 
-#include "config/Config.h"
-#include "config/Language.h"
+#include "Config.h"
 #include "core/Profiler.h"
 #include "core/Debug.h"
-#include <gc/World.h>
 
 //#include "network/TankClient.h"
 
-#include "script/script.h"
-
+#include <gc/World.h>
+#include <loc/Language.h>
 #include <fs/FileSystem.h>
+//#include <script/script.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
@@ -35,8 +34,8 @@ extern "C"
 #include <lauxlib.h>
 }
 
-
 #include <GLFW/glfw3.h>
+#include <functional>
 
 
 static CounterBase counterDt("dt", "dt, ms");
@@ -125,7 +124,7 @@ Desktop::Desktop(LayoutManager* manager,
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
-			CounterBase::SetMarkerCallbackStatic(i, CreateDelegate(&Oscilloscope::Push, os));
+            CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::placeholders::_1));
 			yy += hh+5;
 		}
 	}
@@ -203,7 +202,6 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 static DMSettings GetDMSettingsFromConfig()
 {
 	DMSettings settings;
-	settings.mapName = g_conf.cl_map.Get();
 	
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
@@ -232,10 +230,16 @@ void Desktop::OnNewCampaign()
 			OnCloseChild(Dialog::_resultOK);
 
 			g_conf.ui_showmsg.Set(true);
-			if( !script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str()) )
-			{
-				ShowConsole(true);
-			}
+            try
+            {
+//                script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
+                throw std::logic_error("not implemented");
+            }
+            catch( const std::exception &e )
+            {
+                GetConsole().WriteLine(1, e.what());
+                ShowConsole(true);
+            }
 		}
 		else
 		{
@@ -255,7 +259,9 @@ void Desktop::OnNewDM()
 		{
 			try
 			{
-				std::unique_ptr<GameContext> gc(new GameContext(_fs, GetDMSettingsFromConfig()));
+                std::string path = std::string(DIR_MAPS) + '/' + g_conf.cl_map.Get() + ".map";
+                std::shared_ptr<FS::Stream> stream = _fs.Open(path)->QueryStream();
+				std::unique_ptr<GameContext> gc(new GameContext(*stream, GetDMSettingsFromConfig()));
 				GetAppState().SetGameContext(std::move(gc));
 				ShowMainMenu(false);
 			}
@@ -413,12 +419,12 @@ void Desktop::OnCommand(const std::string &cmd)
 		}
 		else
 		{
-			script_exec(_globL.get(), tmp.c_str());
+//			script_exec(_globL.get(), tmp.c_str());
 			return;
 		}
 	}
 
-	script_exec(_globL.get(), exec.c_str());
+//	script_exec(_globL.get(), exec.c_str());
 }
 
 bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &result)
@@ -479,7 +485,6 @@ void Desktop::OnGameContextChanged()
 							   gc->GetWorld(),
 							   _worldView,
 							   gc->GetWorldController(),
-							   gc->GetInputManager(),
 							   gc->GetGameplay(),
 							   _defaultCamera);
 		_game->Resize(GetWidth(), GetHeight());

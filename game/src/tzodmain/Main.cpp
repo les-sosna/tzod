@@ -1,31 +1,28 @@
 // Main.cpp
 
-#include <AppState.h>
 #include <constants.h>
-#include <GameContext.h>
 #include <GlfwPlatform.h>
 #include <gui_desktop.h>
 #ifndef NOSOUND
-#include <SoundView.h>
+#include <audio/SoundView.h>
 #endif
-#include <script/script.h>
-#include <script/ScriptHarness.h>
+//#include <script/script.h>
+//#include <script/ScriptHarness.h>
 #include <ThemeManager.h>
 
-#include <config/Config.h>
-#include <config/Language.h>
+#include <Config.h>
 
 //#include <network/Variant.h>
 //#include <network/TankClient.h>
-
-#include <gclua/lgcmod.h>
 
 #include <core/Debug.h>
 #include <core/Timer.h>
 #include <core/Profiler.h>
 
 #include <../FileSystemImpl.h>
-#include <GLFW/glfw3.h>
+#include <app/AppState.h>
+#include <app/GameContextBase.h>
+#include <loc/Language.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
 #include <ui/Clipboard.h>
@@ -34,6 +31,7 @@
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>
 
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <exception>
 #include <thread>

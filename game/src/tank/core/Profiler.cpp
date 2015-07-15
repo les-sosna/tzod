@@ -1,5 +1,3 @@
-// Profiler.cpp
-
 #include "Profiler.h"
 
 std::vector<CounterBase::CounterInfoEx>& CounterBase::GetRegisteredCountersStatic()
@@ -26,9 +24,9 @@ const CounterInfo& CounterBase::GetMarkerInfoStatic(size_t idx)
 	return GetRegisteredCountersStatic()[idx];
 }
 
-void CounterBase::SetMarkerCallbackStatic(size_t idx, const Delegate<void(float)> &cb)
+void CounterBase::SetMarkerCallbackStatic(size_t idx, std::function<void(float)> cb)
 {
-	GetRegisteredCountersStatic()[idx].ptr->_callback = cb;
+    GetRegisteredCountersStatic()[idx].ptr->_callback = std::move(cb);
 }
 
 CounterBase::CounterBase(const std::string &id, const std::string &title)
@@ -42,9 +40,5 @@ CounterBase::CounterBase(const std::string &id, const std::string &title)
 void CounterBase::Push(float value)
 {
 	if( _callback )
-		INVOKE(_callback)(value);
+        _callback(value);
 }
-
-
-
-// end of file

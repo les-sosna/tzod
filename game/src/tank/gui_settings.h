@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "config/Config.h"
+#include "Config.h"
 #include <ui/Dialog.h>
 #include <ui/ListBase.h>
 

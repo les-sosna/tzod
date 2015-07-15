@@ -1,12 +1,9 @@
 #include "gui_campaign.h"
 #include "gui_desktop.h"
-
-#include "script/script.h"
-
-#include "config/Config.h"
-#include "config/Language.h"
+#include "Config.h"
 
 #include <fs/FileSystem.h>
+#include <loc/Language.h>
 #include <ui/List.h>
 #include <ui/Button.h>
 #include <ui/Text.h>

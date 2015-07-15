@@ -1,13 +1,11 @@
 #include "gui_scoretable.h"
 
-#include "GameContext.h"
-#include "Deathmatch.h"
-
+#include <app/GameContext.h>
+#include <app/Deathmatch.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
-#include "config/Language.h"
-
+#include <loc/Language.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>

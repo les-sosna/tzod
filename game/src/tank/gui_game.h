@@ -1,12 +1,12 @@
 #pragma once
-#include "GameEvents.h"
+#include "InputManager.h"
+#include <app/GameEvents.h>
 #include <ui/Window.h>
 #include <ui/Text.h>
 
 class World;
 class WorldView;
 class WorldController;
-class InputManager;
 class DefaultCamera;
 struct Gameplay;
 
@@ -35,7 +35,6 @@ public:
 			   World &world,
 			   WorldView &worldView,
 			   WorldController &worldController,
-			   InputManager &inputMgr,
 			   Gameplay &gameplay,
 			   const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
@@ -57,9 +56,9 @@ private:
     World &_world;
     WorldView &_worldView;
 	WorldController &_worldController;
-	InputManager &_inputMgr;
 	Gameplay &_gameplay;
     const DefaultCamera &_defaultCamera;
+    InputManager _inputMgr;
 
 	// GameListener
 	virtual void OnGameMessage(const char *msg) override;
