@@ -3,6 +3,7 @@
 #include <set>
 
 struct GameContextBase;
+class AppStateListener;
 
 class AppState
 {
@@ -14,20 +15,6 @@ public:
 	
 private:
 	std::unique_ptr<GameContextBase> _gameContext;
-	std::set<class AppStateListener*> _appStateListeners;
+	std::set<AppStateListener*> _appStateListeners;
 	friend class AppStateListener;
-};
-
-class AppStateListener
-{
-public:
-	AppStateListener(AppState &appState);
-	~AppStateListener();
-	AppState& GetAppState() { return _appState; }
-
-	virtual void OnGameContextChanging() = 0;
-	virtual void OnGameContextChanged() = 0;
-
-private:
-	AppState &_appState;
 };

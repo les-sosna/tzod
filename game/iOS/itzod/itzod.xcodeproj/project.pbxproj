@@ -13,6 +13,12 @@
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
 		077AC91E1B2D24FC00E3B120 /* libgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077AC91D1B2D24FC00E3B120 /* libgc.a */; };
+		07AD8F271B5F667F00FC2911 /* libai.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F241B5F667F00FC2911 /* libai.a */; };
+		07AD8F281B5F667F00FC2911 /* libloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F251B5F667F00FC2911 /* libloc.a */; };
+		07AD8F291B5F667F00FC2911 /* libscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F261B5F667F00FC2911 /* libscript.a */; };
+		07AD8F2B1B5F669E00FC2911 /* libgclua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F2A1B5F669E00FC2911 /* libgclua.a */; };
+		07AD8F2E1B5F66B700FC2911 /* libconfig.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F2C1B5F66B700FC2911 /* libconfig.a */; };
+		07AD8F2F1B5F66B700FC2911 /* libpluto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F2D1B5F66B700FC2911 /* libpluto.a */; };
 		07CAF7A71B33F4E2008A60CA /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A61B33F4E2008A60CA /* GLKit.framework */; };
 		07CAF7A91B393A3C008A60CA /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7A81B393A3C008A60CA /* liblua.a */; };
 		07CAF7AB1B3BA782008A60CA /* libfilesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AA1B3BA782008A60CA /* libfilesystem.a */; };
@@ -46,6 +52,12 @@
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
 		077AC91D1B2D24FC00E3B120 /* libgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgc.a; path = "../_build/gc/Debug-iphonesimulator/libgc.a"; sourceTree = "<group>"; };
+		07AD8F241B5F667F00FC2911 /* libai.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libai.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libai.a"; sourceTree = "<group>"; };
+		07AD8F251B5F667F00FC2911 /* libloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libloc.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libloc.a"; sourceTree = "<group>"; };
+		07AD8F261B5F667F00FC2911 /* libscript.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libscript.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libscript.a"; sourceTree = "<group>"; };
+		07AD8F2A1B5F669E00FC2911 /* libgclua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgclua.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libgclua.a"; sourceTree = "<group>"; };
+		07AD8F2C1B5F66B700FC2911 /* libconfig.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libconfig.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libconfig.a"; sourceTree = "<group>"; };
+		07AD8F2D1B5F66B700FC2911 /* libpluto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpluto.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libpluto.a"; sourceTree = "<group>"; };
 		07CAF7A61B33F4E2008A60CA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		07CAF7A81B393A3C008A60CA /* liblua.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liblua.a"; sourceTree = "<group>"; };
 		07CAF7AA1B3BA782008A60CA /* libfilesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfilesystem.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libfilesystem.a"; sourceTree = "<group>"; };
@@ -73,6 +85,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07AD8F2E1B5F66B700FC2911 /* libconfig.a in Frameworks */,
+				07AD8F2F1B5F66B700FC2911 /* libpluto.a in Frameworks */,
+				07AD8F2B1B5F669E00FC2911 /* libgclua.a in Frameworks */,
+				07AD8F271B5F667F00FC2911 /* libai.a in Frameworks */,
+				07AD8F281B5F667F00FC2911 /* libloc.a in Frameworks */,
+				07AD8F291B5F667F00FC2911 /* libscript.a in Frameworks */,
 				070667431B491645000FAF97 /* libapp.a in Frameworks */,
 				07CAF7AF1B3BBE71008A60CA /* UIKit.framework in Frameworks */,
 				07CAF7AD1B3BBE04008A60CA /* OpenGLES.framework in Frameworks */,
@@ -99,6 +117,12 @@
 		07FAF2661B1C26D900BFDD5F = {
 			isa = PBXGroup;
 			children = (
+				07AD8F2C1B5F66B700FC2911 /* libconfig.a */,
+				07AD8F2D1B5F66B700FC2911 /* libpluto.a */,
+				07AD8F2A1B5F669E00FC2911 /* libgclua.a */,
+				07AD8F241B5F667F00FC2911 /* libai.a */,
+				07AD8F251B5F667F00FC2911 /* libloc.a */,
+				07AD8F261B5F667F00FC2911 /* libscript.a */,
 				070667421B491645000FAF97 /* libapp.a */,
 				07CAF7AE1B3BBE71008A60CA /* UIKit.framework */,
 				07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */,
@@ -409,6 +433,7 @@
 					../../src/render/inc,
 					../../src/fs/inc,
 					../../src/app/inc,
+					../../src/script/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -433,6 +458,7 @@
 					../../src/render/inc,
 					../../src/fs/inc,
 					../../src/app/inc,
+					../../src/script/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

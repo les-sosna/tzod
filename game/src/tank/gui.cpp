@@ -322,8 +322,6 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-	std::string path = std::string(DIR_MAPS) + '/' + fn + ".map";
-
 	g_conf.cl_speed.SetInt( std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetInt())) );
 	g_conf.cl_fraglimit.SetInt( std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetInt())) );
 	g_conf.cl_timelimit.SetInt( std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetInt())) );

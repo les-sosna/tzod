@@ -9,6 +9,7 @@
 #include "gui_widgets.h"
 #include "gui.h"
 
+#include <app/AppController.h>
 #include <app/EditorContext.h>
 #include <app/GameContext.h>
 
@@ -18,6 +19,7 @@
 
 //#include "network/TankClient.h"
 
+#include <app/AppState.h>
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <fs/FileSystem.h>
@@ -72,10 +74,12 @@ const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
 
 Desktop::Desktop(LayoutManager* manager,
 				 AppState &appState,
+                 AppController &appController,
 				 FS::FileSystem &fs,
 				 std::function<void()> exitCommand)
   : Window(NULL, manager)
   , AppStateListener(appState)
+  , _appController(appController)
   , _fs(fs)
   , _exitCommand(std::move(exitCommand))
   , _globL(luaL_newstate())
@@ -259,10 +263,7 @@ void Desktop::OnNewDM()
 		{
 			try
 			{
-                std::string path = std::string(DIR_MAPS) + '/' + g_conf.cl_map.Get() + ".map";
-                std::shared_ptr<FS::Stream> stream = _fs.Open(path)->QueryStream();
-				std::unique_ptr<GameContext> gc(new GameContext(*stream, GetDMSettingsFromConfig()));
-				GetAppState().SetGameContext(std::move(gc));
+                _appController.NewGameDM(GetAppState(), g_conf.cl_map.Get(), GetDMSettingsFromConfig());
 				ShowMainMenu(false);
 			}
 			catch( const std::exception &e )

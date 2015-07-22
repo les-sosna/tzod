@@ -18,7 +18,9 @@ include_directories(
 
 add_library(app
 	AIManager.cpp
+	AppController.cpp
 	AppState.cpp
+	AppStateListener.cpp
 	Deathmatch.cpp
 	EditorContext.cpp
 	GameContext.cpp

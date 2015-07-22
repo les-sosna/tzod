@@ -1,4 +1,5 @@
 #include "inc/app/AppState.h"
+#include "inc/app/AppStateListener.h"
 #include "inc/app/GameContext.h"
 
 AppState::AppState()
@@ -16,15 +17,4 @@ void AppState::SetGameContext(std::unique_ptr<GameContextBase> gameContext)
 	_gameContext = std::move(gameContext);
 	for (AppStateListener *ls: _appStateListeners)
 		ls->OnGameContextChanged();
-}
-
-AppStateListener::AppStateListener(AppState &appState)
-: _appState(appState)
-{
-	_appState._appStateListeners.insert(this);
-}
-
-AppStateListener::~AppStateListener()
-{
-	_appState._appStateListeners.erase(this);
 }

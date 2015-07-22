@@ -1,6 +1,3 @@
-// Main.cpp
-
-#include <constants.h>
 #include <GlfwPlatform.h>
 #include <gui_desktop.h>
 #ifndef NOSOUND
@@ -20,6 +17,8 @@
 #include <core/Profiler.h>
 
 #include <../FileSystemImpl.h>
+#include <app/AppCfg.h>
+#include <app/AppController.h>
 #include <app/AppState.h>
 #include <app/GameContextBase.h>
 #include <loc/Language.h>
@@ -49,19 +48,22 @@ namespace
 	class DesktopFactory : public UI::IWindowFactory
 	{
 		AppState &_appState;
+        AppController &_appController;
 		FS::FileSystem &_fs;
 		std::function<void()> _exitCommand;
 	public:
         DesktopFactory(AppState &appState,
+                       AppController &appController,
 					   FS::FileSystem &fs,
 					   std::function<void()> exitCommand)
             : _appState(appState)
+            , _appController(appController)
 			, _fs(fs)
 			, _exitCommand(std::move(exitCommand))
         {}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
-			return new UI::Desktop(manager, _appState, _fs, _exitCommand);
+			return new UI::Desktop(manager, _appState, _appController, _fs, _exitCommand);
 		}
 	};
 
@@ -102,7 +104,7 @@ namespace
 // recursively print exception whats:
 static void print_what(const std::exception& e, std::string prefix = std::string())
 {
-	GetConsole().Format(SEVERITY_ERROR) << prefix << e.what();
+	GetConsole().Format(1) << prefix << e.what();
 #ifndef _MSC_VER
 	try {
 		std::rethrow_if_nested(e);
@@ -151,7 +153,7 @@ int main(int, const char**)
                 
                 if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
                 {
-                    GetConsole().Format(SEVERITY_ERROR) << "Failed to load config file.";
+                    GetConsole().Format(1) << "Failed to load config file.";
                 }
             }
             
@@ -196,6 +198,7 @@ int main(int, const char**)
 			TRACE("WARNING: no skins found");
 		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
 		AppState appState;
+        AppController appController(*fs);
 #ifndef NOSOUND
 		SoundView soundView(appState, *fs->GetFileSystem(DIR_SOUND));
 #endif
@@ -205,6 +208,7 @@ int main(int, const char**)
 							  clipboard,
 							  texman,
 							  DesktopFactory(appState,
+                                             appController,
 											 *fs,
 											 exitCommand));
         glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
@@ -218,7 +222,7 @@ int main(int, const char**)
 //            TRACE("ERROR: in startup script");
         
         Timer timer;
-        timer.SetMaxDt(MAX_DT);
+        timer.SetMaxDt(0.05f);
         timer.Start();
         for(;;)
         {

@@ -2,11 +2,10 @@
 
 #include "gui_maplist.h"
 
-#include "constants.h"
-
 #include "Config.h"
 #include "core/Debug.h"
 
+#include <app/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <MapFile.h>
 

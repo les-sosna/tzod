@@ -1,11 +1,14 @@
 #import "AppDelegate.h"
+#include <app/AppController.h>
 #include <app/AppState.h>
+#include <app/GameContext.h>
 #include <../FileSystemImpl.h>
 #include <memory>
 
 @interface AppDelegate ()
 {
     std::shared_ptr<FS::FileSystem> _fs;
+    std::shared_ptr<AppController> _appController;
     AppState appState;
 }
 
@@ -25,6 +28,8 @@
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
+    _appController.reset(new AppController(*_fs));
+    _appController->NewGameDM(appState, "dm5", DMSettings());
     return YES;
 }
 

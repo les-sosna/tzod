@@ -10,6 +10,7 @@
 
 #include "core/Debug.h"
 
+#include <app/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/GuiManager.h>

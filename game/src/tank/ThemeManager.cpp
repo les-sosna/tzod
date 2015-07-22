@@ -1,5 +1,5 @@
-#include "constants.h"
 #include "ThemeManager.h"
+#include <app/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <video/TextureManager.h>
 

@@ -11,7 +11,7 @@
 #include <script/ScriptHarness.h>
 #include <MapFile.h>
 
-GameContext::GameContext(FS::Stream &map, DMSettings settings)
+GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 {
 	MapFile file(map, false);
 	

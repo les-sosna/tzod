@@ -45,7 +45,7 @@ struct DMSettings
 class GameContext : public GameContextBase
 {
 public:
-	GameContext(FS::Stream &map, DMSettings settings);
+	GameContext(FS::Stream &map, const DMSettings &settings);
 	virtual ~GameContext();
 	Gameplay& GetGameplay() { return *_gameplay; }
 	WorldController& GetWorldController() { return *_worldController; }
