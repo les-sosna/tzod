@@ -1,6 +1,7 @@
 #import "GameViewController.h"
 #import "AppDelegate.h"
 #import <OpenGLES/ES2/glext.h>
+#include <app/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
@@ -155,18 +156,6 @@ GLfloat gCubeVertexData[216] =
 {
     return YES;
 }
-
-#define DIR_SCRIPTS      "scripts"
-#define DIR_MAPS         "maps"
-#define DIR_SKINS        "skins"
-#define DIR_THEMES       "themes"
-#define DIR_MUSIC        "music"
-#define DIR_SOUND        "sounds"
-
-#define FILE_LANGUAGE    "data/lang.cfg"
-#define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
-#define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
-
 
 - (void)setupGL
 {
