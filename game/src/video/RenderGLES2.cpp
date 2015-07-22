@@ -279,13 +279,13 @@ bool RenderGLES2::TexCreate(DEV_TEXTURE &tex, const Image &img)
 	glTexImage2D(
 		GL_TEXTURE_2D,                      // target
 		0,                                  // level
-		GL_RGBA,                            // internalformat
-		img.GetWidth(),                    // width
-		img.GetHeight(),                   // height
+		(24==img.GetBpp())?GL_RGB:GL_RGBA,  // internalformat
+		img.GetWidth(),                     // width
+		img.GetHeight(),                    // height
 		0,                                  // border
-		(24==img.GetBpp())?GL_RGB:GL_RGBA, // format
+		(24==img.GetBpp())?GL_RGB:GL_RGBA,  // format
 		GL_UNSIGNED_BYTE,                   // type
-		img.GetData()                      // pixels
+		img.GetData()                       // pixels
 	);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, /*GL_NEAREST*/ GL_LINEAR);
