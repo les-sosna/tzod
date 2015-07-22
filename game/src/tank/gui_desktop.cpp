@@ -200,7 +200,7 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 	result.cls = p.platform_class.Get();
 	result.skin = p.skin.Get();
 	result.team = p.team.GetInt();
-	return std::move(result);
+	return result;
 }
 
 static DMSettings GetDMSettingsFromConfig()
@@ -219,7 +219,7 @@ static DMSettings GetDMSettingsFromConfig()
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
 	
-	return std::move(settings);
+	return settings;
 }
 	
 void Desktop::OnNewCampaign()

@@ -41,7 +41,7 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 			result.insert(std::make_pair(vehicle->GetId(), vs));
 		}
 	}
-	return std::move(result);
+	return result;
 }
 
 void AIManager::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)

@@ -117,7 +117,7 @@ static std::unique_ptr<GLuint, ShaderDeleter> LoadShader(GLenum shaderType, cons
         throw std::runtime_error(ss.str());
     }
     
-    return std::move(shader);
+    return shader;
 }
 
 GlesProgram::GlesProgram(const char *vertexSource,

@@ -71,14 +71,14 @@ static std::wstring s2w(const std::string s)
 {
 	std::wstring w;
 	utf8::utf8to16(s.begin(), s.end(), std::back_inserter(w));
-	return std::move(w);
+	return w;
 }
 
 static std::string w2s(const std::wstring w)
 {
 	std::string s;
 	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
-	return std::move(s);
+	return s;
 }
 static std::string StrFromErr(DWORD dwMessageId)
 {
@@ -88,7 +88,7 @@ static std::string StrFromErr(DWORD dwMessageId)
 	std::string result;
 	utf8::utf16to8(msgBuf, msgBuf + msgSize, std::back_inserter(result));
 	LocalFree(msgBuf);
-	return std::move(result);
+	return result;
 }
 
 FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
@@ -356,7 +356,7 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
 	}
 	while( FindNextFileW(hSearch, &fd) );
 	FindClose(hSearch);
-	return std::move(files);
+	return files;
 }
 
 std::shared_ptr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
@@ -614,7 +614,7 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
     {
         throw std::runtime_error("open directory");
     }
-	return std::move(files);
+	return files;
 }
 
 std::shared_ptr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)

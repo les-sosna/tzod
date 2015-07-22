@@ -135,7 +135,7 @@ static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, SoundTemplate
 	std::unique_ptr<Sound> sound = sr.CreateLopped(st);
 	setup(*sound);
 	sound->SetPlaying(true);
-	return std::move(sound);
+	return sound;
 }
 
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)

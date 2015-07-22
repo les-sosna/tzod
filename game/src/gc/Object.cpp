@@ -162,7 +162,7 @@ std::shared_ptr<PropertySet> GC_Object::GetProperties(World &world)
 {
 	std::shared_ptr<PropertySet> ps(NewPropertySet());
 	ps->Exchange(world, false); // fill property set with data from object
-	return std::move(ps);
+	return ps;
 }
 
 PropertySet* GC_Object::NewPropertySet()
