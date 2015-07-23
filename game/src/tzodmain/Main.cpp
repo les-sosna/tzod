@@ -231,6 +231,11 @@ int main(int, const char**)
                 std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
             }
             
+
+			//
+			// controller pass
+			//
+
             glfwPollEvents();
             if (glfwWindowShouldClose(&appWindow.GetGlfwWindow()))
                 break;
@@ -240,6 +245,12 @@ int main(int, const char**)
 			gui.TimeStep(dt); // this also sends user controller state to WorldController
 			if (GameContextBase *gc = appState.GetGameContext())
 				gc->Step(dt * g_conf.sv_speed.GetFloat() / 100);
+
+
+			//
+			// view pass
+			//
+
 #ifndef NOSOUND
 			soundView.Step();
 #endif
