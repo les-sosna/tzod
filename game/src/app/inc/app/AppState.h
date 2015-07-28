@@ -17,4 +17,7 @@ private:
 	std::unique_ptr<GameContextBase> _gameContext;
 	std::set<AppStateListener*> _appStateListeners;
 	friend class AppStateListener;
+    
+    AppState(const AppState&) = delete;
+    void operator=(const AppState&) = delete;
 };

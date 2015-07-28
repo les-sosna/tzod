@@ -25,7 +25,8 @@ class RenderGLES2 : public IRender
 	RenderMode  _mode;
 
     GlesProgram _program;
-    GLuint _proj;
+    GLuint _offset;
+    GLuint _scale;
     GLuint _sampler;
 
 public:
@@ -77,10 +78,12 @@ R"(
     attribute vec4 vColor;
     varying lowp vec2 texCoord;
     varying lowp vec4 color;
-    uniform vec2 vProj;
+    uniform vec2 vOffset;
+    uniform vec2 vScale;
     void main()
     {
-        gl_Position = vec4(vPos.x * vProj.x * 2.0 - 1.0, 1.0 - vPos.y * vProj.y * 2.0, 0, 1);
+        gl_Position = vec4((vPos.x + vOffset.x) * vScale.x * 2.0 - 1.0,
+                           1.0 - (vPos.y + vOffset.y) * vScale.y * 2.0, 0, 1);
         texCoord = vTexCoord;
         color = vColor;
     }
@@ -119,7 +122,8 @@ RenderGLES2::RenderGLES2()
     , _vaSize(0)
     , _iaSize(0)
     , _program(s_vertexShader, s_fragmentShader, s_bindings)
-    , _proj(_program.GetUniformLocation("vProj"))
+    , _offset(_program.GetUniformLocation("vOffset"))
+    , _scale(_program.GetUniformLocation("vScale"))
     , _sampler(_program.GetUniformLocation("s_tex"))
 {
 	memset(_IndexArray, 0, sizeof(GLushort) * INDEX_ARRAY_SIZE);
@@ -156,22 +160,19 @@ void RenderGLES2::SetViewport(const RectRB *rect)
 {
 	Flush();
 
-//	glMatrixMode(GL_PROJECTION);
-//	glLoadIdentity();
 	if( rect )
 	{
-//		glOrtho(0, (GLdouble) (rect->right - rect->left), (GLdouble) (rect->bottom - rect->top), 0, -1, 1);
-		glViewport(
-			rect->left,                       // X
-			_windowHeight - rect->bottom,     // Y
-			rect->right - rect->left,         // width
-			rect->bottom - rect->top          // height
-			);
+        GLfloat scale[2] = { 1.0f / (GLfloat)WIDTH(*rect), 1.0f / (GLfloat)HEIGHT(*rect) };
+        glUniform2fv(_scale, 1, scale);
+        
+		glViewport(rect->left, _windowHeight - rect->bottom, WIDTH(*rect), HEIGHT(*rect));
 		_rtViewport = *rect;
 	}
 	else
 	{
-//		glOrtho(0, (GLdouble) _windowWidth, (GLdouble) _windowHeight, 0, -1, 1);
+        GLfloat scale[2] = { 1.0f / (GLfloat)_windowWidth, 1.0f / (GLfloat)_windowHeight };
+        glUniform2fv(_scale, 1, scale);
+
 		glViewport(0, 0, _windowWidth, _windowHeight);
 		_rtViewport.left   = 0;
 		_rtViewport.top    = 0;
@@ -184,14 +185,20 @@ void RenderGLES2::Camera(const RectRB *vp, float x, float y, float scale)
 {
 	SetViewport(vp);
 	SetScissor(vp);
-/*
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glScalef(scale, scale, 1);
-	if (vp)
-		glTranslatef((float) WIDTH(*vp) / 2 / scale - x, (float) HEIGHT(*vp) / 2 / scale - y, 0);
-	else
-		glTranslatef(0, 0, 0);*/
+    
+    GLfloat offset[2];
+    if (vp)
+    {
+        // TODO: scale
+        offset[0] = (GLfloat) WIDTH(*vp) / 2 - x;
+        offset[1] = (GLfloat) HEIGHT(*vp) / 2 - y;
+    }
+    else
+    {
+        offset[0] = 0;
+        offset[1] = 0;
+    }
+    glUniform2fv(_offset, 1, offset);
 }
 
 int RenderGLES2::GetWidth() const
@@ -224,6 +231,8 @@ void RenderGLES2::Begin()
     glEnableVertexAttribArray(ATTRIB_POSITION);
     glEnableVertexAttribArray(ATTRIB_TEXCOORD);
     glEnableVertexAttribArray(ATTRIB_COLOR);
+
+    glUseProgram(_program.Get());
 
 	glClearColor(0, 0, 0, _ambient);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

@@ -1,13 +1,13 @@
 #include "Config.h"
 #include "Controller.h"
 #include "DefaultCamera.h"
-#include "GameView.h"
 #include "gui_game.h"
 #include "gui_messagearea.h"
 #include "gui_scoretable.h"
 #include "InputManager.h"
 
 #include <app/Deathmatch.h>
+#include <app/GameView.h>
 #include <app/WorldController.h>
 #include <gc/World.h>
 #include <gc/Camera.h>
@@ -132,7 +132,9 @@ void UI::GameLayout::OnTimeStep(float dt)
 
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    RenderGame(dc, _world, _worldView, (int) GetWidth(), (int) GetHeight(), _defaultCamera);
+    vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
+    float zoom = _defaultCamera.GetZoom();
+    RenderGame(dc, _world, _worldView, (int) GetWidth(), (int) GetHeight(), eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }

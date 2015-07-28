@@ -16,6 +16,7 @@ public:
     ~GlesProgram();
     
     GLint GetUniformLocation(const GLchar *name) const;
+    GLuint Get() const { return _program; }
     
 private:
     GLuint _program;

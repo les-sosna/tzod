@@ -34,7 +34,6 @@ set(tank_INCLUDE_DIRS
 set(tank_SOURCES
 	Controller.cpp
 	DefaultCamera.cpp
-	GameView.cpp
 	GlfwPlatform.cpp
 	globals.cpp
 	gui.cpp

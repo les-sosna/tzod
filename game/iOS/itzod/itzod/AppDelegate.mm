@@ -9,7 +9,6 @@
 {
     std::shared_ptr<FS::FileSystem> _fs;
     std::shared_ptr<AppController> _appController;
-    AppState appState;
 }
 
 @end
@@ -17,9 +16,14 @@
 
 @implementation AppDelegate
 
-- (FS::FileSystem*)fs
+- (FS::FileSystem&)fs
 {
-    return _fs.get();
+    return *_fs;
+}
+
+- (AppController&)appController
+{
+    return *_appController;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -29,7 +33,10 @@
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
     _appController.reset(new AppController(*_fs));
-    _appController->NewGameDM(appState, "dm5", DMSettings());
+    DMSettings settings;
+    settings.players.push_back(PlayerDesc{"first", "red", "default", 0});
+    settings.players.push_back(PlayerDesc{"second", "yellow", "default", 0});
+    _appController->NewGameDM(self.appState, "dm1", std::move(settings));
     return YES;
 }
 

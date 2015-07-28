@@ -1,9 +1,8 @@
-#include "GameView.h"
-#include "DefaultCamera.h"
+#include "inc/app/GameView.h"
 #include <gc/Camera.h>
 #include <gc/Macros.h>
 #include <gc/World.h>
-#include "render/WorldView.h"
+#include <render/WorldView.h>
 #include <cassert>
 
 
@@ -42,7 +41,7 @@ RectRB GetCameraViewport(int screenW, int screenH, size_t camCount, size_t camIn
 }
 
 void RenderGame(DrawingContext &dc, const World &world, const WorldView &worldView,
-                int width, int height, const DefaultCamera &defaultCamera)
+                int width, int height, vec2d defaultEye, float defaultZoom)
 {    
     if( size_t camCount = world.GetList(LIST_cameras).size() )
     {
@@ -85,8 +84,6 @@ void RenderGame(DrawingContext &dc, const World &world, const WorldView &worldVi
     {
         // render from default camera
         CRect viewport(0, 0, width, height);
-        vec2d eye(defaultCamera.GetPos().x + width / 2, defaultCamera.GetPos().y + height / 2);
-        float zoom = defaultCamera.GetZoom();
-        worldView.Render(dc, world, viewport, eye, zoom, false, false, world.GetNightMode());
+        worldView.Render(dc, world, viewport, defaultEye, defaultZoom, false, false, world.GetNightMode());
     }
 }
