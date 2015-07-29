@@ -26,8 +26,6 @@
 		07CAF7AF1B3BBE71008A60CA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07CAF7AE1B3BBE71008A60CA /* UIKit.framework */; };
 		07FAF2751B1C26D900BFDD5F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2741B1C26D900BFDD5F /* main.mm */; };
 		07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */; };
-		07FAF27A1B1C26DA00BFDD5F /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2791B1C26DA00BFDD5F /* Shader.fsh */; };
-		07FAF27C1B1C26DA00BFDD5F /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */; };
 		07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */; };
 		07FAF2821B1C26DA00BFDD5F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2801B1C26DA00BFDD5F /* Main.storyboard */; };
 		07FAF2841B1C26DA00BFDD5F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07FAF2831B1C26DA00BFDD5F /* Images.xcassets */; };
@@ -68,8 +66,6 @@
 		07FAF2741B1C26D900BFDD5F /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		07FAF2761B1C26D900BFDD5F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
-		07FAF2791B1C26DA00BFDD5F /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
-		07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		07FAF27D1B1C26DA00BFDD5F /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
 		07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
 		07FAF2811B1C26DA00BFDD5F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -154,8 +150,6 @@
 				070667401B47C2FF000FAF97 /* data */,
 				07FAF2761B1C26D900BFDD5F /* AppDelegate.h */,
 				07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */,
-				07FAF2791B1C26DA00BFDD5F /* Shader.fsh */,
-				07FAF27B1B1C26DA00BFDD5F /* Shader.vsh */,
 				07FAF27D1B1C26DA00BFDD5F /* GameViewController.h */,
 				07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */,
 				07FAF2801B1C26DA00BFDD5F /* Main.storyboard */,
@@ -275,9 +269,7 @@
 				07FAF2871B1C26DA00BFDD5F /* LaunchScreen.xib in Resources */,
 				07FAF2821B1C26DA00BFDD5F /* Main.storyboard in Resources */,
 				07FAF2841B1C26DA00BFDD5F /* Images.xcassets in Resources */,
-				07FAF27C1B1C26DA00BFDD5F /* Shader.vsh in Resources */,
 				070667411B47C2FF000FAF97 /* data in Resources */,
-				07FAF27A1B1C26DA00BFDD5F /* Shader.fsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

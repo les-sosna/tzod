@@ -26,7 +26,6 @@
 - (void)setupGL;
 - (void)tearDownGL;
 
-- (BOOL)validateProgram:(GLuint)prog;
 @end
 
 @implementation GameViewController
@@ -124,10 +123,6 @@
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-
     DrawingContext dc(*_textureManager, (unsigned int) rect.size.width, (unsigned int) rect.size.height);
     
     _render->Begin();
@@ -137,29 +132,6 @@
         RenderGame(dc, gc->GetWorld(), *_worldView, rect.size.width, rect.size.height, vec2d(0,0), 1.0f);
     }
     _render->End();
-}
-
-#pragma mark -  OpenGL ES 2 shader compilation
-
-- (BOOL)validateProgram:(GLuint)prog
-{
-    GLint logLength, status;
-    
-    glValidateProgram(prog);
-    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(prog, logLength, &logLength, log);
-        NSLog(@"Program validate log:\n%s", log);
-        free(log);
-    }
-    
-    glGetProgramiv(prog, GL_VALIDATE_STATUS, &status);
-    if (status == 0)
-        return NO;
-    
-    return YES;
 }
 
 @end // @implementation GameViewController
