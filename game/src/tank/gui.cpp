@@ -9,7 +9,6 @@
 
 #include "core/Debug.h"
 
-#include <gc/Camera.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>

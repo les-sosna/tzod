@@ -1,7 +1,6 @@
 #include "SoundHarness.h"
 #include "SoundRender.h"
 #include <gc/Crate.h>
-#include <gc/Camera.h>
 #include <gc/Explosion.h>
 #include <gc/Pickup.h>
 #include <gc/RigidBody.h>
@@ -49,18 +48,13 @@ static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
 	sound.SetPos(vehicle.GetPos());
 }
 
+void SoundHarness::SetListenerPos(vec2d pos)
+{
+    _soundRender.SetListenerPos(pos);
+}
+
 void SoundHarness::Step()
 {
-    vec2d pos(0, 0);
-    if (!_world.GetList(LIST_cameras).empty())
-    {
-        _world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
-        {
-            pos += static_cast<GC_Camera*>(o)->GetCameraPos();
-        });
-    }
-    _soundRender.SetListenerPos(pos);
-    
 	for (auto &p: _attached)
 		p.second->SetPos(p.first->GetPos());
 	

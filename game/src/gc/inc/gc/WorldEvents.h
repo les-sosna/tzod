@@ -4,6 +4,12 @@
 
 template <class T> struct ObjectListener;
 
+class GC_Explosion;
+template<> struct ObjectListener<GC_Explosion>
+{
+    virtual void OnBoom(GC_Explosion &obj, float radius, float damage) = 0;
+};
+
 class GC_Pickup;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Pickup>

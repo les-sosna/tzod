@@ -5,6 +5,7 @@
 #include <app/AppState.h>
 #include <app/GameContext.h>
 #include <app/GameView.h>
+#include <app/GameViewHarness.h>
 #include <fs/FileSystem.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
@@ -19,6 +20,7 @@
     std::unique_ptr<TextureManager> _textureManager;
     std::unique_ptr<RenderScheme> _renderScheme;
     std::unique_ptr<WorldView> _worldView;
+    std::unique_ptr<GameView> _gameView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -98,6 +100,7 @@
 
     _renderScheme.reset(new RenderScheme(*_textureManager));
     _worldView.reset(new WorldView(*_textureManager, *_renderScheme));
+    _gameView.reset(new GameView(appDelegate.appState));
 }
 
 - (void)tearDownGL
@@ -119,19 +122,23 @@
     {
         gc->Step(self.timeSinceLastUpdate);
     }
+    if (GameViewHarness *gvh = _gameView->GetHarness())
+    {
+        GLKView *view = (GLKView *)self.view;
+        gvh->Step(self.timeSinceLastUpdate, view.drawableWidth, view.drawableHeight);
+    }
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     DrawingContext dc(*_textureManager, (unsigned int) rect.size.width, (unsigned int) rect.size.height);
     
-    _render->Begin();
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    if (GameContextBase *gc = [appDelegate appState].GetGameContext())
+    if (GameViewHarness *gvh = _gameView->GetHarness())
     {
-        RenderGame(dc, gc->GetWorld(), *_worldView, rect.size.width, rect.size.height, vec2d(0,0), 1.0f);
+        _render->Begin();
+        gvh->RenderGame(dc, *_worldView, rect.size.width, rect.size.height, vec2d(0,0), 1.0f);
+        _render->End();
     }
-    _render->End();
 }
 
 @end // @implementation GameViewController

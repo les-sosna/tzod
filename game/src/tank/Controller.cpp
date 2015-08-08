@@ -1,11 +1,8 @@
-// Controller.cpp
-
 #include "Controller.h"
 #include "KeyMapper.h"
 #include "Config.h"
 #include "core/Debug.h"
 #include <gc/VehicleState.h>
-#include <gc/Camera.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 

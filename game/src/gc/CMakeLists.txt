@@ -13,7 +13,6 @@ include_directories(
 
 add_library(gc
 	Actor.cpp
-	Camera.cpp
 	Crate.cpp
 	Explosion.cpp
 	Field.cpp

@@ -9,8 +9,8 @@ public:
 	~AppStateListener();
 	AppState& GetAppState() { return _appState; }
 
-	virtual void OnGameContextChanging() = 0;
-	virtual void OnGameContextChanged() = 0;
+    virtual void OnGameContextChanging() = 0;
+    virtual void OnGameContextChanged() = 0;
 
 private:
 	AppState &_appState;

@@ -22,11 +22,13 @@ add_library(app
 	AppController.cpp
 	AppState.cpp
 	AppStateListener.cpp
+	Camera.cpp
 	Deathmatch.cpp
 	EditorContext.cpp
 	GameContext.cpp
 	GameEvents.cpp
 	GameView.cpp
+	GameViewHarness.cpp
 	ScriptMessageBroadcaster.cpp
 	WorldController.cpp
 )

@@ -8,7 +8,6 @@
 #include "DefaultCamera.h"
 #include "ThemeManager.h"
 
-#include <gc/Camera.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>
 #include <gc/Player.h>

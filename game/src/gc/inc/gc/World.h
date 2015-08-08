@@ -80,6 +80,7 @@ class World
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
 public:
+    DECLARE_EVENTS(GC_Explosion);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_pu_Shield);
 	DECLARE_EVENTS(GC_Player);

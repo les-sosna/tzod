@@ -1,7 +1,6 @@
 #include "TypeReg.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/VehicleClasses.h"
-#include "inc/gc/Camera.h"
 #include "inc/gc/Explosion.h"
 #include "inc/gc/Light.h"
 #include "inc/gc/Macros.h"
@@ -267,15 +266,6 @@ void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)
 {
 	if (_shield)
 		_shield->OnOwnerDamage(world, dd);
-
-	FOREACH( world.GetList(LIST_cameras), GC_Camera, camera )
-	{
-		if( camera->GetPlayer() && this == camera->GetPlayer()->GetVehicle() )
-		{
-			camera->Shake(GetHealth() <= 0 ? 2.0f : dd.damage / GetHealthMax());
-			break;
-		}
-	}
 }
 
 void GC_Vehicle::OnDestroy(World &world, const DamageDesc &dd)

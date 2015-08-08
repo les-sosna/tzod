@@ -16,7 +16,6 @@ enum GlobalListID
 	LIST_vehicles,
 	LIST_pickups,
 	LIST_lights,
-	LIST_cameras,
     LIST_gsprites,
 	//------------------
 	GLOBAL_LIST_COUNT

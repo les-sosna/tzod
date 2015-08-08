@@ -1,5 +1,4 @@
 #include "inc/ai/ai.h"
-#include <gc/Camera.h>
 #include <gc/Pickup.h>
 #include <gc/Player.h>
 #include <gc/TypeSystem.h>

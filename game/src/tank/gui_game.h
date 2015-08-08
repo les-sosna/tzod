@@ -1,6 +1,7 @@
 #pragma once
 #include "InputManager.h"
 #include <app/GameEvents.h>
+#include <app/GameViewHarness.h>
 #include <ui/Window.h>
 #include <ui/Text.h>
 
@@ -17,12 +18,14 @@ namespace UI
 
 class TimeElapsed : public Text
 {
-    World &_world;
 public:
 	TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world);
-protected:
-	void OnVisibleChange(bool visible, bool inherited);
-	void OnTimeStep(float dt);
+    
+private:
+	void OnVisibleChange(bool visible, bool inherited) override;
+	void OnTimeStep(float dt) override;
+    
+    World &_world;
 };
 
 class GameLayout
@@ -53,6 +56,7 @@ private:
 	TimeElapsed  *_time;
 
 	GameEventSource &_gameEventSource;
+    GameViewHarness _gameViewHarness;
     World &_world;
     WorldView &_worldView;
 	WorldController &_worldController;
@@ -61,7 +65,7 @@ private:
     InputManager _inputMgr;
 
 	// GameListener
-	virtual void OnGameMessage(const char *msg) override;
+	void OnGameMessage(const char *msg) override;
 };
 
 

@@ -3,7 +3,6 @@
 #include "inc/app/WorldController.h"
 #include "AIManager.h"
 #include <fs/FileSystem.h>
-#include <gc/Camera.h>
 #include <gc/Player.h>
 #include <gc/SaveFile.h>
 #include <gc/World.h>
@@ -40,9 +39,7 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 		player.SetNick(pd.nick);
 		player.SetSkin(pd.skin);
 		player.SetTeam(pd.team);
-		
-		_world->New<GC_Camera>(*_world, &player);
-		
+
 //		_inputMgr->AssignController(&player, p.profile.Get());
 	}
 	

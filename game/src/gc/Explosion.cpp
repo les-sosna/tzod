@@ -1,6 +1,5 @@
 #include "TypeReg.h"
 #include "inc/gc/Explosion.h"
-#include "inc/gc/Camera.h"
 #include "inc/gc/Light.h"
 #include "inc/gc/Particles.h"
 #include "inc/gc/Player.h"
@@ -130,20 +129,8 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 void GC_Explosion::Boom(World &world, float radius, float damage)
 {
-	FOREACH( world.GetList(LIST_cameras), GC_Camera, pCamera )
-	{
-		if( !pCamera->GetPlayer() ) continue;
-		if( pCamera->GetPlayer()->GetVehicle() )
-		{
-			float level = 0.5f * (radius - (GetPos() -
-				pCamera->GetPlayer()->GetVehicle()->GetPos()).len() * 0.3f) / radius;
-			//--------------------------
-			if( level > 0 )
-				pCamera->Shake(level);
-		}
-	}
-
-	///////////////////////////////////////////////////////////
+    for( auto ls: world.eGC_Explosion._listeners )
+        ls->OnBoom(*this, radius, damage);
 
 	FIELD_TYPE field;
 

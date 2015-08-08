@@ -252,6 +252,18 @@ int main(int, const char**)
 			//
 
 #ifndef NOSOUND
+            
+//            vec2d pos(0, 0);
+//            if (!_world.GetList(LIST_cameras).empty())
+//            {
+//                _world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
+//                {
+//                    pos += static_cast<GC_Camera*>(o)->GetCameraPos();
+//                });
+//            }
+//            soundView.SetListenerPos(pos);
+            
+            
 			soundView.Step();
 #endif
 

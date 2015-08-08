@@ -7,13 +7,8 @@
 #include "InputManager.h"
 
 #include <app/Deathmatch.h>
-#include <app/GameView.h>
 #include <app/WorldController.h>
 #include <gc/World.h>
-#include <gc/Camera.h>
-#include <gc/Player.h>
-#include <gc/Vehicle.h>
-#include <gc/Macros.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
@@ -57,6 +52,7 @@ UI::GameLayout::GameLayout(Window *parent,
 						   const DefaultCamera &defaultCamera)
     : Window(parent)
 	, _gameEventSource(gameEventSource)
+    , _gameViewHarness(world)
     , _world(world)
     , _worldView(worldView)
 	, _worldController(worldController)
@@ -89,10 +85,11 @@ void UI::GameLayout::OnTimeStep(float dt)
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
 	_score->SetVisible(tab || _gameplay.IsGameOver());
 
+    _gameViewHarness.Step(dt, (int) GetWidth(), (int) GetHeight());
 	
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
-	
+	/*
 	size_t camIndex = 0;
 	size_t camCount = _world.GetList(LIST_cameras).size();
 	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
@@ -124,7 +121,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 			}
 		}
 		++camIndex;
-	}
+	}*/
 	
 	if (readUserInput)
 		_worldController.SendControllerStates(std::move(controlStates));
@@ -134,7 +131,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
     vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
     float zoom = _defaultCamera.GetZoom();
-    RenderGame(dc, _world, _worldView, (int) GetWidth(), (int) GetHeight(), eye, zoom);
+    _gameViewHarness.RenderGame(dc, _worldView, (int) GetWidth(), (int) GetHeight(), eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }

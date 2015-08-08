@@ -23,6 +23,7 @@ public:
 	SoundHarness(SoundRender &soundRender, World &world);
 	~SoundHarness();
 	
+    void SetListenerPos(vec2d pos);
 	void Step();
 	
 private:

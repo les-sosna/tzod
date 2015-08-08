@@ -3,7 +3,6 @@
 #include "ObjPtr.h"
 #include <deque>
 
-class GC_Camera;
 class GC_Vehicle;
 
 #define MAX_TEAMS 6 // including 0 (no team)
@@ -26,26 +25,24 @@ public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	const std::string& GetOnDie() const { return _scriptOnDie; }
 	const std::string& GetOnRespawn() const { return _scriptOnRespawn; }
-	
+
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skin; }
-	
+
 	void SetNick(const std::string &nick);
 	const std::string& GetNick() const { return _nick; }
-	
+
 	void SetClass(const std::string &c);
 	const std::string& GetClass() const { return _class; }
-	
+
 	void SetTeam(int team);
 	int GetTeam() const { return _team; }
-	
+
 	void SetScore(int score);
 	int GetScore() const { return _score; }
-	
+
 	void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
 	bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
-	
-	void SetCamera(GC_Camera *camera) { _camera = camera; }
 
 	// GC_Object
 	virtual void Kill(World &world);
@@ -86,7 +83,6 @@ private:
 	std::string  _scriptOnDie;
 	std::string  _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
-	ObjPtr<GC_Camera> _camera;
 	
 	friend class GC_Vehicle;
 	void OnVehicleDestroy(World &world);
