@@ -178,26 +178,24 @@ static void LoadOggVorbis(std::shared_ptr<FS::Stream> stream, FormatDesc &outFor
 }
 
 void SoundRender::LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName)
+try
 {
-	try
-	{
-		FormatDesc fd;
-		std::vector<char> data;
-		LoadOggVorbis(fs.Open(fileName)->QueryStream(), fd, data);
-		
-		alBufferData(_buffers[st], fd.format, data.data(), data.size(), fd.freq);
-		ALenum e = alGetError();
-		if (AL_NO_ERROR != e)
-		{
-			const ALchar *msg = alGetString(e);
-			throw std::runtime_error(std::string("failed to fill sound buffer with data: ") +
-									 (msg ? msg : "Unknown OpenAL error"));
-		}
-	}
-	catch (const std::exception&)
-	{
-		std::throw_with_nested(std::runtime_error(std::string("could not load '") + fileName + "'"));
-	}
+    FormatDesc fd;
+    std::vector<char> data;
+    LoadOggVorbis(fs.Open(fileName)->QueryStream(), fd, data);
+    
+    alBufferData(_buffers[st], fd.format, data.data(), data.size(), fd.freq);
+    ALenum e = alGetError();
+    if (AL_NO_ERROR != e)
+    {
+        const ALchar *msg = alGetString(e);
+        throw std::runtime_error(std::string("failed to fill sound buffer with data: ") +
+                                 (msg ? msg : "Unknown OpenAL error"));
+    }
+}
+catch (const std::exception&)
+{
+    std::throw_with_nested(std::runtime_error(std::string("could not load '") + fileName + "'"));
 }
 
 SoundRender::SoundRender(FS::FileSystem &fs)

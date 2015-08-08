@@ -10,6 +10,9 @@
 		070667411B47C2FF000FAF97 /* data in Resources */ = {isa = PBXBuildFile; fileRef = 070667401B47C2FF000FAF97 /* data */; };
 		070667431B491645000FAF97 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 070667421B491645000FAF97 /* libapp.a */; };
 		0713692B1B2D2BB70065FAC7 /* libmapfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0713692A1B2D2BB70065FAC7 /* libmapfile.a */; };
+		0749F8901B75CE610067358B /* libaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F88F1B75CE610067358B /* libaudio.a */; };
+		0749F8921B75CE820067358B /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8911B75CE820067358B /* OpenAL.framework */; };
+		0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8931B75CE910067358B /* liboggvorbis.a */; };
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
 		077AC91E1B2D24FC00E3B120 /* libgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077AC91D1B2D24FC00E3B120 /* libgc.a */; };
@@ -47,6 +50,9 @@
 		070667401B47C2FF000FAF97 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../../../data; sourceTree = "<group>"; };
 		070667421B491645000FAF97 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libapp.a; path = "../_build/app/Debug-iphonesimulator/libapp.a"; sourceTree = "<group>"; };
 		0713692A1B2D2BB70065FAC7 /* libmapfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmapfile.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libmapfile.a"; sourceTree = "<group>"; };
+		0749F88F1B75CE610067358B /* libaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libaudio.a; path = "../_build/audio/Debug-iphonesimulator/libaudio.a"; sourceTree = "<group>"; };
+		0749F8911B75CE820067358B /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		0749F8931B75CE910067358B /* liboggvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liboggvorbis.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liboggvorbis.a"; sourceTree = "<group>"; };
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
 		077AC91D1B2D24FC00E3B120 /* libgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgc.a; path = "../_build/gc/Debug-iphonesimulator/libgc.a"; sourceTree = "<group>"; };
@@ -81,6 +87,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */,
+				0749F8921B75CE820067358B /* OpenAL.framework in Frameworks */,
+				0749F8901B75CE610067358B /* libaudio.a in Frameworks */,
 				07AD8F2E1B5F66B700FC2911 /* libconfig.a in Frameworks */,
 				07AD8F2F1B5F66B700FC2911 /* libpluto.a in Frameworks */,
 				07AD8F2B1B5F669E00FC2911 /* libgclua.a in Frameworks */,
@@ -113,6 +122,9 @@
 		07FAF2661B1C26D900BFDD5F = {
 			isa = PBXGroup;
 			children = (
+				0749F8931B75CE910067358B /* liboggvorbis.a */,
+				0749F8911B75CE820067358B /* OpenAL.framework */,
+				0749F88F1B75CE610067358B /* libaudio.a */,
 				07AD8F2C1B5F66B700FC2911 /* libconfig.a */,
 				07AD8F2D1B5F66B700FC2911 /* libpluto.a */,
 				07AD8F2A1B5F669E00FC2911 /* libgclua.a */,
@@ -426,6 +438,7 @@
 					../../src/fs/inc,
 					../../src/app/inc,
 					../../src/script/inc,
+					../../src/audio/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -433,6 +446,7 @@
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator",
 					"/Users/andrar/git/tzod/game/iOS/_build/app/Debug-iphonesimulator",
+					"/Users/andrar/git/tzod/game/iOS/_build/audio/Debug-iphonesimulator",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -451,6 +465,7 @@
 					../../src/fs/inc,
 					../../src/app/inc,
 					../../src/script/inc,
+					../../src/audio/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -458,6 +473,7 @@
 					"$(inherited)",
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator",
 					"/Users/andrar/git/tzod/game/iOS/_build/app/Debug-iphonesimulator",
+					"/Users/andrar/git/tzod/game/iOS/_build/audio/Debug-iphonesimulator",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

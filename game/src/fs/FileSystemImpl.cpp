@@ -657,7 +657,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
             if( nothrow )
                 return NULL;
             else
-                throw std::runtime_error("directory not found");
+                throw std::runtime_error(tmpDir + " - directory not found");
         }
     }
     else if( !S_ISDIR(s.st_mode) )

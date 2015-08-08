@@ -8,6 +8,7 @@ SoundView::SoundView(AppState &appState, FS::FileSystem &fs)
 	: AppStateListener(appState)
 	, _soundRender(new SoundRender(fs))
 {
+    OnGameContextChanged();
 }
 
 SoundView::~SoundView()

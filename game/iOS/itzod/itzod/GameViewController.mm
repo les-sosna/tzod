@@ -6,6 +6,7 @@
 #include <app/GameContext.h>
 #include <app/GameView.h>
 #include <app/GameViewHarness.h>
+#include <audio/SoundView.h>
 #include <fs/FileSystem.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
@@ -21,6 +22,7 @@
     std::unique_ptr<RenderScheme> _renderScheme;
     std::unique_ptr<WorldView> _worldView;
     std::unique_ptr<GameView> _gameView;
+    std::unique_ptr<SoundView> _soundView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -101,16 +103,18 @@
     _renderScheme.reset(new RenderScheme(*_textureManager));
     _worldView.reset(new WorldView(*_textureManager, *_renderScheme));
     _gameView.reset(new GameView(appDelegate.appState));
+    
+    _soundView.reset(new SoundView(appDelegate.appState, *fs.GetFileSystem(DIR_SOUND)));
 }
 
 - (void)tearDownGL
 {
-    [EAGLContext setCurrentContext:self.context];
-
+    _soundView.reset();
     _worldView.reset();
     _renderScheme.reset();
     _textureManager.reset();
     _render.reset();
+    [EAGLContext setCurrentContext:self.context];
 }
 
 #pragma mark - GLKView and GLKViewController delegate methods
@@ -127,6 +131,7 @@
         GLKView *view = (GLKView *)self.view;
         gvh->Step(self.timeSinceLastUpdate, view.drawableWidth, view.drawableHeight);
     }
+    _soundView->Step();
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
