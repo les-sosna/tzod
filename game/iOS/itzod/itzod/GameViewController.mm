@@ -131,12 +131,12 @@
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    DrawingContext dc(*_textureManager, (unsigned int) rect.size.width, (unsigned int) rect.size.height);
+    DrawingContext dc(*_textureManager, view.drawableWidth, view.drawableHeight);
     
     if (GameViewHarness *gvh = _gameView->GetHarness())
     {
         _render->Begin();
-        gvh->RenderGame(dc, *_worldView, rect.size.width, rect.size.height, vec2d(0,0), 1.0f);
+        gvh->RenderGame(dc, *_worldView, view.drawableWidth, view.drawableHeight, vec2d(0,0), 1.0f);
         _render->End();
     }
 }

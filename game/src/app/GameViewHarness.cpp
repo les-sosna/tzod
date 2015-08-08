@@ -22,8 +22,16 @@ RectRB GetCameraViewport(int screenW, int screenH, size_t camCount, size_t camIn
             viewports[0] = CRect(0,             0,             screenW,       screenH);
             break;
         case 2:
-            viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH);
-            viewports[1] = CRect(screenW/2 + 1, 0,             screenW,       screenH);
+            if (screenW >= screenH)
+            {
+                viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH);
+                viewports[1] = CRect(screenW/2 + 1, 0,             screenW,       screenH);
+            }
+            else
+            {
+                viewports[0] = CRect(0,             0,             screenW, screenH/2 - 1);
+                viewports[1] = CRect(0, screenH/2 + 1,             screenW,       screenH);
+            }
             break;
         case 3:
             viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH/2 - 1);
@@ -83,8 +91,7 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
             }
             assert(camera);
             
-            RectRB viewport = CRect((width - (int) _world._sx) / 2, (height - (int) _world._sy) / 2,
-                                    (width + (int) _world._sx) / 2, (height + (int) _world._sy) / 2);
+            RectRB viewport = GetCameraViewport(width, height, 1, 0);
             vec2d eye = camera->GetCameraPos();
             worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
         }
@@ -111,11 +118,12 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
 
 void GameViewHarness::Step(float dt, int width, int height)
 {
+    bool singleCamera = width >= _world._sx && height >= _world._sy;
     size_t camCount = _cameras.size();
     size_t camIndex = 0;
     for( auto &it: _cameras )
     {
-        RectRB viewport = GetCameraViewport(width, height, camCount, camIndex);
+        RectRB viewport = GetCameraViewport(width, height, singleCamera ? 1 : camCount, singleCamera ? 0 : camIndex);
         it.second.CameraTimeStep(_world, it.first->GetVehicle(), dt, vec2d((float) WIDTH(viewport), (float) HEIGHT(viewport)));
         ++camIndex;
     }
