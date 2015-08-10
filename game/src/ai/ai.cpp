@@ -10,6 +10,7 @@
 #include <gc/Macros.h>
 #include <gc/SaveFile.h>
 
+#include <functional>
 #include <queue>
 
 

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project(GCTests)
 
 include_directories(
-	${GC_SOURCE_DIR}/include
+	${GC_SOURCE_DIR}/inc
 	${gtest_SOURCE_DIR}/include
 )
 
@@ -11,6 +11,6 @@ add_executable(gc_tests
 )
 
 target_link_libraries(gc_tests
-#	tank
+	gc
 	gtest_main
 )

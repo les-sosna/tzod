@@ -107,7 +107,7 @@ struct IRender
 	//
 
 	virtual MyVertex* DrawQuad(DEV_TEXTURE tex) = 0;
-	virtual MyVertex* DrawFan(size_t nEdges) = 0;
+	virtual MyVertex* DrawFan(unsigned int nEdges) = 0;
 
 	virtual void DrawLines(const MyLine *lines, size_t count) = 0;
 };

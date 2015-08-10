@@ -41,11 +41,10 @@ class RenderOpenGL : public IRender
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
 
-	size_t    _vaSize;      // number of filled elements in _VertexArray
-	size_t    _iaSize;      // number of filled elements in _IndexArray
+	unsigned int _vaSize;      // number of filled elements in _VertexArray
+	unsigned int _iaSize;      // number of filled elements in _IndexArray
 
 	RenderMode  _mode;
-
 
 public:
 	RenderOpenGL();
@@ -84,7 +83,7 @@ private:
 	virtual void TexFree(DEV_TEXTURE tex);
 
 	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
-	virtual MyVertex* DrawFan(size_t nEdges);
+	virtual MyVertex* DrawFan(unsigned int nEdges);
 
 	virtual void DrawLines(const MyLine *lines, size_t count);
 };
@@ -318,11 +317,11 @@ MyVertex* RenderOpenGL::DrawQuad(DEV_TEXTURE tex)
 	return result;
 }
 
-MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
+MyVertex* RenderOpenGL::DrawFan(unsigned int nEdges)
 {
 	assert(nEdges*3 < INDEX_ARRAY_SIZE);
 
-	if( _vaSize + nEdges   > VERTEX_ARRAY_SIZE - 1 ||
+	if( _vaSize + nEdges + 1 > VERTEX_ARRAY_SIZE ||
 		_iaSize + nEdges*3 > INDEX_ARRAY_SIZE )
 	{
 		Flush();
@@ -330,7 +329,7 @@ MyVertex* RenderOpenGL::DrawFan(size_t nEdges)
 
 	MyVertex *result = &_VertexArray[_vaSize];
 
-	for( size_t i = 0; i < nEdges; ++i )
+	for( unsigned int i = 0; i < nEdges; ++i )
 	{
 		_IndexArray[_iaSize + i*3    ] = _vaSize;
 		_IndexArray[_iaSize + i*3 + 1] = _vaSize + i + 1;

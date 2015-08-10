@@ -102,16 +102,14 @@ namespace
 }
 
 // recursively print exception whats:
-static void print_what(const std::exception& e, std::string prefix = std::string())
+static void print_what(const std::exception &e, std::string prefix = std::string())
 {
 	GetConsole().Format(1) << prefix << e.what();
-#ifndef _MSC_VER
 	try {
 		std::rethrow_if_nested(e);
-	} catch (const std::exception& nested) {
+	} catch (const std::exception &nested) {
 		print_what(nested, prefix + "> ");
 	}
-#endif
 }
 
 //static long xxx = _CrtSetBreakAlloc(12649);
