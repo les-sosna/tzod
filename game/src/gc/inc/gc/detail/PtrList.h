@@ -56,7 +56,7 @@ public:
 	bool empty() const { return !_size; }
     
     template<class F>
-    void for_each(F && f)
+    void for_each(const F &f)
     {
         assert(!_dbgInLoop);
         assert(_dbgInLoop = true);
@@ -136,9 +136,8 @@ private:
     bool _eraseIt;
 #ifndef NDEBUG
     bool _dbgInLoop = false;
-#endif
-    
     T* InvalidPtr() const { return (T*) this; }
+#endif
     
     void MoveNode(const int nodeId, int &tailFrom, int &tailTo)
     {
