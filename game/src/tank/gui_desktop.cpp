@@ -482,11 +482,9 @@ void Desktop::OnGameContextChanged()
 	if (auto *gc = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
 		_game = new GameLayout(this,
-							   gc->GetGameEventSource(),
-							   gc->GetWorld(),
+							   *gc,
 							   _worldView,
 							   gc->GetWorldController(),
-							   gc->GetGameplay(),
 							   _defaultCamera);
 		_game->Resize(GetWidth(), GetHeight());
 		_game->BringToBack();

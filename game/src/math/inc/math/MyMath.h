@@ -9,18 +9,6 @@
 #define PI2   6.283185f
 #define PI4   0.785398f
 
-struct FRECT
-{
-	float left;
-	float top;
-	float right;
-	float bottom;
-};
-
-inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
-inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
-
-
 class vec2d
 {
 public:
@@ -39,7 +27,6 @@ public:
 		y = sinf(angle);
 	}
 
-public:
 	vec2d& operator-=(const vec2d &v)
 	{
 		x -= v.x;
@@ -114,7 +101,6 @@ public:
 	}
 
 
-public:
 	float sqr() const
 	{
 		return x*x + y*y;
@@ -159,6 +145,19 @@ public:
 		y = 0;
 	}
 };
+
+struct FRECT
+{
+    float left;
+    float top;
+    float right;
+    float bottom;
+};
+
+inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
+inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
+inline vec2d SIZE(const FRECT &rect) { return vec2d(WIDTH(rect), HEIGHT(rect)); }
+
 
 struct RectRB
 {

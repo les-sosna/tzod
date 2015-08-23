@@ -9,18 +9,19 @@ class SaveFile;
 class Camera
 {
 public:
-    explicit Camera(vec2d pos);
+    Camera(vec2d pos, unsigned int index);
 
 	void CameraTimeStep(World &world, const GC_Vehicle *vehicle, float dt, vec2d viewSize);
 
 	vec2d GetCameraPos() const;
-
-	void Shake(float level);
+    unsigned int GetIndex() const { return _index; }
 	float GetShake() const { return _time_shake; }
+    void Shake(float level);
 
 	void Serialize(World &world, SaveFile &f);
     
 private:
+    unsigned int _index;
     vec2d _pos;
     vec2d _target;
     float _time_shake;

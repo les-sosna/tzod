@@ -5,11 +5,11 @@
 #include <ui/Window.h>
 #include <ui/Text.h>
 
+class GameContext;
 class World;
 class WorldView;
 class WorldController;
 class DefaultCamera;
-struct Gameplay;
 
 namespace UI
 {
@@ -34,11 +34,9 @@ class GameLayout
 {
 public:
     GameLayout(Window *parent,
-			   GameEventSource &gameEventSource,
-			   World &world,
+               GameContext &gameContext,
 			   WorldView &worldView,
 			   WorldController &worldController,
-			   Gameplay &gameplay,
 			   const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
     
@@ -55,12 +53,10 @@ private:
 	ScoreTable   *_score;
 	TimeElapsed  *_time;
 
-	GameEventSource &_gameEventSource;
+    GameContext &_gameContext;
     GameViewHarness _gameViewHarness;
-    World &_world;
     WorldView &_worldView;
 	WorldController &_worldController;
-	Gameplay &_gameplay;
     const DefaultCamera &_defaultCamera;
     InputManager _inputMgr;
 

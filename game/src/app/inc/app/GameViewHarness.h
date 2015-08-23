@@ -11,7 +11,7 @@ class World;
 class WorldView;
 class GC_Player;
 
-RectRB GetCameraViewport(int screenW, int screenH, size_t camCount, size_t camIndex);
+RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsigned int camIndex);
 
 class GameViewHarness
     : ObjectListener<GC_Explosion>
@@ -21,14 +21,23 @@ class GameViewHarness
 public:
     GameViewHarness(World &world);
     ~GameViewHarness();
+
+    struct CanvasToWorldResult
+    {
+        vec2d worldPos;
+        bool visible;
+    };
     
-    void RenderGame(DrawingContext &dc, const WorldView &worldView, int width, int height,
-                    vec2d defaultEye, float defaultZoom) const;
-    void Step(float dt, int width, int height);
+    CanvasToWorldResult CanvasToWorld(const GC_Player &player, int x, int y) const;
+    void SetCanvasSize(int pxWidth, int pxHeight);
+    void RenderGame(DrawingContext &dc, const WorldView &worldView, vec2d defaultEye, float defaultZoom) const;
+    void Step(float dt);
     
 private:
     World &_world;
     std::unordered_map<const GC_Player*, Camera> _cameras;
+    int _pxWidth;
+    int _pxHeight;
     
     // ObjectListener<Explosion>
     void OnBoom(GC_Explosion &obj, float radius, float damage) override;

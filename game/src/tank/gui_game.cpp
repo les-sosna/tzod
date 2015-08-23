@@ -7,7 +7,11 @@
 #include "InputManager.h"
 
 #include <app/Deathmatch.h>
+#include <app/GameContext.h>
 #include <app/WorldController.h>
+#include <gc/Macros.h>
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
@@ -44,38 +48,34 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 UI::GameLayout::GameLayout(Window *parent,
-						   GameEventSource &gameEventSource,
-						   World &world,
+						   GameContext &gameContext,
 						   WorldView &worldView,
 						   WorldController &worldController,
-						   Gameplay &gameplay,
 						   const DefaultCamera &defaultCamera)
     : Window(parent)
-	, _gameEventSource(gameEventSource)
-    , _gameViewHarness(world)
-    , _world(world)
+    , _gameContext(gameContext)
+    , _gameViewHarness(gameContext.GetWorld())
     , _worldView(worldView)
 	, _worldController(worldController)
-	, _gameplay(gameplay)
     , _defaultCamera(defaultCamera)
-    , _inputMgr(world)
+    , _inputMgr(gameContext.GetWorld())
 {
 	_msg = new MessageArea(this, 100, 100);
     
-	_score = new ScoreTable(this, _world, dynamic_cast<Deathmatch&>(gameplay));
+	_score = new ScoreTable(this, _gameContext.GetWorld(), _gameContext.GetGameplay());
 	_score->SetVisible(false);
     
-	_time = new TimeElapsed(this, 0, 0, alignTextRB, _world);
+	_time = new TimeElapsed(this, 0, 0, alignTextRB, _gameContext.GetWorld());
 	g_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
 	SetTimeStep(true);
-	_gameEventSource.AddListener(*this);
+    _gameContext.GetGameEventSource().AddListener(*this);
 }
     
 UI::GameLayout::~GameLayout()
 {
-	_gameEventSource.RemoveListener(*this);
+	_gameContext.GetGameEventSource().RemoveListener(*this);
 	g_conf.ui_showtime.eventChange = nullptr;
 }
 
@@ -83,55 +83,43 @@ UI::GameLayout::~GameLayout()
 void UI::GameLayout::OnTimeStep(float dt)
 {
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
-	_score->SetVisible(tab || _gameplay.IsGameOver());
+	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
-    _gameViewHarness.Step(dt, (int) GetWidth(), (int) GetHeight());
+    _gameViewHarness.Step(dt);
 	
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
-	/*
-	size_t camIndex = 0;
-	size_t camCount = _world.GetList(LIST_cameras).size();
-	FOREACH( _world.GetList(LIST_cameras), GC_Camera, pCamera )
-	{
-		RectRB viewport = GetCameraViewport((int) GetWidth(), (int) GetHeight(), camCount, camIndex);
-		pCamera->CameraTimeStep(_world, dt, vec2d((float) WIDTH(viewport), (float) HEIGHT(viewport)) / pCamera->GetZoom());
-		if (readUserInput)
-		{
-			GC_Player *player = pCamera->GetPlayer();
-			if( GC_Vehicle *vehicle = player->GetVehicle() )
-			{
-				bool mouseInViewport = false;
-				vec2d ptWorld(0,0);
-				vec2d ptScreen = GetManager().GetInput().GetMousePos();
-				if( PtInRect(viewport, (int) ptScreen.x, (int) ptScreen.y) )
-				{
-					vec2d eye = pCamera->GetCameraPos();
-					float zoom = pCamera->GetZoom();
-					ptWorld.x = eye.x + (ptScreen.x - (viewport.left + viewport.right) / 2) / zoom;
-					ptWorld.y = eye.y + (ptScreen.y - (viewport.bottom + viewport.top) / 2) / zoom;
-					mouseInViewport = true;
-				}
-				if( Controller *controller = _inputMgr.GetController(player) )
-				{
-					VehicleState vs;
-					controller->ReadControllerState(GetManager().GetInput(), _world, vehicle, mouseInViewport ? &ptWorld : nullptr, vs);
-					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
-				}
-			}
-		}
-		++camIndex;
-	}*/
+    
+    readUserInput = readUserInput && GetManager().GetInput().IsMousePressed(0);
+
+    if (readUserInput)
+    {
+        FOREACH( _gameContext.GetWorld().GetList(LIST_players), GC_Player, player )
+        {
+            if( GC_Vehicle *vehicle = player->GetVehicle() )
+            {
+                if( Controller *controller = _inputMgr.GetController(player) )
+                {
+                    vec2d mouse = GetManager().GetInput().GetMousePos();
+                    auto c2w = _gameViewHarness.CanvasToWorld(*player, (int) mouse.x, (int) mouse.y);
+
+                    VehicleState vs;
+                    controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
+                                                    vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
+                    controlStates.insert(std::make_pair(vehicle->GetId(), vs));
+                }
+            }
+        }
 	
-	if (readUserInput)
 		_worldController.SendControllerStates(std::move(controlStates));
+    }
 }
 
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
     vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
     float zoom = _defaultCamera.GetZoom();
-    _gameViewHarness.RenderGame(dc, _worldView, (int) GetWidth(), (int) GetHeight(), eye, zoom);
+    _gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }
@@ -140,6 +128,7 @@ void UI::GameLayout::OnSize(float width, float height)
 {
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
+    _gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight());
 }
 
 void UI::GameLayout::OnChangeShowTime()

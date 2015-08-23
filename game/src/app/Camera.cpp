@@ -6,8 +6,9 @@
 #include <gc/SaveFile.h>
 #include <gc/World.h>
 
-Camera::Camera(vec2d pos)
-  : _pos(pos)
+Camera::Camera(vec2d pos, unsigned int index)
+  : _index(index)
+  , _pos(pos)
   , _target(pos)
   , _time_shake(0)
   , _time_seed(frand(1000))

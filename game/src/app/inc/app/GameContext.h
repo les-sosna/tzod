@@ -21,7 +21,7 @@ namespace FS
 	class FileSystem;
 	class Stream;
 }
-struct Gameplay;
+class Deathmatch;
 class AIManager;
 class ScriptHarness;
 class ThemeManager;
@@ -48,7 +48,7 @@ class GameContext : public GameContextBase
 public:
 	GameContext(FS::Stream &map, const DMSettings &settings);
 	virtual ~GameContext();
-	Gameplay& GetGameplay() { return *_gameplay; }
+	Deathmatch& GetGameplay() { return *_gameplay; }
 	WorldController& GetWorldController() { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
     ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
@@ -64,7 +64,7 @@ private:
 	GameEventsBroadcaster _gameEventsBroadcaster;
     app_detail::ScriptMessageBroadcaster _scriptMessageBroadcaster;
 	std::unique_ptr<World> _world;
-	std::unique_ptr<Gameplay> _gameplay;
+	std::unique_ptr<Deathmatch> _gameplay;
 	std::unique_ptr<ScriptHarness> _scriptHarness;
 	std::unique_ptr<WorldController> _worldController;
 	std::unique_ptr<AIManager> _aiManager;
