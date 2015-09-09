@@ -66,6 +66,7 @@ std::shared_ptr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string 
 #include <Windows.h>
 #include <utf8.h>
 #include <algorithm>
+#include <sstream>
 
 static std::wstring s2w(const std::string s)
 {
@@ -85,10 +86,31 @@ static std::string StrFromErr(DWORD dwMessageId)
 	LPWSTR msgBuf = NULL;
 	DWORD msgSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                    NULL, dwMessageId, 0, (LPWSTR) &msgBuf, 0, NULL);
-	std::string result;
-	utf8::utf16to8(msgBuf, msgBuf + msgSize, std::back_inserter(result));
-	LocalFree(msgBuf);
-	return result;
+	while (msgBuf && msgSize)
+	{
+		if (msgBuf[msgSize - 1] == L'\n' || msgBuf[msgSize - 1] == L'\r')
+		{
+			--msgSize;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (msgBuf)
+	{
+		std::string result;
+		utf8::utf16to8(msgBuf, msgBuf + msgSize, std::back_inserter(result));
+		LocalFree(msgBuf);
+		return result;
+	}
+	else
+	{
+		std::ostringstream ss;
+		ss << "Unknown error (" << dwMessageId << ")";
+		return ss.str();
+	}
 }
 
 FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
@@ -366,6 +388,7 @@ std::shared_ptr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName,
 }
 
 std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+try
 {
 	if (std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true))
 	{
@@ -438,6 +461,12 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
 	if( std::string::npos != p )
 		return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
 	return child; // last path node was processed
+}
+catch (const std::exception&)
+{
+	std::ostringstream ss;
+	ss << "Failed to open directory '" << path << "'";
+	std::throw_with_nested(std::runtime_error(ss.str()));
 }
 
 // ----------------------------------------------------------------

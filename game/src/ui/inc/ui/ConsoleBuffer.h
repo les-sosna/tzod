@@ -4,6 +4,7 @@
 
 #include <mutex>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace UI
@@ -20,16 +21,18 @@ class ConsoleBuffer
 	class StreamHelper
 	{
 	public:
-		StreamHelper(ConsoleBuffer *con, int severity)
-            : m_con(con)
+		StreamHelper(ConsoleBuffer &con, int severity)
+            : m_con(&con)
             , m_severity(severity)
 		{
 		}
         
-		StreamHelper(const StreamHelper &other)
-            : m_con(other.m_con)
-            , m_severity(other.m_severity)
+		StreamHelper(StreamHelper &&other)
+			: m_con(other.m_con)
+			, m_severity(other.m_severity)
+			, m_buf(std::move(other.m_buf))
 		{
+			other.m_con = nullptr;
 		}
         
 		~StreamHelper()
@@ -75,7 +78,7 @@ public:
 
 	StreamHelper Format(int severity)
 	{
-		return StreamHelper(this, severity);
+		return StreamHelper(*this, severity);
 	}
     
 private:

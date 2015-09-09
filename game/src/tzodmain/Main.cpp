@@ -104,6 +104,9 @@ namespace
 // recursively print exception whats:
 static void print_what(const std::exception &e, std::string prefix = std::string())
 {
+#ifdef _WIN32
+	OutputDebugStringA((prefix + e.what() + "\n").c_str());
+#endif
 	GetConsole().Format(1) << prefix << e.what();
 	try {
 		std::rethrow_if_nested(e);

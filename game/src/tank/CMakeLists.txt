@@ -4,7 +4,7 @@ project(Tank)
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.55 REQUIRED COMPONENTS system)
+find_package(Boost 1.59 REQUIRED COMPONENTS system date_time regex)
 
 find_package(OpenAL)
 
