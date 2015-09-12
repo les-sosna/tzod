@@ -90,8 +90,6 @@ void UI::GameLayout::OnTimeStep(float dt)
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
     
-    readUserInput = readUserInput && GetManager().GetInput().IsMousePressed(0);
-
     if (readUserInput)
     {
         FOREACH( _gameContext.GetWorld().GetList(LIST_players), GC_Player, player )
