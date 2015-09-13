@@ -70,8 +70,8 @@ namespace
 	class ConsoleLog : public UI::IConsoleLog
 	{
 		FILE *_file;
-		ConsoleLog(const ConsoleLog&); // no copy
-		ConsoleLog& operator= (const ConsoleLog&);
+		ConsoleLog(const ConsoleLog&) = delete;
+		ConsoleLog& operator= (const ConsoleLog&) = delete;
 	public:
 		explicit ConsoleLog(const char *filename)
 			: _file(fopen(filename, "w"))
