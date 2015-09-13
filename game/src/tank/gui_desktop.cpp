@@ -94,7 +94,7 @@ Desktop::Desktop(LayoutManager* manager,
 		throw std::bad_alloc();
 
 	SetTexture("ui/window", false);
-	
+
 	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
@@ -132,25 +132,25 @@ Desktop::Desktop(LayoutManager* manager,
 			yy += hh+5;
 		}
 	}
-    
+
     SetTimeStep(true);
 }
 
 Desktop::~Desktop()
-{    
+{
 	g_conf.ui_showfps.eventChange = nullptr;
 }
-    
+
 void Desktop::OnTimeStep(float dt)
 {
 	dt *= g_conf.sv_speed.GetFloat() / 100.0f;
-    
+
 //	if( !IsGamePaused() || !IsPauseSupported() )
 	if (GameContextBase *gc = GetAppState().GetGameContext())
 	{
 		assert(dt >= 0);
 		counterDt.Push(dt);
-        
+
         _defaultCamera.HandleMovement(GetManager().GetInput(),
 									  gc->GetWorld()._sx,
 									  gc->GetWorld()._sy,
@@ -177,7 +177,7 @@ void Desktop::SetEditorMode(bool editorMode)
 		}
 	}
 }
-    
+
 bool Desktop::IsGamePaused() const
 {
 	return _nModalPopups > 0 || _editor->GetVisible(); //  || _world._limitHit
@@ -192,7 +192,7 @@ void Desktop::OnCloseChild(int result)
 {
     _nModalPopups--;
 }
-	
+
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 {
 	PlayerDesc result;
@@ -206,22 +206,22 @@ static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 static DMSettings GetDMSettingsFromConfig()
 {
 	DMSettings settings;
-	
+
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
 		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
 		settings.players.push_back(GetPlayerDescFromConf(p));
 	}
-	
+
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
 		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
-	
+
 	return settings;
 }
-	
+
 void Desktop::OnNewCampaign()
 {
 	_nModalPopups++;
@@ -296,7 +296,7 @@ void Desktop::OnOpenMap(std::string fileName)
 	GetAppState().SetGameContext(std::move(gc));
 	ShowMainMenu(false);
 }
-	
+
 void Desktop::ShowMainMenu(bool show)
 {
 	if (_mainMenu->GetVisible() != show)
@@ -461,7 +461,7 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 	lua_pop(_globL.get(), 1); // pop result or error message
 	return true;
 }
-	
+
 void Desktop::OnGameContextChanging()
 {
 	if (_game)
@@ -469,7 +469,7 @@ void Desktop::OnGameContextChanging()
 		_game->Destroy();
 		_game = nullptr;
 	}
-	
+
 	if (_editor)
 	{
 		_editor->Destroy();
@@ -488,10 +488,10 @@ void Desktop::OnGameContextChanged()
 							   _defaultCamera);
 		_game->Resize(GetWidth(), GetHeight());
 		_game->BringToBack();
-		
+
 		SetEditorMode(false);
 	}
-	
+
 	if (auto *gc = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
 		_editor = new EditorLayout(this, gc->GetWorld(), _worldView, _defaultCamera, _globL.get());
@@ -501,9 +501,9 @@ void Desktop::OnGameContextChanged()
 
 		SetEditorMode(true);
 	}
-	
+
 	if (!GetAppState().GetGameContext())
 		ShowMainMenu(true);
 }
-	
+
 } // namespace UI

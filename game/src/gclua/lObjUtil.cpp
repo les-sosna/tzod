@@ -36,9 +36,9 @@ GC_Object* luaT_checkobject(lua_State *L, int n)
 int luaT_setproperty(lua_State *L, PropertySet &properties)
 {
 	const char *pname = lua_tostring(L, -2);
-	
+
 	ObjectProperty *p = NULL;
-	
+
 	for( int i = 0; i < properties.GetCount(); ++i )
 	{
 		p = properties.GetProperty(i);
@@ -48,13 +48,13 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 		}
 		p = NULL;
 	}
-	
+
 	if( NULL == p )
 	{
 		return 0;  // property not found
 	}
-	
-	
+
+
 	switch( p->GetType() )
 	{
 		case ObjectProperty::TYPE_INTEGER:
@@ -128,6 +128,6 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 		default:
 			assert(false);
 	}
-	
+
 	return 1;
 }

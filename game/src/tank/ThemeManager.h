@@ -17,7 +17,7 @@ class ThemeManager : private AppStateListener
 public:
 	ThemeManager(AppState &appState, FS::FileSystem &fs, TextureManager &tm);
 	~ThemeManager();
-	
+
 	size_t GetThemeCount() const;
 	std::string GetThemeName(size_t index) const;
 
@@ -27,7 +27,7 @@ private:
 		std::string fileName;
 		std::shared_ptr<FS::MemMap> file;
 	};
-	
+
 	std::vector<ThemeDesc> _themes;
 	FS::FileSystem &_fs;
 	TextureManager &_textureManager;

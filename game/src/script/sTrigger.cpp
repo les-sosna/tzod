@@ -18,7 +18,7 @@ sTrigger::sTrigger(World &world, lua_State *L)
 {
 	_world.eGC_Trigger.AddListener(*this);
 }
-	
+
 sTrigger::~sTrigger()
 {
 	_world.eGC_Trigger.RemoveListener(*this);
@@ -30,7 +30,7 @@ void sTrigger::OnEnter(GC_Trigger &obj, GC_Vehicle &vehicle)
 	buf << "return function(self,who)";
 	buf << obj.GetOnEnter();
 	buf << "\nend";
-	
+
 	if( luaL_loadstring(_L, buf.str().c_str()) )
 	{
         std::runtime_error error(lua_tostring(_L, -1));

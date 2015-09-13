@@ -13,6 +13,6 @@ add_library(loc
 	Language.cpp
 )
 
-target_link_libraries(loc 
+target_link_libraries(loc
 	config
 )

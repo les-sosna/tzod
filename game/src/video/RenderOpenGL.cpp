@@ -14,10 +14,10 @@ class RenderOpenGL : public IRender
 		char   ColorMap;        // obsolete
 		char   DataType;        // compressed or not
 		char   ColorMapInfo[5]; // skip this
-		short  x_origin;        // 
-		short  y_origin;        // 
-		short  width;           // 
-		short  height;          // 
+		short  x_origin;        //
+		short  y_origin;        //
+		short  width;           //
+		short  height;          //
 		char   BitPerPel;       // 24 or 32 only
 		char   Description;     // skip this
 	};
@@ -194,11 +194,11 @@ int RenderOpenGL::GetViewportHeight() const
 void RenderOpenGL::Begin()
 {
     glEnable(GL_BLEND);
-    
+
     glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
     glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
     glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
-    
+
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);

@@ -192,7 +192,7 @@ void GC_Turret::ProcessState(World &world, float dt)
 	default:
 		assert(false);
 	}  // switch
-	
+
 	SetFire(world, fire);
 }
 
@@ -200,9 +200,9 @@ void GC_Turret::TimeStep(World &world, float dt)
 {
 	RotatorState prevState = _rotator.GetState();
 	_rotator.process_dt(dt);
-	
+
 	ProcessState(world, dt);
-	
+
 	if (_rotator.GetState() != prevState)
 	{
 		for( auto ls: world.eGC_Turret._listeners )
@@ -413,14 +413,14 @@ void GC_TurretCannon::CalcOutstrip(World &world, const GC_Vehicle *target, vec2d
 void GC_TurretCannon::TimeStep(World &world, float dt)
 {
 	GC_Turret::TimeStep(world, dt);
-	
+
 	if( GetFire() && _timeReload <= 0 )
 	{
 		Shoot(world);
 		_timeReload = TURET_CANON_RELOAD;
 		_time_smoke  = 0.1f;
 	}
-	
+
 	_timeReload -= dt;
 
 	if( _time_smoke > 0 )
@@ -509,7 +509,7 @@ void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
 void GC_TurretBunker::ProcessState(World &world, float dt)
 {
 	bool fire = false;
-	
+
 	switch( GetState() )
 	{
 	case TS_ATACKING:
@@ -606,7 +606,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 	default:
 		assert(0);
 	} // switch
-	
+
 	SetFire(world, fire);
 }
 
@@ -741,7 +741,7 @@ void GC_TurretGauss::TimeStep(World &world, float dt)
 		{
 			_time = 0;
 		}
-		
+
 		if( _time >= (float) _shotCount * 0.2f )
 		{
 			Shoot(world);
@@ -759,7 +759,7 @@ void GC_TurretGauss::OnShoot(World &world)
 {
 	float dy = _shotCount == 0 ? -7.0f : 7.0f;
 	float c = cosf(_dir), s = sinf(_dir);
-	
+
 	world.New<GC_GaussRay>(vec2d(GetPos().x + c * 20.0f - dy * s, GetPos().y + s * 20.0f + dy * c),
 						   vec2d(c, s) * SPEED_GAUSS, this, nullptr, false);
 }

@@ -43,7 +43,7 @@ void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			buf << "return function(who)";
 			buf << obj.GetOnDamage();
 			buf << "\nend";
-			
+
 			if( luaL_loadstring(_L, buf.str().c_str()) )
 			{
                 std::runtime_error error(lua_tostring(_L, -1));

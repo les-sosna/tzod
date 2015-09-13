@@ -48,7 +48,7 @@ bool GC_Trigger::Test(World &world, const GC_Vehicle *v) const
 	assert(v);
 	float rr = (GetPos() - v->GetPos()).sqr();
 	float r = (_radius + _radiusDelta) * CELL_SIZE;
-	return rr <= r*r && (!CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE) 
+	return rr <= r*r && (!CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE)
 		|| rr <= _veh->GetRadius() * _veh->GetRadius() || GetVisible(world, _veh));
 }
 
@@ -110,7 +110,7 @@ void GC_Trigger::TimeStep(World &world, float dt)
 		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, veh )
 		{
 			if( !veh->GetOwner()
-				|| (CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN) 
+				|| (CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN)
 					&& !veh->GetOwner()->GetIsHuman()) )
 			{
 				continue;

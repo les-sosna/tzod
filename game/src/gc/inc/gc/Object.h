@@ -71,7 +71,7 @@ class GC_Object
 public:
 	GC_Object();
 	virtual ~GC_Object();
-    
+
     ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 	const char* GetName(World &world) const;

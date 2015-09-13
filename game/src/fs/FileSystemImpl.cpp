@@ -198,7 +198,7 @@ FS::OSFileSystem::OSFile::OSStream::~OSStream()
 {
     _file->Unstream();
 }
-    
+
 size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
 	DWORD bytesRead;
@@ -457,7 +457,7 @@ try
 
 	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(_rootDirectory + L'\\' + s2w(dirName));
 	Mount(dirName, child);
-	
+
 	if( std::string::npos != p )
 		return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
 	return child; // last path node was processed
@@ -545,7 +545,7 @@ size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t c
 }
 
 void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
-{   
+{
     if( 1 != fwrite(src, size, 1, _file->_file.f) )
     {
         throw std::runtime_error("file could not be written");
@@ -657,17 +657,17 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
     {
         return tmp;
     }
-    
+
     assert(!path.empty());
-    
+
     // skip delimiters at the beginning
     std::string::size_type offset = path.find_first_not_of('/');
     assert(std::string::npos != offset);
-    
+
     std::string::size_type p = path.find('/', offset);
     std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
     std::string tmpDir = _rootDirectory + '/' + dirName;
-    
+
     struct stat s;
     if( stat(tmpDir.c_str(), &s) )
     {
@@ -696,7 +696,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
         else
             throw std::runtime_error("not a directory");
     }
-    
+
     // at this point the directory was either found or created
 	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(_rootDirectory + '/' + dirName);
     Mount(dirName, child);

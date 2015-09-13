@@ -24,7 +24,7 @@ class AppController;
 
 namespace UI
 {
-	
+
 class MainMenuDlg;
 class EditorLayout;
 class GameLayout;
@@ -56,7 +56,7 @@ protected:
     virtual void OnTimeStep(float dt) override;
 
 private:
-    
+
     class MyConsoleHistory : public UI::IConsoleHistory
     {
     public:
@@ -64,27 +64,27 @@ private:
         virtual size_t GetItemCount() const;
         virtual const std::string& GetItem(size_t index) const;
     };
-    
+
     MyConsoleHistory  _history;
     AppController &_appController;
     FS::FileSystem &_fs;
     std::function<void()> _exitCommand;
     std::unique_ptr<lua_State, LuaStateDeleter> _globL;
-    
+
     MainMenuDlg  *_mainMenu = nullptr;
     EditorLayout *_editor = nullptr;
     GameLayout   *_game = nullptr;
     Console      *_con = nullptr;
     FpsCounter   *_fps = nullptr;
-    
+
     size_t _font;
-    
+
     int _nModalPopups;
-    
+
     RenderScheme _renderScheme;
     WorldView _worldView;
     DefaultCamera _defaultCamera;
-    
+
     void OnNewCampaign();
     void OnNewDM();
     void OnNewMap();
@@ -93,12 +93,12 @@ private:
     void SetEditorMode(bool editorMode);
     bool IsGamePaused() const;
     void ShowMainMenu(bool show);
-    
+
 	void OnChangeShowFps();
 
 	void OnCommand(const std::string &cmd);
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
-	
+
 	// AppStateListener
 	virtual void OnGameContextChanging() override;
 	virtual void OnGameContextChanged() override;

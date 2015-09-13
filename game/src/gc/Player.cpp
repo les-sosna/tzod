@@ -104,41 +104,41 @@ void GC_Player::SetScore(int score)
 static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 {
 	std::vector<GC_SpawnPoint*> points;
-	
+
 	GC_SpawnPoint *pBestPoint = NULL;
 	float max_dist = -1;
-	
+
 	FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
 	{
 		GC_SpawnPoint *pSpawnPoint = (GC_SpawnPoint*) object;
 		if( pSpawnPoint->_team && (pSpawnPoint->_team != team) )
 			continue;
-		
+
 		float dist = -1;
 		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
 		{
 			float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
 			if( d < dist || dist < 0 ) dist = d;
 		}
-		
+
 		if( dist > 0 && dist < 4*CELL_SIZE*CELL_SIZE )
 			continue;
-		
+
 		if( dist < 0 || dist > 400*CELL_SIZE*CELL_SIZE )
 			points.push_back(pSpawnPoint);
-		
+
 		if( dist > max_dist )
 		{
 			max_dist = dist;
 			pBestPoint = pSpawnPoint;
 		}
 	}
-	
+
 	if( !points.empty() )
 	{
 		pBestPoint = points[world.net_rand() % points.size()];
 	}
-	
+
 	return pBestPoint;
 }
 
@@ -157,7 +157,7 @@ void GC_Player::TimeStep(World &world, float dt)
 			if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
 			{
 				world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
-				
+
 				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
 				GC_Object* found = world.FindObject(_vehname);
 				if( found && _vehicle != found )
@@ -170,7 +170,7 @@ void GC_Player::TimeStep(World &world, float dt)
 				}
 				_vehicle->SetDirection(pBestPoint->GetDirection());
 				_vehicle->SetPlayer(world, this);
-				
+
 				for( auto ls: world.eGC_Player._listeners )
 					ls->OnRespawn(*this, *_vehicle);
 			}

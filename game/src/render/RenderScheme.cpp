@@ -61,9 +61,9 @@ RenderScheme::RenderScheme(TextureManager &tm)
 {
 	_gameViews.AddView<GC_Wall>(Make<Z_Const>(Z_WALLS), Make<R_Wall>(tm, "brick"));
 	_gameViews.AddView<GC_Wall_Concrete>(Make<Z_Const>(Z_WALLS), Make<R_Wall>(tm, "concrete"));
-	
+
 	_gameViews.AddView<GC_Crate>(Make<Z_Const>(Z_WALLS), Make<R_Sprite>(tm, "crate01"));
-	
+
 	_gameViews.AddView<GC_TankBullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_cannon"));
 	_gameViews.AddView<GC_Rocket>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_rocket"));
 //	_gameViews.AddView<GC_Bullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_bullet"));
@@ -72,14 +72,14 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_FireSpark>(Make<Z_Const>(Z_PROJECTILE), Make<R_FireSpark>(tm));
 	_gameViews.AddView<GC_ACBullet>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_ac"));
 	_gameViews.AddView<GC_Disk>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "projectile_disk"));
-	
+
 	_gameViews.AddView<GC_Spotlight>(Make<Z_Const>(Z_PROJECTILE), Make<R_Sprite>(tm, "spotlight"));
-	
+
 	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLES), Make<R_Vehicle>(tm));
 	_gameViews.AddView<GC_Tank_Light>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, true));
-	
+
 	_gameViews.AddView<GC_Text_ToolTip>(Make<Z_Const>(Z_PARTICLE), Make<R_Text>(tm));
-	
+
 	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_cannon"));
 	_gameViews.AddView<GC_TurretCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	_gameViews.AddView<GC_TurretRocket>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_platform", "turret_rocket"));
@@ -88,7 +88,7 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_TurretMinigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
 	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_WALLS), Make<R_Turret>(tm, "turret_gauss_wake", "turret_gauss"));
 	_gameViews.AddView<GC_TurretGauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_HealthIndicator>(tm, false));
-	
+
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ak47"));
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_WeapFireEffect>(0.1f),
@@ -129,7 +129,7 @@ RenderScheme::RenderScheme(TextureManager &tm)
 										Make<R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false));
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_zippo"));
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
-	
+
 	_gameViews.AddView<GC_pu_Health>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
 									 Make<R_AnimatedSprite>(tm, "pu_health", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Mine>(Make<Z_Const>(Z_FREE_ITEM), Make<R_Sprite>(tm, "item_mine"));
@@ -144,23 +144,23 @@ RenderScheme::RenderScheme(TextureManager &tm)
 									  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_FREE_ITEM),
 									  Make<R_Booster>(tm));
-	
+
 	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
-	
+
 	_gameViews.AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
 	_gameViews.AddView<GC_Particle>(Make<Z_Const>(Z_PARTICLE), Make<R_Particle>(tm));
 	_gameViews.AddView<GC_ParticleExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
 	_gameViews.AddView<GC_ParticleDecal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
 	_gameViews.AddView<GC_ParticleGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
-	
+
 	_gameViews.AddView<GC_UserObject>(Make<Z_UserObject>(), Make<R_UserObject>(tm));
 	_gameViews.AddView<GC_Decoration>(Make<Z_Decoration>(), Make<R_Decoration>(tm));
-	
+
 	_editorViews.AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 	_editorViews.AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
 	_editorViews.AddView<GC_Trigger>(Make<Z_Const>(Z_WOOD), Make<R_Sprite>(tm, "editor_trigger"));
-	
+
 	_nightViews.AddView<GC_Light>(Make<Z_Light>(), Make<R_Light>(tm));
 }
 

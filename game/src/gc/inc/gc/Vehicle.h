@@ -17,7 +17,7 @@ class GC_Vehicle : public GC_RigidBodyDynamic
 {
     DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyDynamic base;
-	
+
 public:
 	explicit GC_Vehicle(vec2d pos);
 	explicit GC_Vehicle(FromFile);
@@ -51,11 +51,11 @@ public:
 	ObjPtr<GC_Light> _light_ambient;
 	ObjPtr<GC_Light> _light1;
 	ObjPtr<GC_Light> _light2;
-    
+
 	float _trackPathL;
 	float _trackPathR;
 	float _time_smoke;
-    
+
 	void SetSkin(const std::string &skin);
 	const std::string& GetSkin() const { return _skinTextureName; }
 	void SetControllerState(const VehicleState &vs);
@@ -63,7 +63,7 @@ public:
 	// GC_RigidBodyStatic
 	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
 	virtual GC_Player* GetOwner() const { return _player; }
-	
+
 	// GC_Actor
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
@@ -84,7 +84,7 @@ public:
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
-	
+
 private:
 	ObjPtr<GC_Weapon> _weapon;
 	ObjPtr<GC_pu_Shield> _shield;

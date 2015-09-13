@@ -43,7 +43,7 @@ struct VariantTypeIdHelper
 };
 
 template <typename T>
-inline int VariantTypeId(T * = 0) 
+inline int VariantTypeId(T * = 0)
 {
 	return VariantTypeIdHelper<T>::t.GetTypeId();
 }

@@ -24,16 +24,16 @@ public:
         , _objCount(0)
         , _prop(0)     // free
 	{}
-    
+
 public:
 	const FieldCell *_prevCell;
-    
+
     int GetObjectsCount() const { return _objCount; }
     GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
-    
+
     bool IsChecked() const { return _mySession == _sessionId; }
     void Check()           { _mySession = _sessionId;         }
-    
+
     void UpdatePath(float before, short x, short y)
 	{
 		int dx = abs(x - GetX());
@@ -42,21 +42,21 @@ public:
 		_before = before;
 		_total = before + pathAfter;
 	}
-    
+
 	void AddObject(GC_RigidBodyStatic *object);
 	void RemoveObject(GC_RigidBodyStatic *object);
-    
+
     short GetX()               const { return _x;    }
     short GetY()               const { return _y;    }
     unsigned char Properties() const { return _prop; }
-    
+
     float Total() const { return _total; }
     float Before() const { return _before; }
-    
+
 private:
 	float _before;          // path cost to this node
 	float _total;           // total path cost estimate
-    
+
 	FieldCell(const FieldCell &other); // no copy
 	FieldCell& operator = (const FieldCell &other);
 };
@@ -80,20 +80,20 @@ class Field
 	FieldCell **_cells;
 	int _cx;
 	int _cy;
-    
+
 	void Clear();
-    
+
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
-    
+
 	Field();
 	~Field();
-    
+
 	void Resize(int cx, int cy);
 	void ProcessObject(GC_RigidBodyStatic *object, bool add);
 	int GetX() const { return _cx; }
 	int GetY() const { return _cy; }
-    
+
     FieldCell& operator() (int x, int y)
 	{
 		return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;

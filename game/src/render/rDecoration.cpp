@@ -7,12 +7,12 @@ R_Decoration::R_Decoration(TextureManager &tm)
 	: _tm(tm)
 {
 }
-	
+
 void R_Decoration::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	assert(dynamic_cast<const GC_Decoration*>(&actor));
 	auto &decoration = static_cast<const GC_Decoration&>(actor);
-	
+
 	vec2d pos = decoration.GetPos();
 	vec2d dir = decoration.GetDirection();
 	size_t texId = _tm.FindSprite(decoration.GetTextureName());

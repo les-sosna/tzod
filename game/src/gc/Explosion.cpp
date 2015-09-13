@@ -250,16 +250,16 @@ GC_ExplosionBig::GC_ExplosionBig(FromFile)
 void GC_ExplosionBig::Init(World &world)
 {
 	GC_Explosion::Init(world);
-	
+
 	SetTimeout(world, 0.10f);
-	
+
 	float duration = 0.72f;
 	world.New<GC_ParticleExplosion>(GetPos(), vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
 
 	auto &light = world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	light.SetRadius(128 * 5);
 	light.SetTimeout(world, duration * 1.5f);
-	
+
 	for( int n = 0; n < 80; ++n )
 	{
 		//ring
@@ -267,23 +267,23 @@ void GC_ExplosionBig::Init(World &world)
 		{
 			world.New<GC_Particle>(GetPos() + vrand(frand(20.0f)), vrand((200.0f + frand(30.0f)) * 0.9f), PARTICLE_TYPE1, frand(0.6f) + 0.1f);
 		}
-		
+
 		vec2d a;
-		
+
 		//dust
 		a = vrand(frand(40.0f));
 		world.New<GC_Particle>(GetPos() + a, a * 2, PARTICLE_TYPE2, frand(0.5f) + 0.25f);
-		
+
 		// sparkles
 		a = vrand(1);
 		world.New<GC_Particle>(GetPos() + a * frand(40.0f), a * frand(80.0f), PARTICLE_TRACE1, frand(0.3f) + 0.2f, a);
-		
+
 		//smoke
 		a = vrand(frand(48.0f));
 		auto &p2 = world.New<GC_Particle>(GetPos() + a, SPEED_SMOKE + a * 0.5f, PARTICLE_SMOKE, 1.5f);
 		p2._time = frand(1.0f);
 	}
-	
+
 	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
 	p.SetFade(true);
 }
@@ -310,26 +310,26 @@ GC_ExplosionStandard::GC_ExplosionStandard(FromFile)
 void GC_ExplosionStandard::Init(World &world)
 {
 	GC_Explosion::Init(world);
-	
+
 	SetTimeout(world, 0.03f);
-	
+
 	float duration = 0.32f;
 	world.New<GC_ParticleExplosion>(GetPos(), vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
-	
+
 	auto &light = world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	light.SetRadius(70 * 5);
 	light.SetTimeout(world, duration * 1.5f);
-	
+
 	for(int n = 0; n < 28; ++n)
 	{
 		//ring
 		float ang = frand(PI2);
 		world.New<GC_Particle>(GetPos(), vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-		
+
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
-		
+
 		auto &p1 = world.New<GC_Particle>(GetPos() + vec2d(ang) * d, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
 		p1._time = frand(1.0f);
 	}

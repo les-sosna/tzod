@@ -18,11 +18,11 @@ void R_Tile::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 {
 	assert(dynamic_cast<const GI_NeighborAware*>(&actor));
 	auto &na = dynamic_cast<const GI_NeighborAware&>(actor);
-	
+
 	vec2d pos = actor.GetPos();
 	vec2d dir = actor.GetDirection();
 	int tile = na.GetNeighbors();
-	
+
 	for( int i = 0; i < 8; ++i )
 	{
 		if( 0 == (tile & (1 << i)) )

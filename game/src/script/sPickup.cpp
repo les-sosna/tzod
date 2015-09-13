@@ -32,7 +32,7 @@ void sPickup::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 		buf << "return function(who)";
 		buf << obj.GetOnPickup();
 		buf << "\nend";
-		
+
 		if( luaL_loadstring(_L, buf.str().c_str()) )
 		{
             std::runtime_error error(lua_tostring(_L, -1));

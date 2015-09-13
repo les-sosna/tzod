@@ -20,11 +20,11 @@ class TimeElapsed : public Text
 {
 public:
 	TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world);
-    
+
 private:
 	void OnVisibleChange(bool visible, bool inherited) override;
 	void OnTimeStep(float dt) override;
-    
+
     World &_world;
 };
 
@@ -39,7 +39,7 @@ public:
 			   WorldController &worldController,
 			   const DefaultCamera &defaultCamera);
     virtual ~GameLayout();
-    
+
     // Window
 	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;

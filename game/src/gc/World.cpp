@@ -35,14 +35,14 @@ World::World(int X, int Y)
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx          = (float) X * CELL_SIZE;
 	_sy          = (float) Y * CELL_SIZE;
-	
+
 	grid_rigid_s.resize(_locationsX, _locationsY);
 	grid_walls.resize(_locationsX, _locationsY);
 	grid_wood.resize(_locationsX, _locationsY);
 	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
 	grid_actors.resize(_locationsX, _locationsY);
-	
+
 	_field.Resize(X + 1, Y + 1);
 }
 
@@ -386,7 +386,7 @@ void World::Step(float dt)
 		for( auto ls: eWorld._listeners )
 			ls->OnGameStarted();
 	}
-	
+
 	float nextTime = _time + dt;
 	while (!_resumables.empty() && _resumables.top().time < nextTime)
 	{
@@ -396,7 +396,7 @@ void World::Step(float dt)
 		if (obj)
 			obj->Resume(*this);
 	}
-	
+
 	_time = nextTime;
 
 	if( !_frozen )

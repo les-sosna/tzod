@@ -124,7 +124,7 @@ void GC_Projectile::TimeStep(World &world, float dt)
 
 	if( !obstacles.empty() )
 	{
-		struct cmp 
+		struct cmp
 		{
 			bool operator () (const World::CollisionPoint &left, const World::CollisionPoint &right)
 			{
@@ -202,36 +202,36 @@ void GC_Rocket::SelectTarget(World &world)
 {
 	GC_RigidBodyDynamic *pNearestTarget = NULL; // by angle
 	float nearest_cosinus = 0;
-	
+
 	FOREACH( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
 	{
 		if( GetOwner() == veh->GetOwner() )
 			continue;
-		
+
 		if( veh != world.TraceNearest(world.grid_rigid_s, GetIgnore(), GetPos(), veh->GetPos() - GetPos()) )
 		{
 			// target invisible
 			continue;
 		}
-		
+
 		vec2d target;
 		if( !world.CalcOutstrip(GetPos(), GetVelocity(), veh->GetPos(), veh->_lv, target) )
 		{
 			// target is moving too fast
 			continue;
 		}
-		
+
 		vec2d a = target - GetPos();
-		
+
 		float cosinus = (a * GetDirection()) / a.len();
-		
+
 		if( cosinus > nearest_cosinus )
 		{
 			nearest_cosinus = cosinus;
 			pNearestTarget = veh;
 		}
 	}
-	
+
 	// select only if less than 20 degrees
 	if( nearest_cosinus > 0.94f )
 	{
@@ -251,13 +251,13 @@ bool GC_Rocket::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit
 	auto &e = world.New<GC_ExplosionStandard>(hit + norm);
 	e.SetDamage(DAMAGE_ROCKET_AK47);
 	e.SetOwner(GetOwner());
-	
+
 	DamageDesc dd;
 	dd.damage = 0; //world.net_frand(10.0f);
 	dd.hit = hit;
 	dd.from = GetOwner();
 	ApplyHitDamage(world, *object, dd, GetDirection() * 15);
-	
+
 	Kill(world);
 	return true;
 }
@@ -329,7 +329,7 @@ GC_Bullet::GC_Bullet(FromFile)
 void GC_Bullet::Init(World &world)
 {
 	GC_Projectile::Init(world);
-	_light->SetActive(false);	
+	_light->SetActive(false);
 }
 
 void GC_Bullet::Serialize(World &world, SaveFile &f)
@@ -435,7 +435,7 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	dd.hit = hit;
 	dd.from = GetOwner();
 	ApplyHitDamage(world, *object, dd, GetDirection() * 100);
-	
+
 	Kill(world);
 	return true;
 }
@@ -492,7 +492,7 @@ bool GC_PlazmaClod::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 	dd.hit = hit;
 	dd.from = GetOwner();
 	ApplyHitDamage(world, *object, dd, vec2d(0, 0));
-	
+
 	Kill(world);
 	return true;
 }
@@ -589,7 +589,7 @@ bool GC_BfgCore::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hi
 	dd.hit = hit;
 	dd.from = GetOwner();
 	ApplyHitDamage(world, *object, dd, vec2d(0, 0));
-	
+
 	Kill(world);
 	return true;
 }
@@ -725,7 +725,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	dd.damage = DAMAGE_FIRE_HIT;
 	dd.hit = hit;
 	dd.from = GetOwner();
-	
+
 	if( GetAdvanced() && GetOwner() != object->GetOwner() )
 		dd.damage = CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER) ? -dd.damage : 0;
 
@@ -882,7 +882,7 @@ bool GC_ACBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 	dd.hit = hit;
 	dd.from = GetOwner();
 	ApplyHitDamage(world, *object, dd, GetDirection() * 20);
-	
+
 	Kill(world);
 	return true;
 }
@@ -914,7 +914,7 @@ GC_GaussRay::GC_GaussRay(FromFile)
 void GC_GaussRay::Init(World &world)
 {
 	GC_Projectile::Init(world);
-	
+
 	SAFE_KILL(world, _light);
 	_light = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_DIRECT);
 	_light->SetRadius(64);
@@ -948,7 +948,7 @@ bool GC_GaussRay::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &h
 {
 	auto &p = world.New<GC_Particle>(hit, vec2d(0,0), PARTICLE_GAUSS_HIT, 0.5f, vec2d(norm.y, -norm.x));
     p.SetFade(true);
-	
+
 	DamageDesc dd;
 	dd.damage = _damage * relativeDepth;
 	dd.hit = hit;
@@ -1045,7 +1045,7 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 		Kill(world);
 		return true;
 	}
-	
+
 	_bounces--;
 
 	if( GetAdvanced() )

@@ -13,7 +13,7 @@
 GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 {
 	MapFile file(map, false);
-	
+
 	int width, height;
 	if (!file.getMapAttribute("width", width) ||
 	    !file.getMapAttribute("height", height))
@@ -23,7 +23,7 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 
 	_world.reset(new World(width, height));
 	_aiManager.reset(new AIManager(*_world));
-	
+
 	_world->Seed(rand());
 	_world->Import(file);
 
@@ -38,7 +38,7 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 
 //		_inputMgr->AssignController(&player, p.profile.Get());
 	}
-	
+
 	for( const PlayerDesc &pd: settings.bots )
 	{
 		auto &player = _world->New<GC_Player>();
@@ -47,7 +47,7 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 		player.SetNick(pd.nick);
 		player.SetSkin(pd.skin);
 		player.SetTeam(pd.team);
-		
+
 		_aiManager->AssignAI(&player, "123");
 //        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
 	}
@@ -87,7 +87,7 @@ void GameContext::Serialize(FS::Stream &stream)
 void GameContext::Deserialize(FS::Stream &stream)
 {
 	SaveFile f(stream, true);
-	
+
 	int version = 0;
 	int width = 0;
 	int height = 0;
@@ -100,7 +100,7 @@ void GameContext::Deserialize(FS::Stream &stream)
 
 	_world.reset(new World(width, height));
 	_world->Deserialize(f);
-	
+
 	// TODO: restore gameplay type
 	_gameplay.reset(new Deathmatch(*_world, _gameEventsBroadcaster));
 	_gameplay->Serialize(f);

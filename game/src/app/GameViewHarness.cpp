@@ -13,9 +13,9 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
 {
     assert(camCount > 0 && camCount <= 4);
     assert(camIndex < camCount);
-    
+
     RectRB viewports[4];
-    
+
     switch( camCount )
     {
         case 1:
@@ -47,7 +47,7 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
         default:
             assert(false);
     }
-    
+
     return viewports[camIndex];
 }
 
@@ -58,7 +58,7 @@ GameViewHarness::GameViewHarness(World &world)
     _world.eWorld.AddListener(*this);
     _world.eGC_RigidBodyStatic.AddListener(*this);
     _world.eGC_Explosion.AddListener(*this);
-    
+
     FOREACH(world.GetList(LIST_players), GC_Player, player)
     {
         OnNewObject(*player);

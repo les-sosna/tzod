@@ -22,7 +22,7 @@ set(tank_INCLUDE_DIRS
 	${Script_SOURCE_DIR}/inc
 	${UI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
-	
+
 	# 3rd party
 	${Boost_INCLUDE_DIRS}
 	${GLFW_SOURCE_DIR}/include

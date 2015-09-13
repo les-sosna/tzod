@@ -13,7 +13,7 @@ namespace UI
 
 class GetFileNameDlg;
 class Text;
-	
+
 struct MainMenuCommands
 {
 	std::function<void()> newCampaign;
@@ -80,7 +80,7 @@ public:
 	virtual void OnParentSize(float width, float height) override;
 	virtual bool OnRawChar(int c) override;
 	virtual bool OnFocus(bool) override { return true; }
-	
+
 
 protected:
 	void OnTimeStep(float dt);

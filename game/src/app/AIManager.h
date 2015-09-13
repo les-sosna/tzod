@@ -21,18 +21,18 @@ public:
 	~AIManager();
     void AssignAI(GC_Player *player, std::string profile);
     void FreeAI(GC_Player *player);
-	
+
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	ControllerStateMap ComputeAIState(World &world, float dt);
-	
+
 private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<AIController>>> _aiControllers;
 	World &_world;
-	
+
 	// ObjectListener<GC_Player>
 	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) override;
 	virtual void OnDie(GC_Player &obj) override;
-	
+
 	// ObjectListener<World>
 	virtual void OnKill(GC_Object &obj) override;
 	virtual void OnNewObject(GC_Object &) override {}

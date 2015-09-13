@@ -9,7 +9,7 @@ class R_Text : public ObjectRFunc
 public:
 	R_Text(TextureManager &tm);
 	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
-	
+
 private:
 	size_t _fontDefault;
 	size_t _fontDigitsRed;

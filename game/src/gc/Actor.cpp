@@ -49,10 +49,10 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
 	_pos = pos;
-    
+
 	int locX = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
 	int locY = std::min(world._locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
-    
+
     bool locationChanged = _locationX != locX || _locationY != locY;
 
 	if( locationChanged )

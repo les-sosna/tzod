@@ -50,7 +50,7 @@ class GC_Decoration : public GC_Actor
 	std::string _textureName;
 	float _frameRate;
 	float _time;
-	enumZOrder _zOrder;	
+	enumZOrder _zOrder;
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet

@@ -86,7 +86,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
 	_gameViewHarness.Step(dt);
-	
+
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
 
@@ -123,7 +123,7 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }
-    
+
 void UI::GameLayout::OnSize(float width, float height)
 {
 	_time->Move(GetWidth() - 1, GetHeight() - 1);

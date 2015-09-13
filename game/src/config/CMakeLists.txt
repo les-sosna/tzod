@@ -16,7 +16,7 @@ add_library(config
 	ConfigBase.cpp
 )
 
-target_link_libraries(config 
+target_link_libraries(config
 	filesystem
 
 	# 3rd party

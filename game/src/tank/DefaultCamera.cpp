@@ -28,7 +28,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
 	static int   level    = 4;
-    
+
 	if( !lastIn && input.IsKeyPressed(GLFW_KEY_PAGE_UP) )
 		level = std::min(level+1, (int) (sizeof(levels) / sizeof(float)) - 1);
 	lastIn = input.IsKeyPressed(GLFW_KEY_PAGE_UP);
@@ -42,7 +42,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	bool  bMove     = false;
 	unsigned int dwCurTime = GetMilliseconds();
 	unsigned int dt        = (unsigned int) _dt;
-    
+
     vec2d mouse = input.GetMousePos();
 
 	if( 0 == (int) mouse.x || input.IsKeyPressed(GLFW_KEY_LEFT) )

@@ -16,7 +16,7 @@ class DrawingContext
 {
 public:
 	DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height);
-	
+
 	void PushClippingRect(const RectRB &rect);
 	void PopClippingRect();
 
@@ -28,11 +28,11 @@ public:
 	void DrawIndicator(size_t tex, float x, float y, float value);
 	void DrawLine(size_t tex, SpriteColor color, float x0, float y0, float x1, float y1, float phase);
 	void DrawBackground(size_t tex, float sizeX, float sizeY) const;
-	
+
 	void DrawPointLight(float intensity, float radius, vec2d pos);
 	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
 	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
-	
+
 	void Camera(const RectRB &viewport, float x, float y, float scale);
 	void SetAmbient(float ambient);
 	void SetMode(const RenderMode mode);
@@ -40,5 +40,5 @@ public:
 private:
 	const TextureManager &_tm;
 	std::stack<RectRB> _clipStack;
-	RectRB _viewport;	
+	RectRB _viewport;
 };

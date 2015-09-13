@@ -10,10 +10,10 @@ class WorldController
 {
 public:
 	WorldController(World &world);
-	
+
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	void SendControllerStates(ControllerStateMap stateMap);
-	
+
 private:
 	World &_world;
 };

@@ -10,7 +10,7 @@ include_directories(
 	${GCLua_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
-	
+
 	# 3rd party
 	${Lua_SOURCE_DIR}/src
 	${Pluto_SOURCE_DIR}

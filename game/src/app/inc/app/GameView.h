@@ -9,9 +9,9 @@ class GameView : AppStateListener
 public:
     GameView(AppState &appState);
     ~GameView();
-    
+
     GameViewHarness* GetHarness() const { return _harness.get(); }
-    
+
 private:
     std::unique_ptr<GameViewHarness> _harness;
     // AppStateListener

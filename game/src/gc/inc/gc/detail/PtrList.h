@@ -14,7 +14,7 @@ public:
         bool operator==(id_type other) const { return _id == other._id; }
         bool operator!=(id_type other) const { return _id != other._id; }
         bool operator<(id_type other) const { return _id < other._id; }
-        
+
     private:
         friend class PtrList<T>;
         id_type(int id) : _id(id) {}
@@ -27,7 +27,7 @@ public:
       , _freeTail(-1)
       , _eraseIt(false)
 	{}
-    
+
     T* at(id_type id) const
     {
         assert(id._id >= 0 && id._id < (int) _data.size());
@@ -52,9 +52,9 @@ public:
             _eraseIt = true;
         }
     }
-    
+
 	bool empty() const { return !_size; }
-    
+
     template<class F>
     void for_each(const F &f)
     {
@@ -74,19 +74,19 @@ public:
         }
         assert(!(_dbgInLoop = false));
     }
-    
+
     id_type insert(T *p)
     {
         id_type where = -1 != _freeTail ? _freeTail : (int) _data.size();
         insert(p, where);
         return where;
     }
-    
+
     void insert(T *p, id_type where)
     {
         assert(InvalidPtr() != p);
         assert(where._id >= 0);
-        
+
         // allocate new free nodes and put them to free list at tail
         int numIds = (int) _data.size();
         if (where._id >= numIds)
@@ -102,14 +102,14 @@ public:
             }
             _freeTail = where._id;
         }
-        
+
         // move node from free to data
         assert(InvalidPtr() == _data[where._id].ptr);
         _data[where._id].ptr = p;
         MoveNode(where._id, _freeTail, _dataTail);
         ++_size;
     }
-    
+
     id_type next(id_type id) const
     {
         assert(id._id >= 0 && id._id < (int) _data.size());
@@ -126,9 +126,9 @@ private:
 		int prev;
         int next;
 	};
-    
+
     std::vector<Node> _data;
-    
+
 	size_t _size;
 	int _dataTail;
     int _freeTail;
@@ -138,7 +138,7 @@ private:
     bool _dbgInLoop = false;
     T* InvalidPtr() const { return (T*) this; }
 #endif
-    
+
     void MoveNode(const int nodeId, int &tailFrom, int &tailTo)
     {
         Node &node = _data[nodeId];
@@ -156,7 +156,7 @@ private:
             _data[tailTo].next = nodeId;
         tailTo = nodeId;
     }
-    
+
     void FreeNode(const int nodeId)
     {
         // remove node from data list

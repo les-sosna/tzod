@@ -13,12 +13,12 @@ public:
 		, _zfunc(std::forward<Args>(args)...)
 	{
 	}
-	
+
 	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override
 	{
 		return _condition(world, actor) ? _zfunc.GetZ(world, actor) : Z_NONE;
 	}
-	
+
 private:
 	std::function<bool(const World &, const GC_Actor &)> _condition;
 	ZFuncType _zfunc;

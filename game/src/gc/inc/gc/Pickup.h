@@ -61,31 +61,31 @@ public:
 	explicit GC_Pickup(vec2d pos);
 	explicit GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
-	
+
 	void Attach(World &world, GC_Vehicle &vehicle);
 
 	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 
 	bool GetAttached() const { return CheckFlags(GC_FLAG_PICKUP_ATTACHED); }
 	float GetRadius() const { return 8.0f; }
-	
+
 	float GetRespawnTime() const;
 	void  SetRespawnTime(float respawnTime);
-	
+
 	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
 	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
-	
+
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
 	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
-	
+
 	float GetTimeAttached() const { assert(GetAttached()); return _timeAttached; }
-	
+
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
-	
+
 	virtual void Detach(World &world);
 	virtual void Disappear(World &world);
 	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const { return true; }
@@ -113,23 +113,23 @@ protected:
 		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 		ObjectProperty _propOnPickup;
-		
+
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	
+
 	virtual PropertySet* NewPropertySet();
-	
+
 private:
 	ObjPtr<GC_HideLabel>  _label;
-	
+
 	std::string  _scriptOnPickup;   // on_pickup(who)
 	float  _timeAttached;
 	float  _timeRespawn;
-	
+
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) = 0;
 };
 
@@ -218,7 +218,7 @@ public:
 	GC_pu_Shock(vec2d pos);
 	GC_pu_Shock(FromFile);
 	virtual ~GC_pu_Shock();
-	
+
 	vec2d GetTargetPos() const { return _targetPos; }
 
 	// GC_Pickup
@@ -239,7 +239,7 @@ private:
 	ObjPtr<GC_Light> _light;
 	ObjPtr<GC_Vehicle> _vehicle;
 	vec2d _targetPos;
-	
+
 	GC_Vehicle *FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const;
 };
 
@@ -265,10 +265,10 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
+
 protected:
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
-	
+
 private:
 	ObjPtr<GC_Weapon> _weapon;
 

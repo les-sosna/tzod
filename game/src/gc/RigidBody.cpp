@@ -50,7 +50,7 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
 	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, false);
-	
+
     GC_Actor::MoveTo(world, pos);
 
     if( GetPassability() > 0 )
@@ -163,7 +163,7 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 	//
 	// project rectDirection to this axes
 	//
-	
+
 	float halfProjThisL = projW_abs * rectHalfSize.x + projL_abs * rectHalfSize.y;
 	float deltaCrossDir = Vec2dCross(delta, GetDirection());
 	depth[2] = GetHalfWidth() + halfProjThisL - fabs(deltaCrossDir);
@@ -189,7 +189,7 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 			mdIndex = i;
 		}
 	}
-	
+
 	// calc normal
 	switch( mdIndex )
 	{
@@ -240,7 +240,7 @@ bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d 
 		sign = 1;
 	}
 
-	vec2d v[4] = 
+	vec2d v[4] =
 	{
 		vec2d(xx - yy, yx + xy),
 		vec2d(xx + yy, -yx + xy),
@@ -323,7 +323,7 @@ void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 	{
 		return;
 	}
-	
+
 	ObjPtr<GC_Object> watch(this);
 	for( auto ls: world.eGC_RigidBodyStatic._listeners )
 	{
@@ -331,7 +331,7 @@ void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 		if( !watch )
 			return;
 	}
-	
+
 	OnDamage(world, dd);
 
 	if( dd.damage > 0 && _health_max > 0 )
@@ -723,7 +723,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 				mdIndex = i;
 			}
 		}
-		
+
 		// calc normal
 		switch( mdIndex )
 		{
@@ -953,9 +953,9 @@ unsigned int GC_Wall::GetCorner(void) const
 void GC_Wall::SetStyle(int style) // 0-3
 {
 	assert(style >= 0 && style < 4);
-	static const int s[] = 
+	static const int s[] =
 	{
-		0, 
+		0,
 		GC_FLAG_WALL_STYLE_BIT_0,
 		GC_FLAG_WALL_STYLE_BIT_1,
 		GC_FLAG_WALL_STYLE_BIT_0|GC_FLAG_WALL_STYLE_BIT_1

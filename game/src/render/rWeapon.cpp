@@ -35,7 +35,7 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 {
 	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
 	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
-	
+
 	float lastShot = weapon.GetLastShotTime();
 	float advance = (world.GetTime() - lastShot) / _duration;
 	if (advance < 1)
@@ -100,5 +100,5 @@ void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
 		vec2d dir = vec2d(world.GetTime() * 5);
 		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
-	}	
+	}
 }

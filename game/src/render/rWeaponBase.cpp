@@ -15,7 +15,7 @@ void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, DrawingContex
 	vec2d pos = weapon.GetPos();
 	vec2d dir = GetWeapSpriteDirection(world, weapon);
 	float shadow = weapon.GetAttached() ? 2.0f : 4.0f;
-	dc.DrawSprite(texId, 0, 0x40000000, pos.x + shadow, pos.y + shadow, dir);	
+	dc.DrawSprite(texId, 0, 0x40000000, pos.x + shadow, pos.y + shadow, dir);
 }
 
 

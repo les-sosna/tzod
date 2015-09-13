@@ -55,7 +55,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(  r_height,         768 )
 	VAR_INT(  r_freq,             0 )
 	VAR_INT(  r_bpp,             32 )
-	VAR_BOOL( r_fullscreen,    true )
+	VAR_BOOL( r_fullscreen,    false )
 	VAR_BOOL( r_askformode,    true )
 	VAR_INT(  r_screenshot,       1 )
 

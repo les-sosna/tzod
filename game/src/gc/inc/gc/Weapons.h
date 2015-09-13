@@ -10,7 +10,7 @@ class GC_Weap_RocketLauncher : public GC_ProjectileBasedWeapon
 public:
 	explicit GC_Weap_RocketLauncher(vec2d pos);
 	explicit GC_Weap_RocketLauncher(FromFile);
-	
+
 	enum
 	{
 		SERIES_LENGTH = 6
@@ -22,7 +22,7 @@ public:
 	virtual float GetReloadTime() const override { return GetBooster() ? 0.13f : 2.0f; }
 	virtual unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : SERIES_LENGTH; }
 	virtual float GetSeriesReloadTime() const override { return 0.13f; }
-	
+
 	// GC_Weapon
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
@@ -40,7 +40,7 @@ class GC_Weap_AutoCannon : public GC_ProjectileBasedWeapon
 public:
 	explicit GC_Weap_AutoCannon(vec2d pos);
 	explicit GC_Weap_AutoCannon(FromFile);
-	
+
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.2f; }
 	virtual float GetReloadTime() const override { return GetBooster() ? 0.135f : 3.7f; }
@@ -92,7 +92,7 @@ private:
 class GC_Weap_Plazma : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Plazma);
-	
+
 public:
 	explicit GC_Weap_Plazma(vec2d pos);
 	explicit GC_Weap_Plazma(FromFile);
@@ -114,7 +114,7 @@ protected:
 class GC_Weap_Gauss : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Gauss);
-	
+
 public:
 	explicit GC_Weap_Gauss(vec2d pos);
 	explicit GC_Weap_Gauss(FromFile);
@@ -122,7 +122,7 @@ public:
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.15f; }
 	virtual float GetReloadTime() const { return 1.3f; }
-	
+
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
@@ -136,12 +136,12 @@ protected:
 class GC_Weap_Ram : public GC_Weapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_Ram);
-	
+
 public:
 	explicit GC_Weap_Ram(vec2d pos);
 	explicit GC_Weap_Ram(FromFile);
 	virtual ~GC_Weap_Ram();
-	
+
 	float GetFuel() const { return _fuel; }
 	float GetFuelMax() const { return _fuel_max; }
 
@@ -154,7 +154,7 @@ public:
 
 	// GC_Pickup
 	virtual void Detach(World &world) override;
-	
+
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
@@ -166,7 +166,7 @@ private:
 	vec2d GetEngineLightPos() const;
 	virtual void OnUpdateView(World &world);
 	ObjPtr<GC_Light> _engineLight;
-	
+
 	float _fuel;
 	float _fuel_max;
 	float _fuel_consumption_rate;
@@ -179,7 +179,7 @@ private:
 class GC_Weap_BFG : public GC_ProjectileBasedWeapon
 {
 	DECLARE_SELF_REGISTRATION(GC_Weap_BFG);
-	
+
 public:
 	explicit GC_Weap_BFG(vec2d pos);
 	explicit GC_Weap_BFG(FromFile);
@@ -190,11 +190,11 @@ public:
 	virtual float GetReloadTime() const { return 1.1f; }
 	virtual unsigned int GetSeriesLength() const override { return 2; }
 	virtual float GetSeriesReloadTime() const override { return GetBooster() ? 0.0f : 0.7f; }
-	
+
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	
+
 protected:
 	virtual void OnShoot(World &world) override;
 };
@@ -212,11 +212,11 @@ public:
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 0.5f; }
-	
+
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings);
-	
+
 protected:
 	virtual void OnShoot(World &world) override;
 };
@@ -237,11 +237,11 @@ public:
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const override { return 0.1f; }
 	virtual float GetReloadTime() const override { return GetBooster() ? 0.02f : 0.04f; }
-	
+
 	// GC_Weapon
 	virtual void AdjustVehicleClass(VehicleClass &vc) const override;
 	virtual void SetupAI(AIWEAPSETTINGS *pSettings) override;
-	
+
 	// GC_Pickup
 	virtual void Detach(World &world) override;
 
@@ -265,7 +265,7 @@ public:
 	explicit GC_Weap_Zippo(vec2d pos);
 	explicit GC_Weap_Zippo(FromFile);
 	virtual ~GC_Weap_Zippo();
-	
+
 	// GC_ProjectileBasedWeapon
 	virtual float GetFireEffectTime() const { return 0; }
 	virtual float GetReloadTime() const { return 0.02f; }
@@ -280,7 +280,7 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
+
 protected:
 	virtual void OnShoot(World &world) override;
 

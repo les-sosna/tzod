@@ -57,7 +57,7 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 			}
 			const unsigned char &chunkheader = h.data[currentbyte++];
 
-			if( chunkheader < 128 )    // If the header is < 128, it means the that is the number 
+			if( chunkheader < 128 )    // If the header is < 128, it means the that is the number
 			{                          // of RAW color packets minus 1 that follow the header
 				// Read RAW color values
 				int pcount = chunkheader + 1;

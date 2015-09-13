@@ -28,33 +28,33 @@ public:
 	explicit GC_RigidBodyStatic(vec2d pos);
 	explicit GC_RigidBodyStatic(FromFile);
 	virtual ~GC_RigidBodyStatic();
-	
+
 	const std::string& GetOnDestroy() const { return _scriptOnDestroy; }
 	const std::string& GetOnDamage() const { return _scriptOnDamage; }
-	
+
 	void SetHealth(float cur, float max);
 	void SetHealth(float hp);
 	void SetHealthMax(float hp);
 	float GetHealth() const { return _health; }
 	float GetHealthMax() const { return _health_max; }
-	
+
 	void SetSize(float width, float length);
 	float GetHalfWidth() const { return _width/2; }
 	float GetHalfLength() const { return _length/2; }
 	float GetRadius() const { return _radius; }
 	vec2d GetVertex(int index) const;
 	bool GetTrace0() const { return CheckFlags(GC_FLAG_RBSTATIC_TRACE0); }
-	
+
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
-	
+
 	// return true if object has been killed
 	void TakeDamage(World &world, DamageDesc dd);
-	
+
 	virtual float GetDefaultHealth() const = 0;
 	virtual unsigned char GetPassability() const = 0;
 	virtual GC_Player* GetOwner() const { return NULL; }
-    
+
     // GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos);
 
@@ -127,13 +127,13 @@ public:
 	explicit GC_Wall(vec2d pos);
 	GC_Wall(FromFile);
 	virtual ~GC_Wall();
-	
+
 	void SetCorner(World &world, unsigned int index); // 01
 	unsigned int GetCorner(void) const; // 32
-	
+
 	void SetStyle(int style); // 0-3
 	int GetStyle() const;
-	
+
 	// GC_RigidBodyStatic
 	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
 	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
@@ -159,7 +159,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
-	
+
 	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };
@@ -175,7 +175,7 @@ public:
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
 	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
-	
+
 protected:
 	virtual void OnDamage(World &world, DamageDesc &dd) override;
 };

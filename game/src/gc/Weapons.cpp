@@ -53,11 +53,11 @@ void GC_Weap_RocketLauncher::OnShoot(World &world)
 	float dy = (0.5f - (float) nshots / (float) (SERIES_LENGTH - 1)) * 15.0f;
 
 	SetLastShotPos(vec2d(13, dy));
-	
+
 	vec2d dir = GetDirection();
 	float ax = dir.x * 15.0f + dy * dir.y;
 	float ay = dir.y * 15.0f - dy * dir.x;
-	
+
 	auto &rocket = world.New<GC_Rocket>(GetPos() + vec2d(ax, ay),
 										Vec2dAddDirection(dir, vec2d(world.net_frand(0.1f) - 0.05f)) * SPEED_ROCKET,
 										GetVehicle(),
@@ -104,17 +104,17 @@ void GC_Weap_AutoCannon::AdjustVehicleClass(VehicleClass &vc) const
 void GC_Weap_AutoCannon::OnShoot(World &world)
 {
 	vec2d dir = GetDirection();
-	
+
 	if (GetBooster())
 	{
 		SetLastShotPos(vec2d(17.0f, 0));
 		for( int t = 0; t < 2; ++t )
 		{
 			float dy = t == 0 ? -9.0f : 9.0f;
-			
+
 			float ax = dir.x * 17.0f - dy * dir.y;
 			float ay = dir.y * 17.0f + dy * dir.x;
-			
+
 			world.New<GC_ACBullet>(GetPos() + vec2d(ax, ay),
 								   dir * SPEED_ACBULLET,
 								   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
@@ -124,10 +124,10 @@ void GC_Weap_AutoCannon::OnShoot(World &world)
 	{
 		float dy = (GetNumShots() % 2) == 0 ? -9.0f : 9.0f;
 		SetLastShotPos(vec2d(17.0f, -dy));
-		
+
 		float ax = dir.x * 17.0f - dy * dir.y;
 		float ay = dir.y * 17.0f + dy * dir.x;
-		
+
 		world.New<GC_ACBullet>(GetPos() + vec2d(ax, ay),
 							   Vec2dAddDirection(dir, vec2d(world.net_frand(0.02f) - 0.01f)) * SPEED_ACBULLET,
 							   GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
@@ -194,10 +194,10 @@ void GC_Weap_Cannon::OnShoot(World &world)
 	_time_smoke = 0.3f;
 
 	const vec2d &dir = GetDirection();
-	
+
 	world.New<GC_TankBullet>(GetPos() + dir * 17.0f, dir * SPEED_TANKBULLET + world.net_vrand(50),
 							 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
-	
+
 	if( !GetBooster() )
 	{
 		GetVehicle()->ApplyImpulse( dir * (-80.0f) );
@@ -352,7 +352,7 @@ void GC_Weap_Ram::OnAttached(World &world, GC_Vehicle &vehicle)
 	_fuel_consumption_rate = 0.2f;
 	_fuel_recuperation_rate  = 0.1f;
 	_bReady = true;
-	
+
 	GC_Weapon::OnAttached(world, vehicle);
 }
 
@@ -428,7 +428,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 	if( GetAttached() && GetFire() )
 	{
 		vec2d v = GetVehicle()->_lv;
-		
+
 		// primary
 		{
 			const vec2d &a = GetDirection();
@@ -441,8 +441,8 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 				world.New<GC_Particle>(emitter + dx, v - a * frand(800.0f) - dx / time, fabs(t) > 1.5 ? PARTICLE_FIRE2 : PARTICLE_YELLOW, time);
 			}
 		}
-		
-		
+
+
 		// secondary
 		for( float l = -1; l < 2; l += 2 )
 		{
@@ -457,7 +457,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 			}
 		}
 	}
-	
+
 	if( GetAttached() )
 	{
 		if( GetBooster() )
@@ -643,10 +643,10 @@ void GC_Weap_Minigun::OnShoot(World &world)
 	_heat = std::min(GetHeat(world) + GetReloadTime() * 3, WEAP_MG_TIME_RELAX);
 
 	float da = _heat * 0.07f / WEAP_MG_TIME_RELAX;
-	
+
 	vec2d a = Vec2dAddDirection(GetDirection(), vec2d(world.net_frand(da * 2.0f) - da));
 	a *= (1 - world.net_frand(0.2f));
-	
+
 	if( !GetBooster() )
 	{
 		if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _heat - WEAP_MG_TIME_RELAX * 0.2f )
@@ -655,7 +655,7 @@ void GC_Weap_Minigun::OnShoot(World &world)
 			GetVehicle()->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
 		}
 	}
-	
+
 	world.New<GC_Bullet>(GetPos() + a * 18.0f, a * SPEED_BULLET,
 						 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
@@ -718,10 +718,10 @@ void GC_Weap_Zippo::OnShoot(World &world)
 	_heat = std::min(_heat + GetReloadTime() * 2, WEAP_ZIPPO_TIME_RELAX);
 
 	vec2d vvel = GetVehicle()->_lv;
-	
+
 	vec2d a(GetDirection());
 	a *= (1 - world.net_frand(0.2f));
-	
+
 	auto &tmp = world.New<GC_FireSpark>(GetPos() + a * 18.0f, vvel + a * SPEED_FIRE,
 										GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 	tmp.SetLifeTime(_heat);

@@ -14,7 +14,7 @@ void R_Turret::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 {
 	assert(dynamic_cast<const GC_Turret*>(&actor));
 	auto &turret = static_cast<const GC_Turret&>(actor);
-	
+
 	vec2d pos = turret.GetPos();
 	vec2d dir = turret.GetDirection();
 	vec2d weapDir = vec2d(turret.GetWeaponDir());

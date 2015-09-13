@@ -26,7 +26,7 @@ public:
 	GC_RigidBodyStatic* GetIgnore() const { return _ignore; }
 	GC_Player* GetOwner() const { return _owner; }
 	float GetVelocity() const { return _velocity; }
-	
+
 	// GC_Actor
 	virtual void MoveTo(World &world, const vec2d &pos) override;
 
@@ -50,7 +50,7 @@ protected:
 	void MoveWithTrail(World &world, const vec2d &pos, bool trail);
 	void SetTrailDensity(float density);
 	void SetVelocity(float v) { _velocity = v; }
-	
+
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) = 0;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) = 0;
 
@@ -74,17 +74,17 @@ public:
 	GC_Rocket(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Rocket(FromFile);
 	virtual ~GC_Rocket();
-	
+
 	void SelectTarget(World &world);
 
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
-	
+
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
-	
+
 private:
 	ObjPtr<GC_RigidBodyDynamic> _target;
 	float _timeHomming;
@@ -103,7 +103,7 @@ public:
 	// GC_Object
 	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
-	
+
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
@@ -121,7 +121,7 @@ class GC_TankBullet : public GC_Projectile
 public:
 	GC_TankBullet(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_TankBullet(FromFile);
-	
+
 	// GC_Object
 	virtual void Init(World &world) override;
 
@@ -182,7 +182,7 @@ class GC_FireSpark : public GC_Projectile
 public:
 	GC_FireSpark(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_FireSpark(FromFile);
-	
+
 	float GetRadius() const { return (_time + 0.2f) * 50; }
 	void SetHealOwner(bool heal);
 	void SetLifeTime(float t);
@@ -192,7 +192,7 @@ public:
 	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
-	
+
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
@@ -212,7 +212,7 @@ class GC_ACBullet : public GC_Projectile
 public:
 	GC_ACBullet(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_ACBullet(FromFile);
-	
+
 	// GC_Object
 	virtual void Init(World &world) override;
 
@@ -230,16 +230,16 @@ class GC_GaussRay : public GC_Projectile
 public:
 	GC_GaussRay(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_GaussRay(FromFile);
-	
+
 	// GC_Object
 	virtual void Init(World &world) override;
     virtual void Kill(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
-	
+
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
-	
+
 private:
 	float _damage;
 };
@@ -253,10 +253,10 @@ class GC_Disk : public GC_Projectile
 public:
 	GC_Disk(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player* owner, bool advanced);
 	GC_Disk(FromFile);
-	
+
 	unsigned int GetBounces() const { return _bounces; }
 	void SetBounces(unsigned int bounces) { _bounces = bounces; }
-	
+
 	// GC_Object
 	virtual void Init(World &world) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
@@ -264,7 +264,7 @@ public:
 protected:
 	virtual bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
 	virtual void SpawnTrailParticle(World &world, const vec2d &pos) override;
-	
+
 private:
 	unsigned int _bounces;
 };

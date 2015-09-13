@@ -33,7 +33,7 @@ public:
 	{
 		_listeners.push_back(&ls);
 	}
-	
+
 	void RemoveListener(ObjectListener<T> &ls)
 	{
 		auto it = std::find(_listeners.begin(), _listeners.end(), &ls);
@@ -56,7 +56,7 @@ class ResumableObject
     ResumableObject& operator = (const ResumableObject&) = delete;
 public:
 	void Cancel() { ptr = nullptr; }
-	
+
 private:
 	friend class World;
 	explicit ResumableObject(GC_Object &obj) : ptr(&obj) {}
@@ -69,9 +69,9 @@ class World
 {
 	World(const World&) = delete;
 	World& operator=(const World&) = delete;
-	
+
 	friend class GC_Object;
-	
+
 	void OnKill(GC_Object &obj);
 
 	std::map<const GC_Object*, std::string>  _objectToStringMap;
@@ -102,7 +102,7 @@ public:
 	int _frame;
 	FILE *_dump;
 #endif
-	
+
 	static const unsigned int NET_RAND_MAX = 0xffff;
 
 	PtrList<GC_Object>& GetList(GlobalListID id) { return _objectLists[id]; }
@@ -139,7 +139,7 @@ public:
 
 	World(int X, int Y);
 	~World();
-	
+
 	void Step(float dt);
 
 
@@ -216,9 +216,9 @@ public:
     uint32_t GetChecksum() const { return _checksum; }
     unsigned int GetFrame() const { return _frame; }
 #endif
-	
+
 	ResumableObject* Timeout(GC_Object &obj, float timeout);
-	
+
 private:
 	struct Resumable
 	{

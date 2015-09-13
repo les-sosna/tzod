@@ -130,7 +130,7 @@ protected:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-    
+
 class EditorLayout : public Window
 {
 	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;

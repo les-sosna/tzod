@@ -23,7 +23,7 @@ class GC_Turret : public GC_RigidBodyStatic
 {
     DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyStatic base;
-	
+
 protected:
 	static JobManager<GC_Turret> _jobManager;
 	ObjPtr<GC_Vehicle> _target;
@@ -41,26 +41,26 @@ public:
 	GC_Turret(vec2d pos, TurretState state);
 	GC_Turret(FromFile);
 	virtual ~GC_Turret();
-	
+
 	bool GetFire() const { return CheckFlags(GC_FLAG_TURRET_FIRE); }
 	RotatorState GetRotationState() const { return _rotator.GetState(); }
 	float GetRotationRate() const { return _rotator.GetVelocity() / _rotator.GetMaxVelocity(); }
 	float GetWeaponDir() const { return _dir; }
 	int GetTeam() const { return _team; }
 	TurretState GetState() const { return _state; }
-	
+
 	virtual float GetReadyState() const { return 1; }
     virtual void SetInitialDir(float initialDir);
 
 	// GC_RigidBodyStatic
 	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
-	
+
 	// GC_Object
 	virtual void Kill(World &world) override;
 	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
 	virtual void TimeStep(World &world, float dt) override;
-	
+
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
@@ -75,7 +75,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	virtual PropertySet* NewPropertySet();
-	
+
 	void SetState(World &world, TurretState state);
 
 protected:
@@ -112,7 +112,7 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
+
 protected:
 	virtual void OnShoot(World &world) override;
 
@@ -141,7 +141,7 @@ public:
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);
-	
+
 protected:
 	virtual void OnShoot(World &world) override;
 
@@ -176,9 +176,9 @@ public:
 	explicit GC_TurretBunker(vec2d pos);
 	explicit GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
-	
+
 	virtual float GetReadyState() const { return _time_wake / _time_wake_max; }
-    
+
     virtual void SetInitialDir(float initialDir);
 
 	// GC_Object
@@ -204,10 +204,10 @@ public:
 	// GC_Turret
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
 	virtual unsigned char GetPassability() const { return 1; }
-	
+
 	// GC_RigidBodyStatic
 	virtual float GetDefaultHealth() const { return 250; }
-    
+
 	// GC_Object
 	virtual void Serialize(World &world, SaveFile &f);
 	virtual void TimeStep(World &world, float dt);

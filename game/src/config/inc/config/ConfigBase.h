@@ -154,7 +154,7 @@ public:
 
 	void      Resize(size_t newSize);
 	size_t    GetSize() const;
-	
+
 	ConfVar*  GetAt(size_t index) const;
 	void      RemoveAt(size_t index);
 

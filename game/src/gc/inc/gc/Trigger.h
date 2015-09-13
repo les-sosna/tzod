@@ -52,7 +52,7 @@ public:
 	explicit GC_Trigger(vec2d pos);
 	explicit GC_Trigger(FromFile);
 	~GC_Trigger();
-	
+
 	const std::string& GetOnEnter() const { return _onEnter; }
 	const std::string& GetOnLeave() const { return _onLeave; }
 

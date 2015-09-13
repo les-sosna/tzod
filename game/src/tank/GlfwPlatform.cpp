@@ -27,7 +27,7 @@ vec2d GlfwInput::GetMousePos() const
 GlfwClipboard::GlfwClipboard(GLFWwindow &window)
 	: _window(window)
 {}
-	
+
 const char* GlfwClipboard::GetClipboardText() const
 {
 	return glfwGetClipboardString(&_window);
@@ -103,31 +103,31 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 }
 
 static void OnPrintScreen()
-{	
+{
 	/*
 	 // generate a file name
-	 
+
 	 CreateDirectory(DIR_SCREENSHOTS, NULL);
 	 SetCurrentDirectory(DIR_SCREENSHOTS);
-	 
+
 	 int n = g_conf.r_screenshot.GetInt();
 	 char name[MAX_PATH];
 	 for(;;)
 	 {
 		sprintf(name, "screenshot%04d.tga", n);
-	 
+
 		WIN32_FIND_DATA fd = {0};
 		HANDLE h = FindFirstFile(name, &fd);
-	 
+
 		if( INVALID_HANDLE_VALUE == h )
 	 break;
-	 
+
 		FindClose(h);
 		n++;
 	 }
-	 
+
 	 g_conf.r_screenshot.SetInt(n);
-	 
+
 	 if( !g_render->TakeScreenshot(name) )
 	 {
 		GetConsole().WriteLine(1, "screenshot failed");
@@ -137,7 +137,7 @@ static void OnPrintScreen()
 	 {
 		TRACE("Screenshot '%s'", name);
 	 }
-	 
+
 	 SetCurrentDirectory(".."); */
 }
 

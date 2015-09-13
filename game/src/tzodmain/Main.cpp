@@ -143,7 +143,7 @@ int main(int, const char**)
 
 		TRACE("Mount file system");
 		std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
-		
+
 		// load config
 		try
 		{
@@ -151,7 +151,7 @@ int main(int, const char**)
 			if( FILE *f = fopen(FILE_CONFIG, "r") )
 			{
 				fclose(f);
-				
+
 				if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
 				{
 					GetConsole().Format(1) << "Failed to load config file.";
@@ -162,7 +162,7 @@ int main(int, const char**)
 		{
 			TRACE("Could not load config file: %s", e.what());
 		}
-		
+
 		TRACE("Localization init...");
 		try
 		{
@@ -180,7 +180,7 @@ int main(int, const char**)
 
 		TRACE("Create GL context");
 		GlfwAppWindow appWindow(TXT_VERSION, g_conf.r_fullscreen.Get(), g_conf.r_width.GetInt(), g_conf.r_height.GetInt());
-		
+
 		glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
 		glfwSwapInterval(1);
 
@@ -261,8 +261,8 @@ int main(int, const char**)
 //                });
 //            }
 //            soundView.SetListenerPos(pos);
-            
-            
+
+
 			soundView.Step();
 #endif
 

@@ -20,26 +20,26 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 {
 	assert(object);
 	assert(_objCount < 255);
-    
+
 #ifndef NDEBUG
 	for( int i = 0; i < _objCount; ++i )
 	{
 		assert(object != _ppObjects[i]);
 	}
 #endif
-    
+
 	GC_RigidBodyStatic **tmp = new GC_RigidBodyStatic* [_objCount + 1];
-    
+
 	if( _ppObjects )
 	{
 		assert(_objCount > 0);
         std::memcpy(tmp, _ppObjects, sizeof(GC_RigidBodyStatic*) * _objCount);
 		delete[] _ppObjects;
 	}
-    
+
 	_ppObjects = tmp;
 	_ppObjects[_objCount++] = object;
-    
+
 	UpdateProperties();
 }
 
@@ -47,7 +47,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 {
 	assert(object);
 	assert(_objCount > 0);
-    
+
 	if( 1 == _objCount )
 	{
 		assert(object == _ppObjects[0]);
@@ -69,7 +69,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 		delete[] _ppObjects;
 		_ppObjects = tmp;
 	}
-    
+
 	UpdateProperties();
 }
 
@@ -80,7 +80,7 @@ Field::Field()
 	_cells = NULL;
 	_cx    = 0;
 	_cy    = 0;
-    
+
 	_edgeCell._prop = 0xFF;
 	_edgeCell._x    = -1;
 	_edgeCell._y    = -1;
@@ -131,14 +131,14 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 {
 	float r = object->GetRadius() / CELL_SIZE;
 	vec2d p = object->GetPos() / CELL_SIZE;
-    
+
 	assert(r >= 0);
-    
+
 	int xmin = std::max(0,       int(p.x - r + 0.5f));
 	int xmax = std::min(_cx - 1, int(p.x + r + 0.5f));
 	int ymin = std::max(0,       int(p.y - r + 0.5f));
 	int ymax = std::min(_cy - 1, int(p.y + r + 0.5f));
-    
+
 	for( int x = xmin; x <= xmax; x++ )
         for( int y = ymin; y <= ymax; y++ )
         {

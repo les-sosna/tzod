@@ -13,7 +13,7 @@ class AppController
 public:
     AppController(FS::FileSystem &fs);
     void NewGameDM(AppState &appState, const std::string &mapName, const DMSettings &settings);
-    
+
 private:
     FS::FileSystem &_fs;
 };

@@ -237,7 +237,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 //		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
-        
+
         // TODO: animation
 //		tmp->SetEvents(world, tmp->_frameRate > 0 ? GC_FLAG_OBJECT_EVENTS_TS_FIXED : 0);
 	}

@@ -108,16 +108,16 @@ int world_object(lua_State *L)
 	{
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
-	
+
 	const char *name = luaL_checkstring(L, 1);
-	
+
     World &world = luaT_getworld(L);
 	GC_Object *obj = world.FindObject(name);
 	if( !obj )
 	{
 		luaL_error(L, "object with name '%s' does not exist", name);
 	}
-	
+
 	luaT_pushobject(L, obj);
 	return 1;
 }

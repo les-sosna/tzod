@@ -22,7 +22,7 @@ public:
     void Shake(float level);
 
 	void Serialize(World &world, SaveFile &f);
-    
+
 private:
     unsigned int _index;
     vec2d _pos;

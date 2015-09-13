@@ -16,7 +16,7 @@ public:
 	GC_HealthDaemon(vec2d pos, GC_Player *owner, float damagePerSecond, float time);
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
-    
+
     void SetVictim(World &world, GC_RigidBodyStatic *victim);
 
 	virtual void Serialize(World &world, SaveFile &f);
@@ -25,7 +25,7 @@ public:
 private:
 	float _time;
 	float _damage; //  hp per sec
-	
+
 	ObjPtr<GC_RigidBodyStatic> _victim;
 	ObjPtr<GC_Player> _owner;
 };
@@ -65,7 +65,7 @@ public:
 	virtual ~GC_Wood();
 
 	void SetTile(char nTile, bool value);
-    
+
     // GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos) override;
 
@@ -88,11 +88,11 @@ public:
 		SCORE_PLUS,
 		SCORE_MINUS,
 	};
-	
+
 	GC_Text(vec2d pos, std::string text);
 	explicit GC_Text(FromFile) : GC_Actor(FromFile()) {}
 	virtual ~GC_Text() = 0;
-	
+
 	void SetText(std::string text) { _text = std::move(text); }
 	void SetStyle(Style style) { _style = style; }
 	Style GetStyle() const { return _style; }

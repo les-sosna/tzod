@@ -25,14 +25,14 @@ public:
 	explicit GC_Weapon(vec2d pos);
 	explicit GC_Weapon(FromFile);
 	virtual ~GC_Weapon();
-	
+
 	GC_pu_Booster* GetBooster() const { return _booster; }
 	float GetDetachedTime() const { return _detachedTime; }
 	float GetStayTimeout() const { return _stayTimeout; }
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	RotatorState GetRotationState() const { return _rotatorWeap.GetState(); }
 	float GetRotationRate() const { return _rotatorWeap.GetVelocity() / _rotatorWeap.GetMaxVelocity(); }
-	
+
 	virtual void Fire(World &world, bool fire);
 	virtual bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
 	virtual void SetBooster(World &world, GC_pu_Booster *booster) { _booster = booster; }
@@ -45,10 +45,10 @@ public:
 	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
 	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
-	
+
 	// GC_Actor
 	virtual void MoveTo(World &world, const vec2d &pos) override;
-	
+
 	// GC_Object
 	virtual void Kill(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
@@ -68,7 +68,7 @@ protected:
 	{
 		typedef GC_Pickup::MyPropertySet BASE;
 		ObjectProperty _propTimeStay;
-		
+
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -85,7 +85,7 @@ private:
 	Rotator _rotatorWeap;
 	ObjPtr<GC_pu_Booster> _booster;
 	ObjPtr<GC_Vehicle> _vehicle;
-	
+
 	virtual void OnUpdateView(World &world) {};
 	void ProcessRotate(World &world, float dt);
 };

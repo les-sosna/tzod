@@ -9,7 +9,7 @@ DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, uns
 	memset(&_viewport, 0, sizeof(_viewport));
 	_viewport.right = width;
 	_viewport.bottom = height;
-    _tm.GetRender().OnResizeWnd(width, height);
+	_tm.GetRender().OnResizeWnd(width, height);
 }
 
 void DrawingContext::PushClippingRect(const RectRB &rect)
@@ -264,7 +264,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 			++tmp;
 			if( '\n' == *tmp || '\0' == *tmp )
 			{
-				if( maxline < count ) 
+				if( maxline < count )
 					maxline = count;
 				lines.push_back(count);
 				count = 0;
@@ -579,19 +579,19 @@ void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, v
 		v[i+1].y = pos.y - x*dir.y + y*dir.x;
 		v[i+1].color.color = 0x00000000;
 	}
-	
+
 	v[(SINTABLE_SIZE>>2)+2].color.color = 0x00000000;
 	v[(SINTABLE_SIZE>>2)+2].x = pos.x + length * dir.x + radius*dir.y;
 	v[(SINTABLE_SIZE>>2)+2].y = pos.y + length * dir.y - radius*dir.x;
-	
+
 	v[(SINTABLE_SIZE>>2)+3].color = color;
 	v[(SINTABLE_SIZE>>2)+3].x = pos.x + length * dir.x;
 	v[(SINTABLE_SIZE>>2)+3].y = pos.y + length * dir.y;
-	
+
 	v[(SINTABLE_SIZE>>2)+4].color.color = 0x00000000;
 	v[(SINTABLE_SIZE>>2)+4].x = pos.x + length * dir.x - radius*dir.y;
 	v[(SINTABLE_SIZE>>2)+4].y = pos.y + length * dir.y + radius*dir.x;
-	
+
 	v = render.DrawFan((SINTABLE_SIZE>>2)+1);
 	v[0].color = color;
 	v[0].x = pos.x + length * dir.x;

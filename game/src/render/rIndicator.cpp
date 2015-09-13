@@ -16,7 +16,7 @@ void R_HealthIndicator::Draw(const World &world, const GC_Actor &actor, DrawingC
 {
 	assert(dynamic_cast<const GC_RigidBodyStatic*>(&actor));
 	auto &rigidBody = static_cast<const GC_RigidBodyStatic&>(actor);
-	
+
 	vec2d pos = rigidBody.GetPos();
 	float radius = _dynamic ? rigidBody.GetRadius() : rigidBody.GetHalfWidth();
 	float val = rigidBody.GetHealth() / rigidBody.GetHealthMax();

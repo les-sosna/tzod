@@ -19,7 +19,7 @@ template
 class MemoryPool
 {
     struct Block;
-    
+
 	struct BlankObject
 	{
 		union
@@ -98,7 +98,7 @@ class MemoryPool
                 tmp->_dbgBusy = true;
 #endif
 				_firstFreeBlank = _firstFreeBlank->_next;
-				if( _firstFreeBlank ) 
+				if( _firstFreeBlank )
 					_firstFreeBlank->_prev = NULL;
 				return tmp;
 			}

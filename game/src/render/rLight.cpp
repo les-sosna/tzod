@@ -10,7 +10,7 @@ enumZOrder Z_Light::GetZ(const World &world, const GC_Actor &actor) const
 	auto &light = static_cast<const GC_Light&>(actor);
 	return GC_Light::LIGHT_SPOT == light.GetLightType() && light.GetActive() ? Z_PARTICLE : Z_NONE;
 }
-	
+
 R_Light::R_Light(TextureManager &tm)
 	: _texId(tm.FindSprite("shine"))
 {

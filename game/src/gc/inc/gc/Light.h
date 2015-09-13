@@ -34,15 +34,15 @@ public:
 	GC_Light(vec2d pos, enumLightType type);
 	explicit GC_Light(FromFile);
 	virtual ~GC_Light();
-	
+
 	enumLightType GetLightType() const { return _type; }
 
 	void SetIntensity(float i) { _intensity = i; }
 	float GetIntensity() const { return _intensity; }
-	
+
 	void SetAspect(float a) { _aspect = a; }
 	float GetAspect() const { return _aspect; }
-	
+
 	void SetRadius(float r)
 	{
 		if( LIGHT_DIRECT == _type )
@@ -124,7 +124,7 @@ public:
 	virtual void Kill(World &world) override;
 	virtual void MapExchange(MapFile &f) override;
 	virtual void Serialize(World &world, SaveFile &f) override;
-	
+
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
 	{

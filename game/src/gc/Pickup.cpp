@@ -83,7 +83,7 @@ void GC_Pickup::Disappear(World &world)
 {
 	for( auto ls: world.eGC_Pickup._listeners )
 		ls->OnDisappear(*this);
-	
+
 	if( GetAttached() )
 		Detach(world);
     SetVisible(false);
@@ -119,7 +119,7 @@ void GC_Pickup::TimeStep(World &world, float dt)
 			SetVisible(true);
 			for( auto ls: world.eGC_Pickup._listeners )
 				ls->OnRespawn(*this);
-			
+
 			for( int n = 0; n < 50; ++n )
 			{
 				vec2d a(PI2 * (float) n / 50);
@@ -544,7 +544,7 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 	{
 		if( w->GetBooster() )
 			w->GetBooster()->Disappear(world);
-		
+
 		_weapon = w;
 		_weapon->SetBooster(world, this);
 	}

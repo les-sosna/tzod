@@ -37,15 +37,15 @@ void RunCmdQueue(lua_State *L, float dt, ScriptMessageSink &msgSink)
 	assert(LUA_TFUNCTION == lua_type(L, -1));
 	lua_getupvalue(L, -1, 1);
 	int queueidx = lua_gettop(L);
-    
+
 	for( lua_pushnil(L); lua_next(L, queueidx); lua_pop(L, 1) )
 	{
 		// -2 -> key; -1 -> value(table)
-        
+
 		lua_rawgeti(L, -1, 2);
 		lua_Number time = lua_tonumber(L, -1) - dt;
 		lua_pop(L, 1);
-        
+
 		if( time <= 0 )
 		{
 			// call function and remove it from queue
@@ -66,7 +66,7 @@ void RunCmdQueue(lua_State *L, float dt, ScriptMessageSink &msgSink)
 			lua_rawseti(L, -2, 2);
 		}
 	}
-    
+
 	assert(lua_gettop(L) == queueidx);
 	lua_pop(L, 2); // pop results of lua_getglobal and lua_getupvalue
 }
@@ -138,12 +138,12 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 #ifdef _DEBUG
 		{LUA_DBLIBNAME, luaopen_debug},
 #endif
-		
+
 		// game libs
 //		{"game", luaopen_game},
 		{"object", luaopen_object},
 		{"world", luaopen_world},
-		
+
 		{NULL, NULL}
 	};
 
@@ -153,7 +153,7 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 		lua_pushstring(L, lib->name);
 		lua_call(L, 1, 0);
 	}
-    
+
 	// set script environment
     lua_pushlightuserdata(L, &world);
     lua_setfield(L, LUA_REGISTRYINDEX, "WORLD");
@@ -187,7 +187,7 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 
 	lua_newtable(L);
 	lua_setglobal(L, "user");
-	
+
 	return L;
 }
 

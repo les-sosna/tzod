@@ -57,7 +57,7 @@ void FpsCounter::OnTimeStep(float dt)
 			s << std::setfill(' ');
 			s << "; obj:" << gc->GetWorld().GetList(LIST_objects).size() << '\n';
 			s << std::setw(4) << gc->GetWorld().GetList(LIST_timestep).size() << "timestep";
-			
+
 #ifndef NDEBUG
 			s << " " << std::setw(4) << gc->GetWorld()._garbage.size() << "garbage";
 #endif
@@ -69,7 +69,7 @@ void FpsCounter::OnTimeStep(float dt)
 		{
 		//	NetworkStats ns;
 		//	g_client->GetStatistics(&ns);
-		//	sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f", 
+		//	sprintf_s(s1, "\nsent:%uk; recv:%uk pending:%u timebuf:%f",
 		//		ns.bytesSent>>10, ns.bytesRecv>>10, ns.bytesPending, world._timeBuffer);
 		//	strcat(s, s1);
 

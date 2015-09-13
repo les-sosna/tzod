@@ -20,7 +20,7 @@ enum RotatorState
 	RS_GETTING_ANGLE    // rotation with the constant speed
 };
 
-// Rotator goes from RS_DEACTIVATED and RS_GETTING_ANGLE modes 
+// Rotator goes from RS_DEACTIVATED and RS_GETTING_ANGLE modes
 // to the RS_STOPPED mode automatically
 
 class SaveFile;
@@ -57,14 +57,14 @@ public:
 
 private:
 	RotatorState _state;
-	
+
 	float _angle_target;
 	float _velocity_current;
 	float _velocity_limit;
 	float _accel_current;
 	float _accel_stop;
 	float &_rCurrent;
-	
+
 	void ga_t3(float t, float as);
 	void ga_t2(float t, float ac, float as, float xt);
 	void ga_t1(float t, float ac, float as, float vl, float xt);

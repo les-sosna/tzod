@@ -69,7 +69,7 @@ void NewMapDlg::OnOK()
 {
 	g_conf.ed_width.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _width->GetInt())));
 	g_conf.ed_height.SetInt(std::max(LEVEL_MINSIZE, std::min(LEVEL_MAXSIZE, _height->GetInt())));
-	
+
 	Close(_resultOK);
 }
 
@@ -77,9 +77,9 @@ void NewMapDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
-	
+
 static void LoadFromConfig(PropertySet &ps)
 {
 	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
@@ -252,7 +252,7 @@ void PropertyList::DoExchange(bool applyToObject)
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
-			
+
 			std::stringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
@@ -646,7 +646,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 {
     GC_Actor* zLayers[Z_COUNT];
     memset(zLayers, 0, sizeof(zLayers));
-    
+
     std::vector<ObjectList*> receive;
     world.grid_actors.OverlapPoint(receive, pt / LOCATION_SIZE);
     for( auto rit = receive.begin(); rit != receive.end(); ++rit )
@@ -665,7 +665,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 						maxZ = std::max(maxZ, view.zfunc->GetZ(world, *object));
 					}
 				}
-				
+
 				if( Z_NONE != maxZ )
 				{
 					for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
@@ -686,11 +686,11 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
         if (zLayers[z])
             return zLayers[z];
     }
-    
+
     return NULL;
 }
 
-    
+
 EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL)
   : Window(parent)
   , _defaultCamera(defaultCamera)
@@ -841,10 +841,10 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 		return true;
 	}
 
-    
+
     vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
                 y / _defaultCamera.GetZoom() + _defaultCamera.GetPos().y);
-    
+
     ObjectType type = static_cast<ObjectType>(
         _typeList->GetData()->GetItemData(g_conf.ed_object.GetInt()) );
 
@@ -895,7 +895,7 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
                     }
                 }
                 lua_pop(_globL, 1); // pop editor_actions
-                
+
                 _propList->DoExchange(false);
                 if( _isObjectNew )
                     SaveToConfig(*object->GetProperties(_world));
@@ -1050,9 +1050,9 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, g_conf.ed_drawgrid.Get(), _world.GetNightMode());
-    
+
 	dc.SetMode(RM_INTERFACE);
-    
+
 	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
 		FRECT rt = GetSelectionRect(*s);
@@ -1071,7 +1071,7 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
     std::stringstream buf;
     buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
     dc.DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
-	
+
 	Window::DrawChildren(dc, sx, sy);
 }
 
@@ -1172,5 +1172,5 @@ void MapSettingsDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
-	
+
 } // end of namespace UI

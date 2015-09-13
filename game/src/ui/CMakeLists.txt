@@ -28,6 +28,6 @@ add_library(ui
 	Window.cpp
 )
 
-target_link_libraries(ui 
+target_link_libraries(ui
 	video
 )

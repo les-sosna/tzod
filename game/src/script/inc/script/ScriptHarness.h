@@ -22,15 +22,15 @@ public:
 	~ScriptHarness();
 
 	void Step(float dt);
-    
+
 	void Serialize(SaveFile &f);
 	void Deserialize(SaveFile &f);
-	
+
 private:
 	World &_world;
     ScriptMessageSink &_messageSink;
 	lua_State *_L;
-	
+
 	sPickup _sPickup;
 	sPlayer _sPlayer;
 	sRigidBodyStatic _sRigidBodyStatic;

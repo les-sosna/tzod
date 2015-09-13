@@ -41,7 +41,7 @@ class TextureManager
 public:
 	TextureManager(IRender &render);
 	~TextureManager();
-	
+
 	IRender& GetRender() const { return _render; }
 
 	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs);
@@ -60,7 +60,7 @@ public:
 
 protected:
     IRender &_render;
-    
+
 	struct TexDesc
 	{
 		DEV_TEXTURE id;

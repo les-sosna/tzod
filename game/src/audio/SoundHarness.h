@@ -22,10 +22,10 @@ class SoundHarness
 public:
 	SoundHarness(SoundRender &soundRender, World &world);
 	~SoundHarness();
-	
+
     void SetListenerPos(vec2d pos);
 	void Step();
-	
+
 private:
 	World &_world;
 	SoundRender &_soundRender;
@@ -35,7 +35,7 @@ private:
 	std::unordered_map<const GC_Vehicle*, std::unique_ptr<Sound>> _vehicleMove;
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponFire;
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
-	
+
 	// ObjectListener<GC_Pickup>
 	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
 	virtual void OnDetach(GC_Pickup &obj) override;
@@ -44,21 +44,21 @@ private:
 
 	// ObjectListener<GC_Projectile>
 	virtual void OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit) override;
-	
+
 	// ObjectListener<GC_ProjectileBasedWeapon>
 	virtual void OnShoot(GC_ProjectileBasedWeapon &obj) override;
-	
+
 	// ObjectListener<GC_pu_Shield>
 	virtual void OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd) override;
 	virtual void OnExpiring(GC_pu_Shield &obj) override;
-	
+
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
-	
+
 	// ObjectListener<GC_RigidBodyDynamic>
 	virtual void OnContact(vec2d pos, float np, float tp) override;
-	
+
 	// ObjectListener<GC_Turret>
 	virtual void OnShoot(GC_Turret &obj) override;
 	virtual void OnStateChange(GC_Turret &obj) override;

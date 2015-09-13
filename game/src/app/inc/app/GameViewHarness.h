@@ -27,12 +27,12 @@ public:
         vec2d worldPos;
         bool visible;
     };
-    
+
     CanvasToWorldResult CanvasToWorld(const GC_Player &player, int x, int y) const;
     void SetCanvasSize(int pxWidth, int pxHeight);
     void RenderGame(DrawingContext &dc, const WorldView &worldView, vec2d defaultEye, float defaultZoom) const;
     void Step(float dt);
-    
+
 private:
     World &_world;
     std::unordered_map<const GC_Player*, Camera> _cameras;
@@ -45,7 +45,7 @@ private:
 
     // ObjectListener<Explosion>
     void OnBoom(GC_Explosion &obj, float radius, float damage) override;
-    
+
     // ObjectListener<GC_RigidBodyStatic>
     void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override {}
     void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;

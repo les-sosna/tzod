@@ -30,7 +30,7 @@ TEST(PtrList, InsertAt)
 	PtrList<Foo> pl0;
     PtrList<Foo>::id_type ida = pl0.insert(&a);
     PtrList<Foo>::id_type idb = pl0.insert(&b);
-    
+
     PtrList<Foo> pl1;
     pl1.insert(&b, idb);
     ASSERT_EQ(1, pl1.size());
@@ -166,14 +166,14 @@ TEST(PtrList, InsertAtAfterAdd)
     PtrList<Foo>::id_type ids[10];
     for (int i = 0; i != 10; ++i)
         ids[i] = pl.insert(&foos[i]);
-    
+
     PtrList<Foo> pl2;
     pl2.insert(&a);
     auto idb = pl2.insert(&b);
     pl2.insert(&foos[9], ids[9]);
-    
+
     pl2.erase(idb);
-    
+
     ASSERT_EQ(2, pl2.size());
     int count = 0;
     pl2.for_each([&](PtrList<Foo>::id_type, Foo*) {++count;});

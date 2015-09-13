@@ -76,7 +76,7 @@ public:
 public:
 	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = vec2d(1,0));
 	GC_Particle(FromFile);
-	
+
 	ParticleType GetParticleType() const { return _ptype; }
 	bool GetFade() const { return CheckFlags(GC_FLAG_PARTICLE_FADE); }
 	float GetTime() const { return _time; }

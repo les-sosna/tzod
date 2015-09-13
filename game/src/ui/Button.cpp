@@ -220,7 +220,7 @@ void TextButton::OnTextChange()
 void TextButton::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
 	// grep 'enum State'
-	SpriteColor colors[] = 
+	SpriteColor colors[] =
 	{
 		SpriteColor(0xffffffff), // normal
 		SpriteColor(0xffccccff), // hottrack
@@ -319,7 +319,7 @@ void CheckBox::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
-	SpriteColor colors[] = 
+	SpriteColor colors[] =
 	{
 		SpriteColor(0xffffffff), // Normal
 		SpriteColor(0xffffffff), // Hottrack

@@ -10,7 +10,7 @@ R_AnimatedSprite::R_AnimatedSprite(TextureManager &tm, const char *tex, float fr
 	, _frameRate(frameRate)
 {
 }
-	
+
 void R_AnimatedSprite::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	vec2d pos = actor.GetPos();

@@ -391,7 +391,7 @@ void MapFile::BeginObject(const char *classname)
 		WriteHeader();
 		_headerWritten = true;
 	}
-	
+
 
 	_buffer.str(""); // clear buffer
 

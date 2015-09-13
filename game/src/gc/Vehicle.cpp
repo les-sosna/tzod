@@ -40,23 +40,23 @@ GC_Vehicle::~GC_Vehicle()
 void GC_Vehicle::Init(World &world)
 {
 	GC_RigidBodyDynamic::Init(world);
-	
+
 	_light_ambient = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	_light_ambient->SetIntensity(0.8f);
 	_light_ambient->SetRadius(150);
-	
+
 	_light1 = &world.New<GC_Light>(GetLightPos1(), GC_Light::LIGHT_SPOT);
 	_light2 = &world.New<GC_Light>(GetLightPos2(), GC_Light::LIGHT_SPOT);
-	
+
 	_light1->SetRadius(300);
 	_light2->SetRadius(300);
-	
+
 	_light1->SetIntensity(0.9f);
 	_light2->SetIntensity(0.9f);
-	
+
 	_light1->SetOffset(290);
 	_light2->SetOffset(290);
-	
+
 	_light1->SetAspect(0.4f);
 	_light2->SetAspect(0.4f);
 }
@@ -143,7 +143,7 @@ void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 		else if( vs._bState_RotateRight && _av < _maxRotSpeed )
 			ApplyMomentum(  _rotatePower / _inv_i );
 	}
-	
+
 	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state._bLight)
 	{
 		for( auto ls: world.eGC_Vehicle._listeners )
@@ -163,7 +163,7 @@ float GC_Vehicle::GetMaxSpeed() const
 float GC_Vehicle::GetMaxBrakingLength() const
 {
 	float result;
-	
+
 	float vx = GetMaxSpeed();
 	assert(vx > 0);
 
@@ -209,7 +209,7 @@ void GC_Vehicle::Kill(World &world)
 		_weapon->Detach(world);
 		assert(!_weapon);
 	}
-	
+
 	if (_shield)
 	{
 		_shield->Disappear(world);
@@ -297,7 +297,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 			}
 		});
 	}
-	
+
 	// spawn damage smoke
 	if( GetHealth() < GetHealthMax() * 0.4f )
 	{
@@ -318,21 +318,21 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	//
 	// remember position
 	//
-    
+
 	vec2d trackTmp(GetDirection().y, -GetDirection().x);
 	vec2d trackL = GetPos() + trackTmp*15;
 	vec2d trackR = GetPos() - trackTmp*15;
-    
-    
+
+
 	// move
 	ApplyState(world, _state);
 	GC_RigidBodyDynamic::TimeStep(world, dt);
-    
-    
+
+
 	//
 	// caterpillar tracks
 	//
-    
+
     vec2d tmp(GetDirection().y, -GetDirection().x);
     vec2d trackL_new = GetPos() + tmp*15;
     vec2d trackR_new = GetPos() - tmp*15;
@@ -349,7 +349,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
         _trackPathL += trackDensity;
     }
     _trackPathL -= len;
-    
+
     e   = trackR_new - trackR;
     len = e.len();
     e  /= len;
@@ -360,15 +360,15 @@ void GC_Vehicle::TimeStep(World &world, float dt)
         _trackPathR += trackDensity;
     }
     _trackPathR -= len;
-	
+
 	// update light position
 	_light1->MoveTo(world, GetLightPos1());
 	_light1->SetLightDirection(GetDirection());
 	_light2->MoveTo(world, GetLightPos2());
 	_light2->SetLightDirection(GetDirection());
 	_light_ambient->MoveTo(world, GetPos());
-	
-    
+
+
     if( !watch ) return;
 
 

@@ -19,22 +19,22 @@ class Deathmatch
 {
 public:
 	Deathmatch(World &world, GameListener &gameListener);
-	
+
 	int GetFragLimit() const { return _fragLimit; }
 	float GetTimeLimit() const { return _timeLimit; }
-	
+
 	// Gameplay
 	virtual ~Deathmatch();
 	virtual void Step() override;
 	virtual bool IsGameOver() override;
 	virtual void Serialize(SaveFile &f) override;
-	
+
 private:
 	World &_world;
 	GameListener &_gameListener;
 	int _fragLimit;
 	float _timeLimit;
-	
+
 	// ObjectListener<GC_RigidBodyStatic>
 	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
 	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override {}

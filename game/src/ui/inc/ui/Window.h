@@ -133,7 +133,7 @@ public:
 	float GetTextureHeight() const;
 
 	void SetVisible(bool show);
-	bool GetVisible() const;   // also includes inherited parent visibility 
+	bool GetVisible() const;   // also includes inherited parent visibility
 
 	void SetTopMost(bool topmost);
 	bool GetTopMost() const { return _isTopMost; }

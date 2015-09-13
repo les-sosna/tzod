@@ -24,14 +24,14 @@ class SoundRender
 public:
 	explicit SoundRender(FS::FileSystem &fs);
 	~SoundRender();
-    
+
     void SetListenerPos(vec2d pos);
-	
+
 	std::unique_ptr<Sound> CreateLopped(SoundTemplate sound);
-	
+
 	void PlayOnce(SoundTemplate sound, vec2d pos);
 	void Step();
-	
+
 private:
 	OALInitHelper _initHelper;
 	std::vector<ALuint> _sources;

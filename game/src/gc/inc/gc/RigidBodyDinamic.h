@@ -12,7 +12,7 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
     DECLARE_LIST_MEMBER();
     typedef GC_RigidBodyStatic base;
-    
+
 	struct Contact
 	{
 		ObjPtr<GC_RigidBodyDynamic> obj1_d;

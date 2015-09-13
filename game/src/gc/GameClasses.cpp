@@ -149,7 +149,7 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 		// FIXME: depending on processing order this object
 		//        may one time step lag behind
 		MoveTo(world, _victim->GetPos());
-		
+
 		_time -= dt;
 		bool kill = false;
 		if( _time <= 0 )

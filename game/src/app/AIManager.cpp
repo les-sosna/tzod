@@ -26,7 +26,7 @@ void AIManager::AssignAI(GC_Player *player, std::string profile)
 
 void AIManager::FreeAI(GC_Player *player)
 {
-	
+
 }
 
 AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)

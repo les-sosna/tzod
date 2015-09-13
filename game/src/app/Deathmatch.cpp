@@ -26,7 +26,7 @@ void Deathmatch::Step()
 //	if( IsGameOver() )
 //	{
 //		for( auto ls: eWorld._listeners )
-//			ls->OnGameFinished();	
+//			ls->OnGameFinished();
 //	}
 }
 
@@ -48,7 +48,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 		char msg[256] = {0};
 		char score[8];
 		GC_Text::Style style = GC_Text::DEFAULT;
-		
+
 		if( dd.from )
 		{
 			if( dd.from == vehicle->GetOwner() )
@@ -85,7 +85,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 				dd.from->SetScore(dd.from->GetScore() + 1);
 				style = GC_Text::SCORE_PLUS;
 			}
-			
+
 			if( dd.from->GetVehicle() )
 			{
 				sprintf(score, "%d", dd.from->GetScore());
@@ -99,7 +99,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			sprintf(score, "%d", vehicle->GetOwner()->GetScore());
 			_world.New<GC_Text_ToolTip>(vehicle->GetPos(), score, GC_Text::SCORE_MINUS);
 		}
-		
+
 		_gameListener.OnGameMessage(msg);
 	}
 }

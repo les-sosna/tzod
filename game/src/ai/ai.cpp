@@ -160,7 +160,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 
 	// realize the decision
 	DoState(world, vehicle, &vs, &weapSettings);
-	
+
 	_backTime -= dt;
 
 	if( (vs._bState_MoveForward || vs._bState_MoveBack) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f )
@@ -363,7 +363,7 @@ float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 void AIController::SmoothPath()
 {
-	if( _path.size() < 4 ) 
+	if( _path.size() < 4 )
 		return;
 
 	vec2d vn[4];
@@ -487,7 +487,7 @@ std::list<AIController::PathNode>::const_iterator AIController::FindNearPathNode
 			prevPos  = result->coord + d;
 			*projection = prevPos;
 //			result = prevIt;
-			if( offset ) 
+			if( offset )
 			{
 				*offset = d.len();
 			}
@@ -939,7 +939,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 	{
 		return;
 	}
-	
+
 	ProcessAction(world, vehicle, ws);
 
 	switch( _aiState_l2 )
@@ -1155,7 +1155,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 
 			vec2d hit, norm;
 			GC_Object *o = world.TraceNearest(
-				world.grid_rigid_s, 
+				world.grid_rigid_s,
 				&vehicle,
 				x0,
 				a,

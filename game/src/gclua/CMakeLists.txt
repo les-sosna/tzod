@@ -20,9 +20,9 @@ add_library(gclua
 	lWorld.cpp
 )
 
-target_link_libraries(gclua 
+target_link_libraries(gclua
 	gc
-	
+
 	# 3rd party
 	lua
 )

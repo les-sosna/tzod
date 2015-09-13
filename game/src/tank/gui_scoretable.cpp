@@ -75,7 +75,7 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			text << g_lang.score_time_limit_hit.Get();
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text.str());
 	}
-	
+
 	if( _deathmatch.GetFragLimit() > 0 )
 	{
 		std::ostringstream text;

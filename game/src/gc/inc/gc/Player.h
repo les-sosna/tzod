@@ -16,7 +16,7 @@ class GC_Player : public GC_Service
     DECLARE_SELF_REGISTRATION(GC_Player);
 	DECLARE_LIST_MEMBER();
     typedef GC_Service base;
-	
+
 public:
 	GC_Player();
 	GC_Player(FromFile);
@@ -54,7 +54,7 @@ protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
 	{
 		typedef GC_Service::MyPropertySet BASE;
-		
+
 		ObjectProperty _propTeam;
 		ObjectProperty _propScore;
 		ObjectProperty _propNick;
@@ -63,7 +63,7 @@ protected:
 		ObjectProperty _propOnDie;
 		ObjectProperty _propOnRespawn;
 		ObjectProperty _propVehName;
-		
+
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -83,7 +83,7 @@ private:
 	std::string  _scriptOnDie;
 	std::string  _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
-	
+
 	friend class GC_Vehicle;
 	void OnVehicleDestroy(World &world);
 };

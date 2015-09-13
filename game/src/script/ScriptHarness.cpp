@@ -27,13 +27,13 @@ ScriptHarness::ScriptHarness(World &world, ScriptMessageSink &messageSink)
 	, _sPlayer(_world, _L)
 	, _sRigidBodyStatic(_world, _L)
 	, _sTrigger(_world, _L)
-{	
+{
 	_world.eWorld.AddListener(*this);
 }
 
 ScriptHarness::~ScriptHarness()
 {
-	_world.eWorld.RemoveListener(*this);	
+	_world.eWorld.RemoveListener(*this);
 	lua_close(_L);
 }
 

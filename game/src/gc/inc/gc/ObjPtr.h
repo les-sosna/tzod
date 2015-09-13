@@ -19,13 +19,13 @@ public:
 	{
 		if( _ptr ) ++((unsigned int *) _ptr)[-1];
 	}
-    
+
 	~ObjPtr()
 	{
 		if( _ptr && 0 == --((unsigned int *) _ptr)[-1] )
 			(*(ObjFinalizerProc*) _ptr)((unsigned int *) _ptr - 1);
 	}
-    
+
 	const ObjPtr& operator = (T *p)
 	{
 		if( p )
@@ -35,12 +35,12 @@ public:
 		_ptr = p;
 		return *this;
 	}
-    
+
 	operator T* () const
 	{
 		return (_ptr && (((unsigned int *)_ptr)[-1] & 0x80000000)) ? _ptr : nullptr;
 	}
-    
+
 	T* operator -> () const
 	{
 		assert(*this);

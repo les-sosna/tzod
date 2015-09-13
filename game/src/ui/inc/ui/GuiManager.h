@@ -59,7 +59,7 @@ public:
 //	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 
 	bool IsMainWindowActive() const { return _isAppActive; }
-    
+
 private:
 	friend class Window;
 	void AddTopMost(Window* wnd, bool add);
@@ -76,7 +76,7 @@ private:
     std::list<Window*> _timestep;
     std::list<Window*>::iterator _tsCurrent;
     bool _tsDeleteCurrent;
-    
+
 
 	unsigned int _captureCountSystem;
 	unsigned int _captureCount;
@@ -86,7 +86,7 @@ private:
 	WindowWeakPtr _captureWnd;
 
 	WindowWeakPtr _desktop;
-    
+
 	bool _isAppActive;
 #ifndef NDEBUG
 	bool _dbgFocusIsChanging;

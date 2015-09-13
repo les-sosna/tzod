@@ -136,14 +136,14 @@ static int pget(lua_State *L)
 	{
 		return luaL_error(L, "2 arguments expected; got %d", n);
 	}
-	
+
 	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
-	
+
 	World &world = luaT_getworld(L);
 	std::shared_ptr<PropertySet> properties = obj->GetProperties(world);
 	assert(properties);
-	
+
 	for( int i = 0; i < properties->GetCount(); ++i )
 	{
 		ObjectProperty *p = properties->GetProperty(i);
@@ -153,7 +153,7 @@ static int pget(lua_State *L)
 			return 1;
 		}
 	}
-	
+
 	return luaL_error(L, "object of type '%s' does not have property '%s'",
 					  RTTypes::Inst().GetTypeName(obj->GetType()), prop);
 }
@@ -165,21 +165,21 @@ static int pset(lua_State *L)
 	{
 		return luaL_error(L, "3 arguments expected; got %d", n);
 	}
-	
+
 	GC_Object *obj = luaT_checkobject(L, 1);
 	const char *prop = luaL_checkstring(L, 2);
 	luaL_checkany(L, 3);  // prop value should be here
-	
+
 	World &world = luaT_getworld(L);
 	std::shared_ptr<PropertySet> properties = obj->GetProperties(world);
-	
+
 	// prop name at -2; prop value at -1
 	if( !luaT_setproperty(L, *properties) )
 	{
 		return luaL_error(L, "object of type '%s' has no property '%s'",
 						  RTTypes::Inst().GetTypeName(obj->GetType()), prop);
 	}
-	
+
 	properties->Exchange(world, true);
 	return 0;
 }
@@ -293,12 +293,12 @@ static int object_equip(lua_State *L)
 	GC_Vehicle *target = checkobject<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = checkobject<GC_Pickup>(L, 2);
     World &world = luaT_getworld(L);
-	
+
 	if( pickup->GetAttached() )
 		pickup->Detach(world);
-	
+
 	pickup->Attach(world, *target);
-	
+
 	return 0;
 }
 

@@ -8,7 +8,7 @@ R_Booster::R_Booster(TextureManager &tm)
 	: _texId(tm.FindSprite("booster"))
 {
 }
-	
+
 void R_Booster::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	vec2d pos = actor.GetPos();

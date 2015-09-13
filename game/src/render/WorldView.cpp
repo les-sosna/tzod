@@ -117,16 +117,16 @@ void WorldView::Render(DrawingContext &dc,
 			}
 		}
     }
-	
-	
+
+
 	//
 	// draw world to rgb
 	//
-	
+
 	dc.SetMode(RM_WORLD);
-	
+
 	_terrain.Draw(dc, world._sx, world._sy, drawGrid);
-	
+
     for( int z = 0; z < Z_COUNT; ++z )
     {
         for( auto &actorWithView: zLayers[z] )

@@ -34,37 +34,37 @@ public:
 		const char*   desc;
         bool          service;
 	};
-    
+
 private:
 	typedef std::map<ObjectType, EdItem> type2item;
 	typedef std::map<std::string, ObjectType> name2type;
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object& (*) (World&)> FromFileMap;
-    
+
     template<class T>
     static GC_Actor& DetachedActorCtor(vec2d pos)
     {
         return *new T(pos);
     }
-	
+
     template<class T>
     static GC_Service& DetachedServiceCtor()
     {
         return *new T();
     }
-	
+
 	template<class T>
     static GC_Actor& ActorCtor(World &world, float x, float y)
     {
         return world.New<T>(vec2d(x, y));
     }
-    
+
 	template<class T>
     static GC_Service& ServiceCtor(World &world)
     {
         return world.New<T>();
     }
-    
+
 	template<class T>
     static GC_Object& FromFileCtor(World &world)
     {
@@ -176,7 +176,7 @@ public:
 
     // for serialization
 	GC_Object* CreateFromFile(World &world, ObjectType type);
-    
+
     // for editor
 	GC_Actor& CreateActor(World &world, ObjectType type, float x, float y);
     GC_Service& CreateService(World &world, ObjectType type);
