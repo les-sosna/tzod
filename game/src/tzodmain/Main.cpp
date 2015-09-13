@@ -48,19 +48,19 @@ namespace
 	class DesktopFactory : public UI::IWindowFactory
 	{
 		AppState &_appState;
-        AppController &_appController;
+		AppController &_appController;
 		FS::FileSystem &_fs;
 		std::function<void()> _exitCommand;
 	public:
-        DesktopFactory(AppState &appState,
-                       AppController &appController,
-					   FS::FileSystem &fs,
-					   std::function<void()> exitCommand)
-            : _appState(appState)
-            , _appController(appController)
+		DesktopFactory(AppState &appState,
+			           AppController &appController,
+			           FS::FileSystem &fs,
+			           std::function<void()> exitCommand)
+			: _appState(appState)
+			, _appController(appController)
 			, _fs(fs)
 			, _exitCommand(std::move(exitCommand))
-        {}
+		{}
 		virtual UI::Window* Create(UI::LayoutManager *manager)
 		{
 			return new UI::Desktop(manager, _appState, _appController, _fs, _exitCommand);
@@ -92,7 +92,7 @@ namespace
 				fputs("\n", _file);
 				fflush(_file);
 			}
-            puts(str.c_str());
+			puts(str.c_str());
 		}
 		virtual void Release() override final
 		{
@@ -139,58 +139,57 @@ int main(int, const char**)
 
 	try
 	{
-        TRACE("%s", TXT_VERSION);
+		TRACE("%s", TXT_VERSION);
 
-        TRACE("Mount file system");
+		TRACE("Mount file system");
 		std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
-        
-        // load config
-        try
-        {
-            // workaround - check if file exists
-            if( FILE *f = fopen(FILE_CONFIG, "r") )
-            {
-                fclose(f);
-                
-                if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
-                {
-                    GetConsole().Format(1) << "Failed to load config file.";
-                }
-            }
-            
-        }
-        catch( std::exception &e )
-        {
-            TRACE("Could not load config file: %s", e.what());
-        }
-        
-        TRACE("Localization init...");
-        try
-        {
-            if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
-            {
-                TRACE("couldn't load language file " FILE_CONFIG);
-            }
-        }
-        catch( const std::exception &e )
-        {
-            TRACE("could not load localization file: %s", e.what());
-        }
-        setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
-        
+		
+		// load config
+		try
+		{
+			// workaround - check if file exists
+			if( FILE *f = fopen(FILE_CONFIG, "r") )
+			{
+				fclose(f);
+				
+				if( !g_conf->GetRoot()->Load(FILE_CONFIG) )
+				{
+					GetConsole().Format(1) << "Failed to load config file.";
+				}
+			}
+		}
+		catch( std::exception &e )
+		{
+			TRACE("Could not load config file: %s", e.what());
+		}
+		
+		TRACE("Localization init...");
+		try
+		{
+			if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
+			{
+				TRACE("couldn't load language file " FILE_CONFIG);
+			}
+		}
+		catch( const std::exception &e )
+		{
+			TRACE("could not load localization file: %s", e.what());
+		}
+		setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
 
-        TRACE("Create GL context");
+
+		TRACE("Create GL context");
 		GlfwAppWindow appWindow(TXT_VERSION, g_conf.r_fullscreen.Get(), g_conf.r_width.GetInt(), g_conf.r_height.GetInt());
 		
-        glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
-        glfwSwapInterval(1);
+		glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
+		glfwSwapInterval(1);
 
-        std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
-        int width;
-        int height;
-        glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
-        render->OnResizeWnd(width, height);
-		
+		std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+		int width;
+		int height;
+		glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
+		render->OnResizeWnd(width, height);
+
 		AppState appState;
 		TextureManager texman(*render);
 		ThemeManager themeManager(appState, *fs, texman);
@@ -199,50 +198,49 @@ int main(int, const char**)
 		if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
 			TRACE("WARNING: no skins found");
 		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
-        AppController appController(*fs);
+		AppController appController(*fs);
 #ifndef NOSOUND
 		SoundView soundView(appState, *fs->GetFileSystem(DIR_SOUND));
 #endif
 		GlfwInput input(appWindow.GetGlfwWindow());
 		GlfwClipboard clipboard(appWindow.GetGlfwWindow());
-        UI::LayoutManager gui(input,
-							  clipboard,
-							  texman,
-							  DesktopFactory(appState,
-                                             appController,
-											 *fs,
-											 exitCommand));
-        glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
-        gui.GetDesktop()->Resize((float) width, (float) height);
-        
+		UI::LayoutManager gui(input,
+		                      clipboard,
+		                      texman,
+		                      DesktopFactory(appState,
+		                                     appController,
+		                                     *fs,
+		                                     exitCommand));
+		glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
+		gui.GetDesktop()->Resize((float) width, (float) height);
+
 //        g_env.L = gameContext.GetScriptHarness().GetLuaState();
 //        g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
 //        g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
 //        TRACE("Running startup script '%s'", FILE_STARTUP);
 //        if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
 //            TRACE("ERROR: in startup script");
-        
-        Timer timer;
-        timer.SetMaxDt(0.05f);
-        timer.Start();
-        for(;;)
-        {
-            if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
-            }
-            
+
+		Timer timer;
+		timer.SetMaxDt(0.05f);
+		timer.Start();
+		for(;;)
+		{
+			if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
+			}
 
 			//
 			// controller pass
 			//
 
-            glfwPollEvents();
-            if (glfwWindowShouldClose(&appWindow.GetGlfwWindow()))
-                break;
-			
+			glfwPollEvents();
+			if (glfwWindowShouldClose(&appWindow.GetGlfwWindow()))
+				break;
+
 			float dt = timer.GetDt();
-			
+
 			gui.TimeStep(dt); // this also sends user controller state to WorldController
 			if (GameContextBase *gc = appState.GetGameContext())
 				gc->Step(dt * g_conf.sv_speed.GetFloat() / 100);
@@ -253,7 +251,7 @@ int main(int, const char**)
 			//
 
 #ifndef NOSOUND
-            
+
 //            vec2d pos(0, 0);
 //            if (!_world.GetList(LIST_cameras).empty())
 //            {
@@ -270,21 +268,21 @@ int main(int, const char**)
 
 			glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
 			DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
-			
-            render->Begin();
-            gui.Render(dc);
-            render->End();
-                        
-            glfwSwapBuffers(&appWindow.GetGlfwWindow());
-        }
-        
-        TRACE("Saving config to '" FILE_CONFIG "'");
-        if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
-        {
-            TRACE("Failed to save config file");
-        }
-        
-        TRACE("Exit.");
+
+			render->Begin();
+			gui.Render(dc);
+			render->End();
+
+			glfwSwapBuffers(&appWindow.GetGlfwWindow());
+		}
+
+		TRACE("Saving config to '" FILE_CONFIG "'");
+		if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
+		{
+			TRACE("Failed to save config file");
+		}
+
+		TRACE("Exit.");
 	}
 	catch( const std::exception &e )
 	{
