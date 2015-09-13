@@ -160,6 +160,7 @@ void World::Import(MapFile &file)
 	file.getMapAttribute("desc",     _infoDesc);
 	file.getMapAttribute("link-url", _infoUrl);
 	file.getMapAttribute("e-mail",   _infoEmail);
+	file.getMapAttribute("theme",    _infoTheme);
 	file.getMapAttribute("on_init",  _infoOnInit);
 
 	while( file.NextObject() )

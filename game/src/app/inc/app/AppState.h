@@ -12,7 +12,7 @@ public:
 	~AppState();
 	GameContextBase* GetGameContext() const { return _gameContext.get(); }
 	void SetGameContext(std::unique_ptr<GameContextBase> gameContext);
-	
+
 private:
 	std::unique_ptr<GameContextBase> _gameContext;
 	std::set<AppStateListener*> _appStateListeners;

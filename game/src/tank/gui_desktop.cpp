@@ -251,7 +251,7 @@ void Desktop::OnNewCampaign()
 		}
 	};
 }
-	
+
 void Desktop::OnNewDM()
 {
 	_nModalPopups++;
@@ -289,7 +289,7 @@ void Desktop::OnNewMap()
 		}
 	};
 }
-	
+
 void Desktop::OnOpenMap(std::string fileName)
 {
 	std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));

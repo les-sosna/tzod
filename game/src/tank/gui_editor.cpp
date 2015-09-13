@@ -1077,6 +1077,18 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static size_t FindTheme(const ThemeManager &themeManager, const std::string &name)
+{
+	for (size_t i = 0; i < themeManager.GetThemeCount(); ++i)
+	{
+		if (themeManager.GetThemeName(i) == name)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
 MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager)
   : Dialog(parent, 512, 512)
   , _world(world)
@@ -1120,7 +1132,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 	{
 		_theme->GetData()->AddItem(themeManager.GetThemeName(i));
 	}
-	_theme->SetCurSel(themeManager.FindTheme(world._infoTheme));
+	_theme->SetCurSel(FindTheme(themeManager, world._infoTheme));
 	_theme->GetList()->AlignHeightToContent();
 
 

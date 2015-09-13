@@ -191,14 +191,14 @@ int main(int, const char**)
         glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
         render->OnResizeWnd(width, height);
 		
-		ThemeManager themeManager(*fs);
+		AppState appState;
 		TextureManager texman(*render);
+		ThemeManager themeManager(appState, *fs, texman);
 		if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
 			TRACE("WARNING: no textures loaded");
 		if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
 			TRACE("WARNING: no skins found");
 		auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
-		AppState appState;
         AppController appController(*fs);
 #ifndef NOSOUND
 		SoundView soundView(appState, *fs->GetFileSystem(DIR_SOUND));

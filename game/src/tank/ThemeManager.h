@@ -1,5 +1,6 @@
 #pragma once
 
+#include <app/AppStateListener.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -11,17 +12,14 @@ namespace FS
 	class MemMap;
 }
 
-class ThemeManager
+class ThemeManager : private AppStateListener
 {
 public:
-	ThemeManager(FS::FileSystem &fs);
+	ThemeManager(AppState &appState, FS::FileSystem &fs, TextureManager &tm);
 	~ThemeManager();
 	
 	size_t GetThemeCount() const;
-	size_t FindTheme(const std::string &name) const;
 	std::string GetThemeName(size_t index) const;
-	
-    bool ApplyTheme(size_t index, TextureManager &tm) const;
 
 private:
 	struct ThemeDesc
@@ -32,4 +30,11 @@ private:
 	
 	std::vector<ThemeDesc> _themes;
 	FS::FileSystem &_fs;
+	TextureManager &_textureManager;
+
+	// AppStateListener
+	void OnGameContextChanging() override;
+	void OnGameContextChanged() override;
+
+	ThemeManager(const ThemeManager&) = delete;
 };

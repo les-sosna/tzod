@@ -1,10 +1,15 @@
 #include "ThemeManager.h"
 #include <app/AppCfg.h>
+#include <app/AppState.h>
+#include <app/GameContext.h>
 #include <fs/FileSystem.h>
+#include <gc/World.h>
 #include <video/TextureManager.h>
 
-ThemeManager::ThemeManager(FS::FileSystem &fs)
-	: _fs(fs)
+ThemeManager::ThemeManager(AppState &appState, FS::FileSystem &fs, TextureManager &tm)
+	: AppStateListener(appState)
+	, _fs(fs)
+	, _textureManager(tm)
 {
 	std::shared_ptr<FS::FileSystem> dir = _fs.GetFileSystem(DIR_THEMES);
 	auto files = dir->EnumAllFiles("*.lua");
@@ -26,18 +31,6 @@ size_t ThemeManager::GetThemeCount() const
 	return _themes.size() + 1;
 }
 
-size_t ThemeManager::FindTheme(const std::string &name) const
-{
-	for( size_t i = 0; i < _themes.size(); i++ )
-	{
-		if( GetThemeName(i+1) == name )
-		{
-			return i+1;
-		}
-	}
-	return 0;
-}
-
 std::string ThemeManager::GetThemeName(size_t index) const
 {
 	if( 0 == index )
@@ -45,12 +38,26 @@ std::string ThemeManager::GetThemeName(size_t index) const
 	return _themes[index-1].fileName.substr(0, _themes[index-1].fileName.size() - 4); // throw off the extension
 }
 
-bool ThemeManager::ApplyTheme(size_t index, TextureManager &tm) const
+void ThemeManager::OnGameContextChanging()
 {
-	bool res = (tm.LoadPackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs) > 0);
-	if( index > 0 )
-	{
-		res = res && (tm.LoadPackage(_themes[index-1].fileName, _themes[index-1].file, _fs) > 0);
-	}
-	return res;
 }
+
+void ThemeManager::OnGameContextChanged()
+{
+	// load default theme
+	_textureManager.LoadPackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs);
+
+	if (GameContextBase *gameContext = GetAppState().GetGameContext())
+	{
+		// start from 1 to skip default
+		for (size_t i = 1; i < GetThemeCount(); ++i)
+		{
+			if (GetThemeName(i) == gameContext->GetWorld()._infoTheme)
+			{
+				// _themes there is no entry for default
+				_textureManager.LoadPackage(_themes[i - 1].fileName, _themes[i - 1].file, _fs);
+			}
+		}
+	}
+}
+

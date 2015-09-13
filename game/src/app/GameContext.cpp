@@ -21,10 +21,6 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 		throw std::runtime_error("unknown map size");
 	}
 
-	std::string theme;
-	file.getMapAttribute("theme", theme);
-//	themeManager.ApplyTheme(themeManager.FindTheme(theme), tm);
-	
 	_world.reset(new World(width, height));
 	_aiManager.reset(new AIManager(*_world));
 	
@@ -68,7 +64,7 @@ GameContext::~GameContext()
 void GameContext::Step(float dt)
 {
 	_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
-	_world->Step(dt);	
+	_world->Step(dt);
 	_scriptHarness->Step(dt);
 }
 
@@ -82,8 +78,7 @@ void GameContext::Serialize(FS::Stream &stream)
 	f.Serialize(version);
 	f.Serialize(width);
 	f.Serialize(height);
-//	f.Serialize(_infoTheme);
-	
+
 	_world->Serialize(f);
 	_gameplay->Serialize(f);
 	_scriptHarness->Serialize(f);
@@ -99,7 +94,6 @@ void GameContext::Deserialize(FS::Stream &stream)
 	f.Serialize(version);
 	f.Serialize(width);
 	f.Serialize(height);
-//	f.Serialize(_infoTheme);
 
 	if( VERSION != version )
 		throw std::runtime_error("invalid version");
@@ -110,8 +104,6 @@ void GameContext::Deserialize(FS::Stream &stream)
 	// TODO: restore gameplay type
 	_gameplay.reset(new Deathmatch(*_world, _gameEventsBroadcaster));
 	_gameplay->Serialize(f);
-	
-//	themeManager.ApplyTheme(themeManager.FindTheme(_world->_infoTheme), tm);
 
 	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));
 	_scriptHarness->Deserialize(f);
