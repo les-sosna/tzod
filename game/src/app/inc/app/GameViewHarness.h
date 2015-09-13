@@ -38,7 +38,11 @@ private:
     std::unordered_map<const GC_Player*, Camera> _cameras;
     int _pxWidth;
     int _pxHeight;
-    
+
+	mutable const Camera *_maxShakeCamera;
+	const Camera& GetMaxShakeCamera() const;
+	bool IsSingleCamera() const;
+
     // ObjectListener<Explosion>
     void OnBoom(GC_Explosion &obj, float radius, float damage) override;
     

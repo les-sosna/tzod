@@ -15,8 +15,10 @@ Camera::Camera(vec2d pos, unsigned int index)
 {
 }
 
-void Camera::CameraTimeStep(World &world, const GC_Vehicle *vehicle, float dt, vec2d viewSize)
+void Camera::CameraTimeStep(World &world, const GC_Vehicle *vehicle, float dt)
 {
+	vec2d viewSize((float) WIDTH(_viewport), (float) HEIGHT(_viewport));
+
 	float mu = 3;
 
 	if( vehicle )

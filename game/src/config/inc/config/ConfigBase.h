@@ -180,7 +180,7 @@ public:
 	size_t GetSize() const;
 
 	typedef std::vector<std::string> KeyListType;
-	void GetKeyList(KeyListType &out) const;
+	KeyListType GetKeys() const;
 
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(const std::string &name, ConfVar::Type type);

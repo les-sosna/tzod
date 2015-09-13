@@ -9,10 +9,10 @@ static void InitProfiles(ConfVarTable *profiles)
 	ConfControllerProfile(profiles->GetTable("WASD"));
 
 	ConfControllerProfile arrows(profiles->GetTable("Arrows"));
-	arrows.key_forward.Set("Up Arrow");
-	arrows.key_back.Set("Down Arrow");
-	arrows.key_left.Set("Left Arrow");
-	arrows.key_right.Set("Right Arrow");
+	arrows.key_forward.Set("Up");
+	arrows.key_back.Set("Down");
+	arrows.key_left.Set("Left");
+	arrows.key_right.Set("Right");
 	arrows.key_fire.Set("Space");
 	arrows.key_light.Set("Delete");
 	arrows.key_tower_left.Set("8");

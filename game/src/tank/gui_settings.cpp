@@ -187,8 +187,7 @@ void SettingsDlg::OnCancel()
 void SettingsDlg::UpdateProfilesList()
 {
 	int sel = _profiles->GetCurSel();
-	std::vector<std::string> profiles;
-	g_conf.dm_profiles.GetKeyList(profiles);
+	std::vector<std::string> profiles = g_conf.dm_profiles.GetKeys();
 	_profilesDataSource.DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
@@ -288,8 +287,7 @@ void ControlProfileDlg::OnSelectAction(int index)
 
 void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
 {
-	ConfVarTable::KeyListType names;
-	_profile->GetRoot()->GetKeyList(names);
+	ConfVarTable::KeyListType names = _profile->GetRoot()->GetKeys();
 	for( size_t i = 0; i != names.size(); ++i )
 	{
 		if( _profile->GetRoot()->Find(names[i]) == &var )
@@ -310,8 +308,7 @@ void ControlProfileDlg::OnOK()
 		return;
 	}
 
-	ConfVarTable::KeyListType names;
-	_profile->GetRoot()->GetKeyList(names);
+	ConfVarTable::KeyListType names = _profile->GetRoot()->GetKeys();
 	for( int i = 0; i < _actions->GetData()->GetItemCount(); ++i )
 	{
 		_profile->GetRoot()->SetStr(names[_actions->GetData()->GetItemData(i)], _actions->GetData()->GetItemText(i, 1));

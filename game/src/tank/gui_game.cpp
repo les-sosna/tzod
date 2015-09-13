@@ -48,31 +48,31 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 UI::GameLayout::GameLayout(Window *parent,
-						   GameContext &gameContext,
-						   WorldView &worldView,
-						   WorldController &worldController,
-						   const DefaultCamera &defaultCamera)
-    : Window(parent)
-    , _gameContext(gameContext)
-    , _gameViewHarness(gameContext.GetWorld())
-    , _worldView(worldView)
+                           GameContext &gameContext,
+                           WorldView &worldView,
+                           WorldController &worldController,
+                           const DefaultCamera &defaultCamera)
+	: Window(parent)
+	, _gameContext(gameContext)
+	, _gameViewHarness(gameContext.GetWorld())
+	, _worldView(worldView)
 	, _worldController(worldController)
-    , _defaultCamera(defaultCamera)
-    , _inputMgr(gameContext.GetWorld())
+	, _defaultCamera(defaultCamera)
+	, _inputMgr()
 {
 	_msg = new MessageArea(this, 100, 100);
-    
+
 	_score = new ScoreTable(this, _gameContext.GetWorld(), _gameContext.GetGameplay());
 	_score->SetVisible(false);
-    
+
 	_time = new TimeElapsed(this, 0, 0, alignTextRB, _gameContext.GetWorld());
 	g_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
 	SetTimeStep(true);
-    _gameContext.GetGameEventSource().AddListener(*this);
+	_gameContext.GetGameEventSource().AddListener(*this);
 }
-    
+
 UI::GameLayout::~GameLayout()
 {
 	_gameContext.GetGameEventSource().RemoveListener(*this);
@@ -85,32 +85,34 @@ void UI::GameLayout::OnTimeStep(float dt)
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
-    _gameViewHarness.Step(dt);
+	_gameViewHarness.Step(dt);
 	
 	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
 	WorldController::ControllerStateMap controlStates;
-    
-    if (readUserInput)
-    {
-        FOREACH( _gameContext.GetWorld().GetList(LIST_players), GC_Player, player )
-        {
-            if( GC_Vehicle *vehicle = player->GetVehicle() )
-            {
-                if( Controller *controller = _inputMgr.GetController(player) )
-                {
-                    vec2d mouse = GetManager().GetInput().GetMousePos();
-                    auto c2w = _gameViewHarness.CanvasToWorld(*player, (int) mouse.x, (int) mouse.y);
 
-                    VehicleState vs;
-                    controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
-                                                    vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
-                    controlStates.insert(std::make_pair(vehicle->GetId(), vs));
-                }
-            }
-        }
-	
+	if (readUserInput)
+	{
+		unsigned int index = 0;
+		FOREACH( _gameContext.GetWorld().GetList(LIST_players), GC_Player, player )
+		{
+			if( GC_Vehicle *vehicle = player->GetVehicle() )
+			{
+				if( Controller *controller = _inputMgr.GetController(index) )
+				{
+					vec2d mouse = GetManager().GetInput().GetMousePos();
+					auto c2w = _gameViewHarness.CanvasToWorld(*player, (int) mouse.x, (int) mouse.y);
+
+					VehicleState vs;
+					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
+													vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
+					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
+				}
+			}
+			++index;
+		}
+
 		_worldController.SendControllerStates(std::move(controlStates));
-    }
+	}
 }
 
 void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const

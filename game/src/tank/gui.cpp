@@ -491,8 +491,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 	_profiles = DefaultComboBox::Create(this);
 	_profiles->Move(x2, y -= 1);
 	_profiles->Resize(200);
-	std::vector<std::string> profiles;
-	g_conf.dm_profiles.GetKeyList(profiles);
+	std::vector<std::string> profiles = g_conf.dm_profiles.GetKeys();
 
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{

@@ -667,14 +667,14 @@ size_t ConfVarTable::GetSize() const
 	return _val.asTable->size();
 }
 
-void ConfVarTable::GetKeyList(std::vector<std::string> &out) const
+std::vector<std::string> ConfVarTable::GetKeys() const
 {
-	out.clear();
-	for( std::map<std::string, ConfVar*>::const_iterator it = _val.asTable->begin();
-		_val.asTable->end() != it; ++it )
+	std::vector<std::string> out;
+	for( auto it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
 		out.push_back(it->first);
 	}
+	return out;
 }
 
 std::pair<ConfVar*, bool> ConfVarTable::GetVar(const std::string &name, ConfVar::Type type)
