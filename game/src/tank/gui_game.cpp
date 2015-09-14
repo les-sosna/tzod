@@ -52,13 +52,13 @@ UI::GameLayout::GameLayout(Window *parent,
                            WorldView &worldView,
                            WorldController &worldController,
                            const DefaultCamera &defaultCamera)
-	: Window(parent)
-	, _gameContext(gameContext)
-	, _gameViewHarness(gameContext.GetWorld())
-	, _worldView(worldView)
-	, _worldController(worldController)
-	, _defaultCamera(defaultCamera)
-	, _inputMgr()
+  : Window(parent)
+  , _gameContext(gameContext)
+  , _gameViewHarness(gameContext.GetWorld())
+  , _worldView(worldView)
+  , _worldController(worldController)
+  , _defaultCamera(defaultCamera)
+  , _inputMgr()
 {
 	_msg = new MessageArea(this, 100, 100);
 
@@ -79,7 +79,6 @@ UI::GameLayout::~GameLayout()
 	g_conf.ui_showtime.eventChange = nullptr;
 }
 
-
 void UI::GameLayout::OnTimeStep(float dt)
 {
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
@@ -92,23 +91,22 @@ void UI::GameLayout::OnTimeStep(float dt)
 
 	if (readUserInput)
 	{
-		unsigned int index = 0;
-		FOREACH( _gameContext.GetWorld().GetList(LIST_players), GC_Player, player )
+		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
-			if( GC_Vehicle *vehicle = player->GetVehicle() )
+			if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 			{
-				if( Controller *controller = _inputMgr.GetController(index) )
+				if( Controller *controller = _inputMgr.GetController(playerIndex) )
 				{
 					vec2d mouse = GetManager().GetInput().GetMousePos();
-					auto c2w = _gameViewHarness.CanvasToWorld(*player, (int) mouse.x, (int) mouse.y);
+					auto c2w = _gameViewHarness.CanvasToWorld(*players[playerIndex], (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
 					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
-													vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
+					                                vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
-			++index;
 		}
 
 		_worldController.SendControllerStates(std::move(controlStates));
@@ -140,5 +138,3 @@ void UI::GameLayout::OnGameMessage(const char *msg)
 {
     _msg->WriteLine(msg);
 }
-
-
