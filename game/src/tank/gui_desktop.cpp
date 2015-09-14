@@ -113,6 +113,7 @@ Desktop::Desktop(LayoutManager* manager,
 	commands.newDM = std::bind(&Desktop::OnNewDM, this);
 	commands.newMap = std::bind(&Desktop::OnNewMap, this);
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
+	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
 	commands.exit = _exitCommand;
 	_mainMenu = new MainMenuDlg(this, _fs, std::move(commands));
 	_nModalPopups++;
@@ -228,7 +229,6 @@ void Desktop::OnNewCampaign()
 	NewCampaignDlg *dlg = new NewCampaignDlg(this, _fs);
 	dlg->eventCampaignSelected = [this,dlg](std::string name)
 	{
-		dlg->Destroy();
 		if( !name.empty() )
 		{
 			OnCloseChild(Dialog::_resultOK);
@@ -249,6 +249,7 @@ void Desktop::OnNewCampaign()
 		{
 			OnCloseChild(Dialog::_resultCancel);
 		}
+		dlg->Destroy();
 	};
 }
 
@@ -263,7 +264,7 @@ void Desktop::OnNewDM()
 		{
 			try
 			{
-                _appController.NewGameDM(GetAppState(), g_conf.cl_map.Get(), GetDMSettingsFromConfig());
+				_appController.NewGameDM(GetAppState(), g_conf.cl_map.Get(), GetDMSettingsFromConfig());
 				ShowMainMenu(false);
 			}
 			catch( const std::exception &e )
@@ -295,6 +296,16 @@ void Desktop::OnOpenMap(std::string fileName)
 	std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
 	GetAppState().SetGameContext(std::move(gc));
 	ShowMainMenu(false);
+}
+
+void Desktop::OnExportMap(std::string fileName)
+{
+	if (GameContextBase *gameContext = GetAppState().GetGameContext())
+	{
+		gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
+		GetConsole().Printf(0, "map exported: '%s'", fileName.c_str());
+//		g_conf.cl_map.Set(_fileDlg->GetFileTitle());
+	}
 }
 
 void Desktop::ShowMainMenu(bool show)

@@ -251,22 +251,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 	assert(_fileDlg);
 	if( Dialog::_resultOK == result )
 	{
-		std::string tmp = DIR_MAPS;
-		tmp += "/";
-		tmp += _fileDlg->GetFileName();
-
-		try
-		{
-//			_world.Export(_fs.Open(tmp, FS::ModeWrite)->QueryStream());
-		}
-		catch( const std::exception &e )
-		{
-			GetConsole().Printf(1, "Couldn't export map to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
-		}
-
-		GetConsole().Printf(0, "map exported: '%s'", tmp.c_str());
-		g_conf.cl_map.Set(_fileDlg->GetFileTitle());
+		_commands.exportMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
 	_fileDlg = NULL;
 	OnCloseChild(result);

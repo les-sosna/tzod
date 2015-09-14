@@ -20,6 +20,7 @@ struct MainMenuCommands
 	std::function<void()> newDM;
 	std::function<void()> newMap;
 	std::function<void(std::string)> openMap;
+	std::function<void(std::string)> exportMap;
 	std::function<void()> exit;
 };
 
