@@ -153,7 +153,7 @@ void ScriptHarness::Deserialize(SaveFile &f)
 			GC_Object *obj;
 			try
 			{
-				obj = id ? fptr->RestorePointer(id) : NULL;
+				obj = id ? fptr->RestorePointer(id) : nullptr;
 			}
 			catch( const std::exception &e )
 			{

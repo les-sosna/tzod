@@ -168,7 +168,7 @@ ObjectProperty* GC_Pickup::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_Pickup::MyPropertySet::MyExchange(World &world, bool applyToObject)
@@ -427,7 +427,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 	float min_dist = AI_MAX_SIGHT * CELL_SIZE;
 	float dist;
 
-	GC_Vehicle *pNearTarget = NULL;
+	GC_Vehicle *pNearTarget = nullptr;
 	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pTargetObj )
 	{
 		if( pTargetObj != ignore )

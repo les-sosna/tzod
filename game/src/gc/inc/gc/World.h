@@ -194,8 +194,8 @@ public:
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // origin
 	                             const vec2d &a,       // direction and length
-	                             vec2d *ht   = NULL,
-	                             vec2d *norm = NULL) const;
+	                             vec2d *ht   = nullptr,
+	                             vec2d *norm = nullptr) const;
 
 	void TraceAll( Grid<PtrList<GC_Object>> &list,
 	               const vec2d &x0,      // origin

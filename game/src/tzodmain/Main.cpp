@@ -288,7 +288,7 @@ int main(int, const char**)
 	{
 		print_what(e);
 #ifdef _WIN32
-		MessageBoxA(NULL, e.what(), TXT_VERSION, MB_ICONERROR);
+		MessageBoxA(nullptr, e.what(), TXT_VERSION, MB_ICONERROR);
 #endif
 		return 1;
 	}

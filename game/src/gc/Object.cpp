@@ -75,7 +75,7 @@ GC_Object::~GC_Object()
 void GC_Object::Kill(World &world)
 {
 	world.OnKill(*this);
-	SetName(world, NULL);
+	SetName(world, nullptr);
     Unregister(world, _posLIST_objects);
 	delete this;
 }
@@ -111,7 +111,7 @@ const char* GC_Object::GetName(World &world) const
 		assert( world._objectToStringMap.count(this) );
 		return world._objectToStringMap[this].c_str();
 	}
-	return NULL;
+	return nullptr;
 }
 
 void GC_Object::SetName(World &world, const char *name)

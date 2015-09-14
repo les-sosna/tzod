@@ -45,7 +45,7 @@ TankClient::~TankClient(void)
 	if( _peer )
 	{
 		_peer->Close();
-		_peer = NULL;
+		_peer = nullptr;
 	}
 }
 
@@ -77,11 +77,11 @@ void TankClient::Connect(const std::string &hostaddr)
 	{
 		// try to resolve string as host name
 		hostent* he = gethostbyname(sv.c_str());
-		if( NULL == he )
+		if( nullptr == he )
 		{
 			int err = WSAGetLastError();
 			TRACE("client: ERROR - Unable to resolve IP-address (%u)", err);
-			OnDisconnect(NULL, err ? err : -1);
+			OnDisconnect(nullptr, err ? err : -1);
 			return;
 		}
 		addr.sin_addr.s_addr = *((u_long*)he->h_addr_list[0]);
@@ -97,12 +97,12 @@ void TankClient::Connect(const std::string &hostaddr)
 	{
 		int err = WSAGetLastError();
 		TRACE("cl: ERROR - Unable to create socket (%u)", WSAGetLastError());
-		OnDisconnect(NULL, err ? err : -1);
+		OnDisconnect(nullptr, err ? err : -1);
 		return;
 	}
 
 	TRACE("cl: connecting to %s", inet_ntoa(addr.sin_addr));
-	ClTextMessage(NULL, -1, Variant(g_lang.net_msg_connecting.Get()));
+	ClTextMessage(nullptr, -1, Variant(g_lang.net_msg_connecting.Get()));
 
 	_peer = new Peer(s);
 	_peer->eventDisconnect.bind(&TankClient::OnDisconnect, this);
@@ -121,7 +121,7 @@ void TankClient::Connect(const std::string &hostaddr)
 
 	if( int err = _peer->Connect(&addr) )
 	{
-		OnDisconnect(NULL, err);
+		OnDisconnect(nullptr, err);
 	}
 }
 
@@ -185,7 +185,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 	if( 0 != memcmp(gi.exeVer, g_md5.bytes, 16) )
 	{
-		ClErrorMessage(NULL, -1, Variant(g_lang.net_connect_error_server_version.Get()));
+		ClErrorMessage(nullptr, -1, Variant(g_lang.net_connect_error_server_version.Get()));
 		return;
 	}
 
@@ -214,7 +214,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 
 		if( 0 != memcmp(gi.mapVer, md5.digest, 16) )
 		{
-			ClErrorMessage(NULL, -1, Variant(g_lang.net_connect_error_map_version.Get()));
+			ClErrorMessage(nullptr, -1, Variant(g_lang.net_connect_error_map_version.Get()));
 			return;
 		}
 
@@ -223,7 +223,7 @@ void TankClient::ClGameInfo(Peer *from, int task, const Variant &arg)
 	}
 	catch( const std::exception &e )
 	{
-		ClErrorMessage(NULL, -1, Variant(std::string(e.what())));
+		ClErrorMessage(nullptr, -1, Variant(std::string(e.what())));
 		return;
 	}
 
@@ -350,7 +350,7 @@ bool TankClient::RecvControl(ControlPacketVector &result)
 
 const char* TankClient::GetActiveProfile() const
 {
-    return NULL;
+    return nullptr;
 }
 
 

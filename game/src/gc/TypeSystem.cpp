@@ -5,7 +5,7 @@ GC_Object* RTTypes::CreateFromFile(World &world, ObjectType type)
 {
 	FromFileMap::const_iterator it = _ffm.find(type);
 	if( _ffm.end() == it )
-		return NULL;
+		return nullptr;
 	return &it->second(world);
 }
 

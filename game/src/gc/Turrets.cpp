@@ -79,8 +79,8 @@ GC_Vehicle* GC_Turret::EnumTargets(World &world)
 	float min_dist = _sight*_sight;
 	float dist;
 
-	GC_Vehicle *target = NULL;
-	GC_RigidBodyStatic *pObstacle = NULL;
+	GC_Vehicle *target = nullptr;
+	GC_RigidBodyStatic *pObstacle = nullptr;
 
 	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pDamObj )
 	{
@@ -123,7 +123,7 @@ void GC_Turret::SelectTarget(World &world, GC_Vehicle *target)
 void GC_Turret::TargetLost()
 {
 	_jobManager.RegisterMember(this);
-	_target = NULL;
+	_target = nullptr;
 	_state  = TS_WAITING;
 }
 
@@ -138,7 +138,7 @@ bool GC_Turret::IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodySt
 		return false;
 	}
 
-	*pObstacle = NULL;
+	*pObstacle = nullptr;
 	return true;
 }
 
@@ -162,7 +162,7 @@ void GC_Turret::ProcessState(World &world, float dt)
 		break;
 	case TS_ATACKING:
 	{
-		GC_RigidBodyStatic *pObstacle = NULL;
+		GC_RigidBodyStatic *pObstacle = nullptr;
 		if( _target )
 		{
 			if( IsTargetVisible(world, _target, &pObstacle) )
@@ -295,7 +295,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_Turret::MyPropertySet::MyExchange(World &world, bool applyToObject)
@@ -514,7 +514,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 	{
 	case TS_ATACKING:
 	{
-		GC_RigidBodyStatic *pObstacle = NULL;
+		GC_RigidBodyStatic *pObstacle = nullptr;
 
 		if( _target )
 		{

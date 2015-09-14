@@ -77,7 +77,7 @@ Desktop::Desktop(LayoutManager* manager,
                  AppController &appController,
 				 FS::FileSystem &fs,
 				 std::function<void()> exitCommand)
-  : Window(NULL, manager)
+  : Window(nullptr, manager)
   , AppStateListener(appState)
   , _appController(appController)
   , _fs(fs)

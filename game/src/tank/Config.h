@@ -99,11 +99,11 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(   ed_object,              0 )
 	VAR_BOOL(  ed_showproperties,   true )
 	VAR_BOOL(  ed_showservices,    false )
-	VAR_TABLE( ed_objproperties,    NULL )
+	VAR_TABLE( ed_objproperties,    nullptr )
 
 	// console
 	VAR_INT(   con_maxhistory,        30 )
-	VAR_ARRAY( con_history,         NULL )
+	VAR_ARRAY( con_history,         nullptr )
 
 	// user interface
 	VAR_BOOL(  ui_showfps,         false )
@@ -120,8 +120,8 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_STR(   dm_player1,      "Arrows" )
 	VAR_STR(   dm_player2,        "WASD" )
 	VAR_TABLE( dm_profiles,       InitProfiles ) // ConfControllerProfile
-	VAR_ARRAY( dm_players,                NULL )
-	VAR_ARRAY( dm_bots,                   NULL )
+	VAR_ARRAY( dm_players,                nullptr )
+	VAR_ARRAY( dm_bots,                   nullptr )
 	VAR_ARRAY( lobby_servers,    InitLobbyList )
 
 REFLECTION_END()

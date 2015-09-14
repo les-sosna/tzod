@@ -227,7 +227,7 @@ static int game_message(lua_State *L)
 		lua_pushvalue(L, i);      // value to print
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1);  // get result
-		if( NULL == s )
+		if( nullptr == s )
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		buf << s;
 		lua_pop(L, 1);            // pop result

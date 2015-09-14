@@ -94,7 +94,7 @@ void SaveFile::Serialize(ObjPtr<T> &ptr)
 		}
 		else
 		{
-			ptr = NULL;
+			ptr = nullptr;
 		}
 	}
 	else

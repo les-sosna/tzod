@@ -20,9 +20,9 @@ ScrollBarBase::ScrollBarBase(Window *parent)
     , _documentSize(1.0f)
     , _showButtons(true)
 {
-	_btnBox        = ImageButton::Create(this, 0, 0, NULL);
-	_btnUpLeft     = ImageButton::Create(this, 0, 0, NULL);
-	_btnDownRight  = ImageButton::Create(this, 0, 0, NULL);
+	_btnBox        = ImageButton::Create(this, 0, 0, nullptr);
+	_btnUpLeft     = ImageButton::Create(this, 0, 0, nullptr);
+	_btnDownRight  = ImageButton::Create(this, 0, 0, nullptr);
 
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
 	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);

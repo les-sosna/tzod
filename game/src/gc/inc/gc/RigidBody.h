@@ -53,7 +53,7 @@ public:
 
 	virtual float GetDefaultHealth() const = 0;
 	virtual unsigned char GetPassability() const = 0;
-	virtual GC_Player* GetOwner() const { return NULL; }
+	virtual GC_Player* GetOwner() const { return nullptr; }
 
     // GC_Actor
     virtual void MoveTo(World &world, const vec2d &pos);

@@ -91,7 +91,7 @@ protected:
 	ObjPtr<GC_Pickup>          _pickupCurrent;
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
-	bool IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = NULL);
+	bool IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
 	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
 	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found

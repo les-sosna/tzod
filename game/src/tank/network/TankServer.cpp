@@ -117,7 +117,7 @@ void TankServer::OnListenerEvent()
 	}
 
 
-	SOCKET s = accept(_socketListen, NULL, NULL);
+	SOCKET s = accept(_socketListen, nullptr, nullptr);
 	if( INVALID_SOCKET == s )
 	{
 		TRACE("sv: accept call returned error 0x%08x", WSAGetLastError());

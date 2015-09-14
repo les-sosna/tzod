@@ -18,18 +18,18 @@ static ConfVar* GetVarIfTypeMatch(ConfVarTable *parent, const char *key, ConfVar
 {
 	if( ConfVar *v = parent->Find(key) )
 	{
-		return v->GetType() == type ? v : NULL;
+		return v->GetType() == type ? v : nullptr;
 	}
 	else if( parent->IsFrozen() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return parent->GetVar(key, type).first;
 }
 
 static ConfVar* TableElementFromLua(lua_State *L, ConfVarTable *parent, const char *key)
 {
-	ConfVar* result = NULL;
+	ConfVar* result = nullptr;
 	int valueType = lua_type(L, -1);
 	switch( valueType )
 	{
@@ -46,7 +46,7 @@ static ConfVar* TableElementFromLua(lua_State *L, ConfVarTable *parent, const ch
 		result = GetVarIfTypeMatch(parent, key, lua_objlen(L,-1) ? ConfVar::typeArray : ConfVar::typeTable);
 		break;
 	default:
-		return NULL;
+		return nullptr;
 	}
 
 	return result;
@@ -54,7 +54,7 @@ static ConfVar* TableElementFromLua(lua_State *L, ConfVarTable *parent, const ch
 
 static ConfVar* ArrayElementFromLua(lua_State *L, ConfVarArray *parent, size_t key)
 {
-	ConfVar* result = NULL;
+	ConfVar* result = nullptr;
 	int valueType = lua_type(L, -1);
 	switch( valueType )
 	{
@@ -72,7 +72,7 @@ static ConfVar* ArrayElementFromLua(lua_State *L, ConfVarArray *parent, size_t k
 		break;
 	default:
 //		GetConsole().Format(1) << "Unknown lua type - " << lua_typename(L, valueType);
-		return NULL;
+		return nullptr;
 	}
 
 	return result;
@@ -656,10 +656,10 @@ const char* ConfVarTable::GetTypeName() const
 	return "table";
 }
 
-ConfVar* ConfVarTable::Find(const std::string &name)  // returns NULL if variable not found
+ConfVar* ConfVarTable::Find(const std::string &name)  // returns nullptr if variable not found
 {
 	std::map<std::string, ConfVar*>::iterator it = _val.asTable->find(name);
-	return _val.asTable->end() != it ? it->second : NULL;
+	return _val.asTable->end() != it ? it->second : nullptr;
 }
 
 size_t ConfVarTable::GetSize() const

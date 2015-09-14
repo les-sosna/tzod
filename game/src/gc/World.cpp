@@ -28,7 +28,7 @@ World::World(int X, int Y)
 #ifdef NETWORK_DEBUG
   , _checksum(0)
   , _frame(0)
-  , _dump(NULL)
+  , _dump(nullptr)
 #endif
 {
 	_locationsX  = (X * CELL_SIZE / LOCATION_SIZE + ((X * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
@@ -80,7 +80,7 @@ void World::Clear()
 	if( _dump )
 	{
 		fclose(_dump);
-		_dump = NULL;
+		_dump = nullptr;
 	}
 #endif
     assert(GetList(LIST_objects).empty());
@@ -298,7 +298,7 @@ GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
 		vec2d resultNorm;
 
 		SelectNearest()
-			: result(NULL)
+			: result(nullptr)
 		{
 		}
 
@@ -446,14 +446,14 @@ void World::Step(float dt)
 GC_Object* World::FindObject(const std::string &name) const
 {
 	std::map<std::string, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
-	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : NULL;
+	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 GC_Player* World::GetPlayerByIndex(size_t playerIndex)
 {
-	GC_Player *player = NULL;
+	GC_Player *player = nullptr;
 	FOREACH(GetList(LIST_players), GC_Player, p)
 	{
 		if( 0 == playerIndex-- )

@@ -30,7 +30,7 @@ Text::Text(Window *parent)
   , _drawShadow(true)
 {
 	SetFont("font_small");
-	SetTexture(NULL, false);
+	SetTexture(nullptr, false);
 }
 
 void Text::SetDrawShadow(bool drawShadow)

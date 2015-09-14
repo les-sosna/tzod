@@ -391,7 +391,7 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
 
 	_skinPreview = Window::Create(this);
 	_skinPreview->Move(300, y);
-	_skinPreview->SetTexture(NULL, false);
+	_skinPreview->SetTexture(nullptr, false);
 
 
 	//
@@ -568,7 +568,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	_skinPreview = Window::Create(this);
 	_skinPreview->Move(300, y);
-	_skinPreview->SetTexture(NULL, false);
+	_skinPreview->SetTexture(nullptr, false);
 
 
 	//
@@ -768,7 +768,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	}
 	else
 	{
-		_button2 = NULL;
+		_button2 = nullptr;
 	}
 
 	if( !btn2.empty() && !btn3.empty() )
@@ -778,7 +778,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	}
 	else
 	{
-		_button3 = NULL;
+		_button3 = nullptr;
 	}
 }
 

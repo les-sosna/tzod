@@ -18,7 +18,7 @@ class Grid
 
 public:
 	Grid()
-	  : _data(NULL)
+	  : _data(nullptr)
 	  , _cx(0)
 	  , _cy(0)
 	{

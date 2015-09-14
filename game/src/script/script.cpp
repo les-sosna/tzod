@@ -82,7 +82,7 @@ static int luaT_print(lua_State *L)
 		lua_pushvalue(L, i);   // value to print (1-st arg)
 		lua_call(L, 1, 1);
 		const char *s = lua_tostring(L, -1);  // get result string
-		if( NULL == s )
+		if( nullptr == s )
 		{
 			return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
 		}
@@ -144,7 +144,7 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 		{"object", luaopen_object},
 		{"world", luaopen_world},
 
-		{NULL, NULL}
+		{nullptr, nullptr}
 	};
 
 	for( const luaL_Reg *lib = lualibs; lib->func; ++lib )

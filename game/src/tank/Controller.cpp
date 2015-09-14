@@ -103,7 +103,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		bool move = tmp.x || tmp.y;
 		bool sameDirection = tmp * vehicle->GetDirection() > cos(PI/4);
 
-		bool bBack = move && !sameDirection && NULL != world.TraceNearest(world.grid_rigid_s, vehicle,
+		bool bBack = move && !sameDirection && nullptr != world.TraceNearest(world.grid_rigid_s, vehicle,
 			vehicle->GetPos(), vehicle->GetDirection() * vehicle->GetRadius());
 		bool bForv = move && !bBack;
 

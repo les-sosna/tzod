@@ -83,7 +83,7 @@ ObjectProperty* GC_SpawnPoint::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_SpawnPoint::MyPropertySet::MyExchange(World &world, bool applyToObject)

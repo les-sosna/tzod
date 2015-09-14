@@ -155,27 +155,27 @@ typedef IDirect3D9* (__stdcall *D3DCREATEPROC)(UINT);
 
 RenderDirect3D::RenderDirect3D()
 {
-    _hWnd        = NULL;
+    _hWnd        = nullptr;
 
 	_vaSize      = 0;
 	_iaSize      = 0;
 
-	_indexArray  = NULL;
-	_VertexArray = NULL;
+	_indexArray  = nullptr;
+	_VertexArray = nullptr;
 
-	_curtex      = NULL;
+	_curtex      = nullptr;
 
 	//--------------------------------------
 
 	HMODULE hmod = LoadLibrary("d3d9.dll");
-	if( NULL == hmod )
+	if( nullptr == hmod )
 		throw Direct3D_Exception(E_FAIL);
 
 	D3DCREATEPROC create = (D3DCREATEPROC) GetProcAddress(hmod, "Direct3DCreate9");
-	if( NULL == create )
+	if( nullptr == create )
 		throw Direct3D_Exception(E_FAIL);
 
-	if( NULL == (_d3D = create(D3D_SDK_VERSION)) )
+	if( nullptr == (_d3D = create(D3D_SDK_VERSION)) )
 		throw Direct3D_Exception(E_FAIL);
 }
 
@@ -187,18 +187,18 @@ void RenderDirect3D::Release()
 
 void RenderDirect3D::_cleanup()
 {
-	_curtex = NULL;
+	_curtex = nullptr;
 
 	if( _indexArray )
 	{
 		_pIB->Unlock();
-		_indexArray = NULL;
+		_indexArray = nullptr;
 	}
 
 	if( _VertexArray )
 	{
 		_pVB->Unlock();
-		_VertexArray = NULL;
+		_VertexArray = nullptr;
 	}
 
 	_pIB.Release();
@@ -249,9 +249,9 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	SetRect( &rc, 0, 0, pMode->Width, pMode->Height );
 
 	AdjustWindowRectEx( &rc, GetWindowLong(hWnd, GWL_STYLE),
-		GetMenu(hWnd) != NULL, GetWindowLong(hWnd, GWL_EXSTYLE) );
+		GetMenu(hWnd) != nullptr, GetWindowLong(hWnd, GWL_EXSTYLE) );
 
-	SetWindowPos( hWnd, NULL, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
+	SetWindowPos( hWnd, nullptr, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
 				SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE );
 
 	SetWindowPos( hWnd, HWND_NOTOPMOST, 0, 0, 0, 0,
@@ -325,14 +325,14 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	//
 
 	if( FAILED(_pd3dDevice->CreateVertexBuffer(sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
-		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, NULL)) )
+		D3DUSAGE_WRITEONLY, MYVERTEX_FORMAT, D3DPOOL_DEFAULT, &_pVB, nullptr)) )
 	{
 		TRACE("ERROR: CreateVertexBuffer failed")
 		return false;
 	}
 
 	if( FAILED(_pd3dDevice->CreateIndexBuffer(sizeof(WORD)*INDEX_BUFFER_SIZE,
-		D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &_pIB, NULL)) )
+		D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &_pIB, nullptr)) )
 	{
 		TRACE("ERROR: CreateIndexBuffer failed")
 		return false;
@@ -342,11 +342,11 @@ bool RenderDirect3D::Init(HWND hWnd, const DisplayMode *pMode, bool bFullScreen)
 	V(_pd3dDevice->SetIndices(_pIB));
 
 	V(_pVB->Lock(0,sizeof(MyVertex)*VERTEX_BUFFER_SIZE,(void**)&_VertexArray,D3DLOCK_DISCARD));
-	V(_pIB->Lock(0,sizeof(WORD)*INDEX_BUFFER_SIZE,(void**)&_indexArray, NULL));
+	V(_pIB->Lock(0,sizeof(WORD)*INDEX_BUFFER_SIZE,(void**)&_indexArray, nullptr));
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
-	SetViewport(NULL);
+	SetViewport(nullptr);
 
 	return true;
 }
@@ -361,7 +361,7 @@ void RenderDirect3D::OnResizeWnd()
 		_sizeWindow.cy = rt.bottom - rt.top;
 
 		if( _pd3dDevice )
-			SetViewport(NULL);
+			SetViewport(nullptr);
 	}
 }
 
@@ -475,7 +475,7 @@ void RenderDirect3D::Begin()
 	color.dwColor = 0x00000000;
 	color.a = (BYTE) __max(0, __min(255, int(255.0f * _ambient)));
 
-	V(_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, color.dwColor, 0, 0));
+	V(_pd3dDevice->Clear(0, nullptr, D3DCLEAR_TARGET, color.dwColor, 0, 0));
 	V(_pd3dDevice->BeginScene());
 }
 
@@ -484,7 +484,7 @@ void RenderDirect3D::End()
 	if( _iaSize ) _flush();
 
 	V(_pd3dDevice->EndScene());
-	V(_pd3dDevice->Present(NULL, NULL, NULL, NULL));
+	V(_pd3dDevice->Present(nullptr, nullptr, nullptr, nullptr));
 }
 
 void RenderDirect3D::SetMode(const RenderMode mode)
@@ -494,8 +494,8 @@ void RenderDirect3D::SetMode(const RenderMode mode)
     switch(mode)
 	{
 	case RM_LIGHT:
-		_curtex = NULL;
-		V(_pd3dDevice->SetTexture( 0, NULL ));
+		_curtex = nullptr;
+		V(_pd3dDevice->SetTexture( 0, nullptr ));
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA  ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE       ));
 		V(_pd3dDevice->SetRenderState( D3DRS_COLORWRITEENABLE, D3DCOLORWRITEENABLE_ALPHA));
@@ -508,8 +508,8 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetScissor(NULL);
-		Camera(NULL, 0, 0, 1, 0);
+		SetScissor(nullptr);
+		Camera(nullptr, 0, 0, 1, 0);
 		V(_pd3dDevice->SetRenderState( D3DRS_SRCBLEND,  D3DBLEND_ONE         ));
 		V(_pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA ));
 		V(_pd3dDevice->SetRenderState( D3DRS_COLORWRITEENABLE, D3DCOLORWRITEENABLE_BLUE|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_RED));
@@ -524,7 +524,7 @@ void RenderDirect3D::SetMode(const RenderMode mode)
 
 bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, Image *img)
 {
-	IDirect3DTexture9 *pTex = NULL;
+	IDirect3DTexture9 *pTex = nullptr;
 	HRESULT hr;
 
 	hr = _pd3dDevice->CreateTexture(
@@ -535,14 +535,14 @@ bool RenderDirect3D::TexCreate(DEV_TEXTURE &tex, Image *img)
 		D3DFMT_A8R8G8B8, // Format
 		D3DPOOL_MANAGED, // Pool    ?D3DPOOL_DEFAULT?
 		&pTex,           // ppTexture
-		NULL             // pSharedHandle.
+		nullptr             // pSharedHandle.
 	);
 
     if( FAILED(hr) )
 		return false;
 
 	D3DLOCKED_RECT lr;
-	if( FAILED(hr = pTex->LockRect(0, &lr, NULL, D3DLOCK_DISCARD)) )
+	if( FAILED(hr = pTex->LockRect(0, &lr, nullptr, D3DLOCK_DISCARD)) )
 	{
 		pTex->Release();
 		return false;
@@ -580,8 +580,8 @@ void RenderDirect3D::TexFree(DEV_TEXTURE tex)
 {
 	if( _curtex == tex.ptr )
 	{
-		_curtex = NULL;
-		V(_pd3dDevice->SetTexture(0, NULL));
+		_curtex = nullptr;
+		V(_pd3dDevice->SetTexture(0, nullptr));
 	}
 	((IDirect3DTexture9 *) tex.ptr)->Release();
 }
@@ -598,7 +598,7 @@ void RenderDirect3D::_flush()
 
 	V(_pVB->Lock(0, sizeof(MyVertex)*VERTEX_BUFFER_SIZE,
 		(void**) &_VertexArray, D3DLOCK_DISCARD));
-	V(_pIB->Lock(0, sizeof(WORD)*INDEX_BUFFER_SIZE, (void**) &_indexArray, NULL));
+	V(_pIB->Lock(0, sizeof(WORD)*INDEX_BUFFER_SIZE, (void**) &_indexArray, nullptr));
 
 	ZeroMemory(_VertexArray, sizeof(MyVertex)*VERTEX_BUFFER_SIZE);
 
@@ -667,9 +667,9 @@ void RenderDirect3D::SetAmbient(float ambient)
 DWORD WINAPI RenderDirect3D::_ss_thread(_asyncinfo *lpInfo)
 {
 	DWORD tmp;
-	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, NULL);
+	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, nullptr);
 	WriteFile(lpInfo->file, lpInfo->data,
-		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, NULL);
+		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, nullptr);
 	free(lpInfo->data);
 	CloseHandle(lpInfo->file);
 	delete lpInfo;
@@ -685,10 +685,10 @@ bool RenderDirect3D::TakeScreenshot(TCHAR *fileName)
 						fileName,
 						GENERIC_WRITE,
 						0,
-						NULL,
+						nullptr,
 						CREATE_ALWAYS,
 						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-						NULL);
+						nullptr);
 	if( ai->file == INVALID_HANDLE_VALUE )
 	{
 		delete ai;
@@ -713,7 +713,7 @@ bool RenderDirect3D::TakeScreenshot(TCHAR *fileName)
   //  glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
 
 	DWORD id;
-	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
+	CloseHandle(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
 
 	return true;
 }

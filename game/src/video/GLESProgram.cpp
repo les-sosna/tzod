@@ -82,7 +82,7 @@ static std::unique_ptr<GLuint, ShaderDeleter> LoadShader(GLenum shaderType, cons
     if (shader.get() == 0)
         ThrowAlways("Failed to create GL shader");
     
-    glShaderSource(shader.get(), 1, &source, NULL);
+    glShaderSource(shader.get(), 1, &source, nullptr);
     ThrowIfError("Failed to set shader source");
     
     glCompileShader(shader.get());
@@ -104,7 +104,7 @@ static std::unique_ptr<GLuint, ShaderDeleter> LoadShader(GLenum shaderType, cons
         if( infoLogLength > 0 )
         {
             std::string shaderInfoLog(infoLogLength, '\0');
-            glGetShaderInfoLog(shader.get(), shaderInfoLog.size(), NULL, &shaderInfoLog[0]);
+            glGetShaderInfoLog(shader.get(), shaderInfoLog.size(), nullptr, &shaderInfoLog[0]);
             ThrowIfError("Failed to get shader info log");
             ss << shaderInfoLog;
         }
@@ -161,7 +161,7 @@ GlesProgram::GlesProgram(const char *vertexSource,
         if (infoLogLength > 0)
         {
             std::string programInfoLog(infoLogLength, '\0');
-            glGetProgramInfoLog(program.get(), programInfoLog.size(), NULL, &programInfoLog[0]);
+            glGetProgramInfoLog(program.get(), programInfoLog.size(), nullptr, &programInfoLog[0]);
             ThrowIfError("Failed to get program info log");
             ss << programInfoLog;
         }

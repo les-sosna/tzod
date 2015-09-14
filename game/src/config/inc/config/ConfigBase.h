@@ -176,7 +176,7 @@ public:
 	ConfVarTable();
 	virtual ~ConfVarTable();
 
-	ConfVar* Find(const std::string &name); // returns NULL if variable not found
+	ConfVar* Find(const std::string &name); // returns nullptr if variable not found
 	size_t GetSize() const;
 
 	typedef std::vector<std::string> KeyListType;
@@ -195,8 +195,8 @@ public:
 	ConfVarBool*  SetBool(const std::string &name, bool  value);
 	ConfVarString* SetStr(const std::string &name, const std::string &value);
 
-	ConfVarArray* GetArray(const std::string &name, void (*init)(ConfVarArray*) = NULL);
-	ConfVarTable* GetTable(const std::string &name, void (*init)(ConfVarTable*) = NULL);
+	ConfVarArray* GetArray(const std::string &name, void (*init)(ConfVarArray*) = nullptr);
+	ConfVarTable* GetTable(const std::string &name, void (*init)(ConfVarTable*) = nullptr);
 
 	void Clear();
 	bool Remove(ConfVar * const value);

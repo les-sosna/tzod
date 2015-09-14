@@ -27,7 +27,7 @@ ConsoleBuffer::StreamHelper& ConsoleBuffer::StreamHelper::operator << (char *sz)
 ///////////////////////////////////////////////////////////////////////////////
 
 ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
-  : _log(NULL)
+  : _log(nullptr)
   , _buffer(maxLines * lineLength + maxLines, 0)
   , _times(maxLines)
   , _sev(maxLines)

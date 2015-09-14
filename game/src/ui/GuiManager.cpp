@@ -15,10 +15,10 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _tsDeleteCurrent(false)
   , _captureCountSystem(0)
   , _captureCount(0)
-  , _focusWnd(NULL)
-  , _hotTrackWnd(NULL)
-  , _captureWnd(NULL)
-  , _desktop(NULL)
+  , _focusWnd(nullptr)
+  , _hotTrackWnd(nullptr)
+  , _captureWnd(nullptr)
+  , _desktop(nullptr)
   , _isAppActive(false)
 #ifndef NDEBUG
   , _dbgFocusIsChanging(false)
@@ -65,7 +65,7 @@ void LayoutManager::SetCapture(Window* wnd)
 		assert(0 != _captureCount);
 		if( 0 == --_captureCount )
 		{
-			_captureWnd.Set(NULL);
+			_captureWnd.Set(nullptr);
 		}
 	}
 }
@@ -118,7 +118,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 		}
 
 		// set new focus
-		_focusWnd.Set(focusAccepted ? wp.Get() : NULL);
+		_focusWnd.Set(focusAccepted ? wp.Get() : nullptr);
 		assert(!_focusWnd.Get() || _focusWnd->GetEnabled() && _focusWnd->GetVisible());
 
 		// reset old focus
@@ -129,7 +129,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 				oldFocusWnd->eventLostFocus();
 		}
 	}
-	return NULL != _focusWnd.Get();
+	return nullptr != _focusWnd.Get();
 }
 
 Window* LayoutManager::GetFocusWnd() const
@@ -194,7 +194,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 		}
 		if( !tmp )
 		{
-			SetFocusWnd(NULL);
+			SetFocusWnd(nullptr);
 		}
 		assert(wnd != _focusWnd);
 		return true;
@@ -216,17 +216,17 @@ void LayoutManager::ResetWindow(Window* wnd)
 	assert(wnd);
 
 	if( GetFocusWnd() == wnd )
-		SetFocusWnd(NULL);
+		SetFocusWnd(nullptr);
 
 	if( _hotTrackWnd.Get() == wnd )
 	{
 		_hotTrackWnd->OnMouseLeave();
-		_hotTrackWnd.Set(NULL);
+		_hotTrackWnd.Set(nullptr);
 	}
 
 	if( _captureWnd.Get() == wnd )
 	{
-		_captureWnd.Set(NULL);
+		_captureWnd.Set(nullptr);
 		_captureCount = 0;
 	}
 }
@@ -395,7 +395,7 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 	if( _hotTrackWnd.Get() )
 	{
 		_hotTrackWnd->OnMouseLeave();
-		_hotTrackWnd.Set(NULL);
+		_hotTrackWnd.Set(nullptr);
 	}
 	return false;
 }

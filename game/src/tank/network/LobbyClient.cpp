@@ -55,7 +55,7 @@ static bool ParseServerList(std::vector<std::string> &result, const std::string 
 LobbyClient::LobbyClient()
   : _sessionKey(GenerateKey(LOBBY_KEY_LENGTH))
   , _redirectCount(0)
-  , _timer(CreateWaitableTimer(NULL, FALSE, NULL))
+  , _timer(CreateWaitableTimer(nullptr, FALSE, nullptr))
   , _state(STATE_IDLE)
 {
 	// setup timer
@@ -134,7 +134,7 @@ void LobbyClient::Cancel()
 		// set up the timer to force deletion if command hangs
 		LARGE_INTEGER dueTime;
 		dueTime.QuadPart = -100000000; // 10 seconds
-		SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+		SetWaitableTimer(_timer, &dueTime, 0, nullptr, nullptr, FALSE);
 	}
 }
 
@@ -171,7 +171,7 @@ void LobbyClient::OnHttpResult(int err, const std::string &result, const HttpPar
 					{
 						LARGE_INTEGER dueTime;
 						dueTime.QuadPart = -300000000; // 30 seconds
-						SetWaitableTimer(_timer, &dueTime, 0, NULL, NULL, FALSE);
+						SetWaitableTimer(_timer, &dueTime, 0, nullptr, nullptr, FALSE);
 					}
 					else
 					{

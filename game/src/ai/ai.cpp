@@ -106,7 +106,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	{
 		if( !_pickupCurrent->GetVisible() )
 		{
-			_pickupCurrent = NULL;
+			_pickupCurrent = nullptr;
 		}
 		else if( (_pickupCurrent->GetPos() - vehicle.GetPos()).sqr() <
 		          _pickupCurrent->GetRadius() * _pickupCurrent->GetRadius() )
@@ -188,7 +188,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		break;
 	case 2:
 	case 3:
-		vs._bLight = (NULL != _target);
+		vs._bLight = (nullptr != _target);
 		break;
 	default:
 		vs._bLight = false;
@@ -226,7 +226,7 @@ float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	start.Check();
 	start.UpdatePath(0, end_x, end_y);
-	start._prevCell  = NULL;
+	start._prevCell  = nullptr;
 
 	open.push( RefFieldCell(start) );
 
@@ -322,7 +322,7 @@ float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			_path.push_front(node);
 
 			cell = cell->_prevCell;
-			while( NULL != cell )
+			while( nullptr != cell )
 			{
 				node.coord.x = (float) (cell->GetX() * CELL_SIZE);
 				node.coord.y = (float) (cell->GetY() * CELL_SIZE);
@@ -592,7 +592,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
         return false;
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
-	GC_Vehicle *pOptTarget = NULL;
+	GC_Vehicle *pOptTarget = nullptr;
 
 	std::vector<TargetDesc> targets;
 
@@ -619,7 +619,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 
 				TargetDesc td;
 				td.target = object;
-				td.bIsVisible = (NULL == pObstacle || pObstacle == object);
+				td.bIsVisible = (nullptr == pObstacle || pObstacle == object);
 
 				targets.push_back(td);
 			}
@@ -686,7 +686,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 
 
 	AIPRIORITY optimal  = AIP_NOTREQUIRED;
-	GC_Pickup *pOptItem = NULL;
+	GC_Pickup *pOptItem = nullptr;
 
 	if( !applicants.empty() )
 	{
@@ -696,7 +696,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 		};
 		for( int i = 0; i < 2; ++i )
 		{
-			if( NULL == items[i] ) continue;
+			if( nullptr == items[i] ) continue;
 			assert(items[i]->GetVisible());
 			if( items[i]->GetAttached() ) continue;
 			float l = CreatePath(world, vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
@@ -841,7 +841,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 			{
 				SmoothPath();
 			}
-			_pickupCurrent = NULL;
+			_pickupCurrent = nullptr;
 			SetL2(L2_ATTACK);
 			SetL1(L1_NONE);
 		}
@@ -852,7 +852,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 	}
 	else
 	{
-		_target = NULL;
+		_target = nullptr;
 
 		if( ii_item.priority > AIP_NOTREQUIRED )
 		{
@@ -871,7 +871,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 		}
 		else
 		{
-			_pickupCurrent = NULL;
+			_pickupCurrent = nullptr;
 			SetL2(L2_PATH_SELECT);
 		}
 	}
@@ -929,7 +929,7 @@ bool AIController::Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p)
 
 void AIController::Stop()
 {
-	_target = NULL;
+	_target = nullptr;
 	ClearPath();
 }
 
@@ -953,7 +953,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 	} break;
 	case L2_PATH_SELECT:
 	{
-		assert(NULL == _target);
+		assert(nullptr == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
 			vec2d t = vehicle.GetPos()
@@ -995,7 +995,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 	if( !_path.empty() )
 	{
 		vec2d predictedProj;
-//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, NULL);
+//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
 
 		vec2d currentProj;
 		float offset;
@@ -1087,7 +1087,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 	if( !vehicle.GetWeapon() )
 	{
 		// no targets if no weapon
-		_target = NULL;
+		_target = nullptr;
 		_attackList.clear();
 	}
 
@@ -1217,7 +1217,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 	//{
 	//	// got stuck :(
 	//	SetL1(L1_STICK);
-	//	_pickupCurrent = NULL;
+	//	_pickupCurrent = nullptr;
 	//}
 }
 
@@ -1243,7 +1243,7 @@ bool AIController::IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_R
 	else
 	{
 		if( ppObstacle )
-            *ppObstacle = NULL;
+            *ppObstacle = nullptr;
 		return true;
 	}
 }
@@ -1257,8 +1257,8 @@ void AIController::OnRespawn(World &world, const GC_Vehicle &vehicle)
 
 void AIController::OnDie()
 {
-	_pickupCurrent = NULL;
-	_target = NULL;
+	_pickupCurrent = nullptr;
+	_target = nullptr;
 	ClearPath();
 
 //	_jobManager.UnregisterMember(this);

@@ -27,9 +27,9 @@ Window::Window(Window *parent, LayoutManager *manager)
     : _resident(new Resident(this))
     , _manager(parent ? parent->GetManager() : *manager)
     , _parent(parent)
-    , _firstChild(NULL)
-    , _lastChild(NULL)
-    , _nextSibling(NULL)
+    , _firstChild(nullptr)
+    , _lastChild(nullptr)
+    , _nextSibling(nullptr)
     , _x(0)
     , _y(0)
     , _width(0)
@@ -54,7 +54,7 @@ Window::Window(Window *parent, LayoutManager *manager)
 		_prevSibling = _parent->_lastChild;
 		if( _prevSibling )
 		{
-			assert(NULL == _prevSibling->_nextSibling);
+			assert(nullptr == _prevSibling->_nextSibling);
 			_prevSibling->_nextSibling = this;
 		}
 		_parent->_lastChild = this;
@@ -63,7 +63,7 @@ Window::Window(Window *parent, LayoutManager *manager)
 	}
 	else
 	{
-		_prevSibling = NULL;
+		_prevSibling = nullptr;
 	}
 }
 
@@ -85,12 +85,12 @@ Window::~Window()
 	{
 		if( this == _parent->_firstChild )
 		{
-			assert(NULL == _prevSibling);
+			assert(nullptr == _prevSibling);
 			_parent->_firstChild = _nextSibling;
 		}
 		if( this == _parent->_lastChild )
 		{
-			assert(NULL == _nextSibling);
+			assert(nullptr == _nextSibling);
 			_parent->_lastChild = _prevSibling;
 		}
 	}
@@ -120,12 +120,12 @@ void Window::Destroy()
 
 	// mark window as dead
 	assert(_resident);
-	_resident->ptr = NULL;
+	_resident->ptr = nullptr;
 	if( 0 == _resident->counter )
 	{
 		delete _resident;
 	}
-	_resident = NULL;
+	_resident = nullptr;
 
 	// do destroy
 	delete this;
@@ -381,7 +381,7 @@ void Window::BringToFront()
 
 		assert( this == _nextSibling->_prevSibling );
 		_nextSibling->_prevSibling = _prevSibling;
-		_nextSibling = NULL;
+		_nextSibling = nullptr;
 
 
 		//
@@ -390,7 +390,7 @@ void Window::BringToFront()
 
 		_prevSibling = _parent->_lastChild;
 		assert(_prevSibling);
-		assert(NULL == _prevSibling->_nextSibling);
+		assert(nullptr == _prevSibling->_nextSibling);
 		_prevSibling->_nextSibling = this;
 		_parent->_lastChild = this;
 	}
@@ -423,7 +423,7 @@ void Window::BringToBack()
 
 		assert( this == _prevSibling->_nextSibling );
 		_prevSibling->_nextSibling = _nextSibling;
-		_prevSibling = NULL;
+		_prevSibling = nullptr;
 
 
 		//
@@ -432,7 +432,7 @@ void Window::BringToBack()
 
 		_nextSibling = _parent->_firstChild;
 		assert(_nextSibling);
-		assert(NULL == _nextSibling->_prevSibling);
+		assert(nullptr == _nextSibling->_prevSibling);
 		_nextSibling->_prevSibling = this;
 		_parent->_firstChild = this;
 	}

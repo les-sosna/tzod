@@ -57,7 +57,7 @@ bool Dialog::OnMouseUp(float x, float y, int button)
 	{
 		if( this == GetManager().GetCapture() )
 		{
-			GetManager().SetCapture(NULL);
+			GetManager().SetCapture(nullptr);
 		}
 	}
 	return true;

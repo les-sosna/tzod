@@ -53,7 +53,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 		assert(object == _ppObjects[0]);
 		_objCount = 0;
 		delete[] _ppObjects;
-		_ppObjects = NULL;
+		_ppObjects = nullptr;
 	}
 	else
 	{
@@ -77,7 +77,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 
 Field::Field()
 {
-	_cells = NULL;
+	_cells = nullptr;
 	_cx    = 0;
 	_cy    = 0;
 
@@ -99,7 +99,7 @@ void Field::Clear()
 			delete[] _cells[i];
 		delete[] _cells;
 		//-----------
-		_cells = NULL;
+		_cells = nullptr;
 		_cx    = 0;
 		_cy    = 0;
 	}

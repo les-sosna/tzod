@@ -260,7 +260,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			y += label->GetHeight();
 			y += 5;
 
-			Window *ctrl = NULL;
+			Window *ctrl = nullptr;
 
 			switch( prop->GetType() )
 			{
@@ -329,7 +329,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				GetManager().SetFocusWnd(ctrl);
 			}
 
-			assert(NULL != ctrl);
+			assert(nullptr != ctrl);
 			_ctrls.push_back(ctrl);
 			y += ctrl->GetHeight();
 			y += 10;
@@ -388,7 +388,7 @@ bool PropertyList::OnMouseWheel(float x, float y, float z)
 ///////////////////////////////////////////////////////////////////////////////
 
 ServiceListDataSource::ServiceListDataSource(World &world)
-  : _listener(NULL)
+  : _listener(nullptr)
   , _world(world)
 {
 	_world.eWorld.AddListener(*this);
@@ -407,7 +407,7 @@ void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
 void ServiceListDataSource::RemoveListener(ListDataSourceListener *listener)
 {
 	assert(_listener && _listener == listener);
-	_listener = NULL;
+	_listener = nullptr;
 }
 
 int ServiceListDataSource::GetItemCount() const
@@ -687,7 +687,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
             return zLayers[z];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -696,7 +696,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
   , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager().GetTextureManager().FindSprite("font_small"))
   , _selectionRect(GetManager().GetTextureManager().FindSprite("ui/selection"))
-  , _selectedObject(NULL)
+  , _selectedObject(nullptr)
   , _isObjectNew(false)
   , _click(true)
   , _mbutton(0)
@@ -704,7 +704,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
   , _worldView(worldView)
   , _globL(globL)
 {
-	SetTexture(NULL, false);
+	SetTexture(nullptr, false);
 
 	_help = Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
@@ -776,10 +776,10 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 	else
 	{
 		assert(object == _selectedObject);
-		_selectedObject = NULL;
+		_selectedObject = nullptr;
 		_isObjectNew = false;
 
-		_propList->ConnectTo(NULL);
+		_propList->ConnectTo(nullptr);
 		_propList->SetVisible(false);
 	}
 
@@ -823,7 +823,7 @@ bool EditorLayout::OnMouseUp(float x, float y, int button)
 	{
 		_click = true;
 		_mbutton = 0;
-		GetManager().SetCapture(NULL);
+		GetManager().SetCapture(nullptr);
 	}
 	return true;
 }

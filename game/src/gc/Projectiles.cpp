@@ -138,7 +138,7 @@ void GC_Projectile::TimeStep(World &world, float dt)
 			{
 				continue;
 			}
-			_ignore = NULL;
+			_ignore = nullptr;
 
 			vec2d enter = GetPos() + dx * (it->enter + 0.5f);
 			float depth = it->exit - it->enter;
@@ -155,7 +155,7 @@ void GC_Projectile::TimeStep(World &world, float dt)
 			if( stop )
 			{
 				if( watch )
-					_ignore = NULL;
+					_ignore = nullptr;
 				return;
 			}
 		}
@@ -200,7 +200,7 @@ GC_Rocket::~GC_Rocket()
 
 void GC_Rocket::SelectTarget(World &world)
 {
-	GC_RigidBodyDynamic *pNearestTarget = NULL; // by angle
+	GC_RigidBodyDynamic *pNearestTarget = nullptr; // by angle
 	float nearest_cosinus = 0;
 
 	FOREACH( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )
@@ -278,7 +278,7 @@ void GC_Rocket::TimeStep(World &world, float dt)
 	{
 		if( WEAP_RL_HOMING_TIME < _timeHomming )
 		{
-			_target = NULL;
+			_target = nullptr;
 		}
 		else
 		{
@@ -533,7 +533,7 @@ void GC_BfgCore::Init(World &world)
 
 GC_RigidBodyDynamic* GC_BfgCore::FindTarget(World &world) const
 {
-	GC_RigidBodyDynamic *pNearestTarget = NULL; // by angle
+	GC_RigidBodyDynamic *pNearestTarget = nullptr; // by angle
 	float nearest_cosinus = 0;
 
 	FOREACH( world.GetList(LIST_vehicles), GC_RigidBodyDynamic, veh )

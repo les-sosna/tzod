@@ -320,7 +320,7 @@ bool Edit::OnMouseUp(float x, float y, int button)
 {
 	if( 1 == button && GetManager().GetCapture() == this )
 	{
-		GetManager().SetCapture(NULL);
+		GetManager().SetCapture(nullptr);
 		return true;
 	}
 	return false;

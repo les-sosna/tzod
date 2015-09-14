@@ -50,7 +50,7 @@ ObjectProperty* GC_RigidBodyDynamic::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_RigidBodyDynamic::MyPropertySet::MyExchange(World &world, bool applyToObject)

@@ -80,7 +80,7 @@ ObjectProperty* GC_UserObject::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
@@ -221,7 +221,7 @@ ObjectProperty* GC_Decoration::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)

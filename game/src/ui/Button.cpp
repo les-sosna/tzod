@@ -60,7 +60,7 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 {
 	if( GetManager().GetCapture() == this )
 	{
-		GetManager().SetCapture(NULL);
+		GetManager().SetCapture(nullptr);
 		bool click = (GetState() == statePushed);
 		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
@@ -182,7 +182,7 @@ TextButton::TextButton(Window *parent)
   , _fontTexture((size_t) -1)
   , _drawShadow(true)
 {
-	SetTexture(NULL, false);
+	SetTexture(nullptr, false);
 	OnChangeState(stateNormal);
 }
 
@@ -274,7 +274,7 @@ CheckBox::CheckBox(Window *parent)
   , _drawShadow(true)
   , _isChecked(false)
 {
-	SetTexture(NULL, false);
+	SetTexture(nullptr, false);
 	AlignSizeToContent();
 }
 

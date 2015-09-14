@@ -26,10 +26,10 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 						 FS::FileSystem &fs,
 						 MainMenuCommands commands)
   : Window(parent)
-  , _panel(NULL)
+  , _panel(nullptr)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
-  , _fileDlg(NULL)
+  , _fileDlg(nullptr)
   , _fs(fs)
   , _commands(std::move(commands))
 {
@@ -54,7 +54,7 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 	_panel->SetDrawBackground(false);
 	_panel->SetDrawBorder(false);
 	_panel->Move(0, -_panelFrame->GetHeight());
-	_panelTitle = NULL;
+	_panelTitle = nullptr;
 }
 
 MainMenuDlg::~MainMenuDlg()
@@ -81,7 +81,7 @@ void MainMenuDlg::OnSaveGame()
 	}
 
 	SetVisible(false);
-	assert(NULL == _fileDlg);
+	assert(nullptr == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnSaveGameSelect, this, std::placeholders::_1);
 }
@@ -106,7 +106,7 @@ void MainMenuDlg::OnSaveGameSelect(int result)
 			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 	}
-	_fileDlg = NULL;
+	_fileDlg = nullptr;
 	OnCloseChild(result);
 }
 
@@ -118,7 +118,7 @@ void MainMenuDlg::OnLoadGame()
 	param.extension = "sav";
 
 	SetVisible(false);
-	assert(NULL == _fileDlg);
+	assert(nullptr == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnLoadGameSelect, this, std::placeholders::_1);
 }
@@ -145,7 +145,7 @@ void MainMenuDlg::OnLoadGameSelect(int result)
 			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
 		}
 	}
-	_fileDlg = NULL;
+	_fileDlg = nullptr;
 	OnCloseChild(result);
 }
 
@@ -210,7 +210,7 @@ void MainMenuDlg::OnImportMap()
 	}
 
 	SetVisible(false);
-	assert(NULL == _fileDlg);
+	assert(nullptr == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnImportMapSelect, this, std::placeholders::_1);
 }
@@ -222,7 +222,7 @@ void MainMenuDlg::OnImportMapSelect(int result)
 	{
 		_commands.openMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
-	_fileDlg = NULL;
+	_fileDlg = nullptr;
 	OnCloseChild(result);
 }
 
@@ -241,7 +241,7 @@ void MainMenuDlg::OnExportMap()
 	}
 
 	SetVisible(false);
-	assert(NULL == _fileDlg);
+	assert(nullptr == _fileDlg);
 	_fileDlg = new GetFileNameDlg(GetParent(), param);
 	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnExportMapSelect, this, std::placeholders::_1);
 }
@@ -253,7 +253,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 	{
 		_commands.exportMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
-	_fileDlg = NULL;
+	_fileDlg = nullptr;
 	OnCloseChild(result);
 }
 
@@ -379,7 +379,7 @@ void MainMenuDlg::OnTimeStep(float dt)
 				_panel->GetFirstChild()->Destroy();
 			}
 			_panel->Move(0, -_panelFrame->GetHeight());
-			_panelTitle = NULL;
+			_panelTitle = nullptr;
 
 			if( PT_NONE != _ptype )
 			{

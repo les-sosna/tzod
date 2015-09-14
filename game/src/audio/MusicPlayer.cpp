@@ -38,7 +38,7 @@ MusicPlayer::MusicPlayer()
 
 MusicPlayer::~MusicPlayer()
 {
-//	g_conf.s_musicvolume.eventChange = NULL;
+//	g_conf.s_musicvolume.eventChange = nullptr;
 	Cleanup();
     alDeleteSources(1, &_source);
     LogALError();
@@ -137,10 +137,10 @@ bool MusicPlayer::Load(std::shared_ptr<FS::MemMap> file)
 	ov_callbacks cb;
 	cb.read_func  = &MusicPlayer::read_func;
 	cb.seek_func  = &MusicPlayer::seek_func;
-	cb.close_func = NULL;
+	cb.close_func = nullptr;
 	cb.tell_func  = &MusicPlayer::tell_func;
 	
-	if( (ov_open_callbacks(&_state, &_vorbisFile, NULL, 0, cb)) != 0 )
+	if( (ov_open_callbacks(&_state, &_vorbisFile, nullptr, 0, cb)) != 0 )
 	{
         Cleanup();
 		return false;

@@ -104,7 +104,7 @@ void Socket::SetCallback(Delegate<void()> callback)
 
 void Socket::Attach(SOCKET s)
 {
-	assert(NULL == _event);
+	assert(nullptr == _event);
 	assert(INVALID_SOCKET == _socket);
 	assert(INVALID_SOCKET != s);
 	_socket = s;

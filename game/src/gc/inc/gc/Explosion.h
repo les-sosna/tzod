@@ -25,7 +25,7 @@ class GC_Explosion : public GC_Actor
 			distance = 0;
 			checked  = false;
 			open     = true;
-			parent   = NULL;
+			parent   = nullptr;
 		};
 
 		float GetRealDistance() const

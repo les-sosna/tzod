@@ -105,7 +105,7 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 {
 	std::vector<GC_SpawnPoint*> points;
 
-	GC_SpawnPoint *pBestPoint = NULL;
+	GC_SpawnPoint *pBestPoint = nullptr;
 	float max_dist = -1;
 
 	FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
@@ -237,7 +237,7 @@ ObjectProperty* GC_Player::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)

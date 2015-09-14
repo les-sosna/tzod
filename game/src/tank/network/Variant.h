@@ -20,7 +20,7 @@ public:
 	bool EntityProbe() const;
 	bool IsEmpty() const;
 
-	int Send(boost::asio::ip::tcp::socket s, size_t *outSent = NULL);
+	int Send(boost::asio::ip::tcp::socket s, size_t *outSent = nullptr);
 	int Recv(boost::asio::ip::tcp::socket s);
 
 	size_t GetTraffic() const;

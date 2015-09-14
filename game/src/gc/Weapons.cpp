@@ -748,7 +748,7 @@ void GC_Weap_Zippo::TimeStep(World &world, float dt)
 		while( _timeBurn > 0 )
 		{
 			auto &tmp = world.New<GC_FireSpark>(GetPos() + world.net_vrand(33), SPEED_SMOKE/2,
-												GetVehicle(), GetVehicle() ? GetVehicle()->GetOwner() : NULL, true);
+												GetVehicle(), GetVehicle() ? GetVehicle()->GetOwner() : nullptr, true);
 			tmp.SetLifeTime(0.3f);
 			tmp.TimeStep(world, _timeBurn);
 			_timeBurn -= 0.01f;

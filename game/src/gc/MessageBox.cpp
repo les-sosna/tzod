@@ -26,7 +26,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_MessageBox)
 }
 
 GC_MessageBox::GC_MessageBox(World &world)
-  : _msgbox(NULL)
+  : _msgbox(nullptr)
   , _option1("OK")
   , _autoClose(1)
 {
@@ -36,7 +36,7 @@ GC_MessageBox::GC_MessageBox(World &world)
 }
 
 GC_MessageBox::GC_MessageBox(FromFile)
-  : _msgbox(NULL)
+  : _msgbox(nullptr)
 {
 }
 

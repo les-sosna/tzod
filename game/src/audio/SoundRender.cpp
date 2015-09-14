@@ -106,11 +106,11 @@ static void LoadOggVorbis(std::shared_ptr<FS::Stream> stream, FormatDesc &outFor
 	ov_callbacks cb;
 	cb.read_func  = read_func;
 	cb.seek_func  = seek_func;
-	cb.close_func = NULL;
+	cb.close_func = nullptr;
 	cb.tell_func  = tell_func;
 
 	OggVorbis_File vf;
-	if( int result = ov_open_callbacks(&state, &vf, NULL, 0, cb) )
+	if( int result = ov_open_callbacks(&state, &vf, nullptr, 0, cb) )
 	{
 		switch( result )
 		{
@@ -126,7 +126,7 @@ static void LoadOggVorbis(std::shared_ptr<FS::Stream> stream, FormatDesc &outFor
 	try
 	{
 		vorbis_info *pinfo = ov_info(&vf, -1);
-		if( NULL == pinfo )
+		if( nullptr == pinfo )
 		{
 			throw std::runtime_error("could not get info from ov stream");
 		}

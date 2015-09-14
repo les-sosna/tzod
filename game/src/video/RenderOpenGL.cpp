@@ -235,8 +235,8 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(NULL);
-		Camera(NULL, 0, 0, 1);
+		SetViewport(nullptr);
+		Camera(nullptr, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -370,9 +370,9 @@ void RenderOpenGL::SetAmbient(float ambient)
 void RenderOpenGL::_ss_thread(_asyncinfo *lpInfo)
 {
 //	DWORD tmp;
-//	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, NULL);
+//	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, nullptr);
 //	WriteFile(lpInfo->file, lpInfo->data,
-//		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, NULL);
+//		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, nullptr);
 	free(lpInfo->data);
 //	CloseHandle(lpInfo->file);
 	delete lpInfo;
@@ -387,10 +387,10 @@ bool RenderOpenGL::TakeScreenshot(char *fileName)
 //						fileName,
 //						GENERIC_WRITE,
 //						0,
-//						NULL,
+//						nullptr,
 //						CREATE_ALWAYS,
 //						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-//						NULL);
+//						nullptr);
 //	if( ai->file == INVALID_HANDLE_VALUE )
 //	{
 //		delete ai;
@@ -415,7 +415,7 @@ bool RenderOpenGL::TakeScreenshot(char *fileName)
 //	glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
 
 //	DWORD id;
-//	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
+//	CloseHandle(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
 
 	return true;
 }

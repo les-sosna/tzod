@@ -137,7 +137,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	(new ControlProfileDlg(this, NULL))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	(new ControlProfileDlg(this, nullptr))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
 }
 
 void SettingsDlg::OnEditProfile()

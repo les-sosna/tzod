@@ -266,8 +266,8 @@ void RenderGLES2::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(NULL);
-		Camera(NULL, 0, 0, 1);
+		SetViewport(nullptr);
+		Camera(nullptr, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);

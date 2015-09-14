@@ -133,7 +133,7 @@ int world_exists(lua_State *L)
 
 	const char *name = luaL_checkstring(L, 1);
     World &world = luaT_getworld(L);
-	lua_pushboolean(L, NULL != world.FindObject(name));
+	lua_pushboolean(L, nullptr != world.FindObject(name));
 	return 1;
 }
 

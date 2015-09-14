@@ -31,7 +31,7 @@ std::vector<std::string> FS::FileSystem::EnumAllFiles(const std::string &mask)
 std::shared_ptr<FS::File> FS::FileSystem::RawOpen(const std::string &fileName, FileMode mode)
 {
 	throw std::runtime_error("Base file system can't contain any files");
-	return NULL;
+	return nullptr;
 }
 
 std::shared_ptr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
@@ -49,7 +49,7 @@ std::shared_ptr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string 
 	if( _children.end() == it )
 	{
 		if( nothrow )
-			return NULL;
+			return nullptr;
 		else
 			throw std::runtime_error("node not found in base file system");
 	}
@@ -83,9 +83,9 @@ static std::string w2s(const std::wstring w)
 }
 static std::string StrFromErr(DWORD dwMessageId)
 {
-	LPWSTR msgBuf = NULL;
+	LPWSTR msgBuf = nullptr;
 	DWORD msgSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                   NULL, dwMessageId, 0, (LPWSTR) &msgBuf, 0, NULL);
+                                   nullptr, dwMessageId, 0, (LPWSTR) &msgBuf, 0, nullptr);
 	while (msgBuf && msgSize)
 	{
 		if (msgBuf[msgSize - 1] == L'\n' || msgBuf[msgSize - 1] == L'\r')
@@ -142,10 +142,10 @@ FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
 	_file.h = ::CreateFileW(fileName.c_str(), // lpFileName
 	    dwDesiredAccess,
 	    dwShareMode,
-	    NULL,                           // lpSecurityAttributes
+	    nullptr,                           // lpSecurityAttributes
 	    dwCreationDisposition,
 	    FILE_FLAG_SEQUENTIAL_SCAN,      // dwFlagsAndAttributes
-	    NULL);                          // hTemplateFile
+	    nullptr);                          // hTemplateFile
 
 	if( INVALID_HANDLE_VALUE == _file.h )
 	{
@@ -202,7 +202,7 @@ FS::OSFileSystem::OSFile::OSStream::~OSStream()
 size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
 	DWORD bytesRead;
-	if( !ReadFile(_hFile, dst, size * count, &bytesRead, NULL) )
+	if( !ReadFile(_hFile, dst, size * count, &bytesRead, nullptr) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
@@ -216,7 +216,7 @@ size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t c
 void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 {
 	DWORD written;
-	BOOL result = WriteFile(_hFile, src, size, &written, NULL);
+	BOOL result = WriteFile(_hFile, src, size, &written, nullptr);
 	if( !result || written != size )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
@@ -256,7 +256,7 @@ long long FS::OSFileSystem::OSFile::OSStream::Tell() const
 FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent, HANDLE hFile)
   : _file(parent)
   , _hFile(hFile)
-  , _data(NULL)
+  , _data(nullptr)
   , _size(0)
 {
 	SetupMapping();
@@ -273,20 +273,20 @@ FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 
 void FS::OSFileSystem::OSFile::OSMemMap::SetupMapping()
 {
-	_size = GetFileSize(_hFile, NULL);
+	_size = GetFileSize(_hFile, nullptr);
 	if( INVALID_FILE_SIZE == _size )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
-	_map.h = CreateFileMapping(_hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-	if( NULL == _map.h )
+	_map.h = CreateFileMapping(_hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
+	if( nullptr == _map.h )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 
 	_data = MapViewOfFile(_map.h, FILE_MAP_READ, 0, 0, 0);
-	if( NULL == _data )
+	if( nullptr == _data )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
@@ -305,7 +305,7 @@ unsigned long FS::OSFileSystem::OSFile::OSMemMap::GetSize() const
 void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 {
 	BOOL bUnmapped = UnmapViewOfFile(_data);
-	_data = NULL;
+	_data = nullptr;
 	_size = 0;
 	if( !bUnmapped )
 	{
@@ -314,7 +314,7 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 	CloseHandle(_map.h);
 
-	if( INVALID_SET_FILE_POINTER == SetFilePointer(_hFile, size, NULL, FILE_BEGIN) )
+	if( INVALID_SET_FILE_POINTER == SetFilePointer(_hFile, size, nullptr, FILE_BEGIN) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
@@ -333,10 +333,10 @@ std::shared_ptr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &ro
 {
 	// convert to absolute path
 	std::wstring tmpRel = s2w(rootDirectory);
-	if (DWORD len = GetFullPathNameW(tmpRel.c_str(), 0, NULL, NULL))
+	if (DWORD len = GetFullPathNameW(tmpRel.c_str(), 0, nullptr, nullptr))
 	{
 		std::wstring tmpFull(len, L'\0');
-		if (DWORD len2 = GetFullPathNameW(tmpRel.c_str(), len, &tmpFull[0], NULL))
+		if (DWORD len2 = GetFullPathNameW(tmpRel.c_str(), len, &tmpFull[0], nullptr))
 		{
 			tmpFull.resize(len2); // truncate terminating \0
 			return std::make_shared<OSFileSystem>(std::move(tmpFull));
@@ -420,11 +420,11 @@ try
 	{
 		if( create )
 		{
-			if (!CreateDirectoryW(tmpDir.c_str(), NULL))
+			if (!CreateDirectoryW(tmpDir.c_str(), nullptr))
 			{
 				// creation failed
 				if( nothrow )
-					return NULL;
+					return nullptr;
 				else
 					throw std::runtime_error(StrFromErr(GetLastError()));
 			}
@@ -436,7 +436,7 @@ try
 				if (INVALID_HANDLE_VALUE == search2)
 				{
 					if (nothrow)
-						return NULL;
+						return nullptr;
 					else
 						throw std::runtime_error(StrFromErr(GetLastError()));
 				}
@@ -446,7 +446,7 @@ try
 		{
 			// directory not found
 			if( nothrow )
-				return NULL;
+				return nullptr;
 			else
 				throw std::runtime_error(StrFromErr(GetLastError()));
 		}
@@ -676,7 +676,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
             if( mkdir(tmpDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) )
             {
                 if( nothrow )
-                    return NULL;
+                    return nullptr;
                 else
                     throw std::runtime_error("could not create directory");
             }
@@ -684,7 +684,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
         else
         {
             if( nothrow )
-                return NULL;
+                return nullptr;
             else
                 throw std::runtime_error(tmpDir + " - directory not found");
         }
@@ -692,7 +692,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
     else if( !S_ISDIR(s.st_mode) )
     {
         if( nothrow )
-            return NULL;
+            return nullptr;
         else
             throw std::runtime_error("not a directory");
     }

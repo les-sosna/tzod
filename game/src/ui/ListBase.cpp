@@ -8,7 +8,7 @@ namespace UI
 {
 
 ListDataSourceDefault::ListDataSourceDefault()
-  : _listener(NULL)
+  : _listener(nullptr)
 {
 }
 
@@ -20,7 +20,7 @@ void ListDataSourceDefault::AddListener(ListDataSourceListener *cb)
 void ListDataSourceDefault::RemoveListener(ListDataSourceListener *cb)
 {
 	assert(_listener == cb);
-	_listener = NULL;
+	_listener = nullptr;
 }
 
 int ListDataSourceDefault::GetItemCount() const

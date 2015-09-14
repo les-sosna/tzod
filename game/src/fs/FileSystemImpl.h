@@ -17,10 +17,10 @@ class OSFileSystem : public FileSystem
 	struct AutoHandle
 	{
 		HANDLE h;
-		AutoHandle() : h(NULL) {}
+		AutoHandle() : h(nullptr) {}
 		~AutoHandle()
 		{
-			if( NULL != h && INVALID_HANDLE_VALUE != h )
+			if( nullptr != h && INVALID_HANDLE_VALUE != h )
 			{
 				CloseHandle(h);
 			}

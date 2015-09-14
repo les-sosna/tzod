@@ -37,7 +37,7 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 {
 	const char *pname = lua_tostring(L, -2);
 
-	ObjectProperty *p = NULL;
+	ObjectProperty *p = nullptr;
 
 	for( int i = 0; i < properties.GetCount(); ++i )
 	{
@@ -46,10 +46,10 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 		{
 			break;
 		}
-		p = NULL;
+		p = nullptr;
 	}
 
-	if( NULL == p )
+	if( nullptr == p )
 	{
 		return 0;  // property not found
 	}

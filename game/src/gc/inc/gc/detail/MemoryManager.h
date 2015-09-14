@@ -49,8 +49,8 @@ class MemoryPool
 		size_t _thisBlockIdx;
 
 		Block(size_t idx)
-		  : _prevFree(NULL)
-		  , _nextFree(NULL)
+		  : _prevFree(nullptr)
+		  , _nextFree(nullptr)
 		  , _firstFreeBlank(_blanks)
 		  , _used(0)
 		  , _thisBlockIdx(idx)
@@ -62,7 +62,7 @@ class MemoryPool
 			// link together empty object blanks
 			BlankObject *tmp(_blanks);
 			BlankObject *end(_blanks + block_size - 1);
-			tmp->_prev = NULL;
+			tmp->_prev = nullptr;
 			while( tmp != end )
 			{
 				tmp->_block = this;
@@ -74,7 +74,7 @@ class MemoryPool
 				++tmp;
 			}
 			end->_block = this;
-			end->_next = NULL;
+			end->_next = nullptr;
 #ifndef NDEBUG
             end->_dbgBusy = false;
 #endif
@@ -99,13 +99,13 @@ class MemoryPool
 #endif
 				_firstFreeBlank = _firstFreeBlank->_next;
 				if( _firstFreeBlank )
-					_firstFreeBlank->_prev = NULL;
+					_firstFreeBlank->_prev = nullptr;
 				return tmp;
 			}
 			else
 			{
 				assert(!"not implemented");
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -121,7 +121,7 @@ class MemoryPool
 			if( _firstFreeBlank )
 				_firstFreeBlank->_prev = p;
 			p->_next = _firstFreeBlank;
-			p->_prev = NULL;
+			p->_prev = nullptr;
 			_firstFreeBlank = p;
 			--_used;
 		}
@@ -155,7 +155,7 @@ public:
 	  : _blocks((BlockPtr*) malloc(sizeof(BlockPtr)))
 	  , _blockCount(1)
 	  , _firstEmptyIdx(0)
-	  , _freeBlock(NULL)
+	  , _freeBlock(nullptr)
 #ifndef NDEBUG
 	  , _allocatedCount(0)
 	  , _allocatedPeak(0)
@@ -163,7 +163,7 @@ public:
 	{
 		if( !_blocks )
 			throw std::bad_alloc();
-		_blocks->_block = NULL;
+		_blocks->_block = nullptr;
 		_blocks->_nextEmptyIdx = 1; // out of range
 	}
 
@@ -195,7 +195,7 @@ public:
 					throw std::bad_alloc();
 				for( size_t i = _blockCount; i < _blockCount * 2; ++i )
 				{
-					_blocks[i]._block = NULL;
+					_blocks[i]._block = nullptr;
 					_blocks[i]._nextEmptyIdx = i + 1; // last is out of range
 				}
 				_blockCount *= 2;
@@ -223,8 +223,8 @@ public:
 			Block *tmp = _freeBlock;
 			_freeBlock = tmp->_nextFree;
 			if( _freeBlock )
-				_freeBlock->_prevFree = NULL;
-			tmp->_nextFree = NULL;
+				_freeBlock->_prevFree = nullptr;
+			tmp->_nextFree = nullptr;
 		}
 
 		return (T *) result->_data;
@@ -263,7 +263,7 @@ public:
 			if( block->_nextFree )
 				block->_nextFree->_prevFree = block->_prevFree;
 
-			_blocks[block->_thisBlockIdx]._block = NULL;
+			_blocks[block->_thisBlockIdx]._block = nullptr;
 			_blocks[block->_thisBlockIdx]._nextEmptyIdx = _firstEmptyIdx;
 			_firstEmptyIdx = block->_thisBlockIdx;
 

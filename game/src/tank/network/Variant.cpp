@@ -106,7 +106,7 @@ void DataStream::EntityEnd()
 		if( _serialization )
 		{
 			assert(0 == _z.avail_in);
-			_z.next_in = NULL;
+			_z.next_in = nullptr;
 			do 
 			{
 				_z.next_out = g_buffer;
@@ -213,14 +213,14 @@ bool Variant::_init = false;
 ///////////////////////////////////////////////////////////////////////////////
 
 Variant::Variant()
-  : _data(NULL)
+  : _data(nullptr)
   , _type(-1)
 {
 }
 
 Variant::Variant(const Variant &src)
   : _type(src._type)
-  , _data(src._data ? _types[src._type].ctor(src._data) : NULL)
+  , _data(src._data ? _types[src._type].ctor(src._data) : nullptr)
 {
 }
 
@@ -240,7 +240,7 @@ void Variant::Clear()
 	if( _data )
 	{
 		_types[_type].dtor(_data);
-		_data = NULL;
+		_data = nullptr;
 		_type = -1;
 	}
 }
@@ -256,7 +256,7 @@ Variant& Variant::operator = (const Variant &src)
 void Variant::ChangeType(TypeId type)
 {
 	Clear();
-	_data = _types[type].ctor(NULL);
+	_data = _types[type].ctor(nullptr);
 	_type = type;
 }
 

@@ -184,7 +184,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 			if( d <= radius)
 			{
 				GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) world.TraceNearest(
-					world.grid_rigid_s, NULL, GetPos(), dir);
+					world.grid_rigid_s, nullptr, GetPos(), dir);
 
 				if( object && object != pDamObject )
 				{
@@ -219,7 +219,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 		});
 	}
 
-	_owner = NULL;
+	_owner = nullptr;
 }
 
 void GC_Explosion::Resume(World &world)

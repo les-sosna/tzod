@@ -95,7 +95,7 @@ protected:
 	void OnVisibleChangeInternal(bool visible, bool inherited);
 
 protected:
-	Window(Window *parent, LayoutManager *manager = NULL);
+	Window(Window *parent, LayoutManager *manager = nullptr);
 	virtual ~Window(); // delete via Destroy() only
 
 public:
@@ -233,7 +233,7 @@ class WindowWeakPtr
 {
 public:
 	explicit WindowWeakPtr(Window *p)
-		: _resident(p ? p->_resident : NULL)
+		: _resident(p ? p->_resident : nullptr)
 	{
 		assert(!p || _resident);
 		assert(!_resident || _resident->ptr);
@@ -242,7 +242,7 @@ public:
 
 	~WindowWeakPtr()
 	{
-		Set(NULL);
+		Set(nullptr);
 	}
 
 	Window* operator->() const
@@ -253,7 +253,7 @@ public:
 
 	Window* Get() const
 	{
-		return _resident ? _resident->ptr : NULL;
+		return _resident ? _resident->ptr : nullptr;
 	}
 
 	void Set(Window *p)
@@ -264,7 +264,7 @@ public:
 			delete _resident;
 		}
 
-		_resident = p ? p->_resident : NULL;
+		_resident = p ? p->_resident : nullptr;
 		assert(!p || _resident);
 		assert(!_resident || _resident->ptr);
 		if( _resident ) _resident->counter++;

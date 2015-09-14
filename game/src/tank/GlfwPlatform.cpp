@@ -107,7 +107,7 @@ static void OnPrintScreen()
 	/*
 	 // generate a file name
 
-	 CreateDirectory(DIR_SCREENSHOTS, NULL);
+	 CreateDirectory(DIR_SCREENSHOTS, nullptr);
 	 SetCurrentDirectory(DIR_SCREENSHOTS);
 
 	 int n = g_conf.r_screenshot.GetInt();

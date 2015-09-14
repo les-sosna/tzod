@@ -39,7 +39,7 @@ GC_Trigger::~GC_Trigger()
 bool GC_Trigger::GetVisible(World &world, const GC_Vehicle *v) const
 {
 	GC_RigidBodyStatic *object = world.TraceNearest(
-		world.grid_rigid_s, NULL, GetPos(), v->GetPos() - GetPos());
+		world.grid_rigid_s, nullptr, GetPos(), v->GetPos() - GetPos());
 	return object == v;
 }
 
@@ -95,7 +95,7 @@ void GC_Trigger::TimeStep(World &world, float dt)
 	{
 		if( !_veh || !Test(world, _veh) || !CheckFlags(GC_FLAG_TRIGGER_ENABLED) )
 		{
-			_veh = NULL;
+			_veh = nullptr;
 			SetFlags(GC_FLAG_TRIGGER_ACTIVATED, false);
 			for( auto ls: world.eGC_Trigger._listeners )
 				ls->OnLeave(*this);
@@ -188,7 +188,7 @@ ObjectProperty* GC_Trigger::MyPropertySet::GetProperty(int index)
 	}
 
 	assert(false);
-	return NULL;
+	return nullptr;
 }
 
 void GC_Trigger::MyPropertySet::MyExchange(World &world, bool applyToObject)

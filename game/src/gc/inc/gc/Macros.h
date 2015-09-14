@@ -1,6 +1,6 @@
 #pragma once
 
-#define SAFE_KILL(w, p)      { if(p) (p)->Kill(w); (p)=NULL; }
+#define SAFE_KILL(w, p)      { if(p) (p)->Kill(w); (p)=nullptr; }
 
 #define FOREACH(ls, type, var)                                              \
 	if( type *var = (type *) (0xffffffff) )                                 \
