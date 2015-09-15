@@ -20,8 +20,8 @@ void GameView::OnGameContextChanging()
 
 void GameView::OnGameContextChanged()
 {
-    if (GameContextBase *gc = GetAppState().GetGameContext())
+    if (auto gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
     {
-        _harness.reset(new GameViewHarness(gc->GetWorld()));
+        _harness.reset(new GameViewHarness(gameContext->GetWorld(), gameContext->GetWorldController()));
     }
 }

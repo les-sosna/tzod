@@ -490,22 +490,22 @@ void Desktop::OnGameContextChanging()
 
 void Desktop::OnGameContextChanged()
 {
-	if (auto *gc = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
+	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
 		_game = new GameLayout(this,
-							   *gc,
-							   _worldView,
-							   gc->GetWorldController(),
-							   _defaultCamera);
+		                       *gameContext,
+		                       _worldView,
+		                       gameContext->GetWorldController(),
+		                       _defaultCamera);
 		_game->Resize(GetWidth(), GetHeight());
 		_game->BringToBack();
 
 		SetEditorMode(false);
 	}
 
-	if (auto *gc = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
+	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
-		_editor = new EditorLayout(this, gc->GetWorld(), _worldView, _defaultCamera, _globL.get());
+		_editor = new EditorLayout(this, editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get());
 		_editor->Resize(GetWidth(), GetHeight());
 		_editor->BringToBack();
 		_editor->SetVisible(false);
