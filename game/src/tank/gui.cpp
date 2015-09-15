@@ -10,8 +10,6 @@
 #include "core/Debug.h"
 
 #include <gc/Player.h>
-#include <gc/World.h>
-#include <gc/Macros.h>
 #include <gc/VehicleClasses.h>
 
 #include "network/CommonTypes.h"

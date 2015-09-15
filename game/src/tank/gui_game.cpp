@@ -9,7 +9,6 @@
 #include <app/Deathmatch.h>
 #include <app/GameContext.h>
 #include <app/WorldController.h>
-#include <gc/Macros.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>

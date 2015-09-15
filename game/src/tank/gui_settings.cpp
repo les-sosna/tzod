@@ -4,9 +4,6 @@
 #include "gui_settings.h"
 #include "KeyMapper.h"
 
-#include <gc/Object.h>
-#include <gc/World.h>
-#include <gc/Macros.h>
 #include <video/TextureManager.h>
 #include <loc/Language.h>
 #include <ui/Text.h>
@@ -19,6 +16,7 @@
 #include <ui/GuiManager.h>
 
 #include <GLFW/glfw3.h>
+#include <algorithm>
 #include <sstream>
 
 namespace UI
