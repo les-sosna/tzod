@@ -24,6 +24,19 @@ std::vector<GC_Player*> WorldController::GetLocalPlayers()
 	return players;
 }
 
+std::vector<GC_Player*> WorldController::GetAIPlayers()
+{
+	std::vector<GC_Player*> players;
+	FOREACH(_world.GetList(LIST_players), GC_Player, player)
+	{
+		if (!player->GetIsHuman())
+		{
+			players.push_back(player);
+		}
+	}
+	return players;
+}
+
 void WorldController::SendControllerStates(ControllerStateMap stateMap)
 {
 	for (auto playerState: stateMap)
@@ -32,4 +45,3 @@ void WorldController::SendControllerStates(ControllerStateMap stateMap)
 		vehicle->SetControllerState(playerState.second);
 	}
 }
-

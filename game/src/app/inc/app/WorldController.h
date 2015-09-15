@@ -11,9 +11,10 @@ class GC_Player;
 class WorldController
 {
 public:
-	WorldController(World &world);
+	explicit WorldController(World &world);
 
 	std::vector<GC_Player*> GetLocalPlayers();
+	std::vector<GC_Player*> GetAIPlayers();
 
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	void SendControllerStates(ControllerStateMap stateMap);

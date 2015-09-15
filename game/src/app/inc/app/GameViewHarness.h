@@ -4,10 +4,11 @@
 #include <gc/WorldEvents.h>
 #include <math/MyMath.h>
 #include <stddef.h>
-#include <unordered_map>
+#include <vector>
 
 class DrawingContext;
 class World;
+class WorldController;
 class WorldView;
 class GC_Player;
 
@@ -16,10 +17,9 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
 class GameViewHarness
     : ObjectListener<GC_Explosion>
     , ObjectListener<GC_RigidBodyStatic>
-    , ObjectListener<World>
 {
 public:
-    GameViewHarness(World &world);
+    GameViewHarness(World &world, WorldController &worldController);
     ~GameViewHarness();
 
     struct CanvasToWorldResult
@@ -28,20 +28,21 @@ public:
         bool visible;
     };
 
-    CanvasToWorldResult CanvasToWorld(const GC_Player &player, int x, int y) const;
+    CanvasToWorldResult CanvasToWorld(unsigned int viewIndex, int x, int y) const;
     void SetCanvasSize(int pxWidth, int pxHeight);
     void RenderGame(DrawingContext &dc, const WorldView &worldView, vec2d defaultEye, float defaultZoom) const;
     void Step(float dt);
 
 private:
     World &_world;
-    std::unordered_map<const GC_Player*, Camera> _cameras;
+    WorldController &_worldController;
+    std::vector<Camera> _cameras;
     int _pxWidth;
     int _pxHeight;
 
-	mutable const Camera *_maxShakeCamera;
-	const Camera& GetMaxShakeCamera() const;
-	bool IsSingleCamera() const;
+    mutable const Camera *_maxShakeCamera;
+    const Camera& GetMaxShakeCamera() const;
+    bool IsSingleCamera() const;
 
     // ObjectListener<Explosion>
     void OnBoom(GC_Explosion &obj, float radius, float damage) override;
@@ -49,10 +50,4 @@ private:
     // ObjectListener<GC_RigidBodyStatic>
     void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override {}
     void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
-
-    // ObjectListener<World>
-    void OnGameStarted() override {}
-    void OnGameFinished() override {}
-    void OnKill(GC_Object &obj) override;
-    void OnNewObject(GC_Object &obj) override;
 };

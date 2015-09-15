@@ -1,10 +1,10 @@
 #include "inc/app/GameViewHarness.h"
 #include "inc/app/Camera.h"
+#include "inc/app/WorldController.h"
 #include <gc/Explosion.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
-#include <gc/Macros.h>
 #include <render/WorldView.h>
 #include <cassert>
 
@@ -51,32 +51,33 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
     return viewports[camIndex];
 }
 
-GameViewHarness::GameViewHarness(World &world)
+GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
   : _world(world)
+  , _worldController(worldController)
   , _maxShakeCamera(nullptr)
 {
-    _world.eWorld.AddListener(*this);
     _world.eGC_RigidBodyStatic.AddListener(*this);
     _world.eGC_Explosion.AddListener(*this);
 
-    FOREACH(world.GetList(LIST_players), GC_Player, player)
-    {
-        OnNewObject(*player);
-    }
+	for (GC_Player *player: worldController.GetLocalPlayers())
+	{
+		assert(player);
+		vec2d pos = player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d(_world._sx / 2, _world._sy / 2);
+		_cameras.emplace_back(pos, *player);
+	}
 }
 
 GameViewHarness::~GameViewHarness()
 {
     _world.eGC_Explosion.RemoveListener(*this);
     _world.eGC_RigidBodyStatic.RemoveListener(*this);
-    _world.eWorld.RemoveListener(*this);
 }
 
-GameViewHarness::CanvasToWorldResult GameViewHarness::CanvasToWorld(const GC_Player &player, int x, int y) const
+GameViewHarness::CanvasToWorldResult GameViewHarness::CanvasToWorld(unsigned int viewIndex, int x, int y) const
 {
-    assert(_cameras.count(&player));
+    assert(viewIndex < _cameras.size());
     CanvasToWorldResult result;
-    const Camera &camera = IsSingleCamera() ? GetMaxShakeCamera() :_cameras.find(&player)->second;
+    const Camera &camera = IsSingleCamera() ? GetMaxShakeCamera() :_cameras[viewIndex];
     RectRB viewport = camera.GetViewport();
     x -= viewport.left;
     y -= viewport.top;
@@ -102,14 +103,10 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
             vec2d eye = GetMaxShakeCamera().GetCameraPos();
             worldView.Render(dc, _world, GetMaxShakeCamera().GetViewport(), eye, zoom, false, false, _world.GetNightMode());
         }
-        else
+        else for( auto &camera: _cameras )
         {
-            // render from each camera
-            for( auto &p2c: _cameras )
-            {
-                vec2d eye = p2c.second.GetCameraPos();
-                worldView.Render(dc, _world, p2c.second.GetViewport(), eye, zoom, false, false, _world.GetNightMode());
-            }
+            vec2d eye = camera.GetCameraPos();
+            worldView.Render(dc, _world, camera.GetViewport(), eye, zoom, false, false, _world.GetNightMode());
         }
     }
     else
@@ -120,14 +117,14 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
     }
 }
 
-static const Camera* FindMaxShakeCamera(const std::unordered_map<const GC_Player*, Camera> &cameras)
+static const Camera* FindMaxShakeCamera(const std::vector<Camera> &cameras)
 {
     const Camera *maxShakeCamera = nullptr;
-    for (auto &p2c : cameras)
+    for (auto &camera : cameras)
     {
-        if (!maxShakeCamera || p2c.second.GetShake() > maxShakeCamera->GetShake())
+        if (!maxShakeCamera || camera.GetShake() > maxShakeCamera->GetShake())
         {
-            maxShakeCamera = &p2c.second;
+            maxShakeCamera = &camera;
         }
     }
     return maxShakeCamera;
@@ -136,10 +133,11 @@ static const Camera* FindMaxShakeCamera(const std::unordered_map<const GC_Player
 void GameViewHarness::Step(float dt)
 {
     size_t camCount = _cameras.size();
-    for( auto &p2c: _cameras )
+	for (unsigned int i = 0; i != camCount; ++i)
     {
-        p2c.second.SetViewport(GetCameraViewport(_pxWidth, _pxHeight, IsSingleCamera() ? 1 : camCount, IsSingleCamera() ? 0 : p2c.second.GetIndex()));
-        p2c.second.CameraTimeStep(_world, p2c.first->GetVehicle(), dt);
+		auto &camera = _cameras[i];
+        camera.SetViewport(GetCameraViewport(_pxWidth, _pxHeight, IsSingleCamera() ? 1 : camCount, IsSingleCamera() ? 0 : i));
+        camera.CameraTimeStep(_world, dt);
     }
     _maxShakeCamera = nullptr;
 }
@@ -161,11 +159,11 @@ bool GameViewHarness::IsSingleCamera() const
 
 void GameViewHarness::OnBoom(GC_Explosion &obj, float radius, float damage)
 {
-    for( auto &p2c: _cameras )
+    for( auto &camera: _cameras )
     {
-        RectRB viewport = p2c.second.GetViewport();
+        RectRB viewport = camera.GetViewport();
         vec2d viewSize = vec2d((float)WIDTH(viewport), (float)HEIGHT(viewport));
-        vec2d lt = p2c.second.GetCameraPos() - viewSize / 2;
+        vec2d lt = camera.GetCameraPos() - viewSize / 2;
         vec2d rb = lt + viewSize;
 
         float distanceLeft = lt.x - obj.GetPos().x;
@@ -179,7 +177,7 @@ void GameViewHarness::OnBoom(GC_Explosion &obj, float radius, float damage)
             float sizeFactor = std::max(0.f, (radius - 50) / 100);
             float damageFactor = damage / 100;
             float distanceFactor = 1.0f - std::max(.0f, maxDistance) / radius;
-            p2c.second.Shake(sizeFactor * damageFactor * distanceFactor);
+            camera.Shake(sizeFactor * damageFactor * distanceFactor);
             _maxShakeCamera = nullptr;
         }
     }
@@ -187,37 +185,13 @@ void GameViewHarness::OnBoom(GC_Explosion &obj, float radius, float damage)
 
 void GameViewHarness::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
-    for( auto &it: _cameras )
+    for( auto &camera: _cameras )
     {
-        if( &obj == it.first->GetVehicle() )
+        if( &obj == camera.GetPlayer().GetVehicle() )
         {
-            it.second.Shake(obj.GetHealth() <= 0 ? 2.0f : dd.damage / obj.GetHealthMax());
+            camera.Shake(obj.GetHealth() <= 0 ? 2.0f : dd.damage / obj.GetHealthMax());
             _maxShakeCamera = nullptr;
             break;
         }
-    }
-}
-
-void GameViewHarness::OnKill(GC_Object &obj)
-{
-    ObjectType type = obj.GetType();
-    if (GC_Player::GetTypeStatic() == type)
-    {
-        assert(_cameras.count(static_cast<const GC_Player*>(&obj)));
-        _cameras.erase(static_cast<const GC_Player*>(&obj));
-        _maxShakeCamera = nullptr;
-    }
-}
-
-void GameViewHarness::OnNewObject(GC_Object &obj)
-{
-    ObjectType type = obj.GetType();
-    if (GC_Player::GetTypeStatic() == type)
-    {
-        auto &player = static_cast<const GC_Player&>(obj);
-        vec2d pos = player.GetVehicle() ? player.GetVehicle()->GetPos() : vec2d(_world._sx / 2, _world._sy / 2);
-        assert(!_cameras.count(&player));
-        _cameras.emplace(&player, Camera(pos, (unsigned int) _cameras.size()));
-        _maxShakeCamera = nullptr;
     }
 }

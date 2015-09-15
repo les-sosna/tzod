@@ -1,13 +1,14 @@
 #include "inc/app/Camera.h"
 
+#include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/WorldCfg.h>
 #include <gc/SaveFile.h>
 #include <gc/World.h>
 
-Camera::Camera(vec2d pos, unsigned int index)
-  : _index(index)
+Camera::Camera(vec2d pos, GC_Player &player)
+  : _player(player)
   , _pos(pos)
   , _target(pos)
   , _time_shake(0)
@@ -15,8 +16,9 @@ Camera::Camera(vec2d pos, unsigned int index)
 {
 }
 
-void Camera::CameraTimeStep(World &world, const GC_Vehicle *vehicle, float dt)
+void Camera::CameraTimeStep(World &world, float dt)
 {
+	const GC_Vehicle *vehicle = _player.GetVehicle();
 	vec2d viewSize((float) WIDTH(_viewport), (float) HEIGHT(_viewport));
 
 	float mu = 3;

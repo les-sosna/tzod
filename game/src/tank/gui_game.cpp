@@ -54,7 +54,7 @@ UI::GameLayout::GameLayout(Window *parent,
                            const DefaultCamera &defaultCamera)
   : Window(parent)
   , _gameContext(gameContext)
-  , _gameViewHarness(gameContext.GetWorld())
+  , _gameViewHarness(gameContext.GetWorld(), worldController)
   , _worldView(worldView)
   , _worldController(worldController)
   , _defaultCamera(defaultCamera)
@@ -99,7 +99,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 				if( Controller *controller = _inputMgr.GetController(playerIndex) )
 				{
 					vec2d mouse = GetManager().GetInput().GetMousePos();
-					auto c2w = _gameViewHarness.CanvasToWorld(*players[playerIndex], (int) mouse.x, (int) mouse.y);
+					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
 					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
