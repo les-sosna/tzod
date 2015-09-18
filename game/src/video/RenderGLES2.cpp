@@ -19,8 +19,8 @@ class RenderGLES2 : public IRender
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
 
-	size_t    _vaSize;      // number of filled elements in _VertexArray
-	size_t    _iaSize;      // number of filled elements in _IndexArray
+	unsigned int _vaSize;      // number of filled elements in _VertexArray
+	unsigned int _iaSize;      // number of filled elements in _IndexArray
 
 	RenderMode  _mode;
 
@@ -63,7 +63,7 @@ private:
 	virtual void TexFree(DEV_TEXTURE tex);
 
 	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
-	virtual MyVertex* DrawFan(size_t nEdges);
+	virtual MyVertex* DrawFan(unsigned int nEdges);
 
 	virtual void DrawLines(const MyLine *lines, size_t count);
 };
@@ -348,7 +348,7 @@ MyVertex* RenderGLES2::DrawQuad(DEV_TEXTURE tex)
 	return result;
 }
 
-MyVertex* RenderGLES2::DrawFan(size_t nEdges)
+MyVertex* RenderGLES2::DrawFan(unsigned int nEdges)
 {
 	assert(nEdges*3 < INDEX_ARRAY_SIZE);
 

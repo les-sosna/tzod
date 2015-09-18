@@ -126,11 +126,7 @@
     {
         gc->Step(self.timeSinceLastUpdate);
     }
-    if (GameViewHarness *gvh = _gameView->GetHarness())
-    {
-        GLKView *view = (GLKView *)self.view;
-        gvh->Step(self.timeSinceLastUpdate, view.drawableWidth, view.drawableHeight);
-    }
+    _gameView->Step(self.timeSinceLastUpdate);
     _soundView->Step();
 }
 
@@ -138,12 +134,10 @@
 {
     DrawingContext dc(*_textureManager, view.drawableWidth, view.drawableHeight);
     
-    if (GameViewHarness *gvh = _gameView->GetHarness())
-    {
-        _render->Begin();
-        gvh->RenderGame(dc, *_worldView, view.drawableWidth, view.drawableHeight, vec2d(0,0), 1.0f);
-        _render->End();
-    }
+    _render->Begin();
+    _gameView->SetCanvasSize(view.drawableWidth, view.drawableHeight);
+    _gameView->Render(dc, *_worldView);
+    _render->End();
 }
 
 @end // @implementation GameViewController
