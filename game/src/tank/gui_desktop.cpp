@@ -17,8 +17,6 @@
 #include "core/Profiler.h"
 #include "core/Debug.h"
 
-//#include "network/TankClient.h"
-
 #include <app/AppState.h>
 #include <gc/World.h>
 #include <loc/Language.h>
@@ -51,26 +49,6 @@ void LuaStateDeleter::operator()(lua_State *L)
 
 namespace UI
 {
-///////////////////////////////////////////////////////////////////////////////
-
-void Desktop::MyConsoleHistory::Enter(const std::string &str)
-{
-	g_conf.con_history.PushBack(ConfVar::typeString)->AsStr()->Set(str);
-	while( (signed) g_conf.con_history.GetSize() > g_conf.con_maxhistory.GetInt() )
-	{
-		g_conf.con_history.PopFront();
-	}
-}
-
-size_t Desktop::MyConsoleHistory::GetItemCount() const
-{
-	return g_conf.con_history.GetSize();
-}
-
-const std::string& Desktop::MyConsoleHistory::GetItem(size_t index) const
-{
-	return g_conf.con_history.GetStr(index, "")->Get();
-}
 
 Desktop::Desktop(LayoutManager* manager,
 				 AppState &appState,

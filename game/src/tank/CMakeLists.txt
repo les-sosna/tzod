@@ -33,6 +33,7 @@ set(tank_INCLUDE_DIRS
 
 set(tank_SOURCES
 	Controller.cpp
+	ConfigConsoleHistory.cpp
 	DefaultCamera.cpp
 	GlfwPlatform.cpp
 	globals.cpp

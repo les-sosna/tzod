@@ -335,10 +335,10 @@ const std::string& ConfVarString::Get() const
 	return *_val.asString;
 }
 
-void ConfVarString::Set(const std::string &value)
+void ConfVarString::Set(std::string value)
 {
 	assert(typeString == _type);
-	*_val.asString = value;
+	*_val.asString = std::move(value);
 	FireValueUpdate(this);
 }
 

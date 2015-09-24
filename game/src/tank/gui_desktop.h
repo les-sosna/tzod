@@ -1,4 +1,5 @@
 #pragma once
+#include "ConfigConsoleHistory.h"
 #include "DefaultCamera.h"
 #include "InputManager.h"
 #include <app/AppStateListener.h>
@@ -56,16 +57,7 @@ protected:
 	virtual void OnTimeStep(float dt) override;
 
 private:
-
-	class MyConsoleHistory : public UI::IConsoleHistory
-	{
-	public:
-		virtual void Enter(const std::string &str);
-		virtual size_t GetItemCount() const;
-		virtual const std::string& GetItem(size_t index) const;
-	};
-
-	MyConsoleHistory  _history;
+	ConfigConsoleHistory  _history;
 	AppController &_appController;
 	FS::FileSystem &_fs;
 	std::function<void()> _exitCommand;

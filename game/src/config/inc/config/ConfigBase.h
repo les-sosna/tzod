@@ -121,7 +121,7 @@ public:
 
 
 	const std::string& Get() const;
-	void Set(const std::string &value);
+	void Set(std::string value);
 
 	// ConfVar
 	virtual const char* GetTypeName() const;
