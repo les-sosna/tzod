@@ -1,44 +1,42 @@
-// gui_settings.h
-
 #pragma once
-
 #include "Config.h"
 #include <ui/Dialog.h>
 #include <ui/ListBase.h>
 
 namespace UI
 {
-class Button;
-class CheckBox;
-class ComboBox;
-class Edit;
-class List;
-class ScrollBarHorizontal;
-template<class, class> class ListAdapter;
+	class Button;
+	class CheckBox;
+	class ComboBox;
+	class Edit;
+	class List;
+	class ScrollBarHorizontal;
+	template<class, class> class ListAdapter;
+}
 
-class SettingsDlg : public Dialog
+class SettingsDlg : public UI::Dialog
 {
-	ListDataSourceDefault _profilesDataSource;
+	UI::ListDataSourceDefault _profilesDataSource;
 
-	ComboBox  *_player1;
-	ComboBox  *_player2;
-	List      *_profiles;
-	Button    *_editProfile;
-	Button    *_deleteProfile;
+	UI::ComboBox  *_player1;
+	UI::ComboBox  *_player2;
+	UI::List      *_profiles;
+	UI::Button    *_editProfile;
+	UI::Button    *_deleteProfile;
 
-	CheckBox  *_showFps;
-	CheckBox  *_showTime;
-	CheckBox  *_showNames;
-	CheckBox  *_askDisplaySettings;
+	UI::CheckBox  *_showFps;
+	UI::CheckBox  *_showTime;
+	UI::CheckBox  *_showNames;
+	UI::CheckBox  *_askDisplaySettings;
 
-	ScrollBarHorizontal *_volumeSfx;
+	UI::ScrollBarHorizontal *_volumeSfx;
 	int _initialVolumeSfx;
 
-	ScrollBarHorizontal *_volumeMusic;
+	UI::ScrollBarHorizontal *_volumeMusic;
 	int _initialVolumeMusic;
 
 public:
-	SettingsDlg(Window *parent);
+	SettingsDlg(UI::Window *parent);
 	virtual ~SettingsDlg();
 
 protected:
@@ -57,14 +55,14 @@ protected:
 	void OnProfileEditorClosed(int code);
 };
 
-class ControlProfileDlg : public Dialog
+class ControlProfileDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox  *_actions;
-	Edit         *_nameEdit;
-	CheckBox     *_aimToMouseChkBox;
-	CheckBox     *_moveToMouseChkBox;
-	CheckBox     *_arcadeStyleChkBox;
+	UI::Edit         *_nameEdit;
+	UI::CheckBox     *_aimToMouseChkBox;
+	UI::CheckBox     *_moveToMouseChkBox;
+	UI::CheckBox     *_arcadeStyleChkBox;
 	std::string      _nameOrig;
 	ConfControllerProfile _profile;
 
@@ -75,7 +73,7 @@ class ControlProfileDlg : public Dialog
 	void OnSelectAction(int index);
 
 public:
-	ControlProfileDlg(Window *parent, const char *profileName);
+	ControlProfileDlg(UI::Window *parent, const char *profileName);
 	~ControlProfileDlg();
 
 protected:
@@ -87,5 +85,3 @@ protected:
 	void OnTimeStep(float dt);
 	bool OnRawChar(int c);
 };
-
-} // end of namespace UI

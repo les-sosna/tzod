@@ -10,16 +10,17 @@ namespace FS
 
 namespace UI
 {
-class ListDataSourceDefault;
-class List;
-class Edit;
-template<class, class> class ListAdapter;
+	class ListDataSourceDefault;
+	class List;
+	class Edit;
+	template<class, class> class ListAdapter;
+}
 
-class GetFileNameDlg : public Dialog
+class GetFileNameDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox *_files;
-	Edit *_fileName;
+	UI::Edit *_fileName;
 	std::string _ext;
 	std::shared_ptr<FS::FileSystem> _folder;
 
@@ -47,9 +48,3 @@ protected:
 	void OnOK();
 	void OnCancel();
 };
-
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

@@ -61,9 +61,9 @@ namespace
 			, _fs(fs)
 			, _exitCommand(std::move(exitCommand))
 		{}
-		virtual UI::Window* Create(UI::LayoutManager *manager)
+		UI::Window* Create(UI::LayoutManager *manager) override
 		{
-			return new UI::Desktop(manager, _appState, _appController, _fs, _exitCommand);
+			return new Desktop(manager, _appState, _appController, _fs, _exitCommand);
 		}
 	};
 

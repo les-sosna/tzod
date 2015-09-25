@@ -1,5 +1,3 @@
-// gui_maplist.cpp
-
 #include "gui_maplist.h"
 
 #include "Config.h"
@@ -11,10 +9,6 @@
 
 #include <sstream>
 #include <iomanip>
-
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
 
 ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs)
 {
@@ -52,8 +46,3 @@ ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs)
 
 	Sort();
 }
-
-} // end of namespace UI
-
-
-

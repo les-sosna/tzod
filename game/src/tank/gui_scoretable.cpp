@@ -23,11 +23,8 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-namespace UI
-{
-
-ScoreTable::ScoreTable(Window *parent, World &world, Deathmatch &deathmatch)
-  : Window(parent)
+ScoreTable::ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch)
+  : UI::Window(parent)
   , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)
@@ -108,5 +105,3 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		}
 	}
 }
-
-} // end of namespace UI

@@ -25,7 +25,6 @@
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
-#include <video/TextureManager.h>
 
 extern "C"
 {
@@ -47,21 +46,17 @@ void LuaStateDeleter::operator()(lua_State *L)
 }
 
 
-namespace UI
-{
-
-Desktop::Desktop(LayoutManager* manager,
-				 AppState &appState,
+Desktop::Desktop(UI::LayoutManager* manager,
+                 AppState &appState,
                  AppController &appController,
-				 FS::FileSystem &fs,
-				 std::function<void()> exitCommand)
+                 FS::FileSystem &fs,
+                 std::function<void()> exitCommand)
   : Window(nullptr, manager)
   , AppStateListener(appState)
   , _appController(appController)
   , _fs(fs)
   , _exitCommand(std::move(exitCommand))
   , _globL(luaL_newstate())
-  , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _nModalPopups(0)
   , _renderScheme(GetManager().GetTextureManager())
   , _worldView(GetManager().GetTextureManager(), _renderScheme)
@@ -73,7 +68,7 @@ Desktop::Desktop(LayoutManager* manager,
 
 	SetTexture("ui/window", false);
 
-	_con = Console::Create(this, 10, 0, 100, 100, &GetConsole());
+	_con = UI::Console::Create(this, 10, 0, 100, 100, &GetConsole());
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
 	_con->SetVisible(false);
@@ -209,7 +204,7 @@ void Desktop::OnNewCampaign()
 	{
 		if( !name.empty() )
 		{
-			OnCloseChild(Dialog::_resultOK);
+			OnCloseChild(UI::Dialog::_resultOK);
 
 			g_conf.ui_showmsg.Set(true);
             try
@@ -225,7 +220,7 @@ void Desktop::OnNewCampaign()
 		}
 		else
 		{
-			OnCloseChild(Dialog::_resultCancel);
+			OnCloseChild(UI::Dialog::_resultCancel);
 		}
 		dlg->Destroy();
 	};
@@ -238,7 +233,7 @@ void Desktop::OnNewDM()
 	dlg->eventClose = [this](int result)
 	{
 		OnCloseChild(result);
-		if (Dialog::_resultOK == result)
+		if (UI::Dialog::_resultOK == result)
 		{
 			try
 			{
@@ -260,7 +255,7 @@ void Desktop::OnNewMap()
 	dlg->eventClose = [&](int result)
 	{
 		OnCloseChild(result);
-		if (Dialog::_resultOK == result)
+		if (UI::Dialog::_resultOK == result)
 		{
 			std::unique_ptr<GameContextBase> gc(new EditorContext(g_conf.ed_width.GetFloat(), g_conf.ed_height.GetFloat()));
 			GetAppState().SetGameContext(std::move(gc));
@@ -306,7 +301,7 @@ void Desktop::ShowMainMenu(bool show)
 
 bool Desktop::OnRawChar(int c)
 {
-	Dialog *dlg = nullptr;
+	UI::Dialog *dlg = nullptr;
 
 	switch( c )
 	{
@@ -470,6 +465,7 @@ void Desktop::OnGameContextChanged()
 {
 	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
+		assert(!_game);
 		_game = new GameLayout(this,
 		                       *gameContext,
 		                       _worldView,
@@ -483,6 +479,7 @@ void Desktop::OnGameContextChanged()
 
 	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
+		assert(!_editor);
 		_editor = new EditorLayout(this, editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get());
 		_editor->Resize(GetWidth(), GetHeight());
 		_editor->BringToBack();
@@ -494,5 +491,3 @@ void Desktop::OnGameContextChanged()
 	if (!GetAppState().GetGameContext())
 		ShowMainMenu(true);
 }
-
-} // namespace UI

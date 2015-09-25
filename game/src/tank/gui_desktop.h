@@ -25,21 +25,22 @@ class AppController;
 
 namespace UI
 {
+	class Console;
+	class Oscilloscope;
+}
 
 class MainMenuDlg;
 class EditorLayout;
 class GameLayout;
-class Console;
 class FpsCounter;
-class Oscilloscope;
 
 
 class Desktop
-	: public Window
+	: public UI::Window
 	, private AppStateListener
 {
 public:
-	Desktop(LayoutManager* manager,
+	Desktop(UI::LayoutManager* manager,
 	        AppState &appState,
 	        AppController &appController,
 	        FS::FileSystem &fs,
@@ -66,10 +67,8 @@ private:
 	MainMenuDlg  *_mainMenu = nullptr;
 	EditorLayout *_editor = nullptr;
 	GameLayout   *_game = nullptr;
-	Console      *_con = nullptr;
+	UI::Console  *_con = nullptr;
 	FpsCounter   *_fps = nullptr;
-
-	size_t _font;
 
 	int _nModalPopups;
 
@@ -96,6 +95,3 @@ private:
 	virtual void OnGameContextChanging() override;
 	virtual void OnGameContextChanged() override;
 };
-
-
-} // end of namespace UI

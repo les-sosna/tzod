@@ -6,14 +6,9 @@ namespace FS
 	class FileSystem;
 }
 
-namespace UI
-{
-
-class ListDataSourceMaps : public ListDataSourceDefault
+class ListDataSourceMaps : public UI::ListDataSourceDefault
 {
 public:
 	ListDataSourceMaps(FS::FileSystem &fs);
 };
 
-
-} // end of namespace UI

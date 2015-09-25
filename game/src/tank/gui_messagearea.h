@@ -1,22 +1,17 @@
 #pragma once
-
 #include <ui/Window.h>
 #include <string>
 #include <deque>
 
-
-namespace UI
-{
-
-class MessageArea : public Window
+class MessageArea : public UI::Window
 {
 public:
-	MessageArea(Window *parent, float x, float y);
+	MessageArea(UI::Window *parent, float x, float y);
 
 	void WriteLine(const std::string &text);
 	void Clear();
 
-    // Window
+	// UI::Window
 	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 
@@ -30,6 +25,3 @@ private:
 	LineList _lines;
 	size_t _fontTexture;
 };
-
-
-} // end of namespace UI

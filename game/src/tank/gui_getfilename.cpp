@@ -12,16 +12,12 @@
 #include <ui/GuiManager.h>
 #include <GLFW/glfw3.h>
 
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
-
 GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
   , _folder(param.folder)
   , _changing(false)
 {
-	Text *t = Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
+	UI::Text *t = UI::Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
 	t->SetFont("font_default");
 
 	_ext = param.extension;
@@ -40,12 +36,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	Text::Create(this, 16, 370, g_lang.get_file_name_title.Get(), alignTextLT);
-	_fileName = Edit::Create(this, 20, 385, 472);
+	UI::Text::Create(this, 16, 370, g_lang.get_file_name_title.Get(), alignTextLT);
+	_fileName = UI::Edit::Create(this, 20, 385, 472);
 	_fileName->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 
-	Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_fileName);
 }
@@ -119,9 +115,3 @@ void GetFileNameDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

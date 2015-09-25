@@ -24,16 +24,13 @@
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
 
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
 
 CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs)
   : Dialog(parent, 770, 450)
   , _world(world)
   , _fs(fs)
 {
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_server_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.net_server_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 	float x1 = 16;
@@ -45,7 +42,7 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 	// map list
 	//
 
-	Text::Create(this, x1, 46, g_lang.choose_map.Get(), alignTextLT);
+	UI::Text::Create(this, x1, 46, g_lang.choose_map.Get(), alignTextLT);
 
 	_maps = MapListBox::Create(this, fs);
 	_maps->Move(x1, 62);
@@ -65,26 +62,26 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 	{
 		float y =  56;
 
-		_nightMode = CheckBox::Create(this, x3, y, g_lang.night_mode.Get());
+		_nightMode = UI::CheckBox::Create(this, x3, y, g_lang.night_mode.Get());
 //		_nightMode->SetCheck( g_conf.cl_nightmode.Get() );
 
 
-		Text::Create(this, x3, y+=30, g_lang.game_speed.Get(), alignTextLT);
-		_gameSpeed = Edit::Create(this, x4, y+=15, 80);
+		UI::Text::Create(this, x3, y+=30, g_lang.game_speed.Get(), alignTextLT);
+		_gameSpeed = UI::Edit::Create(this, x4, y+=15, 80);
 		_gameSpeed->SetInt(g_conf.cl_speed.GetInt());
 
-		Text::Create(this, x3, y+=30, g_lang.frag_limit.Get(), alignTextLT);
-		_fragLimit = Edit::Create(this, x4, y+=15, 80);
+		UI::Text::Create(this, x3, y+=30, g_lang.frag_limit.Get(), alignTextLT);
+		_fragLimit = UI::Edit::Create(this, x4, y+=15, 80);
 //		_fragLimit->SetInt(g_conf.cl_fraglimit.GetInt());
 
-		Text::Create(this, x3, y+=30, g_lang.time_limit.Get(), alignTextLT);
-		_timeLimit = Edit::Create(this, x4, y+=15, 80);
+		UI::Text::Create(this, x3, y+=30, g_lang.time_limit.Get(), alignTextLT);
+		_timeLimit = UI::Edit::Create(this, x4, y+=15, 80);
 //		_timeLimit->SetInt(g_conf.cl_timelimit.GetInt());
 
-		Text::Create(this, x3+30, y+=30, g_lang.zero_no_limits.Get(), alignTextLT);
+		UI::Text::Create(this, x3+30, y+=30, g_lang.zero_no_limits.Get(), alignTextLT);
 
-		Text::Create(this, x3, y+=40, g_lang.net_server_fps.Get(), alignTextLT);
-		_svFps = Edit::Create(this, x4, y+=15, 100);
+		UI::Text::Create(this, x3, y+=40, g_lang.net_server_fps.Get(), alignTextLT);
+		_svFps = UI::Edit::Create(this, x4, y+=15, 100);
 		_svFps->SetInt(g_conf.sv_fps.GetInt());
 	}
 
@@ -93,11 +90,11 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 	// Lobby
 	//
 	{
-		_lobbyEnable = CheckBox::Create(this, 32, 390, g_lang.net_server_use_lobby.Get());
+		_lobbyEnable = UI::CheckBox::Create(this, 32, 390, g_lang.net_server_use_lobby.Get());
 		_lobbyList = DefaultComboBox::Create(this);
 		_lobbyList->Move(32, 415);
 		_lobbyList->Resize(200);
-		_lobbyAdd = Button::Create(this, g_lang.net_server_add_lobby.Get(), 250, 410);
+		_lobbyAdd = UI::Button::Create(this, g_lang.net_server_add_lobby.Get(), 250, 410);
 
 		_lobbyEnable->SetCheck(g_conf.sv_use_lobby.Get());
 		_lobbyList->SetEnabled(_lobbyEnable->GetCheck());
@@ -116,11 +113,11 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 		_lobbyEnable->eventClick = std::bind(&CreateServerDlg::OnLobbyEnable, this);
 	}
 
-	Button *btn;
-	btn = Button::Create(this, g_lang.net_server_ok.Get(), 544, 410);
+	UI::Button *btn;
+	btn = UI::Button::Create(this, g_lang.net_server_ok.Get(), 544, 410);
 	btn->eventClick = std::bind(&CreateServerDlg::OnOK, this);
 
-	btn = Button::Create(this, g_lang.net_server_cancel.Get(), 656, 410);
+	btn = UI::Button::Create(this, g_lang.net_server_cancel.Get(), 656, 410);
 	btn->eventClick = std::bind(&CreateServerDlg::OnCancel, this);
 }
 
@@ -239,24 +236,24 @@ ConnectDlg::ConnectDlg(Window *parent, const std::string &defaultName, World &wo
   : Dialog(parent, 512, 384)
   , _world(world)
 {
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_connect_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.net_connect_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
-	Text::Create(this, 20, 65, g_lang.net_connect_address.Get(), alignTextLT);
-	_name = Edit::Create(this, 25, 80, 300);
+	UI::Text::Create(this, 20, 65, g_lang.net_connect_address.Get(), alignTextLT);
+	_name = UI::Edit::Create(this, 25, 80, 300);
 	_name->SetText(defaultName);
 
 
-	Text::Create(this, 20, 105, g_lang.net_connect_status.Get(), alignTextLT);
+	UI::Text::Create(this, 20, 105, g_lang.net_connect_status.Get(), alignTextLT);
 	_status = DefaultListBox::Create(this);
 	_status->Move(25, 120);
 	_status->Resize(400, 180);
 
-	_btnOK = Button::Create(this, g_lang.net_connect_ok.Get(), 312, 350);
+	_btnOK = UI::Button::Create(this, g_lang.net_connect_ok.Get(), 312, 350);
 	_btnOK->eventClick = std::bind(&ConnectDlg::OnOK, this);
 
-	Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_name);
 }
@@ -320,32 +317,32 @@ InternetDlg::InternetDlg(Window *parent, World &world)
 //	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
 //	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_internet_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.net_internet_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
-	Text::Create(this, 20, 65, g_lang.net_internet_lobby_address.Get(), alignTextLT);
-	_name = Edit::Create(this, 25, 80, 300);
+	UI::Text::Create(this, 20, 65, g_lang.net_internet_lobby_address.Get(), alignTextLT);
+	_name = UI::Edit::Create(this, 25, 80, 300);
 	_name->SetText("tzod.fatal.ru/lobby/");
 
 
-	Text::Create(this, 20, 105, g_lang.net_internet_server_list.Get(), alignTextLT);
+	UI::Text::Create(this, 20, 105, g_lang.net_internet_server_list.Get(), alignTextLT);
 	_servers = DefaultListBox::Create(this);
 	_servers->Move(25, 120);
 	_servers->Resize(400, 180);
 	_servers->eventChangeCurSel = std::bind(&InternetDlg::OnSelectServer, this, std::placeholders::_1);
-	_status = Text::Create(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
+	_status = UI::Text::Create(_servers, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
 
 
-	_btnRefresh = Button::Create(this, g_lang.net_internet_refresh.Get(), 25, 320);
+	_btnRefresh = UI::Button::Create(this, g_lang.net_internet_refresh.Get(), 25, 320);
 	_btnRefresh->eventClick = std::bind(&InternetDlg::OnRefresh, this);
 
-	_btnConnect = Button::Create(this, g_lang.net_internet_connect.Get(), 175, 320);
+	_btnConnect = UI::Button::Create(this, g_lang.net_internet_connect.Get(), 175, 320);
 	_btnConnect->eventClick = std::bind(&InternetDlg::OnConnect, this);
 	_btnConnect->SetEnabled(false);
 
-	Button::Create(this, g_lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_name);
 
@@ -442,10 +439,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, World &world)
 	// create controls
 	//
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.net_chatroom_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.net_chatroom_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
-	Text::Create(this, 20, 50, g_lang.net_chatroom_players.Get(), alignTextLT);
+	UI::Text::Create(this, 20, 50, g_lang.net_chatroom_players.Get(), alignTextLT);
 	_players = DefaultListBox::Create(this);
 	_players->Move(20, 65);
 	_players->Resize(512, 70);
@@ -453,10 +450,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, World &world)
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
 
-	_btnProfile = Button::Create(this, g_lang.net_chatroom_my_profile.Get(), 560, 65);
+	_btnProfile = UI::Button::Create(this, g_lang.net_chatroom_my_profile.Get(), 560, 65);
 	_btnProfile->eventClick = std::bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
-	Text::Create(this, 20, 150, g_lang.net_chatroom_bots.Get(), alignTextLT);
+	UI::Text::Create(this, 20, 150, g_lang.net_chatroom_bots.Get(), alignTextLT);
 	_bots = DefaultListBox::Create(this);
 	_bots->Move(20, 165);
 	_bots->Resize(512, 100);
@@ -464,22 +461,22 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(Window *parent, World &world)
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
 
-	Button::Create(this, g_lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
+	UI::Button::Create(this, g_lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 
 
-	Text::Create(this, 20, 285, g_lang.net_chatroom_chat_window.Get(), alignTextLT);
+	UI::Text::Create(this, 20, 285, g_lang.net_chatroom_chat_window.Get(), alignTextLT);
 
-	_chat = Console::Create(this, 20, 300, 512, 200, _buf.get());
+	_chat = UI::Console::Create(this, 20, 300, 512, 200, _buf.get());
 	_chat->SetTexture("ui/list", false);
 	_chat->SetEcho(false);
 	_chat->eventOnSendCommand = std::bind(&WaitingForPlayersDlg::OnSendMessage, this, std::placeholders::_1);
 
 
-	_btnOK = Button::Create(this, g_lang.net_chatroom_ready_button.Get(), 560, 450);
+	_btnOK = UI::Button::Create(this, g_lang.net_chatroom_ready_button.Get(), 560, 450);
 	_btnOK->eventClick = std::bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->SetEnabled(false);
 
-	Button::Create(this, g_lang.common_cancel.Get(), 560, 480)->eventClick = std::bind(&WaitingForPlayersDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 560, 480)->eventClick = std::bind(&WaitingForPlayersDlg::OnCancel, this);
 
 
 	//
@@ -641,5 +638,3 @@ void WaitingForPlayersDlg::OnClientDestroy()
 {
 //	_clientSubscribtion.reset();
 }
-
-} // end of namespace UI

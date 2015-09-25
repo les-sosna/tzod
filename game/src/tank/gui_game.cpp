@@ -19,7 +19,7 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world)
+TimeElapsed::TimeElapsed(UI::Window *parent, float x, float y, enumAlignText align, World &world)
   : Text(parent)
   , _world(world)
 {
@@ -28,12 +28,12 @@ UI::TimeElapsed::TimeElapsed(Window *parent, float x, float y, enumAlignText ali
 	SetAlign(align);
 }
 
-void UI::TimeElapsed::OnVisibleChange(bool visible, bool inherited)
+void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
 {
 	SetTimeStep(visible);
 }
 
-void UI::TimeElapsed::OnTimeStep(float dt)
+void TimeElapsed::OnTimeStep(float dt)
 {
 	std::ostringstream text;
 	int time = (int) _world.GetTime();
@@ -46,7 +46,7 @@ void UI::TimeElapsed::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UI::GameLayout::GameLayout(Window *parent,
+GameLayout::GameLayout(Window *parent,
                            GameContext &gameContext,
                            WorldView &worldView,
                            WorldController &worldController,
@@ -72,13 +72,13 @@ UI::GameLayout::GameLayout(Window *parent,
 	_gameContext.GetGameEventSource().AddListener(*this);
 }
 
-UI::GameLayout::~GameLayout()
+GameLayout::~GameLayout()
 {
 	_gameContext.GetGameEventSource().RemoveListener(*this);
 	g_conf.ui_showtime.eventChange = nullptr;
 }
 
-void UI::GameLayout::OnTimeStep(float dt)
+void GameLayout::OnTimeStep(float dt)
 {
 	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
@@ -112,7 +112,7 @@ void UI::GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
     vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
     float zoom = _defaultCamera.GetZoom();
@@ -121,19 +121,19 @@ void UI::GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	Window::DrawChildren(dc, sx, sy);
 }
 
-void UI::GameLayout::OnSize(float width, float height)
+void GameLayout::OnSize(float width, float height)
 {
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
     _gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight());
 }
 
-void UI::GameLayout::OnChangeShowTime()
+void GameLayout::OnChangeShowTime()
 {
 	_time->SetVisible(g_conf.ui_showtime.Get());
 }
 
-void UI::GameLayout::OnGameMessage(const char *msg)
+void GameLayout::OnGameMessage(const char *msg)
 {
     _msg->WriteLine(msg);
 }

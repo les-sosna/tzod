@@ -1,5 +1,4 @@
 #pragma once
-
 #include "ui/Text.h"
 #include <list>
 #include <string>
@@ -7,10 +6,7 @@
 
 class AppState;
 
-namespace UI
-{
-
-class FpsCounter : public Text
+class FpsCounter : public UI::Text
 {
 	std::list<float> _dts;
 	std::list<float> _dts_net;
@@ -20,17 +16,17 @@ class FpsCounter : public Text
     AppState &_appState;
 
 public:
-	FpsCounter(Window *parent, float x, float y, enumAlignText align, AppState &appState);
+	FpsCounter(UI::Window *parent, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
 	void OnVisibleChange(bool visible, bool inherited);
 	void OnTimeStep(float dt);
 };
 
-class Oscilloscope : public Window
+class Oscilloscope : public UI::Window
 {
 public:
-	Oscilloscope(Window *parent, float x, float y);
+	Oscilloscope(UI::Window *parent, float x, float y);
 	void Push(float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const std::string &title);
@@ -53,6 +49,4 @@ private:
 	float _gridStepY;
 	float _scale;
 };
-
-} // namespace UI
 

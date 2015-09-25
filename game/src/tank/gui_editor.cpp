@@ -41,26 +41,22 @@ extern "C"
 #include <lauxlib.h>
 }
 
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
-
 NewMapDlg::NewMapDlg(Window *parent)
   : Dialog(parent, 256, 256)
 {
-	Text *header = Text::Create(this, 128, 20, g_lang.newmap_title.Get(), alignTextCT);
+	UI::Text *header = UI::Text::Create(this, 128, 20, g_lang.newmap_title.Get(), alignTextCT);
 	header->SetFont("font_default");
 
-	Text::Create(this, 40, 75, g_lang.newmap_width.Get(), alignTextLT);
-	_width = Edit::Create(this, 60, 90, 80);
+	UI::Text::Create(this, 40, 75, g_lang.newmap_width.Get(), alignTextLT);
+	_width = UI::Edit::Create(this, 60, 90, 80);
 	_width->SetInt(g_conf.ed_width.GetInt());
 
-	Text::Create(this, 40, 115, g_lang.newmap_height.Get(), alignTextLT);
-	_height = Edit::Create(this, 60, 130, 80);
+	UI::Text::Create(this, 40, 115, g_lang.newmap_height.Get(), alignTextLT);
+	_height = UI::Edit::Create(this, 60, 130, 80);
 	_height->SetInt(g_conf.ed_height.GetInt());
 
-	Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_width);
 }
@@ -161,7 +157,7 @@ PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, W
 	Move(x, y);
 	_psheet = new Container(this);
 
-	_scrollBar = ScrollBarVertical::Create(this, 0, 0, h);
+	_scrollBar = UI::ScrollBarVertical::Create(this, 0, 0, h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
 //	_scrollBar->SetLimit(100);
@@ -191,9 +187,9 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				assert( dynamic_cast<Edit*>(ctrl) );
+				assert( dynamic_cast<UI::Edit*>(ctrl) );
 				int n;
-				n = static_cast<Edit*>(ctrl)->GetInt();
+				n = static_cast<UI::Edit*>(ctrl)->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
 					GetConsole().Printf(1, "WARNING: value %s out of range [%d, %d]",
@@ -203,9 +199,9 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetIntValue(n);
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				assert( dynamic_cast<Edit*>(ctrl) );
+				assert( dynamic_cast<UI::Edit*>(ctrl) );
 				float f;
-				f = static_cast<Edit*>(ctrl)->GetFloat();
+				f = static_cast<UI::Edit*>(ctrl)->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
 					GetConsole().Printf(1, "WARNING: value %s out of range [%g, %g]",
@@ -215,20 +211,20 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetFloatValue(f);
 				break;
 			case ObjectProperty::TYPE_STRING:
-				assert( dynamic_cast<Edit*>(ctrl) );
-				prop->SetStringValue(static_cast<Edit*>(ctrl)->GetText());
+				assert( dynamic_cast<UI::Edit*>(ctrl) );
+				prop->SetStringValue(static_cast<UI::Edit*>(ctrl)->GetText());
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				assert( dynamic_cast<ComboBox*>(ctrl) );
+				assert( dynamic_cast<UI::ComboBox*>(ctrl) );
 				int index;
-				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
+				index = static_cast<UI::ComboBox*>(ctrl)->GetCurSel();
 				prop->SetCurrentIndex(index);
 				break;
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
-				assert( dynamic_cast<ComboBox*>(ctrl) );
-				index = static_cast<ComboBox*>(ctrl)->GetCurSel();
-				prop->SetStringValue(static_cast<ComboBox*>(ctrl)->GetData()->GetItemText(index, 0));
+				assert( dynamic_cast<UI::ComboBox*>(ctrl) );
+				index = static_cast<UI::ComboBox*>(ctrl)->GetCurSel();
+				prop->SetStringValue(static_cast<UI::ComboBox*>(ctrl)->GetData()->GetItemText(index, 0));
 				break;
 			default:
 				assert(false);
@@ -256,7 +252,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			std::stringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
-			Text *label = Text::Create(_psheet, 5, y, "", alignTextLT);
+			UI::Text *label = UI::Text::Create(_psheet, 5, y, "", alignTextLT);
 			y += label->GetHeight();
 			y += 5;
 
@@ -265,24 +261,24 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetInt(prop->GetIntValue());
+				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<UI::Edit*>(ctrl)->SetInt(prop->GetIntValue());
 				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
+				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<UI::Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
 				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<Edit*>(ctrl)->SetText(prop->GetStringValue());
+				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
+				static_cast<UI::Edit*>(ctrl)->SetText(prop->GetStringValue());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
-				typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 				ctrl = DefaultComboBox::Create(_psheet);
 				ctrl->Move(32, y);
 				static_cast<DefaultComboBox *>(ctrl)->Resize(_psheet->GetWidth() - 64);
@@ -322,7 +318,7 @@ void PropertyList::DoExchange(bool applyToObject)
 
 			if( focus == i )
 			{
-				if( Edit *edit = dynamic_cast<Edit*>(ctrl) )
+				if(auto edit = dynamic_cast<UI::Edit*>(ctrl) )
 				{
 					edit->SetSel(0, -1);
 				}
@@ -399,12 +395,12 @@ ServiceListDataSource::~ServiceListDataSource()
 	_world.eWorld.RemoveListener(*this);
 }
 
-void ServiceListDataSource::AddListener(ListDataSourceListener *listener)
+void ServiceListDataSource::AddListener(UI::ListDataSourceListener *listener)
 {
 	_listener = listener;
 }
 
-void ServiceListDataSource::RemoveListener(ListDataSourceListener *listener)
+void ServiceListDataSource::RemoveListener(UI::ListDataSourceListener *listener)
 {
 	assert(_listener && _listener == listener);
 	_listener = nullptr;
@@ -490,15 +486,15 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
   , _margins(5)
   , _world(world)
 {
-	_labelService = Text::Create(this, _margins, _margins, g_lang.service_type.Get(), alignTextLT);
-	_labelName = Text::Create(this, w/2, _margins, g_lang.service_name.Get(), alignTextLT);
+	_labelService = UI::Text::Create(this, _margins, _margins, g_lang.service_type.Get(), alignTextLT);
+	_labelName = UI::Text::Create(this, w/2, _margins, g_lang.service_name.Get(), alignTextLT);
 
-	_list = List::Create(this, &_listData, 0, 0, 0, 0);
+	_list = UI::List::Create(this, &_listData, 0, 0, 0, 0);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
 
-	_btnCreate = Button::Create(this, g_lang.service_create.Get(), 0, 0);
+	_btnCreate = UI::Button::Create(this, g_lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
 
 	_combo = DefaultComboBox::Create(this);
@@ -513,7 +509,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 	}
 	_combo->GetData()->Sort();
 
-	List *ls = _combo->GetList();
+	UI::List *ls = _combo->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 
@@ -706,7 +702,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 {
 	SetTexture(nullptr, false);
 
-	_help = Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
+	_help = UI::Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256, _world);
@@ -715,7 +711,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 	_serviceList = new ServiceEditor(this, 5, 300, 512, 256, _world);
 	_serviceList->SetVisible(g_conf.ed_showservices.Get());
 
-	_layerDisp = Text::Create(this, 0, 0, "", alignTextRT);
+	_layerDisp = UI::Text::Create(this, 0, 0, "", alignTextRT);
 
 	_typeList = DefaultComboBox::Create(this);
 	_typeList->Resize(256);
@@ -726,7 +722,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), RTTypes::Inst().GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
-	List *ls = _typeList->GetList();
+	UI::List *ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
@@ -1095,7 +1091,7 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 {
 	SetEasyMove(true);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.map_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.map_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -1104,27 +1100,27 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 
 	float y = 32;
 
-	Text::Create(this, x1, y += 20, g_lang.map_author.Get(), alignTextLT);
-	_author = Edit::Create(this, x2, y += 15, 256);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_author.Get(), alignTextLT);
+	_author = UI::Edit::Create(this, x2, y += 15, 256);
 	_author->SetText(world._infoAuthor);
 
-	Text::Create(this, x1, y += 20, g_lang.map_email.Get(), alignTextLT);
-	_email = Edit::Create(this, x2, y += 15, 256);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_email.Get(), alignTextLT);
+	_email = UI::Edit::Create(this, x2, y += 15, 256);
 	_email->SetText(world._infoEmail);
 
-	Text::Create(this, x1, y += 20, g_lang.map_url.Get(), alignTextLT);
-	_url = Edit::Create(this, x2, y += 15, 256);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_url.Get(), alignTextLT);
+	_url = UI::Edit::Create(this, x2, y += 15, 256);
 	_url->SetText(world._infoUrl);
 
-	Text::Create(this, x1, y += 20, g_lang.map_desc.Get(), alignTextLT);
-	_desc = Edit::Create(this, x2, y += 15, 256);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_desc.Get(), alignTextLT);
+	_desc = UI::Edit::Create(this, x2, y += 15, 256);
 	_desc->SetText(world._infoDesc);
 
-	Text::Create(this, x1, y += 20, g_lang.map_init_script.Get(), alignTextLT);
-	_onInit = Edit::Create(this, x2, y += 15, 256);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_init_script.Get(), alignTextLT);
+	_onInit = UI::Edit::Create(this, x2, y += 15, 256);
 	_onInit->SetText(world._infoOnInit);
 
-	Text::Create(this, x1, y += 20, g_lang.map_theme.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, g_lang.map_theme.Get(), alignTextLT);
 	_theme = DefaultComboBox::Create(this);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
@@ -1139,8 +1135,8 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 	//
 	// OK & Cancel
 	//
-	Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()
@@ -1172,5 +1168,3 @@ void MapSettingsDlg::OnCancel()
 {
 	Close(_resultCancel);
 }
-
-} // end of namespace UI

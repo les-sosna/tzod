@@ -1,5 +1,4 @@
 #pragma once
-
 #include <ui/Window.h>
 #include <functional>
 
@@ -10,9 +9,10 @@ namespace FS
 
 namespace UI
 {
+	class Text;
+}
 
 class GetFileNameDlg;
-class Text;
 
 struct MainMenuCommands
 {
@@ -24,7 +24,7 @@ struct MainMenuCommands
 	std::function<void()> exit;
 };
 
-class MainMenuDlg : public Window
+class MainMenuDlg : public UI::Window
 {
 	void OnSinglePlayer();
 	void OnSaveGame();
@@ -63,9 +63,9 @@ class MainMenuDlg : public Window
 		PS_DISAPPEARING,
 	};
 
-	Window    *_panel = nullptr;
-	Window    *_panelFrame = nullptr;
-	Text      *_panelTitle = nullptr;
+	UI::Window    *_panel = nullptr;
+	UI::Window    *_panelFrame = nullptr;
+	UI::Text      *_panelTitle = nullptr;
 	PanelType  _ptype;
 	PanelState _pstate;
 
@@ -82,12 +82,9 @@ public:
 	virtual bool OnRawChar(int c) override;
 	virtual bool OnFocus(bool) override { return true; }
 
-
 protected:
 	void OnTimeStep(float dt);
 	void OnCloseChild(int result);
 	void CreatePanel(); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);
 };
-
-} // end of namespace UI

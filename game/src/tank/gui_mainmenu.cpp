@@ -18,10 +18,6 @@
 #include <ui/Text.h>
 #include <GLFW/glfw3.h>
 
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
-
 MainMenuDlg::MainMenuDlg(Window *parent,
 						 FS::FileSystem &fs,
 						 MainMenuCommands commands)
@@ -37,11 +33,11 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 	SetTexture("gui_splash", true);
 	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
-	Button::Create(this, g_lang.single_player_btn.Get(), 0, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSinglePlayer, this);
-	Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
-	Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
-	Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
-	Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = _commands.exit;
+	UI::Button::Create(this, g_lang.single_player_btn.Get(), 0, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSinglePlayer, this);
+	UI::Button::Create(this, g_lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
+	UI::Button::Create(this, g_lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
+	UI::Button::Create(this, g_lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
+	UI::Button::Create(this, g_lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = _commands.exit;
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);
@@ -89,7 +85,7 @@ void MainMenuDlg::OnSaveGame()
 void MainMenuDlg::OnSaveGameSelect(int result)
 {
 	assert(_fileDlg);
-	if( Dialog::_resultOK == result )
+	if(UI::Dialog::_resultOK == result )
 	{
 		std::string tmp = DIR_SAVE;
 		tmp += "/";
@@ -126,7 +122,7 @@ void MainMenuDlg::OnLoadGame()
 void MainMenuDlg::OnLoadGameSelect(int result)
 {
 	assert(_fileDlg);
-	if( Dialog::_resultOK == result )
+	if(UI::Dialog::_resultOK == result )
 	{
 		std::string tmp = DIR_SAVE;
 		tmp += "/";
@@ -218,7 +214,7 @@ void MainMenuDlg::OnImportMap()
 void MainMenuDlg::OnImportMapSelect(int result)
 {
 	assert(_fileDlg);
-	if( Dialog::_resultOK == result )
+	if(UI::Dialog::_resultOK == result )
 	{
 		_commands.openMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
@@ -249,7 +245,7 @@ void MainMenuDlg::OnExportMap()
 void MainMenuDlg::OnExportMapSelect(int result)
 {
 	assert(_fileDlg);
-	if( Dialog::_resultOK == result )
+	if(UI::Dialog::_resultOK == result )
 	{
 		_commands.exportMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
@@ -271,7 +267,7 @@ void MainMenuDlg::OnParentSize(float width, float height)
 
 void MainMenuDlg::OnCloseChild(int result)
 {
-	if( Dialog::_resultOK == result )
+	if(UI::Dialog::_resultOK == result )
 	{
 //		Close(result);
 	}
@@ -317,38 +313,38 @@ void MainMenuDlg::SwitchPanel(PanelType newtype)
 
 void MainMenuDlg::CreatePanel()
 {
-	_panelTitle = Text::Create(_panel, 0, 0, "", alignTextLT);
+	_panelTitle = UI::Text::Create(_panel, 0, 0, "", alignTextLT);
 	_panelTitle->SetFont("font_default");
 
 	float y = _panelTitle->GetCharHeight() + _panelTitle->GetY() + 10;
-	Button *btn;
+	UI::Button *btn;
 
 	switch( _ptype )
 	{
 	case PT_SINGLEPLAYER:
 		_panelTitle->SetText(g_lang.single_player_title.Get());
-		Button::Create(_panel, g_lang.single_player_campaign.Get(), 0, y)->eventClick = _commands.newCampaign;
-		Button::Create(_panel, g_lang.single_player_skirmish.Get(), 100, y)->eventClick = _commands.newDM;
-		Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnLoadGame, this);
-		btn = Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
+		UI::Button::Create(_panel, g_lang.single_player_campaign.Get(), 0, y)->eventClick = _commands.newCampaign;
+		UI::Button::Create(_panel, g_lang.single_player_skirmish.Get(), 100, y)->eventClick = _commands.newDM;
+		UI::Button::Create(_panel, g_lang.single_player_load.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnLoadGame, this);
+		btn = UI::Button::Create(_panel, g_lang.single_player_save.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnSaveGame, this);
 //		btn->SetEnabled(g_client && g_client->SupportSave());
 		break;
 	case PT_MULTIPLAYER:
 		_panelTitle->SetText(g_lang.network_title.Get());
-		Button::Create(_panel, g_lang.network_host.Get(), 0, y)->eventClick = std::bind(&MainMenuDlg::OnHost, this);
-		Button::Create(_panel, g_lang.network_join.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnJoin, this);
-		Button::Create(_panel, g_lang.network_internet.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnInternet, this);
-		Button::Create(_panel, g_lang.network_profile.Get(), 300, y)->eventClick = std::bind(&MainMenuDlg::OnNetworkProfile, this);
+		UI::Button::Create(_panel, g_lang.network_host.Get(), 0, y)->eventClick = std::bind(&MainMenuDlg::OnHost, this);
+		UI::Button::Create(_panel, g_lang.network_join.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnJoin, this);
+		UI::Button::Create(_panel, g_lang.network_internet.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnInternet, this);
+		UI::Button::Create(_panel, g_lang.network_profile.Get(), 300, y)->eventClick = std::bind(&MainMenuDlg::OnNetworkProfile, this);
 		break;
 	case PT_EDITOR:
 		_panelTitle->SetText(g_lang.editor_title.Get());
-		Button::Create(_panel, g_lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
-		Button::Create(_panel, g_lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
-		btn = Button::Create(_panel, g_lang.editor_save_map.Get(), 200, y);
+		UI::Button::Create(_panel, g_lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
+		UI::Button::Create(_panel, g_lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
+		btn = UI::Button::Create(_panel, g_lang.editor_save_map.Get(), 200, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnExportMap, this);
 //		btn->SetEnabled(g_client && g_client->SupportEditor());
-		btn = Button::Create(_panel, g_lang.editor_map_settings.Get(), 300, y);
+		btn = UI::Button::Create(_panel, g_lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
 //		btn->SetEnabled(g_client && g_client->SupportEditor());
 		break;
@@ -397,9 +393,4 @@ void MainMenuDlg::OnTimeStep(float dt)
 		assert(false);
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
 

@@ -16,16 +16,17 @@ struct lua_State;
 
 namespace UI
 {
-template <class, class> class ListAdapter;
-class ComboBox;
-class Button;
-class Edit;
-class Text;
+	template <class, class> class ListAdapter;
+	class ComboBox;
+	class Button;
+	class Edit;
+	class Text;
+}
 
-class NewMapDlg : public Dialog
+class NewMapDlg : public UI::Dialog
 {
-	Edit *_width;
-	Edit *_height;
+	UI::Edit *_width;
+	UI::Edit *_height;
 
 public:
 	NewMapDlg(Window *parent);
@@ -36,18 +37,18 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class PropertyList : public Dialog
+class PropertyList : public UI::Dialog
 {
-	class Container : public Window
+	class Container : public UI::Window
 	{
 //		bool OnRawChar(int c); // need to pass messages through
 	public:
-		Container(Window *parent);
+		Container(UI::Window *parent);
 	};
 
 
 	Container  *_psheet;
-	ScrollBarVertical  *_scrollBar;
+	UI::ScrollBarVertical  *_scrollBar;
 
 	std::shared_ptr<PropertySet>  _ps;
 	std::vector<Window*>  _ctrls;
@@ -68,13 +69,13 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 
 class ServiceListDataSource
-	: public ListDataSource
+	: public UI::ListDataSource
 	, public ObjectListener<World>
 {
 public:
 	// ListDataSource implementation
-	virtual void AddListener(ListDataSourceListener *listener);
-	virtual void RemoveListener(ListDataSourceListener *listener);
+	virtual void AddListener(UI::ListDataSourceListener *listener);
+	virtual void RemoveListener(UI::ListDataSourceListener *listener);
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
 	virtual size_t GetItemData(int index) const;
@@ -93,29 +94,29 @@ public:
 
 private:
 	mutable std::string _nameCache;
-	ListDataSourceListener *_listener;
+	UI::ListDataSourceListener *_listener;
     World &_world;
 };
 
 // forward declaration
 class EditorLayout;
 
-class ServiceEditor : public Dialog
+class ServiceEditor : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
     ServiceListDataSource _listData;
-	List *_list;
+	UI::List *_list;
 	DefaultComboBox *_combo;
-	Text *_labelService;
-	Text *_labelName;
-	Button *_btnCreate;
+	UI::Text *_labelService;
+	UI::Text *_labelName;
+	UI::Button *_btnCreate;
 
 	float _margins;
     World &_world;
 
 public:
-	ServiceEditor(Window *parent, float x, float y, float w, float h, World &world);
+	ServiceEditor(UI::Window *parent, float x, float y, float w, float h, World &world);
 	virtual ~ServiceEditor();
 
 protected:
@@ -131,16 +132,16 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditorLayout : public Window
+class EditorLayout : public UI::Window
 {
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
     const DefaultCamera &_defaultCamera;
 	PropertyList *_propList;
 	ServiceEditor    *_serviceList;
-	Text         *_layerDisp;
+	UI::Text         *_layerDisp;
 	DefaultComboBox  *_typeList;
-	Text         *_help;
+	UI::Text         *_help;
 	size_t        _fontSmall;
 
 	size_t       _selectionRect;
@@ -158,7 +159,7 @@ class EditorLayout : public Window
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL);
+	EditorLayout(UI::Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);
@@ -182,23 +183,21 @@ protected:
 	void OnChangeUseLayers();
 };
 
-class MapSettingsDlg : public Dialog
+class MapSettingsDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 	DefaultComboBox *_theme;
-	Edit *_author;
-	Edit *_email;
-	Edit *_url;
-	Edit *_desc;
-	Edit *_onInit;
+	UI::Edit *_author;
+	UI::Edit *_email;
+	UI::Edit *_url;
+	UI::Edit *_desc;
+	UI::Edit *_onInit;
     World &_world;
 
 public:
-	MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager);
+	MapSettingsDlg(UI::Window *parent, World &world, const ThemeManager &themeManager);
 	~MapSettingsDlg();
 
 	void OnOK();
 	void OnCancel();
 };
-
-} // end of namespace UI

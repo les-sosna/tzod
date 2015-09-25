@@ -10,14 +10,12 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
 
-namespace UI
-{
 
-NewCampaignDlg::NewCampaignDlg(Window *parent, FS::FileSystem &fs)
-  : Dialog(parent, 512, 400)
+NewCampaignDlg::NewCampaignDlg(UI::Window *parent, FS::FileSystem &fs)
+  : UI::Dialog(parent, 512, 400)
   , _fs(fs)
 {
-	Text *t = Text::Create(this, GetWidth() / 2, 16, g_lang.campaign_title.Get(), alignTextCT);
+	UI::Text *t = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.campaign_title.Get(), alignTextCT);
 	t->SetFont("font_default");
 
 	_files = DefaultListBox::Create(this);
@@ -32,8 +30,8 @@ NewCampaignDlg::NewCampaignDlg(Window *parent, FS::FileSystem &fs)
 	}
 	_files->GetData()->Sort();
 
-	Button::Create(this, g_lang.campaign_ok.Get(), 290, 360)->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
-	Button::Create(this, g_lang.campaign_cancel.Get(), 400, 360)->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.campaign_ok.Get(), 290, 360)->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.campaign_cancel.Get(), 400, 360)->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
 }
 
 NewCampaignDlg::~NewCampaignDlg()
@@ -54,5 +52,3 @@ void NewCampaignDlg::OnCancel()
 	if( eventCampaignSelected )
 		eventCampaignSelected(std::string());
 }
-
-} // namespace UI

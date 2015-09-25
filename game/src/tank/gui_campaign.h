@@ -1,10 +1,6 @@
-// gui_campaign.h
-
 #pragma once
-
 #include <ui/Dialog.h>
 
-struct lua_State;
 namespace FS
 {
 	class FileSystem;
@@ -12,14 +8,15 @@ namespace FS
 
 namespace UI
 {
-class ListDataSourceDefault;
-class List;
-template <class, class> class ListAdapter;
+	class ListDataSourceDefault;
+	class List;
+	template <class, class> class ListAdapter;
+}
 
-class NewCampaignDlg : public Dialog
+class NewCampaignDlg : public UI::Dialog
 {
 public:
-	NewCampaignDlg(Window *parent, FS::FileSystem &fs);
+	NewCampaignDlg(UI::Window *parent, FS::FileSystem &fs);
 	~NewCampaignDlg();
 	std::function<void(std::string)> eventCampaignSelected;
 
@@ -27,12 +24,7 @@ private:
 	void OnOK();
 	void OnCancel();
 
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox *_files;
 	FS::FileSystem &_fs;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

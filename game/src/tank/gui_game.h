@@ -11,15 +11,13 @@ class WorldView;
 class WorldController;
 class DefaultCamera;
 
-namespace UI
-{
-    class MessageArea;
-    class ScoreTable;
+class MessageArea;
+class ScoreTable;
 
-class TimeElapsed : public Text
+class TimeElapsed : public UI::Text
 {
 public:
-	TimeElapsed(Window *parent, float x, float y, enumAlignText align, World &world);
+	TimeElapsed(UI::Window *parent, float x, float y, enumAlignText align, World &world);
 
 private:
 	void OnVisibleChange(bool visible, bool inherited) override;
@@ -29,11 +27,11 @@ private:
 };
 
 class GameLayout
-    : public Window
+    : public UI::Window
 	, private GameListener
 {
 public:
-    GameLayout(Window *parent,
+    GameLayout(UI::Window *parent,
                GameContext &gameContext,
 			   WorldView &worldView,
 			   WorldController &worldController,
@@ -63,6 +61,3 @@ private:
 	// GameListener
 	void OnGameMessage(const char *msg) override;
 };
-
-
-} // end of namespace UI

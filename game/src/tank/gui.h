@@ -1,5 +1,3 @@
-// gui.h
-
 #pragma once
 
 #include "constants.h"
@@ -14,35 +12,34 @@ namespace FS
 
 namespace UI
 {
-
-// ui forward declarations
-class Button;
-class CheckBox;
-class ComboBox;
-class Edit;
-class List;
+	class Button;
+	class CheckBox;
+	class ComboBox;
+	class Edit;
+	class List;
+	class ListDataSourceDefault;
+	class Text;
+	template<class, class> class ListAdapter;
+}
 class ListDataSourceMaps;
-class ListDataSourceDefault;
-class Text;
-template<class, class> class ListAdapter;
 
 class NewGameDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceMaps, List> MapList;
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapList;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 
 	MapList      *_maps;
 	DefaultListBox  *_players;
 	DefaultListBox  *_bots;
-	CheckBox  *_nightMode;
-	Edit      *_gameSpeed;
-	Edit      *_fragLimit;
-	Edit      *_timeLimit;
+	UI::CheckBox  *_nightMode;
+	UI::Edit      *_gameSpeed;
+	UI::Edit      *_fragLimit;
+	UI::Edit      *_timeLimit;
 
-	Button    *_removePlayer;
-	Button    *_changePlayer;
-	Button    *_removeBot;
-	Button    *_changeBot;
+	UI::Button    *_removePlayer;
+	UI::Button    *_changePlayer;
+	UI::Button    *_removeBot;
+	UI::Button    *_changeBot;
 
 	bool _newPlayer;
 
@@ -77,12 +74,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditPlayerDlg : public Dialog
+class EditPlayerDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	Window   *_skinPreview;
-	Edit     *_name;
+	UI::Window   *_skinPreview;
+	UI::Edit     *_name;
 	DefaultComboBox *_profiles;
 	DefaultComboBox *_skins;
 	DefaultComboBox *_classes;
@@ -93,7 +90,7 @@ class EditPlayerDlg : public Dialog
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(Window *parent, ConfVarTable *info);
+	EditPlayerDlg(UI::Window *parent, ConfVarTable *info);
 
 protected:
 	void OnOK();
@@ -104,12 +101,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditBotDlg : public Dialog
+class EditBotDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	Edit     *_name;
-	Window   *_skinPreview;
+	UI::Edit     *_name;
+	UI::Window   *_skinPreview;
 	DefaultComboBox *_skins;
 	DefaultComboBox *_classes;
 	DefaultComboBox *_teams;
@@ -133,19 +130,19 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ScriptMessageBox : public Window
+class ScriptMessageBox : public UI::Window
 {
-	Text   *_text;
-	Button *_button1;
-	Button *_button2;
-	Button *_button3;
+	UI::Text   *_text;
+	UI::Button *_button1;
+	UI::Button *_button2;
+	UI::Button *_button3;
 
 	void OnButton1();
 	void OnButton2();
 	void OnButton3();
 
 public:
-	ScriptMessageBox(Window *parent,
+	ScriptMessageBox(UI::Window *parent,
 		const std::string &title,
 		const std::string &text,
 		const std::string &btn1,
@@ -155,7 +152,3 @@ public:
 	std::function<void(int)> eventSelect;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

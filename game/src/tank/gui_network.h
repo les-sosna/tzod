@@ -11,34 +11,35 @@ namespace FS
 
 namespace UI
 {
-class Text;
-class List;
+	class Text;
+	class List;
+	class ListDataSourceDefault;
+	class Edit;
+	class ComboBox;
+	class CheckBox;
+	class Button;
+	class Console;
+	class ConsoleBuffer;
+	template <class, class> class ListAdapter;
+}
 class ListDataSourceMaps;
-class ListDataSourceDefault;
-class Edit;
-class ComboBox;
-class CheckBox;
-class Button;
-class Console;
-class ConsoleBuffer;
-template <class, class> class ListAdapter;
 
-class CreateServerDlg : public Dialog
+class CreateServerDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceMaps, List> MapListBox;
-	typedef ListAdapter<ListDataSourceDefault, ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	MapListBox *_maps;
-	CheckBox  *_nightMode;
-	Edit      *_gameSpeed;
-	Edit      *_fragLimit;
-	Edit      *_timeLimit;
-	Edit      *_svFps;
-//	Edit      *_svLatency;
+	UI::CheckBox  *_nightMode;
+	UI::Edit      *_gameSpeed;
+	UI::Edit      *_fragLimit;
+	UI::Edit      *_timeLimit;
+	UI::Edit      *_svFps;
+//	UI::Edit      *_svLatency;
 
 	DefaultComboBox *_lobbyList;
-	CheckBox  *_lobbyEnable;
-	Button    *_lobbyAdd;
+	UI::CheckBox  *_lobbyEnable;
+	UI::Button    *_lobbyAdd;
     World &_world;
 	FS::FileSystem &_fs;
 
@@ -56,18 +57,18 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 
 class ConnectDlg
-	: public Dialog
+	: public UI::Dialog
 //	, private IClientCallback
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox *_status;
-	Button *_btnOK;
-	Edit   *_name;
+	UI::Button *_btnOK;
+	UI::Edit   *_name;
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
     World &_world;
 
 public:
-	ConnectDlg(Window *parent, const std::string &defaultName, World &world);
+	ConnectDlg(UI::Window *parent, const std::string &defaultName, World &world);
 	virtual ~ConnectDlg();
 
 protected:
@@ -85,18 +86,18 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 //class LobbyClient;
-class InternetDlg : public Dialog
+class InternetDlg : public UI::Dialog
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox *_servers;
-	Button *_btnRefresh;
-	Button *_btnConnect;
-	Edit   *_name;
-	Text   *_status;
+	UI::Button *_btnRefresh;
+	UI::Button *_btnConnect;
+	UI::Edit   *_name;
+	UI::Text   *_status;
     World &_world;
 
 public:
-	InternetDlg(Window *parent, World &world);
+	InternetDlg(UI::Window *parent, World &world);
 	virtual ~InternetDlg();
 
 protected:
@@ -118,15 +119,15 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 
 class WaitingForPlayersDlg
-	: public Dialog
+	: public UI::Dialog
 //	, private IClientCallback
 {
-	typedef ListAdapter<ListDataSourceDefault, List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox *_players;
 	DefaultListBox *_bots;
-	Console        *_chat;
-	Button         *_btnOK;
-	Button         *_btnProfile;
+	UI::Console    *_chat;
+	UI::Button     *_btnOK;
+	UI::Button     *_btnProfile;
 	std::unique_ptr<UI::ConsoleBuffer>  _buf;
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
@@ -135,7 +136,7 @@ class WaitingForPlayersDlg
     World &_world;
 
 public:
-	WaitingForPlayersDlg(Window *parent, World &world);
+	WaitingForPlayersDlg(UI::Window *parent, World &world);
 	virtual ~WaitingForPlayersDlg();
 
 protected:
@@ -157,5 +158,3 @@ private:
 	virtual void OnStartGame();
 	virtual void OnClientDestroy();
 };
-
-} // end of namespace UI

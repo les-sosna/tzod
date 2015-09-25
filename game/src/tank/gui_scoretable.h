@@ -1,17 +1,13 @@
 #pragma once
-
 #include <ui/Window.h>
 
 class World;
 class Deathmatch;
 
-namespace UI
-{
-
-class ScoreTable : public Window
+class ScoreTable : public UI::Window
 {
 public:
-	ScoreTable(Window *parent, World &world, Deathmatch &deathmatch);
+	ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch);
 
 protected:
 	virtual void OnParentSize(float width, float height);
@@ -19,8 +15,6 @@ protected:
 
 private:
 	size_t _font;
-    World &_world;
+	World &_world;
 	Deathmatch &_deathmatch;
 };
-
-} // end of namespace UI

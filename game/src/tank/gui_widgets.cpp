@@ -1,5 +1,3 @@
-// gui_widgets.cpp
-
 #include "gui_widgets.h"
 #include <app/AppState.h>
 #include <app/GameContext.h>
@@ -9,9 +7,6 @@
 #include <video/DrawingContext.h>
 #include <sstream>
 #include <iomanip>
-
-namespace UI
-{
 
 FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, AppState &appState)
   : Text(parent)
@@ -102,7 +97,7 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Oscilloscope::Oscilloscope(Window *parent, float x, float y)
+Oscilloscope::Oscilloscope(UI::Window *parent, float x, float y)
   : Window(parent)
   , _barTexture(GetManager().GetTextureManager().FindSprite("ui/bar"))
   , _titleFont(GetManager().GetTextureManager().FindSprite("font_small"))
@@ -255,7 +250,3 @@ void Oscilloscope::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	dc.DrawBitmapText(sx, sy - labelOffset, _titleFont, 0x77777777, _title);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

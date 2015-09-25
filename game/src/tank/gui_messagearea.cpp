@@ -6,9 +6,6 @@
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-namespace UI
-{
-
 MessageArea::MessageArea(Window *parent, float x, float y)
   : Window(parent)
   , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
@@ -70,6 +67,3 @@ void MessageArea::Clear()
 	_lines.clear();
 	SetTimeStep(false);
 }
-
-
-} // end of namespace UI

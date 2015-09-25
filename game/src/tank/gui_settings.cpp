@@ -19,16 +19,13 @@
 #include <algorithm>
 #include <sstream>
 
-namespace UI
-{
-///////////////////////////////////////////////////////////////////////////////
 
-SettingsDlg::SettingsDlg(Window *parent)
+SettingsDlg::SettingsDlg(UI::Window *parent)
   : Dialog(parent, 512, 296)
 {
 	SetEasyMove(true);
 
-	Text *title = Text::Create(this, GetWidth() / 2, 16, g_lang.settings_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.settings_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -39,30 +36,30 @@ SettingsDlg::SettingsDlg(Window *parent)
 	float x = 24;
 	float y = 48;
 
-	y += Text::Create(this, x, y, g_lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
-	_player1 = ComboBox::Create(this, &_profilesDataSource);
+	y += UI::Text::Create(this, x, y, g_lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
+	_player1 = UI::ComboBox::Create(this, &_profilesDataSource);
 	_player1->Move(x, y);
 	_player1->Resize(128);
 	_player1->GetList()->Resize(128, 52);
 	y += _player1->GetHeight() + 5;
 
-	y += Text::Create(this, 24, y, g_lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
-	_player2 = ComboBox::Create(this, &_profilesDataSource);
+	y += UI::Text::Create(this, 24, y, g_lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
+	_player2 = UI::ComboBox::Create(this, &_profilesDataSource);
 	_player2->Move(x, y);
 	_player2->Resize(128);
 	_player2->GetList()->Resize(128, 52);
 	y += _player2->GetHeight() + 5;
 
-	y += Text::Create(this, x, y, g_lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
-	_profiles = List::Create(this, &_profilesDataSource, x, y, 128, 52);
+	y += UI::Text::Create(this, x, y, g_lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
+	_profiles = UI::List::Create(this, &_profilesDataSource, x, y, 128, 52);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
-	Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
-	_editProfile = Button::Create(this, g_lang.settings_profile_edit.Get(), 40, 216);
+	UI::Button::Create(this, g_lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
+	_editProfile = UI::Button::Create(this, g_lang.settings_profile_edit.Get(), 40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled( false );
-	_deleteProfile = Button::Create(this, g_lang.settings_profile_delete.Get(), 40, 248);
+	_deleteProfile = UI::Button::Create(this, g_lang.settings_profile_delete.Get(), 40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled( false );
 
@@ -74,32 +71,32 @@ SettingsDlg::SettingsDlg(Window *parent)
 	x = 200;
 	y = 48;
 
-	_showFps = CheckBox::Create(this, x, y, g_lang.settings_show_fps.Get());
+	_showFps = UI::CheckBox::Create(this, x, y, g_lang.settings_show_fps.Get());
 	_showFps->SetCheck(g_conf.ui_showfps.Get());
 	y += _showFps->GetHeight();
 
-	_showTime = CheckBox::Create(this, x, y, g_lang.settings_show_time.Get());
+	_showTime = UI::CheckBox::Create(this, x, y, g_lang.settings_show_time.Get());
 	_showTime->SetCheck(g_conf.ui_showtime.Get());
 	y += _showTime->GetHeight();
 
-	_showNames = CheckBox::Create(this, x, y, g_lang.settings_show_names.Get());
+	_showNames = UI::CheckBox::Create(this, x, y, g_lang.settings_show_names.Get());
 	_showNames->SetCheck(g_conf.g_shownames.Get());
 	y += _showNames->GetHeight();
 
-	_askDisplaySettings = CheckBox::Create(this, x, y, g_lang.settings_ask_for_display_mode.Get());
+	_askDisplaySettings = UI::CheckBox::Create(this, x, y, g_lang.settings_ask_for_display_mode.Get());
 	_askDisplaySettings->SetCheck(g_conf.r_askformode.Get());
 	y += _askDisplaySettings->GetHeight();
 
-	Text::Create(this, x + 50, y += 20, g_lang.settings_sfx_volume.Get(), alignTextRT);
-	_volumeSfx = ScrollBarHorizontal::Create(this, x + 60, y, 150);
+	UI::Text::Create(this, x + 50, y += 20, g_lang.settings_sfx_volume.Get(), alignTextRT);
+	_volumeSfx = UI::ScrollBarHorizontal::Create(this, x + 60, y, 150);
 	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
 	_volumeSfx->SetPos(expf(g_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeSfx->eventScroll = std::bind(&SettingsDlg::OnVolumeSfx, this, std::placeholders::_1);
 	_initialVolumeSfx = g_conf.s_volume.GetInt();
 
-	Text::Create(this, x + 50, y += 20, g_lang.settings_music_volume.Get(), alignTextRT);
-	_volumeMusic = ScrollBarHorizontal::Create(this, x + 60, y, 150);
+	UI::Text::Create(this, x + 50, y += 20, g_lang.settings_music_volume.Get(), alignTextRT);
+	_volumeMusic = UI::ScrollBarHorizontal::Create(this, x + 60, y, 150);
 	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
 	_volumeMusic->SetPos(expf(g_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);
@@ -111,9 +108,8 @@ SettingsDlg::SettingsDlg(Window *parent)
 	// OK & Cancel
 	//
 
-	Button::Create(this, g_lang.common_ok.Get(), 304, 256)->eventClick = std::bind(&SettingsDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
-
+	UI::Button::Create(this, g_lang.common_ok.Get(), 304, 256)->eventClick = std::bind(&SettingsDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 
 	_profiles->SetCurSel(0, true);
 	GetManager().SetFocusWnd(_profiles);
@@ -230,12 +226,12 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 {
 	SetEasyMove(true);
 
-	Text::Create(this, 20, 15, g_lang.profile_name.Get(), alignTextLT);
-	_nameEdit = Edit::Create(this, 20, 30, 250);
+	UI::Text::Create(this, 20, 15, g_lang.profile_name.Get(), alignTextLT);
+	_nameEdit = UI::Edit::Create(this, 20, 30, 250);
 	_nameEdit->SetText(_nameOrig);
 
-	Text::Create(this,  20, 65, g_lang.profile_action.Get(), alignTextLT);
-	Text::Create(this, 220, 65, g_lang.profile_key.Get(), alignTextLT);
+	UI::Text::Create(this,  20, 65, g_lang.profile_action.Get(), alignTextLT);
+	UI::Text::Create(this, 220, 65, g_lang.profile_key.Get(), alignTextLT);
 	_actions = DefaultListBox::Create(this);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
@@ -255,17 +251,17 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
 	AddAction(_profile.key_pickup       , g_lang.action_pickup.Get()        );
 	_actions->SetCurSel(0, true);
 
-	_aimToMouseChkBox = CheckBox::Create(this, 16, 345, g_lang.profile_mouse_aim.Get());
+	_aimToMouseChkBox = UI::CheckBox::Create(this, 16, 345, g_lang.profile_mouse_aim.Get());
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 
-	_moveToMouseChkBox = CheckBox::Create(this, 146, 345, g_lang.profile_mouse_move.Get());
+	_moveToMouseChkBox = UI::CheckBox::Create(this, 146, 345, g_lang.profile_mouse_move.Get());
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 
-	_arcadeStyleChkBox = CheckBox::Create(this, 276, 345, g_lang.profile_arcade_style.Get());
+	_arcadeStyleChkBox = UI::CheckBox::Create(this, 276, 345, g_lang.profile_arcade_style.Get());
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 
-	Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
-	Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
+	UI::Button::Create(this, g_lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
+	UI::Button::Create(this, g_lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_actions);
 }
@@ -373,6 +369,3 @@ bool ControlProfileDlg::OnRawChar(int c)
 	}
 	return true;
 }
-
-} // end of namespace UI
-
