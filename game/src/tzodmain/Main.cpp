@@ -110,7 +110,7 @@ try
 		fclose(f);
 
 		TRACE("Loading config '" FILE_CONFIG "'");
-		if (!g_conf->GetRoot()->Load(FILE_CONFIG))
+		if (!g_conf->Load(FILE_CONFIG))
 		{
 			GetConsole().Format(1) << "Failed to load config file.";
 		}
@@ -172,7 +172,7 @@ try
 	TRACE("Localization init...");
 	try
 	{
-		if( !g_lang->GetRoot()->Load(FILE_LANGUAGE) )
+		if( !g_lang->Load(FILE_LANGUAGE) )
 		{
 			TRACE("couldn't load language file " FILE_CONFIG);
 		}
@@ -221,8 +221,8 @@ try
 	gui.GetDesktop()->Resize((float) width, (float) height);
 
 //    g_env.L = gameContext.GetScriptHarness().GetLuaState();
-//    g_conf->GetRoot()->InitConfigLuaBinding(g_env.L, "conf");
-//    g_lang->GetRoot()->InitConfigLuaBinding(g_env.L, "lang");
+//    g_conf->InitConfigLuaBinding(g_env.L, "conf");
+//    g_lang->InitConfigLuaBinding(g_env.L, "lang");
 //    TRACE("Running startup script '%s'", FILE_STARTUP);
 //    if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
 //        TRACE("ERROR: in startup script");
@@ -283,7 +283,7 @@ try
 	}
 
 	TRACE("Saving config to '" FILE_CONFIG "'");
-	if( !g_conf->GetRoot()->Save(FILE_CONFIG) )
+	if( !g_conf->Save(FILE_CONFIG) )
 	{
 		TRACE("Failed to save config file");
 	}

@@ -4,11 +4,11 @@
 #define CONFIG_CACHE_PASS 1
 #include "Config.h"
 
-static void InitProfiles(ConfVarTable *profiles)
+static void InitProfiles(ConfVarTable &profiles)
 {
-	ConfControllerProfile(profiles->GetTable("WASD"));
+	ConfControllerProfile(&profiles.GetTable("WASD"));
 
-	ConfControllerProfile arrows(profiles->GetTable("Arrows"));
+	ConfControllerProfile arrows(&profiles.GetTable("Arrows"));
 	arrows.key_forward.Set("Up");
 	arrows.key_back.Set("Down");
 	arrows.key_left.Set("Left");
@@ -25,9 +25,9 @@ static void InitProfiles(ConfVarTable *profiles)
 	arrows.arcade_style.Set(false);
 }
 
-static void InitLobbyList(ConfVarArray *lobby_servers)
+static void InitLobbyList(ConfVarArray &lobby_servers)
 {
-	lobby_servers->PushBack(ConfVar::typeString)->AsStr()->Set("tzod.fatal.ru/lobby");
+	lobby_servers.PushBack(ConfVar::typeString).AsStr().Set("tzod.fatal.ru/lobby");
 }
 
 // second time include it to implement initialize function

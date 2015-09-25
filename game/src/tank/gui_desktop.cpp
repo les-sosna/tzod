@@ -183,13 +183,13 @@ static DMSettings GetDMSettingsFromConfig()
 
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
+		ConfPlayerLocal p(&g_conf.dm_players.GetAt(i).AsTable());
 		settings.players.push_back(GetPlayerDescFromConf(p));
 	}
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
+		ConfPlayerAI p(&g_conf.dm_bots.GetAt(i).AsTable());
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
 

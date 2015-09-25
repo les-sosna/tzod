@@ -164,7 +164,7 @@ void NewGameDlg::RefreshPlayersList()
 
 	for( size_t i = 0; i < g_conf.dm_players.GetSize(); ++i )
 	{
-		ConfPlayerLocal p(g_conf.dm_players.GetAt(i)->AsTable());
+		ConfPlayerLocal p(&g_conf.dm_players.GetAt(i).AsTable());
 
 		int index = _players->GetData()->AddItem(p.nick.Get());
 		_players->GetData()->SetItemText(index, 1, p.skin.Get());
@@ -188,7 +188,7 @@ void NewGameDlg::RefreshBotsList()
 
 	for( size_t i = 0; i < g_conf.dm_bots.GetSize(); ++i )
 	{
-		ConfPlayerAI p(g_conf.dm_bots.GetAt(i)->AsTable());
+		ConfPlayerAI p(&g_conf.dm_bots.GetAt(i).AsTable());
 
 		int index = _bots->GetData()->AddItem(p.nick.Get());
 		_bots->GetData()->SetItemText(index, 1, p.skin.Get());
@@ -210,8 +210,8 @@ void NewGameDlg::OnAddPlayer()
 	std::vector<std::string> skinNames;
 	GetManager().GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf.dm_players.PushBack(ConfVar::typeTable)->AsTable();
-	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
+	ConfVarTable &p = g_conf.dm_players.PushBack(ConfVar::typeTable).AsTable();
+	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
 	(new EditPlayerDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1);
@@ -242,7 +242,7 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetCurSel();
 	assert(-1 != index);
 
-	(new EditPlayerDlg(this, g_conf.dm_players.GetAt(index)->AsTable()))
+	(new EditPlayerDlg(this, g_conf.dm_players.GetAt(index).AsTable()))
 		->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1);
 }
 
@@ -259,8 +259,8 @@ void NewGameDlg::OnAddBot()
 	std::vector<std::string> skinNames;
 	GetManager().GetTextureManager().GetTextureNames(skinNames, "skin/", true);
 
-	ConfVarTable *p = g_conf.dm_bots.PushBack(ConfVar::typeTable)->AsTable();
-	p->SetStr("skin", skinNames[rand() % skinNames.size()]);
+	ConfVarTable &p = g_conf.dm_bots.PushBack(ConfVar::typeTable).AsTable();
+	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
 	(new EditBotDlg(this, p))->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1);
@@ -291,7 +291,7 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetCurSel();
 	assert(-1 != index);
 
-	(new EditBotDlg(this, g_conf.dm_bots.GetAt(index)->AsTable()))
+	(new EditBotDlg(this, g_conf.dm_bots.GetAt(index).AsTable()))
 		->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1);
 }
 
@@ -370,12 +370,11 @@ bool NewGameDlg::OnRawChar(int c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable *info)
+EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable &info)
   : Dialog(parent, 384, 220)
-  , _info(info)
+  , _info(&info)
 {
 	SetEasyMove(true);
-	assert(info);
 
 	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.player_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -546,12 +545,11 @@ const char EditBotDlg::levels[][16] = {
 };
 
 
-EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
+EditBotDlg::EditBotDlg(Window *parent, ConfVarTable &info)
   : Dialog(parent, 384, 220)
-  , _info(info)
+  , _info(&info)
 {
 	SetEasyMove(true);
-	assert(info);
 
 	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.bot_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
@@ -663,7 +661,7 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable *info)
 
 	for( int i = 0; i < 5; ++i )
 	{
-		int index = _levels->GetData()->AddItem(g_lang->GetRoot()->GetStr(levels[i], "")->Get());
+		int index = _levels->GetData()->AddItem(g_lang->GetStr(levels[i]).Get());
 		if( i == _info.level.GetInt() )
 		{
 			_levels->SetCurSel(index);

@@ -219,7 +219,7 @@ static std::string GenerateProfileName()
 ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName)
   : Dialog(parent, 448, 416)
   , _nameOrig(profileName ? profileName : GenerateProfileName())
-  , _profile(g_conf.dm_profiles.GetTable(_nameOrig))
+  , _profile(&g_conf.dm_profiles.GetTable(_nameOrig))
   , _time(0)
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
@@ -281,10 +281,10 @@ void ControlProfileDlg::OnSelectAction(int index)
 
 void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
 {
-	ConfVarTable::KeyListType names = _profile->GetRoot()->GetKeys();
+	ConfVarTable::KeyListType names = _profile->GetKeys();
 	for( size_t i = 0; i != names.size(); ++i )
 	{
-		if( _profile->GetRoot()->Find(names[i]) == &var )
+		if( _profile->Find(names[i]) == &var )
 		{
 			int index = _actions->GetData()->AddItem(display);
 			_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(var.Get())));
@@ -297,15 +297,15 @@ void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetText().empty() || !g_conf.dm_profiles.Rename(_profile->GetRoot(), _nameEdit->GetText()) )
+	if( _nameEdit->GetText().empty() || !g_conf.dm_profiles.Rename(_profile, _nameEdit->GetText()) )
 	{
 		return;
 	}
 
-	ConfVarTable::KeyListType names = _profile->GetRoot()->GetKeys();
+	ConfVarTable::KeyListType names = _profile->GetKeys();
 	for( int i = 0; i < _actions->GetData()->GetItemCount(); ++i )
 	{
-		_profile->GetRoot()->SetStr(names[_actions->GetData()->GetItemData(i)], _actions->GetData()->GetItemText(i, 1));
+		_profile->SetStr(names[_actions->GetData()->GetItemData(i)], _actions->GetData()->GetItemText(i, 1));
 	}
 
 	_profile.aim_to_mouse.Set(_aimToMouseChkBox->GetCheck());
@@ -319,7 +319,7 @@ void ControlProfileDlg::OnCancel()
 {
 	if( _createNewProfile )
 	{
-		g_conf.dm_profiles.Remove(_profile->GetRoot());
+		g_conf.dm_profiles.Remove(_profile);
 	}
 	Close(_resultCancel);
 }
@@ -336,7 +336,7 @@ bool ControlProfileDlg::OnRawChar(int c)
 	{
 		if (GLFW_KEY_ESCAPE == c)
 		{
-			int oldKeyCode = GetKeyCode(_profile->GetRoot()->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex), "")->Get());
+			int oldKeyCode = GetKeyCode(_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex)).Get());
 			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(oldKeyCode));
 		}
 		else

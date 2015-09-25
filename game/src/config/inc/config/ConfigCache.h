@@ -14,57 +14,37 @@
 
 namespace config_detail
 {
-	class UnfreezeHelper
-	{
-	public:
-		UnfreezeHelper(ConfVarTable *table)
-			: _table(table)
-		{
-			assert(_table->IsFrozen());
-			_table->Freeze(false);
-		}
-		~UnfreezeHelper()
-		{
-			assert(!_table->IsFrozen());
-			_table->Freeze(true);
-		}
-		ConfVarTable* operator -> () const
-		{
-			return _table;
-		}
-	private:
-		ConfVarTable * const _table;
-	};
-
 	class ReflectionBase
 	{
 	public:
-		ConfVarTable* GetRoot() const { return _root; }
+		operator ConfVarTable&() { return *_root; }
+		ConfVarTable* operator->() { return _root; }
+		const ConfVarTable* operator->() const { return _root; }
 
 	protected:
-		ReflectionBase(ConfVarTable *root)
+		ReflectionBase(ConfVarTable *root, bool)
 			: _root(root)
-			, _owner(nullptr == root)
+			, _isOwner(nullptr == root)
 		{
-			if( _owner )
+			if (_isOwner)
 			{
 				assert(!_root);
 				_root = new ConfVarTable();
 			}
-			_root->Freeze(true);
 		}
 		~ReflectionBase()
 		{
-			if( _owner )
+			if (_isOwner)
 			{
 				assert(_root);
 				delete _root;
 			}
 		}
 
+		ConfVarTable *_root;
+
 	private:
-		ConfVarTable  *_root;
-		bool _owner;
+		bool _isOwner;
 	};
 }
 
@@ -72,20 +52,13 @@ namespace config_detail
 #define HELPSTRING(h)
 
 #define REFLECTION_BEGIN(ReflectionName)                           \
-    class ReflectionName : protected config_detail::ReflectionBase \
-    {                                                              \
-    public:                                                        \
-        ReflectionName(ConfVarTable *bindTo = nullptr);               \
-        const config_detail::ReflectionBase* operator -> ()        \
-        {                                                          \
-            return this;                                           \
-        }
+    REFLECTION_BEGIN_(ReflectionName, config_detail::ReflectionBase)
 
 #define REFLECTION_BEGIN_(ReflectionName, Base)                    \
     class ReflectionName : public Base                             \
     {                                                              \
     public:                                                        \
-        ReflectionName(ConfVarTable *bindTo = nullptr);
+        ReflectionName(ConfVarTable *bindTo = nullptr, bool freeze = true);
 
 
  #define VAR_FLOAT( var, def )                   ConfVarNumber &var;
@@ -124,7 +97,7 @@ namespace config_detail
  #undef VAR_REFLECTION
 #undef REFLECTION_END
 
-static ConfVarNumber& InitIntType(ConfVarNumber *var, const char *type, const char *help = nullptr)
+static ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *help = nullptr)
 {
 //	if( type )
 //	{
@@ -133,10 +106,10 @@ static ConfVarNumber& InitIntType(ConfVarNumber *var, const char *type, const ch
 //		var->SetMeta(&meta);
 //	}
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarNumber& InitIntRange(ConfVarNumber *var, int iMin, int iMax, const char *help = nullptr)
+static ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax, const char *help = nullptr)
 {
 //	ConfVarNumber::NumberMeta meta;
 //	meta.type = "integer";
@@ -144,34 +117,34 @@ static ConfVarNumber& InitIntRange(ConfVarNumber *var, int iMin, int iMax, const
 //	meta.fMax = (float) iMax;
 //	var->SetMeta(&meta);
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarNumber& InitFloat(ConfVarNumber *var, const char *help = nullptr)
+static ConfVarNumber& InitFloat(ConfVarNumber &var, const char *help = nullptr)
 {
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarBool& InitBool(ConfVarBool *var, const char *help = nullptr)
+static ConfVarBool& InitBool(ConfVarBool &var, const char *help = nullptr)
 {
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarArray& InitArray(ConfVarArray *var, const char *help = nullptr)
+static ConfVarArray& InitArray(ConfVarArray &var, const char *help = nullptr)
 {
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarTable& InitTable(ConfVarTable *var, const char *help = nullptr)
+static ConfVarTable& InitTable(ConfVarTable &var, const char *help = nullptr)
 {
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarNumber& InitFloatRange(ConfVarNumber *var, float fMin, float fMax, const char *help = nullptr)
+static ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax, const char *help = nullptr)
 {
 //	ConfVarNumber::NumberMeta meta;
 //	meta.type = "float";
@@ -179,10 +152,10 @@ static ConfVarNumber& InitFloatRange(ConfVarNumber *var, float fMin, float fMax,
 //	meta.fMax = fMax;
 //	var->SetMeta(&meta);
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
-static ConfVarString& InitStrType(ConfVarString *var, const char *type, const char *help = nullptr)
+static ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *help = nullptr)
 {
 //	if( type )
 //	{
@@ -191,28 +164,28 @@ static ConfVarString& InitStrType(ConfVarString *var, const char *type, const ch
 //		var->SetMeta(&meta);
 //	}
 //	if( help ) var->SetHelpString(help);
-	return *var;
+	return var;
 }
 
 
 #define HELPSTRING(h)     ,(h)
 
-#define REFLECTION_BEGIN_(ReflectionName, Base) ReflectionName::ReflectionName(ConfVarTable *root): Base((root
+#define REFLECTION_BEGIN_(ReflectionName, Base) ReflectionName::ReflectionName(ConfVarTable *root, bool freeze): Base(root, (false
 #define REFLECTION_BEGIN(ReflectionName) REFLECTION_BEGIN_(ReflectionName, config_detail::ReflectionBase)
 
-#define VAR_FLOAT( var, def )               )), var( InitFloat(config_detail::UnfreezeHelper(GetRoot())->GetNum(#var, (float) (def))
-#define VAR_FLOAT_RANGE(var,def,fMin,fMax)  )), var( InitFloatRange(config_detail::UnfreezeHelper(GetRoot())->GetNum(#var, (float) (def)), (fMin), (fMax)
-#define VAR_INT(   var, def )               )), var( InitIntType(config_detail::UnfreezeHelper(GetRoot())->GetNum(#var, (int) (def)), nullptr
-#define VAR_INT_TYPE(var, def, type )       )), var( InitIntType(config_detail::UnfreezeHelper(GetRoot())->GetNum(#var, (int) (def)), (type)
-#define VAR_INT_RANGE(var, def, iMin, iMax) )), var( InitIntRange(config_detail::UnfreezeHelper(GetRoot())->GetNum(#var, (int) (def)), (iMin), (iMax)
-#define VAR_BOOL(  var, def )               )), var( InitBool(config_detail::UnfreezeHelper(GetRoot())->GetBool(#var, (def))
-#define VAR_STR(   var, def )               )), var( InitStrType(config_detail::UnfreezeHelper(GetRoot())->GetStr(#var, (def)), nullptr
-#define VAR_STR_TYPE( var, def, type )      )), var( InitStrType(config_detail::UnfreezeHelper(GetRoot())->GetStr(#var, (def)), (type)
-#define VAR_ARRAY( var, def )               )), var( InitArray(config_detail::UnfreezeHelper(GetRoot())->GetArray(#var, (def))
-#define VAR_TABLE( var, def )               )), var( InitTable(config_detail::UnfreezeHelper(GetRoot())->GetTable(#var, (def))
-#define VAR_REFLECTION( var, type )         )), var( &InitTable(config_detail::UnfreezeHelper(GetRoot())->GetTable(#var, nullptr)
+#define VAR_FLOAT( var, def )               )), var( InitFloat(_root->GetNum(#var, (float) (def))
+#define VAR_FLOAT_RANGE(var,def,fMin,fMax)  )), var( InitFloatRange(_root->GetNum(#var, (float) (def)), (fMin), (fMax)
+#define VAR_INT(   var, def )               )), var( InitIntType(_root->GetNum(#var, (int) (def)), nullptr
+#define VAR_INT_TYPE(var, def, type )       )), var( InitIntType(_root->GetNum(#var, (int) (def)), (type)
+#define VAR_INT_RANGE(var, def, iMin, iMax) )), var( InitIntRange(_root->GetNum(#var, (int) (def)), (iMin), (iMax)
+#define VAR_BOOL(  var, def )               )), var( InitBool(_root->GetBool(#var, (def))
+#define VAR_STR(   var, def )               )), var( InitStrType(_root->GetStr(#var, (def)), nullptr
+#define VAR_STR_TYPE( var, def, type )      )), var( InitStrType(_root->GetStr(#var, (def)), (type)
+#define VAR_ARRAY( var, def )               )), var( InitArray(_root->GetArray(#var, (def))
+#define VAR_TABLE( var, def )               )), var( InitTable(_root->GetTable(#var, (def))
+#define VAR_REFLECTION( var, type )         )), var( &InitTable(_root->GetTable(#var, nullptr)
 
-#define REFLECTION_END()                    )) {}
+#define REFLECTION_END()                    )) { if (freeze) _root->Freeze(true); }
 
 #else
  #error define CONFIG_CACHE_PASS as 1 or 2 before including this file

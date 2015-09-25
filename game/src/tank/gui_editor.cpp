@@ -78,7 +78,7 @@ void NewMapDlg::OnCancel()
 
 static void LoadFromConfig(PropertySet &ps)
 {
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	ConfVarTable &op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
 	for( int i = 0; i < ps.GetCount(); ++i )
 	{
 		ObjectProperty *prop = ps.GetProperty(i);
@@ -87,21 +87,21 @@ static void LoadFromConfig(PropertySet &ps)
 		case ObjectProperty::TYPE_INTEGER:
             prop->SetIntValue(std::min(prop->GetIntMax(),
                                        std::max(prop->GetIntMin(),
-                                                op->GetNum(prop->GetName(), prop->GetIntValue())->GetInt())));
+                                                op.GetNum(prop->GetName(), prop->GetIntValue()).GetInt())));
 			break;
 		case ObjectProperty::TYPE_FLOAT:
             prop->SetFloatValue(std::min(prop->GetFloatMax(),
                                          std::max(prop->GetFloatMin(),
-                                                  op->GetNum(prop->GetName(), prop->GetFloatValue())->GetFloat())));
+                                                  op.GetNum(prop->GetName(), prop->GetFloatValue()).GetFloat())));
 			break;
 		case ObjectProperty::TYPE_STRING:
 		case ObjectProperty::TYPE_SKIN:
 		case ObjectProperty::TYPE_TEXTURE:
-			prop->SetStringValue(op->GetStr(prop->GetName(), prop->GetStringValue().c_str())->Get());
+			prop->SetStringValue(op.GetStr(prop->GetName(), prop->GetStringValue().c_str()).Get());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
             prop->SetCurrentIndex(std::min((int) prop->GetListSize() - 1,
-                                           std::max(0, op->GetNum(prop->GetName(), (int) prop->GetCurrentIndex())->GetInt())));
+                                           std::max(0, op.GetNum(prop->GetName(), (int) prop->GetCurrentIndex()).GetInt())));
 			break;
 		default:
 			assert(false);
@@ -111,25 +111,25 @@ static void LoadFromConfig(PropertySet &ps)
 
 static void SaveToConfig(const PropertySet &ps)
 {
-	ConfVarTable *op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	ConfVarTable &op = g_conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
 	for( int i = 0; i < ps.GetCount(); ++i )
 	{
 		const ObjectProperty *prop = const_cast<PropertySet&>(ps).GetProperty(i);
 		switch( prop->GetType() )
 		{
 		case ObjectProperty::TYPE_INTEGER:
-			op->SetNum(prop->GetName(), prop->GetIntValue());
+			op.SetNum(prop->GetName(), prop->GetIntValue());
 			break;
 		case ObjectProperty::TYPE_FLOAT:
-			op->SetNum(prop->GetName(), prop->GetFloatValue());
+			op.SetNum(prop->GetName(), prop->GetFloatValue());
 			break;
 		case ObjectProperty::TYPE_STRING:
 		case ObjectProperty::TYPE_SKIN:
 		case ObjectProperty::TYPE_TEXTURE:
-			op->SetStr(prop->GetName(), prop->GetStringValue());
+			op.SetStr(prop->GetName(), prop->GetStringValue());
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
-			op->SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
+			op.SetNum(prop->GetName(), (int) prop->GetCurrentIndex());
 			break;
 		default:
 			assert(false);
@@ -434,7 +434,7 @@ const std::string& ServiceListDataSource::GetItemText(int index, int sub) const
 	switch( sub )
 	{
 	case 0:
-		return g_lang->GetRoot()->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc, "")->Get();
+		return g_lang->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc).Get();
 	case 1:
 		name = s->GetName(_world);
 		_nameCache = name ? name : "";
@@ -504,7 +504,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service )
 		{
 			const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
-			_combo->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), RTTypes::Inst().GetTypeByIndex(i));
+			_combo->GetData()->AddItem(g_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
 		}
 	}
 	_combo->GetData()->Sort();
@@ -719,7 +719,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 	{
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(g_lang->GetRoot()->GetStr(desc0, "")->Get(), RTTypes::Inst().GetTypeByIndex(i));
+		_typeList->GetData()->AddItem(g_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
 	UI::List *ls = _typeList->GetList();

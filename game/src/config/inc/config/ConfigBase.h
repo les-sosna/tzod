@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 #include <map>
+#include <memory>
 #include <deque>
 #include <vector>
 
@@ -28,7 +29,7 @@ public:
 	ConfVar();
 	virtual ~ConfVar();
 
-	void SetHelpString(const std::string &str) { _help = str; }
+	void SetHelpString(std::string str) { _help = std::move(str); }
 	const std::string& GetHelpString() const { return _help; }
 
 	void SetType(Type type);
@@ -36,11 +37,11 @@ public:
 	virtual const char* GetTypeName() const;
 
 	// type casting
-	ConfVarNumber* AsNum();
-	ConfVarBool*   AsBool();
-	ConfVarString* AsStr();
-	ConfVarArray*  AsArray();
-	ConfVarTable*  AsTable();
+	ConfVarNumber& AsNum();
+	ConfVarBool&   AsBool();
+	ConfVarString& AsStr();
+	ConfVarArray&  AsArray();
+	ConfVarTable&  AsTable();
 
 	// lua binding helpers
 	void Freeze(bool freeze);
@@ -57,14 +58,14 @@ public:
 protected:
 	void FireValueUpdate(ConfVar *pVar);
 
-	typedef std::map<std::string, ConfVar*> TableType;
+	typedef std::map<std::string, std::unique_ptr<ConfVar>> TableType;
 
 	union Value
 	{
 		double                         asNumber;
 		bool                           asBool;
 		std::string                   *asString;
-		std::deque<ConfVar*>          *asArray;
+		std::deque<std::unique_ptr<ConfVar>> *asArray;
 		TableType                     *asTable;
 	};
 
@@ -139,29 +140,30 @@ public:
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(size_t index, ConfVar::Type type);
 
-	ConfVarNumber* GetNum(size_t index, float def);
-	ConfVarNumber* GetNum(size_t index, int   def = 0);
-	ConfVarBool*  GetBool(size_t index, bool  def = false);
-	ConfVarString* GetStr(size_t index, const std::string &def);
+	ConfVarNumber& GetNum(size_t index, float def);
+	ConfVarNumber& GetNum(size_t index, int   def = 0);
+	ConfVarBool&  GetBool(size_t index, bool  def = false);
+	ConfVarString& GetStr(size_t index);
+	ConfVarString& GetStr(size_t index, std::string def);
 
-	ConfVarNumber* SetNum(size_t index, float value);
-	ConfVarNumber* SetNum(size_t index, int   value);
-	ConfVarBool*  SetBool(size_t index, bool  value);
-	ConfVarString* SetStr(size_t index, const std::string &value);
+	ConfVarNumber& SetNum(size_t index, float value);
+	ConfVarNumber& SetNum(size_t index, int   value);
+	ConfVarBool&  SetBool(size_t index, bool  value);
+	ConfVarString& SetStr(size_t index, std::string value);
 
-	ConfVarArray* GetArray(size_t index);
-	ConfVarTable* GetTable(size_t index);
+	ConfVarArray& GetArray(size_t index);
+	ConfVarTable& GetTable(size_t index);
 
 	void      Resize(size_t newSize);
 	size_t    GetSize() const;
 
-	ConfVar*  GetAt(size_t index) const;
+	ConfVar&  GetAt(size_t index) const;
 	void      RemoveAt(size_t index);
 
 	void      PopFront();
 	void      PopBack();
-	ConfVar*  PushFront(Type type);
-	ConfVar*  PushBack(Type type);
+	ConfVar&  PushFront(Type type);
+	ConfVar&  PushBack(Type type);
 
 	// ConfVar
 	virtual const char* GetTypeName() const;
@@ -185,24 +187,25 @@ public:
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(const std::string &name, ConfVar::Type type);
 
-	ConfVarNumber* GetNum(const std::string &name, float def);
-	ConfVarNumber* GetNum(const std::string &name, int   def = 0);
-	ConfVarBool*  GetBool(const std::string &name, bool  def = false);
-	ConfVarString* GetStr(const std::string &name, const std::string &def);
+	ConfVarNumber& GetNum(std::string name, float def);
+	ConfVarNumber& GetNum(std::string name, int   def = 0);
+	ConfVarBool&  GetBool(std::string name, bool  def = false);
+	ConfVarString& GetStr(std::string name);
+	ConfVarString& GetStr(std::string name, std::string def);
 
-	ConfVarNumber* SetNum(const std::string &name, float value);
-	ConfVarNumber* SetNum(const std::string &name, int   value);
-	ConfVarBool*  SetBool(const std::string &name, bool  value);
-	ConfVarString* SetStr(const std::string &name, const std::string &value);
+	ConfVarNumber& SetNum(std::string name, float value);
+	ConfVarNumber& SetNum(std::string name, int   value);
+	ConfVarBool&  SetBool(std::string name, bool  value);
+	ConfVarString& SetStr(std::string name, std::string value);
 
-	ConfVarArray* GetArray(const std::string &name, void (*init)(ConfVarArray*) = nullptr);
-	ConfVarTable* GetTable(const std::string &name, void (*init)(ConfVarTable*) = nullptr);
+	ConfVarArray& GetArray(std::string name, void (*init)(ConfVarArray&) = nullptr);
+	ConfVarTable& GetTable(std::string name, void (*init)(ConfVarTable&) = nullptr);
 
 	void Clear();
-	bool Remove(ConfVar * const value);
+	bool Remove(const ConfVar &value);
 	bool Remove(const std::string &name);
-	bool Rename(ConfVar * const value, const std::string &newName);
-	bool Rename(const std::string &oldName, const std::string &newName);
+	bool Rename(const ConfVar &value, std::string newName);
+	bool Rename(const std::string &oldName, std::string newName);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);
@@ -217,7 +220,6 @@ public:
 	virtual bool Write(FILE *file, int indent) const;
 
 protected:
-	void ClearInternal();
 	static int luaT_conftablenext(lua_State *L);
 };
 

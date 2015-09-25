@@ -101,7 +101,7 @@ CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &f
 		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 		for( size_t i = 0; i < g_conf.lobby_servers.GetSize(); ++i )
 		{
-			const std::string &lobbyAddr = g_conf.lobby_servers.GetStr(i, "")->Get();
+			const std::string &lobbyAddr = g_conf.lobby_servers.GetStr(i).Get();
 			_lobbyList->GetData()->AddItem(lobbyAddr);
 			if( !i || g_conf.sv_lobby.Get() == lobbyAddr )
 			{
@@ -509,13 +509,13 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 {
 	_btnProfile->SetEnabled(false);
 	_btnOK->SetEnabled(false);
-	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo->GetRoot());
+	EditPlayerDlg *dlg = new EditPlayerDlg(GetParent(), g_conf.cl_playerinfo);
 	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, std::placeholders::_1);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()
 {
-	(new EditBotDlg(this, g_conf.ui_netbotinfo->GetRoot()))->eventClose = std::bind(&WaitingForPlayersDlg::OnAddBotClose, this, std::placeholders::_1);
+	(new EditBotDlg(this, g_conf.ui_netbotinfo))->eventClose = std::bind(&WaitingForPlayersDlg::OnAddBotClose, this, std::placeholders::_1);
 }
 
 void WaitingForPlayersDlg::OnAddBotClose(int result)
@@ -609,7 +609,7 @@ void WaitingForPlayersDlg::OnPlayersUpdate()
 
 			// level
 		//	assert(player->GetLevel() <= AI_MAX_LEVEL);
-		//	_bots->GetData()->SetItemText(index, 3, g_lang->GetRoot()->GetStr(EditBotDlg::levels[player->GetLevel()], "")->Get());
+		//	_bots->GetData()->SetItemText(index, 3, g_lang->GetStr(EditBotDlg::levels[player->GetLevel()], "")->Get());
 		}
 		else
 		{

@@ -34,7 +34,7 @@ void Controller::SetProfile(const char *profile)
 	ConfVar *p = g_conf.dm_profiles.Find(profile);
 	if( p && ConfVar::typeTable == p->GetType() )
 	{
-		ConfControllerProfile t(p->AsTable());
+		ConfControllerProfile t(&p->AsTable());
 
 		_keyForward     = GetKeyCode(t.key_forward.Get());
 		_keyBack        = GetKeyCode(t.key_back.Get());

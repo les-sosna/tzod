@@ -90,7 +90,7 @@ class EditPlayerDlg : public UI::Dialog
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::Window *parent, ConfVarTable *info);
+	EditPlayerDlg(UI::Window *parent, ConfVarTable &info);
 
 protected:
 	void OnOK();
@@ -117,7 +117,7 @@ class EditBotDlg : public UI::Dialog
 	ConfPlayerAI _info;
 
 public:
-	EditBotDlg(Window *parent, ConfVarTable *info);
+	EditBotDlg(Window *parent, ConfVarTable &info);
 
 	static const char levels[AI_MAX_LEVEL+1][16];
 
