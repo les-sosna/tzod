@@ -336,7 +336,8 @@ bool ControlProfileDlg::OnRawChar(int c)
 	{
 		if (GLFW_KEY_ESCAPE == c)
 		{
-			int oldKeyCode = GetKeyCode(_profile->GetStr((const char *) _actions->GetData()->GetItemData(_activeIndex)).Get());
+			ConfVarTable::KeyListType names = _profile->GetKeys();
+			int oldKeyCode = GetKeyCode(_profile->GetStr(names[_actions->GetData()->GetItemData(_activeIndex)]).Get());
 			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(oldKeyCode));
 		}
 		else
