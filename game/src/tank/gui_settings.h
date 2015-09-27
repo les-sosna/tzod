@@ -2,6 +2,8 @@
 #include "Config.h"
 #include <ui/Dialog.h>
 #include <ui/ListBase.h>
+#include <string>
+#include <vector>
 
 namespace UI
 {
@@ -57,6 +59,24 @@ protected:
 
 class ControlProfileDlg : public UI::Dialog
 {
+public:
+	ControlProfileDlg(UI::Window *parent, const char *profileName);
+	~ControlProfileDlg();
+
+	// UI::Window
+	bool OnFocus(bool focus) override;
+	bool OnRawChar(int c) override;
+	void OnTimeStep(float dt) override;
+
+private:
+	void AddAction(ConfVarString &var, std::string actionDisplayName);
+
+	void OnOK();
+	void OnCancel();
+
+	void OnSelectAction(int index);
+	void SetActiveIndex(int index);
+
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	DefaultListBox  *_actions;
 	UI::Edit         *_nameEdit;
@@ -64,24 +84,10 @@ class ControlProfileDlg : public UI::Dialog
 	UI::CheckBox     *_moveToMouseChkBox;
 	UI::CheckBox     *_arcadeStyleChkBox;
 	std::string      _nameOrig;
+	std::vector<int> _keyBindings;
 	ConfControllerProfile _profile;
 
 	float _time;
 	int   _activeIndex;
 	bool  _createNewProfile;
-
-	void OnSelectAction(int index);
-
-public:
-	ControlProfileDlg(UI::Window *parent, const char *profileName);
-	~ControlProfileDlg();
-
-protected:
-	void AddAction(ConfVarString &var, const std::string &display);
-
-	void OnOK();
-	void OnCancel();
-
-	void OnTimeStep(float dt);
-	bool OnRawChar(int c);
 };

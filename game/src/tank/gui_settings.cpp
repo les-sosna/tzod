@@ -272,27 +272,40 @@ ControlProfileDlg::~ControlProfileDlg()
 
 void ControlProfileDlg::OnSelectAction(int index)
 {
-	_actions->GetData()->SetItemText(index, 1, "...");
-	_time = 0;
-	_activeIndex = index;
-	SetTimeStep(true);
+	SetActiveIndex(index);
 	GetManager().SetFocusWnd(this);
 }
 
-void ControlProfileDlg::AddAction(ConfVarString &var, const std::string &display)
+void ControlProfileDlg::SetActiveIndex(int index)
 {
-	ConfVarTable::KeyListType names = _profile->GetKeys();
-	for( size_t i = 0; i != names.size(); ++i )
+	if (index == _activeIndex)
+		return;
+
+	if (_activeIndex != -1)
 	{
-		if( _profile->Find(names[i]) == &var )
-		{
-			int index = _actions->GetData()->AddItem(display);
-			_actions->GetData()->SetItemText(index, 1, GetKeyName(GetKeyCode(var.Get())));
-			_actions->GetData()->SetItemData(index, i);
-			return;
-		}
+		_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(_keyBindings[_activeIndex]));
 	}
-	assert(false);
+
+	_activeIndex = index;
+
+	if (_activeIndex != -1)
+	{
+		_actions->GetData()->SetItemText(_activeIndex, 1, "...");
+		SetTimeStep(true);
+		_time = 0;
+	}
+	else
+	{
+		SetTimeStep(false);
+	}
+}
+
+void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string actionDisplayName)
+{
+	_keyBindings.push_back(GetKeyCode(keyName.Get()));
+	int index = _actions->GetData()->AddItem(std::move(actionDisplayName), reinterpret_cast<size_t>(&keyName));
+	_actions->GetData()->SetItemText(index, 1, GetKeyName(_keyBindings.back()));
+	assert(_actions->GetData()->GetItemCount() == _keyBindings.size());
 }
 
 void ControlProfileDlg::OnOK()
@@ -302,10 +315,9 @@ void ControlProfileDlg::OnOK()
 		return;
 	}
 
-	ConfVarTable::KeyListType names = _profile->GetKeys();
 	for( int i = 0; i < _actions->GetData()->GetItemCount(); ++i )
 	{
-		_profile->SetStr(names[_actions->GetData()->GetItemData(i)], _actions->GetData()->GetItemText(i, 1));
+		reinterpret_cast<ConfVarString*>(_actions->GetData()->GetItemData(i))->Set(GetKeyName(_keyBindings[i]));
 	}
 
 	_profile.aim_to_mouse.Set(_aimToMouseChkBox->GetCheck());
@@ -324,6 +336,16 @@ void ControlProfileDlg::OnCancel()
 	Close(_resultCancel);
 }
 
+bool ControlProfileDlg::OnFocus(bool focus)
+{
+	// TODO: enable when remove autofocus on click
+	//if (!focus)
+	//{
+	//	SetActiveIndex(-1);
+	//}
+	return UI::Dialog::OnFocus(focus);
+}
+
 void ControlProfileDlg::OnTimeStep(float dt)
 {
 	_time += dt;
@@ -334,18 +356,11 @@ bool ControlProfileDlg::OnRawChar(int c)
 {
 	if (-1 != _activeIndex)
 	{
-		if (GLFW_KEY_ESCAPE == c)
+		if (GLFW_KEY_ESCAPE != c)
 		{
-			ConfVarTable::KeyListType names = _profile->GetKeys();
-			int oldKeyCode = GetKeyCode(_profile->GetStr(names[_actions->GetData()->GetItemData(_activeIndex)]).Get());
-			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(oldKeyCode));
+			_keyBindings[_activeIndex] = c;
 		}
-		else
-		{
-			_actions->GetData()->SetItemText(_activeIndex, 1, GetKeyName(c));
-		}
-		SetTimeStep(false);
-		_activeIndex = -1;
+		SetActiveIndex(-1);
 		GetManager().SetFocusWnd(_actions);
 	}
 	else
