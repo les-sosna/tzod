@@ -10,7 +10,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even whe
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 
 add_subdirectory(lib)
-add_subdirectory(ai)
+
 add_subdirectory(loc)
 add_subdirectory(app)
 add_subdirectory(config)
@@ -20,6 +20,7 @@ add_subdirectory(video)
 add_subdirectory(mf)
 add_subdirectory(gc)
 add_subdirectory(gc_tests)
+add_subdirectory(ai)
 add_subdirectory(gclua)
 add_subdirectory(render)
 add_subdirectory(script)
