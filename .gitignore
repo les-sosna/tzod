@@ -12,3 +12,15 @@ game/iOS/_build
 game/iOS/itzod/itzod.xcodeproj/xcuserdata
 game/iOS/itzod_xcode.xcworkspace/xcuserdata
 game/iOS/itzod_xcode.xcworkspace/xcshareddata
+game/WinRT/_build/
+game/WinRT/wtzod/ARM/
+*.opensdf
+*.sdf
+game/WinRT/.vs/
+game/WinRT/x64/
+game/WinRT/wtzod/x64/
+game/WinRT/wtzod/Release/
+game/WinRT/Release/
+game/WinRT/wtzod/Debug/
+game/WinRT/Debug/
+game/WinRT/ARM/
