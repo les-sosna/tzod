@@ -2,10 +2,12 @@
 
 #include "pch.h"
 #include "Common\DeviceResources.h"
-#include "wtzodMain.h"
+#include "Common\StepTimer.h"
 
 namespace wtzod
 {
+	class Sample3DSceneRenderer;
+
 	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
 	ref class App sealed : public Windows::ApplicationModel::Core::IFrameworkView
 	{
@@ -37,7 +39,11 @@ namespace wtzod
 
 	private:
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
-		std::unique_ptr<wtzodMain> m_main;
+		std::unique_ptr<Sample3DSceneRenderer> m_sceneRenderer;
+
+		// Rendering loop timer.
+		DX::StepTimer m_timer;
+
 		bool m_windowClosed;
 		bool m_windowVisible;
 	};

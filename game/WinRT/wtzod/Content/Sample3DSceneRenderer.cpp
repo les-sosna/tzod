@@ -9,12 +9,41 @@ using namespace DirectX;
 using namespace Windows::Foundation;
 
 // Loads vertex and pixel shaders from files and instantiates the cube geometry.
-Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
-	m_loadingComplete(false),
-	m_degreesPerSecond(45),
-	m_indexCount(0),
-	m_tracking(false),
-	m_deviceResources(deviceResources)
+Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources)
+	: m_loadingComplete(false)
+	, m_degreesPerSecond(45)
+	, m_indexCount(0)
+	, m_tracking(false)
+	, m_deviceResources(deviceResources)
+{
+	CreateDeviceDependentResources();
+	CreateWindowSizeDependentResources();
+
+	// Register to be notified if the Device is lost or recreated
+	m_deviceResources->RegisterDeviceNotify(this);
+
+	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
+	// e.g. for 60 FPS fixed timestep update logic, call:
+	/*
+	m_timer.SetFixedTimeStep(true);
+	m_timer.SetTargetElapsedSeconds(1.0 / 60);
+	*/
+}
+
+Sample3DSceneRenderer::~Sample3DSceneRenderer()
+{
+	// Deregister device notification
+	m_deviceResources->RegisterDeviceNotify(nullptr);
+}
+
+// Notifies renderers that device resources need to be released.
+void Sample3DSceneRenderer::OnDeviceLost()
+{
+	ReleaseDeviceDependentResources();
+}
+
+// Notifies renderers that device resources may now be recreated.
+void Sample3DSceneRenderer::OnDeviceRestored()
 {
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();

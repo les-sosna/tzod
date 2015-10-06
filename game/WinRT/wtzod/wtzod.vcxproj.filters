@@ -59,12 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="wtzodMain.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="wtzodMain.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

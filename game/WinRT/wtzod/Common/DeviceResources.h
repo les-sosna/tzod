@@ -19,7 +19,6 @@ namespace DX
 		void SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations currentOrientation);
 		void SetDpi(float dpi);
 		void ValidateDevice();
-		void HandleDeviceLost();
 		void RegisterDeviceNotify(IDeviceNotify* deviceNotify);
 		void Trim();
 		void Present();
@@ -38,17 +37,8 @@ namespace DX
 		D3D11_VIEWPORT			GetScreenViewport() const				{ return m_screenViewport; }
 		DirectX::XMFLOAT4X4		GetOrientationTransform3D() const		{ return m_orientationTransform3D; }
 
-		// D2D Accessors.
-		ID2D1Factory2*			GetD2DFactory() const					{ return m_d2dFactory.Get(); }
-		ID2D1Device1*			GetD2DDevice() const					{ return m_d2dDevice.Get(); }
-		ID2D1DeviceContext1*	GetD2DDeviceContext() const				{ return m_d2dContext.Get(); }
-		ID2D1Bitmap1*			GetD2DTargetBitmap() const				{ return m_d2dTargetBitmap.Get(); }
-		IDWriteFactory2*		GetDWriteFactory() const				{ return m_dwriteFactory.Get();	 }
-		IWICImagingFactory2*	GetWicImagingFactory() const			{ return m_wicFactory.Get(); }
-		D2D1::Matrix3x2F		GetOrientationTransform2D() const		{ return m_orientationTransform2D; }
-
 	private:
-		void CreateDeviceIndependentResources();
+		void HandleDeviceLost();
 		void CreateDeviceResources();
 		void CreateWindowSizeDependentResources();
 		DXGI_MODE_ROTATION ComputeDisplayRotation();
@@ -63,18 +53,8 @@ namespace DX
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>	m_d3dDepthStencilView;
 		D3D11_VIEWPORT									m_screenViewport;
 
-		// Direct2D drawing components.
-		Microsoft::WRL::ComPtr<ID2D1Factory2>		m_d2dFactory;
-		Microsoft::WRL::ComPtr<ID2D1Device1>		m_d2dDevice;
-		Microsoft::WRL::ComPtr<ID2D1DeviceContext1>	m_d2dContext;
-		Microsoft::WRL::ComPtr<ID2D1Bitmap1>		m_d2dTargetBitmap;
-
-		// DirectWrite drawing components.
-		Microsoft::WRL::ComPtr<IDWriteFactory2>		m_dwriteFactory;
-		Microsoft::WRL::ComPtr<IWICImagingFactory2>	m_wicFactory;
-
 		// Cached reference to the Window.
-		Platform::Agile<Windows::UI::Core::CoreWindow> m_window;
+		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 
 		// Cached device properties.
 		D3D_FEATURE_LEVEL								m_d3dFeatureLevel;
@@ -86,7 +66,6 @@ namespace DX
 		float											m_dpi;
 
 		// Transforms used for display orientation.
-		D2D1::Matrix3x2F	m_orientationTransform2D;
 		DirectX::XMFLOAT4X4	m_orientationTransform3D;
 
 		// The IDeviceNotify can be held directly as it owns the DeviceResources.

@@ -8,9 +8,11 @@ namespace wtzod
 {
 	// This sample renderer instantiates a basic rendering pipeline.
 	class Sample3DSceneRenderer
+		: private DX::IDeviceNotify
 	{
 	public:
 		Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+		~Sample3DSceneRenderer();
 		void CreateDeviceDependentResources();
 		void CreateWindowSizeDependentResources();
 		void ReleaseDeviceDependentResources();
@@ -21,6 +23,10 @@ namespace wtzod
 		void StopTracking();
 		bool IsTracking() { return m_tracking; }
 
+	private:
+		// IDeviceNotify
+		virtual void OnDeviceLost();
+		virtual void OnDeviceRestored();
 
 	private:
 		void Rotate(float radians);
