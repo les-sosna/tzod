@@ -14,32 +14,22 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-// The main function is only used to initialize our IFrameworkView class.
-[Platform::MTAThread]
-int main(Platform::Array<Platform::String^>^)
-{
-	auto direct3DApplicationSource = ref new Direct3DApplicationSource();
-	CoreApplication::Run(direct3DApplicationSource);
-	return 0;
-}
-
-IFrameworkView^ Direct3DApplicationSource::CreateView()
-{
-	return ref new App();
-}
-
 App::App()
 	: m_windowClosed(false)
 	, m_windowVisible(true)
 {
 }
 
+App::~App()
+{
+}
+
 // The first method called when the IFrameworkView is being created.
-void App::Initialize(CoreApplicationView^ applicationView)
+void App::Initialize(CoreApplicationView^ coreApplicationView)
 {
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
-	applicationView->Activated +=
+	coreApplicationView->Activated +=
 		ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &App::OnActivated);
 
 	CoreApplication::Suspending +=
@@ -54,15 +44,15 @@ void App::Initialize(CoreApplicationView^ applicationView)
 }
 
 // Called when the CoreWindow object is created (or re-created).
-void App::SetWindow(CoreWindow^ window)
+void App::SetWindow(CoreWindow^ coreWindow)
 {
-	window->SizeChanged += 
+	coreWindow->SizeChanged +=
 		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
 
-	window->VisibilityChanged +=
+	coreWindow->VisibilityChanged +=
 		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
 
-	window->Closed += 
+	coreWindow->Closed +=
 		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
 
 	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
@@ -76,7 +66,7 @@ void App::SetWindow(CoreWindow^ window)
 	DisplayInformation::DisplayContentsInvalidated +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
 
-	m_deviceResources->SetWindow(window);
+	m_deviceResources->SetWindow(coreWindow);
 }
 
 // Initializes scene resources, or loads a previously saved app state.

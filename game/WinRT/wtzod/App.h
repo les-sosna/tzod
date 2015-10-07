@@ -13,10 +13,11 @@ namespace wtzod
 	{
 	public:
 		App();
+		virtual ~App();
 
-		// IFrameworkView Methods.
-		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
-		virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
+		// IFrameworkView
+		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ coreApplicationView);
+		virtual void SetWindow(Windows::UI::Core::CoreWindow^ coreWindow);
 		virtual void Load(Platform::String^ entryPoint);
 		virtual void Run();
 		virtual void Uninitialize();
@@ -48,9 +49,3 @@ namespace wtzod
 		bool m_windowVisible;
 	};
 }
-
-ref class Direct3DApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
-{
-public:
-	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
-};
