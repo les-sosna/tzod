@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "App.h"
 #include "Content\Sample3DSceneRenderer.h"
+#include "DeviceResources.h"
+#include "SwapChainResources.h"
 
 using namespace wtzod;
 
@@ -40,12 +42,15 @@ void App::Initialize(CoreApplicationView^ coreApplicationView)
 
 	// At this point we have access to the device. 
 	// We can create the device-dependent resources.
+	assert(!m_deviceResources);
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
 }
 
 // Called when the CoreWindow object is created (or re-created).
 void App::SetWindow(CoreWindow^ coreWindow)
 {
+	m_window = coreWindow;
+
 	coreWindow->SizeChanged +=
 		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
 
@@ -66,7 +71,9 @@ void App::SetWindow(CoreWindow^ coreWindow)
 	DisplayInformation::DisplayContentsInvalidated +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
 
-	m_deviceResources->SetWindow(coreWindow);
+	assert(m_deviceResources);
+	assert(!m_swapChainResources);
+	m_swapChainResources = std::make_shared<DX::SwapChainResources>(*m_deviceResources, coreWindow);
 }
 
 // Initializes scene resources, or loads a previously saved app state.
@@ -74,27 +81,34 @@ void App::Load(Platform::String^ entryPoint)
 {
 	if (m_sceneRenderer == nullptr)
 	{
-		m_sceneRenderer = std::unique_ptr<Sample3DSceneRenderer>(new Sample3DSceneRenderer(m_deviceResources));
+		m_sceneRenderer = std::unique_ptr<Sample3DSceneRenderer>(new Sample3DSceneRenderer());
+		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
+		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 	}
 }
 
 // Renders the current frame according to the current application state.
 // Returns true if the frame was rendered and is ready to be displayed.
-static void PrepareForRender(DX::DeviceResources &deviceResources)
+static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
 {
 	auto context = deviceResources.GetD3DDeviceContext();
 
-	// Reset the viewport to target the whole screen.
-	auto viewport = deviceResources.GetScreenViewport();
-	context->RSSetViewports(1, &viewport);
+	// Set the 3D rendering viewport to target the entire screen.
+	auto screenViewport = CD3D11_VIEWPORT(
+		0.0f,
+		0.0f,
+		swapChainResources.GetRenderTargetSize().Width,
+		swapChainResources.GetRenderTargetSize().Height
+		);
+	context->RSSetViewports(1, &screenViewport);
 
 	// Reset render targets to the screen.
-	ID3D11RenderTargetView *const targets[1] = { deviceResources.GetBackBufferRenderTargetView() };
-	context->OMSetRenderTargets(1, targets, deviceResources.GetDepthStencilView());
+	ID3D11RenderTargetView *const targets[1] = { swapChainResources.GetBackBufferRenderTargetView() };
+	context->OMSetRenderTargets(1, targets, swapChainResources.GetDepthStencilView());
 
 	// Clear the back buffer and depth stencil view.
-	context->ClearRenderTargetView(deviceResources.GetBackBufferRenderTargetView(), DirectX::Colors::CornflowerBlue);
-	context->ClearDepthStencilView(deviceResources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::CornflowerBlue);
+	context->ClearDepthStencilView(swapChainResources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 // This method is called after the window becomes active.
@@ -116,13 +130,13 @@ void App::Run()
 			// Don't try to render anything before the first Update.
 			if (m_timer.GetFrameCount() > 0)
 			{
-				PrepareForRender(*m_deviceResources);
+				PrepareForRender(*m_deviceResources, *m_swapChainResources);
 				
 				// Render the scene objects.
 				// TODO: Replace this with your app's content rendering functions.
 				m_sceneRenderer->Render();
 
-				m_deviceResources->Present();
+				m_swapChainResources->Present();
 			}
 		}
 		else
@@ -178,8 +192,8 @@ void App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 
 void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
-	m_deviceResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
-	m_sceneRenderer->CreateWindowSizeDependentResources();
+	m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
+	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
 void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
@@ -196,17 +210,30 @@ void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 
 void App::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
-	m_deviceResources->SetDpi(sender->LogicalDpi);
-	m_sceneRenderer->CreateWindowSizeDependentResources();
+	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
+	Size logicalSize(m_window->Bounds.Width, m_window->Bounds.Height);
+	m_swapChainResources->SetDpi(sender->LogicalDpi, logicalSize);
+	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
 void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 {
-	m_deviceResources->SetCurrentOrientation(sender->CurrentOrientation);
-	m_sceneRenderer->CreateWindowSizeDependentResources();
+	m_swapChainResources->SetCurrentOrientation(sender->CurrentOrientation);
+	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
 void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
-	m_deviceResources->ValidateDevice();
+	if (!m_deviceResources->ValidateDevice())
+	{
+		m_sceneRenderer->SetSwapChainResources(nullptr);
+		m_sceneRenderer->SetDeviceResources(nullptr);
+
+		m_swapChainResources.reset();
+		m_deviceResources.reset(new DX::DeviceResources());
+		m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
+
+		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
+		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
+	}
 }

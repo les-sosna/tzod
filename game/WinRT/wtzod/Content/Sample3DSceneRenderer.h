@@ -1,21 +1,26 @@
 ﻿#pragma once
 
-#include "..\Common\DeviceResources.h"
 #include "ShaderStructures.h"
-#include "..\Common\StepTimer.h"
+#include "StepTimer.h"
+
+namespace DX
+{
+	class DeviceResources;
+	class SwapChainResources;
+}
 
 namespace wtzod
 {
 	// This sample renderer instantiates a basic rendering pipeline.
 	class Sample3DSceneRenderer
-		: private DX::IDeviceNotify
 	{
 	public:
-		Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+		Sample3DSceneRenderer();
 		~Sample3DSceneRenderer();
-		void CreateDeviceDependentResources();
-		void CreateWindowSizeDependentResources();
-		void ReleaseDeviceDependentResources();
+
+		void SetDeviceResources(DX::DeviceResources *deviceResources);
+		void SetSwapChainResources(DX::SwapChainResources *swapChainResources);
+
 		void Update(DX::StepTimer const& timer);
 		void Render();
 		void StartTracking();
@@ -24,16 +29,11 @@ namespace wtzod
 		bool IsTracking() { return m_tracking; }
 
 	private:
-		// IDeviceNotify
-		virtual void OnDeviceLost();
-		virtual void OnDeviceRestored();
-
-	private:
 		void Rotate(float radians);
 
 	private:
-		// Cached pointer to device resources.
-		std::shared_ptr<DX::DeviceResources> m_deviceResources;
+		DX::DeviceResources* m_deviceResources;
+		DX::SwapChainResources* m_swapChainResources;
 
 		// Direct3D resources for cube geometry.
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_inputLayout;

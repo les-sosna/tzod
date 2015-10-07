@@ -1,8 +1,13 @@
 ﻿#pragma once
 
 #include "pch.h"
-#include "Common\DeviceResources.h"
-#include "Common\StepTimer.h"
+#include "StepTimer.h"
+
+namespace DX
+{
+	class DeviceResources;
+	class SwapChainResources;
+}
 
 namespace wtzod
 {
@@ -39,7 +44,10 @@ namespace wtzod
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
 	private:
+		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
+
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
+		std::shared_ptr<DX::SwapChainResources> m_swapChainResources;
 		std::unique_ptr<Sample3DSceneRenderer> m_sceneRenderer;
 
 		// Rendering loop timer.
