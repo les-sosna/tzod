@@ -44,6 +44,8 @@ namespace wtzod
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
 	private:
+		void HandleDeviceLost();
+
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;

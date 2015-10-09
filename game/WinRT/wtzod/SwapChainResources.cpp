@@ -147,37 +147,6 @@ void DX::SwapChainResources::SetCurrentOrientation(DisplayOrientations currentOr
 	}
 }
 
-// Present the contents of the swap chain to the screen.
-void DX::SwapChainResources::Present()
-{
-	// The first argument instructs DXGI to block until VSync, putting the application
-	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
-	// frames that will never be displayed to the screen.
-	HRESULT hr = m_swapChain->Present(1, 0);
-
-	
-	// Discard the contents of the render target.
-	// This is a valid operation only when the existing contents will be entirely
-	// overwritten. If dirty or scroll rects are used, this call should be removed.
-	m_deviceResources.GetD3DDeviceContext()->DiscardView(m_d3dRenderTargetView.Get());
-
-	// Discard the contents of the depth stencil.
-	m_deviceResources.GetD3DDeviceContext()->DiscardView(m_d3dDepthStencilView.Get());
-	
-
-	// If the device was removed either by a disconnection or a driver upgrade, we 
-	// must recreate all device resources.
-	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-	{
-		assert(false);
-		//HandleDeviceLost();
-	}
-	else
-	{
-		DX::ThrowIfFailed(hr);
-	}
-}
-
 void DX::SwapChainResources::OnResize()
 {
 	assert(m_swapChain != nullptr);

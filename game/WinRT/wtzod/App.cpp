@@ -102,6 +102,14 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 		);
 	context->RSSetViewports(1, &screenViewport);
 
+	// Discard the contents of the render target.
+	// This is a valid operation only when the existing contents will be entirely
+	// overwritten. If dirty or scroll rects are used, this call should be removed.
+	context->DiscardView(swapChainResources.GetBackBufferRenderTargetView());
+
+	// Discard the contents of the depth stencil.
+	context->DiscardView(swapChainResources.GetDepthStencilView());
+
 	// Reset render targets to the screen.
 	ID3D11RenderTargetView *const targets[1] = { swapChainResources.GetBackBufferRenderTargetView() };
 	context->OMSetRenderTargets(1, targets, swapChainResources.GetDepthStencilView());
@@ -136,7 +144,21 @@ void App::Run()
 				// TODO: Replace this with your app's content rendering functions.
 				m_sceneRenderer->Render();
 
-				m_swapChainResources->Present();
+				// The first argument instructs DXGI to block until VSync, putting the application
+				// to sleep until the next VSync. This ensures we don't waste any cycles rendering
+				// frames that will never be displayed to the screen.
+				HRESULT hr = m_swapChainResources->GetSwapChain()->Present(1, 0);
+
+				// If the device was removed either by a disconnection or a driver upgrade, we 
+				// must recreate all device resources.
+				if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+				{
+					HandleDeviceLost();
+				}
+				else if (FAILED(hr))
+				{
+					throw Platform::Exception::CreateException(hr);
+				}
 			}
 		}
 		else
@@ -226,14 +248,19 @@ void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
 	if (!m_deviceResources->ValidateDevice())
 	{
-		m_sceneRenderer->SetSwapChainResources(nullptr);
-		m_sceneRenderer->SetDeviceResources(nullptr);
-
-		m_swapChainResources.reset();
-		m_deviceResources.reset(new DX::DeviceResources());
-		m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
-
-		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
-		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
+		HandleDeviceLost();
 	}
+}
+
+void App::HandleDeviceLost()
+{
+	m_sceneRenderer->SetSwapChainResources(nullptr);
+	m_sceneRenderer->SetDeviceResources(nullptr);
+
+	m_swapChainResources.reset();
+	m_deviceResources.reset(new DX::DeviceResources());
+	m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
+
+	m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
+	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }

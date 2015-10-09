@@ -14,9 +14,6 @@ namespace DX
 		void SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations currentOrientation);
 		void SetDpi(float dpi, Windows::Foundation::Size logicalSize);
 
-		void Present();
-
-
 		Windows::Foundation::Size GetOutputSize() const { return m_outputSize; }
 		Windows::Foundation::Size GetLogicalSize() const { return m_logicalSize; }
 
