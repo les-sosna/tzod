@@ -14,11 +14,11 @@ namespace wtzod
 	class Sample3DSceneRenderer;
 
 	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
-	ref class App sealed : public Windows::ApplicationModel::Core::IFrameworkView
+	ref class FrameworkView sealed : public Windows::ApplicationModel::Core::IFrameworkView
 	{
 	public:
-		App();
-		virtual ~App();
+		FrameworkView();
+		virtual ~FrameworkView();
 
 		// IFrameworkView
 		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ coreApplicationView);

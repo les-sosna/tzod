@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "App.h"
+#include "FrameworkView.h"
 #include "Content\Sample3DSceneRenderer.h"
 #include "DeviceResources.h"
 #include "SwapChainResources.h"
@@ -16,29 +16,29 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-App::App()
+FrameworkView::FrameworkView()
 	: m_windowClosed(false)
 	, m_windowVisible(true)
 {
 }
 
-App::~App()
+FrameworkView::~FrameworkView()
 {
 }
 
 // The first method called when the IFrameworkView is being created.
-void App::Initialize(CoreApplicationView^ coreApplicationView)
+void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 {
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
 	coreApplicationView->Activated +=
-		ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &App::OnActivated);
+		ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnActivated);
 
 	CoreApplication::Suspending +=
-		ref new EventHandler<SuspendingEventArgs^>(this, &App::OnSuspending);
+		ref new EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnSuspending);
 
 	CoreApplication::Resuming +=
-		ref new EventHandler<Platform::Object^>(this, &App::OnResuming);
+		ref new EventHandler<Platform::Object^>(this, &FrameworkView::OnResuming);
 
 	// At this point we have access to the device. 
 	// We can create the device-dependent resources.
@@ -47,29 +47,29 @@ void App::Initialize(CoreApplicationView^ coreApplicationView)
 }
 
 // Called when the CoreWindow object is created (or re-created).
-void App::SetWindow(CoreWindow^ coreWindow)
+void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 {
 	m_window = coreWindow;
 
 	coreWindow->SizeChanged +=
-		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
+		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &FrameworkView::OnWindowSizeChanged);
 
 	coreWindow->VisibilityChanged +=
-		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &App::OnVisibilityChanged);
+		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &FrameworkView::OnVisibilityChanged);
 
 	coreWindow->Closed +=
-		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
+		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &FrameworkView::OnWindowClosed);
 
 	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
 
 	currentDisplayInformation->DpiChanged +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDpiChanged);
+		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDpiChanged);
 
 	currentDisplayInformation->OrientationChanged +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnOrientationChanged);
+		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnOrientationChanged);
 
 	DisplayInformation::DisplayContentsInvalidated +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
+		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
 
 	assert(m_deviceResources);
 	assert(!m_swapChainResources);
@@ -77,7 +77,7 @@ void App::SetWindow(CoreWindow^ coreWindow)
 }
 
 // Initializes scene resources, or loads a previously saved app state.
-void App::Load(Platform::String^ entryPoint)
+void FrameworkView::Load(Platform::String^ entryPoint)
 {
 	if (m_sceneRenderer == nullptr)
 	{
@@ -120,7 +120,7 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 }
 
 // This method is called after the window becomes active.
-void App::Run()
+void FrameworkView::Run()
 {
 	while (!m_windowClosed)
 	{
@@ -171,19 +171,19 @@ void App::Run()
 // Required for IFrameworkView.
 // Terminate events do not cause Uninitialize to be called. It will be called if your IFrameworkView
 // class is torn down while the app is in the foreground.
-void App::Uninitialize()
+void FrameworkView::Uninitialize()
 {
 }
 
 // Application lifecycle event handlers.
 
-void App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
+void FrameworkView::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
 	// Run() won't start until the CoreWindow is activated.
 	CoreWindow::GetForCurrentThread()->Activate();
 }
 
-void App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+void FrameworkView::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
 	// Save app state asynchronously after requesting a deferral. Holding a deferral
 	// indicates that the application is busy performing suspending operations. Be
@@ -193,7 +193,7 @@ void App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 
 	create_task([this, deferral]()
 	{
-        m_deviceResources->Trim();
+		m_deviceResources->Trim();
 
 		// Insert your code here.
 
@@ -201,7 +201,7 @@ void App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 	});
 }
 
-void App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
+void FrameworkView::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 {
 	// Restore any data or state that was unloaded on suspend. By default, data
 	// and state are persisted when resuming from suspend. Note that this event
@@ -212,25 +212,25 @@ void App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 
 // Window event handlers.
 
-void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
 	m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
 	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
-void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
+void FrameworkView::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
 {
 	m_windowVisible = args->Visible;
 }
 
-void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
+void FrameworkView::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
 	m_windowClosed = true;
 }
 
 // DisplayInformation event handlers.
 
-void App::OnDpiChanged(DisplayInformation^ sender, Object^ args)
+void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
 	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
 	Size logicalSize(m_window->Bounds.Width, m_window->Bounds.Height);
@@ -238,13 +238,13 @@ void App::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
-void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
+void FrameworkView::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 {
 	m_swapChainResources->SetCurrentOrientation(sender->CurrentOrientation);
 	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
-void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
+void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
 	if (!m_deviceResources->ValidateDevice())
 	{
@@ -252,7 +252,7 @@ void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 	}
 }
 
-void App::HandleDeviceLost()
+void FrameworkView::HandleDeviceLost()
 {
 	m_sceneRenderer->SetSwapChainResources(nullptr);
 	m_sceneRenderer->SetDeviceResources(nullptr);

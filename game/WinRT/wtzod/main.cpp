@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "App.h"
+#include "FrameworkView.h"
 
 using namespace Platform;
 using namespace Windows::ApplicationModel;
@@ -13,7 +13,7 @@ namespace wtzod
 		// IFrameworkViewSource
 		virtual IFrameworkView^ CreateView()
 		{
-			return ref new App();
+			return ref new FrameworkView();
 		}
 	};
 }
