@@ -1,10 +1,6 @@
-list of known bugs
-
 bots and ram
 
 unable to select tank in editor
 
-
 it's possible to open dialogs several times (F2)
 
-when game is frozen, it's possible to control tank visual
