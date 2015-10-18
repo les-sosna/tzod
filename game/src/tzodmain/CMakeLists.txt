@@ -12,7 +12,7 @@ include_directories(
 	${Loc_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
 	${Tank_SOURCE_DIR}
-	${UI_SOURCE_DIR}/inc
+	${LibUI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
 
 	# 3rd party

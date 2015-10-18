@@ -9,7 +9,7 @@ endif()
 set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib.")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 
-add_subdirectory(lib)
+add_subdirectory(external)
 
 add_subdirectory(loc)
 add_subdirectory(app)
@@ -24,7 +24,7 @@ add_subdirectory(ai)
 add_subdirectory(gclua)
 add_subdirectory(render)
 add_subdirectory(script)
-add_subdirectory(ui)
+add_subdirectory(libui)
 
 find_package(OpenAL)
 if(${OPENAL_FOUND})

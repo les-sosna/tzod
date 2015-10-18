@@ -20,7 +20,7 @@ set(tank_INCLUDE_DIRS
 	${Math_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
 	${Script_SOURCE_DIR}/inc
-	${UI_SOURCE_DIR}/inc
+	${LibUI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
 
 	# 3rd party
