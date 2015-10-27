@@ -1,5 +1,3 @@
-// Window.h
-
 #pragma once
 
 #include <video/RenderBase.h>
@@ -13,10 +11,8 @@ class DrawingContext;
 
 namespace UI
 {
-	// forward declaration
-	class LayoutManager;
 
-///////////////////////////////////////////////////////////////////////////////
+class LayoutManager;
 
 class Window
 {

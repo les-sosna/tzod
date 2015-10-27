@@ -2,7 +2,6 @@
 #include "inc/video/RenderBase.h"
 #include "inc/video/ImageLoader.h"
 
-//#include "core/Debug.h"
 #define TRACE(...)
 
 #include <fs/FileSystem.h>

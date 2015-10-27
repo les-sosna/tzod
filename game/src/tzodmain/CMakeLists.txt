@@ -11,6 +11,7 @@ include_directories(
 	${Math_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
+	${Shell_SOURCE_DIR}/inc
 	${Tank_SOURCE_DIR}
 	${LibUI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
@@ -41,4 +42,4 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tzodmain tank video)
+target_link_libraries(tzodmain tank video shell)

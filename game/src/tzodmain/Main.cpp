@@ -1,30 +1,29 @@
 #include <GlfwPlatform.h>
-#include <gui_desktop.h>
 #ifndef NOSOUND
 #include <audio/SoundView.h>
 #endif
 //#include <script/script.h>
 //#include <script/ScriptHarness.h>
-#include <ThemeManager.h>
-
-#include <Config.h>
 
 //#include <network/Variant.h>
 //#include <network/TankClient.h>
 
-#include <core/Debug.h>
 #include <core/Timer.h>
-#include <core/Profiler.h>
 
 #include <../FileSystemImpl.h>
 #include <app/AppCfg.h>
 #include <app/AppController.h>
 #include <app/AppState.h>
 #include <app/GameContextBase.h>
+#include <app/ThemeManager.h>
 #include <loc/Language.h>
+#include <shell/Config.h>
+#include <shell/Desktop.h>
+#include <shell/Profiler.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
 #include <ui/Clipboard.h>
+#include <ui/ConsoleBuffer.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 #include <video/RenderOpenGL.h>
@@ -50,20 +49,26 @@ namespace
 		AppState &_appState;
 		AppController &_appController;
 		FS::FileSystem &_fs;
+		ConfCache &_conf;
+		UI::ConsoleBuffer &_logger;
 		std::function<void()> _exitCommand;
 	public:
 		DesktopFactory(AppState &appState,
 			           AppController &appController,
 			           FS::FileSystem &fs,
+			           ConfCache &conf,
+			           UI::ConsoleBuffer &logger,
 			           std::function<void()> exitCommand)
 			: _appState(appState)
 			, _appController(appController)
 			, _fs(fs)
+			, _conf(conf)
+			, _logger(logger)
 			, _exitCommand(std::move(exitCommand))
 		{}
 		UI::Window* Create(UI::LayoutManager *manager) override
 		{
-			return new Desktop(manager, _appState, _appController, _fs, _exitCommand);
+			return new Desktop(manager, _appState, _appController, _fs, _conf, _logger, _exitCommand);
 		}
 	};
 
@@ -101,43 +106,36 @@ namespace
 	};
 }
 
-static void LoadConfigNoThrow()
+static void LoadConfigNoThrow(ConfCache &configRoot, UI::ConsoleBuffer &logger)
 try
 {
-	// workaround - check if file exists
-	if (FILE *f = fopen(FILE_CONFIG, "r"))
+	logger.Printf(0, "Loading config '" FILE_CONFIG "'");
+	if (!configRoot->Load(FILE_CONFIG))
 	{
-		fclose(f);
-
-		TRACE("Loading config '" FILE_CONFIG "'");
-		if (!g_conf->Load(FILE_CONFIG))
-		{
-			GetConsole().Format(1) << "Failed to load config file.";
-		}
-	}
-	else
-	{
-		TRACE("Config '" FILE_CONFIG "' not found; using defaults");
+		logger.Format(1) << "Failed to load config file; using defaults";
 	}
 }
-catch (std::exception &e)
+catch (const std::exception &e)
 {
-	TRACE("Could not load config from '" FILE_CONFIG "': %s", e.what());
+	logger.Printf(1, "Could not load config from '" FILE_CONFIG "': %s", e.what());
 }
 
 // recursively print exception whats:
-static void print_what(const std::exception &e, std::string prefix = std::string())
+static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix = std::string())
 {
 #ifdef _WIN32
 	OutputDebugStringA((prefix + e.what() + "\n").c_str());
 #endif
-	GetConsole().Format(1) << prefix << e.what();
+	logger.Format(1) << prefix << e.what();
 	try {
 		std::rethrow_if_nested(e);
 	} catch (const std::exception &nested) {
-		print_what(nested, prefix + "> ");
+		print_what(logger, nested, prefix + "> ");
 	}
 }
+
+static UI::ConsoleBuffer s_logger(100, 500);
+
 
 //static long xxx = _CrtSetBreakAlloc(12649);
 
@@ -160,37 +158,39 @@ try
 #if defined(_DEBUG) && defined(_WIN32) // memory leaks detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	GetConsole().SetLog(new ConsoleLog("log.txt"));
+	UI::ConsoleBuffer &logger = s_logger;
 
-	TRACE("%s", TXT_VERSION);
+	logger.SetLog(new ConsoleLog("log.txt"));
+	logger.Printf(0, "%s", TXT_VERSION);
 
-	TRACE("Mount file system");
+	logger.Printf(0, "Mount file system");
 	std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
 
-	LoadConfigNoThrow();
+	ConfCache conf;
+	LoadConfigNoThrow(conf, logger);
 
-	TRACE("Localization init...");
+	logger.Printf(0, "Localization init...");
 	try
 	{
 		if( !g_lang->Load(FILE_LANGUAGE) )
 		{
-			TRACE("couldn't load language file " FILE_CONFIG);
+			logger.Printf(1, "couldn't load language file " FILE_CONFIG);
 		}
 	}
 	catch( const std::exception &e )
 	{
-		TRACE("could not load localization file: %s", e.what());
+		logger.Printf(1, "could not load localization file: %s", e.what());
 	}
 	setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
 
 
-	TRACE("Create GL context");
-	GlfwAppWindow appWindow(TXT_VERSION, g_conf.r_fullscreen.Get(), g_conf.r_width.GetInt(), g_conf.r_height.GetInt());
+	logger.Printf(0, "Create GL context");
+	GlfwAppWindow appWindow(TXT_VERSION, conf.r_fullscreen.Get(), conf.r_width.GetInt(), conf.r_height.GetInt());
 
 	glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
 	glfwSwapInterval(1);
 
-	std::unique_ptr<IRender> render = /*g_conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
+	std::unique_ptr<IRender> render = /*conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
 	int width;
 	int height;
 	glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
@@ -200,9 +200,9 @@ try
 	TextureManager texman(*render);
 	ThemeManager themeManager(appState, *fs, texman);
 	if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
-		TRACE("WARNING: no textures loaded");
+		logger.Printf(1, "WARNING: no textures loaded");
 	if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
-		TRACE("WARNING: no skins found");
+		logger.Printf(1, "WARNING: no skins found");
 	auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
 	AppController appController(*fs);
 #ifndef NOSOUND
@@ -211,30 +211,32 @@ try
 	GlfwInput input(appWindow.GetGlfwWindow());
 	GlfwClipboard clipboard(appWindow.GetGlfwWindow());
 	UI::LayoutManager gui(input,
-		                    clipboard,
-		                    texman,
-		                    DesktopFactory(appState,
-		                                    appController,
-		                                    *fs,
-		                                    exitCommand));
+	                      clipboard,
+	                      texman,
+	                      DesktopFactory(appState,
+	                                     appController,
+	                                     *fs,
+	                                     conf,
+	                                     logger,
+	                                     exitCommand));
 	glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
 	gui.GetDesktop()->Resize((float) width, (float) height);
 
 //    g_env.L = gameContext.GetScriptHarness().GetLuaState();
-//    g_conf->InitConfigLuaBinding(g_env.L, "conf");
+//    conf->InitConfigLuaBinding(g_env.L, "conf");
 //    g_lang->InitConfigLuaBinding(g_env.L, "lang");
-//    TRACE("Running startup script '%s'", FILE_STARTUP);
+//    _logger.Printf(0, "Running startup script '%s'", FILE_STARTUP);
 //    if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
-//        TRACE("ERROR: in startup script");
+//        _logger.Printf(1, "ERROR: in startup script");
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
 	for(;;)
 	{
-		if( g_conf.dbg_sleep.GetInt() > 0 && g_conf.dbg_sleep_rand.GetInt() >= 0 )
+		if( conf.dbg_sleep.GetInt() > 0 && conf.dbg_sleep_rand.GetInt() >= 0 )
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, g_conf.dbg_sleep.GetInt() + rand() % (g_conf.dbg_sleep_rand.GetInt() + 1))));
+			std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, conf.dbg_sleep.GetInt() + rand() % (conf.dbg_sleep_rand.GetInt() + 1))));
 		}
 
 		//
@@ -249,7 +251,7 @@ try
 
 		gui.TimeStep(dt); // this also sends user controller state to WorldController
 		if (GameContextBase *gc = appState.GetGameContext())
-			gc->Step(dt * g_conf.sv_speed.GetFloat() / 100);
+			gc->Step(dt * conf.sv_speed.GetFloat() / 100);
 
 
 		//
@@ -282,18 +284,18 @@ try
 		glfwSwapBuffers(&appWindow.GetGlfwWindow());
 	}
 
-	TRACE("Saving config to '" FILE_CONFIG "'");
-	if( !g_conf->Save(FILE_CONFIG) )
+	logger.Printf(0, "Saving config to '" FILE_CONFIG "'");
+	if( !conf->Save(FILE_CONFIG) )
 	{
-		TRACE("Failed to save config file");
+		logger.Printf(1, "Failed to save config file");
 	}
 
-	TRACE("Exit.");
+	logger.Printf(0, "Exit.");
 	return 0;
 }
 catch (const std::exception &e)
 {
-	print_what(e);
+	print_what(s_logger, e);
 #ifdef _WIN32
 	MessageBoxA(nullptr, e.what(), TXT_VERSION, MB_ICONERROR);
 #endif

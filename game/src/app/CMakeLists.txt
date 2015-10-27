@@ -15,6 +15,7 @@ include_directories(
 	${Math_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
 	${Script_SOURCE_DIR}/inc
+	${Video_SOURCE_DIR}/inc
 )
 
 add_library(app
@@ -30,6 +31,7 @@ add_library(app
 	GameView.cpp
 	GameViewHarness.cpp
 	ScriptMessageBroadcaster.cpp
+	ThemeManager.cpp
 	WorldController.cpp
 )
 

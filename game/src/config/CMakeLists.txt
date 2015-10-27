@@ -6,8 +6,6 @@ if(APPLE)
 endif()
 
 include_directories(
-	${FileSystem_SOURCE_DIR}/inc
-
 	# 3rd party
 	${Lua_SOURCE_DIR}/src
 )
@@ -17,8 +15,6 @@ add_library(config
 )
 
 target_link_libraries(config
-	filesystem
-
 	# 3rd party
 	lua
 )

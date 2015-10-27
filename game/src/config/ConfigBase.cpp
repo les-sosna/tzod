@@ -1,6 +1,4 @@
 #include "inc/config/ConfigBase.h"
-//#include "core/Debug.h"
-//#include <fs/FileSystem.h>
 
 extern "C"
 {
@@ -71,7 +69,7 @@ static ConfVar* ArrayElementFromLua(lua_State *L, ConfVarArray *parent, size_t k
 		result = parent->GetVar(key, lua_objlen(L,-1) ? ConfVar::typeArray : ConfVar::typeTable).first;
 		break;
 	default:
-//		GetConsole().Format(1) << "Unknown lua type - " << lua_typename(L, valueType);
+//		_logger.Format(1) << "Unknown lua type - " << lua_typename(L, valueType);
 		return nullptr;
 	}
 
@@ -974,7 +972,7 @@ bool ConfVarTable::Assign(lua_State *L)
 			}
 			else
 			{
-//				GetConsole().Printf(1, "variable '%s' was dropped", key);
+//				_logger.Printf(1, "variable '%s' was dropped", key);
 			}
 		}
 	}

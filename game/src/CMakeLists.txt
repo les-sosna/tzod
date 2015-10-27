@@ -32,6 +32,7 @@ if(${OPENAL_FOUND})
 endif()
 
 if(NOT IOS)
+	add_subdirectory(shell)
 	add_subdirectory(tank)
 	add_subdirectory(tzodmain)
 endif()

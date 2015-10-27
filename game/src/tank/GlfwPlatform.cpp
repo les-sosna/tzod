@@ -102,52 +102,11 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
     }
 }
 
-static void OnPrintScreen()
-{
-	/*
-	 // generate a file name
-
-	 CreateDirectory(DIR_SCREENSHOTS, nullptr);
-	 SetCurrentDirectory(DIR_SCREENSHOTS);
-
-	 int n = g_conf.r_screenshot.GetInt();
-	 char name[MAX_PATH];
-	 for(;;)
-	 {
-		sprintf(name, "screenshot%04d.tga", n);
-
-		WIN32_FIND_DATA fd = {0};
-		HANDLE h = FindFirstFile(name, &fd);
-
-		if( INVALID_HANDLE_VALUE == h )
-	 break;
-
-		FindClose(h);
-		n++;
-	 }
-
-	 g_conf.r_screenshot.SetInt(n);
-
-	 if( !g_render->TakeScreenshot(name) )
-	 {
-		GetConsole().WriteLine(1, "screenshot failed");
-	 //		_MessageArea::Inst()->message("> screen shot error!");
-	 }
-	 else
-	 {
-		TRACE("Screenshot '%s'", name);
-	 }
-
-	 SetCurrentDirectory(".."); */
-}
-
 static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
     {
         gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
-        if( GLFW_KEY_PRINT_SCREEN == key && GLFW_PRESS == action )
-            OnPrintScreen();
     }
 }
 

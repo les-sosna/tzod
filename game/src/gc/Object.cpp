@@ -29,7 +29,7 @@ void PropertySet::MyExchange(World &world, bool applyToObject)
 		GC_Object* found = world.FindObject(name);
 		if( found && GetObject() != found )
 		{
-//			GetConsole().Format(1) << "object with name \"" << name << "\" already exists";
+//			_logger.Format(1) << "object with name \"" << name << "\" already exists";
 		}
 		else
 		{

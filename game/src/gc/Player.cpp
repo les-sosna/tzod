@@ -162,7 +162,7 @@ void GC_Player::TimeStep(World &world, float dt)
 				GC_Object* found = world.FindObject(_vehname);
 				if( found && _vehicle != found )
 				{
-//					GetConsole().Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
+//					_logger.Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
 				}
 				else
 				{
@@ -178,7 +178,7 @@ void GC_Player::TimeStep(World &world, float dt)
 			{
 //				char buf[64];
 //				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-//				GetConsole().WriteLine(1, buf);
+//				_logger.WriteLine(1, buf);
 			}
 		}
 	}
@@ -262,7 +262,7 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 			GC_Object* found = world.FindObject(name);
 			if( found && tmp->GetVehicle() != found )
 			{
-//				GetConsole().Printf(1, "WARNING: object with name \"%s\" already exists", name);
+//				_logger.Printf(1, "WARNING: object with name \"%s\" already exists", name);
 			}
 			else
 			{
