@@ -7,7 +7,7 @@ using namespace Windows::ApplicationModel::Core;
 
 namespace wtzod
 {
-	ref class AppSource sealed : IFrameworkViewSource
+	ref class FrameworkViewSource sealed : IFrameworkViewSource
 	{
 	public:
 		// IFrameworkViewSource
@@ -21,6 +21,6 @@ namespace wtzod
 [MTAThread]
 int main(Array<String^> ^args)
 {
-	CoreApplication::Run(ref new wtzod::AppSource());
+	CoreApplication::Run(ref new wtzod::FrameworkViewSource());
 	return 0;
 }
