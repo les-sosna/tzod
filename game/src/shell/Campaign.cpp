@@ -1,4 +1,4 @@
-#include "inc/shell/Campaign.h"
+#include "Campaign.h"
 #include "inc/shell/Config.h"
 #include "inc/shell/Desktop.h"
 

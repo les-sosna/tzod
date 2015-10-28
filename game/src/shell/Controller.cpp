@@ -1,6 +1,6 @@
-#include "inc/shell/detail/Controller.h"
-#include "inc/shell/Config.h"
+#include "Controller.h"
 #include "KeyMapper.h"
+#include "inc/shell/Config.h"
 #include <gc/VehicleState.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>

@@ -1,7 +1,6 @@
-#include "inc/shell/Config.h"
-#include "inc/shell/Settings.h"
-
+#include "Settings.h"
 #include "KeyMapper.h"
+#include "inc/shell/Config.h"
 
 #include <video/TextureManager.h>
 #include <loc/Language.h>

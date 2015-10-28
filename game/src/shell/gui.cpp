@@ -1,6 +1,6 @@
-#include "inc/shell/gui.h"
+#include "gui.h"
+#include "MapList.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/MapList.h"
 
 #include <gc/Player.h>
 #include <gc/VehicleClasses.h>

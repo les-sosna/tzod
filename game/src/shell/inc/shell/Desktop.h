@@ -1,12 +1,10 @@
 #pragma once
 #include "detail/ConfigConsoleHistory.h"
 #include "detail/DefaultCamera.h"
-#include "detail/InputManager.h"
 #include <app/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
 #include <ui/Window.h>
-#include <ui/Console.h>
 #include <functional>
 #include <string>
 

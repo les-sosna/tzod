@@ -1,17 +1,16 @@
-#include "inc/shell/Campaign.h"
+#include "Campaign.h"
+#include "Editor.h"
+#include "Game.h"
+#include "gui.h"
+#include "MainMenu.h"
+#include "Settings.h"
+#include "Widgets.h"
 #include "inc/shell/Config.h"
 #include "inc/shell/Desktop.h"
-#include "inc/shell/Editor.h"
-#include "inc/shell/Game.h"
-#include "inc/shell/Settings.h"
-#include "inc/shell/MainMenu.h"
 #include "inc/shell/Profiler.h"
-#include "inc/shell/Widgets.h"
-#include "inc/shell/gui.h"
 
 #include <app/AppController.h>
 #include <app/EditorContext.h>
-#include <app/GameContext.h>
 
 #include <app/AppState.h>
 #include <gc/World.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Config.h"
+#include "inc/shell/Config.h"
 #include <ui/Dialog.h>
 
 class ConfVarTable;

@@ -1,5 +1,5 @@
-#include "inc/shell/detail/InputManager.h"
-#include "inc/shell/detail/Controller.h"
+#include "Controller.h"
+#include "InputManager.h"
 #include "inc/shell/Config.h"
 #include <ui/ConsoleBuffer.h>
 

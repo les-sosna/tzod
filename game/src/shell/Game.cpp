@@ -1,10 +1,10 @@
-#include "inc/shell/detail/Controller.h"
+#include "Controller.h"
+#include "Game.h"
+#include "InputManager.h"
+#include "MessageArea.h"
+#include "ScoreTable.h"
 #include "inc/shell/detail/DefaultCamera.h"
-#include "inc/shell/detail/InputManager.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/Game.h"
-#include "inc/shell/MessageArea.h"
-#include "inc/shell/ScoreTable.h"
 
 #include <app/Deathmatch.h>
 #include <app/GameContext.h>

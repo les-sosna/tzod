@@ -38,6 +38,7 @@ add_library(shell
 	MessageArea.cpp
 	Network.cpp
 	Profiler.cpp
+	PropertyList.cpp
 	ScoreTable.cpp
 	Settings.cpp
 	Widgets.cpp

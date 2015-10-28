@@ -1,5 +1,5 @@
+#include "MessageArea.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/MessageArea.h"
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>

@@ -1,10 +1,10 @@
-#include "inc/shell/MainMenu.h"
+#include "Editor.h"
+#include "GetFileName.h"
+#include "gui.h"
+#include "MainMenu.h"
+#include "Network.h"
+#include "Settings.h"
 #include "inc/shell/Desktop.h"
-#include "inc/shell/Network.h"
-#include "inc/shell/Settings.h"
-#include "inc/shell/Editor.h"
-#include "inc/shell/GetFileName.h"
-#include "inc/shell/gui.h"
 
 #include <app/AppCfg.h>
 #include <fs/FileSystem.h>

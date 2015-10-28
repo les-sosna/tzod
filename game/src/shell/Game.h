@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/InputManager.h"
+#include "InputManager.h"
 #include <app/GameEvents.h>
 #include <app/GameViewHarness.h>
 #include <ui/Window.h>

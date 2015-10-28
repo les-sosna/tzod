@@ -1,7 +1,7 @@
-#include "inc/shell/gui.h"
+#include "gui.h"
+#include "MapList.h"
+#include "Network.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/MapList.h"
-#include "inc/shell/Network.h"
 
 //#include "md5.h"
 

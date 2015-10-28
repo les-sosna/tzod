@@ -1,4 +1,4 @@
-#include "inc/shell/GetFileName.h"
+#include "GetFileName.h"
 
 #include <fs/FileSystem.h>
 #include <loc/Language.h>

@@ -1,4 +1,4 @@
-#include "inc/shell/ScoreTable.h"
+#include "ScoreTable.h"
 
 #include <app/GameContext.h>
 #include <app/Deathmatch.h>

@@ -1,4 +1,4 @@
-#include "inc/shell/Widgets.h"
+#include "Widgets.h"
 
 #include <app/AppState.h>
 #include <app/GameContext.h>
