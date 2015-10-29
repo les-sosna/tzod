@@ -8,9 +8,6 @@ endif()
 include_directories(
 	${Math_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
-
-	# 3rd party
-	${GLFW_SOURCE_DIR}/include
 )
 
 add_library(ui

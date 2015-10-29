@@ -65,7 +65,7 @@ protected:
 	bool OnMouseUp(float x, float y, int button);
 	bool OnMouseMove(float x, float y);
 	bool OnFocus(bool focus);
-	bool OnRawChar(int c);
+	bool OnKeyPressed(UI::Key key);
 	void OnSize(float width, float height);
 	void OnVisibleChange(bool visible, bool inherited);
 

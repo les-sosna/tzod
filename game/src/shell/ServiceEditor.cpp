@@ -9,8 +9,7 @@
 #include <ui/Combo.h>
 #include <ui/List.h>
 #include <ui/Text.h>
-
-#include <GLFW/glfw3.h>
+#include <ui/Keys.h>
 
 #include "Editor.h" // WTF! cross-reference
 
@@ -215,17 +214,17 @@ void ServiceEditor::OnSize(float width, float height)
 	_list->SetTabPos(1, floor(_list->GetWidth() / 2));
 }
 
-bool ServiceEditor::OnRawChar(int c)
+bool ServiceEditor::OnKeyPressed(UI::Key key)
 {
-	switch (c)
+	switch (key)
 	{
-	case GLFW_KEY_S:
-	case GLFW_KEY_ESCAPE:
+	case UI::Key::S:
+	case UI::Key::Escape:
 		_conf.ed_showservices.Set(false);
 		SetVisible(false);
 		break;
 	default:
-		return Dialog::OnRawChar(c);
+		return Dialog::OnKeyPressed(key);
 	}
 	return true;
 }

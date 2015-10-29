@@ -24,12 +24,12 @@ public:
 private:
 	void OnScroll(float pos);
 	void OnSize(float width, float height);
-	bool OnRawChar(int c);
+	bool OnKeyPressed(UI::Key key);
 	bool OnMouseWheel(float x, float y, float z);
 
 	class Container : public UI::Window
 	{
-//		bool OnRawChar(int c); // need to pass messages through
+//		bool OnKeyPressed(Key key); // need to pass messages through
 	public:
 		Container(UI::Window *parent);
 	};

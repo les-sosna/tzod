@@ -13,6 +13,7 @@ set(tank_INCLUDE_DIRS
 )
 
 set(tank_SOURCES
+	GlfwKeys.cpp
 	GlfwPlatform.cpp
 	Md5.c
 	core/Timer.cpp

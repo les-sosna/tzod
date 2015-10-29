@@ -12,7 +12,7 @@ public:
 	GlfwInput(GLFWwindow &window);
 
 	// UI::IInput
-	virtual bool IsKeyPressed(int key) const override;
+	virtual bool IsKeyPressed(UI::Key key) const override;
 	virtual bool IsMousePressed(int button) const override;
 	virtual vec2d GetMousePos() const override;
 

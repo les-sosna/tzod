@@ -13,7 +13,7 @@
 #include <ui/GuiManager.h>
 #include <ui/Button.h>
 #include <ui/Text.h>
-#include <GLFW/glfw3.h>
+#include <ui/Keys.h>
 
 MainMenuDlg::MainMenuDlg(Window *parent,
                          FS::FileSystem &fs,
@@ -280,14 +280,14 @@ void MainMenuDlg::OnCloseChild(int result)
 	}
 }
 
-bool MainMenuDlg::OnRawChar(int c)
+bool MainMenuDlg::OnKeyPressed(UI::Key key)
 {
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_F12:
+	case UI::Key::F12:
 		OnSettings();
 		break;
-	case GLFW_KEY_ESCAPE:
+	case UI::Key::Escape:
 		if (_ptype != PT_NONE)
 			SwitchPanel(PT_NONE);
 		else

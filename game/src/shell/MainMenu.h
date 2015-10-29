@@ -85,7 +85,7 @@ public:
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();
 	virtual void OnParentSize(float width, float height) override;
-	virtual bool OnRawChar(int c) override;
+	virtual bool OnKeyPressed(UI::Key key) override;
 	virtual bool OnFocus(bool) override { return true; }
 
 protected:

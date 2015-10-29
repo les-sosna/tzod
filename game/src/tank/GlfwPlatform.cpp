@@ -1,4 +1,5 @@
 #include "GlfwPlatform.h"
+#include "GlfwKeys.h"
 #include <ui/GuiManager.h>
 #include <GLFW/glfw3.h>
 
@@ -6,9 +7,10 @@ GlfwInput::GlfwInput(GLFWwindow &window)
 	: _window(window)
 {}
 
-bool GlfwInput::IsKeyPressed(int key) const
+bool GlfwInput::IsKeyPressed(UI::Key key) const
 {
-	return GLFW_PRESS == glfwGetKey(&_window, key);
+	int platformKey = UnmapGlfwKeyCode(key);
+	return GLFW_PRESS == glfwGetKey(&_window, platformKey);
 }
 
 bool GlfwInput::IsMousePressed(int button) const
@@ -102,10 +104,11 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
     }
 }
 
-static void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action, int mods)
 {
     if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
     {
+        UI::Key key = MapGlfwKeyCode(platformKey);
         gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
     }
 }
@@ -116,7 +119,7 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
     {
         if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
         {
-            gui->ProcessKeys(UI::MSGCHAR, codepoint);
+            gui->ProcessText(codepoint);
         }
     }
 }
@@ -129,10 +132,10 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 
 GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int height)
 	: _window(glfwCreateWindow(fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->width : width,
-							   fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : height,
-							   title,
-							   fullscreen ? glfwGetPrimaryMonitor() : nullptr,
-							   nullptr))
+	                           fullscreen ? glfwGetVideoMode(glfwGetPrimaryMonitor())->height : height,
+	                           title,
+	                           fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+	                           nullptr))
 {
 	if (!_window)
 		throw std::runtime_error("Failed to create GLFW window");
@@ -148,4 +151,3 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 GlfwAppWindow::~GlfwAppWindow()
 {
 }
-

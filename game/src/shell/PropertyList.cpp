@@ -12,19 +12,18 @@
 #include <ui/Scroll.h>
 #include <ui/Text.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <video/TextureManager.h>
 #include <algorithm>
-
-#include <GLFW/glfw3.h>
 
 PropertyList::Container::Container(Window *parent)
   : Window(parent)
 {
 }
 
-//bool PropertyList::Container::OnRawChar(int c)
+//bool PropertyList::Container::OnKeyPressed(Key key)
 //{
-//	return GetParent()->OnRawChar(c); // pass messages through
+//	return GetParent()->OnKeyPressed(c); // pass messages through
 //}
 
 PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
@@ -235,20 +234,20 @@ void PropertyList::OnSize(float width, float height)
 	_psheet->Resize(_scrollBar->GetX(), _psheet->GetHeight());
 }
 
-bool PropertyList::OnRawChar(int c)
+bool PropertyList::OnKeyPressed(UI::Key key)
 {
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_ENTER:
+	case UI::Key::Enter:
 		DoExchange(true);
 		SaveToConfig(_conf, *_ps);
 		break;
-	case GLFW_KEY_ESCAPE:
+	case UI::Key::Escape:
 		_conf.ed_showproperties.Set(false);
 		SetVisible(false);
 		break;
 	default:
-		return Dialog::OnRawChar(c);
+		return Dialog::OnKeyPressed(key);
 	}
 	return true;
 }

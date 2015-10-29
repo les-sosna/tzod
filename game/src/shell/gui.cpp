@@ -4,7 +4,6 @@
 
 #include <gc/Player.h>
 #include <gc/VehicleClasses.h>
-#include <GLFW/glfw3.h>
 #include <loc/Language.h>
 #include <ui/Button.h>
 #include <ui/List.h>
@@ -13,6 +12,7 @@
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <video/TextureManager.h>
 
 #include <algorithm>
@@ -350,21 +350,21 @@ void NewGameDlg::OnSelectBot(int index)
 	_changeBot->SetEnabled( -1 != index );
 }
 
-bool NewGameDlg::OnRawChar(int c)
+bool NewGameDlg::OnKeyPressed(UI::Key key)
 {
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_ENTER:
+	case UI::Key::Enter:
 		if( GetManager().GetFocusWnd() == _players && -1 != _players->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
 		break;
-	case GLFW_KEY_INSERT:
+	case UI::Key::Insert:
 		OnAddPlayer();
 		break;
 	default:
-		return Dialog::OnRawChar(c);
+		return Dialog::OnKeyPressed(key);
 	}
 	return true;
 }

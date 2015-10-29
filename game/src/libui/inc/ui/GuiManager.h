@@ -11,6 +11,7 @@ namespace UI
 {
 
 class LayoutManager;
+enum class Key;
 struct IInput;
 struct IClipboard;
 
@@ -23,7 +24,6 @@ enum Msg
 {
     MSGKEYUP,
     MSGKEYDOWN,
-    MSGCHAR,
 	MSGLBUTTONDOWN,
 	MSGRBUTTONDOWN,
 	MSGMBUTTONDOWN,
@@ -44,7 +44,8 @@ public:
 	void Render(DrawingContext &dc) const;
 
 	bool ProcessMouse(float x, float y, float z, Msg msg);
-	bool ProcessKeys(Msg msg, int c);
+	bool ProcessKeys(Msg msg, UI::Key key);
+	bool ProcessText(int c);
 
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }

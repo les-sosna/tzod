@@ -1,5 +1,3 @@
-// Controller.h
-
 #pragma once
 
 class ConfControllerProfile;
@@ -10,6 +8,7 @@ class vec2d;
 namespace UI
 {
 	struct IInput;
+	enum class Key;
 }
 
 class Controller
@@ -24,16 +23,16 @@ private:
 	// cached values from the profile
 	//
 
-	int _keyForward;
-	int _keyBack;
-	int _keyLeft;
-	int _keyRight;
-	int _keyFire;
-	int _keyLight;
-	int _keyTowerLeft;
-	int _keyTowerRight;
-	int _keyTowerCenter;
-	int _keyPickup;
+	UI::Key _keyForward;
+	UI::Key _keyBack;
+	UI::Key _keyLeft;
+	UI::Key _keyRight;
+	UI::Key _keyFire;
+	UI::Key _keyLight;
+	UI::Key _keyTowerLeft;
+	UI::Key _keyTowerRight;
+	UI::Key _keyTowerCenter;
+	UI::Key _keyPickup;
 	bool _aimToMouse;
 	bool _moveToMouse;
 	bool _arcadeStyle;

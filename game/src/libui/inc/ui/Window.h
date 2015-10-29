@@ -13,6 +13,7 @@ namespace UI
 {
 
 class LayoutManager;
+enum class Key;
 
 class Window
 {
@@ -200,7 +201,7 @@ private:
 	//
 
 	virtual bool OnChar(int c);
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(Key key);
 
 
 	//

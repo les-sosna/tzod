@@ -30,7 +30,7 @@ protected:
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
 
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(Key key);
 	virtual bool OnFocus(bool focus);
 
 private:

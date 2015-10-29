@@ -60,7 +60,7 @@ public:
 
 protected:
 	virtual bool OnChar(int c);
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(Key key);
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseUp(float x, float y, int button);

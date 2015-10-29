@@ -43,7 +43,7 @@ public:
 protected:
 	void OnSelect(int index);
 	void OnChangeName();
-	bool OnRawChar(int c);
+	bool OnKeyPressed(UI::Key key);
 
 	void OnOK();
 	void OnCancel();

@@ -1,10 +1,10 @@
-// KeyMapper.h
-
 #pragma once
-
 #include <string>
 
-std::string GetKeyName(int code);
-int GetKeyCode(const std::string &name);
+namespace UI
+{
+	enum class Key;
+}
 
-// end of file
+const std::string& GetKeyName(UI::Key code);
+UI::Key GetKeyCode(const std::string &name);

@@ -65,7 +65,7 @@ protected:
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseUp(float x, float y, int button);
 	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(Key key);
 	virtual bool OnFocus(bool focus);
 
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;

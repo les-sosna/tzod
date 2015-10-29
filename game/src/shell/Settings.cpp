@@ -12,8 +12,8 @@
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 
-#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <sstream>
 
@@ -352,22 +352,22 @@ void ControlProfileDlg::OnTimeStep(float dt)
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
 }
 
-bool ControlProfileDlg::OnRawChar(int c)
+bool ControlProfileDlg::OnKeyPressed(UI::Key key)
 {
 	if (-1 != _activeIndex)
 	{
-		if (GLFW_KEY_ESCAPE != c)
+		if (UI::Key::Escape != key)
 		{
-			_keyBindings[_activeIndex] = c;
+			_keyBindings[_activeIndex] = key;
 		}
 		SetActiveIndex(-1);
 		GetManager().SetFocusWnd(_actions);
 	}
 	else
 	{
-		switch( c )
+		switch( key )
 		{
-		case GLFW_KEY_ENTER:
+		case UI::Key::Enter:
 			if( GetManager().GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
 			{
 				OnSelectAction(_actions->GetCurSel());
@@ -377,10 +377,10 @@ bool ControlProfileDlg::OnRawChar(int c)
 				OnOK();
 			}
 			break;
-		case GLFW_KEY_ESCAPE:
+		case UI::Key::Escape:
 			break;
 		default:
-			return Dialog::OnRawChar(c);
+			return Dialog::OnKeyPressed(key);
 		}
 	}
 	return true;

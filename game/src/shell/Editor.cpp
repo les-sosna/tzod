@@ -19,10 +19,9 @@
 #include <ui/ConsoleBuffer.h>
 #include <ui/List.h>
 #include <ui/DataSourceAdapters.h>
+#include <ui/Keys.h>
 #include <ui/UIInput.h>
 #include <video/TextureManager.h>
-
-#include <GLFW/glfw3.h>
 
 #include <sstream>
 
@@ -357,8 +356,8 @@ bool EditorLayout::OnMouseDown(float x, float y, int button)
 			std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
             // set default properties if Ctrl key is not pressed
-            if( GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
-                GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) )
+            if( GetManager().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+                GetManager().GetInput().IsKeyPressed(UI::Key::RightCtrl) )
             {
                 LoadFromConfig(_conf, *properties);
                 properties->Exchange(_world, true);
@@ -378,22 +377,22 @@ bool EditorLayout::OnFocus(bool focus)
 	return true;
 }
 
-bool EditorLayout::OnRawChar(int c)
+bool EditorLayout::OnKeyPressed(UI::Key key)
 {
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_ENTER:
+	case UI::Key::Enter:
 		if( _selectedObject )
 		{
 			_propList->SetVisible(true);
 			_conf.ed_showproperties.Set(true);
 		}
 		break;
-	case GLFW_KEY_S:
+	case UI::Key::S:
 		_serviceList->SetVisible(!_serviceList->GetVisible());
 		_conf.ed_showservices.Set(_serviceList->GetVisible());
 		break;
-	case GLFW_KEY_DELETE:
+	case UI::Key::Delete:
 		if( _selectedObject )
 		{
 			GC_Object *o = _selectedObject;
@@ -401,23 +400,23 @@ bool EditorLayout::OnRawChar(int c)
 			o->Kill(_world);
 		}
 		break;
-	case GLFW_KEY_F1:
+	case UI::Key::F1:
 		_help->SetVisible(!_help->GetVisible());
 		break;
-	case GLFW_KEY_F8:
+	case UI::Key::F8:
 	//	dlg = new MapSettingsDlg(this, _world);
 	//	SetDrawBackground(true);
 	//	dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 	//	_nModalPopups++;
 		break;
 
-	case GLFW_KEY_F9:
+	case UI::Key::F9:
 		_conf.ed_uselayers.Set(!_conf.ed_uselayers.Get());
 		break;
-	case GLFW_KEY_G:
+	case UI::Key::G:
 		_conf.ed_drawgrid.Set(!_conf.ed_drawgrid.Get());
 		break;
-	case GLFW_KEY_ESCAPE:
+	case UI::Key::Escape:
 		if( _selectedObject )
 		{
 			Select(_selectedObject, false);

@@ -8,7 +8,7 @@
 #include <ui/Edit.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
-#include <GLFW/glfw3.h>
+#include <ui/Keys.h>
 
 GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
   : Dialog(parent, 512, 460)
@@ -87,19 +87,19 @@ void GetFileNameDlg::OnChangeName()
 	_changing = false;
 }
 
-bool GetFileNameDlg::OnRawChar(int c)
+bool GetFileNameDlg::OnKeyPressed(UI::Key key)
 {
-	switch( c )
+	switch( key )
 	{
-	//case GLFW_KEY_UP:
-	//case GLFW_KEY_DOWN:
-	//	static_cast<Window *>(_files)->OnRawChar(c);
+	//case UI::Key::Up:
+	//case UI::Key::Down:
+	//	static_cast<Window *>(_files)->OnKeyPressed(c);
 	//	break;
-	case GLFW_KEY_ENTER:
+	case UI::Key::Enter:
 		OnOK();
 		break;
 	default:
-		return Dialog::OnRawChar(c);
+		return Dialog::OnKeyPressed(key);
 	}
 	return true;
 }

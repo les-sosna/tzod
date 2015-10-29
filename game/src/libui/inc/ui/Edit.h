@@ -47,7 +47,7 @@ public:
 protected:
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual bool OnChar(int c);
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(Key key);
 	virtual bool OnMouseDown(float x, float y, int button);
 	virtual bool OnMouseUp(float x, float y, int button);
 	virtual bool OnMouseMove(float x, float y);

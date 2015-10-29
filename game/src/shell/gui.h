@@ -48,7 +48,7 @@ public:
 	NewGameDlg(Window *parent, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger);
 	virtual ~NewGameDlg();
 
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(UI::Key key);
 
 protected:
 	void RefreshPlayersList();

@@ -16,7 +16,6 @@ include_directories(
 	${Video_SOURCE_DIR}/inc
 
 	# 3rd party
-	${GLFW_SOURCE_DIR}/include
 	${Lua_SOURCE_DIR}/src
 )
 

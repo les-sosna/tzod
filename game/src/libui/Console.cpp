@@ -5,9 +5,9 @@
 #include "inc/ui/Scroll.h"
 #include "inc/ui/ConsoleBuffer.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/Keys.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
-#include <GLFW/glfw3.h>
 #include <algorithm>
 
 namespace UI
@@ -98,11 +98,11 @@ bool Console::OnChar(int c)
 	return true;
 }
 
-bool Console::OnRawChar(int c)
+bool Console::OnKeyPressed(Key key)
 {
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_UP:
+	case Key::Up:
 //		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
 //		{
 //			_scroll->SetPos(_scroll->GetPos() - 1);
@@ -119,7 +119,7 @@ bool Console::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_DOWN:
+	case Key::Down:
 //		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
 //		{
 //			_scroll->SetPos(_scroll->GetPos() + 1);
@@ -140,7 +140,7 @@ bool Console::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_ENTER:
+	case Key::Enter:
 	{
 		const std::string &cmd = _input->GetText();
 		if( cmd.empty() )
@@ -170,24 +170,24 @@ bool Console::OnRawChar(int c)
 		_autoScroll = true;
 		break;
 	}
-	case GLFW_KEY_PAGE_UP:
+	case Key::PageUp:
 		_scroll->SetPos(_scroll->GetPos() - _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-	case GLFW_KEY_PAGE_DOWN:
+	case Key::PageDown:
 		_scroll->SetPos(_scroll->GetPos() + _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-//	case GLFW_KEY_HOME:
+//	case Key::Home:
 //		break;
-//	case GLFW_KEY_END:
+//	case Key::End:
 //		break;
-	case GLFW_KEY_ESCAPE:
+	case Key::Escape:
 		if( _input->GetText().empty() )
 			return false;
 		_input->SetText(std::string());
 		break;
-	case GLFW_KEY_TAB:
+	case Key::Tab:
 		if( eventOnRequestCompleteCommand )
 		{
 			std::string result;

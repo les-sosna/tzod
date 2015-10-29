@@ -1,11 +1,9 @@
-// List.cpp
-
 #include "inc/ui/List.h"
 #include "inc/ui/Scroll.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/Keys.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
-#include <GLFW/glfw3.h>
 
 #include <algorithm>
 
@@ -202,27 +200,27 @@ bool List::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool List::OnRawChar(int c)
+bool List::OnKeyPressed(Key key)
 {
-	switch( c )
+	switch( key )
 	{
-	case GLFW_KEY_UP:
-        SetCurSel(std::max(0, GetCurSel() - 1), true);
+	case Key::Up:
+		SetCurSel(std::max(0, GetCurSel() - 1), true);
 		break;
-	case GLFW_KEY_DOWN:
-        SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+	case Key::Down:
+		SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
 		break;
-	case GLFW_KEY_HOME:
+	case Key::Home:
 		SetCurSel(0, true);
 		break;
-	case GLFW_KEY_END:
+	case Key::End:
 		SetCurSel(_data->GetItemCount() - 1, true);
 		break;
-	case GLFW_KEY_PAGE_UP:
-        SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
+	case Key::PageUp:
+		SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
 		break;
-	case GLFW_KEY_PAGE_DOWN:
-        SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
+	case Key::PageDown:
+		SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
 		break;
 	default:
 		return false;

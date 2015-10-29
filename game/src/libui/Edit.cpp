@@ -1,12 +1,10 @@
-// Edit.cpp
-
 #include "inc/ui/Edit.h"
-#include "inc/ui/GuiManager.h"
-#include "inc/ui/UIInput.h"
 #include "inc/ui/Clipboard.h"
+#include "inc/ui/GuiManager.h"
+#include "inc/ui/Keys.h"
+#include "inc/ui/UIInput.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
-#include <GLFW/glfw3.h>
 
 #include <algorithm>
 #include <cstring>
@@ -158,7 +156,7 @@ void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 
 bool Edit::OnChar(int c)
 {
-	if( isprint((unsigned char) c) && GLFW_KEY_TAB != c )
+	if( isprint((unsigned char) c) && '\t' != c )
 	{
 		int start = GetSelMin();
 		SetText(GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
@@ -168,16 +166,16 @@ bool Edit::OnChar(int c)
 	return false;
 }
 
-bool Edit::OnRawChar(int c)
+bool Edit::OnKeyPressed(Key key)
 {
-    bool shift = GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
-        GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_SHIFT);
-    bool control = GetManager().GetInput().IsKeyPressed(GLFW_KEY_LEFT_CONTROL) ||
-        GetManager().GetInput().IsKeyPressed(GLFW_KEY_RIGHT_CONTROL);
+    bool shift = GetManager().GetInput().IsKeyPressed(Key::LeftShift) ||
+        GetManager().GetInput().IsKeyPressed(Key::RightShift);
+    bool control = GetManager().GetInput().IsKeyPressed(Key::LeftCtrl) ||
+        GetManager().GetInput().IsKeyPressed(Key::RightCtrl);
 	int tmp;
-	switch(c)
+	switch(key)
 	{
-	case GLFW_KEY_INSERT:
+	case Key::Insert:
         if( shift )
 		{
 			Paste();
@@ -189,21 +187,21 @@ bool Edit::OnRawChar(int c)
 			return true;
 		}
 		break;
-	case 'V':
+	case Key::V:
 		if( control )
 		{
 			Paste();
 			return true;
 		}
 		break;
-	case 'C':
+	case Key::C:
 		if( control )
 		{
 			Copy();
 			return true;
 		}
 		break;
-	case 'X':
+	case Key::X:
 		if( 0 != GetSelLength() && control )
 		{
 			Copy();
@@ -212,7 +210,7 @@ bool Edit::OnRawChar(int c)
 			return true;
 		}
 		break;
-	case GLFW_KEY_DELETE:
+	case Key::Delete:
 		if( 0 == GetSelLength() && GetSelEnd() < GetTextLength() )
 		{
 			SetText(GetText().substr(0, GetSelStart())
@@ -228,7 +226,7 @@ bool Edit::OnRawChar(int c)
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
-	case GLFW_KEY_BACKSPACE:
+	case Key::Backspace:
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if( 0 == GetSelLength() && GetSelStart() > 0 )
 		{
@@ -241,7 +239,7 @@ bool Edit::OnRawChar(int c)
 		}
 		SetSel(tmp, tmp);
 		return true;
-	case GLFW_KEY_LEFT:
+	case Key::Left:
 		if( shift )
 		{
 			tmp = std::max(0, GetSelEnd() - 1);
@@ -253,7 +251,7 @@ bool Edit::OnRawChar(int c)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case GLFW_KEY_RIGHT:
+	case Key::Right:
 		if( shift )
 		{
 			tmp = std::min(GetTextLength(), GetSelEnd() + 1);
@@ -265,7 +263,7 @@ bool Edit::OnRawChar(int c)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case GLFW_KEY_HOME:
+	case Key::Home:
 		if( shift )
 		{
 			SetSel(GetSelStart(), 0);
@@ -275,7 +273,7 @@ bool Edit::OnRawChar(int c)
 			SetSel(0, 0);
 		}
 		return true;
-	case GLFW_KEY_END:
+	case Key::End:
 		if( shift )
 		{
 			SetSel(GetSelStart(), -1);
@@ -285,7 +283,7 @@ bool Edit::OnRawChar(int c)
 			SetSel(-1, -1);
 		}
 		return true;
-	case GLFW_KEY_SPACE:
+	case Key::Space:
 		return true;
 	}
 	return false;

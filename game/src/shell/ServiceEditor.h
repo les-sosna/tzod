@@ -73,5 +73,5 @@ protected:
 	EditorLayout* GetEditorLayout() const;
 
 	virtual void OnSize(float width, float height);
-	virtual bool OnRawChar(int c);
+	virtual bool OnKeyPressed(UI::Key key);
 };

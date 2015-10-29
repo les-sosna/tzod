@@ -1,33 +1,31 @@
-// KeyMapper.cpp
-
 #include "KeyMapper.h"
-#include <GLFW/glfw3.h>
+#include <ui/Keys.h>
 #include <map>
 #include <sstream>
 #include <iomanip>
 
 class KeyMapper
 {
-	std::map<std::string, int> _name2code;
-	std::map<int, std::string> _code2name;
+	std::map<std::string, UI::Key> _name2code;
+	std::map<UI::Key, std::string> _code2name;
 
-	void Pair(const char *name, int code);
+	void Pair(const char *name, UI::Key code);
 
 public:
 	KeyMapper();
 
-	inline std::string GetName(int code) const;
-	inline int GetCode(const std::string &name) const;
+	inline const std::string& GetName(UI::Key code) const;
+	inline UI::Key GetCode(const std::string &name) const;
 };
 
 static KeyMapper s_keyMapper;
 
-std::string GetKeyName(int code)
+const std::string& GetKeyName(UI::Key code)
 {
 	return s_keyMapper.GetName(code);
 }
 
-int GetKeyCode(const std::string &name)
+UI::Key GetKeyCode(const std::string &name)
 {
 	return s_keyMapper.GetCode(name);
 }
@@ -37,122 +35,109 @@ int GetKeyCode(const std::string &name)
 
 KeyMapper::KeyMapper()
 {
-	Pair( "Escape",          GLFW_KEY_ESCAPE );
-	Pair( "1",               GLFW_KEY_1 );
-	Pair( "2",               GLFW_KEY_2 );
-	Pair( "3",               GLFW_KEY_3 );
-	Pair( "4",               GLFW_KEY_4 );
-	Pair( "5",               GLFW_KEY_5 );
-	Pair( "6",               GLFW_KEY_6 );
-	Pair( "7",               GLFW_KEY_7 );
-	Pair( "8",               GLFW_KEY_8 );
-	Pair( "9",               GLFW_KEY_9 );
-	Pair( "0",               GLFW_KEY_0 );
-	Pair( "-",               GLFW_KEY_MINUS );
-	Pair( "=",               GLFW_KEY_EQUAL );
-	Pair( "Backspace",       GLFW_KEY_BACKSPACE );
-	Pair( "Tab",             GLFW_KEY_TAB );
-	Pair( "Q",               GLFW_KEY_Q );
-	Pair( "W",               GLFW_KEY_W );
-	Pair( "E",               GLFW_KEY_E );
-	Pair( "R",               GLFW_KEY_R );
-	Pair( "T",               GLFW_KEY_T );
-	Pair( "Y",               GLFW_KEY_Y );
-	Pair( "U",               GLFW_KEY_U );
-	Pair( "I",               GLFW_KEY_I );
-	Pair( "O",               GLFW_KEY_O );
-	Pair( "P",               GLFW_KEY_P );
-	Pair( "[",               GLFW_KEY_LEFT_BRACKET );
-	Pair( "]",               GLFW_KEY_RIGHT_BRACKET );
-	Pair( "Enter",           GLFW_KEY_ENTER );
-	Pair( "Left Ctrl",       GLFW_KEY_LEFT_CONTROL );
-	Pair( "A",               GLFW_KEY_A );
-	Pair( "S",               GLFW_KEY_S );
-	Pair( "D",               GLFW_KEY_D );
-	Pair( "F",               GLFW_KEY_F );
-	Pair( "G",               GLFW_KEY_G );
-	Pair( "H",               GLFW_KEY_H );
-	Pair( "J",               GLFW_KEY_J );
-	Pair( "K",               GLFW_KEY_K );
-	Pair( "L",               GLFW_KEY_L );
-	Pair( ";",               GLFW_KEY_SEMICOLON );
-	Pair( "'",               GLFW_KEY_APOSTROPHE );
-	Pair( "~",               GLFW_KEY_GRAVE_ACCENT );
-	Pair( "Left Shift",      GLFW_KEY_LEFT_SHIFT );
-	Pair( "\\",              GLFW_KEY_BACKSLASH );
-	Pair( "Z",               GLFW_KEY_Z );
-	Pair( "X",               GLFW_KEY_X );
-	Pair( "C",               GLFW_KEY_C );
-	Pair( "V",               GLFW_KEY_V );
-	Pair( "B",               GLFW_KEY_B );
-	Pair( "N",               GLFW_KEY_N );
-	Pair( "M",               GLFW_KEY_M );
-	Pair( ",",               GLFW_KEY_COMMA );
-	Pair( ".",               GLFW_KEY_PERIOD );
-	Pair( "/",               GLFW_KEY_SLASH );
-	Pair( "Right Shift",     GLFW_KEY_RIGHT_SHIFT );
-	Pair( "Numpad *",        GLFW_KEY_KP_MULTIPLY );
-	Pair( "Left Alt",        GLFW_KEY_LEFT_ALT );
-	Pair( "Space",           GLFW_KEY_SPACE );
-	Pair( "Caps Lock",       GLFW_KEY_CAPS_LOCK );
-	Pair( "F1",              GLFW_KEY_F1 );
-	Pair( "F2",              GLFW_KEY_F2 );
-	Pair( "F3",              GLFW_KEY_F3 );
-	Pair( "F4",              GLFW_KEY_F4 );
-	Pair( "F5",              GLFW_KEY_F5 );
-	Pair( "F6",              GLFW_KEY_F6 );
-	Pair( "F7",              GLFW_KEY_F7 );
-	Pair( "F8",              GLFW_KEY_F8 );
-	Pair( "F9",              GLFW_KEY_F9 );
-	Pair( "F10",             GLFW_KEY_F10 );
-	Pair( "Num Lock",        GLFW_KEY_NUM_LOCK );
-	Pair( "Scroll Lock",     GLFW_KEY_SCROLL_LOCK );
-	Pair( "Numpad 7",        GLFW_KEY_KP_7 );
-	Pair( "Numpad 8",        GLFW_KEY_KP_8 );
-	Pair( "Numpad 9",        GLFW_KEY_KP_9 );
-	Pair( "Numpad -",        GLFW_KEY_KP_SUBTRACT );
-	Pair( "Numpad 4",        GLFW_KEY_KP_4 );
-	Pair( "Numpad 5",        GLFW_KEY_KP_5 );
-	Pair( "Numpad 6",        GLFW_KEY_KP_6 );
-	Pair( "Numpad +",        GLFW_KEY_KP_ADD );
-	Pair( "Numpad 1",        GLFW_KEY_KP_1 );
-	Pair( "Numpad 2",        GLFW_KEY_KP_2 );
-	Pair( "Numpad 3",        GLFW_KEY_KP_3 );
-	Pair( "Numpad 0",        GLFW_KEY_KP_0 );
-	Pair( "Numpad .",        GLFW_KEY_KP_DECIMAL );
-	Pair( "F11",             GLFW_KEY_F11 );
-	Pair( "F12",             GLFW_KEY_F12 );
-	Pair( "Numpad Enter",    GLFW_KEY_KP_ENTER );
-	Pair( "Right Ctrl",     GLFW_KEY_RIGHT_CONTROL );
-	Pair( "Numpad /",       GLFW_KEY_KP_DIVIDE );
-	Pair( "Print Screen",   GLFW_KEY_PRINT_SCREEN );
-	Pair( "Right Alt",      GLFW_KEY_RIGHT_ALT );
-	Pair( "Pause",          GLFW_KEY_PAUSE );
-	Pair( "Home",           GLFW_KEY_HOME );
-	Pair( "Up",             GLFW_KEY_UP );
-	Pair( "Page Up",        GLFW_KEY_PAGE_UP );
-	Pair( "Left",           GLFW_KEY_LEFT );
-	Pair( "Right",          GLFW_KEY_RIGHT );
-	Pair( "End",            GLFW_KEY_END );
-	Pair( "Down",           GLFW_KEY_DOWN );
-	Pair( "Page Down",      GLFW_KEY_PAGE_DOWN );
-	Pair( "Insert",         GLFW_KEY_INSERT );
-	Pair( "Delete",         GLFW_KEY_DELETE );
-//	Pair( "Left Win",       GLFW_KEY_ );
-//	Pair( "Right Win",      GLFW_KEY_ );
-	Pair( "Menu",           GLFW_KEY_MENU );
-//	Pair( "System Power",   GLFW_KEY_ );
-//	Pair( "System Sleep",   GLFW_KEY_ );
-//	Pair( "System Wake",    GLFW_KEY_ );
-//	Pair( "Web Search",     GLFW_KEY_ );
-//	Pair( "Web Favorites",  GLFW_KEY_ );
-//	Pair( "Web Refresh",    GLFW_KEY_ );
-//	Pair( "Web Stop",       GLFW_KEY_ );
-//	Pair( "Web Forward",    GLFW_KEY_ );
-//	Pair( "Web Back",       GLFW_KEY_ );
-//	Pair( "My Computer",    GLFW_KEY_ );
-//	Pair( "Mail",           GLFW_KEY_ );
-//	Pair( "Media Select",   GLFW_KEY_ );
+	Pair( "Escape",          UI::Key::Escape );
+	Pair( "1",               UI::Key::_1 );
+	Pair( "2",               UI::Key::_2 );
+	Pair( "3",               UI::Key::_3 );
+	Pair( "4",               UI::Key::_4 );
+	Pair( "5",               UI::Key::_5 );
+	Pair( "6",               UI::Key::_6 );
+	Pair( "7",               UI::Key::_7 );
+	Pair( "8",               UI::Key::_8 );
+	Pair( "9",               UI::Key::_9 );
+	Pair( "0",               UI::Key::_0 );
+	Pair( "-",               UI::Key::Minus );
+	Pair( "=",               UI::Key::Equal );
+	Pair( "Backspace",       UI::Key::Backspace );
+	Pair( "Tab",             UI::Key::Tab );
+	Pair( "Q",               UI::Key::Q );
+	Pair( "W",               UI::Key::W );
+	Pair( "E",               UI::Key::E );
+	Pair( "R",               UI::Key::R );
+	Pair( "T",               UI::Key::T );
+	Pair( "Y",               UI::Key::Y );
+	Pair( "U",               UI::Key::U );
+	Pair( "I",               UI::Key::I );
+	Pair( "O",               UI::Key::O );
+	Pair( "P",               UI::Key::P );
+	Pair( "[",               UI::Key::LeftBracket );
+	Pair( "]",               UI::Key::RightBracket );
+	Pair( "Enter",           UI::Key::Enter );
+	Pair( "Left Ctrl",       UI::Key::LeftCtrl );
+	Pair( "A",               UI::Key::A );
+	Pair( "S",               UI::Key::S );
+	Pair( "D",               UI::Key::D );
+	Pair( "F",               UI::Key::F );
+	Pair( "G",               UI::Key::G );
+	Pair( "H",               UI::Key::H );
+	Pair( "J",               UI::Key::J );
+	Pair( "K",               UI::Key::K );
+	Pair( "L",               UI::Key::L );
+	Pair( ";",               UI::Key::Semicolon );
+	Pair( "'",               UI::Key::Apostrophe );
+	Pair( "~",               UI::Key::GraveAccent );
+	Pair( "Left Shift",      UI::Key::LeftShift );
+	Pair( "\\",              UI::Key::Backslash );
+	Pair( "Z",               UI::Key::Z );
+	Pair( "X",               UI::Key::X );
+	Pair( "C",               UI::Key::C );
+	Pair( "V",               UI::Key::V );
+	Pair( "B",               UI::Key::B );
+	Pair( "N",               UI::Key::N );
+	Pair( "M",               UI::Key::M );
+	Pair( ",",               UI::Key::Comma );
+	Pair( ".",               UI::Key::Period );
+	Pair( "/",               UI::Key::Slash );
+	Pair( "Right Shift",     UI::Key::RightShift );
+	Pair( "Numpad *",        UI::Key::NumStar );
+	Pair( "Left Alt",        UI::Key::LeftAlt );
+	Pair( "Space",           UI::Key::Space );
+	Pair( "Caps Lock",       UI::Key::CapsLock );
+	Pair( "F1",              UI::Key::F1 );
+	Pair( "F2",              UI::Key::F2 );
+	Pair( "F3",              UI::Key::F3 );
+	Pair( "F4",              UI::Key::F4 );
+	Pair( "F5",              UI::Key::F5 );
+	Pair( "F6",              UI::Key::F6 );
+	Pair( "F7",              UI::Key::F7 );
+	Pair( "F8",              UI::Key::F8 );
+	Pair( "F9",              UI::Key::F9 );
+	Pair( "F10",             UI::Key::F10 );
+	Pair( "Num Lock",        UI::Key::NumLock );
+	Pair( "Scroll Lock",     UI::Key::ScrollLock );
+	Pair( "Numpad 7",        UI::Key::Num7 );
+	Pair( "Numpad 8",        UI::Key::Num8 );
+	Pair( "Numpad 9",        UI::Key::Num9 );
+	Pair( "Numpad -",        UI::Key::NumMinus );
+	Pair( "Numpad 4",        UI::Key::Num4 );
+	Pair( "Numpad 5",        UI::Key::Num5 );
+	Pair( "Numpad 6",        UI::Key::Num6 );
+	Pair( "Numpad +",        UI::Key::NumPlus );
+	Pair( "Numpad 1",        UI::Key::Num1 );
+	Pair( "Numpad 2",        UI::Key::Num2 );
+	Pair( "Numpad 3",        UI::Key::Num3 );
+	Pair( "Numpad 0",        UI::Key::Num0 );
+	Pair( "Numpad .",        UI::Key::NumPeriod );
+	Pair( "F11",             UI::Key::F11 );
+	Pair( "F12",             UI::Key::F12 );
+	Pair( "Numpad Enter",    UI::Key::NumEnter );
+	Pair( "Right Ctrl",      UI::Key::RightCtrl );
+	Pair( "Numpad /",        UI::Key::NumpadSlash );
+	Pair( "Print Screen",    UI::Key::PrintScreen );
+	Pair( "Right Alt",       UI::Key::RightAlt );
+	Pair( "Pause",           UI::Key::Pause );
+	Pair( "Home",            UI::Key::Home );
+	Pair( "Up",              UI::Key::Up );
+	Pair( "Page Up",         UI::Key::PageUp );
+	Pair( "Left",            UI::Key::Left );
+	Pair( "Right",           UI::Key::Right );
+	Pair( "End",             UI::Key::End );
+	Pair( "Down",            UI::Key::Down );
+	Pair( "Page Down",       UI::Key::PageDown );
+	Pair( "Insert",          UI::Key::Insert );
+	Pair( "Delete",          UI::Key::Delete );
+	Pair( "Menu",            UI::Key::Menu );
+
 
 //	Pair( "Mouse 1",        256 );
 //	Pair( "Mouse 2",        257 );
@@ -165,39 +150,26 @@ KeyMapper::KeyMapper()
 //	Pair( "Mouse Wheel Down", 271 );
 }
 
-void KeyMapper::Pair(const char *name, int code)
+void KeyMapper::Pair(const char *name, UI::Key code)
 {
 	_code2name[code] = name;
 	_name2code[name] = code;
 }
 
-std::string KeyMapper::GetName(int code) const
+const std::string& KeyMapper::GetName(UI::Key code) const
 {
-	std::map<int, std::string>::const_iterator it = _code2name.find(code);
+	auto it = _code2name.find(code);
 	if( _code2name.end() == it )
 	{
-		std::ostringstream buf;
-		buf << '#' << std::setfill('0') << std::setw(3) << code;
-		return buf.str();
+		static std::string unknown("unknown");
+		return unknown;
 	}
 
 	return it->second;
 }
 
-int KeyMapper::GetCode(const std::string &name) const
+UI::Key KeyMapper::GetCode(const std::string &name) const
 {
-	if( '#' == name[0] )
-	{
-        return atoi(name.c_str() + 1);
-	}
-
-	std::map<std::string, int>::const_iterator it = _name2code.find(name);
-	if( _name2code.end() != it )
-	{
-		return it->second;
-	}
-
-	return -1;
+	auto it = _name2code.find(name);
+	return _name2code.end() != it ? it->second : UI::Key::Unknown;
 }
-
-// end of file

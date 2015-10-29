@@ -38,7 +38,7 @@ protected:
 	ComboBox(Window *parent, ListDataSource *dataSource);
 
 	void OnEnabledChange(bool enable, bool inherited);
-	bool OnRawChar(int c);
+	bool OnKeyPressed(Key key);
 	bool OnFocus(bool focus);
 	void OnSize(float width, float height);
 

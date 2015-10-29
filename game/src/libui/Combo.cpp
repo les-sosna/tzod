@@ -1,11 +1,9 @@
-// Combo.cpp
-
 #include "inc/ui/Combo.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
-#include <GLFW/glfw3.h>
+#include "inc/ui/Keys.h"
 
 namespace UI
 {
@@ -116,18 +114,18 @@ void ComboBox::OnEnabledChange(bool enable, bool inherited)
 	SetFrame(enable ? 0 : 3);
 }
 
-bool ComboBox::OnRawChar(int c)
+bool ComboBox::OnKeyPressed(Key key)
 {
-	switch( c )
+	switch( key )
 	{
-	case GLFW_KEY_ESCAPE:
+	case Key::Escape:
 		if( _list->GetVisible() )
 		{
 			GetManager().SetFocusWnd(this);
 			return true;
 		}
 		break;
-	case GLFW_KEY_ENTER:
+	case Key::Enter:
 		if( _list->GetVisible() )
 		{
 			if( -1 != _list->GetCurSel() )
@@ -137,7 +135,7 @@ bool ComboBox::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_DOWN:
+	case Key::Down:
 		if( !_list->GetVisible() )
 			DropList();
 		return true;

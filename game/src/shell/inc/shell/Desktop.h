@@ -52,7 +52,7 @@ public:
 	void OnCloseChild(int result);
 
 protected:
-	virtual bool OnRawChar(int c) override;
+	virtual bool OnKeyPressed(UI::Key key) override;
 	virtual bool OnFocus(bool focus) override;
 	virtual void OnSize(float width, float height) override;
 	virtual void OnTimeStep(float dt) override;

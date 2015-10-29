@@ -4,21 +4,20 @@
 #include <gc/VehicleState.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
+#include <ui/Keys.h>
 #include <ui/UIInput.h>
-#include <GLFW/glfw3.h>
-
 
 Controller::Controller()
-  : _keyForward(0)
-  , _keyBack(0)
-  , _keyLeft(0)
-  , _keyRight(0)
-  , _keyFire(0)
-  , _keyLight(0)
-  , _keyTowerLeft(0)
-  , _keyTowerRight(0)
-  , _keyTowerCenter(0)
-  , _keyPickup(0)
+  : _keyForward(UI::Key::Unknown)
+  , _keyBack(UI::Key::Unknown)
+  , _keyLeft(UI::Key::Unknown)
+  , _keyRight(UI::Key::Unknown)
+  , _keyFire(UI::Key::Unknown)
+  , _keyLight(UI::Key::Unknown)
+  , _keyTowerLeft(UI::Key::Unknown)
+  , _keyTowerRight(UI::Key::Unknown)
+  , _keyTowerCenter(UI::Key::Unknown)
+  , _keyPickup(UI::Key::Unknown)
   , _aimToMouse(false)
   , _moveToMouse(false)
   , _arcadeStyle(false)
@@ -110,10 +109,10 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 
 	if( _moveToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
-		vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(GLFW_MOUSE_BUTTON_MIDDLE);
+		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(1);
+		vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(3);
 
-		if( input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && mouse )
+		if( input.IsMousePressed(2) && mouse )
 		{
 			vec2d tmp = *mouse - vehicle->GetPos() - vehicle->GetBrakingLength();
 			if( tmp.sqr() > 1 )
@@ -140,10 +139,10 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	//
 	if( _aimToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(1);
 		if( !_moveToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT);
+			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(2);
 		}
 
 		if( vehicle->GetWeapon() && mouse )
@@ -166,6 +165,3 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		}
 	}
 }
-
-
-// end of file

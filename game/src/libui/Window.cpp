@@ -497,7 +497,7 @@ bool Window::OnChar(int c)
 	return false;
 }
 
-bool Window::OnRawChar(int c)
+bool Window::OnKeyPressed(Key key)
 {
 	return false;
 }

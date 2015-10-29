@@ -400,7 +400,7 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 	return false;
 }
 
-bool LayoutManager::ProcessKeys(Msg msg, int c)
+bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
 {
 	switch( msg )
 	{
@@ -411,7 +411,7 @@ bool LayoutManager::ProcessKeys(Msg msg, int c)
 		{
 			while( wnd )
 			{
-				if( wnd->OnRawChar(c) )
+				if( wnd->OnKeyPressed(key) )
 				{
 					return true;
 				}
@@ -420,30 +420,33 @@ bool LayoutManager::ProcessKeys(Msg msg, int c)
 		}
 		else
 		{
-			GetDesktop()->OnRawChar(c);
-		}
-		break;
-	case MSGCHAR:
-		if( Window *wnd = GetFocusWnd() )
-		{
-			while( wnd )
-			{
-				if( wnd->OnChar(c) )
-				{
-					return true;
-				}
-				wnd = wnd->GetParent();
-			}
-		}
-		else
-		{
-			GetDesktop()->OnChar(c);
+			GetDesktop()->OnKeyPressed(key);
 		}
 		break;
 	default:
 		assert(false);
 	}
 
+	return false;
+}
+
+bool LayoutManager::ProcessText(int c)
+{
+	if (Window *wnd = GetFocusWnd())
+	{
+		while (wnd)
+		{
+			if (wnd->OnChar(c))
+			{
+				return true;
+			}
+			wnd = wnd->GetParent();
+		}
+	}
+	else
+	{
+		GetDesktop()->OnChar(c);
+	}
 	return false;
 }
 

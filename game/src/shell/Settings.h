@@ -14,6 +14,7 @@ namespace UI
 	class List;
 	class ScrollBarHorizontal;
 	template<class, class> class ListAdapter;
+	enum class Key;
 }
 
 class SettingsDlg : public UI::Dialog
@@ -67,7 +68,7 @@ public:
 
 	// UI::Window
 	bool OnFocus(bool focus) override;
-	bool OnRawChar(int c) override;
+	bool OnKeyPressed(UI::Key key) override;
 	void OnTimeStep(float dt) override;
 
 private:
@@ -86,7 +87,7 @@ private:
 	UI::CheckBox     *_moveToMouseChkBox;
 	UI::CheckBox     *_arcadeStyleChkBox;
 	std::string      _nameOrig;
-	std::vector<int> _keyBindings;
+	std::vector<UI::Key> _keyBindings;
 	ConfControllerProfile _profile;
 	ConfCache &_conf;
 

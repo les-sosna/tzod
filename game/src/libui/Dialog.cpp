@@ -1,8 +1,6 @@
-// Dialog.cpp
-
 #include "inc/ui/Dialog.h"
 #include "inc/ui/GuiManager.h"
-#include <GLFW/glfw3.h>
+#include "inc/ui/Keys.h"
 
 namespace UI
 {
@@ -79,11 +77,11 @@ bool Dialog::OnMouseLeave()
 	return true;
 }
 
-bool Dialog::OnRawChar(int c)
+bool Dialog::OnKeyPressed(Key key)
 {
-	switch( c )
+	switch( key )
 	{
-	case GLFW_KEY_UP:
+	case Key::Up:
 		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to previous siblings
@@ -94,7 +92,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_DOWN:
+	case Key::Down:
 		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to next siblings
@@ -105,7 +103,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_TAB:
+	case Key::Tab:
 		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd() )
 		{
 			// try to pass focus to next siblings ...
@@ -124,7 +122,7 @@ bool Dialog::OnRawChar(int c)
 			}
 		}
 		break;
-	case GLFW_KEY_ESCAPE:
+	case Key::Escape:
 		Close(_resultCancel);
 		break;
 	default:

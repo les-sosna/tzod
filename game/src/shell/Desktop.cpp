@@ -21,6 +21,7 @@
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 
 extern "C"
 {
@@ -29,7 +30,6 @@ extern "C"
 #include <lauxlib.h>
 }
 
-#include <GLFW/glfw3.h>
 #include <functional>
 
 
@@ -300,13 +300,13 @@ void Desktop::ShowMainMenu(bool show)
 	}
 }
 
-bool Desktop::OnRawChar(int c)
+bool Desktop::OnKeyPressed(UI::Key key)
 {
 	UI::Dialog *dlg = nullptr;
 
-	switch( c )
+	switch( key )
 	{
-	case GLFW_KEY_GRAVE_ACCENT: // '~'
+	case UI::Key::GraveAccent: // '~'
 		if( _con->GetVisible() )
 		{
 			_con->SetVisible(false);
@@ -318,7 +318,7 @@ bool Desktop::OnRawChar(int c)
 		}
 		break;
 
-	case GLFW_KEY_ESCAPE:
+	case UI::Key::Escape:
 		if( _con->Contains(GetManager().GetFocusWnd()) )
 		{
 			_con->SetVisible(false);
@@ -329,17 +329,17 @@ bool Desktop::OnRawChar(int c)
 		}
 		break;
 
-	case GLFW_KEY_F2:
+	case UI::Key::F2:
 		OnNewDM();
 		break;
 
-	case GLFW_KEY_F12:
+	case UI::Key::F12:
 		dlg = new SettingsDlg(this, _conf);
         dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
         _nModalPopups++;
 		break;
 
-	case GLFW_KEY_F5:
+	case UI::Key::F5:
         if (0 == _nModalPopups)
             SetEditorMode(!GetEditorMode());
 		break;

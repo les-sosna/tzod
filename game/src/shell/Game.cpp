@@ -13,10 +13,10 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
 
-#include <GLFW/glfw3.h>
 #include <sstream>
 
 TimeElapsed::TimeElapsed(UI::Window *parent, float x, float y, enumAlignText align, World &world)
@@ -84,7 +84,7 @@ GameLayout::~GameLayout()
 
 void GameLayout::OnTimeStep(float dt)
 {
-	bool tab = GetManager().GetInput().IsKeyPressed(GLFW_KEY_TAB);
+	bool tab = GetManager().GetInput().IsKeyPressed(UI::Key::Tab);
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
 	_gameViewHarness.Step(dt);
