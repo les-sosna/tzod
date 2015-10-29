@@ -35,11 +35,14 @@ add_library(shell
 	KeyMapper.cpp
 	MainMenu.cpp
 	MapList.cpp
+	MapSettings.cpp
 	MessageArea.cpp
 	Network.cpp
+	NewMap.cpp
 	Profiler.cpp
 	PropertyList.cpp
 	ScoreTable.cpp
+	ServiceEditor.cpp
 	Settings.cpp
 	Widgets.cpp
 )

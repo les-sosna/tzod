@@ -1,110 +1,24 @@
 #pragma once
-#include <gc/WorldEvents.h>
-#include <ui/Dialog.h>
-#include <ui/List.h>
-#include <memory>
+#include <ui/Window.h>
+#include <functional>
 
 class ConfCache;
+class DefaultCamera;
+class GC_Object;
+class PropertyList;
+class ServiceEditor;
 class World;
 class WorldView;
-class GC_Object;
-class PropertySet;
-class DefaultCamera;
-class ThemeManager;
 struct lua_State;
 
 namespace UI
 {
 	template <class, class> class ListAdapter;
+	class ListDataSourceDefault;
 	class ComboBox;
 	class ConsoleBuffer;
-	class Button;
-	class Edit;
 	class Text;
 }
-
-class NewMapDlg : public UI::Dialog
-{
-	ConfCache &_conf;
-	UI::Edit *_width;
-	UI::Edit *_height;
-
-public:
-	NewMapDlg(Window *parent, ConfCache &conf);
-
-	void OnOK();
-	void OnCancel();
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class ServiceListDataSource
-	: public UI::ListDataSource
-	, public ObjectListener<World>
-{
-public:
-	// ListDataSource implementation
-	virtual void AddListener(UI::ListDataSourceListener *listener);
-	virtual void RemoveListener(UI::ListDataSourceListener *listener);
-	virtual int GetItemCount() const;
-	virtual int GetSubItemCount(int index) const;
-	virtual size_t GetItemData(int index) const;
-	virtual const std::string& GetItemText(int index, int sub) const;
-	virtual int FindItem(const std::string &text) const;
-
-	// ObjectListener<World>
-	virtual void OnGameStarted() override {}
-	virtual void OnGameFinished() override {}
-	virtual void OnNewObject(GC_Object &obj) override;
-	virtual void OnKill(GC_Object &obj) override;
-
-public:
-	ServiceListDataSource(World &world);
-	~ServiceListDataSource();
-
-private:
-	mutable std::string _nameCache;
-	UI::ListDataSourceListener *_listener;
-    World &_world;
-};
-
-// forward declaration
-class EditorLayout;
-
-class ServiceEditor : public UI::Dialog
-{
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-
-    ServiceListDataSource _listData;
-	UI::List *_list;
-	DefaultComboBox *_combo;
-	UI::Text *_labelService;
-	UI::Text *_labelName;
-	UI::Button *_btnCreate;
-
-	float _margins;
-	World &_world;
-	ConfCache &_conf;
-
-public:
-	ServiceEditor(UI::Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf);
-	virtual ~ServiceEditor();
-
-protected:
-	void OnChangeSelectionGlobal(GC_Object *obj);
-
-	void OnCreateService();
-	void OnSelectService(int i);
-	EditorLayout* GetEditorLayout() const;
-
-	virtual void OnSize(float width, float height);
-	virtual bool OnRawChar(int c);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class ConfCache;
-class PropertyList;
 
 class EditorLayout : public UI::Window
 {
@@ -157,23 +71,4 @@ protected:
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
-};
-
-class MapSettingsDlg : public UI::Dialog
-{
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-	DefaultComboBox *_theme;
-	UI::Edit *_author;
-	UI::Edit *_email;
-	UI::Edit *_url;
-	UI::Edit *_desc;
-	UI::Edit *_onInit;
-    World &_world;
-
-public:
-	MapSettingsDlg(UI::Window *parent, World &world, const ThemeManager &themeManager);
-	~MapSettingsDlg();
-
-	void OnOK();
-	void OnCancel();
 };

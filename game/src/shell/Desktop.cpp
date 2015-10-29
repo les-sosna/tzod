@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "gui.h"
 #include "MainMenu.h"
+#include "NewMap.h"
 #include "Settings.h"
 #include "Widgets.h"
 #include "inc/shell/Config.h"
