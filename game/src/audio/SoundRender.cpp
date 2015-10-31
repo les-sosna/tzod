@@ -268,7 +268,7 @@ SoundRender::SoundRender(FS::FileSystem &fs)
 
 SoundRender::~SoundRender()
 {
-	if (_sources.empty())
+	if (!_sources.empty())
 	{
 		alDeleteSources((ALsizei) _sources.size(), &_sources[0]);
 	}

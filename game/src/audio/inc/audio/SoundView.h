@@ -17,8 +17,8 @@ public:
 	void Step();
 
 private:
+    std::unique_ptr<SoundRender> _soundRender;
 	std::unique_ptr<SoundHarness> _soundHarness;
-	std::unique_ptr<SoundRender> _soundRender;
 
 	// AppStateListener
 	virtual void OnGameContextChanging() override;
