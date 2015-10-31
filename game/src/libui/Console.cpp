@@ -18,9 +18,9 @@ ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
 {
 }
 
-void ConsoleHistoryDefault::Enter(const std::string &str)
+void ConsoleHistoryDefault::Enter(std::string str)
 {
-	_buf.push_back(str);
+    _buf.push_back(std::move(str));
 	if( _buf.size() > _maxSize )
 	{
 		_buf.pop_front();

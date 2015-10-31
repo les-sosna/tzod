@@ -285,6 +285,9 @@ bool Edit::OnKeyPressed(Key key)
 		return true;
 	case Key::Space:
 		return true;
+            
+    default:
+        break;
 	}
 	return false;
 }

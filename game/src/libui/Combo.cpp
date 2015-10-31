@@ -139,6 +139,8 @@ bool ComboBox::OnKeyPressed(Key key)
 		if( !_list->GetVisible() )
 			DropList();
 		return true;
+    default:
+        break;
 	}
 	return false;
 }

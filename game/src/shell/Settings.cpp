@@ -218,11 +218,11 @@ static std::string GenerateProfileName(const ConfCache &conf)
 ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName, ConfCache &conf)
   : Dialog(parent, 448, 416)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf))
-  , _profile(&_conf.dm_profiles.GetTable(_nameOrig))
+  , _profile(&conf.dm_profiles.GetTable(_nameOrig))
+  , _conf(conf)
   , _time(0)
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
-  , _conf(conf)
 {
 	SetEasyMove(true);
 

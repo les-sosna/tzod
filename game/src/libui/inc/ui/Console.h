@@ -32,9 +32,9 @@ class ConsoleHistoryDefault : public IConsoleHistory
 public:
 	ConsoleHistoryDefault(size_t maxSize);
 
-	virtual void Enter(const std::string &str);
-	virtual size_t GetItemCount() const;
-	virtual const std::string& GetItem(size_t index) const;
+    void Enter(std::string str) override;
+    size_t GetItemCount() const override;
+    const std::string& GetItem(size_t index) const override;
 
 private:
 	size_t _maxSize;
