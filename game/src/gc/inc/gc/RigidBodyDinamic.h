@@ -69,10 +69,11 @@ public:
 	explicit GC_RigidBodyDynamic(vec2d pos);
 	explicit GC_RigidBodyDynamic(FromFile);
 
-	virtual PropertySet* NewPropertySet();
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	PropertySet* NewPropertySet() override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
+    
 	static void ProcessResponse(World &world, float dt);
 	static void PushState();
 	static void PopState();
