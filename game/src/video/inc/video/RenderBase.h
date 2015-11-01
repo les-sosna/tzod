@@ -69,9 +69,9 @@ class Image
 public:
 	virtual ~Image() {}
 	virtual const void* GetData() const = 0;
-	virtual unsigned long GetBpp() const = 0;
-	virtual unsigned long GetWidth() const = 0;
-	virtual unsigned long GetHeight() const = 0;
+	virtual unsigned int GetBpp() const = 0;
+	virtual unsigned int GetWidth() const = 0;
+	virtual unsigned int GetHeight() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,8 +85,8 @@ struct IRender
 	virtual void SetViewport(const RectRB *rect) = 0;
 	virtual void Camera(const RectRB *vp, float x, float y, float scale) = 0;
 
-    virtual int  GetWidth() const = 0;
-    virtual int  GetHeight() const = 0;
+    virtual int GetWidth() const = 0;
+    virtual int GetHeight() const = 0;
 
 	virtual void SetAmbient(float ambient) = 0;
 	virtual void SetMode (const RenderMode mode) = 0;

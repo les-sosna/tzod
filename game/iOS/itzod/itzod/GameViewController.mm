@@ -132,10 +132,13 @@
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    DrawingContext dc(*_textureManager, view.drawableWidth, view.drawableHeight);
+    int width = static_cast<int>(view.drawableWidth);
+    int height = static_cast<int>(view.drawableHeight);
+    
+    DrawingContext dc(*_textureManager, width, height);
     
     _render->Begin();
-    _gameView->SetCanvasSize(view.drawableWidth, view.drawableHeight);
+    _gameView->SetCanvasSize(width, height);
     _gameView->Render(dc, *_worldView);
     _render->End();
 }

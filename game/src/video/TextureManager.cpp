@@ -21,10 +21,10 @@ class CheckerImage : public Image
 {
 public:
 	// Image methods
-	virtual const void* GetData() const { return _bytes; }
-	virtual unsigned long GetBpp() const { return 24; }
-	virtual unsigned long GetWidth() const { return 4; }
-	virtual unsigned long GetHeight() const { return 4; }
+	virtual const void* GetData() const override { return _bytes; }
+	virtual unsigned int GetBpp() const override { return 24; }
+	virtual unsigned int GetWidth() const override { return 4; }
+	virtual unsigned int GetHeight() const override { return 4; }
 
 private:
 	static const unsigned char _bytes[];

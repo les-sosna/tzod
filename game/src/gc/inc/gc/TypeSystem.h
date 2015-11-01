@@ -138,9 +138,9 @@ public:
 	// access type info
 	//
 
-	int GetTypeCount()
+	unsigned int GetTypeCount()
 	{
-		return _i2t.size();
+		return static_cast<unsigned int>(_i2t.size());
 	}
 	const EdItem& GetTypeInfoByIndex(int typeIndex)
 	{
@@ -150,7 +150,7 @@ public:
 	{
 		return _t2i[type];
 	}
-	ObjectType GetTypeByIndex(int typeIndex)
+	ObjectType GetTypeByIndex(unsigned int typeIndex)
 	{
 		return _i2t[typeIndex];
 	}

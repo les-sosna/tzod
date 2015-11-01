@@ -8,9 +8,9 @@
 
 class TgaImage : public Image
 {
-	unsigned long _height;
-	unsigned long _width;
-	unsigned long _bpp;
+	unsigned int _height;
+	unsigned int _width;
+	unsigned int _bpp;
 	std::vector<char> _data;
 
 public:
@@ -18,10 +18,10 @@ public:
 	virtual ~TgaImage();
 
 	// Image methods
-	const void* GetData() const;
-	unsigned long GetBpp() const;
-	unsigned long GetWidth() const;
-	unsigned long GetHeight() const;
+	const void* GetData() const override;
+	unsigned int GetBpp() const override;
+	unsigned int GetWidth() const override;
+	unsigned int GetHeight() const override;
 };
 
 

@@ -116,17 +116,17 @@ const void* TgaImage::GetData() const
 	return &_data[0];
 }
 
-unsigned long TgaImage::GetBpp() const
+unsigned int TgaImage::GetBpp() const
 {
 	return _bpp;
 }
 
-unsigned long TgaImage::GetWidth() const
+unsigned int TgaImage::GetWidth() const
 {
 	return _width;
 }
 
-unsigned long TgaImage::GetHeight() const
+unsigned int TgaImage::GetHeight() const
 {
 	return _height;
 }

@@ -20,6 +20,6 @@ void R_BrickFragment::Draw(const World &world, const GC_Actor &actor, DrawingCon
 
 	vec2d pos = actor.GetPos();
 	vec2d dir = vec2d((float) (int32_t) rand);
-	size_t frame = (rand + size_t(world.GetTime() * ANIMATION_FPS)) % _tm.GetFrameCount(_texId);
+	unsigned int frame = (rand + static_cast<unsigned int>(world.GetTime() * ANIMATION_FPS)) % _tm.GetFrameCount(_texId);
 	dc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, dir);
 }

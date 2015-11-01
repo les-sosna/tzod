@@ -22,6 +22,6 @@ void R_FireSpark::Draw(const World &world, const GC_Actor &actor, DrawingContext
 	vec2d pos = fire.GetPos();
 	vec2d dir = fire.GetDirection();
 	float size = fire.GetRadius();
-	size_t frame = rand % _tm.GetFrameCount(_texId);
+	unsigned int frame = rand % _tm.GetFrameCount(_texId);
 	dc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, size, size, dir);
 }

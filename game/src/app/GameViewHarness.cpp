@@ -132,7 +132,7 @@ static const Camera* FindMaxShakeCamera(const std::vector<Camera> &cameras)
 
 void GameViewHarness::Step(float dt)
 {
-    size_t camCount = _cameras.size();
+    unsigned int camCount = static_cast<unsigned int>(_cameras.size());
 	for (unsigned int i = 0; i != camCount; ++i)
     {
 		auto &camera = _cameras[i];
