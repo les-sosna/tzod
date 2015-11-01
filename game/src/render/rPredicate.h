@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-	virtual enumZOrder GetZ(const World &world, const GC_Actor &actor) const override
+	enumZOrder GetZ(const World &world, const GC_Actor &actor) const override
 	{
 		return _condition(world, actor) ? _zfunc.GetZ(world, actor) : Z_NONE;
 	}

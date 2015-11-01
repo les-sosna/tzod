@@ -21,7 +21,7 @@ enum TurretState
 
 class GC_Turret : public GC_RigidBodyStatic
 {
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_RigidBodyStatic base;
 
 protected:
@@ -53,13 +53,13 @@ public:
     virtual void SetInitialDir(float initialDir);
 
 	// GC_RigidBodyStatic
-	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
+	void OnDestroy(World &world, const DamageDesc &dd) override;
 
 	// GC_Object
-	virtual void Kill(World &world) override;
-	virtual void MapExchange(MapFile &f) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
-	virtual void TimeStep(World &world, float dt) override;
+	void Kill(World &world) override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -74,7 +74,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
 	void SetState(World &world, TurretState state);
 
@@ -103,18 +103,18 @@ public:
 	virtual ~GC_TurretRocket();
 
 	// GC_Turret
-	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
+    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
 
 	// GC_RigidBodyStatic
-	virtual float GetDefaultHealth() const { return 500; }
-	virtual unsigned char GetPassability() const { return 1; }
+    float GetDefaultHealth() const override { return 500; }
+    unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnShoot(World &world) override;
+    void OnShoot(World &world) override;
 
 private:
 	float _timeReload;
@@ -132,18 +132,18 @@ public:
 	~GC_TurretCannon();
 
 	// GC_Turret
-	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
+    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
 
 	// GC_RigidBodyStatic
-	virtual float GetDefaultHealth() const { return 600; }
-	virtual unsigned char GetPassability() const { return 1; }
+    float GetDefaultHealth() const override { return 600; }
+    unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnShoot(World &world) override;
+    void OnShoot(World &world) override;
 
 private:
 	float _timeReload;
@@ -177,17 +177,17 @@ public:
 	explicit GC_TurretBunker(FromFile);
 	virtual ~GC_TurretBunker();
 
-	virtual float GetReadyState() const { return _time_wake / _time_wake_max; }
+    float GetReadyState() const override { return _time_wake / _time_wake_max; }
 
-    virtual void SetInitialDir(float initialDir);
+    void SetInitialDir(float initialDir) override;
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(MapFile &f);
+    void Serialize(World &world, SaveFile &f) override;
+    void MapExchange(MapFile &f) override;
 
 protected:
-	virtual void ProcessState(World &world, float dt) override;
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
+    void ProcessState(World &world, float dt) override;
+    void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -202,18 +202,18 @@ public:
 	virtual ~GC_TurretMinigun();
 
 	// GC_Turret
-	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual unsigned char GetPassability() const { return 1; }
+    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+    unsigned char GetPassability() const override { return 1; }
 
 	// GC_RigidBodyStatic
-	virtual float GetDefaultHealth() const { return 250; }
+    float GetDefaultHealth() const override { return 250; }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnShoot(World &world) override;
+    void OnShoot(World &world) override;
 
 private:
 	float _time;
@@ -231,19 +231,19 @@ public:
 	virtual ~GC_TurretGauss();
 
 	// GC_Turret
-	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake);
-	virtual void TargetLost();
+    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+    void TargetLost() override;
 
 	// GC_RigidBodyStatic
-	virtual float GetDefaultHealth() const { return 250; }
-	virtual unsigned char GetPassability() const { return 1; }
+    float GetDefaultHealth() const override { return 250; }
+    unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnShoot(World &world) override;
+    void OnShoot(World &world) override;
 
 private:
 	float   _time;

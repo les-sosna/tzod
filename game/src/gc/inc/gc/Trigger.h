@@ -13,7 +13,7 @@ class GC_Vehicle;
 class GC_Trigger : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -35,7 +35,7 @@ class GC_Trigger : public GC_Actor
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 
-	virtual PropertySet* NewPropertySet();
+	PropertySet* NewPropertySet() override;
 
 	float    _radius;
 	float    _radiusDelta;
@@ -57,9 +57,9 @@ public:
 	const std::string& GetOnLeave() const { return _onLeave; }
 
 	// GC_Object
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 };
 
 // end of file

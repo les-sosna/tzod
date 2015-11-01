@@ -14,7 +14,7 @@ class GC_Vehicle;
 class GC_Player : public GC_Service
 {
     DECLARE_SELF_REGISTRATION(GC_Player);
-	DECLARE_LIST_MEMBER();
+	DECLARE_LIST_MEMBER(override);
     typedef GC_Service base;
 
 public:
@@ -45,10 +45,10 @@ public:
 	bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
 
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(MapFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
+    void MapExchange(MapFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -70,7 +70,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
 private:
 	float     _timeRespawn;

@@ -15,6 +15,6 @@ private:
 	lua_State *_L;
 
 	// ObjectListener<GC_Trigger>
-	virtual void OnEnter(GC_Trigger &obj, GC_Vehicle &vehicle) override;
-	virtual void OnLeave(GC_Trigger &obj) override;
+	void OnEnter(GC_Trigger &obj, GC_Vehicle &vehicle) override;
+	void OnLeave(GC_Trigger &obj) override;
 };

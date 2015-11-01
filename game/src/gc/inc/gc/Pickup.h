@@ -53,7 +53,7 @@ class GC_RigidBodyStatic;
 
 class GC_Pickup : public GC_Actor
 {
-	DECLARE_LIST_MEMBER();
+	DECLARE_LIST_MEMBER(override);
 	DECLARE_GRID_MEMBER();
     typedef GC_Actor base;
 
@@ -92,11 +92,11 @@ public:
 	virtual float GetDefaultRespawnTime() const = 0;
 
 	// GC_Object
-	virtual void Init(World &world);
-	virtual void Kill(World &world);
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Init(World &world) override;
+    void Kill(World &world) override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -121,7 +121,7 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
 private:
 	ObjPtr<GC_HideLabel>  _label;
@@ -144,12 +144,12 @@ public:
 	GC_pu_Health(FromFile);
 
 	// GC_Pickup
-	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
-	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
+	float GetDefaultRespawnTime() const override { return 15.0f; }
+	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+	void OnAttached(World &world, GC_Vehicle &vehicle) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -162,11 +162,11 @@ public:
 	GC_pu_Mine(vec2d pos);
 	GC_pu_Mine(FromFile);
 
-	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	float GetDefaultRespawnTime() const override { return 15.0f; }
+	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+	void OnAttached(World &world, GC_Vehicle &vehicle) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,16 +185,16 @@ public:
 	virtual ~GC_pu_Shield();
 
 	// GC_Pickup
-	virtual void Detach(World &world);
-	virtual float GetDefaultRespawnTime() const { return 30.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const;
+    void Detach(World &world) override;
+    float GetDefaultRespawnTime() const override { return 30.0f; }
+    AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle);
+    void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	float _timeHit;
@@ -211,7 +211,7 @@ private:
 class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Pickup base;
 
 public:
@@ -222,18 +222,18 @@ public:
 	vec2d GetTargetPos() const { return _targetPos; }
 
 	// GC_Pickup
-	virtual void Detach(World &world) override;
-	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
-	virtual float GetDefaultRespawnTime() const override { return 15.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+    void Detach(World &world) override;
+    bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
+    float GetDefaultRespawnTime() const override { return 15.0f; }
+    AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 	// GC_Object
-	virtual void Kill(World &world) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
-	virtual void TimeStep(World &world, float dt) override;
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+    void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	ObjPtr<GC_Light> _light;
@@ -257,17 +257,17 @@ public:
 	virtual ~GC_pu_Booster();
 
 	// GC_Pickup
-	virtual void Detach(World &world) override;
-	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
-	virtual float GetDefaultRespawnTime() const override { return 30.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+    void Detach(World &world) override;
+    bool GetAutoSwitch(const GC_Vehicle &vehicle) const override;
+    float GetDefaultRespawnTime() const override { return 30.0f; }
+    AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 protected:
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+    void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	ObjPtr<GC_Weapon> _weapon;

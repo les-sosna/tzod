@@ -22,10 +22,10 @@ enum GlobalListID
 };
 
 
-#define DECLARE_LIST_MEMBER()                                           \
+#define DECLARE_LIST_MEMBER(OVERRIDE)                                   \
 protected:                                                              \
-    virtual PtrList<GC_Object>::id_type Register(World &world);         \
-    virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos); \
+    virtual PtrList<GC_Object>::id_type Register(World &world) OVERRIDE;\
+    virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos) OVERRIDE; \
 private:                                                                \
     friend class World;                                                 \
 	friend class RTTypes

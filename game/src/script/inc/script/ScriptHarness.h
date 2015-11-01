@@ -37,8 +37,8 @@ private:
 	sTrigger _sTrigger;
 
 	// ObjectListener<World>
-	virtual void OnGameStarted() override;
-	virtual void OnGameFinished() override {}
-	virtual void OnKill(GC_Object &) override {}
-	virtual void OnNewObject(GC_Object &) override {}
+	void OnGameStarted() override;
+	void OnGameFinished() override {}
+	void OnKill(GC_Object &) override {}
+	void OnNewObject(GC_Object &) override {}
 };

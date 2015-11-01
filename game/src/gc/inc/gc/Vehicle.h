@@ -15,7 +15,7 @@ struct VehicleClass;
 
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_RigidBodyDynamic base;
 
 public:
@@ -61,17 +61,17 @@ public:
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-	virtual unsigned char GetPassability() const { return 0; } // not an obstacle
-	virtual GC_Player* GetOwner() const { return _player; }
+    unsigned char GetPassability() const override { return 0; } // not an obstacle
+    GC_Player* GetOwner() const override { return _player; }
 
 	// GC_Actor
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+    void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-	virtual void Init(World &world);
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Init(World &world) override;
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -82,8 +82,8 @@ public:
 #endif
 
 protected:
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
-	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
+	void OnDamage(World &world, DamageDesc &dd) override;
+	void OnDestroy(World &world, const DamageDesc &dd) override;
 
 private:
 	ObjPtr<GC_Weapon> _weapon;
@@ -104,8 +104,8 @@ public:
 	explicit GC_Tank_Light(vec2d pos);
 	explicit GC_Tank_Light(FromFile);
 
-	virtual float GetDefaultHealth() const { return 100; }
-	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
+    float GetDefaultHealth() const override { return 100; }
+    void OnDestroy(World &world, const DamageDesc &dd) override;
 };
 
 // end of file

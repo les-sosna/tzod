@@ -11,11 +11,11 @@ namespace app_detail
     {
     public:
         // ScriptMessageSink
-        virtual void ScriptMessage(const char *message) override;
+        void ScriptMessage(const char *message) override;
 
         // ScriptMessageSource
-        virtual void AddListener(ScriptMessageSink &listener) override;
-        virtual void RemoveListener(ScriptMessageSink &listener) override;
+        void AddListener(ScriptMessageSink &listener) override;
+        void RemoveListener(ScriptMessageSink &listener) override;
 
     private:
         std::vector<ScriptMessageSink*> _listeners;

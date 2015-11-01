@@ -52,10 +52,10 @@ public:
 	void OnCloseChild(int result);
 
 protected:
-	virtual bool OnKeyPressed(UI::Key key) override;
-	virtual bool OnFocus(bool focus) override;
-	virtual void OnSize(float width, float height) override;
-	virtual void OnTimeStep(float dt) override;
+	bool OnKeyPressed(UI::Key key) override;
+	bool OnFocus(bool focus) override;
+	void OnSize(float width, float height) override;
+	void OnTimeStep(float dt) override;
 
 private:
 	ConfigConsoleHistory  _history;
@@ -94,6 +94,6 @@ private:
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
 
 	// AppStateListener
-	virtual void OnGameContextChanging() override;
-	virtual void OnGameContextChanged() override;
+	void OnGameContextChanging() override;
+	void OnGameContextChanged() override;
 };

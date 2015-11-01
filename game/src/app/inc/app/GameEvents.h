@@ -20,11 +20,11 @@ public:
 	~GameEventsBroadcaster();
 
 	// GameEventSource
-	virtual void AddListener(GameListener &ls) override;
-	virtual void RemoveListener(GameListener &ls) override;
+	void AddListener(GameListener &ls) override;
+	void RemoveListener(GameListener &ls) override;
 
 	// GameListener
-	virtual void OnGameMessage(const char *msg) override;
+	void OnGameMessage(const char *msg) override;
 
 private:
 	std::unordered_set<GameListener*> _listeners;

@@ -9,7 +9,7 @@ class GC_Player;
 class GC_HealthDaemon : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 public:
@@ -19,8 +19,8 @@ public:
 
     void SetVictim(World &world, GC_RigidBodyStatic *victim);
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 private:
 	float _time;
@@ -67,14 +67,14 @@ public:
 	void SetTile(char nTile, bool value);
 
     // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos) override;
+    void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware
-	virtual int GetNeighbors() const override { return _tile; }
+    int GetNeighbors() const override { return _tile; }
 
 	// GC_Object
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ public:
 	Style GetStyle() const { return _style; }
 	const std::string& GetText() const { return _text; }
 
-	virtual void Serialize(World &world, SaveFile &f);
+    void Serialize(World &world, SaveFile &f) override;
 
 private:
 	Style               _style;
@@ -110,15 +110,15 @@ private:
 class GC_Text_ToolTip : public GC_Text
 {
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Text base;
 
 public:
 	GC_Text_ToolTip(vec2d pos, std::string text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 
 private:
     float  _time;

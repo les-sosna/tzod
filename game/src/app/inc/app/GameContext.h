@@ -57,8 +57,8 @@ public:
 	void Deserialize(FS::Stream &stream);
 
 	// GameContextBase
-	virtual World& GetWorld() override { return *_world; }
-	virtual void Step(float dt) override;
+	World& GetWorld() override { return *_world; }
+	void Step(float dt) override;
 
 private:
 	GameEventsBroadcaster _gameEventsBroadcaster;

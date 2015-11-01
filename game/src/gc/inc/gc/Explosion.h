@@ -63,8 +63,8 @@ public:
 	void SetTimeout(World &world, float timeout);
 
 	// GC_Object
-	virtual void Resume(World &world) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
+	void Resume(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
 };
 
 class GC_ExplosionBig : public GC_Explosion
@@ -75,7 +75,7 @@ public:
 	GC_ExplosionBig(FromFile);
 
 	// GC_Object
-	virtual void Init(World &world) override;
+	void Init(World &world) override;
 };
 
 class GC_ExplosionStandard : public GC_Explosion
@@ -86,5 +86,5 @@ public:
 	GC_ExplosionStandard(FromFile);
 
 	// GC_Object
-	virtual void Init(World &world) override;
+	void Init(World &world) override;
 };

@@ -12,9 +12,9 @@ public:
 	GlfwInput(GLFWwindow &window);
 
 	// UI::IInput
-	virtual bool IsKeyPressed(UI::Key key) const override;
-	virtual bool IsMousePressed(int button) const override;
-	virtual vec2d GetMousePos() const override;
+	bool IsKeyPressed(UI::Key key) const override;
+	bool IsMousePressed(int button) const override;
+	vec2d GetMousePos() const override;
 
 private:
 	GLFWwindow &_window;
@@ -26,8 +26,8 @@ public:
 	GlfwClipboard(GLFWwindow &window);
 
 	// UI::IClipboard
-	virtual const char* GetClipboardText() const override;
-	virtual void SetClipboardText(std::string text) override;
+	const char* GetClipboardText() const override;
+	void SetClipboardText(std::string text) override;
 
 private:
 	GLFWwindow &_window;

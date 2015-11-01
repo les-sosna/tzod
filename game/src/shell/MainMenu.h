@@ -84,12 +84,12 @@ public:
 	            UI::ConsoleBuffer &logger,
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();
-	virtual void OnParentSize(float width, float height) override;
-	virtual bool OnKeyPressed(UI::Key key) override;
-	virtual bool OnFocus(bool) override { return true; }
+	void OnParentSize(float width, float height) override;
+	bool OnKeyPressed(UI::Key key) override;
+	bool OnFocus(bool) override { return true; }
 
 protected:
-	void OnTimeStep(float dt);
+	void OnTimeStep(float dt) override;
 	void OnCloseChild(int result);
 	void CreatePanel(); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);

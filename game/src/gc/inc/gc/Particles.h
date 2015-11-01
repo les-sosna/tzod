@@ -4,7 +4,7 @@
 class GC_BrickFragment : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 private:
@@ -19,8 +19,8 @@ public:
 	GC_BrickFragment(vec2d pos, vec2d v0);
 	GC_BrickFragment(FromFile);
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ enum ParticleType
 class GC_Particle : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 public:
@@ -89,8 +89,8 @@ public:
 	void SetSizeOverride(float size) { _sizeOverride = size; }
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -40,8 +40,8 @@ private:
 
 #define DECLARE_GRID_MEMBER()                                               \
 protected:                                                                  \
-    virtual void EnterContexts(World &world) override;                      \
-    virtual void LeaveContexts(World &world) override;                      \
+    void EnterContexts(World &world) override;                              \
+    void LeaveContexts(World &world) override;                              \
 private:
 
 #define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \

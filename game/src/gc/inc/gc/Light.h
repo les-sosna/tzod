@@ -9,7 +9,7 @@
 class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 public:
@@ -98,8 +98,8 @@ public:
 	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-	virtual void Resume(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    void Resume(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -117,13 +117,13 @@ public:
 	virtual ~GC_Spotlight();
 
 	// GC_Actor
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+    void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-	virtual void Init(World &world) override;
-	virtual void Kill(World &world) override;
-	virtual void MapExchange(MapFile &f) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
+    void Init(World &world) override;
+    void Kill(World &world) override;
+    void MapExchange(MapFile &f) override;
+    void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -137,7 +137,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
 private:
 	ObjPtr<GC_Light> _light;

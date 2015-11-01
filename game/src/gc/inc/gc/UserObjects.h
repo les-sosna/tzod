@@ -20,7 +20,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+	PropertySet* NewPropertySet() override;
 
 public:
 	explicit GC_UserObject(vec2d pos);
@@ -32,13 +32,13 @@ public:
 	void SetTextureName(std::string name) { _textureName.swap(name); }
 	const std::string& GetTextureName() const { return _textureName; }
 
-	virtual unsigned char GetPassability() const { return 1; }
-	virtual float GetDefaultHealth() const { return 500; }
+	unsigned char GetPassability() const override { return 1; }
+	float GetDefaultHealth() const override { return 500; }
 
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void OnDestroy(World &world, const DamageDesc &dd);
+	void Serialize(World &world, SaveFile &f) override;
+	void OnDestroy(World &world, const DamageDesc &dd) override;
 
-	virtual void MapExchange(MapFile &f);
+	void MapExchange(MapFile &f) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+	PropertySet* NewPropertySet() override;
 
 public:
 	explicit GC_Decoration(vec2d pos);
@@ -80,9 +80,9 @@ public:
 	const std::string& GetTextureName() const { return _textureName; }
 
 	// GC_Object
-	virtual void MapExchange(MapFile &f);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 };
 
 

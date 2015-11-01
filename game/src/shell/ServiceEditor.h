@@ -19,19 +19,19 @@ class ServiceListDataSource
 {
 public:
 	// UI::ListDataSource
-	virtual void AddListener(UI::ListDataSourceListener *listener);
-	virtual void RemoveListener(UI::ListDataSourceListener *listener);
-	virtual int GetItemCount() const;
-	virtual int GetSubItemCount(int index) const;
-	virtual size_t GetItemData(int index) const;
-	virtual const std::string& GetItemText(int index, int sub) const;
-	virtual int FindItem(const std::string &text) const;
+	void AddListener(UI::ListDataSourceListener *listener) override;
+	void RemoveListener(UI::ListDataSourceListener *listener) override;
+	int GetItemCount() const override;
+	int GetSubItemCount(int index) const override;
+	size_t GetItemData(int index) const override;
+	const std::string& GetItemText(int index, int sub) const override;
+	int FindItem(const std::string &text) const override;
 
 	// ObjectListener<World>
-	virtual void OnGameStarted() override {}
-	virtual void OnGameFinished() override {}
-	virtual void OnNewObject(GC_Object &obj) override;
-	virtual void OnKill(GC_Object &obj) override;
+	void OnGameStarted() override {}
+	void OnGameFinished() override {}
+	void OnNewObject(GC_Object &obj) override;
+	void OnKill(GC_Object &obj) override;
 
 public:
 	ServiceListDataSource(World &world);

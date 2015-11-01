@@ -30,13 +30,13 @@ private:
 	World &_world;
 
 	// ObjectListener<GC_Player>
-	virtual void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) override;
-	virtual void OnDie(GC_Player &obj) override;
+	void OnRespawn(GC_Player &obj, GC_Vehicle &vehicle) override;
+	void OnDie(GC_Player &obj) override;
 
 	// ObjectListener<World>
-	virtual void OnKill(GC_Object &obj) override;
-	virtual void OnNewObject(GC_Object &) override {}
-	virtual void OnGameStarted() override {}
-	virtual void OnGameFinished() override {}
+	void OnKill(GC_Object &obj) override;
+	void OnNewObject(GC_Object &) override {}
+	void OnGameStarted() override {}
+	void OnGameFinished() override {}
 };
 

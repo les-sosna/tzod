@@ -89,7 +89,7 @@ namespace
 		}
 
 		// IConsoleLog
-		virtual void WriteLine(int severity, const std::string &str) override final
+		void WriteLine(int severity, const std::string &str) override final
 		{
 			if( _file )
 			{
@@ -99,7 +99,7 @@ namespace
 			}
 			puts(str.c_str());
 		}
-		virtual void Release() override final
+		void Release() override final
 		{
 			delete this;
 		}

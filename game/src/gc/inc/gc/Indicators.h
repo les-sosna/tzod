@@ -7,7 +7,7 @@ class GC_Vehicle;
 class GC_SpawnPoint : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_Actor base;
 
 public:
@@ -25,7 +25,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
 
 public:
@@ -33,8 +33,8 @@ public:
 	explicit GC_SpawnPoint(FromFile);
 
 	// GC_Object
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void MapExchange(MapFile &f);
+    void Serialize(World &world, SaveFile &f) override;
+    void MapExchange(MapFile &f) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

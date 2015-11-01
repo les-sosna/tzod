@@ -31,41 +31,37 @@ class RenderGLES2 : public IRender
 
 public:
 	RenderGLES2();
-	virtual ~RenderGLES2() override;
+	~RenderGLES2() override;
 
 private:
 	void Flush();
+    int GetViewportWidth() const;
+    int GetViewportHeight() const;
+    
+    
+    // IRender
+	void OnResizeWnd(unsigned int width, unsigned int height) override;
 
-	virtual void OnResizeWnd(unsigned int width, unsigned int height);
+	void SetViewport(const RectRB *rect) override;
+	void SetScissor(const RectRB *rect) override;
+	void Camera(const RectRB *vp, float x, float y, float scale) override;
 
-	virtual void SetViewport(const RectRB *rect);
-	virtual void SetScissor(const RectRB *rect);
-	virtual void Camera(const RectRB *vp, float x, float y, float scale);
+	int GetWidth() const override;
+	int GetHeight() const override;
 
-	virtual int  GetWidth() const;
-	virtual int  GetHeight() const;
+	void Begin(void) override;
+	void End(void) override;
+	void SetMode (const RenderMode mode) override;
 
-	virtual int  GetViewportWidth() const;
-	virtual int  GetViewportHeight() const;
+	void SetAmbient(float ambient) override;
 
-	virtual void Begin(void);
-	virtual void End(void);
-	virtual void SetMode (const RenderMode mode);
+	bool TexCreate(DEV_TEXTURE &tex, const Image &img) override;
+	void TexFree(DEV_TEXTURE tex) override;
 
-	virtual void SetAmbient(float ambient);
+	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
+	MyVertex* DrawFan(unsigned int nEdges) override;
 
-
-	//
-	// texture management
-	//
-
-	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img);
-	virtual void TexFree(DEV_TEXTURE tex);
-
-	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
-	virtual MyVertex* DrawFan(unsigned int nEdges);
-
-	virtual void DrawLines(const MyLine *lines, size_t count);
+	void DrawLines(const MyLine *lines, size_t count) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

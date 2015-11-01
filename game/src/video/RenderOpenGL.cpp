@@ -48,44 +48,44 @@ class RenderOpenGL : public IRender
 
 public:
 	RenderOpenGL();
-	virtual ~RenderOpenGL() override;
+	~RenderOpenGL() override;
 
 private:
 	static void _ss_thread(_asyncinfo *lpInfo);
 
 	void Flush();
 
-	virtual void OnResizeWnd(unsigned int width, unsigned int height);
+	void OnResizeWnd(unsigned int width, unsigned int height) override;
 
-	virtual void SetViewport(const RectRB *rect);
-	virtual void SetScissor(const RectRB *rect);
-	virtual void Camera(const RectRB *vp, float x, float y, float scale);
+	void SetViewport(const RectRB *rect) override;
+	void SetScissor(const RectRB *rect) override;
+	void Camera(const RectRB *vp, float x, float y, float scale) override;
 
-	virtual int  GetWidth() const;
-	virtual int  GetHeight() const;
+	int  GetWidth() const override;
+	int  GetHeight() const override;
 
 	virtual int  GetViewportWidth() const;
 	virtual int  GetViewportHeight() const;
 
-	virtual void Begin(void);
-	virtual void End(void);
-	virtual void SetMode (const RenderMode mode);
+	void Begin(void) override;
+	void End(void) override;
+	void SetMode (const RenderMode mode) override;
 
 	virtual bool TakeScreenshot(char *fileName);
-	virtual void SetAmbient(float ambient);
+	void SetAmbient(float ambient) override;
 
 
 	//
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img);
-	virtual void TexFree(DEV_TEXTURE tex);
+	bool TexCreate(DEV_TEXTURE &tex, const Image &img) override;
+	void TexFree(DEV_TEXTURE tex) override;
 
-	virtual MyVertex* DrawQuad(DEV_TEXTURE tex);
-	virtual MyVertex* DrawFan(unsigned int nEdges);
+	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
+	MyVertex* DrawFan(unsigned int nEdges) override;
 
-	virtual void DrawLines(const MyLine *lines, size_t count);
+	void DrawLines(const MyLine *lines, size_t count) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

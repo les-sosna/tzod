@@ -30,12 +30,12 @@ public:
 		alDeleteSources(1, &_source);
 	}
 
-	virtual void SetPos(vec2d pos) override
+	void SetPos(vec2d pos) override
 	{
 		alSource3f(_source, AL_POSITION, pos.x, pos.y, 0.0f);
 	}
 	
-	virtual void SetPlaying(bool playing) override
+	void SetPlaying(bool playing) override
 	{
 		if (playing)
 		{
@@ -50,12 +50,12 @@ public:
 		}
 	}
 	
-	virtual void SetVolume(float volume) override
+	void SetVolume(float volume) override
 	{
 		alSourcef(_source, AL_GAIN, volume);
 	}
 	
-	virtual void SetPitch(float pitch) override
+	void SetPitch(float pitch) override
 	{
 		alSourcef(_source, AL_PITCH, pitch /* * g_conf.sv_speed.GetFloat() * 0.01f*/);
 	}

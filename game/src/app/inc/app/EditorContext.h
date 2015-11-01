@@ -17,8 +17,8 @@ public:
 	virtual ~EditorContext();
 
 	// GameContextBase
-	virtual World& GetWorld() override { return *_world; }
-	virtual void Step(float dt) override;
+	World& GetWorld() override { return *_world; }
+	void Step(float dt) override;
 
 private:
 	std::unique_ptr<World> _world;

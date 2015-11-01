@@ -10,7 +10,7 @@ public:
 	R_WeaponMinigun(TextureManager &tm);
 
 	// ObjectView
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 
 private:
 	size_t _texId1;
@@ -21,7 +21,7 @@ class R_Crosshair2 : public ObjectRFunc
 {
 public:
 	R_Crosshair2(TextureManager &tm);
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 
 private:
 	size_t _texId;

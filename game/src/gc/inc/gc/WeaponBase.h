@@ -40,19 +40,19 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
 
 	// GC_Pickup
-	virtual void Detach(World &world) override;
-	virtual void Disappear(World &world) override;
-	virtual bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
-	virtual float GetDefaultRespawnTime() const override { return 6.0f; }
-	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+    void Detach(World &world) override;
+    void Disappear(World &world) override;
+    bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
+    float GetDefaultRespawnTime() const override { return 6.0f; }
+    AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 	// GC_Actor
-	virtual void MoveTo(World &world, const vec2d &pos) override;
+    void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-	virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
+    void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 /*	virtual DWORD checksum(void) const
 	{
@@ -75,8 +75,8 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+    PropertySet* NewPropertySet() override;
+    void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	float _detachedTime = -FLT_MAX;
@@ -115,20 +115,20 @@ public:
 	virtual float GetSeriesReloadTime() const { return 0; }
 
 	// GC_Weapon
-	virtual void Fire(World &world, bool fire);
+    void Fire(World &world, bool fire) override;
 
 	// GC_Pickup
-	virtual void Detach(World &world) override;
+    void Detach(World &world) override;
 
 	// GC_Object
-	virtual void Resume(World &world) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
+    void Resume(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	void SetLastShotPos(vec2d lastShotPos) { _lastShotPos = lastShotPos; }
 	void ResetSeries();
 
-	virtual void OnAttached(World &world, GC_Vehicle &vehicle) override;
+    void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	ObjPtr<GC_Light> _fireLight;
@@ -137,6 +137,6 @@ private:
 	unsigned int _numShots;
 	ResumableObject *_firing;
 
-	virtual void OnUpdateView(World &world) override;
+    void OnUpdateView(World &world) override;
 	virtual void OnShoot(World &world) = 0;
 };

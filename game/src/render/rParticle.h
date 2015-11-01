@@ -9,7 +9,7 @@ class R_Particle : public ObjectRFunc
 {
 public:
 	R_Particle(TextureManager &tm);
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
 
 private:
 	TextureManager &_tm;

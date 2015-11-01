@@ -21,6 +21,6 @@ private:
 	std::unique_ptr<SoundHarness> _soundHarness;
 
 	// AppStateListener
-	virtual void OnGameContextChanging() override;
-	virtual void OnGameContextChanged() override;
+	void OnGameContextChanging() override;
+	void OnGameContextChanged() override;
 };

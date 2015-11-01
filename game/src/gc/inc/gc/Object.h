@@ -29,7 +29,7 @@ typedef unsigned int ObjectType;
         {                                       \
             return _sType;                      \
         }                                       \
-        virtual ObjectType GetType() const      \
+        ObjectType GetType() const override     \
         {                                       \
             return _sType;                      \
         }                                       \

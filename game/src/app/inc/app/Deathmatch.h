@@ -25,9 +25,9 @@ public:
 
 	// Gameplay
 	virtual ~Deathmatch();
-	virtual void Step() override;
-	virtual bool IsGameOver() override;
-	virtual void Serialize(SaveFile &f) override;
+	void Step() override;
+	bool IsGameOver() override;
+	void Serialize(SaveFile &f) override;
 
 private:
 	World &_world;
@@ -36,6 +36,6 @@ private:
 	float _timeLimit;
 
 	// ObjectListener<GC_RigidBodyStatic>
-	virtual void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
-	virtual void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override {}
+	void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
+	void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override {}
 };

@@ -46,10 +46,10 @@ public:
 	virtual ~GameLayout();
 
 	// Window
-	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
-	virtual void OnSize(float width, float height);
-	virtual bool OnFocus(bool focus) { return true; }
+	void OnTimeStep(float dt) override;
+	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
+	void OnSize(float width, float height) override;
+	bool OnFocus(bool focus) override { return true; }
 
 private:
 	void OnChangeShowTime();

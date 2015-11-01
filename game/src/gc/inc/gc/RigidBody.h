@@ -56,13 +56,13 @@ public:
 	virtual GC_Player* GetOwner() const { return nullptr; }
 
     // GC_Actor
-    virtual void MoveTo(World &world, const vec2d &pos);
+    void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-	virtual void Init(World &world) override;
-    virtual void Kill(World &world) override;
-	virtual void MapExchange(MapFile &f) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
+    void Init(World &world) override;
+    void Kill(World &world) override;
+    void MapExchange(MapFile &f) override;
+    void Serialize(World &world, SaveFile &f) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -87,7 +87,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 	virtual void OnDestroy(World &world, const DamageDesc &dd);
 	virtual void OnDamage(World &world, DamageDesc &damageDesc);
 
@@ -135,16 +135,16 @@ public:
 	int GetStyle() const;
 
 	// GC_RigidBodyStatic
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit);
-	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth);
-	virtual float GetDefaultHealth() const { return 50; }
-	virtual unsigned char GetPassability() const { return 1; }
+    bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) override;
+    bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) override;
+    float GetDefaultHealth() const override { return 50; }
+    unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-	virtual void Init(World &world) override;
-    virtual void Kill(World &world) override;
-	virtual void MapExchange(MapFile &f) override;
-	virtual void Serialize(World &world, SaveFile &f) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
@@ -158,10 +158,10 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-	virtual PropertySet* NewPropertySet();
+    PropertySet* NewPropertySet() override;
 
-	virtual void OnDestroy(World &world, const DamageDesc &dd) override;
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
+	void OnDestroy(World &world, const DamageDesc &dd) override;
+	void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -174,10 +174,10 @@ public:
 	GC_Wall_Concrete(vec2d pos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
-	virtual unsigned char GetPassability() const { return 0xFF; } // impassable
+    unsigned char GetPassability() const override { return 0xFF; } // impassable
 
 protected:
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
+	void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////
@@ -215,18 +215,18 @@ public:
 
 	void SetTile(char nTile, bool value);
 
-    virtual void MoveTo(World &world, const vec2d &pos) override;
-    virtual void Kill(World &world);
-	virtual void Serialize(World &world, SaveFile &f);
+    void MoveTo(World &world, const vec2d &pos) override;
+    void Kill(World &world) override;
+    void Serialize(World &world, SaveFile &f) override;
 
 	// GI_NeighborAware
-	virtual int GetNeighbors() const override { return _tile; }
+    int GetNeighbors() const override { return _tile; }
 
-	virtual unsigned char GetPassability() const { return 0xFF; }  // impassable
-	virtual float GetDefaultHealth() const { return 0; }
+    unsigned char GetPassability() const override { return 0xFF; }  // impassable
+    float GetDefaultHealth() const override { return 0; }
 
 protected:
-	virtual void OnDamage(World &world, DamageDesc &dd) override;
+    void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
