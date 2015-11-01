@@ -18,7 +18,7 @@ EditorContext::EditorContext(FS::Stream &stream)
 	_world->Import(mf);
 }
 
-EditorContext::EditorContext(float width, float height)
+EditorContext::EditorContext(int width, int height)
 	: _world(new World(width, height))
 {
 }

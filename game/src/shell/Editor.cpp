@@ -98,7 +98,7 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 
 				if( Z_NONE != maxZ )
 				{
-					for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+					for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 					{
 						if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
 							&& (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
@@ -151,7 +151,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 
 	_typeList = DefaultComboBox::Create(this);
 	_typeList->Resize(256);
-	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;

@@ -174,7 +174,7 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 	//
 
 	lua_newtable(L);
-	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		lua_newtable(L);
 		lua_setfield(L, -2, RTTypes::Inst().GetTypeInfoByIndex(i).name);

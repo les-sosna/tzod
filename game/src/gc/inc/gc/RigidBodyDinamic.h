@@ -10,7 +10,7 @@
 
 class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
-    DECLARE_LIST_MEMBER();
+    DECLARE_LIST_MEMBER(override);
     typedef GC_RigidBodyStatic base;
 
 	struct Contact

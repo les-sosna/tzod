@@ -142,7 +142,7 @@ public:
 	{
 		return static_cast<unsigned int>(_i2t.size());
 	}
-	const EdItem& GetTypeInfoByIndex(int typeIndex)
+	const EdItem& GetTypeInfoByIndex(unsigned int typeIndex)
 	{
 		return _t2i[_i2t[typeIndex]];
 	}

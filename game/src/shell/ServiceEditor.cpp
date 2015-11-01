@@ -130,7 +130,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 
 	_combo = DefaultComboBox::Create(this);
 	_combo->Move(_margins, _margins);
-	for (int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i)
+	for (unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i)
 	{
 		if (RTTypes::Inst().GetTypeInfoByIndex(i).service)
 		{

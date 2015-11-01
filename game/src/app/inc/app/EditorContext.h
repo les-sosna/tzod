@@ -13,7 +13,7 @@ class EditorContext : public GameContextBase
 {
 public:
 	EditorContext(FS::Stream &stream);
-	EditorContext(float width, float height);
+	EditorContext(int width, int height);
 	virtual ~EditorContext();
 
 	// GameContextBase

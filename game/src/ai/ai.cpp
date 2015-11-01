@@ -730,7 +730,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 void AIController::SelectFavoriteWeapon(World &world)
 {
 	int wcount = 0;
-	for( int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
+	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		ObjectType type = RTTypes::Inst().GetTypeByIndex(i);
 		const char *name = RTTypes::Inst().GetTypeName(type);

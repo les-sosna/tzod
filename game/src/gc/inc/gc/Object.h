@@ -66,13 +66,13 @@ class GC_Object
 {
 	GC_Object(const GC_Object&) = delete;
 	GC_Object& operator = (const GC_Object&) = delete;
-	DECLARE_LIST_MEMBER();
+	DECLARE_LIST_MEMBER(;);
 
 public:
 	GC_Object();
 	virtual ~GC_Object();
 
-    ObjectList::id_type GetId() const { return _posLIST_objects; }
+	ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 	const char* GetName(World &world) const;
 	void SetName(World &world, const char *name);

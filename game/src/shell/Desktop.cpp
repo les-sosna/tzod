@@ -258,7 +258,7 @@ void Desktop::OnNewMap()
 		OnCloseChild(result);
 		if (UI::Dialog::_resultOK == result)
 		{
-			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetFloat(), _conf.ed_height.GetFloat()));
+			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
 			GetAppState().SetGameContext(std::move(gc));
 			ShowMainMenu(false);
 		}
