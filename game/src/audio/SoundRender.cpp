@@ -232,7 +232,7 @@ SoundRender::SoundRender(FS::FileSystem &fs)
 	LoadBuffer(fs, SND_TuretWakeDown,  "turrets/unarming.ogg"       );
 	
 	LoadBuffer(fs, SND_RocketShoot,    "pickup/rocketshoot.ogg"     ); //
-	LoadBuffer(fs, SND_Shoot,          "pickup/shoot.ogg"           ); //
+	LoadBuffer(fs, SND_Shoot,          "pickup/Shoot.ogg"           ); //
 	LoadBuffer(fs, SND_MinigunFire,    "pickup/MinigunFire.ogg"     );
 	LoadBuffer(fs, SND_WeapReload,     "pickup/reload.ogg"          );
 	LoadBuffer(fs, SND_ACShoot,        "pickup/ac_shoot.ogg"        );
