@@ -1,4 +1,5 @@
 #include "Campaign.h"
+#include "Desktop.h"
 #include "Editor.h"
 #include "Game.h"
 #include "gui.h"
@@ -7,7 +8,6 @@
 #include "Settings.h"
 #include "Widgets.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/Desktop.h"
 #include "inc/shell/Profiler.h"
 
 #include <app/AppController.h>

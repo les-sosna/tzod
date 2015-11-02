@@ -1,6 +1,5 @@
 #include "Campaign.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/Desktop.h"
 
 #include <fs/FileSystem.h>
 #include <loc/Language.h>

@@ -27,6 +27,7 @@ add_library(shell
 	Controller.cpp
 	DefaultCamera.cpp
 	Desktop.cpp
+	DesktopFactory.cpp
 	Editor.cpp
 	Game.cpp
 	GetFileName.cpp

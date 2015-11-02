@@ -1,5 +1,5 @@
+#include "ConfigConsoleHistory.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/detail/ConfigConsoleHistory.h"
 
 ConfigConsoleHistory::ConfigConsoleHistory(ConfCache &conf)
 	: _conf(conf)

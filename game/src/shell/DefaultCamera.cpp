@@ -1,4 +1,4 @@
-#include "inc/shell/detail/DefaultCamera.h"
+#include "DefaultCamera.h"
 #include <gc/WorldCfg.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>

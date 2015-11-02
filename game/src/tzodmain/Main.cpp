@@ -18,7 +18,7 @@
 #include <app/ThemeManager.h>
 #include <loc/Language.h>
 #include <shell/Config.h>
-#include <shell/Desktop.h>
+#include <shell/DesktopFactory.h>
 #include <shell/Profiler.h>
 #include <ui/GuiManager.h>
 #include <ui/UIInput.h>
@@ -44,38 +44,8 @@ static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
 
 namespace
 {
-	class DesktopFactory : public UI::IWindowFactory
-	{
-		AppState &_appState;
-		AppController &_appController;
-		FS::FileSystem &_fs;
-		ConfCache &_conf;
-		LangCache &_lang;
-		UI::ConsoleBuffer &_logger;
-		std::function<void()> _exitCommand;
-	public:
-		DesktopFactory(AppState &appState,
-			           AppController &appController,
-			           FS::FileSystem &fs,
-			           ConfCache &conf,
-			           LangCache &lang,
-			           UI::ConsoleBuffer &logger,
-			           std::function<void()> exitCommand)
-			: _appState(appState)
-			, _appController(appController)
-			, _fs(fs)
-			, _conf(conf)
-			, _lang(lang)
-			, _logger(logger)
-			, _exitCommand(std::move(exitCommand))
-		{}
-		UI::Window* Create(UI::LayoutManager *manager) override
-		{
-			return new Desktop(manager, _appState, _appController, _fs, _conf, _lang, _logger, _exitCommand);
-		}
-	};
-
-	class ConsoleLog : public UI::IConsoleLog
+	class ConsoleLog final
+		: public UI::IConsoleLog
 	{
 		FILE *_file;
 		ConsoleLog(const ConsoleLog&) = delete;
@@ -92,7 +62,7 @@ namespace
 		}
 
 		// IConsoleLog
-		void WriteLine(int severity, const std::string &str) override final
+		void WriteLine(int severity, const std::string &str) override
 		{
 			if( _file )
 			{
@@ -102,7 +72,7 @@ namespace
 			}
 			puts(str.c_str());
 		}
-		void Release() override final
+		void Release() override
 		{
 			delete this;
 		}

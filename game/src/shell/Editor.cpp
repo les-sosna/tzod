@@ -1,8 +1,8 @@
+#include "DefaultCamera.h"
 #include "Editor.h"
 #include "PropertyList.h"
 #include "ServiceEditor.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/detail/DefaultCamera.h"
 #include <app/ThemeManager.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>

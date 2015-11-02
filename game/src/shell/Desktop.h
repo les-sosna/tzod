@@ -1,6 +1,6 @@
 #pragma once
-#include "detail/ConfigConsoleHistory.h"
-#include "detail/DefaultCamera.h"
+#include "ConfigConsoleHistory.h"
+#include "DefaultCamera.h"
 #include <app/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
@@ -19,19 +19,19 @@ struct LuaStateDeleter
 	void operator()(lua_State *L);
 };
 
-class AppController;
-
 namespace UI
 {
 	class Console;
 	class Oscilloscope;
 }
 
+class AppController;
 class MainMenuDlg;
 class EditorLayout;
 class GameLayout;
 class FpsCounter;
 class ConfCache;
+class LangCache;
 
 class Desktop
 	: public UI::Window
