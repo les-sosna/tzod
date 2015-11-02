@@ -3,6 +3,8 @@
 #include <string>
 #include <memory>
 
+class LangCache;
+
 namespace FS
 {
 	class FileSystem;
@@ -34,7 +36,7 @@ public:
 		std::shared_ptr<FS::FileSystem> folder;
 	};
 
-	GetFileNameDlg(Window *parent, const Params &param);
+	GetFileNameDlg(Window *parent, const Params &param, LangCache &lang);
 	virtual ~GetFileNameDlg();
 
 	std::string GetFileName() const;

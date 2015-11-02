@@ -10,7 +10,7 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 
-GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
+GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param, LangCache &lang)
   : Dialog(parent, 512, 460)
   , _folder(param.folder)
   , _changing(false)
@@ -34,12 +34,12 @@ GetFileNameDlg::GetFileNameDlg(Window *parent, const Params &param)
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	UI::Text::Create(this, 16, 370, g_lang.get_file_name_title.Get(), alignTextLT);
+	UI::Text::Create(this, 16, 370, lang.get_file_name_title.Get(), alignTextLT);
 	_fileName = UI::Edit::Create(this, 20, 385, 472);
 	_fileName->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 
-	UI::Button::Create(this, g_lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
-	UI::Button::Create(this, g_lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	UI::Button::Create(this, lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
+	UI::Button::Create(this, lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
 	GetManager().SetFocusWnd(_fileName);
 }

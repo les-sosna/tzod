@@ -4,6 +4,7 @@
 #include <ui/ListBase.h>
 #include <string>
 
+class LangCache;
 namespace UI
 {
 	template <class, class> class ListAdapter;
@@ -34,13 +35,14 @@ public:
 	void OnKill(GC_Object &obj) override;
 
 public:
-	ServiceListDataSource(World &world);
+	ServiceListDataSource(World &world, LangCache &lang);
 	~ServiceListDataSource();
 
 private:
 	mutable std::string _nameCache;
 	UI::ListDataSourceListener *_listener;
 	World &_world;
+	LangCache &_lang;
 };
 
 class ConfCache;
@@ -60,9 +62,10 @@ class ServiceEditor : public UI::Dialog
 	float _margins;
 	World &_world;
 	ConfCache &_conf;
+	LangCache &_lang;
 
 public:
-	ServiceEditor(UI::Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf);
+	ServiceEditor(UI::Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~ServiceEditor();
 
 protected:

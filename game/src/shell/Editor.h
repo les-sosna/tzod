@@ -2,6 +2,7 @@
 #include <ui/Window.h>
 #include <functional>
 
+class LangCache;
 class ConfCache;
 class DefaultCamera;
 class GC_Object;
@@ -25,6 +26,7 @@ class EditorLayout : public UI::Window
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	ConfCache &_conf;
+	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	const DefaultCamera &_defaultCamera;
 	PropertyList *_propList;
@@ -49,7 +51,7 @@ class EditorLayout : public UI::Window
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(UI::Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, UI::ConsoleBuffer &logger);
+	EditorLayout(UI::Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);

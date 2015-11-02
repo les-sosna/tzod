@@ -23,11 +23,12 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch)
+ScoreTable::ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch, LangCache &lang)
   : UI::Window(parent)
   , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)
+  , _lang(lang)
 {
 	SetTexture("scoretbl", true);
 	SetDrawBorder(false);
@@ -67,9 +68,9 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		std::ostringstream text;
 		int timeleft = int(_deathmatch.GetTimeLimit() - _world.GetTime());
 		if( timeleft > 0 )
-			text << g_lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
+			text << _lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
-			text << g_lang.score_time_limit_hit.Get();
+			text << _lang.score_time_limit_hit.Get();
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_TIMELIMIT_TOP, _font, 0xffffffff, text.str());
 	}
 
@@ -78,9 +79,9 @@ void ScoreTable::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		std::ostringstream text;
 		int scoreleft = _deathmatch.GetFragLimit() - max_score;
 		if( scoreleft > 0 )
-			text << g_lang.score_frags_left.Get() << " " << scoreleft;
+			text << _lang.score_frags_left.Get() << " " << scoreleft;
 		else
-			text << g_lang.score_frag_limit_hit.Get();
+			text << _lang.score_frag_limit_hit.Get();
 		dc.DrawBitmapText(sx + SCORE_LIMITS_LEFT, sy + SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text.str());
 	}
 

@@ -43,6 +43,7 @@ public:
 	        AppController &appController,
 	        FS::FileSystem &fs,
 	        ConfCache &conf,
+	        LangCache &lang,
 	        UI::ConsoleBuffer &logger,
 	        std::function<void()> exitCommand);
 	virtual ~Desktop();
@@ -62,6 +63,7 @@ private:
 	AppController &_appController;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;
+	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	std::function<void()> _exitCommand;
 	std::unique_ptr<lua_State, LuaStateDeleter> _globL;

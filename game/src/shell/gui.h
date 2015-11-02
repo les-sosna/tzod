@@ -3,7 +3,7 @@
 #include "inc/shell/Config.h"
 #include <ui/Dialog.h>
 
-class ConfVarTable;
+class LangCache;
 namespace FS
 {
 	class FileSystem;
@@ -29,6 +29,7 @@ class NewGameDlg : public UI::Dialog
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 
 	ConfCache &_conf;
+	LangCache &_lang;
 	MapList      *_maps;
 	DefaultListBox  *_players;
 	DefaultListBox  *_bots;
@@ -45,10 +46,10 @@ class NewGameDlg : public UI::Dialog
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger);
-	virtual ~NewGameDlg();
+	NewGameDlg(Window *parent, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	~NewGameDlg() override;
 
-	virtual bool OnKeyPressed(UI::Key key);
+	bool OnKeyPressed(UI::Key key) override;
 
 protected:
 	void RefreshPlayersList();
@@ -86,12 +87,12 @@ class EditPlayerDlg : public UI::Dialog
 	DefaultComboBox *_classes;
 	DefaultComboBox *_teams;
 
-	std::vector<std::pair<std::string, std::string> > _classNames;
+	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::Window *parent, ConfVarTable &info, ConfCache &conf);
+	EditPlayerDlg(UI::Window *parent, ConfVarTable &info, ConfCache &conf, LangCache &lang);
 
 protected:
 	void OnOK();
@@ -113,12 +114,12 @@ class EditBotDlg : public UI::Dialog
 	DefaultComboBox *_teams;
 	DefaultComboBox *_levels;
 
-	std::vector<std::pair<std::string, std::string> > _classNames;
+	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerAI _info;
 
 public:
-	EditBotDlg(Window *parent, ConfVarTable &info);
+	EditBotDlg(Window *parent, ConfVarTable &info, LangCache &lang);
 
 protected:
 	void OnOK();

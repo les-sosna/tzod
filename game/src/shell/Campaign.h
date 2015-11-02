@@ -1,6 +1,8 @@
 #pragma once
 #include <ui/Dialog.h>
 
+class LangCache;
+
 namespace FS
 {
 	class FileSystem;
@@ -16,7 +18,7 @@ namespace UI
 class NewCampaignDlg : public UI::Dialog
 {
 public:
-	NewCampaignDlg(UI::Window *parent, FS::FileSystem &fs);
+	NewCampaignDlg(UI::Window *parent, FS::FileSystem &fs, LangCache &lang);
 	~NewCampaignDlg();
 	std::function<void(std::string)> eventCampaignSelected;
 

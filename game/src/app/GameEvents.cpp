@@ -17,8 +17,9 @@ void GameEventsBroadcaster::RemoveListener(GameListener &ls)
 	_listeners.erase(&ls);
 }
 
-void GameEventsBroadcaster::OnGameMessage(const char *msg)
+
+void GameEventsBroadcaster::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)
 {
 	for (auto ls: _listeners)
-		ls->OnGameMessage(msg);
+		ls->OnMurder(victim, killer, murderType);
 }

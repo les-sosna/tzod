@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+class LangCache;
+
 namespace UI
 {
 	class Button;
@@ -39,9 +41,10 @@ class SettingsDlg : public UI::Dialog
 	int _initialVolumeMusic;
 
 	ConfCache &_conf;
+	LangCache &_lang;
 
 public:
-	SettingsDlg(UI::Window *parent, ConfCache &conf);
+	SettingsDlg(UI::Window *parent, ConfCache &conf, LangCache &lang);
 	virtual ~SettingsDlg();
 
 protected:
@@ -63,7 +66,7 @@ protected:
 class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(UI::Window *parent, const char *profileName, ConfCache &conf);
+	ControlProfileDlg(UI::Window *parent, const char *profileName, ConfCache &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window
@@ -90,6 +93,7 @@ private:
 	std::vector<UI::Key> _keyBindings;
 	ConfControllerProfile _profile;
 	ConfCache &_conf;
+	LangCache &_lang;
 
 	float _time;
 	int   _activeIndex;

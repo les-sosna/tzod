@@ -50,6 +50,7 @@ namespace
 		AppController &_appController;
 		FS::FileSystem &_fs;
 		ConfCache &_conf;
+		LangCache &_lang;
 		UI::ConsoleBuffer &_logger;
 		std::function<void()> _exitCommand;
 	public:
@@ -57,18 +58,20 @@ namespace
 			           AppController &appController,
 			           FS::FileSystem &fs,
 			           ConfCache &conf,
+			           LangCache &lang,
 			           UI::ConsoleBuffer &logger,
 			           std::function<void()> exitCommand)
 			: _appState(appState)
 			, _appController(appController)
 			, _fs(fs)
 			, _conf(conf)
+			, _lang(lang)
 			, _logger(logger)
 			, _exitCommand(std::move(exitCommand))
 		{}
 		UI::Window* Create(UI::LayoutManager *manager) override
 		{
-			return new Desktop(manager, _appState, _appController, _fs, _conf, _logger, _exitCommand);
+			return new Desktop(manager, _appState, _appController, _fs, _conf, _lang, _logger, _exitCommand);
 		}
 	};
 
@@ -170,9 +173,10 @@ try
 	LoadConfigNoThrow(conf, logger);
 
 	logger.Printf(0, "Localization init...");
+	LangCache lang;
 	try
 	{
-		if( !g_lang->Load(FILE_LANGUAGE) )
+		if( !lang->Load(FILE_LANGUAGE) )
 		{
 			logger.Printf(1, "couldn't load language file " FILE_CONFIG);
 		}
@@ -181,7 +185,7 @@ try
 	{
 		logger.Printf(1, "could not load localization file: %s", e.what());
 	}
-	setlocale(LC_CTYPE, g_lang.c_locale.Get().c_str());
+	setlocale(LC_CTYPE, lang.c_locale.Get().c_str());
 
 
 	logger.Printf(0, "Create GL context");
@@ -217,6 +221,7 @@ try
 	                                     appController,
 	                                     *fs,
 	                                     conf,
+	                                     lang,
 	                                     logger,
 	                                     exitCommand));
 	glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
@@ -224,10 +229,10 @@ try
 
 //    g_env.L = gameContext.GetScriptHarness().GetLuaState();
 //    conf->InitConfigLuaBinding(g_env.L, "conf");
-//    g_lang->InitConfigLuaBinding(g_env.L, "lang");
-//    _logger.Printf(0, "Running startup script '%s'", FILE_STARTUP);
+//    lang->InitConfigLuaBinding(g_env.L, "lang");
+//    logger.Printf(0, "Running startup script '%s'", FILE_STARTUP);
 //    if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
-//        _logger.Printf(1, "ERROR: in startup script");
+//        logger.Printf(1, "ERROR: in startup script");
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);

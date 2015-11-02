@@ -5,6 +5,8 @@
 #include <ui/Window.h>
 #include <ui/Text.h>
 
+class ConfCache;
+class LangCache;
 class GameContext;
 class World;
 class WorldView;
@@ -42,6 +44,7 @@ public:
 	           WorldController &worldController,
 	           const DefaultCamera &defaultCamera,
 	           ConfCache &conf,
+	           LangCache &lang,
 	           UI::ConsoleBuffer &logger);
 	virtual ~GameLayout();
 
@@ -64,8 +67,9 @@ private:
 	WorldController &_worldController;
 	const DefaultCamera &_defaultCamera;
 	ConfCache &_conf;
+	LangCache &_lang;
 	InputManager _inputMgr;
 
 	// GameListener
-	void OnGameMessage(const char *msg) override;
+	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;
 };

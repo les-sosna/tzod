@@ -1,9 +1,19 @@
 #pragma once
 #include <unordered_set>
 
+class GC_Player;
+
+enum class MurderType
+{
+	Accident,
+	Enemy,
+	Friend,
+	Suicide,
+};
+
 struct GameListener
 {
-	virtual void OnGameMessage(const char *msg) = 0;
+	virtual void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) = 0;
 };
 
 struct GameEventSource
@@ -24,7 +34,7 @@ public:
 	void RemoveListener(GameListener &ls) override;
 
 	// GameListener
-	void OnGameMessage(const char *msg) override;
+	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;
 
 private:
 	std::unordered_set<GameListener*> _listeners;

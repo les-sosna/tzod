@@ -13,9 +13,10 @@
 
 #include "Editor.h" // WTF! cross-reference
 
-ServiceListDataSource::ServiceListDataSource(World &world)
+ServiceListDataSource::ServiceListDataSource(World &world, LangCache &lang)
 	: _listener(nullptr)
 	, _world(world)
+	, _lang(lang)
 {
 	_world.eWorld.AddListener(*this);
 }
@@ -64,7 +65,7 @@ const std::string& ServiceListDataSource::GetItemText(int index, int sub) const
 	switch (sub)
 	{
 	case 0:
-		return g_lang->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc).Get();
+		return _lang->GetStr(RTTypes::Inst().GetTypeInfo(s->GetType()).desc).Get();
 	case 1:
 		name = s->GetName(_world);
 		_nameCache = name ? name : "";
@@ -110,22 +111,23 @@ void ServiceListDataSource::OnKill(GC_Object &obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf)
+ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
 	: Dialog(parent, h, w, false)
-	, _listData(world)
+	, _listData(world, lang)
 	, _margins(5)
 	, _world(world)
 	, _conf(conf)
+	, _lang(lang)
 {
-	_labelService = UI::Text::Create(this, _margins, _margins, g_lang.service_type.Get(), alignTextLT);
-	_labelName = UI::Text::Create(this, w / 2, _margins, g_lang.service_name.Get(), alignTextLT);
+	_labelService = UI::Text::Create(this, _margins, _margins, _lang.service_type.Get(), alignTextLT);
+	_labelName = UI::Text::Create(this, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
 
 	_list = UI::List::Create(this, &_listData, 0, 0, 0, 0);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
 
-	_btnCreate = UI::Button::Create(this, g_lang.service_create.Get(), 0, 0);
+	_btnCreate = UI::Button::Create(this, _lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
 
 	_combo = DefaultComboBox::Create(this);
@@ -135,7 +137,7 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 		if (RTTypes::Inst().GetTypeInfoByIndex(i).service)
 		{
 			const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
-			_combo->GetData()->AddItem(g_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
+			_combo->GetData()->AddItem(_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
 		}
 	}
 	_combo->GetData()->Sort();

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+class LangCache;
 class World;
 namespace FS
 {
@@ -43,10 +44,11 @@ class CreateServerDlg : public UI::Dialog
     World &_world;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;
+	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 
 public:
-	CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger);
+	CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -69,9 +71,10 @@ class ConnectDlg
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
 	World &_world;
 	ConfCache &_conf;
+	LangCache &_lang;
 
 public:
-	ConnectDlg(UI::Window *parent, const std::string &defaultName, World &world, ConfCache &conf);
+	ConnectDlg(UI::Window *parent, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~ConnectDlg();
 
 protected:
@@ -99,9 +102,10 @@ class InternetDlg : public UI::Dialog
 	UI::Text   *_status;
 	World &_world;
 	ConfCache &_conf;
+	LangCache &_lang;
 
 public:
-	InternetDlg(UI::Window *parent, World &world, ConfCache &conf);
+	InternetDlg(UI::Window *parent, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~InternetDlg();
 
 protected:
@@ -139,9 +143,10 @@ class WaitingForPlayersDlg
 	std::vector<unsigned int> _pings;
 	World &_world;
 	ConfCache &_conf;
+	LangCache &_lang;
 
 public:
-	WaitingForPlayersDlg(UI::Window *parent, World &world, ConfCache &conf);
+	WaitingForPlayersDlg(UI::Window *parent, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~WaitingForPlayersDlg();
 
 protected:

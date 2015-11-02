@@ -47,6 +47,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
                  AppController &appController,
                  FS::FileSystem &fs,
                  ConfCache &conf,
+                 LangCache &lang,
                  UI::ConsoleBuffer &logger,
                  std::function<void()> exitCommand)
   : Window(nullptr, manager)
@@ -55,6 +56,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
   , _appController(appController)
   , _fs(fs)
   , _conf(conf)
+  , _lang(lang)
   , _logger(logger)
   , _exitCommand(std::move(exitCommand))
   , _globL(luaL_newstate())
@@ -89,7 +91,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
 	commands.exit = _exitCommand;
-	_mainMenu = new MainMenuDlg(this, _fs, _conf, _logger, std::move(commands));
+	_mainMenu = new MainMenuDlg(this, _fs, _conf, _lang, _logger, std::move(commands));
 	_nModalPopups++;
 
 	if( _conf.dbg_graph.Get() )
@@ -200,7 +202,7 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 void Desktop::OnNewCampaign()
 {
 	_nModalPopups++;
-	NewCampaignDlg *dlg = new NewCampaignDlg(this, _fs);
+	NewCampaignDlg *dlg = new NewCampaignDlg(this, _fs, _lang);
 	dlg->eventCampaignSelected = [this,dlg](std::string name)
 	{
 		if( !name.empty() )
@@ -230,7 +232,7 @@ void Desktop::OnNewCampaign()
 void Desktop::OnNewDM()
 {
 	_nModalPopups++;
-	auto dlg = new NewGameDlg(this, _fs, _conf, _logger);
+	auto dlg = new NewGameDlg(this, _fs, _conf, _logger, _lang);
 	dlg->eventClose = [this](int result)
 	{
 		OnCloseChild(result);
@@ -252,7 +254,7 @@ void Desktop::OnNewDM()
 void Desktop::OnNewMap()
 {
 	_nModalPopups++;
-	auto dlg = new NewMapDlg(this, _conf);
+	auto dlg = new NewMapDlg(this, _conf, _lang);
 	dlg->eventClose = [&](int result)
 	{
 		OnCloseChild(result);
@@ -334,14 +336,14 @@ bool Desktop::OnKeyPressed(UI::Key key)
 		break;
 
 	case UI::Key::F12:
-		dlg = new SettingsDlg(this, _conf);
-        dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
-        _nModalPopups++;
+		dlg = new SettingsDlg(this, _conf, _lang);
+		dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
+		_nModalPopups++;
 		break;
 
 	case UI::Key::F5:
-        if (0 == _nModalPopups)
-            SetEditorMode(!GetEditorMode());
+		if (0 == _nModalPopups)
+			SetEditorMode(!GetEditorMode());
 		break;
 
 	default:
@@ -473,6 +475,7 @@ void Desktop::OnGameContextChanged()
 		                       gameContext->GetWorldController(),
 		                       _defaultCamera,
 		                       _conf,
+		                       _lang,
 		                       _logger);
 		_game->Resize(GetWidth(), GetHeight());
 		_game->BringToBack();
@@ -483,7 +486,7 @@ void Desktop::OnGameContextChanged()
 	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
-		_editor = new EditorLayout(this, editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get(), _conf, _logger);
+		_editor = new EditorLayout(this, editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get(), _conf, _lang, _logger);
 		_editor->Resize(GetWidth(), GetHeight());
 		_editor->BringToBack();
 		_editor->SetVisible(false);

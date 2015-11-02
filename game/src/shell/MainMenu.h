@@ -74,6 +74,7 @@ class MainMenuDlg : public UI::Window
 	GetFileNameDlg *_fileDlg;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;
+	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	MainMenuCommands _commands;
 
@@ -81,6 +82,7 @@ public:
 	MainMenuDlg(Window *parent,
 	            FS::FileSystem &fs,
 	            ConfCache &conf,
+	            LangCache &lang,
 	            UI::ConsoleBuffer &logger,
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();

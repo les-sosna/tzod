@@ -286,5 +286,3 @@ REFLECTION_BEGIN(LangCache)
 
 REFLECTION_END()
 
-extern LangCache g_lang;
-

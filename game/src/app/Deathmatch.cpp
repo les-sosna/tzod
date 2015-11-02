@@ -1,6 +1,5 @@
 #include "inc/app/Deathmatch.h"
 #include "inc/app/GameEvents.h"
-#include <loc/Language.h>
 #include <gc/GameClasses.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
@@ -45,61 +44,54 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	if (auto vehicle = dynamic_cast<GC_Vehicle*>(&obj))
 	{
-		char msg[256] = {0};
-		char score[8];
+		char score[8] = { 0 };
 		GC_Text::Style style = GC_Text::DEFAULT;
 
 		if( dd.from )
 		{
 			if( dd.from == vehicle->GetOwner() )
 			{
-				// killed him self
 				vehicle->GetOwner()->SetScore(vehicle->GetOwner()->GetScore() - 1);
 				style = GC_Text::SCORE_MINUS;
-				sprintf(msg, g_lang.msg_player_x_killed_him_self.Get().c_str(), vehicle->GetOwner()->GetNick().c_str());
+				_gameListener.OnMurder(*vehicle->GetOwner(), vehicle->GetOwner(), MurderType::Suicide);
 			}
 			else if( vehicle->GetOwner() )
 			{
 				if( 0 != vehicle->GetOwner()->GetTeam() &&
 				   dd.from->GetTeam() == vehicle->GetOwner()->GetTeam() )
 				{
-					// 'from' killed his friend
 					dd.from->SetScore(dd.from->GetScore() - 1);
 					style = GC_Text::SCORE_MINUS;
-					sprintf(msg, g_lang.msg_player_x_killed_his_friend_x.Get().c_str(),
-							dd.from->GetNick().c_str(),
-							vehicle->GetOwner()->GetNick().c_str());
+					_gameListener.OnMurder(*vehicle->GetOwner(), dd.from, MurderType::Friend);
 				}
 				else
 				{
 					// 'from' killed his enemy
 					dd.from->SetScore(dd.from->GetScore() + 1);
 					style = GC_Text::SCORE_PLUS;
-					sprintf(msg, g_lang.msg_player_x_killed_his_enemy_x.Get().c_str(),
-							dd.from->GetNick().c_str(), vehicle->GetOwner()->GetNick().c_str());
+					_gameListener.OnMurder(*vehicle->GetOwner(), dd.from, MurderType::Enemy);
 				}
 			}
 			else
 			{
-				// this tank does not have player service. score up the killer
+				// this tank does not have player. score up the killer
 				dd.from->SetScore(dd.from->GetScore() + 1);
 				style = GC_Text::SCORE_PLUS;
 			}
 
 			if( dd.from->GetVehicle() )
 			{
-				sprintf(score, "%d", dd.from->GetScore());
+				snprintf(score, sizeof(score), "%d", dd.from->GetScore());
 				_world.New<GC_Text_ToolTip>(dd.from->GetVehicle()->GetPos(), score, style);
 			}
 		}
 		else if( vehicle->GetOwner() )
 		{
-			sprintf(msg, g_lang.msg_player_x_died.Get().c_str(), vehicle->GetOwner()->GetNick().c_str());
 			vehicle->GetOwner()->SetScore(vehicle->GetOwner()->GetScore() - 1);
-			sprintf(score, "%d", vehicle->GetOwner()->GetScore());
+			_gameListener.OnMurder(*vehicle->GetOwner(), nullptr, MurderType::Accident);
+
+			snprintf(score, sizeof(score), "%d", vehicle->GetOwner()->GetScore());
 			_world.New<GC_Text_ToolTip>(vehicle->GetPos(), score, GC_Text::SCORE_MINUS);
 		}
-
-		_gameListener.OnGameMessage(msg);
 	}
 }

@@ -2,6 +2,7 @@
 #include <ui/Dialog.h>
 
 class ConfCache;
+class LangCache;
 namespace UI
 {
 	class Edit;
@@ -14,7 +15,7 @@ class NewMapDlg : public UI::Dialog
 	UI::Edit *_height;
 
 public:
-	NewMapDlg(Window *parent, ConfCache &conf);
+	NewMapDlg(Window *parent, ConfCache &conf, LangCache &lang);
 
 	void OnOK();
 	void OnCancel();

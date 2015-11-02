@@ -10,7 +10,6 @@ include_directories(
 	${Config_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
-	${Loc_SOURCE_DIR}/inc
 	${MapFile_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
@@ -40,7 +39,6 @@ target_link_libraries(app
 	config
 	filesystem
 	gc
-	loc
 	render
 	script
 )

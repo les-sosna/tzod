@@ -27,6 +27,7 @@ class ScriptHarness;
 class ThemeManager;
 class TextureManager;
 class WorldController;
+class LangCache;
 
 struct PlayerDesc
 {
@@ -51,7 +52,7 @@ public:
 	Deathmatch& GetGameplay() { return *_gameplay; }
 	WorldController& GetWorldController() { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
-    ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
+	ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
 
 	void Serialize(FS::Stream &stream);
 	void Deserialize(FS::Stream &stream);

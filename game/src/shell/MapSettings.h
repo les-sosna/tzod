@@ -9,6 +9,7 @@ namespace UI
 	class ListDataSourceDefault;
 }
 
+class LangCache;
 class ThemeManager;
 class World;
 
@@ -24,7 +25,7 @@ class MapSettingsDlg : public UI::Dialog
 	World &_world;
 
 public:
-	MapSettingsDlg(UI::Window *parent, World &world, const ThemeManager &themeManager);
+	MapSettingsDlg(UI::Window *parent, World &world, const ThemeManager &themeManager, LangCache &lang);
 	~MapSettingsDlg();
 
 	void OnOK();

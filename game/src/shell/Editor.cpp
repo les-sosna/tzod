@@ -121,9 +121,10 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 }
 
 
-EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, UI::ConsoleBuffer &logger)
+EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)
   : Window(parent)
   , _conf(conf)
+  , _lang(lang)
   , _logger(logger)
   , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager().GetTextureManager().FindSprite("font_small"))
@@ -138,13 +139,13 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 {
 	SetTexture(nullptr, false);
 
-	_help = UI::Text::Create(this, 10, 10, g_lang.f1_help_editor.Get(), alignTextLT);
+	_help = UI::Text::Create(this, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
 	_propList = new PropertyList(this, 5, 5, 512, 256, _world, _conf, _logger);
 	_propList->SetVisible(false);
 
-	_serviceList = new ServiceEditor(this, 5, 300, 512, 256, _world, _conf);
+	_serviceList = new ServiceEditor(this, 5, 300, 512, 256, _world, _conf, _lang);
 	_serviceList->SetVisible(_conf.ed_showservices.Get());
 
 	_layerDisp = UI::Text::Create(this, 0, 0, "", alignTextRT);
@@ -155,7 +156,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 	{
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(g_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
+		_typeList->GetData()->AddItem(_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
 	UI::List *ls = _typeList->GetList();
@@ -451,7 +452,7 @@ void EditorLayout::OnChangeObjectType(int index)
 	_conf.ed_object.SetInt(index);
 
 	std::ostringstream buf;
-	buf << g_lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
+	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(buf.str());
 }
 

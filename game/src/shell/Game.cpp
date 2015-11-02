@@ -12,6 +12,7 @@
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
+#include <loc/Language.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
@@ -52,6 +53,7 @@ GameLayout::GameLayout(Window *parent,
                        WorldController &worldController,
                        const DefaultCamera &defaultCamera,
                        ConfCache &conf,
+                       LangCache &lang,
                        UI::ConsoleBuffer &logger)
   : Window(parent)
   , _gameContext(gameContext)
@@ -60,12 +62,13 @@ GameLayout::GameLayout(Window *parent,
   , _worldController(worldController)
   , _defaultCamera(defaultCamera)
   , _conf(conf)
+  , _lang(lang)
   , _inputMgr(conf, logger)
 {
 	_msg = new MessageArea(this, _conf, logger);
 	_msg->Move(100, 100);
 
-	_score = new ScoreTable(this, _gameContext.GetWorld(), _gameContext.GetGameplay());
+	_score = new ScoreTable(this, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
 	_score->SetVisible(false);
 
 	_time = new TimeElapsed(this, 0, 0, alignTextRB, _gameContext.GetWorld());
@@ -118,9 +121,9 @@ void GameLayout::OnTimeStep(float dt)
 
 void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-    vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
-    float zoom = _defaultCamera.GetZoom();
-    _gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
+	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
+	float zoom = _defaultCamera.GetZoom();
+	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
 }
@@ -129,7 +132,7 @@ void GameLayout::OnSize(float width, float height)
 {
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
-    _gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight());
+	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight());
 }
 
 void GameLayout::OnChangeShowTime()
@@ -137,7 +140,27 @@ void GameLayout::OnChangeShowTime()
 	_time->SetVisible(_conf.ui_showtime.Get());
 }
 
-void GameLayout::OnGameMessage(const char *msg)
+void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)
 {
-    _msg->WriteLine(msg);
+	char msg[256] = { 0 };
+	switch (murderType)
+	{
+	default:
+		assert(false);
+	case MurderType::Accident:
+		snprintf(msg, sizeof(msg), _lang.msg_player_x_died.Get().c_str(), victim.GetNick().c_str());
+		break;
+	case MurderType::Enemy:
+		assert(killer);
+		snprintf(msg, sizeof(msg), _lang.msg_player_x_killed_his_enemy_x.Get().c_str(), killer->GetNick().c_str(), victim.GetNick().c_str());
+		break;
+	case MurderType::Friend:
+		assert(killer);
+		snprintf(msg, sizeof(msg), _lang.msg_player_x_killed_his_friend_x.Get().c_str(), killer->GetNick().c_str(), victim.GetNick().c_str());
+		break;
+	case MurderType::Suicide:
+		snprintf(msg, sizeof(msg), _lang.msg_player_x_killed_him_self.Get().c_str(), victim.GetNick().c_str());
+		break;
+	}
+	_msg->WriteLine(msg);
 }

@@ -177,7 +177,7 @@ void GC_Player::TimeStep(World &world, float dt)
 			else
 			{
 //				char buf[64];
-//				sprintf(buf, g_lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
+//				sprintf(buf, _lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
 //				_logger.WriteLine(1, buf);
 			}
 		}

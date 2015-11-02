@@ -21,13 +21,13 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 	return 0;
 }
 
-MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager)
+MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager, LangCache &lang)
 	: Dialog(parent, 512, 512)
 	, _world(world)
 {
 	SetEasyMove(true);
 
-	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, g_lang.map_title.Get(), alignTextCT);
+	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -36,27 +36,27 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 
 	float y = 32;
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_author.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_author.Get(), alignTextLT);
 	_author = UI::Edit::Create(this, x2, y += 15, 256);
 	_author->SetText(world._infoAuthor);
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_email.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_email.Get(), alignTextLT);
 	_email = UI::Edit::Create(this, x2, y += 15, 256);
 	_email->SetText(world._infoEmail);
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_url.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_url.Get(), alignTextLT);
 	_url = UI::Edit::Create(this, x2, y += 15, 256);
 	_url->SetText(world._infoUrl);
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_desc.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_desc.Get(), alignTextLT);
 	_desc = UI::Edit::Create(this, x2, y += 15, 256);
 	_desc->SetText(world._infoDesc);
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_init_script.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
 	_onInit = UI::Edit::Create(this, x2, y += 15, 256);
 	_onInit->SetText(world._infoOnInit);
 
-	UI::Text::Create(this, x1, y += 20, g_lang.map_theme.Get(), alignTextLT);
+	UI::Text::Create(this, x1, y += 20, lang.map_theme.Get(), alignTextLT);
 	_theme = DefaultComboBox::Create(this);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
@@ -71,8 +71,8 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 	//
 	// OK & Cancel
 	//
-	UI::Button::Create(this, g_lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
-	UI::Button::Create(this, g_lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
+	UI::Button::Create(this, lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
+	UI::Button::Create(this, lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()
