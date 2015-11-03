@@ -8,6 +8,7 @@ include_directories(
 	${Config_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
+	${GV_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc

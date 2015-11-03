@@ -1,5 +1,5 @@
 #include "MapSettings.h"
-#include <app/ThemeManager.h>
+#include <gv/ThemeManager.h>
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <ui/Button.h>

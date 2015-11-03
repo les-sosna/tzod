@@ -7,6 +7,7 @@ include_directories(
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
 	${GCLua_SOURCE_DIR}/inc
+	${GV_SOURCE_DIR}/inc
 	${LibUI_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
 	${MapFile_SOURCE_DIR}/inc
@@ -53,6 +54,7 @@ target_link_libraries(shell
 	loc
 	gc
 	gclua
+	gv
 	mapfile
 	render
 	ui

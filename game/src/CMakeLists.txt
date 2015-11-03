@@ -23,6 +23,7 @@ add_subdirectory(mf)
 add_subdirectory(ai)
 add_subdirectory(gclua)
 add_subdirectory(render)
+add_subdirectory(gv)
 add_subdirectory(script)
 add_subdirectory(libui)
 

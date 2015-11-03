@@ -1,6 +1,6 @@
-#include "inc/app/GameViewHarness.h"
-#include "inc/app/Camera.h"
-#include "inc/app/WorldController.h"
+#include "inc/gv/GameViewHarness.h"
+#include "inc/gv/Camera.h"
+#include <app/WorldController.h>
 #include <gc/Explosion.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>

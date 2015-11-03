@@ -1,10 +1,9 @@
-#include "inc/app/Camera.h"
+#include "inc/gv/Camera.h"
 
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/WorldCfg.h>
-#include <gc/SaveFile.h>
 #include <gc/World.h>
 
 Camera::Camera(vec2d pos, GC_Player &player)
@@ -70,11 +69,4 @@ void Camera::Shake(float level)
 	if( 0 == _time_shake )
 		_time_seed = frand(1000.0f);
 	_time_shake = std::min(_time_shake + 0.5f * level, 1.0f);
-}
-
-void Camera::Serialize(World &world, SaveFile &f)
-{
-	f.Serialize(_target);
-	f.Serialize(_time_seed);
-	f.Serialize(_time_shake);
 }

@@ -1,7 +1,7 @@
-#include "inc/app/AppState.h"
-#include "inc/app/GameView.h"
-#include "inc/app/GameViewHarness.h"
-#include "inc/app/GameContext.h"
+#include "inc/gv/GameView.h"
+#include "inc/gv/GameViewHarness.h"
+#include <app/AppState.h>
+#include <app/GameContext.h>
 
 GameView::GameView(AppState &appState)
     : AppStateListener(appState)

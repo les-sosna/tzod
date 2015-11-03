@@ -15,7 +15,7 @@
 #include <app/AppController.h>
 #include <app/AppState.h>
 #include <app/GameContextBase.h>
-#include <app/ThemeManager.h>
+#include <gv/ThemeManager.h>
 #include <loc/Language.h>
 #include <shell/Config.h>
 #include <shell/DesktopFactory.h>
