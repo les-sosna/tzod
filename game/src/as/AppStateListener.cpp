@@ -1,5 +1,5 @@
-#include "inc/app/AppState.h"
-#include "inc/app/AppStateListener.h"
+#include "inc/as/AppState.h"
+#include "inc/as/AppStateListener.h"
 
 AppStateListener::AppStateListener(AppState &appState)
 	: _appState(appState)

@@ -1,5 +1,5 @@
 #pragma once
-#include "../ScriptMessageSource.h"
+#include "ScriptMessageSource.h"
 #include <script/ScriptMessageSink.h>
 #include <vector>
 

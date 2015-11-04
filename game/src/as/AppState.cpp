@@ -1,6 +1,6 @@
-#include "inc/app/AppState.h"
-#include "inc/app/AppStateListener.h"
-#include "inc/app/GameContext.h"
+#include "inc/as/AppState.h"
+#include "inc/as/AppStateListener.h"
+#include <ctx/GameContext.h>
 
 AppState::AppState()
 {

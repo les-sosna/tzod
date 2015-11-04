@@ -1,22 +1,12 @@
-#include <GlfwPlatform.h>
-#ifndef NOSOUND
-#include <audio/SoundView.h>
-#endif
-//#include <script/script.h>
-//#include <script/ScriptHarness.h>
-
-//#include <network/Variant.h>
-//#include <network/TankClient.h>
-
-#include <core/Timer.h>
-
-#include <../FileSystemImpl.h>
-#include <app/AppCfg.h>
-#include <app/AppController.h>
-#include <app/AppState.h>
-#include <app/GameContextBase.h>
+#include <../FileSystemImpl.h> // wtf
+#include <as/AppCfg.h>
+#include <as/AppController.h>
+#include <as/AppState.h>
+#include <ctx/GameContextBase.h>
 #include <gv/ThemeManager.h>
 #include <loc/Language.h>
+#include <plat/GlfwPlatform.h>
+#include <plat/Timer.h>
 #include <shell/Config.h>
 #include <shell/DesktopFactory.h>
 #include <shell/Profiler.h>
@@ -28,6 +18,10 @@
 #include <video/TextureManager.h>
 #include <video/RenderOpenGL.h>
 //#include <video/RenderDirect3D.h>
+
+#ifndef NOSOUND
+#include <audio/SoundView.h>
+#endif
 
 #include <GLFW/glfw3.h>
 #include <algorithm>

@@ -1,7 +1,6 @@
 #include "inc/gclua/lGame.h"
 #include "inc/gclua/lgcmod.h"
 
-#include "constants.h"
 #include "GameEvents.h"
 #include "ThemeManager.h"
 #include "config/Config.h"

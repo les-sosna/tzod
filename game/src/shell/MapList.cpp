@@ -1,7 +1,7 @@
 #include "MapList.h"
 #include "inc/shell/Config.h"
 
-#include <app/AppCfg.h>
+#include <as/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <MapFile.h>
 #include <ui/ConsoleBuffer.h>

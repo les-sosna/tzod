@@ -1,4 +1,4 @@
-#include "inc/app/GameEvents.h"
+#include "inc/ctx/GameEvents.h"
 #include <cassert>
 
 GameEventsBroadcaster::~GameEventsBroadcaster()

@@ -6,7 +6,7 @@
 #include "Network.h"
 #include "Settings.h"
 
-#include <app/AppCfg.h>
+#include <as/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/ConsoleBuffer.h>

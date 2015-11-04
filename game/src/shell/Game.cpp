@@ -6,9 +6,9 @@
 #include "ScoreTable.h"
 #include "inc/shell/Config.h"
 
-#include <app/Deathmatch.h>
-#include <app/GameContext.h>
-#include <app/WorldController.h>
+#include <ctx/Deathmatch.h>
+#include <ctx/GameContext.h>
+#include <ctx/WorldController.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>

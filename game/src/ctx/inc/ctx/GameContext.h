@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/ScriptMessageBroadcaster.h"
+#include "ScriptMessageBroadcaster.h"
 #include "GameEvents.h"
 #include <functional>
 #include <memory>

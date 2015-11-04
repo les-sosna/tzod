@@ -2,8 +2,9 @@ cmake_minimum_required (VERSION 3.3)
 project(Shell)
 
 include_directories(
-	${App_SOURCE_DIR}/inc
+	${AS_SOURCE_DIR}/inc
 	${Config_SOURCE_DIR}/inc
+	${Ctx_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
 	${GCLua_SOURCE_DIR}/inc

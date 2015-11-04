@@ -1,7 +1,7 @@
 #include "Widgets.h"
 
-#include <app/AppState.h>
-#include <app/GameContext.h>
+#include <as/AppState.h>
+#include <ctx/GameContext.h>
 #include <gc/World.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>

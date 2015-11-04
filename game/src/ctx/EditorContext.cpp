@@ -1,4 +1,4 @@
-#include "inc/app/EditorContext.h"
+#include "inc/ctx/EditorContext.h"
 #include <gc/World.h>
 #include <MapFile.h>
 

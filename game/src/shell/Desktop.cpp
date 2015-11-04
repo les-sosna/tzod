@@ -10,13 +10,12 @@
 #include "inc/shell/Config.h"
 #include "inc/shell/Profiler.h"
 
-#include <app/AppController.h>
-#include <app/EditorContext.h>
-
-#include <app/AppState.h>
+#include <as/AppController.h>
+#include <as/AppState.h>
+#include <ctx/EditorContext.h>
 #include <gc/World.h>
-#include <loc/Language.h>
 #include <fs/FileSystem.h>
+#include <loc/Language.h>
 //#include <script/script.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>

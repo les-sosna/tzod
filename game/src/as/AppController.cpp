@@ -1,7 +1,7 @@
-#include "inc/app/AppController.h"
-#include "inc/app/AppCfg.h"
-#include "inc/app/AppState.h"
-#include "inc/app/GameContext.h"
+#include "inc/as/AppController.h"
+#include "inc/as/AppCfg.h"
+#include "inc/as/AppState.h"
+#include <ctx/GameContext.h>
 #include <fs/FileSystem.h>
 
 AppController::AppController(FS::FileSystem &fs)

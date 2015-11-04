@@ -1,7 +1,7 @@
 #include "ScoreTable.h"
 
-#include <app/GameContext.h>
-#include <app/Deathmatch.h>
+#include <ctx/GameContext.h>
+#include <ctx/Deathmatch.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>

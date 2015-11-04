@@ -1,5 +1,5 @@
-#include "inc/app/Deathmatch.h"
-#include "inc/app/GameEvents.h"
+#include "inc/ctx/Deathmatch.h"
+#include "inc/ctx/GameEvents.h"
 #include <gc/GameClasses.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>

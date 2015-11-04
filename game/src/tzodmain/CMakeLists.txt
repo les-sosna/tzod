@@ -3,17 +3,18 @@ project(TZodMain CXX)
 
 
 include_directories(
+	${AS_SOURCE_DIR}/inc
 	${App_SOURCE_DIR}/inc
-	${Audio_SOURCE_DIR}/inc
 	${Config_SOURCE_DIR}/inc
+	${Ctx_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
 	${GV_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
+	${PlatGLFW_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
 	${Shell_SOURCE_DIR}/inc
-	${Tank_SOURCE_DIR}
 	${LibUI_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
 
@@ -26,6 +27,7 @@ link_directories(${Boost_LIBRARY_DIR})
 
 find_package(OpenAL)
 if(${OPENAL_FOUND})
+	include_directories(${Audio_SOURCE_DIR}/inc)
 else()
 	add_definitions(-DNOSOUND)
 endif()
@@ -43,4 +45,18 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tzodmain tank video shell)
+set(tank_LIBRARIES
+	platglfw
+	video
+	shell
+	as
+	ctx
+)
+
+if(${OPENAL_FOUND})
+	list(APPEND tank_LIBRARIES audio)
+else()
+	add_definitions(-DNOSOUND)
+endif()
+
+target_link_libraries(tzodmain ${tank_LIBRARIES})

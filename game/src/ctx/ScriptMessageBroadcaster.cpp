@@ -1,4 +1,4 @@
-#include "inc/app/detail/ScriptMessageBroadcaster.h"
+#include "inc/ctx/ScriptMessageBroadcaster.h"
 #include <algorithm>
 #include <cassert>
 

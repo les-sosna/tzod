@@ -1,6 +1,6 @@
-#include "inc/app/Deathmatch.h"
-#include "inc/app/GameContext.h"
-#include "inc/app/WorldController.h"
+#include "inc/ctx/Deathmatch.h"
+#include "inc/ctx/GameContext.h"
+#include "inc/ctx/WorldController.h"
 #include "AIManager.h"
 #include <fs/FileSystem.h>
 #include <gc/Player.h>
@@ -9,6 +9,9 @@
 #include <gc/WorldCfg.h>
 #include <script/ScriptHarness.h>
 #include <MapFile.h>
+
+#define AI_MAX_LEVEL   4U
+
 
 GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 {

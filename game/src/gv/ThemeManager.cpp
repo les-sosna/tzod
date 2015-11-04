@@ -1,7 +1,7 @@
 #include "inc/gv/ThemeManager.h"
-#include <app/AppCfg.h>
-#include <app/AppState.h>
-#include <app/GameContext.h>
+#include <as/AppCfg.h>
+#include <as/AppState.h>
+#include <ctx/GameContext.h>
 #include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>

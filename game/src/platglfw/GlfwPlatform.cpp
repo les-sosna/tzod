@@ -1,5 +1,5 @@
-#include "GlfwPlatform.h"
-#include "GlfwKeys.h"
+#include "inc/plat/GlfwPlatform.h"
+#include "inc/plat/GlfwKeys.h"
 #include <ui/GuiManager.h>
 #include <GLFW/glfw3.h>
 
