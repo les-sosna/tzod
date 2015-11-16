@@ -39,6 +39,7 @@ struct LogicalTexture
 class TextureManager
 {
 public:
+	TextureManager(TextureManager&&) = default;
 	TextureManager(IRender &render);
 	~TextureManager();
 
@@ -71,7 +72,7 @@ protected:
 	typedef std::list<TexDesc>       TexDescList;
 	typedef TexDescList::iterator    TexDescIterator;
 
-	typedef std::map<std::string, TexDescIterator>    FileToTexDescMap;
+	typedef std::map<std::string, TexDescIterator> FileToTexDescMap;
 	typedef std::map<DEV_TEXTURE, TexDescIterator> DevToTexDescMap;
 
 	FileToTexDescMap _mapFile_to_TexDescIter;

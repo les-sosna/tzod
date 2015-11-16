@@ -23,6 +23,7 @@ add_library(ui
 	Scroll.cpp
 	Text.cpp
 	Window.cpp
+	WindowPtr.cpp
 )
 
 target_link_libraries(ui

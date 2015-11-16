@@ -1,8 +1,6 @@
 #pragma once
-
 #include <ui/UIInput.h>
 #include <ui/Clipboard.h>
-#include <memory>
 
 struct GLFWwindow;
 
@@ -33,25 +31,3 @@ private:
 	GLFWwindow &_window;
 };
 
-struct GlfwInitHelper
-{
-	GlfwInitHelper();
-	~GlfwInitHelper();
-};
-
-struct GlfwWindowDeleter
-{
-	void operator()(GLFWwindow *window);
-};
-
-class GlfwAppWindow
-{
-public:
-	GlfwAppWindow(const char *title, bool fullscreen, int width, int height);
-	~GlfwAppWindow();
-	GLFWwindow& GetGlfwWindow() const { return *_window; }
-
-private:
-	GlfwInitHelper _initHelper;
-	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> _window;
-};

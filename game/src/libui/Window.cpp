@@ -7,6 +7,7 @@
 
 namespace UI
 {
+	using namespace detail;
 
 Window* Window::Create(Window *parent)
 {

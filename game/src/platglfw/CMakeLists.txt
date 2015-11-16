@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.3)
 project(PlatGLFW)
 
 include_directories(
+	${App_SOURCE_DIR}/inc
 	${LibUI_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
 	${Video_SOURCE_DIR}/inc
@@ -11,6 +12,7 @@ include_directories(
 )
 
 add_library(platglfw
+	GlfwAppWindow.cpp
 	GlfwKeys.cpp
 	GlfwPlatform.cpp
 	Timer.cpp

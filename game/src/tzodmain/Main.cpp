@@ -1,40 +1,12 @@
-#include <../FileSystemImpl.h> // wtf
+#include <../FileSystemImpl.h> // wtf dot dot
+#include <app/tzod.h>
+#include <app/View.h>
 #include <as/AppCfg.h>
-#include <as/AppController.h>
-#include <as/AppState.h>
-#include <ctx/GameContextBase.h>
-#include <gv/ThemeManager.h>
-#include <loc/Language.h>
-#include <plat/GlfwPlatform.h>
+#include <plat/GlfwAppWindow.h>
 #include <plat/Timer.h>
-#include <shell/Config.h>
-#include <shell/DesktopFactory.h>
-#include <shell/Profiler.h>
-#include <ui/GuiManager.h>
-#include <ui/UIInput.h>
-#include <ui/Clipboard.h>
 #include <ui/ConsoleBuffer.h>
-#include <video/DrawingContext.h>
-#include <video/TextureManager.h>
-#include <video/RenderOpenGL.h>
-//#include <video/RenderDirect3D.h>
 
-#ifndef NOSOUND
-#include <audio/SoundView.h>
-#endif
-
-#include <GLFW/glfw3.h>
-#include <algorithm>
 #include <exception>
-#include <thread>
-
-///////////////////////////////////////////////////////////////////////////////
-
-static CounterBase counterDrops("Drops", "Frame drops");
-static CounterBase counterTimeBuffer("TimeBuf", "Time buffer");
-static CounterBase counterCtrlSent("CtrlSent", "Ctrl packets sent");
-
-///////////////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -73,19 +45,6 @@ namespace
 	};
 }
 
-static void LoadConfigNoThrow(ConfCache &configRoot, UI::ConsoleBuffer &logger)
-try
-{
-	logger.Printf(0, "Loading config '" FILE_CONFIG "'");
-	if (!configRoot->Load(FILE_CONFIG))
-	{
-		logger.Format(1) << "Failed to load config file; using defaults";
-	}
-}
-catch (const std::exception &e)
-{
-	logger.Printf(1, "Could not load config from '" FILE_CONFIG "': %s", e.what());
-}
 
 // recursively print exception whats:
 static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix = std::string())
@@ -102,7 +61,6 @@ static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::
 }
 
 static UI::ConsoleBuffer s_logger(100, 500);
-
 
 //static long xxx = _CrtSetBreakAlloc(12649);
 
@@ -133,133 +91,38 @@ try
 	logger.Printf(0, "Mount file system");
 	std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
 
-	ConfCache conf;
-	LoadConfigNoThrow(conf, logger);
-
-	logger.Printf(0, "Localization init...");
-	LangCache lang;
-	try
-	{
-		if( !lang->Load(FILE_LANGUAGE) )
-		{
-			logger.Printf(1, "couldn't load language file " FILE_CONFIG);
-		}
-	}
-	catch( const std::exception &e )
-	{
-		logger.Printf(1, "could not load localization file: %s", e.what());
-	}
-	setlocale(LC_CTYPE, lang.c_locale.Get().c_str());
-
+	TzodApp app(*fs, logger);
 
 	logger.Printf(0, "Create GL context");
-	GlfwAppWindow appWindow(TXT_VERSION, conf.r_fullscreen.Get(), conf.r_width.GetInt(), conf.r_height.GetInt());
+	GlfwAppWindow appWindow(
+		TXT_VERSION,
+		false, // conf.r_fullscreen.Get(),
+		1024, // conf.r_width.GetInt(),
+		768 // conf.r_height.GetInt()
+	);
 
-	glfwMakeContextCurrent(&appWindow.GetGlfwWindow());
-	glfwSwapInterval(1);
-
-	std::unique_ptr<IRender> render = /*conf.r_render.GetInt() ? renderCreateDirect3D() :*/ RenderCreateOpenGL();
-	int width;
-	int height;
-	glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
-	render->OnResizeWnd(width, height);
-
-	AppState appState;
-	TextureManager texman(*render);
-	ThemeManager themeManager(appState, *fs, texman);
-	if (texman.LoadPackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs) <= 0)
-		logger.Printf(1, "WARNING: no textures loaded");
-	if (texman.LoadDirectory(DIR_SKINS, "skin/", *fs) <= 0)
-		logger.Printf(1, "WARNING: no skins found");
-	auto exitCommand = std::bind(glfwSetWindowShouldClose, &appWindow.GetGlfwWindow(), 1);
-	AppController appController(*fs);
-#ifndef NOSOUND
-	SoundView soundView(appState, *fs->GetFileSystem(DIR_SOUND));
-#endif
-	GlfwInput input(appWindow.GetGlfwWindow());
-	GlfwClipboard clipboard(appWindow.GetGlfwWindow());
-	UI::LayoutManager gui(input,
-	                      clipboard,
-	                      texman,
-	                      DesktopFactory(appState,
-	                                     appController,
-	                                     *fs,
-	                                     conf,
-	                                     lang,
-	                                     logger,
-	                                     exitCommand));
-	glfwSetWindowUserPointer(&appWindow.GetGlfwWindow(), &gui);
-	gui.GetDesktop()->Resize((float) width, (float) height);
-
-//    g_env.L = gameContext.GetScriptHarness().GetLuaState();
-//    conf->InitConfigLuaBinding(g_env.L, "conf");
-//    lang->InitConfigLuaBinding(g_env.L, "lang");
-//    logger.Printf(0, "Running startup script '%s'", FILE_STARTUP);
-//    if( !script_exec_file(g_env.L, *fs, FILE_STARTUP) )
-//        logger.Printf(1, "ERROR: in startup script");
+	TzodView view(*fs, logger, app, appWindow);
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
-	for(;;)
+	for (GlfwAppWindow::PollEvents(); !appWindow.ShouldClose(); GlfwAppWindow::PollEvents())
 	{
-		if( conf.dbg_sleep.GetInt() > 0 && conf.dbg_sleep_rand.GetInt() >= 0 )
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(std::min(5000, conf.dbg_sleep.GetInt() + rand() % (conf.dbg_sleep_rand.GetInt() + 1))));
-		}
-
-		//
-		// controller pass
-		//
-
-		glfwPollEvents();
-		if (glfwWindowShouldClose(&appWindow.GetGlfwWindow()))
-			break;
-
 		float dt = timer.GetDt();
 
-		gui.TimeStep(dt); // this also sends user controller state to WorldController
-		if (GameContextBase *gc = appState.GetGameContext())
-			gc->Step(dt * conf.sv_speed.GetFloat() / 100);
+		// controller pass
+		view.Step(dt); // this also sends user controller state to WorldController
+		app.Step(dt);
 
-
-		//
 		// view pass
-		//
-
-#ifndef NOSOUND
-
-//        vec2d pos(0, 0);
-//        if (!_world.GetList(LIST_cameras).empty())
-//        {
-//            _world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
-//            {
-//                pos += static_cast<GC_Camera*>(o)->GetCameraPos();
-//            });
-//        }
-//        soundView.SetListenerPos(pos);
-
-
-		soundView.Step();
-#endif
-
-		glfwGetFramebufferSize(&appWindow.GetGlfwWindow(), &width, &height);
-		DrawingContext dc(texman, (unsigned int) width, (unsigned int) height);
-
-		render->Begin();
-		gui.Render(dc);
-		render->End();
-
-		glfwSwapBuffers(&appWindow.GetGlfwWindow());
+		view.Render(appWindow);
+		appWindow.Present();
 	}
 
-	logger.Printf(0, "Saving config to '" FILE_CONFIG "'");
-	if( !conf->Save(FILE_CONFIG) )
-	{
-		logger.Printf(1, "Failed to save config file");
-	}
+	app.Exit();
 
-	logger.Printf(0, "Exit.");
+	logger.Printf(0, "Normal exit.");
+
 	return 0;
 }
 catch (const std::exception &e)
@@ -271,4 +134,3 @@ catch (const std::exception &e)
 	return 1;
 }
 
-// end of file

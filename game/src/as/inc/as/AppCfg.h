@@ -9,8 +9,6 @@
 #define DIR_SOUND        "sounds"
 #define DIR_SCREENSHOTS  "screenshots"
 
-#define FILE_CONFIG      "config.cfg"
-#define FILE_LANGUAGE    "data/lang.cfg"
 #define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
 #define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
 
