@@ -1,7 +1,7 @@
-#include <../FileSystemImpl.h> // wtf dot dot
 #include <app/tzod.h>
 #include <app/View.h>
 #include <as/AppCfg.h>
+#include <fs/FileSystem.h>
 #include <plat/GlfwAppWindow.h>
 #include <plat/Timer.h>
 #include <ui/ConsoleBuffer.h>
@@ -46,19 +46,7 @@ namespace
 }
 
 
-// recursively print exception whats:
-static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix = std::string())
-{
-#ifdef _WIN32
-	OutputDebugStringA((prefix + e.what() + "\n").c_str());
-#endif
-	logger.Format(1) << prefix << e.what();
-	try {
-		std::rethrow_if_nested(e);
-	} catch (const std::exception &nested) {
-		print_what(logger, nested, prefix + "> ");
-	}
-}
+static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix = std::string());
 
 static UI::ConsoleBuffer s_logger(100, 500);
 
@@ -89,7 +77,7 @@ try
 	logger.Printf(0, "%s", TXT_VERSION);
 
 	logger.Printf(0, "Mount file system");
-	std::shared_ptr<FS::FileSystem> fs = FS::OSFileSystem::Create("data");
+	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
 
 	TzodApp app(*fs, logger);
 
@@ -133,4 +121,20 @@ catch (const std::exception &e)
 #endif
 	return 1;
 }
+
+// recursively print exception whats:
+static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix)
+{
+#ifdef _WIN32
+	OutputDebugStringA((prefix + e.what() + "\n").c_str());
+#endif
+	logger.Format(1) << prefix << e.what();
+	try {
+		std::rethrow_if_nested(e);
+	}
+	catch (const std::exception &nested) {
+		print_what(logger, nested, prefix + "> ");
+	}
+}
+
 

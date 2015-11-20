@@ -56,7 +56,7 @@
 
 namespace FS
 {
-	class Stream;
+	struct Stream;
 }
 
 

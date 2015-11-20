@@ -6,7 +6,7 @@
 class World;
 namespace FS
 {
-	class Stream;
+	struct Stream;
 }
 
 class EditorContext : public GameContextBase

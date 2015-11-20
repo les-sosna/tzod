@@ -11,7 +11,7 @@ class World;
 struct ScriptMessageSink;
 struct lua_State;
 namespace FS {
-	class Stream;
+	struct Stream;
 }
 
 class ScriptHarness

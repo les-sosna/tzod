@@ -8,7 +8,7 @@ class TextureManager;
 namespace FS
 {
 	class FileSystem;
-	class MemMap;
+	struct MemMap;
 }
 
 class ThemeManager : private AppStateListener

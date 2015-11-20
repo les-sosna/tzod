@@ -12,7 +12,7 @@
 
 namespace FS
 {
-	class MemMap;
+	struct MemMap;
 	class FileSystem;
 }
 

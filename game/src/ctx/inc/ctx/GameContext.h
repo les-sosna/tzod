@@ -19,7 +19,7 @@ struct GameContextBase
 namespace FS
 {
 	class FileSystem;
-	class Stream;
+	struct Stream;
 }
 class Deathmatch;
 class AIManager;

@@ -15,7 +15,7 @@
 
 namespace FS
 {
-	class Stream;
+	struct Stream;
 }
 class MapFile;
 class SaveFile;
