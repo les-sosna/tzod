@@ -19,10 +19,16 @@ static std::string w2s(const std::wstring w)
 }
 static std::string StrFromErr(DWORD dwMessageId)
 {
-	LPWSTR msgBuf = nullptr;
-	DWORD msgSize = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-	                               nullptr, dwMessageId, 0, (LPWSTR) &msgBuf, 0, nullptr);
-	while (msgBuf && msgSize)
+	WCHAR msgBuf[1024];
+	DWORD msgSize = FormatMessageW(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr,
+		dwMessageId,
+		0,
+		msgBuf,
+		1024,
+		nullptr);
+	while (msgSize)
 	{
 		if (msgBuf[msgSize - 1] == L'\n' || msgBuf[msgSize - 1] == L'\r')
 		{
@@ -34,11 +40,10 @@ static std::string StrFromErr(DWORD dwMessageId)
 		}
 	}
 
-	if (msgBuf)
+	if (msgSize)
 	{
 		std::string result;
 		utf8::utf16to8(msgBuf, msgBuf + msgSize, std::back_inserter(result));
-		LocalFree(msgBuf);
 		return result;
 	}
 	else
@@ -75,15 +80,23 @@ FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
 		dwCreationDisposition = (_mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
 	}
 
-	_file.h = ::CreateFileW(fileName.c_str(), // lpFileName
-	    dwDesiredAccess,
-	    dwShareMode,
-	    nullptr,                           // lpSecurityAttributes
-	    dwCreationDisposition,
-	    FILE_FLAG_SEQUENTIAL_SCAN,      // dwFlagsAndAttributes
-	    nullptr);                          // hTemplateFile
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+	_file.h = ::CreateFileW(fileName.c_str(),
+		dwDesiredAccess,
+		dwShareMode,
+		nullptr,                        // lpSecurityAttributes
+		dwCreationDisposition,
+		FILE_FLAG_SEQUENTIAL_SCAN,      // dwFlagsAndAttributes
+		nullptr);                       // hTemplateFile
+#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PC_APP)
+	_file.h = ::CreateFile2(fileName.c_str(),
+		dwDesiredAccess,
+		dwShareMode,
+		dwCreationDisposition,
+		nullptr);
+#endif
 
-	if( INVALID_HANDLE_VALUE == _file.h )
+	if (INVALID_HANDLE_VALUE == _file.h)
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
@@ -209,11 +222,18 @@ FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 
 void FS::OSFileSystem::OSFile::OSMemMap::SetupMapping()
 {
-	_size = GetFileSize(_hFile, nullptr);
-	if( INVALID_FILE_SIZE == _size )
+	LARGE_INTEGER size;
+	if( !GetFileSizeEx(_hFile, &size) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
+
+	if (size.HighPart > 0)
+	{
+		throw std::runtime_error("File is too large");
+	}
+
+	_size = size.LowPart;
 
 	_map.h = CreateFileMapping(_hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
 	if( nullptr == _map.h )
@@ -250,7 +270,8 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 	CloseHandle(_map.h);
 
-	if( INVALID_SET_FILE_POINTER == SetFilePointer(_hFile, size, nullptr, FILE_BEGIN) )
+	LARGE_INTEGER distance = { size };
+	if( !SetFilePointerEx(_hFile, distance, nullptr, FILE_BEGIN) )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
@@ -294,7 +315,13 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
 	utf8::utf8to16(mask.begin(), mask.end(), std::back_inserter(query));
 
 	WIN32_FIND_DATAW fd;
-	HANDLE hSearch = FindFirstFileW(query.c_str(), &fd);
+	HANDLE hSearch = FindFirstFileExW(
+		query.c_str(),
+		FindExInfoStandard,
+		&fd,
+		FindExSearchNameMatch,
+		nullptr,
+		0);
 	if( INVALID_HANDLE_VALUE == hSearch )
 	{
 		if( ERROR_FILE_NOT_FOUND == GetLastError() )
@@ -346,7 +373,13 @@ try
 
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
-	HANDLE search = FindFirstFileW(tmpDir.c_str(), &fd);
+	HANDLE search = FindFirstFileExW(
+		tmpDir.c_str(),
+		FindExInfoStandard,
+		&fd,
+		FindExSearchNameMatch,
+		nullptr,
+		0);
 
 	if (INVALID_HANDLE_VALUE != search)
 	{
@@ -367,7 +400,13 @@ try
 			else
 			{
 				// try searching again to get attributes
-				HANDLE search2 = FindFirstFileW(tmpDir.c_str(), &fd);
+				HANDLE search2 = FindFirstFileExW(
+					tmpDir.c_str(),
+					FindExInfoStandard,
+					&fd,
+					FindExSearchNameMatch,
+					nullptr,
+					0);
 				FindClose(search2);
 				if (INVALID_HANDLE_VALUE == search2)
 				{
