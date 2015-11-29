@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.3)
+cmake_minimum_required (VERSION 3.4)
 project(tzod)
 
 if(APPLE OR UNIX)
@@ -35,7 +35,7 @@ if(${OPENAL_FOUND})
 	add_subdirectory(audio)
 endif()
 
-if(NOT IOS)
+if((NOT IOS) AND (NOT WINRT))
 	add_subdirectory(platglfw)
 	add_subdirectory(tzodmain)
 endif()
