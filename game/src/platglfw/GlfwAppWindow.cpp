@@ -3,6 +3,7 @@
 #include "inc/plat/GlfwKeys.h"
 #include <ui/GuiManager.h>
 #include <ui/Window.h>
+#include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
@@ -115,6 +116,7 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	: _window(NewWindow(title, fullscreen, width, height))
 	, _clipboard(new GlfwClipboard(*_window))
 	, _input(new GlfwInput(*_window))
+	, _render(RenderCreateOpenGL())
 {
 	glfwSetMouseButtonCallback(_window.get(), OnMouseButton);
 	glfwSetCursorPosCallback(_window.get(), OnCursorPos);
@@ -140,6 +142,11 @@ UI::IClipboard& GlfwAppWindow::GetClipboard()
 UI::IInput& GlfwAppWindow::GetInput()
 {
 	return *_input;
+}
+
+IRender& GlfwAppWindow::GetRender()
+{
+	return *_render;
 }
 
 unsigned int GlfwAppWindow::GetPixelWidth()

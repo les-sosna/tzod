@@ -30,8 +30,8 @@ struct TzodViewImpl
 	SoundView soundView;
 #endif
 
-	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render, TzodApp &app, AppWindow &appWindow)
-		: textureManager(InitTextureManager(fs, logger, render))
+	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
+		: textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
 		, gui(appWindow.GetInput(),
 			appWindow.GetClipboard(),
 			textureManager,
@@ -42,21 +42,18 @@ struct TzodViewImpl
 				app.GetLang(),
 				logger,
 				[]() {}))
-
 	{}
 };
 
 TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
 	: _appWindow(appWindow)
-	, _render(RenderCreateOpenGL())
-	, _impl(new TzodViewImpl(fs, logger, *_render, app, appWindow))
+	, _impl(new TzodViewImpl(fs, logger, app, appWindow))
 #ifndef NOSOUND
 	, _soundView(app.GetAppState(), *fs->GetFileSystem(DIR_SOUND));
 #endif
 {
 	int width = appWindow.GetPixelWidth();
 	int height = appWindow.GetPixelHeight();
-	_render->OnResizeWnd(width, height);
 	_impl->gui.GetDesktop()->Resize((float)width, (float)height);
 
 	//	ThemeManager themeManager(appState, *fs, texman);
@@ -93,10 +90,9 @@ void TzodView::Render(AppWindow &appWindow)
 	unsigned int height = appWindow.GetPixelHeight();
 
 	DrawingContext dc(_impl->textureManager, width, height);
-
-	_render->Begin();
+	appWindow.GetRender().Begin();
 	_impl->gui.Render(dc);
-	_render->End();
+	appWindow.GetRender().End();
 }
 
 UI::LayoutManager& TzodView::GetGui()

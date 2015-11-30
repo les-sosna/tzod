@@ -32,6 +32,5 @@ public:
 
 private:
 	AppWindow &_appWindow;
-	std::unique_ptr<IRender> _render;
 	std::unique_ptr<struct TzodViewImpl> _impl;
 };

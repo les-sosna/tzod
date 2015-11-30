@@ -30,6 +30,7 @@ public:
 	// AppWindow
 	UI::IClipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;
+	IRender& GetRender() override;
 	unsigned int GetPixelWidth() override;
 	unsigned int GetPixelHeight() override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
@@ -39,4 +40,5 @@ private:
 	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> _window;
 	std::unique_ptr<GlfwClipboard> _clipboard;
 	std::unique_ptr<GlfwInput> _input;
+	std::unique_ptr<IRender> _render;
 };
