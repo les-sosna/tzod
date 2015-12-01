@@ -8,6 +8,7 @@
 
 #define VERTEX_ARRAY_SIZE   1024
 #define  INDEX_ARRAY_SIZE   2048
+#undef USE_MAP
 
 struct MyConstants
 {
@@ -53,16 +54,17 @@ private:
 	int GetViewportWidth() const;
 	int GetViewportHeight() const;
 
-
 	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _constantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _indexBuffer;
-	//	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerState;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout>   _inputLayout;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>  _vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateUI;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
 
 	MyConstants _constantBufferData;
 
@@ -80,66 +82,63 @@ private:
 	unsigned int _iaSize;      // number of filled elements in _indexArray
 
 	RenderMode  _mode;
-
-//	GlesProgram _program;
-//	GLuint _offset;
-//	GLuint _scale;
-//	GLuint _sampler;
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char s_vertexShader[] =
 R"(
-cbuffer MyConstantBuffer : register(b0)
-{
-	float scaleX;
-	float scaleY;
-	float offsetX;
-	float offsetY;
-};
+	cbuffer cb : register(b0)
+	{
+		float2 scale;
+		float2 offset;
+	};
 
-struct VertexShaderInput
-{
-	float3 pos : POSITION;
-	float4 color : COLOR;
-	float2 tex : TEXCOORD;
-};
+	struct VertexShaderInput
+	{
+		float3 pos : POSITION;
+		float4 color : COLOR;
+		float2 texcoord : TEXCOORD;
+	};
 
-struct PixelShaderInput
-{
-	float4 pos : SV_POSITION;
-	float4 color : COLOR;
-	float2 tex : TEXCOORD;
-};
+	struct PixelShaderInput
+	{
+		float4 hpos : SV_Position;
+		float4 color : COLOR;
+		float2 texcoord : TEXCOORD;
+	};
 
-PixelShaderInput main(VertexShaderInput input)
-{
-	PixelShaderInput output;
-	float4 pos = float4(input.pos, 1.0f);
+	PixelShaderInput main(VertexShaderInput input)
+	{
+		PixelShaderInput output;
 
-	pos = mul(pos, model);
-	pos = mul(pos, view);
-	pos = mul(pos, projection);
-	output.pos = pos;
+		output.hpos.x = (input.pos.x + offset.x) * scale.x * 2 - 1;
+		output.hpos.y = 1 - (input.pos.y + offset.y) * scale.y * 2;
+		output.hpos.zw = float2(0, 1);
 
-	output.color = input.color;
-	output.tex = input.tex;
+		output.color = input.color;
+		output.texcoord = input.texcoord;
 
-	return output;
-}
+		return output;
+	}
 )";
 
 static const char s_pixelShader[] =
 R"(
-    varying lowp vec2 texCoord;
-    varying lowp vec4 color;
-    uniform sampler2D s_tex;
-    void main()
-    {
-        gl_FragColor = texture2D(s_tex, texCoord) * color;
-    }
+	struct PixelShaderInput
+	{
+		float4 hpos : SV_Position;
+		float4 color : COLOR;
+		float2 texcoord : TEXCOORD;
+	};
+
+	Texture2D tex : register(t0);
+	SamplerState sam : register(s0);
+
+	float4 main(PixelShaderInput input) : SV_Target
+	{
+		return input.color * tex.Sample(sam, input.texcoord);
+	}
 )";
 
 static void ThrowIfFailed(HRESULT hr, const char *msg)
@@ -159,14 +158,9 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 	: _context(context)
 	, _windowWidth(0)
 	, _windowHeight(0)
-//    , _curtex(-1)
 	, _vaSize(0)
 	, _iaSize(0)
 	, _curtex(nullptr)
-	//, _program(s_vertexShader, s_fragmentShader, s_bindings)
-	//, _offset(_program.GetUniformLocation("vOffset"))
-	//, _scale(_program.GetUniformLocation("vScale"))
-	//, _sampler(_program.GetUniformLocation("s_tex"))
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
@@ -174,11 +168,35 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 	context->GetDevice(&_device);
 
 	CHECK(_device->CreateBuffer(&CD3D11_BUFFER_DESC(sizeof(MyConstants), D3D11_BIND_CONSTANT_BUFFER), nullptr, &_constantBuffer));
-	CHECK(_device->CreateBuffer(&CD3D11_BUFFER_DESC(sizeof(_vertexArray), D3D11_BIND_VERTEX_BUFFER), nullptr, &_vertexBuffer));
-	CHECK(_device->CreateBuffer(&CD3D11_BUFFER_DESC(sizeof(_indexArray), D3D11_BIND_INDEX_BUFFER), nullptr, &_indexBuffer));
 
-//	CD3D11_SAMPLER_DESC samplerDesc;
-//	CHECK(_device->CreateSamplerState(&samplerDesc, _samplerState));
+	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(_vertexArray), D3D11_BIND_VERTEX_BUFFER
+#ifdef USE_MAP
+		, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE
+#endif
+		);
+	CHECK(_device->CreateBuffer(&vertexBufferDesc, nullptr, &_vertexBuffer));
+
+	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(_indexArray), D3D11_BIND_INDEX_BUFFER
+#ifdef USE_MAP
+		, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE
+#endif
+		);
+	CHECK(_device->CreateBuffer(&indexBufferDesc, nullptr, &_indexBuffer));
+
+	CD3D11_SAMPLER_DESC samplerDesc((CD3D11_DEFAULT()));
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	CHECK(_device->CreateSamplerState(&samplerDesc, _samplerState.ReleaseAndGetAddressOf()));
+
+	CD3D11_BLEND_DESC blendDesc((CD3D11_DEFAULT()));
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	CHECK(_device->CreateBlendState(&blendDesc, _blendStateUI.ReleaseAndGetAddressOf()));
+
+	CD3D11_RASTERIZER_DESC rasterizerDesc((CD3D11_DEFAULT()));
+	//rasterizerDesc.ScissorEnable = TRUE;
+	CHECK(_device->CreateRasterizerState(&rasterizerDesc, _rasterizerState.ReleaseAndGetAddressOf()));
 
 	Microsoft::WRL::ComPtr<ID3DBlob> code;
 	Microsoft::WRL::ComPtr<ID3DBlob> log;
@@ -187,7 +205,7 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 	if (FAILED(D3DCompile(
 		s_vertexShader,                 // pSrcData
 		sizeof(s_vertexShader),         // SrcDataSize
-		"vs",                           // pSourceName
+		"vs.hlsl",                      // pSourceName
 		nullptr,                        // [opt] pDefines
 		nullptr,                        // [opt] pInclude
 		"main",                         // [opt] pEntrypoint
@@ -198,7 +216,8 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 		log.ReleaseAndGetAddressOf()    // [out] ppErrorMsgs
 		)))
 	{
-		throw std::runtime_error(log ? (const char*)log->GetBufferPointer() : "Shader compilation failed");
+		const char *msg = log ? (const char*)log->GetBufferPointer() : "Shader compilation failed";
+		throw std::runtime_error(msg);
 	}
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] =
@@ -232,7 +251,8 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 		log.ReleaseAndGetAddressOf()    // [out] ppErrorMsgs
 		)))
 	{
-		throw std::runtime_error(log ? (const char*)log->GetBufferPointer() : "Shader compilation failed");
+		const char *msg = log ? (const char*)log->GetBufferPointer() : "Shader compilation failed";
+		throw std::runtime_error(msg);
 	}
 
 	CHECK(_device->CreatePixelShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &_pixelShader));
@@ -330,7 +350,10 @@ void RenderD3D11::Begin()
 	_context->IASetInputLayout(_inputLayout.Get());
 	_context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_context->VSSetShader(_vertexShader.Get(), nullptr, 0);
+	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
 	_context->PSSetShader(_pixelShader.Get(), nullptr, 0);
+	_context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+//	_context->RSSetState(_rasterizerState.Get());
 
 //	glClearColor(0, 0, 0, _ambient);
 //	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -369,7 +392,7 @@ void RenderD3D11::SetMode(const RenderMode mode)
 		//glEnable(GL_TEXTURE_2D);
 		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-		//_context->OMSetBlendState(_hudBlendState.Get(), )
+		_context->OMSetBlendState(_blendStateUI.Get(), nullptr, ~0U);
 		break;
 
 	default:
@@ -401,8 +424,22 @@ void RenderD3D11::Flush()
 	if( _iaSize )
 	{
 		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &_constantBufferData, 0, 0);
+
+#ifdef USE_MAP
+		D3D11_MAPPED_SUBRESOURCE mapped;
+
+		CHECK(_context->Map(_vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
+		memcpy(mapped.pData, &_vertexArray, sizeof(_vertexArray[0]) * _vaSize);
+		_context->Unmap(_vertexBuffer.Get(), 0);
+
+		CHECK(_context->Map(_indexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
+		memcpy(mapped.pData, &_indexArray, sizeof(_indexArray[0]) * _iaSize);
+		_context->Unmap(_indexBuffer.Get(), 0);
+#else
 		_context->UpdateSubresource(_vertexBuffer.Get(), 0, nullptr, &_vertexArray, 0, 0);
 		_context->UpdateSubresource(_indexBuffer.Get(), 0, nullptr, &_indexArray, 0, 0);
+#endif
+
 		_context->DrawIndexed(_iaSize, 0, 0);
 		_vaSize = 0;
 		_iaSize = 0;
@@ -487,10 +524,9 @@ void RenderD3D11::SetAmbient(float ambient)
 	_ambient = ambient;
 }
 
-
 //-----------------------------------------------------------------------------
 
-std::unique_ptr<IRender> RenderCreateOpenGL(ID3D11DeviceContext *context)
+std::unique_ptr<IRender> RenderCreateD3D11(ID3D11DeviceContext *context)
 {
 	return std::unique_ptr<IRender>(new RenderD3D11(context));
 }

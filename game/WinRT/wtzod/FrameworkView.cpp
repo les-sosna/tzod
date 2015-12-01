@@ -4,6 +4,19 @@
 #include "DeviceResources.h"
 #include "SwapChainResources.h"
 
+// todo: move to main
+#include <app/View.h>
+#include <fs/FileSystem.h>
+
+// todo: move to plat-winstore
+#include <app/AppWindow.h>
+#include <ui/Clipboard.h>
+#include <ui/UIInput.h>
+#include <ui/GuiManager.h>
+#include <ui/Window.h>
+#include <video/RenderBase.h>
+#include <video/RenderD3D11.h>
+
 using namespace wtzod;
 
 using namespace concurrency;
@@ -19,7 +32,13 @@ using namespace Windows::Graphics::Display;
 FrameworkView::FrameworkView()
 	: m_windowClosed(false)
 	, m_windowVisible(true)
+	, _fs(FS::CreateOSFileSystem("StoreData/data"))
+	, _logger(100, 500)
+	, _app(*_fs, _logger)
 {
+	// todo: move out of view class
+	CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
+	CoreApplication::Resuming += ref new EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
 }
 
 FrameworkView::~FrameworkView()
@@ -31,20 +50,132 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 {
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
-	coreApplicationView->Activated +=
-		ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnActivated);
-
-	CoreApplication::Suspending +=
-		ref new EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnSuspending);
-
-	CoreApplication::Resuming +=
-		ref new EventHandler<Platform::Object^>(this, &FrameworkView::OnResuming);
+	coreApplicationView->Activated += ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnAppViewActivated);
 
 	// At this point we have access to the device. 
 	// We can create the device-dependent resources.
 	assert(!m_deviceResources);
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
 }
+
+class StoreAppClipboard : public UI::IClipboard
+{
+public:
+	const char* GetClipboardText() const override
+	{
+		return "hello";
+	}
+	void SetClipboardText(std::string text) override
+	{
+	}
+};
+
+class StoreAppInput : public UI::IInput
+{
+public:
+	bool IsKeyPressed(UI::Key key) const override { return false; }
+	bool IsMousePressed(int button) const override { return false; }
+	vec2d GetMousePos() const override { return vec2d(0, 0); }
+};
+
+class StoreAppWindow : public AppWindow
+{
+public:
+	StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources)
+		: _coreWindow(coreWindow)
+		, _deviceResources(deviceResources)
+		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext()))
+		, _inputSink(nullptr)
+	{
+		_sizeChangedToken = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
+			[&](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				_inputSink->GetDesktop()->Resize(sender->Bounds.Width, sender->Bounds.Height);
+			}
+		});
+
+		_pointerMovedToken = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+			[&](CoreWindow^ sender, PointerEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGMOUSEMOVE);
+			}
+		});
+
+		_pointerPressedToken = _coreWindow->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+			[&](CoreWindow^ sender, PointerEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGLBUTTONDOWN);
+			}
+		});
+
+		_pointerReleasedToken = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+			[&](CoreWindow^ sender, PointerEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGLBUTTONUP);
+			}
+		});
+	}
+
+	~StoreAppWindow()
+	{
+		_coreWindow->PointerReleased -= _pointerReleasedToken;
+		_coreWindow->PointerPressed -= _pointerMovedToken;
+		_coreWindow->PointerMoved -= _pointerMovedToken;
+		_coreWindow->SizeChanged -= _sizeChangedToken;
+	}
+
+	// AppWindow
+	UI::IClipboard& GetClipboard() override
+	{
+		return _clipboard;
+	}
+
+	UI::IInput& GetInput() override
+	{
+		return _input;
+	}
+
+	IRender& GetRender() override
+	{
+		return *_render;
+	}
+
+	unsigned int GetPixelWidth() override
+	{
+		return (unsigned int)_coreWindow->Bounds.Width;
+	}
+
+	unsigned int GetPixelHeight() override
+	{
+		return (unsigned int)_coreWindow->Bounds.Height;
+	}
+
+	void SetInputSink(UI::LayoutManager *inputSink) override
+	{
+		_inputSink = inputSink;
+	}
+
+private:
+	Platform::Agile<CoreWindow> _coreWindow;
+	DX::DeviceResources &_deviceResources;
+	StoreAppClipboard _clipboard;
+	StoreAppInput _input;
+	std::unique_ptr<IRender> _render;
+	UI::LayoutManager *_inputSink;
+
+	Windows::Foundation::EventRegistrationToken _sizeChangedToken;
+	Windows::Foundation::EventRegistrationToken _pointerMovedToken;
+	Windows::Foundation::EventRegistrationToken _pointerPressedToken;
+	Windows::Foundation::EventRegistrationToken _pointerReleasedToken;
+};
 
 // Called when the CoreWindow object is created (or re-created).
 void FrameworkView::SetWindow(CoreWindow^ coreWindow)
@@ -102,17 +233,12 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 		);
 	context->RSSetViewports(1, &screenViewport);
 
-	// Discard the contents of the render target.
-	// This is a valid operation only when the existing contents will be entirely
-	// overwritten. If dirty or scroll rects are used, this call should be removed.
 	context->DiscardView(swapChainResources.GetBackBufferRenderTargetView());
-
-	// Discard the contents of the depth stencil.
 	context->DiscardView(swapChainResources.GetDepthStencilView());
 
 	// Reset render targets to the screen.
 	ID3D11RenderTargetView *const targets[1] = { swapChainResources.GetBackBufferRenderTargetView() };
-	context->OMSetRenderTargets(1, targets, swapChainResources.GetDepthStencilView());
+	context->OMSetRenderTargets(1, targets, nullptr/*swapChainResources.GetDepthStencilView()*/);
 
 	// Clear the back buffer and depth stencil view.
 	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::CornflowerBlue);
@@ -122,6 +248,10 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 // This method is called after the window becomes active.
 void FrameworkView::Run()
 {
+	// todo: theese have to be recreated on device lost
+	StoreAppWindow appWindow(m_window.Get(), *m_deviceResources);
+	TzodView view(*_fs, _logger, _app, appWindow);
+
 	while (!m_windowClosed)
 	{
 		if (m_windowVisible)
@@ -133,6 +263,8 @@ void FrameworkView::Run()
 			{
 				// TODO: Replace this with your app's content update functions.
 				m_sceneRenderer->Update(m_timer);
+				view.Step(m_timer.GetElapsedSeconds());
+				_app.Step(m_timer.GetElapsedSeconds());
 			});
 
 			// Don't try to render anything before the first Update.
@@ -143,6 +275,7 @@ void FrameworkView::Run()
 				// Render the scene objects.
 				// TODO: Replace this with your app's content rendering functions.
 				m_sceneRenderer->Render();
+				view.Render(appWindow);
 
 				// The first argument instructs DXGI to block until VSync, putting the application
 				// to sleep until the next VSync. This ensures we don't waste any cycles rendering
@@ -175,15 +308,16 @@ void FrameworkView::Uninitialize()
 {
 }
 
+
 // Application lifecycle event handlers.
 
-void FrameworkView::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
+void FrameworkView::OnAppViewActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
 	// Run() won't start until the CoreWindow is activated.
 	CoreWindow::GetForCurrentThread()->Activate();
 }
 
-void FrameworkView::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
 	// Save app state asynchronously after requesting a deferral. Holding a deferral
 	// indicates that the application is busy performing suspending operations. Be
@@ -201,7 +335,7 @@ void FrameworkView::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
 	});
 }
 
-void FrameworkView::OnResuming(Platform::Object^ sender, Platform::Object^ args)
+void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ args)
 {
 	// Restore any data or state that was unloaded on suspend. By default, data
 	// and state are persisted when resuming from suspend. Note that this event
@@ -209,6 +343,7 @@ void FrameworkView::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 
 	// Insert your code here.
 }
+
 
 // Window event handlers.
 
@@ -252,15 +387,22 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 	}
 }
 
+
 void FrameworkView::HandleDeviceLost()
 {
-	m_sceneRenderer->SetSwapChainResources(nullptr);
-	m_sceneRenderer->SetDeviceResources(nullptr);
+	if (m_sceneRenderer)
+	{
+		m_sceneRenderer->SetSwapChainResources(nullptr);
+		m_sceneRenderer->SetDeviceResources(nullptr);
+	}
 
 	m_swapChainResources.reset();
 	m_deviceResources.reset(new DX::DeviceResources());
 	m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
 
-	m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
-	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
+	if (m_sceneRenderer)
+	{
+		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
+		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
+	}
 }
