@@ -122,7 +122,7 @@ KeyMapper::KeyMapper()
 	Pair( "F12",             UI::Key::F12 );
 	Pair( "Numpad Enter",    UI::Key::NumEnter );
 	Pair( "Right Ctrl",      UI::Key::RightCtrl );
-	Pair( "Numpad /",        UI::Key::NumpadSlash );
+	Pair( "Numpad /",        UI::Key::NumSlash );
 	Pair( "Print Screen",    UI::Key::PrintScreen );
 	Pair( "Right Alt",       UI::Key::RightAlt );
 	Pair( "Pause",           UI::Key::Pause );

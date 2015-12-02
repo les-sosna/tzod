@@ -58,6 +58,27 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 	m_deviceResources = std::make_shared<DX::DeviceResources>();
 }
 
+#include <ui/Keys.h>
+UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended)
+{
+	if (platformKey == Windows::System::VirtualKey::Enter && isExtended)
+	{
+		return UI::Key::NumEnter;
+	}
+
+	switch (platformKey)
+	{
+#define GEN_KEY_ENTRY(platformKey, uiKey) case platformKey: return uiKey;
+#include "WinStoreKeys.h"
+#undef GEN_KEY_ENTRY
+	default:
+		break;
+	}
+
+	return UI::Key::Unknown;
+}
+
+
 class StoreAppClipboard : public UI::IClipboard
 {
 public:
@@ -81,13 +102,13 @@ public:
 class StoreAppWindow : public AppWindow
 {
 public:
-	StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources)
+	StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
 		: _coreWindow(coreWindow)
 		, _deviceResources(deviceResources)
-		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext()))
+		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), swapChainResources.GetBackBufferRenderTargetView()))
 		, _inputSink(nullptr)
 	{
-		_sizeChangedToken = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
+		_regSizeChanged = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
 			[&](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 		{
 			if (_inputSink)
@@ -96,7 +117,7 @@ public:
 			}
 		});
 
-		_pointerMovedToken = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+		_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
 			[&](CoreWindow^ sender, PointerEventArgs^ args)
 		{
 			if (_inputSink)
@@ -105,7 +126,7 @@ public:
 			}
 		});
 
-		_pointerPressedToken = _coreWindow->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+		_regPointerPressed = _coreWindow->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
 			[&](CoreWindow^ sender, PointerEventArgs^ args)
 		{
 			if (_inputSink)
@@ -114,7 +135,7 @@ public:
 			}
 		});
 
-		_pointerReleasedToken = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
+		_regPointerReleased = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
 			[&](CoreWindow^ sender, PointerEventArgs^ args)
 		{
 			if (_inputSink)
@@ -122,14 +143,54 @@ public:
 				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGLBUTTONUP);
 			}
 		});
+
+		_coreWindow->PointerWheelChanged += ref new TypedEventHandler<CoreWindow ^, PointerEventArgs ^>(
+			[&](CoreWindow^ sender, PointerEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				int delta = args->CurrentPoint->Properties->MouseWheelDelta;
+				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, (float) delta / 120.f, UI::MSGMOUSEWHEEL);
+			}
+		});
+
+		_regKeyDown = _coreWindow->KeyDown += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
+			[&](CoreWindow^ sender, KeyEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessKeys(UI::MSGKEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			}
+		});
+
+		_regKeyUp = _coreWindow->KeyUp += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
+			[&](CoreWindow^ sender, KeyEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessKeys(UI::MSGKEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			}
+		});
+
+		_regCharacterReceived = _coreWindow->CharacterReceived += ref new TypedEventHandler<CoreWindow ^, CharacterReceivedEventArgs ^>(
+			[&](CoreWindow^ sender, CharacterReceivedEventArgs^ args)
+		{
+			if (_inputSink)
+			{
+				args->Handled = _inputSink->ProcessText(args->KeyCode);
+			}
+		});
 	}
 
 	~StoreAppWindow()
 	{
-		_coreWindow->PointerReleased -= _pointerReleasedToken;
-		_coreWindow->PointerPressed -= _pointerMovedToken;
-		_coreWindow->PointerMoved -= _pointerMovedToken;
-		_coreWindow->SizeChanged -= _sizeChangedToken;
+		_coreWindow->CharacterReceived -= _regCharacterReceived;
+		_coreWindow->KeyUp -= _regKeyUp;
+		_coreWindow->KeyDown -= _regKeyDown;
+		_coreWindow->PointerReleased -= _regPointerReleased;
+		_coreWindow->PointerPressed -= _regPointerMoved;
+		_coreWindow->PointerMoved -= _regPointerMoved;
+		_coreWindow->SizeChanged -= _regSizeChanged;
 	}
 
 	// AppWindow
@@ -171,10 +232,13 @@ private:
 	std::unique_ptr<IRender> _render;
 	UI::LayoutManager *_inputSink;
 
-	Windows::Foundation::EventRegistrationToken _sizeChangedToken;
-	Windows::Foundation::EventRegistrationToken _pointerMovedToken;
-	Windows::Foundation::EventRegistrationToken _pointerPressedToken;
-	Windows::Foundation::EventRegistrationToken _pointerReleasedToken;
+	Windows::Foundation::EventRegistrationToken _regSizeChanged;
+	Windows::Foundation::EventRegistrationToken _regPointerMoved;
+	Windows::Foundation::EventRegistrationToken _regPointerPressed;
+	Windows::Foundation::EventRegistrationToken _regPointerReleased;
+	Windows::Foundation::EventRegistrationToken _regKeyDown;
+	Windows::Foundation::EventRegistrationToken _regKeyUp;
+	Windows::Foundation::EventRegistrationToken _regCharacterReceived;
 };
 
 // Called when the CoreWindow object is created (or re-created).
@@ -241,7 +305,7 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 	context->OMSetRenderTargets(1, targets, nullptr/*swapChainResources.GetDepthStencilView()*/);
 
 	// Clear the back buffer and depth stencil view.
-	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::CornflowerBlue);
+	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::Transparent);
 	context->ClearDepthStencilView(swapChainResources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
@@ -249,14 +313,14 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 void FrameworkView::Run()
 {
 	// todo: theese have to be recreated on device lost
-	StoreAppWindow appWindow(m_window.Get(), *m_deviceResources);
+	StoreAppWindow appWindow(m_window.Get(), *m_deviceResources, *m_swapChainResources);
 	TzodView view(*_fs, _logger, _app, appWindow);
 
 	while (!m_windowClosed)
 	{
 		if (m_windowVisible)
 		{
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 			// Update scene objects.
 			m_timer.Tick([&]()
@@ -296,7 +360,7 @@ void FrameworkView::Run()
 		}
 		else
 		{
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	}
 }
@@ -314,7 +378,7 @@ void FrameworkView::Uninitialize()
 void FrameworkView::OnAppViewActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
 	// Run() won't start until the CoreWindow is activated.
-	CoreWindow::GetForCurrentThread()->Activate();
+	applicationView->CoreWindow->Activate();
 }
 
 void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)

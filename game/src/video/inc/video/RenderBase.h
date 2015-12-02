@@ -85,9 +85,6 @@ struct IRender
 	virtual void SetViewport(const RectRB *rect) = 0;
 	virtual void Camera(const RectRB *vp, float x, float y, float scale) = 0;
 
-    virtual int GetWidth() const = 0;
-    virtual int GetHeight() const = 0;
-
 	virtual void SetAmbient(float ambient) = 0;
 	virtual void SetMode (const RenderMode mode) = 0;
 	virtual void Begin   (void) = 0;
