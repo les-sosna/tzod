@@ -48,6 +48,7 @@
     <ClCompile Include="SwapChainResources.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
+    <ClCompile Include="DisplayOrientation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="FrameworkView.h" />
+    <ClInclude Include="DisplayOrientation.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

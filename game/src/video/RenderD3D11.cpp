@@ -3,6 +3,7 @@
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <D3Dcompiler.h>
+#include <DirectXMath.h>
 #include <cstring>
 #include <stdexcept>
 
@@ -12,10 +13,7 @@
 
 struct MyConstants
 {
-	float scaleX;
-	float scaleY;
-	float offsetX;
-	float offsetY;
+	DirectX::XMFLOAT4X4 viewProj;
 };
 
 
@@ -27,6 +25,7 @@ public:
 
 	// IRender
 	void OnResizeWnd(unsigned int width, unsigned int height) override;
+	void SetDisplayOrientation(DisplayOrientation displayOrientation) override;
 
 	void SetViewport(const RectRB *rect) override;
 	void SetScissor(const RectRB *rect) override;
@@ -65,11 +64,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateLight;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
 
-	MyConstants _constantBufferData;
-
 	int _windowWidth;
 	int _windowHeight;
-	RectRB _rtViewport;
+	RectRB _viewport;
+	vec2d _cameraEye;
+	DisplayOrientation _displayOrientation;
 
 	void* _curtex;
 	float _ambient;
@@ -89,8 +88,7 @@ static const char s_vertexShader[] =
 R"(
 	cbuffer cb : register(b0)
 	{
-		float2 scale;
-		float2 offset;
+		float4x4 viewProj;
 	};
 
 	struct VertexShaderInput
@@ -111,10 +109,7 @@ R"(
 	{
 		PixelShaderInput output;
 
-		output.hpos.x = (input.pos.x + offset.x) * scale.x * 2 - 1;
-		output.hpos.y = 1 - (input.pos.y + offset.y) * scale.y * 2;
-		output.hpos.zw = float2(0, 1);
-
+		output.hpos = mul(float4(input.pos.xy, 0, 1), viewProj);
 		output.color = input.color;
 		output.texcoord = input.texcoord;
 
@@ -168,6 +163,109 @@ static void ThrowIfFailed(HRESULT hr, const char *msg)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const DirectX::XMFLOAT4X4 s_rotation0(
+	 1.f, 0.f, 0.f, 0.f,
+	 0.f, 1.f, 0.f, 0.f,
+	 0.f, 0.f, 1.f, 0.f,
+	 0.f, 0.f, 0.f, 1.f);
+
+static const DirectX::XMFLOAT4X4 s_rotation90(
+	 0.f, 1.f, 0.f, 0.f,
+	-1.f, 0.f, 0.f, 0.f,
+	 0.f, 0.f, 1.f, 0.f,
+	 0.f, 0.f, 0.f, 1.f);
+
+static const DirectX::XMFLOAT4X4 s_rotation180(
+	-1.f, 0.f, 0.f, 0.f,
+	 0.f,-1.f, 0.f, 0.f,
+	 0.f, 0.f, 1.f, 0.f,
+	 0.f, 0.f, 0.f, 1.f);
+
+static const DirectX::XMFLOAT4X4 s_rotation270(
+	 0.f,-1.f, 0.f, 0.f,
+	 1.f, 0.f, 0.f, 0.f,
+	 0.f, 0.f, 1.f, 0.f,
+	 0.f, 0.f, 0.f, 1.f);
+
+static RectRB ApplyRectRotation(const RectRB &rect, int windowWidth, int windowHeight, DisplayOrientation orientation)
+{
+	RectRB result;
+	switch (orientation)
+	{
+	default:
+		assert(false);
+	case DO_0:
+		result = rect;
+		break;
+	case DO_90:
+		result.left = windowHeight - HEIGHT(rect) - rect.top;
+		result.top = rect.left;
+		result.right = windowHeight - rect.top;
+		result.bottom = rect.left + WIDTH(rect);
+		break;
+	case DO_180:
+		result.left = windowWidth - WIDTH(rect) - rect.left;
+		result.top = windowHeight - HEIGHT(rect) - rect.top;
+		result.right = windowWidth - rect.left;
+		result.bottom = windowHeight - rect.top;
+		break;
+	case DO_270:
+		result.left = rect.top;
+		result.top = windowWidth - WIDTH(rect) - rect.left;
+		result.right = rect.top + HEIGHT(rect);
+		result.bottom = windowWidth - rect.left;
+		break;
+	}
+	return result;
+}
+
+static D3D11_RECT AsD3D11Rect(const RectRB &rect)
+{
+	return D3D11_RECT{ rect.left, rect.top, rect.right, rect.bottom };
+}
+
+static D3D11_VIEWPORT AsD3D11Viewport(const RectRB &rect)
+{
+	return D3D11_VIEWPORT
+	{
+		(FLOAT)rect.left,
+		(FLOAT)rect.top,
+		(FLOAT)WIDTH(rect),
+		(FLOAT)HEIGHT(rect),
+		0.f, // MinDepth
+		1.f // MaxDepth
+	};
+}
+
+static const DirectX::XMFLOAT4X4* GetOrientationTransform(DisplayOrientation orientation)
+{
+	switch (orientation)
+	{
+	default:
+		assert(false);
+	case DO_0:
+		return &s_rotation0;
+	case DO_90:
+		return &s_rotation90;
+	case DO_180:
+		return &s_rotation180;
+	case DO_270:
+		return &s_rotation270;
+	}
+}
+
+static float GetProjWidth(const RectRB &viewport, DisplayOrientation orientation)
+{
+	return (float)((DO_90 == orientation || DO_270 == orientation) ? HEIGHT(viewport) : WIDTH(viewport));
+}
+
+static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientation)
+{
+	return (float)((DO_90 == orientation || DO_270 == orientation) ? WIDTH(viewport) : HEIGHT(viewport));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *rtv)
 	: _context(context)
 	, _rtv(rtv)
@@ -176,6 +274,7 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *r
 	, _vaSize(0)
 	, _iaSize(0)
 	, _curtex(nullptr)
+	, _displayOrientation(DO_0)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
@@ -310,6 +409,11 @@ RenderD3D11::~RenderD3D11()
 {
 }
 
+void RenderD3D11::SetDisplayOrientation(DisplayOrientation displayOrientation)
+{
+	_displayOrientation = displayOrientation;
+}
+
 void RenderD3D11::OnResizeWnd(unsigned int width, unsigned int height)
 {
 	_windowWidth = (int) width;
@@ -321,41 +425,15 @@ void RenderD3D11::OnResizeWnd(unsigned int width, unsigned int height)
 void RenderD3D11::SetScissor(const RectRB *rect)
 {
 	Flush();
-	if( rect )
-	{
-		D3D11_RECT rect11 = { rect->left, rect->top, rect->right, rect->bottom };
-		_context->RSSetScissorRects(1, &rect11);
-	}
-	else
-	{
-		D3D11_RECT rect11 = { 0, 0, _windowWidth, _windowHeight };
-		_context->RSSetScissorRects(1, &rect11);
-	}
+	RectRB scissor = rect ? *rect : RectRB{ 0, 0, _windowWidth, _windowHeight };
+	_context->RSSetScissorRects(1, &AsD3D11Rect(ApplyRectRotation(scissor, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
 void RenderD3D11::SetViewport(const RectRB *rect)
 {
 	Flush();
-
-	if( rect )
-	{
-		_rtViewport = *rect;
-		_constantBufferData.scaleX = 1.0f / WIDTH(*rect);
-		_constantBufferData.scaleY = 1.0f / HEIGHT(*rect);
-
-		D3D11_VIEWPORT viewport = { (FLOAT)rect->left, (FLOAT)rect->top, (FLOAT)WIDTH(*rect), (FLOAT)HEIGHT(*rect), 0.f, 1.f };
-		_context->RSSetViewports(1, &viewport);
-	}
-	else
-	{
-		_rtViewport = RectRB{ 0, 0, _windowWidth, _windowHeight };
-		_constantBufferData.scaleX = 1.0f / _windowWidth;
-		_constantBufferData.scaleY = 1.0f / _windowHeight;
-
-		// TODO: try removing viewport
-		D3D11_VIEWPORT viewport = { 0.f, 0.f, (FLOAT)_windowWidth, (FLOAT)_windowHeight, 0.f, 1.f };
-		_context->RSSetViewports(1, &viewport);
-	}
+	_viewport = rect ? *rect : RectRB{ 0, 0, _windowWidth, _windowHeight };
+	_context->RSSetViewports(1, &AsD3D11Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
 void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
@@ -364,8 +442,7 @@ void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
 	SetScissor(vp);
 
 	// TODO: scale
-	_constantBufferData.offsetX = vp ? (float) WIDTH(*vp) / 2 - x : .0f;
-	_constantBufferData.offsetY = vp ? (float)HEIGHT(*vp) / 2 - y : .0f;
+	_cameraEye = vec2d(x, y);
 }
 
 void RenderD3D11::Begin()
@@ -445,7 +522,15 @@ void RenderD3D11::Flush()
 {
 	if( _iaSize )
 	{
-		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &_constantBufferData, 0, 0);
+		MyConstants constantBufferData;
+		DirectX::XMMATRIX view = _mode == RM_INTERFACE ?
+			DirectX::XMMatrixTranslation(-(float)WIDTH(_viewport) / 2, -(float)HEIGHT(_viewport) / 2, 0.f) :
+			DirectX::XMMatrixTranslation(-_cameraEye.x, -_cameraEye.y, 0.f);
+		DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH(
+			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
+		DirectX::XMMATRIX orientation = DirectX::XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
+		DirectX::XMStoreFloat4x4(&constantBufferData.viewProj, DirectX::XMMatrixTranspose(view * orientation * proj));
+		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
 
 #ifdef USE_MAP
 		D3D11_MAPPED_SUBRESOURCE mapped;

@@ -31,6 +31,7 @@ private:
 	void Flush();
 
 	void OnResizeWnd(unsigned int width, unsigned int height) override;
+	void SetDisplayOrientation(DisplayOrientation displayOrientation) override { assert(DO_0 == displayOrientation); }
 
 	void SetViewport(const RectRB *rect) override;
 	void SetScissor(const RectRB *rect) override;

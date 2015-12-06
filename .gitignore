@@ -25,3 +25,4 @@ game/WinRT/wtzod/Debug/
 game/WinRT/Debug/
 game/WinRT/ARM/
 game/WinRT/ipch/
+*.user

@@ -3,6 +3,7 @@
 #include "Content\Sample3DSceneRenderer.h"
 #include "DeviceResources.h"
 #include "SwapChainResources.h"
+#include "DisplayOrientation.h"
 
 // todo: move to main
 #include <app/View.h>
@@ -99,21 +100,51 @@ public:
 	vec2d GetMousePos() const override { return vec2d(0, 0); }
 };
 
+static ::DisplayOrientation DOFromDegrees(int degrees)
+{
+	switch (degrees)
+	{
+	default: assert(false);
+	case 0: return DO_0;
+	case 90: return DO_90;
+	case 180: return DO_180;
+	case 270: return DO_270;
+	}
+}
+
+static float PixelsFromDips(float dips, float dpi)
+{
+	const float defaultDpi = 96.0f;
+	return dips * dpi / defaultDpi;
+}
+
 class StoreAppWindow : public AppWindow
 {
 public:
 	StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
-		: _coreWindow(coreWindow)
+		: _displayInformation(DisplayInformation::GetForCurrentView())
+		, _coreWindow(coreWindow)
 		, _deviceResources(deviceResources)
-		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), swapChainResources.GetBackBufferRenderTargetView()))
+		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), nullptr/*swapChainResources.GetBackBufferRenderTargetView()*/))
 		, _inputSink(nullptr)
 	{
+		_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation)));
+		_regOrientationChanged = _displayInformation->OrientationChanged += ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(
+			[&](DisplayInformation^ sender, Platform::Object^)
+		{
+			if (_inputSink)
+			{
+				_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
+			}
+		});
+
 		_regSizeChanged = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
 			[&](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 		{
 			if (_inputSink)
 			{
-				_inputSink->GetDesktop()->Resize(sender->Bounds.Width, sender->Bounds.Height);
+				float dpi = _displayInformation->LogicalDpi;
+				_inputSink->GetDesktop()->Resize(PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi));
 			}
 		});
 
@@ -122,7 +153,10 @@ public:
 		{
 			if (_inputSink)
 			{
-				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGMOUSEMOVE);
+				float dpi = _displayInformation->LogicalDpi;
+				args->Handled = _inputSink->ProcessMouse(
+					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGMOUSEMOVE);
 			}
 		});
 
@@ -131,7 +165,10 @@ public:
 		{
 			if (_inputSink)
 			{
-				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGLBUTTONDOWN);
+				float dpi = _displayInformation->LogicalDpi;
+				args->Handled = _inputSink->ProcessMouse(
+					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONDOWN);
 			}
 		});
 
@@ -140,7 +177,10 @@ public:
 		{
 			if (_inputSink)
 			{
-				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, 0, UI::MSGLBUTTONUP);
+				float dpi = _displayInformation->LogicalDpi;
+				args->Handled = _inputSink->ProcessMouse(
+					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONUP);
 			}
 		});
 
@@ -150,7 +190,10 @@ public:
 			if (_inputSink)
 			{
 				int delta = args->CurrentPoint->Properties->MouseWheelDelta;
-				args->Handled = _inputSink->ProcessMouse(args->CurrentPoint->Position.X, args->CurrentPoint->Position.Y, (float) delta / 120.f, UI::MSGMOUSEWHEEL);
+				float dpi = _displayInformation->LogicalDpi;
+				args->Handled = _inputSink->ProcessMouse(
+					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), (float) delta / 120.f, UI::MSGMOUSEWHEEL);
 			}
 		});
 
@@ -191,6 +234,8 @@ public:
 		_coreWindow->PointerPressed -= _regPointerMoved;
 		_coreWindow->PointerMoved -= _regPointerMoved;
 		_coreWindow->SizeChanged -= _regSizeChanged;
+
+		_displayInformation->OrientationChanged -= _regOrientationChanged;
 	}
 
 	// AppWindow
@@ -211,12 +256,14 @@ public:
 
 	unsigned int GetPixelWidth() override
 	{
-		return (unsigned int)_coreWindow->Bounds.Width;
+		float dpi = _displayInformation->LogicalDpi;
+		return (unsigned int)PixelsFromDips(_coreWindow->Bounds.Width, dpi);
 	}
 
 	unsigned int GetPixelHeight() override
 	{
-		return (unsigned int)_coreWindow->Bounds.Height;
+		float dpi = _displayInformation->LogicalDpi;
+		return (unsigned int)PixelsFromDips(_coreWindow->Bounds.Height, dpi);
 	}
 
 	void SetInputSink(UI::LayoutManager *inputSink) override
@@ -225,6 +272,9 @@ public:
 	}
 
 private:
+	DisplayInformation^ _displayInformation;
+	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
+
 	Platform::Agile<CoreWindow> _coreWindow;
 	DX::DeviceResources &_deviceResources;
 	StoreAppClipboard _clipboard;
@@ -305,7 +355,7 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 	context->OMSetRenderTargets(1, targets, nullptr/*swapChainResources.GetDepthStencilView()*/);
 
 	// Clear the back buffer and depth stencil view.
-	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::Transparent);
+	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::YellowGreen/*Transparent*/);
 	context->ClearDepthStencilView(swapChainResources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 

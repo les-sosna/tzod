@@ -199,6 +199,7 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DisplayOrientation.h" />
     <ClInclude Include="FrameworkView.h" />
     <ClInclude Include="Content\Sample3DSceneRenderer.h" />
     <ClInclude Include="Content\ShaderStructures.h" />
@@ -209,6 +210,7 @@
     <ClInclude Include="SwapChainResources.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayOrientation.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
     <ClCompile Include="Content\Sample3DSceneRenderer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />

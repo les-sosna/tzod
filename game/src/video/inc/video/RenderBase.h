@@ -55,6 +55,14 @@ enum RenderMode
 	RM_FORCE32BIT    = 0xffffffff
 };
 
+enum DisplayOrientation
+{
+	DO_0,
+	DO_90,
+	DO_180,
+	DO_270,
+};
+
 struct MyVertex
 {                        // offset  size
 	float        x,y,z;  //   0      12
@@ -78,8 +86,9 @@ public:
 
 struct IRender
 {
-    virtual ~IRender() {}
+	virtual ~IRender() {}
 	virtual void OnResizeWnd(unsigned int width, unsigned int height) = 0;
+	virtual void SetDisplayOrientation(DisplayOrientation displayOrientation) = 0;
 
 	virtual void SetScissor(const RectRB *rect) = 0;
 	virtual void SetViewport(const RectRB *rect) = 0;
