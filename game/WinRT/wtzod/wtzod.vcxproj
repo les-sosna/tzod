@@ -201,8 +201,6 @@
   <ItemGroup>
     <ClInclude Include="DisplayOrientation.h" />
     <ClInclude Include="FrameworkView.h" />
-    <ClInclude Include="Content\Sample3DSceneRenderer.h" />
-    <ClInclude Include="Content\ShaderStructures.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="pch.h" />
@@ -212,7 +210,6 @@
   <ItemGroup>
     <ClCompile Include="DisplayOrientation.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
-    <ClCompile Include="Content\Sample3DSceneRenderer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -230,14 +227,6 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="wtzod_TemporaryKey.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Content\SamplePixelShader.hlsl">
-      <ShaderType>Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Content\SampleVertexShader.hlsl">
-      <ShaderType>Vertex</ShaderType>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\_build\data\StoreData.vcxproj">

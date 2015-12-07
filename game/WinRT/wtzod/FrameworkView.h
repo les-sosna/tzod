@@ -20,8 +20,6 @@ namespace FS
 
 namespace wtzod
 {
-	class Sample3DSceneRenderer;
-
 	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
 	ref class FrameworkView sealed : public Windows::ApplicationModel::Core::IFrameworkView
 	{
@@ -60,9 +58,7 @@ namespace wtzod
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
-
 		std::shared_ptr<DX::SwapChainResources> m_swapChainResources;
-		std::unique_ptr<Sample3DSceneRenderer> m_sceneRenderer;
 
 		// Rendering loop timer.
 		DX::StepTimer m_timer;

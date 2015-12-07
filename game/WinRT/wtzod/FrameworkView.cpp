@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "FrameworkView.h"
-#include "Content\Sample3DSceneRenderer.h"
 #include "DeviceResources.h"
 #include "SwapChainResources.h"
 #include "DisplayOrientation.h"
@@ -324,12 +323,6 @@ void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 // Initializes scene resources, or loads a previously saved app state.
 void FrameworkView::Load(Platform::String^ entryPoint)
 {
-	if (m_sceneRenderer == nullptr)
-	{
-		m_sceneRenderer = std::unique_ptr<Sample3DSceneRenderer>(new Sample3DSceneRenderer());
-		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
-		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
-	}
 }
 
 // Renders the current frame according to the current application state.
@@ -338,25 +331,13 @@ static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChain
 {
 	auto context = deviceResources.GetD3DDeviceContext();
 
-	// Set the 3D rendering viewport to target the entire screen.
-	auto screenViewport = CD3D11_VIEWPORT(
-		0.0f,
-		0.0f,
-		swapChainResources.GetRenderTargetSize().Width,
-		swapChainResources.GetRenderTargetSize().Height
-		);
-	context->RSSetViewports(1, &screenViewport);
-
 	context->DiscardView(swapChainResources.GetBackBufferRenderTargetView());
-	context->DiscardView(swapChainResources.GetDepthStencilView());
 
 	// Reset render targets to the screen.
 	ID3D11RenderTargetView *const targets[1] = { swapChainResources.GetBackBufferRenderTargetView() };
 	context->OMSetRenderTargets(1, targets, nullptr/*swapChainResources.GetDepthStencilView()*/);
 
-	// Clear the back buffer and depth stencil view.
 	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::YellowGreen/*Transparent*/);
-	context->ClearDepthStencilView(swapChainResources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 // This method is called after the window becomes active.
@@ -372,23 +353,17 @@ void FrameworkView::Run()
 		{
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
-			// Update scene objects.
 			m_timer.Tick([&]()
 			{
-				// TODO: Replace this with your app's content update functions.
-				m_sceneRenderer->Update(m_timer);
-				view.Step(m_timer.GetElapsedSeconds());
-				_app.Step(m_timer.GetElapsedSeconds());
+				float dt = (float)m_timer.GetElapsedSeconds();
+				view.Step(dt);
+				_app.Step(dt);
 			});
 
 			// Don't try to render anything before the first Update.
 			if (m_timer.GetFrameCount() > 0)
 			{
 				PrepareForRender(*m_deviceResources, *m_swapChainResources);
-				
-				// Render the scene objects.
-				// TODO: Replace this with your app's content rendering functions.
-				m_sceneRenderer->Render();
 				view.Render(appWindow);
 
 				// The first argument instructs DXGI to block until VSync, putting the application
@@ -464,7 +439,6 @@ void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ ar
 void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
 	m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
-	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
 void FrameworkView::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
@@ -481,16 +455,15 @@ void FrameworkView::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
 
 void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
+	m_swapChainResources->SetDpi(sender->LogicalDpi);
+
 	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
-	Size logicalSize(m_window->Bounds.Width, m_window->Bounds.Height);
-	m_swapChainResources->SetDpi(sender->LogicalDpi, logicalSize);
-	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
+	m_swapChainResources->SetLogicalSize(Size(m_window->Bounds.Width, m_window->Bounds.Height));
 }
 
 void FrameworkView::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 {
 	m_swapChainResources->SetCurrentOrientation(sender->CurrentOrientation);
-	m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
 }
 
 void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
@@ -501,22 +474,9 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 	}
 }
 
-
 void FrameworkView::HandleDeviceLost()
 {
-	if (m_sceneRenderer)
-	{
-		m_sceneRenderer->SetSwapChainResources(nullptr);
-		m_sceneRenderer->SetDeviceResources(nullptr);
-	}
-
 	m_swapChainResources.reset();
 	m_deviceResources.reset(new DX::DeviceResources());
 	m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
-
-	if (m_sceneRenderer)
-	{
-		m_sceneRenderer->SetDeviceResources(m_deviceResources.get());
-		m_sceneRenderer->SetSwapChainResources(m_swapChainResources.get());
-	}
 }
