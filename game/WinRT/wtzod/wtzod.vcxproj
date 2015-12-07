@@ -209,6 +209,7 @@
     <ClInclude Include="StoreAppInput.h" />
     <ClInclude Include="StoreAppWindow.h" />
     <ClInclude Include="SwapChainResources.h" />
+    <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisplayOrientation.cpp" />

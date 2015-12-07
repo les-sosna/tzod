@@ -39,7 +39,7 @@ namespace DX
 	inline float ConvertDipsToPixels(float dips, float dpi)
 	{
 		static const float dipsPerInch = 96.0f;
-		return floorf(dips * dpi / dipsPerInch + 0.5f); // Round to nearest integer.
+		return dips * dpi / dipsPerInch;
 	}
 
 #if defined(_DEBUG)

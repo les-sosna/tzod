@@ -47,6 +47,7 @@
     <ClInclude Include="StoreAppWindow.h" />
     <ClInclude Include="StoreAppInput.h" />
     <ClInclude Include="StoreAppClipboard.h" />
+    <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

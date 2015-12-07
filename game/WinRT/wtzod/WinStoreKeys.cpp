@@ -20,3 +20,17 @@ UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExten
 
 	return UI::Key::Unknown;
 }
+
+Windows::System::VirtualKey UnmapWinStoreKeyCode(UI::Key key)
+{
+	switch (key)
+	{
+#define GEN_KEY_ENTRY(platformKey, uiKey) case uiKey: return platformKey;
+#include "WinStoreKeys.gen"
+#undef GEN_KEY_ENTRY
+	default:
+		break;
+	}
+
+	return Windows::System::VirtualKey::None;
+}

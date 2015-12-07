@@ -14,4 +14,4 @@ namespace Windows
 }
 
 UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended);
-//Windows::System::VirtualKey platformKey UnmapWinStoreKeyCode(UI::Key key);
+Windows::System::VirtualKey UnmapWinStoreKeyCode(UI::Key key);

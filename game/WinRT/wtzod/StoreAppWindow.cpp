@@ -40,6 +40,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	: _displayInformation(DisplayInformation::GetForCurrentView())
 	, _coreWindow(coreWindow)
 	, _deviceResources(deviceResources)
+	, _input(coreWindow)
 	, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), nullptr/*swapChainResources.GetBackBufferRenderTargetView()*/))
 	, _inputSink(std::make_shared<UI::LayoutManager*>())
 {
