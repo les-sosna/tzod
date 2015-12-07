@@ -1,4 +1,9 @@
 ﻿#pragma once
+#include <wrl/client.h>
+
+enum D3D_FEATURE_LEVEL;
+struct ID3D11Device2;
+struct ID3D11DeviceContext2;
 
 namespace DX
 {
