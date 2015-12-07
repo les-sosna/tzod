@@ -3,10 +3,6 @@
 #include "pch.h"
 #include "StepTimer.h"
 
-// todo: move to main
-#include <app/tzod.h>
-#include <ui/ConsoleBuffer.h>
-
 namespace DX
 {
 	class DeviceResources;
@@ -18,13 +14,24 @@ namespace FS
 	class FileSystem;
 }
 
+namespace UI
+{
+	class ConsoleBuffer;
+}
+
+class TzodApp;
+class TzodView;
+class StoreAppWindow;
+
 namespace wtzod
 {
 	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
 	ref class FrameworkView sealed : public Windows::ApplicationModel::Core::IFrameworkView
 	{
+	internal:
+		FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app);
+
 	public:
-		FrameworkView();
 		virtual ~FrameworkView();
 
 		// IFrameworkView
@@ -51,14 +58,16 @@ namespace wtzod
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
 	private:
-		// todo: move out of view class
-		std::shared_ptr<FS::FileSystem> _fs;
-		UI::ConsoleBuffer _logger;
-		TzodApp _app;
+		FS::FileSystem &_fs;
+		UI::ConsoleBuffer &_logger;
+		TzodApp &_app;
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		std::shared_ptr<DX::SwapChainResources> m_swapChainResources;
+
+		std::unique_ptr<StoreAppWindow> _appWindow;
+		std::unique_ptr<TzodView> _view;
 
 		// Rendering loop timer.
 		DX::StepTimer m_timer;

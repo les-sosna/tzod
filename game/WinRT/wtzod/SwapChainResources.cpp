@@ -66,32 +66,35 @@ DX::SwapChainResources::~SwapChainResources()
 {
 }
 
-void DX::SwapChainResources::SetLogicalSize(Size logicalSize)
+bool DX::SwapChainResources::SetLogicalSize(Size logicalSize)
 {
 	if (m_logicalSize != logicalSize)
 	{
 		m_logicalSize == logicalSize;
-		ResizeSwapChain(logicalSize, m_dpi);
+		return ResizeSwapChain(logicalSize, m_dpi);
 	}
+	return true;
 }
 
-void DX::SwapChainResources::SetDpi(float dpi)
+bool DX::SwapChainResources::SetDpi(float dpi)
 {
 	if (dpi != m_dpi)
 	{
 		m_dpi = dpi;
-		ResizeSwapChain(m_logicalSize, dpi);
+		return ResizeSwapChain(m_logicalSize, dpi);
 	}
+	return true;
 }
 
 // This method is called in the event handler for the OrientationChanged event.
-void DX::SwapChainResources::SetCurrentOrientation(DisplayOrientations currentOrientation)
+bool DX::SwapChainResources::SetCurrentOrientation(DisplayOrientations currentOrientation)
 {
 	if (m_currentOrientation != currentOrientation)
 	{
 		m_currentOrientation = currentOrientation;
-		ResizeSwapChain(m_logicalSize, m_dpi);
+		return ResizeSwapChain(m_logicalSize, m_dpi);
 	}
+	return true;
 }
 
 static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
@@ -106,7 +109,7 @@ static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
 	}
 }
 
-void DX::SwapChainResources::ResizeSwapChain(Windows::Foundation::Size logicalSize, float dpi)
+bool DX::SwapChainResources::ResizeSwapChain(Windows::Foundation::Size logicalSize, float dpi)
 {
 	assert(m_swapChain != nullptr);
 
@@ -140,12 +143,7 @@ void DX::SwapChainResources::ResizeSwapChain(Windows::Foundation::Size logicalSi
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{
 		// If the device was removed for any reason, a new device and swap chain will need to be created.
-		assert(false);
-		//HandleDeviceLost();
-
-		// Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method 
-		// and correctly set up the new device.
-		return;
+		return false;
 	}
 	else
 	{
@@ -162,4 +160,6 @@ void DX::SwapChainResources::ResizeSwapChain(Windows::Foundation::Size logicalSi
 		backBuffer.Get(),
 		nullptr,
 		&m_d3dRenderTargetView));
+
+	return true;
 }

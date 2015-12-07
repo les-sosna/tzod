@@ -10,15 +10,15 @@ namespace DX
 		SwapChainResources(DeviceResources &deviceResources, Windows::UI::Core::CoreWindow ^coreWindow);
 		~SwapChainResources();
 
-		void SetLogicalSize(Windows::Foundation::Size logicalSize);
-		void SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations currentOrientation);
-		void SetDpi(float dpi);
+		bool SetLogicalSize(Windows::Foundation::Size logicalSize);
+		bool SetCurrentOrientation(Windows::Graphics::Display::DisplayOrientations currentOrientation);
+		bool SetDpi(float dpi);
 
 		IDXGISwapChain1*		GetSwapChain() const { return m_swapChain.Get(); }
 		ID3D11RenderTargetView*	GetBackBufferRenderTargetView() const { return m_d3dRenderTargetView.Get(); }
 
 	private:
-		void ResizeSwapChain(Windows::Foundation::Size logicalSize, float dpi);
+		bool ResizeSwapChain(Windows::Foundation::Size logicalSize, float dpi);
 
 		DeviceResources &m_deviceResources;
 

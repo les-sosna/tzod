@@ -110,6 +110,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	}
 
 	SetTimeStep(true);
+	OnGameContextChanged();
 }
 
 Desktop::~Desktop()

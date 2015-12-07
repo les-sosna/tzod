@@ -4,9 +4,8 @@
 #include "SwapChainResources.h"
 #include "DisplayOrientation.h"
 
-// todo: move to main
+#include <app/tzod.h>
 #include <app/View.h>
-#include <fs/FileSystem.h>
 
 // todo: move to plat-winstore
 #include <app/AppWindow.h>
@@ -29,14 +28,13 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-FrameworkView::FrameworkView()
+FrameworkView::FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app)
 	: m_windowClosed(false)
 	, m_windowVisible(true)
-	, _fs(FS::CreateOSFileSystem("StoreData/data"))
-	, _logger(100, 500)
-	, _app(*_fs, _logger)
+	, _fs(fs)
+	, _logger(logger)
+	, _app(app)
 {
-	// todo: move out of view class
 	CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
 	CoreApplication::Resuming += ref new EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
 }
@@ -51,11 +49,6 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
 	coreApplicationView->Activated += ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnAppViewActivated);
-
-	// At this point we have access to the device. 
-	// We can create the device-dependent resources.
-	assert(!m_deviceResources);
-	m_deviceResources = std::make_shared<DX::DeviceResources>();
 }
 
 #include <ui/Keys.h>
@@ -117,7 +110,7 @@ static float PixelsFromDips(float dips, float dpi)
 	return dips * dpi / defaultDpi;
 }
 
-class StoreAppWindow : public AppWindow
+class StoreAppWindow: public AppWindow
 {
 public:
 	StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
@@ -125,101 +118,98 @@ public:
 		, _coreWindow(coreWindow)
 		, _deviceResources(deviceResources)
 		, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), nullptr/*swapChainResources.GetBackBufferRenderTargetView()*/))
-		, _inputSink(nullptr)
+		, _inputSink(std::make_shared<UI::LayoutManager*>())
 	{
 		_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation)));
 		_regOrientationChanged = _displayInformation->OrientationChanged += ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(
-			[&](DisplayInformation^ sender, Platform::Object^)
+			[this](DisplayInformation^ sender, Platform::Object^)
 		{
-			if (_inputSink)
-			{
-				_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
-			}
+			_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
 		});
 
 		_regSizeChanged = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
-			[&](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+			[inputSink=_inputSink, displayInformation=_displayInformation](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				float dpi = _displayInformation->LogicalDpi;
-				_inputSink->GetDesktop()->Resize(PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi));
+				float dpi = displayInformation->LogicalDpi;
+				(*inputSink)->GetDesktop()->Resize(PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi));
 			}
 		});
 
 		_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-			[&](CoreWindow^ sender, PointerEventArgs^ args)
+			[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				float dpi = _displayInformation->LogicalDpi;
-				args->Handled = _inputSink->ProcessMouse(
+				float dpi = displayInformation->LogicalDpi;
+				args->Handled = (*inputSink)->ProcessMouse(
 					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
 					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGMOUSEMOVE);
 			}
 		});
 
 		_regPointerPressed = _coreWindow->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-			[&](CoreWindow^ sender, PointerEventArgs^ args)
+			[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				float dpi = _displayInformation->LogicalDpi;
-				args->Handled = _inputSink->ProcessMouse(
+				float dpi = displayInformation->LogicalDpi;
+				args->Handled = (*inputSink)->ProcessMouse(
 					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
 					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONDOWN);
 			}
 		});
 
 		_regPointerReleased = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-			[&](CoreWindow^ sender, PointerEventArgs^ args)
+			[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				float dpi = _displayInformation->LogicalDpi;
-				args->Handled = _inputSink->ProcessMouse(
+				float dpi = displayInformation->LogicalDpi;
+				args->Handled = (*inputSink)->ProcessMouse(
 					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
 					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONUP);
 			}
 		});
 
 		_coreWindow->PointerWheelChanged += ref new TypedEventHandler<CoreWindow ^, PointerEventArgs ^>(
-			[&](CoreWindow^ sender, PointerEventArgs^ args)
+			[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
 				int delta = args->CurrentPoint->Properties->MouseWheelDelta;
-				float dpi = _displayInformation->LogicalDpi;
-				args->Handled = _inputSink->ProcessMouse(
+				float dpi = displayInformation->LogicalDpi;
+				args->Handled = (*inputSink)->ProcessMouse(
 					PixelsFromDips(args->CurrentPoint->Position.X, dpi),
 					PixelsFromDips(args->CurrentPoint->Position.Y, dpi), (float) delta / 120.f, UI::MSGMOUSEWHEEL);
 			}
 		});
 
 		_regKeyDown = _coreWindow->KeyDown += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
-			[&](CoreWindow^ sender, KeyEventArgs^ args)
+			[inputSink = _inputSink](CoreWindow^ sender, KeyEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				args->Handled = _inputSink->ProcessKeys(UI::MSGKEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+				args->Handled = (*inputSink)->ProcessKeys(UI::MSGKEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 			}
 		});
 
 		_regKeyUp = _coreWindow->KeyUp += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
-			[&](CoreWindow^ sender, KeyEventArgs^ args)
+			[inputSink = _inputSink](CoreWindow^ sender, KeyEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				args->Handled = _inputSink->ProcessKeys(UI::MSGKEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+				args->Handled = (*inputSink)->ProcessKeys(UI::MSGKEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 			}
 		});
 
 		_regCharacterReceived = _coreWindow->CharacterReceived += ref new TypedEventHandler<CoreWindow ^, CharacterReceivedEventArgs ^>(
-			[&](CoreWindow^ sender, CharacterReceivedEventArgs^ args)
+			[inputSink = _inputSink](CoreWindow^ sender, CharacterReceivedEventArgs^ args)
 		{
-			if (_inputSink)
+			if (*inputSink)
 			{
-				args->Handled = _inputSink->ProcessText(args->KeyCode);
+				args->Handled = (*inputSink)->ProcessText(args->KeyCode);
 			}
 		});
 	}
@@ -235,6 +225,10 @@ public:
 		_coreWindow->SizeChanged -= _regSizeChanged;
 
 		_displayInformation->OrientationChanged -= _regOrientationChanged;
+
+		// Events may still fire after the event handler is unregistered.
+		// Remove the sink so that handlers could no-op.
+		*_inputSink = nullptr;
 	}
 
 	// AppWindow
@@ -267,7 +261,7 @@ public:
 
 	void SetInputSink(UI::LayoutManager *inputSink) override
 	{
-		_inputSink = inputSink;
+		*_inputSink = inputSink;
 	}
 
 private:
@@ -279,7 +273,7 @@ private:
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;
 	std::unique_ptr<IRender> _render;
-	UI::LayoutManager *_inputSink;
+	std::shared_ptr<UI::LayoutManager*> _inputSink;
 
 	Windows::Foundation::EventRegistrationToken _regSizeChanged;
 	Windows::Foundation::EventRegistrationToken _regPointerMoved;
@@ -315,9 +309,7 @@ void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 	DisplayInformation::DisplayContentsInvalidated +=
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
 
-	assert(m_deviceResources);
-	assert(!m_swapChainResources);
-	m_swapChainResources = std::make_shared<DX::SwapChainResources>(*m_deviceResources, coreWindow);
+	HandleDeviceLost();
 }
 
 // Initializes scene resources, or loads a previously saved app state.
@@ -325,62 +317,48 @@ void FrameworkView::Load(Platform::String^ entryPoint)
 {
 }
 
-// Renders the current frame according to the current application state.
-// Returns true if the frame was rendered and is ready to be displayed.
-static void PrepareForRender(DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
-{
-	auto context = deviceResources.GetD3DDeviceContext();
-
-	context->DiscardView(swapChainResources.GetBackBufferRenderTargetView());
-
-	// Reset render targets to the screen.
-	ID3D11RenderTargetView *const targets[1] = { swapChainResources.GetBackBufferRenderTargetView() };
-	context->OMSetRenderTargets(1, targets, nullptr/*swapChainResources.GetDepthStencilView()*/);
-
-	context->ClearRenderTargetView(swapChainResources.GetBackBufferRenderTargetView(), DirectX::Colors::YellowGreen/*Transparent*/);
-}
-
 // This method is called after the window becomes active.
 void FrameworkView::Run()
 {
-	// todo: theese have to be recreated on device lost
-	StoreAppWindow appWindow(m_window.Get(), *m_deviceResources, *m_swapChainResources);
-	TzodView view(*_fs, _logger, _app, appWindow);
-
 	while (!m_windowClosed)
 	{
-		if (m_windowVisible)
+		if (m_windowVisible && _view != nullptr)
 		{
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 			m_timer.Tick([&]()
 			{
 				float dt = (float)m_timer.GetElapsedSeconds();
-				view.Step(dt);
+				if (_view)
+				{
+					_view->Step(dt);
+				}
 				_app.Step(dt);
 			});
 
-			// Don't try to render anything before the first Update.
-			if (m_timer.GetFrameCount() > 0)
+			auto context = m_deviceResources->GetD3DDeviceContext();
+			ID3D11RenderTargetView *const targets[1] = { m_swapChainResources->GetBackBufferRenderTargetView() };
+			context->OMSetRenderTargets(1, targets, nullptr);
+			context->DiscardView(m_swapChainResources->GetBackBufferRenderTargetView());
+
+			context->ClearRenderTargetView(m_swapChainResources->GetBackBufferRenderTargetView(), DirectX::Colors::YellowGreen/*Transparent*/);
+
+			_view->Render(*_appWindow);
+
+			// The first argument instructs DXGI to block until VSync, putting the application
+			// to sleep until the next VSync. This ensures we don't waste any cycles rendering
+			// frames that will never be displayed to the screen.
+			HRESULT hr = m_swapChainResources->GetSwapChain()->Present(1, 0);
+
+			// If the device was removed either by a disconnection or a driver upgrade, we 
+			// must recreate all device resources.
+			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 			{
-				PrepareForRender(*m_deviceResources, *m_swapChainResources);
-				view.Render(appWindow);
-
-				// The first argument instructs DXGI to block until VSync, putting the application
-				// to sleep until the next VSync. This ensures we don't waste any cycles rendering
-				// frames that will never be displayed to the screen.
-				HRESULT hr = m_swapChainResources->GetSwapChain()->Present(1, 0);
-
-				// If the device was removed either by a disconnection or a driver upgrade, we 
-				// must recreate all device resources.
-				if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-				{
-					HandleDeviceLost();
-				}
-				else if (FAILED(hr))
-				{
-					throw Platform::Exception::CreateException(hr);
-				}
+				HandleDeviceLost();
+			}
+			else if (FAILED(hr))
+			{
+				throw Platform::Exception::CreateException(hr);
 			}
 		}
 		else
@@ -438,7 +416,10 @@ void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ ar
 
 void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
-	m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height));
+	if (!m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height)))
+	{
+		HandleDeviceLost();
+	}
 }
 
 void FrameworkView::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
@@ -455,15 +436,20 @@ void FrameworkView::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
 
 void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
-	m_swapChainResources->SetDpi(sender->LogicalDpi);
-
 	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
-	m_swapChainResources->SetLogicalSize(Size(m_window->Bounds.Width, m_window->Bounds.Height));
+	if (!m_swapChainResources->SetDpi(sender->LogicalDpi) ||
+		!m_swapChainResources->SetLogicalSize(Size(m_window->Bounds.Width, m_window->Bounds.Height)))
+	{
+		HandleDeviceLost();
+	}
 }
 
 void FrameworkView::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
 {
-	m_swapChainResources->SetCurrentOrientation(sender->CurrentOrientation);
+	if (!m_swapChainResources->SetCurrentOrientation(sender->CurrentOrientation))
+	{
+		HandleDeviceLost();
+	}
 }
 
 void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
@@ -476,7 +462,13 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 
 void FrameworkView::HandleDeviceLost()
 {
+	_view.reset();
+	_appWindow.reset();
+
 	m_swapChainResources.reset();
 	m_deviceResources.reset(new DX::DeviceResources());
 	m_swapChainResources.reset(new DX::SwapChainResources(*m_deviceResources, m_window.Get()));
+
+	_appWindow.reset(new StoreAppWindow(m_window.Get(), *m_deviceResources, *m_swapChainResources));
+	_view.reset(new TzodView(_fs, _logger, _app, *_appWindow));
 }
