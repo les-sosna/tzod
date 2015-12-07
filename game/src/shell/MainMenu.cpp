@@ -15,6 +15,8 @@
 #include <ui/Text.h>
 #include <ui/Keys.h>
 
+static const float c_firstRowHeight = 30.f;
+
 MainMenuDlg::MainMenuDlg(Window *parent,
                          FS::FileSystem &fs,
                          ConfCache &conf,
@@ -266,7 +268,7 @@ void MainMenuDlg::OnSettings()
 
 void MainMenuDlg::OnParentSize(float width, float height)
 {
-	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight()) / 2));
+	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight() - c_firstRowHeight) / 2));
 }
 
 void MainMenuDlg::OnCloseChild(int result)
