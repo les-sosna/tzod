@@ -2,8 +2,8 @@
 #include <app/View.h>
 #include <as/AppCfg.h>
 #include <fs/FileSystem.h>
-#include <plat/GlfwAppWindow.h>
-#include <plat/Timer.h>
+#include <platglfw/GlfwAppWindow.h>
+#include <platglfw/Timer.h>
 #include <ui/ConsoleBuffer.h>
 
 #include <exception>

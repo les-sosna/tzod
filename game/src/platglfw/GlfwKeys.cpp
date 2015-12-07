@@ -1,4 +1,4 @@
-#include "inc/plat/GlfwKeys.h"
+#include "inc/platglfw/GlfwKeys.h"
 #include <ui/Keys.h>
 #include <GLFW/glfw3.h>
 

@@ -1,5 +1,5 @@
-#include "inc/plat/GlfwPlatform.h"
-#include "inc/plat/GlfwKeys.h"
+#include "inc/platglfw/GlfwPlatform.h"
+#include "inc/platglfw/GlfwKeys.h"
 #include <GLFW/glfw3.h>
 
 GlfwInput::GlfwInput(GLFWwindow &window)

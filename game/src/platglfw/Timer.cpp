@@ -1,4 +1,4 @@
-#include "inc/plat/Timer.h"
+#include "inc/platglfw/Timer.h"
 #include <algorithm>
 #include <cassert>
 #include <numeric>
