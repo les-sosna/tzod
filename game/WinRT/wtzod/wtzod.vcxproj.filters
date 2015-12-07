@@ -31,6 +31,10 @@
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
     <ClCompile Include="DisplayOrientation.cpp" />
+    <ClCompile Include="WinStoreKeys.cpp" />
+    <ClCompile Include="StoreAppWindow.cpp" />
+    <ClCompile Include="StoreAppClipboard.cpp" />
+    <ClCompile Include="StoreAppInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -40,6 +44,9 @@
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="FrameworkView.h" />
     <ClInclude Include="DisplayOrientation.h" />
+    <ClInclude Include="StoreAppWindow.h" />
+    <ClInclude Include="StoreAppInput.h" />
+    <ClInclude Include="StoreAppClipboard.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

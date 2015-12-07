@@ -205,6 +205,9 @@
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="StoreAppClipboard.h" />
+    <ClInclude Include="StoreAppInput.h" />
+    <ClInclude Include="StoreAppWindow.h" />
     <ClInclude Include="SwapChainResources.h" />
   </ItemGroup>
   <ItemGroup>
@@ -220,7 +223,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StoreAppClipboard.cpp" />
+    <ClCompile Include="StoreAppInput.cpp" />
+    <ClCompile Include="StoreAppWindow.cpp" />
     <ClCompile Include="SwapChainResources.cpp" />
+    <ClCompile Include="WinStoreKeys.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
