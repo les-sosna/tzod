@@ -95,10 +95,10 @@ public:
 	EditPlayerDlg(UI::Window *parent, ConfVarTable &info, ConfCache &conf, LangCache &lang);
 
 protected:
-	void OnOK();
-	void OnCancel();
-
 	void OnChangeSkin(int index);
+
+	// Dialog
+	bool OnClose(int result) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
