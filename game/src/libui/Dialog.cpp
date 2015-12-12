@@ -29,9 +29,12 @@ void Dialog::SetEasyMove(bool enable)
 
 void Dialog::Close(int result)
 {
-	if( eventClose )
-		eventClose(result);
-	Destroy();
+	if (OnClose(result))
+	{
+		if (eventClose)
+			eventClose(result);
+		Destroy();
+	}
 }
 
 
@@ -121,6 +124,10 @@ bool Dialog::OnKeyPressed(Key key)
 				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
+		break;
+	case Key::Enter:
+	case Key::NumEnter:
+		Close(_resultOK);
 		break;
 	case Key::Escape:
 		Close(_resultCancel);

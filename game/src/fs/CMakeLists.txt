@@ -9,6 +9,11 @@ include_directories(
 	${Utf8cpp_SOURCE_DIR}
 )
 
-add_library(filesystem
-	FileSystemImpl.cpp
-)
+set(FileSystem_SOURCES FileSystem.cpp)
+if(WIN32)
+	list(APPEND FileSystem_SOURCES FileSystemWin32.cpp)
+else()
+	list(APPEND FileSystem_SOURCES FileSystemPosix.cpp)
+endif()
+   
+add_library(filesystem ${FileSystem_SOURCES})

@@ -356,6 +356,7 @@ bool NewGameDlg::OnKeyPressed(UI::Key key)
 	switch(key)
 	{
 	case UI::Key::Enter:
+	case UI::Key::NumEnter:
 		if( GetManager().GetFocusWnd() == _players && -1 != _players->GetCurSel() )
 			OnEditPlayer();
 		else
@@ -508,24 +509,8 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable &info, ConfCache &conf
 	// create buttons
 	//
 
-	UI::Button::Create(this, lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&EditPlayerDlg::OnOK, this);
-	UI::Button::Create(this, lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&EditPlayerDlg::OnCancel, this);
-}
-
-void EditPlayerDlg::OnOK()
-{
-	_info.nick.Set(_name->GetText());
-	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
-	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0) );
-	_info.team.SetInt(_teams->GetCurSel());
-	_info.profile.Set(_profiles->GetData()->GetItemText(_profiles->GetCurSel(), 0) );
-
-	Close(_resultOK);
-}
-
-void EditPlayerDlg::OnCancel()
-{
-	Close(_resultCancel);
+	UI::Button::Create(this, lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&Dialog::Close, this, _resultOK);
+	UI::Button::Create(this, lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&Dialog::Close, this, _resultCancel);
 }
 
 void EditPlayerDlg::OnChangeSkin(int index)
@@ -534,6 +519,17 @@ void EditPlayerDlg::OnChangeSkin(int index)
 	{
 		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str(), true);
 	}
+}
+
+bool EditPlayerDlg::OnClose(int result)
+{
+	_info.nick.Set(_name->GetText());
+	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0));
+	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
+	_info.team.SetInt(_teams->GetCurSel());
+	_info.profile.Set(_profiles->GetData()->GetItemText(_profiles->GetCurSel(), 0));
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

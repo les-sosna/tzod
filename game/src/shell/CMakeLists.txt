@@ -2,11 +2,13 @@ cmake_minimum_required (VERSION 3.3)
 project(Shell)
 
 include_directories(
-	${App_SOURCE_DIR}/inc
+	${AS_SOURCE_DIR}/inc
 	${Config_SOURCE_DIR}/inc
+	${Ctx_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
 	${GCLua_SOURCE_DIR}/inc
+	${GV_SOURCE_DIR}/inc
 	${LibUI_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
 	${MapFile_SOURCE_DIR}/inc
@@ -27,6 +29,7 @@ add_library(shell
 	Controller.cpp
 	DefaultCamera.cpp
 	Desktop.cpp
+	DesktopFactory.cpp
 	Editor.cpp
 	Game.cpp
 	GetFileName.cpp
@@ -52,6 +55,7 @@ target_link_libraries(shell
 	loc
 	gc
 	gclua
+	gv
 	mapfile
 	render
 	ui

@@ -6,7 +6,8 @@
 DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
 	: _tm(tm)
 {
-	memset(&_viewport, 0, sizeof(_viewport));
+	_viewport.left = 0;
+	_viewport.top = 0;
 	_viewport.right = width;
 	_viewport.bottom = height;
 	_tm.GetRender().OnResizeWnd(width, height);

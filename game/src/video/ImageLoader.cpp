@@ -32,60 +32,60 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 		throw std::runtime_error("unsupported size or bpp");
 	}
 
-	long bytesPerPixel = _bpp / 8;
-	unsigned long imageSize = bytesPerPixel * _width * _height;
+	const unsigned int bytesPerPixel = _bpp / 8;
+	const unsigned int imageSizeBytes = bytesPerPixel * _width * _height;
+	const unsigned int pixelCount = _height * _width;
 
 	if( 0 == memcmp(signatureU, h.signature, 12) )
 	{
-		if( dataSize < imageSize )
+		if( dataSize < imageSizeBytes )
 		{
 			throw std::runtime_error("corrupted TGA image");
 		}
-		_data.assign(h.data, h.data + imageSize);
+		_data.assign(h.data, h.data + imageSizeBytes);
 	}
 	else if( 0 == memcmp(signatureC, h.signature, 12) )
 	{
-		unsigned long pixelcount   = _height * _width;
-		unsigned long currentpixel = 0;
-		unsigned long currentbyte  = 0;
-		_data.reserve(imageSize);
+		unsigned int currentPixel = 0;
+		unsigned int currentByte  = 0;
+		_data.reserve(imageSizeBytes);
 		do
 		{
-			if( currentbyte >= dataSize )
+			if( currentByte >= dataSize )
 			{
 				throw std::runtime_error("corrupted TGA image");
 			}
-			const unsigned char &chunkheader = h.data[currentbyte++];
+			const unsigned char chunkHeader = h.data[currentByte++];
 
-			if( chunkheader < 128 )    // If the header is < 128, it means the that is the number
+			if( chunkHeader < 128 )    // If the header is < 128, it means the that is the number
 			{                          // of RAW color packets minus 1 that follow the header
 				// Read RAW color values
-				int pcount = chunkheader + 1;
-				currentpixel += pcount;
-				if( pixelcount < currentpixel || dataSize < currentbyte + pcount * bytesPerPixel )
+				int pcount = chunkHeader + 1;
+				currentPixel += pcount;
+				if( pixelCount < currentPixel || dataSize < currentByte + pcount * bytesPerPixel )
 				{
 					throw std::runtime_error("corrupted TGA image");
 				}
-				_data.insert(_data.end(), h.data + currentbyte, h.data + currentbyte + pcount * bytesPerPixel);
-				currentbyte += pcount * bytesPerPixel;
+				_data.insert(_data.end(), h.data + currentByte, h.data + currentByte + pcount * bytesPerPixel);
+				currentByte += pcount * bytesPerPixel;
 			}
-			else // chunkheader >= 128 RLE data, next color repeated chunkheader - 127 times
+			else // chunkHeader >= 128 RLE data, next color repeated chunkHeader - 127 times
 			{
-				int pcount = chunkheader - 127;  // get rid of the ID bit
-				currentpixel += pcount;
-				if( pixelcount < currentpixel || dataSize < currentbyte + bytesPerPixel  )
+				int pcount = chunkHeader - 127;  // get rid of the ID bit
+				currentPixel += pcount;
+				if( pixelCount < currentPixel || dataSize < currentByte + bytesPerPixel  )
 				{
 					throw std::runtime_error("corrupted TGA image");
 				}
-				const unsigned char *colorbuffer = h.data + currentbyte;
-				currentbyte += bytesPerPixel;
+				const unsigned char *colorBuffer = h.data + currentByte;
+				currentByte += bytesPerPixel;
 				for( int counter = 0; counter < pcount; ++counter )
 				{
-					_data.insert(_data.end(), colorbuffer, colorbuffer + bytesPerPixel);
+					_data.insert(_data.end(), colorBuffer, colorBuffer + bytesPerPixel);
 				}
 			}
 		}
-		while( currentpixel < pixelcount );
+		while( currentPixel < pixelCount );
 	}
 	else
 	{
@@ -93,17 +93,29 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 	}
 
 	// swap R <-> G
-	for( unsigned long cswap = 0; cswap < imageSize; cswap += bytesPerPixel )
+	for( unsigned int cswap = 0; cswap < imageSizeBytes; cswap += bytesPerPixel )
 	{
 		std::swap(_data[cswap], _data[cswap + 2]);
 	}
 
 	// flip vertical
-	unsigned long len = _width * (_bpp >> 3);
-	for( unsigned long y = 0; y < _height >> 1; y++ )
+	unsigned int rowSizeBytes = _width * bytesPerPixel;
+	for( unsigned long y = 0; y < _height / 2; y++ )
 	{
-		std::swap_ranges(_data.begin() + y * len, _data.begin() + y * len + len,
-			_data.begin() + (_height - y - 1) * len);
+		std::swap_ranges(_data.begin() + y * rowSizeBytes,
+			_data.begin() + y * rowSizeBytes + rowSizeBytes,
+			_data.begin() + (_height - y - 1) * rowSizeBytes);
+	}
+
+	// convert to 32 bit
+	if (3 == bytesPerPixel)
+	{
+		_data.resize(pixelCount * 4);
+		for (unsigned int pixel = pixelCount; pixel--;)
+		{
+			*(uint32_t*)&_data[pixel * 4] = (*(uint32_t*)&_data[pixel * 3] & 0xffffff) | 0xff000000;
+		}
+		_bpp = 32;
 	}
 }
 

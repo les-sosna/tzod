@@ -8,29 +8,6 @@
 
 class RenderOpenGL : public IRender
 {
-	struct _header
-	{
-		char   IdLeight;        // text section length
-		char   ColorMap;        // obsolete
-		char   DataType;        // compressed or not
-		char   ColorMapInfo[5]; // skip this
-		short  x_origin;        //
-		short  y_origin;        //
-		short  width;           //
-		short  height;          //
-		char   BitPerPel;       // 24 or 32 only
-		char   Description;     // skip this
-	};
-
-	struct _asyncinfo
-	{
-//		HANDLE file;
-		_header h;
-		void *data;
-	};
-
-	///////////////////////////////////////////////////////////////////////////
-
     int _windowWidth;
     int _windowHeight;
 	RectRB   _rtViewport;
@@ -51,27 +28,19 @@ public:
 	~RenderOpenGL() override;
 
 private:
-	static void _ss_thread(_asyncinfo *lpInfo);
-
 	void Flush();
 
 	void OnResizeWnd(unsigned int width, unsigned int height) override;
+	void SetDisplayOrientation(DisplayOrientation displayOrientation) override { assert(DO_0 == displayOrientation); }
 
 	void SetViewport(const RectRB *rect) override;
 	void SetScissor(const RectRB *rect) override;
 	void Camera(const RectRB *vp, float x, float y, float scale) override;
 
-	int  GetWidth() const override;
-	int  GetHeight() const override;
-
-	virtual int  GetViewportWidth() const;
-	virtual int  GetViewportHeight() const;
-
 	void Begin(void) override;
 	void End(void) override;
 	void SetMode (const RenderMode mode) override;
 
-	virtual bool TakeScreenshot(char *fileName);
 	void SetAmbient(float ambient) override;
 
 
@@ -169,26 +138,6 @@ void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
 		glTranslatef((float) WIDTH(*vp) / 2 / scale - x, (float) HEIGHT(*vp) / 2 / scale - y, 0);
 	else
 		glTranslatef(0, 0, 0);
-}
-
-int RenderOpenGL::GetWidth() const
-{
-	return _windowWidth;
-}
-
-int RenderOpenGL::GetHeight() const
-{
-	return _windowHeight;
-}
-
-int RenderOpenGL::GetViewportWidth() const
-{
-	return _rtViewport.right - _rtViewport.left;
-}
-
-int RenderOpenGL::GetViewportHeight() const
-{
-	return _rtViewport.bottom - _rtViewport.top;
 }
 
 void RenderOpenGL::Begin()
@@ -365,59 +314,6 @@ void RenderOpenGL::DrawLines(const MyLine *lines, size_t count)
 void RenderOpenGL::SetAmbient(float ambient)
 {
 	_ambient = ambient;
-}
-
-void RenderOpenGL::_ss_thread(_asyncinfo *lpInfo)
-{
-//	DWORD tmp;
-//	WriteFile(lpInfo->file, &lpInfo->h, sizeof(_header), &tmp, nullptr);
-//	WriteFile(lpInfo->file, lpInfo->data,
-//		lpInfo->h.width * lpInfo->h.height * (lpInfo->h.BitPerPel / 8), &tmp, nullptr);
-	free(lpInfo->data);
-//	CloseHandle(lpInfo->file);
-	delete lpInfo;
-}
-
-bool RenderOpenGL::TakeScreenshot(char *fileName)
-{
-	_asyncinfo *ai = new _asyncinfo;
-	memset(ai, 0, sizeof(_asyncinfo));
-
-//	ai->file = CreateFile(
-//						fileName,
-//						GENERIC_WRITE,
-//						0,
-//						nullptr,
-//						CREATE_ALWAYS,
-//						FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN,
-//						nullptr);
-//	if( ai->file == INVALID_HANDLE_VALUE )
-//	{
-//		delete ai;
-//		return false;
-//	}
-
-
-	ai->h.DataType  = 2;  // uncompresssed
-	ai->h.width     = (short) _windowWidth;
-	ai->h.height    = (short) _windowHeight;
-	ai->h.BitPerPel = 24;
-
-	ai->data = malloc(ai->h.width * ai->h.height * (ai->h.BitPerPel / 8));
-
-	if( !ai->data )
-	{
-//		CloseHandle(ai->file);
-		delete ai;
-		return false;
-	}
-
-//	glReadPixels(0, 0, ai->h.width, ai->h.height, GL_BGR_EXT, GL_UNSIGNED_BYTE, ai->data);
-
-//	DWORD id;
-//	CloseHandle(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE ) _ss_thread, ai, 0, &id));
-
-	return true;
 }
 
 //-----------------------------------------------------------------------------

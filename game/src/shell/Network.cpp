@@ -9,7 +9,7 @@
 //#include "network/TankClient.h"
 //#include "network/LobbyClient.h"
 
-#include <app/AppCfg.h>
+#include <as/AppCfg.h>
 #include <gc/Player.h>
 #include <gc/World.h>
 #include <gc/Macros.h>
@@ -23,6 +23,11 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
+
+
+#define MAX_NETWORKSPEED    60
+#define MIN_NETWORKSPEED    10
+#define AI_MAX_LEVEL   4U
 
 
 CreateServerDlg::CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)

@@ -2,14 +2,16 @@
 
 #pragma once
 
-#include "Window.h"
+#include "WindowPtr.h"
 #include <list>
 
+class DrawingContext;
 class TextureManager;
 
 namespace UI
 {
 
+class Window;
 class LayoutManager;
 enum class Key;
 struct IInput;

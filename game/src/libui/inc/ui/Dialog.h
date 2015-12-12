@@ -21,22 +21,24 @@ public:
 
 	std::function<void(int)> eventClose;
 
-protected:
 	void Close(int result);
 
-	virtual bool OnMouseDown (float x, float y, int button);
-	virtual bool OnMouseUp   (float x, float y, int button);
-	virtual bool OnMouseMove (float x, float y);
-	virtual bool OnMouseEnter(float x, float y);
-	virtual bool OnMouseLeave();
-
-	virtual bool OnKeyPressed(Key key);
-	virtual bool OnFocus(bool focus);
+protected:
+	// Window
+	bool OnMouseDown(float x, float y, int button) override;
+	bool OnMouseUp(float x, float y, int button) override;
+	bool OnMouseMove(float x, float y) override;
+	bool OnMouseEnter(float x, float y) override;
+	bool OnMouseLeave() override;
+	bool OnKeyPressed(Key key) override;
+	bool OnFocus(bool focus) override;
 
 private:
 	float _mouseX;
 	float _mouseY;
 	bool  _easyMove;
+
+	virtual bool OnClose(int result) { return true; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

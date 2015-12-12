@@ -10,7 +10,7 @@ template <class T> class ObjPtr;
 class GC_Object;
 namespace FS
 {
-	class Stream;
+	struct Stream;
 }
 
 class SaveFile

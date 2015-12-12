@@ -1,7 +1,7 @@
 #pragma once
 #include "InputManager.h"
-#include <app/GameEvents.h>
-#include <app/GameViewHarness.h>
+#include <ctx/GameEvents.h>
+#include <gv/GameViewHarness.h>
 #include <ui/Window.h>
 #include <ui/Text.h>
 

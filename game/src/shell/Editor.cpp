@@ -1,15 +1,15 @@
+#include "DefaultCamera.h"
 #include "Editor.h"
 #include "PropertyList.h"
 #include "ServiceEditor.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/detail/DefaultCamera.h"
-#include <app/ThemeManager.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>
 #include <gc/RigidBody.h>
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
 #include <gclua/lObjUtil.h>
+#include <gv/ThemeManager.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>

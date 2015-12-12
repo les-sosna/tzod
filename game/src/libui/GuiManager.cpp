@@ -1,6 +1,7 @@
 // GuiManager.cpp
 
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/Window.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 

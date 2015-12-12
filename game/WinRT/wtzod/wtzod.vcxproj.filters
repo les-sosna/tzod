@@ -5,24 +5,6 @@
       <UniqueIdentifier>42798b7f-cdb2-4979-9daf-c58b7e04b73e</UniqueIdentifier>
       <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
-    <Filter Include="Content">
-      <UniqueIdentifier>65882e17-c7c2-47a5-b1a5-82f26ff784c3</UniqueIdentifier>
-    </Filter>
-    <ClInclude Include="Content\Sample3DSceneRenderer.h">
-      <Filter>Content</Filter>
-    </ClInclude>
-    <ClInclude Include="Content\ShaderStructures.h">
-      <Filter>Content</Filter>
-    </ClInclude>
-    <ClCompile Include="Content\Sample3DSceneRenderer.cpp">
-      <Filter>Content</Filter>
-    </ClCompile>
-    <FxCompile Include="Content\SamplePixelShader.hlsl">
-      <Filter>Content</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\SampleVertexShader.hlsl">
-      <Filter>Content</Filter>
-    </FxCompile>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
@@ -48,6 +30,11 @@
     <ClCompile Include="SwapChainResources.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
+    <ClCompile Include="DisplayOrientation.cpp" />
+    <ClCompile Include="WinStoreKeys.cpp" />
+    <ClCompile Include="StoreAppWindow.cpp" />
+    <ClCompile Include="StoreAppClipboard.cpp" />
+    <ClCompile Include="StoreAppInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -56,6 +43,11 @@
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="FrameworkView.h" />
+    <ClInclude Include="DisplayOrientation.h" />
+    <ClInclude Include="StoreAppWindow.h" />
+    <ClInclude Include="StoreAppInput.h" />
+    <ClInclude Include="StoreAppClipboard.h" />
+    <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

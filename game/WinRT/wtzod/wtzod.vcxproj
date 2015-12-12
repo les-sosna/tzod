@@ -113,7 +113,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -127,7 +127,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -141,7 +141,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -155,7 +155,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -169,7 +169,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -183,7 +183,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -199,18 +199,21 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DisplayOrientation.h" />
     <ClInclude Include="FrameworkView.h" />
-    <ClInclude Include="Content\Sample3DSceneRenderer.h" />
-    <ClInclude Include="Content\ShaderStructures.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="StoreAppClipboard.h" />
+    <ClInclude Include="StoreAppInput.h" />
+    <ClInclude Include="StoreAppWindow.h" />
     <ClInclude Include="SwapChainResources.h" />
+    <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayOrientation.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
-    <ClCompile Include="Content\Sample3DSceneRenderer.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -221,7 +224,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StoreAppClipboard.cpp" />
+    <ClCompile Include="StoreAppInput.cpp" />
+    <ClCompile Include="StoreAppWindow.cpp" />
     <ClCompile Include="SwapChainResources.cpp" />
+    <ClCompile Include="WinStoreKeys.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -230,12 +237,64 @@
     <None Include="wtzod_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Content\SamplePixelShader.hlsl">
-      <ShaderType>Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Content\SampleVertexShader.hlsl">
-      <ShaderType>Vertex</ShaderType>
-    </FxCompile>
+    <ProjectReference Include="..\_build\data\StoreData.vcxproj">
+      <Project>{3cb044a1-9611-3227-8f13-60b58c6d043a}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\ai\ai.vcxproj">
+      <Project>{673f3969-d830-40ba-bd71-93a8c3561dbc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\app\app.vcxproj">
+      <Project>{ce8a94ee-b4fb-43a4-97c1-852b74327fba}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\as\as.vcxproj">
+      <Project>{1fae1081-3bde-3bf6-8fd4-52a3a47ad016}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\config\config.vcxproj">
+      <Project>{d42358de-8530-3dc6-af7a-c9587690eae9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\ctx\ctx.vcxproj">
+      <Project>{330b2d64-94ed-393f-867c-b4d49617bd47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\external\lua\lua.vcxproj">
+      <Project>{902c5e02-fbec-3dde-904f-42220b14491a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\external\pluto\pluto.vcxproj">
+      <Project>{400ee59e-ce16-3933-98da-017a02cff25c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\fs\filesystem.vcxproj">
+      <Project>{1e51ca76-9f97-4dd9-b79d-12f353b15fba}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\gclua\gclua.vcxproj">
+      <Project>{c800042c-c09c-4503-8117-d0909f565e82}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\gc\gc.vcxproj">
+      <Project>{291f1e5a-81be-4141-9f1b-7bd1de556d80}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\gv\gv.vcxproj">
+      <Project>{135e9f93-6eef-3350-b65b-06489a738645}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\libui\ui.vcxproj">
+      <Project>{1ef23813-d8d6-37db-9c0c-d2dcb193a9d5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\loc\loc.vcxproj">
+      <Project>{caf54be0-a367-4a15-937f-d03b77749712}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\mf\mapfile.vcxproj">
+      <Project>{7677fb68-dda1-4d51-819d-cef8f3832d3d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\render\render.vcxproj">
+      <Project>{017f19d7-6fd3-4673-916a-6b28bd58de14}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\script\script.vcxproj">
+      <Project>{f6623d13-ef2c-455b-adb1-192352c04bc6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\shell\shell.vcxproj">
+      <Project>{38ae85e6-6a3f-3b1b-837b-9cc192054995}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\_build\src\video\video.vcxproj">
+      <Project>{f4fc238a-2101-48f5-bd30-fe8a63127431}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

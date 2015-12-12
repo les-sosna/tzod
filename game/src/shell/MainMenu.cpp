@@ -1,12 +1,12 @@
+#include "Desktop.h"
 #include "Editor.h"
 #include "GetFileName.h"
 #include "gui.h"
 #include "MainMenu.h"
 #include "Network.h"
 #include "Settings.h"
-#include "inc/shell/Desktop.h"
 
-#include <app/AppCfg.h>
+#include <as/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/ConsoleBuffer.h>
@@ -14,6 +14,8 @@
 #include <ui/Button.h>
 #include <ui/Text.h>
 #include <ui/Keys.h>
+
+static const float c_firstRowHeight = 30.f;
 
 MainMenuDlg::MainMenuDlg(Window *parent,
                          FS::FileSystem &fs,
@@ -266,7 +268,7 @@ void MainMenuDlg::OnSettings()
 
 void MainMenuDlg::OnParentSize(float width, float height)
 {
-	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight()) / 2));
+	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight() - c_firstRowHeight) / 2));
 }
 
 void MainMenuDlg::OnCloseChild(int result)

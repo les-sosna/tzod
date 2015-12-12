@@ -1,4 +1,5 @@
 #include "Campaign.h"
+#include "Desktop.h"
 #include "Editor.h"
 #include "Game.h"
 #include "gui.h"
@@ -7,16 +8,14 @@
 #include "Settings.h"
 #include "Widgets.h"
 #include "inc/shell/Config.h"
-#include "inc/shell/Desktop.h"
 #include "inc/shell/Profiler.h"
 
-#include <app/AppController.h>
-#include <app/EditorContext.h>
-
-#include <app/AppState.h>
+#include <as/AppController.h>
+#include <as/AppState.h>
+#include <ctx/EditorContext.h>
 #include <gc/World.h>
-#include <loc/Language.h>
 #include <fs/FileSystem.h>
+#include <loc/Language.h>
 //#include <script/script.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
@@ -111,6 +110,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	}
 
 	SetTimeStep(true);
+	OnGameContextChanged();
 }
 
 Desktop::~Desktop()

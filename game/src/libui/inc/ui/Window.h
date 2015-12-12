@@ -13,18 +13,23 @@ namespace UI
 {
 
 class LayoutManager;
+class Window;
 enum class Key;
 
-class Window
+namespace detail
 {
-	friend class WindowWeakPtr;
 	struct Resident
 	{
 		unsigned int counter;
 		Window *ptr;
 		Resident(Window *p) : counter(0), ptr(p) {}
 	};
-	Resident *_resident;
+}
+
+class Window
+{
+	friend class WindowWeakPtr;
+	detail::Resident *_resident;
 
 	friend class LayoutManager;
 	LayoutManager &_manager;
@@ -224,55 +229,5 @@ private:
 	virtual void OnTimeStep(float dt);
 };
 
-///////////////////////////////////////////////////////////////////////////////
+} // namespace UI
 
-class WindowWeakPtr
-{
-public:
-	explicit WindowWeakPtr(Window *p)
-		: _resident(p ? p->_resident : nullptr)
-	{
-		assert(!p || _resident);
-		assert(!_resident || _resident->ptr);
-		if( _resident ) _resident->counter++;
-	}
-
-	~WindowWeakPtr()
-	{
-		Set(nullptr);
-	}
-
-	Window* operator->() const
-	{
-		assert(_resident && _resident->ptr);
-		return _resident->ptr;
-	}
-
-	Window* Get() const
-	{
-		return _resident ? _resident->ptr : nullptr;
-	}
-
-	void Set(Window *p)
-	{
-		assert(!_resident || _resident->counter > 0);
-		if( _resident && 0 == --_resident->counter && !_resident->ptr )
-		{
-			delete _resident;
-		}
-
-		_resident = p ? p->_resident : nullptr;
-		assert(!p || _resident);
-		assert(!_resident || _resident->ptr);
-		if( _resident ) _resident->counter++;
-	}
-
-private:
-	WindowWeakPtr(const WindowWeakPtr&); // no copy
-	WindowWeakPtr& operator = (const WindowWeakPtr&);
-	Window::Resident *_resident;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-// end of file

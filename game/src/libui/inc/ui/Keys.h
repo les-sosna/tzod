@@ -93,7 +93,7 @@ namespace UI
 		F12,
 		NumEnter,
 		RightCtrl,
-		NumpadSlash,
+		NumSlash,
 		PrintScreen,
 		RightAlt,
 		Pause,

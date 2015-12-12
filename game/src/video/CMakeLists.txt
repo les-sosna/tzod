@@ -26,6 +26,8 @@ if(IOS)
 		GLESProgram.cpp
 		RenderGLES2.cpp
 	)
+elseif(WINRT)
+	list(APPEND video_SOURCES RenderD3D11.cpp)
 else()
 	list(APPEND video_SOURCES RenderOpenGL.cpp)
 endif()
