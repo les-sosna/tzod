@@ -34,8 +34,9 @@
     _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
     _appController.reset(new AppController(*_fs));
     DMSettings settings;
-    settings.players.push_back(PlayerDesc{"first", "red", "default", 0});
-    settings.players.push_back(PlayerDesc{"second", "yellow", "default", 0});
+    settings.bots.push_back(PlayerDesc{"first", "red", "default", 0});
+    settings.bots.push_back(PlayerDesc{"second", "yellow", "default", 0});
+    settings.players.push_back(PlayerDesc{"user", "FBI Tank", "default", 0});
     _appController->NewGameDM(self.appState, "dm1", std::move(settings));
     return YES;
 }

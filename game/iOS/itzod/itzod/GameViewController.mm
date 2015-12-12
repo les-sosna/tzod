@@ -38,6 +38,7 @@
 {
     [super viewDidLoad];
     
+    self.preferredFramesPerSecond = 60;
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
     if (!self.context) {
