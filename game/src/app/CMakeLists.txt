@@ -20,17 +20,18 @@ include_directories(
 	${Video_SOURCE_DIR}/inc
 )
 
-find_package(OpenAL)
-if(${OPENAL_FOUND})
-	include_directories(${Audio_SOURCE_DIR}/inc)
-else()
-	add_definitions(-DNOSOUND)
-endif()
-
 add_library(app
 	tzod.cpp
 	View.cpp
 )
+
+find_package(OpenAL)
+if(${OPENAL_FOUND})
+	include_directories(${Audio_SOURCE_DIR}/inc)
+	target_link_libraries(app audio)
+else()
+	add_definitions(-DNOSOUND)
+endif()
 
 target_link_libraries(app
 	video
