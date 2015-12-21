@@ -1,28 +1,16 @@
 #import "GameViewController.h"
 #import "AppDelegate.h"
+#import "CocoaTouchWindow.h"
 #import <OpenGLES/ES2/glext.h>
-#include <app/AppCfg.h>
-#include <app/AppState.h>
-#include <app/GameContext.h>
-#include <app/GameView.h>
-#include <app/GameViewHarness.h>
-#include <audio/SoundView.h>
-#include <fs/FileSystem.h>
-#include <render/RenderScheme.h>
-#include <render/WorldView.h>
-#include <video/DrawingContext.h>
+#include <app/tzod.h>
+#include <app/View.h>
 #include <video/RenderOpenGL.h>
-#include <video/TextureManager.h>
 #include <memory>
 
 @interface GameViewController ()
 {
-    std::unique_ptr<IRender> _render;
-    std::unique_ptr<TextureManager> _textureManager;
-    std::unique_ptr<RenderScheme> _renderScheme;
-    std::unique_ptr<WorldView> _worldView;
-    std::unique_ptr<GameView> _gameView;
-    std::unique_ptr<SoundView> _soundView;
+    std::unique_ptr<CocoaTouchWindow> _appWindow;
+    std::unique_ptr<TzodView> _tzodView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -92,29 +80,14 @@
     [EAGLContext setCurrentContext:self.context];
     
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    
-    _render = RenderCreateOpenGL();
-    _textureManager.reset(new TextureManager(*_render));
-    FS::FileSystem &fs = appDelegate.fs;
-    if (_textureManager->LoadPackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs) <= 0)
-        NSLog(@"WARNING: no textures loaded");
-    if (_textureManager->LoadDirectory(DIR_SKINS, "skin/", fs) <= 0)
-        NSLog(@"WARNING: no skins found");
-
-    _renderScheme.reset(new RenderScheme(*_textureManager));
-    _worldView.reset(new WorldView(*_textureManager, *_renderScheme));
-    _gameView.reset(new GameView(appDelegate.appState));
-    
-    _soundView.reset(new SoundView(appDelegate.appState, *fs.GetFileSystem(DIR_SOUND)));
+    _appWindow.reset(new CocoaTouchWindow());
+    _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, *_appWindow));
 }
 
 - (void)tearDownGL
 {
-    _soundView.reset();
-    _worldView.reset();
-    _renderScheme.reset();
-    _textureManager.reset();
-    _render.reset();
+    _tzodView.reset();
+    _appWindow.reset();
     [EAGLContext setCurrentContext:self.context];
 }
 
@@ -123,25 +96,18 @@
 - (void)update
 {
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    if (GameContextBase *gc = [appDelegate appState].GetGameContext())
-    {
-        gc->Step(self.timeSinceLastUpdate);
-    }
-    _gameView->Step(self.timeSinceLastUpdate);
-    _soundView->Step();
+    appDelegate.app.Step(self.timeSinceLastUpdate);
+    if (_tzodView)
+        _tzodView->Step(self.timeSinceLastUpdate);
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    int width = static_cast<int>(view.drawableWidth);
-    int height = static_cast<int>(view.drawableHeight);
+    if (_appWindow)
+        _appWindow->SetPixelSize(view.drawableWidth, view.drawableHeight);
     
-    DrawingContext dc(*_textureManager, width, height);
-    
-    _render->Begin();
-    _gameView->SetCanvasSize(width, height);
-    _gameView->Render(dc, *_worldView);
-    _render->End();
+    if (_tzodView && _appWindow)
+        _tzodView->Render(*_appWindow);
 }
 
 @end // @implementation GameViewController

@@ -1,14 +1,14 @@
 #import "AppDelegate.h"
-#include <app/AppController.h>
-#include <app/AppState.h>
-#include <app/GameContext.h>
-#include <../FileSystemImpl.h>
+#include <app/tzod.h>
+#include <fs/FileSystem.h>
+#include <ui/ConsoleBuffer.h>
 #include <memory>
 
 @interface AppDelegate ()
 {
     std::shared_ptr<FS::FileSystem> _fs;
-    std::shared_ptr<AppController> _appController;
+    std::unique_ptr<TzodApp> _app;
+    std::unique_ptr<UI::ConsoleBuffer> _logger;
 }
 
 @end
@@ -21,9 +21,14 @@
     return *_fs;
 }
 
-- (AppController&)appController
+- (TzodApp&)app
 {
-    return *_appController;
+    return *_app;
+}
+
+- (UI::ConsoleBuffer&)logger
+{
+    return *_logger;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -31,13 +36,9 @@
     // Override point for customization after application launch.
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
-    _fs = FS::OSFileSystem::Create([dataPath UTF8String]);
-    _appController.reset(new AppController(*_fs));
-    DMSettings settings;
-    settings.bots.push_back(PlayerDesc{"first", "red", "default", 0});
-    settings.bots.push_back(PlayerDesc{"second", "yellow", "default", 0});
-    settings.players.push_back(PlayerDesc{"user", "FBI Tank", "default", 0});
-    _appController->NewGameDM(self.appState, "dm1", std::move(settings));
+    _fs = FS::CreateOSFileSystem([dataPath UTF8String]);
+    _logger.reset(new UI::ConsoleBuffer(100, 500));
+    _app.reset(new TzodApp(*_fs, *_logger));
     return YES;
 }
 

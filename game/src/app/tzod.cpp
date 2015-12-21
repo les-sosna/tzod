@@ -37,8 +37,7 @@ catch (const std::exception &e)
 }
 
 TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger)
-	: _fs(fs)
-	, _logger(logger)
+	: _logger(logger)
 	, _impl(new TzodAppImpl(fs))
 {
 	LoadConfigNoThrow(_impl->conf, logger, FILE_CONFIG),

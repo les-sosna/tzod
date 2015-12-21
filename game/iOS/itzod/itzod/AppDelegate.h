@@ -1,17 +1,20 @@
 #import <UIKit/UIKit.h>
 
-class AppController;
-class AppState;
+class TzodApp;
 namespace FS
 {
     class FileSystem;
+}
+namespace UI
+{
+    class ConsoleBuffer;
 }
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (readonly, nonatomic) FS::FileSystem &fs;
-@property (readonly, nonatomic) AppController &appController;
-@property (readonly, nonatomic) AppState &appState;
+@property (readonly, nonatomic) UI::ConsoleBuffer &logger;
+@property (readonly, nonatomic) TzodApp &app;
 
 @end

@@ -9,8 +9,8 @@
 
 class RenderGLES2 : public IRender
 {
-    int _windowWidth;
-    int _windowHeight;
+    unsigned int _windowWidth;
+    unsigned int _windowHeight;
 	RectRB   _rtViewport;
 
 	GLuint _curtex;
@@ -46,9 +46,6 @@ private:
 	void SetViewport(const RectRB *rect) override;
 	void SetScissor(const RectRB *rect) override;
 	void Camera(const RectRB *vp, float x, float y, float scale) override;
-
-	int GetWidth() const override;
-	int GetHeight() const override;
 
 	void Begin(void) override;
 	void End(void) override;
@@ -133,8 +130,8 @@ RenderGLES2::~RenderGLES2()
 
 void RenderGLES2::OnResizeWnd(unsigned int width, unsigned int height)
 {
-	_windowWidth = (int) width;
-    _windowHeight = (int) height;
+	_windowWidth = width;
+    _windowHeight = height;
     SetViewport(nullptr);
     SetScissor(nullptr);
 }
@@ -196,16 +193,6 @@ void RenderGLES2::Camera(const RectRB *vp, float x, float y, float scale)
         offset[1] = 0;
     }
     glUniform2fv(_offset, 1, offset);
-}
-
-int RenderGLES2::GetWidth() const
-{
-	return _windowWidth;
-}
-
-int RenderGLES2::GetHeight() const
-{
-	return _windowHeight;
 }
 
 int RenderGLES2::GetViewportWidth() const

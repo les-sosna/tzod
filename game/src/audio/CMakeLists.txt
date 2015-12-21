@@ -8,7 +8,8 @@ endif()
 find_package(OpenAL)
 
 include_directories(
-	${App_SOURCE_DIR}/inc
+	${AS_SOURCE_DIR}/inc
+	${Ctx_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc

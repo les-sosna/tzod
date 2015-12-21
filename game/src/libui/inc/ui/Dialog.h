@@ -1,13 +1,10 @@
-// Dialog.h
-
 #pragma once
-
 #include "Window.h"
 #include <functional>
 
 namespace UI
 {
-	// TODO: to make dialog modal create a full screen window under it
+	// TODO: to make dialog modal create a full screen window behind it
 
 class Dialog : public Window
 {
@@ -16,8 +13,11 @@ public:
 
 	void SetEasyMove(bool enable);
 
-	static const int _resultOK     = 0;
-	static const int _resultCancel = 1;
+    enum
+    {
+        _resultOK,
+        _resultCancel
+    };
 
 	std::function<void(int)> eventClose;
 
@@ -41,7 +41,5 @@ private:
 	virtual bool OnClose(int result) { return true; }
 };
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
 
-// end of file

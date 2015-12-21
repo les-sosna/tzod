@@ -15,6 +15,13 @@
 		0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8931B75CE910067358B /* liboggvorbis.a */; };
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
+		0775001C1C1CDEC200A325C8 /* CocoaTouchWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0775001B1C1CDEC200A325C8 /* CocoaTouchWindow.mm */; };
+		077500231C1CE32A00A325C8 /* libas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0775001D1C1CE32A00A325C8 /* libas.a */; };
+		077500241C1CE32A00A325C8 /* libctx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0775001E1C1CE32A00A325C8 /* libctx.a */; };
+		077500251C1CE32A00A325C8 /* libgv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0775001F1C1CE32A00A325C8 /* libgv.a */; };
+		077500261C1CE32A00A325C8 /* libshell.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077500201C1CE32A00A325C8 /* libshell.a */; };
+		077500271C1CE32A00A325C8 /* libui.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077500211C1CE32A00A325C8 /* libui.a */; };
+		077500281C1CE32A00A325C8 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077500221C1CE32A00A325C8 /* libzlib.a */; };
 		077AC91E1B2D24FC00E3B120 /* libgc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 077AC91D1B2D24FC00E3B120 /* libgc.a */; };
 		07AD8F271B5F667F00FC2911 /* libai.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F241B5F667F00FC2911 /* libai.a */; };
 		07AD8F281B5F667F00FC2911 /* libloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07AD8F251B5F667F00FC2911 /* libloc.a */; };
@@ -55,6 +62,14 @@
 		0749F8931B75CE910067358B /* liboggvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liboggvorbis.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liboggvorbis.a"; sourceTree = "<group>"; };
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
+		0775001A1C1CDEC200A325C8 /* CocoaTouchWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaTouchWindow.h; sourceTree = "<group>"; };
+		0775001B1C1CDEC200A325C8 /* CocoaTouchWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CocoaTouchWindow.mm; sourceTree = "<group>"; };
+		0775001D1C1CE32A00A325C8 /* libas.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libas.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Release-iphoneos/libas.a"; sourceTree = "<group>"; };
+		0775001E1C1CE32A00A325C8 /* libctx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libctx.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Release-iphoneos/libctx.a"; sourceTree = "<group>"; };
+		0775001F1C1CE32A00A325C8 /* libgv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgv.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Release-iphoneos/libgv.a"; sourceTree = "<group>"; };
+		077500201C1CE32A00A325C8 /* libshell.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshell.a; path = "../_build/shell/Debug-iphoneos/libshell.a"; sourceTree = "<group>"; };
+		077500211C1CE32A00A325C8 /* libui.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libui.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Release-iphoneos/libui.a"; sourceTree = "<group>"; };
+		077500221C1CE32A00A325C8 /* libzlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzlib.a; path = "../_build/external/zlib/Debug-iphoneos/libzlib.a"; sourceTree = "<group>"; };
 		077AC91D1B2D24FC00E3B120 /* libgc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgc.a; path = "../_build/gc/Debug-iphonesimulator/libgc.a"; sourceTree = "<group>"; };
 		07AD8F241B5F667F00FC2911 /* libai.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libai.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libai.a"; sourceTree = "<group>"; };
 		07AD8F251B5F667F00FC2911 /* libloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libloc.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/libloc.a"; sourceTree = "<group>"; };
@@ -87,6 +102,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				077500231C1CE32A00A325C8 /* libas.a in Frameworks */,
+				077500241C1CE32A00A325C8 /* libctx.a in Frameworks */,
+				077500251C1CE32A00A325C8 /* libgv.a in Frameworks */,
+				077500261C1CE32A00A325C8 /* libshell.a in Frameworks */,
+				077500271C1CE32A00A325C8 /* libui.a in Frameworks */,
+				077500281C1CE32A00A325C8 /* libzlib.a in Frameworks */,
 				0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */,
 				0749F8921B75CE820067358B /* OpenAL.framework in Frameworks */,
 				0749F8901B75CE610067358B /* libaudio.a in Frameworks */,
@@ -122,6 +143,12 @@
 		07FAF2661B1C26D900BFDD5F = {
 			isa = PBXGroup;
 			children = (
+				0775001D1C1CE32A00A325C8 /* libas.a */,
+				0775001E1C1CE32A00A325C8 /* libctx.a */,
+				0775001F1C1CE32A00A325C8 /* libgv.a */,
+				077500201C1CE32A00A325C8 /* libshell.a */,
+				077500211C1CE32A00A325C8 /* libui.a */,
+				077500221C1CE32A00A325C8 /* libzlib.a */,
 				0749F8931B75CE910067358B /* liboggvorbis.a */,
 				0749F8911B75CE820067358B /* OpenAL.framework */,
 				0749F88F1B75CE610067358B /* libaudio.a */,
@@ -159,6 +186,8 @@
 		07FAF2711B1C26D900BFDD5F /* itzod */ = {
 			isa = PBXGroup;
 			children = (
+				0775001A1C1CDEC200A325C8 /* CocoaTouchWindow.h */,
+				0775001B1C1CDEC200A325C8 /* CocoaTouchWindow.mm */,
 				070667401B47C2FF000FAF97 /* data */,
 				07FAF2761B1C26D900BFDD5F /* AppDelegate.h */,
 				07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */,
@@ -303,6 +332,7 @@
 				07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */,
 				07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */,
 				07FAF2751B1C26D900BFDD5F /* main.mm in Sources */,
+				0775001C1C1CDEC200A325C8 /* CocoaTouchWindow.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,7 +411,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -419,7 +449,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -443,9 +473,10 @@
 					../../src/app/inc,
 					../../src/script/inc,
 					../../src/audio/inc,
+					../../src/libui/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -476,9 +507,10 @@
 					../../src/app/inc,
 					../../src/script/inc,
 					../../src/audio/inc,
+					../../src/libui/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

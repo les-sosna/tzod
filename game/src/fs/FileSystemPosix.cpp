@@ -1,3 +1,5 @@
+#include "FileSystemPosix.h"
+#include <cassert>
 #include <cerrno>
 #include <unistd.h>
 #include <dirent.h>
@@ -134,10 +136,11 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FS::OSFileSystem> FS::OSFileSystem::Create(const std::string &rootDirectory)
+std::shared_ptr<FS::FileSystem> FS::CreateOSFileSystem(const std::string &rootDirectory)
 {
     return std::make_shared<OSFileSystem>(rootDirectory);
 }
+
 FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
     : _rootDirectory(rootDirectory)
 {

@@ -9,6 +9,9 @@
 #include <video/DrawingContext.h>
 #include <video/RenderOpenGL.h>
 #include <video/TextureManager.h>
+#ifndef NOSOUND
+#include <audio/SoundView.h>
+#endif
 
 static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render)
 {
@@ -42,15 +45,15 @@ struct TzodViewImpl
 				app.GetLang(),
 				logger,
 				[]() {}))
+#ifndef NOSOUND
+        , soundView(app.GetAppState(), *fs.GetFileSystem(DIR_SOUND))
+#endif
 	{}
 };
 
 TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
 	: _appWindow(appWindow)
 	, _impl(new TzodViewImpl(fs, logger, app, appWindow))
-#ifndef NOSOUND
-	, _soundView(app.GetAppState(), *fs->GetFileSystem(DIR_SOUND));
-#endif
 {
 	int width = appWindow.GetPixelWidth();
 	int height = appWindow.GetPixelHeight();
@@ -83,7 +86,7 @@ void TzodView::Render(AppWindow &appWindow)
 //            });
 //        }
 //        soundView.SetListenerPos(pos);
-	soundView.Step();
+	_impl->soundView.Step();
 #endif
 
 	unsigned int width = appWindow.GetPixelWidth();

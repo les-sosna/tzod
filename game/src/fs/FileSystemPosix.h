@@ -1,6 +1,8 @@
 #pragma once
 #include "inc/fs/FileSystem.h"
 
+namespace FS {
+
 class OSFileSystem : public FileSystem
 {
     struct AutoHandle
@@ -79,8 +81,6 @@ public:
     OSFileSystem(const std::string &rootDirectory);
     virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
 	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
-
-    static std::shared_ptr<OSFileSystem> Create(const std::string &rootDirectory);
 };
 
 } // namespace FS

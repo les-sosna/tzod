@@ -30,7 +30,7 @@ int ListDataSourceDefault::GetItemCount() const
 
 int ListDataSourceDefault::GetSubItemCount(int index) const
 {
-	return _items[index].text.size();
+	return (int)_items[index].text.size();
 }
 
 size_t ListDataSourceDefault::GetItemData(int index) const
@@ -52,7 +52,7 @@ int ListDataSourceDefault::FindItem(const std::string &text) const
 	{
 		if( _items[i].text[0] == text )
 		{
-			return i;
+			return (int)i;
 		}
 	}
 	return -1;
@@ -68,7 +68,7 @@ int ListDataSourceDefault::AddItem(const std::string &str, size_t data)
 	if( _listener )
 		_listener->OnAddItem();
 
-	return _items.size() - 1;
+	return (int)_items.size() - 1;
 }
 
 void ListDataSourceDefault::SetItemText(int index, int sub, const std::string &str)

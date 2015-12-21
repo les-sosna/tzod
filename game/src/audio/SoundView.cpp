@@ -1,8 +1,8 @@
 #include "inc/audio/SoundView.h"
 #include "SoundHarness.h"
 #include "SoundRender.h"
-#include <app/AppState.h>
-#include <app/GameContextBase.h>
+#include <as/AppState.h>
+#include <ctx/GameContextBase.h>
 
 SoundView::SoundView(AppState &appState, FS::FileSystem &fs)
 	: AppStateListener(appState)
