@@ -14,7 +14,7 @@ bool GlfwInput::IsKeyPressed(UI::Key key) const
 
 bool GlfwInput::IsMousePressed(int button) const
 {
-	return GLFW_PRESS == glfwGetMouseButton(&_window, button);
+	return GLFW_PRESS == glfwGetMouseButton(&_window, button-1);
 }
 
 vec2d GlfwInput::GetMousePos() const
