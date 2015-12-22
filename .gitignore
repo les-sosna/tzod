@@ -26,3 +26,4 @@ game/WinRT/Debug/
 game/WinRT/ARM/
 game/WinRT/ipch/
 *.user
+game/WinRT/wtzod.VC.opendb
