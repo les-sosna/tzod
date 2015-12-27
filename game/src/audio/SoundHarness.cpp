@@ -1,5 +1,6 @@
 #include "SoundHarness.h"
-#include "SoundRender.h"
+#include "SoundTemplates.h"
+#include "inc/audio/SoundRender.h"
 #include <gc/Crate.h>
 #include <gc/Explosion.h>
 #include <gc/Pickup.h>

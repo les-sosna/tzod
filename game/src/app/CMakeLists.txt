@@ -25,8 +25,7 @@ add_library(app
 	View.cpp
 )
 
-find_package(OpenAL)
-if(${OPENAL_FOUND})
+if(WITH_SOUND)
 	include_directories(${Audio_SOURCE_DIR}/inc)
 	target_link_libraries(app audio)
 else()

@@ -2,8 +2,10 @@
 #include <as/AppStateListener.h>
 #include <memory>
 
+enum SoundTemplate;
 class SoundHarness;
-class SoundRender;
+struct SoundRender;
+
 namespace FS
 {
 	class FileSystem;
@@ -17,8 +19,9 @@ public:
 	void Step();
 
 private:
-    std::unique_ptr<SoundRender> _soundRender;
+	std::unique_ptr<SoundRender> _soundRender;
 	std::unique_ptr<SoundHarness> _soundHarness;
+	void LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName);
 
 	// AppStateListener
 	void OnGameContextChanging() override;

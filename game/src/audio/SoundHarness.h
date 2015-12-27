@@ -3,10 +3,10 @@
 #include <memory>
 #include <unordered_map>
 
-class SoundRender;
 class GC_Actor;
 class GC_Weapon;
 struct Sound;
+struct SoundRender;
 
 class SoundHarness
 	: ObjectListener<GC_Pickup>
@@ -23,7 +23,7 @@ public:
 	SoundHarness(SoundRender &soundRender, World &world);
 	~SoundHarness();
 
-    void SetListenerPos(vec2d pos);
+	void SetListenerPos(vec2d pos);
 	void Step();
 
 private:
