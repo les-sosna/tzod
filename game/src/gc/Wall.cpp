@@ -78,7 +78,7 @@ void GC_Wall::Kill(World &world)
 
 static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
 
-bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const
+bool GC_Wall::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const
 {
 	assert(!std::isnan(lineCenter.x) && std::isfinite(lineCenter.x));
 	assert(!std::isnan(lineCenter.y) && std::isfinite(lineCenter.y));
@@ -176,11 +176,11 @@ bool GC_Wall::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirectio
 	}
 	else
 	{
-		return GC_RigidBodyStatic::CollideWithLine(lineCenter, lineDirection, outEnterNormal, outEnter, outExit);
+		return GC_RigidBodyStatic::IntersectWithLine(lineCenter, lineDirection, outEnterNormal, outEnter, outExit);
 	}
 }
 
-bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const
+bool GC_Wall::IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const
 {
 	assert(!std::isnan(rectHalfSize.x) && std::isfinite(rectHalfSize.x));
 	assert(!std::isnan(rectHalfSize.y) && std::isfinite(rectHalfSize.y));
@@ -369,7 +369,7 @@ bool GC_Wall::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter
 	}
 	else
 	{
-		return GC_RigidBodyStatic::CollideWithRect(rectHalfSize, rectCenter, rectDirection, outWhere, outNormal, outDepth);
+		return GC_RigidBodyStatic::IntersectWithRect(rectHalfSize, rectCenter, rectDirection, outWhere, outNormal, outDepth);
 	}
 }
 

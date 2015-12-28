@@ -318,7 +318,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 				continue;
 			}
 
-			if( object->CollideWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
+			if( object->IntersectWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
 			{
 #ifndef NDEBUG
 //				for( int i = 0; i < 4; ++i )

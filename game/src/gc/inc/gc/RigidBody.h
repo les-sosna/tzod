@@ -40,8 +40,8 @@ public:
 	vec2d GetVertex(int index) const;
 	bool GetTrace0() const { return CheckFlags(GC_FLAG_RBSTATIC_TRACE0); }
 
-	virtual bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const;
-	virtual bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const;
+	virtual bool IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const;
+	virtual bool IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const;
 
 	// return true if object has been killed
 	void TakeDamage(World &world, DamageDesc dd);

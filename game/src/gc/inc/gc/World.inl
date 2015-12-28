@@ -56,7 +56,7 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 
 					float hitEnter, hitExit;
 					vec2d hitNorm;
-					if( object->CollideWithLine(s.GetCenter(), s.GetDirection(), hitNorm, hitEnter, hitExit) )
+					if( object->IntersectWithLine(s.GetCenter(), s.GetDirection(), hitNorm, hitEnter, hitExit) )
 					{
 						assert(!std::isnan(hitEnter) && std::isfinite(hitEnter));
 						assert(!std::isnan(hitExit) && std::isfinite(hitExit));

@@ -33,8 +33,8 @@ public:
 	int GetStyle() const;
 
 	// GC_RigidBodyStatic
-	bool CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const override;
-	bool CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const override;
+	bool IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const override;
+	bool IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const override;
 	float GetDefaultHealth() const override { return 50; }
 	unsigned char GetPassability() const override { return 1; }
 

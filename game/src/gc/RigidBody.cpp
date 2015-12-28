@@ -55,7 +55,7 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 		world._field.ProcessObject(this, true);
 }
 
-bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
+bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
                                          vec2d &outEnterNormal, float &outEnter, float &outExit) const
 {
 	assert(!std::isnan(lineCenter.x) && std::isfinite(lineCenter.x));
@@ -124,7 +124,7 @@ bool GC_RigidBodyStatic::CollideWithLine(const vec2d &lineCenter, const vec2d &l
 	return true;
 }
 
-bool GC_RigidBodyStatic::CollideWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
+bool GC_RigidBodyStatic::IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection,
                                          vec2d &outWhere, vec2d &outNormal, float &outDepth) const
 {
 	assert(!std::isnan(rectHalfSize.x) && std::isfinite(rectHalfSize.x));
