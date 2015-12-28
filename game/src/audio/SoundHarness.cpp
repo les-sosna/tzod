@@ -4,10 +4,10 @@
 #include <gc/Crate.h>
 #include <gc/Explosion.h>
 #include <gc/Pickup.h>
-#include <gc/RigidBody.h>
 #include <gc/Projectiles.h>
 #include <gc/Turrets.h>
 #include <gc/Vehicle.h>
+#include <gc/Wall.h>
 #include <gc/Weapons.h>
 #include <gc/WeapCfg.h>
 #include <gc/World.h>

@@ -406,7 +406,7 @@ void World::Step(float dt)
         ls.for_each([=](ObjectList::id_type id, GC_Object *o){
             o->TimeStep(*this, dt);
         });
-		GC_RigidBodyDynamic::ProcessResponse(*this, dt);
+		GC_RigidBodyDynamic::ProcessResponse(*this);
 		_safeMode = true;
 	}
 

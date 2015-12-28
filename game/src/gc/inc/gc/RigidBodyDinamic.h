@@ -73,8 +73,8 @@ public:
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
 	void TimeStep(World &world, float dt) override;
-    
-	static void ProcessResponse(World &world, float dt);
+
+	static void ProcessResponse(World &world);
 	static void PushState();
 	static void PopState();
 

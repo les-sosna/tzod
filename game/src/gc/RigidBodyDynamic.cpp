@@ -372,7 +372,7 @@ void GC_RigidBodyDynamic::PopState()
 	_contactsStack.pop();
 }
 
-void GC_RigidBodyDynamic::ProcessResponse(World &world, float dt)
+void GC_RigidBodyDynamic::ProcessResponse(World &world)
 {
 	for( int i = 0; i < 128; i++ )
 	{

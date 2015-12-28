@@ -37,6 +37,8 @@ add_library(gc
 	UserObjects.cpp
 	Vehicle.cpp
 	VehicleClasses.cpp
+	Wall.cpp
+	Water.cpp
 	WeaponBase.cpp
 	Weapons.cpp
 	World.cpp

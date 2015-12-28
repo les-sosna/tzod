@@ -31,6 +31,8 @@
 #include <gc/Turrets.h>
 #include <gc/UserObjects.h>
 #include <gc/Vehicle.h>
+#include <gc/Wall.h>
+#include <gc/Water.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
 
@@ -92,27 +94,27 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ak47"));
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_RocketLauncher>(Make<Z_WeapFireEffect>(0.1f),
-											   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true));
+	                                           Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 13.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ac"));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(HasBooster, 0.135f),
-										   Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
+	                                       Make<R_WeapFireEffect>(tm, "particle_fire4", 0.135f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_WeapFireEffect>>(Not(HasBooster), 0.135f),
-										   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
+	                                       Make<R_WeapFireEffect>(tm, "particle_fire3", 0.135f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_AutoCannon>(Make<Z_Predicate<Z_Const>>(Not(HasBooster), Z_VEHICLE_LABEL),
-										   Make<R_AmmoIndicator>(tm));
+	                                       Make<R_AmmoIndicator>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_cannon"));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_Cannon>(Make<Z_WeapFireEffect>(0.2f),
-									   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f, true));
+	                                   Make<R_WeapFireEffect>(tm, "particle_fire3", 0.2f, 21.0f, true));
 	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_plazma"));
 	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_Plazma>(Make<Z_WeapFireEffect>(0.2f),
-									   Make<R_WeapFireEffect>(tm, "particle_plazma_fire", 0.2f, 0.0f, true));
+	                                   Make<R_WeapFireEffect>(tm, "particle_plazma_fire", 0.2f, 0.0f, true));
 	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_gauss"));
 	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_Gauss>(Make<Z_WeapFireEffect>(0.15f),
-									  Make<R_WeapFireEffect>(tm, "particle_gaussfire", 0.15f, 0.0f, true));
+	                                  Make<R_WeapFireEffect>(tm, "particle_gaussfire", 0.15f, 0.0f, true));
 	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_ram"));
 	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 	_gameViews.AddView<GC_Weap_Ram>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_FuelIndicator>(tm));
@@ -124,26 +126,26 @@ RenderScheme::RenderScheme(TextureManager &tm)
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Weapon>(), Make<R_WeaponMinigun>(tm));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair2>(tm));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_Predicate<Z_WeapFireEffect>>(HasBooster, 0.1f),
-										Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true));
+	                                    Make<R_WeapFireEffect>(tm, "particle_fire3", 0.1f, 17.0f, true));
 	_gameViews.AddView<GC_Weap_Minigun>(Make<Z_WeapFireEffect>(0.1f),
-										Make<R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false));
+	                                    Make<R_WeapFireEffect>(tm, "minigun_fire", 0.1f, 20.0f, false));
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Weapon>(), Make<R_Weapon>(tm, "weap_zippo"));
 	_gameViews.AddView<GC_Weap_Zippo>(Make<Z_Const>(Z_VEHICLE_LABEL), Make<R_Crosshair>(tm));
 
 	_gameViews.AddView<GC_pu_Health>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
-									 Make<R_AnimatedSprite>(tm, "pu_health", ANIMATION_FPS));
+	                                 Make<R_AnimatedSprite>(tm, "pu_health", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Mine>(Make<Z_Const>(Z_FREE_ITEM), Make<R_Sprite>(tm, "item_mine"));
 	_gameViews.AddView<GC_pu_Shield>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_PARTICLE),
-									 Make<R_AnimatedSprite>(tm, "shield", ANIMATION_FPS));
+	                                 Make<R_AnimatedSprite>(tm, "shield", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Shield>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
-									 Make<R_AnimatedSprite>(tm, "pu_inv", ANIMATION_FPS));
+	                                 Make<R_AnimatedSprite>(tm, "pu_inv", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Shock>(Make<Z_Predicate<Z_Const>>(IsPickupVisible, Z_FREE_ITEM),
-									Make<R_AnimatedSprite>(tm, "pu_shock", ANIMATION_FPS));
+	                                Make<R_AnimatedSprite>(tm, "pu_shock", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Shock>(Make<Z_Predicate<Z_Const>>(IsPickupAttached, Z_FREE_ITEM), Make<R_Shock>(tm));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, Not(IsPickupAttached)), Z_FREE_ITEM),
-									  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
+	                                  Make<R_AnimatedSprite>(tm, "pu_booster", ANIMATION_FPS));
 	_gameViews.AddView<GC_pu_Booster>(Make<Z_Predicate<Z_Const>>(And(IsPickupVisible, IsPickupAttached), Z_FREE_ITEM),
-									  Make<R_Booster>(tm));
+	                                  Make<R_Booster>(tm));
 
 	_gameViews.AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood"));
 	_gameViews.AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water"));
