@@ -15,6 +15,51 @@ namespace
 		virtual void SetVolume(float) {}
 		virtual void SetPitch(float) {}
 	};
+
+	class SoundImpl : public Sound
+	{
+	public:
+		SoundImpl(std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> source)
+			: _source(std::move(source))
+			, _started(false)
+		{
+		}
+
+		~SoundImpl() override
+		{
+		}
+
+		void SetPos(vec2d pos) override
+		{
+			// TODO: implement
+		}
+
+		void SetPlaying(bool playing) override
+		{
+			if (playing != _started)
+			{
+				if (playing)
+					_source->Start(0U, OPSETID);
+				else
+					_source->Stop(0U, OPSETID);
+				_started = playing;
+			}
+		}
+
+		void SetVolume(float volume) override
+		{
+			_source->SetVolume(volume, OPSETID);
+		}
+
+		void SetPitch(float pitch) override
+		{
+			_source->SetFrequencyRatio(pitch, OPSETID);
+		}
+
+	private:
+		std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> _source;
+		bool _started;
+	};
 }
 
 void VoiceDeleter::operator()(IXAudio2Voice *voice)
@@ -59,10 +104,45 @@ SoundRenderXA2::~SoundRenderXA2()
 
 void SoundRenderXA2::SetListenerPos(vec2d pos)
 {
+	// TODO: implement
+}
+
+static std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> CreateVoice(UI::ConsoleBuffer &logger, IXAudio2 *xa2, const WAVEFORMATEX &fmt)
+{
+	std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> result;
+	IXAudio2SourceVoice *rawSourceVoice = nullptr;
+	if (SUCCEEDED(xa2->CreateSourceVoice(&rawSourceVoice, &fmt)))
+		result.reset(rawSourceVoice);
+	else
+		logger.WriteLine(1, "Failed to create source voice");
+	return result;
 }
 
 std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate sound)
 {
+	if ((size_t)sound < _buffers.size() && !_buffers[sound].data.empty())
+	{
+		Buffer &buffer = _buffers[sound];
+		if (auto sourceVoice = CreateVoice(_logger, _xa2.Get(), buffer.wf))
+		{
+			XAUDIO2_BUFFER xaBuffer = {
+				XAUDIO2_END_OF_STREAM,
+				buffer.data.size(),
+				buffer.data.data(),
+				0, // PlayBegin
+				0, // PlayLength; 0 to play the whole buffer
+				0, // LoopBegin
+				0, // LoopLength; 0 to loop the entire buffer
+				XAUDIO2_LOOP_INFINITE
+			};
+
+			if (FAILED(sourceVoice->SubmitSourceBuffer(&xaBuffer)))
+				_logger.WriteLine(1, "Failed to submit source buffer");
+			else
+				return std::make_unique<SoundImpl>(std::move(sourceVoice));
+		}
+	}
+
 	return std::make_unique<SoundDummy>();
 }
 
@@ -71,16 +151,12 @@ void SoundRenderXA2::PlayOnce(SoundTemplate sound, vec2d pos)
 	if ((size_t) sound < _buffers.size() && !_buffers[sound].data.empty())
 	{
 		Buffer &buffer = _buffers[sound];
-		IXAudio2SourceVoice *rawSourceVoice = nullptr;
-		if (FAILED(_xa2->CreateSourceVoice(&rawSourceVoice, &buffer.wf)))
-			_logger.WriteLine(1, "Failed to create source voice");
-		else
+		if (auto sourceVoice = CreateVoice(_logger, _xa2.Get(), buffer.wf))
 		{
-			std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> sourceVoice(rawSourceVoice);
 			XAUDIO2_BUFFER xaBuffer = { XAUDIO2_END_OF_STREAM, buffer.data.size(), buffer.data.data() };
 			if (FAILED(sourceVoice->SubmitSourceBuffer(&xaBuffer)))
 				_logger.WriteLine(1, "Failed to submit source buffer");
-			else if(FAILED(sourceVoice->Start(0, OPSETID)))
+			else if (FAILED(sourceVoice->Start(0, OPSETID)))
 				_logger.WriteLine(1, "Failed to start source voice");
 			else
 				_sources.push_back(std::move(sourceVoice));
