@@ -299,11 +299,11 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 	world.grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
-	Contact c;
-	c.depth = 0;
-	c.total_np = 0;
-	c.total_tp = 0;
-	c.obj1_d   = this;
+	Contact contact;
+	contact.depth = 0;
+	contact.total_np = 0;
+	contact.total_tp = 0;
+	contact.obj1_d   = this;
 
 	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
 
@@ -318,7 +318,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 				continue;
 			}
 
-			if( object->IntersectWithRect(myHalfSize, GetPos(), GetDirection(), c.o, c.n, c.depth) )
+			if( object->IntersectWithRect(myHalfSize, GetPos(), GetDirection(), contact.origin, contact.normal, contact.depth) )
 			{
 #ifndef NDEBUG
 //				for( int i = 0; i < 4; ++i )
@@ -328,12 +328,13 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 //				DbgLine(c.o, c.o + c.n * 32, 0x00ff00ff);
 #endif
 
-				c.t.x =  c.n.y;
-				c.t.y = -c.n.x;
-				c.obj2_s = object;
-				c.obj2_d = PtrDynCast<GC_RigidBodyDynamic>(object);
+				contact.obj2_s = object;
+				contact.obj2_d = PtrDynCast<GC_RigidBodyDynamic>(object);
 
-				_contacts.push_back(c);
+				contact.tangent.x =  contact.normal.y;
+				contact.tangent.y = -contact.normal.x;
+
+				_contacts.push_back(contact);
 			}
 		}
 	}
@@ -382,9 +383,9 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world)
 
 			float a;
 			if( it->obj2_d )
-				a = 0.65f * it->obj1_d->geta_d(it->n, it->o, it->obj2_d);
+				a = 0.65f * it->obj1_d->geta_d(it->normal, it->origin, it->obj2_d);
 			else
-				a = 0.65f * it->obj1_d->geta_s(it->n, it->o, it->obj2_s);
+				a = 0.65f * it->obj1_d->geta_s(it->normal, it->origin, it->obj2_s);
 
 			if( a >= 0 )
 			{
@@ -400,24 +401,24 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world)
 					if( it->obj2_d )
 					{
 						GC_Player *owner2 = it->obj2_d->GetOwner();
-						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->o, owner2});
-						it->obj2_d->TakeDamage(world, DamageDesc{a/60 * percussion1 * it->obj2_d->_fragility, it->o, owner1});
+						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj2_d->_percussion * it->obj1_d->_fragility, it->origin, owner2});
+						it->obj2_d->TakeDamage(world, DamageDesc{a/60 * percussion1 * it->obj2_d->_fragility, it->origin, owner1});
 					}
 					else
 					{
-						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj1_d->_fragility, it->o, owner1});
-						it->obj2_s->TakeDamage(world, DamageDesc{a/60 * percussion1, it->o, owner1});
+						it->obj1_d->TakeDamage(world, DamageDesc{a/60 * it->obj1_d->_fragility, it->origin, owner1});
+						it->obj2_s->TakeDamage(world, DamageDesc{a/60 * percussion1, it->origin, owner1});
 					}
 				}
 
 				if( !it->obj1_d || !it->obj2_s )
 					a *= 0.1f;
 
-				vec2d delta_p = it->n * (a + it->depth);
+				vec2d delta_p = it->normal * (a + it->depth);
 				if( it->obj1_d )
-					it->obj1_d->impulse(it->o, delta_p);
+					it->obj1_d->impulse(it->origin, delta_p);
 				if( it->obj2_s && it->obj2_d )
-					it->obj2_d->impulse(it->o, -delta_p);
+					it->obj2_d->impulse(it->origin, -delta_p);
 
 
 				//
@@ -449,7 +450,7 @@ void GC_RigidBodyDynamic::ProcessResponse(World &world)
 	for( ContactList::const_iterator it = _contacts.begin(); it != _contacts.end(); ++it )
 	{
 		for( auto ls: world.eGC_RigidBodyDynamic._listeners )
-			ls->OnContact(it->o, it->total_np, it->total_tp);
+			ls->OnContact(it->origin, it->total_np, it->total_tp);
 	}
 
 	_contacts.clear();

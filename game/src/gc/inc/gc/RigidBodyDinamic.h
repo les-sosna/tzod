@@ -18,7 +18,9 @@ class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 		ObjPtr<GC_RigidBodyDynamic> obj1_d;
 		ObjPtr<GC_RigidBodyStatic>  obj2_s;
 		GC_RigidBodyDynamic *obj2_d;
-		vec2d o,n,t; // origin, normal, tangent
+		vec2d origin;
+		vec2d normal;
+		vec2d tangent;
 		float total_np, total_tp;
 		float depth;
 //		bool  inactive;
