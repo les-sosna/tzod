@@ -2,14 +2,27 @@
 #include "SoundRender.h"
 #include <vector>
 #include <wrl\client.h>
-#include <X3daudio.h>
+//#include <X3daudio.h>
 
 struct IXAudio2;
+struct IXAudio2Voice;
+struct IXAudio2SourceVoice;
+struct IXAudio2MasteringVoice;
+
+namespace UI
+{
+	class ConsoleBuffer;
+}
+
+struct VoiceDeleter
+{
+	void operator()(IXAudio2Voice *voice);
+};
 
 class SoundRenderXA2 : public SoundRender
 {
 public:
-	SoundRenderXA2();
+	explicit SoundRenderXA2(UI::ConsoleBuffer &logger);
 	~SoundRenderXA2();
 
 	// SoundRender
@@ -20,8 +33,7 @@ public:
 	void Step() override;
 
 private:
-	Microsoft::WRL::ComPtr<IXAudio2> _xa2;
-	X3DAUDIO_HANDLE _x3da;
+	UI::ConsoleBuffer &_logger;
 
 	struct Buffer
 	{
@@ -30,6 +42,10 @@ private:
 	};
 	std::vector<Buffer> _buffers;
 
-	std::vector<int> _sources;
+	Microsoft::WRL::ComPtr<IXAudio2> _xa2;
+	std::unique_ptr<IXAudio2MasteringVoice, VoiceDeleter> _masteringVoice;
+	std::vector<std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter>> _sources;
+
+//	X3DAUDIO_HANDLE _x3da;
 };
 

@@ -10,6 +10,7 @@ include_directories(
 	${Ctx_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
 	${GC_SOURCE_DIR}/inc
+	${LibUI_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
 
 	${OggVorbis_SOURCE_DIR}/include

@@ -11,10 +11,15 @@ namespace FS
 	class FileSystem;
 }
 
+namespace UI
+{
+	class ConsoleBuffer;
+}
+
 class SoundView : private AppStateListener
 {
 public:
-	SoundView(AppState &appState, FS::FileSystem &fs);
+	SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &appState);
 	~SoundView();
 	void Step();
 

@@ -10,10 +10,10 @@
 #include <fs/FileSystem.h>
 #include <ctx/GameContextBase.h>
 
-SoundView::SoundView(AppState &appState, FS::FileSystem &fs)
+SoundView::SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &appState)
 	: AppStateListener(appState)
 #ifdef WIN32
-	, _soundRender(new SoundRenderXA2())
+	, _soundRender(new SoundRenderXA2(logger))
 #endif
 {
 	LoadBuffer(fs, SND_BoomStandard, "explosions/standard.ogg");

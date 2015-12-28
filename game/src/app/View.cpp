@@ -46,7 +46,7 @@ struct TzodViewImpl
 				logger,
 				[]() {}))
 #ifndef NOSOUND
-        , soundView(app.GetAppState(), *fs.GetFileSystem(DIR_SOUND))
+		, soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())
 #endif
 	{}
 };
