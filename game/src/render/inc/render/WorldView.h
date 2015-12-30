@@ -17,7 +17,7 @@ public:
 	void Render(DrawingContext &dc,
 				const World &world,
 				const RectRB &viewport,
-				const vec2d &eye,
+				vec2d eye,
 				float zoom,
 				bool editorMode,
 				bool drawGrid,

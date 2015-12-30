@@ -21,12 +21,15 @@ WorldView::~WorldView()
 void WorldView::Render(DrawingContext &dc,
 					   const World &world,
 					   const RectRB &viewport,
-					   const vec2d &eye,
+					   vec2d eye,
 					   float zoom,
 					   bool editorMode,
 					   bool drawGrid,
 					   bool nightMode) const
 {
+	eye.x = floor(eye.x);
+	eye.y = floor(eye.y);
+
 	dc.Camera(viewport, eye.x, eye.y, zoom);
 
 	float left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
