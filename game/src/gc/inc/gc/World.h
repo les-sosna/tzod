@@ -110,15 +110,18 @@ public:
 
 	Grid<PtrList<GC_Object>>  grid_rigid_s;
 	Grid<PtrList<GC_Object>>  grid_walls;
-	Grid<PtrList<GC_Object>>  grid_wood;
 	Grid<PtrList<GC_Object>>  grid_water;
 	Grid<PtrList<GC_Object>>  grid_pickup;
     Grid<PtrList<GC_Object>>  grid_actors;
+
+	std::vector<bool> _woodTiles;
 
 	bool    _gameStarted;
 	bool    _frozen;
 	bool    _nightMode;
 	float   _sx, _sy;   // world size
+	int     _cellsX;
+	int     _cellsY;
 
 	int _locationsX;
 	int _locationsY;
@@ -176,6 +179,7 @@ public:
                        const vec2d &tv,    // target velocity
                        vec2d &out_fake );  // out: fake target position
 
+	int GetTileIndex(vec2d pos) const;
 
 	//
 	// tracing

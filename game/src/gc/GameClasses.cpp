@@ -14,11 +14,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 	return true;
 }
 
-IMPLEMENT_GRID_MEMBER(GC_Wood, grid_wood);
-
 GC_Wood::GC_Wood(vec2d pos)
   : GC_Actor(pos)
-  , _tile(0)
 {
 }
 
@@ -31,71 +28,64 @@ GC_Wood::~GC_Wood()
 {
 }
 
-void GC_Wood::Kill(World &world)
+void GC_Wood::Init(World &world)
 {
-    if( CheckFlags(GC_FLAG_WOOD_INTILE) )
-        UpdateTile(world, false);
-    GC_Actor::Kill(world);
-}
-
-void GC_Wood::UpdateTile(World &world, bool flag)
-{
-	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
-	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
-
-	FRECT frect;
-	frect.left   = (GetPos().x - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.top    = (GetPos().y - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.right  = (GetPos().x + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.bottom = (GetPos().y + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-
-    std::vector<ObjectList*> receive;
-	world.grid_wood.OverlapRect(receive, frect);
-
-	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
+	GC_Actor::Init(world);
+	int tileIndex = world.GetTileIndex(GetPos());
+	if (-1 != tileIndex)
 	{
-        ObjectList *ls = *rit;
-		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
-		{
-			GC_Wood *object = static_cast<GC_Wood *>(ls->at(it));
-			if( this == object ) continue;
-
-			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
-			if( dx.sqr() < 2.5f )
-			{
-				int x = int(dx.x + 1.5f);
-				int y = int(dx.y + 1.5f);
-
-				object->SetTile(tile1[x + y * 3], flag);
-				SetTile(tile2[x + y * 3], flag);
-			}
-		}
+		world._woodTiles[tileIndex] = true;
 	}
 }
 
-void GC_Wood::Serialize(World &world, SaveFile &f)
+void GC_Wood::Kill(World &world)
 {
-	GC_Actor::Serialize(world, f);
-	f.Serialize(_tile);
+	int tileIndex = world.GetTileIndex(GetPos());
+	if (-1 != tileIndex)
+	{
+		world._woodTiles[tileIndex] = false;
+	}
+
+	GC_Actor::Kill(world);
 }
 
-void GC_Wood::SetTile(char nTile, bool value)
-{
-	assert(0 <= nTile && nTile < 8);
 
-	if( value )
-		_tile |=  (1 << nTile);
-	else
-		_tile &= ~(1 << nTile);
+static const int dx[8] = {   1,   1,   0,  -1,  -1,  -1,   0,   1 };
+static const int dy[8] = {   0,   1,   1,   1,   0,  -1,  -1,  -1 };
+static const int nf[8] = { 131,   2,  14,   8,  56,  32, 224, 128 };
+
+int GC_Wood::GetNeighbors(const World &world) const
+{
+	int x0 = int(GetPos().x / CELL_SIZE);
+	int y0 = int(GetPos().y / CELL_SIZE);
+
+	int neighbors = 0;
+	for (int i = 0; i < 8; i++)
+	{
+		auto x = x0 + dx[i];
+		auto y = y0 + dy[i];
+		auto tileIndex = (x >= 0 && x < world._cellsX && y >= 0 && y < world._cellsY) ? x + world._cellsX * y : -1;
+		if (tileIndex == -1 || world._woodTiles[tileIndex])
+		{
+			neighbors |= nf[i];
+		}
+	}
+
+	return neighbors;
 }
 
 void GC_Wood::MoveTo(World &world, const vec2d &pos)
 {
-    if (CheckFlags(GC_FLAG_WOOD_INTILE))
-        UpdateTile(world, false);
-    GC_Actor::MoveTo(world, pos);
-    UpdateTile(world, true);
-    SetFlags(GC_FLAG_WOOD_INTILE, true);
+	int oldTile = world.GetTileIndex(GetPos());
+	int newTile = world.GetTileIndex(pos);
+	if (oldTile != newTile)
+	{
+		if (-1 != oldTile)
+			world._woodTiles[oldTile] = false;
+		if (-1 != newTile)
+			world._woodTiles[newTile] = true;
+	}
+	GC_Actor::MoveTo(world, pos);
 }
 
 /////////////////////////////////////////////////////////////

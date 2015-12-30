@@ -21,7 +21,7 @@ void R_Tile::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 
 	vec2d pos = actor.GetPos();
 	vec2d dir = actor.GetDirection();
-	int tile = na.GetNeighbors();
+	int tile = na.GetNeighbors(world);
 
 	for( int i = 0; i < 8; ++i )
 	{

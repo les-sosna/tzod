@@ -35,15 +35,27 @@ World::World(int X, int Y)
 	_locationsY  = (Y * CELL_SIZE / LOCATION_SIZE + ((Y * CELL_SIZE) % LOCATION_SIZE != 0 ? 1 : 0));
 	_sx          = (float) X * CELL_SIZE;
 	_sy          = (float) Y * CELL_SIZE;
+	_cellsX      = X;
+	_cellsY      = Y;
 
 	grid_rigid_s.resize(_locationsX, _locationsY);
 	grid_walls.resize(_locationsX, _locationsY);
-	grid_wood.resize(_locationsX, _locationsY);
 	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
 	grid_actors.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
+	_woodTiles.resize(X * Y);
+}
+
+int World::GetTileIndex(vec2d pos) const
+{
+	int x = int(pos.x / CELL_SIZE);
+	int y = int(pos.y / CELL_SIZE);
+	if (x >= 0 && x < _cellsX && y >= 0 && y < _cellsY)
+		return x + _cellsX * y;
+	else
+		return -1;
 }
 
 void World::OnKill(GC_Object &obj)

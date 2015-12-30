@@ -43,7 +43,7 @@ public:
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware
-	int GetNeighbors() const override { return _tile; }
+	int GetNeighbors(const World &world) const override { return _tile; }
 
 	// GC_RigidBodyStatic
 	unsigned char GetPassability() const override { return 0xFF; }  // impassable

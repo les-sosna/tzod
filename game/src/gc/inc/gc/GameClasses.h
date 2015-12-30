@@ -32,49 +32,28 @@ private:
 
 /////////////////////////////////////////////////////////////
 
-#define GC_FLAG_WOOD_INTILE                 (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_WOOD_                       (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_WOOD_                       (GC_FLAG_ACTOR_ << 0)
 
 class GC_Wood : public GC_Actor
               , public GI_NeighborAware
 {
-	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Wood);
-    typedef GC_Actor base;
-private:
-
-/**
- *   tile bits
- *
- *   5   6   7
- *    +-----+
- *    |     |
- *  4 |  #  | 0
- *    |     |
- *    +-----+
- *   3   2   1
-**/
-	int _tile;
-
-protected:
-	void UpdateTile(World &world, bool flag);
+	typedef GC_Actor base;
 
 public:
 	explicit GC_Wood(vec2d pos);
 	explicit GC_Wood(FromFile);
 	virtual ~GC_Wood();
 
-	void SetTile(char nTile, bool value);
-
-    // GC_Actor
-    void MoveTo(World &world, const vec2d &pos) override;
+	// GC_Actor
+	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware
-    int GetNeighbors() const override { return _tile; }
+	int GetNeighbors(const World &world) const override;
 
 	// GC_Object
-    void Kill(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
 };
 
 /////////////////////////////////////////////////////////////
