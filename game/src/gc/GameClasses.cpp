@@ -45,7 +45,6 @@ void GC_Wood::Kill(World &world)
 	{
 		world._woodTiles[tileIndex] = false;
 	}
-
 	GC_Actor::Kill(world);
 }
 

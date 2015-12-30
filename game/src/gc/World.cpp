@@ -40,11 +40,11 @@ World::World(int X, int Y)
 
 	grid_rigid_s.resize(_locationsX, _locationsY);
 	grid_walls.resize(_locationsX, _locationsY);
-	grid_water.resize(_locationsX, _locationsY);
 	grid_pickup.resize(_locationsX, _locationsY);
 	grid_actors.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
+	_waterTiles.resize(X * Y);
 	_woodTiles.resize(X * Y);
 }
 

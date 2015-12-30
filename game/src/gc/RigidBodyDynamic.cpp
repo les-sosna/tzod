@@ -295,9 +295,8 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	//------------------------------------
 	// collisions
 
-    std::vector<ObjectList*> receive;
+	std::vector<ObjectList*> receive;
 	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
-	world.grid_water.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
 
 	Contact contact;
 	contact.depth = 0;
@@ -309,7 +308,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
-        ObjectList *ls = *rit;
+		ObjectList *ls = *rit;
 		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
 			GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) ls->at(it);

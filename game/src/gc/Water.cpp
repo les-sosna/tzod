@@ -9,11 +9,8 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 	return true;
 }
 
-IMPLEMENT_GRID_MEMBER(GC_Water, grid_water);
-
 GC_Water::GC_Water(vec2d pos)
   : GC_RigidBodyStatic(pos)
-  , _tile(0)
 {
 	SetSize(CELL_SIZE, CELL_SIZE);
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
@@ -30,69 +27,60 @@ GC_Water::~GC_Water()
 
 void GC_Water::MoveTo(World &world, const vec2d &pos)
 {
-    if( CheckFlags(GC_FLAG_WATER_INTILE) )
-        UpdateTile(world, false);
-    GC_RigidBodyStatic::MoveTo(world, pos);
-    UpdateTile(world, true);
-    SetFlags(GC_FLAG_WATER_INTILE, true);
+	int oldTile = world.GetTileIndex(GetPos());
+	int newTile = world.GetTileIndex(pos);
+	if (oldTile != newTile)
+	{
+		if (-1 != oldTile)
+			world._waterTiles[oldTile] = false;
+		if (-1 != newTile)
+			world._waterTiles[newTile] = true;
+	}
+	GC_RigidBodyStatic::MoveTo(world, pos);
+}
+
+void GC_Water::Init(World &world)
+{
+	GC_RigidBodyStatic::Init(world);
+	int tileIndex = world.GetTileIndex(GetPos());
+	if (-1 != tileIndex)
+	{
+		world._waterTiles[tileIndex] = true;
+	}
 }
 
 void GC_Water::Kill(World &world)
 {
-    if( CheckFlags(GC_FLAG_WATER_INTILE) )
-        UpdateTile(world, false);
-    GC_RigidBodyStatic::Kill(world);
+	int tileIndex = world.GetTileIndex(GetPos());
+	if (-1 != tileIndex)
+	{
+		world._waterTiles[tileIndex] = false;
+	}
+	GC_RigidBodyStatic::Kill(world);
 }
 
-void GC_Water::UpdateTile(World &world, bool flag)
+static const int dx[8] = { 1,   1,   0,  -1,  -1,  -1,   0,   1 };
+static const int dy[8] = { 0,   1,   1,   1,   0,  -1,  -1,  -1 };
+static const int nf[8] = { 131,   2,  14,   8,  56,  32, 224, 128 };
+
+int GC_Water::GetNeighbors(const World &world) const
 {
-	static char tile1[9] = {5, 6, 7, 4,-1, 0, 3, 2, 1};
-	static char tile2[9] = {1, 2, 3, 0,-1, 4, 7, 6, 5};
+	int x0 = int(GetPos().x / CELL_SIZE);
+	int y0 = int(GetPos().y / CELL_SIZE);
 
-	FRECT frect;
-	frect.left   = (GetPos().x - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.top    = (GetPos().y - CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.right  = (GetPos().x + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-	frect.bottom = (GetPos().y + CELL_SIZE / 2) / LOCATION_SIZE - 0.5f;
-
-    std::vector<ObjectList*> receive;
-	world.grid_water.OverlapRect(receive, frect);
-
-	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
+	int neighbors = 0;
+	for (int i = 0; i < 8; i++)
 	{
-        ObjectList *ls = *rit;
-		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+		auto x = x0 + dx[i];
+		auto y = y0 + dy[i];
+		auto tileIndex = (x >= 0 && x < world._cellsX && y >= 0 && y < world._cellsY) ? x + world._cellsX * y : -1;
+		if (tileIndex == -1 || world._waterTiles[tileIndex])
 		{
-			GC_Water *object = (GC_Water *) ls->at(it);
-			if( this == object ) continue;
-
-			vec2d dx = (GetPos() - object->GetPos()) / CELL_SIZE;
-			if( dx.sqr() < 2.5f )
-			{
-				int x = int(dx.x + 1.5f);
-				int y = int(dx.y + 1.5f);
-
-				object->SetTile(tile1[x + y * 3], flag);
-				SetTile(tile2[x + y * 3], flag);
-			}
+			neighbors |= nf[i];
 		}
 	}
-}
 
-void GC_Water::Serialize(World &world, SaveFile &f)
-{
-	GC_RigidBodyStatic::Serialize(world, f);
-	f.Serialize(_tile);
-}
-
-void GC_Water::SetTile(char nTile, bool value)
-{
-	assert(0 <= nTile && nTile < 8);
-
-	if( value )
-		_tile |= (1 << nTile);
-	else
-		_tile &= ~(1 << nTile);
+	return neighbors;
 }
 
 void GC_Water::OnDamage(World &world, DamageDesc &dd)
