@@ -2,7 +2,7 @@
 #include <as/AppStateListener.h>
 #include <memory>
 
-enum SoundTemplate;
+enum class SoundTemplate;
 class SoundHarness;
 struct SoundRender;
 

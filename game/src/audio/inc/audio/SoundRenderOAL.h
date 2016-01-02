@@ -1,26 +1,24 @@
 #pragma once
 #include "SoundRender.h"
+#include "detail/AudioContextOAL.h"
 #include <vector>
-
-namespace FS {
-	class FileSystem;
-}
+#include <al.h>
 
 class SoundRenderOAL : public SoundRender
 {
 public:
-	explicit SoundRenderOAL(FS::FileSystem &fs);
+	SoundRenderOAL();
 	~SoundRenderOAL();
 
 	// SoundRender
-	void SetListenerPos(vec2d pos) override;
 	std::unique_ptr<Sound> CreateLopped(SoundTemplate sound) override;
+    void LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format) override;
 	void PlayOnce(SoundTemplate sound, vec2d pos) override;
+    void SetListenerPos(vec2d pos) override;
 	void Step() override;
 
 private:
 	OALInitHelper _initHelper;
 	std::vector<ALuint> _sources;
 	std::vector<ALuint> _buffers;
-	void LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName);
 };

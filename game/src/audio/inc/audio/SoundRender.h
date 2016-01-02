@@ -3,7 +3,7 @@
 #include <math/MyMath.h>
 #include <memory>
 
-enum SoundTemplate;
+enum class SoundTemplate;
 
 struct Sound
 {

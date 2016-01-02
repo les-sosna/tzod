@@ -1,4 +1,5 @@
-#include "SoundRender.h"
+#include "inc/audio/SoundRenderOAL.h"
+#include "SoundTemplates.h"
 #include <fs/FileSystem.h>
 #include <iterator>
 #include <utility>
@@ -64,16 +65,11 @@ private:
 
 } // namespace
 
-void SoundRenderOAL::LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName)
-try
+void SoundRenderOAL::LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format)
 {
-    FormatDesc fd;
-    std::vector<char> data;
-    LoadOggVorbis(fs.Open(fileName)->QueryStream(), fd, data);
-    
-    ALenum format = fd.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+    ALenum formatAL = format.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 
-    alBufferData(_buffers[st], format, data.data(), data.size(), fd.frequency);
+    alBufferData(_buffers[static_cast<unsigned int>(st)], formatAL, data, size, format.frequency);
     ALenum e = alGetError();
     if (AL_NO_ERROR != e)
     {
@@ -82,15 +78,11 @@ try
                                  (msg ? msg : "Unknown OpenAL error"));
     }
 }
-catch (const std::exception&)
-{
-    std::throw_with_nested(std::runtime_error(std::string("could not load '") + fileName + "'"));
-}
 
-SoundRenderOAL::SoundRenderOAL(FS::FileSystem &fs)
-	: _buffers(SND_COUNT)
+SoundRenderOAL::SoundRenderOAL()
+	: _buffers(static_cast<unsigned int>(SoundTemplate::COUNT))
 {
-	alGenBuffers(SND_COUNT, &_buffers[0]);
+	alGenBuffers(_buffers.size(), &_buffers[0]);
 	ALenum e = alGetError();
 	if (AL_NO_ERROR != e)
 	{
@@ -119,7 +111,7 @@ std::unique_ptr<Sound> SoundRenderOAL::CreateLopped(SoundTemplate sound)
 	alGenSources(1, &source);
 	if (AL_NO_ERROR == alGetError())
 	{
-		alSourcei(source, AL_BUFFER, _buffers[sound]);
+		alSourcei(source, AL_BUFFER, _buffers[static_cast<unsigned int>(sound)]);
 		alSourcei(source, AL_REFERENCE_DISTANCE, 70);
 		alSourcei(source, AL_LOOPING, AL_TRUE);
 		
@@ -142,7 +134,7 @@ void SoundRenderOAL::PlayOnce(SoundTemplate sound, vec2d pos)
 	if (AL_NO_ERROR == alGetError())
 	{
 		_sources.push_back(source);
-		alSourcei(source, AL_BUFFER, _buffers[sound]);
+		alSourcei(source, AL_BUFFER, _buffers[static_cast<unsigned int>(sound)]);
 		alSourcei(source, AL_REFERENCE_DISTANCE, 70);
 		alSourcei(source, AL_LOOPING, AL_FALSE);
 		alSource3f(source, AL_POSITION, pos.x, pos.y, 0.0f);

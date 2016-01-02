@@ -137,9 +137,9 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	ObjectType type = obj.GetType();
 	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
-		{GC_pu_Health::GetTypeStatic(), SND_Pickup},
-		{GC_pu_Shield::GetTypeStatic(), SND_Inv},
-		{GC_pu_Shock::GetTypeStatic(), SND_ShockActivate},
+		{GC_pu_Health::GetTypeStatic(), SoundTemplate::Pickup},
+		{GC_pu_Shield::GetTypeStatic(), SoundTemplate::Inv},
+		{GC_pu_Shock::GetTypeStatic(), SoundTemplate::ShockActivate},
 	};
 	auto found = sounds.find(type);
 	if (sounds.end() != found)
@@ -150,20 +150,20 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	{
 		if (vehicle.GetWeapon())
 		{
-			_attached.emplace(&obj, CreatePlayingLooped(_soundRender, SND_B_Loop, [&](Sound &s){ s.SetPos(obj.GetPos()); }));
-			_soundRender.PlayOnce(SND_B_Start, obj.GetPos());
+			_attached.emplace(&obj, CreatePlayingLooped(_soundRender, SoundTemplate::B_Loop, [&](Sound &s){ s.SetPos(obj.GetPos()); }));
+			_soundRender.PlayOnce(SoundTemplate::B_Start, obj.GetPos());
 		}
 	}
 	else if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
-		_soundRender.PlayOnce(SND_w_Pickup, obj.GetPos());
-		_weaponRotate.emplace(weapon, _soundRender.CreateLopped(SND_TowerRotate));
+		_soundRender.PlayOnce(SoundTemplate::w_Pickup, obj.GetPos());
+		_weaponRotate.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::TowerRotate));
 		if (GC_Weap_Minigun::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SND_MinigunFire));
+			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::MinigunFire));
 		else if (GC_Weap_Zippo::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SND_RamEngine));
+			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::RamEngine));
 		else if (GC_Weap_Ram::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SND_RamEngine));
+			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::RamEngine));
 	}
 }
 
@@ -180,23 +180,23 @@ void SoundHarness::OnDetach(GC_Pickup &obj)
 
 void SoundHarness::OnRespawn(GC_Pickup &obj)
 {
-	_soundRender.PlayOnce(SND_puRespawn, obj.GetPos());
+	_soundRender.PlayOnce(SoundTemplate::puRespawn, obj.GetPos());
 }
 
 void SoundHarness::OnDisappear(GC_Pickup &obj)
 {
 	if (GC_pu_Booster::GetTypeStatic() == obj.GetType())
 	{
-		_soundRender.PlayOnce(SND_B_End, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::B_End, obj.GetPos());
 	}
 }
 
 void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit)
 {
 	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
-		{GC_TankBullet::GetTypeStatic(), SND_BoomBullet},
-		{GC_PlazmaClod::GetTypeStatic(), SND_PlazmaHit},
-		{GC_BfgCore::GetTypeStatic(), SND_BfgFlash},
+		{GC_TankBullet::GetTypeStatic(), SoundTemplate::BoomBullet},
+		{GC_PlazmaClod::GetTypeStatic(), SoundTemplate::PlazmaHit},
+		{GC_BfgCore::GetTypeStatic(), SoundTemplate::BfgFlash},
 	};
 	ObjectType type = obj.GetType();
 	auto found = sounds.find(type);
@@ -207,28 +207,28 @@ void SoundHarness::OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d h
 	else if (GC_ACBullet::GetTypeStatic() == type)
 	{
 		if( dynamic_cast<GC_Wall_Concrete *>(&target) )
-			_soundRender.PlayOnce((rand() % 2) ? SND_AC_Hit2 : SND_AC_Hit3, hit);
+			_soundRender.PlayOnce((rand() % 2) ? SoundTemplate::AC_Hit2 : SoundTemplate::AC_Hit3, hit);
 		else
-			_soundRender.PlayOnce(SND_AC_Hit1, hit);
+			_soundRender.PlayOnce(SoundTemplate::AC_Hit1, hit);
 	}
 	else if (GC_Disk::GetTypeStatic() == type)
 	{
 		if (static_cast<const GC_Disk&>(obj).GetBounces())
-			_soundRender.PlayOnce(SND_DiskHit, hit);
+			_soundRender.PlayOnce(SoundTemplate::DiskHit, hit);
 		else
-			_soundRender.PlayOnce(SND_BoomBullet, hit);
+			_soundRender.PlayOnce(SoundTemplate::BoomBullet, hit);
 	}
 }
 
 void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
 {
 	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
-		{GC_Weap_AutoCannon::GetTypeStatic(), SND_ACShoot},
-		{GC_Weap_Cannon::GetTypeStatic(), SND_Shoot},
-		{GC_Weap_Gauss::GetTypeStatic(), SND_Bolt},
-		{GC_Weap_Plazma::GetTypeStatic(), SND_PlazmaFire},
-		{GC_Weap_Ripper::GetTypeStatic(), SND_DiskFire},
-		{GC_Weap_RocketLauncher::GetTypeStatic(), SND_RocketShoot},
+		{GC_Weap_AutoCannon::GetTypeStatic(), SoundTemplate::ACShoot},
+		{GC_Weap_Cannon::GetTypeStatic(), SoundTemplate::Shoot},
+		{GC_Weap_Gauss::GetTypeStatic(), SoundTemplate::Bolt},
+		{GC_Weap_Plazma::GetTypeStatic(), SoundTemplate::PlazmaFire},
+		{GC_Weap_Ripper::GetTypeStatic(), SoundTemplate::DiskFire},
+		{GC_Weap_RocketLauncher::GetTypeStatic(), SoundTemplate::RocketShoot},
 	};
 	auto found = sounds.find(obj.GetType());
 	if (sounds.end() != found)
@@ -238,29 +238,29 @@ void SoundHarness::OnShoot(GC_ProjectileBasedWeapon &obj)
 	else if (GC_Weap_BFG::GetTypeStatic() == obj.GetType())
 	{
 		if( obj.GetNumShots() )
-			_soundRender.PlayOnce(SND_BfgFire, obj.GetPos());
+			_soundRender.PlayOnce(SoundTemplate::BfgFire, obj.GetPos());
 		else if( !obj.GetBooster() )
-			_soundRender.PlayOnce(SND_BfgInit, obj.GetPos());
+			_soundRender.PlayOnce(SoundTemplate::BfgInit, obj.GetPos());
 	}
 }
 
 void SoundHarness::OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd)
 {
-	_soundRender.PlayOnce(rand() % 2 ? SND_InvHit1 : SND_InvHit2, obj.GetPos());
+	_soundRender.PlayOnce(rand() % 2 ? SoundTemplate::InvHit1 : SoundTemplate::InvHit2, obj.GetPos());
 }
 
 void SoundHarness::OnExpiring(GC_pu_Shield &obj)
 {
-	_soundRender.PlayOnce(SND_InvEnd, obj.GetPos());
+	_soundRender.PlayOnce(SoundTemplate::InvEnd, obj.GetPos());
 }
 
 void SoundHarness::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	ObjectType type = obj.GetType();
 	if (GC_Crate::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SND_WallDestroy, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::WallDestroy, obj.GetPos());
 	else if (GC_Wall::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SND_WallDestroy, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::WallDestroy, obj.GetPos());
 }
 
 void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
@@ -272,11 +272,11 @@ void SoundHarness::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			(turret && turret->GetState() == TS_HIDDEN))
 		{
 			if( rand() < RAND_MAX / 128 )
-				_soundRender.PlayOnce(SND_Hit1, obj.GetPos());
+				_soundRender.PlayOnce(SoundTemplate::Hit1, obj.GetPos());
 			else if( rand() < RAND_MAX / 128 )
-				_soundRender.PlayOnce(SND_Hit3, obj.GetPos());
+				_soundRender.PlayOnce(SoundTemplate::Hit3, obj.GetPos());
 			else if( rand() < RAND_MAX / 128 )
-				_soundRender.PlayOnce(SND_Hit5, obj.GetPos());
+				_soundRender.PlayOnce(SoundTemplate::Hit5, obj.GetPos());
 		}
 	}
 }
@@ -288,24 +288,24 @@ void SoundHarness::OnContact(vec2d pos, float np, float tp)
 	if( nd > 3 )
 	{
 		if( nd > 10 )
-			_soundRender.PlayOnce(SND_Impact2, pos);
+			_soundRender.PlayOnce(SoundTemplate::Impact2, pos);
 		else
-			_soundRender.PlayOnce(SND_Impact1, pos);
+			_soundRender.PlayOnce(SoundTemplate::Impact1, pos);
 	}
 	else if( tp > 10 )
 	{
-		_soundRender.PlayOnce(SND_Slide1, pos);
+		_soundRender.PlayOnce(SoundTemplate::Slide1, pos);
 	}
 }
 
 void SoundHarness::OnShoot(GC_Turret &obj)
 {
 	if (GC_TurretCannon::GetTypeStatic() == obj.GetType())
-		_soundRender.PlayOnce(SND_Shoot, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::Shoot, obj.GetPos());
 	else if (GC_TurretRocket::GetTypeStatic() == obj.GetType())
-		_soundRender.PlayOnce(SND_RocketShoot, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::RocketShoot, obj.GetPos());
 	else if (GC_TurretGauss::GetTypeStatic() == obj.GetType())
-		_soundRender.PlayOnce(SND_Bolt, obj.GetPos());
+		_soundRender.PlayOnce(SoundTemplate::Bolt, obj.GetPos());
 }
 
 void SoundHarness::OnFireStateChange(GC_Turret &obj)
@@ -313,7 +313,7 @@ void SoundHarness::OnFireStateChange(GC_Turret &obj)
 	if (obj.GetFire())
 	{
 		if (GC_TurretMinigun::GetTypeStatic() == obj.GetType())
-			_turretFire.emplace(static_cast<const GC_Turret*>(&obj), _soundRender.CreateLopped(SND_MinigunFire));
+			_turretFire.emplace(static_cast<const GC_Turret*>(&obj), _soundRender.CreateLopped(SoundTemplate::MinigunFire));
 	}
 	else
 	{
@@ -326,13 +326,13 @@ void SoundHarness::OnStateChange(GC_Turret &turret)
 	switch (turret.GetState())
 	{
 		case TS_WAKING_UP:
-			_soundRender.PlayOnce(SND_TuretWakeUp, turret.GetPos());
+			_soundRender.PlayOnce(SoundTemplate::TuretWakeUp, turret.GetPos());
 			break;
 		case TS_WAKING_DOWN:
-			_soundRender.PlayOnce(SND_TuretWakeDown, turret.GetPos());
+			_soundRender.PlayOnce(SoundTemplate::TuretWakeDown, turret.GetPos());
 			break;
 		case TS_ATACKING:
-			_soundRender.PlayOnce(SND_TargetLock, turret.GetPos());
+			_soundRender.PlayOnce(SoundTemplate::TargetLock, turret.GetPos());
 			break;
 		default:
 			break;
@@ -350,19 +350,19 @@ void SoundHarness::OnRotationStateChange(GC_Turret &turret)
 	else
 	{
 		if (turret.GetRotationState() != RS_STOPPED)
-			_turretRotate.emplace(&turret, _soundRender.CreateLopped(SND_TowerRotate));
+			_turretRotate.emplace(&turret, _soundRender.CreateLopped(SoundTemplate::TowerRotate));
 	}
 }
 
 void SoundHarness::OnLight(GC_Vehicle &obj)
 {
-	_soundRender.PlayOnce(SND_LightSwitch, obj.GetPos());
+	_soundRender.PlayOnce(SoundTemplate::LightSwitch, obj.GetPos());
 }
 
 void SoundHarness::OnGameFinished()
 {
 	// FIXME: play at no specific position
-	_soundRender.PlayOnce(SND_Limit, vec2d(0,0));
+	_soundRender.PlayOnce(SoundTemplate::Limit, vec2d(0,0));
 }
 
 void SoundHarness::OnKill(GC_Object &obj)
@@ -378,15 +378,15 @@ void SoundHarness::OnNewObject(GC_Object &obj)
 {
 	ObjectType type = obj.GetType();
 	if (GC_ExplosionBig::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SND_BoomBig, static_cast<const GC_Actor &>(obj).GetPos());
+		_soundRender.PlayOnce(SoundTemplate::BoomBig, static_cast<const GC_Actor &>(obj).GetPos());
 	else if (GC_ExplosionStandard::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SND_BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
+		_soundRender.PlayOnce(SoundTemplate::BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
 	else if (GC_Rocket::GetTypeStatic() == type)
 		_attached.emplace(static_cast<const GC_Actor*>(&obj),
-			CreatePlayingLooped(_soundRender, SND_RocketFly,
+			CreatePlayingLooped(_soundRender, SoundTemplate::RocketFly,
 								[&](Sound &s){ s.SetPos(static_cast<const GC_Actor &>(obj).GetPos()); }));
 	else if (GC_Tank_Light::GetTypeStatic() == type)
 		_vehicleMove.emplace(static_cast<const GC_Vehicle*>(&obj),
-							 CreatePlayingLooped(_soundRender, SND_TankMove,
+							 CreatePlayingLooped(_soundRender, SoundTemplate::TankMove,
 												 [&](Sound &s){ SetupVehicleMoveSound(static_cast<const GC_Vehicle &>(obj), s); }));
 }

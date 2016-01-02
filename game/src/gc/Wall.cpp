@@ -4,6 +4,7 @@
 #include "inc/gc/Wall.h"
 #include "inc/gc/WeapCfg.h"
 #include "inc/gc/WorldCfg.h"
+#include <float.h>
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
