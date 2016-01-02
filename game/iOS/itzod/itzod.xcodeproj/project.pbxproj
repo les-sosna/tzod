@@ -140,34 +140,58 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		07FAF2661B1C26D900BFDD5F = {
+		07F8658D1C385A1D0027DA89 /* tzod libs */ = {
 			isa = PBXGroup;
 			children = (
-				0775001D1C1CE32A00A325C8 /* libas.a */,
-				0775001E1C1CE32A00A325C8 /* libctx.a */,
-				0775001F1C1CE32A00A325C8 /* libgv.a */,
-				077500201C1CE32A00A325C8 /* libshell.a */,
-				077500211C1CE32A00A325C8 /* libui.a */,
-				077500221C1CE32A00A325C8 /* libzlib.a */,
-				0749F8931B75CE910067358B /* liboggvorbis.a */,
-				0749F8911B75CE820067358B /* OpenAL.framework */,
-				0749F88F1B75CE610067358B /* libaudio.a */,
-				07AD8F2C1B5F66B700FC2911 /* libconfig.a */,
-				07AD8F2D1B5F66B700FC2911 /* libpluto.a */,
-				07AD8F2A1B5F669E00FC2911 /* libgclua.a */,
-				07AD8F241B5F667F00FC2911 /* libai.a */,
-				07AD8F251B5F667F00FC2911 /* libloc.a */,
-				07AD8F261B5F667F00FC2911 /* libscript.a */,
-				070667421B491645000FAF97 /* libapp.a */,
-				07CAF7AE1B3BBE71008A60CA /* UIKit.framework */,
-				07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */,
-				07CAF7AA1B3BA782008A60CA /* libfilesystem.a */,
-				07CAF7A81B393A3C008A60CA /* liblua.a */,
-				07CAF7A61B33F4E2008A60CA /* GLKit.framework */,
-				07705C571B3289B2008ED733 /* librender.a */,
 				07705C551B328956008ED733 /* libvideo.a */,
 				0713692A1B2D2BB70065FAC7 /* libmapfile.a */,
 				077AC91D1B2D24FC00E3B120 /* libgc.a */,
+				07705C571B3289B2008ED733 /* librender.a */,
+				07CAF7AA1B3BA782008A60CA /* libfilesystem.a */,
+				070667421B491645000FAF97 /* libapp.a */,
+				07AD8F261B5F667F00FC2911 /* libscript.a */,
+				07AD8F251B5F667F00FC2911 /* libloc.a */,
+				07AD8F241B5F667F00FC2911 /* libai.a */,
+				07AD8F2A1B5F669E00FC2911 /* libgclua.a */,
+				07AD8F2C1B5F66B700FC2911 /* libconfig.a */,
+				0749F88F1B75CE610067358B /* libaudio.a */,
+				077500211C1CE32A00A325C8 /* libui.a */,
+				077500201C1CE32A00A325C8 /* libshell.a */,
+				0775001F1C1CE32A00A325C8 /* libgv.a */,
+				0775001E1C1CE32A00A325C8 /* libctx.a */,
+				0775001D1C1CE32A00A325C8 /* libas.a */,
+			);
+			name = "tzod libs";
+			sourceTree = "<group>";
+		};
+		07F8658E1C385A7E0027DA89 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				07CAF7A61B33F4E2008A60CA /* GLKit.framework */,
+				07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */,
+				07CAF7AE1B3BBE71008A60CA /* UIKit.framework */,
+				0749F8911B75CE820067358B /* OpenAL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		07F8658F1C385A9C0027DA89 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				07CAF7A81B393A3C008A60CA /* liblua.a */,
+				07AD8F2D1B5F66B700FC2911 /* libpluto.a */,
+				0749F8931B75CE910067358B /* liboggvorbis.a */,
+				077500221C1CE32A00A325C8 /* libzlib.a */,
+			);
+			name = libs;
+			sourceTree = "<group>";
+		};
+		07FAF2661B1C26D900BFDD5F = {
+			isa = PBXGroup;
+			children = (
+				07F8658F1C385A9C0027DA89 /* libs */,
+				07F8658E1C385A7E0027DA89 /* Frameworks */,
+				07F8658D1C385A1D0027DA89 /* tzod libs */,
 				07FAF2711B1C26D900BFDD5F /* itzod */,
 				07FAF28F1B1C26DA00BFDD5F /* itzodTests */,
 				07FAF2701B1C26D900BFDD5F /* Products */,
