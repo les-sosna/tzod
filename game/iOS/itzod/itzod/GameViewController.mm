@@ -19,12 +19,14 @@
 
 @end
 
+
 @implementation GameViewController
+
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     self.preferredFramesPerSecond = 60;
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
@@ -36,12 +38,12 @@
     {
         GLKView *view = (GLKView *)self.view;
         view.context = self.context;
-        view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+        view.drawableDepthFormat = GLKViewDrawableDepthFormatNone;
         
         [EAGLContext setCurrentContext:self.context];
 
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        _appWindow.reset(new CocoaTouchWindow());
+        _appWindow.reset(new CocoaTouchWindow(view));
         _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, *_appWindow));
     }
 }

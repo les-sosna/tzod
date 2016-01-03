@@ -1,4 +1,6 @@
 #import "CocoaTouchWindow.h"
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 #include <video/RenderOpenGL.h>
 #include <ui/UIInput.h>
 #include <ui/Clipboard.h>
@@ -21,17 +23,42 @@ public:
     void SetClipboardText(std::string text) override {}
 };
 
+@interface TouchAdapter : NSObject 
+@property (nonatomic) CocoaTouchWindow* target;
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer;
+@end
 
-CocoaTouchWindow::CocoaTouchWindow()
-    : _render(RenderCreateOpenGL())
+@implementation TouchAdapter
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
+{
+    CGPoint location = [recognizer locationInView: recognizer.view];
+    
+    if (UI::LayoutManager *sink = self.target->GetInputSink())
+    {
+        sink->ProcessMouse(location.x*2, location.y*2, 0, UI::MSGLBUTTONDOWN);
+        sink->ProcessMouse(location.x*2, location.y*2, 0, UI::MSGLBUTTONUP);
+    }
+}
+@end
+
+CocoaTouchWindow::CocoaTouchWindow(GLKView *view)
+    : _glkView(view)
+    , _render(RenderCreateOpenGL())
     , _inputSink(nullptr)
     , _width(110)
     , _height(110)
 {
+    _tapHandler = [[TouchAdapter alloc] init];
+    _tapHandler.target = this;
+    
+    _singleFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:_tapHandler
+                                                               action:@selector(handleSingleTap:)];
+    [view addGestureRecognizer:_singleFingerTap];
 }
 
 CocoaTouchWindow::~CocoaTouchWindow()
 {
+    [_glkView removeGestureRecognizer:_singleFingerTap];
 }
 
 void CocoaTouchWindow::SetPixelSize(unsigned int width, unsigned int height)
