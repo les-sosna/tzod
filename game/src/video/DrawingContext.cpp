@@ -56,9 +56,12 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 
-	const float pxBorderSize  = 2;
-	const float uvBorderWidth = pxBorderSize * lt.uvFrameWidth / lt.pxFrameWidth;
-	const float uvBorderHeight = pxBorderSize * lt.uvFrameHeight / lt.pxFrameHeight;
+	FRECT uvFrame = lt.uvFrames[frame];
+	float uvFrameWidth = WIDTH(uvFrame);
+	float uvFrameHeight = HEIGHT(uvFrame);
+
+	const float uvBorderWidth = lt.pxBorderSize * uvFrameWidth / lt.pxFrameWidth;
+	const float uvBorderHeight = lt.pxBorderSize * uvFrameHeight / lt.pxFrameHeight;
 
 	MyVertex *v;
 	IRender &render = _tm.GetRender();
@@ -66,186 +69,186 @@ void DrawingContext::DrawBorder(const FRECT *dst, size_t sprite, SpriteColor col
 	// left edge
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvLeft - uvBorderWidth;
-	v[0].v = lt.uvTop;
-	v[0].x = dst->left - pxBorderSize;
+	v[0].u = uvFrame.left - uvBorderWidth;
+	v[0].v = uvFrame.top;
+	v[0].x = dst->left - lt.pxBorderSize;
 	v[0].y = dst->top;
 	v[1].color = color;
-	v[1].u = lt.uvLeft;
-	v[1].v = lt.uvTop;
+	v[1].u = uvFrame.left;
+	v[1].v = uvFrame.top;
 	v[1].x = dst->left;
 	v[1].y = dst->top;
 	v[2].color = color;
-	v[2].u = lt.uvLeft;
-	v[2].v = lt.uvBottom;
+	v[2].u = uvFrame.left;
+	v[2].v = uvFrame.bottom;
 	v[2].x = dst->left;
 	v[2].y = dst->bottom;
 	v[3].color = color;
-	v[3].u = lt.uvLeft - uvBorderWidth;
-	v[3].v = lt.uvBottom;
-	v[3].x = dst->left - pxBorderSize;
+	v[3].u = uvFrame.left - uvBorderWidth;
+	v[3].v = uvFrame.bottom;
+	v[3].x = dst->left - lt.pxBorderSize;
 	v[3].y = dst->bottom;
 
 	// right edge
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvRight;
-	v[0].v = lt.uvTop;
+	v[0].u = uvFrame.right;
+	v[0].v = uvFrame.top;
 	v[0].x = dst->right;
 	v[0].y = dst->top;
 	v[1].color = color;
-	v[1].u = lt.uvRight + uvBorderWidth;
-	v[1].v = lt.uvTop;
-	v[1].x = dst->right + pxBorderSize;
+	v[1].u = uvFrame.right + uvBorderWidth;
+	v[1].v = uvFrame.top;
+	v[1].x = dst->right + lt.pxBorderSize;
 	v[1].y = dst->top;
 	v[2].color = color;
-	v[2].u = lt.uvRight + uvBorderWidth;
-	v[2].v = lt.uvBottom;
-	v[2].x = dst->right + pxBorderSize;
+	v[2].u = uvFrame.right + uvBorderWidth;
+	v[2].v = uvFrame.bottom;
+	v[2].x = dst->right + lt.pxBorderSize;
 	v[2].y = dst->bottom;
 	v[3].color = color;
-	v[3].u = lt.uvRight;
-	v[3].v = lt.uvBottom;
+	v[3].u = uvFrame.right;
+	v[3].v = uvFrame.bottom;
 	v[3].x = dst->right;
 	v[3].y = dst->bottom;
 
 	// top edge
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvLeft;
-	v[0].v = lt.uvTop - uvBorderHeight;
+	v[0].u = uvFrame.left;
+	v[0].v = uvFrame.top - uvBorderHeight;
 	v[0].x = dst->left;
-	v[0].y = dst->top - pxBorderSize;
+	v[0].y = dst->top - lt.pxBorderSize;
 	v[1].color = color;
-	v[1].u = lt.uvRight;
-	v[1].v = lt.uvTop - uvBorderHeight;
+	v[1].u = uvFrame.right;
+	v[1].v = uvFrame.top - uvBorderHeight;
 	v[1].x = dst->right;
-	v[1].y = dst->top - pxBorderSize;
+	v[1].y = dst->top - lt.pxBorderSize;
 	v[2].color = color;
-	v[2].u = lt.uvRight;
-	v[2].v = lt.uvTop;
+	v[2].u = uvFrame.right;
+	v[2].v = uvFrame.top;
 	v[2].x = dst->right;
 	v[2].y = dst->top;
 	v[3].color = color;
-	v[3].u = lt.uvLeft;
-	v[3].v = lt.uvTop;
+	v[3].u = uvFrame.left;
+	v[3].v = uvFrame.top;
 	v[3].x = dst->left;
 	v[3].y = dst->top;
 
 	// bottom edge
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvLeft;
-	v[0].v = lt.uvBottom;
+	v[0].u = uvFrame.left;
+	v[0].v = uvFrame.bottom;
 	v[0].x = dst->left;
 	v[0].y = dst->bottom;
 	v[1].color = color;
-	v[1].u = lt.uvRight;
-	v[1].v = lt.uvBottom;
+	v[1].u = uvFrame.right;
+	v[1].v = uvFrame.bottom;
 	v[1].x = dst->right;
 	v[1].y = dst->bottom;
 	v[2].color = color;
-	v[2].u = lt.uvRight;
-	v[2].v = lt.uvBottom + uvBorderHeight;
+	v[2].u = uvFrame.right;
+	v[2].v = uvFrame.bottom + uvBorderHeight;
 	v[2].x = dst->right;
-	v[2].y = dst->bottom + pxBorderSize;
+	v[2].y = dst->bottom + lt.pxBorderSize;
 	v[3].color = color;
-	v[3].u = lt.uvLeft;
-	v[3].v = lt.uvBottom + uvBorderHeight;
+	v[3].u = uvFrame.left;
+	v[3].v = uvFrame.bottom + uvBorderHeight;
 	v[3].x = dst->left;
-	v[3].y = dst->bottom + pxBorderSize;
+	v[3].y = dst->bottom + lt.pxBorderSize;
 
 	// left top corner
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvLeft - uvBorderWidth;
-	v[0].v = lt.uvTop - uvBorderHeight;
-	v[0].x = dst->left - pxBorderSize;
-	v[0].y = dst->top - pxBorderSize;
+	v[0].u = uvFrame.left - uvBorderWidth;
+	v[0].v = uvFrame.top - uvBorderHeight;
+	v[0].x = dst->left - lt.pxBorderSize;
+	v[0].y = dst->top - lt.pxBorderSize;
 	v[1].color = color;
-	v[1].u = lt.uvLeft;
-	v[1].v = lt.uvTop - uvBorderHeight;
+	v[1].u = uvFrame.left;
+	v[1].v = uvFrame.top - uvBorderHeight;
 	v[1].x = dst->left;
-	v[1].y = dst->top - pxBorderSize;
+	v[1].y = dst->top - lt.pxBorderSize;
 	v[2].color = color;
-	v[2].u = lt.uvLeft;
-	v[2].v = lt.uvTop;
+	v[2].u = uvFrame.left;
+	v[2].v = uvFrame.top;
 	v[2].x = dst->left;
 	v[2].y = dst->top;
 	v[3].color = color;
-	v[3].u = lt.uvLeft - uvBorderWidth;
-	v[3].v = lt.uvTop;
-	v[3].x = dst->left - pxBorderSize;
+	v[3].u = uvFrame.left - uvBorderWidth;
+	v[3].v = uvFrame.top;
+	v[3].x = dst->left - lt.pxBorderSize;
 	v[3].y = dst->top;
 
 	// right top corner
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvRight;
-	v[0].v = lt.uvTop - uvBorderHeight;
+	v[0].u = uvFrame.right;
+	v[0].v = uvFrame.top - uvBorderHeight;
 	v[0].x = dst->right;
-	v[0].y = dst->top - pxBorderSize;
+	v[0].y = dst->top - lt.pxBorderSize;
 	v[1].color = color;
-	v[1].u = lt.uvRight + uvBorderWidth;
-	v[1].v = lt.uvTop - uvBorderHeight;
-	v[1].x = dst->right + pxBorderSize;
-	v[1].y = dst->top - pxBorderSize;
+	v[1].u = uvFrame.right + uvBorderWidth;
+	v[1].v = uvFrame.top - uvBorderHeight;
+	v[1].x = dst->right + lt.pxBorderSize;
+	v[1].y = dst->top - lt.pxBorderSize;
 	v[2].color = color;
-	v[2].u = lt.uvRight + uvBorderWidth;
-	v[2].v = lt.uvTop;
-	v[2].x = dst->right + pxBorderSize;
+	v[2].u = uvFrame.right + uvBorderWidth;
+	v[2].v = uvFrame.top;
+	v[2].x = dst->right + lt.pxBorderSize;
 	v[2].y = dst->top;
 	v[3].color = color;
-	v[3].u = lt.uvRight;
-	v[3].v = lt.uvTop;
+	v[3].u = uvFrame.right;
+	v[3].v = uvFrame.top;
 	v[3].x = dst->right;
 	v[3].y = dst->top;
 
 	// right bottom corner
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvRight;
-	v[0].v = lt.uvBottom;
+	v[0].u = uvFrame.right;
+	v[0].v = uvFrame.bottom;
 	v[0].x = dst->right;
 	v[0].y = dst->bottom;
 	v[1].color = color;
-	v[1].u = lt.uvRight + uvBorderWidth;
-	v[1].v = lt.uvBottom;
-	v[1].x = dst->right + pxBorderSize;
+	v[1].u = uvFrame.right + uvBorderWidth;
+	v[1].v = uvFrame.bottom;
+	v[1].x = dst->right + lt.pxBorderSize;
 	v[1].y = dst->bottom;
 	v[2].color = color;
-	v[2].u = lt.uvRight + uvBorderWidth;
-	v[2].v = lt.uvBottom + uvBorderHeight;
-	v[2].x = dst->right + pxBorderSize;
-	v[2].y = dst->bottom + pxBorderSize;
+	v[2].u = uvFrame.right + uvBorderWidth;
+	v[2].v = uvFrame.bottom + uvBorderHeight;
+	v[2].x = dst->right + lt.pxBorderSize;
+	v[2].y = dst->bottom + lt.pxBorderSize;
 	v[3].color = color;
-	v[3].u = lt.uvRight;
-	v[3].v = lt.uvBottom + uvBorderHeight;
+	v[3].u = uvFrame.right;
+	v[3].v = uvFrame.bottom + uvBorderHeight;
 	v[3].x = dst->right;
-	v[3].y = dst->bottom + pxBorderSize;
+	v[3].y = dst->bottom + lt.pxBorderSize;
 
 	// left bottom corner
 	v = render.DrawQuad(lt.dev_texture);
 	v[0].color = color;
-	v[0].u = lt.uvLeft - uvBorderWidth;
-	v[0].v = lt.uvBottom;
-	v[0].x = dst->left - pxBorderSize;
+	v[0].u = uvFrame.left - uvBorderWidth;
+	v[0].v = uvFrame.bottom;
+	v[0].x = dst->left - lt.pxBorderSize;
 	v[0].y = dst->bottom;
 	v[1].color = color;
-	v[1].u = lt.uvLeft;
-	v[1].v = lt.uvBottom;
+	v[1].u = uvFrame.left;
+	v[1].v = uvFrame.bottom;
 	v[1].x = dst->left;
 	v[1].y = dst->bottom;
 	v[2].color = color;
-	v[2].u = lt.uvLeft;
-	v[2].v = lt.uvBottom + uvBorderHeight;
+	v[2].u = uvFrame.left;
+	v[2].v = uvFrame.bottom + uvBorderHeight;
 	v[2].x = dst->left;
-	v[2].y = dst->bottom + pxBorderSize;
+	v[2].y = dst->bottom + lt.pxBorderSize;
 	v[3].color = color;
-	v[3].u = lt.uvLeft - uvBorderWidth;
-	v[3].v = lt.uvBottom + uvBorderHeight;
-	v[3].x = dst->left - pxBorderSize;
-	v[3].y = dst->bottom + pxBorderSize;
+	v[3].u = uvFrame.left - uvBorderWidth;
+	v[3].v = uvFrame.bottom + uvBorderHeight;
+	v[3].x = dst->left - lt.pxBorderSize;
+	v[3].y = dst->bottom + lt.pxBorderSize;
 }
 
 void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
@@ -309,13 +312,13 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		v[0].y = y ;
 
 		v[1].color = color;
-		v[1].u = rt.left + lt.uvFrameWidth;
+		v[1].u = rt.left + WIDTH(rt);
 		v[1].v = rt.top;
 		v[1].x = x + lt.pxFrameWidth;
 		v[1].y = y;
 
 		v[2].color = color;
-		v[2].u = rt.left + lt.uvFrameWidth;
+		v[2].u = rt.left + WIDTH(rt);
 		v[2].v = rt.bottom;
 		v[2].x = x + lt.pxFrameWidth;
 		v[2].y = y + lt.pxFrameHeight;
@@ -342,7 +345,6 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
-
 
 	v[0].color = color;
 	v[0].u = rt.left;
@@ -373,9 +375,8 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
-	IRender &render = _tm.GetRender();
 
-	MyVertex *v = render.DrawQuad(lt.dev_texture);
+	MyVertex *v = _tm.GetRender().DrawQuad(lt.dev_texture);
 
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
@@ -423,13 +424,13 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 	v[0].y = y - py;
 
 	v[1].color = 0xffffffff;
-	v[1].u = rt.left + lt.uvFrameWidth * value;
+	v[1].u = rt.left + WIDTH(rt) * value;
 	v[1].v = rt.top;
 	v[1].x = x - px + lt.pxFrameWidth * value;
 	v[1].y = y - py;
 
 	v[2].color = 0xffffffff;
-	v[2].u = rt.left + lt.uvFrameWidth * value;
+	v[2].u = rt.left + WIDTH(rt) * value;
 	v[2].v = rt.bottom;
 	v[2].x = x - px + lt.pxFrameWidth * value;
 	v[2].y = y - py + lt.pxFrameHeight;

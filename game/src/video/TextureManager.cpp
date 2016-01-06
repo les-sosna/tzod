@@ -153,19 +153,12 @@ void TextureManager::CreateChecker()
 	//
 
 	tex.dev_texture = it->id;
-	tex.uvLeft   = 0;
-	tex.uvTop    = 0;
-	tex.uvRight  = 1;
-	tex.uvBottom = 1;
-	tex.xframes  = 1;
-	tex.yframes  = 1;
-	tex.uvFrameWidth  = 8.0f;
-	tex.uvFrameHeight = 8.0f;
 	tex.uvPivot = vec2d(0, 0);
-	tex.pxFrameWidth  = (float) td.width * tex.uvFrameWidth;
-	tex.pxFrameHeight = (float) td.height * tex.uvFrameHeight;
+	tex.pxFrameWidth = (float) td.width * 8;
+	tex.pxFrameHeight = (float) td.height * 8;
+	tex.pxBorderSize = 0;
 
-	FRECT whole = {0,0,1,1};
+	FRECT whole = {0,0,8,8};
 	tex.uvFrames.push_back(whole);
 	//---------------------
 	_logicalTextures.push_back(tex);
@@ -263,44 +256,49 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 						tex.dev_texture = td->id;
 
 						// texture bounds
-						tex.uvLeft   = (float) floorf(auxgetfloat(L, -2, "left", 0)) / (float) td->width;
-						tex.uvRight  = (float) floorf(auxgetfloat(L, -2, "right", (float) td->width)) / (float) td->width;
-						tex.uvTop    = (float) floorf(auxgetfloat(L, -2, "top", 0)) / (float) td->height;
-						tex.uvBottom = (float) floorf(auxgetfloat(L, -2, "bottom", (float) td->height)) / (float) td->height;
+						float uvLeft   = floorf(auxgetfloat(L, -2, "left", 0)) / (float) td->width;
+						float uvRight  = floorf(auxgetfloat(L, -2, "right", (float) td->width)) / (float) td->width;
+						float uvTop    = floorf(auxgetfloat(L, -2, "top", 0)) / (float) td->height;
+						float uvBottom = floorf(auxgetfloat(L, -2, "bottom", (float) td->height)) / (float) td->height;
+
+						// border
+						tex.pxBorderSize = floorf(auxgetfloat(L, -2, "border", 0));
+						float uvBorderWidth = tex.pxBorderSize / (float)td->width;
+						float uvBorderHeight = tex.pxBorderSize / (float)td->height;
 
 						// frames count
-						tex.xframes = auxgetint(L, -2, "xframes", 1);
-						tex.yframes = auxgetint(L, -2, "yframes", 1);
+						int xframes = auxgetint(L, -2, "xframes", 1);
+						int yframes = auxgetint(L, -2, "yframes", 1);
 
-						// frame size
-						tex.uvFrameWidth  = (tex.uvRight - tex.uvLeft) / (float) tex.xframes;
-						tex.uvFrameHeight = (tex.uvBottom - tex.uvTop) / (float) tex.yframes;
+						// frame size with border
+						float uvFrameWidth  = (uvRight - uvLeft) / (float) xframes;
+						float uvFrameHeight = (uvBottom - uvTop) / (float) yframes;
 
 						// original size
-						tex.pxFrameWidth  = (float) td->width  * scale_x * tex.uvFrameWidth;
-						tex.pxFrameHeight = (float) td->height * scale_y * tex.uvFrameHeight;
+						tex.pxFrameWidth = (float) td->width * scale_x * uvFrameWidth;
+						tex.pxFrameHeight = (float) td->height * scale_y * uvFrameHeight;
 
 						// pivot position
-						tex.uvPivot.x = (float) auxgetfloat(L, -2, "xpivot", (float) td->width * tex.uvFrameWidth / 2) / ((float) td->width * tex.uvFrameWidth);
-						tex.uvPivot.y = (float) auxgetfloat(L, -2, "ypivot", (float) td->height * tex.uvFrameHeight / 2) / ((float) td->height * tex.uvFrameHeight);
+						tex.uvPivot.x = (float) auxgetfloat(L, -2, "xpivot", (float) td->width * uvFrameWidth / 2) / ((float) td->width * uvFrameWidth);
+						tex.uvPivot.y = (float) auxgetfloat(L, -2, "ypivot", (float) td->height * uvFrameHeight / 2) / ((float) td->height * uvFrameHeight);
 
 						// frames
-						tex.uvFrames.reserve(tex.xframes * tex.yframes);
-						for( int y = 0; y < tex.yframes; ++y )
+						tex.uvFrames.reserve(xframes * yframes);
+						for( int y = 0; y < yframes; ++y )
 						{
-							for( int x = 0; x < tex.xframes; ++x )
+							for( int x = 0; x < xframes; ++x )
 							{
 								FRECT rt;
-								rt.left   = tex.uvLeft + tex.uvFrameWidth * (float) x;
-								rt.right  = tex.uvLeft + tex.uvFrameWidth * (float) (x + 1);
-								rt.top    = tex.uvTop + tex.uvFrameHeight * (float) y;
-								rt.bottom = tex.uvTop + tex.uvFrameHeight * (float) (y + 1);
+								rt.left   = uvLeft + uvFrameWidth * (float) x + uvBorderWidth;
+								rt.right  = uvLeft + uvFrameWidth * (float) (x + 1) - uvBorderWidth;
+								rt.top    = uvTop + uvFrameHeight * (float) y + uvBorderHeight;
+								rt.bottom = uvTop + uvFrameHeight * (float) (y + 1) - uvBorderHeight;
 								tex.uvFrames.push_back(rt);
 							}
 						}
 
 						//---------------------
-						if( tex.xframes > 0 && tex.yframes > 0 )
+						if( xframes > 0 && yframes > 0 )
 						{
 							td->refCount++;
 							//---------------------------------------------
@@ -379,17 +377,10 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 
 		LogicalTexture tex;
 		tex.dev_texture = td->id;
-		tex.uvLeft   = 0;
-		tex.uvTop    = 0;
-		tex.uvRight  = 1;
-		tex.uvBottom = 1;
 		tex.uvPivot  = vec2d(0.5f, 0.5f);
-		tex.xframes  = 1;
-		tex.yframes  = 1;
-		tex.uvFrameWidth  = 1;
-		tex.uvFrameHeight = 1;
-		tex.pxFrameWidth  = (float) td->width;
+		tex.pxFrameWidth = (float) td->width;
 		tex.pxFrameHeight = (float) td->height;
+		tex.pxBorderSize = 0;
 
 		FRECT frame = {0,0,1,1};
 		tex.uvFrames.push_back(frame);

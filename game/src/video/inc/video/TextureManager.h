@@ -20,18 +20,11 @@ struct LogicalTexture
 {
 	DEV_TEXTURE dev_texture;
 
-	float uvLeft;
-	float uvTop;
-	float uvRight;
-	float uvBottom;
-	float uvFrameWidth;
-	float uvFrameHeight;
 	vec2d uvPivot;
 
 	float pxFrameWidth;
 	float pxFrameHeight;
-	int   xframes;
-	int   yframes;
+	float pxBorderSize;
 
 	std::vector<FRECT> uvFrames;
 };
@@ -53,7 +46,8 @@ public:
 	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex]; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
-	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].xframes * _logicalTextures[texIndex].yframes; }
+	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].pxBorderSize; }
+	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].uvFrames.size(); }
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix, bool noPrefixReturn) const;
 

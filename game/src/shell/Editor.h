@@ -36,14 +36,14 @@ class EditorLayout : public UI::Window
 	UI::Text         *_help;
 	size_t        _fontSmall;
 
-	size_t       _selectionRect;
+	size_t       _texSelection;
 
 	GC_Object *_selectedObject;
 	bool _isObjectNew;
 	bool _click;
 	int  _mbutton;
-    World &_world;
-    WorldView &_worldView;
+	World &_world;
+	WorldView &_worldView;
 	lua_State *_globL;
 
 

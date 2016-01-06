@@ -128,7 +128,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
   , _logger(logger)
   , _defaultCamera(defaultCamera)
   , _fontSmall(GetManager().GetTextureManager().FindSprite("font_small"))
-  , _selectionRect(GetManager().GetTextureManager().FindSprite("ui/selection"))
+  , _texSelection(GetManager().GetTextureManager().FindSprite("ui/selection"))
   , _selectedObject(nullptr)
   , _isObjectNew(false)
   , _click(true)
@@ -496,8 +496,8 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
 			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
 		};
-		dc.DrawSprite(&sel, _selectionRect, 0xffffffff, 0);
-		dc.DrawBorder(&sel, _selectionRect, 0xffffffff, 0);
+		dc.DrawSprite(&sel, _texSelection, 0xffffffff, 0);
+		dc.DrawBorder(&sel, _texSelection, 0xffffffff, 0);
 	}
     vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 
