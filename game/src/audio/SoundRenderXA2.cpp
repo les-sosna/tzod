@@ -118,9 +118,10 @@ static std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> CreateVoice(UI::Consol
 	return result;
 }
 
-std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate sound)
+std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate st)
 {
-	if ((size_t)sound < _buffers.size() && !_buffers[sound].data.empty())
+	auto sound = static_cast<size_t>(st);
+	if (sound < _buffers.size() && !_buffers[sound].data.empty())
 	{
 		Buffer &buffer = _buffers[sound];
 		if (auto sourceVoice = CreateVoice(_logger, _xa2.Get(), buffer.wf))
@@ -146,9 +147,10 @@ std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate sound)
 	return std::make_unique<SoundDummy>();
 }
 
-void SoundRenderXA2::PlayOnce(SoundTemplate sound, vec2d pos)
+void SoundRenderXA2::PlayOnce(SoundTemplate st, vec2d pos)
 {
-	if ((size_t) sound < _buffers.size() && !_buffers[sound].data.empty())
+	auto sound = static_cast<size_t>(st);
+	if (sound < _buffers.size() && !_buffers[sound].data.empty())
 	{
 		Buffer &buffer = _buffers[sound];
 		if (auto sourceVoice = CreateVoice(_logger, _xa2.Get(), buffer.wf))
@@ -181,12 +183,14 @@ void SoundRenderXA2::Step()
 
 void SoundRenderXA2::LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format)
 {
-	if ((size_t) st >= _buffers.size())
+	auto sound = static_cast<size_t>(st);
+
+	if (sound >= _buffers.size())
 	{
-		_buffers.resize(st + 1);
+		_buffers.resize(sound + 1);
 	}
 
-	Buffer &buffer = _buffers[st];
+	Buffer &buffer = _buffers[sound];
 
 	buffer.wf.wFormatTag = WAVE_FORMAT_PCM;
 	buffer.wf.nChannels = format.channels;
