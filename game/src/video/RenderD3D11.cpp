@@ -526,9 +526,15 @@ void RenderD3D11::Flush()
 	if( _iaSize )
 	{
 		MyConstants constantBufferData;
+		float viewportHalfWidth = (float)WIDTH(_viewport) / 2;
+		float viewportHalfHeight = (float)HEIGHT(_viewport) / 2;
 		DirectX::XMMATRIX view = _mode == RM_INTERFACE ?
-			DirectX::XMMatrixTranslation(-(float)WIDTH(_viewport) / 2, -(float)HEIGHT(_viewport) / 2, 0.f) :
-			DirectX::XMMatrixTranslation(-_cameraEye.x, -_cameraEye.y, 0.f) * DirectX::XMMatrixScaling(_cameraScale, _cameraScale, 1.f);
+			DirectX::XMMatrixTranslation(-viewportHalfWidth, -viewportHalfHeight, 0.f) :
+			DirectX::XMMatrixTranslation(
+				std::fmod(viewportHalfWidth, 1.f) / _cameraScale -_cameraEye.x,
+				std::fmod(viewportHalfHeight, 1.f) / _cameraScale - _cameraEye.y,
+				0.f
+			) * DirectX::XMMatrixScaling(_cameraScale, _cameraScale, 1.f);
 		DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH(
 			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
 		DirectX::XMMATRIX orientation = DirectX::XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));

@@ -133,11 +133,11 @@ void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glScalef(scale, scale, 1);
 	if (vp)
-		glTranslatef((float) WIDTH(*vp) / 2 / scale - x, (float) HEIGHT(*vp) / 2 / scale - y, 0);
+		glTranslatef((float) (WIDTH(*vp) / 2) - x * scale, (float) (HEIGHT(*vp) / 2) - y * scale, 0);
 	else
 		glTranslatef(0, 0, 0);
+	glScalef(scale, scale, 1);
 }
 
 void RenderOpenGL::Begin()
