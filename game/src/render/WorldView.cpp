@@ -27,8 +27,8 @@ void WorldView::Render(DrawingContext &dc,
 					   bool drawGrid,
 					   bool nightMode) const
 {
-	eye.x = floor(eye.x);
-	eye.y = floor(eye.y);
+	eye.x = floor(eye.x * zoom) / zoom;
+	eye.y = floor(eye.y * zoom) / zoom;
 
 	dc.Camera(viewport, eye.x, eye.y, zoom);
 
