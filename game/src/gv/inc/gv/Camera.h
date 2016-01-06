@@ -9,7 +9,7 @@ class Camera
 public:
 	Camera(vec2d pos, GC_Player &player);
 
-	void CameraTimeStep(World &world, float dt);
+	void CameraTimeStep(World &world, float dt, float scale);
 
 	void SetViewport(RectRB viewport) { _viewport = viewport; }
 	RectRB GetViewport() const { return _viewport; }

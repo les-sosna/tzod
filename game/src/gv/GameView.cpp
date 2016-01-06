@@ -23,7 +23,7 @@ void GameView::SetCanvasSize(int pxWidth, int pxHeight)
         _pxHeight = pxHeight;
         if (_harness)
         {
-            _harness->SetCanvasSize(_pxWidth, _pxHeight);
+            _harness->SetCanvasSize(_pxWidth, _pxHeight, 1);
         }
     }
 }
@@ -56,7 +56,7 @@ void GameView::OnGameContextChanged()
         _harness.reset(new GameViewHarness(gameContext->GetWorld(), gameContext->GetWorldController()));
         if (_pxHeight != 0 && _pxWidth != 0)
         {
-            _harness->SetCanvasSize(_pxWidth, _pxHeight);
+            _harness->SetCanvasSize(_pxWidth, _pxHeight, 1);
         }
     }
 }

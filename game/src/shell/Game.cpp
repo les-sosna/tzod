@@ -132,7 +132,10 @@ void GameLayout::OnSize(float width, float height)
 {
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
-	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight());
+	auto size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();
+	float base = 1024.f;
+	float scale = size > base ? std::floor(size / base + 0.5f) : 1 / std::floor(base / size + 0.5f);
+	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
 void GameLayout::OnChangeShowTime()

@@ -29,7 +29,7 @@ public:
     };
 
     CanvasToWorldResult CanvasToWorld(unsigned int viewIndex, int x, int y) const;
-    void SetCanvasSize(int pxWidth, int pxHeight);
+    void SetCanvasSize(int pxWidth, int pxHeight, float scale);
     void RenderGame(DrawingContext &dc, const WorldView &worldView, vec2d defaultEye, float defaultZoom) const;
     void Step(float dt);
 
@@ -39,6 +39,7 @@ private:
     std::vector<Camera> _cameras;
     int _pxWidth;
     int _pxHeight;
+    float _scale;
 
     mutable const Camera *_maxShakeCamera;
     const Camera& GetMaxShakeCamera() const;

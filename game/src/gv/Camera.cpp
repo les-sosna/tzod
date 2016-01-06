@@ -15,10 +15,10 @@ Camera::Camera(vec2d pos, GC_Player &player)
 {
 }
 
-void Camera::CameraTimeStep(World &world, float dt)
+void Camera::CameraTimeStep(World &world, float dt, float scale)
 {
 	const GC_Vehicle *vehicle = _player.GetVehicle();
-	vec2d viewSize((float) WIDTH(_viewport), (float) HEIGHT(_viewport));
+	auto viewSize = vec2d((float) WIDTH(_viewport), (float) HEIGHT(_viewport)) / scale;
 
 	float mu = 3;
 
