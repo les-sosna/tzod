@@ -68,6 +68,7 @@ private:
 	int _windowHeight;
 	RectRB _viewport;
 	vec2d _cameraEye;
+	float _cameraScale;
 	DisplayOrientation _displayOrientation;
 
 	void* _curtex;
@@ -274,6 +275,8 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *r
 	, _vaSize(0)
 	, _iaSize(0)
 	, _curtex(nullptr)
+	, _cameraEye(0, 0)
+	, _cameraScale(1)
 	, _displayOrientation(DO_0)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
@@ -441,7 +444,7 @@ void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
 	SetViewport(vp);
 	SetScissor(vp);
 
-	// TODO: scale
+	_cameraScale = scale;
 	_cameraEye = vec2d(x, y);
 }
 
@@ -525,7 +528,7 @@ void RenderD3D11::Flush()
 		MyConstants constantBufferData;
 		DirectX::XMMATRIX view = _mode == RM_INTERFACE ?
 			DirectX::XMMatrixTranslation(-(float)WIDTH(_viewport) / 2, -(float)HEIGHT(_viewport) / 2, 0.f) :
-			DirectX::XMMatrixTranslation(-_cameraEye.x, -_cameraEye.y, 0.f);
+			DirectX::XMMatrixTranslation(-_cameraEye.x, -_cameraEye.y, 0.f) * DirectX::XMMatrixScaling(_cameraScale, _cameraScale, 1.f);
 		DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH(
 			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
 		DirectX::XMMATRIX orientation = DirectX::XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
