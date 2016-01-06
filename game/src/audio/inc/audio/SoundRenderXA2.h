@@ -1,6 +1,8 @@
 #pragma once
 #include "SoundRender.h"
 #include <vector>
+#include <Windows.h>
+#include <mmreg.h>
 #include <wrl\client.h>
 //#include <X3daudio.h>
 
