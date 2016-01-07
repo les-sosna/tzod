@@ -7,8 +7,8 @@
 // Workaround for IMPLEMENT_GRID_MEMBER macro used in the base class
 namespace base
 {
-	inline static void EnterContexts(World&){}
-	inline static void LeaveContexts(World&){}
+	inline static void EnterContexts(World&, unsigned int, unsigned int){}
+	inline static void LeaveContexts(World&, unsigned int, unsigned int){}
 }
 
 IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
@@ -23,14 +23,14 @@ GC_Actor::GC_Actor(vec2d pos)
 void GC_Actor::Init(World &world)
 {
 	GC_Object::Init(world);
-	_locationX = std::min(world._locationsX-1, std::max(0, int(_pos.x / LOCATION_SIZE)));
-	_locationY = std::min(world._locationsY-1, std::max(0, int(_pos.y / LOCATION_SIZE)));
-	EnterContexts(world);
+	_locationX = std::min(world._locationsX-1, std::max(0, int(_pos.x) / LOCATION_SIZE));
+	_locationY = std::min(world._locationsY-1, std::max(0, int(_pos.y) / LOCATION_SIZE));
+	EnterContexts(world, _locationX, _locationY);
 }
 
 void GC_Actor::Kill(World &world)
 {
-	LeaveContexts(world);
+	LeaveContexts(world, _locationX, _locationY);
 	GC_Object::Kill(world);
 }
 
@@ -43,27 +43,23 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 	f.Serialize(_direction);
 
     if (f.loading())
-        EnterContexts(world);
+        EnterContexts(world, _locationX, _locationY);
 }
 
 void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
 	_pos = pos;
 
-	int locX = std::min(world._locationsX-1, std::max(0, int(pos.x / LOCATION_SIZE)));
-	int locY = std::min(world._locationsY-1, std::max(0, int(pos.y / LOCATION_SIZE)));
+	int locX = std::min(world._locationsX-1, std::max(0, int(pos.x) / LOCATION_SIZE));
+	int locY = std::min(world._locationsY-1, std::max(0, int(pos.y) / LOCATION_SIZE));
 
-    bool locationChanged = _locationX != locX || _locationY != locY;
-
-	if( locationChanged )
-        LeaveContexts(world);
-
-    if( locationChanged )
-    {
-        _locationX = locX;
-        _locationY = locY;
-        EnterContexts(world);
- 	}
+	if (_locationX != locX || _locationY != locY)
+	{
+		LeaveContexts(world, _locationX, _locationY);
+		EnterContexts(world, locX, locY);
+		_locationX = locX;
+		_locationY = locY;
+	}
 }
 
 void GC_Actor::MapExchange(MapFile &f)

@@ -29,8 +29,8 @@ public:
 protected:
 	int _locationX;
 	int _locationY;
-	virtual void EnterContexts(World &);
-	virtual void LeaveContexts(World &);
+	virtual void EnterContexts(World &, unsigned int locX, unsigned int locY);
+	virtual void LeaveContexts(World &, unsigned int locX, unsigned int locY);
 
 private:
 	vec2d _pos;
@@ -40,25 +40,25 @@ private:
 
 #define DECLARE_GRID_MEMBER()                                               \
 protected:                                                                  \
-    void EnterContexts(World &world) override;                              \
-    void LeaveContexts(World &world) override;                              \
+    void EnterContexts(World &world, unsigned int locX, unsigned int locY) override; \
+    void LeaveContexts(World &world, unsigned int locX, unsigned int locY) override; \
 private:
 
 #define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \
-    void cls::EnterContexts(World &world)                                   \
+    void cls::EnterContexts(World &world, unsigned int locX, unsigned int locY) \
     {                                                                       \
-        base::EnterContexts(world);                                         \
-        world.grid.element(_locationX, _locationY).insert(this);            \
+        base::EnterContexts(world, locX, locY);                             \
+        world.grid.element(locX, locY).insert(this);                        \
     }                                                                       \
-    void cls::LeaveContexts(World &world)                                   \
+    void cls::LeaveContexts(World &world, unsigned int locX, unsigned int locY) \
     {                                                                       \
-        auto &cell = world.grid.element(_locationX,_locationY);             \
+        auto &cell = world.grid.element(locX, locY);                        \
         for (auto id = cell.begin(); id != cell.end(); id = cell.next(id))  \
         {                                                                   \
             if (cell.at(id) == this)                                        \
             {                                                               \
                 cell.erase(id);                                             \
-                base::LeaveContexts(world);                                 \
+                base::LeaveContexts(world, locX, locY);                     \
                 return;                                                     \
             }                                                               \
         }                                                                   \
