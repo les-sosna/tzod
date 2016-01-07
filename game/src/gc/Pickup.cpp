@@ -221,11 +221,6 @@ void GC_pu_Health::OnAttached(World &world, GC_Vehicle &vehicle)
 	Disappear(world);
 }
 
-bool GC_pu_Health::GetAutoSwitch(const GC_Vehicle &vehicle) const
-{
-	return vehicle.GetHealth() < vehicle.GetHealthMax();
-}
-
 /////////////////////////////////////////////////////////////
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
@@ -571,11 +566,6 @@ void GC_pu_Booster::Detach(World &world)
 		_weapon = nullptr;
 	}
 	GC_Pickup::Detach(world);
-}
-
-bool GC_pu_Booster::GetAutoSwitch(const GC_Vehicle &vehicle) const
-{
-	return !!vehicle.GetWeapon();
 }
 
 void GC_pu_Booster::TimeStep(World &world, float dt)

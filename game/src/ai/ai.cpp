@@ -29,8 +29,6 @@ static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//JobManager<GC_PlayerAI> GC_PlayerAI::_jobManager;
-
 
 AIController::AIController()
   : _arrivalPoint(0,0)

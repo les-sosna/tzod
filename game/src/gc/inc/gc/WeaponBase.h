@@ -42,7 +42,6 @@ public:
 	// GC_Pickup
     void Detach(World &world) override;
     void Disappear(World &world) override;
-    bool GetAutoSwitch(const GC_Vehicle &vehicle) const override { return false; }
     float GetDefaultRespawnTime() const override { return 6.0f; }
     AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 

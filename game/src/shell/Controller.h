@@ -32,7 +32,7 @@ private:
 	UI::Key _keyTowerLeft;
 	UI::Key _keyTowerRight;
 	UI::Key _keyTowerCenter;
-	UI::Key _keyPickup;
+	UI::Key _keyNoPickup;
 	bool _aimToMouse;
 	bool _moveToMouse;
 	bool _arcadeStyle;

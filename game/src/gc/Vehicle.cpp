@@ -286,7 +286,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		list->for_each([&](ObjectList::id_type, GC_Object *o)
 		{
 			auto &pickup = *static_cast<GC_Pickup *>(o);
-			if (pickup.GetVisible() && !pickup.GetAttached() && (_state._bState_AllowDrop || pickup.GetAutoSwitch(*this)))
+			if (pickup.GetVisible() && !pickup.GetAttached() && _state._bState_AllowDrop)
 			{
 				float dist2 = (GetPos() - pickup.GetPos()).sqr();
 				float sumRadius = GetRadius() + pickup.GetRadius();

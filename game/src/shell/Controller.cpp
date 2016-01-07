@@ -17,7 +17,7 @@ Controller::Controller()
   , _keyTowerLeft(UI::Key::Unknown)
   , _keyTowerRight(UI::Key::Unknown)
   , _keyTowerCenter(UI::Key::Unknown)
-  , _keyPickup(UI::Key::Unknown)
+  , _keyNoPickup(UI::Key::Unknown)
   , _aimToMouse(false)
   , _moveToMouse(false)
   , _arcadeStyle(false)
@@ -37,7 +37,7 @@ void Controller::SetProfile(ConfControllerProfile &profile)
 	_keyTowerLeft   = GetKeyCode(profile.key_tower_left.Get());
 	_keyTowerRight  = GetKeyCode(profile.key_tower_right.Get());
 	_keyTowerCenter = GetKeyCode(profile.key_tower_center.Get());
-	_keyPickup      = GetKeyCode(profile.key_pickup.Get());
+	_keyNoPickup    = GetKeyCode(profile.key_no_pickup.Get());
 
 	_lastLightsState = profile.lights.Get();
 	_aimToMouse = profile.aim_to_mouse.Get();
@@ -65,9 +65,9 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	//
 	// pickup
 	//
-	vs._bState_AllowDrop = input.IsKeyPressed(_keyPickup)
-		|| ( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
-		|| ( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
+	vs._bState_AllowDrop = !input.IsKeyPressed(_keyNoPickup)
+		&& !( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
+		&& !( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
 
 	//
 	// fire
