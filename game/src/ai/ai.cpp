@@ -95,7 +95,7 @@ void AIController::Serialize(SaveFile &f)
 	}
 }
 
-void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs)
+void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc)
 {
 	memset(&vs, 0, sizeof(VehicleState));
 
@@ -121,7 +121,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 
 
 	// take decision
-//	if( _jobManager.TakeJob(this) )
+	if(allowExtraCalc)
         SelectState(world, vehicle, vehicle.GetWeapon() ? &weapSettings : nullptr);
 
 

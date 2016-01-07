@@ -4,7 +4,6 @@
 #include <math/MyMath.h>
 #include <list>
 
-//template<class> class JobManager;
 struct VehicleState;
 struct AIWEAPSETTINGS;
 class FieldCell;
@@ -29,8 +28,6 @@ struct AIITEMINFO
 
 class AIController
 {
-//	static JobManager<GC_PlayerAI> _jobManager;
-
 	typedef std::list<ObjPtr<GC_RigidBodyStatic> > AttackListType;
 
 	struct PathNode
@@ -150,8 +147,7 @@ public:
 	bool Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p);
 	void Stop();
 
-    void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs);
+    void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc);
 };
 
-///////////////////////////////////////////////////////////////////////////////
 // end of file

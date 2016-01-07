@@ -32,13 +32,25 @@ void AIManager::FreeAI(GC_Player *player)
 AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 {
 	ControllerStateMap result;
-	for (auto &ai: _aiControllers)
+
+	unsigned int numActionable = 0;
+	for (auto &ai : _aiControllers)
+		if (ai.first->GetVehicle())
+			numActionable++;
+
+	if (numActionable > 0)
 	{
-		if( auto vehicle = ai.first->GetVehicle() )
+		unsigned int favorite = world.net_rand() % numActionable;
+		unsigned int index = 0;
+		for (auto &ai : _aiControllers)
 		{
-			VehicleState vs;
-			ai.second.second->ReadControllerState(world, dt, *vehicle, vs);
-			result.insert(std::make_pair(vehicle->GetId(), vs));
+			if (auto vehicle = ai.first->GetVehicle())
+			{
+				VehicleState vs;
+				ai.second.second->ReadControllerState(world, dt, *vehicle, vs, index == favorite);
+				result.insert(std::make_pair(vehicle->GetId(), vs));
+				index++;
+			}
 		}
 	}
 	return result;
