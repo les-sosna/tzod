@@ -13,6 +13,7 @@ enum enumZOrder
 	Z_EXPLODE,          // explosions
 	Z_VEHICLE_LABEL,    // vehicle labels (the crosshair, the health bar, etc.)
 	Z_PARTICLE,         // particles, smoke
+	Z_SHADOW,
 	Z_WOOD,             // wood
 	//------------------//
 	Z_COUNT,            // total number of z-layers

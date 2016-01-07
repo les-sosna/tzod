@@ -69,6 +69,7 @@ return {
    file="textures/landscape/wood.tga",
    content={
      wood={left=16, top=16, right=112, bottom=112, xframes=3, yframes=3},
+     wood_shadow={left=144, top=16, right=240, bottom=112, xframes=3, yframes=3},
    }
 },
 {
