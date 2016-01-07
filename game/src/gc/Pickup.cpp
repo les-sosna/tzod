@@ -458,42 +458,50 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 
 	if( GetAttached() )
 	{
-		if( GetGridSet() )
+		if (!_vehicle)
 		{
-			if( GetTimeAttached() >= SHOCK_TIMEOUT )
-			{
-				if( GC_Vehicle *pNearTarget = FindNearVehicle(world, _vehicle) )
-				{
-					SetGridSet(false);
-
-					_targetPos = pNearTarget->GetPos();
-
-					_light = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_DIRECT);
-					_light->SetRadius(100);
-
-					vec2d tmp = _targetPos - GetPos();
-					_light->SetLength(tmp.len());
-					_light->SetLightDirection(tmp.Normalize());
-
-					pNearTarget->TakeDamage(world, DamageDesc{1000, pNearTarget->GetPos(), _vehicle->GetOwner()});
-				}
-				else
-				{
-					_vehicle->TakeDamage(world, DamageDesc{1000, _vehicle->GetPos(), _vehicle->GetOwner()});
-					Disappear(world);
-				}
-			}
+			// vehicle was killed while attached
+			Disappear(world);
 		}
 		else
 		{
-			float a = (GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f;
-			if( a > 1 )
+			if (GetGridSet())
 			{
-				Disappear(world);
+				if (GetTimeAttached() >= SHOCK_TIMEOUT)
+				{
+					if (GC_Vehicle *pNearTarget = FindNearVehicle(world, _vehicle))
+					{
+						SetGridSet(false);
+
+						_targetPos = pNearTarget->GetPos();
+
+						_light = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_DIRECT);
+						_light->SetRadius(100);
+
+						vec2d tmp = _targetPos - GetPos();
+						_light->SetLength(tmp.len());
+						_light->SetLightDirection(tmp.Normalize());
+
+						pNearTarget->TakeDamage(world, DamageDesc{ 1000, pNearTarget->GetPos(), _vehicle->GetOwner() });
+					}
+					else
+					{
+						_vehicle->TakeDamage(world, DamageDesc{ 1000, _vehicle->GetPos(), _vehicle->GetOwner() });
+						Disappear(world);
+					}
+				}
 			}
 			else
 			{
-				_light->SetIntensity(1.0f - powf(a, 6));
+				float a = (GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f;
+				if (a > 1)
+				{
+					Disappear(world);
+				}
+				else
+				{
+					_light->SetIntensity(1.0f - powf(a, 6));
+				}
 			}
 		}
 	}
