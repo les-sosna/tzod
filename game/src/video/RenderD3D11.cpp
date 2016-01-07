@@ -307,7 +307,7 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *r
 
 	CD3D11_BLEND_DESC blendDescUI((CD3D11_DEFAULT()));
 	blendDescUI.RenderTarget[0].BlendEnable = TRUE;
-	blendDescUI.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDescUI.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDescUI.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	blendDescUI.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE;
 	CHECK(_device->CreateBlendState(&blendDescUI, &_blendStateUI));
