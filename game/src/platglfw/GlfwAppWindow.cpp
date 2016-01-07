@@ -151,15 +151,15 @@ IRender& GlfwAppWindow::GetRender()
 
 unsigned int GlfwAppWindow::GetPixelWidth()
 {
-	int width, _;
-	glfwGetFramebufferSize(_window.get(), &width, &_);
+	int width;
+	glfwGetFramebufferSize(_window.get(), &width, nullptr);
 	return width;
 }
 
 unsigned int GlfwAppWindow::GetPixelHeight()
 {
-	int height, _;
-	glfwGetFramebufferSize(_window.get(), &_, &height);
+	int height;
+	glfwGetFramebufferSize(_window.get(), nullptr, &height);
 	return height;
 }
 
