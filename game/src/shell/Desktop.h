@@ -44,8 +44,7 @@ public:
 	        FS::FileSystem &fs,
 	        ConfCache &conf,
 	        LangCache &lang,
-	        UI::ConsoleBuffer &logger,
-	        std::function<void()> exitCommand);
+	        UI::ConsoleBuffer &logger);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);
@@ -65,7 +64,6 @@ private:
 	ConfCache &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
-	std::function<void()> _exitCommand;
 	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
 
 	MainMenuDlg  *_mainMenu = nullptr;

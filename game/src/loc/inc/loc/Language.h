@@ -40,7 +40,7 @@ REFLECTION_BEGIN(LangCache)
 
 	VAR_STR( settings_btn, "Settings (F12)" )
 
-	VAR_STR( exit_game_btn, "Exit (Alt+F4)" )
+	VAR_STR( return_to_game_btn, "Return" )
 
 	VAR_STR( get_file_name_title, "File name" )
 	VAR_STR( get_file_name_save_game, "Save Game" )
@@ -107,12 +107,12 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( team_none, "[none]" )
 
 	VAR_STR( human_player_list, "Human players" )
-	VAR_STR( human_player_add, "Add (Insert)" )
+	VAR_STR( human_player_add, "Add Human" )
 	VAR_STR( human_player_remove, "Remove" )
 	VAR_STR( human_player_modify, "Modify" )
 
 	VAR_STR( AI_player_list, "Bots" )
-	VAR_STR( AI_player_add, "Add" )
+	VAR_STR( AI_player_add, "Add Bot" )
 	VAR_STR( AI_player_remove, "Remove" )
 	VAR_STR( AI_player_modify, "Modify" )
 

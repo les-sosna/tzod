@@ -42,7 +42,7 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 	UI::Button::Create(this, _lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
 	UI::Button::Create(this, _lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 	UI::Button::Create(this, _lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
-	UI::Button::Create(this, _lang.exit_game_btn.Get(), 416, GetHeight())->eventClick = _commands.exit;
+	UI::Button::Create(this, _lang.return_to_game_btn.Get(), 416, GetHeight())->eventClick = _commands.close;
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);

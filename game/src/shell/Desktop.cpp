@@ -17,6 +17,7 @@
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 //#include <script/script.h>
+#include <ui/Button.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
@@ -47,8 +48,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
                  FS::FileSystem &fs,
                  ConfCache &conf,
                  LangCache &lang,
-                 UI::ConsoleBuffer &logger,
-                 std::function<void()> exitCommand)
+                 UI::ConsoleBuffer &logger)
   : Window(nullptr, manager)
   , AppStateListener(appState)
   , _history(conf)
@@ -57,7 +57,6 @@ Desktop::Desktop(UI::LayoutManager* manager,
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
-  , _exitCommand(std::move(exitCommand))
   , _globL(luaL_newstate())
   , _nModalPopups(0)
   , _renderScheme(GetManager().GetTextureManager())
@@ -89,7 +88,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	commands.newMap = std::bind(&Desktop::OnNewMap, this);
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
-	commands.exit = _exitCommand;
+	commands.close = [=]() {ShowMainMenu(false);};
 	_mainMenu = new MainMenuDlg(this, _fs, _conf, _lang, _logger, std::move(commands));
 	_nModalPopups++;
 
@@ -108,6 +107,10 @@ Desktop::Desktop(UI::LayoutManager* manager,
 			yy += hh+5;
 		}
 	}
+
+	auto pauseButton = UI::ImageButton::Create(this, 0, 0, "ui/pause");
+	pauseButton->SetTopMost(true);
+	pauseButton->eventClick = [=]() {ShowMainMenu(true);};
 
 	SetTimeStep(true);
 	OnGameContextChanged();
@@ -288,7 +291,7 @@ void Desktop::ShowMainMenu(bool show)
 {
 	if (_mainMenu->GetVisible() != show)
 	{
-		if (_mainMenu->GetVisible())
+		if (_mainMenu->GetVisible() && GetAppState().GetGameContext())
 		{
 			_mainMenu->SetVisible(false);
 			OnCloseChild(0);
@@ -494,6 +497,15 @@ void Desktop::OnGameContextChanged()
 		SetEditorMode(true);
 	}
 
-	if (!GetAppState().GetGameContext())
+	if (GetAppState().GetGameContext())
+	{
+		SetDrawBackground(false);
+		SetDrawBorder(false);
+	}
+	else
+	{
+		SetDrawBackground(true);
+		SetDrawBorder(true);
 		ShowMainMenu(true);
+	}
 }

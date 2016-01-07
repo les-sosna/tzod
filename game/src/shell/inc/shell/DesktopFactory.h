@@ -25,8 +25,7 @@ public:
 	               FS::FileSystem &fs,
 	               ConfCache &conf,
 	               LangCache &lang,
-	               UI::ConsoleBuffer &logger,
-	               std::function<void()> exitCommand);
+	               UI::ConsoleBuffer &logger);
 
 	// UI::IWindowFactory
 	UI::Window* Create(UI::LayoutManager *manager) override;
@@ -38,5 +37,4 @@ private:
 	ConfCache &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
-	std::function<void()> _exitCommand;
 };

@@ -99,7 +99,8 @@ void FrameworkView::Run()
 			context->OMSetRenderTargets(1, targets, nullptr);
 			context->DiscardView(m_swapChainResources->GetBackBufferRenderTargetView());
 
-			context->ClearRenderTargetView(m_swapChainResources->GetBackBufferRenderTargetView(), DirectX::Colors::YellowGreen/*Transparent*/);
+			// TODO: for night mode use DirectX::Colors::Transparent
+			context->ClearRenderTargetView(m_swapChainResources->GetBackBufferRenderTargetView(), DirectX::XMVECTORF32{ 0, 0, 0, 1 });
 
 			_view->Render(*_appWindow);
 
