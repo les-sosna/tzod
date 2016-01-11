@@ -34,6 +34,7 @@ enum Msg
 	MSGMBUTTONUP,
 	MSGMOUSEMOVE,
 	MSGMOUSEWHEEL,
+    MSGTAP,
 };
 
 class LayoutManager
@@ -45,7 +46,7 @@ public:
 	void TimeStep(float dt);
 	void Render(DrawingContext &dc) const;
 
-	bool ProcessMouse(float x, float y, float z, Msg msg);
+	bool ProcessPointer(float x, float y, float z, Msg msg);
 	bool ProcessKeys(Msg msg, UI::Key key);
 	bool ProcessText(int c);
 
@@ -70,7 +71,7 @@ private:
     std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg);
+	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg);
 
 	IInput &_input;
 	IClipboard &_clipboard;

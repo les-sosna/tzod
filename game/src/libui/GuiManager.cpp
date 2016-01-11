@@ -270,7 +270,7 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z, Msg msg)
+bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg)
 {
 	bool bMouseInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
 
@@ -287,7 +287,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 				// do not dispatch messages to disabled or invisible window.
 				// topmost windows are processed separately
 				if( w->GetEnabled() && w->GetVisible() && !w->GetTopMost() &&
-					ProcessMouseInternal(w, x - w->GetX(), y - w->GetY(), z, msg) )
+					ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg) )
 				{
 					return true;
 				}
@@ -318,6 +318,9 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 			case MSGMOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
 
 			case MSGMOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
+
+            case MSGTAP: msgProcessed = wnd->OnTap(x,y); break;
+
             default:
                 assert(false);
 		}
@@ -331,6 +334,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 			case MSGLBUTTONDOWN:
 			case MSGRBUTTONDOWN:
 			case MSGMBUTTONDOWN:
+            case MSGTAP:
 				SetFocusWnd(wnd); // may destroy wnd
             default:
                 break;
@@ -354,7 +358,7 @@ bool LayoutManager::ProcessMouseInternal(Window* wnd, float x, float y, float z,
 	return false;
 }
 
-bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
+bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg)
 {
 	if( _captureWnd.Get() )
 	{
@@ -365,7 +369,7 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 			x -= wnd->GetX();
 			y -= wnd->GetY();
 		}
-		if( ProcessMouseInternal(_captureWnd.Get(), x, y, z, msg) )
+		if( ProcessPointerInternal(_captureWnd.Get(), x, y, z, msg) )
 			return true;
 	}
 	else
@@ -385,12 +389,12 @@ bool LayoutManager::ProcessMouse(float x, float y, float z, Msg msg)
 					x_ += wnd->GetX();
 					y_ += wnd->GetY();
 				}
-				if( ProcessMouseInternal(*it, x - x_, y - y_, z, msg) )
+				if( ProcessPointerInternal(*it, x - x_, y - y_, z, msg) )
 					return true;
 			}
 		}
 		// then handle all children of the desktop recursively
-		if( ProcessMouseInternal(_desktop.Get(), x, y, z, msg) )
+		if( ProcessPointerInternal(_desktop.Get(), x, y, z, msg) )
 			return true;
 	}
 	if( _hotTrackWnd.Get() )

@@ -1,5 +1,6 @@
 #import "GameViewController.h"
 #import "AppDelegate.h"
+#import "GameView.h"
 #import "CocoaTouchWindow.h"
 #import <OpenGLES/ES2/glext.h>
 #include <app/tzod.h>
@@ -12,8 +13,6 @@
     std::unique_ptr<CocoaTouchWindow> _appWindow;
     std::unique_ptr<TzodView> _tzodView;
 }
-@property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) GLKBaseEffect *effect;
 
 - (void)tearDownGL;
 
@@ -28,19 +27,19 @@
     [super viewDidLoad];
 
     self.preferredFramesPerSecond = 60;
-    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
-    if (!self.context)
+    if (!context)
     {
         NSLog(@"Failed to create ES context");
     }
     else
     {
-        GLKView *view = (GLKView *)self.view;
-        view.context = self.context;
+        GameView *view = (GameView *)self.view;
+        view.context = context;
         view.drawableDepthFormat = GLKViewDrawableDepthFormatNone;
         
-        [EAGLContext setCurrentContext:self.context];
+        [EAGLContext setCurrentContext:context];
 
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         _appWindow.reset(new CocoaTouchWindow(view));
@@ -75,11 +74,11 @@
 {
     _tzodView.reset();
     _appWindow.reset();
-    if ([EAGLContext currentContext] == self.context)
+    GLKView *view = (GLKView *)self.view;
+    if ([EAGLContext currentContext] == view.context)
     {
         [EAGLContext setCurrentContext:nil];
     }
-    self.context = nil;
 }
 
 #pragma mark - GLKView and GLKViewController delegate methods
@@ -95,7 +94,8 @@
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     if (_appWindow)
-        _appWindow->SetPixelSize(view.drawableWidth, view.drawableHeight);
+        _appWindow->SetPixelSize(static_cast<unsigned int>(view.drawableWidth),
+                                 static_cast<unsigned int>(view.drawableHeight));
     
     if (_tzodView && _appWindow)
         _tzodView->Render(*_appWindow);

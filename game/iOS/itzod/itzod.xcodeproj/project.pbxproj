@@ -13,6 +13,7 @@
 		0749F8901B75CE610067358B /* libaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F88F1B75CE610067358B /* libaudio.a */; };
 		0749F8921B75CE820067358B /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8911B75CE820067358B /* OpenAL.framework */; };
 		0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8931B75CE910067358B /* liboggvorbis.a */; };
+		075602451C3FB3EC00287F77 /* GameView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 075602441C3FB3EC00287F77 /* GameView.mm */; };
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
 		0775001C1C1CDEC200A325C8 /* CocoaTouchWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0775001B1C1CDEC200A325C8 /* CocoaTouchWindow.mm */; };
@@ -60,6 +61,8 @@
 		0749F88F1B75CE610067358B /* libaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libaudio.a; path = "../_build/audio/Debug-iphonesimulator/libaudio.a"; sourceTree = "<group>"; };
 		0749F8911B75CE820067358B /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		0749F8931B75CE910067358B /* liboggvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liboggvorbis.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liboggvorbis.a"; sourceTree = "<group>"; };
+		075602431C3FB3EC00287F77 /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
+		075602441C3FB3EC00287F77 /* GameView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameView.mm; sourceTree = "<group>"; };
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
 		0775001A1C1CDEC200A325C8 /* CocoaTouchWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaTouchWindow.h; sourceTree = "<group>"; };
@@ -215,6 +218,8 @@
 				070667401B47C2FF000FAF97 /* data */,
 				07FAF2761B1C26D900BFDD5F /* AppDelegate.h */,
 				07FAF2771B1C26DA00BFDD5F /* AppDelegate.mm */,
+				075602431C3FB3EC00287F77 /* GameView.h */,
+				075602441C3FB3EC00287F77 /* GameView.mm */,
 				07FAF27D1B1C26DA00BFDD5F /* GameViewController.h */,
 				07FAF27E1B1C26DA00BFDD5F /* GameViewController.mm */,
 				07FAF2801B1C26DA00BFDD5F /* Main.storyboard */,
@@ -354,6 +359,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07FAF2781B1C26DA00BFDD5F /* AppDelegate.mm in Sources */,
+				075602451C3FB3EC00287F77 /* GameView.mm in Sources */,
 				07FAF27F1B1C26DA00BFDD5F /* GameViewController.mm in Sources */,
 				07FAF2751B1C26D900BFDD5F /* main.mm in Sources */,
 				0775001C1C1CDEC200A325C8 /* CocoaTouchWindow.mm in Sources */,

@@ -32,12 +32,13 @@ public:
 	State GetState() const { return _state; }
 
 protected:
-	virtual bool OnMouseMove(float x, float y);
-	virtual bool OnMouseDown(float x, float y, int nButton);
-	virtual bool OnMouseUp  (float x, float y, int nButton);
-	virtual bool OnMouseLeave();
+    bool OnMouseMove(float x, float y) override;
+    bool OnMouseDown(float x, float y, int nButton) override;
+	bool OnMouseUp  (float x, float y, int nButton) override;
+	bool OnMouseLeave() override;
+    bool OnTap(float x, float y) override;
 
-	virtual void OnEnabledChange(bool enable, bool inherited);
+	void OnEnabledChange(bool enable, bool inherited) override;
 	virtual void OnChangeState(State state);
 
 private:

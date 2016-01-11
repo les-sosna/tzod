@@ -190,7 +190,7 @@ public:
 private:
 
 	//
-	// mouse handlers
+	// pointer handlers
 	//
 
 	virtual bool OnMouseDown (float x, float y, int button);
@@ -199,6 +199,7 @@ private:
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
+    virtual bool OnTap(float x, float y);
 
 
 	//

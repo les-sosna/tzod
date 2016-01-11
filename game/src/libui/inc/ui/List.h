@@ -59,16 +59,17 @@ protected:
 	ListCallbackImpl _callbacks;
 
 protected:
-	virtual void OnSize(float width, float height);
-	virtual bool OnMouseMove(float x, float y);
-	virtual bool OnMouseLeave();
-	virtual bool OnMouseDown(float x, float y, int button);
-	virtual bool OnMouseUp(float x, float y, int button);
-	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual bool OnKeyPressed(Key key);
-	virtual bool OnFocus(bool focus);
+	void OnSize(float width, float height) override;
+	bool OnMouseMove(float x, float y) override;
+	bool OnMouseLeave() override;
+	bool OnMouseDown(float x, float y, int button) override;
+	bool OnMouseUp(float x, float y, int button) override;
+	bool OnMouseWheel(float x, float y, float z) override;
+    bool OnTap(float x, float y) override;
+	bool OnKeyPressed(Key key) override;
+	bool OnFocus(bool focus) override;
 
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 
 private:
 	List(const List &); // no copy

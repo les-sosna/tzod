@@ -83,6 +83,15 @@ bool ButtonBase::OnMouseLeave()
 	SetState(stateNormal);
 	return true;
 }
+    
+bool ButtonBase::OnTap(float x, float y)
+{
+    WindowWeakPtr wwp(this);
+    OnClick();                   // handler may destroy this object
+    if( eventClick && wwp.Get() )
+        eventClick();            // handler may destroy this object
+    return true;
+}
 
 void ButtonBase::OnClick()
 {

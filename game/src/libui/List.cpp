@@ -199,6 +199,11 @@ bool List::OnMouseWheel(float x, float y, float z)
 	SetScrollPos(GetScrollPos() - z * 3.0f);
 	return true;
 }
+    
+bool List::OnTap(float x, float y)
+{
+    return OnMouseDown(x, y, 1);
+}
 
 bool List::OnKeyPressed(Key key)
 {

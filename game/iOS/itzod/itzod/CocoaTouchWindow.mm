@@ -35,8 +35,8 @@ public:
     
     if (UI::LayoutManager *sink = self.target->GetInputSink())
     {
-        sink->ProcessMouse(location.x*2, location.y*2, 0, UI::MSGLBUTTONDOWN);
-        sink->ProcessMouse(location.x*2, location.y*2, 0, UI::MSGLBUTTONUP);
+        // TODO: *2 hack for retina
+        sink->ProcessPointer(location.x*2, location.y*2, 0, UI::MSGTAP);
     }
 }
 @end

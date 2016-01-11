@@ -457,7 +457,7 @@ void Window::SetText(const std::string &text)
 
 
 //
-// mouse handlers
+// pointer handlers
 //
 
 bool Window::OnMouseDown(float x, float y, int button)
@@ -489,6 +489,12 @@ bool Window::OnMouseWheel(float x, float y, float z)
 {
 	return false;
 }
+    
+bool Window::OnTap(float x, float y)
+{
+    return false;
+}
+
 
 
 //
