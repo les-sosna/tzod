@@ -32,9 +32,9 @@ public:
 	State GetState() const { return _state; }
 
 protected:
-    bool OnMouseMove(float x, float y) override;
-    bool OnMouseDown(float x, float y, int nButton) override;
-	bool OnMouseUp  (float x, float y, int nButton) override;
+    bool OnPointerMove(float x, float y, PointerID pointerID) override;
+    bool OnPointerDown(float x, float y, int button, PointerID pointerID) override;
+	bool OnPointerUp  (float x, float y, int button, PointerID pointerID) override;
 	bool OnMouseLeave() override;
     bool OnTap(float x, float y) override;
 

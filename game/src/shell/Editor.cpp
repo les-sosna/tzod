@@ -241,31 +241,31 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool EditorLayout::OnMouseMove(float x, float y)
+bool EditorLayout::OnPointerMove(float x, float y, UI::PointerID pointerID)
 {
 	if( _mbutton )
 	{
-		OnMouseDown(x, y, _mbutton);
+		OnPointerDown(x, y, _mbutton, pointerID);
 	}
 	return true;
 }
 
-bool EditorLayout::OnMouseUp(float x, float y, int button)
+bool EditorLayout::OnPointerUp(float x, float y, int button, UI::PointerID pointerID)
 {
 	if( _mbutton == button )
 	{
 		_click = true;
 		_mbutton = 0;
-		GetManager().SetCapture(nullptr);
+		GetManager().SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
 
-bool EditorLayout::OnMouseDown(float x, float y, int button)
+bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerID pointerID)
 {
 	if( 0 == _mbutton )
 	{
-		GetManager().SetCapture(this);
+		GetManager().SetCapture(pointerID, this);
 		_mbutton = button;
 	}
 

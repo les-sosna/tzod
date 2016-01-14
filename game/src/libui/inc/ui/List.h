@@ -60,10 +60,10 @@ protected:
 
 protected:
 	void OnSize(float width, float height) override;
-	bool OnMouseMove(float x, float y) override;
+	bool OnPointerMove(float x, float y, PointerID pointerID) override;
 	bool OnMouseLeave() override;
-	bool OnMouseDown(float x, float y, int button) override;
-	bool OnMouseUp(float x, float y, int button) override;
+	bool OnPointerDown(float x, float y, int button, PointerID pointerID) override;
+	bool OnPointerUp(float x, float y, int button, PointerID pointerID) override;
 	bool OnMouseWheel(float x, float y, float z) override;
     bool OnTap(float x, float y) override;
 	bool OnKeyPressed(Key key) override;

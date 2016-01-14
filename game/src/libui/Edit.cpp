@@ -292,39 +292,36 @@ bool Edit::OnKeyPressed(Key key)
 	return false;
 }
 
-bool Edit::OnMouseDown(float x, float y, int button)
+bool Edit::OnPointerDown(float x, float y, int button, PointerID pointerID)
 {
-	if( 1 == button )
+	if( 1 == button && !GetManager().HasCapturedPointers(this) )
 	{
-		GetManager().SetCapture(this);
+		GetManager().SetCapture(pointerID, this);
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(sel, sel);
-		return true;
 	}
-	return false;
+    return true;
 }
 
-bool Edit::OnMouseMove(float x, float y)
+bool Edit::OnPointerMove(float x, float y, PointerID pointerID)
 {
-	if( GetManager().GetCapture() == this )
+	if( GetManager().GetCapture(pointerID) == this )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(GetSelStart(), sel);
-		return true;
 	}
-	return false;
+    return true;
 }
 
-bool Edit::OnMouseUp(float x, float y, int button)
+bool Edit::OnPointerUp(float x, float y, int button, PointerID pointerID)
 {
-	if( 1 == button && GetManager().GetCapture() == this )
+	if( 1 == button && GetManager().GetCapture(pointerID) == this )
 	{
-		GetManager().SetCapture(nullptr);
-		return true;
+		GetManager().SetCapture(pointerID, nullptr);
 	}
-	return false;
+    return true;
 }
 
 bool Edit::OnFocus(bool focus)

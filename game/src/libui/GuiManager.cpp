@@ -15,14 +15,13 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _tsCurrent(_timestep.end())
   , _tsDeleteCurrent(false)
   , _captureCountSystem(0)
-  , _captureCount(0)
   , _focusWnd(nullptr)
   , _hotTrackWnd(nullptr)
-  , _captureWnd(nullptr)
   , _desktop(nullptr)
   , _isAppActive(false)
 #ifndef NDEBUG
   , _dbgFocusIsChanging(false)
+  , _lastPointerLocation()
 #endif
 {
 	_desktop.Set(desktopFactory.Create(this));
@@ -34,9 +33,21 @@ LayoutManager::~LayoutManager()
 	assert(_topmost.empty());
 }
 
-Window* LayoutManager::GetCapture() const
+Window* LayoutManager::GetCapture(PointerID pointerID) const
 {
-	return _captureWnd.Get();
+	return _pointerCaptures[(int) pointerID].captureWnd.Get();
+}
+    
+bool LayoutManager::HasCapturedPointers(Window *wnd) const
+{
+    for (auto &capture: _pointerCaptures)
+    {
+        if (capture.captureWnd.Get() == wnd)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 Window* LayoutManager::GetDesktop() const
@@ -44,29 +55,29 @@ Window* LayoutManager::GetDesktop() const
 	return _desktop.Get();
 }
 
-void LayoutManager::SetCapture(Window* wnd)
+void LayoutManager::SetCapture(PointerID pointerID, Window *wnd)
 {
 	if( wnd )
 	{
-		if( _captureWnd.Get() )
+		if( _pointerCaptures[(int) pointerID].captureWnd.Get() )
 		{
-			assert(_captureWnd.Get() == wnd);
-			assert(_captureCount != 0);
+			assert(_pointerCaptures[(int) pointerID].captureWnd.Get() == wnd);
+			assert(_pointerCaptures[(int) pointerID].captureCount != 0);
 		}
 		else
 		{
-			assert(0 == _captureCount);
-			_captureWnd.Set(wnd);
+			assert(0 == _pointerCaptures[(int) pointerID].captureCount);
+			_pointerCaptures[(int) pointerID].captureWnd.Set(wnd);
 		}
-		_captureCount++;
+		_pointerCaptures[(int) pointerID].captureCount++;
 	}
 	else
 	{
-		assert(_captureWnd.Get());
-		assert(0 != _captureCount);
-		if( 0 == --_captureCount )
+		assert(_pointerCaptures[(int) pointerID].captureWnd.Get());
+		assert(0 != _pointerCaptures[(int) pointerID].captureCount);
+		if( 0 == --_pointerCaptures[(int) pointerID].captureCount )
 		{
-			_captureWnd.Set(nullptr);
+			_pointerCaptures[(int) pointerID].captureWnd.Set(nullptr);
 		}
 	}
 }
@@ -225,11 +236,14 @@ void LayoutManager::ResetWindow(Window* wnd)
 		_hotTrackWnd.Set(nullptr);
 	}
 
-	if( _captureWnd.Get() == wnd )
-	{
-		_captureWnd.Set(nullptr);
-		_captureCount = 0;
-	}
+    for (auto &capture: _pointerCaptures)
+    {
+        if (capture.captureWnd.Get() == wnd)
+        {
+            capture.captureWnd.Set(nullptr);
+            capture.captureCount = 0;
+        }
+    }
 }
 
 std::list<Window*>::iterator LayoutManager::TimeStepRegister(Window* wnd)
@@ -270,11 +284,11 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg)
+bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerID pointerID)
 {
 	bool bMouseInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
 
-	if( GetCapture() != wnd )
+	if( GetCapture(pointerID) != wnd )
 	{
 		// route message to each child until someone process it
 		if( bMouseInside || !wnd->GetClipChildren() )
@@ -287,7 +301,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 				// do not dispatch messages to disabled or invisible window.
 				// topmost windows are processed separately
 				if( w->GetEnabled() && w->GetVisible() && !w->GetTopMost() &&
-					ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg) )
+					ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg, buttons, pointerID) )
 				{
 					return true;
 				}
@@ -296,7 +310,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 		}
 	}
 
-	if( bMouseInside || GetCapture() == wnd )
+	if( bMouseInside || GetCapture(pointerID) == wnd )
 	{
 		//
 		// window is captured or mouse pointer is inside the window
@@ -307,20 +321,22 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 		bool msgProcessed = false;
 		switch( msg )
 		{
-            case Msg::LBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 1);  break;
-			case Msg::RBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 2);  break;
-			case Msg::MBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 3);  break;
-
-			case Msg::LBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 1);    break;
-			case Msg::RBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 2);    break;
-			case Msg::MBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 3);    break;
-
-			case Msg::MOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
-
-			case Msg::MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
-
-            case Msg::TAP: msgProcessed = wnd->OnTap(x,y); break;
-
+            case Msg::PointerDown:
+                msgProcessed = wnd->OnPointerDown(x, y, buttons, pointerID);
+                break;
+			case Msg::PointerUp:
+            case Msg::PointerCancel:
+                msgProcessed = wnd->OnPointerUp(x, y, buttons, pointerID);
+                break;
+			case Msg::PointerMove:
+                msgProcessed = wnd->OnPointerMove(x, y, pointerID);
+                break;
+			case Msg::MOUSEWHEEL:
+                msgProcessed = wnd->OnMouseWheel(x, y, z);
+                break;
+            case Msg::TAP:
+                msgProcessed = wnd->OnTap(x, y);
+                break;
             default:
                 assert(false);
 		}
@@ -331,9 +347,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 		{
 			switch( msg )
 			{
-			case Msg::LBUTTONDOWN:
-			case Msg::RBUTTONDOWN:
-			case Msg::MBUTTONDOWN:
+			case Msg::PointerDown:
             case Msg::TAP:
 				SetFocusWnd(wnd); // may destroy wnd
             default:
@@ -358,18 +372,23 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 	return false;
 }
 
-bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg)
+bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg, int button, PointerID pointerID)
 {
-	if( _captureWnd.Get() )
+#ifndef NDEBUG
+    assert((int) pointerID >= 0 && (int) pointerID < sizeof(_lastPointerLocation) / sizeof(_lastPointerLocation[0]));
+    _lastPointerLocation[(int) pointerID] = vec2d(x, y);
+#endif
+
+	if( Window *captured = GetCapture(pointerID) )
 	{
 		// calc relative mouse position and route message to captured window
-		for( Window *wnd = _captureWnd.Get(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
+		for( Window *wnd = captured; _desktop.Get() != wnd; wnd = wnd->GetParent() )
 		{
 			assert(wnd);
 			x -= wnd->GetX();
 			y -= wnd->GetY();
 		}
-		if( ProcessPointerInternal(_captureWnd.Get(), x, y, z, msg) )
+		if( ProcessPointerInternal(captured, x, y, z, msg, button, pointerID) )
 			return true;
 	}
 	else
@@ -389,12 +408,12 @@ bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg)
 					x_ += wnd->GetX();
 					y_ += wnd->GetY();
 				}
-				if( ProcessPointerInternal(*it, x - x_, y - y_, z, msg) )
+				if( ProcessPointerInternal(*it, x - x_, y - y_, z, msg, button, pointerID) )
 					return true;
 			}
 		}
 		// then handle all children of the desktop recursively
-		if( ProcessPointerInternal(_desktop.Get(), x, y, z, msg) )
+		if( ProcessPointerInternal(_desktop.Get(), x, y, z, msg, button, pointerID) )
 			return true;
 	}
 	if( _hotTrackWnd.Get() )
@@ -479,6 +498,13 @@ void LayoutManager::Render(DrawingContext &dc) const
 			w->Draw(dc, x, y);
 		}
 	}
+    
+#ifndef NDEBUG
+    for (vec2d pos: _lastPointerLocation)
+    {
+        dc.DrawSprite(0, 0, 0xffffffff, pos.x, pos.y, 8, 8, vec2d(0, 1));
+    }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,12 +27,15 @@ void ButtonBase::SetState(State s)
 	}
 }
 
-bool ButtonBase::OnMouseMove(float x, float y)
+bool ButtonBase::OnPointerMove(float x, float y, PointerID pointerID)
 {
-	if( GetManager().GetCapture() == this )
+	if( GetManager().HasCapturedPointers(this) )
 	{
-		bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
-		SetState(push ? statePushed : stateNormal);
+        if (GetManager().GetCapture(pointerID) == this)
+        {
+            bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
+            SetState(push ? statePushed : stateNormal);
+        }
 	}
 	else
 	{
@@ -43,11 +46,11 @@ bool ButtonBase::OnMouseMove(float x, float y)
 	return true;
 }
 
-bool ButtonBase::OnMouseDown(float x, float y, int button)
+bool ButtonBase::OnPointerDown(float x, float y, int button, PointerID pointerID)
 {
-	if( 1 == button ) // left button only
+	if( !GetManager().HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
-		GetManager().SetCapture(this);
+		GetManager().SetCapture(pointerID, this);
 		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(x, y);
@@ -56,11 +59,11 @@ bool ButtonBase::OnMouseDown(float x, float y, int button)
 	return false;
 }
 
-bool ButtonBase::OnMouseUp(float x, float y, int button)
+bool ButtonBase::OnPointerUp(float x, float y, int button, PointerID pointerID)
 {
-	if( GetManager().GetCapture() == this )
+	if( GetManager().GetCapture(pointerID) == this && 1 == button )
 	{
-		GetManager().SetCapture(nullptr);
+		GetManager().SetCapture(pointerID, nullptr);
 		bool click = (GetState() == statePushed);
 		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
@@ -71,7 +74,7 @@ bool ButtonBase::OnMouseUp(float x, float y, int button)
 			if( eventClick && wwp.Get() )
 				eventClick();            // handler may destroy this object
 		}
-		if( wwp.Get() && GetEnabled() )  // handler may disable this button
+		if( click && wwp.Get() && GetEnabled() )  // handler may disable this button
 			SetState(stateHottrack);
 		return true;
 	}
@@ -86,10 +89,13 @@ bool ButtonBase::OnMouseLeave()
     
 bool ButtonBase::OnTap(float x, float y)
 {
-    WindowWeakPtr wwp(this);
-    OnClick();                   // handler may destroy this object
-    if( eventClick && wwp.Get() )
-        eventClick();            // handler may destroy this object
+    if( !GetManager().HasCapturedPointers(this))
+    {
+        WindowWeakPtr wwp(this);
+        OnClick();                   // handler may destroy this object
+        if( eventClick && wwp.Get() )
+            eventClick();            // handler may destroy this object        
+    }
     return true;
 }
 

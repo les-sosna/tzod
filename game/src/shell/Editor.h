@@ -60,16 +60,16 @@ public:
 	std::function<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
-	void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 
-	bool OnMouseWheel(float x, float y, float z);
-	bool OnMouseDown(float x, float y, int button);
-	bool OnMouseUp(float x, float y, int button);
-	bool OnMouseMove(float x, float y);
-	bool OnFocus(bool focus);
-	bool OnKeyPressed(UI::Key key);
-	void OnSize(float width, float height);
-	void OnVisibleChange(bool visible, bool inherited);
+	bool OnMouseWheel(float x, float y, float z) override;
+	bool OnPointerDown(float x, float y, int button, UI::PointerID pointerID) override;
+	bool OnPointerUp(float x, float y, int button, UI::PointerID pointerID) override;
+	bool OnPointerMove(float x, float y, UI::PointerID pointerID) override;
+	bool OnFocus(bool focus) override;
+	bool OnKeyPressed(UI::Key key) override;
+	void OnSize(float width, float height) override;
+	void OnVisibleChange(bool visible, bool inherited) override;
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();

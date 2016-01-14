@@ -13,6 +13,7 @@ namespace UI
 	{
 	public:
 		explicit WindowWeakPtr(Window *p);
+        WindowWeakPtr();
 		~WindowWeakPtr();
 
 		Window* operator->() const;

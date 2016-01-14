@@ -42,30 +42,27 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-bool Dialog::OnMouseDown(float x, float y, int button)
+bool Dialog::OnPointerDown(float x, float y, int button, PointerID pointerID)
 {
-	if( _easyMove && 1 == button )
+	if( _easyMove && 1 == button && !GetManager().HasCapturedPointers(this) )
 	{
-		GetManager().SetCapture(this);
+		GetManager().SetCapture(pointerID, this);
 		_mouseX = x;
 		_mouseY = y;
 	}
 	return true;
 }
-bool Dialog::OnMouseUp(float x, float y, int button)
+bool Dialog::OnPointerUp(float x, float y, int button, PointerID pointerID)
 {
-	if( 1 == button )
+	if( 1 == button && GetManager().GetCapture(pointerID) == this )
 	{
-		if( this == GetManager().GetCapture() )
-		{
-			GetManager().SetCapture(nullptr);
-		}
+        GetManager().SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
-bool Dialog::OnMouseMove(float x, float y)
+bool Dialog::OnPointerMove(float x, float y, PointerID pointerID)
 {
-	if( this == GetManager().GetCapture() )
+	if( this == GetManager().GetCapture(pointerID) )
 	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}

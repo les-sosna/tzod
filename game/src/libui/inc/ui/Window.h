@@ -15,7 +15,8 @@ namespace UI
 class LayoutManager;
 class Window;
 enum class Key;
-
+enum class PointerID;
+    
 namespace detail
 {
 	struct Resident
@@ -193,9 +194,9 @@ private:
 	// pointer handlers
 	//
 
-	virtual bool OnMouseDown (float x, float y, int button);
-	virtual bool OnMouseUp   (float x, float y, int button);
-	virtual bool OnMouseMove (float x, float y);
+	virtual bool OnPointerDown (float x, float y, int button, PointerID pointerID);
+	virtual bool OnPointerUp   (float x, float y, int button, PointerID pointerID);
+	virtual bool OnPointerMove (float x, float y, PointerID pointerID);
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();

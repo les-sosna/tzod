@@ -12,6 +12,11 @@ WindowWeakPtr::WindowWeakPtr(Window *p)
 	if (_resident) _resident->counter++;
 }
 
+WindowWeakPtr::WindowWeakPtr()
+    : _resident(nullptr)
+{
+}
+
 WindowWeakPtr::~WindowWeakPtr()
 {
 	Set(nullptr);

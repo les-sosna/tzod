@@ -2,6 +2,7 @@
 #include "inc/platglfw/GlfwPlatform.h"
 #include "inc/platglfw/GlfwKeys.h"
 #include <ui/GuiManager.h>
+#include <ui/Pointers.h>
 #include <ui/Window.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
@@ -28,17 +29,18 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		UI::Msg msg;
+        UI::Msg msg = (GLFW_RELEASE == action) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
+        int buttons = 0;
 		switch (button)
 		{
 			case GLFW_MOUSE_BUTTON_LEFT:
-				msg = (GLFW_RELEASE == action) ? UI::Msg::LBUTTONUP : UI::Msg::LBUTTONDOWN;
+                buttons |= 0x01;
 				break;
 			case GLFW_MOUSE_BUTTON_RIGHT:
-				msg = (GLFW_RELEASE == action) ? UI::Msg::RBUTTONUP : UI::Msg::RBUTTONDOWN;
+                buttons |= 0x02;
 				break;
 			case GLFW_MOUSE_BUTTON_MIDDLE:
-				msg = (GLFW_RELEASE == action) ? UI::Msg::MBUTTONUP : UI::Msg::MBUTTONDOWN;
+                buttons |= 0x04;
 				break;
 			default:
 				return;
@@ -46,7 +48,7 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessPointer((float) xpos, (float) ypos, 0, msg);
+        gui->ProcessPointer((float) xpos, (float) ypos, 0, msg, buttons, UI::PointerID::Mouse);
 	}
 }
 
@@ -54,7 +56,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		gui->ProcessPointer((float) xpos, (float) ypos, 0, UI::Msg::MOUSEMOVE);
+		gui->ProcessPointer((float) xpos, (float) ypos, 0, UI::Msg::PointerMove, 0, UI::PointerID::Mouse);
 	}
 }
 
@@ -65,7 +67,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessPointer((float) xpos, (float) ypos, (float) yoffset, UI::Msg::MOUSEWHEEL);
+		gui->ProcessPointer((float) xpos, (float) ypos, (float) yoffset, UI::Msg::MOUSEWHEEL, 0, UI::PointerID::Mouse);
 	}
 }
 

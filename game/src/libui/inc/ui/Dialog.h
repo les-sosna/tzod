@@ -25,9 +25,9 @@ public:
 
 protected:
 	// Window
-	bool OnMouseDown(float x, float y, int button) override;
-	bool OnMouseUp(float x, float y, int button) override;
-	bool OnMouseMove(float x, float y) override;
+	bool OnPointerDown(float x, float y, int button, PointerID pointerID) override;
+	bool OnPointerUp(float x, float y, int button, PointerID pointerID) override;
+	bool OnPointerMove(float x, float y, PointerID pointerID) override;
 	bool OnMouseEnter(float x, float y) override;
 	bool OnMouseLeave() override;
 	bool OnKeyPressed(Key key) override;

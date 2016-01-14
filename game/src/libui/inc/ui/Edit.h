@@ -1,14 +1,8 @@
-// Edit.h
-
 #pragma once
-
 #include "Window.h"
 
 namespace UI
 {
-
-///////////////////////////////////////////////////////////////////////////////
-// simple EditBox
 
 class Edit : public Window
 {
@@ -48,17 +42,13 @@ protected:
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual bool OnChar(int c);
 	virtual bool OnKeyPressed(Key key);
-	virtual bool OnMouseDown(float x, float y, int button);
-	virtual bool OnMouseUp(float x, float y, int button);
-	virtual bool OnMouseMove(float x, float y);
+	virtual bool OnPointerDown(float x, float y, int button, PointerID pointerID);
+	virtual bool OnPointerUp(float x, float y, int button, PointerID pointerID);
+	virtual bool OnPointerMove(float x, float y, PointerID pointerID);
 	virtual bool OnFocus(bool focus);
 	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTextChange();
 	virtual void OnTimeStep(float dt);
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

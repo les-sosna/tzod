@@ -1,8 +1,7 @@
-// GuiManager.h
-
 #pragma once
-
 #include "WindowPtr.h"
+#include "Pointers.h"
+#include <math/MyMath.h>
 #include <list>
 
 class DrawingContext;
@@ -26,13 +25,10 @@ enum class Msg
 {
     KEYUP,
     KEYDOWN,
-	LBUTTONDOWN,
-	RBUTTONDOWN,
-	MBUTTONDOWN,
-	LBUTTONUP,
-	RBUTTONUP,
-	MBUTTONUP,
-	MOUSEMOVE,
+    PointerDown,
+    PointerMove,
+    PointerUp,
+    PointerCancel,
 	MOUSEWHEEL,
     TAP,
 };
@@ -46,7 +42,7 @@ public:
 	void TimeStep(float dt);
 	void Render(DrawingContext &dc) const;
 
-	bool ProcessPointer(float x, float y, float z, Msg msg);
+	bool ProcessPointer(float x, float y, float z, Msg msg, int button, PointerID pointerID);
 	bool ProcessKeys(Msg msg, UI::Key key);
 	bool ProcessText(int c);
 
@@ -55,8 +51,9 @@ public:
 	TextureManager& GetTextureManager() const { return _texman; }
 	Window* GetDesktop() const;
 
-	Window* GetCapture() const;
-	void SetCapture(Window* wnd);
+	Window* GetCapture(PointerID pointerID) const;
+	void SetCapture(PointerID pointerID, Window* wnd);
+    bool HasCapturedPointers(Window* wnd) const;
 
 	bool SetFocusWnd(Window* wnd);  // always resets previous focus
 	Window* GetFocusWnd() const;
@@ -71,7 +68,7 @@ private:
     std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg);
+	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerID pointerID);
 
 	IInput &_input;
 	IClipboard &_clipboard;
@@ -80,23 +77,28 @@ private:
     std::list<Window*> _timestep;
     std::list<Window*>::iterator _tsCurrent;
     bool _tsDeleteCurrent;
+    
+    struct PointerCapture
+    {
+        unsigned int captureCount = 0;
+        WindowWeakPtr captureWnd;
+    };
+    
+    PointerCapture _pointerCaptures[(int) PointerID::_Count];
 
 
 	unsigned int _captureCountSystem;
-	unsigned int _captureCount;
 
 	WindowWeakPtr _focusWnd;
 	WindowWeakPtr _hotTrackWnd;
-	WindowWeakPtr _captureWnd;
 
 	WindowWeakPtr _desktop;
 
 	bool _isAppActive;
 #ifndef NDEBUG
 	bool _dbgFocusIsChanging;
+    vec2d _lastPointerLocation[(int) PointerID::_Count];
 #endif
 };
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-// end of file
+} // namespace UI
