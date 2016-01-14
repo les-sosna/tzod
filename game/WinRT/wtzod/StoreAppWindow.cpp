@@ -69,7 +69,11 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			float dpi = displayInformation->LogicalDpi;
 			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::MOUSEMOVE);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+				0, // z
+				UI::Msg::PointerMove,
+				0, // button
+				UI::PointerID::Mouse);
 		}
 	});
 
@@ -81,7 +85,11 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			float dpi = displayInformation->LogicalDpi;
 			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::LBUTTONDOWN);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+				0, // z
+				UI::Msg::PointerDown,
+				1,
+				UI::PointerID::Mouse);
 		}
 	});
 
@@ -93,7 +101,11 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			float dpi = displayInformation->LogicalDpi;
 			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::LBUTTONUP);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+				0, // z
+				UI::Msg::PointerUp,
+				1, // button
+				UI::PointerID::Mouse);
 		}
 	});
 
@@ -106,7 +118,11 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			float dpi = displayInformation->LogicalDpi;
 			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), (float)delta / 120.f, UI::Msg::MOUSEWHEEL);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+				(float)delta / 120.f,
+				UI::Msg::MOUSEWHEEL,
+				0,
+				UI::PointerID::Mouse);
 		}
 	});
 
