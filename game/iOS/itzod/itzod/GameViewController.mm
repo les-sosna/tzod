@@ -1,16 +1,13 @@
 #import "GameViewController.h"
 #import "AppDelegate.h"
 #import "GameView.h"
-#import "CocoaTouchWindow.h"
 #import <OpenGLES/ES2/glext.h>
 #include <app/tzod.h>
 #include <app/View.h>
-#include <video/RenderOpenGL.h>
 #include <memory>
 
 @interface GameViewController ()
 {
-    std::unique_ptr<CocoaTouchWindow> _appWindow;
     std::unique_ptr<TzodView> _tzodView;
 }
 
@@ -35,15 +32,12 @@
     }
     else
     {
-        GameView *view = (GameView *)self.view;
-        view.context = context;
+        auto view = (GameView *)self.view;
         view.drawableDepthFormat = GLKViewDrawableDepthFormatNone;
-        
-        [EAGLContext setCurrentContext:context];
+        view.context = context; // has to be set first to access view.appWindow property
 
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        _appWindow.reset(new CocoaTouchWindow(view));
-        _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, *_appWindow));
+        _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, view.appWindow));
     }
 }
 
@@ -72,8 +66,8 @@
 
 - (void)tearDownGL
 {
+    // TODO: consider deleting view's IRender instance
     _tzodView.reset();
-    _appWindow.reset();
     GLKView *view = (GLKView *)self.view;
     if ([EAGLContext currentContext] == view.context)
     {
@@ -93,12 +87,8 @@
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    if (_appWindow)
-        _appWindow->SetPixelSize(static_cast<unsigned int>(view.drawableWidth),
-                                 static_cast<unsigned int>(view.drawableHeight));
-    
-    if (_tzodView && _appWindow)
-        _tzodView->Render(*_appWindow);
+    if (_tzodView)
+        _tzodView->Render(((GameView *)view).appWindow);
 }
 
 @end // @implementation GameViewController

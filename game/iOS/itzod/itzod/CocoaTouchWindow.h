@@ -26,8 +26,6 @@ public:
 
 private:
     GLKView *_glkView;
-    UITapGestureRecognizer *_singleFingerTap;
-    TouchAdapter *_tapHandler;
     std::unique_ptr<IRender> _render;
     UI::LayoutManager *_inputSink;
     unsigned int _width;
