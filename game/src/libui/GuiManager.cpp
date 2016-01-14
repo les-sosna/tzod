@@ -307,19 +307,19 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 		bool msgProcessed = false;
 		switch( msg )
 		{
-			case MSGLBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 1);  break;
-			case MSGRBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 2);  break;
-			case MSGMBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 3);  break;
+            case Msg::LBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 1);  break;
+			case Msg::RBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 2);  break;
+			case Msg::MBUTTONDOWN:  msgProcessed = wnd->OnMouseDown(x,y, 3);  break;
 
-			case MSGLBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 1);    break;
-			case MSGRBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 2);    break;
-			case MSGMBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 3);    break;
+			case Msg::LBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 1);    break;
+			case Msg::RBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 2);    break;
+			case Msg::MBUTTONUP:    msgProcessed = wnd->OnMouseUp(x,y, 3);    break;
 
-			case MSGMOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
+			case Msg::MOUSEMOVE:    msgProcessed = wnd->OnMouseMove(x,y);     break;
 
-			case MSGMOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
+			case Msg::MOUSEWHEEL:   msgProcessed = wnd->OnMouseWheel(x,y,z);  break;
 
-            case MSGTAP: msgProcessed = wnd->OnTap(x,y); break;
+            case Msg::TAP: msgProcessed = wnd->OnTap(x,y); break;
 
             default:
                 assert(false);
@@ -331,10 +331,10 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 		{
 			switch( msg )
 			{
-			case MSGLBUTTONDOWN:
-			case MSGRBUTTONDOWN:
-			case MSGMBUTTONDOWN:
-            case MSGTAP:
+			case Msg::LBUTTONDOWN:
+			case Msg::RBUTTONDOWN:
+			case Msg::MBUTTONDOWN:
+            case Msg::TAP:
 				SetFocusWnd(wnd); // may destroy wnd
             default:
                 break;
@@ -409,9 +409,9 @@ bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
 {
 	switch( msg )
 	{
-	case MSGKEYUP:
+	case Msg::KEYUP:
 		break;
-	case MSGKEYDOWN:
+	case Msg::KEYDOWN:
 		if( Window *wnd = GetFocusWnd() )
 		{
 			while( wnd )

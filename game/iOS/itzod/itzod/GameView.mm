@@ -21,7 +21,7 @@
     if (UI::LayoutManager *sink = _appWindow->GetInputSink())
     {
         sink->ProcessPointer(location.x * self.contentScaleFactor,
-                             location.y * self.contentScaleFactor, 0, UI::MSGTAP);
+                             location.y * self.contentScaleFactor, 0, UI::Msg::TAP);
     }
 }
 

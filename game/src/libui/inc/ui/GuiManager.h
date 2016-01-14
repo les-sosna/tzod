@@ -22,19 +22,19 @@ struct IWindowFactory
     virtual Window* Create(LayoutManager *pManager) = 0;
 };
 
-enum Msg
+enum class Msg
 {
-    MSGKEYUP,
-    MSGKEYDOWN,
-	MSGLBUTTONDOWN,
-	MSGRBUTTONDOWN,
-	MSGMBUTTONDOWN,
-	MSGLBUTTONUP,
-	MSGRBUTTONUP,
-	MSGMBUTTONUP,
-	MSGMOUSEMOVE,
-	MSGMOUSEWHEEL,
-    MSGTAP,
+    KEYUP,
+    KEYDOWN,
+	LBUTTONDOWN,
+	RBUTTONDOWN,
+	MBUTTONDOWN,
+	LBUTTONUP,
+	RBUTTONUP,
+	MBUTTONUP,
+	MOUSEMOVE,
+	MOUSEWHEEL,
+    TAP,
 };
 
 class LayoutManager

@@ -32,13 +32,13 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 		switch (button)
 		{
 			case GLFW_MOUSE_BUTTON_LEFT:
-				msg = (GLFW_RELEASE == action) ? UI::MSGLBUTTONUP : UI::MSGLBUTTONDOWN;
+				msg = (GLFW_RELEASE == action) ? UI::Msg::LBUTTONUP : UI::Msg::LBUTTONDOWN;
 				break;
 			case GLFW_MOUSE_BUTTON_RIGHT:
-				msg = (GLFW_RELEASE == action) ? UI::MSGRBUTTONUP : UI::MSGRBUTTONDOWN;
+				msg = (GLFW_RELEASE == action) ? UI::Msg::RBUTTONUP : UI::Msg::RBUTTONDOWN;
 				break;
 			case GLFW_MOUSE_BUTTON_MIDDLE:
-				msg = (GLFW_RELEASE == action) ? UI::MSGMBUTTONUP : UI::MSGMBUTTONDOWN;
+				msg = (GLFW_RELEASE == action) ? UI::Msg::MBUTTONUP : UI::Msg::MBUTTONDOWN;
 				break;
 			default:
 				return;
@@ -46,7 +46,7 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessMouse((float) xpos, (float) ypos, 0, msg);
+		gui->ProcessPointer((float) xpos, (float) ypos, 0, msg);
 	}
 }
 
@@ -54,7 +54,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		gui->ProcessMouse((float) xpos, (float) ypos, 0, UI::MSGMOUSEMOVE);
+		gui->ProcessPointer((float) xpos, (float) ypos, 0, UI::Msg::MOUSEMOVE);
 	}
 }
 
@@ -65,7 +65,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessMouse((float) xpos, (float) ypos, (float) yoffset, UI::MSGMOUSEWHEEL);
+		gui->ProcessPointer((float) xpos, (float) ypos, (float) yoffset, UI::Msg::MOUSEWHEEL);
 	}
 }
 
@@ -74,7 +74,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action,
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		UI::Key key = MapGlfwKeyCode(platformKey);
-		gui->ProcessKeys(GLFW_RELEASE == action ? UI::MSGKEYUP : UI::MSGKEYDOWN, key);
+		gui->ProcessKeys(GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN, key);
 	}
 }
 

@@ -67,9 +67,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		if (*inputSink)
 		{
 			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessMouse(
+			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGMOUSEMOVE);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::MOUSEMOVE);
 		}
 	});
 
@@ -79,9 +79,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		if (*inputSink)
 		{
 			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessMouse(
+			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONDOWN);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::LBUTTONDOWN);
 		}
 	});
 
@@ -91,9 +91,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		if (*inputSink)
 		{
 			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessMouse(
+			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::MSGLBUTTONUP);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), 0, UI::Msg::LBUTTONUP);
 		}
 	});
 
@@ -104,9 +104,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		{
 			int delta = args->CurrentPoint->Properties->MouseWheelDelta;
 			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessMouse(
+			args->Handled = (*inputSink)->ProcessPointer(
 				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), (float)delta / 120.f, UI::MSGMOUSEWHEEL);
+				PixelsFromDips(args->CurrentPoint->Position.Y, dpi), (float)delta / 120.f, UI::Msg::MOUSEWHEEL);
 		}
 	});
 
@@ -115,7 +115,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->ProcessKeys(UI::MSGKEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			args->Handled = (*inputSink)->ProcessKeys(UI::Msg::KEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
@@ -124,7 +124,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->ProcessKeys(UI::MSGKEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			args->Handled = (*inputSink)->ProcessKeys(UI::Msg::KEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
