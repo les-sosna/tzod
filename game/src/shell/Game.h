@@ -53,6 +53,9 @@ public:
 	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override { return true; }
+    bool OnPointerDown (float x, float y, int button, UI::PointerID pointerID) override;
+    bool OnPointerUp   (float x, float y, int button, UI::PointerID pointerID) override;
+    bool OnPointerMove (float x, float y, UI::PointerID pointerID) override;
 
 private:
 	void OnChangeShowTime();
@@ -69,6 +72,10 @@ private:
 	ConfCache &_conf;
 	LangCache &_lang;
 	InputManager _inputMgr;
+    
+    vec2d _dragOrigin;
+    vec2d _dragDirection;
+    bool _fire;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

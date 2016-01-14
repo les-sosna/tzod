@@ -64,6 +64,8 @@ GameLayout::GameLayout(Window *parent,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
+  , _dragDirection(0, 0)
+  , _fire(false)
 {
 	_msg = new MessageArea(this, _conf, logger);
 	_msg->Move(100, 100);
@@ -109,7 +111,7 @@ void GameLayout::OnTimeStep(float dt)
 
 					VehicleState vs;
 					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
-					                                vehicle, c2w.visible ? &c2w.worldPos : nullptr, vs);
+					                                vehicle, c2w.visible ? &c2w.worldPos : nullptr, _dragDirection, _fire, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -126,6 +128,7 @@ void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 	Window::DrawChildren(dc, sx, sy);
+    
 }
 
 void GameLayout::OnSize(float width, float height)
@@ -136,6 +139,57 @@ void GameLayout::OnSize(float width, float height)
 	float base = 1024.f;
 	float scale = size > base ? std::floor(size / base + 0.5f) : 1 / std::floor(base / size + 0.5f);
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
+}
+
+bool GameLayout::OnPointerDown(float x, float y, int button, UI::PointerID pointerID)
+{
+    switch (pointerID)
+    {
+        case UI::PointerID::Touch0:
+            _dragOrigin = vec2d(x, y);
+            GetManager().SetCapture(pointerID, this);
+            break;
+            
+        case UI::PointerID::Touch1:
+            _fire = true;
+            break;
+            
+        default:
+            break;
+    }
+    return true;
+}
+
+bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerID pointerID)
+{
+    switch (pointerID)
+    {
+        case UI::PointerID::Touch0:
+            GetManager().SetCapture(pointerID, nullptr);
+            _dragDirection = vec2d(0, 0);
+            break;
+            
+        case UI::PointerID::Touch1:
+            _fire = false;
+            break;
+            
+        default:
+            break;
+    }
+    return true;
+}
+
+bool GameLayout::OnPointerMove(float x, float y, UI::PointerID pointerID)
+{
+    if (GetManager().GetCapture(UI::PointerID::Touch0) == this)
+    {
+        _dragDirection = vec2d(x, y) - _dragOrigin;
+        if (_dragDirection.len() > 100)
+        {
+            _dragOrigin = vec2d(x, y) - _dragDirection.Norm() * 100;
+        }
+    }
+    return true;
 }
 
 void GameLayout::OnChangeShowTime()

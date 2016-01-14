@@ -45,7 +45,7 @@ void Controller::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs)
+void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, vec2d dragDirection, bool fire, VehicleState &vs)
 {
 	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));
@@ -87,7 +87,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		if( input.IsKeyPressed(_keyRight)   ) tmp.x += 1;
 		tmp.Normalize();
 
-		bool move = tmp.x || tmp.y;
+		bool move = !tmp.IsZero();
 		bool sameDirection = tmp * vehicle->GetDirection() > cos(PI/4);
 
 		bool bBack = move && !sameDirection && nullptr != world.TraceNearest(world.grid_rigid_s, vehicle,
@@ -131,6 +131,17 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 			}
 		}
 	}
+    
+    if (!dragDirection.IsZero())
+    {
+        vs._bExplicitBody = dragDirection.len() > 20;
+        if (vs._bExplicitBody)
+        {
+            vs._fBodyAngle = dragDirection.Angle();
+        }
+        bool sameDirection = dragDirection.Norm() * vehicle->GetDirection() > cos(PI/4);
+        vs._bState_MoveForward = sameDirection && dragDirection.len() > 90;
+    }
 
 
 
@@ -164,4 +175,9 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 			vs._bState_TowerRight = false;
 		}
 	}
+    
+    if (fire)
+    {
+        vs._bState_Fire = true;
+    }
 }

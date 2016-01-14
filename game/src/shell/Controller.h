@@ -16,7 +16,7 @@ class Controller
 public:
 	Controller();
 	void SetProfile(ConfControllerProfile &profile);
-	void ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, VehicleState &vs);
+	void ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, vec2d dragDirection, bool fire, VehicleState &vs);
 
 private:
 	//

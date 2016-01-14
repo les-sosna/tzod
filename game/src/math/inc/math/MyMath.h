@@ -110,6 +110,11 @@ public:
 	{
 		return sqrt(x*x + y*y);
 	}
+    
+    bool IsZero() const
+    {
+        return x == 0 && y == 0;
+    }
 
 	float Angle() const // angle to the X axis
 	{
@@ -132,6 +137,12 @@ public:
 		return *this;
 	}
 
+    vec2d Norm() const
+    {
+        vec2d result = *this;
+        return result.Normalize();
+    }
+    
 	const vec2d& Set(float _x, float _y)
 	{
 		x = _x;
