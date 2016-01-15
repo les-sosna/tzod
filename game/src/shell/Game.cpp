@@ -181,7 +181,7 @@ bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerID pointer
 
 bool GameLayout::OnPointerMove(float x, float y, UI::PointerID pointerID)
 {
-    if (GetManager().GetCapture(UI::PointerID::Touch0) == this)
+    if (GetManager().GetCapture(pointerID) == this)
     {
         _dragDirection = vec2d(x, y) - _dragOrigin;
         if (_dragDirection.len() > 100)
