@@ -11,10 +11,12 @@ class RenderGLES2 : public IRender
 {
     unsigned int _windowWidth;
     unsigned int _windowHeight;
-	RectRB   _rtViewport;
+	RectRB _rtViewport;
+    vec2d _cameraEye;
+    float _cameraScale;
 
 	GLuint _curtex;
-	float  _ambient;
+	float _ambient;
 
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
@@ -22,11 +24,10 @@ class RenderGLES2 : public IRender
 	unsigned int _vaSize;      // number of filled elements in _VertexArray
 	unsigned int _iaSize;      // number of filled elements in _IndexArray
 
-	RenderMode  _mode;
+	RenderMode _mode;
 
     GlesProgram _program;
-    GLuint _offset;
-    GLuint _scale;
+    GLuint _viewProj;
     GLuint _sampler;
 
 public:
@@ -72,12 +73,10 @@ R"(
     attribute vec4 vColor;
     varying lowp vec2 texCoord;
     varying lowp vec4 color;
-    uniform vec2 vOffset;
-    uniform vec2 vScale;
+    uniform mat4 viewProj;
     void main()
     {
-        gl_Position = vec4((vPos.x + vOffset.x) * vScale.x * 2.0 - 1.0,
-                           1.0 - (vPos.y + vOffset.y) * vScale.y * 2.0, 0, 1);
+        gl_Position = viewProj * vec4(vPos, 0, 1);
         texCoord = vTexCoord;
         color = vColor;
     }
@@ -112,12 +111,13 @@ static const AttribLocationBinding s_bindings[] =
 RenderGLES2::RenderGLES2()
     : _windowWidth(0)
     , _windowHeight(0)
+    , _cameraEye(0, 0)
+    , _cameraScale(1)
     , _curtex(-1)
     , _vaSize(0)
     , _iaSize(0)
     , _program(s_vertexShader, s_fragmentShader, s_bindings)
-    , _offset(_program.GetUniformLocation("vOffset"))
-    , _scale(_program.GetUniformLocation("vScale"))
+    , _viewProj(_program.GetUniformLocation("viewProj"))
     , _sampler(_program.GetUniformLocation("s_tex"))
 {
 	memset(_IndexArray, 0, sizeof(GLushort) * INDEX_ARRAY_SIZE);
@@ -156,17 +156,11 @@ void RenderGLES2::SetViewport(const RectRB *rect)
 
 	if( rect )
 	{
-        GLfloat scale[2] = { 1.0f / (GLfloat)WIDTH(*rect), 1.0f / (GLfloat)HEIGHT(*rect) };
-        glUniform2fv(_scale, 1, scale);
-        
 		glViewport(rect->left, _windowHeight - rect->bottom, WIDTH(*rect), HEIGHT(*rect));
 		_rtViewport = *rect;
 	}
 	else
 	{
-        GLfloat scale[2] = { 1.0f / (GLfloat)_windowWidth, 1.0f / (GLfloat)_windowHeight };
-        glUniform2fv(_scale, 1, scale);
-
 		glViewport(0, 0, _windowWidth, _windowHeight);
 		_rtViewport.left   = 0;
 		_rtViewport.top    = 0;
@@ -177,22 +171,13 @@ void RenderGLES2::SetViewport(const RectRB *rect)
 
 void RenderGLES2::Camera(const RectRB *vp, float x, float y, float scale)
 {
+    Flush();
+    
 	SetViewport(vp);
 	SetScissor(vp);
     
-    GLfloat offset[2];
-    if (vp)
-    {
-        // TODO: scale
-        offset[0] = (GLfloat) WIDTH(*vp) / 2 - x;
-        offset[1] = (GLfloat) HEIGHT(*vp) / 2 - y;
-    }
-    else
-    {
-        offset[0] = 0;
-        offset[1] = 0;
-    }
-    glUniform2fv(_offset, 1, offset);
+    _cameraScale = scale;
+    _cameraEye = vec2d(x, y);
 }
 
 int RenderGLES2::GetViewportWidth() const
@@ -299,6 +284,18 @@ void RenderGLES2::Flush()
 {
 	if( _iaSize )
 	{
+        float scaleX = 2 / (float)WIDTH(_rtViewport) * _cameraScale;
+        float scaleY = -2 / (float)HEIGHT(_rtViewport) * _cameraScale;
+        float centerOffset = _mode == RM_INTERFACE ? 1 : 0;
+        
+        float mViewProj[16] = {
+            scaleX, 0, 0, 0,
+            0, scaleY, 0, 0,
+            0, 0, 1, 0,
+            -_cameraEye.x * scaleX - centerOffset, -_cameraEye.y * scaleY + centerOffset, 0, 1,
+        };
+        glUniformMatrix4fv(_viewProj, 1, 0, mViewProj);
+        
 		glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
 		_vaSize = _iaSize = 0;
 	}
