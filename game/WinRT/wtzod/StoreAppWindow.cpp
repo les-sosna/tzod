@@ -17,6 +17,7 @@ using namespace Windows::UI::Input;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Windows::Devices::Input;
 
 static ::DisplayOrientation DOFromDegrees(int degrees)
 {
@@ -34,6 +35,88 @@ static float PixelsFromDips(float dips, float dpi)
 {
 	const float defaultDpi = 96.0f;
 	return dips * dpi / defaultDpi;
+}
+
+static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArgs ^args, float dpi, UI::Msg msgHint)
+{
+	UI::PointerType pointerType;
+	switch (args->CurrentPoint->PointerDevice->PointerDeviceType)
+	{
+	case PointerDeviceType::Mouse:
+	case PointerDeviceType::Pen:
+		pointerType = UI::PointerType::Mouse;
+		break;
+
+	case PointerDeviceType::Touch:
+		pointerType = UI::PointerType::Touch;
+		break;
+
+	default:
+		pointerType = UI::PointerType::Unknown;
+		break;
+	}
+
+	int button;
+	switch (args->CurrentPoint->Properties->PointerUpdateKind)
+	{
+	case PointerUpdateKind::LeftButtonPressed:
+	case PointerUpdateKind::LeftButtonReleased:
+		button = 1;
+		break;
+
+	case PointerUpdateKind::RightButtonPressed:
+	case PointerUpdateKind::RightButtonReleased:
+		button = 2;
+		break;
+
+	case PointerUpdateKind::MiddleButtonPressed:
+	case PointerUpdateKind::MiddleButtonReleased:
+		button = 3;
+		break;
+
+	default:
+		button = 0;
+		break;
+	}
+
+	UI::Msg msg;
+	switch (args->CurrentPoint->Properties->PointerUpdateKind)
+	{
+	case PointerUpdateKind::LeftButtonPressed:
+	case PointerUpdateKind::RightButtonPressed:
+	case PointerUpdateKind::MiddleButtonPressed:
+		msg = UI::Msg::PointerDown;
+		break;
+
+	case PointerUpdateKind::LeftButtonReleased:
+	case PointerUpdateKind::RightButtonReleased:
+	case PointerUpdateKind::MiddleButtonReleased:
+		msg = UI::Msg::PointerUp;
+		break;
+
+	default:
+		switch (msgHint)
+		{
+		case UI::Msg::MOUSEWHEEL:
+		case UI::Msg::PointerMove:
+			msg = msgHint;
+			break;
+		default:
+			return false; // unknown button or something else we do not handle
+		}
+		break;
+	}
+
+	int delta = args->CurrentPoint->Properties->MouseWheelDelta;
+
+	return inputSink.ProcessPointer(
+		PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+		PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+		(float)delta / 120.f,
+		msg,
+		button,
+		pointerType,
+		args->CurrentPoint->PointerId);
 }
 
 StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
@@ -66,14 +149,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessPointer(
-				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
-				0, // z
-				UI::Msg::PointerMove,
-				0, // button
-				UI::PointerID::Mouse);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerMove);
 		}
 	});
 
@@ -82,14 +158,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessPointer(
-				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
-				0, // z
-				UI::Msg::PointerDown,
-				1,
-				UI::PointerID::Mouse);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerDown);
 		}
 	});
 
@@ -98,14 +167,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessPointer(
-				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
-				0, // z
-				UI::Msg::PointerUp,
-				1, // button
-				UI::PointerID::Mouse);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerUp);
 		}
 	});
 
@@ -114,15 +176,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			int delta = args->CurrentPoint->Properties->MouseWheelDelta;
-			float dpi = displayInformation->LogicalDpi;
-			args->Handled = (*inputSink)->ProcessPointer(
-				PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-				PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
-				(float)delta / 120.f,
-				UI::Msg::MOUSEWHEEL,
-				0,
-				UI::PointerID::Mouse);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::MOUSEWHEEL);
 		}
 	});
 

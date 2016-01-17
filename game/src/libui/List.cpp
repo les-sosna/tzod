@@ -165,7 +165,7 @@ void List::OnSize(float width, float height)
 	_scrollBar->SetPageSize(GetNumLinesVisible());
 }
 
-bool List::OnPointerMove(float x, float y, PointerID pointerID)
+bool List::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	_hotItem = HitTest(y);
 	return true;
@@ -177,7 +177,7 @@ bool List::OnMouseLeave()
 	return true;
 }
 
-bool List::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool List::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && x < _scrollBar->GetX() )
 	{
@@ -186,7 +186,7 @@ bool List::OnPointerDown(float x, float y, int button, PointerID pointerID)
 	return true;
 }
 
-bool List::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool List::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }

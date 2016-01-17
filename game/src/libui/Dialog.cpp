@@ -42,7 +42,7 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-bool Dialog::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool Dialog::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( _easyMove && 1 == button && !GetManager().HasCapturedPointers(this) )
 	{
@@ -52,7 +52,7 @@ bool Dialog::OnPointerDown(float x, float y, int button, PointerID pointerID)
 	}
 	return true;
 }
-bool Dialog::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool Dialog::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && GetManager().GetCapture(pointerID) == this )
 	{
@@ -60,7 +60,7 @@ bool Dialog::OnPointerUp(float x, float y, int button, PointerID pointerID)
 	}
 	return true;
 }
-bool Dialog::OnPointerMove(float x, float y, PointerID pointerID)
+bool Dialog::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( this == GetManager().GetCapture(pointerID) )
 	{

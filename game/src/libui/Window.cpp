@@ -460,17 +460,17 @@ void Window::SetText(const std::string &text)
 // pointer handlers
 //
 
-bool Window::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool Window::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }
 
-bool Window::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool Window::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }
 
-bool Window::OnPointerMove(float x, float y, PointerID pointerID)
+bool Window::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }

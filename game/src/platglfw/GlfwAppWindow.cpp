@@ -48,7 +48,7 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-        gui->ProcessPointer((float) xpos, (float) ypos, 0, msg, buttons, UI::PointerID::Mouse);
+        gui->ProcessPointer((float) xpos, (float) ypos, 0, msg, buttons, UI::PointerType::Mouse, 0);
 	}
 }
 
@@ -56,7 +56,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		gui->ProcessPointer((float) xpos, (float) ypos, 0, UI::Msg::PointerMove, 0, UI::PointerID::Mouse);
+		gui->ProcessPointer((float) xpos, (float) ypos, 0, UI::Msg::PointerMove, 0, UI::PointerType::Mouse, 0);
 	}
 }
 
@@ -67,7 +67,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		double xpos = 0;
 		double ypos = 0;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		gui->ProcessPointer((float) xpos, (float) ypos, (float) yoffset, UI::Msg::MOUSEWHEEL, 0, UI::PointerID::Mouse);
+		gui->ProcessPointer((float) xpos, (float) ypos, (float) yoffset, UI::Msg::MOUSEWHEEL, 0, UI::PointerType::Mouse, 0);
 	}
 }
 

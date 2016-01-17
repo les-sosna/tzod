@@ -63,9 +63,9 @@ protected:
 	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 
 	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnPointerDown(float x, float y, int button, UI::PointerID pointerID) override;
-	bool OnPointerUp(float x, float y, int button, UI::PointerID pointerID) override;
-	bool OnPointerMove(float x, float y, UI::PointerID pointerID) override;
+	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool OnFocus(bool focus) override;
 	bool OnKeyPressed(UI::Key key) override;
 	void OnSize(float width, float height) override;

@@ -62,9 +62,9 @@ protected:
 	virtual bool OnChar(int c);
 	virtual bool OnKeyPressed(Key key);
 	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual bool OnPointerDown(float x, float y, int button, PointerID pointerID);
-	virtual bool OnPointerUp(float x, float y, int button, PointerID pointerID);
-	virtual bool OnPointerMove(float x, float y, PointerID pointerID);
+	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
 
 	virtual void OnTimeStep(float dt);
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;

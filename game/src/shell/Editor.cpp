@@ -241,16 +241,16 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool EditorLayout::OnPointerMove(float x, float y, UI::PointerID pointerID)
+bool EditorLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(x, y, _mbutton, pointerID);
+		OnPointerDown(x, y, _mbutton, pointerType, pointerID);
 	}
 	return true;
 }
 
-bool EditorLayout::OnPointerUp(float x, float y, int button, UI::PointerID pointerID)
+bool EditorLayout::OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -261,7 +261,7 @@ bool EditorLayout::OnPointerUp(float x, float y, int button, UI::PointerID point
 	return true;
 }
 
-bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerID pointerID)
+bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( 0 == _mbutton )
 	{

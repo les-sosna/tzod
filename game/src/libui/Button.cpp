@@ -27,7 +27,7 @@ void ButtonBase::SetState(State s)
 	}
 }
 
-bool ButtonBase::OnPointerMove(float x, float y, PointerID pointerID)
+bool ButtonBase::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( GetManager().HasCapturedPointers(this) )
 	{
@@ -46,7 +46,7 @@ bool ButtonBase::OnPointerMove(float x, float y, PointerID pointerID)
 	return true;
 }
 
-bool ButtonBase::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( !GetManager().HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
@@ -59,7 +59,7 @@ bool ButtonBase::OnPointerDown(float x, float y, int button, PointerID pointerID
 	return false;
 }
 
-bool ButtonBase::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( GetManager().GetCapture(pointerID) == this && 1 == button )
 	{

@@ -3,6 +3,7 @@
 #include "Pointers.h"
 #include <math/MyMath.h>
 #include <list>
+#include <unordered_map>
 
 class DrawingContext;
 class TextureManager;
@@ -42,7 +43,7 @@ public:
 	void TimeStep(float dt);
 	void Render(DrawingContext &dc) const;
 
-	bool ProcessPointer(float x, float y, float z, Msg msg, int button, PointerID pointerID);
+	bool ProcessPointer(float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID);
 	bool ProcessKeys(Msg msg, UI::Key key);
 	bool ProcessText(int c);
 
@@ -51,8 +52,8 @@ public:
 	TextureManager& GetTextureManager() const { return _texman; }
 	Window* GetDesktop() const;
 
-	Window* GetCapture(PointerID pointerID) const;
-	void SetCapture(PointerID pointerID, Window* wnd);
+	Window* GetCapture(unsigned int pointerID) const;
+	void SetCapture(unsigned int pointerID, Window* wnd);
     bool HasCapturedPointers(Window* wnd) const;
 
 	bool SetFocusWnd(Window* wnd);  // always resets previous focus
@@ -68,7 +69,7 @@ private:
     std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerID pointerID);
+	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID);
 
 	IInput &_input;
 	IClipboard &_clipboard;
@@ -84,7 +85,7 @@ private:
         WindowWeakPtr captureWnd;
     };
     
-    PointerCapture _pointerCaptures[(int) PointerID::_Count];
+    std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
 
 
 	unsigned int _captureCountSystem;
@@ -97,7 +98,7 @@ private:
 	bool _isAppActive;
 #ifndef NDEBUG
 	bool _dbgFocusIsChanging;
-    vec2d _lastPointerLocation[(int) PointerID::_Count];
+    std::unordered_map<unsigned int, vec2d> _lastPointerLocation;
 #endif
 };
 

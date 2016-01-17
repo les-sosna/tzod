@@ -42,9 +42,9 @@ protected:
 	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
 	virtual bool OnChar(int c);
 	virtual bool OnKeyPressed(Key key);
-	virtual bool OnPointerDown(float x, float y, int button, PointerID pointerID);
-	virtual bool OnPointerUp(float x, float y, int button, PointerID pointerID);
-	virtual bool OnPointerMove(float x, float y, PointerID pointerID);
+	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
 	virtual bool OnFocus(bool focus);
 	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTextChange();

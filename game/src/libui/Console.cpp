@@ -214,17 +214,17 @@ bool Console::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool Console::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool Console::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }
 
-bool Console::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool Console::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }
 
-bool Console::OnPointerMove(float x, float y, PointerID pointerID)
+bool Console::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }

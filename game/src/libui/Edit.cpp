@@ -292,7 +292,7 @@ bool Edit::OnKeyPressed(Key key)
 	return false;
 }
 
-bool Edit::OnPointerDown(float x, float y, int button, PointerID pointerID)
+bool Edit::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && !GetManager().HasCapturedPointers(this) )
 	{
@@ -304,7 +304,7 @@ bool Edit::OnPointerDown(float x, float y, int button, PointerID pointerID)
     return true;
 }
 
-bool Edit::OnPointerMove(float x, float y, PointerID pointerID)
+bool Edit::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( GetManager().GetCapture(pointerID) == this )
 	{
@@ -315,7 +315,7 @@ bool Edit::OnPointerMove(float x, float y, PointerID pointerID)
     return true;
 }
 
-bool Edit::OnPointerUp(float x, float y, int button, PointerID pointerID)
+bool Edit::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && GetManager().GetCapture(pointerID) == this )
 	{

@@ -2,16 +2,10 @@
 
 namespace UI
 {
-	enum class PointerID
+	enum class PointerType
 	{
-    	Mouse,
-    	Touch0,
-    	Touch1,
-    	Touch2,
-    	Touch3,
-    	Touch4,
-        
-        _Count,
-        Undefined,
+		Unknown,
+		Mouse,
+		Touch,
 	};
 }
