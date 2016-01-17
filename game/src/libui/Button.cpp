@@ -9,9 +9,6 @@
 namespace UI
 {
 
-///////////////////////////////////////////////////////////////////////////////
-// Button class implementation
-
 ButtonBase::ButtonBase(Window *parent)
   : Window(parent)
   , _state(stateNormal)
@@ -31,11 +28,11 @@ bool ButtonBase::OnPointerMove(float x, float y, PointerType pointerType, unsign
 {
 	if( GetManager().HasCapturedPointers(this) )
 	{
-        if (GetManager().GetCapture(pointerID) == this)
-        {
-            bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
-            SetState(push ? statePushed : stateNormal);
-        }
+		if (GetManager().GetCapture(pointerID) == this)
+		{
+			bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
+			SetState(push ? statePushed : stateNormal);
+		}
 	}
 	else
 	{
@@ -54,9 +51,8 @@ bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointer
 		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(x, y);
-		return true;
 	}
-	return false;
+	return true;
 }
 
 bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
@@ -76,9 +72,8 @@ bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerTy
 		}
 		if( click && wwp.Get() && GetEnabled() )  // handler may disable this button
 			SetState(stateHottrack);
-		return true;
 	}
-	return false;
+	return true;
 }
 
 bool ButtonBase::OnMouseLeave()
@@ -86,7 +81,7 @@ bool ButtonBase::OnMouseLeave()
 	SetState(stateNormal);
 	return true;
 }
-    
+
 bool ButtonBase::OnTap(float x, float y)
 {
     if( !GetManager().HasCapturedPointers(this))
