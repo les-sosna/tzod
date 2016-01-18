@@ -4,6 +4,7 @@
 #include <gv/GameViewHarness.h>
 #include <ui/Window.h>
 #include <ui/Text.h>
+#include <unordered_map>
 
 class ConfCache;
 class LangCache;
@@ -53,9 +54,10 @@ public:
 	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override { return true; }
-    bool OnPointerDown (float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-    bool OnPointerUp   (float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-    bool OnPointerMove (float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+    bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+    bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+    bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+    bool OnTap(float x, float y) override;
 
 private:
 	void OnChangeShowTime();
@@ -73,9 +75,7 @@ private:
 	LangCache &_lang;
 	InputManager _inputMgr;
     
-    vec2d _dragOrigin;
-    vec2d _dragDirection;
-    int _fire;
+    std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

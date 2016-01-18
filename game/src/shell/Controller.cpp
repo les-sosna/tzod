@@ -3,12 +3,15 @@
 #include "inc/shell/Config.h"
 #include <gc/VehicleState.h>
 #include <gc/Vehicle.h>
+#include <gc/Weapons.h>
 #include <gc/World.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
+#include <float.h>
 
 Controller::Controller()
-  : _keyForward(UI::Key::Unknown)
+  : _tapFireTime(-FLT_MAX)
+  , _keyForward(UI::Key::Unknown)
   , _keyBack(UI::Key::Unknown)
   , _keyLeft(UI::Key::Unknown)
   , _keyRight(UI::Key::Unknown)
@@ -45,9 +48,8 @@ void Controller::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle *vehicle, const vec2d *mouse, vec2d dragDirection, bool fire, VehicleState &vs)
+void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs)
 {
-	assert(vehicle);
 	memset(&vs, 0, sizeof(VehicleState));
 
 	//
@@ -73,6 +75,20 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	// fire
 	//
 	vs._bState_Fire = input.IsKeyPressed(_keyFire);
+    if (_tapFireTime > 0 && !vs._bState_Fire && vehicle.GetWeapon())
+    {
+        vec2d dir = _tapFireTarget - vehicle.GetPos();
+        if( dir.sqr() > 1 )
+        {
+            dir.Normalize();
+            float cosDiff = dir * vehicle.GetWeapon()->GetDirection();
+            AIWEAPSETTINGS ws;
+            vehicle.GetWeapon()->SetupAI(&ws);
+            vs._bState_Fire = cosDiff >= ws.fMaxAttackAngleCos;
+        }
+    }
+    
+
 
 
 	//
@@ -88,10 +104,10 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		tmp.Normalize();
 
 		bool move = !tmp.IsZero();
-		bool sameDirection = tmp * vehicle->GetDirection() > cos(PI/4);
+		bool sameDirection = tmp * vehicle.GetDirection() > cos(PI/4);
 
-		bool bBack = move && !sameDirection && nullptr != world.TraceNearest(world.grid_rigid_s, vehicle,
-			vehicle->GetPos(), vehicle->GetDirection() * vehicle->GetRadius());
+		bool bBack = move && !sameDirection && nullptr != world.TraceNearest(world.grid_rigid_s, &vehicle,
+			vehicle.GetPos(), vehicle.GetDirection() * vehicle.GetRadius());
 		bool bForv = move && !bBack;
 
 		vs._bState_MoveForward = sameDirection && bForv;
@@ -114,10 +130,10 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 
 		if( input.IsMousePressed(2) && mouse )
 		{
-			vec2d tmp = *mouse - vehicle->GetPos() - vehicle->GetBrakingLength();
+			vec2d tmp = *mouse - vehicle.GetPos() - vehicle.GetBrakingLength();
 			if( tmp.sqr() > 1 )
 			{
-				if( tmp * vehicle->GetDirection() < 0 )
+				if( tmp * vehicle.GetDirection() < 0 )
 				{
 					tmp = -tmp;
 					vs._bState_MoveBack    = true;
@@ -132,15 +148,23 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		}
 	}
     
+    //
+    // move to touch and drag
+    //
     if (!dragDirection.IsZero())
     {
         vs._bExplicitBody = dragDirection.len() > 20;
         if (vs._bExplicitBody)
         {
+            if (reverse)
+            {
+                dragDirection = -dragDirection;
+            }
+            bool doMove = dragDirection.Norm() * vehicle.GetDirection() > cos(PI/4);
             vs._fBodyAngle = dragDirection.Angle();
+            vs._bState_MoveForward = !reverse && doMove;
+            vs._bState_MoveBack = reverse && doMove;
         }
-        bool sameDirection = dragDirection.Norm() * vehicle->GetDirection() > cos(PI/4);
-        vs._bState_MoveForward = sameDirection && dragDirection.len() > 90;
     }
 
 
@@ -156,28 +180,47 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(2);
 		}
 
-		if( vehicle->GetWeapon() && mouse )
+		if( vehicle.GetWeapon() && mouse )
 		{
-			float a = (*mouse - vehicle->GetPos()).Angle();
+			float a = (*mouse - vehicle.GetPos()).Angle();
 			vs._bExplicitTower = true;
-			vs._fTowerAngle = a - vehicle->GetDirection().Angle() - vehicle->GetSpinup();
+			vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
 		}
 	}
 	else
 	{
-		vs._bState_TowerLeft   = input.IsKeyPressed(_keyTowerLeft);
-		vs._bState_TowerRight  = input.IsKeyPressed(_keyTowerRight);
-		vs._bState_TowerCenter = input.IsKeyPressed(_keyTowerCenter)
-			|| (input.IsKeyPressed(_keyTowerLeft) && input.IsKeyPressed(_keyTowerRight));
-		if( vs._bState_TowerCenter )
-		{
-			vs._bState_TowerLeft  = false;
-			vs._bState_TowerRight = false;
-		}
+        if (_tapFireTime > 0)
+        {
+            float a = (_tapFireTarget - vehicle.GetPos()).Angle();
+            vs._bExplicitTower = true;
+            vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+        }
+        else if(_tapFireTime < -1 && _tapFireTime > -3)
+        {
+            vs._bState_TowerCenter = true;
+        }
+        else
+        {
+            vs._bState_TowerLeft = input.IsKeyPressed(_keyTowerLeft);
+            vs._bState_TowerRight = input.IsKeyPressed(_keyTowerRight);
+            vs._bState_TowerCenter = input.IsKeyPressed(_keyTowerCenter)
+                || (input.IsKeyPressed(_keyTowerLeft) && input.IsKeyPressed(_keyTowerRight));
+            if( vs._bState_TowerCenter )
+            {
+                vs._bState_TowerLeft  = false;
+                vs._bState_TowerRight = false;
+            }
+        }
 	}
-    
-    if (fire)
-    {
-        vs._bState_Fire = true;
-    }
+}
+
+void Controller::OnTap(vec2d worldPos)
+{
+    _tapFireTime = std::min(.25f + std::max(_tapFireTime, 0.f) * 2.f, 1.f);
+    _tapFireTarget = worldPos;
+}
+
+void Controller::Step(float dt)
+{
+    _tapFireTime = _tapFireTime - dt;
 }

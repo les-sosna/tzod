@@ -64,8 +64,6 @@ GameLayout::GameLayout(Window *parent,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
-  , _dragDirection(0, 0)
-  , _fire(0)
 {
 	_msg = new MessageArea(this, _conf, logger);
 	_msg->Move(100, 100);
@@ -99,19 +97,31 @@ void GameLayout::OnTimeStep(float dt)
 
 	if (readUserInput)
 	{
+        vec2d dragDirection(0, 0);
+        if (!_activeDrags.empty())
+        {
+            for (auto &drag: _activeDrags)
+            {
+                dragDirection += drag.second.second - drag.second.first;
+            }
+            dragDirection /= (float) _activeDrags.size();
+        }
+        bool reverse = _activeDrags.size() > 1;
+        
 		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
-			if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
-			{
-				if( Controller *controller = _inputMgr.GetController(playerIndex) )
-				{
+            if( Controller *controller = _inputMgr.GetController(playerIndex) )
+            {
+                controller->Step(dt);
+                if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
+                {
 					vec2d mouse = GetManager().GetInput().GetMousePos();
 					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
 					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
-					                                vehicle, c2w.visible ? &c2w.worldPos : nullptr, _dragDirection, !!_fire, vs);
+					                                *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reverse, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -144,15 +154,9 @@ bool GameLayout::OnPointerDown(float x, float y, int button, UI::PointerType poi
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
-		if (!GetManager().HasCapturedPointers(this))
-		{
-			_dragOrigin = vec2d(x, y);
-			GetManager().SetCapture(pointerID, this);
-		}
-		else
-		{
-			_fire++;
-		}
+        _activeDrags[pointerID].first = vec2d(x, y);
+        _activeDrags[pointerID].second = vec2d(x, y);
+        GetManager().SetCapture(pointerID, this);
 	}
 	return true;
 }
@@ -161,13 +165,8 @@ bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerType point
 {
 	if (GetManager().GetCapture(pointerID) == this)
 	{
+        _activeDrags.erase(pointerID);
 		GetManager().SetCapture(pointerID, nullptr);
-		_dragDirection = vec2d(0, 0);
-	}
-	else if (UI::PointerType::Touch == pointerType)
-	{
-		assert(_fire > 0);
-		_fire--;
 	}
 	return true;
 }
@@ -176,13 +175,33 @@ bool GameLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, un
 {
 	if (GetManager().GetCapture(pointerID) == this)
 	{
-		_dragDirection = vec2d(x, y) - _dragOrigin;
-		if (_dragDirection.len() > 100)
-		{
-			_dragOrigin = vec2d(x, y) - _dragDirection.Norm() * 100;
-		}
+        auto &drag = _activeDrags[pointerID];
+        drag.second = vec2d(x, y);
+        vec2d dir = drag.second - drag.first;
+        const float maxDragLength = 100;
+        if (dir.len() > maxDragLength)
+        {
+            drag.first = drag.second - dir.Norm() * maxDragLength;
+        }
 	}
 	return true;
+}
+
+bool GameLayout::OnTap(float x, float y)
+{
+    std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+    for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
+    {
+        if( Controller *controller = _inputMgr.GetController(playerIndex) )
+        {
+            auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) x, (int) y);
+            if (c2w.visible)
+            {
+                controller->OnTap(c2w.worldPos);
+            }
+        }
+    }
+    return true;
 }
 
 void GameLayout::OnChangeShowTime()

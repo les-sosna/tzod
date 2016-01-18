@@ -91,10 +91,11 @@ static unsigned int GetPointerID(int touchIndex)
     //        Buttons do not generate click event if the pointer event is cancelled
     // Consider: set cancelsTouchesInView=NO
     
-//    self.singleFingerTap = [[UITapGestureRecognizer alloc]
-//                            initWithTarget:self
-//                            action:@selector(handleSingleTap:)];
-//    [self addGestureRecognizer:self.singleFingerTap];
+    self.singleFingerTap = [[UITapGestureRecognizer alloc]
+                            initWithTarget:self
+                            action:@selector(handleSingleTap:)];
+    self.singleFingerTap.cancelsTouchesInView = NO;
+    [self addGestureRecognizer:self.singleFingerTap];
     
     self.multipleTouchEnabled = YES;
     return self;
