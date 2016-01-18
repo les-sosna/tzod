@@ -36,18 +36,9 @@ static int GetFreeTouchIndex(const std::map<UITouch*, int> &touches)
     return index;
 }
 
-static UI::PointerID GetPointerID(int touchIndex)
+static unsigned int GetPointerID(int touchIndex)
 {
-    switch (touchIndex)
-    {
-        case 0: return UI::PointerID::Touch0;
-        case 1: return UI::PointerID::Touch1;
-        case 2: return UI::PointerID::Touch2;
-        case 3: return UI::PointerID::Touch3;
-        case 4: return UI::PointerID::Touch4;
-            
-        default: return UI::PointerID::Undefined;
-    }
+    return 100U + touchIndex;
 }
 
 @implementation GameView
@@ -59,16 +50,14 @@ static UI::PointerID GetPointerID(int touchIndex)
     if (UI::LayoutManager *sink = _appWindow->GetInputSink())
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
-        UI::PointerID pointerID = GetPointerID(touchIndex);
-        if (UI::PointerID::Undefined != pointerID)
-        {
-            sink->ProcessPointer(location.x * self.contentScaleFactor,
-                                 location.y * self.contentScaleFactor,
-                                 0, // z
-                                 UI::Msg::TAP,
-                                 0, // button
-                                 pointerID);
-        }
+        auto pointerID = GetPointerID(touchIndex);
+        sink->ProcessPointer(location.x * self.contentScaleFactor,
+                             location.y * self.contentScaleFactor,
+                             0, // z
+                             UI::Msg::TAP,
+                             0, // button
+                             UI::PointerType::Touch,
+                             pointerID);
     }
 }
 
@@ -116,22 +105,20 @@ static UI::PointerID GetPointerID(int touchIndex)
     for (UITouch *touch in touches)
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
-        UI::PointerID pointerID = GetPointerID(touchIndex);
-        if (UI::PointerID::Undefined != pointerID)
+        auto pointerID = GetPointerID(touchIndex);
+        assert(0 == _touches.count(touch));
+        _touches[touch] = touchIndex;
+     
+        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
-            assert(0 == _touches.count(touch));
-            _touches[touch] = touchIndex;
-         
-            if (UI::LayoutManager *sink = _appWindow->GetInputSink())
-            {
-                CGPoint location = [touch locationInView:self];
-                sink->ProcessPointer(location.x * self.contentScaleFactor,
-                                     location.y * self.contentScaleFactor,
-                                     0, // z
-                                     UI::Msg::PointerDown,
-                                     1, // button
-                                     pointerID);
-            }
+            CGPoint location = [touch locationInView:self];
+            sink->ProcessPointer(location.x * self.contentScaleFactor,
+                                 location.y * self.contentScaleFactor,
+                                 0, // z
+                                 UI::Msg::PointerDown,
+                                 1, // button
+                                 UI::PointerType::Touch,
+                                 pointerID);
         }
     }
     [super touchesBegan: touches withEvent: event];
@@ -142,19 +129,17 @@ static UI::PointerID GetPointerID(int touchIndex)
     for (UITouch *touch in touches)
     {
         assert(_touches.count(touch));
-        UI::PointerID pointerID = GetPointerID(_touches[touch]);
-        if (UI::PointerID::Undefined != pointerID)
+        auto pointerID = GetPointerID(_touches[touch]);
+        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
-            if (UI::LayoutManager *sink = _appWindow->GetInputSink())
-            {
-                CGPoint location = [touch locationInView:self];
-                sink->ProcessPointer(location.x * self.contentScaleFactor,
-                                     location.y * self.contentScaleFactor,
-                                     0, // z
-                                     UI::Msg::PointerMove,
-                                     0, // button
-                                     pointerID);
-            }
+            CGPoint location = [touch locationInView:self];
+            sink->ProcessPointer(location.x * self.contentScaleFactor,
+                                 location.y * self.contentScaleFactor,
+                                 0, // z
+                                 UI::Msg::PointerMove,
+                                 0, // button
+                                 UI::PointerType::Touch,
+                                 pointerID);
         }
     }
     
@@ -167,19 +152,17 @@ static UI::PointerID GetPointerID(int touchIndex)
     {
         auto it = _touches.find(touch);
         assert(it != _touches.end());
-        UI::PointerID pointerID = GetPointerID(it->second);
-        if (UI::PointerID::Undefined != pointerID)
+        auto pointerID = GetPointerID(it->second);
+        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
-            if (UI::LayoutManager *sink = _appWindow->GetInputSink())
-            {
-                CGPoint location = [touch locationInView:self];
-                sink->ProcessPointer(location.x * self.contentScaleFactor,
-                                     location.y * self.contentScaleFactor,
-                                     0, // z
-                                     UI::Msg::PointerUp,
-                                     1, // button
-                                     pointerID);
-            }
+            CGPoint location = [touch locationInView:self];
+            sink->ProcessPointer(location.x * self.contentScaleFactor,
+                                 location.y * self.contentScaleFactor,
+                                 0, // z
+                                 UI::Msg::PointerUp,
+                                 1, // button
+                                 UI::PointerType::Touch,
+                                 pointerID);
         }
         _touches.erase(it);
     }
@@ -193,19 +176,17 @@ static UI::PointerID GetPointerID(int touchIndex)
     {
         auto it = _touches.find(touch);
         assert(it != _touches.end());
-        UI::PointerID pointerID = GetPointerID(it->second);
-        if (UI::PointerID::Undefined != pointerID)
+        auto pointerID = GetPointerID(it->second);
+        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
-            if (UI::LayoutManager *sink = _appWindow->GetInputSink())
-            {
-                CGPoint location = [touch locationInView:self];
-                sink->ProcessPointer(location.x * self.contentScaleFactor,
-                                     location.y * self.contentScaleFactor,
-                                     0, // z
-                                     UI::Msg::PointerCancel,
-                                     0, // button
-                                     pointerID);
-            }
+            CGPoint location = [touch locationInView:self];
+            sink->ProcessPointer(location.x * self.contentScaleFactor,
+                                 location.y * self.contentScaleFactor,
+                                 0, // z
+                                 UI::Msg::PointerCancel,
+                                 0, // button
+                                 UI::PointerType::Touch,
+                                 pointerID);
         }
         _touches.erase(it);
     }
