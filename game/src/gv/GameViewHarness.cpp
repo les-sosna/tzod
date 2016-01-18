@@ -83,8 +83,17 @@ GameViewHarness::CanvasToWorldResult GameViewHarness::CanvasToWorld(unsigned int
     x -= viewport.left;
     y -= viewport.top;
     result.visible = (0 <= x && x < viewport.right && 0 <= y && y < viewport.bottom);
-    result.worldPos = camera.GetCameraPos() - vec2d((float) WIDTH(viewport), (float)HEIGHT(viewport)) / 2 + vec2d((float) x, (float) y);
+    result.worldPos = camera.GetCameraPos() + (vec2d((float)x, (float)y) - vec2d((float) WIDTH(viewport), (float)HEIGHT(viewport)) / 2) / _scale;
     return result;
+}
+
+vec2d GameViewHarness::WorldToCanvas(unsigned int viewIndex, vec2d worldPos) const
+{
+    assert(viewIndex < _cameras.size());
+    const Camera &camera = IsSingleCamera() ? GetMaxShakeCamera() : _cameras[viewIndex];
+    RectRB viewport = camera.GetViewport();
+    vec2d viewPos = (worldPos - camera.GetCameraPos()) * _scale + vec2d((float)WIDTH(viewport), (float)HEIGHT(viewport)) / 2;
+    return viewPos + vec2d((float)viewport.left, (float)viewport.top);
 }
 
 void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)

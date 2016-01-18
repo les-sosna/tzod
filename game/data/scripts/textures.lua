@@ -273,6 +273,7 @@ return {
      ["ui/combo_list"]={left=64, right=72, top=192, bottom=200, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/bar"]={left=0, right=1, top=226, bottom=228, xpivot=0, ypivot=0},
      ["ui/pause"]={left=96, right=224, top=96, bottom=128, xpivot=0, ypivot=0, xframes=4, yframes=1},
+     ["ui/direction"]={left=112, top=0, right=176, bottom=64, xpivot=32, ypivot=32, xframes=1, yframes=1},
    }
 },
 {

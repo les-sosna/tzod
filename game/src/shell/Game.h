@@ -54,13 +54,14 @@ public:
 	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override { return true; }
-    bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-    bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-    bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-    bool OnTap(float x, float y) override;
+	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnTap(float x, float y) override;
 
 private:
 	void OnChangeShowTime();
+	vec2d GetDragDirection() const;
 
 	MessageArea  *_msg;
 	ScoreTable   *_score;
@@ -74,6 +75,7 @@ private:
 	ConfCache &_conf;
 	LangCache &_lang;
 	InputManager _inputMgr;
+	size_t _texDrag;
     
     std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 

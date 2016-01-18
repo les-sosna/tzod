@@ -17,6 +17,7 @@
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
+#include <video/TextureManager.h>
 
 #include <sstream>
 
@@ -64,6 +65,7 @@ GameLayout::GameLayout(Window *parent,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
+  , _texDrag(GetManager().GetTextureManager().FindSprite("ui/direction"))
 {
 	_msg = new MessageArea(this, _conf, logger);
 	_msg->Move(100, 100);
@@ -85,6 +87,20 @@ GameLayout::~GameLayout()
 	_conf.ui_showtime.eventChange = nullptr;
 }
 
+vec2d GameLayout::GetDragDirection() const
+{
+	vec2d dragDirection(0, 0);
+	if (!_activeDrags.empty())
+	{
+		for (auto &drag : _activeDrags)
+		{
+			dragDirection += drag.second.second - drag.second.first;
+		}
+		dragDirection /= (float)_activeDrags.size();
+	}
+	return dragDirection;
+}
+
 void GameLayout::OnTimeStep(float dt)
 {
 	bool tab = GetManager().GetInput().IsKeyPressed(UI::Key::Tab);
@@ -97,15 +113,7 @@ void GameLayout::OnTimeStep(float dt)
 
 	if (readUserInput)
 	{
-        vec2d dragDirection(0, 0);
-        if (!_activeDrags.empty())
-        {
-            for (auto &drag: _activeDrags)
-            {
-                dragDirection += drag.second.second - drag.second.first;
-            }
-            dragDirection /= (float) _activeDrags.size();
-        }
+        vec2d dragDirection = GetDragDirection();
         bool reverse = _activeDrags.size() > 1;
         
 		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
@@ -137,6 +145,24 @@ void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	float zoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);
+
+	vec2d dir = GetDragDirection();
+	if (!dir.IsZero())
+	{
+		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
+		{
+			if (GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
+			{
+				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicle->GetPos());
+				pos += dir;
+				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
+				uint32_t rgb = _activeDrags.size() > 1 ? opacity : opacity << 8;
+				dc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+			}
+		}
+	}
+
 	Window::DrawChildren(dc, sx, sy);
 }
 
