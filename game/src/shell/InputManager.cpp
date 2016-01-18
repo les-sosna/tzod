@@ -21,6 +21,11 @@ Controller* InputManager::GetController(unsigned int index)
 	return index < _controllers.size() ? &_controllers[index] : nullptr;
 }
 
+const Controller* InputManager::GetController(unsigned int index) const
+{
+	return index < _controllers.size() ? &_controllers[index] : nullptr;
+}
+
 void InputManager::Step(float dt)
 {
     for (auto &controller: _controllers)

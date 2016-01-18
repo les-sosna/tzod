@@ -76,6 +76,7 @@ private:
 	LangCache &_lang;
 	InputManager _inputMgr;
 	size_t _texDrag;
+	size_t _texTarget;
     
     std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 

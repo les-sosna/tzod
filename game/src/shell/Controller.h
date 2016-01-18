@@ -20,7 +20,10 @@ public:
 
     void OnTap(vec2d worldPos);
     void Step(float dt);
-    
+
+	vec2d GetFireTarget() const { return _tapFireTarget; }
+	float GetRemainingFireTime() const { return _tapFireTime; }
+
 private:
     float _tapFireTime;
     vec2d _tapFireTarget;

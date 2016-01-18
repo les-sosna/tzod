@@ -16,7 +16,8 @@ public:
 	InputManager(ConfCache &conf, UI::ConsoleBuffer &logger);
 	~InputManager();
 	Controller* GetController(unsigned int index);
-    
+	const Controller* GetController(unsigned int index) const;
+
     void Step(float dt);
 
 private:

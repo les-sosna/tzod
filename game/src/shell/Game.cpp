@@ -66,6 +66,7 @@ GameLayout::GameLayout(Window *parent,
   , _lang(lang)
   , _inputMgr(conf, logger)
   , _texDrag(GetManager().GetTextureManager().FindSprite("ui/direction"))
+  , _texTarget(GetManager().GetTextureManager().FindSprite("ui/target"))
 {
 	_msg = new MessageArea(this, _conf, logger);
 	_msg->Move(100, 100);
@@ -152,13 +153,23 @@ void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
-			if (GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
+			if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicle->GetPos());
 				pos += dir;
 				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
 				uint32_t rgb = _activeDrags.size() > 1 ? opacity : opacity << 8;
 				dc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+			}
+
+			if (const Controller *controller = _inputMgr.GetController(playerIndex))
+			{
+				float time = controller->GetRemainingFireTime();
+				if (time > 0)
+				{
+					vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
+					dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, vec2d(_gameContext.GetWorld().GetTime()*3));
+				}
 			}
 		}
 	}
