@@ -62,6 +62,8 @@ public:
 private:
 	void OnChangeShowTime();
 	vec2d GetDragDirection() const;
+    unsigned int GetEffectiveDragCount() const;
+    
 
 	MessageArea  *_msg;
 	ScoreTable   *_score;
