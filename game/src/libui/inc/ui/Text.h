@@ -24,7 +24,7 @@ public:
 	float GetCharWidth();
 	float GetCharHeight();
 
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 	virtual void OnTextChange();
 
 protected:

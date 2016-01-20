@@ -28,7 +28,7 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void MessageArea::DrawChildren(DrawingContext &dc) const
 {
 	if( _lines.empty() || !_conf.ui_showmsg.Get() )
 	{
@@ -46,7 +46,7 @@ void MessageArea::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		c.b = cc;
 		c.a = cc;
 
-		dc.DrawBitmapText(sx, sy + y, _fontTexture, c, it->str);
+		dc.DrawBitmapText(0, y, _fontTexture, c, it->str);
 		y -= h;
 	}
 }

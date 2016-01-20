@@ -116,7 +116,7 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void Edit::DrawChildren(DrawingContext &dc) const
 {
 	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 
@@ -124,8 +124,8 @@ void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	if( GetSelLength() && GetTimeStep() )
 	{
 		FRECT rt;
-		rt.left = sx + 1 + (GetSelMin() - (float) _offset) * w;
-		rt.top = sy;
+		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
+		rt.top = 0;
 		rt.right = rt.left + w * GetSelLength() - 1;
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _selection, 0xffffffff, 0);
@@ -135,23 +135,23 @@ void Edit::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	SpriteColor c = GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
-		dc.DrawBitmapText(sx, sy+1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
+		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
-	dc.DrawBitmapText(sx + (GetSelMin() - _offset) * w, sy+1, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	dc.DrawBitmapText(sx + (GetSelMax() - _offset) * w, sy+1, _font, c, GetText().substr(GetSelMax()));
+	dc.DrawBitmapText((GetSelMin() - _offset) * w, 1, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	dc.DrawBitmapText((GetSelMax() - _offset) * w, 1, _font, c, GetText().substr(GetSelMax()));
 
 	// cursor
 	if( this == GetManager().GetFocusWnd() && fmodf(_time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
-		rt.left = sx + (GetSelEnd() - (float) _offset) * w;
-		rt.top = sy;
+		rt.left = (GetSelEnd() - (float) _offset) * w;
+		rt.top = 0;
 		rt.right = rt.left + GetManager().GetTextureManager().GetFrameWidth(_cursor, 0);
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}
 
-	Window::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc);
 }
 
 bool Edit::OnChar(int c)

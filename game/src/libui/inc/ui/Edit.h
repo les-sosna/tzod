@@ -39,7 +39,7 @@ public:
 	std::function<void()> eventChange;
 
 protected:
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 	virtual bool OnChar(int c);
 	virtual bool OnKeyPressed(Key key);
 	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);

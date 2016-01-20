@@ -237,7 +237,7 @@ void Console::OnTimeStep(float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void Console::DrawChildren(DrawingContext &dc) const
 {
 	if( _buf )
 	{
@@ -249,13 +249,13 @@ void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		size_t lineMax = _buf->GetLineCount() - scroll;
 		size_t count   = std::min(lineMax, visibleLineCount);
 
-		float y = sy - fmod(_input->GetY(), h) + (float) (visibleLineCount - count) * h;
+		float y = -fmod(_input->GetY(), h) + (float) (visibleLineCount - count) * h;
 
 		for( size_t line = lineMax - count; line < lineMax; ++line )
 		{
 			unsigned int sev = _buf->GetSeverity(line);
 			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-			dc.DrawBitmapText(sx + 4, y, _font, color, _buf->GetLine(line));
+			dc.DrawBitmapText(4, y, _font, color, _buf->GetLine(line));
 			y += h;
 		}
 
@@ -264,10 +264,10 @@ void Console::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		if( _autoScroll )
 		{
 			// FIXME: magic number
-			dc.DrawBitmapText(sx + _scroll->GetX() - 2, sy + _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
+			dc.DrawBitmapText(_scroll->GetX() - 2, _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
 		}
 	}
-	Window::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc);
 }
 
 void Console::OnSize(float width, float height)

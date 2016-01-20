@@ -60,7 +60,7 @@ public:
 protected:
 	Button(Window *parent);
 	virtual void OnChangeState(State state);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 	size_t _font;
@@ -85,7 +85,7 @@ protected:
 	void AlignSizeToContent();
 
 	virtual void OnTextChange();
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 
 private:
@@ -127,7 +127,7 @@ protected:
 	virtual void OnTextChange();
 	virtual void OnChangeState(State state);
 
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 	size_t _fontTexture;

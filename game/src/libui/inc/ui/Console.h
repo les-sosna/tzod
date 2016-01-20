@@ -67,7 +67,7 @@ protected:
 	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
 
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 	virtual void OnSize(float width, float height);
 	virtual bool OnFocus(bool focus);
 

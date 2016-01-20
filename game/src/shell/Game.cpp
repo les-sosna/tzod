@@ -179,7 +179,7 @@ void GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void GameLayout::DrawChildren(DrawingContext &dc) const
 {
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
@@ -214,7 +214,7 @@ void GameLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
         }
     }
 
-	Window::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc);
 }
 
 void GameLayout::OnSize(float width, float height)

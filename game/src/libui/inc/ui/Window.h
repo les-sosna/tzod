@@ -42,7 +42,7 @@ class Window
 	Window* _nextSibling;
 
 
-    std::list<Window*>::iterator _timeStepReg;
+	std::list<Window*>::iterator _timeStepReg;
 
 
 	//
@@ -185,8 +185,8 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(DrawingContext &dc, float sx = 0, float sy = 0) const;
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void Draw(DrawingContext &dc) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 

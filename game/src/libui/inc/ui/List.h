@@ -69,7 +69,7 @@ protected:
 	bool OnKeyPressed(Key key) override;
 	bool OnFocus(bool focus) override;
 
-	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
+	void DrawChildren(DrawingContext &dc) const override;
 
 private:
 	List(const List &); // no copy

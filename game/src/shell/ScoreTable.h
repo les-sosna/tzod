@@ -12,7 +12,7 @@ public:
 
 protected:
 	virtual void OnParentSize(float width, float height);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 	size_t _font;

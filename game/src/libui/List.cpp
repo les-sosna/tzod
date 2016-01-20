@@ -239,9 +239,9 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void List::DrawChildren(DrawingContext &dc) const
 {
-	Window::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
@@ -249,10 +249,10 @@ void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 	int maxtab = (int) _tabs.size() - 1;
 
 	RectRB clip;
-	clip.left   = (int) sx;
-	clip.top    = (int) sy;
-	clip.right  = (int) (sx + _scrollBar->GetX());
-	clip.bottom = (int) (sy + GetHeight());
+	clip.left = 0;
+	clip.top = 0;
+	clip.right = (int) (_scrollBar->GetX());
+	clip.bottom = (int) (GetHeight());
 	dc.PushClippingRect(clip);
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
@@ -266,7 +266,7 @@ void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				FRECT sel = {sx + 1, sy + y, sx + GetWidth(), sy + y + GetItemHeight()};
+				FRECT sel = {1, y, GetWidth(), y + GetItemHeight()};
 				if( this == GetManager().GetFocusWnd() )
 				{
 					c = 0xff000000; // selected focused;
@@ -290,14 +290,11 @@ void List::DrawChildren(DrawingContext &dc, float sx, float sy) const
 
 		for( int k = _data->GetSubItemCount(i); k--; )
 		{
-			dc.DrawBitmapText(sx + _tabs[std::min(k, maxtab)], sy + y, _font, c, _data->GetItemText(i, k));
+			dc.DrawBitmapText(_tabs[std::min(k, maxtab)], y, _font, c, _data->GetItemText(i, k));
 		}
 	}
 
 	dc.PopClippingRect();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

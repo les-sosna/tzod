@@ -60,7 +60,7 @@ public:
 	std::function<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
-	void DrawChildren(DrawingContext &dc, float sx, float sy) const override;
+	void DrawChildren(DrawingContext &dc) const override;
 
 	bool OnMouseWheel(float x, float y, float z) override;
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;

@@ -17,8 +17,11 @@ class DrawingContext
 public:
 	DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height);
 
-	void PushClippingRect(const RectRB &rect);
+	void PushClippingRect(RectRB rect);
 	void PopClippingRect();
+
+	void PushTransform(vec2d offset);
+	void PopTransform();
 
 	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
@@ -40,5 +43,6 @@ public:
 private:
 	const TextureManager &_tm;
 	std::stack<RectRB> _clipStack;
+	std::stack<vec2d> _transformStack;
 	RectRB _viewport;
 };

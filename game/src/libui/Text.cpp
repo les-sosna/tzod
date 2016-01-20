@@ -71,14 +71,14 @@ float Text::GetCharHeight()
 	return GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 }
 
-void Text::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void Text::DrawChildren(DrawingContext &dc) const
 {
 	if( _drawShadow )
 	{
-		dc.DrawBitmapText(sx + 1, sy + 1, _fontTexture, 0xff000000, GetText(), _align);
+		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText(), _align);
 	}
-	dc.DrawBitmapText(sx, sy, _fontTexture, _fontColor, GetText(), _align);
-	Window::DrawChildren(dc, sx, sy);
+	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor, GetText(), _align);
+	Window::DrawChildren(dc);
 }
 
 void Text::OnTextChange()

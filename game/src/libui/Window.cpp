@@ -1,5 +1,3 @@
-// Window.cpp
-
 #include "inc/ui/Window.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
@@ -176,12 +174,12 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(DrawingContext &dc, float sx, float sy) const
+void Window::Draw(DrawingContext &dc) const
 {
 	AssertNoDestroy(this);
 	assert(_isVisible);
 
-	FRECT dst = {sx + _x, sy + _y, sx + _x + _width, sy + _y + _height};
+	FRECT dst = {_x, _y, _x + _width, _y + _height};
 
 	if( -1 != _texture )
 	{
@@ -212,7 +210,9 @@ void Window::Draw(DrawingContext &dc, float sx, float sy) const
 		dc.PushClippingRect(clip);
 	}
 
-	DrawChildren(dc, sx + _x, sy + _y);
+	dc.PushTransform(vec2d(_x, _y));
+	DrawChildren(dc);
+	dc.PopTransform();
 
 	if( _clipChildren )
 	{
@@ -220,7 +220,7 @@ void Window::Draw(DrawingContext &dc, float sx, float sy) const
 	}
 }
 
-void Window::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void Window::DrawChildren(DrawingContext &dc) const
 {
 	AssertNoDestroy(this);
 
@@ -229,7 +229,7 @@ void Window::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		// topmost windows are drawn separately
 		if( !w->_isTopMost && w->_isVisible )
 		{
-			w->Draw(dc, sx, sy);
+			w->Draw(dc);
 		}
 	}
 }
@@ -554,7 +554,4 @@ void Window::OnTimeStep(float dt)
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

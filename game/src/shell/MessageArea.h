@@ -20,7 +20,7 @@ public:
 
 	// UI::Window
 	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc, float sx, float sy) const;
+	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 	struct Line

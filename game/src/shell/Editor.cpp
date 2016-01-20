@@ -477,7 +477,7 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
+void EditorLayout::DrawChildren(DrawingContext &dc) const
 {
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
@@ -499,11 +499,11 @@ void EditorLayout::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		dc.DrawSprite(&sel, _texSelection, 0xffffffff, 0);
 		dc.DrawBorder(&sel, _texSelection, 0xffffffff, 0);
 	}
-    vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
+	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 
-    std::stringstream buf;
-    buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-    dc.DrawBitmapText(sx+floor(GetWidth()/2+0.5f), sy+1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	std::stringstream buf;
+	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
+	dc.DrawBitmapText(floor(GetWidth()/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 
-	Window::DrawChildren(dc, sx, sy);
+	Window::DrawChildren(dc);
 }

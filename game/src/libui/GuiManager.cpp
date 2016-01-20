@@ -488,7 +488,9 @@ void LayoutManager::Render(DrawingContext &dc) const
 				x += wnd->GetX();
 				y += wnd->GetY();
 			}
-			w->Draw(dc, x, y);
+			dc.PushTransform(vec2d(x, y));
+			w->Draw(dc);
+			dc.PopTransform();
 		}
 	}
 
