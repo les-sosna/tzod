@@ -17,19 +17,7 @@ REFLECTION_BEGIN(LangCache)
 	// Main menu
 	//
 
-	VAR_STR( single_player_btn, "Single" )
-	VAR_STR( single_player_title, "Single player" )
-	VAR_STR( single_player_campaign, "Campaign" )
-	VAR_STR( single_player_skirmish, "Skirmish (F2)" )
-	VAR_STR( single_player_load, "Load game" )
-	VAR_STR( single_player_save, "Save game" )
-
-	VAR_STR( network_btn, "Network" )
-	VAR_STR( network_title, "Network" )
-	VAR_STR( network_host, "Host" )
-	VAR_STR( network_join, "Join" )
-	VAR_STR( network_internet, "Internet" )
-	VAR_STR( network_profile, "Profile" )
+	VAR_STR( single_player_btn, "Play" )
 
 	VAR_STR( editor_btn, "Editor" )
 	VAR_STR( editor_title, "Map editor" )
@@ -38,7 +26,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( editor_save_map, "Save map" )
 	VAR_STR( editor_map_settings, "Map settings" )
 
-	VAR_STR( settings_btn, "Settings (F12)" )
+	VAR_STR( settings_btn, "Settings" )
 
 	VAR_STR( return_to_game_btn, "Return" )
 

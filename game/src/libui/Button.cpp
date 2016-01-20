@@ -134,9 +134,15 @@ Button* Button::Create(Window *parent, const std::string &text, float x, float y
 Button::Button(Window *parent)
   : ButtonBase(parent)
   , _font(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _icon((size_t)-1)
 {
 	SetTexture("ui/button", true);
 	OnChangeState(stateNormal);
+}
+
+void Button::SetIcon(const char *spriteName)
+{
+	_icon = spriteName ? GetManager().GetTextureManager().FindSprite(spriteName) : (size_t)-1;
 }
 
 void Button::OnChangeState(State state)
@@ -146,8 +152,6 @@ void Button::OnChangeState(State state)
 
 void Button::DrawChildren(DrawingContext &dc, float sx, float sy) const
 {
-	float x = GetWidth() / 2;
-	float y = GetHeight() / 2;
 	SpriteColor c = 0;
 
 	switch( GetState() )
@@ -168,7 +172,23 @@ void Button::DrawChildren(DrawingContext &dc, float sx, float sy) const
 		assert(false);
 	}
 
-	dc.DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
+	if (_icon != -1)
+	{
+		float iconHeight = GetManager().GetTextureManager().GetFrameHeight(_icon, 0);
+		float textHeight = GetManager().GetTextureManager().GetFrameHeight(_font, 0);
+
+		float x = GetWidth() / 2;
+		float y = (GetHeight() - iconHeight - textHeight) / 2 + iconHeight;
+
+		dc.DrawSprite(_icon, 0, c, sx + x, sy + y - iconHeight/2, vec2d(1, 0));
+		dc.DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCT);
+	}
+	else
+	{
+		float x = GetWidth() / 2;
+		float y = GetHeight() / 2;
+		dc.DrawBitmapText(sx + x, sy + y, _font, c, GetText(), alignTextCC);
+	}
 
 	ButtonBase::DrawChildren(dc, sx, sy);
 }

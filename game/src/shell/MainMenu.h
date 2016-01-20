@@ -29,18 +29,6 @@ struct MainMenuCommands
 
 class MainMenuDlg : public UI::Window
 {
-	void OnSinglePlayer();
-	void OnSaveGame();
-	void OnSaveGameSelect(int result);
-	void OnLoadGame();
-	void OnLoadGameSelect(int result);
-
-	void OnMultiPlayer();
-	void OnHost();
-	void OnJoin();
-	void OnInternet();
-	void OnNetworkProfile();
-
 	void OnEditor();
 	void OnMapSettings();
 	void OnImportMap();
@@ -54,8 +42,6 @@ class MainMenuDlg : public UI::Window
 	enum PanelType
 	{
 		PT_NONE,
-		PT_SINGLEPLAYER,
-		PT_MULTIPLAYER,
 		PT_EDITOR,
 	};
 

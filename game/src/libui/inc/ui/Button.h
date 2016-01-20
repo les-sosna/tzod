@@ -55,6 +55,8 @@ class Button : public ButtonBase
 public:
 	static Button* Create(Window *parent, const std::string &text, float x, float y, float w=-1, float h=-1);
 
+	void SetIcon(const char *spriteName);
+
 protected:
 	Button(Window *parent);
 	virtual void OnChangeState(State state);
@@ -62,6 +64,7 @@ protected:
 
 private:
 	size_t _font;
+	size_t _icon;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

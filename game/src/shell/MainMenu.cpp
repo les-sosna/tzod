@@ -36,11 +36,33 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
 
-	UI::Button::Create(this, _lang.single_player_btn.Get(), 0, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSinglePlayer, this);
-	UI::Button::Create(this, _lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
-	UI::Button::Create(this, _lang.editor_btn.Get(), 200, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
-	UI::Button::Create(this, _lang.settings_btn.Get(), 300, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
-	UI::Button::Create(this, _lang.return_to_game_btn.Get(), 416, GetHeight())->eventClick = _commands.close;
+	UI::Button *button;
+
+	float y = GetHeight() - 32;
+	float x = 0;
+
+	button = UI::Button::Create(this, _lang.single_player_btn.Get(), x, y);
+	button->SetIcon("ui/play");
+	button->Resize(96, 64);
+	button->eventClick = _commands.newDM;
+
+	x += 100;
+
+	button = UI::Button::Create(this, _lang.editor_btn.Get(), x, y);
+	button->SetIcon("ui/editor");
+	button->Resize(96, 64);
+	button->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
+
+	x += 100;
+
+	button = UI::Button::Create(this, _lang.settings_btn.Get(), x, y);
+	button->SetIcon("ui/settings");
+	button->Resize(96, 64);
+	button->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
+
+
+	button = UI::Button::Create(this, _lang.return_to_game_btn.Get(), 416, y);
+	button->eventClick = _commands.close;
 
 	_panelFrame = Window::Create(this);
 	_panelFrame->SetDrawBackground(false);
@@ -58,129 +80,6 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 
 MainMenuDlg::~MainMenuDlg()
 {
-}
-
-void MainMenuDlg::OnSinglePlayer()
-{
-	SwitchPanel(PT_SINGLEPLAYER);
-}
-
-void MainMenuDlg::OnSaveGame()
-{
-	GetFileNameDlg::Params param;
-	param.title = _lang.get_file_name_save_game.Get();
-	param.folder = _fs.GetFileSystem(DIR_SAVE, true);
-	param.extension = "sav";
-
-	if( !param.folder )
-	{
-		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
-		_logger.Printf(1, "Could not open directory '%s'", DIR_SAVE);
-		return;
-	}
-
-	SetVisible(false);
-	assert(nullptr == _fileDlg);
-	_fileDlg = new GetFileNameDlg(GetParent(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnSaveGameSelect, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnSaveGameSelect(int result)
-{
-	assert(_fileDlg);
-	if(UI::Dialog::_resultOK == result )
-	{
-		std::string tmp = DIR_SAVE;
-		tmp += "/";
-		tmp += _fileDlg->GetFileName();
-		try
-		{
-			_logger.Printf(0, "Saving game to file '%S'...", tmp.c_str());
-			throw std::runtime_error("not implemented");
-//			_gameContext.Serialize(*_fs.Open(tmp, FS::ModeWrite)->QueryStream());
-			_logger.Printf(0, "game saved: '%s'", tmp.c_str());
-		}
-		catch( const std::exception &e )
-		{
-			_logger.Printf(1, "Couldn't save game to '%s' - ", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
-		}
-	}
-	_fileDlg = nullptr;
-	OnCloseChild(result);
-}
-
-void MainMenuDlg::OnLoadGame()
-{
-	GetFileNameDlg::Params param;
-	param.title = _lang.get_file_name_load_game.Get();
-	param.folder = _fs.GetFileSystem(DIR_SAVE, false, true);
-	param.extension = "sav";
-
-	SetVisible(false);
-	assert(nullptr == _fileDlg);
-	_fileDlg = new GetFileNameDlg(GetParent(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnLoadGameSelect, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnLoadGameSelect(int result)
-{
-	assert(_fileDlg);
-	if(UI::Dialog::_resultOK == result )
-	{
-		std::string tmp = DIR_SAVE;
-		tmp += "/";
-		tmp += _fileDlg->GetFileName();
-
-		try
-		{
-			_logger.Printf(0, "Loading saved game from file '%s'...", tmp.c_str());
-			std::shared_ptr<FS::Stream> stream = _fs.Open(tmp, FS::ModeRead)->QueryStream();
-
-//			_gameContext.Deserialize(*stream);
-		}
-		catch( const std::exception &e )
-		{
-			_logger.Printf(1, "Couldn't load game from '%s' - %s", tmp.c_str(), e.what());
-			static_cast<Desktop*>(GetManager().GetDesktop())->ShowConsole(true);
-		}
-	}
-	_fileDlg = nullptr;
-	OnCloseChild(result);
-}
-
-void MainMenuDlg::OnMultiPlayer()
-{
-	SwitchPanel(PT_MULTIPLAYER);
-}
-
-void MainMenuDlg::OnHost()
-{
-//	SetVisible(false);
-//	CreateServerDlg *dlg = new CreateServerDlg(GetParent(), _world, _fs);
-//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnJoin()
-{
-//	SetVisible(false);
-//	ConnectDlg *dlg = new ConnectDlg(GetParent(), _conf.cl_server.Get(), _world);
-//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnInternet()
-{
-//	SetVisible(false);
-//	InternetDlg *dlg = new InternetDlg(GetParent(), _world);
-//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnNetworkProfile()
-{
-//	SetVisible(false);
-//	EditPlayerDlg *dlg =
-    new EditPlayerDlg(GetParent(), _conf.cl_playerinfo, _conf, _lang);
-//	dlg->eventClose.bind(&MainMenuDlg::OnCloseChild, this);
 }
 
 void MainMenuDlg::OnEditor()
@@ -318,32 +217,14 @@ void MainMenuDlg::CreatePanel()
 
 	switch( _ptype )
 	{
-	case PT_SINGLEPLAYER:
-		_panelTitle->SetText(_lang.single_player_title.Get());
-		UI::Button::Create(_panel, _lang.single_player_campaign.Get(), 0, y)->eventClick = _commands.newCampaign;
-		UI::Button::Create(_panel, _lang.single_player_skirmish.Get(), 100, y)->eventClick = _commands.newDM;
-		UI::Button::Create(_panel, _lang.single_player_load.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnLoadGame, this);
-		btn = UI::Button::Create(_panel, _lang.single_player_save.Get(), 300, y);
-		btn->eventClick = std::bind(&MainMenuDlg::OnSaveGame, this);
-//		btn->SetEnabled(g_client && g_client->SupportSave());
-		break;
-	case PT_MULTIPLAYER:
-		_panelTitle->SetText(_lang.network_title.Get());
-		UI::Button::Create(_panel, _lang.network_host.Get(), 0, y)->eventClick = std::bind(&MainMenuDlg::OnHost, this);
-		UI::Button::Create(_panel, _lang.network_join.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnJoin, this);
-		UI::Button::Create(_panel, _lang.network_internet.Get(), 200, y)->eventClick = std::bind(&MainMenuDlg::OnInternet, this);
-		UI::Button::Create(_panel, _lang.network_profile.Get(), 300, y)->eventClick = std::bind(&MainMenuDlg::OnNetworkProfile, this);
-		break;
 	case PT_EDITOR:
 		_panelTitle->SetText(_lang.editor_title.Get());
 		UI::Button::Create(_panel, _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
 		UI::Button::Create(_panel, _lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
 		btn = UI::Button::Create(_panel, _lang.editor_save_map.Get(), 200, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnExportMap, this);
-//		btn->SetEnabled(g_client && g_client->SupportEditor());
 		btn = UI::Button::Create(_panel, _lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
-//		btn->SetEnabled(g_client && g_client->SupportEditor());
 		break;
 	default:
 		assert(false);
