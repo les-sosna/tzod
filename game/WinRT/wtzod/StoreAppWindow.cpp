@@ -120,7 +120,8 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 }
 
 StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
-	: _displayInformation(DisplayInformation::GetForCurrentView())
+	: _gestureRecognizer(ref new GestureRecognizer())
+	, _displayInformation(DisplayInformation::GetForCurrentView())
 	, _coreWindow(coreWindow)
 	, _deviceResources(deviceResources)
 	, _input(coreWindow)
@@ -145,8 +146,10 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	});
 
 	_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow^ sender, PointerEventArgs^ args)
 	{
+		gestureRecognizer->ProcessMoveEvents(args->GetIntermediatePoints());
+
 		if (*inputSink)
 		{
 			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerMove);
@@ -154,8 +157,10 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	});
 
 	_regPointerPressed = _coreWindow->PointerPressed += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow^ sender, PointerEventArgs^ args)
 	{
+		gestureRecognizer->ProcessDownEvent(args->CurrentPoint);
+
 		if (*inputSink)
 		{
 			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerDown);
@@ -163,8 +168,11 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	});
 
 	_regPointerReleased = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow^ sender, PointerEventArgs^ args)
 	{
+		gestureRecognizer->ProcessUpEvent(args->CurrentPoint);
+		gestureRecognizer->CompleteGesture();
+
 		if (*inputSink)
 		{
 			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerUp);
@@ -172,11 +180,34 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	});
 
 	_coreWindow->PointerWheelChanged += ref new TypedEventHandler<CoreWindow ^, PointerEventArgs ^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, PointerEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow^ sender, PointerEventArgs^ args)
 	{
+		gestureRecognizer->ProcessMouseWheelEvent(args->CurrentPoint,
+			(args->KeyModifiers & VirtualKeyModifiers::Shift) != VirtualKeyModifiers::None,
+			(args->KeyModifiers & VirtualKeyModifiers::Control) != VirtualKeyModifiers::None);
+
 		if (*inputSink)
 		{
 			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::MOUSEWHEEL);
+		}
+	});
+
+	_gestureRecognizer->GestureSettings = GestureSettings::Tap;
+	_gestureRecognizer->Tapped += ref new TypedEventHandler<GestureRecognizer ^, TappedEventArgs ^>(
+		[inputSink = _inputSink, displayInformation = _displayInformation](GestureRecognizer ^sender, TappedEventArgs ^args)
+	{
+		if (*inputSink)
+		{
+			float dpi = displayInformation->LogicalDpi;
+			unsigned int pointerID = 111; // should be unique enough :)
+			(*inputSink)->ProcessPointer(
+				PixelsFromDips(args->Position.X, dpi),
+				PixelsFromDips(args->Position.Y, dpi),
+				0, // z delta
+				UI::Msg::TAP,
+				1,
+				UI::PointerType::Touch,
+				pointerID);
 		}
 	});
 

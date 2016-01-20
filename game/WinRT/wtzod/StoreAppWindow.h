@@ -24,6 +24,7 @@ public:
 	void SetInputSink(UI::LayoutManager *inputSink) override;
 
 private:
+	Windows::UI::Input::GestureRecognizer^ _gestureRecognizer;
 	Windows::Graphics::Display::DisplayInformation^ _displayInformation;
 	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
 
