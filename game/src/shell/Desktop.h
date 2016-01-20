@@ -23,6 +23,7 @@ namespace UI
 {
 	class Console;
 	class Oscilloscope;
+	class ButtonBase;
 }
 
 class AppController;
@@ -49,8 +50,6 @@ public:
 
 	void ShowConsole(bool show);
 
-	void OnCloseChild(int result);
-
 protected:
 	bool OnKeyPressed(UI::Key key) override;
 	bool OnFocus(bool focus) override;
@@ -66,13 +65,14 @@ private:
 	UI::ConsoleBuffer &_logger;
 	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
 
-	MainMenuDlg  *_mainMenu = nullptr;
 	EditorLayout *_editor = nullptr;
 	GameLayout   *_game = nullptr;
 	UI::Console  *_con = nullptr;
 	FpsCounter   *_fps = nullptr;
-
-	int _nModalPopups;
+	UI::ButtonBase *_pauseButton = nullptr;
+	std::vector<UI::Window*> _navStack;
+	float _navTransitionTime = 0;
+	float _navTransitionStart = 0;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
@@ -83,15 +83,30 @@ private:
 	void OnNewMap();
 	void OnOpenMap(std::string fileName);
 	void OnExportMap(std::string fileName);
+	void OnGameSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);
 	bool IsGamePaused() const;
-	void ShowMainMenu(bool show);
+	void ShowMainMenu();
 
 	void OnChangeShowFps();
 
 	void OnCommand(const std::string &cmd);
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
+
+	void OnCloseChild(UI::Window *child, int result);
+	void ClearNavStack();
+	void PopNavStack(UI::Window *wnd = nullptr);
+	void PushNavStack(UI::Window &wnd);
+
+	template <class T>
+	bool IsOnTop() const
+	{
+		return !_navStack.empty() && !!dynamic_cast<T*>(_navStack.back());
+	}
+
+	float GetNavStackSize() const;
+	float GetTransitionTarget() const;
 
 	// AppStateListener
 	void OnGameContextChanging() override;

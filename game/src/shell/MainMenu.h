@@ -23,6 +23,7 @@ struct MainMenuCommands
 	std::function<void()> newMap;
 	std::function<void(std::string)> openMap;
 	std::function<void(std::string)> exportMap;
+	std::function<void()> gameSettings;
 	std::function<void()> close;
 };
 
@@ -86,7 +87,6 @@ public:
 	            UI::ConsoleBuffer &logger,
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();
-	void OnParentSize(float width, float height) override;
 	bool OnKeyPressed(UI::Key key) override;
 	bool OnFocus(bool) override { return true; }
 

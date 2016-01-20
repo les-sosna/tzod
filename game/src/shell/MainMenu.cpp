@@ -4,7 +4,6 @@
 #include "gui.h"
 #include "MainMenu.h"
 #include "Network.h"
-#include "Settings.h"
 
 #include <as/AppCfg.h>
 #include <fs/FileSystem.h>
@@ -36,7 +35,6 @@ MainMenuDlg::MainMenuDlg(Window *parent,
 {
 	SetDrawBorder(false);
 	SetTexture("gui_splash", true);
-	OnParentSize(parent->GetWidth(), parent->GetHeight());
 
 	UI::Button::Create(this, _lang.single_player_btn.Get(), 0, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnSinglePlayer, this);
 	UI::Button::Create(this, _lang.network_btn.Get(), 100, GetHeight())->eventClick = std::bind(&MainMenuDlg::OnMultiPlayer, this);
@@ -261,14 +259,7 @@ void MainMenuDlg::OnExportMapSelect(int result)
 
 void MainMenuDlg::OnSettings()
 {
-	SetVisible(false);
-	SettingsDlg *dlg = new SettingsDlg(GetParent(), _conf, _lang);
-	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
-}
-
-void MainMenuDlg::OnParentSize(float width, float height)
-{
-	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight() - c_firstRowHeight) / 2));
+	_commands.gameSettings();
 }
 
 void MainMenuDlg::OnCloseChild(int result)

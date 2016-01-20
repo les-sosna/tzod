@@ -58,7 +58,6 @@ Desktop::Desktop(UI::LayoutManager* manager,
   , _lang(lang)
   , _logger(logger)
   , _globL(luaL_newstate())
-  , _nModalPopups(0)
   , _renderScheme(GetManager().GetTextureManager())
   , _worldView(GetManager().GetTextureManager(), _renderScheme)
 {
@@ -82,16 +81,6 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
 
-	MainMenuCommands commands;
-	commands.newCampaign = [this]() { OnNewCampaign(); };
-	commands.newDM = std::bind(&Desktop::OnNewDM, this);
-	commands.newMap = std::bind(&Desktop::OnNewMap, this);
-	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
-	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
-	commands.close = [=]() {ShowMainMenu(false);};
-	_mainMenu = new MainMenuDlg(this, _fs, _conf, _lang, _logger, std::move(commands));
-	_nModalPopups++;
-
 	if( _conf.dbg_graph.Get() )
 	{
 		float xx = 200;
@@ -108,9 +97,15 @@ Desktop::Desktop(UI::LayoutManager* manager,
 		}
 	}
 
-	auto pauseButton = UI::ImageButton::Create(this, 0, 0, "ui/pause");
-	pauseButton->SetTopMost(true);
-	pauseButton->eventClick = [=]() {ShowMainMenu(true);};
+	_pauseButton = UI::ImageButton::Create(this, 0, 0, "ui/pause");
+	_pauseButton->SetTopMost(true);
+	_pauseButton->eventClick = [=]()
+	{
+		if (_navStack.empty())
+		{
+			ShowMainMenu();
+		}
+	};
 
 	SetTimeStep(true);
 	OnGameContextChanged();
@@ -124,6 +119,12 @@ Desktop::~Desktop()
 void Desktop::OnTimeStep(float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
+
+	if (_navTransitionTime > 0)
+	{
+		_navTransitionTime = std::max(0.f, _navTransitionTime - dt);
+		OnSize(GetWidth(), GetHeight());
+	}
 
 //	if( !IsGamePaused() || !IsPauseSupported() )
 	if (GameContextBase *gc = GetAppState().GetGameContext())
@@ -160,17 +161,21 @@ void Desktop::SetEditorMode(bool editorMode)
 
 bool Desktop::IsGamePaused() const
 {
-	return _nModalPopups > 0 || _editor->GetVisible(); //  || _world._limitHit
+	return !_navStack.empty() || _editor->GetVisible(); //  || _world._limitHit
 }
 
 void Desktop::ShowConsole(bool show)
 {
 	_con->SetVisible(show);
+	if (show)
+	{
+		_con->BringToFront();
+	}
 }
 
-void Desktop::OnCloseChild(int result)
+void Desktop::OnCloseChild(UI::Window *child, int result)
 {
-    _nModalPopups--;
+	PopNavStack(child);
 }
 
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
@@ -204,13 +209,12 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 
 void Desktop::OnNewCampaign()
 {
-	_nModalPopups++;
 	NewCampaignDlg *dlg = new NewCampaignDlg(this, _fs, _lang);
 	dlg->eventCampaignSelected = [this,dlg](std::string name)
 	{
 		if( !name.empty() )
 		{
-			OnCloseChild(UI::Dialog::_resultOK);
+			OnCloseChild(dlg, UI::Dialog::_resultOK);
 
 			_conf.ui_showmsg.Set(true);
             try
@@ -226,25 +230,32 @@ void Desktop::OnNewCampaign()
 		}
 		else
 		{
-			OnCloseChild(UI::Dialog::_resultCancel);
+			OnCloseChild(dlg, UI::Dialog::_resultCancel);
 		}
 		dlg->Destroy();
 	};
+	PushNavStack(*dlg);
 }
 
 void Desktop::OnNewDM()
 {
-	_nModalPopups++;
+	for (auto wnd: _navStack)
+		if (dynamic_cast<NewGameDlg*>(wnd))
+			return;
+
+	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back()) )
+		PopNavStack();
+
 	auto dlg = new NewGameDlg(this, _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this](int result)
+	dlg->eventClose = [this, dlg](int result)
 	{
-		OnCloseChild(result);
+		OnCloseChild(dlg, result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			try
 			{
 				_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-				ShowMainMenu(false);
+				ClearNavStack();
 			}
 			catch( const std::exception &e )
 			{
@@ -252,29 +263,30 @@ void Desktop::OnNewDM()
 			}
 		}
 	};
+	PushNavStack(*dlg);
 }
 
 void Desktop::OnNewMap()
 {
-	_nModalPopups++;
 	auto dlg = new NewMapDlg(this, _conf, _lang);
-	dlg->eventClose = [&](int result)
+	dlg->eventClose = [=](int result)
 	{
-		OnCloseChild(result);
+		OnCloseChild(dlg, result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
 			GetAppState().SetGameContext(std::move(gc));
-			ShowMainMenu(false);
+			ClearNavStack();
 		}
 	};
+	PushNavStack(*dlg);
 }
 
 void Desktop::OnOpenMap(std::string fileName)
 {
 	std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
 	GetAppState().SetGameContext(std::move(gc));
-	ShowMainMenu(false);
+	ClearNavStack();
 }
 
 void Desktop::OnExportMap(std::string fileName)
@@ -287,28 +299,107 @@ void Desktop::OnExportMap(std::string fileName)
 	}
 }
 
-void Desktop::ShowMainMenu(bool show)
+void Desktop::OnGameSettings()
 {
-	if (_mainMenu->GetVisible() != show)
+	auto dlg = new SettingsDlg(this, _conf, _lang);
+	dlg->eventClose = [=](int result) {OnCloseChild(dlg, result);};
+	PushNavStack(*dlg);
+}
+
+void Desktop::ShowMainMenu()
+{
+	using namespace std::placeholders;
+
+	MainMenuCommands commands;
+	commands.newCampaign = [this]() { OnNewCampaign(); };
+	commands.newDM = std::bind(&Desktop::OnNewDM, this);
+	commands.newMap = std::bind(&Desktop::OnNewMap, this);
+	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
+	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
+	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
+	commands.close = [=]()
 	{
-		if (_mainMenu->GetVisible() && GetAppState().GetGameContext())
+		if (GetAppState().GetGameContext()) // do not return to nothing
 		{
-			_mainMenu->SetVisible(false);
-			OnCloseChild(0);
+			ClearNavStack();
 		}
-		else
-		{
-			_mainMenu->SetVisible(true);
-			GetManager().SetFocusWnd(_mainMenu);
-			_nModalPopups++;
-		}
+	};
+	auto mainMenu = new MainMenuDlg(this, _fs, _conf, _lang, _logger, std::move(commands));
+	PushNavStack(*mainMenu);
+}
+
+void Desktop::ClearNavStack()
+{
+	for (auto wnd: _navStack)
+	{
+		wnd->Destroy();
 	}
+	_navStack.clear();
+}
+
+void Desktop::PopNavStack(UI::Window *wnd)
+{
+	if (wnd)
+	{
+		_navTransitionStart = GetTransitionTarget();
+		_navTransitionTime = _conf.ui_foldtime.GetFloat();
+
+		auto it = std::find(_navStack.begin(), _navStack.end(), wnd);
+		assert(_navStack.end() != it);
+		_navStack.erase(it);
+	}
+	else if (!_navStack.empty())
+	{
+		_navTransitionStart = GetTransitionTarget();
+		_navTransitionTime = _conf.ui_foldtime.GetFloat();
+
+		_navStack.back()->Destroy();
+		_navStack.pop_back();
+	}
+
+	if (!_navStack.empty())
+	{
+		_navStack.back()->SetEnabled(true);
+	}
+
+	OnSize(GetWidth(), GetHeight());
+}
+
+void Desktop::PushNavStack(UI::Window &wnd)
+{
+	_navTransitionStart = GetTransitionTarget();
+	_navTransitionTime = _conf.ui_foldtime.GetFloat();
+
+	if (!_navStack.empty())
+	{
+		_navStack.back()->SetEnabled(false);
+	}
+	_navStack.push_back(&wnd);
+	GetManager().SetFocusWnd(&wnd);
+	OnSize(GetWidth(), GetHeight());
+}
+
+float Desktop::GetNavStackSize() const
+{
+	float navStackHeight = 0;
+	if (!_navStack.empty())
+	{
+		for (auto wnd : _navStack)
+		{
+			navStackHeight += wnd->GetHeight();
+		}
+		navStackHeight += (float)(_navStack.size() - 1) * _conf.ui_spacing.GetFloat();
+	}
+	return navStackHeight;
+}
+
+float Desktop::GetTransitionTarget() const
+{
+	return (GetHeight() + (_navStack.empty() ? 0 : _navStack.back()->GetHeight())) / 2 - GetNavStackSize();
 }
 
 bool Desktop::OnKeyPressed(UI::Key key)
 {
-	UI::Dialog *dlg = nullptr;
-
 	switch( key )
 	{
 	case UI::Key::GraveAccent: // '~'
@@ -328,9 +419,20 @@ bool Desktop::OnKeyPressed(UI::Key key)
 		{
 			_con->SetVisible(false);
 		}
-		else if( GetAppState().GetGameContext() )
+		else
 		{
-			ShowMainMenu(!_mainMenu->GetVisible());
+			if (_navStack.empty())
+			{
+				ShowMainMenu();
+			}
+			else if(!IsOnTop<MainMenuDlg>())
+			{
+				PopNavStack();
+			}
+			if (_navStack.empty() && !GetAppState().GetGameContext())
+			{
+				ShowMainMenu();
+			}
 		}
 		break;
 
@@ -339,13 +441,11 @@ bool Desktop::OnKeyPressed(UI::Key key)
 		break;
 
 	case UI::Key::F12:
-		dlg = new SettingsDlg(this, _conf, _lang);
-		dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
-		_nModalPopups++;
+		OnGameSettings();
 		break;
 
 	case UI::Key::F5:
-		if (0 == _nModalPopups)
+		if (_navStack.empty())
 			SetEditorMode(!GetEditorMode());
 		break;
 
@@ -369,6 +469,18 @@ void Desktop::OnSize(float width, float height)
 		_game->Resize(width, height);
 	_con->Resize(width - 20, floorf(height * 0.5f + 0.5f));
 	_fps->Move(1, height - 1);
+
+	if (!_navStack.empty())
+	{
+		float transition = (1 - std::cos(PI * _navTransitionTime / _conf.ui_foldtime.GetFloat())) / 2;
+		float top = std::floor(_navTransitionStart * transition + GetTransitionTarget() * (1 - transition));
+
+		for (auto wnd : _navStack)
+		{
+			wnd->Move(floorf((width - wnd->GetWidth()) / 2), top);
+			top += wnd->GetHeight() + _conf.ui_spacing.GetFloat();
+		}
+	}
 }
 
 void Desktop::OnChangeShowFps()
@@ -506,6 +618,6 @@ void Desktop::OnGameContextChanged()
 	{
 		SetDrawBackground(true);
 		SetDrawBorder(true);
-		ShowMainMenu(true);
+		ShowMainMenu();
 	}
 }
