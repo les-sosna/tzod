@@ -253,7 +253,7 @@ return {
    content={
      ["ui/window"]={left=48, top=144, right=96, bottom=192, xpivot=0, ypivot=0, border=2},
      ["ui/scroll_back_vert"]={left=144, top=144, right=168, bottom=156, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
-     ["ui/scroll_back_hor"]={left=144, top=156, right=168, bottom=168, xpivot=0, ypivot=0, border=2},
+     ["ui/scroll_back_hor"]={left=144, top=156, right=168, bottom=168, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/selection"]={left=0, top=224, right=8, bottom=232, xpivot=0, ypivot=0, border=2},
      ["ui/button"]={left=0, right=96, top=0, bottom=96, xframes=1, yframes=4, xpivot=0, ypivot=0, border=2},
      ["ui/checkbox"]={left=0, right=96, top=96, bottom=144, xframes=4, yframes=2, xpivot=0, ypivot=0},
