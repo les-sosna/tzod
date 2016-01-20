@@ -425,7 +425,7 @@ bool Desktop::OnKeyPressed(UI::Key key)
 			{
 				ShowMainMenu();
 			}
-			else if(!IsOnTop<MainMenuDlg>())
+			else if(!IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
 			{
 				PopNavStack();
 			}
