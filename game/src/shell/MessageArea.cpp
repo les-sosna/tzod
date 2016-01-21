@@ -49,6 +49,8 @@ void MessageArea::DrawChildren(DrawingContext &dc) const
 		dc.DrawBitmapText(0, y, _fontTexture, c, it->str);
 		y -= h;
 	}
+
+	Window::DrawChildren(dc);
 }
 
 void MessageArea::WriteLine(const std::string &text)

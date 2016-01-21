@@ -62,8 +62,7 @@ public:
 private:
 	void OnChangeShowTime();
 	vec2d GetDragDirection() const;
-    unsigned int GetEffectiveDragCount() const;
-    
+	unsigned int GetEffectiveDragCount() const;
 
 	MessageArea  *_msg;
 	ScoreTable   *_score;
@@ -79,8 +78,8 @@ private:
 	InputManager _inputMgr;
 	size_t _texDrag;
 	size_t _texTarget;
-    
-    std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
+
+	std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

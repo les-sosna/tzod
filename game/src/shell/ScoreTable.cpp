@@ -105,4 +105,6 @@ void ScoreTable::DrawChildren(DrawingContext &dc) const
 			break;
 		}
 	}
+
+	Window::DrawChildren(dc);
 }

@@ -248,5 +248,7 @@ void Oscilloscope::DrawChildren(DrawingContext &dc) const
 	}
 
 	dc.DrawBitmapText(0, labelOffset - labelOffset, _titleFont, 0x77777777, _title);
+
+	Window::DrawChildren(dc);
 }
 
