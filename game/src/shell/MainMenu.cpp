@@ -33,7 +33,7 @@ MainMenuDlg::MainMenuDlg(Window *parent,
   , _logger(logger)
   , _commands(std::move(commands))
 {
-	SetDrawBorder(false);
+	SetDrawBorder(true);
 	SetTexture("gui_splash", true);
 
 	UI::Button *button;
