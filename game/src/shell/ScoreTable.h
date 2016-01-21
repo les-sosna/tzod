@@ -11,7 +11,6 @@ public:
 	ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch, LangCache &lang);
 
 protected:
-	void OnParentSize(float width, float height) override;
 	void Draw(DrawingContext &dc) const override;
 
 private:

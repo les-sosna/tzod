@@ -219,6 +219,7 @@ void GameLayout::Draw(DrawingContext &dc) const
 
 void GameLayout::OnSize(float width, float height)
 {
+	_score->Move(std::floor((width - _score->GetWidth()) / 2), std::floor((height - _score->GetHeight()) / 2));
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
 	auto size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();

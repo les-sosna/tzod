@@ -34,11 +34,6 @@ ScoreTable::ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch,
 	SetDrawBorder(false);
 }
 
-void ScoreTable::OnParentSize(float width, float height)
-{
-	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight()) / 2));
-}
-
 void ScoreTable::Draw(DrawingContext &dc) const
 {
 	Window::Draw(dc);

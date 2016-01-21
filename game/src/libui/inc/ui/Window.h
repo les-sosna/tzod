@@ -217,7 +217,6 @@ private:
 
 	virtual void OnMove(float x, float y);
 	virtual void OnSize(float width, float height);
-	virtual void OnParentSize(float width, float height);
 
 
 	//

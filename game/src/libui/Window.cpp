@@ -215,10 +215,6 @@ void Window::Resize(float width, float height)
 		_width  = width;
 		_height = height;
 		OnSize(width, height);
-		for( Window *w = _firstChild; w; w = w->_nextSibling )
-		{
-			w->OnParentSize(width, height);
-		}
 	}
 }
 
@@ -484,10 +480,6 @@ void Window::OnMove(float x, float y)
 }
 
 void Window::OnSize(float width, float height)
-{
-}
-
-void Window::OnParentSize(float width, float height)
 {
 }
 
