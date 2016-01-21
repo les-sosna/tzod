@@ -499,7 +499,7 @@ void EditorLayout::Draw(DrawingContext &dc) const
 			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
 		};
 		dc.DrawSprite(&sel, _texSelection, 0xffffffff, 0);
-		dc.DrawBorder(&sel, _texSelection, 0xffffffff, 0);
+		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
 	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 

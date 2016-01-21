@@ -266,17 +266,18 @@ void List::Draw(DrawingContext &dc) const
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				FRECT sel = {1, y, GetWidth(), y + GetItemHeight()};
 				if( this == GetManager().GetFocusWnd() )
 				{
 					c = 0xff000000; // selected focused;
+					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };
 					dc.DrawSprite(&sel, _selection, 0xffffffff, 0);
 				}
 				else
 				{
 					c = 0xffffffff; // selected unfocused;
 				}
-				dc.DrawBorder(&sel, _selection, 0xffffffff, 0);
+				FRECT border = { -1, y - 2, _scrollBar->GetX() + 1, y + GetItemHeight() + 2 };
+				dc.DrawBorder(border, _selection, 0xffffffff, 0);
 			}
 			else if( _hotItem == i )
 			{

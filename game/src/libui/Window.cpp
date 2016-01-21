@@ -183,16 +183,15 @@ void Window::Draw(DrawingContext &dc) const
 
 	if( -1 != _texture )
 	{
-		float border = GetManager().GetTextureManager().GetBorderSize(_texture);
-		FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
-
 		if( _drawBackground )
 		{
+			float border = GetManager().GetTextureManager().GetBorderSize(_texture);
+			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			dc.DrawSprite(&client, _texture, _backColor, _frame);
 		}
 		if( _drawBorder )
 		{
-			dc.DrawBorder(&client, _texture, _borderColor, _frame);
+			dc.DrawBorder(dst, _texture, _borderColor, _frame);
 		}
 	}
 }
