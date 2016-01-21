@@ -91,27 +91,27 @@ GameLayout::~GameLayout()
 vec2d GameLayout::GetDragDirection() const
 {
 	vec2d dragDirection(0, 0);
-    
+
 	if (!_activeDrags.empty())
 	{
-        float maxDragLength = 0;
-        for (auto &drag : _activeDrags)
-        {
-            vec2d dir = drag.second.second - drag.second.first;
-            maxDragLength = std::max(maxDragLength, dir.sqr());
-        }
-        maxDragLength = std::sqrt(maxDragLength);
-        
-        // only account for len > max / 2
-        unsigned int count = 0;
+		float maxDragLength = 0;
 		for (auto &drag : _activeDrags)
 		{
-            vec2d dir = drag.second.second - drag.second.first;
-            if (dir.len() > maxDragLength/2)
-            {
-                dragDirection += dir;
-                count++;
-            }
+			vec2d dir = drag.second.second - drag.second.first;
+			maxDragLength = std::max(maxDragLength, dir.sqr());
+		}
+		maxDragLength = std::sqrt(maxDragLength);
+
+		// only account for len > max / 2
+		unsigned int count = 0;
+		for (auto &drag : _activeDrags)
+		{
+			vec2d dir = drag.second.second - drag.second.first;
+			if (dir.len() > maxDragLength/2)
+			{
+				dragDirection += dir;
+				count++;
+			}
 		}
 		dragDirection /= (float)count;
 	}
@@ -120,25 +120,25 @@ vec2d GameLayout::GetDragDirection() const
 
 unsigned int GameLayout::GetEffectiveDragCount() const
 {
-    float maxDragLength = 0;
-    for (auto &drag : _activeDrags)
-    {
-        vec2d dir = drag.second.second - drag.second.first;
-        maxDragLength = std::max(maxDragLength, dir.sqr());
-    }
-    maxDragLength = std::sqrt(maxDragLength);
-    
-    // only account for len > max / 2
-    unsigned int count = 0;
-    for (auto &drag : _activeDrags)
-    {
-        vec2d dir = drag.second.second - drag.second.first;
-        if (dir.len() > maxDragLength/2)
-        {
-            count++;
-        }
-    }
-    return count;
+	float maxDragLength = 0;
+	for (auto &drag : _activeDrags)
+	{
+		vec2d dir = drag.second.second - drag.second.first;
+		maxDragLength = std::max(maxDragLength, dir.sqr());
+	}
+	maxDragLength = std::sqrt(maxDragLength);
+	
+	// only account for len > max / 2
+	unsigned int count = 0;
+	for (auto &drag : _activeDrags)
+	{
+		vec2d dir = drag.second.second - drag.second.first;
+		if (dir.len() > maxDragLength/2)
+		{
+			count++;
+		}
+	}
+	return count;
 }
 
 void GameLayout::OnTimeStep(float dt)
@@ -153,17 +153,17 @@ void GameLayout::OnTimeStep(float dt)
 
 	if (readUserInput)
 	{
-        vec2d dragDirection = GetDragDirection();
-        bool reversing = GetEffectiveDragCount() > 1;
-        
+		vec2d dragDirection = GetDragDirection();
+		bool reversing = GetEffectiveDragCount() > 1;
+		
 		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
-            if( Controller *controller = _inputMgr.GetController(playerIndex) )
-            {
-                controller->Step(dt);
-                if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
-                {
+			if( Controller *controller = _inputMgr.GetController(playerIndex) )
+			{
+				controller->Step(dt);
+				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
+				{
 					vec2d mouse = GetManager().GetInput().GetMousePos();
 					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
@@ -179,42 +179,42 @@ void GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void GameLayout::DrawChildren(DrawingContext &dc) const
+void GameLayout::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);
 
 	vec2d dir = GetDragDirection();
-    bool reversing = GetEffectiveDragCount() > 1;
-    std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
-    for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
-    {
-        if (!dir.IsZero())
-        {
-            if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
-            {
-                vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicle->GetPos());
-                pos += dir;
-                uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
-                uint32_t rgb = reversing ? opacity : opacity << 8;
-                dc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
-            }
-        }
-        
-        if (const Controller *controller = _inputMgr.GetController(playerIndex))
-        {
-        	float time = controller->GetRemainingFireTime();
-        	if (time > 0)
-            {
-                vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
-                dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, vec2d(_gameContext.GetWorld().GetTime()*3));
-            }
-        }
-    }
-
-	Window::DrawChildren(dc);
+	bool reversing = GetEffectiveDragCount() > 1;
+	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
+	{
+		if (!dir.IsZero())
+		{
+			if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
+			{
+				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicle->GetPos());
+				pos += dir;
+				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
+				uint32_t rgb = reversing ? opacity : opacity << 8;
+				dc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+			}
+		}
+		
+		if (const Controller *controller = _inputMgr.GetController(playerIndex))
+		{
+			float time = controller->GetRemainingFireTime();
+			if (time > 0)
+			{
+				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
+				dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, vec2d(_gameContext.GetWorld().GetTime()*3));
+			}
+		}
+	}
 }
 
 void GameLayout::OnSize(float width, float height)
@@ -231,9 +231,9 @@ bool GameLayout::OnPointerDown(float x, float y, int button, UI::PointerType poi
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
-        _activeDrags[pointerID].first = vec2d(x, y);
-        _activeDrags[pointerID].second = vec2d(x, y);
-        GetManager().SetCapture(pointerID, this);
+		_activeDrags[pointerID].first = vec2d(x, y);
+		_activeDrags[pointerID].second = vec2d(x, y);
+		GetManager().SetCapture(pointerID, this);
 	}
 	return true;
 }
@@ -242,7 +242,7 @@ bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerType point
 {
 	if (GetManager().GetCapture(pointerID) == this)
 	{
-        _activeDrags.erase(pointerID);
+		_activeDrags.erase(pointerID);
 		GetManager().SetCapture(pointerID, nullptr);
 	}
 	return true;
@@ -252,33 +252,33 @@ bool GameLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, un
 {
 	if (GetManager().GetCapture(pointerID) == this)
 	{
-        auto &drag = _activeDrags[pointerID];
-        drag.second = vec2d(x, y);
-        vec2d dir = drag.second - drag.first;
-        const float maxDragLength = 100;
-        if (dir.len() > maxDragLength)
-        {
-            drag.first = drag.second - dir.Norm() * maxDragLength;
-        }
+		auto &drag = _activeDrags[pointerID];
+		drag.second = vec2d(x, y);
+		vec2d dir = drag.second - drag.first;
+		const float maxDragLength = 100;
+		if (dir.len() > maxDragLength)
+		{
+			drag.first = drag.second - dir.Norm() * maxDragLength;
+		}
 	}
 	return true;
 }
 
 bool GameLayout::OnTap(float x, float y)
 {
-    std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
-    for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
-    {
-        if( Controller *controller = _inputMgr.GetController(playerIndex) )
-        {
-            auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) x, (int) y);
-            if (c2w.visible)
-            {
-                controller->OnTap(c2w.worldPos);
-            }
-        }
-    }
-    return true;
+	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
+	{
+		if( Controller *controller = _inputMgr.GetController(playerIndex) )
+		{
+			auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) x, (int) y);
+			if (c2w.visible)
+			{
+				controller->OnTap(c2w.worldPos);
+			}
+		}
+	}
+	return true;
 }
 
 void GameLayout::OnChangeShowTime()

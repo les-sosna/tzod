@@ -477,8 +477,10 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::DrawChildren(DrawingContext &dc) const
+void EditorLayout::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
@@ -504,6 +506,4 @@ void EditorLayout::DrawChildren(DrawingContext &dc) const
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(floor(GetWidth()/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
-
-	Window::DrawChildren(dc);
 }

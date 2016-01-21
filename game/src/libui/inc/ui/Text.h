@@ -24,8 +24,8 @@ public:
 	float GetCharWidth();
 	float GetCharHeight();
 
-	virtual void DrawChildren(DrawingContext &dc) const;
-	virtual void OnTextChange();
+	void Draw(DrawingContext &dc) const override;
+	void OnTextChange() override;
 
 protected:
 	Text(Window *parent);
@@ -40,7 +40,4 @@ private:
 	bool           _drawShadow;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

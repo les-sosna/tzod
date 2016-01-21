@@ -28,12 +28,14 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::DrawChildren(DrawingContext &dc) const
+void MessageArea::Draw(DrawingContext &dc) const
 {
 	if( _lines.empty() || !_conf.ui_showmsg.Get() )
 	{
 		return;
 	}
+
+	Window::Draw(dc);
 
 	float h = GetManager().GetTextureManager().GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
@@ -49,8 +51,6 @@ void MessageArea::DrawChildren(DrawingContext &dc) const
 		dc.DrawBitmapText(0, y, _fontTexture, c, it->str);
 		y -= h;
 	}
-
-	Window::DrawChildren(dc);
 }
 
 void MessageArea::WriteLine(const std::string &text)

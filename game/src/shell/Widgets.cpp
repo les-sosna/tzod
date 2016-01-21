@@ -31,7 +31,7 @@ void FpsCounter::OnTimeStep(float dt)
 	_dts.push_back(dt);
 	if( _dts.size() > 200 ) _dts.pop_front();
 
-	if( GetVisible() )
+	if( GetVisibleCombined() )
 	{
 		float avr = 0;
 		float min = _dts.front();
@@ -213,8 +213,10 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::DrawChildren(DrawingContext &dc) const
+void Oscilloscope::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	float labelOffset = GetManager().GetTextureManager().GetCharHeight(_titleFont) / 2;
 
 	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);
@@ -248,7 +250,5 @@ void Oscilloscope::DrawChildren(DrawingContext &dc) const
 	}
 
 	dc.DrawBitmapText(0, labelOffset - labelOffset, _titleFont, 0x77777777, _title);
-
-	Window::DrawChildren(dc);
 }
 

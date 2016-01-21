@@ -88,7 +88,7 @@ bool Dialog::OnKeyPressed(Key key)
 			Window *r = GetManager().GetFocusWnd()->GetPrevSibling();
 			for( ; r; r = r->GetPrevSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
+				if( r->GetVisibleCombined() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;
@@ -99,7 +99,7 @@ bool Dialog::OnKeyPressed(Key key)
 			Window *r = GetManager().GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
+				if( r->GetVisibleCombined() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;
@@ -110,7 +110,7 @@ bool Dialog::OnKeyPressed(Key key)
 			Window *r = GetManager().GetFocusWnd()->GetNextSibling();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
+				if( r->GetVisibleCombined() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 			if( r ) break;
 
@@ -118,7 +118,7 @@ bool Dialog::OnKeyPressed(Key key)
 			r = GetFirstChild();
 			for( ; r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
+				if( r->GetVisibleCombined() && r->GetEnabled() && GetManager().SetFocusWnd(r) ) break;
 			}
 		}
 		break;

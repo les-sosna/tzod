@@ -239,8 +239,10 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::DrawChildren(DrawingContext &dc) const
+void List::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
 	int i_max = i_min + (int) GetNumLinesVisible() + 1;
@@ -293,8 +295,6 @@ void List::DrawChildren(DrawingContext &dc) const
 	}
 
 	dc.PopClippingRect();
-
-	Window::DrawChildren(dc);
 }
 
 } // namespace UI

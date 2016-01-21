@@ -116,8 +116,10 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::DrawChildren(DrawingContext &dc) const
+void Edit::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 
 	// selection
@@ -150,8 +152,6 @@ void Edit::DrawChildren(DrawingContext &dc) const
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}
-
-	Window::DrawChildren(dc);
 }
 
 bool Edit::OnChar(int c)

@@ -36,7 +36,7 @@ public:
 	void AutoRange();
 
 protected:
-	void DrawChildren(DrawingContext &dc) const;
+	void Draw(DrawingContext &dc) const override;
 
 private:
 	size_t _barTexture;

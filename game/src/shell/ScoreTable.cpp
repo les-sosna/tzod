@@ -39,8 +39,10 @@ void ScoreTable::OnParentSize(float width, float height)
 	Move(std::floor((width - GetWidth()) / 2), std::floor((height - GetHeight()) / 2));
 }
 
-void ScoreTable::DrawChildren(DrawingContext &dc) const
+void ScoreTable::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
 	{
@@ -105,6 +107,4 @@ void ScoreTable::DrawChildren(DrawingContext &dc) const
 			break;
 		}
 	}
-
-	Window::DrawChildren(dc);
 }

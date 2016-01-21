@@ -98,7 +98,7 @@ protected:
 	void OnVisibleChangeInternal(bool visible, bool inherited);
 
 protected:
-	Window(Window *parent, LayoutManager *manager = nullptr);
+	explicit Window(Window *parent, LayoutManager *manager = nullptr);
 	virtual ~Window(); // delete via Destroy() only
 
 public:
@@ -136,7 +136,8 @@ public:
 	float GetTextureHeight() const;
 
 	void SetVisible(bool show);
-	bool GetVisible() const;   // also includes inherited parent visibility
+	bool GetVisible() const { return _isVisible; }
+	bool GetVisibleCombined() const;   // also includes inherited parent visibility
 
 	void SetTopMost(bool topmost);
 	bool GetTopMost() const { return _isTopMost; }
@@ -186,7 +187,6 @@ public:
 	//
 
 	virtual void Draw(DrawingContext &dc) const;
-	virtual void DrawChildren(DrawingContext &dc) const;
 
 private:
 
@@ -200,7 +200,7 @@ private:
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
-    virtual bool OnTap(float x, float y);
+	virtual bool OnTap(float x, float y);
 
 
 	//

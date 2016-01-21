@@ -39,16 +39,16 @@ public:
 	std::function<void()> eventChange;
 
 protected:
-	virtual void DrawChildren(DrawingContext &dc) const;
-	virtual bool OnChar(int c);
-	virtual bool OnKeyPressed(Key key);
-	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnFocus(bool focus);
-	virtual void OnEnabledChange(bool enable, bool inherited);
-	virtual void OnTextChange();
-	virtual void OnTimeStep(float dt);
+	void Draw(DrawingContext &dc) const override;
+	bool OnChar(int c) override;
+	bool OnKeyPressed(Key key) override;
+	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	bool OnFocus(bool focus) override;
+	void OnEnabledChange(bool enable, bool inherited) override;
+	void OnTextChange() override;
+	void OnTimeStep(float dt) override;
 };
 
 } // namespace UI

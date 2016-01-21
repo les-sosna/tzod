@@ -179,7 +179,7 @@ void Window::Draw(DrawingContext &dc) const
 	AssertNoDestroy(this);
 	assert(_isVisible);
 
-	FRECT dst = {_x, _y, _x + _width, _y + _height};
+	FRECT dst = {0, 0, _width, _height};
 
 	if( -1 != _texture )
 	{
@@ -193,43 +193,6 @@ void Window::Draw(DrawingContext &dc) const
 		if( _drawBorder )
 		{
 			dc.DrawBorder(&client, _texture, _borderColor, _frame);
-		}
-	}
-
-	//
-	// draw children windows with optional clipping
-	//
-
-	if( _clipChildren )
-	{
-		RectRB clip;
-		clip.left   = (int) dst.left;
-		clip.top    = (int) dst.top;
-		clip.right  = (int) dst.right;
-		clip.bottom = (int) dst.bottom;
-		dc.PushClippingRect(clip);
-	}
-
-	dc.PushTransform(vec2d(_x, _y));
-	DrawChildren(dc);
-	dc.PopTransform();
-
-	if( _clipChildren )
-	{
-		dc.PopClippingRect();
-	}
-}
-
-void Window::DrawChildren(DrawingContext &dc) const
-{
-	AssertNoDestroy(this);
-
-	for( Window *w = _firstChild; w; w = w->_nextSibling )
-	{
-		// topmost windows are drawn separately
-		if( !w->_isTopMost && w->_isVisible )
-		{
-			w->Draw(dc);
 		}
 	}
 }
@@ -353,9 +316,9 @@ void Window::SetVisible(bool visible)
 	}
 }
 
-bool Window::GetVisible() const
+bool Window::GetVisibleCombined() const
 {
-	return _isVisible && (GetParent() ? GetParent()->GetVisible() : true);
+	return _isVisible && (GetParent() ? GetParent()->GetVisibleCombined() : true);
 }
 
 void Window::BringToFront()

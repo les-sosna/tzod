@@ -237,8 +237,10 @@ void Console::OnTimeStep(float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::DrawChildren(DrawingContext &dc) const
+void Console::Draw(DrawingContext &dc) const
 {
+	Window::Draw(dc);
+
 	if( _buf )
 	{
 		_buf->Lock();
@@ -267,7 +269,6 @@ void Console::DrawChildren(DrawingContext &dc) const
 			dc.DrawBitmapText(_scroll->GetX() - 2, _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
 		}
 	}
-	Window::DrawChildren(dc);
 }
 
 void Console::OnSize(float width, float height)

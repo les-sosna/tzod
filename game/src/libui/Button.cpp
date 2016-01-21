@@ -150,8 +150,10 @@ void Button::OnChangeState(State state)
 	SetFrame(state);
 }
 
-void Button::DrawChildren(DrawingContext &dc) const
+void Button::Draw(DrawingContext &dc) const
 {
+	ButtonBase::Draw(dc);
+
 	SpriteColor c = 0;
 
 	switch( GetState() )
@@ -189,8 +191,6 @@ void Button::DrawChildren(DrawingContext &dc) const
 		float y = GetHeight() / 2;
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCC);
 	}
-
-	ButtonBase::DrawChildren(dc);
 }
 
 
@@ -246,8 +246,10 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::DrawChildren(DrawingContext &dc) const
+void TextButton::Draw(DrawingContext &dc) const
 {
+	ButtonBase::Draw(dc);
+
 	// grep 'enum State'
 	SpriteColor colors[] =
 	{
@@ -261,7 +263,6 @@ void TextButton::DrawChildren(DrawingContext &dc) const
 		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText());
 	}
 	dc.DrawBitmapText(0, 0, _fontTexture, colors[GetState()], GetText());
-	ButtonBase::DrawChildren(dc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -338,8 +339,10 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::DrawChildren(DrawingContext &dc) const
+void CheckBox::Draw(DrawingContext &dc) const
 {
+	ButtonBase::Draw(dc);
+
 	float bh = GetManager().GetTextureManager().GetFrameHeight(_boxTexture, GetFrame());
 	float bw = GetManager().GetTextureManager().GetFrameWidth(_boxTexture, GetFrame());
 	float th = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
@@ -360,13 +363,7 @@ void CheckBox::DrawChildren(DrawingContext &dc) const
 		dc.DrawBitmapText(bw + 1, (GetHeight() - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
 	dc.DrawBitmapText(bw, (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
-
-	ButtonBase::DrawChildren(dc);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI
 

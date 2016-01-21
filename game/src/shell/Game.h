@@ -51,7 +51,7 @@ public:
 
 	// Window
 	void OnTimeStep(float dt) override;
-	void DrawChildren(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override { return true; }
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;

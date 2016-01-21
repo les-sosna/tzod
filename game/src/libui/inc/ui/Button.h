@@ -59,8 +59,8 @@ public:
 
 protected:
 	Button(Window *parent);
-	virtual void OnChangeState(State state);
-	virtual void DrawChildren(DrawingContext &dc) const;
+	void OnChangeState(State state) override;
+	void Draw(DrawingContext &dc) const override;
 
 private:
 	size_t _font;
@@ -85,7 +85,7 @@ protected:
 	void AlignSizeToContent();
 
 	virtual void OnTextChange();
-	virtual void DrawChildren(DrawingContext &dc) const;
+	void Draw(DrawingContext &dc) const override;
 
 
 private:
@@ -123,11 +123,12 @@ protected:
 
 	void AlignSizeToContent();
 
-	virtual void OnClick();
-	virtual void OnTextChange();
-	virtual void OnChangeState(State state);
+	void OnClick() override;
+	void OnTextChange() override;
+	void OnChangeState(State state) override;
 
-	virtual void DrawChildren(DrawingContext &dc) const;
+	// Window
+	void Draw(DrawingContext &dc) const override;
 
 private:
 	size_t _fontTexture;
@@ -136,8 +137,4 @@ private:
 	bool   _isChecked;
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

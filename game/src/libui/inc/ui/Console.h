@@ -59,17 +59,17 @@ public:
 	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
 
 protected:
-	virtual bool OnChar(int c);
-	virtual bool OnKeyPressed(Key key);
-	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
+	bool OnChar(int c) override;
+	bool OnKeyPressed(Key key) override;
+	bool OnMouseWheel(float x, float y, float z) override;
+	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
 
-	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc) const;
-	virtual void OnSize(float width, float height);
-	virtual bool OnFocus(bool focus);
+	void OnTimeStep(float dt) override;
+	void Draw(DrawingContext &dc) const override;
+	void OnSize(float width, float height) override;
+	bool OnFocus(bool focus) override;
 
 private:
 	void OnScroll(float pos);
@@ -88,8 +88,4 @@ private:
 	bool _autoScroll;
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

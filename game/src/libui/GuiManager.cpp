@@ -114,7 +114,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 #ifndef NDEBUG
 		_dbgFocusIsChanging = true;
 #endif
-		bool focusAccepted = wnd && wnd->GetEnabled() && wnd->GetVisible() && wnd->OnFocus(true);
+		bool focusAccepted = wnd && wnd->GetEnabled() && wnd->GetVisibleCombined() && wnd->OnFocus(true);
 #ifndef NDEBUG
 		_dbgFocusIsChanging = false;
 #endif
@@ -132,7 +132,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 
 		// set new focus
 		_focusWnd.Set(focusAccepted ? wp.Get() : nullptr);
-		assert(!_focusWnd.Get() || _focusWnd->GetEnabled() && _focusWnd->GetVisible());
+		assert(!_focusWnd.Get() || _focusWnd->GetEnabled() && _focusWnd->GetVisibleCombined());
 
 		// reset old focus
 		if( oldFocusWnd.Get() && oldFocusWnd.Get() != _focusWnd.Get() )
@@ -166,7 +166,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 		Window *tmp = wnd;
 		for( Window *w = wnd->GetParent(); w; w = w->GetParent() )
 		{
-			if( !w->GetVisible() || !w->GetEnabled() )
+			if( !w->GetVisibleCombined() || !w->GetEnabled() )
 			{
 				tmp = w->GetParent();
 			}
@@ -184,7 +184,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 			// try to pass focus to next siblings
 			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() )
+				if( r->GetVisibleCombined() && r->GetEnabled() )
 				{
 					if( SetFocusWnd(r) ) break;
 				}
@@ -194,7 +194,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 			// try to pass focus to previous siblings
 			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
 			{
-				if( r->GetVisible() && r->GetEnabled() )
+				if( r->GetVisibleCombined() && r->GetEnabled() )
 				{
 					if( SetFocusWnd(r) ) break;
 				}
@@ -203,7 +203,7 @@ bool LayoutManager::ResetFocus(Window* wnd)
 
 			// and finally try to pass focus to the parent and its siblings
 			tmp = tmp->GetParent();
-			assert(!tmp || (tmp->GetVisible() && tmp->GetEnabled()));
+			assert(!tmp || (tmp->GetVisibleCombined() && tmp->GetEnabled()));
 		}
 		if( !tmp )
 		{
@@ -294,7 +294,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 #endif
 				// do not dispatch messages to disabled or invisible window.
 				// topmost windows are processed separately
-				if( w->GetEnabled() && w->GetVisible() && !w->GetTopMost() &&
+				if( w->GetEnabled() && w->GetVisibleCombined() && !w->GetTopMost() &&
 					ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg, buttons, pointerType, pointerID) )
 				{
 					return true;
@@ -352,7 +352,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 			{
 				if( _hotTrackWnd.Get() )
 					_hotTrackWnd->OnMouseLeave(); // may destroy wnd
-				if( wp.Get() && wnd->GetVisible() && wnd->GetEnabled() )
+				if( wp.Get() && wnd->GetVisibleCombined() && wnd->GetEnabled() )
 				{
 					_hotTrackWnd.Set(wnd);
 					_hotTrackWnd->OnMouseEnter(x, y);
@@ -390,7 +390,7 @@ bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg, int butto
 		for( auto it = _topmost.rbegin(); _topmost.rend() != it; ++it )
 		{
 			// do not dispatch messages to disabled or invisible window
-			if( (*it)->GetEnabled() && (*it)->GetVisible() )
+			if( (*it)->GetEnabled() && (*it)->GetVisibleCombined() )
 			{
 				// calculate absolute coordinates of the window
 				float x_ = _desktop->GetX();
@@ -467,18 +467,54 @@ bool LayoutManager::ProcessText(int c)
 	return false;
 }
 
+static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc)
+{
+	dc.PushTransform(vec2d(wnd.GetX(), wnd.GetY()));
+
+	wnd.Draw(dc);
+
+	if (wnd.GetClipChildren())
+	{
+		RectRB clip;
+		clip.left = 0;
+		clip.top = 0;
+		clip.right = (int)wnd.GetWidth();
+		clip.bottom = (int)wnd.GetHeight();
+		dc.PushClippingRect(clip);
+	}
+
+	// draw children recursive
+	for (Window *w = wnd.GetFirstChild(); w; w = w->GetNextSibling())
+	{
+		// skip topmost windows; they are drawn separately
+		if (!w->GetTopMost() && w->GetVisible())
+		{
+			DrawWindowRecursive(*w, dc);
+		}
+	}
+
+	if (wnd.GetClipChildren())
+	{
+		dc.PopClippingRect();
+	}
+
+	dc.PopTransform();
+}
+
 void LayoutManager::Render(DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
 	// draw desktop and all its children
-	if( _desktop->GetVisible() )
-		_desktop->Draw(dc);
+	if (_desktop->GetVisible())
+	{
+		DrawWindowRecursive(*_desktop.Get(), dc);
+	}
 
 	// draw top-most windows
 	for( const Window *w: _topmost )
 	{
-		if( w->GetVisible() )
+		if( w->GetVisibleCombined() )
 		{
 			float x = _desktop->GetX();
 			float y = _desktop->GetY();
@@ -489,7 +525,7 @@ void LayoutManager::Render(DrawingContext &dc) const
 				y += wnd->GetY();
 			}
 			dc.PushTransform(vec2d(x, y));
-			w->Draw(dc);
+			DrawWindowRecursive(*w, dc);
 			dc.PopTransform();
 		}
 	}

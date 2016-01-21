@@ -19,8 +19,8 @@ public:
 	void Clear();
 
 	// UI::Window
-	virtual void OnTimeStep(float dt);
-	virtual void DrawChildren(DrawingContext &dc) const;
+	void OnTimeStep(float dt) override;
+	void Draw(DrawingContext &dc) const override;
 
 private:
 	struct Line
