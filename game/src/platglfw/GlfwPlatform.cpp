@@ -2,6 +2,28 @@
 #include "inc/platglfw/GlfwKeys.h"
 #include <GLFW/glfw3.h>
 
+vec2d GetCursorPosInPixels(GLFWwindow *window, double dipX, double dipY)
+{
+    int pxWidth;
+    int pxHeight;
+    glfwGetFramebufferSize(window, &pxWidth, &pxHeight);
+    
+    int dipWidth;
+    int dipHeight;
+    glfwGetWindowSize(window, &dipWidth, &dipHeight);
+    
+    return vec2d(float(dipX * pxWidth / dipWidth), float(dipY * pxHeight / dipHeight));
+}
+
+vec2d GetCursorPosInPixels(GLFWwindow *window)
+{
+    double dipX = 0;
+    double dipY = 0;
+    glfwGetCursorPos(window, &dipX, &dipY);
+    return GetCursorPosInPixels(window, dipX, dipY);
+}
+
+
 GlfwInput::GlfwInput(GLFWwindow &window)
 	: _window(window)
 {}
@@ -19,9 +41,7 @@ bool GlfwInput::IsMousePressed(int button) const
 
 vec2d GlfwInput::GetMousePos() const
 {
-	double x, y;
-	glfwGetCursorPos(&_window, &x, &y);
-	return vec2d((float) x, (float) y);
+    return GetCursorPosInPixels(&_window);
 }
 
 

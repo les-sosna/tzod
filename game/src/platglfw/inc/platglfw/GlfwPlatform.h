@@ -31,3 +31,5 @@ private:
 	GLFWwindow &_window;
 };
 
+vec2d GetCursorPosInPixels(GLFWwindow *window);
+vec2d GetCursorPosInPixels(GLFWwindow *window, double dipX, double dipY);
