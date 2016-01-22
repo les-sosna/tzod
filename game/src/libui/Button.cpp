@@ -133,11 +133,17 @@ Button* Button::Create(Window *parent, const std::string &text, float x, float y
 
 Button::Button(Window *parent)
   : ButtonBase(parent)
-  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _font((size_t)-1)
   , _icon((size_t)-1)
 {
 	SetTexture("ui/button", true);
+	SetFont("font_default");
 	OnChangeState(stateNormal);
+}
+
+void Button::SetFont(const char *fontName)
+{
+	_font = GetManager().GetTextureManager().FindSprite(fontName);
 }
 
 void Button::SetIcon(const char *spriteName)

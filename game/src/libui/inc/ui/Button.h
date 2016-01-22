@@ -59,7 +59,12 @@ public:
 
 protected:
 	Button(Window *parent);
+	void SetFont(const char *fontName);
+
+	// ButtonBase
 	void OnChangeState(State state) override;
+
+	// Window
 	void Draw(DrawingContext &dc) const override;
 
 private:

@@ -27,6 +27,12 @@ namespace detail
 	};
 }
 
+enum class StretchMode
+{
+	Stretch,
+	Fill,
+};
+
 class Window
 {
 	friend class WindowWeakPtr;
@@ -64,6 +70,7 @@ class Window
 	SpriteColor  _backColor;
 	SpriteColor  _borderColor;
 	size_t       _texture;
+	StretchMode  _textureStretchMode;
 	unsigned int _frame;
 
 	struct
@@ -132,6 +139,7 @@ public:
 	bool GetDrawBackground() const         { return _drawBackground;   }
 
 	void SetTexture(const char *tex, bool fitSize);
+	void SetTextureStretchMode(StretchMode stretchMode);
 	float GetTextureWidth()  const;
 	float GetTextureHeight() const;
 

@@ -34,34 +34,33 @@ MainMenuDlg::MainMenuDlg(Window *parent,
   , _commands(std::move(commands))
 {
 	SetDrawBorder(true);
-	SetTexture("gui_splash", true);
+	SetTexture("ui/window", true);
+	Resize(640, 300);
 
 	UI::Button *button;
 
-	float y = GetHeight() - 32;
-	float x = 0;
+	const float buttonWidth = 200;
+	const float buttonHeight = 128;
 
-	button = UI::Button::Create(this, _lang.single_player_btn.Get(), x, y);
+	float y = GetHeight() - buttonHeight;
+
+	button = UI::Button::Create(this, _lang.single_player_btn.Get(), 0, y);
 	button->SetIcon("ui/play");
-	button->Resize(96, 64);
+	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.newDM;
 
-	x += 100;
-
-	button = UI::Button::Create(this, _lang.editor_btn.Get(), x, y);
+	button = UI::Button::Create(this, _lang.editor_btn.Get(), (GetWidth() - buttonWidth) / 2, y);
 	button->SetIcon("ui/editor");
-	button->Resize(96, 64);
+	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 
-	x += 100;
-
-	button = UI::Button::Create(this, _lang.settings_btn.Get(), x, y);
+	button = UI::Button::Create(this, _lang.settings_btn.Get(), GetWidth() - buttonWidth, y);
 	button->SetIcon("ui/settings");
-	button->Resize(96, 64);
+	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
 
-
-	button = UI::Button::Create(this, _lang.return_to_game_btn.Get(), 416, y);
+	button = UI::Button::Create(this, _lang.return_to_game_btn.Get(), (GetWidth() - buttonWidth) / 2, 0);
+	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.close;
 
 	_panelFrame = Window::Create(this);

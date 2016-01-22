@@ -66,7 +66,9 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
-	SetTexture("ui/window", false);
+	SetTexture("gui_splash", false);
+	SetDrawBorder(false);
+	SetTextureStretchMode(UI::StretchMode::Fill);
 
 	_con = UI::Console::Create(this, 10, 0, 100, 100, &_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
@@ -612,12 +614,10 @@ void Desktop::OnGameContextChanged()
 	if (GetAppState().GetGameContext())
 	{
 		SetDrawBackground(false);
-		SetDrawBorder(false);
 	}
 	else
 	{
 		SetDrawBackground(true);
-		SetDrawBorder(true);
 		ShowMainMenu();
 	}
 }

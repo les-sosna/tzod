@@ -36,6 +36,7 @@ Window::Window(Window *parent, LayoutManager *manager)
     , _backColor(0xffffffff)
     , _borderColor(0xffffffff)
     , _texture(-1)
+    , _textureStretchMode(StretchMode::Stretch)
     , _frame(0)
     , _isVisible(true)
     , _isEnabled(true)
@@ -169,6 +170,11 @@ void Window::SetTexture(const char *tex, bool fitSize)
 	}
 }
 
+void Window::SetTextureStretchMode(StretchMode stretchMode)
+{
+	_textureStretchMode = stretchMode;
+}
+
 unsigned int Window::GetFrameCount() const
 {
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
@@ -185,9 +191,38 @@ void Window::Draw(DrawingContext &dc) const
 	{
 		if( _drawBackground )
 		{
-			float border = GetManager().GetTextureManager().GetBorderSize(_texture);
+			float border = _drawBorder ? GetManager().GetTextureManager().GetBorderSize(_texture) : 0.f;
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
-			dc.DrawSprite(&client, _texture, _backColor, _frame);
+			if (_textureStretchMode == StretchMode::Stretch)
+			{
+				dc.DrawSprite(&client, _texture, _backColor, _frame);
+			}
+			else
+			{
+				RectRB clip;
+				FRectToRect(&clip, &client);
+				dc.PushClippingRect(clip);
+
+				float frameWidth = GetManager().GetTextureManager().GetFrameWidth(_texture, _frame);
+				float frameHeight = GetManager().GetTextureManager().GetFrameHeight(_texture, _frame);
+
+				if (WIDTH(client) * frameHeight > HEIGHT(client) * frameWidth)
+				{
+					float newHeight = WIDTH(client) / frameWidth * frameHeight;
+					client.top = (HEIGHT(client) - newHeight) / 2;
+					client.bottom = client.top + newHeight;
+				}
+				else
+				{
+					float newWidth = HEIGHT(client) / frameHeight * frameWidth;
+					client.left = (WIDTH(client) - newWidth) / 2;
+					client.right = client.left + newWidth;
+				}
+
+				dc.DrawSprite(&client, _texture, _backColor, _frame);
+
+				dc.PopClippingRect();
+			}
 		}
 		if( _drawBorder )
 		{

@@ -275,14 +275,14 @@ return {
      ["ui/pause"]={left=96, right=224, top=96, bottom=128, xpivot=0, ypivot=0, xframes=4, yframes=1},
      ["ui/direction"]={left=112, top=0, right=176, bottom=64, xpivot=32, ypivot=32, xframes=1, yframes=1},
      ["ui/target"]={left=192, top=0, right=256, bottom=64, xpivot=32, ypivot=32, xframes=1, yframes=1},
-     ["ui/play"]={left=16, top=208, right=96, bottom=256, xpivot=40, ypivot=24, xframes=1, yframes=1},
+     ["ui/play"]={left=16, top=208, right=96, bottom=256, xpivot=40, ypivot=24, xframes=1, yframes=1, xscale=2, yscale=2},
    }
 },
 {
    file="textures/gui/mainmenu.tga",
    content={
-     ["ui/editor"]={left=0, top=0, right=176, bottom=96, xpivot=176/2, ypivot=96/2, xframes=1, yframes=1, xscale=0.5, yscale=0.5},
-     ["ui/settings"]={left=0, top=96, right=152, bottom=192, xpivot=152/2, ypivot=96/2, xframes=1, yframes=1, xscale=0.5, yscale=0.5},
+     ["ui/editor"]={left=0, top=0, right=176, bottom=96},
+     ["ui/settings"]={left=0, top=96, right=152, bottom=192},
    }
 },
 {
