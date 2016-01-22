@@ -89,7 +89,7 @@ protected:
 
 	void AlignSizeToContent();
 
-	virtual void OnTextChange();
+    void OnTextChange() override;
 	void Draw(DrawingContext &dc) const override;
 
 

@@ -14,8 +14,6 @@
 #include <ui/Text.h>
 #include <ui/Keys.h>
 
-static const float c_firstRowHeight = 30.f;
-
 MainMenuDlg::MainMenuDlg(Window *parent,
                          FS::FileSystem &fs,
                          ConfCache &conf,

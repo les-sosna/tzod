@@ -47,9 +47,9 @@ void ScoreTable::Draw(DrawingContext &dc) const
 	int max_score = 0;
 	if( !players.empty() )
 	{
-		for( int i = players.size(); --i;)
+		for( size_t i = players.size(); --i;)
 		{
-			for( int j = 0; j < i; ++j )
+			for( size_t j = 0; j < i; ++j )
 			{
 				if( players[j]->GetScore() < players[j+1]->GetScore() )
 				{
