@@ -288,7 +288,7 @@ return {
 {
    file="textures/gui/splash.tga",
    content={
-     gui_splash={xpivot=0, ypivot=0, border=1},
+     gui_splash={left=0, top=0, right=1024, bottom=768, xpivot=0, ypivot=0},
    }
 },
 {
