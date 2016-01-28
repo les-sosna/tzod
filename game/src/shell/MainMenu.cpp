@@ -31,8 +31,6 @@ MainMenuDlg::MainMenuDlg(Window *parent,
   , _logger(logger)
   , _commands(std::move(commands))
 {
-	SetDrawBorder(true);
-	SetTexture("ui/window", true);
 	Resize(640, 300);
 
 	UI::Button *button;

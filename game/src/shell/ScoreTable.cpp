@@ -43,7 +43,7 @@ void ScoreTable::Draw(DrawingContext &dc) const
 	{
 		players.push_back(player);
 	}
-
+    
 	int max_score = 0;
 	if( !players.empty() )
 	{
