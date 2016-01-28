@@ -13,10 +13,10 @@ class FpsCounter : public UI::Text
 	int _nSprites;
 	int _nLights;
 	int _nBatches;
-    AppState &_appState;
+	AppState &_appState;
 
 public:
-	FpsCounter(UI::Window *parent, float x, float y, enumAlignText align, AppState &appState);
+	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
 	void OnVisibleChange(bool visible, bool inherited);
@@ -26,7 +26,7 @@ protected:
 class Oscilloscope : public UI::Window
 {
 public:
-	Oscilloscope(UI::Window *parent, float x, float y);
+	Oscilloscope(UI::LayoutManager &manager, float x, float y);
 	void Push(float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const std::string &title);

@@ -22,7 +22,7 @@ public:
 		stateDisabled,
 	};
 
-	ButtonBase(Window *parent);
+	explicit ButtonBase(LayoutManager &manager);
 
 	std::function<void(void)> eventClick;
 	std::function<void(float, float)> eventMouseDown;
@@ -32,11 +32,11 @@ public:
 	State GetState() const { return _state; }
 
 protected:
-    bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
-    bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerUp  (float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnMouseLeave() override;
-    bool OnTap(float x, float y) override;
+	bool OnTap(float x, float y) override;
 
 	void OnEnabledChange(bool enable, bool inherited) override;
 	virtual void OnChangeState(State state);
@@ -53,12 +53,13 @@ private:
 class Button : public ButtonBase
 {
 public:
-	static Button* Create(Window *parent, const std::string &text, float x, float y, float w=-1, float h=-1);
+	static std::shared_ptr<Button> Create(Window *parent, const std::string &text, float x, float y, float w=-1, float h=-1);
+
+	Button(LayoutManager &manager);
 
 	void SetIcon(const char *spriteName);
 
 protected:
-	Button(Window *parent);
 	void SetFont(const char *fontName);
 
 	// ButtonBase
@@ -77,7 +78,7 @@ private:
 class TextButton : public ButtonBase
 {
 public:
-	static TextButton* Create(Window *parent, float x, float y, const std::string &text, const char *font);
+	explicit TextButton(LayoutManager &manager);
 
 	void SetFont(const char *fontName);
 
@@ -85,11 +86,10 @@ public:
 	bool GetDrawShadow() const;
 
 protected:
-	TextButton(Window *parent);
 
 	void AlignSizeToContent();
 
-    void OnTextChange() override;
+	void OnTextChange() override;
 	void Draw(DrawingContext &dc) const override;
 
 
@@ -103,10 +103,9 @@ private:
 class ImageButton : public ButtonBase
 {
 public:
-	static ImageButton* Create(Window *parent, float x, float y, const char *texture);
+	explicit ImageButton(LayoutManager &manager);
 
 protected:
-	ImageButton(Window *parent);
 	virtual void OnChangeState(State state);
 };
 
@@ -115,7 +114,9 @@ protected:
 class CheckBox : public ButtonBase
 {
 public:
-	static CheckBox* Create(Window *parent, float x, float y, const std::string &text);
+	static std::shared_ptr<CheckBox> Create(Window *parent, float x, float y, const std::string &text);
+
+	explicit CheckBox(LayoutManager &manager);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
@@ -124,8 +125,6 @@ public:
 	bool GetDrawShadow() const;
 
 protected:
-	CheckBox(Window *parent);
-
 	void AlignSizeToContent();
 
 	void OnClick() override;

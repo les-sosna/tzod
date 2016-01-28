@@ -1,8 +1,8 @@
 #pragma once
-#include "WindowPtr.h"
 #include "Pointers.h"
 #include <math/MyMath.h>
 #include <list>
+#include <memory>
 #include <unordered_map>
 
 class DrawingContext;
@@ -19,7 +19,7 @@ struct IClipboard;
 
 struct IWindowFactory
 {
-    virtual Window* Create(LayoutManager *pManager) = 0;
+    virtual std::shared_ptr<Window> Create(LayoutManager &manager) = 0;
 };
 
 enum class Msg
@@ -52,53 +52,52 @@ public:
 	TextureManager& GetTextureManager() const { return _texman; }
 	Window* GetDesktop() const;
 
-	Window* GetCapture(unsigned int pointerID) const;
-	void SetCapture(unsigned int pointerID, Window* wnd);
-    bool HasCapturedPointers(Window* wnd) const;
+	std::shared_ptr<Window> GetCapture(unsigned int pointerID) const;
+	void SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd);
+	bool HasCapturedPointers(Window* wnd) const;
 
-	bool SetFocusWnd(Window* wnd);  // always resets previous focus
-	Window* GetFocusWnd() const;
+	bool SetFocusWnd(const std::shared_ptr<Window> &wnd);  // always resets previous focus
+	std::shared_ptr<Window> GetFocusWnd() const;
 //	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
 
 	bool IsMainWindowActive() const { return _isAppActive; }
 
 private:
-	friend class Window;
-	void AddTopMost(Window* wnd, bool add);
-	void ResetWindow(Window* wnd);
-    std::list<Window*>::iterator TimeStepRegister(Window* wnd);
+	friend class UI::Window;
+	void AddTopMost(std::shared_ptr<Window> wnd, bool add);
+	void ResetWindow(Window &wnd);
+	std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID);
+	bool ProcessPointerInternal(std::shared_ptr<Window> wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID);
 
 	IInput &_input;
 	IClipboard &_clipboard;
-    TextureManager &_texman;
-    std::list<Window*> _topmost;
-    std::list<Window*> _timestep;
-    std::list<Window*>::iterator _tsCurrent;
-    bool _tsDeleteCurrent;
-    
-    struct PointerCapture
-    {
-        unsigned int captureCount = 0;
-        WindowWeakPtr captureWnd;
-    };
-    
-    std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
+	TextureManager &_texman;
+	std::list<Window*> _topmost;
+	std::list<Window*> _timestep;
+	std::list<Window*>::iterator _tsCurrent;
+	bool _tsDeleteCurrent;
+	
+	struct PointerCapture
+	{
+		unsigned int captureCount = 0;
+		std::weak_ptr<Window> captureWnd;
+	};
 
+	std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
 
 	unsigned int _captureCountSystem;
 
-	WindowWeakPtr _focusWnd;
-	WindowWeakPtr _hotTrackWnd;
+	std::weak_ptr<Window> _focusWnd;
+	std::weak_ptr<Window> _hotTrackWnd;
 
-	WindowWeakPtr _desktop;
+	std::shared_ptr<Window> _desktop;
 
 	bool _isAppActive;
 #ifndef NDEBUG
 	bool _dbgFocusIsChanging;
-    std::unordered_map<unsigned int, vec2d> _lastPointerLocation;
+	std::unordered_map<unsigned int, vec2d> _lastPointerLocation;
 #endif
 };
 

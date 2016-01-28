@@ -9,8 +9,8 @@
 #include <sstream>
 #include <iomanip>
 
-FpsCounter::FpsCounter(Window *parent, float x, float y, enumAlignText align, AppState &appState)
-  : Text(parent)
+FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState)
+  : Text(manager)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)
@@ -98,8 +98,8 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Oscilloscope::Oscilloscope(UI::Window *parent, float x, float y)
-  : Window(parent)
+Oscilloscope::Oscilloscope(UI::LayoutManager &manager, float x, float y)
+  : Window(manager)
   , _barTexture(GetManager().GetTextureManager().FindSprite("ui/bar"))
   , _titleFont(GetManager().GetTextureManager().FindSprite("font_small"))
   , _rangeMin(-0.1f)

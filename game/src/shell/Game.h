@@ -20,7 +20,7 @@ class ScoreTable;
 class TimeElapsed : public UI::Text
 {
 public:
-	TimeElapsed(UI::Window *parent, float x, float y, enumAlignText align, World &world);
+	TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlignText align, World &world);
 
 private:
 	void OnVisibleChange(bool visible, bool inherited) override;
@@ -39,7 +39,7 @@ class GameLayout
 	, private GameListener
 {
 public:
-	GameLayout(UI::Window *parent,
+	GameLayout(UI::LayoutManager &manager,
 	           GameContext &gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
@@ -64,9 +64,9 @@ private:
 	vec2d GetDragDirection() const;
 	unsigned int GetEffectiveDragCount() const;
 
-	MessageArea  *_msg;
-	ScoreTable   *_score;
-	TimeElapsed  *_time;
+	std::shared_ptr<MessageArea> _msg;
+	std::shared_ptr<ScoreTable> _score;
+	std::shared_ptr<TimeElapsed> _time;
 
 	GameContext &_gameContext;
 	GameViewHarness _gameViewHarness;

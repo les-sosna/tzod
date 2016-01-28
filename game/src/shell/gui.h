@@ -30,23 +30,23 @@ class NewGameDlg : public UI::Dialog
 
 	ConfCache &_conf;
 	LangCache &_lang;
-	MapList      *_maps;
-	DefaultListBox  *_players;
-	DefaultListBox  *_bots;
-	UI::CheckBox  *_nightMode;
-	UI::Edit      *_gameSpeed;
-	UI::Edit      *_fragLimit;
-	UI::Edit      *_timeLimit;
+	std::shared_ptr<MapList> _maps;
+	std::shared_ptr<DefaultListBox> _players;
+	std::shared_ptr<DefaultListBox> _bots;
+	std::shared_ptr<UI::CheckBox> _nightMode;
+	std::shared_ptr<UI::Edit> _gameSpeed;
+	std::shared_ptr<UI::Edit> _fragLimit;
+	std::shared_ptr<UI::Edit> _timeLimit;
 
-	UI::Button    *_removePlayer;
-	UI::Button    *_changePlayer;
-	UI::Button    *_removeBot;
-	UI::Button    *_changeBot;
+	std::shared_ptr<UI::Button> _removePlayer;
+	std::shared_ptr<UI::Button> _changePlayer;
+	std::shared_ptr<UI::Button> _removeBot;
+	std::shared_ptr<UI::Button> _changeBot;
 
 	bool _newPlayer;
 
 public:
-	NewGameDlg(Window *parent, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(UI::LayoutManager &manager, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
 	bool OnKeyPressed(UI::Key key) override;
@@ -80,19 +80,19 @@ class EditPlayerDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	UI::Window   *_skinPreview;
-	UI::Edit     *_name;
-	DefaultComboBox *_profiles;
-	DefaultComboBox *_skins;
-	DefaultComboBox *_classes;
-	DefaultComboBox *_teams;
+	std::shared_ptr<UI::Window> _skinPreview;
+	std::shared_ptr<UI::Edit> _name;
+	std::shared_ptr<DefaultComboBox> _profiles;
+	std::shared_ptr<DefaultComboBox> _skins;
+	std::shared_ptr<DefaultComboBox> _classes;
+	std::shared_ptr<DefaultComboBox> _teams;
 
 	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::Window *parent, ConfVarTable &info, ConfCache &conf, LangCache &lang);
+	EditPlayerDlg(UI::LayoutManager &manager, ConfVarTable &info, ConfCache &conf, LangCache &lang);
 
 protected:
 	void OnChangeSkin(int index);
@@ -107,19 +107,19 @@ class EditBotDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	UI::Edit     *_name;
-	UI::Window   *_skinPreview;
-	DefaultComboBox *_skins;
-	DefaultComboBox *_classes;
-	DefaultComboBox *_teams;
-	DefaultComboBox *_levels;
+	std::shared_ptr<UI::Edit> _name;
+	std::shared_ptr<UI::Window> _skinPreview;
+	std::shared_ptr<DefaultComboBox> _skins;
+	std::shared_ptr<DefaultComboBox> _classes;
+	std::shared_ptr<DefaultComboBox> _teams;
+	std::shared_ptr<DefaultComboBox> _levels;
 
 	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerAI _info;
 
 public:
-	EditBotDlg(Window *parent, ConfVarTable &info, LangCache &lang);
+	EditBotDlg(UI::LayoutManager &manager, ConfVarTable &info, LangCache &lang);
 
 protected:
 	void OnOK();
@@ -132,17 +132,17 @@ protected:
 
 class ScriptMessageBox : public UI::Window
 {
-	UI::Text   *_text;
-	UI::Button *_button1;
-	UI::Button *_button2;
-	UI::Button *_button3;
+	std::shared_ptr<UI::Text> _text;
+	std::shared_ptr<UI::Button> _button1;
+	std::shared_ptr<UI::Button> _button2;
+	std::shared_ptr<UI::Button> _button3;
 
 	void OnButton1();
 	void OnButton2();
 	void OnButton3();
 
 public:
-	ScriptMessageBox(UI::Window *parent,
+	ScriptMessageBox(UI::LayoutManager &manager,
 		const std::string &title,
 		const std::string &text,
 		const std::string &btn1,

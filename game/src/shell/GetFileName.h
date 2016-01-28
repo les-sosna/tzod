@@ -21,8 +21,8 @@ namespace UI
 class GetFileNameDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox *_files;
-	UI::Edit *_fileName;
+	std::shared_ptr<DefaultListBox> _files;
+	std::shared_ptr<UI::Edit> _fileName;
 	std::string _ext;
 	std::shared_ptr<FS::FileSystem> _folder;
 
@@ -36,7 +36,7 @@ public:
 		std::shared_ptr<FS::FileSystem> folder;
 	};
 
-	GetFileNameDlg(Window *parent, const Params &param, LangCache &lang);
+	GetFileNameDlg(UI::LayoutManager &manager, const Params &param, LangCache &lang);
 	virtual ~GetFileNameDlg();
 
 	std::string GetFileName() const;

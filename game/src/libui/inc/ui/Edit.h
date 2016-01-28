@@ -15,8 +15,7 @@ class Edit : public Window
 	size_t _selection;
 
 public:
-	Edit(Window *parent);
-	static Edit* Create(Window *parent, float x, float y, float width);
+	Edit(LayoutManager &manager);
 
 	int GetTextLength() const;
 

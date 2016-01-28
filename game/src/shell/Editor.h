@@ -29,14 +29,14 @@ class EditorLayout : public UI::Window
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	const DefaultCamera &_defaultCamera;
-	PropertyList *_propList;
-	ServiceEditor    *_serviceList;
-	UI::Text         *_layerDisp;
-	DefaultComboBox  *_typeList;
-	UI::Text         *_help;
-	size_t        _fontSmall;
+	std::shared_ptr<PropertyList> _propList;
+	std::shared_ptr<ServiceEditor> _serviceList;
+	std::shared_ptr<UI::Text> _layerDisp;
+	std::shared_ptr<DefaultComboBox> _typeList;
+	std::shared_ptr<UI::Text> _help;
+	size_t _fontSmall;
 
-	size_t       _texSelection;
+	size_t _texSelection;
 
 	GC_Object *_selectedObject;
 	bool _isObjectNew;
@@ -51,13 +51,18 @@ class EditorLayout : public UI::Window
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
-	EditorLayout(UI::Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
+	EditorLayout(UI::LayoutManager &manager,
+		World &world,
+		WorldView &worldView,
+		const DefaultCamera &defaultCamera,
+		lua_State *globL,
+		ConfCache &conf,
+		LangCache &lang,
+		UI::ConsoleBuffer &logger);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);
 	void SelectNone();
-
-	std::function<void(GC_Object*)> eventOnChangeSelection;
 
 protected:
 	void Draw(DrawingContext &dc) const override;

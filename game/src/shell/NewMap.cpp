@@ -8,20 +8,26 @@
 #include <ui/Text.h>
 #include <algorithm>
 
-NewMapDlg::NewMapDlg(Window *parent, ConfCache &conf, LangCache &lang)
-	: Dialog(parent, 256, 256)
+NewMapDlg::NewMapDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang)
+	: Dialog(manager, 256, 256)
 	, _conf(conf)
 {
-	UI::Text *header = UI::Text::Create(this, 128, 20, lang.newmap_title.Get(), alignTextCT);
+	auto header = UI::Text::Create(this, 128, 20, lang.newmap_title.Get(), alignTextCT);
 	header->SetFont("font_default");
 
 	UI::Text::Create(this, 40, 75, lang.newmap_width.Get(), alignTextLT);
-	_width = UI::Edit::Create(this, 60, 90, 80);
+	_width = std::make_shared<UI::Edit>(manager);
+	_width->Move(60, 90);
+	_width->SetWidth(80);
 	_width->SetInt(_conf.ed_width.GetInt());
+	AddFront(_width);
 
 	UI::Text::Create(this, 40, 115, lang.newmap_height.Get(), alignTextLT);
-	_height = UI::Edit::Create(this, 60, 130, 80);
+	_height = std::make_shared<UI::Edit>(manager);
+	_height->Move(60, 130);
+	_height->SetWidth(80);
 	_height->SetInt(_conf.ed_height.GetInt());
+	AddFront(_height);
 
 	UI::Button::Create(this, lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
 	UI::Button::Create(this, lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);

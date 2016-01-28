@@ -49,24 +49,18 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List* List::Create(Window *parent, ListDataSource* dataSource, float x, float y, float width, float height)
-{
-	List *res = new List(parent, dataSource);
-	res->Move(x, y);
-	res->Resize(width, height);
-	return res;
-}
-
-List::List(Window *parent, ListDataSource* dataSource)
-    : Window(parent)
+List::List(LayoutManager &manager, ListDataSource* dataSource)
+    : Window(manager)
     , _callbacks(this)
     , _data(dataSource)
-    , _scrollBar(ScrollBarVertical::Create(this, 0, 0, 0))
+    , _scrollBar(std::make_shared<ScrollBarVertical>(manager))
     , _curSel(-1)
     , _hotItem(-1)
     , _font(GetManager().GetTextureManager().FindSprite("font_small"))
     , _selection(GetManager().GetTextureManager().FindSprite("ui/listsel"))
 {
+	AddFront(_scrollBar);
+
 	SetTexture("ui/list", false);
 	SetDrawBorder(true);
 	SetTabPos(0, 1); // first column
@@ -266,7 +260,7 @@ void List::Draw(DrawingContext &dc) const
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				if( this == GetManager().GetFocusWnd() )
+				if( this == GetManager().GetFocusWnd().get() )
 				{
 					c = 0xff000000; // selected focused;
 					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };

@@ -28,7 +28,7 @@ public:
 	               UI::ConsoleBuffer &logger);
 
 	// UI::IWindowFactory
-	UI::Window* Create(UI::LayoutManager *manager) override;
+	std::shared_ptr<UI::Window> Create(UI::LayoutManager &manager) override;
 
 private:
 	AppState &_appState;

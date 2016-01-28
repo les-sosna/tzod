@@ -6,8 +6,8 @@
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(Window *parent, ConfCache &conf, UI::ConsoleBuffer &logger)
-  : Window(parent)
+MessageArea::MessageArea(UI::LayoutManager &manager, ConfCache &conf, UI::ConsoleBuffer &logger)
+  : Window(manager)
   , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
   , _conf(conf)
   , _logger(logger)

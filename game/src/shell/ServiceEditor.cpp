@@ -111,8 +111,8 @@ void ServiceListDataSource::OnKill(GC_Object &obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
-	: Dialog(parent, h, w, false)
+ServiceEditor::ServiceEditor(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
+	: Dialog(manager, h, w, false)
 	, _listData(world, lang)
 	, _margins(5)
 	, _world(world)
@@ -122,10 +122,11 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 	_labelService = UI::Text::Create(this, _margins, _margins, _lang.service_type.Get(), alignTextLT);
 	_labelName = UI::Text::Create(this, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
 
-	_list = UI::List::Create(this, &_listData, 0, 0, 0, 0);
+	_list = std::make_shared<UI::List>(GetManager(), &_listData);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
+	AddFront(_list);
 
 	_btnCreate = UI::Button::Create(this, _lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
@@ -142,22 +143,17 @@ ServiceEditor::ServiceEditor(Window *parent, float x, float y, float w, float h,
 	}
 	_combo->GetData()->Sort();
 
-	UI::List *ls = _combo->GetList();
+	auto ls = _combo->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 
 	Move(x, y);
 	Resize(w, h);
 	SetEasyMove(true);
-
-	assert(!GetEditorLayout()->eventOnChangeSelection);
-	GetEditorLayout()->eventOnChangeSelection = std::bind(&ServiceEditor::OnChangeSelectionGlobal, this, std::placeholders::_1);
 }
 
 ServiceEditor::~ServiceEditor()
 {
-	assert(GetEditorLayout()->eventOnChangeSelection);
-	GetEditorLayout()->eventOnChangeSelection = nullptr;
 }
 
 void ServiceEditor::OnChangeSelectionGlobal(GC_Object *obj)

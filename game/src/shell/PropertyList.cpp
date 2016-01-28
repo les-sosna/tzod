@@ -16,8 +16,8 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::Container::Container(Window *parent)
-  : Window(parent)
+PropertyList::Container::Container(UI::LayoutManager &manager)
+  : UI::Window(manager)
 {
 }
 
@@ -26,19 +26,22 @@ PropertyList::Container::Container(Window *parent)
 //	return GetParent()->OnKeyPressed(c); // pass messages through
 //}
 
-PropertyList::PropertyList(Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
-  : Dialog(parent, w, h, false)
+PropertyList::PropertyList(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
+  : Dialog(manager, w, h, false)
   , _world(world)
   , _conf(conf)
   , _logger(logger)
 {
 	Move(x, y);
-	_psheet = new Container(this);
+	_psheet = std::make_shared<Container>(manager);
+	AddFront(_psheet);
 
-	_scrollBar = UI::ScrollBarVertical::Create(this, 0, 0, h);
+	_scrollBar = std::make_shared<UI::ScrollBarVertical>(manager);
+	_scrollBar->SetHeight(h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
 //	_scrollBar->SetLimit(100);
+	AddFront(_scrollBar);
 
 	OnSize(w, h);
 	SetEasyMove(true);
@@ -55,7 +58,7 @@ void PropertyList::DoExchange(bool applyToObject)
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
-			Window         *ctrl = _ctrls[i];
+			auto &ctrl = _ctrls[i];
 
 			if( GetManager().GetFocusWnd() == ctrl )
 			{
@@ -65,9 +68,9 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				assert( dynamic_cast<UI::Edit*>(ctrl) );
+				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				int n;
-				n = static_cast<UI::Edit*>(ctrl)->GetInt();
+				n = static_cast<UI::Edit*>(ctrl.get())->GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%d, %d]",
@@ -77,9 +80,9 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetIntValue(n);
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				assert( dynamic_cast<UI::Edit*>(ctrl) );
+				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				float f;
-				f = static_cast<UI::Edit*>(ctrl)->GetFloat();
+				f = static_cast<UI::Edit*>(ctrl.get())->GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%g, %g]",
@@ -89,20 +92,20 @@ void PropertyList::DoExchange(bool applyToObject)
 				prop->SetFloatValue(f);
 				break;
 			case ObjectProperty::TYPE_STRING:
-				assert( dynamic_cast<UI::Edit*>(ctrl) );
-				prop->SetStringValue(static_cast<UI::Edit*>(ctrl)->GetText());
+				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
+				prop->SetStringValue(static_cast<UI::Edit*>(ctrl.get())->GetText());
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
-				assert( dynamic_cast<UI::ComboBox*>(ctrl) );
+				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
 				int index;
-				index = static_cast<UI::ComboBox*>(ctrl)->GetCurSel();
+				index = static_cast<UI::ComboBox*>(ctrl.get())->GetCurSel();
 				prop->SetCurrentIndex(index);
 				break;
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
-				assert( dynamic_cast<UI::ComboBox*>(ctrl) );
-				index = static_cast<UI::ComboBox*>(ctrl)->GetCurSel();
-				prop->SetStringValue(static_cast<UI::ComboBox*>(ctrl)->GetData()->GetItemText(index, 0));
+				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
+				index = static_cast<UI::ComboBox*>(ctrl.get())->GetCurSel();
+				prop->SetStringValue(static_cast<UI::ComboBox*>(ctrl.get())->GetData()->GetItemText(index, 0));
 				break;
 			default:
 				assert(false);
@@ -113,8 +116,7 @@ void PropertyList::DoExchange(bool applyToObject)
 
 
 	// clear old controls
-	while( _psheet->GetFirstChild() )
-		_psheet->GetFirstChild()->Destroy();
+	_psheet->UnlinkAllChildren();
 	_ctrls.clear();
 
 	// create new controls
@@ -130,43 +132,52 @@ void PropertyList::DoExchange(bool applyToObject)
 			std::ostringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
-			UI::Text *label = UI::Text::Create(_psheet, 5, y, "", alignTextLT);
+			auto label = UI::Text::Create(_psheet.get(), 5, y, "", alignTextLT);
 			y += label->GetHeight();
 			y += 5;
 
-			Window *ctrl = nullptr;
+			std::shared_ptr<Window> ctrl;
 
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<UI::Edit*>(ctrl)->SetInt(prop->GetIntValue());
+				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl->Move(32, y);
+				ctrl->SetWidth(_psheet->GetWidth() - 64);
+				_psheet->AddFront(ctrl);
+				std::static_pointer_cast<UI::Edit>(ctrl)->SetInt(prop->GetIntValue());
 				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<UI::Edit*>(ctrl)->SetFloat(prop->GetFloatValue());
+				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl->Move(32, y);
+				ctrl->SetWidth(_psheet->GetWidth() - 64);
+				_psheet->AddFront(ctrl);
+				std::static_pointer_cast<UI::Edit>(ctrl)->SetFloat(prop->GetFloatValue());
 				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = UI::Edit::Create(_psheet, 32, y, _psheet->GetWidth() - 64);
-				static_cast<UI::Edit*>(ctrl)->SetText(prop->GetStringValue());
+				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl->Move(32, y);
+				ctrl->SetWidth(_psheet->GetWidth() - 64);
+				_psheet->AddFront(ctrl);
+				std::static_pointer_cast<UI::Edit>(ctrl)->SetText(prop->GetStringValue());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
 				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-				ctrl = DefaultComboBox::Create(_psheet);
+				ctrl = DefaultComboBox::Create(_psheet.get());
 				ctrl->Move(32, y);
-				static_cast<DefaultComboBox *>(ctrl)->Resize(_psheet->GetWidth() - 64);
+				static_cast<DefaultComboBox *>(ctrl.get())->Resize(_psheet->GetWidth() - 64);
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
 					for( size_t index = 0; index < prop->GetListSize(); ++index )
 					{
-						static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(prop->GetListValue(index));
+						static_cast<DefaultComboBox *>(ctrl.get())->GetData()->AddItem(prop->GetListValue(index));
 					}
-					static_cast<DefaultComboBox*>(ctrl)->SetCurSel(prop->GetCurrentIndex());
+					static_cast<DefaultComboBox*>(ctrl.get())->SetCurSel(prop->GetCurrentIndex());
 				}
 				else
 				{
@@ -180,13 +191,13 @@ void PropertyList::DoExchange(bool applyToObject)
 						const LogicalTexture &lt = texman.GetSpriteInfo(texman.FindSprite(name));
 						if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
 						{
-							int index = static_cast<DefaultComboBox *>(ctrl)->GetData()->AddItem(name);
+							int index = static_cast<DefaultComboBox *>(ctrl.get())->GetData()->AddItem(name);
 							if (name == prop->GetStringValue())
-								static_cast<DefaultComboBox*>(ctrl)->SetCurSel(index);
+								static_cast<DefaultComboBox*>(ctrl.get())->SetCurSel(index);
 						}
 					}
 				}
-				static_cast<DefaultComboBox*>(ctrl)->GetList()->AlignHeightToContent();
+				static_cast<DefaultComboBox*>(ctrl.get())->GetList()->AlignHeightToContent();
 				break;
 			default:
 				assert(false);
@@ -196,7 +207,7 @@ void PropertyList::DoExchange(bool applyToObject)
 
 			if( focus == i )
 			{
-				if(auto edit = dynamic_cast<UI::Edit*>(ctrl) )
+				if(auto edit = std::dynamic_pointer_cast<UI::Edit>(ctrl) )
 				{
 					edit->SetSel(0, -1);
 				}

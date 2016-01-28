@@ -12,7 +12,9 @@ namespace UI
 class Text : public Window
 {
 public:
-	static Text* Create(Window *parent, float x, float y, const std::string &text, enumAlignText align);
+	static std::shared_ptr<Text> Create(Window *parent, float x, float y, const std::string &text, enumAlignText align);
+
+	Text(LayoutManager &manager);
 
 	void SetDrawShadow(bool drawShadow);
 	bool GetDrawShadow() const;
@@ -26,9 +28,6 @@ public:
 
 	void Draw(DrawingContext &dc) const override;
 	void OnTextChange() override;
-
-protected:
-	Text(Window *parent);
 
 private:
 	size_t         _lineCount;

@@ -42,14 +42,14 @@ void LuaStateDeleter::operator()(lua_State *L)
 }
 
 
-Desktop::Desktop(UI::LayoutManager* manager,
+Desktop::Desktop(UI::LayoutManager &manager,
                  AppState &appState,
                  AppController &appController,
                  FS::FileSystem &fs,
                  ConfCache &conf,
                  LangCache &lang,
                  UI::ConsoleBuffer &logger)
-  : Window(nullptr, manager)
+  : Window(manager)
   , AppStateListener(appState)
   , _history(conf)
   , _appController(appController)
@@ -79,7 +79,8 @@ Desktop::Desktop(UI::LayoutManager* manager,
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
 
-	_fps = new FpsCounter(this, 0, 0, alignTextLB, GetAppState());
+	_fps = std::make_shared<FpsCounter>(manager, 0.f, 0.f, alignTextLB, GetAppState());
+	AddFront(_fps);
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
 
@@ -90,16 +91,18 @@ Desktop::Desktop(UI::LayoutManager* manager,
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
-			Oscilloscope *os = new Oscilloscope(this, xx, yy);
+			auto os = std::make_shared<Oscilloscope>(manager, xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
+			AddFront(os);
 			CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::placeholders::_1));
 			yy += hh+5;
 		}
 	}
 
-	_pauseButton = UI::ImageButton::Create(this, 0, 0, "ui/pause");
+	_pauseButton = std::make_shared<UI::ImageButton>(manager);
+	_pauseButton->SetTexture("ui/pause", true);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
@@ -108,6 +111,7 @@ Desktop::Desktop(UI::LayoutManager* manager,
 			ShowMainMenu();
 		}
 	};
+	AddFront(_pauseButton);
 
 	SetTimeStep(true);
 	OnGameContextChanged();
@@ -171,7 +175,8 @@ void Desktop::ShowConsole(bool show)
 	_con->SetVisible(show);
 	if (show)
 	{
-		_con->BringToFront();
+		UnlinkChild(_con);
+		AddFront(_con);
 	}
 }
 
@@ -211,12 +216,12 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 
 void Desktop::OnNewCampaign()
 {
-	NewCampaignDlg *dlg = new NewCampaignDlg(this, _fs, _lang);
+	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _fs, _lang);
 	dlg->eventCampaignSelected = [this,dlg](std::string name)
 	{
 		if( !name.empty() )
 		{
-			OnCloseChild(dlg, UI::Dialog::_resultOK);
+			OnCloseChild(dlg.get(), UI::Dialog::_resultOK);
 
 			_conf.ui_showmsg.Set(true);
             try
@@ -232,26 +237,26 @@ void Desktop::OnNewCampaign()
 		}
 		else
 		{
-			OnCloseChild(dlg, UI::Dialog::_resultCancel);
+			OnCloseChild(dlg.get(), UI::Dialog::_resultCancel);
 		}
-		dlg->Destroy();
+		UnlinkChild(dlg);
 	};
-	PushNavStack(*dlg);
+	PushNavStack(dlg);
 }
 
 void Desktop::OnNewDM()
 {
 	for (auto wnd: _navStack)
-		if (dynamic_cast<NewGameDlg*>(wnd))
+		if (dynamic_cast<NewGameDlg*>(wnd.get()))
 			return;
 
-	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back()) )
+	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
 		PopNavStack();
 
-	auto dlg = new NewGameDlg(this, _fs, _conf, _logger, _lang);
+	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _fs, _conf, _logger, _lang);
 	dlg->eventClose = [this, dlg](int result)
 	{
-		OnCloseChild(dlg, result);
+		OnCloseChild(dlg.get(), result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			try
@@ -265,15 +270,15 @@ void Desktop::OnNewDM()
 			}
 		}
 	};
-	PushNavStack(*dlg);
+	PushNavStack(dlg);
 }
 
 void Desktop::OnNewMap()
 {
-	auto dlg = new NewMapDlg(this, _conf, _lang);
+	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _conf, _lang);
 	dlg->eventClose = [=](int result)
 	{
-		OnCloseChild(dlg, result);
+		OnCloseChild(dlg.get(), result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
@@ -281,7 +286,7 @@ void Desktop::OnNewMap()
 			ClearNavStack();
 		}
 	};
-	PushNavStack(*dlg);
+	PushNavStack(dlg);
 }
 
 void Desktop::OnOpenMap(std::string fileName)
@@ -303,9 +308,9 @@ void Desktop::OnExportMap(std::string fileName)
 
 void Desktop::OnGameSettings()
 {
-	auto dlg = new SettingsDlg(this, _conf, _lang);
-	dlg->eventClose = [=](int result) {OnCloseChild(dlg, result);};
-	PushNavStack(*dlg);
+	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _conf, _lang);
+	dlg->eventClose = [=](int result) {OnCloseChild(dlg.get(), result);};
+	PushNavStack(dlg);
 }
 
 void Desktop::ShowMainMenu()
@@ -326,15 +331,14 @@ void Desktop::ShowMainMenu()
 			ClearNavStack();
 		}
 	};
-	auto mainMenu = new MainMenuDlg(this, _fs, _conf, _lang, _logger, std::move(commands));
-	PushNavStack(*mainMenu);
+	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _fs, _conf, _lang, _logger, std::move(commands)));
 }
 
 void Desktop::ClearNavStack()
 {
-	for (auto wnd: _navStack)
+	for (auto &wnd: _navStack)
 	{
-		wnd->Destroy();
+		UnlinkChild(wnd);
 	}
 	_navStack.clear();
 }
@@ -346,7 +350,10 @@ void Desktop::PopNavStack(UI::Window *wnd)
 		_navTransitionStart = GetTransitionTarget();
 		_navTransitionTime = _conf.ui_foldtime.GetFloat();
 
-		auto it = std::find(_navStack.begin(), _navStack.end(), wnd);
+		auto it = std::find_if(_navStack.begin(), _navStack.end(), [wnd](auto &other)
+		{
+			return other.get() == wnd;
+		});
 		assert(_navStack.end() != it);
 		_navStack.erase(it);
 	}
@@ -355,7 +362,7 @@ void Desktop::PopNavStack(UI::Window *wnd)
 		_navTransitionStart = GetTransitionTarget();
 		_navTransitionTime = _conf.ui_foldtime.GetFloat();
 
-		_navStack.back()->Destroy();
+		UnlinkChild(_navStack.back());
 		_navStack.pop_back();
 	}
 
@@ -367,8 +374,9 @@ void Desktop::PopNavStack(UI::Window *wnd)
 	OnSize(GetWidth(), GetHeight());
 }
 
-void Desktop::PushNavStack(UI::Window &wnd)
+void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 {
+	AddFront(wnd);
 	_navTransitionStart = GetTransitionTarget();
 	_navTransitionTime = _conf.ui_foldtime.GetFloat();
 
@@ -376,8 +384,8 @@ void Desktop::PushNavStack(UI::Window &wnd)
 	{
 		_navStack.back()->SetEnabled(false);
 	}
-	_navStack.push_back(&wnd);
-	GetManager().SetFocusWnd(&wnd);
+	_navStack.push_back(wnd);
+	GetManager().SetFocusWnd(wnd);
 	OnSize(GetWidth(), GetHeight());
 }
 
@@ -417,7 +425,7 @@ bool Desktop::OnKeyPressed(UI::Key key)
 		break;
 
 	case UI::Key::Escape:
-		if( _con->Contains(GetManager().GetFocusWnd()) )
+		if( _con->Contains(GetManager().GetFocusWnd().get()) )
 		{
 			_con->SetVisible(false);
 		}
@@ -570,14 +578,14 @@ void Desktop::OnGameContextChanging()
 {
 	if (_game)
 	{
-		_game->Destroy();
-		_game = nullptr;
+		UnlinkChild(_game);
+		_game.reset();
 	}
 
 	if (_editor)
 	{
-		_editor->Destroy();
-		_editor = nullptr;
+		UnlinkChild(_editor);
+		_editor.reset();
 	}
 }
 
@@ -586,16 +594,17 @@ void Desktop::OnGameContextChanged()
 	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_game);
-		_game = new GameLayout(this,
-		                       *gameContext,
-		                       _worldView,
-		                       gameContext->GetWorldController(),
-		                       _defaultCamera,
-		                       _conf,
-		                       _lang,
-		                       _logger);
+		_game = std::make_shared<GameLayout>(GetManager(),
+		                                     *gameContext,
+		                                     _worldView,
+		                                     gameContext->GetWorldController(),
+		                                     _defaultCamera,
+		                                     _conf,
+		                                     _lang,
+		                                     _logger);
 		_game->Resize(GetWidth(), GetHeight());
-		_game->BringToBack();
+		AddBack(_game);
+
 
 		SetEditorMode(false);
 	}
@@ -603,10 +612,10 @@ void Desktop::OnGameContextChanged()
 	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
-		_editor = new EditorLayout(this, editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get(), _conf, _lang, _logger);
+		_editor = std::make_shared<EditorLayout>(GetManager(), editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get(), _conf, _lang, _logger);
 		_editor->Resize(GetWidth(), GetHeight());
-		_editor->BringToBack();
 		_editor->SetVisible(false);
+		AddBack(_editor);
 
 		SetEditorMode(true);
 	}

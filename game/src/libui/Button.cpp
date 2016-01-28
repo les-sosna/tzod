@@ -1,16 +1,13 @@
-// Button.cpp
-
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-namespace UI
-{
+using namespace UI;
 
-ButtonBase::ButtonBase(Window *parent)
-  : Window(parent)
+ButtonBase::ButtonBase(LayoutManager &manager)
+  : Window(manager)
   , _state(stateNormal)
 {
 }
@@ -28,7 +25,7 @@ bool ButtonBase::OnPointerMove(float x, float y, PointerType pointerType, unsign
 {
 	if( GetManager().HasCapturedPointers(this) )
 	{
-		if (GetManager().GetCapture(pointerID) == this)
+		if (GetManager().GetCapture(pointerID).get() == this)
 		{
 			bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
 			SetState(push ? statePushed : stateNormal);
@@ -47,7 +44,7 @@ bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointer
 {
 	if( !GetManager().HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
-		GetManager().SetCapture(pointerID, this);
+		GetManager().SetCapture(pointerID, shared_from_this());
 		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(x, y);
@@ -57,21 +54,20 @@ bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointer
 
 bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( GetManager().GetCapture(pointerID) == this && 1 == button )
+	if( GetManager().GetCapture(pointerID).get() == this && 1 == button )
 	{
 		GetManager().SetCapture(pointerID, nullptr);
 		bool click = (GetState() == statePushed);
-		WindowWeakPtr wwp(this);
 		if( eventMouseUp )
-			eventMouseUp(x, y);          // handler may destroy this object
-		if( click && wwp.Get() )
+			eventMouseUp(x, y);
+		if( click )
 		{
-			OnClick();                   // handler may destroy this object
-			if( eventClick && wwp.Get() )
-				eventClick();            // handler may destroy this object
+			OnClick();
+			if( eventClick )
+				eventClick();
+			if( GetEnabled() )  // handler may disable this button
+				SetState(stateHottrack);
 		}
-		if( click && wwp.Get() && GetEnabled() )  // handler may disable this button
-			SetState(stateHottrack);
 	}
 	return true;
 }
@@ -86,10 +82,9 @@ bool ButtonBase::OnTap(float x, float y)
 {
     if( !GetManager().HasCapturedPointers(this))
     {
-        WindowWeakPtr wwp(this);
-        OnClick();                   // handler may destroy this object
-        if( eventClick && wwp.Get() )
-            eventClick();            // handler may destroy this object        
+        OnClick();
+        if( eventClick )
+            eventClick();
     }
     return true;
 }
@@ -118,9 +113,9 @@ void ButtonBase::OnEnabledChange(bool enable, bool inherited)
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
 
-Button* Button::Create(Window *parent, const std::string &text, float x, float y, float w, float h)
+std::shared_ptr<Button> Button::Create(Window *parent, const std::string &text, float x, float y, float w, float h)
 {
-	Button *res = new Button(parent);
+	auto res = std::make_shared<Button>(parent->GetManager());
 	res->Move(x, y);
 	res->SetText(text);
 	if( w >= 0 && h >= 0 )
@@ -128,11 +123,13 @@ Button* Button::Create(Window *parent, const std::string &text, float x, float y
 		res->Resize(w, h);
 	}
 
+	parent->AddFront(res);
+
 	return res;
 }
 
-Button::Button(Window *parent)
-  : ButtonBase(parent)
+Button::Button(LayoutManager &manager)
+  : ButtonBase(manager)
   , _font((size_t)-1)
   , _icon((size_t)-1)
 {
@@ -201,19 +198,10 @@ void Button::Draw(DrawingContext &dc) const
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// text button class implementation
+// TextButton
 
-TextButton* TextButton::Create(Window *parent, float x, float y, const std::string &text, const char *font)
-{
-	TextButton *res = new TextButton(parent);
-	res->Move(x, y);
-	res->SetText(text);
-	res->SetFont(font);
-	return res;
-}
-
-TextButton::TextButton(Window *parent)
-  : ButtonBase(parent)
+TextButton::TextButton(LayoutManager &manager)
+  : ButtonBase(manager)
   , _fontTexture((size_t) -1)
   , _drawShadow(true)
 {
@@ -272,18 +260,9 @@ void TextButton::Draw(DrawingContext &dc) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ImageButton class implementation
 
-ImageButton* ImageButton::Create(Window *parent, float x, float y, const char *texture)
-{
-	ImageButton *res = new ImageButton(parent);
-	res->Move(x, y);
-	res->SetTexture(texture, true);
-	return res;
-}
-
-ImageButton::ImageButton(Window *parent)
-  : ButtonBase(parent)
+ImageButton::ImageButton(LayoutManager &manager)
+  : ButtonBase(manager)
 {
 }
 
@@ -293,18 +272,18 @@ void ImageButton::OnChangeState(State state)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CheckBox class implementation
 
-CheckBox* CheckBox::Create(Window *parent, float x, float y, const std::string &text)
+std::shared_ptr<CheckBox> CheckBox::Create(Window *parent, float x, float y, const std::string &text)
 {
-	CheckBox *res = new CheckBox(parent);
+	auto res = std::make_shared<CheckBox>(parent->GetManager());
 	res->Move(x, y);
 	res->SetText(text);
+	parent->AddFront(res);
 	return res;
 }
 
-CheckBox::CheckBox(Window *parent)
-  : ButtonBase(parent)
+CheckBox::CheckBox(LayoutManager &manager)
+  : ButtonBase(manager)
   , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
   , _boxTexture(GetManager().GetTextureManager().FindSprite("ui/checkbox"))
   , _drawShadow(true)
@@ -370,6 +349,3 @@ void CheckBox::Draw(DrawingContext &dc) const
 	}
 	dc.DrawBitmapText(bw, (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
 }
-
-} // namespace UI
-

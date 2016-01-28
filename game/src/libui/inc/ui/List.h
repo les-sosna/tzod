@@ -19,7 +19,8 @@ class ScrollBarVertical;
 class List : public Window
 {
 public:
-	static List* Create(Window *parent, ListDataSource* dataSource, float x, float y, float width, float height);
+	List(LayoutManager &manager, ListDataSource* dataSource);
+	virtual ~List();
 
 	ListDataSource* GetData() const;
 
@@ -41,9 +42,6 @@ public:
 	std::function<void(int)> eventClickItem;
 
 protected:
-	List(Window *parent, ListDataSource* dataSource);
-	virtual ~List();
-
 	// callback interface
 	class ListCallbackImpl : public ListDataSourceListener
 	{
@@ -65,7 +63,7 @@ protected:
 	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnMouseWheel(float x, float y, float z) override;
-    bool OnTap(float x, float y) override;
+	bool OnTap(float x, float y) override;
 	bool OnKeyPressed(Key key) override;
 	bool OnFocus(bool focus) override;
 
@@ -78,7 +76,7 @@ private:
 	ListDataSource *_data;
 	std::vector<float> _tabs;
 
-	ScrollBarVertical *_scrollBar;
+	std::shared_ptr<ScrollBarVertical> _scrollBar;
 
 	int        _curSel;
 	int        _hotItem;
@@ -87,8 +85,4 @@ private:
 	size_t     _selection;
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

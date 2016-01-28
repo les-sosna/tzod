@@ -39,7 +39,7 @@ class Desktop
 	, private AppStateListener
 {
 public:
-	Desktop(UI::LayoutManager* manager,
+	Desktop(UI::LayoutManager &manager,
 	        AppState &appState,
 	        AppController &appController,
 	        FS::FileSystem &fs,
@@ -65,12 +65,12 @@ private:
 	UI::ConsoleBuffer &_logger;
 	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
 
-	EditorLayout *_editor = nullptr;
-	GameLayout   *_game = nullptr;
-	UI::Console  *_con = nullptr;
-	FpsCounter   *_fps = nullptr;
-	UI::ButtonBase *_pauseButton = nullptr;
-	std::vector<UI::Window*> _navStack;
+	std::shared_ptr<EditorLayout> _editor;
+	std::shared_ptr<GameLayout> _game;
+	std::shared_ptr<UI::Console> _con;
+	std::shared_ptr<FpsCounter> _fps;
+	std::shared_ptr<UI::ButtonBase> _pauseButton;
+	std::vector<std::shared_ptr<UI::Window>> _navStack;
 	float _navTransitionTime = 0;
 	float _navTransitionStart = 0;
 
@@ -97,12 +97,12 @@ private:
 	void OnCloseChild(UI::Window *child, int result);
 	void ClearNavStack();
 	void PopNavStack(UI::Window *wnd = nullptr);
-	void PushNavStack(UI::Window &wnd);
+	void PushNavStack(std::shared_ptr<UI::Window> wnd);
 
 	template <class T>
 	bool IsOnTop() const
 	{
-		return !_navStack.empty() && !!dynamic_cast<T*>(_navStack.back());
+		return !_navStack.empty() && !!dynamic_cast<T*>(_navStack.back().get());
 	}
 
 	float GetNavStackSize() const;
