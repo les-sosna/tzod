@@ -53,7 +53,6 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
 
 GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
   : _world(world)
-  , _worldController(worldController)
   , _scale(1)
   , _maxShakeCamera(nullptr)
 {

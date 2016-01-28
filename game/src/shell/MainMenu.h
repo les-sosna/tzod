@@ -60,7 +60,6 @@ class MainMenuDlg : public UI::Window
 
 	GetFileNameDlg *_fileDlg;
 	FS::FileSystem &_fs;
-	ConfCache &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	MainMenuCommands _commands;

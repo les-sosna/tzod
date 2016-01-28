@@ -36,7 +36,6 @@ public:
 
 private:
     World &_world;
-    WorldController &_worldController;
     std::vector<Camera> _cameras;
     int _pxWidth;
     int _pxHeight;

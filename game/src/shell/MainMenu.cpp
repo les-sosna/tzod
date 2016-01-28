@@ -26,7 +26,6 @@ MainMenuDlg::MainMenuDlg(Window *parent,
   , _pstate(PS_NONE)
   , _fileDlg(nullptr)
   , _fs(fs)
-  , _conf(conf)
   , _lang(lang)
   , _logger(logger)
   , _commands(std::move(commands))
