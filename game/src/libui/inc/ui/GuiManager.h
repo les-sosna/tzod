@@ -64,17 +64,15 @@ public:
 
 private:
 	friend class Window;
-	void AddTopMost(Window* wnd, bool add);
 	void ResetWindow(Window* wnd);
     std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID);
+	bool ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID, bool topMostPass, bool insideTopMost = false);
 
 	IInput &_input;
 	IClipboard &_clipboard;
     TextureManager &_texman;
-    std::list<Window*> _topmost;
     std::list<Window*> _timestep;
     std::list<Window*>::iterator _tsCurrent;
     bool _tsDeleteCurrent;

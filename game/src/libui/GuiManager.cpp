@@ -30,7 +30,6 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
 LayoutManager::~LayoutManager()
 {
 	_desktop->Destroy();
-	assert(_topmost.empty());
 }
 
 Window* LayoutManager::GetCapture(unsigned int pointerID) const
@@ -83,25 +82,6 @@ void LayoutManager::SetCapture(unsigned int pointerID, Window *wnd)
 	}
 }
 
-void LayoutManager::AddTopMost(Window* wnd, bool add)
-{
-	if( add )
-	{
-		_topmost.push_back(wnd);
-	}
-	else
-	{
-		for( auto it = _topmost.begin(); _topmost.end() != it; ++it )
-		{
-			if( *it == wnd )
-			{
-				_topmost.erase(it);
-				break;
-			}
-		}
-	}
-}
-
 bool LayoutManager::SetFocusWnd(Window* wnd)
 {
 	assert(!_dbgFocusIsChanging);
@@ -114,7 +94,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 #ifndef NDEBUG
 		_dbgFocusIsChanging = true;
 #endif
-		bool focusAccepted = wnd && wnd->GetEnabled() && wnd->GetVisibleCombined() && wnd->OnFocus(true);
+		bool focusAccepted = wnd && wnd->GetEnabledCombined() && wnd->GetVisibleCombined() && wnd->OnFocus(true);
 #ifndef NDEBUG
 		_dbgFocusIsChanging = false;
 #endif
@@ -132,7 +112,7 @@ bool LayoutManager::SetFocusWnd(Window* wnd)
 
 		// set new focus
 		_focusWnd.Set(focusAccepted ? wp.Get() : nullptr);
-		assert(!_focusWnd.Get() || _focusWnd->GetEnabled() && _focusWnd->GetVisibleCombined());
+		assert(!_focusWnd.Get() || _focusWnd->GetEnabledCombined() && _focusWnd->GetVisibleCombined());
 
 		// reset old focus
 		if( oldFocusWnd.Get() && oldFocusWnd.Get() != _focusWnd.Get() )
@@ -278,37 +258,34 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID)
+bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID, bool topMostPass, bool insideTopMost)
 {
-	bool bMouseInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
+    insideTopMost |= wnd->GetTopMost();
+    
+    if (!wnd->GetEnabled() || !wnd->GetVisible() || (insideTopMost && !topMostPass))
+        return false;
+    
+	bool pointerInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
 
-	if( GetCapture(pointerID) != wnd )
+	if( (pointerInside || !wnd->GetClipChildren()) && GetCapture(pointerID) != wnd )
 	{
-		// route message to each child until someone process it
-		if( bMouseInside || !wnd->GetClipChildren() )
-		{
-			for( Window *w = wnd->GetLastChild(); w; w = w->GetPrevSibling() )
-			{
+        // route message to each child in reverse order until someone process it
+        for( Window *w = wnd->GetLastChild(); w; w = w->GetPrevSibling() )
+        {
 #ifndef NDEBUG
-				WindowWeakPtr wp(w);
+            WindowWeakPtr wp(w);
 #endif
-				// do not dispatch messages to disabled or invisible window.
-				// topmost windows are processed separately
-				if( w->GetEnabled() && w->GetVisibleCombined() && !w->GetTopMost() &&
-					ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg, buttons, pointerType, pointerID) )
-				{
-					return true;
-				}
-				assert(wp.Get());
-			}
-		}
+            if( ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg, buttons, pointerType, pointerID, topMostPass, insideTopMost) )
+            {
+                return true;
+            }
+            assert(wp.Get());
+        }
 	}
 
-	if( bMouseInside || GetCapture(pointerID) == wnd )
+	if( insideTopMost == topMostPass && (pointerInside || GetCapture(pointerID) == wnd) )
 	{
-		//
-		// window is captured or mouse pointer is inside the window
-		//
+		// window is captured or the pointer is inside the window
 
 		WindowWeakPtr wp(wnd);
 
@@ -334,7 +311,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 			default:
 				assert(false);
 		}
-		// if window did not process the message, it should not destroy it self
+		// if window did not process the message, it should not destroy itself
 		assert(msgProcessed || wp.Get());
 
 		if( wp.Get() && msgProcessed )
@@ -352,7 +329,7 @@ bool LayoutManager::ProcessPointerInternal(Window* wnd, float x, float y, float 
 			{
 				if( _hotTrackWnd.Get() )
 					_hotTrackWnd->OnMouseLeave(); // may destroy wnd
-				if( wp.Get() && wnd->GetVisibleCombined() && wnd->GetEnabled() )
+				if( wp.Get() && wnd->GetVisibleCombined() && wnd->GetEnabledCombined() )
 				{
 					_hotTrackWnd.Set(wnd);
 					_hotTrackWnd->OnMouseEnter(x, y);
@@ -381,32 +358,15 @@ bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg, int butto
 			x -= wnd->GetX();
 			y -= wnd->GetY();
 		}
-		if( ProcessPointerInternal(captured, x, y, z, msg, button, pointerType, pointerID) )
+		if( ProcessPointerInternal(captured, x, y, z, msg, button, pointerType, pointerID, true) ||
+            ProcessPointerInternal(captured, x, y, z, msg, button, pointerType, pointerID, false))
 			return true;
 	}
 	else
 	{
-		// first try to pass messages to one of topmost windows
-		for( auto it = _topmost.rbegin(); _topmost.rend() != it; ++it )
-		{
-			// do not dispatch messages to disabled or invisible window
-			if( (*it)->GetEnabled() && (*it)->GetVisibleCombined() )
-			{
-				// calculate absolute coordinates of the window
-				float x_ = _desktop->GetX();
-				float y_ = _desktop->GetY();
-				for( Window *wnd = *it; _desktop.Get() != wnd; wnd = wnd->GetParent() )
-				{
-					assert(wnd);
-					x_ += wnd->GetX();
-					y_ += wnd->GetY();
-				}
-				if( ProcessPointerInternal(*it, x - x_, y - y_, z, msg, button, pointerType, pointerID) )
-					return true;
-			}
-		}
-		// then handle all children of the desktop recursively
-		if( ProcessPointerInternal(_desktop.Get(), x, y, z, msg, button, pointerType, pointerID) )
+		// handle all children of the desktop recursively; offer to topmost windows first
+		if( ProcessPointerInternal(_desktop.Get(), x, y, z, msg, button, pointerType, pointerID, true) ||
+            ProcessPointerInternal(_desktop.Get(), x, y, z, msg, button, pointerType, pointerID, false))
 			return true;
 	}
 	if( _hotTrackWnd.Get() )
@@ -467,13 +427,22 @@ bool LayoutManager::ProcessText(int c)
 	return false;
 }
 
-static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc)
+static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, bool topMostPass, bool insideTopMost)
 {
+    insideTopMost |= wnd.GetTopMost();
+
+    if (!wnd.GetVisible() || (insideTopMost && !topMostPass))
+        return; // skip window and all its children
+    
 	dc.PushTransform(vec2d(wnd.GetX(), wnd.GetY()));
 
-	wnd.Draw(dc);
+    if (insideTopMost == topMostPass)
+        wnd.Draw(dc);
+    
+    // topmost windows escape parents' clip
+    bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
 
-	if (wnd.GetClipChildren())
+	if (clipChildren)
 	{
 		RectRB clip;
 		clip.left = 0;
@@ -483,20 +452,11 @@ static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc)
 		dc.PushClippingRect(clip);
 	}
 
-	// draw children recursive
 	for (Window *w = wnd.GetFirstChild(); w; w = w->GetNextSibling())
-	{
-		// skip topmost windows; they are drawn separately
-		if (!w->GetTopMost() && w->GetVisible())
-		{
-			DrawWindowRecursive(*w, dc);
-		}
-	}
+        DrawWindowRecursive(*w, dc, topMostPass, wnd.GetTopMost() || insideTopMost);
 
-	if (wnd.GetClipChildren())
-	{
+	if (clipChildren)
 		dc.PopClippingRect();
-	}
 
 	dc.PopTransform();
 }
@@ -505,30 +465,8 @@ void LayoutManager::Render(DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-	// draw desktop and all its children
-	if (_desktop->GetVisible())
-	{
-		DrawWindowRecursive(*_desktop.Get(), dc);
-	}
-
-	// draw top-most windows
-	for( const Window *w: _topmost )
-	{
-		if( w->GetVisibleCombined() )
-		{
-			float x = _desktop->GetX();
-			float y = _desktop->GetY();
-			for( Window *wnd = w->GetParent(); _desktop.Get() != wnd; wnd = wnd->GetParent() )
-			{
-				assert(wnd);
-				x += wnd->GetX();
-				y += wnd->GetY();
-			}
-			dc.PushTransform(vec2d(x, y));
-			DrawWindowRecursive(*w, dc);
-			dc.PopTransform();
-		}
-	}
+    DrawWindowRecursive(*_desktop.Get(), dc, false, false);
+    DrawWindowRecursive(*_desktop.Get(), dc, true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)
@@ -539,6 +477,4 @@ void LayoutManager::Render(DrawingContext &dc) const
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-// end of file
+} // namespace UI

@@ -260,7 +260,7 @@ void List::Draw(DrawingContext &dc) const
 		SpriteColor c;
 		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
 
-		if( GetEnabled() )
+		if( GetEnabledCombined() )
 		{
 			c = 0xffd0d0d0; // normal;
 			if( _curSel == i )

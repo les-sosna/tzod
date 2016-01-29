@@ -134,7 +134,7 @@ void Edit::Draw(DrawingContext &dc) const
 	}
 
 	// text
-	SpriteColor c = GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
+	SpriteColor c = GetEnabledCombined() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
 		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));

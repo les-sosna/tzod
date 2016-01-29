@@ -112,8 +112,6 @@ void Window::Destroy()
 			c->Destroy();
 		}
 
-		if( _isTopMost )
-			GetManager().AddTopMost(this, false);
 		if( _isTimeStep )
 			GetManager().TimeStepUnregister(_timeStepReg);
 	}
@@ -254,8 +252,6 @@ void Window::Resize(float width, float height)
 
 void Window::SetTopMost(bool topmost)
 {
-	assert(_isTopMost != topmost);
-	GetManager().AddTopMost(this, topmost);
 	_isTopMost = topmost;
 }
 
@@ -332,9 +328,9 @@ void Window::SetEnabled(bool enable)
 	}
 }
 
-bool Window::GetEnabled() const
+bool Window::GetEnabledCombined() const
 {
-	return _isEnabled && (GetParent() ? GetParent()->GetEnabled() : true);
+	return _isEnabled && (GetParent() ? GetParent()->GetEnabledCombined() : true);
 }
 
 void Window::SetVisible(bool visible)

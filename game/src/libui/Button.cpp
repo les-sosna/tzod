@@ -70,7 +70,7 @@ bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerTy
 			if( eventClick && wwp.Get() )
 				eventClick();            // handler may destroy this object
 		}
-		if( click && wwp.Get() && GetEnabled() )  // handler may disable this button
+		if( click && wwp.Get() && GetEnabledCombined() )  // handler may disable this button
 			SetState(stateHottrack);
 	}
 	return true;
