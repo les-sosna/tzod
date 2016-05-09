@@ -58,8 +58,8 @@ Desktop::Desktop(UI::LayoutManager &manager,
   , _lang(lang)
   , _logger(logger)
   , _globL(luaL_newstate())
-  , _renderScheme(GetManager().GetTextureManager())
-  , _worldView(GetManager().GetTextureManager(), _renderScheme)
+  , _renderScheme(manager.GetTextureManager())
+  , _worldView(manager.GetTextureManager(), _renderScheme)
 {
 	using namespace std::placeholders;
 

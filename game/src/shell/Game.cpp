@@ -65,8 +65,8 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
-  , _texDrag(GetManager().GetTextureManager().FindSprite("ui/direction"))
-  , _texTarget(GetManager().GetTextureManager().FindSprite("ui/target"))
+  , _texDrag(manager.GetTextureManager().FindSprite("ui/direction"))
+  , _texTarget(manager.GetTextureManager().FindSprite("ui/target"))
 {
 	_msg = std::make_shared<MessageArea>(manager, _conf, logger);
 	_msg->Move(100, 100);

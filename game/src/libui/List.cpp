@@ -56,8 +56,8 @@ List::List(LayoutManager &manager, ListDataSource* dataSource)
     , _scrollBar(std::make_shared<ScrollBarVertical>(manager))
     , _curSel(-1)
     , _hotItem(-1)
-    , _font(GetManager().GetTextureManager().FindSprite("font_small"))
-    , _selection(GetManager().GetTextureManager().FindSprite("ui/listsel"))
+    , _font(manager.GetTextureManager().FindSprite("font_small"))
+    , _selection(manager.GetTextureManager().FindSprite("ui/listsel"))
 {
 	AddFront(_scrollBar);
 

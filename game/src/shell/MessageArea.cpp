@@ -8,7 +8,7 @@
 
 MessageArea::MessageArea(UI::LayoutManager &manager, ConfCache &conf, UI::ConsoleBuffer &logger)
   : Window(manager)
-  , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _fontTexture(manager.GetTextureManager().FindSprite("font_small"))
   , _conf(conf)
   , _logger(logger)
 {

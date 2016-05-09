@@ -122,7 +122,7 @@ ServiceEditor::ServiceEditor(UI::LayoutManager &manager, float x, float y, float
 	_labelService = UI::Text::Create(this, _margins, _margins, _lang.service_type.Get(), alignTextLT);
 	_labelName = UI::Text::Create(this, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
 
-	_list = std::make_shared<UI::List>(GetManager(), &_listData);
+	_list = std::make_shared<UI::List>(manager, &_listData);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);

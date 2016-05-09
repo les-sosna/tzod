@@ -18,15 +18,15 @@ Edit::Edit(LayoutManager &manager)
   , _selEnd(-1)
   , _offset(0)
   , _time(0)
-  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
-  , _cursor(GetManager().GetTextureManager().FindSprite("ui/editcursor"))
-  , _selection(GetManager().GetTextureManager().FindSprite("ui/editsel"))
+  , _font(manager.GetTextureManager().FindSprite("font_small"))
+  , _cursor(manager.GetTextureManager().FindSprite("ui/editcursor"))
+  , _selection(manager.GetTextureManager().FindSprite("ui/editsel"))
 {
 	SetTexture("ui/edit", true);
 	SetDrawBorder(true);
 	SetClipChildren(true);
 	SetSel(0, 0);
-	Resize(GetWidth(), GetManager().GetTextureManager().GetCharHeight(_font) + 2);
+	Resize(GetWidth(), manager.GetTextureManager().GetCharHeight(_font) + 2);
 }
 
 int Edit::GetTextLength() const

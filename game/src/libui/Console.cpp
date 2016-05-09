@@ -51,7 +51,7 @@ std::shared_ptr<Console> Console::Create(Window *parent, float x, float y, float
 Console::Console(LayoutManager &manager)
   : Window(manager)
   , _cmdIndex(0)
-  , _font(GetManager().GetTextureManager().FindSprite("font_small"))
+  , _font(manager.GetTextureManager().FindSprite("font_small"))
   , _buf(nullptr)
   , _history(nullptr)
   , _echo(true)

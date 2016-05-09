@@ -53,7 +53,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, FS::FileSystem &fs, ConfCache
 	_maps->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 
-	GetManager().SetFocusWnd(_maps);
+	manager.SetFocusWnd(_maps);
 
 
 	//
@@ -416,7 +416,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, ConfVarTable &info, Con
 	_name->SetWidth(200);
 	_name->SetText( _info.nick.Get() );
 	AddFront(_name);
-	GetManager().SetFocusWnd(_name);
+	manager.SetFocusWnd(_name);
 
 
 	//
@@ -428,7 +428,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, ConfVarTable &info, Con
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	GetManager().GetTextureManager().GetTextureNames(names, "skin/", true);
+	manager.GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);
@@ -591,7 +591,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, ConfVarTable &info, LangCache
 	_name->SetWidth(200);
 	_name->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
 	AddFront(_name);
-	GetManager().SetFocusWnd(_name);
+	manager.SetFocusWnd(_name);
 
 
 	//
@@ -603,7 +603,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, ConfVarTable &info, LangCache
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	std::vector<std::string> names;
-	GetManager().GetTextureManager().GetTextureNames(names, "skin/", true);
+	manager.GetTextureManager().GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
 	{
 		int index = _skins->GetData()->AddItem(names[i]);

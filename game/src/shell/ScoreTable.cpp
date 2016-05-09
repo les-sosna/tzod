@@ -25,7 +25,7 @@
 
 ScoreTable::ScoreTable(UI::LayoutManager &manager, World &world, Deathmatch &deathmatch, LangCache &lang)
   : UI::Window(manager)
-  , _font(GetManager().GetTextureManager().FindSprite("font_default"))
+  , _font(manager.GetTextureManager().FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)
   , _lang(lang)

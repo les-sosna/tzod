@@ -284,8 +284,8 @@ std::shared_ptr<CheckBox> CheckBox::Create(Window *parent, float x, float y, con
 
 CheckBox::CheckBox(LayoutManager &manager)
   : ButtonBase(manager)
-  , _fontTexture(GetManager().GetTextureManager().FindSprite("font_small"))
-  , _boxTexture(GetManager().GetTextureManager().FindSprite("ui/checkbox"))
+  , _fontTexture(manager.GetTextureManager().FindSprite("font_small"))
+  , _boxTexture(manager.GetTextureManager().FindSprite("ui/checkbox"))
   , _drawShadow(true)
   , _isChecked(false)
 {

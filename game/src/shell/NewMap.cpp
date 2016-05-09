@@ -32,7 +32,7 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lan
 	UI::Button::Create(this, lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
 	UI::Button::Create(this, lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 
-	GetManager().SetFocusWnd(_width);
+	manager.SetFocusWnd(_width);
 }
 
 void NewMapDlg::OnOK()

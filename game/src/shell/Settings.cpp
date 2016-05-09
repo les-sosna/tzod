@@ -37,7 +37,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	float y = 48;
 
 	y += UI::Text::Create(this, x, y, _lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
-	_player1 = std::make_shared<UI::ComboBox>(GetManager(), &_profilesDataSource);
+	_player1 = std::make_shared<UI::ComboBox>(manager, &_profilesDataSource);
 	_player1->Move(x, y);
 	_player1->Resize(128);
 	_player1->GetList()->Resize(128, 52);
@@ -45,7 +45,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	y += _player1->GetHeight() + 5;
 
 	y += UI::Text::Create(this, 24, y, _lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
-	_player2 = std::make_shared<UI::ComboBox>(GetManager(), &_profilesDataSource);
+	_player2 = std::make_shared<UI::ComboBox>(manager, &_profilesDataSource);
 	_player2->Move(x, y);
 	_player2->Resize(128);
 	_player2->GetList()->Resize(128, 52);
@@ -53,7 +53,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	y += _player2->GetHeight() + 5;
 
 	y += UI::Text::Create(this, x, y, _lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
-	_profiles = std::make_shared<UI::List>(GetManager(), &_profilesDataSource);
+	_profiles = std::make_shared<UI::List>(manager, &_profilesDataSource);
 	_profiles->Move(x, y);
 	_profiles->Resize(128, 52);
 	AddFront(_profiles);
@@ -93,7 +93,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	y += _askDisplaySettings->GetHeight();
 
 	UI::Text::Create(this, x + 50, y += 20, _lang.settings_sfx_volume.Get(), alignTextRT);
-	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(GetManager());
+	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(manager);
 	_volumeSfx->Move(x + 60, y);
 	_volumeSfx->SetSize(150);
 	_volumeSfx->SetDocumentSize(1);
@@ -104,7 +104,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
 	UI::Text::Create(this, x + 50, y += 20, _lang.settings_music_volume.Get(), alignTextRT);
-	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(GetManager());
+	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(manager);
 	_volumeMusic->Move(x + 60, y);
 	_volumeMusic->SetSize(150);
 	_volumeMusic->SetDocumentSize(1);
@@ -123,7 +123,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache 
 	UI::Button::Create(this, _lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 
 	_profiles->SetCurSel(0, true);
-	GetManager().SetFocusWnd(_profiles);
+	manager.SetFocusWnd(_profiles);
 }
 
 SettingsDlg::~SettingsDlg()
@@ -242,7 +242,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *pro
 	SetEasyMove(true);
 
 	UI::Text::Create(this, 20, 15, _lang.profile_name.Get(), alignTextLT);
-	_nameEdit = std::make_shared<UI::Edit>(GetManager());
+	_nameEdit = std::make_shared<UI::Edit>(manager);
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
 	_nameEdit->SetText(_nameOrig);
@@ -281,7 +281,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *pro
 	UI::Button::Create(this, _lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	UI::Button::Create(this, _lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 
-	GetManager().SetFocusWnd(_actions);
+	manager.SetFocusWnd(_actions);
 }
 
 ControlProfileDlg::~ControlProfileDlg()
