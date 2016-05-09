@@ -11,11 +11,11 @@ namespace UI
 class NewMapDlg : public UI::Dialog
 {
 	ConfCache &_conf;
-	UI::Edit *_width;
-	UI::Edit *_height;
+	std::shared_ptr<UI::Edit> _width;
+	std::shared_ptr<UI::Edit> _height;
 
 public:
-	NewMapDlg(Window *parent, ConfCache &conf, LangCache &lang);
+	NewMapDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang);
 
 	void OnOK();
 	void OnCancel();

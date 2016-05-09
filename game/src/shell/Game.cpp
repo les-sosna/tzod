@@ -21,8 +21,8 @@
 
 #include <sstream>
 
-TimeElapsed::TimeElapsed(UI::Window *parent, float x, float y, enumAlignText align, World &world)
-  : Text(parent)
+TimeElapsed::TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlignText align, World &world)
+  : Text(manager)
   , _world(world)
 {
 	SetTimeStep(true);
@@ -48,7 +48,7 @@ void TimeElapsed::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GameLayout::GameLayout(Window *parent,
+GameLayout::GameLayout(UI::LayoutManager &manager,
                        GameContext &gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
@@ -56,7 +56,7 @@ GameLayout::GameLayout(Window *parent,
                        ConfCache &conf,
                        LangCache &lang,
                        UI::ConsoleBuffer &logger)
-  : Window(parent)
+  : Window(manager)
   , _gameContext(gameContext)
   , _gameViewHarness(gameContext.GetWorld(), worldController)
   , _worldView(worldView)
@@ -68,13 +68,16 @@ GameLayout::GameLayout(Window *parent,
   , _texDrag(GetManager().GetTextureManager().FindSprite("ui/direction"))
   , _texTarget(GetManager().GetTextureManager().FindSprite("ui/target"))
 {
-	_msg = new MessageArea(this, _conf, logger);
+	_msg = std::make_shared<MessageArea>(manager, _conf, logger);
 	_msg->Move(100, 100);
+	AddFront(_msg);
 
-	_score = new ScoreTable(this, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
+	_score = std::make_shared<ScoreTable>(manager, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
 	_score->SetVisible(false);
+	AddFront(_score);
 
-	_time = new TimeElapsed(this, 0, 0, alignTextRB, _gameContext.GetWorld());
+	_time = std::make_shared<TimeElapsed>(manager, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
+	AddFront(_time);
 	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
@@ -148,7 +151,7 @@ void GameLayout::OnTimeStep(float dt)
 
 	_gameViewHarness.Step(dt);
 
-	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd();
+	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd().get();
 	WorldController::ControllerStateMap controlStates;
 
 	if (readUserInput)
@@ -234,14 +237,14 @@ bool GameLayout::OnPointerDown(float x, float y, int button, UI::PointerType poi
 	{
 		_activeDrags[pointerID].first = vec2d(x, y);
 		_activeDrags[pointerID].second = vec2d(x, y);
-		GetManager().SetCapture(pointerID, this);
+		GetManager().SetCapture(pointerID, shared_from_this());
 	}
 	return true;
 }
 
 bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (GetManager().GetCapture(pointerID) == this)
+	if (GetManager().GetCapture(pointerID).get() == this)
 	{
 		_activeDrags.erase(pointerID);
 		GetManager().SetCapture(pointerID, nullptr);
@@ -251,7 +254,7 @@ bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerType point
 
 bool GameLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (GetManager().GetCapture(pointerID) == this)
+	if (GetManager().GetCapture(pointerID).get() == this)
 	{
 		auto &drag = _activeDrags[pointerID];
 		drag.second = vec2d(x, y);

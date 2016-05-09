@@ -13,7 +13,7 @@ namespace UI
 class MessageArea : public UI::Window
 {
 public:
-	MessageArea(UI::Window *parent, ConfCache &conf, UI::ConsoleBuffer &logger);
+	MessageArea(UI::LayoutManager &manager, ConfCache &conf, UI::ConsoleBuffer &logger);
 
 	void WriteLine(const std::string &text);
 	void Clear();

@@ -16,7 +16,7 @@ DesktopFactory::DesktopFactory(AppState &appState,
 {
 }
 
-UI::Window* DesktopFactory::Create(UI::LayoutManager *manager)
+std::shared_ptr<UI::Window> DesktopFactory::Create(UI::LayoutManager &manager)
 {
-	return new Desktop(manager, _appState, _appController, _fs, _conf, _lang, _logger);
+	return std::make_shared<Desktop>(manager, _appState, _appController, _fs, _conf, _lang, _logger);
 }

@@ -10,21 +10,10 @@
 #include <cstring>
 #include <sstream>
 
-namespace UI
-{
+using namespace UI;
 
-Edit* Edit::Create(Window *parent, float x, float y, float width)
-{
-	Edit *res = new Edit(parent);
-	res->Move(x, y);
-	res->Resize(width, res->GetHeight());
-	return res;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Edit::Edit(Window *parent)
-  : Window(parent)
+Edit::Edit(LayoutManager &manager)
+  : Window(manager)
   , _selStart(-1)
   , _selEnd(-1)
   , _offset(0)
@@ -143,7 +132,7 @@ void Edit::Draw(DrawingContext &dc) const
 	dc.DrawBitmapText((GetSelMax() - _offset) * w, 1, _font, c, GetText().substr(GetSelMax()));
 
 	// cursor
-	if( this == GetManager().GetFocusWnd() && fmodf(_time, 1.0f) < 0.5f )
+	if( this == GetManager().GetFocusWnd().get() && fmodf(_time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
 		rt.left = (GetSelEnd() - (float) _offset) * w;
@@ -285,9 +274,9 @@ bool Edit::OnKeyPressed(Key key)
 		return true;
 	case Key::Space:
 		return true;
-            
-    default:
-        break;
+
+	default:
+		break;
 	}
 	return false;
 }
@@ -296,32 +285,32 @@ bool Edit::OnPointerDown(float x, float y, int button, PointerType pointerType, 
 {
 	if( 1 == button && !GetManager().HasCapturedPointers(this) )
 	{
-		GetManager().SetCapture(pointerID, this);
+		GetManager().SetCapture(pointerID, shared_from_this());
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(sel, sel);
 	}
-    return true;
+	return true;
 }
 
 bool Edit::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
 {
-	if( GetManager().GetCapture(pointerID) == this )
+	if( GetManager().GetCapture(pointerID).get() == this )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(GetSelStart(), sel);
 	}
-    return true;
+	return true;
 }
 
 bool Edit::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( 1 == button && GetManager().GetCapture(pointerID) == this )
+	if( 1 == button && GetManager().GetCapture(pointerID).get() == this )
 	{
 		GetManager().SetCapture(pointerID, nullptr);
 	}
-    return true;
+	return true;
 }
 
 bool Edit::OnFocus(bool focus)
@@ -374,12 +363,7 @@ void Edit::Copy() const
 	std::string str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
-        GetManager().GetClipboard().SetClipboardText(std::move(str));
+		GetManager().GetClipboard().SetClipboardText(std::move(str));
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
 

@@ -17,10 +17,7 @@ class ButtonBase;
 class ComboBox : public Window
 {
 public:
-	static ComboBox* Create(Window *parent, ListDataSource *dataSource)
-	{
-		return new ComboBox(parent, dataSource);
-	}
+	ComboBox(LayoutManager &manager, ListDataSource *dataSource);
 
 	void Resize(float width) { Window::Resize(width, GetHeight()); }
 
@@ -29,14 +26,12 @@ public:
 	void SetCurSel(int index);
 	int GetCurSel() const;
 
-	List* GetList() const;
+	std::shared_ptr<List> GetList() const;
 	void DropList();
 
 	std::function<void(int)> eventChangeCurSel;
 
 protected:
-	ComboBox(Window *parent, ListDataSource *dataSource);
-
 	void OnEnabledChange(bool enable, bool inherited);
 	bool OnKeyPressed(Key key);
 	bool OnFocus(bool focus);
@@ -48,9 +43,9 @@ protected:
 	void OnListLostFocus();
 
 private:
-	TextButton  *_text;
-	ButtonBase  *_btn;
-	List        *_list;
+	std::shared_ptr<TextButton> _text;
+	std::shared_ptr<ButtonBase> _btn;
+	std::shared_ptr<List> _list;
 	int _curSel;
 };
 

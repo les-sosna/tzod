@@ -18,14 +18,14 @@
 #include <sstream>
 
 
-SettingsDlg::SettingsDlg(UI::Window *parent, ConfCache &conf, LangCache &lang)
-  : Dialog(parent, 512, 296)
+SettingsDlg::SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang)
+  : Dialog(manager, 512, 296)
   , _conf(conf)
   , _lang(lang)
 {
 	SetEasyMove(true);
 
-	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, _lang.settings_title.Get(), alignTextCT);
+	auto title = UI::Text::Create(this, GetWidth() / 2, 16, _lang.settings_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -37,31 +37,36 @@ SettingsDlg::SettingsDlg(UI::Window *parent, ConfCache &conf, LangCache &lang)
 	float y = 48;
 
 	y += UI::Text::Create(this, x, y, _lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
-	_player1 = UI::ComboBox::Create(this, &_profilesDataSource);
+	_player1 = std::make_shared<UI::ComboBox>(GetManager(), &_profilesDataSource);
 	_player1->Move(x, y);
 	_player1->Resize(128);
 	_player1->GetList()->Resize(128, 52);
+	AddFront(_player1);
 	y += _player1->GetHeight() + 5;
 
 	y += UI::Text::Create(this, 24, y, _lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
-	_player2 = UI::ComboBox::Create(this, &_profilesDataSource);
+	_player2 = std::make_shared<UI::ComboBox>(GetManager(), &_profilesDataSource);
 	_player2->Move(x, y);
 	_player2->Resize(128);
 	_player2->GetList()->Resize(128, 52);
+	AddFront(_player2);
 	y += _player2->GetHeight() + 5;
 
 	y += UI::Text::Create(this, x, y, _lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
-	_profiles = UI::List::Create(this, &_profilesDataSource, x, y, 128, 52);
+	_profiles = std::make_shared<UI::List>(GetManager(), &_profilesDataSource);
+	_profiles->Move(x, y);
+	_profiles->Resize(128, 52);
+	AddFront(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
 	UI::Button::Create(this, _lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	_editProfile = UI::Button::Create(this, _lang.settings_profile_edit.Get(), 40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
-	_editProfile->SetEnabled( false );
+	_editProfile->SetEnabled(false);
 	_deleteProfile = UI::Button::Create(this, _lang.settings_profile_delete.Get(), 40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
-	_deleteProfile->SetEnabled( false );
+	_deleteProfile->SetEnabled(false);
 
 
 	//
@@ -88,19 +93,25 @@ SettingsDlg::SettingsDlg(UI::Window *parent, ConfCache &conf, LangCache &lang)
 	y += _askDisplaySettings->GetHeight();
 
 	UI::Text::Create(this, x + 50, y += 20, _lang.settings_sfx_volume.Get(), alignTextRT);
-	_volumeSfx = UI::ScrollBarHorizontal::Create(this, x + 60, y, 150);
+	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(GetManager());
+	_volumeSfx->Move(x + 60, y);
+	_volumeSfx->SetSize(150);
 	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
 	_volumeSfx->SetPos(expf(_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeSfx->eventScroll = std::bind(&SettingsDlg::OnVolumeSfx, this, std::placeholders::_1);
+	AddFront(_volumeSfx);
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
 	UI::Text::Create(this, x + 50, y += 20, _lang.settings_music_volume.Get(), alignTextRT);
-	_volumeMusic = UI::ScrollBarHorizontal::Create(this, x + 60, y, 150);
+	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(GetManager());
+	_volumeMusic->Move(x + 60, y);
+	_volumeMusic->SetSize(150);
 	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
 	_volumeMusic->SetPos(expf(_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);
 	_volumeMusic->eventScroll = std::bind(&SettingsDlg::OnVolumeMusic, this, std::placeholders::_1);
+	AddFront(_volumeMusic);
 	_initialVolumeMusic = _conf.s_musicvolume.GetInt();
 
 
@@ -131,15 +142,18 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	(new ControlProfileDlg(this, nullptr, _conf, _lang))->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), nullptr, _conf, _lang);
+	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
-	(new ControlProfileDlg(this, _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang))
-		->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
+	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void SettingsDlg::OnDeleteProfile()
@@ -196,7 +210,6 @@ void SettingsDlg::OnProfileEditorClosed(int code)
 	{
 		UpdateProfilesList();
 		GetManager().SetFocusWnd(_profiles);
-
 	}
 }
 
@@ -216,8 +229,8 @@ static std::string GenerateProfileName(const ConfCache &conf, LangCache &lang)
 	return buf.str();
 }
 
-ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName, ConfCache &conf, LangCache &lang)
-  : Dialog(parent, 448, 416)
+ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ConfCache &conf, LangCache &lang)
+  : Dialog(manager, 448, 416)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)
@@ -229,8 +242,11 @@ ControlProfileDlg::ControlProfileDlg(Window *parent, const char *profileName, Co
 	SetEasyMove(true);
 
 	UI::Text::Create(this, 20, 15, _lang.profile_name.Get(), alignTextLT);
-	_nameEdit = UI::Edit::Create(this, 20, 30, 250);
+	_nameEdit = std::make_shared<UI::Edit>(GetManager());
+	_nameEdit->Move(20, 30);
+	_nameEdit->SetWidth(250);
 	_nameEdit->SetText(_nameOrig);
+	AddFront(_nameEdit);
 
 	UI::Text::Create(this,  20, 65, _lang.profile_action.Get(), alignTextLT);
 	UI::Text::Create(this, 220, 65, _lang.profile_key.Get(), alignTextLT);
@@ -275,7 +291,7 @@ ControlProfileDlg::~ControlProfileDlg()
 void ControlProfileDlg::OnSelectAction(int index)
 {
 	SetActiveIndex(index);
-	GetManager().SetFocusWnd(this);
+	GetManager().SetFocusWnd(shared_from_this());
 }
 
 void ControlProfileDlg::SetActiveIndex(int index)

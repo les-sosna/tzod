@@ -5,31 +5,32 @@
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 
-namespace UI
-{
+using namespace UI;
 
-///////////////////////////////////////////////////////////////////////////////
-
-ComboBox::ComboBox(Window *parent, ListDataSource *dataSource)
-  : Window(parent)
+ComboBox::ComboBox(LayoutManager &manager, ListDataSource *dataSource)
+  : Window(manager)
   , _curSel(-1)
 {
-	_text = TextButton::Create(this, 0, 1, std::string(), "font_small");
-	_text->eventClick = std::bind(&ComboBox::DropList, this);
-
-	_list = List::Create(this, dataSource, 0, 0, 1, 1);
+	_list = std::make_shared<List>(manager, dataSource);
 	_list->SetTexture("ui/combo_list", false);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
 	_list->eventChangeCurSel = std::bind(&ComboBox::OnChangeSelection, this, std::placeholders::_1);
 	_list->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
+	AddFront(_list);
 
-	_btn = ImageButton::Create(this, 0, 0, "ui/scroll_down");
+	_btn = std::make_shared<ImageButton>(manager);
+	_btn->SetTexture("ui/scroll_down", true);
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
+	AddFront(_btn);
 
-	_text->BringToFront();
+	_text = std::make_shared<TextButton>(manager);
+	_text->Move(0, 1);
+	_text->SetFont("font_small");
+	_text->eventClick = std::bind(&ComboBox::DropList, this);
 	_text->SetDrawShadow(false);
+	AddFront(_text);
 
 	SetDrawBorder(true);
 	SetTexture("ui/combo", false);
@@ -54,7 +55,7 @@ int ComboBox::GetCurSel() const
 	return _curSel;
 }
 
-List* ComboBox::GetList() const
+std::shared_ptr<List> ComboBox::GetList() const
 {
 	return _list;
 }
@@ -66,7 +67,7 @@ void ComboBox::DropList()
 		_btn->SetTexture("ui/scroll_down", false);
 		_list->SetVisible(false);
 		_list->SetCurSel(GetCurSel());
-		GetManager().SetFocusWnd(this);
+		GetManager().SetFocusWnd(shared_from_this());
 	}
 	else
 	{
@@ -86,7 +87,7 @@ void ComboBox::OnClickItem(int index)
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetTexture("ui/scroll_down", false);
-		GetManager().SetFocusWnd(this);
+		GetManager().SetFocusWnd(shared_from_this());
 
 		if( eventChangeCurSel )
 			eventChangeCurSel(index);
@@ -121,7 +122,7 @@ bool ComboBox::OnKeyPressed(Key key)
 	case Key::Escape:
 		if( _list->GetVisible() )
 		{
-			GetManager().SetFocusWnd(this);
+			GetManager().SetFocusWnd(shared_from_this());
 			return true;
 		}
 		break;
@@ -157,8 +158,3 @@ void ComboBox::OnSize(float width, float height)
 	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
 	_text->Resize(_btn->GetX(), height);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

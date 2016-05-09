@@ -11,8 +11,8 @@ namespace UI
 ///////////////////////////////////////////////////////////////////////////////
 // scrollbar class implementation
 
-ScrollBarBase::ScrollBarBase(Window *parent)
-    : Window(parent)
+ScrollBarBase::ScrollBarBase(LayoutManager &manager)
+    : Window(manager)
     , _tmpBoxPos(-1)
     , _pos(0)
     , _lineSize(0.1f)
@@ -20,9 +20,12 @@ ScrollBarBase::ScrollBarBase(Window *parent)
     , _documentSize(1.0f)
     , _showButtons(true)
 {
-	_btnBox        = ImageButton::Create(this, 0, 0, nullptr);
-	_btnUpLeft     = ImageButton::Create(this, 0, 0, nullptr);
-	_btnDownRight  = ImageButton::Create(this, 0, 0, nullptr);
+	_btnBox = std::make_shared<ImageButton>(manager);
+	AddFront(_btnBox);
+	_btnUpLeft = std::make_shared<ImageButton>(manager);
+	AddFront(_btnUpLeft);
+	_btnDownRight = std::make_shared<ImageButton>(manager);
+	AddFront(_btnDownRight);
 
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
 	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);
@@ -179,16 +182,8 @@ float ScrollBarBase::GetScrollPaneLength() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarVertical* ScrollBarVertical::Create(Window *parent, float x, float y, float height)
-{
-	ScrollBarVertical *result = new ScrollBarVertical(parent);
-	result->Move(x, y);
-	result->SetSize(height);
-	return result;
-}
-
-ScrollBarVertical::ScrollBarVertical(Window *parent)
-  : ScrollBarBase(parent)
+ScrollBarVertical::ScrollBarVertical(LayoutManager &manager)
+  : ScrollBarBase(manager)
 {
 	_btnBox->SetTexture("ui/scroll_vert", true);
 	_btnUpLeft->SetTexture("ui/scroll_up", true);
@@ -219,16 +214,8 @@ void ScrollBarVertical::SetPos(float pos)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarHorizontal* ScrollBarHorizontal::Create(Window *parent, float x, float y, float height)
-{
-	ScrollBarHorizontal *result = new ScrollBarHorizontal(parent);
-	result->Move(x, y);
-	result->SetSize(height);
-	return result;
-}
-
-ScrollBarHorizontal::ScrollBarHorizontal(Window *parent)
-  : ScrollBarBase(parent)
+ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager)
+  : ScrollBarBase(manager)
 {
 	_btnBox->SetTexture("ui/scroll_hor", true);
 	_btnUpLeft->SetTexture("ui/scroll_left", true);

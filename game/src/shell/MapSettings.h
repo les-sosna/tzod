@@ -16,16 +16,16 @@ class World;
 class MapSettingsDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-	DefaultComboBox *_theme;
-	UI::Edit *_author;
-	UI::Edit *_email;
-	UI::Edit *_url;
-	UI::Edit *_desc;
-	UI::Edit *_onInit;
+	std::shared_ptr<DefaultComboBox> _theme;
+	std::shared_ptr<UI::Edit> _author;
+	std::shared_ptr<UI::Edit> _email;
+	std::shared_ptr<UI::Edit> _url;
+	std::shared_ptr<UI::Edit> _desc;
+	std::shared_ptr<UI::Edit> _onInit;
 	World &_world;
 
 public:
-	MapSettingsDlg(UI::Window *parent, World &world, const ThemeManager &themeManager, LangCache &lang);
+	MapSettingsDlg(UI::LayoutManager &manager, World &world, const ThemeManager &themeManager, LangCache &lang);
 	~MapSettingsDlg();
 
 	void OnOK();

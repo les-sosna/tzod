@@ -26,8 +26,8 @@
 #define MAX_FRAGLIMIT   10000
 
 
-NewGameDlg::NewGameDlg(UI::Window *parent, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-  : Dialog(parent, 770, 550)
+NewGameDlg::NewGameDlg(UI::LayoutManager &manager, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+  : Dialog(manager, 770, 550)
   , _conf(conf)
   , _lang(lang)
 {
@@ -66,18 +66,26 @@ NewGameDlg::NewGameDlg(UI::Window *parent, FS::FileSystem &fs, ConfCache &conf, 
 		_nightMode = UI::CheckBox::Create(this, x3, y, _lang.night_mode.Get());
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 
-
 		UI::Text::Create(this, x3, y+=30, _lang.game_speed.Get(), alignTextLT);
-		_gameSpeed = UI::Edit::Create(this, x3+20, y+=15, 80);
+		_gameSpeed = std::make_shared<UI::Edit>(manager);
+		_gameSpeed->Move(x3 + 20, y += 15);
+		_gameSpeed->SetWidth(80);
 		_gameSpeed->SetInt(conf.cl_speed.GetInt());
+		AddFront(_gameSpeed);
 
 		UI::Text::Create(this, x3, y+=30, _lang.frag_limit.Get(), alignTextLT);
-		_fragLimit = UI::Edit::Create(this, x3+20, y+=15, 80);
+		_fragLimit = std::make_shared<UI::Edit>(manager);
+		_fragLimit->Move(x3 + 20, y += 15);
+		_fragLimit->SetWidth(80);
 		_fragLimit->SetInt(conf.cl_fraglimit.GetInt());
+		AddFront(_fragLimit);
 
 		UI::Text::Create(this, x3, y+=30, _lang.time_limit.Get(), alignTextLT);
-		_timeLimit = UI::Edit::Create(this, x3+20, y+=15, 80);
+		_timeLimit = std::make_shared<UI::Edit>(manager);
+		_timeLimit->Move(x3 + 20, y += 15);
+		_timeLimit->SetWidth(80);
 		_timeLimit->SetInt(conf.cl_timelimit.GetInt());
+		AddFront(_timeLimit);
 
 		UI::Text::Create(this, x3+30, y+=30, _lang.zero_no_limits.Get(), alignTextLT);
 	}
@@ -116,7 +124,7 @@ NewGameDlg::NewGameDlg(UI::Window *parent, FS::FileSystem &fs, ConfCache &conf, 
 	//
 
 	{
-		UI::Button *btn;
+		std::shared_ptr<UI::Button> btn;
 
 
 		btn = UI::Button::Create(this, _lang.human_player_add.Get(), x3, 256);
@@ -216,7 +224,9 @@ void NewGameDlg::OnAddPlayer()
 	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditPlayerDlg(this, p, _conf, _lang))->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1);
+	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), p, _conf, _lang);
+	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void NewGameDlg::OnAddPlayerClose(int result)
@@ -244,8 +254,9 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetCurSel();
 	assert(-1 != index);
 
-	(new EditPlayerDlg(this, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang))
-		->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1);
+	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
+	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void NewGameDlg::OnEditPlayerClose(int result)
@@ -265,7 +276,9 @@ void NewGameDlg::OnAddBot()
 	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	(new EditBotDlg(this, p, _lang))->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1);
+	auto dlg = std::make_shared<EditBotDlg>(GetManager(), p, _lang);
+	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void NewGameDlg::OnAddBotClose(int result)
@@ -293,8 +306,9 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetCurSel();
 	assert(-1 != index);
 
-	(new EditBotDlg(this, _conf.dm_bots.GetAt(index).AsTable(), _lang))
-		->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1);
+	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _conf.dm_bots.GetAt(index).AsTable(), _lang);
+	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1);
+	AddFront(dlg);
 }
 
 void NewGameDlg::OnEditBotClose(int result)
@@ -373,22 +387,23 @@ bool NewGameDlg::OnKeyPressed(UI::Key key)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable &info, ConfCache &conf, LangCache &lang)
-  : Dialog(parent, 384, 220)
+EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, ConfVarTable &info, ConfCache &conf, LangCache &lang)
+  : Dialog(manager, 384, 220)
   , _info(&info)
 {
 	SetEasyMove(true);
 
-	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, lang.player_settings.Get(), alignTextCT);
+	auto title = UI::Text::Create(this, GetWidth() / 2, 16, lang.player_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 	float x1 = 30;
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = Window::Create(this);
+	_skinPreview = std::make_shared<Window>(manager);
 	_skinPreview->Move(300, y);
 	_skinPreview->SetTexture(nullptr, false);
+	AddFront(_skinPreview);
 
 
 	//
@@ -396,8 +411,11 @@ EditPlayerDlg::EditPlayerDlg(Window *parent, ConfVarTable &info, ConfCache &conf
 	//
 
 	UI::Text::Create(this, x1, y, lang.player_nick.Get(), alignTextLT);
-	_name = UI::Edit::Create(this, x2, y-=1, 200);
+	_name = std::make_shared<UI::Edit>(manager);
+	_name->Move(x2, y -= 1);
+	_name->SetWidth(200);
 	_name->SetText( _info.nick.Get() );
+	AddFront(_name);
 	GetManager().SetFocusWnd(_name);
 
 
@@ -543,13 +561,13 @@ static const char s_levels[][16] = {
 };
 
 
-EditBotDlg::EditBotDlg(Window *parent, ConfVarTable &info, LangCache &lang)
-  : Dialog(parent, 384, 220)
+EditBotDlg::EditBotDlg(UI::LayoutManager &manager, ConfVarTable &info, LangCache &lang)
+  : Dialog(manager, 384, 220)
   , _info(&info)
 {
 	SetEasyMove(true);
 
-	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, lang.bot_settings.Get(), alignTextCT);
+	auto title = UI::Text::Create(this, GetWidth() / 2, 16, lang.bot_settings.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -557,9 +575,10 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable &info, LangCache &lang)
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = Window::Create(this);
+	_skinPreview = std::make_shared<Window>(manager);
 	_skinPreview->Move(300, y);
 	_skinPreview->SetTexture(nullptr, false);
+	AddFront(_skinPreview);
 
 
 	//
@@ -567,8 +586,11 @@ EditBotDlg::EditBotDlg(Window *parent, ConfVarTable &info, LangCache &lang)
 	//
 
 	UI::Text::Create(this, x1, y, lang.player_nick.Get(), alignTextLT);
-	_name = UI::Edit::Create(this, x2, y-=1, 200);
+	_name = std::make_shared<UI::Edit>(manager);
+	_name->Move(x2, y -= 1);
+	_name->SetWidth(200);
 	_name->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
+	AddFront(_name);
 	GetManager().SetFocusWnd(_name);
 
 
@@ -721,17 +743,16 @@ void ScriptMessageBox::OnButton3()
 	eventSelect(3);
 }
 
-ScriptMessageBox::ScriptMessageBox( Window *parent,
+ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
                                     const std::string &title,
                                     const std::string &text,
                                     const std::string &btn1,
                                     const std::string &btn2,
                                     const std::string &btn3)
-  : Window(parent)
+  : Window(manager)
 {
 	SetTexture("ui/window", false);
 	SetDrawBorder(true);
-	BringToBack();
 
 	_text = UI::Text::Create(this, 10, 10, text, alignTextLT);
 
@@ -759,7 +780,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	}
 	else
 	{
-		_button2 = nullptr;
+		_button2.reset();
 	}
 
 	if( !btn2.empty() && !btn3.empty() )
@@ -769,7 +790,7 @@ ScriptMessageBox::ScriptMessageBox( Window *parent,
 	}
 	else
 	{
-		_button3 = nullptr;
+		_button3.reset();
 	}
 }
 

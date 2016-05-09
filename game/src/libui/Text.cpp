@@ -5,23 +5,19 @@
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
-namespace UI
-{
+using namespace UI;
 
-Text* Text::Create(Window *parent, float x, float y, const std::string &text, enumAlignText align)
+std::shared_ptr<Text> Text::Create(Window *parent, float x, float y, const std::string &text, enumAlignText align)
 {
-	Text *t = new Text(parent);
+	auto t = std::make_shared<Text>(parent->GetManager());
 	t->Move(x, y);
 	t->SetText(text);
 	t->SetAlign(align);
 	return t;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Text class implementation
-
-Text::Text(Window *parent)
-  : Window(parent)
+Text::Text(LayoutManager &manager)
+  : Window(manager)
   , _lineCount(1)
   , _maxline(0)
   , _align(alignTextLT)
@@ -107,9 +103,4 @@ void Text::OnTextChange()
 	float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
 

@@ -121,8 +121,8 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 }
 
 
-EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)
-  : Window(parent)
+EditorLayout::EditorLayout(UI::LayoutManager &manager, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)
+  : Window(manager)
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
@@ -142,11 +142,13 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 	_help = UI::Text::Create(this, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
-	_propList = new PropertyList(this, 5, 5, 512, 256, _world, _conf, _logger);
+	_propList = std::make_shared<PropertyList>(manager, 5.f, 5.f, 512.f, 256.f, _world, _conf, _logger);
 	_propList->SetVisible(false);
+	AddFront(_propList);
 
-	_serviceList = new ServiceEditor(this, 5, 300, 512, 256, _world, _conf, _lang);
+	_serviceList = std::make_shared<ServiceEditor>(manager, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
 	_serviceList->SetVisible(_conf.ed_showservices.Get());
+	AddFront(_serviceList);
 
 	_layerDisp = UI::Text::Create(this, 0, 0, "", alignTextRT);
 
@@ -159,7 +161,7 @@ EditorLayout::EditorLayout(Window *parent, World &world, WorldView &worldView, c
 		_typeList->GetData()->AddItem(_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
 	}
 	_typeList->GetData()->Sort();
-	UI::List *ls = _typeList->GetList();
+	auto ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
@@ -216,8 +218,10 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_propList->SetVisible(false);
 	}
 
-	if( eventOnChangeSelection )
-		eventOnChangeSelection(_selectedObject);
+	if (_serviceList)
+	{
+		_serviceList->OnChangeSelectionGlobal(_selectedObject);
+	}
 }
 
 void EditorLayout::SelectNone()
@@ -265,7 +269,7 @@ bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType p
 {
 	if( 0 == _mbutton )
 	{
-		GetManager().SetCapture(pointerID, this);
+		GetManager().SetCapture(pointerID, shared_from_this());
 		_mbutton = button;
 	}
 
@@ -405,7 +409,7 @@ bool EditorLayout::OnKeyPressed(UI::Key key)
 		_help->SetVisible(!_help->GetVisible());
 		break;
 	case UI::Key::F8:
-	//	dlg = new MapSettingsDlg(this, _world);
+	//	dlg = std::make_shared<MapSettingsDlg>(this, _world);
 	//	SetDrawBackground(true);
 	//	dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1);
 	//	_nModalPopups++;

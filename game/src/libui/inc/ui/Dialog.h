@@ -9,15 +9,15 @@ namespace UI
 class Dialog : public Window
 {
 public:
-	Dialog(Window *parent, float width, float height, bool modal = true);
+	Dialog(LayoutManager &manager, float width, float height, bool modal = true);
 
 	void SetEasyMove(bool enable);
 
-    enum
-    {
-        _resultOK,
-        _resultCancel
-    };
+	enum
+	{
+		_resultOK,
+		_resultCancel
+	};
 
 	std::function<void(int)> eventClose;
 

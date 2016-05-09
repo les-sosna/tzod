@@ -4,8 +4,10 @@
 
 #include <cassert>
 #include <functional>
-#include <string>
 #include <list>
+#include <memory>
+#include <string>
+#include <deque>
 
 class DrawingContext;
 
@@ -13,19 +15,8 @@ namespace UI
 {
 
 class LayoutManager;
-class Window;
 enum class Key;
 enum class PointerType;
-    
-namespace detail
-{
-	struct Resident
-	{
-		unsigned int counter;
-		Window *ptr;
-		Resident(Window *p) : counter(0), ptr(p) {}
-	};
-}
 
 enum class StretchMode
 {
@@ -33,20 +24,13 @@ enum class StretchMode
 	Fill,
 };
 
-class Window
+class Window : public std::enable_shared_from_this<Window>
 {
-	friend class WindowWeakPtr;
-	detail::Resident *_resident;
-
 	friend class LayoutManager;
 	LayoutManager &_manager;
 
-	Window* _parent;
-	Window* _firstChild;
-	Window* _lastChild;
-	Window* _prevSibling;
-	Window* _nextSibling;
-
+	Window *_parent = nullptr;
+	std::deque<std::shared_ptr<Window>> _children;
 
 	std::list<Window*>::iterator _timeStepReg;
 
@@ -55,23 +39,23 @@ class Window
 	// size and position
 	//
 
-	float _x;
-	float _y;
-	float _width;
-	float _height;
+	float _x = 0;
+	float _y = 0;
+	float _width = 0;
+	float _height = 0;
 
 
 	//
 	// attributes
 	//
 
-	std::string     _text;
+	std::string  _text;
 
-	SpriteColor  _backColor;
-	SpriteColor  _borderColor;
-	size_t       _texture;
-	StretchMode  _textureStretchMode;
-	unsigned int _frame;
+	SpriteColor  _backColor = 0xffffffff;
+	SpriteColor  _borderColor = 0xffffffff;
+	size_t       _texture = -1;
+	StretchMode  _textureStretchMode = StretchMode::Stretch;
+	unsigned int _frame = 0;
 
 	struct
 	{
@@ -84,17 +68,7 @@ class Window
 		bool _clipChildren   : 1;
 	};
 
-#ifndef NDEBUG
-	mutable unsigned int _debugNoDestroy;
-	class NoDestroyHelper
-	{
-	public:
-		NoDestroyHelper(const Window *wnd) : _var(wnd->_debugNoDestroy) { ++_var; }
-		~NoDestroyHelper() { --_var; }
-	private:
-		unsigned int &_var;
-	};
-#endif
+	void PrepareToUnlink(const std::shared_ptr<Window> &child);
 
 protected:
 	unsigned int GetFrameCount() const;
@@ -104,20 +78,18 @@ protected:
 	void OnEnabledChangeInternal(bool enable, bool inherited);
 	void OnVisibleChangeInternal(bool visible, bool inherited);
 
-protected:
-	explicit Window(Window *parent, LayoutManager *manager = nullptr);
-	virtual ~Window(); // delete via Destroy() only
-
 public:
-	static Window* Create(Window *parent);
-	void Destroy();
+	explicit Window(LayoutManager &manager);
+	virtual ~Window();
 
-	Window* GetParent()      const { return _parent;      }
-	Window* GetPrevSibling() const { return _prevSibling; }
-	Window* GetNextSibling() const { return _nextSibling; }
-	Window* GetFirstChild()  const { return _firstChild;  }
-	Window* GetLastChild()   const { return _lastChild;   }
-	LayoutManager& GetManager() const { return _manager;  }
+	void UnlinkAllChildren();
+	void UnlinkChild(std::shared_ptr<Window> child);
+	void AddFront(std::shared_ptr<Window> child);
+	void AddBack(std::shared_ptr<Window> child);
+
+	Window* GetParent() const { return _parent; }
+	auto& GetChildren() const { return _children; }
+	LayoutManager& GetManager() const { return _manager;  } // to remove
 
 	bool Contains(const Window *other) const;
 
@@ -153,9 +125,6 @@ public:
 	void SetClipChildren(bool clip)  { _clipChildren = clip; }
 	bool GetClipChildren() const     { return _clipChildren; }
 
-	void BringToFront();
-	void BringToBack();
-
 	const std::string& GetText() const;
 	void SetText(const std::string &text);
 
@@ -169,6 +138,8 @@ public:
 	float GetY() const { return _y; }
 
 	void Resize(float width, float height);
+	void SetHeight(float height) { Resize(GetWidth(), height); }
+	void SetWidth(float width) { Resize(width, GetHeight()); }
 	float GetWidth()  const { return _width;  }
 	float GetHeight() const { return _height; }
 

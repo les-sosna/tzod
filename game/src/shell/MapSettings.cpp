@@ -21,13 +21,13 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 	return 0;
 }
 
-MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager &themeManager, LangCache &lang)
-	: Dialog(parent, 512, 512)
+MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, World &world, const ThemeManager &themeManager, LangCache &lang)
+	: Dialog(manager, 512, 512)
 	, _world(world)
 {
 	SetEasyMove(true);
 
-	UI::Text *title = UI::Text::Create(this, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
+	auto title = UI::Text::Create(this, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
 	title->SetFont("font_default");
 
 
@@ -37,24 +37,39 @@ MapSettingsDlg::MapSettingsDlg(Window *parent, World &world, const ThemeManager 
 	float y = 32;
 
 	UI::Text::Create(this, x1, y += 20, lang.map_author.Get(), alignTextLT);
-	_author = UI::Edit::Create(this, x2, y += 15, 256);
+	_author = std::make_shared<UI::Edit>(manager);
+	_author->Move(x2, y += 15);
+	_author->SetWidth(256);
 	_author->SetText(world._infoAuthor);
+	AddFront(_author);
 
 	UI::Text::Create(this, x1, y += 20, lang.map_email.Get(), alignTextLT);
-	_email = UI::Edit::Create(this, x2, y += 15, 256);
+	_email = std::make_shared<UI::Edit>(manager);
+	_email->Move(x2, y += 15);
+	_email->SetWidth(256);
 	_email->SetText(world._infoEmail);
+	AddFront(_email);
 
 	UI::Text::Create(this, x1, y += 20, lang.map_url.Get(), alignTextLT);
-	_url = UI::Edit::Create(this, x2, y += 15, 256);
+	_url = std::make_shared<UI::Edit>(manager);
+	_url->Move(x2, y += 15);
+	_url->SetWidth(256);
 	_url->SetText(world._infoUrl);
+	AddFront(_url);
 
 	UI::Text::Create(this, x1, y += 20, lang.map_desc.Get(), alignTextLT);
-	_desc = UI::Edit::Create(this, x2, y += 15, 256);
+	_desc = std::make_shared<UI::Edit>(manager);
+	_desc->Move(x2, y += 15);
+	_desc->SetWidth(256);
 	_desc->SetText(world._infoDesc);
+	AddFront(_url);
 
 	UI::Text::Create(this, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
-	_onInit = UI::Edit::Create(this, x2, y += 15, 256);
+	_onInit = std::make_shared<UI::Edit>(manager);
+	_onInit->Move(x2, y += 15);
+	_onInit->SetWidth(256);
 	_onInit->SetText(world._infoOnInit);
+	AddFront(_onInit);
 
 	UI::Text::Create(this, x1, y += 20, lang.map_theme.Get(), alignTextLT);
 	_theme = DefaultComboBox::Create(this);

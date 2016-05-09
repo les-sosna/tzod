@@ -8,7 +8,7 @@ class LangCache;
 class ScoreTable : public UI::Window
 {
 public:
-	ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch, LangCache &lang);
+	ScoreTable(UI::LayoutManager &manager, World &world, Deathmatch &deathmatch, LangCache &lang);
 
 protected:
 	void Draw(DrawingContext &dc) const override;

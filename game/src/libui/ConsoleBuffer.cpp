@@ -7,8 +7,7 @@
 
 #define GET_LINE(x) (&_buffer[(_lineLength + 1) * (x)])
 
-namespace UI
-{
+using namespace UI;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -179,8 +178,3 @@ void ConsoleBuffer::Unlock() const
 #endif
 	_cs.unlock();
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-// end of file

@@ -10,8 +10,7 @@
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-namespace UI
-{
+using namespace UI;
 
 ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
   : _maxSize(maxSize)
@@ -39,17 +38,18 @@ const std::string& ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Console* Console::Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
+std::shared_ptr<Console> Console::Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
 {
-	Console *res = new Console(parent);
+	auto res = std::make_shared<Console>(parent->GetManager());
 	res->Move(x, y);
 	res->Resize(w, h);
 	res->SetBuffer(buf);
+	parent->AddFront(res);
 	return res;
 }
 
-Console::Console(Window *parent)
-  : Window(parent)
+Console::Console(LayoutManager &manager)
+  : Window(manager)
   , _cmdIndex(0)
   , _font(GetManager().GetTextureManager().FindSprite("font_small"))
   , _buf(nullptr)
@@ -57,9 +57,11 @@ Console::Console(Window *parent)
   , _echo(true)
   , _autoScroll(true)
 {
-	_input = Edit::Create(this, 0, 0, 0);
-	_scroll = ScrollBarVertical::Create(this, 0, 0, 0);
+	_input = std::make_shared<Edit>(manager);
+	AddFront(_input);
+	_scroll = std::make_shared<ScrollBarVertical>(manager);
 	_scroll->eventScroll = std::bind(&Console::OnScroll, this, std::placeholders::_1);
+	AddFront(_scroll);
 	SetTexture("ui/console", false);
 	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround
@@ -291,7 +293,3 @@ void Console::OnScroll(float pos)
 	_autoScroll = pos + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file

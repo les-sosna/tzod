@@ -12,9 +12,11 @@ class ListAdapter
 {
 public:
 	template <class ...Args>
-	static ListAdapter* Create(Window *parent, Args && ...args)
+	static std::shared_ptr<ListAdapter> Create(Window *parent, Args && ...args)
 	{
-		return new ListAdapter(parent, std::forward<Args>(args)...);
+		auto res = std::make_shared<ListAdapter>(parent->GetManager(), std::forward<Args>(args)...);
+		parent->AddFront(res);
+		return res;
 	}
 
 	DataSourceType* GetData()
@@ -22,11 +24,10 @@ public:
 		return this;
 	}
 
-protected:
 	template <class ...Args>
-	ListAdapter(Window *parent, Args && ...args)
+	explicit ListAdapter(LayoutManager &manager, Args && ...args)
 		: DataSourceType(std::forward<Args>(args)...)
-		, ListType(parent, this)
+		, ListType(manager, this)
 	{
 	}
 	virtual ~ListAdapter()

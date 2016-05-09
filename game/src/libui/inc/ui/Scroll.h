@@ -12,6 +12,8 @@ class ImageButton;
 class ScrollBarBase : public Window
 {
 public:
+	ScrollBarBase(LayoutManager &manager);
+
 	void SetShowButtons(bool showButtons);
 	bool GetShowButtons() const;
 
@@ -35,16 +37,14 @@ public:
 	std::function<void(float)> eventScroll;
 
 protected:
-	ScrollBarBase(Window *parent);
-
 	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual float Select(float x, float y) const = 0;
 	float GetScrollPaneLength() const;
 
 	float _tmpBoxPos;
-	ImageButton *_btnBox;
-	ImageButton *_btnUpLeft;
-	ImageButton *_btnDownRight;
+	std::shared_ptr<ImageButton> _btnBox;
+	std::shared_ptr<ImageButton> _btnUpLeft;
+	std::shared_ptr<ImageButton> _btnDownRight;
 
 private:
 	virtual void OnSize(float width, float height);
@@ -66,42 +66,32 @@ private:
 	bool _showButtons;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class ScrollBarVertical : public ScrollBarBase
+class ScrollBarVertical final : public ScrollBarBase
 {
 public:
-	static ScrollBarVertical* Create(Window *parent, float x, float y, float height);
+	ScrollBarVertical(LayoutManager &manager);
 
-	virtual void SetSize(float size);
-	virtual float GetSize() const;
+	void SetSize(float size) override;
+	float GetSize() const override;
 
-	virtual void SetPos(float pos);
+	void SetPos(float pos) override;
 
 protected:
-	ScrollBarVertical(Window *parent);
-	virtual float Select(float x, float y) const { return y; }
+	float Select(float x, float y) const override { return y; }
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class ScrollBarHorizontal : public ScrollBarBase
+class ScrollBarHorizontal final : public ScrollBarBase
 {
 public:
-	static ScrollBarHorizontal* Create(Window *parent, float x, float y, float width);
+	ScrollBarHorizontal(LayoutManager &manager);
 
-	virtual void SetSize(float size);
-	virtual float GetSize() const;
+	void SetSize(float size) override;
+	float GetSize() const override;
 
-	virtual void SetPos(float pos);
+	void SetPos(float pos) override;
 
-protected:
-	ScrollBarHorizontal(Window *parent);
-	virtual float Select(float x, float y) const { return x; }
+private:
+	float Select(float x, float y) const override { return x; }
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

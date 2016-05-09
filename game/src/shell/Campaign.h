@@ -18,7 +18,7 @@ namespace UI
 class NewCampaignDlg : public UI::Dialog
 {
 public:
-	NewCampaignDlg(UI::Window *parent, FS::FileSystem &fs, LangCache &lang);
+	NewCampaignDlg(UI::LayoutManager &manager, FS::FileSystem &fs, LangCache &lang);
 	~NewCampaignDlg();
 	std::function<void(std::string)> eventCampaignSelected;
 
@@ -27,6 +27,6 @@ private:
 	void OnCancel();
 
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox *_files;
+	std::shared_ptr<DefaultListBox> _files;
 	FS::FileSystem &_fs;
 };

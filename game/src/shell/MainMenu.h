@@ -52,20 +52,20 @@ class MainMenuDlg : public UI::Window
 		PS_DISAPPEARING,
 	};
 
-	UI::Window    *_panel = nullptr;
-	UI::Window    *_panelFrame = nullptr;
-	UI::Text      *_panelTitle = nullptr;
+	std::shared_ptr<UI::Window> _panel;
+	std::shared_ptr<UI::Window> _panelFrame;
+	std::shared_ptr<UI::Text> _panelTitle;
 	PanelType  _ptype;
 	PanelState _pstate;
 
-	GetFileNameDlg *_fileDlg;
+	std::shared_ptr<GetFileNameDlg> _fileDlg;
 	FS::FileSystem &_fs;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	MainMenuCommands _commands;
 
 public:
-	MainMenuDlg(Window *parent,
+	MainMenuDlg(UI::LayoutManager &manager,
 	            FS::FileSystem &fs,
 	            ConfCache &conf,
 	            LangCache &lang,

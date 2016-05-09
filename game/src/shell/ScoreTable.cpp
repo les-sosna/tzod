@@ -23,8 +23,8 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(UI::Window *parent, World &world, Deathmatch &deathmatch, LangCache &lang)
-  : UI::Window(parent)
+ScoreTable::ScoreTable(UI::LayoutManager &manager, World &world, Deathmatch &deathmatch, LangCache &lang)
+  : UI::Window(manager)
   , _font(GetManager().GetTextureManager().FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)

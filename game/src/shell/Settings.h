@@ -23,28 +23,28 @@ class SettingsDlg : public UI::Dialog
 {
 	UI::ListDataSourceDefault _profilesDataSource;
 
-	UI::ComboBox  *_player1;
-	UI::ComboBox  *_player2;
-	UI::List      *_profiles;
-	UI::Button    *_editProfile;
-	UI::Button    *_deleteProfile;
+	std::shared_ptr<UI::ComboBox> _player1;
+	std::shared_ptr<UI::ComboBox> _player2;
+	std::shared_ptr<UI::List> _profiles;
+	std::shared_ptr<UI::Button> _editProfile;
+	std::shared_ptr<UI::Button> _deleteProfile;
 
-	UI::CheckBox  *_showFps;
-	UI::CheckBox  *_showTime;
-	UI::CheckBox  *_showNames;
-	UI::CheckBox  *_askDisplaySettings;
+	std::shared_ptr<UI::CheckBox> _showFps;
+	std::shared_ptr<UI::CheckBox> _showTime;
+	std::shared_ptr<UI::CheckBox> _showNames;
+	std::shared_ptr<UI::CheckBox> _askDisplaySettings;
 
-	UI::ScrollBarHorizontal *_volumeSfx;
+	std::shared_ptr<UI::ScrollBarHorizontal> _volumeSfx;
 	int _initialVolumeSfx;
 
-	UI::ScrollBarHorizontal *_volumeMusic;
+	std::shared_ptr<UI::ScrollBarHorizontal> _volumeMusic;
 	int _initialVolumeMusic;
 
 	ConfCache &_conf;
 	LangCache &_lang;
 
 public:
-	SettingsDlg(UI::Window *parent, ConfCache &conf, LangCache &lang);
+	SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang);
 	virtual ~SettingsDlg();
 
 protected:
@@ -66,7 +66,7 @@ protected:
 class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(UI::Window *parent, const char *profileName, ConfCache &conf, LangCache &lang);
+	ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ConfCache &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window
@@ -84,12 +84,12 @@ private:
 	void SetActiveIndex(int index);
 
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox  *_actions;
-	UI::Edit         *_nameEdit;
-	UI::CheckBox     *_aimToMouseChkBox;
-	UI::CheckBox     *_moveToMouseChkBox;
-	UI::CheckBox     *_arcadeStyleChkBox;
-	std::string      _nameOrig;
+	std::shared_ptr<DefaultListBox> _actions;
+	std::shared_ptr<UI::Edit> _nameEdit;
+	std::shared_ptr<UI::CheckBox> _aimToMouseChkBox;
+	std::shared_ptr<UI::CheckBox> _moveToMouseChkBox;
+	std::shared_ptr<UI::CheckBox> _arcadeStyleChkBox;
+	std::string _nameOrig;
 	std::vector<UI::Key> _keyBindings;
 	ConfControllerProfile _profile;
 	ConfCache &_conf;

@@ -53,11 +53,11 @@ class ServiceEditor : public UI::Dialog
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	ServiceListDataSource _listData;
-	UI::List *_list;
-	DefaultComboBox *_combo;
-	UI::Text *_labelService;
-	UI::Text *_labelName;
-	UI::Button *_btnCreate;
+	std::shared_ptr<UI::List> _list;
+	std::shared_ptr<DefaultComboBox> _combo;
+	std::shared_ptr<UI::Text> _labelService;
+	std::shared_ptr<UI::Text> _labelName;
+	std::shared_ptr<UI::Button> _btnCreate;
 
 	float _margins;
 	World &_world;
@@ -65,12 +65,12 @@ class ServiceEditor : public UI::Dialog
 	LangCache &_lang;
 
 public:
-	ServiceEditor(UI::Window *parent, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang);
+	ServiceEditor(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~ServiceEditor();
 
-protected:
 	void OnChangeSelectionGlobal(GC_Object *obj);
 
+protected:
 	void OnCreateService();
 	void OnSelectService(int i);
 	EditorLayout* GetEditorLayout() const;

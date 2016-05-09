@@ -1,7 +1,4 @@
-// Console.h
-
 #pragma once
-
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -101,6 +98,4 @@ private:
 #endif
 };
 
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-// end of file
+} // namespace UI

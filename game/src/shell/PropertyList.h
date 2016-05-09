@@ -17,7 +17,7 @@ namespace UI
 class PropertyList : public UI::Dialog
 {
 public:
-	PropertyList(Window *parent, float x, float y, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
+	PropertyList(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
 	void ConnectTo(std::shared_ptr<PropertySet> ps);
 	void DoExchange(bool applyToObject);
 
@@ -31,14 +31,14 @@ private:
 	{
 //		bool OnKeyPressed(Key key); // need to pass messages through
 	public:
-		Container(UI::Window *parent);
+		Container(UI::LayoutManager &manager);
 	};
 
-	Container *_psheet;
-	UI::ScrollBarVertical *_scrollBar;
+	std::shared_ptr<Container> _psheet;
+	std::shared_ptr<UI::ScrollBarVertical> _scrollBar;
 
 	std::shared_ptr<PropertySet>  _ps;
-	std::vector<Window*>  _ctrls;
+	std::vector<std::shared_ptr<Window>>  _ctrls;
 	World &_world;
 	ConfCache &_conf;
 	UI::ConsoleBuffer &_logger;

@@ -30,17 +30,17 @@ class CreateServerDlg : public UI::Dialog
 	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapListBox;
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	MapListBox *_maps;
-	UI::CheckBox  *_nightMode;
-	UI::Edit      *_gameSpeed;
-	UI::Edit      *_fragLimit;
-	UI::Edit      *_timeLimit;
-	UI::Edit      *_svFps;
-//	UI::Edit      *_svLatency;
+	std::shared_ptr<MapListBox> _maps;
+	std::shared_ptr<UI::CheckBox> _nightMode;
+	std::shared_ptr<UI::Edit> _gameSpeed;
+	std::shared_ptr<UI::Edit> _fragLimit;
+	std::shared_ptr<UI::Edit> _timeLimit;
+	std::shared_ptr<UI::Edit> _svFps;
+//	std::shared_ptr<UI::Edit> _svLatency;
 
-	DefaultComboBox *_lobbyList;
-	UI::CheckBox  *_lobbyEnable;
-	UI::Button    *_lobbyAdd;
+	std::shared_ptr<DefaultComboBox> _lobbyList;
+	std::shared_ptr<UI::CheckBox> _lobbyEnable;
+	std::shared_ptr<UI::Button> _lobbyAdd;
     World &_world;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;
@@ -48,7 +48,7 @@ class CreateServerDlg : public UI::Dialog
 	UI::ConsoleBuffer &_logger;
 
 public:
-	CreateServerDlg(Window *parent, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
+	CreateServerDlg(UI::LayoutManager &manager, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -65,16 +65,16 @@ class ConnectDlg
 //	, private IClientCallback
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox *_status;
-	UI::Button *_btnOK;
-	UI::Edit   *_name;
+	std::shared_ptr<DefaultListBox> _status;
+	std::shared_ptr<UI::Button> _btnOK;
+	std::shared_ptr<UI::Edit>   _name;
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
 	World &_world;
 	ConfCache &_conf;
 	LangCache &_lang;
 
 public:
-	ConnectDlg(UI::Window *parent, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
+	ConnectDlg(UI::LayoutManager &manager, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~ConnectDlg();
 
 protected:
@@ -95,17 +95,17 @@ private:
 class InternetDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox *_servers;
-	UI::Button *_btnRefresh;
-	UI::Button *_btnConnect;
-	UI::Edit   *_name;
-	UI::Text   *_status;
+	std::shared_ptr<DefaultListBox> _servers;
+	std::shared_ptr<UI::Button> _btnRefresh;
+	std::shared_ptr<UI::Button> _btnConnect;
+	std::shared_ptr<UI::Edit>   _name;
+	std::shared_ptr<UI::Text>   _status;
 	World &_world;
 	ConfCache &_conf;
 	LangCache &_lang;
 
 public:
-	InternetDlg(UI::Window *parent, World &world, ConfCache &conf, LangCache &lang);
+	InternetDlg(UI::LayoutManager &manager, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~InternetDlg();
 
 protected:
@@ -131,11 +131,11 @@ class WaitingForPlayersDlg
 //	, private IClientCallback
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
-	DefaultListBox *_players;
-	DefaultListBox *_bots;
-	UI::Console    *_chat;
-	UI::Button     *_btnOK;
-	UI::Button     *_btnProfile;
+	std::shared_ptr<DefaultListBox> _players;
+	std::shared_ptr<DefaultListBox> _bots;
+	std::shared_ptr<UI::Console>    _chat;
+	std::shared_ptr<UI::Button>     _btnOK;
+	std::shared_ptr<UI::Button>     _btnProfile;
 	std::unique_ptr<UI::ConsoleBuffer>  _buf;
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
@@ -146,7 +146,7 @@ class WaitingForPlayersDlg
 	LangCache &_lang;
 
 public:
-	WaitingForPlayersDlg(UI::Window *parent, World &world, ConfCache &conf, LangCache &lang);
+	WaitingForPlayersDlg(UI::LayoutManager &manager, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~WaitingForPlayersDlg();
 
 protected:

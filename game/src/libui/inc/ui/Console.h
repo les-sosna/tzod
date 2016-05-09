@@ -46,8 +46,8 @@ private:
 class Console : public Window
 {
 public:
-	Console(Window *parent);
-	static Console* Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
+	Console(LayoutManager &manager);
+	static std::shared_ptr<Console> Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
 
 	float GetInputHeight() const;
 
@@ -75,8 +75,8 @@ private:
 	void OnScroll(float pos);
 
 private:
-	ScrollBarVertical *_scroll;
-	Edit  *_input;
+	std::shared_ptr<ScrollBarVertical> _scroll;
+	std::shared_ptr<Edit> _input;
 	size_t _cmdIndex;
 	size_t _font;
 
