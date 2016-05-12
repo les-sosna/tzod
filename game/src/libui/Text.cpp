@@ -13,6 +13,7 @@ std::shared_ptr<Text> Text::Create(Window *parent, float x, float y, const std::
 	t->Move(x, y);
 	t->SetText(text);
 	t->SetAlign(align);
+	parent->AddFront(t);
 	return t;
 }
 
