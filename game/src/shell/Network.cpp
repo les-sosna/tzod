@@ -211,7 +211,7 @@ void CreateServerDlg::OnOK()
 //	_conf.sv_latency.SetInt(1);
 
 //	assert(false); // dont connect; integrate server into client instead
-//	(new ConnectDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, _1);
+//	(new ConnectDlg(GetParent()))->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, _1, std::placeholders::_2);
 
 //	PauseGame(true);
 
@@ -222,7 +222,7 @@ void CreateServerDlg::OnOK()
 //	new TankClient(_world);
 
 	auto dlg = std::make_shared<WaitingForPlayersDlg>(GetManager(), _world, _conf, _lang);
-	dlg->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
 	GetParent()->AddFront(dlg);
 
 	SetVisible(false);
@@ -239,7 +239,7 @@ void CreateServerDlg::OnLobbyEnable()
 	_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 }
 
-void CreateServerDlg::OnCloseChild(int result)
+void CreateServerDlg::OnCloseChild(UI::Dialog *sender, int result)
 {
 	if( _resultCancel == result )
 	{
@@ -405,7 +405,7 @@ void InternetDlg::OnConnect()
 	{
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
 		auto dlg = std::make_shared<ConnectDlg>(GetManager(), addr, _world, _conf, _lang);
-		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, std::placeholders::_1);
+		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
 		GetParent()->AddFront(dlg);
 		SetVisible(false);
 	}
@@ -444,7 +444,7 @@ void InternetDlg::Error(const char *msg)
 	_name->SetEnabled(true);
 }
 
-void InternetDlg::OnCloseChild(int result)
+void InternetDlg::OnCloseChild(UI::Dialog *sender, int result)
 {
 	if( _resultCancel == result )
 	{
@@ -531,7 +531,7 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
 }
 
-void WaitingForPlayersDlg::OnCloseProfileDlg(int result)
+void WaitingForPlayersDlg::OnCloseProfileDlg(UI::Dialog *sender, int result)
 {
 	_btnProfile->SetEnabled(true);
 	_btnOK->SetEnabled(true);
@@ -547,18 +547,18 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 	_btnProfile->SetEnabled(false);
 	_btnOK->SetEnabled(false);
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _conf.cl_playerinfo, _conf, _lang);
-	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, std::placeholders::_1, std::placeholders::_2);
 	GetParent()->AddFront(dlg);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()
 {
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _conf.ui_netbotinfo, _lang);
-	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnAddBotClose, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
-void WaitingForPlayersDlg::OnAddBotClose(int result)
+void WaitingForPlayersDlg::OnAddBotClose(UI::Dialog *sender, int result)
 {
 	if( _resultOK == result )
 	{

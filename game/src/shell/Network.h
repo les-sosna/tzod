@@ -55,7 +55,7 @@ protected:
 	void OnOK();
 	void OnCancel();
 	void OnLobbyEnable();
-	virtual void OnCloseChild(int result);
+	virtual void OnCloseChild(UI::Dialog *sender, int result);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ protected:
 	void OnCancel();
 	void OnSelectServer(int idx);
 
-	void OnCloseChild(int result);
+	void OnCloseChild(UI::Dialog *sender, int result);
 
 	void OnLobbyError(const std::string &msg);
 	void OnLobbyList(const std::vector<std::string> &result);
@@ -151,10 +151,10 @@ public:
 
 protected:
 	// GUI event handlers
-	void OnCloseProfileDlg(int result);
+	void OnCloseProfileDlg(UI::Dialog *sender, int result);
 	void OnChangeProfileClick();
 	void OnAddBotClick();
-	void OnAddBotClose(int result);
+	void OnAddBotClose(UI::Dialog *sender, int result);
 	void OnOK();
 	void OnCancel();
 	void OnSendMessage(const std::string &msg);

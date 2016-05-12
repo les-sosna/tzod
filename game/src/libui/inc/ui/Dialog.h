@@ -19,7 +19,7 @@ public:
 		_resultCancel
 	};
 
-	std::function<void(int)> eventClose;
+	std::function<void(Dialog*, int)> eventClose;
 
 	void Close(int result);
 

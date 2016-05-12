@@ -225,11 +225,11 @@ void NewGameDlg::OnAddPlayer()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), p, _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnAddPlayerClose(int result)
+void NewGameDlg::OnAddPlayerClose(UI::Dialog *sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -255,11 +255,11 @@ void NewGameDlg::OnEditPlayer()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnEditPlayerClose(int result)
+void NewGameDlg::OnEditPlayerClose(UI::Dialog *sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -277,11 +277,11 @@ void NewGameDlg::OnAddBot()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), p, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnAddBotClose(int result)
+void NewGameDlg::OnAddBotClose(UI::Dialog *sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -307,11 +307,11 @@ void NewGameDlg::OnEditBot()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _conf.dm_bots.GetAt(index).AsTable(), _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnEditBotClose(int result)
+void NewGameDlg::OnEditBotClose(UI::Dialog *sender, int result)
 {
 	if( _resultOK == result )
 	{

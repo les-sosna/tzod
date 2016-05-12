@@ -143,7 +143,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 void SettingsDlg::OnAddProfile()
 {
 	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), nullptr, _conf, _lang);
-	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
@@ -152,7 +152,7 @@ void SettingsDlg::OnEditProfile()
 	int i = _profiles->GetCurSel();
 	assert(i >= 0);
 	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
-	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1);
+	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 }
 
@@ -204,7 +204,7 @@ void SettingsDlg::UpdateProfilesList()
 	_profiles->SetCurSel(std::min(_profilesDataSource.GetItemCount() - 1, sel));
 }
 
-void SettingsDlg::OnProfileEditorClosed(int code)
+void SettingsDlg::OnProfileEditorClosed(UI::Dialog *sender, int code)
 {
 	if( _resultOK == code )
 	{

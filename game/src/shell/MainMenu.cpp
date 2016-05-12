@@ -86,7 +86,7 @@ void MainMenuDlg::OnMapSettings()
 {
 //	SetVisible(false);
 //	auto dlg = std::make_shared<MapSettingsDlg>(GetParent(), _gameContext);
-//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1);
+//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 void MainMenuDlg::OnImportMap()
@@ -106,14 +106,14 @@ void MainMenuDlg::OnImportMap()
 	SetVisible(false);
 	assert(!_fileDlg);
 	_fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnImportMapSelect, this, std::placeholders::_1);
+	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnImportMapSelect, this, std::placeholders::_1, std::placeholders::_2);
 	GetParent()->AddFront(_fileDlg);
 }
 
-void MainMenuDlg::OnImportMapSelect(int result)
+void MainMenuDlg::OnImportMapSelect(UI::Dialog *sender, int result)
 {
 	assert(_fileDlg);
-	if(UI::Dialog::_resultOK == result )
+	if( UI::Dialog::_resultOK == result )
 	{
 		_commands.openMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
 	}
@@ -138,11 +138,11 @@ void MainMenuDlg::OnExportMap()
 	SetVisible(false);
 	assert(!_fileDlg);
 	_fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnExportMapSelect, this, std::placeholders::_1);
+	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnExportMapSelect, this, std::placeholders::_1, std::placeholders::_2);
 	GetParent()->AddFront(_fileDlg);
 }
 
-void MainMenuDlg::OnExportMapSelect(int result)
+void MainMenuDlg::OnExportMapSelect(UI::Dialog *sender, int result)
 {
 	assert(_fileDlg);
 	if(UI::Dialog::_resultOK == result )

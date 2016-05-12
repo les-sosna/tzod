@@ -32,9 +32,9 @@ class MainMenuDlg : public UI::Window
 	void OnEditor();
 	void OnMapSettings();
 	void OnImportMap();
-	void OnImportMapSelect(int result);
+	void OnImportMapSelect(UI::Dialog *sender, int result);
 	void OnExportMap();
-	void OnExportMapSelect(int result);
+	void OnExportMapSelect(UI::Dialog *sender, int result);
 
 	void OnSettings();
 

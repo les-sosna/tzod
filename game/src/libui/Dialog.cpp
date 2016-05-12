@@ -26,7 +26,7 @@ void Dialog::Close(int result)
 	if (OnClose(result))
 	{
 		if (eventClose)
-			eventClose(result);
+			eventClose(this, result);
 		GetParent()->UnlinkChild(shared_from_this());
 	}
 }

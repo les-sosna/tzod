@@ -254,9 +254,9 @@ void Desktop::OnNewDM()
 		PopNavStack();
 
 	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this, dlg](int result)
+	dlg->eventClose = [this](auto sender, int result)
 	{
-		OnCloseChild(dlg.get(), result);
+		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			try
@@ -276,9 +276,9 @@ void Desktop::OnNewDM()
 void Desktop::OnNewMap()
 {
 	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _conf, _lang);
-	dlg->eventClose = [=](int result)
+	dlg->eventClose = [this](auto sender, int result)
 	{
-		OnCloseChild(dlg.get(), result);
+		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
 		{
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
@@ -309,7 +309,7 @@ void Desktop::OnExportMap(std::string fileName)
 void Desktop::OnGameSettings()
 {
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _conf, _lang);
-	dlg->eventClose = [=](int result) {OnCloseChild(dlg.get(), result);};
+	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 	PushNavStack(dlg);
 }
 
