@@ -46,6 +46,7 @@ protected:
 
 public:
 	PropertySet(GC_Object *object);
+	virtual ~PropertySet() = default;
 
 	GC_Object* GetObject() const { return &_object; }
 	void Exchange(World &world, bool applyToObject);
