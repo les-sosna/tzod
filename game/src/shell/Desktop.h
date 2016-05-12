@@ -67,16 +67,20 @@ private:
 
 	std::shared_ptr<EditorLayout> _editor;
 	std::shared_ptr<GameLayout> _game;
+	std::shared_ptr<UI::Window> _background;
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::ButtonBase> _pauseButton;
 	std::vector<std::shared_ptr<UI::Window>> _navStack;
 	float _navTransitionTime = 0;
 	float _navTransitionStart = 0;
+	float _openingTime = 0;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
 	DefaultCamera _defaultCamera;
+
+	bool _initializing = true;
 
 	void OnNewCampaign();
 	void OnNewDM();

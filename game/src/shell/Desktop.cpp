@@ -68,9 +68,11 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
-	SetTexture("gui_splash", false);
-	SetDrawBorder(false);
-	SetTextureStretchMode(UI::StretchMode::Fill);
+	_background = std::make_shared<UI::Window>(manager);
+	_background->SetTexture("gui_splash", false);
+	_background->SetTextureStretchMode(UI::StretchMode::Fill);
+	_background->SetDrawBorder(false);
+	AddFront(_background);
 
 	_con = UI::Console::Create(this, 10, 0, 100, 100, &_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
@@ -117,6 +119,8 @@ Desktop::Desktop(UI::LayoutManager &manager,
 
 	SetTimeStep(true);
 	OnGameContextChanged();
+
+	_initializing = false;
 }
 
 Desktop::~Desktop()
@@ -128,9 +132,21 @@ void Desktop::OnTimeStep(float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
 
+	bool update = false;
 	if (_navTransitionTime > 0)
 	{
 		_navTransitionTime = std::max(0.f, _navTransitionTime - dt);
+		update = true;
+	}
+
+	if (_openingTime > 0)
+	{
+		_openingTime = std::max(0.f, _openingTime - dt);
+		update = true;
+	}
+
+	if (update)
+	{
 		OnSize(GetWidth(), GetHeight());
 	}
 
@@ -424,7 +440,10 @@ void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 {
 	AddFront(wnd);
 	_navTransitionStart = GetTransitionTarget();
-	_navTransitionTime = _conf.ui_foldtime.GetFloat();
+	if (!_initializing)
+	{
+		_navTransitionTime = _conf.ui_foldtime.GetFloat();
+	}
 
 	if (!_navStack.empty())
 	{
@@ -519,6 +538,16 @@ bool Desktop::OnFocus(bool focus)
 
 void Desktop::OnSize(float width, float height)
 {
+	if (_background)
+	{
+		float transition = (1 - std::cos(PI * _openingTime / _conf.ui_foldtime.GetFloat())) / 2;
+		if (GetAppState().GetGameContext())
+		{
+			transition = 1 - transition;
+		}
+		_background->Resize(width, height);
+		_background->Move(0, -height * transition);
+	}
 	if( _editor )
 		_editor->Resize(width, height);
 	if( _game )
@@ -651,7 +680,6 @@ void Desktop::OnGameContextChanged()
 		_game->Resize(GetWidth(), GetHeight());
 		AddBack(_game);
 
-
 		SetEditorMode(false);
 	}
 
@@ -666,13 +694,13 @@ void Desktop::OnGameContextChanged()
 		SetEditorMode(true);
 	}
 
-	if (GetAppState().GetGameContext())
+	if (!_initializing)
 	{
-		SetDrawBackground(false);
+		_openingTime = _conf.ui_foldtime.GetFloat();
 	}
-	else
+
+	if (!GetAppState().GetGameContext())
 	{
-		SetDrawBackground(true);
 		ShowMainMenu();
 	}
 }
