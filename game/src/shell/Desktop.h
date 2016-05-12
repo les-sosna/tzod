@@ -81,8 +81,8 @@ private:
 	void OnNewCampaign();
 	void OnNewDM();
 	void OnNewMap();
-	void OnOpenMap(std::string fileName);
-	void OnExportMap(std::string fileName);
+	void OnOpenMap();
+	void OnExportMap();
 	void OnGameSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);

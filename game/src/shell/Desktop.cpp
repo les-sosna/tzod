@@ -2,6 +2,7 @@
 #include "Desktop.h"
 #include "Editor.h"
 #include "Game.h"
+#include "GetFileName.h"
 #include "gui.h"
 #include "MainMenu.h"
 #include "NewMap.h"
@@ -11,6 +12,7 @@
 #include "inc/shell/Profiler.h"
 
 #include <as/AppController.h>
+#include <as/AppCfg.h>
 #include <as/AppState.h>
 #include <ctx/EditorContext.h>
 #include <gc/World.h>
@@ -289,20 +291,66 @@ void Desktop::OnNewMap()
 	PushNavStack(dlg);
 }
 
-void Desktop::OnOpenMap(std::string fileName)
+void Desktop::OnOpenMap()
 {
-	std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
-	GetAppState().SetGameContext(std::move(gc));
-	ClearNavStack();
+	GetFileNameDlg::Params param;
+	param.title = _lang.get_file_name_load_map.Get();
+	param.folder = _fs.GetFileSystem(DIR_MAPS);
+	param.extension = "map";
+
+	if (!param.folder)
+	{
+		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
+		_logger.Printf(1, "Could not open directory '%s'", DIR_MAPS);
+		return;
+	}
+
+	auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
+	fileDlg->eventClose = [this](auto sender, int result)
+	{
+		OnCloseChild(sender, result);
+		if (UI::Dialog::_resultOK == result)
+		{
+			auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg*>(sender)->GetFileName();
+			std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
+			GetAppState().SetGameContext(std::move(gc));
+			ClearNavStack();
+		}
+	};
+	PushNavStack(fileDlg);
 }
 
-void Desktop::OnExportMap(std::string fileName)
+void Desktop::OnExportMap()
 {
-	if (GameContextBase *gameContext = GetAppState().GetGameContext())
+	if (GetAppState().GetGameContext())
 	{
-		gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
-		_logger.Printf(0, "map exported: '%s'", fileName.c_str());
-//		_conf.cl_map.Set(_fileDlg->GetFileTitle());
+		GetFileNameDlg::Params param;
+		param.title = _lang.get_file_name_save_map.Get();
+		param.folder = _fs.GetFileSystem(DIR_MAPS, true);
+		param.extension = "map";
+
+		if (!param.folder)
+		{
+			static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
+			_logger.Printf(1, "ERROR: Could not open directory '%s'", DIR_MAPS);
+			return;
+		}
+
+		auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
+		fileDlg->eventClose = [this](auto sender, int result)
+		{
+			OnCloseChild(sender, result);
+			GameContextBase *gameContext = GetAppState().GetGameContext();
+			if (UI::Dialog::_resultOK == result && gameContext)
+			{
+				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg*>(sender)->GetFileName();
+				gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
+				_logger.Printf(0, "map exported: '%s'", fileName.c_str());
+			//	_conf.cl_map.Set(fileDlg->GetFileTitle());
+			}
+		};
+		PushNavStack(fileDlg);
+
 	}
 }
 
@@ -315,14 +363,12 @@ void Desktop::OnGameSettings()
 
 void Desktop::ShowMainMenu()
 {
-	using namespace std::placeholders;
-
 	MainMenuCommands commands;
 	commands.newCampaign = [this]() { OnNewCampaign(); };
 	commands.newDM = std::bind(&Desktop::OnNewDM, this);
 	commands.newMap = std::bind(&Desktop::OnNewMap, this);
-	commands.openMap = std::bind(&Desktop::OnOpenMap, this, _1);
-	commands.exportMap = std::bind(&Desktop::OnExportMap, this, _1);
+	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
+	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
 	commands.close = [=]()
 	{

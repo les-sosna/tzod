@@ -1,11 +1,9 @@
 #include "Desktop.h"
 #include "Editor.h"
-#include "GetFileName.h"
 #include "gui.h"
 #include "MainMenu.h"
 #include "Network.h"
 
-#include <as/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/ConsoleBuffer.h>
@@ -21,10 +19,8 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
                          UI::ConsoleBuffer &logger,
                          MainMenuCommands commands)
   : Window(manager)
-  , _panel(nullptr)
   , _ptype(PT_NONE)
   , _pstate(PS_NONE)
-  , _fileDlg(nullptr)
   , _fs(fs)
   , _lang(lang)
   , _logger(logger)
@@ -52,7 +48,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = UI::Button::Create(this, _lang.settings_btn.Get(), GetWidth() - buttonWidth, y);
 	button->SetIcon("ui/settings");
 	button->Resize(buttonWidth, buttonHeight);
-	button->eventClick = std::bind(&MainMenuDlg::OnSettings, this);
+	button->eventClick = _commands.gameSettings;
 
 	button = UI::Button::Create(this, _lang.return_to_game_btn.Get(), (GetWidth() - buttonWidth) / 2, 0);
 	button->Resize(buttonWidth, buttonHeight);
@@ -89,94 +85,12 @@ void MainMenuDlg::OnMapSettings()
 //	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
 }
 
-void MainMenuDlg::OnImportMap()
-{
-	GetFileNameDlg::Params param;
-	param.title = _lang.get_file_name_load_map.Get();
-	param.folder = _fs.GetFileSystem(DIR_MAPS);
-	param.extension = "map";
-
-	if( !param.folder )
-	{
-		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
-		_logger.Printf(1, "Could not open directory '%s'", DIR_MAPS);
-		return;
-	}
-
-	SetVisible(false);
-	assert(!_fileDlg);
-	_fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnImportMapSelect, this, std::placeholders::_1, std::placeholders::_2);
-	GetParent()->AddFront(_fileDlg);
-}
-
-void MainMenuDlg::OnImportMapSelect(UI::Dialog *sender, int result)
-{
-	assert(_fileDlg);
-	if( UI::Dialog::_resultOK == result )
-	{
-		_commands.openMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
-	}
-	_fileDlg.reset();
-	OnCloseChild(result);
-}
-
-void MainMenuDlg::OnExportMap()
-{
-	GetFileNameDlg::Params param;
-	param.title = _lang.get_file_name_save_map.Get();
-	param.folder = _fs.GetFileSystem(DIR_MAPS, true);
-	param.extension = "map";
-
-	if( !param.folder )
-	{
-		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
-		_logger.Printf(1, "ERROR: Could not open directory '%s'", DIR_MAPS);
-		return;
-	}
-
-	SetVisible(false);
-	assert(!_fileDlg);
-	_fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
-	_fileDlg->eventClose = std::bind(&MainMenuDlg::OnExportMapSelect, this, std::placeholders::_1, std::placeholders::_2);
-	GetParent()->AddFront(_fileDlg);
-}
-
-void MainMenuDlg::OnExportMapSelect(UI::Dialog *sender, int result)
-{
-	assert(_fileDlg);
-	if(UI::Dialog::_resultOK == result )
-	{
-		_commands.exportMap(std::string(DIR_MAPS) + "/" + _fileDlg->GetFileName());
-	}
-	_fileDlg.reset();
-	OnCloseChild(result);
-}
-
-void MainMenuDlg::OnSettings()
-{
-	_commands.gameSettings();
-}
-
-void MainMenuDlg::OnCloseChild(int result)
-{
-	if(UI::Dialog::_resultOK == result )
-	{
-//		Close(result);
-	}
-	else
-	{
-		SetVisible(true);
-		GetManager().SetFocusWnd(shared_from_this());
-	}
-}
-
 bool MainMenuDlg::OnKeyPressed(UI::Key key)
 {
 	switch(key)
 	{
 	case UI::Key::F12:
-		OnSettings();
+		_commands.gameSettings();
 		break;
 	case UI::Key::Escape:
 		if (_ptype != PT_NONE)
@@ -217,9 +131,8 @@ void MainMenuDlg::CreatePanel()
 	case PT_EDITOR:
 		_panelTitle->SetText(_lang.editor_title.Get());
 		UI::Button::Create(_panel.get(), _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
-		UI::Button::Create(_panel.get(), _lang.editor_load_map.Get(), 100, y)->eventClick = std::bind(&MainMenuDlg::OnImportMap, this);
-		btn = UI::Button::Create(_panel.get(), _lang.editor_save_map.Get(), 200, y);
-		btn->eventClick = std::bind(&MainMenuDlg::OnExportMap, this);
+		UI::Button::Create(_panel.get(), _lang.editor_load_map.Get(), 100, y)->eventClick = _commands.openMap;
+		UI::Button::Create(_panel.get(), _lang.editor_save_map.Get(), 200, y)->eventClick = _commands.exportMap;
 		btn = UI::Button::Create(_panel.get(), _lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
 		break;

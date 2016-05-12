@@ -21,8 +21,8 @@ struct MainMenuCommands
 	std::function<void()> newCampaign;
 	std::function<void()> newDM;
 	std::function<void()> newMap;
-	std::function<void(std::string)> openMap;
-	std::function<void(std::string)> exportMap;
+	std::function<void()> openMap;
+	std::function<void()> exportMap;
 	std::function<void()> gameSettings;
 	std::function<void()> close;
 };
@@ -31,13 +31,6 @@ class MainMenuDlg : public UI::Window
 {
 	void OnEditor();
 	void OnMapSettings();
-	void OnImportMap();
-	void OnImportMapSelect(UI::Dialog *sender, int result);
-	void OnExportMap();
-	void OnExportMapSelect(UI::Dialog *sender, int result);
-
-	void OnSettings();
-
 
 	enum PanelType
 	{
@@ -58,7 +51,6 @@ class MainMenuDlg : public UI::Window
 	PanelType  _ptype;
 	PanelState _pstate;
 
-	std::shared_ptr<GetFileNameDlg> _fileDlg;
 	FS::FileSystem &_fs;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
@@ -77,7 +69,6 @@ public:
 
 protected:
 	void OnTimeStep(float dt) override;
-	void OnCloseChild(int result);
 	void CreatePanel(); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);
 };
