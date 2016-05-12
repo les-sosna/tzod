@@ -169,12 +169,8 @@ void Window::Draw(DrawingContext &dc) const
 
 void Window::Move(float x, float y)
 {
-	if( _x != x || _y != y )
-	{
-		_x = x;
-		_y = y;
-		OnMove(x, y);
-	}
+	_x = x;
+	_y = y;
 }
 
 void Window::Resize(float width, float height)
@@ -355,12 +351,8 @@ bool Window::OnKeyPressed(Key key)
 
 
 //
-// size & position
+// size
 //
-
-void Window::OnMove(float x, float y)
-{
-}
 
 void Window::OnSize(float width, float height)
 {

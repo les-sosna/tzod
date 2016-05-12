@@ -192,10 +192,9 @@ private:
 
 
 	//
-	// size & position handlers
+	// size
 	//
 
-	virtual void OnMove(float x, float y);
 	virtual void OnSize(float width, float height);
 
 
