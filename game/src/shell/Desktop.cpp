@@ -114,6 +114,10 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		{
 			ShowMainMenu();
 		}
+		else
+		{
+			ClearNavStack();
+		}
 	};
 	AddFront(_pauseButton);
 
@@ -703,4 +707,6 @@ void Desktop::OnGameContextChanged()
 	{
 		ShowMainMenu();
 	}
+
+	_pauseButton->SetVisible(!!GetAppState().GetGameContext());
 }

@@ -28,8 +28,6 @@ REFLECTION_BEGIN(LangCache)
 
 	VAR_STR( settings_btn, "Settings" )
 
-	VAR_STR( return_to_game_btn, "Return" )
-
 	VAR_STR( get_file_name_title, "File name" )
 	VAR_STR( get_file_name_save_game, "Save Game" )
 	VAR_STR( get_file_name_load_game, "Load Game" )

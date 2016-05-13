@@ -33,7 +33,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	const float buttonWidth = 200;
 	const float buttonHeight = 128;
 
-	float y = GetHeight() - buttonHeight;
+	float y = (GetHeight() - buttonHeight) / 2;
 
 	button = UI::Button::Create(this, _lang.single_player_btn.Get(), 0, y);
 	button->SetIcon("ui/play");
@@ -49,10 +49,6 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button->SetIcon("ui/settings");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.gameSettings;
-
-	button = UI::Button::Create(this, _lang.return_to_game_btn.Get(), (GetWidth() - buttonWidth) / 2, 0);
-	button->Resize(buttonWidth, buttonHeight);
-	button->eventClick = _commands.close;
 
 	_panelFrame = std::make_shared<Window>(manager);
 	_panelFrame->SetDrawBackground(false);
