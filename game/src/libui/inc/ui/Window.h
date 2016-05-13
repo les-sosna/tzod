@@ -205,7 +205,6 @@ private:
 	virtual void OnTextChange();
 	virtual bool OnFocus(bool focus); // return true if the window took focus
 	virtual void OnEnabledChange(bool enable, bool inherited);
-	virtual void OnVisibleChange(bool visible, bool inherited);
 	virtual void OnTimeStep(float dt);
 };
 

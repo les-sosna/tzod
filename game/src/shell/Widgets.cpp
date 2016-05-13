@@ -21,11 +21,6 @@ FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignTe
 	SetAlign(align);
 }
 
-void FpsCounter::OnVisibleChange(bool visible, bool inherited)
-{
-	SetTimeStep(visible);
-}
-
 void FpsCounter::OnTimeStep(float dt)
 {
 	_dts.push_back(dt);

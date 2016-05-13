@@ -23,7 +23,6 @@ public:
 	TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlignText align, World &world);
 
 private:
-	void OnVisibleChange(bool visible, bool inherited) override;
 	void OnTimeStep(float dt) override;
 
 	World &_world;

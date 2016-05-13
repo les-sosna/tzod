@@ -74,7 +74,6 @@ protected:
 	bool OnFocus(bool focus) override;
 	bool OnKeyPressed(UI::Key key) override;
 	void OnSize(float width, float height) override;
-	void OnVisibleChange(bool visible, bool inherited) override;
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();

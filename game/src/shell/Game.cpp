@@ -30,11 +30,6 @@ TimeElapsed::TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlign
 	SetAlign(align);
 }
 
-void TimeElapsed::OnVisibleChange(bool visible, bool inherited)
-{
-	SetTimeStep(visible);
-}
-
 void TimeElapsed::OnTimeStep(float dt)
 {
 	std::ostringstream text;

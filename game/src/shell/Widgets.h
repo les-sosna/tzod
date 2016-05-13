@@ -19,7 +19,6 @@ public:
 	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
-	void OnVisibleChange(bool visible, bool inherited);
 	void OnTimeStep(float dt);
 };
 

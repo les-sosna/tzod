@@ -232,24 +232,22 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 	if( visible )
 	{
 		// show children last
-		if( !inherited ) _isVisible = true;
-		OnVisibleChange(true, inherited);
+		if (!inherited)
+			_isVisible = true;
+
 		for (auto &w : _children)
-		{
 			w->OnVisibleChangeInternal(true, true);
-		}
 	}
 	else
 	{
 		// hide children first
 		for (auto &w : _children)
-		{
 			w->OnVisibleChangeInternal(false, true);
-		}
+
 		GetManager().ResetWindow(*this);
-		if( !inherited )
+
+		if (!inherited)
 			_isVisible = false;
-		OnVisibleChange(false, inherited);
 	}
 }
 
@@ -374,10 +372,6 @@ void Window::OnTextChange()
 bool Window::OnFocus(bool focus)
 {
 	return false;
-}
-
-void Window::OnVisibleChange(bool visible, bool inherited)
-{
 }
 
 void Window::OnTimeStep(float dt)

@@ -443,14 +443,6 @@ void EditorLayout::OnSize(float width, float height)
 	_layerDisp->Move(width - _typeList->GetWidth() - 5, 6);
 }
 
-void EditorLayout::OnVisibleChange(bool visible, bool inherited)
-{
-	if( !visible )
-	{
-		SelectNone();
-	}
-}
-
 void EditorLayout::OnChangeObjectType(int index)
 {
 	_conf.ed_object.SetInt(index);
