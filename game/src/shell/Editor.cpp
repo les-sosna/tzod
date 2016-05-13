@@ -477,13 +477,14 @@ void EditorLayout::Draw(DrawingContext &dc) const
 {
 	Window::Draw(dc);
 
+	// World
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
+	// Selection
 	dc.SetMode(RM_INTERFACE);
-
 	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
 		FRECT rt = GetSelectionRect(*s);
@@ -497,8 +498,9 @@ void EditorLayout::Draw(DrawingContext &dc) const
 		dc.DrawSprite(&sel, _texSelection, 0xffffffff, 0);
 		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
-	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 
+	// Mouse coordinates
+	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(floor(GetWidth()/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
