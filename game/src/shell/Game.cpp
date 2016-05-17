@@ -1,10 +1,10 @@
 #include "Controller.h"
-#include "DefaultCamera.h"
 #include "Game.h"
 #include "InputManager.h"
 #include "MessageArea.h"
 #include "ScoreTable.h"
 #include "inc/shell/Config.h"
+#include "inc/shell/detail/DefaultCamera.h"
 
 #include <ctx/Deathmatch.h>
 #include <ctx/GameContext.h>

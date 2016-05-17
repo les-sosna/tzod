@@ -3,8 +3,9 @@
 #include "inc/app/tzod.h"
 #include <as/AppCfg.h>
 #include <fs/FileSystem.h>
-#include <shell/DesktopFactory.h>
+#include <shell/Desktop.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/GuiManager.h>
 #include <ui/Window.h>
 #include <video/DrawingContext.h>
 #include <video/RenderOpenGL.h>
@@ -35,19 +36,21 @@ struct TzodViewImpl
 
 	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
 		: textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
-		, gui(appWindow.GetInput(),
-			appWindow.GetClipboard(),
-			textureManager,
-			DesktopFactory(app.GetAppState(),
-				app.GetAppController(),
-				fs,
-				app.GetConf(),
-				app.GetLang(),
-				logger))
+		, gui(appWindow.GetInput(), appWindow.GetClipboard(), textureManager)
 #ifndef NOSOUND
 		, soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())
 #endif
-	{}
+	{
+		gui.SetDesktop(std::make_shared<Desktop>(
+			gui,
+			textureManager,
+			app.GetAppState(),
+			app.GetAppController(),
+			fs,
+			app.GetConf(),
+			app.GetLang(),
+			logger));
+	}
 };
 
 TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)

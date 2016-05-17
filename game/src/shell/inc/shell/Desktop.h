@@ -1,6 +1,6 @@
 #pragma once
-#include "ConfigConsoleHistory.h"
-#include "DefaultCamera.h"
+#include "detail/ConfigConsoleHistory.h"
+#include "detail/DefaultCamera.h"
 #include <as/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>

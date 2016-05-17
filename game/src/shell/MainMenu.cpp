@@ -1,4 +1,3 @@
-#include "Desktop.h"
 #include "Editor.h"
 #include "gui.h"
 #include "MainMenu.h"

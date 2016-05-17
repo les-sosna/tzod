@@ -8,7 +8,7 @@
 namespace UI
 {
 
-LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman, IWindowFactory &&desktopFactory)
+LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman)
   : _input(input)
   , _clipboard(clipboard)
   , _texman(texman)
@@ -22,7 +22,6 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _lastPointerLocation()
 #endif
 {
-	_desktop = desktopFactory.Create(*this, texman);
 }
 
 LayoutManager::~LayoutManager()

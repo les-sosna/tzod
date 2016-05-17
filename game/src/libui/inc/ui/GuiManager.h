@@ -17,11 +17,6 @@ enum class Key;
 struct IInput;
 struct IClipboard;
 
-struct IWindowFactory
-{
-	virtual std::shared_ptr<Window> Create(LayoutManager &manager, TextureManager &texman) = 0;
-};
-
 enum class Msg
 {
 	KEYUP,
@@ -37,7 +32,7 @@ enum class Msg
 class LayoutManager
 {
 public:
-	LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman, IWindowFactory &&desktopFactory);
+	LayoutManager(IInput &input, IClipboard &clipboard, TextureManager &texman);
 	~LayoutManager();
 
 	void TimeStep(float dt);
@@ -50,7 +45,9 @@ public:
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
 	TextureManager& GetTextureManager() const { return _texman; }
+
 	Window* GetDesktop() const;
+	void SetDesktop(std::shared_ptr<Window> desktop) { _desktop = std::move(desktop); }
 
 	std::shared_ptr<Window> GetCapture(unsigned int pointerID) const;
 	void SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd);
