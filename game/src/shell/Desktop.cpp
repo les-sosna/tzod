@@ -322,7 +322,7 @@ void Desktop::OnOpenMap()
 
 	if (!param.folder)
 	{
-		static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
+		ShowConsole(true);
 		_logger.Printf(1, "Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
@@ -353,7 +353,7 @@ void Desktop::OnExportMap()
 
 		if (!param.folder)
 		{
-			static_cast<Desktop *>(GetManager().GetDesktop())->ShowConsole(true);
+			ShowConsole(true);
 			_logger.Printf(1, "ERROR: Could not open directory '%s'", DIR_MAPS);
 			return;
 		}

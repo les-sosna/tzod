@@ -30,6 +30,7 @@ struct TzodViewImpl
 {
 	TextureManager textureManager;
 	UI::LayoutManager gui;
+	std::shared_ptr<UI::Window> desktop;
 #ifndef NOSOUND
 	SoundView soundView;
 #endif
@@ -37,11 +38,7 @@ struct TzodViewImpl
 	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
 		: textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
 		, gui(appWindow.GetInput(), appWindow.GetClipboard(), textureManager)
-#ifndef NOSOUND
-		, soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())
-#endif
-	{
-		gui.SetDesktop(std::make_shared<Desktop>(
+		, desktop(std::make_shared<Desktop>(
 			gui,
 			textureManager,
 			app.GetAppState(),
@@ -49,7 +46,12 @@ struct TzodViewImpl
 			fs,
 			app.GetConf(),
 			app.GetLang(),
-			logger));
+			logger))
+#ifndef NOSOUND
+		, soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())
+#endif
+	{
+		gui.SetDesktop(desktop);
 	}
 };
 
@@ -59,7 +61,7 @@ TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, 
 {
 	int width = appWindow.GetPixelWidth();
 	int height = appWindow.GetPixelHeight();
-	_impl->gui.GetDesktop()->Resize((float)width, (float)height);
+	_impl->desktop->Resize((float)width, (float)height);
 
 	//	ThemeManager themeManager(appState, *fs, texman);
 
