@@ -1,9 +1,9 @@
 #pragma once
-
 #include "inc/shell/Config.h"
 #include <ui/Dialog.h>
 
 class LangCache;
+class TextureManager;
 namespace FS
 {
 	class FileSystem;
@@ -28,6 +28,7 @@ class NewGameDlg : public UI::Dialog
 	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapList;
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 
+	TextureManager &_texman;
 	ConfCache &_conf;
 	LangCache &_lang;
 	std::shared_ptr<MapList> _maps;
@@ -46,7 +47,7 @@ class NewGameDlg : public UI::Dialog
 	bool _newPlayer;
 
 public:
-	NewGameDlg(UI::LayoutManager &manager, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
 	bool OnKeyPressed(UI::Key key) override;
@@ -92,7 +93,7 @@ class EditPlayerDlg : public UI::Dialog
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::LayoutManager &manager, ConfVarTable &info, ConfCache &conf, LangCache &lang);
+	EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ConfCache &conf, LangCache &lang);
 
 protected:
 	void OnChangeSkin(int index);
@@ -119,7 +120,7 @@ class EditBotDlg : public UI::Dialog
 	ConfPlayerAI _info;
 
 public:
-	EditBotDlg(UI::LayoutManager &manager, ConfVarTable &info, LangCache &lang);
+	EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang);
 
 protected:
 	void OnOK();
@@ -142,7 +143,9 @@ class ScriptMessageBox : public UI::Window
 	void OnButton3();
 
 public:
-	ScriptMessageBox(UI::LayoutManager &manager,
+	ScriptMessageBox(
+		UI::LayoutManager &manager,
+		TextureManager &texman,
 		const std::string &title,
 		const std::string &text,
 		const std::string &btn1,

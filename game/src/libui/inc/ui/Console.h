@@ -1,13 +1,11 @@
-// Console.h
-
 #pragma once
-
 #include "Window.h"
-
 #include <deque>
 #include <functional>
 #include <string>
 #include <vector>
+
+class TextureManager;
 
 namespace UI
 {
@@ -16,16 +14,12 @@ class ConsoleBuffer;
 class ScrollBarVertical;
 class Edit;
 
-///////////////////////////////////////////////////////////////////////////////
-
 struct IConsoleHistory
 {
 	virtual void Enter(std::string str) = 0;
 	virtual size_t GetItemCount() const = 0;
 	virtual const std::string& GetItem(size_t index) const = 0;
 };
-
-///////////////////////////////////////////////////////////////////////////////
 
 class ConsoleHistoryDefault : public IConsoleHistory
 {
@@ -46,8 +40,8 @@ private:
 class Console : public Window
 {
 public:
-	Console(LayoutManager &manager);
-	static std::shared_ptr<Console> Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf);
+	Console(LayoutManager &manager, TextureManager &texman);
+	static std::shared_ptr<Console> Create(Window *parent, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
 
 	float GetInputHeight() const;
 
@@ -67,7 +61,7 @@ protected:
 	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
 
 	void OnTimeStep(float dt) override;
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override;
 

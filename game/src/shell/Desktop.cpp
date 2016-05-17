@@ -45,6 +45,7 @@ void LuaStateDeleter::operator()(lua_State *L)
 
 
 Desktop::Desktop(UI::LayoutManager &manager,
+                 TextureManager &texman,
                  AppState &appState,
                  AppController &appController,
                  FS::FileSystem &fs,
@@ -54,14 +55,15 @@ Desktop::Desktop(UI::LayoutManager &manager,
   : Window(manager)
   , AppStateListener(appState)
   , _history(conf)
+  , _texman(texman)
   , _appController(appController)
   , _fs(fs)
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
   , _globL(luaL_newstate())
-  , _renderScheme(manager.GetTextureManager())
-  , _worldView(manager.GetTextureManager(), _renderScheme)
+  , _renderScheme(texman)
+  , _worldView(texman, _renderScheme)
 {
 	using namespace std::placeholders;
 
@@ -69,12 +71,12 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		throw std::bad_alloc();
 
 	_background = std::make_shared<UI::Window>(manager);
-	_background->SetTexture("gui_splash", false);
+	_background->SetTexture(texman, "gui_splash", false);
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
 	_background->SetDrawBorder(false);
 	AddFront(_background);
 
-	_con = UI::Console::Create(this, 10, 0, 100, 100, &_logger);
+	_con = UI::Console::Create(this, texman, 10, 0, 100, 100, &_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
 	_con->SetVisible(false);
@@ -83,7 +85,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
 
-	_fps = std::make_shared<FpsCounter>(manager, 0.f, 0.f, alignTextLB, GetAppState());
+	_fps = std::make_shared<FpsCounter>(manager, texman, 0.f, 0.f, alignTextLB, GetAppState());
 	AddFront(_fps);
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
@@ -95,7 +97,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
-			auto os = std::make_shared<Oscilloscope>(manager, xx, yy);
+			auto os = std::make_shared<Oscilloscope>(manager, texman, xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
@@ -106,7 +108,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	}
 
 	_pauseButton = std::make_shared<UI::ImageButton>(manager);
-	_pauseButton->SetTexture("ui/pause", true);
+	_pauseButton->SetTexture(texman, "ui/pause", true);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
@@ -238,7 +240,7 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 
 void Desktop::OnNewCampaign()
 {
-	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _fs, _lang);
+	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _texman, _fs, _lang);
 	dlg->eventCampaignSelected = [this,dlg](std::string name)
 	{
 		if( !name.empty() )
@@ -275,7 +277,7 @@ void Desktop::OnNewDM()
 	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
 		PopNavStack();
 
-	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _fs, _conf, _logger, _lang);
+	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
 	dlg->eventClose = [this](auto sender, int result)
 	{
 		OnCloseChild(sender, result);
@@ -297,7 +299,7 @@ void Desktop::OnNewDM()
 
 void Desktop::OnNewMap()
 {
-	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _conf, _lang);
+	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result)
 	{
 		OnCloseChild(sender, result);
@@ -325,7 +327,7 @@ void Desktop::OnOpenMap()
 		return;
 	}
 
-	auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
+	auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
 	fileDlg->eventClose = [this](auto sender, int result)
 	{
 		OnCloseChild(sender, result);
@@ -356,7 +358,7 @@ void Desktop::OnExportMap()
 			return;
 		}
 
-		auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), param, _lang);
+		auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
 		fileDlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);
@@ -376,7 +378,7 @@ void Desktop::OnExportMap()
 
 void Desktop::OnGameSettings()
 {
-	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _conf, _lang);
+	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 	PushNavStack(dlg);
 }
@@ -397,7 +399,7 @@ void Desktop::ShowMainMenu()
 			ClearNavStack();
 		}
 	};
-	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _fs, _conf, _lang, _logger, std::move(commands)));
+	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _fs, _conf, _lang, _logger, std::move(commands)));
 }
 
 void Desktop::ClearNavStack()
@@ -673,14 +675,16 @@ void Desktop::OnGameContextChanged()
 	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_game);
-		_game = std::make_shared<GameLayout>(GetManager(),
-		                                     *gameContext,
-		                                     _worldView,
-		                                     gameContext->GetWorldController(),
-		                                     _defaultCamera,
-		                                     _conf,
-		                                     _lang,
-		                                     _logger);
+		_game = std::make_shared<GameLayout>(
+			GetManager(),
+			_texman,
+			*gameContext,
+			_worldView,
+			gameContext->GetWorldController(),
+			_defaultCamera,
+			_conf,
+			_lang,
+			_logger);
 		_game->Resize(GetWidth(), GetHeight());
 		AddBack(_game);
 
@@ -690,7 +694,16 @@ void Desktop::OnGameContextChanged()
 	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
-		_editor = std::make_shared<EditorLayout>(GetManager(), editorContext->GetWorld(), _worldView, _defaultCamera, _globL.get(), _conf, _lang, _logger);
+		_editor = std::make_shared<EditorLayout>(
+			GetManager(),
+			_texman,
+			editorContext->GetWorld(),
+			_worldView,
+			_defaultCamera,
+			_globL.get(),
+			_conf,
+			_lang,
+			_logger);
 		_editor->Resize(GetWidth(), GetHeight());
 		_editor->SetVisible(false);
 		AddBack(_editor);

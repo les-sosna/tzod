@@ -8,6 +8,7 @@ class DefaultCamera;
 class GC_Object;
 class PropertyList;
 class ServiceEditor;
+class TextureManager;
 class World;
 class WorldView;
 struct lua_State;
@@ -52,6 +53,7 @@ class EditorLayout : public UI::Window
 
 public:
 	EditorLayout(UI::LayoutManager &manager,
+		TextureManager &texman,
 		World &world,
 		WorldView &worldView,
 		const DefaultCamera &defaultCamera,
@@ -65,7 +67,7 @@ public:
 	void SelectNone();
 
 protected:
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 	bool OnMouseWheel(float x, float y, float z) override;
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;

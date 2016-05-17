@@ -1,6 +1,8 @@
 #pragma once
 #include "Window.h"
 
+class TextureManager;
+
 namespace UI
 {
 
@@ -15,7 +17,7 @@ class Edit : public Window
 	size_t _selection;
 
 public:
-	Edit(LayoutManager &manager);
+	Edit(LayoutManager &manager, TextureManager &texman);
 
 	int GetTextLength() const;
 
@@ -38,7 +40,7 @@ public:
 	std::function<void()> eventChange;
 
 protected:
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 	bool OnChar(int c) override;
 	bool OnKeyPressed(Key key) override;
 	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;

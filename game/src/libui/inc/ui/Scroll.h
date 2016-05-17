@@ -32,7 +32,7 @@ public:
 	void  SetPageSize(float ps);
 	float GetPageSize() const;
 
-	void SetElementTextures(const char *slider, const char *upleft, const char *downright);
+	void SetElementTextures(TextureManager &texman, const char *slider, const char *upleft, const char *downright);
 
 	std::function<void(float)> eventScroll;
 
@@ -69,7 +69,7 @@ private:
 class ScrollBarVertical final : public ScrollBarBase
 {
 public:
-	ScrollBarVertical(LayoutManager &manager);
+	ScrollBarVertical(LayoutManager &manager, TextureManager &texman);
 
 	void SetSize(float size) override;
 	float GetSize() const override;
@@ -83,7 +83,7 @@ protected:
 class ScrollBarHorizontal final : public ScrollBarBase
 {
 public:
-	ScrollBarHorizontal(LayoutManager &manager);
+	ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman);
 
 	void SetSize(float size) override;
 	float GetSize() const override;

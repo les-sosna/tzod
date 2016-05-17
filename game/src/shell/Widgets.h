@@ -5,6 +5,7 @@
 #include <queue>
 
 class AppState;
+class TextureManager;
 
 class FpsCounter : public UI::Text
 {
@@ -16,7 +17,7 @@ class FpsCounter : public UI::Text
 	AppState &_appState;
 
 public:
-	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
+	FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
 	void OnTimeStep(float dt);
@@ -25,7 +26,7 @@ protected:
 class Oscilloscope : public UI::Window
 {
 public:
-	Oscilloscope(UI::LayoutManager &manager, float x, float y);
+	Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y);
 	void Push(float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const std::string &title);
@@ -35,7 +36,7 @@ public:
 	void AutoRange();
 
 protected:
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _barTexture;

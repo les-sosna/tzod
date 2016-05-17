@@ -13,6 +13,7 @@
 #include <ui/Keys.h>
 
 MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
+                         TextureManager &texman,
                          FS::FileSystem &fs,
                          ConfCache &conf,
                          LangCache &lang,
@@ -35,18 +36,18 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 
 	float y = (GetHeight() - buttonHeight) / 2;
 
-	button = UI::Button::Create(this, _lang.single_player_btn.Get(), 0, y);
-	button->SetIcon("ui/play");
+	button = UI::Button::Create(this, texman, _lang.single_player_btn.Get(), 0, y);
+	button->SetIcon(texman, "ui/play");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.newDM;
 
-	button = UI::Button::Create(this, _lang.editor_btn.Get(), (GetWidth() - buttonWidth) / 2, y);
-	button->SetIcon("ui/editor");
+	button = UI::Button::Create(this, texman, _lang.editor_btn.Get(), (GetWidth() - buttonWidth) / 2, y);
+	button->SetIcon(texman, "ui/editor");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 
-	button = UI::Button::Create(this, _lang.settings_btn.Get(), GetWidth() - buttonWidth, y);
-	button->SetIcon("ui/settings");
+	button = UI::Button::Create(this, texman, _lang.settings_btn.Get(), GetWidth() - buttonWidth, y);
+	button->SetIcon(texman, "ui/settings");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.gameSettings;
 
@@ -114,10 +115,10 @@ void MainMenuDlg::SwitchPanel(PanelType newtype)
 	SetTimeStep(true);
 }
 
-void MainMenuDlg::CreatePanel()
+void MainMenuDlg::CreatePanel(TextureManager &texman)
 {
-	_panelTitle = UI::Text::Create(_panel.get(), 0, 0, "", alignTextLT);
-	_panelTitle->SetFont("font_default");
+	_panelTitle = UI::Text::Create(_panel.get(), texman, 0, 0, "", alignTextLT);
+	_panelTitle->SetFont(texman, "font_default");
 
 	float y = _panelTitle->GetCharHeight() + _panelTitle->GetY() + 10;
 	std::shared_ptr<UI::Button> btn;
@@ -126,10 +127,10 @@ void MainMenuDlg::CreatePanel()
 	{
 	case PT_EDITOR:
 		_panelTitle->SetText(_lang.editor_title.Get());
-		UI::Button::Create(_panel.get(), _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
-		UI::Button::Create(_panel.get(), _lang.editor_load_map.Get(), 100, y)->eventClick = _commands.openMap;
-		UI::Button::Create(_panel.get(), _lang.editor_save_map.Get(), 200, y)->eventClick = _commands.exportMap;
-		btn = UI::Button::Create(_panel.get(), _lang.editor_map_settings.Get(), 300, y);
+		UI::Button::Create(_panel.get(), texman, _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
+		UI::Button::Create(_panel.get(), texman, _lang.editor_load_map.Get(), 100, y)->eventClick = _commands.openMap;
+		UI::Button::Create(_panel.get(), texman, _lang.editor_save_map.Get(), 200, y)->eventClick = _commands.exportMap;
+		btn = UI::Button::Create(_panel.get(), texman, _lang.editor_map_settings.Get(), 300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
 		break;
 	default:
@@ -161,7 +162,7 @@ void MainMenuDlg::OnTimeStep(float dt)
 			if( PT_NONE != _ptype )
 			{
 				_pstate = PS_APPEARING;
-				CreatePanel();
+				CreatePanel(GetManager().GetTextureManager());
 			}
 			else
 			{

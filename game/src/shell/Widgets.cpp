@@ -9,8 +9,8 @@
 #include <sstream>
 #include <iomanip>
 
-FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState)
-  : Text(manager)
+FpsCounter::FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, AppState &appState)
+  : Text(manager, texman)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)
@@ -93,10 +93,10 @@ void FpsCounter::OnTimeStep(float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Oscilloscope::Oscilloscope(UI::LayoutManager &manager, float x, float y)
+Oscilloscope::Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y)
   : Window(manager)
-  , _barTexture(manager.GetTextureManager().FindSprite("ui/bar"))
-  , _titleFont(manager.GetTextureManager().FindSprite("font_small"))
+  , _barTexture(texman.FindSprite("ui/bar"))
+  , _titleFont(texman.FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
   , _gridStepX(1)
@@ -104,7 +104,7 @@ Oscilloscope::Oscilloscope(UI::LayoutManager &manager, float x, float y)
   , _scale(3)
 {
 	Move(x, y);
-	SetTexture("ui/list", true);
+	SetTexture(texman, "ui/list", true);
 	SetDrawBorder(true);
 	SetClipChildren(true);
 }
@@ -208,11 +208,11 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(DrawingContext &dc) const
+void Oscilloscope::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
-	float labelOffset = GetManager().GetTextureManager().GetCharHeight(_titleFont) / 2;
+	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 
 	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);
 	float center = labelOffset - _rangeMax * scale;

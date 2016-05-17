@@ -1,12 +1,8 @@
-// Button.h
-
 #pragma once
-
 #include "Window.h"
-
 #include <functional>
 
-///////////////////////////////////////////////////////////////////////////////
+class TextureManager;
 
 namespace UI
 {
@@ -53,20 +49,20 @@ private:
 class Button : public ButtonBase
 {
 public:
-	static std::shared_ptr<Button> Create(Window *parent, const std::string &text, float x, float y, float w=-1, float h=-1);
+	static std::shared_ptr<Button> Create(Window *parent, TextureManager &texman, const std::string &text, float x, float y, float w=-1, float h=-1);
 
-	Button(LayoutManager &manager);
+	Button(LayoutManager &manager, TextureManager &texman);
 
-	void SetIcon(const char *spriteName);
+	void SetIcon(TextureManager &texman, const char *spriteName);
 
 protected:
-	void SetFont(const char *fontName);
+	void SetFont(TextureManager &texman, const char *fontName);
 
 	// ButtonBase
 	void OnChangeState(State state) override;
 
 	// Window
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _font;
@@ -78,7 +74,7 @@ private:
 class TextButton : public ButtonBase
 {
 public:
-	explicit TextButton(LayoutManager &manager);
+	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
 	void SetFont(const char *fontName);
 
@@ -90,7 +86,7 @@ protected:
 	void AlignSizeToContent();
 
 	void OnTextChange() override;
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 
 private:
@@ -114,9 +110,9 @@ protected:
 class CheckBox : public ButtonBase
 {
 public:
-	static std::shared_ptr<CheckBox> Create(Window *parent, float x, float y, const std::string &text);
+	static std::shared_ptr<CheckBox> Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text);
 
-	explicit CheckBox(LayoutManager &manager);
+	explicit CheckBox(LayoutManager &manager, TextureManager &texman);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
@@ -132,7 +128,7 @@ protected:
 	void OnChangeState(State state) override;
 
 	// Window
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _fontTexture;

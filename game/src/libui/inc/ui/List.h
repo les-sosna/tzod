@@ -1,11 +1,9 @@
-// List.h
-
 #pragma once
-
 #include "Window.h"
 #include "ListBase.h"
-
 #include <functional>
+
+class TextureManager;
 
 namespace UI
 {
@@ -19,7 +17,7 @@ class ScrollBarVertical;
 class List : public Window
 {
 public:
-	List(LayoutManager &manager, ListDataSource* dataSource);
+	List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource);
 	virtual ~List();
 
 	ListDataSource* GetData() const;
@@ -67,7 +65,7 @@ protected:
 	bool OnKeyPressed(Key key) override;
 	bool OnFocus(bool focus) override;
 
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	List(const List &); // no copy

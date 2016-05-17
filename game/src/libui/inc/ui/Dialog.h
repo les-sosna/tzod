@@ -9,7 +9,7 @@ namespace UI
 class Dialog : public Window
 {
 public:
-	Dialog(LayoutManager &manager, float width, float height, bool modal = true);
+	Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal = true);
 
 	void SetEasyMove(bool enable);
 

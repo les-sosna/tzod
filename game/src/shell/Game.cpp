@@ -21,8 +21,8 @@
 
 #include <sstream>
 
-TimeElapsed::TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlignText align, World &world)
-  : Text(manager)
+TimeElapsed::TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, World &world)
+  : Text(manager, texman)
   , _world(world)
 {
 	SetTimeStep(true);
@@ -44,6 +44,7 @@ void TimeElapsed::OnTimeStep(float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 GameLayout::GameLayout(UI::LayoutManager &manager,
+                       TextureManager &texman,
                        GameContext &gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
@@ -60,18 +61,18 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
-  , _texDrag(manager.GetTextureManager().FindSprite("ui/direction"))
-  , _texTarget(manager.GetTextureManager().FindSprite("ui/target"))
+  , _texDrag(texman.FindSprite("ui/direction"))
+  , _texTarget(texman.FindSprite("ui/target"))
 {
-	_msg = std::make_shared<MessageArea>(manager, _conf, logger);
+	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);
 	_msg->Move(100, 100);
 	AddFront(_msg);
 
-	_score = std::make_shared<ScoreTable>(manager, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
+	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
 	_score->SetVisible(false);
 	AddFront(_score);
 
-	_time = std::make_shared<TimeElapsed>(manager, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
+	_time = std::make_shared<TimeElapsed>(manager, texman, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
 	AddFront(_time);
 	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
@@ -177,9 +178,9 @@ void GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void GameLayout::Draw(DrawingContext &dc) const
+void GameLayout::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
 	float zoom = _defaultCamera.GetZoom();

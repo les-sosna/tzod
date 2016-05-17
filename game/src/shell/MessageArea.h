@@ -4,6 +4,7 @@
 #include <deque>
 
 class ConfCache;
+class TextureManager;
 
 namespace UI
 {
@@ -13,14 +14,14 @@ namespace UI
 class MessageArea : public UI::Window
 {
 public:
-	MessageArea(UI::LayoutManager &manager, ConfCache &conf, UI::ConsoleBuffer &logger);
+	MessageArea(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, UI::ConsoleBuffer &logger);
 
 	void WriteLine(const std::string &text);
 	void Clear();
 
 	// UI::Window
 	void OnTimeStep(float dt) override;
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	struct Line

@@ -19,19 +19,19 @@ struct IClipboard;
 
 struct IWindowFactory
 {
-    virtual std::shared_ptr<Window> Create(LayoutManager &manager) = 0;
+	virtual std::shared_ptr<Window> Create(LayoutManager &manager, TextureManager &texman) = 0;
 };
 
 enum class Msg
 {
-    KEYUP,
-    KEYDOWN,
-    PointerDown,
-    PointerMove,
-    PointerUp,
-    PointerCancel,
+	KEYUP,
+	KEYDOWN,
+	PointerDown,
+	PointerMove,
+	PointerUp,
+	PointerCancel,
 	MOUSEWHEEL,
-    TAP,
+	TAP,
 };
 
 class LayoutManager

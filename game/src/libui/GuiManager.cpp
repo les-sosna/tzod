@@ -22,7 +22,7 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _lastPointerLocation()
 #endif
 {
-	_desktop = desktopFactory.Create(*this);
+	_desktop = desktopFactory.Create(*this, texman);
 }
 
 LayoutManager::~LayoutManager()
@@ -414,20 +414,20 @@ bool LayoutManager::ProcessText(int c)
 	return false;
 }
 
-static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, bool topMostPass, bool insideTopMost)
+static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
 {
-    insideTopMost |= wnd.GetTopMost();
+	insideTopMost |= wnd.GetTopMost();
 
-    if (!wnd.GetVisible() || (insideTopMost && !topMostPass))
-        return; // skip window and all its children
-    
+	if (!wnd.GetVisible() || (insideTopMost && !topMostPass))
+		return; // skip window and all its children
+	
 	dc.PushTransform(vec2d(wnd.GetX(), wnd.GetY()));
 
-    if (insideTopMost == topMostPass)
-	wnd.Draw(dc);
+	if (insideTopMost == topMostPass)
+	wnd.Draw(dc, texman);
 
-    // topmost windows escape parents' clip
-    bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
+	// topmost windows escape parents' clip
+	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
 
 	if (clipChildren)
 	{
@@ -440,7 +440,7 @@ static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, bool topM
 	}
 
 	for (auto &w: wnd.GetChildren())
-        DrawWindowRecursive(*w, dc, topMostPass, wnd.GetTopMost() || insideTopMost);
+		DrawWindowRecursive(*w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
 
 	if (clipChildren)
 		dc.PopClippingRect();
@@ -452,8 +452,8 @@ void LayoutManager::Render(DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-    DrawWindowRecursive(*_desktop, dc, false, false);
-    DrawWindowRecursive(*_desktop, dc, true, false);
+    DrawWindowRecursive(*_desktop, dc, GetTextureManager(), false, false);
+    DrawWindowRecursive(*_desktop, dc, GetTextureManager(), true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)

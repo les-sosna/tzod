@@ -58,6 +58,7 @@ class MainMenuDlg : public UI::Window
 
 public:
 	MainMenuDlg(UI::LayoutManager &manager,
+	            TextureManager &texman,
 	            FS::FileSystem &fs,
 	            ConfCache &conf,
 	            LangCache &lang,
@@ -69,6 +70,6 @@ public:
 
 protected:
 	void OnTimeStep(float dt) override;
-	void CreatePanel(); // create panel of current _ptype and go to PS_APPEARING state
+	void CreatePanel(TextureManager &texman); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);
 };

@@ -111,27 +111,27 @@ void ServiceListDataSource::OnKill(GC_Object &obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
-	: Dialog(manager, h, w, false)
+ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
+	: Dialog(manager, texman, h, w, false)
 	, _listData(world, lang)
 	, _margins(5)
 	, _world(world)
 	, _conf(conf)
 	, _lang(lang)
 {
-	_labelService = UI::Text::Create(this, _margins, _margins, _lang.service_type.Get(), alignTextLT);
-	_labelName = UI::Text::Create(this, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
+	_labelService = UI::Text::Create(this, texman, _margins, _margins, _lang.service_type.Get(), alignTextLT);
+	_labelName = UI::Text::Create(this, texman, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
 
-	_list = std::make_shared<UI::List>(manager, &_listData);
+	_list = std::make_shared<UI::List>(manager, texman, &_listData);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());
 	_list->SetDrawBorder(true);
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
 	AddFront(_list);
 
-	_btnCreate = UI::Button::Create(this, _lang.service_create.Get(), 0, 0);
+	_btnCreate = UI::Button::Create(this, texman, _lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
 
-	_combo = DefaultComboBox::Create(this);
+	_combo = DefaultComboBox::Create(this, texman);
 	_combo->Move(_margins, _margins);
 	for (unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i)
 	{

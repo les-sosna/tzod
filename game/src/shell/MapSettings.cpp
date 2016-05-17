@@ -21,14 +21,14 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 	return 0;
 }
 
-MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, World &world, const ThemeManager &themeManager, LangCache &lang)
-	: Dialog(manager, 512, 512)
+MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, const ThemeManager &themeManager, LangCache &lang)
+	: Dialog(manager, texman, 512, 512)
 	, _world(world)
 {
 	SetEasyMove(true);
 
-	auto title = UI::Text::Create(this, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
-	title->SetFont("font_default");
+	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
+	title->SetFont(texman, "font_default");
 
 
 	float x1 = 20;
@@ -36,43 +36,43 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, World &world, const T
 
 	float y = 32;
 
-	UI::Text::Create(this, x1, y += 20, lang.map_author.Get(), alignTextLT);
-	_author = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_author.Get(), alignTextLT);
+	_author = std::make_shared<UI::Edit>(manager, texman);
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
 	_author->SetText(world._infoAuthor);
 	AddFront(_author);
 
-	UI::Text::Create(this, x1, y += 20, lang.map_email.Get(), alignTextLT);
-	_email = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_email.Get(), alignTextLT);
+	_email = std::make_shared<UI::Edit>(manager, texman);
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
 	_email->SetText(world._infoEmail);
 	AddFront(_email);
 
-	UI::Text::Create(this, x1, y += 20, lang.map_url.Get(), alignTextLT);
-	_url = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_url.Get(), alignTextLT);
+	_url = std::make_shared<UI::Edit>(manager, texman);
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
 	_url->SetText(world._infoUrl);
 	AddFront(_url);
 
-	UI::Text::Create(this, x1, y += 20, lang.map_desc.Get(), alignTextLT);
-	_desc = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_desc.Get(), alignTextLT);
+	_desc = std::make_shared<UI::Edit>(manager, texman);
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
 	_desc->SetText(world._infoDesc);
 	AddFront(_url);
 
-	UI::Text::Create(this, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
-	_onInit = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
+	_onInit = std::make_shared<UI::Edit>(manager, texman);
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
 	_onInit->SetText(world._infoOnInit);
 	AddFront(_onInit);
 
-	UI::Text::Create(this, x1, y += 20, lang.map_theme.Get(), alignTextLT);
-	_theme = DefaultComboBox::Create(this);
+	UI::Text::Create(this, texman, x1, y += 20, lang.map_theme.Get(), alignTextLT);
+	_theme = DefaultComboBox::Create(this, texman);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
 	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)
@@ -86,8 +86,8 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, World &world, const T
 	//
 	// OK & Cancel
 	//
-	UI::Button::Create(this, lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
-	UI::Button::Create(this, lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
+	UI::Button::Create(this, texman, lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
+	UI::Button::Create(this, texman, lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
 }
 
 MapSettingsDlg::~MapSettingsDlg()

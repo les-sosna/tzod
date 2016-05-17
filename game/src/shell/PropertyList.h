@@ -6,6 +6,7 @@
 
 class ConfCache;
 class PropertySet;
+class TextureManager;
 class World;
 
 namespace UI
@@ -17,9 +18,9 @@ namespace UI
 class PropertyList : public UI::Dialog
 {
 public:
-	PropertyList(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
-	void ConnectTo(std::shared_ptr<PropertySet> ps);
-	void DoExchange(bool applyToObject);
+	PropertyList(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
+	void ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman);
+	void DoExchange(bool applyToObject, TextureManager &texman);
 
 private:
 	void OnScroll(float pos);

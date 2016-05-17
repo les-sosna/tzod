@@ -4,14 +4,15 @@
 class World;
 class Deathmatch;
 class LangCache;
+class TextureManager;
 
 class ScoreTable : public UI::Window
 {
 public:
-	ScoreTable(UI::LayoutManager &manager, World &world, Deathmatch &deathmatch, LangCache &lang);
+	ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, Deathmatch &deathmatch, LangCache &lang);
 
 protected:
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _font;

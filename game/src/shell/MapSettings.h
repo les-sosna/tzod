@@ -10,6 +10,7 @@ namespace UI
 }
 
 class LangCache;
+class TextureManager;
 class ThemeManager;
 class World;
 
@@ -25,7 +26,7 @@ class MapSettingsDlg : public UI::Dialog
 	World &_world;
 
 public:
-	MapSettingsDlg(UI::LayoutManager &manager, World &world, const ThemeManager &themeManager, LangCache &lang);
+	MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, const ThemeManager &themeManager, LangCache &lang);
 	~MapSettingsDlg();
 
 	void OnOK();

@@ -12,21 +12,21 @@
 
 using namespace UI;
 
-Edit::Edit(LayoutManager &manager)
+Edit::Edit(LayoutManager &manager, TextureManager &texman)
   : Window(manager)
   , _selStart(-1)
   , _selEnd(-1)
   , _offset(0)
   , _time(0)
-  , _font(manager.GetTextureManager().FindSprite("font_small"))
-  , _cursor(manager.GetTextureManager().FindSprite("ui/editcursor"))
-  , _selection(manager.GetTextureManager().FindSprite("ui/editsel"))
+  , _font(texman.FindSprite("font_small"))
+  , _cursor(texman.FindSprite("ui/editcursor"))
+  , _selection(texman.FindSprite("ui/editsel"))
 {
-	SetTexture("ui/edit", true);
+	SetTexture(texman, "ui/edit", true);
 	SetDrawBorder(true);
 	SetClipChildren(true);
 	SetSel(0, 0);
-	Resize(GetWidth(), manager.GetTextureManager().GetCharHeight(_font) + 2);
+	Resize(GetWidth(), texman.GetCharHeight(_font) + 2);
 }
 
 int Edit::GetTextLength() const
@@ -105,11 +105,11 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(DrawingContext &dc) const
+void Edit::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
-	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
+	float w = texman.GetFrameWidth(_font, 0) - 1;
 
 	// selection
 	if( GetSelLength() && GetTimeStep() )
@@ -137,7 +137,7 @@ void Edit::Draw(DrawingContext &dc) const
 		FRECT rt;
 		rt.left = (GetSelEnd() - (float) _offset) * w;
 		rt.top = 0;
-		rt.right = rt.left + GetManager().GetTextureManager().GetFrameWidth(_cursor, 0);
+		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
 		rt.bottom = rt.top + GetHeight();
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}

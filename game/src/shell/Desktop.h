@@ -40,6 +40,7 @@ class Desktop
 {
 public:
 	Desktop(UI::LayoutManager &manager,
+	        TextureManager &texman,
 	        AppState &appState,
 	        AppController &appController,
 	        FS::FileSystem &fs,
@@ -58,6 +59,7 @@ protected:
 
 private:
 	ConfigConsoleHistory  _history;
+	TextureManager &_texman;
 	AppController &_appController;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;

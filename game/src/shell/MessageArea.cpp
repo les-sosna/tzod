@@ -6,9 +6,9 @@
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::LayoutManager &manager, ConfCache &conf, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, UI::ConsoleBuffer &logger)
   : Window(manager)
-  , _fontTexture(manager.GetTextureManager().FindSprite("font_small"))
+  , _fontTexture(texman.FindSprite("font_small"))
   , _conf(conf)
   , _logger(logger)
 {
@@ -28,16 +28,16 @@ void MessageArea::OnTimeStep(float dt)
 	}
 }
 
-void MessageArea::Draw(DrawingContext &dc) const
+void MessageArea::Draw(DrawingContext &dc, TextureManager &texman) const
 {
 	if( _lines.empty() || !_conf.ui_showmsg.Get() )
 	{
 		return;
 	}
 
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
-	float h = GetManager().GetTextureManager().GetCharHeight(_fontTexture);
+	float h = texman.GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{

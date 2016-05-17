@@ -7,9 +7,9 @@
 
 using namespace UI;
 
-std::shared_ptr<Text> Text::Create(Window *parent, float x, float y, const std::string &text, enumAlignText align)
+std::shared_ptr<Text> Text::Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text, enumAlignText align)
 {
-	auto t = std::make_shared<Text>(parent->GetManager());
+	auto t = std::make_shared<Text>(parent->GetManager(), texman);
 	t->Move(x, y);
 	t->SetText(text);
 	t->SetAlign(align);
@@ -17,7 +17,7 @@ std::shared_ptr<Text> Text::Create(Window *parent, float x, float y, const std::
 	return t;
 }
 
-Text::Text(LayoutManager &manager)
+Text::Text(LayoutManager &manager, TextureManager &texman)
   : Window(manager)
   , _lineCount(1)
   , _maxline(0)
@@ -26,8 +26,8 @@ Text::Text(LayoutManager &manager)
   , _fontColor(0xffffffff)
   , _drawShadow(true)
 {
-	SetFont("font_small");
-	SetTexture(nullptr, false);
+	SetFont(texman, "font_small");
+	SetTexture(texman, nullptr, false);
 }
 
 void Text::SetDrawShadow(bool drawShadow)
@@ -45,11 +45,11 @@ void Text::SetAlign(enumAlignText align)
 	_align = align;
 }
 
-void Text::SetFont(const char *fontName)
+void Text::SetFont(TextureManager &texman, const char *fontName)
 {
-	_fontTexture = GetManager().GetTextureManager().FindSprite(fontName);
-	float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
-	float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	_fontTexture = texman.FindSprite(fontName);
+	float w = texman.GetFrameWidth(_fontTexture, 0);
+	float h = texman.GetFrameHeight(_fontTexture, 0);
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 
@@ -68,9 +68,9 @@ float Text::GetCharHeight()
 	return GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 }
 
-void Text::Draw(DrawingContext &dc) const
+void Text::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	if( _drawShadow )
 	{

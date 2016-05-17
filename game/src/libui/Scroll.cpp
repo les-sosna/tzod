@@ -1,7 +1,6 @@
-// Scroll.cpp
-
 #include "inc/ui/Scroll.h"
 #include "inc/ui/Button.h"
+#include "inc/ui/GuiManager.h"
 #include <algorithm>
 #include <cmath>
 
@@ -96,11 +95,11 @@ float ScrollBarBase::GetLineSize() const
 	return _lineSize;
 }
 
-void ScrollBarBase::SetElementTextures(const char *slider, const char *upleft, const char *downright)
+void ScrollBarBase::SetElementTextures(TextureManager &texman, const char *slider, const char *upleft, const char *downright)
 {
-	_btnBox->SetTexture(slider, true);
-	_btnUpLeft->SetTexture(upleft, true);
-	_btnDownRight->SetTexture(downright, true);
+	_btnBox->SetTexture(texman, slider, true);
+	_btnUpLeft->SetTexture(texman, upleft, true);
+	_btnDownRight->SetTexture(texman, downright, true);
 
 	_btnBox->Move((GetWidth() - _btnBox->GetWidth()) / 2, (GetHeight() - _btnBox->GetHeight()) / 2);
 	SetPos(GetPos()); // update scroll position
@@ -182,13 +181,13 @@ float ScrollBarBase::GetScrollPaneLength() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarVertical::ScrollBarVertical(LayoutManager &manager)
+ScrollBarVertical::ScrollBarVertical(LayoutManager &manager, TextureManager &texman)
   : ScrollBarBase(manager)
 {
-	_btnBox->SetTexture("ui/scroll_vert", true);
-	_btnUpLeft->SetTexture("ui/scroll_up", true);
-	_btnDownRight->SetTexture("ui/scroll_down", true);
-	SetTexture("ui/scroll_back_vert", true);
+	_btnBox->SetTexture(texman, "ui/scroll_vert", true);
+	_btnUpLeft->SetTexture(texman, "ui/scroll_up", true);
+	_btnDownRight->SetTexture(texman, "ui/scroll_down", true);
+	SetTexture(texman, "ui/scroll_back_vert", true);
 }
 
 void ScrollBarVertical::SetSize(float size)
@@ -207,20 +206,20 @@ void ScrollBarVertical::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(_btnBox->GetWidth(),
-		std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureHeight()));
+		std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureHeight(GetManager().GetTextureManager())));
 	_btnBox->Move(_btnBox->GetX(), floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
 		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager)
+ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman)
   : ScrollBarBase(manager)
 {
-	_btnBox->SetTexture("ui/scroll_hor", true);
-	_btnUpLeft->SetTexture("ui/scroll_left", true);
-	_btnDownRight->SetTexture("ui/scroll_right", true);
-	SetTexture("ui/scroll_back_hor", true);
+	_btnBox->SetTexture(texman, "ui/scroll_hor", true);
+	_btnUpLeft->SetTexture(texman, "ui/scroll_left", true);
+	_btnDownRight->SetTexture(texman, "ui/scroll_right", true);
+	SetTexture(texman, "ui/scroll_back_hor", true);
 }
 
 void ScrollBarHorizontal::SetSize(float size)
@@ -238,7 +237,7 @@ void ScrollBarHorizontal::SetPos(float pos)
 	ScrollBarBase::SetPos(pos);
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
-	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureWidth()),
+	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureWidth(GetManager().GetTextureManager())),
 		_btnBox->GetHeight());
 	_btnBox->Move(floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
 		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());

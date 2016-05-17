@@ -4,13 +4,13 @@
 
 using namespace UI;
 
-Dialog::Dialog(LayoutManager &manager, float width, float height, bool modal)
+Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
   : Window(manager)
   , _mouseX(0)
   , _mouseY(0)
   , _easyMove(false)
 {
-	SetTexture("ui/window", false);
+	SetTexture(texman, "ui/window", false);
 	Resize(width, height);
 	SetDrawBorder(true);
 	SetDrawBackground(true);

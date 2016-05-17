@@ -12,9 +12,9 @@ class ListAdapter
 {
 public:
 	template <class ...Args>
-	static std::shared_ptr<ListAdapter> Create(Window *parent, Args && ...args)
+	static std::shared_ptr<ListAdapter> Create(Window *parent, TextureManager &texman, Args && ...args)
 	{
-		auto res = std::make_shared<ListAdapter>(parent->GetManager(), std::forward<Args>(args)...);
+		auto res = std::make_shared<ListAdapter>(parent->GetManager(), texman, std::forward<Args>(args)...);
 		parent->AddFront(res);
 		return res;
 	}
@@ -25,9 +25,9 @@ public:
 	}
 
 	template <class ...Args>
-	explicit ListAdapter(LayoutManager &manager, Args && ...args)
+	explicit ListAdapter(LayoutManager &manager, TextureManager &texman, Args && ...args)
 		: DataSourceType(std::forward<Args>(args)...)
-		, ListType(manager, this)
+		, ListType(manager, texman, this)
 	{
 	}
 	virtual ~ListAdapter()

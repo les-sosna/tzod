@@ -26,8 +26,8 @@ PropertyList::Container::Container(UI::LayoutManager &manager)
 //	return GetParent()->OnKeyPressed(c); // pass messages through
 //}
 
-PropertyList::PropertyList(UI::LayoutManager &manager, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
-  : Dialog(manager, w, h, false)
+PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
+  : Dialog(manager, texman, w, h, false)
   , _world(world)
   , _conf(conf)
   , _logger(logger)
@@ -36,7 +36,7 @@ PropertyList::PropertyList(UI::LayoutManager &manager, float x, float y, float w
 	_psheet = std::make_shared<Container>(manager);
 	AddFront(_psheet);
 
-	_scrollBar = std::make_shared<UI::ScrollBarVertical>(manager);
+	_scrollBar = std::make_shared<UI::ScrollBarVertical>(manager, texman);
 	_scrollBar->SetHeight(h);
 	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
 	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
@@ -48,7 +48,7 @@ PropertyList::PropertyList(UI::LayoutManager &manager, float x, float y, float w
 	SetClipChildren(true);
 }
 
-void PropertyList::DoExchange(bool applyToObject)
+void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 {
 	int focus = -1;
 
@@ -132,7 +132,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			std::ostringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
-			auto label = UI::Text::Create(_psheet.get(), 5, y, "", alignTextLT);
+			auto label = UI::Text::Create(_psheet.get(), texman, 5, y, "", alignTextLT);
 			y += label->GetHeight();
 			y += 5;
 
@@ -141,7 +141,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
 				ctrl->Move(32, y);
 				ctrl->SetWidth(_psheet->GetWidth() - 64);
 				_psheet->AddFront(ctrl);
@@ -149,7 +149,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
 				ctrl->Move(32, y);
 				ctrl->SetWidth(_psheet->GetWidth() - 64);
 				_psheet->AddFront(ctrl);
@@ -157,7 +157,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = std::make_shared<UI::Edit>(GetManager());
+				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
 				ctrl->Move(32, y);
 				ctrl->SetWidth(_psheet->GetWidth() - 64);
 				_psheet->AddFront(ctrl);
@@ -168,7 +168,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
 				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-				ctrl = DefaultComboBox::Create(_psheet.get());
+				ctrl = DefaultComboBox::Create(_psheet.get(), texman);
 				ctrl->Move(32, y);
 				static_cast<DefaultComboBox *>(ctrl.get())->Resize(_psheet->GetWidth() - 64);
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
@@ -183,7 +183,6 @@ void PropertyList::DoExchange(bool applyToObject)
 				{
 					std::vector<std::string> names;
 					const char *filter = prop->GetType() == ObjectProperty::TYPE_SKIN ? "skin/" : nullptr;
-					TextureManager &texman = GetManager().GetTextureManager();
 					texman.GetTextureNames(names, filter, true);
 					for( auto &name: names )
 					{
@@ -225,11 +224,11 @@ void PropertyList::DoExchange(bool applyToObject)
 	OnScroll(_scrollBar->GetPos());
 }
 
-void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps)
+void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman)
 {
 	if( _ps == ps ) return;
 	_ps = std::move(ps);
-	DoExchange(false);
+	DoExchange(false, texman);
 }
 
 void PropertyList::OnScroll(float pos)
@@ -250,7 +249,7 @@ bool PropertyList::OnKeyPressed(UI::Key key)
 	switch(key)
 	{
 	case UI::Key::Enter:
-		DoExchange(true);
+		DoExchange(true, GetManager().GetTextureManager());
 		SaveToConfig(_conf, *_ps);
 		break;
 	case UI::Key::Escape:

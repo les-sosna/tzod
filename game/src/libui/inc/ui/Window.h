@@ -10,6 +10,7 @@
 #include <deque>
 
 class DrawingContext;
+class TextureManager;
 
 namespace UI
 {
@@ -110,10 +111,10 @@ public:
 	void SetDrawBackground(bool enable)    { _drawBackground = enable; }
 	bool GetDrawBackground() const         { return _drawBackground;   }
 
-	void SetTexture(const char *tex, bool fitSize);
+	void SetTexture(TextureManager &texman, const char *tex, bool fitSize);
 	void SetTextureStretchMode(StretchMode stretchMode);
-	float GetTextureWidth()  const;
-	float GetTextureHeight() const;
+	float GetTextureWidth(TextureManager &texman)  const;
+	float GetTextureHeight(TextureManager &texman) const;
 
 	void SetVisible(bool show);
 	bool GetVisible() const { return _isVisible; }
@@ -149,7 +150,7 @@ public:
 	//
 
 	void SetEnabled(bool enable);
-    bool GetEnabled() const { return _isEnabled; }
+	bool GetEnabled() const { return _isEnabled; }
 	bool GetEnabledCombined() const;
 
 	void SetTimeStep(bool enable);
@@ -166,7 +167,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(DrawingContext &dc) const;
+	virtual void Draw(DrawingContext &dc, TextureManager &texman) const;
 
 private:
 

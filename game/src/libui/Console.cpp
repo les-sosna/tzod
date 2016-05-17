@@ -38,9 +38,9 @@ const std::string& ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Console> Console::Create(Window *parent, float x, float y, float w, float h, ConsoleBuffer *buf)
+std::shared_ptr<Console> Console::Create(Window *parent, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
 {
-	auto res = std::make_shared<Console>(parent->GetManager());
+	auto res = std::make_shared<Console>(parent->GetManager(), texman);
 	res->Move(x, y);
 	res->Resize(w, h);
 	res->SetBuffer(buf);
@@ -48,21 +48,21 @@ std::shared_ptr<Console> Console::Create(Window *parent, float x, float y, float
 	return res;
 }
 
-Console::Console(LayoutManager &manager)
+Console::Console(LayoutManager &manager, TextureManager &texman)
   : Window(manager)
   , _cmdIndex(0)
-  , _font(manager.GetTextureManager().FindSprite("font_small"))
+  , _font(texman.FindSprite("font_small"))
   , _buf(nullptr)
   , _history(nullptr)
   , _echo(true)
   , _autoScroll(true)
 {
-	_input = std::make_shared<Edit>(manager);
+	_input = std::make_shared<Edit>(manager, texman);
 	AddFront(_input);
-	_scroll = std::make_shared<ScrollBarVertical>(manager);
+	_scroll = std::make_shared<ScrollBarVertical>(manager, texman);
 	_scroll->eventScroll = std::bind(&Console::OnScroll, this, std::placeholders::_1);
 	AddFront(_scroll);
-	SetTexture("ui/console", false);
+	SetTexture(texman, "ui/console", false);
 	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround
 }
@@ -239,15 +239,15 @@ void Console::OnTimeStep(float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(DrawingContext &dc) const
+void Console::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	if( _buf )
 	{
 		_buf->Lock();
 
-		float h = GetManager().GetTextureManager().GetFrameHeight(_font, 0);
+		float h = texman.GetFrameHeight(_font, 0);
 		size_t visibleLineCount = size_t(_input->GetY() / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;

@@ -81,24 +81,24 @@ bool Window::Contains(const Window *other) const
 	return false;
 }
 
-float Window::GetTextureWidth() const
+float Window::GetTextureWidth(TextureManager &texman) const
 {
-	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameWidth(_texture, _frame) : 1;
+	return (-1 != _texture) ? texman.GetFrameWidth(_texture, _frame) : 1;
 }
 
-float Window::GetTextureHeight() const
+float Window::GetTextureHeight(TextureManager &texman) const
 {
-	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameHeight(_texture, _frame) : 1;
+	return (-1 != _texture) ? texman.GetFrameHeight(_texture, _frame) : 1;
 }
 
-void Window::SetTexture(const char *tex, bool fitSize)
+void Window::SetTexture(TextureManager &texman, const char *tex, bool fitSize)
 {
 	if( tex )
 	{
-		_texture = GetManager().GetTextureManager().FindSprite(tex);
+		_texture = texman.FindSprite(tex);
 		if( fitSize )
 		{
-			Resize(GetTextureWidth(), GetTextureHeight());
+			Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 		}
 	}
 	else
@@ -117,7 +117,7 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(DrawingContext &dc) const
+void Window::Draw(DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 
@@ -127,7 +127,7 @@ void Window::Draw(DrawingContext &dc) const
 	{
 		if( _drawBackground )
 		{
-			float border = _drawBorder ? GetManager().GetTextureManager().GetBorderSize(_texture) : 0.f;
+			float border = _drawBorder ? texman.GetBorderSize(_texture) : 0.f;
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
@@ -139,8 +139,8 @@ void Window::Draw(DrawingContext &dc) const
 				FRectToRect(&clip, &client);
 				dc.PushClippingRect(clip);
 
-				float frameWidth = GetManager().GetTextureManager().GetFrameWidth(_texture, _frame);
-				float frameHeight = GetManager().GetTextureManager().GetFrameHeight(_texture, _frame);
+				float frameWidth = texman.GetFrameWidth(_texture, _frame);
+				float frameHeight = texman.GetFrameHeight(_texture, _frame);
 
 				if (WIDTH(client) * frameHeight > HEIGHT(client) * frameWidth)
 				{

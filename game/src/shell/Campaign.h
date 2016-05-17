@@ -2,7 +2,7 @@
 #include <ui/Dialog.h>
 
 class LangCache;
-
+class TextureManager;
 namespace FS
 {
 	class FileSystem;
@@ -18,7 +18,7 @@ namespace UI
 class NewCampaignDlg : public UI::Dialog
 {
 public:
-	NewCampaignDlg(UI::LayoutManager &manager, FS::FileSystem &fs, LangCache &lang);
+	NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, LangCache &lang);
 	~NewCampaignDlg();
 	std::function<void(std::string)> eventCampaignSelected;
 

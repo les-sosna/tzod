@@ -10,16 +10,16 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 
-GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, const Params &param, LangCache &lang)
-  : Dialog(manager, 512, 460)
+GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
+  : Dialog(manager, texman, 512, 460)
   , _folder(param.folder)
   , _changing(false)
 {
-	auto t = UI::Text::Create(this, GetWidth() / 2, 16, param.title, alignTextCT);
-	t->SetFont("font_default");
+	auto t = UI::Text::Create(this, texman, GetWidth() / 2, 16, param.title, alignTextCT);
+	t->SetFont(texman, "font_default");
 
 	_ext = param.extension;
-	_files = DefaultListBox::Create(this);
+	_files = DefaultListBox::Create(this, texman);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
 	if( _folder )
@@ -34,15 +34,15 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, const Params &param, 
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	UI::Text::Create(this, 16, 370, lang.get_file_name_title.Get(), alignTextLT);
-	_fileName = std::make_shared<UI::Edit>(manager);
+	UI::Text::Create(this, texman, 16, 370, lang.get_file_name_title.Get(), alignTextLT);
+	_fileName = std::make_shared<UI::Edit>(manager, texman);
 	_fileName->Move(20, 385);
 	_fileName->Resize(472, _fileName->GetHeight());
 	_fileName->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
-	UI::Button::Create(this, lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
-	UI::Button::Create(this, lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	UI::Button::Create(this, texman, lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
+	UI::Button::Create(this, texman, lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
 	manager.SetFocusWnd(_fileName);
 }

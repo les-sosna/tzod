@@ -6,7 +6,7 @@
 #include <vector>
 
 class LangCache;
-
+class TextureManager;
 namespace UI
 {
 	class Button;
@@ -44,7 +44,7 @@ class SettingsDlg : public UI::Dialog
 	LangCache &_lang;
 
 public:
-	SettingsDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang);
+	SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang);
 	virtual ~SettingsDlg();
 
 protected:
@@ -66,7 +66,7 @@ protected:
 class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ConfCache &conf, LangCache &lang);
+	ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ConfCache &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window

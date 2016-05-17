@@ -23,27 +23,27 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(UI::LayoutManager &manager, World &world, Deathmatch &deathmatch, LangCache &lang)
+ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, Deathmatch &deathmatch, LangCache &lang)
   : UI::Window(manager)
-  , _font(manager.GetTextureManager().FindSprite("font_default"))
+  , _font(texman.FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)
   , _lang(lang)
 {
-	SetTexture("scoretbl", true);
+	SetTexture(texman, "scoretbl", true);
 	SetDrawBorder(false);
 }
 
-void ScoreTable::Draw(DrawingContext &dc) const
+void ScoreTable::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
 	{
 		players.push_back(player);
 	}
-    
+
 	int max_score = 0;
 	if( !players.empty() )
 	{
@@ -82,7 +82,7 @@ void ScoreTable::Draw(DrawingContext &dc) const
 		dc.DrawBitmapText(SCORE_LIMITS_LEFT, SCORE_FRAGLIMIT_TOP, _font, 0xffffffff, text.str());
 	}
 
-	float h = GetManager().GetTextureManager().GetCharHeight(_font);
+	float h = texman.GetCharHeight(_font);
 	for( size_t i = 0; i < players.size(); ++i )
 	{
 		if( i < 8 )

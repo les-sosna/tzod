@@ -48,7 +48,7 @@ class CreateServerDlg : public UI::Dialog
 	UI::ConsoleBuffer &_logger;
 
 public:
-	CreateServerDlg(UI::LayoutManager &manager, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
+	CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -74,7 +74,7 @@ class ConnectDlg
 	LangCache &_lang;
 
 public:
-	ConnectDlg(UI::LayoutManager &manager, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
+	ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~ConnectDlg();
 
 protected:
@@ -105,7 +105,7 @@ class InternetDlg : public UI::Dialog
 	LangCache &_lang;
 
 public:
-	InternetDlg(UI::LayoutManager &manager, World &world, ConfCache &conf, LangCache &lang);
+	InternetDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~InternetDlg();
 
 protected:
@@ -146,7 +146,7 @@ class WaitingForPlayersDlg
 	LangCache &_lang;
 
 public:
-	WaitingForPlayersDlg(UI::LayoutManager &manager, World &world, ConfCache &conf, LangCache &lang);
+	WaitingForPlayersDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang);
 	virtual ~WaitingForPlayersDlg();
 
 protected:

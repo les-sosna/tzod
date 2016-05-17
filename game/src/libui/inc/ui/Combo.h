@@ -1,10 +1,8 @@
-// Combo.h
-
 #pragma once
-
 #include "Window.h"
-
 #include <functional>
+
+class TextureManager;
 
 namespace UI
 {
@@ -17,7 +15,7 @@ class ButtonBase;
 class ComboBox : public Window
 {
 public:
-	ComboBox(LayoutManager &manager, ListDataSource *dataSource);
+	ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource);
 
 	void Resize(float width) { Window::Resize(width, GetHeight()); }
 

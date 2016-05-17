@@ -3,6 +3,7 @@
 
 class ConfCache;
 class LangCache;
+class TextureManager;
 namespace UI
 {
 	class Edit;
@@ -15,7 +16,7 @@ class NewMapDlg : public UI::Dialog
 	std::shared_ptr<UI::Edit> _height;
 
 public:
-	NewMapDlg(UI::LayoutManager &manager, ConfCache &conf, LangCache &lang);
+	NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang);
 
 	void OnOK();
 	void OnCancel();

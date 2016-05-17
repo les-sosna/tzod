@@ -49,19 +49,19 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List::List(LayoutManager &manager, ListDataSource* dataSource)
+List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
     : Window(manager)
     , _callbacks(this)
     , _data(dataSource)
-    , _scrollBar(std::make_shared<ScrollBarVertical>(manager))
+    , _scrollBar(std::make_shared<ScrollBarVertical>(manager, texman))
     , _curSel(-1)
     , _hotItem(-1)
-    , _font(manager.GetTextureManager().FindSprite("font_small"))
-    , _selection(manager.GetTextureManager().FindSprite("ui/listsel"))
+    , _font(texman.FindSprite("font_small"))
+    , _selection(texman.FindSprite("ui/listsel"))
 {
 	AddFront(_scrollBar);
 
-	SetTexture("ui/list", false);
+	SetTexture(texman, "ui/list", false);
 	SetDrawBorder(true);
 	SetTabPos(0, 1); // first column
 
@@ -233,9 +233,9 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::Draw(DrawingContext &dc) const
+void List::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;

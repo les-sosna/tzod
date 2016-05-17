@@ -4,7 +4,7 @@
 #include <memory>
 
 class LangCache;
-
+class TextureManager;
 namespace FS
 {
 	class FileSystem;
@@ -36,7 +36,7 @@ public:
 		std::shared_ptr<FS::FileSystem> folder;
 	};
 
-	GetFileNameDlg(UI::LayoutManager &manager, const Params &param, LangCache &lang);
+	GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang);
 	virtual ~GetFileNameDlg();
 
 	std::string GetFileName() const;

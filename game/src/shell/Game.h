@@ -20,7 +20,7 @@ class ScoreTable;
 class TimeElapsed : public UI::Text
 {
 public:
-	TimeElapsed(UI::LayoutManager &manager, float x, float y, enumAlignText align, World &world);
+	TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, World &world);
 
 private:
 	void OnTimeStep(float dt) override;
@@ -39,6 +39,7 @@ class GameLayout
 {
 public:
 	GameLayout(UI::LayoutManager &manager,
+	           TextureManager &texman,
 	           GameContext &gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
@@ -50,7 +51,7 @@ public:
 
 	// Window
 	void OnTimeStep(float dt) override;
-	void Draw(DrawingContext &dc) const override;
+	void Draw(DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	bool OnFocus(bool focus) override { return true; }
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;

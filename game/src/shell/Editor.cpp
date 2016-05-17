@@ -121,14 +121,22 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 }
 
 
-EditorLayout::EditorLayout(UI::LayoutManager &manager, World &world, WorldView &worldView, const DefaultCamera &defaultCamera, lua_State *globL, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)
+EditorLayout::EditorLayout(UI::LayoutManager &manager,
+                           TextureManager &texman,
+                           World &world,
+                           WorldView &worldView,
+                           const DefaultCamera &defaultCamera,
+                           lua_State *globL,
+                           ConfCache &conf,
+                           LangCache &lang,
+                           UI::ConsoleBuffer &logger)
   : Window(manager)
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
   , _defaultCamera(defaultCamera)
-  , _fontSmall(manager.GetTextureManager().FindSprite("font_small"))
-  , _texSelection(manager.GetTextureManager().FindSprite("ui/selection"))
+  , _fontSmall(texman.FindSprite("font_small"))
+  , _texSelection(texman.FindSprite("ui/selection"))
   , _selectedObject(nullptr)
   , _isObjectNew(false)
   , _click(true)
@@ -137,22 +145,22 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager, World &world, WorldView &
   , _worldView(worldView)
   , _globL(globL)
 {
-	SetTexture(nullptr, false);
+	SetTexture(texman, nullptr, false);
 
-	_help = UI::Text::Create(this, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
+	_help = UI::Text::Create(this, texman, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 
-	_propList = std::make_shared<PropertyList>(manager, 5.f, 5.f, 512.f, 256.f, _world, _conf, _logger);
+	_propList = std::make_shared<PropertyList>(manager, texman, 5.f, 5.f, 512.f, 256.f, _world, _conf, _logger);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	_serviceList = std::make_shared<ServiceEditor>(manager, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
+	_serviceList = std::make_shared<ServiceEditor>(manager, texman, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
 	_serviceList->SetVisible(_conf.ed_showservices.Get());
 	AddFront(_serviceList);
 
-	_layerDisp = UI::Text::Create(this, 0, 0, "", alignTextRT);
+	_layerDisp = UI::Text::Create(this, texman, 0, 0, "", alignTextRT);
 
-	_typeList = DefaultComboBox::Create(this);
+	_typeList = DefaultComboBox::Create(this, texman);
 	_typeList->Resize(256);
 	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
@@ -201,7 +209,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			}
 
 			_selectedObject = object;
-			_propList->ConnectTo(_selectedObject->GetProperties(_world));
+			_propList->ConnectTo(_selectedObject->GetProperties(_world), GetManager().GetTextureManager());
 			if( _conf.ed_showproperties.Get() )
 			{
 				_propList->SetVisible(true);
@@ -214,7 +222,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_selectedObject = nullptr;
 		_isObjectNew = false;
 
-		_propList->ConnectTo(nullptr);
+		_propList->ConnectTo(nullptr, GetManager().GetTextureManager());
 		_propList->SetVisible(false);
 	}
 
@@ -333,7 +341,7 @@ bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType p
                 }
                 lua_pop(_globL, 1); // pop editor_actions
 
-                _propList->DoExchange(false);
+                _propList->DoExchange(false, GetManager().GetTextureManager());
                 if( _isObjectNew )
                     SaveToConfig(_conf, *object->GetProperties(_world));
             }
@@ -473,9 +481,9 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::Draw(DrawingContext &dc) const
+void EditorLayout::Draw(DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc);
+	Window::Draw(dc, texman);
 
 	// World
 	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
