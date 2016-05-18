@@ -30,7 +30,6 @@ private:
 
 	class Container : public UI::Window
 	{
-//		bool OnKeyPressed(Key key); // need to pass messages through
 	public:
 		Container(UI::LayoutManager &manager);
 	};

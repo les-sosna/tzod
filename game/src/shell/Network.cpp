@@ -223,7 +223,8 @@ void CreateServerDlg::OnOK()
 
 	auto dlg = std::make_shared<WaitingForPlayersDlg>(GetManager(), GetManager().GetTextureManager(), _world, _conf, _lang);
 	dlg->eventClose = std::bind(&CreateServerDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
-	GetParent()->AddFront(dlg);
+	//GetParent()->
+		AddFront(dlg);
 
 	SetVisible(false);
 }
@@ -312,7 +313,8 @@ void ConnectDlg::OnConnected()
 	_conf.cl_server.Set(_name->GetText());
 	auto dlg = std::make_shared<WaitingForPlayersDlg>(GetManager(), GetManager().GetTextureManager(), _world, _conf, _lang);
 	dlg->eventClose = eventClose;
-	GetParent()->AddFront(dlg);
+	//GetParent()->
+		AddFront(dlg);
 	Close(-1); // close with any code except ok and cancel
 }
 
@@ -401,7 +403,8 @@ void InternetDlg::OnConnect()
 		const std::string &addr = _servers->GetData()->GetItemText(_servers->GetCurSel(), 0);
 		auto dlg = std::make_shared<ConnectDlg>(GetManager(), GetManager().GetTextureManager(), addr, _world, _conf, _lang);
 		dlg->eventClose = std::bind(&InternetDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
-		GetParent()->AddFront(dlg);
+		//GetParent()->
+			AddFront(dlg);
 		SetVisible(false);
 	}
 }
@@ -542,7 +545,8 @@ void WaitingForPlayersDlg::OnChangeProfileClick()
 	_btnOK->SetEnabled(false);
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), GetManager().GetTextureManager(), _conf.cl_playerinfo, _conf, _lang);
 	dlg->eventClose = std::bind(&WaitingForPlayersDlg::OnCloseProfileDlg, this, std::placeholders::_1, std::placeholders::_2);
-	GetParent()->AddFront(dlg);
+	//GetParent()->
+		AddFront(dlg);
 }
 
 void WaitingForPlayersDlg::OnAddBotClick()

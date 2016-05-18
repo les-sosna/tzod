@@ -770,7 +770,6 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
 
 
 	Resize(w, h);
-	Move(ceil((GetParent()->GetWidth() - w) / 2), ceil((GetParent()->GetHeight() - h) / 2));
 
 	_button1->Move(w - 10 - _button1->GetWidth(), _button1->GetY());
 

@@ -21,11 +21,6 @@ PropertyList::Container::Container(UI::LayoutManager &manager)
 {
 }
 
-//bool PropertyList::Container::OnKeyPressed(Key key)
-//{
-//	return GetParent()->OnKeyPressed(c); // pass messages through
-//}
-
 PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
   : Dialog(manager, texman, w, h, false)
   , _world(world)
