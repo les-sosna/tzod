@@ -76,9 +76,7 @@ void MainMenuDlg::OnEditor()
 
 void MainMenuDlg::OnMapSettings()
 {
-//	SetVisible(false);
-//	auto dlg = std::make_shared<MapSettingsDlg>(GetParent(), _gameContext);
-//	dlg->eventClose = std::bind(&MainMenuDlg::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
+	_commands.mapSettings();
 }
 
 bool MainMenuDlg::OnKeyPressed(UI::Key key)

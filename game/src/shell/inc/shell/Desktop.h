@@ -90,6 +90,7 @@ private:
 	void OnOpenMap();
 	void OnExportMap();
 	void OnGameSettings();
+	void OnMapSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);
 	bool IsGamePaused() const;

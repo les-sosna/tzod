@@ -21,7 +21,7 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 	return 0;
 }
 
-MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, const ThemeManager &themeManager, LangCache &lang)
+MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
 	: Dialog(manager, texman, 512, 512)
 	, _world(world)
 {
@@ -75,11 +75,11 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_theme = DefaultComboBox::Create(this, texman);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
-	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)
+/*	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)
 	{
 		_theme->GetData()->AddItem(themeManager.GetThemeName(i));
 	}
-	_theme->SetCurSel(FindTheme(themeManager, world._infoTheme));
+	_theme->SetCurSel(FindTheme(themeManager, world._infoTheme));*/
 	_theme->GetList()->AlignHeightToContent();
 
 

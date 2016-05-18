@@ -23,6 +23,7 @@ struct MainMenuCommands
 	std::function<void()> newMap;
 	std::function<void()> openMap;
 	std::function<void()> exportMap;
+	std::function<void()> mapSettings;
 	std::function<void()> gameSettings;
 	std::function<void()> close;
 };

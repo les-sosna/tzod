@@ -4,6 +4,7 @@
 #include "GetFileName.h"
 #include "gui.h"
 #include "MainMenu.h"
+#include "MapSettings.h"
 #include "NewMap.h"
 #include "Settings.h"
 #include "Widgets.h"
@@ -372,7 +373,6 @@ void Desktop::OnExportMap()
 			}
 		};
 		PushNavStack(fileDlg);
-
 	}
 }
 
@@ -381,6 +381,17 @@ void Desktop::OnGameSettings()
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 	PushNavStack(dlg);
+}
+
+void Desktop::OnMapSettings()
+{
+	if (auto gameContext = GetAppState().GetGameContext())
+	{
+		//ThemeManager themeManager(GetAppState(), _fs, _texman);
+		auto dlg = std::make_shared<MapSettingsDlg>(GetManager(), _texman, gameContext->GetWorld()/*, themeManager*/, _lang);
+		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
+		PushNavStack(dlg);
+	}
 }
 
 void Desktop::ShowMainMenu()
@@ -392,6 +403,7 @@ void Desktop::ShowMainMenu()
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
+	commands.mapSettings = std::bind(&Desktop::OnMapSettings, this);
 	commands.close = [=]()
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
@@ -523,6 +535,10 @@ bool Desktop::OnKeyPressed(UI::Key key)
 
 	case UI::Key::F12:
 		OnGameSettings();
+		break;
+
+	case UI::Key::F8:
+		OnMapSettings();
 		break;
 
 	case UI::Key::F5:

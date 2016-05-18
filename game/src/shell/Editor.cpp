@@ -416,13 +416,6 @@ bool EditorLayout::OnKeyPressed(UI::Key key)
 	case UI::Key::F1:
 		_help->SetVisible(!_help->GetVisible());
 		break;
-	case UI::Key::F8:
-	//	dlg = std::make_shared<MapSettingsDlg>(this, _world);
-	//	SetDrawBackground(true);
-	//	dlg->eventClose = std::bind(&Desktop::OnCloseChild, this, std::placeholders::_1, std::placeholders::_2);
-	//	_nModalPopups++;
-		break;
-
 	case UI::Key::F9:
 		_conf.ed_uselayers.Set(!_conf.ed_uselayers.Get());
 		break;
