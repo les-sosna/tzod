@@ -94,6 +94,8 @@ public:
 
 	bool Contains(const Window *other) const;
 
+	virtual FRECT GetChildRect(vec2d size, const Window &child) const;
+
 
 	//
 	// Appearance
@@ -167,7 +169,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(DrawingContext &dc, TextureManager &texman) const;
+	virtual void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const;
 
 private:
 

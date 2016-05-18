@@ -481,13 +481,13 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::Draw(DrawingContext &dc, TextureManager &texman) const
+void EditorLayout::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
 	// World
-	CRect viewport(0, 0, (int) GetWidth(), (int) GetHeight());
-	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
+	CRect viewport(0, 0, (int) size.x, (int) size.y);
+	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
@@ -511,5 +511,5 @@ void EditorLayout::Draw(DrawingContext &dc, TextureManager &texman) const
 	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(floor(GetWidth()/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	dc.DrawBitmapText(floor(size.x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }

@@ -67,7 +67,7 @@ public:
 	void SelectNone();
 
 protected:
-	void Draw(DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 	bool OnMouseWheel(float x, float y, float z) override;
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;

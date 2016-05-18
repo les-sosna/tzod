@@ -208,15 +208,15 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(DrawingContext &dc, TextureManager &texman) const
+void Oscilloscope::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
 	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 
-	float scale = (GetHeight() - labelOffset * 2) / (_rangeMin - _rangeMax);
+	float scale = (size.y - labelOffset * 2) / (_rangeMin - _rangeMax);
 	float center = labelOffset - _rangeMax * scale;
-	float dx = GetWidth() - (float) _data.size() * _scale;
+	float dx = size.x - (float) _data.size() * _scale;
 
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
@@ -232,16 +232,16 @@ void Oscilloscope::Draw(DrawingContext &dc, TextureManager &texman) const
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - (_rangeMax - y) * scale, GetWidth(), -1, vec2d(1,0));
+			dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - (_rangeMax - y) * scale, size.x, -1, vec2d(1,0));
 			std::ostringstream buf;
 			buf << y;
 			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
-			dc.DrawBitmapText(GetWidth() - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
+			dc.DrawBitmapText(size.x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
 		}
 	}
 	else
 	{
-		dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, GetWidth(), -1, vec2d(1,0));
+		dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, size.x, -1, vec2d(1,0));
 	}
 
 	dc.DrawBitmapText(0, labelOffset - labelOffset, _titleFont, 0x77777777, _title);

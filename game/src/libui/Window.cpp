@@ -81,6 +81,11 @@ bool Window::Contains(const Window *other) const
 	return false;
 }
 
+FRECT Window::GetChildRect(vec2d size, const Window &child) const
+{
+	return FRECT{ child._x, child._y, child._x + child._width, child._y + child._height };
+}
+
 float Window::GetTextureWidth(TextureManager &texman) const
 {
 	return (-1 != _texture) ? texman.GetFrameWidth(_texture, _frame) : 1;
@@ -117,11 +122,11 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(DrawingContext &dc, TextureManager &texman) const
+void Window::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 
-	FRECT dst = {0, 0, _width, _height};
+	FRECT dst = {0, 0, size.x, size.y};
 
 	if( -1 != _texture )
 	{

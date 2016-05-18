@@ -167,7 +167,7 @@ struct FRECT
 
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
-
+inline vec2d Size(const FRECT &rect) { return vec2d(WIDTH(rect), HEIGHT(rect)); }
 
 struct RectRB
 {

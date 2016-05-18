@@ -29,24 +29,25 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-        UI::Msg msg = (GLFW_RELEASE == action) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
-        int buttons = 0;
+		UI::Msg msg = (GLFW_RELEASE == action) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
+		int buttons = 0;
 		switch (button)
 		{
 			case GLFW_MOUSE_BUTTON_LEFT:
-                buttons |= 0x01;
+				buttons |= 0x01;
 				break;
 			case GLFW_MOUSE_BUTTON_RIGHT:
-                buttons |= 0x02;
+				buttons |= 0x02;
 				break;
 			case GLFW_MOUSE_BUTTON_MIDDLE:
-                buttons |= 0x04;
+				buttons |= 0x04;
 				break;
 			default:
 				return;
 		}
-        vec2d mousePos = GetCursorPosInPixels(window);
-        gui->ProcessPointer(mousePos.x, mousePos.y, 0, msg, buttons, UI::PointerType::Mouse, 0);
+		vec2d mousePos = GetCursorPosInPixels(window);
+		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		gui->ProcessPointer(desktopSize, mousePos.x, mousePos.y, 0, msg, buttons, UI::PointerType::Mouse, 0);
 	}
 }
 
@@ -54,8 +55,9 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-        vec2d mousePos = GetCursorPosInPixels(window, xpos, ypos);
-		gui->ProcessPointer(mousePos.x, mousePos.y, 0, UI::Msg::PointerMove, 0, UI::PointerType::Mouse, 0);
+		vec2d mousePos = GetCursorPosInPixels(window, xpos, ypos);
+		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		gui->ProcessPointer(desktopSize, mousePos.x, mousePos.y, 0, UI::Msg::PointerMove, 0, UI::PointerType::Mouse, 0);
 	}
 }
 
@@ -63,10 +65,10 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-        vec2d mousePos = GetCursorPosInPixels(window);
-        vec2d mouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-
-		gui->ProcessPointer(mousePos.x, mousePos.y, mouseOffset.y, UI::Msg::MOUSEWHEEL, 0, UI::PointerType::Mouse, 0);
+		vec2d mousePos = GetCursorPosInPixels(window);
+		vec2d mouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
+		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		gui->ProcessPointer(desktopSize, mousePos.x, mousePos.y, mouseOffset.y, UI::Msg::MOUSEWHEEL, 0, UI::PointerType::Mouse, 0);
 	}
 }
 

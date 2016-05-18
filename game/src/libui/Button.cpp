@@ -153,9 +153,9 @@ void Button::OnChangeState(State state)
 	SetFrame(state);
 }
 
-void Button::Draw(DrawingContext &dc, TextureManager &texman) const
+void Button::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(dc, texman);
+	ButtonBase::Draw(size, dc, texman);
 
 	SpriteColor c = 0;
 
@@ -182,16 +182,16 @@ void Button::Draw(DrawingContext &dc, TextureManager &texman) const
 		float iconHeight = texman.GetFrameHeight(_icon, 0);
 		float textHeight = texman.GetFrameHeight(_font, 0);
 
-		float x = GetWidth() / 2;
-		float y = (GetHeight() - iconHeight - textHeight) / 2 + iconHeight;
+		float x = size.x / 2;
+		float y = (size.y - iconHeight - textHeight) / 2 + iconHeight;
 
 		dc.DrawSprite(_icon, 0, c, x, y - iconHeight/2, vec2d(1, 0));
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCT);
 	}
 	else
 	{
-		float x = GetWidth() / 2;
-		float y = GetHeight() / 2;
+		float x = size.x / 2;
+		float y = size.y / 2;
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCC);
 	}
 }
@@ -240,9 +240,9 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::Draw(DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(dc, texman);
+	ButtonBase::Draw(size, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -324,15 +324,15 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::Draw(DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(dc, texman);
+	ButtonBase::Draw(size, dc, texman);
 
 	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
 	float th = texman.GetFrameHeight(_fontTexture, 0);
 
-	FRECT box = {0, (GetHeight() - bh) / 2, bw, (GetHeight() - bh) / 2 + bh};
+	FRECT box = {0, (size.y - bh) / 2, bw, (size.y - bh) / 2 + bh};
 	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
@@ -345,7 +345,7 @@ void CheckBox::Draw(DrawingContext &dc, TextureManager &texman) const
 	};
 	if( _drawShadow && stateDisabled != GetState() )
 	{
-		dc.DrawBitmapText(bw + 1, (GetHeight() - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
+		dc.DrawBitmapText(bw + 1, (size.y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc.DrawBitmapText(bw, (GetHeight() - th) / 2, _fontTexture, colors[GetState()], GetText());
+	dc.DrawBitmapText(bw, (size.y - th) / 2, _fontTexture, colors[GetState()], GetText());
 }

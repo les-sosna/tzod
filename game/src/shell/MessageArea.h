@@ -21,7 +21,7 @@ public:
 
 	// UI::Window
 	void OnTimeStep(float dt) override;
-	void Draw(DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	struct Line

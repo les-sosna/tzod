@@ -34,9 +34,9 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
 	SetDrawBorder(false);
 }
 
-void ScoreTable::Draw(DrawingContext &dc, TextureManager &texman) const
+void ScoreTable::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
@@ -94,7 +94,7 @@ void ScoreTable::Draw(DrawingContext &dc, TextureManager &texman) const
 			dc.DrawBitmapText(SCORE_POS_NUMBER, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str());
 			text.str(std::string());
 			text << players[i]->GetScore();
-			dc.DrawBitmapText(GetWidth() - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
+			dc.DrawBitmapText(size.x - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{

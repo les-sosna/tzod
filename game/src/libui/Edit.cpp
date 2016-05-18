@@ -105,9 +105,9 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 
@@ -118,7 +118,7 @@ void Edit::Draw(DrawingContext &dc, TextureManager &texman) const
 		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + w * GetSelLength() - 1;
-		rt.bottom = rt.top + GetHeight();
+		rt.bottom = rt.top + size.y;
 		dc.DrawSprite(&rt, _selection, 0xffffffff, 0);
 	}
 
@@ -138,7 +138,7 @@ void Edit::Draw(DrawingContext &dc, TextureManager &texman) const
 		rt.left = (GetSelEnd() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
-		rt.bottom = rt.top + GetHeight();
+		rt.bottom = rt.top + size.y;
 		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
 	}
 }

@@ -178,11 +178,11 @@ void GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void GameLayout::Draw(DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
-	vec2d eye(_defaultCamera.GetPos().x + GetWidth() / 2, _defaultCamera.GetPos().y + GetHeight() / 2);
+	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
 	float zoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);

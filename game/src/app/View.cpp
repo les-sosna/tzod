@@ -98,7 +98,7 @@ void TzodView::Render(AppWindow &appWindow)
 
 	DrawingContext dc(_impl->textureManager, width, height);
 	appWindow.GetRender().Begin();
-	_impl->gui.Render(dc);
+	_impl->gui.Render(FRECT{0, 0, static_cast<float>(width), static_cast<float>(height)}, dc);
 	appWindow.GetRender().End();
 }
 

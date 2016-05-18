@@ -233,9 +233,9 @@ bool List::OnFocus(bool focus)
 	return true;
 }
 
-void List::Draw(DrawingContext &dc, TextureManager &texman) const
+void List::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(dc, texman);
+	Window::Draw(size, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
@@ -246,7 +246,7 @@ void List::Draw(DrawingContext &dc, TextureManager &texman) const
 	clip.left = 0;
 	clip.top = 0;
 	clip.right = (int) (_scrollBar->GetX());
-	clip.bottom = (int) (GetHeight());
+	clip.bottom = (int) (size.y);
 	dc.PushClippingRect(clip);
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )

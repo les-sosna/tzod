@@ -36,9 +36,9 @@ public:
 	~LayoutManager();
 
 	void TimeStep(float dt);
-	void Render(DrawingContext &dc) const;
+	void Render(FRECT rect, DrawingContext &dc) const;
 
-	bool ProcessPointer(float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID);
+	bool ProcessPointer(vec2d size, float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID);
 	bool ProcessKeys(Msg msg, UI::Key key);
 	bool ProcessText(int c);
 
@@ -65,7 +65,18 @@ private:
 	std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
 
-	bool ProcessPointerInternal(std::shared_ptr<Window> wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID, bool topMostPass, bool insideTopMost = false);
+	bool ProcessPointerInternal(
+		vec2d size,
+		std::shared_ptr<Window> wnd,
+		float x,
+		float y,
+		float z,
+		Msg msg,
+		int buttons,
+		PointerType pointerType,
+		unsigned int pointerID,
+		bool topMostPass,
+		bool insideTopMost = false);
 
 	IInput &_input;
 	IClipboard &_clipboard;

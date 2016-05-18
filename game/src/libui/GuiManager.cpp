@@ -251,22 +251,43 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-bool LayoutManager::ProcessPointerInternal(std::shared_ptr<Window> wnd, float x, float y, float z, Msg msg, int buttons, PointerType pointerType, unsigned int pointerID, bool topMostPass, bool insideTopMost)
+bool LayoutManager::ProcessPointerInternal(
+	vec2d size,
+	std::shared_ptr<Window> wnd,
+	float x,
+	float y,
+	float z,
+	Msg msg,
+	int buttons,
+	PointerType pointerType,
+	unsigned int pointerID,
+	bool topMostPass,
+	bool insideTopMost)
 {
-    insideTopMost |= wnd->GetTopMost();
-    
-    if (!wnd->GetEnabled() || !wnd->GetVisible() || (insideTopMost && !topMostPass))
-        return false;
-    
-	bool pointerInside = (x >= 0 && x < wnd->GetWidth() && y >= 0 && y < wnd->GetHeight());
+	insideTopMost |= wnd->GetTopMost();
+
+	if (!wnd->GetEnabled() || !wnd->GetVisible() || (insideTopMost && !topMostPass))
+		return false;
+
+	bool pointerInside = (x >= 0 && x < size.x && y >= 0 && y < size.y);
 
 	if( (pointerInside || !wnd->GetClipChildren()) && GetCapture(pointerID) != wnd )
 	{
 		// route message to each child in reverse order until someone process it
 		for (auto it = wnd->_children.rbegin(); it != wnd->_children.rend(); ++it)
 		{
-			auto &w = *it;
-			if( ProcessPointerInternal(w, x - w->GetX(), y - w->GetY(), z, msg, buttons, pointerType, pointerID, topMostPass, insideTopMost) )
+			FRECT rect = wnd->GetChildRect(size, **it);
+			if( ProcessPointerInternal(Size(rect),
+				                       *it,
+				                       x - rect.left,
+				                       y - rect.top,
+				                       z,
+				                       msg,
+				                       buttons,
+				                       pointerType,
+				                       pointerID,
+				                       topMostPass,
+				                       insideTopMost) )
 			{
 				return true;
 			}
@@ -329,7 +350,25 @@ bool LayoutManager::ProcessPointerInternal(std::shared_ptr<Window> wnd, float x,
 	return false;
 }
 
-bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
+static FRECT GetGlobalWindowRect(const vec2d &rootSize, const Window &wnd)
+{
+	if (Window *parent = wnd.GetParent())
+	{
+		FRECT parentRect = GetGlobalWindowRect(rootSize, *parent);
+		FRECT childRect = parent->GetChildRect(Size(parentRect), wnd);
+		childRect.left += parentRect.left;
+		childRect.right += parentRect.left;
+		childRect.top += parentRect.top;
+		childRect.bottom += parentRect.top;
+		return childRect;
+	}
+	else
+	{
+		return FRECT{ 0, 0, rootSize.x, rootSize.y };
+	}
+}
+
+bool LayoutManager::ProcessPointer(vec2d size, float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
 {
 #ifndef NDEBUG
     _lastPointerLocation[pointerID] = vec2d(x, y);
@@ -337,24 +376,27 @@ bool LayoutManager::ProcessPointer(float x, float y, float z, Msg msg, int butto
 
 	if( auto captured = GetCapture(pointerID) )
 	{
-		// calc relative mouse position and route message to captured window
-		for( auto wnd = captured.get(); _desktop.get() != wnd; wnd = wnd->GetParent() )
+		FRECT capturetRect = GetGlobalWindowRect(size, *captured);
+		vec2d capturedSize = Size(capturetRect);
+
+		x -= capturetRect.left;
+		y -= capturetRect.top;
+
+		if (ProcessPointerInternal(capturedSize, captured, x, y, z, msg, button, pointerType, pointerID, true) ||
+			ProcessPointerInternal(capturedSize, captured, x, y, z, msg, button, pointerType, pointerID, false))
 		{
-			assert(wnd);
-			x -= wnd->GetX();
-			y -= wnd->GetY();
-		}
-		if( ProcessPointerInternal(captured, x, y, z, msg, button, pointerType, pointerID, true) ||
-            ProcessPointerInternal(captured, x, y, z, msg, button, pointerType, pointerID, false))
 			return true;
+		}
 	}
 	else
 	{
 		// handle all children of the desktop recursively; offer to topmost windows first
-		if( ProcessPointerInternal(_desktop, x, y, z, msg, button, pointerType, pointerID, true) ||
-            ProcessPointerInternal(_desktop, x, y, z, msg, button, pointerType, pointerID, false))
-					return true;
-			}
+		if (ProcessPointerInternal(size, _desktop, x, y, z, msg, button, pointerType, pointerID, true) ||
+			ProcessPointerInternal(size, _desktop, x, y, z, msg, button, pointerType, pointerID, false))
+		{
+			return true;
+		}
+	}
 	if( auto hotTrackWnd = _hotTrackWnd.lock() )
 	{
 		hotTrackWnd->OnMouseLeave();
@@ -413,17 +455,19 @@ bool LayoutManager::ProcessText(int c)
 	return false;
 }
 
-static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
+static void DrawWindowRecursive(const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
 {
 	insideTopMost |= wnd.GetTopMost();
 
 	if (!wnd.GetVisible() || (insideTopMost && !topMostPass))
 		return; // skip window and all its children
-	
-	dc.PushTransform(vec2d(wnd.GetX(), wnd.GetY()));
+
+	dc.PushTransform(vec2d(rect.left, rect.top));
+
+	vec2d size = Size(rect);
 
 	if (insideTopMost == topMostPass)
-	wnd.Draw(dc, texman);
+		wnd.Draw(size, dc, texman);
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
@@ -433,13 +477,16 @@ static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, TextureMa
 		RectRB clip;
 		clip.left = 0;
 		clip.top = 0;
-		clip.right = (int)wnd.GetWidth();
-		clip.bottom = (int)wnd.GetHeight();
+		clip.right = static_cast<int>(size.x);
+		clip.bottom = static_cast<int>(size.y);
 		dc.PushClippingRect(clip);
 	}
 
-	for (auto &w: wnd.GetChildren())
-		DrawWindowRecursive(*w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
+	for (auto &w : wnd.GetChildren())
+	{
+		FRECT childRect = wnd.GetChildRect(Size(rect), *w);
+		DrawWindowRecursive(childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
+	}
 
 	if (clipChildren)
 		dc.PopClippingRect();
@@ -447,12 +494,12 @@ static void DrawWindowRecursive(const Window &wnd, DrawingContext &dc, TextureMa
 	dc.PopTransform();
 }
 
-void LayoutManager::Render(DrawingContext &dc) const
+void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-    DrawWindowRecursive(*_desktop, dc, GetTextureManager(), false, false);
-    DrawWindowRecursive(*_desktop, dc, GetTextureManager(), true, false);
+	DrawWindowRecursive(rect, *_desktop, dc, GetTextureManager(), false, false);
+	DrawWindowRecursive(rect, *_desktop, dc, GetTextureManager(), true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)

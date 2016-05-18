@@ -65,7 +65,7 @@ protected:
 	bool OnKeyPressed(Key key) override;
 	bool OnFocus(bool focus) override;
 
-	void Draw(DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	List(const List &); // no copy
