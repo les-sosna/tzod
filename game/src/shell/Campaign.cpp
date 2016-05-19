@@ -42,12 +42,12 @@ void NewCampaignDlg::OnOK()
 	if( -1 != _files->GetCurSel() )
 	{
 		if( eventCampaignSelected )
-			eventCampaignSelected(_files->GetData()->GetItemText(_files->GetCurSel(), 0));
+			eventCampaignSelected(*this, _files->GetData()->GetItemText(_files->GetCurSel(), 0));
 	}
 }
 
 void NewCampaignDlg::OnCancel()
 {
 	if( eventCampaignSelected )
-		eventCampaignSelected(std::string());
+		eventCampaignSelected(*this, std::string());
 }

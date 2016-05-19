@@ -204,7 +204,7 @@ void SettingsDlg::UpdateProfilesList()
 	_profiles->SetCurSel(std::min(_profilesDataSource.GetItemCount() - 1, sel));
 }
 
-void SettingsDlg::OnProfileEditorClosed(UI::Dialog *sender, int code)
+void SettingsDlg::OnProfileEditorClosed(UI::Dialog &sender, int code)
 {
 	if( _resultOK == code )
 	{

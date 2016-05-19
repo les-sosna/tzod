@@ -24,33 +24,33 @@ Window::~Window()
 	UnlinkAllChildren();
 }
 
-void Window::PrepareToUnlink(const std::shared_ptr<Window> &child)
+void Window::PrepareToUnlink(Window &child)
 {
-	assert(this == child->_parent);
+	assert(this == child._parent);
 
 	// this removes focus and mouse hover if any.
-	GetManager().ResetWindow(*child);
+	GetManager().ResetWindow(child);
 
-	if (child->GetTimeStep())
-		GetManager().TimeStepUnregister(child->_timeStepReg);
+	if (child.GetTimeStep())
+		GetManager().TimeStepUnregister(child._timeStepReg);
 
-	child->_parent = nullptr;
+	child._parent = nullptr;
 }
 
 void Window::UnlinkAllChildren()
 {
 	for (auto &child: _children)
 	{
-		PrepareToUnlink(child);
+		PrepareToUnlink(*child);
 	}
 	_children.clear();
 }
 
-void Window::UnlinkChild(std::shared_ptr<Window> child)
+void Window::UnlinkChild(Window &child)
 {
 	PrepareToUnlink(child);
 	_children.erase(
-		std::remove(std::begin(_children), std::end(_children), child),
+		std::remove_if(std::begin(_children), std::end(_children), [&](auto &which) { return which.get() == &child;} ),
 		_children.end());
 }
 

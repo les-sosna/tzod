@@ -69,7 +69,7 @@ class Window : public std::enable_shared_from_this<Window>
 		bool _clipChildren   : 1;
 	};
 
-	void PrepareToUnlink(const std::shared_ptr<Window> &child);
+	void PrepareToUnlink(Window &child);
 
 protected:
 	unsigned int GetFrameCount() const;
@@ -83,8 +83,11 @@ public:
 	explicit Window(LayoutManager &manager);
 	virtual ~Window();
 
+	Window(const Window&) = delete;
+	Window& operator=(const Window&) = delete;
+
 	void UnlinkAllChildren();
-	void UnlinkChild(std::shared_ptr<Window> child);
+	void UnlinkChild(Window &child);
 	void AddFront(std::shared_ptr<Window> child);
 	void AddBack(std::shared_ptr<Window> child);
 

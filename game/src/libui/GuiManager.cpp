@@ -412,7 +412,7 @@ bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
 	case Msg::KEYUP:
 		break;
 	case Msg::KEYDOWN:
-		if( auto wnd = GetFocusWnd().get() )
+		if( auto wnd = GetFocusWnd() )
 		{
 			while( wnd )
 			{
@@ -420,7 +420,7 @@ bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
 				{
 					return true;
 				}
-				wnd = wnd->GetParent();
+				wnd = wnd->GetParent() ? wnd->GetParent()->shared_from_this() : nullptr;
 			}
 		}
 		else

@@ -200,14 +200,15 @@ void Desktop::ShowConsole(bool show)
 	_con->SetVisible(show);
 	if (show)
 	{
-		UnlinkChild(_con);
+		UnlinkChild(*_con);
 		AddFront(_con);
 	}
 }
 
-void Desktop::OnCloseChild(UI::Window *child, int result)
+void Desktop::OnCloseChild(UI::Window &child, int result)
 {
-	PopNavStack(child);
+	UnlinkChild(child);
+	PopNavStack(&child);
 }
 
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
@@ -242,11 +243,11 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _texman, _fs, _lang);
-	dlg->eventCampaignSelected = [this,dlg](std::string name)
+	dlg->eventCampaignSelected = [this](NewCampaignDlg &sender, std::string name)
 	{
 		if( !name.empty() )
 		{
-			OnCloseChild(dlg.get(), UI::Dialog::_resultOK);
+			OnCloseChild(sender, UI::Dialog::_resultOK);
 
 			_conf.ui_showmsg.Set(true);
             try
@@ -262,9 +263,8 @@ void Desktop::OnNewCampaign()
 		}
 		else
 		{
-			OnCloseChild(dlg.get(), UI::Dialog::_resultCancel);
+			OnCloseChild(sender, UI::Dialog::_resultCancel);
 		}
-		UnlinkChild(dlg);
 	};
 	PushNavStack(dlg);
 }
@@ -279,7 +279,7 @@ void Desktop::OnNewDM()
 		PopNavStack();
 
 	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this](auto sender, int result)
+	dlg->eventClose = [this](auto &sender, int result)
 	{
 		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
@@ -301,7 +301,7 @@ void Desktop::OnNewDM()
 void Desktop::OnNewMap()
 {
 	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _texman, _conf, _lang);
-	dlg->eventClose = [this](auto sender, int result)
+	dlg->eventClose = [this](auto &sender, int result)
 	{
 		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
@@ -329,12 +329,12 @@ void Desktop::OnOpenMap()
 	}
 
 	auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
-	fileDlg->eventClose = [this](auto sender, int result)
+	fileDlg->eventClose = [this](auto &sender, int result)
 	{
 		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
 		{
-			auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg*>(sender)->GetFileName();
+			auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(sender).GetFileName();
 			std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
 			GetAppState().SetGameContext(std::move(gc));
 			ClearNavStack();
@@ -360,13 +360,13 @@ void Desktop::OnExportMap()
 		}
 
 		auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
-		fileDlg->eventClose = [this](auto sender, int result)
+		fileDlg->eventClose = [this](auto &sender, int result)
 		{
 			OnCloseChild(sender, result);
 			GameContextBase *gameContext = GetAppState().GetGameContext();
 			if (UI::Dialog::_resultOK == result && gameContext)
 			{
-				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg*>(sender)->GetFileName();
+				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(sender).GetFileName();
 				gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
 				_logger.Printf(0, "map exported: '%s'", fileName.c_str());
 			//	_conf.cl_map.Set(fileDlg->GetFileTitle());
@@ -379,7 +379,7 @@ void Desktop::OnExportMap()
 void Desktop::OnGameSettings()
 {
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
-	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
+	dlg->eventClose = [this](auto &sender, int result) {OnCloseChild(sender, result);};
 	PushNavStack(dlg);
 }
 
@@ -389,7 +389,7 @@ void Desktop::OnMapSettings()
 	{
 		//ThemeManager themeManager(GetAppState(), _fs, _texman);
 		auto dlg = std::make_shared<MapSettingsDlg>(GetManager(), _texman, gameContext->GetWorld()/*, themeManager*/, _lang);
-		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
+		dlg->eventClose = [this](auto &sender, int result) {OnCloseChild(sender, result);};
 		PushNavStack(dlg);
 	}
 }
@@ -418,7 +418,7 @@ void Desktop::ClearNavStack()
 {
 	for (auto &wnd: _navStack)
 	{
-		UnlinkChild(wnd);
+		UnlinkChild(*wnd);
 	}
 	_navStack.clear();
 }
@@ -442,7 +442,7 @@ void Desktop::PopNavStack(UI::Window *wnd)
 		_navTransitionStart = GetTransitionTarget();
 		_navTransitionTime = _conf.ui_foldtime.GetFloat();
 
-		UnlinkChild(_navStack.back());
+		UnlinkChild(*_navStack.back());
 		_navStack.pop_back();
 	}
 
@@ -675,13 +675,13 @@ void Desktop::OnGameContextChanging()
 {
 	if (_game)
 	{
-		UnlinkChild(_game);
+		UnlinkChild(*_game);
 		_game.reset();
 	}
 
 	if (_editor)
 	{
-		UnlinkChild(_editor);
+		UnlinkChild(*_editor);
 		_editor.reset();
 	}
 }
