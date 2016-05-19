@@ -173,7 +173,8 @@ void ServiceEditor::OnChangeSelectionGlobal(GC_Object *obj)
 
 EditorLayout* ServiceEditor::GetEditorLayout() const
 {
-	return static_cast<EditorLayout*>(GetParent());
+	assert(false);
+	return nullptr;//static_cast<EditorLayout*>(GetParent());
 }
 
 void ServiceEditor::OnCreateService()
