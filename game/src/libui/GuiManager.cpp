@@ -16,7 +16,7 @@ LayoutManager::LayoutManager(IInput &input, IClipboard &clipboard, TextureManage
   , _tsCurrent(_timestep.end())
   , _tsDeleteCurrent(false)
   , _captureCountSystem(0)
-  , _isAppActive(false)
+  , _isAppActive(true)
 #ifndef NDEBUG
   , _dbgFocusIsChanging(false)
   , _lastPointerLocation()
@@ -376,8 +376,8 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-	DrawWindowRecursive(true, rect, *_desktop, dc, GetTextureManager(), false, false);
-	DrawWindowRecursive(true, rect, *_desktop, dc, GetTextureManager(), true, false);
+	DrawWindowRecursive(_isAppActive, rect, *_desktop, dc, GetTextureManager(), false, false);
+	DrawWindowRecursive(_isAppActive, rect, *_desktop, dc, GetTextureManager(), true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)
