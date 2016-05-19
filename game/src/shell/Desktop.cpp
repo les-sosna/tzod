@@ -185,7 +185,7 @@ void Desktop::SetEditorMode(bool editorMode)
 			_game->SetVisible(!editorMode);
 		if( editorMode && !_con->GetVisible() )
 		{
-			GetManager().SetFocusWnd(_editor);
+			SetFocus(_editor);
 		}
 	}
 }
@@ -468,7 +468,7 @@ void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 		_navStack.back()->SetEnabled(false);
 	}
 	_navStack.push_back(wnd);
-	GetManager().SetFocusWnd(wnd);
+	SetFocus(wnd);
 	OnSize(GetWidth(), GetHeight());
 }
 
@@ -503,13 +503,14 @@ bool Desktop::OnKeyPressed(UI::Key key)
 		else
 		{
 			_con->SetVisible(true);
-			GetManager().SetFocusWnd(_con);
+			SetFocus(_con);
 		}
 		break;
 
 	case UI::Key::Escape:
-		if( _con->Contains(GetManager().GetFocusWnd().get()) )
+		if( GetFocus() == _con )
 		{
+			SetFocus(_navStack.back());
 			_con->SetVisible(false);
 		}
 		else

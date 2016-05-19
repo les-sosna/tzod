@@ -55,7 +55,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			ObjectProperty *prop = _ps->GetProperty(i);
 			auto &ctrl = _ctrls[i];
 
-			if( GetManager().GetFocusWnd() == ctrl )
+			if( _psheet->GetFocus() == ctrl )
 			{
 				focus = i;
 			}
@@ -205,7 +205,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				{
 					edit->SetSel(0, -1);
 				}
-				GetManager().SetFocusWnd(ctrl);
+				_psheet->SetFocus(ctrl);
 			}
 
 			assert(nullptr != ctrl);

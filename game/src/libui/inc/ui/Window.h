@@ -31,6 +31,7 @@ class Window : public std::enable_shared_from_this<Window>
 	LayoutManager &_manager;
 
 	Window *_parent = nullptr;
+	std::shared_ptr<Window> _focusChild;
 	std::deque<std::shared_ptr<Window>> _children;
 
 	std::list<Window*>::iterator _timeStepReg;
@@ -161,6 +162,9 @@ public:
 	void SetTimeStep(bool enable);
 	bool GetTimeStep() const { return _isTimeStep; }
 
+	void SetFocus(std::shared_ptr<Window> child);
+	std::shared_ptr<Window> GetFocus() const;
+
 
 	//
 	// Events
@@ -172,7 +176,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const;
+	virtual void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const;
 
 private:
 

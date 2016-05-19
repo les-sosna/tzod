@@ -32,7 +32,7 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 	UI::Button::Create(this, texman, lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
 	UI::Button::Create(this, texman, lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 
-	manager.SetFocusWnd(_width);
+	SetFocus(_width);
 }
 
 void NewMapDlg::OnOK()

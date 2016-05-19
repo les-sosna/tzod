@@ -123,7 +123,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	UI::Button::Create(this, texman, _lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 
 	_profiles->SetCurSel(0, true);
-	manager.SetFocusWnd(_profiles);
+	SetFocus(_profiles);
 }
 
 SettingsDlg::~SettingsDlg()
@@ -209,7 +209,7 @@ void SettingsDlg::OnProfileEditorClosed(UI::Dialog &sender, int code)
 	if( _resultOK == code )
 	{
 		UpdateProfilesList();
-		GetManager().SetFocusWnd(_profiles);
+		SetFocus(_profiles);
 	}
 }
 
@@ -281,7 +281,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	UI::Button::Create(this, texman, _lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	UI::Button::Create(this, texman, _lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 
-	manager.SetFocusWnd(_actions);
+	SetFocus(_actions);
 }
 
 ControlProfileDlg::~ControlProfileDlg()
@@ -291,7 +291,7 @@ ControlProfileDlg::~ControlProfileDlg()
 void ControlProfileDlg::OnSelectAction(int index)
 {
 	SetActiveIndex(index);
-	GetManager().SetFocusWnd(shared_from_this());
+	SetFocus(nullptr);
 }
 
 void ControlProfileDlg::SetActiveIndex(int index)
@@ -379,14 +379,14 @@ bool ControlProfileDlg::OnKeyPressed(UI::Key key)
 			_keyBindings[_activeIndex] = key;
 		}
 		SetActiveIndex(-1);
-		GetManager().SetFocusWnd(_actions);
+		SetFocus(_actions);
 	}
 	else
 	{
 		switch( key )
 		{
 		case UI::Key::Enter:
-			if( GetManager().GetFocusWnd() == _actions && -1 != _actions->GetCurSel() )
+			if( GetFocus() == _actions && -1 != _actions->GetCurSel() )
 			{
 				OnSelectAction(_actions->GetCurSel());
 			}

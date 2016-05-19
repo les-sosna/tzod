@@ -96,7 +96,7 @@ void Console::SetEcho(bool echo)
 
 bool Console::OnChar(int c)
 {
-	GetManager().SetFocusWnd(_input);
+	SetFocus(_input);
 	return true;
 }
 
@@ -239,9 +239,9 @@ void Console::OnTimeStep(float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Console::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(size, dc, texman);
+	Window::Draw(focused, size, dc, texman);
 
 	if( _buf )
 	{

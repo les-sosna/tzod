@@ -147,7 +147,7 @@ void GameLayout::OnTimeStep(float dt)
 
 	_gameViewHarness.Step(dt);
 
-	bool readUserInput = !GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd().get();
+	bool readUserInput = true;//!GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd().get();
 	WorldController::ControllerStateMap controlStates;
 
 	if (readUserInput)
@@ -178,9 +178,9 @@ void GameLayout::OnTimeStep(float dt)
 	}
 }
 
-void GameLayout::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(size, dc, texman);
+	Window::Draw(focused, size, dc, texman);
 
 	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
 	float zoom = _defaultCamera.GetZoom();

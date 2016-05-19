@@ -44,7 +44,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	UI::Button::Create(this, texman, lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
 	UI::Button::Create(this, texman, lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 
-	manager.SetFocusWnd(_fileName);
+	SetFocus(_fileName);
 }
 
 GetFileNameDlg::~GetFileNameDlg()

@@ -28,6 +28,9 @@ void Window::PrepareToUnlink(Window &child)
 {
 	assert(this == child._parent);
 
+	if (_focusChild.get() == &child)
+		_focusChild = nullptr;
+
 	// this removes focus and mouse hover if any.
 	GetManager().ResetWindow(child);
 
@@ -122,7 +125,7 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Window::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 
@@ -203,6 +206,17 @@ void Window::SetTimeStep(bool enable)
 			_timeStepReg = GetManager().TimeStepRegister(this);
 		_isTimeStep = enable;
 	}
+}
+
+void Window::SetFocus(std::shared_ptr<Window> child)
+{
+	assert(!child || _children.end() != std::find(_children.begin(), _children.end(), child));
+	_focusChild = child;
+}
+
+std::shared_ptr<Window> Window::GetFocus() const
+{
+	return _focusChild;
 }
 
 void Window::OnEnabledChangeInternal(bool enable, bool inherited)

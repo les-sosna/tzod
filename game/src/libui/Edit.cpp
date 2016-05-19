@@ -104,12 +104,11 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(size, dc, texman);
+	Window::Draw(focused, size, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
-	bool focused = (this == GetManager().GetFocusWnd().get());
 
 	// selection
 	if( GetSelLength() && focused )

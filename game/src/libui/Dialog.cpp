@@ -75,26 +75,26 @@ bool Dialog::OnKeyPressed(Key key)
 	switch( key )
 	{
 	case Key::Up:
-		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
-		{
-			// try to pass focus to previous siblings
-			//auto r = GetManager().GetFocusWnd()->GetPrevSibling();
-			//for( ; r; r = r->GetPrevSibling() )
-			//{
-			//	if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-			//}
-		}
+		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
+		//{
+		//	// try to pass focus to previous siblings
+		//	auto r = GetManager().GetFocusWnd()->GetPrevSibling();
+		//	for( ; r; r = r->GetPrevSibling() )
+		//	{
+		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
+		//	}
+		//}
 		break;
 	case Key::Down:
-		if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
-		{
-			// try to pass focus to next siblings
-			//auto r = GetManager().GetFocusWnd()->GetNextSibling();
-			//for( ; r; r = r->GetNextSibling() )
-			//{
-			//	if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-			//}
-		}
+		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
+		//{
+		//	// try to pass focus to next siblings
+		//	auto r = GetManager().GetFocusWnd()->GetNextSibling();
+		//	for( ; r; r = r->GetNextSibling() )
+		//	{
+		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
+		//	}
+		//}
 		break;
 	case Key::Tab:
 		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )

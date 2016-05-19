@@ -67,14 +67,14 @@ void ComboBox::DropList()
 		_btn->SetTexture(GetManager().GetTextureManager(), "ui/scroll_down", false);
 		_list->SetVisible(false);
 		_list->SetCurSel(GetCurSel());
-		GetManager().SetFocusWnd(shared_from_this());
+		SetFocus(nullptr);
 	}
 	else
 	{
 		_btn->SetTexture(GetManager().GetTextureManager(), "ui/scroll_up", false);
 		_list->SetVisible(true);
 		_list->SetScrollPos((float) GetCurSel());
-		GetManager().SetFocusWnd(_list);
+		SetFocus(_list);
 	}
 }
 
@@ -87,7 +87,7 @@ void ComboBox::OnClickItem(int index)
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetTexture(GetManager().GetTextureManager(), "ui/scroll_down", false);
-		GetManager().SetFocusWnd(shared_from_this());
+		SetFocus(nullptr);
 
 		if( eventChangeCurSel )
 			eventChangeCurSel(index);
@@ -122,7 +122,7 @@ bool ComboBox::OnKeyPressed(Key key)
 	case Key::Escape:
 		if( _list->GetVisible() )
 		{
-			GetManager().SetFocusWnd(shared_from_this());
+			SetFocus(nullptr);
 			return true;
 		}
 		break;

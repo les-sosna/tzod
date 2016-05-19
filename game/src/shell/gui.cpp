@@ -54,7 +54,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_maps->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 
-	manager.SetFocusWnd(_maps);
+	SetFocus(_maps);
 
 
 	//
@@ -376,7 +376,7 @@ bool NewGameDlg::OnKeyPressed(UI::Key key)
 	{
 	case UI::Key::Enter:
 	case UI::Key::NumEnter:
-		if( GetManager().GetFocusWnd() == _players && -1 != _players->GetCurSel() )
+		if( GetFocus() == _players && -1 != _players->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
@@ -421,7 +421,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	_name->SetWidth(200);
 	_name->SetText( _info.nick.Get() );
 	AddFront(_name);
-	manager.SetFocusWnd(_name);
+	SetFocus(_name);
 
 
 	//
@@ -596,7 +596,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	_name->SetWidth(200);
 	_name->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
 	AddFront(_name);
-	manager.SetFocusWnd(_name);
+	SetFocus(_name);
 
 
 	//

@@ -233,9 +233,9 @@ bool List::GetNeedsFocus()
 	return true;
 }
 
-void List::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(size, dc, texman);
+	Window::Draw(focused, size, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
@@ -260,7 +260,7 @@ void List::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				if( this == GetManager().GetFocusWnd().get() )
+				if( focused )
 				{
 					c = 0xff000000; // selected focused;
 					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };

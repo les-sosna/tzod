@@ -208,9 +208,9 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Oscilloscope::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(size, dc, texman);
+	Window::Draw(focused, size, dc, texman);
 
 	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 

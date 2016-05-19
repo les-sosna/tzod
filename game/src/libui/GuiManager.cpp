@@ -78,131 +78,8 @@ void LayoutManager::SetCapture(unsigned int pointerID, std::shared_ptr<Window> w
 	}
 }
 
-bool LayoutManager::SetFocusWnd(const std::shared_ptr<Window> &wnd)
-{
-	assert(!_dbgFocusIsChanging);
-	if( _focusWnd.lock() != wnd )
-	{
-		auto oldFocusWnd = _focusWnd.lock();
-
-		// try setting new focus. it should not change _focusWnd
-#ifndef NDEBUG
-		_dbgFocusIsChanging = true;
-#endif
-		bool focusAccepted = wnd && wnd->GetEnabledCombined() && wnd->GetVisibleCombined() && wnd->GetNeedsFocus();
-#ifndef NDEBUG
-		_dbgFocusIsChanging = false;
-#endif
-		if( !focusAccepted && wnd && oldFocusWnd )
-		{
-			for( auto w = wnd->GetParent(); w; w = w->GetParent() )
-			{
-				if( w == oldFocusWnd.get() )
-				{
-					// don't reset focus from parent
-					return false;
-				}
-			}
-		}
-
-		// set new focus
-		_focusWnd = focusAccepted ? wnd : nullptr;
-		assert(_focusWnd.expired() || _focusWnd.lock()->GetEnabledCombined() && _focusWnd.lock()->GetVisibleCombined());
-
-		// reset old focus
-		if( oldFocusWnd && oldFocusWnd != _focusWnd.lock() )
-		{
-			if( oldFocusWnd->eventLostFocus )
-				oldFocusWnd->eventLostFocus();
-		}
-	}
-	return !_focusWnd.expired();
-}
-
-std::shared_ptr<Window> LayoutManager::GetFocusWnd() const
-{
-	assert(!_dbgFocusIsChanging);
-	return _focusWnd.lock();
-}
-
-/*
-bool LayoutManager::ResetFocus(Window* wnd)
-{
-	assert(wnd);
-	assert(_focusWnd);
-
-	if( wnd == _focusWnd )
-	{
-		//
-		// search for first appropriate parent
-		//
-
-		Window *tmp = wnd;
-		for( Window *w = wnd->GetParent(); w; w = w->GetParent() )
-		{
-			if( !w->GetVisibleCombined() || !w->GetEnabled() )
-			{
-				tmp = w->GetParent();
-			}
-		}
-
-		while( tmp )
-		{
-			if( wnd != tmp && SetFocusWnd(tmp) )
-			{
-				break;
-			}
-
-			Window *r;
-
-			// try to pass focus to next siblings
-			for( r = tmp->GetNextSibling(); r; r = r->GetNextSibling() )
-			{
-				if( r->GetVisibleCombined() && r->GetEnabled() )
-				{
-					if( SetFocusWnd(r) ) break;
-				}
-			}
-			if( r ) break;
-
-			// try to pass focus to previous siblings
-			for( r = tmp->GetPrevSibling(); r; r = r->GetPrevSibling() )
-			{
-				if( r->GetVisibleCombined() && r->GetEnabled() )
-				{
-					if( SetFocusWnd(r) ) break;
-				}
-			}
-			if( r ) break;
-
-			// and finally try to pass focus to the parent and its siblings
-			tmp = tmp->GetParent();
-			assert(!tmp || (tmp->GetVisibleCombined() && tmp->GetEnabled()));
-		}
-		if( !tmp )
-		{
-			SetFocusWnd(nullptr);
-		}
-		assert(wnd != _focusWnd);
-		return true;
-	}
-
-	for( Window *w = wnd->GetFirstChild(); w; w = w->GetNextSibling() )
-	{
-		if( ResetFocus(w) )
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-*/
 void LayoutManager::ResetWindow(Window &wnd)
 {
-	if( GetFocusWnd().get() == &wnd )
-		SetFocusWnd(nullptr);
-
 	if( _hotTrackWnd.lock().get() == &wnd )
 	{
 		wnd.OnMouseLeave();
@@ -278,9 +155,10 @@ bool LayoutManager::ProcessPointerInternal(
 		// route message to each child in reverse order until someone process it
 		for (auto it = wnd->_children.rbegin(); it != wnd->_children.rend(); ++it)
 		{
-			FRECT rect = wnd->GetChildRect(size, **it);
+			auto &child = *it;
+			FRECT rect = wnd->GetChildRect(size, *child);
 			if( ProcessPointerInternal(Size(rect),
-				                       *it,
+				                       child,
 				                       x - rect.left,
 				                       y - rect.top,
 				                       z,
@@ -291,6 +169,18 @@ bool LayoutManager::ProcessPointerInternal(
 				                       topMostPass,
 				                       insideTopMost) )
 			{
+				switch( msg )
+				{
+				case Msg::PointerDown:
+				case Msg::TAP:
+					if (child->GetEnabledCombined() && child->GetVisibleCombined() && child->GetNeedsFocus())
+					{
+						wnd->SetFocus(child);
+					}
+				default:
+					break;
+				}
+
 				return true;
 			}
 		}
@@ -325,15 +215,6 @@ bool LayoutManager::ProcessPointerInternal(
 
 		if( msgProcessed )
 		{
-			switch( msg )
-			{
-			case Msg::PointerDown:
-			case Msg::TAP:
-				SetFocusWnd(wnd);
-			default:
-				break;
-			}
-
 			if( wnd != _hotTrackWnd.lock() )
 			{
 				if( auto hotTrackWnd = _hotTrackWnd.lock() )
@@ -407,29 +288,26 @@ bool LayoutManager::ProcessPointer(vec2d size, float x, float y, float z, Msg ms
 	return false;
 }
 
-bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
+bool LayoutManager::ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key)
+{
+	if (auto focus = wnd->GetFocus())
+	{
+		if (ProcessKeyPressedRecursive(std::move(focus), key))
+		{
+			return true;
+		}
+	}
+	return wnd->OnKeyPressed(key);
+}
+
+bool LayoutManager::ProcessKeys(Msg msg, Key key)
 {
 	switch( msg )
 	{
 	case Msg::KEYUP:
 		break;
 	case Msg::KEYDOWN:
-		if( auto wnd = GetFocusWnd() )
-		{
-			while( wnd )
-			{
-				if( wnd->OnKeyPressed(key) )
-				{
-					return true;
-				}
-				wnd = wnd->GetParent() ? wnd->GetParent()->shared_from_this() : nullptr;
-			}
-		}
-		else
-		{
-			GetDesktop()->OnKeyPressed(key);
-		}
-		break;
+		return ProcessKeyPressedRecursive(_desktop, key);
 	default:
 		assert(false);
 	}
@@ -437,27 +315,24 @@ bool LayoutManager::ProcessKeys(Msg msg, UI::Key key)
 	return false;
 }
 
-bool LayoutManager::ProcessText(int c)
+bool LayoutManager::ProcessCharRecursive(std::shared_ptr<Window> wnd, int c)
 {
-	if( auto wnd = GetFocusWnd().get() )
+	if (auto focus = wnd->GetFocus())
 	{
-		while (wnd)
+		if (ProcessCharRecursive(std::move(focus), c))
 		{
-			if (wnd->OnChar(c))
-			{
-				return true;
-			}
-			wnd = wnd->GetParent();
+			return true;
 		}
 	}
-	else
-	{
-		GetDesktop()->OnChar(c);
-	}
-	return false;
+	return wnd->OnChar(c);
 }
 
-static void DrawWindowRecursive(const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
+bool LayoutManager::ProcessText(int c)
+{
+	return ProcessCharRecursive(_desktop, c);
+}
+
+static void DrawWindowRecursive(bool focused, const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
 {
 	insideTopMost |= wnd.GetTopMost();
 
@@ -469,7 +344,7 @@ static void DrawWindowRecursive(const FRECT &rect, const Window &wnd, DrawingCon
 	vec2d size = Size(rect);
 
 	if (insideTopMost == topMostPass)
-		wnd.Draw(size, dc, texman);
+		wnd.Draw(focused, size, dc, texman);
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
@@ -487,7 +362,8 @@ static void DrawWindowRecursive(const FRECT &rect, const Window &wnd, DrawingCon
 	for (auto &w : wnd.GetChildren())
 	{
 		FRECT childRect = wnd.GetChildRect(Size(rect), *w);
-		DrawWindowRecursive(childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
+		bool childFocused = focused && (wnd.GetFocus() == w);
+		DrawWindowRecursive(childFocused, childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
 	}
 
 	if (clipChildren)
@@ -500,8 +376,8 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-	DrawWindowRecursive(rect, *_desktop, dc, GetTextureManager(), false, false);
-	DrawWindowRecursive(rect, *_desktop, dc, GetTextureManager(), true, false);
+	DrawWindowRecursive(true, rect, *_desktop, dc, GetTextureManager(), false, false);
+	DrawWindowRecursive(true, rect, *_desktop, dc, GetTextureManager(), true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)

@@ -60,7 +60,7 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	_maps->SetTabPos(2, 448); // theme
 	_maps->SetCurSel(_maps->GetData()->FindItem(_conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
-	manager.SetFocusWnd(_maps);
+	SetFocus(_maps);
 
 
 	//
@@ -282,7 +282,7 @@ ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const
 
 	UI::Button::Create(this, texman, _lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
 
-	manager.SetFocusWnd(_name);
+	SetFocus(_name);
 }
 
 ConnectDlg::~ConnectDlg()
@@ -376,7 +376,7 @@ InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, Wor
 
 	UI::Button::Create(this, texman, _lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
 
-	manager.SetFocusWnd(_name);
+	SetFocus(_name);
 
 	OnRefresh();
 }

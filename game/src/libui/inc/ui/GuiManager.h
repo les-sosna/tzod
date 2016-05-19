@@ -54,10 +54,6 @@ public:
 	void SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd);
 	bool HasCapturedPointers(Window* wnd) const;
 
-	bool SetFocusWnd(const std::shared_ptr<Window> &wnd);  // always resets previous focus
-	std::shared_ptr<Window> GetFocusWnd() const;
-//	bool ResetFocus(Window* wnd);   // remove focus from wnd or any of its children
-
 	bool IsMainWindowActive() const { return _isAppActive; }
 
 private:
@@ -65,6 +61,9 @@ private:
 	void ResetWindow(Window &wnd);
 	std::list<Window*>::iterator TimeStepRegister(Window* wnd);
 	void TimeStepUnregister(std::list<Window*>::iterator it);
+
+	static bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
+	static bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);
 
 	bool ProcessPointerInternal(
 		vec2d size,
@@ -97,7 +96,6 @@ private:
 
 	unsigned int _captureCountSystem;
 
-	std::weak_ptr<Window> _focusWnd;
 	std::weak_ptr<Window> _hotTrackWnd;
 
 	std::shared_ptr<Window> _desktop;
