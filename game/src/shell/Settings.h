@@ -70,7 +70,7 @@ public:
 	~ControlProfileDlg();
 
 	// UI::Window
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 	bool OnKeyPressed(UI::Key key) override;
 	void OnTimeStep(float dt) override;
 

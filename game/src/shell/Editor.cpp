@@ -385,7 +385,7 @@ bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType p
 	return true;
 }
 
-bool EditorLayout::OnFocus(bool focus)
+bool EditorLayout::GetNeedsFocus()
 {
 	return true;
 }

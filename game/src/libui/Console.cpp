@@ -283,7 +283,7 @@ void Console::OnSize(float width, float height)
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 
-bool Console::OnFocus(bool focus)
+bool Console::GetNeedsFocus()
 {
 	return true;
 }

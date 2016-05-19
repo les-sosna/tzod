@@ -31,7 +31,7 @@ protected:
 	bool OnMouseEnter(float x, float y) override;
 	bool OnMouseLeave() override;
 	bool OnKeyPressed(Key key) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 
 private:
 	float _mouseX;

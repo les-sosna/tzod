@@ -32,7 +32,7 @@ public:
 protected:
 	void OnEnabledChange(bool enable, bool inherited);
 	bool OnKeyPressed(Key key);
-	bool OnFocus(bool focus);
+	bool GetNeedsFocus();
 	void OnSize(float width, float height);
 
 	void OnClickItem(int index);

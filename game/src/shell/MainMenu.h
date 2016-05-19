@@ -67,7 +67,7 @@ public:
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();
 	bool OnKeyPressed(UI::Key key) override;
-	bool OnFocus(bool) override { return true; }
+	bool GetNeedsFocus() override { return true; }
 
 protected:
 	void OnTimeStep(float dt) override;

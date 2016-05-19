@@ -53,7 +53,7 @@ public:
 
 protected:
 	bool OnKeyPressed(UI::Key key) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 	void OnSize(float width, float height) override;
 	void OnTimeStep(float dt) override;
 

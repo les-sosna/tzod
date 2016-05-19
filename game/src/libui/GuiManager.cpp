@@ -89,7 +89,7 @@ bool LayoutManager::SetFocusWnd(const std::shared_ptr<Window> &wnd)
 #ifndef NDEBUG
 		_dbgFocusIsChanging = true;
 #endif
-		bool focusAccepted = wnd && wnd->GetEnabledCombined() && wnd->GetVisibleCombined() && wnd->OnFocus(true);
+		bool focusAccepted = wnd && wnd->GetEnabledCombined() && wnd->GetVisibleCombined() && wnd->GetNeedsFocus();
 #ifndef NDEBUG
 		_dbgFocusIsChanging = false;
 #endif
@@ -112,7 +112,6 @@ bool LayoutManager::SetFocusWnd(const std::shared_ptr<Window> &wnd)
 		// reset old focus
 		if( oldFocusWnd && oldFocusWnd != _focusWnd.lock() )
 		{
-			oldFocusWnd->OnFocus(false);
 			if( oldFocusWnd->eventLostFocus )
 				oldFocusWnd->eventLostFocus();
 		}

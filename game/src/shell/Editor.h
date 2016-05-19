@@ -73,7 +73,7 @@ protected:
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 	bool OnKeyPressed(UI::Key key) override;
 	void OnSize(float width, float height) override;
 

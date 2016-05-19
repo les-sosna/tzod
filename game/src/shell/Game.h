@@ -53,7 +53,7 @@ public:
 	void OnTimeStep(float dt) override;
 	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
-	bool OnFocus(bool focus) override { return true; }
+	bool GetNeedsFocus() override { return true; }
 	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;

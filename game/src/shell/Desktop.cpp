@@ -553,7 +553,7 @@ bool Desktop::OnKeyPressed(UI::Key key)
 	return true;
 }
 
-bool Desktop::OnFocus(bool focus)
+bool Desktop::GetNeedsFocus()
 {
 	return true;
 }

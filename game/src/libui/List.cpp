@@ -228,7 +228,7 @@ bool List::OnKeyPressed(Key key)
 	return true;
 }
 
-bool List::OnFocus(bool focus)
+bool List::GetNeedsFocus()
 {
 	return true;
 }

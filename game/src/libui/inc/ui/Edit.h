@@ -46,7 +46,7 @@ protected:
 	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnTextChange() override;
 };

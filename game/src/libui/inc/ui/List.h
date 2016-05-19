@@ -63,7 +63,7 @@ protected:
 	bool OnMouseWheel(float x, float y, float z) override;
 	bool OnTap(float x, float y) override;
 	bool OnKeyPressed(Key key) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 
 	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 

@@ -128,7 +128,7 @@ bool Dialog::OnKeyPressed(Key key)
 	return true;
 }
 
-bool Dialog::OnFocus(bool focus)
+bool Dialog::GetNeedsFocus()
 {
 	return true;
 }

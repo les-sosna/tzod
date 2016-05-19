@@ -315,8 +315,9 @@ bool Edit::OnPointerUp(float x, float y, int button, PointerType pointerType, un
 	return true;
 }
 
-bool Edit::OnFocus(bool focus)
+bool Edit::GetNeedsFocus()
 {
+	// FIXME: workaround
 	_lastCursortime = GetManager().GetTime();
 	return true;
 }

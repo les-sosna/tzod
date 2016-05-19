@@ -374,7 +374,7 @@ void Window::OnTextChange()
 {
 }
 
-bool Window::OnFocus(bool focus)
+bool Window::GetNeedsFocus()
 {
 	return false;
 }

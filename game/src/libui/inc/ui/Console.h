@@ -63,7 +63,7 @@ protected:
 	void OnTimeStep(float dt) override;
 	void Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
-	bool OnFocus(bool focus) override;
+	bool GetNeedsFocus() override;
 
 private:
 	void OnScroll(float pos);

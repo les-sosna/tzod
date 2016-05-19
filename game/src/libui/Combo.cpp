@@ -146,7 +146,7 @@ bool ComboBox::OnKeyPressed(Key key)
 	return false;
 }
 
-bool ComboBox::OnFocus(bool focus)
+bool ComboBox::GetNeedsFocus()
 {
 	return true;
 }
