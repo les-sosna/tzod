@@ -11,7 +11,7 @@ class Edit : public Window
 	int   _selStart;
 	int   _selEnd;
 	int   _offset;
-	float _time;
+	float _lastCursortime;
 	size_t _font;
 	size_t _cursor;
 	size_t _selection;
@@ -49,7 +49,6 @@ protected:
 	bool OnFocus(bool focus) override;
 	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnTextChange() override;
-	void OnTimeStep(float dt) override;
 };
 
 } // namespace UI

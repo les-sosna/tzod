@@ -17,7 +17,6 @@ Edit::Edit(LayoutManager &manager, TextureManager &texman)
   , _selStart(-1)
   , _selEnd(-1)
   , _offset(0)
-  , _time(0)
   , _font(texman.FindSprite("font_small"))
   , _cursor(texman.FindSprite("ui/editcursor"))
   , _selection(texman.FindSprite("ui/editsel"))
@@ -58,7 +57,7 @@ void Edit::SetFloat(float value)
 
 float Edit::GetFloat() const
 {
-    std::istringstream tmp(GetText());
+	std::istringstream tmp(GetText());
 	float result = 0;
 	tmp >> result;
 	return result;
@@ -70,7 +69,7 @@ void Edit::SetSel(int begin, int end)
 
 	_selStart = begin <= GetTextLength() ? begin : -1;
 	_selEnd   = end <= GetTextLength() ? end : -1;
-	_time     = 0;
+	_lastCursortime = GetManager().GetTime();
 
 	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 	float cpos = GetSelEnd() * w;
@@ -110,9 +109,10 @@ void Edit::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 	Window::Draw(size, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
+	bool focused = (this == GetManager().GetFocusWnd().get());
 
 	// selection
-	if( GetSelLength() && GetTimeStep() )
+	if( GetSelLength() && focused )
 	{
 		FRECT rt;
 		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
@@ -131,8 +131,10 @@ void Edit::Draw(vec2d size, DrawingContext &dc, TextureManager &texman) const
 	dc.DrawBitmapText((GetSelMin() - _offset) * w, 1, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
 	dc.DrawBitmapText((GetSelMax() - _offset) * w, 1, _font, c, GetText().substr(GetSelMax()));
 
+	float time = GetManager().GetTime() - _lastCursortime;
+
 	// cursor
-	if( this == GetManager().GetFocusWnd().get() && fmodf(_time, 1.0f) < 0.5f )
+	if( focused && fmodf(time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
 		rt.left = (GetSelEnd() - (float) _offset) * w;
@@ -315,8 +317,7 @@ bool Edit::OnPointerUp(float x, float y, int button, PointerType pointerType, un
 
 bool Edit::OnFocus(bool focus)
 {
-	_time = 0;
-	SetTimeStep(focus);
+	_lastCursortime = GetManager().GetTime();
 	return true;
 }
 
@@ -338,11 +339,6 @@ void Edit::OnTextChange()
 	SetSel(_selStart, _selEnd);
 	if( eventChange )
 		eventChange();
-}
-
-void Edit::OnTimeStep(float dt)
-{
-	_time += dt;
 }
 
 void Edit::Paste()

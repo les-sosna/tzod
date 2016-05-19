@@ -234,20 +234,23 @@ void LayoutManager::TimeStepUnregister(std::list<Window*>::iterator it)
 
 void LayoutManager::TimeStep(float dt)
 {
-    assert(_tsCurrent == _timestep.end());
-    assert(!_tsDeleteCurrent);
+	assert(_tsCurrent == _timestep.end());
+	assert(!_tsDeleteCurrent);
+
+	_time += dt;
+
 	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
 		(*_tsCurrent)->OnTimeStep(dt);
-        if (_tsDeleteCurrent)
-        {
-            _tsDeleteCurrent = false;
-            _tsCurrent = _timestep.erase(_tsCurrent);
-        }
-        else
-        {
-            ++_tsCurrent;
-        }
+		if (_tsDeleteCurrent)
+		{
+			_tsDeleteCurrent = false;
+			_tsCurrent = _timestep.erase(_tsCurrent);
+		}
+		else
+		{
+			++_tsCurrent;
+		}
 	}
 }
 

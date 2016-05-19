@@ -45,6 +45,7 @@ public:
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
 	TextureManager& GetTextureManager() const { return _texman; }
+	float GetTime() const { return _time; }
 
 	Window* GetDesktop() const;
 	void SetDesktop(std::shared_ptr<Window> desktop) { _desktop = std::move(desktop); }
@@ -84,7 +85,8 @@ private:
 	std::list<Window*> _timestep;
 	std::list<Window*>::iterator _tsCurrent;
 	bool _tsDeleteCurrent;
-	
+	float _time = 0;
+
 	struct PointerCapture
 	{
 		unsigned int captureCount = 0;
