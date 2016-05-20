@@ -26,7 +26,7 @@ void FpsCounter::OnTimeStep(float dt)
 	_dts.push_back(dt);
 	if( _dts.size() > 200 ) _dts.pop_front();
 
-	if( GetVisibleCombined() )
+//	if( GetVisibleCombined() )
 	{
 		float avr = 0;
 		float min = _dts.front();

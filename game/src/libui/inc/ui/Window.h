@@ -124,7 +124,6 @@ public:
 
 	void SetVisible(bool show);
 	bool GetVisible() const { return _isVisible; }
-	bool GetVisibleCombined() const;   // also includes inherited parent visibility
 
 	void SetTopMost(bool topmost);
 	bool GetTopMost() const { return _isTopMost; }

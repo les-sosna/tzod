@@ -286,11 +286,6 @@ void Window::SetVisible(bool visible)
 	}
 }
 
-bool Window::GetVisibleCombined() const
-{
-	return _isVisible && (GetParent() ? GetParent()->GetVisibleCombined() : true);
-}
-
 const std::string& Window::GetText() const
 {
 	return _text;
